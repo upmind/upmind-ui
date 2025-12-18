@@ -15,7 +15,7 @@
           :is="getTermsComponent"
           :errors="errors?.term"
           :touched="meta.showErrors"
-          :items="terms"
+          :items="terms ?? []"
           :label="t('term.label')"
           :model-value="model?.term"
           :processing="meta.isProcessing || meta.isLoading"
@@ -32,6 +32,7 @@
           :errors="getErrors('options', option)"
           :touched="meta.showErrors"
           :quantities="getQuantities(option)"
+          :term="model?.term"
           @update:modelValue="setOptions(option, $event)"
           @update:quantity="
             (value: string, qty: number) =>
@@ -52,6 +53,7 @@
           :model-value="keys(model?.['attributes']?.[attribute.id])"
           :errors="getErrors('attributes', attribute)"
           :touched="meta.showErrors"
+          :term="model?.term"
           :required="attribute.meta.required"
           :visible="!!attribute.values?.length"
           :processing="meta.isProcessing || meta.isLoading"
@@ -63,10 +65,11 @@
         <ConfigForm
           v-if="meta.hasProvisioning"
           :processing="meta.isProcessing || meta.isLoading"
+          :disabled="meta.isProcessing"
           :additional-errors="additionalErrors?.provisionFields"
           :touched="meta.showErrors"
           :fields="fields"
-          :model-value="model.provisionFields"
+          :model-value="model?.provisionFields"
           @update:modelValue="setProvisioningFields"
         />
       </div>
@@ -90,11 +93,11 @@
 
         <span
           :class="styles.product.config.itemtotal"
-          v-if="product.price.regularAmount"
+          v-if="product?.price?.regularAmount"
         >
           <span>{{ t("text.total") }}</span>
           <strong :class="styles.product.config.bold">
-            {{ product.price?.regularPrice }}
+            {{ product?.price?.regularPrice }}
           </strong>
         </span>
 
@@ -116,10 +119,10 @@
 <script lang="ts" setup>
 // --- external
 import { useI18n } from "vue-i18n";
-import { computed, onMounted, onUpdated, watch } from "vue";
+import { computed, inject, onMounted, onUpdated } from "vue";
 
 // --- internal
-import { useProductConfig } from "@upmind-automation/headless";
+import { type UseProductConfig } from "@upmind-automation/headless";
 import { useStyles, cn } from "@upmind-automation/upmind-ui";
 import config from "../../product.config";
 
@@ -147,8 +150,6 @@ const emit = defineEmits(["reject", "resolve"]);
 const props = withDefaults(
   defineProps<{
     as?: string;
-    modelValue: string;
-    item: ActorRef<any>;
     disabled?: boolean;
     required?: boolean;
     noHeader?: boolean;
@@ -165,6 +166,9 @@ const props = withDefaults(
     noFooter: false
   }
 );
+
+const productConfig = inject<UseProductConfig>("useProductConfig");
+if (!productConfig) throw new Error("useProductConfig not provided");
 
 const {
   product,
@@ -183,7 +187,7 @@ const {
   updateOptionQuantity,
   setProvisioningFields,
   reset
-} = useProductConfig(props.item);
+} = productConfig;
 
 const styles = useStyles(["product.config"], meta, config) as ComputedRef<{
   product: {
@@ -209,8 +213,8 @@ const styles = useStyles(["product.config"], meta, config) as ComputedRef<{
 const getTermsComponent = computed(() => {
   // TODO: Can we do this in a lookup?
   const control =
-    product.value.productDetails?.uiMeta?.uischema?.billing?.control ||
-    product.value.productDetails?.uiCategoryMeta?.uischema?.billing?.control;
+    product.value?.productDetails?.uiMeta?.uischema?.billing?.control ||
+    product.value?.productDetails?.uiCategoryMeta?.uischema?.billing?.control;
   return control?.toLowerCase() === "termsconfigselect"
     ? TermsConfigSelect
     : TermsConfigGrid;
@@ -242,11 +246,11 @@ function getErrors(type: "options" | "attributes", subproduct: any) {
 // ---
 function doReject() {
   reset();
-  emit("reject", props.modelValue);
+  emit("reject");
 }
 
 function doResolve() {
-  emit("resolve", props.modelValue);
+  emit("resolve");
 }
 
 onUpdated(() => {

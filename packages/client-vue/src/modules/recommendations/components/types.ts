@@ -1,5 +1,6 @@
 import type { Recommendation, Benefit } from "@upmind-automation/headless";
 import type { IconProps } from "@upmind-automation/upmind-ui";
+import type { RouteLocationAsRelativeGeneric } from "vue-router";
 import type { ActorRef } from "xstate";
 
 export interface RecommendationsProps {
@@ -8,6 +9,7 @@ export interface RecommendationsProps {
   loading?: boolean;
   refreshing?: boolean;
   processing?: boolean;
+  configureRoute: RouteLocationAsRelativeGeneric;
 }
 
 export interface RecommendationItemProps extends Recommendation {

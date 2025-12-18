@@ -1,64 +1,47 @@
 <template>
-  <Layout :variant="LAYOUT_VARIANTS.FULL">
-    <template #navigation>
-      <Back @click.prevent="doReject" />
-    </template>
-
+  <Layout>
     <template #content-header>
-      <CheckoutHeader />
+      <slot name="summary" />
     </template>
 
     <template #content>
-      <CheckoutContent />
+      <slot name="content" />
     </template>
 
     <template #aside>
-      <CheckoutAside />
-    </template>
-
-    <template #aside-footer>
-      <CheckoutAsideFooter />
+      <slot name="pricing" />
+      <slot name="errors" />
     </template>
   </Layout>
 </template>
 
 <script lang="ts" setup>
 // --- external
-import { onMounted, onUnmounted } from "vue";
+import { onMounted } from "vue";
 
 // --- internal
-import { useRoutingEngine } from "@upmind-automation/headless";
+import { useLayout } from "../../../components/layout/useLayout";
 import { useFooter } from "../../../components/footer/useFooter";
 import { useHeader } from "../../../components/header/useHeader";
 
 // --- components
 import Layout from "../../../components/layout/Layout.vue";
-import Back from "../../../components/navigation/Back.vue";
-import CheckoutHeader from "../components/CheckoutHeader.vue";
-import CheckoutContent from "../components/CheckoutContent.vue";
-import CheckoutAside from "../components/CheckoutAside.vue";
-import CheckoutAsideFooter from "../components/CheckoutAsideFooter.vue";
 
 // --- types
-import { HEADER_TEMPLATE } from "../../../components/header/types";
-import { FOOTER_TEMPLATE } from "../../../components/footer/types";
 import { LAYOUT_VARIANTS } from "../../../components/layout/types";
+import { HEADER_PADDING } from "../../../components/header/types";
 
-// --- methods
+defineOptions({
+  inheritAttrs: false
+});
 
-const { navigateBack } = useRoutingEngine();
-
-function doReject() {
-  navigateBack();
-}
+useLayout({
+  variant: LAYOUT_VARIANTS.FULL
+});
 
 onMounted(() => {
-  useFooter({
-    template: FOOTER_TEMPLATE.FULL
-  });
+  useHeader({});
 
-  useHeader({
-    template: HEADER_TEMPLATE.FULL
-  });
+  useFooter({});
 });
 </script>

@@ -8,10 +8,14 @@ import vueDevTools from "vite-plugin-vue-devtools";
 import tailwindcss from "@tailwindcss/vite";
 import { compact } from "lodash-es";
 
-export default defineConfig(({ mode }) => {
+export default defineConfig(({ mode, command }) => {
   const env = loadEnv(mode, process.cwd(), "");
   const enableDevTools = (env.VITE_ENABLE_DEVTOOLS ?? "true") !== "false";
-  const isProd = mode === "production";
+
+  console.log("*** BUILDING for mode:", mode, "command:", command, "***");
+
+  const assetsDir =
+    env.VITE_ASSETS_SUBPATH && `assets/${env.VITE_ASSETS_SUBPATH}`;
 
   return {
     plugins: compact([
@@ -82,10 +86,10 @@ export default defineConfig(({ mode }) => {
       }
     },
     esbuild: {
-      drop: isProd ? ["console", "debugger"] : []
+      drop: command === "build" ? ["console", "debugger"] : []
     },
     build: {
-      minify: "esbuild",
+      assetsDir,
       rollupOptions: {
         input: {
           main: resolve(__dirname, "index.html"),

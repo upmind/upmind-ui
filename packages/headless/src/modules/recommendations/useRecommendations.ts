@@ -27,7 +27,7 @@ import type { RecommendationsEngineContext } from "./types";
 // NB dont automatically start the machine as in order for the inspector to work
 // it needs to be started after the inspect service is created, so we only start it when we need it
 
-const service = interpret(recommendationsEngine, { devTools: false });
+const service = interpret(recommendationsEngine, { devTools: true });
 
 // -----------------------------------------------------------------------------
 
@@ -95,11 +95,10 @@ export const useRecommendations = () => {
     send({ type: "ADD", data: id });
     return waitFor(service, s => !stateMatches(s, ["processing"]), {
       timeout: Infinity
-    }).then(s => {
-      if (stateMatches(s, ["error", "configuring"])) {
-        return Promise.reject(contextValue(s, "error"));
+    }).then(newState => {
+      if (stateMatches(newState, ["error", "configuring"])) {
+        throw contextValue(newState, "error");
       }
-      return Promise.resolve();
     });
   }
 
@@ -127,7 +126,7 @@ export const useRecommendations = () => {
     stopService(service);
   }
 
-  // -----------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------
   return {
     // --- state
 

@@ -20,13 +20,15 @@ export const useProductsRequiringAction = () => {
     getNextPending,
     getNextInvalid,
     getNextRelated,
-    getProducts
+    getProducts,
+    meta
   } = useRouteRequiresAction();
 
   // ---
 
   return {
     isReady,
+    meta,
     getNext,
     getNextPending,
     getNextInvalid,

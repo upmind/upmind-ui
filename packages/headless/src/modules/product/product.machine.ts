@@ -9,29 +9,22 @@ import { basketSubscription } from "../basketProduct/helper";
 import { mapToHeadlessError, responseCodes, useTime } from "../../utils";
 import {
   parseSubproductDetails,
-  parseProvisioningSchema,
   parseProductDetails,
   parseTermDetails,
   parseModel,
   parseBasketProductModel,
   parseProduct,
-  parseBundledProducts
+  parseBundledProducts,
+  parseProvisioningSchema
 } from "./utils";
 
 import {
   cloneDeep,
-  concat,
-  forEach,
   isEmpty,
   isEqual,
-  isNil,
-  isObject,
   map,
   merge,
-  omitBy,
   pick,
-  remove,
-  uniq,
   xorBy
 } from "lodash-es";
 
@@ -40,12 +33,7 @@ import { calculateSubscription } from "./services";
 // ---types
 import type { AnyEventObject } from "xstate";
 import type { BasketProduct } from "../basketProduct";
-import type {
-  ExternalError,
-  PriceDisplay,
-  ProductConfigContext,
-  ProductModel
-} from "./types";
+import type { PriceDisplay, ProductConfigContext, ProductModel } from "./types";
 import { transformProductDynamicValues } from "../basketProduct/utils";
 
 // -----------------------------------------------------------------------------
@@ -61,6 +49,7 @@ export default createMachine(
       // this is our initial state where we are conditionally waiting for the basket helper to be created
       // this is so we can add/update our product to the basket
       subscribing: {
+        id: "subscribing",
         entry: ["setContext"],
         // Parse our Basket/Config data into context
         always: {
@@ -71,27 +60,58 @@ export default createMachine(
 
       // first load our product, we do this even if we are given a valid set of values
       //  as we need the additional 'with' properties
+      // WE also parse the model to ensure its prepoulated correctly with and provided configuration
       loading: {
         id: "loading",
-        invoke: {
-          id: "load",
-          src: "load",
-          onDone: [
-            {
-              target: "available",
-              actions: ["setLookups"]
+        initial: "lookups",
+        states: {
+          lookups: {
+            invoke: {
+              src: "load",
+              onDone: [
+                {
+                  target: "model",
+                  actions: [
+                    "setLookups",
+                    "setProduct",
+                    "setModel",
+                    "persistModel"
+                  ]
+                }
+              ],
+              onError: [
+                {
+                  target: "#subscribing",
+                  cond: "isUnauthorized"
+                },
+                {
+                  target: "#error",
+                  actions: "setError"
+                }
+              ]
             }
-          ],
-          onError: [
-            {
-              target: "subscribing",
-              cond: "isUnauthorized"
-            },
-            {
-              target: "error",
-              actions: "setError"
+          },
+          model: {
+            invoke: {
+              src: "parse",
+              onDone: [
+                {
+                  target: "#available",
+                  actions: ["setProduct", "setModel", "persistModel"]
+                }
+              ],
+              onError: [
+                {
+                  target: "#subscribing",
+                  cond: "isUnauthorized"
+                },
+                {
+                  target: "#error",
+                  actions: "setError"
+                }
+              ]
             }
-          ]
+          }
         }
       },
 
@@ -114,6 +134,7 @@ export default createMachine(
       },
 
       available: {
+        id: "available",
         initial: "checking",
         states: {
           checking: {
@@ -125,12 +146,7 @@ export default createMachine(
                   src: "parse",
                   onDone: {
                     target: "validating",
-                    actions: [
-                      "setModel",
-                      "calculate",
-                      "setProduct"
-                      // "setSchemas",
-                    ]
+                    actions: ["setModel", "calculate", "setProduct"]
                   }
                 }
               },
@@ -222,10 +238,14 @@ export default createMachine(
           validating: {
             invoke: {
               src: "validate",
-              onDone: {
-                target: "updating",
-                actions: ["update"]
-              },
+              onDone: [
+                {
+                  target: "updating",
+                  actions: ["update"],
+                  cond: "isDirty"
+                },
+                { target: "#complete" }
+              ],
               onError: {
                 target: "#invalid",
                 actions: ["setError", "incrementAttempts"]
@@ -265,7 +285,9 @@ export default createMachine(
         }
       },
 
-      error: {},
+      error: {
+        id: "error"
+      },
 
       // Handle completion, stop the machine and prevent further products
       complete: {
@@ -286,7 +308,12 @@ export default createMachine(
       },
       ERROR: {
         target: "available.error",
-        actions: ["setExternalError", "clearCalculating", "incrementAttempts"]
+        actions: [
+          "setExternalError",
+          "clearCalculating",
+          "clearSilent",
+          "incrementAttempts"
+        ]
       },
       CALCULATE_CANCELLED: {
         actions: ["clearCalculating"]
@@ -363,7 +390,7 @@ export default createMachine(
             currency_id,
             promotions,
             error: errorExternal
-          } = data;
+          } = data ?? {};
 
           lookups ??= {};
 
@@ -423,6 +450,8 @@ export default createMachine(
           data?.currency?.id || data?.currency_id,
 
         rawProduct: (_context, { data }: AnyEventObject) => data.product,
+        rawProvisionFields: (_context, { data }: AnyEventObject) =>
+          data.rawProvisionFields,
         lookups: (
           { model, rawBasketProduct, bundle }: ProductConfigContext,
           { data }: AnyEventObject
@@ -434,7 +463,10 @@ export default createMachine(
             model?.term
           ),
           attributes: parseSubproductDetails(data.product.products_attributes),
-          provisionFields: data.provisioning,
+          provisionFields: parseProvisioningSchema(
+            data.rawProvisionFields,
+            data.product
+          ),
           bundled: parseBundledProducts(data.product, bundle)
         })
       }),
@@ -448,7 +480,10 @@ export default createMachine(
           parseModel(data?.model ?? data),
         lookups: ({ lookups }, { data }: AnyEventObject) =>
           data?.lookups ?? lookups ?? {},
-
+        rawProvisionFields: (
+          { rawProvisionFields },
+          { data }: AnyEventObject
+        ) => data?.rawProvisionFields ?? rawProvisionFields ?? {},
         errorExternal: (
           { errorExternal, model }: ProductConfigContext,
           { data }: AnyEventObject
@@ -559,14 +594,14 @@ export default createMachine(
 
       update: pure((context: ProductConfigContext, _event) => {
         if (!context.basketHelper) return;
-        const { model, rawBasketProduct } = context;
+        const { model, rawBasketProduct, coupons, silent } = context;
 
         // NB:ensure we ad dout basket product id to the model, so we update instead of add
         if (rawBasketProduct && model) model.id = rawBasketProduct.id;
 
         return sendTo(context.basketHelper, {
           type: "UPDATE",
-          target: model,
+          target: { ...model, silent, coupons },
           context
         });
       }),
@@ -602,6 +637,10 @@ export default createMachine(
           attempts++;
           return attempts;
         }
+      }),
+
+      clearSilent: assign({
+        // silent: false
       }),
       // ---
 
@@ -676,6 +715,14 @@ export default createMachine(
         // if we are silent or editing, then we are not bundled
         if (silent || !isEmpty(rawBasketProduct)) return false;
         return !isEmpty(lookups?.bundled);
+      },
+
+      isDirty: ({
+        model,
+        baseModel,
+        rawBasketProduct
+      }: ProductConfigContext) => {
+        return !rawBasketProduct || !isEqual(model, baseModel);
       },
 
       isUnauthorized: (

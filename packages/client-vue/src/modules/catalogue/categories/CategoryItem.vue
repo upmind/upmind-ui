@@ -4,7 +4,7 @@
     :class="styles.categories.item.root"
     :aria-label="t('action.category_select', { name })"
     :to="{
-      name: ROUTE.CATALOGUE,
+      ...props.categoryRoute,
       query: {
         [QUERY_PARAMS.CATEGORY_ID]: id,
         sort: props.sort,
@@ -28,7 +28,7 @@
           :class="styles.categories.item.link"
           :label="name"
           :to="{
-            name: ROUTE.CATALOGUE,
+            ...props.categoryRoute,
             query: {
               [QUERY_PARAMS.CATEGORY_ID]: id,
               sort: props.sort,
@@ -63,10 +63,10 @@ import { Icon, Button, useStyles, Link } from "@upmind-automation/upmind-ui";
 
 // --- types
 import {
-  ROUTE,
   type ProductCategory,
   QUERY_PARAMS
 } from "@upmind-automation/headless";
+
 import type { ComputedRef } from "vue";
 import type { CategoriesProps } from "./types";
 

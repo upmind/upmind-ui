@@ -18,8 +18,6 @@ const authCallback = (
   hasSession: boolean,
   callback: any
 ) => {
-  // callback({ type: "TRANSITIONED", data: get(service.getSnapshot(), 'state.value }')');
-
   // Valid session
   const clientMachine = state?.children?.clientMachine;
   const guestMachine = state?.children?.guestMachine;
@@ -33,7 +31,7 @@ const authCallback = (
 
   if (
     stateMatches(state, ["checking", "error", "expired"]) ||
-    clientMachine?.getSnapshot()?.done
+    stateMatches(currentMachine, ["complete", "done"])
   ) {
     if (hasSession) callback({ type: "UNAUTHENTICATED" });
     return false;
@@ -41,7 +39,7 @@ const authCallback = (
 
   // We have a session IF we are a client or guest
   // and we have an access token
-  if (currentMachine?.getSnapshot()?.matches("available") && !hasSession) {
+  if (stateMatches(currentMachine, ["available"]) && !hasSession) {
     hasSession = !isEmpty(getTokenFromStorage());
     if (hasSession) callback({ type: "SESSION" });
   } else {
@@ -53,7 +51,7 @@ const authCallback = (
   if (
     hasSession &&
     state.matches("client") &&
-    clientMachine?.getSnapshot()?.matches("available")
+    stateMatches(clientMachine, "available")
   ) {
     callback({ type: "AUTHENTICATED" });
   }
@@ -63,7 +61,7 @@ const authCallback = (
   else if (
     hasSession &&
     state.matches("guest") &&
-    guestMachine?.getSnapshot()?.matches("loading")
+    stateMatches(guestMachine, "loading")
   ) {
     hasSession = false;
     callback({ type: "UNAUTHENTICATED" });
@@ -88,6 +86,8 @@ export const authSubscription = async (callback: any, onReceive: any) => {
   // if we get a change to either authenticated or unauthenticated
   // then we need to send the callback to the subscriber
   const subcscription = subscribe(state => {
+    if (state.done) return; // service has stopped so exit
+
     const currentMachine =
       state?.children?.clientMachine || state?.children?.guestMachine;
 

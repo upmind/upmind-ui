@@ -46,3 +46,8 @@ export interface PromotionBadgeProps {
   variant?: BadgeProps["variant"];
   color?: BadgeProps["color"];
 }
+
+export interface BasketCheckoutProps {
+  disabled: boolean;
+  loading: boolean;
+}

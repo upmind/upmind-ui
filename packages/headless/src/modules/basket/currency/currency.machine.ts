@@ -90,13 +90,32 @@ export default createMachine(
 
       valid: {
         id: "valid",
-        always: { target: "processing", cond: "shouldUpdate" },
+        always: [
+          { target: "processing", cond: "shouldUpdate" },
+          // if we should update but can't,  we dont have a basket,
+          {
+            actions: [
+              "clearAutoUpdate",
+              sendParent(
+                ({ model }: CurrencyContext, _event: AnyEventObject) => {
+                  return {
+                    type: "REFRESH",
+                    data: { currency: model, currency_id: model?.id }
+                  };
+                }
+              )
+            ],
+            cond: "cantUpdate"
+          }
+        ],
 
         on: {
-          UPDATE: {
-            target: "processing",
-            cond: "hasBasket"
-          }
+          UPDATE: [
+            {
+              target: "processing",
+              cond: "hasBasket"
+            }
+          ]
         }
       },
 
@@ -254,7 +273,9 @@ export default createMachine(
         { data }: AnyEventObject
       ) => model?.id !== data?.currency_id || basketId !== data?.id,
       shouldUpdate: ({ autoupdate, basketId }: CurrencyContext, _event) =>
-        !!autoupdate && !!basketId
+        !!autoupdate && !!basketId,
+      cantUpdate: ({ autoupdate, basketId }: CurrencyContext, _event) =>
+        !!autoupdate && !basketId
     },
 
     delays: {

@@ -1,16 +1,18 @@
+// --- external
+
 // --- internal
 import { useQuery } from "../..";
-import { useBasket, useBasketPromotions } from "../basket";
+import { useBasket, useBasketCurrency, useBasketPromotions } from "../basket";
 
 // --- utils
-import { map, set } from "lodash-es";
+import { map } from "lodash-es";
 import { parseProduct } from "./mappers";
-import { responseCodes, useTime } from "../../utils";
+import { useTime } from "../../utils";
 
 // --- types
 import type { Product } from "../product";
 import type { IProduct } from "@upmind-automation/types";
-import type { QueryParams, QueryResponseError } from "../..";
+import type { QueryParams } from "../..";
 import type { InfiniteData, QueryKey } from "@tanstack/vue-query";
 import { parsePromotionsOrCoupons } from "../basketProduct/utils";
 
@@ -21,34 +23,30 @@ const queryKey: QueryKey = ["product", "catalogue"];
 
 function loadList(params?: Partial<QueryParams>) {
   const { list, useUrl } = useQuery();
-  const { basketId } = useBasket();
-  const { promotions } = useBasketPromotions();
-
-  const urlParams = {
-    promotions: parsePromotionsOrCoupons(promotions.value).join(),
-    with: [
-      "image",
-      "images",
-      "prices",
-      "products_attributes",
-      "products_options",
-      "products_options.prices",
-      `category${".top_category".repeat(4)}`
-    ].join(",")
-  };
-
-  if (basketId.value) set(urlParams, "basket_id", basketId.value);
+  const { currencyCode } = useBasketCurrency();
+  const { promocodes } = useBasketPromotions();
 
   const query = list<IProduct[], Product[]>({
     ...(params as any),
-    queryKey: [...queryKey, { basketId }],
+    queryKey: [...queryKey, { promocodes }],
     url: useUrl(`basket/products`, {
-      ...urlParams
+      with: [
+        "image",
+        "images",
+        "prices",
+        "products_attributes",
+        "products_options",
+        "products_options.prices",
+        `category${".top_category".repeat(4)}`
+      ].join(",")
     }),
     withAccessToken: true,
+    withCurrency: true,
+    withBasket: true,
     // --- options
     select: data => map(data ?? [], parseProduct),
-    staleTime: useTime().HOUR
+    staleTime: useTime().HOUR,
+    enabled: () => !!currencyCode.value
   });
 
   return query;
@@ -56,6 +54,7 @@ function loadList(params?: Partial<QueryParams>) {
 
 function loadInfinite(params?: Partial<QueryParams>) {
   const { listInfinite, useUrl } = useQuery();
+  const { meta: currencyMeta } = useBasketCurrency();
   const { promotions } = useBasketPromotions();
 
   return listInfinite<IProduct[], InfiniteData<Product[]>>({
@@ -74,9 +73,11 @@ function loadInfinite(params?: Partial<QueryParams>) {
     }),
     promotions: parsePromotionsOrCoupons(promotions.value).join(),
     withAccessToken: true,
+    withCurrency: true,
     // --- options
     select: data => map(data ?? [], parseProduct),
-    staleTime: useTime().HOUR
+    staleTime: useTime().HOUR,
+    enabled: () => !currencyMeta.value.isLoading
   });
 }
 

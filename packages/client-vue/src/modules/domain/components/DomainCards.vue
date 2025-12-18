@@ -1,71 +1,91 @@
 <template>
   <section :class="styles.domain.listings.root" v-auto-animate>
     <CheckboxCards
-      v-if="(!meta.isLoading && !meta.isEmpty) || meta.isLoadingMore"
+      v-if="!meta.isLoading && !meta.isSearching && meta.hasAvailable"
       no-input
       id="dac"
       name="dac"
       as="ul"
       required
       :items="parsedValues"
-      :disabled="props.disabled || props.processing"
+      :disabled="props.disabled"
       :model-value="safeValue"
       item-class="p-0"
       cursor="default"
       class="gap-0"
       list
       data-testid="dac-results"
+      :ui-config="
+        {
+          checkboxCards: {
+            item: [styles.domain.listings.item]
+          }
+        } as any
+      "
     >
-      <template #item="{ item: { value } }">
+      <template #item="{ item: { item, value } }">
         <DomainCard
-          v-bind="getDomain(value.toString())"
-          :selected="isSelected(value.toString())"
-          @update:selected="onToggleSelected"
+          :domain="item.domain"
+          :sld="item.sld"
+          :tld="item.tld"
+          :price="item.price"
+          :cycle="item.configuration.term"
+          :disabled="item.meta.disabled || props.disabled"
+          :processing="item.meta.processing"
+          :available="item.meta.available"
+          :added="item.meta.added"
+          :owned="item.meta.owned"
+          :discounted="item.meta.discounted"
+          :exactMatch="isExactMatch(value.toString())"
+          @add="onAdd"
           @remove="onRemove"
           data-testid="dac-card"
         />
       </template>
     </CheckboxCards>
 
-    <template v-if="meta.isLoading">
-      <Interstitial
-        v-bind="props"
-        :text="t('text.moment_short_desc')"
-        :modal="false"
-        open
-        v-if="!results"
-        :class="styles.domain.listings.loading"
-        :title="t('domain.finding_perfect_domain_md')"
-      >
-        <template #avatar>
-          <IconAnimated icon="internet" size="4xl" secondary-color="accent" />
-        </template>
-      </Interstitial>
-
-      <template v-else>
-        <DomainCardSkeleton v-for="i in results" :key="i" />
-      </template>
-    </template>
-
     <Interstitial
+      v-if="!meta.hasAvailable && meta.isSearching && !resultCount"
       v-bind="props"
-      :text="t('domain.begin_search_above_desc')"
+      :class="styles.domain.listings.interstitial"
+      :text="t('text.moment_short_desc')"
       :modal="false"
+      :title="t('domain.finding_perfect_domain_md')"
       open
-      v-else-if="meta.isEmpty"
-      :class="styles.domain.listings.loading"
-      :title="t('domain.starts_with_domain_md')"
     >
       <template #avatar>
         <IconAnimated icon="internet" size="4xl" secondary-color="accent" />
       </template>
     </Interstitial>
+
+    <template
+      v-else-if="!meta.hasAvailable && !meta.isSearching && !resultCount"
+    >
+      <DomainCardSkeleton v-for="i in skeletonCount" :key="i" :active="false" />
+    </template>
+
+    <template v-else-if="meta.isSearching">
+      <DomainCardSkeleton v-if="meta.hasTLD" is-exact-match />
+
+      <DomainCardSkeleton v-for="i in resultsSkeletonCount" :key="i" />
+    </template>
+
+    <Button
+      v-if="meta.hasMoreSearchResults"
+      variant="outline"
+      :loading="meta.isLoading"
+      @click="$emit('search-more')"
+      block
+      class="mt-6"
+    >
+      Load more
+    </Button>
   </section>
 </template>
 
 <script lang="ts" setup>
 // --- external
-import { computed, type ComputedRef, ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
 import { useI18n } from "vue-i18n";
 
@@ -78,55 +98,67 @@ import DomainCard from "./DomainCard.vue";
 import {
   IconAnimated,
   CheckboxCards,
-  Interstitial
+  Interstitial,
+  Button
 } from "@upmind-automation/upmind-ui";
 import DomainCardSkeleton from "./DomainCardSkeleton.vue";
+
 // --- utils
-import { includes, isArray, isNil, find, map } from "lodash-es";
+import { includes, isArray, isNil, find, some, map, isEmpty } from "lodash-es";
 
 // --- types
 import type { CheckboxCardsItemProps } from "@upmind-automation/upmind-ui";
 import type { DomainCardsProps } from "../types";
-import type { DomainProduct } from "@upmind-automation/headless";
+import type { ComputedRef } from "vue";
+import { DOMAIN_TEMPLATE } from "../types";
 
 // -----------------------------------------------------------------------------
-// const emit = defineEmits(["update:modelValue", "update:selected"]);
+
 const emit = defineEmits<{
-  (e: "update:modelValue", model: DomainCardsProps["modelValue"]): void;
-  (e: "update:selected", domain: string): void;
+  (e: "add", domain: string): void;
   (e: "remove", domain: string): void;
+  (e: "search-more"): void;
 }>();
 
 const props = withDefaults(defineProps<DomainCardsProps>(), {
+  resultCount: 0,
+  skeletonCount: 3,
   offset: 0,
-  color: "base",
   loading: false,
-  processing: false,
+  searching: false,
+  valid: false,
   disabled: false
 });
 
 const { t } = useI18n();
 
-const results = ref(0);
-const minLoadingTimer = ref<ReturnType<typeof setTimeout> | null>(null);
-const isMinLoadingActive = ref(false);
-
 const meta = computed(() => ({
-  isOpen: props.modelValue || !props.items?.length,
-  isLoading: props.loading || isMinLoadingActive.value,
-  isLoadingMore:
-    (props.loading || isMinLoadingActive.value) && props.offset > 0,
-  isEmpty: !props.items?.length,
-  isDisabled: props.disabled,
-  isProcessing: props.processing
+  isLoading: props.loading ?? false,
+  isProcessing: props.processing ?? false,
+  isSearching: props.searching ?? false,
+  isValid: props.valid ?? false,
+  hasAvailable: !isEmpty(props.items),
+  hasMoreSearchResults:
+    (props.resultCount ?? 0) > (props.offset ?? 0) + (props.items?.length ?? 0),
+  hasTLD: !!props.query?.includes("."),
+  hasExactMatch: some(props.items, item => !!item.meta.exactMatch)
 }));
 
-const styles = useStyles(["domain.listings"], meta, config) as ComputedRef<{
+const stylesMeta = computed(() => ({
+  padding: props.template === DOMAIN_TEMPLATE.DRAWER ? "lg" : "none",
+  hasExactMatch: meta.value.hasExactMatch
+}));
+
+const styles = useStyles(
+  ["domain.listings"],
+  stylesMeta,
+  config
+) as ComputedRef<{
   domain: {
     listings: {
       root: string;
-      items: string;
-      loading: string;
+      item: string;
+      interstitial: string;
     };
   };
 }>;
@@ -139,8 +171,14 @@ const safeValue = computed(() => {
       : [props.modelValue];
 });
 
-function getDomain(value: string): DomainProduct {
-  return find(props.items, ["domain", value]) as DomainProduct;
+const resultsSkeletonCount = computed(() => {
+  let count = props.resultCount;
+  return meta.value.hasTLD ? count - 1 : count;
+});
+
+function isExactMatch(value: string): boolean {
+  const domain = find(props.items, ["domain", value]);
+  return !!domain?.meta.exactMatch;
 }
 
 const parsedValues = computed<CheckboxCardsItemProps[]>(() => {
@@ -148,38 +186,14 @@ const parsedValues = computed<CheckboxCardsItemProps[]>(() => {
     return {
       id: item.domain,
       value: item.domain,
-      label: item.domain
+      label: item.domain,
+      item
     };
   });
 });
 
-watch(parsedValues, items => {
-  results.value = items?.length;
-});
-
-watch(
-  () => props.loading,
-  isLoading => {
-    if (isLoading && results.value) {
-      isMinLoadingActive.value = true;
-      if (minLoadingTimer.value) {
-        clearTimeout(minLoadingTimer.value);
-      }
-      minLoadingTimer.value = setTimeout(() => {
-        isMinLoadingActive.value = false;
-      }, 750);
-    }
-  },
-  { immediate: true }
-);
-
-function isSelected(value: string): boolean {
-  return includes(safeValue.value, value);
-}
-
-function onToggleSelected(domain: string) {
-  if (meta.value.isProcessing) return;
-  emit("update:selected", domain);
+function onAdd(domain: string) {
+  emit("add", domain);
 }
 
 function onRemove(domain: string) {

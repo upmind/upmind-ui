@@ -1,13 +1,11 @@
 // --- external
-import { computed, watch } from "vue";
+import { computed, ref } from "vue";
 import { interpret, InterpreterStatus } from "xstate";
 import { useActor } from "@xstate/vue";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import { useI18n } from "../system";
-import { useBasket } from "../basket";
-import { useSession } from "../session";
 import routingEngine from "./routingEngine.machine";
 
 // --- utils
@@ -16,19 +14,18 @@ import {
   DetailedError,
   ErrorOrigin,
   responseCodes,
+  ResponseError,
   stateMatches,
   stopService,
+  useChildActor,
   useContext
 } from "../../utils";
-import { awaitResolved, useRouteQueryParams } from "./utils";
-export { useRouteRequiresAction, useRouteQueryParams } from "./utils";
-import { some } from "lodash-es";
+import { awaitResolved } from "./utils";
+export { useRouteRequiresAction } from "./utils";
 
 // --- types
 import type { RouteLocation, Router } from "vue-router";
-import { ROUTE } from "./types";
-import type { Flow, Route, RoutingEngineContext } from "./types";
-export type RouteQueryParams = typeof useRouteQueryParams;
+import type { FunnelTarget, RoutingEngineContext } from "./types";
 
 // -----------------------------------------------------------------------------
 
@@ -36,8 +33,11 @@ export type RouteQueryParams = typeof useRouteQueryParams;
 // NB don't automatically start the machine as in order for the inspector to work,
 // it needs to be started after the inspected service is created, so we only start it when we need it
 
-const service = interpret(routingEngine, { devTools: false });
+const service = interpret(routingEngine, { devTools: true });
 let router: Router;
+let initialRoute = ref(true);
+export { router };
+
 // -----------------------------------------------------------------------------
 
 /**
@@ -48,8 +48,6 @@ let router: Router;
  */
 export const useRoutingEngine = () => {
   const { t } = useI18n();
-  const { meta: basketMeta } = useBasket();
-  const { meta: sessionMeta } = useSession();
 
   // --- state
 
@@ -59,13 +57,9 @@ export const useRoutingEngine = () => {
   async function isReady(): Promise<boolean> {
     return waitFor(
       service,
-      state => !stateMatches(state, ["subscribing", "loading"]) && !!router,
+      state => !stateMatches(state, ["subscribing"]) && !!router,
       { timeout: Infinity }
     )
-      .then(state => {
-        if (stateMatches(state, "unavailable"))
-          throw t("error.routing_engine_not_available");
-      })
       .then(() => router.isReady().then(() => true))
       .catch(error => {
         throw new DetailedError(
@@ -80,128 +74,86 @@ export const useRoutingEngine = () => {
       });
   }
 
-  async function isResolved(route: ROUTE | string): Promise<boolean> {
-    return isReady().then(value => {
-      if (!value) return false;
+  async function isResolved(): Promise<boolean> {
+    if (!funnel.value?.service) return true;
 
-      const currentRoute = router?.currentRoute?.value;
-      return resolve(route, {
-        name: currentRoute?.name?.toString(),
-        params: currentRoute.params,
-        query: currentRoute.query,
-        hash: currentRoute.hash
-      })
-        .then(() => true)
-        .catch(() => false);
-    });
+    return waitFor(funnel.value.service, state => state?.context?.resolved, {
+      timeout: Infinity
+    })
+      .then(() => true)
+      .catch(() => false);
   }
 
   const meta = computed(() => ({
-    isLoading: stateMatches(state, "subscribing"),
-    isProcessing: stateMatches(state, ["calculating", "resolving"]),
-    isUnavailable: stateMatches(state, "unavailable"),
-    isAvailable: !stateMatches(state, ["subscribing", "unavailable"]),
-    // ---
-    hasFlows: contextMatches(state, "flows")
+    isSubscribing: stateMatches(state, "subscribing"),
+    isLoading: stateMatches(state, ["available.loading"]),
+    isAvailable: stateMatches(state, [
+      "available.loading",
+      "availableguiding",
+      "error"
+    ]),
+    isGuiding: stateMatches(state, "available.guiding"),
+    hasErrors: stateMatches(state, ["error"]),
+    hasFunnels: contextMatches(state, "funnels"),
+    isResolved: !!funnel.value?.state?.value?.context?.resolved,
+    isInitialRoute: initialRoute.value,
+    hasTarget: !!funnel.value?.state?.value?.context?.targetRoute
   }));
 
   // --- context
 
-  const flows = useContext<RoutingEngineContext["flows"]>(state, "flows", []);
-  const currentFlow = useContext<RoutingEngineContext["currentFlow"]>(
-    state,
-    "currentFlow"
-  );
-  const currentRoute = useContext<RoutingEngineContext["currentRoute"]>(
-    state,
-    "currentRoute"
-  );
+  const funnel = useChildActor(state, "currentFunnel");
+
   const errors = useContext<RoutingEngineContext["error"]>(state, "error");
 
-  // --- helpers
-
-  function exists(name: ROUTE) {
-    return some(flows.value, flow => flow.name === name);
+  // --- methods
+  function register({
+    defaultFunnel,
+    funnels
+  }: {
+    defaultFunnel?: RoutingEngineContext["defaultFunnel"];
+    funnels?: RoutingEngineContext["funnels"];
+  }) {
+    send({ type: "REGISTER", data: { defaultFunnel, funnels } });
   }
 
-  // --- methods
-
-  async function guard(route: RouteLocation): Promise<Route | RouteLocation> {
+  async function guard(route: RouteLocation): Promise<RouteLocation> {
     const available = await isReady()
       .then(() => true)
       .catch(() => false);
 
-    if (!available) return route;
-
-    const routeName = route?.name as ROUTE;
-    // --- Only try to resolve if the routeName exists in our routing engine
-    if (exists(routeName)) {
-      const target = await resolve(routeName, {
-        path: route.path,
-        params: route.params,
-        query: route.query,
-        hash: route.hash
-      }).catch(() => {
-        return route;
-      });
-
-      return target;
+    // Bail out if routing engine is not available or route has no name to resolve
+    if (!available || !route?.name) {
+      return route;
     }
 
-    return route;
-  }
-
-  function register(flows: Flow[]) {
-    send({ type: "REGISTER", data: flows });
-  }
-
-  function next(route: Route, event?: any) {
-    send({ type: "NEXT", data: { route, event } });
-    return awaitResolved(service);
-  }
-
-  function back(route: Route, event?: any) {
-    send({ type: "BACK", data: { route, event } });
-    return awaitResolved(service);
-  }
-
-  async function navigate(target: ROUTE | string, data?: any): Promise<void> {
-    // bail out if we are already processing
-    const isProcessing = ["calculating", "resolving"].some(state.value.matches);
-    if (isProcessing) return;
-
-    const route = router.currentRoute.value;
-
-    if (!route?.name) {
-      console.warn("UseRouteingEngine", "Could not Navigate route", {
-        route,
-        data
-      }); // do nothing, just return
-      return;
-    }
-
-    resolve(
-      target as ROUTE,
+    // Proceed to guard the route
+    return resolve(
       {
         name: route.name?.toString(),
         params: route.params,
         query: route.query,
-        hash: route.hash
+        hash: route.hash,
+        meta: route.meta
       },
-      data
-    )
-      .then((response: Route | undefined) => {
-        if (response) {
-          if (response?.meta?.replace) {
-            router.replace(response);
-          } else {
-            router.push(response);
-          }
-        }
-      })
+      route
+    ).catch(() => route);
+  }
+
+  async function navigate(target: string | FunnelTarget, data?: any) {
+    // bail out if we are already processing a resolution
+    if (meta.value.isResolved) {
+      send({
+        type: "RESOLVE",
+        data: { target, route: router?.currentRoute?.value, event }
+      });
+    }
+
+    return awaitResolved(funnel.value?.service)
+      .then(updateRouter)
       .catch((error: any) => {
         console.warn("UseRouteingEngine", "Navigate route Failed", {
-          route,
+          route: router.currentRoute.value,
           data,
           error
         });
@@ -209,28 +161,14 @@ export const useRoutingEngine = () => {
   }
 
   async function navigateNext(event?: any) {
-    const route = router.currentRoute.value;
-    return next(
-      {
-        name: route?.name?.toString(),
-        params: route.params,
-        query: route.query,
-        hash: route.hash
-      },
-      event
-    )
-      .then((response: Route | undefined) => {
-        if (response) {
-          if (response?.meta?.replace) {
-            router.replace(response);
-          } else {
-            router.push(response);
-          }
-        }
-      })
+    if (meta.value.isResolved) {
+      send({ type: "NEXT", data: { route: router.currentRoute.value, event } });
+    }
+    return awaitResolved(funnel.value?.service)
+      .then(updateRouter)
       .catch((error: any) => {
         console.warn("UseRouteingEngine", "Next route Failed", {
-          route,
+          route: router.currentRoute.value,
           event,
           error
         });
@@ -238,58 +176,67 @@ export const useRoutingEngine = () => {
   }
 
   async function navigateBack(event?: any) {
-    const route = router.currentRoute.value;
-    back(
-      {
-        name: route?.name?.toString(),
-        params: route.params,
-        query: route.query,
-        hash: route.hash
-      },
-      event
-    )
-      .then((response: Route | undefined) => {
-        if (response) {
-          if (response?.meta?.replace) {
-            router.replace(response);
-          } else {
-            router.push(response);
-          }
-        }
-      })
+    if (meta.value.isResolved) {
+      send({ type: "BACK", data: { route: router.currentRoute.value, event } });
+    }
+    return awaitResolved(funnel.value?.service)
+      .then(updateRouter)
       .catch((error: any) => {
         console.warn("UseRouteingEngine", "Back route Failed", {
-          route,
+          route: router.currentRoute.value,
           event,
           error
         });
       });
   }
 
-  async function resolve(name: ROUTE | string, route: Route, event?: any) {
-    send({ type: "RESOLVE", data: { name, route, event } });
-    return awaitResolved(service);
+  async function resolve(
+    target: string | FunnelTarget,
+    route: RouteLocation,
+    event?: any
+  ) {
+    if (!meta.value.hasTarget || meta.value.isResolved) {
+      send({ type: "RESOLVE", data: { target, route, event } });
+    }
+
+    return awaitResolved(funnel.value?.service).then(target => {
+      // once we have resolved at least once, we are no longer on the initial route
+      initialRoute.value = false;
+      return target;
+    });
+  }
+
+  async function switchFunnel(
+    funnel: string,
+    route: RouteLocation,
+    event?: any
+  ) {
+    const safeRoute = route ?? router.currentRoute.value;
+    send({ type: "SWITCH", data: { funnel, route: safeRoute, event } });
+    return waitFor(service, state =>
+      stateMatches(state, ["available.guiding", "available.idle"])
+    ).catch((error: Error | ResponseError) => {
+      // fail silently
+      console.warn("UseRoutingEngine", "Switch funnel failed", {
+        funnel,
+        route,
+        error
+      });
+    });
   }
 
   function stop() {
     stopService(service);
   }
 
-  // ---
-  // set up automatic refresh when the user logs in or out or if the basket is emptied
-  watch(
-    [basketMeta, sessionMeta],
-    (
-      [{ hasProducts, isProcessing }, { isAuthenticated }],
-      [{ hasProducts: hadProducts }, { isAuthenticated: wasAuthenticated }]
-    ) => {
-      if (!isAuthenticated && wasAuthenticated) {
-        navigate(ROUTE.SESSION_END);
-      } else if (!hasProducts && hadProducts) {
-        navigate(ROUTE.EMPTY);
-      }
+  function updateRouter(route: RouteLocation) {
+    if (!router || !route) return;
+    if (route?.meta?.replace) {
+      router.replace(route);
+    } else {
+      router.push(route);
     }
-  );
+  }
 
   // ---------------------------------------------------------------------------
   return {
@@ -300,23 +247,14 @@ export const useRoutingEngine = () => {
 
     // --- context
     router,
-    flows,
-    currentFlow,
-    currentRoute,
     errors,
 
     //  --- methods
-    init: (instance: Router) => {
-      router ??= instance;
-    },
-
+    init: (instance: Router) => (router ??= instance),
     register,
+    switchFunnel,
     guard,
-    exists,
-    next,
-    back,
     refresh: () => router.go(0), // = reload current route without cache
-    resolve,
     stop,
     // --- navigation
     navigate,
@@ -324,3 +262,8 @@ export const useRoutingEngine = () => {
     navigateBack
   };
 };
+
+/**
+ * The return type of useSession composable.
+ */
+export type UseRoutingEngine = ReturnType<typeof useRoutingEngine>;

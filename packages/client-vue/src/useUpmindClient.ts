@@ -1,9 +1,14 @@
 // --- internal
-import useUpmind, { type UpmindProps } from "@upmind-automation/headless";
+import useUpmind, {
+  useBrand,
+  useRoutingEngine,
+  type UpmindProps
+} from "@upmind-automation/headless";
 import themes from "./assets/themes";
 
 // --- utils
 import { keyBy, merge, values } from "lodash-es";
+import type { RouteLocationAsRelative } from "vue-router";
 
 // -----------------------------------------------------------------------------
 // NB we expose UpmindClient instead of just useUpmind as we want to inject our defined themes
@@ -38,6 +43,7 @@ class UpmindClient {
   get mode() {
     return useUpmind.mode;
   }
+
   get plugins() {
     return useUpmind.plugins;
   }
@@ -58,7 +64,6 @@ class UpmindClient {
     return useUpmind.router;
   }
 
-  storefrontUrl?: string;
   themes?: UpmindProps["themes"];
 
   async isReady(): Promise<void> {

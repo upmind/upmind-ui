@@ -1,10 +1,12 @@
 // --- external
+import { asyncDebounce } from "@tanstack/pacer";
 
 // --- internal
-import { useI18n, useQuery } from "../../..";
+import { invalidateQueryByKey, useI18n, useQuery } from "../../..";
 
 // --- utils
 import {
+  DEBOUNCE_DELAY,
   DetailedError,
   ErrorOrigin,
   responseCodes,
@@ -50,10 +52,11 @@ async function add(
     );
 
   return post<IBasketPromotion[]>({
+    mutationKey: ["basket", "promotions"],
     url: useUrl(`/orders/${basketId}/promotions`),
     data: { promocode: trim(model?.promocode) },
     withAccessToken: true
-  });
+  }).then(invalidateQueryByKey(["basket"], { exact: false }));
 }
 
 async function remove(
@@ -75,6 +78,7 @@ async function remove(
   const { del, useUrl } = useQuery();
 
   return del({
+    mutationKey: ["basket", "promotions"],
     url: useUrl(`/orders/${basketId}/promotions/${id}`),
     withAccessToken: true
   });
@@ -125,6 +129,14 @@ export default {
   load,
   parse,
   validate,
-  add,
-  remove
+  add: asyncDebounce(
+    (context: PromotionsContext, _event: AnyEventObject) =>
+      add(context, _event),
+    { wait: DEBOUNCE_DELAY }
+  ),
+  remove: asyncDebounce(
+    (context: PromotionsContext, _event: AnyEventObject) =>
+      remove(context, _event),
+    { wait: DEBOUNCE_DELAY }
+  )
 };

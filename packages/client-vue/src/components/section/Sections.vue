@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!active" :class="props.class">
+  <div v-if="!active" :class="props.class" :data-testid="`section`">
     <slot name="default" />
   </div>
 
@@ -7,9 +7,18 @@
     v-else
     :tabs="sections"
     v-model="modelValue"
+    :border="meta.hasBorder"
     align="between"
     :overflow="sections.length > 1 ? 'hidden' : 'visible'"
-    :class="props.class"
+    :ui-config="{
+      tabs: {
+        root: [styles.section.tabs.root],
+        list: [styles.section.tabs.list],
+        trigger: [styles.section.tabs.trigger],
+        indicator: [styles.section.tabs.indicator],
+        icon: [styles.section.tabs.icon]
+      }
+    }"
   >
     <template #prepend>
       <slot name="prepend" />
@@ -48,17 +57,16 @@
 <script setup lang="ts">
 // --- external
 import { computed, useSlots } from "vue";
-import { useRoutingEngine } from "@upmind-automation/headless";
 
 // --- components
-import { Tabs, cn, useStyles, Link } from "@upmind-automation/upmind-ui";
+import { Tabs, useStyles, Link } from "@upmind-automation/upmind-ui";
 
 // --- internal
 import config from "./section.config";
-import { LAYOUT_VARIANTS } from "../layout";
+import { useSection } from "./useSection";
 
 // --- utils
-import { find, first, isFunction, isString, isNil } from "lodash-es";
+import { find, isFunction, isString, isNil } from "lodash-es";
 
 // --- types
 import type { ComputedRef } from "vue";
@@ -66,7 +74,9 @@ import type { SectionActionProps, SectionsProps } from "./types";
 
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<SectionsProps>(), {
-  active: true
+  active: true,
+  border: undefined,
+  card: undefined
 });
 
 const emits = defineEmits<{
@@ -78,7 +88,7 @@ const emits = defineEmits<{
 
 const modelValue = defineModel<SectionsProps["modelValue"]>("modelValue", {});
 
-const { currentRoute } = useRoutingEngine();
+const { card, border } = useSection();
 const slots = useSlots();
 
 const currentSectionProps = computed(() =>
@@ -86,23 +96,30 @@ const currentSectionProps = computed(() =>
 );
 
 const meta = computed(() => ({
-  variant: currentRoute.value?.meta?.template || LAYOUT_VARIANTS.DEFAULT
+  hasCard: props.card ?? card.value,
+  hasBorder: props.border ?? border.value
 }));
 
 const styles = useStyles(
-  ["section", "section.title"],
+  ["section", "section.title", "section.tabs"],
   meta,
   config,
   props.uiConfig ?? {}
 ) as ComputedRef<{
   section: {
     root: string;
-    header: string;
     title: {
       root: string;
       heading: string;
     };
     content: string;
+    tabs: {
+      root: string;
+      list: string;
+      trigger: string;
+      indicator: string;
+      icon: string;
+    };
   };
 }>;
 

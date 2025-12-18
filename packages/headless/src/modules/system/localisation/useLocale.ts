@@ -5,7 +5,7 @@ import { computed, ref } from "vue";
 import { useI18n } from "./useI18n";
 import { useBrand } from "../../brand";
 import { useSession } from "../../session";
-import { useRouteQueryParams } from "../../routing";
+import { useQueryParams } from "../../routing";
 import { SupportedLocaleCodes as UpmindSupportedLocales } from "./locales";
 
 // --- utils
@@ -25,6 +25,7 @@ import { DetailedError, ErrorOrigin, responseCodes } from "../../../utils";
 
 // --- types
 import { QUERY_PARAMS } from "@upmind-automation/types";
+import type { RouteLocation } from "vue-router";
 
 // -----------------------------------------------------------------------------
 
@@ -75,11 +76,11 @@ export const useLocale = () => {
     // 2. if not, check if we have a stored locale
     // 3. if not, check if we have a preferred locale from the browser, and that it is supported by the brand
     // 4. if not, default to "null" (which will be handled by the API)
-    const { consumeParam } = useRouteQueryParams({
+    const { consumeParam } = useQueryParams({
       query: Object.fromEntries(
         new URLSearchParams(window.location?.search).entries()
       )
-    });
+    } as RouteLocation);
 
     const lang = consumeParam(
       QUERY_PARAMS.LOCALE,

@@ -26,7 +26,8 @@ import {
   NotAuthenticatedError,
   useModelParser,
   stateMatches,
-  useTime
+  useTime,
+  DEBOUNCE_DELAY
 } from "../../utils";
 import {
   filterGateways,
@@ -106,7 +107,13 @@ export function loadList() {
         }
       }),
     select: mapPaymentDetailDetails,
-    staleTime: useTime().HOUR
+    staleTime: useTime().HOUR,
+    retryDelay: DEBOUNCE_DELAY,
+    enabled: () =>
+      meta.value.isAuthenticated &&
+      !!userId.value &&
+      !!currencyId.value &&
+      !!brandId.value
   });
 }
 
@@ -159,6 +166,7 @@ async function loadLookups(
     // we need to calculate the total account credit including negative allowance
     // and get a formatted version based on the currency
     return post({
+      mutationKey: ["wallet", "calculate"],
       url: useUrl("cart/calculate", {}),
       withAccessToken: true,
       data: {
@@ -504,6 +512,7 @@ async function calculate(
   // we need to calculate the total account credit including negative allowance
   // and get a formatted version based on the currency
   return post({
+    mutationKey: ["wallet", "calculate"],
     url: useUrl("cart/calculate", {}),
     withAccessToken: true,
     data: {

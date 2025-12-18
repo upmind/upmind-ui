@@ -8,192 +8,131 @@ import { useBasketProductsPending } from "../basketProduct";
 
 // --- utils
 import {
+  contextValue,
   DetailedError,
   ErrorOrigin,
   responseCodes,
-  stateMatches,
-  useSafeParse
+  stateMatches
 } from "../../utils";
 import {
-  compact,
-  concat,
+  camelCase,
+  defaultsDeep,
   find,
   first,
   get,
   includes,
-  isArray,
   isEmpty,
   isEqual,
-  isFunction,
-  reduce,
   reject,
-  set,
-  toNumber,
-  uniq,
+  some,
+  upperFirst,
   values
 } from "lodash-es";
 
 // --- types
 import type { ActorRef } from "xstate";
-import { QUERY_PARAMS } from "@upmind-automation/types";
-import type { ProductProps } from "../product";
 import type { BasketProduct } from "../basketProduct";
-import { REQUIRES_ACTION, type Route } from "./types";
+import { REQUIRES_ACTION } from "./types";
+import { RouteLocation } from "vue-router";
 
 // -----------------------------------------------------------------------------
 
 /**
  * Awaits until the provided service reaches a specific state and resolves with the current route from the state context.
  */
-export async function awaitResolved(service: ActorRef<any>) {
+export async function awaitResolved(
+  service?: ActorRef<any>
+): Promise<RouteLocation> {
   const { t } = useI18n();
+  if (!service)
+    throw new DetailedError(
+      t("error.route_resolve_failed"),
+      responseCodes.Timeout,
+      ErrorOrigin.Headless
+    );
 
-  return waitFor(service, state => stateMatches(state, "available.resolved"), {
-    timeout: 60_000
-  })
+  return waitFor(
+    service,
+    state => {
+      const isResolved = !!contextValue<boolean>(state, "resolved");
+      const isAvailable = stateMatches(state, ["available"]);
+      const isComplete = stateMatches(state, ["error", "done", "complete"]);
+      return isComplete || (isAvailable && isResolved);
+    },
+    { timeout: 60_000 }
+  )
     .then(state => {
-      return get(state, "context.currentRoute");
+      const target = defaultsDeep(state.context.targetRoute, {
+        name: state.value.available,
+        params: {},
+        query: {},
+        hash: "",
+        meta: {}
+      });
+
+      // console.debug("Route resolves", target, { state });
+
+      return target;
     })
     .catch(() => {
-      throw new DetailedError(
-        t("error.route_resolve_failed"),
-        responseCodes.Timeout,
-        ErrorOrigin.Headless
-      );
+      // console.debug("Route did not resolve", service.getSnapshot().context);
+      return undefined; //contextValue<RouteLocation>(service, "currentRoute");
     });
 }
 
 /**
- * Parses and retrieves query parameters and route parameters from a given route object.
- * This utility allows for flexible handling of parameters, offering functionality
- * to consume, retrieve, and parse structured data from query and route parameters.
+ * Determine if the route has meaningfully changed compared to a target object
+ * We only check keys present in the target object to avoid unnecessary comparisons.
+ * @param route
+ * @param target
+ * @returns
  */
-export const useRouteQueryParams = (route: Route) => {
-  const { query, params } = route;
-
-  // parse our  query/params that may be passed in as ARRAY
-  function getParams(type: string, fallback?: any) {
-    const value = get(params, type, get(query, type, fallback));
-    if (isEmpty(value)) return isFunction(fallback) ? fallback() : fallback;
-    return compact(isArray(value) ? value : [value]);
+export function hasRouteChanged(
+  route: RouteLocation,
+  target: Record<string, any>,
+  {
+    guardName,
+    guardParams,
+    guardQuery
+  }: {
+    guardName?: boolean;
+    guardParams?: boolean;
+    guardQuery?: boolean;
+  } = {
+    guardName: true,
+    guardParams: true,
+    guardQuery: false
   }
+): boolean {
+  if (!target) return false;
 
-  // parse our query/params that may be passed in as STRING
-  function getParam(type: string, fallback?: any) {
-    const value = get(params, type, get(query, type, fallback));
-    if (isEmpty(value)) return isFunction(fallback) ? fallback() : fallback;
-    return isArray(value) ? first(value) : value;
-  }
+  const changedName = !!guardName && !isEqual(route?.name, target?.name);
 
-  function consumeParam(type: string, fallback?: any) {
-    const value = getParam(type, fallback);
-    // now remove it from the query so we dont use it again
-    const url = new URL(window.location.toString());
-    const cleanedUrl = new URL(window.location?.href);
-
-    cleanedUrl.searchParams.delete(type);
-
-    if (!isEqual(cleanedUrl.searchParams, url.searchParams)) {
-      history.replaceState(history.state, "", cleanedUrl);
-    }
-
-    return value;
-  }
-
-  function getProductConfigs(): ProductProps[] {
-    // This is a complex object that is passed in as a query param
-    //  and is used to configure a product with multiple options, attributrs, etc.
-    // NB: If ther eare multiple products, then we will have multiple configs, and we ASSUME the index alligns with the product index.
-    // so for that we get the following query params.
-
-    // NB: include LEGACY fallback for 'product' query param
-    const productId = getParam(QUERY_PARAMS.PRODUCT_ID, getParam("product"));
-
-    // if we dont have a product id, then we dont have a product config
-    if (!productId) return [];
-
-    const productQty = getParam(QUERY_PARAMS.QUANTITY);
-
-    const bcm = getParam(QUERY_PARAMS.BILLING_CYCLE_MONTHS);
-    // sub products
-    const subproducts = reduce(
-      query,
-      (result, value, key) => {
-        if (key == QUERY_PARAMS.SUBPRODUCT_IDS) {
-          const values = value?.toString()?.split(",") as [];
-          result.push(...values);
-        }
-        return uniq(concat(result));
-      },
-      []
+  // Only compare keys present in target params
+  const changedParams =
+    !!guardParams &&
+    some(
+      target?.params,
+      (value, key) => !isEqual(get(route?.params, key), value)
     );
 
-    // provision
-    const provisionFields = reduce(
-      query,
-      (result, value, key) => {
-        if (includes(key, QUERY_PARAMS.PRODUCT_FIELDS)) {
-          const field = `${key
-            .replace(`${QUERY_PARAMS.PRODUCT_FIELDS}[`, "")
-            .replace("]", "")}`;
-          set(result, field, value);
-        }
-        return result;
-      },
-      {}
-    );
+  const changedQuery = !!guardQuery && !isEqual(route?.query, target?.query);
 
-    // coupons
-    const coupons = getParams(QUERY_PARAMS.COUPONS);
+  // console.debug("Route Change Detection:", {
+  //   route,
+  //   target,
+  //   changedName,
+  //   changedParams,
+  //   changedQuery
+  // });
+  // Only compare keys present in target query
+  // const changedQuery = some(
+  //   target?.query,
+  //   (value, key) => !isEqual(get(route?.query, key), value)
+  // );
 
-    const currencyCode = getParam(
-      QUERY_PARAMS.CURRENCY,
-      getParam(QUERY_PARAMS.CURRENCY_CODE)
-    );
-
-    const currencyId = getParam(QUERY_PARAMS.CURRENCY_ID);
-
-    // bundle
-    const bundle = getParam("bundle");
-
-    const model: ProductProps[] = [
-      {
-        productId,
-        quantity: productQty ? toNumber(productQty) : 1,
-        term: bcm ? toNumber(bcm) : undefined,
-        subproducts,
-        provisionFields,
-        coupons,
-        bundle,
-        currencyCode,
-        currencyId
-      }
-    ];
-
-    return model;
-  }
-
-  return {
-    parse: useSafeParse,
-    getParams,
-    getParam,
-    consumeParam,
-    productId: getParam(QUERY_PARAMS.PRODUCT_ID, getParam("product")),
-    products: getParams(QUERY_PARAMS.PRODUCT_ID, getParams("product")),
-    productConfigs: getProductConfigs(),
-    productConfig: first(getProductConfigs()),
-    basketProductId: getParam(QUERY_PARAMS.BASKET_PRODUCT_ID),
-    categoryId: getParam(QUERY_PARAMS.CATEGORY_ID),
-    // ---
-    express: useSafeParse(consumeParam("express", false)) == true, // make sure we only return true if the value is actually true
-    currency: consumeParam(
-      QUERY_PARAMS.CURRENCY,
-      consumeParam(QUERY_PARAMS.CURRENCY_CODE)
-    ),
-    coupon: consumeParam(QUERY_PARAMS.COUPONS),
-    bundle: consumeParam("bundle")
-  };
-};
+  return changedName || changedParams || changedQuery;
+}
 
 /**
  * Provides utilities to determine if any basket products require user action,
@@ -201,7 +140,7 @@ export const useRouteQueryParams = (route: Route) => {
  */
 export const useRouteRequiresAction = () => {
   const { getProducts, getInvalidProducts, isReady } = useBasket();
-  const { get: getPendingProducts } = useBasketProductsPending();
+  const { get: getPendingProducts, meta } = useBasketProductsPending();
 
   function getNextPending(current?: ActorRef<any>) {
     const productsPending = reject(getPendingProducts(), ["id", current?.id]);
@@ -218,11 +157,11 @@ export const useRouteRequiresAction = () => {
   function getNextRelated(current: ActorRef<any>): undefined | BasketProduct {
     // Related items ar when the current items provision fields
     // contain the service identifier of another basket item
-    const provisionFields = get(
-      current?.getSnapshot(),
-      "context.model.provisionFields",
-      {}
+    const provisionFields = contextValue<Record<string, any>>(
+      current,
+      "model.provisionFields"
     );
+
     if (isEmpty(provisionFields)) return;
 
     const basketProduct = find(getProducts(), basketProduct => {
@@ -261,6 +200,7 @@ export const useRouteRequiresAction = () => {
 
   return {
     isReady,
+    meta,
     getNext,
     getNextPending,
     getNextInvalid,
@@ -269,3 +209,7 @@ export const useRouteRequiresAction = () => {
     hasProducts: () => !isEmpty(getInvalidProducts())
   };
 };
+
+export function pascalCase(str: string): string {
+  return upperFirst(camelCase(str));
+}

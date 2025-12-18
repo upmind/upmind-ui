@@ -12,7 +12,12 @@ import {
   filterPaymentTypes,
   spawnGateway
 } from "./utils";
-import { mapToHeadlessError, stopService, useModelParser } from "../../utils";
+import {
+  mapToHeadlessError,
+  stateMatches,
+  stopService,
+  useModelParser
+} from "../../utils";
 import { useTime, useValidationParser } from "../../utils";
 import { useSchema, useUischema } from "./schemas";
 import { isEqual, isEmpty, find, map, isNil, set } from "lodash-es";
@@ -404,7 +409,10 @@ export default createMachine(
           }: PaymentDetailsContext,
           _event: AnyEventObject
         ) => {
-          if (gatewayHelper?.send && !gatewayHelper?.getSnapshot()?.done) {
+          if (
+            gatewayHelper?.send &&
+            !stateMatches(gatewayHelper, ["complete", "done"])
+          ) {
             gatewayHelper.send({
               type: "REFRESH",
               data: {

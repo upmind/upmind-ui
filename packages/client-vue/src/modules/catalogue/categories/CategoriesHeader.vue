@@ -1,6 +1,8 @@
 <template>
   <div :class="styles.categories.header.root" v-auto-animate>
     <template v-if="!meta.isLoading">
+      <slot name="prepend" />
+
       <h1
         v-if="title"
         :class="styles.categories.header.title"
@@ -11,12 +13,12 @@
       <p v-if="description" :class="styles.categories.header.description">
         {{ description }}
       </p>
+
+      <slot name="append" />
     </template>
     <template v-else>
-      <div :class="styles.categories.header.title" />
-      <div :class="styles.categories.header.description" />
-
-      <section class="h-56 w-full opacity-0" />
+      <Skeleton class="h-5 w-16" />
+      <Skeleton class="mt-3 h-12 w-96" />
     </template>
   </div>
 </template>
@@ -28,7 +30,7 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
 import { useBrand, type ProductCategory } from "@upmind-automation/headless";
-import { useStyles } from "@upmind-automation/upmind-ui";
+import { useStyles, Skeleton } from "@upmind-automation/upmind-ui";
 import config from "../catalogue.config";
 
 // --- utils

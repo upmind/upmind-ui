@@ -2,26 +2,30 @@
   <!-- Basket Errors -->
   <BasketErrors
     id="basket-errors"
+    v-show="showCheckout"
     :basket-billing="!uischema.showBillingOnCheckout"
     :basket-fields="!uischema.showFieldsOnCheckout"
     :basket-products="!uischema.showProductsOnCheckout"
+    :basket-products-route="props.editRoute"
+    :basket-billing-route="props.billingRoute"
+    :basket-fields-route="props.fieldsRoute"
   />
 
   <!-- Basket Products -->
   <Section
-    v-show="uischema.showProductsOnCheckout"
+    v-show="showCheckout && uischema.showProductsOnCheckout"
     id="basket-products"
     :label="t('cart.basket_products')"
     value="products"
     icon="list"
   >
-    <ProductCards />
+    <ProductCards :edit-route="props.editRoute" />
   </Section>
 
   <!-- Additional Options -->
   <Section
     id="basket-fields"
-    v-show="uischema.showFieldsOnCheckout"
+    v-show="showCheckout && uischema.showFieldsOnCheckout"
     :label="t('text.additional_details')"
     icon="file-attachment-01"
   >
@@ -43,12 +47,12 @@
   <!-- Billing Details -->
   <BillingDetails
     id="basket-billing"
-    v-show="uischema.showBillingOnCheckout"
+    v-show="showCheckout && uischema.showBillingOnCheckout"
     :touched="meta.showErrors"
   />
 
   <!-- Payment Details -->
-  <PaymentDetails />
+  <PaymentDetails v-show="showCheckout" data-testid="payment-details" />
 </template>
 
 <script lang="ts" setup>
@@ -60,9 +64,20 @@ import { useBasket, useBasketFields } from "@upmind-automation/headless";
 import Section from "../../../components/section/Section.vue";
 import BillingDetails from "../../billing/Billing.vue";
 import PaymentDetails from "./PaymentDetails.vue";
-import ProductCards from "../../basket/product/BasketProductCards.vue";
+import ProductCards from "../../basket-product/components/card/BasketProductCards.vue";
 import Form from "../../../components/form/Form.vue";
 import BasketErrors from "../../basket/components/BasketErrors.vue";
+import type { RouteLocationAsRelativeGeneric } from "vue-router";
+
+// -----------------------------------------------------------------------------
+
+const props = defineProps<{
+  showCheckout: boolean;
+  editRoute: RouteLocationAsRelativeGeneric;
+  billingRoute?: RouteLocationAsRelativeGeneric;
+  fieldsRoute?: RouteLocationAsRelativeGeneric;
+}>();
+// -----------------------------------------------------------------------------
 
 const { t } = useI18n();
 const { meta, uischema } = useBasket();

@@ -59,6 +59,8 @@
   "currency_validation_failed": "Valyuta doğrulaması alınmadı",
   "domain_add_failed": "Domeni səbətə əlavə etmək alınmadı",
   "feedback_action_not_available": "Dəyərli fəaliyyət '{data}' mövcud deyil.",
+  "funnel_not_available": "Huni mövcud deyil",
+  "funnels_not_available": "Hunilər mövcud deyil",
   "generic_error": "səhv",
   "generic_text": "Gəlin sizi yoluna qaytaraq",
   "generic_title": "Üzr istəyirik, **xəta** ilə qarşılaşdıq",

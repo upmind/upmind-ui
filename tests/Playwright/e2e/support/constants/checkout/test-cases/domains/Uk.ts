@@ -2,7 +2,7 @@ export const ukDomain = [
   /* NEW DOMAIN */
   {
     name: ".UK Domain - Billing Cycle - 1 year @domains",
-    billingTerm: 0,
+    billingTerm: "Annually",
     transfer: false,
     sldValue: "uktestingdomain",
     registrantName: "Joe Bloggs",
@@ -22,7 +22,7 @@ export const ukDomain = [
   /* TRANSFERRING A DOMAIN */
   {
     name: ".UK Domain - Billing Cycle - 1 year - Domain Transfer @domains @domain-transfer",
-    billingTerm: 0,
+    billingTerm: "Annually",
     transfer: true,
     sldValue: "uktestingdomain",
     registrantName: "Joe Bloggs",

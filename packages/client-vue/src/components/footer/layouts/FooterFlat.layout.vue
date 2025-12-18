@@ -1,23 +1,66 @@
 <template>
-  <footer :class="styles.footer.root">
-    <div :class="styles.footer.container">
-      <div :class="styles.footer.left">
-        <div class="hidden lg:block">
-          <slot name="footer-copyright" />
-        </div>
-        <div :class="styles.footer.actions">
-          <slot name="footer-actions" />
-        </div>
-      </div>
+  <Ribbon
+    as="footer"
+    :background="meta.background"
+    :class="styles.footer.flat.root"
+  >
+    <Container
+      flow="horizontal"
+      justify="between"
+      items="end"
+      :class="styles.footer.flat.container"
+    >
+      <Column
+        :background="leftBackground"
+        :class="styles.footer.flat.left.column"
+        :justify="meta.justifyLeft"
+      >
+        <Content
+          :class="styles.footer.flat.left.content"
+          :items="meta.items"
+          justify="between"
+          flow="horizontal"
+        >
+          <template v-if="!meta.reverse">
+            <slot name="footer-copyright" />
 
-      <div :class="styles.footer.right">
-        <div class="lg:hidden">
-          <slot name="footer-copyright" />
-        </div>
-        <slot name="footer-content" />
-      </div>
-    </div>
-  </footer>
+            <div class="flex gap-2">
+              <slot name="footer-actions" />
+            </div>
+          </template>
+
+          <template v-else>
+            <slot name="footer-content" />
+          </template>
+        </Content>
+      </Column>
+
+      <Column
+        :background="rightBackground"
+        :class="styles.footer.flat.right.column"
+        flow="horizontal"
+      >
+        <Content
+          :class="styles.footer.flat.right.content"
+          :items="meta.items"
+          :justify="meta.justifyRight"
+          flow="horizontal"
+        >
+          <template v-if="!meta.reverse">
+            <slot name="footer-content" />
+          </template>
+
+          <template v-else>
+            <slot name="footer-copyright" />
+
+            <div class="flex gap-2">
+              <slot name="footer-actions" />
+            </div>
+          </template>
+        </Content>
+      </Column>
+    </Container>
+  </Ribbon>
 </template>
 
 <script lang="ts" setup>
@@ -28,26 +71,54 @@ import { computed } from "vue";
 import config from "../footer.config";
 import { useFooter } from "../useFooter";
 
+// --- components
+import Ribbon from "../../layout/components/ribbon/Ribbon.vue";
+import Container from "../../layout/components/container/Container.vue";
+import Content from "../../layout/components/content/Content.vue";
+import Column from "../../layout/components/column/Column.vue";
+
 // --- utils
 import { useStyles } from "@upmind-automation/upmind-ui";
 
 // --- types
 import type { ComputedRef } from "vue";
+import { FOOTER_BACKGROUND } from "../types";
 
-const { templateName } = useFooter();
+const { meta } = useFooter();
 
-const meta = computed(() => ({
-  variant: templateName.value
+const stylesMeta = computed(() => ({
+  position: meta.value.position,
+  background: meta.value.background,
+  items: meta.value.items
 }));
 
-const styles = useStyles(["footer"], meta, config, {}) as ComputedRef<{
+const styles = useStyles(
+  ["footer.flat", "footer.flat.left", "footer.flat.right"],
+  stylesMeta,
+  config,
+  {}
+) as ComputedRef<{
   footer: {
-    root: string;
-    container: string;
-    actions: string;
-    content: string;
-    left: string;
-    right: string;
+    flat: {
+      root: string;
+      container: string;
+      left: {
+        column: string;
+        content: string;
+      };
+      right: {
+        column: string;
+        content: string;
+      };
+    };
   };
 }>;
+
+const leftBackground = computed(() => {
+  return meta.value.background === FOOTER_BACKGROUND.LTR ? "surface" : "none";
+});
+
+const rightBackground = computed(() => {
+  return meta.value.background === FOOTER_BACKGROUND.RTL ? "surface" : "none";
+});
 </script>

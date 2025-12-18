@@ -7,7 +7,10 @@ import type {
   IClient,
   ICurrency,
   IBasketPromotion,
-  IRelatedObject
+  IRelatedObject,
+  IProvisionFieldValue,
+  IBlueprintField,
+  IBlueprint
 } from "@upmind-automation/types";
 export { PromotionDisplayTypes } from "@upmind-automation/types";
 import { PromotionDisplayTypes } from "@upmind-automation/types";
@@ -237,6 +240,13 @@ export type ProductDetails = {
   imgUrl?: string;
   /** An array of {@link ProductImage} objects for the product. */
   images?: ProductImage[];
+
+  /**The Products blueprint code that we can use to determine what kind of product this is */
+  blueprintCode?: IBlueprint["code"];
+
+  /** Indicates whether the product is configurable. ie has terms, options, attributes or provision fields that need configuring */
+  configurable?: boolean;
+
   /** `true` if the product allows quantity selection, `false` otherwise. */
   quantifiable: boolean;
   /** The default or current quantity of the product. */
@@ -322,8 +332,10 @@ export interface ProductProps extends ProductModel {
   currencyCode?: ICurrency["code"];
   /** The ID of the client for whom the product is being configured. */
   clientId?: IClient["id"];
-  /** An array of {@link IBasketPromotion} objects. These are needed to determine if the price needs recalculation. */
-  promotions?: IBasketPromotion[];
+
+  // /** An array of {@link IBasketPromotion} objects. These are needed to determine if the price needs recalculation. */
+  // promotions?: IBasketPromotion[];
+
   /** An array of coupon codes passed via URL or configuration that are not yet in the basket. */
   coupons?: string[];
   /** An array of IDs of subproducts passed via URL or configuration that are not yet in the model/config. */
@@ -392,6 +404,8 @@ export type ProductSummaryMeta = {
   mixed?: boolean;
   /** `true` if the product includes other items. */
   includes?: boolean;
+  /** `true` if the product is already added to the basket. */
+  added?: boolean;
   /** `true` if the product is available. */
   available?: boolean;
   /** `true` if the price includes tax. */
@@ -408,6 +422,8 @@ export type ProductSummaryMeta = {
  * Type alias for a product summary detail, providing name, title, cycle, and meta-information.
  */
 export type ProductSummaryDetail = {
+  /** The unique identifier of the product. */
+  id?: string;
   /** The untranslated name of the item, often used for reporting purposes. */
   name: string;
   /** The display title of the item, typically translated. */
@@ -616,9 +632,10 @@ export interface UISchema {
 }
 
 export const UI_SCHEMA_DEFAULTS: UISchema = {
-  config: {
-    breadcrumbs: BreadcrumbVariant.VISIBLE
-  }
+  // Allow the context to set the default (e.g category for configuration/edit pages)
+  // config: {
+  //   breadcrumbs: BreadcrumbVariant.VISIBLE
+  // }
 } as const;
 
 /**
@@ -747,6 +764,11 @@ export interface UISchema {
       append?: string;
     };
   };
+  payment?: {
+    gateways: {
+      clamp: number;
+    };
+  };
 }
 
 /**
@@ -817,7 +839,7 @@ export interface ProductConfigContext {
   /** Optional currency code for pricing. */
   currencyCode?: ProductProps["currencyCode"];
   /** Optional array of {@link IBasketPromotion} for promotions. */
-  promotions?: ProductProps["promotions"];
+  promotions?: IBasketPromotion[];
   /** Optional array of coupon codes. */
   coupons?: ProductProps["coupons"];
   /** Optional array of subproduct IDs. */
@@ -871,6 +893,8 @@ export interface ProductConfigContext {
   rawProduct?: IProduct;
   /** The raw `IBasketProduct` object if the product is already in the basket. */
   rawBasketProduct?: IBasketProduct;
+  /** The raw provision fields as received from the API. */
+  rawProvisionFields?: IBlueprintField[];
   // ---
   /** The ID of the current shopping basket. */
   basketId?: string;

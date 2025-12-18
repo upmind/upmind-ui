@@ -1,5 +1,5 @@
 <template>
-  <div class="flex grow items-center justify-center">
+  <div class="flex grow items-center justify-center" v-if="meta.hasProducts">
     <Interstitial
       :title="t('cart.basket_products_require_attention_md', products.length)"
       :text="t('cart.basket_products_review_desc')"
@@ -13,7 +13,7 @@
       modal
     >
       <template #default>
-        <ol class="mt-4 list-disc text-left font-medium">
+        <ol class="text-sm-tight mt-4 list-disc text-left font-medium">
           <li v-for="basketItem in products" :key="basketItem.id">
             <span>{{ basketItem?.productDetails?.title }}</span>
           </li>
@@ -44,8 +44,7 @@ import { useI18n } from "vue-i18n";
 // --- internal
 import {
   useProductsRequiringAction,
-  useRoutingEngine,
-  ROUTE
+  useRoutingEngine
 } from "@upmind-automation/headless";
 
 // --- components
@@ -56,10 +55,8 @@ import { Interstitial, Button, Link } from "@upmind-automation/upmind-ui";
 // -----------------------------------------------------------------------------
 const { t } = useI18n();
 
-const { navigateNext, navigateBack, isResolved } = useRoutingEngine();
-const { products, isReady } = useProductsRequiringAction();
-
-await isResolved(ROUTE.PRODUCT_REQUIRES_ACTION);
+const { navigateNext, navigateBack } = useRoutingEngine();
+const { products, isReady, meta } = useProductsRequiringAction();
 
 await isReady();
 </script>

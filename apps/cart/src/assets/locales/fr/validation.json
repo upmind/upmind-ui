@@ -22,7 +22,7 @@
   "not": "{title} ne doit PAS être valide selon le schéma dans « not »",
   "oneOf": "{title} doit correspondre exactement à l'un des schémas de « OneOf »",
   "pattern": "{title} doit correspondre au modèle {pattern}",
-  "patternProperties": "{title} le nom de propriété n' {propertyName} est pas valide (modèle non concordant)",
+  "patternProperties": "{title} le nom de propriété n'{propertyName} est pas valide (modèle non concordant)",
   "propertyNames": "{title} nom de la propriété {propertyName} est invalide",
   "required": "{title} doit avoir la propriété requise {missingProperty}",
   "type": "{title} doit être {type}",

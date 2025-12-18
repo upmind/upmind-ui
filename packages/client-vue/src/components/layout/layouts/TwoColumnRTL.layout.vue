@@ -1,103 +1,121 @@
 <template>
-  <article :class="styles.twoColumnRTL.root">
-    <!-- Header Spacer -->
-    <div :class="styles.twoColumnRTL.row">
-      <div :class="styles.twoColumnRTL.header.aside" />
-      <div :class="styles.twoColumnRTL.header.root" />
-    </div>
-
-    <!-- Content / Aside -->
-    <section :class="styles.twoColumnRTL.row">
-      <div :class="styles.twoColumnRTL.content.aside.root">
-        <div :class="styles.twoColumnRTL.content.aside.container">
-          <div :class="styles.twoColumnRTL.content.aside.header">
-            <slot name="content-header" />
-            <slot name="navigation" />
-            <slot name="controls" />
-            <slot name="actions" />
+  <Root>
+    <Ribbon
+      :background="isMobile ? RIBBON_BACKGROUND.CANVAS : RIBBON_BACKGROUND.RTL"
+      :height="RIBBON_HEIGHT.GROW"
+      :border="RIBBON_BORDER.NONE"
+      :style="{ minHeight: `calc(100vh - 6rem - ${bottomOffset})` }"
+    >
+      <Container :flow="CONTAINER_FLOW.HORIZONTAL">
+        <Column class="flex-1" :background="COLUMN_BACKGROUND.CANVAS">
+          <div class="flex min-h-0 flex-1 flex-col">
+            <Content :width="CONTENT_WIDTH.ASIDE" :gap="CONTENT_GAP.SM">
+              <slot name="content-header" />
+            </Content>
+            <Content
+              v-if="!isMobile && meta.hasNavigation && meta.hasControls"
+              :flow="CONTENT_FLOW.NONE"
+              class=""
+            >
+              <slot name="navigation" />
+              <slot name="controls" />
+            </Content>
+            <div
+              v-if="!isMobile && meta.hasAside"
+              class="flex min-h-0 flex-1 flex-col"
+            >
+              <Content
+                as="aside"
+                :width="CONTENT_WIDTH.ASIDE"
+                :style="{ bottom: bottomOffset }"
+                class="mt-auto lg:sticky"
+              >
+                <slot name="aside" />
+              </Content>
+            </div>
           </div>
+        </Column>
 
-          <aside :class="styles.twoColumnRTL.content.aside.footer">
-            <slot name="aside" />
+        <Column
+          :background="COLUMN_BACKGROUND.SURFACE"
+          :width="COLUMN_WIDTH.FULL"
+        >
+          <Content :gap="CONTENT_GAP.LG" :flow="CONTENT_FLOW.VERTICAL">
+            <slot name="default" />
+            <slot name="content" />
+          </Content>
+
+          <Content v-if="isMobile">
             <slot name="aside-footer" />
-          </aside>
-        </div>
-      </div>
+            <slot name="content-footer" />
+            <slot name="aside" />
+          </Content>
+        </Column>
+      </Container>
+    </Ribbon>
 
-      <div :class="styles.twoColumnRTL.content.root">
-        <div class="empty:hidden has-[:where(.hidden)]:hidden lg:hidden">
-          <slot name="content-header" />
-        </div>
-        <div class="empty:hidden has-[:where(.hidden)]:hidden lg:hidden">
-          <slot name="aside" />
-        </div>
-        <div class="empty:hidden has-[:where(.hidden)]:hidden lg:hidden">
-          <slot name="aside-footer" />
-        </div>
-        <slot name="default" />
-        <slot name="content" />
-      </div>
-    </section>
-
-    <!-- Spacer -->
-    <div :class="styles.twoColumnRTL.spacer.row">
-      <div :class="styles.twoColumnRTL.spacer.aside" />
-      <div :class="styles.twoColumnRTL.spacer.root" />
-    </div>
-  </article>
+    <TwoColumnSticky v-if="!isMobile" ref="stickyFooterRef" reverse>
+      <template #content-footer>
+        <slot name="content-footer" />
+      </template>
+      <template #aside-footer>
+        <slot name="aside-footer" />
+      </template>
+    </TwoColumnSticky>
+  </Root>
 </template>
 
 <script lang="ts" setup>
 // --- external
-import { computed, type ComputedRef } from "vue";
+import { ref, computed, useSlots } from "vue";
+import { useElementSize } from "@vueuse/core";
 
 // --- internal
-import { useStyles } from "@upmind-automation/upmind-ui";
-import config from "../layout.config";
-import type { VariantProps } from "../types";
+import { isMobile } from "@upmind-automation/upmind-ui";
+import { isEmptySlot } from "@upmind-automation/upmind-ui";
 
-defineProps<VariantProps>();
+// --- components
+import Root from "../components/root/Root.vue";
+import Ribbon from "../components/ribbon/Ribbon.vue";
+import Container from "../components/container/Container.vue";
+import Column from "../components/column/Column.vue";
+import Content from "../components/content/Content.vue";
+import TwoColumnSticky from "../components/TwoColumnSticky.vue";
 
-const meta = computed(() => ({}));
+// --- types
+import {
+  RIBBON_BACKGROUND,
+  RIBBON_HEIGHT,
+  RIBBON_BORDER
+} from "../components/ribbon";
+import { CONTAINER_FLOW } from "../components/container";
+import { COLUMN_BACKGROUND, COLUMN_WIDTH } from "../components/column";
+import {
+  CONTENT_GAP,
+  CONTENT_FLOW,
+  CONTENT_WIDTH
+} from "../components/content";
 
-const styles = useStyles(
-  [
-    "twoColumnRTL",
-    "twoColumnRTL.header",
-    "twoColumnRTL.content",
-    "twoColumnRTL.content.aside",
-    "twoColumnRTL.spacer",
-    "twoColumnRTL.footer"
-  ],
-  meta,
-  config
-) as ComputedRef<{
-  twoColumnRTL: {
-    root: string;
-    row: string;
-    header: {
-      aside: string;
-      root: string;
-    };
-    content: {
-      root: string;
-      aside: {
-        root: string;
-        container: string;
-        header: string;
-        footer: string;
-      };
-    };
-    spacer: {
-      row: string;
-      aside: string;
-      root: string;
-    };
-    footer: {
-      row: string;
-      aside: string;
-      content: string;
-    };
-  };
-}>;
+defineOptions({
+  inheritAttrs: false
+});
+
+const stickyFooterRef = ref<InstanceType<typeof TwoColumnSticky> | null>(null);
+
+const stickyFooterEl = computed(() => stickyFooterRef.value?.el ?? null);
+
+const { height: stickyFooterHeight } = useElementSize(stickyFooterEl);
+
+const bottomOffset = computed(() => {
+  return `${stickyFooterHeight.value || 0}px`;
+});
+
+const slots = useSlots();
+
+const meta = computed(() => ({
+  // We require the aside on desktop otherwise the two column layout will break
+  hasAside: !isEmptySlot("aside", slots) || !isMobile.value,
+  hasNavigation: !isEmptySlot("navigation", slots),
+  hasControls: !isEmptySlot("controls", slots)
+}));
 </script>

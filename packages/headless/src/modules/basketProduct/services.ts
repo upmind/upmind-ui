@@ -1,8 +1,16 @@
 // --- external
+import { AsyncQueuer } from "@tanstack/pacer";
 
 // --- internal
 import { useBrand } from "../brand";
-import { useI18n, useQuery } from "../..";
+import {
+  invalidateQueryByKey,
+  useBasket,
+  useBasketCurrency,
+  useI18n,
+  useQuery,
+  useTracking
+} from "../..";
 
 // --- utils
 import { parseQuantity } from "../product/utils";
@@ -27,21 +35,90 @@ import {
   first,
   isNil,
   concat,
-  filter,
   reduce,
-  forEach,
   isEmpty,
-  isArray
+  isArray,
+  isFunction,
+  forEach
 } from "lodash-es";
 
 // --- types
 import type { IBasket } from "@upmind-automation/types";
-import type { ActorRef } from "xstate";
 import { BrandConfigKeys } from "@upmind-automation/types";
-import type { ProductDetails, ProductModel } from "../product";
+import type { ProductDetails, ProductModel, ProductProps } from "../product";
 import type { BasketProduct, IBasketProductModel } from "./types";
 
 // -----------------------------------------------------------------------------
+
+/**
+ * A queue to manage basket product operations sequentially.
+ * This ensures that basket updates are processed one at a time to prevent conflicts and overwhelming the server.
+ * Each task in the queue can be of type "UPDATE_MANY", "UPDATE", "UPDATE_QUANTITY", or "REMOVE".
+ */
+const queue = new AsyncQueuer<{
+  type: string;
+  data?: any;
+  resolve?: (data: IBasket) => void;
+  reject?: (error?: Error) => void;
+}>(
+  async ({ type, data }) => {
+    switch (type) {
+      case "UPDATE_MANY":
+        return updateMany(data);
+
+      case "UPDATE":
+        return update(data);
+
+      case "UPDATE_QUANTITY":
+        return updateQuantity(data);
+
+      case "REMOVE":
+        return remove(data);
+
+      default:
+        throw new DetailedError(
+          `Unsupported task type: ${type}`,
+          responseCodes.Bad_Request,
+          ErrorOrigin.Headless
+        );
+    }
+  },
+  {
+    // wait: 3000, // Wait 3 seconds between starting new items
+    concurrency: 1, // Process 1 item at once
+    started: true, // Start processing immediately
+    key: "basketProducts", // Identify this queuer in devtools
+
+    /**
+     * Handles errors that occur during the processing of a queue item.
+     * We use the provided reject function to pass the error back to the caller.
+     * @param error  The error that occurred.
+     * @param item  The queue item that was being processed when the error occurred.
+     * @param queuer  The queuer instance managing the queue.
+     */
+    onError: (error, item, queuer) => {
+      if (isFunction(item?.reject)) item.reject(error);
+    },
+
+    /**
+     * Handles the successful processing of a queue item.
+     * We use the provided resolve function to pass the result back to the caller.
+     * We also potentially refresh the basket if the queue is empty after this operation.
+     * We only do this once all queued operations are complete to avoid multiple refreshes.
+     * @param result  The result of the successful operation.
+     * @param item  The queue item that was successfully processed.
+     * @param queuer  The queuer instance managing the queue.
+     */
+    onSuccess: (result, item, queuer) => {
+      if (isFunction(item?.resolve)) item.resolve(result);
+
+      if (queuer.store.state.isEmpty) {
+        invalidateQueryByKey(["basket"], { exact: false });
+        useBasket().refresh(result);
+      }
+    }
+  }
+);
 
 /**
  * Fetches a single product with details .
@@ -64,7 +141,7 @@ async function fetch(
     promotions
   }: {
     bpid?: string;
-    basketId: string;
+    basketId?: string;
     currencyId?: string;
     promotions?: string[];
   },
@@ -148,7 +225,7 @@ async function fetchSelected(
     currencyId,
     promotions
   }: {
-    basketId: string;
+    basketId?: string;
     currencyId?: string;
     promotions?: string[];
   },
@@ -228,7 +305,7 @@ async function fetchRelated(
     currencyId,
     promotions
   }: {
-    basketId: string;
+    basketId?: string;
     currencyId?: string;
     promotions?: string[];
   },
@@ -313,16 +390,15 @@ async function fetchRelated(
  * @throws Will reject the promise if no basket ID is provided, if the product is not found, or if the product is not quantifiable.
  * @throws Will reject the promise if the quantity is invalid.
  */
-async function updateQuantity(
-  {
-    basketId,
-    basketProduct
-  }: {
-    basketId: string;
-    basketProduct: BasketProduct;
-  },
-  { data }: { data: number }
-): Promise<IBasket> {
+async function updateQuantity({
+  basketId,
+  quantity,
+  basketProduct
+}: {
+  basketId: IBasket["id"];
+  quantity: number;
+  basketProduct: BasketProduct;
+}): Promise<IBasket> {
   const { t } = useI18n();
   // sanity check
   if (!basketId)
@@ -333,6 +409,7 @@ async function updateQuantity(
         ErrorOrigin.Headless
       )
     );
+
   if (!basketProduct.productDetails)
     return Promise.reject(
       new DetailedError(
@@ -352,22 +429,76 @@ async function updateQuantity(
   // ---
   const { put, useUrl } = useQuery();
   basketProduct.configuration.quantity = parseQuantity(
-    data,
+    quantity,
     basketProduct.productDetails as ProductDetails
   );
   const product = parseBasketProductData(basketProduct.configuration);
   return put<IBasket>({
+    mutationKey: ["basket", "products", basketProduct.id],
     url: useUrl(`/orders/${basketId}/products/${basketProduct.id}`),
     data: product,
     withAccessToken: true
   })
     .then(data => {
-      if (isNil(data))
+      if (isNil(data)) {
         throw new DetailedError(
           t("error.basket_not_available"),
           responseCodes.Internal_Server_Error,
           ErrorOrigin.Headless
         );
+      }
+      return data;
+    })
+    .catch(parseApiErrors);
+}
+
+/**
+ *  Generates the data required to create a new basket.
+ */
+async function generateBasket(products: IBasketProductModel[] = []) {
+  // ---
+  const { t } = useI18n();
+  const { post, useUrl } = useQuery();
+  const { get: getTracking } = useTracking();
+  const { currencyCode } = useBasketCurrency();
+
+  const data: Record<string, any> = {
+    category_slug: "new_contract",
+    products
+  };
+  // ---
+  // Conditional data
+  // add currency if available
+  if (currencyCode.value) data.currency_code = currencyCode.value;
+
+  // add tracking if available
+  await getTracking()
+    .then(values => (data.tracking = values))
+    .catch(() => null);
+
+  // ---
+  return post<IBasket>({
+    mutationKey: ["basket", "products", "add"],
+    url: useUrl("orders"),
+    data,
+    withAccessToken: true
+  })
+    .then(data => {
+      if (isNil(data)) {
+        throw new DetailedError(
+          t("error.basket_not_available"),
+          responseCodes.Internal_Server_Error,
+          ErrorOrigin.Headless
+        );
+      }
+
+      // NB this is critical for any existing items in the queue to have the correct basket id
+      forEach(queue.store.state.items, item => {
+        if (item.data && !item.data.basketId) {
+          item.data.basketId = data.id;
+        }
+      });
+
       return data;
     })
     .catch(parseApiErrors);
@@ -385,29 +516,17 @@ async function updateQuantity(
  * @returns A promise that resolves with the updated product data.
  * @throws Will reject the promise if no basket ID is provided or if no product data is provided.
  */
-async function update(
-  {
-    basketId,
-    currencyId,
-    promotions
-  }: {
-    basketId: string;
-    currencyId?: string;
-    promotions?: string[];
-  },
-  { data }: { data: ProductModel }
-): Promise<IBasket> {
+async function update({
+  basketId,
+  model
+}: {
+  basketId: string;
+  model: ProductProps;
+}): Promise<IBasket> {
   const { t } = useI18n();
   const { put, post, useUrl } = useQuery();
-  if (!basketId)
-    return Promise.reject(
-      new DetailedError(
-        t("error.basket_not_available"),
-        responseCodes.Not_Found,
-        ErrorOrigin.Headless
-      )
-    );
-  if (isEmpty(data))
+
+  if (isEmpty(model))
     return Promise.reject(
       new DetailedError(
         t("error.product_not_available"),
@@ -416,25 +535,33 @@ async function update(
       )
     );
 
-  const product = parseBasketProductData(data, promotions);
+  const isNew = !model?.id;
+
+  const product = parseBasketProductData(model, isNew);
+
   // ---
-  const isNew = !data?.id;
+
+  if (!basketId) return generateBasket([product]);
+
+  // ---
 
   const action = isNew ? post : put;
-  const suffix = isNew ? "" : `/${data.id}`;
-  // ---
+  const suffix = isNew ? "" : `/${model.id}`;
+
   return action<IBasket>({
+    mutationKey: ["basket", "products", isNew ? "add" : model.id],
     url: useUrl(`/orders/${basketId}/products${suffix}`),
     data: product,
     withAccessToken: true
   })
     .then(data => {
-      if (isNil(data))
+      if (isNil(data)) {
         throw new DetailedError(
           t("error.basket_not_available"),
           responseCodes.Internal_Server_Error,
           ErrorOrigin.Headless
         );
+      }
       return data;
     })
     .catch(parseApiErrors);
@@ -454,11 +581,17 @@ async function update(
  *
  * @throws {Error} - Throws an error if no basket ID is provided or if a model is not found for a product.
  */
-async function updateMany(
-  { basketId, basketProducts, promotions }: any,
-  { data }: { data: ActorRef<any>[] }
-): Promise<IBasket> {
+async function updateMany({
+  basketId,
+  basketProducts,
+  data
+}: {
+  basketId: IBasket["id"];
+  basketProducts: BasketProduct[];
+  data: ProductProps[];
+}): Promise<IBasket> {
   const { t } = useI18n();
+
   if (!basketId)
     return Promise.reject(
       new DetailedError(
@@ -469,38 +602,17 @@ async function updateMany(
     );
 
   // When updating the basket we need to provide :
-  //   * ALL products that are valid and ready to be saved
+  //   * ALL products configurations that need to be added
   //   * ALL other existing products already in the basket
   // otherwise the existing products will be removed from the basket
 
-  const validItems = filter(data, item =>
-    item.getSnapshot().matches("available.valid")
-  ) as ActorRef<any>[];
-
   // --- then build the basket config for the validItems products
-  const products = map(validItems, item => {
-    const id = get(item.getSnapshot(), "context.rawBasketProduct.id");
-    // inform the item that it is being processed
-    item.send({ type: "PROCESSING" });
-    // ---
-    const model = get(item, "state.context.model");
-    const coupons = get(item, "state.context.coupons");
+  const newProducts = map(data, item => {
+    const product = parseBasketProductData(item);
 
-    if (!model)
-      return Promise.reject(
-        new DetailedError(
-          t("error.product_not_available"),
-          responseCodes.Not_Found,
-          ErrorOrigin.Headless
-        )
-      );
-    // ---
-    const product = parseBasketProductData(model, coupons);
     // Add a flag to the product to indicate that the field values should NOT be validated.
     //  we want to ge these products in without deep validation
     set(product, "provision_field_values_validate", false);
-
-    if (id) set(product, "order_product_id", id);
 
     return product;
   });
@@ -513,7 +625,7 @@ async function updateMany(
       const id = get(item, "id");
 
       if (id) {
-        const product = parseBasketProductData(item.configuration, promotions);
+        const product = parseBasketProductData(item.configuration);
         // Add a flag to the product to indicate that the field values should NOT be validated.
         //  we want to ge these products in without deep validation
         set(product, "provision_field_values_validate", false);
@@ -526,34 +638,32 @@ async function updateMany(
     []
   );
 
+  const products = concat(
+    existingProducts,
+    newProducts
+  ) as IBasketProductModel[];
+
+  // ---
+
+  if (!basketId) return generateBasket(products);
+
   // ---
   const { put, useUrl } = useQuery();
   return put<IBasket>({
+    mutationKey: ["basket", "products"],
     url: useUrl(`/orders/${basketId}`),
-    data: { products: concat(existingProducts, products) },
+    data: { products },
     withAccessToken: true
-  })
-    .then(data => {
-      forEach(validItems, item => item.send({ type: "UPDATED" }));
-
-      if (isNil(data))
-        throw new DetailedError(
-          t("error.basket_not_available"),
-          responseCodes.Internal_Server_Error,
-          ErrorOrigin.Headless
-        );
-      return data;
-    })
-    .catch(error => {
-      forEach(validItems, item => item.send({ type: "CANCEL" }));
-      return Promise.reject(
-        new DetailedError(
-          t("error.basket_product_update_failed"),
-          responseCodes.Internal_Server_Error,
-          ErrorOrigin.Headless
-        )
-      );
-    });
+  }).catch(error => {
+    return Promise.reject(
+      new DetailedError(
+        t("error.basket_product_update_failed"),
+        responseCodes.Internal_Server_Error,
+        ErrorOrigin.Headless,
+        error
+      )
+    );
+  });
 }
 
 /**
@@ -592,19 +702,25 @@ async function remove({
     );
   // ---
   return del<IBasket>({
+    mutationKey: ["basket", "products", bpid],
     url: useUrl(`/orders/${basketId}/products/${bpid}`),
     withAccessToken: true
   }).then(data => {
-    if (isNil(data))
+    if (isNil(data)) {
       throw new DetailedError(
         t("error.basket_not_available"),
         responseCodes.Internal_Server_Error,
         ErrorOrigin.Headless
       );
+    }
     return data;
   });
 }
 
+/**
+ *  Parses API errors from the response and formats them into a more usable structure.
+ * @param response
+ */
 function parseApiErrors(response: ResponseError) {
   if (!response?.data) return Promise.reject(response);
   // rawErrors will return a flattened object path in dot notation, so we need to convert back it to an object
@@ -626,8 +742,58 @@ export default {
   fetch,
   fetchSelected,
   fetchRelated,
-  updateQuantity,
-  update,
-  updateMany,
-  remove
+  // ---
+  update: async (
+    basketId: IBasket["id"] | undefined | null,
+    model: ProductProps
+  ): Promise<IBasket> =>
+    new Promise((resolve, reject) =>
+      queue.addItem({
+        type: "UPDATE",
+        data: { basketId, model },
+        resolve: (rawBasket: IBasket) => resolve(rawBasket),
+        reject
+      })
+    ),
+
+  updateMany: async (
+    basketId: IBasket["id"] | undefined | null,
+    basketProducts: BasketProduct[],
+    models: ProductModel[]
+  ): Promise<IBasket> =>
+    new Promise((resolve, reject) =>
+      queue.addItem({
+        type: "UPDATE_MANY",
+        data: { basketId: basketId!, models, basketProducts },
+        resolve: (rawBasket: IBasket) => resolve(rawBasket),
+        reject
+      })
+    ),
+
+  updateQuantity: async (
+    basketId: IBasket["id"],
+    quantity: number,
+    basketProduct: BasketProduct
+  ): Promise<IBasket> =>
+    new Promise((resolve, reject) =>
+      queue.addItem({
+        type: "UPDATE_QUANTITY",
+        data: { basketId: basketId!, quantity, basketProduct },
+        resolve: (rawBasket: IBasket) => resolve(rawBasket),
+        reject
+      })
+    ),
+
+  remove: async (
+    basketId: IBasket["id"],
+    bpid: IBasket["id"]
+  ): Promise<IBasket> =>
+    new Promise((resolve, reject) =>
+      queue.addItem({
+        type: "REMOVE",
+        data: { basketId, bpid },
+        resolve: (rawBasket: IBasket) => resolve(rawBasket),
+        reject
+      })
+    )
 };

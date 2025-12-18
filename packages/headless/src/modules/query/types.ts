@@ -138,11 +138,19 @@ export type RequestParams = QueryProps & {
    * `true` to automatically include the currency ID in the request headers.
    */
   withCurrency?: boolean;
+
+  /**
+   * `true` to automatically include the basket ID in the request headers.
+   */
+  withBasket?: boolean;
   /**
    * `true` to automatically include the access token in the request headers,
    * or a string representing the token itself, or `null`/`false` to omit.
    */
   withAccessToken?: boolean | string | null;
+  /**
+   * `true` to omit the locale from the request headers.
+   */
   withoutLocale?: boolean;
 };
 
@@ -184,6 +192,11 @@ export type ReactiveQueryKeys = {
    * A reactive reference to the currency code.
    */
   currencyCode?: MaybeRef<undefined | string>;
+
+  /**
+   * A reactive reference to the basket ID.
+   */
+  basketId?: MaybeRef<undefined | string>;
   /**
    * A reactive reference to the pagination limit.
    */

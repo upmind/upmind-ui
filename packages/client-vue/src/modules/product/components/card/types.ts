@@ -5,17 +5,21 @@ import type {
   PriceDetail,
   ProductSummaryMeta,
   ProductSummaryDetailWithPrice,
-  ProductSummaryDetail,
   TermDetails
 } from "@upmind-automation/headless";
 import type { VariantProps } from "class-variance-authority";
 import { rootVariant } from "./card.config";
 import type { ButtonProps, ImageProps } from "@upmind-automation/upmind-ui";
+import type { RouteLocationAsRelativeGeneric } from "vue-router";
 
 export type RootVariants = VariantProps<typeof rootVariant>;
 
-export interface ProductCardProps
-  extends Omit<Product, "price" | "pricing" | "meta"> {
+export interface ProductCardProps extends Omit<
+  Product,
+  "price" | "pricing" | "meta"
+> {
+  configureRoute: RouteLocationAsRelativeGeneric;
+  disabled?: boolean;
   variant?: RootVariants["variant"];
   price?: PriceDetail;
   pricing?: ProductSummaryDetailWithPrice[];
@@ -31,6 +35,7 @@ export interface ProductCardProps
 }
 
 export interface ProductInfo {
+  configureRoute: RouteLocationAsRelativeGeneric;
   id?: string;
   productDetails: ProductDetails;
   price?: PriceDetail;
@@ -40,7 +45,6 @@ export interface ProductInfo {
   navigate?: boolean;
   processing?: boolean;
   selectedTerm?: string;
-  handleResolve?: () => void;
 }
 
 export interface ProductBenefits {

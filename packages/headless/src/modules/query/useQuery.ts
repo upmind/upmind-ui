@@ -12,7 +12,7 @@ import { ref, unref, computed } from "vue";
 
 // --- internal
 import { useI18n, useLocale } from "../system";
-import { useBasketCurrency } from "../basket";
+import { useBasket, useBasketCurrency } from "../basket";
 import { doFetch, refreshToken } from "./services";
 
 // --- utils
@@ -55,8 +55,15 @@ import type {
   PaginationInfo
 } from "./types";
 import { Methods } from "@upmind-automation/types";
-import type { DefaultError } from "@tanstack/vue-query";
+import type {
+  DefaultError,
+  MutationKey,
+  QueryKey,
+  QueryOptions,
+  UseQueryReturnType
+} from "@tanstack/vue-query";
 import { useSession } from "../session";
+import { cancel } from "xstate";
 
 // -----------------------------------------------------------------------------
 
@@ -107,6 +114,7 @@ export const useQuery = () => {
     filters,
     pagination,
     withCurrency,
+    withBasket,
     withoutLocale,
     // ---
     init,
@@ -168,6 +176,12 @@ export const useQuery = () => {
         if (!isEmpty(currencyCode?.value))
           url.searchParams.set("currency_code", currencyCode.value as string);
       }
+
+      if (withBasket) {
+        const { basketId } = useBasket();
+        if (!isEmpty(basketId?.value))
+          url.searchParams.set("basket_id", basketId.value as string);
+      }
     }
 
     // Enforce Content Type header
@@ -224,6 +238,7 @@ export const useQuery = () => {
    * @param select A function that is used to transform the response data before it is returned. This can be used to extract specific fields from the response or to transform the data into a different format.
    * @param queryKey The query key to use for the request. This is used to cache the request and can be used to invalidate the cache later.
    * @param withCurrency Whether to automagically add the currency filter to the request based on the `useBasketCurrency` composable.
+   * @param withBasket Whether to automagically add the basket ID to the request based on the `useBasket` composable.
    * @param withoutLocale Whether to exclude the locale from the request.
    * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
    * @param options Additional options to pass to TanStack query.
@@ -235,6 +250,7 @@ export const useQuery = () => {
     select,
     queryKey,
     withCurrency,
+    withBasket,
     withoutLocale,
     withAccessToken,
     ...options
@@ -260,6 +276,11 @@ export const useQuery = () => {
       reactiveKeys.currencyCode = currencyCode;
     }
 
+    if (withBasket) {
+      const { basketId } = useBasket();
+      reactiveKeys.basketId = basketId;
+    }
+
     const response = scope.run(() =>
       vueUseQuery<TQueryFnData, DefaultError, TData>(
         {
@@ -276,6 +297,7 @@ export const useQuery = () => {
                 sort: sort.value,
                 filters: filters.value,
                 withCurrency,
+                withBasket,
                 withoutLocale,
                 init: {
                   ...init,
@@ -304,9 +326,7 @@ export const useQuery = () => {
         filters.value = unref(values);
       },
       resetQuery: () => {
-        return queryClient.resetQueries({
-          queryKey: [...queryKey, reactiveKeys]
-        });
+        return queryClient.resetQueries({ queryKey });
       }
     } as ReturnType<typeof vueUseQuery<TQueryFnData, DefaultError, TData>> & {
       data: ComputedRef<TData>;
@@ -327,6 +347,8 @@ export const useQuery = () => {
    * @param guard A function that returns a promise to be resolved before the request is sent. This can be used to ensure that certain conditions are met before the request is sent, such as checking if the user is authenticated.
    * @param queryKey The query key to use for the request. This is used to cache the request and can be used to invalidate the cache later.
    * @param withCurrency Whether to automagically add the currency filter to the request based on the `useBasketCurrency` composable.
+   * @param withBasket Whether to automagically add the basket ID to the request based on the `useBasket` composable.
+   * @param withoutLocale Whether to exclude the locale from the request.
    * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
    * @param options Additional options to pass to TanStack query.
    */
@@ -337,6 +359,7 @@ export const useQuery = () => {
     select,
     queryKey,
     withCurrency,
+    withBasket,
     withoutLocale,
     withAccessToken,
     ...options
@@ -345,6 +368,7 @@ export const useQuery = () => {
     const scope = getCurrentScope() ?? effectScope();
 
     const { currencyCode } = useBasketCurrency();
+    const { basketId } = useBasket();
 
     // --- state
     const limit = options?.pagination?.limit ?? PAGINATION.limit;
@@ -355,13 +379,13 @@ export const useQuery = () => {
     const filters = ref<QueryParams["filters"]>({
       ...(options?.filters ?? {})
     });
-
     // --- query
     const reactiveKeys: ReactiveQueryKeys = { sort, filters };
     if (!withoutLocale && locale.value) reactiveKeys.locale = locale;
     if (limit) reactiveKeys.limit = limit;
     if (limit) reactiveKeys.pageIndex = pageIndex;
     if (withCurrency) reactiveKeys.currencyCode = currencyCode;
+    if (withBasket) reactiveKeys.basketId = basketId;
 
     let response = scope.run(() =>
       vueUseQuery<TQueryFnData, DefaultError, QueryResponse<TData>>(
@@ -383,6 +407,7 @@ export const useQuery = () => {
                   offset: (pageIndex.value - 1) * limit
                 },
                 withCurrency,
+                withBasket,
                 withoutLocale,
                 init: {
                   ...init,
@@ -472,6 +497,7 @@ export const useQuery = () => {
        * @type {Object}
        * @property {boolean} hasNextPage - Whether there is a next page.
        * @property {boolean} hasPrevPage - Whether there is a previous page.
+       * @property {boolean} hasPages - Whether there is more than one page of results.
        */
       meta: computed(() => {
         total.value = response?.data?.value?.total ?? total.value;
@@ -480,7 +506,8 @@ export const useQuery = () => {
           : Math.max(Math.ceil(total.value / limit), 1);
         return {
           hasNextPage: pageIndex.value < pageTotal,
-          hasPrevPage: pageIndex.value > 1
+          hasPrevPage: pageIndex.value > 1,
+          hasPages: pageTotal > 1
         };
       }),
 
@@ -569,9 +596,7 @@ export const useQuery = () => {
 
       resetQuery: () => {
         pageIndex.value = 1;
-        return queryClient.resetQueries({
-          queryKey: [...queryKey, reactiveKeys]
-        });
+        return queryClient.resetQueries({ queryKey });
       }
     } as ReturnType<
       typeof vueUseQuery<TQueryFnData, DefaultError, QueryResponse<TData>>
@@ -581,6 +606,7 @@ export const useQuery = () => {
       meta: ComputedRef<{
         hasNextPage: boolean;
         hasPrevPage: boolean;
+        hasPages: boolean;
       }>;
       total: ComputedRef<number>;
       fetchNextPage: () => void;
@@ -611,6 +637,7 @@ export const useQuery = () => {
     select,
     queryKey,
     withCurrency,
+    withBasket,
     withoutLocale,
     withAccessToken,
     ...options
@@ -619,6 +646,7 @@ export const useQuery = () => {
     const scope = getCurrentScope() ?? effectScope();
 
     const { currencyCode } = useBasketCurrency();
+    const { basketId } = useBasket();
 
     // --- state
     const limit = options?.pagination?.limit ?? PAGINATION.limit;
@@ -637,6 +665,7 @@ export const useQuery = () => {
     if (!withoutLocale && locale.value) reactiveKeys.locale = locale;
     if (limit) reactiveKeys.limit = limit;
     if (withCurrency) reactiveKeys.currencyCode = currencyCode;
+    if (withBasket) reactiveKeys.basketId = basketId;
 
     const response = scope.run(() =>
       vueUseInfiniteQuery<TQueryFnData, DefaultError, TData>(
@@ -655,6 +684,7 @@ export const useQuery = () => {
                 filters: filters.value,
                 pagination: { limit, offset },
                 withCurrency,
+                withBasket,
                 withoutLocale,
                 init: {
                   ...init,
@@ -727,10 +757,12 @@ export const useQuery = () => {
        * @type {Object}
        * @property {boolean} hasNextPage - Whether there is a next page.
        * @property {boolean} hasPrevPage - Whether there is a previous page.
+       * @property {boolean} hasPages - Whether there is more than one page of results.
        */
       meta: computed(() => ({
         hasNextPage: response?.hasNextPage?.value,
-        hasPrevPage: response?.hasPreviousPage?.value
+        hasPrevPage: response?.hasPreviousPage?.value,
+        hasPages: pageTotal.value > 1
       })),
 
       sort: (values?: QueryParams["sort"]) => {
@@ -741,10 +773,7 @@ export const useQuery = () => {
         filters.value = unref(values);
       },
 
-      resetQuery: () =>
-        queryClient.resetQueries({
-          queryKey: [...queryKey, reactiveKeys]
-        })
+      resetQuery: () => queryClient.resetQueries({ queryKey })
     } as ReturnType<
       typeof vueUseInfiniteQuery<TQueryFnData, DefaultError, TData>
     > & {
@@ -752,6 +781,7 @@ export const useQuery = () => {
       meta: ComputedRef<{
         hasNextPage: boolean;
         hasPrevPage: boolean;
+        hasPages: boolean;
       }>;
       sort: (values?: QueryParams["sort"]) => void;
       filter: (values: QueryParams["filters"]) => void;
@@ -777,27 +807,46 @@ export const useQuery = () => {
   >(
     method: Omit<Methods, "GET" | "HEAD">,
     {
+      mutationKey,
       url,
       init,
       data,
       withAccessToken,
+      withoutLocale,
       ...options
     }: MutationParams<QueryResponse<TData>, TError, TVariables, TContext>
   ) {
+    const scope = getCurrentScope() ?? effectScope();
+
     // safeguard
     init ??= {};
+
+    // set "lang" parameter
+    if (!withoutLocale && locale.value) {
+      if (!url.searchParams.has("lang")) {
+        url.searchParams.set("lang", locale.value as string);
+      }
+    }
 
     // Enforce method, header, parse body
     set(init, "method", method.toUpperCase());
     set(init, "body", parseData(data));
 
-    return useMutation(
-      {
-        mutationFn: async () => request<TData>({ url, init, withAccessToken }),
-        ...options
-      },
-      queryClient
+    const response = scope.run(() =>
+      useMutation(
+        {
+          mutationKey,
+          mutationFn: async () =>
+            request<TData>({ url, init, withAccessToken }),
+          ...options
+        },
+        queryClient
+      )
     );
+
+    return response as ReturnType<
+      typeof useMutation<QueryResponse<TData>, TError, TVariables, TContext>
+    >;
   }
 
   // --- Async methods
@@ -811,6 +860,8 @@ export const useQuery = () => {
    * @param select A function to select a subset of the data returned by the request. This can be used to transform the data before it is returned.
    * @param queryKey The query key to use for the request. This is used to cache the request and can be used to invalidate the cache later.
    * @param withCurrency Whether to automagically add the currency filter to the request based on the `useBasketCurrency` composable.
+   * @param withBasket Whether to automagically add the basket ID to the request based on the `useBasket` composable.
+   * @param withoutLocale Whether to exclude the locale from the request.
    * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
    * @param options Additional options to pass to TanStack query.
    */
@@ -821,6 +872,7 @@ export const useQuery = () => {
     select,
     queryKey,
     withCurrency,
+    withBasket,
     withoutLocale,
     withAccessToken,
     ...options
@@ -843,6 +895,7 @@ export const useQuery = () => {
           filters,
           withoutLocale,
           withCurrency,
+          withBasket,
           init: {
             ...init,
             signal // Pass the new signal to the request to allow cancellation
@@ -902,6 +955,7 @@ export const useQuery = () => {
           pagination: { limit, offset },
           withoutLocale,
           withCurrency: options.withCurrency,
+          withBasket: options.withBasket,
           init: {
             ...init,
             signal // Pass the new signal to the request to allow cancellation
@@ -953,6 +1007,7 @@ export const useQuery = () => {
    *
    * @example postRequest({ url: "/orders", withAccessToken: true });
    *
+   * @param mutationKey The mutation key to use for the request. This is used to cache the request and can be used to invalidate the cache later.
    * @param url The URL to send the request to.
    * @param init The request options.
    * @param data The data to send with the request.
@@ -961,29 +1016,23 @@ export const useQuery = () => {
    * @throws {Error} Might throw an error if the request fails.
    */
   async function postRequest<T = object>({
+    mutationKey,
     url,
     init,
     data,
     withAccessToken,
     withoutLocale
-  }: RequestParams): Promise<T> {
-    // safeguard
-    init ??= {};
-
-    // set "lang" parameter
-    if (!withoutLocale && locale.value) {
-      if (!url.searchParams.has("lang")) {
-        url.searchParams.set("lang", locale.value as string);
-      }
-    }
-
-    // Enforce method, header, parse body
-    set(init, "method", Methods.POST.toUpperCase());
-    set(init, "body", parseData(data));
-
-    return request<T>({ url, init, withAccessToken }).then(
-      response => (response?.data || response) as T
-    );
+  }: RequestParams & { mutationKey: MutationKey }): Promise<T> {
+    return mutate<T>(Methods.POST, {
+      mutationKey,
+      url,
+      init,
+      data,
+      withAccessToken,
+      withoutLocale
+    })
+      .mutateAsync()
+      .then(response => (response?.data || response) as T);
   }
 
   /**
@@ -995,6 +1044,7 @@ export const useQuery = () => {
    *
    * @example putRequest({ url: "/orders", withAccessToken: true });
    *
+   * @param mutationKey The mutation key to use for the request. This is used to cache the request and can be used to invalidate the cache later.
    * @param url The URL to send the request to.
    * @param init The request options.
    * @param data The data to send with the request.
@@ -1003,28 +1053,23 @@ export const useQuery = () => {
    * @throws {Error} Might throw an error if the request fails.
    */
   async function putRequest<T = object>({
+    mutationKey,
     url,
     init,
     data,
     withAccessToken,
     withoutLocale
-  }: RequestParams): Promise<T> {
-    // safeguard
-    init ??= {};
-
-    // set "lang" parameter
-    if (!withoutLocale && locale.value) {
-      if (!url.searchParams.has("lang")) {
-        url.searchParams.set("lang", locale.value as string);
-      }
-    }
-    // Enforce method, header, parse body
-    set(init, "method", Methods.PUT.toUpperCase());
-    set(init, "body", JSON.stringify(data));
-
-    return request<T>({ url, init, withAccessToken }).then(
-      response => (response?.data || response) as T
-    );
+  }: RequestParams & { mutationKey: MutationKey }): Promise<T> {
+    return mutate<T>(Methods.PUT, {
+      mutationKey,
+      url,
+      init,
+      data,
+      withAccessToken,
+      withoutLocale
+    })
+      .mutateAsync()
+      .then(response => (response?.data || response) as T);
   }
 
   /**
@@ -1036,6 +1081,7 @@ export const useQuery = () => {
    *
    * @example patchRequest({ url: "/orders", withAccessToken: true });
    *
+   * @param mutationKey The mutation key to use for the request. This is used to cache the request and can be used to invalidate the cache later.
    * @param url The URL to send the request to.
    * @param init The request options.
    * @param data The data to send with the request.
@@ -1044,29 +1090,23 @@ export const useQuery = () => {
    * @throws {Error} Might throw an error if the request fails.
    */
   async function patchRequest<T = object>({
+    mutationKey,
     url,
     init,
     data,
     withAccessToken,
     withoutLocale
-  }: RequestParams): Promise<T> {
-    // safeguard
-    init ??= {};
-
-    // set "lang" parameter
-    if (!withoutLocale && locale.value) {
-      if (!url.searchParams.has("lang")) {
-        url.searchParams.set("lang", locale.value as string);
-      }
-    }
-
-    // Enforce method, header, parse body
-    set(init, "method", Methods.PATCH.toUpperCase());
-    set(init, "body", JSON.stringify(data));
-
-    return request<T>({ url, init, withAccessToken }).then(
-      response => (response?.data || response) as T
-    );
+  }: RequestParams & { mutationKey: MutationKey }): Promise<T> {
+    return mutate<T>(Methods.PATCH, {
+      mutationKey,
+      url,
+      init,
+      data,
+      withAccessToken,
+      withoutLocale
+    })
+      .mutateAsync()
+      .then(response => (response?.data || response) as T);
   }
 
   /**
@@ -1078,6 +1118,7 @@ export const useQuery = () => {
    *
    * @example deleteRequest({ url: "/orders", withAccessToken: true });
    *
+   * @param mutationKey The mutation key to use for the request. This is used to cache the request and can be used to invalidate the cache later.
    * @param url The URL to send the request to.
    * @param init The request options.
    * @param data The data to send with the request.
@@ -1086,29 +1127,23 @@ export const useQuery = () => {
    * @throws {Error} Might throw an error if the request fails.
    */
   async function deleteRequest<T = object>({
+    mutationKey,
     url,
     init,
     data,
     withAccessToken,
     withoutLocale
-  }: RequestParams): Promise<T> {
-    // safeguard
-    init ??= {};
-
-    // set "lang" parameter
-    if (!withoutLocale && locale.value) {
-      if (!url.searchParams.has("lang")) {
-        url.searchParams.set("lang", locale.value as string);
-      }
-    }
-
-    // Enforce method, header, parse body
-    set(init, "method", Methods.DELETE.toUpperCase());
-    set(init, "body", JSON.stringify(data));
-
-    return request<T>({ url, init, withAccessToken }).then(
-      response => (response?.data || response) as T
-    );
+  }: RequestParams & { mutationKey: MutationKey }): Promise<T> {
+    return mutate<T>(Methods.DELETE, {
+      mutationKey,
+      url,
+      init,
+      data,
+      withAccessToken,
+      withoutLocale
+    })
+      .mutateAsync()
+      .then(response => (response?.data || response) as T);
   }
 
   /**
@@ -1161,6 +1196,13 @@ export const useQuery = () => {
     put: putRequest,
     post: postRequest,
     head: headRequest,
-    patch: patchRequest
+    patch: patchRequest,
+    // --- cancel method
+    cancel: async (
+      queryKey: QueryKey,
+      options: { exact?: boolean } = { exact: false }
+    ) => {
+      return queryClient.cancelQueries({ queryKey, ...options });
+    }
   };
 };

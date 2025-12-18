@@ -74,7 +74,7 @@ for (const { language, username, password } of localeLogins) {
       await page.goto(URLs.basket);
       await page.waitForLoadState("load");
       await page.waitForLoadState("networkidle");
-      token = await getSessionToken(context, "guest");
+      token = await getSessionToken(context);
       orderId = await getCurrentOrderId(token);
       await addProductToOrder(
         token,
@@ -97,23 +97,7 @@ for (const { language, username, password } of localeLogins) {
     });
     test("Checkout - Registered User", async ({ page, context }) => {
       await getClientToken(page, username, password);
-      await page.goto(URLs.basket);
-      await page.waitForLoadState("networkidle");
-      token = await getSessionToken(context, "client");
-      orderId = await getCurrentOrderId(token);
-      await addProductToOrder(
-        `${token}`,
-        `${orderId}`,
-        "3de78642-de53-9714-76df-21208469530d",
-        1,
-        24,
-        [],
-        [],
-        { domain: "uicheckout.com" },
-        []
-      );
-      await page.reload();
-      await page.goto(URLs.checkout);
+      await checkout.goToCheckout(null, null);
       await page.waitForLoadState("load");
       await page.waitForLoadState("networkidle");
       await expect(page).toHaveScreenshot(

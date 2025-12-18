@@ -5,20 +5,23 @@ import { type QueryClient, VueQueryPlugin } from "@tanstack/vue-query";
 
 // --- internal
 import {
+  FunnelProps,
+  Funnels,
   type GlobbedFiles,
   useBrand,
   useDataLayer,
   useLocale,
   useLocalisation,
   useRecaptcha,
+  useRoutingEngine,
   useSession,
   useSystem,
   useTracking
 } from "./modules";
-import { first, get } from "lodash-es";
+import { isEmpty, get, isFunction } from "lodash-es";
 import { useRouting } from "./modules/routing/useRouting";
 import { useTheming } from "./modules/theming/useTheming";
-import { Flow, useQuery } from "./modules";
+import { useQuery } from "./modules";
 
 // --- utils
 import {
@@ -128,8 +131,8 @@ export interface UpmindProps {
   router?: {
     /** The Vue Router instance. */
     instance: Router;
-    /** An array of predefined routing flows or a function that returns them. */
-    flows?: Flow[] | (() => Flow[]);
+    /** A function to Register routing flows with the routing engine. */
+    registerFunnels?: () => { defaultFunnel?: string; funnels?: Funnels };
   };
   /**
    * Configuration for Vue I18n internationalization.
@@ -390,7 +393,11 @@ export class Upmind {
    */
   private async initRouter() {
     if (!this.router?.instance) return;
-    useRouting(this.router.instance, this.router.flows);
+    useRouting(this.router.instance);
+    const config = isFunction(this.router?.registerFunnels)
+      ? this.router.registerFunnels()
+      : {};
+    useRoutingEngine().register(config);
   }
 
   /**

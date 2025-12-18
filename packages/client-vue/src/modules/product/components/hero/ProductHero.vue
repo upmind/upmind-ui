@@ -1,6 +1,8 @@
 <template>
   <section :class="styles.header.root">
     <div :class="styles.header.details" ref="detailsRef">
+      <slot name="prepend" />
+
       <hgroup>
         <h1 :class="styles.header.title">
           {{ productDetails?.title }}
@@ -8,7 +10,7 @@
         <DisplayPrice
           v-if="props.productDetails?.displayPrice"
           v-bind="props.productDetails.displayPrice"
-          class="text-xl"
+          :class="styles.header.price"
         />
       </hgroup>
 
@@ -18,21 +20,18 @@
         :description="productDetails?.description"
         :lineclamp="true"
       />
+
+      <slot name="append" />
     </div>
 
     <aside
-      v-if="props.productDetails?.imgUrl || !isEmpty(images)"
+      v-if="props.image && stylesMeta.hasImage"
       :class="styles.header.aside"
-      class="md:h-[var(--details-h)]"
       :style="{ '--details-h': `${height}px` }"
     >
-      <Image
-        :image="isEmpty(images) ? props.productDetails.imgUrl : images"
-        fit="cover"
-        :ratio="
-          productDetails?.uiMeta?.product?.image?.ratio as ImageProps['ratio']
-        "
-        class="h-full"
+      <ProductImage
+        :product-details="props.productDetails"
+        :images="props.productDetails?.images"
       />
     </aside>
   </section>
@@ -46,7 +45,8 @@ import { useElementSize } from "@vueuse/core";
 // --- components
 import DisplayPrice from "../terms/DisplayPrice.vue";
 import ProductDescription from "../card/ProductDescription.vue";
-import { Image, useStyles } from "@upmind-automation/upmind-ui";
+import ProductImage from "./ProductImage.vue";
+import { useStyles } from "@upmind-automation/upmind-ui";
 
 // --- internal
 import config from "./product-hero.config";
@@ -55,14 +55,22 @@ import config from "./product-hero.config";
 import { isEmpty } from "lodash-es";
 
 // --- types
-import type { ProductHeaderProps } from "../types";
+import type { ProductHeaderProps } from "./types";
 import type { ImageItem } from "@upmind-automation/upmind-ui";
 import type { ImageProps } from "@upmind-automation/upmind-ui";
 import type { ComputedRef } from "vue";
 
-const props = defineProps<ProductHeaderProps>();
+const props = withDefaults(defineProps<ProductHeaderProps>(), {
+  direction: "horizontal",
+  image: true
+});
 
-const styles = useStyles(["header"], {}, config) as ComputedRef<{
+const stylesMeta = computed(() => ({
+  direction: props.direction,
+  hasImage: !!(props.productDetails?.imgUrl || !isEmpty(images.value))
+}));
+
+const styles = useStyles(["header"], stylesMeta, config) as ComputedRef<{
   header: {
     root: string;
     details: string;

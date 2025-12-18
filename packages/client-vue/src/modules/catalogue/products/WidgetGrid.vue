@@ -37,9 +37,12 @@
         <ProductCard
           v-if="!meta.isLoading"
           v-for="product in data"
+          :disabled="processing"
           :key="product.id"
           v-bind="product"
           :preserve-promotion="preservePromotions"
+          :configure-route="props.configureRoute"
+          @resolve="processing = true"
         />
 
         <ProductCardSkeleton
@@ -50,6 +53,7 @@
       </div>
 
       <Pagination
+        v-if="meta.hasPages"
         v-bind="pagination"
         :meta="meta"
         @next="doNextPage"
@@ -98,7 +102,8 @@ import {
   useProductCatalogue,
   RequestSortDirection,
   ProductSortableProperties,
-  utils
+  utils,
+  useBasket
 } from "@upmind-automation/headless";
 import config from "../catalogue.config";
 
@@ -122,6 +127,7 @@ import { debounce, isArray, isEmpty, some } from "lodash-es";
 import type { Product } from "@upmind-automation/headless";
 import type { ProductSortProps, ProductsProps } from "./types";
 import type { ComputedRef } from "vue";
+import type { RouteLocationAsRelativeGeneric } from "vue-router";
 
 const { DEBOUNCE_DELAY } = utils;
 
@@ -130,9 +136,14 @@ const { DEBOUNCE_DELAY } = utils;
 const props = withDefaults(
   defineProps<{
     limit?: number;
+    configureRoute: RouteLocationAsRelativeGeneric;
   }>(),
   { limit: 9 }
 );
+
+const processing = ref(false);
+const { meta: basketMeta } = useBasket();
+
 const container = useTemplateRef<HTMLDivElement>("container");
 
 const categoryId = defineModel<ProductsProps["categoryId"] | undefined>(
@@ -221,7 +232,9 @@ const preservePromotions = computed(() =>
 );
 
 //  --- side effects
-
+watch(basketMeta, newMeta => {
+  processing.value = newMeta.isProcessing ? processing.value : false;
+});
 watch(
   data,
   newData => {

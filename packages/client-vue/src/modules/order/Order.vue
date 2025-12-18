@@ -38,39 +38,44 @@
 <script lang="ts" setup>
 // --- external
 import { computed, ref } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import {
+  useRoute,
+  useRouter,
+  type RouteLocationAsRelativeGeneric
+} from "vue-router";
 import { useI18n } from "vue-i18n";
 
 // --- internal
 import {
   useSession,
   useBasket,
-  useRoutingEngine,
   utils,
-  ROUTE,
-  useBrand,
   useOrder,
   QUERY_PARAMS
 } from "@upmind-automation/headless";
 
 // -- components
 import { Interstitial, Button } from "@upmind-automation/upmind-ui";
+import { has } from "lodash-es";
+
+// -----------------------------------------------------------------------------
+const props = defineProps<{
+  storefrontRoute?: RouteLocationAsRelativeGeneric;
+}>();
 
 // -----------------------------------------------------------------------------
 const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
 
-const { storefrontUrl } = useBrand();
 const { errors } = useBasket();
-const { isResolved } = useRoutingEngine();
 
-await isResolved(ROUTE.ORDER);
 const orderId = route.params?.[QUERY_PARAMS.ORDER_ID]?.toString();
 
 const { transferTo, meta } = useSession();
-const { meta: orderMeta, isReady: isOrderReady } = useOrder(orderId);
-await isOrderReady();
+const { meta: orderMeta, isReady } = useOrder(orderId);
+
+await isReady();
 
 const success = computed(
   () => route.query.payment_success === "true" || orderMeta.value.isPaid
@@ -149,7 +154,7 @@ const processing = ref(false);
 
 function doAction() {
   if (!meta.value.isAuthenticated) {
-    window.location.href = storefrontUrl.value;
+    window.location.href = router.resolve(props.storefrontRoute ?? "/").href;
     processing.value = false;
     return;
   }

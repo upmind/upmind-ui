@@ -5,7 +5,7 @@ import { Registration } from "../../support/page-objects/templates/Registration"
 import { Checkout } from "../../support/page-objects/templates/Checkout";
 import { getSessionToken } from "../../support/utils/functions/tokens";
 import {
-  getCurrentOrderId,
+  createOrder,
   addProductToOrder
 } from "../../support/utils/functions/basket";
 
@@ -113,8 +113,10 @@ test.describe("UPM Campaign Tracking", () => {
       `${URLs.basket}?upm_campaign=playwright_test_campaign&upm_source=playwright&upm_medium=e2e_test&upm_content=content_example&upm_term=term_example`
     );
     await page.waitForLoadState("networkidle");
-    token = await getSessionToken(context, "guest");
-    orderId = await getCurrentOrderId(token);
+    await page.goto(URLs.basket);
+    await page.waitForLoadState("networkidle");
+    let token = await getSessionToken(context);
+    let orderId = await createOrder(token);
     await addProductToOrder(
       `${token}`,
       `${orderId}`,
@@ -130,13 +132,11 @@ test.describe("UPM Campaign Tracking", () => {
       },
       []
     );
-    await page.goto(URLs.basket);
-    await page.waitForLoadState("networkidle");
     await page.goto(URLs.checkout);
     await registration.inputRegistration();
-    await checkout.selectPaymentMethod("Stripe Payment");
+    await checkout.selectPaymentMethod("Stripe");
     await checkout.inputStripeDetails("4242424242424242", "01/50", "123");
-    await checkout.clickPlaceOrderButton();
+    await checkout.clickPlaceOrderAndPay();
     const tracking = await getTrackingData(
       page,
       `/api/orders/${orderId}/convert`

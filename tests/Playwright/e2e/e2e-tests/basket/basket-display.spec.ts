@@ -3,19 +3,25 @@ import { fakerEN_GB } from "@faker-js/faker";
 import { URLs } from "../../support/constants/urls";
 import { getSessionToken } from "../../support/utils/functions/tokens";
 import {
-  getCurrentOrderId,
+  createOrder,
   addProductToOrder
 } from "../../support/utils/functions/basket";
+import { Basket } from "../../support/page-objects/templates/Basket";
+
+let basket: Basket;
 
 test.describe("Basket Tests", () => {
   let token: string;
   let orderId: string | null;
+  test.beforeEach(async ({ page }) => {
+    basket = new Basket(page);
+  });
   test("Basket with 1 item", async ({ page, context }) => {
     const domain = `${fakerEN_GB.string.alphanumeric({ length: { min: 3, max: 15 } })}.com`;
     await page.goto(URLs.basket);
     await page.waitForLoadState("networkidle");
-    token = await getSessionToken(context, "guest");
-    orderId = await getCurrentOrderId(token);
+    token = await getSessionToken(context);
+    orderId = await createOrder(token);
     await addProductToOrder(
       token,
       orderId,
@@ -28,12 +34,8 @@ test.describe("Basket Tests", () => {
       []
     );
     await page.goto(URLs.basket);
-    await expect(page.getByTestId("basket-product-summary")).toContainText(
-      "Shared Hosting"
-    );
-    await expect(page.getByTestId("basket-product-summary")).toContainText(
-      `${domain}`
-    );
+    await expect(basket.basketProductSummary).toContainText("Shared Hosting");
+    await expect(basket.basketProductSummary).toContainText(`${domain}`);
   });
   test("Empty basket", async ({ page }) => {
     await page.goto(URLs.basket);

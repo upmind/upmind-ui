@@ -15,6 +15,7 @@ import { isActor } from "xstate/lib/utils";
 import { parseQuantity } from "../product/utils";
 import { isEmpty, get, omit, add, subtract, isObject, has } from "lodash-es";
 import {
+  contextValue,
   DetailedError,
   ErrorOrigin,
   responseCodes,
@@ -55,18 +56,12 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
   }
 
   const { basket: rawBasket } = useBasket();
-  if (!rawBasket.value)
-    throw new DetailedError(
-      t("error.basket_not_available"),
-      responseCodes.Not_Found,
-      ErrorOrigin.Headless
-    );
 
   const actor: ActorRef<any> | undefined = isActor(data)
     ? (data as ActorRef<any>)
     : undefined;
 
-  const productProps: ProductProps | undefined = isProductProps(data)
+  const productModel: ProductModel | undefined = isProductProps(data)
     ? (omit(data, [
         "currencyId",
         "currencyCode",
@@ -79,7 +74,7 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
       ]) as ProductModel)
     : undefined;
 
-  if (isEmpty(data) || (isEmpty(actor) && isEmpty(productProps?.productId)))
+  if (isEmpty(data) || (isEmpty(actor) && isEmpty(productModel?.productId)))
     throw new DetailedError(
       t("error.product_not_available"),
       responseCodes.Not_Found,
@@ -101,17 +96,17 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
     interpret(
       productMachine.withContext({
         id,
-        basketId: rawBasket.value.id,
-        clientId: rawBasket.value.client_id,
-        currencyId: currencyId ?? rawBasket.value.currency_id,
+        basketId: rawBasket.value?.id,
+        clientId: rawBasket.value?.client_id,
+        currencyId: currencyId ?? rawBasket.value?.currency_id,
         currencyCode,
-        promotions: rawBasket.value.promotions,
+        promotions: rawBasket.value?.promotions,
         subproducts,
         coupons,
         silent,
         bundle,
         // ---
-        model: productProps
+        model: productModel
       }),
       {
         id,
@@ -133,9 +128,11 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
    * @returns A promise that resolves when the product service is ready.
    */
   async function isReady(): Promise<void> {
-    return waitFor(service, state => state.matches("available"), {
-      timeout: Infinity
-    });
+    return waitFor(
+      service,
+      state => stateMatches(state, ["available", "complete", "done"]),
+      { timeout: Infinity }
+    );
   }
 
   // --- context
@@ -153,8 +150,8 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
    */
   async function getProduct(): Promise<Product> {
     return new Promise<Product>((resolve, reject) => {
-      const product = get(service.getSnapshot(), "context.product") as Product;
-      if (!product)
+      const product = contextValue<Product>(service, "product");
+      if (!product) {
         return reject(
           new DetailedError(
             t("error.product_not_available"),
@@ -162,6 +159,7 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
             ErrorOrigin.Headless
           )
         );
+      }
       return resolve(product);
     });
   }
@@ -176,9 +174,14 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
     service.send({ type: "UPDATE" });
     return waitFor(
       service,
-      state => {
-        return !state.matches("processing") || state.done;
-      },
+      state =>
+        stateMatches(state, [
+          "error",
+          "available.invalid",
+          "available.error",
+          "complete",
+          "done"
+        ]),
       { timeout: 60_000 }
     )
       .then(state => {

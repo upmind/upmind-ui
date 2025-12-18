@@ -10,7 +10,8 @@ import {
   contextMatches,
   DEBOUNCE_DELAY,
   contextValue,
-  useImageUrl
+  useImageUrl,
+  useContext
 } from "../../utils";
 
 // --- utils
@@ -53,49 +54,52 @@ export const useProductConfig = (service: ActorRef<any>) => {
   const { includesTax } = useBrand();
 
   const { state, send } = useActor(service);
-  const model = computed(() => state.value.context.model); //toRef(state.value.context, "model");
-  const lookups = computed(() => state.value.context.lookups);
+  const model = useContext<ProductModel>(state, "model");
+  const lookups = useContext<ProductConfigContext["lookups"]>(state, "lookups");
+  const raw = computed(() => ({
+    product: contextValue<ProductConfigContext["rawProduct"]>(
+      state,
+      "rawProduct"
+    ),
+    basketProduct: contextValue<ProductConfigContext["rawBasketProduct"]>(
+      state,
+      "rawBasketProduct"
+    ),
+    provisionFields: contextValue<ProductConfigContext["rawProvisionFields"]>(
+      state,
+      "rawProvisionFields"
+    )
+  }));
   const id = computed(() => service.id);
   const touched = ref(false);
 
   // syntactic sugar
-  const productDetails = computed<ProductDetails>(
-    () => state.value.context?.lookups?.product
-  );
+  const productDetails = useContext<ProductDetails>(state, "lookups.product");
 
   const productImage = (size: string = "400x400"): string | undefined => {
     return useImageUrl(productDetails.value?.imgUrl, size);
   };
 
-  const product = computed<Product>(() => state.value.context?.product);
-
-  const title = computed<string>(() => state.value.context?.product?.title);
-
-  const terms = computed<TermDetails[]>(
-    () => state.value.context?.lookups?.terms
+  const product = useContext<Product>(state, "product");
+  const title = useContext<string>(state, "product.title");
+  const terms = useContext<TermDetails[]>(state, "lookups.terms");
+  const attributes = useContext<SubproductDetails[]>(
+    state,
+    "lookups.attributes"
   );
-
-  const attributes = computed<SubproductDetails[]>(
-    () => state.value.context?.lookups?.attributes
-  );
-
-  const options = computed<SubproductDetails[]>(
-    () => state.value.context?.lookups?.options
-  );
-
-  const fields = computed<Record<string, any>>(
-    () => state.value.context?.lookups?.provisionFields
+  const options = useContext<SubproductDetails[]>(state, "lookups.options");
+  const fields = useContext<Record<string, any>>(
+    state,
+    "lookups.provisionFields"
   );
 
   // ---
-  const errors = computed<Product["errors"]>(
-    () => state.value.context?.error?.message
-  );
-  const validationErrors = computed<Product["errors"]>(
-    () => state.value.context?.error.data
-  );
-  const additionalErrors = computed<Product["errors"]>(
-    () => state.value.context?.errorExternal
+  const errors = useContext<Product["errors"]>(state, "error.message");
+
+  const validationErrors = useContext<Product["errors"]>(state, "error.data");
+  const additionalErrors = useContext<Product["errors"]>(
+    state,
+    "errorExternal"
   );
 
   const meta = computed<UseProductConfigMeta>(() => ({
@@ -114,7 +118,7 @@ export const useProductConfig = (service: ActorRef<any>) => {
       contextMatches(state, ["error"]),
 
     isConfigurable:
-      terms.value?.length > 1 ||
+      (terms.value?.length ?? 0) > 1 ||
       contextMatches(state, [
         "lookups.attributes",
         "lookups.options",
@@ -168,7 +172,7 @@ export const useProductConfig = (service: ActorRef<any>) => {
 
   const incrementQuantity = debounce(async (value?: number): Promise<void> => {
     // sanity check
-    if (!lookups.value.product?.quantifiable) return;
+    if (!lookups.value?.product?.quantifiable) return;
 
     const qty = get(model.value, "quantity", 0);
 
@@ -178,7 +182,7 @@ export const useProductConfig = (service: ActorRef<any>) => {
 
   const decrementQuantity = debounce(async (value?: number): Promise<void> => {
     // sanity check
-    if (!lookups.value.product?.quantifiable) return;
+    if (!lookups.value?.product?.quantifiable) return;
 
     const qty = get(model.value, "quantity", 0);
 
@@ -189,7 +193,7 @@ export const useProductConfig = (service: ActorRef<any>) => {
   // --- TERMS
 
   function isSelectedTerm(value: number): boolean {
-    return isEqual(value, model.value?.term?.cycle);
+    return isEqual(value, model.value?.term);
   }
 
   const updateTerm = async (value: number): Promise<void> =>
@@ -200,14 +204,14 @@ export const useProductConfig = (service: ActorRef<any>) => {
   // --- ATTRIBUTES
 
   function isSelectedAttribute(attributeId: string, value: string): boolean {
-    return some(model.value.attributes[attributeId], ["productId", value]);
+    return some(model.value?.attributes?.[attributeId], ["productId", value]);
   }
 
   async function setAttributes(
     attribute: SubproductDetails,
     values: string | string[]
   ): Promise<void> {
-    const attributes = model.value.attributes;
+    const attributes = model.value?.attributes ?? {};
     set(attributes, attribute.id, {}); // reset all previous attributes
 
     const safeValues = compact(isArray(values) ? values : [values]);
@@ -225,14 +229,14 @@ export const useProductConfig = (service: ActorRef<any>) => {
   // --- OPTIONS
 
   function isSelectedOption(optionId: string, value: string): boolean {
-    return some(model.value.options[optionId], ["productId", value]);
+    return some(model.value?.options?.[optionId], ["productId", value]);
   }
 
   async function setOptions(
     option: SubproductDetails,
     values: string | string[]
   ): Promise<void> {
-    const options = model.value.options;
+    const options = model.value?.options ?? {};
     const previousStates = get(options, option.id, {}); // keep the previous state to restore quantity
 
     set(options, option.id, {}); // reset all previous options
@@ -264,7 +268,7 @@ export const useProductConfig = (service: ActorRef<any>) => {
     // sanity check
     const value = find(option.values, ["id", valueId]);
     if (!value?.quantifiable) return;
-    const options = model.value.options;
+    const options = model.value?.options ?? {};
     set(options, [option.id, value.id, "quantity"], qty);
     // emit the event
     return setValues("SET.OPTIONS", { options });
@@ -277,7 +281,7 @@ export const useProductConfig = (service: ActorRef<any>) => {
     // sanity check
     const value = find(option.values, ["id", valueId]);
     if (!value?.quantifiable) return;
-    const options = model.value.options;
+    const options = model.value?.options ?? {};
     const qty = get(options, [option.id, value.id, "step"], 0);
     set(options, [option.id, value.id, "quantity"], add(qty, value?.step || 1));
 
@@ -293,7 +297,7 @@ export const useProductConfig = (service: ActorRef<any>) => {
     const value = find(option.values, ["id", valueId]);
     if (!value?.quantifiable) return;
 
-    const options = model.value.options;
+    const options = model.value?.options ?? {};
     const qty = get(options, [option.id, value.id, "step"], 0);
     set(
       options,
@@ -330,6 +334,7 @@ export const useProductConfig = (service: ActorRef<any>) => {
     meta,
     // ---
     lookups,
+    raw,
     title,
     // productDetails,
     productImage,

@@ -6,10 +6,15 @@ export default {
       mode: {
         grow: "grow",
         centered: "items-center justify-center"
+      },
+      overflow: {
+        hidden: "overflow-hidden",
+        visible: ""
       }
     },
     defaultVariants: {
-      mode: "grow"
+      mode: "grow",
+      overflow: "visible"
     }
   })
 };

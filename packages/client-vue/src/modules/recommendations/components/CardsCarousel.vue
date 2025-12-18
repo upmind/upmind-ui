@@ -31,10 +31,12 @@
           v-bind="recommendation"
           :preserve-promotion="preservePromotions"
           :navigate="false"
+          :disabled="recommendation.meta.added"
           color="secondary"
           ratio="3:2"
           hide-terms
           @resolve="doResolve"
+          :configure-route="props.configureRoute"
         />
       </CarouselItem>
     </CarouselContent>

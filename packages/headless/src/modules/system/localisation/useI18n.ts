@@ -14,13 +14,15 @@ import {
   reduce,
   set,
   split,
-  isFunction
+  isFunction,
+  isString
 } from "lodash-es";
 import { DetailedError, ErrorOrigin, responseCodes } from "../../../utils";
 
 // --- types
 import type { GlobbedFiles } from "./types";
 import type { I18n, LocaleMessages, Composer } from "vue-i18n";
+import { useBrand } from "../../brand";
 
 // -----------------------------------------------------------------------------
 
@@ -50,6 +52,7 @@ import type { I18n, LocaleMessages, Composer } from "vue-i18n";
 let i18n: Composer | null = null;
 let files: GlobbedFiles = {};
 let sourceFiles: GlobbedFiles = {};
+let overrides: LocaleMessages<string, {}, {}>;
 
 /**
  * Composable function to provide functionality for initialising and managing internationalisation (i18n) in an application.
@@ -64,17 +67,17 @@ export const useI18n = () => {
    */
   function init(instance: I18n, glob?: GlobbedFiles) {
     if (!instance) console.warn("i18n instance not provided to useI18n");
+    const { i18nMessages } = useBrand();
     i18n = instance.global as Composer;
     files = glob ?? {};
+    overrides = i18nMessages.value ?? {};
 
     // NB: in DEV mode we MUST also load in our Source files over and above our provided glob files
     //     this is to account for any keys or overrides that have not been updated into Localazy yet.
     if (import.meta.env.DEV) {
       sourceFiles = import.meta.glob<Record<string, string>>(
         `@upmind-automation/i18n/**/*-en.json`,
-        {
-          eager: true
-        }
+        { eager: true }
       );
     }
   }
@@ -157,15 +160,18 @@ export const useI18n = () => {
       )
     );
 
-    const messages = reduce(
+    let messages = reduce(
       promises,
-      (result, value) => {
-        return merge(result, value);
-      },
+      (result, value) => merge(result, value),
       {}
     );
 
-    // return just the messages for the requested name
+    // now apply any overrides for this named set of messages, ie locale
+    const localeOverrides = get(overrides, name, {});
+    if (!isEmpty(localeOverrides)) {
+      messages = merge(messages, localeOverrides);
+    }
+
     return messages;
   }
 
