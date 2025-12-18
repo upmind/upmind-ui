@@ -112,6 +112,11 @@ export interface IBasketProductModel {
    * Optional key-value pairs for provisioning field values required for the product.
    */
   provision_field_values?: Record<string, any>;
+
+  /**
+   * An optional flag indicating whether to validate the provisioning field values when adding the product to the basket.
+   */
+  provision_field_values_validate?: boolean;
   /**
    * An optional array of promotion codes to apply to this product in the basket.
    */

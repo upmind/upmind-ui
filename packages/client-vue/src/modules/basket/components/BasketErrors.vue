@@ -8,13 +8,13 @@
       :title="t('cart.basket_requires_attention_msg', { count })"
       :description="t('cart.basket_review_msg')"
     >
-      <ol class="list-disc p-6 py-2 text-left" v-auto-animate>
+      <ol class="text-sm-tight list-disc p-6 py-2 text-left" v-auto-animate>
         <!-- Basket products -->
         <template v-if="meta.hasBasketProducts">
           <li
             v-for="basketItem in productsInvalid"
             :key="basketItem.id"
-            class="marker:text-inherit"
+            class="text-sm marker:text-inherit"
           >
             <i18n-t keypath="cart.basket_product_review_msg" tag="span">
               <template #productName>
@@ -141,64 +141,31 @@ const meta = computed(() => {
 });
 
 const safeBasketBillingRoute = computed(() => {
-  if (
-    has(props.basketBillingRoute, "href") &&
-    isString(props.basketBillingRoute.href)
-  )
-    return props.basketBillingRoute;
+  return {
+    to: {
+      ...(props.basketBillingRoute ?? {}),
+      hash: "#basket-billing"
+    }
+  };
 
-  if (has(props.basketBillingRoute, "to"))
-    return {
-      to: {
-        ...props.basketBillingRoute,
-        hash: "#basket-billing"
-      }
-    };
-
-  return { href: "" };
+  return { hash: "#basket-billing" };
 });
 
 const safeBasketFieldsRoute = computed(() => {
-  if (
-    has(props.basketFieldsRoute, "href") &&
-    isString(props.basketFieldsRoute.href)
-  )
-    return props.basketFieldsRoute;
-
-  if (has(props.basketFieldsRoute, "to"))
-    return {
-      to: {
-        ...props.basketFieldsRoute,
-        hash: "#basket-fields"
-      }
-    };
-
-  return { href: "" };
+  return {
+    to: {
+      ...(props.basketFieldsRoute ?? {}),
+      hash: "#basket-fields"
+    }
+  };
 });
 
 function getBasketProductsRoute(bpid: string) {
-  if (
-    has(props.basketProductsRoute, "href") &&
-    isString(props.basketProductsRoute.href)
-  )
-    return props.basketProductsRoute;
-
-  if (has(props.basketProductsRoute, "to"))
-    return {
-      to: {
-        ...props.basketProductsRoute,
-        params: { bpid }
-      }
-    };
-
-  if (has(props.basketProductsRoute, "name"))
-    return {
-      to: {
-        ...props.basketProductsRoute,
-        params: { bpid }
-      }
-    };
-
-  return { href: "" };
+  return {
+    to: {
+      ...(props.basketProductsRoute ?? {}),
+      params: { bpid }
+    }
+  };
 }
 </script>

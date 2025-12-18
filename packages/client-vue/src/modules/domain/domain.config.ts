@@ -27,7 +27,17 @@ export default {
     },
 
     form: {
-      root: cva("flex flex-col gap-y-2"),
+      root: cva("flex flex-col gap-y-2", {
+        variants: {
+          isDisabled: {
+            true: "pointer-events-none cursor-default",
+            false: ""
+          }
+        },
+        defaultVariants: {
+          isDisabled: false
+        }
+      }),
       trigger: {
         root: cva(
           "outline-control-active cursor-pointer py-3 pr-5 outline-offset-4 hover:no-underline"

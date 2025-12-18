@@ -20,7 +20,8 @@ import {
   responseCodes,
   useCollection,
   useModelParser,
-  NotAuthenticatedError
+  NotAuthenticatedError,
+  DEBOUNCE_DELAY
 } from "../../../utils";
 import { invalidateQueryByKey } from "../../query";
 import { mapAddress, mapAddresses, mapIAddress } from "./mappers";
@@ -39,27 +40,29 @@ const queryKey: QueryKey = ["client", "addresses"];
 const { addError, addSuccess } = useFeedback();
 
 function loadList(params: Partial<QueryParams> = { pagination: { limit: 0 } }) {
-  const { meta, user } = useSession();
+  const { meta, userId } = useSession();
   const { list, useUrl } = useQuery();
 
   return list<IAddress[], Address[]>({
     ...(params as any),
-    queryKey: [...queryKey, { user: user.value?.id }],
-    url: useUrl(`clients/${user.value?.id}/addresses`, {
+    queryKey: [...queryKey, { userId }],
+    url: useUrl(`clients/${userId.value}/addresses`, {
       with: ["region", "country"].join()
     }),
-    withAccessToken: true,
     guard: async () =>
       new Promise((resolve, reject) => {
-        if (meta.value.isAuthenticated && !!user.value?.id) {
+        if (meta.value.isAuthenticated && !!userId.value) {
           resolve(true);
         } else {
           reject(new NotAuthenticatedError());
         }
       }),
+    withAccessToken: true,
     // --- options
     select: mapAddresses,
-    staleTime: useTime().DAY
+    staleTime: useTime().DAY,
+    retryDelay: DEBOUNCE_DELAY,
+    enabled: () => !!(meta.value.isAuthenticated && !!userId.value)
   });
 }
 

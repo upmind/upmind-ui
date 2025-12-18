@@ -28,7 +28,9 @@ import {
   get,
   has,
   isEmpty,
+  isNil,
   isObject,
+  isObjectLike,
   map,
   mapValues,
   omitBy,
@@ -334,7 +336,7 @@ export function parseProvisionFieldSummary(
 
 export function parsePromotionsOrCoupons(
   promotions?: IBasketPromotion[] | string[]
-) {
+): string[] {
   return map(promotions, basketPromotion => {
     const promocode: string = has(basketPromotion, "promotion")
       ? (basketPromotion as IBasketPromotion).promotion.code
@@ -345,9 +347,10 @@ export function parsePromotionsOrCoupons(
 }
 
 export function parseBasketProductData(
-  model: ProductProps
+  model: ProductProps,
+  clean?: boolean
 ): IBasketProductModel {
-  return {
+  const data: IBasketProductModel = {
     product_id: model.productId,
     quantity: model.quantity,
     billing_cycle_months: model.term ?? 0,
@@ -358,8 +361,17 @@ export function parseBasketProductData(
     provision_field_values: model.provisionFields || {},
     provision_field_values_validate: !model.silent, // suppress prov field validation errors if silent is true
     // ---
-    promotions: model.coupons
-  } as IBasketProductModel;
+    promotions: map(model.coupons, coupon => ({ promocode: coupon }))
+  };
+
+  if (!clean) return data;
+
+  return omitBy(data, value => {
+    if (isObjectLike(value)) {
+      return isEmpty(omitBy(value as object, isEmpty));
+    }
+    return isNil(value);
+  }) as IBasketProductModel;
 }
 
 export function parseBasketSubproductConfig(

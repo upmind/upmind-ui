@@ -6,7 +6,7 @@ export const variants = {
     full: "w-full"
   },
   flow: {
-    horizontal: "flex flex-col lg:flex-row lg:items-start",
+    horizontal: "flex flex-col lg:flex-row",
     vertical: "flex flex-col"
   },
   justify: {

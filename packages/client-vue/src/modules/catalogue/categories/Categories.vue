@@ -13,18 +13,36 @@
     </CategoriesHeader>
 
     <nav
-      v-if="!isFaceted && hasCategories"
+      v-if="!isFaceted && (hasCategories || meta.isLoading)"
       :class="styles.categories.grid"
       role="region"
       aria-label="Product categories"
-      v-auto-animate
     >
-      <CategoryItem
-        v-for="category in displayCategories"
-        :key="category.id"
-        v-bind="{ ...props, ...category }"
-        v-model="modelValue"
-      />
+      <template v-if="meta.isLoading">
+        <div
+          v-for="n in 6"
+          :key="`skeleton-${n}`"
+          class="bg-core-surface before:border-surface relative z-10 flex flex-col gap-4 p-8 before:absolute before:-inset-px before:-z-10 before:border before:border-solid before:content-['']"
+        >
+          <div class="text-muted flex items-center justify-between gap-2">
+            <Skeleton class="h-7 w-32" />
+            <Icon icon="arrow-right" size="2xs" />
+          </div>
+          <div class="flex flex-col gap-2">
+            <Skeleton class="h-4 w-3/4" />
+            <Skeleton class="h-4 w-full" />
+            <Skeleton class="h-4 w-5/6" />
+          </div>
+        </div>
+      </template>
+      <template v-else>
+        <CategoryItem
+          v-for="category in displayCategories"
+          :key="category.id"
+          v-bind="{ ...props, ...category }"
+          v-model="modelValue"
+        />
+      </template>
     </nav>
   </div>
 </template>
@@ -41,12 +59,13 @@ import {
   type UseProductCategories
 } from "@upmind-automation/headless";
 import { isEmpty } from "lodash-es";
-import { useStyles } from "@upmind-automation/upmind-ui";
+import { useStyles, Skeleton } from "@upmind-automation/upmind-ui";
 import config from "../catalogue.config";
 
 // --- components
 import CategoriesHeader from "./CategoriesHeader.vue";
 import CategoryItem from "./CategoryItem.vue";
+import { Icon } from "@upmind-automation/upmind-ui";
 
 // --- types
 import type { CategoriesProps } from "./types";

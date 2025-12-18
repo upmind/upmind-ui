@@ -6,7 +6,7 @@ import { useActor } from "@xstate/vue";
 
 // --- internal
 import { useI18n } from "../system";
-import { useQueryParams } from "../routing";
+import { QUERY_PARAMS, useQueryParams } from "../routing";
 import domainMachine from "./domain.machine";
 
 // --- utils
@@ -17,8 +17,8 @@ import {
   some,
   get,
   isEmpty,
-  debounce,
-  filter
+  filter,
+  includes
 } from "lodash-es";
 import {
   stopService,
@@ -32,12 +32,7 @@ import {
 import { parseDomain } from "./utils";
 
 // --- types
-import {
-  DomainTypes,
-  DomainContext,
-  DomainProduct,
-  DomainModel
-} from "./types";
+import { DomainTypes, DomainContext, DomainProduct } from "./types";
 import { PAGINATION } from "../query";
 
 // -----------------------------------------------------------------------------
@@ -53,10 +48,9 @@ import { PAGINATION } from "../query";
  * @returns Domain management API (state, computed, and methods)
  */
 export const useDomain = (
-  value: string | Array<string> = "",
+  value: string,
   options: {
     type?: DomainTypes;
-    preferredCycle?: number;
   } = {
     type: undefined
   }
@@ -68,16 +62,15 @@ export const useDomain = (
   const safeType =
     options?.type && has(DomainTypes, options.type) ? options.type : undefined;
 
-  const safeModel = map(isArray(value) ? value : [value], parseDomain);
-
   const service = interpret(
     domainMachine.withContext({
       type: safeType,
       choices: safeType,
-      model: safeModel,
-      preferredCycle: options?.preferredCycle,
+      model: parseDomain(value),
+      preferredCycle: getParam(QUERY_PARAMS.BILLING_CYCLE_MONTHS),
+      coupons: getParam(QUERY_PARAMS.COUPONS),
       search: {
-        query: getParam("search", ""), // Get any initial search query from URL
+        query: getParam(QUERY_PARAMS.SEARCH, ""), // Get any initial search query from URL
         limit: PAGINATION.limit,
         offset: PAGINATION.offset
       }
@@ -179,8 +172,6 @@ export const useDomain = (
 
   const dac = useChildActor(state, "dac");
 
-  const query = useContext<string>(dac, "search.query");
-
   const available = useContext<DomainProduct[]>(dac, "lookups.searched", []);
 
   const added = computed(() =>
@@ -188,6 +179,8 @@ export const useDomain = (
   );
 
   const search = useContext<DomainContext["search"]>(state, "search");
+
+  const query = useContext<string>(dac, "search.query");
 
   const pagination = computed(() => ({
     offset: search.value?.offset ?? PAGINATION.offset,
@@ -199,6 +192,7 @@ export const useDomain = (
 
   function choose(value?: string | DomainTypes): void {
     if (!value) return;
+
     send({
       type: "CHOOSE",
       data: value
@@ -208,8 +202,6 @@ export const useDomain = (
   function searchDomains(query?: string) {
     if (!query) return;
     send({ type: "SEARCH", data: query });
-    // Update URL immediately when search is triggered
-    setParam("search", query);
   }
 
   function searchMore(): void {
@@ -238,9 +230,7 @@ export const useDomain = (
   }
 
   function reset(): void {
-    send({
-      type: "RESET"
-    });
+    send({ type: "RESET" });
     // housekeeping: clear search param on reset
     unsetParam("search");
   }
@@ -269,10 +259,6 @@ export const useDomain = (
 
   function isSelected(value: string): boolean {
     return model.value == value;
-  }
-
-  function complete(): void {
-    send({ type: "COMPLETE", data: DomainTypes.basket });
   }
 
   // -----------------------------------------------------------------------------
@@ -320,6 +306,8 @@ export const useDomain = (
      * The current search query.
      */
     query,
+
+    searchParams: search,
 
     /**
      * The current model (selected domains).
@@ -431,16 +419,12 @@ export const useDomain = (
      */
     isSelected,
 
-    /** Complete the current domain workflow.
-     * When in DAC, this completes the DAC and transitions to basket.
-     * @returns {void}
-     */
-    complete,
-
     /** Stop the domain service.
      * @returns {void}
      */
-    stop: () => stopService(service)
+    stop: () => stopService(service),
+
+    stopDac: () => dac.value?.send("STOP")
   };
 };
 

@@ -11,11 +11,13 @@
         </slot>
       </h1>
 
-      <p :class="styles.hero.description">
+      <p v-if="!props.loading" :class="styles.hero.description">
         <slot name="description">
           {{ props.description }}
         </slot>
       </p>
+
+      <Skeleton v-else class="h-7 w-96" />
 
       <slot name="append" />
     </section>
@@ -26,7 +28,7 @@
 
 <script setup lang="ts">
 // --- components
-import { Badge } from "@upmind-automation/upmind-ui";
+import { Badge, Skeleton } from "@upmind-automation/upmind-ui";
 
 // --- internal
 import config from "./hero.config";

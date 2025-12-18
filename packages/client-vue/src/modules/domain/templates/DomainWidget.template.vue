@@ -9,7 +9,11 @@
     </template>
   </DomainWidget>
 
-  <Teleport to="#catalogue-content-footer">
+  <Teleport to="#domain-aside-footer" defer>
+    <slot name="hint" />
+  </Teleport>
+
+  <Teleport to="#domain-content-footer" defer>
     <slot name="resolve" />
   </Teleport>
 </template>
@@ -17,10 +21,6 @@
 <script setup lang="ts">
 // --- internal
 import DomainWidget from "../layouts/DomainWidget.layout.vue";
-import { useSlots } from "vue";
-import { isEmptySlot } from "@upmind-automation/upmind-ui";
-
-const slots = useSlots();
 
 defineOptions({
   inheritAttrs: false

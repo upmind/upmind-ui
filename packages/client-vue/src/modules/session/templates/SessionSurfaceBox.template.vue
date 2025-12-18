@@ -11,6 +11,9 @@
 </template>
 
 <script lang="ts" setup>
+// --- external
+import { onMounted } from "vue";
+
 // --- components
 import Layout from "../../../components/layout/Layout.vue";
 
@@ -18,7 +21,6 @@ import Layout from "../../../components/layout/Layout.vue";
 import { useFooter } from "../../../components/footer/useFooter";
 import { useHeader } from "../../../components/header/useHeader";
 import { useLayout } from "../../../components/layout/useLayout";
-
 // --- types
 import { FOOTER_LAYOUT } from "../../../components/footer/types";
 import { LAYOUT_VARIANTS } from "../../../components/layout/types";
@@ -35,15 +37,17 @@ defineOptions({
   inheritAttrs: false
 });
 
-useHeader({
-  visible: false
-});
-
 useLayout({
   variant: LAYOUT_VARIANTS.SURFACE_BOX
 });
 
-useFooter({
-  visible: false
+onMounted(() => {
+  useHeader({
+    visible: false
+  });
+
+  useFooter({
+    visible: false
+  });
 });
 </script>

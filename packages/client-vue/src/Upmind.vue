@@ -17,37 +17,12 @@
           </Header>
         </slot>
 
-        <AsyncLoading :open="!routeMeta.isResolved" v-bind="loadingProps" />
-
+        <AsyncLoading :open="meta.isLoading" v-bind="props.loadingProps" />
         <Main>
-          <RouterView v-slot="routerViewProps" :key="$route.path">
-            <slot v-bind="routerViewProps">
-              <template v-if="routerViewProps.Component">
-                <Suspense>
-                  <KeepAlive>
-                    <Transition
-                      mode="out-in"
-                      @after-enter="scrollToAnchor"
-                      enter-active-class="transition-opacity duration-500 ease-in-out"
-                      leave-active-class="transition-opacity duration-500 ease-in-out"
-                      enter-from-class="opacity-0"
-                      leave-to-class="opacity-0"
-                      appear
-                    >
-                      <component :is="routerViewProps.Component" />
-                    </Transition>
-                  </KeepAlive>
-
-                  <template #fallback>
-                    <AsyncLoading
-                      v-bind="loadingProps"
-                      v-if="routeMeta.isResolved"
-                    />
-                  </template>
-                </Suspense>
-              </template>
-            </slot>
-          </RouterView>
+          <UpmRouteView
+            :loading-props="props.loadingProps"
+            @resolve="scrollToAnchor"
+          />
         </Main>
 
         <slot name="footer">
@@ -80,8 +55,10 @@ import useUpmind, {
 } from "@upmind-automation/headless";
 import { useStyles } from "@upmind-automation/upmind-ui";
 import { useTheme } from "./modules/theming";
+import { useRouteTransition } from "./modules/system/useRouteTransition";
 
 // --- components
+import UpmRouteView from "./modules/system/RouteView.vue";
 import Header from "./components/header/Header.vue";
 import Footer from "./components/footer/Footer.vue";
 import Feedback from "./modules/feedback/Feedback.vue";
@@ -106,16 +83,20 @@ const props = defineProps<{
 }>();
 
 // -----------------------------------------------------------------------------
-
-const { meta: routeMeta } = useRoutingEngine();
-
+const { meta: routingMeta } = useRoutingEngine();
 const themeReady = ref(false);
 
 const route = useRoute();
 
+/**
+ * Meta information about the Upmind app state
+ * - isLoading: whether the  initial route is still being resolved
+ * - isAvailable: whether Upmind has initialised successfully
+ * - hasSettings: whether the theme settings have been loaded
+ */
 const meta = computed(() => ({
+  isLoading: !routingMeta.value.isResolved && routingMeta.value.isInitialRoute,
   isAvailable: useUpmind.status.value == UpmindStatus.initialised,
-  isLoading: !routeMeta.value.isResolved,
   hasSettings: themeReady.value
 }));
 

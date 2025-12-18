@@ -709,6 +709,7 @@ export const parseTermDetails = (raw: IProduct): TermDetails[] => {
 
   return map(orderBy(raw?.prices, "billing_cycle_months"), rawTerm => {
     const details: TermDetails = parseSummaryDetailWithPrice(rawTerm, raw);
+
     const trimTrailingZeroes =
       uiCart.value?.ui?.product?.display_price?.trim_trailing_zeroes ?? false;
 
@@ -848,7 +849,7 @@ export const parseSummaryDetail = (
   const cycle = getBillingCycle(raw.billing_cycle_months);
 
   const discounted =
-    !!raw.price_discounted && raw.price !== raw.price_discounted;
+    !isNil(raw.price_discounted) && raw.price !== raw.price_discounted;
 
   const displayType = getPriceDisplayType(rawProduct);
 
@@ -891,11 +892,11 @@ export const parsePrice = (raw: IProductPrice): PriceDetail => {
   const { uiCart } = useBrand();
 
   const savingAmount =
-    Math.round(subtract(raw.price, raw?.price_discounted || raw.price) * 100) /
+    Math.round(subtract(raw.price, raw?.price_discounted ?? raw.price) * 100) /
     100;
 
   const discounted =
-    !!raw.price_discounted && raw.price !== raw.price_discounted;
+    !isNil(raw.price_discounted) && raw.price !== raw.price_discounted;
   const trimTrailingZeroes =
     uiCart.value?.ui?.product?.display_price?.trim_trailing_zeroes ?? false;
 
@@ -1270,7 +1271,7 @@ export const parseProductProps = (
 
   const productDetails = parseProductDetails(raw);
   const terms = parseTermDetails(raw);
-  const termDetails = calculateBillingTerm(
+  const defaultTerm = calculateBillingTerm(
     paymentPeriod || raw.default_payment_period,
     terms
   );
@@ -1293,7 +1294,7 @@ export const parseProductProps = (
     // id: raw.id,
     quantity: parseQuantity(data.quantity, productDetails),
     productId: data.productId,
-    term: termDetails.cycle,
+    term: data?.term ?? defaultTerm.cycle,
     options: merge({}, options, data?.options),
     attributes: merge({}, attributes, data?.attributes),
     provisionFields: data.provisionFields || {}

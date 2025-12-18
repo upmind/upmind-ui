@@ -26,7 +26,8 @@ import {
   NotAuthenticatedError,
   useModelParser,
   stateMatches,
-  useTime
+  useTime,
+  DEBOUNCE_DELAY
 } from "../../utils";
 import {
   filterGateways,
@@ -106,7 +107,13 @@ export function loadList() {
         }
       }),
     select: mapPaymentDetailDetails,
-    staleTime: useTime().HOUR
+    staleTime: useTime().HOUR,
+    retryDelay: DEBOUNCE_DELAY,
+    enabled: () =>
+      meta.value.isAuthenticated &&
+      !!userId.value &&
+      !!currencyId.value &&
+      !!brandId.value
   });
 }
 

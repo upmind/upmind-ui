@@ -1,5 +1,9 @@
 <template>
-  <component :is="props.as" :class="cn(styles.ribbon, props.class)">
+  <component
+    :is="props.as"
+    :class="cn(styles.ribbon, props.class)"
+    v-bind="$attrs"
+  >
     <slot />
   </component>
 </template>

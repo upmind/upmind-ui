@@ -49,13 +49,13 @@
 
 <script setup lang="ts">
 // --- external
-import { computed } from "vue";
-import { breakpointsTailwind, useBreakpoints } from "@vueuse/core";
+import { computed, ref } from "vue";
 
 // --- internal
 import { useHeader } from "./useHeader";
 import config from "./header.config";
 import { useStyles, isMobile } from "@upmind-automation/upmind-ui";
+import { useRouteTransition } from "../../modules/system/useRouteTransition";
 
 // --- components
 import HeaderBrand from "./HeaderBrand.vue";
@@ -76,7 +76,8 @@ const { meta } = useHeader();
 
 const stylesMeta = computed(() => ({
   background: meta.value.background,
-  position: meta.value.position
+  position: meta.value.position,
+  visible: shouldShow.value
 }));
 
 const props = defineProps<{
@@ -103,6 +104,23 @@ const styles = useStyles(
   };
 }>;
 
+const shouldShow = ref(true);
+
+const { onTransition } = useRouteTransition();
+
+/**
+ * Handle route transitions to avoid header flicker
+ * We FORCE the header to re-render on route change
+ * to sync with the page transition
+ * NB: nexttick did not work here
+ */
+onTransition(value => {
+  shouldShow.value = false;
+  setTimeout(() => {
+    shouldShow.value = true;
+  }, 1);
+});
+
 const getBackground = computed(() => {
   if (
     (meta.value.background === HEADER_BACKGROUND.LTR ||
@@ -118,12 +136,12 @@ const getBackground = computed(() => {
 const leftBackground = computed(() => {
   return meta.value.background === HEADER_BACKGROUND.LTR
     ? COLUMN_BACKGROUND.SURFACE
-    : COLUMN_BACKGROUND.NONE;
+    : COLUMN_BACKGROUND.CANVAS;
 });
 
 const rightBackground = computed(() => {
   return meta.value.background === HEADER_BACKGROUND.RTL
     ? COLUMN_BACKGROUND.SURFACE
-    : COLUMN_BACKGROUND.NONE;
+    : COLUMN_BACKGROUND.CANVAS;
 });
 </script>

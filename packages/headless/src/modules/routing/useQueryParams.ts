@@ -78,23 +78,33 @@ export const useQueryParams = (route?: RouteLocation) => {
     return value;
   }
 
-  function setParam(type: string, value?: string | null) {
-    const updatedUrl = new URL(window.location.href);
+  function setParam(type: string, value?: string | null, replace = false) {
+    const updateRoute = replace ? router.replace : router.push;
 
     if (value) {
-      updatedUrl.searchParams.set(type, value);
+      updateRoute({
+        query: {
+          ...router.currentRoute.value.query,
+          [type]: value
+        }
+      });
+      return;
     } else {
-      updatedUrl.searchParams.delete(type);
+      updateRoute({
+        query: {
+          ...router.currentRoute.value.query,
+          [type]: undefined
+        }
+      });
+      return;
     }
-
-    // Update the browser URL without adding a new history entry
-    history.replaceState(history.state, "", updatedUrl);
   }
 
   function unsetParam(type: string) {
     const url = new URL(window.location.toString());
     const cleanedUrl = new URL(window.location?.href);
     cleanedUrl.searchParams.delete(type);
+
     if (!isEqual(cleanedUrl.searchParams, url.searchParams)) {
       history.replaceState(history.state, "", cleanedUrl);
     }
@@ -194,7 +204,7 @@ export const useQueryParams = (route?: RouteLocation) => {
       QUERY_PARAMS.CURRENCY,
       consumeParam(QUERY_PARAMS.CURRENCY_CODE)
     ),
-    coupon: consumeParam(QUERY_PARAMS.COUPONS),
+    coupon: getParam(QUERY_PARAMS.COUPONS),
     bundle: consumeParam("bundle")
   };
 };

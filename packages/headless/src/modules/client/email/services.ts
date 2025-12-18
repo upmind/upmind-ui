@@ -18,7 +18,8 @@ import {
   responseCodes,
   useCollection,
   useModelParser,
-  NotAuthenticatedError
+  NotAuthenticatedError,
+  DEBOUNCE_DELAY
 } from "../../../utils";
 import { invalidateQueryByKey } from "../../query";
 import { mapEmail, mapEmails, mapIEmail } from "./mappers";
@@ -55,7 +56,9 @@ function loadList(params: Partial<QueryParams> = { pagination: { limit: 0 } }) {
       }),
     // --- options
     select: mapEmails,
-    staleTime: useTime().DAY
+    staleTime: useTime().DAY,
+    retryDelay: DEBOUNCE_DELAY,
+    enabled: () => meta.value.isAuthenticated && !!user.value?.id
   });
 }
 

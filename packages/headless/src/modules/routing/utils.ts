@@ -89,19 +89,34 @@ export async function awaitResolved(
  */
 export function hasRouteChanged(
   route: RouteLocation,
-  target: Record<string, any>
+  target: Record<string, any>,
+  {
+    guardName,
+    guardParams,
+    guardQuery
+  }: {
+    guardName?: boolean;
+    guardParams?: boolean;
+    guardQuery?: boolean;
+  } = {
+    guardName: true,
+    guardParams: true,
+    guardQuery: false
+  }
 ): boolean {
   if (!target) return false;
 
-  const changedName = !isEqual(route?.name, target?.name);
+  const changedName = !!guardName && !isEqual(route?.name, target?.name);
 
   // Only compare keys present in target params
-  const changedParams = some(
-    target?.params,
-    (value, key) => !isEqual(get(route?.params, key), value)
-  );
+  const changedParams =
+    !!guardParams &&
+    some(
+      target?.params,
+      (value, key) => !isEqual(get(route?.params, key), value)
+    );
 
-  const changedQuery = !isEqual(route?.query, target?.query);
+  const changedQuery = !!guardQuery && !isEqual(route?.query, target?.query);
 
   // console.debug("Route Change Detection:", {
   //   route,

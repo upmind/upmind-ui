@@ -10,5 +10,6 @@ export enum BASKET_PRODUCT_TEMPLATE {
 export type BasketProductEditProps = {
   template?: BASKET_PRODUCT_TEMPLATE;
   storefrontRoute: RouteLocationAsRelativeGeneric;
+  catalogueRoute?: RouteLocationAsRelativeGeneric;
   hideSlots?: string[];
 };

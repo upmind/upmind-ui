@@ -1,11 +1,11 @@
 <template>
-  <component :is="templateVariant" v-model:open="open">
+  <component :is="templateVariant" v-model:open="open" @reset="doReset">
     <template #hero>
       <DomainHero
         v-model="queryValue"
         :searching="meta.isSearching"
         :type="type"
-        :processing="meta.isProcessing"
+        :processing="meta.isProcessing || processingBasket"
         @search="search"
         @reset="doReset"
       />
@@ -13,6 +13,7 @@
 
     <template #domain-type v-if="meta.showChoices">
       <DomainType
+        :disabled="disabled"
         :model-value="modelValue"
         :choices="choices"
         :owned="owned"
@@ -36,7 +37,7 @@
       <DomainSearch
         v-model="queryValue"
         :searching="meta.isSearching"
-        :processing="meta.isProcessing"
+        :processing="meta.isProcessing || processingBasket"
         :type="type"
         @search="search"
         @reset="doReset"
@@ -49,6 +50,7 @@
 
     <template #results>
       <DomainCards
+        :disabled="processingBasket"
         :model-value="added"
         :items="available || []"
         :offset="pagination.offset"
@@ -83,7 +85,12 @@
         color="primary"
         size="lg"
         icon-append="arrow-right"
-        :disabled="meta.isProcessing || meta.isEmpty || meta.isLoading"
+        :disabled="
+          meta.isProcessing ||
+          meta.isEmpty ||
+          meta.isLoading ||
+          processingBasket
+        "
         :block="isMobile || (isMobile && template === DOMAIN_TEMPLATE.WIDGET)"
         @click="doResolve"
       />
@@ -165,6 +172,7 @@ const {
   // --- DAC
   available,
   added,
+  searchParams,
   search,
   searchMore,
   remove,
@@ -180,22 +188,20 @@ const {
   type,
   // ---
   choose,
-  complete,
   reset,
   select,
   stop,
+  stopDac,
   update
 } = useDomain(props.modelValue, {
   type: props.type as DomainTypes
 });
 
-await isReady().then(() => {
-  // NB ensure we sync initial value in case the composable modified it
-  modelValue.value = selected.value;
-});
 // ---------------------------------------------------------------------------
 
 const open = ref(false);
+const processingBasket = ref(false);
+
 const resultCount = ref(0);
 const queryValue = ref(query.value || "");
 
@@ -203,6 +209,29 @@ const debouncedSearch = debounce(
   (value: string) => search(value),
   DEBOUNCE_DELAY
 );
+
+function doResolve() {
+  open.value = false;
+  processingBasket.value = true;
+  stopDac(); // force the reset after adding domain(s)
+  emit("resolve", modelValue.value);
+}
+
+function doReset() {
+  open.value = false;
+  processingBasket.value = false;
+  resultCount.value = 0;
+  queryValue.value = "";
+  debouncedSearch.cancel();
+  reset();
+}
+
+// --- side effects
+
+await isReady().then(() => {
+  // NB ensure we sync initial value in case the composable modified it
+  modelValue.value = selected.value;
+});
 
 watch(queryValue, value => {
   if (!value) {
@@ -213,30 +242,16 @@ watch(queryValue, value => {
   }
 });
 
-function doResolve() {
-  open.value = false;
-  complete();
-  emit("resolve", modelValue.value);
-}
+watch(
+  searchParams,
+  search => {
+    if (!search?.query) {
+      queryValue.value = "";
+    }
+  },
+  { immediate: true, deep: true }
+);
 
-function doReset() {
-  open.value = false;
-  resultCount.value = 0;
-  queryValue.value = "";
-  debouncedSearch.cancel();
-  reset();
-}
-
-onUnmounted(() => {
-  stop();
-  if (props.template === DOMAIN_TEMPLATE.FULL) {
-    useLayout({});
-    useFooter({});
-    useHeader({});
-  }
-});
-
-// --- side effects
 watch(selected, value => (modelValue.value = value));
 
 watch(meta, ({ isSearching, showSearchResults, showDac }) => {
@@ -247,5 +262,14 @@ watch(meta, ({ isSearching, showSearchResults, showDac }) => {
 // Stores the previous result count for smooth skeleton loading
 watch(available, previous => {
   resultCount.value = previous?.length ?? 0;
+});
+
+onUnmounted(() => {
+  stop();
+  if (props.template === DOMAIN_TEMPLATE.FULL) {
+    useLayout({});
+    useFooter({});
+    useHeader({});
+  }
 });
 </script>
