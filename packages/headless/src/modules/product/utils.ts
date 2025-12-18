@@ -1271,7 +1271,7 @@ export const parseProductProps = (
 
   const productDetails = parseProductDetails(raw);
   const terms = parseTermDetails(raw);
-  const termDetails = calculateBillingTerm(
+  const defaultTerm = calculateBillingTerm(
     paymentPeriod || raw.default_payment_period,
     terms
   );
@@ -1294,7 +1294,7 @@ export const parseProductProps = (
     // id: raw.id,
     quantity: parseQuantity(data.quantity, productDetails),
     productId: data.productId,
-    term: termDetails.cycle,
+    term: data?.term ?? defaultTerm.cycle,
     options: merge({}, options, data?.options),
     attributes: merge({}, attributes, data?.attributes),
     provisionFields: data.provisionFields || {}
