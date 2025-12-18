@@ -1,7 +1,7 @@
 {
   "name": "@upmind-automation/cart",
   "private": true,
-  "version": "0.9.0",
+  "version": "0.11.0",
   "description": "Bespoke Vue.js, e-commerce platform built on the Upmind platform",
   "keywords": [
     "Upmind",
@@ -45,6 +45,7 @@
     "@sentry/vue": "^10.4.0",
     "@tailwindcss/typography": "^0.5.16",
     "@tanstack/vue-query": "^5.83.1",
+    "@upmind-automation/types": "workspace:*",
     "@upmind-automation/client-vue": "workspace:*",
     "@upmind-automation/upmind-ui": "workspace:*",
     "@upmind-automation/i18n": "workspace:*",

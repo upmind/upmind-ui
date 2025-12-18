@@ -59,6 +59,8 @@
   "currency_validation_failed": "کرنسی کی توثیق ناکام ہو گئی۔",
   "domain_add_failed": "ڈومین کو ٹوکری میں شامل کرنے میں ناکام",
   "feedback_action_not_available": "قدر کے ساتھ ایکشن'{data}' دستیاب نہیں",
+  "funnel_not_available": "فینل دستیاب نہیں ہے۔",
+  "funnels_not_available": "فنل دستیاب نہیں ہیں۔",
   "generic_error": "غلطی",
   "generic_text": "آئیے آپ کو ٹریک پر واپس لاتے ہیں۔",
   "generic_title": "معذرت، ہم نے ایک **خرابی** کا تجربہ کیا ہے",

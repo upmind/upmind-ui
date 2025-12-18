@@ -66,7 +66,7 @@
         icon="alert-triangle"
         :title="t('text.payment_failed')"
       >
-        <ol class="mt-2 list-none text-left text-sm">
+        <ol class="text-sm-tight mt-2 list-none text-left">
           <li class="my-0 py-0">
             {{ errors }}
           </li>

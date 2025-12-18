@@ -1,27 +1,47 @@
 // -----------------------------------------------------------------------------
 
+import { defineAsyncComponent, type Component } from "vue";
+
 // --- Export Views
 // NB: for views that are used in routes, we need to use defineAsyncComponent
 // to avoid circular dependencies. and to be able to lazy load them.
 
-export const UpmProductAddView = import("./Add.vue");
+export const UpmProductConfigure = defineAsyncComponent(
+  () => import("./Configure.vue")
+);
 
-export const UpmProductEditView = import("./Edit.vue");
+export const UpmProductNotFound = defineAsyncComponent(
+  () => import("./NotFound.vue")
+);
+export const UpmProductRequiresAction = defineAsyncComponent(
+  () => import("./RequiresAction.vue")
+);
 
-export const UpmProductNotFoundView = import("./NotFound.vue");
+export const UpmProductRecommendations = defineAsyncComponent(
+  () => import("./Recommendations.vue")
+);
 
-export const UpmProductRequiresActionView = import("./RequiresAction.vue");
-
-export const UpmProductRecommendationsView = import("./Recommendations.vue");
-
-// --- Export Components
-export { default as UpmProductNotFound } from "./NotFound.vue";
-export { default as UpmProductConfig } from "./components/config/Config.vue";
-export { default as UpmProductConfigForm } from "./components/config/ConfigForm.vue";
-export { default as UpmTermsConfigSelect } from "./components/terms/TermsConfigSelect.vue";
-export { default as UpmTermCard } from "./components/terms/TermCard.vue";
-export { default as UpmConfigSkeleton } from "./components/ConfigSkeleton.vue";
-export { default as UpmSubproductCard } from "./components/subproduct/SubproductCard.vue";
-export { default as UpmSubproductCardPricing } from "./components/subproduct/SubproductCardPricing.vue";
+export const UpmProductConfig = defineAsyncComponent(
+  () => import("./components/config/Config.vue")
+);
+export const UpmProductConfigForm = defineAsyncComponent(
+  () => import("./components/config/ConfigForm.vue")
+);
+export const UpmTermsConfigSelect: Component = defineAsyncComponent(
+  () => import("./components/terms/TermsConfigSelect.vue")
+);
+export const UpmTermCard = defineAsyncComponent(
+  () => import("./components/terms/TermCard.vue")
+);
+export const UpmConfigSkeleton = defineAsyncComponent(
+  () => import("./components/ConfigSkeleton.vue")
+);
+export const UpmSubproductCard = defineAsyncComponent(
+  () => import("./components/subproduct/SubproductCard.vue")
+);
+export const UpmSubproductCardPricing = defineAsyncComponent(
+  () => import("./components/subproduct/SubproductCardPricing.vue")
+);
 
 // --- Export Types
+export { PRODUCT_TEMPLATE } from "./types";

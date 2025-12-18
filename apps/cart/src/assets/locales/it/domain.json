@@ -18,14 +18,23 @@
       "tooltip": "Possiedi già un dominio? Puoi trasferirlo a noi"
     }
   },
+  "domain_description": "Proteggi la tua identità online oggi stesso: ci vuole solo un minuto.",
+  "domain_not_required_label": "Continua senza dominio",
+  "domain_title": "Includi un nome di dominio.",
   "finding_perfect_domain": "Trova il tuo dominio **perfetto**",
   "finding_perfect_domain_md": "@.markdown:{'domain.finding_perfect_domain'}",
   "own_domain_qn": "Possiedi questo dominio?",
   "owned_domains_title": "Domini di cui sei attualmente proprietario",
   "price_renewal_desc": "Prezzo una tantum di {regularPrice}. | Si rinnova ogni anno per {regularPrice}. | Si rinnova ogni {count} anni per {regularPrice}.",
+  "search": "Cerca domini",
   "starts_with_domain": "Tutto inizia con un **nome di dominio**",
   "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
   "tld_renewal_price_desc": "Nostro {tld} i prezzi di rinnovo partono da soli {currentPrice} (era {regularPrice}).",
   "tld_renewal_price_from_desc": "Nostro {tld} i prezzi di rinnovo partono da soli {regularPrice}.",
-  "transfer_domain_by_msg": "Trasferiscilo a noi tramite"
+  "transfer": "Trasferimento solo per {currentPrice}.",
+  "transfer_domain": "Trasferimento dominio",
+  "transfer_extension_info": "I trasferimenti includono una proroga di un anno.",
+  "transfer_owner_question": "Sei il proprietario di questo dominio?",
+  "transfer_price_info": "Puoi trasferirlo a noi per soli {currentPrice}",
+  "transfer_promotion": "Trasferimento solo per {currentPrice}, solitamente {regularPrice}."
 }

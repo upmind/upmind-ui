@@ -59,6 +59,8 @@
   "currency_validation_failed": "Validasi mata uang gagal",
   "domain_add_failed": "Gagal menambahkan domain ke keranjang",
   "feedback_action_not_available": "Tindakan dengan nilai '{data}' tidak tersedia.",
+  "funnel_not_available": "Corong tidak tersedia",
+  "funnels_not_available": "Corong tidak tersedia",
   "generic_error": "kesalahan",
   "generic_text": "Mari kita kembalikan Anda ke jalur yang benar",
   "generic_title": "Maaf, kami mengalami **kesalahan**",

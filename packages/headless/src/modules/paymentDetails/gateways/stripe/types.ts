@@ -1,11 +1,9 @@
 // --- external
-import type { ActorRef } from "xstate";
 
 // --- types
 import type { GatewayContext } from "../types";
 import {
   Stripe,
-  StripeElement,
   StripeElements,
   StripePaymentElement
 } from "@stripe/stripe-js";
@@ -77,25 +75,6 @@ export enum SEPA_PC {
 export enum IDEAL_PC {
   // iDEAL Presentment Currencies
   EUR = "EUR" // Euro
-}
-
-export enum ZERO_DECIMAL_CURRENCIES {
-  BIF = "BIF", // Burundian Franc
-  CLP = "CLP", // Chilean Peso
-  DJF = "DJF", // Djiboutian Franc
-  GNF = "GNF", // Guinean Franc
-  JPY = "JPY", // Japanese Yen
-  KMF = "KMF", // Comorian Franc
-  KRW = "KRW", // South Korean Won
-  MGA = "MGA", // Malagasy Ariary
-  PYG = "PYG", // Paraguayan Guarani
-  RWF = "RWF", // Rwandan Franc
-  UGX = "UGX", // Ugandan Shilling
-  VND = "VND", // Vietnamese Dong
-  VUV = "VUV", // Vanuatu Vatu
-  XAF = "XAF", // Central African Franc
-  XOF = "XOF", // West African Franc
-  XPF = "XPF" // CFP Franc
 }
 
 export type StripeContext = GatewayContext<{

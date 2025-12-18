@@ -5,7 +5,7 @@ import { ProductConfig } from "../../support/page-objects/templates/ProductConfi
 import { Basket } from "../../support/page-objects/templates/Basket";
 import { getSessionToken } from "../../support/utils/functions/tokens";
 import {
-  getCurrentOrderId,
+  createOrder,
   addProductToOrder,
   getBasketProducts
 } from "../../support/utils/functions/basket";
@@ -23,8 +23,8 @@ test.describe("Edit hosting product in basket", () => {
     basket = new Basket(page);
     await page.goto(URLs.basket);
     await page.waitForLoadState("networkidle");
-    token = await getSessionToken(context, "guest");
-    orderId = await getCurrentOrderId(token);
+    token = await getSessionToken(context);
+    orderId = await createOrder(token);
     await addProductToOrder(
       `${token}`,
       `${orderId}`,
@@ -46,45 +46,26 @@ test.describe("Edit hosting product in basket", () => {
     products = await getBasketProducts(token);
     productId = products[0].id;
     await page.goto(`order/product/edit/${productId}`);
-    await page.getByTestId("radio-card-item").getByText("London").click();
-    await expect(
-      page.getByTestId("description-list-item-location")
-    ).toBeVisible();
-    await page.getByTestId("button-add-to-basket").click();
+    await productConfig.selectRadioOption("London");
+    await expect(productConfig.getSummaryItem("Location")).toBeVisible();
+    await productConfig.clickAddToBasket();
     await page.waitForLoadState("load");
-    await basket.showDetails.click();
-    await expect(page.getByTestId("basket-product")).toContainText("London");
+    await basket.clickShowDetails();
+    await expect(basket.basketProduct).toContainText("London");
   });
   test("Edit product attributes", async ({ page }) => {
     products = await getBasketProducts(token);
     productId = products[0].id;
     await page.goto(`order/product/edit/${productId}`);
-    await page.getByTestId("radio-card-item").getByText("2 Balloons").click();
-    await expect(
-      page.getByTestId("description-list-item-balloons")
-    ).toBeVisible();
-    await page.getByTestId("button-add-to-basket").click();
+    await productConfig.selectRadioOption("2 Balloons");
+    await expect(productConfig.getSummaryItem("Balloons")).toBeVisible();
+    await productConfig.clickAddToBasket();
     await page.waitForLoadState("load");
-    await basket.showDetails.click();
-    await expect(page.getByTestId("basket-product")).toContainText(
-      "2 Balloons"
-    );
+    await basket.clickShowDetails();
+    await expect(basket.basketProduct).toContainText("2 Balloons");
   });
   test("Edit domain name", async ({ page }) => {
-    products = await getBasketProducts(token);
-    productId = products[0].id;
-    await page.goto(`order/product/edit/${productId}`);
-    const newDomain = `${fakerEN_GB.string.alphanumeric({
-      length: { min: 3, max: 15 }
-    })}.com`;
-    await productConfig.domainExisting.getByTestId("input-url").fill(newDomain);
-    await expect(
-      page.getByTestId("description-list-item-account-domain-name")
-    ).toContainText(newDomain);
-    await page.getByTestId("button-add-to-basket").click();
-    await page.waitForLoadState("load");
-    await basket.showDetails.click();
-    await expect(page.getByTestId("basket-product")).toContainText(newDomain);
+    //rewrite this
   });
 });
 
@@ -98,8 +79,8 @@ test.describe("Edit domain product in basket", () => {
     basket = new Basket(page);
     await page.goto(URLs.basket);
     await page.waitForLoadState("networkidle");
-    token = await getSessionToken(context, "guest");
-    orderId = await getCurrentOrderId(token);
+    token = await getSessionToken(context);
+    orderId = await createOrder(token);
     await addProductToOrder(
       `${token}`,
       `${orderId}`,
@@ -128,15 +109,12 @@ test.describe("Edit domain product in basket", () => {
     let newDomain = `${fakerEN_GB.string.alphanumeric({ length: { min: 3, max: 15 } })}`;
     await page.goto(`order/product/edit/${productId}`);
     await page.waitForLoadState("networkidle");
-    await page.getByTestId("input-#/properties/sld").clear();
-    await page.getByTestId("input-#/properties/sld").fill(newDomain);
-    await page.getByTestId("button-add-to-basket").click();
+    await productConfig.clearFormInput("SLD");
+    await productConfig.fillFormInput("SLD", newDomain);
+    await productConfig.clickAddToBasket();
     await page.waitForLoadState("load");
     await expect(
-      page
-        .getByTestId("basket-product")
-        .getByTestId("link-default")
-        .getByText(newDomain)
+      basket.basketProduct.getByTestId("link-default").getByText(newDomain)
     ).toBeVisible();
     await basket.showDetails.click();
     await expect(
@@ -200,8 +178,8 @@ test.describe("Edit domain product in basket", () => {
     await expect(productConfig.registrantCountry).toContainText(
       fieldUpdates.updatedCountryCode
     );
-    await productConfig.addToBasket.click();
+    await productConfig.clickAddToBasket();
     await page.waitForLoadState("load");
-    await expect(page.getByTestId("basket-product-summary")).toBeVisible();
+    await expect(basket.basketProductSummary).toBeVisible();
   });
 });

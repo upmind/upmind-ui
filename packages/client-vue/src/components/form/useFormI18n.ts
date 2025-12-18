@@ -1,5 +1,7 @@
+// --- external
+import { defineAsyncComponent } from "vue";
 // --- vue elements
-export { default as UpmForm } from "./Form.vue";
+export const UpmForm = defineAsyncComponent(() => import("./Form.vue"));
 export * from "./renderers";
 
 // ---

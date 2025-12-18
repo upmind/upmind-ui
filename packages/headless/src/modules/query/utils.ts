@@ -139,7 +139,7 @@ export function canRetryAuthorization(
  * @param queryKey - The query key array to clean.
  * @returns The cleaned query key array with empty values removed.
  */
-export function cleanQueryKey(queryKey: any[]): any[] {
+export function cleanQueryKey(queryKey: any[] | unknown[]): any[] {
   return values(compactDeep(queryKey));
 }
 
@@ -337,7 +337,6 @@ export function handleError(
   // get the mapped the error and status to a feedback message and display it if it exists
   const feedback = get(mapFeedback(error), status);
   if (!isNil(feedback)) add(feedback);
-
   throw new DetailedError(
     error?.message ?? t("error.503_title_md"),
     status || responseCodes.Service_Unavailable,

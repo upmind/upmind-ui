@@ -3,6 +3,7 @@ import { faker } from "@faker-js/faker";
 
 export class Registration {
   readonly page: Page;
+  readonly registrationForm: Locator;
   readonly context: BrowserContext;
   readonly firstName: Locator;
   readonly lastName: Locator;
@@ -12,11 +13,12 @@ export class Registration {
 
   constructor(page: Page, context: BrowserContext) {
     this.page = page;
+    this.registrationForm = page.getByTestId("registration-form");
     this.context = context;
-    this.firstName = page.getByTestId("input-given-name");
-    this.lastName = page.getByTestId("input-family-name");
-    this.email = page.getByTestId("input-email");
-    this.password = page.getByTestId("input-current-password");
+    this.firstName = page.getByTestId("input-properties-firstname");
+    this.lastName = page.getByTestId("input-properties-lastname");
+    this.email = page.getByTestId("input-properties-username");
+    this.password = page.getByTestId("input-password");
     this.alert = page.getByRole("alert");
   }
 

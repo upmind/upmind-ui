@@ -34,6 +34,7 @@
           :items="recommendations"
           @resolve="doAdd"
           @fetch="fetchRecommendation"
+          :configure-route="props.configureRoute"
         />
 
         <Configure
@@ -74,9 +75,11 @@ import {
   useBasket,
   useProductRecommendations,
   useQueryParams,
-  useRoutingEngine,
-  ROUTE
+  useRoutingEngine
 } from "@upmind-automation/headless";
+import { useLayout } from "../../components/layout/useLayout";
+import { useHeader } from "../../components/header/useHeader";
+import { useFooter } from "../../components/footer/useFooter";
 
 // --- components
 import { Button, Interstitial } from "@upmind-automation/upmind-ui";
@@ -84,16 +87,24 @@ import Layout from "../../components/layout/Layout.vue";
 import Configure from "../recommendations/components/Configure.vue";
 import CardsCarousel from "../recommendations/components/CardsCarousel.vue";
 import Hero from "../../components/hero/Hero.vue";
+import type { LAYOUT_VARIANTS } from "@/components";
+import { LAYOUT_OVERFLOW } from "../../components/layout/types";
+import type { RouteLocationAsRelativeGeneric } from "vue-router";
+
+// -----------------------------------------------------------------------------
+
+const props = defineProps<{
+  configureRoute: RouteLocationAsRelativeGeneric;
+  layout?: LAYOUT_VARIANTS;
+}>();
 
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
 
 // --- basket setup
-const { navigateNext, isResolved } = useRoutingEngine();
+const { navigateNext } = useRoutingEngine();
 const { productId } = useQueryParams();
-
-await isResolved(ROUTE.PRODUCT_RECOMMENDATIONS);
 
 const { count } = useBasket();
 const {
@@ -105,6 +116,12 @@ const {
   add,
   fetchRecommendation
 } = useProductRecommendations(productId);
+
+useHeader({});
+useLayout({
+  overflow: LAYOUT_OVERFLOW.HIDDEN
+});
+useFooter({});
 
 await isReady();
 

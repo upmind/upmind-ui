@@ -59,6 +59,8 @@
   "currency_validation_failed": "Valutavalidering mislyktes",
   "domain_add_failed": "Kunne ikke legge domenet til i handlekurven",
   "feedback_action_not_available": "Handling med verdi {data} ikke tilgjengelig.",
+  "funnel_not_available": "Trakt ikke tilgjengelig",
+  "funnels_not_available": "Trakter er ikke tilgjengelige",
   "generic_error": "feil",
   "generic_text": "La oss få deg tilbake på sporet",
   "generic_title": "Beklager, vi har opplevd en **feil**",

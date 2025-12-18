@@ -18,9 +18,7 @@ export default {
       root: cva("flex w-full flex-col gap-8 text-left"),
       header: cva("w-full"),
       title: cva("m-0 text-xl font-normal"),
-      content: cva(
-        "bg-surface grid w-full space-y-4 rounded-lg border p-6 text-base"
-      ),
+      content: cva("grid w-full space-y-4 rounded-lg border p-6 text-base"),
       form: cva("m-0 border-t pt-4 text-sm first:border-t-0 first:pt-0"),
       list: cva(
         "m-0 grid grid-cols-2 gap-0 border-t pt-4 text-sm first-of-type:border-t-0 first-of-type:pt-0"
@@ -96,25 +94,11 @@ export default {
           }
         }
       }),
-      content: cva("", {
-        variants: {
-          variant: {
-            full: "gap-12",
-            enclosed: "gap-6 md:p-14.5"
-          }
-        }
-      })
+      content: cva("")
     },
 
     customFields: {
-      root: cva("", {
-        variants: {
-          variant: {
-            full: "",
-            enclosed: "gap-6 md:p-14.5"
-          }
-        }
-      })
+      root: cva("")
     },
 
     item: {

@@ -6,17 +6,9 @@
     <DescriptionList v-if="!isEmpty(productItems)" :items="productItems" />
 
     <DescriptionList v-if="!isEmpty(subtotalItems)" :items="subtotalItems">
-      <div :class="styles.summary.item.root">
-        <dt :class="styles.summary.item.term">
-          {{ t("text.basket_total") }}
-        </dt>
-        <dd :class="styles.summary.item.description">
-          {{ summary?.total }}
-        </dd>
-      </div>
+      <BasketTotal class="mt-2" v-if="props.showTotal" />
     </DescriptionList>
 
-    <!-- promotions -->
     <BasketPromotions v-if="props.showPromotions" />
   </div>
 
@@ -38,6 +30,7 @@ import {
 } from "@upmind-automation/upmind-ui";
 import BasketPromotions from "./Promotions.vue";
 import SummarySkeleton from "./SummarySkeleton.vue";
+import BasketTotal from "./BasketTotal.vue";
 
 // --- internal
 import { useBasket } from "@upmind-automation/headless";
@@ -53,10 +46,12 @@ const props = withDefaults(
   defineProps<{
     showProducts?: boolean;
     showPromotions?: boolean;
+    showTotal?: boolean;
   }>(),
   {
     showProducts: false,
-    showPromotions: true
+    showPromotions: true,
+    showTotal: true
   }
 );
 

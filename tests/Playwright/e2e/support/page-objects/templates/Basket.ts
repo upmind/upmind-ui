@@ -44,4 +44,8 @@ export class Basket {
   expandConfigurations() {
     this.page.getByRole("link", { name: "Expand all configurations" });
   }
+
+  async clickShowDetails() {
+    await this.showDetails.first().click();
+  }
 }

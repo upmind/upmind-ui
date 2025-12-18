@@ -1,46 +1,147 @@
 <template>
-  <header :class="styles.header.root" v-show="meta.isVisible">
-    <div :class="styles.header.container">
-      <div :class="styles.header.left">
-        <template v-if="meta.hasContent">
-          <HeaderBrand v-if="meta.showLogo" />
-        </template>
-      </div>
+  <Ribbon
+    as="header"
+    :background="getBackground"
+    :border="meta.border"
+    :class="styles.header.root"
+    v-show="meta.isVisible"
+  >
+    <Container
+      flow="horizontal"
+      justify="between"
+      :class="styles.header.container"
+    >
+      <Column
+        :background="isMobile ? COLUMN_BACKGROUND.NONE : leftBackground"
+        :class="styles.header.left.column"
+        :padding="meta.padding"
+      >
+        <Content
+          :justify="meta.justifyLeft"
+          :items="meta.items"
+          :class="styles.header.left.content"
+          flow="horizontal"
+        >
+          <slot name="branding" v-if="meta.hasContent">
+            <HeaderBrand v-if="meta.showLogo" v-bind="props" />
+          </slot>
+        </Content>
+      </Column>
 
-      <div :class="styles.header.right">
-        <HeaderActions v-if="meta.hasActions" />
-      </div>
-    </div>
-  </header>
+      <Column
+        :background="isMobile ? COLUMN_BACKGROUND.NONE : rightBackground"
+        :class="styles.header.right.column"
+        :padding="meta.padding"
+      >
+        <Content
+          :class="styles.header.right.content"
+          :justify="meta.justifyRight"
+          :items="meta.items"
+          flow="horizontal"
+          class="w-full"
+        >
+          <slot name="actions" v-if="meta.hasActions"></slot>
+        </Content>
+      </Column>
+    </Container>
+  </Ribbon>
 </template>
 
 <script setup lang="ts">
+// --- external
+import { computed, ref } from "vue";
+
 // --- internal
 import { useHeader } from "./useHeader";
 import config from "./header.config";
-import { useStyles } from "@upmind-automation/upmind-ui";
+import { useStyles, isMobile } from "@upmind-automation/upmind-ui";
+import { useRouteTransition } from "../../modules/system/useRouteTransition";
 
 // --- components
 import HeaderBrand from "./HeaderBrand.vue";
-import HeaderActions from "./HeaderActions.vue";
+import Ribbon from "../layout/components/ribbon/Ribbon.vue";
+import Container from "../layout/components/container/Container.vue";
+import Column from "../layout/components/column/Column.vue";
+import Content from "../layout/components/content/Content.vue";
+import { RIBBON_BACKGROUND } from "../layout/components/ribbon";
+import { COLUMN_BACKGROUND } from "../layout/components/column";
 
 // --- types
 import type { ComputedRef } from "vue";
+import { HEADER_BACKGROUND } from "./types";
+import type { RouteLocationAsRelativeGeneric } from "vue-router";
+
 // -----------------------------------------------------------------------------
-const { meta, templateName } = useHeader();
+const { meta } = useHeader();
+
+const stylesMeta = computed(() => ({
+  background: meta.value.background,
+  position: meta.value.position,
+  visible: shouldShow.value
+}));
+
+const props = defineProps<{
+  logo?: string;
+  storefrontRoute?: RouteLocationAsRelativeGeneric;
+}>();
 
 const styles = useStyles(
-  ["header"],
-  {
-    variant: templateName
-  },
+  ["header", "header.left", "header.right"],
+  stylesMeta,
   config
 ) as ComputedRef<{
   header: {
     root: string;
     container: string;
-    left: string;
-    right: string;
+    left: {
+      column: string;
+      content: string;
+    };
+    right: {
+      column: string;
+      content: string;
+    };
   };
 }>;
+
+const shouldShow = ref(true);
+
+const { onTransition } = useRouteTransition();
+
+/**
+ * Handle route transitions to avoid header flicker
+ * We FORCE the header to re-render on route change
+ * to sync with the page transition
+ * NB: nexttick did not work here
+ */
+onTransition(value => {
+  shouldShow.value = false;
+  setTimeout(() => {
+    shouldShow.value = true;
+  }, 1);
+});
+
+const getBackground = computed(() => {
+  if (
+    (meta.value.background === HEADER_BACKGROUND.LTR ||
+      meta.value.background === HEADER_BACKGROUND.RTL) &&
+    isMobile.value
+  ) {
+    return RIBBON_BACKGROUND.CANVAS;
+  } else {
+    return meta.value.background;
+  }
+});
+
+const leftBackground = computed(() => {
+  return meta.value.background === HEADER_BACKGROUND.LTR
+    ? COLUMN_BACKGROUND.SURFACE
+    : COLUMN_BACKGROUND.CANVAS;
+});
+
+const rightBackground = computed(() => {
+  return meta.value.background === HEADER_BACKGROUND.RTL
+    ? COLUMN_BACKGROUND.SURFACE
+    : COLUMN_BACKGROUND.CANVAS;
+});
 </script>

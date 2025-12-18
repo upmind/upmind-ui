@@ -8,6 +8,7 @@ import { useTracking } from "../system";
 
 // --- utils
 import {
+  contextValue,
   DetailedError,
   ErrorOrigin,
   responseCodes,
@@ -20,6 +21,7 @@ import { getTokenFromStorage, dumpTokenFromStorage } from "../session/utils";
 import {
   compact,
   concat,
+  differenceBy,
   forEach,
   isEmpty,
   isNil,
@@ -34,6 +36,7 @@ import {
 import type { IBasket } from "@upmind-automation/types";
 import type { BasketContext } from "./types";
 import type { AnyEventObject } from "xstate";
+import { CurrencyModel } from "./currency/types";
 
 // ---  UTILS
 
@@ -50,6 +53,7 @@ async function load(context: BasketContext, _event: AnyEventObject) {
   // if we are a client AND we have a guest token, we need to claim the basket
   if (client_token && guest_token) {
     await patch({
+      mutationKey: ["basket", "claim"],
       url: useUrl("orders/claim"),
       withAccessToken: true,
       data: {
@@ -95,26 +99,25 @@ async function load(context: BasketContext, _event: AnyEventObject) {
         "products.product.products_options.prices",
         "products.product.provision_blueprint",
         "products.product.provision_field_values",
-        "products.tags",
-        "products.product.related",
-        "products.product.category",
+        // "products.tags",
+        // "products.product.related",
         // "status",
+        "products.product.category",
         `products.product.category${".top_category".repeat(4)}`
       ].join()
     }),
-    init: { signal: context.controller?.signal },
     queryKey: ["basket", "current"],
     staleTime: 0, // disable cache, this may still return stale data while the request is in flight
     gcTime: 0, // force cache to be cleared immediately, to prevent stale data
     withAccessToken: true
     //revalidateIfStale: true,
-  })
-    .then(data => {
-      // generate a new basket if we don't have one;
-      if (isEmpty(data)) return generate(context, { type: "GENERATE" });
-      return data;
-    })
-    .then(data => getProvisioningFieldsValues(data as IBasket));
+  }).then((basket: IBasket) => getProvisioningFieldsValues(basket));
+}
+
+async function refresh(context: BasketContext, _event: AnyEventObject) {
+  return context.basket?.id
+    ? load(context, _event)
+    : Promise.resolve({ basket: context.basket });
 }
 
 async function dismissWarningNotes(
@@ -124,41 +127,10 @@ async function dismissWarningNotes(
   const { put, useUrl } = useQuery();
 
   return put({
+    mutationKey: ["basket", basket?.id, "warnings"],
     url: useUrl(`/orders/${basket?.id}/warnings/hide`),
     data: { ids: [data] },
     withAccessToken: true
-  });
-}
-
-// this generates an empty basket!
-async function generate({ actors }: BasketContext, _event: AnyEventObject) {
-  const { post, useUrl } = useQuery();
-  const { get: getTracking } = useTracking();
-
-  const data: Record<string, any> = {
-    category_slug: "new_contract"
-  };
-  // ---
-  // Conditional data
-  // add currency if available
-  const { validateCurrency } = useBrand();
-  const currency = await validateCurrency(
-    actors?.currency?.getSnapshot()?.context?.model
-  );
-
-  if (currency?.code) data.currency_code = currency.code;
-
-  // add tracking if available
-  await getTracking()
-    .then(values => (data.tracking = values))
-    .catch(() => null);
-
-  // ---
-
-  return post<IBasket>({
-    url: useUrl("orders"),
-    withAccessToken: true,
-    data
   });
 }
 
@@ -194,6 +166,7 @@ async function convert(
   // but the response basket does not contain the products, so we need to
   // request the basket by id to get the products?
   return patch({
+    mutationKey: ["basket", basket.id, "convert"],
     url: useUrl(`/orders/${basket?.id}/convert`),
     withAccessToken: true,
     data: omitBy(data, isNil) // NB we need to remove any null values
@@ -204,12 +177,13 @@ async function getProvisioningFieldsValues(basket: IBasket) {
   const { get, patch, useUrl } = useQuery();
 
   // bail if we have no basket, or if we have a basket with products
-  if (!basket || isEmpty(basket?.products)) return Promise.resolve(basket);
+  if (!basket || isEmpty(basket?.products)) return Promise.resolve({ basket });
 
   const provisioningPromises: Promise<any>[] = [];
 
   // Start with a promise to check the baskets provisioning fields for errors
   const checkPromise = patch({
+    mutationKey: ["basket", basket.id, "provision_fields", "check"],
     url: useUrl(`orders/${basket.id}/provision_fields/values/check`),
     withAccessToken: true
   })
@@ -293,7 +267,7 @@ async function getProvisioningFieldsValues(basket: IBasket) {
 export default {
   load,
   dismissWarningNotes,
-  refresh: load,
+  refresh,
   convert,
   isAuthenticated: () => useSession().isAuthenticated()
 };

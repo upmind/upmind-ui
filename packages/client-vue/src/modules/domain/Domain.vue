@@ -1,246 +1,275 @@
 <template>
-  <div :class="styles.domain.root">
-    <!-- loader -->
-    <SkeletonList v-if="meta.isLoading" :rows="3" />
-
-    <template v-else>
-      <!-- type -->
-      <RadioGroup :modelValue="type">
-        <Accordion type="multiple" collapsible :class="styles.domain.form.root">
-          <AccordionItem
-            v-for="item in i18nChoices"
-            :key="item.value"
-            :value="item.value"
-            :class="styles.domain.form.item"
-            :disabled="isSelected(item.value)"
-            :open="isSelected(item.value)"
-          >
-            <AccordionTrigger
-              :class="styles.domain.form.trigger.root"
-              @click="choose(item.value)"
-            >
-              <label :class="styles.domain.form.trigger.label">
-                <span :class="styles.domain.form.trigger.radio">
-                  <div
-                    class="absolute inset-0 z-10 cursor-pointer"
-                    @click="choose(item.value)" />
-                  <RadioGroupItem
-                    :id="item.value"
-                    :value="item.value"
-                    :checked="isSelected(item.value)"
-                    tabindex="-1"
-                    disabled
-                    class="relative cursor-pointer! opacity-100!" /></span
-                >{{ item.label }}
-              </label>
-              <template #icon><span /></template>
-            </AccordionTrigger>
-
-            <AccordionContent
-              :class="styles.domain.form.content.root"
-              :content-class="styles.domain.form.content.container"
-            >
-              <!-- register/transfer -->
-              <Dac
-                v-if="meta.showDac"
-                :id="`dac-${type}`"
-                :key="`dac-${type}`"
-                :complete="meta.showSelected"
-                :disabled="!meta.isValid"
-                :loading="meta.isSearching"
-                :model-value="selected"
-                :items="available"
-                :selected="model"
-                :more="meta.hasMoreSearchResults"
-                :offset="pagination.offset"
-                :processing="meta.isSyncing"
-                @search="search"
-                @search:more="searchMore"
-                @update:selected="toggle"
-                @remove="remove"
-                @resolve="addToBasket"
-                @reject="reset"
-                @reset="reset"
-                :query="meta.showSelected ? selected : query"
-                :type="type"
-              />
-
-              <!-- existing -->
-              <FormControl
-                v-else-if="meta.showExisting"
-                autoFocus
-                :formItemId="`dac-${type}`"
-              >
-                <Input
-                  :class="styles.domain.existing"
-                  :model-value="selected"
-                  @update:modelValue="update($event.toString())"
-                  autocomplete="url"
-                  :placeholder="t('form.domain.placeholder')"
-                  width="full"
-                  :list="ownedDomains"
-                  class="bg-base-background"
-                />
-              </FormControl>
-
-              <!-- basket -->
-              <DomainBasketCards
-                v-else-if="meta.showBasket"
-                :class="styles.domain.basket"
-                :model-value="selected"
-                :items="basket"
-                :loading="meta.isSearching"
-                :processing="meta.isSyncing"
-                @update:modelValue="select"
-              />
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
-      </RadioGroup>
+  <component :is="templateVariant" v-model:open="open" @reset="doReset">
+    <template #hero>
+      <DomainHero
+        v-model="queryValue"
+        :searching="meta.isSearching"
+        :type="type"
+        :processing="meta.isProcessing || processingBasket"
+        @search="search"
+        @reset="doReset"
+      />
     </template>
-  </div>
+
+    <template #domain-type v-if="meta.showChoices">
+      <DomainType
+        :disabled="disabled"
+        :model-value="modelValue"
+        :choices="choices"
+        :owned="owned"
+        :basket="basket"
+        :type="type"
+        :query="queryValue"
+        :selected="modelValue"
+        :showSelected="meta.showSelected"
+        :showBasket="meta.showBasket"
+        :showDac="meta.showDac"
+        :showSearchResults="meta.showSearchResults"
+        :showExisting="meta.showExisting"
+        @update:model-value="update"
+        @update:selected="select"
+        @update:type="choose"
+        @update:query="value => (queryValue = value || '')"
+      />
+    </template>
+
+    <template #search>
+      <DomainSearch
+        v-model="queryValue"
+        :searching="meta.isSearching"
+        :processing="meta.isProcessing || processingBasket"
+        :type="type"
+        @search="search"
+        @reset="doReset"
+      />
+    </template>
+
+    <template #tabs>
+      <DomainTabs />
+    </template>
+
+    <template #results>
+      <DomainCards
+        :disabled="processingBasket"
+        :model-value="added"
+        :items="available || []"
+        :offset="pagination.offset"
+        :query="query"
+        :processing="meta.isProcessing"
+        :loading="meta.isLoading"
+        :searching="meta.isSearching"
+        :valid="meta.isValid"
+        :template="template"
+        :result-count="resultCount"
+        :skeleton-count="template === DOMAIN_TEMPLATE.DRAWER ? 5 : 3"
+        @add="add"
+        @remove="remove"
+        @search-more="searchMore"
+      />
+    </template>
+
+    <template #cancel>
+      <Button
+        :label="t('action.cancel')"
+        variant="subtle"
+        size="lg"
+        :block="isMobile"
+        @click="doReset"
+      />
+    </template>
+
+    <template #resolve>
+      <Button
+        :label="t('action.continue_label')"
+        variant="solid"
+        color="primary"
+        size="lg"
+        icon-append="arrow-right"
+        :disabled="
+          meta.isProcessing ||
+          meta.isEmpty ||
+          meta.isLoading ||
+          processingBasket
+        "
+        :block="isMobile || (isMobile && template === DOMAIN_TEMPLATE.WIDGET)"
+        @click="doResolve"
+      />
+    </template>
+  </component>
 </template>
 
 <script lang="ts" setup>
 // --- external
-import { computed, watch, onBeforeUnmount, type ComputedRef } from "vue";
+import { computed, onUnmounted, ref, watch } from "vue";
+import { defineAsyncComponent } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useDomain } from "@upmind-automation/headless";
-import { useStyles } from "@upmind-automation/upmind-ui";
-import config from "./domain.config";
+import { useDomain, DomainTypes } from "@upmind-automation/headless";
+import { useHeader } from "../../components/header/useHeader";
+import { useFooter } from "../../components/footer/useFooter";
+import { useLayout } from "../../components/layout/useLayout";
+import { isMobile } from "@upmind-automation/upmind-ui";
 
 // --- components
-import Dac from "./components/DacDrawer.vue";
-import DomainBasketCards from "./components/DomainBasketCards.vue";
-import {
-  Accordion,
-  AccordionItem,
-  AccordionTrigger,
-  AccordionContent,
-  SkeletonList,
-  Input,
-  FormControl,
-  FormMessage,
-  RadioGroup,
-  RadioGroupItem
-} from "@upmind-automation/upmind-ui";
+import DomainHero from "./components/DomainHero.vue";
+import DomainTabs from "./components/DomainTabs.vue";
+import DomainCards from "./components/DomainCards.vue";
+import DomainSearch from "./components/DomainSearch.vue";
+import DomainType from "./components/DomainType.vue";
+import { Button } from "@upmind-automation/upmind-ui";
 
 // --- utils
-import { map } from "lodash-es";
-import { DomainTypes } from "@upmind-automation/headless";
+import { utils } from "@upmind-automation/headless";
+import { debounce } from "lodash-es";
 
-// --- types
-import type { DomainProps } from "./types";
-
-// -----------------------------------------------------------------------------
-const emit = defineEmits<{
-  (e: "update:modelValue", value?: string | string[]): void;
-  (e: "update:type", value?: string): void;
-}>();
-
-const props = withDefaults(defineProps<DomainProps>(), {
-  type: DomainTypes.register,
-  modelValue: "",
-  color: "primary"
-});
-const { t, tm, rt } = useI18n();
-
-const {
-  choices,
-  type,
-  selected,
-  model,
-  query,
-  available,
-  owned,
-  basket,
-  // ---
-  meta,
-  pagination,
-  // ---
-  choose,
-  search,
-  searchMore,
-  update,
-  toggle,
-  reset,
-  stop,
-  addToBasket,
-  select,
-  remove
-} = useDomain(props.modelValue);
-
-const styles = useStyles(
-  ["domain", "domain.form", "domain.form.trigger", "domain.form.content"],
-  meta,
-  config
-) as ComputedRef<{
-  domain: {
-    root: string;
-    choices: string;
-    existing: string;
-    basket: string;
-    form: {
-      root: string;
-      trigger: {
-        root: string;
-        label: string;
-        radio: string;
-      };
-      content: {
-        root: string;
-        container: string;
-      };
-      item: string;
-    };
-    trigger: {
-      root: string;
-    };
-  };
-}>;
-// ---
-
-const i18nChoices = computed(() => {
-  return map(choices.value, (choice, index) => {
-    const translations: { label: string } = tm(
-      `domain.choices.${choice.label}`
-    );
-    return {
-      value: choice.label,
-      label: rt(translations?.label) || choice.label,
-      item: choice,
-      index,
-      modelValue: choice.value
-    };
-  });
-});
-
-const isSelected = (value: string) => {
-  return value == type.value;
+//  --- templates
+const supportedTemplates = {
+  [DOMAIN_TEMPLATE.DRAWER]: defineAsyncComponent(
+    () => import("./templates/DomainDrawer.template.vue")
+  )
 };
 
-const ownedDomains = computed(() => {
-  if (!owned.value?.length) return [];
-  return [
-    {
-      as: "separator",
-      persist: true,
-      domain: t("domain.owned_domains_title")
-    },
-    ...owned.value
-  ];
+// --- types
+import { get } from "lodash-es";
+import type { DomainProps } from "./types";
+import { DOMAIN_TEMPLATE } from "./types";
+
+// -----------------------------------------------------------------------------
+defineOptions({
+  inheritAttrs: false
 });
 
-// --- lifecycle
-onBeforeUnmount(() => {
-  stop();
+const props = withDefaults(defineProps<DomainProps>(), {
+  template: DOMAIN_TEMPLATE.DRAWER,
+  modelValue: ""
 });
+
+const emit = defineEmits<{
+  (e: "update:modelValue", value: string): void;
+  (e: "resolve", value?: string): void;
+  (e: "reset"): void;
+}>();
+
+const modelValue = defineModel<string>("modelValue");
+
+const { t } = useI18n();
+
+const { DEBOUNCE_DELAY } = utils;
+
+// -----------------------------------------------------------------------------
+
+const templateVariant = computed(() =>
+  get(
+    supportedTemplates,
+    props.template,
+    supportedTemplates[DOMAIN_TEMPLATE.DRAWER]
+  )
+);
+
+const {
+  isReady,
+  // --- DAC
+  available,
+  added,
+  searchParams,
+  search,
+  searchMore,
+  remove,
+  add,
+  // ---
+  basket,
+  choices,
+  meta,
+  owned,
+  pagination,
+  query,
+  selected,
+  type,
+  // ---
+  choose,
+  reset,
+  select,
+  stop,
+  stopDac,
+  update
+} = useDomain(props.modelValue, {
+  type: props.type as DomainTypes
+});
+
+// ---------------------------------------------------------------------------
+
+const open = ref(false);
+const processingBasket = ref(false);
+
+const resultCount = ref(0);
+const queryValue = ref(query.value || "");
+
+const debouncedSearch = debounce(
+  (value: string) => search(value),
+  DEBOUNCE_DELAY
+);
+
+function doResolve() {
+  open.value = false;
+  processingBasket.value = true;
+  stopDac(); // force the reset after adding domain(s)
+  emit("resolve", modelValue.value);
+}
+
+function doReset() {
+  open.value = false;
+  processingBasket.value = false;
+  resultCount.value = 0;
+  queryValue.value = "";
+  debouncedSearch.cancel();
+  reset();
+}
 
 // --- side effects
 
-watch(selected, value => {
-  emit("update:type", value);
+await isReady().then(() => {
+  // NB ensure we sync initial value in case the composable modified it
+  modelValue.value = selected.value;
+});
+
+watch(queryValue, value => {
+  if (!value) {
+    debouncedSearch.cancel();
+    reset();
+  } else {
+    debouncedSearch(value);
+  }
+});
+
+watch(
+  searchParams,
+  search => {
+    if (!search?.query) {
+      queryValue.value = "";
+    }
+  },
+  { immediate: true, deep: true }
+);
+
+watch(selected, value => (modelValue.value = value));
+
+watch(meta, ({ isSearching, showSearchResults, showDac }) => {
+  const shouldOpen = showDac && (showSearchResults || isSearching);
+  if (shouldOpen) open.value = true;
+});
+
+// Stores the previous result count for smooth skeleton loading
+watch(available, previous => {
+  resultCount.value = previous?.length ?? 0;
+});
+
+onUnmounted(() => {
+  stop();
+  if (props.template === DOMAIN_TEMPLATE.FULL) {
+    useLayout({});
+    useFooter({});
+    useHeader({});
+  }
 });
 </script>

@@ -4,18 +4,16 @@
       <Link
         v-if="!configMeta.hideImage && navigate"
         :to="{
-          name: ROUTE.PRODUCT_ADD,
+          ...props.configureRoute,
           params: {
             pid: props.id
           },
           query: {
-            [QUERY_PARAMS.BILLING_CYCLE_MONTHS]: selectedTerm,
-            force: 'true', // ensure we always add the product, even if it exists in the basket
-            navigateOnly: 'true' // this is used to prevent the product from being added to the basket when clicking on the image
+            [QUERY_PARAMS.BILLING_CYCLE_MONTHS]: selectedTerm
           }
         }"
-        :handler="handleResolve"
-        :disabled="processing"
+        :disabled="processing || disabled"
+        @click="doResolve"
         :tabindex="images.length === 1 ? '0' : '-1'"
         :ring="images.length === 1 ? 'focus' : 'focus-visible'"
         :class="styles.product.image.container"
@@ -41,7 +39,7 @@
           <ProductInfo
             v-bind="props"
             :selected-term="selectedTerm"
-            :handle-resolve="handleResolve"
+            @resolve="doResolve"
             :processing="processing"
             :navigate="navigate"
           />
@@ -68,25 +66,30 @@
             :to="
               navigate
                 ? {
-                    name: ROUTE.PRODUCT_ADD,
+                    ...props.configureRoute,
                     params: {
                       pid: props.id
                     },
                     query: {
                       [QUERY_PARAMS.BILLING_CYCLE_MONTHS]: selectedTerm,
-                      force: 'true' // ensure we always add the product, even if it exists in the basket
+                      autoupdate: props.productDetails?.configurable
+                        ? undefined
+                        : 'true' // ensure we always add the product, even if it exists in the basket
                     }
                   }
                 : undefined
             "
-            icon="shopping-bag-02"
+            :disabled="processing || disabled"
+            :icon="meta?.added ? 'check-circle-broken' : 'shopping-bag-02'"
             :loading="processing"
             variant="solid"
             :color="color"
             size="lg"
             block
-            :label="t('action.add_to_basket')"
-            @click="handleResolve"
+            :label="
+              meta?.added ? t('confirm.in_basket') : t('action.add_to_basket')
+            "
+            @click="doResolve"
           />
         </footer>
       </section>
@@ -100,7 +103,7 @@ import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { ROUTE, QUERY_PARAMS } from "@upmind-automation/headless";
+import { QUERY_PARAMS } from "@upmind-automation/headless";
 
 // --- components
 import { Button, Image, Link, useStyles } from "@upmind-automation/upmind-ui";
@@ -120,18 +123,21 @@ import type { ProductCardProps } from "./types";
 
 // -----------------------------------------------------------------------------
 
-const emit = defineEmits<{
-  (e: "resolve", id: string): void;
-}>();
-
-const { t } = useI18n();
-
 const props = withDefaults(defineProps<ProductCardProps>(), {
   variant: "default",
   buttonColor: "primary",
   buttonVariant: "solid",
-  navigate: true
+  navigate: true,
+  hideTerms: undefined
 });
+
+const emit = defineEmits<{
+  (e: "resolve", id: string): void;
+}>();
+
+// -----------------------------------------------------------------------------
+
+const { t } = useI18n();
 
 const productMeta = computed(() => props.productDetails.uiMeta?.product);
 const selectedTerm = ref<string | undefined>(
@@ -146,7 +152,7 @@ const configMeta = computed(() => ({
   hideCarousel: productMeta.value?.image?.carousel,
   hideDescription: productMeta.value?.card?.description?.hide,
   hidePrice: productMeta.value?.card?.price?.hide,
-  hideTerms: (productMeta.value?.card?.terms?.hide || props.hideTerms) ?? true,
+  hideTerms: productMeta.value?.card?.terms?.hide ?? props.hideTerms ?? true,
   isLoading: processing
 }));
 
@@ -188,7 +194,7 @@ const images = computed(() => {
 
 const processing = ref(false);
 
-function handleResolve() {
+function doResolve() {
   if (!props.id) return;
   processing.value = true;
   emit("resolve", props.id);

@@ -1,188 +1,184 @@
 <template>
-  <Layout :variant="layout">
-    <template #navigation>
-      <Back v-bind="storefrontRoute" :label="t('action.continue_shopping')" />
-    </template>
+  <Transitions>
+    <component :is="templateVariant" :key="props.template">
+      <template v-if="!isSlotHidden('summary')" #summary>
+        <slot name="summary">
+          <BasketSummary :loading="meta.isLoading">
+            <template #append>
+              <Back
+                v-if="props.storefrontRoute"
+                :to="props.storefrontRoute"
+                :label="t('action.continue_shopping')"
+                class="mt-4"
+              />
+            </template>
+          </BasketSummary>
+        </slot>
+      </template>
 
-    <template #content-header>
-      <Hero
-        :title="t('cart.basket_title')"
-        :description="
-          t('cart.basket_summary_desc', {
-            count: count ?? 0,
-            total: summary?.total ?? 0
-          })
-        "
-      />
-    </template>
+      <template #products>
+        <BasketProducts v-model:open="open" :edit-route="props.editRoute">
+          <template #products="{ open }">
+            <slot name="products" :open="open" />
+          </template>
+        </BasketProducts>
+      </template>
 
-    <template #content>
-      <!-- Basket Errors -->
-      <BasketErrors />
-
-      <!-- Basket Products -->
-      <Section
-        id="basket-products"
-        :label="t('cart.basket_products')"
-        icon="list"
-        :ui-config="{
-          section: {
-            root: styles.basket.items.root,
-            content: styles.basket.items.content
-          } as any
-        }"
-      >
-        <ProductCards :open="open" @update:open="open = $event" />
-
-        <template #action>
-          <Link
-            color="muted"
-            :label="t('action.details_toggle', open ? 0 : 1)"
-            @click="open = !open"
-            size="sm"
-          />
-        </template>
-      </Section>
-
-      <!-- Basket Fields -->
-      <Section
-        id="basket-fields"
-        :label="t('text.additional_details')"
-        icon="file-attachment-01"
-        :class="styles.basket.customFields.root"
-        :ui-config="{
-          section: {
-            root: styles.basket.items.root,
-            content: styles.basket.items.content
-          } as any
-        }"
-      >
-        <Form
-          v-if="!fieldsMeta.isLoading"
-          :additional-errors="fieldsErrors?.data"
-          :model-value="fieldsModel"
-          :touched="route?.hash === '#basket-fields'"
-          :schema="fieldsSchema"
-          :uischema="fieldsUischema"
-          @reject="fieldsClear"
-          @resolve="fieldsUpdate"
-          @update:modelValue="fieldsUpdate"
-          no-actions
-          autosave
-        />
-      </Section>
-    </template>
-
-    <template #aside>
-      <Section
-        id="basket-summary"
-        :label="t('text.summary')"
-        icon="shopping-bag-02"
-        :class="styles.basket.aside"
-      >
-        <Summary />
-
-        <footer class="w-full">
-          <Button
-            :to="{ name: ROUTE.CHECKOUT }"
+      <template #pricing>
+        <slot name="pricing">
+          <BasketPricing
+            @resolve="navigateNext"
             :disabled="
-              !fieldsMeta.isComplete ||
               meta.isProcessing ||
               meta.isLoading ||
+              !meta.hasFields ||
               !meta.hasProducts ||
               meta.hasInvalidProducts
             "
-            block
-            size="lg"
-            :loading="meta.isProcessing || meta.isLoading"
-            :label="t('action.proceed_to_checkout')"
-            icon-append="arrow-right"
+            :loading="meta.isProcessing"
+            :show-checkout="
+              template !== BASKET_TEMPLATE.TWO_COLUMN_RTL &&
+              template !== BASKET_TEMPLATE.ENCLOSED &&
+              !meta.isLoading
+            "
+            :show-total="variant !== LAYOUT_VARIANTS.TWO_COLUMN_RTL"
           />
-        </footer>
-      </Section>
-    </template>
-  </Layout>
+        </slot>
+      </template>
+
+      <template #total>
+        <BasketTotal footer />
+      </template>
+
+      <template #errors>
+        <slot name="errors">
+          <BasketErrors
+            id="basket-errors"
+            basket-fields
+            basket-products
+            :basket-products-route="props.editRoute"
+          />
+        </slot>
+      </template>
+
+      <template v-if="!meta.isLoading" #checkout>
+        <slot name="checkout">
+          <BasketCheckout
+            @resolve="navigateNext"
+            :disabled="
+              meta.isProcessing ||
+              meta.isLoading ||
+              !meta.hasFields ||
+              !meta.hasProducts ||
+              meta.hasInvalidProducts
+            "
+            :loading="meta.isProcessing"
+          />
+        </slot>
+      </template>
+    </component>
+  </Transitions>
 </template>
 
 <script lang="ts" setup>
 // --- external
-import { ref, computed } from "vue";
+import {
+  ref,
+  computed,
+  defineAsyncComponent,
+  onMounted,
+  onUnmounted
+} from "vue";
 import { useI18n } from "vue-i18n";
-import { useRoute } from "vue-router";
+
 // --- internal
 import {
   useBasket,
-  useBasketFields,
   useDataLayer,
-  useBrand,
-  ROUTE,
   useRoutingEngine
 } from "@upmind-automation/headless";
-import { useStyles } from "@upmind-automation/upmind-ui";
-import config from "./basket.config";
+import { useLayout } from "../../components/layout/useLayout";
+import { useHeader } from "../../components/header/useHeader";
+import { useFooter } from "../../components/footer/useFooter";
 
 // --- components
-import { RouterLink } from "vue-router";
-import { Button, Link } from "@upmind-automation/upmind-ui";
-import Layout from "../../components/layout/Layout.vue";
-import Hero from "../../components/hero/Hero.vue";
-import Summary from "./components/Summary.vue";
-import ProductCards from "./product/BasketProductCards.vue";
-import Form from "../../components/form/Form.vue";
 import Back from "../../components/navigation/Back.vue";
-import Section from "../../components/section/Section.vue";
+import BasketSummary from "./components/BasketSummary.vue";
+import BasketProducts from "./components/BasketProducts.vue";
+import BasketPricing from "./components/BasketPricing.vue";
 import BasketErrors from "./components/BasketErrors.vue";
+import BasketCheckout from "./components/BasketCheckout.vue";
+import BasketTotal from "./components/BasketTotal.vue";
+import Transitions from "../../components/layout/components/transition/Transition.vue";
+
+// --- templates
+const supportedTemplates = {
+  [BASKET_TEMPLATE.FULL]: defineAsyncComponent(
+    () => import("./templates/BasketFull.template.vue")
+  ),
+  [BASKET_TEMPLATE.TWO_COLUMN_LTR]: defineAsyncComponent(
+    () => import("./templates/BasketLTR.template.vue")
+  ),
+  [BASKET_TEMPLATE.TWO_COLUMN_RTL]: defineAsyncComponent(
+    () => import("./templates/BasketRTL.template.vue")
+  ),
+  [BASKET_TEMPLATE.ENCLOSED]: defineAsyncComponent(
+    () => import("./templates/BasketEnclosed.template.vue")
+  )
+};
+
+// --- utils
+import { get, includes } from "lodash-es";
 
 // --- types
-import { type ComputedRef } from "vue";
+import { BASKET_TEMPLATE } from "./types";
+import type { RouteLocationAsRelativeGeneric } from "vue-router";
+import { LAYOUT_VARIANTS } from "../../components/layout/types";
+// -----------------------------------------------------------------------------
+
+const props = withDefaults(
+  defineProps<{
+    template?: BASKET_TEMPLATE;
+    basketRoute?: RouteLocationAsRelativeGeneric;
+    storefrontRoute?: RouteLocationAsRelativeGeneric;
+    editRoute: RouteLocationAsRelativeGeneric;
+    hideSlots?: string[];
+  }>(),
+  {
+    template: BASKET_TEMPLATE.TWO_COLUMN_LTR,
+    hideSlots: () => []
+  }
+);
 
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
-const { meta, count, summary } = useBasket();
-const { storefrontRoute } = useBrand();
-const { currentRoute, isResolved, isReady, navigateBack } = useRoutingEngine();
-const route = useRoute();
-
-const {
-  errors: fieldsErrors,
-  meta: fieldsMeta,
-  model: fieldsModel,
-  schema: fieldsSchema,
-  uischema: fieldsUischema,
-  clear: fieldsClear,
-  update: fieldsUpdate
-} = useBasketFields();
+const { navigateNext } = useRoutingEngine();
+const { count, summary, isReady, meta } = useBasket();
+const { variant } = useLayout();
 
 const open = ref(false);
 
-await isResolved(ROUTE.BASKET);
-await isReady().then(() => {
-  if (!meta.value.hasProducts) navigateBack();
+const isSlotHidden = (name: string) => includes(props.hideSlots, name);
+
+const templateVariant = computed(() =>
+  get(
+    supportedTemplates,
+    props.template,
+    supportedTemplates[BASKET_TEMPLATE.TWO_COLUMN_LTR]
+  )
+);
+
+await isReady();
+
+onUnmounted(() => {
+  useHeader({});
+  useLayout({});
+  useFooter({});
 });
 
-const layout = computed(() => {
-  return currentRoute.value?.meta?.template;
-});
+// -----------------------------------------------------------------------------
 
-const styles = useStyles(
-  ["basket.expand", "basket.items", "basket.customFields", "basket.aside"],
-  { variant: layout.value },
-  config
-) as ComputedRef<{
-  basket: {
-    aside: string;
-    expand: string;
-    items: {
-      root: string;
-      content: string;
-    };
-    customFields: {
-      root: string;
-    };
-  };
-}>;
-
-const { dataLayer } = useDataLayer();
-dataLayer({ event: "view_cart" }).withEcommerce().push();
+// const { dataLayer } = useDataLayer();
+// dataLayer({ event: "view_cart" }).withEcommerce().push();
 </script>

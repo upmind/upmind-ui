@@ -115,7 +115,7 @@ export function parseRelatedProducts(raw: IBasket): RelatedProduct[] {
  */
 export function parseRelationships(raw: IBasket): Record<string, string[]> {
   return reduce(
-    raw.products,
+    raw?.products,
     (relationships: Record<string, string[]>, product) => {
       // ---safe check : dont include recommendations for products that are not single products
       if (product.product.product_type !== ProductTypes.SINGLE_PRODUCT)
@@ -254,7 +254,7 @@ export function parseRecommendation(
 
   // ---------------------------------------------------------------------------
   return {
-    id: raw.id, // this is the  internal id of the recommendation, with a fallback to a random uuid for the meta generated recommendations, they dont have an id
+    id: raw.id, // this is the  internal id of the recommendation
     productDetails: {
       ...productDetails,
       // --- forced overrides

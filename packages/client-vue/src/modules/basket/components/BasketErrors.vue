@@ -8,13 +8,13 @@
       :title="t('cart.basket_requires_attention_msg', { count })"
       :description="t('cart.basket_review_msg')"
     >
-      <ol class="list-disc p-6 py-2 text-left" v-auto-animate>
+      <ol class="text-sm-tight list-disc p-6 py-2 text-left" v-auto-animate>
         <!-- Basket products -->
         <template v-if="meta.hasBasketProducts">
           <li
             v-for="basketItem in productsInvalid"
             :key="basketItem.id"
-            class="marker:text-inherit"
+            class="text-sm marker:text-inherit"
           >
             <i18n-t keypath="cart.basket_product_review_msg" tag="span">
               <template #productName>
@@ -22,11 +22,9 @@
               </template>
               <template #review>
                 <Link
+                  size="inherit"
+                  v-bind="getBasketProductsRoute(basketItem.id)"
                   :label="t('action.review')"
-                  :to="{
-                    name: safeProductsRoute,
-                    params: { bpid: basketItem.id }
-                  }"
                 />
               </template>
             </i18n-t>
@@ -38,11 +36,9 @@
           <i18n-t keypath="cart.basket_fields_review_msg" tag="span">
             <template #review>
               <Link
+                size="inherit"
+                v-bind="safeBasketFieldsRoute"
                 :label="t('action.review')"
-                :to="{
-                  name: safeBasketFieldsRoute,
-                  hash: '#basket-fields'
-                }"
               />
             </template>
           </i18n-t>
@@ -53,11 +49,9 @@
           <i18n-t keypath="cart.basket_billing_review_msg" tag="span">
             <template #review>
               <Link
+                size="inherit"
+                v-bind="safeBasketBillingRoute"
                 :label="t('action.review')"
-                :to="{
-                  name: safeBasketBillingRoute,
-                  hash: '#basket-billing'
-                }"
               />
             </template>
           </i18n-t>
@@ -82,21 +76,17 @@ import { Alert, Link } from "@upmind-automation/upmind-ui";
 import {
   useBasket,
   useBasketBilling,
-  useBasketFields,
-  ROUTE
+  useBasketFields
 } from "@upmind-automation/headless";
 
 // --- utils
-import { sum } from "lodash-es";
+import { has, sum } from "lodash-es";
+import { isString } from "xstate/lib/utils";
+import type { RouteLocationAsRelativeGeneric } from "vue-router";
 
 // --- types
 
 // -----------------------------------------------------------------------------
-enum visibilityType {
-  HIDDEN = 0,
-  CHECKOUT = "checkout",
-  BASKET = "basket"
-}
 
 const props = withDefaults(
   defineProps<{
@@ -104,9 +94,9 @@ const props = withDefaults(
     basketFields?: boolean;
     basketProducts?: boolean;
     // ---
-    basketBillingRoute?: ROUTE.CHECKOUT; // ROUTE.BASKET
-    basketFieldsRoute?: ROUTE.CHECKOUT | ROUTE.BASKET;
-    basketProductsRoute?: ROUTE.PRODUCT_EDIT;
+    basketBillingRoute?: RouteLocationAsRelativeGeneric;
+    basketFieldsRoute?: RouteLocationAsRelativeGeneric;
+    basketProductsRoute?: RouteLocationAsRelativeGeneric;
   }>(),
   {
     basketBilling: false,
@@ -142,7 +132,7 @@ const meta = computed(() => {
     isLoading:
       basketMeta.value.isLoading ||
       fieldsMeta.value.isLoading ||
-      billingMeta.value.isLoading,
+      (props.basketBilling && billingMeta.value.isLoading),
     hasBasketFields,
     hasBasketBilling,
     hasBasketProducts,
@@ -151,12 +141,31 @@ const meta = computed(() => {
 });
 
 const safeBasketBillingRoute = computed(() => {
-  return props.basketBillingRoute || ROUTE.CHECKOUT;
+  return {
+    to: {
+      ...(props.basketBillingRoute ?? {}),
+      hash: "#basket-billing"
+    }
+  };
+
+  return { hash: "#basket-billing" };
 });
+
 const safeBasketFieldsRoute = computed(() => {
-  return props.basketFieldsRoute || ROUTE.BASKET;
+  return {
+    to: {
+      ...(props.basketFieldsRoute ?? {}),
+      hash: "#basket-fields"
+    }
+  };
 });
-const safeProductsRoute = computed(() => {
-  return props.basketProductsRoute || ROUTE.PRODUCT_EDIT;
-});
+
+function getBasketProductsRoute(bpid: string) {
+  return {
+    to: {
+      ...(props.basketProductsRoute ?? {}),
+      params: { bpid }
+    }
+  };
+}
 </script>

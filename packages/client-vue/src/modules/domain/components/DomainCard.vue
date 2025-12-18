@@ -1,65 +1,128 @@
 <template>
-  <article :class="styles.domain.card.root">
-    <header :class="styles.domain.card.header">
-      <Icon
-        :icon="getContent.icon"
-        size="xs"
-        :class="styles.domain.card.icon"
-      />
+  <article :class="styles.card.root">
+    <header :class="styles.card.header.root">
+      <!-- TODO: Add favourite action -->
 
-      <div :class="styles.domain.card.content">
-        <h6 :class="styles.domain.card.label">
-          {{ getContent.label }}
-        </h6>
+      <div :class="styles.card.header.details.root">
+        <section :class="styles.card.header.details.status.root">
+          <small
+            :class="styles.card.header.details.status.label"
+            role="status"
+            aria-label="Domain availability status"
+          >
+            {{ getStatus }}
+          </small>
 
-        <section :class="styles.domain.card.container">
-          <div :class="styles.domain.card.title">
-            <h2 :class="styles.domain.card.sld">
-              {{ sld
-              }}<strong :class="styles.domain.card.tld">
-                {{ tld }}
-              </strong>
-            </h2>
-          </div>
-
-          <Promotion
-            v-for="(promotion, index) in promotions"
-            :key="`promotion-${index}`"
-            v-bind="promotion"
-            :class="styles.domain.card.promotion"
+          <Badge
+            v-if="meta.isExactMatch && isMobile"
+            variant="minimal"
+            color="neutral"
             size="sm"
+            :label="t('text.exact_match')"
           />
         </section>
 
-        <DomainDescription
-          v-if="meta.isAvailable"
-          v-bind="domain"
-          :title="props.domain"
-          :cycle="domain.configuration.term"
-          :class="styles.domain.card.description"
-        />
+        <section :class="styles.card.header.details.title.root">
+          <h3 :class="styles.card.header.details.title.fld">
+            <span :class="styles.card.header.details.title.sld">
+              {{ props.sld }}
+            </span>
+            <span :class="styles.card.header.details.title.tld">
+              {{ props.tld }}
+            </span>
+          </h3>
+
+          <Badge
+            v-if="meta.isExactMatch && !isMobile"
+            variant="minimal"
+            color="neutral"
+            size="md"
+            :label="t('text.exact_match')"
+          />
+        </section>
+
+        <section
+          :class="styles.card.header.details.pricing"
+          aria-label="Pricing information"
+        >
+          <DomainDescription
+            :price="props.price"
+            :meta="meta"
+            :cycle="props.cycle"
+          />
+        </section>
       </div>
     </header>
 
-    <footer :class="styles.domain.card.footer.root">
-      <DomainPrices
-        v-if="meta.isAvailable"
-        :meta="domain.meta"
-        :price="domain.price"
-        :cycle="domain.configuration.term"
-      />
+    <footer :class="styles.card.footer.root">
+      <template v-if="meta.isAvailable">
+        <div v-if="!isMobile">
+          <Badge
+            v-if="props.price.savingPercent"
+            variant="muted"
+            color="promo"
+            :size="meta.isExactMatch ? 'md' : 'sm'"
+            :label="
+              t('action.save_value', { value: props.price.savingPercent })
+            "
+          />
+        </div>
 
-      <DomainActions
-        :cycle="domain.configuration.term"
-        :domain="domain.domain"
-        :tld="domain.tld"
-        :meta="domain.meta"
-        :price="domain.price"
-        :processing="meta.isProcessing"
-        :selected="props.selected"
-        @update="onUpdate"
-        @remove="onRemove"
-      />
+        <section :class="styles.card.footer.price.root">
+          <h3 :class="styles.card.footer.price.amount">
+            {{ props.price.currentPrice }}
+          </h3>
+          <small :class="styles.card.footer.price.term"
+            >/ {{ parseBillingCycle(props.cycle!).suffix }}</small
+          >
+
+          <div class="ml-auto" v-if="isMobile && props.price.savingPercent">
+            <Badge
+              variant="muted"
+              color="promo"
+              :size="meta.isExactMatch ? 'md' : 'sm'"
+              :label="
+                t('action.save_value', { value: props.price.savingPercent })
+              "
+            />
+          </div>
+        </section>
+      </template>
+      <template v-else>
+        <p class="text-muted mt-1 text-sm/tight md:mt-0 md:text-right">
+          {{ $t("domain.transfer_owner_question")
+          }}<br class="hidden md:block" />
+          {{
+            $t("domain.transfer_price_info", {
+              currentPrice: props.price.currentPrice
+            })
+          }}<br class="hidden md:block" />
+          {{ $t("domain.transfer_extension_info") }}
+        </p>
+      </template>
+
+      <Tooltip :active="!meta.isExactMatch && !isMobile" :label="getTooltip">
+        <Button
+          :loading="meta.isProcessing"
+          :icon="getIcon"
+          :class="styles.card.footer.button.root"
+          size="lg"
+          :variant="meta.isAdded ? 'solid' : 'outline'"
+          :color="meta.isAdded ? 'secondary' : 'primary'"
+          :disabled="meta.isProcessing || meta.isDisabled"
+          @click="
+            meta.isAdded ? onRemove(props.domain) : onUpdate(props.domain)
+          "
+          :label="getLabel"
+          :ui-config="
+            {
+              button: {
+                label: styles.card.footer.button.label
+              }
+            } as any
+          "
+        />
+      </Tooltip>
     </footer>
   </article>
 </template>
@@ -67,100 +130,144 @@
 <script setup lang="ts">
 // --- external
 import { computed } from "vue";
-import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useStyles } from "@upmind-automation/upmind-ui";
+import { parseBillingCycle } from "@upmind-automation/headless";
+import {
+  useStyles,
+  isMobile,
+  Badge,
+  Button,
+  Tooltip
+} from "@upmind-automation/upmind-ui";
 import config from "../domain.config";
 
 // --- components
-import { Icon } from "@upmind-automation/upmind-ui";
-import Promotion from "../../basket/product/components/Promotion.vue";
-import DomainActions from "./DomainActions.vue";
 import DomainDescription from "./DomainDescription.vue";
-import DomainPrices from "./DomainPrices.vue";
-
-// --- utils
-import { omit } from "lodash-es";
 
 // --- types
 import type { ComputedRef } from "vue";
 import type { DomainCardProps } from "../types";
-import type { DomainProduct } from "@upmind-automation/headless";
+import { useI18n } from "vue-i18n";
+
 // -----------------------------------------------------------------------------
 const emit = defineEmits<{
-  (e: "update:selected", domain: string): void;
+  (e: "add", domain: string): void;
   (e: "remove", domain: string): void;
 }>();
 
 const props = defineProps<DomainCardProps>();
 
-// ---
+// -----------------------------------------------------------------------------
 
 const { t } = useI18n();
 
-const domain = computed<DomainProduct>(
-  () => omit(props, ["color", "secondary", "processing"]) as DomainProduct
-);
-
 const meta = computed(() => ({
-  isDisabled: props.meta.disabled,
-  isProcessing: props.processing,
-  isAvailable: props.meta.available
+  isDisabled: !!props.disabled,
+  isProcessing: !!props.processing,
+  isAvailable: !!props.available,
+  isAdded: !!props.added,
+  isExactMatch: !!props.exactMatch,
+  isOwned: !!props.owned,
+  isDiscounted: !!props.discounted
 }));
 
 const styles = useStyles(
-  ["domain.card", "domain.card.footer"],
+  [
+    "card",
+    "card.header",
+    "card.header.details",
+    "card.header.details.status",
+    "card.header.details.title",
+    "card.footer",
+    "card.footer.price",
+    "card.footer.button"
+  ],
   meta,
   config
 ) as ComputedRef<{
-  domain: {
-    card: {
+  card: {
+    root: string;
+    header: {
       root: string;
-      header: string;
-      icon: string;
-      content: string;
-      container: string;
-      description: string;
-      label: string;
-      title: string;
-      sld: string;
-      tld: string;
-      promotion: string;
-      footer: {
+      details: {
         root: string;
+        status: {
+          root: string;
+          label: string;
+        };
+        title: {
+          root: string;
+          fld: string;
+          sld: string;
+          tld: string;
+        };
+        badge: string;
+        pricing: string;
+      };
+    };
+    footer: {
+      root: string;
+      price: {
+        root: string;
+        amount: string;
+        term: string;
+      };
+      button: {
+        root: string;
+        label: string;
       };
     };
   };
 }>;
 
-const getContent = computed(() => {
-  if (props.meta.owned) {
-    return {
-      icon: "lock-04",
-      label: t("confirm.in_use")
-    };
-  } else if (props.meta.added) {
-    return {
-      icon: "check-circle",
-      label: t("confirm.in_basket")
-    };
-  } else if (props.meta.available) {
-    return {
-      icon: "check-circle",
-      label: t("text.available")
-    };
+const getStatus = computed(() => {
+  if (meta.value.isOwned) {
+    return t("confirm.in_use");
+  } else if (meta.value.isAdded) {
+    return t("confirm.in_basket");
+  } else if (meta.value.isAvailable) {
+    return t("text.available");
   } else {
-    return {
-      icon: "lock-04",
-      label: t("text.taken")
-    };
+    return t("text.taken");
   }
+});
+
+const getIcon = computed(() => {
+  if (meta.value.isAdded) {
+    return "check-circle-broken";
+  } else if (meta.value.isAvailable) {
+    return "shopping-bag-02";
+  } else {
+    return "switch-horizontal-02";
+  }
+});
+
+const getLabel = computed(() => {
+  if (meta.value.isAdded) {
+    return t("confirm.in_basket");
+  } else if (meta.value.isAvailable) {
+    return t("action.add_to_basket");
+  }
+  return t("domain.transfer_domain");
+});
+
+const getTooltip = computed(() => {
+  if (meta.value.isProcessing && !meta.value.isAdded) {
+    return t("action.adding");
+  } else if (meta.value.isProcessing && meta.value.isAdded) {
+    return t("action.removing");
+  } else if (meta.value.isAdded) {
+    return t("confirm.in_basket");
+  } else if (meta.value.isAvailable) {
+    return t("action.add_to_basket");
+  }
+  return t("domain.transfer_domain");
 });
 
 function onUpdate(value: string): void {
   if (meta.value.isDisabled || meta.value.isProcessing) return;
-  emit("update:selected", value);
+  emit("add", value);
 }
 
 function onRemove(value: string): void {

@@ -59,6 +59,8 @@
   "currency_validation_failed": "Währungsvalidierung fehlgeschlagen",
   "domain_add_failed": "Das Hinzufügen der Domain zum Warenkorb ist fehlgeschlagen",
   "feedback_action_not_available": "Aktion mit Wert '{data}' nicht verfügbar.",
+  "funnel_not_available": "Trichter nicht verfügbar",
+  "funnels_not_available": "Funnels nicht verfügbar",
   "generic_error": "Fehler",
   "generic_text": "Wir bringen Sie wieder auf Kurs",
   "generic_title": "Entschuldigung, es ist ein **Fehler** aufgetreten.",

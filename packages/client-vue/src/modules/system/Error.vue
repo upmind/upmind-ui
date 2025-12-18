@@ -25,16 +25,16 @@ import {
 import { type InterstitialProps } from "@upmind-automation/upmind-ui";
 import { computed } from "vue";
 import { isNil } from "lodash-es";
-import { utils, useBrand } from "@upmind-automation/headless";
-// -----------------------------------------------------------------------------
+import { utils } from "@upmind-automation/headless";
+import type { RouteLocationAsRelativeGeneric } from "vue-router";
 const { t } = useI18n();
 const { responseCodes } = utils;
-const { storefrontRoute } = useBrand();
 
 const props = withDefaults(
   defineProps<
     {
       status?: number;
+      storefrontRoute?: RouteLocationAsRelativeGeneric;
     } & InterstitialProps
   >(),
   {
@@ -49,6 +49,10 @@ const props = withDefaults(
     })
   }
 );
+
+const emit = defineEmits<{
+  dismiss: [];
+}>();
 
 const title = computed(() => {
   switch (props.status) {
@@ -135,31 +139,33 @@ const animatedIcon = computed(() => ({
 }));
 
 const actions = computed((): InterstitialActionProps[] => {
-  let route = storefrontRoute.value;
+  let defaultAction: InterstitialActionProps;
 
   switch (props.status) {
     // for service errors, we want to reload the page as its likely a temporary issue
-    case responseCodes.Unauthorized:
     case responseCodes.Service_Unavailable:
     case responseCodes.Internal_Server_Error:
-      route = {
-        href: window.location.href
+      defaultAction = {
+        handler: () => window.location.reload(),
+        variant: "solid",
+        color: "primary",
+        icon: icon.value,
+        label: action.value
       };
       break;
 
     // for all other errors, we want to redirect back to the storefront
     default:
-      route = storefrontRoute.value;
+      defaultAction = {
+        to: props.storefrontRoute,
+        handler: () => emit("dismiss"),
+        variant: "solid",
+        color: "primary",
+        icon: icon.value,
+        label: action.value
+      };
       break;
   }
-
-  const defaultAction: InterstitialActionProps = {
-    ...route,
-    variant: "solid",
-    color: "primary",
-    icon: icon.value,
-    label: action.value
-  };
 
   return isNil(props.actions) ? [defaultAction] : props.actions;
 });

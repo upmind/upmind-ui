@@ -28,7 +28,7 @@ test.describe("Promotions", () => {
       test("Is Active - No", async ({ page }) => {
         await page.goto(URLs.inactivePromo);
         await page.waitForLoadState("networkidle");
-        await productConfig.promoBadgeDoesNotExist(0);
+        await productConfig.promoBadgeDoesNotExist("Monthly");
       });
     });
     test.describe("Discounts and Conditions", () => {
@@ -36,12 +36,12 @@ test.describe("Promotions", () => {
         test("Fixed Discount Amount", async ({ page }) => {
           await page.goto(URLs.fixedDiscount);
           await page.waitForLoadState("networkidle");
-          await productConfig.promoBadgeExists(0);
+          await productConfig.promoBadgeExists("Annually");
         });
         test("Percentage Discount Amount", async ({ page }) => {
           await page.goto(URLs.percentageDiscount);
           await page.waitForLoadState("networkidle");
-          await productConfig.promoBadgeExists(0);
+          await productConfig.promoBadgeExists("Monthly");
         });
       });
       test.describe("Application per currency", () => {
@@ -50,14 +50,14 @@ test.describe("Promotions", () => {
         }) => {
           await page.goto(URLs.gbpPromo);
           await page.waitForLoadState();
-          await productConfig.promoBadgeExists(0);
+          await productConfig.promoBadgeExists("Monthly");
         });
         test("Apply for all currencies - No - Apply for USD", async ({
           page
         }) => {
           await page.goto(URLs.usdPromo);
           await page.waitForLoadState("networkidle");
-          await productConfig.promoBadgeExists(0);
+          await productConfig.promoBadgeExists("Monthly");
         });
       });
       test.describe("Application per billing term", () => {
@@ -66,14 +66,14 @@ test.describe("Promotions", () => {
         }) => {
           await page.goto(URLs.oneYearPromo);
           await page.waitForLoadState("networkidle");
-          await productConfig.promoBadgeExists(1);
+          await productConfig.promoBadgeExists("Annually");
         });
       });
       test.describe("Application per price list", () => {
         test("Apply for all price lists - No", async ({ page }) => {
           await page.goto(URLs.priceListPromo);
           await page.waitForLoadState("networkidle");
-          await productConfig.promoBadgeDoesNotExist(0);
+          await productConfig.promoBadgeDoesNotExist("Annually");
           await getClientToken(
             page,
             Logins.priceListUser.username,
@@ -81,7 +81,7 @@ test.describe("Promotions", () => {
           );
           await page.goto(URLs.priceListPromo);
           await page.waitForLoadState("networkidle");
-          await productConfig.promoBadgeExists(0);
+          await productConfig.promoBadgeExists("Monthly");
         });
       });
     });
@@ -102,7 +102,7 @@ test.describe("Promotions", () => {
     test.describe("Use for new clients", () => {
       test("Exclusively for new clients", async ({ page }) => {
         await page.goto(URLs.newClientPromo);
-        await productConfig.promoBadgeExists(0);
+        await productConfig.promoBadgeExists("Monthly");
         await getClientToken(
           page,
           Logins.priceListUser.username,
@@ -110,7 +110,7 @@ test.describe("Promotions", () => {
         );
         await page.goto(URLs.newClientPromo);
         await page.waitForLoadState("networkidle");
-        await productConfig.promoBadgeDoesNotExist(0);
+        await productConfig.promoBadgeDoesNotExist("Monthly");
       });
     });
     test.describe("Use for existing clients", () => {
@@ -123,11 +123,11 @@ test.describe("Promotions", () => {
         );
         await page.goto(URLs.existingClientPromo);
         await page.waitForLoadState();
-        await productConfig.promoBadgeExists(0);
+        await productConfig.promoBadgeExists("Monthly");
         await context.clearCookies();
         await page.goto(URLs.existingClientPromo);
         await page.waitForLoadState("networkidle");
-        await productConfig.promoBadgeDoesNotExist(0);
+        await productConfig.promoBadgeDoesNotExist("Monthly");
       });
     });
     test.describe("Use for upgrade clients", () => {
@@ -139,7 +139,7 @@ test.describe("Promotions", () => {
       test.beforeEach(async ({ page, context }) => {
         await page.goto(URLs.basket);
         await page.waitForLoadState("networkidle");
-        const token = await getSessionToken(context, "guest");
+        const token = await getSessionToken(context);
         const orderId = await getCurrentOrderId(token);
         await addProductToOrder(
           `${token}`,
@@ -188,7 +188,7 @@ test.describe("Promotions", () => {
       );
       await page.goto(URLs.basket);
       await page.waitForLoadState("networkidle");
-      const token = await getSessionToken(context, "client");
+      const token = await getSessionToken(context);
       const orderId = await getCurrentOrderId(token);
       await addProductToOrder(
         `${token}`,

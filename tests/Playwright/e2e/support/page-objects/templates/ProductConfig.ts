@@ -7,6 +7,8 @@ import { Popover } from "../components/Popover";
 import { Accordion } from "../components/Accordion";
 import { Select } from "../components/Select";
 import { Drawer } from "../components/Drawer";
+import { Form } from "../components/Form";
+import { kebabCase } from "../../utils/functions/helpers";
 
 export class ProductConfig {
   readonly page: Page;
@@ -18,6 +20,7 @@ export class ProductConfig {
   readonly accordion: Accordion;
   readonly select: Select;
   readonly drawer: Drawer;
+  readonly form: Form;
 
   /* Product Options */
   readonly optionsContainer: Locator;
@@ -94,6 +97,7 @@ export class ProductConfig {
     this.accordion = new Accordion(page);
     this.select = new Select(page);
     this.drawer = new Drawer(page);
+    this.form = new Form(page);
     this.optionsContainer = page.getByTestId("content-section").first();
     this.checkoutMarkdown = page.getByTestId("markdown"); //TODO: Find a way to move to shared component page object
     this.markdownLineclamp = page.getByTestId("lineclamp"); //TODO: as above
@@ -228,10 +232,12 @@ export class ProductConfig {
     await this.markdownLineclamp.click();
   }
 
-  async enterDomain(option: number, domainName: string) {
+  async enterDomain(option: string, domainName: string) {
     const radioOption = this.accordion.getAccordion(option);
+    await radioOption.click();
     await radioOption
-      .getByTestId('[data-testid="text-input"]')
+      .getByTestId("accordion-content")
+      .getByTestId(`input-dac-${kebabCase(option)}`)
       .fill(domainName);
   }
 
@@ -244,8 +250,8 @@ export class ProductConfig {
 
   async addDomain() {
     const drawer = this.drawer.domainResults;
-    const card = drawer.getByTestId("dac-card").first();
-    const button = card.getByRole("button");
+    const card = drawer.getByTestId("dac-card").first().locator("footer");
+    const button = card.getByTestId("button-register");
     await button.click();
   }
 
@@ -260,17 +266,13 @@ export class ProductConfig {
     return badge;
   }
 
-  async promoBadgeDoesNotExist(option: number) {
-    const term = this.billingTerms.locator(
-      this.radioButtons.radioOption.nth(option)
-    );
+  async promoBadgeDoesNotExist(option: string) {
+    const term = this.radioButtons.getRadioButton(option);
     await expect(this.getPromoBadge(term)).toBeHidden();
   }
 
-  async promoBadgeExists(option: number) {
-    const term = this.billingTerms.locator(
-      this.radioButtons.radioOption.nth(option)
-    );
+  async promoBadgeExists(option: string) {
+    const term = this.radioButtons.getRadioButton(option);
     await expect(this.getPromoBadge(term)).toBeVisible();
   }
 
@@ -302,11 +304,28 @@ export class ProductConfig {
     await this.page.getByTestId(`select-item-${registrantCountryCode}`).click();
   }
 
-  async clickBillingTerm(option: number) {
-    await this.billingTerms.waitFor();
-    const term = this.billingTerms.locator(
-      this.radioButtons.radioOption.nth(option)
+  async selectRadioOption(option: string) {
+    return this.radioButtons.selectRadioOption(option);
+  }
+  async clickSelectOption(option: string) {
+    return this.select.clickSelectOption(option);
+  }
+
+  async fillFormInput(label: string, content: string) {
+    return this.form.fillFormInput(label, content);
+  }
+
+  async clearFormInput(label: string) {
+    return this.form.clearFormInput(label);
+  }
+
+  getSummaryItem(itemLabel: string) {
+    return this.page.getByTestId(
+      `description-list-item-${kebabCase(itemLabel)}`
     );
-    await term.click();
+  }
+
+  async clickAddToBasket() {
+    await this.addToBasket.click();
   }
 }

@@ -1,6 +1,18 @@
-import { Page, expect, Locator } from "@playwright/test";
+import { Page, expect, Locator, BrowserContext } from "@playwright/test";
+import { URLs } from "../../constants/urls";
+import {
+  createOrder,
+  addProductToOrder,
+  addPromotionToOrder,
+  setOrderCurrency
+} from "../../utils/functions/basket";
+import { getSessionToken } from "../../utils/functions/tokens";
+import { fakerEN_GB } from "@faker-js/faker";
+import { kebabCase } from "../../utils/functions/helpers";
 export class Checkout {
   readonly page: Page;
+  readonly context: BrowserContext;
+  readonly checkoutContent: Locator;
   readonly addressSearch: Locator;
   readonly addressFormMessage: Locator;
   readonly addressRegionMessage: Locator;
@@ -14,12 +26,27 @@ export class Checkout {
   readonly postCode: Locator;
   readonly phoneInput: Locator;
   readonly phoneRegion: Locator;
+  readonly paymentDetails: Locator;
   readonly saveDetails: Locator;
+  readonly addVoucherForm: Locator;
+  readonly addVoucherButton: Locator;
+  readonly addVoucherInput: Locator;
+  readonly applyVoucherButton: Locator;
   readonly dialogWindow: Locator;
-  readonly placeOrderButton: Locator;
+  readonly placeOrderAndPay: Locator;
+  readonly placeOrder: Locator;
+  readonly payAmount: Locator;
+  readonly changeAmountButton: Locator;
+  readonly changeAmountForm: Locator;
+  readonly changeAmountInput: Locator;
+  readonly changeAmountIncrement: Locator;
+  readonly changeAmountDecrement: Locator;
+  readonly confirmAmountButton: Locator;
 
   constructor(page: Page) {
     this.page = page;
+    this.context = page.context();
+    this.checkoutContent = page.getByTestId("checkout-content");
     this.billingDetails = page.getByTestId("billing");
     this.addressSearch = this.billingDetails.getByTestId(
       "input-address-search-search"
@@ -33,15 +60,39 @@ export class Checkout {
     );
     this.phone = this.billingDetails.getByTestId("form-item-phone-phone");
     this.addressManualEntry = page.getByTestId("link-enter-address-manually");
-    this.addressLine1 = this.billingDetails.getByTestId("input-address-line1");
-    this.addressLine2 = this.billingDetails.getByTestId("input-address-line2");
-    this.city = this.billingDetails.getByTestId("input-address-level2");
-    this.postCode = this.billingDetails.getByTestId("input-postal-code");
+    this.addressLine1 = this.billingDetails.getByTestId(
+      "input-properties-address-1"
+    );
+    this.addressLine2 = this.billingDetails.getByTestId(
+      "input-properties-address-2"
+    );
+    this.city = this.billingDetails.getByTestId("input-properties-city");
+    this.postCode = this.billingDetails.getByTestId(
+      "input-properties-region-id"
+    );
     this.phoneRegion = this.phone.getByTestId("popover-trigger");
     this.phoneInput = this.phone.getByTestId("text-input");
+    this.paymentDetails = page.getByTestId("payment-details");
     this.saveDetails = page.getByTestId("button-save-details");
+    this.addVoucherForm = page.getByTestId("form-item-promocode");
+    this.addVoucherButton = page.getByTestId("link-add-a-voucher-code");
+    this.addVoucherInput = this.addVoucherForm.locator("input");
+    this.applyVoucherButton = page.getByTestId("button-apply");
     this.dialogWindow = page.getByTestId("dialog-window");
-    this.placeOrderButton = page.getByTestId("button-place-order-and-pay");
+    this.placeOrderAndPay = page.getByTestId("button-place-order-and-pay");
+    this.placeOrder = page.getByTestId("button-place-order");
+    this.payAmount = page.getByTestId("tabslist").getByText("Pay");
+    this.changeAmountButton = page.getByTestId("change-amount");
+    this.changeAmountForm = page.getByTestId("form-item-amount");
+    this.changeAmountInput =
+      this.changeAmountForm.getByTestId("number-field-input");
+    this.changeAmountIncrement = this.changeAmountForm.getByTestId(
+      "number-field-increment"
+    );
+    this.changeAmountDecrement = this.changeAmountForm.getByTestId(
+      "number-field-decrement"
+    );
+    this.confirmAmountButton = page.getByTestId("button-confirm-amount");
   }
 
   async manuallyInputAddress(
@@ -63,15 +114,20 @@ export class Checkout {
     await this.saveDetails.click();
   }
 
-  async selectPaymentMethod(method: string) {
-    const button = this.page.getByTestId("accordion-trigger").getByText(method);
-    await button.click();
+  async selectPaymentMethod(gatewayName: string) {
+    await this.page.getByTestId("link-show-more-options").click();
+    await this.page.getByTestId(`radio-card-${kebabCase(gatewayName)}`).click();
   }
 
-  async clickPlaceOrderButton() {
-    const placeOrderButton = this.page.getByTestId(
-      "button-place-order-and-pay"
-    );
+  async clickPlaceOrderAndPay() {
+    const placeOrderButton = this.placeOrderAndPay;
+    //await placeOrderButton.waitFor({ state: 'attached' });
+    await expect(placeOrderButton).toBeEnabled();
+    await placeOrderButton.click();
+  }
+
+  async clickPlaceOrder() {
+    const placeOrderButton = this.placeOrder;
     //await placeOrderButton.waitFor({ state: 'attached' });
     await expect(placeOrderButton).toBeEnabled();
     await placeOrderButton.click();
@@ -116,5 +172,59 @@ export class Checkout {
         });
       }
     );
+  }
+
+  async goToCheckout(promotion: string | null, currency: string | null) {
+    await this.page.goto(URLs.basket);
+    await this.page.waitForLoadState("networkidle");
+    let token = await getSessionToken(this.context);
+    let orderId = await createOrder(token);
+    await addProductToOrder(
+      `${token}`,
+      `${orderId}`,
+      "3de78642-de53-9714-76df-21208469530d",
+      1,
+      24,
+      [],
+      [],
+      {
+        domain: `${fakerEN_GB.string.alphanumeric({
+          length: { min: 3, max: 15 }
+        })}.com`
+      },
+      []
+    );
+    if (promotion != null) {
+      await addPromotionToOrder(orderId, promotion, token);
+    }
+    if (currency != null) {
+      await setOrderCurrency(token, orderId, currency);
+    }
+    await this.page.goto(URLs.checkout);
+  }
+
+  async interceptPaymentResponse() {
+    const paymentsResponse: Array<{
+      url: string;
+      status: number;
+      headers: Record<string, string>;
+      body: any;
+    }> = [];
+
+    await this.page.route("**/api/payments", async route => {
+      const response = await route.fetch();
+      const body = await response.json().catch(() => null);
+      paymentsResponse.push({
+        url: response.url(),
+        status: response.status(),
+        headers: response.headers(),
+        body
+      });
+      await route.fulfill({
+        response
+      });
+    });
+    console.log(`Payment Response = ${paymentsResponse}`);
+    return paymentsResponse;
   }
 }

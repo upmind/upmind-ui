@@ -20,14 +20,11 @@
 
 <script setup lang="ts">
 // --- external
-import { computed } from "vue";
+import { computed, inject } from "vue";
 
 // --- internal
-import {
-  ROUTE,
-  useProductCategories,
-  QUERY_PARAMS
-} from "@upmind-automation/headless";
+import { QUERY_PARAMS } from "@upmind-automation/headless";
+
 import config from "../../catalogue.config";
 
 // --- components
@@ -37,7 +34,10 @@ import { Button, cn, useStyles } from "@upmind-automation/upmind-ui";
 import { map } from "lodash-es";
 
 // --- types
-import type { ProductCategory } from "@upmind-automation/headless";
+import type {
+  ProductCategory,
+  UseProductCategories
+} from "@upmind-automation/headless";
 import type { CategoriesProps } from "../types";
 import type { ComputedRef } from "vue";
 import type { CategoriesFacetProps } from "../types";
@@ -47,7 +47,9 @@ import type { CategoriesFacetProps } from "../types";
 const props = defineProps<CategoriesFacetProps>();
 const modelValue = defineModel<CategoriesProps["modelValue"]>("modelValue");
 
-const { filter, getChildren, getPath } = useProductCategories();
+const useProductCategories = inject<UseProductCategories>(
+  "useProductCategories"
+);
 
 const styles = useStyles(
   ["products.facet.drillDown"],
@@ -66,13 +68,14 @@ const styles = useStyles(
 // -----------------------------------------------------------------------------
 
 const filteredCategories = computed((): ProductCategory[] => {
-  if (!props.query) return getChildren(modelValue.value);
+  if (!props.query)
+    return useProductCategories?.getChildren(modelValue.value) ?? [];
 
-  return filter(props.query, modelValue.value);
+  return useProductCategories?.filter(props.query, modelValue.value) ?? [];
 });
 
 const items = computed(() => {
-  const paths = getPath(modelValue.value);
+  const paths = useProductCategories?.getPath(modelValue.value);
 
   const items = [
     // include "root" option
@@ -86,7 +89,7 @@ const items = computed(() => {
     //     modelValue.value = undefined;
     //   },
     //   to: {
-    //     name: ROUTE.CATALOGUE,
+    //     ...props.categoryRoute,
     //     query: {
     //       sort: props.sort,
     //       direction: props.direction,
@@ -101,7 +104,7 @@ const items = computed(() => {
       open: parentCategory.id !== modelValue.value,
       count: parentCategory.countDeep,
       to: {
-        name: ROUTE.CATALOGUE,
+        ...props.categoryRoute,
         query: {
           sort: props.sort,
           direction: props.direction,
@@ -120,7 +123,7 @@ const items = computed(() => {
       open: false,
       count: category.countDeep,
       to: {
-        name: ROUTE.CATALOGUE,
+        ...props.categoryRoute,
         query: {
           sort: props.sort,
           direction: props.direction,

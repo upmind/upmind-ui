@@ -25,6 +25,11 @@ export const Logins = {
     username: "nathan.robinson+micropayment@upmind.com",
     password: "Micropayment1"
   },
+  payLater: {
+    grant_type: "password",
+    username: "nathan.robinson+paylater@upmind.com",
+    password: "PayLater1"
+  },
   existingMethodUser: {
     grant_type: "password",
     username: "nathan.robinson+existingmethod@upmind.com",

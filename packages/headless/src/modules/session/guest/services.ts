@@ -44,6 +44,7 @@ async function load(_context: GuestContext, _event: AnyEventObject) {
   const { post, useUrl } = useQuery();
 
   return post<IToken>({
+    mutationKey: ["session"],
     url: useUrl("access_token", {}, { context: "oauth" }),
     data: { grant_type: GrantTypes.GUEST }
   }).then(data => {
@@ -90,6 +91,7 @@ async function authenticate({ model }: GuestContext<LoginModel>) {
   if (currency.value) data.currency_id = currency.value.id;
 
   return post<IToken>({
+    mutationKey: ["session"],
     url: useUrl("access_token", {}, { context: "oauth" }),
     data
   }).then(data => {
@@ -105,6 +107,7 @@ async function verify2fa({ token }: GuestContext, { data }: AnyEventObject) {
   const { t } = useI18n();
   const { post, useUrl } = useQuery();
   return post<IToken>({
+    mutationKey: ["session"],
     url: useUrl("access_token", {}, { context: "oauth" }),
     withAccessToken: token.access_token,
     data: {
@@ -203,6 +206,7 @@ async function register({ model }: GuestContext<RegisterModel>) {
   // ---
 
   return post({
+    mutationKey: ["session"],
     url: useUrl("clients/register"),
     data,
     withAccessToken: true
@@ -228,6 +232,7 @@ async function recover({ model }: GuestContext<RecoverModel>) {
     .catch(() => null); // do nothing
 
   return post({
+    mutationKey: ["session"],
     url: useUrl("clients/password_reset"),
     data
   }).finally(() => {

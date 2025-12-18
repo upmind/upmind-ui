@@ -3,15 +3,17 @@ import { parse } from "psl";
 
 // --- internals
 import { useBrand } from "../brand";
-import { calculateBillingTerm } from "../product/utils";
+import { calculateBillingTerm, parseProductProps } from "../product/utils";
 
 // --- utils
 import { parseProductDetails, parseTermDetails } from "../product/utils";
 import {
   compact,
+  filter,
   find,
   first,
   get,
+  has,
   isEmpty,
   isObject,
   map,
@@ -19,7 +21,12 @@ import {
 } from "lodash-es";
 
 // --- types
-import { IProduct } from "@upmind-automation/types";
+import {
+  IBasketProduct,
+  IBlueprint,
+  IProduct,
+  ProvisionCategoryCodes
+} from "@upmind-automation/types";
 import type { BasketProduct } from "../basketProduct";
 import type { DomainProduct, DomainModel } from "./types";
 import { ProductProps } from "../product";
@@ -93,13 +100,16 @@ export function parseAvailable(
 
     return {
       // ---
-      configuration: {
-        productId: raw.id, //raw.product_id,
-        quantity: raw.unit_quantity ?? 1,
-        term: termDetails.cycle,
-        subproducts: compact([raw.sub_product_id]),
-        provisionFields: { sld }
-      } as ProductProps,
+      configuration: parseProductProps(
+        {
+          productId: raw.id,
+          quantity: raw.unit_quantity,
+          subproducts: compact([raw.sub_product_id]),
+          provisionFields: { sld }
+        },
+        raw,
+        preferredCycle
+      ),
       // ---
       domain: parsedDomain?.domain ?? domain,
       sld: parsedDomain?.sld ?? sld,
@@ -126,18 +136,79 @@ export function parseAvailable(
 export function parseValue(
   raw: (DomainModel | DomainProduct) | string,
   values: (DomainModel | DomainProduct)[] = [],
-  available: any[] = []
+  available: DomainProduct[] = []
 ): DomainModel {
   // parse the domain name provided
   const value = (isObject(raw) ? get(raw, "domain") : raw)?.toLowerCase();
+
   // check if we already have the domain
-  let domain: DomainModel = find(values, ["domain", value]) as DomainModel;
+  let found = find(values, ["domain", value]);
 
-  // if we dont then add it to our list of values, if it exists in available
-  domain ??= find(available, ["domain", value]);
+  // if we dont then check if it exists in our available domains ( searched )
+  found ??= find(available, ["domain", value]);
 
-  // finally parse the domain name provided and check if its a valid domain
-  domain ??= parseDomain(value) as DomainModel;
+  // return the parsed domain model
+  return found
+    ? (parseDomain(found.domain) as DomainModel)
+    : (parseDomain(value) as DomainModel);
+}
 
-  return domain;
+/**
+ * Determines if a product is a domain product based on provided indicators.
+ * We check against blueprint code and provision fields to make a determination.
+ * However, if no indicators are provided, we fall back to parsing the service identifier.
+ * @param params.blueprintCode - The blueprint code of the product.
+ * @param params.provisionFields - The provision fields of the product.
+ * @param params.serviceIdentifier - The fallback service identifier of the product.
+ * @returns True if the product is identified as a domain product, false otherwise.
+ */
+export function isDomainProduct({
+  blueprintCode,
+  provisionFields,
+  serviceIdentifier
+}: {
+  blueprintCode?: IBlueprint["code"];
+  serviceIdentifier?: IBasketProduct["service_identifier"];
+  provisionFields?: Record<string, any>;
+}): boolean {
+  const parsed = parseDomain(serviceIdentifier || "");
+
+  // If we dont have any indicators then we need to return based on parsed domain
+  if (!blueprintCode && !provisionFields) return !!parsed?.domain;
+
+  // but if we do have indicators then we can be more certain
+  return (
+    blueprintCode === ProvisionCategoryCodes.DOMAIN_NAMES ||
+    has(provisionFields, "sld")
+  );
+}
+
+export function getDomainBasketProducts(
+  products?: BasketProduct[]
+): BasketProduct[] {
+  if (isEmpty(products)) return [];
+
+  // check if we have the parsed basket product structure
+  return filter(products, raw => {
+    return isDomainProduct({
+      blueprintCode: raw?.productDetails.blueprintCode,
+      serviceIdentifier: raw?.serviceIdentifier,
+      provisionFields: raw?.configuration.provisionFields
+    });
+  });
+}
+
+export function getDomainRawBasketProducts(
+  products?: IBasketProduct[]
+): IBasketProduct[] {
+  if (isEmpty(products)) return [];
+
+  // check if we have the parsed basket product structure
+  return filter(products, raw => {
+    return isDomainProduct({
+      blueprintCode: raw?.product?.provision_blueprint?.code,
+      provisionFields: raw?.provision_fields,
+      serviceIdentifier: raw?.service_identifier ?? undefined
+    });
+  });
 }

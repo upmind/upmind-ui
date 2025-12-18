@@ -18,14 +18,23 @@
       "tooltip": "Вже маєте домен? Ви можете перенести його до нас"
     }
   },
+  "domain_description": "Захистіть свою онлайн-ідентичність сьогодні – це займе лише хвилину.",
+  "domain_not_required_label": "Продовжити без домену",
+  "domain_title": "Включіть доменне ім'я.",
   "finding_perfect_domain": "Пошук вашого **ідеального** домену",
   "finding_perfect_domain_md": "@.markdown:{'domain.finding_perfect_domain'}",
   "own_domain_qn": "Ви володієте цим доменом?",
   "owned_domains_title": "Домени, якими ви зараз володієте",
   "price_renewal_desc": "Одноразова ціна {regularPrice}. | Оновлюється щороку за {regularPrice}. | Оновлюється кожні {count} роки за {regularPrice}.",
+  "search": "Пошук доменів",
   "starts_with_domain": "Все починається з **доменного імені**",
   "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
   "tld_renewal_price_desc": "Наш {tld} ціни на поновлення починаються від лише {currentPrice} (було {regularPrice}).",
   "tld_renewal_price_from_desc": "Наш {tld} ціни на поновлення починаються від лише {regularPrice}.",
-  "transfer_domain_by_msg": "Передайте нам це через"
+  "transfer": "Переказ лише за {currentPrice}.",
+  "transfer_domain": "Перенести домен",
+  "transfer_extension_info": "Трансфери включають продовження терміну дії на один рік.",
+  "transfer_owner_question": "Ви є власником цього домену?",
+  "transfer_price_info": "Ви можете переказати його нам лише за {currentPrice}",
+  "transfer_promotion": "Переказ лише за {currentPrice}, зазвичай {regularPrice}."
 }

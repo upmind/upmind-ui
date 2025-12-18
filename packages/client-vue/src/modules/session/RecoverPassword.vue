@@ -1,80 +1,198 @@
 <template>
-  <Layout :variant="layout">
-    <template #navigation>
-      <Link
-        class="flex items-center gap-x-2"
-        @click.prevent="doReject"
-        icon="arrow-left"
-        :label="t('action.back_to_login')"
-        size="lg"
-      />
+  <component :is="templateVariant" v-bind="props" v-if="!isResolving">
+    <template #back>
+      <slot name="back">
+        <Link
+          class="flex items-center gap-x-2"
+          @click.prevent="doReject"
+          icon="arrow-left"
+          :label="t('action.back_to_login')"
+          size="lg"
+        />
+      </slot>
     </template>
 
-    <template #content>
-      <Hero
-        :badge="{
-          label: t('text.fully_encrypted_title'),
-          icon: 'lock-04'
-        }"
-        :title="t('text.forgot_your_password_qn')"
-        :description="t('auth.forgot_password_help')"
-        class="mx-auto w-full max-w-2xl"
-      />
-      <Auth
-        class="rounded-box mx-auto w-full max-w-2xl items-start"
-        no-tabs
-        no-header
-        model-value="recover"
-        @update:model-value="doUpdate"
-        @resolve="doResolve"
-      />
+    <template #hero>
+      <slot name="hero">
+        <Hero
+          :badge="{
+            label: t('text.fully_encrypted_title'),
+            icon: 'lock-04'
+          }"
+          :title="t('text.forgot_your_password_qn')"
+          class="mx-auto w-full max-w-2xl"
+        >
+          <template #description>
+            <i18n-t
+              keypath="auth.forgot_password_help"
+              scope="global"
+              tag="span"
+            >
+              <template #[`log_in_here`]>
+                <Link
+                  :to="props.loginRoute"
+                  size="inherit"
+                  color="inherit"
+                  :label="t('action.log_in_here')"
+                  class="font-normal"
+                />
+              </template>
+            </i18n-t>
+          </template>
+        </Hero>
+      </slot>
     </template>
-  </Layout>
+
+    <template #form>
+      <slot name="form">
+        <Section
+          :label="t('action.recover_password')"
+          icon="user-03"
+          v-show="!meta.isAuthenticated"
+        >
+          <Auth
+            class="rounded-box w-full max-w-5xl items-start"
+            no-tabs
+            no-header
+            model-value="recover"
+            @update:model-value="doUpdate"
+            @resolve="doResolve"
+          />
+        </Section>
+      </slot>
+    </template>
+
+    <template #summary>
+      <slot name="summary">
+        <Section
+          v-if="basketMeta.hasProducts"
+          :label="t('cart.basket_section')"
+          icon="shopping-bag-02"
+        >
+          <Summary :showPromotions="false" show-products />
+        </Section>
+      </slot>
+    </template>
+  </component>
 </template>
 
 <script lang="ts" setup>
 // --- external
+import { computed, defineAsyncComponent, onUnmounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
-import { computed } from "vue";
 
 // --- internal
-import { ROUTE, useRoutingEngine } from "@upmind-automation/headless";
+import { useHeader } from "../../components/header/useHeader";
+import { useFooter } from "../../components/footer/useFooter";
+import { useLayout } from "../../components/layout/useLayout";
 
 // --- components
 import { Link } from "@upmind-automation/upmind-ui";
-import Layout from "../../components/layout/Layout.vue";
 import Auth from "./components/Auth.vue";
 import Hero from "../../components/hero/Hero.vue";
+import Section from "../../components/section/Section.vue";
+import Summary from "../basket/components/Summary.vue";
+
+// --- templates
+const supportedTemplates = {
+  [SESSION_TEMPLATE.SPLIT]: defineAsyncComponent(
+    () => import("./templates/SessionSplit.template.vue")
+  ),
+  [SESSION_TEMPLATE.CANVAS_CARD]: defineAsyncComponent(
+    () => import("./templates/SessionCanvasCard.template.vue")
+  ),
+  [SESSION_TEMPLATE.SURFACE_BOX]: defineAsyncComponent(
+    () => import("./templates/SessionSurfaceBox.template.vue")
+  ),
+  [SESSION_TEMPLATE.TWO_COLUMN_LTR]: defineAsyncComponent(
+    () => import("./templates/SessionLTR.template.vue")
+  ),
+  [SESSION_TEMPLATE.TWO_COLUMN_RTL]: defineAsyncComponent(
+    () => import("./templates/SessionRTL.template.vue")
+  )
+};
+
+// --- utils
+import { get } from "lodash-es";
 
 // --- types
-import type { AuthProps } from "./types";
+import {
+  type SessionProps,
+  type SessionRoutes,
+  SESSION_TEMPLATE
+} from "./types";
+import {
+  useBasket,
+  useRoutingEngine,
+  useSession
+} from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 
+const props = withDefaults(
+  defineProps<
+    SessionRoutes & {
+      template?: SESSION_TEMPLATE;
+    }
+  >(),
+  {
+    template: SESSION_TEMPLATE.TWO_COLUMN_LTR
+  }
+);
+// -----------------------------------------------------------------------------
+
 const { t } = useI18n();
-const { navigateNext, navigateBack, navigate, isResolved, currentRoute } =
-  useRoutingEngine();
+const { meta, isReady } = useSession();
+const { meta: basketMeta } = useBasket();
+const {
+  navigateNext,
+  navigateBack,
+  navigate,
+  meta: routingMeta
+} = useRoutingEngine();
 
-const layout = computed(() => {
-  return currentRoute.value?.meta?.template;
-});
-await isResolved(ROUTE.SESSION_RECOVER_PASSWORD);
+await isReady();
 
-function doUpdate(value: AuthProps["modelValue"]) {
+const isResolving = ref(false);
+
+const templateVariant = computed(() =>
+  get(
+    supportedTemplates,
+    props.template,
+    supportedTemplates[SESSION_TEMPLATE.TWO_COLUMN_LTR]
+  )
+);
+
+function doUpdate(value: SessionProps["modelValue"]) {
   if (value === "login") {
-    navigate(ROUTE.SESSION_LOGIN);
+    const target = props.loginRoute.name?.toString();
+    if (target) navigate(target);
   } else if (value === "register") {
-    navigate(ROUTE.SESSION_REGISTER);
+    const target = props.registerRoute.name?.toString();
+    if (target) navigate(target);
   } else if (value === "recover") {
-    navigate(ROUTE.SESSION_RECOVER_PASSWORD);
+    const target = props.recoverRoute.name?.toString();
+    if (target) navigate(target);
   }
 }
 
 function doReject() {
-  navigateBack();
+  isResolving.value = true;
+  navigateBack().catch(() => {
+    isResolving.value = false;
+  });
 }
 
 function doResolve() {
-  navigateNext();
+  isResolving.value = true;
+  navigateNext().catch(() => {
+    isResolving.value = false;
+  });
 }
+
+onUnmounted(() => {
+  useLayout({});
+  useFooter({});
+  useHeader({});
+});
 </script>

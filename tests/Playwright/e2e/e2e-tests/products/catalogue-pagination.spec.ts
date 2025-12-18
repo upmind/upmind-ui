@@ -28,10 +28,12 @@ test.describe("Catalogue Pagination", () => {
   });
   test("Next button is disabled on last page", async ({ page }) => {
     await page.goto(`${URLs.catalogueRoot1}?page=5`);
+    await page.waitForLoadState("networkidle");
     await expect(pagination.isNextDisabled()).toBeTruthy();
   });
   test("Previous button is disabled on first page", async ({ page }) => {
     await page.goto(URLs.catalogueRoot1);
+    await page.waitForLoadState("networkidle");
     await expect(pagination.isPreviousDisabled()).toBeTruthy();
   });
 });

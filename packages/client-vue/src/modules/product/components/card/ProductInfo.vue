@@ -23,17 +23,16 @@
         <Link
           v-if="navigate"
           :to="{
-            name: ROUTE.PRODUCT_ADD,
+            ...props.configureRoute,
             params: {
               pid: props.id
             },
             query: {
-              [QUERY_PARAMS.BILLING_CYCLE_MONTHS]: selectedTerm,
-              force: 'true', // ensure we always add the product, even if it exists in the basket
-              navigateOnly: 'true' // this is used to prevent the product from being added to the basket when clicking on the title
+              [QUERY_PARAMS.BILLING_CYCLE_MONTHS]: selectedTerm
             }
           }"
           tabindex="-1"
+          @click="doResolve"
         >
           <h3 :class="styles.product.header.info.title">
             {{ productDetails?.title }}
@@ -66,7 +65,7 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { ROUTE, QUERY_PARAMS } from "@upmind-automation/headless";
+import { QUERY_PARAMS } from "@upmind-automation/headless";
 
 // --- components
 import { useStyles, Badge, Link } from "@upmind-automation/upmind-ui";
@@ -83,6 +82,12 @@ import type { ProductInfo } from "./types";
 // -----------------------------------------------------------------------------
 
 const props = defineProps<ProductInfo>();
+
+const emit = defineEmits<{
+  (e: "resolve", id: string): void;
+}>();
+
+// -----------------------------------------------------------------------------
 
 const { t } = useI18n();
 
@@ -108,4 +113,9 @@ const styles = useStyles(
     };
   };
 }>;
+
+function doResolve() {
+  if (!props.id) return;
+  emit("resolve", props.id);
+}
 </script>

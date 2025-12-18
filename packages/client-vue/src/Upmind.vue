@@ -1,9 +1,5 @@
 <template>
-  <Suspense
-    @pending="setLoading(true)"
-    @resolve="setLoading(false)"
-    @fallback="setLoading(true)"
-  >
+  <Suspense>
     <Loading
       :active="!meta.isAvailable || !meta.hasSettings"
       class-active="h-full min-h-screen w-full text-base bg-canvas"
@@ -11,32 +7,22 @@
     >
       <Page :class="styles.page" v-if="meta.isAvailable && meta.hasSettings">
         <slot name="header">
-          <Header />
+          <Header :logo="props.logo" :storefront-route="props.storefrontRoute">
+            <template #branding>
+              <slot name="header-branding" />
+            </template>
+            <template #actions>
+              <slot name="header-actions" />
+            </template>
+          </Header>
         </slot>
 
+        <AsyncLoading :open="meta.isLoading" v-bind="props.loadingProps" />
         <Main>
-          <RouterView v-slot="routerViewProps" :key="$route.fullPath">
-            <slot v-bind="routerViewProps">
-              <template v-if="routerViewProps.Component">
-                <Suspense
-                  @pending="setLoading(true)"
-                  @resolve="setLoading(false)"
-                  @fallback="setLoading(true)"
-                >
-                  <KeepAlive>
-                    <component :is="routerViewProps.Component" />
-                  </KeepAlive>
-
-                  <template #fallback>
-                    <AsyncLoading
-                      v-bind="loadingProps"
-                      v-if="meta.isAvailable && meta.hasSettings"
-                    />
-                  </template>
-                </Suspense>
-              </template>
-            </slot>
-          </RouterView>
+          <UpmRouteView
+            :loading-props="props.loadingProps"
+            @resolve="scrollToAnchor"
+          />
         </Main>
 
         <slot name="footer">
@@ -44,7 +30,7 @@
         </slot>
       </Page>
 
-      <Feedback v-if="meta.isAvailable" />
+      <Feedback v-if="meta.isAvailable" :storefront-route="storefrontRoute" />
     </Loading>
   </Suspense>
 </template>
@@ -60,15 +46,19 @@ export default {
 <script setup lang="ts">
 // --- external
 import { computed, nextTick, ref } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, type RouteLocationAsRelativeGeneric } from "vue-router";
 
 // --- internal
-import useUpmind, { UpmindStatus } from "@upmind-automation/headless";
+import useUpmind, {
+  UpmindStatus,
+  useRoutingEngine
+} from "@upmind-automation/headless";
 import { useStyles } from "@upmind-automation/upmind-ui";
 import { useTheme } from "./modules/theming";
-import { useLayout } from "./components/layout/useLayout";
+import { useRouteTransition } from "./modules/system/useRouteTransition";
 
 // --- components
+import UpmRouteView from "./modules/system/RouteView.vue";
 import Header from "./components/header/Header.vue";
 import Footer from "./components/footer/Footer.vue";
 import Feedback from "./modules/feedback/Feedback.vue";
@@ -89,47 +79,40 @@ const props = defineProps<{
   theme?: string;
   logo?: string;
   loadingProps?: InterstitialProps;
+  storefrontRoute?: RouteLocationAsRelativeGeneric;
 }>();
-const loading = ref(true);
 
 // -----------------------------------------------------------------------------
-
+const { meta: routingMeta } = useRoutingEngine();
 const themeReady = ref(false);
 
-const currentRoute = useRoute();
+const route = useRoute();
 
+/**
+ * Meta information about the Upmind app state
+ * - isLoading: whether the  initial route is still being resolved
+ * - isAvailable: whether Upmind has initialised successfully
+ * - hasSettings: whether the theme settings have been loaded
+ */
 const meta = computed(() => ({
+  isLoading: !routingMeta.value.isResolved && routingMeta.value.isInitialRoute,
   isAvailable: useUpmind.status.value == UpmindStatus.initialised,
-  isLoading: loading.value,
   hasSettings: themeReady.value
 }));
-
-const route = computed(() =>
-  get(currentRoute, "name", get(currentRoute, "path", ""))
-);
 
 // add any page specific styles here based on route or other state
 const styles = useStyles(
   ["page"],
   computed(() => {
     return {
-      route: route.value,
-      loading: loading.value,
+      route: get(route, "name", get(route, "path", "")),
+      loading: !meta.value.isLoading,
       available: meta.value.isAvailable
     };
   })
 ) as ComputedRef<{
   page: string;
 }>;
-
-/**
- * Set loading state for the app and once loading is complete scroll to any anchor in the URL
- * @param value
- */
-function setLoading(value: boolean) {
-  loading.value = value;
-  if (!value) scrollToAnchor();
-}
 
 /**
  * Scroll to any anchor in the URL once the App is loaded and all awaits are complete

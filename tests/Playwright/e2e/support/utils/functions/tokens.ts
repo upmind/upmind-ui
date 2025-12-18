@@ -3,24 +3,19 @@ import { URLs } from "../../constants/urls";
 
 /* Extracts the upm_client_session token from the browser context's cookies. */
 export async function getSessionToken(
-  context: BrowserContext,
-  tokenType: string | null
+  context: BrowserContext
 ): Promise<string> {
   const cookies = await context.cookies();
-  let sessionCookie;
-  if (tokenType === "client") {
-    sessionCookie = cookies.find(
-      cookie => cookie.name === "upm_client_session"
-    );
-  } else {
-    sessionCookie = cookies.find(cookie => cookie.name === "upm_guest_session");
-  }
+  let sessionCookie =
+    cookies.find(c => c.name === "upm_client_session") ||
+    cookies.find(c => c.name === "upm_guest_session");
+
   if (!sessionCookie) {
     throw new Error("Session cookie not found.");
   }
 
   const parsed = JSON.parse(decodeURIComponent(sessionCookie.value));
-  //console.log("Session Token:", parsed.access_token);
+  //console.log('Session Token:', parsed.access_token);
   return parsed.access_token;
 }
 

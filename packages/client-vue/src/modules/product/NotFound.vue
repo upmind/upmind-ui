@@ -7,7 +7,7 @@
       :text="t('error.product_not_found')"
       :actions="[
         {
-          ...storefrontRoute,
+          to: props.storefrontRoute,
           variant: 'solid',
           color: 'primary',
           icon: 'arrow-left',
@@ -21,24 +21,26 @@
         secondaryColor: 'accent',
         size: '4xl'
       }"
-    >
-    </Interstitial>
+    />
   </div>
 </template>
 
 <script lang="ts" setup>
 // --- external
 import { useI18n } from "vue-i18n";
-import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
-import { useBrand } from "@upmind-automation/headless";
 
 // -- components
 import { Interstitial } from "@upmind-automation/upmind-ui";
+import type { RouteLocationAsRelativeGeneric } from "vue-router";
 
 // -----------------------------------------------------------------------------
 
+const props = defineProps<{
+  storefrontRoute: RouteLocationAsRelativeGeneric;
+}>();
+// -----------------------------------------------------------------------------
+
 const { t } = useI18n();
-const { storefrontRoute } = useBrand();
 </script>

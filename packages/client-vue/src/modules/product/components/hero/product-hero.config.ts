@@ -1,12 +1,65 @@
 import { cva } from "class-variance-authority";
 
+export const variants = {
+  direction: {
+    horizontal: "flex-col md:flex-row md:justify-between",
+    vertical: "flex-col-reverse"
+  }
+};
+
 export default {
   header: {
-    root: cva("flex flex-col gap-6 md:flex-row md:justify-between"),
-    details: cva("flex w-full max-w-xl flex-col gap-3 md:flex-1 md:pr-6"),
-    title: cva("font-display text-4xl text-balance md:text-5xl"),
+    root: cva("flex w-full gap-6", {
+      variants,
+      defaultVariants: {
+        direction: "horizontal"
+      }
+    }),
+    details: cva("flex w-full flex-col gap-3 md:flex-1 md:pr-6", {
+      variants: {
+        hasImage: {
+          true: "max-w-xl",
+          false: "max-w-2xl"
+        }
+      },
+      defaultVariants: {
+        hasImage: false
+      }
+    }),
+    title: cva("font-display break-word text-4xl text-balance", {
+      variants: {
+        direction: {
+          horizontal: "md:text-5xl",
+          vertical: ""
+        }
+      },
+      defaultVariants: {
+        direction: "horizontal"
+      }
+    }),
     description: cva("text-md text-muted font-normal"),
-    price: cva("text-xl font-normal"),
-    aside: cva("md:max-h-54 md:w-auto md:max-w-1/2")
+    price: cva("font-normal", {
+      variants: {
+        direction: {
+          horizontal: "text-xl",
+          vertical: "text-lg"
+        }
+      },
+      defaultVariants: {
+        direction: "horizontal"
+      }
+    }),
+    aside: cva("", {
+      variants: {
+        direction: {
+          horizontal:
+            "md:h-[var(--details-h)] md:max-h-64 md:w-auto md:max-w-1/2",
+          vertical: ""
+        }
+      },
+      defaultVariants: {
+        direction: "horizontal"
+      }
+    })
   }
 };

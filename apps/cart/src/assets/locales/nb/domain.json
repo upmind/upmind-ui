@@ -18,14 +18,23 @@
       "tooltip": "Har du allerede et domene? Du kan overføre det til oss"
     }
   },
+  "domain_description": "Sikre din identitet på nett i dag – det tar bare et minutt.",
+  "domain_not_required_label": "Fortsett uten domene",
+  "domain_title": "Inkluder et domenenavn.",
   "finding_perfect_domain": "Å finne ditt **perfekte** domene",
   "finding_perfect_domain_md": "@.markdown:{'domain.finding_perfect_domain'}",
   "own_domain_qn": "Eier du dette domenet?",
   "owned_domains_title": "Domener du eier for øyeblikket",
   "price_renewal_desc": "Engangspris på {regularPrice}. | Fornyes hvert år for {regularPrice}. | Fornyes hvert {count} år for {regularPrice}.",
+  "search": "Søk etter domener",
   "starts_with_domain": "Det hele starter med et **domenenavn**",
   "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
   "tld_renewal_price_desc": "Vår {tld} fornyelsespriser starter fra kun {currentPrice} (var {regularPrice}).",
   "tld_renewal_price_from_desc": "Vår {tld} fornyelsespriser starter fra kun {regularPrice}.",
-  "transfer_domain_by_msg": "Overfør den til oss via"
+  "transfer": "Overfør for kun {currentPrice}.",
+  "transfer_domain": "Overfør domene",
+  "transfer_extension_info": "Overføringer inkluderer en ettårig forlengelse.",
+  "transfer_owner_question": "Er du eieren av dette domenet?",
+  "transfer_price_info": "Du kan overføre det til oss for bare {currentPrice}",
+  "transfer_promotion": "Overfør for kun {currentPrice}, vanligvis {regularPrice}."
 }

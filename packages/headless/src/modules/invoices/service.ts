@@ -38,8 +38,7 @@ function loadInvoice({ invoiceId }: { invoiceId: Invoice["id"] }) {
         "affiliate_commissions",
         "products.product.image",
         "account.affiliate_referral.affiliate_account.account.client"
-      ].join(","),
-      with_staged_imports: 1
+      ].join(",")
     }),
     queryKey: [...queryKey, { invoiceId }],
     withAccessToken: true,
@@ -54,7 +53,8 @@ function loadInvoice({ invoiceId }: { invoiceId: Invoice["id"] }) {
     // --- options
     retry: 1,
     select: parseInvoice,
-    staleTime: useTime()?.DAY
+    staleTime: useTime()?.DAY,
+    enabled: () => meta.value.isAuthenticated && !!user.value?.id
   });
 }
 

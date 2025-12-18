@@ -59,6 +59,8 @@
   "currency_validation_failed": "Не вдалося перевірити валюту",
   "domain_add_failed": "Не вдалося додати домен до кошика",
   "feedback_action_not_available": "Дія з цінністю '{data}' недоступно.",
+  "funnel_not_available": "Воронка продажів недоступна",
+  "funnels_not_available": "Воронки продажів недоступні",
   "generic_error": "помилка",
   "generic_text": "Давайте повернемо вас на правильний шлях",
   "generic_title": "Вибачте, сталася **помилка**",
