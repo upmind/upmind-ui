@@ -47,26 +47,36 @@
       </template>
 
       <template #configuration>
-        <Section :label="t('text.product_configuration')" icon="settings-04">
-          <form @submit.prevent @reset.prevent>
-            <ProductConfig
-              v-if="basketProduct && meta?.isAvailable"
-              :item="basketProduct"
-              :model-value="basketProduct?.id"
-              :no-footer="true"
-              as="div"
-              @resolve="doResolve"
-              @reject="doReject"
-            />
+        <slot
+          name="configuration"
+          :product="product"
+          :basket-product="basketProduct"
+          :meta="meta"
+          :config-meta="configMeta"
+          :do-resolve="doResolve"
+          :do-reject="doReject"
+        >
+          <Section :label="t('text.product_configuration')" icon="settings-04">
+            <form @submit.prevent @reset.prevent>
+              <ProductConfig
+                v-if="basketProduct && meta?.isAvailable"
+                :item="basketProduct"
+                :model-value="basketProduct?.id"
+                :no-footer="true"
+                as="div"
+                @resolve="doResolve"
+                @reject="doReject"
+              />
 
-            <ProductNotFound
-              v-else-if="meta?.isUnavailable"
-              :storefront-route="props.storefrontRoute"
-            />
+              <ProductNotFound
+                v-else-if="meta?.isUnavailable"
+                :storefront-route="props.storefrontRoute"
+              />
 
-            <ConfigSkeleton v-else />
-          </form>
-        </Section>
+              <ConfigSkeleton v-else />
+            </form>
+          </Section>
+        </slot>
       </template>
 
       <template #pricing>
@@ -89,9 +99,6 @@
               :product="product"
               :meta="meta"
               :template="props.template"
-              edit
-              @resolve="doResolve"
-              @update:quantity="updateQuantity"
               :total="
                 (template === BASKET_PRODUCT_TEMPLATE.TWO_COLUMN_RTL &&
                   isMobile) ||
@@ -121,14 +128,23 @@
       </template>
 
       <template #actions>
-        <BasketActions
-          v-if="product && meta?.isAvailable"
+        <slot
+          name="actions"
           :product="product"
           :meta="meta"
           :template="props.template"
-          @resolve="doResolve"
-          @update:quantity="updateQuantity"
-        />
+          :do-resolve="doResolve"
+          :update-quantity="updateQuantity"
+        >
+          <BasketActions
+            v-if="product && meta?.isAvailable"
+            :product="product"
+            :meta="meta"
+            :template="props.template"
+            @resolve="doResolve"
+            @update:quantity="updateQuantity"
+          />
+        </slot>
       </template>
 
       <template #errors>

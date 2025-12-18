@@ -100,8 +100,8 @@
             <Pricing
               v-if="product && meta?.isAvailable"
               :product="product"
-              :template="props.template"
               :meta="meta"
+              :template="props.template"
               :total="
                 (template === PRODUCT_TEMPLATE.TWO_COLUMN_RTL && isMobile) ||
                 template === PRODUCT_TEMPLATE.TWO_COLUMN_LTR ||
@@ -129,22 +129,6 @@
         </slot>
       </template>
 
-      <template #terms>
-        <slot name="terms" />
-      </template>
-
-      <template #errors>
-        <ConfigErrors v-if="meta?.isAvailable" :meta="meta" />
-      </template>
-
-      <template #total>
-        <PricingTotal
-          v-if="product && meta?.isAvailable"
-          :pricing="product.pricing"
-          footer
-        />
-      </template>
-
       <template #actions>
         <slot
           name="actions"
@@ -163,6 +147,22 @@
             @update:quantity="updateQuantity"
           />
         </slot>
+      </template>
+
+      <template #errors>
+        <ConfigErrors v-if="meta?.isAvailable" :meta="meta" />
+      </template>
+
+      <template #total>
+        <PricingTotal
+          v-if="product && meta?.isAvailable"
+          :pricing="product.pricing"
+          footer
+        />
+      </template>
+
+      <template #terms>
+        <slot name="terms" />
       </template>
     </component>
   </Transitions>
