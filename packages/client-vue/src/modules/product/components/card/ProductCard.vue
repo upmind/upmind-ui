@@ -127,7 +127,8 @@ const props = withDefaults(defineProps<ProductCardProps>(), {
   variant: "default",
   buttonColor: "primary",
   buttonVariant: "solid",
-  navigate: true
+  navigate: true,
+  hideTerms: undefined
 });
 
 const emit = defineEmits<{
@@ -151,7 +152,7 @@ const configMeta = computed(() => ({
   hideCarousel: productMeta.value?.image?.carousel,
   hideDescription: productMeta.value?.card?.description?.hide,
   hidePrice: productMeta.value?.card?.price?.hide,
-  hideTerms: (productMeta.value?.card?.terms?.hide || props.hideTerms) ?? true,
+  hideTerms: productMeta.value?.card?.terms?.hide ?? props.hideTerms ?? true,
   isLoading: processing
 }));
 

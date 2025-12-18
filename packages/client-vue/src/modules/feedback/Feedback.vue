@@ -27,6 +27,7 @@
       modal
       data-testid="error"
       :storefront-route="props.storefrontRoute"
+      @dismiss="error.dismiss"
     />
   </div>
 </template>

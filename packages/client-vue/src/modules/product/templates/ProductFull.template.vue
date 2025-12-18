@@ -54,8 +54,9 @@ useLayout({
   variant: LAYOUT_VARIANTS.FULL
 });
 
-onMounted(async () => {
+onMounted(() => {
   useHeader({});
+
   useFooter({});
 });
 </script>

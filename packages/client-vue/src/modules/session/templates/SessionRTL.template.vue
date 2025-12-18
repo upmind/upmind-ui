@@ -25,7 +25,6 @@ import Layout from "../../../components/layout/Layout.vue";
 import { useFooter } from "../../../components/footer/useFooter";
 import { useHeader } from "../../../components/header/useHeader";
 import { useLayout } from "../../../components/layout/useLayout";
-import { useRoutingEngine } from "@upmind-automation/headless";
 
 // --- types
 import { HEADER_BACKGROUND } from "../../../components/header/types";
@@ -46,19 +45,16 @@ defineOptions({
   inheritAttrs: false
 });
 
-const { isResolved } = useRoutingEngine();
+useLayout({
+  variant: LAYOUT_VARIANTS.TWO_COLUMN_RTL
+});
 
 // --- methods
-onMounted(async () => {
-  await isResolved();
+onMounted(() => {
   useHeader({
     background: HEADER_BACKGROUND.RTL,
     border: "none",
     items: "end"
-  });
-
-  useLayout({
-    variant: LAYOUT_VARIANTS.TWO_COLUMN_RTL
   });
 
   useFooter({

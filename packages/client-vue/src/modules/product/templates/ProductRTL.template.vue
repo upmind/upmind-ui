@@ -42,16 +42,15 @@ import Layout from "../../../components/layout/Layout.vue";
 // --- types
 import { LAYOUT_VARIANTS } from "../../../components/layout/types";
 import { HEADER_BACKGROUND } from "../../../components/header/types";
+
 defineOptions({
   inheritAttrs: false
 });
 
-// NB set early to avoind double mounting issues
 useLayout({
   variant: LAYOUT_VARIANTS.TWO_COLUMN_RTL
 });
 
-// NB set late to minimize fout
 onMounted(() => {
   useHeader({
     background: HEADER_BACKGROUND.RTL,
