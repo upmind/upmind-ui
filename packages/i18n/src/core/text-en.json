@@ -78,6 +78,7 @@
   "tax_pending": "This tax number is yet to be validated.",
   "tax_valid": "Validated {relative}",
   "term": "term",
+  "term_duration": "{duration} term",
   "terms_and_conditions_desc": "By clicking ‘{label}’ I agree to the {action} of {brand}.",
   "terms_and_conditions": "Terms and Conditions",
   "terms_of_service": "Terms of service",
