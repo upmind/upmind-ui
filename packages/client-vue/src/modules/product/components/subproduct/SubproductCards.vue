@@ -31,6 +31,7 @@
       <template #item="{ item: { id } }">
         <CardSubproduct
           v-bind="getSubproductValue(id)"
+          :term="props.term"
           @update:quantity="doUpdateQuantity(id, $event)"
           :minimal="mapComponentName !== 'SelectCards'"
         />
@@ -38,6 +39,7 @@
       <template #dropdown-item="{ item: { id } }">
         <CardSubproduct
           v-bind="getSubproductValue(id)"
+          :term="props.term"
           @update:quantity="doUpdateQuantity(id, $event)"
           :minimal="mapComponentName !== 'SelectCards'"
         />
@@ -84,6 +86,7 @@ const props = defineProps<{
   modelValue?: string | string[];
   quantities?: Record<string, number>;
   errors?: string;
+  term?: number;
   // --- state
   disabled?: boolean;
   loading?: boolean;

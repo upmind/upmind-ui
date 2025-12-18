@@ -3,7 +3,7 @@ import { asyncDebounce } from "@tanstack/pacer";
 
 // --- internal
 import type { AnyEventObject } from "xstate";
-import { useQuery, useBrand, useI18n } from "../../..";
+import { useQuery, useBrand, useI18n, invalidateQueryByKey } from "../../..";
 
 // --- utils
 import {

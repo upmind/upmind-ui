@@ -7,6 +7,7 @@
         total: summary?.total ?? 0
       })
     "
+    :loading="loading"
   >
     <template #prepend>
       <slot name="prepend" />
@@ -27,7 +28,9 @@ import { useBasket } from "@upmind-automation/headless";
 // --- components
 import Hero from "../../../components/hero/Hero.vue";
 
-// -----------------------------------------------------------------------------
+defineProps<{
+  loading?: boolean;
+}>();
 
 const { t } = useI18n();
 const { count, summary } = useBasket();

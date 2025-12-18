@@ -37,10 +37,12 @@
         <ProductCard
           v-if="!meta.isLoading"
           v-for="product in data"
+          :disabled="processing"
           :key="product.id"
           v-bind="product"
           :preserve-promotion="preservePromotions"
           :configure-route="props.configureRoute"
+          @resolve="processing = true"
         />
 
         <ProductCardSkeleton
@@ -100,7 +102,8 @@ import {
   useProductCatalogue,
   RequestSortDirection,
   ProductSortableProperties,
-  utils
+  utils,
+  useBasket
 } from "@upmind-automation/headless";
 import config from "../catalogue.config";
 
@@ -137,6 +140,10 @@ const props = withDefaults(
   }>(),
   { limit: 9 }
 );
+
+const processing = ref(false);
+const { meta: basketMeta } = useBasket();
+
 const container = useTemplateRef<HTMLDivElement>("container");
 
 const categoryId = defineModel<ProductsProps["categoryId"] | undefined>(
@@ -225,7 +232,9 @@ const preservePromotions = computed(() =>
 );
 
 //  --- side effects
-
+watch(basketMeta, newMeta => {
+  processing.value = newMeta.isProcessing ? processing.value : false;
+});
 watch(
   data,
   newData => {

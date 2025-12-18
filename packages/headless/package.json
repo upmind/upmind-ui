@@ -49,7 +49,6 @@
     "lodash-es": "^4.17.21",
     "psl": "^1.15.0",
     "tiny-cookie": "^2.5.1",
-    "uuid": "^11.1.0",
     "xstate": "^4.38.3"
   },
   "devDependencies": {

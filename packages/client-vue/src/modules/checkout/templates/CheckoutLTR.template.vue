@@ -43,15 +43,15 @@ defineOptions({
   inheritAttrs: false
 });
 
+useLayout({
+  variant: LAYOUT_VARIANTS.TWO_COLUMN_LTR
+});
+
 onMounted(() => {
   useHeader({
     background: HEADER_BACKGROUND.LTR,
     border: "none",
     items: "end"
-  });
-
-  useLayout({
-    variant: LAYOUT_VARIANTS.TWO_COLUMN_LTR
   });
 
   useFooter({

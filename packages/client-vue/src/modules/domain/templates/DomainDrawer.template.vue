@@ -8,6 +8,7 @@
     :dismissable="false"
     height="fixed"
     @open-auto-focus.prevent="onOpen"
+    @close="onClose"
   >
     <template #header>
       <slot name="search" />
@@ -42,6 +43,10 @@ defineOptions({
   inheritAttrs: false
 });
 
+const emit = defineEmits<{
+  (e: "reset"): void;
+}>();
+
 const open = defineModel<boolean>("open");
 const slots = useSlots();
 
@@ -53,5 +58,9 @@ function onOpen() {
     "[vaul-drawer] input"
   );
   focused.value = true;
+}
+
+function onClose() {
+  emit("reset");
 }
 </script>

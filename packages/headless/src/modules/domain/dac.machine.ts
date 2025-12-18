@@ -15,7 +15,7 @@ import {
   ResponseError,
   useTime
 } from "../../utils";
-import { parseDomain, parseValue, parseSld } from "./utils";
+import { parseDomain, parseValue, parseSld, isDomainProduct } from "./utils";
 import {
   compact,
   concat,
@@ -118,7 +118,27 @@ export default createMachine(
       error: {},
 
       complete: {
-        type: "final"
+        type: "final",
+        data: ({ model, lookups }: DacContext) => {
+          const domains = lookups.basket;
+          const primary = first(model);
+
+          return {
+            basket: lookups.basket,
+            domains: reduce(
+              model,
+              (result: DomainModel[], item) => {
+                // ensure we mark the primary domain
+                if (item.domain === primary?.domain) {
+                  item.selected = true;
+                }
+                result.push(item);
+                return result;
+              },
+              []
+            )
+          };
+        }
       }
     },
 
@@ -148,8 +168,8 @@ export default createMachine(
       },
 
       UPDATE: {
-        target: "valid",
-        actions: ["setModel"]
+        target: "valid"
+        // actions: ["setModel"]
       },
 
       SEARCH: [
@@ -169,20 +189,14 @@ export default createMachine(
 
       RESET: {
         target: "invalid",
-        actions: ["clearModel", "resetLookups", "clearSearch"]
+        actions: ["resetLookups", "clearSearch"]
       },
 
       REFRESH: {
         actions: ["setBasketProducts", "refreshContext"]
       },
 
-      STOP: {
-        target: "complete"
-      },
-
-      COMPLETE: {
-        target: "complete"
-      },
+      STOP: { target: "complete" },
 
       AUTHENTICATED: { target: "loading", actions: ["clearLookups"] },
       UNAUTHENTICATED: { target: "loading", actions: ["clearLookups"] }
@@ -225,12 +239,12 @@ export default createMachine(
 
       refreshContext: assign(
         (_context: DacContext, { data }: AnyEventObject) => {
-          const { id: basketId, brand_id: brandId, currency } = data as IBasket;
+          const { id: basketId, brand_id: brandId, currency } = data ?? {};
 
           const newContext = {
             basketId,
             brandId,
-            currency: currency.code
+            currency: currency?.code
           };
 
           return newContext;
@@ -265,13 +279,14 @@ export default createMachine(
 
             const parsed = parseDomain(raw?.service_identifier);
 
-            const isDomainProduct =
-              raw?.product.provision_blueprint?.code ===
-                ProvisionCategoryCodes.DOMAIN_NAMES ||
-              has(raw, "provision_fields.sld") ||
-              !!parsed?.domain;
-
-            if (!isDomainProduct) return undefined;
+            if (
+              !isDomainProduct({
+                blueprintCode: raw?.product?.provision_blueprint?.code,
+                provisionFields: raw?.provision_fields,
+                serviceIdentifier: raw?.service_identifier ?? undefined
+              })
+            )
+              return undefined;
 
             const basketProduct = parseBasketProduct(raw) as DomainProduct;
             basketProduct.tld = parsed!.tld;
@@ -588,6 +603,8 @@ export default createMachine(
           "productDetails.id",
           (context as ProductProps)?.productId
         ]) as DomainProduct;
+
+        if (!data || !domainProduct) return;
 
         addError({
           title: t("error.domain_add_failed"),

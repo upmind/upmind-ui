@@ -6,7 +6,7 @@ import { useActor } from "@xstate/vue";
 
 // --- internal
 import { useI18n } from "../system";
-import { useQueryParams } from "../routing";
+import { QUERY_PARAMS, useQueryParams } from "../routing";
 import dacMachine from "./dac.machine";
 
 // --- utils
@@ -34,21 +34,18 @@ import { PAGINATION } from "../query";
  *                     If not provided, defaults to all available domain types.
  * @returns Domain management API (state, computed, and methods)
  */
-export const useDac = (
-  options: {
-    preferredCycle?: number;
-  } = {}
-) => {
+export const useDac = () => {
   const { t } = useI18n();
-  const { getParam, setParam, unsetParam } = useQueryParams();
+  const { getParam, getParams, setParam, unsetParam } = useQueryParams();
 
   // safety check to ensure forcedType is valid
 
   const service = interpret(
     dacMachine.withContext({
-      preferredCycle: options?.preferredCycle,
+      preferredCycle: getParam(QUERY_PARAMS.BILLING_CYCLE_MONTHS),
+      coupons: getParams(QUERY_PARAMS.COUPONS),
       search: {
-        query: getParam("search", ""), // Get any initial search query from URL
+        query: getParam(QUERY_PARAMS.SEARCH, ""), // Get any initial search query from URL
         limit: PAGINATION.limit,
         offset: PAGINATION.offset
       }
@@ -85,6 +82,7 @@ export const useDac = (
         pagination.value.total,
       hasErrors: stateMatches(state, ["error"]),
       isEmpty: isEmpty(model.value),
+      hasAdded: !isEmpty(added.value),
       hasAvailable: !isEmpty(available.value),
       hasTLD: !!query.value?.includes("."),
       showSearchResults: !isEmpty(available.value) && !!query.value,

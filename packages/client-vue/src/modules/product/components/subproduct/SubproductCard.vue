@@ -22,6 +22,7 @@
             :price="props.price"
             :meta="props.meta"
             :cycle="props.cycle"
+            :term="props.term"
           />
         </div>
       </div>
@@ -49,6 +50,7 @@
             :price="props.price"
             :meta="props.meta"
             :cycle="props.cycle"
+            :term="props.term"
           />
         </div>
       </div>

@@ -1,5 +1,5 @@
 <template>
-  <component :is="templateVariant" v-bind="props">
+  <component :is="templateVariant" v-bind="props" v-if="!isResolving">
     <template #back>
       <slot name="back">
         <Back />
@@ -65,7 +65,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { computed, defineAsyncComponent, onUnmounted } from "vue";
+import { computed, defineAsyncComponent, onUnmounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -130,9 +130,18 @@ const props = withDefaults(
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
-const { meta } = useSession();
+const { meta, isReady } = useSession();
 const { meta: basketMeta } = useBasket();
-const { navigateNext, navigateBack, navigate } = useRoutingEngine();
+const {
+  navigateNext,
+  navigateBack,
+  navigate,
+  meta: routingMeta
+} = useRoutingEngine();
+
+await isReady();
+
+const isResolving = ref(false);
 
 const templateVariant = computed(() =>
   get(
@@ -156,11 +165,17 @@ function doUpdate(value: SessionProps["modelValue"]) {
 }
 
 function doReject() {
-  navigateBack();
+  isResolving.value = true;
+  navigateBack().catch(() => {
+    isResolving.value = false;
+  });
 }
 
 function doResolve() {
-  navigateNext();
+  isResolving.value = true;
+  navigateNext().catch(() => {
+    isResolving.value = false;
+  });
 }
 
 onUnmounted(() => {

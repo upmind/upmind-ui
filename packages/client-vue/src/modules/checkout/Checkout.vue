@@ -1,37 +1,42 @@
 <template>
-  <div v-show="!meta.isCheckout">
+  <Transitions>
     <component :is="templateVariant">
       <template #back>
         <slot name="back">
-          <Back @click.prevent="navigateBack" />
+          <Back v-show="showCheckout" @click.prevent="navigateBack" />
         </slot>
       </template>
 
       <template v-if="!isSlotHidden('summary')" #summary>
         <slot name="summary">
-          <CheckoutSummary :template="props.template" />
+          <CheckoutSummary v-show="showCheckout" :template="props.template" />
         </slot>
       </template>
 
       <template #content>
         <slot name="content">
-          <CheckoutContent :edit-route="props.editRoute" />
+          <CheckoutContent
+            :show-checkout="showCheckout"
+            :edit-route="props.editRoute"
+            :billing-route="props.billingRoute"
+            :fields-route="props.fieldsRoute"
+          />
         </slot>
       </template>
 
       <template #pricing>
         <slot name="pricing">
-          <CheckoutPricing />
+          <CheckoutPricing v-show="showCheckout" />
         </slot>
       </template>
 
       <template v-if="meta.hasErrors" #errors>
         <slot name="errors">
-          <CheckoutErrors />
+          <CheckoutErrors v-show="showCheckout" />
         </slot>
       </template>
     </component>
-  </div>
+  </Transitions>
 
   <!-- Basket processing -->
   <slot name="processing" v-if="meta.isCheckout">
@@ -54,6 +59,7 @@ import { useFooter } from "../../components/footer/useFooter";
 
 // --- components
 import Back from "../../components/navigation/Back.vue";
+import Transitions from "../../components/layout/components/transition/Transition.vue";
 import CheckoutProcessing from "./components/CheckoutProcessing.vue";
 import CheckoutSummary from "./components/CheckoutSummary.vue";
 import CheckoutContent from "./components/CheckoutContent.vue";
@@ -88,6 +94,8 @@ const props = withDefaults(
     template?: CHECKOUT_TEMPLATE;
     hideSlots?: string[];
     editRoute: RouteLocationAsRelativeGeneric;
+    billingRoute?: RouteLocationAsRelativeGeneric;
+    fieldsRoute?: RouteLocationAsRelativeGeneric;
     storefrontRoute?: RouteLocationAsRelativeGeneric;
   }>(),
   {
@@ -96,10 +104,14 @@ const props = withDefaults(
   }
 );
 
-const { navigateNext, navigateBack } = useRoutingEngine();
+const { navigateNext, navigateBack, meta: routingMeta } = useRoutingEngine();
 const { attempts, meta, isReady, uischema, invoice, reset } = useBasket();
 
 const isSlotHidden = (name: string) => includes(props.hideSlots, name);
+
+const showCheckout = computed(
+  () => !meta.value.isCheckout && !meta.value.isComplete
+);
 
 const templateVariant = computed(() =>
   get(
@@ -111,10 +123,10 @@ const templateVariant = computed(() =>
 
 // -----------------------------------------------------------------------------
 
-await isReady();
-
-const { dataLayer } = useDataLayer();
-dataLayer({ event: "begin_checkout" }).withEcommerce().push();
+await isReady().then(() => {
+  const { dataLayer } = useDataLayer();
+  dataLayer({ event: "begin_checkout" }).withEcommerce().push();
+});
 
 // -----------------------------------------------------------------------------
 
