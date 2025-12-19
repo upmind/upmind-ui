@@ -1,7 +1,10 @@
 // --- external
 import { ref, watch } from "vue";
-import { useRoutingEngine, utils } from "@upmind-automation/headless";
-const { ANIMATION_DELAY, DEBOUNCE_DELAY } = utils;
+import {
+  useRoutingEngine,
+  ANIMATION_DELAY,
+  DEBOUNCE_DELAY
+} from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 

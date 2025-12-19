@@ -102,7 +102,7 @@ import {
   useProductCatalogue,
   RequestSortDirection,
   ProductSortableProperties,
-  utils,
+  DEBOUNCE_DELAY,
   useBasket
 } from "@upmind-automation/headless";
 import config from "../catalogue.config";
@@ -128,8 +128,6 @@ import type { Product } from "@upmind-automation/headless";
 import type { ProductSortProps, ProductsProps } from "./types";
 import type { ComputedRef } from "vue";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
-
-const { DEBOUNCE_DELAY } = utils;
 
 // -----------------------------------------------------------------------------
 
