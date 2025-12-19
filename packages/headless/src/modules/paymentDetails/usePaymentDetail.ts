@@ -32,7 +32,7 @@ import {
 // --- types
 import type { ActorRef } from "xstate";
 import type { ComputedRef } from "vue";
-import type { Actor, ErrorObject } from "../../utils";
+import type { UseActor, ErrorObject } from "../../utils";
 import type {
   PaymentDetail,
   PaymentDetailModel,
@@ -50,7 +50,7 @@ import { zeroDecimalCurrencies } from "./gateways/utils";
  * @param actor - A computed ref to the payment gateway actor.
  * @returns An object containing the payment gateway state and methods to make a payment.
  */
-export const usePaymentDetail = (actor: ComputedRef<Actor | undefined>) => {
+export const usePaymentDetail = (actor: ComputedRef<UseActor | undefined>) => {
   const { t } = useI18n();
 
   // --- state

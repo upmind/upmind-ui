@@ -25,10 +25,9 @@ import {
 import { type InterstitialProps } from "@upmind-automation/upmind-ui";
 import { computed } from "vue";
 import { isNil } from "lodash-es";
-import { utils } from "@upmind-automation/headless";
+import { responseCodes } from "@upmind-automation/headless";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
 const { t } = useI18n();
-const { responseCodes } = utils;
 
 const props = withDefaults(
   defineProps<

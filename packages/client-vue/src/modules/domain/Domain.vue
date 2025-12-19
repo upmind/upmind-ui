@@ -120,7 +120,7 @@ import DomainType from "./components/DomainType.vue";
 import { Button } from "@upmind-automation/upmind-ui";
 
 // --- utils
-import { utils } from "@upmind-automation/headless";
+import { DEBOUNCE_DELAY } from "@upmind-automation/headless";
 import { debounce } from "lodash-es";
 
 //  --- templates
@@ -154,8 +154,6 @@ const emit = defineEmits<{
 const modelValue = defineModel<string>("modelValue");
 
 const { t } = useI18n();
-
-const { DEBOUNCE_DELAY } = utils;
 
 // -----------------------------------------------------------------------------
 
