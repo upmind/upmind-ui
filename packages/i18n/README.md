@@ -77,12 +77,12 @@ Often, translation files may have inconsistent spacing around curly braces `{}`,
 
 Below is the regex pattern to identify and correct these spacing issues using a find-and-replace approach in your text editor or IDE.
 
-**Add space before `{` inside JSON string values**  
+**Add space before `{` inside JSON string values**
 _NB: This may need to be run several times to catch all instances._
 
 ```regex
 Find:
-(:\s*".*?)(?<![ \-\'"*/\\|\(])\{
+([a-zA-Z0-9\)\]\}])\{
 Replace:
 $1 {
 ```
@@ -91,7 +91,7 @@ $1 {
 
 ```regex
 Find:
-(:\s*".*?)}(?![ '\"|.,;:!?*/\\\-\)])
+(:\s*".*?)\}(?=[a-zA-Z])
 Replace:
 $1}
 ```
@@ -99,6 +99,8 @@ $1}
 ### Space after an apostrophe and before a brace or character
 
 Ensure there is no space after an apostrophe `'` and before a brace `{` or character in your translations.
+
+NOTE: Only applies if there is no second apostrophe `'` following the first, targetting "{title} ' and", rather than "{title} 'allOf' dakı",
 
 ```regex
 Find:
