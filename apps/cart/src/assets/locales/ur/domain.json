@@ -20,7 +20,7 @@
   },
   "domain_description": "آج ہی اپنی آن لائن شناخت کو محفوظ بنائیں – اس میں صرف ایک منٹ لگتا ہے۔",
   "domain_not_required_label": "ڈومین کے بغیر جاری رکھیں",
-  "domain_title": "اپنا کامل ڈومین نام حاصل کریں۔",
+  "domain_title": "ایک ڈومین نام شامل کریں۔",
   "finding_perfect_domain": "اپنا **کامل** ڈومین تلاش کرنا",
   "finding_perfect_domain_md": "@.markdown:{'domain.finding_perfect_domain'}",
   "own_domain_qn": "کیا آپ اس ڈومین کے مالک ہیں؟",
@@ -31,10 +31,10 @@
   "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
   "tld_renewal_price_desc": "ہماری {tld} تجدید کی قیمتیں صرف سے شروع ہوتی ہیں۔ {currentPrice} (تھا {regularPrice})۔",
   "tld_renewal_price_from_desc": "ہماری {tld} تجدید کی قیمتیں صرف سے شروع ہوتی ہیں۔ {regularPrice}.",
-  "transfer": "صرف کے لیے ٹرانسفر{currentPrice} .",
+  "transfer": "صرف کے لیے ٹرانسفر {currentPrice}.",
   "transfer_domain": "ڈومین منتقل کریں۔",
   "transfer_extension_info": "منتقلی میں ایک سال کی توسیع شامل ہے۔",
   "transfer_owner_question": "کیا آپ اس ڈومین کے مالک ہیں؟",
   "transfer_price_info": "آپ اسے صرف ہمارے پاس منتقل کر سکتے ہیں۔{currentPrice}",
-  "transfer_promotion": "صرف کے لیے ٹرانسفر{currentPrice} ، عام طور پر{regularPrice} ."
+  "transfer_promotion": "صرف کے لیے ٹرانسفر {currentPrice}، عام طور پر {regularPrice}."
 }

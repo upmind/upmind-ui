@@ -49,7 +49,7 @@ import { useI18n } from "vue-i18n";
 import {
   useSession,
   useBasket,
-  utils,
+  useUrl,
   useOrder,
   QUERY_PARAMS
 } from "@upmind-automation/headless";
@@ -164,16 +164,14 @@ function doAction() {
   transferTo()
     .then(transfer => {
       if (transfer?.code) {
-        window.location.href = utils
-          .useUrl(
-            transferAuth,
-            {
-              code: transfer.code,
-              redirect: transferRedirect
-            },
-            { base: transferBase ?? transfer.redirect_url, context: "" }
-          )
-          .toString();
+        window.location.href = useUrl(
+          transferAuth,
+          {
+            code: transfer.code,
+            redirect: transferRedirect
+          },
+          { base: transferBase ?? transfer.redirect_url, context: "" }
+        ).toString();
       }
     })
     .catch(() => {

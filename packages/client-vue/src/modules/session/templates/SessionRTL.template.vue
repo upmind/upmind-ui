@@ -15,6 +15,9 @@
 </template>
 
 <script lang="ts" setup>
+// --- external
+import { onMounted, onUnmounted } from "vue";
+
 // --- components
 import Layout from "../../../components/layout/Layout.vue";
 
@@ -42,24 +45,32 @@ defineOptions({
   inheritAttrs: false
 });
 
-// --- methods
-useHeader({
-  background: HEADER_BACKGROUND.RTL,
-  border: "none",
-  items: "end"
-});
-
 useLayout({
   variant: LAYOUT_VARIANTS.TWO_COLUMN_RTL
 });
 
-useFooter({
-  layout: FOOTER_LAYOUT.FLAT,
-  background: FOOTER_BACKGROUND.RTL,
-  items: "end",
-  justifyLeft: "start",
-  justifyRight: "between",
-  reverse: true,
-  noCurrency: true
+// --- methods
+onMounted(() => {
+  useHeader({
+    background: HEADER_BACKGROUND.RTL,
+    border: "none",
+    items: "end"
+  });
+
+  useFooter({
+    layout: FOOTER_LAYOUT.FLAT,
+    background: FOOTER_BACKGROUND.RTL,
+    items: "end",
+    justifyLeft: "start",
+    justifyRight: "between",
+    reverse: true,
+    noCurrency: true
+  });
+});
+
+onUnmounted(() => {
+  useHeader({});
+  useLayout({});
+  useFooter({});
 });
 </script>

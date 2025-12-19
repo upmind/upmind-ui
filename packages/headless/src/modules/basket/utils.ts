@@ -173,7 +173,7 @@ export const parseBasketFieldsModel = (basket: any, data = {}) => {
     get(data, "custom_fields", {})
   );
   return {
-    notes,
+    notes: notes || null,
     customFields
   };
 };

@@ -53,6 +53,7 @@
                   :prependIcon="meta.showSelected ? null : 'search'"
                   :placeholder="t('form.domain_search.placeholder')"
                   autocomplete="url"
+                  :disabled="disabled"
                 />
               </FormControl>
 
@@ -69,6 +70,7 @@
                   :prependIcon="meta.showSelected ? null : 'search'"
                   :placeholder="t('form.domain_search.placeholder')"
                   autocomplete="url"
+                  :disabled="disabled"
                 />
               </FormControl>
 
@@ -86,6 +88,7 @@
                   width="full"
                   :list="ownedDomains"
                   class="bg-base-background"
+                  :disabled="disabled"
                 />
               </FormControl>
 
@@ -100,6 +103,7 @@
                   :items="basketDomains"
                   :loading="meta.isSearching"
                   :processing="meta.isProcessing"
+                  :disabled="disabled"
                   required
                 />
               </FormControl>
@@ -156,6 +160,7 @@ const props = defineProps<{
   // ---
   loading?: boolean;
   processing?: boolean;
+  disabled?: boolean;
   searching?: boolean;
   valid?: boolean;
   // ---
@@ -177,9 +182,13 @@ const type = defineModel<UseDomain["type"]["value"]>("type");
 
 const { t, tm, rt } = useI18n();
 
+const stylesMeta = computed(() => ({
+  isDisabled: props.disabled
+}));
+
 const styles = useStyles(
   ["domain", "domain.form", "domain.form.trigger", "domain.form.content"],
-  {},
+  stylesMeta,
   config
 ) as ComputedRef<{
   domain: {

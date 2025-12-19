@@ -2,7 +2,7 @@
 import { asyncDebounce } from "@tanstack/pacer";
 
 // --- internal
-import { useI18n, useQuery } from "../../..";
+import { invalidateQueryByKey, useI18n, useQuery } from "../../..";
 
 // --- utils
 import {
@@ -56,7 +56,7 @@ async function add(
     url: useUrl(`/orders/${basketId}/promotions`),
     data: { promocode: trim(model?.promocode) },
     withAccessToken: true
-  });
+  }).then(invalidateQueryByKey(["basket"], { exact: false }));
 }
 
 async function remove(

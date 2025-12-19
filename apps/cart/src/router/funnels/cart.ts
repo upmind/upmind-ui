@@ -388,8 +388,7 @@ export default <FunnelProps>{
       },
       on: {
         NEXT: {
-          target: ROUTE.CHECKOUT,
-          actions: ["setResolving"]
+          actions: [assign({ targetRoute: { name: ROUTE.CHECKOUT } })]
         },
         BACK: { actions: [assign({ targetRoute: { name: ROUTE.BASKET } })] }
       }

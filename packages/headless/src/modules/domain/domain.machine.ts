@@ -16,13 +16,14 @@ import {
   ResponseError,
   useTime
 } from "../../utils";
-import { parseDomain, parseValue, parseSld } from "./utils";
+import {
+  getDomainRawBasketProducts,
+  isDomainProduct,
+  parseDomain
+} from "./utils";
 import {
   cloneDeep,
-  compact,
-  concat,
   defaultsDeep,
-  every,
   filter,
   find,
   first,
@@ -55,7 +56,6 @@ import { ProductProps } from "../product";
 // -----------------------------------------------------------------------------
 export default createMachine(
   {
-    //tsTypes: {} as import("./domain.machine.typegen").Typegen0,
     id: "domainManager",
     predictableActionArguments: true,
     initial: "subscribing",
@@ -70,7 +70,9 @@ export default createMachine(
       },
 
       loading: {
+        id: "loading",
         type: "parallel",
+        entry: [],
         states: {
           existing: {
             initial: "processing",
@@ -96,7 +98,7 @@ export default createMachine(
                 on: {
                   REFRESH: {
                     target: "complete",
-                    actions: ["setBasketProducts", "refreshContext"]
+                    actions: ["refreshContext", "setBasketProducts"]
                   },
                   ERROR: {
                     target: "complete"
@@ -158,36 +160,25 @@ export default createMachine(
             preferredCycle,
             tlds
           }),
-          autoForward: true
-        },
-        on: {
-          COMPLETE: {
+          autoForward: true,
+          onError: {
+            target: "idle",
+            actions: ["setError"]
+          },
+          onDone: {
             target: "#basket",
-            actions: [
-              "setType",
-              "setModelFromBasket",
-              "ensureSelected",
-              "checkChoices",
-              "persistModel"
-            ]
+            actions: ["setModelFromDac", "ensureSelected", "checkType"]
           }
         },
-        onDone: {
-          target: "#basket",
-          actions: [
-            "setModelFromBasket",
-            "ensureSelected",
-            "checkChoices",
-            "checkType",
-            "persistModel"
-          ]
-        }
+        on: {
+          STOP: { actions: sendTo("dac", { type: "STOP" }) }
+        },
+        exit: ["clearSearch"]
       },
 
       existing: {
         id: "existing",
         initial: "invalid",
-        entry: ["resetModel"],
         states: {
           valid: {},
           invalid: {},
@@ -206,12 +197,12 @@ export default createMachine(
             }
           ]
         },
-        exit: ["clearModel", "persistModel"]
+        exit: ["clearModel"]
       },
 
       basket: {
         id: "basket",
-        entry: ["resetModel"],
+        entry: ["resetModel", "checkModel", "ensureSelected"],
         initial: "loading",
         states: {
           loading: {
@@ -249,7 +240,7 @@ export default createMachine(
             }
           ]
         },
-        exit: ["clearModel", "persistModel"]
+        exit: ["clearModel"]
       },
 
       complete: {
@@ -303,30 +294,29 @@ export default createMachine(
   },
   {
     actions: {
-      setContext: assign(
-        (context: DomainContext, _event: AnyEventObject) =>
-          defaultsDeep(context, {
-            choices: values(DomainTypes),
-            type: undefined,
-            model: undefined,
-            lookups: {
-              owned: [],
-              basket: []
-            },
-            // ---
-            currency: undefined,
-            basketId: undefined,
-            brandId: undefined,
-            coupons: [],
-            // ---
-            error: undefined,
-            // ---
-            authHelper: undefined,
-            basketHelper: undefined,
-            parseBasketProduct: undefined,
-            parseProductModel: undefined
-          }) as DomainContext
-      ),
+      setContext: assign((context: DomainContext, _event: AnyEventObject) => {
+        return defaultsDeep(context, {
+          choices: values(DomainTypes),
+          type: undefined,
+          model: undefined,
+          lookups: {
+            owned: [],
+            basket: []
+          },
+          // ---
+          currency: undefined,
+          basketId: undefined,
+          brandId: undefined,
+          coupons: [],
+          // ---
+          error: undefined,
+          // ---
+          authHelper: undefined,
+          basketHelper: undefined,
+          parseBasketProduct: undefined,
+          parseProductModel: undefined
+        }) as DomainContext;
+      }),
 
       persistModel: assign({
         baseModel: ({ model }: DomainContext) => cloneDeep(model) // we use spread to ensure its a new array
@@ -335,14 +325,13 @@ export default createMachine(
       checkModel: assign({
         model: ({ model, lookups }: DomainContext) => {
           let value = parseDomain(model);
-
           if (isEmpty(value) && !isEmpty(lookups.basket)) {
             const parsed = map(lookups.basket, item => {
               return {
                 domain: item.domain,
                 tld: item.tld,
                 sld: item.sld,
-                typee: DomainTypes.basket,
+                type: DomainTypes.basket,
                 selected: item.meta.selected
               } as DomainModel;
             });
@@ -402,7 +391,9 @@ export default createMachine(
               includes(choices, DomainTypes.existing))
           ) {
             const added = some(lookups.basket, ["domain", domain]);
-            if (added) return DomainTypes.basket;
+            if (added) {
+              return DomainTypes.basket;
+            }
             return DomainTypes.existing;
           }
 
@@ -421,12 +412,13 @@ export default createMachine(
 
       refreshContext: assign(
         (_context: DomainContext, { data }: AnyEventObject) => {
-          const { id: basketId, brand_id: brandId, currency } = data as IBasket;
+          if (isEmpty(data)) return {};
+          const { id: basketId, brand_id: brandId, currency } = data;
 
           const newContext = {
             basketId,
             brandId,
-            currency: currency.code
+            currency: currency?.code
           };
 
           return newContext;
@@ -453,8 +445,14 @@ export default createMachine(
             raw: IBasketProduct,
             primaryDomain?: string
           ): DomainProduct | undefined => {
-            const isDomainProduct = has(raw, "provision_fields.sld");
-            if (!isDomainProduct) return undefined;
+            if (
+              !isDomainProduct({
+                serviceIdentifier: raw.service_identifier,
+                blueprintCode: raw?.product?.provision_blueprint?.code,
+                provisionFields: raw?.provision_fields
+              })
+            )
+              return undefined;
 
             const value = raw?.service_identifier;
             const parsed = value ? parseDomain(value) : undefined;
@@ -485,23 +483,25 @@ export default createMachine(
           { data }: AnyEventObject
         ) => {
           const primary = model || first(lookups.basket);
-
           // 1st filter out only the domain products from the basket products
-          const domains = filter(data.products, [
-            "product.provision_blueprint.code",
-            ProvisionCategoryCodes.DOMAIN_NAMES
-          ]);
-
+          const domains = getDomainRawBasketProducts(
+            data?.products as IBasketProduct[]
+          );
           // then parse them into our DomainProduct type
           const available = reduce(
             domains,
             (result: DomainProduct[], raw: IBasketProduct) => {
               const parsed = parseBasketProduct(raw, primary?.domain);
-              if (parsed) result.push(parsed);
+
+              // NB ensure we have a valid domain and we dont already have it in the list
+              if (parsed && !some(result, ["domain", parsed.domain]))
+                result.push(parsed);
+
               return result;
             },
             []
           );
+
           set(lookups, "basket", available);
           return lookups;
         }
@@ -524,23 +524,22 @@ export default createMachine(
         }
       }),
 
-      setModelFromBasket: assign({
-        model: ({ model, lookups }: DomainContext, _event: AnyEventObject) => {
-          const mapped = map(lookups.basket, (item: DomainProduct) => {
-            return {
-              domain: item.domain,
-              tld: item.tld,
-              sld: item.sld,
-              type: DomainTypes.basket,
-              selected: item.meta.selected
-            };
-          });
-
-          return (
-            find(mapped, ["domain", model?.domain]) ||
-            find(mapped, "selected") ||
-            first(mapped)
+      setModelFromDac: assign({
+        model: (
+          { model, lookups }: DomainContext,
+          { data }: AnyEventObject
+        ) => {
+          // if no data, return existing model
+          if (isEmpty(data?.domains)) return model;
+          const mapped = map(data.domains, (item: DomainProduct) =>
+            parseDomain(item.domain)
           );
+          return find(mapped, "selected") || first(mapped);
+        },
+        lookups: ({ lookups }: DomainContext, { data }: AnyEventObject) => {
+          if (isEmpty(data?.basket)) return lookups;
+          lookups.basket = data.basket;
+          return lookups;
         }
       }),
 
@@ -582,15 +581,6 @@ export default createMachine(
         }
       }),
 
-      resetLookups: assign({
-        lookups: ({ lookups }: DomainContext, _event: AnyEventObject) => {
-          return {
-            owned: lookups.owned,
-            basket: lookups.basket
-          };
-        }
-      }),
-
       select: assign({
         model: ({ lookups }: DomainContext, { data }: AnyEventObject) => {
           const selected =
@@ -605,6 +595,12 @@ export default createMachine(
               selected: true
             } as DomainModel;
           }
+          return undefined;
+        }
+      }),
+
+      clearSearch: assign({
+        search: () => {
           return undefined;
         }
       }),

@@ -31,7 +31,6 @@ export function basketSubscription(callback: any, onReceiveEvent: any) {
   const { t } = useI18n();
   const { locale } = useLocale();
   const basket = useBasket();
-  const pendingProducts = useBasketProductsPending();
 
   let isRefreshing = false;
   let isLoading = false;
@@ -76,10 +75,9 @@ export function basketSubscription(callback: any, onReceiveEvent: any) {
           });
         })
         .catch(() => {
-          // console.error("basketHelper", "REFRESH", error);
           callback({
-            type: "ERROR",
-            data: basket.errors?.value
+            type: "REFRESH",
+            data: basket.basket.value
           });
         });
       return;
@@ -88,27 +86,6 @@ export function basketSubscription(callback: any, onReceiveEvent: any) {
 
     const rawBasket = basket.basket.value;
     let basketProduct: BasketProduct | undefined;
-
-    if (!rawBasket?.id) {
-      // If no basket exists, refresh to create one, then retry the operation
-      basket
-        .refresh()
-        .then(() => {
-          // Re-trigger this event now that basket should exist
-          onReceive(event);
-        })
-        .catch(() => {
-          callback({
-            type: "ERROR",
-            data: new DetailedError(
-              t("error.basket_not_available"),
-              responseCodes.Not_Found,
-              ErrorOrigin.Headless
-            )
-          });
-        });
-      return;
-    }
 
     const baseBasketProducts: BasketProduct[] = basket.products.value ?? [];
 
@@ -121,8 +98,8 @@ export function basketSubscription(callback: any, onReceiveEvent: any) {
         productServices
           .fetch(
             {
-              basketId: rawBasket.id,
-              currencyId: rawBasket.currency_id,
+              basketId: rawBasket?.id,
+              currencyId: rawBasket?.currency_id,
               promotions: event.context?.configuration?.coupons
             },
             { data }
@@ -248,9 +225,20 @@ export function basketSubscription(callback: any, onReceiveEvent: any) {
 
       case "REMOVE":
         callback({ type: "PROCESSING" });
+        if (!rawBasket?.id) {
+          callback({
+            type: "ERROR",
+            data: new DetailedError(
+              t("error.basket_not_available"),
+              responseCodes.Not_Found,
+              ErrorOrigin.Headless
+            )
+          });
+          return;
+        }
 
         productServices
-          .remove(rawBasket?.id, event.target.id)
+          .remove(rawBasket.id, event.target.id)
           .then((rawBasket: IBasket) => {
             basketProduct = basket.findProduct({ id: event.target.id });
 

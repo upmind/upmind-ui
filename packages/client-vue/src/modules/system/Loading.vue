@@ -1,5 +1,8 @@
 <template>
-  <div class="flex grow items-center justify-center">
+  <div
+    class="flex items-center justify-center"
+    :class="props.open ? 'grow' : ''"
+  >
     <Interstitial
       v-bind="props"
       :title="t('text.loading_title_md')"

@@ -3,13 +3,12 @@ import WebFontLoader from "webfontloader";
 
 // --- internal
 import {
-  utils,
+  useImageUrl,
   type Theme,
   type ThemeTokens
 } from "@upmind-automation/headless";
 
 // --- utils
-const { useImageUrl } = utils;
 import { forEach, has, isEmpty, uniq, compact, isString } from "lodash-es";
 import type { IImage } from "../../../../types/src";
 

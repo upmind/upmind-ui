@@ -30,7 +30,8 @@ import {
   responseCodes,
   useCollection,
   useModelParser,
-  NotAuthenticatedError
+  NotAuthenticatedError,
+  DEBOUNCE_DELAY
 } from "../../../utils";
 import { invalidateQueryByKey } from "../../query";
 import { mapCompanies, mapCompany, mapICompany } from "./mappers";
@@ -49,19 +50,19 @@ const queryKey: QueryKey = ["client", "companies"];
 const { addError, addSuccess } = useFeedback();
 
 function loadList(params: Partial<QueryParams> = { pagination: { limit: 0 } }) {
-  const { meta, client } = useSession();
+  const { meta, clientId } = useSession();
   const { list, useUrl } = useQuery();
 
   return list<ICompany[], Company[]>({
     ...(params as any),
-    queryKey: [...queryKey, { client: client.value?.id }],
-    url: useUrl(`clients/${client.value?.id}/companies`, {
+    queryKey: [...queryKey, { client: clientId.value }],
+    url: useUrl(`clients/${clientId.value}/companies`, {
       with: ["address", "address.country", "address.region"].join()
     }),
     withAccessToken: true,
     guard: async () =>
       new Promise((resolve, reject) => {
-        if (meta.value.isAuthenticated && !!client.value?.id) {
+        if (meta.value.isAuthenticated && !!clientId.value) {
           resolve(true);
         } else {
           reject(new NotAuthenticatedError());
@@ -69,7 +70,11 @@ function loadList(params: Partial<QueryParams> = { pagination: { limit: 0 } }) {
       }),
     // --- options
     select: mapCompanies,
-    staleTime: useTime().DAY
+    staleTime: useTime().DAY,
+    retryDelay: DEBOUNCE_DELAY,
+    enabled: () => {
+      return !!(meta.value.isAuthenticated && !!clientId.value);
+    }
   });
 }
 
@@ -153,16 +158,16 @@ async function loadLookups({
 // MUTATIONS
 
 async function add(data: CompanyModel) {
-  const { meta, client } = useSession();
+  const { meta, clientId } = useSession();
   const { post, useUrl } = useQuery();
 
-  if (!meta.value.isAuthenticated || !client.value?.id) {
+  if (!meta.value.isAuthenticated || !clientId.value) {
     return Promise.reject(new NotAuthenticatedError());
   }
   return ensureDependencies(data).then(ensuredData => {
     return post<ICompany>({
       mutationKey: ["client", "companies", "add"],
-      url: useUrl(`clients/${client.value?.id}/companies`),
+      url: useUrl(`clients/${clientId.value}/companies`),
       data: mapICompany(ensuredData),
       withAccessToken: true
     }).then(invalidateQueryByKey(queryKey, { exact: false }));
@@ -170,16 +175,16 @@ async function add(data: CompanyModel) {
 }
 
 async function update(id: Company["id"], data: CompanyModel) {
-  const { meta, client } = useSession();
+  const { meta, clientId } = useSession();
   const { put, useUrl } = useQuery();
 
-  if (!meta.value.isAuthenticated || !client.value?.id) {
+  if (!meta.value.isAuthenticated || !clientId.value) {
     return Promise.reject(new NotAuthenticatedError());
   }
   return ensureDependencies(data).then(ensuredData => {
     return put<ICompany>({
       mutationKey: ["client", "companies", id],
-      url: useUrl(`clients/${client.value?.id}/companies/${id}`),
+      url: useUrl(`clients/${clientId.value}/companies/${id}`),
       data: mapICompany(ensuredData),
       withAccessToken: true
     }).then(invalidateQueryByKey(queryKey, { exact: false }));
@@ -214,14 +219,14 @@ async function ensure(model: CompanyModel): Promise<Company> {
 }
 
 function remove(companyId: Company["id"]) {
-  const { meta, client } = useSession();
+  const { meta, clientId } = useSession();
   const { mutate, useUrl } = useQuery();
 
   return mutate<null>("DELETE", {
-    url: useUrl(`clients/${client.value?.id}/companies/${companyId}`),
+    url: useUrl(`clients/${clientId.value}/companies/${companyId}`),
     guard: async () =>
       new Promise((resolve, reject) => {
-        if (meta.value.isAuthenticated || !client.value?.id) {
+        if (meta.value.isAuthenticated || !clientId.value) {
           resolve(true);
         } else {
           reject(new NotAuthenticatedError());
@@ -247,14 +252,14 @@ function remove(companyId: Company["id"]) {
 }
 
 function setDefault(companyId: Company["id"]) {
-  const { meta, client } = useSession();
+  const { meta, clientId } = useSession();
   const { mutate, useUrl } = useQuery();
 
   return mutate<ICompany>("PUT", {
-    url: useUrl(`clients/${client.value?.id}/companies/${companyId}`),
+    url: useUrl(`clients/${clientId.value}/companies/${companyId}`),
     guard: async () =>
       new Promise((resolve, reject) => {
-        if (meta.value.isAuthenticated || !client.value?.id) {
+        if (meta.value.isAuthenticated || !clientId.value) {
           resolve(true);
         } else {
           reject(new NotAuthenticatedError());

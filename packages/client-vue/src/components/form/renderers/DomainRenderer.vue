@@ -5,6 +5,7 @@
       :model-value="control.data"
       :touched="formFieldProps.touched"
       :required="formFieldProps.required"
+      :disabled="formFieldProps.disabled"
       @update:modelValue="onInput"
       @update:type="resetInput"
     />

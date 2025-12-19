@@ -13,7 +13,7 @@
       modal
     >
       <template #default>
-        <ol class="mt-4 list-disc text-left font-medium">
+        <ol class="text-sm-tight mt-4 list-disc text-left font-medium">
           <li v-for="basketItem in products" :key="basketItem.id">
             <span>{{ basketItem?.productDetails?.title }}</span>
           </li>

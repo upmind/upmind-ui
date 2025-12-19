@@ -56,12 +56,6 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
   }
 
   const { basket: rawBasket } = useBasket();
-  if (!rawBasket.value)
-    throw new DetailedError(
-      t("error.basket_not_available"),
-      responseCodes.Not_Found,
-      ErrorOrigin.Headless
-    );
 
   const actor: ActorRef<any> | undefined = isActor(data)
     ? (data as ActorRef<any>)
@@ -102,11 +96,11 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
     interpret(
       productMachine.withContext({
         id,
-        basketId: rawBasket.value.id,
-        clientId: rawBasket.value.client_id,
-        currencyId: currencyId ?? rawBasket.value.currency_id,
+        basketId: rawBasket.value?.id,
+        clientId: rawBasket.value?.client_id,
+        currencyId: currencyId ?? rawBasket.value?.currency_id,
         currencyCode,
-        promotions: rawBasket.value.promotions,
+        promotions: rawBasket.value?.promotions,
         subproducts,
         coupons,
         silent,

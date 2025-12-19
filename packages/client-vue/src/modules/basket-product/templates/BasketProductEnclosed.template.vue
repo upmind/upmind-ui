@@ -43,15 +43,15 @@ defineOptions({
   inheritAttrs: false
 });
 
+useLayout({
+  variant: LAYOUT_VARIANTS.SPLIT_VERTICAL
+});
+
 onMounted(() => {
   useHeader({
     background: HEADER_BACKGROUND.SURFACE,
     border: "none",
     items: "end"
-  });
-
-  useLayout({
-    variant: LAYOUT_VARIANTS.SPLIT_VERTICAL
   });
 
   useSection({

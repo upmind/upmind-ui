@@ -16,7 +16,7 @@ import {
   useContext
 } from "../../utils";
 import { contextMatches, stateMatches, stateValue } from "../../utils";
-import { debounce, isEmpty, isEqual, isNil } from "lodash-es";
+import { debounce, isEmpty, isEqual, isNil, map } from "lodash-es";
 
 // --- types
 import type { ActorRef } from "xstate";
@@ -77,6 +77,9 @@ export const useBasketPromotions = () => {
     actor,
     "promotions"
   );
+
+  const promocodes = computed(() => map(promotions.value, "promotion.code"));
+
   const errors = useContext<QueryResponseError["message"]>(
     actor,
     "error.message"
@@ -197,6 +200,9 @@ export const useBasketPromotions = () => {
 
     /** The list of available promotions. */
     promotions,
+
+    /** The list of promotion codes extracted from the available promotions. */
+    promocodes,
 
     /** Any error returned by the promotion actor. */
     errors,
