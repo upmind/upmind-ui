@@ -22,6 +22,7 @@ const props = withDefaults(defineProps<ContentProps>(), {
   flow: "vertical",
   width: "auto",
   sticky: "none",
+  height: "auto",
   padding: true
 });
 
@@ -32,7 +33,8 @@ const meta = computed(() => ({
   justify: props.justify,
   items: props.items,
   width: props.width,
-  padding: props.padding
+  padding: props.padding,
+  height: props.height
 }));
 
 const styles = useStyles(["content"], meta, config) as ComputedRef<{

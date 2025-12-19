@@ -40,6 +40,10 @@ export const variants = {
   padding: {
     true: "lg:p-6",
     false: "lg:px-6"
+  },
+  height: {
+    auto: "",
+    full: "h-full"
   }
 };
 
