@@ -34,6 +34,7 @@ export interface BasketProductSummaryProps {
 
 export interface BasketProductConfigDetailsProps {
   id: string;
+  summary: ProductSummaryDetailWithPrice;
   details: BasketProduct["details"];
   editRoute: RouteLocationAsRelativeGeneric;
 }

@@ -85,6 +85,7 @@
       v-if="open && !isEmpty(filteredDetails)"
       :id="id"
       :details="filteredDetails"
+      :summary="summary"
       :edit-route="props.editRoute"
     />
 
@@ -219,8 +220,13 @@ const open = useVModel(props, "open", emits);
 
 const filteredDetails = computed(() =>
   props.details.filter((d, index) => {
-    // Show primary price unless it's a one-off with cycle 0
-    if ((!index && d.cycle) || props.details.length === 1) {
+    // Don't show primary price if it's a one-off with cycle 0
+    if (!index && !d.cycle) {
+      return false;
+    }
+
+    // Show primary price (with non-zero cycle) or single item checks
+    if (!index || props.details.length === 1) {
       return !d.meta?.invalid && !d.name?.includes("provision_field");
     }
 
