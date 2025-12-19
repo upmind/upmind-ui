@@ -48,6 +48,7 @@
             :width="card ? CONTENT_WIDTH.ASIDELG : CONTENT_WIDTH.ASIDE"
             :sticky="CONTENT_STICKY.TOP"
             :gap="card ? CONTENT_GAP.SM : CONTENT_GAP.MD"
+            :height="CONTENT_HEIGHT.FULL"
           >
             <slot name="aside" />
           </Content>
@@ -84,14 +85,15 @@ import { useSection } from "../../section/useSection";
 // --- types
 import { computed, useSlots } from "vue";
 import { type VariantProps } from "../types";
-import { RIBBON_BACKGROUND, RIBBON_BORDER } from "../components/ribbon";
+import { RIBBON_BACKGROUND } from "../components/ribbon";
 import { COLUMN_FLOW } from "../components/column";
 import {
   CONTENT_WIDTH,
   CONTENT_FLOW,
   CONTENT_JUSTIFY,
   CONTENT_STICKY,
-  CONTENT_GAP
+  CONTENT_GAP,
+  CONTENT_HEIGHT
 } from "../components/content";
 
 const props = defineProps<VariantProps>();
