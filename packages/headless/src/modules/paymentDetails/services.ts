@@ -109,7 +109,7 @@ export function loadList() {
     retryDelay: DEBOUNCE_DELAY,
     enabled: () =>
       meta.value.isAuthenticated &&
-      !!userId.value &&
+      !!clientId.value &&
       !!currencyId.value &&
       !!brandId.value
   });
