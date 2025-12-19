@@ -168,7 +168,7 @@ function mapLaravelRuleToJSONSchema(
         field?.options,
         ({ value }) => value
       );
-      if (!field.validation_rules.includes("required")) enums.push(null);
+      if (!includes(field?.validation_rules, "required")) enums.push(null);
 
       return {
         enum: enums,
@@ -176,7 +176,7 @@ function mapLaravelRuleToJSONSchema(
       };
     } else {
       const enums: (string | null)[] = rule.substring(3).split(",");
-      if (!field.validation_rules.includes("required")) enums.push(null);
+      if (!includes(field?.validation_rules, "required")) enums.push(null);
       return { enum: enums };
     }
   } else if (rule.startsWith("not_in:")) {
@@ -318,13 +318,13 @@ function mapLaravelRulesToJsonSchemaProperty(
   context: Record<string, any> = {}
 ): JsonSchemaExtended {
   let schemaProperty: JsonSchemaExtended = {};
-  for (const rule of field.validation_rules) {
+  forEach(field?.validation_rules, rule => {
     const keywordMap = mapLaravelRuleToJSONSchema(rule, field, context);
     keywordMap.type ??= "string"; // Failsafe: default type to string if not already specified
 
     // merge each rule into the schemaProperty
     schemaProperty = { ...schemaProperty, ...keywordMap } as JsonSchemaExtended;
-  }
+  });
 
   // Handle nullable carefully
   if (schemaProperty.nullable) {
@@ -369,7 +369,7 @@ export function useLaravalSchemaParser(
       };
 
       // Handle 'required'
-      if (field.validation_rules.includes("required")) {
+      if (includes(field?.validation_rules, "required")) {
         requiredFields.push(field.name);
       }
 
