@@ -39,8 +39,7 @@ variables:
 (apps/cart) build staging:
   extends: .(apps/cart) build base
   rules:
-    - if: $CI_COMMIT_TAG =~ /^cart-v\d+(\.\d+)+$/
-    - if: $CI_COMMIT_TAG =~ /^cart-v\d+(\.\d+)+-rc\d+$/
+    - if: $CI_COMMIT_TAG =~ /^cart-staging-v\d+(\.\d+)+$/
   script:
     - pnpm --dir apps/cart run build:staging
     - cp apps/cart/_headers apps/cart/dist/_headers
