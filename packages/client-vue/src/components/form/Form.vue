@@ -20,8 +20,7 @@
 // --- external
 
 // --- internal
-import { utils } from "@upmind-automation/headless";
-const { useValidation } = utils;
+import { useValidation } from "@upmind-automation/headless";
 
 // --- components
 import { Form, useForwardPropsEmits } from "@upmind-automation/upmind-ui";

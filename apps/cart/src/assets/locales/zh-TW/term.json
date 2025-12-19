@@ -12,7 +12,7 @@
   "once": "一次",
   "one_time": "一度",
   "price_by_n_years": "{price}/年 | {price} /{n} 歲",
-  "price_msg": "僅有的{price}| 來自{price}一個月 | 來自{price}每一個{period}",
+  "price_msg": "僅有的 {price} | 來自 {price} 一個月 | 來自 {price} 每一個 {period}",
   "quarterly": "季刊",
   "renews_msg": "一次性付款 | 每 {cycle} 續約 | 每 {cycle} 續約",
   "renews_usually_msg": "通常 {price}",

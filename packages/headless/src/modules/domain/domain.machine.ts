@@ -16,7 +16,11 @@ import {
   ResponseError,
   useTime
 } from "../../utils";
-import { getDomainRawBasketProducts, parseDomain } from "./utils";
+import {
+  getDomainRawBasketProducts,
+  isDomainProduct,
+  parseDomain
+} from "./utils";
 import {
   cloneDeep,
   defaultsDeep,
@@ -408,7 +412,8 @@ export default createMachine(
 
       refreshContext: assign(
         (_context: DomainContext, { data }: AnyEventObject) => {
-          const { id: basketId, brand_id: brandId, currency } = data ?? {};
+          if (isEmpty(data)) return {};
+          const { id: basketId, brand_id: brandId, currency } = data;
 
           const newContext = {
             basketId,
@@ -440,8 +445,14 @@ export default createMachine(
             raw: IBasketProduct,
             primaryDomain?: string
           ): DomainProduct | undefined => {
-            const isDomainProduct = has(raw, "provision_fields.sld");
-            if (!isDomainProduct) return undefined;
+            if (
+              !isDomainProduct({
+                serviceIdentifier: raw.service_identifier,
+                blueprintCode: raw?.product?.provision_blueprint?.code,
+                provisionFields: raw?.provision_fields
+              })
+            )
+              return undefined;
 
             const value = raw?.service_identifier;
             const parsed = value ? parseDomain(value) : undefined;
@@ -481,7 +492,11 @@ export default createMachine(
             domains,
             (result: DomainProduct[], raw: IBasketProduct) => {
               const parsed = parseBasketProduct(raw, primary?.domain);
-              if (parsed) result.push(parsed);
+
+              // NB ensure we have a valid domain and we dont already have it in the list
+              if (parsed && !some(result, ["domain", parsed.domain]))
+                result.push(parsed);
+
               return result;
             },
             []

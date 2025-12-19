@@ -34,7 +34,6 @@ import Layout from "../../../components/layout/Layout.vue";
 
 // --- utils
 import { isMobile } from "@upmind-automation/upmind-ui";
-import { useRoutingEngine } from "@upmind-automation/headless";
 
 // --- types
 import { HEADER_BACKGROUND } from "../../../components/header/types";
@@ -48,15 +47,15 @@ defineOptions({
   inheritAttrs: false
 });
 
-onMounted(async () => {
+useLayout({
+  variant: LAYOUT_VARIANTS.TWO_COLUMN_RTL
+});
+
+onMounted(() => {
   useHeader({
     background: HEADER_BACKGROUND.RTL,
     border: "none",
     items: "end"
-  });
-
-  useLayout({
-    variant: LAYOUT_VARIANTS.TWO_COLUMN_RTL
   });
 
   useFooter({

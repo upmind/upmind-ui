@@ -1,11 +1,11 @@
 <template>
-  <Link id="logo" :to="props.storefrontRoute">
+  <Link id="logo" class="flex" :to="props.storefrontRoute">
     <picture v-if="logo" class="h-full w-full">
       <slot name="logo" :logo="logo">
         <img
           v-if="logo"
           :src="logo"
-          class="h-9 w-auto max-w-32 md:max-w-64"
+          class="h-9 max-w-32 object-contain md:max-w-64"
           alt="logo"
         />
       </slot>
@@ -49,7 +49,9 @@ const layout = computed(() => {
   return route?.meta?.template;
 });
 
-const logo = computed(() => props.logo ?? image.value?.full_url);
+const logo = computed(
+  () => props.logo ?? `${image.value?.full_url}?size=400x400`
+);
 
 const styles = useStyles(["header"], { layout }, config) as ComputedRef<{
   header: {
