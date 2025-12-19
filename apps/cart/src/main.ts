@@ -70,7 +70,7 @@ Sentry.init({
     })
   ],
 
-  enabled: true, //import.meta.env.MODE === "production",
+  enabled: import.meta.env.PROD,
 
   // Set tracesSampleRate to 1.0 to capture 100%
   // of transactions for tracing.
