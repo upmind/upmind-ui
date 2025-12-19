@@ -99,7 +99,7 @@ import { useUrlSearchParams } from "@vueuse/core";
 // --- internal
 import {
   useClientReceivedEmails,
-  utils,
+  DEBOUNCE_DELAY,
   ReceivedEmailsSortableProperties,
   RequestSortDirection
 } from "@upmind-automation/headless";
@@ -115,7 +115,6 @@ import { debounce, isArray, isEmpty } from "lodash-es";
 // --- types
 // import type { ComputedRef } from "vue";
 import type { ReceivedEmailsSortProps, ReceivedEmailsProps } from "./types";
-const { DEBOUNCE_DELAY } = utils;
 
 // -----------------------------------------------------------------------------
 
@@ -196,11 +195,9 @@ watch(
   },
   { immediate: true }
 );
-
 watch(query, filters.query, { immediate: true });
 watch(sortBy, value => sort(value, direction.value), { immediate: true });
 watch(direction, value => sort(sortBy.value, value), { immediate: true });
-
 watch(
   () => pagination.value.page,
   newPage => {
