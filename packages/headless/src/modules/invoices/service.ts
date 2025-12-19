@@ -54,7 +54,7 @@ function loadInvoice({ invoiceId }: { invoiceId: Invoice["id"] }) {
     retry: 1,
     select: parseInvoice,
     staleTime: useTime()?.DAY,
-    enabled: () => meta.value.isAuthenticated && !!user.value?.id
+    enabled: () => meta.value.isAuthenticated && !!client.value?.id
   });
 }
 

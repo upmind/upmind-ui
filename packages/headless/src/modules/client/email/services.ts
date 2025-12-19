@@ -58,7 +58,7 @@ function loadList(params: Partial<QueryParams> = { pagination: { limit: 0 } }) {
     select: mapEmails,
     staleTime: useTime().DAY,
     retryDelay: DEBOUNCE_DELAY,
-    enabled: () => meta.value.isAuthenticated && !!user.value?.id
+    enabled: () => meta.value.isAuthenticated && !!client.value?.id
   });
 }
 
