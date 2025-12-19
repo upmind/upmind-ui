@@ -29,7 +29,7 @@
         {{ safePrice }}
 
         <template v-if="showTermLabel">
-          / {{ parseBillingCycle(props.cycle!).descriptive }}
+          / {{ parseBillingCycle(props.cycle!).suffix }}
         </template>
       </p>
     </dd>
