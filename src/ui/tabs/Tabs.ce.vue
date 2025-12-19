@@ -1,16 +1,26 @@
 <template>
-  <Tabs v-bind="forwarded" v-model="modelValue" :class="class">
-    <div :class="styles.tabs.root">
+  <component
+    :is="useTabs ? Tabs : 'div'"
+    v-bind="forwarded"
+    v-model="modelValue"
+    :class="class"
+  >
+    <header :class="styles.tabs.root">
       <div v-if="!isEmptySlot('prepend', slots)" :class="styles.tabs.prepend">
         <slot name="prepend" />
       </div>
 
-      <TabsList ref="tabsListRef" :class="styles.tabs.list">
+      <component
+        :is="useTabs ? TabsList : 'div'"
+        ref="tabsListRef"
+        :class="styles.tabs.list"
+      >
         <template v-if="useTabs">
-          <TabsTrigger
+          <component
+            :is="useTabs ? TabsTrigger : 'div'"
             v-for="(item, index) in tabs"
             :key="item.value"
-            :ref="el => setTriggerRef(el, index)"
+            :ref="(el: HTMLElement | null) => setTriggerRef(el, index)"
             :value="item.value"
             :class="[styles.tabs.trigger, 'cursor-pointer']"
           >
@@ -21,7 +31,7 @@
               :class="styles.tabs.icon"
             />
             <span>{{ item.label }}</span>
-          </TabsTrigger>
+          </component>
         </template>
         <template v-else>
           <div
@@ -35,7 +45,7 @@
               :class="styles.tabs.icon"
               size="2xs"
             />
-            <span>{{ first(tabs)?.label }}</span>
+            <h4>{{ first(tabs)?.label }}</h4>
           </div>
         </template>
 
@@ -44,15 +54,15 @@
           :class="styles.tabs.indicator"
           :style="indicatorStyle"
         />
-      </TabsList>
+      </component>
 
       <div v-if="!isEmptySlot('append', slots)" :class="styles.tabs.append">
         <slot name="append" />
       </div>
-    </div>
+    </header>
 
     <component
-      :is="useTabs ? TabsContent : 'div'"
+      :is="useTabs ? TabsContent : 'footer'"
       v-for="item in tabs"
       :key="item.value"
       :value="item.value"
@@ -61,7 +71,7 @@
     >
       <slot :name="`content.${item.value}`"></slot>
     </component>
-  </Tabs>
+  </component>
 </template>
 
 <script lang="ts" setup>
