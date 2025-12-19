@@ -79,7 +79,8 @@
     "prettier": "^3.6.2",
     "typescript": "^5.9.2",
     "vite": "^7.1.2",
-    "vue-tsc": "^3.0.5"
+    "vue-tsc": "^3.0.5",
+    "wrangler": "^4.56.0"
   },
   "dependencies": {
     "otpauth": "^9.4.0",
