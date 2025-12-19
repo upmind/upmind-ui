@@ -5,7 +5,7 @@
         v-for="(group, index) in groupedDetails"
         :key="'details-group-' + index"
         :id="id"
-        :category="first(group)?.category"
+        :category="getCategory(group)"
         :items="group"
       />
     </dl>
@@ -57,6 +57,16 @@ const styles = useStyles(
     };
   };
 }>;
+
+function getCategory(group: BasketProductConfigDetailsProps["details"]) {
+  const groupCategory = first(group)?.category;
+
+  if (groupCategory === props.summary.category) {
+    return "";
+  }
+
+  return groupCategory;
+}
 
 const groupedDetails = computed(
   (): Record<string, BasketProductConfigDetailsProps["details"]> => {

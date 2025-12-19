@@ -23,7 +23,7 @@ import {
   contextMatches,
   machineMatches,
   useContextActor,
-  Actor,
+  UseActor,
   ResponseError
 } from "../../utils";
 import {
@@ -196,11 +196,11 @@ export const useBasket = () => {
   // We can create reactive actors to the child machines,
   // so that when they are invoked we can listen to their state changes
   const actors: {
-    customFields: ComputedRef<Actor | undefined>;
-    paymentDetail: ComputedRef<Actor | undefined>;
-    billing: ComputedRef<Actor | undefined>;
-    currency: ComputedRef<Actor | undefined>;
-    promotions: ComputedRef<Actor | undefined>;
+    customFields: ComputedRef<UseActor | undefined>;
+    paymentDetail: ComputedRef<UseActor | undefined>;
+    billing: ComputedRef<UseActor | undefined>;
+    currency: ComputedRef<UseActor | undefined>;
+    promotions: ComputedRef<UseActor | undefined>;
   } = {
     customFields: useContextActor(state, "actors.customFields"),
     paymentDetail: useContextActor(state, "actors.paymentDetail"),

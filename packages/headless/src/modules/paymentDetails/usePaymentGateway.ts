@@ -14,7 +14,7 @@ import {
   useContext,
   DetailedError,
   responseCodes,
-  Actor,
+  UseActor,
   ErrorOrigin
 } from "../../utils";
 import { isNil, isEqual, every, isEmpty } from "lodash-es";
@@ -33,7 +33,7 @@ import { GatewayTypes } from "@upmind-automation/types";
  * @param actor - A computed ref to the payment gateway actor.
  * @returns An object containing the payment gateway state and methods.
  */
-export const usePaymentGateway = (actor: ComputedRef<Actor | undefined>) => {
+export const usePaymentGateway = (actor: ComputedRef<UseActor | undefined>) => {
   // --- state
   const { t } = useI18n();
   /**
@@ -41,14 +41,14 @@ export const usePaymentGateway = (actor: ComputedRef<Actor | undefined>) => {
    * @returns {Promise<boolean>} Resolves true if ready, false if error.
    */
   async function isReady(): Promise<boolean> {
-    return new Promise<Actor>(resolve => {
+    return new Promise<UseActor>(resolve => {
       const interval = setInterval(() => {
         if (!isNil(actor.value?.service)) {
           clearInterval(interval);
           resolve(actor.value);
         }
       }, 100);
-    }).then((actor: Actor) => {
+    }).then((actor: UseActor) => {
       return waitFor(
         actor.service,
         state => !stateMatches(state, ["loading"]),

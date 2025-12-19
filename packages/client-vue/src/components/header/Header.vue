@@ -134,12 +134,20 @@ const getBackground = computed(() => {
 });
 
 const leftBackground = computed(() => {
+  if (meta.value.background === HEADER_BACKGROUND.SURFACE) {
+    return COLUMN_BACKGROUND.SURFACE;
+  }
+
   return meta.value.background === HEADER_BACKGROUND.LTR
     ? COLUMN_BACKGROUND.SURFACE
     : COLUMN_BACKGROUND.CANVAS;
 });
 
 const rightBackground = computed(() => {
+  if (meta.value.background === HEADER_BACKGROUND.SURFACE) {
+    return COLUMN_BACKGROUND.SURFACE;
+  }
+
   return meta.value.background === HEADER_BACKGROUND.RTL
     ? COLUMN_BACKGROUND.SURFACE
     : COLUMN_BACKGROUND.CANVAS;

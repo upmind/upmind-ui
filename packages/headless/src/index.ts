@@ -5,7 +5,7 @@ export * from "xstate";
 
 // --- internal
 export * from "./modules";
-export * as utils from "./utils";
+export * from "./utils";
 export * from "./useUpmind";
 
 // -----------------------------------------------------------------------------

@@ -29,7 +29,7 @@ import { isString } from "xstate/lib/utils";
 
 type MachineLike =
   | MaybeRef<any>
-  | MaybeRef<Actor>
+  | MaybeRef<UseActor>
   | MaybeRef<ActorRef<any>>
   | MaybeRef<undefined>;
 
@@ -38,7 +38,7 @@ type StateLike =
   | MaybeRef<VueState>
   | MaybeRef<undefined>;
 
-export type Actor = {
+export type UseActor = {
   id: string | number | symbol;
   state: Ref<State<any>>;
   send: any;
@@ -229,7 +229,7 @@ export const childService = (
 export const childActor = (
   stateLike: StateLike,
   prop?: string | number
-): Actor | undefined => {
+): UseActor | undefined => {
   const service = stateValue<ActorRef<any>>(stateLike, `children.${prop}`);
 
   if (isNil(service)) return undefined;
@@ -240,7 +240,7 @@ export const childActor = (
 export const contextActor = (
   stateLike: StateLike,
   prop?: string | number
-): Actor | undefined => {
+): UseActor | undefined => {
   if (isEmpty(prop)) return undefined;
 
   const context = contextValue<ActorRef<any>>(stateLike, prop);
@@ -264,7 +264,7 @@ export const contextService = (
   return service;
 };
 
-export const createActor = (service: ActorRef<any>): Actor | undefined => {
+export const createActor = (service: ActorRef<any>): UseActor | undefined => {
   service = unref(service);
   if (!service || !service.id || !isFunction(service?.getSnapshot))
     return undefined;
@@ -275,7 +275,7 @@ export const createActor = (service: ActorRef<any>): Actor | undefined => {
     id: service.id,
     service,
     ...actor
-  } as Actor;
+  } as UseActor;
 };
 // --- context helpers
 
@@ -296,13 +296,13 @@ export const useContext = <T = unknown>(
 export const useChildActor = (
   stateLike: StateLike,
   prop?: string | number
-): ComputedRef<Actor | undefined> =>
+): ComputedRef<UseActor | undefined> =>
   computed(() => childActor(stateLike, prop));
 
 export const useContextActor = (
   stateLike: StateLike | MachineLike,
   prop?: string | number
-): ComputedRef<Actor | undefined> =>
+): ComputedRef<UseActor | undefined> =>
   computed(() => contextActor(stateLike, prop));
 
 export const useContextService = <T = unknown>(
