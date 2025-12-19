@@ -77,6 +77,7 @@
   "tax_pending": "Dit belastingnummer moet nog worden gevalideerd.",
   "tax_valid": "Gevalideerd {relative}",
   "term": "termijn",
+  "term_duration": "{duration} term",
   "terms_and_conditions": "Algemene voorwaarden",
   "terms_and_conditions_desc": "Door op 'te klikken {label}', ik ga akkoord met de {action} van {brand}.",
   "terms_of_service": "Servicevoorwaarden",

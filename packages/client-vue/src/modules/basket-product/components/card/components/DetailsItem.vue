@@ -1,7 +1,14 @@
 <template>
-  <div class="text-muted flex flex-wrap justify-between text-sm">
+  <div class="flex flex-wrap justify-between text-sm">
     <dt>
-      {{ category }}: {{ title }}
+      <template v-if="props.name === 'term'">
+        {{
+          t("text.term_duration", {
+            duration: parseBillingCycle(props.cycle!).numeric
+          })
+        }}
+      </template>
+      <template v-else>{{ title }}</template>
 
       <template v-if="quantity && quantity > 1">
         (x{{ quantity
@@ -11,26 +18,18 @@
       </template>
     </dt>
 
-    <dd v-if="hasPricing" class="flex items-center gap-x-1 text-base">
+    <dd v-if="hasPricing" class="flex items-center gap-x-1">
       <template v-if="props.name !== 'term'">
         <span v-if="showPlusIcon">
           <Icon icon="plus" size="3xs" />
         </span>
-        <!-- <span v-else-if="props.meta?.overrides">
-          <Tooltip
-            :label="t('text.option_overrides_price_desc')"
-            class="max-w-64 text-center"
-          >
-            <Icon size="3xs" icon="random" />
-          </Tooltip>
-        </span> -->
       </template>
 
       <p v-if="!props.meta?.free" class="whitespace-nowrap">
         {{ safePrice }}
 
         <template v-if="showTermLabel">
-          / {{ parseBillingCycle(props.cycle!).descriptive }}
+          / {{ parseBillingCycle(props.cycle!).suffix }}
         </template>
       </p>
     </dd>
