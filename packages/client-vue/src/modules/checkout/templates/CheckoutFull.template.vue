@@ -23,7 +23,6 @@ import { onMounted } from "vue";
 import { useLayout } from "../../../components/layout/useLayout";
 import { useFooter } from "../../../components/footer/useFooter";
 import { useHeader } from "../../../components/header/useHeader";
-import { useRoutingEngine } from "@upmind-automation/headless";
 
 // --- components
 import Layout from "../../../components/layout/Layout.vue";
@@ -36,12 +35,12 @@ defineOptions({
   inheritAttrs: false
 });
 
-onMounted(async () => {
-  useHeader({});
+useLayout({
+  variant: LAYOUT_VARIANTS.FULL
+});
 
-  useLayout({
-    variant: LAYOUT_VARIANTS.FULL
-  });
+onMounted(() => {
+  useHeader({});
 
   useFooter({});
 });

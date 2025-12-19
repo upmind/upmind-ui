@@ -24,7 +24,6 @@ import { useLayout } from "../../../components/layout/useLayout";
 import { useFooter } from "../../../components/footer/useFooter";
 import { useHeader } from "../../../components/header/useHeader";
 import { useSection } from "../../../components/section/useSection";
-import { useRoutingEngine } from "@upmind-automation/headless";
 
 // --- components
 import Layout from "../../../components/layout/Layout.vue";
@@ -37,15 +36,15 @@ defineOptions({
   inheritAttrs: false
 });
 
-onMounted(async () => {
+useLayout({
+  variant: LAYOUT_VARIANTS.SPLIT_VERTICAL
+});
+
+onMounted(() => {
   useHeader({
     background: HEADER_BACKGROUND.SURFACE,
     border: "none",
     items: "end"
-  });
-
-  useLayout({
-    variant: LAYOUT_VARIANTS.SPLIT_VERTICAL
   });
 
   useSection({

@@ -100,8 +100,8 @@
             <Pricing
               v-if="product && meta?.isAvailable"
               :product="product"
-              :template="props.template"
               :meta="meta"
+              :template="props.template"
               :total="
                 (template === PRODUCT_TEMPLATE.TWO_COLUMN_RTL && isMobile) ||
                 template === PRODUCT_TEMPLATE.TWO_COLUMN_LTR ||
@@ -129,22 +129,6 @@
         </slot>
       </template>
 
-      <template #terms>
-        <slot name="terms" />
-      </template>
-
-      <template #errors>
-        <ConfigErrors v-if="meta?.isAvailable" :meta="meta" />
-      </template>
-
-      <template #total>
-        <PricingTotal
-          v-if="product && meta?.isAvailable"
-          :pricing="product.pricing"
-          footer
-        />
-      </template>
-
       <template #actions>
         <slot
           name="actions"
@@ -164,6 +148,22 @@
           />
         </slot>
       </template>
+
+      <template #errors>
+        <ConfigErrors v-if="meta?.isAvailable" :meta="meta" />
+      </template>
+
+      <template #total>
+        <PricingTotal
+          v-if="product && meta?.isAvailable"
+          :pricing="product.pricing"
+          footer
+        />
+      </template>
+
+      <template #terms>
+        <slot name="terms" />
+      </template>
     </component>
   </Transitions>
 </template>
@@ -174,6 +174,7 @@ import {
   computed,
   defineAsyncComponent,
   onUnmounted,
+  provide,
   type ComputedRef
 } from "vue";
 import { useI18n } from "vue-i18n";
@@ -192,25 +193,21 @@ import { useFooter } from "../../components/footer/useFooter";
 import { useLayout } from "../../components/layout/useLayout";
 import { useBreadcrumbs } from "../../composables/useBreadcrumbs";
 
-// --- utils
-import { isMobile } from "@upmind-automation/upmind-ui";
-import { isEmpty } from "lodash-es";
-
 // --- components
 import { Breadcrumb } from "@upmind-automation/upmind-ui";
-import Section from "../../components/section/Section.vue";
+import ConfigErrors from "./components/ConfigErrors.vue";
+import ConfigSkeleton from "./components/ConfigSkeleton.vue";
 import Pricing from "./components/pricing-list/Pricing.vue";
 import PricingMarkdown from "./components/pricing-list/PricingMarkdown.vue";
 import PricingSkeleton from "./components/pricing-list/PricingSkeleton.vue";
+import PricingTotal from "./components/pricing-list/PricingTotal.vue";
 import ProductActions from "./components/ProductActions.vue";
-import ProductImage from "./components/hero/ProductImage.vue";
-import ConfigErrors from "./components/ConfigErrors.vue";
+import ProductConfig from "./components/config/Config.vue";
 import ProductHero from "./components/hero/ProductHero.vue";
 import ProductHeroSkeleton from "./components/hero/ProductHeroSkeleton.vue";
-import ConfigSkeleton from "./components/ConfigSkeleton.vue";
-import ProductConfig from "./components/config/Config.vue";
+import ProductImage from "./components/hero/ProductImage.vue";
 import ProductNotFound from "./NotFound.vue";
-import PricingTotal from "./components/pricing-list/PricingTotal.vue";
+import Section from "../../components/section/Section.vue";
 import Transitions from "../../components/layout/components/transition/Transition.vue";
 
 //  --- templates
@@ -229,7 +226,8 @@ const supportedTemplates = {
   )
 };
 // --- utils
-import { get, includes, take } from "lodash-es";
+import { get, includes, take, isEmpty } from "lodash-es";
+import { isMobile } from "@upmind-automation/upmind-ui";
 
 // --- types
 import { BreadcrumbVariant } from "@upmind-automation/headless";
@@ -254,16 +252,22 @@ const props = withDefaults(
 
 const { t } = useI18n();
 
-const { navigateBack, navigateNext, meta: routingMeta } = useRoutingEngine();
+const { navigateBack, navigateNext } = useRoutingEngine();
 
 const { configure, resolve, remove } = useBasketProductsPending();
 const { productId } = useQueryParams();
+
 const {
+  stop,
   update,
   service: pendingProduct,
   onDone,
   isReady
 } = await configure(productId);
+
+const productConfig = useProductConfig(pendingProduct);
+if (!productConfig) throw new Error("useProductConfig not provided");
+provide("useProductConfig", productConfig);
 
 const {
   meta,
@@ -273,7 +277,7 @@ const {
   updateQuantity,
   updateTerm,
   terms
-} = useProductConfig(pendingProduct);
+} = productConfig;
 
 await isReady();
 
