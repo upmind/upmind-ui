@@ -345,7 +345,7 @@ function mapLaravelRulesToJsonSchemaProperty(
     }
   }
 
-  if (field.semantic_type) {
+  if (field?.semantic_type) {
     schemaProperty.semantic_type = field.semantic_type;
   }
 
@@ -360,7 +360,8 @@ export function useLaravalSchemaParser(
   const requiredFields: JsonSchema7["required"] = [];
 
   forEach(fields, field => {
-    if (!field.deferrable || field.defer_mode != "hidden") {
+    if (isEmpty(field)) return;
+    if (!field?.deferrable || field?.defer_mode != "hidden") {
       const schema = {
         title: field.field_label,
         description: field.description,
@@ -445,7 +446,7 @@ export const useModelParser = <
    * @returns
    */
   function safeValue(field: JsonSchema, values: any, key: string): any {
-    if (field.type === "object" || field.properties) {
+    if (field?.type === "object" || field?.properties) {
       return reduce(
         field.properties,
         (result, subField, subKey) => {
@@ -458,7 +459,7 @@ export const useModelParser = <
     }
 
     // NB ensure we always cast booleans correctly, we dont want null or undefined for booleans
-    if (field.type === "boolean" || includes(field.type, "boolean")) {
+    if (field?.type === "boolean" || includes(field?.type, "boolean")) {
       return field?.const ?? get(values, key, field?.default) ?? false;
     }
     return field?.const ?? get(values, key, field?.default) ?? null;
