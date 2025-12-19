@@ -35,6 +35,6 @@
   "transfer_domain": "Domeni köçürün",
   "transfer_extension_info": "Köçürmələrə bir il uzadılması daxildir.",
   "transfer_owner_question": "Siz bu domenin sahibisiniz?",
-  "transfer_price_info": "Yalnız bizə köçürə bilərsiniz{currentPrice}",
+  "transfer_price_info": "Yalnız bizə köçürə bilərsiniz {currentPrice}",
   "transfer_promotion": "Yalnız köçürmə {currentPrice}, adətən {regularPrice}."
 }
