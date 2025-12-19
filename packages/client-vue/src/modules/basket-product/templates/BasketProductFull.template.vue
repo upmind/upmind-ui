@@ -49,12 +49,12 @@ defineOptions({
   inheritAttrs: false
 });
 
+useLayout({
+  variant: LAYOUT_VARIANTS.FULL
+});
+
 onMounted(() => {
   useHeader({});
-
-  useLayout({
-    variant: LAYOUT_VARIANTS.FULL
-  });
 
   useFooter({});
 });

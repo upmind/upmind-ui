@@ -12,8 +12,8 @@
             [QUERY_PARAMS.BILLING_CYCLE_MONTHS]: selectedTerm
           }
         }"
-        :disabled="processing"
-        @click="handleResolve"
+        :disabled="processing || disabled"
+        @click="doResolve"
         :tabindex="images.length === 1 ? '0' : '-1'"
         :ring="images.length === 1 ? 'focus' : 'focus-visible'"
         :class="styles.product.image.container"
@@ -39,7 +39,7 @@
           <ProductInfo
             v-bind="props"
             :selected-term="selectedTerm"
-            :handle-resolve="handleResolve"
+            @resolve="doResolve"
             :processing="processing"
             :navigate="navigate"
           />
@@ -79,14 +79,17 @@
                   }
                 : undefined
             "
-            icon="shopping-bag-02"
+            :disabled="processing || disabled"
+            :icon="meta?.added ? 'check-circle-broken' : 'shopping-bag-02'"
             :loading="processing"
             variant="solid"
             :color="color"
             size="lg"
             block
-            :label="t('action.add_to_basket')"
-            @click="handleResolve"
+            :label="
+              meta?.added ? t('confirm.in_basket') : t('action.add_to_basket')
+            "
+            @click="doResolve"
           />
         </footer>
       </section>
@@ -124,7 +127,8 @@ const props = withDefaults(defineProps<ProductCardProps>(), {
   variant: "default",
   buttonColor: "primary",
   buttonVariant: "solid",
-  navigate: true
+  navigate: true,
+  hideTerms: undefined
 });
 
 const emit = defineEmits<{
@@ -148,7 +152,7 @@ const configMeta = computed(() => ({
   hideCarousel: productMeta.value?.image?.carousel,
   hideDescription: productMeta.value?.card?.description?.hide,
   hidePrice: productMeta.value?.card?.price?.hide,
-  hideTerms: (productMeta.value?.card?.terms?.hide || props.hideTerms) ?? true,
+  hideTerms: productMeta.value?.card?.terms?.hide ?? props.hideTerms ?? true,
   isLoading: processing
 }));
 
@@ -190,7 +194,7 @@ const images = computed(() => {
 
 const processing = ref(false);
 
-function handleResolve() {
+function doResolve() {
   if (!props.id) return;
   processing.value = true;
   emit("resolve", props.id);

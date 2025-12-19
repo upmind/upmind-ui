@@ -4,4 +4,5 @@ export interface HeroProps {
   badge?: BadgeProps;
   title?: string;
   description?: string;
+  loading?: boolean;
 }

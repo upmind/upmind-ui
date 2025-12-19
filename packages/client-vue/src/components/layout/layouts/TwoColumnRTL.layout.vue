@@ -7,7 +7,7 @@
       :style="{ minHeight: `calc(100vh - 6rem - ${bottomOffset})` }"
     >
       <Container :flow="CONTAINER_FLOW.HORIZONTAL">
-        <Column class="flex-1">
+        <Column class="flex-1" :background="COLUMN_BACKGROUND.CANVAS">
           <div class="flex min-h-0 flex-1 flex-col">
             <Content :width="CONTENT_WIDTH.ASIDE" :gap="CONTENT_GAP.SM">
               <slot name="content-header" />

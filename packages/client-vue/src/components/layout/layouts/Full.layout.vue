@@ -49,6 +49,7 @@
             as="aside"
             :width="CONTENT_WIDTH.ASIDE"
             :sticky="CONTENT_STICKY.TOP"
+            :height="CONTENT_HEIGHT.FULL"
           >
             <slot name="aside" />
           </Content>
@@ -96,7 +97,8 @@ import {
   CONTENT_FLOW,
   CONTENT_JUSTIFY,
   CONTENT_STICKY,
-  CONTENT_GAP
+  CONTENT_GAP,
+  CONTENT_HEIGHT
 } from "../components/content";
 
 const props = defineProps<VariantProps>();

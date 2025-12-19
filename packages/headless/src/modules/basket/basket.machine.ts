@@ -435,7 +435,12 @@ export default createMachine(
        * that any changes are applied immediately, and then the refresh can
        * confirm/adjust as needed
        */
-      PREFRESH: [{ actions: ["updateBasket", "prefreshActors"] }],
+      PREFRESH: [
+        {
+          actions: ["updateBasket", "prefreshActors"],
+          cond: "hasNewBasket"
+        }
+      ],
 
       UNAUTHENTICATED: {
         target: "subscribing",

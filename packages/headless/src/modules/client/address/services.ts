@@ -20,7 +20,8 @@ import {
   responseCodes,
   useCollection,
   useModelParser,
-  NotAuthenticatedError
+  NotAuthenticatedError,
+  DEBOUNCE_DELAY
 } from "../../../utils";
 import { invalidateQueryByKey } from "../../query";
 import { mapAddress, mapAddresses, mapIAddress } from "./mappers";
@@ -39,27 +40,29 @@ const queryKey: QueryKey = ["client", "addresses"];
 const { addError, addSuccess } = useFeedback();
 
 function loadList(params: Partial<QueryParams> = { pagination: { limit: 0 } }) {
-  const { meta, client } = useSession();
+  const { meta, clientId } = useSession();
   const { list, useUrl } = useQuery();
 
   return list<IAddress[], Address[]>({
     ...(params as any),
-    queryKey: [...queryKey, { client: client.value?.id }],
-    url: useUrl(`clients/${client.value?.id}/addresses`, {
+    queryKey: [...queryKey, { client: clientId.value }],
+    url: useUrl(`clients/${clientId.value}/addresses`, {
       with: ["region", "country"].join()
     }),
-    withAccessToken: true,
     guard: async () =>
       new Promise((resolve, reject) => {
-        if (meta.value.isAuthenticated && !!client.value?.id) {
+        if (meta.value.isAuthenticated && !!clientId.value) {
           resolve(true);
         } else {
           reject(new NotAuthenticatedError());
         }
       }),
+    withAccessToken: true,
     // --- options
     select: mapAddresses,
-    staleTime: useTime().DAY
+    staleTime: useTime().DAY,
+    retryDelay: DEBOUNCE_DELAY,
+    enabled: () => !!(meta.value.isAuthenticated && !!clientId.value)
   });
 }
 
@@ -127,31 +130,31 @@ async function loadLookups({
 // MUTATIONS
 
 async function add(data: AddressModel) {
-  const { meta, client } = useSession();
+  const { meta, clientId } = useSession();
   const { post, useUrl } = useQuery();
 
-  if (!meta.value.isAuthenticated || !client.value?.id) {
+  if (!meta.value.isAuthenticated || !clientId.value) {
     return Promise.reject(new NotAuthenticatedError());
   }
   return post<IAddress>({
     mutationKey: ["client", "addresses", "add"],
-    url: useUrl(`clients/${client.value?.id}/addresses`),
+    url: useUrl(`clients/${clientId.value}/addresses`),
     data: mapIAddress(data),
     withAccessToken: true
   }).then(invalidateQueryByKey(queryKey, { exact: false }));
 }
 
 async function update(id: Address["id"], data: AddressModel) {
-  const { meta, client } = useSession();
+  const { meta, clientId } = useSession();
   const { put, useUrl } = useQuery();
 
-  if (!meta.value.isAuthenticated || !client.value?.id) {
+  if (!meta.value.isAuthenticated || !clientId.value) {
     return Promise.reject(new NotAuthenticatedError());
   }
 
   return put<IAddress>({
     mutationKey: ["client", "addresses", id],
-    url: useUrl(`clients/${client.value?.id}/addresses/${id}`),
+    url: useUrl(`clients/${clientId.value}/addresses/${id}`),
     data: mapIAddress(data),
     withAccessToken: true
   }).then(invalidateQueryByKey(queryKey, { exact: false }));
@@ -187,14 +190,14 @@ async function ensure(model: AddressModel): Promise<Address> {
 
 function remove(addressId: Address["id"]) {
   const { t } = useI18n();
-  const { meta, client } = useSession();
+  const { meta, clientId } = useSession();
   const { mutate, useUrl } = useQuery();
 
   return mutate<null>("DELETE", {
-    url: useUrl(`clients/${client.value?.id}/addresses/${addressId}`),
+    url: useUrl(`clients/${clientId.value}/addresses/${addressId}`),
     guard: async () =>
       new Promise((resolve, reject) => {
-        if (meta.value.isAuthenticated || !client.value?.id) {
+        if (meta.value.isAuthenticated || !clientId.value) {
           resolve(true);
         } else {
           reject(new NotAuthenticatedError());
@@ -219,14 +222,14 @@ function remove(addressId: Address["id"]) {
 
 function setDefault(addressId: Address["id"]) {
   const { t } = useI18n();
-  const { meta, client } = useSession();
+  const { meta, clientId } = useSession();
   const { mutate, useUrl } = useQuery();
 
   return mutate<IAddress>("PUT", {
-    url: useUrl(`clients/${client.value?.id}/addresses/${addressId}`),
+    url: useUrl(`clients/${clientId.value}/addresses/${addressId}`),
     guard: async () =>
       new Promise((resolve, reject) => {
-        if (meta.value.isAuthenticated || !client.value?.id) {
+        if (meta.value.isAuthenticated || !clientId.value) {
           resolve(true);
         } else {
           reject(new NotAuthenticatedError());

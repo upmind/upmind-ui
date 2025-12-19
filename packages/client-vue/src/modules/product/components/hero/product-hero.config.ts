@@ -26,7 +26,7 @@ export default {
         hasImage: false
       }
     }),
-    title: cva("font-display text-4xl text-balance break-all", {
+    title: cva("font-display break-word text-4xl text-balance", {
       variants: {
         direction: {
           horizontal: "md:text-5xl",

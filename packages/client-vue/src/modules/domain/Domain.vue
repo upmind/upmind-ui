@@ -1,5 +1,5 @@
 <template>
-  <component :is="templateVariant" v-model:open="open">
+  <component :is="templateVariant" v-model:open="open" @reset="doReset">
     <template #hero>
       <DomainHero
         v-model="queryValue"
@@ -13,7 +13,7 @@
 
     <template #domain-type v-if="meta.showChoices">
       <DomainType
-        :disabled="meta.isProcessing || processingBasket"
+        :disabled="disabled"
         :model-value="modelValue"
         :choices="choices"
         :owned="owned"
@@ -120,7 +120,7 @@ import DomainType from "./components/DomainType.vue";
 import { Button } from "@upmind-automation/upmind-ui";
 
 // --- utils
-import { utils } from "@upmind-automation/headless";
+import { DEBOUNCE_DELAY } from "@upmind-automation/headless";
 import { debounce } from "lodash-es";
 
 //  --- templates
@@ -155,8 +155,6 @@ const modelValue = defineModel<string>("modelValue");
 
 const { t } = useI18n();
 
-const { DEBOUNCE_DELAY } = utils;
-
 // -----------------------------------------------------------------------------
 
 const templateVariant = computed(() =>
@@ -172,6 +170,7 @@ const {
   // --- DAC
   available,
   added,
+  searchParams,
   search,
   searchMore,
   remove,
@@ -187,19 +186,15 @@ const {
   type,
   // ---
   choose,
-  complete,
   reset,
   select,
   stop,
+  stopDac,
   update
 } = useDomain(props.modelValue, {
   type: props.type as DomainTypes
 });
 
-await isReady().then(() => {
-  // NB ensure we sync initial value in case the composable modified it
-  modelValue.value = selected.value;
-});
 // ---------------------------------------------------------------------------
 
 const open = ref(false);
@@ -213,20 +208,10 @@ const debouncedSearch = debounce(
   DEBOUNCE_DELAY
 );
 
-watch(queryValue, value => {
-  if (!value) {
-    debouncedSearch.cancel();
-    reset();
-  } else {
-    debouncedSearch(value);
-  }
-});
-
 function doResolve() {
   open.value = false;
   processingBasket.value = true;
-
-  stop();
+  stopDac(); // force the reset after adding domain(s)
   emit("resolve", modelValue.value);
 }
 
@@ -241,7 +226,29 @@ function doReset() {
 
 // --- side effects
 
-await isReady();
+await isReady().then(() => {
+  // NB ensure we sync initial value in case the composable modified it
+  modelValue.value = selected.value;
+});
+
+watch(queryValue, value => {
+  if (!value) {
+    debouncedSearch.cancel();
+    reset();
+  } else {
+    debouncedSearch(value);
+  }
+});
+
+watch(
+  searchParams,
+  search => {
+    if (!search?.query) {
+      queryValue.value = "";
+    }
+  },
+  { immediate: true, deep: true }
+);
 
 watch(selected, value => (modelValue.value = value));
 

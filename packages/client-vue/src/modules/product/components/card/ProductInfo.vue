@@ -32,6 +32,7 @@
             }
           }"
           tabindex="-1"
+          @click="doResolve"
         >
           <h3 :class="styles.product.header.info.title">
             {{ productDetails?.title }}
@@ -82,6 +83,12 @@ import type { ProductInfo } from "./types";
 
 const props = defineProps<ProductInfo>();
 
+const emit = defineEmits<{
+  (e: "resolve", id: string): void;
+}>();
+
+// -----------------------------------------------------------------------------
+
 const { t } = useI18n();
 
 const metaConfig = computed(() => ({
@@ -106,4 +113,9 @@ const styles = useStyles(
     };
   };
 }>;
+
+function doResolve() {
+  if (!props.id) return;
+  emit("resolve", props.id);
+}
 </script>

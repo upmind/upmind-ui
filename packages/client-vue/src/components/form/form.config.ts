@@ -16,7 +16,7 @@ export default {
     ),
     payment: {
       root: cva(
-        "flex w-full flex-col justify-between gap-2 sm:flex-row sm:gap-4"
+        "flex w-full flex-col flex-wrap justify-between gap-2 sm:flex-row sm:gap-4"
       ),
       header: {
         root: cva("flex items-center gap-2"),

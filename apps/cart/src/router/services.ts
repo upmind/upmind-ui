@@ -12,16 +12,19 @@ import {
   useBasketFields,
   type AnyEventObject,
   type FunnelResponse,
-  useBasketProducts
+  useBasketProducts,
+  isDomainProduct,
+  useClientAddresses,
+  useClientCompanies,
+  useBasketBilling
 } from "@upmind-automation/client-vue";
 import {
   BrandConfigKeys,
   CheckoutFlows,
-  ProvisionCategoryCodes,
   SemanticTypes,
   UpmindModuleCodes
 } from "@upmind-automation/types";
-import { first, reduce } from "lodash-es";
+import { filter, first, reduce } from "lodash-es";
 import type { RouteLocationGeneric } from "vue-router";
 
 // -----------------------------------------------------------------------------
@@ -84,15 +87,20 @@ export default {
     { currentRoute, targetRoute }: FunnelContext,
     { data }: AnyEventObject
   ): Promise<FunnelResponse> => {
-    const { findProduct, configure, findProducts } = useBasketProducts();
+    const { findProduct, configure, products } = useBasketProducts();
 
     const route = targetRoute ?? currentRoute;
     const { productId } = useQueryParams(route as RouteLocationGeneric);
     const basketItem = findProduct({ productId }); // NB this will be the last one added!
-    const domains = findProducts(
-      { blueprintCode: ProvisionCategoryCodes.DOMAIN_NAMES },
-      "productDetails"
-    );
+
+    const domains = filter(products.value, product => {
+      return isDomainProduct({
+        blueprintCode: product.productDetails.blueprintCode,
+        serviceIdentifier: product.serviceIdentifier,
+        provisionFields: product.configuration.provisionFields
+      });
+    });
+
     const domain = data?.event?.domain ?? first(domains)?.serviceIdentifier;
 
     /** #1: We HAVE a BasketItem and HAVE been provided with a domain to assign */
@@ -161,12 +169,7 @@ export default {
     currentRoute,
     targetRoute
   }: FunnelContext): Promise<FunnelResponse> => {
-    const {
-      get: getPendingProduct,
-      addUpdate,
-      remove,
-      resolve
-    } = useBasketProductsPending();
+    const { get: getPendingProduct, resolve } = useBasketProductsPending();
     const route = targetRoute ?? currentRoute;
     const { productId, consumeParam } = useQueryParams(
       route as RouteLocationGeneric
@@ -339,8 +342,12 @@ export default {
   }: FunnelContext): Promise<FunnelResponse> => {
     const { meta, isReady } = useBasket();
     const { isReady: isFieldsReady, meta: fieldsMeta } = useBasketFields();
+    const { isReady: isBillingReady } = useBasketBilling();
     const { getConfigValue } = useBrand();
+
+    // first wait for the basket to be ready
     await isReady();
+
     // We always need to be authenticated to proceed to checkout
     if (meta.value.needsAuth) {
       return Promise.reject({ target: { name: ROUTE.SESSION } });
@@ -368,6 +375,12 @@ export default {
       }
     }
 
+    // if we are definitely going to checkout, ensure billing is ready!
+    // await Promise.allSettled([
+    //   isBillingReady(),
+    //   useClientAddresses().isReady(),
+    //   useClientCompanies().isReady()
+    // ]);
     return { target: targetRoute ?? { name: ROUTE.CHECKOUT } };
   }
 };

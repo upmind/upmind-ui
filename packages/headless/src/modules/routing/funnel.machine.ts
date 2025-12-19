@@ -59,11 +59,12 @@ export const useFunnelMachine = ({
               ...keys(states).map(state => {
                 return {
                   target: `available.${state}`,
-                  // actions: ["sendResolved", "setResolving"],
+                  actions: ["setResolving"],
                   cond: `is${pascalCase(state)}`
                 };
               }),
               // If we are not targeting a specific state, go to idle and assume we are resolved
+              { target: "available", cond: "noTarget" },
               { target: "available", actions: ["setResolved"] }
             ],
             onError: {
@@ -148,11 +149,6 @@ export const useFunnelMachine = ({
                 (isString(data?.target)
                   ? { name: data.target }
                   : data?.target) ?? targetRoute;
-              console.debug(
-                `is${pascalCase(state)}`,
-                target,
-                target?.name == state
-              );
               return target?.name == state;
             };
             return acc;
@@ -169,6 +165,17 @@ export const useFunnelMachine = ({
         ) => {
           const supportedTarget = includes(keys(states), currentRoute?.name);
           return !supportedTarget && !isEmpty(targetRoute);
+        },
+
+        noTarget: (
+          { targetRoute }: FunnelContext,
+          { data }: AnyEventObject
+        ) => {
+          const target =
+            (isString(data?.target) ? { name: data.target } : data?.target) ??
+            targetRoute;
+
+          return isEmpty(target);
         },
 
         isNext: ({ resolved }: FunnelContext, { data }: AnyEventObject) =>

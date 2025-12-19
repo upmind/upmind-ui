@@ -99,10 +99,10 @@ async function load(context: BasketContext, _event: AnyEventObject) {
         "products.product.products_options.prices",
         "products.product.provision_blueprint",
         "products.product.provision_field_values",
-        "products.tags",
-        "products.product.related",
-        "products.product.category",
+        // "products.tags",
+        // "products.product.related",
         // "status",
+        "products.product.category",
         `products.product.category${".top_category".repeat(4)}`
       ].join()
     }),
@@ -111,13 +111,13 @@ async function load(context: BasketContext, _event: AnyEventObject) {
     gcTime: 0, // force cache to be cleared immediately, to prevent stale data
     withAccessToken: true
     //revalidateIfStale: true,
-  })
-    .then(basket => {
-      // generate a new basket if we don't have one;
-      if (isEmpty(basket)) return generate(context, { type: "GENERATE" });
-      return basket;
-    })
-    .then((basket: IBasket) => getProvisioningFieldsValues(basket));
+  }).then((basket: IBasket) => getProvisioningFieldsValues(basket));
+}
+
+async function refresh(context: BasketContext, _event: AnyEventObject) {
+  return context.basket?.id
+    ? load(context, _event)
+    : Promise.resolve({ basket: context.basket });
 }
 
 async function dismissWarningNotes(
@@ -131,40 +131,6 @@ async function dismissWarningNotes(
     url: useUrl(`/orders/${basket?.id}/warnings/hide`),
     data: { ids: [data] },
     withAccessToken: true
-  });
-}
-
-// this generates an empty basket!
-async function generate({ actors }: BasketContext, _event: AnyEventObject) {
-  const { post, useUrl } = useQuery();
-  const { get: getTracking } = useTracking();
-
-  const data: Record<string, any> = {
-    category_slug: "new_contract"
-  };
-  // ---
-  // Conditional data
-  // add currency if available
-  const { validateCurrency } = useBrand();
-  const currencyModel = contextValue<CurrencyModel>(actors?.currency, "model");
-  const currency = currencyModel
-    ? await validateCurrency(currencyModel)
-    : undefined;
-
-  if (currency?.code) data.currency_code = currency.code;
-
-  // add tracking if available
-  await getTracking()
-    .then(values => (data.tracking = values))
-    .catch(() => null);
-
-  // ---
-
-  return post<IBasket>({
-    mutationKey: ["basket", "generate"],
-    url: useUrl("orders"),
-    withAccessToken: true,
-    data
   });
 }
 
@@ -301,7 +267,7 @@ async function getProvisioningFieldsValues(basket: IBasket) {
 export default {
   load,
   dismissWarningNotes,
-  refresh: load,
+  refresh,
   convert,
   isAuthenticated: () => useSession().isAuthenticated()
 };

@@ -12,6 +12,7 @@ export const CONTENT_ITEMS = parseVariants(variants.items);
 export const CONTENT_WIDTH = parseVariants(variants.width);
 export const CONTENT_STICKY = parseVariants(variants.sticky);
 export const CONTENT_PADDING = parseVariants(variants.padding);
+export const CONTENT_HEIGHT = parseVariants(variants.height);
 
 export type CONTENT_GAP = VariantValues<typeof CONTENT_GAP>;
 export type CONTENT_FLOW = VariantValues<typeof CONTENT_FLOW>;
@@ -20,6 +21,7 @@ export type CONTENT_ITEMS = VariantValues<typeof COLUMN_ITEMS>;
 export type CONTENT_WIDTH = VariantValues<typeof CONTENT_WIDTH>;
 export type CONTENT_STICKY = VariantValues<typeof CONTENT_STICKY>;
 export type CONTENT_PADDING = VariantValues<typeof CONTENT_PADDING>;
+export type CONTENT_HEIGHT = VariantValues<typeof CONTENT_HEIGHT>;
 
 export type ContentProps = {
   class?: string;
@@ -31,4 +33,5 @@ export type ContentProps = {
   width?: CONTENT_WIDTH;
   sticky?: CONTENT_STICKY;
   padding?: boolean;
+  height?: CONTENT_HEIGHT;
 };
