@@ -83,7 +83,7 @@ export const useBasketProductsPending = () => {
    * @returns A promise resolving to the {@link UseBasketProductPending} instance for the product.
    * @throws {DetailedError} If the provided model is empty or the product is unavailable.
    */
-  async function add(model: ProductProps): Promise<UseBasketProductPending> {
+  function add(model: ProductProps): UseBasketProductPending {
     if (isEmpty(model))
       throw new DetailedError(
         t("error.product_not_available"),
@@ -96,13 +96,11 @@ export const useBasketProductsPending = () => {
     // if we have an item with the exact same configuration, then we can skip adding it
     const productPending = find(productsPending, ["id", id]);
 
-    if (productPending) return Promise.resolve(productPending); // its allready added, so we can skip it
+    if (productPending) return productPending; // its allready added, so we can skip it
 
-    return isReady().then(async () => {
-      // then wait/check for the new product actor to be configured
-      // then send the update event to the basket
-      return useBasketProductPending(model);
-    });
+    const instance = useBasketProductPending(model);
+    set(productsPending, instance.id, instance);
+    return instance;
   }
 
   /**
@@ -147,59 +145,34 @@ export const useBasketProductsPending = () => {
     model: ProductProps,
     force: boolean = false
   ): Promise<UseBasketProductPending> {
+    // ensure we wait for the basket to be ready
+    await isReady();
+
     const product = find(
       productsPending,
       ({ model, meta }) =>
         model.value?.productId === pid && !meta.value?.isComplete
     );
     if (isEmpty(product) || force) {
-      return add(model)
-        .then(async instance => {
-          set(productsPending, instance.id, instance);
-          return waitFor(
-            instance.service,
-            state =>
-              stateMatches(state, ["available", "error", "complete", "done"]),
-            { timeout: Infinity }
-          ).then(state => {
-            if (stateMatches(state, ["error", "complete", "done"])) {
-              throw new DetailedError(
-                t("error.product_pending_add_failed"),
-                responseCodes.Unprocessable_Entity,
-                ErrorOrigin.Headless,
-                { state: state.value, errors: state.context.error }
-              );
-            }
-            return instance;
-          });
-        })
-        .catch(error => {
-          unsetProduct(pid);
+      const instance = add(model);
+      return waitFor(
+        instance.service,
+        state =>
+          stateMatches(state, ["available", "error", "complete", "done"]),
+        { timeout: Infinity }
+      ).then(state => {
+        if (stateMatches(state, ["error", "complete", "done"])) {
           throw new DetailedError(
-            t("error.product_pending_validation_failed"),
+            t("error.product_pending_add_failed"),
             responseCodes.Unprocessable_Entity,
             ErrorOrigin.Headless,
-            error
+            { state: state.value, errors: state.context.error }
           );
-        });
+        }
+        return instance;
+      });
     } else {
-      // if (!product.meta.value?.hasErrors) {
-      return Promise.resolve(product);
-      // } else {
-      //   const error = product.errors.value;
-      //   unsetProduct(pid);
-      //   return Promise.reject(
-      //     new DetailedError(
-      //       "Product already exists but has errors",
-      //       responseCodes.Unprocessable_Entity,
-      //       ErrorOrigin.Headless,
-      //       {
-      //         message: error,
-      //         code: responseCodes.Unprocessable_Entity,
-      //       }
-      //     )
-      //   );
-      // }
+      return product;
     }
   }
 
