@@ -1,5 +1,9 @@
 <template>
-  <component :is="templateVariant" v-model:open="open" @reset="doReset">
+  <component
+    :is="templateVariant"
+    v-model:open="open"
+    @reset="meta.isEmpty ? doReset() : doResolve()"
+  >
     <template #hero>
       <DomainHero
         v-model="queryValue"
