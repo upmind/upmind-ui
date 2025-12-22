@@ -143,14 +143,28 @@ export function spawnGateway({
 
     // SUPPORTED NON SDK "SIMPLE" GATEWAYS
     case GatewayProviderCodes.BANK_TRANSFER:
+    case GatewayProviderCodes.BIT_PAY:
+    case GatewayProviderCodes.BLOCKONOMICS:
+    case GatewayProviderCodes.COIN_GATE:
+    case GatewayProviderCodes.D_LOCAL:
     case GatewayProviderCodes.FLUTTERWAVE:
+    case GatewayProviderCodes.GO_CARDLESS:
     case GatewayProviderCodes.MICROPAYMENT:
+    case GatewayProviderCodes.MOMO_MTN_COLLECTIONS:
     case GatewayProviderCodes.OFFLINE:
+    case GatewayProviderCodes.OPENPAY_NON_CARD:
     case GatewayProviderCodes.PAYPAL_BILLING_AGREEMENT:
     case GatewayProviderCodes.PAYPAL_EXPRESS:
     case GatewayProviderCodes.PAYPAL_PRO:
+    case GatewayProviderCodes.PAYSAFECARD:
     case GatewayProviderCodes.PAYSTACK:
     case GatewayProviderCodes.PAYTM:
+    case GatewayProviderCodes.PAY_FAST:
+    case GatewayProviderCodes.PAY_U:
+    case GatewayProviderCodes.PESA_PAL:
+    case GatewayProviderCodes.RAZOR_PAY:
+    case GatewayProviderCodes.RAZOR_PAY:
+    case GatewayProviderCodes.WORLD_PAY_JSON:
       return spawn(
         gatewayMachine(gateway.gateway_provider.code).withContext({
           address,
@@ -167,32 +181,28 @@ export function spawnGateway({
         { name: gateway.id, sync: true }
       );
 
-    // DEPRECATED/UNSUPPORTED/UNKNOWN GATEWAYS
+    // UNSUPPORTED/UNKNOWN GATEWAYS
     default:
     case GatewayProviderCodes.ADYEN:
-    case GatewayProviderCodes.BIT_PAY:
-    case GatewayProviderCodes.BLOCKONOMICS:
-    case GatewayProviderCodes.COIN_GATE:
-    case GatewayProviderCodes.D_LOCAL:
-    case GatewayProviderCodes.FLUTTERWAVE_CARD:
-    case GatewayProviderCodes.GO_CARDLESS:
     case GatewayProviderCodes.MERCADO_PAGO:
     case GatewayProviderCodes.MERCADO_PAGO_OTHER_PAYMENTS:
-    case GatewayProviderCodes.MOMO_MTN_COLLECTIONS:
-    case GatewayProviderCodes.OPENPAY_NON_CARD:
-    case GatewayProviderCodes.PAYPAL_LEGACY_SUBSCRIPTION:
-    case GatewayProviderCodes.PAYPAL_SUBSCRIPTION_AGREEMENT:
-    case GatewayProviderCodes.PAYSAFECARD:
-    case GatewayProviderCodes.PAY_FAST:
-    case GatewayProviderCodes.PAY_U:
-    case GatewayProviderCodes.PESA_PAL:
-    case GatewayProviderCodes.RAZOR_PAY:
+
+    // --- DEPRECATED SDK GATEWAYS
     case GatewayProviderCodes.SAGE_PAY_DIRECT:
-    case GatewayProviderCodes.WORLD_PAY_JSON:
+    case GatewayProviderCodes.FLUTTERWAVE_CARD:
+    case GatewayProviderCodes.PAYPAL_LEGACY_SUBSCRIPTION:
+    case GatewayProviderCodes.PAYPAL_REST:
+    case GatewayProviderCodes.PAYPAL_SUBSCRIPTION_AGREEMENT:
       // --- Deprecation warnings
       if (
         includes(
-          [GatewayProviderCodes.PAYPAL_REST],
+          [
+            GatewayProviderCodes.SAGE_PAY_DIRECT,
+            GatewayProviderCodes.FLUTTERWAVE_CARD,
+            GatewayProviderCodes.PAYPAL_LEGACY_SUBSCRIPTION,
+            GatewayProviderCodes.PAYPAL_REST,
+            GatewayProviderCodes.PAYPAL_SUBSCRIPTION_AGREEMENT
+          ],
           gateway.gateway_provider?.code
         )
       ) {
