@@ -144,15 +144,6 @@ function mapGatewayData(data: GatewayData) {
   ]);
 }
 
-function mapGatewayMobileData(data: GatewayMobileData) {
-  return pick(data, [
-    "gateway_id",
-    "payer",
-    "store_on_payment",
-    "store_on_payment_auto_payment"
-  ]);
-}
-
 export function mapPaymentData({
   clientId,
   data,
@@ -199,6 +190,7 @@ export function mapPaymentData({
       case GatewayProviderCodes.BRAINTREE:
       case GatewayProviderCodes.COIN_GATE:
       case GatewayProviderCodes.FLUTTERWAVE:
+      case GatewayProviderCodes.MERCADO_PAGO:
       case GatewayProviderCodes.MICROPAYMENT:
       case GatewayProviderCodes.OPENPAY:
       case GatewayProviderCodes.PAYPAL_BILLING_AGREEMENT:
@@ -209,9 +201,8 @@ export function mapPaymentData({
       case GatewayProviderCodes.PAY_FAST:
       case GatewayProviderCodes.PAY_U:
       case GatewayProviderCodes.PESA_PAL:
-      case GatewayProviderCodes.RAZOR_PAY_CHECKOUT:
       case GatewayProviderCodes.RAZOR_PAY:
-      // case GatewayProviderCodes.SAGE_PAY_DIRECT:
+      case GatewayProviderCodes.RAZOR_PAY_CHECKOUT:
       case GatewayProviderCodes.STRIPE:
       case GatewayProviderCodes.WORLD_PAY_JSON:
         return defaults(
@@ -227,23 +218,21 @@ export function mapPaymentData({
         ) as PaymentDetailData;
 
       // TYPE 10: AWAITING CLIENT GATEWAYS
-      case GatewayProviderCodes.PAYTM:
       case GatewayProviderCodes.BIT_PAY:
       case GatewayProviderCodes.BLOCKONOMICS:
       case GatewayProviderCodes.COIN_GATE:
       case GatewayProviderCodes.D_LOCAL:
+      case GatewayProviderCodes.MERCADO_PAGO_OTHER_PAYMENTS:
       case GatewayProviderCodes.OPENPAY_NON_CARD:
+      case GatewayProviderCodes.PAYTM:
         return defaults(
           mapGatewayData(data),
           paymentDetail
         ) as PaymentDetailData;
 
-      // TYPE 6 : MOBILE GATEWAYS
-      case GatewayProviderCodes.MOMO_MTN_COLLECTIONS: //  REQUIRES CUSTOM IMPLEMENTATION
-        return defaults(
-          mapGatewayMobileData(data),
-          paymentDetail
-        ) as PaymentDetailData;
+      // TYPE 6 : MOBILE GATEWAYS - DEPRECATED
+      case GatewayProviderCodes.MOMO_MTN_COLLECTIONS:
+        return undefined;
 
       // TYPE 2 + TYPE 5: "MANUAL/OFFLINE" GATEWAYS THAT DONT REQUIRE A PAYMENT DETAIL
       case GatewayProviderCodes.OFFLINE:
@@ -253,8 +242,6 @@ export function mapPaymentData({
       // UNKNOWN + UNSUPPORTED GATEWAYS
       default:
       case GatewayProviderCodes.ADYEN: // SDK
-      case GatewayProviderCodes.MERCADO_PAGO: // SDK
-      case GatewayProviderCodes.MERCADO_PAGO_OTHER_PAYMENTS:
       case GatewayProviderCodes.SAGE_PAY_DIRECT:
         //  DO NOTHING, FALLBACK TO PAY LATER
         return undefined;

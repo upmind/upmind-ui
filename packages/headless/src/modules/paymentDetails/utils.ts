@@ -1,5 +1,5 @@
 // --- external
-import { AnyEventObject, spawn } from "xstate";
+import { spawn } from "xstate";
 
 // --- internal
 import gatewayMachine from "./gateways/gateway.machine";
@@ -9,6 +9,7 @@ import braintreeConfig from "./gateways/braintree";
 import openPayConfig from "./gateways/openPay";
 import stripeConfig from "./gateways/stripe";
 import razorpayConfig from "./gateways/razorpay";
+import mercadoPagoConfig from "./gateways/mercadoPago";
 
 // --- utils
 
@@ -28,6 +29,7 @@ import { OpenPayContext } from "./gateways/openPay/types";
 import { filter, get, includes, some, sortBy, unset } from "lodash-es";
 import { RazorpayContext } from "./gateways/razorpay/types";
 import { PaymentDetail, PaymentDetailsContext } from "./types";
+import { MercadoPagoContext } from "./gateways/mercadoPago/types";
 
 // -----------------------------------------------------------------------------
 
@@ -62,6 +64,25 @@ export function spawnGateway({
             supported: true
           })
           .withConfig(braintreeConfig),
+        {
+          name: gateway.id,
+          sync: true
+        }
+      );
+    case GatewayProviderCodes.MERCADO_PAGO:
+      return spawn(
+        gatewayMachine<MercadoPagoContext>(gateway.gateway_provider.code)
+          .withContext({
+            address,
+            amount,
+            clientId,
+            ctx: GatewayCtx.PAY,
+            currency,
+            gateway,
+            orderId,
+            supported: true
+          })
+          .withConfig(mercadoPagoConfig),
         {
           name: gateway.id,
           sync: true
@@ -142,6 +163,7 @@ export function spawnGateway({
       );
 
     // SUPPORTED NON SDK "SIMPLE" GATEWAYS
+    case GatewayProviderCodes.MERCADO_PAGO_OTHER_PAYMENTS:
     case GatewayProviderCodes.BANK_TRANSFER:
     case GatewayProviderCodes.BIT_PAY:
     case GatewayProviderCodes.BLOCKONOMICS:
@@ -150,7 +172,6 @@ export function spawnGateway({
     case GatewayProviderCodes.FLUTTERWAVE:
     case GatewayProviderCodes.GO_CARDLESS:
     case GatewayProviderCodes.MICROPAYMENT:
-    case GatewayProviderCodes.MOMO_MTN_COLLECTIONS:
     case GatewayProviderCodes.OFFLINE:
     case GatewayProviderCodes.OPENPAY_NON_CARD:
     case GatewayProviderCodes.PAYPAL_BILLING_AGREEMENT:
@@ -184,10 +205,9 @@ export function spawnGateway({
     // UNSUPPORTED/UNKNOWN GATEWAYS
     default:
     case GatewayProviderCodes.ADYEN:
-    case GatewayProviderCodes.MERCADO_PAGO:
-    case GatewayProviderCodes.MERCADO_PAGO_OTHER_PAYMENTS:
 
     // --- DEPRECATED SDK GATEWAYS
+    case GatewayProviderCodes.MOMO_MTN_COLLECTIONS:
     case GatewayProviderCodes.SAGE_PAY_DIRECT:
     case GatewayProviderCodes.FLUTTERWAVE_CARD:
     case GatewayProviderCodes.PAYPAL_LEGACY_SUBSCRIPTION:
@@ -197,6 +217,7 @@ export function spawnGateway({
       if (
         includes(
           [
+            GatewayProviderCodes.MOMO_MTN_COLLECTIONS,
             GatewayProviderCodes.SAGE_PAY_DIRECT,
             GatewayProviderCodes.FLUTTERWAVE_CARD,
             GatewayProviderCodes.PAYPAL_LEGACY_SUBSCRIPTION,
