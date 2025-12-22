@@ -78,7 +78,10 @@ const { meta: orderMeta, isReady } = useOrder(orderId);
 await isReady();
 
 const success = computed(
-  () => route.query.payment_success === "true" || orderMeta.value.isPaid
+  () =>
+    route.query.payment_success === "true" ||
+    orderMeta.value.isPaid ||
+    orderMeta.value.isFree
 );
 
 const transferBase =
