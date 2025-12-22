@@ -1265,12 +1265,9 @@ export const parseProductProps = (
   raw: IProduct,
   preferredCycle?: number // If we have chosen a term then we need to try use that term
 ): ProductModel => {
-  const { defaultPaymentPeriod } = useBrand();
-
-  const paymentPeriod = preferredCycle ?? defaultPaymentPeriod.value;
-
   const productDetails = parseProductDetails(raw);
   const terms = parseTermDetails(raw);
+  const paymentPeriod = preferredCycle ?? productDetails.defaultPaymentPeriod;
   const defaultTerm = calculateBillingTerm(
     paymentPeriod || raw.default_payment_period,
     terms
