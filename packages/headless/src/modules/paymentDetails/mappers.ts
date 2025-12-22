@@ -197,58 +197,65 @@ export function mapPaymentData({
     switch (brandGateway?.gateway?.gateway_provider?.code) {
       // Type 1: CARD (SDK/REDIRECT) GATEWAYS
       case GatewayProviderCodes.BRAINTREE:
+      case GatewayProviderCodes.COIN_GATE:
       case GatewayProviderCodes.FLUTTERWAVE:
       case GatewayProviderCodes.MICROPAYMENT:
       case GatewayProviderCodes.OPENPAY:
       case GatewayProviderCodes.PAYPAL_BILLING_AGREEMENT:
       case GatewayProviderCodes.PAYPAL_EXPRESS:
       case GatewayProviderCodes.PAYPAL_PRO:
+      case GatewayProviderCodes.PAYSAFECARD:
       case GatewayProviderCodes.PAYSTACK:
+      case GatewayProviderCodes.PAY_FAST:
+      case GatewayProviderCodes.PAY_U:
+      case GatewayProviderCodes.PESA_PAL:
       case GatewayProviderCodes.RAZOR_PAY_CHECKOUT:
+      case GatewayProviderCodes.RAZOR_PAY:
+      // case GatewayProviderCodes.SAGE_PAY_DIRECT:
       case GatewayProviderCodes.STRIPE:
+      case GatewayProviderCodes.WORLD_PAY_JSON:
         return defaults(
           mapGatewayData(data),
           paymentDetail
         ) as PaymentDetailData;
 
       // EXTERNAL STORE GATEWAYS
+      case GatewayProviderCodes.GO_CARDLESS: // REQUIRES CUSTOM IMPLEMENTATION LIKE SDK
+        return defaults(
+          mapGatewayData(data),
+          paymentDetail
+        ) as PaymentDetailData;
 
       // TYPE 10: AWAITING CLIENT GATEWAYS
       case GatewayProviderCodes.PAYTM:
-        // case GatewayProviderCodes.BIT_PAY:
-        // case GatewayProviderCodes.BLOCKONOMICS:
-        // case GatewayProviderCodes.COIN_GATE:
-        // case GatewayProviderCodes.D_LOCAL:
+      case GatewayProviderCodes.BIT_PAY:
+      case GatewayProviderCodes.BLOCKONOMICS:
+      case GatewayProviderCodes.COIN_GATE:
+      case GatewayProviderCodes.D_LOCAL:
+      case GatewayProviderCodes.OPENPAY_NON_CARD:
         return defaults(
           mapGatewayData(data),
           paymentDetail
         ) as PaymentDetailData;
 
       // TYPE 6 : MOBILE GATEWAYS
+      case GatewayProviderCodes.MOMO_MTN_COLLECTIONS: //  REQUIRES CUSTOM IMPLEMENTATION
+        return defaults(
+          mapGatewayMobileData(data),
+          paymentDetail
+        ) as PaymentDetailData;
 
       // TYPE 2 + TYPE 5: "MANUAL/OFFLINE" GATEWAYS THAT DONT REQUIRE A PAYMENT DETAIL
       case GatewayProviderCodes.OFFLINE:
       case GatewayProviderCodes.BANK_TRANSFER:
         return undefined;
 
-      // DEPRECATED OR UNSUPPORTED OR UNKNOWN GATEWAYS
+      // UNKNOWN + UNSUPPORTED GATEWAYS
       default:
       case GatewayProviderCodes.ADYEN: // SDK
-      case GatewayProviderCodes.BIT_PAY:
-      case GatewayProviderCodes.BLOCKONOMICS:
-      case GatewayProviderCodes.COIN_GATE:
-      case GatewayProviderCodes.D_LOCAL:
-      case GatewayProviderCodes.GO_CARDLESS: // EXTERNAL STORE - REQUIRES CUSTOM IMPLEMENTATION LIKE SDK
       case GatewayProviderCodes.MERCADO_PAGO: // SDK
       case GatewayProviderCodes.MERCADO_PAGO_OTHER_PAYMENTS:
-      case GatewayProviderCodes.MOMO_MTN_COLLECTIONS: // MOBILE - REQUIRES CUSTOM IMPLEMENTATION
-      case GatewayProviderCodes.OPENPAY_NON_CARD:
-      case GatewayProviderCodes.PAYSAFECARD:
-      case GatewayProviderCodes.PAY_FAST:
-      case GatewayProviderCodes.PAY_U:
-      case GatewayProviderCodes.PESA_PAL:
       case GatewayProviderCodes.SAGE_PAY_DIRECT:
-      case GatewayProviderCodes.WORLD_PAY_JSON:
         //  DO NOTHING, FALLBACK TO PAY LATER
         return undefined;
 
@@ -257,7 +264,6 @@ export function mapPaymentData({
       case GatewayProviderCodes.PAYPAL_LEGACY_SUBSCRIPTION:
       case GatewayProviderCodes.PAYPAL_REST:
       case GatewayProviderCodes.PAYPAL_SUBSCRIPTION_AGREEMENT:
-      case GatewayProviderCodes.RAZOR_PAY:
         //  DO NOTHING, FALLBACK TO PAY LATER
         return undefined;
     }
