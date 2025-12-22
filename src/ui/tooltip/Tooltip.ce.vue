@@ -2,7 +2,10 @@
   <!--<link rel="stylesheet" :href="stylesheet" />-->
   <TooltipProvider v-if="active" v-bind="forwarded">
     <Tooltip v-bind="forwarded">
-      <TooltipTrigger tabindex="-1" :class="styles.tooltip.trigger"
+      <TooltipTrigger
+        tabindex="-1"
+        :class="styles.tooltip.trigger"
+        :data-testid="`tooltip-${props.label ? 'trigger' : 'no-label'}`"
         ><slot
       /></TooltipTrigger>
       <TooltipContent
