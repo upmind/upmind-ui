@@ -31,6 +31,9 @@ export const useInvoice = (invoiceId: Invoice["id"]) => {
     isPaid:
       !isEmpty(query.data?.value?.payments) &&
       query.data?.value?.unpaid_amount === 0,
+    isFree:
+      isEmpty(query.data?.value?.payments) &&
+      query.data?.value?.unpaid_amount === 0,
     isEmpty: isEmpty(query.data?.value),
     hasError: !isEmpty(query?.error.value),
     isLoading: query?.isLoading.value || !query?.isFetched.value,

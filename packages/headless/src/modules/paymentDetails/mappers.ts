@@ -164,8 +164,10 @@ export function mapPaymentData({
   lookups: PaymentDetailsContext["lookups"];
   model: PaymentDetailModel;
 }): PaymentDetailData | undefined {
-  // First check if we are deferring payment, in which case we return undefined
-  if (model.type === PaymentType.PAY_LATER) return undefined;
+  // First check if we are deferring payment OR have nothin gto pay,
+  // in which case we return undefined
+  if (model.type === PaymentType.PAY_LATER || model.amount === 0)
+    return undefined;
 
   // Create the base payment detail object that ALL payment methods will use
   const paymentDetail: Partial<PaymentDetailData> = {
