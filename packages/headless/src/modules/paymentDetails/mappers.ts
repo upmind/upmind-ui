@@ -150,7 +150,7 @@ export function mapPaymentData({
   model,
   lookups
 }: {
-  clientId: PaymentDetailsContext["clientId"];
+  clientId: PaymentDetailsContext["client"]["id"];
   data?: SelectPaymentMethodData;
   lookups: PaymentDetailsContext["lookups"];
   model: PaymentDetailModel;

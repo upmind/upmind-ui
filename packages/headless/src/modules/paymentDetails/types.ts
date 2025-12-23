@@ -96,7 +96,7 @@ export type PaymentDetailModel = {
 // For when adding a new payment detail "Add" context
 export interface PaymentDetailsAddArgs {
   address: IAddress;
-  clientId: IClient["id"];
+  client: IClient;
 }
 
 /**
@@ -111,7 +111,7 @@ export interface PaymentDetailsArgs {
   /**
    * The unique identifier of the client managing their payment details.
    */
-  clientId: IClient["id"];
+  client: IClient;
   /**
    * The {@link ICurrency} object representing the currency of the payment.
    */
