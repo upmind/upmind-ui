@@ -137,6 +137,7 @@ async function loadLookups(
   // ---
 
   const clientId = user.value!.id;
+  const client = user.value;
   const currencyId = currency?.id || defaultCurrencyId.value; // fallback to default currency
 
   const config = ensureConfig([
@@ -256,6 +257,7 @@ async function loadLookups(
         accountCredit,
         storedPaymentMethods,
         gateways,
+        client,
         amountsFormatted: {
           amount: lookups?.amountsFormatted?.amount || "",
           wallet: lookups?.amountsFormatted?.wallet || ""
@@ -273,7 +275,7 @@ async function parse(context: PaymentDetailsContext, { data }: AnyEventObject) {
     model,
     schema,
     lookups,
-    clientId
+    client
   } = context;
   // ---
   let paymentDetail = undefined;
@@ -404,7 +406,7 @@ async function parse(context: PaymentDetailsContext, { data }: AnyEventObject) {
       unset(safeModel, "gateway_id");
       paymentDetail = mapPaymentData({
         model: safeModel,
-        clientId,
+        clientId: client?.id,
         lookups
       });
     }

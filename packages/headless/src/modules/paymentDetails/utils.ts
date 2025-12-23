@@ -46,7 +46,7 @@ export function spawnGateway({
   amount,
   currency,
   address,
-  clientId
+  client
 }: GatewayParams) {
   switch (gateway.gateway_provider?.code) {
     // SUPPORTED SDK GATEWAYS
@@ -56,7 +56,7 @@ export function spawnGateway({
           .withContext({
             address,
             amount,
-            clientId,
+            client,
             ctx: GatewayCtx.PAY,
             currency,
             gateway,
@@ -75,7 +75,7 @@ export function spawnGateway({
           .withContext({
             address,
             amount,
-            clientId,
+            client,
             ctx: GatewayCtx.PAY,
             currency,
             gateway,
@@ -94,7 +94,7 @@ export function spawnGateway({
           .withContext({
             address,
             amount,
-            clientId,
+            client,
             ctx: GatewayCtx.PAY,
             currency,
             gateway,
@@ -114,7 +114,7 @@ export function spawnGateway({
           gatewayMachine(gateway.gateway_provider.code).withContext({
             address,
             amount,
-            clientId,
+            client,
             ctx: GatewayCtx.PAY,
             currency,
             gateway,
@@ -132,7 +132,7 @@ export function spawnGateway({
           .withContext({
             address,
             amount,
-            clientId,
+            client,
             ctx: GatewayCtx.PAY,
             currency,
             gateway,
@@ -150,7 +150,7 @@ export function spawnGateway({
           .withContext({
             address,
             amount,
-            clientId,
+            client,
             ctx: GatewayCtx.PAY,
             currency,
             gateway,
@@ -190,7 +190,7 @@ export function spawnGateway({
         gatewayMachine(gateway.gateway_provider.code).withContext({
           address,
           amount,
-          clientId,
+          client,
           ctx: GatewayCtx.PAY,
           currency,
           gateway,
@@ -237,7 +237,7 @@ export function spawnGateway({
         gatewayMachine(gateway.gateway_provider.code).withContext({
           address,
           amount,
-          clientId,
+          client,
           ctx: GatewayCtx.PAY,
           currency,
           gateway,

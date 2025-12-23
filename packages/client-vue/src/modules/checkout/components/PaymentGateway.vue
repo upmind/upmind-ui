@@ -41,7 +41,12 @@
       />
 
       <!-- gateway Render Content (* IF Provided) -->
-      <div ref="container" class="w-full empty:hidden" key="render"></div>
+      <div
+        :id="`${gateway.id}_render_container`"
+        ref="container"
+        class="w-full empty:hidden"
+        key="render"
+      ></div>
 
       <!-- gateway Form (* IF Provided) -->
       <Form

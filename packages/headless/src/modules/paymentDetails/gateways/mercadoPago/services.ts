@@ -1,7 +1,7 @@
 // --- external
 
 // --- internal
-import { useI18n } from "../../..";
+import { useI18n, useLocale } from "../../..";
 import sharedServices from "../services";
 
 // --- utils
@@ -27,7 +27,8 @@ import { parseSettings } from "../utils";
 
 async function load(context: MercadoPagoContext, _event: AnyEventObject) {
   //  first get our default load config
-  const { gateway, currency } = context;
+  const { gateway } = context;
+  const { locale } = useLocale();
   const { t } = useI18n();
 
   if (!gateway)
@@ -45,49 +46,37 @@ async function load(context: MercadoPagoContext, _event: AnyEventObject) {
     // load in our MercadoPago scripts
     await Promise.all([
       useScripts().load(
-        "mercadoPago_v1",
-        "https://js.mercadopago.mx/mercadopago.v1.min.js",
-        {
-          onSuccess: () => {
-            return true;
-          },
-          onError: () => {
-            return false;
-          }
-        }
-      ),
-      useScripts().load(
-        "mercadoPagoData_v1",
-        "https://js.mercadopago.mx/mercadopago-data.v1.min.js",
-        {
-          onSuccess: () => {
-            return true;
-          },
-          onError: () => {
-            return false;
-          }
-        }
+        "mercadoPago_v2",
+        "https://sdk.mercadopago.com/js/v2",
+        {}
       )
     ]);
 
     // Get the MercadoPago instance from the window object
-    const mercadoPago = window["MercadoPago"];
+    const MercadoPago = window["MercadoPago"];
 
-    if (!mercadoPago)
+    if (!MercadoPago)
       throw new DetailedError(
         t("error.payment_gateway_not_available"),
         responseCodes.Not_Found,
         ErrorOrigin.Headless
       );
 
-    mercadoPago.setId(settings[MERCADOPAGO_FIELDS.MERCHANT_ID]);
-    mercadoPago.setApiKey(settings[MERCADOPAGO_FIELDS.PUBLIC_KEY]);
-    mercadoPago.setSandboxMode(settings[MERCADOPAGO_FIELDS.TEST_MODE] == 1);
+    const mercadoPago = new MercadoPago(
+      settings[MERCADOPAGO_FIELDS.PUBLIC_KEY],
+      {
+        locale: locale.value as mercadopagocore.Locale
+      }
+    );
+
     return { sdk: { mercadoPago }, ...config };
   });
 }
 
-async function render({ sdk }: MercadoPagoContext, { data }: AnyEventObject) {
+async function render(
+  { sdk, amount, client }: MercadoPagoContext,
+  { data }: AnyEventObject
+) {
   const { t } = useI18n();
 
   if (!sdk?.mercadoPago) {
@@ -99,63 +88,157 @@ async function render({ sdk }: MercadoPagoContext, { data }: AnyEventObject) {
     );
   }
 
+  const bricksBuilder = sdk.mercadoPago.bricks();
+
+  sdk.mercadoPagoController = await bricksBuilder.create(
+    "cardPayment",
+    data?.container.id,
+    {
+      initialization: {
+        amount,
+        payer: {
+          email: client.email,
+          firstName: client.firstname,
+          lastName: client.lastname,
+          customerId: client.id
+        }
+      },
+      customization: {
+        visual: {
+          hideFormTitle: true,
+          hidePaymentButton: true,
+          style: {
+            theme: "default",
+            customVariables: {
+              formPadding: "0rem",
+              formBackgroundColor: "transparent"
+            }
+          }
+        },
+        paymentMethods: {
+          creditCard: "all",
+          debitCard: "all",
+          maxInstallments: 1
+        }
+      },
+      callbacks: {
+        onReady: () => {
+          debugger;
+          // resolve();
+          return Promise.resolve();
+        },
+        onSubmit: () => {
+          debugger;
+          return Promise.resolve(); // Do nothing as we handle submit separately
+        },
+        onError: error => {
+          debugger;
+          reject(error);
+        },
+        onBinChange: (bin: string) => {
+          debugger;
+          // You can use the bin to display information to the user
+        }
+      }
+    }
+  );
+
+  const validationHelper = (callback: any, onReceiveEvent: any) => {
+    const cb = (event?: any) => {
+      callback({ type: "VALIDATE", data: { valid: !!event } });
+    };
+
+    // Instead of using `instance` event listeners, trigger the callback directly from the MercadoPago controller callbacks.
+    // You can call `callback` in the `onReady`, `onSubmit`, or other relevant controller callbacks above.
+    // For example, you might want to call the callback when the form is ready or when the BIN changes.
+    // Here, we just provide a no-op cleanup function since event listeners are not used.
+    return () => {};
+  };
+
+  // IIFE
+  // await new Promise<void>(() =>
+  //   (async (bricksBuilder: bricks.Bricks) => {
+  //     sdk.mercadoPagoController = await bricksBuilder.create(
+  //       "cardPayment",
+  //       data?.container.id,
+  //       {
+  //         initialization: {
+  //           amount,
+  //           payer: {
+  //             email: client.email,
+  //             firstName: client.firstname,
+  //             lastName: client.lastname,
+  //             customerId: client.id
+  //           }
+  //         },
+  //         customization: {
+  //           visual: {
+  //             hideFormTitle: true,
+  //             hidePaymentButton: true,
+  //             style: {
+  //               theme: "default",
+  //               customVariables: {
+  //                 formPadding: "0rem",
+  //                 formBackgroundColor: "transparent"
+  //               }
+  //             }
+  //           },
+  //           paymentMethods: {
+  //             creditCard: "all",
+  //             debitCard: "all",
+  //             maxInstallments: 1
+  //           }
+  //         },
+  //         callbacks: {
+  //           onReady: () => {
+  //             debugger;
+  //             // resolve();
+  //             return Promise.resolve();
+  //           },
+  //           onSubmit: () => {
+  //             debugger;
+  //             return Promise.resolve(); // Do nothing as we handle submit separately
+  //           },
+  //           onError: error => {
+  //             debugger;
+  //             reject(error);
+  //           },
+  //           onBinChange: (bin: string) => {
+  //             debugger;
+  //             // You can use the bin to display information to the user
+  //           }
+  //         }
+  //       }
+  //     );
+  //   })(bricksBuilder)
+  // );
+
   // we dont have an render functions for MercadoPago Card so just return the necessary data
-  return { sdk, container: null, validationHelper: null };
+  return {
+    sdk,
+    container: data?.container,
+    validationHelper
+  };
 }
 
 async function validate(context: MercadoPagoContext, _event: AnyEventObject) {
   const { t } = useI18n();
 
-  return sharedServices.parse(context, _event).then((model: any) => {
-    // additional parsing for MercadoPago
-    //  we need to check the expiry date is greater than the current date MM/YY, we dont need to check time
-    // our previous validation will have checked the format/requirements are correct
-    // and we will only get to this point if there are no other errors
-    if (!isNil(model?.mercadopago?.expiration_date)) {
-      let year =
-        model?.mercadopago.expiration_date.match(/^\d{2}\/(\d{2})$/)?.[1] || "";
-      // MercadoPago requires the month to be in 2 digit format, which we parse from the MM/YY format
-      const month =
-        model?.mercadopago.expiration_date.match(/^(\d{2})\/\d{2}$/)?.[1] || "";
-
-      const now = new Date();
-
-      // If the current year is in the last decade of the century (e.g., 1990-1999),
-      // and the provided 2-digit year is less than (current year - 20), we assume the card expiry is in the next century.
-      // This handles the common case where cards have a 2-digit expiry year and ensures that cards expiring
-      const currentFullYear = now.getFullYear();
-      const currentCentury = currentFullYear - (currentFullYear % 100);
-      const currentYearInCentury = currentFullYear % 100;
-      let fullYear = currentCentury + parseInt(year, 10);
-      if (currentYearInCentury >= 90 && fullYear < currentFullYear - 20) {
-        fullYear += 100;
-      }
-      year = fullYear.toString();
-
-      // set the date to the first of the month
-      // this means that if a card expires in the current month, it is still valid until the end of the month
-      const expiry = new Date(year, month, 1);
-
-      if (expiry <= now) {
+  return sharedServices.parse(context, _event).then(async (model: any) =>
+    context.sdk?.mercadoPagoController?.getFormData().then(cardFormData => {
+      debugger;
+      if (isNil(cardFormData)) {
+        debugger;
         throw new DetailedError(
           t("error.payment_gateway_validation_failed"),
           responseCodes.Unprocessable_Entity,
-          ErrorOrigin.Headless,
-          [
-            {
-              instancePath: "/mercadopago/expiration_date",
-              schemaPath: "/properties/mercadopago/properties/expiration_date",
-              keyword: "format",
-              params: {},
-              message: t("form.card_expiry.error")
-            }
-          ]
+          ErrorOrigin.Headless
         );
       }
-    }
-
-    return context.model;
-  });
+      debugger;
+      return model;
+    })
+  );
 }
 
 /**
@@ -165,51 +248,33 @@ async function validate(context: MercadoPagoContext, _event: AnyEventObject) {
  * payment). We do not need to pass a client secret for flow, as the
  * payment detail is attached to a customer and confirmed server-side.
  */
-async function pay({ gateway, sdk, model }: MercadoPagoContext) {
+async function pay({ gateway, sdk }: MercadoPagoContext) {
   const { t } = useI18n();
 
   if (!sdk?.mercadoPago)
-    return Promise.reject(
-      new DetailedError(
-        t("error.payment_gateway_not_available"),
-        responseCodes.Not_Found,
-        ErrorOrigin.Headless
-      )
+    throw new DetailedError(
+      t("error.payment_gateway_not_available"),
+      responseCodes.Not_Found,
+      ErrorOrigin.Headless
     );
 
-  return new Promise((resolve, reject) => {
-    const data = {
-      card_number: model?.mercadopago.card_number,
-      holder_name: model?.mercadopago.holder_name,
-      // MercadoPago requires the year to be in 2 digit format which we parse from the MM/YY format
-      expiration_year:
-        model?.mercadopago.expiration_date.match(/^\d{2}\/(\d{2})$/)?.[1] || "",
-      // MercadoPago requires the month to be in 2 digit format, which we parse from the MM/YY format
-      expiration_month:
-        model?.mercadopago.expiration_date.match(/^(\d{2})\/\d{2}$/)?.[1] || "",
-      cvv2: model?.mercadopago.cvv2
+  return sdk.mercadoPagoController?.getFormData().then(cardFormData => {
+    debugger;
+    if (!cardFormData)
+      throw new DetailedError(
+        t("error.payment_gateway_validation_failed"),
+        responseCodes.Not_Found,
+        ErrorOrigin.Headless
+      );
+
+    debugger;
+    return {
+      gateway_id: gateway?.id,
+      payment_method_addition: {
+        payment_method_id: cardFormData.payment_method_id,
+        token: cardFormData.token
+      }
     };
-    sdk.mercadoPago!.token.create(
-      data as Record<string, any>,
-      response =>
-        resolve({
-          ...omit(model, [
-            "mercadopago"
-          ]) /* we don't need to send the card details again */,
-          gateway_id: gateway?.id,
-          payment_method_addition: {
-            payment_method_id: response.data?.id
-          }
-        }),
-      response =>
-        reject(
-          new DetailedError(
-            response?.data?.description || response?.message,
-            response.status ?? responseCodes.Unprocessable_Entity,
-            ErrorOrigin.External
-          )
-        )
-    );
   });
 }
 
