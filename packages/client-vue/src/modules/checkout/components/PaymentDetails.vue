@@ -83,7 +83,7 @@
             meta.hasSelectedPaymentMethod
           "
           @resolve="checkout"
-          :disabled="!meta.isValid"
+          :disabled="!meta.isValid && !meta.isUnavailable"
           :offline="meta.isPayOffline"
           :processing="meta.isProcessing"
           :clickwrap="clickwrap"

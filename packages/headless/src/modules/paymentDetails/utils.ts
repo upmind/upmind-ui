@@ -310,9 +310,10 @@ export function filterPaymentTypes(
 
   if (get(config, BrandConfigKeys.PAY_LATER_ENABLED))
     paymentTypes["PAY_LATER"] = PaymentType.PAY_LATER; // Allowlist payment gateways if provided
-
   // If we are paying with account credit then we CANNOT use partial payments
+  debugger;
   if (model?.wallet_amount) {
+    debugger;
     unset(paymentTypes, "PAY_LATER");
   }
 

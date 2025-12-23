@@ -127,7 +127,6 @@ async function loadLookups(
   const paymentTypes: Record<string, PaymentType> = {
     ["PAY_IN_FULL"]: PaymentType.PAY_IN_FULL
   };
-
   if (!meta.value.isAuthenticated || !user.value?.id)
     throw new NotAuthenticatedError();
 
@@ -292,12 +291,18 @@ async function parse(context: PaymentDetailsContext, { data }: AnyEventObject) {
   // NB: We also need to ensure the wallet amount is not greater than the safe amount or the available wallet balance
   //  IF a user has set a wallet amount, we need to respect that up to the safe amount
   const safeWalletAmount = amountWallet
-    ? Math.min(
-        safeAmount,
-        amountWallet,
-        lookups.accountCredit?.total.value ?? 0
+    ? Math.max(
+        0,
+        Math.min(
+          safeAmount,
+          amountWallet,
+          lookups.accountCredit?.total.value ?? 0
+        )
       )
-    : Math.min(safeAmount, lookups.accountCredit?.total.value || 0);
+    : Math.max(
+        0,
+        Math.min(safeAmount, lookups.accountCredit?.total.value || 0)
+      );
 
   const safeModel = useModelParser<PaymentDetailModel>(
     schema,
@@ -338,10 +343,12 @@ async function parse(context: PaymentDetailsContext, { data }: AnyEventObject) {
     context.raw.storedPaymentMethods ?? [],
     lookups.gateways
   );
+  debugger;
   lookups.paymentTypes = filterPaymentTypes(
     context.raw.config ?? {},
     safeModel
   );
+  debugger;
 
   // ---
   // Ensure payment type is valid and allowed, default to PAY_IN_FULL if not

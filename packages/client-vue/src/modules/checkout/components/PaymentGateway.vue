@@ -1,17 +1,10 @@
 <template>
-  <Alert
-    v-if="meta.isUnavailable"
-    color="warning"
-    icon="alert-triangle"
-    variant="minimal"
-    :title="t('error.payment_gateway_not_available')"
-    class="text-error!"
-    :description="errors"
-  />
-
   <Loading
-    v-else
-    :active="!meta.isNotSupported && (!meta.isAvailable || meta.isLoading)"
+    :active="
+      !meta.isUnavailable &&
+      !meta.isNotSupported &&
+      (!meta.isAvailable || meta.isLoading)
+    "
     :class="styles.checkout.gateway.root"
   >
     <RadioCards
@@ -80,11 +73,11 @@
 
       <!-- Unsupported Message -->
       <Alert
-        v-if="meta.isNotSupported"
+        v-if="meta.isNotSupported || meta.isUnavailable"
         icon="info-circle"
         variant="minimal"
         :title="t('error.payment_gateway_not_supported_title')"
-        :description="t('error.payment_gateway_not_supported_msg')"
+        :description="errors ?? t('error.payment_gateway_not_supported_msg')"
         class="text-error!"
       />
     </div>
@@ -108,12 +101,7 @@ import config from "../checkout.config";
 import { useStyles, Loading } from "@upmind-automation/upmind-ui";
 
 // --- components
-import {
-  Alert,
-  Markdown,
-  Button,
-  RadioCards
-} from "@upmind-automation/upmind-ui";
+import { Alert, Markdown, RadioCards } from "@upmind-automation/upmind-ui";
 import Form from "../../../components/form/Form.vue";
 
 // --- types
