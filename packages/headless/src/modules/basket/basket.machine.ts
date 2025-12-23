@@ -271,22 +271,7 @@ export default createMachine(
               available: {
                 always: [
                   { target: "configuring", cond: "paymentDetailConfiguring" }
-                ],
-                // ---
-                // NB: Checkout is a chained sequence of events, that can only start once ALL the shopping details are complete
-                // We must wait for the event to be triggered before we can proceed, othwerwise we may trigger checkout prematurely
-                on: {
-                  CHECKOUT: [
-                    {
-                      target: "processing",
-                      actions: "forwardCheckout",
-                      cond: "canCheckout"
-                    },
-                    {
-                      actions: "incrementAttempts"
-                    }
-                  ]
-                }
+                ]
               },
 
               processing: {
@@ -309,6 +294,21 @@ export default createMachine(
                 ],
                 type: "final"
               }
+            },
+            // ---
+            // NB: Checkout is a chained sequence of events, that can only start once ALL the shopping details are complete
+            // We must wait for the event to be triggered before we can proceed, othwerwise we may trigger checkout prematurely
+            on: {
+              CHECKOUT: [
+                {
+                  target: ".processing",
+                  actions: "forwardCheckout",
+                  cond: "canCheckout"
+                },
+                {
+                  actions: "incrementAttempts"
+                }
+              ]
             }
           }
 
@@ -715,20 +715,39 @@ export default createMachine(
       billingConfiguring: ({ actors }: BasketContext) =>
         !actors?.billing || !stateMatches(actors.billing, ["complete", "done"]),
 
-      paymentDetailValid: ({ actors }: BasketContext) =>
-        stateMatches(actors?.paymentDetail, ["available.valid"]),
+      paymentDetailValid: ({ actors }: BasketContext) => {
+        const valid = stateMatches(actors?.paymentDetail?.getSnapshot(), [
+          "available.valid",
+          "unavailable",
+          "done",
+          "complete"
+        ]);
+        console.debug(
+          "paymentDetailValid?",
+          valid,
+          actors?.paymentDetail?.getSnapshot().toStrings()
+        );
+        return valid;
+      },
+
+      paymentDetailConfiguring: ({ actors, paymentDetail }: BasketContext) => {
+        const valid = stateMatches(actors?.paymentDetail, [
+          "available.invalid",
+          "available.checking",
+          "available.loading"
+        ]);
+        console.debug(
+          "paymentDetailConfiguring?",
+          valid,
+          actors?.paymentDetail?.getSnapshot().toStrings()
+        );
+        return valid;
+      },
 
       paymentDetailComplete: (
         { actors }: BasketContext,
         _event: AnyEventObject
       ) => stateMatches(actors?.paymentDetail, ["complete", "done"]),
-
-      paymentDetailConfiguring: ({ actors, paymentDetail }: BasketContext) =>
-        stateMatches(actors?.paymentDetail, [
-          "available.invalid",
-          "available.checking",
-          "available.loading"
-        ]),
 
       canCheckout: ({ actors, products }: BasketContext) => {
         const hasBilling =
@@ -741,6 +760,12 @@ export default createMachine(
         ]);
 
         const hasProducts = !isEmpty(products);
+
+        console.debug("canCheckout?", hasBilling && hasFields && hasProducts, {
+          hasBilling,
+          hasFields,
+          hasProducts
+        });
 
         return hasBilling && hasFields && hasProducts;
       },
