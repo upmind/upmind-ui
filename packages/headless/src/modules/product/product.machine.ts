@@ -72,9 +72,9 @@ export default createMachine(
                 {
                   target: "model",
                   actions: [
+                    "initModel",
                     "setLookups",
                     "setProduct",
-                    "setModel",
                     "persistModel"
                   ]
                 }
@@ -473,6 +473,10 @@ export default createMachine(
 
       persistModel: assign({
         baseModel: ({ model }: ProductConfigContext, _event) => cloneDeep(model)
+      }),
+
+      initModel: assign({
+        model: (_context, { data }: AnyEventObject) => parseModel(data.model)
       }),
 
       setModel: assign({
