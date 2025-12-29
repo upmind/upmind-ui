@@ -37,11 +37,11 @@
     :style="meta.isEmpty ? fallbackStyle : ''"
   >
     <!-- Single image with fallback -->
-    <picture v-if="!meta.isEmpty">
+    <picture v-if="!meta.isEmpty" class="block h-full w-full">
       <img
         :key="isString(currentImage) ? currentImage : currentImage?.url"
         :src="isString(currentImage) ? currentImage : currentImage?.url"
-        :alt="isString(currentImage) ? '' : currentImage?.alt"
+        :alt="isString(currentImage) ? props.alt : currentImage?.alt"
         :class="cn(styles.image.root)"
         @error="error = true"
       />
@@ -75,7 +75,7 @@ import type { ImageProps } from "./types";
 import type { CarouselApi } from "../carousel";
 
 const props = withDefaults(defineProps<ImageProps>(), {
-  ratio: "1:1",
+  ratio: "3:2",
   fit: "cover",
   carousel: true,
   icon: "camera-01"

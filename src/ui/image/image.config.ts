@@ -29,10 +29,10 @@ export const rootVariant = cva("h-full w-full", {
 export const containerVariant = cva(`image-radius h-full overflow-hidden`, {
   variants: {
     ratio: {
-      default: "",
+      auto: "",
       "1:1": "aspect-square",
-      "4:3": "aspect-4/3",
       "3:2": "aspect-3/2",
+      "4:3": "aspect-4/3",
       "16:9": "aspect-video",
       "18:6": "aspect-18/6"
     },

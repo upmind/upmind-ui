@@ -1,6 +1,6 @@
 import type { VariantProps } from "class-variance-authority";
 import type { rootVariant, containerVariant } from "./image.config";
-import type { HTMLAttributes } from "vue";
+import type { ImgHTMLAttributes } from "vue";
 import type { IconProps } from "../icon";
 
 export type RootVariants = VariantProps<typeof rootVariant>;
@@ -12,8 +12,9 @@ export interface ImageProps {
   ratio?: ImageVariants["ratio"];
   fit?: RootVariants["fit"];
   icon?: IconProps["icon"];
+  alt?: ImgHTMLAttributes["alt"];
   // ---
-  class?: HTMLAttributes["class"];
+  class?: ImgHTMLAttributes["class"];
 }
 
 export interface ImageItem {
