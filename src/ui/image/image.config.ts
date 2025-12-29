@@ -1,7 +1,7 @@
 import { cva } from "class-variance-authority";
 import { ringClasses } from "../../assets/styles";
 // -----------------------------------------------------------------------------
-export const rootVariant = cva("h-full w-full", {
+export const rootVariant = cva("min-h-full w-full", {
   variants: {
     position: {
       first: "image-radius rounded-l-none",
