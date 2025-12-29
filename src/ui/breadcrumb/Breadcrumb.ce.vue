@@ -75,7 +75,7 @@ const displayItems = computed<BreadcrumbItemType[]>(() => {
     return [];
   }
 
-  if (props.variant === "last") {
+  if (props.variant === "parent") {
     return [items[items.length - 1]];
   }
 
