@@ -82,7 +82,7 @@ const productItems = computed((): DescriptionItem[] => {
     const productItems =
       map(summary.value!.products, (product: any) => ({
         term: product?.productDetails?.title || "",
-        description: product?.price?.currentPrice || ""
+        description: product?.price?.basePrice || ""
       })) ?? [];
 
     items = concat(productItems, items);

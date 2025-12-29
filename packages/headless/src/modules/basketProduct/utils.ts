@@ -261,6 +261,9 @@ export function parsPrice(raw: IBasketProduct): PriceDetail {
     savingAmount,
     savingPrice,
     savingPercent,
+    // Base prices (always excluding tax, e.g for summary displays)
+    baseAmount: raw.configuration_net_amount_converted,
+    basePrice: raw.configuration_net_amount_formatted,
     unit,
     configuration
   } as PriceDetail;
