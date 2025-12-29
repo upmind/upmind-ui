@@ -24,7 +24,7 @@ import {
 // -- types
 import { type InterstitialProps } from "@upmind-automation/upmind-ui";
 import { computed } from "vue";
-import { isNil } from "lodash-es";
+import { isNil, has } from "lodash-es";
 import { responseCodes } from "@upmind-automation/headless";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
 const { t } = useI18n();
@@ -33,7 +33,10 @@ const props = withDefaults(
   defineProps<
     {
       status?: number;
-      storefrontRoute?: RouteLocationAsRelativeGeneric;
+      storefrontRoute?:
+        | RouteLocationAsRelativeGeneric
+        | { href: string }
+        | null;
     } & InterstitialProps
   >(),
   {
@@ -156,7 +159,13 @@ const actions = computed((): InterstitialActionProps[] => {
     // for all other errors, we want to redirect back to the storefront
     default:
       defaultAction = {
-        to: props.storefrontRoute,
+        ...(has(props.storefrontRoute, "href")
+          ? { href: (props.storefrontRoute as { href: string }).href }
+          : {
+              to: props.storefrontRoute as
+                | RouteLocationAsRelativeGeneric
+                | undefined
+            }),
         handler: () => emit("dismiss"),
         variant: "solid",
         color: "primary",
