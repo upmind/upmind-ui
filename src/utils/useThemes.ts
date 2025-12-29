@@ -53,8 +53,11 @@ const themes = ref<Theme[]>([]);
 
 export const useThemes = (value?: Theme | Theme[], defaultTheme?: string) => {
   // safety checks
+  const hasThemes = value !== undefined;
 
-  themes.value = compact(isArray(value) ? value : [value]) || [];
+  if (hasThemes) {
+    themes.value = compact(isArray(value) ? value : [value]) || [];
+  }
 
   defaultTheme ??= first(themes.value)?.id || "default";
 
@@ -76,10 +79,13 @@ export const useThemes = (value?: Theme | Theme[], defaultTheme?: string) => {
       )
   );
 
-  setTheme(defaultTheme);
+  if (hasThemes) {
+    setTheme(defaultTheme);
+  }
 
-  function setTheme(theme: string) {
-    if (theme == activeTheme.value && !isEmpty(config.value)) return;
+  function setTheme(theme: string | undefined) {
+    if ((theme == activeTheme.value && !isEmpty(config.value)) || !theme)
+      return;
 
     activeTheme.value = theme || activeTheme.value || defaultTheme || "default";
     if (themes.value) {
