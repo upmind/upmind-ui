@@ -6,14 +6,14 @@
     :class="cn(styles.image.container, props.class)"
   >
     <CarouselContent :class="styles.image.carousel.content" class="ml-0 h-full">
-      <template v-for="(data, index) in (image as ImageItem[])">
+      <template v-for="(data, index) in image as ImageItem[]">
         <CarouselImage :image="data" :index="index" :total="meta.imageLength" />
       </template>
     </CarouselContent>
 
     <nav :class="styles.image.nav.root" @click.prevent.stop>
       <span
-        v-for="(img, index) in (image as ImageItem[])"
+        v-for="(img, index) in image as ImageItem[]"
         :key="index"
         :class="styles.image.nav.item"
       >
