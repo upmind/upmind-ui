@@ -75,7 +75,7 @@ import type { ImageProps } from "./types";
 import type { CarouselApi } from "../carousel";
 
 const props = withDefaults(defineProps<ImageProps>(), {
-  ratio: "3:2",
+  ratio: "1:1",
   fit: "cover",
   carousel: true,
   icon: "camera-01"
