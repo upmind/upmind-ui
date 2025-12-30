@@ -37,7 +37,7 @@
     :style="meta.isEmpty ? fallbackStyle : ''"
   >
     <!-- Single image with fallback -->
-    <picture v-if="!meta.isEmpty">
+    <picture v-if="!meta.isEmpty" class="contents w-full">
       <img
         :key="isString(currentImage) ? currentImage : currentImage?.url"
         :src="isString(currentImage) ? currentImage : currentImage?.url"
