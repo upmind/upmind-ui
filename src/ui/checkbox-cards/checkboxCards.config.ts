@@ -49,7 +49,10 @@ export default {
     item: cva(
       `text-control-foreground group group flex items-start gap-2 rounded-none py-4 pr-4 pl-3 font-normal transition-all duration-200`,
       {
-        variants: variants
+        variants: variants,
+        defaultVariants: {
+          width: 12
+        }
       }
     ),
     label: checkboxLabelVariants,

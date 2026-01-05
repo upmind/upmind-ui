@@ -54,7 +54,7 @@ export interface CheckboxCardsProps extends ToggleGroupRootProps {
   /** Display the checkbox cards as a list */
   list?: boolean;
   /** The width of the checkbox cards items */
-  width?: CheckboxCardsItemVariants["width"];
+  width?: number;
   // ---
   uiConfig?: { tooltip: CxOptions };
   /** Apply additional classes to the container */
