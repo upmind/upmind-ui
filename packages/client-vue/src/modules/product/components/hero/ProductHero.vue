@@ -30,6 +30,7 @@
       :style="{ '--details-h': `${height}px` }"
     >
       <ProductImage
+        :class="styles.header.image"
         :product-details="props.productDetails"
         :images="props.productDetails?.images"
       />
@@ -78,6 +79,7 @@ const styles = useStyles(["header"], stylesMeta, config) as ComputedRef<{
     description: string;
     price: string;
     aside: string;
+    image: string;
   };
 }>;
 const images = computed(() => {
