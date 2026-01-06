@@ -1,6 +1,5 @@
 // ---  external
 import { cva } from "class-variance-authority";
-import { outlineReset } from "../../assets/styles";
 // -----------------------------------------------------------------------------
 
 export const variants = {
