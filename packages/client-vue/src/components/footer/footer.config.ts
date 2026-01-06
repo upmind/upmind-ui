@@ -11,10 +11,30 @@ export default {
   footer: {
     stacked: {
       root: cva("bg-surface"),
+      column: cva("", {
+        variants: {
+          isMinimal: {
+            true: "py-2 lg:py-2"
+          }
+        },
+        defaultVariants: {
+          isMinimal: false
+        }
+      }),
       content: cva("divide-border-surface flex w-full flex-col divide-y"),
       top: cva("flex w-full justify-center gap-2 pb-6 md:justify-end"),
       bottom: cva(
-        "flex w-full flex-col items-center justify-between gap-2 pt-6 text-center md:flex-row md:gap-0 md:text-left"
+        "flex w-full flex-col items-center justify-between gap-2 text-center md:flex-row md:gap-0 md:text-left",
+        {
+          variants: {
+            isMinimal: {
+              false: "pt-6"
+            }
+          },
+          defaultVariants: {
+            isMinimal: false
+          }
+        }
       )
     },
     flat: {
