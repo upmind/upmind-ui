@@ -258,7 +258,10 @@ watch(selected, value => (modelValue.value = value));
 
 watch(meta, ({ isSearching, showSearchResults, showDac }) => {
   const shouldOpen = showDac && (showSearchResults || isSearching);
-  if (shouldOpen) open.value = true;
+  if (shouldOpen) {
+    open.value = true;
+    processingBasket.value = false;
+  }
 });
 
 // Stores the previous result count for smooth skeleton loading
