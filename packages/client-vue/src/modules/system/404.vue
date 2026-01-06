@@ -31,6 +31,7 @@ import { computed } from "vue";
 import { has } from "lodash-es";
 
 // --- internal
+import { useBrand } from "@upmind-automation/headless";
 
 // -- components
 import {
@@ -63,22 +64,27 @@ const props = withDefaults(
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
+const { storefrontRoute: brandStorefrontRoute } = useBrand();
 
-const actions = computed((): InterstitialActionProps[] => [
-  {
-    ...(has(props.storefrontRoute, "href")
-      ? { href: (props.storefrontRoute as { href: string }).href }
-      : {
-          to: props.storefrontRoute as
-            | RouteLocationAsRelativeGeneric
-            | undefined
-        }),
+const actions = computed((): InterstitialActionProps[] => {
+  const route = brandStorefrontRoute.value || props.storefrontRoute;
+  const hasHref = has(route, "href");
+
+  const action: any = {
     variant: "solid",
     color: "primary",
     icon: "arrow-left",
     label: t("action.back_to_shop")
+  };
+
+  if (hasHref) {
+    action.href = (route as { href: string }).href;
+  } else if (route) {
+    action.to = route as RouteLocationAsRelativeGeneric;
   }
-]);
+
+  return [action];
+});
 
 const createRepeatSequence = (
   sequence: string,
