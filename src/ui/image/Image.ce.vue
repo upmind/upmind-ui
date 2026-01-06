@@ -2,7 +2,7 @@
   <!-- Multiple images with carousel -->
   <Carousel
     @init-api="onCarouselInit"
-    v-if="meta.isCarousel"
+    v-if="meta.isCarousel && (!meta.isEmpty || meta.hasFallback)"
     :class="cn(styles.image.container, props.class)"
   >
     <CarouselContent :class="styles.image.carousel.content" class="ml-0 h-full">
@@ -29,9 +29,9 @@
   </Carousel>
 
   <figure
-    v-if="!meta.isCarousel"
+    v-if="!meta.isCarousel && (!meta.isEmpty || meta.hasFallback)"
     :class="cn(styles.image.container, props.class)"
-    :style="meta.isEmpty ? fallbackStyle : ''"
+    :style="meta.hasFallback ? fallbackStyle : ''"
   >
     <!-- Single image with fallback -->
     <picture v-if="!meta.isEmpty" class="block h-full w-full">
@@ -44,7 +44,7 @@
       />
     </picture>
     <!-- Fallback icon -->
-    <div v-if="meta.isEmpty" :class="cn(styles.image.root)">
+    <div v-if="meta.hasFallback" :class="cn(styles.image.root)">
       <Icon :icon="props.icon" size="lg" :class="styles.image.icon" />
     </div>
   </figure>
@@ -75,13 +75,15 @@ const props = withDefaults(defineProps<ImageProps>(), {
   ratio: "1:1",
   fit: "cover",
   carousel: true,
-  icon: "camera-01"
+  icon: "camera-01",
+  fallback: true
 });
 
 const meta = computed(() => ({
   ratio: props.ratio,
   fit: props.fit,
   isEmpty: isEmpty(props.image) || error.value,
+  hasFallback: props.fallback && (isEmpty(props.image) || error.value),
   isCarousel: props.carousel && isArray(props.image) && props.image.length > 1,
   imageLength: isArray(props.image) ? props.image.length : 0
 }));

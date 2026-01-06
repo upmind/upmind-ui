@@ -13,6 +13,7 @@ export interface ImageProps {
   fit?: RootVariants["fit"];
   icon?: IconProps["icon"];
   alt?: ImgHTMLAttributes["alt"];
+  fallback?: boolean;
   // ---
   class?: ImgHTMLAttributes["class"];
 }
