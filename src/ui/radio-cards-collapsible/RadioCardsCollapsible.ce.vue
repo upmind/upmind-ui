@@ -120,7 +120,7 @@ const props = withDefaults(defineProps<RadioCardsCollapsibleProps>(), {
   label: "Change",
   autoCollapse: true,
   // -- variants
-  width: 12,
+  width: 1,
   list: false,
   // --- styles
   class: "",

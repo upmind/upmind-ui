@@ -101,7 +101,7 @@ import { isFunction, isString, isNil } from "lodash-es";
 
 const props = withDefaults(defineProps<RadioCardsItemProps>(), {
   // -- variants
-  width: 12,
+  width: 1,
   isList: false
 });
 

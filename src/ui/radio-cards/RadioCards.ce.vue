@@ -70,7 +70,7 @@ const props = withDefaults(defineProps<RadioCardsProps>(), {
   overrideIndex: 0,
   useInputGroup: true,
   // -- variants
-  width: 12,
+  width: 1,
   list: false,
   // --- styles
   class: "",

@@ -68,9 +68,12 @@ const meta = computed(() => ({
   hasLabel: !isEmpty(props.label)
 }));
 
-const styles = useStyles(["tooltip"], meta, config, {
-  tooltip: props.uiConfig
-}) as ComputedRef<{
+const styles = useStyles(
+  ["tooltip"],
+  meta,
+  config,
+  props.uiConfig ?? {}
+) as ComputedRef<{
   tooltip: {
     content: string;
     arrow: string;

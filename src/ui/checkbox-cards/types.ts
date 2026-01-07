@@ -53,7 +53,7 @@ export interface CheckboxCardsProps extends ToggleGroupRootProps {
   cursor?: Cursor;
   /** Display the checkbox cards as a list */
   list?: boolean;
-  /** The width of the checkbox cards items */
+  /** Number of items per row (0-6). 0 = custom grid, 1 = full width. Example: width={3} displays 3 items per row. */
   width?: number;
   // ---
   uiConfig?: { tooltip: CxOptions };

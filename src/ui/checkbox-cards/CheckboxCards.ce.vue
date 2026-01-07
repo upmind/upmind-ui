@@ -118,7 +118,7 @@ import type { ComputedRef } from "vue";
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<CheckboxCardsProps>(), {
   cursor: "pointer",
-  width: 12
+  width: 1
   // --- styles
 });
 

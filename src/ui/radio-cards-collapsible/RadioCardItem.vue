@@ -51,7 +51,7 @@ import type { RadioCardsCollapsibleItemProps } from "./types";
 
 const props = withDefaults(defineProps<RadioCardsCollapsibleItemProps>(), {
   // -- variants
-  width: 12,
+  width: 1,
   isList: false
 });
 

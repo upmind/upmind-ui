@@ -36,7 +36,8 @@ export interface RadioCardsItemProps extends RadioGroupItemProps {
   selected?: boolean;
   value: string;
   // ---
-  width?: RadioCardsItemSizeVariants["width"] | string;
+  /** Number of items per row (0-6). 0 = custom grid, 1 = full width. Example: width={3} displays 3 items per row. */
+  width?: number;
   list?: boolean;
   uiConfig?: { radioCards: CxOptions };
   dataHover?: boolean;
@@ -54,7 +55,8 @@ export interface RadioCardsProps extends RadioGroupRootProps {
   items: RadioCardsItemProps[];
   loading?: boolean;
   // ---
-  width?: RadioCardsItemSizeVariants["width"] | string;
+  /** Number of items per row (0-6). 0 = custom grid, 1 = full width. Example: width={3} displays 3 items per row. */
+  width?: number;
   list?: boolean;
   // ---
   uiConfig?: { radioCards: CxOptions };
