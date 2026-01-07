@@ -60,19 +60,7 @@ const meta = computed(() => ({
   size: props.size
 }));
 
-const styles = useStyles(
-  "badge",
-  meta,
-  config,
-  props.uiConfig ?? {}
-) as ComputedRef<{
-  badge: {
-    root: string;
-    icon: string;
-    label: string;
-    close: string;
-  };
-}>;
+const styles = useStyles("badge", meta, config, props.uiConfig ?? {});
 
 const emit = defineEmits<{
   close: [];

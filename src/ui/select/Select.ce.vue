@@ -147,19 +147,7 @@ const meta = computed(() => ({
   hasRing: props.ring
 }));
 
-const styles = useStyles(
-  ["select"],
-  meta,
-  config,
-  props.uiConfig ?? {}
-) as ComputedRef<{
-  select: {
-    root: string;
-    content: string;
-    value: string;
-    item: string;
-  };
-}>;
+const styles = useStyles(["select"], meta, config, props.uiConfig ?? {});
 
 // NB: set the new timestamp when items change to force a re-render
 watch(

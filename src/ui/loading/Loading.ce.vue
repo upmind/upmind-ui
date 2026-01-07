@@ -56,10 +56,5 @@ const meta = computed(() => ({
   isActive: props.active
 }));
 
-const styles = useStyles("loading", meta, config) as ComputedRef<{
-  loading: {
-    root: string;
-    spinner: string;
-  };
-}>;
+const styles = useStyles("loading", meta, config);
 </script>

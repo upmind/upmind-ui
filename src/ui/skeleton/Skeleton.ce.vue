@@ -25,15 +25,5 @@ const meta = computed(() => ({
   isActive: props.active
 }));
 
-const styles = useStyles(
-  "skeleton",
-  meta,
-  config,
-  props.uiConfig ?? {}
-) as ComputedRef<{
-  skeleton: {
-    root: string;
-    content: string;
-  };
-}>;
+const styles = useStyles("skeleton", meta, config, props.uiConfig ?? {});
 </script>

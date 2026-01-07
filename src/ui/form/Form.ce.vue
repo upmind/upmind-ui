@@ -159,9 +159,7 @@ const styles = useStyles(
   meta,
   config,
   props.uiConfig ?? {}
-) as ComputedRef<{
-  form: { root: string; content: string; actions: string; button: string };
-}>;
+);
 
 const renderers = Object.freeze([
   ...upmindUIRenderers,

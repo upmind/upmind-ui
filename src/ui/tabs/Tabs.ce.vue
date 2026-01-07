@@ -137,22 +137,7 @@ const meta = computed(() => ({
   hasBorder: props.border
 }));
 
-const styles = useStyles(
-  "tabs",
-  meta,
-  config,
-  props.uiConfig ?? {}
-) as ComputedRef<{
-  tabs: {
-    root: string;
-    list: string;
-    trigger: string;
-    indicator: string;
-    icon: string;
-    prepend: string;
-    append: string;
-  };
-}>;
+const styles = useStyles("tabs", meta, config, props.uiConfig ?? {});
 
 const useTabs = computed(() => props.tabs.length > 1 || props.force);
 

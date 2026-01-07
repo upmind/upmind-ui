@@ -145,17 +145,5 @@ const getWidth = computed(() => {
   return "2xl";
 });
 
-const styles = useStyles(
-  ["numberField"],
-  meta,
-  config,
-  props.uiConfig ?? {}
-) as ComputedRef<{
-  numberField: {
-    root: string;
-    inputLeft: string;
-    inputRight: string;
-    field: string;
-  };
-}>;
+const styles = useStyles(["numberField"], meta, config, props.uiConfig ?? {});
 </script>

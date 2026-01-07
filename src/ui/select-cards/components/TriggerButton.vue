@@ -50,9 +50,5 @@ import type { SelectCardsTriggerProps } from "../types";
 
 const props = defineProps<SelectCardsTriggerProps>();
 
-const variants = useStyles(["select"], {}, config, {}) as ComputedRef<{
-  select: {
-    trigger: string;
-  };
-}>;
+const variants = useStyles(["select"], {}, config, {});
 </script>

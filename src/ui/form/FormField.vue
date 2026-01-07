@@ -192,12 +192,7 @@ const styles = useStyles(
   config,
   target,
   props.uiConfig ?? {}
-) as ComputedRef<{
-  input: {
-    feedback: string;
-    description: string;
-  };
-}>;
+);
 
 // --- methods
 function toggleTooltip(force?: boolean) {

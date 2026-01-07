@@ -151,23 +151,7 @@ const styles = useStyles(
   meta,
   config,
   props.uiConfig ?? {}
-) as ComputedRef<{
-  checkboxCards: {
-    trigger: string;
-    root: string;
-    item: string;
-    input: string;
-    label: string;
-    content: {
-      root: string;
-      label: string;
-      secondaryLabel: string;
-      description: string;
-      secondaryDescription: string;
-      action: string;
-    };
-  };
-}>;
+);
 
 function doAction(item: CheckboxCardsItemActionProps, $event: Event) {
   $event.preventDefault(); // prevent default form actions as we are handling it ourselves

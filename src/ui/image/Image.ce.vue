@@ -93,21 +93,7 @@ const styles = useStyles(
   ["image", "image.carousel", "image.nav"],
   meta,
   config
-) as ComputedRef<{
-  image: {
-    container: string;
-    root: string;
-    icon: string;
-    carousel: {
-      content: string;
-      item: string;
-    };
-    nav: {
-      root: string;
-      item: string;
-    };
-  };
-}>;
+);
 
 const imageIndex = ref(0);
 const carouselApi = ref<CarouselApi>();

@@ -5,7 +5,7 @@
         <Button
           :variant="props.variant"
           :loading="props.loading"
-          :class="cn(styles.dropdownMenu.trigger, props.class)"
+          :class="props.class"
           :label="props.label"
           :size="props.size"
           :ring="props.ring"
@@ -116,24 +116,7 @@ const meta = computed(() => ({
 const open = ref(false);
 const processing = ref(false);
 
-// ---
-
-const styles = useStyles(
-  ["dropdownMenu"],
-  meta,
-  config,
-  props.uiConfig ?? {}
-) as ComputedRef<{
-  dropdownMenu: {
-    trigger?: string;
-    content?: string;
-    item?: string;
-    label?: string;
-    group?: string;
-    icon?: string;
-  };
-}>;
-// ---
+const styles = useStyles(["dropdownMenu"], meta, config, props.uiConfig ?? {});
 
 async function doAction(item: DropdownMenuItemProps) {
   if (isFunction(item?.handler)) {

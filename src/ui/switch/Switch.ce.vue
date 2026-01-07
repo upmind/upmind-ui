@@ -47,10 +47,5 @@ const modelValue = useVModel(props, "modelValue", emits, {
 
 const meta = computed(() => ({}));
 
-const styles = useStyles(
-  ["switch"],
-  meta,
-  config,
-  props.uiConfig ?? {}
-) as ComputedRef<{ switch: string }>;
+const styles = useStyles(["switch"], meta, config, props.uiConfig ?? {});
 </script>

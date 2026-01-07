@@ -94,15 +94,5 @@ const meta = computed(() => ({
   size: props.size
 }));
 
-const styles = useStyles(
-  ["breadcrumb"],
-  meta,
-  config,
-  props.uiConfig ?? {}
-) as ComputedRef<{
-  breadcrumb: {
-    root: string;
-    item: string;
-  };
-}>;
+const styles = useStyles(["breadcrumb"], meta, config, props.uiConfig ?? {});
 </script>

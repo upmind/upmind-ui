@@ -111,15 +111,5 @@ const meta = computed(() => ({
   hasRing: props.ring && !props.disabled && props.focusable
 }));
 
-const styles = useStyles(
-  ["button"],
-  meta,
-  config,
-  props.uiConfig ?? {}
-) as ComputedRef<{
-  button: {
-    root: string;
-    label: string;
-  };
-}>;
+const styles = useStyles(["button"], meta, config, props.uiConfig ?? {});
 </script>

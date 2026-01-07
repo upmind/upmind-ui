@@ -61,10 +61,5 @@ const meta = computed(() => ({
   hasValue: !isEmpty(props.modelValue)
 }));
 
-const styles = useStyles(
-  "indicator",
-  meta,
-  config,
-  props.uiConfig ?? {}
-) as ComputedRef<{ indicator: string }>;
+const styles = useStyles("indicator", meta, config, props.uiConfig ?? {});
 </script>

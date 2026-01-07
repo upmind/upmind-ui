@@ -95,9 +95,7 @@ const styles = useStyles(
   meta,
   config,
   props.uiConfig ?? {}
-) as ComputedRef<{
-  input: { container: string; field: string };
-}>;
+);
 
 onMounted(() => {
   applyMask();

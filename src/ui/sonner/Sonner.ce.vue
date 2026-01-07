@@ -107,38 +107,5 @@ const styles = useStyles(
   {},
   config,
   props.uiConfig ?? {}
-) as ComputedRef<{
-  sonner: {
-    neutral: {
-      toast: string;
-      actionButton: string;
-      closeButton: string;
-    };
-    success: {
-      toast: string;
-      actionButton: string;
-      closeButton: string;
-    };
-    danger: {
-      toast: string;
-      actionButton: string;
-      closeButton: string;
-    };
-    warning: {
-      toast: string;
-      actionButton: string;
-      closeButton: string;
-    };
-    info: {
-      toast: string;
-      actionButton: string;
-      closeButton: string;
-    };
-    promo: {
-      toast: string;
-      actionButton: string;
-      closeButton: string;
-    };
-  };
-}>;
+);
 </script>

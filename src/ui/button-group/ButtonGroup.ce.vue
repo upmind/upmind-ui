@@ -73,14 +73,5 @@ const styles = useStyles(
   meta,
   config,
   props.uiConfig ?? {}
-) as ComputedRef<{
-  buttonGroup: {
-    root: string;
-    item: string;
-    button: string;
-    select: {
-      root: string;
-    };
-  };
-}>;
+);
 </script>

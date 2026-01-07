@@ -33,20 +33,5 @@ const styles = useStyles(
   ["image", "image.carousel", "image.nav"],
   imageMeta,
   config
-) as ComputedRef<{
-  image: {
-    container: string;
-    root: string;
-    icon: string;
-    carousel: {
-      root: string;
-      content: string;
-      item: string;
-    };
-    nav: {
-      root: string;
-      item: string;
-    };
-  };
-}>;
+);
 </script>

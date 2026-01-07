@@ -32,10 +32,5 @@ const delegatedProps = computed(() => omit(props, ["uiConfig", "class"]));
 
 const meta = computed(() => ({}));
 
-const styles = useStyles(
-  ["label"],
-  meta,
-  config,
-  props.uiConfig ?? {}
-) as ComputedRef<{ label: string }>;
+const styles = useStyles(["label"], meta, config, props.uiConfig ?? {});
 </script>

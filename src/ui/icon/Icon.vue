@@ -52,12 +52,7 @@ const meta = computed(() => ({
   hasIcon: !isEmpty(props.icon)
 }));
 
-const styles = useStyles(
-  "icon",
-  meta,
-  config,
-  props.uiConfig ?? {}
-) as ComputedRef<{ icon: string }>;
+const styles = useStyles("icon", meta, config, props.uiConfig ?? {});
 
 const icons = import.meta.glob("@icons/**/*.svg", {
   query: "?raw",

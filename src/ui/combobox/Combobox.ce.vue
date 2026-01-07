@@ -212,21 +212,7 @@ const label = computed(() => {
 });
 // ---
 
-const styles = useStyles(
-  ["combobox"],
-  meta,
-  config,
-  props.uiConfig ?? {}
-) as ComputedRef<{
-  combobox: {
-    root: string;
-    trigger: string;
-    content: string;
-    item: string;
-    input: string;
-    label: string;
-  };
-}>;
+const styles = useStyles(["combobox"], meta, config, props.uiConfig ?? {});
 
 const searchValue = ref("");
 

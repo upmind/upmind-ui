@@ -181,23 +181,7 @@ const searchTerm = ref();
 
 // ---
 
-const styles = useStyles(
-  ["autocomplete"],
-  meta,
-  config,
-  props.uiConfig ?? {}
-) as ComputedRef<{
-  autocomplete: {
-    root: string;
-    input: string;
-    anchor: string;
-    anchorIcon: string;
-    empty: string;
-    content: string;
-    item: string;
-    indicator: string;
-  };
-}>;
+const styles = useStyles(["autocomplete"], meta, config, props.uiConfig ?? {});
 
 // -----------------------------------------------------------------------------
 const onSearch = debounce(doSearch, 350);

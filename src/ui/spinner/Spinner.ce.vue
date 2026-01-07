@@ -45,10 +45,5 @@ const meta = computed(() => ({
   // ---
 }));
 
-const styles = useStyles(
-  "spinner",
-  meta,
-  config,
-  props.uiConfig ?? {}
-) as ComputedRef<{ spinner: string }>;
+const styles = useStyles("spinner", meta, config, props.uiConfig ?? {});
 </script>

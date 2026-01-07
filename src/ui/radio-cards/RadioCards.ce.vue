@@ -103,19 +103,7 @@ const styles = useStyles(
   meta,
   config,
   props.uiConfig ?? {}
-) as ComputedRef<{
-  radioCards: {
-    trigger: string;
-    root: string;
-    item: {
-      root: string;
-      size: string;
-    };
-    radio: string;
-    input: string;
-    label: string;
-  };
-}>;
+);
 
 const onChange = (value: any) => {
   if (!props.required && value === modelValue.value) {

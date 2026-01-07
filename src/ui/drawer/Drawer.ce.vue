@@ -161,17 +161,5 @@ const styles = useStyles(
   meta,
   config,
   props.uiConfig ?? {}
-) as ComputedRef<{
-  drawer: {
-    overlay: string;
-    container: string;
-    content: string;
-    inner: string;
-    header: string;
-    footer: {
-      root: string;
-      container: string;
-    };
-  };
-}>;
+);
 </script>

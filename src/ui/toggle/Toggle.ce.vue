@@ -52,10 +52,5 @@ const meta = computed(() => ({
   size: props.size
 }));
 
-const styles = useStyles(
-  ["toggle"],
-  meta,
-  config,
-  props.uiConfig ?? {}
-) as ComputedRef<{ toggle: string }>;
+const styles = useStyles(["toggle"], meta, config, props.uiConfig ?? {});
 </script>

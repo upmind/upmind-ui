@@ -55,18 +55,7 @@ const meta = computed(() => ({
   hasBorder: appliedOptions.value?.border ?? true
 }));
 
-const styles = useStyles(
-  ["group"],
-  meta,
-  config,
-  props.uiConfig ?? {}
-) as ComputedRef<{
-  group: {
-    root: string;
-    label: string;
-    item: string;
-  };
-}>;
+const styles = useStyles(["group"], meta, config, props.uiConfig ?? {});
 const { layout, appliedOptions } = useUpmindUILayoutRenderer(
   useJsonFormsLayout(props)
 );

@@ -51,10 +51,5 @@ const meta = computed(() => ({
   //
 }));
 
-const styles = useStyles(
-  ["textarea"],
-  meta,
-  config,
-  props.uiConfig ?? {}
-) as ComputedRef<{ textarea: string }>;
+const styles = useStyles(["textarea"], meta, config, props.uiConfig ?? {});
 </script>

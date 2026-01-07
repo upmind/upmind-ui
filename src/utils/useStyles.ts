@@ -29,6 +29,24 @@ import type { ComputedRef } from "vue";
 import { type ClassValue } from "clsx";
 import { type ClassNameValue } from "tailwind-merge";
 
+/**
+ * Recursively resolves the types of a style configuration object.
+ *
+ * - If a property is a function (e.g., from `cva`), it maps to `string`.
+ * - If a property is an object, it recurses to resolve its properties.
+ * - Otherwise, it preserves the original type.
+ *
+ * This ensures that the final `styles` object returned by `useStyles`
+ * has accurate types reflecting the computed class names.
+ */
+export type ResolveVariants<T> = {
+  [K in keyof T]: T[K] extends Function
+    ? string
+    : T[K] extends object
+      ? ResolveVariants<T[K]>
+      : T[K];
+};
+
 let customStyleSheet: string = "";
 // -----------------------------------------------------------------------------
 
@@ -67,11 +85,11 @@ function applyVariants(configs: ClassValue[], context: object = {}) {
   );
 }
 
-export function useStyles(
+export function useStyles<T extends object = object>(
   components: string | string[],
   context: object = {},
-  ...configs: Array<Object>
-): ComputedRef<Object> {
+  ...configs: (T | Record<string, any>)[]
+): ComputedRef<ResolveVariants<T>> {
   return computed(() => {
     // ensure component is an array so we can loop over it and handle multiple components
     components = isArray(components) ? components : [components];
@@ -81,7 +99,7 @@ export function useStyles(
     const globalConfig = theme?.config.value;
 
     if (!isEmpty(globalConfig)) {
-      configs.push(globalConfig);
+      configs.push(globalConfig as T);
     }
 
     // deep clean the context object to remove any refs and falsy values
@@ -114,7 +132,7 @@ export function useStyles(
     });
 
     // return the requested styles with the variants applied
-    return styles;
+    return styles as ResolveVariants<T>;
   });
 }
 

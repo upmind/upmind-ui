@@ -36,10 +36,5 @@ const meta = computed(() => ({
   spacious: props.spacious
 }));
 
-const styles = useStyles(["card"], meta, config) as ComputedRef<{
-  card: {
-    root: string;
-    container: string;
-  };
-}>;
+const styles = useStyles(["card"], meta, config);
 </script>

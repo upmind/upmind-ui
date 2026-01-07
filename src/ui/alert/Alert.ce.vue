@@ -95,18 +95,5 @@ const meta = computed(() => ({
   size: props.size
 }));
 
-const styles = useStyles(
-  "alert",
-  meta,
-  config,
-  props.uiConfig ?? {}
-) as ComputedRef<{
-  alert: {
-    root: string;
-    title: string;
-    description: string;
-    icon: string;
-    action: string;
-  };
-}>;
+const styles = useStyles("alert", meta, config, props.uiConfig ?? {});
 </script>

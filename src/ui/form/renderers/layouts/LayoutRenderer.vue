@@ -57,17 +57,7 @@ const meta = computed(() => ({
   isPristine: props.pristine
 }));
 
-const styles = useStyles(
-  ["layout"],
-  meta,
-  config,
-  props.uiConfig ?? {}
-) as ComputedRef<{
-  layout: {
-    root: string;
-    item: string;
-  };
-}>;
+const styles = useStyles(["layout"], meta, config, props.uiConfig ?? {});
 
 const { layout, appliedOptions } = useUpmindUILayoutRenderer(
   useJsonFormsLayout(props)

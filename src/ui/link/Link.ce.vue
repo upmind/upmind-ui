@@ -91,15 +91,5 @@ const meta = computed(() => ({
     !isEmpty(slots.append)
 }));
 
-const styles = useStyles(
-  ["link"],
-  meta,
-  config,
-  props.uiConfig ?? {}
-) as ComputedRef<{
-  link: {
-    root: string;
-    label: string;
-  };
-}>;
+const styles = useStyles(["link"], meta, config, props.uiConfig ?? {});
 </script>

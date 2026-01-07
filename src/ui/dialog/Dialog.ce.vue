@@ -156,20 +156,7 @@ const meta = computed(() => ({
   fit: props.fit
 }));
 
-const styles = useStyles(
-  ["dialog"],
-  meta,
-  config,
-  props.uiConfig ?? {}
-) as ComputedRef<{
-  dialog: {
-    overlay: string;
-    content: string;
-    header: string;
-    footer: string;
-    container: string;
-  };
-}>;
+const styles = useStyles(["dialog"], meta, config, props.uiConfig ?? {});
 
 // --- state
 const value = useVModel(props, "open", emits);

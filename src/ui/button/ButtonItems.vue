@@ -37,9 +37,5 @@ const meta = computed(() => {
   };
 });
 
-const styles = useStyles(["button"], meta, config, {}) as ComputedRef<{
-  button: {
-    items: string;
-  };
-}>;
+const styles = useStyles(["button"], meta, config, {});
 </script>

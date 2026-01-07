@@ -73,13 +73,7 @@ const meta = computed(() => ({
   isDisabled: !control.value.enabled
 }));
 
-const styles = useStyles(["numberField"], meta, config) as ComputedRef<{
-  numberField: {
-    root: string;
-    input: string;
-    field: string;
-  };
-}>;
+const styles = useStyles(["numberField"], meta, config);
 
 const step: ComputedRef<number> = computed(() => {
   const defaultStep = 0.01;

@@ -46,17 +46,5 @@ const meta = computed(() => ({
   //
 }));
 
-const styles = useStyles(
-  "list",
-  meta,
-  config,
-  props.uiConfig ?? {}
-) as ComputedRef<{
-  list: {
-    root: string;
-    term: string;
-    description: string;
-    item: string;
-  };
-}>;
+const styles = useStyles("list", meta, config, props.uiConfig ?? {});
 </script>

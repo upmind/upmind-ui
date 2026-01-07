@@ -103,10 +103,5 @@ const mergedAnimatedIcon = computed(() => ({
   trigger: isString(props.animatedIcon) ? "loop" : props.animatedIcon?.trigger
 }));
 
-const styles = useStyles(
-  "avatar",
-  meta,
-  config,
-  props.uiConfig ?? {}
-) as ComputedRef<{ avatar: string }>;
+const styles = useStyles("avatar", meta, config, props.uiConfig ?? {});
 </script>

@@ -88,12 +88,7 @@ watch(
   }
 );
 
-const styles = useStyles(
-  "iconAnimated",
-  meta,
-  config,
-  props.uiConfig ?? {}
-) as ComputedRef<{ iconAnimated: string }>;
+const styles = useStyles("iconAnimated", meta, config, props.uiConfig ?? {});
 
 const primaryHex = computed(() => {
   const _ = styles.value;
