@@ -35,7 +35,6 @@ import { Icon } from "../icon";
 import { isEmpty } from "lodash-es";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { IndicatorProps } from ".";
 
 // -----------------------------------------------------------------------------

@@ -97,7 +97,6 @@ import { first } from "lodash-es";
 import { isEmptySlot } from "../../utils";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { TabsProps, TabItem } from ".";
 import type { TabsRootEmits } from "radix-vue";
 

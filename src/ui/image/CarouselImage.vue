@@ -16,7 +16,6 @@ import { useStyles } from "../../utils";
 import { CarouselItem } from "../carousel";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { CarouselImageProps } from "./types";
 
 const props = defineProps<CarouselImageProps>();

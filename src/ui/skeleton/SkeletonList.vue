@@ -26,7 +26,6 @@ import config from "./skeleton.config";
 
 // --- types
 import type { SkeletonListProps } from "./types";
-import type { ComputedRef } from "vue";
 const props = withDefaults(defineProps<SkeletonListProps>(), {
   rows: 5
 });

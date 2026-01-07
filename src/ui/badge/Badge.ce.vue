@@ -38,7 +38,6 @@ import Badge from "./Badge.vue";
 import { Icon } from "../icon";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { BadgeProps } from "./types";
 
 // -----------------------------------------------------------------------------

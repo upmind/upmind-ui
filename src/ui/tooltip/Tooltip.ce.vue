@@ -43,7 +43,6 @@ import TooltipTrigger from "./TooltipTrigger.vue";
 import { isEmpty } from "lodash-es";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { TooltipProps } from "./types";
 import type { TooltipContentEmits, TooltipRootEmits } from "radix-vue";
 

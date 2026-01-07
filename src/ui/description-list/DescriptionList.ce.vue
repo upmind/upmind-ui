@@ -33,7 +33,6 @@ import config from "./descriptionList.config";
 import { useStyles, cn } from "../../utils";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { DescriptionListProps } from "./types";
 
 // -----------------------------------------------------------------------------

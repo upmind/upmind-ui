@@ -29,7 +29,6 @@ import config from "./icon.config";
 import { find, isObject, isEmpty } from "lodash-es";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { IconProps } from ".";
 
 // -----------------------------------------------------------------------------

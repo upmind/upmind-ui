@@ -93,7 +93,6 @@ import { Badge } from "../badge";
 import { RadioGroupItem } from "../radio-group";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { RadioCardsItemActionProps, RadioCardsItemProps } from "./types";
 import { isFunction, isString, isNil } from "lodash-es";
 

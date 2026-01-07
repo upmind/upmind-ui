@@ -46,7 +46,7 @@
 
 <script setup lang="ts">
 // --- external
-import { computed, type ComputedRef } from "vue";
+import { computed } from "vue";
 
 // --- internal
 import { cn, useStyles } from "../../utils";

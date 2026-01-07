@@ -63,7 +63,6 @@ import NumberFieldIcon from "./NumberFieldIcon.vue";
 import { omit } from "lodash-es";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { NumberFieldProps } from "./types";
 import { NUMBER_FIELD_VARIANTS } from "./types";
 

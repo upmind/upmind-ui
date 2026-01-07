@@ -48,7 +48,6 @@ import { Button } from "../button";
 import { Select } from "../select";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { ButtonGroupProps } from "./types";
 import { ButtonGroup } from "./types";
 

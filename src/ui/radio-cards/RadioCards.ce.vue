@@ -62,7 +62,6 @@ import RadioCardItem from "./RadioCardItem.vue";
 
 // --- types
 import type { RadioCardsProps } from "./types";
-import type { ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<RadioCardsProps>(), {

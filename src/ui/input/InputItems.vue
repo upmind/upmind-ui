@@ -19,7 +19,6 @@ import config from "./input.config";
 
 // --- types
 import type { InputItemsProps } from "./types";
-import type { ComputedRef } from "vue";
 
 defineProps<InputItemsProps>();
 

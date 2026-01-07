@@ -113,7 +113,6 @@ import { isEmpty, isNil, some, kebabCase } from "lodash-es";
 
 // --- types
 import type { FormControlProps } from "./types";
-import type { ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
 

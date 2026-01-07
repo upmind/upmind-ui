@@ -72,7 +72,6 @@ import Sanitized from "../sanitized/Sanitized.vue";
 import { isFunction } from "lodash-es";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { InterstitialActionProps, InterstitialProps } from "./types";
 // -----------------------------------------------------------------------------
 

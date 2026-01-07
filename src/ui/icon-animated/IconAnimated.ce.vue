@@ -22,7 +22,6 @@ import { useStyles, cn, getComputedColor } from "../../utils";
 import config from "./iconAnimated.config";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { AnimatedIconProps } from "./types";
 
 const props = withDefaults(defineProps<AnimatedIconProps>(), {

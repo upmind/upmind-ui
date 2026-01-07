@@ -87,7 +87,6 @@ import {
 import config from "./sonner.config";
 
 // --- types
-import type { ComputedRef } from "vue";
 import { type SonnerProps } from ".";
 
 // -----------------------------------------------------------------------------

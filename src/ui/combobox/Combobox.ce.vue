@@ -153,7 +153,6 @@ import { find, get, isEmpty, isEqual, isFunction, has } from "lodash-es";
 
 // --- types
 import type { ComboboxProps, ComboboxItemProps } from "./types";
-import type { ComputedRef } from "vue";
 
 const props = withDefaults(defineProps<ComboboxProps>(), {
   // --- props

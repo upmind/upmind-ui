@@ -81,7 +81,6 @@ import DrawerTitle from "./DrawerTitle.vue";
 import { DrawerTrigger, DrawerClose } from "vaul-vue";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { DrawerProps } from "./types";
 
 // --- utils

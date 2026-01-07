@@ -113,7 +113,6 @@ import { includes, isFunction, isString, isNil, kebabCase } from "lodash-es";
 
 // --- types
 import type { CheckboxCardsItemActionProps, CheckboxCardsProps } from "./types";
-import type { ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<CheckboxCardsProps>(), {

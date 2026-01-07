@@ -19,7 +19,6 @@ import { useStyles, cn } from "../../utils";
 import { omit } from "lodash-es";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { LabelProps } from "./types";
 
 // -----------------------------------------------------------------------------

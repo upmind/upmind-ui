@@ -97,7 +97,6 @@ import { isEmpty, isEqual, isNull, find } from "lodash-es";
 // --- types
 import type { SelectRootEmits, SelectContentEmits } from "radix-vue";
 import type { SelectProps } from "./types";
-import type { ComputedRef } from "vue";
 import { timestamp } from "@vueuse/shared";
 
 const props = withDefaults(defineProps<SelectProps>(), {

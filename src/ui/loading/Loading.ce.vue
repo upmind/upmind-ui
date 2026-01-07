@@ -37,7 +37,6 @@ import config from "./loading.config";
 import Spinner from "../spinner/Spinner.ce.vue";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { LoadingProps } from "./types";
 
 const slots = defineSlots<{

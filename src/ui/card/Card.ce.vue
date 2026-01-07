@@ -13,7 +13,7 @@ import { cn, useStyles } from "../../utils";
 import config from "./card.config";
 
 // --- types
-import type { HTMLAttributes, ComputedRef } from "vue";
+import type { HTMLAttributes } from "vue";
 
 // -----------------------------------------------------------------------------
 const props = withDefaults(

@@ -83,7 +83,6 @@ import {
 
 // --- types
 import type { SelectCardsProps, SelectCardsItemProps } from "./types";
-import type { ComputedRef } from "vue";
 import Select from "../select/Select.vue";
 
 const props = withDefaults(defineProps<SelectCardsProps>(), {

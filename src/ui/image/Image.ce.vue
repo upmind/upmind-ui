@@ -70,7 +70,6 @@ import { isEmpty, isArray, isString } from "lodash-es";
 import { useStyles, cn, getComputedColor } from "../../utils";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { ImageProps } from "./types";
 import type { CarouselApi } from "../carousel";
 

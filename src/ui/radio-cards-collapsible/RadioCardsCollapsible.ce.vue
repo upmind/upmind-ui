@@ -110,7 +110,6 @@ import RadioCardItem from "./RadioCardItem.vue";
 
 // --- types
 import type { RadioCardsCollapsibleProps } from "./types";
-import type { ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<RadioCardsCollapsibleProps>(), {

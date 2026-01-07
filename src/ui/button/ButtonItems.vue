@@ -25,7 +25,6 @@ import config from "./button.config";
 
 // --- types
 import type { ButtonItemsProps } from "./types";
-import type { ComputedRef } from "vue";
 
 const props = defineProps<ButtonItemsProps>();
 

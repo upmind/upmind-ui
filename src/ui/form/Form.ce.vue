@@ -70,7 +70,6 @@ import {
 import { cn } from "../../utils";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { JsonFormsChangeEvent } from "@jsonforms/vue";
 import type {
   ValidationMode,

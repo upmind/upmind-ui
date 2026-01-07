@@ -25,7 +25,6 @@ import config from "./link.config";
 
 // --- types
 import type { LinkItemsProps } from "./types";
-import type { ComputedRef } from "vue";
 
 const props = defineProps<LinkItemsProps>();
 

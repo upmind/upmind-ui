@@ -60,7 +60,6 @@ import ButtonItems from "./ButtonItems.vue";
 import { RouterLink } from "vue-router";
 
 // -- types
-import type { ComputedRef } from "vue";
 import type { ButtonProps } from "./types";
 
 const props = withDefaults(defineProps<ButtonProps>(), {

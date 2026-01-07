@@ -25,7 +25,6 @@ import config from "./spinner.config";
 // --- utils
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { SpinnerProps } from ".";
 
 // -----------------------------------------------------------------------------

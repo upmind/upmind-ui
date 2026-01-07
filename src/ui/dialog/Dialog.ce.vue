@@ -92,7 +92,6 @@ import DialogClose from "./DialogClose.vue";
 import { Link } from "../link";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { DialogProps } from "./types";
 import type { DialogRootEmits, DialogContentEmits } from "radix-vue";
 

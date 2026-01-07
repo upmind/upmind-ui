@@ -53,7 +53,6 @@ import IconAnimated from "../icon-animated/IconAnimated.ce.vue";
 import { isEmpty, isString } from "lodash-es";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { AvatarProps } from ".";
 
 // -----------------------------------------------------------------------------

@@ -64,7 +64,6 @@ import { Link } from "../link";
 import { Icon } from "../icon";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { AlertProps } from "./types";
 
 // -----------------------------------------------------------------------------

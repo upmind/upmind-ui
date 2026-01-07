@@ -34,7 +34,6 @@ import { useUpmindUILayoutRenderer } from "../utils";
 import { useStyles } from "../../../../utils";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { Layout } from "@jsonforms/core";
 
 // -------------------------------------------------------------------

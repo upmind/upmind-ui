@@ -70,7 +70,6 @@ import config from "./search.config";
 
 // --- types
 import type { SearchItem } from "./types";
-import type { ComputedRef } from "vue";
 import { uniqueId } from "lodash-es";
 
 // -----------------------------------------------------------------------------

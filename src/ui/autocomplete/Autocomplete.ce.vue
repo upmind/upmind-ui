@@ -137,7 +137,7 @@ import {
 } from "lodash-es";
 
 // --- types
-import type { ComputedRef, Ref } from "vue";
+import type { Ref } from "vue";
 import type { AutocompleteProps, AutocompleteItemProps } from "./types";
 import type { ComboboxContentEmits, ComboboxRootEmits } from "radix-vue";
 

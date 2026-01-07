@@ -50,7 +50,6 @@ import { RouterLink } from "vue-router";
 import LinkItems from "./LinkItems.vue";
 
 // -- types
-import type { ComputedRef } from "vue";
 import type { LinkProps } from "./types";
 
 const props = withDefaults(defineProps<LinkProps>(), {

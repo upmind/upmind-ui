@@ -78,7 +78,6 @@ import { isFunction } from "lodash-es";
 
 // --- types
 import type { DropdownMenuProps, DropdownMenuItemProps } from "./types";
-import type { ComputedRef } from "vue";
 
 const props = withDefaults(defineProps<DropdownMenuProps>(), {
   // --- props
