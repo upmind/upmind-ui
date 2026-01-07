@@ -28,7 +28,6 @@
         :width="props.width"
         :value="option.value"
         :class="props.radioClass"
-        :list="props.list"
         :uiConfig="props.uiConfig"
         :data-hover="props.dataHover"
         :data-focus="props.dataFocus"
@@ -71,7 +70,6 @@ const props = withDefaults(defineProps<RadioCardsProps>(), {
   useInputGroup: true,
   // -- variants
   width: 1,
-  list: false,
   // --- styles
   class: "",
   radioClass: ""
@@ -94,7 +92,6 @@ const modelValue = useVModel(props, "modelValue", emits, {
 });
 
 const meta = computed(() => ({
-  isList: props.list,
   width: props.width
 }));
 
