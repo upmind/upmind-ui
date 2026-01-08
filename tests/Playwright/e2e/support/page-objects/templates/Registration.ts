@@ -9,17 +9,17 @@ export class Registration {
   readonly lastName: Locator;
   readonly email: Locator;
   readonly password: Locator;
-  readonly alert: Locator;
+  readonly alertTitle: Locator;
 
   constructor(page: Page, context: BrowserContext) {
     this.page = page;
-    this.registrationForm = page.getByTestId("registration-form");
+    this.registrationForm = page.getByTestId("form");
     this.context = context;
     this.firstName = page.getByTestId("input-properties-firstname");
     this.lastName = page.getByTestId("input-properties-lastname");
     this.email = page.getByTestId("input-properties-username");
     this.password = page.getByTestId("input-password");
-    this.alert = page.getByRole("alert");
+    this.alertTitle = page.getByTestId("alert-title");
   }
 
   async inputRegistration() {
