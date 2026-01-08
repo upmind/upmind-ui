@@ -1,5 +1,5 @@
 <template>
-  <header :class="styles.summary.header">
+  <header>
     <PricingList
       v-if="product?.pricing"
       :pricing="product.pricing"
@@ -14,21 +14,14 @@
 
 <script setup lang="ts">
 // --- external
-import { computed } from "vue";
 import {
   type Product,
   type UseProductConfigMeta
 } from "@upmind-automation/headless";
-import { useStyles } from "@upmind-automation/upmind-ui";
-
-// --- internal
-import config from "./pricing.config";
 
 // --- components
 import PricingList from "./PricingList.vue";
 
-// --- types
-import type { ComputedRef } from "vue";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(
@@ -41,11 +34,4 @@ const props = withDefaults(
     total: true
   }
 );
-
-const styles = useStyles(["summary"], {}, config) as ComputedRef<{
-  summary: {
-    footer: string;
-    header?: string;
-  };
-}>;
 </script>

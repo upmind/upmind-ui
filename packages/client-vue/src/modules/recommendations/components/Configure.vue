@@ -6,7 +6,6 @@
     :title="t('action.configure_your_product')"
     :description="t('text.product_info_needed_msg')"
     :dismissible="false"
-    :class-footer="styles.recommendation.configuration.footer"
   >
     <ProductConfig
       v-if="!meta?.isLoading"
@@ -54,7 +53,6 @@ import ProductConfig from "../../product/components/config/Config.vue";
 import { Button, Drawer } from "@upmind-automation/upmind-ui";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { RecommendationConfigurationProps } from "./types";
 // -----------------------------------------------------------------------------
 
@@ -82,17 +80,7 @@ const {
 await isReady();
 
 // ---
-const styles = useStyles(
-  ["recommendation.configuration"],
-  {},
-  config
-) as ComputedRef<{
-  recommendation: {
-    configuration: {
-      footer: string;
-    };
-  };
-}>;
+const styles = useStyles(["recommendation.configuration"], {}, config);
 // ---
 
 async function doResolve() {

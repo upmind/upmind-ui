@@ -27,7 +27,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { type ComputedRef, computed } from "vue";
+import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -69,17 +69,5 @@ const meta = computed(() => {
   };
 });
 
-const styles = useStyles(
-  ["checkout", "checkout.stored"],
-  meta,
-  config
-) as ComputedRef<{
-  checkout: {
-    stored: {
-      root: string;
-    };
-
-    action: string;
-  };
-}>;
+const styles = useStyles(["checkout", "checkout.stored"], meta, config);
 </script>

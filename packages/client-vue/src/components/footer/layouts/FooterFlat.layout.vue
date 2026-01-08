@@ -81,7 +81,6 @@ import Column from "../../layout/components/column/Column.vue";
 import { useStyles } from "@upmind-automation/upmind-ui";
 
 // --- types
-import type { ComputedRef } from "vue";
 import { FOOTER_BACKGROUND } from "../types";
 
 const { meta } = useFooter();
@@ -97,22 +96,7 @@ const styles = useStyles(
   stylesMeta,
   config,
   {}
-) as ComputedRef<{
-  footer: {
-    flat: {
-      root: string;
-      container: string;
-      left: {
-        column: string;
-        content: string;
-      };
-      right: {
-        column: string;
-        content: string;
-      };
-    };
-  };
-}>;
+);
 
 const leftBackground = computed(() => {
   return meta.value.background === FOOTER_BACKGROUND.LTR ? "surface" : "none";

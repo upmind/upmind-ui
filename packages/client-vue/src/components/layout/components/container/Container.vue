@@ -13,7 +13,6 @@ import { cn, useStyles } from "@upmind-automation/upmind-ui";
 import config from "./container.config";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { ContainerProps } from "./types";
 
 const props = withDefaults(defineProps<ContainerProps>(), {
@@ -30,7 +29,5 @@ const meta = computed(() => ({
   reverse: props.reverse
 }));
 
-const styles = useStyles(["container"], meta, config) as ComputedRef<{
-  container: string;
-}>;
+const styles = useStyles(["container"], meta, config);
 </script>

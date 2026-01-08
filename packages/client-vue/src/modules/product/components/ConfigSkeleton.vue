@@ -47,26 +47,6 @@ import config from "../product.config";
 import { Skeleton } from "@upmind-automation/upmind-ui";
 
 // --- types
-import type { ComputedRef } from "vue";
 
-const styles = useStyles(["product.config"], {}, config) as ComputedRef<{
-  product: {
-    config: {
-      root: string;
-      header: string;
-      content: string;
-      media: string;
-      image: string;
-      wrapper: string;
-      heading: string;
-      headingContent: string;
-      title: string;
-      text: string;
-      fields: string;
-      footer: string;
-      itemtotal: string;
-      bold: string;
-    };
-  };
-}>;
+const styles = useStyles(["product.config"], {}, config);
 </script>
