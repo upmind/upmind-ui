@@ -13,7 +13,7 @@ import { cn, useStyles } from "../../utils";
 import config from "./card.config";
 
 // --- types
-import type { HTMLAttributes, ComputedRef } from "vue";
+import type { HTMLAttributes } from "vue";
 
 // -----------------------------------------------------------------------------
 const props = withDefaults(
@@ -36,10 +36,5 @@ const meta = computed(() => ({
   spacious: props.spacious
 }));
 
-const styles = useStyles(["card"], meta, config) as ComputedRef<{
-  card: {
-    root: string;
-    container: string;
-  };
-}>;
+const styles = useStyles(["card"], meta, config);
 </script>

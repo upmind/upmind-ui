@@ -24,7 +24,6 @@ import { useStyles, cn } from "../../utils";
 import { omit } from "lodash-es";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { ToggleProps } from "./types";
 
 // -----------------------------------------------------------------------------
@@ -52,10 +51,5 @@ const meta = computed(() => ({
   size: props.size
 }));
 
-const styles = useStyles(
-  ["toggle"],
-  meta,
-  config,
-  props.uiConfig ?? {}
-) as ComputedRef<{ toggle: string }>;
+const styles = useStyles(["toggle"], meta, config, props.uiConfig ?? {});
 </script>

@@ -16,7 +16,6 @@ import { cn, useStyles } from "../../utils";
 
 // --- types
 import type { SkeletonProps } from "./types";
-import type { ComputedRef } from "vue";
 const props = withDefaults(defineProps<SkeletonProps>(), {
   active: true
 });
@@ -25,15 +24,5 @@ const meta = computed(() => ({
   isActive: props.active
 }));
 
-const styles = useStyles(
-  "skeleton",
-  meta,
-  config,
-  props.uiConfig ?? {}
-) as ComputedRef<{
-  skeleton: {
-    root: string;
-    content: string;
-  };
-}>;
+const styles = useStyles("skeleton", meta, config, props.uiConfig ?? {});
 </script>

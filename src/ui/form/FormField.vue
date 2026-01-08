@@ -113,7 +113,6 @@ import { isEmpty, isNil, some, kebabCase } from "lodash-es";
 
 // --- types
 import type { FormControlProps } from "./types";
-import type { ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
 
@@ -192,12 +191,7 @@ const styles = useStyles(
   config,
   target,
   props.uiConfig ?? {}
-) as ComputedRef<{
-  input: {
-    feedback: string;
-    description: string;
-  };
-}>;
+);
 
 // --- methods
 function toggleTooltip(force?: boolean) {

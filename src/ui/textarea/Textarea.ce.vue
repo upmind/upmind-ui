@@ -24,7 +24,6 @@ import { useStyles, cn } from "../../utils";
 import { omit } from "lodash-es";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { TextareaProps } from "./types";
 
 // -----------------------------------------------------------------------------
@@ -51,10 +50,5 @@ const meta = computed(() => ({
   //
 }));
 
-const styles = useStyles(
-  ["textarea"],
-  meta,
-  config,
-  props.uiConfig ?? {}
-) as ComputedRef<{ textarea: string }>;
+const styles = useStyles(["textarea"], meta, config, props.uiConfig ?? {});
 </script>

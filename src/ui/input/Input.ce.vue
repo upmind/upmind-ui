@@ -35,7 +35,6 @@ import InputItems from "./InputItems.vue";
 import { omit } from "lodash-es";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { InputProps } from "./types";
 
 // -----------------------------------------------------------------------------
@@ -95,9 +94,7 @@ const styles = useStyles(
   meta,
   config,
   props.uiConfig ?? {}
-) as ComputedRef<{
-  input: { container: string; field: string };
-}>;
+);
 
 onMounted(() => {
   applyMask();

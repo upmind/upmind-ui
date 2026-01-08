@@ -19,13 +19,8 @@ import config from "./input.config";
 
 // --- types
 import type { InputItemsProps } from "./types";
-import type { ComputedRef } from "vue";
 
 defineProps<InputItemsProps>();
 
-const styles = useStyles(["input"], {}, config, {}) as ComputedRef<{
-  input: {
-    items: string;
-  };
-}>;
+const styles = useStyles(["input"], {}, config, {});
 </script>

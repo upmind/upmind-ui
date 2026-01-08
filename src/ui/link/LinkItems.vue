@@ -25,7 +25,6 @@ import config from "./link.config";
 
 // --- types
 import type { LinkItemsProps } from "./types";
-import type { ComputedRef } from "vue";
 
 const props = defineProps<LinkItemsProps>();
 
@@ -37,14 +36,5 @@ const meta = computed(() => {
   };
 });
 
-const styles = useStyles(
-  ["link"],
-  meta,
-  config,
-  props.uiConfig ?? {}
-) as ComputedRef<{
-  link: {
-    items: string;
-  };
-}>;
+const styles = useStyles(["link"], meta, config, props.uiConfig ?? {});
 </script>
