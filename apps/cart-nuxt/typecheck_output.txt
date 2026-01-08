@@ -1,0 +1,341 @@
+npm warn Unknown user config "unsafe-perm". This will stop working in the next major version of npm.
+
+> @upmind-automation/cart-nuxt@0.0.1 type-check
+> nuxt typecheck
+
+../../packages/headless/src/modules/basket/billing/schema.ts(8,54): error TS2307: Cannot find module 'src/modules/client' or its corresponding type declarations.
+../../packages/headless/src/modules/basket/billing/schema.ts(32,5): error TS2532: Object is possibly 'undefined'.
+../../packages/headless/src/modules/basket/billing/schema.ts(38,5): error TS2532: Object is possibly 'undefined'.
+../../packages/headless/src/modules/basket/billing/schema.ts(44,5): error TS2532: Object is possibly 'undefined'.
+../../packages/headless/src/modules/basket/billing/unified/services.ts(2,28): error TS1484: 'CountryCode' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/basket/billing/unified/useUnified.ts(3,21): error TS1484: 'InterpreterFrom' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/basket/billing/unified/useUnified.ts(23,3): error TS1484: 'ResponseError' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/basket/billing/unified/useUnified.ts(27,3): error TS1484: 'ErrorObject' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/basket/services.ts(39,10): error TS1484: 'CurrencyModel' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/basket/types.ts(6,10): error TS1484: 'PaymentDetailData' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/basket/useBasket.ts(2,20): error TS1484: 'ComputedRef' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/basket/useBasket.ts(26,3): error TS1484: 'UseActor' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/basket/useBasket.ts(27,3): error TS1484: 'ResponseError' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/basket/useBasketFields.ts(27,10): error TS1484: 'FieldsContext' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/basket/useBasketFields.ts(27,25): error TS1484: 'FieldsModel' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/basket/useBasketPromotions.ts(13,3): error TS1484: 'ErrorObject' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/basket/useBasketPromotions.ts(23,10): error TS1484: 'PromotionsContext' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/basket/useBasketPromotions.ts(23,29): error TS1484: 'PromotionModel' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/basket/useBasketPromotions.ts(24,10): error TS1484: 'IBasketPromotion' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/basket/useBasketPromotions.ts(25,10): error TS1484: 'QueryResponseError' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/basket/utils.ts(21,10): error TS1484: 'PaymentDetailsContext' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/basket/utils.ts(22,10): error TS1484: 'BasketContext' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/basketProduct/services.ts(21,3): error TS1484: 'ResponseError' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/basketProduct/useBasketProducts.ts(16,10): error TS1484: 'ProductModel' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/basketProduct/useBasketProducts.ts(17,10): error TS1484: 'IBasket' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/basketProduct/useBasketProducts.ts(19,10): error TS1484: 'UseBasketProduct' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/basketProduct/useBasketProductsPending.ts(42,10): error TS1484: 'IBasket' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/brand/mappers.ts(2,27): error TS1484: 'IBrandSettings' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/brand/mappers.ts(14,10): error TS1484: 'LocaleMessages' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/client/address/actions.ts(12,10): error TS1484: 'AddressModel' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/client/address/types.ts(24,9): error TS2532: Object is possibly 'undefined'.
+../../packages/headless/src/modules/client/address/types.ts(25,11): error TS2532: Object is possibly 'undefined'.
+../../packages/headless/src/modules/client/address/types.ts(26,12): error TS2532: Object is possibly 'undefined'.
+../../packages/headless/src/modules/client/address/types.ts(27,12): error TS2532: Object is possibly 'undefined'.
+../../packages/headless/src/modules/client/address/useClientAddress.ts(26,3): error TS1484: 'ResponseError' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/client/company/services.ts(14,3): error TS1484: 'AddressModel' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/client/company/services.ts(15,3): error TS1484: 'EmailModel' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/client/company/services.ts(16,3): error TS1484: 'PhoneModel' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/client/company/useClientCompany.ts(3,21): error TS1484: 'InterpreterFrom' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/client/company/useClientCompany.ts(26,3): error TS1484: 'ResponseError' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/client/email/actions.ts(11,10): error TS1484: 'EmailModel' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/client/email/useClientEmail.ts(26,3): error TS1484: 'ResponseError' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/client/item.machine.ts(10,3): error TS1484: 'ResponseError' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/client/item.machine.ts(16,10): error TS1484: 'ErrorObject' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/client/phone/actions.ts(12,10): error TS1484: 'Phone' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/client/phone/actions.ts(12,17): error TS1484: 'PhoneModel' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/client/phone/mapper.ts(2,28): error TS1484: 'CountryCode' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/client/phone/services.ts(1,28): error TS1484: 'CountryCode' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/client/phone/useClientPhone.ts(27,3): error TS1484: 'ResponseError' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/client/types.ts(3,27): error TS1484: 'IClient' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/domain/dac.machine.ts(15,3): error TS1484: 'ResponseError' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/domain/domain.machine.ts(16,3): error TS1484: 'ResponseError' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/domain/domain.machine.ts(54,10): error TS1484: 'ProductProps' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/domain/services.ts(5,3): error TS1484: 'DomainModel' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/domain/services.ts(6,3): error TS1484: 'DomainProduct' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/domain/useDac.ts(22,10): error TS1484: 'DomainContext' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/domain/useDac.ts(22,25): error TS1484: 'DomainProduct' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/domain/useDomain.ts(35,23): error TS1484: 'DomainContext' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/domain/useDomain.ts(35,38): error TS1484: 'DomainProduct' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/domain/utils.ts(2,23): error TS7016: Could not find a declaration file for module 'psl'. '/Users/domdacosta/Dev/Upmind/monorepo/node_modules/.pnpm/psl@1.15.0/node_modules/psl/dist/psl.mjs' implicitly has an 'any' type.
+  There are types at '/Users/domdacosta/Dev/Upmind/monorepo/packages/headless/node_modules/psl/types/index.d.ts', but this result could not be resolved when respecting package.json "exports". The 'psl' library may need to update its package.json or typings.
+../../packages/headless/src/modules/domain/utils.ts(25,3): error TS1484: 'IBasketProduct' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/domain/utils.ts(26,3): error TS1484: 'IBlueprint' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/domain/utils.ts(27,3): error TS1484: 'IProduct' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/domain/utils.ts(32,10): error TS1484: 'ProductProps' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/feedback/useFeedback.ts(2,20): error TS1484: 'MaybeRef' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/payment/types.ts(9,10): error TS1484: 'ResponseError' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/payment/types.ts(10,10): error TS1484: 'PaymentDetailData' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/payment/usePayment.ts(15,10): error TS1484: 'PaymentArgs' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/payment/usePayment.ts(15,23): error TS1484: 'PaymentContext' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/paymentDetails/gateways/braintree/actions.ts(13,3): error TS1484: 'ErrorObject' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/paymentDetails/gateways/braintree/actions.ts(15,3): error TS1484: 'ResponseError' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/paymentDetails/gateways/braintree/services.ts(19,3): error TS1484: 'BraintreeResponse' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/paymentDetails/gateways/gateway.machine.ts(25,3): error TS1484: 'GatewayData' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/paymentDetails/gateways/openPay/actions.ts(2,10): error TS1484: 'AnyEventObject' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/paymentDetails/gateways/openPay/actions.ts(7,10): error TS1484: 'OpenPayContext' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/paymentDetails/gateways/openPay/actions.ts(7,26): error TS1484: 'OpenPayModel' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/paymentDetails/gateways/openPay/services.ts(16,26): error TS1484: 'OpenPayContext' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/paymentDetails/gateways/openPay/types.ts(1,10): error TS1484: 'GatewayData' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/paymentDetails/gateways/razorpay/services.ts(18,3): error TS1484: 'RazorpayContext' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/paymentDetails/gateways/razorpay/services.ts(19,3): error TS1484: 'IRazorpaySetupDetails' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/paymentDetails/gateways/razorpay/services.ts(20,3): error TS1484: 'RazorpayResponse' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/paymentDetails/gateways/razorpay/services.ts(21,3): error TS1484: 'RazorpayErrorResponse' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/paymentDetails/gateways/stripe/actions.ts(12,3): error TS1484: 'ErrorObject' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/paymentDetails/gateways/stripe/actions.ts(14,3): error TS1484: 'ResponseError' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/paymentDetails/gateways/stripe/services.ts(3,3): error TS1484: 'DefaultValuesOption' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/paymentDetails/gateways/stripe/services.ts(5,3): error TS1484: 'StripeElementLocale' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/paymentDetails/gateways/stripe/services.ts(6,3): error TS1484: 'StripeElements' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/paymentDetails/gateways/stripe/types.ts(6,3): error TS1484: 'Stripe' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/paymentDetails/gateways/stripe/types.ts(7,3): error TS1484: 'StripeElements' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/paymentDetails/gateways/stripe/types.ts(8,3): error TS1484: 'StripePaymentElement' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/paymentDetails/mappers.ts(218,33): error TS2339: Property 'SSL_COMMERZ' does not exist on type 'typeof GatewayProviderCodes'.
+../../packages/headless/src/modules/paymentDetails/schemas.ts(12,3): error TS1484: 'JsonSchema7' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/paymentDetails/services.ts(56,3): error TS1484: 'IWalletBalance' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/paymentDetails/usePaymentGateway.ts(2,34): error TS1484: 'ComputedRef' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/paymentDetails/usePaymentGateway.ts(17,3): error TS1484: 'UseActor' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/paymentDetails/usePaymentGateway.ts(23,10): error TS1484: 'GatewayContext' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/paymentDetails/usePaymentGateway.ts(25,10): error TS1484: 'QueryResponseError' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/paymentDetails/usePaymentGateway.ts(26,10): error TS1484: 'ErrorObject' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/paymentDetails/utils.ts(2,10): error TS1484: 'AnyEventObject' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/paymentDetails/utils.ts(20,3): error TS1484: 'IBrandGateway' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/paymentDetails/utils.ts(23,10): error TS1484: 'GatewayParams' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/paymentDetails/utils.ts(25,10): error TS1484: 'StripeContext' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/paymentDetails/utils.ts(26,10): error TS1484: 'BraintreeContext' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/paymentDetails/utils.ts(27,10): error TS1484: 'OpenPayContext' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/paymentDetails/utils.ts(29,10): error TS1484: 'RazorpayContext' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/paymentDetails/utils.ts(30,10): error TS1484: 'PaymentDetail' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/paymentDetails/utils.ts(30,25): error TS1484: 'PaymentDetailsContext' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/paymentDetails/utils.ts(154,31): error TS2339: Property 'SSL_COMMERZ' does not exist on type 'typeof GatewayProviderCodes'.
+../../packages/headless/src/modules/product/services.ts(46,3): error TS1484: 'IBlueprintField' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/product/services.ts(47,3): error TS1484: 'IProduct' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/product/services.ts(59,10): error TS1484: 'AnyEventObject' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/product/types.ts(19,10): error TS1484: 'ResponseError' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/product/utils.ts(98,10): error TS1484: 'ErrorObject' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/product/utils.ts(99,10): error TS1484: 'BrandMeta' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/productCategories/mappers.ts(12,10): error TS1484: 'UIMeta' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/productCategories/services.ts(11,10): error TS1484: 'ProductCategory' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/query/useQuery.ts(2,40): error TS1484: 'ComputedRef' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/query/utils.ts(28,10): error TS1484: 'AnyUpdater' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/query/utils.ts(30,10): error TS1484: 'QueryResponse' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/query/utils.ts(32,3): error TS1484: 'Message' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/recommendations/utils.ts(34,10): error TS1484: 'ProductDetails' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/recommendations/utils.ts(34,26): error TS1484: 'TermDetails' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/recommendations/utils.ts(34,39): error TS1484: 'IProductConfig' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/recommendations/utils.ts(137,15): error TS2532: Object is possibly 'undefined'.
+../../packages/headless/src/modules/routing/funnel.machine.ts(2,10): error TS1484: 'AnyEventObject' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/routing/funnel.machine.ts(11,10): error TS1484: 'FunnelContext' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/routing/funnel.machine.ts(11,25): error TS1484: 'FunnelProps' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/routing/routingEngine.machine.ts(21,10): error TS1484: 'RouteLocation' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/routing/services.ts(41,29): error TS2345: Argument of type '{ context: FunnelContext; id?: string | undefined; states?: StateNodesConfig<FunnelContext, MachineSchema<FunnelContext, AnyEventObject, ServiceMap>, any> | undefined; guards?: MachineOptions<FunnelContext, AnyEventObject>["guards"]; services?: MachineOptions<FunnelContext, AnyEventObject>["services"]; actions?: Mac...' is not assignable to parameter of type 'FunnelProps'.
+  Types of property 'id' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+../../packages/headless/src/modules/routing/useRouting.ts(9,10): error TS1484: 'UIRouteOptions' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/routing/useRoutingEngine.ts(17,3): error TS1484: 'ResponseError' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/routing/utils.ts(36,10): error TS1484: 'RouteLocation' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/session/guest/guest.machine.ts(26,3): error TS1484: 'ResponseError' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/session/guest/services.ts(7,3): error TS1484: 'IToken' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/session/services.ts(12,22): error TS1484: 'IToken' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/session/types.ts(1,10): error TS1484: 'IUser' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/session/types.ts(1,17): error TS1484: 'IClient' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/session/useSession.ts(3,10): error TS1484: 'ActorRef' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/session/useSession.ts(24,3): error TS1484: 'ResponseError' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/session/useSession.ts(34,10): error TS1484: 'ErrorObject' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/session/useSession.ts(35,10): error TS1484: 'GuestContext' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/session/useSession.ts(36,10): error TS1484: 'ClientContext' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/session/useSession.ts(522,20): error TS2345: Argument of type 'ActorRef<any, any> | undefined' is not assignable to parameter of type 'ActorRef<any, any>'.
+  Type 'undefined' is not assignable to type 'ActorRef<any, any>'.
+../../packages/headless/src/modules/system/analytics/useDataLayer.ts(20,10): error TS1484: 'IInvoice' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/system/analytics/useDataLayer.ts(25,3): error TS1484: 'DataLayerEcommerce' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/system/analytics/useDataLayer.ts(26,3): error TS1484: 'DataLayerEcommerceItems' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/system/analytics/useDataLayer.ts(27,3): error TS1484: 'DataLayerEcommerceItem' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/system/analytics/useDataLayer.ts(28,3): error TS1484: 'DataLayerPage' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/system/analytics/useDataLayer.ts(29,3): error TS1484: 'DataLayerUser' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/system/analytics/useDataLayer.ts(31,10): error TS1484: 'PageRoute' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/system/localisation/useI18n.ts(122,7): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+../../packages/headless/src/modules/system/localisation/useLocalisation.ts(9,10): error TS1484: 'I18n' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/system/localisation/useLocalisation.ts(10,10): error TS1484: 'GlobbedFiles' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/system/places/types.ts(34,10): error TS2694: Namespace 'google' has no exported member 'maps'.
+../../packages/headless/src/modules/system/places/types.ts(40,39): error TS2694: Namespace 'google' has no exported member 'maps'.
+../../packages/headless/src/modules/system/places/types.ts(66,24): error TS2339: Property 'maps' does not exist on type 'typeof google'.
+../../packages/headless/src/modules/system/places/types.ts(70,41): error TS2339: Property 'maps' does not exist on type 'typeof google'.
+../../packages/headless/src/modules/system/places/types.ts(75,43): error TS2339: Property 'maps' does not exist on type 'typeof google'.
+../../packages/headless/src/modules/system/places/usePlaces.ts(92,27): error TS2694: Namespace 'google' has no exported member 'maps'.
+../../packages/headless/src/modules/system/places/usePlaces.ts(103,12): error TS7006: Parameter 'response' implicitly has an 'any' type.
+../../packages/headless/src/modules/system/places/usePlaces.ts(112,30): error TS2694: Namespace 'google' has no exported member 'maps'.
+../../packages/headless/src/modules/system/places/usePlaces.ts(130,16): error TS2694: Namespace 'google' has no exported member 'maps'.
+../../packages/headless/src/modules/system/places/usePlaces.ts(150,16): error TS7031: Binding element 'place' implicitly has an 'any' type.
+../../packages/headless/src/modules/system/places/utils.ts(13,29): error TS2694: Namespace 'google' has no exported member 'maps'.
+../../packages/headless/src/modules/system/places/utils.ts(37,29): error TS2694: Namespace 'google' has no exported member 'maps'.
+../../packages/headless/src/modules/system/places/utils.ts(49,17): error TS2694: Namespace 'google' has no exported member 'maps'.
+../../packages/headless/src/modules/system/places/utils.ts(101,41): error TS2694: Namespace 'google' has no exported member 'maps'.
+../../packages/headless/src/modules/system/recaptcha/recaptcha.machine.ts(7,10): error TS1484: 'RecaptchaContext' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/system/recaptcha/useRecaptcha.ts(20,3): error TS1484: 'ResponseError' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/system/upload/services.ts(20,3): error TS1484: 'IImage' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/system/upload/services.ts(22,10): error TS1484: 'AnyEventObject' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/system/upload/upload.machine.ts(2,33): error TS1484: 'AnyEventObject' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/modules/system/useSystem.ts(159,7): error TS2322: Type 'IRegion[] | undefined' is not assignable to type 'IRegion[]'.
+  Type 'undefined' is not assignable to type 'IRegion[]'.
+../../packages/headless/src/useUpmind.ts(2,10): error TS1484: 'Ref' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/useUpmind.ts(8,3): error TS1484: 'FunnelProps' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/useUpmind.ts(9,3): error TS1484: 'Funnels' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/utils/useCollections.ts(2,20): error TS1484: 'MaybeRef' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/utils/useCookies.ts(3,37): error TS7016: Could not find a declaration file for module 'psl'. '/Users/domdacosta/Dev/Upmind/monorepo/node_modules/.pnpm/psl@1.15.0/node_modules/psl/dist/psl.mjs' implicitly has an 'any' type.
+  There are types at '/Users/domdacosta/Dev/Upmind/monorepo/packages/headless/node_modules/psl/types/index.d.ts', but this result could not be resolved when respecting package.json "exports". The 'psl' library may need to update its package.json or typings.
+../../packages/headless/src/utils/useState.ts(18,3): error TS1484: 'PropertyPath' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/utils/useValidation.ts(32,22): error TS1484: 'ResponseError' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/headless/src/utils/useValidation.ts(229,38): error TS18048: 'min' is possibly 'undefined'.
+../../packages/headless/src/utils/useValidation.ts(230,29): error TS2345: Argument of type 'number | undefined' is not assignable to parameter of type 'number'.
+  Type 'undefined' is not assignable to type 'number'.
+../../packages/headless/src/utils/useValidationFormats.ts(1,10): error TS1484: 'FormatDefinition' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/types/src/models/auth.ts(1,46): error TS2307: Cannot find module 'src' or its corresponding type declarations.
+../../packages/types/src/models/auth.ts(7,10): error TS1484: 'IBrand' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/types/src/models/auth.ts(8,10): error TS1484: 'IDefaultObject' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/types/src/models/auth.ts(9,10): error TS1484: 'IOrg' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/types/src/models/auth.ts(10,10): error TS1484: 'IUser' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/types/src/models/auth.ts(11,10): error TS1484: 'IClient' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/types/src/models/baskets.ts(19,10): error TS1484: 'IPhone' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/types/src/models/brands.ts(12,10): error TS1484: 'IDefaultObject' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/types/src/models/clients.ts(18,10): error TS1484: 'IDefaultObject' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/types/src/models/clients.ts(19,10): error TS1484: 'ICompany' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/types/src/models/contracts.ts(31,10): error TS1484: 'IScheduledAction' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/types/src/models/delegates.ts(5,10): error TS1484: 'ILead' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/types/src/models/self.ts(5,10): error TS1484: 'IUser' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/types/src/models/self.ts(6,10): error TS1484: 'IUpmindModule' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/types/src/models/self.ts(7,33): error TS2307: Cannot find module 'src/data/enums' or its corresponding type declarations.
+../../packages/types/src/models/self.ts(8,35): error TS2307: Cannot find module 'src/data/enums/objects' or its corresponding type declarations.
+../../packages/types/src/models/token.ts(1,28): error TS2307: Cannot find module 'src/data/enums/tokens' or its corresponding type declarations.
+../../packages/types/src/models/userGroups.ts(4,10): error TS1484: 'IDefaultObject' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/types/src/models/wallets.ts(1,10): error TS1484: 'IAccount' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/types/src/models/wallets.ts(2,10): error TS1484: 'IBrand' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/types/src/models/wallets.ts(3,10): error TS1484: 'IClient' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/types/src/models/wallets.ts(4,10): error TS1484: 'ICurrency' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/types/src/models/wallets.ts(5,10): error TS1484: 'IGateway' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/types/src/models/wallets.ts(6,10): error TS1484: 'IImport' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/types/src/models/wallets.ts(7,10): error TS1484: 'IInvoice' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/types/src/models/wallets.ts(8,10): error TS1484: 'IDefaultObject' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/types/src/models/wallets.ts(9,10): error TS1484: 'IPaymentLog' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+../../packages/ui/src/ui/accordion/AccordionContent.vue(27,18): error TS18048: 'entry' is possibly 'undefined'.
+../../packages/ui/src/ui/breadcrumb/Breadcrumb.ce.vue(71,53): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(getter: ComputedGetter<BreadcrumbItem[]>, debugOptions?: DebuggerOptions | undefined): ComputedRef<BreadcrumbItem[]>', gave the following error.
+    Argument of type '() => (BreadcrumbItemType | undefined)[]' is not assignable to parameter of type 'ComputedGetter<BreadcrumbItem[]>'.
+      Type '(BreadcrumbItem | undefined)[]' is not assignable to type 'BreadcrumbItem[]'.
+        Type 'BreadcrumbItem | undefined' is not assignable to type 'BreadcrumbItem'.
+          Type 'undefined' is not assignable to type 'BreadcrumbItem'.
+  Overload 2 of 2, '(options: WritableComputedOptions<BreadcrumbItem[], BreadcrumbItem[]>, debugOptions?: DebuggerOptions | undefined): WritableComputedRef<...>', gave the following error.
+    Argument of type '() => (BreadcrumbItemType | undefined)[]' is not assignable to parameter of type 'WritableComputedOptions<BreadcrumbItem[], BreadcrumbItem[]>'.
+../../packages/ui/src/ui/form/FormControl.vue(82,33): error TS18048: 'section' is possibly 'undefined'.
+../../packages/ui/src/ui/form/FormControl.vue(83,14): error TS18048: 'section' is possibly 'undefined'.
+../../packages/ui/src/ui/form/renderers/complex/OneOfRenderer.vue(13,16): error TS2532: Object is possibly 'undefined'.
+../../packages/ui/src/ui/form/renderers/complex/OneOfRenderer.vue(14,18): error TS2532: Object is possibly 'undefined'.
+../../packages/ui/src/ui/form/renderers/complex/OneOfRenderer.vue(86,7): error TS2532: Object is possibly 'undefined'.
+../../packages/ui/src/ui/icon-animated/IconAnimated.ce.vue(73,29): error TS2722: Cannot invoke an object which is possibly 'undefined'.
+../../packages/ui/src/utils/useStyles.ts(175,74): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+../../packages/ui/src/utils/useStyles.ts(175,123): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+error TS6305: Output file '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/app/app.vue.d.ts' has not been built from source file '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/app/app.vue'.
+  The file is in the program because:
+    Matched by include pattern 'app/**/*' in '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/tsconfig.json'
+error TS6305: Output file '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/app/layouts/default.vue.d.ts' has not been built from source file '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/app/layouts/default.vue'.
+  The file is in the program because:
+    Matched by include pattern 'app/**/*' in '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/tsconfig.json'
+error TS6305: Output file '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/app/middleware/routing.global.d.ts' has not been built from source file '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/app/middleware/routing.global.ts'.
+  The file is in the program because:
+    Matched by include pattern 'app/**/*' in '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/tsconfig.json'
+error TS6305: Output file '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/app/pages/basket.vue.d.ts' has not been built from source file '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/app/pages/basket.vue'.
+  The file is in the program because:
+    Matched by include pattern 'app/**/*' in '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/tsconfig.json'
+error TS6305: Output file '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/app/pages/catalogue.vue.d.ts' has not been built from source file '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/app/pages/catalogue.vue'.
+  The file is in the program because:
+    Matched by include pattern 'app/**/*' in '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/tsconfig.json'
+error TS6305: Output file '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/app/pages/checkout.vue.d.ts' has not been built from source file '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/app/pages/checkout.vue'.
+  The file is in the program because:
+    Matched by include pattern 'app/**/*' in '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/tsconfig.json'
+error TS6305: Output file '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/app/pages/index.vue.d.ts' has not been built from source file '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/app/pages/index.vue'.
+  The file is in the program because:
+    Matched by include pattern 'app/**/*' in '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/tsconfig.json'
+error TS6305: Output file '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/app/pages/product.vue.d.ts' has not been built from source file '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/app/pages/product.vue'.
+  The file is in the program because:
+    Matched by include pattern 'app/**/*' in '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/tsconfig.json'
+error TS6305: Output file '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/app/pages/product/[id].vue.d.ts' has not been built from source file '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/app/pages/product/[id].vue'.
+  The file is in the program because:
+    Matched by include pattern 'app/**/*' in '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/tsconfig.json'
+error TS6305: Output file '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/app/pages/session.vue.d.ts' has not been built from source file '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/app/pages/session.vue'.
+  The file is in the program because:
+    Matched by include pattern 'app/**/*' in '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/tsconfig.json'
+error TS6305: Output file '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/app/pages/session/login.vue.d.ts' has not been built from source file '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/app/pages/session/login.vue'.
+  The file is in the program because:
+    Matched by include pattern 'app/**/*' in '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/tsconfig.json'
+error TS6305: Output file '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/app/pages/session/register.vue.d.ts' has not been built from source file '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/app/pages/session/register.vue'.
+  The file is in the program because:
+    Matched by include pattern 'app/**/*' in '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/tsconfig.json'
+error TS6305: Output file '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/app/plugins/analytics.client.d.ts' has not been built from source file '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/app/plugins/analytics.client.ts'.
+  The file is in the program because:
+    Matched by include pattern 'app/**/*' in '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/tsconfig.json'
+error TS6305: Output file '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/app/plugins/i18n.d.ts' has not been built from source file '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/app/plugins/i18n.ts'.
+  The file is in the program because:
+    Matched by include pattern 'app/**/*' in '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/tsconfig.json'
+error TS6305: Output file '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/app/plugins/sentry.client.d.ts' has not been built from source file '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/app/plugins/sentry.client.ts'.
+  The file is in the program because:
+    Matched by include pattern 'app/**/*' in '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/tsconfig.json'
+error TS6305: Output file '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/app/plugins/upmind.client.d.ts' has not been built from source file '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/app/plugins/upmind.client.ts'.
+  The file is in the program because:
+    Matched by include pattern 'app/**/*' in '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/tsconfig.json'
+error TS6305: Output file '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/app/router/actions.d.ts' has not been built from source file '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/app/router/actions.ts'.
+  The file is in the program because:
+    Matched by include pattern 'app/**/*' in '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/tsconfig.json'
+error TS6305: Output file '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/app/router/funnels/cart.d.ts' has not been built from source file '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/app/router/funnels/cart.ts'.
+  The file is in the program because:
+    Matched by include pattern 'app/**/*' in '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/tsconfig.json'
+error TS6305: Output file '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/app/router/funnels/domains.d.ts' has not been built from source file '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/app/router/funnels/domains.ts'.
+  The file is in the program because:
+    Matched by include pattern 'app/**/*' in '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/tsconfig.json'
+error TS6305: Output file '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/app/router/funnels/index.d.ts' has not been built from source file '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/app/router/funnels/index.ts'.
+  The file is in the program because:
+    Matched by include pattern 'app/**/*' in '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/tsconfig.json'
+error TS6305: Output file '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/app/router/guards.d.ts' has not been built from source file '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/app/router/guards.ts'.
+  The file is in the program because:
+    Matched by include pattern 'app/**/*' in '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/tsconfig.json'
+error TS6305: Output file '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/app/router/services.d.ts' has not been built from source file '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/app/router/services.ts'.
+  The file is in the program because:
+    Matched by include pattern 'app/**/*' in '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/tsconfig.json'
+error TS6305: Output file '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/app/router/types.d.ts' has not been built from source file '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/app/router/types.ts'.
+  The file is in the program because:
+    Matched by include pattern 'app/**/*' in '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/tsconfig.json'
+tsconfig.json(16,5): error TS6306: Referenced project '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/.nuxt/tsconfig.app.json' must have setting "composite": true.
+tsconfig.json(16,5): error TS6310: Referenced project '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/.nuxt/tsconfig.app.json' may not disable emit.
+tsconfig.json(17,5): error TS6306: Referenced project '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/.nuxt/tsconfig.server.json' must have setting "composite": true.
+tsconfig.json(17,5): error TS6310: Referenced project '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/.nuxt/tsconfig.server.json' may not disable emit.
+tsconfig.json(18,5): error TS6306: Referenced project '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/.nuxt/tsconfig.shared.json' must have setting "composite": true.
+tsconfig.json(18,5): error TS6310: Referenced project '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/.nuxt/tsconfig.shared.json' may not disable emit.
+tsconfig.json(19,5): error TS6306: Referenced project '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/.nuxt/tsconfig.node.json' must have setting "composite": true.
+tsconfig.json(19,5): error TS6310: Referenced project '/Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt/.nuxt/tsconfig.node.json' may not disable emit.
+
+ ERROR  Process exited with non-zero status (2)
+
+    at G._waitForOutput (/Users/domdacosta/Dev/Upmind/monorepo/node_modules/.pnpm/tinyexec@1.0.2/node_modules/tinyexec/dist/main.js:574:92)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Object.run (/Users/domdacosta/Dev/Upmind/monorepo/node_modules/.pnpm/@nuxt+cli@3.32.0_cac@6.7.14_commander@13.1.0_magicast@0.5.1/node_modules/@nuxt/cli/dist/typecheck-B-jIcMjP.mjs:37:52)
+    at async runCommand (/Users/domdacosta/Dev/Upmind/monorepo/node_modules/.pnpm/citty@0.1.6/node_modules/citty/dist/index.mjs:316:16)
+    at async runCommand (/Users/domdacosta/Dev/Upmind/monorepo/node_modules/.pnpm/citty@0.1.6/node_modules/citty/dist/index.mjs:307:11)
+    at async runMain (/Users/domdacosta/Dev/Upmind/monorepo/node_modules/.pnpm/citty@0.1.6/node_modules/citty/dist/index.mjs:445:7) 
+
+
+
+ ERROR  Process exited with non-zero status (2)
+
+npm error Lifecycle script `type-check` failed with error:
+npm error code 1
+npm error path /Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt
+npm error workspace @upmind-automation/cart-nuxt@0.0.1
+npm error location /Users/domdacosta/Dev/Upmind/monorepo/apps/cart-nuxt
+npm error command failed
+npm error command sh -c nuxt typecheck

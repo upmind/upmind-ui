@@ -1,38 +1,55 @@
 <template>
-  <Upm :storefront-route="{ name: ROUTE.STOREFRONT }">
-    <template #header-actions>
-      <UpmBasketAction :basket-route="{ name: ROUTE.BASKET }" />
-      <UpmAuthAction
-        v-if="!isAuthRoute"
-        :login-route="{ name: ROUTE.SESSION_LOGIN }"
-        :register-route="{ name: ROUTE.SESSION_REGISTER }"
-        :recover-route="{ name: ROUTE.SESSION_RECOVER_PASSWORD }"
-      />
-    </template>
+  <UpmPage :class="styles.page">
+    <UpmHeader :storefront-route="{ name: ROUTE.STOREFRONT }">
+      <template #actions>
+        <UpmBasketAction :basket-route="{ name: ROUTE.BASKET }" />
+        <UpmAuthAction
+          v-if="!isAuthRoute"
+          :login-route="{ name: ROUTE.SESSION_LOGIN }"
+          :register-route="{ name: ROUTE.SESSION_REGISTER }"
+          :recover-route="{ name: ROUTE.SESSION_RECOVER_PASSWORD }"
+        />
+      </template>
+    </UpmHeader>
 
-    <!-- Page content from NuxtPage -->
-    <template #default>
-      <slot />
-    </template>
-  </Upm>
+    <UpmAsyncLoading :open="routingMeta.isLoading" />
+
+    <UpmMain>
+      <!-- Page content from NuxtPage -->
+      <UpmRoot>
+        <slot />
+      </UpmRoot>
+    </UpmMain>
+
+    <UpmFooter />
+    <UpmFeedback :storefront-route="{ name: ROUTE.STOREFRONT }" />
+  </UpmPage>
 </template>
 
 <script lang="ts" setup>
 /**
  * Default Layout
  *
- * Wraps pages in the Upm component from client-vue.
+ * Reconstructs the Upmind shell using modular components.
  * Handles session/basket state watchers for automatic redirects.
  */
 import {
-  Upm,
+  UpmPage,
+  UpmHeader,
+  UpmFooter,
+  UpmMain,
+  UpmFeedback,
+  UpmAsyncLoading,
+  UpmRoot,
   UpmBasketAction,
   UpmAuthAction,
   useBasket,
-  useSession
+  useSession,
+  useRoutingEngine
 } from "@upmind-automation/client-vue";
-import { includes } from "lodash-es";
-import { ROUTE } from "~/utils/routes";
+import { useStyles } from "@upmind-automation/upmind-ui";
+import { includes, get } from "lodash-es";
+import { ROUTE } from "~/router/types";
 
 // -----------------------------------------------------------------------------
 const route = useRoute();
@@ -40,8 +57,29 @@ const router = useRouter();
 
 const { meta: basketMeta } = useBasket();
 const { meta: sessionMeta } = useSession();
+const { meta: routingEngineMeta } = useRoutingEngine();
 
 // --- computed
+
+/**
+ * Ported meta logic from Upmind.vue
+ */
+const routingMeta = computed(() => ({
+  isLoading:
+    !routingEngineMeta.value.isResolved &&
+    routingEngineMeta.value.isInitialRoute
+}));
+
+// add any page specific styles here based on route or other state
+const styles = useStyles(
+  ["page"],
+  computed(() => {
+    return {
+      route: get(route, "name", get(route, "path", "")),
+      loading: !routingMeta.value.isLoading
+    };
+  })
+);
 
 const isAuthRoute = computed(() =>
   includes(
