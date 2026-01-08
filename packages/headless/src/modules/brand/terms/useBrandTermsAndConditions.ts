@@ -12,9 +12,10 @@ import { invalidateQueryByKey } from "../../query";
 
 // -----------------------------------------------------------------------------
 
-let needsRefresh = some(keys(localStorage), key =>
-  includes(key, `"brand","terms"`)
-);
+let needsRefresh =
+  typeof localStorage !== "undefined"
+    ? some(keys(localStorage), key => includes(key, `"brand","terms"`))
+    : false;
 
 // -----------------------------------------------------------------------------
 /**

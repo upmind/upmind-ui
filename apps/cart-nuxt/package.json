@@ -1,0 +1,39 @@
+{
+  "name": "@upmind-automation/cart-nuxt",
+  "private": true,
+  "version": "0.0.1",
+  "description": "Nuxt-based e-commerce cart with SSR/SSG and middleware-based routing",
+  "type": "module",
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  },
+  "scripts": {
+    "clean": "rm -rf {node_modules,dist,.nuxt,.output,*.tsbuildinfo} && pnpm install",
+    "build": "nuxt build",
+    "dev": "nuxt dev --port 5173 --host collabstudio.local",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "type-check": "nuxt typecheck",
+    "lint": "eslint . --fix",
+    "format": "prettier --write ."
+  },
+  "dependencies": {
+    "nuxt": "^4.2.2",
+    "vue": "^3.5.18",
+    "vue-router": "^4.5.1",
+    "@upmind-automation/headless": "workspace:*",
+    "@upmind-automation/types": "workspace:*",
+    "@upmind-automation/upmind-ui": "workspace:*",
+    "@upmind-automation/client-vue": "workspace:*",
+    "@upmind-automation/i18n": "workspace:*",
+    "@vueuse/core": "^13.6.0",
+    "@vueuse/nuxt": "^13.6.0",
+    "lodash-es": "^4.17.21"
+  },
+  "devDependencies": {
+    "@nuxt/eslint": "^1.5.0",
+    "@types/lodash-es": "^4.17.12",
+    "typescript": "^5.9.2"
+  }
+}

@@ -36,7 +36,6 @@ import {
 import type { BrandMeta } from "./types";
 import type { CurrencyModel } from "../basket/currency/types";
 
-// -----------------------------------------------------------------------------
 /**
  * Context to let us understand if we need to refetch on the initial use of Brand settings
  * We do this because settings are persisted for fast load times, but we still need
@@ -44,9 +43,10 @@ import type { CurrencyModel } from "../basket/currency/types";
  * NB:check if we actually have any persisted settings first
  *
  */
-let needsRefresh = some(keys(localStorage), key =>
-  includes(key, `"brand","settings"`)
-);
+let needsRefresh =
+  typeof localStorage !== "undefined"
+    ? some(keys(localStorage), key => includes(key, `"brand","settings"`))
+    : false;
 
 // ---  singleton queries to prevent multiple fetches
 let modulesQuery: ReturnType<typeof services.fetchModules>;
