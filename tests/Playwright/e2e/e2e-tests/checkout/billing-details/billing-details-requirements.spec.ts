@@ -1,17 +1,17 @@
 import { test, expect } from "@playwright/test";
 import { fakerEN_GB } from "@faker-js/faker";
-import { Checkout } from "../../support/page-objects/templates/Checkout";
+import { Checkout } from "../../../support/page-objects/templates/Checkout";
 import {
-  getCurrentOrderId,
+  createOrder,
   addProductToOrder
-} from "../../support/utils/functions/basket";
-import { interceptConfigValues } from "../../support/utils/functions/brand";
-import { URLs } from "../../support/constants/urls";
+} from "../../../support/utils/functions/basket";
+import { interceptConfigValues } from "../../../support/utils/functions/brand";
+import { URLs } from "../../../support/constants/urls";
 import {
   getSessionToken,
   getClientToken
-} from "../../support/utils/functions/tokens";
-import { Logins } from "../../support/constants/logins";
+} from "../../../support/utils/functions/tokens";
+import { Logins } from "../../../support/constants/logins";
 let checkout: Checkout;
 let token: string;
 let orderId: string | null;
@@ -26,7 +26,7 @@ test.describe("Verify checkout billing detail requirements", () => {
     await page.goto(URLs.basket);
     await page.waitForLoadState("networkidle");
     token = await getSessionToken(context);
-    orderId = await getCurrentOrderId(token);
+    orderId = await createOrder(token);
     await addProductToOrder(
       `${token}`,
       `${orderId}`,
