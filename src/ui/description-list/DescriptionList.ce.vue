@@ -33,7 +33,6 @@ import config from "./descriptionList.config";
 import { useStyles, cn } from "../../utils";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { DescriptionListProps } from "./types";
 
 // -----------------------------------------------------------------------------
@@ -46,17 +45,5 @@ const meta = computed(() => ({
   //
 }));
 
-const styles = useStyles(
-  "list",
-  meta,
-  config,
-  props.uiConfig ?? {}
-) as ComputedRef<{
-  list: {
-    root: string;
-    term: string;
-    description: string;
-    item: string;
-  };
-}>;
+const styles = useStyles("list", meta, config, props.uiConfig ?? {});
 </script>

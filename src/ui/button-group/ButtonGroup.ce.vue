@@ -48,7 +48,6 @@ import { Button } from "../button";
 import { Select } from "../select";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { ButtonGroupProps } from "./types";
 import { ButtonGroup } from "./types";
 
@@ -73,14 +72,5 @@ const styles = useStyles(
   meta,
   config,
   props.uiConfig ?? {}
-) as ComputedRef<{
-  buttonGroup: {
-    root: string;
-    item: string;
-    button: string;
-    select: {
-      root: string;
-    };
-  };
-}>;
+);
 </script>

@@ -70,7 +70,6 @@ import { isEmpty, isArray, isString } from "lodash-es";
 import { useStyles, cn, getComputedColor } from "../../utils";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { ImageProps } from "./types";
 import type { CarouselApi } from "../carousel";
 
@@ -93,21 +92,7 @@ const styles = useStyles(
   ["image", "image.carousel", "image.nav"],
   meta,
   config
-) as ComputedRef<{
-  image: {
-    container: string;
-    root: string;
-    icon: string;
-    carousel: {
-      content: string;
-      item: string;
-    };
-    nav: {
-      root: string;
-      item: string;
-    };
-  };
-}>;
+);
 
 const imageIndex = ref(0);
 const carouselApi = ref<CarouselApi>();

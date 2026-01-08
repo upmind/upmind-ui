@@ -25,9 +25,10 @@ import { useUpmindUIRenderer } from "../utils";
 import { isNumber, get, isArray, includes } from "lodash-es";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
+import type { ComputedRef } from "vue";
+
 // -----------------------------------------------------------------------------
 const props = defineProps<RendererProps<ControlElement>>();
 

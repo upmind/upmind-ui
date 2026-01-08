@@ -83,7 +83,6 @@ import {
 
 // --- types
 import type { SelectCardsProps, SelectCardsItemProps } from "./types";
-import type { ComputedRef } from "vue";
 import Select from "../select/Select.vue";
 
 const props = withDefaults(defineProps<SelectCardsProps>(), {
@@ -108,19 +107,7 @@ const meta = computed(() => ({
   size: props.size
 }));
 
-const styles = useStyles(
-  ["select"],
-  meta,
-  config,
-  props.uiConfig ?? {}
-) as ComputedRef<{
-  select: {
-    item: string;
-    content: string;
-    group: string;
-    trigger: string;
-  };
-}>;
+const styles = useStyles(["select"], meta, config, props.uiConfig ?? {});
 
 function onChange(value: any) {
   if (!props.required && modelValue.value === value) {

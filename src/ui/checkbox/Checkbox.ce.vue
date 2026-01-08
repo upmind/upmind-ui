@@ -26,7 +26,6 @@ import { useStyles, cn } from "../../utils";
 import { omit } from "lodash-es";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { CheckboxProps } from "./types";
 
 // -----------------------------------------------------------------------------
@@ -55,12 +54,7 @@ const meta = computed(() => ({
   size: props.size
 }));
 
-const styles = useStyles(
-  ["checkbox"],
-  meta,
-  config,
-  props.uiConfig ?? {}
-) as ComputedRef<{ checkbox: string }>;
+const styles = useStyles(["checkbox"], meta, config, props.uiConfig ?? {});
 
 const handleEnter = () => {
   checked.value = !checked.value;

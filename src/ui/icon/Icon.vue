@@ -29,7 +29,6 @@ import config from "./icon.config";
 import { find, isObject, isEmpty } from "lodash-es";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { IconProps } from ".";
 
 // -----------------------------------------------------------------------------
@@ -52,12 +51,7 @@ const meta = computed(() => ({
   hasIcon: !isEmpty(props.icon)
 }));
 
-const styles = useStyles(
-  "icon",
-  meta,
-  config,
-  props.uiConfig ?? {}
-) as ComputedRef<{ icon: string }>;
+const styles = useStyles("icon", meta, config, props.uiConfig ?? {});
 
 const icons = import.meta.glob("@icons/**/*.svg", {
   query: "?raw",

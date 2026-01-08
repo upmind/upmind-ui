@@ -70,7 +70,6 @@ import {
 import { cn } from "../../utils";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { JsonFormsChangeEvent } from "@jsonforms/vue";
 import type {
   ValidationMode,
@@ -159,9 +158,7 @@ const styles = useStyles(
   meta,
   config,
   props.uiConfig ?? {}
-) as ComputedRef<{
-  form: { root: string; content: string; actions: string; button: string };
-}>;
+);
 
 const renderers = Object.freeze([
   ...upmindUIRenderers,

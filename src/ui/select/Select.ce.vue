@@ -97,7 +97,6 @@ import { isEmpty, isEqual, isNull, find } from "lodash-es";
 // --- types
 import type { SelectRootEmits, SelectContentEmits } from "radix-vue";
 import type { SelectProps } from "./types";
-import type { ComputedRef } from "vue";
 import { timestamp } from "@vueuse/shared";
 
 const props = withDefaults(defineProps<SelectProps>(), {
@@ -147,19 +146,7 @@ const meta = computed(() => ({
   hasRing: props.ring
 }));
 
-const styles = useStyles(
-  ["select"],
-  meta,
-  config,
-  props.uiConfig ?? {}
-) as ComputedRef<{
-  select: {
-    root: string;
-    content: string;
-    value: string;
-    item: string;
-  };
-}>;
+const styles = useStyles(["select"], meta, config, props.uiConfig ?? {});
 
 // NB: set the new timestamp when items change to force a re-render
 watch(

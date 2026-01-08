@@ -25,7 +25,6 @@ import config from "./spinner.config";
 // --- utils
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { SpinnerProps } from ".";
 
 // -----------------------------------------------------------------------------
@@ -45,10 +44,5 @@ const meta = computed(() => ({
   // ---
 }));
 
-const styles = useStyles(
-  "spinner",
-  meta,
-  config,
-  props.uiConfig ?? {}
-) as ComputedRef<{ spinner: string }>;
+const styles = useStyles("spinner", meta, config, props.uiConfig ?? {});
 </script>

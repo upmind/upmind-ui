@@ -110,7 +110,6 @@ import RadioCardItem from "./RadioCardItem.vue";
 
 // --- types
 import type { RadioCardsCollapsibleProps } from "./types";
-import type { ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<RadioCardsCollapsibleProps>(), {
@@ -141,21 +140,7 @@ const meta = computed(() => ({
   width: props.width
 }));
 
-const styles = useStyles(
-  "radioCards",
-  meta,
-  config,
-  props.uiConfig ?? {}
-) as ComputedRef<{
-  radioCards: {
-    trigger: string;
-    root: string;
-    item: string;
-    radio: string;
-    input: string;
-    label: string;
-  };
-}>;
+const styles = useStyles("radioCards", meta, config, props.uiConfig ?? {});
 
 const selectedItem = computed(() => {
   return props.items.find(item => item.value === modelValue.value);

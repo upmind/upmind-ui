@@ -63,7 +63,6 @@ import NumberFieldIcon from "./NumberFieldIcon.vue";
 import { omit } from "lodash-es";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { NumberFieldProps } from "./types";
 import { NUMBER_FIELD_VARIANTS } from "./types";
 
@@ -145,17 +144,5 @@ const getWidth = computed(() => {
   return "2xl";
 });
 
-const styles = useStyles(
-  ["numberField"],
-  meta,
-  config,
-  props.uiConfig ?? {}
-) as ComputedRef<{
-  numberField: {
-    root: string;
-    inputLeft: string;
-    inputRight: string;
-    field: string;
-  };
-}>;
+const styles = useStyles(["numberField"], meta, config, props.uiConfig ?? {});
 </script>

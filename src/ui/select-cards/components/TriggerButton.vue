@@ -45,14 +45,9 @@ import { Button } from "../../button";
 import { Icon } from "../../icon";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { SelectCardsTriggerProps } from "../types";
 
 const props = defineProps<SelectCardsTriggerProps>();
 
-const variants = useStyles(["select"], {}, config, {}) as ComputedRef<{
-  select: {
-    trigger: string;
-  };
-}>;
+const variants = useStyles(["select"], {}, config, {});
 </script>

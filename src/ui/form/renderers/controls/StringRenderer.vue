@@ -30,9 +30,10 @@ import { useUpmindUIRenderer } from "../utils";
 import { isNil } from "lodash-es";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
+import type { ComputedRef } from "vue";
+
 // import type { FormControlRenderProps, FormControlProps } from "../../types";
 
 // interface StringInputOptions extends FormControlProps {

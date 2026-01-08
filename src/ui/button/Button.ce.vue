@@ -60,7 +60,6 @@ import ButtonItems from "./ButtonItems.vue";
 import { RouterLink } from "vue-router";
 
 // -- types
-import type { ComputedRef } from "vue";
 import type { ButtonProps } from "./types";
 
 const props = withDefaults(defineProps<ButtonProps>(), {
@@ -111,15 +110,5 @@ const meta = computed(() => ({
   hasRing: props.ring && !props.disabled && props.focusable
 }));
 
-const styles = useStyles(
-  ["button"],
-  meta,
-  config,
-  props.uiConfig ?? {}
-) as ComputedRef<{
-  button: {
-    root: string;
-    label: string;
-  };
-}>;
+const styles = useStyles(["button"], meta, config, props.uiConfig ?? {});
 </script>

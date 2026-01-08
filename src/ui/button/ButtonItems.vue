@@ -25,7 +25,6 @@ import config from "./button.config";
 
 // --- types
 import type { ButtonItemsProps } from "./types";
-import type { ComputedRef } from "vue";
 
 const props = defineProps<ButtonItemsProps>();
 
@@ -37,9 +36,5 @@ const meta = computed(() => {
   };
 });
 
-const styles = useStyles(["button"], meta, config, {}) as ComputedRef<{
-  button: {
-    items: string;
-  };
-}>;
+const styles = useStyles(["button"], meta, config, {});
 </script>

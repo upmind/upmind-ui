@@ -37,7 +37,7 @@ import { useUpmindUILayoutRenderer } from "../utils";
 import { useStyles } from "../../../../utils";
 
 // --- types
-import type { PropType, ComputedRef } from "vue";
+import type { PropType } from "vue";
 import type { Layout } from "@jsonforms/core";
 
 // -------------------------------------------------------------------
@@ -55,18 +55,7 @@ const meta = computed(() => ({
   hasBorder: appliedOptions.value?.border ?? true
 }));
 
-const styles = useStyles(
-  ["group"],
-  meta,
-  config,
-  props.uiConfig ?? {}
-) as ComputedRef<{
-  group: {
-    root: string;
-    label: string;
-    item: string;
-  };
-}>;
+const styles = useStyles(["group"], meta, config, props.uiConfig ?? {});
 const { layout, appliedOptions } = useUpmindUILayoutRenderer(
   useJsonFormsLayout(props)
 );
