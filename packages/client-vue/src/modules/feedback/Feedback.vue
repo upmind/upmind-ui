@@ -56,7 +56,7 @@ import type { RouteLocationAsRelativeGeneric } from "vue-router";
 // -----------------------------------------------------------------------------
 const props = defineProps<{
   scheduled?: boolean;
-  storefrontRoute?: RouteLocationAsRelativeGeneric | { href: string } | null;
+  storefrontRoute?: RouteLocationAsRelativeGeneric;
 }>();
 const styles = useStyles(["feedback"], props, config);
 

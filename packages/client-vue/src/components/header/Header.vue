@@ -81,7 +81,7 @@ const stylesMeta = computed(() => ({
 
 const props = defineProps<{
   logo?: string;
-  storefrontRoute?: RouteLocationAsRelativeGeneric | { href: string } | null;
+  storefrontRoute?: RouteLocationAsRelativeGeneric;
 }>();
 
 const styles = useStyles(

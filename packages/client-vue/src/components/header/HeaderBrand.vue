@@ -1,5 +1,5 @@
 <template>
-  <Link id="logo" :class="styles.header.link" v-bind="linkProps">
+  <Link id="logo" :class="styles.header.link" :to="props.storefrontRoute">
     <picture v-if="logo" :class="styles.header.picture">
       <slot name="logo" :logo="logo">
         <img v-if="logo" :src="logo" :class="styles.header.image" alt="logo" />
@@ -18,7 +18,6 @@
 // --- external
 import { useI18n } from "vue-i18n";
 import { useRoute, type RouteLocationAsRelativeGeneric } from "vue-router";
-import { has } from "lodash-es";
 
 // --- internal
 import { useBrand } from "@upmind-automation/headless";
@@ -38,20 +37,12 @@ const { name, image } = useBrand();
 const { t } = useI18n();
 const props = defineProps<{
   logo?: string;
-  storefrontRoute?: RouteLocationAsRelativeGeneric | { href: string } | null;
+  storefrontRoute?: RouteLocationAsRelativeGeneric;
 }>();
 
 const layout = computed(() => {
   return route?.meta?.template;
 });
-
-const linkProps = computed(() =>
-  has(props.storefrontRoute, "href")
-    ? { href: props.storefrontRoute.href as string }
-    : {
-        to: props.storefrontRoute as RouteLocationAsRelativeGeneric | undefined
-      }
-);
 
 const logo = computed(
   () => props.logo ?? `${image.value?.full_url}?size=400x400`
