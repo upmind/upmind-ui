@@ -89,6 +89,17 @@ export type PriceDisplay = {
   savingPercent: string;
   // ---
   /**
+   * The base numerical amount of the price *before* any coupons and discounts,
+   * always excluding tax (net). Used for summary displays where math needs to add up.
+   */
+  baseAmount?: number;
+  /**
+   * The base price, formatted as a string, *before* any coupons and discounts,
+   * always excluding tax (net). Used for summary displays where math needs to add up.
+   */
+  basePrice?: string;
+  // ---
+  /**
    * The calculated monthly amount from the current price, if applicable.
    */
   monthlyFromCurrentAmount?: number;

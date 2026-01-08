@@ -4,15 +4,7 @@
       v-bind="props"
       :title="t('auth.logged_out_md')"
       :text="t('text.continue_shopping_desc')"
-      :actions="[
-        {
-          to: props.storefrontRoute,
-          variant: 'solid',
-          color: 'primary',
-          iconAppend: 'arrow-right',
-          label: t('action.continue_shopping')
-        }
-      ]"
+      :actions="actions"
     />
   </div>
 </template>
@@ -20,23 +12,30 @@
 <script lang="ts" setup>
 // --- external
 import { useI18n } from "vue-i18n";
+import { computed, onMounted } from "vue";
+import { has } from "lodash-es";
 
 // --- internal
-import { useSession } from "@upmind-automation/headless";
+import { useSession, useBrand } from "@upmind-automation/headless";
 
 // -- components
-import { Interstitial } from "@upmind-automation/upmind-ui";
+import {
+  Interstitial,
+  type InterstitialActionProps
+} from "@upmind-automation/upmind-ui";
 
 // -- types
 import { type InterstitialProps } from "@upmind-automation/upmind-ui";
-import { onMounted } from "vue";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(
   defineProps<
     InterstitialProps & {
-      storefrontRoute: RouteLocationAsRelativeGeneric;
+      storefrontRoute?:
+        | RouteLocationAsRelativeGeneric
+        | { href: string }
+        | null;
     }
   >(),
   {
@@ -55,6 +54,27 @@ const props = withDefaults(
 // -----------------------------------------------------------------------------
 const { t } = useI18n();
 const { logout, meta } = useSession();
+const { storefrontRoute: brandStorefrontRoute } = useBrand();
+
+const actions = computed((): InterstitialActionProps[] => {
+  const route = brandStorefrontRoute.value || props.storefrontRoute;
+  const hasHref = has(route, "href");
+
+  const action: any = {
+    variant: "solid",
+    color: "primary",
+    iconAppend: "arrow-right",
+    label: t("action.continue_shopping")
+  };
+
+  if (hasHref) {
+    action.href = (route as { href: string }).href;
+  } else if (route) {
+    action.to = route as RouteLocationAsRelativeGeneric;
+  }
+
+  return [action];
+});
 
 // --- side effects
 onMounted(() => {

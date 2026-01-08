@@ -49,17 +49,18 @@ export default {
         direction: "horizontal"
       }
     }),
-    aside: cva("", {
+    aside: cva("text-right", {
       variants: {
         direction: {
           horizontal:
-            "md:h-[var(--details-h)] md:max-h-64 md:w-auto md:max-w-1/2",
+            "md:h-[var(--details-h)] md:max-h-64 md:w-1/2 md:max-w-1/2",
           vertical: ""
         }
       },
       defaultVariants: {
         direction: "horizontal"
       }
-    })
+    }),
+    image: cva("inline-block h-full max-w-full")
   }
 };
