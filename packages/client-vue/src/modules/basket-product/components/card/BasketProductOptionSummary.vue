@@ -58,7 +58,6 @@ import config from "./basketProduct.config";
 
 // --- types
 import { type BasketProductSummaryProps } from "./types";
-import type { ComputedRef } from "vue";
 
 const { t } = useI18n();
 
@@ -76,25 +75,5 @@ const styles = useStyles(
   ],
   props,
   config
-) as ComputedRef<{
-  product: {
-    summary: {
-      category: {
-        text: string;
-      };
-      title: {
-        link: string;
-        text: string;
-      };
-    };
-    option: {
-      root: string;
-      footer: string;
-    };
-    pricing: {
-      current: string;
-      ex: string;
-    };
-  };
-}>;
+);
 </script>

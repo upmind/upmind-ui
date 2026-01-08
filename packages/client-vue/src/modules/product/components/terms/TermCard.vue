@@ -66,7 +66,6 @@ import Promotion from "../../../basket-product/components/card/components/Promot
 import { isEmpty, has } from "lodash-es";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { TermDetails } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
@@ -97,22 +96,5 @@ const styles = useStyles(
   ["product.config.grid", "product.config.grid.item"],
   meta,
   config
-) as ComputedRef<{
-  product: {
-    config: {
-      grid: {
-        root: string;
-        item: {
-          root: string;
-          header: string;
-          title: string;
-          text: string;
-          footer: string;
-          ex: string;
-          total: string;
-        };
-      };
-    };
-  };
-}>;
+);
 </script>

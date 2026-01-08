@@ -51,7 +51,6 @@ import type {
   UseProductCategories
 } from "@upmind-automation/headless";
 import type { CategoriesProps } from "../types";
-import type { ComputedRef } from "vue";
 import type { CategoriesFacetProps } from "../types";
 
 // -----------------------------------------------------------------------------
@@ -65,21 +64,7 @@ const useProductCategories = inject<UseProductCategories>(
 
 const { t } = useI18n();
 
-const styles = useStyles(
-  ["products.facet.drillDown"],
-  {},
-  config
-) as ComputedRef<{
-  products: {
-    facet: {
-      drillDown: {
-        action: string;
-        back: string;
-        items: string;
-      };
-    };
-  };
-}>;
+const styles = useStyles(["products.facet.drillDown"], {}, config);
 
 // -----------------------------------------------------------------------------
 

@@ -140,7 +140,7 @@ import { reduce, get, set, keys } from "lodash-es";
 
 // --- types
 import type { ActorRef } from "xstate";
-import type { ComputedRef, HTMLAttributes } from "vue";
+import type { HTMLAttributes } from "vue";
 
 // -----------------------------------------------------------------------------
 const { t } = useI18n();
@@ -189,26 +189,7 @@ const {
   reset
 } = productConfig;
 
-const styles = useStyles(["product.config"], meta, config) as ComputedRef<{
-  product: {
-    config: {
-      root: string;
-      header: string;
-      content: string;
-      media: string;
-      image: string;
-      wrapper: string;
-      heading: string;
-      headingContent: string;
-      title: string;
-      text: string;
-      fields: string;
-      footer: string;
-      itemtotal: string;
-      bold: string;
-    };
-  };
-}>;
+const styles = useStyles(["product.config"], meta, config);
 
 const getTermsComponent = computed(() => {
   // TODO: Can we do this in a lookup?

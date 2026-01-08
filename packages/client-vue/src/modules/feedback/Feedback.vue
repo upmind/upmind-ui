@@ -34,7 +34,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { watch, ref, type ComputedRef } from "vue";
+import { watch, ref } from "vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
@@ -58,12 +58,7 @@ const props = defineProps<{
   scheduled?: boolean;
   storefrontRoute?: RouteLocationAsRelativeGeneric;
 }>();
-const styles = useStyles(["feedback"], props, config) as ComputedRef<{
-  feedback: {
-    root: string;
-    banners: string;
-  };
-}>;
+const styles = useStyles(["feedback"], props, config);
 
 const { notifications, toasts, dismiss, system } = useFeedback();
 const activeToasts = ref<(string | number)[]>([]);

@@ -36,7 +36,6 @@ import CategoriesFacetDrillDown from "./CategoriesFacetDrillDown.vue";
 
 // --- types
 import type { CategoriesProps } from "../types";
-import type { ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
 const props = defineProps<Omit<CategoriesProps, "modelValue">>();
@@ -57,20 +56,5 @@ const styles = useStyles(
   ],
   {},
   config
-) as ComputedRef<{
-  products: {
-    facet: {
-      root: string;
-      search: {
-        input: string;
-        icon: string;
-      };
-      list: {
-        root: string;
-        button: string;
-        icon: string;
-      };
-    };
-  };
-}>;
+);
 </script>

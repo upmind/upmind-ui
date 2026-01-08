@@ -5,7 +5,7 @@
       class-active="h-full min-h-screen w-full text-base bg-canvas"
       id="vue-app"
     >
-      <Page :class="styles.page" v-if="meta.isAvailable && meta.hasSettings">
+      <Page v-if="meta.isAvailable && meta.hasSettings">
         <slot name="header">
           <Header :logo="props.logo" :storefront-route="props.storefrontRoute">
             <template #branding>
@@ -71,7 +71,6 @@ import { Loading } from "@upmind-automation/upmind-ui";
 import { get } from "lodash-es";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { InterstitialProps } from "@upmind-automation/upmind-ui";
 // -----------------------------------------------------------------------------
 
@@ -110,9 +109,7 @@ const styles = useStyles(
       available: meta.value.isAvailable
     };
   })
-) as ComputedRef<{
-  page: string;
-}>;
+);
 
 /**
  * Scroll to any anchor in the URL once the App is loaded and all awaits are complete

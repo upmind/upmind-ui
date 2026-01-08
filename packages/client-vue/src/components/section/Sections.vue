@@ -69,7 +69,6 @@ import { useSection } from "./useSection";
 import { find, isFunction, isString, isNil } from "lodash-es";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { SectionActionProps, SectionsProps } from "./types";
 
 // -----------------------------------------------------------------------------
@@ -105,23 +104,7 @@ const styles = useStyles(
   meta,
   config,
   props.uiConfig ?? {}
-) as ComputedRef<{
-  section: {
-    root: string;
-    title: {
-      root: string;
-      heading: string;
-    };
-    content: string;
-    tabs: {
-      root: string;
-      list: string;
-      trigger: string;
-      indicator: string;
-      icon: string;
-    };
-  };
-}>;
+);
 
 function doAction(item: SectionActionProps, $event: Event) {
   $event.preventDefault(); // prevent default form actions as we are handling it ourselves

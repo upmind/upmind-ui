@@ -50,7 +50,6 @@ import {
 
 // --- types
 import type { SessionProps, SessionRoutes } from "../types";
-import type { ComputedRef } from "vue";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<SessionProps & SessionRoutes>(), {
@@ -67,17 +66,7 @@ const props = withDefaults(defineProps<SessionProps & SessionRoutes>(), {
 const { meta, showLogin } = useSession();
 const { navigate } = useRoutingEngine();
 
-const styles = useStyles(["session"], props, config) as ComputedRef<{
-  session: {
-    root: string;
-    header: string;
-    content: string;
-    footer: string;
-    text: string;
-    title: string;
-    name: string;
-  };
-}>;
+const styles = useStyles(["session"], props, config);
 
 // ensure we always open with the login form
 function doReset(value: boolean) {

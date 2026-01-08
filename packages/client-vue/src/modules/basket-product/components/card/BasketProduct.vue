@@ -58,7 +58,6 @@ import BasketProductOptionSummary from "./BasketProductOptionSummary.vue";
 import { isEmpty, some, compact, map } from "lodash-es";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { BasketProductProps } from "./types";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
 // -----------------------------------------------------------------------------
@@ -95,15 +94,7 @@ const meta = computed(() => ({
   hasProvisioning: !!props?.configuration?.provisionFields
 }));
 
-const styles = useStyles(["product.root"], meta, config) as ComputedRef<{
-  product: {
-    root: {
-      card: string;
-      container: string;
-      details: string;
-    };
-  };
-}>;
+const styles = useStyles(["product.root"], meta, config);
 
 const editRoute = computed(() => {
   return {

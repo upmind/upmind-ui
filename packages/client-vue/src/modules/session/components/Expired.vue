@@ -53,7 +53,6 @@ import { Avatar, Dialog, Button } from "@upmind-automation/upmind-ui";
 import { isEmpty, isFunction } from "lodash-es";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { SessionExpiredProps } from "../types";
 // -----------------------------------------------------------------------------
 
@@ -77,15 +76,7 @@ const props = withDefaults(defineProps<SessionExpiredProps>(), {
 
 const { meta } = useSession();
 
-const styles = useStyles(["session.expired"], meta, config) as ComputedRef<{
-  session: {
-    expired: {
-      root: string;
-      title: string;
-      text: string;
-    };
-  };
-}>;
+const styles = useStyles(["session.expired"], meta, config);
 
 const processing = ref(false);
 const isOpen = computed(() => meta.value.hasExpired && !props.action?.auto);

@@ -78,7 +78,6 @@ import type {
   FormActionsProps
 } from "@upmind-automation/upmind-ui";
 import { useI18n } from "vue-i18n";
-import type { ComputedRef } from "vue";
 import type { FormModalProps } from "./types";
 
 // -----------------------------------------------------------------------------
@@ -112,21 +111,7 @@ const slots = defineSlots<{
   actions: FormActionsProps;
 }>();
 
-const styles = useStyles(
-  "modal",
-  props,
-  config,
-  props.uiConfig ?? {}
-) as ComputedRef<{
-  modal: {
-    content: string;
-    container: string;
-    header: string;
-    title: string;
-    description: string;
-    footer: string;
-  };
-}>;
+const styles = useStyles("modal", props, config, props.uiConfig ?? {});
 
 function doResolve() {
   emits("resolve", modelValue.value ?? {});

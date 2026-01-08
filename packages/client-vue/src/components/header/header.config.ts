@@ -24,6 +24,10 @@ const rootVariants = cva("z-10", {
 export default {
   header: {
     root: rootVariants,
+    link: cva("flex no-underline"),
+    picture: cva("h-full w-full"),
+    image: cva("h-9 max-w-32 object-contain md:max-w-64"),
+    name: cva("text-2xl font-medium"),
     container: cva("flex-row lg:flex-row"),
     left: {
       column: cva("py-0 lg:py-0", {
