@@ -78,7 +78,7 @@ const props = defineProps<{
   theme?: string;
   logo?: string;
   loadingProps?: InterstitialProps;
-  storefrontRoute?: RouteLocationAsRelativeGeneric;
+  storefrontRoute?: RouteLocationAsRelativeGeneric | { href: string } | null;
 }>();
 
 // -----------------------------------------------------------------------------

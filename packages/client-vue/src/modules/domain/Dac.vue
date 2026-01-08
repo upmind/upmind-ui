@@ -223,7 +223,10 @@ await isReady();
 
 watch(meta, ({ isSearching, showSearchResults }) => {
   const shouldOpen = showSearchResults || isSearching;
-  if (shouldOpen) open.value = true;
+  if (shouldOpen) {
+    open.value = true;
+    processingBasket.value = false; // Reset processingBasket when reopening DAC
+  }
 });
 
 // Stores the previous result count for smooth skeleton loading

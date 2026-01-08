@@ -33,7 +33,7 @@ export const detailsVariant = cva("flex flex-1 flex-col gap-8", {
   }
 });
 
-export const imageRootVariant = cva("h-auto w-full", {
+export const imageRootVariant = cva("w-full", {
   variants: {
     variant: {
       default: "",
