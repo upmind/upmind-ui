@@ -48,4 +48,5 @@
 - MercadoPago Other Payments (**MERCADO_PAGO_OTHER_PAYMENTS**)
 - OpenPay Other Payments (**OPENPAY_NON_CARD AWAITING CLIENT**)
 - Paytm (**PAYTM**)
+- SSL Commerz (**SSL_COMMERZ**)
 - RazorPay Checkout (**RAZOR_PAY_CHECKOUT**) `SDK`
