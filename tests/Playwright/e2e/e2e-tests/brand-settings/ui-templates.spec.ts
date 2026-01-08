@@ -23,7 +23,6 @@ test.describe("Brand Settings - UI Templates", () => {
   test.describe("Login UI Templates", () => {
     test.beforeEach(async ({ page }) => {
       login = new Login(page);
-      await page.goto(URLs.catalogueRoot1);
     });
     test("Fallback to default (Two Column (LTR))", async ({ page }) => {
       await page.goto(URLs.login);
@@ -34,7 +33,7 @@ test.describe("Brand Settings - UI Templates", () => {
       );
     });
     test("Full Login Template", async ({ page, context, request }) => {
-      interceptUISchema(context, request, {
+      interceptUISchema(context, {
         loginTemplate: "full"
       });
       await page.goto(URLs.login);
@@ -43,7 +42,7 @@ test.describe("Brand Settings - UI Templates", () => {
       await expect(page.locator("body")).toHaveScreenshot("login-full.png");
     });
     test("Split Login Template", async ({ page, context, request }) => {
-      interceptUISchema(context, request, {
+      interceptUISchema(context, {
         loginTemplate: "split"
       });
       await page.goto(URLs.login);
@@ -52,7 +51,7 @@ test.describe("Brand Settings - UI Templates", () => {
       await expect(page.locator("body")).toHaveScreenshot("login-split.png");
     });
     test("Canvas Card Login Template", async ({ page, context, request }) => {
-      interceptUISchema(context, request, {
+      interceptUISchema(context, {
         loginTemplate: "canvas-card"
       });
       await page.goto(URLs.login);
@@ -63,7 +62,7 @@ test.describe("Brand Settings - UI Templates", () => {
       );
     });
     test("Surface Box Login Template", async ({ page, context, request }) => {
-      interceptUISchema(context, request, {
+      interceptUISchema(context, {
         loginTemplate: "surface-box"
       });
       await page.goto(URLs.login);
@@ -78,7 +77,7 @@ test.describe("Brand Settings - UI Templates", () => {
       context,
       request
     }) => {
-      interceptUISchema(context, request, {
+      interceptUISchema(context, {
         loginTemplate: "two-column-rtl"
       });
       await page.goto(URLs.login);
@@ -93,7 +92,7 @@ test.describe("Brand Settings - UI Templates", () => {
       context,
       request
     }) => {
-      interceptUISchema(context, request, {
+      interceptUISchema(context, {
         loginTemplate: "two-column-ltr"
       });
       await page.goto(URLs.login);
@@ -124,7 +123,7 @@ test.describe("Brand Settings - UI Templates", () => {
         },
         []
       );
-      await interceptUISchema(context, request, {
+      interceptUISchema(context, {
         loginTemplate: "two-column-ltr"
       });
       await page.goto(URLs.login);
@@ -139,7 +138,6 @@ test.describe("Brand Settings - UI Templates", () => {
   test.describe("Register UI Templates", () => {
     test.beforeEach(async ({ page, context, request }) => {
       register = new Registration(page, context);
-      await page.goto(URLs.catalogueRoot1);
     });
     test("Fallback to default (Two Column (LTR))", async ({ page }) => {
       await page.goto(URLs.register);
@@ -150,7 +148,7 @@ test.describe("Brand Settings - UI Templates", () => {
       );
     });
     test("Full Register Template", async ({ page, context, request }) => {
-      interceptUISchema(context, request, {
+      interceptUISchema(context, {
         registerTemplate: "full"
       });
       await page.goto(URLs.register);
@@ -159,7 +157,7 @@ test.describe("Brand Settings - UI Templates", () => {
       await expect(page.locator("body")).toHaveScreenshot("register-full.png");
     });
     test("Split Register Template", async ({ page, context, request }) => {
-      interceptUISchema(context, request, {
+      interceptUISchema(context, {
         registerTemplate: "split"
       });
       await page.goto(URLs.register);
@@ -172,7 +170,7 @@ test.describe("Brand Settings - UI Templates", () => {
       context,
       request
     }) => {
-      interceptUISchema(context, request, {
+      interceptUISchema(context, {
         registerTemplate: "canvas-card"
       });
       await page.goto(URLs.register);
@@ -187,7 +185,7 @@ test.describe("Brand Settings - UI Templates", () => {
       context,
       request
     }) => {
-      interceptUISchema(context, request, {
+      interceptUISchema(context, {
         registerTemplate: "surface-box"
       });
       await page.goto(URLs.register);
@@ -202,7 +200,7 @@ test.describe("Brand Settings - UI Templates", () => {
       context,
       request
     }) => {
-      interceptUISchema(context, request, {
+      interceptUISchema(context, {
         registerTemplate: "two-column-rtl"
       });
       await page.goto(URLs.register);
@@ -217,7 +215,7 @@ test.describe("Brand Settings - UI Templates", () => {
       context,
       request
     }) => {
-      interceptUISchema(context, request, {
+      interceptUISchema(context, {
         registerTemplate: "two-column-ltr"
       });
       await page.goto(URLs.register);
@@ -252,7 +250,7 @@ test.describe("Brand Settings - UI Templates", () => {
         },
         []
       );
-      interceptUISchema(context, request, {
+      interceptUISchema(context, {
         registerTemplate: "two-column-ltr"
       });
       await page.goto(URLs.register);
@@ -265,7 +263,7 @@ test.describe("Brand Settings - UI Templates", () => {
     });
   });
   test.describe("Product Config UI Templates", () => {
-    test("Fallback to default (Two Column (LTR))", async ({ page }) => {
+    test("Fallback to default (Two Column (RTL))", async ({ page }) => {
       await page.goto(URLs.starterHosting);
       await page.waitForLoadState("networkidle");
       await expect(page.locator("body")).toHaveScreenshot(
@@ -273,7 +271,7 @@ test.describe("Brand Settings - UI Templates", () => {
       );
     });
     test("Full Product Config Template", async ({ page, context, request }) => {
-      interceptUISchema(context, request, {
+      interceptUISchema(context, {
         productConfigTemplate: "full"
       });
       await page.goto(URLs.starterHosting);
@@ -287,7 +285,7 @@ test.describe("Brand Settings - UI Templates", () => {
       context,
       request
     }) => {
-      interceptUISchema(context, request, {
+      interceptUISchema(context, {
         productConfigTemplate: "two-column-ltr"
       });
       await page.goto(URLs.starterHosting);
@@ -301,7 +299,7 @@ test.describe("Brand Settings - UI Templates", () => {
       context,
       request
     }) => {
-      interceptUISchema(context, request, {
+      interceptUISchema(context, {
         productConfigTemplate: "two-column-rtl"
       });
       await page.goto(URLs.starterHosting);
@@ -315,7 +313,7 @@ test.describe("Brand Settings - UI Templates", () => {
       context,
       request
     }) => {
-      interceptUISchema(context, request, {
+      interceptUISchema(context, {
         productConfigTemplate: "enclosed"
       });
       await page.goto(URLs.starterHosting);
@@ -360,7 +358,7 @@ test.describe("Brand Settings - UI Templates", () => {
       );
     });
     test("Full Basket Product Template", async ({ page, context, request }) => {
-      interceptUISchema(context, request, {
+      interceptUISchema(context, {
         basketProductTemplate: "full"
       });
       await page.goto(URLs.basket);
@@ -374,7 +372,7 @@ test.describe("Brand Settings - UI Templates", () => {
       context,
       request
     }) => {
-      interceptUISchema(context, request, {
+      interceptUISchema(context, {
         basketProductTemplate: "two-column-ltr"
       });
       await page.goto(URLs.basket);
@@ -388,7 +386,7 @@ test.describe("Brand Settings - UI Templates", () => {
       context,
       request
     }) => {
-      interceptUISchema(context, request, {
+      interceptUISchema(context, {
         basketProductTemplate: "two-column-rtl"
       });
       await page.goto(URLs.basket);
@@ -402,7 +400,7 @@ test.describe("Brand Settings - UI Templates", () => {
       context,
       request
     }) => {
-      interceptUISchema(context, request, {
+      interceptUISchema(context, {
         basketProductTemplate: "enclosed"
       });
       await page.goto(URLs.basket);
@@ -447,7 +445,7 @@ test.describe("Brand Settings - UI Templates", () => {
       );
     });
     test("Full Basket Template", async ({ page, context, request }) => {
-      interceptUISchema(context, request, {
+      interceptUISchema(context, {
         basketTemplate: "full"
       });
       await page.goto(URLs.basket);
@@ -459,7 +457,7 @@ test.describe("Brand Settings - UI Templates", () => {
       context,
       request
     }) => {
-      interceptUISchema(context, request, {
+      interceptUISchema(context, {
         basketTemplate: "two-column-ltr"
       });
       await page.goto(URLs.basket);
@@ -473,7 +471,7 @@ test.describe("Brand Settings - UI Templates", () => {
       context,
       request
     }) => {
-      interceptUISchema(context, request, {
+      interceptUISchema(context, {
         basketTemplate: "two-column-rtl"
       });
       await page.goto(URLs.basket);
@@ -483,7 +481,7 @@ test.describe("Brand Settings - UI Templates", () => {
       );
     });
     test("Enclosed Basket Template", async ({ page, context, request }) => {
-      interceptUISchema(context, request, {
+      interceptUISchema(context, {
         basketTemplate: "enclosed"
       });
       await page.goto(URLs.basket);
@@ -529,7 +527,7 @@ test.describe("Brand Settings - UI Templates", () => {
       );
     });
     test("Full Checkout Template", async ({ page, context, request }) => {
-      interceptUISchema(context, request, {
+      interceptUISchema(context, {
         checkoutTemplate: "full"
       });
       await page.goto(URLs.checkout);
@@ -544,7 +542,7 @@ test.describe("Brand Settings - UI Templates", () => {
       context,
       request
     }) => {
-      interceptUISchema(context, request, {
+      interceptUISchema(context, {
         checkoutTemplate: "two-column-ltr"
       });
       await page.goto(URLs.checkout);
@@ -559,7 +557,7 @@ test.describe("Brand Settings - UI Templates", () => {
       context,
       request
     }) => {
-      interceptUISchema(context, request, {
+      interceptUISchema(context, {
         checkoutTemplate: "two-column-rtl"
       });
       await page.goto(URLs.checkout);

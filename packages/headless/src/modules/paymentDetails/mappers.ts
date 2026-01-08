@@ -215,6 +215,7 @@ export function mapPaymentData({
 
       // TYPE 10: AWAITING CLIENT GATEWAYS
       case GatewayProviderCodes.PAYTM:
+      case GatewayProviderCodes.SSL_COMMERZ:
         // case GatewayProviderCodes.BIT_PAY:
         // case GatewayProviderCodes.BLOCKONOMICS:
         // case GatewayProviderCodes.COIN_GATE:

@@ -93,7 +93,6 @@ import { useStyles } from "@upmind-automation/upmind-ui";
 import { Badge } from "@upmind-automation/upmind-ui";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { ProductPrice } from "./types";
 
 // -----------------------------------------------------------------------------
@@ -114,22 +113,7 @@ const styles = useStyles(
   ],
   configMeta,
   config
-) as ComputedRef<{
-  product: {
-    header: {
-      price: {
-        root: string;
-        regularPrice: string;
-        currentPrice: {
-          root: string;
-          amount: string;
-          term: string;
-        };
-        total: string;
-      };
-    };
-  };
-}>;
+);
 
 const regularPrice = computed(() => {
   if (props.meta?.useMonthlyFromPrice)

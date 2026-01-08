@@ -34,7 +34,6 @@ import config from "./pricing.config";
 import CurrentPrice from "../pricing/CurrentPrice.vue";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { ProductSummaryDetailWithPrice } from "@upmind-automation/headless";
 
 const props = defineProps<{
@@ -48,17 +47,5 @@ const stylesMeta = computed(() => ({
   footer: props.footer
 }));
 
-const styles = useStyles(
-  ["summary.pricing"],
-  stylesMeta,
-  config
-) as ComputedRef<{
-  summary: {
-    pricing: {
-      total: string;
-      price: string;
-      currentPrice: string;
-    };
-  };
-}>;
+const styles = useStyles(["summary.pricing"], stylesMeta, config);
 </script>

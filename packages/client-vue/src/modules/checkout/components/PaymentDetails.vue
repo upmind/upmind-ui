@@ -136,7 +136,6 @@ import PaymentActions from "./PaymentActions.vue";
 
 // --- types
 import type { PaymentDetailsProps } from "../types";
-import type { ComputedRef } from "vue";
 import { useI18n } from "vue-i18n";
 
 // -----------------------------------------------------------------------------
@@ -147,11 +146,7 @@ const props = withDefaults(defineProps<PaymentDetailsProps>(), {
 
 const { t } = useI18n();
 
-const styles = useStyles(["checkout"], {}, config) as ComputedRef<{
-  checkout: {
-    root: string;
-  };
-}>;
+const styles = useStyles(["checkout"], {}, config);
 
 const {
   accountCredit,

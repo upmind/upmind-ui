@@ -63,7 +63,6 @@ import { useStyles, cn } from "@upmind-automation/upmind-ui";
 import { Alert, Button, Link } from "@upmind-automation/upmind-ui";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { SessionProps } from "../types";
 // -----------------------------------------------------------------------------
 
@@ -97,15 +96,7 @@ const {
 
 await isReady();
 
-const styles = useStyles(["session.auth"], meta, config) as ComputedRef<{
-  session: {
-    auth: {
-      root: string;
-      form: string;
-      actions: string;
-    };
-  };
-}>;
+const styles = useStyles(["session.auth"], meta, config);
 
 const currentForm = computed(() => {
   return meta.value.showLoginForm

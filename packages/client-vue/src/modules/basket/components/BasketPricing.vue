@@ -30,7 +30,6 @@ import Summary from "./Summary.vue";
 import Section from "../../../components/section/Section.vue";
 
 // --- types
-import { type ComputedRef } from "vue";
 import { BASKET_TEMPLATE } from "../types";
 import BasketCheckout from "./BasketCheckout.vue";
 
@@ -59,13 +58,7 @@ const emit = defineEmits<{
 
 const { t } = useI18n();
 
-const styles = useStyles(
-  ["basket.aside"],
-  { variant: props.layout },
-  config
-) as ComputedRef<{
-  basket: { aside: string };
-}>;
+const styles = useStyles(["basket.aside"], { variant: props.layout }, config);
 
 function doResolve() {
   emit("resolve");

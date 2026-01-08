@@ -35,16 +35,9 @@ import config from "./hero.config";
 import { useStyles, Sanitized } from "@upmind-automation/upmind-ui";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { HeroProps } from "./types";
 
 const props = defineProps<HeroProps>();
 
-const styles = useStyles(["hero"], {}, config) as ComputedRef<{
-  hero: {
-    root: string;
-    title: string;
-    description: string;
-  };
-}>;
+const styles = useStyles(["hero"], {}, config);
 </script>

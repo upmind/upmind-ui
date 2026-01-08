@@ -38,7 +38,6 @@ import { isEmpty } from "lodash-es";
 
 // --- types
 import type { CategoriesProps } from "./types";
-import type { ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
 
@@ -61,17 +60,5 @@ const title = computed(() => {
   return props.name || (isEmpty(props.id) && uiCart.value?.tagline) || "";
 });
 
-const styles = useStyles(
-  ["categories", "categories.header"],
-  meta,
-  config
-) as ComputedRef<{
-  categories: {
-    header: {
-      root: string;
-      title: string;
-      description: string;
-    };
-  };
-}>;
+const styles = useStyles(["categories", "categories.header"], meta, config);
 </script>

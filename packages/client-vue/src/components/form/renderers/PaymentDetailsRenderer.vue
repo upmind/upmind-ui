@@ -65,7 +65,6 @@ import {
 import { map } from "lodash-es";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { ControlElement, EnumOption, JsonSchema } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
 import type { RadioCardsItemProps } from "@upmind-automation/upmind-ui";
@@ -82,22 +81,7 @@ const styles = useStyles(
   ["form.payment", "form.payment.header", "form.payment.footer"],
   {},
   config
-) as ComputedRef<{
-  form: {
-    payment: {
-      root: string;
-      header: {
-        root: string;
-        label: string;
-      };
-      footer: {
-        root: string;
-        label: string;
-        icon: string;
-      };
-    };
-  };
-}>;
+);
 
 const items = computed(() => {
   const { options, schema, data } = control.value as {

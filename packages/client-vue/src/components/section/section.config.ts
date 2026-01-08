@@ -24,7 +24,8 @@ export default {
       root: cva(""),
       list: cva(""),
       trigger: cva(""),
-      icon: cva("")
+      icon: cva(""),
+      indicator: cva("")
     }
   }
 };

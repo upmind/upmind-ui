@@ -117,7 +117,6 @@ import ProductTerm from "./ProductTerm.vue";
 import { isEmpty, toString } from "lodash-es";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { ImageItem, ImageProps } from "@upmind-automation/upmind-ui";
 import type { ProductCardProps } from "./types";
 
@@ -166,24 +165,7 @@ const styles = useStyles(
   ],
   configMeta,
   config
-) as ComputedRef<{
-  product: {
-    root: string;
-    image: {
-      container: string;
-      root: string;
-    };
-    content: string;
-    details: string;
-    header: {
-      root: string;
-      price: {
-        root: string;
-      };
-    };
-    footer: string;
-  };
-}>;
+);
 
 const images = computed(() => {
   return props.productDetails?.images?.map(image => ({

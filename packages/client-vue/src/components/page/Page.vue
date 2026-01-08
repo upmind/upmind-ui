@@ -10,14 +10,12 @@ import { cn, useStyles } from "@upmind-automation/upmind-ui";
 import config from "./page.config";
 
 // --- types
-import type { HTMLAttributes, ComputedRef } from "vue";
+import type { HTMLAttributes } from "vue";
 
 // -----------------------------------------------------------------------------
 const props = defineProps<{
   class?: HTMLAttributes["class"];
 }>();
 
-const styles = useStyles(["page"], {}, config) as ComputedRef<{
-  page: string;
-}>;
+const styles = useStyles(["page"], {}, config);
 </script>

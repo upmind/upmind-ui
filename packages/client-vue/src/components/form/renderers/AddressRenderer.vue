@@ -61,7 +61,6 @@ import { useUpmindUIRenderer } from "@upmind-automation/upmind-ui";
 import { get } from "lodash-es";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { ControlElement, UISchemaElement } from "@jsonforms/core";
 import type { SearchItem } from "@upmind-automation/upmind-ui";
 import type { Place } from "@upmind-automation/headless";
@@ -82,7 +81,7 @@ const { control, appliedOptions, formFieldProps, onInput } =
 // --- state
 const open = ref(false);
 
-const detailUiSchema: ComputedRef<UISchemaElement> = computed(() => {
+const detailUiSchema = computed(() => {
   return {
     ...control.value.uischema,
     type: "VerticalLayout"

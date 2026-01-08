@@ -4,7 +4,7 @@ export class Button {
   readonly button: Locator;
 
   constructor(page: Page) {
-    this.button = page.getByTestId("button-default");
+    this.button = page.getByRole("button");
   }
 
   getButton(container: Locator) {
