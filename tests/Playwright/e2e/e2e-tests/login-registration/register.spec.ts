@@ -24,7 +24,7 @@ test.describe("User Registration", () => {
       `${faker.internet.password({ length: 10, pattern: /[A-Z]/ })}`
     );
     await page.getByTestId("button-continue").click();
-    await expect(registration.alert).toContainText(
+    await expect(registration.alertTitle).toContainText(
       "We experienced an error while trying to create your account"
     );
   });

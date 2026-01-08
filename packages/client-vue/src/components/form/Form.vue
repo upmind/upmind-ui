@@ -6,6 +6,7 @@
     :ajv="ajv"
     :additional-renderers="formRenderers"
     :optional-text="t('text.optional')"
+    data-testid="form"
   >
     <template #footer="{ meta }">
       <slot name="footer" v-bind="{ meta }"></slot>

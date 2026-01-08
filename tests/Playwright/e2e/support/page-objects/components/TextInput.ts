@@ -4,7 +4,7 @@ export class TextInput {
   readonly textInput: Locator;
 
   constructor(page: Page) {
-    this.textInput = page.getByTestId("text-input");
+    this.textInput = page.getByRole("textbox");
   }
 
   getTextInputField(container: Locator) {
