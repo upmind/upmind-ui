@@ -22,7 +22,11 @@
           <UpmRouteView
             :loading-props="props.loadingProps"
             @resolve="scrollToAnchor"
-          />
+          >
+            <template #default>
+              <slot />
+            </template>
+          </UpmRouteView>
         </Main>
 
         <slot name="footer">
