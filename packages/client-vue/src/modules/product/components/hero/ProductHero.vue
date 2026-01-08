@@ -58,7 +58,6 @@ import { isEmpty } from "lodash-es";
 import type { ProductHeaderProps } from "./types";
 import type { ImageItem } from "@upmind-automation/upmind-ui";
 import type { ImageProps } from "@upmind-automation/upmind-ui";
-import type { ComputedRef } from "vue";
 
 const props = withDefaults(defineProps<ProductHeaderProps>(), {
   direction: "horizontal",
@@ -70,16 +69,7 @@ const stylesMeta = computed(() => ({
   hasImage: !!(props.productDetails?.imgUrl || !isEmpty(images.value))
 }));
 
-const styles = useStyles(["header"], stylesMeta, config) as ComputedRef<{
-  header: {
-    root: string;
-    details: string;
-    title: string;
-    description: string;
-    price: string;
-    aside: string;
-  };
-}>;
+const styles = useStyles(["header"], stylesMeta, config);
 const images = computed(() => {
   return props.productDetails?.images?.map(image => ({
     url: image.url,

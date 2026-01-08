@@ -42,7 +42,6 @@ import { Button, Markdown } from "@upmind-automation/upmind-ui";
 import TermsAndConditions from "../../brand/TermsAndConditions.vue";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { PaymentActionsProps } from "../types";
 
 const emit = defineEmits<{
@@ -70,17 +69,7 @@ const styles = useStyles(
   ["checkout", "checkout.stored", "checkout.footer"],
   meta,
   config
-) as ComputedRef<{
-  checkout: {
-    footer: {
-      root: string;
-      actions: string;
-      terms: string;
-    };
-    action: string;
-    clickwrap: string;
-  };
-}>;
+);
 
 function onResolve() {
   emit("resolve");

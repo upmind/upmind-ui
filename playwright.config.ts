@@ -19,7 +19,7 @@ export default defineConfig({
     "./tests/Playwright/e2e/snapshots/{testFilePath}/{projectName}/{arg}.png",
 
   /*Set number of retries on a failed test*/
-  retries: 1,
+  retries: 0,
 
   /* Run tests in files in parallel */
   fullyParallel: true,
@@ -43,6 +43,10 @@ export default defineConfig({
     video: {
       mode: "on-first-retry",
       size: { width: 1920, height: 1080 }
+    },
+
+    launchOptions: {
+      args: ["--disable-animations"]
     }
   },
 

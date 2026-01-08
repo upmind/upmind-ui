@@ -1,17 +1,10 @@
-import { Page, expect, Locator, BrowserContext } from "@playwright/test";
-import { URLs } from "../../constants/urls";
-import {
-  createOrder,
-  addProductToOrder,
-  addPromotionToOrder,
-  setOrderCurrency
-} from "../../utils/functions/basket";
-import { getSessionToken } from "../../utils/functions/tokens";
-import { fakerEN_GB } from "@faker-js/faker";
+import { Page, expect, Locator } from "@playwright/test";
 import { kebabCase } from "../../utils/functions/helpers";
+import { TextInput } from "../components/TextInput";
+import { selectRadixRadio } from "../../utils/radixRadios";
+
 export class Checkout {
   readonly page: Page;
-  readonly context: BrowserContext;
   readonly checkoutContent: Locator;
   readonly addressSearch: Locator;
   readonly addressFormMessage: Locator;
@@ -20,6 +13,7 @@ export class Checkout {
   readonly phone: Locator;
   readonly addressManualEntry: Locator;
   readonly billingDetails: Locator;
+  readonly addressCard: Locator;
   readonly addressLine1: Locator;
   readonly addressLine2: Locator;
   readonly city: Locator;
@@ -42,12 +36,15 @@ export class Checkout {
   readonly changeAmountIncrement: Locator;
   readonly changeAmountDecrement: Locator;
   readonly confirmAmountButton: Locator;
+  private readonly textInputComponent: TextInput;
 
   constructor(page: Page) {
     this.page = page;
-    this.context = page.context();
+    this.textInputComponent = new TextInput(page);
+
     this.checkoutContent = page.getByTestId("checkout-content");
     this.billingDetails = page.getByTestId("billing");
+    this.addressCard = page.getByTestId("radio-card-change");
     this.addressSearch = this.billingDetails.getByTestId(
       "input-address-search-search"
     );
@@ -71,17 +68,21 @@ export class Checkout {
       "input-properties-region-id"
     );
     this.phoneRegion = this.phone.getByTestId("popover-trigger");
-    this.phoneInput = this.phone.getByTestId("text-input");
+    this.phoneInput = this.textInputComponent.getTextInputField(this.phone);
     this.paymentDetails = page.getByTestId("payment-details");
     this.saveDetails = page.getByTestId("button-save-details");
     this.addVoucherForm = page.getByTestId("form-item-promocode");
     this.addVoucherButton = page.getByTestId("link-add-a-voucher-code");
-    this.addVoucherInput = this.addVoucherForm.locator("input");
+    this.addVoucherInput = this.textInputComponent.getTextInputField(
+      this.addVoucherForm
+    );
     this.applyVoucherButton = page.getByTestId("button-apply");
     this.dialogWindow = page.getByTestId("dialog-window");
     this.placeOrderAndPay = page.getByTestId("button-place-order-and-pay");
     this.placeOrder = page.getByTestId("button-place-order");
-    this.payAmount = page.getByTestId("tabslist").getByText("Pay");
+    this.payAmount = page
+      .getByTestId("payment-details")
+      .getByRole("heading", { level: 4 });
     this.changeAmountButton = page.getByTestId("change-amount");
     this.changeAmountForm = page.getByTestId("form-item-amount");
     this.changeAmountInput =
@@ -102,7 +103,6 @@ export class Checkout {
     postCode: string,
     phoneInput: string | null
   ) {
-    await this.addressManualEntry.waitFor();
     await this.addressManualEntry.click();
     await this.addressLine1.fill(addressLine1);
     //await this.addressLine2.fill(addressLine2);
@@ -116,21 +116,32 @@ export class Checkout {
 
   async selectPaymentMethod(gatewayName: string) {
     await this.page.getByTestId("link-show-more-options").click();
-    await this.page.getByTestId(`radio-card-${kebabCase(gatewayName)}`).click();
+    await selectRadixRadio(this.page, {
+      testId: `radio-card-${kebabCase(gatewayName)}`
+    });
   }
 
   async clickPlaceOrderAndPay() {
     const placeOrderButton = this.placeOrderAndPay;
-    //await placeOrderButton.waitFor({ state: 'attached' });
     await expect(placeOrderButton).toBeEnabled();
     await placeOrderButton.click();
   }
 
   async clickPlaceOrder() {
     const placeOrderButton = this.placeOrder;
-    //await placeOrderButton.waitFor({ state: 'attached' });
     await expect(placeOrderButton).toBeEnabled();
     await placeOrderButton.click();
+  }
+
+  async clickConfirmAmount() {
+    await this.confirmAmountButton.click({
+      force: true,
+      noWaitAfter: true
+    });
+    await expect(this.page.getByTestId("dialog-window")).toHaveAttribute(
+      "data-state",
+      "closed"
+    );
   }
 
   async inputStripeDetails(
@@ -141,66 +152,24 @@ export class Checkout {
     const stripeFrame = this.page.frameLocator(
       'iframe[title="Secure payment input frame"]'
     );
-    await stripeFrame.locator('input[name="number"]').fill(`${cardNumber}`);
-    await stripeFrame.locator('input[name="expiry"]').fill(`${expiryDate}`);
-    await stripeFrame.locator('input[name="cvc"]').fill(`${cvcCode}`);
-    await stripeFrame.locator('input[name="postalCode"]').fill("SW1A 2AB");
+    await stripeFrame
+      .getByRole("textbox", { name: "Card number" })
+      .fill(cardNumber);
+    await stripeFrame
+      .getByRole("textbox", { name: "Expiration date" })
+      .fill(expiryDate);
+    await stripeFrame.getByRole("textbox", { name: "CVC" }).fill(cvcCode);
+    await stripeFrame
+      .getByRole("textbox", { name: "ZIP code" })
+      .fill("SW1A 2AB");
   }
 
-  async mockStripeCardDecline() {
-    await this.page.route(
-      "https://api.stripe.com/v1/payment_methods",
-      async route => {
-        const mockedError = {
-          error: {
-            code: "card_declined",
-            decline_code: "live_mode_test_card",
-            doc_url: "https://stripe.com/docs/error-codes/card-declined",
-            message:
-              "Your card was declined. Your request was in live mode, but used a known test card.",
-            param: "",
-            request_log_url:
-              "https://dashboard.stripe.com/logs/req_fGY1SLS4nXDO87?t=1762263317",
-            type: "card_error"
-          }
-        };
-
-        await route.fulfill({
-          status: 402, // Payment Required (Stripe uses this for card declines)
-          contentType: "application/json",
-          body: JSON.stringify(mockedError)
-        });
-      }
+  async inputSepaDetails(iban: string, email: string, fullName: string) {
+    const stripeFrame = this.page.frameLocator(
+      'iframe[title="Secure payment input frame"]'
     );
-  }
-
-  async goToCheckout(promotion: string | null, currency: string | null) {
-    await this.page.goto(URLs.basket);
-    await this.page.waitForLoadState("networkidle");
-    let token = await getSessionToken(this.context);
-    let orderId = await createOrder(token);
-    await addProductToOrder(
-      `${token}`,
-      `${orderId}`,
-      "3de78642-de53-9714-76df-21208469530d",
-      1,
-      24,
-      [],
-      [],
-      {
-        domain: `${fakerEN_GB.string.alphanumeric({
-          length: { min: 3, max: 15 }
-        })}.com`
-      },
-      []
-    );
-    if (promotion != null) {
-      await addPromotionToOrder(orderId, promotion, token);
-    }
-    if (currency != null) {
-      await setOrderCurrency(token, orderId, currency);
-    }
-    await this.page.goto(URLs.checkout);
+    await stripeFrame.getByRole("button").getByText("SEPA Debit").click();
+    await stripeFrame.getByRole("textbox", { name: "iban" }).fill(iban);
   }
 
   async interceptPaymentResponse() {

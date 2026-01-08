@@ -67,7 +67,6 @@ import { RIBBON_BACKGROUND } from "../layout/components/ribbon";
 import { COLUMN_BACKGROUND } from "../layout/components/column";
 
 // --- types
-import type { ComputedRef } from "vue";
 import { HEADER_BACKGROUND } from "./types";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
 
@@ -89,20 +88,7 @@ const styles = useStyles(
   ["header", "header.left", "header.right"],
   stylesMeta,
   config
-) as ComputedRef<{
-  header: {
-    root: string;
-    container: string;
-    left: {
-      column: string;
-      content: string;
-    };
-    right: {
-      column: string;
-      content: string;
-    };
-  };
-}>;
+);
 
 const shouldShow = ref(true);
 

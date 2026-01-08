@@ -45,22 +45,22 @@ test.describe("Edit hosting product in basket", () => {
   test("Edit product options", async ({ page }) => {
     products = await getBasketProducts(token);
     productId = products[0].id;
-    await page.goto(`order/product/edit/${productId}`);
+    await page.goto(`order/basket/${productId}`);
     await productConfig.selectRadioOption("London");
     await expect(productConfig.getSummaryItem("Location")).toBeVisible();
-    await productConfig.clickAddToBasket();
-    await page.waitForLoadState("load");
+    await productConfig.clickConfirm();
+    await expect(page).toHaveURL(/order\/basket$/);
     await basket.clickShowDetails();
     await expect(basket.basketProduct).toContainText("London");
   });
   test("Edit product attributes", async ({ page }) => {
     products = await getBasketProducts(token);
     productId = products[0].id;
-    await page.goto(`order/product/edit/${productId}`);
+    await page.goto(`order/basket/${productId}`);
     await productConfig.selectRadioOption("2 Balloons");
     await expect(productConfig.getSummaryItem("Balloons")).toBeVisible();
-    await productConfig.clickAddToBasket();
-    await page.waitForLoadState("load");
+    await productConfig.clickConfirm();
+    await expect(page).toHaveURL(/order\/basket$/);
     await basket.clickShowDetails();
     await expect(basket.basketProduct).toContainText("2 Balloons");
   });
@@ -107,18 +107,18 @@ test.describe("Edit domain product in basket", () => {
     products = await getBasketProducts(token);
     productId = products[0].id;
     let newDomain = `${fakerEN_GB.string.alphanumeric({ length: { min: 3, max: 15 } })}`;
-    await page.goto(`order/product/edit/${productId}`);
+    await page.goto(`order/basket/${productId}`);
     await page.waitForLoadState("networkidle");
     await productConfig.clearFormInput("SLD");
     await productConfig.fillFormInput("SLD", newDomain);
-    await productConfig.clickAddToBasket();
-    await page.waitForLoadState("load");
+    await productConfig.clickConfirm();
+    await expect(page).toHaveURL(/order\/basket$/);
     await expect(
       basket.basketProduct.getByTestId("link-default").getByText(newDomain)
     ).toBeVisible();
-    await basket.showDetails.click();
+    await basket.clickShowDetails();
     await expect(
-      page.getByTestId("basket-product-details-domain-names")
+      page.getByTestId("basket-product-details-item-0")
     ).toContainText(newDomain);
   });
   test("Edit provisional fields", async ({ page }) => {
@@ -135,7 +135,7 @@ test.describe("Edit domain product in basket", () => {
     };
     products = await getBasketProducts(token);
     productId = products[0].id;
-    await page.goto(`order/product/edit/${productId}`);
+    await page.goto(`order/basket/${productId}`);
     await page.waitForLoadState("networkidle");
     await productConfig.registrantNameInput.fill(fieldUpdates.updatedName);
     await productConfig.registrantOrgInput.fill(fieldUpdates.updatedCompany);
@@ -178,8 +178,8 @@ test.describe("Edit domain product in basket", () => {
     await expect(productConfig.registrantCountry).toContainText(
       fieldUpdates.updatedCountryCode
     );
-    await productConfig.clickAddToBasket();
-    await page.waitForLoadState("load");
+    await productConfig.clickConfirm();
+    await expect(page).toHaveURL(/order\/basket$/);
     await expect(basket.basketProductSummary).toBeVisible();
   });
 });

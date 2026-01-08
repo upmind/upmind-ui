@@ -53,7 +53,6 @@ import { isMobile } from "@upmind-automation/upmind-ui";
 import { isEmpty } from "lodash-es";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { DomainSlotProps } from "../types";
 
 // ----------------------------------------------------------------------------
@@ -75,14 +74,5 @@ const meta = computed(() => ({
 
 const inputValue = defineModel<string>("modelValue");
 
-const styles = useStyles(["domain.search"], {}, config) as ComputedRef<{
-  domain: {
-    search: {
-      root: string;
-      icon: string;
-      actions: string;
-      action: string;
-    };
-  };
-}>;
+const styles = useStyles(["domain.search"], {}, config);
 </script>

@@ -45,7 +45,6 @@ import { FormField, RadioCards, Link } from "@upmind-automation/upmind-ui";
 import type { ControlElement, EnumOption, JsonSchema } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
 import type { RadioCardsItemProps } from "@upmind-automation/upmind-ui";
-import type { ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
 const props = defineProps<RendererProps<ControlElement>>();
@@ -78,13 +77,7 @@ const items = computed(() => {
   );
 });
 
-const styles = useStyles("form.radioCollapsible", {}, config) as ComputedRef<{
-  form: {
-    radioCollapsible: {
-      root: string;
-    };
-  };
-}>;
+const styles = useStyles("form.radioCollapsible", {}, config);
 
 const collapseAt = computed(() => {
   return appliedOptions.value?.collapse || 4;
