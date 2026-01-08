@@ -117,7 +117,6 @@ const isSelected = computed(() => {
 });
 
 const meta = computed(() => ({
-  isList: props.list,
   width: props.width
 }));
 
