@@ -41,29 +41,11 @@ import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "../layout.config";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { VariantProps } from "../types";
 
 defineProps<VariantProps>();
 
 const meta = computed(() => ({}));
 
-const styles = useStyles(
-  ["split", "split.content"],
-  meta,
-  config
-) as ComputedRef<{
-  split: {
-    root: string;
-    container: string;
-    header: string;
-    content: {
-      root: string;
-      container: string;
-      header: string;
-    };
-    footer: string;
-    aside: string;
-  };
-}>;
+const styles = useStyles(["split", "split.content"], meta, config);
 </script>

@@ -71,7 +71,6 @@ import CardSubproduct from "./SubproductCard.vue";
 import { find, map, get, isArray, first } from "lodash-es";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type {
   SubproductDetails,
   SubproductValue
@@ -125,15 +124,7 @@ const styles = useStyles(
   ["product.config.list", "product.config.list.item"],
   props,
   config
-) as ComputedRef<{
-  product: {
-    config: {
-      list: {
-        root: string;
-      };
-    };
-  };
-}>;
+);
 
 const as = computed(() => {
   return mapComponent(props.subproduct.uiMeta?.uischema?.control);

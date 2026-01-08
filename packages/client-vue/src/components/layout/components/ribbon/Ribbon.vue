@@ -17,7 +17,6 @@ import { cn, useStyles } from "@upmind-automation/upmind-ui";
 import config from "./ribbon.config";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { RibbonProps } from "./types";
 import {
   RIBBON_BACKGROUND,
@@ -41,7 +40,5 @@ const meta = computed(() => ({
   height: props.height
 }));
 
-const styles = useStyles(["ribbon"], meta, config) as ComputedRef<{
-  ribbon: string;
-}>;
+const styles = useStyles(["ribbon"], meta, config);
 </script>

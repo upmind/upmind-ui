@@ -69,7 +69,6 @@ import { Icon } from "@upmind-automation/upmind-ui";
 
 // --- types
 import type { CategoriesProps } from "./types";
-import type { ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
 const props = defineProps<
@@ -97,10 +96,5 @@ const hasCategories = computed(() => {
   return !isEmpty(displayCategories.value) && !meta.value.isLoading;
 });
 
-const styles = useStyles(["categories"], {}, config) as ComputedRef<{
-  categories: {
-    root: string;
-    grid: string;
-  };
-}>;
+const styles = useStyles(["categories"], {}, config);
 </script>

@@ -14,7 +14,6 @@ import { cn, useStyles, isMobile } from "@upmind-automation/upmind-ui";
 import config from "./column.config";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { ColumnProps } from "./types";
 
 const props = withDefaults(defineProps<ColumnProps>(), {
@@ -44,7 +43,5 @@ const meta = computed(() => ({
   show: props.show
 }));
 
-const styles = useStyles(["column"], meta, config) as ComputedRef<{
-  column: string;
-}>;
+const styles = useStyles(["column"], meta, config);
 </script>

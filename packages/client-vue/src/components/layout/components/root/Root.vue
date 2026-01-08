@@ -6,7 +6,7 @@
 
 <script lang="ts" setup>
 // --- external
-import type { HTMLAttributes, ComputedRef } from "vue";
+import type { HTMLAttributes } from "vue";
 
 // --- internal
 import { cn, useStyles } from "@upmind-automation/upmind-ui";
@@ -18,7 +18,5 @@ const props = defineProps<{
   class?: HTMLAttributes["class"];
 }>();
 
-const styles = useStyles(["root"], {}, config) as ComputedRef<{
-  root: string;
-}>;
+const styles = useStyles(["root"], {}, config);
 </script>

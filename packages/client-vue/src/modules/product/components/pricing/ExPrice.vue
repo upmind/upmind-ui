@@ -18,7 +18,6 @@ import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./pricing.config";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { ExPriceProps } from "./types";
 
 // -----------------------------------------------------------------------------
@@ -32,14 +31,5 @@ const priceMeta = computed(() => ({
   isDiscounted: props.discounted
 }));
 
-const styles = useStyles(
-  ["pricing"],
-  priceMeta,
-  config,
-  props.uiConfig ?? {}
-) as ComputedRef<{
-  pricing: {
-    ex: string;
-  };
-}>;
+const styles = useStyles(["pricing"], priceMeta, config, props.uiConfig ?? {});
 </script>

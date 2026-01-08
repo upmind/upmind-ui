@@ -144,24 +144,7 @@ const styles = useStyles(
   ["checkout", "checkout.footer", "checkout.gateway"],
   meta,
   config
-) as ComputedRef<{
-  checkout: {
-    gateway: {
-      root: string;
-      form: string;
-    };
-    content: string;
-    footer: {
-      root: string;
-      actions: string;
-      terms: string;
-    };
-    action: string;
-    additional: string;
-    terms: string;
-    clickwrap: string;
-  };
-}>;
+);
 
 const action = computed(() => {
   // if (meta.value.payLater) return t("action.place_order_pay_later");

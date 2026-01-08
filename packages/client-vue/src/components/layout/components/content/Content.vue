@@ -13,7 +13,6 @@ import { cn, useStyles } from "@upmind-automation/upmind-ui";
 import config from "./content.config";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { ContentProps } from "./types";
 
 const props = withDefaults(defineProps<ContentProps>(), {
@@ -37,7 +36,5 @@ const meta = computed(() => ({
   height: props.height
 }));
 
-const styles = useStyles(["content"], meta, config) as ComputedRef<{
-  content: string;
-}>;
+const styles = useStyles(["content"], meta, config);
 </script>

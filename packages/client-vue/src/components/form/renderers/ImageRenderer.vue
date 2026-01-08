@@ -40,7 +40,6 @@ import { FormField, Loading } from "@upmind-automation/upmind-ui";
 import vueFilePond from "vue-filepond";
 
 // types
-import type { ComputedRef } from "vue";
 
 const FilePond = vueFilePond(
   FilePondPluginFileValidateType,
@@ -55,11 +54,7 @@ const { control, formFieldProps, appliedOptions, onInput } =
 
 const { add, remove, stop, meta } = useUpload(appliedOptions.value.field);
 
-const styles = useStyles(["form.image"], {}, config) as ComputedRef<{
-  form: {
-    image: string;
-  };
-}>;
+const styles = useStyles(["form.image"], {}, config);
 
 onBeforeUnmount(() => stop());
 
