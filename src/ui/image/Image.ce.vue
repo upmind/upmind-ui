@@ -74,19 +74,30 @@ import type { CarouselApi } from "../carousel";
 const props = withDefaults(defineProps<ImageProps>(), {
   ratio: "1:1",
   fit: "cover",
-  carousel: true,
+  mode: "auto",
   icon: "camera-01",
   fallback: true
 });
 
-const meta = computed(() => ({
-  ratio: props.ratio,
-  fit: props.fit,
-  isEmpty: isEmpty(props.image) || error.value,
-  hasFallback: props.fallback && (isEmpty(props.image) || error.value),
-  isCarousel: props.carousel && isArray(props.image) && props.image.length > 1,
-  imageLength: isArray(props.image) ? props.image.length : 0
-}));
+const meta = computed(() => {
+  const imageList = isArray(props.image) ? props.image : [];
+  const imageLength = imageList.length;
+
+  const isCarousel = {
+    single: false,
+    carousel: imageLength >= 1,
+    auto: imageLength > 1
+  }[props.mode];
+
+  return {
+    ratio: props.ratio,
+    fit: props.fit,
+    isEmpty: isEmpty(props.image) || error.value,
+    hasFallback: props.fallback && (isEmpty(props.image) || error.value),
+    isCarousel,
+    imageLength
+  };
+});
 
 const styles = useStyles(
   ["image", "image.carousel", "image.nav"],

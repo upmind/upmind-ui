@@ -6,8 +6,10 @@ import type { IconProps } from "../icon";
 export type RootVariants = VariantProps<typeof rootVariant>;
 export type ImageVariants = VariantProps<typeof containerVariant>;
 
+export type ImageMode = "auto" | "single" | "carousel";
+
 export interface ImageProps {
-  carousel?: boolean;
+  mode?: ImageMode;
   image?: ImageItem[] | ImageItem | string;
   ratio?: ImageVariants["ratio"];
   fit?: RootVariants["fit"];
