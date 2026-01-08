@@ -13,7 +13,7 @@ import config from "./main.config";
 import { useLayout } from "../layout/useLayout";
 
 // --- types
-import type { HTMLAttributes, ComputedRef } from "vue";
+import type { HTMLAttributes } from "vue";
 
 // -----------------------------------------------------------------------------
 const props = defineProps<{
@@ -27,7 +27,5 @@ const meta = computed(() => ({
   overflow: overflow.value
 }));
 
-const styles = useStyles(["main"], meta, config) as ComputedRef<{
-  main: string;
-}>;
+const styles = useStyles(["main"], meta, config);
 </script>

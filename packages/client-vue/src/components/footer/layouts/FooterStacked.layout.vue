@@ -38,16 +38,6 @@ import Column from "../../layout/components/column/Column.vue";
 import { useStyles } from "@upmind-automation/upmind-ui";
 
 // --- types
-import type { ComputedRef } from "vue";
 
-const styles = useStyles(["footer.stacked"], {}, config, {}) as ComputedRef<{
-  footer: {
-    stacked: {
-      root: string;
-      content: string;
-      top: string;
-      bottom: string;
-    };
-  };
-}>;
+const styles = useStyles(["footer.stacked"], {}, config, {});
 </script>

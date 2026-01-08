@@ -20,7 +20,6 @@
 
 <script lang="ts" setup>
 // --- external
-import { type ComputedRef } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -47,25 +46,7 @@ const { meta } = useBasketPaymentDetails();
 
 const { t } = useI18n();
 
-const styles = useStyles(
-  ["checkout", "checkout.footer"],
-  meta,
-  config
-) as ComputedRef<{
-  checkout: {
-    gateway: string;
-    content: string;
-    footer: {
-      root: string;
-      actions: string;
-      terms: string;
-    };
-    action: string;
-    additional: string;
-    terms: string;
-    clickwrap: string;
-  };
-}>;
+const styles = useStyles(["checkout", "checkout.footer"], meta, config);
 
 const handleCheckout = () => {
   emit("resolve");

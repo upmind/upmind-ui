@@ -1,11 +1,7 @@
 <template>
   <article :class="styles.product.summary.article" v-auto-animate>
     <header :class="styles.product.summary.header.root">
-      <Link
-        v-if="productDetails.imgUrl"
-        v-bind="props.editRoute"
-        :class="styles.product.summary.imageRoute"
-      >
+      <Link v-if="productDetails.imgUrl" v-bind="props.editRoute">
         <img
           :src="productDetails.imgUrl"
           :alt="summary.title"
@@ -159,7 +155,6 @@ import { isEmpty, includes } from "lodash-es";
 
 // --- types
 import { type BasketProductSummaryProps } from "./types";
-import type { ComputedRef } from "vue";
 import { computed } from "vue";
 
 const { t } = useI18n();
@@ -180,41 +175,7 @@ const styles = useStyles(
   ],
   props,
   config
-) as ComputedRef<{
-  product: {
-    summary: {
-      article: string;
-      header: {
-        root: string;
-        content: string;
-        top: string;
-      };
-      category: {
-        root: string;
-        text: string;
-      };
-      title: {
-        root: string;
-        link: string;
-        text: string;
-      };
-      icon: string;
-      image: string;
-      imageRoute: string;
-      footer: {
-        root: string;
-        price: {
-          root: string;
-          container: string;
-        };
-      };
-    };
-    pricing: {
-      current: string;
-      ex: string;
-    };
-  };
-}>;
+);
 
 const open = useVModel(props, "open", emits);
 

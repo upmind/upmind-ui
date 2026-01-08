@@ -34,7 +34,6 @@ import { omit } from "lodash-es";
 // --- types
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
-import type { ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
 const props = defineProps<RendererProps<ControlElement>>();
@@ -50,13 +49,7 @@ const description = computed(() => {
   return formFieldProps.value.description;
 });
 
-const styles = useStyles(["form.sld.description"], {}, config) as ComputedRef<{
-  form: {
-    sld: {
-      description: string;
-    };
-  };
-}>;
+const styles = useStyles(["form.sld.description"], {}, config);
 </script>
 
 <script lang="ts">

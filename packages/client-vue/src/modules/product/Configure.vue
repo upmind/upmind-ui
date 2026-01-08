@@ -170,13 +170,7 @@
 
 <script lang="ts" setup>
 // --- external
-import {
-  computed,
-  defineAsyncComponent,
-  onUnmounted,
-  provide,
-  type ComputedRef
-} from "vue";
+import { computed, defineAsyncComponent, onUnmounted, provide } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -299,11 +293,7 @@ const configMeta = computed(() => {
   };
 });
 
-const styles = useStyles("product", configMeta, config) as ComputedRef<{
-  product: {
-    summary: string;
-  };
-}>;
+const styles = useStyles("product", configMeta, config);
 
 const { items: breadcrumbItems, variant: breadcrumbVariant } = useBreadcrumbs({
   categories: () => {

@@ -12,7 +12,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { type ComputedRef, computed } from "vue";
+import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -53,21 +53,7 @@ const styles = useStyles(
   ["checkout", "checkout.accordion", "checkout.accordion.trigger"],
   meta,
   config
-) as ComputedRef<{
-  checkout: {
-    gateway: string;
-    content: string;
-    footer: {
-      root: string;
-      actions: string;
-      terms: string;
-    };
-    action: string;
-    additional: string;
-    terms: string;
-    clickwrap: string;
-  };
-}>;
+);
 
 // --- methods
 
