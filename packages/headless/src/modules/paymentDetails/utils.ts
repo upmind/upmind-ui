@@ -151,6 +151,7 @@ export function spawnGateway({
     case GatewayProviderCodes.PAYPAL_PRO:
     case GatewayProviderCodes.PAYSTACK:
     case GatewayProviderCodes.PAYTM:
+    case GatewayProviderCodes.SSL_COMMERZ:
       return spawn(
         gatewayMachine(gateway.gateway_provider.code).withContext({
           address,
