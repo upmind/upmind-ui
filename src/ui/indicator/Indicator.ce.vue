@@ -35,7 +35,6 @@ import { Icon } from "../icon";
 import { isEmpty } from "lodash-es";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { IndicatorProps } from ".";
 
 // -----------------------------------------------------------------------------
@@ -61,10 +60,5 @@ const meta = computed(() => ({
   hasValue: !isEmpty(props.modelValue)
 }));
 
-const styles = useStyles(
-  "indicator",
-  meta,
-  config,
-  props.uiConfig ?? {}
-) as ComputedRef<{ indicator: string }>;
+const styles = useStyles("indicator", meta, config, props.uiConfig ?? {});
 </script>

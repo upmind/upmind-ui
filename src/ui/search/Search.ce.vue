@@ -70,7 +70,6 @@ import config from "./search.config";
 
 // --- types
 import type { SearchItem } from "./types";
-import type { ComputedRef } from "vue";
 import { uniqueId } from "lodash-es";
 
 // -----------------------------------------------------------------------------
@@ -103,17 +102,7 @@ const meta = computed(() => ({
   isOpen: open.value && isValid.value
 }));
 
-const styles = useStyles(["search"], meta, config, {}) as ComputedRef<{
-  search: {
-    container: string;
-    input: string;
-    inputContainer: string;
-    icon: string;
-    content: string;
-    divider: string;
-    item: string;
-  };
-}>;
+const styles = useStyles(["search"], meta, config, {});
 
 const onSearch = (value: string | number) => {
   emit("update:search", value);

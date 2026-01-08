@@ -35,6 +35,14 @@
     border-radius: var(--image-radius) var(--image-radius) 0 0;
   }
 
+  .image-radius-l {
+    border-radius: var(--image-radius) 0 0 var(--image-radius);
+  }
+
+  .image-radius-r {
+    border-radius: 0 var(--image-radius) var(--image-radius) 0;
+  }
+
   .card-radius {
     border-radius: var(--card-radius);
   }

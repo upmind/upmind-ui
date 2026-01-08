@@ -44,7 +44,6 @@ import Label from "../label/Label.ce.vue";
 import { RadioGroupItem } from "../radio-group";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { RadioCardsCollapsibleItemProps } from "./types";
 
 // -----------------------------------------------------------------------------
@@ -67,21 +66,7 @@ const meta = computed(() => ({
   width: props.width
 }));
 
-const styles = useStyles(
-  ["radioCards"],
-  meta,
-  config,
-  props.uiConfig ?? {}
-) as ComputedRef<{
-  radioCards: {
-    trigger: string;
-    root: string;
-    item: string;
-    radio: string;
-    input: string;
-    label: string;
-  };
-}>;
+const styles = useStyles(["radioCards"], meta, config, props.uiConfig ?? {});
 
 const onBlur = (e: FocusEvent) => {
   if (props.disabled) {

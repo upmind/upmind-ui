@@ -34,7 +34,6 @@ import { useUpmindUILayoutRenderer } from "../utils";
 import { useStyles } from "../../../../utils";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { Layout } from "@jsonforms/core";
 
 // -------------------------------------------------------------------
@@ -57,17 +56,7 @@ const meta = computed(() => ({
   isPristine: props.pristine
 }));
 
-const styles = useStyles(
-  ["layout"],
-  meta,
-  config,
-  props.uiConfig ?? {}
-) as ComputedRef<{
-  layout: {
-    root: string;
-    item: string;
-  };
-}>;
+const styles = useStyles(["layout"], meta, config, props.uiConfig ?? {});
 
 const { layout, appliedOptions } = useUpmindUILayoutRenderer(
   useJsonFormsLayout(props)

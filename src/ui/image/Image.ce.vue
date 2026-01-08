@@ -34,7 +34,7 @@
     :style="meta.hasFallback ? fallbackStyle : ''"
   >
     <!-- Single image with fallback -->
-    <picture v-if="!meta.isEmpty" class="block h-full w-full">
+    <picture v-if="!meta.isEmpty" class="contents w-full">
       <img
         :key="isString(currentImage) ? currentImage : currentImage?.url"
         :src="isString(currentImage) ? currentImage : currentImage?.url"
@@ -67,7 +67,6 @@ import { isEmpty, isArray, isString } from "lodash-es";
 import { useStyles, cn, getComputedColor } from "../../utils";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { ImageProps, ImageItem } from "./types";
 import type { CarouselApi } from "../carousel";
 
@@ -103,21 +102,7 @@ const styles = useStyles(
   ["image", "image.carousel", "image.nav"],
   meta,
   config
-) as ComputedRef<{
-  image: {
-    container: string;
-    root: string;
-    icon: string;
-    carousel: {
-      content: string;
-      item: string;
-    };
-    nav: {
-      root: string;
-      item: string;
-    };
-  };
-}>;
+);
 
 const imageIndex = ref(0);
 const carouselApi = ref<CarouselApi>();

@@ -26,7 +26,6 @@ import config from "./skeleton.config";
 
 // --- types
 import type { SkeletonListProps } from "./types";
-import type { ComputedRef } from "vue";
 const props = withDefaults(defineProps<SkeletonListProps>(), {
   rows: 5
 });
@@ -35,18 +34,5 @@ const meta = computed(() => ({
   // ---
 }));
 
-const styles = useStyles(
-  "skeletonList",
-  meta,
-  config,
-  props.uiConfig ?? {}
-) as ComputedRef<{
-  skeletonList: {
-    root: string;
-    rows: string;
-    line1: string;
-    line2: string;
-    line3: string;
-  };
-}>;
+const styles = useStyles("skeletonList", meta, config, props.uiConfig ?? {});
 </script>

@@ -45,9 +45,10 @@ import { useUpmindUIRenderer } from "../utils";
 import { isNumber, get, isArray, includes } from "lodash-es";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
+import type { ComputedRef } from "vue";
+
 // -----------------------------------------------------------------------------
 const props = defineProps<RendererProps<ControlElement>>();
 
@@ -73,13 +74,7 @@ const meta = computed(() => ({
   isDisabled: !control.value.enabled
 }));
 
-const styles = useStyles(["numberField"], meta, config) as ComputedRef<{
-  numberField: {
-    root: string;
-    input: string;
-    field: string;
-  };
-}>;
+const styles = useStyles(["numberField"], meta, config);
 
 const step: ComputedRef<number> = computed(() => {
   const defaultStep = 0.01;

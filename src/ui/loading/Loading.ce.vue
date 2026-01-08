@@ -37,7 +37,6 @@ import config from "./loading.config";
 import Spinner from "../spinner/Spinner.ce.vue";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { LoadingProps } from "./types";
 
 const slots = defineSlots<{
@@ -56,10 +55,5 @@ const meta = computed(() => ({
   isActive: props.active
 }));
 
-const styles = useStyles("loading", meta, config) as ComputedRef<{
-  loading: {
-    root: string;
-    spinner: string;
-  };
-}>;
+const styles = useStyles("loading", meta, config);
 </script>

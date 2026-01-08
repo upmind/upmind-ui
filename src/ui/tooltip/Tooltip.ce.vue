@@ -43,7 +43,6 @@ import TooltipTrigger from "./TooltipTrigger.vue";
 import { isEmpty } from "lodash-es";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { TooltipProps } from "./types";
 import type { TooltipContentEmits, TooltipRootEmits } from "radix-vue";
 
@@ -68,16 +67,5 @@ const meta = computed(() => ({
   hasLabel: !isEmpty(props.label)
 }));
 
-const styles = useStyles(
-  ["tooltip"],
-  meta,
-  config,
-  props.uiConfig ?? {}
-) as ComputedRef<{
-  tooltip: {
-    content: string;
-    arrow: string;
-    trigger: string;
-  };
-}>;
+const styles = useStyles(["tooltip"], meta, config, props.uiConfig ?? {});
 </script>

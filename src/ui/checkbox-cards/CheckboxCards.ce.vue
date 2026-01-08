@@ -113,7 +113,6 @@ import { includes, isFunction, isString, isNil, kebabCase } from "lodash-es";
 
 // --- types
 import type { CheckboxCardsItemActionProps, CheckboxCardsProps } from "./types";
-import type { ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<CheckboxCardsProps>(), {
@@ -152,23 +151,7 @@ const styles = useStyles(
   meta,
   config,
   props.uiConfig ?? {}
-) as ComputedRef<{
-  checkboxCards: {
-    trigger: string;
-    root: string;
-    item: string;
-    input: string;
-    label: string;
-    content: {
-      root: string;
-      label: string;
-      secondaryLabel: string;
-      description: string;
-      secondaryDescription: string;
-      action: string;
-    };
-  };
-}>;
+);
 
 function doAction(item: CheckboxCardsItemActionProps, $event: Event) {
   $event.preventDefault(); // prevent default form actions as we are handling it ourselves

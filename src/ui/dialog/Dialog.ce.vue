@@ -92,7 +92,6 @@ import DialogClose from "./DialogClose.vue";
 import { Link } from "../link";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { DialogProps } from "./types";
 import type { DialogRootEmits, DialogContentEmits } from "radix-vue";
 
@@ -156,20 +155,7 @@ const meta = computed(() => ({
   fit: props.fit
 }));
 
-const styles = useStyles(
-  ["dialog"],
-  meta,
-  config,
-  props.uiConfig ?? {}
-) as ComputedRef<{
-  dialog: {
-    overlay: string;
-    content: string;
-    header: string;
-    footer: string;
-    container: string;
-  };
-}>;
+const styles = useStyles(["dialog"], meta, config, props.uiConfig ?? {});
 
 // --- state
 const value = useVModel(props, "open", emits);

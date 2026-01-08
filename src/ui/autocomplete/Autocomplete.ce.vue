@@ -137,7 +137,7 @@ import {
 } from "lodash-es";
 
 // --- types
-import type { ComputedRef, Ref } from "vue";
+import type { Ref } from "vue";
 import type { AutocompleteProps, AutocompleteItemProps } from "./types";
 import type { ComboboxContentEmits, ComboboxRootEmits } from "radix-vue";
 
@@ -181,23 +181,7 @@ const searchTerm = ref();
 
 // ---
 
-const styles = useStyles(
-  ["autocomplete"],
-  meta,
-  config,
-  props.uiConfig ?? {}
-) as ComputedRef<{
-  autocomplete: {
-    root: string;
-    input: string;
-    anchor: string;
-    anchorIcon: string;
-    empty: string;
-    content: string;
-    item: string;
-    indicator: string;
-  };
-}>;
+const styles = useStyles(["autocomplete"], meta, config, props.uiConfig ?? {});
 
 // -----------------------------------------------------------------------------
 const onSearch = debounce(doSearch, 350);

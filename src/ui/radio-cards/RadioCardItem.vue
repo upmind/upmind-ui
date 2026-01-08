@@ -93,7 +93,6 @@ import { Badge } from "../badge";
 import { RadioGroupItem } from "../radio-group";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { RadioCardsItemActionProps, RadioCardsItemProps } from "./types";
 import { isFunction, isString, isNil } from "lodash-es";
 
@@ -127,24 +126,7 @@ const styles = useStyles(
   meta,
   config,
   props.uiConfig ?? {}
-) as ComputedRef<{
-  radioCards: {
-    trigger: string;
-    root: string;
-    item: {
-      root: string;
-      size: string;
-    };
-    radio: string;
-    input: string;
-    content: {
-      label: string;
-      secondaryLabel: string;
-      description: string;
-      secondaryDescription: string;
-    };
-  };
-}>;
+);
 
 const onBlur = (e: FocusEvent) => {
   if (props.disabled) {

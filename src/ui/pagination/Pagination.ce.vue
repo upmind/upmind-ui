@@ -46,7 +46,7 @@
 
 <script setup lang="ts">
 // --- external
-import { computed, type ComputedRef } from "vue";
+import { computed } from "vue";
 
 // --- internal
 import { cn, useStyles } from "../../utils";
@@ -87,18 +87,7 @@ const meta = computed(() => ({
   alignment: props.alignment
 }));
 
-const styles = useStyles(
-  ["pagination"],
-  meta,
-  config,
-  props.uiConfig ?? {}
-) as ComputedRef<{
-  pagination: {
-    root?: string;
-    button?: string;
-    info?: string;
-  };
-}>;
+const styles = useStyles(["pagination"], meta, config, props.uiConfig ?? {});
 
 /**
  * The parent component is responsible for providing an already translated string via the 'paginationInfo' prop.

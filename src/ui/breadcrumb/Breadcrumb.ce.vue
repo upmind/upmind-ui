@@ -40,7 +40,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { computed, type ComputedRef } from "vue";
+import { computed } from "vue";
 
 // --- internal
 import { cn, useStyles } from "../../utils";
@@ -94,15 +94,5 @@ const meta = computed(() => ({
   size: props.size
 }));
 
-const styles = useStyles(
-  ["breadcrumb"],
-  meta,
-  config,
-  props.uiConfig ?? {}
-) as ComputedRef<{
-  breadcrumb: {
-    root: string;
-    item: string;
-  };
-}>;
+const styles = useStyles(["breadcrumb"], meta, config, props.uiConfig ?? {});
 </script>

@@ -40,6 +40,7 @@ import { cn, useStyles } from "../../utils";
 
 // --- types
 import type { ComputedRef } from "vue";
+
 // ---------------------------------------------------------------------------
 
 const props = withDefaults(
@@ -71,13 +72,7 @@ const meta = computed(() => ({
   isTruncated: truncated.value
 }));
 
-const styles = useStyles("lineclamp", meta, config) as ComputedRef<{
-  lineclamp: {
-    root: string;
-    wrapper: string;
-    actions: string;
-  };
-}>;
+const styles = useStyles("lineclamp", meta, config);
 
 const windowWidth: ComputedRef<number> = computed(() => {
   return window.innerWidth;

@@ -72,7 +72,6 @@ import Sanitized from "../sanitized/Sanitized.vue";
 import { isFunction } from "lodash-es";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { InterstitialActionProps, InterstitialProps } from "./types";
 // -----------------------------------------------------------------------------
 
@@ -99,20 +98,7 @@ const meta = computed(() => ({
 
 const slots = useSlots();
 
-const styles = useStyles(
-  "interstitial",
-  meta,
-  config,
-  props.uiConfig ?? {}
-) as ComputedRef<{
-  interstitial: {
-    root: string;
-    title: string;
-    text: string;
-    actions: string;
-    section: string;
-  };
-}>;
+const styles = useStyles("interstitial", meta, config, props.uiConfig ?? {});
 
 async function doAction(handler: InterstitialActionProps["handler"]) {
   if (isFunction(handler)) {

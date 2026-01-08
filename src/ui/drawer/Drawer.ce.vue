@@ -81,7 +81,6 @@ import DrawerTitle from "./DrawerTitle.vue";
 import { DrawerTrigger, DrawerClose } from "vaul-vue";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { DrawerProps } from "./types";
 
 // --- utils
@@ -161,17 +160,5 @@ const styles = useStyles(
   meta,
   config,
   props.uiConfig ?? {}
-) as ComputedRef<{
-  drawer: {
-    overlay: string;
-    container: string;
-    content: string;
-    inner: string;
-    header: string;
-    footer: {
-      root: string;
-      container: string;
-    };
-  };
-}>;
+);
 </script>
