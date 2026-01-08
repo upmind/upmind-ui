@@ -19,14 +19,12 @@
 
         <AsyncLoading :open="meta.isLoading" v-bind="props.loadingProps" />
         <Main>
-          <UpmRouteView
-            :loading-props="props.loadingProps"
-            @resolve="scrollToAnchor"
-          >
-            <template #default>
-              <slot />
-            </template>
-          </UpmRouteView>
+          <slot>
+            <UpmRouteView
+              :loading-props="props.loadingProps"
+              @resolve="scrollToAnchor"
+            />
+          </slot>
         </Main>
 
         <slot name="footer">

@@ -1,18 +1,18 @@
 <template>
-  <div>
-    <h1>Welcome to Upmind Cart</h1>
-    <p>Loading your shopping experience...</p>
-  </div>
+  <UpmLoading v-if="meta.isResolved" />
 </template>
 
 <script lang="ts" setup>
-/**
- * Index Page
- *
- * Landing page that typically redirects to the appropriate funnel.
- * In Nuxt, this corresponds to the '/' route automatically.
- */
+// --- components
+import { UpmLoading, useRoutingEngine } from "@upmind-automation/client-vue";
+
+// --- internal
+import { ROUTE } from "~/router/types";
+
+// -----------------------------------------------------------------------------
+const { meta } = useRoutingEngine();
+
 definePageMeta({
-  name: "index"
+  name: ROUTE.LOADING
 });
 </script>

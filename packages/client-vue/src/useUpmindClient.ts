@@ -1,9 +1,5 @@
 // --- internal
-import useUpmind, {
-  useBrand,
-  useRoutingEngine,
-  type UpmindProps
-} from "@upmind-automation/headless";
+import useUpmind, { type UpmindProps } from "@upmind-automation/headless";
 import themes from "./assets/themes";
 
 // --- utils

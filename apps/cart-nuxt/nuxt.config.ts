@@ -11,15 +11,32 @@ export default defineNuxtConfig({
   },
 
   // SSR enabled by default
-  ssr: true,
+  ssr: false,
+
+  // Route rules for aliases
+  routeRules: {
+    "/order": { redirect: "/" },
+    "/loading": { redirect: "/" }
+  },
 
   // Modules
   modules: ["@vueuse/nuxt"],
 
+  // Dev server configuration
+  devServer: {
+    host: "collabstudio.local",
+    port: 5173
+  },
+
   // Runtime config for environment variables
   runtimeConfig: {
     public: {
-      // Environment-specific settings here
+      API_NAME: process.env.VITE_API_NAME || "",
+      API_URL: process.env.VITE_API_URL || "",
+      API_REGION: process.env.VITE_API_REGION || "",
+      GOOGLE_RECAPTCHA_V3_SITE_KEY:
+        process.env.VITE_APP_GOOGLE_RECAPTCHA_V3_SITE_KEY || "",
+      SENTRY_DSN: process.env.VITE_APP_SENTRY_DSN || ""
     }
   },
 
@@ -79,7 +96,17 @@ export default defineNuxtConfig({
   // Workspace packages are type-checked separately during their own build
   typescript: {
     strict: true,
-    typeCheck: false
+    typeCheck: false,
+    tsConfig: {
+      // extends: "../../tsconfig.json",
+      // compilerOptions: {
+      //   composite: true,
+      //   noEmit: false,
+      //   rootDir: "../../"
+      // },
+      include: ["app/**/*", "../../packages/**/*"],
+      exclude: ["node_modules", "dist", ".nuxt", ".output", "**/*.spec.*"]
+    }
   },
 
   // App configuration (SEO defaults, etc.)

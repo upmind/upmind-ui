@@ -13,6 +13,9 @@ export const UpmRibbon = defineAsyncComponent(
 export const UpmContent = defineAsyncComponent(
   () => import("./components/content/Content.vue")
 );
+export const UpmRoot = defineAsyncComponent(
+  () => import("./components/root/Root.vue")
+);
 
 export type { LayoutProps } from "./types";
 export { LAYOUT_VARIANTS } from "./types";

@@ -1,0 +1,16 @@
+{
+  "address_removed": "Dirección eliminada exitosamente",
+  "address_set_default": "Dirección establecida exitosamente como predeterminada",
+  "company_removed": "Empresa eliminada exitosamente",
+  "company_set_default": "Empresa establecida exitosamente como predeterminada",
+  "copied": "Copiado",
+  "domain_in_basket_msg": "Este dominio ya está en tu cesta.",
+  "domain_owned_msg": "Usted ya posee este dominio.",
+  "email_removed": "Correo electrónico eliminado exitosamente",
+  "email_set_default": "El correo electrónico se ha establecido correctamente como predeterminado",
+  "in_basket": "En la cesta",
+  "in_use": "En uso",
+  "phone_removed": "Teléfono eliminado exitosamente",
+  "phone_set_default": "Teléfono configurado correctamente como predeterminado",
+  "reset_instructions_sent_msg": "Gracias. Se han enviado instrucciones de restablecimiento a su correo electrónico."
+}

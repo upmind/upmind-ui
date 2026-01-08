@@ -1,3 +1,4 @@
+import { useDataLayer } from "@upmind-automation/headless";
 /**
  * Analytics Plugin (Client-only)
  *
@@ -6,10 +7,6 @@
  */
 
 export default defineNuxtPlugin(async () => {
-  // Dynamic import to ensure window is available
-  // This prevents the module from being evaluated during SSR
-  const { useDataLayer } = await import("@upmind-automation/headless");
-
   const router = useRouter();
   const { dataLayer } = useDataLayer();
 

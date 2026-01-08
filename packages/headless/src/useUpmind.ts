@@ -338,6 +338,10 @@ export class Upmind {
       });
   }
 
+  /**
+   * Initialises reCAPTCHA integration if enabled.
+   * @private
+   */
   private async initRecaptcha() {
     if (
       !this.recaptcha?.enabled ||
@@ -431,6 +435,12 @@ export class Upmind {
   async isReady(): Promise<void> {
     return new Promise(resolve => {
       const interval = setInterval(() => {
+        // console.debug(
+        //   "useUpmind",
+        //   "isReady",
+        //   this.status.value == UpmindStatus.initialised,
+        //   { status: this.status.value }
+        // );
         if (this.status.value == UpmindStatus.initialised) {
           clearInterval(interval);
           resolve();
