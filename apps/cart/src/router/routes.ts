@@ -5,7 +5,7 @@ import { trimStart } from "lodash-es";
 
 // --- types
 import { ROUTE, RegexMatch } from "./types";
-import type { RouteLocationGeneric } from "vue-router";
+import type { RouteLocationGeneric, RouteRecordRaw } from "vue-router";
 
 // -----------------------------------------------------------------------------
 
@@ -328,4 +328,4 @@ export default [
       };
     }
   }
-];
+] as RouteRecordRaw[];
