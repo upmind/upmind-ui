@@ -131,6 +131,8 @@ export interface UpmindProps {
   router?: {
     /** The Vue Router instance. */
     instance: Router;
+    /** Whether to guard routes or not */
+    guardRoutes?: boolean;
     /** A function to Register routing flows with the routing engine. */
     registerFunnels?: () => { defaultFunnel?: string; funnels?: Funnels };
   };
@@ -396,12 +398,20 @@ export class Upmind {
    * @private
    */
   private async initRouter() {
+    const { init, register } = useRoutingEngine();
     if (!this.router?.instance) return;
-    useRouting(this.router.instance);
+
+    // initialise the router engine with the router instance
+    init(this.router.instance);
+
+    // then register any funnels
     const config = isFunction(this.router?.registerFunnels)
       ? this.router.registerFunnels()
       : {};
-    useRoutingEngine().register(config);
+    register(config);
+
+    // finally, conditionally set up the router guards
+    if (this.router.guardRoutes) useRouting(this.router.instance);
   }
 
   /**
