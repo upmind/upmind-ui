@@ -40,50 +40,49 @@ export default defineNuxtConfig({
     }
   },
 
-  // Vite configuration for monorepo compatibility
+  // Alias configuration for monorepo compatibility
+  alias: {
+    "@": resolve(__dirname, "./app"),
+    "@icons": resolve(__dirname, "./app/assets/icons"),
+    "@animations": resolve(__dirname, "./app/assets/animations"),
+    "@upmind-automation/types": resolve(
+      __dirname,
+      "../../packages/types/src/index.ts"
+    ),
+    "@upmind-automation/i18n": resolve(__dirname, "../../packages/i18n/src"),
+    "@upmind-automation/headless": resolve(
+      __dirname,
+      "../../packages/headless/src/index.ts"
+    ),
+    "@upmind-automation/upmind-ui/styles": resolve(
+      __dirname,
+      "../../packages/ui/src/assets/styles/index.css"
+    ),
+    "@upmind-automation/upmind-ui/vars": resolve(
+      __dirname,
+      "../../packages/ui/src/assets/styles/vars.css"
+    ),
+    "@upmind-automation/upmind-ui": resolve(
+      __dirname,
+      "../../packages/ui/src/index.ts"
+    ),
+    "@upmind-automation/client-vue/styles": resolve(
+      __dirname,
+      "../../packages/client-vue/src/assets/styles/index.css"
+    ),
+    "@upmind-automation/client-vue/vars": resolve(
+      __dirname,
+      "../../packages/client-vue/src/assets/styles/vars.css"
+    ),
+    "@upmind-automation/client-vue": resolve(
+      __dirname,
+      "../../packages/client-vue/src/index.ts"
+    )
+  },
+
+  // Vite configuration
   vite: {
     resolve: {
-      alias: {
-        "@": resolve(__dirname, "./app"),
-        "@icons": resolve(__dirname, "./app/assets/icons"),
-        "@animations": resolve(__dirname, "./app/assets/animations"),
-        "@upmind-automation/types": resolve(
-          __dirname,
-          "../../packages/types/src/index.ts"
-        ),
-        "@upmind-automation/i18n": resolve(
-          __dirname,
-          "../../packages/i18n/src"
-        ),
-        "@upmind-automation/headless": resolve(
-          __dirname,
-          "../../packages/headless/src/index.ts"
-        ),
-        "@upmind-automation/upmind-ui/styles": resolve(
-          __dirname,
-          "../../packages/ui/src/assets/styles/index.css"
-        ),
-        "@upmind-automation/upmind-ui/vars": resolve(
-          __dirname,
-          "../../packages/ui/src/assets/styles/vars.css"
-        ),
-        "@upmind-automation/upmind-ui": resolve(
-          __dirname,
-          "../../packages/ui/src/index.ts"
-        ),
-        "@upmind-automation/client-vue/styles": resolve(
-          __dirname,
-          "../../packages/client-vue/src/assets/styles/index.css"
-        ),
-        "@upmind-automation/client-vue/vars": resolve(
-          __dirname,
-          "../../packages/client-vue/src/assets/styles/vars.css"
-        ),
-        "@upmind-automation/client-vue": resolve(
-          __dirname,
-          "../../packages/client-vue/src/index.ts"
-        )
-      },
       dedupe: ["vue-router"]
     },
     optimizeDeps: {
@@ -98,14 +97,8 @@ export default defineNuxtConfig({
     strict: true,
     typeCheck: false,
     tsConfig: {
-      // extends: "../../tsconfig.json",
-      // compilerOptions: {
-      //   composite: true,
-      //   noEmit: false,
-      //   rootDir: "../../"
-      // },
       include: ["app/**/*", "../../packages/**/*"],
-      exclude: ["node_modules", "dist", ".nuxt", ".output", "**/*.spec.*"]
+      exclude: ["node_modules", "dist", ".output", "**/*.spec.*"]
     }
   },
 

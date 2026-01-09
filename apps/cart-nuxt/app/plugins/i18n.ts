@@ -18,10 +18,4 @@ export default defineNuxtPlugin(nuxtApp => {
   });
 
   nuxtApp.vueApp.use(i18n);
-
-  return {
-    provide: {
-      i18n
-    }
-  };
 });
