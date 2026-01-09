@@ -31,7 +31,6 @@ import { omitBy, map, find } from "lodash-es";
 
 // --- types
 import type { PricingListProps } from "./types";
-import type { ComputedRef } from "vue";
 import { useI18n } from "vue-i18n";
 import type { DescriptionItem } from "@upmind-automation/upmind-ui";
 import type {
@@ -43,26 +42,7 @@ const { t } = useI18n();
 
 const props = defineProps<PricingListProps>();
 
-const styles = useStyles(
-  ["summary.pricing", "summary.skeleton"],
-  {},
-  config
-) as ComputedRef<{
-  summary: {
-    pricing: {
-      root: string;
-      total: string;
-      price: string;
-      regularPrice: string;
-      currentPrice: string;
-    };
-    skeleton: {
-      root: string;
-      itemLong: string;
-      itemShort: string;
-    };
-  };
-}>;
+const styles = useStyles(["summary.pricing", "summary.skeleton"], {}, config);
 
 const summary = computed<DescriptionItem[]>(() => {
   const details = omitBy(props.details, (detail: ProductSummaryDetail) =>

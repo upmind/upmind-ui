@@ -41,7 +41,7 @@
 
 <script setup lang="ts">
 // --- external
-import { computed, type ComputedRef } from "vue";
+import { computed } from "vue";
 
 // --- components
 import { Skeleton } from "@upmind-automation/upmind-ui";
@@ -79,42 +79,7 @@ const styles = useStyles(
   ],
   meta,
   config
-) as ComputedRef<{
-  card: {
-    root: string;
-    header: {
-      root: string;
-      details: {
-        root: string;
-        status: string;
-        title: {
-          root: string;
-          fld: string;
-          sld: string;
-          tld: string;
-        };
-        pricing: string;
-      };
-    };
-    footer: {
-      root: string;
-      price: {
-        root: string;
-        amount: string;
-        term: string;
-      };
-      button: {
-        root: string;
-        label: string;
-      };
-    };
-    skeleton: {
-      root: string;
-      title: string;
-      button: string;
-    };
-  };
-}>;
+);
 
 // methods
 const descWidthOptions = [56, 64];

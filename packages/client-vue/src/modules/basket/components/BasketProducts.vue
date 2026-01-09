@@ -46,7 +46,6 @@ import Section from "../../../components/section/Section.vue";
 import BasketFieldsSection from "./BasketFieldsSection.vue";
 
 // --- types
-import { type ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
 const props = defineProps<{
@@ -68,17 +67,5 @@ const styles = useStyles(
   ["basket.expand", "basket.items", "basket.customFields", "basket.aside"],
   { variant: layout.value },
   config
-) as ComputedRef<{
-  basket: {
-    aside: string;
-    expand: string;
-    items: {
-      root: string;
-      content: string;
-    };
-    customFields: {
-      root: string;
-    };
-  };
-}>;
+);
 </script>

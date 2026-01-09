@@ -76,7 +76,6 @@ import SubproductCardPricing from "./SubproductCardPricing.vue";
 import Promotion from "../../../basket-product/components/card/components/Promotion.vue";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { SubproductCardProps } from "./types";
 
 // -----------------------------------------------------------------------------
@@ -88,27 +87,7 @@ const meta = computed(() => ({
   isMinimal: props.minimal
 }));
 
-const styles = useStyles(
-  ["card", "card.header", "card.pricing"],
-  meta,
-  config
-) as ComputedRef<{
-  card: {
-    root: string;
-    header: {
-      root: string;
-      content: string;
-      titleWrapper: string;
-      title: string;
-      actions: string;
-    };
-    pricing: {
-      sm: string;
-      lg: string;
-    };
-    excerpt: string;
-  };
-}>;
+const styles = useStyles(["card", "card.header", "card.pricing"], meta, config);
 
 function doUpdateQuantity(quantity: number | undefined) {
   if (!quantity) return;

@@ -42,7 +42,7 @@ export const Logins = {
   },
   twoFactor: {
     grant_type: "password",
-    username: "nathan.robinson+twofactor@upmind.com",
+    username: "twofactor",
     password: "Twofactor1"
   },
   brandUser: {

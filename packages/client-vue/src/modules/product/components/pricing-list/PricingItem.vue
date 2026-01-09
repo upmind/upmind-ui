@@ -26,7 +26,6 @@ import config from "./pricing.config";
 
 // --- types
 import type { PricingItemProps } from "./types";
-import type { ComputedRef } from "vue";
 import { kebabCase } from "lodash-es";
 
 const props = defineProps<PricingItemProps>();
@@ -35,18 +34,5 @@ const meta = computed(() => ({
   hasIcon: !!props.icon
 }));
 
-const styles = useStyles("summary.list.item", meta, config) as ComputedRef<{
-  summary: {
-    list: {
-      item: {
-        root: string;
-        category: string;
-        title: string;
-        quantity: string;
-        icon: string;
-        content: string;
-      };
-    };
-  };
-}>;
+const styles = useStyles("summary.list.item", meta, config);
 </script>

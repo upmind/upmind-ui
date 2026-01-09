@@ -15,12 +15,14 @@ export class Login {
     this.loginForm = page.getByTestId("login-form");
     this.usernameField = page
       .getByTestId("form-item-username")
-      .locator("input");
+      .getByRole("textbox");
     this.passwordField = page
       .getByTestId("form-item-password")
-      .locator("input");
+      .getByRole("textbox");
     this.loginButton = page.getByTestId("button-log-in-to-your-account");
-    this.twoFactorInput = page.getByTestId("form-item-token").locator("input");
+    this.twoFactorInput = page
+      .getByTestId("form-item-token")
+      .getByRole("textbox");
     this.popoverTrigger = page.getByTestId("login-popover-trigger");
     this.popoverContent = page.getByTestId("popover-content");
     this.alert = page.getByRole("alert");

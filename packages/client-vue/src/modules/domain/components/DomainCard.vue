@@ -146,7 +146,6 @@ import config from "../domain.config";
 import DomainDescription from "./DomainDescription.vue";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { DomainCardProps } from "../types";
 import { useI18n } from "vue-i18n";
 
@@ -185,41 +184,7 @@ const styles = useStyles(
   ],
   meta,
   config
-) as ComputedRef<{
-  card: {
-    root: string;
-    header: {
-      root: string;
-      details: {
-        root: string;
-        status: {
-          root: string;
-          label: string;
-        };
-        title: {
-          root: string;
-          fld: string;
-          sld: string;
-          tld: string;
-        };
-        badge: string;
-        pricing: string;
-      };
-    };
-    footer: {
-      root: string;
-      price: {
-        root: string;
-        amount: string;
-        term: string;
-      };
-      button: {
-        root: string;
-        label: string;
-      };
-    };
-  };
-}>;
+);
 
 const getStatus = computed(() => {
   if (meta.value.isOwned) {

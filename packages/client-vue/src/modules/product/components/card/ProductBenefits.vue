@@ -33,7 +33,6 @@ import { isEmpty } from "lodash-es";
 import config from "./card.config";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { ProductBenefits } from "./types";
 
 // -----------------------------------------------------------------------------
@@ -44,19 +43,5 @@ const configMeta = computed(() => ({
   hasBenefits: !isEmpty(props.benefits)
 }));
 
-const styles = useStyles(
-  ["product.header.benefits"],
-  configMeta,
-  config
-) as ComputedRef<{
-  product: {
-    header: {
-      benefits: {
-        root: string;
-        item: string;
-        icon: string;
-      };
-    };
-  };
-}>;
+const styles = useStyles(["product.header.benefits"], configMeta, config);
 </script>

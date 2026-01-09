@@ -38,7 +38,6 @@ import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./summary.config";
 
 // --- types
-import type { ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
 
@@ -60,20 +59,7 @@ const emits = defineEmits(["edit"]);
 const { t } = useI18n();
 const { meta, products, summary } = useBasket();
 
-const styles = useStyles(
-  ["summary", "summary.item"],
-  props,
-  config
-) as ComputedRef<{
-  summary: {
-    root: string;
-    item: {
-      root: string;
-      term: string;
-      description: string;
-    };
-  };
-}>;
+const styles = useStyles(["summary", "summary.item"], props, config);
 
 const productItems = computed((): DescriptionItem[] => {
   let items = [] as DescriptionItem[];
@@ -82,7 +68,7 @@ const productItems = computed((): DescriptionItem[] => {
     const productItems =
       map(summary.value!.products, (product: any) => ({
         term: product?.productDetails?.title || "",
-        description: product?.price?.currentPrice || ""
+        description: product?.price?.basePrice || ""
       })) ?? [];
 
     items = concat(productItems, items);
