@@ -5,7 +5,7 @@ import { trimStart } from "lodash-es";
 
 // --- types
 import { ROUTE, RegexMatch } from "./types";
-import type { RouteLocationGeneric } from "vue-router";
+import type { RouteLocationGeneric, RouteRecordRaw } from "vue-router";
 
 // -----------------------------------------------------------------------------
 
@@ -189,7 +189,10 @@ export default [
       const { hasStorefront, storefrontUrl } = useBrand();
 
       // Redirect to external storefront URL if available
-      if (storefrontUrl.value) window.location.replace(storefrontUrl.value);
+      if (storefrontUrl.value) {
+        window.location.replace(storefrontUrl.value);
+        return;
+      }
 
       // Otherwise, if we allow storefront: redirect to internal catalogue
       if (hasStorefront.value) return { name: ROUTE.CATALOGUE };
@@ -325,4 +328,4 @@ export default [
       };
     }
   }
-];
+] as RouteRecordRaw[];
