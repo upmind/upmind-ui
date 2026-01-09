@@ -11,7 +11,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { type ComputedRef, computed } from "vue";
+import { computed } from "vue";
 import { isString } from "lodash-es";
 
 // --- internal
@@ -24,20 +24,7 @@ import { Icon } from "@upmind-automation/upmind-ui";
 // --- types
 import { type RecommendationBenefitProps } from "./types";
 
-const styles = useStyles(
-  ["recommendation.benefit"],
-  {},
-  config
-) as ComputedRef<{
-  recommendation: {
-    benefit: {
-      root: string;
-      iconContainer: string;
-      icon: string;
-      label: string;
-    };
-  };
-}>;
+const styles = useStyles(["recommendation.benefit"], {}, config);
 
 const props = defineProps<RecommendationBenefitProps>();
 

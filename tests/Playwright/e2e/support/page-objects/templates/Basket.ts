@@ -1,4 +1,4 @@
-import { Page, Locator } from "@playwright/test";
+import { Page, Locator, expect } from "@playwright/test";
 
 export class Basket {
   readonly page: Page;
@@ -31,11 +31,12 @@ export class Basket {
       "form-item-message-promocode"
     );
     this.promoBadge = this.summaryFooter.getByTestId("badge");
-    this.showDetails = page.getByTestId("link-show-details");
+    this.showDetails = page.getByTestId("tooltip-trigger");
     this.proceedToCheckout = page.getByTestId("button-proceed-to-checkout");
   }
 
   async enterPromoCode(promoCode: string | null) {
+    await expect(this.proceedToCheckout).toBeEnabled();
     await this.addPromo.click();
     await this.promoInput.fill(`${promoCode}`);
     await this.promotionForm.getByTestId("button-apply").click();
@@ -46,6 +47,6 @@ export class Basket {
   }
 
   async clickShowDetails() {
-    await this.showDetails.first().click();
+    await this.showDetails.nth(1).click();
   }
 }

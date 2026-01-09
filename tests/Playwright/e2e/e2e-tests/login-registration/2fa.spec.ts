@@ -1,9 +1,9 @@
 import { test, expect } from "@playwright/test";
-import { TOTP } from "otpauth";
+import { Secret, TOTP } from "otpauth";
 import { URLs } from "../../support/constants/urls";
 import { Login } from "../../support/page-objects/templates/Login";
 import { Logins } from "../../support/constants/logins";
-import { secretKey } from "../../support/secrets/2fa-secret";
+//import { secretKey } from "../../support/secrets/2fa-secret";
 let login: Login;
 let oneTimeCode: string;
 
@@ -11,7 +11,8 @@ test.describe("Two-Factor Login", async () => {
   test.beforeEach(async ({ page }) => {
     login = new Login(page);
     const twoFactor = new TOTP({
-      secret: secretKey,
+      secret:
+        "T6IKOFGR7UD4KV4NQYPN4Q5YOWII44B7MKV4TJVLZFYEKVTT4TLVXHZUY42X4HOUPNO26HALDURQZOP7ZDGP3R2ST6CQJ3XWWADTNJI",
       algorithm: "SHA1",
       digits: 6,
       period: 30

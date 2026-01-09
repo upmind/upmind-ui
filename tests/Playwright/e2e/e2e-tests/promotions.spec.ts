@@ -5,7 +5,8 @@ import { Basket } from "../support/page-objects/templates/Basket";
 import {
   getCurrentOrderId,
   addProductToOrder,
-  setOrderCurrency
+  setOrderCurrency,
+  createOrder
 } from "../support/utils/functions/basket";
 import {
   getSessionToken,
@@ -140,7 +141,7 @@ test.describe("Promotions", () => {
         await page.goto(URLs.basket);
         await page.waitForLoadState("networkidle");
         const token = await getSessionToken(context);
-        const orderId = await getCurrentOrderId(token);
+        const orderId = await createOrder(token);
         await addProductToOrder(
           `${token}`,
           `${orderId}`,
@@ -156,7 +157,7 @@ test.describe("Promotions", () => {
       test("Use with other promotions - Yes", async ({ page }) => {
         await page.goto(URLs.basket);
         await basket.enterPromoCode("genericpromo");
-        await page.waitForTimeout(2000);
+        await expect(basket.promoBadge).toBeVisible();
         await basket.enterPromoCode("otherpromotionsyes");
         await expect(basket.promoBadge.getByText("genericpromo")).toBeVisible();
         await expect(
@@ -166,7 +167,7 @@ test.describe("Promotions", () => {
       test("Use with other promotions - No", async ({ page }) => {
         await page.goto(URLs.basket);
         await basket.enterPromoCode("genericpromo");
-        await page.waitForLoadState("networkidle");
+        await expect(basket.promoBadge).toBeVisible();
         await basket.enterPromoCode("otherpromotionsno");
         await expect(basket.promoMessage).toContainText(
           "Unable to combine promotion otherpromotionsno with other promotions"
@@ -189,7 +190,7 @@ test.describe("Promotions", () => {
       await page.goto(URLs.basket);
       await page.waitForLoadState("networkidle");
       const token = await getSessionToken(context);
-      const orderId = await getCurrentOrderId(token);
+      const orderId = await createOrder(token);
       await addProductToOrder(
         `${token}`,
         `${orderId}`,

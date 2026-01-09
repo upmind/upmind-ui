@@ -48,7 +48,6 @@
                 :auto-focus="shouldAutoFocus"
               >
                 <Input
-                  :class="styles.domain.search"
                   v-model="query"
                   :prependIcon="meta.showSelected ? null : 'search'"
                   :placeholder="t('form.domain_search.placeholder')"
@@ -65,7 +64,6 @@
                 :auto-focus="shouldAutoFocus"
               >
                 <Input
-                  :class="styles.domain.search"
                   v-model="query"
                   :prependIcon="meta.showSelected ? null : 'search'"
                   :placeholder="t('form.domain_search.placeholder')"
@@ -81,7 +79,6 @@
                 :auto-focus="shouldAutoFocus"
               >
                 <Input
-                  :class="styles.domain.existing"
                   v-model="modelValue"
                   autocomplete="url"
                   :placeholder="t('form.domain.placeholder')"
@@ -117,7 +114,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { computed, ref, type ComputedRef } from "vue";
+import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -190,31 +187,7 @@ const styles = useStyles(
   ["domain", "domain.form", "domain.form.trigger", "domain.form.content"],
   stylesMeta,
   config
-) as ComputedRef<{
-  domain: {
-    root: string;
-    choices: string;
-    search: string;
-    existing: string;
-    basket: string;
-    form: {
-      root: string;
-      trigger: {
-        root: string;
-        label: string;
-        radio: string;
-      };
-      content: {
-        root: string;
-        container: string;
-      };
-      item: string;
-    };
-    trigger: {
-      root: string;
-    };
-  };
-}>;
+);
 
 const meta = computed(() => ({
   isLoading: props.loading ?? false,

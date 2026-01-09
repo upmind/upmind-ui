@@ -1,5 +1,10 @@
 <template>
-  <component :is="layout" v-show="meta.isVisible">
+  <component
+    :is="layout"
+    v-show="meta.isVisible"
+    :localeCount="size(supportedLanguages)"
+    :currencyCount="size(currencies)"
+  >
     <template #footer-actions v-if="meta.hasActions">
       <UpmLocale
         data-testid="locale-selector"
@@ -21,7 +26,10 @@
 <script lang="ts" setup>
 // --- internal
 import { useFooter } from "./useFooter";
-import { useLocale } from "@upmind-automation/headless";
+import { useLocale, useBasketCurrency } from "@upmind-automation/headless";
+
+// --- utils
+import { size } from "lodash-es";
 
 // --- components
 import Content from "./components/Content.vue";
@@ -31,5 +39,6 @@ import UpmLocale from "../../components/LocaleSwitcher.vue";
 
 // -----------------------------------------------------------------------------
 const { meta, layout } = useFooter();
-const { meta: localeMeta } = useLocale();
+const { meta: localeMeta, supportedLanguages } = useLocale();
+const { currencies } = useBasketCurrency();
 </script>

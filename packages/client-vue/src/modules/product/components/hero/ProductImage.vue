@@ -5,6 +5,7 @@
     :ratio="
       productDetails?.uiMeta?.product?.image?.ratio as ImageProps['ratio']
     "
+    :class="props.class"
     class="h-full"
   />
 </template>

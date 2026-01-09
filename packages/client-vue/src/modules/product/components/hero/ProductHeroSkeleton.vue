@@ -23,16 +23,6 @@ import { Skeleton, useStyles } from "@upmind-automation/upmind-ui";
 import config from "./product-hero.config";
 
 // --- types
-import type { ComputedRef } from "vue";
 
-const styles = useStyles(["header"], {}, config) as ComputedRef<{
-  header: {
-    root: string;
-    details: string;
-    title: string;
-    description: string;
-    price: string;
-    aside: string;
-  };
-}>;
+const styles = useStyles(["header"], {}, config);
 </script>
