@@ -30,7 +30,7 @@ export const useRouting = (router: Router): void => {
    * @param route
    */
   async function guardRoute(route: RouteLocation) {
-    // console.debug("Guarding route:", route);
+    console.debug("Guarding route:", route);
     if (route?.query?.funnel) {
       await switchFunnel(route.query.funnel.toString(), route);
     }
@@ -38,12 +38,10 @@ export const useRouting = (router: Router): void => {
 
     // Only redirect if target exists and is meaningfully different from current route
     if (target && hasRouteChanged(route, target)) {
-      // console.log("Routing Guard - redirecting to target route", { target });
+      console.log("Routing Guard", "redirect", { target });
       return target;
     }
-
-    // Otherwise, let the route proceed as normal
-    // console.debug("Routing Guard - route allowed", { route });
+    //
     return;
   }
 
@@ -52,7 +50,7 @@ export const useRouting = (router: Router): void => {
    * @param route
    */
   async function decorateRoute(route: RouteLocation) {
-    // console.debug("Decorating route:", route);
+    console.debug("Decorating route:", route);
     const { uischema_Route, uiCart, isReady } = useBrand();
     await isReady();
 
@@ -79,9 +77,10 @@ export const useRouting = (router: Router): void => {
     const target = await guardRoute(router.currentRoute.value);
     if (target) {
       // NB redecorate the target route if different
-      if (target.name !== router.currentRoute.value?.name)
-        await decorateRoute(target);
-      router.push(target);
+      // if (target.name !== router.currentRoute.value?.name)
+      //   await decorateRoute(target);
+      console.log("Initial route guard - redirecting to target", target);
+      await router.push(target);
     }
   });
 
@@ -89,9 +88,7 @@ export const useRouting = (router: Router): void => {
    * Guard the route before each navigation with the routing engine
    * but only if the route name has changed
    */
-  router.beforeEach(async (to, from) =>
-    hasRouteChanged(from, to) ? guardRoute(to) : undefined
-  );
+  router.beforeEach(async to => guardRoute(to));
 
   /**
    * Decorate the route before it is resolved with brand specific UIschema or layout information
