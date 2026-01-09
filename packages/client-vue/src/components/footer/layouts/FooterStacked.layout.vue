@@ -1,9 +1,10 @@
 <template>
   <Ribbon as="footer" background="surface" border="top" data-testid="footer">
     <Container :class="styles.footer.stacked.root">
-      <Column>
+      <Column :class="styles.footer.stacked.column">
         <Content gap="none" items="end" :class="styles.footer.stacked.content">
           <section
+            v-if="!meta.isMinimal"
             :class="styles.footer.stacked.top"
             aria-label="Language and currency preferences"
           >
@@ -26,7 +27,6 @@ import { computed } from "vue";
 
 // --- internal
 import config from "../footer.config";
-import { useFooter } from "../useFooter";
 
 // --- components
 import Ribbon from "../../layout/components/ribbon/Ribbon.vue";
@@ -39,5 +39,15 @@ import { useStyles } from "@upmind-automation/upmind-ui";
 
 // --- types
 
-const styles = useStyles(["footer.stacked"], {}, config, {});
+// --- props
+const props = defineProps<{
+  localeCount: number;
+  currencyCount: number;
+}>();
+
+const meta = computed(() => ({
+  isMinimal: props.localeCount <= 1 && props.currencyCount <= 1
+}));
+
+const styles = useStyles(["footer.stacked"], meta, config, {});
 </script>

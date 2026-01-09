@@ -49,18 +49,20 @@ export function mapAccountCredit(
     raw.negative_allowance,
     currency
   ) as IWalletCurrencyBalance;
-
   return {
     owned: {
-      value: balance?.amount_converted || 0,
-      amount: balance?.amount_converted_formatted || "0"
+      value: Math.max(balance?.amount_converted, 0),
+      amount: balance?.amount_converted_formatted || ""
     },
     credit: {
-      value: credit?.amount_converted || 0,
-      amount: credit?.amount_converted_formatted || "0"
+      value: Math.max(credit?.amount_converted, 0),
+      amount: credit?.amount_converted_formatted || ""
     },
     total: {
-      value: add(balance?.amount_converted, credit?.amount_converted),
+      value: Math.max(
+        add(balance?.amount_converted, credit?.amount_converted),
+        0
+      ),
       amount: "" // we will set this later
     }
   };
