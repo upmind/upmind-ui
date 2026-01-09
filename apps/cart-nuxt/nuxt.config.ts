@@ -87,6 +87,20 @@ export default defineNuxtConfig({
     },
     optimizeDeps: {
       include: ["lodash-es"]
+    },
+    // Reduce file descriptor usage by ignoring large asset folders
+    server: {
+      watch: {
+        // Don't use polling (reduces fd usage)
+        usePolling: false,
+        // Ignore large asset folders from watching
+        ignored: [
+          "**/node_modules/**",
+          "**/app/assets/icons/**",
+          "**/app/assets/animations/**"
+          // Note: locales still need changes detected for i18n
+        ]
+      }
     }
   },
 
