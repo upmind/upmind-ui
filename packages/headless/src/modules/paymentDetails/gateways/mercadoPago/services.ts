@@ -163,7 +163,6 @@ async function pay({ gateway, sdk }: MercadoPagoContext) {
     );
 
   return sdk.mercadoPagoController?.getFormData().then(cardFormData => {
-    debugger;
     if (!cardFormData)
       throw new DetailedError(
         t("error.payment_gateway_validation_failed"),
@@ -171,7 +170,6 @@ async function pay({ gateway, sdk }: MercadoPagoContext) {
         ErrorOrigin.Headless
       );
 
-    debugger;
     return {
       gateway_id: gateway?.id,
       payment_method_addition: {

@@ -722,11 +722,7 @@ export default createMachine(
           "done",
           "complete"
         ]);
-        console.debug(
-          "paymentDetailValid?",
-          valid,
-          actors?.paymentDetail?.getSnapshot().toStrings()
-        );
+
         return valid;
       },
 
@@ -736,11 +732,7 @@ export default createMachine(
           "available.checking",
           "available.loading"
         ]);
-        console.debug(
-          "paymentDetailConfiguring?",
-          valid,
-          actors?.paymentDetail?.getSnapshot().toStrings()
-        );
+
         return valid;
       },
 
@@ -760,12 +752,6 @@ export default createMachine(
         ]);
 
         const hasProducts = !isEmpty(products);
-
-        console.debug("canCheckout?", hasBilling && hasFields && hasProducts, {
-          hasBilling,
-          hasFields,
-          hasProducts
-        });
 
         return hasBilling && hasFields && hasProducts;
       },
