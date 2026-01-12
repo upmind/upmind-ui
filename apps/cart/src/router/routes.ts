@@ -50,7 +50,8 @@ export default [
     path: "/",
     name: ROUTE.LOADING,
     alias: ["/order", "/loading"],
-    component: () => import("../pages/Index.vue")
+    component: () => import("../pages/Index.vue"),
+    meta: { replace: true }
   },
 
   /**

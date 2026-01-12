@@ -136,6 +136,9 @@ function mapLaravelRuleToJSONSchema(
     return {
       type: "string",
       format: "alpha-dash-dot"
+      // errorMessage: {
+      //   format: "may only contain letters, dots and dashes"
+      // }
     };
   }
 
