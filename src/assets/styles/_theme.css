@@ -246,6 +246,17 @@
   --tracking-normal: 0;
   --tracking-wide: 0.05em;
 
+  /* Display Font Tokens */
+  --font-display-weight: 400;
+  --font-display-transform: none;
+  --font-display-tracking: 0em;
+
+  /* Display Font (Bold) */
+  --font-display-bold: var(--font-display);
+  --font-display-bold-weight: 700;
+  --font-display-bold-transform: var(--font-display-transform);
+  --font-display-bold-tracking: var(--font-display-tracking);
+
   /* Font Sizes */
   --text-xs: 0.75rem; /* 12px */
   --text-xs--line-height: 20px;
