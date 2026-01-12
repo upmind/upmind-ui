@@ -2,14 +2,9 @@ import { cva } from "class-variance-authority";
 import { ringClasses } from "../../assets/styles";
 
 export const itemVariants = cva(
-  `bg-control-surface text-control-foreground group control-radius font-normal transition-all duration-200 ${ringClasses} flex cursor-pointer list-none gap-2 py-3 pr-4 pl-3`,
+  `bg-control-surface text-control-foreground group control-radius font-normal transition-all duration-200 ${ringClasses} shadow-control-default [&:hover,&[data-hover=true]]:shadow-control-hover [&:focus-within,&[data-focus=true]]:ring-ring flex cursor-pointer list-none gap-2 py-3 pr-4 pl-3 [&:focus-within,&[data-focus=true]]:ring-2 [&:focus-within,&[data-focus=true]]:ring-offset-2`,
   {
     variants: {
-      isList: {
-        true: "my-0.5 border-0",
-        false:
-          "shadow-control-default [&:hover,&[data-hover=true]]:shadow-control-hover [&:focus-within,&[data-focus=true]]:ring-ring [&:focus-within,&[data-focus=true]]:ring-2 [&:focus-within,&[data-focus=true]]:ring-offset-2"
-      },
       columns: {
         0: "",
         1: "col-span-12 md:col-span-12",
@@ -21,23 +16,12 @@ export const itemVariants = cva(
       }
     },
     defaultVariants: {
-      isList: false,
       columns: 1
     }
   }
 );
 
-export const rootVariants = cva(`w-full`, {
-  variants: {
-    isList: {
-      true: "flex flex-col",
-      false: "grid grid-cols-1"
-    }
-  },
-  defaultVariants: {
-    isList: false
-  }
-});
+export const rootVariants = cva(`grid w-full grid-cols-12 gap-2`);
 export default {
   radioCards: {
     root: rootVariants,

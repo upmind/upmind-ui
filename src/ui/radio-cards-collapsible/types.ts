@@ -22,7 +22,6 @@ export interface RadioCardsCollapsibleItemProps extends RadioGroupItemProps {
   // ---
   /** Number of items per row (0-6). 0 = custom grid, 1 = full width. Example: columns={3} displays 3 items per row. */
   columns?: number;
-  list?: boolean;
   uiConfig?: { radioCards: CxOptions };
 }
 
@@ -43,7 +42,6 @@ export interface RadioCardsCollapsibleProps extends RadioGroupRootProps {
   // ---
   /** Number of items per row (0-6). 0 = custom grid, 1 = full width. Example: columns={3} displays 3 items per row. */
   columns?: number;
-  list?: boolean;
   // ---
   uiConfig?: { radioCards: CxOptions };
   class?: HTMLAttributes["class"];

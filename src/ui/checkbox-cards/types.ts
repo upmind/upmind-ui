@@ -51,8 +51,6 @@ export interface CheckboxCardsProps extends ToggleGroupRootProps {
   noInput?: boolean;
   /** Disable the pointer cursor allowing text selection */
   cursor?: Cursor;
-  /** Display the checkbox cards as a list */
-  list?: boolean;
   /** Number of items per row (0-6). 0 = custom grid, 1 = full width. Example: columns={3} displays 3 items per row. */
   columns?: number;
   // ---

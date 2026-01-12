@@ -21,7 +21,6 @@
           :model-value="modelValue"
           :columns="props.columns"
           :value="selectedItem.value"
-          :list="props.list"
           :minimal="props.minimal"
           :data-testid="`radio-card-${props.label}`"
           :uiConfig="selectedItemUiConfig"
@@ -66,7 +65,6 @@
               :columns="props.columns"
               :value="option.value"
               :class="props.radioClass"
-              :list="props.list"
               :minimal="props.minimal"
               data-testid="radio-card-item"
               :uiConfig="props.uiConfig"
@@ -120,7 +118,6 @@ const props = withDefaults(defineProps<RadioCardsCollapsibleProps>(), {
   autoCollapse: true,
   // -- variants
   columns: 1,
-  list: false,
   // --- styles
   class: "",
   radioClass: ""
@@ -135,7 +132,6 @@ const modelValue = defineModel<string>("modelValue");
 const open = defineModel<boolean>("open");
 
 const meta = computed(() => ({
-  isList: props.list,
   isMinimal: props.minimal,
   columns: props.columns
 }));

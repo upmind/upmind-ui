@@ -22,7 +22,7 @@ export const itemVariants = cva(
   `bg-control-surface text-control-foreground group control-radius shadow-control-default [&:hover,&[data-hover=true]]:shadow-control-hover [&:focus-within,&[data-focus=true]]:ring-ring flex cursor-pointer list-none gap-2 rounded py-4 pr-4 pl-3 font-normal transition-all duration-200 md:my-0 [&:focus-within,&[data-focus=true]]:ring-2 [&:focus-within,&[data-focus=true]]:ring-offset-2 ${ringClasses}`
 );
 
-export const rootVariants = cva(`grid w-full grid-cols-12`);
+export const rootVariants = cva(`grid w-full grid-cols-12 gap-2`);
 export default {
   radioCards: {
     root: rootVariants,

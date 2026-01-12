@@ -140,7 +140,6 @@ const modelValue = useVModel(props, "modelValue", emits, {
 });
 
 const meta = computed(() => ({
-  isList: props.list,
   noInput: props.noInput,
   cursor: props.cursor,
   columns: props.columns

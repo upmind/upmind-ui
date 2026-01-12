@@ -50,8 +50,7 @@ import type { RadioCardsCollapsibleItemProps } from "./types";
 
 const props = withDefaults(defineProps<RadioCardsCollapsibleItemProps>(), {
   // -- variants
-  columns: 1,
-  isList: false
+  columns: 1
 });
 
 const emits = defineEmits(["focus"]);
@@ -61,7 +60,6 @@ const isSelected = computed(() => {
 });
 
 const meta = computed(() => ({
-  isList: props.list,
   isMinimal: props.minimal,
   columns: props.columns
 }));
