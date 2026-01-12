@@ -28,7 +28,8 @@ import type { PaymentDetailsContext } from "./types";
 import { responseCodes } from "../../utils";
 import {
   PaymentType,
-  GatewayContext as GatewayCtx
+  GatewayContext as GatewayCtx,
+  IBasket
 } from "@upmind-automation/types";
 import { mapPaymentData } from "./mappers";
 
@@ -332,7 +333,7 @@ export default createMachine(
             currency,
             lookups,
             gatewayHelper,
-            clientId,
+            client,
             model
           }: PaymentDetailsContext,
           _event: AnyEventObject
@@ -356,7 +357,7 @@ export default createMachine(
               amount: model?.amount ?? 0,
               currency,
               address,
-              clientId,
+              client,
               ctx: GatewayCtx.PAY
             });
           }
@@ -379,8 +380,8 @@ export default createMachine(
       refresh: assign({
         orderId: (_context: PaymentDetailsContext, { data }: AnyEventObject) =>
           data?.id,
-        clientId: (_context: PaymentDetailsContext, { data }: AnyEventObject) =>
-          data?.client_id,
+        client: (_context: PaymentDetailsContext, { data }: AnyEventObject) =>
+          data?.client,
         currency: (
           { currency }: PaymentDetailsContext,
           { data }: AnyEventObject
@@ -405,7 +406,7 @@ export default createMachine(
             currency,
             model,
             address,
-            clientId
+            client
           }: PaymentDetailsContext,
           _event: AnyEventObject
         ) => {
@@ -420,7 +421,7 @@ export default createMachine(
                 currency,
                 amount: model?.amount ?? 0,
                 address,
-                clientId
+                client
               }
             });
           }
@@ -433,11 +434,11 @@ export default createMachine(
 
       setPaymentDetails: assign({
         paymentDetail: (
-          { model, lookups, clientId }: PaymentDetailsContext,
+          { model, lookups, client }: PaymentDetailsContext,
           { data }: AnyEventObject
         ) =>
           mapPaymentData({
-            clientId,
+            clientId: client?.id,
             data,
             lookups,
             model
@@ -507,11 +508,11 @@ export default createMachine(
       ) => model?.amount != (data?.unpaid_amount_converted || 0),
 
       hasChanged: (
-        { orderId, clientId, address, currency }: PaymentDetailsContext,
+        { orderId, client, address, currency }: PaymentDetailsContext,
         { data }: AnyEventObject
       ) => {
         const orderChanged = orderId != data?.id;
-        const clientChanged = clientId != data?.client_id;
+        const clientChanged = client?.id != data?.client_id;
         const currencyChanged = currency?.id != data?.currency_id;
         // NB : We only need to worry if the address country changes  as that is all that affects payment methods
         const countryChanged =

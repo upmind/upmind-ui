@@ -83,6 +83,7 @@ async function load(context: BasketContext, _event: AnyEventObject) {
         "promotions",
         "taxes",
         "taxes.tax_tag_data",
+        "client",
         // "account.brand.image",
         // "account.pricelist",
         // "brand.image",
