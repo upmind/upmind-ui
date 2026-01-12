@@ -1,0 +1,40 @@
+{
+  "begin_search_above_desc": "Ξεκινήστε την αναζήτησή σας χρησιμοποιώντας το παραπάνω πλαίσιο.",
+  "choices": {
+    "basket": {
+      "label": "Χρήση domain στο καλάθι",
+      "tooltip": "Αυτά τα domains βρίσκονται ήδη στο καλάθι σας"
+    },
+    "existing": {
+      "label": "Χρήση υπάρχοντος domain",
+      "tooltip": "Μπορείτε να χρησιμοποιήσετε ένα υπάρχον domain ενημερώνοντας τους nameservers"
+    },
+    "register": {
+      "label": "Καταχώριση νέου domain",
+      "tooltip": "Δεν έχετε domain; Καταχωρίστε ένα νέο μαζί μας"
+    },
+    "transfer": {
+      "label": "Μεταφορά domain",
+      "tooltip": "Έχετε ήδη domain; Μπορείτε να το μεταφέρετε σε εμάς."
+    }
+  },
+  "domain_description": "Ασφαλίστε την online ταυτότητά σας σήμερα – χρειάζεται μόλις ένα λεπτό.",
+  "domain_not_required_label": "Συνέχεια χωρίς domain",
+  "domain_title": "Συμπεριλάβετε ένα όνομα domain.",
+  "finding_perfect_domain": "Βρείτε το **ιδανικό** domain σας",
+  "finding_perfect_domain_md": "@.markdown:{'domain.finding_perfect_domain'}",
+  "own_domain_qn": "Είστε ο κάτοχος αυτού του domain;",
+  "owned_domains_title": "Domains που σας ανήκουν αυτήν τη στιγμή",
+  "price_renewal_desc": "Εφάπαξ τιμή {regularPrice}. | Ανανεώνεται κάθε χρόνο για {regularPrice}. | Ανανεώνεται κάθε {count} χρόνια για {regularPrice}.",
+  "search": "Αναζήτηση domain",
+  "starts_with_domain": "Όλα ξεκινούν με ένα **όνομα τομέα**",
+  "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
+  "tld_renewal_price_desc": "Οι τιμές ανανέωσης για .{tld} ξεκινούν από μόλις {currentPrice} (από {regularPrice}).",
+  "tld_renewal_price_from_desc": "Οι τιμές ανανέωσης για .{tld} ξεκινούν από μόλις {regularPrice}.",
+  "transfer": "Μεταφορά μόνο για {currentPrice}.",
+  "transfer_domain": "Μεταφορά domain",
+  "transfer_extension_info": "Οι μεταγραφές περιλαμβάνουν παράταση ενός έτους.",
+  "transfer_owner_question": "Είστε ο ιδιοκτήτης αυτού του domain;",
+  "transfer_price_info": "Μπορείτε να το μεταφέρετε σε εμάς με μόνο {currentPrice}",
+  "transfer_promotion": "Μεταφορά μόνο για {currentPrice}, συνήθως {regularPrice}."
+}

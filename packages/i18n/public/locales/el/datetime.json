@@ -1,0 +1,29 @@
+{
+  "calendar": {
+    "last_day": "[Εχθές]",
+    "last_week": "[Τελευταία] dddd",
+    "next_day": "[Αύριο]",
+    "next_week": "dddd",
+    "same_day": "[Σήμερα]"
+  },
+  "date": {
+    "default": "D MMMM YYYY",
+    "omit_ordinal": "MMMM YYYY",
+    "omit_year": "D MMMM",
+    "only_day": "D",
+    "only_month": "MMM",
+    "only_ordinal": "D",
+    "only_week": "D MMMM ([Εβδ.] W)",
+    "only_year": "YYYY"
+  },
+  "datetime": {
+    "default": "D MMMM YYYY, HH:mm",
+    "omit_meridiem": "D MMMM YYYY, HH:mm",
+    "with_seconds": "D MMMM YYYY, HH:mm:ss"
+  },
+  "time": {
+    "default": "HH:mm",
+    "with_meridiem": "HH:mm A",
+    "with_seconds": "HH:mm:ss"
+  }
+}
