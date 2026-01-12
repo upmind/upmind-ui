@@ -1,0 +1,12 @@
+{
+  "order_complete": "Rendelés **kész**!",
+  "order_complete_md": "@.markdown:{'invoice.order_complete'}",
+  "order_complete_msg": "Köszönjük a rendelését, a vásárlása most befejeződött. Hamarosan kapni fog egy visszaigazoló e-mailt.",
+  "order_not_found": "Rendelés **nem található**!",
+  "order_not_found_md": "@.markdown:{'invoice.order_not_found'}",
+  "order_not_found_msg": "Sajnos nem találtuk a rendelését. Kérjük, kattintson az alábbi gombra a fiókjába való visszatéréshez.",
+  "order_payment_failed": "A fizetés **feldolgozása** sikertelen",
+  "order_payment_failed_md": "@.markdown:{'invoice.order_payment_failed'}",
+  "order_payment_failed_msg": "Nem tudtuk feldolgozni a megrendelésére vonatkozó fizetését, ennek több oka is lehet.",
+  "order_payment_retry_msg": "Kérjük, kattintson az alábbi gombra a számlájához való ugráshoz, ahol újra megpróbálhatja a fizetést."
+}

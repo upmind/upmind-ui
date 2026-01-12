@@ -104,7 +104,7 @@ async function pay({
   sdk,
   currency,
   model,
-  clientId,
+  client,
   amount
 }: RazorpayContext) {
   const { t } = useI18n();
@@ -125,7 +125,7 @@ async function pay({
     url: useUrl(`gateway/frontend/${gateway.id}`, {
       amount: amount || 1,
       currency: currency.code,
-      client_id: clientId,
+      client_id: client.id,
       return_url: window.location.href
     }),
     queryKey: ["gateway", "frontend", gateway.id],
