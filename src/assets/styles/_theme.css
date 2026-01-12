@@ -249,7 +249,7 @@
   /* Display Font Tokens */
   --font-display-weight: 400;
   --font-display-transform: none;
-  --font-display-tracking: 0em;
+  --font-display-tracking: normal;
 
   /* Display Font (Bold) */
   --font-display-bold: var(--font-display);
