@@ -40,29 +40,33 @@ export const useRouting = (router: Router): void => {
     if (target && hasRouteChanged(route, target)) {
       return target;
     }
-    //
+
     return;
   }
 
   /**
-   * Decorate the route with brand specific UIschema or layout information
-   * @param route
+   * Decorate all route records with brand specific UIschema or layout information
+   * This modifies the route definitions (records) rather than the navigation location,
+   * which avoids Vue Router warnings about mutating route.meta during navigation.
    */
-  async function decorateRoute(route: RouteLocation) {
-    // console.debug("Decorating route:", route);
+  async function decorateRoutes() {
     const { uischema_Route, uiCart, isReady } = useBrand();
     await isReady();
 
     const fallbackTemplate = get(uiCart.value, "layout");
-    const uischema = route?.name
-      ? (get(uischema_Route?.value, route.name, {}) as UIRouteOptions)
-      : {};
 
-    route.meta = {
-      ...uischema,
-      ...{ template: uischema?.template || fallbackTemplate }, //NB: for backwards compatibility
-      ...route?.meta
-    };
+    // Loop through all registered routes and update their meta
+    router.getRoutes().forEach(routeRecord => {
+      const uischema = routeRecord.name
+        ? (get(uischema_Route?.value, routeRecord.name, {}) as UIRouteOptions)
+        : {};
+
+      // Mutate the route RECORD's meta (this is allowed, unlike RouteLocation.meta)
+      Object.assign(routeRecord.meta, {
+        ...uischema,
+        template: uischema?.template || fallbackTemplate
+      });
+    });
   }
   // ---------------------------------------------------------------------------
 
@@ -72,7 +76,7 @@ export const useRouting = (router: Router): void => {
    *     This is because on load the vue router resolves the route before the engine is ready
    */
   router.isReady().then(async () => {
-    await decorateRoute(router.currentRoute.value);
+    await decorateRoutes();
     const target = await guardRoute(router.currentRoute.value);
     if (target) {
       await router.push(target);
@@ -84,11 +88,6 @@ export const useRouting = (router: Router): void => {
    * but only if the route name has changed
    */
   router.beforeEach(async to => guardRoute(to));
-
-  /**
-   * Decorate the route before it is resolved with brand specific UIschema or layout information
-   */
-  router.beforeResolve(async to => decorateRoute(to));
 
   /**
    * After each route navigation, push a page_view event to the data layer for analytics
