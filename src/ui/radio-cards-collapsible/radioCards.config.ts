@@ -10,7 +10,7 @@ export const itemVariants = cva(
         false:
           "shadow-control-default [&:hover,&[data-hover=true]]:shadow-control-hover [&:focus-within,&[data-focus=true]]:ring-ring [&:focus-within,&[data-focus=true]]:ring-2 [&:focus-within,&[data-focus=true]]:ring-offset-2"
       },
-      width: {
+      columns: {
         0: "",
         1: "col-span-12 md:col-span-12",
         2: "col-span-12 md:col-span-6",
@@ -22,7 +22,7 @@ export const itemVariants = cva(
     },
     defaultVariants: {
       isList: false,
-      width: 1
+      columns: 1
     }
   }
 );

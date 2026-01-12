@@ -10,7 +10,7 @@ export const variants = {
     true: "border-surface border-t",
     false: `shadow-control-default [&:hover,&[data-hover=true]]:shadow-control-hover bg-control-surface control-radius ${ringClasses} ${invalidRingClasses}`
   },
-  width: {
+  columns: {
     0: "",
     1: "col-span-12 md:col-span-12",
     2: "col-span-12 md:col-span-6",
@@ -45,7 +45,7 @@ export default {
       {
         variants: variants,
         defaultVariants: {
-          width: 1
+          columns: 1
         }
       }
     ),

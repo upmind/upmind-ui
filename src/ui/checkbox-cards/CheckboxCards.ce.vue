@@ -117,7 +117,7 @@ import type { CheckboxCardsItemActionProps, CheckboxCardsProps } from "./types";
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<CheckboxCardsProps>(), {
   cursor: "pointer",
-  width: 1
+  columns: 1
   // --- styles
 });
 
@@ -143,7 +143,7 @@ const meta = computed(() => ({
   isList: props.list,
   noInput: props.noInput,
   cursor: props.cursor,
-  width: props.width
+  columns: props.columns
 }));
 
 const styles = useStyles(

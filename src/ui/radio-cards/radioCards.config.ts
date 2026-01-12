@@ -3,7 +3,7 @@ import { ringClasses } from "../../assets/styles";
 
 export const itemSizeVariants = cva("", {
   variants: {
-    width: {
+    columns: {
       0: "",
       1: "col-span-12 md:col-span-12",
       2: "col-span-12 md:col-span-6",
@@ -14,7 +14,7 @@ export const itemSizeVariants = cva("", {
     }
   },
   defaultVariants: {
-    width: 1
+    columns: 1
   }
 });
 

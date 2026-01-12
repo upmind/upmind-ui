@@ -19,7 +19,7 @@
           :required="props.required"
           :disabled="props.disabled"
           :model-value="modelValue"
-          :width="props.width"
+          :columns="props.columns"
           :value="selectedItem.value"
           :list="props.list"
           :minimal="props.minimal"
@@ -63,7 +63,7 @@
               :required="props.required"
               :disabled="props.disabled"
               :model-value="modelValue"
-              :width="props.width"
+              :columns="props.columns"
               :value="option.value"
               :class="props.radioClass"
               :list="props.list"
@@ -119,7 +119,7 @@ const props = withDefaults(defineProps<RadioCardsCollapsibleProps>(), {
   label: "Change",
   autoCollapse: true,
   // -- variants
-  width: 1,
+  columns: 1,
   list: false,
   // --- styles
   class: "",
@@ -137,7 +137,7 @@ const open = defineModel<boolean>("open");
 const meta = computed(() => ({
   isList: props.list,
   isMinimal: props.minimal,
-  width: props.width
+  columns: props.columns
 }));
 
 const styles = useStyles("radioCards", meta, config, props.uiConfig ?? {});

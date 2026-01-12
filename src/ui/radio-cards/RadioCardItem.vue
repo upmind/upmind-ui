@@ -100,7 +100,7 @@ import { isFunction, isString, isNil } from "lodash-es";
 
 const props = withDefaults(defineProps<RadioCardsItemProps>(), {
   // -- variants
-  width: 1
+  columns: 1
 });
 
 const emits = defineEmits<{
@@ -117,7 +117,7 @@ const isSelected = computed(() => {
 });
 
 const meta = computed(() => ({
-  width: props.width
+  columns: props.columns
 }));
 
 const styles = useStyles(
