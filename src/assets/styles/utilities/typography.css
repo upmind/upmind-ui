@@ -16,21 +16,18 @@
     letter-spacing: var(--font-display-tracking);
     color: var(--text-display);
   }
-  .font-body {
-    font-family: var(--font-body);
-  }
-  .font-sans {
-    font-family: var(--font-sans);
-  }
-}
-
-@layer base {
   .font-display strong,
   .font-display b {
     font-family: var(--font-display-bold);
     font-weight: var(--font-display-bold-weight);
     text-transform: var(--font-display-bold-transform);
     letter-spacing: var(--font-display-bold-tracking);
+  }
+  .font-body {
+    font-family: var(--font-body);
+  }
+  .font-sans {
+    font-family: var(--font-sans);
   }
 }
 
