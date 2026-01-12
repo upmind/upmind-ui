@@ -7,6 +7,7 @@ import guards from "../guards";
 import {
   type AnyEventObject,
   assign,
+  FunnelContext,
   type FunnelProps
 } from "@upmind-automation/client-vue";
 import { ROUTE } from "../types";
@@ -518,9 +519,16 @@ export default <FunnelProps>{
           // passed by the checkout completion action
           actions: [
             assign({
-              targetRoute: (_context, { data }: AnyEventObject) => {
+              targetRoute: (
+                { currentRoute }: FunnelContext,
+                { data }: AnyEventObject
+              ) => {
                 const oid = data?.event?.id;
-                return { name: ROUTE.ORDER, params: { oid } };
+                return {
+                  name: ROUTE.ORDER,
+                  params: { oid },
+                  query: currentRoute?.query
+                };
               }
             })
           ]
