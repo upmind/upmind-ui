@@ -88,6 +88,8 @@ const items = computed(() => {
       index: gateways.length,
       modelValue: data
     });
+  } else {
+    // console.debug("No Pay Later option available");
   }
 
   return gateways;
