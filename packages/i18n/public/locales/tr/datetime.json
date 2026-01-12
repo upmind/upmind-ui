@@ -1,0 +1,29 @@
+{
+  "calendar": {
+    "last_day": "[Dün]",
+    "last_week": "[Son] dddd",
+    "next_day": "[Yarın]",
+    "next_week": "ggggg",
+    "same_day": "[Bugün]"
+  },
+  "date": {
+    "default": "MMM Yap, YYYY",
+    "omit_ordinal": "AAA YYYY",
+    "omit_year": "MMM Yap",
+    "only_day": "D",
+    "only_month": "MMM",
+    "only_ordinal": "Yapmak",
+    "only_week": "MMM Yap ([Hafta] Hafta)",
+    "only_year": "YYYY"
+  },
+  "datetime": {
+    "default": "MMM Yap, YYYY SS:dd A",
+    "omit_meridiem": "MMM Yap, YYYY SS:dd",
+    "with_seconds": "MMM Yap, YYYY SS:dd:ss A"
+  },
+  "time": {
+    "default": "SS:dd",
+    "with_meridiem": "SS:dd A",
+    "with_seconds": "SS:dd:ss"
+  }
+}
