@@ -13,7 +13,7 @@
   "enum": "{title} harus sama dengan salah satu nilai yang diizinkan",
   "exclusiveMaximum": "{title} harus kurang dari {exclusiveMaximum}",
   "exclusiveMinimum": "{title} harus lebih besar dari {exclusiveMinimum}",
-  "format": "@:validation.{format} | {title} harus sesuai dengan format {format}",
+  "format": "{title} harus sesuai dengan format {format}",
   "if": "{title} harus cocok dengan skema 'then' | {title} harus cocok dengan skema 'else'",
   "maxItems": "{title} TIDAK boleh memiliki lebih dari {maxItems} barang | {title} TIDAK boleh memiliki lebih dari {maxItems} barang-barang",
   "maxLength": "{title} TIDAK boleh lebih panjang dari {maxLength} karakter | {title} TIDAK boleh lebih panjang dari {maxLength} karakter",
@@ -30,7 +30,7 @@
   "patternProperties": "{title} nama properti {propertyName} tidak valid (pola tidak cocok)",
   "phone": "{title} wajib berupa nomor telepon internasional yang valid",
   "propertyNames": "{title} nama properti {propertyName} tidak valid",
-  "required": "{title} harus memiliki properti yang diperlukan {missingProperty}",
+  "required": "{title} wajib diisi",
   "type": "{title} harus {type}",
   "uniqueItems": "{title} TIDAK boleh memiliki item duplikat (item {j} Dan {i} identik)"
 }
