@@ -13,7 +13,7 @@
   "enum": "{title} må være lik en av de tillatte verdiene",
   "exclusiveMaximum": "{title} må være mindre enn {exclusiveMaximum}",
   "exclusiveMinimum": "{title} må være større enn {exclusiveMinimum}",
-  "format": "@:validation.{format} | {title} må samsvare med formatet {format}",
+  "format": "{title} må samsvare med formatet {format}",
   "if": "{title} må samsvare med 'så'-skjemaet | {title} må samsvare med 'else'-skjemaet",
   "maxItems": "{title} må IKKE ha mer enn {maxItems} vare | {title} må IKKE ha mer enn {maxItems} varer",
   "maxLength": "{title} må IKKE være lengre enn {maxLength} karakter | {title} må IKKE være lengre enn {maxLength} karakterer",
@@ -30,7 +30,7 @@
   "patternProperties": "{title} eiendomsnavn {propertyName} er ugyldig (mønsteravvik)",
   "phone": "{title} må være et gyldig telefonnummer i internasjonalt format",
   "propertyNames": "{title} eiendomsnavn {propertyName} er ugyldig",
-  "required": "{title} må ha nødvendig eiendom {missingProperty}",
+  "required": "{title} er påkrevd",
   "type": "{title} må være {type}",
   "uniqueItems": "{title} må IKKE ha dupliserte elementer (elementer {j} og {i} er identiske)"
 }
