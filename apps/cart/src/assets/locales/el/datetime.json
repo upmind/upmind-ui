@@ -1,29 +1,29 @@
 {
   "calendar": {
     "last_day": "[Εχθές]",
-    "last_week": "[Τελευταία] ηηη",
+    "last_week": "[Τελευταία] dddd",
     "next_day": "[Αύριο]",
-    "next_week": "ηηη",
+    "next_week": "dddd",
     "same_day": "[Σήμερα]"
   },
   "date": {
-    "default": "ΜΜΜ Do, ΕΕΕΕ",
-    "omit_ordinal": "ΜΜΜ ΕΕΕΕ",
-    "omit_year": "ΜΜΜ Ντο",
-    "only_day": "ρε",
-    "only_month": "ΜΜΜ",
-    "only_ordinal": "Κάνω",
-    "only_week": "ΜΜΜ Ντο ([Εβδ.] Τε)",
-    "only_year": "ΕΕΕΕ"
+    "default": "D MMMM YYYY",
+    "omit_ordinal": "MMMM YYYY",
+    "omit_year": "D MMMM",
+    "only_day": "D",
+    "only_month": "MMM",
+    "only_ordinal": "D",
+    "only_week": "D MMMM ([Εβδ.] W)",
+    "only_year": "YYYY"
   },
   "datetime": {
-    "default": "ΜΜΜ Do, ΕΕΕΕ ΩΩ:λλ A",
-    "omit_meridiem": "ΜΜΜ Do, ΕΕΕΕ ΩΩ:λλ",
-    "with_seconds": "ΜΜΜ Do, ΕΕΕΕ ΩΩ:λλ:δδ A"
+    "default": "D MMMM YYYY, HH:mm",
+    "omit_meridiem": "D MMMM YYYY, HH:mm",
+    "with_seconds": "D MMMM YYYY, HH:mm:ss"
   },
   "time": {
-    "default": "ΩΩ:λλ",
-    "with_meridiem": "ΩΩ:λλ ΠΜ",
-    "with_seconds": "ΩΩ:λλ:δδ"
+    "default": "HH:mm",
+    "with_meridiem": "HH:mm A",
+    "with_seconds": "HH:mm:ss"
   }
 }

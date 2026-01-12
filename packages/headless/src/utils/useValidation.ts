@@ -111,42 +111,31 @@ function mapLaravelRuleToJSONSchema(
       type: "string",
       format: "phone",
       phone_country_code: context?.defaultCountry?.code ?? ""
-      // errorMessage: "Please enter a valid international phone number",
     };
   } else if (rule == "domain_name" || rule == "domain-name") {
     return {
       type: "string",
-      format: "domain_name",
-      errorMessage: "Please enter a valid domain name"
+      format: "domain_name"
     };
   } else if (rule === "alpha") {
     return {
-      format: "alpha",
-      errorMessage: {
-        format: "may only contain letters"
-      }
+      type: "string",
+      format: "alpha"
     };
   } else if (rule === "alpha-dash") {
     return {
-      format: "alpha-dash",
-      errorMessage: {
-        format: "may only contain letters, numbers, and dashes"
-      }
+      type: "string",
+      format: "alpha-dash"
     };
   } else if (rule === "alpha-num") {
     return {
-      format: "alpha_num",
-      errorMessage: {
-        format: "may only contain letters and numbers"
-      }
+      type: "string",
+      format: "alpha-num"
     };
   } else if (rule === "alpha-dash-dot") {
     return {
       type: "string",
-      pattern: "^[a-zA-Z.-]+$",
-      errorMessage: {
-        pattern: "may only contain letters, dots and dashes"
-      }
+      format: "alpha-dash-dot"
     };
   }
 
@@ -502,9 +491,7 @@ export const useValidation = (ajv?: Ajv) => {
       singleError: true
     });
 
-    forEach(formats, format =>
-      ajvInstance.addFormat(format.name, format.validate)
-    );
+    forEach(formats, format => ajvInstance.addFormat(format.name, format));
 
     forEach(keywords, keyword => ajvInstance.addKeyword(keyword));
   }
