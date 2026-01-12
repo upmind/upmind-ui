@@ -527,7 +527,6 @@ export default <FunnelProps>{
               ) => {
                 const { meta } = useBasket();
                 const oid = data?.event?.id;
-                debugger;
                 return {
                   name: ROUTE.ORDER,
                   params: { oid },
