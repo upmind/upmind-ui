@@ -343,12 +343,10 @@ async function parse(context: PaymentDetailsContext, { data }: AnyEventObject) {
     context.raw.storedPaymentMethods ?? [],
     lookups.gateways
   );
-  debugger;
   lookups.paymentTypes = filterPaymentTypes(
     context.raw.config ?? {},
     safeModel
   );
-  debugger;
 
   // ---
   // Ensure payment type is valid and allowed, default to PAY_IN_FULL if not
