@@ -78,6 +78,7 @@ const items = computed(() => {
 
   // Syntactic Sugar...Add a "special" option to force pay-later.
   if (rootSchema?.definitions?.type?.enum?.includes(PaymentType.PAY_LATER)) {
+    debugger;
     gateways.push({
       item: {
         label: t("form.payment_method_type.pay-later"),
@@ -88,6 +89,9 @@ const items = computed(() => {
       index: gateways.length,
       modelValue: data
     });
+  } else {
+    console.log("No Pay Later option available");
+    debugger;
   }
 
   return gateways;

@@ -66,7 +66,7 @@ export function spawnPaymentDetail(basket?: IBasket) {
       orderId: basket?.id,
       currency: basket?.currency,
       address: basket?.address,
-      clientId: basket?.client_id,
+      client: basket?.client,
       amount: basket?.unpaid_amount_converted || 0.0,
       model: {}
     } as PaymentDetailsContext),
