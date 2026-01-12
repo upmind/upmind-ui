@@ -7,7 +7,13 @@
   >
     <CarouselContent :class="styles.image.carousel.content" class="ml-0 h-full">
       <template v-for="(data, index) in image as ImageItem[]">
-        <CarouselImage :image="data" :index="index" :total="meta.imageLength" />
+        <CarouselImage
+          :image="data"
+          :index="index"
+          :total="meta.imageLength"
+          :fit="props.fit"
+          :position="props.position"
+        />
       </template>
     </CarouselContent>
 
@@ -73,6 +79,7 @@ import type { CarouselApi } from "../carousel";
 const props = withDefaults(defineProps<ImageProps>(), {
   ratio: "1:1",
   fit: "cover",
+  position: "center",
   mode: "auto",
   icon: "camera-01",
   fallback: true
@@ -91,6 +98,7 @@ const meta = computed(() => {
   return {
     ratio: props.ratio,
     fit: props.fit,
+    position: props.position,
     isEmpty: isEmpty(props.image) || error.value,
     hasFallback: props.fallback && (isEmpty(props.image) || error.value),
     isCarousel,

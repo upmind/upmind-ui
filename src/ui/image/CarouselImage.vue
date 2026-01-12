@@ -21,11 +21,13 @@ import type { CarouselImageProps } from "./types";
 const props = defineProps<CarouselImageProps>();
 
 const imageMeta = computed(() => ({
-  position: (() => {
+  carouselPosition: (() => {
     if (props.index === 0) return "first";
     if (props.index === (props.total ?? 0) - 1) return "last";
     return "middle";
-  })()
+  })(),
+  fit: props.fit,
+  position: props.position
 }));
 
 const styles = useStyles(

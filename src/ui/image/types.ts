@@ -13,6 +13,7 @@ export interface ImageProps {
   image?: ImageItem[] | ImageItem | string;
   ratio?: ImageVariants["ratio"];
   fit?: RootVariants["fit"];
+  position?: RootVariants["position"];
   icon?: IconProps["icon"];
   alt?: ImgHTMLAttributes["alt"];
   fallback?: boolean;
@@ -29,4 +30,6 @@ export interface CarouselImageProps {
   image: ImageItem;
   index?: number;
   total?: number;
+  fit?: RootVariants["fit"];
+  position?: RootVariants["position"];
 }

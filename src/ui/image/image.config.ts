@@ -1,9 +1,9 @@
 import { cva } from "class-variance-authority";
 import { ringClasses } from "../../assets/styles";
 // -----------------------------------------------------------------------------
-export const rootVariant = cva("min-h-full w-full", {
+export const rootVariant = cva("h-full w-full", {
   variants: {
-    position: {
+    carouselPosition: {
       first: "image-radius-l",
       middle: "",
       last: "image-radius-r"
@@ -12,17 +12,29 @@ export const rootVariant = cva("min-h-full w-full", {
       true: "text-accent-neutral flex items-center justify-center"
     },
     fit: {
-      cover: "object-cover object-center",
+      cover: "object-cover",
       contain: "object-contain",
       fill: "object-fill",
       stretch: "object-fill",
       "scale-down": "object-scale-down",
       none: "object-none"
+    },
+    position: {
+      center: "object-center",
+      top: "object-top",
+      bottom: "object-bottom",
+      left: "object-left",
+      right: "object-right",
+      "left-top": "object-top-left",
+      "left-bottom": "object-bottom-left",
+      "right-top": "object-top-right",
+      "right-bottom": "object-bottom-right"
     }
   },
   defaultVariants: {
     fit: "cover",
-    position: "middle"
+    position: "center",
+    carouselPosition: "middle"
   }
 });
 
