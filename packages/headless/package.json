@@ -35,6 +35,7 @@
     "@tanstack/query-persist-client-core": "^5.83.1",
     "@tanstack/vue-query": "^5.83.1",
     "@tanstack/vue-store": "^0.7.3",
+    "@types/mercadopago-sdk-js": "^2.0.17",
     "@upmind-automation/i18n": "workspace:*",
     "@upmind-automation/types": "workspace:*",
     "@xstate/inspect": "^0.8.0",

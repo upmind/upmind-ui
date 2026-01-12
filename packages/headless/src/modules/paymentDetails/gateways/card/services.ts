@@ -20,11 +20,11 @@ import { useQuery } from "../../../query";
  * payment). We do not need to pass a client secret for flow, as the
  * payment detail is attached to a customer and confirmed server-side.
  */
-async function pay({ model, clientId }: GatewayCardContext) {
+async function pay({ model, client }: GatewayCardContext) {
   if (model.store) {
     return storePaymentMethod({
       model,
-      clientId
+      client
     } as GatewayCardContext)
       .then((result: IPaymentDetail) => {
         return {
@@ -42,7 +42,7 @@ async function pay({ model, clientId }: GatewayCardContext) {
 
 async function storePaymentMethod({
   model,
-  clientId,
+  client,
   orderId
 }: GatewayCardContext): Promise<IPaymentDetail> {
   const currentUrl = new URL(window.location.href);
@@ -60,8 +60,8 @@ async function storePaymentMethod({
 
   // TODO: correct Typing
   return post<IPaymentDetail>({
-    mutationKey: ["clients", clientId, "payment_details"],
-    url: useUrl(`clients/${clientId}/payment_details`),
+    mutationKey: ["clients", client.id, "payment_details"],
+    url: useUrl(`clients/${client.id}/payment_details`),
     data: {
       card_type: model.card_type,
       card_num: model.card_num,
