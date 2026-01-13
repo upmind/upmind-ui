@@ -84,7 +84,19 @@ export const useThemes = (value?: Theme | Theme[], defaultTheme?: string) => {
   }
 
   function setTheme(theme: string | undefined) {
-    if ((theme == activeTheme.value && !isEmpty(config.value)) || !theme)
+    // Don't override if same theme
+
+    if (theme == activeTheme.value && !isEmpty(config.value)) return;
+
+    // Don't override if no theme provided and we already have one
+    if (!theme && activeTheme.value) return;
+
+    // Don't override a valid theme with "default"
+    if (
+      theme === "default" &&
+      activeTheme.value &&
+      activeTheme.value !== "default"
+    )
       return;
 
     activeTheme.value = theme || activeTheme.value || defaultTheme || "default";
