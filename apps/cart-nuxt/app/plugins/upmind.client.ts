@@ -4,6 +4,8 @@ import UpmindClient, { useTheme } from "@upmind-automation/client-vue";
 import { plugins as uiPlugins } from "@upmind-automation/upmind-ui";
 import { registerFunnels } from "~/router/funnels";
 import { forEach } from "lodash-es";
+import type { Router } from "vue-router";
+import type { I18n } from "vue-i18n";
 
 export default defineNuxtPlugin(nuxtApp => {
   const isReady = ref(false);
@@ -19,7 +21,7 @@ export default defineNuxtPlugin(nuxtApp => {
       region: runtimeConfig.public.API_REGION
     },
     i18n: {
-      instance: nuxtApp.$i18n as any,
+      instance: nuxtApp.$i18n as I18n,
       // Glob pattern adapted for relative path from this plugin
       files: import.meta.glob<Record<string, string>>(
         "../assets/locales/**/*.json",
@@ -27,7 +29,7 @@ export default defineNuxtPlugin(nuxtApp => {
       )
     },
     router: {
-      instance: nuxtApp.$router as any,
+      instance: nuxtApp.$router as Router,
       registerFunnels
     },
     recaptcha: {
@@ -61,10 +63,6 @@ export default defineNuxtPlugin(nuxtApp => {
   });
 
   return {
-    provide: {
-      upmind: {
-        isReady
-      }
-    }
+    provide: { upmind: { isReady } }
   };
 });

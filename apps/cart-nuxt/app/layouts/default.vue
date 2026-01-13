@@ -12,7 +12,7 @@
       </template>
     </UpmHeader>
 
-    <UpmAsyncLoading :open="routingMeta.isLoading" />
+    <UpmLoading :open="routingMeta.isLoading" />
 
     <UpmMain>
       <!-- Page content from NuxtPage -->
@@ -22,7 +22,7 @@
     </UpmMain>
 
     <UpmFooter />
-    <UpmFeedback :storefront-route="{ name: ROUTE.STOREFRONT }" />
+    <!-- <UpmFeedback :storefront-route="{ name: ROUTE.STOREFRONT }" /> -->
   </UpmPage>
 </template>
 
@@ -38,8 +38,8 @@ import {
   UpmHeader,
   UpmFooter,
   UpmMain,
-  UpmFeedback,
-  UpmAsyncLoading,
+  // UpmFeedback,
+  UpmLoading,
   UpmRoot,
   UpmBasketAction,
   UpmAuthAction,

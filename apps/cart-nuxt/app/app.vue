@@ -1,16 +1,16 @@
 <template>
-  <div
-    v-if="!$upmind.isReady.value"
-    class="h-screen w-screen flex items-center justify-center bg-canvas text-base font-sans"
-  >
-    <div class="flex flex-col items-center gap-4">
-      <div
-        class="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"
-      ></div>
-      <p>Initializing Upmind...</p>
+  <NuxtLayout>
+    <div
+      v-if="!$upmind.isReady.value"
+      class="bg-canvas flex h-screen w-screen items-center justify-center font-sans text-base"
+    >
+      <div class="flex flex-col items-center gap-4">
+        <div
+          class="border-primary h-12 w-12 animate-spin rounded-full border-4 border-t-transparent"
+        ></div>
+        <p>Initializing Upmind...</p>
+      </div>
     </div>
-  </div>
-  <NuxtLayout v-else>
     <NuxtPage />
   </NuxtLayout>
 </template>
