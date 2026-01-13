@@ -1,5 +1,5 @@
 <template>
-  <div :class="cn(styles.radioCards.root, props.class)">
+  <div :class="cn('w-full', props.class)">
     <Collapsible v-model:open="open">
       <RadioGroup
         :model-value="modelValue"
@@ -7,7 +7,7 @@
         :disabled="props.disabled"
         data-testid="radio-card-group"
         @update:model-value="onSelectionChange"
-        class="flex w-full flex-col gap-0"
+        :class="cn(styles.radioCards.root, 'gap-0')"
       >
         <RadioCardItem
           v-if="selectedItem"
@@ -31,7 +31,7 @@
         </RadioCardItem>
 
         <template v-else>
-          <Skeleton>
+          <Skeleton class="col-span-12">
             <RadioCardItem
               :item="{
                 title: 'Loading...',
@@ -48,7 +48,11 @@
           </Skeleton>
         </template>
 
-        <CollapsibleContent class="flex w-full flex-col overflow-visible">
+        <CollapsibleContent
+          :class="
+            cn(styles.radioCards.root, 'col-span-12 gap-0 overflow-visible')
+          "
+        >
           <template
             v-for="(option, index) in unselectedItems"
             :key="option.id || index"
