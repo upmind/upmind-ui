@@ -118,7 +118,7 @@ export function loadList() {
 // -----------------------------------------------------------------------------
 
 async function loadLookups(
-  { currency, address, orderId, lookups, clientId }: PaymentDetailsContext,
+  { currency, address, orderId, lookups, client }: PaymentDetailsContext,
   _event: AnyEventObject
 ) {
   const { meta } = useSession();
@@ -126,7 +126,7 @@ async function loadLookups(
     ["PAY_IN_FULL"]: PaymentType.PAY_IN_FULL
   };
 
-  if (!meta.value.isAuthenticated || !clientId)
+  if (!meta.value.isAuthenticated || !client?.id)
     throw new NotAuthenticatedError();
 
   const { brandId, currencyId: defaultCurrencyId, ensureConfig } = useBrand();
@@ -152,7 +152,7 @@ async function loadLookups(
       "wallet-balance",
       {
         brandId: unref(brandId),
-        clientId,
+        client,
         currencyId
       }
     ],
@@ -186,7 +186,7 @@ async function loadLookups(
     IPaymentDetail[],
     PaymentDetail[]
   >({
-    url: useUrl(`clients/${clientId}/payment_details`, {
+    url: useUrl(`clients/${client.id}/payment_details`, {
       limit: 0,
       brand_id: unref(brandId),
       active: true,
@@ -199,7 +199,7 @@ async function loadLookups(
       "payment-details",
       {
         brandId: unref(brandId),
-        clientId,
+        client,
         currencyId,
         addressId: address?.country_id
       }
@@ -212,7 +212,7 @@ async function loadLookups(
   const gateways: any = getRequest<IBrandGateway[]>({
     url: useUrl(`brands/${unref(brandId)}/gateways`, {
       limit: 0,
-      client_id: clientId,
+      client_id: client.id,
       invoice_id: orderId,
       order: "order",
       "filter[gateway.currencies.id]": currencyId,
@@ -225,7 +225,7 @@ async function loadLookups(
       {
         brandId: unref(brandId),
         invoice_id: orderId,
-        clientId,
+        client,
         currencyId,
         invoiceId: orderId,
         addressId: address?.country_id
@@ -253,7 +253,7 @@ async function loadLookups(
         accountCredit,
         storedPaymentMethods,
         gateways,
-        clientId,
+        client,
         amountsFormatted: {
           amount: lookups?.amountsFormatted?.amount || "",
           wallet: lookups?.amountsFormatted?.wallet || ""
