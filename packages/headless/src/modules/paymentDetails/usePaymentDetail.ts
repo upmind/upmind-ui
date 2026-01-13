@@ -94,7 +94,8 @@ export const usePaymentDetail = (actor: ComputedRef<UseActor | undefined>) => {
     isValid: gateway.value
       ? stateMatches(gateway.value, ["available.valid"])
       : stateMatches(actor, ["available.valid"]),
-
+    isUnavailable:
+      !gateway.value || stateMatches(gateway.value, ["unavailable"]),
     isDirty: !isEmpty(
       contextValue<PaymentDetailsContext["model"]>(actor, "model")
     ),

@@ -39,11 +39,21 @@ export const alphaDashFormat: NamedFormatDefinition<string> = {
 };
 
 export const alphaNumericFormat: NamedFormatDefinition<string> = {
-  name: "alpha_num",
+  name: "alpha-num",
   type: "string",
   validate: (data: string): boolean => {
     if (isNil(data)) return true;
     if (!isString(data)) return false;
     return /^[a-zA-Z0-9]+$/.test(data);
+  }
+};
+
+export const alphaDashDotFormat: NamedFormatDefinition<string> = {
+  name: "alpha-dash-dot",
+  type: "string",
+  validate: (data: string): boolean => {
+    if (isNil(data)) return true;
+    if (!isString(data)) return false;
+    return /^[a-zA-Z.-]+$/.test(data);
   }
 };

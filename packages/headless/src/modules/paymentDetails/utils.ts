@@ -1,5 +1,5 @@
 // --- external
-import { AnyEventObject, spawn } from "xstate";
+import { spawn } from "xstate";
 
 // --- internal
 import gatewayMachine from "./gateways/gateway.machine";
@@ -9,6 +9,7 @@ import braintreeConfig from "./gateways/braintree";
 import openPayConfig from "./gateways/openPay";
 import stripeConfig from "./gateways/stripe";
 import razorpayConfig from "./gateways/razorpay";
+// import mercadoPagoConfig from "./gateways/mercadoPago";
 
 // --- utils
 
@@ -28,6 +29,7 @@ import { OpenPayContext } from "./gateways/openPay/types";
 import { filter, get, includes, some, sortBy, unset } from "lodash-es";
 import { RazorpayContext } from "./gateways/razorpay/types";
 import { PaymentDetail, PaymentDetailsContext } from "./types";
+// import { MercadoPagoContext } from "./gateways/mercadoPago/types";
 
 // -----------------------------------------------------------------------------
 
@@ -44,7 +46,7 @@ export function spawnGateway({
   amount,
   currency,
   address,
-  clientId
+  client
 }: GatewayParams) {
   switch (gateway.gateway_provider?.code) {
     // SUPPORTED SDK GATEWAYS
@@ -54,7 +56,7 @@ export function spawnGateway({
           .withContext({
             address,
             amount,
-            clientId,
+            client,
             ctx: GatewayCtx.PAY,
             currency,
             gateway,
@@ -67,13 +69,32 @@ export function spawnGateway({
           sync: true
         }
       );
+    // case GatewayProviderCodes.MERCADO_PAGO:
+    //   return spawn(
+    //     gatewayMachine<MercadoPagoContext>(gateway.gateway_provider.code)
+    //       .withContext({
+    //         address,
+    //         amount,
+    //         client,
+    //         ctx: GatewayCtx.PAY,
+    //         currency,
+    //         gateway,
+    //         orderId,
+    //         supported: true
+    //       })
+    //       .withConfig(mercadoPagoConfig),
+    //     {
+    //       name: gateway.id,
+    //       sync: true
+    //     }
+    //   );
     case GatewayProviderCodes.OPENPAY:
       return spawn(
         gatewayMachine<OpenPayContext>(gateway.gateway_provider.code)
           .withContext({
             address,
             amount,
-            clientId,
+            client,
             ctx: GatewayCtx.PAY,
             currency,
             gateway,
@@ -93,7 +114,7 @@ export function spawnGateway({
           gatewayMachine(gateway.gateway_provider.code).withContext({
             address,
             amount,
-            clientId,
+            client,
             ctx: GatewayCtx.PAY,
             currency,
             gateway,
@@ -111,7 +132,7 @@ export function spawnGateway({
           .withContext({
             address,
             amount,
-            clientId,
+            client,
             ctx: GatewayCtx.PAY,
             currency,
             gateway,
@@ -129,7 +150,7 @@ export function spawnGateway({
           .withContext({
             address,
             amount,
-            clientId,
+            client,
             ctx: GatewayCtx.PAY,
             currency,
             gateway,
@@ -143,20 +164,33 @@ export function spawnGateway({
 
     // SUPPORTED NON SDK "SIMPLE" GATEWAYS
     case GatewayProviderCodes.BANK_TRANSFER:
+    case GatewayProviderCodes.BIT_PAY:
+    case GatewayProviderCodes.BLOCKONOMICS:
+    case GatewayProviderCodes.COIN_GATE:
+    case GatewayProviderCodes.D_LOCAL:
     case GatewayProviderCodes.FLUTTERWAVE:
+    case GatewayProviderCodes.GO_CARDLESS:
     case GatewayProviderCodes.MICROPAYMENT:
     case GatewayProviderCodes.OFFLINE:
+    case GatewayProviderCodes.OPENPAY_NON_CARD:
+    case GatewayProviderCodes.PAY_FAST:
+    case GatewayProviderCodes.PAY_U:
     case GatewayProviderCodes.PAYPAL_BILLING_AGREEMENT:
     case GatewayProviderCodes.PAYPAL_EXPRESS:
     case GatewayProviderCodes.PAYPAL_PRO:
+    case GatewayProviderCodes.PAYSAFECARD:
     case GatewayProviderCodes.PAYSTACK:
     case GatewayProviderCodes.PAYTM:
+    case GatewayProviderCodes.PESA_PAL:
+    case GatewayProviderCodes.RAZOR_PAY:
+    case GatewayProviderCodes.RAZOR_PAY:
     case GatewayProviderCodes.SSL_COMMERZ:
+    case GatewayProviderCodes.WORLD_PAY_JSON:
       return spawn(
         gatewayMachine(gateway.gateway_provider.code).withContext({
           address,
           amount,
-          clientId,
+          client,
           ctx: GatewayCtx.PAY,
           currency,
           gateway,
@@ -168,32 +202,29 @@ export function spawnGateway({
         { name: gateway.id, sync: true }
       );
 
-    // DEPRECATED/UNSUPPORTED/UNKNOWN GATEWAYS
+    // UNSUPPORTED/UNKNOWN GATEWAYS
     default:
     case GatewayProviderCodes.ADYEN:
-    case GatewayProviderCodes.BIT_PAY:
-    case GatewayProviderCodes.BLOCKONOMICS:
-    case GatewayProviderCodes.COIN_GATE:
-    case GatewayProviderCodes.D_LOCAL:
-    case GatewayProviderCodes.FLUTTERWAVE_CARD:
-    case GatewayProviderCodes.GO_CARDLESS:
-    case GatewayProviderCodes.MERCADO_PAGO:
     case GatewayProviderCodes.MERCADO_PAGO_OTHER_PAYMENTS:
+    case GatewayProviderCodes.MERCADO_PAGO:
+    // --- DEPRECATED SDK GATEWAYS
     case GatewayProviderCodes.MOMO_MTN_COLLECTIONS:
-    case GatewayProviderCodes.OPENPAY_NON_CARD:
-    case GatewayProviderCodes.PAYPAL_LEGACY_SUBSCRIPTION:
-    case GatewayProviderCodes.PAYPAL_SUBSCRIPTION_AGREEMENT:
-    case GatewayProviderCodes.PAYSAFECARD:
-    case GatewayProviderCodes.PAY_FAST:
-    case GatewayProviderCodes.PAY_U:
-    case GatewayProviderCodes.PESA_PAL:
-    case GatewayProviderCodes.RAZOR_PAY:
     case GatewayProviderCodes.SAGE_PAY_DIRECT:
-    case GatewayProviderCodes.WORLD_PAY_JSON:
+    case GatewayProviderCodes.FLUTTERWAVE_CARD:
+    case GatewayProviderCodes.PAYPAL_LEGACY_SUBSCRIPTION:
+    case GatewayProviderCodes.PAYPAL_REST:
+    case GatewayProviderCodes.PAYPAL_SUBSCRIPTION_AGREEMENT:
       // --- Deprecation warnings
       if (
         includes(
-          [GatewayProviderCodes.PAYPAL_REST],
+          [
+            GatewayProviderCodes.MOMO_MTN_COLLECTIONS,
+            GatewayProviderCodes.SAGE_PAY_DIRECT,
+            GatewayProviderCodes.FLUTTERWAVE_CARD,
+            GatewayProviderCodes.PAYPAL_LEGACY_SUBSCRIPTION,
+            GatewayProviderCodes.PAYPAL_REST,
+            GatewayProviderCodes.PAYPAL_SUBSCRIPTION_AGREEMENT
+          ],
           gateway.gateway_provider?.code
         )
       ) {
@@ -207,7 +238,7 @@ export function spawnGateway({
         gatewayMachine(gateway.gateway_provider.code).withContext({
           address,
           amount,
-          clientId,
+          client,
           ctx: GatewayCtx.PAY,
           currency,
           gateway,
@@ -280,7 +311,6 @@ export function filterPaymentTypes(
 
   if (get(config, BrandConfigKeys.PAY_LATER_ENABLED))
     paymentTypes["PAY_LATER"] = PaymentType.PAY_LATER; // Allowlist payment gateways if provided
-
   // If we are paying with account credit then we CANNOT use partial payments
   if (model?.wallet_amount) {
     unset(paymentTypes, "PAY_LATER");
