@@ -1,5 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 import { resolve } from "path";
+import tailwindcss from "@tailwindcss/vite";
 
 export default defineNuxtConfig({
   compatibilityDate: "2025-07-15",
@@ -13,20 +14,14 @@ export default defineNuxtConfig({
   // SSR enabled by default
   ssr: false,
 
-  // Route rules for aliases
-  routeRules: {
-    "/order": { redirect: "/" },
-    "/loading": { redirect: "/" }
-  },
-
   // Modules
   modules: ["@vueuse/nuxt"],
 
+  // Global CSS
+  css: ["~//main.css"],
+
   // Dev server configuration
-  devServer: {
-    host: "collabstudio.local",
-    port: 5173
-  },
+  devServer: {},
 
   // Runtime config for environment variables
   runtimeConfig: {
@@ -82,25 +77,19 @@ export default defineNuxtConfig({
 
   // Vite configuration
   vite: {
+    plugins: [tailwindcss()],
     resolve: {
       dedupe: ["vue-router"]
     },
     optimizeDeps: {
       include: ["lodash-es"]
-    },
-    // Reduce file descriptor usage by ignoring large asset folders
-    server: {
-      watch: {
-        // Don't use polling (reduces fd usage)
-        usePolling: false,
-        // Ignore large asset folders from watching
-        ignored: [
-          "**/node_modules/**",
-          "**/app/assets/icons/**",
-          "**/app/assets/animations/**"
-          // Note: locales still need changes detected for i18n
-        ]
-      }
+    }
+  },
+
+  // Vue compiler options
+  vue: {
+    compilerOptions: {
+      isCustomElement: (tag: string) => tag.startsWith("lord-")
     }
   },
 
