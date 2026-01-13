@@ -1,4 +1,5 @@
 <template>
+  <dt v-if="category" class="text-muted text-sm">{{ category }}</dt>
   <DetailsItem
     v-for="(item, index) in items"
     :data-testid="`basket-product-details-item-${index}`"

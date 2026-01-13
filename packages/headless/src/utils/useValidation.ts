@@ -111,42 +111,34 @@ function mapLaravelRuleToJSONSchema(
       type: "string",
       format: "phone",
       phone_country_code: context?.defaultCountry?.code ?? ""
-      // errorMessage: "Please enter a valid international phone number",
     };
   } else if (rule == "domain_name" || rule == "domain-name") {
     return {
       type: "string",
-      format: "domain_name",
-      errorMessage: "Please enter a valid domain name"
+      format: "domain_name"
     };
   } else if (rule === "alpha") {
     return {
-      format: "alpha",
-      errorMessage: {
-        format: "may only contain letters"
-      }
+      type: "string",
+      format: "alpha"
     };
   } else if (rule === "alpha-dash") {
     return {
-      format: "alpha-dash",
-      errorMessage: {
-        format: "may only contain letters, numbers, and dashes"
-      }
+      type: "string",
+      format: "alpha-dash"
     };
   } else if (rule === "alpha-num") {
     return {
-      format: "alpha_num",
-      errorMessage: {
-        format: "may only contain letters and numbers"
-      }
+      type: "string",
+      format: "alpha-num"
     };
   } else if (rule === "alpha-dash-dot") {
     return {
       type: "string",
-      pattern: "^[a-zA-Z.-]+$",
-      errorMessage: {
-        pattern: "may only contain letters, dots and dashes"
-      }
+      format: "alpha-dash-dot"
+      // errorMessage: {
+      //   format: "may only contain letters, dots and dashes"
+      // }
     };
   }
 
@@ -168,7 +160,7 @@ function mapLaravelRuleToJSONSchema(
         field?.options,
         ({ value }) => value
       );
-      if (!field.validation_rules.includes("required")) enums.push(null);
+      if (!includes(field?.validation_rules, "required")) enums.push(null);
 
       return {
         enum: enums,
@@ -176,7 +168,7 @@ function mapLaravelRuleToJSONSchema(
       };
     } else {
       const enums: (string | null)[] = rule.substring(3).split(",");
-      if (!field.validation_rules.includes("required")) enums.push(null);
+      if (!includes(field?.validation_rules, "required")) enums.push(null);
       return { enum: enums };
     }
   } else if (rule.startsWith("not_in:")) {
@@ -318,13 +310,13 @@ function mapLaravelRulesToJsonSchemaProperty(
   context: Record<string, any> = {}
 ): JsonSchemaExtended {
   let schemaProperty: JsonSchemaExtended = {};
-  for (const rule of field.validation_rules) {
+  forEach(field?.validation_rules, rule => {
     const keywordMap = mapLaravelRuleToJSONSchema(rule, field, context);
     keywordMap.type ??= "string"; // Failsafe: default type to string if not already specified
 
     // merge each rule into the schemaProperty
     schemaProperty = { ...schemaProperty, ...keywordMap } as JsonSchemaExtended;
-  }
+  });
 
   // Handle nullable carefully
   if (schemaProperty.nullable) {
@@ -345,7 +337,7 @@ function mapLaravelRulesToJsonSchemaProperty(
     }
   }
 
-  if (field.semantic_type) {
+  if (field?.semantic_type) {
     schemaProperty.semantic_type = field.semantic_type;
   }
 
@@ -360,7 +352,8 @@ export function useLaravalSchemaParser(
   const requiredFields: JsonSchema7["required"] = [];
 
   forEach(fields, field => {
-    if (!field.deferrable || field.defer_mode != "hidden") {
+    if (isEmpty(field)) return;
+    if (!field?.deferrable || field?.defer_mode != "hidden") {
       const schema = {
         title: field.field_label,
         description: field.description,
@@ -369,7 +362,7 @@ export function useLaravalSchemaParser(
       };
 
       // Handle 'required'
-      if (field.validation_rules.includes("required")) {
+      if (includes(field?.validation_rules, "required")) {
         requiredFields.push(field.name);
       }
 
@@ -445,7 +438,7 @@ export const useModelParser = <
    * @returns
    */
   function safeValue(field: JsonSchema, values: any, key: string): any {
-    if (field.type === "object" || field.properties) {
+    if (field?.type === "object" || field?.properties) {
       return reduce(
         field.properties,
         (result, subField, subKey) => {
@@ -458,7 +451,7 @@ export const useModelParser = <
     }
 
     // NB ensure we always cast booleans correctly, we dont want null or undefined for booleans
-    if (field.type === "boolean" || includes(field.type, "boolean")) {
+    if (field?.type === "boolean" || includes(field?.type, "boolean")) {
       return field?.const ?? get(values, key, field?.default) ?? false;
     }
     return field?.const ?? get(values, key, field?.default) ?? null;
@@ -501,9 +494,7 @@ export const useValidation = (ajv?: Ajv) => {
       singleError: true
     });
 
-    forEach(formats, format =>
-      ajvInstance.addFormat(format.name, format.validate)
-    );
+    forEach(formats, format => ajvInstance.addFormat(format.name, format));
 
     forEach(keywords, keyword => ajvInstance.addKeyword(keyword));
   }

@@ -68,14 +68,14 @@ async function loadLookups(
 }
 
 async function parse(
-  { autoupdate, schema }: BillingContext,
+  { autoupdate, schema, model }: BillingContext,
   { data }: AnyEventObject
 ) {
   // sometimes the machine can return the full context as data, so we check to see if we have a model
   // if not, then we assume the data is the model
   const safeModel = useModelParser<BillingModel, BillingModel>(
     schema,
-    get(data, "model", data)
+    get(data, "model", data) ?? model
   );
 
   // ---

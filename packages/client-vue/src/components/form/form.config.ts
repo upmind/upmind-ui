@@ -27,7 +27,7 @@ export default {
           "flex flex-row-reverse items-center justify-end gap-2 sm:flex-row sm:justify-start"
         ),
         label: cva("text-faint text-sm"),
-        icon: cva("size-auto h-6")
+        icon: cva("h-5 w-8")
       }
     },
     radioCollapsible: {

@@ -68,7 +68,7 @@ import CardTerm from "./TermCard.vue";
 import { isNil, map, toNumber } from "lodash-es";
 
 // --- types
-import type { ComputedRef, HTMLAttributes } from "vue";
+import type { HTMLAttributes } from "vue";
 import type { SelectCardsItemProps } from "@upmind-automation/upmind-ui";
 import type { TermDetails } from "@upmind-automation/headless";
 
@@ -109,16 +109,7 @@ const styles = useStyles(
   ["product.config.grid", "product.config.grid.item"],
   toRefs(props),
   config
-) as ComputedRef<{
-  product: {
-    config: {
-      grid: {
-        root: string;
-        items: string;
-      };
-    };
-  };
-}>;
+);
 
 const parsedValues = computed<SelectCardsItemProps[]>(() => {
   return map(props.items, (item: TermDetails, index: number) => {

@@ -75,6 +75,7 @@ export class ProductConfig {
   readonly registrantPostcode: Locator;
   readonly registrantCountry: Locator;
   readonly addToBasket: Locator;
+  readonly confirm: Locator;
   readonly engagementTypes: Locator;
   readonly outcomes: Locator;
 
@@ -217,6 +218,7 @@ export class ProductConfig {
     );
     this.outcomes = page.getByTestId("description-list-item-outcomes");
     this.addToBasket = page.getByTestId("button-add-to-basket");
+    this.confirm = page.getByTestId("button-confirm");
 
     /* Meta Slots */
     this.summaryMetaSlot = page.getByTestId("slots:summary-append");
@@ -327,5 +329,9 @@ export class ProductConfig {
 
   async clickAddToBasket() {
     await this.addToBasket.click();
+  }
+
+  async clickConfirm() {
+    await this.confirm.click();
   }
 }

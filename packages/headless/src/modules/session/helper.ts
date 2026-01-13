@@ -24,21 +24,32 @@ const authCallback = (
   const currentMachine =
     state?.children?.clientMachine || state?.children?.guestMachine;
 
+  // If session expired, unauthenticate immediately
   if (stateMatches(state, ["expired"])) {
     callback({ type: "UNAUTHENTICATED" });
     return false;
   }
 
-  if (
-    stateMatches(state, ["checking", "error", "expired"]) ||
-    stateMatches(currentMachine, ["complete", "done"])
-  ) {
-    if (hasSession) callback({ type: "UNAUTHENTICATED" });
+  // If we have an error and we have a session, unauthenticate
+  if (stateMatches(state, ["checking", "error"])) {
+    if (hasSession) {
+      callback({ type: "UNAUTHENTICATED" });
+    }
     return false;
   }
 
-  // We have a session IF we are a client or guest
-  // and we have an access token
+  // If  we were logged in, ie a client, but now complete or done, unauthenticate
+  if (
+    state.matches("client") &&
+    stateMatches(currentMachine, ["complete", "done"])
+  ) {
+    if (hasSession) {
+      callback({ type: "UNAUTHENTICATED" });
+    }
+    return false;
+  }
+
+  // We have a session IF we have an access token regardless of being in guest or client mode
   if (stateMatches(currentMachine, ["available"]) && !hasSession) {
     hasSession = !isEmpty(getTokenFromStorage());
     if (hasSession) callback({ type: "SESSION" });

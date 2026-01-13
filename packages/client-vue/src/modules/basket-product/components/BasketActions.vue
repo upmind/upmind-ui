@@ -46,7 +46,6 @@ import { Button, NumberField } from "@upmind-automation/upmind-ui";
 import config from "../basket-product.config";
 
 // --- types
-import type { ComputedRef } from "vue";
 // -----------------------------------------------------------------------------
 
 const props = defineProps<{
@@ -63,11 +62,7 @@ const layout = computed(() => {
   return props?.template;
 });
 
-const styles = useStyles(["basketProduct"], { layout }, config) as ComputedRef<{
-  basketProduct: {
-    actions: string;
-  };
-}>;
+const styles = useStyles(["basketProduct"], { layout }, config);
 
 // ---
 function updateQuantity(value: number | undefined) {

@@ -12,6 +12,7 @@ import {
 } from "../../../support/utils/functions/tokens";
 import { Checkout } from "../../../support/page-objects/templates/Checkout";
 import { Logins } from "../../../support/constants/logins";
+import { goToCheckout } from "../../../support/utils/apiHelper";
 
 let checkout: Checkout;
 
@@ -28,7 +29,7 @@ test.describe("Checkout with Bank Transfer", () => {
       Logins.bankTransfer.username,
       Logins.bankTransfer.password
     );
-    await checkout.goToCheckout(null, null);
+    await goToCheckout(page, context);
     await checkout.selectPaymentMethod("Direct Bank Transfer");
     await checkout.clickPlaceOrder();
     await expect(page.getByRole("dialog")).toBeVisible();

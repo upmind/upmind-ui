@@ -19,7 +19,6 @@ import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./summary.config";
 
 // --- types
-import type { ComputedRef } from "vue";
 
 const props = withDefaults(
   defineProps<{
@@ -37,14 +36,5 @@ const styles = useStyles(
   ["summary", "summary.item"],
   { footer: props.footer },
   config
-) as ComputedRef<{
-  summary: {
-    root: string;
-    item: {
-      root: string;
-      term: string;
-      description: string;
-    };
-  };
-}>;
+);
 </script>

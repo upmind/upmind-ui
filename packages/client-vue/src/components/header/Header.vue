@@ -67,7 +67,6 @@ import { RIBBON_BACKGROUND } from "../layout/components/ribbon";
 import { COLUMN_BACKGROUND } from "../layout/components/column";
 
 // --- types
-import type { ComputedRef } from "vue";
 import { HEADER_BACKGROUND } from "./types";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
 
@@ -89,20 +88,24 @@ const styles = useStyles(
   ["header", "header.left", "header.right"],
   stylesMeta,
   config
-) as ComputedRef<{
-  header: {
-    root: string;
-    container: string;
-    left: {
-      column: string;
-      content: string;
-    };
-    right: {
-      column: string;
-      content: string;
-    };
-  };
-}>;
+);
+
+const shouldShow = ref(true);
+
+const { onTransition } = useRouteTransition();
+
+/**
+ * Handle route transitions to avoid header flicker
+ * We FORCE the header to re-render on route change
+ * to sync with the page transition
+ * NB: nexttick did not work here
+ */
+onTransition(value => {
+  shouldShow.value = false;
+  setTimeout(() => {
+    shouldShow.value = true;
+  }, 1);
+});
 
 const shouldShow = ref(true);
 

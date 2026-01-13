@@ -21,7 +21,7 @@ export type GatewayParams = {
    * The numerical amount of the payment.
    */
   amount: PaymentDetailData["amount"];
-  clientId: IClient["id"];
+  client: IClient;
   /**
    * The {@link GatewayCtx} defining whether the gateway is used for paying or adding a detail.
    */

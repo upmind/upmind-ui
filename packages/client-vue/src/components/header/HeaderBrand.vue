@@ -1,13 +1,8 @@
 <template>
-  <Link id="logo" class="flex" :to="props.storefrontRoute">
-    <picture v-if="logo" class="h-full w-full">
+  <Link id="logo" :class="styles.header.link" :to="props.storefrontRoute">
+    <picture v-if="logo" :class="styles.header.picture">
       <slot name="logo" :logo="logo">
-        <img
-          v-if="logo"
-          :src="logo"
-          class="h-9 max-w-32 object-contain md:max-w-64"
-          alt="logo"
-        />
+        <img v-if="logo" :src="logo" :class="styles.header.image" alt="logo" />
       </slot>
       <span class="sr-only">
         {{ t("header.title") }}
@@ -53,11 +48,5 @@ const logo = computed(
   () => props.logo ?? `${image.value?.full_url}?size=400x400`
 );
 
-const styles = useStyles(["header"], { layout }, config) as ComputedRef<{
-  header: {
-    name: string;
-    root: string;
-    container: string;
-  };
-}>;
+const styles = useStyles(["header"], { layout }, config);
 </script>

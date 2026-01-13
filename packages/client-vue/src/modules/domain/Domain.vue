@@ -1,5 +1,9 @@
 <template>
-  <component :is="templateVariant" v-model:open="open" @reset="doReset">
+  <component
+    :is="templateVariant"
+    v-model:open="open"
+    @reset="meta.isEmpty ? doReset() : doResolve()"
+  >
     <template #hero>
       <DomainHero
         v-model="queryValue"
@@ -254,7 +258,10 @@ watch(selected, value => (modelValue.value = value));
 
 watch(meta, ({ isSearching, showSearchResults, showDac }) => {
   const shouldOpen = showDac && (showSearchResults || isSearching);
-  if (shouldOpen) open.value = true;
+  if (shouldOpen) {
+    open.value = true;
+    processingBasket.value = false;
+  }
 });
 
 // Stores the previous result count for smooth skeleton loading

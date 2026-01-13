@@ -73,7 +73,6 @@ import { forEach, some, omit } from "lodash-es";
 // --- types
 import type { Product } from "@upmind-automation/headless";
 import type { CarouselApi } from "@upmind-automation/upmind-ui";
-import type { ComputedRef } from "vue";
 import type { RecommendationsProps } from "./types";
 // -----------------------------------------------------------------------------
 
@@ -84,19 +83,7 @@ const emit = defineEmits<{
   (e: "fetch", id: string): void;
 }>();
 
-const styles = useStyles(
-  ["recommendation.carousel"],
-  {},
-  config
-) as ComputedRef<{
-  recommendation: {
-    carousel: {
-      navigation: string;
-      item: string;
-      footer: string;
-    };
-  };
-}>;
+const styles = useStyles(["recommendation.carousel"], {}, config);
 
 // ---
 

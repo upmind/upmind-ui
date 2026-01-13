@@ -5,7 +5,7 @@
         v-for="(group, index) in groupedDetails"
         :key="'details-group-' + index"
         :id="id"
-        :category="first(group)?.category"
+        :category="getCategory(group)"
         :items="group"
       />
     </dl>
@@ -36,7 +36,6 @@ import config from "./basketProduct.config";
 
 // --- types
 import type { BasketProductConfigDetailsProps } from "./types";
-import type { ComputedRef } from "vue";
 
 defineOptions({
   inheritAttrs: false
@@ -46,17 +45,17 @@ const { t } = useI18n();
 
 const props = defineProps<BasketProductConfigDetailsProps>();
 
-const styles = useStyles(
-  ["product.configDetails"],
-  props,
-  config
-) as ComputedRef<{
-  product: {
-    configDetails: {
-      container: string;
-    };
-  };
-}>;
+const styles = useStyles(["product.configDetails"], props, config);
+
+function getCategory(group: BasketProductConfigDetailsProps["details"]) {
+  const groupCategory = first(group)?.category;
+
+  if (groupCategory === props.summary.category) {
+    return "";
+  }
+
+  return groupCategory;
+}
 
 const groupedDetails = computed(
   (): Record<string, BasketProductConfigDetailsProps["details"]> => {

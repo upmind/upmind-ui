@@ -1265,16 +1265,10 @@ export const parseProductProps = (
   raw: IProduct,
   preferredCycle?: number // If we have chosen a term then we need to try use that term
 ): ProductModel => {
-  const { defaultPaymentPeriod } = useBrand();
-
-  const paymentPeriod = preferredCycle ?? defaultPaymentPeriod.value;
-
   const productDetails = parseProductDetails(raw);
   const terms = parseTermDetails(raw);
-  const defaultTerm = calculateBillingTerm(
-    paymentPeriod || raw.default_payment_period,
-    terms
-  );
+  const paymentPeriod = preferredCycle ?? productDetails.defaultPaymentPeriod;
+  const defaultTerm = calculateBillingTerm(paymentPeriod, terms);
 
   // We need to find the  subbproducts id from the product option OR attributes, and then map it to that CategoryID
   const matchedOptions = filter(raw.products_options ?? raw.options, option =>

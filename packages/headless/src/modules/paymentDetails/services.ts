@@ -253,6 +253,7 @@ async function loadLookups(
         accountCredit,
         storedPaymentMethods,
         gateways,
+        clientId,
         amountsFormatted: {
           amount: lookups?.amountsFormatted?.amount || "",
           wallet: lookups?.amountsFormatted?.wallet || ""
@@ -270,7 +271,7 @@ async function parse(context: PaymentDetailsContext, { data }: AnyEventObject) {
     model,
     schema,
     lookups,
-    clientId
+    client
   } = context;
   // ---
   let paymentDetail = undefined;
@@ -287,12 +288,18 @@ async function parse(context: PaymentDetailsContext, { data }: AnyEventObject) {
   // NB: We also need to ensure the wallet amount is not greater than the safe amount or the available wallet balance
   //  IF a user has set a wallet amount, we need to respect that up to the safe amount
   const safeWalletAmount = amountWallet
-    ? Math.min(
-        safeAmount,
-        amountWallet,
-        lookups.accountCredit?.total.value ?? 0
+    ? Math.max(
+        0,
+        Math.min(
+          safeAmount,
+          amountWallet,
+          lookups.accountCredit?.total.value ?? 0
+        )
       )
-    : Math.min(safeAmount, lookups.accountCredit?.total.value || 0);
+    : Math.max(
+        0,
+        Math.min(safeAmount, lookups.accountCredit?.total.value || 0)
+      );
 
   const safeModel = useModelParser<PaymentDetailModel>(
     schema,
@@ -401,7 +408,7 @@ async function parse(context: PaymentDetailsContext, { data }: AnyEventObject) {
       unset(safeModel, "gateway_id");
       paymentDetail = mapPaymentData({
         model: safeModel,
-        clientId,
+        clientId: client?.id,
         lookups
       });
     }
