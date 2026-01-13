@@ -1,0 +1,68 @@
+<!-- Minimal loading spinner shown while Nuxt app initializes -->
+<!-- Matches styling from @upmind-automation/upmind-ui Spinner component -->
+<style>
+  .spa-loading-container {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    /* bg-core-surface/60 equivalent */
+    background-color: rgba(255, 255, 255, 0.6);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .spa-loading-container {
+      /* Dark mode surface with opacity */
+      background-color: rgba(17, 24, 39, 0.6);
+    }
+    .spa-loading-spinner {
+      /* Match dark mode text color */
+      border-color: #9ca3af;
+      border-top-color: transparent;
+    }
+  }
+
+  /* Spinner styling from spinner.config.ts - size "lg" */
+  .spa-loading-spinner {
+    display: inline-block;
+    aspect-ratio: 1;
+    flex-shrink: 0;
+    border-radius: 100%;
+    /* lg size: size-12 = 3rem (48px), border-[0.2em] */
+    width: 3rem;
+    height: 3rem;
+    border-width: 0.2em;
+    border-style: solid;
+    border-color: currentColor;
+    border-top-color: transparent;
+    color: #6b7280; /* text-control-default equivalent */
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+</style>
+
+<div class="spa-loading-container">
+  <span class="spa-loading-spinner" role="status" aria-label="Loading">
+    <span class="sr-only">Loading...</span>
+  </span>
+</div>

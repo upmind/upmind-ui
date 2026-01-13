@@ -12,8 +12,6 @@
       </template>
     </UpmHeader>
 
-    <UpmLoading :open="routingMeta.isLoading" />
-
     <UpmMain>
       <!-- Page content from NuxtPage -->
       <UpmRoot>
@@ -44,8 +42,7 @@ import {
   UpmBasketAction,
   UpmAuthAction,
   useBasket,
-  useSession,
-  useRoutingEngine
+  useSession
 } from "@upmind-automation/client-vue";
 import { useStyles } from "@upmind-automation/upmind-ui";
 import { includes, get } from "lodash-es";
@@ -57,26 +54,15 @@ const router = useRouter();
 
 const { meta: basketMeta } = useBasket();
 const { meta: sessionMeta } = useSession();
-const { meta: routingEngineMeta } = useRoutingEngine();
 
 // --- computed
-
-/**
- * Ported meta logic from Upmind.vue
- */
-const routingMeta = computed(() => ({
-  isLoading:
-    !routingEngineMeta.value.isResolved &&
-    routingEngineMeta.value.isInitialRoute
-}));
 
 // add any page specific styles here based on route or other state
 const styles = useStyles(
   ["page"],
   computed(() => {
     return {
-      route: get(route, "name", get(route, "path", "")),
-      loading: !routingMeta.value.isLoading
+      route: get(route, "name", get(route, "path", ""))
     };
   })
 );
