@@ -25,7 +25,8 @@
     "type-check": "vue-tsc --build",
     "lint": "eslint . --fix",
     "format": "prettier --write src/",
-    "localazy": "localazy upload"
+    "localazy": "localazy upload",
+    "localazy:sync": "localazy download && pnpm format"
   },
   "dependencies": {
     "@localazy/cli": "^2.0.8",
