@@ -3,7 +3,11 @@ import { map, isArray } from "lodash-es";
 
 // --- types
 import type { SentEmail } from "./types";
-import { SentEmailStatus, type ISentEmail } from "@upmind-automation/types";
+import {
+  IClient,
+  SentEmailStatus,
+  type ISentEmail
+} from "@upmind-automation/types";
 import { useDateMapper } from "../../../utils";
 
 export const mapEmailHistory = (
@@ -14,12 +18,13 @@ export const mapEmailHistory = (
 };
 
 export const mapReceivedEmail = (raw: ISentEmail): SentEmail => {
+  const client = raw.recipient as IClient;
   return {
-    body: raw.data?.body ?? "",
+    body: (raw as any).data?.body ?? "",
     recipient: {
-      name: raw.recipient?.fullname || "",
-      email: raw.recipient?.email || "",
-      imageUrl: raw.recipient?.image?.full_url || ""
+      name: client.fullname || "",
+      email: client.email || "",
+      imageUrl: client?.image?.full_url || ""
     },
     dateBounced: useDateMapper(raw.bounced_at),
     dateErrored: useDateMapper(raw.updated_at),

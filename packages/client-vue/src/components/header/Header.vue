@@ -107,23 +107,6 @@ onTransition(value => {
   }, 1);
 });
 
-const shouldShow = ref(true);
-
-const { onTransition } = useRouteTransition();
-
-/**
- * Handle route transitions to avoid header flicker
- * We FORCE the header to re-render on route change
- * to sync with the page transition
- * NB: nexttick did not work here
- */
-onTransition(value => {
-  shouldShow.value = false;
-  setTimeout(() => {
-    shouldShow.value = true;
-  }, 1);
-});
-
 const getBackground = computed(() => {
   if (
     (meta.value.background === HEADER_BACKGROUND.LTR ||
