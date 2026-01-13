@@ -1,5 +1,8 @@
 import { defineNuxtPlugin } from "#app";
-import UpmindClient, { useTheme } from "@upmind-automation/client-vue";
+import UpmindClient, {
+  useTheme,
+  decorateRoutes
+} from "@upmind-automation/client-vue";
 import { plugins as uiPlugins } from "@upmind-automation/upmind-ui";
 import { registerFunnels } from "~/router/funnels";
 import { forEach } from "lodash-es";
@@ -8,6 +11,7 @@ import type { I18n } from "vue-i18n";
 
 export default defineNuxtPlugin(async nuxtApp => {
   const runtimeConfig = useRuntimeConfig();
+  const router = nuxtApp.$router as Router;
 
   // Client-side initialization
   // 1. Initialize Upmind
@@ -27,7 +31,7 @@ export default defineNuxtPlugin(async nuxtApp => {
       )
     },
     router: {
-      instance: nuxtApp.$router as Router,
+      instance: router,
       registerFunnels
     },
     recaptcha: {
@@ -51,6 +55,11 @@ export default defineNuxtPlugin(async nuxtApp => {
   // 3. Wait for Upmind and theme to be ready before continuing
   await UpmindClient.isReady();
 
+  // 4. Decorate all routes with brand-specific UI schemas
+  // This is done once at initialization to avoid Vue Router meta mutation warnings
+  decorateRoutes(router.getRoutes());
+
+  // 5. Wait for theme to be ready so we dont have any flash of unstyled content
   const theme = runtimeConfig.public.THEME as string;
   await useTheme(theme).isReady();
 });

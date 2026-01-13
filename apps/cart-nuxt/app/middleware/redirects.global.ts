@@ -3,27 +3,53 @@ import { useBrand } from "@upmind-automation/client-vue";
 import { ROUTE, RegexMatch } from "~/router/types";
 
 /**
- * Global middleware to handle legacy redirects and path prefixing.
- * Matches the logic in the original cart application's routes.ts.
+ * Global Redirects Middleware
+ *
+ * Handles URL normalization, legacy redirects, and syntactic sugar routes.
+ * Organized into clear sections for maintainability.
  */
 export default defineNuxtRouteMiddleware(async to => {
-  const path = to.path;
+  const rawPath = to.path;
 
-  // 1. Single catch-all redirect for any route not starting with /order (Legacy Redirect)
-  // Ensures legacy routes are redirected to the new /order structure.
-  if (path !== "/" && !path.startsWith("/order/")) {
-    // Skip system routes that shouldn't be prefixed
-    const systemRoutes = [
+  // ---------------------------------------------------------------------------
+  // SECTION 1: SEO OPTIMIZATIONS
+  // ---------------------------------------------------------------------------
+
+  // Enforce trailing slashes on all routes for consistent canonical URLs
+  if (rawPath !== "/" && !rawPath.endsWith("/")) {
+    return navigateTo(
+      {
+        path: `${rawPath}/`,
+        query: to.query,
+        hash: to.hash
+      },
+      { redirectCode: 301 }
+    );
+  }
+
+  // Normalize path (remove trailing slash) for internal pattern matching
+  const path = rawPath === "/" ? "/" : rawPath.replace(/\/$/, "");
+
+  // ---------------------------------------------------------------------------
+  // SECTION 2: LEGACY REDIRECTS
+  // Redirects from old cart routes to new structure
+  // ---------------------------------------------------------------------------
+
+  // --- Path Prefix Migration ---
+  // Redirect routes without /order prefix to /order/* structure
+  if (path !== "/" && !path.startsWith("/order")) {
+    // Exclude system/syntactic routes from prefixing
+    const excludedRoutes = [
       "/loading",
       "/error",
       "/unavailable",
       "/not-found",
       "/storefront"
     ];
-    if (!systemRoutes.includes(path)) {
+    if (!excludedRoutes.includes(path)) {
       return navigateTo(
         {
-          path: `/order/${trimStart(path, "/")}`,
+          path: `/order/${trimStart(path, "/")}/`,
           query: to.query,
           hash: to.hash
         },
@@ -32,25 +58,12 @@ export default defineNuxtRouteMiddleware(async to => {
     }
   }
 
-  // 2. Legacy internal redirects (from original routes.ts)
+  // --- Route Renames ---
 
   // /order/cart -> /order/basket
   if (path === "/order/cart") {
     return navigateTo(
       { name: ROUTE.BASKET, query: to.query },
-      { redirectCode: 301 }
-    );
-  }
-
-  // /orders/:oid -> /order/:oid
-  const ordersMatch = path.match(new RegExp(`^/orders/(${RegexMatch.UUID})$`));
-  if (ordersMatch) {
-    return navigateTo(
-      {
-        name: ROUTE.ORDER,
-        params: { oid: ordersMatch[1] },
-        query: to.query
-      },
       { redirectCode: 301 }
     );
   }
@@ -63,9 +76,28 @@ export default defineNuxtRouteMiddleware(async to => {
     );
   }
 
+  // --- Plural to Singular ---
+
+  // /orders/:oid -> /order/:oid
+  const ordersMatch = path.match(
+    new RegExp(`^/orders/(${RegexMatch.UUID})/?$`)
+  );
+  if (ordersMatch) {
+    return navigateTo(
+      {
+        name: ROUTE.ORDER,
+        params: { oid: ordersMatch[1] },
+        query: to.query
+      },
+      { redirectCode: 301 }
+    );
+  }
+
+  // --- Product Route Migrations ---
+
   // /order/product/edit/:bpid -> /order/basket/:bpid
   const productEditMatch = path.match(
-    new RegExp(`^/order/product/edit/(${RegexMatch.UUID})$`)
+    new RegExp(`^/order/product/edit/(${RegexMatch.UUID})/?$`)
   );
   if (productEditMatch) {
     return navigateTo(
@@ -80,7 +112,7 @@ export default defineNuxtRouteMiddleware(async to => {
 
   // /order/product/add/:pid -> /order/product/:pid
   const productAddMatch = path.match(
-    new RegExp(`^/order/product/add/(${RegexMatch.UUID})$`)
+    new RegExp(`^/order/product/add/(${RegexMatch.UUID})/?$`)
   );
   if (productAddMatch) {
     return navigateTo(
@@ -93,21 +125,26 @@ export default defineNuxtRouteMiddleware(async to => {
     );
   }
 
-  // 3. Storefront Redirect logic
+  // ---------------------------------------------------------------------------
+  // SECTION 3: SYNTACTIC SUGAR ROUTES
+  // Convenience routes that resolve to internal destinations
+  // ---------------------------------------------------------------------------
+
+  // /storefront - Resolves to external URL, internal catalogue, or basket
   if (path === "/storefront") {
     const { hasStorefront, storefrontUrl } = useBrand();
 
-    // Redirect to external storefront URL if available
+    // Priority 1: External storefront URL (e.g., brand's main website)
     if (storefrontUrl.value) {
       return window.location.replace(storefrontUrl.value);
     }
 
-    // Otherwise, if we allow storefront: redirect to internal catalogue
+    // Priority 2: Internal catalogue if storefront is enabled
     if (hasStorefront.value) {
       return navigateTo({ name: ROUTE.CATALOGUE });
     }
 
-    // Fallback to basket if no storefront is available
+    // Fallback: Basket page
     return navigateTo({ name: ROUTE.BASKET });
   }
 });
