@@ -4,7 +4,7 @@
 
 <script lang="ts" setup>
 // --- components
-import { UpmEmpty, useRoutingEngine } from "@upmind-automation/client-vue";
+import { UpmEmpty } from "@upmind-automation/client-vue";
 
 // --- internal
 import { ROUTE } from "~/router/types";

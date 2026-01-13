@@ -1,5 +1,4 @@
 import { defineNuxtPlugin } from "#app";
-import { ref } from "vue";
 import UpmindClient, { useTheme } from "@upmind-automation/client-vue";
 import { plugins as uiPlugins } from "@upmind-automation/upmind-ui";
 import { registerFunnels } from "~/router/funnels";
@@ -7,8 +6,7 @@ import { forEach } from "lodash-es";
 import type { Router } from "vue-router";
 import type { I18n } from "vue-i18n";
 
-export default defineNuxtPlugin(nuxtApp => {
-  const isReady = ref(false);
+export default defineNuxtPlugin(async nuxtApp => {
   const runtimeConfig = useRuntimeConfig();
 
   // Client-side initialization
@@ -50,19 +48,9 @@ export default defineNuxtPlugin(nuxtApp => {
     nuxtApp.vueApp.use(plugin, options);
   });
 
-  // 3. Wait for readiness
-  UpmindClient.isReady().then(() => {
-    // The theme can be passed via runtime config if needed
-    const theme = runtimeConfig.public.THEME as string;
+  // 3. Wait for Upmind and theme to be ready before continuing
+  await UpmindClient.isReady();
 
-    useTheme(theme)
-      .isReady()
-      .then(() => {
-        isReady.value = true;
-      });
-  });
-
-  return {
-    provide: { upmind: { isReady } }
-  };
+  const theme = runtimeConfig.public.THEME as string;
+  await useTheme(theme).isReady();
 });

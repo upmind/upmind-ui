@@ -14,6 +14,9 @@ export default defineNuxtConfig({
   // SSR enabled by default
   ssr: false,
 
+  // SPA loading template shown while app initializes
+  spaLoadingTemplate: true,
+
   // Modules
   modules: ["@vueuse/nuxt"],
 
