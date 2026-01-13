@@ -285,7 +285,6 @@ async function parse(context: ProductConfigContext, { data }: AnyEventObject) {
     values.provisionFields,
     {}
   );
-  debugger;
 
   // ---
   return Promise.resolve({ model: values, lookups, rawProvisionFields });
