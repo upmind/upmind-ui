@@ -10,6 +10,7 @@ import {
  * Route decoration is handled at initialization in the upmind plugin.
  *
  * Responsibilities:
+ * - Wait for Upmind to be ready (parallel plugin may still be initializing)
  * - Route guarding via useRoutingEngine
  * - Funnel switching based on query parameters
  */
