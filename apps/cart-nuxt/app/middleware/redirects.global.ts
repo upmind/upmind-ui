@@ -136,7 +136,7 @@ export default defineNuxtRouteMiddleware(async to => {
 
     // Priority 1: External storefront URL (e.g., brand's main website)
     if (storefrontUrl.value) {
-      return window.location.replace(storefrontUrl.value);
+      return navigateTo(storefrontUrl.value, { external: true });
     }
 
     // Priority 2: Internal catalogue if storefront is enabled
