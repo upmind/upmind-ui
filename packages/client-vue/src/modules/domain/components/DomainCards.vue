@@ -109,7 +109,6 @@ import { includes, isArray, isNil, find, some, map, isEmpty } from "lodash-es";
 // --- types
 import type { CheckboxCardsItemProps } from "@upmind-automation/upmind-ui";
 import type { DomainCardsProps } from "../types";
-import type { ComputedRef } from "vue";
 import { DOMAIN_TEMPLATE } from "../types";
 
 // -----------------------------------------------------------------------------
@@ -149,19 +148,7 @@ const stylesMeta = computed(() => ({
   hasExactMatch: meta.value.hasExactMatch
 }));
 
-const styles = useStyles(
-  ["domain.listings"],
-  stylesMeta,
-  config
-) as ComputedRef<{
-  domain: {
-    listings: {
-      root: string;
-      item: string;
-      interstitial: string;
-    };
-  };
-}>;
+const styles = useStyles(["domain.listings"], stylesMeta, config);
 
 const safeValue = computed(() => {
   return isNil(props.modelValue)

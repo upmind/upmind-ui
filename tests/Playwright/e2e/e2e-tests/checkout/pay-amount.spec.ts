@@ -39,7 +39,7 @@ test.describe("Checkout - Pay Amount", () => {
       await registration.inputRegistration();
       await checkout.changeAmountButton.click();
       await checkout.changeAmountInput.fill("10");
-      await checkout.confirmAmountButton.click();
+      await checkout.clickConfirmAmount();
       await expect(checkout.payAmount).toHaveText("Pay £10.00");
     });
     test("Applying a promotion which changes Pay Amount", async ({ page }) => {

@@ -76,7 +76,6 @@ import ProductDescription from "./ProductDescription.vue";
 import config from "./card.config";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { ProductInfo } from "./types";
 
 // -----------------------------------------------------------------------------
@@ -99,20 +98,7 @@ const styles = useStyles(
   ["product.header", "product.header.info"],
   metaConfig,
   config
-) as ComputedRef<{
-  product: {
-    header: {
-      info: {
-        root: string;
-        container: string;
-        title: string;
-        terms: string;
-        description: string;
-        promotion: string;
-      };
-    };
-  };
-}>;
+);
 
 function doResolve() {
   if (!props.id) return;

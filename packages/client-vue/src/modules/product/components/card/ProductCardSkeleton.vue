@@ -64,7 +64,6 @@ import config from "./card.config";
 
 // --- types
 import type { ImageProps } from "@upmind-automation/upmind-ui";
-import type { ComputedRef } from "vue";
 import type { ProductCardSkeletonProps } from "./types";
 
 const props = defineProps<ProductCardSkeletonProps>();
@@ -118,30 +117,5 @@ const styles = useStyles(
   ],
   stylesMeta,
   config
-) as ComputedRef<{
-  product: {
-    root: string;
-    image: string;
-    content: string;
-    details: string;
-    header: {
-      root: string;
-      info: {
-        root: string;
-        container: string;
-        title: string;
-        terms: string;
-        description: string;
-      };
-      price: {
-        root: string;
-        currentPrice: {
-          root: string;
-          amount: string;
-        };
-      };
-    };
-    footer: string;
-  };
-}>;
+);
 </script>

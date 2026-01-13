@@ -23,7 +23,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, type ComputedRef } from "vue";
+import { computed } from "vue";
 import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "../layout.config";
 import type { VariantProps } from "../types";
@@ -36,15 +36,5 @@ defineProps<VariantProps>();
 
 const meta = computed(() => ({}));
 
-const styles = useStyles(["canvasCard"], meta, config) as ComputedRef<{
-  canvasCard: {
-    root: string;
-    container: string;
-    header: string;
-    card: string;
-    contentHeader: string;
-    content: string;
-    footer: string;
-  };
-}>;
+const styles = useStyles(["canvasCard"], meta, config);
 </script>

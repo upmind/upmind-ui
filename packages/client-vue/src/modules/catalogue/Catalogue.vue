@@ -90,7 +90,6 @@ import WidgetDAC from "./products/WidgetDAC.vue";
 import { isEmpty } from "lodash-es";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { ProductCategory } from "@upmind-automation/headless";
 import type { LAYOUT_VARIANTS } from "@/components/layout";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
@@ -159,18 +158,7 @@ const widget = computed(() => {
   return WidgetGrid;
 });
 
-const styles = useStyles(
-  ["products", "products.facets"],
-  {},
-  config
-) as ComputedRef<{
-  products: {
-    root: string;
-    facets: {
-      root: string;
-    };
-  };
-}>;
+const styles = useStyles(["products", "products.facets"], {}, config);
 
 const isFaceted = computed(() => {
   return !!uiCart.value?.catalogue?.facet;

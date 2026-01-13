@@ -1,11 +1,7 @@
 <template>
   <article :class="styles.product.summary.article" v-auto-animate>
     <header :class="styles.product.summary.header.root">
-      <Link
-        v-if="productDetails.imgUrl"
-        v-bind="props.editRoute"
-        :class="styles.product.summary.imageRoute"
-      >
+      <Link v-if="productDetails.imgUrl" v-bind="props.editRoute">
         <img
           :src="productDetails.imgUrl"
           :alt="summary.title"
@@ -85,6 +81,7 @@
       v-if="open && !isEmpty(filteredDetails)"
       :id="id"
       :details="filteredDetails"
+      :summary="summary"
       :edit-route="props.editRoute"
     />
 
@@ -158,7 +155,6 @@ import { isEmpty, includes } from "lodash-es";
 
 // --- types
 import { type BasketProductSummaryProps } from "./types";
-import type { ComputedRef } from "vue";
 import { computed } from "vue";
 
 const { t } = useI18n();
@@ -179,48 +175,19 @@ const styles = useStyles(
   ],
   props,
   config
-) as ComputedRef<{
-  product: {
-    summary: {
-      article: string;
-      header: {
-        root: string;
-        content: string;
-        top: string;
-      };
-      category: {
-        root: string;
-        text: string;
-      };
-      title: {
-        root: string;
-        link: string;
-        text: string;
-      };
-      icon: string;
-      image: string;
-      imageRoute: string;
-      footer: {
-        root: string;
-        price: {
-          root: string;
-          container: string;
-        };
-      };
-    };
-    pricing: {
-      current: string;
-      ex: string;
-    };
-  };
-}>;
+);
 
 const open = useVModel(props, "open", emits);
 
 const filteredDetails = computed(() =>
   props.details.filter((d, index) => {
-    // Show primary price unless it's a one-off with cycle 0
-    if ((!index && d.cycle) || props.details.length === 1) {
+    // Don't show primary price if it's a one-off with cycle 0
+    if (!index && !d.cycle) {
+      return false;
+    }
+
+    // Show primary price (with non-zero cycle) or single item checks
+    if (!index || props.details.length === 1) {
       return !d.meta?.invalid && !d.name?.includes("provision_field");
     }
 

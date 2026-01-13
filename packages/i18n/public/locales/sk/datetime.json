@@ -1,0 +1,29 @@
+{
+  "calendar": {
+    "last_day": "[Včera]",
+    "last_week": "[Posledný] dddd",
+    "next_day": "[Zajtra]",
+    "next_week": "dddd",
+    "same_day": "[Dnes]"
+  },
+  "date": {
+    "default": "MMM Do, RRRR",
+    "omit_ordinal": "MMM RRRR",
+    "omit_year": "MMM Do",
+    "only_day": "D",
+    "only_month": "MMM",
+    "only_ordinal": "Robiť",
+    "only_week": "MMM Do ([Týždeň] W)",
+    "only_year": "RRRR"
+  },
+  "datetime": {
+    "default": "MMM Do, RRRR HH:mm A",
+    "omit_meridiem": "MMM Do, RRRR HH:mm",
+    "with_seconds": "MMM Do, RRRR HH:mm:ss A"
+  },
+  "time": {
+    "default": "HH:mm",
+    "with_meridiem": "HH:mm A",
+    "with_seconds": "HH:mm:ss"
+  }
+}

@@ -37,7 +37,6 @@ import Form from "../../../../components/form/Form.vue";
 import { isEmpty } from "lodash-es";
 
 // ---types
-import type { ComputedRef } from "vue";
 
 const emit = defineEmits<{
   (e: "update:modelValue", model: any): void;
@@ -66,19 +65,7 @@ const props = withDefaults(
 
 // -----------------------------------------------------------------------------
 
-const styles = useStyles(
-  ["product.config.form"],
-  props,
-  config
-) as ComputedRef<{
-  product: {
-    config: {
-      form: {
-        root: string;
-      };
-    };
-  };
-}>;
+const styles = useStyles(["product.config.form"], props, config);
 
 const hasFields = computed(() => {
   return !isEmpty(props.fields?.properties);

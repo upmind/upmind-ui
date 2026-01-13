@@ -7,7 +7,10 @@ import guards from "../guards";
 import {
   type AnyEventObject,
   assign,
-  type FunnelProps
+  type FunnelContext,
+  type FunnelProps,
+  QUERY_PARAMS,
+  useBasket
 } from "@upmind-automation/client-vue";
 import { ROUTE } from "../types";
 
@@ -518,9 +521,20 @@ export default <FunnelProps>{
           // passed by the checkout completion action
           actions: [
             assign({
-              targetRoute: (_context, { data }: AnyEventObject) => {
+              targetRoute: (
+                _context: FunnelContext,
+                { data }: AnyEventObject
+              ) => {
+                const { meta } = useBasket();
                 const oid = data?.event?.id;
-                return { name: ROUTE.ORDER, params: { oid } };
+                return {
+                  name: ROUTE.ORDER,
+                  params: { oid },
+                  query: {
+                    [QUERY_PARAMS.PAYMENT_SUCCESS]:
+                      meta.value.hasPaid.toString()
+                  }
+                };
               }
             })
           ]

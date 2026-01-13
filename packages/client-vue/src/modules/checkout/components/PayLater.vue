@@ -57,24 +57,7 @@ const styles = useStyles(
   ["checkout", "checkout.footer", "checkout.gateway"],
   {},
   config
-) as ComputedRef<{
-  checkout: {
-    gateway: {
-      root: string;
-      form: string;
-    };
-    content: string;
-    footer: {
-      root: string;
-      actions: string;
-      terms: string;
-    };
-    action: string;
-    additional: string;
-    terms: string;
-    clickwrap: string;
-  };
-}>;
+);
 
 const clearGateway = () => {
   emit("cancel");

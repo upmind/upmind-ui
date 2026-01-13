@@ -126,7 +126,6 @@ import { debounce, isArray, isEmpty, some } from "lodash-es";
 // --- types
 import type { Product } from "@upmind-automation/headless";
 import type { ProductSortProps, ProductsProps } from "./types";
-import type { ComputedRef } from "vue";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
 
 // -----------------------------------------------------------------------------
@@ -186,28 +185,7 @@ const styles = useStyles(
   ],
   {},
   config
-) as ComputedRef<{
-  products: {
-    root: string;
-
-    main: {
-      root: string;
-      controls: string;
-      searchInput: string;
-      searchIcon: string;
-      grid: {
-        root: string;
-        container: string;
-      };
-      emptyState: {
-        root: string;
-        icon: string;
-        title: string;
-        description: string;
-      };
-    };
-  };
-}>;
+);
 
 // --- methods
 

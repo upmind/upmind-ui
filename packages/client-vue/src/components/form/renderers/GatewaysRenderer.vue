@@ -42,7 +42,6 @@ import { FormField, RadioCards } from "@upmind-automation/upmind-ui";
 import { map, take } from "lodash-es";
 
 // --- types
-import type { ComputedRef } from "vue";
 import type { ControlElement, EnumOption, JsonSchema } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
 import type { RadioCardsItemProps } from "@upmind-automation/upmind-ui";
@@ -89,18 +88,14 @@ const items = computed(() => {
       index: gateways.length,
       modelValue: data
     });
+  } else {
+    // console.debug("No Pay Later option available");
   }
 
   return gateways;
 });
 
-const styles = useStyles("form.radioCollapsible", {}, config) as ComputedRef<{
-  form: {
-    radioCollapsible: {
-      root: string;
-    };
-  };
-}>;
+const styles = useStyles("form.radioCollapsible", {}, config);
 
 const collapseAt = computed(() => {
   return (

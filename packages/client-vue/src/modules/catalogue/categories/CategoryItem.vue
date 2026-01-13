@@ -67,7 +67,6 @@ import {
   QUERY_PARAMS
 } from "@upmind-automation/headless";
 
-import type { ComputedRef } from "vue";
 import type { CategoriesProps } from "./types";
 
 // -----------------------------------------------------------------------------
@@ -91,22 +90,5 @@ const meta = computed(() => {
   };
 });
 
-const styles = useStyles(
-  ["categories", "categories.item"],
-  meta,
-  config
-) as ComputedRef<{
-  categories: {
-    item: {
-      root: string;
-      icon: string;
-      link: string;
-      action: string;
-      titleContainer: string;
-      title: string;
-      arrowIcon: string;
-      description: string;
-    };
-  };
-}>;
+const styles = useStyles(["categories", "categories.item"], meta, config);
 </script>

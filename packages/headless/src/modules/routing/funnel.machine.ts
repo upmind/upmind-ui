@@ -149,6 +149,7 @@ export const useFunnelMachine = ({
                 (isString(data?.target)
                   ? { name: data.target }
                   : data?.target) ?? targetRoute;
+
               return target?.name == state;
             };
             return acc;
