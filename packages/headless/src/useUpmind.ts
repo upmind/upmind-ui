@@ -5,7 +5,6 @@ import { type QueryClient, VueQueryPlugin } from "@tanstack/vue-query";
 
 // --- internal
 import {
-  FunnelProps,
   Funnels,
   type GlobbedFiles,
   useBrand,
@@ -18,7 +17,7 @@ import {
   useSystem,
   useTracking
 } from "./modules";
-import { isEmpty, get, isFunction } from "lodash-es";
+import { get, isFunction } from "lodash-es";
 import { useRouting } from "./modules/routing/useRouting";
 import { useTheming } from "./modules/theming/useTheming";
 import { useQuery } from "./modules";
@@ -272,6 +271,7 @@ export class Upmind {
           Promise.allSettled([
             useBrand().isReady(),
             useSystem().isReady(),
+
             useSession().isReady()
           ])
             // start with our render blocking initialisations

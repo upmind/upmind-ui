@@ -1,6 +1,6 @@
 // --- external
 import { computed } from "vue";
-import { ActorRef, interpret, InterpreterStatus } from "xstate";
+import { interpret, InterpreterStatus } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 import { useActor } from "@xstate/vue";
 
@@ -11,7 +11,7 @@ import { useFeedback } from "../feedback";
 export * from "./useTransfer";
 
 // --- utils
-import { get, isEmpty, some, values } from "lodash-es";
+import { get, isEmpty } from "lodash-es";
 import { getTokenFromStorage } from "./utils";
 import {
   DetailedError,
@@ -41,8 +41,7 @@ export type { User, SessionTransfer, IAuthTransfer } from "./types";
 // and a global object to store state
 // NB dont automatically start the machine as in order for the inspector to work
 // it needs to be started after the inspect service is created, so we only start it when we need it
-
-const service = interpret(sessionMachine, { devTools: false });
+const service = interpret(sessionMachine, { devTools: true });
 
 // -----------------------------------------------------------------------------
 
