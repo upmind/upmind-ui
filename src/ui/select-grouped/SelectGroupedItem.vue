@@ -83,7 +83,7 @@ import type {
   SelectGroupedItemProps,
   SelectGroupedItemActionProps
 } from "./types";
-import { isFunction, isString, isNil } from "lodash-es";
+import { isFunction, isString, isNil, isArray } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
@@ -99,7 +99,7 @@ const emits = defineEmits<{
 }>();
 
 const isSelected = computed(() => {
-  if (Array.isArray(props.modelValue)) {
+  if (isArray(props.modelValue)) {
     return props.modelValue.includes(props.item.value);
   }
   return props.modelValue === props.item.value;

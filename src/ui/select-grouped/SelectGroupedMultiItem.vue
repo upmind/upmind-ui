@@ -102,6 +102,7 @@ import SelectGroupedItem from "./SelectGroupedItem.vue";
 
 // --- types
 import type { SelectGroupedGroupProps, SelectGroupedItemProps } from "./types";
+import { first, isArray, without, isEmpty } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
@@ -129,7 +130,7 @@ const groupId = useId();
 const isOpen = ref(false);
 
 const selectedItem = computed<SelectGroupedItemProps | undefined>(() => {
-  if (Array.isArray(props.modelValue)) {
+  if (isArray(props.modelValue)) {
     return props.group.items.find(item =>
       props.modelValue?.includes(item.value)
     );
@@ -139,7 +140,7 @@ const selectedItem = computed<SelectGroupedItemProps | undefined>(() => {
 
 const hasSelection = computed(() => {
   return props.group.items.some(item => {
-    if (Array.isArray(props.modelValue)) {
+    if (isArray(props.modelValue)) {
       return props.modelValue.includes(item.value);
     }
     return item.value === props.modelValue;
@@ -169,34 +170,45 @@ const styles = useStyles<typeof config>(
 
 // --- Methods
 
+/**
+ * Toggle selection of a value. Handles both single and multiple selection modes.
+ */
 function toggleSelection(value: string) {
   if (props.disabled) return;
 
   if (props.multiple) {
-    const currentValue = Array.isArray(props.modelValue)
-      ? [...props.modelValue]
-      : [];
-    const index = currentValue.indexOf(value);
-    if (index > -1) {
-      if (!props.required || currentValue.length > 1) {
-        currentValue.splice(index, 1);
+    // Multiple selection mode: add/remove from array
+    const current = isArray(props.modelValue) ? [...props.modelValue] : [];
+    const isSelected = current.includes(value);
+
+    if (isSelected) {
+      // Deselect: only allow if not required or there are other selections
+      if (!props.required || current.length > 1) {
+        emits("update:modelValue", without(current, value));
       }
     } else {
-      currentValue.push(value);
+      // Select: add to current selections
+      emits("update:modelValue", [...current, value]);
     }
-    emits("update:modelValue", currentValue);
   } else {
-    if (props.modelValue === value && !props.required) {
-      emits("update:modelValue", "");
-    } else {
-      emits("update:modelValue", value);
-    }
+    // Single selection mode: toggle or set value
+    const isSelected = props.modelValue === value;
+    // Deselect if already selected and not required, otherwise select
+    const newValue = isSelected && !props.required ? "" : value;
+    emits("update:modelValue", newValue);
   }
 }
 
 function toggleOpen() {
   if (props.disabled) return;
   isOpen.value = !isOpen.value;
+
+  if (isOpen.value && !isEmpty(props.group.items)) {
+    const firstItem = first(props.group.items);
+    if (firstItem) {
+      toggleSelection(firstItem.value);
+    }
+  }
 }
 
 function onItemSelect(value: string) {

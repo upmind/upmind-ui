@@ -98,7 +98,7 @@ import type {
   SelectGroupedItemProps,
   SelectGroupedItemActionProps
 } from "./types";
-import { isFunction, isString, isNil } from "lodash-es";
+import { isFunction, isString, isNil, isArray, without } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
@@ -125,7 +125,7 @@ const emits = defineEmits<{
 }>();
 
 const isSelected = computed(() => {
-  if (Array.isArray(props.modelValue)) {
+  if (isArray(props.modelValue)) {
     return props.modelValue.includes(props.item.value);
   }
   return props.modelValue === props.item.value;
@@ -155,13 +155,12 @@ function toggleSelection() {
   if (props.disabled) return;
 
   if (props.multiple) {
-    const currentValue = Array.isArray(props.modelValue)
-      ? [...props.modelValue]
-      : [];
+    const currentValue = isArray(props.modelValue) ? [...props.modelValue] : [];
     const index = currentValue.indexOf(props.item.value);
     if (index > -1) {
       if (!props.required || currentValue.length > 1) {
-        currentValue.splice(index, 1);
+        emits("update:modelValue", without(currentValue, props.item.value));
+        return;
       }
     } else {
       currentValue.push(props.item.value);
