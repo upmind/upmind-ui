@@ -13,6 +13,7 @@ import { useTime, useCookies, mapToHeadlessError } from "../../utils";
 const { removeTopLevel: removeCookie, get: getCookie } = useCookies();
 
 import { useDataLayer } from "../system";
+import { Contexts } from "@upmind-automation/types";
 const { dataLayer } = useDataLayer();
 
 // -----------------------------------------------------------------------------
@@ -165,10 +166,10 @@ export default createMachine(
 
     guards: {
       isClientToken: (_context: SessionContext, { data }: AnyEventObject) =>
-        data?.actor_type === "client",
+        data?.actor_type === Contexts.CLIENT,
 
       isGuestToken: (_context: SessionContext, { data }: AnyEventObject) =>
-        data?.actor_type === "guest"
+        data?.actor_type === Contexts.GUEST
     },
 
     delays: {
