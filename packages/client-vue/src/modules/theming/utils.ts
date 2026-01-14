@@ -9,7 +9,7 @@ import {
 } from "@upmind-automation/headless";
 
 // --- utils
-import { forEach, has, isEmpty, uniq, compact, isString } from "lodash-es";
+import { forEach, has, isEmpty, uniq, compact, isString, map } from "lodash-es";
 import type { IImage } from "../../../../types/src";
 
 // import { IBrandMetaToken } from "@upmind-automation/headless";
@@ -135,33 +135,62 @@ export function setDocumentFavicon(brandFavicon?: IImage | null) {
   });
 }
 
-export function setFontFamily(fonts?: ThemeTokens["fonts"]) {
-  //
-  const stylesheet = ensureStylesheet("upmind-design-tokens");
-  loadFont(fonts)
-    .then(() => {
-      const cssVars: Record<string, string> = {};
+/**
+ * Fetches and injects a custom font stylesheet, returning the extracted font family name.
+ * Uses a single request to both load the stylesheet and parse the font family.
+ */
+export async function setDisplayFontLink(url: string): Promise<string | null> {
+  const id = "upmind-display-font";
 
-      forEach(fonts, (family, key) => {
-        if (!family) return;
-        cssVars[`--font-${key}`] =
-          `"${family}", ui-sans-serif, system-ui, sans-serif`;
-      });
+  const response = await fetch(url).catch(() => null);
+  if (!response?.ok) return null;
 
-      setCssRules(stylesheet, ":root", cssVars);
-    })
-    .catch(() => {
-      console.warn("Failed to load fonts", fonts);
-    });
+  const css = await response.text();
+
+  // Inject the CSS as a style element
+  let style = document.getElementById(id) as HTMLStyleElement | null;
+  if (!style) {
+    style = document.createElement("style");
+    style.id = id;
+    document.head.appendChild(style);
+  }
+  style.textContent = css;
+
+  // Extract font family from the loaded stylesheet
+  const sheet = style.sheet;
+  if (!sheet) return null;
+
+  const fontFaceRule = Array.from(sheet.cssRules).find(
+    rule => rule instanceof CSSFontFaceRule
+  ) as CSSFontFaceRule | undefined;
+
+  const fontFamily = fontFaceRule?.style.getPropertyValue("font-family");
+  return fontFamily ? fontFamily.replace(/['"]/g, "").trim() : null;
 }
 
-export async function loadFont(fonts?: ThemeTokens["fonts"]): Promise<void> {
+export function setFontVariables(fonts?: ThemeTokens["fonts"]) {
+  const stylesheet = ensureStylesheet("upmind-design-tokens");
+  const cssVars: Record<string, string> = {};
+
+  forEach(fonts, (family, key) => {
+    if (!family) return;
+    cssVars[`--font-${key}`] =
+      `"${family}", ui-sans-serif, system-ui, sans-serif`;
+  });
+
+  setCssRules(stylesheet, ":root", cssVars);
+}
+
+export async function loadGoogleFonts(
+  fonts?: ThemeTokens["fonts"]
+): Promise<void> {
   const families = uniq(compact([fonts?.sans, fonts?.body, fonts?.display]));
 
   return new Promise<void>((resolve, reject) => {
-    if (isEmpty(families)) return reject();
+    if (isEmpty(families)) return resolve();
 
-    const familiesWithWeights = families.map(
+    const familiesWithWeights = map(
+      families,
       family => `${family}:400,500,600,700,800`
     );
 

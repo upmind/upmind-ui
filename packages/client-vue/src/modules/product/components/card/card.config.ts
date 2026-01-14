@@ -5,9 +5,9 @@ export const rootVariant = cva(
   {
     variants: {
       variant: {
-        default: "",
-        bordered: "bg-base-background rounded-lg border p-9",
-        flush: "bg-base-background"
+        flush: "",
+        carded: "bg-base-background rounded-lg border p-9",
+        "flush-carded": "bg-base-background"
       }
     }
   }
@@ -16,9 +16,9 @@ export const rootVariant = cva(
 export const contentVariant = cva("flex h-full flex-col", {
   variants: {
     variant: {
-      default: "gap-8",
-      bordered: "gap-8",
-      flush: ""
+      flush: "gap-8",
+      carded: "gap-8",
+      "flush-carded": ""
     }
   }
 });
@@ -26,19 +26,40 @@ export const contentVariant = cva("flex h-full flex-col", {
 export const detailsVariant = cva("flex flex-1 flex-col gap-8", {
   variants: {
     variant: {
-      default: "",
-      bordered: "",
-      flush: "rounded-b-lg border border-t-0 p-9"
+      flush: "",
+      carded: "",
+      "flush-carded": "rounded-b-lg border border-t-0 p-9"
     }
   }
+});
+
+export const imageContainerVariant = cva("relative", {
+  variants: {
+    variant: {
+      flush: "image-radius",
+      carded: "image-radius",
+      "flush-carded": "image-radius-t"
+    },
+    isImageEmpty: {
+      true: "",
+      false: ""
+    }
+  },
+  compoundVariants: [
+    {
+      variant: "flush-carded",
+      isImageEmpty: true,
+      class: "border"
+    }
+  ]
 });
 
 export const imageRootVariant = cva("w-full", {
   variants: {
     variant: {
-      default: "",
-      bordered: "",
-      flush: "rounded-t-lg rounded-b-none"
+      flush: "",
+      carded: "",
+      "flush-carded": "image-radius-t [&_img]:rounded-b-none!"
     },
     isLoading: {
       true: "opacity-50"
@@ -59,8 +80,9 @@ export default {
   product: {
     root: rootVariant,
     image: {
-      container: cva("image-radius"),
-      root: imageRootVariant
+      container: imageContainerVariant,
+      root: imageRootVariant,
+      badge: cva("absolute top-4 right-4")
     },
     content: contentVariant,
     details: detailsVariant,

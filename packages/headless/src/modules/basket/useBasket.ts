@@ -188,7 +188,10 @@ export const useBasket = () => {
       hasPaid: stateMatches(state, ["complete"]),
       hasFailed: stateMatches(state, ["failed"]),
       hasErrors: contextMatches(state, ["error.code"]), //NB only show if we have single errors, not parsed BE errors
-      showErrors: contextMatches(state, ["attempts"])
+      showErrors: contextMatches(state, ["attempts"]),
+      isFree:
+        contextMatches(state, ["products"]) &&
+        !contextValue<number>(state, "basket.total_amount", 1)
     };
   });
 

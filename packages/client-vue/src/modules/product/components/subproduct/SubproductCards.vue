@@ -9,10 +9,16 @@
     :dirty="blurred"
     :errors="props.errors"
     :label="subproduct.title"
-    :tooltip="subproduct?.description"
+    :tooltip="
+      ui.optionGroupDescription.isTooltip ? subproduct?.description : ''
+    "
+    :description="
+      ui.optionGroupDescription.isInline ? subproduct?.description : ''
+    "
     @blur="blurred = true"
     :optional-text="props.optionalText"
     :required-text="props.requiredText"
+    :icon="ui.optionSelectorIcons.isVisible ? '' : ''"
   >
     <component
       :is="as"
@@ -26,12 +32,18 @@
       :none-text="t('text.none')"
       :placeholder="t('form.select_option.placeholder')"
       :multiple="subproduct.meta.multiple"
-      :size="subproduct.uiMeta?.uischema?.options?.size"
+      :columns="
+        ui.optionSelector.value === OPTION_SELECTOR.RADIO_GRID
+          ? ui.optionSelectorGrid.asNumber
+          : 1
+      "
     >
       <template #item="{ item: { id } }">
         <CardSubproduct
           v-bind="getSubproductValue(id)"
+          :meta="meta"
           :term="props.term"
+          :product-meta="getSubproductValue(id).meta"
           @update:quantity="doUpdateQuantity(id, $event)"
           :minimal="mapComponentName !== 'SelectCards'"
         />
@@ -40,6 +52,8 @@
         <CardSubproduct
           v-bind="getSubproductValue(id)"
           :term="props.term"
+          :meta="meta"
+          :product-meta="getSubproductValue(id).meta"
           @update:quantity="doUpdateQuantity(id, $event)"
           :minimal="mapComponentName !== 'SelectCards'"
         />
@@ -51,7 +65,6 @@
 <script lang="ts" setup>
 // --- external
 import { computed, ref } from "vue";
-import { useVModel } from "@vueuse/core";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -73,8 +86,10 @@ import { find, map, get, isArray, first } from "lodash-es";
 // --- types
 import type {
   SubproductDetails,
-  SubproductValue
+  SubproductValue,
+  UseMetaResult
 } from "@upmind-automation/headless";
+import { OPTION_SELECTOR } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 
@@ -82,6 +97,7 @@ const emit = defineEmits(["update:modelValue", "update:quantity"]);
 
 const props = defineProps<{
   subproduct: SubproductDetails;
+  meta: UseMetaResult;
   modelValue?: string | string[];
   quantities?: Record<string, number>;
   errors?: string;
@@ -95,6 +111,10 @@ const props = defineProps<{
   optionalText?: string;
   requiredText?: string;
 }>();
+
+const { ui } = props.meta.with({
+  optionGroup: () => props.subproduct
+});
 
 // ---
 
@@ -127,7 +147,7 @@ const styles = useStyles(
 );
 
 const as = computed(() => {
-  return mapComponent(props.subproduct.uiMeta?.uischema?.control);
+  return mapComponent(ui.optionSelector.value ?? "default");
 });
 
 const mapComponent = (name: string) => {
@@ -135,8 +155,7 @@ const mapComponent = (name: string) => {
   const hasMultiple = (props.subproduct?.values?.length || 0) > 1;
   switch (name) {
     case "select":
-    case "selectcards":
-    case "SelectCards":
+    case "select-grouped":
       return !multiple || (required && !hasMultiple)
         ? SelectCards
         : CheckboxCards;
@@ -151,10 +170,9 @@ const mapComponent = (name: string) => {
 const mapComponentName = computed(() => {
   const { multiple, required } = props.subproduct.meta;
   const hasMultiple = (props.subproduct?.values?.length || 0) > 1;
-  switch (props.subproduct.uiMeta?.uischema?.control) {
+  switch (ui.optionSelector.value) {
     case "select":
-    case "selectcards":
-    case "SelectCards":
+    case "select-grouped":
       return !multiple || (required && !hasMultiple)
         ? "SelectCards"
         : "CheckboxCards";
@@ -175,7 +193,6 @@ const parsedValues = computed(() => {
       sublabel: subproduct?.title ?? "",
       appendLabel: subproduct?.price?.currentPrice,
       text: subproduct?.excerpt,
-      group: subproduct?.uiMeta?.uischema?.group,
       item: subproduct,
       index,
       modelValue: modelValue.value
@@ -194,10 +211,7 @@ function getSubproductValue(value: string): SubproductValue {
   return {
     ...product,
     quantity: get(props.quantities, value, 0),
-    title: product?.uiMeta?.uischema?.primary
-      ? product?.uiMeta?.uischema?.group || product?.title || ""
-      : product?.title || ""
-    // icon: product?.uiMeta?.uischema?.icon //Is this used?
+    title: product?.title || ""
   };
 }
 

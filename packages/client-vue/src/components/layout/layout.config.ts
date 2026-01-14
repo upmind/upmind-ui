@@ -57,18 +57,21 @@ export default {
   },
 
   surfaceBox: {
-    root: cva("bg-surface flex w-full grow items-center justify-center", {
-      variants: {
-        overflow: {
-          hidden: "overflow-hidden",
-          visible: "overflow-visible"
+    root: cva(
+      "bg-canvas flex min-h-screen w-full grow items-center justify-center",
+      {
+        variants: {
+          overflow: {
+            hidden: "overflow-hidden",
+            visible: "overflow-visible"
+          }
         }
       }
-    }),
-    container: cva("flex w-full flex-col px-6 py-8 lg:px-8 lg:py-12"),
+    ),
+    container: cva("flex w-full flex-col px-6 py-12 lg:px-8 lg:py-24"),
     header: cva("flex h-24 w-full items-end justify-between"),
     card: cva(
-      "bg-surface card-radius w-app-content max-w-app shadow-border-surface mx-auto flex w-full flex-col justify-between gap-9"
+      "w-app-content max-w-app mx-auto flex w-full flex-col justify-between gap-9"
     ),
     contentHeader: cva("w-app-aside w-full"),
     content: cva("w-full")

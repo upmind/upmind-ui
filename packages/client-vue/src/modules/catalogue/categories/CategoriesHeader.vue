@@ -1,40 +1,58 @@
 <template>
-  <div :class="styles.categories.header.root" v-auto-animate>
-    <template v-if="!meta.isLoading">
-      <slot name="prepend" />
+  <div
+    v-if="
+      title ||
+      description ||
+      !isEmptySlot('prepend', slots) ||
+      !isEmptySlot('append', slots)
+    "
+    :class="styles.categories.header.root"
+    v-auto-animate
+  >
+    <slot name="prepend" />
 
+    <div :class="styles.categories.header.title.root">
       <h1
         v-if="title"
-        :class="styles.categories.header.title"
+        :class="styles.categories.header.title.text"
         data-testid="title"
       >
         {{ title }}
       </h1>
-      <p v-if="description" :class="styles.categories.header.description">
-        {{ description }}
-      </p>
 
-      <slot name="append" />
-    </template>
-    <template v-else>
-      <Skeleton class="h-5 w-16" />
-      <Skeleton class="mt-3 h-12 w-96" />
-    </template>
+      <Badge
+        v-if="props.badge"
+        v-bind="isString(props.badge) ? { label: props.badge } : props.badge"
+        variant="minimal"
+        color="neutral"
+      />
+    </div>
+
+    <p v-if="description" :class="styles.categories.header.description">
+      {{ description }}
+    </p>
+
+    <p v-if="excerpt" :class="styles.categories.header.description">
+      {{ excerpt }}
+    </p>
+
+    <slot name="append" />
   </div>
 </template>
 
 <script setup lang="ts">
 // --- external
-import { computed } from "vue";
+import { computed, useSlots } from "vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
-import { useBrand, type ProductCategory } from "@upmind-automation/headless";
-import { useStyles, Skeleton } from "@upmind-automation/upmind-ui";
+import { type ProductCategory } from "@upmind-automation/headless";
+import { useStyles, Badge } from "@upmind-automation/upmind-ui";
 import config from "../catalogue.config";
 
 // --- utils
-import { isEmpty } from "lodash-es";
+import { isEmptySlot } from "@upmind-automation/upmind-ui";
+import { isString } from "lodash-es";
 
 // --- types
 import type { CategoriesProps } from "./types";
@@ -45,20 +63,20 @@ const props = defineProps<ProductCategory>();
 
 const modelValue = defineModel<CategoriesProps["modelValue"]>("modelValue");
 
-// -----------------------------------------------------------------------------
+const slots = useSlots();
 
-const { name, uiCart } = useBrand();
+// -----------------------------------------------------------------------------
 
 const meta = computed(() => {
   return {
     isLoading:
-      (modelValue.value && !props.id) || (!modelValue.value && !name.value)
+      (modelValue.value && !props.id) || (!modelValue.value && !props.name)
   };
 });
 
-const title = computed(() => {
-  return props.name || (isEmpty(props.id) && uiCart.value?.tagline) || "";
-});
-
-const styles = useStyles(["categories", "categories.header"], meta, config);
+const styles = useStyles(
+  ["categories", "categories.header", "categories.header.title"],
+  meta,
+  config
+);
 </script>

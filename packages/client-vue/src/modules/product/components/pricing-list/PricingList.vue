@@ -27,7 +27,7 @@ import { Skeleton, DescriptionList } from "@upmind-automation/upmind-ui";
 import PricingTotal from "./PricingTotal.vue";
 
 // --- utils
-import { omitBy, map, find } from "lodash-es";
+import { omitBy, map, find, filter } from "lodash-es";
 
 // --- types
 import type { PricingListProps } from "./types";
@@ -40,18 +40,35 @@ import type {
 
 const { t } = useI18n();
 
-const props = defineProps<PricingListProps>();
+const props = withDefaults(defineProps<PricingListProps>(), {
+  options: true,
+  fields: true
+});
 
 const styles = useStyles(["summary.pricing", "summary.skeleton"], {}, config);
 
 const summary = computed<DescriptionItem[]>(() => {
-  const details = omitBy(props.details, (detail: ProductSummaryDetail) =>
+  let details = omitBy(props.details, (detail: ProductSummaryDetail) =>
     ["category", "provision_field.sld", "term"].includes(detail.name)
   ) as (ProductSummaryDetail | ProductSummaryDetailWithPrice)[];
 
+  if (!props.options) {
+    details = filter(details, detail => detail.name === "product");
+  }
+
+  if (!props.fields) {
+    details = filter(
+      details,
+      detail => !detail.name.includes("provision_field")
+    );
+  }
+
   const summary = map(details, detail => ({
     term: detail.category,
-    description: detail.title || "-"
+    description:
+      detail.name === "product" && props.title
+        ? props.title
+        : detail.title || "-"
   })) as DescriptionItem[];
 
   const term = find(props.details, d => d.name === "term");

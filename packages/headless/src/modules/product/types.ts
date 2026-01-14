@@ -14,7 +14,8 @@ import type {
 } from "@upmind-automation/types";
 export { PromotionDisplayTypes } from "@upmind-automation/types";
 import { PromotionDisplayTypes } from "@upmind-automation/types";
-import type { Recommendation, Badge } from "../recommendations";
+import type { Recommendation } from "../recommendations";
+import type { Badge } from "../config/schema";
 import type { BasketProduct } from "../basketProduct";
 import { ResponseError } from "../../utils";
 
@@ -227,6 +228,8 @@ export type ProductDetails = {
   title: string;
   /** The untranslated name of the product, often used for reporting purposes. */
   name: string;
+  /** The service identifier (e.g., domain name). Only present for basket products. */
+  serviceIdentifier?: string;
   /** The brand associated with the product. */
   brand: string;
   /** An optional {@link Badge} to display with the product. */
@@ -574,7 +577,7 @@ export type PromotionDetails = {
 export enum BreadcrumbVariant {
   HIDDEN = "hidden",
   CONDENSED = "condensed",
-  CATEGORY = "category",
+  PARENT = "parent",
   VISIBLE = "visible"
 }
 

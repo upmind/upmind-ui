@@ -5,6 +5,8 @@ import {
   type VariantValues
 } from "@upmind-automation/upmind-ui";
 import type { HTMLAttributes } from "vue";
+import type { Badge } from "@upmind-automation/headless";
+import type { UseMetaResult } from "@upmind-automation/headless";
 
 export const PRODUCT_HEADER_DIRECTION = parseVariants(variants.direction);
 
@@ -17,10 +19,12 @@ export interface ProductHeaderProps {
   images?: Product["productDetails"]["images"];
   direction?: PRODUCT_HEADER_DIRECTION;
   image?: boolean;
+  meta: UseMetaResult;
 }
 
 export interface ProductImageProps {
   class?: HTMLAttributes["class"];
   productDetails: Product["productDetails"];
   images?: Product["productDetails"]["images"];
+  fallback?: boolean;
 }
