@@ -12,11 +12,7 @@ import { computed } from "vue";
 import { useRoute } from "vue-router";
 
 // --- components
-import {
-  UpmCatalogue,
-  useRoutingEngine,
-  LAYOUT_VARIANTS
-} from "@upmind-automation/client-vue";
+import { UpmCatalogue, LAYOUT_VARIANTS } from "@upmind-automation/client-vue";
 
 // --- internal
 import { ROUTE } from "~/router/types";

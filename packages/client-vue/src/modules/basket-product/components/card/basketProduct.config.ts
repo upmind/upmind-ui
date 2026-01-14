@@ -43,9 +43,7 @@ export default {
         text: cva("text-xl-tight font-medium break-all")
       },
       icon: cva("[&>svg]:p-[2px]"),
-      image: cva(
-        "image-radius m-0 h-12 max-w-12 min-w-12 object-cover object-center"
-      ),
+      image: cva("image-radius m-0 h-12"),
       footer: {
         root: cva("flex flex-col justify-between gap-2 lg:flex-row"),
         price: {

@@ -26,17 +26,20 @@ export default {
         hasImage: false
       }
     }),
-    title: cva("font-display break-word text-4xl text-balance", {
-      variants: {
-        direction: {
-          horizontal: "md:text-5xl",
-          vertical: ""
+    title: {
+      root: cva("flex items-center gap-x-5 gap-y-2"),
+      text: cva("font-display break-word text-4xl text-balance", {
+        variants: {
+          direction: {
+            horizontal: "md:text-5xl",
+            vertical: ""
+          }
+        },
+        defaultVariants: {
+          direction: "horizontal"
         }
-      },
-      defaultVariants: {
-        direction: "horizontal"
-      }
-    }),
+      })
+    },
     description: cva("text-md text-muted font-normal"),
     price: cva("font-normal", {
       variants: {

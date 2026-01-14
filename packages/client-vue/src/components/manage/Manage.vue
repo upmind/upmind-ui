@@ -9,7 +9,7 @@
       :useList="manage.useList"
       v-model:open="open"
       v-model="modelValue"
-      :readonly="props.readonly"
+      :readonly="readonly"
       :class="props.class"
       class="text-md"
       :minimal="props.minimal"

@@ -93,18 +93,21 @@
 
 <script setup lang="ts">
 // --- external
-import { watch, ref, computed, useTemplateRef } from "vue";
+import { watch, ref, computed, useTemplateRef, inject } from "vue";
 import { useI18n } from "vue-i18n";
 import { useUrlSearchParams } from "@vueuse/core";
 
 // --- internal
 import {
   useProductCatalogue,
+  useProductCategories,
   RequestSortDirection,
   ProductSortableProperties,
   DEBOUNCE_DELAY,
-  useBasket
+  useBasket,
+  type UseProductCategories
 } from "@upmind-automation/headless";
+import { useConfig } from "@upmind-automation/headless";
 import config from "../catalogue.config";
 
 // --- components
@@ -141,6 +144,10 @@ const props = withDefaults(
 const processing = ref(false);
 const { meta: basketMeta } = useBasket();
 
+const categoryInstance =
+  inject<UseProductCategories>("useProductCategories") ??
+  useProductCategories();
+
 const container = useTemplateRef<HTMLDivElement>("container");
 
 const categoryId = defineModel<ProductsProps["categoryId"] | undefined>(
@@ -176,6 +183,16 @@ const { data, meta, pagination, filters, sort, nextPage, prevPage } =
 // --- context
 const lastProductCount = ref(props.limit);
 
+const category = computed(() =>
+  categoryId.value ? categoryInstance.getOne(categoryId.value) : undefined
+);
+
+const { ui } = useConfig().with({ category });
+
+const stylesMeta = computed(() => ({
+  layout: ui.productListLayout.value
+}));
+
 const styles = useStyles(
   [
     "products",
@@ -183,7 +200,7 @@ const styles = useStyles(
     "products.main.grid",
     "products.main.emptyState"
   ],
-  {},
+  stylesMeta,
   config
 );
 

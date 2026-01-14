@@ -3,6 +3,7 @@ import { toRaw, computed } from "vue";
 
 // --- internal
 import services from "./services";
+import { useConfig } from "../config";
 import useUpmind, { invalidateQueryByKey } from "../../";
 
 // --- utils
@@ -158,14 +159,6 @@ export const useBrand = () => {
     () => get(brandSettings.value, "meta.uischema") as BrandMeta["uischema"]
   );
 
-  const iconStyles = computed<{
-    variant: BrandMeta["icon_variant"];
-  }>(() => {
-    return {
-      variant: capitalize(get(brandSettings.value, "meta.icon_variant"))
-    };
-  });
-
   const currency = computed<ICurrency | undefined>(
     () =>
       find(currencies.value, ["id", currencyId.value]) ||
@@ -209,14 +202,16 @@ export const useBrand = () => {
 
   const taxType = computed(() => brandSettings.value?.tax_type);
 
+  const { data } = useConfig({ brand: () => uiCart.value });
+
   const storefrontUrl = computed((): string | undefined => {
-    return useUpmind.storefrontUrl ?? uiCart.value?.storefront_url;
+    return useUpmind.storefrontUrl ?? data.storeUrl;
   });
 
   const hasStorefront = computed(() => {
-    const enabled = !uiCart.value?.catalogue?.disabled;
-
-    return !!storefrontUrl.value || enabled;
+    // No storefront URL means they need a storefront
+    // With a storefront URL, they can enable/disable via catalogueDisabled
+    return !storefrontUrl.value || !data.catalogueDisabled;
   });
 
   const storefrontRoute = computed(() => {
@@ -413,11 +408,6 @@ export const useBrand = () => {
      * The UI theme configuration for the brand, including theme variants and the currently selected variant.
      */
     uiTheme,
-
-    /**
-     * The current icons styles for the brand.
-     */
-    iconStyles,
 
     /**
      * Cart-specific meta-information from the brand settings.

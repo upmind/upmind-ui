@@ -1,0 +1,117 @@
+import { cva } from "class-variance-authority";
+// -----------------------------------------------------------------------------
+
+export default {
+  terms: {
+    radio: {
+      root: cva("w-full", {
+        variants: {
+          disabled: {
+            true: "cursor-wait"
+          }
+        }
+      }),
+      items: cva("list-none gap-3", {
+        variants: {
+          type: {
+            "radio-grid": "grid",
+            "radio-rows": "grid",
+            select: ""
+          },
+          gridLayout: {
+            "1-col": "grid-cols-1",
+            "2-col": "grid-cols-[repeat(auto-fit,minmax(max(48%,11rem),1fr))]",
+            "3-col": "grid-cols-[repeat(auto-fit,minmax(max(32%,11rem),1fr))]",
+            "4-col": "grid-cols-[repeat(auto-fit,minmax(max(23.5%,11rem),1fr))]"
+          }
+        },
+        defaultVariants: {
+          type: "radio-grid",
+          gridLayout: "2-col"
+        }
+      }),
+      item: {
+        root: cva(
+          "text-md m-0 flex h-full w-full cursor-pointer flex-col flex-wrap items-start gap-4 rounded-lg sm:flex-row",
+          {
+            variants: {
+              layout: {
+                stacked: "text-base",
+                inline: "w-full items-start justify-between sm:items-center"
+              }
+            },
+            defaultVariants: {
+              layout: "stacked"
+            }
+          }
+        ),
+        header: cva("flex items-center gap-x-2 gap-y-1 leading-tight", {
+          variants: {
+            layout: {
+              stacked: "flex-wrap items-center justify-start",
+              inline: ""
+            }
+          },
+          defaultVariants: {
+            layout: "stacked"
+          }
+        }),
+        footer: cva("flex", {
+          variants: {
+            layout: {
+              stacked: "w-full flex-col gap-y-0.5 self-end",
+              inline: "items-baseline gap-x-2"
+            }
+          },
+          defaultVariants: {
+            layout: "stacked"
+          }
+        }),
+        title: cva("m-0 font-medium text-nowrap text-inherit", {
+          variants: {
+            layout: {
+              stacked: "text-md-tight",
+              inline: "text-md"
+            }
+          },
+          defaultVariants: {
+            layout: "stacked"
+          }
+        }),
+        text: cva("text-muted w-full text-sm font-normal"),
+        total: cva("", {
+          variants: {
+            layout: {
+              stacked: "text-3xl font-medium",
+              inline: "font-normal"
+            }
+          },
+          defaultVariants: {
+            layout: "stacked"
+          }
+        }),
+        ex: cva("", {
+          variants: {
+            layout: {
+              stacked: "",
+              inline: "text-sm"
+            }
+          },
+          defaultVariants: {
+            layout: "stacked"
+          }
+        }),
+        discount: cva("text-2xs text-muted leading-none")
+      }
+    },
+    select: {
+      root: cva("w-full", {
+        variants: {
+          disabled: {
+            true: "cursor-wait"
+          }
+        }
+      })
+    }
+  }
+};

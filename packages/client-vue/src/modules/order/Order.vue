@@ -51,12 +51,15 @@ import {
   useBasket,
   useUrl,
   useOrder,
-  QUERY_PARAMS
+  QUERY_PARAMS,
+  UIContext
 } from "@upmind-automation/headless";
+import { useConfig } from "@upmind-automation/headless";
 
 // -- components
 import { Interstitial, Button } from "@upmind-automation/upmind-ui";
 import { has } from "lodash-es";
+import { useThemes } from "@upmind-automation/upmind-ui";
 
 // -----------------------------------------------------------------------------
 const props = defineProps<{
@@ -65,6 +68,7 @@ const props = defineProps<{
 
 // -----------------------------------------------------------------------------
 const { t } = useI18n();
+const { set } = useThemes();
 const route = useRoute();
 const router = useRouter();
 
@@ -74,6 +78,12 @@ const orderId = route.params?.[QUERY_PARAMS.ORDER_ID]?.toString();
 
 const { transferTo, meta } = useSession();
 const { meta: orderMeta, isReady } = useOrder(orderId);
+
+const { ui } = useConfig({
+  context: UIContext.CONFIRMATION
+});
+
+set(ui.theme.value);
 
 await isReady();
 

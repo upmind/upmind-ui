@@ -11,6 +11,7 @@
     <template #aside>
       <slot name="pricing" />
       <slot name="errors" />
+      <slot name="markdown" />
     </template>
   </Layout>
 </template>

@@ -584,11 +584,11 @@ async function update({
 async function updateMany({
   basketId,
   basketProducts,
-  data
+  models
 }: {
   basketId: IBasket["id"];
   basketProducts: BasketProduct[];
-  data: ProductProps[];
+  models: ProductProps[];
 }): Promise<IBasket> {
   const { t } = useI18n();
 
@@ -607,7 +607,7 @@ async function updateMany({
   // otherwise the existing products will be removed from the basket
 
   // --- then build the basket config for the validItems products
-  const newProducts = map(data, item => {
+  const newProducts = map(models, item => {
     const product = parseBasketProductData(item);
 
     // Add a flag to the product to indicate that the field values should NOT be validated.
