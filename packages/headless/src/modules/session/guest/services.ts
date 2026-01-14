@@ -3,6 +3,7 @@ import { useBasket, useBrand, useI18n, useQuery, useSystem } from "../..";
 import { useRecaptcha, useTracking } from "../../system/";
 import {
   BrandConfigKeys,
+  Contexts,
   GrantTypes,
   IToken,
   TwofaProviders
@@ -38,7 +39,7 @@ async function load(_context: GuestContext, _event: AnyEventObject) {
     ensureConfig([BrandConfigKeys.REQUIRE_PHONE_ON_REGISTRATION])
   ]);
 
-  const token = getTokenFromStorage("guest");
+  const token = getTokenFromStorage(Contexts.GUEST);
   if (!isEmpty(token)) return Promise.resolve(token);
 
   const { post, useUrl } = useQuery();
@@ -141,7 +142,7 @@ async function getCustomFields(_context: GuestContext, _event: AnyEventObject) {
   return get({
     // url: useUrl("clients_fields", { brand_id: null }),
     url: useUrl("clients_fields"),
-    queryKey: ["session", "guest", "custom-fields"]
+    queryKey: ["session", "client", "custom-fields"]
   });
 }
 
