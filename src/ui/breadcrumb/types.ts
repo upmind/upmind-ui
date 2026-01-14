@@ -15,7 +15,7 @@ export interface BreadcrumbItem extends RouterLinkProps {
   href?: string;
 }
 
-export type BreadcrumbVariant = "visible" | "condensed" | "last" | "hidden";
+export type BreadcrumbVariant = "visible" | "condensed" | "parent" | "hidden";
 
 export interface BreadcrumbConsolidateProps {
   items: BreadcrumbItem[];

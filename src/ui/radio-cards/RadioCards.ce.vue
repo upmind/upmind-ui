@@ -25,10 +25,9 @@
         :required="props.required"
         :disabled="props.disabled"
         :model-value="modelValue"
-        :width="props.width"
+        :columns="props.columns"
         :value="option.value"
         :class="props.radioClass"
-        :list="props.list"
         :uiConfig="props.uiConfig"
         :data-hover="props.dataHover"
         :data-focus="props.dataFocus"
@@ -69,8 +68,7 @@ const props = withDefaults(defineProps<RadioCardsProps>(), {
   overrideIndex: 0,
   useInputGroup: true,
   // -- variants
-  width: 12,
-  list: false,
+  columns: 1,
   // --- styles
   class: "",
   radioClass: ""
@@ -93,8 +91,7 @@ const modelValue = useVModel(props, "modelValue", emits, {
 });
 
 const meta = computed(() => ({
-  isList: props.list,
-  width: props.width
+  columns: props.columns
 }));
 
 const styles = useStyles(

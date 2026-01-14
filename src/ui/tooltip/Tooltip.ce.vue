@@ -67,7 +67,5 @@ const meta = computed(() => ({
   hasLabel: !isEmpty(props.label)
 }));
 
-const styles = useStyles(["tooltip"], meta, config, {
-  tooltip: props.uiConfig
-});
+const styles = useStyles(["tooltip"], meta, config, props.uiConfig ?? {});
 </script>

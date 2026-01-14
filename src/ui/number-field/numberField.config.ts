@@ -73,32 +73,32 @@ export const numberFieldRootVariants = cva("group inline-block", {
     {
       variant: "flat",
       width: "xs",
-      class: "md:w-72"
+      class: "lg:w-72"
     },
     {
       variant: "flat",
       width: "sm",
-      class: "md:w-80"
+      class: "lg:w-80"
     },
     {
       variant: "flat",
       width: "md",
-      class: "md:w-84"
+      class: "lg:w-84"
     },
     {
       variant: "flat",
       width: "lg",
-      class: "md:w-96"
+      class: "lg:w-96"
     },
     {
       variant: "flat",
       width: "xl",
-      class: "md:w-96"
+      class: "lg:w-96"
     },
     {
       variant: "flat",
       width: "2xl",
-      class: "md:w-96"
+      class: "lg:w-96"
     },
     {
       variant: "flat",

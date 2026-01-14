@@ -12,7 +12,9 @@
         <FormLabel v-if="meta.hasLabel" :formItemId="id">
           <slot name="label" :label="label">
             <span class="inline-flex w-full items-center gap-x-2">
-              <slot name="icon" />
+              <slot v-if="props.icon" name="icon">
+                <Icon :icon="props.icon" size="nano" />
+              </slot>
 
               <span
                 >{{ label }}
@@ -117,6 +119,7 @@ import type { FormControlProps } from "./types";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<FormControlProps>(), {
+  icon: "",
   label: "",
   text: "",
   tags: () => [],

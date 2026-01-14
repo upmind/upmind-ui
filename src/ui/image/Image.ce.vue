@@ -2,21 +2,24 @@
   <!-- Multiple images with carousel -->
   <Carousel
     @init-api="onCarouselInit"
-    v-if="meta.isCarousel"
+    v-if="meta.isCarousel && (!meta.isEmpty || meta.hasFallback)"
     :class="cn(styles.image.container, props.class)"
   >
-    <CarouselContent
-      :class="styles.image.carousel.content"
-      class="-ml-0 h-full"
-    >
-      <template v-for="(data, index) in image">
-        <CarouselImage :image="data" :index="index" :total="meta.imageLength" />
+    <CarouselContent :class="styles.image.carousel.content" class="ml-0 h-full">
+      <template v-for="(data, index) in image as ImageItem[]">
+        <CarouselImage
+          :image="data"
+          :index="index"
+          :total="meta.imageLength"
+          :fit="props.fit"
+          :position="props.position"
+        />
       </template>
     </CarouselContent>
 
     <nav :class="styles.image.nav.root" @click.prevent.stop>
       <span
-        v-for="(img, index) in image"
+        v-for="(img, index) in image as ImageItem[]"
         :key="index"
         :class="styles.image.nav.item"
       >
@@ -32,22 +35,22 @@
   </Carousel>
 
   <figure
-    v-if="!meta.isCarousel"
+    v-if="!meta.isCarousel && (!meta.isEmpty || meta.hasFallback)"
     :class="cn(styles.image.container, props.class)"
-    :style="meta.isEmpty ? fallbackStyle : ''"
+    :style="meta.hasFallback ? fallbackStyle : ''"
   >
     <!-- Single image with fallback -->
     <picture v-if="!meta.isEmpty" class="contents w-full">
       <img
         :key="isString(currentImage) ? currentImage : currentImage?.url"
         :src="isString(currentImage) ? currentImage : currentImage?.url"
-        :alt="isString(currentImage) ? '' : currentImage?.alt"
+        :alt="isString(currentImage) ? props.alt : currentImage?.alt"
         :class="cn(styles.image.root)"
         @error="error = true"
       />
     </picture>
     <!-- Fallback icon -->
-    <div v-if="meta.isEmpty" :class="cn(styles.image.root)">
+    <div v-if="meta.hasFallback" :class="cn(styles.image.root)">
       <Icon :icon="props.icon" size="lg" :class="styles.image.icon" />
     </div>
   </figure>
@@ -70,23 +73,38 @@ import { isEmpty, isArray, isString } from "lodash-es";
 import { useStyles, cn, getComputedColor } from "../../utils";
 
 // --- types
-import type { ImageProps } from "./types";
+import type { ImageProps, ImageItem } from "./types";
 import type { CarouselApi } from "../carousel";
 
 const props = withDefaults(defineProps<ImageProps>(), {
   ratio: "1:1",
   fit: "cover",
-  carousel: true,
-  icon: "camera-01"
+  position: "center",
+  mode: "auto",
+  icon: "camera-01",
+  fallback: true
 });
 
-const meta = computed(() => ({
-  ratio: props.ratio,
-  fit: props.fit,
-  isEmpty: isEmpty(props.image) || error.value,
-  isCarousel: props.carousel && isArray(props.image) && props.image.length > 1,
-  imageLength: isArray(props.image) ? props.image.length : 0
-}));
+const meta = computed(() => {
+  const imageList = isArray(props.image) ? props.image : [];
+  const imageLength = imageList.length;
+
+  const isCarousel = {
+    single: false,
+    carousel: imageLength >= 1,
+    auto: imageLength > 1
+  }[props.mode];
+
+  return {
+    ratio: props.ratio,
+    fit: props.fit,
+    position: props.position,
+    isEmpty: isEmpty(props.image) || error.value,
+    hasFallback: props.fallback && (isEmpty(props.image) || error.value),
+    isCarousel,
+    imageLength
+  };
+});
 
 const styles = useStyles(
   ["image", "image.carousel", "image.nav"],
