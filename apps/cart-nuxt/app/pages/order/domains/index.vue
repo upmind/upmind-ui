@@ -10,7 +10,7 @@ import { UpmDac, useRoutingEngine } from "@upmind-automation/client-vue";
 import { first } from "lodash-es";
 
 // --- types
-import { ROUTE } from "~/router/types";
+import { ROUTE } from "~/funnels/types";
 
 // -----------------------------------------------------------------------------
 

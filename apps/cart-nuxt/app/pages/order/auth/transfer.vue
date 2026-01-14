@@ -5,7 +5,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ROUTE } from "~/router/types";
+import { ROUTE } from "~/funnels/types";
 
 definePageMeta({
   name: ROUTE.SESSION_TRANSFER

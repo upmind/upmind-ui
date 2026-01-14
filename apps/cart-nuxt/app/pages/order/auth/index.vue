@@ -8,7 +8,7 @@
  *
  * Parent route for all session/auth related pages.
  */
-import { ROUTE } from "~/router/types";
+import { ROUTE } from "~/funnels/types";
 
 definePageMeta({
   name: ROUTE.SESSION

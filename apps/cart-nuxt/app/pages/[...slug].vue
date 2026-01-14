@@ -4,7 +4,7 @@
 
 <script lang="ts" setup>
 import { UpmError } from "@upmind-automation/client-vue";
-import { ROUTE } from "~/router/types";
+import { ROUTE } from "~/funnels/types";
 
 definePageMeta({
   name: ROUTE.ERROR

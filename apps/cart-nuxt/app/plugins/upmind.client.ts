@@ -4,7 +4,7 @@ import UpmindClient, {
   decorateRoutes
 } from "@upmind-automation/client-vue";
 import { plugins as uiPlugins } from "@upmind-automation/upmind-ui";
-import { registerFunnels } from "~/router/funnels";
+import { registerFunnels } from "~/funnels";
 import { forEach } from "lodash-es";
 import type { Router } from "vue-router";
 import type { I18n } from "vue-i18n";

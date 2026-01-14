@@ -13,7 +13,7 @@ import { computed } from "vue";
 import { UpmCatalogue } from "@upmind-automation/client-vue";
 
 // --- types
-import { ROUTE } from "~/router/types";
+import { ROUTE } from "~/funnels/types";
 
 // -----------------------------------------------------------------------------
 

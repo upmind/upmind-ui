@@ -1,6 +1,6 @@
 import { trimStart } from "lodash-es";
 import { useBrand } from "@upmind-automation/client-vue";
-import { ROUTE, RegexMatch } from "~/router/types";
+import { ROUTE, RegexMatch } from "~/funnels/types";
 
 /**
  * Global Redirects Middleware
