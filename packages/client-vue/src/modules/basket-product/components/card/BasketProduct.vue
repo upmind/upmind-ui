@@ -15,6 +15,7 @@
           data-testid="basket-product-summary"
           :id="id"
           :productDetails="props.productDetails"
+          :serviceIdentifier="props.serviceIdentifier"
           :summary="summary"
           :details="details"
           :quantity="props.configuration.quantity"
@@ -24,6 +25,7 @@
           :pricing="pricingProductIds"
           :edit-route="editRoute"
           :open="open"
+          :image="ui.productImages.isVisible"
           @update:open="setOpen"
           @update:quantity="doUpdateQuantity"
           @remove="doRemove"
@@ -48,6 +50,7 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 // --- internal
 import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./basketProduct.config";
+import { useConfig } from "@upmind-automation/headless";
 
 // --- components
 import { Loading } from "@upmind-automation/upmind-ui";
@@ -58,18 +61,20 @@ import BasketProductOptionSummary from "./BasketProductOptionSummary.vue";
 import { isEmpty, some, compact, map } from "lodash-es";
 
 // --- types
+import { type Product, UIContext } from "@upmind-automation/headless";
 import type { BasketProductProps } from "./types";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(
   defineProps<
-    BasketProductProps & {
-      loading?: boolean;
-      processing?: boolean;
-      disabled?: boolean;
-      editRoute: RouteLocationAsRelativeGeneric;
-    }
+    Product &
+      BasketProductProps & {
+        loading?: boolean;
+        processing?: boolean;
+        disabled?: boolean;
+        editRoute: RouteLocationAsRelativeGeneric;
+      }
   >(),
   {
     open: false
@@ -79,6 +84,10 @@ const props = withDefaults(
 const emits = defineEmits(["update:open", "update:quantity", "remove"]);
 
 const open = useVModel(props, "open", emits);
+
+const { ui } = useConfig({
+  product: () => props
+});
 
 const meta = computed(() => ({
   isDisabled: props.disabled,

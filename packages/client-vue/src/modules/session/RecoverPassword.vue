@@ -85,6 +85,8 @@ import { useI18n } from "vue-i18n";
 import { useHeader } from "../../components/header/useHeader";
 import { useFooter } from "../../components/footer/useFooter";
 import { useLayout } from "../../components/layout/useLayout";
+import { useConfig } from "@upmind-automation/headless";
+import { useThemes } from "@upmind-automation/upmind-ui";
 
 // --- components
 import { Link } from "@upmind-automation/upmind-ui";
@@ -124,24 +126,22 @@ import {
 import {
   useBasket,
   useRoutingEngine,
-  useSession
+  useSession,
+  UIContext
 } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 
-const props = withDefaults(
-  defineProps<
-    SessionRoutes & {
-      template?: SESSION_TEMPLATE;
-    }
-  >(),
-  {
-    template: SESSION_TEMPLATE.TWO_COLUMN_LTR
+const props = defineProps<
+  SessionRoutes & {
+    template?: SESSION_TEMPLATE;
   }
-);
+>();
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
+const { set } = useThemes();
+
 const { meta, isReady } = useSession();
 const { meta: basketMeta } = useBasket();
 const {
@@ -151,14 +151,22 @@ const {
   meta: routingMeta
 } = useRoutingEngine();
 
+const { ui } = useConfig({
+  context: UIContext.AUTH
+});
+
 await isReady();
 
+set(ui.theme.value);
+
 const isResolving = ref(false);
+
+const template = computed(() => props.template || ui.template.value);
 
 const templateVariant = computed(() =>
   get(
     supportedTemplates,
-    props.template,
+    template.value,
     supportedTemplates[SESSION_TEMPLATE.TWO_COLUMN_LTR]
   )
 );

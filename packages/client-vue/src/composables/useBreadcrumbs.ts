@@ -41,7 +41,7 @@ export const useBreadcrumbs = (options: UseBreadcrumbItemsOptions) => {
     const variantMap: Record<BreadcrumbVariant, UIBreadcrumbVariant> = {
       [BreadcrumbVariant.HIDDEN]: "hidden",
       [BreadcrumbVariant.CONDENSED]: "condensed",
-      [BreadcrumbVariant.CATEGORY]: "last",
+      [BreadcrumbVariant.PARENT]: "parent",
       [BreadcrumbVariant.VISIBLE]: "visible"
     };
     return variantMap[variant as BreadcrumbVariant] ?? "visible";

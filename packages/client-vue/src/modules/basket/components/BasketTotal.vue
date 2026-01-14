@@ -4,7 +4,12 @@
       {{ t("text.basket_total") }}
     </dt>
     <dd :class="styles.summary.item.description">
-      {{ summary?.total }}
+      {{
+        formatPrice(summary?.total, {
+          zeroPriceDisplayIsLabel: ui.zeroPriceDisplay.isLabel,
+          trimTrailingZeroes: data.trimTrailingZeroes
+        })
+      }}
     </dd>
   </div>
 </template>
@@ -14,7 +19,8 @@
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useBasket } from "@upmind-automation/headless";
+import { useBasket, useConfig } from "@upmind-automation/headless";
+import { useMoney } from "@upmind-automation/headless";
 import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./summary.config";
 
@@ -31,6 +37,8 @@ const props = withDefaults(
 
 const { t } = useI18n();
 const { summary } = useBasket();
+const { ui, data } = useConfig();
+const { formatPrice } = useMoney();
 
 const styles = useStyles(
   ["summary", "summary.item"],
