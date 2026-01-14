@@ -1,11 +1,7 @@
 // --- utils
 import { map, reduce, merge, sum } from "lodash-es";
 import { iterateParents } from "../product/utils";
-import {
-  useTranslateField,
-  useTranslateName,
-  parseFlattened
-} from "../../utils";
+import { useTranslateField, useTranslateName } from "../../utils";
 // --- types
 import type { IProductCategory } from "@upmind-automation/types";
 import type { ProductCategory } from "./types";
@@ -32,7 +28,7 @@ export function parseProductCategory(
     title: useTranslateName(raw),
     description: useTranslateField(raw, "description"),
     excerpt: useTranslateField(raw, "short_description"),
-    uiMeta: parseFlattened(parseMeta(raw, uiMeta)),
+    uiMeta: parseMeta(raw, uiMeta),
     count: raw.products_count ?? 0,
 
     countDeep: sum(

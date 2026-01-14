@@ -18,13 +18,13 @@ import {
   ErrorOrigin
 } from "../../utils";
 import { isNil, isEqual, every, isEmpty } from "lodash-es";
+import { useConfig } from "../config";
 
 // --- types
 import { GatewayContext } from "../paymentDetails";
 import { isFunction } from "lodash-es";
 import { QueryResponseError } from "../query";
 import { ErrorObject } from "ajv";
-import { useBrand } from "../brand";
 import { GatewayTypes } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
@@ -112,8 +112,8 @@ export const usePaymentGateway = (actor: ComputedRef<UseActor | undefined>) => {
   // const type = useContext<GatewayContext["type"]>(actor, "type");
   // const code = useContext<GatewayContext["code"]>(actor, "code");
 
-  const { uiCart } = useBrand();
-  const clickwrap = computed(() => uiCart.value?.clickwrap_disclaimer);
+  const { data } = useConfig();
+  const clickwrap = computed(() => data.clickwrapDisclaimer);
 
   // --- methods
 

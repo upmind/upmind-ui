@@ -21,11 +21,13 @@ export interface BasketProductSummaryProps {
   id: BasketProduct["id"];
   summary: ProductSummaryDetailWithPrice;
   productDetails: BasketProduct["productDetails"];
+  serviceIdentifier?: BasketProduct["serviceIdentifier"];
   quantity: BasketProduct["configuration"]["quantity"];
   details: BasketProduct["details"];
   pricing: string[];
   // ---
   open: boolean;
+  image: boolean;
   error: boolean;
   processing: boolean;
   loading: boolean;

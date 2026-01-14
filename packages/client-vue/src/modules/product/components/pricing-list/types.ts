@@ -14,4 +14,7 @@ export interface PricingListProps {
   processing?: boolean;
   loading?: boolean;
   total?: boolean;
+  title?: string;
+  options?: boolean;
+  fields?: boolean;
 }

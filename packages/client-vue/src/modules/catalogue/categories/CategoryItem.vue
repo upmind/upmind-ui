@@ -14,12 +14,8 @@
     :focusable="false"
     tabindex="-1"
   >
-    <Icon
-      v-if="categoryIcon"
-      :icon="categoryIcon"
-      size="sm"
-      :class="styles.categories.item.icon"
-    />
+    <!-- TODO: Add category icon when available from backend -->
+    <!-- <Icon v-if="ui.categoryIcon.value" size="sm" :class="styles.categories.item.icon" /> -->
 
     <section :class="styles.categories.item.action">
       <header :class="styles.categories.item.titleContainer">
@@ -79,10 +75,6 @@ const modelValue = defineModel<CategoriesProps["modelValue"]>("modelValue");
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
-
-const categoryIcon = computed(() => {
-  return props.uiMeta?.uischema?.icon;
-});
 
 const meta = computed(() => {
   return {

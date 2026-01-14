@@ -11,30 +11,59 @@ import {
 // --- utils
 import {
   compact,
-  concat,
   defaultsDeep,
+  find,
+  flatMap,
+  forEach,
   get,
   includes,
+  isBoolean,
   isEmpty,
   isString,
-  find,
   map,
   reduce,
   some,
-  toSafeInteger,
-  isBoolean
+  toSafeInteger
 } from "lodash-es";
 import { useTranslateField, useTranslateName, useImageUrl } from "../../utils";
 
 // --- types
 import { ProductTypes } from "@upmind-automation/types";
 import type { IBasket, IBasketProduct } from "@upmind-automation/types";
-import type { Recommendation, RelatedProduct, Badge } from "./types";
+import type { Recommendation, RelatedProduct } from "./types";
+import type { Badge } from "../config/schema";
 import { calculateBillingTerm } from "../product/utils";
 import { ProductDetails, TermDetails, IProductConfig } from "../product";
-import type { Benefit } from "../product/types";
+import { useConfig } from "../config/useConfig";
 
 // ---------------------------------------------------------------------------
+
+function parseProductsToRecommend(
+  basketProduct: IBasketProduct
+): RelatedProduct[] {
+  // safe check : dont include recommendations for products that are not single products
+  if (basketProduct?.product?.product_type !== ProductTypes.SINGLE_PRODUCT) {
+    return [];
+  }
+
+  const { data } = useConfig({
+    product: {
+      productDetails: { uiMeta: basketProduct?.product?.meta ?? undefined }
+    }
+  });
+
+  return map(data.productsToRecommend ?? [], ({ productId, ...product }) => {
+    const related = {
+      ...product,
+      object_type: "product",
+      object_id: productId,
+      active: true,
+      product_id: basketProduct.product_id
+    } as RelatedProduct;
+    related.id = ensureId(related);
+    return related;
+  });
+}
 
 /**
  * Parses the given basket and returns a list of recommendations.
@@ -45,65 +74,14 @@ import type { Benefit } from "../product/types";
  * @returns {Recommendation[]} The parsed list of recommendations.
  */
 export function parseRelatedProducts(raw: IBasket): RelatedProduct[] {
-  const products: IBasketProduct[] = get(
-    raw,
-    "products",
-    []
-  ) as IBasketProduct[];
+  const products = get(raw, "products", []) as IBasketProduct[];
 
-  return reduce(
-    products,
-    (
-      related: RelatedProduct[],
-      basketProduct: IBasketProduct
-    ): RelatedProduct[] => {
-      // safe check : dont include recommendations for products that are not single products
-      if (basketProduct?.product?.product_type !== ProductTypes.SINGLE_PRODUCT)
-        return related;
-
-      // Lets allow the back end to hide the native related products.
-      // Any meta level (product, category) can have the hide_native_related flag
-      // TODO: make this link to the `uimeta.hide_native_related`
-      const hideNative = true;
-
-      // const hideNative = some(
-      //   concat(
-      //     basketProduct?.product?.meta,
-      //     basketProduct?.product?.category?.meta
-      //   ),
-      //   "hide_native_related"
-      // );
-
-      // NB: we may get exact duplicates, as we may have several products that have the same related products and exact same configuration
-      // but we need them to be able to show the same recommendation for individual source products
-      // so do not dedupe them!
-
-      const allRelated = reduce(
-        concat(
-          related,
-          basketProduct?.product?.meta?.related,
-          basketProduct?.product?.category?.meta?.related,
-          hideNative ? [] : basketProduct?.product?.related
-        ),
-        (result: RelatedProduct[], rawRelated) => {
-          const valid =
-            rawRelated?.object_type === "product" && rawRelated?.active;
-
-          if (valid) {
-            rawRelated.id = ensureId(rawRelated);
-            rawRelated.product_id ??= basketProduct.product_id; // ensure we have a product id associated with the recommendation
-            result.push(rawRelated);
-          }
-
-          return result;
-        },
-        []
-      ) as RelatedProduct[];
-
-      return allRelated;
-    },
-    []
-  );
+  return flatMap(products, basketProduct => {
+    if (basketProduct?.product?.product_type !== ProductTypes.SINGLE_PRODUCT) {
+      return [];
+    }
+    return parseProductsToRecommend(basketProduct);
+  });
 }
 
 /**
@@ -114,35 +92,20 @@ export function parseRelatedProducts(raw: IBasket): RelatedProduct[] {
  * @returns
  */
 export function parseRelationships(raw: IBasket): Record<string, string[]> {
-  return reduce(
-    raw?.products,
-    (relationships: Record<string, string[]>, product) => {
-      // ---safe check : dont include recommendations for products that are not single products
-      if (product.product.product_type !== ProductTypes.SINGLE_PRODUCT)
-        return relationships;
+  const relationships: Record<string, string[]> = {};
 
-      const relatedProducts = concat(
-        product.product.related,
-        product.product.meta?.related,
-        product.product.category?.meta?.related
-      );
+  forEach(raw?.products, product => {
+    if (product.product.product_type !== ProductTypes.SINGLE_PRODUCT) return;
 
-      return reduce(
-        relatedProducts,
-        (acc, rawRelated) => {
-          if (rawRelated?.object_type === "product" && rawRelated?.active) {
-            rawRelated.id = ensureId(rawRelated);
-            acc[rawRelated.id] ??= []; // safe check
-            if (!includes(acc[rawRelated.id], product.id))
-              acc[rawRelated.id].push(product.id);
-          }
-          return acc;
-        },
-        relationships
-      );
-    },
-    {}
-  );
+    forEach(parseProductsToRecommend(product), related => {
+      relationships[related.id] ??= [];
+      if (!includes(relationships[related.id], product.id)) {
+        relationships[related.id].push(product.id);
+      }
+    });
+  });
+
+  return relationships;
 }
 
 export function parseAddedProducts(
@@ -269,13 +232,9 @@ export function parseRecommendation(
           ? ""
           : raw.image_url || useImageUrl(productDetails?.imgUrl, "400x400"),
       // --- additional ui data
-      // -- TODO: Maybe move this into UI meta
       badge: isString(raw?.badge)
         ? ({ label: raw?.badge } as Badge)
-        : raw?.badge,
-      benefits: map(raw?.benefits, benefit =>
-        isString(benefit) ? ({ label: benefit } as Benefit) : benefit
-      )
+        : raw?.badge
     },
     meta: term?.meta,
     promotions: term?.promotions,
@@ -293,9 +252,9 @@ export function parseRecommendation(
       ),
 
       term: config?.bcm ?? term?.cycle ?? 0,
-      subproducts: compact(config?.sub_pids?.toString()?.split(",") ?? []),
+      subproducts: compact(config?.sub_pids ?? []),
       provisionFields: config?.pfields ?? {},
-      coupons: compact(config?.coupons?.toString()?.split(",") ?? [])
+      coupons: compact(config?.coupons ?? [])
     }
   } as Recommendation;
 }

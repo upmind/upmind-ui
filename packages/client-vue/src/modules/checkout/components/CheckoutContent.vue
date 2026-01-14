@@ -13,7 +13,7 @@
 
   <!-- Basket Products -->
   <Section
-    v-show="showCheckout && uischema.showProductsOnCheckout"
+    v-show="showCheckout && ui.basketItems.isVisible"
     id="basket-products"
     :label="t('cart.basket_products')"
     value="products"
@@ -25,7 +25,7 @@
   <!-- Additional Options -->
   <Section
     id="basket-fields"
-    v-show="showCheckout && uischema.showFieldsOnCheckout"
+    v-show="showCheckout && ui.basketFields.isVisible"
     :label="t('text.additional_details')"
     icon="file-attachment-01"
   >
@@ -58,7 +58,10 @@
 <script lang="ts" setup>
 // --- external
 import { useI18n } from "vue-i18n";
+
+// --- internal
 import { useBasket, useBasketFields } from "@upmind-automation/headless";
+import { useConfig } from "@upmind-automation/headless";
 
 // --- components
 import Section from "../../../components/section/Section.vue";
@@ -67,6 +70,9 @@ import PaymentDetails from "./PaymentDetails.vue";
 import ProductCards from "../../basket-product/components/card/BasketProductCards.vue";
 import Form from "../../../components/form/Form.vue";
 import BasketErrors from "../../basket/components/BasketErrors.vue";
+
+// --- types
+import { UIContext } from "@upmind-automation/headless";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
 
 // -----------------------------------------------------------------------------
@@ -81,6 +87,9 @@ const props = defineProps<{
 
 const { t } = useI18n();
 const { meta, uischema } = useBasket();
+
+const { ui } = useConfig();
+
 const {
   errors: fieldsErrors,
   meta: fieldsMeta,
