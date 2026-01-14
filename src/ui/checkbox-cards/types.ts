@@ -7,9 +7,11 @@ import type { ToggleGroupRootProps, ToggleGroupItemProps } from "radix-vue";
 import type { CxOptions, VariantProps } from "class-variance-authority";
 
 // --- internal
-import type { checkboxLabelVariants } from "./checkboxCards.config";
+import type { checkboxLabelVariants, variants } from "./checkboxCards.config";
 import type { LinkProps } from "../link";
 type CheckboxLabelVariantProps = VariantProps<typeof checkboxLabelVariants>;
+
+type CheckboxCardsItemVariants = typeof variants;
 
 export type CheckboxCardsItemActionProps = LinkProps & {
   handler?: Function | string;
@@ -49,8 +51,8 @@ export interface CheckboxCardsProps extends ToggleGroupRootProps {
   noInput?: boolean;
   /** Disable the pointer cursor allowing text selection */
   cursor?: Cursor;
-  /** Display the checkbox cards as a list */
-  list?: boolean;
+  /** Number of items per row (0-6). 0 = custom grid, 1 = full width. Example: columns={3} displays 3 items per row. */
+  columns?: number;
   // ---
   uiConfig?: { tooltip: CxOptions };
   /** Apply additional classes to the container */

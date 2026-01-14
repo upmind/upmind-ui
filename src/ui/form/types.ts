@@ -107,6 +107,7 @@ export interface FormControlProps extends InputProps {
   pristine?: boolean;
 
   // --- styles
+  icon?: string;
   uiConfig?: {
     input?: CxOptions;
     form?: {

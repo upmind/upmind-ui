@@ -1,5 +1,5 @@
 <template>
-  <div :class="cn(styles.radioCards.root, props.class)">
+  <div :class="cn('w-full', props.class)">
     <Collapsible v-model:open="open">
       <RadioGroup
         :model-value="modelValue"
@@ -7,7 +7,7 @@
         :disabled="props.disabled"
         data-testid="radio-card-group"
         @update:model-value="onSelectionChange"
-        class="flex w-full flex-col gap-0"
+        :class="cn(styles.radioCards.root, 'gap-0')"
       >
         <RadioCardItem
           v-if="selectedItem"
@@ -19,9 +19,8 @@
           :required="props.required"
           :disabled="props.disabled"
           :model-value="modelValue"
-          :width="props.width"
+          :columns="props.columns"
           :value="selectedItem.value"
-          :list="props.list"
           :minimal="props.minimal"
           :data-testid="`radio-card-${props.label}`"
           :uiConfig="selectedItemUiConfig"
@@ -32,7 +31,7 @@
         </RadioCardItem>
 
         <template v-else>
-          <Skeleton>
+          <Skeleton class="col-span-12">
             <RadioCardItem
               :item="{
                 title: 'Loading...',
@@ -49,7 +48,11 @@
           </Skeleton>
         </template>
 
-        <CollapsibleContent class="flex w-full flex-col overflow-visible">
+        <CollapsibleContent
+          :class="
+            cn(styles.radioCards.root, 'col-span-12 gap-0 overflow-visible')
+          "
+        >
           <template
             v-for="(option, index) in unselectedItems"
             :key="option.id || index"
@@ -63,10 +66,9 @@
               :required="props.required"
               :disabled="props.disabled"
               :model-value="modelValue"
-              :width="props.width"
+              :columns="props.columns"
               :value="option.value"
               :class="props.radioClass"
-              :list="props.list"
               :minimal="props.minimal"
               data-testid="radio-card-item"
               :uiConfig="props.uiConfig"
@@ -119,8 +121,7 @@ const props = withDefaults(defineProps<RadioCardsCollapsibleProps>(), {
   label: "Change",
   autoCollapse: true,
   // -- variants
-  width: 12,
-  list: false,
+  columns: 1,
   // --- styles
   class: "",
   radioClass: ""
@@ -135,9 +136,8 @@ const modelValue = defineModel<string>("modelValue");
 const open = defineModel<boolean>("open");
 
 const meta = computed(() => ({
-  isList: props.list,
   isMinimal: props.minimal,
-  width: props.width
+  columns: props.columns
 }));
 
 const styles = useStyles("radioCards", meta, config, props.uiConfig ?? {});

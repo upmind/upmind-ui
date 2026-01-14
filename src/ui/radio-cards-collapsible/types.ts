@@ -20,8 +20,8 @@ export interface RadioCardsCollapsibleItemProps extends RadioGroupItemProps {
   selected?: boolean;
   value: string;
   // ---
-  width?: RadioCardsItemVariantProps["width"] | string;
-  list?: boolean;
+  /** Number of items per row (0-6). 0 = custom grid, 1 = full width. Example: columns={3} displays 3 items per row. */
+  columns?: number;
   uiConfig?: { radioCards: CxOptions };
 }
 
@@ -40,8 +40,8 @@ export interface RadioCardsCollapsibleProps extends RadioGroupRootProps {
   items: RadioCardsCollapsibleItemProps[];
   loading?: boolean;
   // ---
-  width?: RadioCardsItemVariantProps["width"] | string;
-  list?: boolean;
+  /** Number of items per row (0-6). 0 = custom grid, 1 = full width. Example: columns={3} displays 3 items per row. */
+  columns?: number;
   // ---
   uiConfig?: { radioCards: CxOptions };
   class?: HTMLAttributes["class"];
