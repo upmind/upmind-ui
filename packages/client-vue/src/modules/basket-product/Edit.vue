@@ -121,7 +121,12 @@
       </template>
 
       <template v-if="configMeta.ui.trustMessaging.isVisible" #markdown>
-        <slot name="markdown" :product="product" :meta="configMeta">
+        <slot
+          name="markdown"
+          :product="product"
+          :config-meta="configMeta"
+          :product-meta="productMeta"
+        >
           <Markdown
             v-if="product?.productDetails"
             data-testid="slots:summary-append"
