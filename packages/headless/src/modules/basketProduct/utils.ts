@@ -174,7 +174,7 @@ export function parsSummaryWithPrice(
   const summary = parseSummary(raw) as Partial<ProductSummaryDetailWithPrice>;
 
   summary.meta = {
-    oneoff: raw.billing_cycle_months > 0,
+    oneoff: raw.billing_cycle_months == 0,
     discounted: raw.configuration_net_amount_discount_converted > 0,
     free: raw.configuration_net_amount_discounted_converted == 0,
     overrides: raw?.product?.category?.price_override,

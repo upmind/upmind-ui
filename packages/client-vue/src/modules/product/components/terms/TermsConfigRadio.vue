@@ -4,7 +4,7 @@
     v-if="hasItems"
     id="terms"
     name="terms"
-    :class="styles.product.config.grid.root"
+    :class="styles.terms.radio.root"
     :label="props.label"
     :required="props.required"
     :disabled="props.disabled || props.processing"
@@ -21,12 +21,10 @@
       :errors="props.errors"
       :none-text="t('text.none')"
       :placeholder="t('form.select_option.placeholder')"
-      :class="styles.product.config.grid.items"
-      layout="grid"
-      ring
+      :class="styles.terms.radio.items"
       :model-value="props.modelValue?.toString()"
       @update:modelValue="doResolve"
-      :width="0"
+      :columns="0"
     >
       <template #item="{ item }">
         <CardTerm v-bind="item" />
@@ -44,7 +42,7 @@ import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useStyles } from "@upmind-automation/upmind-ui";
-import config from "../../product.config";
+import config from "./terms.config";
 
 // --- components
 import { FormField, RadioCards } from "@upmind-automation/upmind-ui";
@@ -57,12 +55,20 @@ import { isNil, map, toNumber } from "lodash-es";
 import type { HTMLAttributes } from "vue";
 import type { RadioCardsItemProps } from "@upmind-automation/upmind-ui";
 import type { TermDetails } from "@upmind-automation/headless";
+import {
+  TERM_SELECTOR,
+  GRID_LAYOUT,
+  type TermSelector,
+  type GridLayout
+} from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 const emits = defineEmits(["update:modelValue"]);
 const props = withDefaults(
   defineProps<{
     as?: string;
+    type?: TermSelector;
+    gridLayout?: GridLayout;
     items: TermDetails[];
     modelValue?: string | number;
     errors?: string;
@@ -90,9 +96,18 @@ const props = withDefaults(
 
 const { t } = useI18n();
 
+const stylesMeta = computed(() => ({
+  type: props.type,
+  gridLayout:
+    props.type === TERM_SELECTOR.RADIO_ROWS
+      ? GRID_LAYOUT.ONE_COL
+      : props.gridLayout,
+  disabled: props.disabled
+}));
+
 const styles = useStyles(
-  ["product.config.grid", "product.config.grid.item"],
-  toRefs(props),
+  ["terms.radio", "terms.radio.item"],
+  stylesMeta,
   config
 );
 

@@ -3,43 +3,41 @@
     :class="styles.product.header.price.root"
     data-testid="product-card-price-display"
   >
-    <header
-      v-if="meta?.discounted"
-      :class="styles.product.header.price.regularPrice"
-    >
-      <del>
-        {{
-          t("text.price_was", {
-            price:
-              meta?.oneoff || !meta?.useMonthlyFromPrice
-                ? price?.regularPrice
-                : price?.monthlyFromRegularPrice
-          })
-        }}
-      </del>
-
-      <Badge variant="minimal" color="promo" size="sm">
-        {{
-          t("action.save_value", {
-            value: price?.savingPercent
-          })
-        }}
-      </Badge>
-    </header>
-
-    <p :class="styles.product.header.price.currentPrice.root">
-      <strong
-        v-if="meta?.free"
-        :class="styles.product.header.price.currentPrice.amount"
+    <template v-if="!hidePrice">
+      <header
+        v-if="meta?.discounted"
+        :class="styles.product.header.price.regularPrice"
       >
-        {{ t("text.free") }}
-      </strong>
+        <del>
+          {{
+            t("text.price_was", {
+              price:
+                meta?.oneoff || !meta?.useMonthlyFromPrice
+                  ? price?.regularPrice
+                  : price?.monthlyFromRegularPrice
+            })
+          }}
+        </del>
 
-      <template v-else>
+        <Badge variant="minimal" color="promo" size="sm">
+          {{
+            t("action.save_value", {
+              value: price?.savingPercent
+            })
+          }}
+        </Badge>
+      </header>
+
+      <p :class="styles.product.header.price.currentPrice.root">
         <strong
           :class="styles.product.header.price.currentPrice.amount"
           data-testid="product-card-price"
-          >{{ currentPrice }}</strong
+          >{{
+            formatPrice(currentPrice, {
+              zeroPriceDisplayIsLabel: ui.zeroPriceDisplay.isLabel,
+              trimTrailingZeroes: data.trimTrailingZeroes
+            })
+          }}</strong
         >
 
         <small
@@ -53,8 +51,8 @@
               : parseBillingCycle(props.cycle!).descriptive
           }}
         </small>
-      </template>
-    </p>
+      </p>
+    </template>
 
     <footer
       v-if="
@@ -82,7 +80,11 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { parseBillingCycle } from "@upmind-automation/headless";
+import {
+  parseBillingCycle,
+  useMoney,
+  useConfig
+} from "@upmind-automation/headless";
 import config from "./card.config";
 
 // --- utils
@@ -93,13 +95,18 @@ import { useStyles } from "@upmind-automation/upmind-ui";
 import { Badge } from "@upmind-automation/upmind-ui";
 
 // --- types
-import type { ProductPrice } from "./types";
+import type { ProductPriceProps } from "./types";
 
 // -----------------------------------------------------------------------------
 
-const props = defineProps<Omit<ProductPrice, "name">>();
+const props = withDefaults(defineProps<ProductPriceProps>(), {
+  hidePrice: false,
+  hideTermSummary: false
+});
 
 const { t } = useI18n();
+const { ui, data } = useConfig();
+const { formatPrice } = useMoney();
 
 const configMeta = computed(() => ({
   //

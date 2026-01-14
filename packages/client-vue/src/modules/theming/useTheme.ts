@@ -1,21 +1,25 @@
 // --- external
-import { ref, computed, provide } from "vue";
+import { ref, computed } from "vue";
 
 // --- internal
 import { useBrand, useTheming } from "@upmind-automation/headless";
+import { useConfig } from "@upmind-automation/headless";
 import { useThemes, useThemeIcons } from "@upmind-automation/upmind-ui";
 
 // --- utils
 import {
   setDocumentFavicon,
-  setFontFamily,
+  setDisplayFontLink,
+  setFontVariables,
+  loadGoogleFonts,
   setDocumentTitle,
   setTokens
 } from "./utils";
-import { isEmpty, keys, isEqual, first, find, forEach } from "lodash-es";
+import { isEmpty, keys, isEqual, find, forEach, capitalize } from "lodash-es";
 
 // --- types
 import type { Theme } from "@upmind-automation/headless";
+import { UIContext } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 // --- global context
@@ -37,7 +41,6 @@ export const useTheme = (initial?: string) => {
     favicon,
     name,
     styles,
-    iconStyles,
     isReady: isBrandReady
   } = useBrand();
 
@@ -45,6 +48,7 @@ export const useTheme = (initial?: string) => {
   const { set: setUiTheme, add: addUiTheme } = useThemes(themes.value, initial);
 
   const { setIconTheme } = useThemeIcons();
+  const { data, ui } = useConfig({ context: UIContext.ALL });
 
   // --- state
 
@@ -78,10 +82,21 @@ export const useTheme = (initial?: string) => {
     }
 
     // Apply the theme to the document and UI lib
-    setFontFamily({
-      display: styles.value?.brand_font?.family
-    });
-    setIconTheme(iconStyles.value?.variant || "Line");
+    if (data.displayFontLink) {
+      setDisplayFontLink(data.displayFontLink).then(displayFont => {
+        if (displayFont) {
+          setFontVariables({ display: displayFont });
+        }
+      });
+    } else {
+      const displayFont = styles.value?.brand_font?.family;
+      if (displayFont) {
+        loadGoogleFonts({ display: displayFont });
+        setFontVariables({ display: displayFont });
+      }
+    }
+
+    setIconTheme(capitalize(ui.iconVariant.value || "Line"));
     setUiTheme(theme.value?.id ?? "default");
     setDocumentTitle(name.value);
     setDocumentFavicon(favicon.value ?? undefined);

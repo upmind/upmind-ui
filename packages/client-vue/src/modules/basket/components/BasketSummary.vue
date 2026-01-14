@@ -2,10 +2,18 @@
   <Hero
     :title="t('cart.basket_title')"
     :description="
-      t('cart.basket_summary_desc', {
-        count: count ?? 0,
-        total: summary?.total ?? 0
-      })
+      !meta.isFree
+        ? t('cart.basket_summary_desc', {
+            count: count ?? 0,
+            total:
+              formatPrice(summary?.total, {
+                zeroPriceDisplayIsLabel: ui.zeroPriceDisplay.isLabel,
+                trimTrailingZeroes: data.trimTrailingZeroes
+              }) ?? 0
+          })
+        : t('cart.basket_summary_desc_free', {
+            count: count ?? 0
+          })
     "
     :loading="loading"
   >
@@ -23,7 +31,8 @@
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useBasket } from "@upmind-automation/headless";
+import { useBasket, useConfig } from "@upmind-automation/headless";
+import { useMoney } from "@upmind-automation/headless";
 
 // --- components
 import Hero from "../../../components/hero/Hero.vue";
@@ -33,5 +42,7 @@ defineProps<{
 }>();
 
 const { t } = useI18n();
-const { count, summary } = useBasket();
+const { count, summary, meta } = useBasket();
+const { ui, data } = useConfig();
+const { formatPrice } = useMoney();
 </script>

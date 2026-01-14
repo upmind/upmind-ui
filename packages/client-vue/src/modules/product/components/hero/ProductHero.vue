@@ -4,28 +4,53 @@
       <slot name="prepend" />
 
       <hgroup>
-        <h1 :class="styles.header.title">
-          {{ productDetails?.title }}
-        </h1>
+        <div :class="styles.header.title.root">
+          <h1 :class="styles.header.title.text">
+            {{ meta.data.productName || props.productDetails.title }}
+          </h1>
+          <Badge
+            v-if="meta.ui.productBadge.isVisible && meta.data.productBadge"
+            v-bind="
+              isString(meta.data.productBadge)
+                ? { label: meta.data.productBadge }
+                : meta.data.productBadge
+            "
+            variant="minimal"
+            color="neutral"
+          />
+        </div>
+
         <DisplayPrice
-          v-if="props.productDetails?.displayPrice"
+          v-if="
+            meta.ui.productAnchorPrice.isVisible &&
+            props.productDetails?.displayPrice
+          "
           v-bind="props.productDetails.displayPrice"
           :class="styles.header.price"
         />
       </hgroup>
 
       <ProductDescription
-        v-if="productDetails?.description"
+        v-if="
+          productDetails?.description && meta.ui.productDescription.isVisible
+        "
         :class="styles.header.description"
         :description="productDetails?.description"
-        :lineclamp="true"
+        :lineclamp="meta.ui.productDescription.isClamped"
+        :lines="toNumber(meta.ui.productDescriptionClamp?.value)"
       />
+
+      <p
+        v-if="productDetails?.excerpt && meta.ui.productExcerpt.isVisible"
+        :class="styles.header.description"
+      >
+        {{ productDetails?.excerpt }}
+      </p>
 
       <slot name="append" />
     </div>
 
     <aside
-      v-if="props.image && stylesMeta.hasImage"
       :class="styles.header.aside"
       :style="{ '--details-h': `${height}px` }"
     >
@@ -33,6 +58,7 @@
         :class="styles.header.image"
         :product-details="props.productDetails"
         :images="props.productDetails?.images"
+        :fallback="meta.ui.productImageFallback.isVisible"
       />
     </aside>
   </section>
@@ -47,17 +73,18 @@ import { useElementSize } from "@vueuse/core";
 import DisplayPrice from "../terms/DisplayPrice.vue";
 import ProductDescription from "../card/ProductDescription.vue";
 import ProductImage from "./ProductImage.vue";
-import { useStyles } from "@upmind-automation/upmind-ui";
+import { useStyles, Badge } from "@upmind-automation/upmind-ui";
 
 // --- internal
 import config from "./product-hero.config";
 
 // --- utils
-import { isEmpty } from "lodash-es";
+import { isEmpty, isString, toNumber } from "lodash-es";
 
 // --- types
 import type { ProductHeaderProps } from "./types";
 import type { ImageItem } from "@upmind-automation/upmind-ui";
+import type { ComputedRef } from "vue";
 import type { ImageProps } from "@upmind-automation/upmind-ui";
 
 const props = withDefaults(defineProps<ProductHeaderProps>(), {
@@ -70,7 +97,8 @@ const stylesMeta = computed(() => ({
   hasImage: !!(props.productDetails?.imgUrl || !isEmpty(images.value))
 }));
 
-const styles = useStyles(["header"], stylesMeta, config);
+const styles = useStyles(["header", "header.title"], stylesMeta, config);
+
 const images = computed(() => {
   return props.productDetails?.images?.map(image => ({
     url: image.url,

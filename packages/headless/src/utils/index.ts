@@ -14,7 +14,7 @@ export * from "./useImageUrl";
 export * from "./useValidation";
 export * from "./useState";
 export * from "./useScripts";
-export * from "./useObject";
+export * from "./parseFlattened";
 
 export const DEBOUNCE_DELAY = 350;
 export const ANIMATION_DELAY = 500;
