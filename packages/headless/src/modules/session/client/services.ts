@@ -9,6 +9,7 @@ import { DetailedError, ErrorOrigin, responseCodes } from "../../../utils";
 
 // ---types
 import type { ClientContext } from "./types";
+import { Contexts } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 
@@ -17,7 +18,7 @@ async function load(_context: ClientContext, _event: any) {
   // and we need to check the token/get the user
   const { t } = useI18n();
 
-  const token = getTokenFromStorage("client");
+  const token = getTokenFromStorage(Contexts.CLIENT);
   if (isEmpty(token))
     return Promise.reject(
       new DetailedError(

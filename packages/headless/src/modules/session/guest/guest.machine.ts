@@ -50,7 +50,6 @@ import { GrantTypes } from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
 export default createMachine(
   {
-    //tsTypes: {} as import("./guest.machine.typegen").Typegen0,
     id: "sessionGuest",
     predictableActionArguments: true,
     initial: "loading",

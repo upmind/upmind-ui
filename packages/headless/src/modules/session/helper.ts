@@ -10,6 +10,7 @@ import { isEmpty } from "lodash-es";
 import type { State } from "xstate";
 import { getTokenFromStorage } from "./utils";
 import { stateMatches } from "../../utils";
+import { Contexts } from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
 // We have a valid AUTH session when we are logged in as a client (TODO: admin + actor)
 // this will fire every time we transition to a new state
@@ -40,7 +41,7 @@ const authCallback = (
 
   // If  we were logged in, ie a client, but now complete or done, unauthenticate
   if (
-    state.matches("client") &&
+    state.matches(Contexts.CLIENT) &&
     stateMatches(currentMachine, ["complete", "done"])
   ) {
     if (hasSession) {
@@ -61,7 +62,7 @@ const authCallback = (
   // > indicates we are logged in and have a valid access token
   if (
     hasSession &&
-    state.matches("client") &&
+    state.matches(Contexts.CLIENT) &&
     stateMatches(clientMachine, "available")
   ) {
     callback({ type: "AUTHENTICATED" });
@@ -71,7 +72,7 @@ const authCallback = (
   // > indicates we are not logged in and are generating a guest token
   else if (
     hasSession &&
-    state.matches("guest") &&
+    state.matches(Contexts.GUEST) &&
     stateMatches(guestMachine, "loading")
   ) {
     hasSession = false;
