@@ -192,7 +192,7 @@ export default [
       // Redirect to external storefront URL if available
       if (storefrontUrl.value) {
         window.location.replace(storefrontUrl.value);
-        return;
+        return false;
       }
 
       // Otherwise, if we allow storefront: redirect to internal catalogue
