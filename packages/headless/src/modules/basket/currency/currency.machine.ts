@@ -26,7 +26,6 @@ const { addError } = useFeedback();
 // -----------------------------------------------------------------------------
 export default createMachine(
   {
-    //tsTypes: {} as import("./currency.machine.typegen").Typegen0,
     id: "basketCurrencyManager",
     predictableActionArguments: true,
     initial: "loading",
@@ -94,7 +93,7 @@ export default createMachine(
           { target: "processing", cond: "shouldUpdate" },
           // if we should update but can't,  we dont have a basket,
           {
-            actions: ["clearAutoUpdate", "refreshBasket"],
+            actions: ["persistModel", "clearAutoUpdate", "refreshBasket"],
             cond: "cantUpdate"
           }
         ],
@@ -131,12 +130,8 @@ export default createMachine(
 
       processed: {
         id: "processed",
-        entry: "refreshBasket",
-        after: {
-          wait: {
-            target: "complete"
-          }
-        }
+        entry: sendParent({ type: "REFRESH" }),
+        after: { wait: { target: "complete" } }
       },
 
       complete: {
@@ -267,6 +262,7 @@ export default createMachine(
       isDirty: ({ model, baseModel }: CurrencyContext, _event) =>
         !isEqual(model?.id, baseModel?.id),
       hasBasket: ({ basketId }: CurrencyContext, _event) => !!basketId,
+      hasNoBasket: ({ basketId }: CurrencyContext, _event) => !basketId,
       hasChanged: (
         { model, basketId }: CurrencyContext,
         { data }: AnyEventObject

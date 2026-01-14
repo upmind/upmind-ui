@@ -17,12 +17,13 @@ import {
   slice,
   isEmpty,
   includes,
-  isString
+  isString,
+  isObject
 } from "lodash-es";
 
 // --- types
 import type { Token, User } from "./types";
-import type { IUser } from "@upmind-automation/types";
+import { Contexts, type IUser } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 function convertToCookie() {
@@ -61,15 +62,19 @@ export function getTokenFromStorage(actor_type?: Token["actor_type"]) {
   convertToCookie();
 
   const clientCookie = getCookie("upm_client_session") as string | undefined;
+  if (isObject(clientCookie))
+    (clientCookie as Token).actor_type ??= Contexts.CLIENT; // NB ensure the actor type in case of impersonation
 
   // const guestToken = localStorage.getItem(`guest/auth/token`);
   const guestCookie = getCookie("upm_guest_session") as string | undefined;
+  if (isObject(guestCookie))
+    (guestCookie as Token).actor_type ??= Contexts.GUEST; // NB ensure the actor type in case of impersonation
 
   let token: string | Token;
 
-  if (actor_type === "client") {
+  if (actor_type === Contexts.CLIENT) {
     token = clientCookie || "";
-  } else if (actor_type === "guest") {
+  } else if (actor_type === Contexts.GUEST) {
     token = guestCookie || "";
   } else {
     token = clientCookie || guestCookie || "";
@@ -99,7 +104,7 @@ export function persistTokenToStorage(token: Token) {
       )
     );
 
-  const type = token?.actor_type || "guest";
+  const type = token?.actor_type || Contexts.GUEST;
 
   // finally, persist the new token
   setCookie(`upm_${type}_session`, token, {
