@@ -4,12 +4,12 @@
       <template v-if="!isSlotHidden('product-details')" #product-details>
         <slot
           name="product-details"
-          :meta="meta"
+          :config-meta="configMeta"
           :product="product"
           :product-image="productImage"
         >
           <ProductHero
-            v-if="meta?.isAvailable && product?.productDetails"
+            v-if="productMeta?.isAvailable && product?.productDetails"
             :product-details="product.productDetails"
             :product-image="productImage()"
             :direction="
@@ -20,10 +20,11 @@
             :image="
               template !== BASKET_PRODUCT_TEMPLATE.TWO_COLUMN_LTR || isMobile
             "
+            :meta="configMeta"
           >
             <template #prepend>
               <Breadcrumb
-                v-if="meta?.isAvailable"
+                v-if="productMeta?.isAvailable"
                 :items="breadcrumbItems"
                 :variant="breadcrumbVariant"
                 size="lg"
@@ -51,7 +52,7 @@
           name="configuration"
           :product="product"
           :basket-product="basketProduct"
-          :meta="meta"
+          :product-meta="productMeta"
           :config-meta="configMeta"
           :do-resolve="doResolve"
           :do-reject="doReject"
@@ -59,7 +60,8 @@
           <Section :label="t('text.product_configuration')" icon="settings-04">
             <form @submit.prevent @reset.prevent>
               <ProductConfig
-                v-if="basketProduct && meta?.isAvailable"
+                v-if="basketProduct && productMeta?.isAvailable"
+                :meta="configMeta"
                 :item="basketProduct"
                 :model-value="basketProduct?.id"
                 :no-footer="true"
@@ -69,7 +71,7 @@
               />
 
               <ProductNotFound
-                v-else-if="meta?.isUnavailable"
+                v-else-if="productMeta?.isUnavailable"
                 :storefront-route="props.storefrontRoute"
               />
 
@@ -85,7 +87,8 @@
           :product="product"
           :model="model"
           :terms="terms"
-          :meta="meta"
+          :product-meta="productMeta"
+          :config-meta="configMeta"
           :do-resolve="doResolve"
           :update-quantity="updateQuantity"
           :update-term="updateTerm"
@@ -95,9 +98,9 @@
             icon="shopping-bag-02"
           >
             <Pricing
-              v-if="product && meta?.isAvailable"
+              v-if="product && productMeta?.isAvailable"
               :product="product"
-              :meta="meta"
+              :meta="productMeta"
               :template="props.template"
               :total="
                 (template === BASKET_PRODUCT_TEMPLATE.TWO_COLUMN_RTL &&
@@ -105,6 +108,11 @@
                 template === BASKET_PRODUCT_TEMPLATE.TWO_COLUMN_LTR ||
                 template === BASKET_PRODUCT_TEMPLATE.FULL
               "
+              :title="
+                configMeta.data.productName || product.productDetails.title
+              "
+              :options="configMeta.ui.productConfigOptionsSummary.isVisible"
+              :fields="configMeta.ui.productConfigFieldsSummary.isVisible"
             />
 
             <PricingSkeleton v-else />
@@ -112,17 +120,12 @@
         </slot>
       </template>
 
-      <template #markdown>
-        <slot
-          name="markdown"
-          :product="product"
-          :meta="meta"
-          :do-resolve="doResolve"
-        >
-          <PricingMarkdown
-            v-if="product && meta?.isAvailable"
-            :product="product"
-            @resolve="doResolve"
+      <template v-if="configMeta.ui.trustMessaging.isVisible" #markdown>
+        <slot name="markdown" :product="product" :meta="configMeta">
+          <Markdown
+            v-if="product?.productDetails"
+            data-testid="slots:summary-append"
+            :model-value="configMeta.data.trustMessagingMarkdown"
           />
         </slot>
       </template>
@@ -131,15 +134,15 @@
         <slot
           name="actions"
           :product="product"
-          :meta="meta"
+          :config-meta="configMeta"
           :template="props.template"
           :do-resolve="doResolve"
           :update-quantity="updateQuantity"
         >
           <BasketActions
-            v-if="product && meta?.isAvailable"
+            v-if="product && productMeta?.isAvailable"
             :product="product"
-            :meta="meta"
+            :meta="productMeta"
             :template="props.template"
             @resolve="doResolve"
             @update:quantity="updateQuantity"
@@ -148,12 +151,12 @@
       </template>
 
       <template #errors>
-        <ConfigErrors v-if="meta?.isAvailable" :meta="meta" />
+        <ConfigErrors v-if="productMeta?.isAvailable" :meta="productMeta" />
       </template>
 
       <template #total>
         <PricingTotal
-          v-if="product && meta?.isAvailable"
+          v-if="product && productMeta?.isAvailable"
           :pricing="product.pricing"
           footer
         />
@@ -188,14 +191,14 @@ import { useHeader } from "../../components/header/useHeader";
 import { useFooter } from "../../components/footer/useFooter";
 import { useLayout } from "../../components/layout/useLayout";
 import { useBreadcrumbs } from "../../composables/useBreadcrumbs";
+import { useConfig } from "@upmind-automation/headless";
 
 // --- components
-import { Breadcrumb } from "@upmind-automation/upmind-ui";
+import { Breadcrumb, Markdown } from "@upmind-automation/upmind-ui";
 import BasketActions from "./components/BasketActions.vue";
 import ConfigErrors from "../product/components/ConfigErrors.vue";
 import ConfigSkeleton from "../product/components/ConfigSkeleton.vue";
 import Pricing from "../product/components/pricing-list/Pricing.vue";
-import PricingMarkdown from "../product/components/pricing-list/PricingMarkdown.vue";
 import PricingSkeleton from "../product/components/pricing-list/PricingSkeleton.vue";
 import PricingTotal from "../product/components/pricing-list/PricingTotal.vue";
 import ProductConfig from "../product/components/config/Config.vue";
@@ -223,24 +226,23 @@ const supportedTemplates = {
 };
 // --- utils
 import { get, includes, take, isEmpty } from "lodash-es";
-import { isMobile } from "@upmind-automation/upmind-ui";
+import { isMobile, useThemes } from "@upmind-automation/upmind-ui";
 
 // --- types
-import { BreadcrumbVariant } from "@upmind-automation/headless";
+import { BreadcrumbVariant, UIContext } from "@upmind-automation/headless";
 import { BASKET_PRODUCT_TEMPLATE } from "./types";
 import type { BasketProductEditProps } from "./types";
 
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<BasketProductEditProps>(), {
-  template: BASKET_PRODUCT_TEMPLATE.TWO_COLUMN_RTL,
   hideSlots: () => []
 });
 
 const { t } = useI18n();
+const { set } = useThemes();
 
 const { navigateBack, navigateNext } = useRoutingEngine();
-
 const { configure } = useBasketProducts();
 const { basketProductId } = useQueryParams();
 
@@ -257,7 +259,7 @@ if (!productConfig) throw new Error("useProductConfig not provided");
 provide("useProductConfig", productConfig);
 
 const {
-  meta,
+  meta: productMeta,
   model,
   product,
   productImage,
@@ -266,39 +268,51 @@ const {
   terms
 } = productConfig;
 
+const configMeta = useConfig({
+  context: UIContext.CONFIGURE,
+  product: () => product.value,
+  provide: true
+});
+
 await isReady();
 
+set(configMeta.ui.theme.value);
+
 const isSlotHidden = (name: string) => includes(props.hideSlots, name);
+
+const template = computed(() => props.template || configMeta.ui.template.value);
 
 const templateVariant = computed(() =>
   get(
     supportedTemplates,
-    props.template,
+    template.value,
     supportedTemplates[BASKET_PRODUCT_TEMPLATE.TWO_COLUMN_RTL]
   )
 );
 
-const configMeta = computed(() => {
+const stylesMeta = computed(() => {
   return {
-    breadcrumbs:
-      product.value?.productDetails?.uiMeta?.uischema?.config?.breadcrumbs ??
-      BreadcrumbVariant.CATEGORY
+    breadcrumbs: configMeta.ui.breadcrumbs.value as BreadcrumbVariant,
+    heroImage:
+      (template.value !== BASKET_PRODUCT_TEMPLATE.TWO_COLUMN_LTR ||
+        isMobile.value) &&
+      configMeta.ui.productImages.isVisible
   };
 });
 
 const { items: breadcrumbItems, variant: breadcrumbVariant } = useBreadcrumbs({
   categories: () => {
     const breadcrumb = product.value?.productDetails?.breadcrumb ?? [];
-    return configMeta.value?.breadcrumbs === BreadcrumbVariant.CATEGORY
+    return stylesMeta.value?.breadcrumbs === BreadcrumbVariant.PARENT
       ? take(breadcrumb, 1)
       : breadcrumb;
   },
   route: () => props.catalogueRoute,
   storefrontRoute: () => props.storefrontRoute,
-  variant: () => configMeta.value?.breadcrumbs,
+  variant: () => stylesMeta.value?.breadcrumbs,
   currentItem: () =>
     product.value?.productDetails &&
-    configMeta.value?.breadcrumbs !== BreadcrumbVariant.CATEGORY
+    stylesMeta.value?.breadcrumbs !== BreadcrumbVariant.PARENT
       ? { label: product.value.productDetails.title }
       : undefined
 });

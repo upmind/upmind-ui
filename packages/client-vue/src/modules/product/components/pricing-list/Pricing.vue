@@ -8,6 +8,9 @@
       :processing="meta.isCalculating"
       :details="product.details"
       :total="total"
+      :title="title"
+      :options="options"
+      :fields="fields"
     />
   </header>
 </template>
@@ -29,9 +32,14 @@ const props = withDefaults(
     product: Product;
     meta: UseProductConfigMeta;
     total?: boolean;
+    title?: string;
+    options?: boolean;
+    fields?: boolean;
   }>(),
   {
-    total: true
+    total: true,
+    options: true,
+    fields: false
   }
 );
 </script>

@@ -17,14 +17,14 @@
           :monthly-from-current-price="
             props.price?.monthlyFromCurrentPrice ?? ''
           "
-          :free="props.meta.free ?? false"
+          :free="props.meta?.free ?? false"
           :ui-config="{
             pricing: { current: ['text-md-tight'] }
           }"
         />
         <span
           v-if="
-            props.meta.oneoff &&
+            props.meta?.oneoff &&
             props.term &&
             props.term > 0 &&
             !props.meta.free
@@ -43,14 +43,14 @@
           :monthly-from-current-price="
             props.price?.monthlyFromCurrentPrice ?? ''
           "
-          :free="props.meta.free ?? false"
+          :free="props.meta?.free ?? false"
           :ui-config="{
             pricing: { current: ['text-md-tight'] }
           }"
         />
         <span
           v-if="
-            props.meta.oneoff &&
+            props.meta?.oneoff &&
             props.term &&
             props.term > 0 &&
             !props.meta.free
@@ -73,7 +73,7 @@ import type { SubproductValue } from "@upmind-automation/headless";
 
 const props = defineProps<{
   price: SubproductValue["price"];
-  meta: SubproductValue["meta"];
+  meta?: SubproductValue["meta"];
   cycle: SubproductValue["cycle"];
   term?: number;
 }>();

@@ -30,6 +30,15 @@
         </slot>
       </template>
 
+      <template v-if="ui.trustMessaging.isVisible" #markdown>
+        <slot name="markdown">
+          <Markdown
+            data-testid="slots:summary-append"
+            :model-value="data.trustMessagingMarkdown"
+          />
+        </slot>
+      </template>
+
       <template v-if="meta.hasErrors" #errors>
         <slot name="errors">
           <CheckoutErrors v-show="showCheckout" />
@@ -56,6 +65,8 @@ import {
 } from "@upmind-automation/headless";
 import { useHeader } from "../../components/header/useHeader";
 import { useFooter } from "../../components/footer/useFooter";
+import { useConfig } from "@upmind-automation/headless";
+import { useThemes, Markdown } from "@upmind-automation/upmind-ui";
 
 // --- components
 import Back from "../../components/navigation/Back.vue";
@@ -84,6 +95,7 @@ const supportedTemplates = {
 
 // --- types
 import { CHECKOUT_TEMPLATE } from "./types";
+import { UIContext } from "@upmind-automation/headless";
 import { get, isEqual, includes } from "lodash-es";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
 
@@ -99,13 +111,20 @@ const props = withDefaults(
     storefrontRoute?: RouteLocationAsRelativeGeneric;
   }>(),
   {
-    template: CHECKOUT_TEMPLATE.TWO_COLUMN_LTR,
     hideSlots: () => []
   }
 );
 
-const { navigateNext, navigateBack, meta: routingMeta } = useRoutingEngine();
+const { set } = useThemes();
+const { navigateNext, navigateBack } = useRoutingEngine();
 const { attempts, meta, isReady, uischema, invoice, reset } = useBasket();
+
+const { ui, data } = useConfig({
+  context: UIContext.CHECKOUT,
+  provide: true
+});
+
+set(ui.theme.value);
 
 const isSlotHidden = (name: string) => includes(props.hideSlots, name);
 
@@ -113,10 +132,12 @@ const showCheckout = computed(
   () => !meta.value.isCheckout && !meta.value.isComplete
 );
 
+const template = computed(() => props.template || ui.template.value);
+
 const templateVariant = computed(() =>
   get(
     supportedTemplates,
-    props.template,
+    template.value,
     supportedTemplates[CHECKOUT_TEMPLATE.TWO_COLUMN_LTR]
   )
 );

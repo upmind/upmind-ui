@@ -33,7 +33,8 @@ import SummarySkeleton from "./SummarySkeleton.vue";
 import BasketTotal from "./BasketTotal.vue";
 
 // --- internal
-import { useBasket } from "@upmind-automation/headless";
+import { useBasket, useConfig } from "@upmind-automation/headless";
+import { useMoney } from "@upmind-automation/headless";
 import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./summary.config";
 
@@ -58,6 +59,8 @@ const emits = defineEmits(["edit"]);
 
 const { t } = useI18n();
 const { meta, products, summary } = useBasket();
+const { ui, data } = useConfig();
+const { formatPrice } = useMoney();
 
 const styles = useStyles(["summary", "summary.item"], props, config);
 
@@ -66,10 +69,19 @@ const productItems = computed((): DescriptionItem[] => {
 
   if (!isEmpty(summary.value?.products) && props.showProducts) {
     const productItems =
-      map(summary.value!.products, (product: any) => ({
-        term: product?.productDetails?.title || "",
-        description: product?.price?.basePrice || ""
-      })) ?? [];
+      map(summary.value!.products, (product: any) => {
+        const { data } = useConfig({
+          product
+        });
+
+        return {
+          term: data.productName || product?.productDetails?.title || "",
+          description:
+            formatPrice(product?.price?.basePrice, {
+              trimTrailingZeroes: data.trimTrailingZeroes
+            }) || ""
+        };
+      }) ?? [];
 
     items = concat(productItems, items);
   }
@@ -83,14 +95,20 @@ const subtotalItems = computed(() => {
   if (!isEmpty(summary.value?.discount)) {
     items.push({
       term: t("text.discount", products?.value?.length || 0),
-      description: summary?.value?.discount || ""
+      description:
+        formatPrice(summary?.value?.discount, {
+          trimTrailingZeroes: data.trimTrailingZeroes
+        }) || ""
     });
   }
 
   if (!isEmpty(summary.value?.subtotal)) {
     items.push({
       term: t("text.subtotal", products?.value?.length || 0),
-      description: summary?.value?.subtotal || ""
+      description:
+        formatPrice(summary?.value?.subtotal, {
+          trimTrailingZeroes: data.trimTrailingZeroes
+        }) || ""
     });
   }
 
@@ -98,7 +116,10 @@ const subtotalItems = computed(() => {
     forEach(summary.value!.taxes, tax => {
       items.push({
         term: tax?.title || "",
-        description: tax?.amount || ""
+        description:
+          formatPrice(tax?.amount, {
+            trimTrailingZeroes: data.trimTrailingZeroes
+          }) || ""
       });
     });
   }

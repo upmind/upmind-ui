@@ -4,7 +4,7 @@
       <Skeleton class="rounded-lg">
         <Image
           v-if="!stylesMeta.hideImage"
-          :ratio="meta?.image?.ratio as ImageProps['ratio']"
+          :ratio="stylesMeta.imageRatio as ImageProps['ratio']"
           :class="styles.product.image"
         />
       </Skeleton>
@@ -57,9 +57,9 @@ import { computed } from "vue";
 
 // --- components
 import { Skeleton, Image, useStyles } from "@upmind-automation/upmind-ui";
-import { useBrand } from "@upmind-automation/headless";
 
 // --- internal
+import { useConfig } from "@upmind-automation/headless";
 import config from "./card.config";
 
 // --- types
@@ -68,19 +68,17 @@ import type { ProductCardSkeletonProps } from "./types";
 
 const props = defineProps<ProductCardSkeletonProps>();
 
-const { uiCart } = useBrand();
-
-const meta = computed(() => uiCart.value?.ui?.product);
+const { ui } = useConfig();
 
 const stylesMeta = computed(() => ({
-  variant: uiCart.value?.ui?.product?.variant || "default",
-  imageRatio: meta.value?.image?.ratio as ImageProps["ratio"],
-  hideBenefits: meta.value?.card?.benefits?.hide,
-  hideImage: meta.value?.image?.hide,
-  hideCarousel: meta.value?.image?.carousel,
-  hidePrice: meta.value?.card?.terms?.hide,
-  hideDescription: meta.value?.card?.description?.hide,
-  hideTerms: (meta.value?.card?.terms?.hide || props.hideTerms) ?? true
+  variant: ui.productStyle.value,
+  imageRatio: ui.productImageRatio.value,
+  hideBenefits: ui.productBenefits.isHidden,
+  hideImage: ui.productImages.isHidden,
+  hideDescription: ui.productDescription.isHidden,
+  hidePrice: ui.productPriceSummary.isHidden,
+  hideTerms: ui.productTermSelector.isHidden,
+  hideTermSummary: ui.termSelectorSummary.isHidden
 }));
 
 const randomWidth = (baseWidth: string): string => {

@@ -3,6 +3,10 @@
     <CategoriesHeader
       v-model="modelValue"
       v-bind="{ ...props, ...currentCategory }"
+      :title="props.title"
+      :description="props.description"
+      :excerpt="props.excerpt"
+      :badge="props.badge"
     >
       <template #prepend>
         <slot name="prepend" />
@@ -58,6 +62,7 @@ import {
   type ProductCategory,
   type UseProductCategories
 } from "@upmind-automation/headless";
+import { useConfig } from "@upmind-automation/headless";
 import { isEmpty } from "lodash-es";
 import { useStyles, Skeleton } from "@upmind-automation/upmind-ui";
 import config from "../catalogue.config";
@@ -96,5 +101,11 @@ const hasCategories = computed(() => {
   return !isEmpty(displayCategories.value) && !meta.value.isLoading;
 });
 
-const styles = useStyles(["categories"], {}, config);
+const { ui } = useConfig().with({ category: currentCategory });
+
+const styles = useStyles(
+  ["categories"],
+  computed(() => ({ layout: ui.categoryListLayout.value })),
+  config
+);
 </script>

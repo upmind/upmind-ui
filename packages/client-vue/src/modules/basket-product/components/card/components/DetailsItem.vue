@@ -10,9 +10,9 @@
       </template>
       <template v-else>{{ title }}</template>
 
-      <template v-if="quantity && quantity > 1">
+      <template v-if="(quantity || 0) > 1">
         (x{{ quantity
-        }}<template v-if="unitPrice && unitPrice > 1">
+        }}<template v-if="(unitPrice || 0) > 1">
           @ {{ unitPriceFormatted }}</template
         >)
       </template>
@@ -42,7 +42,11 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { parseBillingCycle } from "@upmind-automation/headless";
+import {
+  parseBillingCycle,
+  useMoney,
+  useConfig
+} from "@upmind-automation/headless";
 
 // --- components
 import { Icon, Tooltip } from "@upmind-automation/upmind-ui";
@@ -51,30 +55,36 @@ import { isEmpty } from "lodash-es";
 
 // --- types
 import type {
-  ProductSummaryDetailWithPrice,
-  ProductSummaryDetail
+  ProductSummaryDetail,
+  PriceDetail
 } from "@upmind-automation/headless";
 import { has } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
-const props = defineProps<
-  ProductSummaryDetail | ProductSummaryDetailWithPrice
->();
+interface DetailsItemProps extends ProductSummaryDetail {
+  price?: PriceDetail;
+}
+
+const props = defineProps<DetailsItemProps>();
 
 const { t } = useI18n();
+const { ui, data } = useConfig();
+const { formatPrice } = useMoney();
 
 const showPlusIcon = computed(
-  () =>
-    !props.meta?.overrides &&
-    "price" in props &&
-    props?.price?.currentAmount > 0
+  () => !props.meta?.overrides && (props?.price?.currentAmount ?? 0) > 0
 );
 
-const hasPricing = computed(() => "price" in props);
+const hasPricing = computed(() => has(props, "price"));
 
 const safePrice = computed(() => {
-  return "price" in props ? props.price?.configuration?.totalFormatted : "";
+  return has(props, "price")
+    ? formatPrice(props.price?.configuration?.totalFormatted, {
+        zeroPriceDisplayIsLabel: ui.zeroPriceDisplay.isLabel,
+        trimTrailingZeroes: data.trimTrailingZeroes
+      })
+    : "";
 });
 
 const showTermLabel = computed(
@@ -82,10 +92,15 @@ const showTermLabel = computed(
 );
 
 const unitPrice = computed(() => {
-  return "price" in props ? props.price?.unit?.total : "";
+  return has(props, "price") ? props.price?.unit?.total : "";
 });
 
 const unitPriceFormatted = computed(() => {
-  return "price" in props ? props.price?.unit?.totalFormatted : "";
+  return has(props, "price")
+    ? formatPrice(props.price?.unit?.totalFormatted, {
+        zeroPriceDisplayIsLabel: ui.zeroPriceDisplay.isLabel,
+        trimTrailingZeroes: data.trimTrailingZeroes
+      })
+    : "";
 });
 </script>

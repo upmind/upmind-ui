@@ -13,7 +13,6 @@ import { useRoute } from "vue-router";
 // --- components
 import {
   UpmRecommendations,
-  useRoutingEngine,
   LAYOUT_VARIANTS
 } from "@upmind-automation/client-vue";
 
