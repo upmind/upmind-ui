@@ -74,7 +74,7 @@ export default {
     indicatorDot: cva("text-control-checked-contrast h-2 w-2 fill-current"),
     content: {
       label: cva("text-md-tight text-display font-medium"),
-      secondaryLabel: cva("text-md-tight text-display font-medium"),
+      secondaryLabel: cva("text-md-tight text-muted font-medium"),
       description: cva("text-sm-tight text-base font-normal"),
       secondaryDescription: cva("text-muted text-sm-tight font-normal")
     }

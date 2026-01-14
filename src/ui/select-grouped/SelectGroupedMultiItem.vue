@@ -34,16 +34,22 @@
         >
           <div :class="styles.selectGrouped.header.root">
             <div class="flex flex-1 flex-col">
-              <h5 :class="styles.selectGrouped.content.label">
-                {{
-                  props.group.name || selectedItem?.label || "Select an option"
-                }}
-              </h5>
+              <div class="flex items-center gap-2">
+                <h5 :class="styles.selectGrouped.content.label">
+                  {{ props.group.name }}
+                </h5>
+                <span
+                  v-if="selectedItem?.label"
+                  :class="styles.selectGrouped.content.secondaryLabel"
+                >
+                  {{ selectedItem.label }}
+                </span>
+              </div>
               <p
-                v-if="selectedItem?.description || props.group.description"
+                v-if="props.group.description"
                 :class="styles.selectGrouped.content.description"
               >
-                {{ selectedItem?.description || props.group.description }}
+                {{ props.group.description }}
               </p>
             </div>
             <Icon
