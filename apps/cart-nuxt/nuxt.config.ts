@@ -112,10 +112,7 @@ export default defineNuxtConfig({
   // These routes are handled by middleware/routing engine
   hooks: {
     "pages:extend"(pages) {
-      pages.push({
-        name: "storefront",
-        path: "/storefront"
-      });
+      pages.push({ name: "storefront", path: "/storefront" });
     }
   },
 
