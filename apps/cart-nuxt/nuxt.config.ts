@@ -108,6 +108,17 @@ export default defineNuxtConfig({
     }
   },
 
+  // Register virtual routes (routes without page files)
+  // These routes are handled by middleware/routing engine
+  hooks: {
+    "pages:extend"(pages) {
+      pages.push({
+        name: "storefront",
+        path: "/storefront"
+      });
+    }
+  },
+
   // App configuration (SEO defaults, etc.)
   app: {
     head: {
