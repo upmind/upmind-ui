@@ -33,7 +33,7 @@ import {
 } from "lodash-es";
 
 // --- types
-import type { IBasket } from "@upmind-automation/types";
+import { Contexts, type IBasket } from "@upmind-automation/types";
 import type { BasketContext } from "./types";
 import type { AnyEventObject } from "xstate";
 import { CurrencyModel } from "./currency/types";
@@ -47,8 +47,8 @@ async function load(context: BasketContext, _event: AnyEventObject) {
 
   // check if we are logged in as a client
   // then try to get any previous guest token a
-  const client_token = getTokenFromStorage("client");
-  const guest_token = getTokenFromStorage("guest");
+  const client_token = getTokenFromStorage(Contexts.CLIENT);
+  const guest_token = getTokenFromStorage(Contexts.GUEST);
 
   // if we are a client AND we have a guest token, we need to claim the basket
   if (client_token && guest_token) {
@@ -62,7 +62,7 @@ async function load(context: BasketContext, _event: AnyEventObject) {
     }).then(() => {
       // because we have successfully claimed the basket, we can dump the guest token
       // we only do it here, as we may need to claim the basket again if something went wrong
-      dumpTokenFromStorage("guest");
+      dumpTokenFromStorage(Contexts.GUEST);
     });
   }
 
