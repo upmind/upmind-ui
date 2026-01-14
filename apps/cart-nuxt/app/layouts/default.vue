@@ -47,7 +47,7 @@ import {
 } from "@upmind-automation/client-vue";
 import { useStyles } from "@upmind-automation/upmind-ui";
 import { includes, get } from "lodash-es";
-import { ROUTE } from "~/router/types";
+import { ROUTE } from "~/funnels/types";
 
 // -----------------------------------------------------------------------------
 const route = useRoute();

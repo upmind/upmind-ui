@@ -1,7 +1,7 @@
 // --- internal
-import services from "../services";
-import actions from "../actions";
-import guards from "../guards";
+import services from "./engine/services";
+import actions from "./engine/actions";
+import guards from "./engine/guards";
 
 // --- types
 import {
@@ -9,7 +9,7 @@ import {
   assign,
   type FunnelProps
 } from "@upmind-automation/client-vue";
-import { ROUTE } from "../types";
+import { ROUTE } from "./types";
 
 // -----------------------------------------------------------------------------
 

@@ -10,7 +10,7 @@
 import { UpmProductConfigure, useBrand } from "@upmind-automation/client-vue";
 
 // --- internal
-import { ROUTE } from "~/router/types";
+import { ROUTE } from "~/funnels/types";
 
 const { storefrontRoute } = useBrand();
 

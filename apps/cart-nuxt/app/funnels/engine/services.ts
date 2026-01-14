@@ -1,4 +1,4 @@
-import { ROUTE } from "./types";
+import { ROUTE } from "../types";
 import {
   type FunnelContext,
   useBasket,

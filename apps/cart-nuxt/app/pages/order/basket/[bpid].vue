@@ -10,7 +10,7 @@
 import { UpmBasketProductEdit } from "@upmind-automation/client-vue";
 
 // --- internal
-import { ROUTE } from "~/router/types";
+import { ROUTE } from "~/funnels/types";
 
 definePageMeta({
   name: ROUTE.BASKET_PRODUCT_EDIT

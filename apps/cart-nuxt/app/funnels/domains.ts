@@ -1,7 +1,7 @@
 // --- internal
-import actions from "../actions";
-import guards from "../guards";
-import services from "../services";
+import actions from "./engine/actions";
+import guards from "./engine/guards";
+import services from "./engine/services";
 
 // --- utils
 
@@ -14,7 +14,7 @@ import {
   getDomainBasketProducts
 } from "@upmind-automation/client-vue";
 
-import { ROUTE } from "../types";
+import { ROUTE } from "./types";
 import { isEmpty } from "lodash-es";
 
 // -----------------------------------------------------------------------------
