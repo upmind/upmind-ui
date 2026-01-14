@@ -1,19 +1,7 @@
 <template>
   <NuxtLayout>
-    <!-- Page transition loading -->
-    <UpmLoading v-if="isLoading" />
-    <NuxtPage v-show="!isLoading" />
+    <NuxtPage />
   </NuxtLayout>
 </template>
 
-<script lang="ts" setup>
-/**
- * Root App Component
- *
- * Uses UpmLoading for page transitions.
- * App initialization is handled by the upmind plugin.
- */
-import { UpmLoading } from "@upmind-automation/client-vue";
-
-const { isLoading } = useLoadingIndicator();
-</script>
+<script lang="ts" setup></script>
