@@ -1,6 +1,6 @@
 <template>
   <div
-    :class="cn(styles.selectGrouped.dropdown.item)"
+    :class="styles.selectGrouped.dropdown.item"
     role="option"
     :aria-selected="isSelected"
     :data-state="isSelected ? 'checked' : 'unchecked'"
@@ -91,7 +91,6 @@ const props = defineProps<{
   item: SelectGroupedItemProps;
   modelValue?: string | string[];
   multiple?: boolean;
-  uiConfig?: { selectGrouped: any };
 }>();
 
 const emits = defineEmits<{
@@ -112,7 +111,7 @@ const styles = useStyles<typeof config>(
   ["selectGrouped", "selectGrouped.dropdown", "selectGrouped.content"],
   meta,
   config,
-  props.uiConfig ?? {}
+  {}
 );
 
 function doAction(action: SelectGroupedItemActionProps, $event: Event) {

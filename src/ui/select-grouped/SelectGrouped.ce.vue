@@ -18,7 +18,6 @@
       :required="props.required"
       :disabled="props.disabled"
       :columns="props.columns"
-      :group-class="props.groupClass"
       :uiConfig="props.uiConfig"
       :data-hover="props.dataHover"
       :data-focus="props.dataFocus"
@@ -62,8 +61,7 @@ const props = withDefaults(defineProps<SelectGroupedProps>(), {
   multiple: false,
   required: false,
   disabled: false,
-  class: "",
-  groupClass: ""
+  class: ""
 });
 
 const emits = defineEmits<{

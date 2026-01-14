@@ -50,7 +50,6 @@ export interface SelectGroupedProps {
   noneText?: string;
   // --- styles
   class?: HTMLAttributes["class"];
-  groupClass?: HTMLAttributes["class"];
   uiConfig?: { selectGrouped: CxOptions };
   // --- a11y
   ariaLabel?: string;
