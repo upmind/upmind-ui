@@ -76,7 +76,7 @@ export default createMachine(
                 },
                 {
                   target: "#complete",
-                  actions: ["clearAutoUpdate"]
+                  actions: ["clearAutoUpdate", "refreshBasket"]
                 }
               ],
               onError: {
@@ -94,17 +94,7 @@ export default createMachine(
           { target: "processing", cond: "shouldUpdate" },
           // if we should update but can't,  we dont have a basket,
           {
-            actions: [
-              "clearAutoUpdate",
-              sendParent(
-                ({ model }: CurrencyContext, _event: AnyEventObject) => {
-                  return {
-                    type: "REFRESH",
-                    data: { currency: model, currency_id: model?.id }
-                  };
-                }
-              )
-            ],
+            actions: ["clearAutoUpdate", "refreshBasket"],
             cond: "cantUpdate"
           }
         ],
@@ -141,7 +131,7 @@ export default createMachine(
 
       processed: {
         id: "processed",
-        entry: sendParent({ type: "REFRESH" }),
+        entry: "refreshBasket",
         after: {
           wait: {
             target: "complete"
@@ -237,6 +227,15 @@ export default createMachine(
       clearAutoUpdate: assign({
         autoupdate: false
       }),
+
+      refreshBasket: sendParent(
+        ({ model }: CurrencyContext, _event: AnyEventObject) => {
+          return {
+            type: "REFRESH",
+            data: { currency: model, currency_id: model?.id }
+          };
+        }
+      ),
 
       // ---
 
