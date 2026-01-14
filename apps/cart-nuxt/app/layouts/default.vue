@@ -13,8 +13,9 @@
     </UpmHeader>
 
     <UpmMain>
-      <!-- Page content from NuxtPage -->
-      <UpmRoot>
+      <UpmLoading v-if="isLoading" />
+      <UpmRoot v-show="!isLoading">
+        <!-- Page content from NuxtPage -->
         <slot />
       </UpmRoot>
     </UpmMain>
@@ -51,6 +52,8 @@ import { ROUTE } from "~/router/types";
 // -----------------------------------------------------------------------------
 const route = useRoute();
 const router = useRouter();
+
+const { isLoading } = useLoadingIndicator();
 
 const { meta: basketMeta } = useBasket();
 const { meta: sessionMeta } = useSession();
