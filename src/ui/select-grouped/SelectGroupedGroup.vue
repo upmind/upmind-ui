@@ -21,20 +21,8 @@
     @keydown.space.prevent="toggleSelection(singleItem!.value)"
   >
     <span :class="styles.selectGrouped.radio">
-      <span
-        :class="
-          cn(
-            'flex aspect-square h-4 w-4 shrink-0 cursor-pointer items-center justify-center rounded-full transition-none duration-0',
-            isSelected
-              ? 'shadow-control-checked bg-control-checked'
-              : 'shadow-control-default hover:shadow-control-hover'
-          )
-        "
-      >
-        <Circle
-          v-if="isSelected"
-          class="text-control-checked-contrast h-2 w-2 fill-current"
-        />
+      <span :class="styles.selectGrouped.indicator">
+        <Circle v-if="isSelected" :class="styles.selectGrouped.indicatorDot" />
       </span>
     </span>
     <slot
@@ -101,7 +89,7 @@
     <Collapsible v-model:open="isOpen">
       <!-- Collapsible header/trigger -->
       <div
-        :class="cn(styles.selectGrouped.group.root, props.groupClass)"
+        :class="styles.selectGrouped.group.root"
         role="combobox"
         :aria-expanded="isOpen"
         :aria-haspopup="'listbox'"
@@ -119,19 +107,10 @@
         @keydown.up="handleArrowUp"
       >
         <span :class="styles.selectGrouped.radio">
-          <span
-            :class="
-              cn(
-                'flex aspect-square h-4 w-4 shrink-0 cursor-pointer items-center justify-center rounded-full transition-none duration-0',
-                hasSelection
-                  ? 'shadow-control-checked bg-control-checked'
-                  : 'shadow-control-default hover:shadow-control-hover'
-              )
-            "
-          >
+          <span :class="styles.selectGrouped.indicator">
             <Circle
               v-if="hasSelection"
-              class="text-control-checked-contrast h-2 w-2 fill-current"
+              :class="styles.selectGrouped.indicatorDot"
             />
           </span>
         </span>
@@ -154,7 +133,7 @@
               </p>
             </div>
             <Icon
-              icon="lucide:chevron-down"
+              icon="chevron-down"
               :class="
                 cn(styles.selectGrouped.header.chevron, isOpen && 'rotate-180')
               "
@@ -180,7 +159,7 @@
             :uiConfig="props.uiConfig"
             @select="onItemSelect"
           >
-            <template #item="slotProps">
+            <template v-if="$slots['dropdown-item']" #item="slotProps">
               <slot
                 name="dropdown-item"
                 v-bind="{ ...slotProps, group: props.group }"
@@ -247,7 +226,9 @@ const groupId = useId();
 const isOpen = ref(false);
 
 const meta = computed(() => ({
-  columns: props.columns
+  columns: props.columns,
+  isOpen,
+  hasSelection
 }));
 
 const styles = useStyles<typeof config>(

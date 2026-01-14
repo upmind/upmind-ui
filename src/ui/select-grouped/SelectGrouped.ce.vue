@@ -28,10 +28,10 @@
       <template #item="slotProps">
         <slot name="item" v-bind="slotProps" />
       </template>
-      <template #header="slotProps">
+      <template v-if="$slots.header" #header="slotProps">
         <slot name="header" v-bind="slotProps" />
       </template>
-      <template #dropdown-item="slotProps">
+      <template v-if="$slots['dropdown-item']" #dropdown-item="slotProps">
         <slot name="dropdown-item" v-bind="slotProps" />
       </template>
     </SelectGroupedGroup>

@@ -1,5 +1,4 @@
 import { cva } from "class-variance-authority";
-import { ringClasses } from "../../assets/styles";
 
 export const groupSizeVariants = cva("", {
   variants: {
@@ -19,15 +18,22 @@ export const groupSizeVariants = cva("", {
 });
 
 export const groupVariants = cva(
-  `bg-control-surface text-control-foreground group control-radius shadow-control-default hover:shadow-control-hover focus-within:ring-ring data-[state=checked]:ring-ring flex cursor-pointer list-none gap-2 rounded py-4 pr-4 pl-3 font-normal transition-all duration-200 focus-within:ring-2 focus-within:ring-offset-2 data-[state=checked]:ring-2 data-[state=checked]:ring-offset-2 ${ringClasses}`
+  `bg-control-surface text-control-foreground group control-radius shadow-control-default hover:shadow-control-hover focus:ring-ring relative z-10 flex cursor-pointer list-none gap-2 rounded py-4 pr-4 pl-3 font-normal transition-all duration-200 outline-none focus:ring-2 focus:ring-offset-2`,
+  {
+    variants: {
+      isOpen: {
+        true: "rounded-b-none"
+      }
+    }
+  }
 );
 
 export const dropdownVariants = cva(
-  "bg-control-surface mt-2 w-full overflow-hidden rounded-md"
+  "bg-control-surface control-radius border-border w-full overflow-hidden rounded-t-none border border-t-0"
 );
 
 export const dropdownItemVariants = cva(
-  `hover:bg-muted/50 data-[state=checked]:bg-muted/30 flex cursor-pointer items-center gap-3 px-4 py-3 transition-colors ${ringClasses}`
+  `hover:bg-muted/50 data-[state=checked]:bg-muted/30 border-border flex cursor-pointer items-center gap-3 border-t px-4 py-3 transition-colors outline-none first:border-t-0`
 );
 
 export const rootVariants = cva("grid w-full grid-cols-12 gap-2");
@@ -52,11 +58,20 @@ export default {
     },
     radio: cva("flex shrink-0 items-center justify-center"),
     indicator: cva(
-      "border-muted data-[state=checked]:border-primary data-[state=checked]:bg-primary flex h-4 w-4 items-center justify-center rounded-full border-2 transition-colors"
+      "flex aspect-square h-4 w-4 shrink-0 cursor-pointer items-center justify-center rounded-full transition-none duration-0",
+      {
+        variants: {
+          hasSelection: {
+            true: "shadow-control-checked bg-control-checked",
+            false: "shadow-control-default hover:shadow-control-hover"
+          }
+        },
+        defaultVariants: {
+          hasSelection: false
+        }
+      }
     ),
-    indicatorDot: cva(
-      "h-2 w-2 rounded-full bg-white opacity-0 transition-opacity data-[state=checked]:opacity-100"
-    ),
+    indicatorDot: cva("text-control-checked-contrast h-2 w-2 fill-current"),
     content: {
       label: cva("text-md-tight text-display font-medium"),
       secondaryLabel: cva("text-md-tight text-display font-medium"),
