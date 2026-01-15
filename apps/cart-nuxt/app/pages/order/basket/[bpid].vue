@@ -6,11 +6,18 @@
 </template>
 
 <script lang="ts" setup>
-// --- components
 import { UpmBasketProductEdit } from "@upmind-automation/client-vue";
-
-// --- internal
 import { ROUTE } from "~/funnels/types";
+
+// SEO: Basket product edit page - noindex (user-specific cart content)
+useHead({
+  title: "Edit Cart Item"
+});
+
+useSeoMeta({
+  description: "Edit your cart item configuration.",
+  robots: "noindex, nofollow"
+});
 
 definePageMeta({
   name: ROUTE.BASKET_PRODUCT_EDIT

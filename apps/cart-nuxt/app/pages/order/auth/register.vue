@@ -7,11 +7,17 @@
 </template>
 
 <script lang="ts" setup>
-// --- components
 import { UpmSessionRegister } from "@upmind-automation/client-vue";
-
-// --- internal
 import { ROUTE } from "~/funnels/types";
+
+// SEO: Registration page
+useHead({
+  title: "Create Account"
+});
+
+useSeoMeta({
+  description: "Create a new account to get started."
+});
 
 definePageMeta({
   name: ROUTE.SESSION_REGISTER

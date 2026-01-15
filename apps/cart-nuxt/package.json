@@ -43,6 +43,8 @@
   },
   "dependencies": {
     "@formkit/auto-animate": "^0.8.2",
+    "@nuxtjs/seo": "^3.3.0",
+    "@nuxtjs/web-vitals": "^0.2.7",
     "@sentry/nuxt": "^10.34.0",
     "@sentry/vue": "^10.4.0",
     "@tailwindcss/typography": "^0.5.16",

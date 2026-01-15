@@ -7,11 +7,18 @@
 </template>
 
 <script lang="ts" setup>
-// --- components
 import { UpmBasket } from "@upmind-automation/client-vue";
-
-// --- internal
 import { ROUTE } from "~/funnels/types";
+
+// SEO: Shopping cart page - noindex as cart contents are user-specific
+useHead({
+  title: "Your Cart"
+});
+
+useSeoMeta({
+  description: "Review your cart items before checkout.",
+  robots: "noindex, nofollow" // Cart pages should not be indexed
+});
 
 definePageMeta({
   name: ROUTE.BASKET

@@ -6,16 +6,18 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
-import { computed } from "vue";
-
-// --- components
 import { UpmCatalogue } from "@upmind-automation/client-vue";
-
-// --- types
 import { ROUTE } from "~/funnels/types";
 
-// -----------------------------------------------------------------------------
+// SEO: Collection page with product listings
+useHead({
+  title: "Shop"
+});
+
+useSeoMeta({
+  description:
+    "Browse our product catalogue and find the perfect solution for your needs."
+});
 
 definePageMeta({
   name: ROUTE.CATALOGUE

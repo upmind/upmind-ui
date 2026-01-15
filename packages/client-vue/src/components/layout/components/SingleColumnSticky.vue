@@ -98,7 +98,9 @@ const justifyDirection = computed(() => {
  * @param node The DOM node to check.
  * @returns True if the node is effectively empty, false otherwise.
  */
-const hasSignificantContent = (node: Node): boolean => {
+const hasSignificantContent = (node: Node | undefined | null): boolean => {
+  if (!node) return false;
+
   // Node types: 1 (Element), 3 (Text), 8 (Comment)
   if (node.nodeType === Node.COMMENT_NODE) {
     return false;
@@ -128,7 +130,7 @@ useMutationObserver(
   content,
   mutations => {
     visible.value = content.value?.$el
-      ? hasSignificantContent(content.value.$el)
+      ? hasSignificantContent(content.value?.$el)
       : false;
   },
   {
