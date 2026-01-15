@@ -1159,6 +1159,9 @@ importers:
       '@types/object-hash':
         specifier: ^3.0.6
         version: 3.0.6
+      '@types/psl':
+        specifier: ^1.11.0
+        version: 1.11.0
       '@typescript-eslint/eslint-plugin':
         specifier: ^8.39.1
         version: 8.50.0(@typescript-eslint/parser@8.50.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)
@@ -5096,6 +5099,10 @@ packages:
 
   '@types/paypal-checkout-components@4.0.8':
     resolution: {integrity: sha512-Z3IWbFPGdgL3O+Bg+TyVmMT8S3uGBsBjw3a8uRNR4OlYWa9m895djENErJMYU8itoki9rtcQMzoHOSFn8NFb1A==}
+
+  '@types/psl@1.11.0':
+    resolution: {integrity: sha512-OeASqmnreaSJyxwljqCZjRIf7jpbwswaqbSPahE99PZrizNAOXEl9HRWhXvCt3fkAc/WuF8wcZ6zkDHXaE7X4g==}
+    deprecated: This is a stub types definition. psl provides its own type definitions, so you do not need this installed.
 
   '@types/react@19.2.7':
     resolution: {integrity: sha512-MWtvHrGZLFttgeEj28VXHxpmwYbor/ATPYbBfSFZEIRK0ecCFLl2Qo55z52Hss+UV9CRN7trSeq1zbgx7YDWWg==}
@@ -15154,6 +15161,10 @@ snapshots:
       parse-path: 7.1.0
 
   '@types/paypal-checkout-components@4.0.8': {}
+
+  '@types/psl@1.11.0':
+    dependencies:
+      psl: 1.15.0
 
   '@types/react@19.2.7':
     dependencies:

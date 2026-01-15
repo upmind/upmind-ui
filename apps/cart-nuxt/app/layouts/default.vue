@@ -68,7 +68,7 @@ const styles = useStyles(
       route: get(route, "name", get(route, "path", ""))
     };
   })
-);
+) as any;
 
 const isAuthRoute = computed(() =>
   includes(

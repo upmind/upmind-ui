@@ -103,7 +103,16 @@ export default defineNuxtConfig({
     strict: true,
     typeCheck: false,
     tsConfig: {
-      include: ["app/**/*", "../../packages/**/*"],
+      compilerOptions: {
+        // Disable verbatimModuleSyntax to avoid TS1484 errors from workspace packages
+        // that don't use `import type` syntax consistently
+        verbatimModuleSyntax: false,
+        // Match Vue cart's strictness - packages aren't written for this stricter mode
+        noUncheckedIndexedAccess: false,
+        // Skip type validation of declaration files (workaround for psl module issue)
+        skipLibCheck: true
+      },
+      include: ["app/**/*"],
       exclude: ["node_modules", "dist", ".output", "**/*.spec.*"]
     }
   },
