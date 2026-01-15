@@ -8,7 +8,6 @@ import productMachine from "../product/product.machine";
 import { useBasket } from "../basket";
 import { useDataLayer, useI18n } from "../system";
 import { useProductConfig } from "../product";
-const { dataLayer } = useDataLayer();
 
 // --- utils
 import { isActor } from "xstate/lib/utils";
@@ -213,7 +212,10 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
     await isReady(); // NB wait for everything to finish loading
     getProduct()
       .then(product => {
-        dataLayer({ event: "select_item" }).withItems(product).push();
+        useDataLayer()
+          .dataLayer({ event: "select_item" })
+          .withItems(product)
+          .push();
       })
       .catch(() => {
         /* do nothing*/

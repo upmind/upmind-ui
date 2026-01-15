@@ -18,7 +18,7 @@ import {
   DetailedError,
   ErrorOrigin,
   responseCodes,
-  ResponseError,
+  type ResponseError,
   unflattenErrors,
   useTime
 } from "../../utils";

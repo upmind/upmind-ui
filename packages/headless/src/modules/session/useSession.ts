@@ -21,7 +21,7 @@ import {
   useContext,
   useChildActor,
   ErrorOrigin,
-  ResponseError
+  type ResponseError
 } from "../../utils";
 
 // ---types
@@ -31,9 +31,9 @@ import type {
   SessionTransfer,
   User
 } from "./types";
-import { ErrorObject } from "ajv";
-import { GuestContext } from "./guest/types";
-import { ClientContext } from "./client/types";
+import { type ErrorObject } from "ajv";
+import { type GuestContext } from "./guest/types";
+import { type ClientContext } from "./client/types";
 export type { User, SessionTransfer, IAuthTransfer } from "./types";
 // -----------------------------------------------------------------------------
 

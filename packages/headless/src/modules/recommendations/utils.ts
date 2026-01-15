@@ -33,7 +33,11 @@ import type { IBasket, IBasketProduct } from "@upmind-automation/types";
 import type { Recommendation, RelatedProduct } from "./types";
 import type { Badge } from "../config/schema";
 import { calculateBillingTerm } from "../product/utils";
-import { ProductDetails, TermDetails, IProductConfig } from "../product";
+import {
+  type ProductDetails,
+  type TermDetails,
+  type IProductConfig
+} from "../product";
 import { useConfig } from "../config/useConfig";
 
 // ---------------------------------------------------------------------------

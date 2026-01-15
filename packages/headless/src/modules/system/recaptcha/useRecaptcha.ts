@@ -17,7 +17,7 @@ import {
   stateMatches,
   contextMatches,
   ErrorOrigin,
-  ResponseError
+  type ResponseError
 } from "../../../utils";
 
 // --- types

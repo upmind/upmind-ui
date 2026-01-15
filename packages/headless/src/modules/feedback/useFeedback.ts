@@ -1,5 +1,5 @@
 // --- external
-import { computed, MaybeRef, unref } from "vue";
+import { computed, type MaybeRef, unref } from "vue";
 import { interpret, InterpreterStatus } from "xstate";
 import { useActor } from "@xstate/vue";
 

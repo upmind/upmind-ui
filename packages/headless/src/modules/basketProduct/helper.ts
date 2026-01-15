@@ -7,7 +7,6 @@ import { useBasketProductPending } from "./useBasketProductPending";
 import productServices from "./services";
 
 import { useDataLayer, useI18n, useLocale } from "../system";
-const { dataLayer } = useDataLayer();
 
 // --- utils
 import {
@@ -179,7 +178,8 @@ export function basketSubscription(callback: any, onReceiveEvent: any) {
             );
 
             if (!isEmpty(newlyAddedProducts)) {
-              dataLayer({ event: "add_to_cart" })
+              useDataLayer()
+                .dataLayer({ event: "add_to_cart" })
                 .withItems(newlyAddedProducts)
                 .push();
             }
@@ -211,7 +211,8 @@ export function basketSubscription(callback: any, onReceiveEvent: any) {
             );
 
             if (!isEmpty(newlyAddedProducts)) {
-              dataLayer({ event: "add_to_cart" })
+              useDataLayer()
+                .dataLayer({ event: "add_to_cart" })
                 .withItems(newlyAddedProducts)
                 .push();
             }
@@ -243,7 +244,8 @@ export function basketSubscription(callback: any, onReceiveEvent: any) {
             basketProduct = basket.findProduct({ id: event.target.id });
 
             if (basketProduct)
-              dataLayer({ event: "remove_from_cart" })
+              useDataLayer()
+                .dataLayer({ event: "remove_from_cart" })
                 .withItems([basketProduct])
                 .push();
 

@@ -1,5 +1,5 @@
 // --- external
-import { AnyEventObject, assign, createMachine, sendParent } from "xstate";
+import { type AnyEventObject, assign, createMachine, sendParent } from "xstate";
 
 // --- internal
 import { useI18n } from "../system";
@@ -8,7 +8,7 @@ import { useI18n } from "../system";
 import { DetailedError, responseCodes, ErrorOrigin } from "../../utils";
 
 // -- -types
-import { FunnelContext, FunnelProps } from "./types";
+import { type FunnelContext, type FunnelProps } from "./types";
 import { isEmpty, keys, reduce, isString, includes } from "lodash-es";
 import { pascalCase } from "./utils";
 

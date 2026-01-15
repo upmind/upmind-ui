@@ -1,5 +1,5 @@
 // --- utils
-import { BrandConfigKeys, IBrandSettings } from "@upmind-automation/types";
+import { BrandConfigKeys, type IBrandSettings } from "@upmind-automation/types";
 import {
   defaultsDeep,
   forEach,
@@ -10,7 +10,7 @@ import {
   reduce,
   set
 } from "lodash-es";
-import { LocaleMessages } from "vue-i18n";
+import { type LocaleMessages } from "vue-i18n";
 import { isString } from "xstate/lib/utils";
 // -----------------------------------------------------------------------------
 

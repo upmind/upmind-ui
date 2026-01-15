@@ -12,7 +12,7 @@ import { contextValue, stateMatches, useContext } from "../../utils";
 
 // --- types
 export * from "./types";
-import { PaymentArgs, PaymentContext } from "./types";
+import { type PaymentArgs, type PaymentContext } from "./types";
 
 // -----------------------------------------------------------------------------
 

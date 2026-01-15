@@ -11,9 +11,9 @@ import {
   useClientPhones,
   useClientEmails,
   useClientAddresses,
-  AddressModel,
-  EmailModel,
-  PhoneModel,
+  type AddressModel,
+  type EmailModel,
+  type PhoneModel,
   useI18n
 } from "../..";
 
@@ -47,7 +47,6 @@ import type { Company, CompanyModel, CompanyContext } from "./types";
 // QUERIES
 
 const queryKey: QueryKey = ["client", "companies"];
-const { addError, addSuccess } = useFeedback();
 
 function loadList(params: Partial<QueryParams> = { pagination: { limit: 0 } }) {
   const { meta, userId } = useSession();
@@ -234,7 +233,7 @@ function remove(companyId: Company["id"]) {
       }),
     onError(error: any) {
       const { t } = useI18n();
-      addError({
+      useFeedback().addError({
         title: isString(error)
           ? error
           : error?.title || t("error.client_company_delete_failed"),
@@ -245,7 +244,7 @@ function remove(companyId: Company["id"]) {
     onSuccess(data) {
       const { t } = useI18n();
       invalidateQueryByKey(queryKey, { exact: false })(data);
-      addSuccess(t("confirm.company_removed"));
+      useFeedback().addSuccess(t("confirm.company_removed"));
     },
     withAccessToken: true
   });
@@ -268,7 +267,7 @@ function setDefault(companyId: Company["id"]) {
     data: { default: true },
     onError(error: any) {
       const { t } = useI18n();
-      addError({
+      useFeedback().addError({
         title: isString(error)
           ? error
           : error?.title || t("error.client_company_set_default_failed"),
@@ -279,7 +278,7 @@ function setDefault(companyId: Company["id"]) {
     onSuccess(data) {
       const { t } = useI18n();
       invalidateQueryByKey(queryKey, { exact: false })(data);
-      addSuccess(t("confirm.company_set_default"));
+      useFeedback().addSuccess(t("confirm.company_set_default"));
     },
     withAccessToken: true
   });

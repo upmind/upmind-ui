@@ -2,8 +2,8 @@
 
 // --- internal
 import {
-  DomainModel,
-  DomainProduct,
+  type DomainModel,
+  type DomainProduct,
   PAGINATION,
   useI18n,
   useQuery,

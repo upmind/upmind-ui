@@ -1,5 +1,5 @@
 // --- external
-import { computed, unref, toRaw, ComputedRef } from "vue";
+import { computed, unref, toRaw, type ComputedRef } from "vue";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
@@ -14,17 +14,17 @@ import {
   useContext,
   DetailedError,
   responseCodes,
-  UseActor,
+  type UseActor,
   ErrorOrigin
 } from "../../utils";
 import { isNil, isEqual, every, isEmpty } from "lodash-es";
 import { useConfig } from "../config";
 
 // --- types
-import { GatewayContext } from "../paymentDetails";
+import { type GatewayContext } from "../paymentDetails";
 import { isFunction } from "lodash-es";
-import { QueryResponseError } from "../query";
-import { ErrorObject } from "ajv";
+import { type QueryResponseError } from "../query";
+import { type ErrorObject } from "ajv";
 import { GatewayTypes } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------

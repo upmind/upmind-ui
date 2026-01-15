@@ -9,7 +9,7 @@ import { useModelParser } from "../../../utils";
 import { get, compact, isObject, toString } from "lodash-es";
 
 // --- types
-import { Phone, PhoneModel, type PhoneContext } from "./types";
+import { type Phone, type PhoneModel, type PhoneContext } from "./types";
 import type { AnyEventObject } from "xstate";
 
 // -----------------------------------------------------------------------------

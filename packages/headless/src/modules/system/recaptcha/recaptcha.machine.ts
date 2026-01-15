@@ -4,7 +4,7 @@ import { createMachine, assign } from "xstate";
 
 // --- internal
 import services from "./services";
-import { RecaptchaContext } from "./types";
+import { type RecaptchaContext } from "./types";
 import { isString } from "xstate/lib/utils";
 import { isEmpty, set } from "lodash-es";
 

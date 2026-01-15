@@ -16,7 +16,7 @@ import { defaultsDeep, isNil, pick, set } from "lodash-es";
 
 // --- types
 import {
-  BraintreeResponse,
+  type BraintreeResponse,
   BraintreeTypes,
   type BraintreeContext
 } from "./types";

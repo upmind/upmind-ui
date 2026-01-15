@@ -1,4 +1,4 @@
-import parsePhoneNumber, { CountryCode } from "libphonenumber-js";
+import parsePhoneNumber, { type CountryCode } from "libphonenumber-js";
 
 // --- internal
 import {
@@ -36,7 +36,6 @@ import type { Phone, PhoneModel, PhoneContext } from "./types";
 // QUERIES
 
 const queryKey: QueryKey = ["client", "phones"];
-const { addError, addSuccess } = useFeedback();
 
 function loadList(params: Partial<QueryParams> = { pagination: { limit: 0 } }) {
   const { meta, user } = useSession();
@@ -192,7 +191,7 @@ function remove(phoneId: Phone["id"]) {
         }
       }),
     onError(error: any) {
-      addError({
+      useFeedback().addError({
         title: isString(error)
           ? error
           : error?.title || t("error.client_phone_delete_failed"),
@@ -202,7 +201,7 @@ function remove(phoneId: Phone["id"]) {
     },
     onSuccess(data) {
       invalidateQueryByKey(queryKey, { exact: false })(data);
-      addSuccess(t("confirm.phone_removed"));
+      useFeedback().addSuccess(t("confirm.phone_removed"));
     },
     withAccessToken: true
   });
@@ -225,7 +224,7 @@ function setDefault(phoneId: Phone["id"]) {
       }),
     data: { default: true },
     onError(error: any) {
-      addError({
+      useFeedback().addError({
         title: isString(error)
           ? error
           : error?.title || t("error.client_phone_set_default_failed"),
@@ -235,7 +234,7 @@ function setDefault(phoneId: Phone["id"]) {
     },
     onSuccess(data) {
       invalidateQueryByKey(queryKey, { exact: false })(data);
-      addSuccess(t("confirm.phone_set_default"));
+      useFeedback().addSuccess(t("confirm.phone_set_default"));
     },
     withAccessToken: true
   });

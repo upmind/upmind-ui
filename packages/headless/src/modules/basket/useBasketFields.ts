@@ -24,7 +24,7 @@ import { isNil, debounce, isEqual, isEmpty } from "lodash-es";
 
 // --- types
 import type { ActorRef } from "xstate";
-import { FieldsContext, FieldsModel } from "./fields/types";
+import { type FieldsContext, type FieldsModel } from "./fields/types";
 
 // -----------------------------------------------------------------------------
 // We allow an actor to be passed in, but if not, we will use the basket actorRef and wait for the 'actor'' machine to be ready

@@ -10,7 +10,7 @@ import { useCollection } from "../../utils";
 
 // --- types
 
-import { PaymentDetail } from "./types";
+import { type PaymentDetail } from "./types";
 
 // -----------------------------------------------------------------------------
 /**

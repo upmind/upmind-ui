@@ -13,7 +13,7 @@ import {
 } from "../../../../utils";
 
 // --- types
-import { OPENPAY_FIELDS, OpenPayContext } from "./types";
+import { OPENPAY_FIELDS, type OpenPayContext } from "./types";
 import type { AnyEventObject } from "xstate";
 
 // --- utils

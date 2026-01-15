@@ -18,7 +18,7 @@ import { first, has, isEmpty, isEqual, keys, reduce, some } from "lodash-es";
 // --- types
 import type { AnyEventObject } from "xstate";
 import type { FunnelProps, Funnels, RoutingEngineContext } from "./types";
-import { RouteLocation } from "vue-router";
+import { type RouteLocation } from "vue-router";
 import { useQueryParams } from "./useQueryParams";
 
 // -----------------------------------------------------------------------------

@@ -24,7 +24,7 @@ import {
   useContext,
   stopService,
   ErrorOrigin,
-  ResponseError
+  type ResponseError
 } from "../../../utils";
 import { debounce, get, isEmpty, isEqual } from "lodash-es";
 

@@ -1,6 +1,6 @@
 // --- external
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
-import { BrandConfigKeys, IClient } from "@upmind-automation/types";
+import { BrandConfigKeys, type IClient } from "@upmind-automation/types";
 
 // --- internal
 import type { ResponseError } from "../../utils";

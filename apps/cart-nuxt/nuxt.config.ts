@@ -2,6 +2,10 @@
 import { resolve } from "path";
 import tailwindcss from "@tailwindcss/vite";
 
+// Enable typeCheck only during build (not dev) to avoid spawn EBADF error on macOS
+const isBuild =
+  process.argv.includes("build") || process.argv.includes("generate");
+
 export default defineNuxtConfig({
   ssr: false,
   compatibilityDate: "2025-07-15",
@@ -86,20 +90,14 @@ export default defineNuxtConfig({
   },
 
   // TypeScript configuration
-  // Note: typeCheck disabled during build due to workspace package compatibility
-  // Workspace packages are type-checked separately during their own build
+  // typeCheck enabled only during build (spawn EBADF issue in dev on macOS)
   typescript: {
     strict: true,
-    typeCheck: true,
+    typeCheck: isBuild,
     tsConfig: {
       compilerOptions: {
-        // Disable verbatimModuleSyntax to avoid TS1484 errors from workspace packages
-        // that don't use `import type` syntax consistently
-        verbatimModuleSyntax: false,
         // Match Vue cart's strictness - packages aren't written for this stricter mode
-        noUncheckedIndexedAccess: false,
-        // Skip type validation of declaration files (workaround for psl module issue)
-        skipLibCheck: true
+        noUncheckedIndexedAccess: false
       },
       include: ["app/**/*"],
       exclude: ["node_modules", "dist", ".output", "**/*.spec.*"]

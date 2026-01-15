@@ -27,7 +27,7 @@
     "start": "pnpm dev",
     "start:test": "vite --mode test --dotenv .env.test",
     "dev": "nuxt dev --host collabstudio.localhost --dotenv .env.development",
-    "build": "pnpm build-only",
+    "build": "pnpm generate",
     "build:staging": "nuxt generate --mode staging --dotenv .env.staging",
     "build-only": "nuxt build",
     "generate": "nuxt generate",
