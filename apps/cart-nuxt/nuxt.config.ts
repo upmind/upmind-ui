@@ -101,7 +101,7 @@ export default defineNuxtConfig({
   // Workspace packages are type-checked separately during their own build
   typescript: {
     strict: true,
-    typeCheck: false,
+    typeCheck: true,
     tsConfig: {
       compilerOptions: {
         // Disable verbatimModuleSyntax to avoid TS1484 errors from workspace packages
