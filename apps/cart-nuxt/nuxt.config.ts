@@ -173,7 +173,8 @@ export default defineNuxtConfig({
     typeCheck: isBuild, // Only during build (macOS EBADF bug in dev)
     tsConfig: {
       compilerOptions: {
-        noUncheckedIndexedAccess: false
+        noUncheckedIndexedAccess: false,
+        skipLibCheck: true
       },
       include: ["app/**/*"],
       exclude: ["node_modules", "dist", ".output", "**/*.spec.*"]
