@@ -11,8 +11,11 @@
   >
     <SelectGroupedGroup
       v-for="(group, index) in props.groups"
+      ref="groupRefs"
       :key="`group-${index}`"
       :group="group"
+      :index="index"
+      :focused-group-index="focusedGroupIndex"
       :model-value="modelValue"
       :multiple="props.multiple"
       :required="props.required"
@@ -23,6 +26,8 @@
       :data-focus="props.dataFocus"
       @update:model-value="onChange"
       @action="onAction"
+      @focus-next-group="focusGroup(index + 1)"
+      @focus-prev-group="focusGroup(index - 1)"
     >
       <template #item="slotProps">
         <slot name="item" v-bind="slotProps" />
@@ -40,7 +45,7 @@
 
 <script setup lang="ts">
 // --- external
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { useVModel } from "@vueuse/core";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
@@ -74,6 +79,9 @@ const modelValue = useVModel(props, "modelValue", emits, {
   defaultValue: props.defaultValue
 });
 
+const groupRefs = ref<{ focus: () => void }[]>([]);
+const focusedGroupIndex = ref(0);
+
 const meta = computed(() => ({
   columns: props.columns
 }));
@@ -91,5 +99,11 @@ const onChange = (value: string | string[]) => {
 
 const onAction = (value: { name: string; event: Event }) => {
   emits("action", value);
+};
+
+const focusGroup = (index: number) => {
+  const clampedIndex = Math.max(0, Math.min(index, props.groups.length - 1));
+  focusedGroupIndex.value = clampedIndex;
+  groupRefs.value[clampedIndex]?.focus();
 };
 </script>

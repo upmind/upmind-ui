@@ -1,13 +1,17 @@
 <template>
   <div
+    ref="rootRef"
     :class="styles.selectGrouped.dropdown.item"
     role="option"
     :aria-selected="isSelected"
     :data-state="isSelected ? 'checked' : 'unchecked'"
-    :tabindex="isSelected ? 0 : -1"
+    :data-focused="props.focused"
+    :tabindex="props.focused ? 0 : -1"
     @click="$emit('select', props.item.value)"
     @keydown.enter="$emit('select', props.item.value)"
     @keydown.space.prevent="$emit('select', props.item.value)"
+    @keydown.down.prevent="$emit('focusNext')"
+    @keydown.up.prevent="$emit('focusPrev')"
   >
     <slot name="item" v-bind="{ item: props.item, selected: isSelected }">
       <div class="flex w-full items-start gap-4">
@@ -68,7 +72,7 @@
 
 <script setup lang="ts">
 // --- external
-import { computed } from "vue";
+import { computed, ref } from "vue";
 
 // --- internal
 import { cn, useStyles } from "../../utils";
@@ -91,18 +95,28 @@ const props = defineProps<{
   item: SelectGroupedItemProps;
   modelValue?: string | string[];
   multiple?: boolean;
+  focused?: boolean;
 }>();
 
 const emits = defineEmits<{
   select: [value: string];
   action: [{ name: string; event: Event }];
+  focusNext: [];
+  focusPrev: [];
 }>();
+
+const rootRef = ref<HTMLElement | null>(null);
 
 const isSelected = computed(() => {
   if (isArray(props.modelValue)) {
     return props.modelValue.includes(props.item.value);
   }
   return props.modelValue === props.item.value;
+});
+
+// Expose root element for parent focus management
+defineExpose({
+  focus: () => rootRef.value?.focus()
 });
 
 const meta = computed(() => ({}));

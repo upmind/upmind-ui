@@ -1,18 +1,23 @@
 <template>
   <div
+    ref="rootRef"
     :class="
       cn(styles.selectGrouped.group.root, styles.selectGrouped.group.size)
     "
     :role="props.multiple ? 'checkbox' : 'radio'"
     :aria-checked="isSelected"
     :aria-disabled="props.disabled"
-    :tabindex="props.disabled ? -1 : 0"
+    :tabindex="
+      props.disabled ? -1 : props.index === props.focusedGroupIndex ? 0 : -1
+    "
     :data-state="isSelected ? 'checked' : 'unchecked'"
     :data-hover="props.dataHover"
     :data-focus="props.dataFocus"
     @click="toggleSelection"
     @keydown.enter="toggleSelection"
     @keydown.space.prevent="toggleSelection"
+    @keydown.down.prevent="emits('focus-next-group')"
+    @keydown.up.prevent="emits('focus-prev-group')"
   >
     <span :class="styles.selectGrouped.radio">
       <span :class="styles.selectGrouped.indicator">
@@ -81,7 +86,7 @@
 
 <script setup lang="ts">
 // --- external
-import { computed } from "vue";
+import { computed, ref } from "vue";
 
 // --- internal
 import { cn, useStyles } from "../../utils";
@@ -106,6 +111,8 @@ const props = withDefaults(
   defineProps<{
     item: SelectGroupedItemProps;
     group: SelectGroupedGroupProps;
+    index?: number;
+    focusedGroupIndex?: number;
     modelValue?: string | string[];
     multiple?: boolean;
     required?: boolean;
@@ -115,6 +122,8 @@ const props = withDefaults(
     dataFocus?: boolean;
   }>(),
   {
+    index: 0,
+    focusedGroupIndex: 0,
     columns: 1
   }
 );
@@ -122,7 +131,11 @@ const props = withDefaults(
 const emits = defineEmits<{
   "update:modelValue": [value: string | string[]];
   action: [{ name: string; event: Event }];
+  "focus-next-group": [];
+  "focus-prev-group": [];
 }>();
+
+const rootRef = ref<HTMLElement | null>(null);
 
 const isSelected = computed(() => {
   if (isArray(props.modelValue)) {
@@ -191,4 +204,9 @@ function doAction(action: SelectGroupedItemActionProps, $event: Event) {
     });
   }
 }
+
+// Expose focus method for parent navigation
+defineExpose({
+  focus: () => rootRef.value?.focus()
+});
 </script>

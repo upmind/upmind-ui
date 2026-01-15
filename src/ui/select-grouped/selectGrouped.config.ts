@@ -18,22 +18,26 @@ export const groupSizeVariants = cva("", {
 });
 
 export const groupVariants = cva(
-  `bg-control-surface text-control-foreground group control-radius shadow-control-default hover:shadow-control-hover focus:ring-ring relative z-10 flex cursor-pointer list-none gap-2 rounded py-4 pr-4 pl-3 font-normal transition-all duration-200 outline-none focus:ring-2 focus:ring-offset-2`,
+  `bg-control-surface text-control-foreground group control-radius shadow-control-default hover:shadow-control-hover relative z-10 flex cursor-pointer list-none gap-2 rounded py-4 pr-4 pl-3 font-normal transition-all duration-200 outline-none`,
   {
     variants: {
       isOpen: {
-        true: "rounded-b-none"
+        true: "rounded-b-none",
+        false: "focus:ring-ring focus:ring-2 focus:ring-offset-2"
       }
+    },
+    defaultVariants: {
+      isOpen: false
     }
   }
 );
 
 export const dropdownVariants = cva(
-  "bg-control-surface control-radius border-border w-full overflow-hidden rounded-t-none border border-t-0"
+  "bg-control-surface control-radius border-border w-full rounded-t-none border border-t-0"
 );
 
 export const dropdownItemVariants = cva(
-  `hover:bg-muted/50 data-[state=checked]:bg-muted/30 border-border flex cursor-pointer items-center gap-3 border-t px-4 py-3 transition-colors outline-none first:border-t-0`
+  `border-border data-[focused=true]:bg-muted data-[focused=true]:ring-ring flex cursor-pointer items-center gap-3 border-t px-4 py-3 transition-colors outline-none first:border-t-0 data-[focused=true]:ring-2 data-[focused=true]:ring-inset`
 );
 
 export const rootVariants = cva("grid w-full grid-cols-12 gap-2");

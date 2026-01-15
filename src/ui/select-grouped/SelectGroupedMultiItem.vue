@@ -3,21 +3,23 @@
     <Collapsible v-model:open="isOpen">
       <!-- Collapsible header/trigger -->
       <div
+        ref="headerRef"
         :class="styles.selectGrouped.group.root"
         role="combobox"
         :aria-expanded="isOpen"
         :aria-haspopup="'listbox'"
         :aria-controls="`dropdown-${groupId}`"
         :aria-disabled="props.disabled"
-        :tabindex="props.disabled ? -1 : 0"
+        :tabindex="
+          props.disabled ? -1 : props.index === props.focusedGroupIndex ? 0 : -1
+        "
         :data-state="hasSelection ? 'checked' : 'unchecked'"
         :data-hover="props.dataHover"
         :data-focus="props.dataFocus"
-        @focus="handleFocus"
         @blur="handleBlur"
         @click="toggleOpen"
-        @keydown.enter="toggleOpen"
-        @keydown.space.prevent="toggleOpen"
+        @keydown.enter.prevent="handleEnterSpace"
+        @keydown.space.prevent="handleEnterSpace"
         @keydown.escape="isOpen = false"
         @keydown.down.prevent="handleArrowDown"
         @keydown.up.prevent="handleArrowUp"
@@ -118,6 +120,8 @@ import { first, isArray, without, isEmpty } from "lodash-es";
 const props = withDefaults(
   defineProps<{
     group: SelectGroupedGroupProps;
+    index?: number;
+    focusedGroupIndex?: number;
     modelValue?: string | string[];
     multiple?: boolean;
     required?: boolean;
@@ -127,17 +131,22 @@ const props = withDefaults(
     dataFocus?: boolean;
   }>(),
   {
+    index: 0,
+    focusedGroupIndex: 0,
     columns: 1
   }
 );
 
 const emits = defineEmits<{
   "update:modelValue": [value: string | string[]];
+  "focus-next-group": [];
+  "focus-prev-group": [];
 }>();
 
 const groupId = useId();
 const isOpen = ref(false);
 const focusedIndex = ref(0);
+const headerRef = ref<HTMLElement | null>(null);
 
 const selectedItem = computed<SelectGroupedItemProps | undefined>(() => {
   if (isArray(props.modelValue)) {
@@ -211,13 +220,12 @@ function toggleSelection(value: string) {
 
 function toggleOpen() {
   if (props.disabled) return;
+
   isOpen.value = !isOpen.value;
 
-  if (isOpen.value && !isEmpty(props.group.items)) {
-    const firstItem = first(props.group.items);
-    if (firstItem) {
-      toggleSelection(firstItem.value);
-    }
+  // Set visual focus to first item when opening
+  if (isOpen.value) {
+    focusedIndex.value = 0;
   }
 }
 
@@ -229,34 +237,25 @@ function onItemSelect(value: string) {
 }
 
 /**
- * Navigate to item at index and select it
+ * Move visual focus to item at index (without selecting)
  */
-function navigateToIndex(index: number) {
-  const clampedIndex = Math.max(
+function focusItem(index: number) {
+  focusedIndex.value = Math.max(
     0,
     Math.min(index, props.group.items.length - 1)
   );
-  focusedIndex.value = clampedIndex;
-
-  const item = props.group.items[clampedIndex];
-  if (item) toggleSelection(item.value);
 }
 
 /**
- * Handle focus: open dropdown and sync focus to current selection
+ * Select the currently focused item
  */
-function handleFocus() {
-  if (props.disabled) return;
-  isOpen.value = true;
-
-  if (!hasSelection.value && !isEmpty(props.group.items)) {
-    navigateToIndex(0);
-  } else {
-    focusedIndex.value = props.group.items.findIndex(item =>
-      isArray(props.modelValue)
-        ? props.modelValue.includes(item.value)
-        : item.value === props.modelValue
-    );
+function selectFocusedItem() {
+  const item = props.group.items[focusedIndex.value];
+  if (item) {
+    toggleSelection(item.value);
+    if (!props.multiple) {
+      isOpen.value = false;
+    }
   }
 }
 
@@ -264,11 +263,36 @@ function handleBlur() {
   isOpen.value = false;
 }
 
+function handleEnterSpace() {
+  if (isOpen.value) {
+    selectFocusedItem();
+  } else {
+    toggleOpen();
+  }
+}
+
 function handleArrowDown() {
-  if (isOpen.value) navigateToIndex(focusedIndex.value + 1);
+  if (!isOpen.value) {
+    // Navigate to next group when dropdown is closed
+    emits("focus-next-group");
+  } else {
+    // Navigate to next item within dropdown
+    focusItem(focusedIndex.value + 1);
+  }
 }
 
 function handleArrowUp() {
-  if (isOpen.value) navigateToIndex(focusedIndex.value - 1);
+  if (!isOpen.value) {
+    // Navigate to previous group when dropdown is closed
+    emits("focus-prev-group");
+  } else {
+    // Navigate to previous item within dropdown
+    focusItem(focusedIndex.value - 1);
+  }
 }
+
+// Expose focus method for parent navigation
+defineExpose({
+  focus: () => headerRef.value?.focus()
+});
 </script>

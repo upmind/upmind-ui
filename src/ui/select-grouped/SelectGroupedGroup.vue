@@ -1,8 +1,11 @@
 <template>
   <SelectGroupedSingleItem
     v-if="isSingleItem"
+    ref="singleItemRef"
     :item="singleItem!"
     :group="props.group"
+    :index="props.index"
+    :focused-group-index="props.focusedGroupIndex"
     :model-value="modelValue"
     :multiple="props.multiple"
     :required="props.required"
@@ -12,6 +15,8 @@
     :data-focus="props.dataFocus"
     @update:model-value="onChange"
     @action="onAction"
+    @focus-next-group="() => emits('focus-next-group')"
+    @focus-prev-group="() => emits('focus-prev-group')"
   >
     <template v-if="$slots.item" #item="slotProps">
       <slot name="item" v-bind="slotProps" />
@@ -20,7 +25,10 @@
 
   <SelectGroupedMultiItem
     v-else
+    ref="multiItemRef"
     :group="props.group"
+    :index="props.index"
+    :focused-group-index="props.focusedGroupIndex"
     :model-value="modelValue"
     :multiple="props.multiple"
     :required="props.required"
@@ -29,6 +37,8 @@
     :data-hover="props.dataHover"
     :data-focus="props.dataFocus"
     @update:model-value="onChange"
+    @focus-next-group="() => emits('focus-next-group')"
+    @focus-prev-group="() => emits('focus-prev-group')"
   >
     <template v-if="$slots.header" #header="slotProps">
       <slot name="header" v-bind="slotProps" />
@@ -41,7 +51,7 @@
 
 <script setup lang="ts">
 // --- external
-import { computed } from "vue";
+import { computed, ref } from "vue";
 
 // --- components
 import SelectGroupedSingleItem from "./SelectGroupedSingleItem.vue";
@@ -56,6 +66,8 @@ import { first } from "lodash-es";
 const props = withDefaults(
   defineProps<{
     group: SelectGroupedGroupProps;
+    index?: number;
+    focusedGroupIndex?: number;
     modelValue?: string | string[];
     multiple?: boolean;
     required?: boolean;
@@ -65,6 +77,8 @@ const props = withDefaults(
     dataFocus?: boolean;
   }>(),
   {
+    index: 0,
+    focusedGroupIndex: 0,
     columns: 1
   }
 );
@@ -72,7 +86,14 @@ const props = withDefaults(
 const emits = defineEmits<{
   "update:modelValue": [value: string | string[]];
   action: [{ name: string; event: Event }];
+  "focus-next-group": [];
+  "focus-prev-group": [];
 }>();
+
+// --- Refs
+
+const singleItemRef = ref<{ focus: () => void } | null>(null);
+const multiItemRef = ref<{ focus: () => void } | null>(null);
 
 // --- Computed
 
@@ -88,4 +109,15 @@ const onChange = (value: string | string[]) => {
 const onAction = (value: { name: string; event: Event }) => {
   emits("action", value);
 };
+
+// Expose focus method for parent navigation
+defineExpose({
+  focus: () => {
+    if (isSingleItem.value) {
+      singleItemRef.value?.focus();
+    } else {
+      multiItemRef.value?.focus();
+    }
+  }
+});
 </script>
