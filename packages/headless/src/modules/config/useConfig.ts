@@ -1,4 +1,4 @@
-import { computed, Ref, toValue } from "vue";
+import { computed, type Ref, toValue } from "vue";
 import { useBreakpoints, breakpointsTailwind } from "@vueuse/core";
 import {
   initializeMeta,
@@ -14,7 +14,7 @@ import type {
   WithMetaOptions,
   Viewport
 } from "./types";
-import { BrandMeta } from "../brand/types";
+import { type BrandMeta } from "../brand/types";
 
 export { provideConfig, injectConfig } from "./utils";
 

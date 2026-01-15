@@ -1,11 +1,11 @@
 // --- external
-import { Ref, ref } from "vue";
+import { type Ref, ref } from "vue";
 import { inspect } from "@xstate/inspect";
 import { type QueryClient, VueQueryPlugin } from "@tanstack/vue-query";
 
 // --- internal
 import {
-  Funnels,
+  type Funnels,
   type GlobbedFiles,
   useBrand,
   useDataLayer,

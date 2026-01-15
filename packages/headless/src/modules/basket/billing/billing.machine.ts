@@ -6,7 +6,6 @@ import services from "./services";
 import { useI18n } from "../../system";
 import { useFeedback } from "../../feedback";
 import { useSchema, useUischema } from "./schema";
-const { addError } = useFeedback();
 
 // --- utils
 import {
@@ -290,7 +289,7 @@ export default createMachine(
         )
           return;
 
-        addError({
+        useFeedback().addError({
           title: t("error.billing_details_update_failed"),
           copy: error?.message,
           data: error?.data

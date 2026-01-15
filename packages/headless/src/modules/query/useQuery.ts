@@ -1,5 +1,5 @@
 // --- external
-import { effectScope, getCurrentScope, ComputedRef } from "vue";
+import { effectScope, getCurrentScope, type ComputedRef } from "vue";
 
 import {
   QueryClient,

@@ -7,13 +7,13 @@ import {
   responseCodes,
   mapToHeadlessError,
   useValidationParser,
-  ResponseError
+  type ResponseError
 } from "../../utils";
 
 // --- types
 import type { AnyEventObject } from "xstate";
 import type { ClientItemContext } from "./types";
-import { ErrorObject } from "ajv";
+import { type ErrorObject } from "ajv";
 
 // -----------------------------------------------------------------------------
 

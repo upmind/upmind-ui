@@ -33,9 +33,13 @@ import {
 import type { ActorRef } from "xstate";
 import type { BasketProduct } from "../basketProduct";
 import { REQUIRES_ACTION } from "./types";
-import { RouteLocation, Router, RouteRecordRaw } from "vue-router";
+import {
+  type RouteLocation,
+  type Router,
+  type RouteRecordRaw
+} from "vue-router";
 import { useBrand } from "../brand";
-import { UIRouteOptions } from "../brand/types";
+import { type UIRouteOptions } from "../brand/types";
 
 // -----------------------------------------------------------------------------
 

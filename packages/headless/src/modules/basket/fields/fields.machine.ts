@@ -5,7 +5,6 @@ import { createMachine, assign } from "xstate";
 import services from "./services";
 import { useI18n } from "../../system";
 import { useFeedback } from "../../feedback";
-const { addError } = useFeedback();
 
 // --- utils
 import {
@@ -209,7 +208,7 @@ export default createMachine(
         if (!error || error?.status == responseCodes.Unprocessable_Entity)
           return;
 
-        addError({
+        useFeedback().addError({
           title: t("error.basket_fields_update_failed"),
           copy: error?.message,
           data: error?.data

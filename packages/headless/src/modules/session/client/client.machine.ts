@@ -2,16 +2,12 @@
 import { createMachine, assign } from "xstate";
 
 // --- internal
-import { useI18n, useLocale } from "../../system";
+import { useI18n, useLocale, useDataLayer } from "../../system";
 import services from "./services";
 
 import type { ClientContext } from "./types";
 
-import { useDataLayer } from "../../system";
-const { dataLayer } = useDataLayer();
-
 import { useFeedback } from "../../feedback";
-const { addError } = useFeedback();
 
 // --- utils
 import { omit } from "lodash-es";
@@ -118,7 +114,7 @@ export default createMachine(
         removeCookie("upm_client_session");
         removeCookie("upm_guest_session");
         removeCookie("upm_actor");
-        dataLayer().withUser().push(false);
+        useDataLayer().dataLayer().withUser().push(false);
         return {};
       }),
       // ---
@@ -156,7 +152,7 @@ export default createMachine(
         if (!error || error?.status == responseCodes.Unprocessable_Entity)
           return;
 
-        addError({
+        useFeedback().addError({
           title: t("error.request_process_failed"),
           copy: error?.message,
           data: error?.data

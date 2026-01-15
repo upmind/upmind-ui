@@ -1,13 +1,7 @@
 {
+  "$schema": "https://json.schemastore.org/tsconfig",
   "files": [],
-  "compilerOptions": {
-    "composite": true,
-    "strict": true,
-    "forceConsistentCasingInFileNames": true
-  },
   "references": [
-    { "path": "../../packages/headless" },
-    { "path": "../../packages/client-vue" },
     { "path": "./tsconfig.node.json" },
     { "path": "./tsconfig.app.json" }
   ]

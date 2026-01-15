@@ -1,9 +1,9 @@
 // --- external
 import {
-  DefaultValuesOption,
+  type DefaultValuesOption,
   loadStripe,
-  StripeElementLocale,
-  StripeElements
+  type StripeElementLocale,
+  type StripeElements
 } from "@stripe/stripe-js";
 
 // --- internal

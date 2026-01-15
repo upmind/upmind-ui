@@ -1,6 +1,6 @@
 // --- external
 import { computed } from "vue";
-import { interpret, InterpreterFrom } from "xstate";
+import { interpret, type InterpreterFrom } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 import { useActor } from "@xstate/vue";
 
@@ -20,11 +20,11 @@ import {
   stateMatches,
   DetailedError,
   responseCodes,
-  ResponseError,
+  type ResponseError,
   contextMatches,
   DEBOUNCE_DELAY,
   stopService,
-  ErrorObject
+  type ErrorObject
 } from "../../../../utils";
 import { debounce, get, isEmpty, isEqual } from "lodash-es";
 

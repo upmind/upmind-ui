@@ -1,9 +1,12 @@
 // --- external
 
 // --- internal
-import { IPaymentDetail, PaymentMethodType } from "@upmind-automation/types";
+import {
+  type IPaymentDetail,
+  PaymentMethodType
+} from "@upmind-automation/types";
 import sharedServices from "../services";
-import { GatewayCardContext } from "./types";
+import { type GatewayCardContext } from "./types";
 import { generateResponseUrls } from "../utils";
 import { useQuery } from "../../../query";
 

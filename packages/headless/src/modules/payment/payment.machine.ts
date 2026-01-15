@@ -7,7 +7,6 @@ const { escalate } = actions;
 import services from "./services";
 import { useFeedback } from "../feedback";
 import { useDataLayer } from "../system";
-const { dataLayer } = useDataLayer();
 
 // --- utils
 import { mapApproval } from "./mappers";
@@ -170,7 +169,9 @@ export default createMachine(
 
       // When a user goes offsite to process their payment
       pushOffsite: ({ payment }: PaymentContext, _event: AnyEventObject) => {
-        dataLayer({ event: "begin_offsite_payment", ...payment }).push();
+        useDataLayer()
+          .dataLayer({ event: "begin_offsite_payment", ...payment })
+          .push();
       },
 
       setError: assign({

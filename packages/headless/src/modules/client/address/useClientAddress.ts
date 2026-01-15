@@ -23,7 +23,7 @@ import {
   DetailedError,
   responseCodes,
   contextMatches,
-  ResponseError,
+  type ResponseError,
   stopService
 } from "../../../utils";
 import { debounce, get, isEmpty, isEqual } from "lodash-es";

@@ -5,7 +5,6 @@ import { computed, ref } from "vue";
 import { useBasket } from "../basket";
 import services from "./services";
 import { useDataLayer, useI18n } from "../system";
-const { dataLayer } = useDataLayer();
 
 // --- utils
 import { get, add, subtract, has, set, unset } from "lodash-es";
@@ -13,10 +12,10 @@ import { DetailedError, ErrorOrigin, responseCodes } from "../../utils";
 
 // --- types
 import type { BasketProduct } from "./types";
-import { ProductModel } from "../product";
-import { IBasket } from "@upmind-automation/types";
+import { type ProductModel } from "../product";
+import { type IBasket } from "@upmind-automation/types";
 
-import { UseBasketProduct, useBasketProduct } from "./useBasketProduct";
+import { type UseBasketProduct, useBasketProduct } from "./useBasketProduct";
 
 // --- utils
 import { isEmpty, debounce, includes, remove as _remove } from "lodash-es";
@@ -85,7 +84,8 @@ export const useBasketProducts = () => {
     return services.remove(basketId.value, id).then((rawBasket: IBasket) => {
       const basketProduct = findProduct({ id });
       if (basketProduct) {
-        dataLayer({ event: "remove_from_cart" })
+        useDataLayer()
+          .dataLayer({ event: "remove_from_cart" })
           .withItems(basketProduct)
           .push();
       }
@@ -124,7 +124,10 @@ export const useBasketProducts = () => {
 
         const basketProduct = findProduct({ id });
         if (basketProduct) {
-          dataLayer({ event: "add_to_cart" }).withItems(basketProduct).push();
+          useDataLayer()
+            .dataLayer({ event: "add_to_cart" })
+            .withItems(basketProduct)
+            .push();
         }
         return rawBasket;
       });
@@ -173,7 +176,10 @@ export const useBasketProducts = () => {
               ErrorOrigin.Headless
             );
           }
-          dataLayer({ event: "add_to_cart" }).withItems(basketProduct).push();
+          useDataLayer()
+            .dataLayer({ event: "add_to_cart" })
+            .withItems(basketProduct)
+            .push();
 
           return rawBasket;
         });
@@ -225,7 +231,8 @@ export const useBasketProducts = () => {
               ErrorOrigin.Headless
             );
           }
-          dataLayer({ event: "remove_from_cart" })
+          useDataLayer()
+            .dataLayer({ event: "remove_from_cart" })
             .withItems(basketProduct)
             .push();
 
@@ -277,7 +284,10 @@ export const useBasketProducts = () => {
               ErrorOrigin.Headless
             );
           }
-          dataLayer({ event: "add_to_cart" }).withItems(basketProduct).push();
+          useDataLayer()
+            .dataLayer({ event: "add_to_cart" })
+            .withItems(basketProduct)
+            .push();
 
           return rawBasket;
         });

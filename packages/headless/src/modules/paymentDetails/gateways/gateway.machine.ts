@@ -6,7 +6,6 @@ import services from "./services";
 import { useI18n } from "../../system";
 import { useFeedback } from "../../feedback";
 import { useSchema, useUischema } from "./schemas";
-const { addError } = useFeedback();
 
 // --- utils
 import { useTime } from "../../../utils";
@@ -22,7 +21,7 @@ import { isArray, isEmpty, isNil } from "lodash-es";
 import type { AnyEventObject } from "xstate";
 import { type GatewayContext } from "./types";
 import {
-  GatewayData,
+  type GatewayData,
   GatewayContext as GatewayCtx
 } from "@upmind-automation/types";
 
@@ -320,7 +319,7 @@ export default <T = unknown>(name: string) =>
             error.code == responseCodes.Unprocessable_Entity
           )
             return;
-          addError({
+          useFeedback().addError({
             title: t("error.payment_process_failed"),
             copy: error?.message,
             data: error?.data

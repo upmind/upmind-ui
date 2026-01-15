@@ -1,4 +1,4 @@
-import { FormatDefinition } from "ajv";
+import { type FormatDefinition } from "ajv";
 import { isString, isNil } from "lodash-es";
 
 export interface NamedFormatDefinition<

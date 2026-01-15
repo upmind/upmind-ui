@@ -1,4 +1,8 @@
-import { IUser, IClient, AccessRoleTypes } from "@upmind-automation/types";
+import {
+  type IUser,
+  type IClient,
+  AccessRoleTypes
+} from "@upmind-automation/types";
 import type { ResponseError } from "../../utils";
 
 // -----------------------------------------------------------------------------

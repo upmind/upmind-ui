@@ -3,7 +3,7 @@ import type { ActorRef } from "xstate";
 import type { ResponseError } from "../../utils";
 import type { BasketProduct } from "../basketProduct";
 import type { IBasket, IInvoice } from "@upmind-automation/types";
-import { PaymentDetailData } from "../paymentDetails";
+import { type PaymentDetailData } from "../paymentDetails";
 
 // -----------------------------------------------------------------------------
 

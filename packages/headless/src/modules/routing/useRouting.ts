@@ -6,7 +6,7 @@ import { get } from "lodash-es";
 
 // --- types
 import type { Router, RouteLocation } from "vue-router";
-import { UIRouteOptions } from "../brand/types";
+import { type UIRouteOptions } from "../brand/types";
 import { decorateRoutes, hasRouteChanged } from "./utils";
 
 // -----------------------------------------------------------------------------

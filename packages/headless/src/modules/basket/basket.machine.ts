@@ -6,10 +6,8 @@ import services from "./services";
 import paymentMachine from "../payment/payment.machine";
 import { useDataLayer, useI18n } from "../system";
 import { authSubscription } from "../session/helper";
-const { dataLayer } = useDataLayer();
 
 import { useFeedback } from "../feedback";
-const { addError, addWarning } = useFeedback();
 
 // --- utils
 import {
@@ -531,7 +529,7 @@ export default createMachine(
               note: { id: string; message: string; is_hidden: boolean }
             ) => {
               if (!note.is_hidden) {
-                addWarning({
+                useFeedback().addWarning({
                   hash: note.id,
                   copy: note.message,
                   data: { persist: true },
@@ -644,22 +642,34 @@ export default createMachine(
 
       // when the user enter a billing address
       pushShippingInfo: (_context: BasketContext, _event: AnyEventObject) => {
-        dataLayer({ event: "add_shipping_info" }).withEcommerce().push();
+        useDataLayer()
+          .dataLayer({ event: "add_shipping_info" })
+          .withEcommerce()
+          .push();
       },
 
       // When a user enters their payment info
       pushPaymentDetail: (_context: BasketContext, _event: AnyEventObject) => {
-        dataLayer({ event: "add_payment_info" }).withEcommerce().push();
+        useDataLayer()
+          .dataLayer({ event: "add_payment_info" })
+          .withEcommerce()
+          .push();
       },
 
       // When a user completes their purchase, even if they have not paid
       pushPurchase: ({ invoice }: BasketContext, _event: AnyEventObject) => {
-        dataLayer({ event: "purchase" }).withEcommerce(invoice).push();
+        useDataLayer()
+          .dataLayer({ event: "purchase" })
+          .withEcommerce(invoice)
+          .push();
       },
 
       // When a user completes their purchase
       pushPaid: ({ invoice }: BasketContext, _event: AnyEventObject) => {
-        dataLayer({ event: "invoice_paid" }).withEcommerce(invoice).push();
+        useDataLayer()
+          .dataLayer({ event: "invoice_paid" })
+          .withEcommerce(invoice)
+          .push();
       },
 
       // ---

@@ -5,7 +5,7 @@ import {
   BrandConfigKeys,
   Contexts,
   GrantTypes,
-  IToken,
+  type IToken,
   TwofaProviders
 } from "@upmind-automation/types";
 

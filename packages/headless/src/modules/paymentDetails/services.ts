@@ -53,7 +53,7 @@ import {
   BrandConfigKeys,
   type IBrandGateway,
   type IPaymentDetail,
-  IWalletBalance
+  type IWalletBalance
 } from "@upmind-automation/types";
 import type { QueryKey } from "@tanstack/vue-query";
 

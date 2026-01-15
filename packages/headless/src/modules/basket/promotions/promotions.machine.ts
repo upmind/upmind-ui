@@ -4,7 +4,6 @@ import { createMachine, assign, sendParent } from "xstate";
 // --- internal
 import services from "./services";
 import { useFeedback } from "../../feedback";
-const { addError } = useFeedback();
 
 // --- utils
 import {
@@ -265,7 +264,7 @@ export default createMachine(
         const { t } = useI18n();
         if (!error || error.status < 500) return;
 
-        addError({
+        useFeedback().addError({
           title: t("error.promotion_update_failed"),
           copy: error?.message,
           data: error?.data

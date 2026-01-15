@@ -14,7 +14,6 @@ const { removeTopLevel: removeCookie, get: getCookie } = useCookies();
 
 import { useDataLayer } from "../system";
 import { Contexts } from "@upmind-automation/types";
-const { dataLayer } = useDataLayer();
 
 // -----------------------------------------------------------------------------
 export default createMachine(
@@ -159,7 +158,7 @@ export default createMachine(
         // if there is an actor, we need to clear the user data and update the data layer
         if (actor) {
           removeCookie("upm_actor");
-          dataLayer().withUser().push(false);
+          useDataLayer().dataLayer().withUser().push(false);
         }
       }
     },

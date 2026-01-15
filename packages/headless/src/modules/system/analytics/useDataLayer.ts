@@ -17,18 +17,18 @@ import {
 import { isEmpty, isNil, omitBy, set, map, isArray, sumBy } from "lodash-es";
 
 // --- types
-import { IInvoice } from "@upmind-automation/types";
+import { type IInvoice } from "@upmind-automation/types";
 import type { BasketProduct } from "../../basketProduct";
 import type { Product } from "../../product";
 import { mapIBasketProduct, mapBasketProduct } from "./utils";
 import {
-  DataLayerEcommerce,
-  DataLayerEcommerceItems,
-  DataLayerEcommerceItem,
-  DataLayerPage,
-  DataLayerUser
+  type DataLayerEcommerce,
+  type DataLayerEcommerceItems,
+  type DataLayerEcommerceItem,
+  type DataLayerPage,
+  type DataLayerUser
 } from "./types";
-import { PageRoute } from "../../routing";
+import { type PageRoute } from "../../routing";
 
 // -----------------------------------------------------------------------------
 // ---  Globals/Singletons
