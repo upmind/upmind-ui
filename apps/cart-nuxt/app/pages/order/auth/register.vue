@@ -22,6 +22,15 @@ useSeoMeta({
   description: t("seo.page_register_description")
 });
 
+// Schema.org: WebPage for registration
+useSchemaOrg([
+  defineWebPage({
+    "@type": "WebPage",
+    name: t("seo.page_register_title"),
+    description: t("seo.page_register_description")
+  })
+]);
+
 definePageMeta({
   name: ROUTE.SESSION_REGISTER
 });
