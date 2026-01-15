@@ -14,6 +14,7 @@
       <div
         class="drag-handle from-bg-button-subtle-0 to-bg-button-subtle-1 mx-auto mt-2 mb-8 min-h-2 w-[100px] rounded-full bg-gradient-to-r"
         data-testid="drawer-content"
+        :data-vaul-no-drag="props.dismissible === false ? '' : undefined"
       ></div>
 
       <DrawerHeader
