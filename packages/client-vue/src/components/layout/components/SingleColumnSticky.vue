@@ -35,7 +35,14 @@
 
 <script lang="ts" setup>
 // --- external
-import { useSlots, computed, useTemplateRef, ref } from "vue";
+import {
+  useSlots,
+  computed,
+  useTemplateRef,
+  ref,
+  onMounted,
+  nextTick
+} from "vue";
 import { useMutationObserver } from "@vueuse/core";
 
 // --- utils
@@ -129,6 +136,14 @@ useMutationObserver(
     subtree: true
   }
 );
+
+// Initial check on mount - needed because MutationObserver doesn't fire
+// for content that already exists when the observer starts
+onMounted(() => {
+  nextTick(() => {
+    visible.value = hasSignificantContent(content.value?.$el);
+  });
+});
 </script>
 
 <style scoped>
