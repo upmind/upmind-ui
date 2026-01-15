@@ -13,12 +13,14 @@
         :data-state="hasSelection ? 'checked' : 'unchecked'"
         :data-hover="props.dataHover"
         :data-focus="props.dataFocus"
+        @focus="handleFocus"
+        @blur="handleBlur"
         @click="toggleOpen"
         @keydown.enter="toggleOpen"
         @keydown.space.prevent="toggleOpen"
         @keydown.escape="isOpen = false"
-        @keydown.down="handleArrowDown"
-        @keydown.up="handleArrowUp"
+        @keydown.down.prevent="handleArrowDown"
+        @keydown.up.prevent="handleArrowUp"
       >
         <span :class="styles.selectGrouped.radio">
           <span :class="styles.selectGrouped.indicator">
@@ -76,6 +78,7 @@
             :item="item"
             :model-value="modelValue"
             :multiple="props.multiple"
+            :focused="focusedIndex === index"
             @select="onItemSelect"
           >
             <template v-if="$slots['dropdown-item']" #item="slotProps">
@@ -134,6 +137,7 @@ const emits = defineEmits<{
 
 const groupId = useId();
 const isOpen = ref(false);
+const focusedIndex = ref(0);
 
 const selectedItem = computed<SelectGroupedItemProps | undefined>(() => {
   if (isArray(props.modelValue)) {
@@ -224,16 +228,47 @@ function onItemSelect(value: string) {
   }
 }
 
-function handleArrowDown(event: KeyboardEvent) {
-  if (!isOpen.value) {
-    isOpen.value = true;
-    event.preventDefault();
+/**
+ * Navigate to item at index and select it
+ */
+function navigateToIndex(index: number) {
+  const clampedIndex = Math.max(
+    0,
+    Math.min(index, props.group.items.length - 1)
+  );
+  focusedIndex.value = clampedIndex;
+
+  const item = props.group.items[clampedIndex];
+  if (item) toggleSelection(item.value);
+}
+
+/**
+ * Handle focus: open dropdown and sync focus to current selection
+ */
+function handleFocus() {
+  if (props.disabled) return;
+  isOpen.value = true;
+
+  if (!hasSelection.value && !isEmpty(props.group.items)) {
+    navigateToIndex(0);
+  } else {
+    focusedIndex.value = props.group.items.findIndex(item =>
+      isArray(props.modelValue)
+        ? props.modelValue.includes(item.value)
+        : item.value === props.modelValue
+    );
   }
 }
 
-function handleArrowUp(event: KeyboardEvent) {
-  if (isOpen.value) {
-    event.preventDefault();
-  }
+function handleBlur() {
+  isOpen.value = false;
+}
+
+function handleArrowDown() {
+  if (isOpen.value) navigateToIndex(focusedIndex.value + 1);
+}
+
+function handleArrowUp() {
+  if (isOpen.value) navigateToIndex(focusedIndex.value - 1);
 }
 </script>
