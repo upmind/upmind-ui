@@ -181,6 +181,7 @@ import {
   defineAsyncComponent,
   onUnmounted,
   provide,
+  watch,
   type ComputedRef
 } from "vue";
 import { useI18n } from "vue-i18n";
@@ -347,4 +348,28 @@ onUnmounted(() => {
   useLayout({});
   useFooter({});
 });
+
+// SEO data for parent components
+const seo = computed(() => ({
+  title: product.value?.productDetails?.title,
+  description: product.value?.productDetails?.description,
+  image: product.value?.productDetails?.imgUrl
+}));
+
+// Emit SEO data when product loads/changes
+const emit = defineEmits<{
+  seo: [payload: { title?: string; description?: string; image?: string }];
+}>();
+
+watch(
+  seo,
+  value => {
+    if (value.title) {
+      emit("seo", value);
+    }
+  },
+  { immediate: true }
+);
+
+defineExpose({ seo });
 </script>
