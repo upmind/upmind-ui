@@ -3,13 +3,18 @@
 </template>
 
 <script lang="ts" setup>
-// --- components
 import { UpmSessionLogout } from "@upmind-automation/client-vue";
-
-// --- internal
 import { ROUTE } from "~/funnels/types";
 
-// -----------------------------------------------------------------------------
+// SEO: Logout confirmation page - noindex
+useHead({
+  title: "Signed Out"
+});
+
+useSeoMeta({
+  description: "You have been signed out successfully.",
+  robots: "noindex, nofollow"
+});
 
 definePageMeta({
   name: ROUTE.SESSION_END

@@ -7,11 +7,17 @@
 </template>
 
 <script lang="ts" setup>
-// --- components
 import { UpmSessionLogin } from "@upmind-automation/client-vue";
-
-// --- internal
 import { ROUTE } from "~/funnels/types";
+
+// SEO: Login page
+useHead({
+  title: "Sign In"
+});
+
+useSeoMeta({
+  description: "Sign in to your account to continue."
+});
 
 definePageMeta({
   name: ROUTE.SESSION_LOGIN

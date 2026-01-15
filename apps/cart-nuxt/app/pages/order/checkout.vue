@@ -7,11 +7,18 @@
 </template>
 
 <script lang="ts" setup>
-// --- components
 import { UpmCheckout } from "@upmind-automation/client-vue";
-
-// --- internal
 import { ROUTE } from "~/funnels/types";
+
+// SEO: Checkout page - noindex to prevent indexing of checkout flow
+useHead({
+  title: "Checkout"
+});
+
+useSeoMeta({
+  description: "Complete your purchase securely.",
+  robots: "noindex, nofollow"
+});
 
 definePageMeta({
   name: ROUTE.CHECKOUT

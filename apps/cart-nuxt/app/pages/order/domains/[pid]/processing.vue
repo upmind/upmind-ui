@@ -3,13 +3,17 @@
 </template>
 
 <script lang="ts" setup>
-// --- components
 import { UpmLoading } from "@upmind-automation/client-vue";
-
-// --- internal
 import { ROUTE } from "~/funnels/types";
 
-// -----------------------------------------------------------------------------
+// SEO: Domain processing page - noindex (transitional)
+useHead({
+  title: "Processing..."
+});
+
+useSeoMeta({
+  robots: "noindex, nofollow"
+});
 
 definePageMeta({
   name: ROUTE.DOMAINS_WITH_PRODUCT_PROCESSING

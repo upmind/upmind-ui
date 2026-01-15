@@ -1,4 +1,8 @@
-// https://nuxt.com/docs/api/configuration/nuxt-config
+/**
+ * Nuxt Configuration
+ * Documentation: https://nuxt.com/docs/api/configuration/nuxt-config
+ */
+
 import { resolve } from "path";
 import tailwindcss from "@tailwindcss/vite";
 
@@ -7,19 +11,79 @@ const isBuild =
   process.argv.includes("build") || process.argv.includes("generate");
 
 export default defineNuxtConfig({
-  ssr: false,
+  /**
+   * ---------------------------------------------------------------------------
+   * CORE SETTINGS
+   * Basic Nuxt behavior: rendering mode, compatibility, and developer tools
+   * ---------------------------------------------------------------------------
+   */
+
+  ssr: false, // SPA mode (set to true for server-side rendering)
   compatibilityDate: "2025-07-15",
+  future: { compatibilityVersion: 4 },
   devtools: { enabled: true },
   sourcemap: { client: "hidden" },
-  future: { compatibilityVersion: 4 },
-
-  // SPA loading template shown while app initializes
   spaLoadingTemplate: true,
 
-  // Modules
-  modules: ["@vueuse/nuxt", "@sentry/nuxt/module"],
+  /**
+   * ---------------------------------------------------------------------------
+   * MODULES
+   * Third-party plugins that extend Nuxt functionality
+   * Browse available modules: https://nuxt.com/modules
+   * ---------------------------------------------------------------------------
+   */
 
-  // Runtime config for environment variables
+  modules: [
+    "@sentry/nuxt/module", // Error tracking
+    "@nuxtjs/seo" // SEO toolkit (robots, sitemap, schema.org)
+  ],
+
+  /**
+   * ---------------------------------------------------------------------------
+   * SEO CONFIGURATION
+   * Search engine optimization settings for @nuxtjs/seo module
+   * Docs: https://nuxtseo.com/
+   * ---------------------------------------------------------------------------
+   */
+
+  site: {
+    url: process.env.NUXT_PUBLIC_SITE_URL || "https://cart.upmind.com",
+    name: "Upmind Cart",
+    description: "Upmind E-commerce Cart",
+    defaultLocale: "en"
+  },
+
+  seo: {
+    automaticDefaults: true
+  },
+
+  // Sitemap works in SPA mode (generates at build time)
+  sitemap: {
+    enabled: true
+  },
+
+  // Robots.txt works in SPA mode
+  robots: {
+    enabled: true
+  },
+
+  // Schema.org disabled - requires SSR for Google to detect it
+  schemaOrg: {
+    enabled: false
+  },
+
+  // OG Image disabled - requires SSR
+  ogImage: {
+    enabled: false
+  },
+
+  /**
+   * ---------------------------------------------------------------------------
+   * RUNTIME CONFIGURATION
+   * Environment variables accessible in the app via useRuntimeConfig()
+   * ---------------------------------------------------------------------------
+   */
+
   runtimeConfig: {
     public: {
       API_NAME: process.env.VITE_API_NAME || "",
@@ -31,11 +95,20 @@ export default defineNuxtConfig({
     }
   },
 
-  // Alias configuration for monorepo compatibility
+  /**
+   * ---------------------------------------------------------------------------
+   * PATH ALIASES
+   * Shorthand imports for monorepo packages and app directories
+   * ---------------------------------------------------------------------------
+   */
+
   alias: {
+    // App directories
     "@": resolve(__dirname, "./app"),
     "@icons": resolve(__dirname, "./app/assets/icons"),
     "@animations": resolve(__dirname, "./app/assets/animations"),
+
+    // Monorepo packages
     "@upmind-automation/types": resolve(
       __dirname,
       "../../packages/types/src/index.ts"
@@ -71,7 +144,13 @@ export default defineNuxtConfig({
     )
   },
 
-  // Vite configuration
+  /**
+   * ---------------------------------------------------------------------------
+   * BUILD TOOLS
+   * Vite bundler, Vue compiler, and TypeScript configuration
+   * ---------------------------------------------------------------------------
+   */
+
   vite: {
     plugins: [tailwindcss()],
     resolve: {
@@ -82,21 +161,18 @@ export default defineNuxtConfig({
     }
   },
 
-  // Vue compiler options
   vue: {
     compilerOptions: {
+      // Treat <lord-*> as custom elements (for lord-icon web components)
       isCustomElement: (tag: string) => tag.startsWith("lord-")
     }
   },
 
-  // TypeScript configuration
-  // typeCheck enabled only during build (spawn EBADF issue in dev on macOS)
   typescript: {
     strict: true,
-    typeCheck: isBuild,
+    typeCheck: isBuild, // Only during build (macOS EBADF bug in dev)
     tsConfig: {
       compilerOptions: {
-        // Match Vue cart's strictness - packages aren't written for this stricter mode
         noUncheckedIndexedAccess: false
       },
       include: ["app/**/*"],
@@ -104,17 +180,13 @@ export default defineNuxtConfig({
     }
   },
 
-  // Register virtual routes (routes without page files)
-  // These routes are handled by middleware/routing engine
-  hooks: {
-    "pages:extend"(pages) {
-      pages.push({ name: "storefront", path: "/storefront" });
-    }
-  },
+  /**
+   * ---------------------------------------------------------------------------
+   * APP SETTINGS
+   * Global HTML head tags and stylesheets
+   * ---------------------------------------------------------------------------
+   */
 
-  // ---------------------------------------------------------------------------
-
-  // App configuration (SEO defaults, etc.)
   app: {
     head: {
       charset: "utf-8",
@@ -123,6 +195,6 @@ export default defineNuxtConfig({
       meta: [{ name: "description", content: "Upmind E-commerce Cart" }]
     }
   },
-  // Global CSS
+
   css: ["~//main.css"]
 });

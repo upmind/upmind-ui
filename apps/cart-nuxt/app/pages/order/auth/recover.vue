@@ -7,11 +7,17 @@
 </template>
 
 <script lang="ts" setup>
-// --- components
 import { UpmSessionRecoverPassword } from "@upmind-automation/client-vue";
-
-// --- internal
 import { ROUTE } from "~/funnels/types";
+
+// SEO: Password recovery page
+useHead({
+  title: "Reset Password"
+});
+
+useSeoMeta({
+  description: "Reset your password to regain access to your account."
+});
 
 definePageMeta({
   name: ROUTE.SESSION_RECOVER_PASSWORD
