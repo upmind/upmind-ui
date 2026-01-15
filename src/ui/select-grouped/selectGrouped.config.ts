@@ -1,4 +1,7 @@
 import { cva } from "class-variance-authority";
+import { baseRing } from "../../assets/styles";
+
+const focusRing = `${baseRing} [&:focus,&[data-focus=true]]:outline-[var(--color-control-ring)]`;
 
 export const groupSizeVariants = cva("", {
   variants: {
@@ -18,12 +21,11 @@ export const groupSizeVariants = cva("", {
 });
 
 export const groupVariants = cva(
-  `bg-control-surface text-control-foreground group control-radius shadow-control-default hover:shadow-control-hover relative z-10 flex cursor-pointer list-none gap-2 rounded py-4 pr-4 pl-3 font-normal transition-all duration-200 outline-none`,
+  `bg-control-surface text-control-foreground group control-radius shadow-control-default hover:shadow-control-hover relative z-10 flex cursor-pointer list-none gap-2 rounded py-4 pr-4 pl-3 font-normal transition-all duration-200 ${focusRing}`,
   {
     variants: {
       isOpen: {
-        true: "rounded-b-none",
-        false: "focus:ring-ring focus:ring-2 focus:ring-offset-2"
+        true: "rounded-b-none"
       }
     },
     defaultVariants: {
@@ -37,7 +39,7 @@ export const dropdownVariants = cva(
 );
 
 export const dropdownItemVariants = cva(
-  `border-border data-[focused=true]:bg-muted data-[focused=true]:ring-ring flex cursor-pointer items-center gap-3 border-t px-4 py-3 transition-colors outline-none first:border-t-0 data-[focused=true]:ring-2 data-[focused=true]:ring-inset`
+  `border-border data-[focused=true]:bg-muted flex cursor-pointer items-center gap-3 border-t px-4 py-3 outline outline-2 -outline-offset-4 outline-transparent transition-colors first:border-t-0 data-[focused=true]:outline-[var(--color-control-ring)]`
 );
 
 export const rootVariants = cva("grid w-full grid-cols-12 gap-2");
