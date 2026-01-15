@@ -13,8 +13,8 @@
     </UpmHeader>
 
     <UpmMain>
-      <UpmLoading v-if="isLoading" />
-      <UpmRoot v-show="!isLoading">
+      <UpmLoading v-if="showLoader" />
+      <UpmRoot v-show="!showLoader">
         <!-- Page content from NuxtPage -->
         <slot />
       </UpmRoot>
@@ -54,6 +54,25 @@ const route = useRoute();
 const router = useRouter();
 
 const { isLoading } = useLoadingIndicator();
+
+// Delayed loader - only show after threshold to prevent flash on quick transitions
+const DEBOUNCE_DELAY = 600;
+const showLoader = ref(false);
+let loaderTimeout: ReturnType<typeof setTimeout> | null = null;
+
+watch(isLoading, loading => {
+  if (loading) {
+    loaderTimeout = setTimeout(() => {
+      showLoader.value = true;
+    }, DEBOUNCE_DELAY);
+  } else {
+    if (loaderTimeout) {
+      clearTimeout(loaderTimeout);
+      loaderTimeout = null;
+    }
+    showLoader.value = false;
+  }
+});
 
 const { meta: basketMeta } = useBasket();
 const { meta: sessionMeta } = useSession();
