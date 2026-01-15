@@ -52,7 +52,6 @@ const service = interpret(sessionMachine, { devTools: true });
  * @returns Session management API (see below for details)
  */
 export const useSession = () => {
-  const { t } = useI18n();
   if (service.status == InterpreterStatus.NotStarted) service.start();
 
   const { state, send } = useActor(service);
@@ -60,6 +59,7 @@ export const useSession = () => {
   // --- state
 
   async function isReady(): Promise<boolean> {
+    const { t } = useI18n();
     return waitFor(service, state => !state.matches("checking"), {
       timeout: 60_000
     })
@@ -77,6 +77,7 @@ export const useSession = () => {
   }
 
   async function isAuthenticated(): Promise<User> {
+    const { t } = useI18n();
     return isReady()
       .then(async () => {
         if (!client.value)
@@ -211,6 +212,7 @@ export const useSession = () => {
   // ---  methods
 
   async function getUser(): Promise<User> {
+    const { t } = useI18n();
     if (!client.value) {
       throw new DetailedError(
         t("error.user_not_available"),
@@ -400,6 +402,7 @@ export const useSession = () => {
   }
 
   async function transferTo(): Promise<IAuthTransfer> {
+    const { t } = useI18n();
     if (!client.value) {
       const { addError } = useFeedback();
       addError({ title: t("error.session_transfer_not_available") });
@@ -449,6 +452,7 @@ export const useSession = () => {
     code: string,
     redirect?: string
   ): Promise<SessionTransfer> {
+    const { t } = useI18n();
     service.send({
       type: "TRANSFER_FROM",
       data: {
@@ -496,6 +500,7 @@ export const useSession = () => {
    * @returns {Promise<any>}
    */
   async function resolve(model: any): Promise<any> {
+    const { t } = useI18n();
     if (meta.value.showLoginForm && !meta.value.show2fa) return login(model);
     if (meta.value.show2fa) return verify2fa(model);
     if (meta.value.showRegisterForm) return register(model);
