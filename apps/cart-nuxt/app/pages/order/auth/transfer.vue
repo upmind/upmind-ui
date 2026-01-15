@@ -6,14 +6,17 @@
 
 <script lang="ts" setup>
 import { ROUTE } from "~/funnels/types";
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
 
 // SEO: Session transfer page - noindex (internal process)
 useHead({
-  title: "Transfering..."
+  title: t("seo.page_session_transfer_title")
 });
 
 useSeoMeta({
-  description: "Transferring your session...",
+  description: t("seo.page_session_transfer_description"),
   robots: "noindex, nofollow"
 });
 

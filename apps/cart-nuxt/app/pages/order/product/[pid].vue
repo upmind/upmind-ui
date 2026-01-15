@@ -9,7 +9,9 @@
 <script lang="ts" setup>
 import { UpmProductConfigure, useBrand } from "@upmind-automation/client-vue";
 import { ROUTE } from "~/funnels/types";
+import { useI18n } from "vue-i18n";
 
+const { t } = useI18n();
 const { storefrontRoute, name: brandName } = useBrand();
 
 // Handle SEO data emitted from UpmProductConfigure
@@ -18,12 +20,10 @@ function handleSeo(seo: {
   description?: string;
   image?: string;
 }) {
-  const title = seo.title || "Configure Product";
-  const description =
-    seo.description || "Configure your product options and add to cart.";
+  const title = seo.title || t("seo.page_product_title");
+  const description = seo.description || t("seo.page_product_description");
   const siteName = brandName.value || "Upmind Cart";
 
-  debugger;
   useHead({ title });
 
   useSeoMeta({

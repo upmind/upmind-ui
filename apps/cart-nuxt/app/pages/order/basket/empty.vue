@@ -5,14 +5,17 @@
 <script lang="ts" setup>
 import { UpmEmpty } from "@upmind-automation/client-vue";
 import { ROUTE } from "~/funnels/types";
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
 
 // SEO: Empty basket page - noindex
 useHead({
-  title: "Your Cart is Empty"
+  title: t("seo.page_basket_empty_title")
 });
 
 useSeoMeta({
-  description: "Your shopping cart is empty. Start shopping to add items.",
+  description: t("seo.page_basket_empty_description"),
   robots: "noindex, nofollow"
 });
 

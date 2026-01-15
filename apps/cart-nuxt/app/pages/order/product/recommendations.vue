@@ -7,14 +7,17 @@
 <script lang="ts" setup>
 import { UpmProductRecommendations } from "@upmind-automation/client-vue";
 import { ROUTE } from "~/funnels/types";
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
 
 // SEO: Product recommendations page
 useHead({
-  title: "Recommended Add-ons"
+  title: t("seo.page_product_recommendations_title")
 });
 
 useSeoMeta({
-  description: "Enhance your selection with these recommended add-ons."
+  description: t("seo.page_product_recommendations_description")
 });
 
 definePageMeta({

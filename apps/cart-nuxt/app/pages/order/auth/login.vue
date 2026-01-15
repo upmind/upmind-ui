@@ -9,14 +9,17 @@
 <script lang="ts" setup>
 import { UpmSessionLogin } from "@upmind-automation/client-vue";
 import { ROUTE } from "~/funnels/types";
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
 
 // SEO: Login page
 useHead({
-  title: "Sign In"
+  title: t("seo.page_login_title")
 });
 
 useSeoMeta({
-  description: "Sign in to your account to continue."
+  description: t("seo.page_login_description")
 });
 
 definePageMeta({

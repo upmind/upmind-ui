@@ -5,14 +5,17 @@
 <script lang="ts" setup>
 import { UpmProductRequiresAction } from "@upmind-automation/client-vue";
 import { ROUTE } from "~/funnels/types";
+import { useI18n } from "vue-i18n";
 
-// SEO: Product requires action page - noindex (user-specific)
+const { t } = useI18n();
+
+// SEO: Requires action page - noindex
 useHead({
-  title: "Action Required"
+  title: t("seo.page_basket_requires_action_title")
 });
 
 useSeoMeta({
-  description: "Your cart item requires additional action.",
+  description: t("seo.page_basket_requires_action_description"),
   robots: "noindex, nofollow"
 });
 

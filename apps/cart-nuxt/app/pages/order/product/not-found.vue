@@ -5,14 +5,17 @@
 <script lang="ts" setup>
 import { UpmProductNotFound } from "@upmind-automation/client-vue";
 import { ROUTE } from "~/funnels/types";
+import { useI18n } from "vue-i18n";
 
-// SEO: Product not found page - noindex (error state)
+const { t } = useI18n();
+
+// SEO: Product not found - noindex
 useHead({
-  title: "Product Not Found"
+  title: t("seo.page_product_not_found_title")
 });
 
 useSeoMeta({
-  description: "The product you're looking for could not be found.",
+  description: t("seo.page_product_not_found_description"),
   robots: "noindex, nofollow"
 });
 

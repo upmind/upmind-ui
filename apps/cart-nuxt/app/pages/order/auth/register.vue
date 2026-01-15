@@ -9,14 +9,17 @@
 <script lang="ts" setup>
 import { UpmSessionRegister } from "@upmind-automation/client-vue";
 import { ROUTE } from "~/funnels/types";
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
 
 // SEO: Registration page
 useHead({
-  title: "Create Account"
+  title: t("seo.page_register_title")
 });
 
 useSeoMeta({
-  description: "Create a new account to get started."
+  description: t("seo.page_register_description")
 });
 
 definePageMeta({
