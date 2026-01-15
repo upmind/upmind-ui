@@ -2,28 +2,27 @@
   <UpmBasketProductEdit
     :storefront-route="{ name: ROUTE.STOREFRONT }"
     :catalogue-route="{ name: ROUTE.CATALOGUE }"
-    @seo="handleSeo"
+    @product-details="handleProductDetails"
   />
 </template>
 
 <script lang="ts" setup>
 import { UpmBasketProductEdit, useBrand } from "@upmind-automation/client-vue";
+import type { ProductDetails } from "@upmind-automation/headless";
 import { ROUTE } from "~/funnels/types";
 import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
-const { name: brandName } = useBrand();
+const { name: brandName, currency } = useBrand();
 
-// Handle SEO data emitted from UpmBasketProductEdit
-function handleSeo(seo: {
-  title?: string;
-  description?: string;
-  image?: string;
-}) {
-  const title = seo.title || t("seo.page_basket_edit_title");
-  const description = seo.description || t("seo.page_basket_edit_description");
+// Handle productDetails emitted from UpmBasketProductEdit
+function handleProductDetails(details: ProductDetails) {
+  const title = details.title || t("seo.page_basket_edit_title");
+  const description =
+    details.description || t("seo.page_basket_edit_description");
   const siteName = brandName.value || "Upmind Cart";
 
+  // SEO meta tags (noindex for cart content)
   useHead({ title });
 
   useSeoMeta({
@@ -32,6 +31,27 @@ function handleSeo(seo: {
     ogTitle: `${title} | ${siteName}`,
     ogDescription: description
   });
+
+  // Schema.org: Product with rich data
+  useSchemaOrg([
+    defineProduct({
+      name: title,
+      description,
+      image: details.imgUrl,
+      brand: {
+        "@type": "Brand",
+        name: details.brand || siteName
+      },
+      category: details.category,
+      offers: details.displayPrice
+        ? {
+            "@type": "Offer",
+            price: details.displayPrice.price.currentAmount,
+            priceCurrency: currency.value?.code || "USD"
+          }
+        : undefined
+    })
+  ]);
 }
 
 definePageMeta({

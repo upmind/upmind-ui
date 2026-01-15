@@ -12,6 +12,7 @@ import { useBrand } from "@upmind-automation/headless";
  * - Set favicon from brand data
  * - Set OpenGraph image from brand logo
  * - Set html lang attribute from current language
+ * - Set Organization schema from brand data
  */
 export default defineNuxtRouteMiddleware(() => {
   const { name, image, favicon, language } = useBrand();
@@ -45,4 +46,12 @@ export default defineNuxtRouteMiddleware(() => {
     ogLocale: langCode,
     twitterImage: imageUrl
   });
+
+  // Schema.org: Organization from brand data
+  useSchemaOrg([
+    defineOrganization({
+      name: siteName,
+      logo: imageUrl || undefined
+    })
+  ]);
 });

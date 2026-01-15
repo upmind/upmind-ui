@@ -23,6 +23,15 @@ useSeoMeta({
   robots: "noindex, nofollow"
 });
 
+// Schema.org: CheckoutPage
+useSchemaOrg([
+  defineWebPage({
+    "@type": "CheckoutPage",
+    name: t("seo.page_checkout_title"),
+    description: t("seo.page_checkout_description")
+  })
+]);
+
 definePageMeta({
   name: ROUTE.CHECKOUT
 });

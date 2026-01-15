@@ -191,7 +191,8 @@ import {
   useRoutingEngine,
   useBasketProducts,
   useQueryParams,
-  useProductConfig
+  useProductConfig,
+  type ProductDetails
 } from "@upmind-automation/headless";
 import { useHeader } from "../../components/header/useHeader";
 import { useFooter } from "../../components/footer/useFooter";
@@ -349,27 +350,20 @@ onUnmounted(() => {
   useFooter({});
 });
 
-// SEO data for parent components
-const seo = computed(() => ({
-  title: product.value?.productDetails?.title,
-  description: product.value?.productDetails?.description,
-  image: product.value?.productDetails?.imgUrl
-}));
-
-// Emit SEO data when product loads/changes
+// Emit productDetails when it loads/changes for parent components (e.g., SEO, schema)
 const emit = defineEmits<{
-  seo: [payload: { title?: string; description?: string; image?: string }];
+  productDetails: [payload: ProductDetails];
 }>();
 
 watch(
-  seo,
+  () => product.value?.productDetails,
   value => {
-    if (value.title) {
-      emit("seo", value);
+    if (value) {
+      emit("productDetails", value);
     }
   },
   { immediate: true }
 );
 
-defineExpose({ seo });
+defineExpose({ product: () => product.value?.productDetails });
 </script>

@@ -25,6 +25,15 @@ useSeoMeta({
   description: t("seo.page_domains_description")
 });
 
+// Schema.org: SearchResultsPage for domain search
+useSchemaOrg([
+  defineWebPage({
+    "@type": "SearchResultsPage",
+    name: t("seo.page_domains_title"),
+    description: t("seo.page_domains_description")
+  })
+]);
+
 definePageMeta({
   name: ROUTE.DOMAINS
 });

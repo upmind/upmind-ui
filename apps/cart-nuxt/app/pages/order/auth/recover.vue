@@ -22,6 +22,15 @@ useSeoMeta({
   description: t("seo.page_recover_description")
 });
 
+// Schema.org: WebPage for password recovery
+useSchemaOrg([
+  defineWebPage({
+    "@type": "WebPage",
+    name: t("seo.page_recover_title"),
+    description: t("seo.page_recover_description")
+  })
+]);
+
 definePageMeta({
   name: ROUTE.SESSION_RECOVER_PASSWORD
 });

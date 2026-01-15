@@ -67,9 +67,9 @@ export default defineNuxtConfig({
     enabled: true
   },
 
-  // Schema.org disabled - requires SSR for Google to detect it
+  // Schema.org for structured data (works in SPA via client-side JS)
   schemaOrg: {
-    enabled: false
+    enabled: true
   },
 
   // OG Image disabled - requires SSR

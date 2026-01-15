@@ -22,6 +22,15 @@ useSeoMeta({
   description: t("seo.page_login_description")
 });
 
+// Schema.org: WebPage for login
+useSchemaOrg([
+  defineWebPage({
+    "@type": "WebPage",
+    name: t("seo.page_login_title"),
+    description: t("seo.page_login_description")
+  })
+]);
+
 definePageMeta({
   name: ROUTE.SESSION_LOGIN
 });
