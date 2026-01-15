@@ -25,7 +25,8 @@ export const groupVariants = cva(
   {
     variants: {
       isOpen: {
-        true: "rounded-b-none"
+        true: "rounded-b-none !outline-transparent",
+        false: ""
       }
     },
     defaultVariants: {
