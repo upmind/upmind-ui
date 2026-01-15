@@ -13,8 +13,8 @@
     </UpmHeader>
 
     <UpmMain>
-      <UpmLoading v-if="showLoader" />
-      <UpmRoot v-show="!showLoader">
+      <UpmLoading v-if="showLoader" modal />
+      <UpmRoot>
         <!-- Page content from NuxtPage -->
         <slot />
       </UpmRoot>
@@ -56,7 +56,7 @@ const router = useRouter();
 const { isLoading } = useLoadingIndicator();
 
 // Delayed loader - only show after threshold to prevent flash on quick transitions
-const DEBOUNCE_DELAY = 600;
+const DEBOUNCE_DELAY = 1500;
 const showLoader = ref(false);
 let loaderTimeout: ReturnType<typeof setTimeout> | null = null;
 

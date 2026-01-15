@@ -271,19 +271,14 @@ export class Upmind {
           Promise.allSettled([
             useBrand().isReady(),
             useSystem().isReady(),
-
             useSession().isReady()
           ])
-            // start with our render blocking initialisations
-            .then(() =>
-              Promise.all([
-                this.initLocalisation(),
-                this.initTheming(),
-                this.initRouter()
-              ])
-            )
+            // then initialise our localisation to ensure i18n is available to our app/composables/machines
+            .then(() => this.initLocalisation())
+            // and then we start with our render blocking initialisations
+            .then(() => Promise.all([this.initTheming(), this.initRouter()]))
+            // finally we do our non-render blocking initialisations
             .then(() => {
-              // then do our non-render blocking initialisations
               this.initRecaptcha();
               this.initAnalytics();
             })
