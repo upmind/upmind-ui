@@ -3,28 +3,17 @@ import { resolve } from "path";
 import tailwindcss from "@tailwindcss/vite";
 
 export default defineNuxtConfig({
+  ssr: false,
   compatibilityDate: "2025-07-15",
   devtools: { enabled: true },
-
-  // Future compatibility with Nuxt 4
-  future: {
-    compatibilityVersion: 4
-  },
-
-  // SSR enabled by default
-  ssr: false,
+  sourcemap: { client: "hidden" },
+  future: { compatibilityVersion: 4 },
 
   // SPA loading template shown while app initializes
   spaLoadingTemplate: true,
 
   // Modules
-  modules: ["@vueuse/nuxt"],
-
-  // Global CSS
-  css: ["~//main.css"],
-
-  // Dev server configuration
-  devServer: {},
+  modules: ["@vueuse/nuxt", "@sentry/nuxt/module"],
 
   // Runtime config for environment variables
   runtimeConfig: {
@@ -125,6 +114,8 @@ export default defineNuxtConfig({
     }
   },
 
+  // ---------------------------------------------------------------------------
+
   // App configuration (SEO defaults, etc.)
   app: {
     head: {
@@ -133,5 +124,7 @@ export default defineNuxtConfig({
       title: "Upmind Cart",
       meta: [{ name: "description", content: "Upmind E-commerce Cart" }]
     }
-  }
+  },
+  // Global CSS
+  css: ["~//main.css"]
 });

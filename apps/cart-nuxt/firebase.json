@@ -2,7 +2,7 @@
   "hosting": [
     {
       "target": "upmind",
-      "public": "dist",
+      "public": ".output/public",
       "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
       "rewrites": [
         {
@@ -41,7 +41,7 @@
     },
     {
       "target": "staging",
-      "public": "dist",
+      "public": ".output/public",
       "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
       "rewrites": [
         {

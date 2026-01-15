@@ -28,7 +28,7 @@
     "start:test": "vite --mode test --dotenv .env.test",
     "dev": "nuxt dev --host collabstudio.localhost --dotenv .env.development",
     "build": "pnpm build-only",
-    "build:staging": "nuxt build --mode staging --dotenv .env.staging",
+    "build:staging": "nuxt generate --mode staging --dotenv .env.staging",
     "build-only": "nuxt build",
     "generate": "nuxt generate",
     "postinstall": "nuxt prepare",
@@ -43,6 +43,7 @@
   },
   "dependencies": {
     "@formkit/auto-animate": "^0.8.2",
+    "@sentry/nuxt": "^10.34.0",
     "@sentry/vue": "^10.4.0",
     "@tailwindcss/typography": "^0.5.16",
     "@tanstack/vue-query": "^5.83.1",

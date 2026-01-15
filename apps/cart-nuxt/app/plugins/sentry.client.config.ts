@@ -1,4 +1,5 @@
-import * as Sentry from "@sentry/vue";
+import { useRuntimeConfig } from "#imports";
+import * as Sentry from "@sentry/nuxt";
 
 export default defineNuxtPlugin(nuxtApp => {
   const config = useRuntimeConfig();
@@ -7,7 +8,6 @@ export default defineNuxtPlugin(nuxtApp => {
   if (import.meta.client) {
     Sentry.init({
       environment: import.meta.dev ? "development" : "production",
-      app: nuxtApp.vueApp as any,
       dsn: config.public.SENTRY_DSN as string,
       integrations: [
         Sentry.browserTracingIntegration({ router: router as any }),
