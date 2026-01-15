@@ -9,14 +9,17 @@
 <script lang="ts" setup>
 import { UpmCheckout } from "@upmind-automation/client-vue";
 import { ROUTE } from "~/funnels/types";
+import { useI18n } from "vue-i18n";
 
-// SEO: Checkout page - noindex to prevent indexing of checkout flow
+const { t } = useI18n();
+
+// SEO: Checkout page - noindex
 useHead({
-  title: "Checkout"
+  title: t("seo.page_checkout_title")
 });
 
 useSeoMeta({
-  description: "Complete your purchase securely.",
+  description: t("seo.page_checkout_description"),
   robots: "noindex, nofollow"
 });
 

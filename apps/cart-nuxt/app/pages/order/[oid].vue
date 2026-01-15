@@ -5,15 +5,18 @@
 <script lang="ts" setup>
 import { UpmOrder } from "@upmind-automation/client-vue";
 import { ROUTE } from "~/funnels/types";
+import { useI18n } from "vue-i18n";
 
-// SEO: Order confirmation page - noindex as order details are user-specific
+const { t } = useI18n();
+
+// SEO: Order confirmation page - noindex
 useHead({
-  title: "Order Confirmation"
+  title: t("seo.page_order_title")
 });
 
 useSeoMeta({
-  description: "Your order has been placed successfully.",
-  robots: "noindex, nofollow" // Order pages should not be indexed
+  description: t("seo.page_order_description"),
+  robots: "noindex, nofollow"
 });
 
 definePageMeta({

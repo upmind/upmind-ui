@@ -1,21 +1,17 @@
-<!--
-  Index/Loading Route
-  This is the initial loading page shown while the app bootstraps.
-  Transitional route - should not be indexed by search engines.
--->
 <template>
-  <UpmLoading v-if="meta.isResolved" />
+  <UpmLoading />
 </template>
 
 <script lang="ts" setup>
-import { UpmLoading, useRoutingEngine } from "@upmind-automation/client-vue";
+import { UpmLoading } from "@upmind-automation/client-vue";
 import { ROUTE } from "~/funnels/types";
+import { useI18n } from "vue-i18n";
 
-const { meta } = useRoutingEngine();
+const { t } = useI18n();
 
-// SEO: Exclude transitional page from search engine indexing
+// SEO: Loading page - noindex (transitional)
 useHead({
-  title: "Loading..."
+  title: t("seo.page_loading_title")
 });
 
 useSeoMeta({

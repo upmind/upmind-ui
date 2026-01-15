@@ -9,7 +9,9 @@
 <script lang="ts" setup>
 import { UpmBasketProductEdit, useBrand } from "@upmind-automation/client-vue";
 import { ROUTE } from "~/funnels/types";
+import { useI18n } from "vue-i18n";
 
+const { t } = useI18n();
 const { name: brandName } = useBrand();
 
 // Handle SEO data emitted from UpmBasketProductEdit
@@ -18,15 +20,15 @@ function handleSeo(seo: {
   description?: string;
   image?: string;
 }) {
-  const title = seo.title || "Edit Cart Item";
-  const description = seo.description || "Edit your cart item configuration.";
+  const title = seo.title || t("seo.page_basket_edit_title");
+  const description = seo.description || t("seo.page_basket_edit_description");
   const siteName = brandName.value || "Upmind Cart";
 
   useHead({ title });
 
   useSeoMeta({
     description,
-    robots: "noindex, nofollow", // Cart content is user-specific
+    robots: "noindex, nofollow",
     ogTitle: `${title} | ${siteName}`,
     ogDescription: description
   });

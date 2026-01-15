@@ -1,5 +1,4 @@
 import { useBrand } from "@upmind-automation/headless";
-import { isString, get } from "lodash-es";
 
 /**
  * Global SEO Middleware
@@ -12,23 +11,21 @@ import { isString, get } from "lodash-es";
  * - Set dynamic page title suffix from brand name
  * - Set favicon from brand data
  * - Set OpenGraph image from brand logo
+ * - Set html lang attribute from current language
  */
 export default defineNuxtRouteMiddleware(() => {
-  const { name, image, favicon } = useBrand();
+  const { name, image, favicon, language } = useBrand();
 
-  // Extract URL from IImage object or use string directly
-  const faviconUrl = (() => {
-    return favicon.value?.full_url ?? "/favicon.ico";
-  })();
-
-  const imageUrl = (() => {
-    return image.value?.full_url ?? "";
-  })();
-
+  const faviconUrl = favicon.value?.full_url ?? "/favicon.ico";
+  const imageUrl = image.value?.full_url ?? "";
   const siteName = name.value || "Upmind Cart";
+  const langCode = language.value?.code?.toLowerCase() || "en";
 
-  // Set dynamic head meta (title template, favicon)
+  // Set dynamic head meta (title template, favicon, language)
   useHead({
+    htmlAttrs: {
+      lang: langCode
+    },
     titleTemplate: pageTitle => {
       return pageTitle ? `${pageTitle} | ${siteName}` : siteName;
     },
@@ -45,6 +42,7 @@ export default defineNuxtRouteMiddleware(() => {
   useSeoMeta({
     ogSiteName: siteName,
     ogImage: imageUrl,
+    ogLocale: langCode,
     twitterImage: imageUrl
   });
 });

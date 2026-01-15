@@ -1,19 +1,28 @@
 <!--
-  Storefront Route
-  This is a transitional route that will redirect accordingly via middleware.
-  The actual destination is determined by the routing engine based on session state.
-  Should not be indexed by search engines.
+  Storefront Route Handler
+
+  This page handles the /storefront route which can resolve to:
+  - External storefront URL (brand's main website)
+  - Internal catalogue page
+  - Basket page (fallback)
+
+  The actual redirect logic is handled by the redirects middleware.
+  This page exists to satisfy Nuxt's file-based routing.
 -->
 <template>
-  <div />
+  <UpmLoading />
 </template>
 
 <script lang="ts" setup>
+import { UpmLoading } from "@upmind-automation/client-vue";
 import { ROUTE } from "~/funnels/types";
+import { useI18n } from "vue-i18n";
 
-// SEO: Exclude transitional redirect page from search engine indexing
+const { t } = useI18n();
+
+// SEO: Storefront page - noindex (redirect handler)
 useHead({
-  title: "Redirecting..."
+  title: t("seo.page_storefront_title")
 });
 
 useSeoMeta({

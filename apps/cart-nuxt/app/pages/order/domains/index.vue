@@ -6,7 +6,9 @@
 import { UpmDac, useRoutingEngine } from "@upmind-automation/client-vue";
 import { first } from "lodash-es";
 import { ROUTE } from "~/funnels/types";
+import { useI18n } from "vue-i18n";
 
+const { t } = useI18n();
 const { navigateNext } = useRoutingEngine();
 
 function doResolve(value?: string[]) {
@@ -16,11 +18,11 @@ function doResolve(value?: string[]) {
 
 // SEO: Domain search page
 useHead({
-  title: "Domain Search"
+  title: t("seo.page_domains_title")
 });
 
 useSeoMeta({
-  description: "Search and register your perfect domain name."
+  description: t("seo.page_domains_description")
 });
 
 definePageMeta({

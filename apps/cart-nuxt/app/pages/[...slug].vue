@@ -1,23 +1,21 @@
-<!--
-  Error/404 Page
-  Catch-all route for handling 404 and other error states.
-  Should not be indexed by search engines (best practice).
--->
 <template>
-  <UpmError :status="404" :storefront-route="{ name: ROUTE.STOREFRONT }" />
+  <UpmError :storefront-route="{ name: ROUTE.STOREFRONT }" />
 </template>
 
 <script lang="ts" setup>
 import { UpmError } from "@upmind-automation/client-vue";
 import { ROUTE } from "~/funnels/types";
+import { useI18n } from "vue-i18n";
 
-// SEO: Exclude error pages from search engine indexing (best practice)
+const { t } = useI18n();
+
+// SEO: 404 Error page - noindex
 useHead({
-  title: "Page Not Found"
+  title: t("seo.page_error_title")
 });
 
 useSeoMeta({
-  description: "The page you're looking for could not be found.",
+  description: t("seo.page_error_description"),
   robots: "noindex, nofollow"
 });
 

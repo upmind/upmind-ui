@@ -13,7 +13,9 @@ import {
   LAYOUT_VARIANTS
 } from "@upmind-automation/client-vue";
 import { ROUTE } from "~/funnels/types";
+import { useI18n } from "vue-i18n";
 
+const { t } = useI18n();
 const route = useRoute();
 
 const layout = computed(() => {
@@ -22,11 +24,11 @@ const layout = computed(() => {
 
 // SEO: Recommendations page
 useHead({
-  title: "Recommended Products"
+  title: t("seo.page_recommendations_title")
 });
 
 useSeoMeta({
-  description: "Discover products recommended for you based on your selections."
+  description: t("seo.page_recommendations_description")
 });
 
 definePageMeta({
