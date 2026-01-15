@@ -26,7 +26,7 @@
     "clean": "rm -rf {node_modules,dist,*.tsbuildinfo} && rm -rf node_modules && pnpm install",
     "build": "pnpm type-check && pnpm build-only",
     "build-only": "vite build",
-    "type-check": "vue-tsc -p tsconfig.build.json --noEmit",
+    "type-check": "vue-tsc --noEmit",
     "preview": "vite preview",
     "lint": "eslint . --fix",
     "format": "prettier --write src/"
