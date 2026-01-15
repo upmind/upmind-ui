@@ -37,7 +37,7 @@ export const triggerVariants = cva(
 );
 
 export const itemVariants = cva(
-  "data-[state=unchecked]:text-muted control-radius data-[state=checked]:bg-control-selected text-muted data-[state=checked]:text-control-selected focus:hover:text-control-selected cursor-pointer gap-3 px-4 py-2 font-normal transition-all duration-200"
+  `data-[state=unchecked]:text-muted control-radius data-[state=checked]:bg-control-selected text-muted data-[state=checked]:text-control-selected focus:hover:text-control-selected cursor-pointer gap-3 px-4 py-2 font-normal ${ringClasses} ${invalidRingClasses}`
 );
 
 export const contentVariants = cva(
