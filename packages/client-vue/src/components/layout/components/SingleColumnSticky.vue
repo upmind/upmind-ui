@@ -35,7 +35,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { useSlots, computed, useTemplateRef, ref } from "vue";
+import { useSlots, computed, useTemplateRef, ref, onMounted } from "vue";
 import { useMutationObserver } from "@vueuse/core";
 
 // --- utils
@@ -129,6 +129,12 @@ useMutationObserver(
     subtree: true
   }
 );
+
+onMounted(() => {
+  visible.value = content.value?.$el
+    ? hasSignificantContent(content.value.$el)
+    : false;
+});
 </script>
 
 <style scoped>
