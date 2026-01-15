@@ -1,5 +1,10 @@
 <template>
-  <div class="relative" :class="styles.selectGrouped.group.size">
+  <div
+    ref="containerRef"
+    class="relative"
+    :class="styles.selectGrouped.group.size"
+    @focusout="handleFocusOut"
+  >
     <Collapsible v-model:open="isOpen">
       <!-- Collapsible header/trigger -->
       <div
@@ -17,7 +22,6 @@
         :data-hover="props.dataHover"
         :data-focus="props.dataFocus"
         @focus="handleFocus"
-        @blur="handleBlur"
         @click="toggleOpen"
         @keydown.enter.prevent="handleEnterSpace"
         @keydown.space.prevent="handleEnterSpace"
@@ -148,6 +152,7 @@ const groupId = useId();
 const isOpen = ref(false);
 const focusedIndex = ref(0);
 const headerRef = ref<HTMLElement | null>(null);
+const containerRef = ref<HTMLElement | null>(null);
 
 const selectedItem = computed<SelectGroupedItemProps | undefined>(() => {
   if (isArray(props.modelValue)) {
@@ -224,10 +229,17 @@ function toggleOpen() {
 
   isOpen.value = !isOpen.value;
 
-  // Set visual focus to first item and auto-select when opening
+  // When opening, set visual focus appropriately
   if (isOpen.value) {
-    focusedIndex.value = 0;
-    selectFocusedItem(false);
+    if (hasSelection.value && selectedItem.value) {
+      // Focus the already-selected item (don't change the value)
+      const id = props.group.items.indexOf(selectedItem.value);
+      focusedIndex.value = id >= 0 ? id : 0;
+    } else {
+      // No selection - focus first item and auto-select it
+      focusedIndex.value = 0;
+      selectFocusedItem(false);
+    }
   }
 }
 
@@ -270,8 +282,12 @@ function handleFocus() {
   }
 }
 
-function handleBlur() {
-  isOpen.value = false;
+function handleFocusOut(event: FocusEvent) {
+  // Only close if focus left the entire container (not just moving to dropdown item)
+  const relatedTarget = event.relatedTarget as HTMLElement | null;
+  if (!containerRef.value?.contains(relatedTarget)) {
+    isOpen.value = false;
+  }
 }
 
 function handleEnterSpace() {
