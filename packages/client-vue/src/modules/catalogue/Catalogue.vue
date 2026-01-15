@@ -96,7 +96,7 @@ import { last } from "lodash-es";
 
 // --- types
 import type { ProductCategory } from "@upmind-automation/headless";
-import type { LAYOUT_VARIANTS } from "@/components/layout";
+import type { LAYOUT_VARIANTS } from "../../components/layout";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
 import { PRODUCT_LIST_STYLE } from "@upmind-automation/headless";
 
