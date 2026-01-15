@@ -16,6 +16,7 @@
         :data-state="hasSelection ? 'checked' : 'unchecked'"
         :data-hover="props.dataHover"
         :data-focus="props.dataFocus"
+        @focus="handleFocus"
         @blur="handleBlur"
         @click="toggleOpen"
         @keydown.enter.prevent="handleEnterSpace"
@@ -223,9 +224,10 @@ function toggleOpen() {
 
   isOpen.value = !isOpen.value;
 
-  // Set visual focus to first item when opening
+  // Set visual focus to first item and auto-select when opening
   if (isOpen.value) {
     focusedIndex.value = 0;
+    selectFocusedItem(false);
   }
 }
 
@@ -248,14 +250,23 @@ function focusItem(index: number) {
 
 /**
  * Select the currently focused item
+ * @param closeOnSelect - Whether to close the dropdown after selection (for single-select mode)
  */
-function selectFocusedItem() {
+function selectFocusedItem(closeOnSelect = true) {
   const item = props.group.items[focusedIndex.value];
   if (item) {
     toggleSelection(item.value);
-    if (!props.multiple) {
+    if (!props.multiple && closeOnSelect) {
       isOpen.value = false;
     }
+  }
+}
+
+// Auto-select first item when group receives focus (from arrow key navigation)
+function handleFocus() {
+  if (!hasSelection.value && props.group.items.length > 0) {
+    focusedIndex.value = 0;
+    selectFocusedItem(false);
   }
 }
 
@@ -276,8 +287,9 @@ function handleArrowDown() {
     // Navigate to next group when dropdown is closed
     emits("focus-next-group");
   } else {
-    // Navigate to next item within dropdown
+    // Navigate to next item within dropdown and auto-select (don't close)
     focusItem(focusedIndex.value + 1);
+    selectFocusedItem(false);
   }
 }
 
@@ -285,9 +297,14 @@ function handleArrowUp() {
   if (!isOpen.value) {
     // Navigate to previous group when dropdown is closed
     emits("focus-prev-group");
+  } else if (focusedIndex.value === 0) {
+    // At first item - close dropdown and go to previous group
+    isOpen.value = false;
+    emits("focus-prev-group");
   } else {
-    // Navigate to previous item within dropdown
+    // Navigate to previous item within dropdown and auto-select (don't close)
     focusItem(focusedIndex.value - 1);
+    selectFocusedItem(false);
   }
 }
 

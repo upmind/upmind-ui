@@ -13,6 +13,7 @@
     :data-state="isSelected ? 'checked' : 'unchecked'"
     :data-hover="props.dataHover"
     :data-focus="props.dataFocus"
+    @focus="handleFocus"
     @click="toggleSelection"
     @keydown.enter="toggleSelection"
     @keydown.space.prevent="toggleSelection"
@@ -202,6 +203,13 @@ function doAction(action: SelectGroupedItemActionProps, $event: Event) {
       name: action.handler,
       event: $event
     });
+  }
+}
+
+// Auto-select when receiving focus (from arrow key navigation)
+function handleFocus() {
+  if (!isSelected.value) {
+    toggleSelection();
   }
 }
 
