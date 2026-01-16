@@ -56,21 +56,46 @@ const router = useRouter();
 const { isLoading } = useLoadingIndicator();
 
 // Delayed loader - only show after threshold to prevent flash on quick transitions
-const DEBOUNCE_DELAY = 1500;
+// Once shown, enforce minimum display time to complete at least one animation cycle
+const DEBOUNCE_DELAY = 1200;
+const MIN_DISPLAY_TIME = 600;
 const showLoader = ref(false);
 let loaderTimeout: ReturnType<typeof setTimeout> | null = null;
+let loaderShownAt: number | null = null;
+let minDisplayTimeout: ReturnType<typeof setTimeout> | null = null;
 
 watch(isLoading, loading => {
   if (loading) {
     loaderTimeout = setTimeout(() => {
       showLoader.value = true;
+      loaderShownAt = Date.now();
     }, DEBOUNCE_DELAY);
   } else {
     if (loaderTimeout) {
       clearTimeout(loaderTimeout);
       loaderTimeout = null;
     }
-    showLoader.value = false;
+
+    // If loader is showing, ensure minimum display time before hiding
+    if (showLoader.value && loaderShownAt) {
+      const elapsed = Date.now() - loaderShownAt;
+      const remaining = MIN_DISPLAY_TIME - elapsed;
+
+      if (remaining > 0) {
+        // Wait for the remaining time before hiding
+        minDisplayTimeout = setTimeout(() => {
+          showLoader.value = false;
+          loaderShownAt = null;
+          minDisplayTimeout = null;
+        }, remaining);
+      } else {
+        // Minimum time already passed, hide immediately
+        showLoader.value = false;
+        loaderShownAt = null;
+      }
+    } else {
+      showLoader.value = false;
+    }
   }
 });
 
