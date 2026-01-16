@@ -59,12 +59,15 @@ export const useFunnelMachine = ({
               ...keys(states).map(state => {
                 return {
                   target: `available.${state}`,
-                  actions: ["setResolving"],
                   cond: `is${pascalCase(state)}`
                 };
               }),
               // If we are not targeting a specific state, go to idle and assume we are resolved
-              { target: "available", cond: "noTarget" },
+              {
+                target: "available",
+                cond: "noTarget",
+                actions: ["setResolved"]
+              },
               { target: "available", actions: ["setResolved"] }
             ],
             onError: {
@@ -109,7 +112,12 @@ export const useFunnelMachine = ({
                 target: "available.idle",
                 actions: ["setResolved", "setCurrentRoute", "setTargetRoute"]
               }
-            ]
+            ],
+            // 4. Handle errors from invokes within the available states (e.g., guardSession rejections)
+            // If a guard or service fails, we want to stay where we are but mark as resolved
+            "error.platform": {
+              actions: ["setResolved"]
+            }
           }
         },
 

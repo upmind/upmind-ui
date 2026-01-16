@@ -73,7 +73,6 @@ onBeforeUnmount(() => stop());
 async function onAddFile(error: any, filepond: any) {
   // bail out if the file is the same as the current one
   if (filepond.source == src.value) {
-    debugger;
     return;
   }
 
@@ -81,14 +80,11 @@ async function onAddFile(error: any, filepond: any) {
     isEmpty(filepond.source) ||
     modelValue.value?.name == filepond.file?.name
   ) {
-    debugger;
     return;
   }
 
-  debugger;
   modelValue.value = filepond.file;
   const data = await add(filepond.file);
-  debugger;
   onInput(data, false);
 }
 

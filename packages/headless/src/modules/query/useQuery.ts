@@ -14,6 +14,7 @@ import { ref, unref, computed } from "vue";
 import { useI18n, useLocale } from "../system";
 import { useBasket, useBasketCurrency } from "../basket";
 import { doFetch, refreshToken } from "./services";
+import { queryClient } from "./client";
 
 // --- utils
 import {
@@ -69,22 +70,8 @@ import { cancel } from "xstate";
 
 // -----------------------------------------------------------------------------
 
-// NB we need to create our query client here so that it can be used in the `useQuery` hook.
 // This will then be used in the `useUpmind` composable, which initializes the Upmind instance
 // BEFORE vue has an injectable for the query client
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      // Default time for inactive data to be garbage collected
-      gcTime: useTime().MINUTE * 30,
-      // Default cache time for data to be considered "fresh"
-      staleTime: useTime().MINUTE * 5,
-
-      // allow prefetching in the render phase, we need this for services and machine queries
-      experimental_prefetchInRender: true
-    }
-  }
-});
 
 /**
  * A composable function that provides utilities for making HTTP requests
@@ -217,15 +204,25 @@ export const useQuery = () => {
 
       // allow us to retry the request if we have a 401 error, but only once (we don't want an infinite loop)
       if (canRetryAuthorization(url, error, { attempts, max: 1 })) {
-        return refreshToken().then(() => {
-          // get the new access token and update the access token in the request
-          set(
-            init,
-            `headers.Authorization`,
-            `Bearer ${getTokenFromStorage()?.access_token}`
-          ); // finally, retry the request
-          return doFetch<T>({ url, init });
-        });
+        return refreshToken()
+          .then(() => {
+            // get the new access token and update the access token in the request
+            set(
+              init,
+              `headers.Authorization`,
+              `Bearer ${getTokenFromStorage()?.access_token}`
+            ); // finally, retry the request
+            return doFetch<T>({ url, init });
+          })
+          .catch(err => {
+            // if refreshToken fails, reauth is already called there, but we should still throw
+            throw err;
+          });
+      }
+
+      // if we have a 401 error and we are not retrying, we need to notify the session machine
+      if (error.code == responseCodes.Unauthorized) {
+        useSession().reauth();
       }
 
       // let the original error propagate

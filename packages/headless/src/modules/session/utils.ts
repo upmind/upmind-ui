@@ -1,5 +1,6 @@
 // --- internal
 import { useI18n } from "../system";
+import { isAdmin } from "../../utils/config";
 
 // --- utils
 import {
@@ -61,21 +62,30 @@ export function getTokenFromStorage(actor_type?: Token["actor_type"]) {
   convertToCookie();
 
   const clientCookie = getCookie("upm_client_session") as string | undefined;
-
-  // const guestToken = localStorage.getItem(`guest/auth/token`);
+  const adminCookie = getCookie("upm_admin_session") as string | undefined;
+  const userCookie = getCookie("upm_user_session") as string | undefined;
   const guestCookie = getCookie("upm_guest_session") as string | undefined;
 
   let token: string | Token;
 
   if (actor_type === "client") {
     token = clientCookie || "";
+  } else if (actor_type === "admin" || actor_type === "user") {
+    token = userCookie || adminCookie || "";
   } else if (actor_type === "guest") {
     token = guestCookie || "";
   } else {
-    token = clientCookie || guestCookie || "";
+    // If no specific actor type is requested, check based on the app mode
+    const admin = isAdmin.value;
+    if (admin) {
+      token = userCookie || adminCookie || guestCookie || "";
+    } else {
+      token = clientCookie || guestCookie || "";
+    }
   }
-  token = useTokenParser(token) as Token;
-  return token;
+
+  const parsedToken = useTokenParser(token) as Token;
+  return parsedToken;
 }
 
 export function persistTokenToStorage(token: Token) {
@@ -116,7 +126,14 @@ export function dumpTokenFromStorage(actor_type: Token["actor_type"]) {
 export function useTokenParser(data: string | Token): Token | undefined {
   if (isEmpty(data)) return undefined;
 
-  if (isString(data)) data = JSON.parse(data);
+  if (isString(data)) {
+    try {
+      data = JSON.parse(data);
+    } catch (e) {
+      console.error("[Session Utility] Failed to parse token JSON:", data);
+      return undefined;
+    }
+  }
 
   const tokenData = data as Token;
   return {

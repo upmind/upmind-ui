@@ -40,13 +40,48 @@ export default createMachine(
       loading: {
         id: "loading",
         entry: "clearError",
+        always: {
+          target: "available",
+          cond: "hasClient"
+        },
         invoke: {
           src: "load",
           onDone: {
             target: "available",
             actions: ["setActor", "setClient", "setLocale"]
           },
-          onError: { target: "complete", actions: ["setError"] }
+          onError: { target: "error", actions: ["setError"] }
+        },
+        after: {
+          15000: {
+            target: "error",
+            actions: [
+              assign({
+                error: () =>
+                  new DetailedError(
+                    "Loading user profile timed out",
+                    responseCodes.Timeout,
+                    ErrorOrigin.Headless
+                  )
+              })
+            ]
+          }
+        }
+      },
+
+      error: {
+        after: {
+          1000: {
+            actions: [
+              () => {
+                console.warn("[Client Machine] load failed, triggering reauth");
+              },
+              "reauth"
+            ]
+          }
+        },
+        on: {
+          REFRESH: "loading"
         }
       },
 
@@ -120,6 +155,8 @@ export default createMachine(
         //  also update the data layer to indicate the client has logged out
         sessionStorage.clear();
         removeCookie("upm_client_session");
+        removeCookie("upm_admin_session");
+        removeCookie("upm_user_session");
         removeCookie("upm_guest_session");
         removeCookie("upm_actor");
         dataLayer().withUser().push(false);
@@ -168,9 +205,21 @@ export default createMachine(
         });
       },
 
-      clearError: assign({ error: undefined })
+      clearError: assign({ error: undefined }),
+      reauth: (
+        context: ClientContext,
+        event: AnyEventObject,
+        { action, ...meta }: any
+      ) => {
+        // Send EXPIRED to parent session machine
+        if (meta?._service?.parent) {
+          meta._service.parent.send({ type: "EXPIRED" });
+        }
+      }
     },
-    guards: {},
+    guards: {
+      hasClient: (context: ClientContext) => !!context?.client
+    },
 
     delays: {
       error: () => useTime().ERROR,
