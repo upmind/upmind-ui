@@ -12,7 +12,13 @@ const routes: RouteRecordRaw[] = [
     alias: "/products",
     component: Listings,
     meta: {
-      title: "Products Catalogue"
+      title: "Products Catalogue",
+      nav: {
+        label: "Catalogue",
+        icon: "grid-01",
+        section: "Products",
+        order: 1
+      }
     }
   },
   {
@@ -20,7 +26,14 @@ const routes: RouteRecordRaw[] = [
     name: "products.catalogue.detail",
     component: Detail,
     meta: {
-      title: "Product Detail"
+      title: "Product Detail",
+      nav: {
+        label: "Product Detail",
+        icon: "eye",
+        section: "Products",
+        order: 2,
+        hidden: true
+      }
     }
   }
 ];

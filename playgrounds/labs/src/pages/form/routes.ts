@@ -12,7 +12,14 @@ const routes: RouteRecordRaw[] = [
     name: "form.address",
     component: Address,
     meta: {
-      title: "Address Renderer"
+      title: "Address Renderer",
+      nav: {
+        label: "Address Form",
+        icon: "home-01",
+        section: "Labs",
+        order: 4,
+        parent: "forms"
+      }
     }
   },
   {
@@ -20,7 +27,14 @@ const routes: RouteRecordRaw[] = [
     name: "form.domain",
     component: Domain,
     meta: {
-      title: "Domain Renderer"
+      title: "Domain Renderer",
+      nav: {
+        label: "Domain Form",
+        icon: "globe-01",
+        section: "Labs",
+        order: 5,
+        parent: "forms"
+      }
     }
   }
 ];

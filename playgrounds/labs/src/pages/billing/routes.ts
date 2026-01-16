@@ -11,7 +11,15 @@ export default {
         {
           path: "details",
           name: "billing.details",
-          component: () => import("./Billing.vue")
+          component: () => import("./Billing.vue"),
+          meta: {
+            nav: {
+              label: "Billing Details",
+              icon: "credit-card-01",
+              section: "Portal",
+              order: 11
+            }
+          }
         }
       ]
     }

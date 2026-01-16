@@ -14,7 +14,15 @@ export default {
         {
           path: "profile",
           name: "account.profile",
-          component: () => import("./profile/Profile.vue")
+          component: () => import("./profile/Profile.vue"),
+          meta: {
+            nav: {
+              label: "Profile",
+              icon: "user-01",
+              section: "Portal",
+              order: 1
+            }
+          }
         },
         {
           path: "profile/edit",
@@ -30,52 +38,135 @@ export default {
               );
             }
             return { fields };
+          },
+          meta: {
+            nav: {
+              label: "Profile Edit",
+              icon: "edit-01",
+              section: "Portal",
+              order: 2,
+              hidden: true
+            }
           }
         },
         {
           path: "child-accounts",
           name: "account.child-accounts",
-          component: () => import("./childAccounts/ChildAccounts.vue")
+          component: () => import("./childAccounts/ChildAccounts.vue"),
+          meta: {
+            nav: {
+              label: "Child Accounts",
+              icon: "users-plus",
+              section: "Portal",
+              order: 8
+            }
+          }
         },
         {
           path: "delegates",
           name: "account.delegates",
-          component: () => import("./delegates/Delegates.vue")
+          component: () => import("./delegates/Delegates.vue"),
+          meta: {
+            nav: {
+              label: "Delegates",
+              icon: "users-01",
+              section: "Portal",
+              order: 6
+            }
+          }
         },
         {
           path: "delegates/:delegateId",
           name: "account.delegates.delegate",
-          component: () => import("./delegates/Delegate.vue")
+          component: () => import("./delegates/Delegate.vue"),
+          meta: {
+            nav: {
+              label: "Delegate Detail",
+              icon: "user-01",
+              section: "Portal",
+              order: 7,
+              hidden: true
+            }
+          }
         },
         {
           path: "notifications",
           name: "account.notifications",
-          component: () => import("./notifications/Notifications.vue")
+          component: () => import("./notifications/Notifications.vue"),
+          meta: {
+            nav: {
+              label: "Notifications",
+              icon: "bell-01",
+              section: "Portal",
+              order: 4
+            }
+          }
         },
         {
           path: "email-history",
           name: "account.email-history",
-          component: () => import("./emailHistory/EmailHistory.vue")
+          component: () => import("./emailHistory/EmailHistory.vue"),
+          meta: {
+            nav: {
+              label: "Email History",
+              icon: "mail-01",
+              section: "Portal",
+              order: 5
+            }
+          }
         },
         {
           path: "email-history/:emailId",
           name: "account.email-history.view",
-          component: () => import("./emailHistory/Email.vue")
+          component: () => import("./emailHistory/Email.vue"),
+          meta: {
+            nav: {
+              label: "Email View",
+              icon: "eye",
+              section: "Portal",
+              order: 5,
+              hidden: true
+            }
+          }
         },
         {
           path: "security",
           name: "account.security",
-          component: () => import("./security/Security.vue")
+          component: () => import("./security/Security.vue"),
+          meta: {
+            nav: {
+              label: "Security",
+              icon: "shield-01",
+              section: "Portal",
+              order: 3
+            }
+          }
         },
         {
           path: "affiliate",
           name: "account.affiliate",
-          component: () => import("./affiliate/Affiliate.vue")
+          component: () => import("./affiliate/Affiliate.vue"),
+          meta: {
+            nav: {
+              label: "Affiliate",
+              icon: "gift-01",
+              section: "Portal",
+              order: 9
+            }
+          }
         },
         {
           path: "notes",
           name: "account.notes",
-          component: () => import("./notes/Notes.vue")
+          component: () => import("./notes/Notes.vue"),
+          meta: {
+            nav: {
+              label: "Notes",
+              icon: "file-01",
+              section: "Portal",
+              order: 10
+            }
+          }
         }
       ]
     }

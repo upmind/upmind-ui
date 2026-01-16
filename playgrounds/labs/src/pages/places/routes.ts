@@ -12,7 +12,13 @@ const routes: RouteRecordRaw[] = [
     name: "places",
     component: Listings,
     meta: {
-      title: "Address Search"
+      title: "Address Search",
+      nav: {
+        label: "Places API",
+        icon: "marker-pin-01",
+        section: "Labs",
+        order: 2
+      }
     }
   }
 ];
