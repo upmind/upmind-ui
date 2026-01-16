@@ -15,7 +15,13 @@ const { addError } = useFeedback();
 
 // --- utils
 import { omit } from "lodash-es";
-import { useTime, useCookies, mapToHeadlessError } from "../../../utils";
+import {
+  useTime,
+  useCookies,
+  mapToHeadlessError,
+  DetailedError,
+  ErrorOrigin
+} from "../../../utils";
 const { removeTopLevel: removeCookie, setTopLevel: setCookie } = useCookies();
 import { useClientParser } from "../utils";
 
@@ -53,15 +59,17 @@ export default createMachine(
           onError: { target: "error", actions: ["setError"] }
         },
         after: {
-          15000: {
+          timeout: {
             target: "error",
             actions: [
               assign({
                 error: () =>
-                  new DetailedError(
-                    "Loading user profile timed out",
-                    responseCodes.Timeout,
-                    ErrorOrigin.Headless
+                  mapToHeadlessError(
+                    new DetailedError(
+                      "Loading user profile timed out",
+                      responseCodes.Timeout,
+                      ErrorOrigin.Headless
+                    )
                   )
               })
             ]
@@ -71,7 +79,7 @@ export default createMachine(
 
       error: {
         after: {
-          1000: {
+          error: {
             actions: [
               () => {
                 console.warn("[Client Machine] load failed, triggering reauth");
@@ -224,7 +232,8 @@ export default createMachine(
     delays: {
       error: () => useTime().ERROR,
       wait: () => useTime().WAIT,
-      expired: () => useTime().MINUTE * 5
+      expired: () => useTime().MINUTE * 5,
+      timeout: () => useTime().SECOND * 15
     },
     services: services as any
   }
