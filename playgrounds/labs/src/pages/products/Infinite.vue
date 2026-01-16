@@ -1,68 +1,70 @@
 <template>
-  <div
-    class="mx-auto flex max-w-7xl flex-col items-center gap-y-6"
-    :class="props.class"
-  >
-    <input
-      type="search"
-      v-model="searchQuery"
-      @input="debouncedFilterQuery"
-      placeholder="Search products..."
-      class="w-full rounded-md border border-gray-300 p-2"
-    />
+  <UpmLayout>
+    <div
+      class="mx-auto flex max-w-7xl flex-col items-center gap-y-6"
+      :class="props.class"
+    >
+      <input
+        type="search"
+        v-model="searchQuery"
+        @input="debouncedFilterQuery"
+        placeholder="Search products..."
+        class="w-full rounded-md border border-gray-300 p-2"
+      />
 
-    <Loading :active="meta.isLoading" class-active="w-full">
-      <div
-        class="grid w-full grid-cols-[repeat(auto-fill,minmax(18rem,1fr))] gap-6"
-      >
-        <template v-if="products && products.pages">
-          <template
-            v-for="(page, pageIndex) in products.pages"
-            :key="`page-${pageIndex}`"
-          >
+      <Loading :active="meta.isLoading" class-active="w-full">
+        <div
+          class="grid w-full grid-cols-[repeat(auto-fill,minmax(18rem,1fr))] gap-6"
+        >
+          <template v-if="products && products.pages">
             <template
-              v-for="product in page.pageData"
-              :key="product?.id ?? product"
+              v-for="(page, pageIndex) in products.pages"
+              :key="`page-${pageIndex}`"
             >
-              <Card>
-                <template v-if="product?.productDetails">
-                  <img
-                    v-if="product?.productDetails.imgUrl"
-                    :src="product.productDetails.imgUrl"
-                    :alt="product.productDetails.title"
-                    class="mb-4 h-48 w-full object-cover"
-                  />
-                  <h3>{{ product.productDetails?.title }}</h3>
-                  <p>{{ product.productDetails?.description }}</p>
-                  <p v-if="product.price">
-                    Price: {{ product.price.currentPrice }}
-                  </p>
-                </template>
-              </Card>
+              <template
+                v-for="product in page.pageData"
+                :key="product?.id ?? product"
+              >
+                <Card>
+                  <template v-if="product?.productDetails">
+                    <img
+                      v-if="product?.productDetails.imgUrl"
+                      :src="product.productDetails.imgUrl"
+                      :alt="product.productDetails.title"
+                      class="mb-4 h-48 w-full object-cover"
+                    />
+                    <h3>{{ product.productDetails?.title }}</h3>
+                    <p>{{ product.productDetails?.description }}</p>
+                    <p v-if="product.price">
+                      Price: {{ product.price.currentPrice }}
+                    </p>
+                  </template>
+                </Card>
+              </template>
             </template>
           </template>
-        </template>
-        <!-- Skeleton loading when no products or still loading initial page -->
-        <template v-else-if="meta.isLoading">
-          <Card v-for="n in skeletonCount" :key="n"></Card>
-        </template>
-      </div>
-    </Loading>
+          <!-- Skeleton loading when no products or still loading initial page -->
+          <template v-else-if="meta.isLoading">
+            <Card v-for="n in skeletonCount" :key="n"></Card>
+          </template>
+        </div>
+      </Loading>
 
-    <template
-      v-if="meta.hasNextPage"
-      class="flex w-full items-center justify-center"
-    >
-      <div class="flex items-center justify-between">
-        <Button
-          class="is-primary px-6 py-3"
-          @click="nextPage"
-          :disabled="meta.isLoading || !meta.hasNextPage || meta.hasError"
-          >Load more</Button
-        >
-      </div>
-    </template>
-  </div>
+      <template
+        v-if="meta.hasNextPage"
+        class="flex w-full items-center justify-center"
+      >
+        <div class="flex items-center justify-between">
+          <Button
+            class="is-primary px-6 py-3"
+            @click="nextPage"
+            :disabled="meta.isLoading || !meta.hasNextPage || meta.hasError"
+            >Load more</Button
+          >
+        </div>
+      </template>
+    </div>
+  </UpmLayout>
 </template>
 
 <script setup lang="ts">
@@ -79,6 +81,7 @@ import {
 } from "@upmind-automation/types";
 import { HtmlHTMLAttributes } from "vue";
 import { Button, Loading, Card } from "@upmind-automation/upmind-ui";
+import { UpmLayout } from "@upmind-automation/client-vue";
 
 const props = withDefaults(
   defineProps<{

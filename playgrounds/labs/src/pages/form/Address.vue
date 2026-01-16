@@ -1,27 +1,30 @@
 <template>
-  <UpmSection
-    class="max-w-app mx-auto"
-    label="Address Renderer"
-    subtitle="Search for addresses using the Places API"
-  >
-    <Card class="space-y-8">
-      <UpmForm
-        :schema="schema"
-        :uischema="uischema"
-        :model-value="modelValue"
-        :additional-renderers="formRenderers"
-        no-actions
-        as="fieldset"
-      />
-    </Card>
-  </UpmSection>
+  <UpmLayout>
+    <UpmSection
+      class="max-w-app mx-auto"
+      label="Address Renderer"
+      subtitle="Search for addresses using the Places API"
+    >
+      <Card class="space-y-8">
+        <UpmForm
+          :schema="schema"
+          :uischema="uischema"
+          :model-value="modelValue"
+          :additional-renderers="formRenderers"
+          no-actions
+          as="fieldset"
+        />
+      </Card>
+    </UpmSection>
+  </UpmLayout>
 </template>
 
 <script setup lang="ts">
 import {
   UpmSection,
   UpmForm,
-  formRenderers
+  formRenderers,
+  UpmLayout
 } from "@upmind-automation/client-vue";
 import { Card } from "@upmind-automation/upmind-ui";
 import { ref } from "vue";

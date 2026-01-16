@@ -8,5 +8,5 @@
 <script lang="ts" setup>
 // --- internal
 import { UpmSessionRegister } from "@upmind-automation/client-vue";
-import { ROUTE } from "../../router";
+import { ROUTE } from "../../funnels";
 </script>

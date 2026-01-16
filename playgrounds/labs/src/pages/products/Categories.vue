@@ -1,42 +1,45 @@
 <template>
-  <div data-foo :class="props.class">
-    <input
-      type="search"
-      v-model="searchQuery"
-      @input="debouncedFilterQuery"
-      placeholder="Filter categories..."
-      class="w-full rounded-md border border-gray-300 p-2"
-    />
-    <ul
-      v-if="!!searchQuery"
-      class="m-0 flex max-h-full flex-col overflow-auto p-0"
-    >
-      <Loading :active="meta.isLoading" class-active="w-full">
-        <CategoryItem
-          v-for="category in filteredCategories"
-          v-model="modelValue"
-          :key="`filtered-${category.id}`"
-          :category="category"
-        />
-      </Loading>
-    </ul>
+  <UpmLayout>
+    <div data-foo :class="props.class">
+      <input
+        type="search"
+        v-model="searchQuery"
+        @input="debouncedFilterQuery"
+        placeholder="Filter categories..."
+        class="w-full rounded-md border border-gray-300 p-2"
+      />
+      <ul
+        v-if="!!searchQuery"
+        class="m-0 flex max-h-full flex-col overflow-auto p-0"
+      >
+        <Loading :active="meta.isLoading" class-active="w-full">
+          <CategoryItem
+            v-for="category in filteredCategories"
+            v-model="modelValue"
+            :key="`filtered-${category.id}`"
+            :category="category"
+          />
+        </Loading>
+      </ul>
 
-    <ul v-else class="m-0 flex max-h-full flex-col overflow-auto p-0">
-      <Loading :active="meta.isLoading" class-active="w-full">
-        <CategoryItem :category="all" v-model="modelValue" />
-        <CategoryItem
-          v-for="category in categories"
-          v-model="modelValue"
-          :key="category.id"
-          :category="category"
-        />
-      </Loading>
-    </ul>
-  </div>
+      <ul v-else class="m-0 flex max-h-full flex-col overflow-auto p-0">
+        <Loading :active="meta.isLoading" class-active="w-full">
+          <CategoryItem :category="all" v-model="modelValue" />
+          <CategoryItem
+            v-for="category in categories"
+            v-model="modelValue"
+            :key="category.id"
+            :category="category"
+          />
+        </Loading>
+      </ul>
+    </div>
+  </UpmLayout>
 </template>
 
 <script setup lang="ts">
 import { Loading } from "@upmind-automation/upmind-ui";
+import { UpmLayout } from "@upmind-automation/client-vue";
 import { useVModel } from "@vueuse/core";
 import { debounce } from "lodash-es";
 import {
