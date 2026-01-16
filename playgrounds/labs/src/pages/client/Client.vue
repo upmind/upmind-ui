@@ -41,29 +41,7 @@
       </div>
     </template>
 
-    <RouterView
-      v-slot="{ Component }"
-      :key="$route.fullPath"
-      v-if="meta.isAuthenticated && !!clientId"
-    >
-      <template v-if="Component">
-        <KeepAlive>
-          <Suspense>
-            <!-- main content -->
-            <component :is="Component" view-prop="value" />
-
-            <!-- fallback / loading state -->
-            <template #fallback>
-              <UpmLoading>
-                <template #background>
-                  <slot name="loading-background"></slot>
-                </template>
-              </UpmLoading>
-            </template>
-          </Suspense>
-        </KeepAlive>
-      </template>
-    </RouterView>
+    <UpmRouteView v-if="meta.isAuthenticated && !!clientId" />
   </UpmLayout>
 </template>
 
@@ -77,7 +55,7 @@ import { useSession } from "@upmind-automation/headless";
 // --- components
 import {
   UpmLayout,
-  UpmLoading,
+  UpmRouteView,
   LAYOUT_VARIANTS
 } from "@upmind-automation/client-vue";
 

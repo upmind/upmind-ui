@@ -1,96 +1,101 @@
 <template>
-  <UpmSection
-    class="max-w-app mx-auto"
-    label="Address Search"
-    subtitle="Search for addresses using the Places API"
-  >
-    <Card class="space-y-8">
-      <!-- Debug Info -->
-      <div class="border-b pb-2 text-xs">
-        <div>
-          API Key: {{ apiKey ? apiKey.substring(0, 8) + "..." : "Not found" }}
+  <UpmLayout>
+    <UpmSection
+      class="max-w-app mx-auto"
+      label="Address Search"
+      subtitle="Search for addresses using the Places API"
+    >
+      <Card class="space-y-8">
+        <!-- Debug Info -->
+        <div class="border-b pb-2 text-xs">
+          <div>
+            API Key: {{ apiKey ? apiKey.substring(0, 8) + "..." : "Not found" }}
+          </div>
+          <div>Status: {{ apiStatus }}</div>
         </div>
-        <div>Status: {{ apiStatus }}</div>
-      </div>
 
-      <!-- Search Input -->
-      <div class="mx-auto max-w-md">
-        <Input
-          v-model="searchQuery"
-          label="Search for an address"
-          placeholder="Type at least 3 characters..."
-          :loading="isLoading"
-        />
-      </div>
+        <!-- Search Input -->
+        <div class="mx-auto max-w-md">
+          <Input
+            v-model="searchQuery"
+            label="Search for an address"
+            placeholder="Type at least 3 characters..."
+            :loading="isLoading"
+          />
+        </div>
 
-      <!-- Error Display -->
-      <div v-if="error" class="bg-destructive-50 text-destructive rounded p-3">
-        {{ error }}
-      </div>
+        <!-- Error Display -->
+        <div
+          v-if="error"
+          class="bg-destructive-50 text-destructive rounded p-3"
+        >
+          {{ error }}
+        </div>
 
-      <!-- Results -->
-      <div v-if="parsedResults.length > 0">
-        <h3 class="font-medium">Parsed Addresses</h3>
+        <!-- Results -->
+        <div v-if="parsedResults.length > 0">
+          <h3 class="font-medium">Parsed Addresses</h3>
 
-        <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <div
-            v-for="(place, index) in parsedResults"
-            :key="index"
-            class="hover:bg-secondary/15 rounded border p-4 transition-all"
-          >
-            <div class="space-y-2">
-              <div v-if="place.address?.name" class="flex gap-1">
-                <span class="font-bold">Name:</span>
-                <span>{{ place.address.name }}</span>
+          <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
+            <div
+              v-for="(place, index) in parsedResults"
+              :key="index"
+              class="hover:bg-secondary/15 rounded border p-4 transition-all"
+            >
+              <div class="space-y-2">
+                <div v-if="place.address?.name" class="flex gap-1">
+                  <span class="font-bold">Name:</span>
+                  <span>{{ place.address.name }}</span>
+                </div>
+                <div v-if="place.address?.address1" class="flex gap-1">
+                  <span class="font-bold">Address:</span>
+                  <span>{{ place.address.address1 }}</span>
+                </div>
+                <div v-if="place.address?.address2" class="flex gap-1">
+                  <span class="font-bold">Address 2:</span>
+                  <span>{{ place.address.address2 }}</span>
+                </div>
+                <div v-if="place.address?.city" class="flex gap-1">
+                  <span class="font-bold">City:</span>
+                  <span>{{ place.address.city }}</span>
+                </div>
+                <div v-if="place.address?.postcode" class="flex gap-1">
+                  <span class="font-bold">Postal Code:</span>
+                  <span>{{ place.address.postcode }}</span>
+                </div>
               </div>
-              <div v-if="place.address?.address1" class="flex gap-1">
-                <span class="font-bold">Address:</span>
-                <span>{{ place.address.address1 }}</span>
-              </div>
-              <div v-if="place.address?.address2" class="flex gap-1">
-                <span class="font-bold">Address 2:</span>
-                <span>{{ place.address.address2 }}</span>
-              </div>
-              <div v-if="place.address?.city" class="flex gap-1">
-                <span class="font-bold">City:</span>
-                <span>{{ place.address.city }}</span>
-              </div>
-              <div v-if="place.address?.postcode" class="flex gap-1">
-                <span class="font-bold">Postal Code:</span>
-                <span>{{ place.address.postcode }}</span>
-              </div>
-            </div>
 
-            <div class="mt-2">
-              <Button size="sm" @click="openJsonDialog(place)">
-                View Raw Data
-              </Button>
+              <div class="mt-2">
+                <Button size="sm" @click="openJsonDialog(place)">
+                  View Raw Data
+                </Button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <div
-        v-else-if="searchQuery.length >= 3 && !isLoading"
-        class="text-center"
-      >
-        No results found
-      </div>
-    </Card>
-  </UpmSection>
+        <div
+          v-else-if="searchQuery.length >= 3 && !isLoading"
+          class="text-center"
+        >
+          No results found
+        </div>
+      </Card>
+    </UpmSection>
 
-  <!-- JSON Data Dialog -->
-  <Dialog :open="isDialogOpen" title="Raw Address Data">
-    <div class="max-h-[60vh] overflow-auto">
-      <pre
-        class="bg-primary text-primary-foreground overflow-auto rounded p-4 text-xs"
-        >{{ selectedJsonData }}</pre
-      >
-    </div>
-    <template #footer>
-      <Button @click="isDialogOpen = false">Close</Button>
-    </template>
-  </Dialog>
+    <!-- JSON Data Dialog -->
+    <Dialog :open="isDialogOpen" title="Raw Address Data">
+      <div class="max-h-[60vh] overflow-auto">
+        <pre
+          class="bg-primary text-primary-foreground overflow-auto rounded p-4 text-xs"
+          >{{ selectedJsonData }}</pre
+        >
+      </div>
+      <template #footer>
+        <Button @click="isDialogOpen = false">Close</Button>
+      </template>
+    </Dialog>
+  </UpmLayout>
 </template>
 
 <script setup lang="ts">
@@ -98,7 +103,7 @@ import { debounce } from "lodash-es";
 import { usePlaces } from "@upmind-automation/headless";
 import { ref, onMounted, watch } from "vue";
 import { Input, Button, Dialog } from "@upmind-automation/upmind-ui";
-import { UpmSection } from "@upmind-automation/client-vue";
+import { UpmSection, UpmLayout } from "@upmind-automation/client-vue";
 import { Card } from "@upmind-automation/upmind-ui";
 
 // State

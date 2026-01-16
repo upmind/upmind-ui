@@ -1,21 +1,23 @@
 <template>
-  <UpmSection class="max-w-app mx-auto" label="Addresses">
-    <template v-if="!meta.isAuthenticated && !meta.isLoading">
-      <p class="mx-auto mt-4 w-full max-w-2xl pb-3 md:pb-3">
-        <span class="font-normal">{{ getText(authMode) }}&nbsp;</span>
+  <UpmLayout>
+    <UpmSection class="max-w-app mx-auto" label="Addresses">
+      <template v-if="!meta.isAuthenticated && !meta.isLoading">
+        <p class="mx-auto mt-4 w-full max-w-2xl pb-3 md:pb-3">
+          <span class="font-normal">{{ getText(authMode) }}&nbsp;</span>
 
-        <Button @click="toggleAuthMode" variant="link">
-          {{ getAction(authMode) }}
-        </Button>
-      </p>
+          <Button @click="toggleAuthMode" variant="link">
+            {{ getAction(authMode) }}
+          </Button>
+        </p>
 
-      <Card class="mx-auto mt-4 w-full max-w-2xl pb-3 md:pb-3">
-        <UpmAuth v-model="authMode" class="mt-4" />
-      </Card>
-    </template>
+        <Card class="mx-auto mt-4 w-full max-w-2xl pb-3 md:pb-3">
+          <UpmAuth v-model="authMode" class="mt-4" />
+        </Card>
+      </template>
 
-    <UpmBilling v-else :as="Card" />
-  </UpmSection>
+      <UpmBilling v-else :as="Card" />
+    </UpmSection>
+  </UpmLayout>
 </template>
 
 <script lang="ts" setup>
@@ -26,7 +28,12 @@ import { ref } from "vue";
 import { useSession } from "@upmind-automation/headless";
 
 // --- components
-import { UpmBilling, UpmSection, UpmAuth } from "@upmind-automation/client-vue";
+import {
+  UpmBilling,
+  UpmSection,
+  UpmAuth,
+  UpmLayout
+} from "@upmind-automation/client-vue";
 import { Card, Button } from "@upmind-automation/upmind-ui";
 
 // --- types
