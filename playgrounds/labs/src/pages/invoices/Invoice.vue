@@ -1,5 +1,5 @@
 <template>
-  <Layout>
+  <UpmLayout>
     <div v-if="!isReady">
       <Alert color="info" title="Loading invoice..." />
     </div>
@@ -25,13 +25,13 @@
       @click.prevent="$router.push({ name: 'invoices' })"
     >
     </Button>
-  </Layout>
+  </UpmLayout>
 </template>
 
 <script setup lang="ts">
 import { useRoute } from "vue-router";
 import { useOrder } from "@upmind-automation/headless";
-import { Layout } from "@upmind-automation/client-vue";
+import { UpmLayout } from "@upmind-automation/client-vue";
 import { Button, Alert } from "@upmind-automation/upmind-ui";
 
 const route = useRoute();

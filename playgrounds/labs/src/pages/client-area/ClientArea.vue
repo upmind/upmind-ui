@@ -1,5 +1,5 @@
 <template>
-  <Layout variant="default">
+  <UpmLayout :layout="LAYOUT_VARIANTS.FULL">
     <template #controls>
       <RouterLink
         :to="{ name: 'client-area.slots' }"
@@ -28,10 +28,10 @@
         </KeepAlive>
       </template>
     </RouterView>
-  </Layout>
+  </UpmLayout>
 </template>
 
 <script setup lang="ts">
-import { UpmLayout } from "@upmind-automation/client-vue";
+import { LAYOUT_VARIANTS, UpmLayout } from "@upmind-automation/client-vue";
 import { UpmLoading } from "@upmind-automation/client-vue";
 </script>

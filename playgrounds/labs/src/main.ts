@@ -5,7 +5,7 @@ import { createApp } from "vue";
 import App from "./App.vue";
 import router from "./router";
 import i18n from "./i18n";
-
+import { registerFunnels } from "./funnels";
 import UpmindClient from "@upmind-automation/client-vue";
 import { plugins as uiPlugins } from "@upmind-automation/upmind-ui";
 
@@ -31,7 +31,8 @@ UpmindClient.init({
     )
   },
   router: {
-    instance: router
+    instance: router,
+    registerFunnels
   },
   recaptcha: {
     siteKey: import.meta.env.VITE_APP_GOOGLE_RECAPTCHA_V3_SITE_KEY,
