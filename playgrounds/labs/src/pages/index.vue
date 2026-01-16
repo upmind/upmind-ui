@@ -121,25 +121,6 @@
             </div>
           </div>
 
-          <!-- Basket Management -->
-          <div>
-            <h4 class="mb-4 text-lg font-medium">Basket Management</h4>
-
-            <div class="flex items-center justify-between border-b">
-              <div>
-                <h5 class="font-medium">Checkout Billing</h5>
-                <p class="mt-1 text-gray-600">
-                  Manage checkout billing details
-                </p>
-              </div>
-              <RouterLink :to="{ name: 'billing' }">
-                <Button color="primary">
-                  <Icon icon="arrow-right" size="xs" />
-                </Button>
-              </RouterLink>
-            </div>
-          </div>
-
           <!-- Client Templates -->
           <div>
             <h4 class="mb-4 text-lg font-medium">Client Templates</h4>
