@@ -467,7 +467,7 @@ export default createMachine(
             data.rawProvisionFields,
             data.product
           ),
-          bundled: parseBundledProducts(data.product, bundle)
+          bundled: parseBundledProducts(data.product)
         })
       }),
 

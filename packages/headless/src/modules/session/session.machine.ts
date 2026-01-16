@@ -14,6 +14,7 @@ import { useTime, useCookies, mapToHeadlessError } from "../../utils";
 const { removeTopLevel: removeCookie, get: getCookie } = useCookies();
 
 import { useDataLayer } from "../system";
+import { Contexts } from "@upmind-automation/types";
 const { dataLayer } = useDataLayer();
 
 // -----------------------------------------------------------------------------
@@ -191,14 +192,13 @@ export default createMachine(
         const admin = isAdmin.value;
         const actorType = data?.actor_type;
         if (admin) {
-          return ["admin", "user"].includes(actorType);
+          return [Contexts.ADMIN, "user"].includes(actorType);
         }
-        return actorType === "client";
+        return actorType === Contexts.CLIENT;
       },
 
-      isGuestToken: (_context: SessionContext, { data }: AnyEventObject) => {
-        return data?.actor_type === "guest";
-      }
+      isGuestToken: (_context: SessionContext, { data }: AnyEventObject) =>
+        data?.actor_type === Contexts.GUEST
     },
 
     delays: {

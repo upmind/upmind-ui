@@ -10,6 +10,7 @@ import { DetailedError, ErrorOrigin, responseCodes } from "../../../utils";
 
 // ---types
 import type { ClientContext } from "./types";
+import { Contexts } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 
@@ -18,8 +19,9 @@ async function load(_context: ClientContext, _event: any) {
   // and we need to check the token/get the user
   const { t } = useI18n();
 
-  const admin = isAdmin.value;
-  const token = getTokenFromStorage(admin ? "user" : "client");
+  const token = getTokenFromStorage(
+    isAdmin.value ? Contexts.USER : Contexts.CLIENT
+  );
 
   if (isEmpty(token)) {
     return Promise.reject(
@@ -32,15 +34,15 @@ async function load(_context: ClientContext, _event: any) {
   }
 
   const { get, useUrl } = useQuery();
-  const url = useUrl(admin ? "admin/self" : "self", {
+  const url = useUrl(isAdmin.value ? "admin/self" : "self", {
     with: ["actor", "accounts"].join()
   });
 
   return get({
     url,
-    queryKey: admin ? ["session", "admin"] : ["client"],
+    queryKey: isAdmin.value ? ["session", "admin"] : ["client"],
     withAccessToken: token?.access_token,
-    withoutLocale: admin
+    withoutLocale: isAdmin.value
   })
     .then(data => {
       return data;

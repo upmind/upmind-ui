@@ -3,7 +3,11 @@
     <div :class="styles.product.header.info.container">
       <Badge
         v-if="productDetails?.badge"
-        v-bind="productDetails?.badge"
+        v-bind="
+          isString(productDetails.badge)
+            ? { label: productDetails.badge }
+            : productDetails.badge
+        "
         size="sm"
         variant="muted"
         color="promo"
@@ -35,16 +39,16 @@
           @click="doResolve"
         >
           <h3 :class="styles.product.header.info.title">
-            {{ productDetails?.title }}
+            {{ title }}
           </h3>
         </Link>
 
         <h3 v-else :class="styles.product.header.info.title">
-          {{ productDetails?.title }}
+          {{ title }}
         </h3>
 
         <DisplayPrice
-          v-if="props.productDetails?.displayPrice"
+          v-if="!hideAnchorPrice && props.productDetails?.displayPrice"
           v-bind="props.productDetails.displayPrice"
           :class="styles.product.header.info.terms"
         />
@@ -54,8 +58,17 @@
     <ProductDescription
       v-if="!hideDescription"
       :description="productDetails?.description"
+      :lineclamp="productMeta?.ui.productDescription.isClamped"
+      :lines="toNumber(productMeta?.ui.productDescriptionClamp?.value)"
       :class="styles.product.header.info.description"
     />
+
+    <p
+      v-if="productDetails?.excerpt && productMeta?.ui.productExcerpt.isVisible"
+      :class="styles.product.header.info.description"
+    >
+      {{ productDetails?.excerpt }}
+    </p>
   </section>
 </template>
 
@@ -63,24 +76,34 @@
 // --- external
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
+import { isString } from "lodash-es";
 
 // --- internal
 import { QUERY_PARAMS } from "@upmind-automation/headless";
+import config from "./card.config";
 
 // --- components
 import { useStyles, Badge, Link } from "@upmind-automation/upmind-ui";
 import DisplayPrice from "../terms/DisplayPrice.vue";
 import ProductDescription from "./ProductDescription.vue";
 
-// --- config
-import config from "./card.config";
+// --- utils
+import { toNumber } from "lodash-es";
 
 // --- types
 import type { ProductInfo } from "./types";
 
 // -----------------------------------------------------------------------------
 
-const props = defineProps<ProductInfo>();
+const props = withDefaults(defineProps<ProductInfo>(), {
+  hideAnchorPrice: false
+});
+
+const emit = defineEmits<{
+  (e: "resolve", id: string): void;
+}>();
+
+// -----------------------------------------------------------------------------
 
 const emit = defineEmits<{
   (e: "resolve", id: string): void;

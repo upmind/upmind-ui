@@ -18,12 +18,13 @@ import {
   slice,
   isEmpty,
   includes,
-  isString
+  isString,
+  isObject
 } from "lodash-es";
 
 // --- types
 import type { Token, Client } from "./types";
-import type { IClient } from "@upmind-automation/types";
+import { Contexts, type IClient } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 function convertToCookie() {
@@ -62,17 +63,28 @@ export function getTokenFromStorage(actor_type?: Token["actor_type"]) {
   convertToCookie();
 
   const clientCookie = getCookie("upm_client_session") as string | undefined;
+  if (isObject(clientCookie))
+    (clientCookie as Token).actor_type ??= Contexts.CLIENT; // NB ensure the actor type in case of impersonation
+
   const adminCookie = getCookie("upm_admin_session") as string | undefined;
+  if (isObject(adminCookie))
+    (adminCookie as Token).actor_type ??= Contexts.ADMIN; // NB ensure the actor type in case of impersonation
+
   const userCookie = getCookie("upm_user_session") as string | undefined;
+  if (isObject(userCookie)) (userCookie as Token).actor_type ??= Contexts.USER; // NB ensure the actor type in case of impersonation
+
+  // const guestToken = localStorage.getItem(`guest/auth/token`);
   const guestCookie = getCookie("upm_guest_session") as string | undefined;
+  if (isObject(guestCookie))
+    (guestCookie as Token).actor_type ??= Contexts.GUEST; // NB ensure the actor type in case of impersonation
 
   let token: string | Token;
 
-  if (actor_type === "client") {
+  if (actor_type === Contexts.CLIENT) {
     token = clientCookie || "";
-  } else if (actor_type === "admin" || actor_type === "user") {
+  } else if (actor_type === Contexts.ADMIN || actor_type === Contexts.USER) {
     token = userCookie || adminCookie || "";
-  } else if (actor_type === "guest") {
+  } else if (actor_type === Contexts.GUEST) {
     token = guestCookie || "";
   } else {
     // If no specific actor type is requested, check based on the app mode
@@ -109,7 +121,7 @@ export function persistTokenToStorage(token: Token) {
       )
     );
 
-  const type = token?.actor_type || "guest";
+  const type = token?.actor_type || Contexts.GUEST;
 
   // finally, persist the new token
   setCookie(`upm_${type}_session`, token, {

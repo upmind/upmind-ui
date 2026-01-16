@@ -55,7 +55,8 @@ import useUpmind, {
 } from "@upmind-automation/headless";
 import { useStyles } from "@upmind-automation/upmind-ui";
 import { useTheme } from "./modules/theming";
-import { useRouteTransition } from "./modules/system/useRouteTransition";
+import { useThemes } from "@upmind-automation/upmind-ui";
+import { useConfig } from "@upmind-automation/headless";
 
 // --- components
 import UpmRouteView from "./modules/system/RouteView.vue";
@@ -72,6 +73,7 @@ import { get } from "lodash-es";
 
 // --- types
 import type { InterstitialProps } from "@upmind-automation/upmind-ui";
+import { UIContext } from "@upmind-automation/headless";
 // -----------------------------------------------------------------------------
 
 const props = defineProps<{
@@ -82,9 +84,9 @@ const props = defineProps<{
 }>();
 
 // -----------------------------------------------------------------------------
+const { set } = useThemes();
 const { meta: routingMeta } = useRoutingEngine();
 const themeReady = ref(false);
-
 const route = useRoute();
 
 /**
@@ -98,6 +100,8 @@ const meta = computed(() => ({
   isAvailable: useUpmind.status.value == UpmindStatus.initialised,
   hasSettings: themeReady.value
 }));
+
+const { ui } = useConfig();
 
 // add any page specific styles here based on route or other state
 const styles = useStyles(
@@ -134,6 +138,7 @@ function scrollToAnchor() {
 useUpmind.isReady().then(() =>
   useTheme(props.theme)
     .isReady()
+    .then(() => set(props.theme ?? ui.theme.value))
     .then(() => (themeReady.value = true))
 );
 </script>

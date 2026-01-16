@@ -22,6 +22,7 @@
           useMutate: useClientPhoneManager
         }"
         :show-label="!!selectedPhone"
+        :readonly="readonly"
         @processing="wait"
         v-model:touched="touched"
       >
@@ -43,6 +44,7 @@
           useMutate: useClientAddressManager
         }"
         :show-label="!!selectedAddress"
+        :readonly="readonly"
         @processing="wait"
         v-model:touched="touched"
       >

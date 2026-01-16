@@ -7,10 +7,7 @@
 </template>
 <script lang="ts" setup>
 // --- internal
-import {
-  UpmSessionRecoverPassword,
-  useRoutingEngine
-} from "@upmind-automation/client-vue";
+import { UpmSessionRecoverPassword } from "@upmind-automation/client-vue";
 import { ROUTE } from "../../router";
 // -----------------------------------------------------------------------------
 </script>

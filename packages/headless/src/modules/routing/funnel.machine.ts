@@ -39,11 +39,10 @@ export const useFunnelMachine = ({
       id: `${id}Funnel`,
       predictableActionArguments: true,
       context,
-      initial: "calculating",
+      initial: "loading",
       states: {
-        // 1. calculating State to validate the funnel configuration to ensure we have states before proceeding
-        calculating: {
-          id: "calculating",
+        // 1. Loading State to validate the funnel configuration to ensure we have states before proceeding
+        loading: {
           invoke: {
             src: async (_context, _event) => {
               const { t } = useI18n();
@@ -59,15 +58,12 @@ export const useFunnelMachine = ({
               ...keys(states).map(state => {
                 return {
                   target: `available.${state}`,
+                  actions: ["setResolving"],
                   cond: `is${pascalCase(state)}`
                 };
               }),
               // If we are not targeting a specific state, go to idle and assume we are resolved
-              {
-                target: "available",
-                cond: "noTarget",
-                actions: ["setResolved"]
-              },
+              { target: "available", cond: "noTarget" },
               { target: "available", actions: ["setResolved"] }
             ],
             onError: {
@@ -110,14 +106,9 @@ export const useFunnelMachine = ({
               }),
               {
                 target: "available.idle",
-                actions: ["setResolved", "setCurrentRoute", "setTargetRoute"]
+                actions: ["setCurrentRoute", "setTargetRoute"]
               }
-            ],
-            // 4. Handle errors from invokes within the available states (e.g., guardSession rejections)
-            // If a guard or service fails, we want to stay where we are but mark as resolved
-            "error.platform": {
-              actions: ["setResolved"]
-            }
+            ]
           }
         },
 
