@@ -192,7 +192,7 @@ export default createMachine(
         const admin = isAdmin.value;
         const actorType = data?.actor_type;
         if (admin) {
-          return [Contexts.ADMIN, "user"].includes(actorType);
+          return [Contexts.ADMIN, Contexts.USER].includes(actorType);
         }
         return actorType === Contexts.CLIENT;
       },

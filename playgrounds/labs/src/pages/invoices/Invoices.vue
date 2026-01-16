@@ -1,5 +1,5 @@
 <template>
-  <Layout :variant="LAYOUT_VARIANTS.ENCLOSED">
+  <UpmLayout :variant="LAYOUT_VARIANTS.CANVAS_CARD">
     <div v-for="invoice in invoices" :key="invoice.id">
       <Button
         size="sm"
@@ -15,7 +15,7 @@
     <RouterView
       v-slot="{ Component }"
       :key="$route.fullPath"
-      v-if="meta.isAuthenticated && !!userId"
+      v-if="meta.isAuthenticated && !!clientId"
     >
       <template v-if="Component">
         <KeepAlive>
@@ -35,7 +35,7 @@
         </KeepAlive>
       </template>
     </RouterView>
-  </Layout>
+  </UpmLayout>
 </template>
 
 <script lang="ts" setup>
@@ -48,7 +48,7 @@ import { useSession } from "@upmind-automation/headless";
 // --- components
 import {
   UpmLoading,
-  Layout,
+  UpmLayout,
   LAYOUT_VARIANTS
 } from "@upmind-automation/client-vue";
 import { Button } from "@upmind-automation/upmind-ui";
@@ -63,5 +63,5 @@ const invoices = [
   }
 ];
 
-const { meta, userId } = useSession();
+const { meta, clientId } = useSession();
 </script>

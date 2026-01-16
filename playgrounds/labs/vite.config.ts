@@ -80,8 +80,7 @@ export default defineConfig(({ mode }) => {
       minify: "esbuild",
       rollupOptions: {
         input: {
-          main: resolve(__dirname, "index.html"),
-          transfer: resolve(__dirname, "transfer.html")
+          main: resolve(__dirname, "index.html")
         }
       },
       sourcemap: true

@@ -1,9 +1,9 @@
 <template>
-  <Layout>
+  <UpmLayout>
     <UpmSection class="max-w-app mx-auto" label="Terms and Conditions">
       <UpmTermsAndConditions />
     </UpmSection>
-  </Layout>
+  </UpmLayout>
 </template>
 
 <script setup lang="ts">

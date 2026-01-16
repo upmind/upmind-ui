@@ -1,5 +1,5 @@
 <template>
-  <Layout :variant="LAYOUT_VARIANTS.FULL">
+  <UpmLayout :variant="LAYOUT_VARIANTS.FULL">
     <UpmSection
       class="max-w-app mx-auto"
       label="Product Catalogue"
@@ -31,7 +31,7 @@
             :limit="4"
             :categoryId="modelValue"
             :sort="{
-              property: 'name',
+              property: ProductSortableProperties.NAME,
               direction: selectedSortDirection
             }"
           />
@@ -42,14 +42,14 @@
             :limit="4"
             :categoryId="modelValue"
             :sort="{
-              property: 'name',
+              property: ProductSortableProperties.NAME,
               direction: selectedSortDirection
             }"
           />
         </div>
       </div>
     </UpmSection>
-  </Layout>
+  </UpmLayout>
 </template>
 
 <script setup lang="ts">
@@ -58,11 +58,14 @@ import { ref } from "vue";
 import PaginatedProducts from "./Paginated.vue";
 import InfiniteProducts from "./Infinite.vue";
 import ProductCategories from "./Categories.vue";
-import { RequestSortDirection } from "@upmind-automation/headless";
+import {
+  ProductSortableProperties,
+  RequestSortDirection
+} from "@upmind-automation/headless";
 import {
   UpmSection,
   LAYOUT_VARIANTS,
-  Layout
+  UpmLayout
 } from "@upmind-automation/client-vue";
 
 const mode = ref<"infinite" | "paginated">("paginated");

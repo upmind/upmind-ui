@@ -1,5 +1,5 @@
 <template>
-  <Layout :variant="LAYOUT_VARIANTS.ENCLOSED">
+  <UpmLayout :layout="LAYOUT_VARIANTS.CANVAS_CARD">
     <template #controls>
       <div class="flex w-full flex-col items-center justify-between gap-4">
         <div class="flex flex-col justify-center gap-2 md:flex-row">
@@ -44,7 +44,7 @@
     <RouterView
       v-slot="{ Component }"
       :key="$route.fullPath"
-      v-if="meta.isAuthenticated && !!userId"
+      v-if="meta.isAuthenticated && !!clientId"
     >
       <template v-if="Component">
         <KeepAlive>
@@ -64,7 +64,7 @@
         </KeepAlive>
       </template>
     </RouterView>
-  </Layout>
+  </UpmLayout>
 </template>
 
 <script lang="ts" setup>
@@ -76,7 +76,7 @@ import { useSession } from "@upmind-automation/headless";
 
 // --- components
 import {
-  Layout,
+  UpmLayout,
   UpmLoading,
   LAYOUT_VARIANTS
 } from "@upmind-automation/client-vue";
@@ -87,5 +87,5 @@ import { Button, Alert } from "@upmind-automation/upmind-ui";
 
 const router = useRouter();
 
-const { meta, userId } = useSession();
+const { meta, clientId } = useSession();
 </script>
