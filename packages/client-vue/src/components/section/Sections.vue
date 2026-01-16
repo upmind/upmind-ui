@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!active" :class="props.class" :data-testid="`section`">
+  <div v-if="!active" :class="props.class">
     <slot name="default" />
   </div>
 
@@ -10,6 +10,7 @@
     :border="meta.hasBorder"
     align="between"
     :overflow="sections.length > 1 ? 'hidden' : 'visible'"
+    :data-testid="`section-${kebabCase(first(sections)?.label ?? 'default')}`"
     :ui-config="{
       tabs: {
         root: [styles.section.tabs.root],
@@ -66,7 +67,7 @@ import config from "./section.config";
 import { useSection } from "./useSection";
 
 // --- utils
-import { find, isFunction, isString, isNil } from "lodash-es";
+import { find, first, isFunction, isString, isNil, kebabCase } from "lodash-es";
 
 // --- types
 import type { SectionActionProps, SectionsProps } from "./types";

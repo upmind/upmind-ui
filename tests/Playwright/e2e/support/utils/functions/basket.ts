@@ -16,12 +16,16 @@ export async function createOrder(token: string): Promise<string> {
     }
   });
 
-  const response = await context.post(`/api/orders?lang=en`, {
-    data: { category_slug: "new_contract", currency_code: "GBP" }
-  });
+  try {
+    const response = await context.post(`/api/orders?lang=en`, {
+      data: { category_slug: "new_contract", currency_code: "GBP" }
+    });
 
-  const body = await response.json();
-  return body.data.id;
+    const body = await response.json();
+    return body.data.id;
+  } finally {
+    await context.dispose();
+  }
 }
 
 export async function getBasketProducts(token: string) {
@@ -63,13 +67,17 @@ export async function getCurrentOrderId(token: string): Promise<string | null> {
     }
   });
 
-  const response = await context.get(
-    `/api/orders/current?with=address%2Caddress.country%2Ccurrency%2Ccustom_fields.field%2Cpromotions%2Ctaxes%2Ctaxes.tax_tag_data%2Cproducts.product.image%2Cproducts.product.images%2Cproducts.product.prices%2Cproducts.product.products_attributes%2Cproducts.product.products_attributes.category%2Cproducts.product.products_options%2Cproducts.product.products_options.category%2Cproducts.product.products_options.prices%2Cproducts.product.provision_field_values%2Cproducts.tags%2Cproducts.product.related%2Cproducts.product.category%2Cproducts.product.category.top_category.top_category.top_category.top_category&lang=en`
-  );
+  try {
+    const response = await context.get(
+      `/api/orders/current?with=address%2Caddress.country%2Ccurrency%2Ccustom_fields.field%2Cpromotions%2Ctaxes%2Ctaxes.tax_tag_data%2Cproducts.product.image%2Cproducts.product.images%2Cproducts.product.prices%2Cproducts.product.products_attributes%2Cproducts.product.products_attributes.category%2Cproducts.product.products_options%2Cproducts.product.products_options.category%2Cproducts.product.products_options.prices%2Cproducts.product.provision_field_values%2Cproducts.tags%2Cproducts.product.related%2Cproducts.product.category%2Cproducts.product.category.top_category.top_category.top_category.top_category&lang=en`
+    );
 
-  const body = await response.json();
-  console.log("ORDER ID:", body?.data?.id);
-  return body?.data?.id ?? null;
+    const body = await response.json();
+    console.log("ORDER ID:", body?.data?.id);
+    return body?.data?.id ?? null;
+  } finally {
+    await context.dispose();
+  }
 }
 
 export async function addProductToOrder(
@@ -81,7 +89,8 @@ export async function addProductToOrder(
   attributeValues: [],
   optionValues: [],
   provisionFields: {},
-  promotionValues: []
+  promotionValues: [],
+  provisionFieldsValidate: boolean
 ): Promise<any> {
   const context: APIRequestContext = await request.newContext({
     baseURL: `${URLs.apiUrl}`,
@@ -97,24 +106,29 @@ export async function addProductToOrder(
     }
   });
 
-  const response = await context.post(
-    `/api/orders/${orderId}/products?lang=en`,
-    {
-      data: {
-        product_id: productId,
-        quantity: qty,
-        billing_cycle_months: billingCycle,
-        attributes: attributeValues,
-        options: optionValues,
-        provision_field_values: provisionFields,
-        promotions: promotionValues
+  try {
+    const response = await context.post(
+      `/api/orders/${orderId}/products?lang=en`,
+      {
+        data: {
+          product_id: productId,
+          quantity: qty,
+          billing_cycle_months: billingCycle,
+          attributes: attributeValues,
+          options: optionValues,
+          provision_field_values: provisionFields,
+          promotions: promotionValues,
+          provision_field_values_validate: provisionFieldsValidate
+        }
       }
-    }
-  );
+    );
 
-  const body = await response.json();
-  //console.log(`Add to basket - complete! ${JSON.stringify(body)}`);
-  return body;
+    const body = await response.json();
+    //console.log(`Add to basket - complete! ${JSON.stringify(body)}`);
+    return body;
+  } finally {
+    await context.dispose();
+  }
 }
 
 export async function removeProductFromOrder(
@@ -136,12 +150,16 @@ export async function removeProductFromOrder(
     }
   });
 
-  const response = await context.delete(
-    `api/orders/${orderId}/products/${productId}?lang=en`
-  );
-  const body = await response.json();
-  console.log(`Product removal for ${orderId}: ${JSON.stringify(body)}`);
-  return body;
+  try {
+    const response = await context.delete(
+      `api/orders/${orderId}/products/${productId}?lang=en`
+    );
+    const body = await response.json();
+    console.log(`Product removal for ${orderId}: ${JSON.stringify(body)}`);
+    return body;
+  } finally {
+    await context.dispose();
+  }
 }
 
 export async function addPromotionToOrder(
@@ -150,32 +168,37 @@ export async function addPromotionToOrder(
   token: string | null
 ): Promise<any> {
   const apiContext: APIRequestContext = await request.newContext();
-  const response = await apiContext.post(
-    `${URLs.apiUrl}api/orders/${orderId}/promotions?lang=en`,
-    {
-      headers: {
-        accept: "*/*",
-        "accept-language":
-          "en-GB,en;q=0.9,es;q=0.8,am;q=0.7,af;q=0.6,su;q=0.5,yi;q=0.3,zu;q=0.2",
-        authorization: `Bearer ${token}`,
-        "content-type": "application/json",
-        origin: `${URLs.apiOrigin}`,
-        referer: `${URLs.baseUrl}`,
-        "user-agent":
-          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
-      },
-      data: {
-        promocode: promoCode
+
+  try {
+    const response = await apiContext.post(
+      `${URLs.apiUrl}api/orders/${orderId}/promotions?lang=en`,
+      {
+        headers: {
+          accept: "*/*",
+          "accept-language":
+            "en-GB,en;q=0.9,es;q=0.8,am;q=0.7,af;q=0.6,su;q=0.5,yi;q=0.3,zu;q=0.2",
+          authorization: `Bearer ${token}`,
+          "content-type": "application/json",
+          origin: `${URLs.apiOrigin}`,
+          referer: `${URLs.baseUrl}`,
+          "user-agent":
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+        },
+        data: {
+          promocode: promoCode
+        }
       }
-    }
-  );
-  if (!response.ok()) {
-    throw new Error(
-      `Failed to apply promotion code: ${response.status()} ${response.statusText()}`
     );
+    if (!response.ok()) {
+      throw new Error(
+        `Failed to apply promotion code: ${response.status()} ${response.statusText()}`
+      );
+    }
+    console.log("Promotion added");
+    return response.json();
+  } finally {
+    await apiContext.dispose();
   }
-  console.log("Promotion added");
-  return response.json();
 }
 
 export async function setOrderCurrency(
@@ -194,16 +217,21 @@ export async function setOrderCurrency(
       accept: "*/*"
     }
   });
-  const response = await apiContext.put(
-    `/api/orders/${orderId}/currency?lang=en`,
-    {
-      data: {
-        currency_code: `${currency}`
+
+  try {
+    const response = await apiContext.put(
+      `/api/orders/${orderId}/currency?lang=en`,
+      {
+        data: {
+          currency_code: `${currency}`
+        }
       }
-    }
-  );
-  const body = await response.json();
-  console.log(body);
+    );
+    const body = await response.json();
+    console.log(body);
+  } finally {
+    await apiContext.dispose();
+  }
 }
 
 export async function overrideWarningNotes(
