@@ -17,12 +17,13 @@ export default defineConfig({
   testMatch: "**/*.spec.ts",
   snapshotPathTemplate:
     "./tests/Playwright/e2e/snapshots/{testFilePath}/{projectName}/{arg}.png",
+  //captureGitInfo: { commit: true, diff: true },
 
   /*Set number of retries on a failed test*/
   retries: 0,
 
   /* Run tests in files in parallel */
-  fullyParallel: true,
+  //fullyParallel: true,
 
   /* Reporter to use for test results. See https://playwright.dev/docs/test-reporters */
   reporter: [["html", { outputFolder: "./tests/Playwright/e2e/reports/html" }]],
@@ -43,11 +44,15 @@ export default defineConfig({
     video: {
       mode: "on-first-retry",
       size: { width: 1920, height: 1080 }
-    },
-
-    launchOptions: {
-      args: ["--disable-animations"]
     }
+
+    // launchOptions: {
+    //   args: ["--disable-animations"]
+    // },
+
+    // contextOptions: {
+    //   reducedMotion: "reduce"
+    // }
   },
 
   /* Configure projects for major browsers */

@@ -94,7 +94,7 @@ test.describe("UPM Campaign Tracking", () => {
   });
   test('Check "order" request body for tracking node', async ({ page }) => {
     await page.goto(
-      "http://qa-automation.local:5173/order/product/add/3de78642-de53-9714-76df-21208469530d?upm_campaign=playwright_test_campaign&upm_source=playwright&upm_medium=e2e_test&upm_content=content_example&upm_term=term_example"
+      "http://qa-automation.local:5173/order/product/3de78642-de53-9714-76df-21208469530d?upm_campaign=playwright_test_campaign&upm_source=playwright&upm_medium=e2e_test&upm_content=content_example&upm_term=term_example"
     );
     const tracking = await getTrackingData(page, "/api/orders");
     console.log(JSON.stringify(tracking));

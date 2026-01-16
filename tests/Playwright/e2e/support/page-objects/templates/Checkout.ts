@@ -1,7 +1,6 @@
 import { Page, expect, Locator } from "@playwright/test";
 import { kebabCase } from "../../utils/functions/helpers";
 import { TextInput } from "../components/TextInput";
-import { selectRadixRadio } from "../../utils/radixRadios";
 
 export class Checkout {
   readonly page: Page;
@@ -115,10 +114,10 @@ export class Checkout {
   }
 
   async selectPaymentMethod(gatewayName: string) {
+    await expect(this.paymentDetails).toBeVisible({ timeout: 30000 });
+    await this.page.waitForLoadState("domcontentloaded");
     await this.page.getByTestId("link-show-more-options").click();
-    await selectRadixRadio(this.page, {
-      testId: `radio-card-${kebabCase(gatewayName)}`
-    });
+    await this.page.getByTestId(`radio-card-${kebabCase(gatewayName)}`).click();
   }
 
   async clickPlaceOrderAndPay() {
@@ -134,14 +133,9 @@ export class Checkout {
   }
 
   async clickConfirmAmount() {
-    await this.confirmAmountButton.click({
-      force: true,
-      noWaitAfter: true
-    });
-    await expect(this.page.getByTestId("dialog-window")).toHaveAttribute(
-      "data-state",
-      "closed"
-    );
+    await this.confirmAmountButton.click();
+    // Wait for dialog to close - Radix Vue removes the dialog from DOM when closed
+    await expect(this.dialogWindow).toBeHidden({ timeout: 5000 });
   }
 
   async inputStripeDetails(
@@ -152,16 +146,10 @@ export class Checkout {
     const stripeFrame = this.page.frameLocator(
       'iframe[title="Secure payment input frame"]'
     );
-    await stripeFrame
-      .getByRole("textbox", { name: "Card number" })
-      .fill(cardNumber);
-    await stripeFrame
-      .getByRole("textbox", { name: "Expiration date" })
-      .fill(expiryDate);
-    await stripeFrame.getByRole("textbox", { name: "CVC" }).fill(cvcCode);
-    await stripeFrame
-      .getByRole("textbox", { name: "ZIP code" })
-      .fill("SW1A 2AB");
+    await stripeFrame.getByPlaceholder("1234 1234 1234 1234").fill(cardNumber);
+    await stripeFrame.getByPlaceholder("MM / YY").fill(expiryDate);
+    await stripeFrame.getByPlaceholder("CVC").fill(cvcCode);
+    await stripeFrame.getByPlaceholder("WS11 1DB").fill("SW1A 2AB");
   }
 
   async inputSepaDetails(iban: string, email: string, fullName: string) {
@@ -170,6 +158,21 @@ export class Checkout {
     );
     await stripeFrame.getByRole("button").getByText("SEPA Debit").click();
     await stripeFrame.getByRole("textbox", { name: "iban" }).fill(iban);
+    await stripeFrame.getByRole("textbox", { name: "email" }).fill(email);
+    await stripeFrame
+      .getByRole("textbox", { name: "full name" })
+      .fill(fullName);
+  }
+
+  async inputIdealDetails(email: string, fullName: string) {
+    const stripeFrame = this.page.frameLocator(
+      'iframe[title="Secure payment input frame"]'
+    );
+    await stripeFrame.getByRole("button").getByText("iDEAL").click();
+    await stripeFrame.getByRole("textbox", { name: "email" }).fill(email);
+    await stripeFrame
+      .getByRole("textbox", { name: "full name" })
+      .fill(fullName);
   }
 
   async interceptPaymentResponse() {
@@ -193,7 +196,6 @@ export class Checkout {
         response
       });
     });
-    console.log(`Payment Response = ${paymentsResponse}`);
     return paymentsResponse;
   }
 }
