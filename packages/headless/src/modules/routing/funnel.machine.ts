@@ -175,9 +175,7 @@ export const useFunnelMachine = ({
             (isString(data?.target) ? { name: data.target } : data?.target) ??
             targetRoute;
 
-          debugger;
           const exists = some(keys(states), state => state == target?.name);
-          debugger;
           return isEmpty(target) || !exists;
         },
 
