@@ -1,7 +1,7 @@
 // --- types
 import type { PhoneModel } from "../../client";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
-import type { Token } from "../types";
+import type { Token, Client } from "../types";
 import type { ResponseError } from "../../../utils";
 
 // -----------------------------------------------------------------------------
@@ -11,6 +11,10 @@ type GuestModelType = LoginModel | RegisterModel | TWOFAModel | RecoverModel;
 export interface GuestContext<ModelType extends GuestModelType = any> {
   token: Token;
   error?: ResponseError;
+  /**
+   * The authenticated client data, if available.
+   */
+  client?: Client;
   // ---
   // TODO:
   // customFields: Array;

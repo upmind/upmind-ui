@@ -61,9 +61,21 @@ export const useSession = () => {
   // --- state
 
   async function isReady(): Promise<boolean> {
-    return waitFor(service, state => !state.matches("checking"), {
-      timeout: 60_000
-    })
+    const snap = service.getSnapshot();
+    if (!snap.matches("checking")) {
+      if (snap.matches("error")) throw snap.context.error;
+      return true;
+    }
+
+    return waitFor(
+      service,
+      state => {
+        return !state.matches("checking");
+      },
+      {
+        timeout: 20000 // Increased timeout
+      }
+    )
       .then(state => {
         if (stateMatches(state, "error")) throw state.context.error;
         return true; // Session is ready
@@ -71,49 +83,97 @@ export const useSession = () => {
       .catch(error => {
         throw new DetailedError(
           error?.message ?? t("error.session_not_available"),
-          error?.responseCode ?? responseCodes.No_Content,
+          error?.message?.includes("Timeout")
+            ? responseCodes.Timeout
+            : (error?.responseCode ?? responseCodes.No_Content),
           error?.origin ?? ErrorOrigin.Headless
         );
       });
   }
 
   async function isAuthenticated(): Promise<Client> {
+    const snap = service.getSnapshot();
+    const currentClient = contextValue<Client>(clientActor, "client");
+
+    // Shortcut if already authenticated and data is loaded
+    if (
+      snap.matches("client") &&
+      currentClient &&
+      !stateMatches(clientActor, ["loading", "starting"])
+    ) {
+      return currentClient;
+    }
+
     return isReady()
       .then(async () => {
-        if (!clientActor.value)
+        if (stateMatches(service, "client")) return true;
+
+        // Wait specifically for client state if we are not there yet
+        return waitFor(service, state => stateMatches(state, "client"), {
+          timeout: 15000
+        }).catch(() => {
+          const snap = service.getSnapshot();
           throw new DetailedError(
             t("auth.login_to_continue"),
             responseCodes.Unauthorized,
             ErrorOrigin.Headless
           );
+        });
+      })
+      .then(async () => {
+        if (currentClient && !stateMatches(clientActor, "loading")) {
+          return currentClient;
+        }
+
+        if (!clientActor.value?.service) {
+          throw new DetailedError(
+            t("auth.login_to_continue"),
+            responseCodes.Unauthorized,
+            ErrorOrigin.Headless
+          );
+        }
 
         return waitFor(
           clientActor.value.service,
-          state => stateMatches(state, "available"),
+          state => !stateMatches(state, ["loading", "starting"]),
           {
             timeout: 60_000
           }
-        ).then(() => {
-          const client = contextValue<Client>(clientActor, "client");
-          if (!client) {
-            throw new DetailedError(
-              t("auth.login_to_continue"),
-              responseCodes.Unauthorized,
-              ErrorOrigin.Headless
-            );
-          }
-          return client;
-        });
-      })
-      .catch(() =>
-        Promise.reject(
-          new DetailedError(
-            t("error.401_title_md"),
-            responseCodes.Unauthorized,
-            ErrorOrigin.Headless
-          )
         )
-      );
+          .then(state => {
+            const client = contextValue<Client>(clientActor, "client");
+            if (stateMatches(state, "error") || !client) {
+              throw new DetailedError(
+                t("auth.login_to_continue"),
+                responseCodes.Unauthorized,
+                ErrorOrigin.Headless
+              );
+            }
+            return client;
+          })
+          .catch(err => {
+            if (err?.message?.includes("Timeout")) {
+              if (currentClient) return currentClient;
+              throw new DetailedError(
+                t("error.request_timeout"),
+                responseCodes.Timeout,
+                ErrorOrigin.Headless
+              );
+            }
+            throw err;
+          });
+      })
+      .catch(err => {
+        // If it's already a DetailedError, rethrow it
+        if (err instanceof DetailedError) throw err;
+
+        console.error(`[Session] isAuthenticated failed:`, err);
+        throw new DetailedError(
+          t("error.401_title_md"),
+          responseCodes.Internal_Server_Error,
+          ErrorOrigin.Headless
+        );
+      });
   }
 
   const meta = computed(() => ({
@@ -137,8 +197,11 @@ export const useSession = () => {
         "available.register.registering",
         "available.register.authenticating",
         "available.recover.recovering"
-      ]) || stateMatches(clientActor, "processing"),
-    isAuthenticated: stateMatches(state, "client"),
+      ]) ||
+      stateMatches(clientActor, ["loading", "processing", "transferring"]),
+    isAuthenticated:
+      stateMatches(state, "client") &&
+      !stateMatches(clientActor, ["error", "loading", "starting"]),
     isTransferring: stateMatches(clientActor, "transferring"),
     hasExpired: stateMatches(state, "expired") || isEmpty(state.value.children),
     hasErrors:
@@ -756,7 +819,10 @@ export const useSession = () => {
 
     // ---
 
-    reauth: () => service.send({ type: "EXPIRED" }),
+    reauth: () => {
+      console.warn("[Session] Reauth triggered (EXPIRED)");
+      service.send({ type: "EXPIRED" });
+    },
 
     refresh
   };

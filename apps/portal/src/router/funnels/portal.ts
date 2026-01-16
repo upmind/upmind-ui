@@ -25,8 +25,7 @@ export default <FunnelProps>{
       invoke: {
         src: "guardSession",
         onDone: {
-          target: ROUTE.REDIRECT,
-          actions: ["setResolving", "setTargetRoute"]
+          actions: ["setResolved"]
         },
         onError: {
           target: ROUTE.SESSION_REGISTER,
@@ -48,14 +47,16 @@ export default <FunnelProps>{
       invoke: {
         src: "guardSession",
         onDone: {
-          target: ROUTE.REDIRECT,
-          actions: ["setResolving", "setTargetRoute"]
+          actions: ["setResolved"]
         },
         onError: { actions: ["setResolved"] }
       },
       on: {
-        NEXT: { actions: ["setTargetRoute"] },
-        BACK: { actions: ["setTargetRoute"] }
+        NEXT: {
+          target: ROUTE.SESSION_LOGIN,
+          actions: ["setResolving", "setTargetRoute"]
+        },
+        BACK: { actions: ["setResolving", "setTargetRoute"] }
       }
     },
 
@@ -70,14 +71,16 @@ export default <FunnelProps>{
       invoke: {
         src: "guardSession",
         onDone: {
-          target: ROUTE.REDIRECT,
-          actions: ["setResolving", "setTargetRoute"]
+          actions: ["setResolved"]
         },
         onError: { actions: ["setResolved"] }
       },
       on: {
-        NEXT: { actions: ["setTargetRoute"] },
-        BACK: { actions: ["setTargetRoute"] }
+        NEXT: {
+          target: ROUTE.SESSION_REGISTER,
+          actions: ["setResolving", "setTargetRoute"]
+        },
+        BACK: { actions: ["setResolving", "setTargetRoute"] }
       }
     },
 
@@ -92,18 +95,16 @@ export default <FunnelProps>{
       invoke: {
         src: "guardSession",
         onDone: {
-          target: ROUTE.REDIRECT,
-          actions: ["setResolving", "setTargetRoute"]
+          actions: ["setResolved"]
         },
         onError: [{ actions: ["setResolved"] }]
       },
       on: {
         NEXT: {
-          actions: ["setTargetRoute"]
+          target: ROUTE.SESSION_RECOVER_PASSWORD,
+          actions: ["setResolving", "setTargetRoute"]
         },
-        BACK: {
-          actions: ["setTargetRoute"]
-        }
+        BACK: { actions: ["setResolving", "setTargetRoute"] }
       }
     },
 

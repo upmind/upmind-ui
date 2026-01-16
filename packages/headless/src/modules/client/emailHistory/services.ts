@@ -2,6 +2,7 @@
 
 // --- internal
 import { useQuery, useSession, type QueryParams } from "../..";
+import upmind from "../../../useUpmind";
 
 // --- utils
 import { useTime, NotAuthenticatedError } from "../../../utils";
@@ -19,13 +20,14 @@ const queryKey: QueryKey = ["client", "emailHistory"];
 
 function load({ emailId }: { emailId?: SentEmail["id"] }) {
   const { query, useUrl } = useQuery();
+  const { admin } = upmind;
 
   // NB:We use the latest but in time we could get a specific version.
   // This would be the identifier that needs to be overridden/replaced by a param
 
   return query<ISentEmail, SentEmail>({
-    queryKey: [...queryKey, emailId],
-    url: useUrl(`emails/${emailId}`, {
+    queryKey: [...queryKey, emailId, admin],
+    url: useUrl(admin ? `admin/emails/${emailId}` : `emails/${emailId}`, {
       with: "data"
     }),
     withAccessToken: true,
@@ -39,11 +41,12 @@ function load({ emailId }: { emailId?: SentEmail["id"] }) {
 function loadList(params: Partial<QueryParams> = { pagination: { limit: 0 } }) {
   const { meta } = useSession();
   const { list, useUrl } = useQuery();
+  const { admin } = upmind;
 
   return list<IEmail[], SentEmail[]>({
     ...(params as any),
-    queryKey,
-    url: useUrl("self/email_history", {
+    queryKey: [...queryKey, admin],
+    url: useUrl(admin ? "admin/self/email_history" : "self/email_history", {
       order: "created_at",
       with: ["recipient", "recipient_type", "recipient.image"].join(","),
       ...params.filters

@@ -1,0 +1,137 @@
+{
+  "address": {
+    "error": "Votre adresse est requise",
+    "label": "Discours",
+    "placeholder": "Commencez à taper votre adresse",
+    "title": "Ajouter une nouvelle adresse | Mettre à jour l'adresse"
+  },
+  "address1": {
+    "label": "Discours",
+    "placeholder": "Nom de la maison, numéro de l'appartement, etc."
+  },
+  "address2": {
+    "label": "",
+    "placeholder": "Route, nom de rue, etc."
+  },
+  "allow_auto_payment": {
+    "description": "Autoriser l’utilisation de ce mode de paiement pour effectuer des paiements hors ligne automatisés, comme le paiement d’une facture de renouvellement.",
+    "label": "Autoriser le paiement automatique"
+  },
+  "auth_email": {
+    "error": "Un nom d'utilisateur ou une adresse e-mail sont requis",
+    "label": "Votre nom d'utilisateur ou adresse e-mail",
+    "placeholder": "nom@email.com"
+  },
+  "auth_password": {
+    "error": "Un mot de passe fort est requis",
+    "label": "Mot de passe",
+    "placeholder": "Mot de passe ou phrase secrète"
+  },
+  "card_cvv": {
+    "error": "Un CVV valide est requis",
+    "label": "CVV",
+    "placeholder": "CVC"
+  },
+  "card_expiry": {
+    "error": "Une date d'expiration valide est requise",
+    "label": "Date d'expiration",
+    "placeholder": "MM/AA"
+  },
+  "card_num": {
+    "error": "Un numéro de carte valide est requis",
+    "label": "Numéro de carte",
+    "placeholder": "1234 1234 1234 1234"
+  },
+  "cardholder_name": {
+    "label": "Nom du titulaire de la carte",
+    "placeholder": "Entrez le nom du titulaire de la carte"
+  },
+  "category_search": {
+    "placeholder": "Recherche par catégorie..."
+  },
+  "city": {
+    "label": "Ville",
+    "placeholder": "Ville, village, etc."
+  },
+  "company": {
+    "error": "Le nom de votre entreprise est requis",
+    "label": "Entreprise",
+    "title": "Ajouter les détails de l'entreprise | Mettre à jour les détails de l'entreprise"
+  },
+  "companyName": {
+    "label": "Nom de la société",
+    "placeholder": "Le nom de votre entreprise"
+  },
+  "companyNumber": {
+    "label": "Numéro d'entreprise",
+    "placeholder": "Taxe enregistrée ou TPS"
+  },
+  "country": {
+    "label": "Pays",
+    "placeholder": "Choisissez un pays"
+  },
+  "domain": {
+    "placeholder": "Entrez votre domaine..."
+  },
+  "domain_search": {
+    "placeholder": "Rechercher un domaine..."
+  },
+  "email": {
+    "error": "Une adresse e-mail valide est requise",
+    "label": "E-mail",
+    "title": "Ajouter un nouvel e-mail | Mettre à jour un e-mail"
+  },
+  "field_notes": {
+    "label": "Notes de commande"
+  },
+  "firstname": {
+    "error": "Votre prénom est obligatoire",
+    "label": "Prénom"
+  },
+  "lastname": {
+    "error": "Votre nom de famille est obligatoire",
+    "label": "Nom"
+  },
+  "login": {
+    "error": "Nous avons rencontré une erreur lors de la tentative de connexion."
+  },
+  "phone": {
+    "error": "Un numéro de téléphone valide est requis",
+    "label": "Téléphone",
+    "title": "Ajouter un nouveau numéro de téléphone | Mettre à jour le numéro de téléphone"
+  },
+  "postcode": {
+    "label": "Code postal",
+    "placeholder": "par exemple 10011"
+  },
+  "product_name_search": {
+    "placeholder": "Rechercher par nom de produit..."
+  },
+  "promocode": {
+    "error": "Code promo invalide",
+    "placeholder": "Entrez le code promo ici"
+  },
+  "recover": {
+    "error": "Une erreur s'est produite lors de la tentative de vous envoyer un e-mail de réinitialisation de mot de passe."
+  },
+  "region": {
+    "label": "Région",
+    "placeholder": "Choisissez une région…"
+  },
+  "register": {
+    "error": "Nous avons rencontré une erreur lors de la tentative de création de votre compte."
+  },
+  "select_option": {
+    "placeholder": "Sélectionnez une option"
+  },
+  "store_on_payment": {
+    "label": "Enregistrer les détails du paiement"
+  },
+  "stored_payment_method": {
+    "label": "Sélectionnez l'une de vos méthodes de paiement enregistrées"
+  },
+  "taxNumber": {
+    "label": "Numéro fiscal",
+    "placeholder": "Numéro fiscal"
+  }
+}

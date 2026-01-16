@@ -1,6 +1,7 @@
 // --- internal
 import services from "../services";
 import { useI18n, useQuery } from "../..";
+import { isAdmin } from "../../../utils/config";
 
 // --- utils
 import { isEmpty } from "lodash-es";
@@ -17,8 +18,10 @@ async function load(_context: ClientContext, _event: any) {
   // and we need to check the token/get the user
   const { t } = useI18n();
 
-  const token = getTokenFromStorage("client");
-  if (isEmpty(token))
+  const admin = isAdmin.value;
+  const token = getTokenFromStorage(admin ? "user" : "client");
+
+  if (isEmpty(token)) {
     return Promise.reject(
       new DetailedError(
         t("error.token_not_available"),
@@ -26,24 +29,25 @@ async function load(_context: ClientContext, _event: any) {
         ErrorOrigin.Headless
       )
     );
+  }
 
   const { get, useUrl } = useQuery();
-  return get({
-    url: useUrl("self", {
-      with: [
-        "actor",
-        "accounts",
-        "actor.custom_fields"
-        // client specific only
-        // "actor.account", // Relation required for determining `topup_enabled` value
-        // "actor.brand", // Relation required for determining `topup_enabled` value
-        // "delegated_ids",
-        // "enabled_modules"
-      ].join()
-    }),
-    queryKey: ["client"],
-    withAccessToken: true
+  const url = useUrl(admin ? "admin/self" : "self", {
+    with: ["actor", "accounts"].join()
   });
+
+  return get({
+    url,
+    queryKey: admin ? ["session", "admin"] : ["client"],
+    withAccessToken: token?.access_token,
+    withoutLocale: admin
+  })
+    .then(data => {
+      return data;
+    })
+    .catch(err => {
+      throw err;
+    });
 }
 
 // -----------------------------------------------------------------------------

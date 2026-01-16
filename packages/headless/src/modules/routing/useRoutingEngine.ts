@@ -58,9 +58,9 @@ export const useRoutingEngine = () => {
     return waitFor(
       service,
       state => !stateMatches(state, ["subscribing"]) && !!router,
-      { timeout: Infinity }
+      { timeout: 60_000 }
     )
-      .then(() => router.isReady().then(() => true))
+      .then(() => true)
       .catch(error => {
         throw new DetailedError(
           t("error.routing_engine_not_available"),
@@ -137,17 +137,17 @@ export const useRoutingEngine = () => {
         meta: route.meta
       },
       route
-    ).catch(() => route);
+    )
+      .then(target => target)
+      .catch(() => route);
   }
 
   async function navigate(target: string | FunnelTarget, data?: any) {
     // bail out if we are already processing a resolution
-    if (meta.value.isResolved) {
-      send({
-        type: "RESOLVE",
-        data: { target, route: router?.currentRoute?.value, event }
-      });
-    }
+    send({
+      type: "RESOLVE",
+      data: { target, route: router?.currentRoute?.value, event }
+    });
 
     return awaitResolved(funnel.value?.service)
       .then(updateRouter)
@@ -161,11 +161,13 @@ export const useRoutingEngine = () => {
   }
 
   async function navigateNext(event?: any) {
-    if (meta.value.isResolved) {
-      send({ type: "NEXT", data: { route: router.currentRoute.value, event } });
-    }
+    console.log("[Routing Engine] navigateNext called. Sending NEXT.");
+    send({ type: "NEXT", data: { route: router.currentRoute.value, event } });
     return awaitResolved(funnel.value?.service)
-      .then(updateRouter)
+      .then(res => {
+        console.log("[Routing Engine] navigateNext resolved:", res);
+        return updateRouter(res);
+      })
       .catch((error: any) => {
         console.warn("UseRouteingEngine", "Next route Failed", {
           route: router.currentRoute.value,
@@ -176,9 +178,7 @@ export const useRoutingEngine = () => {
   }
 
   async function navigateBack(event?: any) {
-    if (meta.value.isResolved) {
-      send({ type: "BACK", data: { route: router.currentRoute.value, event } });
-    }
+    send({ type: "BACK", data: { route: router.currentRoute.value, event } });
     return awaitResolved(funnel.value?.service)
       .then(updateRouter)
       .catch((error: any) => {
@@ -195,7 +195,7 @@ export const useRoutingEngine = () => {
     route: RouteLocation,
     event?: any
   ) {
-    if (!meta.value.hasTarget || meta.value.isResolved) {
+    if (!meta.value.hasTarget) {
       send({ type: "RESOLVE", data: { target, route, event } });
     }
 
@@ -230,10 +230,18 @@ export const useRoutingEngine = () => {
   }
 
   function updateRouter(route: RouteLocation) {
-    if (!router || !route) return;
+    console.log("[Routing Engine] updateRouter called with:", route);
+    if (!router || !route) {
+      console.warn(
+        "[Routing Engine] updateRouter aborting (no router or no route)."
+      );
+      return;
+    }
     if (route?.meta?.replace) {
+      console.log("[Routing Engine] Calling router.replace");
       router.replace(route);
     } else {
+      console.log("[Routing Engine] Calling router.push");
       router.push(route);
     }
   }

@@ -139,7 +139,7 @@ const {
   meta: routingMeta
 } = useRoutingEngine();
 
-await isReady();
+await isReady(); // check
 
 const isResolving = ref(false);
 
