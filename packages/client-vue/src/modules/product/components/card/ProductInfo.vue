@@ -99,10 +99,6 @@ const props = withDefaults(defineProps<ProductInfo>(), {
   hideAnchorPrice: false
 });
 
-const emit = defineEmits<{
-  (e: "resolve", id: string): void;
-}>();
-
 // -----------------------------------------------------------------------------
 
 const emit = defineEmits<{
