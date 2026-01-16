@@ -12,7 +12,13 @@ const routes: RouteRecordRaw[] = [
     name: "feedback",
     component: Feedback,
     meta: {
-      title: "Feedback machine"
+      title: "Feedback machine",
+      nav: {
+        label: "Feedback",
+        icon: "message-chat-circle",
+        section: "Labs",
+        order: 3
+      }
     }
   }
 ];

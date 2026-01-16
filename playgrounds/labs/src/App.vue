@@ -44,11 +44,6 @@
             </ul>
           </nav>
         </aside>
-
-        <!-- Main Content -->
-        <main class="ml-64 flex-1">
-          <RouterView />
-        </main>
       </div>
     </template>
   </Upm>
@@ -57,7 +52,7 @@
 <script lang="ts" setup>
 // --- external
 import { computed, watch } from "vue";
-import { useRoute, useRouter, RouterLink, RouterView } from "vue-router";
+import { useRoute, useRouter, RouterLink } from "vue-router";
 
 // --- internal
 import {
@@ -74,7 +69,9 @@ import { Icon } from "@upmind-automation/upmind-ui";
 import NavSection from "./components/NavSection.vue";
 
 // --- composables
-import { navigation } from "./composables/useNavigation";
+import { useNavigation } from "./composables/useNavigation";
+
+const { navigation } = useNavigation();
 
 // --- utils
 import { includes } from "lodash-es";

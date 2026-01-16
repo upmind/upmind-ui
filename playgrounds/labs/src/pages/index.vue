@@ -142,11 +142,12 @@ import { UpmLayout } from "@upmind-automation/client-vue";
 import { Button, Icon } from "@upmind-automation/upmind-ui";
 
 // --- internal
-import { navigation, type NavItem } from "../composables/useNavigation";
+import { useNavigation, type NavItem } from "../composables/useNavigation";
 
 // -----------------------------------------------------------------------------
 
 const router = useRouter();
+const { navigation } = useNavigation();
 
 // Count routes in each section
 const countRoutes = (items: NavItem[]): number => {
@@ -167,9 +168,9 @@ const labsCount = computed(() => {
     "Client Management",
     "Products"
   ];
-  return navigation
-    .filter(n => labItems.includes(n.label))
-    .reduce((acc, item) => {
+  return navigation.value
+    .filter((n: NavItem) => labItems.includes(n.label))
+    .reduce((acc: number, item: NavItem) => {
       if (item.route) acc++;
       if (item.children) acc += countRoutes(item.children);
       return acc;
@@ -177,15 +178,15 @@ const labsCount = computed(() => {
 });
 
 const portalCount = computed(() => {
-  const portal = navigation.find(n => n.label === "Portal");
-  const session = navigation.find(n => n.label === "Session");
+  const portal = navigation.value.find((n: NavItem) => n.label === "Portal");
+  const session = navigation.value.find((n: NavItem) => n.label === "Session");
   return (
     countRoutes(portal?.children || []) + countRoutes(session?.children || [])
   );
 });
 
 const adminCount = computed(() => {
-  const admin = navigation.find(n => n.label === "Admin Portal");
+  const admin = navigation.value.find((n: NavItem) => n.label === "Admin");
   return countRoutes(admin?.children || []);
 });
 
