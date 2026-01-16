@@ -568,5 +568,52 @@ export const DATA_DEFINITIONS = {
     default: undefined,
     contexts: [UIContext.CONFIGURE, UIContext.BASKET, UIContext.CHECKOUT],
     scopes: [UIScope.BRAND, UIScope.PRODUCT_CATEGORY, UIScope.PRODUCT]
+  },
+
+  // --- SEO
+  seoTitle: {
+    default: undefined,
+    contexts: ALL_CONTEXTS,
+    scopes: [UIScope.BRAND, UIScope.PRODUCT_CATEGORY, UIScope.PRODUCT]
+  },
+  seoDescription: {
+    default: undefined,
+    contexts: ALL_CONTEXTS,
+    scopes: [UIScope.BRAND, UIScope.PRODUCT_CATEGORY, UIScope.PRODUCT]
+  },
+  seoCanonical: {
+    default: undefined,
+    contexts: ALL_CONTEXTS,
+    scopes: [UIScope.BRAND, UIScope.PRODUCT_CATEGORY, UIScope.PRODUCT]
+  },
+  seoOgTitle: {
+    default: undefined,
+    contexts: ALL_CONTEXTS,
+    scopes: [UIScope.BRAND, UIScope.PRODUCT_CATEGORY, UIScope.PRODUCT]
+  },
+  seoOgDescription: {
+    default: undefined,
+    contexts: ALL_CONTEXTS,
+    scopes: [UIScope.BRAND, UIScope.PRODUCT_CATEGORY, UIScope.PRODUCT]
+  },
+  seoOgImage: {
+    default: undefined,
+    contexts: ALL_CONTEXTS,
+    scopes: [UIScope.BRAND, UIScope.PRODUCT_CATEGORY, UIScope.PRODUCT]
+  },
+  seoTwitterTitle: {
+    default: undefined,
+    contexts: ALL_CONTEXTS,
+    scopes: [UIScope.BRAND, UIScope.PRODUCT_CATEGORY, UIScope.PRODUCT]
+  },
+  seoTwitterDescription: {
+    default: undefined,
+    contexts: ALL_CONTEXTS,
+    scopes: [UIScope.BRAND, UIScope.PRODUCT_CATEGORY, UIScope.PRODUCT]
+  },
+  seoTwitterImage: {
+    default: undefined,
+    contexts: ALL_CONTEXTS,
+    scopes: [UIScope.BRAND, UIScope.PRODUCT_CATEGORY, UIScope.PRODUCT]
   }
 } satisfies DataDefinitions;
