@@ -4,6 +4,7 @@
     v-bind="forwarded"
     v-model="modelValue"
     :class="class"
+    :data-testid="`tab-${first(tabs)?.label ?? 'default'}`"
   >
     <header :class="styles.tabs.root">
       <div v-if="!isEmptySlot('prepend', slots)" :class="styles.tabs.prepend">
