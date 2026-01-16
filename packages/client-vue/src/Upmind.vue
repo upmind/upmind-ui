@@ -18,7 +18,9 @@
         </slot>
 
         <AsyncLoading :open="meta.isLoading" v-bind="props.loadingProps" />
+
         <Main>
+          <slot name="navigation" />
           <UpmRouteView
             :loading-props="props.loadingProps"
             @resolve="scrollToAnchor"
