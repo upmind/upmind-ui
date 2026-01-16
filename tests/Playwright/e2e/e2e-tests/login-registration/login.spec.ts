@@ -6,9 +6,9 @@ let login: Login;
 
 test.describe("Login", async () => {
   test.describe("Login via /auth/login", () => {
-    test.beforeEach(({ page }) => {
+    test.beforeEach(async ({ page }) => {
       login = new Login(page);
-      page.goto(URLs.login);
+      await page.goto(URLs.login);
     });
     test("Successful Login", async ({ page }) => {
       await login.inputLogin(
@@ -37,9 +37,9 @@ test.describe("Login", async () => {
     });
   });
   test.describe("Login via login popover", () => {
-    test.beforeEach(({ page }) => {
+    test.beforeEach(async ({ page }) => {
       login = new Login(page);
-      page.goto(URLs.devBlocks);
+      await page.goto(URLs.devBlocks);
     });
     test("Successful Login", async ({ page }) => {
       await login.loginFromPopover(
