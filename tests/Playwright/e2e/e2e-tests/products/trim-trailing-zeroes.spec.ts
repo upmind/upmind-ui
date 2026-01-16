@@ -22,10 +22,10 @@ test.describe("Trim trailing zeroes on product prices", () => {
     await page.goto(URLs.starterHosting);
     await expect(page.getByTestId("radio-card-item").nth(0)).toHaveText("£4");
   });
-  test("Setting is only applied to decimal zeroes and not whole numbers", async ({
-    page
-  }) => {});
-  test("Product price displays with trailing zeroes when setting is not applied", async ({
-    page
-  }) => {});
+  test.skip("Setting is only applied to decimal zeroes and not whole numbers", async () => {
+    // TODO: Implement test
+  });
+  test.skip("Product price displays with trailing zeroes when setting is not applied", async () => {
+    // TODO: Implement test
+  });
 });

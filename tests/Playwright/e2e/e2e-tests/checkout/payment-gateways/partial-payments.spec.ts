@@ -2,6 +2,7 @@ import { test, expect } from "@playwright/test";
 import { Checkout } from "../../../support/page-objects/templates/Checkout";
 import { Registration } from "../../../support/page-objects/templates/Registration";
 import { payPalDetails } from "../../../support/secrets/paypal";
+import { goToCheckout } from "../../../support/utils/apiHelper";
 
 let checkout: Checkout;
 let registration: Registration;
@@ -12,8 +13,11 @@ test.describe("Partial payment at Checkout", () => {
     registration = new Registration(page, context);
   });
   test.describe("Partial Payments with Stripe", () => {
-    test("Partial Payment in base Currency (GBP)", async ({ page }) => {
-      await checkout.goToCheckout(null, null);
+    test("Partial Payment in base Currency (GBP)", async ({
+      page,
+      context
+    }) => {
+      await goToCheckout(page, context);
       await page.waitForLoadState("networkidle");
       await registration.inputRegistration();
       await page.waitForLoadState("load");
@@ -27,8 +31,11 @@ test.describe("Partial payment at Checkout", () => {
       await checkout.dialogWindow.waitFor();
       await expect(checkout.dialogWindow).toContainText("Order complete!");
     });
-    test("Partial Payment in foreign currency (AUD)", async ({ page }) => {
-      await checkout.goToCheckout(null, "AUD");
+    test("Partial Payment in foreign currency (AUD)", async ({
+      page,
+      context
+    }) => {
+      await goToCheckout(page, context, null, "AUD");
       await page.waitForLoadState("networkidle");
       await registration.inputRegistration();
       await page.waitForLoadState("load");
@@ -42,8 +49,8 @@ test.describe("Partial payment at Checkout", () => {
       await checkout.dialogWindow.waitFor();
       await expect(checkout.dialogWindow).toContainText("Order complete!");
     });
-    test("Partial payment with promo (GBP)", async ({ page }) => {
-      await checkout.goToCheckout("genericpromo", null);
+    test("Partial payment with promo (GBP)", async ({ page, context }) => {
+      await goToCheckout(page, context, "genericpromo", null);
       await page.waitForLoadState("networkidle");
       await registration.inputRegistration();
       await page.waitForLoadState("load");
@@ -58,8 +65,8 @@ test.describe("Partial payment at Checkout", () => {
       await checkout.dialogWindow.waitFor();
       await expect(checkout.dialogWindow).toContainText("Order complete!");
     });
-    test("Partial payment with promo (AUD)", async ({ page }) => {
-      await checkout.goToCheckout("genericpromo", "AUD");
+    test("Partial payment with promo (AUD)", async ({ page, context }) => {
+      await goToCheckout(page, context, "genericpromo", "AUD");
       await page.waitForLoadState("networkidle");
       await registration.inputRegistration();
       await page.waitForLoadState("load");
@@ -76,8 +83,11 @@ test.describe("Partial payment at Checkout", () => {
     });
   });
   test.describe("Partial Payments with PayPal", () => {
-    test("Partial Payment in base Currency (GBP)", async ({ page }) => {
-      await checkout.goToCheckout(null, null);
+    test("Partial Payment in base Currency (GBP)", async ({
+      page,
+      context
+    }) => {
+      await goToCheckout(page, context, null, null);
       await page.waitForLoadState("networkidle");
       await registration.inputRegistration();
       await page.waitForLoadState("load");
@@ -101,8 +111,11 @@ test.describe("Partial payment at Checkout", () => {
       await checkout.dialogWindow.waitFor();
       await expect(checkout.dialogWindow).toContainText("Order complete!");
     });
-    test("Partial Payment in foreign currency (AUD)", async ({ page }) => {
-      await checkout.goToCheckout(null, "AUD");
+    test("Partial Payment in foreign currency (AUD)", async ({
+      page,
+      context
+    }) => {
+      await goToCheckout(page, context, null, "AUD");
       await page.waitForLoadState("networkidle");
       await registration.inputRegistration();
       await page.waitForLoadState("load");
@@ -126,8 +139,8 @@ test.describe("Partial payment at Checkout", () => {
       await checkout.dialogWindow.waitFor();
       await expect(checkout.dialogWindow).toContainText("Order complete!");
     });
-    test("Partial payment with promo (GBP)", async ({ page }) => {
-      await checkout.goToCheckout("genericpromo", null);
+    test("Partial payment with promo (GBP)", async ({ page, context }) => {
+      await goToCheckout(page, context, "genericpromo", null);
       await registration.inputRegistration();
       await page.waitForLoadState("load");
       await expect(checkout.payAmount).toHaveText("Pay £57.60");
