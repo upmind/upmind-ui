@@ -18,7 +18,7 @@ export function useTime() {
   return {
     IMMEDIATE: 0,
     WAIT: 10, // this allows us to wait for an imperceptible amount of time before continuing
-    ERROR: 3000, // this allows us to read the error before continuing,
+    ERROR: 1000, // this allows us to read the error before continuing,
     POLL: 500, // this allows us to poll every 0.5 seconds
     // ---
     MILLISECOND: 1,
