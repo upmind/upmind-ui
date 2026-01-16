@@ -23,6 +23,9 @@ declare type Encoder<T> = (value: T) => string;
 
 // --------------------------------------------------------
 
+/** Apex domains where domain cookies should NOT be set, as it can cause issues across tenants who haven't set a custom apex domain */
+const RESTRICTED_APEX_DOMAINS = ["upmind.app", "upmind.dev", "upmind.com"];
+
 export function useCookies() {
   const domain = window.location.hostname;
   const apexDomain = getApexDomain(window.location.hostname);
@@ -43,6 +46,11 @@ export function useCookies() {
     hostname = hostname || window.location.hostname;
     const parsed = parse(hostname) as ParsedDomain;
     return parsed?.domain || hostname;
+  }
+
+  /** Check if the current apex domain is restricted (shared Upmind domains) */
+  function isRestrictedDomain(): boolean {
+    return RESTRICTED_APEX_DOMAINS.includes(apexDomain);
   }
 
   // NB by default we always use JSON parse/strigify and base64 encoding to encode/decode the cookie value
@@ -76,10 +84,17 @@ export function useCookies() {
       options?: CookieOptions,
       encoder: Encoder<any> = defaultEncoder
     ) => {
-      // NB we always set the cookie for both the current domain and the top-level domain
-      // this is to ensure that the cookie is available if the top-level domain fails to set the cookie
       options ??= {};
 
+      // Prevent setting domain cookies on restricted apex domains (shared Upmind domains)
+      // This avoids cross-tenant cookie conflicts
+      if (isRestrictedDomain()) {
+        setCookie(key, value, encoder, options);
+        return;
+      }
+
+      // NB we always set the cookie for both the current domain and the top-level domain
+      // this is to ensure that the cookie is available if the top-level domain fails to set the cookie
       set(options, "domain", apexDomain);
       setCookie(key, value, encoder, options);
 
@@ -91,8 +106,15 @@ export function useCookies() {
     },
     remove: removeCookie,
     removeTopLevel: (key: string, options?: CookieOptions) => {
-      // NB we always remove the cookie for both the current domain and the top-level domain
       options ??= {};
+
+      // On restricted domains, cookies are only set at the current subdomain level
+      if (isRestrictedDomain()) {
+        removeCookie(key, options);
+        return;
+      }
+
+      // NB we always remove the cookie for both the current domain and the top-level domain
       set(options, "domain", apexDomain);
       removeCookie(key, options);
       set(options, "domain", domain);

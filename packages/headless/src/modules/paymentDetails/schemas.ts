@@ -215,7 +215,7 @@ export const useUischemaDefinitions = ({
       scope: "#/properties/gateway_id",
       i18n: "form.gateway_id",
       options: {
-        width: 6
+        width: 2
       }
     };
   }

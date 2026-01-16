@@ -1,17 +1,26 @@
 <template>
   <p v-if="has(props, 'cycle')">
-    {{
-      t("term.price_msg", {
-        n: calculatedN,
-        price:
-          meta?.oneoff || !meta?.useMonthlyFromPrice
-            ? price?.currentPrice
-            : price?.monthlyFromCurrentPrice,
-        period: parseBillingCycle(props.cycle!).descriptive
-      })
-    }}
+    <template v-if="meta?.free">
+      {{ t("text.free") }}
+    </template>
+    <template v-else>
+      {{
+        t("term.price_msg", {
+          n: calculatedN,
+          price: formatPrice(
+            meta?.oneoff || !meta?.useMonthlyFromPrice
+              ? price?.currentPrice
+              : price?.monthlyFromCurrentPrice,
+            {
+              trimTrailingZeroes: data.trimTrailingZeroes
+            }
+          ),
+          period: parseBillingCycle(props.cycle!).descriptive
+        })
+      }}
+    </template>
 
-    <del v-if="meta?.discounted" class="text-muted">
+    <del v-if="meta?.discounted && !meta?.free" class="text-muted ml-1">
       {{
         t("text.price_was", {
           price:
@@ -28,12 +37,18 @@
 import type { TermDetails } from "@upmind-automation/headless";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { parseBillingCycle } from "@upmind-automation/headless";
+import {
+  parseBillingCycle,
+  useMoney,
+  useConfig
+} from "@upmind-automation/headless";
 import { has } from "lodash-es";
-
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
+
+const { formatPrice } = useMoney();
+const { ui, data } = useConfig();
 
 const props = defineProps<Omit<TermDetails, "name">>();
 

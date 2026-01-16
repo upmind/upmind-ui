@@ -62,13 +62,15 @@ const queryKey: QueryKey = ["paymentDetail", "stored"];
 
 export function loadList() {
   const { brandId, currencyId } = useBrand();
-  const { meta, clientId } = useSession();
+  const { meta, userId } = useSession();
+
+  const clientId = userId.value;
 
   const { query, useUrl } = useQuery();
 
   return query<IPaymentDetail[], PaymentDetail[]>({
     queryKey,
-    url: useUrl(`clients/${clientId.value}/payment_details`, {
+    url: useUrl(`clients/${clientId}/payment_details`, {
       limit: 0,
       brand_id: brandId.value,
       active: true,
@@ -83,7 +85,7 @@ export function loadList() {
       new Promise((resolve, reject) => {
         if (
           meta.value.isAuthenticated &&
-          !!clientId.value &&
+          !!userId.value &&
           !!currencyId.value &&
           !!brandId.value
         ) {
@@ -109,7 +111,7 @@ export function loadList() {
     retryDelay: DEBOUNCE_DELAY,
     enabled: () =>
       meta.value.isAuthenticated &&
-      !!clientId.value &&
+      !!userId.value &&
       !!currencyId.value &&
       !!brandId.value
   });
@@ -118,15 +120,14 @@ export function loadList() {
 // -----------------------------------------------------------------------------
 
 async function loadLookups(
-  { currency, address, orderId, lookups, client }: PaymentDetailsContext,
+  { currency, address, orderId, lookups }: PaymentDetailsContext,
   _event: AnyEventObject
 ) {
-  const { meta } = useSession();
+  const { meta, user } = useSession();
   const paymentTypes: Record<string, PaymentType> = {
     ["PAY_IN_FULL"]: PaymentType.PAY_IN_FULL
   };
-
-  if (!meta.value.isAuthenticated || !client?.id)
+  if (!meta.value.isAuthenticated || !user.value?.id)
     throw new NotAuthenticatedError();
 
   const { brandId, currencyId: defaultCurrencyId, ensureConfig } = useBrand();
@@ -134,6 +135,8 @@ async function loadLookups(
 
   // ---
 
+  const clientId = user.value!.id;
+  const client = user.value;
   const currencyId = currency?.id || defaultCurrencyId.value; // fallback to default currency
 
   const config = ensureConfig([
@@ -152,7 +155,7 @@ async function loadLookups(
       "wallet-balance",
       {
         brandId: unref(brandId),
-        client,
+        clientId,
         currencyId
       }
     ],
@@ -186,7 +189,7 @@ async function loadLookups(
     IPaymentDetail[],
     PaymentDetail[]
   >({
-    url: useUrl(`clients/${client.id}/payment_details`, {
+    url: useUrl(`clients/${clientId}/payment_details`, {
       limit: 0,
       brand_id: unref(brandId),
       active: true,
@@ -199,7 +202,7 @@ async function loadLookups(
       "payment-details",
       {
         brandId: unref(brandId),
-        client,
+        clientId,
         currencyId,
         addressId: address?.country_id
       }
@@ -212,7 +215,7 @@ async function loadLookups(
   const gateways: any = getRequest<IBrandGateway[]>({
     url: useUrl(`brands/${unref(brandId)}/gateways`, {
       limit: 0,
-      client_id: client.id,
+      client_id: clientId,
       invoice_id: orderId,
       order: "order",
       "filter[gateway.currencies.id]": currencyId,
@@ -225,7 +228,7 @@ async function loadLookups(
       {
         brandId: unref(brandId),
         invoice_id: orderId,
-        client,
+        clientId,
         currencyId,
         invoiceId: orderId,
         addressId: address?.country_id

@@ -6,14 +6,17 @@ export default {
     root: cva("flex w-full flex-col gap-6"),
     choices: cva(""),
     listings: {
-      item: cva("p-0", {
-        variants: {
-          hasExactMatch: {
-            true: "first:border-t-0",
-            false: ""
+      item: cva(
+        "shadow-border-transparent [&:hover,&[data-hover=true]]:shadow-border-transparent !rounded-none border-t p-0",
+        {
+          variants: {
+            hasExactMatch: {
+              true: "first:border-t-0",
+              false: ""
+            }
           }
         }
-      }),
+      ),
       root: cva("list-none"),
       interstitial: cva("min-h-80", {
         variants: {

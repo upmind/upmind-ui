@@ -17,3 +17,4 @@ export * from "./productCatalogue";
 export * from "./productCategories";
 export * from "./invoices";
 export * from "./orders";
+export * from "./config";

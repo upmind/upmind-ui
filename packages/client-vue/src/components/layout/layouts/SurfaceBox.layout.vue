@@ -1,7 +1,11 @@
 <template>
   <Root :class="styles.surfaceBox.root">
     <div :class="styles.surfaceBox.container">
-      <Card as="article" :class="styles.surfaceBox.card" spacious>
+      <component
+        :is="card ? 'article' : Card"
+        :class="styles.surfaceBox.card"
+        spacious
+      >
         <!-- Content Header -->
         <section :class="styles.surfaceBox.contentHeader">
           <slot name="controls" />
@@ -13,11 +17,14 @@
         </section>
 
         <!-- Content -->
-        <section :class="styles.surfaceBox.content">
+        <component
+          :is="card ? 'div' : 'section'"
+          :class="styles.surfaceBox.content"
+        >
           <slot name="content" />
           <slot name="default" />
-        </section>
-      </Card>
+        </component>
+      </component>
     </div>
   </Root>
 </template>
@@ -27,12 +34,15 @@ import { computed } from "vue";
 import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "../layout.config";
 import type { VariantProps } from "../types";
+import { useSection } from "../../section/useSection";
 
 // --- components
 import { Card } from "@upmind-automation/upmind-ui";
 import Root from "../components/root/Root.vue";
 
 defineProps<VariantProps>();
+
+const { card } = useSection();
 
 const meta = computed(() => ({}));
 

@@ -17,7 +17,7 @@
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useBasket } from "@upmind-automation/headless";
+import { UIContext, useBasket } from "@upmind-automation/headless";
 
 // --- components
 import Section from "../../../components/section/Section.vue";

@@ -87,9 +87,7 @@ export const useRouting = (router: Router): void => {
    * Guard the route before each navigation with the routing engine
    * but only if the route name has changed
    */
-  router.beforeEach(async (to, from) =>
-    hasRouteChanged(from, to) ? guardRoute(to) : undefined
-  );
+  router.beforeEach(async to => guardRoute(to));
 
   /**
    * After each route navigation, push a page_view event to the data layer for analytics
