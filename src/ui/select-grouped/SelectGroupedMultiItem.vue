@@ -42,6 +42,7 @@
           v-bind="{ group: props.group, selectedItem, expanded: isOpen }"
         >
           <div :class="styles.selectGrouped.header.root">
+            <slot name="icon" v-bind="{ group: props.group }" />
             <div class="flex flex-1 flex-col">
               <div class="flex items-center gap-2">
                 <h5 :class="styles.selectGrouped.content.label">

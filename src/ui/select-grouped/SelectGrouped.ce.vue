@@ -32,6 +32,9 @@
       <template #item="slotProps">
         <slot name="item" v-bind="slotProps" />
       </template>
+      <template v-if="$slots.icon" #icon="slotProps">
+        <slot name="icon" v-bind="slotProps" />
+      </template>
       <template v-if="$slots.header" #header="slotProps">
         <slot name="header" v-bind="slotProps" />
       </template>

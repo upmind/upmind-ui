@@ -40,6 +40,9 @@
     @focus-next-group="() => emits('focus-next-group')"
     @focus-prev-group="() => emits('focus-prev-group')"
   >
+    <template v-if="$slots.icon" #icon="slotProps">
+      <slot name="icon" v-bind="slotProps" />
+    </template>
     <template v-if="$slots.header" #header="slotProps">
       <slot name="header" v-bind="slotProps" />
     </template>
