@@ -12,7 +12,7 @@ export class Login {
 
   constructor(page: Page) {
     this.page = page;
-    this.loginForm = page.getByTestId("login-form");
+    this.loginForm = page.getByTestId("section-log-in");
     this.usernameField = page
       .getByTestId("form-item-username")
       .getByRole("textbox");

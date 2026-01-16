@@ -5,21 +5,22 @@ import { getClientToken } from "../../../support/utils/functions/tokens";
 import { Checkout } from "../../../support/page-objects/templates/Checkout";
 import { Logins } from "../../../support/constants/logins";
 import { payPalDetails } from "../../../support/secrets/paypal";
+import { goToCheckout } from "../../../support/utils/apiHelper";
 
 let checkout: Checkout;
 
 test.describe("Checkout with PayPal", () => {
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ page, context }) => {
     checkout = new Checkout(page);
     await page.goto(URLs.login);
   });
-  test("Pay with PayPal Express", async ({ page }) => {
+  test("Pay with PayPal Express", async ({ page, context }) => {
     await getClientToken(
       page,
       Logins.checkoutUser.username,
       Logins.checkoutUser.password
     );
-    await checkout.goToCheckout(null, null);
+    await goToCheckout(page, context, null, null);
     await checkout.selectPaymentMethod("Pay-Pal Express");
     await checkout.clickPlaceOrderAndPay();
     await page.waitForURL(
