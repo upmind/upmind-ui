@@ -130,6 +130,26 @@ export interface UISchema {
   /** Cap the number of gateways to initially show */
   paymentGatewaysCap?: GatewayCap;
 
+  // --- SEO
+  /** Page title for <title> tag */
+  seoTitle?: string;
+  /** Meta description for <meta name="description"> */
+  seoDescription?: string;
+  /** Canonical URL for <link rel="canonical"> */
+  seoCanonical?: string;
+  /** Open Graph title for og:title */
+  seoOgTitle?: string;
+  /** Open Graph description for og:description */
+  seoOgDescription?: string;
+  /** Open Graph image URL for og:image */
+  seoOgImage?: string;
+  /** Twitter Card title for twitter:title */
+  seoTwitterTitle?: string;
+  /** Twitter Card description for twitter:description */
+  seoTwitterDescription?: string;
+  /** Twitter Card image URL for twitter:image */
+  seoTwitterImage?: string;
+
   // --- Global
   /** Display breadcrumbs (defaults to showing immediate parent category) */
   breadcrumbs?: Breadcrumbs;
