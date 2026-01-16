@@ -1,13 +1,13 @@
 import { test, expect } from "@playwright/test";
-import { ErrorCodes } from "../support/constants/errorCodes";
-import { returnError } from "../support/utils/functions/errors";
-import { getSessionToken } from "../support/utils/functions/tokens";
+import { ErrorCodes } from "../../support/constants/errorCodes";
+import { returnError } from "../../support/utils/functions/errors";
+import { getSessionToken } from "../../support/utils/functions/tokens";
 import {
-  createOrder,
+  getCurrentOrderId,
   setOrderCurrency
-} from "../support/utils/functions/basket";
+} from "../../support/utils/functions/basket";
 
-import { URLs } from "../support/constants/urls";
+import { URLs } from "../../support/constants/urls";
 
 test.describe("Error Code Handling", async () => {
   let token: string;
@@ -16,7 +16,7 @@ test.describe("Error Code Handling", async () => {
     await page.goto(URLs.basket);
     await page.waitForLoadState("networkidle");
     token = await getSessionToken(context);
-    orderId = await createOrder(token);
+    orderId = await getCurrentOrderId(token);
     setOrderCurrency(token, orderId, "USD");
   });
   for (const {
@@ -44,7 +44,7 @@ test.describe("Error Code Handling", async () => {
         const toast = page.getByRole("status").first();
         await expect(toast).toBeVisible();
         await expect(toast).toContainText(`${responseError.message}`);
-        await expect(page.url()).toContain(`${URLs.baseUrl}order/product/`);
+        await expect(page.url()).toContain(`${URLs.baseUrl}order/product/add/`);
       } else {
         throw new Error(`Invalid errorType on ErrorCodes: ${errorType}`);
       }
