@@ -149,6 +149,11 @@ export interface UpmindProps {
    * An array of theme configurations to be loaded and managed by the theming module.
    */
   themes?: Theme[];
+  /**
+   * App-level config defaults. These serve as fallback values before schema defaults,
+   * allowing apps to customize behavior while still respecting brand/product overrides.
+   */
+  config?: Record<string, unknown>;
 }
 
 // -----------------------------------------------------------------------------
@@ -207,6 +212,10 @@ export class Upmind {
    * Theme configurations.
    */
   themes?: UpmindProps["themes"];
+  /**
+   * App-level configuration.
+   */
+  config?: UpmindProps["config"];
 
   /**
    * Constructs a new Upmind instance.
@@ -227,6 +236,7 @@ export class Upmind {
    */
   init({
     analytics,
+    config,
     debug,
     i18n,
     mode,
@@ -243,6 +253,7 @@ export class Upmind {
         ErrorOrigin.Headless
       );
     this.status.value = UpmindStatus.initialising;
+    this.config = config;
     this.debug = debug;
     this.mode = mode ?? "default";
     this.pop = pop;

@@ -37,7 +37,8 @@ export const SCOPE_ORDER = [
   UIScope.OPTION_CATEGORY,
   UIScope.PRODUCT,
   UIScope.PRODUCT_CATEGORY,
-  UIScope.BRAND
+  UIScope.BRAND,
+  UIScope.APP
 ] as const;
 
 /** Definition for a single meta property (from schema) */
@@ -68,6 +69,7 @@ export type MetaPrefix = (typeof META_PREFIX)[keyof typeof META_PREFIX];
  */
 export interface ScopeItems<T = Record<string, unknown>> {
   context?: UIContext;
+  app?: Partial<T>;
   brand?: Partial<T>;
   category?: Partial<T>;
   product?: Partial<T>;
@@ -131,6 +133,7 @@ export type DataProxy = {
 export interface MetaInput {
   context?: UIContext;
   viewport?: Viewport;
+  app?: RawMeta;
   brand?: RawMeta;
   category?: CategoryInput;
   product?: ProductInput;
