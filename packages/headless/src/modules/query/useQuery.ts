@@ -2,7 +2,6 @@
 import { effectScope, getCurrentScope, ComputedRef } from "vue";
 
 import {
-  QueryClient,
   useMutation,
   useQuery as vueUseQuery,
   useInfiniteQuery as vueUseInfiniteQuery
@@ -23,10 +22,8 @@ import {
   has,
   isEmpty,
   isInteger,
-  isNil,
   isObject,
   isString,
-  omit,
   set,
   toNumber,
   unset
@@ -39,7 +36,6 @@ import {
 } from "./utils";
 import {
   useUrl,
-  useTime,
   isPromise,
   ErrorOrigin,
   DetailedError,
@@ -58,15 +54,8 @@ import type {
   PaginationInfo
 } from "./types";
 import { Methods } from "@upmind-automation/types";
-import type {
-  DefaultError,
-  MutationKey,
-  QueryKey,
-  QueryOptions,
-  UseQueryReturnType
-} from "@tanstack/vue-query";
+import type { DefaultError, MutationKey, QueryKey } from "@tanstack/vue-query";
 import { useSession } from "../session";
-import { cancel } from "xstate";
 
 // -----------------------------------------------------------------------------
 
