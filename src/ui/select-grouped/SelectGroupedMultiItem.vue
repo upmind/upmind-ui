@@ -62,6 +62,10 @@
                 {{ props.group.description }}
               </p>
             </div>
+            <slot
+              name="header-label"
+              v-bind="{ group: props.group, selectedItem, expanded: isOpen }"
+            />
             <Icon
               icon="chevron-down"
               :class="
