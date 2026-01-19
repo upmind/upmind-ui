@@ -9,41 +9,26 @@
       />
     </template>
 
-    <template #navigation>
-      <div class="bg-surface flex min-h-screen">
-        <!-- Left Sidebar -->
-        <aside
-          class="fixed top-0 left-0 z-40 h-screen w-64 border-r border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900"
-        >
-          <!-- Logo / Header -->
-          <div
-            class="flex h-16 items-center border-b border-neutral-200 px-4 dark:border-neutral-800"
-          >
-            <RouterLink
-              :to="{ name: ROUTE.HOME }"
-              class="flex items-center gap-2"
-            >
-              <div
-                class="bg-primary-500 flex h-8 w-8 items-center justify-center rounded-lg text-white"
-              >
-                <Icon icon="beaker-01" size="sm" />
-              </div>
-              <span
-                class="text-lg font-semibold text-neutral-900 dark:text-white"
-                >Upmind Labs</span
-              >
-            </RouterLink>
-          </div>
+    <template #sidebar>
+      <!-- Left Sidebar -->
+      <aside
+        class="sticky top-0 z-40 min-h-screen w-64 self-start border-r border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900"
+      >
+        <!-- Navigation -->
+        <nav class="h-[calc(100vh-4rem)] overflow-y-auto p-4">
+          <ul class="space-y-1">
+            <li v-for="(item, index) in navigation" :key="index">
+              <NavSection :item="item" :depth="0" />
+            </li>
+          </ul>
+        </nav>
+      </aside>
+    </template>
 
-          <!-- Navigation -->
-          <nav class="h-[calc(100vh-4rem)] overflow-y-auto p-4">
-            <ul class="space-y-1">
-              <li v-for="(item, index) in navigation" :key="index">
-                <NavSection :item="item" :depth="0" />
-              </li>
-            </ul>
-          </nav>
-        </aside>
+    <template #default="{ meta, loadingProps, resolve }">
+      <!-- Main content area -->
+      <div class="min-h-screen flex-1">
+        <UpmRouteView :loading-props="loadingProps" @resolve="resolve" />
       </div>
     </template>
   </Upm>
@@ -57,11 +42,10 @@ import { useRoute, useRouter, RouterLink } from "vue-router";
 // --- internal
 import {
   Upm,
-  UpmBasketAction,
   UpmAuthAction,
-  useBasket,
   useRoutingEngine,
-  useSession
+  useSession,
+  UpmRouteView
 } from "@upmind-automation/client-vue";
 
 // --- components
