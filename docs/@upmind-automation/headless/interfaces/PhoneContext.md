@@ -3,7 +3,7 @@
 # PhoneContext
 
 Interface representing the context for phone number management within a client item context.
-It extends `ClientItemContext` with specific data relevant to phone operations,
+It extends `DataManagerContext` with specific data relevant to phone operations,
 such as geographical country context for phone number formatting and validation.
 
 ## Template
@@ -12,7 +12,7 @@ The type of the phone model, typically [PhoneModel](PhoneModel.md).
 
 ## Extends
 
-- `ClientItemContext`\<[`PhoneModel`](PhoneModel.md)\>
+- `DataManagerContext`\<[`PhoneModel`](PhoneModel.md)\>
 
 ## Properties
 
@@ -25,7 +25,7 @@ optional allowMultipleEdits: boolean;
 #### Inherited from
 
 ```ts
-ClientItemContext.allowMultipleEdits
+DataManagerContext.allowMultipleEdits
 ```
 
 ***
@@ -39,7 +39,7 @@ optional autoupdate: boolean;
 #### Inherited from
 
 ```ts
-ClientItemContext.autoupdate
+DataManagerContext.autoupdate
 ```
 
 ***
@@ -53,7 +53,7 @@ optional baseModel: any;
 #### Inherited from
 
 ```ts
-ClientItemContext.baseModel
+DataManagerContext.baseModel
 ```
 
 ***
@@ -67,7 +67,7 @@ optional clientId: string;
 #### Inherited from
 
 ```ts
-ClientItemContext.clientId
+DataManagerContext.clientId
 ```
 
 ***
@@ -81,7 +81,7 @@ optional config: Record<BrandConfigKeys, boolean>;
 #### Inherited from
 
 ```ts
-ClientItemContext.config
+DataManagerContext.config
 ```
 
 ***
@@ -106,7 +106,7 @@ optional description: string;
 #### Inherited from
 
 ```ts
-ClientItemContext.description
+DataManagerContext.description
 ```
 
 ***
@@ -120,7 +120,7 @@ optional error: ResponseError;
 #### Inherited from
 
 ```ts
-ClientItemContext.error
+DataManagerContext.error
 ```
 
 ***
@@ -134,7 +134,7 @@ optional id: string;
 #### Inherited from
 
 ```ts
-ClientItemContext.id
+DataManagerContext.id
 ```
 
 ***
@@ -148,7 +148,7 @@ optional model: PhoneModel;
 #### Inherited from
 
 ```ts
-ClientItemContext.model
+DataManagerContext.model
 ```
 
 ***
@@ -162,7 +162,7 @@ optional schema: JsonSchema;
 #### Inherited from
 
 ```ts
-ClientItemContext.schema
+DataManagerContext.schema
 ```
 
 ***
@@ -176,7 +176,7 @@ optional title: string;
 #### Inherited from
 
 ```ts
-ClientItemContext.title
+DataManagerContext.title
 ```
 
 ***
@@ -190,5 +190,5 @@ optional uischema: UISchemaElement;
 #### Inherited from
 
 ```ts
-ClientItemContext.uischema
+DataManagerContext.uischema
 ```

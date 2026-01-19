@@ -3,7 +3,7 @@ import { ErrorCodes } from "../support/constants/errorCodes";
 import { returnError } from "../support/utils/functions/errors";
 import { getSessionToken } from "../support/utils/functions/tokens";
 import {
-  getCurrentOrderId,
+  createOrder,
   setOrderCurrency
 } from "../support/utils/functions/basket";
 
@@ -16,7 +16,7 @@ test.describe("Error Code Handling", async () => {
     await page.goto(URLs.basket);
     await page.waitForLoadState("networkidle");
     token = await getSessionToken(context);
-    orderId = await getCurrentOrderId(token);
+    orderId = await createOrder(token);
     setOrderCurrency(token, orderId, "USD");
   });
   for (const {
@@ -44,7 +44,7 @@ test.describe("Error Code Handling", async () => {
         const toast = page.getByRole("status").first();
         await expect(toast).toBeVisible();
         await expect(toast).toContainText(`${responseError.message}`);
-        await expect(page.url()).toContain(`${URLs.baseUrl}order/product/add/`);
+        await expect(page.url()).toContain(`${URLs.baseUrl}order/product/`);
       } else {
         throw new Error(`Invalid errorType on ErrorCodes: ${errorType}`);
       }

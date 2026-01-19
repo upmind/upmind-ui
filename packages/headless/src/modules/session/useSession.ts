@@ -29,18 +29,19 @@ import type {
   IAuthTransfer,
   SessionContext,
   SessionTransfer,
-  User
+  Client
 } from "./types";
-import { type ErrorObject } from "ajv";
-import { type GuestContext } from "./guest/types";
-import { type ClientContext } from "./client/types";
-export type { User, SessionTransfer, IAuthTransfer } from "./types";
+import type { ErrorObject } from "ajv";
+import type { GuestContext } from "./guest/types";
+import type { ClientContext } from "./client/types";
+export type { Client, SessionTransfer, IAuthTransfer } from "./types";
 // -----------------------------------------------------------------------------
 
 // create a global instance of the session machine
 // and a global object to store state
 // NB dont automatically start the machine as in order for the inspector to work
 // it needs to be started after the inspect service is created, so we only start it when we need it
+
 const service = interpret(sessionMachine, { devTools: true });
 
 // -----------------------------------------------------------------------------
@@ -52,6 +53,7 @@ const service = interpret(sessionMachine, { devTools: true });
  * @returns Session management API (see below for details)
  */
 export const useSession = () => {
+  const { t } = useI18n();
   if (service.status == InterpreterStatus.NotStarted) service.start();
 
   const { state, send } = useActor(service);
@@ -59,10 +61,21 @@ export const useSession = () => {
   // --- state
 
   async function isReady(): Promise<boolean> {
-    const { t } = useI18n();
-    return waitFor(service, state => !state.matches("checking"), {
-      timeout: 60_000
-    })
+    const snap = service.getSnapshot();
+    if (!snap.matches("checking")) {
+      if (snap.matches("error")) throw snap.context.error;
+      return true;
+    }
+
+    return waitFor(
+      service,
+      state => {
+        return !state.matches("checking");
+      },
+      {
+        timeout: 20000 // Increased timeout
+      }
+    )
       .then(state => {
         if (stateMatches(state, "error")) throw state.context.error;
         return true; // Session is ready
@@ -70,66 +83,113 @@ export const useSession = () => {
       .catch(error => {
         throw new DetailedError(
           error?.message ?? t("error.session_not_available"),
-          error?.responseCode ?? responseCodes.No_Content,
+          error?.message?.includes("Timeout")
+            ? responseCodes.Timeout
+            : (error?.responseCode ?? responseCodes.No_Content),
           error?.origin ?? ErrorOrigin.Headless
         );
       });
   }
 
-  async function isAuthenticated(): Promise<User> {
-    const { t } = useI18n();
+  async function isAuthenticated(): Promise<Client> {
+    const snap = service.getSnapshot();
+    const currentClient = contextValue<Client>(clientActor, "client");
+
+    // Shortcut if already authenticated and data is loaded
+    if (
+      snap.matches("client") &&
+      currentClient &&
+      !stateMatches(clientActor, ["loading", "starting"])
+    ) {
+      return currentClient;
+    }
+
     return isReady()
       .then(async () => {
-        if (!client.value)
+        if (stateMatches(service, "client")) return true;
+
+        // Wait specifically for client state if we are not there yet
+        return waitFor(service, state => stateMatches(state, "client"), {
+          timeout: 15000
+        }).catch(() => {
+          const snap = service.getSnapshot();
           throw new DetailedError(
             t("auth.login_to_continue"),
             responseCodes.Unauthorized,
             ErrorOrigin.Headless
           );
+        });
+      })
+      .then(async () => {
+        if (currentClient && !stateMatches(clientActor, "loading")) {
+          return currentClient;
+        }
+
+        if (!clientActor.value?.service) {
+          throw new DetailedError(
+            t("auth.login_to_continue"),
+            responseCodes.Unauthorized,
+            ErrorOrigin.Headless
+          );
+        }
 
         return waitFor(
-          client.value.service,
-          state => stateMatches(state, "available"),
+          clientActor.value.service,
+          state => !stateMatches(state, ["loading", "starting"]),
           {
             timeout: 60_000
           }
-        ).then(() => {
-          const user = contextValue<User>(client, "user");
-          if (!user) {
-            throw new DetailedError(
-              t("auth.login_to_continue"),
-              responseCodes.Unauthorized,
-              ErrorOrigin.Headless
-            );
-          }
-          return user;
-        });
-      })
-      .catch(() =>
-        Promise.reject(
-          new DetailedError(
-            t("error.401_title_md"),
-            responseCodes.Unauthorized,
-            ErrorOrigin.Headless
-          )
         )
-      );
+          .then(state => {
+            const client = contextValue<Client>(clientActor, "client");
+            if (stateMatches(state, "error") || !client) {
+              throw new DetailedError(
+                t("auth.login_to_continue"),
+                responseCodes.Unauthorized,
+                ErrorOrigin.Headless
+              );
+            }
+            return client;
+          })
+          .catch(err => {
+            if (err?.message?.includes("Timeout")) {
+              if (currentClient) return currentClient;
+              throw new DetailedError(
+                t("error.request_timeout"),
+                responseCodes.Timeout,
+                ErrorOrigin.Headless
+              );
+            }
+            throw err;
+          });
+      })
+      .catch(err => {
+        // If it's already a DetailedError, rethrow it
+        if (err instanceof DetailedError) throw err;
+
+        console.error(`[Session] isAuthenticated failed:`, err);
+        throw new DetailedError(
+          t("error.401_title_md"),
+          responseCodes.Internal_Server_Error,
+          ErrorOrigin.Headless
+        );
+      });
   }
 
   const meta = computed(() => ({
     isLoading:
       stateMatches(state, "checking") ||
-      stateMatches(guest, [
+      stateMatches(guestActor, [
         "loading",
         "available.login.loading",
         "available.register.loading",
         "available.recover.loading"
       ]) ||
-      stateMatches(client, "loading") ||
+      stateMatches(clientActor, "loading") ||
       false,
     isAvailable: !stateMatches(state, ["error", "checking"]),
     isProcessing:
-      stateMatches(guest, [
+      stateMatches(guestActor, [
         "available.login.authenticating",
         "available.login.verifying",
         "available.register.checking",
@@ -137,83 +197,88 @@ export const useSession = () => {
         "available.register.registering",
         "available.register.authenticating",
         "available.recover.recovering"
-      ]) || stateMatches(client, "processing"),
-    isAuthenticated: stateMatches(state, "client"),
-    isTransferring: stateMatches(client, "transferring"),
+      ]) ||
+      stateMatches(clientActor, ["loading", "processing", "transferring"]),
+    isAuthenticated:
+      stateMatches(state, "client") &&
+      !stateMatches(clientActor, ["error", "loading", "starting"]),
+    isTransferring: stateMatches(clientActor, "transferring"),
     hasExpired: stateMatches(state, "expired") || isEmpty(state.value.children),
     hasErrors:
       stateMatches(state, "error") ||
-      stateMatches(guest, [
+      stateMatches(guestActor, [
         "available.login.error",
         "available.register.error",
         "available.recover.error"
       ]) ||
-      stateMatches(client, "error"),
-    showReCaptcha: stateMatches(guest, "available.register.challenging"),
-    showLoginForm: stateMatches(guest, "available.login"),
-    show2fa: stateMatches(guest, [
+      stateMatches(clientActor, "error"),
+    showReCaptcha: stateMatches(guestActor, "available.register.challenging"),
+    showLoginForm: stateMatches(guestActor, "available.login"),
+    show2fa: stateMatches(guestActor, [
       "available.login.challenging",
       "available.login.verifying"
     ]),
-    canShowForms: stateMatches(guest, "available"),
-    showRegisterForm: stateMatches(guest, "available.register"),
-    showRecoverPasswordForm: stateMatches(guest, "available.recover")
+    canShowForms: stateMatches(guestActor, "available"),
+    showRegisterForm: stateMatches(guestActor, "available.register"),
+    showRecoverPasswordForm: stateMatches(guestActor, "available.recover")
   }));
 
   // --- context
 
   /**
-   * Information about the authenticated client, if available. Represents the logged-in user.
+   * Information about the authenticated clientActor, if available. Represents the logged-in client.
    */
-  const client = useChildActor(state, "clientMachine");
+  const clientActor = useChildActor(state, "clientMachine");
 
   /**
-   * Information about the guest user, if available. Used to handle non-authenticated user interactions.
+   * Information about the guestActor client, if available. Used to handle non-authenticated client interactions.
    */
-  const guest = useChildActor(state, "guestMachine");
+  const guestActor = useChildActor(state, "guestMachine");
 
   /**
-   * Context object containing session-specific information such as current user,
+   * Context object containing session-specific information such as current client,
    * authentication status, and other dynamic data.
    */
   const context = useContext<SessionContext>(state);
 
   /**
-   * User-specific information for the currently authenticated user, including profile and account data.
+   * Client-specific information for the currently authenticated client, including profile and account data.
    */
-  const user = useContext<ClientContext["user"]>(client, "user");
+  const client = useContext<ClientContext["client"]>(clientActor, "client");
 
   /**
    * The underlying data model used in session-related forms such as login or registration.
    */
-  const model = useContext<GuestContext["model"]>(guest, "model");
+  const model = useContext<GuestContext["model"]>(guestActor, "model");
 
   /**
    * JSON Schema used to define the structure of session-related forms, like login and registration.
    */
   const schema = useContext<GuestContext["schema"]>(
-    guest.value?.state,
+    guestActor.value?.state,
     "schema"
   );
 
   /**
    * UI Schema used to configure the presentation and layout of session-related forms.
    */
-  const uischema = useContext<GuestContext["uischema"]>(guest, "uischema");
+  const uischema = useContext<GuestContext["uischema"]>(guestActor, "uischema");
 
   /**
    * Any errors encountered during session management operations, such as login or registration failures.
    */
-  const errors = useContext<ResponseError["message"]>(guest, "error.message");
-  const validationErrors = useContext<ErrorObject[]>(guest, "error.data");
+  const errors = useContext<ResponseError["message"]>(
+    guestActor,
+    "error.message"
+  );
+  const validationErrors = useContext<ErrorObject[]>(guestActor, "error.data");
 
   // --- methods
 
   // ---  methods
 
-  async function getUser(): Promise<User> {
-    const { t } = useI18n();
-    if (!client.value) {
+  async function getClient(): Promise<Client> {
+    if (!clientActor.value) {
       throw new DetailedError(
         t("error.user_not_available"),
         responseCodes.Unauthorized,
@@ -222,21 +287,23 @@ export const useSession = () => {
     }
 
     return waitFor(
-      client.value.service,
+      clientActor.value.service,
       state => !stateMatches(state, "loading"),
       {
         timeout: 60_000
       }
     )
       .then(state => {
-        const user = get(state, "user");
-        if (!user)
+        const client = get(state, "client");
+
+        console.log("then", client);
+        if (!client)
           throw new DetailedError(
             t("error.user_not_available"),
             responseCodes.Unauthorized,
             ErrorOrigin.Headless
           );
-        return user;
+        return client;
       })
       .catch(() => {
         throw new DetailedError(
@@ -247,23 +314,23 @@ export const useSession = () => {
       });
   }
 
-  async function getUserId(): Promise<User["id"] | undefined> {
-    return getUser()
-      .then(user => user?.id)
+  async function getClientId(): Promise<Client["id"] | undefined> {
+    return getClient()
+      .then(client => client?.id)
       .catch(() => undefined);
   }
 
   // ---
 
   async function showLogin(): Promise<boolean> {
-    if (!guest.value) return true; // already logged in
+    if (!guestActor.value) return true; // already logged in
 
     service.send({
       type: "LOGIN"
     });
 
     return await waitFor(
-      guest.value.service,
+      guestActor.value.service,
       state => stateMatches(state, "available.login"),
       { timeout: 60000 }
     )
@@ -272,14 +339,14 @@ export const useSession = () => {
   }
 
   async function showRegister(): Promise<boolean> {
-    if (!guest.value) return true; // already logged in
+    if (!guestActor.value) return true; // already logged in
 
     service.send({
       type: "REGISTER"
     });
 
     return await waitFor(
-      guest.value.service,
+      guestActor.value.service,
       state => stateMatches(state, "available.register"),
       { timeout: 60000 }
     )
@@ -288,14 +355,14 @@ export const useSession = () => {
   }
 
   async function showRecoverPassword(): Promise<boolean> {
-    if (!guest.value) return true; // already logged in
+    if (!guestActor.value) return true; // already logged in
 
     service.send({
       type: "RECOVER"
     });
 
     return await waitFor(
-      guest.value.service,
+      guestActor.value.service,
       state => stateMatches(state, "available.recover"),
       { timeout: 60000 }
     )
@@ -306,7 +373,7 @@ export const useSession = () => {
   // ---
 
   async function login(model: any): Promise<boolean> {
-    if (!guest.value) return true; // already logged in
+    if (!guestActor.value) return true; // already logged in
 
     service.send({
       type: "AUTHENTICATE",
@@ -314,7 +381,7 @@ export const useSession = () => {
     });
 
     return await waitFor(
-      guest.value.service,
+      guestActor.value.service,
       state => stateMatches(state, ["complete", "available.login.error"]),
       {
         timeout: 60000
@@ -325,7 +392,7 @@ export const useSession = () => {
   }
 
   async function verify2fa({ token }: { token: string }): Promise<any> {
-    if (!guest.value) return true; // already logged in
+    if (!guestActor.value) return true; // already logged in
 
     service.send({
       type: "VERIFY",
@@ -333,7 +400,7 @@ export const useSession = () => {
     });
 
     return await waitFor(
-      guest.value.service,
+      guestActor.value.service,
       state => stateMatches(state, ["complete", "available.login.error"]),
       {
         timeout: 60000
@@ -344,7 +411,7 @@ export const useSession = () => {
   }
 
   async function register(model: any): Promise<boolean> {
-    if (!guest.value) return true; // already logged in
+    if (!guestActor.value) return true; // already logged in
 
     service.send({
       type: "REGISTER",
@@ -352,7 +419,7 @@ export const useSession = () => {
     });
 
     return await waitFor(
-      guest.value.service,
+      guestActor.value.service,
       state => stateMatches(state, ["complete", "available.register.error"]),
       {
         timeout: 60000
@@ -363,7 +430,7 @@ export const useSession = () => {
   }
 
   async function recover(model: any): Promise<boolean> {
-    if (!guest.value) return true; // we're already logged in
+    if (!guestActor.value) return true; // we're already logged in
 
     service.send({
       type: "RECOVER",
@@ -371,7 +438,7 @@ export const useSession = () => {
     });
 
     return await waitFor(
-      guest.value.service,
+      guestActor.value.service,
       state =>
         stateMatches(state, [
           "available.recover.complete",
@@ -388,10 +455,10 @@ export const useSession = () => {
       type: "LOGOUT"
     });
 
-    if (!client.value?.service) return true; // were already logged out
+    if (!clientActor.value?.service) return true; // were already logged out
 
     return await waitFor(
-      client.value.service,
+      clientActor.value.service,
       state => stateMatches(state, "complete"),
       {
         timeout: 60000
@@ -402,8 +469,7 @@ export const useSession = () => {
   }
 
   async function transferTo(): Promise<IAuthTransfer> {
-    const { t } = useI18n();
-    if (!client.value) {
+    if (!clientActor.value) {
       const { addError } = useFeedback();
       addError({ title: t("error.session_transfer_not_available") });
       return Promise.reject(
@@ -420,7 +486,7 @@ export const useSession = () => {
     });
 
     return waitFor(
-      client.value.service,
+      clientActor.value.service,
       newState => stateMatches(newState, "transferring.available"),
       { timeout: 60_000 }
     )
@@ -452,7 +518,6 @@ export const useSession = () => {
     code: string,
     redirect?: string
   ): Promise<SessionTransfer> {
-    const { t } = useI18n();
     service.send({
       type: "TRANSFER_FROM",
       data: {
@@ -490,6 +555,24 @@ export const useSession = () => {
       });
   }
 
+  async function refresh(): Promise<boolean> {
+    service.send({
+      type: "REFRESH"
+    });
+
+    if (!clientActor.value?.service) return true; // were already logged out
+
+    return await waitFor(
+      clientActor.value.service,
+      state => stateMatches(state, "available"),
+      {
+        timeout: 60000
+      }
+    )
+      .then(() => true)
+      .catch(() => false);
+  }
+
   function transferred() {
     service.send({ type: "TRANSFERRED" });
   }
@@ -500,7 +583,6 @@ export const useSession = () => {
    * @returns {Promise<any>}
    */
   async function resolve(model: any): Promise<any> {
-    const { t } = useI18n();
     if (meta.value.showLoginForm && !meta.value.show2fa) return login(model);
     if (meta.value.show2fa) return verify2fa(model);
     if (meta.value.showRegisterForm) return register(model);
@@ -522,8 +604,8 @@ export const useSession = () => {
     send({
       type: "CANCEL"
     });
-    const guest = state.value?.children?.guest;
-    return waitFor(guest, state => stateMatches(state, "available"), {
+    const guestActor = state.value?.children?.guestActor;
+    return waitFor(guestActor, state => stateMatches(state, "available"), {
       timeout: 60_000
     });
   }
@@ -545,7 +627,7 @@ export const useSession = () => {
     /**
      * Promise that resolves when the session is fully initialized and authenticated.
      * Typically used to wait for guarding routes or other authenticated-dependent operations.
-     * @returns {Promise<User>} A promise that resolves with the current user when the session is ready.
+     * @returns {Promise<Client>} A promise that resolves with the current client when the session is ready.
      */
     isAuthenticated,
 
@@ -555,7 +637,7 @@ export const useSession = () => {
      * @property {boolean} isLoading - Indicates whether any part of the session is currently in a loading state.
      * @property {boolean} isAvailable - Indicates whether the session is ready to be used.
      * @property {boolean} isProcessing - Indicates whether the session is currently processing an action.
-     * @property {boolean} isAuthenticated - Indicates whether the user is authenticated within the session.
+     * @property {boolean} isAuthenticated - Indicates whether the client is authenticated within the session.
      * @property {boolean} isTransferring - Indicates whether the session is currently transferring data.
      * @property {boolean} hasExpired - Indicates whether the session has expired.
      * @property {boolean} showReCaptcha - Indicates whether the ReCaptcha challenge should be displayed.
@@ -563,7 +645,7 @@ export const useSession = () => {
      * @property {boolean} show2fa - Indicates whether the two-factor authentication (2FA) challenge is required and should be shown.
      * @property {boolean} showRegisterForm - Indicates whether the registration form should be displayed.
      * @property {boolean} showRecoverPasswordForm - Indicates whether the Send reset form should be displayed.
-     * @property {boolean} canShowForms - Indicates whether any forms (login or register) can be shown to the user.
+     * @property {boolean} canShowForms - Indicates whether any forms (login or register) can be shown to the client.
      * @property {boolean} hasErrors - Indicates whether any errors have occurred during session management operations.
      */
     meta,
@@ -571,7 +653,7 @@ export const useSession = () => {
     // --- context
 
     /**
-     * Context object containing session-specific information such as current user,
+     * Context object containing session-specific information such as current client,
      * authentication status, and other dynamic data.
      */
     context,
@@ -590,14 +672,14 @@ export const useSession = () => {
     validationErrors,
 
     /**
-     * Information about the guest user, if available. Used to handle non-authenticated user interactions.
+     * Information about the guestActor client, if available. Used to handle non-authenticated client interactions.
      */
-    guest,
+    guestActor,
 
     /**
-     * Information about the authenticated client, if available. Represents the logged-in user.
+     * Information about the authenticated clientActor, if available. Represents the logged-in client.
      */
-    client,
+    clientActor,
 
     /**
      * The underlying data model used in session-related forms such as login or registration.
@@ -615,27 +697,27 @@ export const useSession = () => {
     uischema,
 
     /**
-     * User-specific information for the currently authenticated user, including profile and account data.
+     * Client-specific information for the currently authenticated client, including profile and account data.
      */
-    user,
+    client,
 
-    userId: computed((): User["id"] | undefined => {
-      return user.value?.id;
+    clientId: computed((): Client["id"] | undefined => {
+      return client.value?.id;
     }),
 
     // --- methods
 
     // /**
-    //  * Retrieves the user object of the currently authenticated user.
-    //  * @returns {Promise<User>} A promise that resolves with the user object if available, or throws an error if not authenticated.
+    //  * Retrieves the client object of the currently authenticated client.
+    //  * @returns {Promise<Client>} A promise that resolves with the client object if available, or throws an error if not authenticated.
     //  */
-    // getUser,
+    // getClient,
 
     // /**
-    //  * Retrieves the user ID of the currently authenticated user.
-    //  * @returns {Promise<User["id"] | undefined>} A promise that resolves with the user ID if available, or undefined if not authenticated.
+    //  * Retrieves the client ID of the currently authenticated client.
+    //  * @returns {Promise<Client["id"] | undefined>} A promise that resolves with the client ID if available, or undefined if not authenticated.
     //  */
-    // getUserId,
+    // getClientId,
 
     /**
      * Function to reject an ongoing authentication or registration request.
@@ -648,38 +730,38 @@ export const useSession = () => {
     resolve,
 
     /**
-     * Initiates the login process for a user, typically used in conjunction with a form and model data.
+     * Initiates the login process for a client, typically used in conjunction with a form and model data.
      * @returns {Promise<void>} A promise that resolves when the login operation is completed.
      */
     login,
 
     /**
-     * Logs out the currently authenticated user.
+     * Logs out the currently authenticated client.
      * @returns {Promise<void>} A promise that resolves when the logout operation is completed.
      */
     logout,
 
     /**
-     * Recovers the password for a user, typically used with form and model data.
+     * Recovers the password for a client, typically used with form and model data.
      * @returns {Promise<void>} A promise that resolves when the password recovery operation is completed.
      */
     recover,
 
     /**
-     * Registers a new user, typically used with a form and model data.
+     * Registers a new client, typically used with a form and model data.
      * @returns {Promise<any>} A promise that resolves when the registration operation is completed.
      */
     register,
 
     /**
-     * Verifies the 2-factor authentication (2FA) code provided by the user.
-     * @param {string} code The 2FA code entered by the user.
+     * Verifies the 2-factor authentication (2FA) code provided by the client.
+     * @param {string} code The 2FA code entered by the client.
      * @returns {Promise<void>} A promise that resolves when the verification is successful.
      */
     verify2fa,
 
     /**
-     * Transfer session data between different parts of the application, such as from guest to client.
+     * Transfer session data between different parts of the application, such as from guestActor to clientActor.
      */
     transferTo,
 
@@ -707,12 +789,12 @@ export const useSession = () => {
     transferred,
 
     /**
-     * Displays the login form for user authentication.
+     * Displays the login form for client authentication.
      */
     showLogin,
 
     /**
-     * Displays the registration form for user sign-up.
+     * Displays the registration form for client sign-up.
      */
     showRegister,
 
@@ -737,7 +819,12 @@ export const useSession = () => {
 
     // ---
 
-    reauth: () => service.send({ type: "EXPIRED" })
+    reauth: () => {
+      console.warn("[Session] Reauth triggered (EXPIRED)");
+      service.send({ type: "EXPIRED" });
+    },
+
+    refresh
   };
 };
 

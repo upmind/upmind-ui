@@ -1,0 +1,29 @@
+{
+  "calendar": {
+    "last_day": "[Kemarin]",
+    "last_week": "[Terakhir] dddd",
+    "next_day": "[Besok]",
+    "next_week": "dddd",
+    "same_day": "[Hari ini]"
+  },
+  "date": {
+    "default": "MMM Do, YYYY",
+    "omit_ordinal": "BB/TTTT",
+    "omit_year": "MMM Lakukan",
+    "only_day": "D",
+    "only_month": "MMM",
+    "only_ordinal": "Melakukan",
+    "only_week": "MMM Do ([Minggu] M)",
+    "only_year": "TTTT"
+  },
+  "datetime": {
+    "default": "MMM Do, YYYY HH:mm A",
+    "omit_meridiem": "MMM Do, YYYY HH:mm",
+    "with_seconds": "MMM Do, YYYY HH:mm:ss A"
+  },
+  "time": {
+    "default": "JJ:mm",
+    "with_meridiem": "HH:mm A",
+    "with_seconds": "JJ:mm:dd"
+  }
+}

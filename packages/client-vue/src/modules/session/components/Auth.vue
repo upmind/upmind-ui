@@ -94,7 +94,7 @@ const {
   setModel
 } = useSession();
 
-await isReady();
+// await isReady();
 
 const styles = useStyles(["session.auth"], meta, config);
 

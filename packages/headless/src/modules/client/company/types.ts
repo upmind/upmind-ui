@@ -1,7 +1,7 @@
 // --- internal
 
 // --- types
-import type { ClientItemContext } from "../types";
+import type { DataManagerContext } from "../../dataManager/types";
 import type { ICountry, ICompany, IRegion } from "@upmind-automation/types";
 import type { Email, Phone, Address, PhoneModel, AddressModel } from "..";
 
@@ -156,12 +156,12 @@ export interface Company {
 
 /**
  * Interface representing the context for company management within a client item context.
- * It extends `ClientItemContext` with specific data relevant to company operations,
+ * It extends `DataManagerContext` with specific data relevant to company operations,
  * such as associated addresses, emails, phones, and geographical lookups.
  *
  * @template TModel - The type of the company model, typically {@link CompanyModel}.
  */
-export interface CompanyContext extends ClientItemContext<CompanyModel> {
+export interface CompanyContext extends DataManagerContext<CompanyModel> {
   /** An array of all {@link Address} records associated with the client. */
   addresses: Address[];
   /** An array of all {@link Email} records associated with the client. */

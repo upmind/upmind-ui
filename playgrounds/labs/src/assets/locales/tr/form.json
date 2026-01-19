@@ -1,0 +1,137 @@
+{
+  "address": {
+    "error": "Adresiniz gereklidir",
+    "label": "Adres",
+    "placeholder": "Adresinizi yazmaya başlayın",
+    "title": "Yeni Adres Ekle | Adresi Güncelle"
+  },
+  "address1": {
+    "label": "Adres",
+    "placeholder": "Ev adı, daire numarası vb."
+  },
+  "address2": {
+    "label": "",
+    "placeholder": "Yol, sokak adı vb."
+  },
+  "allow_auto_payment": {
+    "description": "Bu ödeme yönteminin, yenileme faturası ödemeleri gibi otomatik çevrimdışı ödemeler yapmak için kullanılmasına izin verin.",
+    "label": "Otomatik ödemeye izin ver"
+  },
+  "auth_email": {
+    "error": "Bir kullanıcı adı veya e-posta adresi gereklidir",
+    "label": "Kullanıcı adınız veya e-posta adresiniz",
+    "placeholder": "isim@e-posta.com"
+  },
+  "auth_password": {
+    "error": "Güçlü bir parola gereklidir",
+    "label": "Şifre",
+    "placeholder": "Şifre veya parola ifadesi"
+  },
+  "card_cvv": {
+    "error": "Geçerli bir CVV gereklidir",
+    "label": "CVV",
+    "placeholder": "CVC"
+  },
+  "card_expiry": {
+    "error": "Geçerli bir son kullanma tarihi gereklidir",
+    "label": "Son kullanma tarihi",
+    "placeholder": "AA/YY"
+  },
+  "card_num": {
+    "error": "Geçerli bir kart numarası gereklidir",
+    "label": "Kart numarası",
+    "placeholder": "1234 1234 1234 1234"
+  },
+  "cardholder_name": {
+    "label": "Kart Sahibinin Adı",
+    "placeholder": "Kart sahibinin adını girin"
+  },
+  "category_search": {
+    "placeholder": "Kategori araması..."
+  },
+  "city": {
+    "label": "Şehir",
+    "placeholder": "Şehir, kasaba vb."
+  },
+  "company": {
+    "error": "Şirket adınız gereklidir",
+    "label": "Şirket",
+    "title": "Şirket Detaylarını Ekle | Şirket Detaylarını Güncelle"
+  },
+  "companyName": {
+    "label": "Firma Adı",
+    "placeholder": "Şirketinizin adı"
+  },
+  "companyNumber": {
+    "label": "Şirket Numarası",
+    "placeholder": "Kayıtlı vergi veya GST"
+  },
+  "country": {
+    "label": "Ülke",
+    "placeholder": "Bir ülke seçin"
+  },
+  "domain": {
+    "placeholder": "Alan adınızı girin..."
+  },
+  "domain_search": {
+    "placeholder": "Bir alan adı arayın..."
+  },
+  "email": {
+    "error": "Geçerli bir E-posta Adresi gereklidir",
+    "label": "E-posta",
+    "title": "Yeni E-posta Ekle | E-postayı Güncelle"
+  },
+  "field_notes": {
+    "label": "Sipariş Notları"
+  },
+  "firstname": {
+    "error": "Adınız gereklidir",
+    "label": "İlk adı"
+  },
+  "lastname": {
+    "error": "Soyadınız gereklidir",
+    "label": "Soy isim"
+  },
+  "login": {
+    "error": "Girişinizi yapmaya çalışırken bir hatayla karşılaştık."
+  },
+  "phone": {
+    "error": "Geçerli bir Telefon Numarası gereklidir",
+    "label": "Telefon",
+    "title": "Yeni Telefon Numarası Ekle | Telefon Numarasını Güncelle"
+  },
+  "postcode": {
+    "label": "Posta kodu",
+    "placeholder": "örneğin 10011"
+  },
+  "product_name_search": {
+    "placeholder": "Ürün adına göre ara..."
+  },
+  "promocode": {
+    "error": "Geçersiz promosyon kodu",
+    "placeholder": "Kupon kodunu buraya girin"
+  },
+  "recover": {
+    "error": "Size şifre sıfırlama e-postası göndermeye çalışırken bir hatayla karşılaştık."
+  },
+  "region": {
+    "label": "Bölge",
+    "placeholder": "Bir bölge seçin…"
+  },
+  "register": {
+    "error": "Hesabınızı oluşturmaya çalışırken bir hatayla karşılaştık."
+  },
+  "select_option": {
+    "placeholder": "Bir seçenek seçin"
+  },
+  "store_on_payment": {
+    "label": "Ödeme ayrıntılarını kaydet"
+  },
+  "stored_payment_method": {
+    "label": "Kayıtlı ödeme yöntemlerinizden birini seçin"
+  },
+  "taxNumber": {
+    "label": "Vergi Numarası",
+    "placeholder": "Vergi Kimlik No"
+  }
+}

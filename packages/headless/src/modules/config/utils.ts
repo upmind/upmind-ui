@@ -255,6 +255,20 @@ function viewportMatches(
 
 // --- Data Value Helpers ---
 
+/** Keys that support template variable interpolation (e.g., {{ name }}, {{ service_identifier }}) */
+const INTERPOLATABLE_KEYS = [
+  "productName",
+  "seoTitle",
+  "seoDescription",
+  "seoCanonical",
+  "seoOgTitle",
+  "seoOgDescription",
+  "seoOgImage",
+  "seoTwitterTitle",
+  "seoTwitterDescription",
+  "seoTwitterImage"
+] as const;
+
 /** Resolves special data values (e.g., productName with variable interpolation, i18n: references) */
 function resolveDataValue(
   key: string,
@@ -269,8 +283,10 @@ function resolveDataValue(
     return t(i18nKey);
   }
 
-  // Handle productName with variable interpolation
-  if (key === "productName") {
+  // Handle keys with variable interpolation (productName, SEO properties, etc.)
+  if (
+    INTERPOLATABLE_KEYS.includes(key as (typeof INTERPOLATABLE_KEYS)[number])
+  ) {
     return replaceDataVariables(value as string, source);
   }
 

@@ -75,7 +75,7 @@
                   "ty": "st",
                   "c": {
                     "a": 0,
-                    "k": [0.031, 0.659, 0.541, 1],
+                    "k": [0.153, 0.682, 0.894, 1],
                     "ix": 3,
                     "x": "var $bm_rt;\n$bm_rt = comp('wired-outline-2604-2-factor-authentication').layer('control').effect('secondary')('Color');"
                   },
@@ -183,7 +183,7 @@
                   "ty": "st",
                   "c": {
                     "a": 0,
-                    "k": [0.031, 0.659, 0.541, 1],
+                    "k": [0.153, 0.682, 0.894, 1],
                     "ix": 3,
                     "x": "var $bm_rt;\n$bm_rt = comp('wired-outline-2604-2-factor-authentication').layer('control').effect('secondary')('Color');"
                   },
@@ -291,7 +291,7 @@
                   "ty": "st",
                   "c": {
                     "a": 0,
-                    "k": [0.031, 0.659, 0.541, 1],
+                    "k": [0.153, 0.682, 0.894, 1],
                     "ix": 3,
                     "x": "var $bm_rt;\n$bm_rt = comp('wired-outline-2604-2-factor-authentication').layer('control').effect('secondary')('Color');"
                   },
@@ -399,7 +399,7 @@
                   "ty": "st",
                   "c": {
                     "a": 0,
-                    "k": [0.031, 0.659, 0.541, 1],
+                    "k": [0.153, 0.682, 0.894, 1],
                     "ix": 3,
                     "x": "var $bm_rt;\n$bm_rt = comp('wired-outline-2604-2-factor-authentication').layer('control').effect('secondary')('Color');"
                   },
@@ -515,7 +515,7 @@
                   "ty": "st",
                   "c": {
                     "a": 0,
-                    "k": [0.031, 0.659, 0.541, 1],
+                    "k": [0.153, 0.682, 0.894, 1],
                     "ix": 3,
                     "x": "var $bm_rt;\n$bm_rt = comp('wired-outline-2604-2-factor-authentication').layer('control').effect('secondary')('Color');"
                   },
@@ -800,7 +800,7 @@
                   "ty": "st",
                   "c": {
                     "a": 0,
-                    "k": [0.071, 0.075, 0.192, 1],
+                    "k": [0.075, 0.212, 0.353, 1],
                     "ix": 3,
                     "x": "var $bm_rt;\n$bm_rt = comp('wired-outline-2604-2-factor-authentication').layer('control').effect('primary')('Color');"
                   },
@@ -982,7 +982,7 @@
                   "ty": "st",
                   "c": {
                     "a": 0,
-                    "k": [0.071, 0.075, 0.192, 1],
+                    "k": [0.075, 0.212, 0.353, 1],
                     "ix": 3,
                     "x": "var $bm_rt;\n$bm_rt = comp('wired-outline-2604-2-factor-authentication').layer('control').effect('primary')('Color');"
                   },
@@ -1112,7 +1112,7 @@
                       "ty": "st",
                       "c": {
                         "a": 0,
-                        "k": [0.031, 0.659, 0.541, 1],
+                        "k": [0.153, 0.682, 0.894, 1],
                         "ix": 3,
                         "x": "var $bm_rt;\n$bm_rt = comp('wired-outline-2604-2-factor-authentication').layer('control').effect('secondary')('Color');"
                       },
@@ -1227,7 +1227,7 @@
               "nm": "Color",
               "mn": "ADBE Color Control-0001",
               "ix": 1,
-              "v": { "a": 0, "k": [0.071, 0.075, 0.192], "ix": 1 }
+              "v": { "a": 0, "k": [0.075, 0.212, 0.353], "ix": 1 }
             }
           ]
         },
@@ -1244,7 +1244,7 @@
               "nm": "Color",
               "mn": "ADBE Color Control-0001",
               "ix": 1,
-              "v": { "a": 0, "k": [0.031, 0.659, 0.541], "ix": 1 }
+              "v": { "a": 0, "k": [0.153, 0.682, 0.894], "ix": 1 }
             }
           ]
         }

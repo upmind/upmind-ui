@@ -38,11 +38,7 @@
 <script lang="ts" setup>
 // --- external
 import { computed, ref } from "vue";
-import {
-  useRoute,
-  useRouter,
-  type RouteLocationAsRelativeGeneric
-} from "vue-router";
+import { useRouter, type RouteLocationAsRelativeGeneric } from "vue-router";
 import { useI18n } from "vue-i18n";
 
 // --- internal

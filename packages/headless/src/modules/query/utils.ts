@@ -81,14 +81,27 @@ export function parseData(data: any) {
  */
 export const invalidateQueryByKey =
   (queryKey: QueryKey, filters?: InvalidateQueryFilters) =>
-  async <T = any>(data?: T) => {
+  <T = any>(data?: T): Promise<T | undefined> => {
     const { queryClient } = useQuery();
     return queryClient
       .invalidateQueries({
         queryKey,
-        ...filters
+        ...filters,
+        refetchType: "all",
+        exact: false
       })
-      .then(() => data);
+      .then(() => {
+        // refetch the queries after invalidation but don't wait for them
+        queryClient.refetchQueries({
+          queryKey,
+          ...filters
+        });
+
+        return data;
+      })
+      .catch(() => {
+        return undefined;
+      });
   };
 
 /**

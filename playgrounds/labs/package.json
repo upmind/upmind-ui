@@ -30,6 +30,7 @@
     "@sentry/vue": "^10.4.0",
     "@tailwindcss/typography": "^0.5.16",
     "@tanstack/vue-query": "^5.83.1",
+    "@upmind-automation/types": "workspace:*",
     "@upmind-automation/client-vue": "workspace:*",
     "@upmind-automation/upmind-ui": "workspace:*",
     "@upmind-automation/i18n": "workspace:*",

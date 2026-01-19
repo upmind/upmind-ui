@@ -89,15 +89,11 @@ test.describe("Promotions", () => {
   });
   test.describe("Availability & Eligibility Settings", () => {
     test.describe.skip("Apply to multiple renewals", () => {
-      test("Promotion applied on recurring renewals - Multiple (1 renewal)", async ({
-        page
-      }) => {
-        // TBC
+      test.skip("Promotion applied on recurring renewals - Multiple (1 renewal)", async () => {
+        // TODO: Implement test
       });
-      test("Promotion applied on recurring renewals - Unlimited", async ({
-        page
-      }) => {
-        // TBC
+      test.skip("Promotion applied on recurring renewals - Unlimited", async () => {
+        // TODO: Implement test
       });
     });
     test.describe("Use for new clients", () => {
@@ -132,7 +128,9 @@ test.describe("Promotions", () => {
       });
     });
     test.describe("Use for upgrade clients", () => {
-      test("Exclusively for upgrade clients", async ({ page }) => {});
+      test.skip("Exclusively for upgrade clients", async () => {
+        // TODO: Implement test
+      });
     });
   });
   test.describe("Promotions - Added at basket", () => {
@@ -179,7 +177,7 @@ test.describe("Promotions", () => {
       });
     });
   });
-  test.describe("Custom conditions per product", () => {});
+  // TODO: Add custom conditions per product tests
   test.describe("Single Use Promotions", () => {
     test.beforeEach(async ({ page, context }) => {
       await getClientToken(

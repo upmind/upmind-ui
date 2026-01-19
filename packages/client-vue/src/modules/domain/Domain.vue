@@ -2,6 +2,7 @@
   <component
     :is="templateVariant"
     v-model:open="open"
+    :loading="meta.isLoading || meta.isProcessing"
     @reset="meta.isEmpty ? doReset() : doResolve()"
   >
     <template #hero>
@@ -78,6 +79,7 @@
         variant="subtle"
         size="lg"
         :block="isMobile"
+        :disabled="meta.isProcessing || meta.isLoading"
         @click="doReset"
       />
     </template>

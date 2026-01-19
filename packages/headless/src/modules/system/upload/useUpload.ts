@@ -57,7 +57,7 @@ export const useUpload = (field?: object) => {
   const created = useContext(state, "response.created_at", (value: string) =>
     value ? new Date(`${value} Z`) : null
   );
-  const src = useContext(state, "src");
+  const src = useContext<string>(state, "src");
   const errors = useContext(state, "error");
 
   // --- methods
