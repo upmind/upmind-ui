@@ -9,7 +9,8 @@ import {
   useTime,
   ErrorOrigin,
   responseCodes,
-  DetailedError
+  DetailedError,
+  useModelParser
 } from "../../utils";
 
 import {
@@ -213,7 +214,6 @@ async function parse(context: ProductConfigContext, { data }: AnyEventObject) {
       attributes: data?.attributes,
       provisionFields: data?.provisionFields
     },
-
     baseModel
   );
 
@@ -278,6 +278,12 @@ async function parse(context: ProductConfigContext, { data }: AnyEventObject) {
   lookups.provisionFields = parseProvisioningSchema(
     rawProvisionFields,
     context.rawProduct!
+  );
+
+  values.provisionFields = useModelParser(
+    lookups.provisionFields,
+    values.provisionFields,
+    {}
   );
 
   // ---

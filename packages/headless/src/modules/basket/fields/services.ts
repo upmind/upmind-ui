@@ -2,7 +2,7 @@
 import { asyncDebounce } from "@tanstack/pacer";
 
 // --- internal
-import { useI18n, useQuery } from "../../..";
+import { CustomField, useI18n, useQuery } from "../../..";
 
 // --- utils
 import { mapCustomField } from "../../client/customFields/mappers";
