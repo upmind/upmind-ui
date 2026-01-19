@@ -4,8 +4,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { onMounted, computed, useSlots } from "vue";
-import { marked } from "marked";
+import { onMounted, computed, useSlots, shallowRef } from "vue";
 
 // --- components
 import Sanitized from "../sanitized/Sanitized.vue";
@@ -15,6 +14,7 @@ import { first, lowerCase } from "lodash-es";
 
 // --- types
 import type { VNode } from "vue";
+import type { Marked } from "marked";
 import type { MarkdownProps } from "./types";
 
 // -----------------------------------------------------------------------------
@@ -25,24 +25,28 @@ const props = defineProps<MarkdownProps>();
 
 const slots = useSlots() as { default?: () => VNode[] };
 
-marked.use({ async: false, breaks: true });
+// Lazy-load marked module
+const markedInstance = shallowRef<Marked | null>(null);
+
+onMounted(async () => {
+  const { Marked } = await import("marked");
+  markedInstance.value = new Marked({ async: false, breaks: true });
+  emits("mounted");
+});
 
 const compiledMarkdown = computed((): string => {
+  if (!markedInstance.value) return ""; // Loading state
+
   const slotContent = slots?.default ? slots.default() : [];
   let modelValue =
     first(slotContent)?.children?.toString() || props.modelValue || "";
 
   if (props.keys) {
-    modelValue = modelValue.replace(/({{\s?\w+\s?}})/gi, (match, key) => {
+    modelValue = modelValue.replace(/({{\\s?\\w+\\s?}})/gi, (match, key) => {
       return props.keys?.[lowerCase(key)] || match;
     });
   }
 
-  return marked.parse(modelValue) as string;
-});
-
-// --- lifecycle
-onMounted(() => {
-  emits("mounted");
+  return markedInstance.value.parse(modelValue) as string;
 });
 </script>

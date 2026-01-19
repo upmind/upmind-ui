@@ -16,16 +16,30 @@ export default defineConfig({
   ],
   build: {
     lib: {
-      entry: {
-        main: resolve(__dirname, "src/index.ts")
-      },
+      entry: resolve(__dirname, "src/index.ts"),
       name: "@upmind-automation/upmind-ui",
-      fileName: "index",
       formats: ["es"]
     },
     rollupOptions: {
-      external: ["vue", "vue-router"],
+      external: [
+        "vue",
+        "vue-router",
+        "radix-vue",
+        "@vueuse/core",
+        "@vueuse/components",
+        "@vueuse/shared",
+        "lucide-vue-next",
+        "embla-carousel",
+        "embla-carousel-vue",
+        "marked",
+        "lottie-web",
+        "@lordicon/element",
+        /^lodash-es/
+      ],
       output: {
+        preserveModules: true,
+        preserveModulesRoot: "src",
+        entryFileNames: "[name].js",
         globals: {
           vue: "Vue",
           "vue-router": "VueRouter"

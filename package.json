@@ -3,6 +3,10 @@
   "version": "0.0.6",
   "description": "",
   "type": "module",
+  "sideEffects": [
+    "*.css",
+    "./src/assets/**/*"
+  ],
   "exports": {
     ".": {
       "import": "./dist/index.js",
@@ -96,6 +100,11 @@
   "peerDependencies": {
     "tailwindcss": "^4.1.11",
     "vue": "^3.0.0",
-    "vue-router": "^4.5.0"
+    "vue-router": "^4.5.0",
+    "radix-vue": "^1.9.17",
+    "@vueuse/core": "^13.6.0",
+    "@vueuse/components": "^13.6.0",
+    "@vueuse/shared": "^13.6.0",
+    "lucide-vue-next": "^0.539.0"
   }
 }
