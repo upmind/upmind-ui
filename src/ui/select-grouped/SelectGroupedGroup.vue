@@ -6,11 +6,12 @@
     :group="props.group"
     :index="props.index"
     :focused-group-index="props.focusedGroupIndex"
-    :model-value="modelValue"
+    :model-value="props.modelValue"
     :multiple="props.multiple"
     :required="props.required"
     :disabled="props.disabled"
     :columns="props.columns"
+    :ui-config="props.uiConfig"
     :data-hover="props.dataHover"
     :data-focus="props.dataFocus"
     @update:model-value="onChange"
@@ -29,14 +30,16 @@
     :group="props.group"
     :index="props.index"
     :focused-group-index="props.focusedGroupIndex"
-    :model-value="modelValue"
+    :model-value="props.modelValue"
     :multiple="props.multiple"
     :required="props.required"
     :disabled="props.disabled"
     :columns="props.columns"
+    :ui-config="props.uiConfig"
     :data-hover="props.dataHover"
     :data-focus="props.dataFocus"
     @update:model-value="onChange"
+    @action="onAction"
     @focus-next-group="() => emits('focus-next-group')"
     @focus-prev-group="() => emits('focus-prev-group')"
   >
@@ -64,30 +67,16 @@ import SelectGroupedSingleItem from "./SelectGroupedSingleItem.vue";
 import SelectGroupedMultiItem from "./SelectGroupedMultiItem.vue";
 
 // --- types
-import type { SelectGroupedGroupProps } from "./types";
+import type { SelectGroupedGroupRendererProps } from "./types";
 import { first } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
-const props = withDefaults(
-  defineProps<{
-    group: SelectGroupedGroupProps;
-    index?: number;
-    focusedGroupIndex?: number;
-    modelValue?: string | string[];
-    multiple?: boolean;
-    required?: boolean;
-    disabled?: boolean;
-    columns?: number;
-    dataHover?: boolean;
-    dataFocus?: boolean;
-  }>(),
-  {
-    index: 0,
-    focusedGroupIndex: 0,
-    columns: 1
-  }
-);
+const props = withDefaults(defineProps<SelectGroupedGroupRendererProps>(), {
+  index: 0,
+  focusedGroupIndex: 0,
+  columns: 1
+});
 
 const emits = defineEmits<{
   "update:modelValue": [value: string | string[]];

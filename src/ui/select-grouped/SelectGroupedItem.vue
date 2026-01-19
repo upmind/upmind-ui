@@ -75,8 +75,9 @@
 import { computed, ref } from "vue";
 
 // --- internal
-import { cn, useStyles } from "../../utils";
+import { useStyles } from "../../utils";
 import config from "./selectGrouped.config";
+import { handleItemAction } from "./utils";
 
 // --- components
 import { Link } from "../link";
@@ -84,19 +85,14 @@ import { Badge } from "../badge";
 
 // --- types
 import type {
-  SelectGroupedItemProps,
+  SelectGroupedDropdownItemProps,
   SelectGroupedItemActionProps
 } from "./types";
-import { isFunction, isString, isNil, isArray } from "lodash-es";
+import { isNil, isArray } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
-const props = defineProps<{
-  item: SelectGroupedItemProps;
-  modelValue?: string | string[];
-  multiple?: boolean;
-  focused?: boolean;
-}>();
+const props = defineProps<SelectGroupedDropdownItemProps>();
 
 const emits = defineEmits<{
   select: [value: string];
@@ -129,20 +125,9 @@ const styles = useStyles<typeof config>(
 );
 
 function doAction(action: SelectGroupedItemActionProps, $event: Event) {
-  $event.preventDefault();
-  $event.stopPropagation();
-
-  if (isFunction(action.handler)) {
-    action.handler($event);
-    return;
-  }
-
-  if (isString(action.handler)) {
-    emits("action", {
-      name: action.handler,
-      event: $event
-    });
-    return;
+  const result = handleItemAction(action, $event);
+  if (result) {
+    emits("action", result);
   }
 }
 </script>

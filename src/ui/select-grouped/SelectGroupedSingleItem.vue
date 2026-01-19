@@ -92,6 +92,7 @@ import { computed, ref } from "vue";
 // --- internal
 import { cn, useStyles } from "../../utils";
 import config from "./selectGrouped.config";
+import { toggleSelectionValue, handleItemAction } from "./utils";
 
 // --- components
 import { Badge } from "../badge";
@@ -100,28 +101,15 @@ import { Circle } from "lucide-vue-next";
 
 // --- types
 import type {
-  SelectGroupedGroupProps,
-  SelectGroupedItemProps,
+  SelectGroupedSingleItemRendererProps,
   SelectGroupedItemActionProps
 } from "./types";
-import { isFunction, isString, isNil, isArray, without } from "lodash-es";
+import { isNil, isArray } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(
-  defineProps<{
-    item: SelectGroupedItemProps;
-    group: SelectGroupedGroupProps;
-    index?: number;
-    focusedGroupIndex?: number;
-    modelValue?: string | string[];
-    multiple?: boolean;
-    required?: boolean;
-    disabled?: boolean;
-    columns?: number;
-    dataHover?: boolean;
-    dataFocus?: boolean;
-  }>(),
+  defineProps<SelectGroupedSingleItemRendererProps>(),
   {
     index: 0,
     focusedGroupIndex: 0,
@@ -160,49 +148,29 @@ const styles = useStyles<typeof config>(
   ],
   meta,
   config,
-  {}
+  props.uiConfig ?? {}
 );
 
 // --- Methods
 
 function toggleSelection() {
-  if (props.disabled) return;
+  const newValue = toggleSelectionValue({
+    currentValue: props.modelValue,
+    itemValue: props.item.value,
+    multiple: props.multiple,
+    required: props.required,
+    disabled: props.disabled
+  });
 
-  if (props.multiple) {
-    const currentValue = isArray(props.modelValue) ? [...props.modelValue] : [];
-    const index = currentValue.indexOf(props.item.value);
-    if (index > -1) {
-      if (!props.required || currentValue.length > 1) {
-        emits("update:modelValue", without(currentValue, props.item.value));
-        return;
-      }
-    } else {
-      currentValue.push(props.item.value);
-    }
-    emits("update:modelValue", currentValue);
-  } else {
-    if (props.modelValue === props.item.value && !props.required) {
-      emits("update:modelValue", "");
-    } else {
-      emits("update:modelValue", props.item.value);
-    }
+  if (newValue !== null) {
+    emits("update:modelValue", newValue);
   }
 }
 
 function doAction(action: SelectGroupedItemActionProps, $event: Event) {
-  $event.preventDefault();
-  $event.stopPropagation();
-
-  if (isFunction(action.handler)) {
-    action.handler($event);
-    return;
-  }
-
-  if (isString(action.handler)) {
-    emits("action", {
-      name: action.handler,
-      event: $event
-    });
+  const result = handleItemAction(action, $event);
+  if (result) {
+    emits("action", result);
   }
 }
 

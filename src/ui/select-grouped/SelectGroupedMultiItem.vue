@@ -88,10 +88,11 @@
             v-for="(item, index) in props.group.items"
             :key="item.value"
             :item="item"
-            :model-value="modelValue"
+            :model-value="props.modelValue"
             :multiple="props.multiple"
             :focused="focusedIndex === index"
             @select="onItemSelect"
+            @action="onAction"
           >
             <template v-if="$slots['dropdown-item']" #item="slotProps">
               <slot
@@ -112,8 +113,14 @@ import { computed, ref } from "vue";
 import { useId } from "radix-vue";
 
 // --- internal
-import { cn, useStyles } from "../../utils";
+import {
+  cn,
+  useStyles,
+  useListNavigation,
+  createFocusOutHandler
+} from "../../utils";
 import config from "./selectGrouped.config";
+import { toggleSelectionValue } from "./utils";
 
 // --- components
 import { Collapsible, CollapsibleContent } from "../collapsible";
@@ -122,42 +129,39 @@ import { Circle } from "lucide-vue-next";
 import SelectGroupedItem from "./SelectGroupedItem.vue";
 
 // --- types
-import type { SelectGroupedGroupProps, SelectGroupedItemProps } from "./types";
-import { first, isArray, without, isEmpty } from "lodash-es";
+import type {
+  SelectGroupedMultiItemRendererProps,
+  SelectGroupedItemProps
+} from "./types";
+import { isArray } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
-const props = withDefaults(
-  defineProps<{
-    group: SelectGroupedGroupProps;
-    index?: number;
-    focusedGroupIndex?: number;
-    modelValue?: string | string[];
-    multiple?: boolean;
-    required?: boolean;
-    disabled?: boolean;
-    columns?: number;
-    dataHover?: boolean;
-    dataFocus?: boolean;
-  }>(),
-  {
-    index: 0,
-    focusedGroupIndex: 0,
-    columns: 1
-  }
-);
+const props = withDefaults(defineProps<SelectGroupedMultiItemRendererProps>(), {
+  index: 0,
+  focusedGroupIndex: 0,
+  columns: 1
+});
 
 const emits = defineEmits<{
   "update:modelValue": [value: string | string[]];
+  action: [{ name: string; event: Event }];
   "focus-next-group": [];
   "focus-prev-group": [];
 }>();
 
 const groupId = useId();
 const isOpen = ref(false);
-const focusedIndex = ref(0);
 const headerRef = ref<HTMLElement | null>(null);
 const containerRef = ref<HTMLElement | null>(null);
+
+// Use the reusable list navigation composable
+const { focusedIndex, focusItem, focusNext, focusPrev, focusFirst } =
+  useListNavigation(() => props.group.items.length, {
+    wrap: false,
+    orientation: "vertical",
+    initialIndex: 0
+  });
 
 const selectedItem = computed<SelectGroupedItemProps | undefined>(() => {
   if (isArray(props.modelValue)) {
@@ -195,38 +199,30 @@ const styles = useStyles<typeof config>(
   ],
   meta,
   config,
-  {}
+  props.uiConfig ?? {}
 );
 
 // --- Methods
 
 /**
- * Toggle selection of a value. Handles both single and multiple selection modes.
+ * Toggle selection of a value using shared logic.
  */
 function toggleSelection(value: string) {
-  if (props.disabled) return;
+  const newValue = toggleSelectionValue({
+    currentValue: props.modelValue,
+    itemValue: value,
+    multiple: props.multiple,
+    required: props.required,
+    disabled: props.disabled
+  });
 
-  if (props.multiple) {
-    // Multiple selection mode: add/remove from array
-    const current = isArray(props.modelValue) ? [...props.modelValue] : [];
-    const isSelected = current.includes(value);
-
-    if (isSelected) {
-      // Deselect: only allow if not required or there are other selections
-      if (!props.required || current.length > 1) {
-        emits("update:modelValue", without(current, value));
-      }
-    } else {
-      // Select: add to current selections
-      emits("update:modelValue", [...current, value]);
-    }
-  } else {
-    // Single selection mode: toggle or set value
-    const isSelected = props.modelValue === value;
-    // Deselect if already selected and not required, otherwise select
-    const newValue = isSelected && !props.required ? "" : value;
+  if (newValue !== null) {
     emits("update:modelValue", newValue);
   }
+}
+
+function onAction(payload: { name: string; event: Event }) {
+  emits("action", payload);
 }
 
 function toggleOpen() {
@@ -238,11 +234,11 @@ function toggleOpen() {
   if (isOpen.value) {
     if (hasSelection.value && selectedItem.value) {
       // Focus the already-selected item (don't change the value)
-      const id = props.group.items.indexOf(selectedItem.value);
-      focusedIndex.value = id >= 0 ? id : 0;
+      const idx = props.group.items.indexOf(selectedItem.value);
+      focusItem(idx >= 0 ? idx : 0);
     } else {
       // No selection - focus first item and auto-select it
-      focusedIndex.value = 0;
+      focusFirst();
       selectFocusedItem(false);
     }
   }
@@ -253,16 +249,6 @@ function onItemSelect(value: string) {
   if (!props.multiple) {
     isOpen.value = false;
   }
-}
-
-/**
- * Move visual focus to item at index (without selecting)
- */
-function focusItem(index: number) {
-  focusedIndex.value = Math.max(
-    0,
-    Math.min(index, props.group.items.length - 1)
-  );
 }
 
 /**
@@ -282,18 +268,15 @@ function selectFocusedItem(closeOnSelect = true) {
 // Auto-select first item when group receives focus (from arrow key navigation)
 function handleFocus() {
   if (!hasSelection.value && props.group.items.length > 0) {
-    focusedIndex.value = 0;
+    focusFirst();
     selectFocusedItem(false);
   }
 }
 
-function handleFocusOut(event: FocusEvent) {
-  // Only close if focus left the entire container (not just moving to dropdown item)
-  const relatedTarget = event.relatedTarget as HTMLElement | null;
-  if (!containerRef.value?.contains(relatedTarget)) {
-    isOpen.value = false;
-  }
-}
+// Use the focus out handler utility
+const handleFocusOut = createFocusOutHandler(containerRef, () => {
+  isOpen.value = false;
+});
 
 function handleEnterSpace() {
   if (isOpen.value) {
@@ -309,7 +292,7 @@ function handleArrowDown() {
     emits("focus-next-group");
   } else {
     // Navigate to next item within dropdown and auto-select (don't close)
-    focusItem(focusedIndex.value + 1);
+    focusNext();
     selectFocusedItem(false);
   }
 }
@@ -324,7 +307,7 @@ function handleArrowUp() {
     emits("focus-prev-group");
   } else {
     // Navigate to previous item within dropdown and auto-select (don't close)
-    focusItem(focusedIndex.value - 1);
+    focusPrev();
     selectFocusedItem(false);
   }
 }
