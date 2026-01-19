@@ -4,7 +4,7 @@
 // and only the color changes, preventing layout shifts while maintaining smooth transitions.
 
 export const baseRing =
-  "outline outline-2 outline-transparent outline-offset-2 transition-[outline-color] duration-200";
+  "outline outline-2 outline-transparent outline-offset-2";
 
 export const focusWithinRing = `${baseRing} [&:focus-within,&[data-focus=true]]:outline-[var(--color-control-ring)]`;
 export const activeRing = `${baseRing} active:outline-[var(--color-control-ring)]`;
