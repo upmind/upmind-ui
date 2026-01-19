@@ -152,11 +152,6 @@ export interface UpmindProps {
    */
   themes?: Theme[];
   /**
-   * App-level config defaults. These serve as fallback values before schema defaults,
-   * allowing apps to customize behavior while still respecting brand/product overrides.
-   */
-  config?: Record<string, unknown>;
-  /**
    * Indicates whether the Upmind instance is running in admin mode.
    * This flag can be used to alter behavior such as API endpoints and payloads.
    * @default false
@@ -226,10 +221,6 @@ export class Upmind {
    * Theme configurations.
    */
   themes?: UpmindProps["themes"];
-  /**
-   * App-level configuration.
-   */
-  config?: UpmindProps["config"];
 
   /**
    * Initialises the Vue Query client.
@@ -246,7 +237,6 @@ export class Upmind {
    */
   init({
     analytics,
-    config,
     debug,
     i18n,
     mode,
@@ -264,7 +254,6 @@ export class Upmind {
         ErrorOrigin.Headless
       );
     this.status.value = UpmindStatus.initialising;
-    this.config = config;
     this.debug = debug;
     this.mode = mode ?? "default";
     this.pop = pop;

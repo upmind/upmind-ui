@@ -8,7 +8,6 @@ import {
   provideConfig
 } from "./utils";
 import { useBrand } from "../brand/useBrand";
-import useUpmind from "../../";
 import type {
   UseMetaOptions,
   UseMetaResult,
@@ -18,8 +17,6 @@ import type {
 import { BrandMeta } from "../brand/types";
 
 export { provideConfig, injectConfig } from "./utils";
-
-// -----------------------------------------------------------------------------
 
 export function useConfig(options?: UseMetaOptions): UseMetaResult {
   const injected =
@@ -53,7 +50,6 @@ export function useConfig(options?: UseMetaOptions): UseMetaResult {
     initializeMeta({
       context: toValue(context),
       viewport: toValue(viewport),
-      app: useUpmind.config,
       brand: toValue(brand),
       category: toValue(category),
       product: toValue(product),

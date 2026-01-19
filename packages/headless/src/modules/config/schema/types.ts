@@ -184,7 +184,6 @@ export enum UIContext {
 }
 
 export enum UIScope {
-  APP = "app",
   BRAND = "brand",
   PRODUCT_CATEGORY = "product_category",
   PRODUCT = "product",
