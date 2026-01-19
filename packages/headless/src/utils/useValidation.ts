@@ -466,13 +466,13 @@ export const useModelParser = <
     },
     {} as Record<string, any>
   );
-  if (!allowExtraProps) return model as TModel;
+  if (!allowExtraProps) return omitBy(model, isNil) as TModel;
 
   const parsed = (
     !allowExtraProps ? model : defaultsDeep(model, values)
   ) as TModel;
 
-  return parsed;
+  return omitBy(parsed, isNil) as TModel;
 };
 
 // -----------------------------------------------------------------------------
