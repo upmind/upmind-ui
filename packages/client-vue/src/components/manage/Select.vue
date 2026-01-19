@@ -16,7 +16,8 @@
           item: getItem(item.id!),
           readonly,
           doEdit,
-          doRemove
+          doRemove,
+          setDefault
         }"
       >
         <Item
@@ -31,7 +32,13 @@
     <template #dropdown-item="{ item }">
       <slot
         name="item"
-        v-bind="{ item: getItem(item.id!), readonly, doEdit, doRemove }"
+        v-bind="{
+          item: getItem(item.id!),
+          readonly,
+          doEdit,
+          doRemove,
+          setDefault
+        }"
       >
         <Item v-bind="getItem(item.id!)" />
       </slot>
@@ -85,6 +92,7 @@ const emits = defineEmits<{
   (e: "add"): void;
   (e: "edit", id: string): void;
   (e: "update:open"): void;
+  (e: "setDefault", id: string): void;
 }>();
 
 const { t } = useI18n();
@@ -131,5 +139,9 @@ function doEdit(id: string) {
 
 function doRemove(id: string) {
   //  TODO
+}
+
+function setDefault(id: string) {
+  emits("setDefault", id);
 }
 </script>

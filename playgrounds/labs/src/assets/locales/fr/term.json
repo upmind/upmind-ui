@@ -1,0 +1,23 @@
+{
+  "annually": "Chaque année",
+  "biennially": "Tous les deux ans",
+  "label": "Conditions de facturation",
+  "monthly": "Mensuel",
+  "n_mo": "moi | {n} moi",
+  "n_month": "{n}-mois",
+  "n_months": "mois | {n} mois",
+  "n_year": "{n}-année",
+  "n_years": "année | {count} année",
+  "n_yr": "année | {n} année",
+  "once": "Une fois",
+  "one_time": "Une fois",
+  "price_by_n_years": "{price} /an | {price} /{n} ans",
+  "price_msg": "Paiement unique de {price} | De {price} un mois | De {price} tous les {period}",
+  "quarterly": "Trimestriel",
+  "renews_msg": "Paiement unique | Renouvelle chaque {cycle} | Renouvelle chaque {cycle}",
+  "renews_usually_msg": "Généralement {price}",
+  "semiannually": "Semestriellement",
+  "showing_items_summary": "Affichage {range} de {total} articles",
+  "summary_msg": "Pour un {term} mandat. Payez {price} aujourd'hui.",
+  "triennially": "Tous les trois ans"
+}

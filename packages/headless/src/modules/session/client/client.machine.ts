@@ -15,9 +15,15 @@ const { addError } = useFeedback();
 
 // --- utils
 import { omit } from "lodash-es";
-import { useTime, useCookies, mapToHeadlessError } from "../../../utils";
+import {
+  useTime,
+  useCookies,
+  mapToHeadlessError,
+  DetailedError,
+  ErrorOrigin
+} from "../../../utils";
 const { removeTopLevel: removeCookie, setTopLevel: setCookie } = useCookies();
-import { useUserParser } from "../utils";
+import { useClientParser } from "../utils";
 
 // --- types
 import { responseCodes } from "../../../utils";
@@ -31,7 +37,7 @@ export default createMachine(
     predictableActionArguments: true,
     initial: "loading",
     context: {
-      user: undefined,
+      client: undefined,
       transfer: undefined,
       // ---
       error: undefined
@@ -40,13 +46,50 @@ export default createMachine(
       loading: {
         id: "loading",
         entry: "clearError",
+        always: {
+          target: "available",
+          cond: "hasClient"
+        },
         invoke: {
           src: "load",
           onDone: {
             target: "available",
-            actions: ["setActor", "setUser", "setLocale"]
+            actions: ["setActor", "setClient", "setLocale"]
           },
-          onError: { target: "complete", actions: ["setError"] }
+          onError: { target: "error", actions: ["setError"] }
+        },
+        after: {
+          timeout: {
+            target: "error",
+            actions: [
+              assign({
+                error: () =>
+                  mapToHeadlessError(
+                    new DetailedError(
+                      "Loading user profile timed out",
+                      responseCodes.Timeout,
+                      ErrorOrigin.Headless
+                    )
+                  )
+              })
+            ]
+          }
+        }
+      },
+
+      error: {
+        after: {
+          error: {
+            actions: [
+              () => {
+                console.warn("[Client Machine] load failed, triggering reauth");
+              },
+              "reauth"
+            ]
+          }
+        },
+        on: {
+          REFRESH: "loading"
         }
       },
 
@@ -60,6 +103,10 @@ export default createMachine(
       available: {
         id: "available",
         on: {
+          REFRESH: {
+            target: "loading",
+            actions: "clearError"
+          },
           LOGOUT: {
             target: "complete",
             actions: "clear"
@@ -113,9 +160,11 @@ export default createMachine(
     actions: {
       clear: assign((_context, _event) => {
         // clear all session data, including cookies and local storage
-        //  also update the data layer to indicate the user has logged out
+        //  also update the data layer to indicate the client has logged out
         sessionStorage.clear();
         removeCookie("upm_client_session");
+        removeCookie("upm_admin_session");
+        removeCookie("upm_user_session");
         removeCookie("upm_guest_session");
         removeCookie("upm_actor");
         dataLayer().withUser().push(false);
@@ -132,12 +181,13 @@ export default createMachine(
         );
       },
 
-      setUser: assign({
-        user: (_context, { data }: AnyEventObject) => useUserParser(data.actor)
+      setClient: assign({
+        client: (_context, { data }: AnyEventObject) =>
+          useClientParser(data.actor)
       }),
-      setLocale: ({ user }) => {
-        if (!user) return;
-        const locale = user.locale;
+      setLocale: ({ client }) => {
+        if (!client) return;
+        const locale = client.locale;
         useLocale().setLocale(locale);
       },
 
@@ -163,14 +213,27 @@ export default createMachine(
         });
       },
 
-      clearError: assign({ error: undefined })
+      clearError: assign({ error: undefined }),
+      reauth: (
+        context: ClientContext,
+        event: AnyEventObject,
+        { action, ...meta }: any
+      ) => {
+        // Send EXPIRED to parent session machine
+        if (meta?._service?.parent) {
+          meta._service.parent.send({ type: "EXPIRED" });
+        }
+      }
     },
-    guards: {},
+    guards: {
+      hasClient: (context: ClientContext) => !!context?.client
+    },
 
     delays: {
       error: () => useTime().ERROR,
       wait: () => useTime().WAIT,
-      expired: () => useTime().MINUTE * 5
+      expired: () => useTime().MINUTE * 5,
+      timeout: () => useTime().SECOND * 15
     },
     services: services as any
   }

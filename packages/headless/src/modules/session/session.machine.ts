@@ -9,6 +9,7 @@ import clientMachine from "./client/client.machine";
 import guestMachine from "./guest/guest.machine";
 
 // --- utils
+import { isAdmin } from "../../utils/config";
 import { useTime, useCookies, mapToHeadlessError } from "../../utils";
 const { removeTopLevel: removeCookie, get: getCookie } = useCookies();
 
@@ -27,7 +28,7 @@ export default createMachine(
     states: {
       checking: {
         id: "checking",
-        entry: "clearError",
+        entry: ["clearError"],
         invoke: {
           src: "check",
           onDone: [
@@ -41,7 +42,10 @@ export default createMachine(
               // actions: "clear"
             }
           ],
-          onError: { target: "#guest", actions: "clear" }
+          onError: {
+            target: "guest",
+            actions: ["clear"]
+          }
         }
       },
 
@@ -51,8 +55,11 @@ export default createMachine(
           id: "guestMachine",
           src: guestMachine,
           autoForward: true,
-          onDone: { target: "#client" },
-          onError: { target: "error", actions: "setError" }
+          onDone: {
+            target: "#client",
+            actions: ["setClientData"]
+          },
+          onError: { target: "error", actions: ["setError"] }
         }
       },
 
@@ -62,8 +69,11 @@ export default createMachine(
           id: "clientMachine",
           src: clientMachine,
           autoForward: true,
+          data: (context: SessionContext) => ({
+            client: context.client
+          }),
           onDone: { target: "#guest" },
-          onError: { target: "error", actions: "setError" }
+          onError: { target: "error", actions: ["setError"] }
         }
       },
 
@@ -112,7 +122,8 @@ export default createMachine(
     },
     on: {
       EXPIRED: {
-        target: "expired"
+        target: "expired",
+        actions: "clear"
       },
       TRANSFER_FROM: {
         target: "transferring",
@@ -144,9 +155,16 @@ export default createMachine(
 
       clearTransfer: assign({ transfer: undefined }),
 
+      setClientData: assign({
+        client: (_context: SessionContext, { data }: AnyEventObject) => {
+          return data?.client;
+        }
+      }),
+
       setError: assign({
-        error: (_context: SessionContext, { data }: AnyEventObject) =>
-          mapToHeadlessError(data)
+        error: (_context: SessionContext, { data }: AnyEventObject) => {
+          return mapToHeadlessError(data);
+        }
       }),
 
       clearError: assign({
@@ -155,6 +173,11 @@ export default createMachine(
 
       clear: () => {
         const actor = getCookie("upm_actor");
+
+        // clear session tokens
+        removeCookie("upm_client_session");
+        removeCookie("upm_admin_session");
+        removeCookie("upm_user_session");
 
         // if there is an actor, we need to clear the user data and update the data layer
         if (actor) {
@@ -165,8 +188,14 @@ export default createMachine(
     },
 
     guards: {
-      isClientToken: (_context: SessionContext, { data }: AnyEventObject) =>
-        data?.actor_type === Contexts.CLIENT,
+      isClientToken: (_context: SessionContext, { data }: AnyEventObject) => {
+        const admin = isAdmin.value;
+        const actorType = data?.actor_type;
+        if (admin) {
+          return [Contexts.ADMIN, Contexts.USER].includes(actorType);
+        }
+        return actorType === Contexts.CLIENT;
+      },
 
       isGuestToken: (_context: SessionContext, { data }: AnyEventObject) =>
         data?.actor_type === Contexts.GUEST

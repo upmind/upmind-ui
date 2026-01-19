@@ -1,0 +1,23 @@
+{
+  "annually": "Annualmente",
+  "biennially": "Ogni due anni",
+  "label": "Termine di fatturazione",
+  "monthly": "Mensile",
+  "n_mo": "il mio | {n} mio",
+  "n_month": "{n}-mese",
+  "n_months": "mese | {n} mesi",
+  "n_year": "{n}-anno",
+  "n_years": "anno | {count} anni",
+  "n_yr": "anno | {n} anno",
+  "once": "Una volta",
+  "one_time": "Una volta",
+  "price_by_n_years": "{price}/anno | {price} /{n} anni",
+  "price_msg": "Pagamento una tantum di {price} | Da {price} un mese | Da {price} ogni {period}",
+  "quarterly": "Trimestrale",
+  "renews_msg": "Pagamento una tantum | Si rinnova ogni {cycle} | Si rinnova ogni {cycle}",
+  "renews_usually_msg": "Generalmente {price}",
+  "semiannually": "Semestralmente",
+  "showing_items_summary": "Mostrando {range} Di {total} elementi",
+  "summary_msg": "Per un {term} termine. Paga {price} Oggi.",
+  "triennially": "Triennale"
+}

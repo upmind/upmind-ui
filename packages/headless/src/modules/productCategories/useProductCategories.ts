@@ -41,15 +41,20 @@ export const useProductCategories = (initial?: QueryProps) => {
     isLoading: query?.isLoading.value || !query.isFetched.value,
     hasError: !isEmpty(query.error.value),
     isEmpty: isEmpty(query.data?.value),
-    isAvailable: true
+    isAvailable: query.isFetched.value
   }));
 
+  // --- readiness check
   async function isReady(): Promise<boolean> {
-    return new Promise<boolean>(resolve => {
-      resolve(true);
+    return new Promise(resolve => {
+      const interval = setInterval(() => {
+        if (meta.value.isAvailable) {
+          clearInterval(interval);
+          resolve(!meta.value.hasError);
+        }
+      }, 100);
     });
   }
-
   // --- utils
 
   /** generate a utility walker to tak all categories( data) and take their children iterative and add them to a flattened lit of categories */
