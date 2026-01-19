@@ -67,14 +67,23 @@ export function initializeMeta(options: MetaInput): {
   meta: MetaItems;
   data: DataItems;
 } {
-  const { context, viewport, brand, category, product, optionGroup, option } =
-    options;
+  const {
+    context,
+    viewport,
+    app,
+    brand,
+    category,
+    product,
+    optionGroup,
+    option
+  } = options;
 
   const parse = (raw: RawMeta | undefined, prefix: MetaPrefix) =>
     parseMeta(raw, prefix, context, viewport);
 
   const build = (prefix: MetaPrefix) => ({
     context,
+    app: parse(app, prefix),
     brand: parse(brand, prefix),
     category: parse(category?.uiMeta, prefix),
     product: parse(product?.productDetails?.uiMeta, prefix),
