@@ -75,7 +75,7 @@ export default createMachine(
                 },
                 {
                   target: "#complete",
-                  actions: ["clearAutoUpdate", "refreshBasket"]
+                  actions: ["clearAutoUpdate"]
                 }
               ],
               onError: {
