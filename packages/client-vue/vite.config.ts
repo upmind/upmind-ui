@@ -14,16 +14,27 @@ export default defineConfig({
   ],
   build: {
     lib: {
-      entry: {
-        main: resolve(__dirname, "src/index.ts")
-      },
+      entry: resolve(__dirname, "src/index.ts"),
       name: "@upmind-automation/client-vue",
-      fileName: "index",
       formats: ["es"]
     },
     rollupOptions: {
-      external: ["vue", "vue-router"],
+      external: [
+        "vue",
+        "vue-router",
+        "vue-i18n",
+        "@upmind-automation/headless",
+        "@upmind-automation/upmind-ui",
+        "@vueuse/core",
+        "@vueuse/components",
+        "@vueuse/router",
+        "xstate",
+        /^lodash-es/
+      ],
       output: {
+        preserveModules: true,
+        preserveModulesRoot: "src",
+        entryFileNames: "[name].js",
         globals: {
           vue: "Vue",
           "vue-router": "VueRouter",

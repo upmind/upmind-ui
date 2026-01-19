@@ -1,5 +1,3 @@
-import { defineAsyncComponent } from "vue";
-
 export * from "./section";
 export * from "./form";
 export * from "./navigation";
@@ -9,6 +7,4 @@ export * from "./layout";
 export * from "./header";
 export * from "./emailHistory";
 
-export const UpmLocale = defineAsyncComponent(
-  () => import("./LocaleSwitcher.vue")
-);
+export { default as UpmLocale } from "./LocaleSwitcher.vue";

@@ -15,12 +15,32 @@ export default defineConfig({
     lib: {
       entry: resolve(__dirname, "src/index.ts"),
       name: "@upmind-automation/headless",
-      fileName: "index",
       formats: ["es"]
     },
     rollupOptions: {
-      external: ["vue", "vue-router", "vue-i18n"],
+      external: [
+        "vue",
+        "vue-router",
+        "vue-i18n",
+        "@vueuse/core",
+        "@tanstack/vue-query",
+        "@tanstack/vue-store",
+        "@tanstack/pacer",
+        "@tanstack/query-persist-client-core",
+        "xstate",
+        "@xstate/vue",
+        "@xstate/inspect",
+        "@stripe/stripe-js",
+        "braintree-web-drop-in",
+        "@sentry/vue",
+        "dayjs",
+        "@googlemaps/js-api-loader",
+        /^lodash-es/
+      ],
       output: {
+        preserveModules: true,
+        preserveModulesRoot: "src",
+        entryFileNames: "[name].js",
         globals: {
           vue: "Vue",
           "vue-router": "VueRouter",
