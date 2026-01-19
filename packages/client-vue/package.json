@@ -3,6 +3,9 @@
   "version": "0.0.1",
   "description": "",
   "type": "module",
+  "sideEffects": [
+    "*.css"
+  ],
   "keywords": [],
   "author": "",
   "license": "UNLICENSED",

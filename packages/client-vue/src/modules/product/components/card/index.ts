@@ -1,8 +1,2 @@
-import { defineAsyncComponent } from "vue";
-
-export const ProductCard = defineAsyncComponent(
-  () => import("./ProductCard.vue")
-);
-export const ProductCardSkeleton = defineAsyncComponent(
-  () => import("./ProductCardSkeleton.vue")
-);
+export { default as ProductCard } from "./ProductCard.vue";
+export { default as ProductCardSkeleton } from "./ProductCardSkeleton.vue";
