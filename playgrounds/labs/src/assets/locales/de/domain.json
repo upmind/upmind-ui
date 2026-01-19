@@ -1,0 +1,31 @@
+{
+  "begin_search_above_desc": "Beginnen Sie Ihre Suche mit dem Feld oben.",
+  "choices": {
+    "basket": {
+      "label": "Domain im Warenkorb verwenden",
+      "tooltip": "Diese Domains sind bereits in Ihrem Warenkorb"
+    },
+    "existing": {
+      "label": "Vorhandene Domäne verwenden",
+      "tooltip": "Sie können eine bestehende Domain verwenden, indem Sie die Nameserver aktualisieren."
+    },
+    "register": {
+      "label": "Neue Domain registrieren",
+      "tooltip": "Sie haben noch keine Domain? Registrieren Sie eine neue bei uns"
+    },
+    "transfer": {
+      "label": "Domain übertragen",
+      "tooltip": "Besitzen Sie bereits eine Domain? Sie können sie zu uns transferieren"
+    }
+  },
+  "finding_perfect_domain": "Finden Sie Ihre **perfekte** Domain",
+  "finding_perfect_domain_md": "@.markdown:{'domain.finding_perfect_domain'}",
+  "own_domain_qn": "Sind Sie Eigentümer dieser Domain?",
+  "owned_domains_title": "Domänen, die Sie derzeit besitzen",
+  "price_renewal_desc": "Einmaliger Preis von {regularPrice}. | Verlängert sich jedes Jahr für {regularPrice}. | Verlängert sich alle {count} Jahre für {regularPrice}.",
+  "starts_with_domain": "Alles beginnt mit einem **Domänennamen**",
+  "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
+  "tld_renewal_price_desc": "Unser {tld} Die Preise für die Verlängerung beginnen bei nur {currentPrice} (War {regularPrice}).",
+  "tld_renewal_price_from_desc": "Unser {tld} Die Preise für die Verlängerung beginnen bei nur {regularPrice}.",
+  "transfer_domain_by_msg": "Überweisen Sie es uns per"
+}

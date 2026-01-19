@@ -26,7 +26,10 @@ async function check(_context: SessionContext) {
       mutationKey: ["session"],
       url: useUrl("access_token", {}, { context: "oauth" }),
       data: { grant_type: GrantTypes.GUEST }
-    }).then(data => persistTokenToStorage(data));
+    }).then(data => {
+      persistTokenToStorage(data);
+      return data;
+    });
   }
 }
 

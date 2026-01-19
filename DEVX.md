@@ -54,6 +54,29 @@ Strict adherence to these rules ensures:
 
 ---
 
+## Related Documentation
+
+> [!IMPORTANT]
+> The composable architecture is evolving to support multiple actor types (client, guest, staff, admin) and scope-based patterns. Review these documents to understand the direction:
+
+| Document | Purpose |
+|----------|---------|
+| [ANALYSIS.md](./docs/ANALYSIS.md) | Deep codebase analysis with findings and recommendations |
+| [ARCHITECTURE_PROPOSAL.md](./docs/ARCHITECTURE_PROPOSAL.md) | Scope-based composable architecture specification |
+| [ADR 001](./docs/adr/001-scope-based-composables.md) | Architecture decision record for composable patterns |
+| [IMPLEMENTATION_PLAN.md](./docs/IMPLEMENTATION_PLAN.md) | Roadmap for architecture refactor |
+
+### Upcoming Pattern Changes
+
+The following patterns are being introduced (see implementation plan for timeline):
+
+- **Composable Layers:** `useFeature()`, `useFeatureMeta()`, `useFeatureActions()`, `useFeatureAdvanced()`
+- **Scope-Based Instances:** `useFeatureFor(scope)` for explicit actor context
+- **Flat Meta Access:** `isLoading` instead of `meta.value.isLoading`
+- **Actor Contexts:** Support for client, guest, lead, staff, admin scopes
+
+---
+
 ## Quick Reference & Core Principles
 
 - **Return Grouping:** Group returns by: `// --- state`, `// --- context`, `// --- private (methods)`, `// --- methods (public methods)`, `// --- utils` (in that order if present). These section comments must appear both in the composable body (where values are defined) and in the return object. There must be a blank line between each logical section in the composable body and between every property, method, and JSDoc comment in the return object.
@@ -311,7 +334,7 @@ Strict adherence to these rules ensures:
 
 Return values must be grouped and ordered as follows:
 
-1.  **State**
+1. **State**
 
     - `isReady` (async, always present, always documented)
 
@@ -319,11 +342,11 @@ Return values must be grouped and ordered as follows:
 
     - Primary state ref(s) if directly exposed (e.g., `value`).
 
-2.  **Context/Computed Values**
+2. **Context/Computed Values**
 
     - All computed values derived from XState context or internal state, type-annotated, and documented. These should be placed under the `// --- context` section.
 
-3.  **Methods**
+3. **Methods**
 
     - All actions and helpers, named for intent, and documented.
 

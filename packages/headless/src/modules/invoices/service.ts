@@ -17,7 +17,7 @@ import type { IInvoice } from "@upmind-automation/types";
 const queryKey: QueryKey = ["invoices"];
 
 function loadInvoice({ invoiceId }: { invoiceId: Invoice["id"] }) {
-  const { meta, user } = useSession();
+  const { meta, client } = useSession();
   const { query, useUrl } = useQuery();
 
   return query<IInvoice, Invoice>({
@@ -44,7 +44,7 @@ function loadInvoice({ invoiceId }: { invoiceId: Invoice["id"] }) {
     withAccessToken: true,
     guard: async () =>
       new Promise((resolve, reject) => {
-        if (meta.value.isAuthenticated && !!user.value?.id) {
+        if (meta.value.isAuthenticated && !!client.value?.id) {
           resolve(true);
         } else {
           reject(new NotAuthenticatedError());
@@ -54,7 +54,7 @@ function loadInvoice({ invoiceId }: { invoiceId: Invoice["id"] }) {
     retry: 1,
     select: parseInvoice,
     staleTime: useTime()?.DAY,
-    enabled: () => meta.value.isAuthenticated && !!user.value?.id
+    enabled: () => meta.value.isAuthenticated && !!client.value?.id
   });
 }
 

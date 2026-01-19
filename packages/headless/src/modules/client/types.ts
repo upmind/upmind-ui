@@ -14,6 +14,7 @@ export interface ClientItemContext<TModel = any, TBaseModel = any> {
 
   title?: string;
   description?: string;
+  lookups?: Record<string, any[]>;
   // ---
   schema?: JsonSchema;
   uischema?: UISchemaElement;

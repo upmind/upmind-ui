@@ -136,6 +136,7 @@ export type FunnelContext = {
 
 export type FunnelTarget = {
   name?: RouteLocationNormalized["name"];
+  path?: RouteLocationNormalized["path"];
   params?: RouteLocationNormalized["params"];
   query?: RouteLocationNormalized["query"];
   hash?: RouteLocationNormalized["hash"];
@@ -143,6 +144,12 @@ export type FunnelTarget = {
 };
 
 export type FunnelResponse = {
-  type?: "NEXT" | "BACK";
+  type?: FunnelActions;
   target?: FunnelTarget;
 };
+
+export enum FunnelActions {
+  NEXT = "NEXT",
+  BACK = "BACK",
+  REDIRECT = "REDIRECT"
+}
