@@ -362,9 +362,6 @@ importers:
       '@types/node':
         specifier: ^22.17.1
         version: 22.19.3
-      '@types/psl':
-        specifier: ^1.11.0
-        version: 1.11.0
       '@types/webfontloader':
         specifier: ^1.6.38
         version: 1.6.38
@@ -1180,9 +1177,6 @@ importers:
       '@types/object-hash':
         specifier: ^3.0.6
         version: 3.0.6
-      '@types/psl':
-        specifier: ^1.11.0
-        version: 1.11.0
       '@typescript-eslint/eslint-plugin':
         specifier: ^8.39.1
         version: 8.50.0(@typescript-eslint/parser@8.50.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)
@@ -1590,6 +1584,9 @@ importers:
       '@upmind-automation/client-vue':
         specifier: workspace:*
         version: link:../../packages/client-vue
+      '@upmind-automation/headless':
+        specifier: workspace:*
+        version: link:../../packages/headless
       '@upmind-automation/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
@@ -5688,10 +5685,6 @@ packages:
 
   '@types/pg@8.15.6':
     resolution: {integrity: sha512-NoaMtzhxOrubeL/7UZuNTrejB4MPAJ0RpxZqXQf2qXuVlTPuG6Y8p4u9dKRaue4yjmC7ZhzVO2/Yyyn25znrPQ==}
-
-  '@types/psl@1.11.0':
-    resolution: {integrity: sha512-OeASqmnreaSJyxwljqCZjRIf7jpbwswaqbSPahE99PZrizNAOXEl9HRWhXvCt3fkAc/WuF8wcZ6zkDHXaE7X4g==}
-    deprecated: This is a stub types definition. psl provides its own type definitions, so you do not need this installed.
 
   '@types/react@19.2.7':
     resolution: {integrity: sha512-MWtvHrGZLFttgeEj28VXHxpmwYbor/ATPYbBfSFZEIRK0ecCFLl2Qo55z52Hss+UV9CRN7trSeq1zbgx7YDWWg==}
@@ -16670,10 +16663,6 @@ snapshots:
       '@types/node': 22.19.3
       pg-protocol: 1.10.3
       pg-types: 2.2.0
-
-  '@types/psl@1.11.0':
-    dependencies:
-      psl: 1.15.0
 
   '@types/react@19.2.7':
     dependencies:

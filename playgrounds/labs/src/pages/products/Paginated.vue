@@ -42,7 +42,7 @@
       <div class="flex w-full items-center justify-between">
         <Button
           class="is-primary px-6 py-3"
-          @click="prevPage"
+          @click="() => prevPage()"
           :disabled="!meta.hasPrevPage || meta.hasError"
           :is-processing="meta.isLoading"
           >Previous</Button
@@ -66,7 +66,7 @@
 
         <Button
           class="is-primary px-6 py-3"
-          @click="nextPage"
+          @click="() => nextPage()"
           :disabled="!meta.hasNextPage || meta.hasError"
           :is-processing="meta.isLoading"
           >Next</Button
@@ -77,16 +77,16 @@
 </template>
 
 <script setup lang="ts">
-import { HtmlHTMLAttributes, ref, watch } from "vue";
+import { type HtmlHTMLAttributes, ref, watch } from "vue";
 import { debounce } from "lodash-es";
 import {
   ProductSortableProperties,
   RequestSortDirection,
   useProductCatalogue
 } from "@upmind-automation/headless";
-import {
+import type {
   IProductCategory,
-  type ISO_4217_CURRENCY_CODE
+  ISO_4217_CURRENCY_CODE
 } from "@upmind-automation/types";
 import { Button, Loading, Card } from "@upmind-automation/upmind-ui";
 import { UpmLayout } from "@upmind-automation/client-vue";

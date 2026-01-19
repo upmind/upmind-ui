@@ -1,5 +1,5 @@
 // --- external
-import { RouteRecordRaw } from "vue-router";
+import type { RouteRecordRaw } from "vue-router";
 
 // --- internal
 import Address from "./Address.vue";
