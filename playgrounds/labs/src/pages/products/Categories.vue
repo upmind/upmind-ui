@@ -43,10 +43,10 @@ import { UpmLayout } from "@upmind-automation/client-vue";
 import { useVModel } from "@vueuse/core";
 import { debounce } from "lodash-es";
 import {
-  ProductCategory,
-  useProductCategories
+  useProductCategories,
+  type ProductCategory
 } from "@upmind-automation/headless";
-import { HTMLAttributes, ref } from "vue";
+import { type HTMLAttributes, ref } from "vue";
 
 import CategoryItem from "./CategoryItem.vue";
 
@@ -82,9 +82,10 @@ const all: ProductCategory = {
 };
 
 const searchQuery = ref("");
-const filteredCategories = ref(categories.value);
+const filteredCategories = ref<ProductCategory[]>([]);
 
 const debouncedFilterQuery = debounce(() => {
-  filteredCategories.value = filter(searchQuery.value);
+  const result = filter(searchQuery.value);
+  filteredCategories.value = result ?? [];
 }, 500);
 </script>
