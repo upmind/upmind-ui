@@ -1,0 +1,23 @@
+{
+  "annually": "Yıllık",
+  "biennially": "iki yılda bir",
+  "label": "Fatura Dönemi",
+  "monthly": "Aylık",
+  "n_mo": "ay | {n} ay",
+  "n_month": "{n}-ay",
+  "n_months": "ay | {n} aylar",
+  "n_year": "{n}-yıl",
+  "n_years": "yıl | {count} yıllar",
+  "n_yr": "yıl | {n} yıl",
+  "once": "Bir kere",
+  "one_time": "Bir kere",
+  "price_by_n_years": "{price}/yıl | {price} /{n} yıllar",
+  "price_msg": "Tek seferlik ödeme {price} | Kimden {price} bir ay | Kimden {price} Her {period}",
+  "quarterly": "Üç aylık",
+  "renews_msg": "Tek seferlik ödeme | Her {cycle} yenilenir | Her {cycle} yenilenir",
+  "renews_usually_msg": "Genellikle {price}",
+  "semiannually": "Altı ayda bir",
+  "showing_items_summary": "Gösteriliyor {range} ile ilgili {total} öğeler",
+  "summary_msg": "Bir için {term} vade. Ödeme {price} Bugün.",
+  "triennially": "Üç yılda bir"
+}

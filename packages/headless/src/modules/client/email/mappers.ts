@@ -4,6 +4,7 @@ import { map, isArray } from "lodash-es";
 // --- types
 import type { Email, EmailModel } from "./types";
 import type { IEmail } from "@upmind-automation/types";
+import { useDateMapper } from "../../../utils";
 
 export const mapEmails = (raw: IEmail | IEmail[]): Email[] => {
   const rawListings = isArray(raw) ? raw : [raw];
@@ -17,11 +18,13 @@ export const mapEmail = (raw: IEmail): Email => {
     email: raw.email,
     title: raw.email,
     description: "",
+    bouncedAt: useDateMapper(raw.bounced_at),
     // ---
     meta: {
       isDefault: !!raw.default,
       isVerified: !!raw.verified,
-      canDelete: raw.can_delete
+      canDelete: raw.can_delete,
+      isBounced: !!raw.bounced
     }
   };
 };

@@ -1,0 +1,29 @@
+{
+  "calendar": {
+    "last_day": "[Ontem]",
+    "last_week": "[Último] dddd",
+    "next_day": "[Amanhã]",
+    "next_week": "dddd",
+    "same_day": "[Hoje]"
+  },
+  "date": {
+    "default": "MMM Faça, AAAA",
+    "omit_ordinal": "MMM AAAA",
+    "omit_year": "MMM Faça",
+    "only_day": "D",
+    "only_month": "MMM",
+    "only_ordinal": "Fazer",
+    "only_week": "MMM Do ([Semana] S)",
+    "only_year": "AAAA"
+  },
+  "datetime": {
+    "default": "MMM Do, AAAA HH:mm A",
+    "omit_meridiem": "MMM Do, AAAA HH:mm",
+    "with_seconds": "MMM Do, AAAA HH:mm:ss A"
+  },
+  "time": {
+    "default": "HH:mm",
+    "with_meridiem": "HH:mm A",
+    "with_seconds": "HH:mm:ss"
+  }
+}

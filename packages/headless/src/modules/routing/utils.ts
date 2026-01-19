@@ -70,12 +70,12 @@ export async function awaitResolved(
         meta: {}
       });
 
-      // console.debug("Route resolves", target, { state });
+      console.debug("Route resolves", target, { state });
 
       return target;
     })
     .catch(() => {
-      // console.debug("Route did not resolve", service.getSnapshot().context);
+      console.debug("Route did not resolve", service.getSnapshot().context);
       return undefined; //contextValue<RouteLocation>(service, "currentRoute");
     });
 }

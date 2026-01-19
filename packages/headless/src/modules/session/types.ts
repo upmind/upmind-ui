@@ -1,4 +1,4 @@
-import { IUser, IClient, AccessRoleTypes } from "@upmind-automation/types";
+import { IClient, AccessRoleTypes } from "@upmind-automation/types";
 import type { ResponseError } from "../../utils";
 
 // -----------------------------------------------------------------------------
@@ -23,7 +23,7 @@ export interface IAuthTransfer {
   /**
    * The unique identifier of the actor (user or client) performing the transfer.
    */
-  actor_id: IUser["id"];
+  actor_id: IClient["id"];
   /**
    * The URL to which the client should be redirected after a successful transfer.
    */
@@ -67,6 +67,10 @@ export interface SessionContext {
    * Details about an ongoing or completed session transfer.
    */
   transfer?: SessionTransfer;
+  /**
+   * The authenticated client data, if available.
+   */
+  client?: Client;
 }
 
 /**
@@ -117,43 +121,48 @@ export interface Token {
 }
 
 /**
- * Interface representing the profile and authentication details of an authenticated user.
+ * Interface representing the profile and authentication details of an authenticated client.
  */
-export interface User {
+export interface Client {
   /**
-   * The unique identifier of the user.
+   * The unique identifier of the client.
    */
-  id: IUser["id"];
+  id: IClient["id"];
   /**
-   * The primary email address of the user.
+   * The primary email address of the client.
    */
-  email: IUser["email"];
+  email: IClient["email"];
+
   /**
-   * The user's name (full name or preferred display name).
+   * The client's username for login.
    */
-  name: IUser["name"];
+  username: IClient["username"];
   /**
-   * The user's username for login.
+   * The client's full name.
    */
-  username: IUser["username"];
+  fullName: IClient["fullname"];
   /**
-   * The user's full name.
+   * The client's first name.
    */
-  fullname: IUser["fullname"];
+  firstName: IClient["firstname"];
   /**
-   * The user's first name.
+   * The client's last name.
    */
-  firstname: IUser["firstname"];
+  lastName: IClient["lastname"];
   /**
-   * The user's last name.
+   * The client's public name.
    */
-  lastname: IUser["lastname"];
+  publicName: IClient["public_name"];
   /**
-   * A computed string for displaying the user's name (e.g. "John Doe").
+   * The client's preferred language.
+   */
+  language: IClient["interface_language_id"];
+  /**
+   * A computed string for displaying the client's name (e.g. "John Doe").
    */
   display: string;
   /**
-   * Avatar configuration for the user.
+   * Avatar configuration for the client.
    */
   avatar: {
     /**
@@ -163,7 +172,7 @@ export interface User {
     /**
      * The URL of the user's avatar image.
      */
-    src: IUser["image_url"];
+    src?: string; //IClient["image_url"];
     /**
      * `true` to force the display of the caption even if an image URL is present.
      */
@@ -172,5 +181,7 @@ export interface User {
   /**
    * The user's preferred interface language code (e.g. "en-GB").
    */
-  locale: IUser["interface_language_code"];
+  locale: IClient["interface_language_code"];
+
+  customFields?: IClient["custom_fields"];
 }

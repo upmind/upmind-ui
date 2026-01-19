@@ -3,7 +3,8 @@
 // --- internal
 import { useI18n } from "../system";
 import { useSession } from "../session";
-import { handleError, useQuery } from ".";
+import { useQuery } from "./useQuery";
+import { handleError } from "./utils";
 
 // --- utils
 import { get, map, set, includes, upperCase } from "lodash-es";
@@ -52,9 +53,22 @@ async function doFetch<T extends any = any>({
       )
     );
 
-  // do the fetch
-  return fetch(url.toString(), init)
+  // do the fetch with a timeout
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), 30000); // 30s timeout
+
+  if (init?.signal) {
+    init.signal.addEventListener("abort", () => controller.abort());
+  }
+
+  const fetchInit = {
+    ...init,
+    signal: controller.signal
+  };
+
+  return fetch(url.toString(), fetchInit)
     .then(async response => {
+      clearTimeout(id);
       const { ok, status } = response;
 
       const data = await response.json().catch(() => ({ data: null }));
@@ -66,6 +80,7 @@ async function doFetch<T extends any = any>({
       return data as QueryResponse<T>;
     })
     .catch(response => {
+      clearTimeout(id);
       // Aborted requests are handled differently and do not throw an error
       if (
         response.status == responseCodes.Aborted ||
