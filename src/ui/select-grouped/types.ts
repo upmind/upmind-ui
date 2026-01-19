@@ -34,36 +34,24 @@ export interface SelectGroupedGroupProps {
 
 export interface SelectGroupedProps {
   groups: SelectGroupedGroupProps[];
-  modelValue?: string | string[];
-  defaultValue?: string | string[];
+  modelValue?: string;
+  defaultValue?: string;
   name?: string;
-  multiple?: boolean;
   required?: boolean;
   disabled?: boolean;
-  // ---
   /** Number of groups per row (0-6). 0 = custom grid, 1 = full width. Example: columns={3} displays 3 groups per row. */
   columns?: number;
-  // --- styles
   class?: HTMLAttributes["class"];
   uiConfig?: { selectGrouped: CxOptions };
-  // --- a11y
-  ariaLabel?: string;
-  ariaLabelledby?: string;
-  // --- state
-  dataHover?: boolean;
-  dataFocus?: boolean;
 }
 
 export interface SelectGroupedBaseGroupProps {
   index?: number;
   focusedGroupIndex?: number;
-  modelValue?: string | string[];
-  multiple?: boolean;
+  modelValue?: string;
   required?: boolean;
   disabled?: boolean;
   columns?: number;
-  dataHover?: boolean;
-  dataFocus?: boolean;
   uiConfig?: { selectGrouped: CxOptions };
 }
 
@@ -82,7 +70,6 @@ export interface SelectGroupedMultiItemRendererProps extends SelectGroupedBaseGr
 
 export interface SelectGroupedDropdownItemProps {
   item: SelectGroupedItemProps;
-  modelValue?: string | string[];
-  multiple?: boolean;
+  modelValue?: string;
   focused?: boolean;
 }

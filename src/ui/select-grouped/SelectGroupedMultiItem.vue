@@ -19,8 +19,6 @@
           props.disabled ? -1 : props.index === props.focusedGroupIndex ? 0 : -1
         "
         :data-state="hasSelection ? 'checked' : 'unchecked'"
-        :data-hover="props.dataHover"
-        :data-focus="props.dataFocus"
         @focus="handleFocus"
         @click="toggleOpen"
         @keydown.enter.prevent="handleEnterSpace"
@@ -89,7 +87,6 @@
             :key="item.value"
             :item="item"
             :model-value="props.modelValue"
-            :multiple="props.multiple"
             :focused="focusedIndex === index"
             @select="onItemSelect"
             @action="onAction"
@@ -144,7 +141,7 @@ const props = withDefaults(defineProps<SelectGroupedMultiItemRendererProps>(), {
 });
 
 const emits = defineEmits<{
-  "update:modelValue": [value: string | string[]];
+  "update:modelValue": [value: string];
   action: [{ name: string; event: Event }];
   "focus-next-group": [];
   "focus-prev-group": [];
@@ -211,7 +208,6 @@ function toggleSelection(value: string) {
   const newValue = toggleSelectionValue({
     currentValue: props.modelValue,
     itemValue: value,
-    multiple: props.multiple,
     required: props.required,
     disabled: props.disabled
   });
@@ -246,9 +242,7 @@ function toggleOpen() {
 
 function onItemSelect(value: string) {
   toggleSelection(value);
-  if (!props.multiple) {
-    isOpen.value = false;
-  }
+  isOpen.value = false;
 }
 
 /**
@@ -259,7 +253,7 @@ function selectFocusedItem(closeOnSelect = true) {
   const item = props.group.items[focusedIndex.value];
   if (item) {
     toggleSelection(item.value);
-    if (!props.multiple && closeOnSelect) {
+    if (closeOnSelect) {
       isOpen.value = false;
     }
   }

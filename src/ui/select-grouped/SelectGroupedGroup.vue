@@ -7,13 +7,10 @@
     :index="props.index"
     :focused-group-index="props.focusedGroupIndex"
     :model-value="props.modelValue"
-    :multiple="props.multiple"
     :required="props.required"
     :disabled="props.disabled"
     :columns="props.columns"
     :ui-config="props.uiConfig"
-    :data-hover="props.dataHover"
-    :data-focus="props.dataFocus"
     @update:model-value="onChange"
     @action="onAction"
     @focus-next-group="() => emits('focus-next-group')"
@@ -31,13 +28,10 @@
     :index="props.index"
     :focused-group-index="props.focusedGroupIndex"
     :model-value="props.modelValue"
-    :multiple="props.multiple"
     :required="props.required"
     :disabled="props.disabled"
     :columns="props.columns"
     :ui-config="props.uiConfig"
-    :data-hover="props.dataHover"
-    :data-focus="props.dataFocus"
     @update:model-value="onChange"
     @action="onAction"
     @focus-next-group="() => emits('focus-next-group')"
@@ -79,7 +73,7 @@ const props = withDefaults(defineProps<SelectGroupedGroupRendererProps>(), {
 });
 
 const emits = defineEmits<{
-  "update:modelValue": [value: string | string[]];
+  "update:modelValue": [value: string];
   action: [{ name: string; event: Event }];
   "focus-next-group": [];
   "focus-prev-group": [];
@@ -97,7 +91,7 @@ const singleItem = computed(() => first(props.group.items));
 
 // --- Methods
 
-const onChange = (value: string | string[]) => {
+const onChange = (value: string) => {
   emits("update:modelValue", value);
 };
 

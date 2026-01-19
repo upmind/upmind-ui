@@ -1,8 +1,6 @@
 <template>
   <div
-    :role="props.multiple ? 'group' : 'radiogroup'"
-    :aria-label="props.ariaLabel"
-    :aria-labelledby="props.ariaLabelledby"
+    role="radiogroup"
     :aria-required="props.required"
     :aria-disabled="props.disabled"
     :class="cn(styles.selectGrouped.root, props.class)"
@@ -17,13 +15,10 @@
       :index="index"
       :focused-group-index="focusedGroupIndex"
       :model-value="modelValue"
-      :multiple="props.multiple"
       :required="props.required"
       :disabled="props.disabled"
       :columns="props.columns"
       :uiConfig="props.uiConfig"
-      :data-hover="props.dataHover"
-      :data-focus="props.dataFocus"
       @update:model-value="onChange"
       @action="onAction"
       @focus-next-group="focusGroup(index + 1)"
@@ -69,14 +64,13 @@ import type { SelectGroupedProps } from "./types";
 
 const props = withDefaults(defineProps<SelectGroupedProps>(), {
   columns: 1,
-  multiple: false,
   required: false,
   disabled: false,
   class: ""
 });
 
 const emits = defineEmits<{
-  "update:modelValue": [value: string | string[]];
+  "update:modelValue": [value: string];
   action: [{ name: string; event: Event }];
 }>();
 
@@ -99,7 +93,7 @@ const styles = useStyles<typeof config>(
   props.uiConfig ?? {}
 );
 
-const onChange = (value: string | string[]) => {
+const onChange = (value: string) => {
   modelValue.value = value;
 };
 

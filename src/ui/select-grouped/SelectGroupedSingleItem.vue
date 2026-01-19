@@ -4,15 +4,13 @@
     :class="
       cn(styles.selectGrouped.group.root, styles.selectGrouped.group.size)
     "
-    :role="props.multiple ? 'checkbox' : 'radio'"
+    role="radio"
     :aria-checked="isSelected"
     :aria-disabled="props.disabled"
     :tabindex="
       props.disabled ? -1 : props.index === props.focusedGroupIndex ? 0 : -1
     "
     :data-state="isSelected ? 'checked' : 'unchecked'"
-    :data-hover="props.dataHover"
-    :data-focus="props.dataFocus"
     @focus="handleFocus"
     @click="toggleSelection"
     @keydown.enter="toggleSelection"
@@ -118,7 +116,7 @@ const props = withDefaults(
 );
 
 const emits = defineEmits<{
-  "update:modelValue": [value: string | string[]];
+  "update:modelValue": [value: string];
   action: [{ name: string; event: Event }];
   "focus-next-group": [];
   "focus-prev-group": [];
@@ -157,7 +155,6 @@ function toggleSelection() {
   const newValue = toggleSelectionValue({
     currentValue: props.modelValue,
     itemValue: props.item.value,
-    multiple: props.multiple,
     required: props.required,
     disabled: props.disabled
   });

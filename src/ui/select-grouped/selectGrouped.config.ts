@@ -56,7 +56,7 @@ export default {
       root: cva("flex w-full items-center justify-between"),
       icon: cva("text-muted size-5 shrink-0"),
       chevron: cva(
-        "text-muted size-4 shrink-0 transition-transform duration-200"
+        "text-muted ml-2 size-4 shrink-0 transition-transform duration-200"
       )
     },
     dropdown: {
