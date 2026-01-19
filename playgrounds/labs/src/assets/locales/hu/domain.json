@@ -1,0 +1,31 @@
+{
+  "begin_search_above_desc": "Kezdje a keresést a fenti mező segítségével.",
+  "choices": {
+    "basket": {
+      "label": "Használja a kosárban lévő domaint",
+      "tooltip": "Ezek a domainek már a kosaradban vannak"
+    },
+    "existing": {
+      "label": "Meglévő domain használata",
+      "tooltip": "Használhat meglévő domaint a névszerverek frissítésével"
+    },
+    "register": {
+      "label": "Új domain regisztrálása",
+      "tooltip": "Még nincs domainje? Regisztráljon újat nálunk"
+    },
+    "transfer": {
+      "label": "Domain átvitele",
+      "tooltip": "Már van domain neved? Átviheted hozzánk"
+    }
+  },
+  "finding_perfect_domain": "A **tökéletes** domain megtalálása",
+  "finding_perfect_domain_md": "@.markdown:{'domain.finding_perfect_domain'}",
+  "own_domain_qn": "Öné ez a domain?",
+  "owned_domains_title": "Jelenlegi tulajdonodban lévő domainek",
+  "price_renewal_desc": "Egyszeri ár {regularPrice}. | Megújul minden évben {regularPrice}. | Megújul minden {count} évben {regularPrice}.",
+  "starts_with_domain": "Minden egy **domain névvel** kezdődik",
+  "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
+  "tld_renewal_price_desc": "A miénk {tld} a megújítási árak már csak {currentPrice} (volt {regularPrice}).",
+  "tld_renewal_price_from_desc": "A miénk {tld} a megújítási árak már csak {regularPrice}.",
+  "transfer_domain_by_msg": "Utassa át nekünk a következő módon:"
+}

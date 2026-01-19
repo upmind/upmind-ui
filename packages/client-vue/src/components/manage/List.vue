@@ -17,7 +17,8 @@
           item: getItem(item.id!),
           readonly: readonly || (!open && parsedValues.length > 1),
           doEdit,
-          doRemove
+          doRemove,
+          setDefault
         }"
       >
         <Item
@@ -25,6 +26,7 @@
           :readonly="props.readonly || (!open && parsedValues.length > 1)"
           @edit="doEdit"
           @remove="doRemove"
+          @setDefault="setDefault"
         />
       </slot>
     </template>
@@ -101,7 +103,9 @@ const emits = defineEmits<{
   (e: "update:modelValue", value: string): void;
   (e: "add"): void;
   (e: "edit", id: string): void;
+  (e: "remove", id: string): void;
   (e: "update:open"): void;
+  (e: "setDefault", id: string): void;
 }>();
 
 const { t } = useI18n();
@@ -110,16 +114,10 @@ const { data, meta, default: defaultItem, isReady } = props.useList();
 
 await isReady();
 
-const modelValue = useVModel(props, "modelValue", emits, {
-  passive: true,
-  defaultValue: defaultItem()?.id
-});
+const modelValue = defineModel<string>("modelValue", {});
 
 // -----------------------------------------------------------------------------
-const open = useVModel(props, "open", emits, {
-  passive: true,
-  defaultValue: false
-});
+const open = defineModel<boolean>("open", {});
 
 const parsedValues = computed(() => {
   return map(data?.value ?? [], (item: any, index: number) => {
@@ -147,6 +145,10 @@ function doEdit(id: string) {
 }
 
 function doRemove(id: string) {
-  //  TODO
+  emits("remove", id);
+}
+
+function setDefault(id: string) {
+  emits("setDefault", id);
 }
 </script>

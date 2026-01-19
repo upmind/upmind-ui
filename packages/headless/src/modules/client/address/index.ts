@@ -1,3 +1,3 @@
 export * from "./types";
-export * from "./useClientAddress";
+export * from "./useClientAddressManager";
 export * from "./useClientAddresses";

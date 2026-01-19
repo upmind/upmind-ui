@@ -72,6 +72,10 @@ export const useClientEmails = (
     return service.setDefault(id).mutate();
   }
 
+  function verify(id: Email["id"]) {
+    return service.verify(id).mutate();
+  }
+
   // --- filters
 
   const filters = ref<
@@ -103,7 +107,7 @@ export const useClientEmails = (
      * @property {boolean} isError - Indicates if there was an error during the query.
      * @property {boolean} isEmpty - Indicates if the basket is empty.
      * @property {boolean} isLoading - Indicates if the query is currently loading.
-     * @property {boolean} isAuthenticated - Indicates if the user is authenticated.
+     * @property {boolean} isAuthenticated - Indicates if the client is authenticated.
      */
     meta,
 
@@ -158,6 +162,13 @@ export const useClientEmails = (
      * @returns A promise that resolves when the email is removed.
      */
     remove,
+
+    /**
+     * Verify an email by id.
+     * @param id The id of the email to verify.
+     * @returns A promise that resolves when the email is verified.
+     */
+    verify,
 
     /**
      * Set an email as default.

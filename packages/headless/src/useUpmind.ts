@@ -22,6 +22,8 @@ import { isEmpty, get, isFunction } from "lodash-es";
 import { useRouting } from "./modules/routing/useRouting";
 import { useTheming } from "./modules/theming/useTheming";
 import { useQuery } from "./modules";
+import { queryClient } from "./modules/query/client";
+import { isAdmin, storefrontUrl as globalStorefrontUrl } from "./utils/config";
 
 // --- utils
 import {
@@ -154,6 +156,12 @@ export interface UpmindProps {
    * allowing apps to customize behavior while still respecting brand/product overrides.
    */
   config?: Record<string, unknown>;
+  /**
+   * Indicates whether the Upmind instance is running in admin mode.
+   * This flag can be used to alter behavior such as API endpoints and payloads.
+   * @default false
+   */
+  admin?: boolean;
 }
 
 // -----------------------------------------------------------------------------
@@ -172,6 +180,10 @@ export class Upmind {
    * Analytics configuration, typically for Google Tag Manager.
    */
   analytics: UpmindProps["analytics"];
+  /**
+   * Indicates whether the Upmind instance is running in admin mode.
+   */
+  admin: boolean = false;
   /**
    * Debugging flag for enabling various debug features.
    */
@@ -195,7 +207,9 @@ export class Upmind {
   /**
    * The Vue Query client instance used for data fetching and caching.
    */
-  queryClient: QueryClient;
+  public get queryClient(): QueryClient {
+    return queryClient;
+  }
   /**
    * Google reCAPTCHA configuration.
    */
@@ -218,13 +232,9 @@ export class Upmind {
   config?: UpmindProps["config"];
 
   /**
-   * Constructs a new Upmind instance.
    * Initialises the Vue Query client.
    */
-  constructor() {
-    const { queryClient } = useQuery();
-    this.queryClient = queryClient;
-  }
+  constructor() {}
 
   /**
    * Initialises the Upmind headless library with the provided configuration.
@@ -244,7 +254,8 @@ export class Upmind {
     recaptcha,
     router,
     storefrontUrl,
-    themes
+    themes,
+    admin
   }: UpmindProps): Promise<void> {
     if (this.status.value != UpmindStatus.notInitialised)
       throw new DetailedError(
@@ -262,7 +273,10 @@ export class Upmind {
     this.router = router;
     this.i18n = i18n;
     this.storefrontUrl = storefrontUrl;
+    globalStorefrontUrl.value = storefrontUrl;
     this.themes = themes;
+    this.admin = admin ?? false;
+    isAdmin.value = this.admin;
 
     this.initPlugins();
     this.initDebugging();
@@ -405,7 +419,7 @@ export class Upmind {
   private async initRouter() {
     if (!this.router?.instance) return;
     useRouting(this.router.instance);
-    const config = isFunction(this.router?.registerFunnels)
+    const config = this.router?.registerFunnels
       ? this.router.registerFunnels()
       : {};
     useRoutingEngine().register(config);

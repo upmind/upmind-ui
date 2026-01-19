@@ -18,11 +18,22 @@
         </slot>
 
         <AsyncLoading :open="meta.isLoading" v-bind="props.loadingProps" />
+
         <Main>
-          <UpmRouteView
-            :loading-props="props.loadingProps"
-            @resolve="scrollToAnchor"
-          />
+          <slot name="sidebar" />
+          <slot
+            name="default"
+            v-bind="{
+              meta,
+              loadingProps: props.loadingProps,
+              resolve: scrollToAnchor
+            }"
+          >
+            <UpmRouteView
+              :loading-props="props.loadingProps"
+              @resolve="scrollToAnchor"
+            />
+          </slot>
         </Main>
 
         <slot name="footer">
