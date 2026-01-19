@@ -9,6 +9,7 @@ import {
 } from "../support/utils/functions/basket";
 import { getClientToken } from "../support/utils/functions/tokens";
 import { Logins } from "../support/constants/logins";
+import { goToCheckout } from "../support/utils/apiHelper";
 
 let basket: Basket;
 let checkout: Checkout;
@@ -97,7 +98,7 @@ for (const { language, username, password } of localeLogins) {
     });
     test("Checkout - Registered User", async ({ page, context }) => {
       await getClientToken(page, username, password);
-      await checkout.goToCheckout(null, null);
+      await goToCheckout(page, context, null, null);
       await page.waitForLoadState("load");
       await page.waitForLoadState("networkidle");
       await expect(page).toHaveScreenshot(

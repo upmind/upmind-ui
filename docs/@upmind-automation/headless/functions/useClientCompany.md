@@ -53,7 +53,7 @@ Clears the context.
 ### context
 
 ```ts
-context: ComputedRef<ClientItemContext<any, any> | undefined>;
+context: ComputedRef<DataManagerContext<any, any> | undefined>;
 ```
 
 The full context object.

@@ -1,0 +1,31 @@
+{
+  "begin_search_above_desc": "Begin uw zoekopdracht met behulp van het vak hierboven.",
+  "choices": {
+    "basket": {
+      "label": "Gebruik domein in winkelwagen",
+      "tooltip": "Deze domeinen zitten al in uw winkelmandje"
+    },
+    "existing": {
+      "label": "Gebruik bestaand domein",
+      "tooltip": "U kunt een bestaand domein gebruiken door de naamservers bij te werken"
+    },
+    "register": {
+      "label": "Registreer een nieuw domein",
+      "tooltip": "Heeft u nog geen domein? Registreer er dan een bij ons."
+    },
+    "transfer": {
+      "label": "Domein overdragen",
+      "tooltip": "Heeft u al een domein? U kunt het naar ons overdragen."
+    }
+  },
+  "finding_perfect_domain": "Het vinden van uw **perfecte** domein",
+  "finding_perfect_domain_md": "@.markdown:{'domain.finding_perfect_domain'}",
+  "own_domain_qn": "Bent u de eigenaar van dit domein?",
+  "owned_domains_title": "Domeinen die u momenteel bezit",
+  "price_renewal_desc": "Eenmalige prijs van {regularPrice}. | Wordt elk jaar verlengd voor {regularPrice}. | Wordt elke {count} jaar verlengd voor {regularPrice}.",
+  "starts_with_domain": "Het begint allemaal met een **domeinnaam**",
+  "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
+  "tld_renewal_price_desc": "Ons {tld} verlengingsprijzen beginnen vanaf slechts {currentPrice} (was {regularPrice}).",
+  "tld_renewal_price_from_desc": "Ons {tld} verlengingsprijzen beginnen vanaf slechts {regularPrice}.",
+  "transfer_domain_by_msg": "Draag het over aan ons via"
+}

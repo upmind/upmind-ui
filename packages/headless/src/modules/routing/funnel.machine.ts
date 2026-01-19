@@ -6,11 +6,11 @@ import { useI18n } from "../system";
 
 // --- utils
 import { DetailedError, responseCodes, ErrorOrigin } from "../../utils";
+import { isEmpty, keys, reduce, isString, includes, some } from "lodash-es";
+import { pascalCase } from "./utils";
 
 // -- -types
 import { type FunnelContext, type FunnelProps } from "./types";
-import { isEmpty, keys, reduce, isString, includes } from "lodash-es";
-import { pascalCase } from "./utils";
 
 // -----------------------------------------------------------------------------
 
@@ -175,7 +175,8 @@ export const useFunnelMachine = ({
             (isString(data?.target) ? { name: data.target } : data?.target) ??
             targetRoute;
 
-          return isEmpty(target);
+          const exists = some(keys(states), state => state == target?.name);
+          return isEmpty(target) || !exists;
         },
 
         isNext: ({ resolved }: FunnelContext, { data }: AnyEventObject) =>

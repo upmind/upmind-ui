@@ -24,6 +24,7 @@ import {
   mapToHeadlessError
 } from "../../../utils";
 const { setTopLevel: setCookie } = useCookies();
+import { useClientParser } from "../utils";
 import {
   use2faModelParser,
   use2faSchemaParser,
@@ -110,7 +111,7 @@ export default createMachine(
                     },
                     {
                       target: "#complete",
-                      actions: ["setActor", "pushLogin"]
+                      actions: ["setActor", "setClient", "pushLogin"]
                     }
                   ],
                   onError: {
@@ -130,7 +131,7 @@ export default createMachine(
                   src: "verify2fa",
                   onDone: {
                     target: "#complete",
-                    actions: ["setActor", "pushLogin"]
+                    actions: ["setActor", "setClient", "pushLogin"]
                   },
                   onError: {
                     target: "challenging",
@@ -300,7 +301,8 @@ export default createMachine(
       // Handle completion, stop the machine and prevent further requests
       complete: {
         id: "complete",
-        type: "final"
+        type: "final",
+        data: (context: GuestContext) => context
       }
     }
   },
@@ -388,6 +390,11 @@ export default createMachine(
           }
         );
       },
+
+      setClient: assign({
+        client: (_context: GuestContext, { data }: AnyEventObject) =>
+          useClientParser(data.user || data.actor || data)
+      }),
 
       // ---
 

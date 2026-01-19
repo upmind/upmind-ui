@@ -62,15 +62,13 @@ const queryKey: QueryKey = ["paymentDetail", "stored"];
 
 export function loadList() {
   const { brandId, currencyId } = useBrand();
-  const { meta, userId } = useSession();
-
-  const clientId = userId.value;
+  const { meta, clientId } = useSession();
 
   const { query, useUrl } = useQuery();
 
   return query<IPaymentDetail[], PaymentDetail[]>({
     queryKey,
-    url: useUrl(`clients/${clientId}/payment_details`, {
+    url: useUrl(`clients/${clientId.value}/payment_details`, {
       limit: 0,
       brand_id: brandId.value,
       active: true,
@@ -85,7 +83,7 @@ export function loadList() {
       new Promise((resolve, reject) => {
         if (
           meta.value.isAuthenticated &&
-          !!userId.value &&
+          !!clientId.value &&
           !!currencyId.value &&
           !!brandId.value
         ) {
@@ -111,7 +109,7 @@ export function loadList() {
     retryDelay: DEBOUNCE_DELAY,
     enabled: () =>
       meta.value.isAuthenticated &&
-      !!userId.value &&
+      !!clientId.value &&
       !!currencyId.value &&
       !!brandId.value
   });
@@ -123,11 +121,11 @@ async function loadLookups(
   { currency, address, orderId, lookups }: PaymentDetailsContext,
   _event: AnyEventObject
 ) {
-  const { meta, user } = useSession();
+  const { meta, clientId, client } = useSession();
   const paymentTypes: Record<string, PaymentType> = {
     ["PAY_IN_FULL"]: PaymentType.PAY_IN_FULL
   };
-  if (!meta.value.isAuthenticated || !user.value?.id)
+  if (!meta.value.isAuthenticated || !clientId.value)
     throw new NotAuthenticatedError();
 
   const { brandId, currencyId: defaultCurrencyId, ensureConfig } = useBrand();
@@ -135,8 +133,6 @@ async function loadLookups(
 
   // ---
 
-  const clientId = user.value!.id;
-  const client = user.value;
   const currencyId = currency?.id || defaultCurrencyId.value; // fallback to default currency
 
   const config = ensureConfig([

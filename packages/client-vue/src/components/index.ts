@@ -7,7 +7,7 @@ export * from "./manage";
 export * from "./footer";
 export * from "./layout";
 export * from "./header";
-export * from "./layout";
+export * from "./emailHistory";
 
 export const UpmLocale = defineAsyncComponent(
   () => import("./LocaleSwitcher.vue")

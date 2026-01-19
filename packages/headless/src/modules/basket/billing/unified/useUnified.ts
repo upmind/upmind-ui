@@ -6,7 +6,7 @@ import { useActor } from "@xstate/vue";
 
 // --- internal
 import { useI18n } from "../../../system";
-import itemMachine from "../../../client/item.machine";
+import dataManagerMachine from "../../../dataManager/dataManager.machine";
 import { useUnifiedActions, useUnifiedGuards } from "./actions";
 import { useUnifiedServices } from "./services";
 import { useSession } from "../../../session";
@@ -50,7 +50,7 @@ export const useUnified = (
 ) => {
   const { t } = useI18n();
   const service = interpret(
-    itemMachine
+    dataManagerMachine
       .withConfig({
         actions: useUnifiedActions() as any,
         guards: useUnifiedGuards() as any,
@@ -75,9 +75,9 @@ export const useUnified = (
 
   // the clientId is required to bring the machine into the available state
   const { isAuthenticated } = useSession();
-  isAuthenticated().then(user => {
-    if (user?.id && !contextMatches(state, "clientId")) {
-      send({ type: "REFRESH", data: { clientId: user.id } });
+  isAuthenticated().then(client => {
+    if (client?.id && !contextMatches(state, "clientId")) {
+      send({ type: "REFRESH", data: { clientId: client.id } });
     }
   });
 

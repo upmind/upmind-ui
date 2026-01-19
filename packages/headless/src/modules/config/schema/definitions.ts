@@ -432,7 +432,7 @@ export const UI_META_DEFINITIONS = {
     scopes: [UIScope.BRAND]
   },
   template: {
-    default: undefined as unknown as string,
+    default: undefined,
     contexts: ALL_CONTEXTS,
     scopes: [UIScope.BRAND]
   },
@@ -440,6 +440,53 @@ export const UI_META_DEFINITIONS = {
     default: "default",
     contexts: ALL_CONTEXTS,
     scopes: [UIScope.BRAND]
+  },
+
+  // --- SEO
+  seoTitle: {
+    default: undefined,
+    contexts: ALL_CONTEXTS,
+    scopes: [UIScope.BRAND, UIScope.PRODUCT_CATEGORY, UIScope.PRODUCT]
+  },
+  seoDescription: {
+    default: undefined,
+    contexts: ALL_CONTEXTS,
+    scopes: [UIScope.BRAND, UIScope.PRODUCT_CATEGORY, UIScope.PRODUCT]
+  },
+  seoCanonical: {
+    default: undefined,
+    contexts: ALL_CONTEXTS,
+    scopes: [UIScope.BRAND, UIScope.PRODUCT_CATEGORY, UIScope.PRODUCT]
+  },
+  seoOgTitle: {
+    default: undefined,
+    contexts: ALL_CONTEXTS,
+    scopes: [UIScope.BRAND, UIScope.PRODUCT_CATEGORY, UIScope.PRODUCT]
+  },
+  seoOgDescription: {
+    default: undefined,
+    contexts: ALL_CONTEXTS,
+    scopes: [UIScope.BRAND, UIScope.PRODUCT_CATEGORY, UIScope.PRODUCT]
+  },
+  seoOgImage: {
+    default: undefined,
+    contexts: ALL_CONTEXTS,
+    scopes: [UIScope.BRAND, UIScope.PRODUCT_CATEGORY, UIScope.PRODUCT]
+  },
+  seoTwitterTitle: {
+    default: undefined,
+    contexts: ALL_CONTEXTS,
+    scopes: [UIScope.BRAND, UIScope.PRODUCT_CATEGORY, UIScope.PRODUCT]
+  },
+  seoTwitterDescription: {
+    default: undefined,
+    contexts: ALL_CONTEXTS,
+    scopes: [UIScope.BRAND, UIScope.PRODUCT_CATEGORY, UIScope.PRODUCT]
+  },
+  seoTwitterImage: {
+    default: undefined,
+    contexts: ALL_CONTEXTS,
+    scopes: [UIScope.BRAND, UIScope.PRODUCT_CATEGORY, UIScope.PRODUCT]
   }
 } satisfies UIDefinitions;
 

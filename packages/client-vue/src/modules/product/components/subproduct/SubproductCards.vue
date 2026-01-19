@@ -32,11 +32,7 @@
       :none-text="t('text.none')"
       :placeholder="t('form.select_option.placeholder')"
       :multiple="subproduct.meta.multiple"
-      :columns="
-        ui.optionSelector.value === OPTION_SELECTOR.RADIO_GRID
-          ? ui.optionSelectorGrid.asNumber
-          : 1
-      "
+      :columns="gridColumns"
     >
       <template #item="{ item: { id } }">
         <CardSubproduct
@@ -214,6 +210,13 @@ function getSubproductValue(value: string): SubproductValue {
     title: product?.title || ""
   };
 }
+
+const gridColumns = computed(() => {
+  const isRadioGrid = ui.optionSelector.value === OPTION_SELECTOR.RADIO_GRID;
+  const hasMultipleValues = parsedValues.value.length > 1;
+
+  return isRadioGrid && hasMultipleValues ? ui.optionSelectorGrid.asNumber : 1;
+});
 
 const blurred = ref(false);
 

@@ -1,0 +1,31 @@
+{
+  "begin_search_above_desc": "Ξεκινήστε την αναζήτησή σας χρησιμοποιώντας το παραπάνω πλαίσιο.",
+  "choices": {
+    "basket": {
+      "label": "Χρήση τομέα στο καλάθι",
+      "tooltip": "Αυτά τα domains βρίσκονται ήδη στο καλάθι σας"
+    },
+    "existing": {
+      "label": "Χρήση υπάρχοντος τομέα",
+      "tooltip": "Μπορείτε να χρησιμοποιήσετε έναν υπάρχοντα τομέα ενημερώνοντας τους nameservers"
+    },
+    "register": {
+      "label": "Εγγραφή νέου τομέα",
+      "tooltip": "Δεν έχετε ήδη domain; Κατοχυρώστε ένα νέο domain σε εμάς"
+    },
+    "transfer": {
+      "label": "Μεταφορά τομέα",
+      "tooltip": "Έχετε ήδη ένα domain; Μπορείτε να το μεταφέρετε σε εμάς"
+    }
+  },
+  "finding_perfect_domain": "Εύρεση του **τέλειου** τομέα σας",
+  "finding_perfect_domain_md": "@.markdown:{'domain.finding_perfect_domain'}",
+  "own_domain_qn": "Είστε κάτοχος αυτού του τομέα;",
+  "owned_domains_title": "Domains που σας ανήκουν αυτήν τη στιγμή",
+  "price_renewal_desc": "Εφάπαξ τιμή {regularPrice}. | Ανανεώνεται κάθε χρόνο για {regularPrice}. | Ανανεώνεται κάθε {count} χρόνια για {regularPrice}.",
+  "starts_with_domain": "Όλα ξεκινούν με ένα **όνομα τομέα**",
+  "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
+  "tld_renewal_price_desc": "Μας {tld} οι τιμές ανανέωσης ξεκινούν από μόνο {currentPrice} (ήταν {regularPrice}).",
+  "tld_renewal_price_from_desc": "Μας {tld} οι τιμές ανανέωσης ξεκινούν από μόνο {regularPrice}.",
+  "transfer_domain_by_msg": "Μεταφέρετέ το σε εμάς μέσω"
+}

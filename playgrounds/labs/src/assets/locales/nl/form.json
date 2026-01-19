@@ -1,0 +1,137 @@
+{
+  "address": {
+    "error": "Uw adres is vereist",
+    "label": "Adres",
+    "placeholder": "Begin met het typen van uw adres",
+    "title": "Nieuw adres toevoegen | Adres bijwerken"
+  },
+  "address1": {
+    "label": "Adres",
+    "placeholder": "Huisnaam, appartementnummer etc."
+  },
+  "address2": {
+    "label": "",
+    "placeholder": "Straatnaam, straatnaam etc."
+  },
+  "allow_auto_payment": {
+    "description": "Geef deze betaalmethode toestemming voor het uitvoeren van geautomatiseerde offline betalingen, zoals het betalen van een verlengingsfactuur.",
+    "label": "Automatische betaling toestaan"
+  },
+  "auth_email": {
+    "error": "Een gebruikersnaam of e-mailadres is vereist",
+    "label": "Uw gebruikersnaam of e-mailadres",
+    "placeholder": "naam@email.com"
+  },
+  "auth_password": {
+    "error": "Een sterk wachtwoord is vereist",
+    "label": "Wachtwoord",
+    "placeholder": "Wachtwoord of wachtwoordzin"
+  },
+  "card_cvv": {
+    "error": "Een geldige CVV is vereist",
+    "label": "CVV",
+    "placeholder": "CVC"
+  },
+  "card_expiry": {
+    "error": "Een geldige vervaldatum is vereist",
+    "label": "Vervaldatum",
+    "placeholder": "MM/JJ"
+  },
+  "card_num": {
+    "error": "Een geldig kaartnummer is vereist",
+    "label": "Kaartnummer",
+    "placeholder": "1234 1234 1234 1234"
+  },
+  "cardholder_name": {
+    "label": "Naam kaarthouder",
+    "placeholder": "Voer de naam van de kaarthouder in"
+  },
+  "category_search": {
+    "placeholder": "Zoeken op categorie..."
+  },
+  "city": {
+    "label": "Stad",
+    "placeholder": "Stad, dorp etc."
+  },
+  "company": {
+    "error": "Uw bedrijfsnaam is vereist",
+    "label": "Bedrijf",
+    "title": "Bedrijfsgegevens toevoegen | Bedrijfsgegevens bijwerken"
+  },
+  "companyName": {
+    "label": "Bedrijfsnaam",
+    "placeholder": "Uw bedrijfsnaam"
+  },
+  "companyNumber": {
+    "label": "Bedrijfsnummer",
+    "placeholder": "Geregistreerde belasting of GST"
+  },
+  "country": {
+    "label": "Land",
+    "placeholder": "Selecteer een land"
+  },
+  "domain": {
+    "placeholder": "Voer uw domein in..."
+  },
+  "domain_search": {
+    "placeholder": "Zoek naar een domein..."
+  },
+  "email": {
+    "error": "Een geldig e-mailadres is vereist",
+    "label": "E-mail",
+    "title": "Nieuw e-mailadres toevoegen | E-mailadres bijwerken"
+  },
+  "field_notes": {
+    "label": "Bestelnotities"
+  },
+  "firstname": {
+    "error": "Uw voornaam is vereist",
+    "label": "Voornaam"
+  },
+  "lastname": {
+    "error": "Uw achternaam is vereist",
+    "label": "Achternaam"
+  },
+  "login": {
+    "error": "Er is een fout opgetreden bij het inloggen."
+  },
+  "phone": {
+    "error": "Een geldig telefoonnummer is vereist",
+    "label": "Telefoon",
+    "title": "Nieuw telefoonnummer toevoegen | Telefoonnummer bijwerken"
+  },
+  "postcode": {
+    "label": "Postcode",
+    "placeholder": "bijv. 10011"
+  },
+  "product_name_search": {
+    "placeholder": "Zoeken op productnaam..."
+  },
+  "promocode": {
+    "error": "Ongeldige promotiecode",
+    "placeholder": "Voer hier de vouchercode in"
+  },
+  "recover": {
+    "error": "Er is een fout opgetreden bij het verzenden van een e-mail om uw wachtwoord opnieuw in te stellen."
+  },
+  "region": {
+    "label": "Regio",
+    "placeholder": "Selecteer een regio…"
+  },
+  "register": {
+    "error": "Er is een fout opgetreden bij het aanmaken van uw account."
+  },
+  "select_option": {
+    "placeholder": "Selecteer een optie"
+  },
+  "store_on_payment": {
+    "label": "Bewaar betalingsgegevens"
+  },
+  "stored_payment_method": {
+    "label": "Selecteer een van uw opgeslagen betaalmethoden"
+  },
+  "taxNumber": {
+    "label": "Belastingnummer",
+    "placeholder": "Belastingnummer"
+  }
+}

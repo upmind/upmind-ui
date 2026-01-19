@@ -12,9 +12,8 @@ const testUrl = [
 
 async function getDataLayer(page: Page) {
   const dataLayer = await page.evaluate(() => {
-    return this.window.dataLayer;
+    return (window as Window & { dataLayer?: unknown[] }).dataLayer;
   });
-  console.log(dataLayer);
   return dataLayer;
 }
 
@@ -34,10 +33,11 @@ test.describe("Google Tag Manager", () => {
       await page.goto(URLs.starterHosting);
       await page.waitForLoadState("networkidle");
       const dataLayer = await getDataLayer(page);
-      const gtmStart = await dataLayer.find(
-        (entry: any) => entry.event === "gtm.js"
+      expect(dataLayer).toBeDefined();
+      const gtmStart = dataLayer?.find(
+        (entry: unknown) => (entry as { event?: string }).event === "gtm.js"
       );
-      await expect(gtmStart).toBeDefined();
+      expect(gtmStart).toBeDefined();
     });
   });
 });

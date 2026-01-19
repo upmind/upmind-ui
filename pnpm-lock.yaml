@@ -1593,6 +1593,9 @@ importers:
       '@upmind-automation/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
+      '@upmind-automation/types':
+        specifier: workspace:*
+        version: link:../../packages/types
       '@upmind-automation/upmind-ui':
         specifier: workspace:*
         version: link:../../packages/ui

@@ -41,13 +41,13 @@
   "log_in_to_your_account": "Log in to your account",
   "recover_password": "Recover password",
   "login": "Log in",
-  "register": "Register",
   "logout": "Log out",
   "pay_today": "Pay {amount} today",
   "place_order": "Place order",
   "place_order_and_pay": "Place order and pay",
   "place_order_pay_later": "Place order and pay later",
   "proceed_to_checkout": "Proceed to checkout",
+  "register": "Register",
   "register_or_added": "Register | Added",
   "reload_page": "Reload page",
   "remove": "Remove",
@@ -59,6 +59,7 @@
   "save_value": "Save {value}",
   "search": "Search",
   "send_reset": "Send reset",
+  "set_as_default": "Set as default",
   "share": "Share",
   "show_details": "Show details",
   "show_less": "Show less",
@@ -68,5 +69,9 @@
   "sign_in_with_another_account": "Not you? Sign in with another account {action}.",
   "sort_by_default": "Sort by default",
   "sort_by_name": "Sort by name",
-  "sort_by_price": "Sort by price"
+  "sort_by_price": "Sort by price",
+  "sort_by_subject": "Sort by subject",
+  "verify": "Verify",
+  "view": "View",
+  "view_email": "View Email"
 }
