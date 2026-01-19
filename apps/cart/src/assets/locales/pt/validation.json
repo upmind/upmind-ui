@@ -13,7 +13,7 @@
   "enum": "{title} tem de ser igual a um dos valores permitidos",
   "exclusiveMaximum": "{title} tem de ser menor que {exclusiveMaximum}",
   "exclusiveMinimum": "{title} tem de ser maior do que {exclusiveMinimum}",
-  "format": "@:validation.{format} | {title} tem de corresponder ao padrão {format}",
+  "format": "{title} deve corresponder ao padrão {format}",
   "if": "{title} tem que combinar com o schema 'then' | {title} tem que combinar com o schema 'else'",
   "maxItems": "{title} não pode ter mais do que um item {maxItems} | {title} não pode ter mais do que um item {maxItems}",
   "maxLength": "{title} não pode ter mais de {maxLength} caracteres | {title} não pode ter mais de {maxLength} caracteres",
@@ -30,7 +30,7 @@
   "patternProperties": "A propriedade {title} {propertyName} está inválida (padrão incompatível)",
   "phone": "{title} deve ser um número de telefone válido em formato internacional",
   "propertyNames": "A propriedade {title} {propertyName} não está certo.",
-  "required": "{title} deve ter a propriedade necessária {missingProperty}",
+  "required": "{title} é obrigatório",
   "type": "{title} tem de ser {type}",
   "uniqueItems": "{title} não pode ter itens duplicados (os itens {j} e {i} são iguais)"
 }

@@ -13,7 +13,7 @@
   "enum": "{title} musí být rovno jedné z povolených hodnot",
   "exclusiveMaximum": "{title} musí být menší než {exclusiveMaximum}",
   "exclusiveMinimum": "{title} musí být větší než {exclusiveMinimum}",
-  "format": "@:validation.{format} | {title} musí odpovídat formátu {format}",
+  "format": "{title} musí odpovídat formátu {format}",
   "if": "{title} musí odpovídat schématu 'then '{title} musí odpovídat schématu 'else'",
   "maxItems": "{title} NESMÍ mít více než {maxItems} položka | {title} NESMÍ mít více než {maxItems} položky",
   "maxLength": "{title} NESMÍ být delší než {maxLength} postava {title} NESMÍ být delší než {maxLength} postavy",
@@ -30,7 +30,7 @@
   "patternProperties": "{title} název nemovitosti {propertyName} je neplatné (neshoda vzorů)",
   "phone": "{title} musí být správně naformátované telefonní číslo v mezinárodním formátu",
   "propertyNames": "{title} název nemovitosti {propertyName} je neplatný",
-  "required": "{title} musí mít požadovanou vlastnost {missingProperty}",
+  "required": "Je nutné vyplnit {title}",
   "type": "{title} musí být {type}",
   "uniqueItems": "{title} NESMÍ mít duplicitní položky (položky {j} a {i} jsou identické)"
 }
