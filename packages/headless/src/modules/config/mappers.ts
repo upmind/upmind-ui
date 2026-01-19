@@ -30,7 +30,6 @@ export function getScopeValue(
   input: ScopeItems
 ) {
   const data = {
-    [UIScope.APP]: input.app,
     [UIScope.OPTION]: input.option,
     [UIScope.OPTION_CATEGORY]: input.optionGroup,
     [UIScope.PRODUCT]: input.product,
@@ -57,8 +56,6 @@ function getPropertyValue(
 
   // Scope cascade - check scopes from highest to lowest priority
   for (const scope of SCOPE_ORDER) {
-    // APP scope is always checked as fallback, skip it here
-    if (scope === UIScope.APP) continue;
     if (!includes(definition.scopes, scope)) continue;
 
     const value = getScopeValue(scope, property, input);
@@ -66,12 +63,6 @@ function getPropertyValue(
     if (!isNil(value) && value !== "") {
       return normalizeValue(value, definition.type) ?? definition.default;
     }
-  }
-
-  // Always check APP scope as final fallback before returning default
-  const appValue = getScopeValue(UIScope.APP, property, input);
-  if (!isNil(appValue) && appValue !== "") {
-    return normalizeValue(appValue, definition.type) ?? definition.default;
   }
 
   return definition.default;
