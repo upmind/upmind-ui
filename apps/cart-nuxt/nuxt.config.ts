@@ -105,7 +105,7 @@ export default defineNuxtConfig({
   alias: {
     // App directories
     "@": resolve(__dirname, "./app"),
-    "@icons": resolve(__dirname, "./app/assets/icons"),
+    "@icons": resolve(__dirname, "../../packages/icons/assets"),
     "@animations": resolve(__dirname, "./app/assets/animations"),
 
     // Monorepo packages

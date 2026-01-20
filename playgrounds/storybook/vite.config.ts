@@ -18,9 +18,7 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./stories", import.meta.url)),
-      "@icons": fileURLToPath(
-        new URL("./stories/assets/icons", import.meta.url)
-      ),
+      "@icons": resolve(__dirname, "../../packages/icons/assets"),
       "@animations": fileURLToPath(
         new URL("./stories/assets/animations", import.meta.url)
       ),
