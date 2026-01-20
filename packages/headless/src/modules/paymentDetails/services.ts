@@ -65,7 +65,6 @@ export function loadList() {
   const { meta, clientId } = useSession();
 
   const { query, useUrl } = useQuery();
-  debugger;
   return query<IPaymentDetail[], PaymentDetail[]>({
     queryKey,
     url: useUrl(`clients/${clientId.value}/payment_details`, {
@@ -101,7 +100,6 @@ async function loadLookups(
   const paymentTypes: Record<string, PaymentType> = {
     ["PAY_IN_FULL"]: PaymentType.PAY_IN_FULL
   };
-  debugger;
   if (!meta.value.isAuthenticated || !client?.id)
     throw new NotAuthenticatedError();
 
