@@ -529,6 +529,31 @@ export const useSession = () => {
     });
   }
 
+  /**
+   * Refreshes the session by sending a REFRESH event to the session machine.
+   * It waits for the client actor to be available and then returns true.
+   * If the client actor is not available, it returns true (assuming the client is already logged out).
+   * If the wait times out, it returns false.
+   * @returns {Promise<boolean>} A promise that resolves to true if the session was refreshed successfully, false otherwise.
+   */
+  async function refresh(): Promise<boolean> {
+    service.send({
+      type: "REFRESH"
+    });
+
+    if (!clientActor.value?.service) return true; // were already logged out
+
+    return await waitFor(
+      clientActor.value.service,
+      state => stateMatches(state, "available"),
+      {
+        timeout: 60000
+      }
+    )
+      .then(() => true)
+      .catch(() => false);
+  }
+
   // ---------------------------------------------------------------------------
   return {
     // --- state
@@ -642,6 +667,11 @@ export const useSession = () => {
      * Function to resolve an ongoing authentication or registration request.
      */
     resolve,
+
+    /**
+     * Refreshes the session, typically used to renew an expired session.
+     */
+    refresh,
 
     /**
      * Initiates the login process for a client, typically used in conjunction with a form and model data.
