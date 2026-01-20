@@ -3,22 +3,7 @@ import { baseRing } from "../../assets/styles";
 
 const focusRing = `${baseRing} [&:focus,&[data-focus=true]]:outline-[var(--color-control-ring)]`;
 
-export const groupSizeVariants = cva("", {
-  variants: {
-    columns: {
-      0: "",
-      1: "col-span-12 md:col-span-12",
-      2: "col-span-12 md:col-span-6",
-      3: "col-span-12 md:col-span-4",
-      4: "col-span-12 md:col-span-3",
-      5: "col-span-12 md:col-span-2",
-      6: "col-span-12 md:col-span-2"
-    }
-  },
-  defaultVariants: {
-    columns: 1
-  }
-});
+export const groupSizeVariants = cva("col-span-12");
 
 export const groupVariants = cva(
   `bg-control-surface text-control-foreground group control-radius shadow-control-default hover:shadow-control-hover relative z-10 flex cursor-pointer list-none gap-2 rounded py-4 pr-4 pl-3 font-normal transition-all duration-200 ${focusRing}`,

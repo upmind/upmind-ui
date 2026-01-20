@@ -9,7 +9,6 @@
     :model-value="props.modelValue"
     :required="props.required"
     :disabled="props.disabled"
-    :columns="props.columns"
     :ui-config="props.uiConfig"
     @update:model-value="onChange"
     @action="onAction"
@@ -30,7 +29,6 @@
     :model-value="props.modelValue"
     :required="props.required"
     :disabled="props.disabled"
-    :columns="props.columns"
     :ui-config="props.uiConfig"
     @update:model-value="onChange"
     @action="onAction"
@@ -68,8 +66,7 @@ import { first } from "lodash-es";
 
 const props = withDefaults(defineProps<SelectGroupedGroupRendererProps>(), {
   index: 0,
-  focusedGroupIndex: 0,
-  columns: 1
+  focusedGroupIndex: 0
 });
 
 const emits = defineEmits<{

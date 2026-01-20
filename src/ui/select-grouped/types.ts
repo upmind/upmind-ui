@@ -39,8 +39,6 @@ export interface SelectGroupedProps {
   name?: string;
   required?: boolean;
   disabled?: boolean;
-  /** Number of groups per row (0-6). 0 = custom grid, 1 = full width. Example: columns={3} displays 3 groups per row. */
-  columns?: number;
   class?: HTMLAttributes["class"];
   uiConfig?: { selectGrouped: CxOptions };
 }
@@ -51,7 +49,6 @@ export interface SelectGroupedBaseGroupProps {
   modelValue?: string;
   required?: boolean;
   disabled?: boolean;
-  columns?: number;
   uiConfig?: { selectGrouped: CxOptions };
 }
 

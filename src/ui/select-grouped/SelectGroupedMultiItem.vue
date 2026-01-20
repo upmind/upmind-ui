@@ -136,8 +136,7 @@ import { isArray } from "lodash-es";
 
 const props = withDefaults(defineProps<SelectGroupedMultiItemRendererProps>(), {
   index: 0,
-  focusedGroupIndex: 0,
-  columns: 1
+  focusedGroupIndex: 0
 });
 
 const emits = defineEmits<{
@@ -179,7 +178,6 @@ const hasSelection = computed(() => {
 });
 
 const meta = computed(() => ({
-  columns: props.columns,
   isOpen,
   hasSelection
 }));

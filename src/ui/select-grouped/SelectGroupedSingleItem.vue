@@ -110,8 +110,7 @@ const props = withDefaults(
   defineProps<SelectGroupedSingleItemRendererProps>(),
   {
     index: 0,
-    focusedGroupIndex: 0,
-    columns: 1
+    focusedGroupIndex: 0
   }
 );
 
@@ -132,7 +131,6 @@ const isSelected = computed(() => {
 });
 
 const meta = computed(() => ({
-  columns: props.columns,
   hasSelection: isSelected
 }));
 

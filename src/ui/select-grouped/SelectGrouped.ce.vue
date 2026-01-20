@@ -17,7 +17,6 @@
       :model-value="modelValue"
       :required="props.required"
       :disabled="props.disabled"
-      :columns="props.columns"
       :uiConfig="props.uiConfig"
       @update:model-value="onChange"
       @action="onAction"
@@ -63,7 +62,6 @@ import type { SelectGroupedProps } from "./types";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<SelectGroupedProps>(), {
-  columns: 1,
   required: false,
   disabled: false,
   class: ""
@@ -82,9 +80,7 @@ const modelValue = useVModel(props, "modelValue", emits, {
 const groupRefs = ref<{ focus: () => void }[]>([]);
 const focusedGroupIndex = ref(0);
 
-const meta = computed(() => ({
-  columns: props.columns
-}));
+const meta = computed(() => ({}));
 
 const styles = useStyles<typeof config>(
   ["selectGrouped", "selectGrouped.group"],
