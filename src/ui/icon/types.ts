@@ -23,3 +23,19 @@ export interface IconProps {
   uiConfig?: { icon: CxOptions };
   class?: HTMLAttributes["class"];
 }
+
+export type IconEntry = {
+  /** Full resolved path from Vite's import.meta.glob */
+  fullPath: string;
+  /** Icon name without extension */
+  name: string;
+  /** Lazy loader function that returns the raw SVG string */
+  loader: () => Promise<string>;
+};
+
+export type LoadIconOptions = {
+  /** Variant folder (e.g. "Duocolor", "Line"). If omitted, falls back to Global. */
+  variant?: string;
+  /** Whether to fall back to Global when the variant icon is missing. Defaults to true. */
+  fallback?: boolean;
+};
