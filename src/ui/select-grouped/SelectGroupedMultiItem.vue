@@ -312,8 +312,8 @@ function handleArrowUp() {
   }
 }
 
-// Expose focus method for parent navigation
+// Expose setFocus method for parent navigation
 defineExpose({
-  focus: () => (headerFocused.value = true)
+  setFocus: () => (headerFocused.value = true)
 });
 </script>

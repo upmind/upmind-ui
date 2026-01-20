@@ -173,8 +173,8 @@ function handleFocus() {
   }
 }
 
-// Expose focus method for parent navigation
+// Expose setFocus method for parent navigation
 defineExpose({
-  focus: () => (focused.value = true)
+  setFocus: () => (focused.value = true)
 });
 </script>

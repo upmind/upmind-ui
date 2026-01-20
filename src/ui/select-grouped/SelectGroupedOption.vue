@@ -85,8 +85,8 @@ const emits = defineEmits<{
 
 // --- Refs
 
-const singleItemRef = ref<{ focus: () => void } | null>(null);
-const multiItemRef = ref<{ focus: () => void } | null>(null);
+const singleItemRef = ref<{ setFocus: () => void } | null>(null);
+const multiItemRef = ref<{ setFocus: () => void } | null>(null);
 
 // --- Computed
 
@@ -103,13 +103,13 @@ const onAction = (value: { name: string; event: Event }) => {
   emits("action", value);
 };
 
-// Expose focus method for parent navigation
+// Expose setFocus method for parent navigation
 defineExpose({
-  focus: () => {
+  setFocus: () => {
     if (isSingleItem.value) {
-      singleItemRef.value?.focus();
+      singleItemRef.value?.setFocus();
     } else {
-      multiItemRef.value?.focus();
+      multiItemRef.value?.setFocus();
     }
   }
 });

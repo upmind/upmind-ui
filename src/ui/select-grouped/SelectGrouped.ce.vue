@@ -85,7 +85,7 @@ const modelValue = useVModel(props, "modelValue", emits, {
   defaultValue: props.defaultValue
 });
 
-const groupRefs = ref<{ focus: () => void }[]>([]);
+const groupRefs = ref<{ setFocus: () => void }[]>([]);
 const focusedGroupIndex = ref(0);
 
 const meta = computed(() => ({}));
@@ -108,6 +108,6 @@ const onAction = (value: { name: string; event: Event }) => {
 const focusGroup = (index: number) => {
   const clampedIndex = Math.max(0, Math.min(index, props.groups.length - 1));
   focusedGroupIndex.value = clampedIndex;
-  groupRefs.value[clampedIndex]?.focus();
+  groupRefs.value[clampedIndex]?.setFocus();
 };
 </script>

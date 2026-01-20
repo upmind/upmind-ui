@@ -107,9 +107,9 @@ const isSelected = computed(() => {
   return props.modelValue === props.item.value;
 });
 
-// Expose root element for parent focus management
+// Expose setFocus method for parent focus management
 defineExpose({
-  focus: () => (focused.value = true)
+  setFocus: () => (focused.value = true)
 });
 
 const meta = computed(() => ({}));
