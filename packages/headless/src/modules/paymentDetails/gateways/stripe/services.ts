@@ -1,9 +1,8 @@
 // --- external
-import {
-  type DefaultValuesOption,
-  loadStripe,
-  type StripeElementLocale,
-  type StripeElements
+import type {
+  DefaultValuesOption,
+  StripeElementLocale,
+  StripeElements
 } from "@stripe/stripe-js";
 
 // --- internal
@@ -56,44 +55,49 @@ async function load(context: StripeContext, _event: AnyEventObject) {
         ErrorOrigin.Headless
       );
 
-    return loadStripe(key).then(stripe => {
-      if (!stripe)
-        throw new DetailedError(
-          t("error.payment_gateway_not_available"),
-          responseCodes.Not_Found,
-          ErrorOrigin.Headless
-        );
+    return import("@stripe/stripe-js").then(({ loadStripe }) =>
+      loadStripe(key).then(stripe => {
+        if (!stripe)
+          throw new DetailedError(
+            t("error.payment_gateway_not_available"),
+            responseCodes.Not_Found,
+            ErrorOrigin.Headless
+          );
 
-      // Flow ref: https://stripe.com/docs/payments/finalize-payments-on-the-server?platform=web&type=payment#additional-options
-      const elements: StripeElements = stripe.elements({
-        amount: parseMinorUnitAmount(amount || 0, currency.code),
-        currency: currency.code.toLowerCase(), // NB: MUST be lowercase
-        locale: (locale.value.toLowerCase() ?? "auto") as StripeElementLocale,
-        mode: "payment",
-        paymentMethodCreation: "manual",
-        paymentMethodTypes: getSupportedPaymentMethods(gateway, currency.code),
-        setupFutureUsage: "off_session"
-      });
+        // Flow ref: https://stripe.com/docs/payments/finalize-payments-on-the-server?platform=web&type=payment#additional-options
+        const elements: StripeElements = stripe.elements({
+          amount: parseMinorUnitAmount(amount || 0, currency.code),
+          currency: currency.code.toLowerCase(), // NB: MUST be lowercase
+          locale: (locale.value.toLowerCase() ?? "auto") as StripeElementLocale,
+          mode: "payment",
+          paymentMethodCreation: "manual",
+          paymentMethodTypes: getSupportedPaymentMethods(
+            gateway,
+            currency.code
+          ),
+          setupFutureUsage: "off_session"
+        });
 
-      const element = elements.create("payment", {
-        defaultValues: {
-          billingDetails: {
-            // name: client.name,
-            // email: client.email,
-            // phone: client.phone,
-            address: {
-              country: address?.country?.code,
-              postal_code: address?.postcode,
-              state: address?.state,
-              city: address?.city,
-              line1: address?.address_1,
-              line2: address?.address_2
+        const element = elements.create("payment", {
+          defaultValues: {
+            billingDetails: {
+              // name: client.name,
+              // email: client.email,
+              // phone: client.phone,
+              address: {
+                country: address?.country?.code,
+                postal_code: address?.postcode,
+                state: address?.state,
+                city: address?.city,
+                line1: address?.address_1,
+                line2: address?.address_2
+              }
             }
-          }
-        } as DefaultValuesOption
-      });
-      return { sdk: { stripe, elements, element }, ...config };
-    });
+          } as DefaultValuesOption
+        });
+        return { sdk: { stripe, elements, element }, ...config };
+      })
+    );
   });
 }
 
