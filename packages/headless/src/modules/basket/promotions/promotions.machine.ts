@@ -11,7 +11,8 @@ import {
   parseError,
   useModelParser,
   mapToHeadlessError,
-  useValidationParser
+  useValidationParser,
+  isDirty
 } from "../../../utils";
 import { responseCodes } from "../../../utils";
 import { useSchema, useUischema } from "./utils";
@@ -295,7 +296,7 @@ export default createMachine(
 
     guards: {
       isDirty: ({ baseModel, model }, _event) =>
-        !isEqual(model, baseModel) && !isEmpty(model?.promocode),
+        isDirty(model, baseModel) && !isEmpty(model?.promocode),
       hasBasket: ({ basketId }, _event) => !!basketId,
       hasChanged: ({ promotions, basketId }, { data }: AnyEventObject) =>
         !!xorBy(promotions, data?.promotions, "id")?.length ||
