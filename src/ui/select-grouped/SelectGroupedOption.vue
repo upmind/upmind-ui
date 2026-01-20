@@ -51,6 +51,13 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * Selects the appropriate renderer.
+ *
+ * Decides whether to render a SingleItem (for groups with exactly one item) or
+ * a MultiItem (for groups with multiple items that need a dropdown). Forwards
+ * all slots and events to the appropriate child component.
+ */
 // --- external
 import { computed, ref } from "vue";
 
@@ -59,12 +66,12 @@ import SelectGroupedSingleItem from "./SelectGroupedSingleItem.vue";
 import SelectGroupedMultiItem from "./SelectGroupedMultiItem.vue";
 
 // --- types
-import type { SelectGroupedGroupRendererProps } from "./types";
+import type { SelectGroupedOptionRendererProps } from "./types";
 import { first } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
-const props = withDefaults(defineProps<SelectGroupedGroupRendererProps>(), {
+const props = withDefaults(defineProps<SelectGroupedOptionRendererProps>(), {
   index: 0,
   focusedGroupIndex: 0
 });

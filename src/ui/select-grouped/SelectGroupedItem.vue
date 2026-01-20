@@ -71,6 +71,13 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * Individual item within a dropdown list.
+ *
+ * Renders a single selectable row inside the MultiItem dropdown. Displays
+ * label, description, badges, and optional action button. Emits selection
+ * and action events to the parent MultiItem component.
+ */
 // --- external
 import { computed, ref } from "vue";
 

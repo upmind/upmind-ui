@@ -84,6 +84,13 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * Renders options with only one item.
+ *
+ * Displays as a directly selectable radio option with label, description,
+ * badges, and optional action button. Used when a group contains exactly
+ * one item, eliminating the need for a dropdown.
+ */
 // --- external
 import { computed, ref } from "vue";
 

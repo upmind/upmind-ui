@@ -7,7 +7,7 @@
     data-testid="select-grouped"
     v-auto-animate
   >
-    <SelectGroupedGroup
+    <SelectGroupedOption
       v-for="(group, index) in props.groups"
       ref="groupRefs"
       :key="`group-${index}`"
@@ -38,12 +38,20 @@
       <template v-if="$slots['dropdown-item']" #dropdown-item="slotProps">
         <slot name="dropdown-item" v-bind="slotProps" />
       </template>
-    </SelectGroupedGroup>
+    </SelectGroupedOption>
     <slot name="additional-item" :size="styles.selectGrouped.group.size" />
   </div>
 </template>
 
 <script setup lang="ts">
+/**
+ * Main container component for grouped selection UI.
+ *
+ * Renders a radio group with support for single-item options (direct selection)
+ * and multi-item options (collapsible dropdown). Manages focus navigation between
+ * options and emits selection changes via v-model.
+ */
+
 // --- external
 import { computed, ref } from "vue";
 import { useVModel } from "@vueuse/core";
@@ -54,7 +62,7 @@ import { cn, useStyles } from "../../utils";
 import config from "./selectGrouped.config";
 
 // --- components
-import SelectGroupedGroup from "./SelectGroupedGroup.vue";
+import SelectGroupedOption from "./SelectGroupedOption.vue";
 
 // --- types
 import type { SelectGroupedProps } from "./types";

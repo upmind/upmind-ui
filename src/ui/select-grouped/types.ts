@@ -52,7 +52,7 @@ export interface SelectGroupedBaseGroupProps {
   uiConfig?: { selectGrouped: CxOptions };
 }
 
-export interface SelectGroupedGroupRendererProps extends SelectGroupedBaseGroupProps {
+export interface SelectGroupedOptionRendererProps extends SelectGroupedBaseGroupProps {
   group: SelectGroupedGroupProps;
 }
 

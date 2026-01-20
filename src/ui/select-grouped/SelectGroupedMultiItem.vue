@@ -105,6 +105,13 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * Renders options with multiple items as a dropdown.
+ *
+ * Displays as a collapsible header that expands to show a list of selectable
+ * items. Manages keyboard navigation within the dropdown, focus states, and
+ * selection. The header shows the currently selected item's label.
+ */
 // --- external
 import { computed, ref } from "vue";
 import { useId } from "radix-vue";
