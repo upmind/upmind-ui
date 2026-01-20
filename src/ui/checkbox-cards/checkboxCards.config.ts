@@ -33,7 +33,7 @@ export default {
   checkboxCards: {
     root: cva(`grid w-full grid-cols-12 gap-2`),
     item: cva(
-      `text-control-foreground group group shadow-control-default [&:hover,&[data-hover=true]]:shadow-control-hover bg-control-surface control-radius flex items-start gap-2 rounded-none py-4 pr-4 pl-3 font-normal transition-all duration-200 ${ringClasses} ${invalidRingClasses}`,
+      `text-control-foreground group shadow-control-default [&:hover,&[data-hover=true]]:shadow-control-hover bg-control-surface control-radius flex items-start gap-2 rounded-none py-4 pr-4 pl-3 font-normal transition-all duration-200 ${ringClasses} ${invalidRingClasses}`,
       {
         variants: variants,
         defaultVariants: {
