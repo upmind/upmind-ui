@@ -14,48 +14,36 @@
     @keydown.up.prevent="$emit('focusPrev')"
   >
     <slot name="item" v-bind="{ item: props.item, selected: isSelected }">
-      <div class="flex w-full items-start gap-4">
-        <span class="flex flex-1 flex-col">
-          <header
-            v-if="props.item.label || props.item.secondaryLabel"
-            class="flex justify-between"
-          >
-            <span class="flex gap-2">
-              <h5 :class="styles.selectGrouped.content.label">
-                {{ props.item.label }}
-              </h5>
-              <Badge
-                v-if="props.item.badge"
-                v-bind="props.item.badge"
-                size="sm"
-              />
-            </span>
-            <span class="flex gap-2">
-              <Badge
-                v-if="props.item.secondaryBadge"
-                v-bind="props.item.secondaryBadge"
-                size="sm"
-              />
-              <h5 :class="styles.selectGrouped.content.secondaryLabel">
-                {{ props.item.secondaryLabel }}
-              </h5>
-            </span>
-          </header>
+      <div class="flex w-full items-center justify-between gap-4">
+        <div class="flex flex-1 flex-col">
+          <span :class="styles.selectGrouped.content.label">
+            {{ props.item.label }}
+          </span>
+          <Badge v-if="props.item.badge" v-bind="props.item.badge" size="sm" />
           <p
             v-if="props.item.description"
             :class="styles.selectGrouped.content.description"
           >
             {{ props.item.description }}
           </p>
+        </div>
+        <div class="flex flex-col items-end">
+          <span :class="styles.selectGrouped.content.secondaryLabel">
+            {{ props.item.secondaryLabel }}
+          </span>
+          <Badge
+            v-if="props.item.secondaryBadge"
+            v-bind="props.item.secondaryBadge"
+            size="sm"
+          />
           <p
             v-if="props.item.secondaryDescription"
             :class="styles.selectGrouped.content.secondaryDescription"
           >
             {{ props.item.secondaryDescription }}
           </p>
-        </span>
-        <span v-if="props.item.action" class="leading-none">
           <Link
+            v-if="props.item.action"
             v-show="
               isNil(props.item.action?.visible) || props.item.action?.visible
             "
@@ -64,7 +52,7 @@
             size="sm"
             @click.stop="doAction(props.item.action, $event)"
           />
-        </span>
+        </div>
       </div>
     </slot>
   </div>

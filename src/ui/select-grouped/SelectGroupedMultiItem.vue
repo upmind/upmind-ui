@@ -43,9 +43,9 @@
             <slot name="icon" v-bind="{ group: props.group }" />
             <div class="flex flex-1 flex-col">
               <div class="flex items-center gap-2">
-                <h5 :class="styles.selectGrouped.content.label">
+                <span :class="styles.selectGrouped.content.label">
                   {{ props.group.name }}
-                </h5>
+                </span>
                 <span
                   v-if="selectedItem?.label"
                   :class="styles.selectGrouped.content.secondaryLabel"
@@ -158,7 +158,6 @@ const isOpen = ref(false);
 const headerRef = ref<HTMLElement | null>(null);
 const containerRef = ref<HTMLElement | null>(null);
 
-// Use the reusable list navigation composable
 const { focusedIndex, focusItem, focusNext, focusPrev, focusFirst } =
   useListNavigation(() => props.group.items.length, {
     wrap: false,
