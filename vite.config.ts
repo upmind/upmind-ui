@@ -34,7 +34,9 @@ export default defineConfig({
         "marked",
         "lottie-web",
         "@lordicon/element",
-        /^lodash-es/
+        /^lodash-es/,
+        /^@icons/,
+        /^@animations/
       ],
       output: {
         preserveModules: true,
@@ -49,9 +51,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      "@": resolve(__dirname, "./src"),
-      "@themes": resolve(__dirname, "./src/assets/themes"),
-      "@animations": resolve(__dirname, "./src/assets/animations")
+      "@": resolve(__dirname, "./src")
     }
   }
 });

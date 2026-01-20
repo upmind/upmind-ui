@@ -39,3 +39,5 @@ export type LoadIconOptions = {
   /** Whether to fall back to Global when the variant icon is missing. Defaults to true. */
   fallback?: boolean;
 };
+
+export type IconImportMap = Record<string, () => Promise<unknown>>;

@@ -1,4 +1,9 @@
-// --- utils
+// ---------------------------------------------------------------
+// iconLoader.ts – on‑demand SVG loader with in‑memory cache & fallback logic
+// ---------------------------------------------------------------
+
+import { ref, computed, type ComputedRef } from "vue";
+
 import {
   toPairs,
   get,
@@ -13,49 +18,86 @@ import {
 } from "lodash-es";
 
 // --- types
-import type { IconEntry, LoadIconOptions } from "../types";
+import type { IconEntry, IconImportMap, LoadIconOptions } from "../types";
 
 // -----------------------------------------------------------------------------
-
-/** Vite glob that creates a lazy‑import map for every SVG under @icons */
-const importMap = import.meta.glob("@icons/**/*.svg", {
-  query: "?raw",
-  eager: false,
-  import: "default"
-}) as Record<string, () => Promise<string>>;
 
 /** Simple in‑memory cache – lives for the page lifetime */
 const cache: Record<string, string> = {};
 
 /** Parsed icon entries for efficient matching */
-const iconMap: IconEntry[] = [];
+const iconMap = ref<IconEntry[]>([]);
 
 /** Name-based index for O(1) filtering by icon name */
-const iconsByName: Record<string, IconEntry[]> = {};
+const iconsByName = ref<Record<string, IconEntry[]>>({});
 
-// Build icon map and name index
-toPairs(importMap).forEach(([fullPath, loader]) => {
-  const filename = last(split(fullPath, /[/\\]/));
-  if (!filename || !filename.endsWith(".svg")) return;
-
-  const name = trimEnd(filename, ".svg");
-
-  const entry: IconEntry = {
-    fullPath,
-    name,
-    loader: loader as () => Promise<string>
-  };
-
-  iconMap.push(entry);
-
-  // Index by name for faster lookups
-  if (!iconsByName[name]) {
-    iconsByName[name] = [];
-  }
-  iconsByName[name].push(entry);
-});
+/** Whether icons have been registered */
+const isRegistered = ref(false);
 
 // -----------------------------------------------------------------------------
+// Public API
+// -----------------------------------------------------------------------------
+
+/**
+ * Register icons from a Vite glob import map.
+ *
+ * This must be called by the consuming app before using any Icon components.
+ *
+ * @param importMap - The result of import.meta.glob("@icons/⁎⁎/⁎.svg", { query: "?raw", eager: false, import: "default" })
+ *
+ * @example
+ * // In your app's main.ts or entry point:
+ * import { registerIcons } from '@upmind/ui';
+ *
+ * registerIcons(import.meta.glob('@icons/⁎⁎/⁎.svg', {
+ *   query: '?raw',
+ *   eager: false,
+ *   import: 'default'
+ * }));
+ */
+export function registerIcons(importMap: IconImportMap): void {
+  // Reset state
+  iconMap.value = [];
+  iconsByName.value = {};
+
+  // Build icon map and name index
+  toPairs(importMap).forEach(([fullPath, loader]) => {
+    const filename = last(split(fullPath, /[/\\]/));
+    if (!filename || !filename.endsWith(".svg")) return;
+
+    const name = trimEnd(filename, ".svg");
+
+    const entry: IconEntry = {
+      fullPath,
+      name,
+      loader: loader as () => Promise<string>
+    };
+
+    iconMap.value.push(entry);
+
+    // Index by name for faster lookups
+    if (!iconsByName.value[name]) {
+      iconsByName.value[name] = [];
+    }
+    iconsByName.value[name].push(entry);
+  });
+
+  isRegistered.value = true;
+}
+
+/**
+ * Reactive flag indicating if icons have been registered.
+ */
+export const hasRegisteredIcons: ComputedRef<boolean> = computed(
+  () => isRegistered.value
+);
+
+/**
+ * Reactive count of registered icons.
+ */
+export const getIconCount: ComputedRef<number> = computed(
+  () => iconMap.value.length
+);
 
 /**
  * Load an SVG icon by name with optional variant and path matching.
@@ -76,6 +118,13 @@ export async function loadIcon(
   icon: string | { name: string; path?: string },
   opts: LoadIconOptions
 ): Promise<string | undefined> {
+  if (!isRegistered.value) {
+    console.warn(
+      "Icons not registered. Call registerIcons() in your app entry point."
+    );
+    return undefined;
+  }
+
   const { variant, fallback = true } = opts;
 
   const safePath = isObject(icon) ? get(icon, "path", "") : "";
@@ -103,7 +152,11 @@ export async function loadIcon(
     }
   }
 
-  console.warn("Icon not found in @icons", { variant, safeName, safePath });
+  console.warn("Icon not found in registered Icons", {
+    variant,
+    safeName,
+    safePath
+  });
   return undefined;
 }
 
@@ -145,7 +198,7 @@ const findIcon = (
   path?: string
 ): IconEntry | undefined => {
   // Use name index for O(1) initial filter
-  const candidates = iconsByName[name];
+  const candidates = iconsByName.value[name];
 
   return find(candidates, entry => {
     const segments = split(entry.fullPath, /[/\\]/);
