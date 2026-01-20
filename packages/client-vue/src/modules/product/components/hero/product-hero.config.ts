@@ -27,7 +27,18 @@ export default {
       }
     }),
     title: {
-      root: cva("flex items-center gap-x-5 gap-y-2"),
+      root: cva("flex gap-x-5 gap-y-2", {
+        variants: {
+          direction: {
+            horizontal:
+              "flex-col-reverse items-start xl:flex-row xl:items-center",
+            vertical: "flex-col-reverse items-start"
+          }
+        },
+        defaultVariants: {
+          direction: "horizontal"
+        }
+      }),
       text: cva("font-display break-word text-4xl text-balance", {
         variants: {
           direction: {
