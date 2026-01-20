@@ -79,7 +79,7 @@ export const useRegisterSchemaParser = (data: any) => {
           }
         }
       },
-      customFields: useFieldsSchemaParser(data, "auth")
+      customFields: useFieldsSchemaParser(data)
     }
   };
 
@@ -171,7 +171,7 @@ export const useRegisterModelParser = (
   return {
     firstname: model?.firstname,
     lastname: model?.lastname,
-    clientname: model?.clientname,
+    username: model?.username,
     password: model?.password,
     phone: model?.phone,
     customFields: useFieldsModelParser(customfields)
@@ -227,7 +227,7 @@ export const useLoginUischemaParser = () => {
 
 export const useLoginModelParser = (model: LoginModel): LoginModel => {
   return {
-    clientname: model?.clientname,
+    username: model?.username,
     password: model?.password
   };
 };
@@ -311,6 +311,6 @@ export const useRecoverUischemaParser = () => {
 
 export const useRecoverModelParser = (model: RecoverModel): RecoverModel => {
   return {
-    clientname: model?.clientname
+    username: model?.username
   };
 };

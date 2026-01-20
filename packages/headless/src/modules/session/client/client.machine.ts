@@ -116,7 +116,7 @@ export default createMachine(
         removeCookie("upm_client_session");
         removeCookie("upm_guest_session");
         removeCookie("upm_actor");
-        useDataLayer().dataLayer().withClient().push(false);
+        useDataLayer().dataLayer().withUser().push(false);
         return {};
       }),
       // ---
@@ -155,7 +155,7 @@ export default createMachine(
         if (!error || error?.status == responseCodes.Unprocessable_Entity)
           return;
 
-        addError({
+        useFeedback().addError({
           title: t("error.request_process_failed"),
           copy: error?.message,
           data: error?.data
