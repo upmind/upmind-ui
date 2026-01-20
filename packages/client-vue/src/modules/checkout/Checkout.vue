@@ -132,15 +132,11 @@ const showCheckout = computed(
   () => !meta.value.isCheckout && !meta.value.isComplete
 );
 
-const template = computed(() => props.template || ui.template.value);
-
-const templateVariant = computed(() =>
-  get(
-    supportedTemplates,
-    template.value,
-    supportedTemplates[CHECKOUT_TEMPLATE.TWO_COLUMN_LTR]
-  )
+const template = computed(
+  () => props.template || ui.template.value || CHECKOUT_TEMPLATE.TWO_COLUMN_LTR
 );
+
+const templateVariant = computed(() => get(supportedTemplates, template.value));
 
 // -----------------------------------------------------------------------------
 

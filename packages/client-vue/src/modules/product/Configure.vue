@@ -295,15 +295,14 @@ set(configMeta.ui.theme.value);
 
 const isSlotHidden = (name: string) => includes(props.hideSlots, name);
 
-const template = computed(() => props.template || configMeta.ui.template.value);
-
-const templateVariant = computed(() =>
-  get(
-    supportedTemplates,
-    template.value,
-    supportedTemplates[PRODUCT_TEMPLATE.TWO_COLUMN_RTL]
-  )
+const template = computed(
+  () =>
+    props.template ||
+    configMeta.ui.template.value ||
+    PRODUCT_TEMPLATE.TWO_COLUMN_RTL
 );
+
+const templateVariant = computed(() => get(supportedTemplates, template.value));
 
 const stylesMeta = computed(() => {
   return {
