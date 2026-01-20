@@ -21,8 +21,6 @@ import { get, isFunction } from "lodash-es";
 import { useRouting } from "./modules/routing/useRouting";
 import { useTheming } from "./modules/theming/useTheming";
 import { useQuery } from "./modules";
-import { queryClient } from "./modules/query/client";
-import { isAdmin, storefrontUrl as globalStorefrontUrl } from "./utils/config";
 
 // --- utils
 import {
@@ -200,12 +198,9 @@ export class Upmind {
    * Provider Of Providers (POP) API configuration.
    */
   pop: UpmindProps["pop"];
-  /**
-   * The Vue Query client instance used for data fetching and caching.
-   */
-  public get queryClient(): QueryClient {
-    return queryClient;
-  }
+
+  queryClient: QueryClient;
+
   /**
    * Google reCAPTCHA configuration.
    */
@@ -224,10 +219,13 @@ export class Upmind {
   themes?: UpmindProps["themes"];
 
   /**
+   * Constructs a new Upmind instance.
    * Initialises the Vue Query client.
    */
-  constructor() {}
-
+  constructor() {
+    const { queryClient } = useQuery();
+    this.queryClient = queryClient;
+  }
   /**
    * Initialises the Upmind headless library with the provided configuration.
    * This method orchestrates the initialisation of all internal modules and plugins.
@@ -263,10 +261,8 @@ export class Upmind {
     this.router = router;
     this.i18n = i18n;
     this.storefrontUrl = storefrontUrl;
-    globalStorefrontUrl.value = storefrontUrl;
     this.themes = themes;
     this.admin = admin ?? false;
-    isAdmin.value = this.admin;
 
     this.initPlugins();
     this.initDebugging();

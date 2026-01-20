@@ -34,7 +34,7 @@ export const useRegisterSchemaParser = (data: any) => {
   const schema = {
     type: "object",
     title: "Register",
-    required: ["firstname", "lastname", "username", "password"],
+    required: ["firstname", "lastname", "clientname", "password"],
     properties: {
       firstname: {
         type: "string",
@@ -44,7 +44,7 @@ export const useRegisterSchemaParser = (data: any) => {
         type: "string",
         title: "Your last name"
       },
-      username: {
+      clientname: {
         type: "string",
         title: "Your email address",
         format: "email"
@@ -79,7 +79,7 @@ export const useRegisterSchemaParser = (data: any) => {
           }
         }
       },
-      customFields: useFieldsSchemaParser(data)
+      customFields: useFieldsSchemaParser(data, "auth")
     }
   };
 
@@ -121,7 +121,7 @@ export const useRegisterUischemaParser = (data: any) => {
       },
       {
         type: "Control",
-        scope: "#/properties/username",
+        scope: "#/properties/clientname",
         i18n: "form.auth_email",
         options: {
           type: "email",
@@ -171,7 +171,7 @@ export const useRegisterModelParser = (
   return {
     firstname: model?.firstname,
     lastname: model?.lastname,
-    username: model?.username,
+    clientname: model?.clientname,
     password: model?.password,
     phone: model?.phone,
     customFields: useFieldsModelParser(customfields)
@@ -182,12 +182,12 @@ export const useLoginSchemaParser = () => {
   return {
     type: "object",
     title: "Log in",
-    required: ["username", "password"],
+    required: ["clientname", "password"],
     properties: {
-      username: {
+      clientname: {
         type: "string",
-        title: "Your username or email address"
-        // format: "email", // DEPRECATED as we can log in with email OR username
+        title: "Your clientname or email address"
+        // format: "email", // DEPRECATED as we can log in with email OR clientname
       },
       password: {
         type: "string",
@@ -204,7 +204,7 @@ export const useLoginUischemaParser = () => {
     elements: [
       {
         type: "Control",
-        scope: "#/properties/username",
+        scope: "#/properties/clientname",
         i18n: "form.auth_email",
         options: {
           autoFocus: true,
@@ -227,7 +227,7 @@ export const useLoginUischemaParser = () => {
 
 export const useLoginModelParser = (model: LoginModel): LoginModel => {
   return {
-    username: model?.username,
+    clientname: model?.clientname,
     password: model?.password
   };
 };
@@ -281,11 +281,11 @@ export const useRecoverSchemaParser = () => {
   return {
     type: "object",
     title: "Send reset",
-    required: ["username"],
+    required: ["clientname"],
     properties: {
-      username: {
+      clientname: {
         type: "string",
-        title: "Your username or email address"
+        title: "Your clientname or email address"
       }
     }
   };
@@ -297,7 +297,7 @@ export const useRecoverUischemaParser = () => {
     elements: [
       {
         type: "Control",
-        scope: "#/properties/username",
+        scope: "#/properties/clientname",
         i18n: "form.auth_email",
         options: {
           autoFocus: true,
@@ -311,6 +311,6 @@ export const useRecoverUischemaParser = () => {
 
 export const useRecoverModelParser = (model: RecoverModel): RecoverModel => {
   return {
-    username: model?.username
+    clientname: model?.clientname
   };
 };

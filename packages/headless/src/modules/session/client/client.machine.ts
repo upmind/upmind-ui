@@ -2,22 +2,18 @@
 import { createMachine, assign } from "xstate";
 
 // --- internal
-import { useI18n, useLocale, useDataLayer } from "../../system";
+import { useI18n, useLocale } from "../../system";
 import services from "./services";
 
 import type { ClientContext } from "./types";
+
+import { useDataLayer } from "../../system";
 
 import { useFeedback } from "../../feedback";
 
 // --- utils
 import { omit } from "lodash-es";
-import {
-  useTime,
-  useCookies,
-  mapToHeadlessError,
-  DetailedError,
-  ErrorOrigin
-} from "../../../utils";
+import { useTime, useCookies, mapToHeadlessError } from "../../../utils";
 const { removeTopLevel: removeCookie, setTopLevel: setCookie } = useCookies();
 import { useClientParser } from "../utils";
 
@@ -42,50 +38,13 @@ export default createMachine(
       loading: {
         id: "loading",
         entry: "clearError",
-        always: {
-          target: "available",
-          cond: "hasClient"
-        },
         invoke: {
           src: "load",
           onDone: {
             target: "available",
             actions: ["setActor", "setClient", "setLocale"]
           },
-          onError: { target: "error", actions: ["setError"] }
-        },
-        after: {
-          timeout: {
-            target: "error",
-            actions: [
-              assign({
-                error: () =>
-                  mapToHeadlessError(
-                    new DetailedError(
-                      "Loading user profile timed out",
-                      responseCodes.Timeout,
-                      ErrorOrigin.Headless
-                    )
-                  )
-              })
-            ]
-          }
-        }
-      },
-
-      error: {
-        after: {
-          error: {
-            actions: [
-              () => {
-                console.warn("[Client Machine] load failed, triggering reauth");
-              },
-              "reauth"
-            ]
-          }
-        },
-        on: {
-          REFRESH: "loading"
+          onError: { target: "complete", actions: ["setError"] }
         }
       },
 
@@ -99,10 +58,6 @@ export default createMachine(
       available: {
         id: "available",
         on: {
-          REFRESH: {
-            target: "loading",
-            actions: "clearError"
-          },
           LOGOUT: {
             target: "complete",
             actions: "clear"
@@ -159,11 +114,9 @@ export default createMachine(
         //  also update the data layer to indicate the client has logged out
         sessionStorage.clear();
         removeCookie("upm_client_session");
-        removeCookie("upm_admin_session");
-        removeCookie("upm_user_session");
         removeCookie("upm_guest_session");
         removeCookie("upm_actor");
-        useDataLayer().dataLayer().withUser().push(false);
+        useDataLayer().dataLayer().withClient().push(false);
         return {};
       }),
       // ---
@@ -202,34 +155,21 @@ export default createMachine(
         if (!error || error?.status == responseCodes.Unprocessable_Entity)
           return;
 
-        useFeedback().addError({
+        addError({
           title: t("error.request_process_failed"),
           copy: error?.message,
           data: error?.data
         });
       },
 
-      clearError: assign({ error: undefined }),
-      reauth: (
-        context: ClientContext,
-        event: AnyEventObject,
-        { action, ...meta }: any
-      ) => {
-        // Send EXPIRED to parent session machine
-        if (meta?._service?.parent) {
-          meta._service.parent.send({ type: "EXPIRED" });
-        }
-      }
+      clearError: assign({ error: undefined })
     },
-    guards: {
-      hasClient: (context: ClientContext) => !!context?.client
-    },
+    guards: {},
 
     delays: {
       error: () => useTime().ERROR,
       wait: () => useTime().WAIT,
-      expired: () => useTime().MINUTE * 5,
-      timeout: () => useTime().SECOND * 15
+      expired: () => useTime().MINUTE * 5
     },
     services: services as any
   }
