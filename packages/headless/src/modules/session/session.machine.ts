@@ -36,7 +36,7 @@ export default createMachine(
               cond: "isClientToken"
             },
             {
-              // if we have guest/no token, we need to clear any possible client data
+              // if we have guest/no token, we need to clear any possible user data
               target: "guest"
               // actions: "clear"
             }
@@ -171,9 +171,6 @@ export default createMachine(
     },
 
     guards: {
-      isAdminToken: (_context: SessionContext, { data }: AnyEventObject) =>
-        includes([Contexts.ADMIN, Contexts.USER], data?.actor_type),
-
       isClientToken: (_context: SessionContext, { data }: AnyEventObject) =>
         data?.actor_type === Contexts.CLIENT,
 

@@ -1,6 +1,6 @@
 # Guest Manager Module
 
-The **Guest Manager** module within the **Upmind Headless** framework is designed to handle client guests, including managing authentication tokens and role based clients. This module is responsible for ensuring that clients have a valid guest when interacting with the Upmind platform.
+The **Guest Manager** module within the **Upmind Headless** framework is designed to handle user guests, including managing authentication tokens and role based users. This module is responsible for ensuring that users have a valid guest when interacting with the Upmind platform.
 
 ## Table of Contents
 
@@ -27,7 +27,7 @@ To use the **Guest Manager** module, you can import it from the `@upmind-automat
 
 ## State Machine Overview
 
-The module operates as a state machine with built-in context to manage client guests. It goes through different states to check and generate client tokens and claims. Below are the key states:
+The module operates as a state machine with built-in context to manage user guests. It goes through different states to check and generate user tokens and claims. Below are the key states:
 
 - **Loading**: In this initial state, the module checks if there is a valid token. If present, it proceeds to the **Processed** state. Otherwise, it generates a role based token in the "Generating" state.
 
@@ -91,7 +91,7 @@ const currentToken = useToken();
 
 ## Configuration
 
-The **Guest Manager** module seamlessly integrates into your project with minimal configuration. It handles guest-related tasks, ensuring a smooth client experience.
+The **Guest Manager** module seamlessly integrates into your project with minimal configuration. It handles guest-related tasks, ensuring a smooth user experience.
 
 ## API Documentation
 

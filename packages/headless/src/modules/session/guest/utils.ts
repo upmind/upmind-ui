@@ -34,7 +34,7 @@ export const useRegisterSchemaParser = (data: any) => {
   const schema = {
     type: "object",
     title: "Register",
-    required: ["firstname", "lastname", "clientname", "password"],
+    required: ["firstname", "lastname", "username", "password"],
     properties: {
       firstname: {
         type: "string",
@@ -44,7 +44,7 @@ export const useRegisterSchemaParser = (data: any) => {
         type: "string",
         title: "Your last name"
       },
-      clientname: {
+      username: {
         type: "string",
         title: "Your email address",
         format: "email"
@@ -121,7 +121,7 @@ export const useRegisterUischemaParser = (data: any) => {
       },
       {
         type: "Control",
-        scope: "#/properties/clientname",
+        scope: "#/properties/username",
         i18n: "form.auth_email",
         options: {
           type: "email",
@@ -182,12 +182,12 @@ export const useLoginSchemaParser = () => {
   return {
     type: "object",
     title: "Log in",
-    required: ["clientname", "password"],
+    required: ["username", "password"],
     properties: {
-      clientname: {
+      username: {
         type: "string",
-        title: "Your clientname or email address"
-        // format: "email", // DEPRECATED as we can log in with email OR clientname
+        title: "Your username or email address"
+        // format: "email", // DEPRECATED as we can log in with email OR username
       },
       password: {
         type: "string",
@@ -204,7 +204,7 @@ export const useLoginUischemaParser = () => {
     elements: [
       {
         type: "Control",
-        scope: "#/properties/clientname",
+        scope: "#/properties/username",
         i18n: "form.auth_email",
         options: {
           autoFocus: true,
@@ -281,11 +281,11 @@ export const useRecoverSchemaParser = () => {
   return {
     type: "object",
     title: "Send reset",
-    required: ["clientname"],
+    required: ["username"],
     properties: {
-      clientname: {
+      username: {
         type: "string",
-        title: "Your clientname or email address"
+        title: "Your username or email address"
       }
     }
   };
@@ -297,7 +297,7 @@ export const useRecoverUischemaParser = () => {
     elements: [
       {
         type: "Control",
-        scope: "#/properties/clientname",
+        scope: "#/properties/username",
         i18n: "form.auth_email",
         options: {
           autoFocus: true,
