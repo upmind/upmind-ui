@@ -164,20 +164,16 @@ const open = ref(false);
 
 const isSlotHidden = (name: string) => includes(props.hideSlots, name);
 
-const template = computed(() => props.template || ui.template.value);
+const template = computed(
+  () => props.template || ui.template.value || BASKET_TEMPLATE.TWO_COLUMN_LTR
+);
 
 const { ui, data } = useConfig({
   context: UIContext.BASKET,
   provide: true
 });
 
-const templateVariant = computed(() =>
-  get(
-    supportedTemplates,
-    template.value,
-    supportedTemplates[BASKET_TEMPLATE.TWO_COLUMN_LTR]
-  )
-);
+const templateVariant = computed(() => get(supportedTemplates, template.value));
 
 await isReady();
 

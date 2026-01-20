@@ -161,15 +161,11 @@ set(ui.theme.value);
 
 const isResolving = ref(false);
 
-const template = computed(() => props.template || ui.template.value);
-
-const templateVariant = computed(() =>
-  get(
-    supportedTemplates,
-    template.value,
-    supportedTemplates[SESSION_TEMPLATE.TWO_COLUMN_LTR]
-  )
+const template = computed(
+  () => props.template || ui.template.value || SESSION_TEMPLATE.TWO_COLUMN_LTR
 );
+
+const templateVariant = computed(() => get(supportedTemplates, template.value));
 
 function doUpdate(value: SessionProps["modelValue"]) {
   if (value === "login") {
