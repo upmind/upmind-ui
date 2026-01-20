@@ -1,6 +1,12 @@
 // --- internal
-import { useBasket, useBrand, useI18n, useQuery, useSystem } from "../..";
-import { useRecaptcha, useTracking } from "../../system/";
+import {
+  useBasket,
+  useBrand,
+  useI18n,
+  useQuery,
+  useSystem
+} from "../../../../dist";
+import { useRecaptcha, useTracking } from "../../system";
 import {
   BrandConfigKeys,
   Contexts,
@@ -25,7 +31,7 @@ import type {
   LoginModel,
   RecoverModel,
   RegisterModel
-} from "./types";
+} from "../types";
 import type { AnyEventObject } from "xstate";
 import { mapCustomField } from "../../client/customFields/mappers";
 
@@ -55,25 +61,22 @@ async function load(_context: GuestContext, _event: AnyEventObject) {
   });
 }
 
-async function loadUser() {
+async function loadUser(token?: IToken) {
   const { get, useUrl } = useQuery();
+  const admin = isAdmin.value;
+
+  // If no token passed, try to get from storage
+  if (!token) {
+    token = getTokenFromStorage(admin ? "user" : "client") as IToken;
+  }
 
   return get({
-    url: useUrl("self", {
-      with: [
-        "actor",
-        "accounts"
-        // client specific only
-        // "actor.account", // Relation required for determining `topup_enabled` value
-        // "actor.brand", // Relation required for determining `topup_enabled` value
-        // "delegated_ids",
-        // "enabled_modules"
-      ].join()
+    url: useUrl(admin ? "admin/self" : "self", {
+      with: ["actor", "accounts"].join()
     }),
-    queryKey: ["session", "self"],
-    withAccessToken: true,
-    staleTime: 0,
-    gcTime: 0
+    queryKey: admin ? ["session", "admin"] : ["client"],
+    withAccessToken: token?.access_token || true,
+    withoutLocale: admin
   });
 }
 
@@ -92,16 +95,28 @@ async function authenticate({ model }: GuestContext<LoginModel>) {
   // without it, the basket will revert to the default currency
   if (currency.value) data.currency_id = currency.value.id;
 
+  const admin = isAdmin.value;
+  if (admin) {
+    data.grant_type = "admin";
+    delete data.currency_id;
+  }
+
   return post<IToken>({
-    mutationKey: ["session"],
-    url: useUrl("access_token", {}, { context: "oauth" }),
+    mutationKey: admin ? ["session", "admin"] : ["session"],
+    url: useUrl(
+      "access_token",
+      {},
+      {
+        context: "oauth"
+      }
+    ),
     data
   }).then(data => {
     // we record the history of the token to be able to reference the originating guest token
     if (data.actor_type === GrantTypes.TWOFA) return data;
 
     persistTokenToStorage(data);
-    return loadUser();
+    return loadUser(data);
   });
 }
 
@@ -120,7 +135,7 @@ async function verify2fa({ token }: GuestContext, { data }: AnyEventObject) {
   })
     .then(data => {
       persistTokenToStorage(data);
-      return data;
+      return loadUser(data);
     })
     .catch(error => {
       return Promise.reject(
@@ -133,8 +148,7 @@ async function verify2fa({ token }: GuestContext, { data }: AnyEventObject) {
           }
         )
       );
-    })
-    .then(loadUser);
+    });
 }
 
 async function getCustomFields(_context: GuestContext, _event: AnyEventObject) {
@@ -142,8 +156,10 @@ async function getCustomFields(_context: GuestContext, _event: AnyEventObject) {
 
   return get({
     // url: useUrl("clients_fields", { brand_id: null }),
-    url: useUrl("clients_fields"),
-    queryKey: ["session", "client", "custom-fields"],
+    url: useUrl("clients_fields", {
+      "filter[show_on_order_form]": true
+    }),
+    queryKey: ["session", "guest", "custom-fields"],
     select: data => map(data ?? [], mapCustomField)
   });
 }
@@ -164,7 +180,14 @@ async function verifyReCaptcha(
   return Promise.resolve(data);
 }
 
-async function register({ model }: GuestContext<RegisterModel>) {
+async function register(context: GuestContext<RegisterModel>) {
+  const admin = isAdmin.value;
+
+  if (admin) {
+    return authenticate(context as unknown as GuestContext<LoginModel>);
+  }
+
+  const { model } = context;
   const { currency } = useBasket();
   const { post, useUrl } = useQuery();
   const recaptcha = useRecaptcha();
@@ -214,7 +237,7 @@ async function register({ model }: GuestContext<RegisterModel>) {
     data,
     withAccessToken: true
   })
-    .then(loadUser)
+    .then(data => loadUser(data as any))
     .finally(() => {
       recaptcha.clear(); // clear our recaptcha token that has been used, even if the registration fails
     });

@@ -1,9 +1,9 @@
 # Session Manager Module
 
-The **Session Manager** module within the **Upmind Headless** framework is designed to handle user sessions, specifically the auth token and claims. It is a state machine that manages the session lifecycle and is responsible for ensuring that users have a valid session when interacting with the Upmind platform.
+The **Session Manager** module within the **Upmind Headless** framework is designed to handle client sessions, specifically the auth token and claims. It is a state machine that manages the session lifecycle and is responsible for ensuring that clients have a valid session when interacting with the Upmind platform.
 
 Sessions can be of different types, namely:
-Guest, User, Admin, etc. Each session type has a different set of claims and permissions. The **Session Manager** module handles the session lifecycle for all session types.
+Guest, Client, Admin, etc. Each session type has a different set of claims and permissions. The **Session Manager** module handles the session lifecycle for all session types.
 
 The **Session Manager** module will invoke the appropriate session handler based on the session type. The session handler is ONLY responsible for generating and refreshing the token and claims. It is responsible for the session's persistence and retrieval from local storage. Session handlers are short-lived and are only invoked when needed to either generate or refresh a token.
 
@@ -32,7 +32,7 @@ To use the **Session Manager** module, you can import it from the `@upmind-autom
 
 ## State Machine Overview
 
-The module operates as a state machine with built-in context to manage user sessions. It goes through different states to check and generate user tokens and claims. Below are the key states:
+The module operates as a state machine with built-in context to manage client sessions. It goes through different states to check and generate client tokens and claims. Below are the key states:
 
 - **Loading**: In this initial state, the module checks if there is a valid token. If present, it proceeds to the **Processed** state. Otherwise, it generates a role based token in the "Generating" state.
 
@@ -96,7 +96,7 @@ const currentToken = useToken();
 
 ## Configuration
 
-The **Session Manager** module seamlessly integrates into your project with minimal configuration. It handles session-related tasks, ensuring a smooth user experience.
+The **Session Manager** module seamlessly integrates into your project with minimal configuration. It handles session-related tasks, ensuring a smooth client experience.
 
 ## API Documentation
 

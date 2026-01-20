@@ -67,10 +67,6 @@ export interface SessionContext {
    * Details about an ongoing or completed session transfer.
    */
   transfer?: SessionTransfer;
-  /**
-   * The authenticated client data, if available.
-   */
-  client?: Client;
 }
 
 /**

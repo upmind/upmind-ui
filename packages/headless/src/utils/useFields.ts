@@ -69,7 +69,7 @@ export const useFieldsSchemaParser = (data?: CustomField[]): JsonSchema7 => {
       }
 
       // required fields
-      if (field.meta.isRequired) {
+      if (field?.meta?.isRequired) {
         required.push(field.code);
       } else {
         type = (!isArray(type) ? [type] : type) as string[];
