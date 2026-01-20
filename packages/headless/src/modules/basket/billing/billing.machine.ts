@@ -12,7 +12,8 @@ import {
   useTime,
   useModelParser,
   mapToHeadlessError,
-  useValidationParser
+  useValidationParser,
+  isDirty
 } from "../../../utils";
 import { responseCodes } from "../../../utils";
 import { isEqual } from "lodash-es";
@@ -310,7 +311,7 @@ export default createMachine(
     },
 
     guards: {
-      isDirty: ({ baseModel, model }, _event) => !isEqual(baseModel, model),
+      isDirty: ({ baseModel, model }, _event) => isDirty(baseModel, model),
       hasBasket: ({ basketId }, _event) => !!basketId,
       hasClient: ({ clientId }, _event) => !!clientId,
       hasChanged: ({ clientId, basketId }, { data }: AnyEventObject) => {

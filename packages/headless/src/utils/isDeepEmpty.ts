@@ -5,7 +5,8 @@ import {
   isNil,
   reduce,
   isObjectLike,
-  compact
+  compact,
+  isEqual
 } from "lodash-es";
 import { toRaw, unref } from "vue";
 
@@ -105,4 +106,8 @@ export function compactDeep(
 
   // console.debug("compactDeep", value, "cleaned", cleaned);
   return cleaned;
+}
+
+export function isDirty(baseModel: any, model: any): boolean {
+  return !isEqual(compactDeep(baseModel), compactDeep(model));
 }

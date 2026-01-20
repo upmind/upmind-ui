@@ -10,6 +10,7 @@ import { useBasket } from "./";
 import {
   DetailedError,
   ErrorOrigin,
+  isDirty,
   responseCodes,
   useContext
 } from "../../utils";
@@ -68,7 +69,7 @@ export const useBasketFields = () => {
     hasErrors: stateMatches(actor, ["error"]),
     isProcessing: stateMatches(actor, ["processing"]),
     isValid: stateMatches(actor, ["valid"]),
-    isDirty: !isEqual(
+    isDirty: isDirty(
       contextValue<FieldsContext["model"]>(actor, "model"),
       contextValue<FieldsContext["baseModel"]>(actor, "baseModel")
     ),

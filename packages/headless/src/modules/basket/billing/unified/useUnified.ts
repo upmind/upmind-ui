@@ -24,7 +24,8 @@ import {
   contextMatches,
   DEBOUNCE_DELAY,
   stopService,
-  type ErrorObject
+  type ErrorObject,
+  isDirty
 } from "../../../../utils";
 import { debounce, get, isEmpty, isEqual } from "lodash-es";
 
@@ -95,7 +96,7 @@ export const useUnified = (
     hasErrors: stateMatches(state, "available.error"),
     isValid: stateMatches(state, "available.valid"),
     isNew: true, // always true for new billing details
-    isDirty: !isEqual(
+    isDirty: isDirty(
       contextValue<UnifiedContext["model"]>(state, "model"),
       contextValue<UnifiedContext["baseModel"]>(state, "baseModel")
     ),

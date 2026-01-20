@@ -11,7 +11,8 @@ import {
   useTime,
   useModelParser,
   mapToHeadlessError,
-  useValidationParser
+  useValidationParser,
+  isDirty
 } from "../../../utils";
 import { responseCodes } from "../../../utils";
 import { useSchema, useUischema } from "./utils";
@@ -230,7 +231,7 @@ export default createMachine(
 
     guards: {
       isDirty: ({ model, baseModel }: FieldsContext, _event) =>
-        !isEqual(model, baseModel),
+        isDirty(model, baseModel),
       hasBasket: ({ basketId }: FieldsContext) => !!basketId,
       hasChanged: (
         { model, basketId }: FieldsContext,
