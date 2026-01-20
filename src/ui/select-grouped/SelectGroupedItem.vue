@@ -14,46 +14,10 @@
     @keydown.up.prevent="$emit('focusPrev')"
   >
     <slot name="item" v-bind="{ item: props.item, selected: isSelected }">
-      <div class="flex w-full items-center justify-between gap-4">
-        <div class="flex flex-1 flex-col">
-          <span :class="styles.selectGrouped.content.label">
-            {{ props.item.label }}
-          </span>
-          <Badge v-if="props.item.badge" v-bind="props.item.badge" size="sm" />
-          <p
-            v-if="props.item.description"
-            :class="styles.selectGrouped.content.description"
-          >
-            {{ props.item.description }}
-          </p>
-        </div>
-        <div class="flex flex-col items-end">
-          <span :class="styles.selectGrouped.content.secondaryLabel">
-            {{ props.item.secondaryLabel }}
-          </span>
-          <Badge
-            v-if="props.item.secondaryBadge"
-            v-bind="props.item.secondaryBadge"
-            size="sm"
-          />
-          <p
-            v-if="props.item.secondaryDescription"
-            :class="styles.selectGrouped.content.secondaryDescription"
-          >
-            {{ props.item.secondaryDescription }}
-          </p>
-          <Link
-            v-if="props.item.action"
-            v-show="
-              isNil(props.item.action?.visible) || props.item.action?.visible
-            "
-            v-bind="props.item.action"
-            color="muted"
-            size="sm"
-            @click.stop="doAction(props.item.action, $event)"
-          />
-        </div>
-      </div>
+      <SelectGroupedItemContent
+        :item="props.item"
+        @action="v => emits('action', v)"
+      />
     </slot>
   </div>
 </template>
@@ -73,18 +37,12 @@ import { useFocus } from "@vueuse/core";
 // --- internal
 import { useStyles } from "../../utils";
 import config from "./selectGrouped.config";
-import { handleItemAction } from "./utils";
 
 // --- components
-import { Link } from "../link";
-import { Badge } from "../badge";
+import SelectGroupedItemContent from "./SelectGroupedItemContent.vue";
 
-// --- types
-import type {
-  SelectGroupedDropdownItemProps,
-  SelectGroupedItemActionProps
-} from "./types";
-import { isNil, isArray } from "lodash-es";
+import type { SelectGroupedDropdownItemProps } from "./types";
+import { isArray } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
@@ -120,11 +78,4 @@ const styles = useStyles<typeof config>(
   config,
   {}
 );
-
-function doAction(action: SelectGroupedItemActionProps, $event: Event) {
-  const result = handleItemAction(action, $event);
-  if (result) {
-    emits("action", result);
-  }
-}
 </script>

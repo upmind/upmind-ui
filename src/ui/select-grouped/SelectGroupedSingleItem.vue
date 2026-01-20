@@ -27,46 +27,10 @@
       name="item"
       v-bind="{ item: props.item, group: props.group, selected: isSelected }"
     >
-      <div class="flex w-full items-center justify-between gap-4">
-        <div class="flex flex-1 flex-col">
-          <span :class="styles.selectGrouped.content.label">
-            {{ props.item?.label }}
-          </span>
-          <Badge v-if="props.item?.badge" v-bind="props.item.badge" size="sm" />
-          <p
-            v-if="props.item?.description"
-            :class="styles.selectGrouped.content.description"
-          >
-            {{ props.item?.description }}
-          </p>
-        </div>
-        <div class="flex flex-col items-end">
-          <span :class="styles.selectGrouped.content.secondaryLabel">
-            {{ props.item?.secondaryLabel }}
-          </span>
-          <Badge
-            v-if="props.item?.secondaryBadge"
-            v-bind="props.item.secondaryBadge"
-            size="sm"
-          />
-          <p
-            v-if="props.item?.secondaryDescription"
-            :class="styles.selectGrouped.content.secondaryDescription"
-          >
-            {{ props.item?.secondaryDescription }}
-          </p>
-          <Link
-            v-if="props.item?.action"
-            v-show="
-              isNil(props.item.action?.visible) || props.item.action?.visible
-            "
-            v-bind="props.item.action"
-            color="muted"
-            size="sm"
-            @click.stop="doAction(props.item.action, $event)"
-          />
-        </div>
-      </div>
+      <SelectGroupedItemContent
+        :item="props.item"
+        @action="v => emits('action', v)"
+      />
     </slot>
   </div>
 </template>
@@ -86,19 +50,14 @@ import { useFocus } from "@vueuse/core";
 // --- internal
 import { cn, useStyles } from "../../utils";
 import config from "./selectGrouped.config";
-import { toggleSelectionValue, handleItemAction } from "./utils";
+import { toggleSelectionValue } from "./utils";
 
 // --- components
-import { Badge } from "../badge";
-import { Link } from "../link";
+import SelectGroupedItemContent from "./SelectGroupedItemContent.vue";
 import { Circle } from "lucide-vue-next";
 
-// --- types
-import type {
-  SelectGroupedSingleItemRendererProps,
-  SelectGroupedItemActionProps
-} from "./types";
-import { isNil, isArray } from "lodash-es";
+import type { SelectGroupedSingleItemRendererProps } from "./types";
+import { isArray } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
@@ -156,13 +115,6 @@ function toggleSelection() {
 
   if (newValue !== null) {
     emits("update:modelValue", newValue);
-  }
-}
-
-function doAction(action: SelectGroupedItemActionProps, $event: Event) {
-  const result = handleItemAction(action, $event);
-  if (result) {
-    emits("action", result);
   }
 }
 
