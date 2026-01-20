@@ -115,6 +115,7 @@
 // --- external
 import { computed, ref } from "vue";
 import { useId } from "radix-vue";
+import { useFocus } from "@vueuse/core";
 
 // --- internal
 import {
@@ -157,6 +158,7 @@ const groupId = useId();
 const isOpen = ref(false);
 const headerRef = ref<HTMLElement | null>(null);
 const containerRef = ref<HTMLElement | null>(null);
+const { focused: headerFocused } = useFocus(headerRef);
 
 const { focusedIndex, focusItem, focusNext, focusPrev, focusFirst } =
   useListNavigation(() => props.group.items.length, {
@@ -312,6 +314,6 @@ function handleArrowUp() {
 
 // Expose focus method for parent navigation
 defineExpose({
-  focus: () => headerRef.value?.focus()
+  focus: () => (headerFocused.value = true)
 });
 </script>

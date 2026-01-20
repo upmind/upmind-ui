@@ -68,6 +68,7 @@
  */
 // --- external
 import { computed, ref } from "vue";
+import { useFocus } from "@vueuse/core";
 
 // --- internal
 import { useStyles } from "../../utils";
@@ -97,6 +98,7 @@ const emits = defineEmits<{
 }>();
 
 const rootRef = ref<HTMLElement | null>(null);
+const { focused } = useFocus(rootRef);
 
 const isSelected = computed(() => {
   if (isArray(props.modelValue)) {
@@ -107,7 +109,7 @@ const isSelected = computed(() => {
 
 // Expose root element for parent focus management
 defineExpose({
-  focus: () => rootRef.value?.focus()
+  focus: () => (focused.value = true)
 });
 
 const meta = computed(() => ({}));
