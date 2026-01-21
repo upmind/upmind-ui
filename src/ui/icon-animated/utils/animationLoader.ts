@@ -3,7 +3,7 @@
 // ---------------------------------------------------------------
 
 import { ref, computed, type ComputedRef } from "vue";
-import { toPairs, split, last, trimEnd, find } from "lodash-es";
+import { toPairs, split, last, find } from "lodash-es";
 
 // --- types
 import type { AnimationImportMap, AnimationEntry } from "../types";
@@ -50,7 +50,8 @@ export function registerAnimations(importMap: AnimationImportMap): void {
     const filename = last(split(fullPath, /[/\\]/));
     if (!filename || !filename.endsWith(".json")) return;
 
-    const name = trimEnd(filename, ".json");
+    // Remove .json extension - use slice instead of trimEnd (which trims character set)
+    const name = filename.slice(0, -5);
 
     const entry: AnimationEntry = {
       fullPath,

@@ -13,8 +13,7 @@ import {
   last,
   includes,
   every,
-  find,
-  trimEnd
+  find
 } from "lodash-es";
 
 // --- types
@@ -65,7 +64,8 @@ export function registerIcons(importMap: IconImportMap): void {
     const filename = last(split(fullPath, /[/\\]/));
     if (!filename || !filename.endsWith(".svg")) return;
 
-    const name = trimEnd(filename, ".svg");
+    // Remove .svg extension - use slice instead of trimEnd (which trims character set)
+    const name = filename.slice(0, -4);
 
     const entry: IconEntry = {
       fullPath,
@@ -85,6 +85,7 @@ export function registerIcons(importMap: IconImportMap): void {
   isRegistered.value = true;
 }
 
+console.debug("registeredIcons", iconMap);
 /**
  * Reactive flag indicating if icons have been registered.
  */
