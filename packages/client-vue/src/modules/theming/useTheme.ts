@@ -96,7 +96,7 @@ export const useTheme = (initial?: string) => {
       }
     }
 
-    setIconTheme(capitalize(ui.iconVariant.value || "Line"));
+    setIconTheme(capitalize(ui.iconVariant.value));
     setUiTheme(theme.value?.id ?? "default");
     setDocumentTitle(name.value);
     setDocumentFavicon(favicon.value ?? undefined);
