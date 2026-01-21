@@ -73,7 +73,7 @@ export default {
     card: cva(
       "w-app-content max-w-app mx-auto flex w-full flex-col justify-between gap-9"
     ),
-    contentHeader: cva("w-app-aside w-full"),
+    contentHeader: cva("w-full"),
     content: cva("w-full")
   }
 };
