@@ -21,10 +21,9 @@ import Layout from "../../../components/layout/Layout.vue";
 import { useFooter } from "../../../components/footer/useFooter";
 import { useHeader } from "../../../components/header/useHeader";
 import { useLayout } from "../../../components/layout/useLayout";
+
 // --- types
-import { FOOTER_LAYOUT } from "../../../components/footer/types";
 import { LAYOUT_VARIANTS } from "../../../components/layout/types";
-import { HEADER_BACKGROUND } from "../../../components/header/types";
 import type { SessionRoutes } from "../types";
 
 // -----------------------------------------------------------------------------
@@ -43,11 +42,11 @@ useLayout({
 
 onMounted(() => {
   useHeader({
-    visible: false
+    visible: true
   });
 
   useFooter({
-    visible: false
+    visible: true
   });
 });
 </script>
