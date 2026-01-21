@@ -24,7 +24,6 @@ import {
 import {
   cloneDeep,
   defaultsDeep,
-  filter,
   find,
   first,
   get,
@@ -165,10 +164,12 @@ export default createMachine(
             target: "idle",
             actions: ["setError"]
           },
-          onDone: {
-            target: "#basket",
-            actions: ["setModelFromDac", "ensureSelected", "checkType"]
-          }
+          onDone: [
+            {
+              target: "#idle", // NB go back to start and let it work out where to go
+              actions: ["setModelFromDac", "ensureSelected", "checkType"]
+            }
+          ]
         },
         on: {
           STOP: { actions: sendTo("dac", { type: "STOP" }) }
@@ -627,7 +628,8 @@ export default createMachine(
     },
 
     guards: {
-      // hasData: (_context, { data }:AnyEventObject) => isObject(data) && !isEmpty(data),
+      // hasData: (_context, { data }: AnyEventObject) =>
+      //   isObjectLike(data) && !isEmpty(data),
 
       isInvalidType: (
         { choices, type }: DomainContext,
