@@ -1,3 +1,4 @@
+import type { ImgHTMLAttributes } from "vue";
 import type {
   SubproductValue,
   UseMetaResult,
@@ -10,4 +11,10 @@ export type SubproductCardProps = Omit<SubproductValue, "meta"> & {
   meta: UseMetaResult;
   term?: number;
   productMeta?: ProductSummaryMeta;
+  image?: string;
 };
+
+export interface SubproductCardImage {
+  src?: ImgHTMLAttributes["src"];
+  alt?: ImgHTMLAttributes["alt"];
+}

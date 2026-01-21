@@ -27,6 +27,7 @@
       :name="subproduct.id"
       :required="subproduct.meta.required"
       :items="parsedValues"
+      :groups="groups"
       :disabled="props.disabled"
       :errors="errors"
       :none-text="t('text.none')"
@@ -34,24 +35,33 @@
       :multiple="subproduct.meta.multiple"
       :columns="gridColumns"
     >
-      <template #item="{ item: { id } }">
+      <template v-if="hasGroups" #icon="{ group }">
+        <SubproductImage
+          v-if="group?.icon"
+          :src="group.icon"
+          :alt="group?.name"
+        />
+      </template>
+      <template #item="{ item, group }: any">
         <CardSubproduct
-          v-bind="getSubproductValue(id)"
+          v-bind="getSubproductValue(getItemId(item))"
+          :image="group?.icon || getOptionImage(getItemId(item))"
           :meta="meta"
           :term="props.term"
-          :product-meta="getSubproductValue(id).meta"
-          @update:quantity="doUpdateQuantity(id, $event)"
+          :product-meta="getSubproductValue(getItemId(item)).meta"
+          @update:quantity="doUpdateQuantity(getItemId(item), $event)"
           :minimal="mapComponentName !== 'SelectCards'"
         />
       </template>
-      <template #dropdown-item="{ item: { id } }">
+      <template #dropdown-item="{ item }: any">
         <CardSubproduct
-          v-bind="getSubproductValue(id)"
+          v-bind="getSubproductValue(getItemId(item))"
+          :image="getOptionImage(getItemId(item))"
           :term="props.term"
           :meta="meta"
-          :product-meta="getSubproductValue(id).meta"
-          @update:quantity="doUpdateQuantity(id, $event)"
-          :minimal="mapComponentName !== 'SelectCards'"
+          :product-meta="getSubproductValue(getItemId(item)).meta"
+          @update:quantity="doUpdateQuantity(getItemId(item), $event)"
+          minimal
         />
       </template>
     </component>
@@ -72,12 +82,14 @@ import {
   RadioCards,
   CheckboxCards,
   FormField,
-  SelectCards
+  SelectCards,
+  SelectGrouped
 } from "@upmind-automation/upmind-ui";
 import CardSubproduct from "./SubproductCard.vue";
+import SubproductImage from "./SubproductImage.vue";
 
 // --- utils
-import { find, map, get, isArray, first } from "lodash-es";
+import { find, map, get, isArray, first, groupBy, some, size } from "lodash-es";
 
 // --- types
 import type {
@@ -143,15 +155,16 @@ const styles = useStyles(
 );
 
 const as = computed(() => {
-  return mapComponent(ui.optionSelector.value ?? "default");
+  return mapComponent(ui.optionSelector.value);
 });
 
 const mapComponent = (name: string) => {
   const { multiple, required } = props.subproduct.meta;
   const hasMultiple = (props.subproduct?.values?.length || 0) > 1;
   switch (name) {
-    case "select":
     case "select-grouped":
+      return hasGroups.value ? SelectGrouped : SelectCards;
+    case "select":
       return !multiple || (required && !hasMultiple)
         ? SelectCards
         : CheckboxCards;
@@ -163,12 +176,28 @@ const mapComponent = (name: string) => {
   }
 };
 
+const optionsWithConfig = computed(() =>
+  map(props.subproduct?.values, option => {
+    const { data } = props.meta.with({ option: () => option });
+    return {
+      ...option,
+      groupLabel: data.optionGroupLabel,
+      groupImg: data.optionImgUrl
+    };
+  })
+);
+
+const hasGroups = computed(() =>
+  some(optionsWithConfig.value, opt => !!opt.groupLabel)
+);
+
 const mapComponentName = computed(() => {
   const { multiple, required } = props.subproduct.meta;
   const hasMultiple = (props.subproduct?.values?.length || 0) > 1;
   switch (ui.optionSelector.value) {
-    case "select":
     case "select-grouped":
+      return hasGroups.value ? "SelectGrouped" : "SelectCards";
+    case "select":
       return !multiple || (required && !hasMultiple)
         ? "SelectCards"
         : "CheckboxCards";
@@ -181,21 +210,38 @@ const mapComponentName = computed(() => {
 });
 
 const parsedValues = computed(() => {
-  const values = map(props.subproduct?.values, (subproduct, index) => {
+  return map(optionsWithConfig.value, (opt, index) => ({
+    id: opt.id,
+    value: opt.id.toString(),
+    label: opt?.title ?? "",
+    sublabel: opt?.title ?? "",
+    appendLabel: opt?.price?.currentPrice,
+    text: opt?.excerpt,
+    group: opt.groupLabel,
+    item: opt,
+    index,
+    modelValue: modelValue.value
+  }));
+});
+
+const groups = computed(() => {
+  if (!hasGroups.value) return [];
+  const grouped = groupBy(
+    optionsWithConfig.value,
+    opt => opt.groupLabel || opt.id
+  );
+  return map(grouped, items => {
+    const firstItem = first(items);
     return {
-      id: subproduct.id,
-      value: subproduct.id.toString(), // Ensure value is a string
-      label: subproduct?.title ?? "", // Add the required label property
-      sublabel: subproduct?.title ?? "",
-      appendLabel: subproduct?.price?.currentPrice,
-      text: subproduct?.excerpt,
-      item: subproduct,
-      index,
-      modelValue: modelValue.value
+      name: firstItem?.groupLabel || firstItem?.name,
+      icon: firstItem?.groupImg,
+      items: map(items, item => ({
+        value: item.id,
+        label: item.name,
+        description: item.excerpt
+      }))
     };
   });
-
-  return values;
 });
 
 function getSubproductValue(value: string): SubproductValue {
@@ -209,6 +255,15 @@ function getSubproductValue(value: string): SubproductValue {
     quantity: get(props.quantities, value, 0),
     title: product?.title || ""
   };
+}
+
+function getItemId(item: any): string {
+  return item?.value ?? item?.id ?? "";
+}
+
+function getOptionImage(value: string): string | undefined {
+  const option = find(optionsWithConfig.value, ["id", value]);
+  return option?.groupImg;
 }
 
 const gridColumns = computed(() => {
