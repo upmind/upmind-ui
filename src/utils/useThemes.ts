@@ -46,6 +46,7 @@ export interface ITheme {
 
 const activeTheme = ref(<string>"");
 const activeIconTheme = ref<string>("");
+const appDefaultTheme = ref<string>(""); // Tracks the app's initial theme for "default" fallback
 const config = ref({});
 const themes = ref<Theme[]>([]);
 
@@ -84,30 +85,37 @@ export const useThemes = (value?: Theme | Theme[], defaultTheme?: string) => {
   }
 
   function setTheme(theme: string | undefined) {
-    // Don't override if same theme
+    // Skip if same theme already active
+    if (theme === activeTheme.value && !isEmpty(config.value)) return;
 
-    if (theme == activeTheme.value && !isEmpty(config.value)) return;
-
-    // Don't override if no theme provided and we already have one
+    // Skip if no theme provided and we already have one
     if (!theme && activeTheme.value) return;
 
-    // Don't override a valid theme with "default"
-    if (
-      theme === "default" &&
-      activeTheme.value &&
-      activeTheme.value !== "default"
-    )
-      return;
+    // Capture the initial app theme (used as fallback when "default" is requested)
+    if (!appDefaultTheme.value && theme) {
+      appDefaultTheme.value = theme;
+    }
 
-    activeTheme.value = theme || activeTheme.value || defaultTheme || "default";
+    // Resolve the theme to apply
+    let resolved: string;
+    if (theme === "default" && activeTheme.value !== "default") {
+      // Reset to app's initial theme when overriding a context-specific theme
+      resolved = appDefaultTheme.value;
+    } else {
+      resolved = theme || activeTheme.value || defaultTheme || "default";
+    }
+
+    activeTheme.value = resolved;
+
     if (themes.value) {
       const themeConfig =
-        find(themes.value, ["id", activeTheme.value]) || first(themes.value);
+        find(themes.value, ["id", resolved]) || first(themes.value);
       if (themeConfig) config.value = themeConfig.uiConfig || {};
     }
 
-    if (document && document.body) {
-      document.body.dataset.theme = activeTheme.value;
+    // Apply theme to DOM
+    if (document?.body) {
+      document.body.dataset.theme = resolved;
     }
   }
 
