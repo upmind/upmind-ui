@@ -42,11 +42,7 @@ import {
 
 // --- types
 import type { AnyEventObject } from "xstate";
-import {
-  ProvisionCategoryCodes,
-  type IBasket,
-  type IBasketProduct
-} from "@upmind-automation/types";
+import { type IBasketProduct } from "@upmind-automation/types";
 import { DomainTypes } from "./types";
 import type { DomainModel, DomainContext, DomainProduct } from "./types";
 import { parseBasketProduct } from "../basketProduct/utils";
