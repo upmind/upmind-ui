@@ -239,4 +239,9 @@ export interface DataSchema {
 
   /** Optional markdown for trust messaging. */
   trustMessagingMarkdown?: string;
+
+  /** Option group name for grouping items in select-grouped */
+  optionGroupLabel?: string;
+  /** Option image URL */
+  optionImgUrl?: string;
 }

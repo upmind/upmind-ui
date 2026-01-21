@@ -30,6 +30,10 @@ export default {
         variants
       })
     },
-    excerpt: cva("text-muted text-sm-tight whitespace-normal")
+    excerpt: cva("text-muted text-sm-tight whitespace-normal"),
+    image: {
+      root: cva("flex h-6 w-6 shrink-0 items-center justify-start"),
+      img: cva("inline-block h-5 w-5 object-cover object-center")
+    }
   }
 };
