@@ -62,10 +62,7 @@ import { Badge } from "../badge";
 import { Link } from "../link";
 
 // --- types
-import type {
-  SelectGroupedItemProps,
-  SelectGroupedItemActionProps
-} from "./types";
+import type { SelectGroupedItemProps } from "./types";
 import { isNil } from "lodash-es";
 
 // -----------------------------------------------------------------------------
@@ -88,10 +85,7 @@ const styles = useStyles<typeof config>(
 
 function onAction(event: Event) {
   if (props.item?.action) {
-    const result = handleItemAction(
-      props.item.action as SelectGroupedItemActionProps,
-      event
-    );
+    const result = handleItemAction(props.item.action, event);
     if (result) {
       emits("action", result);
     }

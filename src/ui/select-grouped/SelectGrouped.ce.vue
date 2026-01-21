@@ -1,5 +1,6 @@
 <template>
-  <div
+  <component
+    :is="props.as"
     role="radiogroup"
     :aria-required="props.required"
     :aria-disabled="props.disabled"
@@ -40,7 +41,7 @@
       </template>
     </SelectGroupedOption>
     <slot name="additional-item" :size="styles.selectGrouped.group.size" />
-  </div>
+  </component>
 </template>
 
 <script setup lang="ts">
@@ -54,7 +55,6 @@
 
 // --- external
 import { computed, ref } from "vue";
-import { useVModel } from "@vueuse/core";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
@@ -72,18 +72,15 @@ import type { SelectGroupedProps } from "./types";
 const props = withDefaults(defineProps<SelectGroupedProps>(), {
   required: false,
   disabled: false,
+  as: "ul",
   class: ""
 });
 
 const emits = defineEmits<{
-  "update:modelValue": [value: string];
   action: [{ name: string; event: Event }];
 }>();
 
-const modelValue = useVModel(props, "modelValue", emits, {
-  passive: true,
-  defaultValue: props.defaultValue
-});
+const modelValue = defineModel<string>({ default: "" });
 
 const groupRefs = ref<{ setFocus: () => void }[]>([]);
 const focusedGroupIndex = ref(0);

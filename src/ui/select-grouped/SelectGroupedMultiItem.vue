@@ -1,5 +1,5 @@
 <template>
-  <div
+  <li
     ref="containerRef"
     class="relative"
     :class="styles.selectGrouped.group.size"
@@ -76,7 +76,7 @@
 
       <!-- Dropdown content -->
       <CollapsibleContent>
-        <div
+        <ul
           :id="`dropdown-${groupId}`"
           role="listbox"
           :aria-label="props.group.name || 'Options'"
@@ -98,10 +98,10 @@
               />
             </template>
           </SelectGroupedItem>
-        </div>
+        </ul>
       </CollapsibleContent>
     </Collapsible>
-  </div>
+  </li>
 </template>
 
 <script setup lang="ts">
@@ -118,14 +118,13 @@ import { useId } from "radix-vue";
 import { useFocus } from "@vueuse/core";
 
 // --- internal
+import { cn, useStyles } from "../../utils";
+import config from "./selectGrouped.config";
 import {
-  cn,
-  useStyles,
+  toggleSelectionValue,
   useListNavigation,
   createFocusOutHandler
-} from "../../utils";
-import config from "./selectGrouped.config";
-import { toggleSelectionValue } from "./utils";
+} from "./utils";
 
 // --- components
 import { Collapsible, CollapsibleContent } from "../collapsible";
@@ -138,7 +137,7 @@ import type {
   SelectGroupedMultiItemRendererProps,
   SelectGroupedItemProps
 } from "./types";
-import { isArray } from "lodash-es";
+import { isArray, includes, isEqual } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
@@ -170,18 +169,18 @@ const { focusedIndex, focusItem, focusNext, focusPrev, focusFirst } =
 const selectedItem = computed<SelectGroupedItemProps | undefined>(() => {
   if (isArray(props.modelValue)) {
     return props.group.items.find(item =>
-      props.modelValue?.includes(item.value)
+      includes(props.modelValue, item.value)
     );
   }
-  return props.group.items.find(item => item.value === props.modelValue);
+  return props.group.items.find(item => isEqual(item.value, props.modelValue));
 });
 
 const hasSelection = computed(() => {
   return props.group.items.some(item => {
     if (isArray(props.modelValue)) {
-      return props.modelValue.includes(item.value);
+      return includes(props.modelValue, item.value);
     }
-    return item.value === props.modelValue;
+    return isEqual(item.value, props.modelValue);
   });
 });
 

@@ -1,5 +1,5 @@
 <template>
-  <div
+  <li
     ref="rootRef"
     :class="styles.selectGrouped.dropdown.item"
     role="option"
@@ -19,7 +19,7 @@
         @action="v => emits('action', v)"
       />
     </slot>
-  </div>
+  </li>
 </template>
 
 <script setup lang="ts">
@@ -42,7 +42,7 @@ import config from "./selectGrouped.config";
 import SelectGroupedItemContent from "./SelectGroupedItemContent.vue";
 
 import type { SelectGroupedDropdownItemProps } from "./types";
-import { isArray } from "lodash-es";
+import { isArray, includes, isEqual } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
@@ -60,9 +60,9 @@ const { focused } = useFocus(rootRef);
 
 const isSelected = computed(() => {
   if (isArray(props.modelValue)) {
-    return props.modelValue.includes(props.item.value);
+    return includes(props.modelValue, props.item.value);
   }
-  return props.modelValue === props.item.value;
+  return isEqual(props.modelValue, props.item.value);
 });
 
 // Expose setFocus method for parent focus management

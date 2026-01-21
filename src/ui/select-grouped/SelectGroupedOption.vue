@@ -3,17 +3,7 @@
     v-if="isSingleItem"
     ref="singleItemRef"
     :item="singleItem!"
-    :group="props.group"
-    :index="props.index"
-    :focused-group-index="props.focusedGroupIndex"
-    :model-value="props.modelValue"
-    :required="props.required"
-    :disabled="props.disabled"
-    :ui-config="props.uiConfig"
-    @update:model-value="onChange"
-    @action="onAction"
-    @focus-next-group="() => emits('focus-next-group')"
-    @focus-prev-group="() => emits('focus-prev-group')"
+    v-bind="forwarded"
   >
     <template v-if="$slots.item" #item="slotProps">
       <slot name="item" v-bind="slotProps" />
@@ -23,17 +13,7 @@
   <SelectGroupedMultiItem
     v-else
     ref="multiItemRef"
-    :group="props.group"
-    :index="props.index"
-    :focused-group-index="props.focusedGroupIndex"
-    :model-value="props.modelValue"
-    :required="props.required"
-    :disabled="props.disabled"
-    :ui-config="props.uiConfig"
-    @update:model-value="onChange"
-    @action="onAction"
-    @focus-next-group="() => emits('focus-next-group')"
-    @focus-prev-group="() => emits('focus-prev-group')"
+    v-bind="forwarded"
   >
     <template v-if="$slots.icon" #icon="slotProps">
       <slot name="icon" v-bind="slotProps" />
@@ -60,6 +40,7 @@
  */
 // --- external
 import { computed, ref } from "vue";
+import { useForwardPropsEmits } from "radix-vue";
 
 // --- components
 import SelectGroupedSingleItem from "./SelectGroupedSingleItem.vue";
@@ -83,6 +64,8 @@ const emits = defineEmits<{
   "focus-prev-group": [];
 }>();
 
+const forwarded = useForwardPropsEmits(props, emits);
+
 // --- Refs
 
 const singleItemRef = ref<{ setFocus: () => void } | null>(null);
@@ -92,16 +75,6 @@ const multiItemRef = ref<{ setFocus: () => void } | null>(null);
 
 const isSingleItem = computed(() => props.group.items.length === 1);
 const singleItem = computed(() => first(props.group.items));
-
-// --- Methods
-
-const onChange = (value: string) => {
-  emits("update:modelValue", value);
-};
-
-const onAction = (value: { name: string; event: Event }) => {
-  emits("action", value);
-};
 
 // Expose setFocus method for parent navigation
 defineExpose({

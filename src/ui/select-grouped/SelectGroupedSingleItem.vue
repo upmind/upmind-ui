@@ -1,5 +1,5 @@
 <template>
-  <div
+  <li
     ref="rootRef"
     :class="
       cn(styles.selectGrouped.group.root, styles.selectGrouped.group.size)
@@ -32,7 +32,7 @@
         @action="v => emits('action', v)"
       />
     </slot>
-  </div>
+  </li>
 </template>
 
 <script setup lang="ts">
@@ -57,7 +57,7 @@ import SelectGroupedItemContent from "./SelectGroupedItemContent.vue";
 import { Circle } from "lucide-vue-next";
 
 import type { SelectGroupedSingleItemRendererProps } from "./types";
-import { isArray } from "lodash-es";
+import { isArray, includes, isEqual } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
@@ -81,9 +81,9 @@ const { focused } = useFocus(rootRef);
 
 const isSelected = computed(() => {
   if (isArray(props.modelValue)) {
-    return props.modelValue.includes(props.item.value);
+    return includes(props.modelValue, props.item.value);
   }
-  return props.modelValue === props.item.value;
+  return isEqual(props.modelValue, props.item.value);
 });
 
 const meta = computed(() => ({

@@ -7,5 +7,4 @@ export * from "./usePointerEvents";
 export * from "./parseVariants";
 export * from "./isEmptySlot";
 export * from "./isMobile";
-export * from "./useListNavigation";
 export { useForwardPropsEmits, useForwardProps } from "radix-vue";
