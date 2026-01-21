@@ -1,8 +1,9 @@
 # ADR 001: Scope-Based Composable Architecture
 
 **Date:** January 19, 2026
+**Updated:** January 21, 2026
 **Status:** Proposed
-**Authors:** Dom da Costa, AI Analysis
+**Authors:** Dom da Costa, Chris Garner, Dominik Piska, Rhodri Jones
 
 ---
 
@@ -10,76 +11,309 @@
 
 The Upmind platform requires a composable architecture that supports:
 
-1. **Multiple actor types**: client, guest, lead, staff, admin
-2. **Impersonation contexts**: staff-as-client, admin-as-guest, etc.
-3. **Different API endpoints**: per actor (client API vs admin API)
-4. **Different capabilities**: per actor (price override, cost visibility)
-5. **Singleton behavior**: shared state within the same scope
-6. **Instance behavior**: isolated state when needed
-7. **Simpler API**: flatter access patterns for meta/actions
+1. **Multiple actor types**: staff, client, guest, lead
+2. **Contextual operations**: staff acting on behalf of clients, leads, etc.
+3. **Multi-brand filtering**: optional brand scope for org-wide vs brand-specific views
+4. **Multi-session support**: multiple actor sessions active simultaneously
+5. **Capability-based permissions**: staff capabilities determine available actions
+6. **Clean, readable API**: fluent chaining that reads like natural language
 
-Current challenges:
+### Current Challenges
 
-- `basket.meta.value.isLoading` is deeply nested
+- Deeply nested access patterns (`basket.meta.value.isLoading`)
 - No pattern for handling actor-specific contexts
-- Confusion about when state is shared vs isolated
+- "Admin" vs "Staff" confusion (now unified as "staff" with capabilities)
+- Brand switching complexity across tabs
 - Steep learning curve for new developers
 
 ---
 
 ## Decision
 
-We will implement a **Scope-Based Composable Architecture** with the following patterns:
+We will implement a **Fluent Chaining Composable Architecture** with the following patterns:
 
-### 1. Scope Definition
+### 1. Core Concepts
+
+| Concept | Definition | Examples |
+|---------|------------|----------|
+| **Actor** | *Who* is performing the action | `staff`, `client`, `guest`, `lead`, `self` |
+| **Context** | *What* entity they're acting upon | `{ type: 'client', id: '123' }` |
+| **Brand** | Optional filter (not a context) | Defaults to org-wide if omitted |
+
+> **Key Insight:** `self` means "use the current session actor" — this keeps the pattern consistent while allowing the common case.
+
+### 2. Fluent Chaining Pattern
 
 ```typescript
-type Actor = 'client' | 'guest' | 'lead' | 'staff' | 'admin';
-type ContextMode = 'self' | 'impersonating';
+useFeature()
+  .as(actor)              // Required — specifies the actor
+  .for(contextType, id)   // Optional — specifies the context
+  .inBrand(brandId)       // Optional — filters by brand
+```
 
-interface Scope {
-  actor: Actor;
-  context: ContextMode;
-  targetId?: string;
-  targetActor?: Actor;
+#### Convention: `.as()` before `.for()`
+
+While the builder accepts either order, the **recommended convention** is:
+
+```typescript
+// ✅ Recommended: reads like natural language
+useClientEmails().as('staff').for('client', clientId)
+// "Use client emails AS staff FOR client 123"
+
+// ⚠️ Works, but less readable
+useClientEmails().for('client', clientId).as('staff')
+```
+
+#### Always Require `.as()`
+
+Even for the "current user" case, `.as('self')` is required:
+
+```typescript
+// ✅ Explicit
+useBasket().as('self')
+useInvoices().as('self')
+
+// ❌ Not allowed — must specify actor
+useBasket()  // Error: .as() is required
+```
+
+This solidifies the pattern and makes every call self-documenting.
+
+### 3. Type Definitions
+
+```typescript
+type Actor = 'self' | 'staff' | 'client' | 'guest' | 'lead'
+
+type ContextType =
+  | 'client'
+  | 'lead'
+  | 'contract'
+  | 'product'
+  | 'invoice'
+  | 'order'
+  | 'ticket'
+  | 'basket'
+
+interface Context {
+  type: ContextType
+  id: string
 }
 ```
 
-### 2. Composable Layers
+### 4. Actor → Context Availability Matrix
 
-Each feature will expose multiple composable variants:
+Each actor has specific contexts they can operate on:
 
-| Composable | Returns | Singleton |
-|------------|---------|-----------|
-| `useFeature()` | Core data | Yes (per scope) |
-| `useFeatureMeta()` | Flat reactive flags | Yes |
-| `useFeatureActions()` | Methods only | Yes |
-| `useFeatureAdvanced()` | Machine access | Yes |
-| `useFeatureFor(scope)` | Explicit scope | Yes |
-| `useFeatureInstance(scope)` | Isolated state | No |
+| Actor | Default Context | Available `.for()` Contexts |
+|-------|-----------------|----------------------------|
+| `guest` | Anonymous session | `basket` only |
+| `lead` | Self (lead ID from token) | `basket`, `quote` |
+| `client` | Self (client ID from token) | `contract`, `product`, `invoice`, `ticket` |
+| `staff` | Org-wide (no specific entity) | All contexts: `client`, `lead`, `contract`, `product`, `invoice`, `order`, `ticket`, etc. |
 
-### 3. Singleton Registry Pattern
+> **Note:** There are **no nested contexts**. Each `.for()` call specifies a single, flat context.
 
-Instances are keyed by scope string:
+### 5. Session Lookup Behavior
+
+When `.as(actor)` is called:
+
+1. Check multi-session store for active token for that actor type
+2. If found → use that session
+3. If not found → trigger auth flow or return error state
 
 ```typescript
-const scopeKey = (scope: Scope) =>
-  scope.context === 'impersonating'
-    ? `${scope.actor}:${scope.targetActor}:${scope.targetId}`
-    : `${scope.actor}:self`;
+// Session store maintains multiple active sessions
+{
+  guest: { token: '...', expiresAt: ... },
+  client: { token: '...', clientId: '123', ... },
+  staff: { token: '...', capabilities: [...], ... }
+}
 ```
 
-- Same scope = same machine instance
-- Different scope = different machine instance
-- `useXInstance()` = always new instance
+### 6. Capabilities (Staff Only)
 
-### 4. Configuration by Scope
+Staff users receive capability codes that determine permissions:
 
-Each scope maps to specific:
+```typescript
+// Capabilities come from the /self endpoint
+const capabilities = ['emails.send', 'emails.delete', 'invoices.refund', ...]
 
-- API endpoints
-- Capabilities (can override price, can view cost, etc.)
-- Available state machine states
+// Composable actions filtered by capabilities
+const { actions } = useClientEmails().as('staff').for('client', id)
+// actions.delete is undefined if staff lacks 'emails.delete' capability
+```
+
+### 7. Brand as a Parameter
+
+Brand is **not a context** — it's an optional filter:
+
+```typescript
+// Org-wide view (all brands)
+useInvoices().as('staff')
+
+// Filtered to specific brand
+useInvoices().as('staff').inBrand('brand-abc')
+
+// Brand is inherited for singletons (client belongs to one brand)
+useClientEmails().as('staff').for('client', clientId)
+// Brand is implicit from the client's brand
+```
+
+### 8. Singleton Behavior
+
+By default, composables are **singletons per scope key**:
+
+```typescript
+// These return the SAME instance (same scope key)
+const a = useBasket().as('staff').for('client', '123')
+const b = useBasket().as('staff').for('client', '123')
+// a === b (same underlying machine/state)
+
+// These return DIFFERENT instances (different scope keys)
+const x = useBasket().as('staff').for('client', '123')
+const y = useBasket().as('staff').for('client', '456')
+// x !== y (different clients = different instances)
+```
+
+#### Future: Non-Singleton Instances
+
+For cases requiring isolated state (e.g., multiple forms, parallel operations), a `.withKey()` pattern is under consideration:
+
+```typescript
+// Force a unique instance with explicit key
+const modal1 = useBasket().as('staff').for('client', id).withKey('modal-1')
+const modal2 = useBasket().as('staff').for('client', id).withKey('modal-2')
+// modal1 !== modal2 (isolated state)
+```
+
+> **Note:** This is a future consideration. Non-singletons will always require an explicit key.
+
+---
+
+## Concrete Examples
+
+### Basket Flow
+
+```typescript
+// Guest browsing
+useBasket().as('self')
+useBasketProducts().as('self')
+useBasketBilling().as('self')
+
+// Staff viewing a lead's basket
+useBasket().as('staff').for('lead', leadId)
+
+// Staff viewing a client's basket
+useBasket().as('staff').for('client', clientId)
+```
+
+### Client Data
+
+```typescript
+// Client viewing their own data
+useClientEmails().as('self')
+useClientAddresses().as('self')
+usePersonalDetails().as('self')
+
+// Staff viewing a specific client
+useClientEmails().as('staff').for('client', clientId)
+useClientAddresses().as('staff').for('client', clientId)
+```
+
+### Invoices & Orders
+
+```typescript
+// Client viewing their invoices
+useInvoices().as('self')
+
+// Staff viewing org-wide (all clients, all brands)
+useInvoices().as('staff')
+
+// Staff viewing org-wide, filtered by brand
+useInvoices().as('staff').inBrand('brand-abc')
+
+// Staff viewing a specific client's invoices
+useInvoices().as('staff').for('client', clientId)
+```
+
+### Product Catalogue
+
+```typescript
+// Public view (guest/client)
+useProductCatalogue().as('self')
+
+// Staff view (sees costs, margins, etc.)
+useProductCatalogue().as('staff')
+```
+
+### Payment Details
+
+```typescript
+// Client managing their payment methods
+usePaymentDetails().as('self')
+
+// Staff managing a client's payment methods
+usePaymentDetails().as('staff').for('client', clientId)
+```
+
+---
+
+## Composable Return Shape
+
+Each composable returns a **layered structure** with direct properties and sub-composables:
+
+```typescript
+const basket = useBasket().as('staff').for('client', id)
+
+// ═══════════════════════════════════════════════════════════════
+// DIRECT PROPERTIES — Data and context (most common access)
+// ═══════════════════════════════════════════════════════════════
+basket.data           // Core data (items, totals, etc.)
+basket.pagination     // { page, perPage, total, hasMore }
+basket.error          // Error object if any
+basket.items          // Feature-specific shorthand (optional)
+
+// ═══════════════════════════════════════════════════════════════
+// SUB-COMPOSABLES — Grouped access for specific concerns
+// ═══════════════════════════════════════════════════════════════
+basket.useMeta()      // { isLoading, isError, isEmpty, isStale, ... }
+basket.useActions()   // { refresh, addProduct, removeProduct, checkout, ... }
+basket.useInternals() // { machine, service, subscriptions, ... }
+```
+
+### The Three Layers
+
+| Layer | Access | Contains | Who Uses |
+|-------|--------|----------|----------|
+| **Direct props** | `basket.data`, `basket.pagination` | Data, results, context | Most devs, templates |
+| **Meta** | `basket.useMeta()` | Loading states, flags | UI for spinners, empty states |
+| **Actions** | `basket.useActions()` | Methods to mutate | Event handlers |
+| **Internals** | `basket.useInternals()` | Machine, services, subscriptions | Advanced use, debugging |
+
+### Example Usage
+
+```typescript
+// Template usage — direct props
+<div v-if="basket.pagination.hasMore">Load more...</div>
+<ProductList :items="basket.data.items" />
+
+// Loading states — meta
+const { isLoading, isEmpty } = basket.useMeta()
+<Spinner v-if="isLoading" />
+<EmptyState v-if="isEmpty" />
+
+// User interactions — actions
+const { addProduct, checkout } = basket.useActions()
+<button @click="addProduct(item)">Add</button>
+
+// Debugging / advanced — internals
+const { machine } = basket.useInternals()
+console.log(machine.state.value)
+```
+
+### Sub-Composables Access
+
+Sub-composables are accessed **from the parent composable only** — no separate registered exports like `useBasketMeta()`. This keeps the API surface small and ensures sub-composables share the same underlying instance.
 
 ---
 
@@ -87,88 +321,124 @@ Each scope maps to specific:
 
 ### Positive
 
-1. **Predictable API** - Developers always know which composable to use
-2. **Flat meta access** - `isLoading` instead of `meta.value.isLoading`
-3. **Actor flexibility** - Same patterns work for all user types
-4. **Scope isolation** - Different actors get isolated state automatically
-5. **AI-friendly** - Consistent patterns enable better code generation
-6. **Future-proof** - Easy to add new actor types or contexts
+1. **Readable API** — Fluent chaining reads like natural language
+2. **Predictable pattern** — Every composable works the same way
+3. **Explicit actors** — No guessing about session context
+4. **Layered access** — Direct props for data, sub-composables for meta/actions/internals
+5. **Small API surface** — Sub-composables accessed from parent only
+6. **Type-safe contexts** — TypeScript enforces valid actor/context combinations
+7. **Multi-session ready** — Architecture supports simultaneous actor sessions
+8. **Capability-aware** — Staff actions automatically filtered by permissions
 
 ### Negative
 
-1. **More composables to export** - 6 variants per feature instead of 1
-2. **Migration effort** - Existing code needs refactoring
-3. **Learning curve** - New patterns to learn (though simpler than current)
+1. **Always requires `.as()`** — Slightly more verbose for simple cases
+2. **Migration effort** — Existing composables need refactoring
+3. **Builder complexity** — Internal implementation requires careful design
 
 ### Neutral
 
-1. **Bundle size** - Minimal impact due to tree-shaking
-2. **XState v5 migration** - This architecture is compatible with v5
+1. **Bundle size** — Minimal impact due to tree-shaking
+2. **XState v5 compatible** — Pattern works with v5 migration
 
 ---
 
 ## Alternatives Considered
 
-### 1. Keep Current Pattern
-
-**Rejected because:**
-
-- Nested meta access is confusing
-- No actor context support without major refactoring
-- New devs struggle with current patterns
-
-### 2. Single Composable with Options
+### 1. Separate Composable Variants
 
 ```typescript
-useBasket({ scope, returnMeta: true, returnActions: true })
+useBasketAs(actor)
+useBasketFor(context)
+useBasketForAs(context, actor)
 ```
 
-**Rejected because:**
+**Rejected:** Gets murky about which variant to use when. Chaining is clearer.
 
-- Complex return types
-- Harder to tree-shake
-- Less predictable API
+### 2. Options Object
 
-### 3. Context Provider Only
+```typescript
+useBasket({ actor: 'staff', context: { client: id } })
+```
 
-**Rejected because:**
+**Rejected:** Less readable than fluent chaining.
 
-- Doesn't solve flat meta access
-- Doesn't provide explicit scope override
-- Less flexible for admin/staff tools
+### 3. Implicit Actor from Session
+
+```typescript
+useBasket()  // Infers actor from current session
+```
+
+**Rejected:** Less explicit, harder to reason about. Always requiring `.as()` is clearer.
 
 ---
 
-## Implementation Plan
+## Playground UI Concept
 
-See [IMPLEMENTATION_PLAN.md](./IMPLEMENTATION_PLAN.md) for detailed rollout.
+The team agreed on a composable-focused playground:
 
-### Phase 1: Foundation (1 sprint)
+```
+┌────────────────────────────────────────────────────────────┐
+│  [Actor: Staff ▼]  [Brand: All ▼]  [Context: Client 123 ▼] │
+├──────────────┬─────────────────────────────────────────────┤
+│ Composables  │                                             │
+│ ─────────────│  useClientEmails()                          │
+│ useBasket    │    .as('staff')                             │
+│ useClient... │    .for('client', '123')                    │
+│ useConfig    │                                             │
+│ useInvoices  │  ┌──────────────────────────────────────┐   │
+│ useOrders    │  │ Data: [...]                          │   │
+│ usePayment...│  │ isLoading: false                     │   │
+│ useProduct...│  │ Actions: refresh, create, delete     │   │
+│              │  └──────────────────────────────────────┘   │
+└──────────────┴─────────────────────────────────────────────┘
+```
 
-- Define Scope types
-- Implement ScopeProvider
-- Create configuration structure
+---
 
-### Phase 2: Refactor (2-3 sprints)
+## Implementation Phases
 
-- Migrate to XState v5
-- Split existing composables
-- Add scope support to factories
+### Phase 1: Foundation
 
-### Phase 3: Actor Contexts (2 sprints)
+- Multi-session store supporting simultaneous actor tokens
+- Fluent builder factory
+- Type definitions for Actor, Context, Capabilities
 
-- Add staff/admin scope endpoints
-- Implement impersonation flow
+### Phase 2: Migration
 
-### Phase 4: Polish (1 sprint)
+- Refactor existing composables to new pattern
+- Add `.as()`, `.for()`, `.inBrand()` support
+- Flatten meta access
 
-- Update documentation
-- Update DEVX.md patterns
+### Phase 3: Staff/Admin Contexts
+
+- Staff-specific API endpoints
+- Capability filtering for actions
+- Impersonation flows
+
+### Phase 4: Playground
+
+- Composable-focused testing UI
+- Actor/Brand/Context selectors
+- Live composable output display
 
 ---
 
 ## Related Documents
 
-- [ARCHITECTURE_PROPOSAL.md](./ARCHITECTURE_PROPOSAL.md) - Full technical specification
-- [ANALYSIS.md](./ANALYSIS.md) - Deep codebase analysis
-- [DEVX.md](../DEVX.md) - Coding style guide
+- [DEVX.md](../DEVX.md) — Coding style guide (to be updated)
+- Session management architecture (TBD)
+
+---
+
+## Meeting Notes Reference
+
+**Jan 20, 2026** — Dominic da Costa, Chris Garner, Dominik Piska, Rhodri Jones
+
+Key decisions:
+
+- Admin and Staff unified as "staff" with capability codes
+- "Actor" = who (staff/client/guest/lead), "Context" = what (client/lead/contract/etc.)
+- Brand is a parameter, not a context (optional filter)
+- Multi-session support for simultaneous actor logins
+- Composable-focused playground UI
