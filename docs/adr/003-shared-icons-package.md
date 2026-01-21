@@ -1,4 +1,4 @@
-# ADR 002: Shared Icons Package
+# ADR 003: Shared Icons Package
 
 **Date:** January 20, 2026
 **Status:** Accepted
