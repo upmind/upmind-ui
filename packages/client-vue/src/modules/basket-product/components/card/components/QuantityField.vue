@@ -6,6 +6,7 @@
     :min="min === 0 ? 1 : min"
     :max="max"
     :step="step"
+    :disabled="disabled"
     variant="minimal"
     width="md"
   />
@@ -21,6 +22,7 @@ defineProps<{
   max?: number;
   step?: number;
   quantity?: number;
+  disabled?: boolean;
 }>();
 
 const emits = defineEmits(["update:quantity"]);
