@@ -11,7 +11,7 @@
 
 The Upmind platform requires a composable architecture that supports:
 
-1. **Multiple actor types**: staff, client, guest, lead
+1. **Multiple actor types**: staff, client, guest
 2. **Contextual operations**: staff acting on behalf of clients, leads, etc.
 3. **Multi-brand filtering**: optional brand scope for org-wide vs brand-specific views
 4. **Multi-session support**: multiple actor sessions active simultaneously
@@ -36,7 +36,7 @@ We will implement a **Fluent Chaining Composable Architecture** with the followi
 
 | Concept | Definition | Examples |
 |---------|------------|----------|
-| **Actor** | *Who* is performing the action | `staff`, `client`, `guest`, `lead`, `self` |
+| **Actor** | *Who* is performing the action | `staff`, `client`, `guest`, `self` |
 | **Context** | *What* entity they're acting upon | `{ type: 'client', id: '123' }` |
 | **Brand** | Optional filter (not a context) | Defaults to org-wide if omitted |
 
@@ -82,7 +82,7 @@ This solidifies the pattern and makes every call self-documenting.
 ### 3. Type Definitions
 
 ```typescript
-type Actor = 'self' | 'staff' | 'client' | 'guest' | 'lead'
+type Actor = 'self' | 'staff' | 'client' | 'guest'
 
 type ContextType =
   | 'client'
@@ -107,7 +107,6 @@ Each actor has specific contexts they can operate on:
 | Actor | Default Context | Available `.for()` Contexts |
 |-------|-----------------|----------------------------|
 | `guest` | Anonymous session | `basket` only |
-| `lead` | Self (lead ID from token) | `basket`, `quote` |
 | `client` | Self (client ID from token) | `contract`, `product`, `invoice`, `ticket` |
 | `staff` | Org-wide (no specific entity) | All contexts: `client`, `lead`, `contract`, `product`, `invoice`, `order`, `ticket`, etc. |
 
@@ -438,7 +437,7 @@ The team agreed on a composable-focused playground:
 Key decisions:
 
 - Admin and Staff unified as "staff" with capability codes
-- "Actor" = who (staff/client/guest/lead), "Context" = what (client/lead/contract/etc.)
+- "Actor" = who (staff/client/guest), "Context" = what (client/lead/contract/etc.)
 - Brand is a parameter, not a context (optional filter)
 - Multi-session support for simultaneous actor logins
 - Composable-focused playground UI
