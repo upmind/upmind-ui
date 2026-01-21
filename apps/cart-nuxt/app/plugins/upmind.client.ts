@@ -40,7 +40,17 @@ export default defineNuxtPlugin(async nuxtApp => {
     },
     analytics: {
       enabled: true
-    }
+    },
+    icons: import.meta.glob("@icons/**/*.svg", {
+      query: "?raw",
+      eager: false,
+      import: "default"
+    }),
+    animations: import.meta.glob("@animations/**/*.json", {
+      query: "?url",
+      eager: false,
+      import: "default"
+    })
   });
 
   // 2. Register Plugins

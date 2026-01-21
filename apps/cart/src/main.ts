@@ -42,7 +42,17 @@ UpmindClient.init({
   },
   analytics: {
     enabled: true
-  }
+  },
+  icons: import.meta.glob("@icons/**/*.svg", {
+    query: "?raw",
+    eager: false,
+    import: "default"
+  }),
+  animations: import.meta.glob("@animations/**/*.json", {
+    query: "?url",
+    eager: false,
+    import: "default"
+  })
 });
 
 Sentry.init({
