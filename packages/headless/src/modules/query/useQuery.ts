@@ -358,6 +358,7 @@ export const useQuery = () => {
     withBasket,
     withoutLocale,
     withAccessToken,
+    withSplitCount,
     ...options
   }: QueryParams<TQueryFnData, TData>) {
     // ensure we have a scope, in case we call this outside of a setup function
@@ -396,7 +397,8 @@ export const useQuery = () => {
               : Promise.resolve();
             return safeguard.then(async () => {
               // define our request parameters for easy reuse
-              if (useSplitCountLogic) url.searchParams.set("skip_count", "1");
+              if (withSplitCount) url.searchParams.set("skip_count", "1");
+
               const params = {
                 url,
                 sort: sort.value,
@@ -453,9 +455,7 @@ export const useQuery = () => {
       )
     );
 
-    const useSplitCountLogic = true;
-    // TODO add a useSplitCountLogic paramt to do this...
-    if (useSplitCountLogic)
+    if (withSplitCount)
       countRequest({
         queryKey,
         url,

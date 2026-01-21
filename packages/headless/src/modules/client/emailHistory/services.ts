@@ -51,6 +51,7 @@ function loadList(params: Partial<QueryParams> = { pagination: { limit: 0 } }) {
       with: ["recipient", "recipient_type", "recipient.image"].join(","),
       ...params.filters
     }),
+    withSplitCount: true,
     withAccessToken: true,
     guard: async () =>
       new Promise((resolve, reject) => {
