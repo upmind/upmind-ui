@@ -15,11 +15,11 @@
 <script lang="ts" setup>
 // --- external
 import { onMounted, computed, ref, watch, inject } from "vue";
-import { find } from "lodash-es";
 
 // --- internal
 import { useStyles, cn, getComputedColor } from "../../utils";
 import config from "./iconAnimated.config";
+import { loadAnimation } from "./utils/animationLoader";
 
 // --- types
 import type { AnimatedIconProps } from "./types";
@@ -58,21 +58,10 @@ const stroke = computed(() => {
   return Math.min(Math.max(Math.ceil(pxValue), 1), 3);
 });
 
-const icons = import.meta.glob("@animations/**/*.json", {
-  query: "?url",
-  eager: false,
-  import: "default"
-});
-
 const loadIcon = async () => {
-  const path = find(Object.keys(icons), path =>
-    path.includes(`/${props.icon}.json`)
-  );
-
-  if (path) {
-    iconData.value = (await icons[path]()) as string;
-  } else {
-    // console.error(`Animated icon not found: ${props.icon}`);
+  const url = await loadAnimation(props.icon);
+  if (url) {
+    iconData.value = url;
   }
 };
 
