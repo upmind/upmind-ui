@@ -21,8 +21,6 @@ import { cloneDeep, get, isEqual } from "lodash-es";
 import type { AnyEventObject } from "xstate";
 import type { CurrencyContext } from "./types";
 
-const { addError } = useFeedback();
-
 // -----------------------------------------------------------------------------
 export default createMachine(
   {
@@ -238,7 +236,7 @@ export default createMachine(
         const { t } = useI18n();
         if (!error || error?.status == responseCodes.Unprocessable_Entity)
           return;
-        addError({
+        useFeedback().addError({
           title: t("error.currency_update_failed"),
           copy: error?.message,
           data: error?.data

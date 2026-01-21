@@ -33,7 +33,8 @@ UpmindClient.init({
   },
   router: {
     instance: router,
-    registerFunnels
+    registerFunnels,
+    guardRoutes: true
   },
   recaptcha: {
     siteKey: import.meta.env.VITE_APP_GOOGLE_RECAPTCHA_V3_SITE_KEY,
@@ -41,7 +42,17 @@ UpmindClient.init({
   },
   analytics: {
     enabled: true
-  }
+  },
+  icons: import.meta.glob("@icons/**/*.svg", {
+    query: "?raw",
+    eager: false,
+    import: "default"
+  }),
+  animations: import.meta.glob("@animations/**/*.json", {
+    query: "?url",
+    eager: false,
+    import: "default"
+  })
 });
 
 Sentry.init({

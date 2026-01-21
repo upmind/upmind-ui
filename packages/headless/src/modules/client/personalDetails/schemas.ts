@@ -1,7 +1,7 @@
 // --- internal
 import { useFieldsSchemaParser, useFieldsUischemaParser } from "../../../utils";
 
-import { FieldsContext } from "./types";
+import type { FieldsContext } from "./types";
 
 // --- utils
 import { get, map, pick, filter, isEmpty, pickBy } from "lodash-es";

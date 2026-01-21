@@ -37,7 +37,6 @@ import type { Address, AddressModel, AddressContext } from "./types";
 // QUERIES
 
 const queryKey: QueryKey = ["client", "addresses"];
-const { addError, addSuccess } = useFeedback();
 
 function loadList(params: Partial<QueryParams> = { pagination: { limit: 0 } }) {
   const { meta, clientId } = useSession();
@@ -204,7 +203,7 @@ function remove(addressId: Address["id"]) {
         }
       }),
     onError(error: any) {
-      addError({
+      useFeedback().addError({
         title: isString(error)
           ? error
           : error?.title || t("error.client_address_update_failed"),
@@ -214,7 +213,7 @@ function remove(addressId: Address["id"]) {
     },
     onSuccess(data) {
       invalidateQueryByKey(queryKey, { exact: false })(data);
-      addSuccess(t("confirm.address_removed"));
+      useFeedback().addSuccess(t("confirm.address_removed"));
     },
     withAccessToken: true
   });
@@ -237,7 +236,7 @@ function setDefault(addressId: Address["id"]) {
       }),
     data: { default: true },
     onError(error: any) {
-      addError({
+      useFeedback().addError({
         title: isString(error)
           ? error
           : error?.title || t("error.client_address_set_default_failed"),
@@ -247,7 +246,7 @@ function setDefault(addressId: Address["id"]) {
     },
     onSuccess(data) {
       invalidateQueryByKey(queryKey, { exact: false })(data);
-      addSuccess(t("confirm.address_set_default"));
+      useFeedback().addSuccess(t("confirm.address_set_default"));
     },
     withAccessToken: true
   });

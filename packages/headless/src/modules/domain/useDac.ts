@@ -19,7 +19,7 @@ import {
 } from "../../utils";
 
 // --- types
-import { DomainContext, DomainProduct } from "./types";
+import { type DomainContext, type DomainProduct } from "./types";
 import { PAGINATION } from "../query";
 
 // -----------------------------------------------------------------------------

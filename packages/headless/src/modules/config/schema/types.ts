@@ -226,7 +226,7 @@ export type ValueType =
 
 export interface UIPropertyDefinition {
   type?: ValueType;
-  default: string | undefined;
+  default?: string;
   contexts: UIContext[];
   scopes: UIScope[];
   locked?: UIContext[];

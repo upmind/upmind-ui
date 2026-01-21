@@ -29,7 +29,7 @@ import { responseCodes } from "../../utils";
 import {
   PaymentType,
   GatewayContext as GatewayCtx,
-  IBasket
+  type IBasket
 } from "@upmind-automation/types";
 import { mapPaymentData } from "./mappers";
 

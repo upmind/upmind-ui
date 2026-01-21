@@ -9,18 +9,18 @@ import type { ICustomField } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 
-export interface CustomFieldModel {
+export type CustomFieldModel = {
   // firstName?: string;
   // lastName?: string;
   // customFields?: Record<string, any>;
-}
+};
 
 /**
- * Interface representing a comprehensive client custom field object, extending {@link CustomFieldModel}
+ * type representing a comprehensive client custom field object, extending {@link CustomFieldModel}
  * with additional identifiers, computed display fields, and meta-data about its status.
  * This is typically used for custom field retrieved from the API or displayed in the UI.
  */
-export interface CustomField {
+export type CustomField = {
   /**
    * The unique identifier for the custom field.
    */
@@ -57,4 +57,4 @@ export interface CustomField {
     showOnOrderForm?: ICustomField["show_on_order_form"];
     showOnInvoice?: ICustomField["show_on_invoice"];
   };
-}
+};

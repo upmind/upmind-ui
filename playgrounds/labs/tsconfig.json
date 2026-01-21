@@ -1,12 +1,13 @@
 {
-  "extends": "../../tsconfig.json",
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "../../tsconfig/vue-app.json",
   "compilerOptions": {
-    "composite": true,
-    "declaration": true,
-    "declarationDir": "dist",
+    "rootDir": "src",
     "outDir": "dist",
-    "rootDir": "../../"
+    "paths": {
+      "@/*": ["./src/*"]
+    }
   },
-  "include": ["src/**/*", "../../packages/**/*"],
-  "exclude": ["node_modules", "dist", "**/*.spec.*", "src/**/*.*test.ts"]
+  "include": ["src"],
+  "exclude": ["node_modules", "dist", "**/*.spec.*", "**/*.test.*"]
 }

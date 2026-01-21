@@ -14,20 +14,16 @@ import type {
 } from "./types";
 
 import { useDataLayer, useI18n } from "../../system";
-const { dataLayer } = useDataLayer();
 
 import { useFeedback } from "../../feedback";
-const { addSuccess } = useFeedback();
 
 // --- utils
 import {
   useValidationParser,
   useCookies,
-  ResponseError,
   mapToHeadlessError
 } from "../../../utils";
 const { setTopLevel: setCookie } = useCookies();
-import { useClientParser } from "../utils";
 import {
   use2faModelParser,
   use2faSchemaParser,
@@ -114,7 +110,7 @@ export default createMachine(
                     },
                     {
                       target: "#complete",
-                      actions: ["setActor", "setClient", "pushLogin"]
+                      actions: ["setActor", "pushLogin"]
                     }
                   ],
                   onError: {
@@ -134,7 +130,7 @@ export default createMachine(
                   src: "verify2fa",
                   onDone: {
                     target: "#complete",
-                    actions: ["setActor", "setClient", "pushLogin"]
+                    actions: ["setActor", "pushLogin"]
                   },
                   onError: {
                     target: "challenging",
@@ -304,8 +300,7 @@ export default createMachine(
       // Handle completion, stop the machine and prevent further requests
       complete: {
         id: "complete",
-        type: "final",
-        data: (context: GuestContext) => context
+        type: "final"
       }
     }
   },
@@ -362,7 +357,7 @@ export default createMachine(
 
       setFeedbackSuccess: (_context: GuestContext, _event: AnyEventObject) => {
         const { t } = useI18n();
-        addSuccess(t("confirm.reset_instructions_sent_msg"));
+        useFeedback().addSuccess(t("confirm.reset_instructions_sent_msg"));
       },
 
       setFeedbackError: ({ error }: GuestContext, _event: AnyEventObject) => {
@@ -370,7 +365,7 @@ export default createMachine(
         // DC: We have deprecated sending feedback for now...
         // if (!error || error?.status == responseCodes.Unprocessable_Entity) return;
 
-        // addError({
+        // useFeedback().addError({
         //   title: "We experienced an error authenticating",
         //   copy: error?.message,
         //   data: error?.data,
@@ -378,10 +373,10 @@ export default createMachine(
       },
 
       pushRegister: (_context: GuestContext, _event: AnyEventObject) => {
-        dataLayer({ event: "sign_up" }).withUser().push(false);
+        useDataLayer().dataLayer({ event: "sign_up" }).withUser().push(false);
       },
       pushLogin: (_context: GuestContext, _event: AnyEventObject) => {
-        dataLayer({ event: "login" }).withUser().push(false);
+        useDataLayer().dataLayer({ event: "login" }).withUser().push(false);
       },
 
       setActor: (_context: GuestContext, { data }: AnyEventObject) => {
@@ -393,11 +388,6 @@ export default createMachine(
           }
         );
       },
-
-      setClient: assign({
-        client: (_context: GuestContext, { data }: AnyEventObject) =>
-          useClientParser(data.user || data.actor || data)
-      }),
 
       // ---
 

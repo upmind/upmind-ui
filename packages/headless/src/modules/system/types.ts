@@ -8,7 +8,7 @@ import type {
   ITicketDepartment,
   ITaxBusinessType
 } from "@upmind-automation/types";
-import { ResponseError } from "../../utils";
+import { type ResponseError } from "../../utils";
 
 // ---  Contexts
 

@@ -26,7 +26,7 @@ export default defineConfig(({ mode }) => {
     resolve: {
       alias: {
         "@": resolve(__dirname, "./src"),
-        "@icons": resolve(__dirname, "./src/assets/icons"),
+        "@icons": resolve(__dirname, "../../packages/icons/assets"),
         "@animations": resolve(__dirname, "./src/assets/animations"),
         "@upmind-automation/types": resolve(
           __dirname,

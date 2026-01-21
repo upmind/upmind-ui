@@ -1,5 +1,1 @@
-import { defineAsyncComponent } from "vue";
-
-export const UpmBasketSummary = defineAsyncComponent(
-  () => import("./Summary.vue")
-);
+export { default as UpmBasketSummary } from "./Summary.vue";

@@ -10,6 +10,7 @@ import { useBasket } from "./";
 import {
   DetailedError,
   ErrorOrigin,
+  isDirty,
   responseCodes,
   useContext
 } from "../../utils";
@@ -24,7 +25,7 @@ import { isNil, debounce, isEqual, isEmpty } from "lodash-es";
 
 // --- types
 import type { ActorRef } from "xstate";
-import { FieldsContext, FieldsModel } from "./fields/types";
+import { type FieldsContext, type FieldsModel } from "./fields/types";
 
 // -----------------------------------------------------------------------------
 // We allow an actor to be passed in, but if not, we will use the basket actorRef and wait for the 'actor'' machine to be ready
@@ -68,7 +69,7 @@ export const useBasketFields = () => {
     hasErrors: stateMatches(actor, ["error"]),
     isProcessing: stateMatches(actor, ["processing"]),
     isValid: stateMatches(actor, ["valid"]),
-    isDirty: !isEqual(
+    isDirty: isDirty(
       contextValue<FieldsContext["model"]>(actor, "model"),
       contextValue<FieldsContext["baseModel"]>(actor, "baseModel")
     ),

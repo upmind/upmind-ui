@@ -6,9 +6,11 @@ import { useI18n } from "vue-i18n";
 import { useActor } from "@xstate/vue";
 
 // --- internal
-// import { useBasket } from "./";
+import { useSession, useBrand } from "../..";
 import { useProfileDetailsActions, useProfileDetailsGuards } from "./actions";
 import { useProfileDetailsServices } from "./services";
+import dataManagerMachine from "../../dataManager/dataManager.machine";
+
 // --- utils
 import {
   DetailedError,
@@ -19,16 +21,14 @@ import {
   stateMatches,
   stateValue,
   contextValue,
-  DEBOUNCE_DELAY,
   stopService
 } from "../../../utils";
-import dataManagerMachine from "../../../utils/dataManager.machine";
-import { useSession, useBrand, CustomField } from "../..";
-import { debounce, isEqual, get } from "lodash-es";
+import { isEqual, get } from "lodash-es";
 
 // --- types
-import { FieldsContext, FieldsModel } from "./types";
-import type { ClientItemContext } from "../types";
+import type { CustomField } from "../../";
+import type { FieldsContext, FieldsModel } from "./types";
+import type { DataManagerContext } from "../../dataManager/types";
 
 // -----------------------------------------------------------------------------
 // We allow an actor to be passed in, but if not, we will use the basket actorRef and wait for the 'actor'' machine to be ready
@@ -98,8 +98,8 @@ export const usePersonalDetailsManager = ({
     hasErrors: stateMatches(state, "available.error"),
     isValid: stateMatches(state, "available.valid"),
     isDirty: !isEqual(
-      contextValue<ClientItemContext["model"]>(state, "model"),
-      contextValue<ClientItemContext["baseModel"]>(state, "baseModel")
+      contextValue<DataManagerContext["model"]>(state, "model"),
+      contextValue<DataManagerContext["baseModel"]>(state, "baseModel")
     ),
     showErrors:
       contextMatches(state, ["error"]) && contextMatches(state, ["attempts"]),

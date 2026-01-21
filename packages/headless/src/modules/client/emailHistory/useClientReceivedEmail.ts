@@ -8,7 +8,7 @@ import service from "./services";
 import { isEmpty } from "lodash-es";
 
 // --- types
-import { EmailModel } from "../email/types";
+import type { EmailModel } from "../email";
 
 /**
  * Composable function for managing client phones.

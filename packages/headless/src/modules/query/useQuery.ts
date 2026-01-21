@@ -1,5 +1,5 @@
 // --- external
-import { effectScope, getCurrentScope, ComputedRef } from "vue";
+import { effectScope, getCurrentScope, type ComputedRef } from "vue";
 
 import {
   useMutation,
@@ -24,6 +24,7 @@ import {
   isInteger,
   isObject,
   isString,
+  omit,
   set,
   toNumber,
   unset
@@ -249,7 +250,9 @@ export const useQuery = () => {
     ...options
   }: Omit<QueryParams<TQueryFnData, TData>, "pagination">) {
     // ensure we have a scope, in case we call this outside of a setup function
-    const scope = getCurrentScope() ?? effectScope();
+    // Check if current scope is active - stopped scopes cause scope.run() to return undefined
+    const currentScope = getCurrentScope();
+    const scope = currentScope?.active ? currentScope : effectScope(true);
 
     // --- state
 
@@ -358,7 +361,9 @@ export const useQuery = () => {
     ...options
   }: QueryParams<TQueryFnData, TData>) {
     // ensure we have a scope, in case we call this outside of a setup function
-    const scope = getCurrentScope() ?? effectScope();
+    // Check if current scope is active - stopped scopes cause scope.run() to return undefined
+    const currentScope = getCurrentScope();
+    const scope = currentScope?.active ? currentScope : effectScope(true);
 
     const { currencyCode } = useBasketCurrency();
     const { basketId } = useBasket();
@@ -656,7 +661,9 @@ export const useQuery = () => {
     ...options
   }: QueryParams<TQueryFnData, TData>) {
     // ensure we have a scope, in case we call this outside of a setup function
-    const scope = getCurrentScope() ?? effectScope();
+    // Check if current scope is active - stopped scopes cause scope.run() to return undefined
+    const currentScope = getCurrentScope();
+    const scope = currentScope?.active ? currentScope : effectScope(true);
 
     const { currencyCode } = useBasketCurrency();
     const { basketId } = useBasket();
@@ -829,7 +836,10 @@ export const useQuery = () => {
       ...options
     }: MutationParams<QueryResponse<TData>, TError, TVariables, TContext>
   ) {
-    const scope = getCurrentScope() ?? effectScope();
+    // ensure we have a scope, in case we call this outside of a setup function
+    // Check if current scope is active - stopped scopes cause scope.run() to return undefined
+    const currentScope = getCurrentScope();
+    const scope = currentScope?.active ? currentScope : effectScope(true);
 
     // safeguard
     init ??= {};

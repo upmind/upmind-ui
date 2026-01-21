@@ -1,12 +1,12 @@
 // --- external
 import { computed } from "vue";
-import { interpret, InterpreterFrom } from "xstate";
+import { interpret, type InterpreterFrom } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 import { useActor } from "@xstate/vue";
 
 // --- internal
 import { useI18n } from "../../../system";
-import dataManagerMachine from "../../../../utils/dataManager.machine";
+import dataManagerMachine from "../../../dataManager/dataManager.machine";
 import { useUnifiedActions, useUnifiedGuards } from "./actions";
 import { useUnifiedServices } from "./services";
 import { useSession } from "../../../session";
@@ -20,11 +20,12 @@ import {
   stateMatches,
   DetailedError,
   responseCodes,
-  ResponseError,
+  type ResponseError,
   contextMatches,
   DEBOUNCE_DELAY,
   stopService,
-  ErrorObject
+  type ErrorObject,
+  isDirty
 } from "../../../../utils";
 import { debounce, get, isEmpty, isEqual } from "lodash-es";
 
@@ -95,7 +96,7 @@ export const useUnified = (
     hasErrors: stateMatches(state, "available.error"),
     isValid: stateMatches(state, "available.valid"),
     isNew: true, // always true for new billing details
-    isDirty: !isEqual(
+    isDirty: isDirty(
       contextValue<UnifiedContext["model"]>(state, "model"),
       contextValue<UnifiedContext["baseModel"]>(state, "baseModel")
     ),

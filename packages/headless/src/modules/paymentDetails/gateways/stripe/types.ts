@@ -3,9 +3,9 @@
 // --- types
 import type { GatewayContext } from "../types";
 import {
-  Stripe,
-  StripeElements,
-  StripePaymentElement
+  type Stripe,
+  type StripeElements,
+  type StripePaymentElement
 } from "@stripe/stripe-js";
 
 // -----------------------------------------------------------------------------

@@ -2,7 +2,7 @@
 
 // --- types
 import type { GatewayCardData } from "@upmind-automation/types";
-import { GatewayContext } from "../types";
+import { type GatewayContext } from "../types";
 
 // -----------------------------------------------------------------------------
 

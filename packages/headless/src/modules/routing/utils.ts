@@ -33,7 +33,13 @@ import {
 import type { ActorRef } from "xstate";
 import type { BasketProduct } from "../basketProduct";
 import { REQUIRES_ACTION } from "./types";
-import { RouteLocation } from "vue-router";
+import {
+  type RouteLocation,
+  type Router,
+  type RouteRecordRaw
+} from "vue-router";
+import { useBrand } from "../brand";
+import { type UIRouteOptions } from "../brand/types";
 
 // -----------------------------------------------------------------------------
 
@@ -134,6 +140,31 @@ export function hasRouteChanged(
   return changedName || changedParams || changedQuery;
 }
 
+/**
+ * Decorate all route records with brand specific UIschema or layout information
+ * This modifies the route definitions (records) rather than the navigation location,
+ * which avoids Vue Router warnings about mutating route.meta during navigation.
+ */
+export async function decorateRoutes(routes: RouteRecordRaw[]) {
+  const { uischema_Route, uiCart, isReady } = useBrand();
+  await isReady();
+
+  const fallbackTemplate = get(uiCart.value, "layout");
+
+  // Loop through all registered routes and update their meta
+  routes.forEach(routeRecord => {
+    const uischema = routeRecord.name
+      ? (get(uischema_Route?.value, routeRecord.name, {}) as UIRouteOptions)
+      : {};
+
+    // Mutate the route RECORD's meta (this is allowed, unlike RouteLocation.meta)
+    routeRecord.meta = {
+      ...(routeRecord?.meta ?? {}),
+      ...uischema,
+      template: uischema?.template || fallbackTemplate
+    };
+  });
+}
 /**
  * Provides utilities to determine if any basket products require user action,
  * such as completing pending actions, fixing invalid products, or addressing related items.

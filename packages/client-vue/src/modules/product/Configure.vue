@@ -180,7 +180,13 @@
 
 <script lang="ts" setup>
 // --- external
-import { computed, defineAsyncComponent, onUnmounted, provide } from "vue";
+import {
+  computed,
+  defineAsyncComponent,
+  onUnmounted,
+  provide,
+  watch
+} from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -189,7 +195,8 @@ import {
   useBasketProductsPending,
   useQueryParams,
   useProductConfig,
-  UIContext
+  UIContext,
+  type ProductDetails
 } from "@upmind-automation/headless";
 import { useConfig } from "@upmind-automation/headless";
 import { useStyles } from "@upmind-automation/upmind-ui";
@@ -361,4 +368,21 @@ onUnmounted(() => {
   useLayout({});
   useFooter({});
 });
+
+// Emit productDetails when it loads/changes for parent components (e.g., SEO, schema)
+const emit = defineEmits<{
+  productDetails: [payload: ProductDetails];
+}>();
+
+watch(
+  () => product.value?.productDetails,
+  value => {
+    if (value) {
+      emit("productDetails", value);
+    }
+  },
+  { immediate: true }
+);
+
+defineExpose({ product: () => product.value?.productDetails });
 </script>

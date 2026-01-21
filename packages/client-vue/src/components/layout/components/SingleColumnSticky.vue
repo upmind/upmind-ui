@@ -35,7 +35,14 @@
 
 <script lang="ts" setup>
 // --- external
-import { useSlots, computed, useTemplateRef, ref } from "vue";
+import {
+  useSlots,
+  computed,
+  useTemplateRef,
+  ref,
+  onMounted,
+  nextTick
+} from "vue";
 import { useMutationObserver } from "@vueuse/core";
 
 // --- utils
@@ -91,7 +98,9 @@ const justifyDirection = computed(() => {
  * @param node The DOM node to check.
  * @returns True if the node is effectively empty, false otherwise.
  */
-const hasSignificantContent = (node: Node): boolean => {
+const hasSignificantContent = (node: Node | undefined | null): boolean => {
+  if (!node) return false;
+
   // Node types: 1 (Element), 3 (Text), 8 (Comment)
   if (node.nodeType === Node.COMMENT_NODE) {
     return false;
@@ -121,7 +130,7 @@ useMutationObserver(
   content,
   mutations => {
     visible.value = content.value?.$el
-      ? hasSignificantContent(content.value.$el)
+      ? hasSignificantContent(content.value?.$el)
       : false;
   },
   {
@@ -129,6 +138,14 @@ useMutationObserver(
     subtree: true
   }
 );
+
+// Initial check on mount - needed because MutationObserver doesn't fire
+// for content that already exists when the observer starts
+onMounted(() => {
+  nextTick(() => {
+    visible.value = hasSignificantContent(content.value?.$el);
+  });
+});
 </script>
 
 <style scoped>

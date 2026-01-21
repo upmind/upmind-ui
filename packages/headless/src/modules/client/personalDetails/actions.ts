@@ -8,7 +8,7 @@ import { useSchema, useUischema } from "./schemas";
 import { useModelParser } from "../../../utils";
 
 // --- types
-import { FieldsModel, type FieldsContext } from "./types";
+import { type FieldsModel, type FieldsContext } from "./types";
 import type { AnyEventObject } from "xstate";
 
 // -----------------------------------------------------------------------------

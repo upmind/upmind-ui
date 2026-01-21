@@ -30,7 +30,7 @@
     "build": "pnpm type-check && pnpm build-only",
     "build:staging": "pnpm type-check && vite build --mode staging",
     "build-only": "vite build",
-    "type-check": "vue-tsc -p tsconfig.build.json  --noEmit",
+    "type-check": "vue-tsc -p tsconfig.build.json --noEmit",
     "preview": "vite preview",
     "lint": "eslint . --fix",
     "format": "prettier --write src/",

@@ -103,7 +103,6 @@ import {
 
 const props = defineProps<VariantProps>();
 
-const { footer } = useLayout();
 const slots = useSlots();
 
 const meta = computed(() => ({

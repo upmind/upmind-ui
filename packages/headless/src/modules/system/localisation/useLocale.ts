@@ -44,20 +44,22 @@ const locale = ref<string>("en");
 export const useLocale = () => {
   const { t } = useI18n();
   const { get: getFromStorage, set: setStorage } = useLocalStorage();
-  const { meta: sessionMeta } = useSession();
 
   // --- state
 
   // NB: you can only change locales when not authenticated!
   //     this is because the locale is tied to the account's preferred language
   //     and changing it while authenticated could lead to unwanted side effects
-  const meta = computed(() => ({
-    isAvailable:
-      !isEmpty(UpmindSupportedLocales) &&
-      !sessionMeta.value.isAuthenticated &&
-      supportedLanguages.value.length > 1,
-    hasLocale: !isEmpty(locale.value)
-  }));
+  const meta = computed(() => {
+    const { meta: sessionMeta } = useSession();
+    return {
+      isAvailable:
+        !isEmpty(UpmindSupportedLocales) &&
+        !sessionMeta.value.isAuthenticated &&
+        supportedLanguages.value.length > 1,
+      hasLocale: !isEmpty(locale.value)
+    };
+  });
 
   // --- context
 

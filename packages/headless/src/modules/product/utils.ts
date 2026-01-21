@@ -91,8 +91,8 @@ import type {
   ProductBreadcrumb
 } from "./types";
 import { UI_SCHEMA_DEFAULTS } from "./types";
-import { ErrorObject } from "ajv";
-import { BrandMeta } from "../brand/types";
+import { type ErrorObject } from "ajv";
+import { type BrandMeta } from "../brand/types";
 import { UIContext } from "../config";
 
 // -----------------------------------------------------------------------------

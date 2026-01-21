@@ -2,7 +2,7 @@
 
 // --- types
 import type { IPhone, ICountry } from "@upmind-automation/types";
-import type { ClientItemContext } from "../types";
+import type { DataManagerContext } from "../../dataManager/types";
 
 // -----------------------------------------------------------------------------
 
@@ -108,12 +108,12 @@ export interface Phone {
 
 /**
  * Interface representing the context for phone number management within a client item context.
- * It extends `ClientItemContext` with specific data relevant to phone operations,
+ * It extends `DataManagerContext` with specific data relevant to phone operations,
  * such as geographical country context for phone number formatting and validation.
  *
  * @template TModel - The type of the phone model, typically {@link PhoneModel}.
  */
-export interface PhoneContext extends ClientItemContext<PhoneModel> {
+export interface PhoneContext extends DataManagerContext<PhoneModel> {
   /**
    * The currently selected {@link ICountry} object in the context, used for
    * phone number formatting and validation rules.

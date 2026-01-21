@@ -13,7 +13,7 @@ import {
   ErrorOrigin,
   mapToHeadlessError,
   responseCodes,
-  ResponseError,
+  type ResponseError,
   useTime
 } from "../../utils";
 import {
@@ -51,7 +51,7 @@ import {
 import { DomainTypes } from "./types";
 import type { DomainModel, DomainContext, DomainProduct } from "./types";
 import { parseBasketProduct } from "../basketProduct/utils";
-import { ProductProps } from "../product";
+import { type ProductProps } from "../product";
 
 // -----------------------------------------------------------------------------
 export default createMachine(

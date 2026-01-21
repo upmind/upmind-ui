@@ -1,12 +1,11 @@
 // --- external
-import { Ref, ref } from "vue";
+import { type Ref, ref } from "vue";
 import { inspect } from "@xstate/inspect";
 import { type QueryClient, VueQueryPlugin } from "@tanstack/vue-query";
 
 // --- internal
 import {
-  FunnelProps,
-  Funnels,
+  type Funnels,
   type GlobbedFiles,
   useBrand,
   useDataLayer,
@@ -18,12 +17,10 @@ import {
   useSystem,
   useTracking
 } from "./modules";
-import { isEmpty, get, isFunction } from "lodash-es";
+import { get, isFunction } from "lodash-es";
 import { useRouting } from "./modules/routing/useRouting";
 import { useTheming } from "./modules/theming/useTheming";
 import { useQuery } from "./modules";
-import { queryClient } from "./modules/query/client";
-import { isAdmin, storefrontUrl as globalStorefrontUrl } from "./utils/config";
 
 // --- utils
 import {
@@ -133,6 +130,8 @@ export interface UpmindProps {
   router?: {
     /** The Vue Router instance. */
     instance: Router;
+    /** Whether to guard routes or not */
+    guardRoutes?: boolean;
     /** A function to Register routing flows with the routing engine. */
     registerFunnels?: () => { defaultFunnel?: string; funnels?: Funnels };
   };
@@ -199,12 +198,9 @@ export class Upmind {
    * Provider Of Providers (POP) API configuration.
    */
   pop: UpmindProps["pop"];
-  /**
-   * The Vue Query client instance used for data fetching and caching.
-   */
-  public get queryClient(): QueryClient {
-    return queryClient;
-  }
+
+  queryClient: QueryClient;
+
   /**
    * Google reCAPTCHA configuration.
    */
@@ -223,10 +219,13 @@ export class Upmind {
   themes?: UpmindProps["themes"];
 
   /**
+   * Constructs a new Upmind instance.
    * Initialises the Vue Query client.
    */
-  constructor() {}
-
+  constructor() {
+    const { queryClient } = useQuery();
+    this.queryClient = queryClient;
+  }
   /**
    * Initialises the Upmind headless library with the provided configuration.
    * This method orchestrates the initialisation of all internal modules and plugins.
@@ -262,10 +261,8 @@ export class Upmind {
     this.router = router;
     this.i18n = i18n;
     this.storefrontUrl = storefrontUrl;
-    globalStorefrontUrl.value = storefrontUrl;
     this.themes = themes;
     this.admin = admin ?? false;
-    isAdmin.value = this.admin;
 
     this.initPlugins();
     this.initDebugging();
@@ -286,16 +283,12 @@ export class Upmind {
             useSystem().isReady(),
             useSession().isReady()
           ])
-            // start with our render blocking initialisations
-            .then(() =>
-              Promise.all([
-                this.initLocalisation(),
-                this.initTheming(),
-                this.initRouter()
-              ])
-            )
+            // then initialise our localisation to ensure i18n is available to our app/composables/machines
+            .then(() => this.initLocalisation())
+            // and then we start with our render blocking initialisations
+            .then(() => Promise.all([this.initTheming(), this.initRouter()]))
+            // finally we do our non-render blocking initialisations
             .then(() => {
-              // then do our non-render blocking initialisations
               this.initRecaptcha();
               this.initAnalytics();
             })
@@ -352,6 +345,10 @@ export class Upmind {
       });
   }
 
+  /**
+   * Initialises reCAPTCHA integration if enabled.
+   * @private
+   */
   private async initRecaptcha() {
     if (
       !this.recaptcha?.enabled ||
@@ -406,12 +403,20 @@ export class Upmind {
    * @private
    */
   private async initRouter() {
+    const { init, register } = useRoutingEngine();
     if (!this.router?.instance) return;
-    useRouting(this.router.instance);
-    const config = this.router?.registerFunnels
+
+    // initialise the router engine with the router instance
+    init(this.router.instance);
+
+    // then register any funnels
+    const config = isFunction(this.router?.registerFunnels)
       ? this.router.registerFunnels()
       : {};
-    useRoutingEngine().register(config);
+    register(config);
+
+    // finally, conditionally set up the router guards
+    if (this.router.guardRoutes) useRouting(this.router.instance);
   }
 
   /**
@@ -445,6 +450,12 @@ export class Upmind {
   async isReady(): Promise<void> {
     return new Promise(resolve => {
       const interval = setInterval(() => {
+        // console.debug(
+        //   "useUpmind",
+        //   "isReady",
+        //   this.status.value == UpmindStatus.initialised,
+        //   { status: this.status.value }
+        // );
         if (this.status.value == UpmindStatus.initialised) {
           clearInterval(interval);
           resolve();

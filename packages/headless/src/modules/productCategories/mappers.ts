@@ -5,7 +5,7 @@ import { useTranslateField, useTranslateName } from "../../utils";
 // --- types
 import type { IProductCategory } from "@upmind-automation/types";
 import type { ProductCategory } from "./types";
-import { UIMeta, UI_SCHEMA_DEFAULTS } from "../product/types";
+import { type UIMeta, UI_SCHEMA_DEFAULTS } from "../product/types";
 
 // -----------------------------------------------------------------------------
 

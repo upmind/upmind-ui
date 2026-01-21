@@ -32,7 +32,7 @@ import {
 import { parseDomain } from "./utils";
 
 // --- types
-import { DomainTypes, DomainContext, DomainProduct } from "./types";
+import { DomainTypes, type DomainContext, type DomainProduct } from "./types";
 import { PAGINATION } from "../query";
 
 // -----------------------------------------------------------------------------

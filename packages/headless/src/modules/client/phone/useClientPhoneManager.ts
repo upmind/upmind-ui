@@ -6,7 +6,7 @@ import { useActor } from "@xstate/vue";
 
 // --- internal
 import { useI18n } from "../../system";
-import dataManagerMachine from "../../../utils/dataManager.machine";
+import dataManagerMachine from "../../dataManager/dataManager.machine";
 import { useClientPhoneActions, useClientPhoneGuards } from "./actions";
 import { useClientPhoneServices } from "./services";
 import { useClientPhones } from "./useClientPhones";
@@ -24,14 +24,14 @@ import {
   useContext,
   stopService,
   ErrorOrigin,
-  ResponseError
+  type ResponseError
 } from "../../../utils";
 import { debounce, get, isEmpty, isEqual } from "lodash-es";
 
 // --- types
 import type { IClient } from "@upmind-automation/types";
 import type { ErrorObject } from "ajv";
-import type { ClientItemContext } from "../types";
+import type { DataManagerContext } from "../../dataManager/types";
 import type { Phone, PhoneModel } from "./types";
 
 // -----------------------------------------------------------------------------
@@ -101,8 +101,8 @@ export const useClientPhoneManager = (
     isValid: stateMatches(state, "available.valid"),
     isNew: !stateMatches(state, "model.id"),
     isDirty: !isEqual(
-      contextValue<ClientItemContext["model"]>(state, "model"),
-      contextValue<ClientItemContext["baseModel"]>(state, "baseModel")
+      contextValue<DataManagerContext["model"]>(state, "model"),
+      contextValue<DataManagerContext["baseModel"]>(state, "baseModel")
     ),
     isProcessing: stateMatches(state, "processing"),
     isComplete:
@@ -111,7 +111,7 @@ export const useClientPhoneManager = (
   }));
 
   // --- context
-  const context = useContext<ClientItemContext>(state);
+  const context = useContext<DataManagerContext>(state);
 
   const title = useContext<string | undefined>(state, "title");
 
@@ -120,11 +120,14 @@ export const useClientPhoneManager = (
   const errors = useContext<ResponseError["message"]>(state, "error.message");
   const validationErrors = useContext<ErrorObject[]>(state, "error.data");
 
-  const model = useContext<ClientItemContext["model"]>(state, "model");
+  const model = useContext<DataManagerContext["model"]>(state, "model");
 
-  const schema = useContext<ClientItemContext["schema"]>(state, "schema");
+  const schema = useContext<DataManagerContext["schema"]>(state, "schema");
 
-  const uischema = useContext<ClientItemContext["uischema"]>(state, "uischema");
+  const uischema = useContext<DataManagerContext["uischema"]>(
+    state,
+    "uischema"
+  );
 
   // --- methods
 

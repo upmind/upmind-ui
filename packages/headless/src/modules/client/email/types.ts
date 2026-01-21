@@ -2,7 +2,7 @@
 
 // --- types
 import type { IEmail } from "@upmind-automation/types";
-import type { ClientItemContext } from "../types";
+import type { DataManagerContext } from "../../dataManager/types";
 
 // -----------------------------------------------------------------------------
 /**
@@ -77,8 +77,8 @@ export interface Email extends EmailModel {
 
 /**
  * Interface representing the context for email management within a client item context.
- * It extends `ClientItemContext` with specific data relevant to email operations.
+ * It extends `DataManagerContext` with specific data relevant to email operations.
  *
  * @template TModel - The type of the email model, typically {@link EmailModel}.
  */
-export interface EmailContext extends ClientItemContext<EmailModel> {}
+export interface EmailContext extends DataManagerContext<EmailModel> {}

@@ -1,30 +1,14 @@
 // -----------------------------------------------------------------------------
 
-import { defineAsyncComponent } from "vue";
-
 // --- Export Views
-// NB: for views that are used in routes, we need to use defineAsyncComponent
-// to avoid circular dependencies. and to be able to lazy load them.
+export { default as UpmAuthAction } from "./AuthAction.vue";
+export { default as UpmSessionLogin } from "./Login.vue";
+export { default as UpmSessionRegister } from "./Register.vue";
+export { default as UpmSessionLogout } from "./Logout.vue";
+export { default as UpmSessionRecoverPassword } from "./RecoverPassword.vue";
 
-export const UpmAuthAction = defineAsyncComponent(
-  () => import("./AuthAction.vue")
-);
-export const UpmSessionLogin = defineAsyncComponent(
-  () => import("./Login.vue")
-);
-export const UpmSessionRegister = defineAsyncComponent(
-  () => import("./Register.vue")
-);
-export const UpmSessionLogout = defineAsyncComponent(
-  () => import("./Logout.vue")
-);
-export const UpmSessionRecoverPassword = defineAsyncComponent(
-  () => import("./RecoverPassword.vue")
-);
 // --- Export Components
-export const UpmAuth = defineAsyncComponent(
-  () => import("./components/Auth.vue")
-);
+export { default as UpmAuth } from "./components/Auth.vue";
 
 // --- Export Types
 export * from "./types";

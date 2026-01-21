@@ -17,7 +17,7 @@ import { PromotionDisplayTypes } from "@upmind-automation/types";
 import type { Recommendation } from "../recommendations";
 import type { Badge } from "../config/schema";
 import type { BasketProduct } from "../basketProduct";
-import { ResponseError } from "../../utils";
+import { type ResponseError } from "../../utils";
 
 // -----------------------------------------------------------------------------
 /**

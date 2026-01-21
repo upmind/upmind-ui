@@ -1,4 +1,4 @@
-import { IClient, AccessRoleTypes } from "@upmind-automation/types";
+import { type IClient, AccessRoleTypes } from "@upmind-automation/types";
 import type { ResponseError } from "../../utils";
 
 // -----------------------------------------------------------------------------
@@ -67,10 +67,6 @@ export interface SessionContext {
    * Details about an ongoing or completed session transfer.
    */
   transfer?: SessionTransfer;
-  /**
-   * The authenticated client data, if available.
-   */
-  client?: Client;
 }
 
 /**

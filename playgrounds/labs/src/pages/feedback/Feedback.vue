@@ -9,13 +9,13 @@
         <section>
           <h2 class="mb-4 text-xl font-semibold">Add New Message</h2>
           <div class="flex flex-wrap gap-4">
-            <Button @click="handleAddWarning" variant="secondary"
+            <Button @click="handleAddWarning" variant="subtle"
               >Add Info Toast</Button
             >
-            <Button @click="handleAddSuccess" variant="secondary"
+            <Button @click="handleAddSuccess" variant="subtle"
               >Add Success Notification</Button
             >
-            <Button @click="handleAddError" variant="secondary"
+            <Button @click="handleAddError" variant="subtle"
               >Add Error System Message</Button
             >
             <Button @click="handleAddGenericToast" variant="outline"
@@ -76,7 +76,7 @@
               >
                 <span>ID: {{ notificationItem.id.substring(0, 8) }}...</span>
                 <Badge
-                  :variant="
+                  :color="
                     getMessageTypeBadgeVariant(
                       notificationItem.state.value.context.type
                     )
@@ -88,7 +88,7 @@
               <p class="text-muted-foreground mt-1 text-sm">
                 Display:
                 <Badge
-                  :variant="
+                  :color="
                     getBadgeVariant(
                       notificationItem.state.value.context.display
                     )
@@ -125,7 +125,8 @@
               </Button>
               <Button
                 @click="dismiss(notificationItem.id)"
-                variant="destructive"
+                variant="solid"
+                color="danger"
                 size="sm"
               >
                 Dismiss (Main Service)
@@ -155,7 +156,7 @@
               >
                 <span>ID: {{ toastItem.id.substring(0, 8) }}...</span>
                 <Badge
-                  :variant="
+                  :color="
                     getMessageTypeBadgeVariant(
                       toastItem.state.value.context.type
                     )
@@ -167,7 +168,7 @@
               <p class="text-muted-foreground mt-1 text-sm">
                 Display:
                 <Badge
-                  :variant="
+                  :color="
                     getBadgeVariant(toastItem.state.value.context.display)
                   "
                   class="ml-1"
@@ -200,7 +201,8 @@
               </Button>
               <Button
                 @click="dismiss(toastItem.id)"
-                variant="destructive"
+                variant="solid"
+                color="danger"
                 size="sm"
               >
                 Dismiss (Main Service)
@@ -230,7 +232,7 @@
               >
                 <span>ID: {{ systemItem.id.substring(0, 8) }}...</span>
                 <Badge
-                  :variant="
+                  :color="
                     getMessageTypeBadgeVariant(
                       systemItem.state.value.context.type
                     )
@@ -242,7 +244,7 @@
               <p class="text-muted-foreground mt-1 text-sm">
                 Display:
                 <Badge
-                  :variant="
+                  :color="
                     getBadgeVariant(systemItem.state.value.context.display)
                   "
                   class="ml-1"
@@ -275,7 +277,8 @@
               </Button>
               <Button
                 @click="dismiss(systemItem.id)"
-                variant="destructive"
+                variant="solid"
+                color="danger"
                 size="sm"
               >
                 Dismiss (Main Service)
@@ -357,33 +360,35 @@ function handleDismissById() {
   }
 }
 
-// Helper to determine badge variant based on the message display type
-function getBadgeVariant(displayType: messageDisplays) {
+// Helper to determine badge color based on the message display type
+function getBadgeVariant(
+  displayType: messageDisplays
+): "primary" | "info" | "danger" | "neutral" {
   switch (displayType) {
     case messageDisplays.NOTIFICATION:
-      // Assuming you have a 'success' variant for Badge, or use 'default' or 'secondary'
-      return "default";
+      return "primary";
     case messageDisplays.TOAST:
-      return "secondary";
+      return "info";
     case messageDisplays.INTERSTITIAL:
-      return "destructive";
+      return "danger";
     default:
-      return "outline-solid";
+      return "neutral";
   }
 }
 
 // Helper to determine badge color based on message type (ERROR, SUCCESS, INFO)
-function getMessageTypeBadgeVariant(messageType: messageTypes) {
+function getMessageTypeBadgeVariant(
+  messageType: messageTypes
+): "danger" | "success" | "info" | "neutral" {
   switch (messageType) {
     case messageTypes.ERROR:
-      return "destructive";
+      return "danger";
     case messageTypes.SUCCESS:
-      // Assuming a 'success' variant is configured, otherwise use 'default'
-      return "default";
+      return "success";
     case messageTypes.INFO:
-      return "outline-solid";
+      return "info";
     default:
-      return "secondary";
+      return "neutral";
   }
 }
 </script>

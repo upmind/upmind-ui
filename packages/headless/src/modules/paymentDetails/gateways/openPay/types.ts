@@ -1,4 +1,4 @@
-import { GatewayData } from "@upmind-automation/types";
+import { type GatewayData } from "@upmind-automation/types";
 import type { GatewayContext } from "../types";
 
 // -----------------------------------------------------------------------------

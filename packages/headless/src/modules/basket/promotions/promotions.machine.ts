@@ -4,7 +4,6 @@ import { createMachine, assign, sendParent } from "xstate";
 // --- internal
 import services from "./services";
 import { useFeedback } from "../../feedback";
-const { addError } = useFeedback();
 
 // --- utils
 import {
@@ -12,7 +11,8 @@ import {
   parseError,
   useModelParser,
   mapToHeadlessError,
-  useValidationParser
+  useValidationParser,
+  isDirty
 } from "../../../utils";
 import { responseCodes } from "../../../utils";
 import { useSchema, useUischema } from "./utils";
@@ -265,7 +265,7 @@ export default createMachine(
         const { t } = useI18n();
         if (!error || error.status < 500) return;
 
-        addError({
+        useFeedback().addError({
           title: t("error.promotion_update_failed"),
           copy: error?.message,
           data: error?.data
@@ -296,7 +296,7 @@ export default createMachine(
 
     guards: {
       isDirty: ({ baseModel, model }, _event) =>
-        !isEqual(model, baseModel) && !isEmpty(model?.promocode),
+        isDirty(model, baseModel) && !isEmpty(model?.promocode),
       hasBasket: ({ basketId }, _event) => !!basketId,
       hasChanged: ({ promotions, basketId }, { data }: AnyEventObject) =>
         !!xorBy(promotions, data?.promotions, "id")?.length ||

@@ -1,1 +1,1 @@
-export * from "./useFormI18n.ts";
+export * from "./useFormI18n";

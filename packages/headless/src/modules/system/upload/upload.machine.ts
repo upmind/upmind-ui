@@ -1,5 +1,5 @@
 // --- external
-import { createMachine, assign, AnyEventObject } from "xstate";
+import { createMachine, assign, type AnyEventObject } from "xstate";
 
 // --- internal
 import services from "./services";

@@ -1,7 +1,6 @@
 // --- internal
 import services from "../services";
 import { useI18n, useQuery } from "../..";
-import { isAdmin } from "../../../utils/config";
 
 // --- utils
 import { isEmpty } from "lodash-es";
@@ -16,14 +15,11 @@ import { Contexts } from "@upmind-automation/types";
 
 async function load(_context: ClientContext, _event: any) {
   // if we have a token, we are potentially authenticated
-  // and we need to check the token/get the user
+  // and we need to check the token/get the client
   const { t } = useI18n();
 
-  const token = getTokenFromStorage(
-    isAdmin.value ? Contexts.USER : Contexts.CLIENT
-  );
-
-  if (isEmpty(token)) {
+  const token = getTokenFromStorage(Contexts.CLIENT);
+  if (isEmpty(token))
     return Promise.reject(
       new DetailedError(
         t("error.token_not_available"),
@@ -31,25 +27,24 @@ async function load(_context: ClientContext, _event: any) {
         ErrorOrigin.Headless
       )
     );
-  }
 
   const { get, useUrl } = useQuery();
-  const url = useUrl(isAdmin.value ? "admin/self" : "self", {
-    with: ["actor", "accounts"].join()
-  });
 
   return get({
-    url,
-    queryKey: isAdmin.value ? ["session", "admin"] : ["client"],
-    withAccessToken: token?.access_token,
-    withoutLocale: isAdmin.value
-  })
-    .then(data => {
-      return data;
-    })
-    .catch(err => {
-      throw err;
-    });
+    url: useUrl("self", {
+      with: [
+        "actor",
+        "accounts"
+        // client specific only
+        // "actor.account", // Relation required for determining `topup_enabled` value
+        // "actor.brand", // Relation required for determining `topup_enabled` value
+        // "delegated_ids",
+        // "enabled_modules"
+      ].join()
+    }),
+    queryKey: ["session", "self"],
+    withAccessToken: true
+  });
 }
 
 // -----------------------------------------------------------------------------

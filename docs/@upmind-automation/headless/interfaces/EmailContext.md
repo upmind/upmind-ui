@@ -3,7 +3,7 @@
 # EmailContext
 
 Interface representing the context for email management within a client item context.
-It extends `ClientItemContext` with specific data relevant to email operations.
+It extends `DataManagerContext` with specific data relevant to email operations.
 
 ## Template
 
@@ -11,7 +11,7 @@ The type of the email model, typically [EmailModel](EmailModel.md).
 
 ## Extends
 
-- `ClientItemContext`\<[`EmailModel`](EmailModel.md)\>
+- `DataManagerContext`\<[`EmailModel`](EmailModel.md)\>
 
 ## Properties
 
@@ -24,7 +24,7 @@ optional allowMultipleEdits: boolean;
 #### Inherited from
 
 ```ts
-ClientItemContext.allowMultipleEdits
+DataManagerContext.allowMultipleEdits
 ```
 
 ***
@@ -38,7 +38,7 @@ optional autoupdate: boolean;
 #### Inherited from
 
 ```ts
-ClientItemContext.autoupdate
+DataManagerContext.autoupdate
 ```
 
 ***
@@ -52,7 +52,7 @@ optional baseModel: any;
 #### Inherited from
 
 ```ts
-ClientItemContext.baseModel
+DataManagerContext.baseModel
 ```
 
 ***
@@ -66,7 +66,7 @@ optional clientId: string;
 #### Inherited from
 
 ```ts
-ClientItemContext.clientId
+DataManagerContext.clientId
 ```
 
 ***
@@ -80,7 +80,7 @@ optional config: Record<BrandConfigKeys, boolean>;
 #### Inherited from
 
 ```ts
-ClientItemContext.config
+DataManagerContext.config
 ```
 
 ***
@@ -94,7 +94,7 @@ optional description: string;
 #### Inherited from
 
 ```ts
-ClientItemContext.description
+DataManagerContext.description
 ```
 
 ***
@@ -108,7 +108,7 @@ optional error: ResponseError;
 #### Inherited from
 
 ```ts
-ClientItemContext.error
+DataManagerContext.error
 ```
 
 ***
@@ -122,7 +122,7 @@ optional id: string;
 #### Inherited from
 
 ```ts
-ClientItemContext.id
+DataManagerContext.id
 ```
 
 ***
@@ -136,7 +136,7 @@ optional model: EmailModel;
 #### Inherited from
 
 ```ts
-ClientItemContext.model
+DataManagerContext.model
 ```
 
 ***
@@ -150,7 +150,7 @@ optional schema: JsonSchema;
 #### Inherited from
 
 ```ts
-ClientItemContext.schema
+DataManagerContext.schema
 ```
 
 ***
@@ -164,7 +164,7 @@ optional title: string;
 #### Inherited from
 
 ```ts
-ClientItemContext.title
+DataManagerContext.title
 ```
 
 ***
@@ -178,5 +178,5 @@ optional uischema: UISchemaElement;
 #### Inherited from
 
 ```ts
-ClientItemContext.uischema
+DataManagerContext.uischema
 ```

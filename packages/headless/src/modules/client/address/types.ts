@@ -1,5 +1,5 @@
 // --- types
-import type { ClientItemContext } from "../types";
+import type { DataManagerContext } from "../../dataManager/types";
 import type { ICountry, IRegion, IAddress } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
@@ -125,12 +125,12 @@ export interface Address extends AddressModel {
 
 /**
  * Interface representing the context for address management within a client item context.
- * It extends `ClientItemContext` with specific data relevant to address operations,
+ * It extends `DataManagerContext` with specific data relevant to address operations,
  * such as geographical lookups.
  *
  * @template TModel - The type of the address model, typically {@link AddressModel}.
  */
-export interface AddressContext extends ClientItemContext<AddressModel> {
+export interface AddressContext extends DataManagerContext<AddressModel> {
   /**
    * The currently selected country object in the context.
    */

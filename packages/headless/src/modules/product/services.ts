@@ -44,8 +44,8 @@ import {
 // --- types
 import {
   BrandConfigKeys,
-  IBlueprintField,
-  IProduct
+  type IBlueprintField,
+  type IProduct
 } from "@upmind-automation/types";
 
 import type {
@@ -57,7 +57,7 @@ import type {
   ProductProps
 } from "./types";
 
-import { AnyEventObject } from "xstate";
+import { type AnyEventObject } from "xstate";
 import { parseBasketSubproductConfig } from "../basketProduct/utils";
 
 // -----------------------------------------------------------------------------
