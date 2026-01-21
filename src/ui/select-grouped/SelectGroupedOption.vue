@@ -55,7 +55,6 @@ const props = withDefaults(defineProps<SelectGroupedOptionRendererProps>(), {
 
 const emits = defineEmits<{
   "update:modelValue": [value: string];
-  action: [{ name: string; event: Event }];
   "focus-next-group": [];
   "focus-prev-group": [];
 }>();

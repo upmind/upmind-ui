@@ -27,10 +27,7 @@
       name="item"
       v-bind="{ item: props.item, group: props.group, selected: isSelected }"
     >
-      <SelectGroupedItemContent
-        :item="props.item"
-        @action="v => emits('action', v)"
-      />
+      <SelectGroupedItemContent :item="props.item" />
     </slot>
   </li>
 </template>
@@ -71,7 +68,6 @@ const props = withDefaults(
 
 const emits = defineEmits<{
   "update:modelValue": [value: string];
-  action: [{ name: string; event: Event }];
   "focus-next-group": [];
   "focus-prev-group": [];
 }>();

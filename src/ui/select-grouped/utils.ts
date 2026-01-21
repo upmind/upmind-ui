@@ -1,10 +1,9 @@
 // --- external
 import { ref, computed, type Ref } from "vue";
-import { isEqual, isFunction, isString } from "lodash-es";
+import { isEqual } from "lodash-es";
 
 // --- types
 import type {
-  SelectGroupedItemActionProps,
   ToggleSelectionOptions,
   UseListNavigationOptions,
   UseListNavigationReturn,
@@ -12,10 +11,6 @@ import type {
   KeyboardHandlers
 } from "./types";
 
-/**
- * Toggle selection of a value (single selection mode).
- * Returns the new value to emit.
- */
 export function toggleSelectionValue(
   options: ToggleSelectionOptions
 ): string | null {
@@ -23,25 +18,6 @@ export function toggleSelectionValue(
   if (disabled) return null;
   const isSelected = isEqual(currentValue, itemValue);
   return isSelected && !required ? "" : itemValue;
-}
-
-export function handleItemAction(
-  action: SelectGroupedItemActionProps,
-  event: Event
-): { name: string; event: Event } | null {
-  event.preventDefault();
-  event.stopPropagation();
-
-  if (isFunction(action.handler)) {
-    action.handler(event);
-    return null;
-  }
-
-  if (isString(action.handler)) {
-    return { name: action.handler, event };
-  }
-
-  return null;
 }
 
 export function useListNavigation(

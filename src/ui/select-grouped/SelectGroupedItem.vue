@@ -14,10 +14,7 @@
     @keydown.up.prevent="$emit('focusPrev')"
   >
     <slot name="item" v-bind="{ item: props.item, selected: isSelected }">
-      <SelectGroupedItemContent
-        :item="props.item"
-        @action="v => emits('action', v)"
-      />
+      <SelectGroupedItemContent :item="props.item" />
     </slot>
   </li>
 </template>
@@ -50,7 +47,6 @@ const props = defineProps<SelectGroupedDropdownItemProps>();
 
 const emits = defineEmits<{
   select: [value: string];
-  action: [{ name: string; event: Event }];
   focusNext: [];
   focusPrev: [];
 }>();

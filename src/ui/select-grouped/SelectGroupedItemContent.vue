@@ -55,7 +55,6 @@ import { computed } from "vue";
 // --- internal
 import { useStyles } from "../../utils";
 import config from "./selectGrouped.config";
-import { handleItemAction } from "./utils";
 
 // --- components
 import { Badge } from "../badge";
@@ -71,10 +70,6 @@ const props = defineProps<{
   item: SelectGroupedItemProps;
 }>();
 
-const emits = defineEmits<{
-  action: [{ name: string; event: Event }];
-}>();
-
 const meta = computed(() => ({}));
 
 const styles = useStyles<typeof config>(
@@ -84,11 +79,7 @@ const styles = useStyles<typeof config>(
 );
 
 function onAction(event: Event) {
-  if (props.item?.action) {
-    const result = handleItemAction(props.item.action, event);
-    if (result) {
-      emits("action", result);
-    }
-  }
+  event.stopPropagation();
+  props.item?.action?.handler?.(event);
 }
 </script>

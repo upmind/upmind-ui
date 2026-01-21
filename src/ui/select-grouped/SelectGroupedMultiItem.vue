@@ -89,7 +89,6 @@
             :model-value="props.modelValue"
             :focused="focusedIndex === index"
             @select="onItemSelect"
-            @action="onAction"
           >
             <template v-if="$slots['dropdown-item']" #item="slotProps">
               <slot
@@ -148,7 +147,6 @@ const props = withDefaults(defineProps<SelectGroupedMultiItemRendererProps>(), {
 
 const emits = defineEmits<{
   "update:modelValue": [value: string];
-  action: [{ name: string; event: Event }];
   "focus-next-group": [];
   "focus-prev-group": [];
 }>();
@@ -220,10 +218,6 @@ function toggleSelection(value: string) {
   if (newValue !== null) {
     emits("update:modelValue", newValue);
   }
-}
-
-function onAction(payload: { name: string; event: Event }) {
-  emits("action", payload);
 }
 
 function toggleOpen() {

@@ -20,7 +20,6 @@
       :disabled="props.disabled"
       :uiConfig="props.uiConfig"
       @update:model-value="onChange"
-      @action="onAction"
       @focus-next-group="focusGroup(index + 1)"
       @focus-prev-group="focusGroup(index - 1)"
     >
@@ -76,10 +75,6 @@ const props = withDefaults(defineProps<SelectGroupedProps>(), {
   class: ""
 });
 
-const emits = defineEmits<{
-  action: [{ name: string; event: Event }];
-}>();
-
 const modelValue = defineModel<string>({ default: "" });
 
 const groupRefs = ref<{ setFocus: () => void }[]>([]);
@@ -96,10 +91,6 @@ const styles = useStyles<typeof config>(
 
 const onChange = (value: string) => {
   modelValue.value = value;
-};
-
-const onAction = (value: { name: string; event: Event }) => {
-  emits("action", value);
 };
 
 const focusGroup = (index: number) => {

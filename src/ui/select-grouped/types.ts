@@ -42,8 +42,7 @@ export interface KeyboardHandlers {
 }
 
 export interface SelectGroupedItemActionProps extends LinkProps {
-  handler?: ((event: Event) => void) | string;
-  type?: HTMLButtonElement["type"];
+  handler?: Function;
   visible?: boolean;
 }
 
