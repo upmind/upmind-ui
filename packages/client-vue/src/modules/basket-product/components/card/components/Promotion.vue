@@ -15,19 +15,11 @@
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
 import { Badge } from "@upmind-automation/upmind-ui";
-import type { PromotionDetails } from "@upmind-automation/headless";
+import type { PromotionProps } from "./types";
 
-withDefaults(
-  defineProps<
-    PromotionDetails & {
-      disabled?: boolean;
-      size?: "sm" | "md";
-    }
-  >(),
-  {
-    size: "sm"
-  }
-);
+withDefaults(defineProps<PromotionProps>(), {
+  size: "sm"
+});
 
 const { t } = useI18n();
 </script>

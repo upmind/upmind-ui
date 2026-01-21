@@ -104,6 +104,7 @@
           v-bind="productDetails"
           :id="id"
           :quantity="quantity"
+          :disabled="error"
           @update:quantity="doUpdateQuantity"
         />
 
