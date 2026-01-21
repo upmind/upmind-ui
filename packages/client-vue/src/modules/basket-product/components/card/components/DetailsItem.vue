@@ -54,17 +54,10 @@ import { Icon, Tooltip } from "@upmind-automation/upmind-ui";
 import { isEmpty } from "lodash-es";
 
 // --- types
-import type {
-  ProductSummaryDetail,
-  PriceDetail
-} from "@upmind-automation/headless";
+import type { DetailsItemProps } from "./types";
 import { has } from "lodash-es";
 
 // -----------------------------------------------------------------------------
-
-interface DetailsItemProps extends ProductSummaryDetail {
-  price?: PriceDetail;
-}
 
 const props = defineProps<DetailsItemProps>();
 
