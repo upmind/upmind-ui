@@ -29,14 +29,16 @@ export type IconEntry = {
   fullPath: string;
   /** Icon name without extension */
   name: string;
+  /** Pack/variant name (e.g. "Duocolor", "Line"), undefined for root icons */
+  pack?: string;
   /** Lazy loader function that returns the raw SVG string */
   loader: () => Promise<string>;
 };
 
 export type LoadIconOptions = {
-  /** Variant folder (e.g. "Duocolor", "Line"). If omitted, falls back to Global. */
+  /** Variant pack (e.g. "Duocolor", "Line"). If omitted, loads from root icons. */
   variant?: string;
-  /** Whether to fall back to Global when the variant icon is missing. Defaults to true. */
+  /** Whether to fall back to root icons when the variant pack icon is missing. Defaults to true. */
   fallback?: boolean;
 };
 
