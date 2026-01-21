@@ -13,7 +13,8 @@
 
 <script lang="ts" setup>
 // --- external
-import { computed, ref, watchEffect, inject } from "vue";
+import { computed, ref, watchEffect } from "vue";
+import { loadIcon } from "./utils/iconLoader";
 
 // --- internal
 import theme from "../../utils/useThemes";
@@ -26,7 +27,7 @@ import {
 import config from "./icon.config";
 
 // --- utils
-import { find, isObject, isEmpty } from "lodash-es";
+import { isObject, isEmpty } from "lodash-es";
 
 // --- types
 import type { IconProps } from ".";
@@ -53,49 +54,18 @@ const meta = computed(() => ({
 
 const styles = useStyles("icon", meta, config, props.uiConfig ?? {});
 
-const icons = import.meta.glob("@icons/**/*.svg", {
-  query: "?raw",
-  eager: false,
-  import: "default"
-});
+// Removed static glob – we now load icons on demand via iconLoader
 
-const svg = ref();
+const svg = ref<string | undefined>(undefined);
 
 watchEffect(async () => {
   const safeVariant = props.variant || theme.activeIconTheme?.value;
-  const safePath = isObject(props.icon) ? `${props.icon?.path}/` : "";
-  const safeName = isObject(props.icon) ? props.icon?.name : props.icon;
-
-  // Try to find exact variant match first
-  const variantMatch = safeVariant
-    ? find(icons, (_, iconPath) =>
-        iconPath.endsWith(`/${safeVariant}/${safeName}.svg`)
-      )
-    : null;
-
-  // Fallback to direct path match
-  const directMatch = find(
-    icons,
-    (_, iconPath) =>
-      iconPath.endsWith(`${safePath}${safeName}.svg`) &&
-      iconPath.endsWith(`/${safeName}.svg`)
-  );
-
-  const asyncImport = variantMatch || directMatch;
-
-  if (!asyncImport) {
-    // console.warn("icon", "import not found", {
-    //   icon: props.icon,
-    //   icons
-    // });
-    emit("error", new Error(`Icon not found: ${safeName}`));
-    svg.value = null;
-    return;
+  try {
+    const result = await loadIcon(props.icon, { variant: safeVariant });
+    svg.value = result;
+  } catch (e) {
+    emit("error", e as Error);
+    svg.value = undefined;
   }
-
-  svg.value = await asyncImport().catch(() => {
-    emit("error", new Error(`Failed to process content: ${safeName}`));
-    return null;
-  });
 });
 </script>

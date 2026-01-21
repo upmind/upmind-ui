@@ -3,6 +3,10 @@
   "version": "0.0.6",
   "description": "",
   "type": "module",
+  "sideEffects": [
+    "*.css",
+    "./src/assets/**/*"
+  ],
   "exports": {
     ".": {
       "import": "./dist/index.js",
@@ -26,7 +30,7 @@
     "clean": "rm -rf {node_modules,dist,*.tsbuildinfo} && rm -rf node_modules && pnpm install",
     "build": "pnpm type-check && pnpm build-only",
     "build-only": "vite build",
-    "type-check": "vue-tsc -p tsconfig.build.json --noEmit",
+    "type-check": "vue-tsc --noEmit",
     "preview": "vite preview",
     "lint": "eslint . --fix",
     "format": "prettier --write src/"
@@ -96,6 +100,11 @@
   "peerDependencies": {
     "tailwindcss": "^4.1.11",
     "vue": "^3.0.0",
-    "vue-router": "^4.5.0"
+    "vue-router": "^4.5.0",
+    "radix-vue": "^1.9.17",
+    "@vueuse/core": "^13.6.0",
+    "@vueuse/components": "^13.6.0",
+    "@vueuse/shared": "^13.6.0",
+    "lucide-vue-next": "^0.539.0"
   }
 }

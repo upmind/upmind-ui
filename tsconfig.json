@@ -1,29 +1,41 @@
 {
-  // This tsconfig is for development. Allowing *.story.vue, and __test__/*.vue to have types support
+  "$schema": "https://json.schemastore.org/tsconfig",
   "extends": "@vue/tsconfig/tsconfig.dom.json",
   "compilerOptions": {
-    "baseUrl": ".",
-    "composite": true,
-    "declaration": true,
-    "declarationMap": false,
-    "esModuleInterop": true,
-    "isolatedModules": true,
-    "emitDeclarationOnly": true,
-    "jsx": "preserve",
-    "lib": ["esnext", "dom"],
-    "module": "esnext",
-    "moduleResolution": "node",
-    "noEmit": false,
-    "outDir": "dist",
-    "paths": { "@/*": ["src/*"] },
-    "resolveJsonModule": true,
-    "rootDir": "src",
-    "skipLibCheck": true,
-    "sourceMap": true,
+    // Strict checks
     "strict": true,
-    "target": "esnext",
-    "types": ["jsdom", "vite/client"]
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "resolveJsonModule": true,
+    "forceConsistentCasingInFileNames": true,
+
+    // Module settings
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "jsx": "preserve",
+
+    // Emit settings
+    "composite": true,
+    "emitDeclarationOnly": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "noEmit": false,
+
+    // Types
+    "types": ["vite/client"],
+
+    // Path settings
+    "rootDir": "src",
+    "outDir": "dist",
+    "declarationDir": "dist",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "**/*.spec.*", "src/**/*.*test.ts"]
+  "include": ["src"],
+  "exclude": ["node_modules", "dist", "**/*.spec.*", "**/*.test.*"]
 }
