@@ -4,7 +4,7 @@ import type { Badge } from "../config/schema";
 
 export type ProductCategory = {
   id: IProductCategory["id"];
-  title: IProductCategory["name"]; // translated name for display purposes
+  title?: IProductCategory["name"]; // translated name for display purposes, optional during loading
   name: IProductCategory["name"]; // untranslated name for reporting purposes
   description?: IProductCategory["description"];
   badge?: Badge;
