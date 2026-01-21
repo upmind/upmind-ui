@@ -36,6 +36,7 @@ export * from "./ui/pagination";
 export * from "./ui/popover";
 export * from "./ui/radio-cards";
 export * from "./ui/radio-cards-collapsible";
+export * from "./ui/select-grouped";
 export * from "./ui/radio-group";
 export * from "./ui/sanitized";
 export * from "./ui/select";
