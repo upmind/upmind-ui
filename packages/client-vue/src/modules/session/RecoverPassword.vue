@@ -14,14 +14,7 @@
 
     <template #hero>
       <slot name="hero">
-        <Hero
-          :badge="{
-            label: t('text.fully_encrypted_title'),
-            icon: 'lock-04'
-          }"
-          :title="t('text.forgot_your_password_qn')"
-          class="mx-auto w-full max-w-2xl"
-        >
+        <Hero :title="t('text.forgot_your_password_qn')">
           <template #description>
             <i18n-t
               keypath="auth.forgot_password_help"
