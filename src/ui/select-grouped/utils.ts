@@ -126,7 +126,11 @@ export function useListNavigation(
   function getKeyboardHandlers(
     handlerOptions: KeyboardHandlerOptions = {}
   ): KeyboardHandlers {
-    const { onNavigate, onNavigateEdge, preventDefault = true } = handlerOptions;
+    const {
+      onNavigate,
+      onNavigateEdge,
+      preventDefault = true
+    } = handlerOptions;
 
     const prevKeys =
       orientation === "horizontal"

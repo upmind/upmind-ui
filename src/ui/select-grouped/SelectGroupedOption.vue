@@ -10,11 +10,7 @@
     </template>
   </SelectGroupedSingleItem>
 
-  <SelectGroupedMultiItem
-    v-else
-    ref="multiItemRef"
-    v-bind="forwarded"
-  >
+  <SelectGroupedMultiItem v-else ref="multiItemRef" v-bind="forwarded">
     <template v-if="$slots.icon" #icon="slotProps">
       <slot name="icon" v-bind="slotProps" />
     </template>
