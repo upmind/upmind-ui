@@ -358,6 +358,7 @@ export const useQuery = () => {
     withBasket,
     withoutLocale,
     withAccessToken,
+    withSplitCount,
     ...options
   }: QueryParams<TQueryFnData, TData>) {
     // ensure we have a scope, in case we call this outside of a setup function
@@ -396,7 +397,8 @@ export const useQuery = () => {
               : Promise.resolve();
             return safeguard.then(async () => {
               // define our request parameters for easy reuse
-              if (useSplitCountLogic) url.searchParams.set("skip_count", "1");
+              if (withSplitCount) url.searchParams.set("skip_count", "1");
+
               const params = {
                 url,
                 sort: sort.value,
@@ -453,9 +455,7 @@ export const useQuery = () => {
       )
     );
 
-    const useSplitCountLogic = true;
-    // TODO add a useSplitCountLogic paramt to do this...
-    if (useSplitCountLogic)
+    if (withSplitCount)
       countRequest({
         queryKey,
         url,
@@ -658,6 +658,7 @@ export const useQuery = () => {
     withBasket,
     withoutLocale,
     withAccessToken,
+    withSplitCount = false,
     ...options
   }: QueryParams<TQueryFnData, TData>) {
     // ensure we have a scope, in case we call this outside of a setup function
@@ -697,8 +698,10 @@ export const useQuery = () => {
             const safeguard: Promise<void | boolean> = hasGuard
               ? guard()
               : Promise.resolve();
-            return safeguard.then(() =>
-              request<TQueryFnData>({
+            return safeguard.then(() => {
+              if (withSplitCount) url.searchParams.set("skip_count", "1");
+
+              return request<TQueryFnData>({
                 url,
                 sort: sort.value,
                 filters: filters.value,
@@ -725,8 +728,8 @@ export const useQuery = () => {
                       : offset + limit,
                   pageData: data
                 };
-              })
-            );
+              });
+            });
           },
           getNextPageParam: (lastPage: InfiniteQueryPage<TQueryFnData>) =>
             lastPage.nextOffset,
@@ -737,6 +740,22 @@ export const useQuery = () => {
     );
 
     // -------------------------------------------------------------------------
+
+    if (withSplitCount)
+      countRequest({
+        queryKey,
+        url,
+        sort: sort.value,
+        filters: filters.value,
+        withCurrency,
+        withoutLocale,
+        init: {
+          ...init
+        },
+        withAccessToken
+      }).then(count => {
+        total.value = count as number;
+      });
 
     return {
       ...response,
@@ -1011,6 +1030,7 @@ export const useQuery = () => {
     queryKey,
     withAccessToken,
     withoutLocale,
+    withSplitCount = false,
     ...options
   }: QueryParams<TQueryFnData, TData>): Promise<QueryResponse<TData>> {
     // --- state
@@ -1030,6 +1050,8 @@ export const useQuery = () => {
     >({
       queryKey: cleanQueryKey([...queryKey, reactiveKeys]),
       queryFn: async ({ signal }) => {
+        if (withSplitCount) url.searchParams.set("skip_count", "1");
+
         const params = {
           url,
           sort,
@@ -1073,6 +1095,24 @@ export const useQuery = () => {
                 };
               }
               return response;
+            })
+            // Merge the count from the separate request if using split count
+            .then(async response => {
+              if (!withSplitCount) return response;
+
+              return countRequest({
+                queryKey,
+                url,
+                sort,
+                filters,
+                withCurrency: options.withCurrency,
+                withoutLocale,
+                init,
+                withAccessToken
+              }).then(count => {
+                response.total = count as number;
+                return response;
+              });
             })
         );
       },
