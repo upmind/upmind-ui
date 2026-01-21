@@ -173,7 +173,12 @@ const badge = computed(() => {
 // --- context
 
 const widget = computed(() => {
-  if (ui.productList.value === PRODUCT_LIST_STYLE.DAC) return WidgetDAC;
+  if (
+    (category.value.uiMeta as { widgets?: { dac?: boolean } })?.widgets?.dac ||
+    ui.productList.value === PRODUCT_LIST_STYLE.DAC
+  ) {
+    return WidgetDAC;
+  }
   return WidgetGrid;
 });
 
