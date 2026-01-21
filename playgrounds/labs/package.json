@@ -19,8 +19,10 @@
   "scripts": {
     "clean": "rm -rf {node_modules,dist,*.tsbuildinfo} && rm -rf node_modules && pnpm install",
     "start": "pnpm dev",
+    "build:prod": "pnpm type-check && pnpm build-only",
+    "build-only": "vite build",
     "dev": "vite",
-    "type-check": "vue-tsc -p tsconfig.build.json  --noEmit",
+    "type-check": "vue-tsc -p tsconfig.build.json --noEmit",
     "preview": "vite preview",
     "lint": "eslint . --fix",
     "format": "prettier --write src/"
@@ -31,6 +33,7 @@
     "@tailwindcss/typography": "^0.5.16",
     "@tanstack/vue-query": "^5.83.1",
     "@upmind-automation/types": "workspace:*",
+    "@upmind-automation/headless": "workspace:*",
     "@upmind-automation/client-vue": "workspace:*",
     "@upmind-automation/upmind-ui": "workspace:*",
     "@upmind-automation/i18n": "workspace:*",

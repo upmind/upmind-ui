@@ -1,6 +1,6 @@
 // ---  external
 import { isEnabled, getCookie, setCookie, removeCookie } from "tiny-cookie";
-import { parse, ParsedDomain } from "psl";
+import { parse, type ParsedDomain } from "psl";
 
 // --- internal
 import useUpmind from "../index";

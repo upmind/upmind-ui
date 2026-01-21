@@ -1,5 +1,5 @@
 // --- external
-import parsePhoneNumber, { CountryCode } from "libphonenumber-js";
+import parsePhoneNumber, { type CountryCode } from "libphonenumber-js";
 
 // --- internal
 import {

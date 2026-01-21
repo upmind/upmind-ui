@@ -4,7 +4,7 @@ import { map, isArray } from "lodash-es";
 // --- types
 import type { SentEmail } from "./types";
 import {
-  IClient,
+  type IClient,
   SentEmailStatus,
   type ISentEmail
 } from "@upmind-automation/types";

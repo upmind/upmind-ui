@@ -2,12 +2,11 @@
 import { asyncDebounce } from "@tanstack/pacer";
 
 // --- internal
-import { CustomField, useI18n, useQuery } from "../../..";
+import { useI18n, useQuery } from "../../..";
 
 // --- utils
-import { get, map } from "lodash-es";
+import { mapCustomField } from "../../client/customFields/mappers";
 import {
-  DEBOUNCE_DELAY,
   DetailedError,
   ErrorOrigin,
   responseCodes,
@@ -15,12 +14,13 @@ import {
   useTime,
   useValidation
 } from "../../../utils";
+import { get, map } from "lodash-es";
 
 // --- types
 import type { IBasket, ICustomField } from "@upmind-automation/types";
 import type { AnyEventObject } from "xstate";
 import type { FieldsContext, FieldsModel } from "./types";
-import { mapCustomField } from "../../client/customFields/mappers";
+import type { CustomField } from "../../client";
 
 // -----------------------------------------------------------------------------
 

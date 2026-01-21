@@ -8,7 +8,7 @@ import type {
   PhoneModel,
   Company
 } from "../../../client";
-import type { ClientItemContext } from "../../../client/types";
+import type { DataManagerContext } from "../../../dataManager/types";
 import type { ICountry, IRegion } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
@@ -59,11 +59,11 @@ export type UnifiedModel = {
 
 /**
  * Interface representing the context for a unified client item, extending
- * `ClientItemContext` to include specific details related to the unified type
+ * `DataManagerContext` to include specific details related to the unified type
  * such as addresses, companies, phones, emails, and geographical lookups.
  * This context provides a comprehensive view of a client's unified profile.
  */
-export interface UnifiedContext extends ClientItemContext<UnifiedModel> {
+export interface UnifiedContext extends DataManagerContext<UnifiedModel> {
   /**
    * The type of the unified client profile, indicating whether it's 'personal' or 'business'.
    */

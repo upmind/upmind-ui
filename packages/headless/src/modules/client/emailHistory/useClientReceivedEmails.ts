@@ -10,8 +10,12 @@ import { invalidateQueryByKey } from "../../query";
 import { set, isEmpty, isArray } from "lodash-es";
 
 // --- types
-import { QueryProps, RequestFilters, RequestSortDirection } from "../../query";
-import { ISentEmail } from "@upmind-automation/types";
+import {
+  type QueryProps,
+  type RequestFilters,
+  RequestSortDirection
+} from "../../query";
+import type { ISentEmail } from "@upmind-automation/types";
 
 /**
  * Properties by which products can be sorted.

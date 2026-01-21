@@ -181,6 +181,7 @@ import {
   defineAsyncComponent,
   onUnmounted,
   provide,
+  watch,
   type ComputedRef
 } from "vue";
 import { useI18n } from "vue-i18n";
@@ -190,7 +191,8 @@ import {
   useRoutingEngine,
   useBasketProducts,
   useQueryParams,
-  useProductConfig
+  useProductConfig,
+  type ProductDetails
 } from "@upmind-automation/headless";
 import { useHeader } from "../../components/header/useHeader";
 import { useFooter } from "../../components/footer/useFooter";
@@ -346,4 +348,21 @@ onUnmounted(() => {
   useLayout({});
   useFooter({});
 });
+
+// Emit productDetails when it loads/changes for parent components (e.g., SEO, schema)
+const emit = defineEmits<{
+  productDetails: [payload: ProductDetails];
+}>();
+
+watch(
+  () => product.value?.productDetails,
+  value => {
+    if (value) {
+      emit("productDetails", value);
+    }
+  },
+  { immediate: true }
+);
+
+defineExpose({ product: () => product.value?.productDetails });
 </script>

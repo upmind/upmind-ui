@@ -6,13 +6,12 @@ import services from "./services";
 import { basketSubscription } from "../basketProduct/helper";
 import { authSubscription } from "../session/helper";
 import { useFeedback } from "../feedback";
-const { addError } = useFeedback();
 
 // --- utils
 import {
   mapToHeadlessError,
   responseCodes,
-  ResponseError,
+  type ResponseError,
   useTime
 } from "../../utils";
 import { parseDomain, parseValue, parseSld, isDomainProduct } from "./utils";
@@ -606,7 +605,7 @@ export default createMachine(
 
         if (!data || !domainProduct) return;
 
-        addError({
+        useFeedback().addError({
           title: t("error.domain_add_failed"),
           copy: domainProduct?.domain ?? ""
         });

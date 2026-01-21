@@ -22,14 +22,14 @@ import {
 
 // --- types
 import {
-  IBasketProduct,
-  IBlueprint,
-  IProduct,
+  type IBasketProduct,
+  type IBlueprint,
+  type IProduct,
   ProvisionCategoryCodes
 } from "@upmind-automation/types";
 import type { BasketProduct } from "../basketProduct";
 import type { DomainProduct, DomainModel } from "./types";
-import { ProductProps } from "../product";
+import { type ProductProps } from "../product";
 
 // ----------------------------------------------------------------------------
 const DOMAIN_PATTERN =

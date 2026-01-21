@@ -1,0 +1,19 @@
+{
+  "projects": {
+    "default": "upmind-labs"
+  },
+  "targets": {
+    "upmind-labs": {
+      "hosting": {
+        "staging": [
+          "sprighost-nuxt"
+        ],
+        "hosting": [
+          "upmind-checkout-dev"
+        ]
+      }
+    }
+  },
+  "etags": {},
+  "dataconnectEmulatorConfig": {}
+}

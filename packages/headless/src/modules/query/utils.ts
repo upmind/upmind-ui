@@ -25,11 +25,11 @@ import {
 
 // ---types
 import type { InvalidateQueryFilters, QueryKey } from "@tanstack/vue-query";
-import { AnyUpdater, Store } from "@tanstack/vue-store";
+import { type AnyUpdater, Store } from "@tanstack/vue-store";
 import { isArray, isString } from "xstate/lib/utils";
-import { QueryResponse } from "./types";
+import { type QueryResponse } from "./types";
 import {
-  Message,
+  type Message,
   messageDisplays,
   messageTypes,
   useFeedback
@@ -345,11 +345,10 @@ export function handleError(
   error: QueryResponse["error"]
 ): Promise<never> {
   const { t } = useI18n();
-  const { add } = useFeedback();
 
   // get the mapped the error and status to a feedback message and display it if it exists
   const feedback = get(mapFeedback(error), status);
-  if (!isNil(feedback)) add(feedback);
+  if (!isNil(feedback)) useFeedback().add(feedback);
   throw new DetailedError(
     error?.message ?? t("error.503_title_md"),
     status || responseCodes.Service_Unavailable,

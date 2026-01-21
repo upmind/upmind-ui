@@ -17,23 +17,24 @@ import {
 import { isEmpty, isNil, omitBy, set, map, isArray, sumBy } from "lodash-es";
 
 // --- types
-import { IInvoice } from "@upmind-automation/types";
+import { type IInvoice } from "@upmind-automation/types";
 import type { BasketProduct } from "../../basketProduct";
 import type { Product } from "../../product";
 import { mapIBasketProduct, mapBasketProduct } from "./utils";
 import {
-  DataLayerEcommerce,
-  DataLayerEcommerceItems,
-  DataLayerEcommerceItem,
-  DataLayerPage,
-  DataLayerUser
+  type DataLayerEcommerce,
+  type DataLayerEcommerceItems,
+  type DataLayerEcommerceItem,
+  type DataLayerPage,
+  type DataLayerUser
 } from "./types";
-import { PageRoute } from "../../routing";
+import { type PageRoute } from "../../routing";
 
 // -----------------------------------------------------------------------------
 // ---  Globals/Singletons
 let UETQ: Window["uetq"]; // Microsoft Consent
-let DATA_LAYER = window.dataLayer || [];
+let DATA_LAYER: Window["dataLayer"] =
+  typeof window !== "undefined" ? window.dataLayer || [] : [];
 
 // -----------------------------------------------------------------------------
 
@@ -230,9 +231,12 @@ class TrackingEvent {
  * @returns {object} Grouped and documented returns for data layer management.
  */
 export const useDataLayer = (dataLayer: string = "dataLayer") => {
-  DATA_LAYER = (window.dataLayer =
-    window.dataLayer || []) as Window["dataLayer"];
-  UETQ = window["uetq"] = window["uetq"] || [];
+  // SSR guard - only access window in browser context
+  if (typeof window !== "undefined") {
+    DATA_LAYER = (window.dataLayer =
+      window.dataLayer || []) as Window["dataLayer"];
+    UETQ = window["uetq"] = window["uetq"] || [];
+  }
 
   // --- state
 

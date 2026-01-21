@@ -6,7 +6,6 @@ import services from "./services";
 import { basketSubscription } from "../basketProduct/helper";
 
 import { useDataLayer } from "../system";
-const { dataLayer } = useDataLayer();
 
 // --- utils
 import { mapToHeadlessError, useTime } from "../../utils";
@@ -517,13 +516,15 @@ export default createMachine(
         { data }: AnyEventObject
       ) => {
         const product = data; //TODO: check / parse the data is a basket item
-        dataLayer({
-          event: "view_item_list",
-          currency: currency?.code,
-          item_list_id: "recommendations",
-          // item_list_name: "Recommendations",
-          items: raw.related
-        }).push();
+        useDataLayer()
+          .dataLayer({
+            event: "view_item_list",
+            currency: currency?.code,
+            item_list_id: "recommendations",
+            // item_list_name: "Recommendations",
+            items: raw.related
+          })
+          .push();
       },
 
       // ---

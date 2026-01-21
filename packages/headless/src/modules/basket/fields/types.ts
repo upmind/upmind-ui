@@ -3,7 +3,7 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --- internal
 import type { ResponseError } from "../../../utils";
-import { CustomField } from "../../client";
+import type { CustomField } from "../../client";
 // -----------------------------------------------------------------------------
 
 export interface FieldsModel {

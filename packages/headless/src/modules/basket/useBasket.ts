@@ -1,5 +1,5 @@
 // --- external
-import { computed, ComputedRef, h } from "vue";
+import { computed, type ComputedRef, h } from "vue";
 import { waitFor } from "xstate/lib/waitFor";
 import { interpret, InterpreterStatus } from "xstate";
 import { useActor } from "@xstate/vue";
@@ -23,8 +23,8 @@ import {
   contextMatches,
   machineMatches,
   useContextActor,
-  UseActor,
-  ResponseError
+  type UseActor,
+  type ResponseError
 } from "../../utils";
 import {
   get,

@@ -18,8 +18,8 @@ import { compact, get, map, reduce, set, uniq } from "lodash-es";
 import type { IBasket } from "@upmind-automation/types";
 import { TaxTagTypes } from "@upmind-automation/types";
 
-import { PaymentDetailsContext } from "../paymentDetails";
-import { BasketContext } from "./types";
+import { type PaymentDetailsContext } from "../paymentDetails";
+import { type BasketContext } from "./types";
 
 // -----------------------------------------------------------------------------
 

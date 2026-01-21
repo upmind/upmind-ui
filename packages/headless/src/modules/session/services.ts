@@ -9,7 +9,7 @@ import { DetailedError, ErrorOrigin, responseCodes } from "../../utils";
 import { getTokenFromStorage, persistTokenToStorage } from "./utils";
 
 // --- types
-import { GrantTypes, IToken } from "@upmind-automation/types";
+import { GrantTypes, type IToken } from "@upmind-automation/types";
 import type { SessionContext } from "./types";
 
 // -----------------------------------------------------------------------------
@@ -26,10 +26,7 @@ async function check(_context: SessionContext) {
       mutationKey: ["session"],
       url: useUrl("access_token", {}, { context: "oauth" }),
       data: { grant_type: GrantTypes.GUEST }
-    }).then(data => {
-      persistTokenToStorage(data);
-      return data;
-    });
+    }).then(data => persistTokenToStorage(data));
   }
 }
 

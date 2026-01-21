@@ -90,7 +90,7 @@ import Layout from "../../components/layout/Layout.vue";
 import Configure from "../recommendations/components/Configure.vue";
 import CardsCarousel from "../recommendations/components/CardsCarousel.vue";
 import Hero from "../../components/hero/Hero.vue";
-import type { LAYOUT_VARIANTS } from "@/components";
+import type { LAYOUT_VARIANTS } from "../../components";
 import { LAYOUT_OVERFLOW } from "../../components/layout/types";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
 

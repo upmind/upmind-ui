@@ -10,7 +10,7 @@
     :style="{ paddingLeft: `${0.5 + depth * 0.5}rem` }"
   >
     <div class="flex grow items-center" @click="toggleExpand">
-      <span v-if="category.categories && category.categories.length">
+      <span v-if="category.children?.length">
         <svg
           class="mr-2 h-4 w-4 transform transition-transform"
           :class="{ 'rotate-90': isExpanded }"
@@ -35,9 +35,9 @@
       >
     </div>
   </li>
-  <ul v-if="isExpanded && category.categories && category.categories.length">
+  <ul v-if="isExpanded && category.children?.length">
     <CategoryItem
-      v-for="subCategory in category.categories"
+      v-for="subCategory in category.children"
       :key="subCategory.id"
       :category="subCategory"
       :model-value="modelValue"
@@ -50,7 +50,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useVModel } from "@vueuse/core";
-import { ProductCategory } from "@upmind-automation/headless";
+import { type ProductCategory } from "@upmind-automation/headless";
 
 const props = withDefaults(
   defineProps<{

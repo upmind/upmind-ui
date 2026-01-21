@@ -9,21 +9,32 @@ export default defineConfig({
     dts({
       entryRoot: "src",
       outDir: "dist",
-      tsconfigPath: "tsconfig.build.json"
+      tsconfigPath: "tsconfig.json"
     })
   ],
   build: {
     lib: {
-      entry: {
-        main: resolve(__dirname, "src/index.ts")
-      },
+      entry: resolve(__dirname, "src/index.ts"),
       name: "@upmind-automation/client-vue",
-      fileName: "index",
       formats: ["es"]
     },
     rollupOptions: {
-      external: ["vue", "vue-router"],
+      external: [
+        "vue",
+        "vue-router",
+        "vue-i18n",
+        "@upmind-automation/headless",
+        "@upmind-automation/upmind-ui",
+        "@vueuse/core",
+        "@vueuse/components",
+        "@vueuse/router",
+        "xstate",
+        /^lodash-es/
+      ],
       output: {
+        preserveModules: true,
+        preserveModulesRoot: "src",
+        entryFileNames: "[name].js",
         globals: {
           vue: "Vue",
           "vue-router": "VueRouter",
@@ -35,7 +46,7 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": resolve(__dirname, "./src"),
-      "@icons": resolve(__dirname, "./src/assets/icons"),
+      "@icons": resolve(__dirname, "../icons/assets"),
       "@themes": resolve(__dirname, "./src/assets/themes"),
       "@animations": resolve(__dirname, "./src/assets/animations"),
       // ---

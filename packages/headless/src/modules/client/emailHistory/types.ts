@@ -2,13 +2,12 @@
 
 // --- types
 import {
-  IClient,
-  IImage,
+  type IClient,
+  type IImage,
   SentEmailStatus,
   type ISentEmail
 } from "@upmind-automation/types";
-import type { ClientItemContext } from "../types";
-import { I } from "vitest/dist/chunks/reporters.d.BFLkQcL6";
+import type { DataManagerContext } from "../../dataManager/types";
 
 // -----------------------------------------------------------------------------
 /**
@@ -110,8 +109,8 @@ export interface SentEmail extends SentEmailModel {
 
 /**
  * Interface representing the context for email management within a client item context.
- * It extends `ClientItemContext` with specific data relevant to email operations.
+ * It extends `DataManagerContext` with specific data relevant to email operations.
  *
  * @template TModel - The type of the email model, typically {@link SentEmailModel}.
  */
-export interface SentEmailContext extends ClientItemContext<SentEmailModel> {}
+export interface SentEmailContext extends DataManagerContext<SentEmailModel> {}

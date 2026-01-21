@@ -15,7 +15,7 @@ import {
   isEmpty,
   isNil,
   isEqual,
-  PropertyPath,
+  type PropertyPath,
   compact,
   pick,
   includes

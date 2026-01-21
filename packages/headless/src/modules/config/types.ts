@@ -5,7 +5,7 @@ import type {
   DataSchema
 } from "./schema";
 import { UIContext, UIScope } from "./schema";
-import { BrandMeta } from "../brand/types";
+import { type BrandMeta } from "../brand/types";
 import { HELPERS } from "./utils";
 
 // --- Basic Types ---

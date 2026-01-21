@@ -1,12 +1,16 @@
 // ---internal
-import { Client } from "../../session";
-import { CustomField } from "../customFields";
-import { FieldsModel, ProfileField, useBrand, useI18n } from "../../";
+import { type Client } from "../../session";
+import { type CustomField } from "../customFields";
+import { type FieldsModel, useBrand, useI18n } from "../../";
 
 // --- utils
-import { map, find, get, omitBy, isEmpty, isNil } from "lodash-es";
-import { IClient } from "@upmind-automation/types";
-import { isString } from "xstate/lib/utils";
+import { map, find, get, omitBy, isEmpty, isNil, isString } from "lodash-es";
+
+// --- types
+import type { ProfileField } from "../../";
+import { type IClient } from "@upmind-automation/types";
+
+// -----------------------------------------------------------------------------
 
 export function mapProfileFields(
   client: Client,

@@ -39,7 +39,7 @@ import { responseCodes, compactDeep } from "../../utils";
 import type { ProductModel, ProductProps } from "../product";
 import type { ActorRef, State, Subscription } from "xstate";
 import { useI18n } from "../system";
-import { IBasket } from "@upmind-automation/types";
+import { type IBasket } from "@upmind-automation/types";
 
 type PendingProduct = ReturnType<typeof useBasketProductPending>;
 

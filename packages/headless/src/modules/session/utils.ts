@@ -1,6 +1,5 @@
 // --- internal
 import { useI18n } from "../system";
-import { isAdmin } from "../../utils/config";
 
 // --- utils
 import {
@@ -13,7 +12,6 @@ import {
   toNumber,
   isBoolean,
   toString,
-  pick,
   first,
   slice,
   isEmpty,
@@ -87,17 +85,10 @@ export function getTokenFromStorage(actor_type?: Token["actor_type"]) {
   } else if (actor_type === Contexts.GUEST) {
     token = guestCookie || "";
   } else {
-    // If no specific actor type is requested, check based on the app mode
-    const admin = isAdmin.value;
-    if (admin) {
-      token = userCookie || adminCookie || guestCookie || "";
-    } else {
-      token = clientCookie || guestCookie || "";
-    }
+    token = userCookie || adminCookie || clientCookie || guestCookie || "";
   }
 
-  const parsedToken = useTokenParser(token) as Token;
-  return parsedToken;
+  return useTokenParser(token) as Token;
 }
 
 export function persistTokenToStorage(token: Token) {

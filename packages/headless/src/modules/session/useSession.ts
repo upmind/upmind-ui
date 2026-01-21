@@ -1,6 +1,6 @@
 // --- external
 import { computed } from "vue";
-import { ActorRef, interpret, InterpreterStatus } from "xstate";
+import { interpret, InterpreterStatus } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 import { useActor } from "@xstate/vue";
 
@@ -21,7 +21,7 @@ import {
   useContext,
   useChildActor,
   ErrorOrigin,
-  ResponseError
+  type ResponseError
 } from "../../utils";
 
 // ---types
@@ -31,9 +31,9 @@ import type {
   SessionTransfer,
   Client
 } from "./types";
-import { ErrorObject } from "ajv";
-import { GuestContext } from "./guest/types";
-import { ClientContext } from "./client/types";
+import type { ErrorObject } from "ajv";
+import type { GuestContext } from "./guest/types";
+import type { ClientContext } from "./client/types";
 export type { Client, SessionTransfer, IAuthTransfer } from "./types";
 // -----------------------------------------------------------------------------
 
@@ -61,21 +61,9 @@ export const useSession = () => {
   // --- state
 
   async function isReady(): Promise<boolean> {
-    const snap = service.getSnapshot();
-    if (!snap.matches("checking")) {
-      if (snap.matches("error")) throw snap.context.error;
-      return true;
-    }
-
-    return waitFor(
-      service,
-      state => {
-        return !state.matches("checking");
-      },
-      {
-        timeout: 20000 // Increased timeout
-      }
-    )
+    return waitFor(service, state => !state.matches("checking"), {
+      timeout: 60_000
+    })
       .then(state => {
         if (stateMatches(state, "error")) throw state.context.error;
         return true; // Session is ready
@@ -83,97 +71,49 @@ export const useSession = () => {
       .catch(error => {
         throw new DetailedError(
           error?.message ?? t("error.session_not_available"),
-          error?.message?.includes("Timeout")
-            ? responseCodes.Timeout
-            : (error?.responseCode ?? responseCodes.No_Content),
+          error?.responseCode ?? responseCodes.No_Content,
           error?.origin ?? ErrorOrigin.Headless
         );
       });
   }
 
   async function isAuthenticated(): Promise<Client> {
-    const snap = service.getSnapshot();
-    const currentClient = contextValue<Client>(clientActor, "client");
-
-    // Shortcut if already authenticated and data is loaded
-    if (
-      snap.matches("client") &&
-      currentClient &&
-      !stateMatches(clientActor, ["loading", "starting"])
-    ) {
-      return currentClient;
-    }
-
     return isReady()
       .then(async () => {
-        if (stateMatches(service, "client")) return true;
-
-        // Wait specifically for client state if we are not there yet
-        return waitFor(service, state => stateMatches(state, "client"), {
-          timeout: 15000
-        }).catch(() => {
-          const snap = service.getSnapshot();
+        if (!clientActor.value)
           throw new DetailedError(
             t("auth.login_to_continue"),
             responseCodes.Unauthorized,
             ErrorOrigin.Headless
           );
-        });
-      })
-      .then(async () => {
-        if (currentClient && !stateMatches(clientActor, "loading")) {
-          return currentClient;
-        }
-
-        if (!clientActor.value?.service) {
-          throw new DetailedError(
-            t("auth.login_to_continue"),
-            responseCodes.Unauthorized,
-            ErrorOrigin.Headless
-          );
-        }
 
         return waitFor(
           clientActor.value.service,
-          state => !stateMatches(state, ["loading", "starting"]),
+          state => stateMatches(state, "available"),
           {
             timeout: 60_000
           }
-        )
-          .then(state => {
-            const client = contextValue<Client>(clientActor, "client");
-            if (stateMatches(state, "error") || !client) {
-              throw new DetailedError(
-                t("auth.login_to_continue"),
-                responseCodes.Unauthorized,
-                ErrorOrigin.Headless
-              );
-            }
-            return client;
-          })
-          .catch(err => {
-            if (err?.message?.includes("Timeout")) {
-              if (currentClient) return currentClient;
-              throw new DetailedError(
-                t("error.request_timeout"),
-                responseCodes.Timeout,
-                ErrorOrigin.Headless
-              );
-            }
-            throw err;
-          });
+        ).then(() => {
+          const client = contextValue<Client>(clientActor, "client");
+          if (!client) {
+            throw new DetailedError(
+              t("auth.login_to_continue"),
+              responseCodes.Unauthorized,
+              ErrorOrigin.Headless
+            );
+          }
+          return client;
+        });
       })
-      .catch(err => {
-        // If it's already a DetailedError, rethrow it
-        if (err instanceof DetailedError) throw err;
-
-        console.error(`[Session] isAuthenticated failed:`, err);
-        throw new DetailedError(
-          t("error.401_title_md"),
-          responseCodes.Internal_Server_Error,
-          ErrorOrigin.Headless
-        );
-      });
+      .catch(() =>
+        Promise.reject(
+          new DetailedError(
+            t("error.401_title_md"),
+            responseCodes.Unauthorized,
+            ErrorOrigin.Headless
+          )
+        )
+      );
   }
 
   const meta = computed(() => ({
@@ -197,11 +137,8 @@ export const useSession = () => {
         "available.register.registering",
         "available.register.authenticating",
         "available.recover.recovering"
-      ]) ||
-      stateMatches(clientActor, ["loading", "processing", "transferring"]),
-    isAuthenticated:
-      stateMatches(state, "client") &&
-      !stateMatches(clientActor, ["error", "loading", "starting"]),
+      ]) || stateMatches(clientActor, "processing"),
+    isAuthenticated: stateMatches(state, "client"),
     isTransferring: stateMatches(clientActor, "transferring"),
     hasExpired: stateMatches(state, "expired") || isEmpty(state.value.children),
     hasErrors:
@@ -226,12 +163,12 @@ export const useSession = () => {
   // --- context
 
   /**
-   * Information about the authenticated clientActor, if available. Represents the logged-in client.
+   * Information about the authenticated client, if available. Represents the logged-in client.
    */
   const clientActor = useChildActor(state, "clientMachine");
 
   /**
-   * Information about the guestActor client, if available. Used to handle non-authenticated client interactions.
+   * Information about the guest client, if available. Used to handle non-authenticated client interactions.
    */
   const guestActor = useChildActor(state, "guestMachine");
 
@@ -280,7 +217,7 @@ export const useSession = () => {
   async function getClient(): Promise<Client> {
     if (!clientActor.value) {
       throw new DetailedError(
-        t("error.user_not_available"),
+        t("error.client_not_available"),
         responseCodes.Unauthorized,
         ErrorOrigin.Headless
       );
@@ -295,11 +232,9 @@ export const useSession = () => {
     )
       .then(state => {
         const client = get(state, "client");
-
-        console.log("then", client);
         if (!client)
           throw new DetailedError(
-            t("error.user_not_available"),
+            t("error.client_not_available"),
             responseCodes.Unauthorized,
             ErrorOrigin.Headless
           );
@@ -307,7 +242,7 @@ export const useSession = () => {
       })
       .catch(() => {
         throw new DetailedError(
-          t("error.user_load_failed"),
+          t("error.client_load_failed"),
           responseCodes.Timeout,
           ErrorOrigin.Headless
         );
@@ -470,8 +405,9 @@ export const useSession = () => {
 
   async function transferTo(): Promise<IAuthTransfer> {
     if (!clientActor.value) {
-      const { addError } = useFeedback();
-      addError({ title: t("error.session_transfer_not_available") });
+      useFeedback().addError({
+        title: t("error.session_transfer_not_available")
+      });
       return Promise.reject(
         new DetailedError(
           t("error.session_transfer_not_available"),
@@ -502,8 +438,9 @@ export const useSession = () => {
         return transfer;
       })
       .catch(() => {
-        const { addError } = useFeedback();
-        addError({ title: t("error.session_transfer_not_available") });
+        useFeedback().addError({
+          title: t("error.session_transfer_not_available")
+        });
         return Promise.reject(
           new DetailedError(
             t("error.session_transfer_not_available"),
@@ -555,24 +492,6 @@ export const useSession = () => {
       });
   }
 
-  async function refresh(): Promise<boolean> {
-    service.send({
-      type: "REFRESH"
-    });
-
-    if (!clientActor.value?.service) return true; // were already logged out
-
-    return await waitFor(
-      clientActor.value.service,
-      state => stateMatches(state, "available"),
-      {
-        timeout: 60000
-      }
-    )
-      .then(() => true)
-      .catch(() => false);
-  }
-
   function transferred() {
     service.send({ type: "TRANSFERRED" });
   }
@@ -604,10 +523,35 @@ export const useSession = () => {
     send({
       type: "CANCEL"
     });
-    const guestActor = state.value?.children?.guestActor;
-    return waitFor(guestActor, state => stateMatches(state, "available"), {
+    const guest = state.value?.children?.guest;
+    return waitFor(guest, state => stateMatches(state, "available"), {
       timeout: 60_000
     });
+  }
+
+  /**
+   * Refreshes the session by sending a REFRESH event to the session machine.
+   * It waits for the client actor to be available and then returns true.
+   * If the client actor is not available, it returns true (assuming the client is already logged out).
+   * If the wait times out, it returns false.
+   * @returns {Promise<boolean>} A promise that resolves to true if the session was refreshed successfully, false otherwise.
+   */
+  async function refresh(): Promise<boolean> {
+    service.send({
+      type: "REFRESH"
+    });
+
+    if (!clientActor.value?.service) return true; // were already logged out
+
+    return await waitFor(
+      clientActor.value.service,
+      state => stateMatches(state, "available"),
+      {
+        timeout: 60000
+      }
+    )
+      .then(() => true)
+      .catch(() => false);
   }
 
   // ---------------------------------------------------------------------------
@@ -671,15 +615,10 @@ export const useSession = () => {
      */
     validationErrors,
 
-    /**
-     * Information about the guestActor client, if available. Used to handle non-authenticated client interactions.
-     */
-    guestActor,
-
-    /**
-     * Information about the authenticated clientActor, if available. Represents the logged-in client.
-     */
-    clientActor,
+    // /**
+    //  * Information about the guest client, if available. Used to handle non-authenticated client interactions.
+    //  */
+    // guest,
 
     /**
      * The underlying data model used in session-related forms such as login or registration.
@@ -730,6 +669,11 @@ export const useSession = () => {
     resolve,
 
     /**
+     * Refreshes the session, typically used to renew an expired session.
+     */
+    refresh,
+
+    /**
      * Initiates the login process for a client, typically used in conjunction with a form and model data.
      * @returns {Promise<void>} A promise that resolves when the login operation is completed.
      */
@@ -761,7 +705,7 @@ export const useSession = () => {
     verify2fa,
 
     /**
-     * Transfer session data between different parts of the application, such as from guestActor to clientActor.
+     * Transfer session data between different parts of the application, such as from guest to client.
      */
     transferTo,
 
@@ -819,12 +763,7 @@ export const useSession = () => {
 
     // ---
 
-    reauth: () => {
-      console.warn("[Session] Reauth triggered (EXPIRED)");
-      service.send({ type: "EXPIRED" });
-    },
-
-    refresh
+    reauth: () => service.send({ type: "EXPIRED" })
   };
 };
 

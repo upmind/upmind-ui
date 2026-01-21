@@ -20,13 +20,12 @@ import {
 } from "../../../utils";
 import { mapCustomFieldValue, mapIProfileFields } from "./mappers";
 import { useClientParser } from "../../session/utils";
-import { get, find, pick, reduce, set, isEmpty, omit, omitBy } from "lodash-es";
+import { get, find, pick, reduce, set, isEmpty } from "lodash-es";
 
 // --- types
-
 import type { AnyEventObject } from "xstate";
 import type { FieldsContext, FieldsModel } from "./types";
-import { IClient } from "@upmind-automation/types";
+import type { IClient } from "@upmind-automation/types";
 import type { QueryKey } from "@tanstack/vue-query";
 
 // -----------------------------------------------------------------------------

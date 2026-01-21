@@ -1,12 +1,11 @@
 // --- internal
 import { useBasket, useBrand, useI18n, useQuery, useSystem } from "../..";
-import { isAdmin } from "../../../utils/config";
 import { useRecaptcha, useTracking } from "../../system/";
 import {
   BrandConfigKeys,
   Contexts,
   GrantTypes,
-  IToken,
+  type IToken,
   TwofaProviders
 } from "@upmind-automation/types";
 
@@ -56,22 +55,25 @@ async function load(_context: GuestContext, _event: AnyEventObject) {
   });
 }
 
-async function loadUser(token?: IToken) {
+async function loadUser() {
   const { get, useUrl } = useQuery();
-  const admin = isAdmin.value;
-
-  // If no token passed, try to get from storage
-  if (!token) {
-    token = getTokenFromStorage(admin ? "user" : "client") as IToken;
-  }
 
   return get({
-    url: useUrl(admin ? "admin/self" : "self", {
-      with: ["actor", "accounts"].join()
+    url: useUrl("self", {
+      with: [
+        "actor",
+        "accounts"
+        // client specific only
+        // "actor.account", // Relation required for determining `topup_enabled` value
+        // "actor.brand", // Relation required for determining `topup_enabled` value
+        // "delegated_ids",
+        // "enabled_modules"
+      ].join()
     }),
-    queryKey: admin ? ["session", "admin"] : ["client"],
-    withAccessToken: token?.access_token || true,
-    withoutLocale: admin
+    queryKey: ["session", "self"],
+    withAccessToken: true,
+    staleTime: 0,
+    gcTime: 0
   });
 }
 
@@ -90,28 +92,16 @@ async function authenticate({ model }: GuestContext<LoginModel>) {
   // without it, the basket will revert to the default currency
   if (currency.value) data.currency_id = currency.value.id;
 
-  const admin = isAdmin.value;
-  if (admin) {
-    data.grant_type = "admin";
-    delete data.currency_id;
-  }
-
   return post<IToken>({
-    mutationKey: admin ? ["session", "admin"] : ["session"],
-    url: useUrl(
-      "access_token",
-      {},
-      {
-        context: "oauth"
-      }
-    ),
+    mutationKey: ["session"],
+    url: useUrl("access_token", {}, { context: "oauth" }),
     data
   }).then(data => {
     // we record the history of the token to be able to reference the originating guest token
     if (data.actor_type === GrantTypes.TWOFA) return data;
 
     persistTokenToStorage(data);
-    return loadUser(data);
+    return loadUser();
   });
 }
 
@@ -130,7 +120,7 @@ async function verify2fa({ token }: GuestContext, { data }: AnyEventObject) {
   })
     .then(data => {
       persistTokenToStorage(data);
-      return loadUser(data);
+      return data;
     })
     .catch(error => {
       return Promise.reject(
@@ -143,7 +133,8 @@ async function verify2fa({ token }: GuestContext, { data }: AnyEventObject) {
           }
         )
       );
-    });
+    })
+    .then(loadUser);
 }
 
 async function getCustomFields(_context: GuestContext, _event: AnyEventObject) {
@@ -151,10 +142,8 @@ async function getCustomFields(_context: GuestContext, _event: AnyEventObject) {
 
   return get({
     // url: useUrl("clients_fields", { brand_id: null }),
-    url: useUrl("clients_fields", {
-      "filter[show_on_order_form]": true
-    }),
-    queryKey: ["session", "guest", "custom-fields"],
+    url: useUrl("clients_fields"),
+    queryKey: ["session", "client", "custom-fields"],
     select: data => map(data ?? [], mapCustomField)
   });
 }
@@ -175,14 +164,7 @@ async function verifyReCaptcha(
   return Promise.resolve(data);
 }
 
-async function register(context: GuestContext<RegisterModel>) {
-  const admin = isAdmin.value;
-
-  if (admin) {
-    return authenticate(context as unknown as GuestContext<LoginModel>);
-  }
-
-  const { model } = context;
+async function register({ model }: GuestContext<RegisterModel>) {
   const { currency } = useBasket();
   const { post, useUrl } = useQuery();
   const recaptcha = useRecaptcha();
@@ -232,7 +214,7 @@ async function register(context: GuestContext<RegisterModel>) {
     data,
     withAccessToken: true
   })
-    .then(data => loadUser(data as any))
+    .then(loadUser)
     .finally(() => {
       recaptcha.clear(); // clear our recaptcha token that has been used, even if the registration fails
     });

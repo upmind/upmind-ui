@@ -48,7 +48,7 @@ function getPropertyValue(
 ) {
   // Context check - return undefined if property doesn't apply to this context
   // (skipped when no context - returns wildcard values only)
-  if (input.context) {
+  if (input.context && input.context !== UIContext.ALL) {
     if (!includes(definition.contexts, input.context)) return undefined;
     // Lock check - return default if property is locked in this context (UI only)
     if (includes(definition.locked, input.context)) return definition.default;

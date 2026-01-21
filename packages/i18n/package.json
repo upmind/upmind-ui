@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "description": "Internationalization (i18n) package for Upmind Automation projects.",
   "type": "module",
+  "sideEffects": false,
   "keywords": [],
   "authors": [
     "Dom da Costa <dominic.dacosta@upmind.com>",
@@ -22,7 +23,7 @@
     "clean": "rm -rf {node_modules,dist,*.tsbuildinfo} && rm -rf node_modules && pnpm install",
     "build": "pnpm type-check && pnpm build-only",
     "build-only": "vite build",
-    "type-check": "vue-tsc --build",
+    "type-check": "vue-tsc --noEmit",
     "lint": "eslint . --fix",
     "format": "prettier --write src/",
     "localazy": "localazy upload",

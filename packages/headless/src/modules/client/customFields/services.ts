@@ -8,7 +8,10 @@ import { useTime } from "../../../utils";
 import { mapCustomField } from "./mappers";
 
 // --- types
-import { CustomFieldsMajorTypes, ICustomField } from "@upmind-automation/types";
+import {
+  CustomFieldsMajorTypes,
+  type ICustomField
+} from "@upmind-automation/types";
 import type { QueryKey } from "@tanstack/vue-query";
 import type { CustomField } from "./types";
 import { map } from "lodash-es";

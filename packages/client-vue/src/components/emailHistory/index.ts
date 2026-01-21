@@ -1,15 +1,5 @@
-import { defineAsyncComponent } from "vue";
-
-export const EmailHistory = defineAsyncComponent(
-  () => import("./EmailHistory.vue")
-);
-export const EmailView = defineAsyncComponent(() => import("./Email.vue"));
-export const EmailOverview = defineAsyncComponent(
-  () => import("./EmailOverview.vue")
-);
-export const EmailHistoryListing = defineAsyncComponent(
-  () => import("./EmailHistoryListing.vue")
-);
-export const EmailHistorySort = defineAsyncComponent(
-  () => import("./EmailHistorySort.vue")
-);
+export { default as EmailHistory } from "./EmailHistory.vue";
+export { default as EmailView } from "./Email.vue";
+export { default as EmailOverview } from "./EmailOverview.vue";
+export { default as EmailHistoryListing } from "./EmailHistoryListing.vue";
+export { default as EmailHistorySort } from "./EmailHistorySort.vue";

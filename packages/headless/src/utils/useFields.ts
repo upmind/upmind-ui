@@ -11,9 +11,9 @@ import {
   reduce,
   includes
 } from "lodash-es";
-import { CustomField } from "../modules";
+import type { CustomField } from "../modules";
 import { BlueprintFieldsTypes } from "@upmind-automation/types";
-import { JsonSchema7, ControlElement } from "@jsonforms/core";
+import type { JsonSchema7, ControlElement } from "@jsonforms/core";
 
 // -----------------------------------------------------------------------------
 
@@ -69,7 +69,7 @@ export const useFieldsSchemaParser = (data?: CustomField[]): JsonSchema7 => {
       }
 
       // required fields
-      if (field.meta.isRequired) {
+      if (field?.meta?.isRequired) {
         required.push(field.code);
       } else {
         type = (!isArray(type) ? [type] : type) as string[];

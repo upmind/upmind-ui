@@ -8,7 +8,7 @@ import { useSchema, useUischema } from "./schemas";
 import { useModelParser } from "../../../utils";
 
 // --- types
-import { EmailModel, type EmailContext } from "./types";
+import { type EmailModel, type EmailContext } from "./types";
 import type { AnyEventObject } from "xstate";
 
 // -----------------------------------------------------------------------------
