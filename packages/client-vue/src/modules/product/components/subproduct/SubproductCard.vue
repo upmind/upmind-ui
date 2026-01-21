@@ -3,6 +3,7 @@
     <header :class="styles.card.header.root">
       <div :class="styles.card.header.content">
         <div :class="styles.card.header.titleWrapper">
+          <SubproductImage v-if="image" :src="image" :alt="title" />
           <h5 :class="styles.card.header.title">
             {{ title }}
             <Tooltip
@@ -103,6 +104,7 @@ import config from "./subproduct-card.config";
 import { NumberField, Tooltip, Icon } from "@upmind-automation/upmind-ui";
 import { isEmpty } from "lodash-es";
 import SubproductCardPricing from "./SubproductCardPricing.vue";
+import SubproductImage from "./SubproductImage.vue";
 import Promotion from "../../../basket-product/components/card/components/Promotion.vue";
 
 // --- types

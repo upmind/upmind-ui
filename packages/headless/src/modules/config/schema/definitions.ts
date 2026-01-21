@@ -615,5 +615,15 @@ export const DATA_DEFINITIONS = {
     default: undefined,
     contexts: [UIContext.CONFIGURE, UIContext.BASKET, UIContext.CHECKOUT],
     scopes: [UIScope.BRAND, UIScope.PRODUCT_CATEGORY, UIScope.PRODUCT]
+  },
+  optionGroupLabel: {
+    default: undefined,
+    contexts: [UIContext.CONFIGURE, UIContext.BASKET],
+    scopes: [UIScope.OPTION_CATEGORY, UIScope.OPTION]
+  },
+  optionImgUrl: {
+    default: undefined,
+    contexts: [UIContext.CONFIGURE, UIContext.BASKET],
+    scopes: [UIScope.OPTION_CATEGORY, UIScope.OPTION]
   }
 } satisfies DataDefinitions;
