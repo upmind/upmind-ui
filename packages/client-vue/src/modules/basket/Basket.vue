@@ -165,7 +165,7 @@ const open = ref(false);
 const isSlotHidden = (name: string) => includes(props.hideSlots, name);
 
 const template = computed(
-  () => props.template || ui.template.value || BASKET_TEMPLATE.TWO_COLUMN_LTR
+  () => ui.template.value || props.template || BASKET_TEMPLATE.TWO_COLUMN_LTR
 );
 
 const { ui, data } = useConfig({
