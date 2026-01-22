@@ -51,6 +51,7 @@
     </div>
 
     <aside
+      v-if="stylesMeta.hasImage"
       :class="styles.header.aside"
       :style="{ '--details-h': `${height}px` }"
     >
@@ -94,7 +95,8 @@ const props = withDefaults(defineProps<ProductHeaderProps>(), {
 
 const stylesMeta = computed(() => ({
   direction: props.direction,
-  hasImage: !!(props.productDetails?.imgUrl || !isEmpty(images.value))
+  hasImage:
+    !!(props.productDetails?.imgUrl || !isEmpty(images.value)) && props.image
 }));
 
 const styles = useStyles(["header", "header.title"], stylesMeta, config);

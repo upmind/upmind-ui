@@ -1,4 +1,5 @@
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
+import type { ProductCategory } from "@upmind-automation/headless";
 import type { ProductSortProps } from "../products/types";
 
 export interface CategoriesProps {
@@ -12,3 +13,6 @@ export interface CategoriesProps {
 export interface CategoriesFacetProps extends CategoriesProps {
   query: string;
 }
+
+export type CategoriesItemProps = Omit<CategoriesProps, "modelValue"> &
+  Omit<ProductCategory, "title"> & { title?: string; isFaceted: boolean };

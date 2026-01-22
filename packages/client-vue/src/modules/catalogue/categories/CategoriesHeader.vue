@@ -55,11 +55,11 @@ import { isEmptySlot } from "@upmind-automation/upmind-ui";
 import { isString } from "lodash-es";
 
 // --- types
-import type { CategoriesProps } from "./types";
+import type { CategoriesProps, CategoriesItemProps } from "./types";
 
 // -----------------------------------------------------------------------------
 
-const props = defineProps<ProductCategory>();
+const props = defineProps<CategoriesItemProps>();
 
 const modelValue = defineModel<CategoriesProps["modelValue"]>("modelValue");
 
