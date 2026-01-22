@@ -216,8 +216,15 @@ export interface DataSchema {
    */
   productName?: string;
 
-  /** Array of product configs to bundle with another product add (fails silently) */
-  productsToBundle?: ProductBundleConfig[];
+  /**
+   * Product configs to bundle with another product add (fails silently).
+   * Can be either:
+   * - An array of bundle configs (used directly)
+   * - A keyed object of bundle configs (selected by `?bundle=key` URL param)
+   */
+  productsToBundle?:
+    | ProductBundleConfig[]
+    | Record<string, ProductBundleConfig[]>;
 
   /** Array of cross-sell product configs used for the recommendations step */
   productsToRecommend?: ProductRecommendConfig[];

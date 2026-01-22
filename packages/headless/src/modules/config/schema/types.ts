@@ -242,12 +242,67 @@ export type UIDefinitions = Record<keyof UISchema, UIPropertyDefinition>;
 
 export type DataDefinitions = Record<keyof DataSchema, DataPropertyDefinition>;
 
+/**
+ * Configuration for a product bundle item.
+ * Used in `@data.productsToBundle` to define products that should be automatically added.
+ */
 export interface ProductBundleConfig {
-  productId: string;
-  config?: IProductConfig;
+  /** The product ID to bundle */
+  object_id: string;
+  /** The type of object being bundled (typically "product") */
+  object_type: "product" | string;
+  /** Whether this bundle item is active */
+  active: boolean;
+  /** Product configuration to apply when adding the bundle to basket */
+  config?: ProductRecommendConfigOptions;
 }
 
+/**
+ * Configuration for a product recommendation item.
+ * Used in `@data.productsToRecommend` to define cross-sell recommendations.
+ */
 export interface ProductRecommendConfig {
-  productId: string;
-  [key: string]: unknown;
+  /** Optional unique identifier for this recommendation (auto-generated if not provided) */
+  id?: string;
+  /** The product ID to recommend */
+  object_id: string;
+  /** The type of object being recommended (typically "product") */
+  object_type: "product" | string;
+  /** Whether this recommendation is active */
+  active: boolean;
+  /** Optional display order for sorting recommendations */
+  order?: number;
+  /** Optional display label to override the product's default (e.g. "Add & claim 2 free meetings") */
+  label?: string;
+  /** Optional name override for the recommendation */
+  name?: string;
+  /** Optional description override for the recommendation */
+  description?: string;
+  /** Optional short description override for the recommendation */
+  short_description?: string | null;
+  /** Optional image URL override for the recommendation (false to hide image) */
+  image_url?: string | boolean;
+  /** Optional badge to display with the recommendation */
+  badge?: Badge;
+  /** Optional benefits to display with the recommendation */
+  benefits?: Benefit[];
+  /** Product configuration to apply when adding the recommendation to basket */
+  config?: ProductRecommendConfigOptions;
+}
+
+/**
+ * Configuration options for a product recommendation.
+ * Defines quantity, billing cycle, subproducts, provision fields, and coupons.
+ */
+export interface ProductRecommendConfigOptions {
+  /** Quantity to add */
+  qty?: number;
+  /** Billing cycle in months */
+  bcm?: number;
+  /** Sub-product IDs */
+  sub_pids?: string[];
+  /** Provision field values */
+  pfields?: Record<string, any> | any[];
+  /** Coupon codes to apply */
+  coupons?: string[];
 }

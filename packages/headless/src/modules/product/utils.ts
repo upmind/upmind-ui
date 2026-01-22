@@ -30,6 +30,7 @@ import {
   isFunction,
   isNil,
   isNumber,
+  isString,
   keys,
   map,
   maxBy,
@@ -93,6 +94,7 @@ import type {
 import { UI_SCHEMA_DEFAULTS } from "./types";
 import { type ErrorObject } from "ajv";
 import { type BrandMeta } from "../brand/types";
+import { type ProductBundleConfig } from "../config";
 import { UIContext } from "../config";
 
 // -----------------------------------------------------------------------------
@@ -1344,27 +1346,54 @@ const parseBasketSubproductDetailsChoices = (values: IBasketProduct[]) => {
  *
  * Bundles are resolved from the meta system which handles scope cascade (product → category → brand).
  *
+ * NB: Bundles may be an array or a keyed object (Record):
+ * - If we have an array, we use it directly, no key is needed.
+ * - If we have a keyed object, we extract the bundle config based on the provided `bundleKey`.
+ * - If no key is provided for a keyed object, we will NOT include any bundles.
+ *
  * @param {IProduct} raw - The raw product data to parse.
+ * @param {string} bundleKey - Optional key to select specific bundle variant (e.g. from `?bundle=validation`).
  * @returns {ProductProps[]} The parsed list of bundled products configurations.
  */
-export function parseBundledProducts(raw: IProduct): ProductProps[] {
+export function parseBundledProducts(
+  raw: IProduct,
+  bundleKey?: string
+): ProductProps[] {
   // safe check: don't include bundles for products that are not single products
   if (raw?.product_type !== ProductTypes.SINGLE_PRODUCT) return [];
 
   const { data } = useConfig({
     context: UIContext.ALL,
     product: {
-      productDetails: { uiMeta: raw?.meta ?? undefined }
+      productDetails: parseProductDetails(raw)
     }
   });
 
-  return map(data.productsToBundle ?? [], ({ productId, config }) => ({
-    productId,
-    quantity: config?.qty || 1,
-    term: config?.bcm ?? 0,
-    subproducts: compact(config?.sub_pids ?? []),
-    provisionFields: config?.pfields ?? {},
-    coupons: compact(config?.coupons ?? []),
+  // Handle both array and keyed object formats
+  let bundleConfigs: ProductBundleConfig[] = [];
+  const productsToBundle = data.productsToBundle;
+
+  if (isArray(productsToBundle)) {
+    // Direct array format - use as-is
+    bundleConfigs = productsToBundle;
+  } else if (productsToBundle && typeof productsToBundle === "object") {
+    // Keyed object format - select by bundleKey
+    if (bundleKey) {
+      bundleConfigs = get(productsToBundle, bundleKey, []);
+    }
+    // If no bundleKey provided for keyed object, return empty (no bundles)
+  }
+
+  // Filter active bundles and map to ProductProps
+  const activeBundles = filter(bundleConfigs, bundle => bundle.active);
+
+  return map(activeBundles, bundle => ({
+    productId: bundle.object_id,
+    quantity: bundle.config?.qty || 1,
+    term: bundle.config?.bcm ?? 0,
+    subproducts: compact(bundle.config?.sub_pids ?? []),
+    provisionFields: bundle.config?.pfields ?? {},
+    coupons: compact(bundle.config?.coupons ?? []),
     silent: true // always silent for bundled products
   })) as ProductProps[];
 }

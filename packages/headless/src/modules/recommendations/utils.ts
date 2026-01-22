@@ -12,6 +12,7 @@ import {
 import {
   compact,
   defaultsDeep,
+  filter,
   find,
   flatMap,
   forEach,
@@ -52,16 +53,18 @@ function parseProductsToRecommend(
 
   const { data } = useConfig({
     product: {
-      productDetails: { uiMeta: basketProduct?.product?.meta ?? undefined }
+      productDetails: parseProductDetails(basketProduct.product)
     }
   });
 
-  return map(data.productsToRecommend ?? [], ({ productId, ...product }) => {
+  const recommendations = filter(
+    data.productsToRecommend ?? [],
+    recommendation => recommendation.active
+  );
+
+  return map(recommendations, recommendation => {
     const related = {
-      ...product,
-      object_type: "product",
-      object_id: productId,
-      active: true,
+      ...recommendation,
       product_id: basketProduct.product_id
     } as RelatedProduct;
     related.id = ensureId(related);
