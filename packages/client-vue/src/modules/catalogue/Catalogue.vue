@@ -146,7 +146,7 @@ const category = computed((): ProductCategory => {
   const category = categoryId.value
     ? instance.getOne(categoryId.value)
     : undefined;
-  return category || { id: "", name: "" };
+  return category || { id: "", name: "", title: "" };
 });
 
 const title = computed(() => {
