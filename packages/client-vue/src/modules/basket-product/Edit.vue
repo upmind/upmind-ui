@@ -96,12 +96,7 @@
               :product="product"
               :meta="productMeta"
               :template="props.template"
-              :total="
-                (template === BASKET_PRODUCT_TEMPLATE.TWO_COLUMN_RTL &&
-                  isMobile) ||
-                template === BASKET_PRODUCT_TEMPLATE.TWO_COLUMN_LTR ||
-                template === BASKET_PRODUCT_TEMPLATE.FULL
-              "
+              :total="stylesMeta.showTotal"
               :title="
                 configMeta.data.productName || product.productDetails.title
               "
@@ -301,7 +296,12 @@ const stylesMeta = computed(() => {
     heroImage:
       (template.value !== BASKET_PRODUCT_TEMPLATE.TWO_COLUMN_LTR ||
         isMobile.value) &&
-      configMeta.ui.productImages.isVisible
+      configMeta.ui.productImages.isVisible,
+    showTotal:
+      (template.value === BASKET_PRODUCT_TEMPLATE.TWO_COLUMN_RTL &&
+        isMobile.value) ||
+      template.value === BASKET_PRODUCT_TEMPLATE.TWO_COLUMN_LTR ||
+      template.value === BASKET_PRODUCT_TEMPLATE.FULL
   };
 });
 

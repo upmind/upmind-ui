@@ -1,4 +1,13 @@
-export interface Item {
+import type { RouteLocationAsRelativeGeneric } from "vue-router";
+
+export type ConfigureProps = {
+  storefrontRoute: RouteLocationAsRelativeGeneric;
+  catalogueRoute?: RouteLocationAsRelativeGeneric;
+  template?: PRODUCT_TEMPLATE;
+  hideSlots?: string[];
+};
+
+export type Item = {
   title?: string;
   subtitle?: string;
   imageSrc?: string;
@@ -8,7 +17,7 @@ export interface Item {
     name?: string;
     invalid?: boolean;
   }>;
-}
+};
 
 export enum PRODUCT_TEMPLATE {
   FULL = "full",
