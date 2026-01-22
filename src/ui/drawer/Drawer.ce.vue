@@ -17,6 +17,14 @@
         :data-vaul-no-drag="props.dismissible === false ? '' : undefined"
       ></div>
 
+      <!-- Always render title for accessibility when using custom header -->
+      <DrawerTitle v-if="$slots.header && title" class="sr-only">
+        {{ title }}
+      </DrawerTitle>
+      <DrawerDescription v-if="$slots.header && description" class="sr-only">
+        {{ description }}
+      </DrawerDescription>
+
       <DrawerHeader
         v-if="
           $slots.header ||
