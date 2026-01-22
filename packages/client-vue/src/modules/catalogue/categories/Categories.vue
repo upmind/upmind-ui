@@ -55,7 +55,6 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 // --- internal
 import {
   useProductCategories,
-  type ProductCategory,
   type UseProductCategories
 } from "@upmind-automation/headless";
 import { useConfig } from "@upmind-automation/headless";
@@ -69,12 +68,10 @@ import CategoryItem from "./CategoryItem.vue";
 import { Icon } from "@upmind-automation/upmind-ui";
 
 // --- types
-import type { CategoriesProps } from "./types";
+import type { CategoriesProps, CategoriesItemProps } from "./types";
 
 // -----------------------------------------------------------------------------
-const props = defineProps<
-  Omit<CategoriesProps, "modelValue"> & ProductCategory & { isFaceted: boolean }
->();
+const props = defineProps<CategoriesItemProps>();
 const modelValue = defineModel<CategoriesProps["modelValue"]>("modelValue");
 
 // -----------------------------------------------------------------------------
