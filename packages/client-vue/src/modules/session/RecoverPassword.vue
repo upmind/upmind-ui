@@ -137,12 +137,7 @@ const { set } = useThemes();
 
 const { meta, isReady } = useSession();
 const { meta: basketMeta } = useBasket();
-const {
-  navigateNext,
-  navigateBack,
-  navigate,
-  meta: routingMeta
-} = useRoutingEngine();
+const { navigateNext, navigateBack, navigate } = useRoutingEngine();
 
 const { ui } = useConfig({
   context: UIContext.AUTH
