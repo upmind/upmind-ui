@@ -73,9 +73,13 @@
 
 <script setup lang="ts">
 // --- external
-import { computed, ref, watch } from "vue";
+import { ref, watch, computed } from "vue";
 import { useForwardPropsEmits } from "radix-vue";
 import { useVModel } from "@vueuse/core";
+
+defineOptions({
+  inheritAttrs: false
+});
 
 // --- internal
 import { cn, useStyles } from "../../utils";
