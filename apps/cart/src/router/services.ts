@@ -182,16 +182,16 @@ export default {
 
     return getPendingProduct(productId, { sync: true, silent: autoupdate })
       .then(basketItem => {
-        if (!autoupdate) {
-          return {
-            target: {
-              name: ROUTE.PRODUCT_CONFIGURE,
-              params: { pid: productId }
-            }
-          } as FunnelResponse;
-        }
-        return basketItem.isReady().then(() =>
-          basketItem
+        return basketItem.isReady().then(() => {
+          if (!autoupdate) {
+            return {
+              target: {
+                name: ROUTE.PRODUCT_CONFIGURE,
+                params: { pid: productId }
+              }
+            } as FunnelResponse;
+          }
+          return basketItem
             .update()
             .then(() => {
               resolve(basketItem.service);
@@ -209,8 +209,8 @@ export default {
                   params: { pid: productId }
                 }
               } as FunnelResponse;
-            })
-        );
+            });
+        });
       })
       .catch((error: Error) => {
         return Promise.reject({

@@ -3,10 +3,7 @@
 </template>
 <script lang="ts" setup>
 // --- components
-import {
-  UpmProductRequiresAction,
-  useRoutingEngine
-} from "@upmind-automation/client-vue";
+import { UpmProductRequiresAction } from "@upmind-automation/client-vue";
 
 // --- internal
 import { ROUTE } from "../../router";

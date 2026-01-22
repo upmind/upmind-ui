@@ -3,7 +3,7 @@
 </template>
 
 <script lang="ts" setup>
-import { UpmOrder, useRoutingEngine } from "@upmind-automation/client-vue";
+import { UpmOrder } from "@upmind-automation/client-vue";
 
 // --- internal
 import { ROUTE } from "../router";

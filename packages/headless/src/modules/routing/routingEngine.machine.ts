@@ -116,7 +116,7 @@ export default createMachine(
 
       // Capture resolution requests at any time and pass them to the current funnel
       RESOLVE: {
-        actions: ["setTargetRoute", "forwardToFunnel"]
+        actions: ["setTargetRoute"]
       },
 
       REGISTER: {
@@ -130,13 +130,6 @@ export default createMachine(
   },
   {
     actions: {
-      forwardToFunnel: send(
-        (_context: RoutingEngineContext, event: AnyEventObject) => event,
-        {
-          to: "currentFunnel"
-        }
-      ),
-
       setTargetRoute: assign({
         targetRoute: (
           _context: RoutingEngineContext,
