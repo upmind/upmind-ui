@@ -2,6 +2,7 @@
 import { effectScope, getCurrentScope, type ComputedRef } from "vue";
 
 import {
+  QueryClient,
   useMutation,
   useQuery as vueUseQuery,
   useInfiniteQuery as vueUseInfiniteQuery
@@ -24,7 +25,6 @@ import {
   isInteger,
   isObject,
   isString,
-  omit,
   set,
   toNumber,
   unset
@@ -194,25 +194,15 @@ export const useQuery = () => {
 
       // allow us to retry the request if we have a 401 error, but only once (we don't want an infinite loop)
       if (canRetryAuthorization(url, error, { attempts, max: 1 })) {
-        return refreshToken()
-          .then(() => {
-            // get the new access token and update the access token in the request
-            set(
-              init,
-              `headers.Authorization`,
-              `Bearer ${getTokenFromStorage()?.access_token}`
-            ); // finally, retry the request
-            return doFetch<T>({ url, init });
-          })
-          .catch(err => {
-            // if refreshToken fails, reauth is already called there, but we should still throw
-            throw err;
-          });
-      }
-
-      // if we have a 401 error and we are not retrying, we need to notify the session machine
-      if (error.code == responseCodes.Unauthorized) {
-        useSession().reauth();
+        return refreshToken().then(() => {
+          // get the new access token and update the access token in the request
+          set(
+            init,
+            `headers.Authorization`,
+            `Bearer ${getTokenFromStorage()?.access_token}`
+          ); // finally, retry the request
+          return doFetch<T>({ url, init });
+        });
       }
 
       // let the original error propagate
@@ -658,7 +648,7 @@ export const useQuery = () => {
     withBasket,
     withoutLocale,
     withAccessToken,
-    withSplitCount = false,
+    withSplitCount,
     ...options
   }: QueryParams<TQueryFnData, TData>) {
     // ensure we have a scope, in case we call this outside of a setup function
@@ -1030,7 +1020,7 @@ export const useQuery = () => {
     queryKey,
     withAccessToken,
     withoutLocale,
-    withSplitCount = false,
+    withSplitCount,
     ...options
   }: QueryParams<TQueryFnData, TData>): Promise<QueryResponse<TData>> {
     // --- state
