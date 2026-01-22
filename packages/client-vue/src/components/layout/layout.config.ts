@@ -18,7 +18,7 @@ export default {
   },
 
   split: {
-    root: cva("flex min-h-screen w-full", {
+    root: cva("flex min-h-screen w-full flex-row", {
       variants: {
         overflow: {
           hidden: "overflow-hidden",
