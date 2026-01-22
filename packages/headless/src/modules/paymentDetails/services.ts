@@ -16,7 +16,8 @@ import {
   isEqual,
   values,
   first,
-  has
+  has,
+  compact
 } from "lodash-es";
 import {
   ErrorOrigin,
@@ -142,7 +143,7 @@ async function loadLookups(
       withAccessToken: true,
       data: {
         currency_id: currencyId,
-        prices: [account.owned.value, account.credit.value]
+        prices: compact([account.owned.value, account.credit.value])
       }
     })
       .then(data => {
@@ -487,6 +488,8 @@ async function calculate(
 
   if (isEqual(data.value, data.prev)) return Promise.reject();
 
+  if (isEmpty(compact(data.value))) return Promise.reject();
+
   // we need to calculate the total account credit including negative allowance
   // and get a formatted version based on the currency
   return post({
@@ -495,7 +498,7 @@ async function calculate(
     withAccessToken: true,
     data: {
       currency_id: currency.id,
-      prices: [data.value]
+      prices: compact([data.value])
     }
   }).then(res => get(res, "total_formatted", ""));
 }
