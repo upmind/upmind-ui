@@ -84,7 +84,6 @@ import { useThemes } from "@upmind-automation/upmind-ui";
 import { useStyles } from "@upmind-automation/upmind-ui";
 import Layout from "../../components/layout/Layout.vue";
 import Breadcrumbs from "./categories/Breadcrumbs.vue";
-import Share from "../../components/navigation/Share.vue";
 import CategoriesFacet from "./categories/facet/CategoriesFacet.vue";
 import Categories from "./categories/Categories.vue";
 import WidgetGrid from "./products/WidgetGrid.vue";
