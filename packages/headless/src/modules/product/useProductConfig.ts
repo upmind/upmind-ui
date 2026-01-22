@@ -111,7 +111,8 @@ export const useProductConfig = (service: ActorRef<any>) => {
     ),
     isTouched: touched.value,
     showErrors:
-      contextMatches(state, ["error"]) && contextMatches(state, ["attempts"]),
+      contextMatches(state, "errorExternal") ||
+      (contextMatches(state, ["error"]) && contextMatches(state, ["attempts"])),
 
     hasErrors:
       stateMatches(state, ["error", "available.invalid", "available.error"]) ||
