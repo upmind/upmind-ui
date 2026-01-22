@@ -47,7 +47,7 @@ export default {
         }
       }
     }),
-    container: cva("max-w-app mx-auto pt-9 pb-6"),
+    container: cva("max-w-app lgp:y-24 mx-auto py-12"),
     header: cva("w-full"),
     card: cva(
       "bg-surface card-radius flex w-full flex-col justify-between gap-12 lg:flex-row lg:gap-32"
