@@ -12,14 +12,8 @@
             v-if="productMeta?.isAvailable && product?.productDetails"
             :product-details="product.productDetails"
             :product-image="productImage()"
-            :direction="
-              template === BASKET_PRODUCT_TEMPLATE.TWO_COLUMN_RTL
-                ? 'vertical'
-                : 'horizontal'
-            "
-            :image="
-              template !== BASKET_PRODUCT_TEMPLATE.TWO_COLUMN_LTR || isMobile
-            "
+            :direction="stylesMeta.direction"
+            :image="stylesMeta.heroImage"
             :meta="configMeta"
           >
             <template #prepend>
@@ -239,6 +233,7 @@ import { isMobile, useThemes } from "@upmind-automation/upmind-ui";
 import { BreadcrumbVariant, UIContext } from "@upmind-automation/headless";
 import { BASKET_PRODUCT_TEMPLATE } from "./types";
 import type { BasketProductEditProps } from "./types";
+import { PRODUCT_HERO_DIRECTION } from "../product/components/hero/types";
 
 // -----------------------------------------------------------------------------
 
@@ -299,6 +294,10 @@ const templateVariant = computed(() => get(supportedTemplates, template.value));
 const stylesMeta = computed(() => {
   return {
     breadcrumbs: configMeta.ui.breadcrumbs.value as BreadcrumbVariant,
+    direction:
+      template.value === BASKET_PRODUCT_TEMPLATE.TWO_COLUMN_RTL
+        ? PRODUCT_HERO_DIRECTION.VERTICAL
+        : PRODUCT_HERO_DIRECTION.HORIZONTAL,
     heroImage:
       (template.value !== BASKET_PRODUCT_TEMPLATE.TWO_COLUMN_LTR ||
         isMobile.value) &&
