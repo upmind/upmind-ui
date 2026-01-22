@@ -16,6 +16,7 @@ export default {
       root: cva("flex flex-1 flex-wrap content-start items-start gap-2"),
       content: cva("flex grow flex-col gap-0.5 md:flex-row md:gap-x-2"),
       titleWrapper: cva("flex flex-wrap items-center gap-2"),
+      titleInner: cva("flex items-start gap-2"),
       title: cva("m-0 font-medium", { variants }),
       tooltip: cva("control-radius max-w-72 text-center text-xs"),
       trigger: cva("ml-1 inline-flex h-lh items-center align-top"),

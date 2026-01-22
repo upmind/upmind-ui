@@ -3,34 +3,36 @@
     <header :class="styles.card.header.root">
       <div :class="styles.card.header.content">
         <div :class="styles.card.header.titleWrapper">
-          <SubproductImage v-if="image" :src="image" :alt="title" />
-          <h5 :class="styles.card.header.title">
-            {{ title }}
-            <Tooltip
-              v-if="
-                ui.optionItemDescription.isTooltip && !isEmpty(props.excerpt)
-              "
-              :label="props.excerpt"
-              :open="tooltipOpen"
-              :class="styles.card.header.tooltip"
-              :uiConfig="
-                {
-                  tooltip: {
-                    trigger: [styles.card.header.trigger]
-                  }
-                } as any
-              "
-            >
-              <Icon
-                @click="toggleTooltip()"
-                @mouseenter="toggleTooltip(true)"
-                @mouseleave="toggleTooltip(false)"
-                icon="info-circle"
-                size="nano"
-                :class="styles.card.header.icon"
-              />
-            </Tooltip>
-          </h5>
+          <div :class="styles.card.header.titleInner">
+            <SubproductImage v-if="image" :src="image" :alt="title" />
+            <h5 :class="styles.card.header.title">
+              {{ title }}
+              <Tooltip
+                v-if="
+                  ui.optionItemDescription.isTooltip && !isEmpty(props.excerpt)
+                "
+                :label="props.excerpt"
+                :open="tooltipOpen"
+                :class="styles.card.header.tooltip"
+                :uiConfig="
+                  {
+                    tooltip: {
+                      trigger: [styles.card.header.trigger]
+                    }
+                  } as any
+                "
+              >
+                <Icon
+                  @click="toggleTooltip()"
+                  @mouseenter="toggleTooltip(true)"
+                  @mouseleave="toggleTooltip(false)"
+                  icon="info-circle"
+                  size="nano"
+                  :class="styles.card.header.icon"
+                />
+              </Tooltip>
+            </h5>
+          </div>
 
           <Promotion
             v-for="promotion in props.promotions"
