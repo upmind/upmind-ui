@@ -145,7 +145,7 @@ set(ui.theme.value);
 const isResolving = ref(false);
 
 const template = computed(
-  () => props.template || ui.template.value || SESSION_TEMPLATE.TWO_COLUMN_LTR
+  () => ui.template.value || props.template || SESSION_TEMPLATE.TWO_COLUMN_LTR
 );
 
 const templateVariant = computed(() => get(supportedTemplates, template.value));

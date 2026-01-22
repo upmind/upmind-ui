@@ -279,8 +279,8 @@ const isSlotHidden = (name: string) => includes(props.hideSlots, name);
 
 const template = computed(
   () =>
-    props.template ||
     configMeta.ui.template.value ||
+    props.template ||
     BASKET_PRODUCT_TEMPLATE.TWO_COLUMN_RTL
 );
 
