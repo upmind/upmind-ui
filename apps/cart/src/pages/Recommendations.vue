@@ -11,10 +11,7 @@ import { computed } from "vue";
 import { useRoute } from "vue-router";
 
 // --- components
-import {
-  UpmRecommendations,
-  useRoutingEngine
-} from "@upmind-automation/client-vue";
+import { UpmRecommendations } from "@upmind-automation/client-vue";
 
 // --- internal
 import { ROUTE } from "../router";

@@ -426,7 +426,6 @@ export default createMachine(
                 : product.domain == data;
             }
           ) as DomainProduct;
-          debugger;
           return reject(model, ["domain", domainProduct.domain]);
         }
       }),
