@@ -7,6 +7,8 @@
     fit="cover"
     :dismissable="false"
     height="fixed"
+    :title="t('domain.search')"
+    :description="t('domain.domain_description')"
     @open-auto-focus.prevent="onOpen"
     @close="onClose"
   >
@@ -32,6 +34,7 @@
 // --- external
 import { useSlots, ref, computed } from "vue";
 import { useFocus } from "@vueuse/core";
+import { useI18n } from "vue-i18n";
 
 // --- internal
 import { Drawer } from "@upmind-automation/upmind-ui";
@@ -53,6 +56,7 @@ const props = defineProps<{
   loading?: boolean;
 }>();
 
+const { t } = useI18n();
 const slots = useSlots();
 
 const internalOpen = computed({
