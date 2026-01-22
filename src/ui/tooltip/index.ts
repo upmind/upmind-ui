@@ -10,3 +10,4 @@ import TooltipCE from "./Tooltip.ce.vue";
 export const UpmTooltip = defineCustomElement(TooltipCE);
 
 // --- types
+export const TOOLTIP_COLORS = ["default"];
