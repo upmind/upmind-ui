@@ -3,8 +3,7 @@
     <template #content-header>
       <Categories
         v-model="categoryId"
-        v-bind="category"
-        :title="title"
+        v-bind="{ ...category, title }"
         :description="description"
         :excerpt="ui.categoryExcerpt.isVisible ? category.excerpt : ''"
         :badge="badge"
@@ -147,11 +146,11 @@ const category = computed((): ProductCategory => {
   const category = categoryId.value
     ? instance.getOne(categoryId.value)
     : undefined;
-  return category || { id: "", name: "", title: t("text.categories") };
+  return category || { id: "", name: "" };
 });
 
 const title = computed(() => {
-  return category.value.name || data.storeHeading;
+  return (categoryId.value ? category.value.title : data.storeHeading) || "";
 });
 
 const description = computed(() => {
