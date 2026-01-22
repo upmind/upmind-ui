@@ -46,7 +46,6 @@ import { computed, useSlots } from "vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
-import { type ProductCategory } from "@upmind-automation/headless";
 import { useStyles, Badge } from "@upmind-automation/upmind-ui";
 import config from "../catalogue.config";
 

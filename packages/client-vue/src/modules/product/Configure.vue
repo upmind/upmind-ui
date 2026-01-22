@@ -56,11 +56,11 @@
             <form @submit.prevent @reset.prevent>
               <ProductConfig
                 v-if="pendingProduct && productMeta?.isAvailable"
+                as="div"
                 :item="pendingProduct"
                 :model-value="pendingProduct?.id"
-                :no-footer="true"
                 :meta="configMeta"
-                as="div"
+                no-footer
                 @resolve="doResolve"
                 @reject="doReject"
               />
@@ -102,11 +102,7 @@
               :product="product"
               :meta="productMeta"
               :template="props.template"
-              :total="
-                (template === PRODUCT_TEMPLATE.TWO_COLUMN_RTL && isMobile) ||
-                template === PRODUCT_TEMPLATE.TWO_COLUMN_LTR ||
-                template === PRODUCT_TEMPLATE.FULL
-              "
+              :total="stylesMeta.showTotal"
               :title="
                 configMeta.data.productName || product.productDetails.title
               "
@@ -239,24 +235,16 @@ import { get, includes, take, isEmpty } from "lodash-es";
 import { isMobile } from "@upmind-automation/upmind-ui";
 
 // --- types
+import type { ConfigureProps } from "./types";
 import { PRODUCT_TEMPLATE } from "./types";
-import type { RouteLocationAsRelativeGeneric } from "vue-router";
 import { BreadcrumbVariant } from "@upmind-automation/headless";
 import { PRODUCT_HERO_DIRECTION } from "../product/components/hero/types";
 
 // -----------------------------------------------------------------------------
 
-const props = withDefaults(
-  defineProps<{
-    storefrontRoute: RouteLocationAsRelativeGeneric;
-    catalogueRoute?: RouteLocationAsRelativeGeneric;
-    template?: PRODUCT_TEMPLATE;
-    hideSlots?: string[];
-  }>(),
-  {
-    hideSlots: () => []
-  }
-);
+const props = withDefaults(defineProps<ConfigureProps>(), {
+  hideSlots: () => []
+});
 
 const { t } = useI18n();
 const { set } = useThemes();
@@ -303,7 +291,7 @@ const template = computed(
   () =>
     props.template ||
     configMeta.ui.template.value ||
-    PRODUCT_TEMPLATE.TWO_COLUMN_LTR
+    PRODUCT_TEMPLATE.TWO_COLUMN_RTL
 );
 
 const templateVariant = computed(() => get(supportedTemplates, template.value));
@@ -317,7 +305,11 @@ const stylesMeta = computed(() => {
         : PRODUCT_HERO_DIRECTION.HORIZONTAL,
     heroImage:
       (template.value !== PRODUCT_TEMPLATE.TWO_COLUMN_LTR || isMobile.value) &&
-      configMeta.ui.productImages.isVisible
+      configMeta.ui.productImages.isVisible,
+    showTotal:
+      (template.value === PRODUCT_TEMPLATE.TWO_COLUMN_RTL && isMobile.value) ||
+      template.value === PRODUCT_TEMPLATE.TWO_COLUMN_LTR ||
+      template.value === PRODUCT_TEMPLATE.FULL
   };
 });
 
