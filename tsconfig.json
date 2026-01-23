@@ -17,19 +17,9 @@
     "types": ["vite/client"],
     "baseUrl": ".",
     "paths": {
-      "@upmind-automation/types": ["../types/src/index.ts"],
-      "@upmind-automation/i18n": ["../i18n/src/index.ts"],
-      "@upmind-automation/headless": ["../headless/src/index.ts"],
-      "@upmind-automation/icons": ["../icons/src/index.ts"],
       "@/*": ["./src/*"]
     }
   },
-  "include": [
-    "src/**/*",
-    "../types/src/**/*",
-    "../i18n/src/**/*",
-    "../headless/src/**/*",
-    "../icons/src/**/*"
-  ],
+  "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "**/*.spec.*", "**/*.test.*"]
 }

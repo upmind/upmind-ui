@@ -28,11 +28,5 @@
     }
   },
   "include": ["src"],
-  "exclude": ["node_modules", "dist", "**/*.spec.*", "**/*.test.*"],
-  "references": [
-    { "path": "../types/tsconfig.build.json" },
-    { "path": "../i18n/tsconfig.build.json" },
-    { "path": "../headless/tsconfig.build.json" },
-    { "path": "../icons/tsconfig.build.json" }
-  ]
+  "exclude": ["node_modules", "dist", "**/*.spec.*", "**/*.test.*"]
 }
