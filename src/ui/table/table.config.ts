@@ -4,7 +4,7 @@ import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 export default {
   table: {
-    root: cva("w-full border-separate border-spacing-y-4"),
+    root: cva("w-full"),
     header: {
       root: cva(""),
       cell: cva(
@@ -15,7 +15,7 @@ export default {
     row: {
       root: cva(""),
       cell: cva(
-        "pl-6 text-right font-normal whitespace-nowrap first:w-full first:pl-0 first:text-left data-[emphasis=true]:font-medium"
+        "py-2 pl-6 text-right font-normal whitespace-nowrap first:w-full first:pl-0 first:text-left data-[emphasis=true]:font-medium"
       )
     }
   }
