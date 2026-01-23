@@ -27,7 +27,7 @@
     "node": "^20.19.0 || >=22.12.0"
   },
   "scripts": {
-    "clean": "rm -rf {node_modules,dist,*.tsbuildinfo} && rm -rf node_modules && pnpm install",
+    "clean": "rm -rf {node_modules,dist,*.tsbuildinfo}",
     "build": "pnpm type-check && pnpm build-only",
     "build-only": "vite build",
     "type-check": "vue-tsc --noEmit",
