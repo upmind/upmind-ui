@@ -2,11 +2,12 @@
   "$schema": "https://json.schemastore.org/tsconfig",
   "extends": "../../tsconfig/vue-library.json",
   "compilerOptions": {
+    "composite": true,
+    "emitDeclarationOnly": true,
     "baseUrl": ".",
     "rootDir": "src",
     "outDir": "dist",
-    "declaration": false,
-    "declarationMap": false,
+    "declarationDir": "dist",
     "paths": {
       "@/*": ["./src/*"]
     }
@@ -14,9 +15,10 @@
   "include": ["src"],
   "exclude": ["node_modules", "dist", "**/*.spec.*", "**/*.test.*"],
   "references": [
-    { "path": "../types" },
-    { "path": "../i18n" },
-    { "path": "../headless" },
-    { "path": "../ui" }
+    { "path": "../types/tsconfig.build.json" },
+    { "path": "../i18n/tsconfig.build.json" },
+    { "path": "../headless/tsconfig.build.json" },
+    { "path": "../ui/tsconfig.build.json" },
+    { "path": "../icons/tsconfig.build.json" }
   ]
 }
