@@ -8,7 +8,20 @@
           :class="styles.table.header.cell"
           scope="col"
         >
-          {{ column.label }}
+          <span :class="styles.table.header.content">
+            {{ column.label }}
+            <Tooltip
+              v-if="column.info"
+              :label="column.info"
+              :class="styles.table.header.tooltip"
+            >
+              <Icon
+                icon="info-circle"
+                :class="styles.table.header.icon"
+                size="nano"
+              />
+            </Tooltip>
+          </span>
         </th>
       </tr>
     </thead>
@@ -42,6 +55,10 @@ import { computed } from "vue";
 // --- internal
 import config from "./table.config";
 import { useStyles, cn } from "../../utils";
+
+// --- components
+import Icon from "../icon/Icon.ce.vue";
+import Tooltip from "../tooltip/Tooltip.ce.vue";
 
 // --- types
 import type { TableProps } from "./types";

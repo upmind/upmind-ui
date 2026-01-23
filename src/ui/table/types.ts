@@ -13,6 +13,7 @@ export interface TableProps {
 export interface TableColumn {
   label: string;
   emphasis?: boolean;
+  info?: string;
 }
 
 export interface TableRow {
