@@ -91,6 +91,17 @@
   --color-info-muted: #f0faff;
   --color-info-muted-contrast: #00acff;
 
+  /*
+   * Semantic Color Tokens
+   * ---------------------
+   * The colors below (backgrounds, borders, text, accents, etc.) are derived from the primitive
+   * color tokens defined above. By setting the primitive values, you automatically get comprehensive
+   * branding applied throughout the UI components.
+   *
+   * However, if finer control is needed, individual semantic tokens can still be overridden
+   * independently without affecting other parts of the theme.
+   */
+
   /* Background Colors */
   --bg-canvas: var(--color-core-canvas);
   --bg-surface: var(--color-core-surface);
