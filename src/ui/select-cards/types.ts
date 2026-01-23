@@ -1,13 +1,9 @@
 // --- external
-import { type HTMLAttributes } from "vue";
+import { type HTMLAttributes, type Component } from "vue";
 
 // --- types
 import type { ButtonProps } from "../button";
-import type {
-  RadioGroupRootProps,
-  RadioGroupItemProps,
-  PopoverContentProps
-} from "radix-vue";
+import type { PopoverContentProps } from "radix-vue";
 import type { CxOptions, VariantProps } from "class-variance-authority";
 import type { BadgeProps } from "../badge/types";
 import type { Icon } from "../icon/types";
@@ -19,7 +15,23 @@ type TriggerVariantProps = VariantProps<typeof triggerVariants>;
 // --- types
 import type { AvatarProps } from "../avatar";
 
-export interface SelectCardsItemProps extends RadioGroupItemProps {
+/**
+ * Base props from radix-vue primitives, inlined to avoid type portability issues
+ * when consuming packages can't resolve transitive radix-vue type references.
+ */
+interface PrimitiveBaseProps {
+  as?: string | Component;
+  asChild?: boolean;
+}
+
+export interface SelectCardsItemProps extends PrimitiveBaseProps {
+  /** The value given as data when submitted with a `name`. */
+  value?: string;
+  /** When `true`, prevents the user from interacting with the radio item. */
+  disabled?: boolean;
+  /** Used to identify the radio item within a form. */
+  id?: string;
+  // --- SelectCards-specific props
   item?: any;
   index?: number;
   label: string;
@@ -29,7 +41,14 @@ export interface SelectCardsItemProps extends RadioGroupItemProps {
   badge?: BadgeProps | string;
 }
 
-export interface SelectCardsProps extends RadioGroupRootProps {
+export interface SelectCardsProps extends PrimitiveBaseProps {
+  /** The controlled value of the radio item to check. Can be binded as `v-model`. */
+  modelValue?: string;
+  /** The value of the radio item that should be checked when initially rendered. */
+  defaultValue?: string;
+  /** The name of the group. Submitted with its owning form as part of a name/value pair. */
+  name?: string;
+  // --- SelectCards-specific props
   label?: string;
   placeholder?: string;
   required?: boolean;
