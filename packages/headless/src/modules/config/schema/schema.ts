@@ -249,6 +249,8 @@ export interface DataSchema {
 
   /** Option group name for grouping items in select-grouped */
   optionGroupLabel?: string;
+  /** Option group icon name */
+  optionGroupIcon?: string;
   /** Option image URL */
   optionImgUrl?: string;
 }

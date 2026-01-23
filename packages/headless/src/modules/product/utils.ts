@@ -1173,6 +1173,7 @@ const parseSummarySubproduct = (
                 // ---
                 meta: {
                   ...subproduct.meta,
+                  ...subproduct?.uiMeta,
                   invalid: has(error, `${key}.${id}`)
                 },
                 // ---

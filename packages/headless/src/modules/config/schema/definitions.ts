@@ -329,7 +329,7 @@ export const UI_META_DEFINITIONS = {
   },
   optionSelectorIcons: {
     type: VISIBILITY,
-    default: VISIBILITY.HIDDEN,
+    default: VISIBILITY.VISIBLE,
     contexts: [UIContext.CONFIGURE],
     scopes: [
       UIScope.BRAND,
@@ -619,6 +619,11 @@ export const DATA_DEFINITIONS = {
   optionGroupLabel: {
     default: undefined,
     contexts: [UIContext.CONFIGURE, UIContext.BASKET],
+    scopes: [UIScope.OPTION_CATEGORY, UIScope.OPTION]
+  },
+  optionGroupIcon: {
+    default: undefined,
+    contexts: [UIContext.CONFIGURE],
     scopes: [UIScope.OPTION_CATEGORY, UIScope.OPTION]
   },
   optionImgUrl: {

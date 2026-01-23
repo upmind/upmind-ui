@@ -18,7 +18,7 @@
     @blur="blurred = true"
     :optional-text="props.optionalText"
     :required-text="props.requiredText"
-    :icon="ui.optionSelectorIcons.isVisible ? '' : ''"
+    :icon="ui.optionSelectorIcons.isVisible ? data.optionGroupIcon : ''"
   >
     <component
       :is="as"
@@ -120,7 +120,7 @@ const props = defineProps<{
   requiredText?: string;
 }>();
 
-const { ui } = props.meta.with({
+const { ui, data } = props.meta.with({
   optionGroup: () => props.subproduct
 });
 
@@ -182,6 +182,7 @@ const optionsWithConfig = computed(() =>
     return {
       ...option,
       groupLabel: data.optionGroupLabel,
+      groupIcon: data.optionGroupIcon,
       groupImg: data.optionImgUrl
     };
   })
@@ -235,6 +236,7 @@ const groups = computed(() => {
     return {
       name: firstItem?.groupLabel || firstItem?.name,
       icon: firstItem?.groupImg,
+      iconName: firstItem?.groupIcon,
       items: map(items, item => ({
         value: item.id,
         label: item.name,
