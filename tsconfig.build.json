@@ -13,23 +13,26 @@
     "moduleResolution": "node",
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "jsx": "preserve",
-    "noEmit": true,
+    "composite": true,
+    "emitDeclarationOnly": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "noEmit": false,
     "types": ["vite/client"],
-    "baseUrl": ".",
+    "rootDir": "src",
+    "outDir": "dist",
+    "declarationDir": "dist",
     "paths": {
-      "@upmind-automation/types": ["../types/src/index.ts"],
-      "@upmind-automation/i18n": ["../i18n/src/index.ts"],
-      "@upmind-automation/headless": ["../headless/src/index.ts"],
-      "@upmind-automation/icons": ["../icons/src/index.ts"],
       "@/*": ["./src/*"]
     }
   },
-  "include": [
-    "src/**/*",
-    "../types/src/**/*",
-    "../i18n/src/**/*",
-    "../headless/src/**/*",
-    "../icons/src/**/*"
-  ],
-  "exclude": ["node_modules", "dist", "**/*.spec.*", "**/*.test.*"]
+  "include": ["src"],
+  "exclude": ["node_modules", "dist", "**/*.spec.*", "**/*.test.*"],
+  "references": [
+    { "path": "../types/tsconfig.build.json" },
+    { "path": "../i18n/tsconfig.build.json" },
+    { "path": "../headless/tsconfig.build.json" },
+    { "path": "../icons/tsconfig.build.json" }
+  ]
 }
