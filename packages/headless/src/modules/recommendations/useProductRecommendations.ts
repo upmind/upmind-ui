@@ -28,7 +28,7 @@ export const useProductRecommendations = (pid: ProductModel["productId"]) => {
     state,
     context,
     errors,
-    basketItem,
+    failedProduct,
     recommendations,
     add,
     remove,
@@ -106,7 +106,7 @@ export const useProductRecommendations = (pid: ProductModel["productId"]) => {
     context,
 
     /** The current basket item context. */
-    basketItem,
+    failedProduct,
 
     /** Any error returned by the engine. */
     errors,
