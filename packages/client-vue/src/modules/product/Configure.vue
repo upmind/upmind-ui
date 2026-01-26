@@ -73,9 +73,10 @@
               <ConfigSkeleton v-else />
             </form>
 
-            <!-- <template #actions>
-            <Share size="sm" />
-          </template> -->
+            <template #actions>
+              <pre>{{ shareUrl }}</pre>
+              <!-- <Share size="sm" /> -->
+            </template>
           </Section>
         </slot>
       </template>
@@ -272,7 +273,8 @@ const {
   productImage,
   updateQuantity,
   updateTerm,
-  terms
+  terms,
+  shareUrl
 } = productConfig;
 
 const configMeta = useConfig({
