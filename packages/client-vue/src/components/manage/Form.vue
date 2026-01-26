@@ -127,6 +127,7 @@ const doInput = (value: any) => {
 };
 
 const doReject = () => {
+  emits("processing", false);
   emits("reject");
   doClose();
 };
