@@ -154,7 +154,6 @@ import BasketProductConfigurationDetails from "./BasketProductConfigurationDetai
 import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./basketProduct.config";
 import { useConfig } from "@upmind-automation/headless";
-import { UIContext } from "@upmind-automation/headless";
 
 // --- utils
 import { isMobile } from "@upmind-automation/upmind-ui";
@@ -186,7 +185,7 @@ const styles = useStyles(
 
 const open = useVModel(props, "open", emits);
 
-const { ui, data } = useConfig({
+const { ui, data } = useConfig().with({
   product: () => props
 });
 
