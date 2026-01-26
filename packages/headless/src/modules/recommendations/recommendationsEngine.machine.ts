@@ -20,22 +20,18 @@ import {
   defaultsDeep,
   filter,
   find,
-  findLast,
-  first,
   get,
-  has,
   includes,
+  isArray,
   isEmpty,
   isObject,
   map,
-  mapValues,
   reduce,
   reject,
   set,
   some,
   uniq,
   uniqBy,
-  unset,
   xorBy
 } from "lodash-es";
 
@@ -138,7 +134,13 @@ export default createMachine(
       REFRESH: [
         {
           target: "refreshing",
-          actions: ["setBasket", "setLookups", "setRecommendations"],
+          actions: [
+            "setBasket",
+            "clearProducts",
+            "setLookups",
+            "setRecommendations",
+            "refreshProducts"
+          ],
           cond: "hasBasketChanged"
         },
         {
@@ -286,6 +288,21 @@ export default createMachine(
         }
       ),
 
+      refreshProducts: pure(
+        (context: RecommendationsEngineContext, _event: AnyEventObject) => {
+          if (!context.basketHelper) return;
+
+          const productIds = uniq(
+            map(context.recommendations, "productDetails.id")
+          );
+          return sendTo(context.basketHelper, {
+            type: "FETCH_SELECTED",
+            target: productIds,
+            context
+          });
+        }
+      ),
+
       addToBasket: pure(
         (context: RecommendationsEngineContext, { data }: AnyEventObject) => {
           const recommendation = find(context.recommendations, ["id", data]);
@@ -359,6 +376,13 @@ export default createMachine(
             added: raw.added
           };
         }
+      }),
+
+      clearProducts: assign({
+        raw: ({ raw }: RecommendationsEngineContext) => ({
+          ...raw,
+          products: []
+        })
       }),
 
       setLookups: assign({
@@ -479,7 +503,14 @@ export default createMachine(
               // we need to check if we have already added it so the parsed recommendations are deduped
               if (some(result, ["id", rawRelated.id])) return result;
 
-              if (context?.id == rawRelated?.id) rawRelated.product = data;
+              if (isArray(data)) {
+                // FETCH_SELECTED: data is array of products, context is full RecommendationsEngineContext
+                rawRelated.product = find(data, ["id", rawRelated.object_id]);
+              } else if (context?.id == rawRelated?.id) {
+                // FETCH: data is single product, context has the recommendation id
+                rawRelated.product = data;
+              }
+
               const added = checkInBasket(rawRelated, raw.added);
               const seen = includes(raw.seen, rawRelated.id);
               const processing = false;

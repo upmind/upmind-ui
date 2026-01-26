@@ -7,7 +7,6 @@
 import { UpmDac, useRoutingEngine } from "@upmind-automation/client-vue";
 
 // --- internal
-import { DOMAIN_TEMPLATE } from "@upmind-automation/client-vue";
 
 // ---utils
 import { first } from "lodash-es";

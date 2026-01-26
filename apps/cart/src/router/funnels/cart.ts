@@ -55,7 +55,9 @@ export default <FunnelProps>{
         onError: { target: ROUTE.BASKET, actions: ["setResolving"] }
       },
       on: {
-        NEXT: { target: ROUTE.CHECKOUT_FLOW },
+        NEXT: {
+          actions: [assign({ targetRoute: { name: ROUTE.RECOMMENDATIONS } })]
+        },
         BACK: { actions: [assign({ targetRoute: { name: ROUTE.BASKET } })] }
       }
     },
@@ -125,7 +127,9 @@ export default <FunnelProps>{
     [ROUTE.PRODUCT_NOT_FOUND]: {
       entry: ["setResolved"],
       on: {
-        NEXT: { target: ROUTE.CHECKOUT_FLOW },
+        NEXT: {
+          actions: [assign({ targetRoute: { name: ROUTE.CHECKOUT_FLOW } })]
+        },
         BACK: { actions: [assign({ targetRoute: { name: ROUTE.BASKET } })] }
       }
     },
@@ -144,7 +148,9 @@ export default <FunnelProps>{
         onError: { target: ROUTE.CHECKOUT_FLOW, actions: ["setResolving"] }
       },
       on: {
-        NEXT: { target: ROUTE.CHECKOUT_FLOW },
+        NEXT: {
+          actions: [assign({ targetRoute: { name: ROUTE.CHECKOUT_FLOW } })]
+        },
         BACK: { actions: [assign({ targetRoute: { name: ROUTE.BASKET } })] }
       }
     },
@@ -268,8 +274,12 @@ export default <FunnelProps>{
         onError: ROUTE.CHECKOUT_FLOW
       },
       on: {
-        NEXT: { target: ROUTE.CHECKOUT_FLOW },
-        BACK: { target: ROUTE.CHECKOUT_FLOW }
+        NEXT: {
+          actions: [assign({ targetRoute: { name: ROUTE.CHECKOUT_FLOW } })]
+        },
+        BACK: {
+          actions: [assign({ targetRoute: { name: ROUTE.CHECKOUT_FLOW } })]
+        }
       }
     },
 
