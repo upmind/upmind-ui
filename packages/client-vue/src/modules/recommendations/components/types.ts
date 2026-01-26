@@ -1,7 +1,10 @@
-import type { Recommendation, Benefit } from "@upmind-automation/headless";
+import type {
+  Recommendation,
+  Benefit,
+  ProductProps
+} from "@upmind-automation/headless";
 import type { IconProps } from "@upmind-automation/upmind-ui";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
-import type { ActorRef } from "xstate";
 
 export interface RecommendationsProps {
   items?: Recommendation[];
@@ -23,5 +26,5 @@ export interface RecommendationBenefitProps extends Benefit {
 }
 
 export interface RecommendationConfigurationProps {
-  modelValue: ActorRef<any>;
+  modelValue: ProductProps;
 }

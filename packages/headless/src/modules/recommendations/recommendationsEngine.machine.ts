@@ -21,6 +21,7 @@ import {
   filter,
   find,
   get,
+  has,
   includes,
   isArray,
   isEmpty,
@@ -89,7 +90,8 @@ export default createMachine(
         on: {
           CANCEL: {
             target: "available",
-            actions: ["clearItem"]
+            actions: ["clearFailed"],
+            cond: "hasNoData"
           }
         }
       },
@@ -108,13 +110,13 @@ export default createMachine(
           },
           CANCEL: {
             target: "available",
-            actions: ["clearItem", "setRecommendations"]
+            actions: ["clearFailed", "setRecommendations"]
           },
           ERROR: [
             {
               target: "configuring",
-              actions: ["setError", "setItem"],
-              cond: "hasBasketItem"
+              actions: ["setError", "setFailed"],
+              cond: "hasFailed"
             },
             {
               target: "error",
@@ -158,7 +160,7 @@ export default createMachine(
       },
       ERROR: {
         actions: ["setError", "removeRelated", "setRecommendations"],
-        cond: "hasDataWithContext"
+        cond: "hasSourceContext"
       },
       SEEN: {
         actions: ["setSeen"]
@@ -353,13 +355,13 @@ export default createMachine(
 
       // ---
 
-      setItem: assign({
-        basketItem: (_context, { data }: AnyEventObject) => {
-          return data?.basketItem;
+      setFailed: assign({
+        failedProduct: (_context, { sourceContext }: AnyEventObject) => {
+          return sourceContext;
         }
       }),
 
-      clearItem: assign({ basketItem: undefined }),
+      clearFailed: assign({ failedProduct: undefined }),
 
       // ---
 
@@ -494,7 +496,7 @@ export default createMachine(
         },
         recommendations: (
           { raw }: RecommendationsEngineContext,
-          { data, context }: AnyEventObject
+          { data, sourceContext }: AnyEventObject
         ) => {
           const augmentedRecommendations = reduce(
             raw.related,
@@ -504,9 +506,9 @@ export default createMachine(
               if (some(result, ["id", rawRelated.id])) return result;
 
               if (isArray(data)) {
-                // FETCH_SELECTED: data is array of products, context is full RecommendationsEngineContext
+                // FETCH_SELECTED: data is array of products, sourceContext is full RecommendationsEnginesourceContext
                 rawRelated.product = find(data, ["id", rawRelated.object_id]);
-              } else if (context?.id == rawRelated?.id) {
+              } else if (sourceContext?.id == rawRelated?.id) {
                 // FETCH: data is single product, context has the recommendation id
                 rawRelated.product = data;
               }
@@ -533,9 +535,9 @@ export default createMachine(
       removeRelated: assign({
         raw: (
           { raw }: RecommendationsEngineContext,
-          { context }: AnyEventObject
+          { sourceContext }: AnyEventObject
         ) => {
-          raw.related = reject(raw.related, ["id", context.id]);
+          raw.related = reject(raw.related, ["id", sourceContext.id]);
           return raw;
         }
       }),
@@ -563,10 +565,13 @@ export default createMachine(
       setError: assign({
         error: (
           { recommendations }: RecommendationsEngineContext,
-          { data, context }: AnyEventObject
+          { data, sourceContext }: AnyEventObject
         ) => {
-          if (!isEmpty(context)) {
-            const recommendation = find(recommendations, ["id", context?.id]);
+          if (!isEmpty(sourceContext)) {
+            const recommendation = find(recommendations, [
+              "id",
+              sourceContext?.id
+            ]);
             if (recommendation) set(recommendation, "meta.error", true);
           }
 
@@ -596,10 +601,14 @@ export default createMachine(
         { data }: AnyEventObject
       ) => !isEmpty(data),
 
-      hasDataWithContext: (
+      hasNoData: (
         _context: RecommendationsEngineContext,
-        { data, context }: AnyEventObject
-      ) => !isEmpty(data) && !isEmpty(context),
+        { data }: AnyEventObject
+      ) => isEmpty(data),
+      hasSourceContext: (
+        _context: RecommendationsEngineContext,
+        { sourceContext }: AnyEventObject
+      ) => !isEmpty(sourceContext),
 
       hasRecommendations: (
         { raw }: RecommendationsEngineContext,
@@ -635,10 +644,13 @@ export default createMachine(
         return !isEmpty(xorBy(raw.added, data?.products, "product_id"));
       },
 
-      hasBasketItem: (
+      hasFailed: (
         _context: RecommendationsEngineContext,
-        { data }: AnyEventObject
-      ) => isObject(data?.basketItem)
+        { sourceContext }: AnyEventObject
+      ) => {
+        debugger;
+        return isObject(sourceContext) && has(sourceContext, "productId");
+      }
     },
 
     delays: {

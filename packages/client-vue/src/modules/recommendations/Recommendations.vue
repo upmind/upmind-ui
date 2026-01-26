@@ -38,8 +38,8 @@
         />
 
         <Configure
-          v-if="basketItem?.id"
-          :modelValue="basketItem"
+          v-if="meta.isConfiguring && failedProduct"
+          :modelValue="failedProduct"
           @resolve="doClose"
         />
 
@@ -118,7 +118,7 @@ const { count } = useBasket();
 const {
   seen,
   isReady,
-  basketItem,
+  failedProduct,
   meta,
   recommendations,
   add,

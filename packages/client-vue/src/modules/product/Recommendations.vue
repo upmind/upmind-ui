@@ -38,8 +38,8 @@
         />
 
         <Configure
-          v-if="basketItem?.id"
-          :modelValue="basketItem"
+          v-if="meta.isConfiguring && failedProduct"
+          :modelValue="failedProduct"
           @resolve="doClose"
         />
 
@@ -90,7 +90,7 @@ import Layout from "../../components/layout/Layout.vue";
 import Configure from "../recommendations/components/Configure.vue";
 import CardsCarousel from "../recommendations/components/CardsCarousel.vue";
 import Hero from "../../components/hero/Hero.vue";
-import type { LAYOUT_VARIANTS } from "../../components";
+import type { LAYOUT_VARIANTS } from "../../";
 import { LAYOUT_OVERFLOW } from "../../components/layout/types";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
 
@@ -120,7 +120,7 @@ const { count } = useBasket();
 const {
   seen,
   isReady,
-  basketItem,
+  failedProduct,
   meta,
   recommendations,
   add,
@@ -141,6 +141,7 @@ function doAdd(value: string) {
   add(value).then(() => doClose());
 }
 function doClose() {
+  debugger;
   seen();
   navigateNext();
 }

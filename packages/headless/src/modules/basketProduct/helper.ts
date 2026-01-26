@@ -104,10 +104,14 @@ export function basketSubscription(callback: any, onReceiveEvent: any) {
             { data }
           )
           .then(data =>
-            callback({ type: "FETCHED", data, context: event.context })
+            callback({ type: "FETCHED", data, sourceContext: event.context })
           )
           .catch(error =>
-            callback({ type: "ERROR", data: error, context: event.context })
+            callback({
+              type: "ERROR",
+              data: error,
+              sourceContext: event.context
+            })
           );
         break;
 
@@ -126,10 +130,14 @@ export function basketSubscription(callback: any, onReceiveEvent: any) {
             { data: { productIds: event.target } }
           )
           .then(data =>
-            callback({ type: "FETCHED", data, context: event.context })
+            callback({ type: "FETCHED", data, sourceContext: event.context })
           )
           .catch(error =>
-            callback({ type: "ERROR", data: error, context: event.context })
+            callback({
+              type: "ERROR",
+              data: error,
+              sourceContext: event.context
+            })
           );
         break;
 
@@ -152,10 +160,14 @@ export function basketSubscription(callback: any, onReceiveEvent: any) {
           )
 
           .then(data =>
-            callback({ type: "FETCHED", data, context: event.context })
+            callback({ type: "FETCHED", data, sourceContext: event.context })
           )
           .catch(error =>
-            callback({ type: "ERROR", data: error, context: event.context })
+            callback({
+              type: "ERROR",
+              data: error,
+              sourceContext: event.context
+            })
           );
         break;
 
@@ -187,7 +199,11 @@ export function basketSubscription(callback: any, onReceiveEvent: any) {
             callback({ type: "UPDATED", data: rawBasket });
           })
           .catch(error => {
-            callback({ type: "ERROR", data: error, context: event.target });
+            callback({
+              type: "ERROR",
+              data: error,
+              sourceContext: event.target
+            });
             callback({ type: "CANCEL", data: event.target });
           });
 
@@ -220,7 +236,11 @@ export function basketSubscription(callback: any, onReceiveEvent: any) {
             callback({ type: "UPDATED", data: rawBasket });
           })
           .catch(error => {
-            callback({ type: "ERROR", data: error, context: event.target });
+            callback({
+              type: "ERROR",
+              data: error,
+              sourceContext: event.target
+            });
             callback({ type: "CANCEL", data: event.target });
           });
 
@@ -254,7 +274,11 @@ export function basketSubscription(callback: any, onReceiveEvent: any) {
           })
           .catch(error => {
             // console.error("basketHelper", "REMOVE", error);
-            callback({ type: "ERROR", data: error, context: event.target });
+            callback({
+              type: "ERROR",
+              data: error,
+              sourceContext: event.target
+            });
             callback({ type: "CANCEL", data: event.target });
           });
 

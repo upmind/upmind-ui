@@ -255,7 +255,6 @@ const { configure, resolve, remove } = useBasketProductsPending();
 const { productId } = useQueryParams();
 
 const {
-  stop,
   update,
   service: pendingProduct,
   onDone,
