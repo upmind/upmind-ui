@@ -51,9 +51,6 @@
 <script setup lang="ts">
 // --- external
 import { computed, ref } from "vue";
-import { useVModel } from "@vueuse/core";
-import { useI18n } from "vue-i18n";
-
 // --- components
 import Form from "./Form.vue";
 import List from "./List.vue";
@@ -102,11 +99,7 @@ const touched = defineModel<boolean>("touched");
 // -----------------------------------------------------------------------------
 const { meta, isReady } = props.manage.useList();
 
-const { t } = useI18n();
-
-const modelValue = useVModel(props, "modelValue", emits, {
-  passive: true
-});
+const modelValue = defineModel<string>("modelValue");
 
 // -----------------------------------------------------------------------------
 const open = ref(props.forceOpen);

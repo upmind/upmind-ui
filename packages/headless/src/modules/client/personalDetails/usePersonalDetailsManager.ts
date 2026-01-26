@@ -147,11 +147,17 @@ export const usePersonalDetailsManager = ({
     // we have to ensure the update is processed and the state is either processed or available.error
     return waitFor(
       service,
-      state => stateMatches(state, ["processed", "available.error"]),
+      state =>
+        stateMatches(state, [
+          "processed",
+          "available.error",
+          "available.invalid"
+        ]),
       { timeout: 60_000 }
     )
       .then(state => {
-        if (stateMatches(state, "available.error")) throw state.context.error;
+        if (stateMatches(state, ["available.error", "available.invalid"]))
+          throw state.context.error;
         console.log("update completed:", state.context.model);
         return state.context.model;
       })
