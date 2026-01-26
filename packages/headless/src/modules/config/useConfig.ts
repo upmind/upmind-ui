@@ -65,7 +65,7 @@ export function useConfig(options?: UseMetaOptions): UseMetaResult {
     return useConfig({
       context,
       category: extendOptions.category ?? category,
-      product,
+      product: extendOptions.product ?? product,
       optionGroup: extendOptions.optionGroup ?? optionGroup,
       option: extendOptions.option ?? option
     });

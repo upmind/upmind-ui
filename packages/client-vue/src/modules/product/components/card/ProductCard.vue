@@ -163,8 +163,7 @@ const emit = defineEmits<{
 
 // -----------------------------------------------------------------------------
 
-// Context is determined by the parent component
-const productMeta = useConfig({
+const productMeta = useConfig().with({
   product: () => props
 });
 
