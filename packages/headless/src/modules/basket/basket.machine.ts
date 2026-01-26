@@ -457,15 +457,16 @@ export default createMachine(
           parseBasket(data, basket),
         error: (_context: BasketContext, { data }: AnyEventObject) =>
           get(data, "errors"), //NB: these are already mapped in the service, so no need to map them again
-        products: (_context: BasketContext, { data }: AnyEventObject) => {
-          const basket = parseBasket(data);
-          const products = get(basket, "products", []);
+        products: ({ basket }: BasketContext, { data }: AnyEventObject) => {
+          const mergedBasket = parseBasket(data, basket);
+          const products = get(mergedBasket, "products", []);
           const errors = get(data, "errors");
           return map(products, product => parseBasketProduct(product, errors));
         },
-        summary: (_context: BasketContext, { data }: AnyEventObject) => {
+        summary: ({ basket }: BasketContext, { data }: AnyEventObject) => {
+          const mergedBasket = parseBasket(data, basket);
           const errors = get(data, "errors");
-          return parseSummary(parseBasket(data), errors);
+          return parseSummary(mergedBasket, errors);
         }
       }),
 
