@@ -66,7 +66,8 @@ import {
   ProductTypes,
   PromotionDisplayTypes,
   ProvisionCategoryCodes,
-  PriceDisplayTypes
+  PriceDisplayTypes,
+  QUERY_PARAMS
 } from "@upmind-automation/types";
 
 import type {
@@ -1497,4 +1498,33 @@ export function parseBillingCycle(months: number) {
         numeric: t("term.n_month", { n: months.toString() }) // {n}-month
       };
   }
+}
+
+export function generateShareUrlConfig(model: ProductModel) {
+  const config: Record<string, string | number | undefined> = {};
+  config[QUERY_PARAMS.QUANTITY] = model.quantity;
+  config[QUERY_PARAMS.BILLING_CYCLE_MONTHS] = model.term;
+
+  // Extract all SubproductModelValue items from the nested SubproductModel structure
+  const attributeValues = flatMap(values(model.attributes), values);
+  const optionValues = flatMap(values(model.options), values);
+  const subproducts = concat(attributeValues, optionValues);
+
+  if (subproducts.length) {
+    config[QUERY_PARAMS.SUBPRODUCT_IDS] = map(
+      subproducts,
+      subproduct => subproduct.productId
+    ).join(",");
+    forEach(subproducts, subproduct => {
+      if (has(subproduct, "unit_quantity")) {
+        config[`${QUERY_PARAMS.SUBPRODUCT_QUANTITY}[${subproduct.productId}]`] =
+          subproduct.unit_quantity;
+      }
+      return;
+    });
+  }
+
+  return map(config, (value, key) => {
+    return `${key}=${value}`;
+  }).join("&");
 }
