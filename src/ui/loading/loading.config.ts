@@ -15,16 +15,29 @@ const variants = {
     false: ""
   }
 };
+
+const compoundVariants = [
+  {
+    isActive: true,
+    isTransparent: true,
+    class: "opacity-50"
+  },
+  {
+    isActive: true,
+    isTransparent: false,
+    class: "bg-canvas"
+  }
+];
+
 export default {
   loading: {
-    root: cva("", {
-      variants
+    root: cva(""),
+    content: cva("", {
+      variants,
+      compoundVariants
     }),
     spinner: cva(
-      "text-control-default bg-core-surface/60 z-50 flex w-full items-center justify-center",
-      {
-        variants
-      }
+      "text-control-default z-50 flex w-full items-center justify-center"
     )
   }
 };

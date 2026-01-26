@@ -4,7 +4,9 @@
     class="relative w-full"
     :class="cn(styles.loading.root, props.class)"
   >
-    <slot></slot>
+    <div :class="styles.loading.content">
+      <slot></slot>
+    </div>
     <Transition
       v-if="active"
       enter-active-class="transition-opacity duration-200 ease-in-out"
@@ -52,7 +54,8 @@ const props = withDefaults(defineProps<LoadingProps>(), {
 });
 
 const meta = computed(() => ({
-  isActive: props.active
+  isActive: props.active,
+  isTransparent: props.transparent
 }));
 
 const styles = useStyles("loading", meta, config);
