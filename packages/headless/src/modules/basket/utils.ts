@@ -12,7 +12,16 @@ import billingMachine from "./billing/billing.machine";
 // --- utils
 import { parseBasketProduct } from "../basketProduct/utils";
 
-import { compact, get, map, reduce, set, uniq } from "lodash-es";
+import {
+  compact,
+  defaultsDeep,
+  find,
+  get,
+  map,
+  reduce,
+  set,
+  uniq
+} from "lodash-es";
 
 // --- types
 import type { IBasket } from "@upmind-automation/types";
@@ -86,12 +95,42 @@ export function spawnPromotions(basket?: IBasket) {
 
 // --- PARSERS
 
-export const parseBasket = (data: any) => {
-  const basket = get(data, "basket", data);
+export const parseBasket = (
+  data: IBasket | { basket: IBasket },
+  basket?: IBasket
+) => {
+  const newBasket = get(data, "basket", data) as IBasket;
 
-  // TODO:...map properly...
+  // If no old basket, just return the new one
+  if (!basket) return newBasket;
 
-  return basket;
+  // Smart merge arrays by ID - new items take priority, old data fills in missing properties
+  // Removed items (not in new array) are correctly dropped
+  const mergeArrayById = (
+    newArray: any[] | undefined,
+    oldArray: any[] | undefined
+  ) => {
+    if (!newArray) return undefined;
+    if (!oldArray) return newArray;
+
+    return map(newArray, (newItem: any) => {
+      const oldItem = find(oldArray, ["id", newItem.id]);
+      return oldItem ? defaultsDeep({}, newItem, oldItem) : newItem;
+    });
+  };
+
+  // Start with defaultsDeep for scalar properties
+  const merged = defaultsDeep({}, newBasket, basket);
+
+  // Override arrays with smart ID-based merge (not index-based)
+  if (newBasket?.products !== undefined) {
+    merged.products = mergeArrayById(newBasket.products, basket.products);
+  }
+  if (newBasket?.promotions !== undefined) {
+    merged.promotions = mergeArrayById(newBasket.promotions, basket.promotions);
+  }
+
+  return merged;
 };
 
 // --- SUMMARY
