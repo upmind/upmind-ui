@@ -14,7 +14,6 @@ import {
   get,
   has,
   map,
-  isNil,
   reduce,
   forEach,
   isEmpty,
@@ -454,8 +453,8 @@ export default createMachine(
       }),
 
       updateBasket: assign({
-        basket: (_context: BasketContext, { data }: AnyEventObject) =>
-          parseBasket(data),
+        basket: ({ basket }: BasketContext, { data }: AnyEventObject) =>
+          parseBasket(data, basket),
         error: (_context: BasketContext, { data }: AnyEventObject) =>
           get(data, "errors"), //NB: these are already mapped in the service, so no need to map them again
         products: (_context: BasketContext, { data }: AnyEventObject) => {
