@@ -51,7 +51,11 @@
           :do-resolve="doResolve"
           :do-reject="doReject"
         >
-          <Section :label="t('text.product_configuration')" icon="settings-04">
+          <Section
+            :label="t('text.product_configuration')"
+            icon="settings-04"
+            :actions="configurationActions"
+          >
             <form @submit.prevent @reset.prevent>
               <ProductConfig
                 v-if="basketProduct && productMeta?.isAvailable"
@@ -223,6 +227,7 @@ const supportedTemplates = {
 // --- utils
 import { get, includes, take, isEmpty } from "lodash-es";
 import { isMobile, useThemes } from "@upmind-automation/upmind-ui";
+import { useClipboard } from "@vueuse/core";
 
 // --- types
 import { BreadcrumbVariant, UIContext } from "@upmind-automation/headless";
@@ -242,6 +247,7 @@ const { set } = useThemes();
 const { navigateBack, navigateNext } = useRoutingEngine();
 const { configure } = useBasketProducts();
 const { basketProductId } = useQueryParams();
+const { copy, copied, isSupported } = useClipboard({ legacy: true });
 
 const {
   stop,
@@ -262,7 +268,8 @@ const {
   productImage,
   updateQuantity,
   updateTerm,
-  terms
+  terms,
+  shareUrl
 } = productConfig;
 
 const configMeta = useConfig({
@@ -339,6 +346,21 @@ async function doResolve() {
 function doReject() {
   navigateBack();
 }
+
+const configurationActions = computed(() => {
+  if (!isSupported.value) return [];
+  return [
+    {
+      icon: copied.value ? "check" : "share-07",
+      label: copied.value ? t("confirm.copied") : t("action.share"),
+      handler: handleShare
+    }
+  ];
+});
+
+const handleShare = () => {
+  copy(shareUrl.value || window.location.href);
+};
 
 onUnmounted(() => {
   stop();
