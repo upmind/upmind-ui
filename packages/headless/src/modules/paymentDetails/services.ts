@@ -135,6 +135,10 @@ async function loadLookups(
     withAccessToken: true,
     withCurrency: true
   }).then(account => {
+    // bail if there is no account credit
+    if (isEmpty(compact([account.owned.value, account.credit.value])))
+      return account;
+
     // we need to calculate the total account credit including negative allowance
     // and get a formatted version based on the currency
     return post({

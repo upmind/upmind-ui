@@ -164,12 +164,20 @@ export const useUnified = (
     return waitFor(
       service,
       state =>
-        stateMatches(state, ["complete", "processed", "available.error"]),
+        stateMatches(state, [
+          "complete",
+          "processed",
+          "available.error",
+          "available.invalid"
+        ]),
       { timeout: 60_000 }
     )
       .then(state => {
         const model = contextValue<UnifiedModel>(state, "model");
-        if (!model || stateMatches(state, "available.error"))
+        if (
+          !model ||
+          stateMatches(state, ["available.error", "available.invalid"])
+        )
           throw state.context.error;
         return model;
       })

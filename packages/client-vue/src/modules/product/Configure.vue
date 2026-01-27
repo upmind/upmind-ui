@@ -256,7 +256,6 @@ const { productId } = useQueryParams();
 const { copy, copied, isSupported } = useClipboard({ legacy: true });
 
 const {
-  stop,
   update,
   service: pendingProduct,
   onDone,

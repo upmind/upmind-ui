@@ -14,8 +14,6 @@ import {
   type FunnelResponse,
   useBasketProducts,
   isDomainProduct,
-  useClientAddresses,
-  useClientCompanies,
   useBasketBilling
 } from "@upmind-automation/client-vue";
 import {
