@@ -13,7 +13,7 @@
       <UpmCurrency data-testid="currency-selector" v-show="meta.showCurrency" />
     </template>
 
-    <template #footer-content v-if="meta.hasContent">
+    <template #footer-content v-if="meta.hasContent && meta.showPoweredBy">
       <Content />
     </template>
 

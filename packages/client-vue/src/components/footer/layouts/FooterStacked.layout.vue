@@ -27,6 +27,7 @@ import { computed } from "vue";
 
 // --- internal
 import config from "../footer.config";
+import { useFooter } from "../useFooter";
 
 // --- components
 import Ribbon from "../../layout/components/ribbon/Ribbon.vue";
@@ -45,8 +46,11 @@ const props = defineProps<{
   currencyCount: number;
 }>();
 
+const { meta: footerMeta } = useFooter();
+
 const meta = computed(() => ({
-  isMinimal: props.localeCount <= 1 && props.currencyCount <= 1
+  isMinimal: props.localeCount <= 1 && props.currencyCount <= 1,
+  showPoweredBy: footerMeta.value.showPoweredBy
 }));
 
 const styles = useStyles(["footer.stacked"], meta, config, {});
