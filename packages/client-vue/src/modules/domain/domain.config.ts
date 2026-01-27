@@ -7,7 +7,7 @@ export default {
     choices: cva(""),
     listings: {
       item: cva(
-        "shadow-border-transparent [&:hover,&[data-hover=true]]:shadow-border-transparent !rounded-none border-t p-0",
+        "shadow-border-transparent [&:hover,&[data-hover=true]]:shadow-border-transparent border-surface bg-surface !rounded-none border-t p-0",
         {
           variants: {
             hasExactMatch: {
