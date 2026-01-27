@@ -61,7 +61,7 @@ import BasketProductOptionSummary from "./BasketProductOptionSummary.vue";
 import { isEmpty, some, compact, map } from "lodash-es";
 
 // --- types
-import { type Product, UIContext } from "@upmind-automation/headless";
+import { type Product } from "@upmind-automation/headless";
 import type { BasketProductProps } from "./types";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
 // -----------------------------------------------------------------------------
@@ -85,7 +85,7 @@ const emits = defineEmits(["update:open", "update:quantity", "remove"]);
 
 const open = useVModel(props, "open", emits);
 
-const { ui } = useConfig({
+const { ui } = useConfig().with({
   product: () => props
 });
 

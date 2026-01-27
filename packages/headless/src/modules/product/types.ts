@@ -786,14 +786,17 @@ export interface UISchema {
 }
 
 /**
- * Interface representing a benefit associated with a product.
+ * Represents a benefit associated with a product.
+ * Can be either a simple string label or an object with label and optional icon.
  */
-export interface Benefit {
-  /** The display label for the benefit. */
-  label: string;
-  /** An optional icon string or component to display with the benefit. */
-  icon?: string | any;
-}
+export type Benefit =
+  | string
+  | {
+      /** The display label for the benefit. */
+      label: string;
+      /** An optional icon string or component to display with the benefit. */
+      icon?: string | any;
+    };
 
 /**
  * Type alias for displaying price calculation states.
