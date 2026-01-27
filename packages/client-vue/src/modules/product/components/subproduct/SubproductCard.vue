@@ -11,7 +11,7 @@
                 v-if="
                   ui.optionItemDescription.isTooltip && !isEmpty(props.excerpt)
                 "
-                :label="props.excerpt"
+                :label="props.description"
                 :open="tooltipOpen"
                 :class="styles.card.header.tooltip"
                 :uiConfig="
