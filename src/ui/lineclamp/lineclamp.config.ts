@@ -16,7 +16,9 @@ export default {
           3: "",
           4: "",
           5: "",
-          6: ""
+          6: "",
+          7: "",
+          8: ""
         },
         isOpen: {
           true: "line-clamp-none",
@@ -53,6 +55,16 @@ export default {
           isOpen: false,
           lines: 6,
           class: "line-clamp-6"
+        },
+        {
+          isOpen: false,
+          lines: 7,
+          class: "line-clamp-[7]"
+        },
+        {
+          isOpen: false,
+          lines: 8,
+          class: "line-clamp-[8]"
         }
       ]
     }),
