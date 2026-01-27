@@ -41,6 +41,7 @@ export interface ProductInfo {
   meta?: ProductSummaryMeta;
   productMeta?: UseMetaResult;
   hideDescription?: boolean;
+  hideImage?: boolean;
   preservePromotion?: boolean;
   navigate?: boolean;
   processing?: boolean;

@@ -1,27 +1,36 @@
 <template>
   <li :class="styles.product.root">
     <div :class="styles.product.content">
-      <Link
-        v-if="!configMeta.hideImage && navigate"
-        :to="{
-          ...props.configureRoute,
-          params: {
-            pid: props.id
-          },
-          query: {
-            [QUERY_PARAMS.BILLING_CYCLE_MONTHS]: selectedTerm
-          }
-        }"
-        :disabled="processing || disabled"
-        @click="doResolve"
-        :tabindex="images.length === 1 ? '0' : '-1'"
-        :ring="images.length === 1 ? 'focus' : 'focus-visible'"
-        :class="styles.product.image.container"
-      >
+      <div v-if="!configMeta.hideImage" :class="styles.product.image.container">
+        <Link
+          v-if="navigate"
+          :to="{
+            ...props.configureRoute,
+            params: {
+              pid: props.id
+            },
+            query: {
+              [QUERY_PARAMS.BILLING_CYCLE_MONTHS]: selectedTerm
+            }
+          }"
+          :disabled="processing || disabled"
+          @click="doResolve"
+          :tabindex="images.length === 1 ? '0' : '-1'"
+          :ring="images.length === 1 ? 'focus' : 'focus-visible'"
+        >
+          <Image
+            :mode="mode"
+            :image="mappedImage"
+            :ratio="configMeta.imageRatio"
+            :class="styles.product.image.root"
+            :fallback="productMeta.ui.productImageFallback.isVisible"
+          />
+        </Link>
         <Image
+          v-else
           :mode="mode"
           :image="mappedImage"
-          :ratio="configMeta.imageRatio"
+          :ratio="ratio || configMeta.imageRatio"
           :class="styles.product.image.root"
           :fallback="productMeta.ui.productImageFallback.isVisible"
         />
@@ -37,15 +46,7 @@
           variant="minimal"
           color="neutral"
         />
-      </Link>
-      <Image
-        v-else-if="!configMeta.hideImage"
-        :mode="mode"
-        :image="mappedImage"
-        :ratio="ratio || configMeta.imageRatio"
-        :class="styles.product.image.root"
-        :fallback="productMeta.ui.productImageFallback.isVisible"
-      />
+      </div>
 
       <section :class="styles.product.details">
         <header :class="styles.product.header.root">
@@ -57,6 +58,7 @@
             :title="productMeta.data.productName || props.productDetails.title"
             :navigate="navigate"
             :hide-description="configMeta.hideDescription"
+            :hide-image="configMeta.hideImage"
             :productMeta="productMeta"
             :hide-anchor-price="configMeta.hideAnchorPrice"
           />
