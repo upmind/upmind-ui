@@ -99,7 +99,7 @@ import { useBasket, useRoutingEngine } from "@upmind-automation/headless";
 import { useLayout } from "../../components/layout/useLayout";
 import { useHeader } from "../../components/header/useHeader";
 import { useFooter } from "../../components/footer/useFooter";
-import { useConfig } from "@upmind-automation/headless";
+import { useConfig, validateTemplate } from "@upmind-automation/headless";
 import { useThemes } from "@upmind-automation/upmind-ui";
 
 // --- components
@@ -164,8 +164,12 @@ const open = ref(false);
 
 const isSlotHidden = (name: string) => includes(props.hideSlots, name);
 
-const template = computed(
-  () => ui.template.value || props.template || BASKET_TEMPLATE.TWO_COLUMN_LTR
+const template = computed(() =>
+  validateTemplate(
+    ui.template.value || props.template,
+    BASKET_TEMPLATE,
+    BASKET_TEMPLATE.TWO_COLUMN_LTR
+  )
 );
 
 const { ui, data } = useConfig({
