@@ -14,9 +14,9 @@
           <section :class="styles.product.header.info.root">
             <div :class="styles.product.header.info.container">
               <div class="flex flex-col gap-1">
-                <Skeleton :class="`h-8 ${randomWidth('w-72')}`" />
+                <Skeleton :class="`h-8 ${randomWidth('w-3/4')}`" />
 
-                <Skeleton :class="`h-6 ${randomWidth('w-56')}`" />
+                <Skeleton :class="`h-6 ${randomWidth('w-1/2')}`" />
               </div>
             </div>
 
@@ -37,7 +37,7 @@
               <Skeleton :class="`ml-1 h-6 ${randomWidth('w-24')}`" />
             </p>
 
-            <Skeleton :class="`h-6 ${randomWidth('w-64')}`" />
+            <Skeleton :class="`h-6 ${randomWidth('w-2/3')}`" />
           </section>
 
           <Skeleton v-if="!stylesMeta.hideTerms" class="h-11 w-full" />
@@ -97,7 +97,10 @@ const randomWidth = (baseWidth: string): string => {
     "w-64": ["w-56", "w-60", "w-64", "w-72", "w-80"],
     "w-72": ["w-60", "w-64", "w-72", "w-80", "w-96"],
     "w-80": ["w-64", "w-72", "w-80", "w-96", "w-full"],
-    "w-96": ["w-72", "w-80", "w-96", "w-full", "w-full"]
+    "w-96": ["w-72", "w-80", "w-96", "w-full", "w-full"],
+    "w-3/4": ["w-2/3", "w-3/4", "w-4/5"],
+    "w-2/3": ["w-3/5", "w-2/3", "w-3/4"],
+    "w-1/2": ["w-2/5", "w-1/2", "w-3/5"]
   };
 
   const alternatives = widthMap[baseWidth];
