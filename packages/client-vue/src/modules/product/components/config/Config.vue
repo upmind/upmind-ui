@@ -20,6 +20,7 @@
           :items="terms ?? []"
           :label="t('term.label')"
           :model-value="model?.term"
+          :summary="ui.termSelectorSummary.isVisible"
           :processing="meta.isProcessing || meta.isLoading"
           @update:modelValue="updateTerm"
           required

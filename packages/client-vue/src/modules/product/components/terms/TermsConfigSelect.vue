@@ -29,9 +29,9 @@
         <slot name="item" v-bind="slotProps">
           <CardTerm
             v-bind="slotProps.item"
-            no-summary
             :class="props.class"
             layout="inline"
+            :summary="false"
           />
         </slot>
       </template>
@@ -41,7 +41,7 @@
             v-bind="slotProps.item"
             :class="props.class"
             layout="inline"
-            no-summary
+            :summary="false"
           />
         </slot>
       </template>

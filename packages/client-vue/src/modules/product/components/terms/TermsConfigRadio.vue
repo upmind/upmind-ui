@@ -27,7 +27,7 @@
       :columns="0"
     >
       <template #item="{ item }">
-        <CardTerm v-bind="item" />
+        <CardTerm v-bind="item" :summary="summary" />
       </template>
     </RadioCards>
   </component>
@@ -75,6 +75,7 @@ const props = withDefaults(
     // ---
     label?: string;
     description?: string;
+    summary: boolean;
     // --- state
     required?: boolean;
     disabled?: boolean;
@@ -90,7 +91,8 @@ const props = withDefaults(
     disabled: false,
     loading: false,
     processing: false,
-    visible: true
+    visible: true,
+    summary: true
   }
 );
 
