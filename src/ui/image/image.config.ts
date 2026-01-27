@@ -38,10 +38,10 @@ export const rootVariant = cva("h-full w-full", {
   }
 });
 
-export const containerVariant = cva(`image-radius h-full overflow-hidden`, {
+export const containerVariant = cva(`image-radius overflow-hidden`, {
   variants: {
     ratio: {
-      auto: "",
+      auto: "h-full",
       "1:1": "aspect-square",
       "3:2": "aspect-3/2",
       "4:3": "aspect-4/3",
