@@ -23,6 +23,7 @@
           :image="isEmpty(images) ? props.productDetails.imgUrl : images"
           :ratio="configMeta.imageRatio"
           :class="styles.product.image.root"
+          :fallback="productMeta.ui.productImageFallback.isVisible"
         />
 
         <Badge
@@ -37,7 +38,6 @@
           color="neutral"
         />
       </Link>
-
       <Image
         v-else-if="!configMeta.hideImage"
         :mode="mode"
