@@ -5,7 +5,6 @@
         v-model="categoryId"
         v-bind="{ ...category, title }"
         :description="description"
-        :excerpt="ui.categoryExcerpt.isVisible ? category.excerpt : ''"
         :badge="badge"
         :sort="params.sort"
         :direction="params.direction"

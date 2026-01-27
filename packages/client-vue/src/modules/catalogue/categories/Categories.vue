@@ -3,7 +3,8 @@
     <CategoriesHeader
       v-model="modelValue"
       v-bind="{ ...props, ...currentCategory }"
-      :excerpt="props.excerpt"
+      :description="props.description"
+      :badge="props.badge"
     >
       <template #prepend>
         <slot name="prepend" />
@@ -41,6 +42,8 @@
           v-for="category in displayCategories"
           :key="category.id"
           v-bind="{ ...props, ...category }"
+          :excerpt="ui.categoryExcerpt.isVisible ? category.excerpt : ''"
+          :badge="ui.categoryBadge.isVisible ? data.categoryBadge : undefined"
           v-model="modelValue"
         />
       </template>
@@ -95,7 +98,7 @@ const hasCategories = computed(() => {
   return !isEmpty(displayCategories.value) && !meta.value.isLoading;
 });
 
-const { ui } = useConfig().with({ category: currentCategory });
+const { ui, data } = useConfig().with({ category: currentCategory });
 
 const styles = useStyles(
   ["categories"],
