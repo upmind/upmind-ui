@@ -166,9 +166,9 @@ export interface RecommendationsEngineContext {
    */
   error?: ResponseError;
   /**
-   * An `ActorRef` to the basket item service, used for inter-service communication related to basket products.
+   * The failed recommendation that was added to the basket.
    */
-  basketItem?: ActorRef<any>;
+  failedProduct?: ProductProps;
   // ---
   /**
    * The current currency in which recommendations' prices are displayed.

@@ -32,6 +32,7 @@ import {
   BrandTaxTypes,
   BrandConfigKeys,
   DefaultPaymentPeriod,
+  OrgFeatureKeys,
   UpmindModuleCodes
 } from "@upmind-automation/types";
 import type { BrandMeta } from "./types";
@@ -201,6 +202,15 @@ export const useBrand = () => {
   });
 
   const taxType = computed(() => brandSettings.value?.tax_type);
+
+  const hasUpmindBranding = computed(
+    (): boolean =>
+      !get(
+        organisationConfig.value,
+        OrgFeatureKeys.REMOVE_UPMIND_BRANDING_ENABLED,
+        false
+      )
+  );
 
   const { data } = useConfig({ brand: () => uiCart.value });
 
@@ -445,6 +455,12 @@ export const useBrand = () => {
 
     /** The storefront route object for the brand, containing either 'to' for internal routes or 'href' for external URLs. */
     storefrontRoute,
+
+    /**
+     * Whether Upmind branding should be displayed (false when white-label add-on is enabled).
+     */
+    hasUpmindBranding,
+
     // --- methods
 
     /**

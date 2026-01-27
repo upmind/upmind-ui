@@ -15,6 +15,17 @@ import {
 import { ROUTE } from "../types";
 
 // -----------------------------------------------------------------------------
+// NAVIGATION PATTERN FOR NEXT/BACK HANDLERS:
+// Each NEXT/BACK handler requires BOTH:
+//   - `target`: Transitions the XState state machine to the target state
+//   - `actions`: Sets `targetRoute` for Vue Router navigation via `awaitResolved()`
+//
+// For TRANSITIONAL STATES (no user-facing page, e.g. CHECKOUT_FLOW):
+//   - Use `target` only - the transitional state's invoke will determine final destination
+//
+// For NORMAL ROUTES (user-facing pages):
+//   - Use both `target` AND `actions` to ensure XState transitions AND Vue Router navigates
+// -----------------------------------------------------------------------------
 
 export default <FunnelProps>{
   id: "cart",
@@ -56,9 +67,13 @@ export default <FunnelProps>{
       },
       on: {
         NEXT: {
+          target: ROUTE.RECOMMENDATIONS,
           actions: [assign({ targetRoute: { name: ROUTE.RECOMMENDATIONS } })]
         },
-        BACK: { actions: [assign({ targetRoute: { name: ROUTE.BASKET } })] }
+        BACK: {
+          target: ROUTE.BASKET,
+          actions: [assign({ targetRoute: { name: ROUTE.BASKET } })]
+        }
       }
     },
 
@@ -111,9 +126,23 @@ export default <FunnelProps>{
       },
       on: {
         NEXT: {
-          actions: [assign({ targetRoute: { name: ROUTE.RECOMMENDATIONS } })]
+          target: ROUTE.PRODUCT_RECOMMENDATIONS,
+          actions: [
+            assign({
+              targetRoute: (
+                { targetRoute }: FunnelContext,
+                { data }: AnyEventObject
+              ) => ({
+                name: ROUTE.PRODUCT_RECOMMENDATIONS,
+                params: data?.targetRoute?.params ?? targetRoute?.params
+              })
+            })
+          ]
         },
-        BACK: { actions: [assign({ targetRoute: { name: ROUTE.CATALOGUE } })] }
+        BACK: {
+          target: ROUTE.CATALOGUE,
+          actions: [assign({ targetRoute: { name: ROUTE.CATALOGUE } })]
+        }
       }
     },
 
@@ -128,9 +157,13 @@ export default <FunnelProps>{
       entry: ["setResolved"],
       on: {
         NEXT: {
+          target: ROUTE.CHECKOUT_FLOW,
           actions: [assign({ targetRoute: { name: ROUTE.CHECKOUT_FLOW } })]
         },
-        BACK: { actions: [assign({ targetRoute: { name: ROUTE.BASKET } })] }
+        BACK: {
+          target: ROUTE.BASKET,
+          actions: [assign({ targetRoute: { name: ROUTE.BASKET } })]
+        }
       }
     },
 
@@ -149,9 +182,13 @@ export default <FunnelProps>{
       },
       on: {
         NEXT: {
+          target: ROUTE.CHECKOUT_FLOW,
           actions: [assign({ targetRoute: { name: ROUTE.CHECKOUT_FLOW } })]
         },
-        BACK: { actions: [assign({ targetRoute: { name: ROUTE.BASKET } })] }
+        BACK: {
+          target: ROUTE.BASKET,
+          actions: [assign({ targetRoute: { name: ROUTE.BASKET } })]
+        }
       }
     },
 
@@ -174,9 +211,13 @@ export default <FunnelProps>{
       },
       on: {
         NEXT: {
+          target: ROUTE.CHECKOUT,
           actions: [assign({ targetRoute: { name: ROUTE.CHECKOUT } })]
         },
-        BACK: { actions: [assign({ targetRoute: { name: ROUTE.CATALOGUE } })] }
+        BACK: {
+          target: ROUTE.CATALOGUE,
+          actions: [assign({ targetRoute: { name: ROUTE.CATALOGUE } })]
+        }
       }
     },
 
@@ -196,9 +237,13 @@ export default <FunnelProps>{
       },
       on: {
         NEXT: {
+          target: ROUTE.CATALOGUE,
           actions: [assign({ targetRoute: { name: ROUTE.CATALOGUE } })]
         },
-        BACK: { actions: [assign({ targetRoute: { name: ROUTE.CATALOGUE } })] }
+        BACK: {
+          target: ROUTE.CATALOGUE,
+          actions: [assign({ targetRoute: { name: ROUTE.CATALOGUE } })]
+        }
       }
     },
 
@@ -220,9 +265,13 @@ export default <FunnelProps>{
       },
       on: {
         NEXT: {
+          target: ROUTE.RECOMMENDATIONS,
           actions: [assign({ targetRoute: { name: ROUTE.RECOMMENDATIONS } })]
         },
-        BACK: { actions: [assign({ targetRoute: { name: ROUTE.BASKET } })] }
+        BACK: {
+          target: ROUTE.BASKET,
+          actions: [assign({ targetRoute: { name: ROUTE.BASKET } })]
+        }
       }
     },
 
@@ -250,11 +299,15 @@ export default <FunnelProps>{
       },
       on: {
         NEXT: {
+          target: ROUTE.BASKET_PRODUCT_EDIT,
           actions: [
             assign({ targetRoute: { name: ROUTE.BASKET_PRODUCT_EDIT } })
           ]
         },
-        BACK: { actions: [assign({ targetRoute: { name: ROUTE.BASKET } })] }
+        BACK: {
+          target: ROUTE.BASKET,
+          actions: [assign({ targetRoute: { name: ROUTE.BASKET } })]
+        }
       }
     },
 
@@ -275,9 +328,11 @@ export default <FunnelProps>{
       },
       on: {
         NEXT: {
+          target: ROUTE.CHECKOUT_FLOW,
           actions: [assign({ targetRoute: { name: ROUTE.CHECKOUT_FLOW } })]
         },
         BACK: {
+          target: ROUTE.CHECKOUT_FLOW,
           actions: [assign({ targetRoute: { name: ROUTE.CHECKOUT_FLOW } })]
         }
       }
@@ -299,9 +354,13 @@ export default <FunnelProps>{
       },
       on: {
         NEXT: {
+          target: ROUTE.RECOMMENDATIONS,
           actions: [assign({ targetRoute: { name: ROUTE.RECOMMENDATIONS } })]
         },
-        BACK: { actions: [assign({ targetRoute: { name: ROUTE.BASKET } })] }
+        BACK: {
+          target: ROUTE.BASKET,
+          actions: [assign({ targetRoute: { name: ROUTE.BASKET } })]
+        }
       }
     },
 
@@ -325,8 +384,18 @@ export default <FunnelProps>{
         }
       },
       on: {
-        NEXT: { target: ROUTE.DOMAINS_WITH_PRODUCT_PROCESSING },
-        BACK: { actions: [assign({ targetRoute: { name: ROUTE.BASKET } })] }
+        NEXT: {
+          target: ROUTE.DOMAINS_WITH_PRODUCT_PROCESSING,
+          actions: [
+            assign({
+              targetRoute: { name: ROUTE.DOMAINS_WITH_PRODUCT_PROCESSING }
+            })
+          ]
+        },
+        BACK: {
+          target: ROUTE.BASKET,
+          actions: [assign({ targetRoute: { name: ROUTE.BASKET } })]
+        }
       }
     },
 
@@ -401,9 +470,13 @@ export default <FunnelProps>{
       },
       on: {
         NEXT: {
+          target: ROUTE.CHECKOUT,
           actions: [assign({ targetRoute: { name: ROUTE.CHECKOUT } })]
         },
-        BACK: { actions: [assign({ targetRoute: { name: ROUTE.BASKET } })] }
+        BACK: {
+          target: ROUTE.BASKET,
+          actions: [assign({ targetRoute: { name: ROUTE.BASKET } })]
+        }
       }
     },
 
@@ -425,9 +498,13 @@ export default <FunnelProps>{
       },
       on: {
         NEXT: {
+          target: ROUTE.CHECKOUT,
           actions: [assign({ targetRoute: { name: ROUTE.CHECKOUT } })]
         },
-        BACK: { actions: [assign({ targetRoute: { name: ROUTE.BASKET } })] }
+        BACK: {
+          target: ROUTE.BASKET,
+          actions: [assign({ targetRoute: { name: ROUTE.BASKET } })]
+        }
       }
     },
 
@@ -450,9 +527,11 @@ export default <FunnelProps>{
       },
       on: {
         NEXT: {
+          target: ROUTE.SESSION_LOGIN,
           actions: [assign({ targetRoute: { name: ROUTE.SESSION_LOGIN } })]
         },
         BACK: {
+          target: ROUTE.SESSION_LOGIN,
           actions: [assign({ targetRoute: { name: ROUTE.SESSION_LOGIN } })]
         }
       }
@@ -475,9 +554,13 @@ export default <FunnelProps>{
       },
       on: {
         NEXT: {
+          target: ROUTE.CATALOGUE,
           actions: [assign({ targetRoute: { name: ROUTE.CATALOGUE } })]
         },
-        BACK: { actions: [assign({ targetRoute: { name: ROUTE.BASKET } })] }
+        BACK: {
+          target: ROUTE.BASKET,
+          actions: [assign({ targetRoute: { name: ROUTE.BASKET } })]
+        }
       }
     },
 
@@ -527,8 +610,9 @@ export default <FunnelProps>{
       },
       on: {
         NEXT: {
-          // When coming from the checkout we need to pull the OID from the event data
+          // When coming from checkout, we pull the OID from the event data
           // passed by the checkout completion action
+          target: ROUTE.ORDER,
           actions: [
             assign({
               targetRoute: (
@@ -549,7 +633,10 @@ export default <FunnelProps>{
             })
           ]
         },
-        BACK: { actions: [assign({ targetRoute: { name: ROUTE.BASKET } })] }
+        BACK: {
+          target: ROUTE.BASKET,
+          actions: [assign({ targetRoute: { name: ROUTE.BASKET } })]
+        }
       }
     },
 

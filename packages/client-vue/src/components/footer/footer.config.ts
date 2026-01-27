@@ -29,10 +29,14 @@ export default {
           variants: {
             isMinimal: {
               false: "pt-6"
+            },
+            showPoweredBy: {
+              false: "md:justify-end"
             }
           },
           defaultVariants: {
-            isMinimal: false
+            isMinimal: false,
+            showPoweredBy: true
           }
         }
       )

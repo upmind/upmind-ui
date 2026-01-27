@@ -167,11 +167,17 @@ export const useClientCompanyManager = (
     // we have to ensure the update is processed and the state is either processed or available.error
     return waitFor(
       service,
-      state => stateMatches(state, ["processed", "available.error"]),
+      state =>
+        stateMatches(state, [
+          "processed",
+          "available.error",
+          "available.invalid"
+        ]),
       { timeout: 60_000 }
     )
       .then(state => {
-        if (stateMatches(state, "available.error")) throw state.context.error;
+        if (stateMatches(state, ["available.error", "available.invalid"]))
+          throw state.context.error;
         return Promise.resolve(state.context.model);
       })
       .then(model => {
