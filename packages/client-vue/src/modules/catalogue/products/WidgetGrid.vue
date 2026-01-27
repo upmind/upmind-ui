@@ -133,13 +133,9 @@ import type { RouteLocationAsRelativeGeneric } from "vue-router";
 
 // -----------------------------------------------------------------------------
 
-const props = withDefaults(
-  defineProps<{
-    limit?: number;
-    configureRoute: RouteLocationAsRelativeGeneric;
-  }>(),
-  { limit: 9 }
-);
+const props = defineProps<{
+  configureRoute: RouteLocationAsRelativeGeneric;
+}>();
 
 const processing = ref(false);
 const { meta: basketMeta } = useBasket();
@@ -168,6 +164,21 @@ const direction = defineModel<ProductSortProps["direction"]>("direction", {
 
 const { t } = useI18n();
 
+const category = computed(() =>
+  categoryId.value ? categoryInstance.getOne(categoryId.value) : undefined
+);
+
+const { ui } = useConfig().with({ category });
+
+// Determine limit based on layout columns (4-col = 12, 3-col = 9, 2-col = 8, 1-col = 6)
+const LAYOUT_LIMITS: Record<string, number> = {
+  "4-col": 12,
+  "3-col": 9,
+  "2-col": 8,
+  "1-col": 6
+};
+const limit = computed(() => LAYOUT_LIMITS[ui.productListLayout.value] ?? 9);
+
 const urlParams = useUrlSearchParams("history");
 const urlPage = computed(() => Math.max(Number(urlParams.page), 1));
 
@@ -175,19 +186,13 @@ const { data, meta, pagination, filters, sort, nextPage, prevPage } =
   useProductCatalogue({
     // infinite: !!uiCart.value?.catalogue?.infinite, // TODO
     pagination: {
-      limit: props.limit,
-      offset: (urlPage.value - 1) * props.limit
+      limit: limit.value,
+      offset: (urlPage.value - 1) * limit.value
     }
   });
 
 // --- context
-const lastProductCount = ref(props.limit);
-
-const category = computed(() =>
-  categoryId.value ? categoryInstance.getOne(categoryId.value) : undefined
-);
-
-const { ui } = useConfig().with({ category });
+const lastProductCount = ref(limit.value);
 
 const stylesMeta = computed(() => ({
   layout: ui.productListLayout.value
@@ -234,7 +239,7 @@ watch(
     if (isArray(newData) && !isEmpty(newData)) {
       lastProductCount.value = newData.length;
     } else {
-      lastProductCount.value = props.limit;
+      lastProductCount.value = limit.value;
     }
   },
   { immediate: true }
