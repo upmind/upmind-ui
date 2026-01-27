@@ -72,6 +72,7 @@ const props = withDefaults(
     items: TermDetails[];
     modelValue?: string | number;
     errors?: string;
+    columns?: number;
     // ---
     label?: string;
     description?: string;
@@ -100,10 +101,10 @@ const { t } = useI18n();
 
 const stylesMeta = computed(() => ({
   type: props.type,
-  gridLayout:
+  columns:
     props.type === TERM_SELECTOR.RADIO_ROWS
       ? GRID_LAYOUT.ONE_COL
-      : props.gridLayout,
+      : props.columns,
   disabled: props.disabled
 }));
 
