@@ -51,14 +51,14 @@ export default {
       searchInput: cva("max-w-xl"),
       searchIcon: cva("text-control-foreground mr-1.5"),
       grid: {
-        root: cva("flex w-full flex-col justify-end gap-12"),
-        container: cva("grid grid-cols-1 gap-12", {
+        root: cva("flex w-full flex-col justify-end"),
+        container: cva("grid grid-cols-1", {
           variants: {
             layout: {
-              "1-col": "md:grid-cols-1",
-              "2-col": "md:grid-cols-2",
-              "3-col": "md:grid-cols-3",
-              "4-col": "md:grid-cols-4"
+              "1-col": "gap-12 md:grid-cols-1",
+              "2-col": "gap-12 md:grid-cols-2",
+              "3-col": "gap-12 md:grid-cols-3",
+              "4-col": "gap-6 md:grid-cols-4"
             }
           },
           defaultVariants: {
