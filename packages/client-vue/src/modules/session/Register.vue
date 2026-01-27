@@ -120,7 +120,7 @@ import { useI18n } from "vue-i18n";
 import { useHeader } from "../../components/header/useHeader";
 import { useFooter } from "../../components/footer/useFooter";
 import { useLayout } from "../../components/layout/useLayout";
-import { useConfig } from "@upmind-automation/headless";
+import { useConfig, validateTemplate } from "@upmind-automation/headless";
 import { useThemes } from "@upmind-automation/upmind-ui";
 
 // --- components
@@ -193,8 +193,12 @@ set(ui.theme.value);
 
 const isResolving = ref(false);
 
-const template = computed(
-  () => ui.template.value || props.template || SESSION_TEMPLATE.TWO_COLUMN_LTR
+const template = computed(() =>
+  validateTemplate(
+    ui.template.value || props.template,
+    SESSION_TEMPLATE,
+    SESSION_TEMPLATE.TWO_COLUMN_LTR
+  )
 );
 
 const templateVariant = computed(() => get(supportedTemplates, template.value));

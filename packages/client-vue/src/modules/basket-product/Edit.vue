@@ -191,7 +191,7 @@ import { useHeader } from "../../components/header/useHeader";
 import { useFooter } from "../../components/footer/useFooter";
 import { useLayout } from "../../components/layout/useLayout";
 import { useBreadcrumbs } from "../../composables/useBreadcrumbs";
-import { useConfig } from "@upmind-automation/headless";
+import { useConfig, validateTemplate } from "@upmind-automation/headless";
 
 // --- components
 import { Breadcrumb, Markdown } from "@upmind-automation/upmind-ui";
@@ -284,11 +284,12 @@ set(configMeta.ui.theme.value);
 
 const isSlotHidden = (name: string) => includes(props.hideSlots, name);
 
-const template = computed(
-  () =>
-    configMeta.ui.template.value ||
-    props.template ||
+const template = computed(() =>
+  validateTemplate(
+    configMeta.ui.template.value || props.template,
+    BASKET_PRODUCT_TEMPLATE,
     BASKET_PRODUCT_TEMPLATE.TWO_COLUMN_RTL
+  )
 );
 
 const templateVariant = computed(() => get(supportedTemplates, template.value));

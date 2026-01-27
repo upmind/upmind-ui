@@ -65,7 +65,7 @@ import {
 } from "@upmind-automation/headless";
 import { useHeader } from "../../components/header/useHeader";
 import { useFooter } from "../../components/footer/useFooter";
-import { useConfig } from "@upmind-automation/headless";
+import { useConfig, validateTemplate } from "@upmind-automation/headless";
 import { useThemes, Markdown } from "@upmind-automation/upmind-ui";
 
 // --- components
@@ -132,8 +132,12 @@ const showCheckout = computed(
   () => !meta.value.isCheckout && !meta.value.isComplete
 );
 
-const template = computed(
-  () => ui.template.value || props.template || CHECKOUT_TEMPLATE.TWO_COLUMN_LTR
+const template = computed(() =>
+  validateTemplate(
+    ui.template.value || props.template,
+    CHECKOUT_TEMPLATE,
+    CHECKOUT_TEMPLATE.TWO_COLUMN_LTR
+  )
 );
 
 const templateVariant = computed(() => get(supportedTemplates, template.value));

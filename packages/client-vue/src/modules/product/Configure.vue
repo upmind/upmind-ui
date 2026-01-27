@@ -191,7 +191,7 @@ import {
   UIContext,
   type ProductDetails
 } from "@upmind-automation/headless";
-import { useConfig } from "@upmind-automation/headless";
+import { useConfig, validateTemplate } from "@upmind-automation/headless";
 import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./product.config";
 import { useHeader } from "../../components/header/useHeader";
@@ -289,11 +289,12 @@ set(configMeta.ui.theme.value);
 
 const isSlotHidden = (name: string) => includes(props.hideSlots, name);
 
-const template = computed(
-  () =>
-    configMeta.ui.template.value ||
-    props.template ||
+const template = computed(() =>
+  validateTemplate(
+    configMeta.ui.template.value || props.template,
+    PRODUCT_TEMPLATE,
     PRODUCT_TEMPLATE.TWO_COLUMN_RTL
+  )
 );
 
 const templateVariant = computed(() => get(supportedTemplates, template.value));
