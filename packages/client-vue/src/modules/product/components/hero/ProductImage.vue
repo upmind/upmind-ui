@@ -26,11 +26,11 @@ import { isEmpty } from "lodash-es";
 // --- types
 import type { ProductImageProps } from "./types";
 import type { ImageItem, ImageMode } from "@upmind-automation/upmind-ui";
-import { UIContext, IMAGES_STYLE } from "@upmind-automation/headless";
+import { IMAGES_STYLE } from "@upmind-automation/headless";
 
 const props = defineProps<ProductImageProps>();
 
-const { ui } = useConfig({
+const { ui } = useConfig().with({
   product: () => props
 });
 

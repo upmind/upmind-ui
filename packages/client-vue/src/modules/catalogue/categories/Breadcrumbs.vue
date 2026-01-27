@@ -19,7 +19,6 @@ import { Breadcrumb } from "@upmind-automation/upmind-ui";
 
 // --- types
 import type { CategoriesProps } from "./types";
-import { UIContext } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 const props = defineProps<Omit<CategoriesProps, "modelValue">>();
@@ -30,7 +29,7 @@ const useProductCategories = inject<UseProductCategories>(
   "useProductCategories"
 );
 
-const { ui } = useConfig({
+const { ui } = useConfig().with({
   category: () => useProductCategories?.getOne(modelValue.value ?? "")
 });
 

@@ -39,7 +39,7 @@
       </div>
     </template>
 
-    <template #append>
+    <template v-if="hasActions" #append>
       <!-- actions -->
       <slot name="actions">
         <Link
@@ -67,7 +67,15 @@ import config from "./section.config";
 import { useSection } from "./useSection";
 
 // --- utils
-import { find, first, isFunction, isString, isNil, kebabCase } from "lodash-es";
+import {
+  find,
+  first,
+  isFunction,
+  isString,
+  isNil,
+  kebabCase,
+  isEmpty
+} from "lodash-es";
 
 // --- types
 import type { SectionActionProps, SectionsProps } from "./types";
@@ -91,8 +99,14 @@ const modelValue = defineModel<SectionsProps["modelValue"]>("modelValue", {});
 const { card, border } = useSection();
 const slots = useSlots();
 
-const currentSectionProps = computed(() =>
-  find(props.sections, { value: modelValue.value })
+const currentSectionProps = computed(() => {
+  return (
+    find(props.sections, { value: modelValue.value }) ?? first(props.sections)
+  );
+});
+
+const hasActions = computed(
+  () => !!slots.actions || !isEmpty(currentSectionProps.value?.actions)
 );
 
 const meta = computed(() => ({

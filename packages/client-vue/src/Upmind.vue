@@ -4,6 +4,7 @@
       :active="!meta.isAvailable || !meta.hasSettings"
       class-active="h-full min-h-screen w-full text-base bg-canvas"
       id="vue-app"
+      :transparent="false"
     >
       <Page v-if="meta.isAvailable && meta.hasSettings">
         <slot name="header">

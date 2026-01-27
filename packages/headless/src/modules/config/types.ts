@@ -152,12 +152,13 @@ export interface UseMetaOptions {
 /**
  * Options for .with() - extends meta with additional scopes.
  *
- * Useful when a parent component has brand/category/product context,
- * and a child needs to add optionGroup/option without prop drilling.
+ * Useful when a parent component has brand/category context,
+ * and a child needs to add product/optionGroup/option without prop drilling.
  * Returns a new UseMetaResult that inherits parent scopes.
  */
 export interface WithMetaOptions {
   category?: MaybeRefOrGetter<CategoryInput | undefined>;
+  product?: MaybeRefOrGetter<ProductInput | undefined>;
   optionGroup?: MaybeRefOrGetter<any>;
   option?: MaybeRefOrGetter<any>;
 }

@@ -52,7 +52,11 @@
           :do-resolve="doResolve"
           :do-reject="doReject"
         >
-          <Section :label="t('text.product_configuration')" icon="settings-04">
+          <Section
+            :label="t('text.product_configuration')"
+            icon="settings-04"
+            :actions="configurationActions"
+          >
             <form @submit.prevent @reset.prevent>
               <ProductConfig
                 v-if="pendingProduct && productMeta?.isAvailable"
@@ -72,11 +76,6 @@
 
               <ConfigSkeleton v-else />
             </form>
-
-            <template #actions>
-              <pre>{{ shareUrl }}</pre>
-              <!-- <Share size="sm" /> -->
-            </template>
           </Section>
         </slot>
       </template>
@@ -180,6 +179,7 @@ import {
   provide,
   watch
 } from "vue";
+import { useClipboard } from "@vueuse/core";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -253,6 +253,7 @@ const { set } = useThemes();
 const { navigateBack, navigateNext } = useRoutingEngine();
 const { configure, resolve, remove } = useBasketProductsPending();
 const { productId } = useQueryParams();
+const { copy, copied, isSupported } = useClipboard({ legacy: true });
 
 const {
   update,
@@ -354,6 +355,21 @@ async function doResolve() {
 function doReject() {
   navigateBack();
 }
+
+const configurationActions = computed(() => {
+  if (!isSupported.value) return [];
+  return [
+    {
+      icon: copied.value ? "check" : "share-07",
+      label: copied.value ? t("confirm.copied") : t("action.share"),
+      handler: handleShare
+    }
+  ];
+});
+
+const handleShare = () => {
+  copy(shareUrl.value || window.location.href);
+};
 
 onUnmounted(() => {
   remove(productId);
