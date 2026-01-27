@@ -23,6 +23,17 @@
         :class="styles.product.header.info.promotion"
       />
 
+      <Badge
+        v-if="hideImage && productMeta?.data.productBadge"
+        v-bind="
+          isString(productMeta.data.productBadge)
+            ? { label: productMeta.data.productBadge }
+            : productMeta.data.productBadge
+        "
+        variant="minimal"
+        color="neutral"
+      />
+
       <div>
         <Link
           v-if="navigate"
