@@ -58,7 +58,7 @@ export default {
               "1-col": "gap-12 md:grid-cols-1",
               "2-col": "gap-12 md:grid-cols-2",
               "3-col": "gap-12 md:grid-cols-3",
-              "4-col": "gap-6 md:grid-cols-4"
+              "4-col": "gap-x-8 gap-y-12 md:grid-cols-4"
             }
           },
           defaultVariants: {
