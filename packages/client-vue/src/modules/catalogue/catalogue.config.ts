@@ -51,7 +51,7 @@ export default {
       searchInput: cva("max-w-xl"),
       searchIcon: cva("text-control-foreground mr-1.5"),
       grid: {
-        root: cva("flex w-full flex-col justify-end"),
+        root: cva("flex w-full flex-col justify-end gap-12"),
         container: cva("grid grid-cols-1", {
           variants: {
             layout: {
