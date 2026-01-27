@@ -140,7 +140,8 @@ const { meta: basketMeta } = useBasket();
 const { navigateNext, navigateBack, navigate } = useRoutingEngine();
 
 const { ui } = useConfig({
-  context: UIContext.AUTH
+  context: UIContext.AUTH,
+  provide: true
 });
 
 await isReady();

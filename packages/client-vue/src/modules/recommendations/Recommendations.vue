@@ -106,7 +106,8 @@ const { t } = useI18n();
 const { set } = useThemes();
 
 const { ui } = useConfig({
-  context: UIContext.RECOMMENDATIONS
+  context: UIContext.RECOMMENDATIONS,
+  provide: true
 });
 
 set(ui.theme.value);
