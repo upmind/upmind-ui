@@ -36,6 +36,5 @@ export type FooterProps = {
   noLocale?: boolean;
   noCurrency?: boolean;
   noPoweredBy?: boolean;
-  noLogo?: boolean;
   noCopyright?: boolean;
 };
