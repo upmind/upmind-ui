@@ -18,16 +18,16 @@ export default {
             "radio-rows": "grid",
             select: ""
           },
-          gridLayout: {
-            "1-col": "grid-cols-1",
-            "2-col": "grid-cols-[repeat(auto-fit,minmax(max(48%,11rem),1fr))]",
-            "3-col": "grid-cols-[repeat(auto-fit,minmax(max(32%,11rem),1fr))]",
-            "4-col": "grid-cols-[repeat(auto-fit,minmax(max(23.5%,11rem),1fr))]"
+          columns: {
+            1: "grid-cols-1",
+            2: "grid-cols-[repeat(auto-fit,minmax(max(48%,11rem),1fr))]",
+            3: "grid-cols-[repeat(auto-fit,minmax(max(32%,11rem),1fr))]",
+            4: "grid-cols-[repeat(auto-fit,minmax(max(23.5%,11rem),1fr))]"
           }
         },
         defaultVariants: {
           type: "radio-grid",
-          gridLayout: "2-col"
+          columns: 2
         }
       }),
       item: {
