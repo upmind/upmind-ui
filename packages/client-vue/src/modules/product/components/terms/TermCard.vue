@@ -67,12 +67,12 @@ import type { TermDetails } from "@upmind-automation/headless";
 const props = withDefaults(
   defineProps<
     TermDetails & {
-      noSummary?: boolean;
+      summary?: boolean;
       layout?: "stacked" | "inline";
     }
   >(),
   {
-    noSummary: false,
+    summary: true,
     layout: "stacked"
   }
 );
@@ -82,8 +82,8 @@ const { t } = useI18n();
 const meta = computed(() => ({
   layout: props.layout,
   hasPromotions: !isEmpty(props.promotions) || props.meta?.mixed,
-  showStacked: !props.noSummary,
-  showSummary: !props.noSummary && props.meta.useMonthlyFromPrice
+  showStacked: !props.summary,
+  showSummary: props.summary && props.meta.useMonthlyFromPrice
 }));
 
 const styles = useStyles(["terms.radio", "terms.radio.item"], meta, config);
