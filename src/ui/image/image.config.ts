@@ -56,6 +56,13 @@ export const containerVariant = cva(`image-radius overflow-hidden`, {
       false: ""
     }
   },
+  compoundVariants: [
+    {
+      ratio: "auto",
+      isEmpty: true,
+      class: "aspect-square"
+    }
+  ],
   defaultVariants: {
     ratio: "1:1"
   }
