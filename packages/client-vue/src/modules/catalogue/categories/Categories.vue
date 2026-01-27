@@ -3,6 +3,7 @@
     <CategoriesHeader
       v-model="modelValue"
       v-bind="{ ...props, ...currentCategory }"
+      :excerpt="props.excerpt"
     >
       <template #prepend>
         <slot name="prepend" />
