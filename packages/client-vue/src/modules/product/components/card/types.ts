@@ -59,6 +59,7 @@ export interface ProductPrice extends TermDetails {
 export interface ProductTerm {
   modelValue?: string;
   prices?: ProductSummaryDetailWithPrice[];
+  hideBadge?: boolean;
 }
 
 export interface ProductCardSkeletonProps {

@@ -79,6 +79,7 @@
           <ProductTerm
             v-if="!configMeta.hideTerms"
             :prices="props.pricing"
+            :hide-badge="configMeta.hideTermBadge"
             v-model="selectedTerm"
           />
         </header>
@@ -125,7 +126,11 @@ import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { IMAGES_STYLE, QUERY_PARAMS } from "@upmind-automation/headless";
+import {
+  IMAGES_STYLE,
+  QUERY_PARAMS,
+  GRID_LAYOUT
+} from "@upmind-automation/headless";
 import { useConfig } from "@upmind-automation/headless";
 
 // --- components
@@ -201,6 +206,8 @@ const configMeta = computed(() => ({
   hideTerms: productMeta.ui.productTermSelector.isHidden,
   hideTermSummary: productMeta.ui.termSelectorSummary.isHidden,
   hideAnchorPrice: productMeta.ui.productAnchorPrice.isHidden,
+  hideTermBadge:
+    productMeta.ui.productListLayout.value === GRID_LAYOUT.FOUR_COL,
   isLoading: processing,
   isImageEmpty: isImageEmpty.value
 }));
