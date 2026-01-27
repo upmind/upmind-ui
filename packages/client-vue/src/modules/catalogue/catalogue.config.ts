@@ -120,12 +120,13 @@ export default {
         "flex h-auto w-full flex-col gap-1 border-none px-0 py-0 text-left"
       ),
       titleContainer: cva(
-        "m-0 flex w-full items-center justify-between text-lg font-normal"
+        "m-0 flex w-full items-start justify-between gap-2 text-lg font-normal"
       ),
       title: cva(""),
       link: cva("font-medium"),
+      badge: cva("mt-1 mr-auto"),
       arrowIcon: cva(
-        "text-muted transition-all duration-200 group-hover:text-base"
+        "text-muted mt-1.5 transition-all duration-200 group-hover:text-base"
       ),
       description: cva(
         "text-muted m-0 line-clamp-3 text-sm font-normal whitespace-normal transition-all duration-200"

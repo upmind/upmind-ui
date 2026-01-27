@@ -32,10 +32,6 @@
       {{ description }}
     </p>
 
-    <p v-if="excerpt" :class="styles.categories.header.description">
-      {{ excerpt }}
-    </p>
-
     <slot name="append" />
   </div>
 </template>

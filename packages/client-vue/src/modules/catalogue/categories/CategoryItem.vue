@@ -32,6 +32,14 @@
             }
           }"
         />
+        <Badge
+          v-if="props.badge"
+          v-bind="isString(props.badge) ? { label: props.badge } : props.badge"
+          variant="minimal"
+          size="sm"
+          color="neutral"
+          :class="styles.categories.item.badge"
+        />
         <Icon
           icon="arrow-right"
           size="2xs"
@@ -39,8 +47,8 @@
         />
       </header>
 
-      <p v-if="description" :class="styles.categories.item.description">
-        {{ description }}
+      <p v-if="excerpt" :class="styles.categories.item.description">
+        {{ excerpt }}
       </p>
     </section>
   </Button>
@@ -50,12 +58,19 @@
 // --- external
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
+import { isString } from "lodash-es";
 
 // --- internal
 import config from "../catalogue.config";
 
 // --- components
-import { Icon, Button, useStyles, Link } from "@upmind-automation/upmind-ui";
+import {
+  Icon,
+  Button,
+  useStyles,
+  Link,
+  Badge
+} from "@upmind-automation/upmind-ui";
 
 // --- types
 import {
