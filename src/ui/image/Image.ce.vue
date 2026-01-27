@@ -6,15 +6,15 @@
     :class="cn(styles.image.container, props.class)"
   >
     <CarouselContent :class="styles.image.carousel.content" class="ml-0 h-full">
-      <template v-for="(data, index) in image as ImageItem[]">
-        <CarouselImage
-          :image="data"
-          :index="index"
-          :total="meta.imageLength"
-          :fit="props.fit"
-          :position="props.position"
-        />
-      </template>
+      <CarouselImage
+        v-for="(data, index) in image as ImageItem[]"
+        :key="data.url || index"
+        :image="data"
+        :index="index"
+        :total="meta.imageLength"
+        :fit="props.fit"
+        :position="props.position"
+      />
     </CarouselContent>
 
     <nav :class="styles.image.nav.root" @click.prevent.stop>
