@@ -20,7 +20,7 @@
       >
         <Image
           :mode="mode"
-          :image="isEmpty(images) ? props.productDetails.imgUrl : images"
+          :image="mappedImage"
           :ratio="configMeta.imageRatio"
           :class="styles.product.image.root"
           :fallback="productMeta.ui.productImageFallback.isVisible"
@@ -41,7 +41,7 @@
       <Image
         v-else-if="!configMeta.hideImage"
         :mode="mode"
-        :image="isEmpty(images) ? props.productDetails.imgUrl : images"
+        :image="mappedImage"
         :ratio="ratio || configMeta.imageRatio"
         :class="styles.product.image.root"
         :fallback="productMeta.ui.productImageFallback.isVisible"
@@ -190,6 +190,27 @@ const mode = computed<ImageMode>(() => {
   // TODO: Implement image grid
   if (style === IMAGES_STYLE.GRID) return IMAGES_STYLE.AUTO;
   return style;
+});
+
+// Compute the image prop value - wrap single imgUrl in array when carousel mode
+// is explicitly set, otherwise fallback to string for single image display
+const mappedImage = computed(() => {
+  if (!isEmpty(images.value)) {
+    return images.value;
+  }
+
+  // When carousel mode is explicitly set, wrap single imgUrl in array
+  if (mode.value === IMAGES_STYLE.CAROUSEL && props.productDetails?.imgUrl) {
+    return [
+      {
+        url: props.productDetails.imgUrl,
+        alt: props.productDetails?.title
+      }
+    ] as ImageItem[];
+  }
+
+  // Default fallback to string for single image display (auto/single modes)
+  return props.productDetails?.imgUrl;
 });
 
 const isImageEmpty = computed(
