@@ -33,7 +33,7 @@ export const detailsVariant = cva("flex flex-1 flex-col gap-8", {
   }
 });
 
-export const imageContainerVariant = cva("relative w-full [&>*]:w-full", {
+export const imageContainerVariant = cva("relative w-full", {
   variants: {
     variant: {
       flush: "image-radius",
