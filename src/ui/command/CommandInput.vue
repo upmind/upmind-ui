@@ -29,7 +29,7 @@ const forwardedProps = useForwardProps(delegatedProps);
 </script>
 
 <template>
-  <div class="flex max-w-32 items-center px-3" cmdk-input-wrapper>
+  <div class="flex w-full items-center px-3" cmdk-input-wrapper>
     <slot name="prepend">
       <Search class="text-muted mr-2 h-4 w-4 shrink-0 opacity-50" />
     </slot>
