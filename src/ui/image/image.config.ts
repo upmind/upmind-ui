@@ -38,35 +38,38 @@ export const rootVariant = cva("h-full w-full", {
   }
 });
 
-export const containerVariant = cva(`image-radius relative block w-full overflow-hidden`, {
-  variants: {
-    ratio: {
-      auto: "h-full",
-      "1:1": "aspect-square",
-      "3:2": "aspect-3/2",
-      "4:3": "aspect-4/3",
-      "16:9": "aspect-video",
-      "18:6": "aspect-18/6"
+export const containerVariant = cva(
+  `image-radius relative block w-full overflow-hidden`,
+  {
+    variants: {
+      ratio: {
+        auto: "h-full",
+        "1:1": "aspect-square",
+        "3:2": "aspect-3/2",
+        "4:3": "aspect-4/3",
+        "16:9": "aspect-video",
+        "18:6": "aspect-18/6"
+      },
+      hasFallback: {
+        true: "opacity-20"
+      },
+      isCarousel: {
+        true: `${ringClasses} transition-all duration-200`,
+        false: ""
+      }
     },
-    hasFallback: {
-      true: "opacity-20"
-    },
-    isCarousel: {
-      true: `${ringClasses} transition-all duration-200`,
-      false: ""
+    compoundVariants: [
+      {
+        ratio: "auto",
+        hasFallback: true,
+        class: "aspect-square"
+      }
+    ],
+    defaultVariants: {
+      ratio: "1:1"
     }
-  },
-  compoundVariants: [
-    {
-      ratio: "auto",
-      hasFallback: true,
-      class: "aspect-square"
-    }
-  ],
-  defaultVariants: {
-    ratio: "1:1"
   }
-});
+);
 
 export default {
   image: {
