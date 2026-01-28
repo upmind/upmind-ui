@@ -8,10 +8,8 @@
             <h5 :class="styles.card.header.title">
               {{ title }}
               <Tooltip
-                v-if="
-                  ui.optionItemDescription.isTooltip && !isEmpty(props.excerpt)
-                "
-                :label="props.description"
+                v-if="ui.optionItemDescription.isTooltip && desc"
+                :label="desc"
                 :open="tooltipOpen"
                 :class="styles.card.header.tooltip"
                 :uiConfig="
@@ -86,10 +84,10 @@
     </header>
 
     <p
-      v-if="ui.optionItemDescription.isInline && props.excerpt"
+      v-if="ui.optionItemDescription.isInline && desc"
       :class="styles.card.excerpt"
     >
-      {{ props.excerpt }}
+      {{ desc }}
     </p>
   </section>
 </template>
@@ -132,6 +130,8 @@ function toggleTooltip(force?: boolean) {
 }
 
 const styles = useStyles(["card", "card.header", "card.pricing"], meta, config);
+
+const desc = computed(() => props.excerpt || props.description);
 
 function doUpdateQuantity(quantity: number | undefined) {
   if (!quantity) return;
