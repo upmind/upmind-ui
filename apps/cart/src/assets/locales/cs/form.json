@@ -67,8 +67,8 @@
     "placeholder": "Registrovaná daň nebo DPH"
   },
   "country": {
-    "label": "Země",
-    "placeholder": "Vyberte zemi"
+    "label": "Daňové číslo",
+    "placeholder": "DIČ"
   },
   "domain": {
     "placeholder": "Zadejte svou doménu..."
@@ -87,6 +87,10 @@
   "firstname": {
     "error": "Vaše křestní jméno je povinné",
     "label": "Křestní jméno"
+  },
+  "language": {
+    "error": "Váš jazyk je povinný",
+    "label": "Jazyk"
   },
   "lastname": {
     "error": "Vaše příjmení je povinné",
@@ -121,6 +125,10 @@
     "error": "Je vyžadován platný promo kód",
     "placeholder": "Zde zadejte kód slevového kupónu"
   },
+  "publicName": {
+    "error": "Vaše veřejné jméno je povinné",
+    "label": "Veřejný název"
+  },
   "recover": {
     "error": "Při pokusu o odeslání e-mailu pro obnovení hesla došlo k chybě."
   },
@@ -139,9 +147,5 @@
   },
   "stored_payment_method": {
     "label": ""
-  },
-  "taxNumber": {
-    "label": "Daňové číslo",
-    "placeholder": "DIČ"
   }
 }

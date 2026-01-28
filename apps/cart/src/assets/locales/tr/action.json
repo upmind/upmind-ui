@@ -25,7 +25,6 @@
   "continue_label": "Devam etmek",
   "continue_shopping": "Alışverişe devam et",
   "create_account": "Hesap oluşturmak",
-  "create_one_here": "Burada bir tane oluşturun",
   "details_toggle": "Tüm ayrıntıları genişlet | Tüm ayrıntıları daralt",
   "dismiss": "Azletmek",
   "do_this_later": "Bunu daha sonra yapacağım",
@@ -59,6 +58,7 @@
   "save_value": "Kaydetmek {value}",
   "search": "Aramak",
   "send_reset": "Sıfırlama gönder",
+  "set_as_default": "Varsayılan olarak ayarla",
   "share": "Paylaşmak",
   "show_details": "Ayrıntıları göster",
   "show_less": "Daha az göster",
@@ -68,5 +68,9 @@
   "sign_in_with_another_account": "Siz değil misiniz? Başka bir hesapla giriş yapın {action}.",
   "sort_by_default": "Varsayılan olarak sırala",
   "sort_by_name": "İsme göre sırala",
-  "sort_by_price": "Fiyata göre sırala"
+  "sort_by_price": "Fiyata göre sırala",
+  "sort_by_subject": "Konuya göre sırala",
+  "verify": "Doğrulamak",
+  "view": "Görüş",
+  "view_email": "E-postayı görüntüle"
 }

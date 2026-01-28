@@ -19,6 +19,7 @@
   "basket_review_msg": "Por favor, revise los siguientes elementos antes de continuar",
   "basket_section": "Resumen de la cesta",
   "basket_summary_desc": "Tienes {count} artículo en su cesta, por un total de {total}. | Tienes {count} artículos en su cesta, por un total de {total}.",
+  "basket_summary_desc_free": "Tienes {count} artículo en tu cesta. | Tienes {count} artículos en su cesta.",
   "basket_title": "Su cesta",
   "change_amount": "Cambiar monto",
   "empty": "Tu **cesta** está vacía",
