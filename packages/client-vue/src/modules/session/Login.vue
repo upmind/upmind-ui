@@ -36,6 +36,7 @@
           :label="t('action.login')"
           icon="user-03"
           v-show="!meta.isAuthenticated"
+          class="max-w-3xl"
         >
           <Auth
             class="rounded-box w-full max-w-5xl items-start"
@@ -99,6 +100,9 @@ const supportedTemplates = {
   ),
   [SESSION_TEMPLATE.TWO_COLUMN_RTL]: defineAsyncComponent(
     () => import("./templates/SessionRTL.template.vue")
+  ),
+  [SESSION_TEMPLATE.ENCLOSED]: defineAsyncComponent(
+    () => import("./templates/SessionEnclosed.template.vue")
   )
 };
 

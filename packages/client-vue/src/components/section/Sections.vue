@@ -30,7 +30,7 @@
       :key="section.value"
       #[`content.${section.value}`]
     >
-      <div :class="styles.section.content">
+      <div :class="cn(styles.section.content, props.class)">
         <slot
           v-if="slots[`section-${section.value}`]"
           :name="`section-${section.value}`"
@@ -60,7 +60,7 @@
 import { computed, useSlots } from "vue";
 
 // --- components
-import { Tabs, useStyles, Link } from "@upmind-automation/upmind-ui";
+import { Tabs, useStyles, Link, cn } from "@upmind-automation/upmind-ui";
 
 // --- internal
 import config from "./section.config";
