@@ -33,7 +33,7 @@ export const detailsVariant = cva("flex flex-1 flex-col gap-8", {
   }
 });
 
-export const imageContainerVariant = cva("relative", {
+export const imageContainerVariant = cva("relative w-full [&>*]:w-full", {
   variants: {
     variant: {
       flush: "image-radius",
@@ -80,6 +80,7 @@ export default {
   product: {
     root: rootVariant,
     image: {
+      link: cva("block w-full"),
       container: imageContainerVariant,
       root: imageRootVariant,
       badge: cva("absolute top-4 right-4")
