@@ -38,7 +38,7 @@ export const rootVariant = cva("h-full w-full", {
   }
 });
 
-export const containerVariant = cva(`image-radius overflow-hidden`, {
+export const containerVariant = cva(`image-radius relative block w-full overflow-hidden`, {
   variants: {
     ratio: {
       auto: "h-full",
@@ -48,7 +48,7 @@ export const containerVariant = cva(`image-radius overflow-hidden`, {
       "16:9": "aspect-video",
       "18:6": "aspect-18/6"
     },
-    isEmpty: {
+    hasFallback: {
       true: "opacity-20"
     },
     isCarousel: {
@@ -59,7 +59,7 @@ export const containerVariant = cva(`image-radius overflow-hidden`, {
   compoundVariants: [
     {
       ratio: "auto",
-      isEmpty: true,
+      hasFallback: true,
       class: "aspect-square"
     }
   ],
