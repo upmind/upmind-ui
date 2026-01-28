@@ -67,8 +67,8 @@
     "placeholder": "Registered tax or GST"
   },
   "country": {
-    "label": "Country",
-    "placeholder": "Select a country"
+    "label": "Tax Number",
+    "placeholder": "Tax Id"
   },
   "domain": {
     "placeholder": "Enter your domain..."
@@ -87,6 +87,10 @@
   "firstname": {
     "error": "Your first name is required",
     "label": "First name"
+  },
+  "language": {
+    "error": "Your language is required",
+    "label": "Language"
   },
   "lastname": {
     "error": "Your last name is required",
@@ -121,6 +125,10 @@
     "error": "Invalid promo code",
     "placeholder": "Enter voucher code here"
   },
+  "publicName": {
+    "error": "Your public name is required",
+    "label": "Public name"
+  },
   "recover": {
     "error": "We experienced an error while trying to send you a password reset email."
   },
@@ -139,9 +147,5 @@
   },
   "stored_payment_method": {
     "label": ""
-  },
-  "taxNumber": {
-    "label": "Tax Number",
-    "placeholder": "Tax Id"
   }
 }

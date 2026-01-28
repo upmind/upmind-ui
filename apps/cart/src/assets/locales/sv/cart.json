@@ -19,6 +19,7 @@
   "basket_review_msg": "Vänligen granska följande punkter innan du fortsätter",
   "basket_section": "Sammanfattning av varukorgen",
   "basket_summary_desc": "Du har {count} vara i din varukorg, totalt {total} | Du har {count} varor i din varukorg, totalt {total}.",
+  "basket_summary_desc_free": "Du har {count} vara i din varukorg. | Du har {count} varor i din varukorg.",
   "basket_title": "Din varukorg",
   "change_amount": "Ändra belopp",
   "empty": "Din **korg** är tom",

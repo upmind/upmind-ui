@@ -67,8 +67,8 @@
     "placeholder": "Taxă înregistrată sau GST"
   },
   "country": {
-    "label": "Ţară",
-    "placeholder": "Selectați o țară"
+    "label": "Cod fiscal",
+    "placeholder": "Cod fiscal"
   },
   "domain": {
     "placeholder": "Introduceți domeniul dvs...."
@@ -87,6 +87,10 @@
   "firstname": {
     "error": "Prenumele dumneavoastră este obligatoriu",
     "label": "Prenume"
+  },
+  "language": {
+    "error": "Limba dvs. este obligatorie",
+    "label": "Limbă"
   },
   "lastname": {
     "error": "Numele dumneavoastră de familie este obligatoriu",
@@ -121,6 +125,10 @@
     "error": "Cod promoțional nevalid",
     "placeholder": "Introduceți codul voucherului aici"
   },
+  "publicName": {
+    "error": "Numele tău public este obligatoriu",
+    "label": "Nume public"
+  },
   "recover": {
     "error": "Am întâmpinat o eroare în timp ce încercam să vă trimitem un e-mail de resetare a parolei."
   },
@@ -139,9 +147,5 @@
   },
   "stored_payment_method": {
     "label": ""
-  },
-  "taxNumber": {
-    "label": "Cod fiscal",
-    "placeholder": "Cod fiscal"
   }
 }

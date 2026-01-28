@@ -11,7 +11,7 @@
         <Hero :title="t('action.create_account')">
           <template #description>
             <span class="font-normal"
-              >{{ t("auth.already_have_account_qn") }}&nbsp;</span
+              >{{ t("auth.register_description") }}&nbsp;</span
             >
 
             <Link

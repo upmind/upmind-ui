@@ -25,7 +25,6 @@
   "continue_label": "Melanjutkan",
   "continue_shopping": "Lanjutkan berbelanja",
   "create_account": "Buat akun",
-  "create_one_here": "Buat satu di sini",
   "details_toggle": "Perluas semua detail | Ciutkan semua detail",
   "dismiss": "Membubarkan",
   "do_this_later": "Saya akan melakukannya nanti",
@@ -59,6 +58,7 @@
   "save_value": "Menyimpan {value}",
   "search": "Mencari",
   "send_reset": "Kirim ulang",
+  "set_as_default": "Tetapkan sebagai default",
   "share": "Membagikan",
   "show_details": "Tampilkan detail",
   "show_less": "Tampilkan lebih sedikit",
@@ -68,5 +68,9 @@
   "sign_in_with_another_account": "Bukan Anda? Masuk dengan akun lain {action}.",
   "sort_by_default": "Urutkan berdasarkan default",
   "sort_by_name": "Urutkan berdasarkan nama",
-  "sort_by_price": "Urutkan berdasarkan harga"
+  "sort_by_price": "Urutkan berdasarkan harga",
+  "sort_by_subject": "Urutkan berdasarkan subjek",
+  "verify": "Memeriksa",
+  "view": "Melihat",
+  "view_email": "Lihat Email"
 }

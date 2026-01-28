@@ -8,19 +8,15 @@
 
     <template #hero>
       <slot name="hero">
-        <Hero :title="t('auth.welcome_back')">
+        <Hero :title="t('auth.login_title')">
           <template #description>
-            <i18n-t
-              keypath="auth.please_login_to_continue"
-              scope="global"
-              tag="span"
-            >
-              <template #[`create_one_here`]>
+            <i18n-t keypath="auth.login_description" scope="global" tag="span">
+              <template #[`login_description_action`]>
                 <Link
                   :to="props.registerRoute"
                   size="inherit"
                   color="inherit"
-                  :label="t('auth.create_one_here')"
+                  :label="t('auth.login_description_action')"
                   class="font-normal"
                 />
               </template>

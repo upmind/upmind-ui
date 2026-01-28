@@ -67,8 +67,8 @@
     "placeholder": "Geregistreerde belasting of GST"
   },
   "country": {
-    "label": "Land",
-    "placeholder": "Selecteer een land"
+    "label": "Belastingnummer",
+    "placeholder": "Belastingnummer"
   },
   "domain": {
     "placeholder": "Voer uw domein in..."
@@ -87,6 +87,10 @@
   "firstname": {
     "error": "Uw voornaam is vereist",
     "label": "Voornaam"
+  },
+  "language": {
+    "error": "Uw taal is vereist.",
+    "label": "Taal"
   },
   "lastname": {
     "error": "Uw achternaam is vereist",
@@ -121,6 +125,10 @@
     "error": "Ongeldige promotiecode",
     "placeholder": "Voer hier de vouchercode in"
   },
+  "publicName": {
+    "error": "Uw openbare naam is verplicht.",
+    "label": "Publieke naam"
+  },
   "recover": {
     "error": "Er is een fout opgetreden bij het verzenden van een e-mail om uw wachtwoord opnieuw in te stellen."
   },
@@ -139,9 +147,5 @@
   },
   "stored_payment_method": {
     "label": ""
-  },
-  "taxNumber": {
-    "label": "Belastingnummer",
-    "placeholder": "Belastingnummer"
   }
 }

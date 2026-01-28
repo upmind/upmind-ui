@@ -67,8 +67,8 @@
     "placeholder": "Registreret skat eller moms"
   },
   "country": {
-    "label": "Land",
-    "placeholder": "Vælg et land"
+    "label": "Skattenummer",
+    "placeholder": "Skatte-ID"
   },
   "domain": {
     "placeholder": "Indtast dit domæne..."
@@ -87,6 +87,10 @@
   "firstname": {
     "error": "Dit fornavn er påkrævet",
     "label": "Fornavn"
+  },
+  "language": {
+    "error": "Dit sprog er påkrævet",
+    "label": "Sprog"
   },
   "lastname": {
     "error": "Dit efternavn er påkrævet",
@@ -121,6 +125,10 @@
     "error": "En gyldig kampagnekode er påkrævet",
     "placeholder": "Indtast rabatkoden her"
   },
+  "publicName": {
+    "error": "Dit offentlige navn er påkrævet",
+    "label": "Offentligt navn"
+  },
   "recover": {
     "error": "Vi oplevede en fejl under forsøget på at sende dig en e-mail til nulstilling af adgangskode."
   },
@@ -139,9 +147,5 @@
   },
   "stored_payment_method": {
     "label": ""
-  },
-  "taxNumber": {
-    "label": "Skattenummer",
-    "placeholder": "Skatte-ID"
   }
 }
