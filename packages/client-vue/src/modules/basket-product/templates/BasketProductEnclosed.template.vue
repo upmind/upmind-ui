@@ -51,7 +51,7 @@ onMounted(() => {
   useHeader({
     background: HEADER_BACKGROUND.SURFACE,
     border: "none",
-    items: "end"
+    items: "center"
   });
 
   useSection({

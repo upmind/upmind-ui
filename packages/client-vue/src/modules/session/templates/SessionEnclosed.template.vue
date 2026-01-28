@@ -1,17 +1,11 @@
 <template>
   <Layout>
     <template #content-header>
-      <slot name="summary" />
+      <slot name="hero" />
     </template>
 
     <template #content>
-      <slot name="content" />
-    </template>
-
-    <template #aside>
-      <slot name="pricing" />
-      <slot name="errors" />
-      <slot name="markdown" />
+      <slot name="form" />
     </template>
   </Layout>
 </template>
@@ -21,17 +15,23 @@
 import { onMounted } from "vue";
 
 // --- internal
-import { useLayout } from "../../../components/layout/useLayout";
 import { useFooter } from "../../../components/footer/useFooter";
 import { useHeader } from "../../../components/header/useHeader";
+import { useLayout } from "../../../components/layout/useLayout";
 import { useSection } from "../../../components/section/useSection";
 
 // --- components
 import Layout from "../../../components/layout/Layout.vue";
 
 // --- types
-import { HEADER_BACKGROUND } from "../../../components/header/types";
 import { LAYOUT_VARIANTS } from "../../../components/layout/types";
+import { HEADER_BACKGROUND } from "../../../components/header/types";
+import {
+  FOOTER_LAYOUT,
+  FOOTER_BACKGROUND
+} from "../../../components/footer/types";
+
+// -----------------------------------------------------------------------------
 
 defineOptions({
   inheritAttrs: false
@@ -53,6 +53,15 @@ onMounted(() => {
     border: false
   });
 
-  useFooter({});
+  useFooter({
+    layout: FOOTER_LAYOUT.FLAT,
+    background: FOOTER_BACKGROUND.CANVAS,
+    items: "end",
+    justifyLeft: "start",
+    justifyRight: "between",
+    reverse: true,
+    noCurrency: true,
+    noCopyright: true
+  });
 });
 </script>
