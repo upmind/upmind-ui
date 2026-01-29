@@ -27,11 +27,10 @@ export default {
       }
     }),
     title: {
-      root: cva("flex gap-x-5 gap-y-2", {
+      root: cva("flex min-w-0 gap-x-5 gap-y-2 text-4xl", {
         variants: {
           direction: {
-            horizontal:
-              "flex-col-reverse items-start xl:flex-row xl:items-center",
+            horizontal: "flex-col-reverse items-start md:text-5xl xl:flex-row",
             vertical: "flex-col-reverse items-start"
           }
         },
@@ -39,17 +38,8 @@ export default {
           direction: "horizontal"
         }
       }),
-      text: cva("font-display break-word text-4xl text-balance", {
-        variants: {
-          direction: {
-            horizontal: "md:text-5xl",
-            vertical: ""
-          }
-        },
-        defaultVariants: {
-          direction: "horizontal"
-        }
-      })
+      badge: cva("flex h-lh items-center justify-center"),
+      text: cva("font-display break-word min-w-0 text-balance")
     },
     description: cva("text-md text-muted font-normal"),
     price: cva("font-normal", {
