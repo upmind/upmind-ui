@@ -648,7 +648,6 @@ export default createMachine(
         _context: RecommendationsEngineContext,
         { sourceContext }: AnyEventObject
       ) => {
-        debugger;
         return isObject(sourceContext) && has(sourceContext, "productId");
       }
     },
