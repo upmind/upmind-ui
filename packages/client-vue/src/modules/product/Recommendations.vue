@@ -142,7 +142,6 @@ function doAdd(value: string) {
   add(value).then(() => doClose());
 }
 function doClose() {
-  debugger;
   seen();
   navigateNext();
 }

@@ -2,11 +2,10 @@
 
 // --- internal
 import { useBasket } from "../basket";
-import { useBasketProductsPending } from "./useBasketProductsPending";
 import { useBasketProductPending } from "./useBasketProductPending";
 import productServices from "./services";
 
-import { useDataLayer, useI18n, useLocale } from "../system";
+import { useI18n, useLocale } from "../system";
 
 // --- utils
 import {
@@ -15,14 +14,12 @@ import {
   responseCodes,
   stateMatches
 } from "../../utils";
-import { defaults, differenceBy, isArray, isEmpty, pick } from "lodash-es";
+import { defaults, isArray, isEmpty, pick } from "lodash-es";
 
 // --- types
 import type { IBasket } from "@upmind-automation/types";
 import type { BasketProduct } from "./types";
 import { watch } from "vue";
-
-type BasketProductPending = ReturnType<typeof useBasketProductPending>;
 
 // -----------------------------------------------------------------------------
 
@@ -84,9 +81,6 @@ export function basketSubscription(callback: any, onReceiveEvent: any) {
     // --- from this point on we assume we have a basket
 
     const rawBasket = basket.basket.value;
-    let basketProduct: BasketProduct | undefined;
-
-    const baseBasketProducts: BasketProduct[] = basket.products.value ?? [];
 
     switch (event.type) {
       case "FETCH":
@@ -158,7 +152,6 @@ export function basketSubscription(callback: any, onReceiveEvent: any) {
               })
             }
           )
-
           .then(data =>
             callback({ type: "FETCHED", data, sourceContext: event.context })
           )
@@ -180,24 +173,9 @@ export function basketSubscription(callback: any, onReceiveEvent: any) {
 
         return productServices
           .update(rawBasket?.id, event.target)
-          .then((rawBasket: IBasket) => {
-            // add the success event to the datalayer for the newly added products only
-            basket.prefresh(rawBasket);
-            const newlyAddedProducts = differenceBy(
-              basket.products.value,
-              baseBasketProducts,
-              "id"
-            );
-
-            if (!isEmpty(newlyAddedProducts)) {
-              useDataLayer()
-                .dataLayer({ event: "add_to_cart" })
-                .withItems(newlyAddedProducts)
-                .push();
-            }
-
-            callback({ type: "UPDATED", data: rawBasket });
-          })
+          .then((rawBasket: IBasket) =>
+            callback({ type: "UPDATED", data: rawBasket })
+          )
           .catch(error => {
             callback({
               type: "ERROR",
@@ -217,24 +195,9 @@ export function basketSubscription(callback: any, onReceiveEvent: any) {
 
         return productServices
           .updateMany(rawBasket?.id, basket.products.value ?? [], models)
-          .then((rawBasket: IBasket) => {
-            // add the success event to the datalayer for the newly added products only
-            basket.prefresh(rawBasket);
-            const newlyAddedProducts = differenceBy(
-              basket.products.value,
-              baseBasketProducts,
-              "id"
-            );
-
-            if (!isEmpty(newlyAddedProducts)) {
-              useDataLayer()
-                .dataLayer({ event: "add_to_cart" })
-                .withItems(newlyAddedProducts)
-                .push();
-            }
-
-            callback({ type: "UPDATED", data: rawBasket });
-          })
+          .then((rawBasket: IBasket) =>
+            callback({ type: "UPDATED", data: rawBasket })
+          )
           .catch(error => {
             callback({
               type: "ERROR",
@@ -260,20 +223,10 @@ export function basketSubscription(callback: any, onReceiveEvent: any) {
 
         productServices
           .remove(rawBasket.id, event.target.id)
-          .then((rawBasket: IBasket) => {
-            basketProduct = basket.findProduct({ id: event.target.id });
-
-            if (basketProduct)
-              useDataLayer()
-                .dataLayer({ event: "remove_from_cart" })
-                .withItems([basketProduct])
-                .push();
-
-            basket.prefresh(rawBasket);
-            callback({ type: "UPDATED", data: rawBasket });
-          })
+          .then((rawBasket: IBasket) =>
+            callback({ type: "UPDATED", data: rawBasket })
+          )
           .catch(error => {
-            // console.error("basketHelper", "REMOVE", error);
             callback({
               type: "ERROR",
               data: error,

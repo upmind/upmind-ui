@@ -158,8 +158,6 @@ export const useClientAddressManager = (
 
     const model = contextValue<AddressModel>(state, "model");
 
-    console.log("useClientAddressManager update value:", value);
-
     if (!isEmpty(value) && !isEqual(value, model)) {
       send({ type: "SET", data: value, update: true });
     } else {
