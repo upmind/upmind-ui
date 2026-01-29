@@ -57,6 +57,7 @@ let brandSettingsQuery: ReturnType<typeof services.fetchBrandSettings>;
 let organisationConfigQuery: ReturnType<
   typeof services.fetchOrganisationConfig
 >;
+let config: ReturnType<typeof useConfig>;
 
 // -----------------------------------------------------------------------------
 
@@ -212,16 +213,17 @@ export const useBrand = () => {
       )
   );
 
-  const { data } = useConfig({ brand: () => uiCart.value });
+  // Singleton to avoid creating multiple useConfig instances across useBrand calls
+  config ??= useConfig({ brand: () => uiCart.value });
 
   const storefrontUrl = computed((): string | undefined => {
-    return useUpmind.storefrontUrl ?? data.storeUrl;
+    return useUpmind.storefrontUrl ?? config.data.storeUrl;
   });
 
   const hasStorefront = computed(() => {
     // No storefront URL means they need a storefront
     // With a storefront URL, they can enable/disable via catalogueDisabled
-    return !storefrontUrl.value || !data.catalogueDisabled;
+    return !storefrontUrl.value || !config.data.catalogueDisabled;
   });
 
   const storefrontRoute = computed(() => {
