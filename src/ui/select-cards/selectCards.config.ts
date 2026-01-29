@@ -41,7 +41,7 @@ export const itemVariants = cva(
 );
 
 export const contentVariants = cva(
-  `control-radius shadow-control-default bg-control-surface my-2 border-none ${ringClasses} ${invalidRingClasses} flex max-h-72 min-w-(--radix-dropdown-menu-trigger-width) flex-col overflow-hidden overflow-y-scroll p-2`,
+  `control-radius shadow-control-default bg-control-surface my-2 border-none ${ringClasses} ${invalidRingClasses} flex max-h-72 min-w-(--radix-dropdown-menu-trigger-width) flex-col overflow-hidden p-2`,
   {
     variants,
     defaultVariants: {
@@ -59,7 +59,7 @@ export default {
     content: contentVariants,
     trigger: triggerVariants,
     item: itemVariants,
-    items: cva("w-full gap-0"),
+    items: cva("flex min-h-0 w-full flex-col gap-0 overflow-y-auto"),
     group: groupVariants,
     input: cva(
       "bg-control-surface text-control-active my-3 mr-1 ml-3 leading-normal"

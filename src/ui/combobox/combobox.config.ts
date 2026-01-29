@@ -44,7 +44,7 @@ export const itemVariants = cva(
 );
 
 export const contentVariants = cva(
-  `control-radius border-control bg-control-surface ring-primitive-control-default! my-2 overflow-hidden ${ringClasses} ${invalidRingClasses} p-0`,
+  `control-radius shadow-control-default bg-control-surface ring-primitive-control-default! my-2 overflow-hidden border-none ${ringClasses} ${invalidRingClasses} p-0 pr-1 pb-1`,
   {
     variants: {
       dropdownWidth: variants.width
