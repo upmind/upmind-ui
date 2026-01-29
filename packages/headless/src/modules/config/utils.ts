@@ -25,7 +25,11 @@ import {
   inject,
   provide,
   reactive,
+  shallowRef,
+  watch,
+  type ComputedRef,
   type Ref,
+  type ShallowRef,
   type UnwrapNestedRefs
 } from "vue";
 import type { UIMetaSchema as UISchema, DataSchema } from "./schema";
@@ -486,4 +490,13 @@ export function provideConfig(config: UseMetaResult): void {
 
 export function injectConfig(): UseMetaResult | undefined {
   return inject(CONFIG_KEY, undefined);
+}
+
+export function useGuardedRef<T>(
+  source: ComputedRef<T>,
+  isValid: () => boolean
+): ShallowRef<T> {
+  const guarded = shallowRef(source.value) as ShallowRef<T>;
+  watch(source, v => isValid() && (guarded.value = v));
+  return guarded;
 }

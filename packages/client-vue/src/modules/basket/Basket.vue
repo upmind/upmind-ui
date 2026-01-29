@@ -164,6 +164,11 @@ const open = ref(false);
 
 const isSlotHidden = (name: string) => includes(props.hideSlots, name);
 
+const { ui, data } = useConfig({
+  context: UIContext.BASKET,
+  provide: true
+});
+
 const template = computed(() =>
   validateTemplate(
     ui.template.value || props.template,
@@ -171,11 +176,6 @@ const template = computed(() =>
     BASKET_TEMPLATE.TWO_COLUMN_LTR
   )
 );
-
-const { ui, data } = useConfig({
-  context: UIContext.BASKET,
-  provide: true
-});
 
 const templateVariant = computed(() => get(supportedTemplates, template.value));
 
