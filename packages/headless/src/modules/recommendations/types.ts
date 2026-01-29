@@ -16,35 +16,7 @@ import type {
 } from "../product";
 import type { ResponseError } from "../../utils";
 import type { Benefit } from "../product";
-
-// -----------------------------------------------------------------------------
-
-/**
- * Interface representing a badge that can be displayed with a product or recommendation.
- * Badges provide quick visual cues or additional descriptive labels.
- */
-export interface Badge {
-  /**
-   * The text label to display on the badge.
-   */
-  label?: string;
-  /**
-   * The colour of the badge, e.g. 'red', 'blue', or a hex code.
-   */
-  color?: string;
-  /**
-   * The visual variant of the badge (e.g. 'solid', 'outline').
-   */
-  variant?: string;
-  /**
-   * The size of the badge (e.g. 'small', 'medium', 'large').
-   */
-  size?: string;
-  /**
-   * Additional CSS classes to apply to the badge for custom styling.
-   */
-  class?: string;
-}
+import type { Badge } from "../config/schema";
 
 /**
  * Interface representing a promotion applied to a recommendation.
@@ -194,9 +166,9 @@ export interface RecommendationsEngineContext {
    */
   error?: ResponseError;
   /**
-   * An `ActorRef` to the basket item service, used for inter-service communication related to basket products.
+   * The failed recommendation that was added to the basket.
    */
-  basketItem?: ActorRef<any>;
+  failedProduct?: ProductProps;
   // ---
   /**
    * The current currency in which recommendations' prices are displayed.

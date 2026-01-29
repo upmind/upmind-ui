@@ -10,9 +10,9 @@ import { assign, type AnyEventObject } from "xstate";
 import type { BraintreeContext } from "./types";
 import {
   responseCodes,
-  ErrorObject,
+  type ErrorObject,
   ErrorOrigin,
-  ResponseError
+  type ResponseError
 } from "../../../../utils";
 // -----------------------------------------------------------------------------
 // override the macine actions to generate the schema, uischema and model

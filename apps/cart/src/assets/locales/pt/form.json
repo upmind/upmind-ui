@@ -67,8 +67,8 @@
     "placeholder": "Imposto registrado ou GST"
   },
   "country": {
-    "label": "País",
-    "placeholder": "Selecione um país"
+    "label": "Número de identificação fiscal",
+    "placeholder": "ID fiscal"
   },
   "domain": {
     "placeholder": "Digite o seu domínio..."
@@ -87,6 +87,10 @@
   "firstname": {
     "error": "O seu primeiro nome é obrigatório",
     "label": "Primeiro nome"
+  },
+  "language": {
+    "error": "É necessário que você fale o seu idioma.",
+    "label": "Linguagem"
   },
   "lastname": {
     "error": "O seu apelido é obrigatório",
@@ -121,6 +125,10 @@
     "error": "Código promocional inválido",
     "placeholder": "Insira o código do voucher aqui"
   },
+  "publicName": {
+    "error": "Seu nome público é obrigatório.",
+    "label": "Nome público"
+  },
   "recover": {
     "error": "Ocorreu um erro ao tentar enviar o e-mail de reposição de senha."
   },
@@ -139,9 +147,5 @@
   },
   "stored_payment_method": {
     "label": ""
-  },
-  "taxNumber": {
-    "label": "Número de identificação fiscal",
-    "placeholder": "ID fiscal"
   }
 }

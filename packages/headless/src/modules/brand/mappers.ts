@@ -1,5 +1,5 @@
 // --- utils
-import { BrandConfigKeys, IBrandSettings } from "@upmind-automation/types";
+import { BrandConfigKeys, type IBrandSettings } from "@upmind-automation/types";
 import {
   defaultsDeep,
   forEach,
@@ -10,8 +10,7 @@ import {
   reduce,
   set
 } from "lodash-es";
-import { parseFlattened } from "../../utils";
-import { LocaleMessages } from "vue-i18n";
+import { type LocaleMessages } from "vue-i18n";
 import { isString } from "xstate/lib/utils";
 // -----------------------------------------------------------------------------
 
@@ -41,23 +40,23 @@ export const mapBrandConfig = (data: object, keys: BrandConfigKeys[]) => {
 };
 
 export const mapBrandSettings = (data: IBrandSettings) => {
-  const settings = parseFlattened<IBrandSettings>(data);
+  const settings = data;
 
-  // We need to map the raw messages into the correct format for i18n
-  // NB: If we are given a string for a given key, we apply it to all locales
+  // Transform i18n from key-first to locale-first structure
+  // API returns: { "cart.title": { "en": "...", "fr": "..." } }
+  // We need: { "en": { "cart.title": "..." }, "fr": { "cart.title": "..." } }
   const rawI18n = get(data, "meta.i18n", {}) as Record<string, any>;
   const i18n = reduce(
     rawI18n,
-    (acc: LocaleMessages<string, {}, {}>, message, key) => {
-      if (isObject(message)) {
-        forEach(keys(message) ?? [], locale => {
-          set(acc, [locale, ...key.split(".")], get(message, locale));
+    (acc: LocaleMessages<string, {}, {}>, localeValues, key) => {
+      if (isObject(localeValues)) {
+        // This key has per-locale values - invert the structure
+        forEach(keys(localeValues) ?? [], locale => {
+          set(acc, [locale, key], get(localeValues, locale));
         });
-      }
-
-      if (isString(message)) {
+      } else if (isString(localeValues)) {
         forEach(settings?.languages ?? [], locale => {
-          set(acc, [locale.code, ...key.split(".")], message);
+          set(acc, [locale.code, key], localeValues);
         });
       }
 
@@ -65,6 +64,7 @@ export const mapBrandSettings = (data: IBrandSettings) => {
     },
     {} as LocaleMessages<string, {}, {}>
   );
+
   // update the settings object with the mapped i18n messages
   set(settings, "meta.i18n", i18n);
 

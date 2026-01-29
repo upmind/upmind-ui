@@ -61,6 +61,15 @@
         </slot>
       </template>
 
+      <template v-if="ui.trustMessaging.isVisible" #markdown>
+        <slot name="markdown">
+          <Markdown
+            data-testid="slots:summary-append"
+            :model-value="data.trustMessagingMarkdown"
+          />
+        </slot>
+      </template>
+
       <template v-if="!meta.isLoading" #checkout>
         <slot name="checkout">
           <BasketCheckout
@@ -82,24 +91,16 @@
 
 <script lang="ts" setup>
 // --- external
-import {
-  ref,
-  computed,
-  defineAsyncComponent,
-  onMounted,
-  onUnmounted
-} from "vue";
+import { ref, computed, defineAsyncComponent, onUnmounted } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import {
-  useBasket,
-  useDataLayer,
-  useRoutingEngine
-} from "@upmind-automation/headless";
+import { useBasket, useRoutingEngine } from "@upmind-automation/headless";
 import { useLayout } from "../../components/layout/useLayout";
 import { useHeader } from "../../components/header/useHeader";
 import { useFooter } from "../../components/footer/useFooter";
+import { useConfig, validateTemplate } from "@upmind-automation/headless";
+import { useThemes } from "@upmind-automation/upmind-ui";
 
 // --- components
 import Back from "../../components/navigation/Back.vue";
@@ -110,6 +111,7 @@ import BasketErrors from "./components/BasketErrors.vue";
 import BasketCheckout from "./components/BasketCheckout.vue";
 import BasketTotal from "./components/BasketTotal.vue";
 import Transitions from "../../components/layout/components/transition/Transition.vue";
+import { Markdown } from "@upmind-automation/upmind-ui";
 
 // --- templates
 const supportedTemplates = {
@@ -132,6 +134,7 @@ import { get, includes } from "lodash-es";
 
 // --- types
 import { BASKET_TEMPLATE } from "./types";
+import { UIContext } from "@upmind-automation/headless";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
 import { LAYOUT_VARIANTS } from "../../components/layout/types";
 // -----------------------------------------------------------------------------
@@ -145,7 +148,6 @@ const props = withDefaults(
     hideSlots?: string[];
   }>(),
   {
-    template: BASKET_TEMPLATE.TWO_COLUMN_LTR,
     hideSlots: () => []
   }
 );
@@ -153,23 +155,33 @@ const props = withDefaults(
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
+const { set } = useThemes();
 const { navigateNext } = useRoutingEngine();
-const { count, summary, isReady, meta } = useBasket();
+const { isReady, meta } = useBasket();
 const { variant } = useLayout();
 
 const open = ref(false);
 
 const isSlotHidden = (name: string) => includes(props.hideSlots, name);
 
-const templateVariant = computed(() =>
-  get(
-    supportedTemplates,
-    props.template,
-    supportedTemplates[BASKET_TEMPLATE.TWO_COLUMN_LTR]
+const template = computed(() =>
+  validateTemplate(
+    ui.template.value || props.template,
+    BASKET_TEMPLATE,
+    BASKET_TEMPLATE.TWO_COLUMN_LTR
   )
 );
 
+const { ui, data } = useConfig({
+  context: UIContext.BASKET,
+  provide: true
+});
+
+const templateVariant = computed(() => get(supportedTemplates, template.value));
+
 await isReady();
+
+set(ui.theme.value);
 
 onUnmounted(() => {
   useHeader({});

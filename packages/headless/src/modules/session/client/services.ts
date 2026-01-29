@@ -15,7 +15,7 @@ import { Contexts } from "@upmind-automation/types";
 
 async function load(_context: ClientContext, _event: any) {
   // if we have a token, we are potentially authenticated
-  // and we need to check the token/get the user
+  // and we need to check the token/get the client
   const { t } = useI18n();
 
   const token = getTokenFromStorage(Contexts.CLIENT);

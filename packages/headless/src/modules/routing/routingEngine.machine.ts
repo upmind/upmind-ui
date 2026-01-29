@@ -1,5 +1,5 @@
 // --- external
-import { createMachine, assign } from "xstate";
+import { createMachine, assign, send } from "xstate";
 
 // --- internal
 import services from "./services";
@@ -18,7 +18,7 @@ import { first, has, isEmpty, isEqual, keys, reduce, some } from "lodash-es";
 // --- types
 import type { AnyEventObject } from "xstate";
 import type { FunnelProps, Funnels, RoutingEngineContext } from "./types";
-import { RouteLocation } from "vue-router";
+import { type RouteLocation } from "vue-router";
 import { useQueryParams } from "./useQueryParams";
 
 // -----------------------------------------------------------------------------
@@ -97,6 +97,11 @@ export default createMachine(
         }
       },
 
+      error: {},
+
+      // ---
+
+      // Handle completion, stop the machine and prevent further requests
       complete: {
         type: "final"
       }
@@ -107,6 +112,11 @@ export default createMachine(
         target: "available",
         actions: "switchFunnel",
         cond: "hasValidFunnel"
+      },
+
+      // Capture resolution requests at any time and pass them to the current funnel
+      RESOLVE: {
+        actions: ["setTargetRoute"]
       },
 
       REGISTER: {
@@ -120,6 +130,14 @@ export default createMachine(
   },
   {
     actions: {
+      setTargetRoute: assign({
+        targetRoute: (
+          _context: RoutingEngineContext,
+          { data }: AnyEventObject
+        ) => {
+          return data?.target || data?.route;
+        }
+      }),
       /**
        * Action to process the initial REGISTER event, setting up the dynamic default ID
        * and the master list of all funnels.

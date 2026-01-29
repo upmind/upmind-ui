@@ -29,7 +29,7 @@ import {
   trimEnd,
   trimStart
 } from "lodash-es";
-import { parseError, ResponseError } from "./useError";
+import { parseError, type ResponseError } from "./useError";
 import Ajv, { type ErrorObject } from "ajv";
 
 // --- types

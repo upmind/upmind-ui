@@ -17,7 +17,12 @@ import {
   isFunction,
   isString
 } from "lodash-es";
-import { DetailedError, ErrorOrigin, responseCodes } from "../../../utils";
+import {
+  DetailedError,
+  ErrorOrigin,
+  responseCodes,
+  parseFlattened
+} from "../../../utils";
 
 // --- types
 import type { GlobbedFiles } from "./types";
@@ -53,6 +58,7 @@ let i18n: Composer | null = null;
 let files: GlobbedFiles = {};
 let sourceFiles: GlobbedFiles = {};
 let overrides: LocaleMessages<string, {}, {}>;
+let globalOverrides: Record<string, any> = {};
 
 /**
  * Composable function to provide functionality for initialising and managing internationalisation (i18n) in an application.
@@ -70,7 +76,12 @@ export const useI18n = () => {
     const { i18nMessages } = useBrand();
     i18n = instance.global as Composer;
     files = glob ?? {};
-    overrides = i18nMessages.value ?? {};
+
+    const parsed = parseFlattened(i18nMessages.value ?? {});
+
+    // Extract global overrides (using "*" wildcard key) that apply to all locales
+    globalOverrides = get(parsed, "*", {});
+    overrides = parsed;
 
     // NB: in DEV mode we MUST also load in our Source files over and above our provided glob files
     //     this is to account for any keys or overrides that have not been updated into Localazy yet.
@@ -166,8 +177,13 @@ export const useI18n = () => {
       {}
     );
 
-    // now apply any overrides for this named set of messages, ie locale
+    // Apply brand meta overrides: global first, then locale-specific
     const localeOverrides = get(overrides, name, {});
+
+    if (!isEmpty(globalOverrides)) {
+      messages = merge(messages, globalOverrides);
+    }
+
     if (!isEmpty(localeOverrides)) {
       messages = merge(messages, localeOverrides);
     }

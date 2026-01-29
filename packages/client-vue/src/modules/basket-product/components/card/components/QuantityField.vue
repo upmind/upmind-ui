@@ -6,6 +6,7 @@
     :min="min === 0 ? 1 : min"
     :max="max"
     :step="step"
+    :disabled="disabled"
     variant="minimal"
     width="md"
   />
@@ -13,15 +14,9 @@
 
 <script lang="ts" setup>
 import { NumberField } from "@upmind-automation/upmind-ui";
+import type { QuantityFieldProps } from "./types";
 
-defineProps<{
-  id: string;
-  quantifiable?: boolean;
-  min?: number;
-  max?: number;
-  step?: number;
-  quantity?: number;
-}>();
+defineProps<QuantityFieldProps>();
 
 const emits = defineEmits(["update:quantity"]);
 

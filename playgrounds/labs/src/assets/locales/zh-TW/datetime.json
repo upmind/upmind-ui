@@ -1,0 +1,29 @@
+{
+  "calendar": {
+    "last_day": "[昨天]",
+    "last_week": "[最後] dddd",
+    "next_day": "[明天]",
+    "next_week": "dddd",
+    "same_day": "[今天]"
+  },
+  "date": {
+    "default": "嗯，做，是的",
+    "omit_ordinal": "月年",
+    "omit_year": "嗯做",
+    "only_day": "D",
+    "only_month": "嗯",
+    "only_ordinal": "做",
+    "only_week": "MMM Do ([Wk] W)",
+    "only_year": "年"
+  },
+  "datetime": {
+    "default": "MMM Do，YYYY HH:mm A",
+    "omit_meridiem": "MMM 做，YYYY HH:mm",
+    "with_seconds": "MMM Do，YYYY HH:mm:ss A"
+  },
+  "time": {
+    "default": "時:分鐘",
+    "with_meridiem": "時:分 A",
+    "with_seconds": "時:分:秒"
+  }
+}

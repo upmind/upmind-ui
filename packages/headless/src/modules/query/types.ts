@@ -152,6 +152,11 @@ export type RequestParams = QueryProps & {
    * `true` to omit the locale from the request headers.
    */
   withoutLocale?: boolean;
+
+  /**
+   * `true` to use the split count logic. and fetch the count separately.
+   */
+  withSplitCount?: boolean;
 };
 
 /**

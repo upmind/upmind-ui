@@ -1,4 +1,4 @@
-import { BrowserContext, Page } from "@playwright/test";
+import { BrowserContext, Page, expect } from "@playwright/test";
 import { URLs } from "../constants/urls";
 import { getSessionToken } from "./functions/tokens";
 import {
@@ -17,7 +17,15 @@ export async function goToCheckout(
   currency: string | null = null
 ) {
   await page.goto(URLs.basket);
-  await page.waitForLoadState("networkidle");
+  await expect
+    .poll(
+      async () => {
+        const cookies = await context.cookies();
+        return cookies.some(c => c.name === "upm_guest_session");
+      },
+      { timeout: 30000 }
+    )
+    .toBeTruthy();
   let token = await getSessionToken(context);
   let orderId = await createOrder(token);
   await addProductToOrder(
@@ -33,7 +41,8 @@ export async function goToCheckout(
         length: { min: 3, max: 15 }
       })}.com`
     },
-    []
+    [],
+    true
   );
   if (promotion != null) {
     await addPromotionToOrder(orderId, promotion, token);
@@ -41,5 +50,6 @@ export async function goToCheckout(
   if (currency != null) {
     await setOrderCurrency(token, orderId, currency);
   }
-  await page.goto(URLs.checkout);
+  await page.goto(URLs.basket);
+  await page.getByTestId("button-proceed-to-checkout").click();
 }

@@ -4,7 +4,7 @@
     v-if="hasItems"
     id="terms"
     name="terms"
-    :class="styles.product.config.grid.root"
+    :class="styles.terms.select.root"
     :label="props.label"
     :required="props.required"
     :disabled="props.disabled || props.processing"
@@ -29,9 +29,9 @@
         <slot name="item" v-bind="slotProps">
           <CardTerm
             v-bind="slotProps.item"
-            no-summary
             :class="props.class"
             layout="inline"
+            :summary="false"
           />
         </slot>
       </template>
@@ -41,7 +41,7 @@
             v-bind="slotProps.item"
             :class="props.class"
             layout="inline"
-            no-summary
+            :summary="false"
           />
         </slot>
       </template>
@@ -58,7 +58,7 @@ import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useStyles } from "@upmind-automation/upmind-ui";
-import config from "../../product.config";
+import config from "./terms.config";
 
 // --- components
 import { FormField, SelectCards } from "@upmind-automation/upmind-ui";
@@ -105,11 +105,7 @@ const props = withDefaults(
 
 const { t } = useI18n();
 
-const styles = useStyles(
-  ["product.config.grid", "product.config.grid.item"],
-  toRefs(props),
-  config
-);
+const styles = useStyles(["terms.select"], toRefs(props), config);
 
 const parsedValues = computed<SelectCardsItemProps[]>(() => {
   return map(props.items, (item: TermDetails, index: number) => {

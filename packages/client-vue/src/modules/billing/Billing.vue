@@ -11,11 +11,19 @@
       data-testid="billing"
     >
       <template v-slot:[`section-personal`]>
-        <TabPersonal v-model="modelValue" v-model:touched="touched" />
+        <TabPersonal
+          v-model="modelValue"
+          v-model:touched="touched"
+          :readonly="ui.billingDetails.isReadonly"
+        />
       </template>
 
       <template v-slot:[`section-business`]>
-        <TabBusiness v-model="modelValue" v-model:touched="touched" />
+        <TabBusiness
+          v-model="modelValue"
+          v-model:touched="touched"
+          :readonly="ui.billingDetails.isReadonly"
+        />
       </template>
     </Sections>
   </Loading>
@@ -34,6 +42,7 @@ import {
   useClientAddresses,
   useClientCompanies
 } from "@upmind-automation/headless";
+import { useConfig } from "@upmind-automation/headless";
 
 // --- components
 import { Loading } from "@upmind-automation/upmind-ui";
@@ -55,8 +64,9 @@ const touched = defineModel<BillingProps["touched"]>("touched");
 
 const { t } = useI18n();
 
-const { user } = useSession();
+const { client } = useSession();
 const { isReady, meta, config, update, model } = useBasketBilling();
+const { ui } = useConfig();
 
 // ensure we preload our data for speed between the tab
 
@@ -84,7 +94,7 @@ await Promise.allSettled([
 const tabs = computed((): TabItem[] => {
   const tabItems: TabItem[] = [];
 
-  if (!user.value?.id) return tabItems;
+  if (!client.value?.id) return tabItems;
 
   if (!config.value?.requiresCompany) {
     tabItems.push({

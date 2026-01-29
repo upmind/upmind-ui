@@ -7,6 +7,7 @@ import {
   invalidateQueryByKey,
   useBasket,
   useBasketCurrency,
+  useDataLayer,
   useI18n,
   useQuery,
   useTracking
@@ -18,7 +19,7 @@ import {
   DetailedError,
   ErrorOrigin,
   responseCodes,
-  ResponseError,
+  type ResponseError,
   unflattenErrors,
   useTime
 } from "../../utils";
@@ -39,7 +40,8 @@ import {
   isEmpty,
   isArray,
   isFunction,
-  forEach
+  forEach,
+  differenceBy
 } from "lodash-es";
 
 // --- types
@@ -149,12 +151,10 @@ async function fetch(
 ) {
   const { t } = useI18n();
   if (!productId)
-    return Promise.reject(
-      new DetailedError(
-        t("error.product_not_available"),
-        responseCodes.Not_Found,
-        ErrorOrigin.Headless
-      )
+    throw new DetailedError(
+      t("error.product_not_available"),
+      responseCodes.Not_Found,
+      ErrorOrigin.Headless
     );
 
   // lets ensure we have a valid currency > fallback to default
@@ -233,12 +233,10 @@ async function fetchSelected(
 ): Promise<any> {
   const { t } = useI18n();
   if (isEmpty(productIds))
-    return Promise.reject(
-      new DetailedError(
-        t("error.product_not_available"),
-        responseCodes.Not_Found,
-        ErrorOrigin.Headless
-      )
+    throw new DetailedError(
+      t("error.product_not_available"),
+      responseCodes.Not_Found,
+      ErrorOrigin.Headless
     );
 
   // let's ensure we have a valid currency > fallback to default
@@ -321,12 +319,10 @@ async function fetchRelated(
 ) {
   const { t } = useI18n();
   if (!productId)
-    return Promise.reject(
-      new DetailedError(
-        t("error.product_not_available"),
-        responseCodes.Not_Found,
-        ErrorOrigin.Headless
-      )
+    throw new DetailedError(
+      t("error.product_not_available"),
+      responseCodes.Not_Found,
+      ErrorOrigin.Headless
     );
 
   // lets ensure we have a valid currency > fallback to default
@@ -402,29 +398,23 @@ async function updateQuantity({
   const { t } = useI18n();
   // sanity check
   if (!basketId)
-    return Promise.reject(
-      new DetailedError(
-        t("error.basket_not_available"),
-        responseCodes.Not_Found,
-        ErrorOrigin.Headless
-      )
+    throw new DetailedError(
+      t("error.basket_not_available"),
+      responseCodes.Not_Found,
+      ErrorOrigin.Headless
     );
 
   if (!basketProduct.productDetails)
-    return Promise.reject(
-      new DetailedError(
-        t("error.product_not_available"),
-        responseCodes.Not_Found,
-        ErrorOrigin.Headless
-      )
+    throw new DetailedError(
+      t("error.product_not_available"),
+      responseCodes.Not_Found,
+      ErrorOrigin.Headless
     );
   if (!basketProduct.productDetails?.quantifiable)
-    return Promise.reject(
-      new DetailedError(
-        t("error.product_quantifiable_not_available"),
-        responseCodes.Unprocessable_Entity,
-        ErrorOrigin.Headless
-      )
+    throw new DetailedError(
+      t("error.product_quantifiable_not_available"),
+      responseCodes.Unprocessable_Entity,
+      ErrorOrigin.Headless
     );
   // ---
   const { put, useUrl } = useQuery();
@@ -527,12 +517,10 @@ async function update({
   const { put, post, useUrl } = useQuery();
 
   if (isEmpty(model))
-    return Promise.reject(
-      new DetailedError(
-        t("error.product_not_available"),
-        responseCodes.Not_Found,
-        ErrorOrigin.Headless
-      )
+    throw new DetailedError(
+      t("error.product_not_available"),
+      responseCodes.Not_Found,
+      ErrorOrigin.Headless
     );
 
   const isNew = !model?.id;
@@ -584,21 +572,19 @@ async function update({
 async function updateMany({
   basketId,
   basketProducts,
-  data
+  models
 }: {
   basketId: IBasket["id"];
   basketProducts: BasketProduct[];
-  data: ProductProps[];
+  models: ProductProps[];
 }): Promise<IBasket> {
   const { t } = useI18n();
 
   if (!basketId)
-    return Promise.reject(
-      new DetailedError(
-        t("error.basket_not_available"),
-        responseCodes.Not_Found,
-        ErrorOrigin.Headless
-      )
+    throw new DetailedError(
+      t("error.basket_not_available"),
+      responseCodes.Not_Found,
+      ErrorOrigin.Headless
     );
 
   // When updating the basket we need to provide :
@@ -607,7 +593,7 @@ async function updateMany({
   // otherwise the existing products will be removed from the basket
 
   // --- then build the basket config for the validItems products
-  const newProducts = map(data, item => {
+  const newProducts = map(models, item => {
     const product = parseBasketProductData(item);
 
     // Add a flag to the product to indicate that the field values should NOT be validated.
@@ -655,13 +641,11 @@ async function updateMany({
     data: { products },
     withAccessToken: true
   }).catch(error => {
-    return Promise.reject(
-      new DetailedError(
-        t("error.basket_product_update_failed"),
-        responseCodes.Internal_Server_Error,
-        ErrorOrigin.Headless,
-        error
-      )
+    throw new DetailedError(
+      t("error.basket_product_update_failed"),
+      responseCodes.Internal_Server_Error,
+      ErrorOrigin.Headless,
+      error
     );
   });
 }
@@ -685,20 +669,16 @@ async function remove({
   const { t } = useI18n();
   const { del, useUrl } = useQuery();
   if (!bpid)
-    return Promise.reject(
-      new DetailedError(
-        t("error.basket_product_not_available"),
-        responseCodes.Not_Found,
-        ErrorOrigin.Headless
-      )
+    throw new DetailedError(
+      t("error.basket_product_not_available"),
+      responseCodes.Not_Found,
+      ErrorOrigin.Headless
     ); // we don't need to make a request as there is no id, must be a new product
   if (!basketId)
-    return Promise.reject(
-      new DetailedError(
-        t("error.basket_not_available"),
-        responseCodes.Not_Found,
-        ErrorOrigin.Headless
-      )
+    throw new DetailedError(
+      t("error.basket_not_available"),
+      responseCodes.Not_Found,
+      ErrorOrigin.Headless
     );
   // ---
   return del<IBasket>({
@@ -737,6 +717,110 @@ function parseApiErrors(response: ResponseError) {
   return Promise.reject(response);
 }
 // -----------------------------------------------------------------------------
+// Resolve handlers - handle side effects (prefresh, dataLayer) after queue operations
+// -----------------------------------------------------------------------------
+
+/**
+ * Handles side effects after an update operation resolves.
+ * Refreshes the basket and fires add_to_cart dataLayer event for newly added products.
+ */
+function onUpdateResolved(rawBasket: IBasket): IBasket {
+  const { prefresh, products } = useBasket();
+  const existingProducts = products.value ?? [];
+
+  prefresh(rawBasket);
+
+  const newlyAddedProducts = differenceBy(
+    products.value ?? [],
+    existingProducts,
+    "id"
+  );
+
+  if (!isEmpty(newlyAddedProducts)) {
+    useDataLayer()
+      .dataLayer({ event: "add_to_cart" })
+      .withItems(newlyAddedProducts)
+      .push();
+  }
+
+  return rawBasket;
+}
+
+/**
+ * Handles side effects after an updateQuantity operation resolves.
+ * Refreshes the basket and fires appropriate dataLayer event based on quantity change.
+ * Sends the delta quantity and proportional price per Google best practices.
+ */
+function onUpdateQuantityResolved(
+  rawBasket: IBasket,
+  quantity: number,
+  prevQuantity: number,
+  basketProduct: BasketProduct
+): IBasket {
+  const { prefresh } = useBasket();
+  prefresh(rawBasket);
+
+  const event = quantity > prevQuantity ? "add_to_cart" : "remove_from_cart";
+
+  // GA4 best practice: Send only the quantity delta (change), not the full quantity.
+  // E.g., if quantity goes from 2 → 5, send add_to_cart with quantity: 3 and proportional price.
+  // We calculate unit values by dividing totals by previous quantity, then multiply by delta.
+  // HACK: currently the BE does not provide the delta or a way to get the unit price, so we calculate it here.
+  const deltaQty = Math.abs(quantity - prevQuantity);
+  const totalPrice = basketProduct.price?.currentAmount ?? 0;
+  const totalDiscount = basketProduct.price?.configuration?.discount ?? 0;
+  const unitPrice = prevQuantity > 0 ? totalPrice / prevQuantity : totalPrice;
+  const unitDiscount =
+    prevQuantity > 0 ? totalDiscount / prevQuantity : totalDiscount;
+  const deltaPrice = unitPrice * deltaQty;
+  const deltaDiscount = unitDiscount * deltaQty;
+
+  const deltaProduct = {
+    ...basketProduct,
+    configuration: {
+      ...basketProduct.configuration,
+      quantity: deltaQty
+    },
+    price: {
+      ...basketProduct.price,
+      currentAmount: deltaPrice,
+      configuration: {
+        ...basketProduct.price?.configuration,
+        subtotal: deltaPrice,
+        discount: deltaDiscount
+      }
+    }
+  } as BasketProduct;
+
+  useDataLayer().dataLayer({ event }).withItems([deltaProduct]).push();
+
+  return rawBasket;
+}
+
+/**
+ * Handles side effects after a remove operation resolves.
+ * Fires remove_from_cart dataLayer event (with product captured before removal) then refreshes.
+ */
+function onRemoveResolved(
+  rawBasket: IBasket,
+  bpid: BasketProduct["id"]
+): IBasket {
+  const { findProduct, prefresh } = useBasket();
+  const basketProduct = findProduct({ id: bpid });
+
+  // Fire dataLayer event first (before prefresh since product will be gone)
+  if (basketProduct) {
+    useDataLayer()
+      .dataLayer({ event: "remove_from_cart" })
+      .withItems([basketProduct])
+      .push();
+  }
+
+  prefresh(rawBasket);
+  return rawBasket;
+}
+
+// -----------------------------------------------------------------------------
 
 export default {
   fetch,
@@ -746,54 +830,68 @@ export default {
   update: async (
     basketId: IBasket["id"] | undefined | null,
     model: ProductProps
-  ): Promise<IBasket> =>
-    new Promise((resolve, reject) =>
+  ): Promise<IBasket> => {
+    return new Promise((resolve, reject) =>
       queue.addItem({
         type: "UPDATE",
         data: { basketId, model },
-        resolve: (rawBasket: IBasket) => resolve(rawBasket),
+        resolve: (rawBasket: IBasket) => resolve(onUpdateResolved(rawBasket)),
         reject
       })
-    ),
+    );
+  },
 
   updateMany: async (
     basketId: IBasket["id"] | undefined | null,
     basketProducts: BasketProduct[],
     models: ProductModel[]
-  ): Promise<IBasket> =>
-    new Promise((resolve, reject) =>
+  ): Promise<IBasket> => {
+    return new Promise((resolve, reject) =>
       queue.addItem({
         type: "UPDATE_MANY",
         data: { basketId: basketId!, models, basketProducts },
-        resolve: (rawBasket: IBasket) => resolve(rawBasket),
+        resolve: (rawBasket: IBasket) => resolve(onUpdateResolved(rawBasket)),
         reject
       })
-    ),
+    );
+  },
 
   updateQuantity: async (
     basketId: IBasket["id"],
     quantity: number,
     basketProduct: BasketProduct
-  ): Promise<IBasket> =>
-    new Promise((resolve, reject) =>
+  ): Promise<IBasket> => {
+    const prevQuantity = get(basketProduct, "configuration.quantity", 1);
+    return new Promise((resolve, reject) =>
       queue.addItem({
         type: "UPDATE_QUANTITY",
         data: { basketId: basketId!, quantity, basketProduct },
-        resolve: (rawBasket: IBasket) => resolve(rawBasket),
+        resolve: (rawBasket: IBasket) =>
+          resolve(
+            onUpdateQuantityResolved(
+              rawBasket,
+              quantity,
+              prevQuantity,
+              basketProduct
+            )
+          ),
         reject
       })
-    ),
+    );
+  },
 
   remove: async (
     basketId: IBasket["id"],
     bpid: IBasket["id"]
-  ): Promise<IBasket> =>
-    new Promise((resolve, reject) =>
+  ): Promise<IBasket> => {
+    return new Promise((resolve, reject) =>
       queue.addItem({
         type: "REMOVE",
         data: { basketId, bpid },
-        resolve: (rawBasket: IBasket) => resolve(rawBasket),
+        resolve: (rawBasket: IBasket) =>
+          resolve(onRemoveResolved(rawBasket, bpid)),
         reject
       })
-    )
+    );
+  }
 };

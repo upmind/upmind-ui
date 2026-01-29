@@ -8,11 +8,12 @@
     :dismissible="false"
   >
     <ProductConfig
-      v-if="!meta?.isLoading"
+      v-if="pendingProduct && productMeta?.isAvailable"
+      as="div"
       :item="pendingProduct"
       :model-value="pendingProduct?.id"
-      :no-footer="true"
-      as="div"
+      :meta="configMeta"
+      no-footer
       @resolve="doResolve"
       @reject="doReject"
     />
@@ -23,8 +24,8 @@
 
     <template #actions>
       <Button
-        :loading="meta.isProcessing"
-        :disabled="meta.isProcessing"
+        :loading="productMeta.isProcessing"
+        :disabled="productMeta.isProcessing"
         @click="doResolve"
         :label="t('action.add_to_basket')"
         prependIcon="plus-circle"
@@ -37,16 +38,18 @@
 
 <script lang="ts" setup>
 // --- external
-import { watch } from "vue";
+import { provide } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
 import {
   useRecommendations,
-  useBasketProductsPending
+  useBasketProductsPending,
+  useConfig,
+  useProductConfig,
+  UIContext
 } from "@upmind-automation/headless";
-import { useStyles, Link } from "@upmind-automation/upmind-ui";
-import config from "../recommendations.config";
+import { Link } from "@upmind-automation/upmind-ui";
 
 // --- components
 import ProductConfig from "../../product/components/config/Config.vue";
@@ -69,18 +72,29 @@ const { t } = useI18n();
 // --- basket setup
 
 const { cancel } = useRecommendations();
-const { configure, resolve } = useBasketProductsPending();
+const { resolve, add } = useBasketProductsPending();
+
 const {
-  meta,
-  stop,
   update,
-  isReady,
-  service: pendingProduct
-} = await configure(props.modelValue);
+  service: pendingProduct,
+  onDone,
+  isReady
+} = await add(props.modelValue.productId, props.modelValue);
+
+const productConfig = useProductConfig(pendingProduct);
+if (!productConfig) throw new Error("useProductConfig not provided");
+provide("useProductConfig", productConfig);
+
+const { meta: productMeta, product } = productConfig;
+
+const configMeta = useConfig({
+  context: UIContext.CONFIGURE,
+  product: () => product.value,
+  provide: true
+});
+
 await isReady();
 
-// ---
-const styles = useStyles(["recommendation.configuration"], {}, config);
 // ---
 
 async function doResolve() {
@@ -89,22 +103,15 @@ async function doResolve() {
       resolve(pendingProduct);
       emit("resolve");
     })
-    .catch(() => {
+    .catch(error => {
+      console.warn("Product Configuration Error", error);
       // if we take more than 60 seconds to resolve the product ( which is unlikely but possible),
       // add a failsafe to ensure the user is not stuck on the page and that we actually navigate away,
       // if the product is successfully added to the basket ( onDone = success)
-      watch(
-        meta,
-        ({ isDone }) => {
-          if (isDone) {
-            resolve(pendingProduct);
-            emit("resolve");
-          }
-        },
-        {
-          immediate: true
-        }
-      );
+      onDone().then(() => {
+        resolve(pendingProduct);
+        emit("resolve");
+      });
     });
 }
 

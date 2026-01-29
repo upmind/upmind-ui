@@ -1,10 +1,10 @@
 // --- internal
 import { useBrand } from "../brand";
 import { useI18n, useSystem } from "../system";
+import { useConfig } from "../config/useConfig";
 
 // --- utils
 import {
-  useMoney,
   DetailedError,
   ErrorOrigin,
   responseCodes,
@@ -12,8 +12,7 @@ import {
   useTranslateField,
   useTranslateName,
   useValidation,
-  useImageUrl,
-  parseFlattened
+  useImageUrl
 } from "../../utils";
 
 import {
@@ -31,6 +30,7 @@ import {
   isFunction,
   isNil,
   isNumber,
+  isString,
   keys,
   map,
   maxBy,
@@ -66,18 +66,16 @@ import {
   ProductTypes,
   PromotionDisplayTypes,
   ProvisionCategoryCodes,
-  PriceDisplayTypes
+  PriceDisplayTypes,
+  QUERY_PARAMS
 } from "@upmind-automation/types";
 
 import type {
   ExternalError,
-  IProductConfig,
   PriceCalculations,
   PriceDetail,
   PriceDisplay,
   Product,
-  ProductBundle,
-  ProductBundles,
   ProductConfigContext,
   ProductDetails,
   ProductImage,
@@ -95,8 +93,10 @@ import type {
   ProductBreadcrumb
 } from "./types";
 import { UI_SCHEMA_DEFAULTS } from "./types";
-import { ErrorObject } from "ajv";
-import { BrandMeta } from "../brand/types";
+import { type ErrorObject } from "ajv";
+import { type BrandMeta } from "../brand/types";
+import { type ProductBundleConfig } from "../config";
+import { UIContext } from "../config";
 
 // -----------------------------------------------------------------------------
 
@@ -198,7 +198,7 @@ function getPriceDisplayType(raw: IProduct): PriceDisplayTypes | undefined {
     BrandConfigKeys.PRICE_DISPLAY_TYPE
   );
 
-  const meta = parseFlattened(parseMeta(raw?.meta ?? {}, raw.category));
+  const meta = parseMeta(raw?.meta ?? {}, raw.category);
   const configDisplayType = get(meta, "uischema.price_display_type");
   // ----
 
@@ -604,6 +604,7 @@ export const parseProductDetails = (
   return {
     id: rawProduct?.id,
     name: rawProduct.name,
+    serviceIdentifier: rawBasketProduct?.service_identifier || undefined,
     title: useUischemaTitle(rawProduct, {
       basketProduct: rawBasketProduct,
       valueKey: "meta.uischema.title",
@@ -659,9 +660,9 @@ export const parseProductDetails = (
         : Infinity,
     // ---
     uiMeta: parseMeta(
-      parseFlattened(rawProduct?.meta ?? {}),
-      parseFlattened(rawProduct?.category ?? {}) as IProductCategory,
-      parseFlattened(rawProduct?.brand?.meta as BrandMeta)?.cart?.ui ?? {}
+      rawProduct?.meta ?? {},
+      rawProduct?.category as IProductCategory,
+      (rawProduct?.brand?.meta as BrandMeta)?.cart?.ui ?? {}
     ),
     uiCategoryMeta: rawProduct?.category?.meta || undefined
   };
@@ -704,29 +705,17 @@ export const parseMeta = (
 };
 
 export const parseTermDetails = (raw: IProduct): TermDetails[] => {
-  const money = useMoney();
-  const { uiCart } = useBrand();
-
   return map(orderBy(raw?.prices, "billing_cycle_months"), rawTerm => {
     const details: TermDetails = parseSummaryDetailWithPrice(rawTerm, raw);
-
-    const trimTrailingZeroes =
-      uiCart.value?.ui?.product?.display_price?.trim_trailing_zeroes ?? false;
 
     details.price.monthlyFromCurrentAmount =
       rawTerm.monthly_price_from_discounted ?? rawTerm.monthly_price_from;
     details.price.monthlyFromCurrentPrice =
-      money.parsePrice(rawTerm.monthly_price_from_discounted_formatted, {
-        trimTrailingZeroes
-      }) ??
-      money.parsePrice(rawTerm.monthly_price_from_formatted, {
-        trimTrailingZeroes
-      });
+      rawTerm.monthly_price_from_discounted_formatted ??
+      rawTerm.monthly_price_from_formatted;
     details.price.monthlyFromRegularAmount = rawTerm.monthly_price_from;
-    details.price.monthlyFromRegularPrice = money.parsePrice(
-      rawTerm.monthly_price_from_formatted,
-      { trimTrailingZeroes }
-    );
+    details.price.monthlyFromRegularPrice =
+      rawTerm.monthly_price_from_formatted;
 
     return details;
   });
@@ -762,9 +751,9 @@ export const parseSubproductDetails = (
         excerpt: useTranslateField(rawSubproduct.category, "short_description"),
         uiCategorymeta: rawSubproduct?.category.meta,
         uiMeta: parseMeta(
-          parseFlattened(rawSubproduct?.meta ?? {}),
-          parseFlattened(rawSubproduct?.category) as IProductCategory,
-          parseFlattened(rawSubproduct?.brand?.meta as BrandMeta)?.cart?.ui
+          rawSubproduct?.meta ?? {},
+          rawSubproduct?.category as IProductCategory,
+          (rawSubproduct?.brand?.meta as BrandMeta)?.cart?.ui
         ),
         uiCategoryMeta: rawSubproduct?.category?.meta || undefined,
         meta: {
@@ -888,26 +877,18 @@ export const parseSummaryDetail = (
 
 export const parsePrice = (raw: IProductPrice): PriceDetail => {
   //  TODO: currently IProductPrice does not provide nett/gross values, only the brand setting
-  const money = useMoney();
-  const { uiCart } = useBrand();
-
   const savingAmount =
     Math.round(subtract(raw.price, raw?.price_discounted ?? raw.price) * 100) /
     100;
 
   const discounted =
     !isNil(raw.price_discounted) && raw.price !== raw.price_discounted;
-  const trimTrailingZeroes =
-    uiCart.value?.ui?.product?.display_price?.trim_trailing_zeroes ?? false;
 
   return {
     currentAmount: raw.price_discounted ?? raw.price,
-    currentPrice: money.parsePrice(
-      raw.price_discounted_formatted ?? raw.price_formatted,
-      { trimTrailingZeroes }
-    ),
+    currentPrice: raw.price_discounted_formatted ?? raw.price_formatted ?? "",
     regularAmount: raw.price,
-    regularPrice: money.parsePrice(raw.price_formatted, { trimTrailingZeroes }),
+    regularPrice: raw.price_formatted ?? "",
     savingAmount,
     savingPrice: "", //TODO: missing formatted value
     savingPercent: discounted
@@ -1193,6 +1174,7 @@ const parseSummarySubproduct = (
                 // ---
                 meta: {
                   ...subproduct.meta,
+                  ...subproduct?.uiMeta,
                   invalid: has(error, `${key}.${id}`)
                 },
                 // ---
@@ -1361,72 +1343,61 @@ const parseBasketSubproductDetailsChoices = (values: IBasketProduct[]) => {
 
 /**
  * Parses the given product and returns a list of bundled products.
- * The bundled products are extracted from the product, and only the single products are considered.
- * Inactive bundled products are not included.
- * NB: Bundles have a priority...
- *     if a product has bundles defined in its meta, those are used.
- *     otherwise we traverse the category hierarchy to find bundles and take the first set we find.
- * NB: Bundles may be an array or an Collection of key/value pairs.
- *     If we have an array, we use it directly, no key is needed.
- *     However, if we have a key/value object, we need to extract the bundle config based on the provided `bundle` key.
- *     if no key is provided, we will NOT include any bundles.
+ *
+ * Only single products are considered - bundles are not included for product sets/bundles.
+ *
+ * Bundles are resolved from the meta system which handles scope cascade (product → category → brand).
+ *
+ * NB: Bundles may be an array or a keyed object (Record):
+ * - If we have an array, we use it directly, no key is needed.
+ * - If we have a keyed object, we extract the bundle config based on the provided `bundleKey`.
+ * - If no key is provided for a keyed object, we will NOT include any bundles.
  *
  * @param {IProduct} raw - The raw product data to parse.
- * @param {ProductConfigContext["bundle"]} bundle - Optional key to extract specific bundle configurations from the product's meta.
+ * @param {string} bundleKey - Optional key to select specific bundle variant (e.g. from `?bundle=validation`).
  * @returns {ProductProps[]} The parsed list of bundled products configurations.
  */
 export function parseBundledProducts(
   raw: IProduct,
-  bundle?: ProductConfigContext["bundle"]
+  bundleKey?: string
 ): ProductProps[] {
-  // safe check: don't include recommendations for products that are not single products
+  // safe check: don't include bundles for products that are not single products
   if (raw?.product_type !== ProductTypes.SINGLE_PRODUCT) return [];
-  let bundles: ProductBundles =
-    raw?.meta?.bundle ??
-    first(
-      compact(
-        iterateParents(raw.category, [], {
-          valueKey: "meta.bundle",
-          parentKey: "top_category",
-          transform: (category: IProductCategory) =>
-            get(category, "meta.bundle")
-        })
-      )
-    );
-  if (!isArray(bundles)) {
-    if (!bundle) bundles = [];
-    else bundles = get(bundles, bundle, []) as ProductBundle[];
+
+  const { data } = useConfig({
+    context: UIContext.ALL,
+    product: {
+      productDetails: parseProductDetails(raw)
+    }
+  });
+
+  // Handle both array and keyed object formats
+  let bundleConfigs: ProductBundleConfig[] = [];
+  const productsToBundle = data.productsToBundle;
+
+  if (isArray(productsToBundle)) {
+    // Direct array format - use as-is
+    bundleConfigs = productsToBundle;
+  } else if (productsToBundle && typeof productsToBundle === "object") {
+    // Keyed object format - select by bundleKey
+    if (bundleKey) {
+      bundleConfigs = get(productsToBundle, bundleKey, []);
+    }
+    // If no bundleKey provided for keyed object, return empty (no bundles)
   }
 
-  return reduce(
-    bundles,
-    (result: ProductProps[], rawBundle) => {
-      const model = parseBundleConfig(rawBundle);
-      if (model) result.push(model);
-      return result;
-    },
-    []
-  ) as ProductProps[];
-}
+  // Filter active bundles and map to ProductProps
+  const activeBundles = filter(bundleConfigs, bundle => bundle.active);
 
-function parseBundleConfig(raw: ProductBundle): ProductProps | undefined {
-  // safe check : dont include recommendations for products that are not single products
-
-  const valid = raw?.object_type === "product" && raw?.active;
-  if (!valid) return undefined; // skip if not a valid product bundle or inactive
-
-  const config: IProductConfig = get(raw, "config", {});
-
-  return {
-    productId: raw.object_id,
-    quantity: config?.qty || 1,
-    term: config?.bcm ?? 0,
-    subproducts: compact(config?.sub_pids?.toString()?.split(",") ?? []),
-    provisionFields: config?.pfields ?? {},
-    coupons: compact(config?.coupons?.toString()?.split(",") ?? []),
-    // ---
+  return map(activeBundles, bundle => ({
+    productId: bundle.object_id,
+    quantity: bundle.config?.qty || 1,
+    term: bundle.config?.bcm ?? 0,
+    subproducts: compact(bundle.config?.sub_pids ?? []),
+    provisionFields: bundle.config?.pfields ?? {},
+    coupons: compact(bundle.config?.coupons ?? []),
     silent: true // always silent for bundled products
-  } as ProductProps;
+  })) as ProductProps[];
 }
 
 export const parseProductImages = (images: IImage[]): ProductImage[] => {
@@ -1527,4 +1498,33 @@ export function parseBillingCycle(months: number) {
         numeric: t("term.n_month", { n: months.toString() }) // {n}-month
       };
   }
+}
+
+export function generateShareUrlConfig(model: ProductModel) {
+  const config: Record<string, string | number | undefined> = {};
+  config[QUERY_PARAMS.QUANTITY] = model.quantity;
+  config[QUERY_PARAMS.BILLING_CYCLE_MONTHS] = model.term;
+
+  // Extract all SubproductModelValue items from the nested SubproductModel structure
+  const attributeValues = flatMap(values(model.attributes), values);
+  const optionValues = flatMap(values(model.options), values);
+  const subproducts = concat(attributeValues, optionValues);
+
+  if (subproducts.length) {
+    config[QUERY_PARAMS.SUBPRODUCT_IDS] = map(
+      subproducts,
+      subproduct => subproduct.productId
+    ).join(",");
+    forEach(subproducts, subproduct => {
+      if (has(subproduct, "unit_quantity")) {
+        config[`${QUERY_PARAMS.SUBPRODUCT_QUANTITY}[${subproduct.productId}]`] =
+          subproduct.unit_quantity;
+      }
+      return;
+    });
+  }
+
+  return map(config, (value, key) => {
+    return `${key}=${value}`;
+  }).join("&");
 }

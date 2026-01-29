@@ -44,8 +44,8 @@ import {
 // --- types
 import {
   BrandConfigKeys,
-  IBlueprintField,
-  IProduct
+  type IBlueprintField,
+  type IProduct
 } from "@upmind-automation/types";
 
 import type {
@@ -57,7 +57,7 @@ import type {
   ProductProps
 } from "./types";
 
-import { AnyEventObject } from "xstate";
+import { type AnyEventObject } from "xstate";
 import { parseBasketSubproductConfig } from "../basketProduct/utils";
 
 // -----------------------------------------------------------------------------
@@ -365,13 +365,15 @@ async function formatCalculation(
 ): Promise<Price> {
   const { post, useUrl } = useQuery();
 
+  if (isEmpty(compact(values))) return Promise.reject();
+
   return post({
     mutationKey: ["cart", "calculate"],
     url: useUrl("cart/calculate", {}),
     withAccessToken: true,
     data: {
       currency_id: currencyId,
-      prices: values
+      prices: compact(values)
     }
   }).then(data => {
     return {

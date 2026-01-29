@@ -10,7 +10,7 @@ import { useBasket } from "./";
 import {
   contextValue,
   DetailedError,
-  ErrorObject,
+  type ErrorObject,
   ErrorOrigin,
   responseCodes,
   useContext
@@ -20,9 +20,12 @@ import { debounce, isEmpty, isEqual, isNil, map } from "lodash-es";
 
 // --- types
 import type { ActorRef } from "xstate";
-import { PromotionsContext, PromotionModel } from "./promotions/types";
-import { IBasketPromotion } from "@upmind-automation/types";
-import { QueryResponseError } from "../query";
+import {
+  type PromotionsContext,
+  type PromotionModel
+} from "./promotions/types";
+import { type IBasketPromotion } from "@upmind-automation/types";
+import { type QueryResponseError } from "../query";
 
 // -----------------------------------------------------------------------------
 // We allow an actor to be passed in, but if not, we will use the basket actorRef and wait for the 'actor'' machine to be ready

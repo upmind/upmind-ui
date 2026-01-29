@@ -15,10 +15,10 @@ import {
 
 // --- types
 import {
-  RazorpayContext,
-  IRazorpaySetupDetails,
-  RazorpayResponse,
-  RazorpayErrorResponse
+  type RazorpayContext,
+  type IRazorpaySetupDetails,
+  type RazorpayResponse,
+  type RazorpayErrorResponse
 } from "./types";
 import type { AnyEventObject } from "xstate";
 

@@ -9,7 +9,7 @@ import { get, compact } from "lodash-es";
 import { useModelParser } from "../../../utils";
 
 // --- types
-import { AddressModel, type AddressContext } from "./types";
+import { type AddressModel, type AddressContext } from "./types";
 import type { AnyEventObject } from "xstate";
 
 // -----------------------------------------------------------------------------

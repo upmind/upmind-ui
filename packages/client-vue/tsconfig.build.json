@@ -1,28 +1,25 @@
 {
-  // This tsconfig is for development. Allowing *.story.vue, and __test__/*.vue to have types support
-  "extends": "@vue/tsconfig/tsconfig.dom.json",
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "../../tsconfig/vue-library.json",
   "compilerOptions": {
+    "composite": true,
+    "emitDeclarationOnly": true,
     "baseUrl": ".",
-    "composite": false,
-    "declaration": false,
-    "declarationMap": false,
-    "esModuleInterop": true,
-    "isolatedModules": true,
-    "jsx": "preserve",
-    "lib": ["esnext", "dom"],
-    "module": "esnext",
-    "moduleResolution": "node",
-    "outDir": "dist",
-    "paths": { "@/*": ["src/*"] },
-    "resolveJsonModule": true,
     "rootDir": "src",
-    "skipLibCheck": true,
-    "sourceMap": true,
-    "strict": true,
-    "target": "esnext",
-    "types": ["jsdom", "vite/client"]
+    "outDir": "dist",
+    "declarationDir": "dist",
+    "tsBuildInfoFile": "dist/tsconfig.build.tsbuildinfo",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "**/*.spec.*", "src/**/*.*test.ts"],
-  "references": [{ "path": "../headless" }]
+  "include": ["src"],
+  "exclude": ["node_modules", "dist", "**/*.spec.*", "**/*.test.*"],
+  "references": [
+    { "path": "../types/tsconfig.build.json" },
+    { "path": "../i18n/tsconfig.build.json" },
+    { "path": "../headless/tsconfig.build.json" },
+    { "path": "../ui/tsconfig.build.json" },
+    { "path": "../icons/tsconfig.build.json" }
+  ]
 }

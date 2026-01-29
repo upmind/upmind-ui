@@ -1,24 +1,13 @@
-import { defineAsyncComponent } from "vue";
 import { registerEntry } from "@upmind-automation/upmind-ui";
 
 // -----------------------------------------------------------------------------
-const DomainRenderer = defineAsyncComponent(
-  () => import("./DomainRenderer.vue")
-);
-const SLDRenderer = defineAsyncComponent(() => import("./SLDRenderer.vue"));
-const AddressRenderer = defineAsyncComponent(
-  () => import("./AddressRenderer.vue")
-);
-const ImageRenderer = defineAsyncComponent(() => import("./ImageRenderer.vue"));
-const ManageRenderer = defineAsyncComponent(
-  () => import("./ManageRenderer.vue")
-);
-const PaymentDetailsRenderer = defineAsyncComponent(
-  () => import("./PaymentDetailsRenderer.vue")
-);
-const GatewaysRenderer = defineAsyncComponent(
-  () => import("./GatewaysRenderer.vue")
-);
+import DomainRenderer from "./DomainRenderer.vue";
+import SLDRenderer from "./SLDRenderer.vue";
+import AddressRenderer from "./AddressRenderer.vue";
+import ImageRenderer from "./ImageRenderer.vue";
+import ManageRenderer from "./ManageRenderer.vue";
+import PaymentDetailsRenderer from "./PaymentDetailsRenderer.vue";
+import GatewaysRenderer from "./GatewaysRenderer.vue";
 
 // -----------------------------------------------------------------------------
 import { tester as domainTest } from "./DomainRenderer.vue";

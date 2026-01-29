@@ -3,6 +3,7 @@ import { toRaw, computed } from "vue";
 
 // --- internal
 import services from "./services";
+import { useConfig } from "../config";
 import useUpmind, { invalidateQueryByKey } from "../../";
 
 // --- utils
@@ -31,12 +32,12 @@ import {
   BrandTaxTypes,
   BrandConfigKeys,
   DefaultPaymentPeriod,
+  OrgFeatureKeys,
   UpmindModuleCodes
 } from "@upmind-automation/types";
 import type { BrandMeta } from "./types";
 import type { CurrencyModel } from "../basket/currency/types";
 
-// -----------------------------------------------------------------------------
 /**
  * Context to let us understand if we need to refetch on the initial use of Brand settings
  * We do this because settings are persisted for fast load times, but we still need
@@ -44,9 +45,10 @@ import type { CurrencyModel } from "../basket/currency/types";
  * NB:check if we actually have any persisted settings first
  *
  */
-let needsRefresh = some(keys(localStorage), key =>
-  includes(key, `"brand","settings"`)
-);
+let needsRefresh =
+  typeof localStorage !== "undefined"
+    ? some(keys(localStorage), key => includes(key, `"brand","settings"`))
+    : false;
 
 // ---  singleton queries to prevent multiple fetches
 let modulesQuery: ReturnType<typeof services.fetchModules>;
@@ -158,14 +160,6 @@ export const useBrand = () => {
     () => get(brandSettings.value, "meta.uischema") as BrandMeta["uischema"]
   );
 
-  const iconStyles = computed<{
-    variant: BrandMeta["icon_variant"];
-  }>(() => {
-    return {
-      variant: capitalize(get(brandSettings.value, "meta.icon_variant"))
-    };
-  });
-
   const currency = computed<ICurrency | undefined>(
     () =>
       find(currencies.value, ["id", currencyId.value]) ||
@@ -209,14 +203,25 @@ export const useBrand = () => {
 
   const taxType = computed(() => brandSettings.value?.tax_type);
 
+  const hasUpmindBranding = computed(
+    (): boolean =>
+      !get(
+        organisationConfig.value,
+        OrgFeatureKeys.REMOVE_UPMIND_BRANDING_ENABLED,
+        false
+      )
+  );
+
+  const { data } = useConfig({ brand: () => uiCart.value });
+
   const storefrontUrl = computed((): string | undefined => {
-    return useUpmind.storefrontUrl ?? uiCart.value?.storefront_url;
+    return useUpmind.storefrontUrl ?? data.storeUrl;
   });
 
   const hasStorefront = computed(() => {
-    const enabled = !uiCart.value?.catalogue?.disabled;
-
-    return !!storefrontUrl.value || enabled;
+    // No storefront URL means they need a storefront
+    // With a storefront URL, they can enable/disable via catalogueDisabled
+    return !storefrontUrl.value || !data.catalogueDisabled;
   });
 
   const storefrontRoute = computed(() => {
@@ -415,11 +420,6 @@ export const useBrand = () => {
     uiTheme,
 
     /**
-     * The current icons styles for the brand.
-     */
-    iconStyles,
-
-    /**
      * Cart-specific meta-information from the brand settings.
      */
     uiCart,
@@ -455,6 +455,12 @@ export const useBrand = () => {
 
     /** The storefront route object for the brand, containing either 'to' for internal routes or 'href' for external URLs. */
     storefrontRoute,
+
+    /**
+     * Whether Upmind branding should be displayed (false when white-label add-on is enabled).
+     */
+    hasUpmindBranding,
+
     // --- methods
 
     /**

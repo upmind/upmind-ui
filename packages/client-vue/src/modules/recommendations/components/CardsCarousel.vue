@@ -33,7 +33,6 @@
           :navigate="false"
           :disabled="recommendation.meta.added"
           color="secondary"
-          ratio="3:2"
           hide-terms
           @resolve="doResolve"
           :configure-route="props.configureRoute"
@@ -49,7 +48,7 @@ import { nextTick, ref, watch, computed } from "vue";
 import { vResizeObserver } from "@vueuse/components";
 
 // --- internal
-import { parseBillingCycle } from "@upmind-automation/headless";
+import { parseBillingCycle, UIContext } from "@upmind-automation/headless";
 import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "../recommendations.config";
 

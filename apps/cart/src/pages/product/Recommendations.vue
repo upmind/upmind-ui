@@ -5,10 +5,7 @@
 </template>
 <script lang="ts" setup>
 // --- components
-import {
-  UpmProductRecommendations,
-  useRoutingEngine
-} from "@upmind-automation/client-vue";
+import { UpmProductRecommendations } from "@upmind-automation/client-vue";
 
 // --- internal
 import { ROUTE } from "../../router";

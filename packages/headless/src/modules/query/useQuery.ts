@@ -1,5 +1,5 @@
 // --- external
-import { effectScope, getCurrentScope, ComputedRef } from "vue";
+import { effectScope, getCurrentScope, type ComputedRef } from "vue";
 
 import {
   QueryClient,
@@ -14,14 +14,15 @@ import { ref, unref, computed } from "vue";
 import { useI18n, useLocale } from "../system";
 import { useBasket, useBasketCurrency } from "../basket";
 import { doFetch, refreshToken } from "./services";
+import { queryClient } from "./client";
 
 // --- utils
 import {
   forEach,
   get,
+  has,
   isEmpty,
   isInteger,
-  isNil,
   isObject,
   isString,
   set,
@@ -36,7 +37,6 @@ import {
 } from "./utils";
 import {
   useUrl,
-  useTime,
   isPromise,
   ErrorOrigin,
   DetailedError,
@@ -55,34 +55,13 @@ import type {
   PaginationInfo
 } from "./types";
 import { Methods } from "@upmind-automation/types";
-import type {
-  DefaultError,
-  MutationKey,
-  QueryKey,
-  QueryOptions,
-  UseQueryReturnType
-} from "@tanstack/vue-query";
+import type { DefaultError, MutationKey, QueryKey } from "@tanstack/vue-query";
 import { useSession } from "../session";
-import { cancel } from "xstate";
 
 // -----------------------------------------------------------------------------
 
-// NB we need to create our query client here so that it can be used in the `useQuery` hook.
 // This will then be used in the `useUpmind` composable, which initializes the Upmind instance
 // BEFORE vue has an injectable for the query client
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      // Default time for inactive data to be garbage collected
-      gcTime: useTime().MINUTE * 30,
-      // Default cache time for data to be considered "fresh"
-      staleTime: useTime().MINUTE * 5,
-
-      // allow prefetching in the render phase, we need this for services and machine queries
-      experimental_prefetchInRender: true
-    }
-  }
-});
 
 /**
  * A composable function that provides utilities for making HTTP requests
@@ -136,12 +115,17 @@ export const useQuery = () => {
       else url.searchParams.delete("order");
 
       // Set 'limit' parameter
-      if (!isEmpty(pagination) && isInteger(pagination?.limit))
-        url.searchParams.set("limit", `${pagination.limit}`);
+      if (has(pagination, "limit")) {
+        if (pagination.limit == "count") {
+          url.searchParams.set("limit", pagination.limit);
+        } else {
+          url.searchParams.set("limit", `${pagination.limit}`);
+        }
+      }
       // NB NEVER remove limits from the url as we may include limit=0
 
       // Set 'offset' parameter
-      if (!isEmpty(pagination) && isInteger(pagination?.offset))
+      if (has(pagination, "offset") && isInteger(pagination?.offset))
         url.searchParams.set("offset", `${pagination.offset}`);
       else url.searchParams.delete("offset");
 
@@ -256,7 +240,9 @@ export const useQuery = () => {
     ...options
   }: Omit<QueryParams<TQueryFnData, TData>, "pagination">) {
     // ensure we have a scope, in case we call this outside of a setup function
-    const scope = getCurrentScope() ?? effectScope();
+    // Check if current scope is active - stopped scopes cause scope.run() to return undefined
+    const currentScope = getCurrentScope();
+    const scope = currentScope?.active ? currentScope : effectScope(true);
 
     // --- state
 
@@ -362,10 +348,13 @@ export const useQuery = () => {
     withBasket,
     withoutLocale,
     withAccessToken,
+    withSplitCount,
     ...options
   }: QueryParams<TQueryFnData, TData>) {
     // ensure we have a scope, in case we call this outside of a setup function
-    const scope = getCurrentScope() ?? effectScope();
+    // Check if current scope is active - stopped scopes cause scope.run() to return undefined
+    const currentScope = getCurrentScope();
+    const scope = currentScope?.active ? currentScope : effectScope(true);
 
     const { currencyCode } = useBasketCurrency();
     const { basketId } = useBasket();
@@ -398,6 +387,8 @@ export const useQuery = () => {
               : Promise.resolve();
             return safeguard.then(async () => {
               // define our request parameters for easy reuse
+              if (withSplitCount) url.searchParams.set("skip_count", "1");
+
               const params = {
                 url,
                 sort: sort.value,
@@ -454,6 +445,22 @@ export const useQuery = () => {
       )
     );
 
+    if (withSplitCount)
+      countRequest({
+        queryKey,
+        url,
+        sort: sort.value,
+        filters: filters.value,
+        withCurrency,
+        withoutLocale,
+        init: {
+          ...init
+        },
+        withAccessToken
+      }).then(count => {
+        total.value = count as number;
+      });
+
     // -------------------------------------------------------------------------
 
     return {
@@ -461,7 +468,9 @@ export const useQuery = () => {
 
       data: computed((): TData => response?.data?.value?.data ?? ([] as TData)),
 
-      total: computed((): number => response?.data?.value?.total ?? 0),
+      total: computed(
+        (): number => total.value ?? response?.data?.value?.total ?? 0
+      ),
 
       // ---state
 
@@ -521,7 +530,6 @@ export const useQuery = () => {
        */
       fetchPreviousPage: (): void => {
         const { t } = useI18n();
-
         total.value = response?.data?.value?.total ?? total.value;
         const pageTotal = !limit
           ? 1
@@ -640,10 +648,13 @@ export const useQuery = () => {
     withBasket,
     withoutLocale,
     withAccessToken,
+    withSplitCount,
     ...options
   }: QueryParams<TQueryFnData, TData>) {
     // ensure we have a scope, in case we call this outside of a setup function
-    const scope = getCurrentScope() ?? effectScope();
+    // Check if current scope is active - stopped scopes cause scope.run() to return undefined
+    const currentScope = getCurrentScope();
+    const scope = currentScope?.active ? currentScope : effectScope(true);
 
     const { currencyCode } = useBasketCurrency();
     const { basketId } = useBasket();
@@ -677,8 +688,10 @@ export const useQuery = () => {
             const safeguard: Promise<void | boolean> = hasGuard
               ? guard()
               : Promise.resolve();
-            return safeguard.then(() =>
-              request<TQueryFnData>({
+            return safeguard.then(() => {
+              if (withSplitCount) url.searchParams.set("skip_count", "1");
+
+              return request<TQueryFnData>({
                 url,
                 sort: sort.value,
                 filters: filters.value,
@@ -705,8 +718,8 @@ export const useQuery = () => {
                       : offset + limit,
                   pageData: data
                 };
-              })
-            );
+              });
+            });
           },
           getNextPageParam: (lastPage: InfiniteQueryPage<TQueryFnData>) =>
             lastPage.nextOffset,
@@ -717,6 +730,22 @@ export const useQuery = () => {
     );
 
     // -------------------------------------------------------------------------
+
+    if (withSplitCount)
+      countRequest({
+        queryKey,
+        url,
+        sort: sort.value,
+        filters: filters.value,
+        withCurrency,
+        withoutLocale,
+        init: {
+          ...init
+        },
+        withAccessToken
+      }).then(count => {
+        total.value = count as number;
+      });
 
     return {
       ...response,
@@ -816,7 +845,10 @@ export const useQuery = () => {
       ...options
     }: MutationParams<QueryResponse<TData>, TError, TVariables, TContext>
   ) {
-    const scope = getCurrentScope() ?? effectScope();
+    // ensure we have a scope, in case we call this outside of a setup function
+    // Check if current scope is active - stopped scopes cause scope.run() to return undefined
+    const currentScope = getCurrentScope();
+    const scope = currentScope?.active ? currentScope : effectScope(true);
 
     // safeguard
     init ??= {};
@@ -862,6 +894,65 @@ export const useQuery = () => {
    * @param withCurrency Whether to automagically add the currency filter to the request based on the `useBasketCurrency` composable.
    * @param withBasket Whether to automagically add the basket ID to the request based on the `useBasket` composable.
    * @param withoutLocale Whether to exclude the locale from the request.
+   * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
+   * @param options Additional options to pass to TanStack query.
+   */
+  async function countRequest<TQueryFnData = unknown, TData = TQueryFnData>({
+    url,
+    init,
+    guard,
+    select,
+    queryKey,
+    withCurrency,
+    withoutLocale,
+    withAccessToken,
+    ...options
+  }: Omit<QueryParams<TQueryFnData, Number>, "pagination">): Promise<Number> {
+    // Remove initialData from options before spreading, as it's not part of FetchQueryOptions
+
+    // --- state
+    const sort = options?.sort;
+    const filters = options?.filters;
+    const reactiveKeys: ReactiveQueryKeys = { sort, filters };
+    if (!withoutLocale && locale.value) reactiveKeys.locale = locale.value;
+
+    // ensure we request the count
+    const safeUrl = new URL(url.toString());
+    safeUrl.searchParams.set("limit", "count");
+
+    // --- query
+    return queryClient.fetchQuery<TQueryFnData, DefaultError, Number>({
+      queryKey: cleanQueryKey([...queryKey, reactiveKeys, "count"]),
+      queryFn: async ({ signal }) => {
+        return request<TQueryFnData>({
+          url: safeUrl,
+          sort,
+          filters,
+          withoutLocale,
+          withCurrency,
+          init: {
+            ...init,
+            signal // Pass the new signal to the request to allow cancellation
+          },
+          withAccessToken
+        }).then(response => {
+          return response.total;
+        });
+      },
+      ...(options as any)
+    });
+  }
+
+  /**
+   * Syntax sugar for sending a GET request to the server with the given URL and options.
+   * NOTE: this does not deal with pagination, it is a simple GET request.
+   * @see {@link QueryParams}
+   * @param url The URL to send the request to.
+   * @param init The request options.
+   * @param guard A function that returns a promise to be resolved before the request is sent. This can be used to ensure that certain conditions are met before the request is sent, such as checking if the user is authenticated.
+   * @param select A function to select a subset of the data returned by the request. This can be used to transform the data before it is returned.
+   * @param queryKey The query key to use for the request. This is used to cache the request and can be used to invalidate the cache later.
+   * @param withCurrency Whether to automagically add the currency filter to the request based on the `useBasketCurrency` composable.
    * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
    * @param options Additional options to pass to TanStack query.
    */
@@ -929,6 +1020,7 @@ export const useQuery = () => {
     queryKey,
     withAccessToken,
     withoutLocale,
+    withSplitCount,
     ...options
   }: QueryParams<TQueryFnData, TData>): Promise<QueryResponse<TData>> {
     // --- state
@@ -948,6 +1040,8 @@ export const useQuery = () => {
     >({
       queryKey: cleanQueryKey([...queryKey, reactiveKeys]),
       queryFn: async ({ signal }) => {
+        if (withSplitCount) url.searchParams.set("skip_count", "1");
+
         const params = {
           url,
           sort,
@@ -991,6 +1085,24 @@ export const useQuery = () => {
                 };
               }
               return response;
+            })
+            // Merge the count from the separate request if using split count
+            .then(async response => {
+              if (!withSplitCount) return response;
+
+              return countRequest({
+                queryKey,
+                url,
+                sort,
+                filters,
+                withCurrency: options.withCurrency,
+                withoutLocale,
+                init,
+                withAccessToken
+              }).then(count => {
+                response.total = count as number;
+                return response;
+              });
             })
         );
       },

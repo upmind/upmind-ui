@@ -67,8 +67,8 @@
     "placeholder": "Taxe enregistrée ou TPS"
   },
   "country": {
-    "label": "Pays",
-    "placeholder": "Choisissez un pays"
+    "label": "Numéro fiscal",
+    "placeholder": "Numéro fiscal"
   },
   "domain": {
     "placeholder": "Entrez votre domaine..."
@@ -87,6 +87,10 @@
   "firstname": {
     "error": "Votre prénom est obligatoire",
     "label": "Prénom"
+  },
+  "language": {
+    "error": "Votre langue est requise",
+    "label": "Langue"
   },
   "lastname": {
     "error": "Votre nom de famille est obligatoire",
@@ -121,6 +125,10 @@
     "error": "Code promo invalide",
     "placeholder": "Entrez le code promo ici"
   },
+  "publicName": {
+    "error": "Votre nom public est requis.",
+    "label": "Nom public"
+  },
   "recover": {
     "error": "Une erreur s'est produite lors de la tentative de vous envoyer un e-mail de réinitialisation de mot de passe."
   },
@@ -139,9 +147,5 @@
   },
   "stored_payment_method": {
     "label": ""
-  },
-  "taxNumber": {
-    "label": "Numéro fiscal",
-    "placeholder": "Numéro fiscal"
   }
 }

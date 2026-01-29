@@ -11,9 +11,9 @@ import {
   useClientPhones,
   useClientEmails,
   useClientAddresses,
-  AddressModel,
-  EmailModel,
-  PhoneModel,
+  type AddressModel,
+  type EmailModel,
+  type PhoneModel,
   useI18n
 } from "../..";
 
@@ -47,22 +47,21 @@ import type { Company, CompanyModel, CompanyContext } from "./types";
 // QUERIES
 
 const queryKey: QueryKey = ["client", "companies"];
-const { addError, addSuccess } = useFeedback();
 
 function loadList(params: Partial<QueryParams> = { pagination: { limit: 0 } }) {
-  const { meta, userId } = useSession();
+  const { meta, clientId } = useSession();
   const { list, useUrl } = useQuery();
 
   return list<ICompany[], Company[]>({
     ...(params as any),
-    queryKey: [...queryKey, { userId }],
-    url: useUrl(`clients/${userId.value}/companies`, {
+    queryKey: [...queryKey, { client: clientId.value }],
+    url: useUrl(`clients/${clientId.value}/companies`, {
       with: ["address", "address.country", "address.region"].join()
     }),
     withAccessToken: true,
     guard: async () =>
       new Promise((resolve, reject) => {
-        if (meta.value.isAuthenticated && !!userId.value) {
+        if (meta.value.isAuthenticated && !!clientId.value) {
           resolve(true);
         } else {
           reject(new NotAuthenticatedError());
@@ -73,7 +72,7 @@ function loadList(params: Partial<QueryParams> = { pagination: { limit: 0 } }) {
     staleTime: useTime().DAY,
     retryDelay: DEBOUNCE_DELAY,
     enabled: () => {
-      return !!(meta.value.isAuthenticated && !!userId.value);
+      return !!(meta.value.isAuthenticated && !!clientId.value);
     }
   });
 }
@@ -158,16 +157,16 @@ async function loadLookups({
 // MUTATIONS
 
 async function add(data: CompanyModel) {
-  const { meta, user } = useSession();
+  const { meta, clientId } = useSession();
   const { post, useUrl } = useQuery();
 
-  if (!meta.value.isAuthenticated || !user.value?.id) {
+  if (!meta.value.isAuthenticated || !clientId.value) {
     return Promise.reject(new NotAuthenticatedError());
   }
   return ensureDependencies(data).then(ensuredData => {
     return post<ICompany>({
       mutationKey: ["client", "companies", "add"],
-      url: useUrl(`clients/${user.value?.id}/companies`),
+      url: useUrl(`clients/${clientId.value}/companies`),
       data: mapICompany(ensuredData),
       withAccessToken: true
     }).then(invalidateQueryByKey(queryKey, { exact: false }));
@@ -175,16 +174,16 @@ async function add(data: CompanyModel) {
 }
 
 async function update(id: Company["id"], data: CompanyModel) {
-  const { meta, user } = useSession();
+  const { meta, clientId } = useSession();
   const { put, useUrl } = useQuery();
 
-  if (!meta.value.isAuthenticated || !user.value?.id) {
+  if (!meta.value.isAuthenticated || !clientId.value) {
     return Promise.reject(new NotAuthenticatedError());
   }
   return ensureDependencies(data).then(ensuredData => {
     return put<ICompany>({
       mutationKey: ["client", "companies", id],
-      url: useUrl(`clients/${user.value?.id}/companies/${id}`),
+      url: useUrl(`clients/${clientId.value}/companies/${id}`),
       data: mapICompany(ensuredData),
       withAccessToken: true
     }).then(invalidateQueryByKey(queryKey, { exact: false }));
@@ -219,14 +218,14 @@ async function ensure(model: CompanyModel): Promise<Company> {
 }
 
 function remove(companyId: Company["id"]) {
-  const { meta, user } = useSession();
+  const { meta, clientId } = useSession();
   const { mutate, useUrl } = useQuery();
 
   return mutate<null>("DELETE", {
-    url: useUrl(`clients/${user.value?.id}/companies/${companyId}`),
+    url: useUrl(`clients/${clientId.value}/companies/${companyId}`),
     guard: async () =>
       new Promise((resolve, reject) => {
-        if (meta.value.isAuthenticated || !user.value?.id) {
+        if (meta.value.isAuthenticated || !clientId.value) {
           resolve(true);
         } else {
           reject(new NotAuthenticatedError());
@@ -234,7 +233,7 @@ function remove(companyId: Company["id"]) {
       }),
     onError(error: any) {
       const { t } = useI18n();
-      addError({
+      useFeedback().addError({
         title: isString(error)
           ? error
           : error?.title || t("error.client_company_delete_failed"),
@@ -245,21 +244,21 @@ function remove(companyId: Company["id"]) {
     onSuccess(data) {
       const { t } = useI18n();
       invalidateQueryByKey(queryKey, { exact: false })(data);
-      addSuccess(t("confirm.company_removed"));
+      useFeedback().addSuccess(t("confirm.company_removed"));
     },
     withAccessToken: true
   });
 }
 
 function setDefault(companyId: Company["id"]) {
-  const { meta, user } = useSession();
+  const { meta, clientId } = useSession();
   const { mutate, useUrl } = useQuery();
 
   return mutate<ICompany>("PUT", {
-    url: useUrl(`clients/${user.value?.id}/companies/${companyId}`),
+    url: useUrl(`clients/${clientId.value}/companies/${companyId}`),
     guard: async () =>
       new Promise((resolve, reject) => {
-        if (meta.value.isAuthenticated || !user.value?.id) {
+        if (meta.value.isAuthenticated || !clientId.value) {
           resolve(true);
         } else {
           reject(new NotAuthenticatedError());
@@ -268,7 +267,7 @@ function setDefault(companyId: Company["id"]) {
     data: { default: true },
     onError(error: any) {
       const { t } = useI18n();
-      addError({
+      useFeedback().addError({
         title: isString(error)
           ? error
           : error?.title || t("error.client_company_set_default_failed"),
@@ -279,7 +278,7 @@ function setDefault(companyId: Company["id"]) {
     onSuccess(data) {
       const { t } = useI18n();
       invalidateQueryByKey(queryKey, { exact: false })(data);
-      addSuccess(t("confirm.company_set_default"));
+      useFeedback().addSuccess(t("confirm.company_set_default"));
     },
     withAccessToken: true
   });
@@ -313,7 +312,7 @@ async function ensureDependencies(data: CompanyModel): Promise<CompanyModel> {
       : ensureEmail({
           model: (data?.email
             ? { email: data.email }
-            : { id: data?.emailId }) as EmailModel
+            : { id: data?.emailId }) as unknown as EmailModel
         }),
 
     !data?.phone?.number && !data?.phoneId

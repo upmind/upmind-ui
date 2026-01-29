@@ -18,17 +18,17 @@ import {
   BrandConfigKeys,
   GatewayContext as GatewayCtx,
   GatewayTypes,
-  IBrandGateway,
+  type IBrandGateway,
   PaymentType
 } from "@upmind-automation/types";
-import { GatewayParams } from "./gateways/types";
+import { type GatewayParams } from "./gateways/types";
 import { GatewayProviderCodes } from "@upmind-automation/types";
-import { StripeContext } from "./gateways/stripe/types";
-import { BraintreeContext } from "./gateways/braintree/types";
-import { OpenPayContext } from "./gateways/openPay/types";
+import { type StripeContext } from "./gateways/stripe/types";
+import { type BraintreeContext } from "./gateways/braintree/types";
+import { type OpenPayContext } from "./gateways/openPay/types";
 import { filter, get, includes, some, sortBy, unset } from "lodash-es";
-import { RazorpayContext } from "./gateways/razorpay/types";
-import { PaymentDetail, PaymentDetailsContext } from "./types";
+import { type RazorpayContext } from "./gateways/razorpay/types";
+import { type PaymentDetail, type PaymentDetailsContext } from "./types";
 // import { MercadoPagoContext } from "./gateways/mercadoPago/types";
 
 // -----------------------------------------------------------------------------

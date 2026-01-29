@@ -35,20 +35,19 @@ import type { Email, EmailModel, EmailContext } from "./types";
 // QUERIES
 
 const queryKey: QueryKey = ["client", "emails"];
-const { addError, addSuccess } = useFeedback();
 
 function loadList(params: Partial<QueryParams> = { pagination: { limit: 0 } }) {
-  const { meta, user } = useSession();
+  const { meta, client } = useSession();
   const { list, useUrl } = useQuery();
 
   return list<IEmail[], Email[]>({
     ...(params as any),
-    queryKey: [...queryKey, { user: user.value?.id }],
-    url: useUrl(`clients/${user.value?.id}/emails`),
+    queryKey: [...queryKey, { client: client.value?.id }],
+    url: useUrl(`clients/${client.value?.id}/emails`),
     withAccessToken: true,
     guard: async () =>
       new Promise((resolve, reject) => {
-        if (meta.value.isAuthenticated && !!user.value?.id) {
+        if (meta.value.isAuthenticated && !!client.value?.id) {
           resolve(true);
         } else {
           reject(new NotAuthenticatedError());
@@ -58,7 +57,7 @@ function loadList(params: Partial<QueryParams> = { pagination: { limit: 0 } }) {
     select: mapEmails,
     staleTime: useTime().DAY,
     retryDelay: DEBOUNCE_DELAY,
-    enabled: () => meta.value.isAuthenticated && !!user.value?.id
+    enabled: () => meta.value.isAuthenticated && !!client.value?.id
   });
 }
 
@@ -83,31 +82,31 @@ async function loadLookups({
 // MUTATIONS
 
 async function add(data: EmailModel) {
-  const { meta, user } = useSession();
+  const { meta, client } = useSession();
   const { post, useUrl } = useQuery();
 
-  if (!meta.value.isAuthenticated || !user.value?.id) {
+  if (!meta.value.isAuthenticated || !client.value?.id) {
     return Promise.reject(new NotAuthenticatedError());
   }
   return post<IEmail>({
     mutationKey: ["client", "emails", "add"],
-    url: useUrl(`clients/${user.value?.id}/emails`),
+    url: useUrl(`clients/${client.value?.id}/emails`),
     data: mapIEmail(data),
     withAccessToken: true
   }).then(invalidateQueryByKey(queryKey, { exact: false }));
 }
 
 async function update(id: Email["id"], data: EmailModel) {
-  const { meta, user } = useSession();
+  const { meta, client } = useSession();
   const { put, useUrl } = useQuery();
 
-  if (!meta.value.isAuthenticated || !user.value?.id) {
+  if (!meta.value.isAuthenticated || !client.value?.id) {
     return Promise.reject(new NotAuthenticatedError());
   }
 
   return put<IEmail>({
     mutationKey: ["client", "emails", id],
-    url: useUrl(`clients/${user.value?.id}/emails/${id}`),
+    url: useUrl(`clients/${client.value?.id}/emails/${id}`),
     data: mapIEmail(data),
     withAccessToken: true
   }).then(invalidateQueryByKey(queryKey, { exact: false }));
@@ -142,21 +141,21 @@ async function ensure(model: EmailModel): Promise<Email> {
 
 function remove(emailId: Email["id"]) {
   const { t } = useI18n();
-  const { meta, user } = useSession();
+  const { meta, client } = useSession();
   const { mutate, useUrl } = useQuery();
 
   return mutate<null>("DELETE", {
-    url: useUrl(`clients/${user.value?.id}/emails/${emailId}`),
+    url: useUrl(`clients/${client.value?.id}/emails/${emailId}`),
     guard: async () =>
       new Promise((resolve, reject) => {
-        if (meta.value.isAuthenticated || !user.value?.id) {
+        if (meta.value.isAuthenticated || !client.value?.id) {
           resolve(true);
         } else {
           reject(new NotAuthenticatedError());
         }
       }),
     onError(error: any) {
-      addError({
+      useFeedback().addError({
         title: isString(error)
           ? error
           : error?.title || t("error.client_email_delete_failed"),
@@ -166,7 +165,39 @@ function remove(emailId: Email["id"]) {
     },
     onSuccess(data) {
       invalidateQueryByKey(queryKey, { exact: false })(data);
-      addSuccess(t("confirm.email_removed"));
+      useFeedback().addSuccess(t("confirm.email_removed"));
+    },
+    withAccessToken: true
+  });
+}
+
+function verify(emailId: Email["id"]) {
+  const { t } = useI18n();
+  const { meta, client } = useSession();
+  const { mutate, useUrl } = useQuery();
+
+  return mutate<null>("PATCH", {
+    url: useUrl(`clients/${client.value?.id}/emails/${emailId}/send_verify`),
+    guard: async () =>
+      new Promise((resolve, reject) => {
+        if (meta.value.isAuthenticated || !client.value?.id) {
+          resolve(true);
+        } else {
+          reject(new NotAuthenticatedError());
+        }
+      }),
+    onError(error: any) {
+      useFeedback().addError({
+        title: isString(error)
+          ? error
+          : error?.title || t("error.client_email_verify_failed"),
+        copy: error?.message,
+        data: error?.data
+      });
+    },
+    onSuccess(data) {
+      invalidateQueryByKey(queryKey, { exact: false })(data);
+      useFeedback().addSuccess(t("confirm.email_verification_sent"));
     },
     withAccessToken: true
   });
@@ -174,14 +205,14 @@ function remove(emailId: Email["id"]) {
 
 function setDefault(emailId: Email["id"]) {
   const { t } = useI18n();
-  const { meta, user } = useSession();
+  const { meta, client } = useSession();
   const { mutate, useUrl } = useQuery();
 
   return mutate<IEmail>("PUT", {
-    url: useUrl(`clients/${user.value?.id}/emails/${emailId}`),
+    url: useUrl(`clients/${client.value?.id}/emails/${emailId}`),
     guard: async () =>
       new Promise((resolve, reject) => {
-        if (meta.value.isAuthenticated || !user.value?.id) {
+        if (meta.value.isAuthenticated || !client.value?.id) {
           resolve(true);
         } else {
           reject(new NotAuthenticatedError());
@@ -189,7 +220,7 @@ function setDefault(emailId: Email["id"]) {
       }),
     data: { default: true },
     onError(error: any) {
-      addError({
+      useFeedback().addError({
         title: isString(error)
           ? error
           : error?.title || t("error.client_email_set_default_failed"),
@@ -199,7 +230,7 @@ function setDefault(emailId: Email["id"]) {
     },
     onSuccess(data) {
       invalidateQueryByKey(queryKey, { exact: false })(data);
-      addSuccess(t("confirm.email_set_default"));
+      useFeedback().addSuccess(t("confirm.email_set_default"));
     },
     withAccessToken: true
   });
@@ -266,6 +297,14 @@ export default {
    * @returns {Promise<null>} A promise that resolves when the email is removed
    */
   remove,
+
+  //--- mutations
+  /**
+   * Verify email by its ID.
+   * @param {Email["id"]} emailId - The ID of the email to verify.
+   * @returns {Promise<null>} A promise that resolves when the email verification is sent
+   */
+  verify,
 
   /**
    * Sets a email as the default email.

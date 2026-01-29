@@ -40,7 +40,7 @@ const items = computed(() => {
       appendLabel: price.price.currentPrice
     } as SelectCardsItemProps;
 
-    if (price.price?.savingAmount > 0) {
+    if (!props.hideBadge && price.price?.savingAmount > 0) {
       item.badge = {
         label: t("text.amount_save", {
           amount: price.price.savingPercent

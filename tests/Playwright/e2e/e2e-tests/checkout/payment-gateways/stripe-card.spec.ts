@@ -1,5 +1,4 @@
 import { test, expect } from "@playwright/test";
-import { URLs } from "../../../support/constants/urls";
 import { Checkout } from "../../../support/page-objects/templates/Checkout";
 import { goToCheckout } from "../../../support/utils/apiHelper";
 import { mockStripeCardDecline } from "../../../support/utils/checkoutMocks";
@@ -9,6 +8,15 @@ import { DeclinedCards } from "../../../support/constants/checkout/payment-cards
 import { FraudCheckCards } from "../../../support/constants/checkout/payment-cards/FraudChecks";
 import { ErrorCards } from "../../../support/constants/checkout/payment-cards/InvalidData";
 
+import { URLs } from "../../../support/constants/urls";
+import { getSessionToken } from "../../../support/utils/functions/tokens";
+import {
+  createOrder,
+  addProductToOrder
+} from "../../../support/utils/functions/basket";
+import { products } from "../../../support/constants/products";
+import { fakerEN_GB } from "@faker-js/faker";
+
 let checkout: Checkout;
 let registration: Registration;
 
@@ -16,13 +24,12 @@ test.describe("Checkout with Stripe", () => {
   test.beforeEach(async ({ page, context }) => {
     checkout = new Checkout(page);
     registration = new Registration(page, context);
-    await page.goto(URLs.login);
   });
   test.describe("Stripe Cards", () => {
     test.describe("Valid Cards", async () => {
       for (const { name, cardNumber, expiryDate, cvcCode } of AcceptedCards) {
         test(`Accepted Stripe Cards - ${name}`, async ({ page, context }) => {
-          await goToCheckout(page, context);
+          await goToCheckout(page, context, null, null);
           await registration.inputRegistration();
           await checkout.selectPaymentMethod("Stripe");
           await checkout.inputStripeDetails(cardNumber, expiryDate, cvcCode);
@@ -126,7 +133,23 @@ test.describe("Checkout with Stripe", () => {
       await expect(checkout.dialogWindow).toContainText("Order complete!");
     });
   });
-  test.describe("iDEAL", () => {});
+  test.describe("iDEAL", async () => {
+    test("Valid iDEAL", async ({ page, context }) => {
+      await goToCheckout(page, context, null, "EUR");
+      await registration.inputRegistration();
+      await checkout.selectPaymentMethod("Stripe");
+      await checkout.inputIdealDetails(
+        "nathan.robinson+ideal@upmind.com",
+        "Test User"
+      );
+      await checkout.clickPlaceOrderAndPay();
+      await expect(checkout.dialogWindow).toBeVisible();
+      await expect(
+        checkout.dialogWindow.locator(page.getByText("Converting your order"))
+      ).toBeVisible();
+      await expect(checkout.dialogWindow).toContainText("Order complete!");
+    });
+  });
   test.describe("Stripe Errors", async () => {
     test("Mock Stripe Card Decline", async ({ page, context }) => {
       await goToCheckout(page, context);

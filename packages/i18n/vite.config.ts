@@ -19,8 +19,11 @@ export default defineConfig({
       formats: ["es"]
     },
     rollupOptions: {
-      external: ["vue", "vue-i18n"],
+      external: ["vue", "vue-i18n", "marked", "dompurify", /^lodash-es/],
       output: {
+        preserveModules: true,
+        preserveModulesRoot: "src",
+        entryFileNames: "[name].js",
         globals: {
           vue: "Vue",
           "vue-i18n": "VueI18n"

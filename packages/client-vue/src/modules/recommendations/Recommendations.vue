@@ -38,8 +38,8 @@
         />
 
         <Configure
-          v-if="basketItem?.id"
-          :modelValue="basketItem"
+          v-if="meta.isConfiguring && failedProduct"
+          :modelValue="failedProduct"
           @resolve="doClose"
         />
 
@@ -74,11 +74,14 @@ import { useI18n } from "vue-i18n";
 import {
   useBasket,
   useRecommendations,
-  useRoutingEngine
+  useRoutingEngine,
+  UIContext
 } from "@upmind-automation/headless";
 import { useLayout } from "../../components/layout/useLayout";
 import { useHeader } from "../../components/header/useHeader";
 import { useFooter } from "../../components/footer/useFooter";
+import { useThemes } from "@upmind-automation/upmind-ui";
+import { useConfig } from "@upmind-automation/headless";
 
 // --- components
 import { Button, Interstitial } from "@upmind-automation/upmind-ui";
@@ -100,6 +103,14 @@ const props = defineProps<{
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
+const { set } = useThemes();
+
+const { ui } = useConfig({
+  context: UIContext.RECOMMENDATIONS,
+  provide: true
+});
+
+set(ui.theme.value);
 
 // --- basket setup
 const { navigateNext } = useRoutingEngine();
@@ -108,7 +119,7 @@ const { count } = useBasket();
 const {
   seen,
   isReady,
-  basketItem,
+  failedProduct,
   meta,
   recommendations,
   add,

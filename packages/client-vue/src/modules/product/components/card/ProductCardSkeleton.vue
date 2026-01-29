@@ -4,7 +4,7 @@
       <Skeleton class="rounded-lg">
         <Image
           v-if="!stylesMeta.hideImage"
-          :ratio="meta?.image?.ratio as ImageProps['ratio']"
+          :ratio="stylesMeta.imageRatio as ImageProps['ratio']"
           :class="styles.product.image"
         />
       </Skeleton>
@@ -14,9 +14,9 @@
           <section :class="styles.product.header.info.root">
             <div :class="styles.product.header.info.container">
               <div class="flex flex-col gap-1">
-                <Skeleton :class="`h-8 ${randomWidth('w-72')}`" />
+                <Skeleton :class="`h-8 ${randomWidth('w-3/4')}`" />
 
-                <Skeleton :class="`h-6 ${randomWidth('w-56')}`" />
+                <Skeleton :class="`h-6 ${randomWidth('w-1/2')}`" />
               </div>
             </div>
 
@@ -37,7 +37,7 @@
               <Skeleton :class="`ml-1 h-6 ${randomWidth('w-24')}`" />
             </p>
 
-            <Skeleton :class="`h-6 ${randomWidth('w-64')}`" />
+            <Skeleton :class="`h-6 ${randomWidth('w-2/3')}`" />
           </section>
 
           <Skeleton v-if="!stylesMeta.hideTerms" class="h-11 w-full" />
@@ -57,9 +57,9 @@ import { computed } from "vue";
 
 // --- components
 import { Skeleton, Image, useStyles } from "@upmind-automation/upmind-ui";
-import { useBrand } from "@upmind-automation/headless";
 
 // --- internal
+import { useConfig } from "@upmind-automation/headless";
 import config from "./card.config";
 
 // --- types
@@ -68,19 +68,17 @@ import type { ProductCardSkeletonProps } from "./types";
 
 const props = defineProps<ProductCardSkeletonProps>();
 
-const { uiCart } = useBrand();
-
-const meta = computed(() => uiCart.value?.ui?.product);
+const { ui } = useConfig();
 
 const stylesMeta = computed(() => ({
-  variant: uiCart.value?.ui?.product?.variant || "default",
-  imageRatio: meta.value?.image?.ratio as ImageProps["ratio"],
-  hideBenefits: meta.value?.card?.benefits?.hide,
-  hideImage: meta.value?.image?.hide,
-  hideCarousel: meta.value?.image?.carousel,
-  hidePrice: meta.value?.card?.terms?.hide,
-  hideDescription: meta.value?.card?.description?.hide,
-  hideTerms: (meta.value?.card?.terms?.hide || props.hideTerms) ?? true
+  variant: ui.productStyle.value,
+  imageRatio: ui.productImageRatio.value,
+  hideBenefits: ui.productBenefits.isHidden,
+  hideImage: ui.productImages.isHidden,
+  hideDescription: ui.productDescription.isHidden,
+  hidePrice: ui.productPriceSummary.isHidden,
+  hideTerms: ui.productTermSelector.isHidden,
+  hideTermSummary: ui.termSelectorSummary.isHidden
 }));
 
 const randomWidth = (baseWidth: string): string => {
@@ -99,7 +97,10 @@ const randomWidth = (baseWidth: string): string => {
     "w-64": ["w-56", "w-60", "w-64", "w-72", "w-80"],
     "w-72": ["w-60", "w-64", "w-72", "w-80", "w-96"],
     "w-80": ["w-64", "w-72", "w-80", "w-96", "w-full"],
-    "w-96": ["w-72", "w-80", "w-96", "w-full", "w-full"]
+    "w-96": ["w-72", "w-80", "w-96", "w-full", "w-full"],
+    "w-3/4": ["w-2/3", "w-3/4", "w-4/5"],
+    "w-2/3": ["w-3/5", "w-2/3", "w-3/4"],
+    "w-1/2": ["w-2/5", "w-1/2", "w-3/5"]
   };
 
   const alternatives = widthMap[baseWidth];

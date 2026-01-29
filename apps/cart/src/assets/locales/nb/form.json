@@ -67,8 +67,8 @@
     "placeholder": "Registrert skatt eller GST"
   },
   "country": {
-    "label": "Land",
-    "placeholder": "Velg et land"
+    "label": "Skattenummer",
+    "placeholder": "Skatte-ID"
   },
   "domain": {
     "placeholder": "Skriv inn domenet ditt..."
@@ -87,6 +87,10 @@
   "firstname": {
     "error": "Fornavnet ditt er obligatorisk",
     "label": "Fornavn"
+  },
+  "language": {
+    "error": "Språket ditt er obligatorisk",
+    "label": "Språk"
   },
   "lastname": {
     "error": "Etternavnet ditt er obligatorisk",
@@ -121,6 +125,10 @@
     "error": "Ugyldig kampanjekode",
     "placeholder": "Skriv inn kupongkoden her"
   },
+  "publicName": {
+    "error": "Ditt offentlige navn er obligatorisk",
+    "label": "Offentlig navn"
+  },
   "recover": {
     "error": "Vi oppsto en feil under forsøket på å sende deg en e-post for tilbakestilling av passord."
   },
@@ -139,9 +147,5 @@
   },
   "stored_payment_method": {
     "label": ""
-  },
-  "taxNumber": {
-    "label": "Skattenummer",
-    "placeholder": "Skatte-ID"
   }
 }

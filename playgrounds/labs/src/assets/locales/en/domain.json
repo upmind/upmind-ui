@@ -1,0 +1,31 @@
+{
+  "begin_search_above_desc": "Begin your search using the box above.",
+  "choices": {
+    "basket": {
+      "label": "Use domain in basket",
+      "tooltip": "These domains are already in your basket"
+    },
+    "existing": {
+      "label": "Use existing domain",
+      "tooltip": "You can use an existing domain by updating the nameservers"
+    },
+    "register": {
+      "label": "Register new domain",
+      "tooltip": "Don't already have a domain? Register a new one with us"
+    },
+    "transfer": {
+      "label": "Transfer domain",
+      "tooltip": "Already own a domain? You can transfer it to us"
+    }
+  },
+  "finding_perfect_domain": "Finding your **perfect** domain",
+  "finding_perfect_domain_md": "@.markdown:{'domain.finding_perfect_domain'}",
+  "own_domain_qn": "Do you own this domain?",
+  "owned_domains_title": "Domains that you currently own",
+  "price_renewal_desc": "One-time price of {regularPrice}. | Renews every year for {regularPrice}. | Renews every {count} years for {regularPrice}.",
+  "starts_with_domain": "It all starts with a **domain name**",
+  "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
+  "tld_renewal_price_desc": "Our {tld} renewal prices start from only {currentPrice} (was {regularPrice}).",
+  "tld_renewal_price_from_desc": "Our {tld} renewal prices start from only {regularPrice}.",
+  "transfer_domain_by_msg": "Transfer it to us by"
+}

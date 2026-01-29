@@ -38,7 +38,7 @@ export default defineConfig(({ mode, command }) => {
     resolve: {
       alias: {
         "@": resolve(__dirname, "./src"),
-        "@icons": resolve(__dirname, "./src/assets/icons"),
+        "@icons": resolve(__dirname, "../../packages/icons/assets"),
         "@animations": resolve(__dirname, "./src/assets/animations"),
         "@upmind-automation/types": resolve(
           __dirname,
@@ -94,6 +94,110 @@ export default defineConfig(({ mode, command }) => {
         input: {
           main: resolve(__dirname, "index.html"),
           transfer: resolve(__dirname, "transfer.html")
+        },
+        output: {
+          manualChunks(id) {
+            // Vue ecosystem
+            if (
+              id.includes("node_modules/vue/") ||
+              id.includes("node_modules/@vue/") ||
+              id.includes("node_modules/vue-router/") ||
+              id.includes("node_modules/vue-i18n/")
+            ) {
+              return "vue-vendor";
+            }
+            // VueUse
+            if (id.includes("node_modules/@vueuse/")) {
+              return "vueuse";
+            }
+            // TanStack
+            if (id.includes("node_modules/@tanstack/")) {
+              return "tanstack";
+            }
+            // XState
+            if (
+              id.includes("node_modules/xstate/") ||
+              id.includes("node_modules/@xstate/")
+            ) {
+              return "xstate";
+            }
+            // Radix UI
+            if (
+              id.includes("node_modules/radix-vue/") ||
+              id.includes("node_modules/vaul-vue/")
+            ) {
+              return "radix";
+            }
+            // Payment gateways - removed from manualChunks
+            // Stripe and Braintree are now dynamically imported in headless
+            // and will create their own lazy-loaded chunks
+            // JSON Forms & validation
+            if (
+              id.includes("node_modules/@jsonforms/") ||
+              id.includes("node_modules/ajv")
+            ) {
+              return "forms";
+            }
+            // Icons (lucide and lottie)
+            if (
+              id.includes("node_modules/lucide-vue-next/") ||
+              id.includes("node_modules/lottie-web/") ||
+              id.includes("node_modules/@lordicon/")
+            ) {
+              return "icons";
+            }
+            // Carousel
+            if (id.includes("node_modules/embla-carousel")) {
+              return "carousel";
+            }
+            // Lodash
+            if (id.includes("node_modules/lodash")) {
+              return "lodash";
+            }
+            // Sentry (monitoring)
+            if (id.includes("node_modules/@sentry/")) {
+              return "sentry";
+            }
+            // Date utilities
+            if (id.includes("node_modules/dayjs/")) {
+              return "dayjs";
+            }
+            // File upload
+            if (id.includes("node_modules/filepond")) {
+              return "filepond";
+            }
+            // Sanitization & markdown
+            if (
+              id.includes("node_modules/dompurify/") ||
+              id.includes("node_modules/marked/")
+            ) {
+              return "sanitize";
+            }
+            // Floating UI
+            if (id.includes("node_modules/@floating-ui/")) {
+              return "floating-ui";
+            }
+            // Class variance authority & tailwind merge
+            if (
+              id.includes("node_modules/class-variance-authority/") ||
+              id.includes("node_modules/tailwind-merge/") ||
+              id.includes("node_modules/clsx/")
+            ) {
+              return "styling";
+            }
+            // Phone/location utilities
+            if (
+              id.includes("node_modules/libphonenumber-js/") ||
+              id.includes("node_modules/countries-list/") ||
+              id.includes("node_modules/psl/")
+            ) {
+              return "locale-utils";
+            }
+            // Google Maps
+            if (id.includes("node_modules/@googlemaps/")) {
+              return "maps";
+            }
+          }
         }
       },
       sourcemap: true

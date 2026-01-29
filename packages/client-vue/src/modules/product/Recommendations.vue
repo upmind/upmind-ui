@@ -38,8 +38,8 @@
         />
 
         <Configure
-          v-if="basketItem?.id"
-          :modelValue="basketItem"
+          v-if="meta.isConfiguring && failedProduct"
+          :modelValue="failedProduct"
           @resolve="doClose"
         />
 
@@ -75,11 +75,14 @@ import {
   useBasket,
   useProductRecommendations,
   useQueryParams,
-  useRoutingEngine
+  useRoutingEngine,
+  UIContext
 } from "@upmind-automation/headless";
+import { useConfig } from "@upmind-automation/headless";
 import { useLayout } from "../../components/layout/useLayout";
 import { useHeader } from "../../components/header/useHeader";
 import { useFooter } from "../../components/footer/useFooter";
+import { useThemes } from "@upmind-automation/upmind-ui";
 
 // --- components
 import { Button, Interstitial } from "@upmind-automation/upmind-ui";
@@ -87,7 +90,7 @@ import Layout from "../../components/layout/Layout.vue";
 import Configure from "../recommendations/components/Configure.vue";
 import CardsCarousel from "../recommendations/components/CardsCarousel.vue";
 import Hero from "../../components/hero/Hero.vue";
-import type { LAYOUT_VARIANTS } from "@/components";
+import type { LAYOUT_VARIANTS } from "../../";
 import { LAYOUT_OVERFLOW } from "../../components/layout/types";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
 
@@ -101,6 +104,14 @@ const props = defineProps<{
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
+const { set } = useThemes();
+
+const { ui } = useConfig({
+  context: UIContext.RECOMMENDATIONS,
+  provide: true
+});
+
+set(ui.theme.value);
 
 // --- basket setup
 const { navigateNext } = useRoutingEngine();
@@ -110,7 +121,7 @@ const { count } = useBasket();
 const {
   seen,
   isReady,
-  basketItem,
+  failedProduct,
   meta,
   recommendations,
   add,

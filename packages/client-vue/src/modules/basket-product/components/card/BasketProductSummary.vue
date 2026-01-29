@@ -1,11 +1,15 @@
 <template>
   <article :class="styles.product.summary.article" v-auto-animate>
     <header :class="styles.product.summary.header.root">
-      <Link v-if="productDetails.imgUrl" v-bind="props.editRoute">
-        <img
-          :src="productDetails.imgUrl"
+      <Link
+        v-if="props.image && productDetails.imgUrl"
+        v-bind="props.editRoute"
+      >
+        <Image
+          :image="productDetails.imgUrl"
           :alt="summary.title"
           :class="styles.product.summary.image"
+          :ratio="ui.productImageRatio.value"
         />
       </Link>
 
@@ -48,7 +52,7 @@
             :class="styles.product.summary.title.link"
           >
             <h3 :class="styles.product.summary.title.text">
-              {{ summary.title }}
+              {{ data.productName || summary.title }}
             </h3>
           </Link>
 
@@ -100,6 +104,7 @@
           v-bind="productDetails"
           :id="id"
           :quantity="quantity"
+          :disabled="error"
           @update:quantity="doUpdateQuantity"
         />
 
@@ -136,7 +141,7 @@ import { useVModel } from "@vueuse/core";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- components
-import { Link, Icon, Tooltip } from "@upmind-automation/upmind-ui";
+import { Link, Icon, Tooltip, Image } from "@upmind-automation/upmind-ui";
 import RequiredAlert from "./components/RequiredAlert.vue";
 import CurrentPrice from "../../../product/components/pricing/CurrentPrice.vue";
 import ExPrice from "../../../product/components/pricing/ExPrice.vue";
@@ -148,6 +153,7 @@ import BasketProductConfigurationDetails from "./BasketProductConfigurationDetai
 // --- internal
 import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./basketProduct.config";
+import { useConfig } from "@upmind-automation/headless";
 
 // --- utils
 import { isMobile } from "@upmind-automation/upmind-ui";
@@ -179,25 +185,45 @@ const styles = useStyles(
 
 const open = useVModel(props, "open", emits);
 
-const filteredDetails = computed(() =>
-  props.details.filter((d, index) => {
-    // Don't show primary price if it's a one-off with cycle 0
-    if (!index && !d.cycle) {
-      return false;
+const { ui, data } = useConfig().with({
+  product: () => props
+});
+
+const filteredDetails = computed(() => {
+  const showOptions = ui.productConfigOptionsSummary.isVisible;
+  const showFields = ui.productConfigFieldsSummary.isVisible;
+
+  return props.details.filter((detail, index) => {
+    const { name, cycle, meta } = detail;
+    const isPrimary = index === 0;
+    const isField = name?.includes("provision_field");
+    const isTerm = name === "term";
+    const isProduct = name === "product";
+
+    // Terms: show only if cycle > 0
+    if (isTerm) return cycle && cycle > 0;
+
+    // Exclude invalid items
+    if (meta?.invalid) return false;
+
+    // Exclude one-off primary items with no cycle
+    if (isPrimary && !cycle) return false;
+
+    // Filter product options
+    if (!showOptions && !isProduct && !isField) return false;
+
+    // Filter provisioning fields
+    if (!showFields && isField) return false;
+
+    // For primary or single item lists
+    if (isPrimary || props.details.length === 1) {
+      return showFields || !isField;
     }
 
-    // Show primary price (with non-zero cycle) or single item checks
-    if (!index || props.details.length === 1) {
-      return !d.meta?.invalid && !d.name?.includes("provision_field");
-    }
-
-    return (
-      !includes(props.pricing, d.id) &&
-      !d.meta?.invalid &&
-      !d.name?.includes("provision_field")
-    );
-  })
-);
+    // For other items: exclude if in pricing array
+    return !includes(props.pricing, detail.id) && (showFields || !isField);
+  });
+});
 
 function doUpdateQuantity(value: number) {
   emits("update:quantity", value);

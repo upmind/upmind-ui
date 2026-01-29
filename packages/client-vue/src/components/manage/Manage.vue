@@ -7,21 +7,29 @@
     <component
       :is="component"
       :useList="manage.useList"
-      v-model:open="open"
+      v-model:open="safeOpen"
       v-model="modelValue"
-      :readonly="props.readonly"
+      :readonly="readonly"
       :class="props.class"
       class="text-md"
       :minimal="props.minimal"
       @add="doAdd"
       @edit="doEdit"
+      @remove="doRemove"
+      @setDefault="setDefault"
     >
-      <template name="item" #item="{ item, readonly, doEdit, doRemove }">
-        <slot name="item" v-bind="{ item, readonly, doEdit, doRemove }"></slot>
+      <template
+        name="item"
+        #item="{ item, readonly, doEdit, doRemove, setDefault }"
+      >
+        <slot
+          name="item"
+          v-bind="{ item, readonly, doEdit, doRemove, setDefault }"
+        ></slot>
       </template>
 
-      <template #actions="{ open, meta, doAdd }">
-        <slot name="actions" v-bind="{ open, meta, doAdd }"></slot>
+      <template #actions="{ open, meta, doAdd, doEdit }">
+        <slot name="actions" v-bind="{ open, meta, doAdd, doEdit }"></slot>
       </template>
     </component>
 
@@ -43,9 +51,6 @@
 <script setup lang="ts">
 // --- external
 import { computed, ref } from "vue";
-import { useVModel } from "@vueuse/core";
-import { useI18n } from "vue-i18n";
-
 // --- components
 import Form from "./Form.vue";
 import List from "./List.vue";
@@ -55,6 +60,7 @@ import { FormLabel } from "@upmind-automation/upmind-ui";
 // --- types
 import type { ManageRendererProps } from "./types";
 import { get } from "lodash-es";
+import { isFunction } from "xstate/lib/utils";
 
 // -----------------------------------------------------------------------------
 
@@ -70,6 +76,7 @@ const props = withDefaults(
     label?: string; // optional label to show above the component, defaults to the i18n key
     showLabel?: boolean;
     touched?: boolean;
+    forceOpen?: boolean;
   }>(),
   {
     modelValue: "",
@@ -78,7 +85,8 @@ const props = withDefaults(
     identifier: "id",
     label: "",
     showLabel: false,
-    touched: false
+    touched: false,
+    forceOpen: false
   }
 );
 
@@ -91,17 +99,20 @@ const touched = defineModel<boolean>("touched");
 // -----------------------------------------------------------------------------
 const { meta, isReady } = props.manage.useList();
 
-const { t } = useI18n();
-
-const modelValue = useVModel(props, "modelValue", emits, {
-  passive: true
-});
+const modelValue = defineModel<string>("modelValue");
 
 // -----------------------------------------------------------------------------
-const open = ref(false);
+const open = ref(props.forceOpen);
+const safeOpen = computed({
+  get() {
+    return props.forceOpen ? true : open.value;
+  },
+  set(value: boolean) {
+    open.value = props.forceOpen ? true : value;
+  }
+});
 const openForm = ref(false);
 const editId = ref<string | undefined>();
-
 const component = computed(() => {
   return props.as === "list" ? List : Select;
 });
@@ -116,7 +127,10 @@ function doReject() {
 function doResolve(value?: any) {
   modelValue.value = get(value, props.identifier, value);
   openForm.value = false;
-  open.value = false;
+  if (!props.forceOpen) {
+    safeOpen.value = false;
+  }
+
   editId.value = "";
 }
 
@@ -128,6 +142,18 @@ function doAdd() {
 function doEdit(id: string) {
   openForm.value = true;
   editId.value = id;
+}
+
+function doRemove(id: string) {
+  const fn = props.manage.useList()?.remove;
+  if (!isFunction(fn)) return;
+  fn(id);
+}
+
+function setDefault(id: string) {
+  const fn = props.manage.useList()?.setDefault;
+  if (!isFunction(fn)) return;
+  fn(id);
 }
 
 // --- side effects

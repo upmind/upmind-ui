@@ -9,9 +9,9 @@ import {
   useValidationParser,
   mapToHeadlessError,
   responseCodes,
-  ErrorObject,
+  type ErrorObject,
   ErrorOrigin,
-  ResponseError
+  type ResponseError
 } from "../../../../utils";
 import { isFunction, filter, isString, includes, lowerCase } from "lodash-es";
 

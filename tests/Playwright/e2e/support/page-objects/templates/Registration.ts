@@ -32,6 +32,16 @@ export class Registration {
       `${faker.internet.password({ length: 10, pattern: /[A-Z]/, prefix: "123" })}`
     );
     await this.page.getByTestId("button-continue").click();
+
+    // Wait for registration to complete by checking for the payment details section
+    // This is more reliable than networkidle which can hang due to Stripe connections
+    await this.page.getByTestId("payment-details").waitFor({ timeout: 30000 });
+
+    // Reload the page to reset CDP state - this workaround is needed because
+    // the registration UI interaction leaves the browser in a state where
+    // CDP communication can hang
+    await this.page.reload();
+    await this.page.waitForLoadState("domcontentloaded");
   }
 
   async getCookie(tokenType: string) {

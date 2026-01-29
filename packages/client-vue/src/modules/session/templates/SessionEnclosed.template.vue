@@ -1,0 +1,67 @@
+<template>
+  <Layout>
+    <template #content-header>
+      <slot name="hero" />
+    </template>
+
+    <template #content>
+      <slot name="form" />
+    </template>
+  </Layout>
+</template>
+
+<script lang="ts" setup>
+// --- external
+import { onMounted } from "vue";
+
+// --- internal
+import { useFooter } from "../../../components/footer/useFooter";
+import { useHeader } from "../../../components/header/useHeader";
+import { useLayout } from "../../../components/layout/useLayout";
+import { useSection } from "../../../components/section/useSection";
+
+// --- components
+import Layout from "../../../components/layout/Layout.vue";
+
+// --- types
+import { LAYOUT_VARIANTS } from "../../../components/layout/types";
+import { HEADER_BACKGROUND } from "../../../components/header/types";
+import {
+  FOOTER_LAYOUT,
+  FOOTER_BACKGROUND
+} from "../../../components/footer/types";
+
+// -----------------------------------------------------------------------------
+
+defineOptions({
+  inheritAttrs: false
+});
+
+useLayout({
+  variant: LAYOUT_VARIANTS.SPLIT_VERTICAL
+});
+
+onMounted(() => {
+  useHeader({
+    background: HEADER_BACKGROUND.SURFACE,
+    border: "none",
+    items: "center"
+  });
+
+  useSection({
+    card: true,
+    border: false
+  });
+
+  useFooter({
+    layout: FOOTER_LAYOUT.FLAT,
+    background: FOOTER_BACKGROUND.CANVAS,
+    items: "end",
+    justifyLeft: "start",
+    justifyRight: "between",
+    reverse: true,
+    noCurrency: true,
+    noCopyright: true
+  });
+});
+</script>

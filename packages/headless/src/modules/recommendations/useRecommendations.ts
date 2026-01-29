@@ -75,10 +75,9 @@ export const useRecommendations = () => {
 
   const context = useContext<RecommendationsEngineContext>(state);
 
-  const basketItem = useContext<RecommendationsEngineContext["basketItem"]>(
-    state,
-    "basketItem"
-  );
+  const failedProduct = useContext<
+    RecommendationsEngineContext["failedProduct"]
+  >(state, "failedProduct");
 
   const errors = useContext<RecommendationsEngineContext["error"]>(
     state,
@@ -158,7 +157,7 @@ export const useRecommendations = () => {
     context,
 
     /** The current basket item context. */
-    basketItem,
+    failedProduct,
 
     /** Any error returned by the engine. */
     errors,

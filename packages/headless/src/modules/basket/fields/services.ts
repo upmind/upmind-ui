@@ -5,9 +5,8 @@ import { asyncDebounce } from "@tanstack/pacer";
 import { useI18n, useQuery } from "../../..";
 
 // --- utils
-import { get } from "lodash-es";
+import { mapCustomField } from "../../client/customFields/mappers";
 import {
-  DEBOUNCE_DELAY,
   DetailedError,
   ErrorOrigin,
   responseCodes,
@@ -15,11 +14,13 @@ import {
   useTime,
   useValidation
 } from "../../../utils";
+import { get, map } from "lodash-es";
 
 // --- types
-import type { IBasket } from "@upmind-automation/types";
+import type { IBasket, ICustomField } from "@upmind-automation/types";
 import type { AnyEventObject } from "xstate";
 import type { FieldsContext, FieldsModel } from "./types";
+import type { CustomField } from "../../client";
 
 // -----------------------------------------------------------------------------
 
@@ -31,9 +32,10 @@ async function load(
 
   const safeModel = useModelParser<FieldsModel>(schema, model, baseModel);
 
-  return get({
+  return get<ICustomField[], CustomField[]>({
     url: useUrl("basket_fields"),
-    queryKey: ["basket", "fields"]
+    queryKey: ["basket", "fields"],
+    select: data => map(data, mapCustomField) as CustomField[]
   }).then(data => ({
     fields: data,
     model: safeModel,

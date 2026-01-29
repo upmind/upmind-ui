@@ -13,11 +13,14 @@
         <component
           v-if="meta.hasTerms"
           :is="getTermsComponent"
+          :type="ui.termSelector.value"
+          :columns="ui.termSelectorGrid.asNumber"
           :errors="errors?.term"
           :touched="meta.showErrors"
           :items="terms ?? []"
           :label="t('term.label')"
           :model-value="model?.term"
+          :summary="ui.termSelectorSummary.isVisible"
           :processing="meta.isProcessing || meta.isLoading"
           @update:modelValue="updateTerm"
           required
@@ -28,6 +31,7 @@
           v-for="option in options"
           :key="option.id"
           :subproduct="option"
+          :meta="props.meta"
           :model-value="keys(model?.['options']?.[option.id])"
           :errors="getErrors('options', option)"
           :touched="meta.showErrors"
@@ -50,6 +54,7 @@
           v-for="attribute in attributes"
           :key="attribute.id"
           :subproduct="attribute"
+          :meta="props.meta"
           :model-value="keys(model?.['attributes']?.[attribute.id])"
           :errors="getErrors('attributes', attribute)"
           :touched="meta.showErrors"
@@ -122,12 +127,15 @@ import { useI18n } from "vue-i18n";
 import { computed, inject, onMounted, onUpdated } from "vue";
 
 // --- internal
-import { type UseProductConfig } from "@upmind-automation/headless";
+import {
+  type UseProductConfig,
+  type UseMetaResult
+} from "@upmind-automation/headless";
 import { useStyles, cn } from "@upmind-automation/upmind-ui";
 import config from "../../product.config";
 
 // --- components
-import TermsConfigGrid from "../terms/TermsConfigGrid.vue";
+import TermsConfigRadio from "../terms/TermsConfigRadio.vue";
 import TermsConfigSelect from "../terms/TermsConfigSelect.vue";
 import SubproductCards from "../subproduct/SubproductCards.vue";
 import ConfigForm from "./ConfigForm.vue";
@@ -156,6 +164,7 @@ const props = withDefaults(
     noTitle?: boolean;
     noFooter?: boolean;
     class?: HTMLAttributes["class"];
+    meta: UseMetaResult;
   }>(),
   {
     as: "form",
@@ -191,14 +200,10 @@ const {
 
 const styles = useStyles(["product.config"], meta, config);
 
+const { ui } = props.meta;
+
 const getTermsComponent = computed(() => {
-  // TODO: Can we do this in a lookup?
-  const control =
-    product.value?.productDetails?.uiMeta?.uischema?.billing?.control ||
-    product.value?.productDetails?.uiCategoryMeta?.uischema?.billing?.control;
-  return control?.toLowerCase() === "termsconfigselect"
-    ? TermsConfigSelect
-    : TermsConfigGrid;
+  return ui.termSelector.isSelect ? TermsConfigSelect : TermsConfigRadio;
 });
 
 function getQuantities(subproduct: any): Record<string, number> {

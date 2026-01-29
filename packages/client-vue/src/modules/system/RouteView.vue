@@ -1,28 +1,30 @@
 <template>
-  <RouterView v-slot="routerViewProps" :key="$route.path">
-    <slot v-bind="routerViewProps">
-      <Suspense>
-        <Root>
-          <KeepAlive>
-            <component
-              :is="routerViewProps.Component"
-              @vue:mounted="doResolve"
-            />
-          </KeepAlive>
-        </Root>
+  <Root>
+    <slot>
+      <RouterView v-slot="routerViewProps" :key="$route.path">
+        <slot v-bind="routerViewProps">
+          <Suspense>
+            <KeepAlive>
+              <component
+                :is="routerViewProps.Component"
+                @vue:mounted="doResolve"
+              />
+            </KeepAlive>
 
-        <template #fallback>
-          <Loading
-            v-if="
-              (meta.isInitialRoute && meta.isResolved && shouldShow) ||
-              (!meta.isInitialRoute && shouldShow)
-            "
-            v-bind="props.loadingProps"
-          />
-        </template>
-      </Suspense>
+            <template #fallback>
+              <Loading
+                v-if="
+                  (meta.isInitialRoute && meta.isResolved && shouldShow) ||
+                  (!meta.isInitialRoute && shouldShow)
+                "
+                v-bind="props.loadingProps"
+              />
+            </template>
+          </Suspense>
+        </slot>
+      </RouterView>
     </slot>
-  </RouterView>
+  </Root>
 </template>
 
 <script lang="ts" setup>

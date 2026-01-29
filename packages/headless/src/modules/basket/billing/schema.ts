@@ -1,11 +1,9 @@
 // --- internal
-import { useUnified } from "./unified/useUnified";
 
 // --- types
 import type { BillingContext } from "./types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
-import { remove, unset } from "lodash-es";
-import { useClientAddress, useClientAddresses } from "src/modules/client";
+import { remove } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 

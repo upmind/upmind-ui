@@ -8,19 +8,15 @@
 
     <template #hero>
       <slot name="hero">
-        <Hero :title="t('auth.welcome_back')">
+        <Hero :title="t('auth.login_title')">
           <template #description>
-            <i18n-t
-              keypath="auth.please_login_to_continue"
-              scope="global"
-              tag="span"
-            >
-              <template #[`create_one_here`]>
+            <i18n-t keypath="auth.login_description" scope="global" tag="span">
+              <template #[`login_description_action`]>
                 <Link
                   :to="props.registerRoute"
                   size="inherit"
                   color="inherit"
-                  :label="t('auth.create_one_here')"
+                  :label="t('auth.login_description_action')"
                   class="font-normal"
                 />
               </template>
@@ -36,6 +32,7 @@
           :label="t('action.login')"
           icon="user-03"
           v-show="!meta.isAuthenticated"
+          class="max-w-3xl"
         >
           <Auth
             class="rounded-box w-full max-w-5xl items-start"
@@ -49,7 +46,7 @@
       </slot>
     </template>
 
-    <template #summary>
+    <template v-if="ui.basketSummary.isVisible" #summary>
       <slot name="summary">
         <Section
           v-if="basketMeta.hasProducts"
@@ -72,6 +69,8 @@ import { useI18n } from "vue-i18n";
 import { useHeader } from "../../components/header/useHeader";
 import { useFooter } from "../../components/footer/useFooter";
 import { useLayout } from "../../components/layout/useLayout";
+import { useConfig, validateTemplate } from "@upmind-automation/headless";
+import { useThemes } from "@upmind-automation/upmind-ui";
 
 // --- components
 import { Link } from "@upmind-automation/upmind-ui";
@@ -97,6 +96,9 @@ const supportedTemplates = {
   ),
   [SESSION_TEMPLATE.TWO_COLUMN_RTL]: defineAsyncComponent(
     () => import("./templates/SessionRTL.template.vue")
+  ),
+  [SESSION_TEMPLATE.ENCLOSED]: defineAsyncComponent(
+    () => import("./templates/SessionEnclosed.template.vue")
   )
 };
 
@@ -112,44 +114,46 @@ import {
 import {
   useBasket,
   useRoutingEngine,
-  useSession
+  useSession,
+  UIContext
 } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 
-const props = withDefaults(
-  defineProps<
-    SessionRoutes & {
-      template?: SESSION_TEMPLATE;
-    }
-  >(),
-  {
-    template: SESSION_TEMPLATE.TWO_COLUMN_LTR
+const props = defineProps<
+  SessionRoutes & {
+    template?: SESSION_TEMPLATE;
   }
-);
+>();
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
+const { set } = useThemes();
+
 const { meta, isReady } = useSession();
 const { meta: basketMeta } = useBasket();
-const {
-  navigateNext,
-  navigateBack,
-  navigate,
-  meta: routingMeta
-} = useRoutingEngine();
+const { navigateNext, navigateBack, navigate } = useRoutingEngine();
+
+const { ui } = useConfig({
+  context: UIContext.AUTH,
+  provide: true
+});
 
 await isReady();
 
+set(ui.theme.value);
+
 const isResolving = ref(false);
 
-const templateVariant = computed(() =>
-  get(
-    supportedTemplates,
-    props.template,
-    supportedTemplates[SESSION_TEMPLATE.TWO_COLUMN_LTR]
+const template = computed(() =>
+  validateTemplate(
+    ui.template.value || props.template,
+    SESSION_TEMPLATE,
+    SESSION_TEMPLATE.TWO_COLUMN_LTR
   )
 );
+
+const templateVariant = computed(() => get(supportedTemplates, template.value));
 
 function doUpdate(value: SessionProps["modelValue"]) {
   if (value === "login") {

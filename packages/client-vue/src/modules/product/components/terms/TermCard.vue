@@ -1,10 +1,7 @@
 <template>
-  <div :class="styles.product.config.grid.item.root">
-    <div :class="styles.product.config.grid.item.header">
-      <strong
-        :class="styles.product.config.grid.item.title"
-        v-if="has(props, 'cycle')"
-      >
+  <div :class="styles.terms.radio.item.root">
+    <header :class="styles.terms.radio.item.header">
+      <strong :class="styles.terms.radio.item.title" v-if="has(props, 'cycle')">
         {{ parseBillingCycle(props.cycle!).numeric }}
         <template v-if="props.cycle! > 0">
           {{ t("text.term") }}
@@ -17,9 +14,9 @@
         v-bind="promotion"
         size="sm"
       />
-    </div>
+    </header>
 
-    <div :class="styles.product.config.grid.item.footer" class="pricing">
+    <footer :class="styles.terms.radio.item.footer" class="pricing">
       <Pricing
         class="pricing"
         :regular-price="props.price.regularPrice"
@@ -31,19 +28,16 @@
         :use-monthly-from-price="props.meta?.useMonthlyFromPrice"
         :ui-config="{
           pricing: {
-            current: [styles.product.config.grid.item.total],
-            ex: [styles.product.config.grid.item.ex]
+            current: [styles.terms.radio.item.total],
+            ex: [styles.terms.radio.item.ex]
           }
         }"
       />
 
-      <small
-        v-if="meta.showSummary"
-        :class="styles.product.config.grid.item.text"
-      >
+      <small v-if="meta.showSummary" :class="styles.terms.radio.item.text">
         <PayToday :price="props.price" />
       </small>
-    </div>
+    </footer>
   </div>
 </template>
 
@@ -55,7 +49,7 @@ import { useI18n } from "vue-i18n";
 // --- internal
 import { parseBillingCycle } from "@upmind-automation/headless";
 import { useStyles } from "@upmind-automation/upmind-ui";
-import config from "../../product.config";
+import config from "./terms.config";
 
 // --- components
 import PayToday from "../pricing/PayToday.vue";
@@ -73,12 +67,12 @@ import type { TermDetails } from "@upmind-automation/headless";
 const props = withDefaults(
   defineProps<
     TermDetails & {
-      noSummary?: boolean;
+      summary?: boolean;
       layout?: "stacked" | "inline";
     }
   >(),
   {
-    noSummary: false,
+    summary: true,
     layout: "stacked"
   }
 );
@@ -88,13 +82,9 @@ const { t } = useI18n();
 const meta = computed(() => ({
   layout: props.layout,
   hasPromotions: !isEmpty(props.promotions) || props.meta?.mixed,
-  showStacked: !props.noSummary,
-  showSummary: !props.noSummary && props.meta.useMonthlyFromPrice
+  showStacked: !props.summary,
+  showSummary: props.summary && props.meta.useMonthlyFromPrice
 }));
 
-const styles = useStyles(
-  ["product.config.grid", "product.config.grid.item"],
-  meta,
-  config
-);
+const styles = useStyles(["terms.radio", "terms.radio.item"], meta, config);
 </script>

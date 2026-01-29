@@ -18,21 +18,19 @@
 <script lang="ts" setup>
 // --- external
 import { useI18n } from "vue-i18n";
-import { computed } from "vue";
 
 // --- components
-import { Alert, Link } from "@upmind-automation/upmind-ui";
-import type { RouteLocationAsRelativeGeneric } from "vue-router";
+import { Alert } from "@upmind-automation/upmind-ui";
 
 // --- utils
 import { isMobile } from "@upmind-automation/upmind-ui";
 
+// --- types
+import type { RequiredAlertProps } from "./types";
+
 // -----------------------------------------------------------------------------
 
-const props = defineProps<{
-  id: string;
-  editRoute: RouteLocationAsRelativeGeneric;
-}>();
+const props = defineProps<RequiredAlertProps>();
 
 // -----------------------------------------------------------------------------
 const { t } = useI18n();

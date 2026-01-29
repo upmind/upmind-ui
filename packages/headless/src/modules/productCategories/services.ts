@@ -8,7 +8,7 @@ import { useTime } from "../../utils";
 import { parseProductCategory } from "./mappers";
 
 // --- types
-import { ProductCategory } from "./types";
+import { type ProductCategory } from "./types";
 import type { QueryKey } from "@tanstack/vue-query";
 import type { IProductCategory } from "@upmind-automation/types";
 import type { BrandMeta } from "../brand/types";

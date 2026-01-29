@@ -14,16 +14,13 @@ import type {
 } from "./types";
 
 import { useDataLayer, useI18n } from "../../system";
-const { dataLayer } = useDataLayer();
 
 import { useFeedback } from "../../feedback";
-const { addSuccess } = useFeedback();
 
 // --- utils
 import {
   useValidationParser,
   useCookies,
-  ResponseError,
   mapToHeadlessError
 } from "../../../utils";
 const { setTopLevel: setCookie } = useCookies();
@@ -360,7 +357,7 @@ export default createMachine(
 
       setFeedbackSuccess: (_context: GuestContext, _event: AnyEventObject) => {
         const { t } = useI18n();
-        addSuccess(t("confirm.reset_instructions_sent_msg"));
+        useFeedback().addSuccess(t("confirm.reset_instructions_sent_msg"));
       },
 
       setFeedbackError: ({ error }: GuestContext, _event: AnyEventObject) => {
@@ -368,7 +365,7 @@ export default createMachine(
         // DC: We have deprecated sending feedback for now...
         // if (!error || error?.status == responseCodes.Unprocessable_Entity) return;
 
-        // addError({
+        // useFeedback().addError({
         //   title: "We experienced an error authenticating",
         //   copy: error?.message,
         //   data: error?.data,
@@ -376,10 +373,10 @@ export default createMachine(
       },
 
       pushRegister: (_context: GuestContext, _event: AnyEventObject) => {
-        dataLayer({ event: "sign_up" }).withUser().push(false);
+        useDataLayer().dataLayer({ event: "sign_up" }).withUser().push(false);
       },
       pushLogin: (_context: GuestContext, _event: AnyEventObject) => {
-        dataLayer({ event: "login" }).withUser().push(false);
+        useDataLayer().dataLayer({ event: "login" }).withUser().push(false);
       },
 
       setActor: (_context: GuestContext, { data }: AnyEventObject) => {

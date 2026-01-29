@@ -3,20 +3,20 @@
     <template #content-header>
       <Categories
         v-model="categoryId"
+        v-bind="{ ...category, title }"
+        :description="description"
+        :badge="badge"
         :sort="params.sort"
         :direction="params.direction"
-        :description="description"
         :is-faceted="isFaceted"
-        v-bind="category"
-        :name="name"
         :category-route="props.categoryRoute"
       >
-        <template #prepend>
+        <template v-if="categoryId" #prepend>
           <Breadcrumbs
             v-model="categoryId"
             :sort="params.sort"
             :direction="params.direction"
-            :name="name"
+            :name="title"
             :category-route="props.categoryRoute"
           />
         </template>
@@ -31,7 +31,7 @@
             :sort="params.sort"
             :direction="params.direction"
             :category-route="props.categoryRoute"
-            :name="name"
+            :name="title"
           />
         </aside>
 
@@ -69,30 +69,33 @@ import {
   useProductCategories,
   useBrand,
   ProductSortableProperties,
-  RequestSortDirection
+  RequestSortDirection,
+  UIContext
 } from "@upmind-automation/headless";
+import { useConfig } from "@upmind-automation/headless";
 import config from "./catalogue.config";
 import { useLayout } from "../../components/layout/useLayout";
 import { useHeader } from "../../components/header/useHeader";
 import { useFooter } from "../../components/footer/useFooter";
+import { useThemes } from "@upmind-automation/upmind-ui";
 
 // --- components
 import { useStyles } from "@upmind-automation/upmind-ui";
 import Layout from "../../components/layout/Layout.vue";
 import Breadcrumbs from "./categories/Breadcrumbs.vue";
-import Share from "../../components/navigation/Share.vue";
 import CategoriesFacet from "./categories/facet/CategoriesFacet.vue";
 import Categories from "./categories/Categories.vue";
 import WidgetGrid from "./products/WidgetGrid.vue";
 import WidgetDAC from "./products/WidgetDAC.vue";
 
 // --- utils
-import { isEmpty } from "lodash-es";
+import { last } from "lodash-es";
 
 // --- types
 import type { ProductCategory } from "@upmind-automation/headless";
-import type { LAYOUT_VARIANTS } from "@/components/layout";
+import type { LAYOUT_VARIANTS } from "../../components/layout";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
+import { PRODUCT_LIST_STYLE } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 
@@ -103,17 +106,24 @@ const props = defineProps<{
 }>();
 
 // -----------------------------------------------------------------------------
-const { uiCart, name } = useBrand();
+const { uiCart } = useBrand();
 const instance = useProductCategories();
 provide("useProductCategories", instance);
 
 const { t } = useI18n();
-
-// --- state
+const { set } = useThemes();
 
 const categoryId = useRouteQuery<string | undefined>("catid", undefined, {
   mode: "push"
 });
+
+const { ui, data } = useConfig({
+  context: UIContext.CATALOGUE,
+  category: computed(() => last(instance.getPath(categoryId.value))),
+  provide: true
+});
+
+set(ui.theme.value);
 
 // TODO: Reset the layout until we implement the templates for catalogue
 useLayout({});
@@ -134,27 +144,38 @@ const category = computed((): ProductCategory => {
   const category = categoryId.value
     ? instance.getOne(categoryId.value)
     : undefined;
-  return category || { id: "", name: "", title: t("text.categories") };
+  return category || { id: "", name: "", title: "" };
+});
+
+const title = computed(() => {
+  return (categoryId.value ? category.value.title : data.storeHeading) || "";
 });
 
 const description = computed(() => {
-  return (
-    category.value.description ||
-    (isEmpty(categoryId.value) && uiCart.value?.description) ||
-    ""
-  );
+  if (!categoryId.value) {
+    return data.storeSubHeading;
+  } else if (ui.activeCategoryDescription.isVisible) {
+    return category.value.description;
+  }
+});
+
+const badge = computed(() => {
+  if (!categoryId.value) {
+    return data.storeBadge;
+  } else if (ui.activeCategoryBadge.isVisible) {
+    return data.categoryBadge;
+  }
 });
 
 // --- context
 
 const widget = computed(() => {
-  //  if we have a category, we need to check its uiMeta to determine the widget to use
-  if (categoryId.value) {
-    const category = instance.findOne({ id: categoryId.value });
-    if (category?.uiMeta?.widgets?.dac) return WidgetDAC;
+  if (
+    (category.value.uiMeta as { widgets?: { dac?: boolean } })?.widgets?.dac ||
+    ui.productList.value === PRODUCT_LIST_STYLE.DAC
+  ) {
+    return WidgetDAC;
   }
-
-  // our default widget
   return WidgetGrid;
 });
 

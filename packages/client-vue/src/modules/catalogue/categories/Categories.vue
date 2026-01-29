@@ -3,6 +3,8 @@
     <CategoriesHeader
       v-model="modelValue"
       v-bind="{ ...props, ...currentCategory }"
+      :description="props.description"
+      :badge="props.badge"
     >
       <template #prepend>
         <slot name="prepend" />
@@ -40,6 +42,8 @@
           v-for="category in displayCategories"
           :key="category.id"
           v-bind="{ ...props, ...category }"
+          :excerpt="ui.categoryExcerpt.isVisible ? category.excerpt : ''"
+          :badge="ui.categoryBadge.isVisible ? data.categoryBadge : undefined"
           v-model="modelValue"
         />
       </template>
@@ -55,9 +59,9 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 // --- internal
 import {
   useProductCategories,
-  type ProductCategory,
   type UseProductCategories
 } from "@upmind-automation/headless";
+import { useConfig } from "@upmind-automation/headless";
 import { isEmpty } from "lodash-es";
 import { useStyles, Skeleton } from "@upmind-automation/upmind-ui";
 import config from "../catalogue.config";
@@ -68,12 +72,10 @@ import CategoryItem from "./CategoryItem.vue";
 import { Icon } from "@upmind-automation/upmind-ui";
 
 // --- types
-import type { CategoriesProps } from "./types";
+import type { CategoriesProps, CategoriesItemProps } from "./types";
 
 // -----------------------------------------------------------------------------
-const props = defineProps<
-  Omit<CategoriesProps, "modelValue"> & ProductCategory & { isFaceted: boolean }
->();
+const props = defineProps<CategoriesItemProps>();
 const modelValue = defineModel<CategoriesProps["modelValue"]>("modelValue");
 
 // -----------------------------------------------------------------------------
@@ -96,5 +98,11 @@ const hasCategories = computed(() => {
   return !isEmpty(displayCategories.value) && !meta.value.isLoading;
 });
 
-const styles = useStyles(["categories"], {}, config);
+const { ui, data } = useConfig().with({ category: currentCategory });
+
+const styles = useStyles(
+  ["categories"],
+  computed(() => ({ layout: ui.categoryListLayout.value })),
+  config
+);
 </script>

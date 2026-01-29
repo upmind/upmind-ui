@@ -67,8 +67,8 @@
     "placeholder": "Impuesto registrado o GST"
   },
   "country": {
-    "label": "País",
-    "placeholder": "Seleccione un país"
+    "label": "Número de identificación fiscal",
+    "placeholder": "Identificación fiscal"
   },
   "domain": {
     "placeholder": "Ingrese su dominio..."
@@ -87,6 +87,10 @@
   "firstname": {
     "error": "Tu nombre es obligatorio",
     "label": "Nombre de pila"
+  },
+  "language": {
+    "error": "Tu idioma es requerido",
+    "label": "Idioma"
   },
   "lastname": {
     "error": "Tu apellido es requerido",
@@ -121,6 +125,10 @@
     "error": "Código promocional no válido",
     "placeholder": "Introduzca el código del cupón aquí"
   },
+  "publicName": {
+    "error": "Se requiere su nombre público",
+    "label": "Nombre público"
+  },
   "recover": {
     "error": "Experimentamos un error al intentar enviarle un correo electrónico de restablecimiento de contraseña."
   },
@@ -139,9 +147,5 @@
   },
   "stored_payment_method": {
     "label": ""
-  },
-  "taxNumber": {
-    "label": "Número de identificación fiscal",
-    "placeholder": "Identificación fiscal"
   }
 }

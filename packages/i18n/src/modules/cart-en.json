@@ -18,6 +18,7 @@
   "basket_requires_attention_msg": "{count} item needs your attention | {count} items need your attention",
   "basket_review_msg": "Please review the following items before continuing",
   "basket_summary_desc": "You have {count} item in your basket, totalling {total}. | You have {count} items in your basket, totalling {total}.",
+  "basket_summary_desc_free": "You have {count} item in your basket. | You have {count} items in your basket.",
   "basket_title": "Your basket",
   "basket_section": "Basket summary",
   "change_amount": "Change amount",

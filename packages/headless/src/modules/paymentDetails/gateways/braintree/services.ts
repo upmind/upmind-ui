@@ -1,5 +1,5 @@
 // --- external
-import BraintreeDropin from "braintree-web-drop-in";
+// BraintreeDropin is dynamically imported in render() for lazy loading
 
 // --- internal
 import { useI18n, useLocale, useQuery } from "../../..";
@@ -16,7 +16,7 @@ import { defaultsDeep, isNil, pick, set } from "lodash-es";
 
 // --- types
 import {
-  BraintreeResponse,
+  type BraintreeResponse,
   BraintreeTypes,
   type BraintreeContext
 } from "./types";
@@ -104,47 +104,52 @@ async function render(
     );
   }
 
-  return BraintreeDropin.create({
-    authorization: sdk.authorization,
-    container,
-    locale: locale.value,
-    ...(paymentUses3DS ? { threeDSecure: true } : {}),
-    ...(paymentMethodPayPal ? { paypal } : {})
-  }).then(instance => {
-    // set up our callback helper to watch for validation
-    const validationHelper = (callback: any, onReceiveEvent: any) => {
-      const cb = (event?: PaymentMethodRequestablePayload) => {
-        callback({ type: "VALIDATE", data: { valid: !!event } });
-      };
+  // Dynamic import for lazy loading
+  const BraintreeDropin = await import("braintree-web-drop-in");
 
-      instance.on("paymentMethodRequestable", cb);
-      instance.on("noPaymentMethodRequestable", cb);
-
-      return () => {
-        instance.off("paymentMethodRequestable", cb);
-        instance.off("noPaymentMethodRequestable", cb);
-      };
-    };
-
-    return {
-      // NB: if we return the entire instance, we run into issue with our xstate inspector....
-      //     So we only pull the methods we need.
-      sdk: {
-        authorization: sdk.authorization,
-        braintree: {
-          clearSelectedPaymentMethod:
-            instance.clearSelectedPaymentMethod.bind(instance),
-          isPaymentMethodRequestable:
-            instance.isPaymentMethodRequestable.bind(instance),
-          requestPaymentMethod: instance.requestPaymentMethod.bind(instance),
-          teardown: instance.teardown.bind(instance),
-          updateConfiguration: instance.updateConfiguration.bind(instance)
-        } as Dropin
-      },
+  return BraintreeDropin.default
+    .create({
+      authorization: sdk.authorization,
       container,
-      validationHelper
-    };
-  });
+      locale: locale.value,
+      ...(paymentUses3DS ? { threeDSecure: true } : {}),
+      ...(paymentMethodPayPal ? { paypal } : {})
+    })
+    .then((instance: Dropin) => {
+      // set up our callback helper to watch for validation
+      const validationHelper = (callback: any, onReceiveEvent: any) => {
+        const cb = (event?: PaymentMethodRequestablePayload) => {
+          callback({ type: "VALIDATE", data: { valid: !!event } });
+        };
+
+        instance.on("paymentMethodRequestable", cb);
+        instance.on("noPaymentMethodRequestable", cb);
+
+        return () => {
+          instance.off("paymentMethodRequestable", cb);
+          instance.off("noPaymentMethodRequestable", cb);
+        };
+      };
+
+      return {
+        // NB: if we return the entire instance, we run into issue with our xstate inspector....
+        //     So we only pull the methods we need.
+        sdk: {
+          authorization: sdk.authorization,
+          braintree: {
+            clearSelectedPaymentMethod:
+              instance.clearSelectedPaymentMethod.bind(instance),
+            isPaymentMethodRequestable:
+              instance.isPaymentMethodRequestable.bind(instance),
+            requestPaymentMethod: instance.requestPaymentMethod.bind(instance),
+            teardown: instance.teardown.bind(instance),
+            updateConfiguration: instance.updateConfiguration.bind(instance)
+          } as Dropin
+        },
+        container,
+        validationHelper
+      };
+    });
 }
 
 async function validate(

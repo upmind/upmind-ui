@@ -1,38 +1,53 @@
 <template>
   <li :class="styles.product.root">
     <div :class="styles.product.content">
-      <Link
-        v-if="!configMeta.hideImage && navigate"
-        :to="{
-          ...props.configureRoute,
-          params: {
-            pid: props.id
-          },
-          query: {
-            [QUERY_PARAMS.BILLING_CYCLE_MONTHS]: selectedTerm
-          }
-        }"
-        :disabled="processing || disabled"
-        @click="doResolve"
-        :tabindex="images.length === 1 ? '0' : '-1'"
-        :ring="images.length === 1 ? 'focus' : 'focus-visible'"
-        :class="styles.product.image.container"
-      >
+      <div v-if="!configMeta.hideImage" :class="styles.product.image.container">
+        <Link
+          v-if="navigate"
+          :to="{
+            ...props.configureRoute,
+            params: {
+              pid: props.id
+            },
+            query: {
+              [QUERY_PARAMS.BILLING_CYCLE_MONTHS]: selectedTerm
+            }
+          }"
+          :disabled="processing || disabled"
+          @click="doResolve"
+          :tabindex="images.length === 1 ? '0' : '-1'"
+          :ring="images.length === 1 ? 'focus' : 'focus-visible'"
+          :class="styles.product.image.link"
+        >
+          <Image
+            :mode="mode"
+            :image="mappedImage"
+            :ratio="configMeta.imageRatio"
+            :class="styles.product.image.root"
+            :fallback="productMeta.ui.productImageFallback.isVisible"
+          />
+        </Link>
         <Image
-          :carousel="!configMeta.hideCarousel"
-          :image="isEmpty(images) ? props.productDetails.imgUrl : images"
+          v-else
+          :mode="mode"
+          :image="mappedImage"
           :ratio="ratio || configMeta.imageRatio"
           :class="styles.product.image.root"
+          :fallback="productMeta.ui.productImageFallback.isVisible"
         />
-      </Link>
 
-      <Image
-        v-else-if="!configMeta.hideImage"
-        :carousel="!configMeta.hideCarousel"
-        :image="isEmpty(images) ? props.productDetails.imgUrl : images"
-        :ratio="ratio || configMeta.imageRatio"
-        :class="styles.product.image.root"
-      />
+        <Badge
+          v-if="productMeta.data.productBadge"
+          :class="styles.product.image.badge"
+          v-bind="
+            isString(productMeta.data.productBadge)
+              ? { label: productMeta.data.productBadge }
+              : productMeta.data.productBadge
+          "
+          variant="minimal"
+          color="neutral"
+        />
+      </div>
 
       <section :class="styles.product.details">
         <header :class="styles.product.header.root">
@@ -41,22 +56,33 @@
             :selected-term="selectedTerm"
             @resolve="doResolve"
             :processing="processing"
+            :title="productMeta.data.productName || props.productDetails.title"
             :navigate="navigate"
+            :hide-description="configMeta.hideDescription"
+            :hide-image="configMeta.hideImage"
+            :productMeta="productMeta"
+            :hide-anchor-price="configMeta.hideAnchorPrice"
           />
+
           <ProductBenefits
             v-if="!configMeta.hideBenefits"
-            :benefits="productDetails?.benefits"
+            :benefits="productMeta.data.productBenefits"
           />
 
           <ProductPrice
-            v-if="!configMeta.hidePrice && props.productDetails?.displayPrice"
+            v-if="
+              (!configMeta.hidePrice || !configMeta.hideTermSummary) &&
+              props.productDetails?.displayPrice
+            "
             v-bind="props.productDetails.displayPrice"
-            :hide-term-summary="props.hideTermSummary"
+            :hide-price="configMeta.hidePrice"
+            :hide-term-summary="configMeta.hideTermSummary"
           />
 
           <ProductTerm
             v-if="!configMeta.hideTerms"
             :prices="props.pricing"
+            :hide-badge="configMeta.hideTermBadge"
             v-model="selectedTerm"
           />
         </header>
@@ -103,10 +129,21 @@ import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { QUERY_PARAMS } from "@upmind-automation/headless";
+import {
+  IMAGES_STYLE,
+  QUERY_PARAMS,
+  GRID_LAYOUT
+} from "@upmind-automation/headless";
+import { useConfig } from "@upmind-automation/headless";
 
 // --- components
-import { Button, Image, Link, useStyles } from "@upmind-automation/upmind-ui";
+import {
+  Button,
+  Image,
+  Link,
+  useStyles,
+  Badge
+} from "@upmind-automation/upmind-ui";
 import config from "./card.config";
 import ProductInfo from "./ProductInfo.vue";
 import ProductBenefits from "./ProductBenefits.vue";
@@ -114,16 +151,14 @@ import ProductPrice from "./ProductPrice.vue";
 import ProductTerm from "./ProductTerm.vue";
 
 // --- utils
-import { isEmpty, toString } from "lodash-es";
+import { isEmpty, toString, isString } from "lodash-es";
 
 // --- types
-import type { ImageItem, ImageProps } from "@upmind-automation/upmind-ui";
+import type { ImageItem, ImageMode } from "@upmind-automation/upmind-ui";
 import type { ProductCardProps } from "./types";
-
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<ProductCardProps>(), {
-  variant: "default",
   buttonColor: "primary",
   buttonVariant: "solid",
   navigate: true,
@@ -136,23 +171,69 @@ const emit = defineEmits<{
 
 // -----------------------------------------------------------------------------
 
+const productMeta = useConfig().with({
+  product: () => props
+});
+
 const { t } = useI18n();
 
-const productMeta = computed(() => props.productDetails.uiMeta?.product);
 const selectedTerm = ref<string | undefined>(
   toString(props.configuration.term)
 );
 
+const images = computed(() => {
+  return props.productDetails?.images?.map(image => ({
+    url: image.url,
+    alt: props.productDetails?.title
+  })) as ImageItem[];
+});
+
+const mode = computed<ImageMode>(() => {
+  const style = productMeta.ui.productImagesStyle.value;
+  // TODO: Implement image grid
+  if (style === IMAGES_STYLE.GRID) return IMAGES_STYLE.AUTO;
+  return style;
+});
+
+// Compute the image prop value - wrap single imgUrl in array when carousel mode
+// is explicitly set, otherwise fallback to string for single image display
+const mappedImage = computed(() => {
+  if (!isEmpty(images.value)) {
+    return images.value;
+  }
+
+  // When carousel mode is explicitly set, wrap single imgUrl in array
+  if (mode.value === IMAGES_STYLE.CAROUSEL && props.productDetails?.imgUrl) {
+    return [
+      {
+        url: props.productDetails.imgUrl,
+        alt: props.productDetails?.title
+      }
+    ] as ImageItem[];
+  }
+
+  // Default fallback to string for single image display (auto/single modes)
+  return props.productDetails?.imgUrl;
+});
+
+const isImageEmpty = computed(
+  () => isEmpty(images.value) && !props.productDetails.imgUrl
+);
+
 const configMeta = computed(() => ({
-  variant: productMeta.value?.variant ?? props.variant,
-  imageRatio: productMeta.value?.image?.ratio as ImageProps["ratio"],
-  hideBenefits: productMeta.value?.card?.benefits?.hide ?? props.hideBenefits,
-  hideImage: productMeta.value?.image?.hide,
-  hideCarousel: productMeta.value?.image?.carousel,
-  hideDescription: productMeta.value?.card?.description?.hide,
-  hidePrice: productMeta.value?.card?.price?.hide,
-  hideTerms: productMeta.value?.card?.terms?.hide ?? props.hideTerms ?? true,
-  isLoading: processing
+  variant: productMeta.ui.productStyle.value,
+  imageRatio: productMeta.ui.productImageRatio.value,
+  hideBenefits: productMeta.ui.productBenefits.isHidden,
+  hideImage: productMeta.ui.productImages.isHidden,
+  hideDescription: productMeta.ui.productDescription.isHidden,
+  hidePrice: productMeta.ui.productPriceSummary.isHidden,
+  hideTerms: productMeta.ui.productTermSelector.isHidden,
+  hideTermSummary: productMeta.ui.termSelectorSummary.isHidden,
+  hideAnchorPrice: productMeta.ui.productAnchorPrice.isHidden,
+  hideTermBadge:
+    productMeta.ui.productListLayout.value === GRID_LAYOUT.FOUR_COL,
+  isLoading: processing,
+  isImageEmpty: isImageEmpty.value
 }));
 
 const styles = useStyles(
@@ -166,13 +247,6 @@ const styles = useStyles(
   configMeta,
   config
 );
-
-const images = computed(() => {
-  return props.productDetails?.images?.map(image => ({
-    url: image.url,
-    alt: props.productDetails?.title
-  })) as ImageItem[];
-});
 
 const processing = ref(false);
 

@@ -9,7 +9,7 @@ import { DetailedError, ErrorOrigin, responseCodes } from "../../utils";
 import { getTokenFromStorage, persistTokenToStorage } from "./utils";
 
 // --- types
-import { GrantTypes, IToken } from "@upmind-automation/types";
+import { GrantTypes, type IToken } from "@upmind-automation/types";
 import type { SessionContext } from "./types";
 
 // -----------------------------------------------------------------------------

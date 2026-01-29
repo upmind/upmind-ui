@@ -8,11 +8,11 @@ import { inject } from "vue";
 
 // --- internal
 import {
-  useBrand,
   BreadcrumbVariant,
   type UseProductCategories
 } from "@upmind-automation/headless";
 import { useBreadcrumbs } from "../../../composables/useBreadcrumbs";
+import { useConfig } from "@upmind-automation/headless";
 
 // --- components
 import { Breadcrumb } from "@upmind-automation/upmind-ui";
@@ -29,7 +29,9 @@ const useProductCategories = inject<UseProductCategories>(
   "useProductCategories"
 );
 
-const { uiCart } = useBrand();
+const { ui } = useConfig().with({
+  category: () => useProductCategories?.getOne(modelValue.value ?? "")
+});
 
 const { items: breadcrumbItems, variant: breadcrumbVariant } = useBreadcrumbs({
   categories: () =>
@@ -38,11 +40,7 @@ const { items: breadcrumbItems, variant: breadcrumbVariant } = useBreadcrumbs({
       label: c.title
     })),
   route: () => props.categoryRoute,
-  variant: () =>
-    useProductCategories?.getOne(modelValue.value ?? "")?.uiMeta?.uischema
-      ?.config?.breadcrumbs ||
-    uiCart.value?.ui?.uischema?.config?.breadcrumbs ||
-    BreadcrumbVariant.VISIBLE,
+  variant: () => ui.breadcrumbs.value as BreadcrumbVariant,
   selectedId: modelValue,
   showLastCategory: false,
   queryParams: () => ({ sort: props.sort, direction: props.direction }),

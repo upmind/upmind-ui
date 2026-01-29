@@ -67,8 +67,8 @@
     "placeholder": "Qeydiyyatdan keçmiş vergi və ya GST"
   },
   "country": {
-    "label": "ölkə",
-    "placeholder": "Ölkə seçin"
+    "label": "Vergi Nömrəsi",
+    "placeholder": "Vergi İD"
   },
   "domain": {
     "placeholder": "Domeninizi daxil edin..."
@@ -87,6 +87,10 @@
   "firstname": {
     "error": "Adınız tələb olunur",
     "label": "Ad"
+  },
+  "language": {
+    "error": "Diliniz tələb olunur",
+    "label": "Dil"
   },
   "lastname": {
     "error": "Soyadınız tələb olunur",
@@ -121,6 +125,10 @@
     "error": "Etibarlı promo kod tələb olunur",
     "placeholder": "Kupon kodunu buraya daxil edin"
   },
+  "publicName": {
+    "error": "İctimai adınız tələb olunur",
+    "label": "İctimai ad"
+  },
   "recover": {
     "error": "Sizə parol sıfırlama e-poçtu göndərmək istəyərkən xəta ilə üzləşdik."
   },
@@ -139,9 +147,5 @@
   },
   "stored_payment_method": {
     "label": ""
-  },
-  "taxNumber": {
-    "label": "Vergi nömrəsi",
-    "placeholder": "Vergi İD"
   }
 }

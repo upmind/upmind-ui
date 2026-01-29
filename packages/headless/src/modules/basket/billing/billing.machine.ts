@@ -6,14 +6,14 @@ import services from "./services";
 import { useI18n } from "../../system";
 import { useFeedback } from "../../feedback";
 import { useSchema, useUischema } from "./schema";
-const { addError } = useFeedback();
 
 // --- utils
 import {
   useTime,
   useModelParser,
   mapToHeadlessError,
-  useValidationParser
+  useValidationParser,
+  isDirty
 } from "../../../utils";
 import { responseCodes } from "../../../utils";
 import { isEqual } from "lodash-es";
@@ -290,7 +290,7 @@ export default createMachine(
         )
           return;
 
-        addError({
+        useFeedback().addError({
           title: t("error.billing_details_update_failed"),
           copy: error?.message,
           data: error?.data
@@ -311,7 +311,7 @@ export default createMachine(
     },
 
     guards: {
-      isDirty: ({ baseModel, model }, _event) => !isEqual(baseModel, model),
+      isDirty: ({ baseModel, model }, _event) => isDirty(baseModel, model),
       hasBasket: ({ basketId }, _event) => !!basketId,
       hasClient: ({ clientId }, _event) => !!clientId,
       hasChanged: ({ clientId, basketId }, { data }: AnyEventObject) => {

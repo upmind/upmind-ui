@@ -67,8 +67,8 @@
     "placeholder": "Pajak terdaftar atau GST"
   },
   "country": {
-    "label": "Negara",
-    "placeholder": "Pilih negara"
+    "label": "Nomor Pajak",
+    "placeholder": "Nomor Identifikasi Pajak"
   },
   "domain": {
     "placeholder": "Masukkan domain Anda..."
@@ -87,6 +87,10 @@
   "firstname": {
     "error": "Nama depan Anda diperlukan",
     "label": "Nama depan"
+  },
+  "language": {
+    "error": "Bahasa Anda diperlukan",
+    "label": "Bahasa"
   },
   "lastname": {
     "error": "Nama belakang Anda diperlukan",
@@ -121,6 +125,10 @@
     "error": "Kode promo tidak valid",
     "placeholder": "Masukkan kode voucher di sini"
   },
+  "publicName": {
+    "error": "Nama publik Anda wajib diisi.",
+    "label": "Nama publik"
+  },
   "recover": {
     "error": "Kami mengalami kesalahan saat mencoba mengirimi Anda email pengaturan ulang kata sandi."
   },
@@ -139,9 +147,5 @@
   },
   "stored_payment_method": {
     "label": ""
-  },
-  "taxNumber": {
-    "label": "Nomor Pajak",
-    "placeholder": "Nomor Pajak"
   }
 }

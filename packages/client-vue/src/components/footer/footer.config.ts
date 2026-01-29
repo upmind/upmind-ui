@@ -29,10 +29,14 @@ export default {
           variants: {
             isMinimal: {
               false: "pt-6"
+            },
+            showPoweredBy: {
+              false: "md:justify-end"
             }
           },
           defaultVariants: {
-            isMinimal: false
+            isMinimal: false,
+            showPoweredBy: true
           }
         }
       )
@@ -51,7 +55,7 @@ export default {
             }
           }
         }),
-        content: cva("w-full flex-wrap gap-x-12 gap-y-4 py-0 lg:py-0", {
+        content: cva("w-full flex-wrap gap-4 py-0 lg:py-0", {
           variants: {
             background: {
               LTR: "",

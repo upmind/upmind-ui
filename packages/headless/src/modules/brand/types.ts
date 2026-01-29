@@ -124,23 +124,20 @@ export type BrandMeta = {
 
   /**
    * i18n message overrides for the brand
-   * This allows brand sto override sprcific keys for i18n at a brand level for some/all locales
-   * @type {Record<string, string | Record<string, string>>}
+   * This allows brands to override sprcific keys for i18n at a brand level for some/all locales
+   * @type {Record<string, Record<string, string>>}
    * eg:
    * Where we have a key that has locale specific messages
    * "i18n": {
         "text.empty": {
           "en": "Your **cart** is empty",
           "fr": "Votre **panier** est vide"
+          "*": "Your **cart** is empty" // global unless specifically defined
         },
       }
-   * eg:
-   * Where we have a key that overrides ALL locales
-   * "i18n": {
-       "text.empty": "Your <mark>cart</mark> is empty",
-      }
   */
-  i18n?: Record<string, string | Record<string, string>>;
+  i18n?: Record<string, Record<string, string>>;
+
   // ---
   uischema: UI;
   icon_variant?: string; // the preferred icon variant to be used

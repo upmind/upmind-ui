@@ -5,12 +5,12 @@ import {
   BrandConfigKeys,
   Contexts,
   GrantTypes,
-  IToken,
+  type IToken,
   TwofaProviders
 } from "@upmind-automation/types";
 
 // --- utils
-import { isEmpty } from "lodash-es";
+import { isEmpty, map } from "lodash-es";
 import {
   DetailedError,
   ErrorOrigin,
@@ -27,6 +27,7 @@ import type {
   RegisterModel
 } from "./types";
 import type { AnyEventObject } from "xstate";
+import { mapCustomField } from "../../client/customFields/mappers";
 
 // -----------------------------------------------------------------------------
 
@@ -142,7 +143,8 @@ async function getCustomFields(_context: GuestContext, _event: AnyEventObject) {
   return get({
     // url: useUrl("clients_fields", { brand_id: null }),
     url: useUrl("clients_fields"),
-    queryKey: ["session", "client", "custom-fields"]
+    queryKey: ["session", "client", "custom-fields"],
+    select: data => map(data ?? [], mapCustomField)
   });
 }
 
@@ -206,7 +208,7 @@ async function register({ model }: GuestContext<RegisterModel>) {
 
   // ---
 
-  return post({
+  return post<IToken>({
     mutationKey: ["session"],
     url: useUrl("clients/register"),
     data,
