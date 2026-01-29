@@ -8,16 +8,19 @@
           <h1 :class="styles.header.title.text">
             {{ meta.data.productName || props.productDetails.title }}
           </h1>
-          <Badge
-            v-if="meta.ui.productBadge.isVisible && meta.data.productBadge"
-            v-bind="
-              isString(meta.data.productBadge)
-                ? { label: meta.data.productBadge }
-                : meta.data.productBadge
-            "
-            variant="minimal"
-            color="neutral"
-          />
+          <div :class="styles.header.title.badge">
+            <Badge
+              v-if="meta.ui.productBadge.isVisible && meta.data.productBadge"
+              v-bind="
+                isString(meta.data.productBadge)
+                  ? { label: meta.data.productBadge }
+                  : meta.data.productBadge
+              "
+              class="shrink-0"
+              variant="minimal"
+              color="neutral"
+            />
+          </div>
         </div>
 
         <DisplayPrice
