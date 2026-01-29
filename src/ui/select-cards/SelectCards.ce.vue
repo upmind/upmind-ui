@@ -32,28 +32,30 @@
         :class="cn(styles.select.content, props.contentClass)"
         :align="props.align"
       >
-        <DropdownMenuItem
-          v-for="(item, index) in items"
-          :key="item.id || index"
-          @click="onChange(item.value)"
-          :class="styles.select.item"
-          v-intersection-observer="[maybeFocus, { threshold: 0.25 }]"
-          :data-state="item.value === modelValue ? 'checked' : null"
-        >
-          <slot
-            name="dropdown-item"
-            v-bind="{ ...item, index } as SelectCardsItemProps"
+        <div :class="styles.select.items">
+          <DropdownMenuItem
+            v-for="(item, index) in items"
+            :key="item.id || index"
+            @click="onChange(item.value)"
+            :class="styles.select.item"
+            v-intersection-observer="[maybeFocus, { threshold: 0.25 }]"
+            :data-state="item.value === modelValue ? 'checked' : null"
           >
-            <Item v-bind="item" />
-          </slot>
-        </DropdownMenuItem>
+            <slot
+              name="dropdown-item"
+              v-bind="{ ...item, index } as SelectCardsItemProps"
+            >
+              <Item v-bind="item" />
+            </slot>
+          </DropdownMenuItem>
 
-        <DropdownMenuItem
-          v-if="$slots['additional-item']"
-          :class="styles.select.item"
-        >
-          <slot name="additional-item" />
-        </DropdownMenuItem>
+          <DropdownMenuItem
+            v-if="$slots['additional-item']"
+            :class="styles.select.item"
+          >
+            <slot name="additional-item" />
+          </DropdownMenuItem>
+        </div>
       </DropdownMenuContent>
     </DropdownMenuPortal>
   </DropdownMenuRoot>
