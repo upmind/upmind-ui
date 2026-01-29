@@ -14,17 +14,32 @@ interface ConfigOverrides {
   displayPriceType?: string;
 }
 
-interface UIOverrides {
-  registerTemplate?: string;
-  loginTemplate?: string;
-  checkoutTemplate?: string;
-  basketTemplate?: string;
-  basketProductTemplate?: string;
-  productConfigTemplate?: string;
-  basketProductsOnCheckout?: boolean;
-  basketFieldsOnCheckout?: boolean;
-  basketBillingOnCheckout?: boolean;
-}
+/**
+ * Flexible cart overrides - accepts any flat key-value pairs.
+ * Keys should be in the format:
+ *   - "@context.{context}.{property}" for UI settings (e.g. "@context.*.template", "@context.checkout.basketItems")
+ *   - "@data.{context}.{property}" for data settings (e.g. "@data.*.storeUrl", "@data.configure.productsToBundle")
+ *
+ * Common contexts: *, catalogue, configure, recommendations, basket, auth, billingdetails, checkout, confirmation
+ *
+ * @example
+ * // Global template override
+ * interceptUISchema(context, { "@context.*.template": "two-column-ltr" });
+ *
+ * // Context-specific overrides
+ * interceptUISchema(context, {
+ *   "@context.checkout.template": "full",
+ *   "@context.checkout.basketItems": "visible",
+ *   "@context.configure.optionSelector": "radio-grid"
+ * });
+ *
+ * // Data overrides
+ * interceptUISchema(context, {
+ *   "@data.*.storeUrl": "https://example.com",
+ *   "@data.recommendations.productsToRecommend": "[...]"
+ * });
+ */
+type CartOverrides = Record<string, string | boolean | number | undefined>;
 
 export async function interceptConfigValues(
   page: Page,
@@ -106,34 +121,44 @@ export async function interceptTermsAndConditions(
   );
 }
 
+/**
+ * Intercept brand settings API and apply cart meta overrides.
+ *
+ * @param context - Playwright BrowserContext
+ * @param overrides - Flat key-value pairs to merge into meta.cart
+ *
+ * @example
+ * // Set checkout template
+ * interceptUISchema(context, { "@context.checkout.template": "full" });
+ *
+ * // Set multiple settings
+ * interceptUISchema(context, {
+ *   "@context.*.template": "two-column-ltr",
+ *   "@context.*.productImageRatio": "1:1",
+ *   "@context.checkout.basketItems": "hidden",
+ *   "@data.*.clickwrapDisclaimer": "By clicking..."
+ * });
+ */
 export function interceptUISchema(
   context: BrowserContext,
-  overrides: UIOverrides
+  overrides: CartOverrides
 ) {
   context.route("**/api/brand/settings**", async (route: Route) => {
     const response = await route.fetch();
     const json = await response.json();
 
-    json.data.meta.uischema["@display.checkout.basketBilling"] =
-      overrides.basketBillingOnCheckout;
-    json.data.meta.uischema["@display.checkout.basketFields"] =
-      overrides.basketFieldsOnCheckout;
-    json.data.meta.uischema["@display.checkout.basketProducts"] =
-      overrides.basketProductsOnCheckout;
-    json.data.meta.uischema["@route.checkout.template"] =
-      overrides.checkoutTemplate;
-    json.data.meta.uischema["@route.basket.template"] =
-      overrides.basketTemplate;
-    json.data.meta.uischema["@route['basket-product-edit'].template"] =
-      overrides.basketProductTemplate;
-    json.data.meta.uischema["@route['product-configure'].template"] =
-      overrides.productConfigTemplate;
-    json.data.meta.uischema["@route['session-register'].template"] =
-      overrides.registerTemplate;
-    json.data.meta.uischema["@route['session-login'].template"] =
-      overrides.loginTemplate;
+    // Initialize meta.cart if not present
+    if (!json.data.meta) json.data.meta = {};
+    if (!json.data.meta.cart) json.data.meta.cart = {};
 
-    console.log("Schema Intercepted", json.data.meta.uischema);
+    // Apply all overrides directly to cart
+    for (const [key, value] of Object.entries(overrides)) {
+      if (value !== undefined) {
+        json.data.meta.cart[key] = value;
+      }
+    }
+
+    console.log("Schema Intercepted", json.data.meta.cart);
 
     await route.fulfill({
       status: response.status(),
