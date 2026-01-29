@@ -40,6 +40,7 @@ import type {
   SubproductDetails,
   ProductConfigContext
 } from "./";
+import { generateShareUrlConfig } from "./utils";
 
 // -----------------------------------------------------------------------------
 
@@ -102,6 +103,15 @@ export const useProductConfig = (service: ActorRef<any>) => {
     "errorExternal"
   );
 
+  const shareUrl = computed(() => {
+    const baseUrl = `${window.location.origin}/order/product/${productDetails.value?.id}`;
+
+    if (!model.value) return baseUrl;
+
+    const config = generateShareUrlConfig(model.value);
+    return `${baseUrl}?${config}`;
+  });
+
   const meta = computed<UseProductConfigMeta>(() => ({
     isLoading: stateMatches(state, ["subscribing", "loading"]),
     isNew: !contextMatches(state, ["basketProduct"]),
@@ -111,7 +121,8 @@ export const useProductConfig = (service: ActorRef<any>) => {
     ),
     isTouched: touched.value,
     showErrors:
-      contextMatches(state, ["error"]) && contextMatches(state, ["attempts"]),
+      contextMatches(state, "errorExternal") ||
+      (contextMatches(state, ["error"]) && contextMatches(state, ["attempts"])),
 
     hasErrors:
       stateMatches(state, ["error", "available.invalid", "available.error"]) ||
@@ -345,6 +356,7 @@ export const useProductConfig = (service: ActorRef<any>) => {
     // ---
     model,
     product,
+    shareUrl,
     // ---
     updateQuantity,
     incrementQuantity,

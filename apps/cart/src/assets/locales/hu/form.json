@@ -67,8 +67,8 @@
     "placeholder": "Regisztrált adó vagy GST"
   },
   "country": {
-    "label": "Ország",
-    "placeholder": "Válasszon egy országot"
+    "label": "Adószám",
+    "placeholder": "Adóazonosító"
   },
   "domain": {
     "placeholder": "Add meg a domainedet..."
@@ -87,6 +87,10 @@
   "firstname": {
     "error": "A keresztneved megadása kötelező",
     "label": "Keresztnév"
+  },
+  "language": {
+    "error": "A nyelv megadása kötelező",
+    "label": "Nyelv"
   },
   "lastname": {
     "error": "A vezetékneved megadása kötelező",
@@ -121,6 +125,10 @@
     "error": "Érvénytelen promóciós kód",
     "placeholder": "Írd be ide az utalványkódot"
   },
+  "publicName": {
+    "error": "A nyilvános neved megadása kötelező",
+    "label": "Nyilvános név"
+  },
   "recover": {
     "error": "Hiba történt a jelszó-visszaállítási e-mail elküldése során."
   },
@@ -139,9 +147,5 @@
   },
   "stored_payment_method": {
     "label": ""
-  },
-  "taxNumber": {
-    "label": "Adószám",
-    "placeholder": "Adóazonosító"
   }
 }

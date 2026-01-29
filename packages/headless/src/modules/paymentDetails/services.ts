@@ -16,7 +16,8 @@ import {
   isEqual,
   values,
   first,
-  has
+  has,
+  compact
 } from "lodash-es";
 import {
   ErrorOrigin,
@@ -53,7 +54,7 @@ import {
   BrandConfigKeys,
   type IBrandGateway,
   type IPaymentDetail,
-  IWalletBalance
+  type IWalletBalance
 } from "@upmind-automation/types";
 import type { QueryKey } from "@tanstack/vue-query";
 
@@ -62,15 +63,12 @@ const queryKey: QueryKey = ["paymentDetail", "stored"];
 
 export function loadList() {
   const { brandId, currencyId } = useBrand();
-  const { meta, userId } = useSession();
-
-  const clientId = userId.value;
+  const { meta, clientId } = useSession();
 
   const { query, useUrl } = useQuery();
-
   return query<IPaymentDetail[], PaymentDetail[]>({
     queryKey,
-    url: useUrl(`clients/${clientId}/payment_details`, {
+    url: useUrl(`clients/${clientId.value}/payment_details`, {
       limit: 0,
       brand_id: brandId.value,
       active: true,
@@ -81,37 +79,13 @@ export function loadList() {
     withAccessToken: true,
     withCurrency: true,
     // --- options
-    guard: async () =>
-      new Promise((resolve, reject) => {
-        if (
-          meta.value.isAuthenticated &&
-          !!userId.value &&
-          !!currencyId.value &&
-          !!brandId.value
-        ) {
-          resolve(true);
-        } else {
-          const error = !meta.value.isAuthenticated
-            ? new NotAuthenticatedError()
-            : new DetailedError(
-                "Load Payment details failed: Brand or Currency not provided",
-                responseCodes.No_Content,
-                ErrorOrigin.Headless,
-                {
-                  currencyId: currencyId.value,
-                  brandId: brandId.value
-                }
-              );
 
-          reject(error);
-        }
-      }),
     select: mapPaymentDetailDetails,
     staleTime: useTime().HOUR,
     retryDelay: DEBOUNCE_DELAY,
     enabled: () =>
       meta.value.isAuthenticated &&
-      !!userId.value &&
+      !!clientId.value &&
       !!currencyId.value &&
       !!brandId.value
   });
@@ -120,14 +94,14 @@ export function loadList() {
 // -----------------------------------------------------------------------------
 
 async function loadLookups(
-  { currency, address, orderId, lookups }: PaymentDetailsContext,
+  { currency, address, orderId, lookups, client }: PaymentDetailsContext,
   _event: AnyEventObject
 ) {
-  const { meta, user } = useSession();
+  const { meta } = useSession();
   const paymentTypes: Record<string, PaymentType> = {
     ["PAY_IN_FULL"]: PaymentType.PAY_IN_FULL
   };
-  if (!meta.value.isAuthenticated || !user.value?.id)
+  if (!meta.value.isAuthenticated || !client?.id)
     throw new NotAuthenticatedError();
 
   const { brandId, currencyId: defaultCurrencyId, ensureConfig } = useBrand();
@@ -135,8 +109,6 @@ async function loadLookups(
 
   // ---
 
-  const clientId = user.value!.id;
-  const client = user.value;
   const currencyId = currency?.id || defaultCurrencyId.value; // fallback to default currency
 
   const config = ensureConfig([
@@ -155,7 +127,7 @@ async function loadLookups(
       "wallet-balance",
       {
         brandId: unref(brandId),
-        clientId,
+        clientId: client.id,
         currencyId
       }
     ],
@@ -163,6 +135,10 @@ async function loadLookups(
     withAccessToken: true,
     withCurrency: true
   }).then(account => {
+    // bail if there is no account credit
+    if (isEmpty(compact([account.owned.value, account.credit.value])))
+      return account;
+
     // we need to calculate the total account credit including negative allowance
     // and get a formatted version based on the currency
     return post({
@@ -171,7 +147,7 @@ async function loadLookups(
       withAccessToken: true,
       data: {
         currency_id: currencyId,
-        prices: [account.owned.value, account.credit.value]
+        prices: compact([account.owned.value, account.credit.value])
       }
     })
       .then(data => {
@@ -189,7 +165,7 @@ async function loadLookups(
     IPaymentDetail[],
     PaymentDetail[]
   >({
-    url: useUrl(`clients/${clientId}/payment_details`, {
+    url: useUrl(`clients/${client.id}/payment_details`, {
       limit: 0,
       brand_id: unref(brandId),
       active: true,
@@ -202,7 +178,7 @@ async function loadLookups(
       "payment-details",
       {
         brandId: unref(brandId),
-        clientId,
+        clientId: client.id,
         currencyId,
         addressId: address?.country_id
       }
@@ -215,7 +191,7 @@ async function loadLookups(
   const gateways: any = getRequest<IBrandGateway[]>({
     url: useUrl(`brands/${unref(brandId)}/gateways`, {
       limit: 0,
-      client_id: clientId,
+      client_id: client.id,
       invoice_id: orderId,
       order: "order",
       "filter[gateway.currencies.id]": currencyId,
@@ -228,7 +204,7 @@ async function loadLookups(
       {
         brandId: unref(brandId),
         invoice_id: orderId,
-        clientId,
+        clientId: client.id,
         currencyId,
         invoiceId: orderId,
         addressId: address?.country_id
@@ -516,6 +492,8 @@ async function calculate(
 
   if (isEqual(data.value, data.prev)) return Promise.reject();
 
+  if (isEmpty(compact(data.value))) return Promise.reject();
+
   // we need to calculate the total account credit including negative allowance
   // and get a formatted version based on the currency
   return post({
@@ -524,7 +502,7 @@ async function calculate(
     withAccessToken: true,
     data: {
       currency_id: currency.id,
-      prices: [data.value]
+      prices: compact([data.value])
     }
   }).then(res => get(res, "total_formatted", ""));
 }

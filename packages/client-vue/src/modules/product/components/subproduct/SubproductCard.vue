@@ -3,7 +3,34 @@
     <header :class="styles.card.header.root">
       <div :class="styles.card.header.content">
         <div :class="styles.card.header.titleWrapper">
-          <h5 :class="styles.card.header.title">{{ title }}</h5>
+          <div :class="styles.card.header.titleInner">
+            <SubproductImage v-if="image" :src="image" :alt="title" />
+            <h5 :class="styles.card.header.title">
+              {{ title }}
+              <Tooltip
+                v-if="ui.optionItemDescription.isTooltip && desc"
+                :label="desc"
+                :open="tooltipOpen"
+                :class="styles.card.header.tooltip"
+                :uiConfig="
+                  {
+                    tooltip: {
+                      trigger: [styles.card.header.trigger]
+                    }
+                  } as any
+                "
+              >
+                <Icon
+                  @click="toggleTooltip()"
+                  @mouseenter="toggleTooltip(true)"
+                  @mouseleave="toggleTooltip(false)"
+                  icon="info-circle"
+                  size="nano"
+                  :class="styles.card.header.icon"
+                />
+              </Tooltip>
+            </h5>
+          </div>
 
           <Promotion
             v-for="promotion in props.promotions"
@@ -14,13 +41,13 @@
         </div>
 
         <div
-          v-if="props.price && !props.meta?.free"
+          v-if="props.price && !props.productMeta?.free"
           :class="styles.card.pricing.sm"
         >
           <SubproductCardPricing
             v-if="props.price"
             :price="props.price"
-            :meta="props.meta"
+            :meta="props.productMeta"
             :cycle="props.cycle"
             :term="props.term"
           />
@@ -48,7 +75,7 @@
           <SubproductCardPricing
             v-if="props.price"
             :price="props.price"
-            :meta="props.meta"
+            :meta="props.productMeta"
             :cycle="props.cycle"
             :term="props.term"
           />
@@ -56,23 +83,28 @@
       </div>
     </header>
 
-    <p :class="styles.card.excerpt" v-if="props.excerpt">
-      {{ props.excerpt }}
+    <p
+      v-if="ui.optionItemDescription.isInline && desc"
+      :class="styles.card.excerpt"
+    >
+      {{ desc }}
     </p>
   </section>
 </template>
 
 <script setup lang="ts">
 // --- external
-import { computed } from "vue";
+import { computed, ref } from "vue";
 
 // --- internal
 import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./subproduct-card.config";
 
 // --- components
-import { NumberField } from "@upmind-automation/upmind-ui";
+import { NumberField, Tooltip, Icon } from "@upmind-automation/upmind-ui";
+import { isEmpty } from "lodash-es";
 import SubproductCardPricing from "./SubproductCardPricing.vue";
+import SubproductImage from "./SubproductImage.vue";
 import Promotion from "../../../basket-product/components/card/components/Promotion.vue";
 
 // --- types
@@ -87,7 +119,19 @@ const meta = computed(() => ({
   isMinimal: props.minimal
 }));
 
+const { ui } = props.meta.with({
+  option: () => props
+});
+
+const tooltipOpen = ref(false);
+
+function toggleTooltip(force?: boolean) {
+  tooltipOpen.value = force ?? !tooltipOpen.value;
+}
+
 const styles = useStyles(["card", "card.header", "card.pricing"], meta, config);
+
+const desc = computed(() => props.excerpt || props.description);
 
 function doUpdateQuantity(quantity: number | undefined) {
   if (!quantity) return;

@@ -1,11 +1,11 @@
 // --- external
-import { AnyEventObject, assign } from "xstate";
+import { type AnyEventObject, assign } from "xstate";
 
 // --- utils
 import { useModelParser } from "../../../../utils";
 import { useSchema, useUischema } from "./schemas";
-import { GatewayCardContext } from "./types";
-import { GatewayCardData } from "@upmind-automation/types";
+import { type GatewayCardContext } from "./types";
+import { type GatewayCardData } from "@upmind-automation/types";
 
 // --- types
 

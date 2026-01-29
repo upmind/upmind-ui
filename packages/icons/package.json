@@ -1,0 +1,39 @@
+{
+  "name": "@upmind-automation/icons",
+  "version": "0.0.0",
+  "description": "Shared icons for Upmind Automation projects",
+  "type": "module",
+  "sideEffects": false,
+  "keywords": [],
+  "authors": [
+    "Dom da Costa <dominic.dacosta@upmind.com>",
+    "Rafael Macedo <rafael.macedo@upmind.com>",
+    "Rhodri Jones <rhodri.jones@upmind.com>"
+  ],
+  "license": "UNLICENSED",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js",
+    "./assets/*": "./dist/assets/*"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  },
+  "scripts": {
+    "clean": "rm -rf {node_modules,dist,*.tsbuildinfo}",
+    "build": "vite build",
+    "lint": "eslint . --fix",
+    "format": "prettier --write src/"
+  },
+  "devDependencies": {
+    "@tsconfig/node22": "^22.0.2",
+    "@types/node": "^22.17.1",
+    "typescript": "^5.9.2",
+    "vite": "^7.1.2",
+    "vite-plugin-static-copy": "^3.0.0"
+  }
+}

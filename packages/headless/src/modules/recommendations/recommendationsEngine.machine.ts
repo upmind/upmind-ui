@@ -6,7 +6,6 @@ import services from "./services";
 import { basketSubscription } from "../basketProduct/helper";
 
 import { useDataLayer } from "../system";
-const { dataLayer } = useDataLayer();
 
 // --- utils
 import { mapToHeadlessError, useTime } from "../../utils";
@@ -21,22 +20,19 @@ import {
   defaultsDeep,
   filter,
   find,
-  findLast,
-  first,
   get,
   has,
   includes,
+  isArray,
   isEmpty,
   isObject,
   map,
-  mapValues,
   reduce,
   reject,
   set,
   some,
   uniq,
   uniqBy,
-  unset,
   xorBy
 } from "lodash-es";
 
@@ -94,7 +90,8 @@ export default createMachine(
         on: {
           CANCEL: {
             target: "available",
-            actions: ["clearItem"]
+            actions: ["clearFailed"],
+            cond: "hasNoData"
           }
         }
       },
@@ -113,13 +110,13 @@ export default createMachine(
           },
           CANCEL: {
             target: "available",
-            actions: ["clearItem", "setRecommendations"]
+            actions: ["clearFailed", "setRecommendations"]
           },
           ERROR: [
             {
               target: "configuring",
-              actions: ["setError", "setItem"],
-              cond: "hasBasketItem"
+              actions: ["setError", "setFailed"],
+              cond: "hasFailed"
             },
             {
               target: "error",
@@ -139,7 +136,13 @@ export default createMachine(
       REFRESH: [
         {
           target: "refreshing",
-          actions: ["setBasket", "setLookups", "setRecommendations"],
+          actions: [
+            "setBasket",
+            "clearProducts",
+            "setLookups",
+            "setRecommendations",
+            "refreshProducts"
+          ],
           cond: "hasBasketChanged"
         },
         {
@@ -157,7 +160,7 @@ export default createMachine(
       },
       ERROR: {
         actions: ["setError", "removeRelated", "setRecommendations"],
-        cond: "hasDataWithContext"
+        cond: "hasSourceContext"
       },
       SEEN: {
         actions: ["setSeen"]
@@ -287,6 +290,21 @@ export default createMachine(
         }
       ),
 
+      refreshProducts: pure(
+        (context: RecommendationsEngineContext, _event: AnyEventObject) => {
+          if (!context.basketHelper) return;
+
+          const productIds = uniq(
+            map(context.recommendations, "productDetails.id")
+          );
+          return sendTo(context.basketHelper, {
+            type: "FETCH_SELECTED",
+            target: productIds,
+            context
+          });
+        }
+      ),
+
       addToBasket: pure(
         (context: RecommendationsEngineContext, { data }: AnyEventObject) => {
           const recommendation = find(context.recommendations, ["id", data]);
@@ -337,13 +355,13 @@ export default createMachine(
 
       // ---
 
-      setItem: assign({
-        basketItem: (_context, { data }: AnyEventObject) => {
-          return data?.basketItem;
+      setFailed: assign({
+        failedProduct: (_context, { sourceContext }: AnyEventObject) => {
+          return sourceContext;
         }
       }),
 
-      clearItem: assign({ basketItem: undefined }),
+      clearFailed: assign({ failedProduct: undefined }),
 
       // ---
 
@@ -360,6 +378,13 @@ export default createMachine(
             added: raw.added
           };
         }
+      }),
+
+      clearProducts: assign({
+        raw: ({ raw }: RecommendationsEngineContext) => ({
+          ...raw,
+          products: []
+        })
       }),
 
       setLookups: assign({
@@ -471,7 +496,7 @@ export default createMachine(
         },
         recommendations: (
           { raw }: RecommendationsEngineContext,
-          { data, context }: AnyEventObject
+          { data, sourceContext }: AnyEventObject
         ) => {
           const augmentedRecommendations = reduce(
             raw.related,
@@ -480,7 +505,14 @@ export default createMachine(
               // we need to check if we have already added it so the parsed recommendations are deduped
               if (some(result, ["id", rawRelated.id])) return result;
 
-              if (context?.id == rawRelated?.id) rawRelated.product = data;
+              if (isArray(data)) {
+                // FETCH_SELECTED: data is array of products, sourceContext is full RecommendationsEnginesourceContext
+                rawRelated.product = find(data, ["id", rawRelated.object_id]);
+              } else if (sourceContext?.id == rawRelated?.id) {
+                // FETCH: data is single product, context has the recommendation id
+                rawRelated.product = data;
+              }
+
               const added = checkInBasket(rawRelated, raw.added);
               const seen = includes(raw.seen, rawRelated.id);
               const processing = false;
@@ -503,9 +535,9 @@ export default createMachine(
       removeRelated: assign({
         raw: (
           { raw }: RecommendationsEngineContext,
-          { context }: AnyEventObject
+          { sourceContext }: AnyEventObject
         ) => {
-          raw.related = reject(raw.related, ["id", context.id]);
+          raw.related = reject(raw.related, ["id", sourceContext.id]);
           return raw;
         }
       }),
@@ -517,13 +549,15 @@ export default createMachine(
         { data }: AnyEventObject
       ) => {
         const product = data; //TODO: check / parse the data is a basket item
-        dataLayer({
-          event: "view_item_list",
-          currency: currency?.code,
-          item_list_id: "recommendations",
-          // item_list_name: "Recommendations",
-          items: raw.related
-        }).push();
+        useDataLayer()
+          .dataLayer({
+            event: "view_item_list",
+            currency: currency?.code,
+            item_list_id: "recommendations",
+            // item_list_name: "Recommendations",
+            items: raw.related
+          })
+          .push();
       },
 
       // ---
@@ -531,10 +565,13 @@ export default createMachine(
       setError: assign({
         error: (
           { recommendations }: RecommendationsEngineContext,
-          { data, context }: AnyEventObject
+          { data, sourceContext }: AnyEventObject
         ) => {
-          if (!isEmpty(context)) {
-            const recommendation = find(recommendations, ["id", context?.id]);
+          if (!isEmpty(sourceContext)) {
+            const recommendation = find(recommendations, [
+              "id",
+              sourceContext?.id
+            ]);
             if (recommendation) set(recommendation, "meta.error", true);
           }
 
@@ -564,10 +601,14 @@ export default createMachine(
         { data }: AnyEventObject
       ) => !isEmpty(data),
 
-      hasDataWithContext: (
+      hasNoData: (
         _context: RecommendationsEngineContext,
-        { data, context }: AnyEventObject
-      ) => !isEmpty(data) && !isEmpty(context),
+        { data }: AnyEventObject
+      ) => isEmpty(data),
+      hasSourceContext: (
+        _context: RecommendationsEngineContext,
+        { sourceContext }: AnyEventObject
+      ) => !isEmpty(sourceContext),
 
       hasRecommendations: (
         { raw }: RecommendationsEngineContext,
@@ -603,10 +644,12 @@ export default createMachine(
         return !isEmpty(xorBy(raw.added, data?.products, "product_id"));
       },
 
-      hasBasketItem: (
+      hasFailed: (
         _context: RecommendationsEngineContext,
-        { data }: AnyEventObject
-      ) => isObject(data?.basketItem)
+        { sourceContext }: AnyEventObject
+      ) => {
+        return isObject(sourceContext) && has(sourceContext, "productId");
+      }
     },
 
     delays: {

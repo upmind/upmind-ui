@@ -19,6 +19,7 @@
   "basket_review_msg": "Vennligst gjennomgå følgende elementer før du fortsetter",
   "basket_section": "Handlekurvsammendrag",
   "basket_summary_desc": "Du har {count} vare i handlekurven din, totalt {total} | Du har {count} varer i handlekurven din, totalt {total}.",
+  "basket_summary_desc_free": "Du har {count} vare i handlekurven din. | Du har {count} varer i handlekurven din.",
   "basket_title": "Handlekurven din",
   "change_amount": "Endre beløp",
   "empty": "**Handlekurven** din er tom",

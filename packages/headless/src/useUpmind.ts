@@ -1,12 +1,11 @@
 // --- external
-import { Ref, ref } from "vue";
+import { type Ref, ref } from "vue";
 import { inspect } from "@xstate/inspect";
 import { type QueryClient, VueQueryPlugin } from "@tanstack/vue-query";
 
 // --- internal
 import {
-  FunnelProps,
-  Funnels,
+  type Funnels,
   type GlobbedFiles,
   useBrand,
   useDataLayer,
@@ -18,7 +17,7 @@ import {
   useSystem,
   useTracking
 } from "./modules";
-import { isEmpty, get, isFunction } from "lodash-es";
+import { get, isFunction } from "lodash-es";
 import { useRouting } from "./modules/routing/useRouting";
 import { useTheming } from "./modules/theming/useTheming";
 import { useQuery } from "./modules";
@@ -131,6 +130,8 @@ export interface UpmindProps {
   router?: {
     /** The Vue Router instance. */
     instance: Router;
+    /** Whether to guard routes or not */
+    guardRoutes?: boolean;
     /** A function to Register routing flows with the routing engine. */
     registerFunnels?: () => { defaultFunnel?: string; funnels?: Funnels };
   };
@@ -149,6 +150,12 @@ export interface UpmindProps {
    * An array of theme configurations to be loaded and managed by the theming module.
    */
   themes?: Theme[];
+  /**
+   * Indicates whether the Upmind instance is running in admin mode.
+   * This flag can be used to alter behavior such as API endpoints and payloads.
+   * @default false
+   */
+  admin?: boolean;
 }
 
 // -----------------------------------------------------------------------------
@@ -167,6 +174,10 @@ export class Upmind {
    * Analytics configuration, typically for Google Tag Manager.
    */
   analytics: UpmindProps["analytics"];
+  /**
+   * Indicates whether the Upmind instance is running in admin mode.
+   */
+  admin: boolean = false;
   /**
    * Debugging flag for enabling various debug features.
    */
@@ -187,10 +198,9 @@ export class Upmind {
    * Provider Of Providers (POP) API configuration.
    */
   pop: UpmindProps["pop"];
-  /**
-   * The Vue Query client instance used for data fetching and caching.
-   */
+
   queryClient: QueryClient;
+
   /**
    * Google reCAPTCHA configuration.
    */
@@ -216,7 +226,6 @@ export class Upmind {
     const { queryClient } = useQuery();
     this.queryClient = queryClient;
   }
-
   /**
    * Initialises the Upmind headless library with the provided configuration.
    * This method orchestrates the initialisation of all internal modules and plugins.
@@ -234,7 +243,8 @@ export class Upmind {
     recaptcha,
     router,
     storefrontUrl,
-    themes
+    themes,
+    admin
   }: UpmindProps): Promise<void> {
     if (this.status.value != UpmindStatus.notInitialised)
       throw new DetailedError(
@@ -252,6 +262,7 @@ export class Upmind {
     this.i18n = i18n;
     this.storefrontUrl = storefrontUrl;
     this.themes = themes;
+    this.admin = admin ?? false;
 
     this.initPlugins();
     this.initDebugging();
@@ -272,16 +283,12 @@ export class Upmind {
             useSystem().isReady(),
             useSession().isReady()
           ])
-            // start with our render blocking initialisations
-            .then(() =>
-              Promise.all([
-                this.initLocalisation(),
-                this.initTheming(),
-                this.initRouter()
-              ])
-            )
+            // then initialise our localisation to ensure i18n is available to our app/composables/machines
+            .then(() => this.initLocalisation())
+            // and then we start with our render blocking initialisations
+            .then(() => Promise.all([this.initTheming(), this.initRouter()]))
+            // finally we do our non-render blocking initialisations
             .then(() => {
-              // then do our non-render blocking initialisations
               this.initRecaptcha();
               this.initAnalytics();
             })
@@ -338,6 +345,10 @@ export class Upmind {
       });
   }
 
+  /**
+   * Initialises reCAPTCHA integration if enabled.
+   * @private
+   */
   private async initRecaptcha() {
     if (
       !this.recaptcha?.enabled ||
@@ -392,12 +403,20 @@ export class Upmind {
    * @private
    */
   private async initRouter() {
+    const { init, register } = useRoutingEngine();
     if (!this.router?.instance) return;
-    useRouting(this.router.instance);
+
+    // initialise the router engine with the router instance
+    init(this.router.instance);
+
+    // then register any funnels
     const config = isFunction(this.router?.registerFunnels)
       ? this.router.registerFunnels()
       : {};
-    useRoutingEngine().register(config);
+    register(config);
+
+    // finally, conditionally set up the router guards
+    if (this.router.guardRoutes) useRouting(this.router.instance);
   }
 
   /**
@@ -431,6 +450,12 @@ export class Upmind {
   async isReady(): Promise<void> {
     return new Promise(resolve => {
       const interval = setInterval(() => {
+        // console.debug(
+        //   "useUpmind",
+        //   "isReady",
+        //   this.status.value == UpmindStatus.initialised,
+        //   { status: this.status.value }
+        // );
         if (this.status.value == UpmindStatus.initialised) {
           clearInterval(interval);
           resolve();

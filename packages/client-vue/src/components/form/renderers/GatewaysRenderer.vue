@@ -6,6 +6,7 @@
       :model-value="control.data"
       :items="displayItems"
       @update:model-value="onInput"
+      :columns="2"
     >
       <template v-if="allowShowMore" #additional-item="{ size }">
         <div :class="[styles.form.radioCollapsible.root, size]">
@@ -34,6 +35,7 @@ import { useUpmindUIRenderer, Link } from "@upmind-automation/upmind-ui";
 import config from "../form.config";
 import { useStyles } from "@upmind-automation/upmind-ui";
 import { useBrand } from "@upmind-automation/headless";
+import { useConfig } from "@upmind-automation/headless";
 
 // --- components
 import { FormField, RadioCards } from "@upmind-automation/upmind-ui";
@@ -45,6 +47,7 @@ import { map, take } from "lodash-es";
 import type { ControlElement, EnumOption, JsonSchema } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
 import type { RadioCardsItemProps } from "@upmind-automation/upmind-ui";
+import { UIContext } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 const props = defineProps<RendererProps<ControlElement>>();
@@ -52,7 +55,7 @@ const props = defineProps<RendererProps<ControlElement>>();
 const { control, formFieldProps, appliedOptions, onInput } =
   useUpmindUIRenderer(useJsonFormsEnumControl(props));
 
-const { uiCart } = useBrand();
+const { ui } = useConfig();
 
 const { t } = useI18n();
 
@@ -98,20 +101,16 @@ const items = computed(() => {
 const styles = useStyles("form.radioCollapsible", {}, config);
 
 const collapseAt = computed(() => {
-  return (
-    appliedOptions.value?.collapse ||
-    uiCart.value?.ui?.uischema?.payment?.gateways?.clamp ||
-    4
-  );
+  return ui.paymentGatewaysCap.asNumber || 5;
 });
 
 const allowShowMore = computed(() => {
-  return !isExpanded.value && items.value.length > collapseAt.value;
+  return !isExpanded.value && items.value.length > collapseAt.value + 1;
 });
 
 const displayItems = computed(() => {
   if (!allowShowMore.value) return items.value;
-  return take(items.value, collapseAt.value - 1);
+  return take(items.value, collapseAt.value);
 });
 </script>
 

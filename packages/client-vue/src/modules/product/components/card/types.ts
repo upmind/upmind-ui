@@ -5,8 +5,10 @@ import type {
   PriceDetail,
   ProductSummaryMeta,
   ProductSummaryDetailWithPrice,
-  TermDetails
+  TermDetails,
+  UseMetaResult
 } from "@upmind-automation/headless";
+import { UIContext } from "@upmind-automation/headless";
 import type { VariantProps } from "class-variance-authority";
 import { rootVariant } from "./card.config";
 import type { ButtonProps, ImageProps } from "@upmind-automation/upmind-ui";
@@ -14,16 +16,12 @@ import type { RouteLocationAsRelativeGeneric } from "vue-router";
 
 export type RootVariants = VariantProps<typeof rootVariant>;
 
-export interface ProductCardProps extends Omit<
-  Product,
-  "price" | "pricing" | "meta"
-> {
+export interface ProductCardProps extends Omit<Product, "price" | "pricing"> {
   configureRoute: RouteLocationAsRelativeGeneric;
   disabled?: boolean;
   variant?: RootVariants["variant"];
   price?: PriceDetail;
   pricing?: ProductSummaryDetailWithPrice[];
-  meta?: ProductSummaryMeta;
   hideBenefits?: boolean;
   hideDescription?: boolean;
   hideTerms?: boolean;
@@ -37,14 +35,18 @@ export interface ProductCardProps extends Omit<
 export interface ProductInfo {
   configureRoute: RouteLocationAsRelativeGeneric;
   id?: string;
+  title: string;
   productDetails: ProductDetails;
   price?: PriceDetail;
   meta?: ProductSummaryMeta;
+  productMeta?: UseMetaResult;
   hideDescription?: boolean;
+  hideImage?: boolean;
   preservePromotion?: boolean;
   navigate?: boolean;
   processing?: boolean;
   selectedTerm?: string;
+  hideAnchorPrice?: boolean;
 }
 
 export interface ProductBenefits {
@@ -58,8 +60,14 @@ export interface ProductPrice extends TermDetails {
 export interface ProductTerm {
   modelValue?: string;
   prices?: ProductSummaryDetailWithPrice[];
+  hideBadge?: boolean;
 }
 
 export interface ProductCardSkeletonProps {
   hideTerms?: boolean;
+}
+
+export interface ProductPriceProps extends Omit<ProductPrice, "name"> {
+  hidePrice?: boolean;
+  hideTermSummary?: boolean;
 }

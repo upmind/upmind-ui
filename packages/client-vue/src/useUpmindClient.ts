@@ -1,14 +1,15 @@
 // --- internal
-import useUpmind, {
-  useBrand,
-  useRoutingEngine,
-  type UpmindProps
-} from "@upmind-automation/headless";
+import useUpmind, { type UpmindProps } from "@upmind-automation/headless";
 import themes from "./assets/themes";
+import {
+  registerIcons,
+  registerAnimations,
+  type IconImportMap,
+  type AnimationImportMap
+} from "@upmind-automation/upmind-ui";
 
 // --- utils
-import { keyBy, merge, values } from "lodash-es";
-import type { RouteLocationAsRelative } from "vue-router";
+import { isEmpty, keyBy, merge, values } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 // NB we expose UpmindClient instead of just useUpmind as we want to inject our defined themes
@@ -17,11 +18,25 @@ import type { RouteLocationAsRelative } from "vue-router";
 class UpmindClient {
   constructor() {}
 
-  init(props: UpmindProps): Promise<void> {
+  /**
+   * Initialize the Upmind client with the provided configuration.
+   * @param props - Configuration options for the Upmind client
+   */
+
+  init(
+    props: UpmindProps & {
+      icons?: IconImportMap;
+      animations?: AnimationImportMap;
+    }
+  ): Promise<void> {
     // merge our client themes with any provided themes
     props.themes = values(
       merge({}, keyBy(themes, "id"), keyBy(props.themes, "id"))
     );
+
+    // Register icons and animations if provided
+    if (!isEmpty(props.icons)) registerIcons(props.icons);
+    if (!isEmpty(props.animations)) registerAnimations(props.animations);
 
     return useUpmind.init(props);
   }

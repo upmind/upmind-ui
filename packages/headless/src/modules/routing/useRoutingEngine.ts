@@ -14,7 +14,7 @@ import {
   DetailedError,
   ErrorOrigin,
   responseCodes,
-  ResponseError,
+  type ResponseError,
   stateMatches,
   stopService,
   useChildActor,

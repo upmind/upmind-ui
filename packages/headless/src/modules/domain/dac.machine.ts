@@ -6,15 +6,9 @@ import services from "./services";
 import { basketSubscription } from "../basketProduct/helper";
 import { authSubscription } from "../session/helper";
 import { useFeedback } from "../feedback";
-const { addError } = useFeedback();
 
 // --- utils
-import {
-  mapToHeadlessError,
-  responseCodes,
-  ResponseError,
-  useTime
-} from "../../utils";
+import { mapToHeadlessError, useTime } from "../../utils";
 import { parseDomain, parseValue, parseSld, isDomainProduct } from "./utils";
 import {
   compact,
@@ -31,7 +25,6 @@ import {
   map,
   reduce,
   reject,
-  remove,
   set,
   some,
   uniqBy
@@ -39,12 +32,7 @@ import {
 
 // --- types
 import type { AnyEventObject } from "xstate";
-import {
-  ProvisionCategoryCodes,
-  type IBasket,
-  type IBasketProduct
-} from "@upmind-automation/types";
-import { DomainTypes } from "./types";
+import { type IBasketProduct } from "@upmind-automation/types";
 import type { DomainModel, DacContext, DomainProduct } from "./types";
 import type { ProductProps } from "../product";
 import { parseBasketProduct } from "../basketProduct/utils";
@@ -164,7 +152,7 @@ export default createMachine(
       },
 
       REMOVE: {
-        actions: ["setProcessing", "removeFromBasket"]
+        actions: ["setProcessing", "removeFromBasket", "remove"]
       },
 
       UPDATE: {
@@ -430,11 +418,14 @@ export default createMachine(
 
       remove: assign({
         model: ({ model, lookups }: DacContext, { data }: AnyEventObject) => {
-          const domainProduct = find(lookups.searched, [
-            "productDetails.id",
-            (data as ProductProps)?.productId
-          ]) as DomainProduct;
-
+          const domainProduct = find(
+            lookups.searched,
+            (product: DomainProduct) => {
+              return isObject(data)
+                ? product.productDetails.id == (data as ProductProps)?.productId
+                : product.domain == data;
+            }
+          ) as DomainProduct;
           return reject(model, ["domain", domainProduct.domain]);
         }
       }),
@@ -596,17 +587,20 @@ export default createMachine(
         }
       }),
 
-      setFeedbackError: ({ error, lookups }: DacContext, { data, context }) => {
+      setFeedbackError: (
+        { error, lookups }: DacContext,
+        { data, sourceContext }
+      ) => {
         const { t } = useI18n();
 
         const domainProduct = find(lookups.searched, [
           "productDetails.id",
-          (context as ProductProps)?.productId
+          (sourceContext as ProductProps)?.productId
         ]) as DomainProduct;
 
         if (!data || !domainProduct) return;
 
-        addError({
+        useFeedback().addError({
           title: t("error.domain_add_failed"),
           copy: domainProduct?.domain ?? ""
         });
@@ -614,11 +608,11 @@ export default createMachine(
 
       setError: assign({
         error: (_context, { data }: AnyEventObject) => mapToHeadlessError(data)
-        // model: ({ model }, { data, context }: AnyEventObject) => {
+        // model: ({ model }, { data, sourceContext }: AnyEventObject) => {
         //
-        //   // if we are passed a context, vie the event, then we can use that to understand what triggered the error
+        //   // if we are passed a sourceContext, vie the event, then we can use that to understand what triggered the error
         //   // this is useful for marking the triggering product as erroring
-        //   if (context) {
+        //   if (sourceContext) {
         //     const domainProduct = find(model, [
         //       "productDetails.id",
         //       (data as ProductProps)?.productId

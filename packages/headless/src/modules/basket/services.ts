@@ -36,7 +36,7 @@ import {
 import { Contexts, type IBasket } from "@upmind-automation/types";
 import type { BasketContext } from "./types";
 import type { AnyEventObject } from "xstate";
-import { CurrencyModel } from "./currency/types";
+import { type CurrencyModel } from "./currency/types";
 
 // ---  UTILS
 

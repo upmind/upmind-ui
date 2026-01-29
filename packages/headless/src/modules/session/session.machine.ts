@@ -14,7 +14,7 @@ const { removeTopLevel: removeCookie, get: getCookie } = useCookies();
 
 import { useDataLayer } from "../system";
 import { Contexts } from "@upmind-automation/types";
-const { dataLayer } = useDataLayer();
+import { includes } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 export default createMachine(
@@ -112,7 +112,8 @@ export default createMachine(
     },
     on: {
       EXPIRED: {
-        target: "expired"
+        target: "expired",
+        actions: "clear"
       },
       TRANSFER_FROM: {
         target: "transferring",
@@ -156,10 +157,15 @@ export default createMachine(
       clear: () => {
         const actor = getCookie("upm_actor");
 
+        // clear session tokens
+        removeCookie("upm_client_session");
+        removeCookie("upm_admin_session");
+        removeCookie("upm_user_session");
+
         // if there is an actor, we need to clear the user data and update the data layer
         if (actor) {
           removeCookie("upm_actor");
-          dataLayer().withUser().push(false);
+          useDataLayer().dataLayer().withUser().push(false);
         }
       }
     },

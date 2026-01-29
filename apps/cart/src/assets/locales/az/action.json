@@ -25,7 +25,6 @@
   "continue_label": "Davam et",
   "continue_shopping": "Alış-verişə davam edin",
   "create_account": "Hesab yaradın",
-  "create_one_here": "Burada birini yaradın",
   "details_toggle": "Bütün detalları genişləndirin | Bütün detalları yığışdırın",
   "dismiss": "Rədd et",
   "do_this_later": "Bunu sonra edəcəyəm",
@@ -59,6 +58,7 @@
   "save_value": "Saxla {value}",
   "search": "Axtar",
   "send_reset": "Sıfırla göndər",
+  "set_as_default": "Varsayılan olaraq təyin edin",
   "share": "Paylaşın",
   "show_details": "Detalları göstərin",
   "show_less": "Daha az göstər",
@@ -68,5 +68,9 @@
   "sign_in_with_another_account": "sən yox? Başqa hesabla daxil olun {action}.",
   "sort_by_default": "Defolt olaraq çeşidləyin",
   "sort_by_name": "Ada görə çeşidləyin",
-  "sort_by_price": "Qiymətə görə çeşidləyin"
+  "sort_by_price": "Qiymətə görə çeşidləyin",
+  "sort_by_subject": "Mövzuya görə sırala",
+  "verify": "Təsdiqləyin",
+  "view": "Görünüş",
+  "view_email": "E-poçtu göstər"
 }

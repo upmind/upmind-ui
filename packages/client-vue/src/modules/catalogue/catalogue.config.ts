@@ -52,7 +52,19 @@ export default {
       searchIcon: cva("text-control-foreground mr-1.5"),
       grid: {
         root: cva("flex w-full flex-col justify-end gap-12"),
-        container: cva("grid grid-cols-1 gap-12 md:grid-cols-3")
+        container: cva("grid grid-cols-1", {
+          variants: {
+            layout: {
+              "1-col": "gap-12 md:grid-cols-1",
+              "2-col": "gap-12 md:grid-cols-2",
+              "3-col": "gap-12 md:grid-cols-3",
+              "4-col": "gap-x-8 gap-y-12 md:grid-cols-4"
+            }
+          },
+          defaultVariants: {
+            layout: "3-col"
+          }
+        })
       },
       emptyState: {
         root: cva(
@@ -67,7 +79,22 @@ export default {
   categories: {
     root: cva("flex flex-col gap-y-9"),
     grid: cva(
-      "bg-surface text-muted border-surface control-radius grid w-full grid-cols-1 gap-px overflow-hidden border md:grid-cols-3"
+      "bg-surface text-muted border-surface control-radius grid w-full grid-cols-1 gap-px overflow-hidden border",
+      {
+        variants: {
+          layout: {
+            "1-col": "md:grid-cols-1",
+            "2-col": "md:grid-cols-2",
+            "3-col": "md:grid-cols-3",
+            "4-col": "md:grid-cols-4",
+            "5-col": "md:grid-cols-5",
+            "6-col": "md:grid-cols-6"
+          }
+        },
+        defaultVariants: {
+          layout: "3-col"
+        }
+      }
     ),
     controls: {
       root: cva(
@@ -76,7 +103,10 @@ export default {
     },
     header: {
       root: cva("flex max-w-2xl flex-col gap-y-3 empty:hidden"),
-      title: cva("font-display m-0 text-5xl font-normal text-balance"),
+      title: {
+        root: cva("flex items-center gap-x-5 gap-y-2"),
+        text: cva("font-display text-5xl font-normal text-balance")
+      },
       description: cva("text-md text-muted m-0")
     },
     item: {
@@ -90,12 +120,13 @@ export default {
         "flex h-auto w-full flex-col gap-1 border-none px-0 py-0 text-left"
       ),
       titleContainer: cva(
-        "m-0 flex w-full items-center justify-between text-lg font-normal"
+        "m-0 flex w-full items-start justify-between gap-2 text-lg font-normal"
       ),
       title: cva(""),
       link: cva("font-medium"),
+      badge: cva("mt-1 mr-auto"),
       arrowIcon: cva(
-        "text-muted transition-all duration-200 group-hover:text-base"
+        "text-muted mt-1.5 transition-all duration-200 group-hover:text-base"
       ),
       description: cva(
         "text-muted m-0 line-clamp-3 text-sm font-normal whitespace-normal transition-all duration-200"

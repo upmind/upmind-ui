@@ -1,12 +1,28 @@
 {
-  "extends": "../../tsconfig.json",
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "../../tsconfig/vue-app.json",
   "compilerOptions": {
-    "composite": true,
-    "declaration": true,
-    "declarationDir": "dist",
-    "outDir": "dist",
-    "rootDir": "../../" // Set to monorepo root
+    "baseUrl": ".",
+    "paths": {
+      "@upmind-automation/types": ["../../packages/types/src/index.ts"],
+      "@upmind-automation/i18n": ["../../packages/i18n/src/index.ts"],
+      "@upmind-automation/headless": ["../../packages/headless/src/index.ts"],
+      "@upmind-automation/icons": ["../../packages/icons/src/index.ts"],
+      "@upmind-automation/upmind-ui": ["../../packages/ui/src/index.ts"],
+      "@upmind-automation/client-vue": [
+        "../../packages/client-vue/src/index.ts"
+      ],
+      "@/*": ["./src/*"]
+    }
   },
-  "include": ["src/**/*", "../../packages/**/*"],
-  "exclude": ["node_modules", "dist", "**/*.spec.*", "src/**/*.*test.ts"]
+  "include": [
+    "src/**/*",
+    "../../packages/types/src/**/*",
+    "../../packages/i18n/src/**/*",
+    "../../packages/headless/src/**/*",
+    "../../packages/icons/src/**/*",
+    "../../packages/ui/src/**/*",
+    "../../packages/client-vue/src/**/*"
+  ],
+  "exclude": ["node_modules", "dist", "**/*.spec.*", "**/*.test.*"]
 }

@@ -67,8 +67,8 @@
     "placeholder": "Registrierte Steuer oder GST"
   },
   "country": {
-    "label": "Land",
-    "placeholder": "Wählen Sie ein Land"
+    "label": "Steuernummer",
+    "placeholder": "Steuer-ID"
   },
   "domain": {
     "placeholder": "Geben Sie Ihre Domäne ein..."
@@ -87,6 +87,10 @@
   "firstname": {
     "error": "Ihr Vorname ist erforderlich",
     "label": "Vorname"
+  },
+  "language": {
+    "error": "Ihre Sprache wird benötigt",
+    "label": "Sprache"
   },
   "lastname": {
     "error": "Ihr Nachname ist erforderlich",
@@ -121,6 +125,10 @@
     "error": "Ein gültiger Promo-Code ist erforderlich",
     "placeholder": "Gutscheincode hier eingeben"
   },
+  "publicName": {
+    "error": "Ihr öffentlicher Name ist erforderlich.",
+    "label": "Öffentlicher Name"
+  },
   "recover": {
     "error": "Beim Versuch, Ihnen eine E-Mail zum Zurücksetzen des Passworts zu senden, ist ein Fehler aufgetreten."
   },
@@ -139,9 +147,5 @@
   },
   "stored_payment_method": {
     "label": ""
-  },
-  "taxNumber": {
-    "label": "Steuernummer",
-    "placeholder": "Steuernummer"
   }
 }

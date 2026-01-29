@@ -6,7 +6,7 @@
   >
     <Container
       flow="horizontal"
-      justify="between"
+      :justify="meta.hasContent || meta.reverse ? 'between' : 'end'"
       items="end"
       :class="styles.footer.flat.container"
     >

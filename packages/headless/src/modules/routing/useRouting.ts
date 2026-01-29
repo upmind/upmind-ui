@@ -6,8 +6,8 @@ import { get } from "lodash-es";
 
 // --- types
 import type { Router, RouteLocation } from "vue-router";
-import { UIRouteOptions } from "../brand/types";
-import { hasRouteChanged } from "./utils";
+import { type UIRouteOptions } from "../brand/types";
+import { decorateRoutes, hasRouteChanged } from "./utils";
 
 // -----------------------------------------------------------------------------
 
@@ -44,30 +44,6 @@ export const useRouting = (router: Router): void => {
     return;
   }
 
-  /**
-   * Decorate all route records with brand specific UIschema or layout information
-   * This modifies the route definitions (records) rather than the navigation location,
-   * which avoids Vue Router warnings about mutating route.meta during navigation.
-   */
-  async function decorateRoutes() {
-    const { uischema_Route, uiCart, isReady } = useBrand();
-    await isReady();
-
-    const fallbackTemplate = get(uiCart.value, "layout");
-
-    // Loop through all registered routes and update their meta
-    router.getRoutes().forEach(routeRecord => {
-      const uischema = routeRecord.name
-        ? (get(uischema_Route?.value, routeRecord.name, {}) as UIRouteOptions)
-        : {};
-
-      // Mutate the route RECORD's meta (this is allowed, unlike RouteLocation.meta)
-      Object.assign(routeRecord.meta, {
-        ...uischema,
-        template: uischema?.template || fallbackTemplate
-      });
-    });
-  }
   // ---------------------------------------------------------------------------
 
   /**
@@ -76,7 +52,7 @@ export const useRouting = (router: Router): void => {
    *     This is because on load the vue router resolves the route before the engine is ready
    */
   router.isReady().then(async () => {
-    await decorateRoutes();
+    await decorateRoutes(router.getRoutes());
     const target = await guardRoute(router.currentRoute.value);
     if (target) {
       await router.push(target);

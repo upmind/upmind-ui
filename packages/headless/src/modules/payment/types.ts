@@ -6,8 +6,8 @@ import type {
   IPaymentAttempt,
   Methods
 } from "@upmind-automation/types";
-import { ResponseError } from "../../utils";
-import { PaymentDetailData } from "../paymentDetails";
+import { type ResponseError } from "../../utils";
+import { type PaymentDetailData } from "../paymentDetails";
 
 // -----------------------------------------------------------------------------
 

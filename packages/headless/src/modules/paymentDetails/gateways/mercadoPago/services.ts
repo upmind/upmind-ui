@@ -13,7 +13,7 @@ import {
 } from "../../../../utils";
 
 // --- types
-import { MERCADOPAGO_FIELDS, MercadoPagoContext } from "./types";
+import { MERCADOPAGO_FIELDS, type MercadoPagoContext } from "./types";
 import type { AnyEventObject } from "xstate";
 
 // --- utils

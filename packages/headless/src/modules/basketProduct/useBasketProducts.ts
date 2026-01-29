@@ -4,8 +4,7 @@ import { computed, ref } from "vue";
 // --- internal
 import { useBasket } from "../basket";
 import services from "./services";
-import { useDataLayer, useI18n } from "../system";
-const { dataLayer } = useDataLayer();
+import { useI18n } from "../system";
 
 // --- utils
 import { get, add, subtract, has, set, unset } from "lodash-es";
@@ -13,13 +12,13 @@ import { DetailedError, ErrorOrigin, responseCodes } from "../../utils";
 
 // --- types
 import type { BasketProduct } from "./types";
-import { ProductModel } from "../product";
-import { IBasket } from "@upmind-automation/types";
+import { type ProductModel } from "../product";
+import { type IBasket } from "@upmind-automation/types";
 
-import { UseBasketProduct, useBasketProduct } from "./useBasketProduct";
+import { type UseBasketProduct, useBasketProduct } from "./useBasketProduct";
 
 // --- utils
-import { isEmpty, debounce, includes, remove as _remove } from "lodash-es";
+import { isEmpty, debounce, remove as _remove } from "lodash-es";
 import { DEBOUNCE_DELAY } from "../../utils";
 
 // --- types
@@ -38,10 +37,9 @@ export const useBasketProducts = () => {
     findProduct,
     findProducts,
     productExists,
-    products,
     isReady,
     refresh,
-    prefresh,
+    products,
     basketId,
     meta: basketMeta
   } = useBasket();
@@ -82,17 +80,8 @@ export const useBasketProducts = () => {
       );
     }
 
-    return services.remove(basketId.value, id).then((rawBasket: IBasket) => {
-      const basketProduct = findProduct({ id });
-      if (basketProduct) {
-        dataLayer({ event: "remove_from_cart" })
-          .withItems(basketProduct)
-          .push();
-      }
-
-      prefresh(rawBasket); // NB prefresh AFTER the finding the now deleted basket product
-      return rawBasket;
-    });
+    // DataLayer and prefresh are handled in services.ts
+    return services.remove(basketId.value, id);
   }
 
   /**
@@ -117,17 +106,8 @@ export const useBasketProducts = () => {
       );
     }
 
-    return services
-      .update(basketId.value, { ...data, id } as ProductModel)
-      .then(rawBasket => {
-        prefresh(rawBasket); // NB prefresh BEFORE finding the newly added basket product
-
-        const basketProduct = findProduct({ id });
-        if (basketProduct) {
-          dataLayer({ event: "add_to_cart" }).withItems(basketProduct).push();
-        }
-        return rawBasket;
-      });
+    // DataLayer and prefresh are handled in services.ts
+    return services.update(basketId.value, { ...data, id } as ProductModel);
   }
   //  ---
   /**
@@ -157,26 +137,12 @@ export const useBasketProducts = () => {
         );
       }
       const qty = get(basketProduct, "configuration.quantity", 1);
-      return services
-        .updateQuantity(
-          basketId.value,
-          add(qty, basketProduct.productDetails.step || 1),
-          basketProduct
-        )
-        .then((rawBasket: IBasket) => {
-          prefresh(rawBasket);
-          const basketProduct = findProduct({ id });
-          if (!basketProduct) {
-            throw new DetailedError(
-              t("error.basket_product_not_found"),
-              responseCodes.Not_Found,
-              ErrorOrigin.Headless
-            );
-          }
-          dataLayer({ event: "add_to_cart" }).withItems(basketProduct).push();
-
-          return rawBasket;
-        });
+      // DataLayer and prefresh are handled in services.ts
+      return services.updateQuantity(
+        basketId.value,
+        add(qty, basketProduct.productDetails.step || 1),
+        basketProduct
+      );
     });
   }
 
@@ -209,28 +175,12 @@ export const useBasketProducts = () => {
       }
 
       const qty = get(basketProduct, "quantity", 1);
-      return services
-        .updateQuantity(
-          basketId.value,
-          subtract(qty, basketProduct.productDetails?.step || 1),
-          basketProduct
-        )
-        .then((rawBasket: IBasket) => {
-          prefresh(rawBasket);
-          const basketProduct = findProduct({ id });
-          if (!basketProduct) {
-            throw new DetailedError(
-              t("error.basket_product_not_found"),
-              responseCodes.Not_Found,
-              ErrorOrigin.Headless
-            );
-          }
-          dataLayer({ event: "remove_from_cart" })
-            .withItems(basketProduct)
-            .push();
-
-          return rawBasket;
-        });
+      // DataLayer and prefresh are handled in services.ts
+      return services.updateQuantity(
+        basketId.value,
+        subtract(qty, basketProduct.productDetails?.step || 1),
+        basketProduct
+      );
     });
   }
 
@@ -265,22 +215,8 @@ export const useBasketProducts = () => {
           ErrorOrigin.Headless
         );
       }
-      return services
-        .updateQuantity(basketId.value, quantity, basketProduct)
-        .then((rawBasket: IBasket) => {
-          prefresh(rawBasket);
-          const basketProduct = findProduct({ id });
-          if (!basketProduct) {
-            throw new DetailedError(
-              t("error.basket_product_not_found"),
-              responseCodes.Not_Found,
-              ErrorOrigin.Headless
-            );
-          }
-          dataLayer({ event: "add_to_cart" }).withItems(basketProduct).push();
-
-          return rawBasket;
-        });
+      // DataLayer and prefresh are handled in services.ts
+      return services.updateQuantity(basketId.value, quantity, basketProduct);
     });
   }
 

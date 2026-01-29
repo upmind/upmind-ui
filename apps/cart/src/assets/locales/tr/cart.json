@@ -19,6 +19,7 @@
   "basket_review_msg": "Devam etmeden önce lütfen aşağıdaki öğeleri gözden geçirin",
   "basket_section": "Sepet özeti",
   "basket_summary_desc": "Var {count} sepetinizdeki ürün, toplam {total}. | Sende var {count} sepetinizdeki toplam ürün sayısı {total}.",
+  "basket_summary_desc_free": "Var {count} Sepetinizde ürün var. | Sizde {count} Sepetinizdeki ürünler.",
   "basket_title": "Sepetiniz",
   "change_amount": "Miktarı değiştir",
   "empty": "**Sepetiniz** boş",

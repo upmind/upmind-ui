@@ -67,8 +67,8 @@
     "placeholder": "Imposta registrata o GST"
   },
   "country": {
-    "label": "Paese",
-    "placeholder": "Seleziona un paese"
+    "label": "Codice fiscale",
+    "placeholder": "Codice fiscale"
   },
   "domain": {
     "placeholder": "Inserisci il tuo dominio..."
@@ -87,6 +87,10 @@
   "firstname": {
     "error": "Il tuo nome è obbligatorio",
     "label": "Nome di battesimo"
+  },
+  "language": {
+    "error": "La tua lingua è obbligatoria",
+    "label": "Lingua"
   },
   "lastname": {
     "error": "Il tuo cognome è obbligatorio",
@@ -121,6 +125,10 @@
     "error": "Codice promozionale non valido",
     "placeholder": "Inserisci qui il codice voucher"
   },
+  "publicName": {
+    "error": "Il tuo nome pubblico è obbligatorio",
+    "label": "Nome pubblico"
+  },
   "recover": {
     "error": "Si è verificato un errore durante il tentativo di inviarti un'e-mail per reimpostare la password."
   },
@@ -139,9 +147,5 @@
   },
   "stored_payment_method": {
     "label": ""
-  },
-  "taxNumber": {
-    "label": "Codice fiscale",
-    "placeholder": "Codice fiscale"
   }
 }

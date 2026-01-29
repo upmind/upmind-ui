@@ -17,9 +17,9 @@ import {
   ImageObjectTypes,
   ImageUploadTypes,
   BrandConfigKeys,
-  IImage
+  type IImage
 } from "@upmind-automation/types";
-import { AnyEventObject } from "xstate";
+import { type AnyEventObject } from "xstate";
 
 // ---  HELPERS
 

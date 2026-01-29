@@ -1,45 +1,27 @@
 {
-  // This tsconfig is for development. Allowing *.story.vue, and __test__/*.vue to have types support
-  "extends": "@vue/tsconfig/tsconfig.dom.json",
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "../../tsconfig/vue-library.json",
   "compilerOptions": {
-    "baseUrl": ".",
-    "composite": true,
-    "declaration": true,
-    "declarationMap": false,
-    "esModuleInterop": true,
-    "isolatedModules": true,
-    "emitDeclarationOnly": true,
-    "jsx": "preserve",
-    "lib": ["esnext", "dom"],
-    "module": "esnext",
-    "moduleResolution": "node",
-    "noEmit": false,
-    "outDir": "dist",
-    "paths": {
-      "@/*": ["src/*"],
-      "@upmind-automation/headless": ["../headless/src/index.ts"],
-      "@upmind-automation/upmind-ui": ["../ui/src/index.ts"]
-    },
-    "resolveJsonModule": true,
-    "rootDir": "src",
     "skipLibCheck": true,
-    "sourceMap": true,
-    "strict": true,
-    "target": "esnext",
-    "types": ["jsdom", "vite/client"]
+    "noEmit": true,
+    "outDir": "dist",
+    "baseUrl": ".",
+    "paths": {
+      "@upmind-automation/types": ["../types/src/index.ts"],
+      "@upmind-automation/i18n": ["../i18n/src/index.ts"],
+      "@upmind-automation/headless": ["../headless/src/index.ts"],
+      "@upmind-automation/icons": ["../icons/src/index.ts"],
+      "@upmind-automation/upmind-ui": ["../ui/src/index.ts"],
+      "@/*": ["./src/*"]
+    }
   },
   "include": [
     "src/**/*",
-    "../headless/src/modules/routing/useRouting.ts",
-    "../headless/src/modules/system/localisation/useI18n.ts",
-    "../headless/src/modules/system/localisation/types.ts",
-    "../headless/src/modules/theming/useTheming.ts"
+    "../types/src/**/*",
+    "../i18n/src/**/*",
+    "../headless/src/**/*",
+    "../icons/src/**/*",
+    "../ui/src/**/*"
   ],
-  "exclude": ["node_modules", "dist", "**/*.spec.*", "src/**/*.*test.ts"],
-  "references": [
-    { "path": "../types" },
-    { "path": "../i18n" },
-    { "path": "../headless" },
-    { "path": "../ui" }
-  ]
+  "exclude": ["node_modules", "dist", "**/*.spec.*", "**/*.test.*"]
 }

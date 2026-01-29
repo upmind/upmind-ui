@@ -1,20 +1,25 @@
 {
-  "extends": "../../tsconfig.json",
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "../../tsconfig/vue-library.json",
   "compilerOptions": {
-    "baseUrl": ".", // Important for path resolution
-    "composite": true,
-    "declaration": true,
-    "declarationDir": "dist",
+    "skipLibCheck": true,
+    "noEmit": true,
     "outDir": "dist",
-    "rootDir": "src",
-    "types": [
-      "jsdom",
-      "vite/client",
-      "@types/google.maps",
-      "@types/mercadopago-sdk-js"
-    ]
+    "baseUrl": ".",
+    "paths": {
+      "@upmind-automation/types": ["../types/src/index.ts"],
+      "@upmind-automation/i18n": ["../i18n/src/index.ts"],
+      "@/*": ["./src/*"]
+    },
+    "types": ["vite/client", "@types/google.maps", "@types/mercadopago-sdk-js"]
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "**/*.spec.*", "src/**/*.*test.ts"],
-  "references": [{ "path": "../types" }, { "path": "../i18n" }]
+  "include": ["src/**/*", "../types/src/**/*", "../i18n/src/**/*"],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/*.spec.*",
+    "**/*.test.*",
+    "**/*.no-test.*",
+    "**/__tests__/**"
+  ]
 }

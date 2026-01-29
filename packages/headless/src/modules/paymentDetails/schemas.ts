@@ -9,7 +9,7 @@ import { map, values, includes, isEmpty } from "lodash-es";
 // --- types
 import type { PaymentDetailsContext } from "./types";
 import {
-  JsonSchema7,
+  type JsonSchema7,
   RuleEffect,
   type JsonSchema,
   type UISchemaElement
@@ -215,7 +215,7 @@ export const useUischemaDefinitions = ({
       scope: "#/properties/gateway_id",
       i18n: "form.gateway_id",
       options: {
-        width: 6
+        width: 2
       }
     };
   }

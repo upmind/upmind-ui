@@ -25,7 +25,6 @@
   "continue_label": "Folytatás",
   "continue_shopping": "Folytassa a vásárlást",
   "create_account": "Fiók létrehozása",
-  "create_one_here": "Hozz létre egyet itt",
   "details_toggle": "Az összes részlet kibontása | Az összes részlet összecsukása",
   "dismiss": "Elvetés",
   "do_this_later": "Ezt később megcsinálom",
@@ -59,6 +58,7 @@
   "save_value": "Megtakarítás {value}",
   "search": "Keresés",
   "send_reset": "Visszaállítás küldése",
+  "set_as_default": "Beállítás alapértelmezettként",
   "share": "Részesedés",
   "show_details": "Részletek megjelenítése",
   "show_less": "Kevesebb megjelenítése",
@@ -68,5 +68,9 @@
   "sign_in_with_another_account": "Nem Ön? Jelentkezzen be egy másik fiókkal {action}.",
   "sort_by_default": "Rendezés alapértelmezés szerint",
   "sort_by_name": "Rendezés név szerint",
-  "sort_by_price": "Rendezés ár szerint"
+  "sort_by_price": "Rendezés ár szerint",
+  "sort_by_subject": "Rendezés téma szerint",
+  "verify": "Ellenőrzés",
+  "view": "Kilátás",
+  "view_email": "E-mail megtekintése"
 }

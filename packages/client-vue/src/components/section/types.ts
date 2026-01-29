@@ -22,10 +22,10 @@ export type SectionActionProps = LinkProps & {
   visible?: boolean;
 };
 
-export type SectionItem = TabItem & {
-  actions?: Record<string, SectionActionProps>;
+export interface SectionItem extends TabItem {
+  actions?: SectionActionProps[];
   active?: boolean;
-};
+}
 
 export type SectionsProps = {
   card?: boolean;

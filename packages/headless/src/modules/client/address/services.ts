@@ -37,21 +37,20 @@ import type { Address, AddressModel, AddressContext } from "./types";
 // QUERIES
 
 const queryKey: QueryKey = ["client", "addresses"];
-const { addError, addSuccess } = useFeedback();
 
 function loadList(params: Partial<QueryParams> = { pagination: { limit: 0 } }) {
-  const { meta, userId } = useSession();
+  const { meta, clientId } = useSession();
   const { list, useUrl } = useQuery();
 
   return list<IAddress[], Address[]>({
     ...(params as any),
-    queryKey: [...queryKey, { userId }],
-    url: useUrl(`clients/${userId.value}/addresses`, {
+    queryKey: [...queryKey, { client: clientId.value }],
+    url: useUrl(`clients/${clientId.value}/addresses`, {
       with: ["region", "country"].join()
     }),
     guard: async () =>
       new Promise((resolve, reject) => {
-        if (meta.value.isAuthenticated && !!userId.value) {
+        if (meta.value.isAuthenticated && !!clientId.value) {
           resolve(true);
         } else {
           reject(new NotAuthenticatedError());
@@ -62,7 +61,7 @@ function loadList(params: Partial<QueryParams> = { pagination: { limit: 0 } }) {
     select: mapAddresses,
     staleTime: useTime().DAY,
     retryDelay: DEBOUNCE_DELAY,
-    enabled: () => !!(meta.value.isAuthenticated && !!userId.value)
+    enabled: () => !!(meta.value.isAuthenticated && !!clientId.value)
   });
 }
 
@@ -130,31 +129,31 @@ async function loadLookups({
 // MUTATIONS
 
 async function add(data: AddressModel) {
-  const { meta, user } = useSession();
+  const { meta, clientId } = useSession();
   const { post, useUrl } = useQuery();
 
-  if (!meta.value.isAuthenticated || !user.value?.id) {
+  if (!meta.value.isAuthenticated || !clientId.value) {
     return Promise.reject(new NotAuthenticatedError());
   }
   return post<IAddress>({
     mutationKey: ["client", "addresses", "add"],
-    url: useUrl(`clients/${user.value?.id}/addresses`),
+    url: useUrl(`clients/${clientId.value}/addresses`),
     data: mapIAddress(data),
     withAccessToken: true
   }).then(invalidateQueryByKey(queryKey, { exact: false }));
 }
 
 async function update(id: Address["id"], data: AddressModel) {
-  const { meta, user } = useSession();
+  const { meta, clientId } = useSession();
   const { put, useUrl } = useQuery();
 
-  if (!meta.value.isAuthenticated || !user.value?.id) {
+  if (!meta.value.isAuthenticated || !clientId.value) {
     return Promise.reject(new NotAuthenticatedError());
   }
 
   return put<IAddress>({
     mutationKey: ["client", "addresses", id],
-    url: useUrl(`clients/${user.value?.id}/addresses/${id}`),
+    url: useUrl(`clients/${clientId.value}/addresses/${id}`),
     data: mapIAddress(data),
     withAccessToken: true
   }).then(invalidateQueryByKey(queryKey, { exact: false }));
@@ -183,27 +182,28 @@ async function ensure(model: AddressModel): Promise<Address> {
       );
     // NB: Remember to refresh our machines so we have the new data
     // refresh();
+
     return mapAddress(raw);
   });
 }
 
 function remove(addressId: Address["id"]) {
   const { t } = useI18n();
-  const { meta, user } = useSession();
+  const { meta, clientId } = useSession();
   const { mutate, useUrl } = useQuery();
 
   return mutate<null>("DELETE", {
-    url: useUrl(`clients/${user.value?.id}/addresses/${addressId}`),
+    url: useUrl(`clients/${clientId.value}/addresses/${addressId}`),
     guard: async () =>
       new Promise((resolve, reject) => {
-        if (meta.value.isAuthenticated || !user.value?.id) {
+        if (meta.value.isAuthenticated || !clientId.value) {
           resolve(true);
         } else {
           reject(new NotAuthenticatedError());
         }
       }),
     onError(error: any) {
-      addError({
+      useFeedback().addError({
         title: isString(error)
           ? error
           : error?.title || t("error.client_address_update_failed"),
@@ -213,7 +213,7 @@ function remove(addressId: Address["id"]) {
     },
     onSuccess(data) {
       invalidateQueryByKey(queryKey, { exact: false })(data);
-      addSuccess(t("confirm.address_removed"));
+      useFeedback().addSuccess(t("confirm.address_removed"));
     },
     withAccessToken: true
   });
@@ -221,14 +221,14 @@ function remove(addressId: Address["id"]) {
 
 function setDefault(addressId: Address["id"]) {
   const { t } = useI18n();
-  const { meta, user } = useSession();
+  const { meta, clientId } = useSession();
   const { mutate, useUrl } = useQuery();
 
   return mutate<IAddress>("PUT", {
-    url: useUrl(`clients/${user.value?.id}/addresses/${addressId}`),
+    url: useUrl(`clients/${clientId.value}/addresses/${addressId}`),
     guard: async () =>
       new Promise((resolve, reject) => {
-        if (meta.value.isAuthenticated || !user.value?.id) {
+        if (meta.value.isAuthenticated || !clientId.value) {
           resolve(true);
         } else {
           reject(new NotAuthenticatedError());
@@ -236,7 +236,7 @@ function setDefault(addressId: Address["id"]) {
       }),
     data: { default: true },
     onError(error: any) {
-      addError({
+      useFeedback().addError({
         title: isString(error)
           ? error
           : error?.title || t("error.client_address_set_default_failed"),
@@ -246,7 +246,7 @@ function setDefault(addressId: Address["id"]) {
     },
     onSuccess(data) {
       invalidateQueryByKey(queryKey, { exact: false })(data);
-      addSuccess(t("confirm.address_set_default"));
+      useFeedback().addSuccess(t("confirm.address_set_default"));
     },
     withAccessToken: true
   });

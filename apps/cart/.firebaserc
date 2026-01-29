@@ -6,7 +6,7 @@
     "upmind-labs": {
       "hosting": {
         "staging": [
-          "stg-upm-checkout"
+          "sprighost-checkout-dev"
         ],
         "hosting": [
           "upmind-checkout-dev"

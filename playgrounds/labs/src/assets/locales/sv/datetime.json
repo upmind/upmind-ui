@@ -1,0 +1,29 @@
+{
+  "calendar": {
+    "last_day": "[I går]",
+    "last_week": "[Senaste] dddd",
+    "next_day": "[I morgon]",
+    "next_week": "dddd",
+    "same_day": "[I dag]"
+  },
+  "date": {
+    "default": "MMM Gör, ÅÅÅÅ",
+    "omit_ordinal": "MMM ÅÅÅÅ",
+    "omit_year": "MMM Gör",
+    "only_day": "D",
+    "only_month": "MMM",
+    "only_ordinal": "Do",
+    "only_week": "MMM Do ([Vecka] V)",
+    "only_year": "ÅÅÅÅ"
+  },
+  "datetime": {
+    "default": "MMM Gör, ÅÅÅÅ TT:mm A",
+    "omit_meridiem": "MMM Gör, ÅÅÅÅ TT:mm",
+    "with_seconds": "MMM Gör, ÅÅÅÅ TT:mm:ss"
+  },
+  "time": {
+    "default": "TT:mm",
+    "with_meridiem": "TT:mm A",
+    "with_seconds": "TT:mm:ss"
+  }
+}

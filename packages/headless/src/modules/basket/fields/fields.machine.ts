@@ -5,14 +5,14 @@ import { createMachine, assign } from "xstate";
 import services from "./services";
 import { useI18n } from "../../system";
 import { useFeedback } from "../../feedback";
-const { addError } = useFeedback();
 
 // --- utils
 import {
   useTime,
   useModelParser,
   mapToHeadlessError,
-  useValidationParser
+  useValidationParser,
+  isDirty
 } from "../../../utils";
 import { responseCodes } from "../../../utils";
 import { useSchema, useUischema } from "./utils";
@@ -209,7 +209,7 @@ export default createMachine(
         if (!error || error?.status == responseCodes.Unprocessable_Entity)
           return;
 
-        addError({
+        useFeedback().addError({
           title: t("error.basket_fields_update_failed"),
           copy: error?.message,
           data: error?.data
@@ -231,7 +231,7 @@ export default createMachine(
 
     guards: {
       isDirty: ({ model, baseModel }: FieldsContext, _event) =>
-        !isEqual(model, baseModel),
+        isDirty(model, baseModel),
       hasBasket: ({ basketId }: FieldsContext) => !!basketId,
       hasChanged: (
         { model, basketId }: FieldsContext,

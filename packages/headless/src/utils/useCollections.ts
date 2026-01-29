@@ -1,5 +1,5 @@
 // --- external
-import { computed, MaybeRef, toRaw, unref } from "vue";
+import { computed, type MaybeRef, toRaw, unref } from "vue";
 
 // --- utils
 import {

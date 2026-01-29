@@ -1,13 +1,21 @@
-// --- external
-import { defineAsyncComponent } from "vue";
-
-// -----------------------------------------------------------------------------
-
 // --- expose our package exports
 export * from "@upmind-automation/headless";
 
+// --- expose composables
+export {
+  useConfig,
+  provideConfig,
+  injectConfig
+} from "@upmind-automation/headless";
+
 // --- expose our Upmind component
-export const Upm = defineAsyncComponent(() => import("./Upmind.vue"));
+export { default as Upm } from "./Upmind.vue";
+
+// --- expose standalone parts for custom layouts (e.g. Nuxt)
+export { default as UpmHeader } from "./components/header/Header.vue";
+export { default as UpmFooter } from "./components/footer/Footer.vue";
+export { default as UpmPage } from "./components/page/Page.vue";
+export { default as UpmMain } from "./components/main/Main.vue";
 
 //  --- export modules and components
 export * from "./components";

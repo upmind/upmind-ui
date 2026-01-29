@@ -1,10 +1,10 @@
 // --- external
-import { AnyEventObject, assign } from "xstate";
+import { type AnyEventObject, assign } from "xstate";
 
 // --- utils
 import { useModelParser } from "../../../../utils";
 import { useSchema, useUischema } from "./schemas";
-import { OpenPayContext, OpenPayModel } from "./types";
+import { type OpenPayContext, type OpenPayModel } from "./types";
 
 // --- types
 

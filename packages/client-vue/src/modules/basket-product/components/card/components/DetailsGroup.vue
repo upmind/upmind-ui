@@ -13,13 +13,9 @@
 import DetailsItem from "./DetailsItem.vue";
 
 // --- types
-import type { Product } from "@upmind-automation/headless";
+import type { DetailsGroupProps } from "./types";
 
 // -----------------------------------------------------------------------------
 
-defineProps<{
-  id: string;
-  category?: string;
-  items: Product["details"];
-}>();
+defineProps<DetailsGroupProps>();
 </script>

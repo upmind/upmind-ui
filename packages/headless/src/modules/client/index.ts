@@ -1,5 +1,8 @@
 // --- internal
 export * from "./address";
-export * from "./phone";
-export * from "./email";
 export * from "./company";
+export * from "./customFields";
+export * from "./email";
+export * from "./emailHistory";
+export * from "./personalDetails";
+export * from "./phone";

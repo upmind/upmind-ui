@@ -1,0 +1,16 @@
+{
+  "address_removed": "Ünvan uğurla silindi",
+  "address_set_default": "Ünvan uğurla defolt olaraq təyin edildi",
+  "company_removed": "Şirkət uğurla silindi",
+  "company_set_default": "Şirkət uğurla defolt olaraq təyin edildi",
+  "copied": "Kopyalandı",
+  "domain_in_basket_msg": "Bu domen artıq səbətinizdədir.",
+  "domain_owned_msg": "Siz artıq bu domenin sahibisiniz.",
+  "email_removed": "E-poçt uğurla silindi",
+  "email_set_default": "E-poçt uğurla defolt olaraq təyin edildi",
+  "in_basket": "Səbətdə",
+  "in_use": "İstifadədədir",
+  "phone_removed": "Telefon uğurla silindi",
+  "phone_set_default": "Telefon uğurla defolt olaraq təyin edildi",
+  "reset_instructions_sent_msg": "Təşəkkürlər - sıfırlama təlimatları e-poçtunuza göndərildi"
+}

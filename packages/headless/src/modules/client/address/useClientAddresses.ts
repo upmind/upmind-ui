@@ -103,7 +103,7 @@ export const useClientAddresses = (
      * @property {boolean} isError - Indicates if there was an error during the query.
      * @property {boolean} isEmpty - Indicates if the address list is empty.
      * @property {boolean} isLoading - Indicates if the query is currently loading.
-     * @property {boolean} isAuthenticated - Indicates if the user is authenticated.
+     * @property {boolean} isAuthenticated - Indicates if the client is authenticated.
      */
     meta,
 

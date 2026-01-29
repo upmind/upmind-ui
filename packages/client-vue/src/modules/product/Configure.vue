@@ -4,26 +4,23 @@
       <template v-if="!isSlotHidden('product-details')" #product-details>
         <slot
           name="product-details"
-          :meta="meta"
+          :product-meta="productMeta"
+          :config-meta="configMeta"
           :product="product"
           :product-image="productImage"
         >
           <ProductHero
-            v-if="meta?.isAvailable && product?.productDetails"
+            v-if="productMeta?.isAvailable && product?.productDetails"
             :product-details="product.productDetails"
-            :product-image="productImage()"
-            :direction="
-              template === PRODUCT_TEMPLATE.TWO_COLUMN_RTL
-                ? 'vertical'
-                : 'horizontal'
-            "
-            :image="template !== PRODUCT_TEMPLATE.TWO_COLUMN_LTR || isMobile"
+            :direction="stylesMeta.direction"
+            :image="stylesMeta.heroImage"
+            :meta="configMeta"
           >
             <template #prepend>
               <Breadcrumb
-                v-if="meta?.isAvailable"
+                v-if="productMeta?.isAvailable"
                 :items="breadcrumbItems"
-                :variant="breadcrumbVariant"
+                :variant="configMeta.ui.breadcrumbs.value"
                 size="lg"
               />
             </template>
@@ -36,6 +33,7 @@
         <ProductImage
           v-if="
             product?.productDetails &&
+            configMeta.ui.productImages.isVisible &&
             (!isEmpty(product.productDetails?.images) ||
               product.productDetails.imgUrl)
           "
@@ -49,34 +47,35 @@
           name="configuration"
           :product="product"
           :pending-product="pendingProduct"
-          :meta="meta"
           :config-meta="configMeta"
+          :product-meta="productMeta"
           :do-resolve="doResolve"
           :do-reject="doReject"
         >
-          <Section :label="t('text.product_configuration')" icon="settings-04">
+          <Section
+            :label="t('text.product_configuration')"
+            icon="settings-04"
+            :actions="configurationActions"
+          >
             <form @submit.prevent @reset.prevent>
               <ProductConfig
-                v-if="pendingProduct && meta?.isAvailable"
+                v-if="pendingProduct && productMeta?.isAvailable"
+                as="div"
                 :item="pendingProduct"
                 :model-value="pendingProduct?.id"
-                :no-footer="true"
-                as="div"
+                :meta="configMeta"
+                no-footer
                 @resolve="doResolve"
                 @reject="doReject"
               />
 
               <ProductNotFound
-                v-else-if="meta?.isUnavailable"
+                v-else-if="productMeta?.isUnavailable"
                 :storefront-route="props.storefrontRoute"
               />
 
               <ConfigSkeleton v-else />
             </form>
-
-            <!-- <template #actions>
-            <Share size="sm" />
-          </template> -->
           </Section>
         </slot>
       </template>
@@ -87,7 +86,8 @@
           :product="product"
           :model="model"
           :terms="terms"
-          :meta="meta"
+          :product-meta="productMeta"
+          :config-meta="configMeta"
           :do-resolve="doResolve"
           :update-quantity="updateQuantity"
           :update-term="updateTerm"
@@ -98,15 +98,16 @@
             :class="styles.product.summary"
           >
             <Pricing
-              v-if="product && meta?.isAvailable"
+              v-if="product && productMeta?.isAvailable"
               :product="product"
-              :meta="meta"
+              :meta="productMeta"
               :template="props.template"
-              :total="
-                (template === PRODUCT_TEMPLATE.TWO_COLUMN_RTL && isMobile) ||
-                template === PRODUCT_TEMPLATE.TWO_COLUMN_LTR ||
-                template === PRODUCT_TEMPLATE.FULL
+              :total="stylesMeta.showTotal"
+              :title="
+                configMeta.data.productName || product.productDetails.title
               "
+              :options="configMeta.ui.productConfigOptionsSummary.isVisible"
+              :fields="configMeta.ui.productConfigFieldsSummary.isVisible"
             />
 
             <PricingSkeleton v-else />
@@ -114,17 +115,17 @@
         </slot>
       </template>
 
-      <template #markdown>
+      <template v-if="configMeta.ui.trustMessaging.isVisible" #markdown>
         <slot
           name="markdown"
           :product="product"
-          :meta="meta"
-          :do-resolve="doResolve"
+          :config-meta="configMeta"
+          :product-meta="productMeta"
         >
-          <PricingMarkdown
-            v-if="product && meta?.isAvailable"
-            :product="product"
-            @resolve="doResolve"
+          <Markdown
+            v-if="product?.productDetails"
+            data-testid="slots:summary-append"
+            :model-value="configMeta.data.trustMessagingMarkdown"
           />
         </slot>
       </template>
@@ -133,15 +134,16 @@
         <slot
           name="actions"
           :product="product"
-          :meta="meta"
+          :config-meta="configMeta"
+          :product-meta="productMeta"
           :template="props.template"
           :do-resolve="doResolve"
           :update-quantity="updateQuantity"
         >
           <ProductActions
-            v-if="product && meta?.isAvailable"
+            v-if="product && productMeta?.isAvailable"
             :product="product"
-            :meta="meta"
+            :meta="productMeta"
             :template="props.template"
             @resolve="doResolve"
             @update:quantity="updateQuantity"
@@ -150,12 +152,12 @@
       </template>
 
       <template #errors>
-        <ConfigErrors v-if="meta?.isAvailable" :meta="meta" />
+        <ConfigErrors v-if="productMeta?.isAvailable" :meta="productMeta" />
       </template>
 
       <template #total>
         <PricingTotal
-          v-if="product && meta?.isAvailable"
+          v-if="product && productMeta?.isAvailable"
           :pricing="product.pricing"
           footer
         />
@@ -170,7 +172,14 @@
 
 <script lang="ts" setup>
 // --- external
-import { computed, defineAsyncComponent, onUnmounted, provide } from "vue";
+import {
+  computed,
+  defineAsyncComponent,
+  onUnmounted,
+  provide,
+  watch
+} from "vue";
+import { useClipboard } from "@vueuse/core";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -178,21 +187,24 @@ import {
   useRoutingEngine,
   useBasketProductsPending,
   useQueryParams,
-  useProductConfig
+  useProductConfig,
+  UIContext,
+  type ProductDetails
 } from "@upmind-automation/headless";
+import { useConfig, validateTemplate } from "@upmind-automation/headless";
 import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./product.config";
 import { useHeader } from "../../components/header/useHeader";
 import { useFooter } from "../../components/footer/useFooter";
 import { useLayout } from "../../components/layout/useLayout";
 import { useBreadcrumbs } from "../../composables/useBreadcrumbs";
+import { useThemes } from "@upmind-automation/upmind-ui";
 
 // --- components
-import { Breadcrumb } from "@upmind-automation/upmind-ui";
+import { Breadcrumb, Markdown } from "@upmind-automation/upmind-ui";
 import ConfigErrors from "./components/ConfigErrors.vue";
 import ConfigSkeleton from "./components/ConfigSkeleton.vue";
 import Pricing from "./components/pricing-list/Pricing.vue";
-import PricingMarkdown from "./components/pricing-list/PricingMarkdown.vue";
 import PricingSkeleton from "./components/pricing-list/PricingSkeleton.vue";
 import PricingTotal from "./components/pricing-list/PricingTotal.vue";
 import ProductActions from "./components/ProductActions.vue";
@@ -224,35 +236,26 @@ import { get, includes, take, isEmpty } from "lodash-es";
 import { isMobile } from "@upmind-automation/upmind-ui";
 
 // --- types
-import { BreadcrumbVariant } from "@upmind-automation/headless";
+import type { ConfigureProps } from "./types";
 import { PRODUCT_TEMPLATE } from "./types";
-import type { RouteLocationAsRelativeGeneric } from "vue-router";
+import { BreadcrumbVariant } from "@upmind-automation/headless";
+import { PRODUCT_HERO_DIRECTION } from "../product/components/hero/types";
 
 // -----------------------------------------------------------------------------
 
-const props = withDefaults(
-  defineProps<{
-    storefrontRoute: RouteLocationAsRelativeGeneric;
-    catalogueRoute?: RouteLocationAsRelativeGeneric;
-    template?: PRODUCT_TEMPLATE;
-    hideSlots?: string[];
-    defaultBreadcrumbVariant?: BreadcrumbVariant;
-  }>(),
-  {
-    template: PRODUCT_TEMPLATE.TWO_COLUMN_RTL,
-    hideSlots: () => []
-  }
-);
+const props = withDefaults(defineProps<ConfigureProps>(), {
+  hideSlots: () => []
+});
 
 const { t } = useI18n();
+const { set } = useThemes();
 
 const { navigateBack, navigateNext } = useRoutingEngine();
-
 const { configure, resolve, remove } = useBasketProductsPending();
 const { productId } = useQueryParams();
+const { copy, copied, isSupported } = useClipboard({ legacy: true });
 
 const {
-  stop,
   update,
   service: pendingProduct,
   onDone,
@@ -264,50 +267,70 @@ if (!productConfig) throw new Error("useProductConfig not provided");
 provide("useProductConfig", productConfig);
 
 const {
-  meta,
+  meta: productMeta,
   model,
   product,
   productImage,
   updateQuantity,
   updateTerm,
-  terms
+  terms,
+  shareUrl
 } = productConfig;
+
+const configMeta = useConfig({
+  context: UIContext.CONFIGURE,
+  product: () => product.value,
+  provide: true
+});
 
 await isReady();
 
+set(configMeta.ui.theme.value);
+
 const isSlotHidden = (name: string) => includes(props.hideSlots, name);
 
-const templateVariant = computed(() =>
-  get(
-    supportedTemplates,
-    props.template,
-    supportedTemplates[PRODUCT_TEMPLATE.TWO_COLUMN_RTL]
+const template = computed(() =>
+  validateTemplate(
+    configMeta.ui.template.value || props.template,
+    PRODUCT_TEMPLATE,
+    PRODUCT_TEMPLATE.TWO_COLUMN_RTL
   )
 );
 
-const configMeta = computed(() => {
+const templateVariant = computed(() => get(supportedTemplates, template.value));
+
+const stylesMeta = computed(() => {
   return {
-    breadcrumbs:
-      product.value?.productDetails?.uiMeta?.uischema?.config?.breadcrumbs ??
-      BreadcrumbVariant.CATEGORY
+    breadcrumbs: configMeta.ui.breadcrumbs.value as BreadcrumbVariant,
+    direction:
+      template.value === PRODUCT_TEMPLATE.TWO_COLUMN_RTL
+        ? PRODUCT_HERO_DIRECTION.VERTICAL
+        : PRODUCT_HERO_DIRECTION.HORIZONTAL,
+    heroImage:
+      (template.value !== PRODUCT_TEMPLATE.TWO_COLUMN_LTR || isMobile.value) &&
+      configMeta.ui.productImages.isVisible,
+    showTotal:
+      (template.value === PRODUCT_TEMPLATE.TWO_COLUMN_RTL && isMobile.value) ||
+      template.value === PRODUCT_TEMPLATE.TWO_COLUMN_LTR ||
+      template.value === PRODUCT_TEMPLATE.FULL
   };
 });
 
-const styles = useStyles("product", configMeta, config);
+const styles = useStyles("product", stylesMeta, config);
 
-const { items: breadcrumbItems, variant: breadcrumbVariant } = useBreadcrumbs({
+const { items: breadcrumbItems } = useBreadcrumbs({
   categories: () => {
     const breadcrumb = product.value?.productDetails?.breadcrumb ?? [];
-    return configMeta.value?.breadcrumbs === BreadcrumbVariant.CATEGORY
+    return stylesMeta.value?.breadcrumbs === BreadcrumbVariant.PARENT
       ? take(breadcrumb, 1)
       : breadcrumb;
   },
   route: () => props.catalogueRoute,
   storefrontRoute: () => props.storefrontRoute,
-  variant: () => configMeta.value?.breadcrumbs,
+  variant: () => stylesMeta.value?.breadcrumbs,
   currentItem: () =>
     product.value?.productDetails &&
-    configMeta.value?.breadcrumbs !== BreadcrumbVariant.CATEGORY
+    stylesMeta.value?.breadcrumbs !== BreadcrumbVariant.PARENT
       ? { label: product.value.productDetails.title }
       : undefined
 });
@@ -334,6 +357,21 @@ function doReject() {
   navigateBack();
 }
 
+const configurationActions = computed(() => {
+  if (!isSupported.value) return [];
+  return [
+    {
+      icon: copied.value ? "check" : "share-07",
+      label: copied.value ? t("confirm.copied") : t("action.share"),
+      handler: handleShare
+    }
+  ];
+});
+
+const handleShare = () => {
+  copy(shareUrl.value || window.location.href);
+};
+
 onUnmounted(() => {
   remove(productId);
 
@@ -341,4 +379,21 @@ onUnmounted(() => {
   useLayout({});
   useFooter({});
 });
+
+// Emit productDetails when it loads/changes for parent components (e.g., SEO, schema)
+const emit = defineEmits<{
+  productDetails: [payload: ProductDetails];
+}>();
+
+watch(
+  () => product.value?.productDetails,
+  value => {
+    if (value) {
+      emit("productDetails", value);
+    }
+  },
+  { immediate: true }
+);
+
+defineExpose({ product: () => product.value?.productDetails });
 </script>

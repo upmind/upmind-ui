@@ -67,8 +67,8 @@
     "placeholder": "Kayıtlı vergi veya GST"
   },
   "country": {
-    "label": "Ülke",
-    "placeholder": "Bir ülke seçin"
+    "label": "Vergi Numarası",
+    "placeholder": "Vergi Kimlik No"
   },
   "domain": {
     "placeholder": "Alan adınızı girin..."
@@ -87,6 +87,10 @@
   "firstname": {
     "error": "Adınız gereklidir",
     "label": "İlk adı"
+  },
+  "language": {
+    "error": "Diliniz gereklidir.",
+    "label": "Dil"
   },
   "lastname": {
     "error": "Soyadınız gereklidir",
@@ -121,6 +125,10 @@
     "error": "Geçersiz promosyon kodu",
     "placeholder": "Kupon kodunu buraya girin"
   },
+  "publicName": {
+    "error": "Herkese açık adınız gereklidir.",
+    "label": "Halka açık isim"
+  },
   "recover": {
     "error": "Size şifre sıfırlama e-postası göndermeye çalışırken bir hatayla karşılaştık."
   },
@@ -139,9 +147,5 @@
   },
   "stored_payment_method": {
     "label": ""
-  },
-  "taxNumber": {
-    "label": "Vergi Numarası",
-    "placeholder": "Vergi Kimlik No"
   }
 }

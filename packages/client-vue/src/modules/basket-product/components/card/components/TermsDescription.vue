@@ -30,14 +30,15 @@ import TaxesDescription from "./TaxesDescription.vue";
 import { has, omit } from "lodash-es";
 
 // --- types
-import type { TermDetails } from "@upmind-automation/headless";
+import type { TermsDescriptionProps } from "./types";
+
 // -----------------------------------------------------------------------------
 
 defineOptions({
   inheritAttrs: false
 });
 
-const props = defineProps<TermDetails & { separate?: boolean }>();
+const props = defineProps<TermsDescriptionProps>();
 
 const termDetails = computed(() => omit(props, "separate"));
 </script>

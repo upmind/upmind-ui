@@ -38,11 +38,7 @@
 <script lang="ts" setup>
 // --- external
 import { computed, ref } from "vue";
-import {
-  useRoute,
-  useRouter,
-  type RouteLocationAsRelativeGeneric
-} from "vue-router";
+import { useRouter, type RouteLocationAsRelativeGeneric } from "vue-router";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -51,12 +47,15 @@ import {
   useBasket,
   useUrl,
   useOrder,
-  QUERY_PARAMS
+  QUERY_PARAMS,
+  UIContext,
+  useQueryParams
 } from "@upmind-automation/headless";
+import { useConfig } from "@upmind-automation/headless";
 
 // -- components
 import { Interstitial, Button } from "@upmind-automation/upmind-ui";
-import { has } from "lodash-es";
+import { useThemes } from "@upmind-automation/upmind-ui";
 
 // -----------------------------------------------------------------------------
 const props = defineProps<{
@@ -65,24 +64,28 @@ const props = defineProps<{
 
 // -----------------------------------------------------------------------------
 const { t } = useI18n();
-const route = useRoute();
+const { set } = useThemes();
 const router = useRouter();
+const { getParam } = useQueryParams();
 
 const { errors } = useBasket();
-
-const orderId = route.params?.[QUERY_PARAMS.ORDER_ID]?.toString();
+const orderId: string = getParam(QUERY_PARAMS.ORDER_ID);
 
 const { transferTo, meta } = useSession();
 const { meta: orderMeta, isReady } = useOrder(orderId);
 
+const { ui } = useConfig({
+  context: UIContext.CONFIRMATION
+});
+
+set(ui.theme.value);
+
 await isReady();
 
-const success = computed(
-  () =>
-    route.query.payment_success === "true" ||
-    orderMeta.value.isPaid ||
-    orderMeta.value.isFree
-);
+const success = computed(() => {
+  const success: boolean = getParam(QUERY_PARAMS.PAYMENT_SUCCESS);
+  return success || orderMeta.value.isPaid || orderMeta.value.isFree;
+});
 
 const transferBase =
   import.meta.env.VITE_APP_ORDER_TRANSFER_AUTH_BASE ?? undefined;

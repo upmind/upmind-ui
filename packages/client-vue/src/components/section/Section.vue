@@ -4,7 +4,7 @@
       <slot />
     </template>
 
-    <template #actions>
+    <template v-if="!!slots.actions" #actions>
       <slot name="actions" />
     </template>
   </Sections>
@@ -12,7 +12,7 @@
 
 <script setup lang="ts">
 // --- external
-import { computed } from "vue";
+import { computed, useSlots } from "vue";
 
 // --- internal
 import { useForwardPropsEmits } from "@upmind-automation/upmind-ui";
@@ -41,4 +41,5 @@ const sections = computed<SectionItem[]>(() => [
 ]);
 
 const forwarded = useForwardPropsEmits({ active: true }, emits);
+const slots = useSlots();
 </script>

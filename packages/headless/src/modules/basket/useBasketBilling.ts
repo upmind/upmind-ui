@@ -12,6 +12,7 @@ import {
   contextValue,
   DetailedError,
   ErrorOrigin,
+  isDirty,
   responseCodes,
   stateMatches,
   stateValue,
@@ -74,7 +75,7 @@ export const useBasketBilling = () => {
     isComplete:
       stateValue(actor, "done", false) ||
       stateMatches(actor, ["available.processed", "complete"]),
-    isDirty: !isEqual(
+    isDirty: isDirty(
       contextValue<BillingContext["model"]>(actor, "model"),
       contextValue<BillingContext["baseModel"]>(actor, "baseModel")
     ),

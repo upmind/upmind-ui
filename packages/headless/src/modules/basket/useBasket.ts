@@ -1,5 +1,5 @@
 // --- external
-import { computed, ComputedRef, h } from "vue";
+import { computed, type ComputedRef, h } from "vue";
 import { waitFor } from "xstate/lib/waitFor";
 import { interpret, InterpreterStatus } from "xstate";
 import { useActor } from "@xstate/vue";
@@ -23,8 +23,8 @@ import {
   contextMatches,
   machineMatches,
   useContextActor,
-  UseActor,
-  ResponseError
+  type UseActor,
+  type ResponseError
 } from "../../utils";
 import {
   get,
@@ -188,7 +188,10 @@ export const useBasket = () => {
       hasPaid: stateMatches(state, ["complete"]),
       hasFailed: stateMatches(state, ["failed"]),
       hasErrors: contextMatches(state, ["error.code"]), //NB only show if we have single errors, not parsed BE errors
-      showErrors: contextMatches(state, ["attempts"])
+      showErrors: contextMatches(state, ["attempts"]),
+      isFree:
+        contextMatches(state, ["products"]) &&
+        !contextValue<number>(state, "basket.total_amount", 1)
     };
   });
 

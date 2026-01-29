@@ -25,7 +25,6 @@
   "continue_label": "Продолжать",
   "continue_shopping": "Продолжить покупки",
   "create_account": "Зарегистрироваться",
-  "create_one_here": "Создайте его здесь",
   "details_toggle": "Развернуть все детали | Свернуть все детали",
   "dismiss": "Увольнять",
   "do_this_later": "Я сделаю это позже",
@@ -59,6 +58,7 @@
   "save_value": "Сохранять {value}",
   "search": "Поиск",
   "send_reset": "Отправить сброс",
+  "set_as_default": "Установлено по умолчанию",
   "share": "Делиться",
   "show_details": "Показать детали",
   "show_less": "Показать меньше",
@@ -68,5 +68,9 @@
   "sign_in_with_another_account": "Не вы? Войти через другой аккаунт. {action}.",
   "sort_by_default": "Сортировать по умолчанию",
   "sort_by_name": "Сортировать по имени",
-  "sort_by_price": "Сортировать по цене"
+  "sort_by_price": "Сортировать по цене",
+  "sort_by_subject": "Сортировать по теме",
+  "verify": "Проверять",
+  "view": "Вид",
+  "view_email": "Просмотреть электронное письмо"
 }

@@ -3,7 +3,7 @@ import { computed, defineAsyncComponent, ref } from "vue";
 import { useBreakpoints, breakpointsTailwind } from "@vueuse/core";
 
 // --- internal
-import { Store } from "@upmind-automation/headless";
+import { Store, useBrand } from "@upmind-automation/headless";
 
 // --- async components
 
@@ -35,7 +35,6 @@ const defaultFooterProps: FooterProps = {
   noLocale: false,
   noCurrency: false,
   noCopyright: false,
-  noLogo: false,
   noPoweredBy: false
 };
 
@@ -60,13 +59,14 @@ export const useFooter = (initial?: Partial<FooterProps>) => {
   }
 
   // --- state
+  const { hasUpmindBranding } = useBrand();
+
   const meta = computed(() => {
     const {
       visible,
       noCopyright,
       noCurrency,
       noLocale,
-      noLogo,
       noPoweredBy,
       position,
       background,
@@ -87,10 +87,9 @@ export const useFooter = (initial?: Partial<FooterProps>) => {
       showCopyright: !noCopyright,
       showCurrency: !noCurrency,
       showLocale: !noLocale,
-      showLogo: !noLogo,
-      showPoweredBy: !noPoweredBy,
       hasActions: !(noCurrency && noLocale),
-      hasContent: !(noLogo && noPoweredBy && noCopyright)
+      showPoweredBy: !noPoweredBy && hasUpmindBranding.value,
+      hasContent: !noCopyright || (!noPoweredBy && hasUpmindBranding.value)
     };
   });
 
@@ -153,14 +152,6 @@ export const useFooter = (initial?: Partial<FooterProps>) => {
     update({ noLocale: false });
   }
 
-  function hideLogo() {
-    update({ noLogo: true });
-  }
-
-  function showLogo() {
-    update({ noLogo: false });
-  }
-
   function hidePoweredBy() {
     update({ noPoweredBy: true });
   }
@@ -178,11 +169,11 @@ export const useFooter = (initial?: Partial<FooterProps>) => {
   }
 
   function hideContent() {
-    update({ noLogo: true, noPoweredBy: true, noCopyright: true });
+    update({ noPoweredBy: true, noCopyright: true });
   }
 
   function showContent() {
-    update({ noLogo: false, noPoweredBy: false, noCopyright: false });
+    update({ noPoweredBy: false, noCopyright: false });
   }
 
   function setLayout(layout: FooterProps["layout"]) {
@@ -201,12 +192,18 @@ export const useFooter = (initial?: Partial<FooterProps>) => {
      * @property {boolean} showCopyright - Indicates if the copyright section is shown.
      * @property {boolean} showCurrency - Indicates if the currency switcher is shown.
      * @property {boolean} showLocale - Indicates if the locale switcher is shown.
-     * @property {boolean} showLogo - Indicates if the logo is shown.
      * @property {boolean} showPoweredBy - Indicates if the "powered by" section is shown.
      * @property {boolean} hasActions - Indicates if there are any actions to display.
      * @property {boolean} hasContent - Indicates if there is any content to display.
      */
     meta,
+
+    /**
+     * Whether "Powered by Upmind" branding is hidden (white-labeled).
+     */
+    noPoweredBy: computed(
+      (): boolean => config.value.noPoweredBy || !hasUpmindBranding.value
+    ),
 
     // --- context
 
@@ -271,18 +268,6 @@ export const useFooter = (initial?: Partial<FooterProps>) => {
      * @returns {void}
      */
     showLocale,
-
-    /**
-     * Hides the logo.
-     * @returns {void}
-     */
-    hideLogo,
-
-    /**
-     * Shows the logo.
-     * @returns {void}
-     */
-    showLogo,
 
     /**
      * Hides the "powered by" section.

@@ -67,8 +67,8 @@
     "placeholder": "Registrerad skatt eller moms"
   },
   "country": {
-    "label": "Land",
-    "placeholder": "Välj ett land"
+    "label": "Skattenummer",
+    "placeholder": "Skatte-ID"
   },
   "domain": {
     "placeholder": "Ange din domän..."
@@ -87,6 +87,10 @@
   "firstname": {
     "error": "Ditt förnamn är obligatoriskt",
     "label": "Förnamn"
+  },
+  "language": {
+    "error": "Ditt språk är obligatoriskt",
+    "label": "Språk"
   },
   "lastname": {
     "error": "Ditt efternamn är obligatoriskt",
@@ -121,6 +125,10 @@
     "error": "Ogiltig kampanjkod",
     "placeholder": "Ange kupongkoden här"
   },
+  "publicName": {
+    "error": "Ditt offentliga namn är obligatoriskt",
+    "label": "Offentligt namn"
+  },
   "recover": {
     "error": "Vi uppstod ett fel när vi försökte skicka ett e-postmeddelande för återställning av lösenordet till dig."
   },
@@ -139,9 +147,5 @@
   },
   "stored_payment_method": {
     "label": ""
-  },
-  "taxNumber": {
-    "label": "Skattenummer",
-    "placeholder": "Skatte-ID"
   }
 }

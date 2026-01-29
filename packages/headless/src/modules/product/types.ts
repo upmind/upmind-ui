@@ -14,9 +14,10 @@ import type {
 } from "@upmind-automation/types";
 export { PromotionDisplayTypes } from "@upmind-automation/types";
 import { PromotionDisplayTypes } from "@upmind-automation/types";
-import type { Recommendation, Badge } from "../recommendations";
+import type { Recommendation } from "../recommendations";
+import type { Badge } from "../config/schema";
 import type { BasketProduct } from "../basketProduct";
-import { ResponseError } from "../../utils";
+import { type ResponseError } from "../../utils";
 
 // -----------------------------------------------------------------------------
 /**
@@ -227,6 +228,8 @@ export type ProductDetails = {
   title: string;
   /** The untranslated name of the product, often used for reporting purposes. */
   name: string;
+  /** The service identifier (e.g., domain name). Only present for basket products. */
+  serviceIdentifier?: string;
   /** The brand associated with the product. */
   brand: string;
   /** An optional {@link Badge} to display with the product. */
@@ -574,7 +577,7 @@ export type PromotionDetails = {
 export enum BreadcrumbVariant {
   HIDDEN = "hidden",
   CONDENSED = "condensed",
-  CATEGORY = "category",
+  PARENT = "parent",
   VISIBLE = "visible"
 }
 
@@ -783,14 +786,17 @@ export interface UISchema {
 }
 
 /**
- * Interface representing a benefit associated with a product.
+ * Represents a benefit associated with a product.
+ * Can be either a simple string label or an object with label and optional icon.
  */
-export interface Benefit {
-  /** The display label for the benefit. */
-  label: string;
-  /** An optional icon string or component to display with the benefit. */
-  icon?: string | any;
-}
+export type Benefit =
+  | string
+  | {
+      /** The display label for the benefit. */
+      label: string;
+      /** An optional icon string or component to display with the benefit. */
+      icon?: string | any;
+    };
 
 /**
  * Type alias for displaying price calculation states.

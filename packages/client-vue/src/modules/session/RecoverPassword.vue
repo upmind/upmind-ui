@@ -14,14 +14,7 @@
 
     <template #hero>
       <slot name="hero">
-        <Hero
-          :badge="{
-            label: t('text.fully_encrypted_title'),
-            icon: 'lock-04'
-          }"
-          :title="t('text.forgot_your_password_qn')"
-          class="mx-auto w-full max-w-2xl"
-        >
+        <Hero :title="t('text.forgot_your_password_qn')">
           <template #description>
             <i18n-t
               keypath="auth.forgot_password_help"
@@ -85,6 +78,8 @@ import { useI18n } from "vue-i18n";
 import { useHeader } from "../../components/header/useHeader";
 import { useFooter } from "../../components/footer/useFooter";
 import { useLayout } from "../../components/layout/useLayout";
+import { useConfig, validateTemplate } from "@upmind-automation/headless";
+import { useThemes } from "@upmind-automation/upmind-ui";
 
 // --- components
 import { Link } from "@upmind-automation/upmind-ui";
@@ -109,6 +104,9 @@ const supportedTemplates = {
   ),
   [SESSION_TEMPLATE.TWO_COLUMN_RTL]: defineAsyncComponent(
     () => import("./templates/SessionRTL.template.vue")
+  ),
+  [SESSION_TEMPLATE.ENCLOSED]: defineAsyncComponent(
+    () => import("./templates/SessionEnclosed.template.vue")
   )
 };
 
@@ -124,44 +122,46 @@ import {
 import {
   useBasket,
   useRoutingEngine,
-  useSession
+  useSession,
+  UIContext
 } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 
-const props = withDefaults(
-  defineProps<
-    SessionRoutes & {
-      template?: SESSION_TEMPLATE;
-    }
-  >(),
-  {
-    template: SESSION_TEMPLATE.TWO_COLUMN_LTR
+const props = defineProps<
+  SessionRoutes & {
+    template?: SESSION_TEMPLATE;
   }
-);
+>();
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
+const { set } = useThemes();
+
 const { meta, isReady } = useSession();
 const { meta: basketMeta } = useBasket();
-const {
-  navigateNext,
-  navigateBack,
-  navigate,
-  meta: routingMeta
-} = useRoutingEngine();
+const { navigateNext, navigateBack, navigate } = useRoutingEngine();
+
+const { ui } = useConfig({
+  context: UIContext.AUTH,
+  provide: true
+});
 
 await isReady();
 
+set(ui.theme.value);
+
 const isResolving = ref(false);
 
-const templateVariant = computed(() =>
-  get(
-    supportedTemplates,
-    props.template,
-    supportedTemplates[SESSION_TEMPLATE.TWO_COLUMN_LTR]
+const template = computed(() =>
+  validateTemplate(
+    ui.template.value || props.template,
+    SESSION_TEMPLATE,
+    SESSION_TEMPLATE.TWO_COLUMN_LTR
   )
 );
+
+const templateVariant = computed(() => get(supportedTemplates, template.value));
 
 function doUpdate(value: SessionProps["modelValue"]) {
   if (value === "login") {
