@@ -749,6 +749,7 @@ function onUpdateResolved(rawBasket: IBasket): IBasket {
 /**
  * Handles side effects after an updateQuantity operation resolves.
  * Refreshes the basket and fires appropriate dataLayer event based on quantity change.
+ * Sends the delta quantity and proportional price per Google best practices.
  */
 function onUpdateQuantityResolved(
   rawBasket: IBasket,
@@ -758,8 +759,40 @@ function onUpdateQuantityResolved(
 ): IBasket {
   const { prefresh } = useBasket();
   prefresh(rawBasket);
+
   const event = quantity > prevQuantity ? "add_to_cart" : "remove_from_cart";
-  useDataLayer().dataLayer({ event }).withItems([basketProduct]).push();
+
+  // GA4 best practice: Send only the quantity delta (change), not the full quantity.
+  // E.g., if quantity goes from 2 → 5, send add_to_cart with quantity: 3 and proportional price.
+  // We calculate unit values by dividing totals by previous quantity, then multiply by delta.
+  // HACK: currently the BE does not provide the delta or a way to get the unit price, so we calculate it here.
+  const deltaQty = Math.abs(quantity - prevQuantity);
+  const totalPrice = basketProduct.price?.currentAmount ?? 0;
+  const totalDiscount = basketProduct.price?.configuration?.discount ?? 0;
+  const unitPrice = prevQuantity > 0 ? totalPrice / prevQuantity : totalPrice;
+  const unitDiscount =
+    prevQuantity > 0 ? totalDiscount / prevQuantity : totalDiscount;
+  const deltaPrice = unitPrice * deltaQty;
+  const deltaDiscount = unitDiscount * deltaQty;
+
+  const deltaProduct = {
+    ...basketProduct,
+    configuration: {
+      ...basketProduct.configuration,
+      quantity: deltaQty
+    },
+    price: {
+      ...basketProduct.price,
+      currentAmount: deltaPrice,
+      configuration: {
+        ...basketProduct.price?.configuration,
+        subtotal: deltaPrice,
+        discount: deltaDiscount
+      }
+    }
+  } as BasketProduct;
+
+  useDataLayer().dataLayer({ event }).withItems([deltaProduct]).push();
 
   return rawBasket;
 }
