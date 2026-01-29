@@ -158,7 +158,6 @@ export const usePersonalDetailsManager = ({
       .then(state => {
         if (stateMatches(state, ["available.error", "available.invalid"]))
           throw state.context.error;
-        console.log("update completed:", state.context.model);
         return state.context.model;
       })
       .catch(error => {
