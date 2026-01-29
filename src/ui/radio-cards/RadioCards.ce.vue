@@ -6,7 +6,7 @@
     :disabled="props.disabled"
     :class="cn(styles.radioCards.root, props.class)"
     data-testid="radio-card-group"
-    @update:model-value="onChange"
+    @update:model-value="v => onChange(v)"
     v-auto-animate
   >
     <template v-for="(option, index) in items" :key="option.id || index">
@@ -33,6 +33,7 @@
         :data-focus="props.dataFocus"
         :data-testid="`radio-card-${kebabCase(option.label) || index}`"
         @keydown.enter="onChange(option.value)"
+        @click="() => onChange(option.value)"
       >
         <template #item="slotProps">
           <slot name="item" v-bind="slotProps" />
@@ -102,6 +103,8 @@ const styles = useStyles(
 );
 
 const onChange = (value: any) => {
+  if (props.disabled) return;
+
   if (!props.required && value === modelValue.value) {
     modelValue.value = undefined;
   } else {

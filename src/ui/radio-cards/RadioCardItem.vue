@@ -6,7 +6,7 @@
     :data-hover="props.dataHover"
     :data-focus="props.dataFocus"
   >
-    <span :class="styles.radioCards.radio">
+    <span :class="styles.radioCards.radio" @click.capture="onRadioClick">
       <RadioGroupItem
         :id="`${props.name}-${index}`"
         :value="value"
@@ -140,6 +140,20 @@ const onBlur = (e: FocusEvent) => {
     );
   }
 };
+
+/**
+ * Handle clicks on the radio button.
+ * When already selected, intercept the click to allow deselection
+ * (radix-vue doesn't emit update:model-value for clicks on already-selected items)
+ */
+const onRadioClick = (e: MouseEvent) => {
+  if (isSelected.value) {
+    e.stopPropagation();
+    e.preventDefault();
+    emits("click", e);
+  }
+};
+
 function doAction(item: RadioCardsItemActionProps, $event: Event) {
   $event.preventDefault(); // prevent default form actions as we are handling it ourselves
 
