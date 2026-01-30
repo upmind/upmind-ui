@@ -25,12 +25,8 @@ import {
   inject,
   provide,
   reactive,
-  shallowRef,
-  watch,
   type ComputedRef,
-  type Ref,
-  type ShallowRef,
-  type UnwrapNestedRefs
+  type Ref
 } from "vue";
 import type { UIMetaSchema as UISchema, DataSchema } from "./schema";
 import { UIContext, UI_META_DEFINITIONS, DATA_DEFINITIONS } from "./schema";
@@ -492,11 +488,17 @@ export function injectConfig(): UseMetaResult | undefined {
   return inject(CONFIG_KEY, undefined);
 }
 
-export function useGuardedRef<T>(
-  source: ComputedRef<T>,
-  isValid: () => boolean
-): ShallowRef<T> {
-  const guarded = shallowRef(source.value) as ShallowRef<T>;
-  watch(source, v => isValid() && (guarded.value = v));
-  return guarded;
+/**
+ * Creates a computed ref that caches the last truthy value.
+ * When the source becomes undefined/null, returns the cached value instead.
+ */
+export function useCachedRef<T>(
+  source: ComputedRef<T | undefined>
+): ComputedRef<T | undefined> {
+  let cache: T | undefined;
+  return computed(() => {
+    const current = source.value;
+    if (current) cache = current;
+    return current ?? cache;
+  });
 }

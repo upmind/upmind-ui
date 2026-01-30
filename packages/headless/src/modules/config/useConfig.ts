@@ -7,7 +7,7 @@ import {
   createDataProxy,
   injectConfig,
   provideConfig,
-  useGuardedRef
+  useCachedRef
 } from "./utils";
 import { useBrand } from "../brand/useBrand";
 import type {
@@ -23,6 +23,7 @@ export { provideConfig, injectConfig } from "./utils";
 export function useConfig(options?: UseMetaOptions): UseMetaResult {
   const injected =
     !options?.context && !options?.provide && !options?.brand && injectConfig();
+
   if (injected) return injected;
 
   const {
@@ -44,23 +45,21 @@ export function useConfig(options?: UseMetaOptions): UseMetaResult {
 
   // Only call useBrand() when brand option is not provided (avoids circular dependency)
   const { uiCart } = has(options, "brand") ? { uiCart: undefined } : useBrand();
-  const brand = computed(() => toValue(brandOption) ?? uiCart?.value) as Ref<
-    BrandMeta["cart"]
-  >;
 
-  const items = useGuardedRef(
-    computed(() =>
-      initializeMeta({
-        context: toValue(context),
-        viewport: toValue(viewport),
-        brand: brand.value,
-        category: toValue(category),
-        product: toValue(product),
-        optionGroup: toValue(optionGroup),
-        option: toValue(option)
-      })
-    ),
-    () => !!brand.value
+  const brand = useCachedRef(
+    computed(() => toValue(brandOption) ?? uiCart?.value)
+  ) as Ref<BrandMeta["cart"]>;
+
+  const items = computed(() =>
+    initializeMeta({
+      context: toValue(context),
+      viewport: toValue(viewport),
+      brand: brand.value,
+      category: toValue(category),
+      product: toValue(product),
+      optionGroup: toValue(optionGroup),
+      option: toValue(option)
+    })
   );
 
   const ui = computed(() => items.value.meta);
