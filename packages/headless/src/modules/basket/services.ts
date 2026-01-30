@@ -101,7 +101,7 @@ async function load(context: BasketContext, _event: AnyEventObject) {
         "products.product.provision_blueprint",
         "products.product.provision_field_values",
         // "products.tags",
-        // "products.product.related",
+        "products.product.related",
         // "status",
         "products.product.category",
         `products.product.category${".top_category".repeat(4)}`
