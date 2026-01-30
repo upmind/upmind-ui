@@ -12,6 +12,7 @@ dist
 bin/pnpm
 bin/pnpx
 tsconfig.tsbuildinfo
+.agent/
 
 # Playwright
 tests/Playwright/e2e/test-output/
