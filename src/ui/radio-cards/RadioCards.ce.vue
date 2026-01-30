@@ -6,7 +6,7 @@
     :disabled="props.disabled"
     :class="cn(styles.radioCards.root, props.class)"
     data-testid="radio-card-group"
-    @update:model-value="v => onChange(v)"
+    @update:model-value="(v: string | number) => onChange(v)"
     v-auto-animate
   >
     <template v-for="(option, index) in items" :key="option.id || index">
