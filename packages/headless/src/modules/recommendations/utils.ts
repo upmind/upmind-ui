@@ -72,12 +72,6 @@ function parseProductsToRecommend(
       )
     : [];
 
-  console.log(
-    "basketProduct?.product?.related: ",
-    basketProduct?.product?.related
-  );
-  console.log("nativeRecommendations: ", nativeRecommendations);
-
   // Combine and process all recommendations
   const allRecommendations = [...dataRecommendations, ...nativeRecommendations];
 
