@@ -18,7 +18,7 @@ export const variants = {
 };
 
 export const tabsRootVariants = cva(
-  "relative flex items-end [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+  "relative flex items-start [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
   {
     variants,
     defaultVariants: {
@@ -48,7 +48,7 @@ export default {
     trigger: tabsTriggerVariants,
     indicator: tabsIndicatorVariants,
     icon: cva(""),
-    prepend: cva("pb-1.5"),
-    append: cva("pb-1.5")
+    prepend: cva(""),
+    append: cva("")
   }
 };
