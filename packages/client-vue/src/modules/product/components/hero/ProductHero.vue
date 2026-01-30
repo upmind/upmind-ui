@@ -8,9 +8,11 @@
           <h1 :class="styles.header.title.text">
             {{ meta.data.productName || props.productDetails.title }}
           </h1>
-          <div :class="styles.header.title.badge">
+          <div
+            v-if="meta.ui.productBadge.isVisible && meta.data.productBadge"
+            :class="styles.header.title.badge"
+          >
             <Badge
-              v-if="meta.ui.productBadge.isVisible && meta.data.productBadge"
               v-bind="
                 isString(meta.data.productBadge)
                   ? { label: meta.data.productBadge }
