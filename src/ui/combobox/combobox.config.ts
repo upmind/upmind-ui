@@ -1,5 +1,5 @@
 import { cva } from "class-variance-authority";
-import { ringClasses, invalidRingClasses } from "../../assets/styles";
+import { ringClasses, invalidRingClasses, persistentRing } from "../../assets/styles";
 
 export const variants = {
   size: {
@@ -44,7 +44,7 @@ export const itemVariants = cva(
 );
 
 export const contentVariants = cva(
-  `control-radius shadow-control-default bg-control-surface ring-primitive-control-default! my-2 overflow-hidden border-none ${ringClasses} ${invalidRingClasses} p-0 pr-1 pb-1`,
+  `control-radius shadow-control-default bg-control-surface my-2 overflow-hidden border-none ${persistentRing} p-0 pr-1 pb-1`,
   {
     variants: {
       dropdownWidth: variants.width
