@@ -7,6 +7,7 @@ export const baseRing =
   "outline outline-2 outline-transparent outline-offset-2";
 
 export const focusWithinRing = `${baseRing} [&:focus-within,&[data-focus=true]]:outline-[var(--color-control-ring)]`;
+export const focusRing = `${baseRing} [&:focus,&:focus-visible,&[data-focus=true]]:outline-[var(--color-control-ring)]`;
 export const activeRing = `${baseRing} active:outline-[var(--color-control-ring)]`;
 export const groupFocusRing = `${baseRing} group-focus-within:outline-[var(--color-control-ring)]`;
 
@@ -14,3 +15,6 @@ export const ringClasses = `${focusWithinRing}`;
 export const groupRingClasses = `${ringClasses} ${groupFocusRing}`;
 export const invalidRingClasses =
   "aria-invalid:outline-[var(--color-danger-ring)]!";
+
+// Persistent ring (always shown, not just on focus)
+export const persistentRing = "ring-2 ring-control-ring";

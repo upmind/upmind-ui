@@ -1,5 +1,5 @@
 import { cva } from "class-variance-authority";
-import { ringClasses, invalidRingClasses } from "../../assets/styles";
+import { ringClasses, invalidRingClasses, persistentRing } from "../../assets/styles";
 
 export const variants = {
   width: {
@@ -41,7 +41,7 @@ export const itemVariants = cva(
 );
 
 export const contentVariants = cva(
-  `control-radius shadow-control-default bg-control-surface my-2 border-none ${ringClasses} ${invalidRingClasses} flex max-h-72 min-w-(--radix-dropdown-menu-trigger-width) flex-col overflow-hidden p-2`,
+  `control-radius shadow-control-default bg-control-surface my-2 border-none ${persistentRing} flex max-h-72 min-w-(--radix-dropdown-menu-trigger-width) flex-col overflow-hidden p-2`,
   {
     variants,
     defaultVariants: {

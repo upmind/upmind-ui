@@ -58,7 +58,7 @@ export default {
       }
     ),
     content: cva(
-      `control-radius shadow-control-default bg-control-surface ring-primitive-control-default! my-2 border-none ${ringClasses} ${invalidRingClasses} p-0`
+      `control-radius shadow-control-default bg-control-surface my-2 border-none p-0`
     )
   }
 };

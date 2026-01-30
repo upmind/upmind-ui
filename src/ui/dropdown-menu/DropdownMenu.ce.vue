@@ -38,19 +38,24 @@
           v-for="(item, index) in items"
           :key="`dropdown-item-${index}`"
         >
-          <Button
+          <DropdownMenuItem
             v-if="!item.hidden"
-            :class="styles.dropdownMenu.item"
-            variant="ghost"
-            align="left"
-            block
-            :size="props.size"
-            :value="item.value"
             :disabled="item.disabled"
-            @click="doAction(item)"
-            :icon="item.icon"
-            :label="item.label"
-          />
+            @select="doAction(item)"
+          >
+            <Button
+              :class="styles.dropdownMenu.item"
+              variant="ghost"
+              align="left"
+              block
+              :size="props.size"
+              :value="item.value"
+              :disabled="item.disabled"
+              :icon="item.icon"
+              :label="item.label"
+              :ring="false"
+            />
+          </DropdownMenuItem>
         </template>
       </DropdownMenuGroup>
     </DropdownMenuContent>
@@ -72,6 +77,7 @@ import DropdownMenuContent from "./DropdownMenuContent.vue";
 import DropdownMenuTrigger from "./DropdownMenuTrigger.vue";
 import DropdownMenuGroup from "./DropdownMenuGroup.vue";
 import DropdownMenuLabel from "./DropdownMenuLabel.vue";
+import DropdownMenuItem from "./DropdownMenuItem.vue";
 
 // --- utils
 import { isFunction } from "lodash-es";

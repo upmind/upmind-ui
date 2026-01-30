@@ -1,6 +1,6 @@
 // ---  external
 import { cva } from "class-variance-authority";
-import { ringClasses } from "../../assets/styles";
+import { ringClasses, focusRing } from "../../assets/styles";
 // -----------------------------------------------------------------------------
 
 export const variants = {
@@ -25,7 +25,7 @@ export const variants = {
     square: ""
   },
   focusable: {
-    true: `${ringClasses}`
+    true: `${focusRing}`
   }
 };
 
