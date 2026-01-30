@@ -25,6 +25,7 @@ import {
   includes,
   isArray,
   isEmpty,
+  isEqual,
   isObject,
   map,
   reduce,
@@ -641,7 +642,14 @@ export default createMachine(
         { data }: AnyEventObject
       ) => {
         //  NB: data is raw basket data so use snake_case for comparison
-        return !isEmpty(xorBy(raw.added, data?.products, "product_id"));
+        const productsChanged = !isEmpty(
+          xorBy(raw.added, data?.products, "product_id")
+        );
+        const relatedChanged = !isEqual(
+          map(raw.added, "product.related"),
+          map(data?.products, "product.related")
+        );
+        return productsChanged || relatedChanged;
       },
 
       hasFailed: (
