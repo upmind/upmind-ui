@@ -40,7 +40,9 @@ function loadList(params?: Partial<QueryParams>) {
         "subcategories.subcategories.subcategories.subcategories.products"
       ].join(",")
     }),
-    limit: 0,
+    pagination: {
+      limit: 0
+    },
     withAccessToken: true,
     // --- options
     select: data =>
