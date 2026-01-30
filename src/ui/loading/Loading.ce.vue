@@ -1,10 +1,6 @@
 <template>
-  <component
-    :is="is"
-    class="relative w-full"
-    :class="cn(styles.loading.root, props.class)"
-  >
-    <div :class="styles.loading.content">
+  <component :is="is" :class="styles.loading.root">
+    <div :class="cn(styles.loading.content, props.class)">
       <slot></slot>
     </div>
     <Transition
