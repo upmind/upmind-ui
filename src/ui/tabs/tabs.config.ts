@@ -48,7 +48,7 @@ export default {
     trigger: tabsTriggerVariants,
     indicator: tabsIndicatorVariants,
     icon: cva(""),
-    prepend: cva("pb-4"),
-    append: cva("pb-4")
+    prepend: cva("pb-1.5"),
+    append: cva("pb-1.5")
   }
 };
