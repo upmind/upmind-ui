@@ -26,6 +26,7 @@ import {
   isArray,
   isEmpty,
   isEqual,
+  isNil,
   isObject,
   map,
   reduce,
@@ -56,10 +57,21 @@ export default createMachine(
       subscribing: {
         entry: ["setContext", "clearLookups", "setBasketHelper", "loadBasket"],
         on: {
-          REFRESH: {
-            target: "available",
-            actions: ["setBasket", "setLookups", "setRecommendations"]
-          },
+          REFRESH: [
+            {
+              target: "available",
+              actions: ["setBasket", "setLookups", "setRecommendations"],
+              // Only transition to available when products have `related` data.
+              // POST responses don't include `related`, so we wait for the
+              // full basket refresh before considering data ready.
+              cond: "hasRelatedData"
+            },
+            {
+              // Data is incomplete (missing `related`), update context but
+              // stay in subscribing and wait for complete data
+              actions: ["setBasket", "setLookups", "setRecommendations"]
+            }
+          ],
           ERROR: {
             actions: ["setError"]
             // target: "unavailable",
@@ -650,6 +662,26 @@ export default createMachine(
           map(data?.products, "product.related")
         );
         return productsChanged || relatedChanged;
+      },
+
+      // Check if all basket products have `related` data populated.
+      // POST/PUT responses don't include `related` (they don't support `with`),
+      // so we use this to wait for the full basket refresh before transitioning
+      // to available state.
+      hasRelatedData: (
+        _context: RecommendationsEngineContext,
+        { data }: AnyEventObject
+      ) => {
+        const basket = get(data, "basket", data);
+        const basketProducts = basket?.products ?? [];
+        // If no products, data is complete (nothing to wait for)
+        if (isEmpty(basketProducts)) return true;
+        // Check that all products have `related` defined (not undefined)
+        return some(
+          basketProducts,
+          (basketProduct: IBasketProduct) =>
+            !isNil(basketProduct?.product?.related)
+        );
       },
 
       hasFailed: (
