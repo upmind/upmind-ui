@@ -31,7 +31,7 @@ const compoundVariants = [
 
 export default {
   loading: {
-    root: cva(""),
+    root: cva("relative w-full"),
     content: cva("", {
       variants,
       compoundVariants
