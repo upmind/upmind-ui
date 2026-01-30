@@ -43,6 +43,77 @@ import { useConfig } from "../config/useConfig";
 
 // ---------------------------------------------------------------------------
 
+//ORIGINAL
+// /**
+//  * Parses the given basket and returns a list of recommendations.
+//  * The recommendations are extracted from the basket products, and only the single products are considered.
+//  * Inactive recommendations are not included.
+//  *
+//  * @param {IBasket} raw - The raw basket data to parse.
+//  * @returns {Recommendation[]} The parsed list of recommendations.
+//  */
+// export function parseRelatedProducts(raw: IBasket): RelatedProduct[] {
+//   const products: IBasketProduct[] = get(
+//     raw,
+//     "products",
+//     []
+//   ) as IBasketProduct[];
+
+//   return reduce(
+//     products,
+//     (
+//       related: RelatedProduct[],
+//       basketProduct: IBasketProduct
+//     ): RelatedProduct[] => {
+//       // safe check : dont include recommendations for products that are not single products
+//       if (basketProduct?.product?.product_type !== ProductTypes.SINGLE_PRODUCT)
+//         return related;
+
+//       // Lets allow the back end to hide the native related products.
+//       // Any meta level (product, category) can have the hide_native_related flag
+//       // TODO: make this link to the `uimeta.hide_native_related`
+//       const hideNative = true;
+
+//       // const hideNative = some(
+//       //   concat(
+//       //     basketProduct?.product?.meta,
+//       //     basketProduct?.product?.category?.meta
+//       //   ),
+//       //   "hide_native_related"
+//       // );
+
+//       // NB: we may get exact duplicates, as we may have several products that have the same related products and exact same configuration
+//       // but we need them to be able to show the same recommendation for individual source products
+//       // so do not dedupe them!
+
+//       const allRelated = reduce(
+//         concat(
+//           related,
+//           basketProduct?.product?.meta?.related,
+//           basketProduct?.product?.category?.meta?.related,
+//           hideNative ? [] : basketProduct?.product?.related
+//         ),
+//         (result: RelatedProduct[], rawRelated) => {
+//           const valid =
+//             rawRelated?.object_type === "product" && rawRelated?.active;
+
+//           if (valid) {
+//             rawRelated.id = ensureId(rawRelated);
+//             rawRelated.product_id ??= basketProduct.product_id; // ensure we have a product id associated with the recommendation
+//             result.push(rawRelated);
+//           }
+
+//           return result;
+//         },
+//         []
+//       ) as RelatedProduct[];
+
+//       return allRelated;
+//     },
+//     []
+//   );
+// }
+
 function parseProductsToRecommend(
   basketProduct: IBasketProduct
 ): RelatedProduct[] {
