@@ -180,6 +180,7 @@ async function fetch(
       "products_attributes",
       "products_options",
       "products_options.prices",
+      "related",
       `category${".top_category".repeat(4)}`
     ].join()
   };
@@ -255,7 +256,9 @@ async function fetchSelected(
       "prices",
       "products_attributes",
       "products_options",
-      "products_options.prices"
+      "products_options.prices",
+      "related",
+      `category${".top_category".repeat(4)}`
     ].join()
   };
   // conditionally add the basket_id / basket_product_id if we have them,
@@ -344,7 +347,9 @@ async function fetchRelated(
       "prices",
       "products_attributes",
       "products_options",
-      "products_options.prices"
+      "products_options.prices",
+      "related",
+      `category${".top_category".repeat(4)}`
     ].join()
   };
   // conditionally add the basket_id / basket_product_id if we have them,

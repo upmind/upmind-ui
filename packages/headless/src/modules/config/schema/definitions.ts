@@ -219,6 +219,12 @@ export const UI_META_DEFINITIONS = {
     contexts: [UIContext.CATALOGUE, UIContext.RECOMMENDATIONS],
     scopes: [UIScope.BRAND, UIScope.PRODUCT_CATEGORY]
   },
+  productNativeRecommendations: {
+    type: VISIBILITY,
+    default: VISIBILITY.VISIBLE,
+    contexts: [UIContext.RECOMMENDATIONS],
+    scopes: [UIScope.BRAND, UIScope.PRODUCT_CATEGORY, UIScope.PRODUCT]
+  },
   productOrientation: {
     type: ORIENTATION,
     default: ORIENTATION.VERTICAL,
