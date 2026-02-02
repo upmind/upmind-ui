@@ -32,7 +32,7 @@ import { useTranslateField, useTranslateName, useImageUrl } from "../../utils";
 import { ProductTypes } from "@upmind-automation/types";
 import type { IBasket, IBasketProduct } from "@upmind-automation/types";
 import type { Recommendation, RelatedProduct } from "./types";
-import type { Badge } from "../config/schema";
+import { UIContext, type Badge } from "../config/schema";
 import { calculateBillingTerm } from "../product/utils";
 import {
   type ProductDetails,
@@ -51,21 +51,34 @@ function parseProductsToRecommend(
     return [];
   }
 
-  const { data } = useConfig({
+  const { ui, data } = useConfig({
+    context: UIContext.RECOMMENDATIONS,
     product: {
       productDetails: parseProductDetails(basketProduct.product)
     }
   });
 
-  const recommendations = filter(
+  // Config-based recommendations (always included if active)
+  const dataRecommendations = filter(
     data.productsToRecommend ?? [],
     recommendation => recommendation.active
   );
 
-  return map(recommendations, recommendation => {
+  // Native recommendations (only if flag is visible)
+  const nativeRecommendations = ui.productNativeRecommendations.isVisible
+    ? filter(
+        basketProduct?.product?.related ?? [],
+        related => related.active && related.object_type === "product"
+      )
+    : [];
+
+  // Combine and process all recommendations
+  const allRecommendations = [...dataRecommendations, ...nativeRecommendations];
+
+  return map(allRecommendations, recommendation => {
     const related = {
       ...recommendation,
-      product_id: basketProduct.product_id
+      product_id: get(recommendation, "product_id", basketProduct.product_id)
     } as RelatedProduct;
     related.id = ensureId(related);
     return related;

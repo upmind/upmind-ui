@@ -492,7 +492,7 @@ async function calculate(
 
   if (isEqual(data.value, data.prev)) return Promise.reject();
 
-  if (isEmpty(compact(data.value))) return Promise.reject();
+  if (isEmpty(compact([data.value]))) return Promise.reject();
 
   // we need to calculate the total account credit including negative allowance
   // and get a formatted version based on the currency

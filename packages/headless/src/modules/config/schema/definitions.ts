@@ -125,7 +125,7 @@ export const UI_META_DEFINITIONS = {
   productConfigFieldsSummary: {
     type: VISIBILITY,
     default: VISIBILITY.HIDDEN,
-    contexts: [UIContext.CONFIGURE, UIContext.BASKET],
+    contexts: [UIContext.CONFIGURE],
     scopes: [UIScope.BRAND, UIScope.PRODUCT_CATEGORY, UIScope.PRODUCT]
   },
   productConfigOptionsSummary: {
@@ -218,6 +218,12 @@ export const UI_META_DEFINITIONS = {
     default: GRID_LAYOUT.THREE_COL,
     contexts: [UIContext.CATALOGUE, UIContext.RECOMMENDATIONS],
     scopes: [UIScope.BRAND, UIScope.PRODUCT_CATEGORY]
+  },
+  productNativeRecommendations: {
+    type: VISIBILITY,
+    default: VISIBILITY.VISIBLE,
+    contexts: [UIContext.RECOMMENDATIONS],
+    scopes: [UIScope.BRAND, UIScope.PRODUCT_CATEGORY, UIScope.PRODUCT]
   },
   productOrientation: {
     type: ORIENTATION,
@@ -402,7 +408,7 @@ export const UI_META_DEFINITIONS = {
   },
   billingDetails: {
     type: EDITABILITY,
-    default: EDITABILITY.READONLY,
+    default: EDITABILITY.EDITABLE,
     contexts: [UIContext.BILLING_DETAILS, UIContext.CHECKOUT],
     scopes: [UIScope.BRAND],
     locked: [UIContext.BILLING_DETAILS]

@@ -220,9 +220,8 @@
 //     .then(token => (data.recaptcha_token = token))
 //     .catch(() => null); // do nothing
 
-//   // add referral cookie if available
-//   const referralCookie = getCookie("upm_aff");
-//   if (referralCookie) data.referral_cookie = referralCookie;
+// add referral cookie if available, NB DO NOT DECODE
+// const referralCookie = getCookie("upm_aff", v => v);//   if (referralCookie) data.referral_cookie = referralCookie;
 
 //   // add tracking if available
 //   await getTracking()

@@ -1,11 +1,13 @@
 import { computed, type Ref, toValue } from "vue";
 import { useBreakpoints, breakpointsTailwind } from "@vueuse/core";
+import { has } from "lodash-es";
 import {
   initializeMeta,
   createUIMetaProxy,
   createDataProxy,
   injectConfig,
-  provideConfig
+  provideConfig,
+  useCachedRef
 } from "./utils";
 import { useBrand } from "../brand/useBrand";
 import type {
@@ -21,6 +23,7 @@ export { provideConfig, injectConfig } from "./utils";
 export function useConfig(options?: UseMetaOptions): UseMetaResult {
   const injected =
     !options?.context && !options?.provide && !options?.brand && injectConfig();
+
   if (injected) return injected;
 
   const {
@@ -40,17 +43,18 @@ export function useConfig(options?: UseMetaOptions): UseMetaResult {
     return "lg";
   });
 
-  // Brand can be passed as an option to allow using meta within the brand module
-  // without creating a circular dependency
-  const brand = computed(
-    () => toValue(brandOption) ?? useBrand().uiCart.value
+  // Only call useBrand() when brand option is not provided (avoids circular dependency)
+  const { uiCart } = has(options, "brand") ? { uiCart: undefined } : useBrand();
+
+  const brand = useCachedRef(
+    computed(() => toValue(brandOption) ?? uiCart?.value)
   ) as Ref<BrandMeta["cart"]>;
 
   const items = computed(() =>
     initializeMeta({
       context: toValue(context),
       viewport: toValue(viewport),
-      brand: toValue(brand),
+      brand: brand.value,
       category: toValue(category),
       product: toValue(product),
       optionGroup: toValue(optionGroup),
