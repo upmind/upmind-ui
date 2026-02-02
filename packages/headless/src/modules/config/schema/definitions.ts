@@ -408,7 +408,6 @@ export const UI_META_DEFINITIONS = {
   },
   billingDetails: {
     type: EDITABILITY,
-    // Editable by default until we have standalone billing details
     default: EDITABILITY.EDITABLE,
     contexts: [UIContext.BILLING_DETAILS, UIContext.CHECKOUT],
     scopes: [UIScope.BRAND],
