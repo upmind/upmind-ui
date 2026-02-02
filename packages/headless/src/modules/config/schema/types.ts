@@ -35,6 +35,7 @@ export type TaxesDisplay = (typeof TAXES_DISPLAY)[keyof typeof TAXES_DISPLAY];
 
 export const LIST_STYLE = {
   GRID: "grid",
+  GRID_FACET: "grid-facet",
   CAROUSEL: "carousel"
 } as const;
 export type ListStyle = (typeof LIST_STYLE)[keyof typeof LIST_STYLE];
