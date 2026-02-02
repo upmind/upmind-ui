@@ -2,7 +2,7 @@
 
 // --- internal
 import { useQuery } from "../..";
-import { useBasket, useBasketCurrency, useBasketPromotions } from "../basket";
+import { useBasketCurrency, useBasketPromotions } from "../basket";
 
 // --- utils
 import { map } from "lodash-es";
@@ -11,7 +11,10 @@ import { useTime } from "../../utils";
 
 // --- types
 import type { Product } from "../product";
-import type { IProduct } from "@upmind-automation/types";
+import {
+  ProvisionCategoryCodes,
+  type IProduct
+} from "@upmind-automation/types";
 import type { QueryParams } from "../..";
 import type { InfiniteData, QueryKey } from "@tanstack/vue-query";
 import { parsePromotionsOrCoupons } from "../basketProduct/utils";
@@ -30,6 +33,9 @@ function loadList(params?: Partial<QueryParams>) {
     ...(params as any),
     queryKey: [...queryKey, { promocodes }],
     url: useUrl(`basket/products`, {
+      // NB: Always exclude domain names from the product catalogue as we use the Domain widget for the category
+      "filter[provision_blueprint.code|neq]":
+        ProvisionCategoryCodes.DOMAIN_NAMES,
       with: [
         "image",
         "images",
@@ -54,13 +60,16 @@ function loadList(params?: Partial<QueryParams>) {
 
 function loadInfinite(params?: Partial<QueryParams>) {
   const { listInfinite, useUrl } = useQuery();
-  const { meta: currencyMeta } = useBasketCurrency();
+  const { currencyCode } = useBasketCurrency();
   const { promotions } = useBasketPromotions();
 
   return listInfinite<IProduct[], InfiniteData<Product[]>>({
     ...(params as any),
     queryKey,
     url: useUrl(`basket/products`, {
+      // NB: Always exclude domain names from the product catalogue as we use the Domain widget for the category
+      "filter[provision_blueprint.code|neq]":
+        ProvisionCategoryCodes.DOMAIN_NAMES,
       with: [
         "image",
         "images",
@@ -77,7 +86,7 @@ function loadInfinite(params?: Partial<QueryParams>) {
     // --- options
     select: data => map(data ?? [], parseProduct),
     staleTime: useTime().HOUR,
-    enabled: () => !currencyMeta.value.isLoading
+    enabled: () => !!currencyCode.value
   });
 }
 
