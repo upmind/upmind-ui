@@ -81,6 +81,8 @@ export interface UISchema {
   productList?: ProductListStyle;
   /** Product list grid layout (if applicable). @requires productList = 'grid' */
   productListLayout?: GridLayout;
+  /** Display native product recommendations */
+  productNativeRecommendations?: Visibility;
   /** Orientation of product content */
   productOrientation?: Orientation;
   /** Display detailed price summary (eg. 'Was/Now/Next') */

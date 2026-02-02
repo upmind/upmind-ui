@@ -25,8 +25,8 @@ import {
   inject,
   provide,
   reactive,
-  type Ref,
-  type UnwrapNestedRefs
+  type ComputedRef,
+  type Ref
 } from "vue";
 import type { UIMetaSchema as UISchema, DataSchema } from "./schema";
 import { UIContext, UI_META_DEFINITIONS, DATA_DEFINITIONS } from "./schema";
@@ -486,4 +486,19 @@ export function provideConfig(config: UseMetaResult): void {
 
 export function injectConfig(): UseMetaResult | undefined {
   return inject(CONFIG_KEY, undefined);
+}
+
+/**
+ * Creates a computed ref that caches the last truthy value.
+ * When the source becomes undefined/null, returns the cached value instead.
+ */
+export function useCachedRef<T>(
+  source: ComputedRef<T | undefined>
+): ComputedRef<T | undefined> {
+  let cache: T | undefined;
+  return computed(() => {
+    const current = source.value;
+    if (current) cache = current;
+    return current ?? cache;
+  });
 }

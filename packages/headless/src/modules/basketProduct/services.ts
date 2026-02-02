@@ -41,7 +41,8 @@ import {
   isArray,
   isFunction,
   forEach,
-  differenceBy
+  differenceBy,
+  find
 } from "lodash-es";
 
 // --- types
@@ -180,6 +181,7 @@ async function fetch(
       "products_attributes",
       "products_options",
       "products_options.prices",
+      "related",
       `category${".top_category".repeat(4)}`
     ].join()
   };
@@ -255,7 +257,9 @@ async function fetchSelected(
       "prices",
       "products_attributes",
       "products_options",
-      "products_options.prices"
+      "products_options.prices",
+      "related",
+      `category${".top_category".repeat(4)}`
     ].join()
   };
   // conditionally add the basket_id / basket_product_id if we have them,
@@ -344,7 +348,9 @@ async function fetchRelated(
       "prices",
       "products_attributes",
       "products_options",
-      "products_options.prices"
+      "products_options.prices",
+      "related",
+      `category${".top_category".repeat(4)}`
     ].join()
   };
   // conditionally add the basket_id / basket_product_id if we have them,
@@ -721,25 +727,114 @@ function parseApiErrors(response: ResponseError) {
 // -----------------------------------------------------------------------------
 
 /**
+ * Calculates the delta between old and new product state.
+ * Uses simple subtraction - no unit price calculations needed.
+ * Returns a product representing the net change (for add_to_cart or remove_from_cart).
+ */
+function calculateProductDelta(
+  oldProduct: BasketProduct,
+  newProduct: BasketProduct
+): { deltaProduct: BasketProduct; isAddition: boolean } {
+  const oldQty = oldProduct.configuration?.quantity ?? 0;
+  const newQty = newProduct.configuration?.quantity ?? 0;
+  const isAddition = newQty > oldQty;
+
+  // Calculate deltas by simple subtraction
+  const deltaQty = Math.abs(newQty - oldQty);
+  const deltaPrice = Math.abs(
+    (newProduct.price?.currentAmount ?? 0) -
+      (oldProduct.price?.currentAmount ?? 0)
+  );
+  const deltaSubtotal = Math.abs(
+    (newProduct.price?.configuration?.subtotal ?? 0) -
+      (oldProduct.price?.configuration?.subtotal ?? 0)
+  );
+  const deltaDiscount = Math.abs(
+    (newProduct.price?.configuration?.discount ?? 0) -
+      (oldProduct.price?.configuration?.discount ?? 0)
+  );
+
+  const deltaProduct = {
+    ...newProduct,
+    configuration: {
+      ...newProduct.configuration,
+      quantity: deltaQty
+    },
+    price: {
+      ...newProduct.price,
+      currentAmount: deltaPrice,
+      configuration: {
+        ...newProduct.price?.configuration,
+        subtotal: deltaSubtotal,
+        discount: deltaDiscount
+      }
+    }
+  } as BasketProduct;
+
+  return { deltaProduct, isAddition };
+}
+
+/**
  * Handles side effects after an update operation resolves.
- * Refreshes the basket and fires add_to_cart dataLayer event for newly added products.
+ * Fires add_to_cart for truly new products, and uses calculateProductDelta for quantity changes.
  */
 function onUpdateResolved(rawBasket: IBasket): IBasket {
   const { prefresh, products } = useBasket();
-  const existingProducts = products.value ?? [];
+  const existingProducts: BasketProduct[] = products.value ?? [];
 
   prefresh(rawBasket);
 
-  const newlyAddedProducts = differenceBy(
-    products.value ?? [],
-    existingProducts,
-    "id"
+  const updatedProducts: BasketProduct[] = products.value ?? [];
+
+  // Find products completely removed (existed before, gone now)
+  const removedProducts = differenceBy(existingProducts, updatedProducts, "id");
+
+  // Single pass: categorize products into adds and removes
+  const { addedItems, removedItems } = reduce(
+    updatedProducts,
+    (acc, newProduct) => {
+      const oldProduct = find(existingProducts, ["id", newProduct.id]);
+
+      if (!oldProduct) {
+        // Truly new product - add as-is
+        acc.addedItems.push(newProduct);
+      } else if (
+        oldProduct.configuration?.quantity !==
+        newProduct.configuration?.quantity
+      ) {
+        // Quantity changed - add delta
+        const { deltaProduct, isAddition } = calculateProductDelta(
+          oldProduct,
+          newProduct
+        );
+        if (isAddition) {
+          acc.addedItems.push(deltaProduct);
+        } else {
+          acc.removedItems.push(deltaProduct);
+        }
+      }
+
+      return acc;
+    },
+    {
+      addedItems: [] as BasketProduct[],
+      removedItems: [...removedProducts] as BasketProduct[]
+    }
   );
 
-  if (!isEmpty(newlyAddedProducts)) {
+  // Fire single add_to_cart event with all additions
+  if (!isEmpty(addedItems)) {
     useDataLayer()
       .dataLayer({ event: "add_to_cart" })
-      .withItems(newlyAddedProducts)
+      .withItems(addedItems)
+      .push();
+  }
+
+  // Fire single remove_from_cart event with all removals
+  if (!isEmpty(removedItems)) {
+    useDataLayer()
+      .dataLayer({ event: "remove_from_cart" })
+      .withItems(removedItems)
       .push();
   }
 
@@ -748,51 +843,27 @@ function onUpdateResolved(rawBasket: IBasket): IBasket {
 
 /**
  * Handles side effects after an updateQuantity operation resolves.
- * Refreshes the basket and fires appropriate dataLayer event based on quantity change.
- * Sends the delta quantity and proportional price per Google best practices.
+ * Uses calculateProductDelta to compute the net change between old and new product.
  */
 function onUpdateQuantityResolved(
   rawBasket: IBasket,
-  quantity: number,
-  prevQuantity: number,
-  basketProduct: BasketProduct
+  oldBasketProduct: BasketProduct
 ): IBasket {
-  const { prefresh } = useBasket();
+  const { prefresh, findProduct } = useBasket();
   prefresh(rawBasket);
 
-  const event = quantity > prevQuantity ? "add_to_cart" : "remove_from_cart";
+  // Get the updated product from the refreshed basket (has correct pricing from BE)
+  const newBasketProduct = findProduct({ id: oldBasketProduct.id });
 
-  // GA4 best practice: Send only the quantity delta (change), not the full quantity.
-  // E.g., if quantity goes from 2 → 5, send add_to_cart with quantity: 3 and proportional price.
-  // We calculate unit values by dividing totals by previous quantity, then multiply by delta.
-  // HACK: currently the BE does not provide the delta or a way to get the unit price, so we calculate it here.
-  const deltaQty = Math.abs(quantity - prevQuantity);
-  const totalPrice = basketProduct.price?.currentAmount ?? 0;
-  const totalDiscount = basketProduct.price?.configuration?.discount ?? 0;
-  const unitPrice = prevQuantity > 0 ? totalPrice / prevQuantity : totalPrice;
-  const unitDiscount =
-    prevQuantity > 0 ? totalDiscount / prevQuantity : totalDiscount;
-  const deltaPrice = unitPrice * deltaQty;
-  const deltaDiscount = unitDiscount * deltaQty;
+  if (newBasketProduct) {
+    const { deltaProduct, isAddition } = calculateProductDelta(
+      oldBasketProduct,
+      newBasketProduct
+    );
+    const event = isAddition ? "add_to_cart" : "remove_from_cart";
 
-  const deltaProduct = {
-    ...basketProduct,
-    configuration: {
-      ...basketProduct.configuration,
-      quantity: deltaQty
-    },
-    price: {
-      ...basketProduct.price,
-      currentAmount: deltaPrice,
-      configuration: {
-        ...basketProduct.price?.configuration,
-        subtotal: deltaPrice,
-        discount: deltaDiscount
-      }
-    }
-  } as BasketProduct;
-
-  useDataLayer().dataLayer({ event }).withItems([deltaProduct]).push();
+    useDataLayer().dataLayer({ event }).withItems([deltaProduct]).push();
+  }
 
   return rawBasket;
 }
@@ -861,20 +932,12 @@ export default {
     quantity: number,
     basketProduct: BasketProduct
   ): Promise<IBasket> => {
-    const prevQuantity = get(basketProduct, "configuration.quantity", 1);
     return new Promise((resolve, reject) =>
       queue.addItem({
         type: "UPDATE_QUANTITY",
         data: { basketId: basketId!, quantity, basketProduct },
         resolve: (rawBasket: IBasket) =>
-          resolve(
-            onUpdateQuantityResolved(
-              rawBasket,
-              quantity,
-              prevQuantity,
-              basketProduct
-            )
-          ),
+          resolve(onUpdateQuantityResolved(rawBasket, basketProduct)),
         reject
       })
     );

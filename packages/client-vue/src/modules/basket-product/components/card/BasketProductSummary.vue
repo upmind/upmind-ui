@@ -191,7 +191,6 @@ const { ui, data } = useConfig().with({
 
 const filteredDetails = computed(() => {
   const showOptions = ui.productConfigOptionsSummary.isVisible;
-  const showFields = ui.productConfigFieldsSummary.isVisible;
 
   return props.details.filter((detail, index) => {
     const { name, cycle, meta } = detail;
@@ -212,16 +211,13 @@ const filteredDetails = computed(() => {
     // Filter product options
     if (!showOptions && !isProduct && !isField) return false;
 
-    // Filter provisioning fields
-    if (!showFields && isField) return false;
-
     // For primary or single item lists
     if (isPrimary || props.details.length === 1) {
-      return showFields || !isField;
+      return !isField;
     }
 
     // For other items: exclude if in pricing array
-    return !includes(props.pricing, detail.id) && (showFields || !isField);
+    return !includes(props.pricing, detail.id) && !isField;
   });
 });
 

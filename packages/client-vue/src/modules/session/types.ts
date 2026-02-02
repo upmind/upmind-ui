@@ -54,7 +54,6 @@ export type AuthActionProps = SessionRoutes & {
 };
 
 export enum SESSION_TEMPLATE {
-  FULL = "full",
   SPLIT = "split",
   ENCLOSED = "enclosed",
   CANVAS_CARD = "canvas-card",
