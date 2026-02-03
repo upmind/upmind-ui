@@ -126,7 +126,6 @@ dependencies:
 
     - git config --global --add safe.directory '*'
     - pnpm clean
-    - git submodule sync --recursive
     - git submodule update --init --recursive
     - pnpm install
     - pnpm --filter types install
