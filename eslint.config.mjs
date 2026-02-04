@@ -75,7 +75,7 @@ export default [
       "unused-imports/no-unused-imports": "error",
       "no-unused-vars": "off",
       "@typescript-eslint/no-unused-vars": [
-        "warn",
+        "error",
         {
           argsIgnorePattern: "^_",
           varsIgnorePattern: "^_",
@@ -111,47 +111,27 @@ export default [
       "import/order": [
         "error",
         {
-          groups: ["builtin", "external", "internal", "type"],
+          groups: [
+            "builtin",
+            "external",
+            "internal",
+            "parent",
+            "sibling",
+            "index",
+            "type"
+          ],
           pathGroups: [
-            // @upmind-automation/** imports go after other external
             {
               pattern: "@upmind-automation/**",
               group: "external",
               position: "after"
             },
-
-            // ALL relative imports (../, ./, ../../) grouped as "internal"
-            // This prevents blank lines between parent/sibling/index subgroups
-            {
-              pattern: "./**",
-              group: "internal",
-              position: "before"
-            },
-            {
-              pattern: "../**",
-              group: "internal",
-              position: "before"
-            },
-            {
-              pattern: "../../**",
-              group: "internal",
-              position: "before"
-            },
-
-            // .types files - place in types group
-            {
-              pattern: "{.,..,../..,../../..,../../../..}/**/*.types",
-              group: "type",
-              position: "before"
-            },
-
-            // Utils imports - place in types group before actual types
+            // Utils imports - place before types (covers 0-5 levels of ../)
             {
               pattern: "{.,..,../..,../../..,../../../..}/**/util*",
               group: "type",
               position: "before"
             },
-
             {
               pattern: "lodash-es",
               group: "type",
@@ -220,7 +200,7 @@ export default [
       "unused-imports/no-unused-imports": "error",
       "no-unused-vars": "off",
       "@typescript-eslint/no-unused-vars": [
-        "warn",
+        "error",
         {
           argsIgnorePattern: "^_",
           varsIgnorePattern: "^_",
@@ -270,7 +250,7 @@ export default [
             }
           ],
           pathGroupsExcludedImportTypes: ["type"],
-          "newlines-between": "always",
+          "newlines-between": "never",
           alphabetize: {
             order: "asc",
             caseInsensitive: true
