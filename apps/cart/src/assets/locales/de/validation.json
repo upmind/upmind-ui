@@ -13,7 +13,7 @@
   "enum": "{title} muss einem der zulässigen Werte entsprechen",
   "exclusiveMaximum": "{title} muss kleiner sein als {exclusiveMaximum}",
   "exclusiveMinimum": "{title} muss größer sein als {exclusiveMinimum}",
-  "format": "@:validation Die{format} |{title} muss dem Format entsprechen{format}",
+  "format": "{title} muss dem Format entsprechen {format}",
   "if": "{title} muss mit dem Schema „dann“ übereinstimmen | {title} muss mit dem Schema „else“ übereinstimmen",
   "maxItems": "{title} darf NICHT mehr haben als {maxItems} Artikel | {title} darf NICHT mehr haben als {maxItems} Artikel",
   "maxLength": "{title} darf NICHT länger sein als {maxLength} Charakter | {title} darf NICHT länger sein als {maxLength} Charaktere",
@@ -30,7 +30,7 @@
   "patternProperties": "{title} Eigenschaftsname {propertyName} ist ungültig (Muster stimmt nicht überein)",
   "phone": "{title} muss eine gültige internationale Telefonnummer sein",
   "propertyNames": "{title} Eigenschaftsname {propertyName} ist ungültig",
-  "required": "{title}muss über die erforderlichen Eigenschaften verfügen{missingProperty}",
+  "required": "{title} ist erforderlich",
   "type": "{title} muss sein {type}",
   "uniqueItems": "{title} darf KEINE doppelten Artikel haben (Artikel {j} Und {i} sind identisch)"
 }
