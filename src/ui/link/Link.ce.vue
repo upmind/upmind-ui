@@ -39,15 +39,13 @@
 <script lang="ts" setup>
 // --- external
 import { computed, useSlots } from "vue";
-import { kebabCase, isEmpty } from "lodash-es";
-
 // --- internal
-import { useStyles, cn } from "../../utils";
-import config from "./link.config";
-
-// --- components
 import { RouterLink } from "vue-router";
+import config from "./link.config";
+// --- components
 import LinkItems from "./LinkItems.vue";
+import { useStyles, cn } from "../../utils";
+import { kebabCase, isEmpty } from "lodash-es";
 
 // -- types
 import type { LinkProps } from "./types";

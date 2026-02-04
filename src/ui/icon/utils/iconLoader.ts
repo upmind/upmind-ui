@@ -3,7 +3,6 @@
 // ---------------------------------------------------------------
 
 import { ref, computed, type ComputedRef } from "vue";
-
 import {
   toPairs,
   get,
@@ -15,10 +14,8 @@ import {
   every,
   find
 } from "lodash-es";
-
 // --- types
 import type { IconEntry, IconImportMap, LoadIconOptions } from "../types";
-
 // -----------------------------------------------------------------------------
 
 /** Simple in‑memory cache – lives for the page lifetime */
@@ -32,7 +29,6 @@ const iconsByName = ref<Record<string, IconEntry[]>>({});
 
 /** Whether icons have been registered */
 const isRegistered = ref(false);
-
 // -----------------------------------------------------------------------------
 // Public API
 // -----------------------------------------------------------------------------

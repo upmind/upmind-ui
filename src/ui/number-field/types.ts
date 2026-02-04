@@ -1,17 +1,17 @@
 // --- external
-import type { HTMLAttributes } from "vue";
+import type {
+  numberFieldVariants,
+  numberFieldRootVariants
+} from "./numberField.config";
 import type { CxOptions, VariantProps } from "class-variance-authority";
 import type {
   NumberFieldRootProps,
   NumberFieldDecrementProps,
   NumberFieldIncrementProps
 } from "radix-vue";
-
+import type { HTMLAttributes } from "vue";
 // --- types
-import type {
-  numberFieldVariants,
-  numberFieldRootVariants
-} from "./numberField.config";
+
 type NumberFieldRootVariants = VariantProps<typeof numberFieldRootVariants>;
 type NumberFieldVariants = VariantProps<typeof numberFieldVariants>;
 

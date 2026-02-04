@@ -63,20 +63,17 @@
 <script lang="ts" setup>
 // --- external
 import { useJsonFormsControl } from "@jsonforms/vue";
-import { vAutoAnimate } from "@formkit/auto-animate";
 
 // -- components
 import { Checkbox } from "../../../checkbox";
-import FormField from "../../FormField.vue";
-import FormLabel from "../../FormLabel.vue";
 import FormControl from "../../FormControl.vue";
 import FormDescription from "../../FormDescription.vue";
+import FormField from "../../FormField.vue";
+import FormLabel from "../../FormLabel.vue";
 import FormMessage from "../../FormMessage.vue";
 import FormRequiredIndicator from "../../FormRequiredIndicator.vue";
-
 // --- utils
 import { useUpmindUIRenderer } from "../utils";
-
 // --- types
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";

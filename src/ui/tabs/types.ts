@@ -1,8 +1,9 @@
 // --- external
-import { type HTMLAttributes } from "vue";
+import type { tabsRootVariants } from "./tabs.config";
 import type { CxOptions, VariantProps } from "class-variance-authority";
 import type { TabsRootProps, TabsListProps } from "radix-vue";
-import type { tabsRootVariants } from "./tabs.config";
+import type { HTMLAttributes } from "vue";
+
 type TabsRootVariantsProps = VariantProps<typeof tabsRootVariants>;
 
 export interface TabItem {

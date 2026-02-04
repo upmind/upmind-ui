@@ -41,23 +41,20 @@
 
 <script lang="ts" setup>
 // --- external
-import { ref, watch, computed, onMounted, useTemplateRef } from "vue";
-import { useVModel } from "@vueuse/core";
-
 // --- components
-import { iterateSchema } from "./renderers/utils";
 import { JsonForms } from "@jsonforms/vue";
-
+import { useVModel } from "@vueuse/core";
+import { ref, watch, computed, onMounted, useTemplateRef } from "vue";
 // --- custom elements
 import { Button } from "../button";
-
 // --- local
 import config from "./form.config";
 import { upmindUIRenderers } from "./renderers";
-
+import { iterateSchema } from "./renderers/utils";
 // --- utils
 
 import { useStyles, isDeepEmpty, useValidation } from "../../utils";
+import { cn } from "../../utils";
 import {
   isEmpty,
   isEqual,
@@ -67,21 +64,19 @@ import {
   merge,
   get
 } from "lodash-es";
-import { cn } from "../../utils";
-
 // --- types
-import type { JsonFormsChangeEvent } from "@jsonforms/vue";
-import type {
-  ValidationMode,
-  UISchemaElement,
-  JsonSchema
-} from "@jsonforms/core";
 import type {
   FormProps,
   FormActionProps,
   FormActionsProps,
   FormFooterProps
 } from "./types";
+import type {
+  ValidationMode,
+  UISchemaElement,
+  JsonSchema
+} from "@jsonforms/core";
+import type { JsonFormsChangeEvent } from "@jsonforms/vue";
 import type { ErrorObject } from "ajv";
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<FormProps>(), {
@@ -117,7 +112,6 @@ defineExpose({
   submit: doSubmit,
   reset: doReject
 });
-
 // --- state
 const { ajv } = useValidation(props.ajv);
 
@@ -137,7 +131,6 @@ const touched = useVModel(props, "touched", emits, {
   passive: true,
   defaultValue: !isEmpty(props.additionalErrors)
 });
-
 // ---
 
 const meta = computed(() => {
@@ -164,7 +157,6 @@ const renderers = Object.freeze([
   ...upmindUIRenderers,
   ...props.additionalRenderers
 ]);
-
 // --- computed
 const actions = computed<Record<string, FormActionProps>>(() => {
   const defaultActions = {
@@ -202,7 +194,6 @@ const mode = computed<ValidationMode>(() => {
   // only show errors if we have interacted with the form
   return meta.value.isTouched ? "ValidateAndShow" : "ValidateAndHide";
 });
-
 // --- methods
 function onChange({ data, errors: newErrors }: JsonFormsChangeEvent) {
   errors.value = newErrors ?? [];

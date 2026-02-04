@@ -1,12 +1,11 @@
 // --- external
-import { type HTMLAttributes } from "vue";
-
 // --- types
-import type { RadioGroupRootProps, RadioGroupItemProps } from "radix-vue";
-import type { CxOptions, VariantProps } from "class-variance-authority";
 import type { itemSizeVariants } from "./radioCards.config";
 import type { BadgeProps } from "../badge";
 import type { LinkProps } from "../link";
+import type { CxOptions, VariantProps } from "class-variance-authority";
+import type { RadioGroupRootProps, RadioGroupItemProps } from "radix-vue";
+import type { HTMLAttributes } from "vue";
 
 type RadioCardsItemSizeVariants = VariantProps<typeof itemSizeVariants>;
 

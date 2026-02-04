@@ -17,16 +17,13 @@
 
 <script lang="ts" setup>
 // --- external
-import { ref, computed, watch } from "vue";
 import { useIntersectionObserver } from "@vueuse/core"; // or '@vueuse/integrations' in some setups
 import { Slot } from "radix-vue";
-
+import { ref, computed, watch } from "vue";
 // --- utils
 import { first, isFunction } from "lodash-es";
-
 // --- types
 import type { ComponentPublicInstance } from "vue";
-
 // -----------------------------------------------------------------------------
 
 const props = defineProps<{
@@ -36,7 +33,6 @@ const props = defineProps<{
   invalid?: boolean;
   autoFocus?: boolean;
 }>();
-
 // -----------------------------------------------------------------------------
 
 // NB its important to remove some attributes that we use, but that ALSO have HTML attributes that dont correspond
@@ -47,24 +43,20 @@ const attributesToRemove = {
   autofocus: undefined,
   size: undefined
 };
-
 // --- state
 
 let observer: ReturnType<typeof useIntersectionObserver>;
 
 const target = ref<ComponentPublicInstance | null>(null);
-
 // --- context
 
 const focussable = ["input", "textarea", "select", "button"];
-
 // --- computed
 
 const meta = computed(() => ({
   isInvalid: !!props.invalid,
   shouldFocus: !!props.autoFocus
 }));
-
 // --- methods
 
 function isSelectable(element: HTMLElement) {

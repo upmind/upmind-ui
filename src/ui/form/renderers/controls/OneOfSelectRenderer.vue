@@ -13,12 +13,10 @@
 // --- external
 import { useJsonFormsOneOfEnumControl } from "@jsonforms/vue";
 // --- components
-import FormField from "../../FormField.vue";
 import { Select } from "../../../select";
-
+import FormField from "../../FormField.vue";
 // --- utils
 import { useUpmindUIRenderer } from "../utils";
-
 // --- types
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";

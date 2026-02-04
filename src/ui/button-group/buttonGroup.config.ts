@@ -1,5 +1,5 @@
 // --- external
-import { cva, cx } from "class-variance-authority";
+import { cva } from "class-variance-authority";
 import { focusWithinRing } from "../../assets/styles";
 
 export const rootVariants = cva(

@@ -79,23 +79,19 @@
 
 <script setup lang="ts">
 // --- external
-import { computed } from "vue";
 import { watchOnce } from "@vueuse/core";
-
+import { computed } from "vue";
 // --- internal
-import { cn, useStyles } from "../../utils";
-import config from "./radioCards.config";
-
 // --- components
+import { Badge } from "../badge";
 import Label from "../label/Label.ce.vue";
 import { Link } from "../link";
-import { Badge } from "../badge";
 import { RadioGroupItem } from "../radio-group";
-
+import config from "./radioCards.config";
+import { cn, useStyles } from "../../utils";
 // --- types
-import type { RadioCardsItemActionProps, RadioCardsItemProps } from "./types";
 import { isFunction, isString, isNil } from "lodash-es";
-
+import type { RadioCardsItemActionProps, RadioCardsItemProps } from "./types";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<RadioCardsItemProps>(), {

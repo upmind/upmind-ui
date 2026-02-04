@@ -1,8 +1,8 @@
 // --- utils
 
+import { Fragment } from "vue";
 import { isEmpty } from "lodash-es";
-import { Fragment, useSlots } from "vue";
-import type { RendererElement, RendererNode, VNode } from "vue";
+import type { VNode } from "vue";
 
 /**
  * Determines if a given slot is empty.

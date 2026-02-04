@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { type HTMLAttributes, computed } from "vue";
 import {
   SelectContent,
   type SelectContentEmits,
@@ -8,11 +7,12 @@ import {
   SelectViewport,
   useForwardPropsEmits
 } from "radix-vue";
+import { type HTMLAttributes, computed } from "vue";
+import { persistentRing } from "../../assets/styles";
+import { Icon } from "../icon";
 import SelectScrollDownButton from "./SelectScrollDownButton.vue";
 import SelectScrollUpButton from "./SelectScrollUpButton.vue";
-import { Icon } from "../icon";
 import { cn } from "../../utils";
-import { persistentRing } from "../../assets/styles";
 
 defineOptions({
   inheritAttrs: false

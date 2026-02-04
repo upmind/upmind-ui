@@ -20,13 +20,10 @@ import {
   rendererProps,
   useJsonFormsLayout
 } from "@jsonforms/vue";
-
 // --- components
 import { Dialog } from "../../../dialog";
-
 // --- types
 import type { Layout } from "@jsonforms/core";
-
 // -------------------------------------------------------------------
 
 const props = defineProps({

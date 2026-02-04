@@ -27,19 +27,14 @@
 <script lang="ts" setup>
 // --- external
 import { computed } from "vue";
-
 // --- internal
-import config from "./badge.config";
-
-import { useStyles, cn } from "../../utils";
-
-// --- components
-import Badge from "./Badge.vue";
 import { Icon } from "../icon";
-
+import config from "./badge.config";
+import Badge from "./Badge.vue";
+import { useStyles, cn } from "../../utils";
+// --- components
 // --- types
 import type { BadgeProps } from "./types";
-
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<BadgeProps>(), {
   // --- props

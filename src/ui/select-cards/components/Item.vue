@@ -12,9 +12,9 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
+import { Badge } from "../../badge";
 import { isObject } from "lodash-es";
 import type { SelectCardsItemProps } from "../types";
-import { Badge } from "../../badge";
 
 const props = defineProps<SelectCardsItemProps>();
 

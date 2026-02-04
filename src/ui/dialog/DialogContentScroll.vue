@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { type HTMLAttributes, computed } from "vue";
 import {
   DialogContent,
   DialogPortal,
@@ -7,7 +6,7 @@ import {
   type DialogContentEmits,
   type DialogContentProps
 } from "radix-vue";
-
+import { type HTMLAttributes, computed } from "vue";
 import DialogClose from "./DialogClose.vue";
 import DialogOverlay from "./DialogOverlay.vue";
 import { cn } from "../../utils";

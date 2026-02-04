@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { type HTMLAttributes, computed } from "vue";
 import {
   DropdownMenuContent,
   type DropdownMenuContentEmits,
@@ -7,8 +6,9 @@ import {
   DropdownMenuPortal,
   useForwardPropsEmits
 } from "radix-vue";
-import { cn } from "../../utils";
+import { type HTMLAttributes, computed } from "vue";
 import { persistentRing } from "../../assets/styles";
+import { cn } from "../../utils";
 
 const props = withDefaults(
   defineProps<

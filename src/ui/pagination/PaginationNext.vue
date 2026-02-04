@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import type { PaginationNextProps } from "radix-vue";
-import type { HTMLAttributes } from "vue";
-import { Button } from "../button";
-import { cn } from "../../utils";
 import { ChevronRight } from "lucide-vue-next";
 import { PaginationNext } from "radix-vue";
 import { computed } from "vue";
+import { Button } from "../button";
+import { cn } from "../../utils";
+import type { PaginationNextProps } from "radix-vue";
+import type { HTMLAttributes } from "vue";
 
 const props = withDefaults(
   defineProps<PaginationNextProps & { class?: HTMLAttributes["class"] }>(),

@@ -35,17 +35,14 @@
  * all slots and events to the appropriate child component.
  */
 // --- external
-import { computed, ref } from "vue";
 import { useForwardPropsEmits } from "radix-vue";
-
+import { computed, ref } from "vue";
 // --- components
-import SelectGroupedSingleItem from "./SelectGroupedSingleItem.vue";
 import SelectGroupedMultiItem from "./SelectGroupedMultiItem.vue";
-
+import SelectGroupedSingleItem from "./SelectGroupedSingleItem.vue";
 // --- types
-import type { SelectGroupedOptionRendererProps } from "./types";
 import { first } from "lodash-es";
-
+import type { SelectGroupedOptionRendererProps } from "./types";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<SelectGroupedOptionRendererProps>(), {
@@ -60,12 +57,10 @@ const emits = defineEmits<{
 }>();
 
 const forwarded = useForwardPropsEmits(props, emits);
-
 // --- Refs
 
 const singleItemRef = ref<{ setFocus: () => void } | null>(null);
 const multiItemRef = ref<{ setFocus: () => void } | null>(null);
-
 // --- Computed
 
 const isSingleItem = computed(() => props.group.items.length === 1);

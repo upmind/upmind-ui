@@ -51,27 +51,22 @@
 
 <script setup lang="ts">
 // --- external
-import { ref, computed, watch } from "vue";
 import {
   PopoverRoot,
   PopoverTrigger,
   PopoverContent,
   PopoverPortal
 } from "radix-vue";
-
+import { ref, computed, watch } from "vue";
 // --- components
 import { FormControl } from "../form";
 import Input from "../input/Input.ce.vue";
-import { Icon } from "../icon";
-
 // --- utils
-import { useStyles, cn } from "../../utils";
 import config from "./search.config";
-
+import { useStyles } from "../../utils";
 // --- types
-import type { SearchItem } from "./types";
 import { uniqueId } from "lodash-es";
-
+import type { SearchItem } from "./types";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(

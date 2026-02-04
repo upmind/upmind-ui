@@ -98,20 +98,9 @@
 
 <script lang="ts" setup>
 // --- external
-import { ref, computed, watch } from "vue";
-
-// --- internal
-import { useStyles } from "../../utils";
-import config from "./autocomplete.config";
-import { cn } from "../../utils";
-
-// --- components
-import Icon from "../icon/Icon.ce.vue";
-import Avatar from "../avatar/Avatar.ce.vue";
 import {
   ComboboxAnchor,
   ComboboxContent,
-  ComboboxEmpty,
   ComboboxInput,
   ComboboxItem,
   ComboboxItemIndicator,
@@ -119,7 +108,14 @@ import {
   ComboboxTrigger,
   ComboboxViewport
 } from "radix-vue";
-
+import { ref, computed, watch } from "vue";
+// --- internal
+import Avatar from "../avatar/Avatar.ce.vue";
+import Icon from "../icon/Icon.ce.vue";
+import config from "./autocomplete.config";
+import { useStyles } from "../../utils";
+import { cn } from "../../utils";
+// --- components
 // --- utils
 import {
   debounce,
@@ -131,16 +127,13 @@ import {
   isFunction,
   isString,
   reject,
-  omit,
   isObject,
   uniqBy
 } from "lodash-es";
-
 // --- types
-import type { Ref } from "vue";
 import type { AutocompleteProps, AutocompleteItemProps } from "./types";
 import type { ComboboxContentEmits, ComboboxRootEmits } from "radix-vue";
-
+import type { Ref } from "vue";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<AutocompleteProps>(), {
@@ -178,11 +171,9 @@ const modelValue = computed((): AutocompleteItemProps | undefined =>
 );
 
 const searchTerm = ref();
-
 // ---
 
 const styles = useStyles(["autocomplete"], meta, config, props.uiConfig ?? {});
-
 // -----------------------------------------------------------------------------
 const onSearch = debounce(doSearch, 350);
 const results = ref(props.items ?? []) as Ref<AutocompleteItemProps[]>;
@@ -224,7 +215,6 @@ async function doSearch(value: string) {
 
   return results.value;
 }
-
 // --- methods
 
 function doSelect(item: AutocompleteItemProps | string) {

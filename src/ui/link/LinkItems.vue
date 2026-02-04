@@ -14,15 +14,12 @@
 <script setup lang="ts">
 // --- external
 import { computed } from "vue";
-
 // --- components
-import { Icon } from "../icon";
 import { Avatar } from "../avatar";
-
+import { Icon } from "../icon";
 // --- internal
-import { useStyles } from "../../utils";
 import config from "./link.config";
-
+import { useStyles } from "../../utils";
 // --- types
 import type { LinkItemsProps } from "./types";
 

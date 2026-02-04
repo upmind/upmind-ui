@@ -13,18 +13,16 @@
 
 <script setup lang="ts">
 // --- external
-import { computed } from "vue";
 import { Generate, findUISchema } from "@jsonforms/core";
 import {
   DispatchRenderer,
   rendererProps,
   useJsonFormsControlWithDetail
 } from "@jsonforms/vue";
-
+import { computed } from "vue";
 // --- utils
 import { useUpmindUIRenderer } from "../utils";
 import { isEmpty } from "lodash-es";
-
 // --- types
 import type {
   ControlElement,
@@ -32,7 +30,6 @@ import type {
   UISchemaElement
 } from "@jsonforms/core";
 import type { ComputedRef } from "vue";
-
 // -----------------------------------------------------------------------------
 const props = defineProps({
   ...rendererProps<ControlElement>()

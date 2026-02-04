@@ -1,18 +1,13 @@
 // --- external
-import { type HTMLAttributes } from "vue";
-import type { CxOptions, VariantProps } from "class-variance-authority";
-
-// --- internal
 import type { AvatarProps } from "../avatar/types";
-import type { DialogProps } from "../dialog/types";
+// --- internal
 import type { ButtonProps } from "../button/types";
+import type { DialogProps } from "../dialog/types";
 import type { IconProps } from "../icon/types";
 import type { AnimatedIconProps } from "../icon-animated";
-
-import type { interstitialVariants } from "./interstitial.config";
-
+import type { CxOptions } from "class-variance-authority";
+import type { HTMLAttributes } from "vue";
 // --------------------------------------------------------
-
 // ---
 export interface InterstitialActionProps extends ButtonProps {
   handler?: Function | string;

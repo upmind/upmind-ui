@@ -51,19 +51,15 @@
  */
 // --- external
 import { computed } from "vue";
-
 // --- internal
-import { useStyles } from "../../utils";
-import config from "./selectGrouped.config";
-
 // --- components
 import { Badge } from "../badge";
 import { Link } from "../link";
-
+import config from "./selectGrouped.config";
+import { useStyles } from "../../utils";
 // --- types
-import type { SelectGroupedItemProps } from "./types";
 import { isNil } from "lodash-es";
-
+import type { SelectGroupedItemProps } from "./types";
 // -----------------------------------------------------------------------------
 
 const props = defineProps<{

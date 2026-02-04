@@ -128,16 +128,10 @@
 <script lang="ts" setup>
 // --- external
 import { ref, computed, watch } from "vue";
-
 // --- internal
-import { cn, useStyles } from "../../utils";
-import config from "./combobox.config";
-
-// --- components
-import Icon from "../icon/Icon.ce.vue";
-import Button from "../button/Button.ce.vue";
+import { isMobile } from "../../utils/isMobile";
 import Avatar from "../avatar/Avatar.ce.vue";
-import { Popover, PopoverContent, PopoverTrigger } from "../popover";
+import Button from "../button/Button.ce.vue";
 import {
   Command,
   CommandEmpty,
@@ -146,11 +140,13 @@ import {
   CommandList,
   CommandInput
 } from "../command";
-import { isMobile } from "../../utils/isMobile";
-
+import Icon from "../icon/Icon.ce.vue";
+import { Popover, PopoverContent, PopoverTrigger } from "../popover";
+import config from "./combobox.config";
+import { cn, useStyles } from "../../utils";
+// --- components
 // --- utils
 import { find, get, isEmpty, isEqual, isFunction, has } from "lodash-es";
-
 // --- types
 import type { ComboboxProps, ComboboxItemProps } from "./types";
 
@@ -235,7 +231,6 @@ const filteredItems = computed(() => {
     );
   });
 });
-
 // --- methods
 function doSelect(item: string) {
   const selected: ComboboxItemProps = find(props.items, [

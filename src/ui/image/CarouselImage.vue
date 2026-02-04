@@ -7,14 +7,11 @@
 <script setup lang="ts">
 // --- external
 import { computed } from "vue";
-
 // --- internal
+import { CarouselItem } from "../carousel";
 import config from "./image.config";
 import { useStyles } from "../../utils";
-
 // --- components
-import { CarouselItem } from "../carousel";
-
 // --- types
 import type { CarouselImageProps } from "./types";
 

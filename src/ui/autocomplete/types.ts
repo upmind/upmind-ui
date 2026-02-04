@@ -1,17 +1,16 @@
 // --- external
-import type { HTMLAttributes } from "vue";
+import type { AvatarProps } from "../avatar";
+import type { IconProps } from "../icon";
+import type { anchorVariants, contentVariants } from "./autocomplete.config";
 import type { CxOptions, VariantProps } from "class-variance-authority";
 import type {
   ComboboxRootProps,
   ComboboxInputProps,
   ComboboxItemProps
 } from "radix-vue";
-
 // --- internal
-import type { IconProps } from "../icon";
-import type { AvatarProps } from "../avatar";
+import type { HTMLAttributes } from "vue";
 
-import type { anchorVariants, contentVariants } from "./autocomplete.config";
 type AnchorVariantProps = VariantProps<typeof anchorVariants>;
 type ContentVariantProps = VariantProps<typeof contentVariants>;
 

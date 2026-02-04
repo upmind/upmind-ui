@@ -18,15 +18,14 @@
 </template>
 
 <script setup lang="ts">
-import { cn } from "../../utils";
 import { Circle } from "lucide-vue-next";
 import {
   SelectItemIndicator,
   type SelectItemProps,
   useForwardProps
 } from "radix-vue";
-
 import { computed, type HTMLAttributes } from "vue";
+import { cn } from "../../utils";
 
 const props = defineProps<
   SelectItemProps & { class?: HTMLAttributes["class"]; noInput?: boolean }

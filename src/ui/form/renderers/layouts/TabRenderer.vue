@@ -27,21 +27,17 @@
 
 <script lang="ts" setup>
 // --- external
-import { computed, ref } from "vue";
 import { useJsonFormsLayout, DispatchRenderer } from "@jsonforms/vue";
-
+import { computed, ref } from "vue";
 // --- components
 import { Tabs } from "../../../tabs";
-
 // --- utils
 import { useUpmindUILayoutRenderer } from "../utils";
 import { get } from "lodash-es";
-
 // --- types
+import type { TabItem } from "../../../tabs";
 import type { Layout, UISchemaElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
-import type { TabItem } from "../../../tabs";
-
 // -----------------------------------------------------------------------------
 interface TabElement {
   label: string;

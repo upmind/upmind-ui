@@ -18,17 +18,14 @@
 
 <script lang="ts" setup>
 // --- external
-import { computed } from "vue";
 import { useJsonFormsControl } from "@jsonforms/vue";
-
+import { computed } from "vue";
 // --- components
-import FormField from "../../FormField.vue";
 import { Input } from "../../../input";
-
+import FormField from "../../FormField.vue";
 // --- utils
 import { useUpmindUIRenderer } from "../utils";
 import { isNil } from "lodash-es";
-
 // --- types
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
@@ -46,7 +43,6 @@ import type { ComputedRef } from "vue";
 //   maxLength?: number;
 //   minLength?: number;
 // }
-
 // -----------------------------------------------------------------------------
 const props = defineProps<RendererProps<ControlElement>>();
 

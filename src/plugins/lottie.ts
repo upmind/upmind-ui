@@ -1,6 +1,5 @@
-import lottie from "lottie-web";
 import { defineElement } from "@lordicon/element";
-
+import lottie from "lottie-web";
 import type { App, Plugin } from "vue";
 // -----------------------------------------------------------------------------
 

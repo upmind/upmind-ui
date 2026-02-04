@@ -22,30 +22,25 @@
 
 <script lang="ts" setup>
 // --- external
-import { computed } from "vue";
 import { useForwardPropsEmits, TooltipArrow } from "radix-vue";
-
+import { computed } from "vue";
 // --- internal
-import {
-  cn,
-  useStyles
-  //stylesheet
-} from "../../utils";
 import config from "./tooltip.config";
-
 // --- components
 import Tooltip from "./Tooltip.vue";
 import TooltipContent from "./TooltipContent.vue";
 import TooltipProvider from "./TooltipProvider.vue";
 import TooltipTrigger from "./TooltipTrigger.vue";
-
+import {
+  cn,
+  useStyles
+  //stylesheet
+} from "../../utils";
 // --- utils
 import { isEmpty } from "lodash-es";
-
 // --- types
 import type { TooltipProps } from "./types";
 import type { TooltipContentEmits, TooltipRootEmits } from "radix-vue";
-
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<TooltipProps>(), {

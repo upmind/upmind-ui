@@ -1,18 +1,17 @@
 // --- external
-import type { HTMLAttributes } from "vue";
+// --- internal
+import type { AvatarProps } from "../avatar";
+import type { ButtonProps } from "../button";
+import type { IconProps } from "../icon";
+import type { contentVariants } from "./dropdown-menu.config";
 import type { CxOptions, VariantProps } from "class-variance-authority";
 import type {
   DropdownMenuRootProps,
   DropdownMenuContentProps,
   DropdownMenuTriggerProps
 } from "radix-vue";
+import type { HTMLAttributes } from "vue";
 
-// --- internal
-import type { IconProps } from "../icon";
-import type { AvatarProps } from "../avatar";
-import type { ButtonProps } from "../button";
-
-import type { contentVariants } from "./dropdown-menu.config";
 type ContentVariantProps = VariantProps<typeof contentVariants>;
 
 export interface DropdownMenuItemProps {

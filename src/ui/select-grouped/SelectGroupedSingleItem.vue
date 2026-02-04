@@ -41,21 +41,17 @@
  * one item, eliminating the need for a dropdown.
  */
 // --- external
-import { computed, ref } from "vue";
 import { useFocus } from "@vueuse/core";
-
-// --- internal
-import { cn, useStyles } from "../../utils";
-import config from "./selectGrouped.config";
-import { toggleSelectionValue } from "./utils";
-
-// --- components
-import SelectGroupedItemContent from "./SelectGroupedItemContent.vue";
 import { Circle } from "lucide-vue-next";
-
-import type { SelectGroupedSingleItemRendererProps } from "./types";
+import { computed, ref } from "vue";
+// --- internal
+import config from "./selectGrouped.config";
+import SelectGroupedItemContent from "./SelectGroupedItemContent.vue";
+import { toggleSelectionValue } from "./utils";
+import { cn, useStyles } from "../../utils";
+// --- components
 import { isArray, includes, isEqual } from "lodash-es";
-
+import type { SelectGroupedSingleItemRendererProps } from "./types";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(
@@ -98,7 +94,6 @@ const styles = useStyles<typeof config>(
   config,
   props.uiConfig ?? {}
 );
-
 // --- Methods
 
 function toggleSelection() {

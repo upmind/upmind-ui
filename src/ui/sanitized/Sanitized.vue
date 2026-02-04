@@ -4,12 +4,10 @@
 
 <script lang="ts" setup>
 // --- external
-import { computed } from "vue";
 import dompurify from "dompurify";
-
+import { computed } from "vue";
 // --- types
 import type { ComputedRef } from "vue";
-
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(

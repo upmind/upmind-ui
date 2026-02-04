@@ -26,14 +26,11 @@
 <script setup lang="ts">
 // --- external
 import { computed } from "vue";
-
 // --- internal
-import { useStyles, cn } from "../../utils";
-import config from "./loading.config";
-
-// --- components
 import Spinner from "../spinner/Spinner.ce.vue";
-
+import config from "./loading.config";
+import { useStyles, cn } from "../../utils";
+// --- components
 // --- types
 import type { LoadingProps } from "./types";
 

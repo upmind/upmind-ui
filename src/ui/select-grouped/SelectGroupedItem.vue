@@ -28,19 +28,15 @@
  * and action events to the parent MultiItem component.
  */
 // --- external
-import { computed, ref } from "vue";
 import { useFocus } from "@vueuse/core";
-
+import { computed, ref } from "vue";
 // --- internal
-import { useStyles } from "../../utils";
 import config from "./selectGrouped.config";
-
 // --- components
 import SelectGroupedItemContent from "./SelectGroupedItemContent.vue";
-
-import type { SelectGroupedDropdownItemProps } from "./types";
+import { useStyles } from "../../utils";
 import { isArray, includes, isEqual } from "lodash-es";
-
+import type { SelectGroupedDropdownItemProps } from "./types";
 // -----------------------------------------------------------------------------
 
 const props = defineProps<SelectGroupedDropdownItemProps>();

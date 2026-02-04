@@ -1,11 +1,8 @@
 // --- utils
-import { forEach, kebabCase } from "lodash-es";
-
 // -----------------------------------------------------------------------------
-
 // --- UI Components / Custom elements
-import { UpmAutocomplete } from "./ui/autocomplete";
 import { UpmAlert } from "./ui/alert";
+import { UpmAutocomplete } from "./ui/autocomplete";
 import { UpmAvatar } from "./ui/avatar";
 import { UpmBadge } from "./ui/badge";
 import { UpmButton } from "./ui/button";
@@ -18,18 +15,18 @@ import { UpmForm } from "./ui/form";
 import { UpmIcon } from "./ui/icon";
 import { UpmIconAnimated } from "./ui/icon-animated";
 import { UpmIndicator } from "./ui/indicator";
-import { UpmInterstitial } from "./ui/interstitial";
 import { UpmInput } from "./ui/input";
-import { UpmNumberField } from "./ui/number-field";
+import { UpmInterstitial } from "./ui/interstitial";
 import { UpmLoading } from "./ui/loading";
+import { UpmNumberField } from "./ui/number-field";
+import { UpmSelect } from "./ui/select";
+import { UpmSkeleton } from "./ui/skeleton";
 import { UpmSonner } from "./ui/sonner";
 import { UpmSpinner } from "./ui/spinner";
 import { UpmTabs } from "./ui/tabs";
-import { UpmTooltip } from "./ui/tooltip";
 import { UpmTextarea } from "./ui/textarea";
-import { UpmSelect } from "./ui/select";
-import { UpmSkeleton } from "./ui/skeleton";
-
+import { UpmTooltip } from "./ui/tooltip";
+import { forEach, kebabCase } from "lodash-es";
 // -----------------------------------------------------------------------------
 // export individial Custom Elements / Web Components
 export {
@@ -58,7 +55,6 @@ export {
   UpmTextarea,
   UpmLoading
 };
-
 // --- utility for registering all custom elements
 export function register() {
   customElements.define("upm-alert", UpmAlert);
@@ -87,7 +83,6 @@ export function register() {
   customElements.define("upm-textarea", UpmTextarea);
   customElements.define("upm-loading", UpmLoading);
 }
-
 // --- utility for registering custom elements and allowing for code splitting
 export function useCustomElement(
   ...constructors: CustomElementConstructor[]

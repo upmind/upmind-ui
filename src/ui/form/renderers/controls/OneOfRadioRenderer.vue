@@ -12,22 +12,18 @@
 
 <script lang="ts" setup>
 // --- external
-import { computed } from "vue";
 import { useJsonFormsOneOfEnumControl } from "@jsonforms/vue";
-
+import { computed } from "vue";
 // --- components
-import FormField from "../../FormField.vue";
 import { RadioCards } from "../../../radio-cards";
-
+import FormField from "../../FormField.vue";
 // --- utils
 import { useUpmindUIRenderer } from "../utils";
 import { map } from "lodash-es";
-
 // --- types
+import type { RadioCardsItemProps } from "../../../radio-cards";
 import type { ControlElement, EnumOption, JsonSchema } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
-import type { RadioCardsItemProps } from "../../../radio-cards";
-
 // -----------------------------------------------------------------------------
 const props = defineProps<RendererProps<ControlElement>>();
 

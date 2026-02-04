@@ -38,18 +38,15 @@
 <script lang="ts" setup>
 // --- external
 import { computed } from "vue";
-
 // --- internal
-import { useStyles, cn } from "../../utils";
-import config from "./buttonGroup.config";
-
 // --- components
 import { Button } from "../button";
 import { Select } from "../select";
-
+import config from "./buttonGroup.config";
 // --- types
-import type { ButtonGroupProps } from "./types";
 import { ButtonGroup } from "./types";
+import { useStyles, cn } from "../../utils";
+import type { ButtonGroupProps } from "./types";
 
 const props = withDefaults(defineProps<ButtonGroupProps>(), {
   variant: "control",

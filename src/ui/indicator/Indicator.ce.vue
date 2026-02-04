@@ -19,24 +19,19 @@
 <script lang="ts" setup>
 // --- external
 import { computed } from "vue";
-
 // --- internal
+import { Icon } from "../icon";
+import config from "./indicator.config";
 import {
   useStyles,
   cn
   //stylesheet
 } from "../../utils";
-import config from "./indicator.config";
-
 // --- components
-import { Icon } from "../icon";
-
 // --- utils
 import { isEmpty } from "lodash-es";
-
 // --- types
 import type { IndicatorProps } from ".";
-
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<IndicatorProps>(), {

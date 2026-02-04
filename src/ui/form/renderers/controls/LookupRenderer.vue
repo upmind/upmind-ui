@@ -20,16 +20,15 @@
 // --- external
 import { useJsonFormsOneOfEnumControl } from "@jsonforms/vue";
 // --- components
-import FormField from "../../FormField.vue";
 import { Autocomplete } from "../../../autocomplete";
+import FormField from "../../FormField.vue";
 // --- utils
 import { useUpmindUIRenderer } from "../utils";
 import { has, get } from "lodash-es";
-
 // --- types
+import type { AutocompleteSearchFunction } from "../../../autocomplete";
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
-import type { AutocompleteSearchFunction } from "../../../autocomplete";
 // -----------------------------------------------------------------------------
 const props = defineProps<RendererProps<ControlElement>>();
 

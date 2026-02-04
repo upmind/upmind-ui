@@ -35,7 +35,6 @@ export const indicatorVariants = cva(
     }
   }
 );
-
 // -----------------------------------------------------------------------------
 export default {
   indicator: indicatorVariants

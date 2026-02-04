@@ -37,13 +37,11 @@
 
 <script setup lang="ts">
 // --- internal
-import { cn, useStyles } from "../../../utils";
-import config from "../selectCards.config";
-
 // --- components
 import { Button } from "../../button";
 import { Icon } from "../../icon";
-
+import config from "../selectCards.config";
+import { cn, useStyles } from "../../../utils";
 // --- types
 import type { SelectCardsTriggerProps } from "../types";
 

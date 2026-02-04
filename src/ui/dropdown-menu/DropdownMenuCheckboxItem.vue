@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { type HTMLAttributes, computed } from "vue";
+import { Check } from "lucide-vue-next";
 import {
   DropdownMenuCheckboxItem,
   type DropdownMenuCheckboxItemEmits,
@@ -7,7 +7,7 @@ import {
   DropdownMenuItemIndicator,
   useForwardPropsEmits
 } from "radix-vue";
-import { Check } from "lucide-vue-next";
+import { type HTMLAttributes, computed } from "vue";
 import { cn } from "../../utils";
 
 const props = defineProps<

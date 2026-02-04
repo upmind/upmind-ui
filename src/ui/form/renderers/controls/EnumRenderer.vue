@@ -11,16 +11,13 @@
 
 <script lang="ts" setup>
 // --- external
-import { computed } from "vue";
 import { useJsonFormsEnumControl } from "@jsonforms/vue";
-
+import { computed } from "vue";
 // --- components
-import FormField from "../../FormField.vue";
 import { Select } from "../../../select";
-
+import FormField from "../../FormField.vue";
 // --- utils
 import { useUpmindUIRenderer } from "../utils";
-
 // --- types
 import type { ControlElement, EnumOption, JsonSchema } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";

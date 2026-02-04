@@ -20,23 +20,18 @@
 
 <script lang="ts" setup>
 // --- external
-import { useTemplateRef, computed, onMounted } from "vue";
 import IMask, { type InputElement } from "imask";
-import { kebabCase } from "lodash-es";
-
+import { useTemplateRef, computed, onMounted } from "vue";
 // --- internal
 import config from "./input.config";
-import { useStyles, cn } from "../../utils";
-
 // --- components
 import InputItems from "./InputItems.vue";
-
+import { useStyles, cn } from "../../utils";
+import { kebabCase } from "lodash-es";
 // --- utils
 import { omit } from "lodash-es";
-
 // --- types
 import type { InputProps } from "./types";
-
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<InputProps>(), {

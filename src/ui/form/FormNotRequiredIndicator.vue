@@ -9,10 +9,9 @@
 </template>
 
 <script lang="ts" setup>
-import type { HTMLAttributes } from "vue";
 import { cn } from "../../utils";
-
 import type { LabelProps } from "radix-vue";
+import type { HTMLAttributes } from "vue";
 
 const props = withDefaults(
   defineProps<

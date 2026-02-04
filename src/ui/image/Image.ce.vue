@@ -59,19 +59,15 @@
 <script setup lang="ts">
 // --- external
 import { ref, computed } from "vue";
-
 // --- components
 import { Carousel, CarouselContent } from "../carousel";
-import CarouselImage from "./CarouselImage.vue";
 import { Icon } from "../icon";
-
+import CarouselImage from "./CarouselImage.vue";
 // --- internal
 import config from "./image.config";
-
 // --- utils
-import { isEmpty, isArray, isString } from "lodash-es";
 import { useStyles, cn, getComputedColor } from "../../utils";
-
+import { isEmpty, isArray, isString } from "lodash-es";
 // --- types
 import type { ImageProps, ImageItem } from "./types";
 import type { CarouselApi } from "../carousel";

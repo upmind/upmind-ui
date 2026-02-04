@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { NumberFieldInput } from "radix-vue";
-import type { HTMLAttributes } from "vue";
 import { cn } from "../../utils";
 import { toNumber } from "lodash-es";
+import type { HTMLAttributes } from "vue";
 
 const props = defineProps<{
   class?: HTMLAttributes["class"];

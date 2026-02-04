@@ -46,26 +46,21 @@
 <script lang="ts" setup>
 // --- external
 import { computed, ref, watch } from "vue";
-
 // --- internal
-import { cn, useStyles } from "../../utils";
 import config from "./numberField.config";
-
 // --- components
 import NumberField from "./NumberField.vue";
 import NumberFieldContent from "./NumberFieldContent.vue";
 import NumberFieldDecrement from "./NumberFieldDecrement.vue";
-import NumberFieldInput from "./NumberFieldInput.vue";
-import NumberFieldIncrement from "./NumberFieldIncrement.vue";
 import NumberFieldIcon from "./NumberFieldIcon.vue";
-
+import NumberFieldIncrement from "./NumberFieldIncrement.vue";
+import NumberFieldInput from "./NumberFieldInput.vue";
 // --- utils
+import { NUMBER_FIELD_VARIANTS } from "./types";
+import { cn, useStyles } from "../../utils";
 import { omit } from "lodash-es";
-
 // --- types
 import type { NumberFieldProps } from "./types";
-import { NUMBER_FIELD_VARIANTS } from "./types";
-
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<NumberFieldProps>(), {

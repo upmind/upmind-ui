@@ -13,9 +13,7 @@ import { UpmIndicator } from "./ui/indicator";
 import { UpmSonner } from "./ui/sonner";
 import { UpmTabs } from "./ui/tabs";
 import { UpmTooltip } from "./ui/tooltip";
-
 // -----------------------------------------------------------------------------
-
 // --- Auto register all custom elements
 customElements.define("upm-alert", UpmAlert);
 customElements.define("upm-avatar", UpmAvatar);

@@ -1,10 +1,9 @@
 // --- external
-import { type HTMLAttributes, type Ref, type ComputedRef } from "vue";
-
 // --- types
-import type { CxOptions } from "class-variance-authority";
 import type { BadgeProps } from "../badge";
 import type { LinkProps } from "../link";
+import type { CxOptions } from "class-variance-authority";
+import type { HTMLAttributes, Ref, ComputedRef } from "vue";
 
 export interface ToggleSelectionOptions {
   currentValue: string | undefined;

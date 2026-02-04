@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { type HTMLAttributes, computed } from "vue";
 import {
   TooltipContent,
   type TooltipContentEmits,
@@ -7,6 +6,7 @@ import {
   TooltipPortal,
   useForwardPropsEmits
 } from "radix-vue";
+import { type HTMLAttributes, computed } from "vue";
 import { cn } from "../../utils";
 
 defineOptions({

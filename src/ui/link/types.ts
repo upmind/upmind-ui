@@ -1,18 +1,16 @@
 // --- external
-import type { CxOptions } from "class-variance-authority";
-import { type HTMLAttributes } from "vue";
-import type { VariantProps } from "class-variance-authority";
+import type { rootVariants } from "./link.config";
+import type { AvatarProps } from "../avatar";
 import type { Icon } from "../icon/types";
+import type { CxOptions } from "class-variance-authority";
+import type { VariantProps } from "class-variance-authority";
+import type { HTMLAttributes } from "vue";
 import type {
   RouteLocationAsRelativeGeneric,
   RouteLocationAsPathGeneric
 } from "vue-router";
-
 // --- internal
-import type { rootVariants } from "./link.config";
-
 // --- types
-import type { AvatarProps } from "../avatar";
 
 type LinkVariantProps = VariantProps<typeof rootVariants>;
 

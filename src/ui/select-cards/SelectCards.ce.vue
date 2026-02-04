@@ -63,18 +63,8 @@
 
 <script setup lang="ts">
 // --- external
-import { first, find } from "lodash-es";
-import { useVModel } from "@vueuse/core";
-import { ref, computed } from "vue";
 import { vIntersectionObserver } from "@vueuse/components";
-
-// --- internal
-import { cn, useStyles } from "../../utils";
-import config from "./selectCards.config";
-
-// --- components
-import TriggerButton from "./components/TriggerButton.vue";
-import Item from "./components/Item.vue";
+import { useVModel } from "@vueuse/core";
 import {
   DropdownMenuContent,
   DropdownMenuItem,
@@ -82,10 +72,16 @@ import {
   DropdownMenuRoot,
   DropdownMenuTrigger
 } from "radix-vue";
-
+import { ref, computed } from "vue";
+// --- internal
+import Item from "./components/Item.vue";
+import TriggerButton from "./components/TriggerButton.vue";
+import config from "./selectCards.config";
+import { cn, useStyles } from "../../utils";
+// --- components
 // --- types
+import { first, find } from "lodash-es";
 import type { SelectCardsProps, SelectCardsItemProps } from "./types";
-import Select from "../select/Select.vue";
 
 const props = withDefaults(defineProps<SelectCardsProps>(), {
   required: true,

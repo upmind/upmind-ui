@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { vResizeObserver } from "@vueuse/components";
-import { type HTMLAttributes, computed, ref } from "vue";
 import { AccordionContent, type AccordionContentProps } from "radix-vue";
+import { type HTMLAttributes, computed, ref } from "vue";
 import { cn } from "../../utils";
 
 const props = defineProps<
