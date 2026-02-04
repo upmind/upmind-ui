@@ -67,8 +67,8 @@
     "placeholder": "Регистриран данък или ДДС"
   },
   "country": {
-    "label": "Данъчен номер",
-    "placeholder": "Данъчен номер"
+    "label": "Страна",
+    "placeholder": "Изберете страна"
   },
   "domain": {
     "placeholder": "Въведете вашия домейн..."
