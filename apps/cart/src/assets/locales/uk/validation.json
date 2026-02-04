@@ -13,7 +13,7 @@
   "enum": "{title} має дорівнювати одному з дозволених значень",
   "exclusiveMaximum": "{title} має бути меншим за {exclusiveMaximum}",
   "exclusiveMinimum": "{title} має бути більшим за {exclusiveMinimum}",
-  "format": "@:validation .{format} |{title} має відповідати формату {format}",
+  "format": "{title} має відповідати формату {format}",
   "if": "{title} має відповідати схемі 'then' | {title} має відповідати схемі «інше»",
   "maxItems": "{title} НЕ повинно мати більше ніж {maxItems} пункт | {title} НЕ повинно мати більше ніж {maxItems} предмети",
   "maxLength": "{title} НЕ повинен бути довшим за {maxLength} персонаж {title} НЕ повинен бути довшим за {maxLength} персонажі",
@@ -30,7 +30,7 @@
   "patternProperties": "{title} назва властивості {propertyName} недійсний (невідповідність шаблону)",
   "phone": "{title} має бути коректним міжнародним номером телефону",
   "propertyNames": "{title} назва властивості {propertyName} недійсний",
-  "required": "{title} повинен мати необхідну властивість {missingProperty}",
+  "required": "{title} необхідно",
   "type": "{title} має бути {type}",
   "uniqueItems": "{title} НЕ повинно мати дублікатів елементів (елементів {j} і {i} ідентичні)"
 }
