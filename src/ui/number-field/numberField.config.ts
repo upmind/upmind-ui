@@ -1,6 +1,5 @@
 import { cva } from "class-variance-authority";
 import { ringClasses } from "../../assets/styles";
-
 // -----------------------------------------------------------------------------
 
 export const numberFieldRootVariants = cva("group inline-block", {
@@ -184,7 +183,6 @@ const inputVariant = (radius: "control-radius-r" | "control-radius-l") =>
 
 export const numberFieldInputLeftVariants = inputVariant("control-radius-l");
 export const numberFieldInputRightVariants = inputVariant("control-radius-r");
-
 // -----------------------------------------------------------------------------
 export default {
   numberField: {

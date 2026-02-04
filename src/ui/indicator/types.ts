@@ -1,10 +1,10 @@
 // --- external
-import { type HTMLAttributes } from "vue";
-import type { CxOptions, VariantProps } from "class-variance-authority";
-
 // --- internal
 import type { IconProps } from "../icon";
 import type { indicatorVariants } from "./indicator.config";
+import type { CxOptions, VariantProps } from "class-variance-authority";
+import type { HTMLAttributes } from "vue";
+
 type IndicatorVariantProps = VariantProps<typeof indicatorVariants>;
 
 export interface IndicatorProps {

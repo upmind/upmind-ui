@@ -8,22 +8,17 @@
 
 <script lang="ts" setup>
 // --- external
-import { computed } from "vue";
 import { useVModel } from "@vueuse/core";
-
+import { computed } from "vue";
 // --- components
-import Switch from "./Switch.vue";
-
-// --- internal
 import config from "./switch.config";
+import Switch from "./Switch.vue";
+// --- internal
 import { useStyles, cn } from "../../utils";
-
 // --- utils
 import { omit } from "lodash-es";
-
 // --- types
 import type { SwitchProps } from "./types";
-
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<SwitchProps>(), {

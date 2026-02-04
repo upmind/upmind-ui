@@ -10,13 +10,11 @@
 
 <script setup lang="ts">
 // --- components
-import { Icon } from "../icon";
 import { Avatar } from "../avatar";
-
+import { Icon } from "../icon";
 // --- internal
-import { useStyles } from "../../utils";
 import config from "./input.config";
-
+import { useStyles } from "../../utils";
 // --- types
 import type { InputItemsProps } from "./types";
 

@@ -43,26 +43,22 @@
 
 <script lang="ts" setup>
 // --- external
-import { computed, ref } from "vue";
 import { useJsonFormsControl } from "@jsonforms/vue";
-import examples from "libphonenumber-js/mobile/examples";
+import { countries, getCountryCode } from "countries-list";
 import {
   getExampleNumber,
   validatePhoneNumberLength,
-  parsePhoneNumberWithError,
-  ParseError
+  parsePhoneNumberWithError
 } from "libphonenumber-js";
-
+import examples from "libphonenumber-js/mobile/examples";
+import { computed, ref } from "vue";
 // --- internal
-import { countries, getCountryCode } from "countries-list";
-
 // --- components
-import FormField from "../../FormField.vue";
-import FormMessage from "../../FormMessage.vue";
+import { Combobox } from "../../../combobox";
 import InputGroup from "../../../groups/InputGroup.vue";
 import { Input } from "../../../input";
-import { Combobox } from "../../../combobox";
-
+import FormField from "../../FormField.vue";
+import FormMessage from "../../FormMessage.vue";
 // --- utils
 import { useUpmindUIRenderer } from "../utils";
 import {
@@ -75,20 +71,17 @@ import {
   isEmpty,
   has
 } from "lodash-es";
-
 // --- types
+import type { ComboboxItemProps } from "../../../combobox";
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
-import type { PhoneNumber, CountryCode } from "libphonenumber-js";
-import type { ComboboxItemProps } from "../../../combobox";
-
+import type { PhoneNumber, CountryCode, ParseError } from "libphonenumber-js";
 // -----------------------------------------------------------------------------
 const props = defineProps<RendererProps<ControlElement>>();
 
 const { control, formFieldProps, onInput } = useUpmindUIRenderer(
   useJsonFormsControl(props)
 );
-
 // --- utils
 
 const initialPhoneData = () => {
@@ -107,13 +100,11 @@ const initialPhoneData = () => {
 
   return data;
 };
-
 // --- state
 
 const defaultCountryCode = get(control.value.schema, "phone_country_code");
 const requiresString = includes(control.value.schema.type, "string");
 const phone = ref(initialPhoneData());
-
 // --- context
 
 const exampleNumber = computed(() => {
@@ -166,7 +157,6 @@ const countryItems = computed(() => {
     };
   }) as ComboboxItemProps[];
 });
-
 // --- methods
 
 function parsePhone(

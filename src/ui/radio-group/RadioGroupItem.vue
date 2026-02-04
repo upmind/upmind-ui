@@ -21,7 +21,6 @@
 </template>
 
 <script setup lang="ts">
-import { cn } from "../../utils";
 import { Circle } from "lucide-vue-next";
 import {
   RadioGroupIndicator,
@@ -29,9 +28,9 @@ import {
   type RadioGroupItemProps,
   useForwardProps
 } from "radix-vue";
-import { ringClasses } from "../../assets/styles";
-
 import { computed, type HTMLAttributes } from "vue";
+import { ringClasses } from "../../assets/styles";
+import { cn } from "../../utils";
 
 const props = defineProps<
   RadioGroupItemProps & {

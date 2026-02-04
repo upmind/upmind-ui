@@ -1,15 +1,15 @@
 // --- external
-import type { HTMLAttributes } from "vue";
-import type { VariantProps, CxOptions } from "class-variance-authority";
-import type { DrawerDirection, DrawerPortalProps } from "vaul-vue";
-
-// --- internal
 import type {
   overlayVariant,
   containerVariant,
   innerVariant
 } from "./drawer.config";
 import type { ButtonProps } from "../..";
+import type { VariantProps, CxOptions } from "class-variance-authority";
+import type { DrawerDirection, DrawerPortalProps } from "vaul-vue";
+// --- internal
+import type { HTMLAttributes } from "vue";
+
 type DrawerOverlayVariantProps = VariantProps<typeof overlayVariant>;
 type DrawerContainerVariantProps = VariantProps<typeof containerVariant>;
 type DrawerInnerVariantProps = VariantProps<typeof innerVariant>;

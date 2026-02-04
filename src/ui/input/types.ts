@@ -1,14 +1,13 @@
 // --- external
 import type { InputTypeHTMLAttribute, HTMLAttributes } from "vue";
 import type { CxOptions, VariantProps } from "class-variance-authority";
-
 // --- internal
 import type { containerVariants } from "./input.config";
-export type ContainerVariantProps = VariantProps<typeof containerVariants>;
 
+export type ContainerVariantProps = VariantProps<typeof containerVariants>;
 // --- types
-import type { Icon } from "../icon/types";
 import type { AvatarProps } from "../avatar";
+import type { Icon } from "../icon/types";
 
 export type InputProps = {
   modelValue?: string | number;

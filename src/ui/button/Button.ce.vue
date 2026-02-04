@@ -47,17 +47,15 @@
 <script lang="ts" setup>
 // --- external
 import { computed, useSlots } from "vue";
-import { kebabCase } from "lodash-es";
-
-// --- internal
-import { useStyles, cn } from "../../utils";
-import config from "./button.config";
-
-// --- components
+import { RouterLink } from "vue-router";
 import { Spinner } from "../spinner";
+import config from "./button.config";
 import Button from "./Button.vue";
 import ButtonItems from "./ButtonItems.vue";
-import { RouterLink } from "vue-router";
+import { useStyles, cn } from "../../utils";
+import { kebabCase } from "lodash-es";
+// --- internal
+// --- components
 
 // -- types
 import type { ButtonProps } from "./types";

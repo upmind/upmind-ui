@@ -3,7 +3,6 @@ import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 
 export const interstitialVariants = cva();
-
 // -----------------------------------------------------------------------------
 export default {
   interstitial: {

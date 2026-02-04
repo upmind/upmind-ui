@@ -12,14 +12,11 @@
 <script lang="ts" setup>
 // --- external
 import { useJsonFormsControl } from "@jsonforms/vue";
-
 // --- components
-import FormField from "../../FormField.vue";
 import { Input } from "../../../input";
-
+import FormField from "../../FormField.vue";
 // --- utils
 import { useUpmindUIRenderer } from "../utils";
-
 // --- types
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";

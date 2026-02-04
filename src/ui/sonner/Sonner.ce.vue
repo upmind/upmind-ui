@@ -77,18 +77,15 @@
 <script lang="ts" setup>
 // --- external
 import { Toaster as Sonner } from "vue-sonner";
-
 // --- internal
+import config from "./sonner.config";
+// --- types
 import {
   useStyles,
   cn
   //stylesheet
 } from "../../utils";
-import config from "./sonner.config";
-
-// --- types
-import { type SonnerProps } from ".";
-
+import type { SonnerProps } from ".";
 // -----------------------------------------------------------------------------
 
 const props = defineProps<SonnerProps>();

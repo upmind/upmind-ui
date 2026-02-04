@@ -12,7 +12,7 @@
 <script lang="ts" setup>
 import { ref, computed } from "vue";
 import Icon from "./Icon.vue";
-import { type IconProps } from "./types";
+import type { IconProps } from "./types";
 
 const props = defineProps<IconProps>();
 

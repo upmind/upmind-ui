@@ -1,17 +1,15 @@
 // --- external
-import { type HTMLAttributes, type Component } from "vue";
-
-// --- types
-import type { ButtonProps } from "../button";
-import type { PopoverContentProps } from "radix-vue";
-import type { CxOptions, VariantProps } from "class-variance-authority";
 import type { BadgeProps } from "../badge/types";
-import type { Icon } from "../icon/types";
-
-// --- internal
+import type { ButtonProps } from "../button";
 import type { triggerVariants } from "./selectCards.config";
-type TriggerVariantProps = VariantProps<typeof triggerVariants>;
+import type { Icon } from "../icon/types";
+import type { CxOptions, VariantProps } from "class-variance-authority";
+import type { PopoverContentProps } from "radix-vue";
+import type { HTMLAttributes, Component } from "vue";
+// --- types
+// --- internal
 
+type TriggerVariantProps = VariantProps<typeof triggerVariants>;
 // --- types
 import type { AvatarProps } from "../avatar";
 

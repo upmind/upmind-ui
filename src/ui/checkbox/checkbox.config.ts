@@ -13,7 +13,6 @@ export const checkboxVariants = cva(``, {
     size: "md"
   }
 });
-
 // -----------------------------------------------------------------------------
 export default {
   checkbox: checkboxVariants

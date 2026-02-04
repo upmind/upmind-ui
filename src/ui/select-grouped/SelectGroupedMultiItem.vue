@@ -112,32 +112,28 @@
  * selection. The header shows the currently selected item's label.
  */
 // --- external
-import { computed, ref } from "vue";
-import { useId } from "radix-vue";
 import { useFocus } from "@vueuse/core";
-
 // --- internal
-import { cn, useStyles } from "../../utils";
+// --- components
+import { Circle } from "lucide-vue-next";
+import { useId } from "radix-vue";
+import { computed, ref } from "vue";
+import { Collapsible, CollapsibleContent } from "../collapsible";
+import { Icon } from "../icon";
 import config from "./selectGrouped.config";
+import SelectGroupedItem from "./SelectGroupedItem.vue";
 import {
   toggleSelectionValue,
   useListNavigation,
   createFocusOutHandler
 } from "./utils";
-
-// --- components
-import { Collapsible, CollapsibleContent } from "../collapsible";
-import { Icon } from "../icon";
-import { Circle } from "lucide-vue-next";
-import SelectGroupedItem from "./SelectGroupedItem.vue";
-
+import { cn, useStyles } from "../../utils";
 // --- types
+import { isArray, includes, isEqual } from "lodash-es";
 import type {
   SelectGroupedMultiItemRendererProps,
   SelectGroupedItemProps
 } from "./types";
-import { isArray, includes, isEqual } from "lodash-es";
-
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<SelectGroupedMultiItemRendererProps>(), {
@@ -201,7 +197,6 @@ const styles = useStyles<typeof config>(
   config,
   props.uiConfig ?? {}
 );
-
 // --- Methods
 
 /**

@@ -1,5 +1,4 @@
 import { registerEntry } from "../utils";
-
 // -----------------------------------------------------------------------------
 
 export { default as LabelRenderer } from "./LabelRenderer.vue";

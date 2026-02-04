@@ -7,14 +7,11 @@
 <script lang="ts" setup>
 // --- external
 import { computed } from "vue";
-
 // --- internal
-import { cn, useStyles } from "../../utils";
 import config from "./card.config";
-
+import { cn, useStyles } from "../../utils";
 // --- types
 import type { HTMLAttributes } from "vue";
-
 // -----------------------------------------------------------------------------
 const props = withDefaults(
   defineProps<{

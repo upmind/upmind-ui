@@ -1,11 +1,11 @@
 // --- external
-import { type HTMLAttributes } from "vue";
-import type { CxOptions, VariantProps } from "class-variance-authority";
-
 // --- internal
+import type { rootVariants as alertVariants } from "./alert.config";
 import type { Icon } from "../icon/types";
-import { rootVariants as alertVariants } from "./alert.config";
 import type { LinkProps } from "../link/types";
+import type { CxOptions, VariantProps } from "class-variance-authority";
+import type { HTMLAttributes } from "vue";
+
 type AlertVariantProps = VariantProps<typeof alertVariants>;
 
 export interface AlertProps {

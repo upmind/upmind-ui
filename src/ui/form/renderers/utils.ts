@@ -1,5 +1,4 @@
 // --- external
-import { computed, ref, inject, watch } from "vue";
 import {
   composePaths,
   createCombinatorRenderInfos,
@@ -11,7 +10,7 @@ import {
   rankWith,
   Resolve
 } from "@jsonforms/core";
-
+import { computed, ref, inject, watch } from "vue";
 // --- utils
 import {
   cloneDeep,
@@ -23,8 +22,8 @@ import {
   merge,
   set
 } from "lodash-es";
-
 // --- types
+import type { FormControlProps } from "../types";
 import type {
   Tester,
   JsonFormsSubStates,
@@ -33,7 +32,6 @@ import type {
   UISchemaElement
 } from "@jsonforms/core";
 import type { ErrorObject } from "ajv";
-import type { FormControlProps } from "../types";
 // -----------------------------------------------------------------------------
 
 export const useUpmindUIRenderer = <
@@ -326,7 +324,6 @@ export const createIndexedOneOfRenderInfos = (
       return { ...info, index: index };
     });
 };
-
 // -----------------------------------------------------------------------------
 
 export function registerEntry(

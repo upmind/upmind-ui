@@ -1,9 +1,9 @@
 // --- external
-import type { InputTypeHTMLAttribute, HTMLAttributes } from "vue";
-import type { CxOptions, VariantProps } from "class-variance-authority";
-
-// --- internal
 import type { toggleVariants } from "./toggle.config.ts";
+import type { CxOptions, VariantProps } from "class-variance-authority";
+import type { InputTypeHTMLAttribute, HTMLAttributes } from "vue";
+// --- internal
+
 type ToggleVariantProps = VariantProps<typeof toggleVariants>;
 
 export type { ToggleVariantProps };

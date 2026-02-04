@@ -164,7 +164,6 @@ const labelVariants = cva("px-1");
 const iconVariants = cva("[&>svg]:p-px");
 
 const closeVariants = cva("size-3 cursor-pointer");
-
 // -----------------------------------------------------------------------------
 export default {
   badge: {

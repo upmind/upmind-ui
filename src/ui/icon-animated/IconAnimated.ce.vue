@@ -14,13 +14,11 @@
 <span class="text-icon-primary text-icon-neutral hidden" />
 <script lang="ts" setup>
 // --- external
-import { onMounted, computed, ref, watch, inject } from "vue";
-
+import { onMounted, computed, ref, watch } from "vue";
 // --- internal
-import { useStyles, cn, getComputedColor } from "../../utils";
 import config from "./iconAnimated.config";
 import { loadAnimation } from "./utils/animationLoader";
-
+import { useStyles, cn, getComputedColor } from "../../utils";
 // --- types
 import type { AnimatedIconProps } from "./types";
 

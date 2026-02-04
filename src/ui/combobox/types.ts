@@ -1,22 +1,16 @@
 // --- external
-import type { HTMLAttributes } from "vue";
+// --- internal
+import type { AvatarProps } from "../avatar";
+import type { IconProps } from "../icon";
+import type { contentVariants, triggerVariants } from "./combobox.config";
 import type { CxOptions, VariantProps } from "class-variance-authority";
 import type {
   PopoverRootProps,
   PopoverContentProps,
   PopoverTriggerProps
 } from "radix-vue";
+import type { HTMLAttributes } from "vue";
 
-// --- internal
-import type { IconProps } from "../icon";
-import type { AvatarProps } from "../avatar";
-import type { ButtonProps } from "../button";
-
-import type {
-  itemVariants,
-  contentVariants,
-  triggerVariants
-} from "./combobox.config";
 type ContentVariantsProps = VariantProps<typeof contentVariants>;
 type TriggerVariantProps = VariantProps<typeof triggerVariants>;
 

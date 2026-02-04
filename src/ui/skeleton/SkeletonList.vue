@@ -19,11 +19,9 @@
 <script lang="ts" setup>
 // --- external
 import { computed } from "vue";
-
 // --- internal
-import { useStyles } from "../../utils";
 import config from "./skeleton.config";
-
+import { useStyles } from "../../utils";
 // --- types
 import type { SkeletonListProps } from "./types";
 const props = withDefaults(defineProps<SkeletonListProps>(), {

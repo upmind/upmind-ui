@@ -46,25 +46,21 @@
 
 <script setup lang="ts">
 // --- external
-import { computed } from "vue";
-
-// --- internal
-import { cn, useStyles } from "../../utils";
-import config from "./pagination.config";
-
-// --- utils
-import { lte, gte } from "lodash-es";
-
-// --- components
-import { Icon } from "../icon";
-import { Button } from "../button";
 import {
   PaginationList,
   PaginationNext,
   PaginationPrev,
   PaginationRoot
 } from "radix-vue";
-
+import { computed } from "vue";
+// --- internal
+import { Button } from "../button";
+import { Icon } from "../icon";
+import config from "./pagination.config";
+import { cn, useStyles } from "../../utils";
+// --- utils
+import { lte, gte } from "lodash-es";
+// --- components
 // --- types
 import type { PaginationProps } from "./types";
 

@@ -1,6 +1,5 @@
 // --- external
 import { ref, computed, readonly } from "vue";
-
 // --- utils
 import {
   compact,
@@ -12,11 +11,9 @@ import {
   reduce,
   set
 } from "lodash-es";
-
+import type { cva } from "class-variance-authority"; // If you have a type for cva, otherwise use `any`
 // ---
-
 // --- types
-import { cva } from "class-variance-authority"; // If you have a type for cva, otherwise use `any`
 
 export type UIConfigValue =
   | ReturnType<typeof cva>
@@ -40,7 +37,6 @@ export interface ITheme {
   icon?: string;
   handler: () => void;
 }
-
 // -----------------------------------------------------------------------------
 // --- global context
 
@@ -49,7 +45,6 @@ const activeIconTheme = ref<string>("");
 const appDefaultTheme = ref<string>(""); // Tracks the app's initial theme for "default" fallback
 const config = ref({});
 const themes = ref<Theme[]>([]);
-
 // -----------------------------------------------------------------------------
 
 export const useThemes = (value?: Theme | Theme[], defaultTheme?: string) => {

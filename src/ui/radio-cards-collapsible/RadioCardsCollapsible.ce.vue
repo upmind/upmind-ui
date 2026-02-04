@@ -98,21 +98,17 @@
 <script setup lang="ts">
 // --- external
 import { computed } from "vue";
-
 // --- internal
-import { cn, useStyles } from "../../utils";
-import config from "./radioCards.config";
-
 // --- components
-import { RadioGroup } from "../radio-group";
-import { Collapsible, CollapsibleContent } from "../collapsible";
 import { Button } from "../button";
+import { Collapsible, CollapsibleContent } from "../collapsible";
+import { RadioGroup } from "../radio-group";
 import { Skeleton } from "../skeleton";
 import RadioCardItem from "./RadioCardItem.vue";
-
+import config from "./radioCards.config";
+import { cn, useStyles } from "../../utils";
 // --- types
 import type { RadioCardsCollapsibleProps } from "./types";
-
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<RadioCardsCollapsibleProps>(), {
   // --- props

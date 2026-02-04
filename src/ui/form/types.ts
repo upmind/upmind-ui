@@ -14,12 +14,11 @@ import type {
 } from "@jsonforms/core";
 import type { ErrorObject } from "ajv";
 import type Ajv from "ajv";
-
 // --- internal
 import type { formVariants } from "./form.config";
 import type { ButtonProps } from "../button";
-type FormVariantProps = VariantProps<typeof formVariants>;
 
+type FormVariantProps = VariantProps<typeof formVariants>;
 // --- types
 import type { InputProps } from "../input";
 
@@ -140,7 +139,6 @@ export interface ComponentFieldBindingObject<
 > extends SharedBindingObject<TValue> {
   modelValue?: TValue;
 }
-
 // --------------------------------------------
 
 export interface FormControlRenderProps {

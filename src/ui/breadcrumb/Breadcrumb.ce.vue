@@ -41,18 +41,15 @@
 <script lang="ts" setup>
 // --- external
 import { computed } from "vue";
-
 // --- internal
-import { cn, useStyles } from "../../utils";
+import Link from "../link/Link.ce.vue";
 import config from "./breadcrumb.config";
-
 // --- components
 import Breadcrumb from "./Breadcrumb.vue";
-import BreadcrumbList from "./BreadcrumbList.vue";
 import BreadcrumbItem from "./BreadcrumbItem.vue";
+import BreadcrumbList from "./BreadcrumbList.vue";
 import BreadcrumbSeparator from "./BreadcrumbSeparator.vue";
-import Link from "../link/Link.ce.vue";
-
+import { cn, useStyles } from "../../utils";
 // --- types
 import type {
   BreadcrumbConsolidateProps,

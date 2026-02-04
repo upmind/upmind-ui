@@ -35,26 +35,22 @@
 
 <script lang="ts" setup>
 // --- external
+import { AvatarRoot, AvatarImage } from "radix-vue";
 import { computed } from "vue";
-
 // --- internal
+// --- components
+import { Icon } from "../icon";
+import IconAnimated from "../icon-animated/IconAnimated.ce.vue";
+import config from "./avatar.config";
 import {
   useStyles,
   cn
   //stylesheet
 } from "../../utils";
-import config from "./avatar.config";
-
-// --- components
-import { Icon } from "../icon";
-import { AvatarRoot, AvatarImage } from "radix-vue";
-import IconAnimated from "../icon-animated/IconAnimated.ce.vue";
 // --- utils
 import { isEmpty, isString } from "lodash-es";
-
 // --- types
 import type { AvatarProps } from ".";
-
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<AvatarProps>(), {

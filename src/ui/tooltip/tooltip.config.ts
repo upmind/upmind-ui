@@ -7,7 +7,6 @@ export const contentVariants = cva(
 );
 
 export const arrowVariants = cva("[color:var(--bg-tooltip)]");
-
 // -----------------------------------------------------------------------------
 
 export default {

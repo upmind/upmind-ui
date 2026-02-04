@@ -12,22 +12,17 @@
 
 <script lang="ts" setup>
 // --- external
-import { computed } from "vue";
 import { useVModel } from "@vueuse/core";
-
+import { computed } from "vue";
 // --- components
-import Checkbox from "./Checkbox.vue";
-
-// --- internal
 import config from "./checkbox.config";
+import Checkbox from "./Checkbox.vue";
+// --- internal
 import { useStyles, cn } from "../../utils";
-
 // --- utils
 import { omit } from "lodash-es";
-
 // --- types
 import type { CheckboxProps } from "./types";
-
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<CheckboxProps>(), {

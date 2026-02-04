@@ -3,11 +3,9 @@
 // ---------------------------------------------------------------
 
 import { ref, computed, type ComputedRef } from "vue";
-import { toPairs, split, last, find } from "lodash-es";
-
+import { toPairs, split, last } from "lodash-es";
 // --- types
 import type { AnimationImportMap, AnimationEntry } from "../types";
-
 // -----------------------------------------------------------------------------
 
 /** Parsed animation entries for efficient matching */
@@ -18,7 +16,6 @@ const animationsByName = ref<Record<string, AnimationEntry[]>>({});
 
 /** Whether animations have been registered */
 const isRegistered = ref(false);
-
 // -----------------------------------------------------------------------------
 // Public API
 // -----------------------------------------------------------------------------

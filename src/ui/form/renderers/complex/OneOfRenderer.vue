@@ -23,27 +23,23 @@
 
 <script lang="ts" setup>
 // --- external
-import { computed, ref } from "vue";
-import { useJsonFormsOneOfControl, DispatchRenderer } from "@jsonforms/vue";
 import { createDefaultValue } from "@jsonforms/core";
-
+import { useJsonFormsOneOfControl, DispatchRenderer } from "@jsonforms/vue";
+import { computed, ref } from "vue";
 // --- components
-import FormField from "../../FormField.vue";
 import { Tabs } from "../../../tabs";
-
+import FormField from "../../FormField.vue";
 // --- utils
 import { useUpmindUIRenderer } from "../utils";
 import { createIndexedOneOfRenderInfos } from "../utils";
 import { forEach } from "lodash-es";
-
 // --- types
+import type { TabItem } from "../../../tabs";
 import type {
   ControlElement,
   CombinatorSubSchemaRenderInfo
 } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
-import type { TabItem } from "../../../tabs";
-
 // -----------------------------------------------------------------------------
 const props = defineProps<RendererProps<ControlElement>>();
 

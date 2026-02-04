@@ -93,27 +93,22 @@
 
 <script setup lang="ts">
 // ---external
-import { computed } from "vue";
+import { vAutoAnimate } from "@formkit/auto-animate";
 import { useVModel } from "@vueuse/core";
 import { ToggleGroupRoot } from "radix-vue";
-import { vAutoAnimate } from "@formkit/auto-animate";
-
+import { computed } from "vue";
 // --- internal
-import { cn, useStyles } from "../../utils";
-import config from "./checkboxCards.config";
-
-// --- components
-import CheckboxCardItem from "./CheckboxCardItem.vue";
+import { Badge } from "../badge";
 import { Label } from "../label";
 import { Link } from "../link";
-import { Badge } from "../badge";
-
+import CheckboxCardItem from "./CheckboxCardItem.vue";
+import config from "./checkboxCards.config";
+import { cn, useStyles } from "../../utils";
+// --- components
 // --- utils
 import { includes, isFunction, isString, isNil, kebabCase } from "lodash-es";
-
 // --- types
 import type { CheckboxCardsItemActionProps, CheckboxCardsProps } from "./types";
-
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<CheckboxCardsProps>(), {
   cursor: "pointer",

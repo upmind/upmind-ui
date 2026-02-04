@@ -72,33 +72,28 @@
 
 <script lang="ts" setup>
 // --- external
-import { computed, nextTick } from "vue";
-import { useForwardPropsEmits, useForwardProps } from "radix-vue";
 import { useVModel } from "@vueuse/core";
-
+import { useForwardPropsEmits } from "radix-vue";
+import { computed, nextTick } from "vue";
 // --- internal
-import { useStyles, cn } from "../../utils";
+import { usePointerEvents } from "../../utils/usePointerEvents";
+import { Link } from "../link";
 import config from "./dialog.config";
-
 // --- components
 import Dialog from "./Dialog.vue";
-import DialogContent from "./DialogContent.vue";
-import DialogHeader from "./DialogHeader.vue";
-import DialogFooter from "./DialogFooter.vue";
-import DialogTitle from "./DialogTitle.vue";
-import DialogDescription from "./DialogDescription.vue";
-import DialogTrigger from "./DialogTrigger.vue";
 import DialogClose from "./DialogClose.vue";
-import { Link } from "../link";
-
+import DialogContent from "./DialogContent.vue";
+import DialogDescription from "./DialogDescription.vue";
+import DialogFooter from "./DialogFooter.vue";
+import DialogHeader from "./DialogHeader.vue";
+import DialogTitle from "./DialogTitle.vue";
+import DialogTrigger from "./DialogTrigger.vue";
+import { useStyles, cn } from "../../utils";
 // --- types
+import { pick } from "lodash-es";
 import type { DialogProps } from "./types";
 import type { DialogRootEmits, DialogContentEmits } from "radix-vue";
-
 // --- utils
-import { pick } from "lodash-es";
-import { usePointerEvents } from "../../utils/usePointerEvents";
-
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<DialogProps>(), {
@@ -146,7 +141,6 @@ const forwardedContent = useForwardPropsEmits(
   ]),
   emits
 );
-
 // ---
 
 const meta = computed(() => ({
@@ -156,7 +150,6 @@ const meta = computed(() => ({
 }));
 
 const styles = useStyles(["dialog"], meta, config, props.uiConfig ?? {});
-
 // --- state
 const value = useVModel(props, "open", emits);
 

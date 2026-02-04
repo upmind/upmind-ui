@@ -25,7 +25,6 @@ export const containerVariants = cva(
 export const inputFieldVariants = cva(
   "placeholder:text-faint w-full bg-transparent text-base focus:ring-0 focus:outline-none"
 );
-
 // -----------------------------------------------------------------------------
 export default {
   input: {

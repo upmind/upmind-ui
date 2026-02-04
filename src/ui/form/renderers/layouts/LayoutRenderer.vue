@@ -20,22 +20,19 @@
 
 <script setup lang="ts">
 // --- external
-import { computed } from "vue";
 import {
   DispatchRenderer,
   rendererProps,
   useJsonFormsLayout
 } from "@jsonforms/vue";
-
+import { computed } from "vue";
 // --- local
 import config from "./layouts.config";
 // --- utils
-import { useUpmindUILayoutRenderer } from "../utils";
 import { useStyles } from "../../../../utils";
-
+import { useUpmindUILayoutRenderer } from "../utils";
 // --- types
 import type { Layout } from "@jsonforms/core";
-
 // -------------------------------------------------------------------
 
 const props = defineProps({

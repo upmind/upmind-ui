@@ -12,18 +12,14 @@
 <script lang="ts" setup>
 // --- external
 import { useJsonFormsMultiEnumControl } from "@jsonforms/vue";
-
 // --- components
-import FormField from "../../FormField.vue";
 import { CheckboxCards } from "../../../checkbox-cards";
-
+import FormField from "../../FormField.vue";
 // --- utils
 import { useUpmindUIRenderer } from "../utils";
-
 // --- types
 import type { ControlElement, JsonSchema } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
-
 // ----------------------------------------------
 const props = defineProps<RendererProps<ControlElement>>();
 

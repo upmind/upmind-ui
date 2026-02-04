@@ -13,20 +13,15 @@
 
 <script lang="ts" setup>
 // --- external
-import { computed } from "vue";
 import { Primitive } from "radix-vue";
-
+import { computed } from "vue";
 // --- internal
-import { useStyles, cn } from "../../utils";
 import config from "./spinner.config";
-
+import { useStyles, cn } from "../../utils";
 // --- components
-
 // --- utils
-
 // --- types
 import type { SpinnerProps } from ".";
-
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<SpinnerProps>(), {

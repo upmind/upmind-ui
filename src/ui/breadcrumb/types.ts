@@ -1,9 +1,8 @@
 // --- external
-import { type HTMLAttributes } from "vue";
-import type { CxOptions } from "class-variance-authority";
-
-// --- internal
 import type { LinkProps } from "../link/types";
+import type { CxOptions } from "class-variance-authority";
+import type { HTMLAttributes } from "vue";
+// --- internal
 import type { RouterLinkProps } from "vue-router";
 
 export interface BreadcrumbItem extends RouterLinkProps {

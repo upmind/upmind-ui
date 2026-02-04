@@ -8,7 +8,6 @@
 </template>
 
 <script setup lang="ts">
-import { cn } from "../..//utils";
 import {
   Toggle,
   type ToggleEmits,
@@ -16,8 +15,9 @@ import {
   useForwardPropsEmits
 } from "radix-vue";
 import { computed, type HTMLAttributes } from "vue";
-import { type ToggleVariantProps } from "./types";
 import { toggleVariants } from "./toggle.config";
+import { cn } from "../..//utils";
+import type { ToggleVariantProps } from "./types";
 
 const props = withDefaults(
   defineProps<

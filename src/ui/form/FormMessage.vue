@@ -21,10 +21,10 @@
 </template>
 
 <script lang="ts" setup>
-import type { HTMLAttributes } from "vue";
 import { toValue, computed } from "vue";
-import { isArray, first } from "lodash-es";
 import { cn } from "../../utils";
+import { isArray, first } from "lodash-es";
+import type { HTMLAttributes } from "vue";
 
 const props = defineProps<{
   formMessageId: string;

@@ -1,10 +1,8 @@
-import { type HTMLAttributes } from "vue";
-import type { CxOptions, VariantProps } from "class-variance-authority";
-
-// --- internal
 import type { iconVariants } from "./iconAnimated.config";
+import type { CxOptions, VariantProps } from "class-variance-authority";
+import type { HTMLAttributes } from "vue";
+// --- internal
 type IconVariantProps = VariantProps<typeof iconVariants>;
-
 // --- types
 export interface AnimatedIconProps {
   icon: string;

@@ -1,7 +1,6 @@
 // --- external
 import { ref, computed, type Ref } from "vue";
 import { isEqual } from "lodash-es";
-
 // --- types
 import type {
   ToggleSelectionOptions,

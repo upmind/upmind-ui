@@ -3,7 +3,6 @@ import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 
 export const loadingVariants = cva();
-
 // -----------------------------------------------------------------------------
 const variants = {
   isActive: {

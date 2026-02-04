@@ -1,16 +1,14 @@
 // --- external
-import { type HTMLAttributes } from "vue";
-import type { CxOptions, VariantProps } from "class-variance-authority";
-
-// --- internal
 import type { iconVariants } from "./icon.config";
+import type { CxOptions, VariantProps } from "class-variance-authority";
+import type { HTMLAttributes } from "vue";
+// --- internal
 type IconVariantProps = VariantProps<typeof iconVariants>;
 
 export interface Icon {
   name: string;
   path: string;
 }
-
 // --- types
 export interface IconProps {
   icon: string | Icon;

@@ -1,13 +1,12 @@
 // --- external
-import { type HTMLAttributes } from "vue";
-import type { CxOptions, VariantProps } from "class-variance-authority";
+import type { CxOptions } from "class-variance-authority";
+import type { TooltipRootProps } from "radix-vue";
 import type {
   TooltipContentProps,
   TooltipProviderProps,
   TooltipTriggerProps
 } from "radix-vue";
-import { type TooltipRootProps } from "radix-vue";
-
+import type { HTMLAttributes } from "vue";
 // --- internal
 export interface TooltipProps
   extends

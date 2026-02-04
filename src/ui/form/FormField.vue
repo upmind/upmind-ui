@@ -91,13 +91,10 @@
 <script lang="ts" setup>
 // --- external
 import { ref, computed, useSlots } from "vue";
-import { vAutoAnimate } from "@formkit/auto-animate";
-
 // --- internal
-import { cn, useStyles } from "../../utils";
+import { Icon } from "../icon";
+import { Tooltip } from "../tooltip";
 import config from "./form.config";
-
-// -- components
 import {
   FormItem,
   FormLabel,
@@ -107,15 +104,13 @@ import {
   FormDescription,
   FormMessage
 } from ".";
-import { Tooltip } from "../tooltip";
-import { Icon } from "../icon";
+import { cn, useStyles } from "../../utils";
 
+// -- components
 // --- utils
 import { isEmpty, isNil, some, kebabCase } from "lodash-es";
-
 // --- types
 import type { FormControlProps } from "./types";
-
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<FormControlProps>(), {
@@ -145,11 +140,9 @@ const props = withDefaults(defineProps<FormControlProps>(), {
 });
 
 const slots = useSlots();
-
 // --- state
 const target = ref();
 const tooltipOpen = ref(false);
-
 // --- computed
 const meta = computed(
   (): {
@@ -195,13 +188,10 @@ const styles = useStyles(
   target,
   props.uiConfig ?? {}
 );
-
 // --- methods
 function toggleTooltip(force?: boolean) {
   tooltipOpen.value = force ?? !tooltipOpen.value;
 }
-
 // --- side effects
-
 // --- lifecycle
 </script>

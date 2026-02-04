@@ -73,34 +73,29 @@
 
 <script setup lang="ts">
 // --- external
-import { ref, watch, computed } from "vue";
-import { useForwardPropsEmits } from "radix-vue";
 import { useVModel } from "@vueuse/core";
+import { useForwardPropsEmits } from "radix-vue";
+import { ref, watch, computed } from "vue";
 
 defineOptions({
   inheritAttrs: false
 });
-
 // --- internal
-import { cn, useStyles } from "../../utils";
+import Icon from "../icon/Icon.vue";
 import config from "./select.config";
-
-// --- components
 import Select from "./Select.vue";
-import SelectTrigger from "./SelectTrigger.vue";
 import SelectContent from "./SelectContent.vue";
 import SelectGroup from "./SelectGroup.vue";
 import SelectItem from "./SelectItem.vue";
+import SelectTrigger from "./SelectTrigger.vue";
 import SelectValue from "./SelectValue.vue";
-import SelectIndicator from "./SelectIndicator.vue";
-import Icon from "../icon/Icon.vue";
-
+import { cn, useStyles } from "../../utils";
+// --- components
 // --- utils
 import { isEmpty, isEqual, isNull, find } from "lodash-es";
-
 // --- types
-import type { SelectRootEmits, SelectContentEmits } from "radix-vue";
 import type { SelectProps } from "./types";
+import type { SelectRootEmits, SelectContentEmits } from "radix-vue";
 import { timestamp } from "@vueuse/shared";
 
 const props = withDefaults(defineProps<SelectProps>(), {
@@ -133,7 +128,6 @@ const modelValue = useVModel(props, "modelValue", emits, {
 });
 
 const open = ref(false);
-
 // --- This is needed as if we have changed items AFTER model is set then ...
 //     the component does not re-render with the correct selected value
 const uid = ref(timestamp());

@@ -1,6 +1,5 @@
 // ---  external
 import { cva } from "class-variance-authority";
-
 // -----------------------------------------------------------------------------
 
 export const toggleVariants = cva(
@@ -24,7 +23,6 @@ export const toggleVariants = cva(
     }
   }
 );
-
 // -----------------------------------------------------------------------------
 export default {
   toggle: toggleVariants

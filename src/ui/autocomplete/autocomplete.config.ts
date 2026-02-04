@@ -1,7 +1,5 @@
 import { cva } from "class-variance-authority";
-
 import { ringClasses, invalidRingClasses } from "../../assets/styles";
-
 // ---
 
 export const rootVariants = cva("control-radius relative", {

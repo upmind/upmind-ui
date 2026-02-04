@@ -140,7 +140,6 @@ const itemsVariants = cva("size-lh flex items-center justify-center", {
     }
   }
 });
-
 // -----------------------------------------------------------------------------
 export default {
   button: {

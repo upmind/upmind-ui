@@ -29,18 +29,13 @@ import {
   watch,
   onUnmounted
 } from "vue";
-
 // --- internal
-import Icon from "../../ui/icon/Icon.ce.vue";
-import config from "./lineclamp.config";
 import { Link } from "../link"; //
-
+import config from "./lineclamp.config";
 // --- utils
-import { cn, useStyles } from "../../utils";
-
+import { useStyles } from "../../utils";
 // --- types
 import type { ComputedRef } from "vue";
-
 // ---------------------------------------------------------------------------
 
 const props = withDefaults(
@@ -79,7 +74,6 @@ const windowWidth: ComputedRef<number> = computed(() => {
 });
 
 const observer = ref<MutationObserver | null>(null);
-
 // --- methods
 function setDefaultClampState() {
   nextTick(() => {
@@ -88,7 +82,6 @@ function setDefaultClampState() {
     }
   });
 }
-
 // --- lifecycle
 onMounted(() => {
   // Initial check after a short delay to ensure content is rendered
@@ -113,7 +106,6 @@ onUnmounted(() => {
     observer.value.disconnect();
   }
 });
-
 // --- side effects
 watch(windowWidth, setDefaultClampState);
 </script>

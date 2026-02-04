@@ -1,9 +1,10 @@
 // --- external
-import type { HTMLAttributes } from "vue";
+import type { checkboxVariants } from "./checkbox.config";
 import type { CxOptions, VariantProps } from "class-variance-authority";
 import type { CheckboxRootProps } from "radix-vue";
+import type { HTMLAttributes } from "vue";
 // --- internal
-import type { checkboxVariants } from "./checkbox.config";
+
 type CheckboxVariantProps = VariantProps<typeof checkboxVariants>;
 
 export interface CheckboxProps extends CheckboxRootProps {

@@ -36,7 +36,6 @@
 </template>
 
 <script setup lang="ts">
-import { cn } from "../../utils";
 import { Check } from "lucide-vue-next";
 import {
   ToggleGroupItem,
@@ -44,6 +43,7 @@ import {
   type ToggleGroupItemProps
 } from "radix-vue";
 import { computed, type HTMLAttributes } from "vue";
+import { cn } from "../../utils";
 
 const props = defineProps<
   ToggleGroupItemProps & {

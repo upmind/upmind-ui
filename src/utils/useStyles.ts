@@ -1,11 +1,9 @@
 // --- external
-import { unref, toRaw, computed } from "vue";
 import { clsx } from "clsx";
-import theme from "./useThemes";
-import { twMerge } from "./twMerge";
-
+import { unref, toRaw, computed } from "vue";
 import defaultStylesheet from "../main.css?url";
-
+import { twMerge } from "./twMerge";
+import theme from "./useThemes";
 // --- utils
 import {
   flattenDeep,
@@ -23,11 +21,10 @@ import {
   set,
   keys
 } from "lodash-es";
-
 // --- types
+import type { ClassValue } from "clsx";
+import type { ClassNameValue } from "tailwind-merge";
 import type { ComputedRef } from "vue";
-import { type ClassValue } from "clsx";
-import { type ClassNameValue } from "tailwind-merge";
 
 /**
  * Recursively resolves the types of a style configuration object.

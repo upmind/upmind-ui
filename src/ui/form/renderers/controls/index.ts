@@ -1,9 +1,5 @@
-import { registerEntry } from "../utils";
-
 // -----------------------------------------------------------------------------
 
-import ConstRenderer, { tester as ConstTest } from "./StringRenderer.vue";
-import StringRenderer, { tester as StringTest } from "./StringRenderer.vue";
 import BooleanRenderer, { tester as BooleanTest } from "./BooleanRenderer.vue";
 import BooleanSwitchRenderer, {
   tester as BooleanSwitchTest
@@ -11,32 +7,34 @@ import BooleanSwitchRenderer, {
 import ButtonToggleRenderer, {
   tester as ButtonToggleTest
 } from "./ButtonToggleRenderer.vue";
-import PasswordRenderer, {
-  tester as PasswordTest
-} from "./PasswordRenderer.vue";
-import NumberRenderer, { tester as NumberTest } from "./NumberRenderer.vue";
-import EnumRenderer, { tester as EnumTest } from "./EnumRenderer.vue";
+import CurrencyRenderer, {
+  tester as CurrencyTest
+} from "./CurrencyRenderer.vue";
+import DateRenderer, { tester as DateTest } from "./DateRenderer.vue";
+import EmailRenderer, { tester as EmailTest } from "./EmailRenderer.vue";
 import EnumRadioRenderer, {
   tester as EnumRadioTest
 } from "./EnumRadioRenderer.vue";
-import UrlRenderer, { tester as UrlTest } from "./UrlRenderer.vue";
-import EmailRenderer, { tester as EmailTest } from "./EmailRenderer.vue";
-import PhoneRenderer, { tester as PhoneTest } from "./PhoneRenderer.vue";
-import DateRenderer, { tester as DateTest } from "./DateRenderer.vue";
+import EnumRenderer, { tester as EnumTest } from "./EnumRenderer.vue";
+import LookupRenderer, { tester as lookupTest } from "./LookupRenderer.vue";
 import MultilineRenderer, {
   tester as MultilineTest
 } from "./MultilineRenderer.vue";
+import NumberRenderer, { tester as NumberTest } from "./NumberRenderer.vue";
 import OneOfRadioRenderer, {
   tester as OneOfRadioTest
 } from "./OneOfRadioRenderer.vue";
 import OneOfSelectRenderer, {
   tester as OneOfSelectTest
 } from "./OneOfSelectRenderer.vue";
-import LookupRenderer, { tester as lookupTest } from "./LookupRenderer.vue";
-import CurrencyRenderer, {
-  tester as CurrencyTest
-} from "./CurrencyRenderer.vue";
-
+import PasswordRenderer, {
+  tester as PasswordTest
+} from "./PasswordRenderer.vue";
+import PhoneRenderer, { tester as PhoneTest } from "./PhoneRenderer.vue";
+import StringRenderer, { tester as StringTest } from "./StringRenderer.vue";
+import ConstRenderer, { tester as ConstTest } from "./StringRenderer.vue";
+import UrlRenderer, { tester as UrlTest } from "./UrlRenderer.vue";
+import { registerEntry } from "../utils";
 // -----------------------------------------------------------------------------
 
 export const controlRenderers = [
