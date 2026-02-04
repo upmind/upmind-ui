@@ -16,7 +16,7 @@ import {
 } from "../../../utils";
 import { responseCodes } from "../../../utils";
 import { useSchema, useUischema } from "./utils";
-import { remove, xorBy, get, isEmpty, isEqual } from "lodash-es";
+import { remove, xorBy, get, isEmpty } from "lodash-es";
 
 // --- types
 import type { AnyEventObject } from "xstate";
@@ -136,11 +136,7 @@ export default createMachine(
       processed: {
         id: "processed",
         entry: "refreshBasket",
-        after: {
-          wait: {
-            target: "complete"
-          }
-        }
+        after: { wait: { target: "complete" } }
       },
 
       complete: {
@@ -176,7 +172,6 @@ export default createMachine(
         actions: ["clearError", "clearModel", "clearSchemas"]
       },
       REFRESH: {
-        target: "checking",
         actions: ["refreshContext", "setSchemas"],
         cond: "hasChanged"
       }
