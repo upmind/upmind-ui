@@ -67,8 +67,8 @@
     "placeholder": "Registered tax or GST"
   },
   "country": {
-    "label": "Tax Number",
-    "placeholder": "Tax Id"
+    "label": "Country",
+    "placeholder": "Select a country"
   },
   "domain": {
     "placeholder": "Enter your domain..."

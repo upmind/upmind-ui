@@ -67,8 +67,8 @@
     "placeholder": "Taxă înregistrată sau GST"
   },
   "country": {
-    "label": "Cod fiscal",
-    "placeholder": "Cod fiscal"
+    "label": "Țara",
+    "placeholder": "Selectați o țară"
   },
   "domain": {
     "placeholder": "Introduceți domeniul dvs...."

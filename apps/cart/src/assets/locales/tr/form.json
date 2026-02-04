@@ -67,8 +67,8 @@
     "placeholder": "Kayıtlı vergi veya GST"
   },
   "country": {
-    "label": "Vergi Numarası",
-    "placeholder": "Vergi Kimlik No"
+    "label": "Ülke",
+    "placeholder": "Bir ülke seçin"
   },
   "domain": {
     "placeholder": "Alan adınızı girin..."
