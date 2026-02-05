@@ -67,8 +67,8 @@
     "placeholder": "رجسٹرڈ ٹیکس یا جی ایس ٹی"
   },
   "country": {
-    "label": "ٹیکس نمبر",
-    "placeholder": "ٹیکس کی شناخت"
+    "label": "ملک",
+    "placeholder": "ایک ملک منتخب کریں۔"
   },
   "domain": {
     "placeholder": "اپنا ڈومین درج کریں..."

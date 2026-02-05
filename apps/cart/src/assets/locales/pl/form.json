@@ -67,8 +67,8 @@
     "placeholder": "Zarejestrowany podatek lub GST"
   },
   "country": {
-    "label": "Numer podatkowy",
-    "placeholder": "Numer identyfikacji podatkowej"
+    "label": "Kraj",
+    "placeholder": "Wybierz kraj"
   },
   "domain": {
     "placeholder": "Wprowadź swoją domenę..."

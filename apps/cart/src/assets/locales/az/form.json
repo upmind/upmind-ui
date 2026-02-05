@@ -67,8 +67,8 @@
     "placeholder": "Qeydiyyatdan keçmiş vergi və ya GST"
   },
   "country": {
-    "label": "Vergi Nömrəsi",
-    "placeholder": "Vergi İD"
+    "label": "Ölkə",
+    "placeholder": "Ölkə seçin"
   },
   "domain": {
     "placeholder": "Domeninizi daxil edin..."
