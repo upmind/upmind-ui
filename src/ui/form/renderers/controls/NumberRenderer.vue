@@ -76,7 +76,9 @@ const min: ComputedRef<number | undefined> = computed(() => {
 
   return undefined;
 });
+</script>
 
+<script lang="ts">
 export const tester = {
   rank: 1,
   controlType: or(isNumberControl, isIntegerControl)

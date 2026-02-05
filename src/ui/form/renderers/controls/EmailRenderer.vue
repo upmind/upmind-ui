@@ -27,7 +27,9 @@ import type { RendererProps } from "@jsonforms/vue";
 const props = defineProps<RendererProps<ControlElement>>();
 const { control, formFieldProps, onInput, appliedOptions } =
   useUpmindUIRenderer(useJsonFormsControl(props));
+</script>
 
+<script lang="ts">
 export const tester = {
   rank: 2,
   controlType: and(isStringControl, or(formatIs("email")))

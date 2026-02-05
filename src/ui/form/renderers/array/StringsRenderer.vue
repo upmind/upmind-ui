@@ -34,7 +34,9 @@ const { control, formFieldProps, onInput } = useUpmindUIRenderer({
   ...useJsonFormsMultiEnumControl(props),
   handleChange: () => {} // Provide a default handleChange function
 });
+</script>
 
+<script lang="ts">
 const hasOneOfItems = (schema: JsonSchema) =>
   schema.oneOf !== undefined &&
   schema.oneOf.length > 0 &&

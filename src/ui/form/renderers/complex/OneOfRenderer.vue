@@ -98,7 +98,9 @@ const setDefaults = () => {
     defaultsSet.value = true;
   }
 };
+</script>
 
+<script lang="ts">
 export const tester = {
   rank: 2,
   controlType: and(isOneOfControl, optionIs("toggle", true))
