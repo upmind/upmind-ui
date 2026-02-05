@@ -67,8 +67,8 @@
     "placeholder": "Regisztrált adó vagy GST"
   },
   "country": {
-    "label": "Adószám",
-    "placeholder": "Adóazonosító"
+    "label": "Ország",
+    "placeholder": "Válasszon országot"
   },
   "domain": {
     "placeholder": "Add meg a domainedet..."

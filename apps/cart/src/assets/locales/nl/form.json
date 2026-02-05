@@ -67,8 +67,8 @@
     "placeholder": "Geregistreerde belasting of GST"
   },
   "country": {
-    "label": "Belastingnummer",
-    "placeholder": "Belastingnummer"
+    "label": "Land",
+    "placeholder": "Selecteer een land"
   },
   "domain": {
     "placeholder": "Voer uw domein in..."

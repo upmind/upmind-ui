@@ -67,8 +67,8 @@
     "placeholder": "Εγγεγραμμένος ΦΠΑ ή GST"
   },
   "country": {
-    "label": "Αριθμός Φορολογικού Μητρώου",
-    "placeholder": "Α.Φ.Μ."
+    "label": "Χώρα",
+    "placeholder": "Επιλέξτε μια χώρα"
   },
   "domain": {
     "placeholder": "Πληκτρολογήστε το domain σας…"

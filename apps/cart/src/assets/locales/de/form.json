@@ -67,8 +67,8 @@
     "placeholder": "Registrierte Steuer oder GST"
   },
   "country": {
-    "label": "Steuernummer",
-    "placeholder": "Steuer-ID"
+    "label": "Land",
+    "placeholder": "Wählen Sie ein Land aus"
   },
   "domain": {
     "placeholder": "Geben Sie Ihre Domäne ein..."

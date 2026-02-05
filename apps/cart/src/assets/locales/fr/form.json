@@ -67,8 +67,8 @@
     "placeholder": "Taxe enregistrée ou TPS"
   },
   "country": {
-    "label": "Numéro fiscal",
-    "placeholder": "Numéro fiscal"
+    "label": "Pays",
+    "placeholder": "Sélectionnez un pays"
   },
   "domain": {
     "placeholder": "Entrez votre domaine..."

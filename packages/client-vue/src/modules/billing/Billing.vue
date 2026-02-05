@@ -5,7 +5,7 @@
     :class="meta.isProcessing ? 'overflow-hidden' : ''"
   >
     <Sections
-      class="min-h-52"
+      class="min-h-40"
       v-model="activeTab"
       :sections="tabs"
       data-testid="billing"

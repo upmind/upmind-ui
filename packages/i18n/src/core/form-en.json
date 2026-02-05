@@ -85,8 +85,8 @@
   },
   "country": {
     "description": null,
-    "label": "Tax Number",
-    "placeholder": "Tax Id"
+    "label": "Country",
+    "placeholder": "Select a country"
   },
   "email": {
     "description": null,

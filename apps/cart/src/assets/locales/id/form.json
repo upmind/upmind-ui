@@ -67,8 +67,8 @@
     "placeholder": "Pajak terdaftar atau GST"
   },
   "country": {
-    "label": "Nomor Pajak",
-    "placeholder": "Nomor Identifikasi Pajak"
+    "label": "Negara",
+    "placeholder": "Pilih negara"
   },
   "domain": {
     "placeholder": "Masukkan domain Anda..."

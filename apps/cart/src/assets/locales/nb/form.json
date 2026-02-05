@@ -67,8 +67,8 @@
     "placeholder": "Registrert skatt eller GST"
   },
   "country": {
-    "label": "Skattenummer",
-    "placeholder": "Skatte-ID"
+    "label": "Land",
+    "placeholder": "Velg et land"
   },
   "domain": {
     "placeholder": "Skriv inn domenet ditt..."
