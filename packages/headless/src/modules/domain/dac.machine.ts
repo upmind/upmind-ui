@@ -49,10 +49,24 @@ export default createMachine(
     context: {} as DacContext,
     states: {
       subscribing: {
-        entry: ["setContext", "clearLookups"],
-        always: {
-          target: "loading",
-          actions: ["setBasketHelper", "setAuthHelper", "loadBasket"]
+        entry: [
+          "setContext",
+          "clearLookups",
+          "setBasketHelper",
+          "setAuthHelper",
+          "loadBasket"
+        ],
+        on: {
+          REFRESH: [
+            {
+              target: "loading",
+              actions: ["setBasketProducts", "setBasket"]
+            }
+          ],
+          ERROR: {
+            actions: ["setError"]
+            // target: "unavailable",
+          }
         }
       },
 
@@ -181,7 +195,7 @@ export default createMachine(
       },
 
       REFRESH: {
-        actions: ["setBasketProducts", "refreshContext"]
+        actions: ["setBasketProducts", "setBasket"]
       },
 
       STOP: { target: "complete" },
@@ -225,19 +239,17 @@ export default createMachine(
           }) as DacContext
       ),
 
-      refreshContext: assign(
-        (_context: DacContext, { data }: AnyEventObject) => {
-          const { id: basketId, brand_id: brandId, currency } = data ?? {};
+      setBasket: assign((_context: DacContext, { data }: AnyEventObject) => {
+        const { id: basketId, brand_id: brandId, currency } = data ?? {};
 
-          const newContext = {
-            basketId,
-            brandId,
-            currency: currency?.code
-          };
+        const newContext = {
+          basketId,
+          brandId,
+          currency: currency?.code
+        };
 
-          return newContext;
-        }
-      ),
+        return newContext;
+      }),
 
       setAuthHelper: assign(({ authHelper }: DacContext) => ({
         authHelper: authHelper || spawn(authSubscription)
