@@ -37,7 +37,7 @@ const props = withDefaults(
 const emits = defineEmits<ToggleEmits>();
 
 const delegatedProps = computed(() => {
-  const { class: _, size, variant, ...delegated } = props;
+  const { class: _, size: _size, variant: _variant, ...delegated } = props;
 
   return delegated;
 });

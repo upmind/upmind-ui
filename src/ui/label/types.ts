@@ -4,7 +4,7 @@ import type { CxOptions, VariantProps } from "class-variance-authority";
 import type { LabelProps as RootLabelProps } from "radix-vue";
 import type { HTMLAttributes } from "vue";
 // --- internal
-type LabelVariantProps = VariantProps<typeof labelVariants>;
+type _LabelVariantProps = VariantProps<typeof labelVariants>;
 
 export interface LabelProps extends RootLabelProps {
   label?: string | number;

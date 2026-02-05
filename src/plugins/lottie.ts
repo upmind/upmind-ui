@@ -4,7 +4,7 @@ import type { App, Plugin } from "vue";
 // -----------------------------------------------------------------------------
 
 export default {
-  install: (app: App): void => {
+  install: (_app: App): void => {
     defineElement(lottie.loadAnimation);
   }
 } as Plugin;

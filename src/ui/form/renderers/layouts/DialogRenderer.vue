@@ -15,6 +15,7 @@
 
 <script setup lang="ts">
 // --- external
+import { uiTypeIs } from "@jsonforms/core";
 import {
   DispatchRenderer,
   rendererProps,
@@ -31,10 +32,7 @@ const props = defineProps({
 });
 
 const { layout } = useJsonFormsLayout(props);
-</script>
 
-<script lang="ts">
-import { uiTypeIs } from "@jsonforms/core";
 export const tester = {
   rank: 2,
   controlType: uiTypeIs("Dialog")

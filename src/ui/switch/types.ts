@@ -3,8 +3,7 @@ import type { switchVariants } from "./switch.config";
 import type { CxOptions, VariantProps } from "class-variance-authority";
 import type { InputTypeHTMLAttribute, HTMLAttributes } from "vue";
 // --- internal
-
-type InputVariantProps = VariantProps<typeof switchVariants>;
+type _InputVariantProps = VariantProps<typeof switchVariants>;
 
 export interface SwitchProps {
   modelValue?: boolean | number;

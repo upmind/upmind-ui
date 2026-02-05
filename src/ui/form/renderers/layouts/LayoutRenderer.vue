@@ -20,6 +20,7 @@
 
 <script setup lang="ts">
 // --- external
+import { isLayout } from "@jsonforms/core";
 import {
   DispatchRenderer,
   rendererProps,
@@ -55,12 +56,9 @@ const meta = computed(() => ({
 
 const styles = useStyles(["layout"], meta, config, props.uiConfig ?? {});
 
-const { layout, appliedOptions } = useUpmindUILayoutRenderer(
+const { layout, appliedOptions: _appliedOptions } = useUpmindUILayoutRenderer(
   useJsonFormsLayout(props)
 );
-</script>
 
-<script lang="ts">
-import { isLayout } from "@jsonforms/core";
 export const tester = { rank: 1, controlType: isLayout };
 </script>

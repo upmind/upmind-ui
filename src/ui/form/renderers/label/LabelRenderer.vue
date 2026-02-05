@@ -4,6 +4,7 @@
 
 <script setup lang="ts">
 // --- external
+import { uiTypeIs } from "@jsonforms/core";
 import { useJsonFormsLabel } from "@jsonforms/vue";
 // --- components
 import { Label } from "../../../label";
@@ -20,10 +21,7 @@ const renderer = useUpmindUILabelRenderer(useJsonFormsLabel(props));
 
 // Destructure renderer properties
 const { label, appliedOptions } = renderer;
-</script>
 
-<script lang="ts">
-import { uiTypeIs } from "@jsonforms/core";
 export const tester = {
   rank: 1,
   controlType: uiTypeIs("Label")

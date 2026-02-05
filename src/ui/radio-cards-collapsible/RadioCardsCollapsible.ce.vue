@@ -123,7 +123,7 @@ const props = withDefaults(defineProps<RadioCardsCollapsibleProps>(), {
   radioClass: ""
 });
 
-const emits = defineEmits<{
+const _emits = defineEmits<{
   (e: "update:modelValue", value: string): void;
   (e: "update:open"): void;
 }>();

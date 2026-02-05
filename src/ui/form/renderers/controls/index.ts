@@ -1,5 +1,4 @@
 // -----------------------------------------------------------------------------
-
 import BooleanRenderer, { tester as BooleanTest } from "./BooleanRenderer.vue";
 import BooleanSwitchRenderer, {
   tester as BooleanSwitchTest

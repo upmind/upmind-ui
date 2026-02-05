@@ -13,7 +13,7 @@
 
 <script setup lang="ts">
 // --- external
-import { Generate, findUISchema } from "@jsonforms/core";
+import { Generate, findUISchema, isObjectControl } from "@jsonforms/core";
 import {
   DispatchRenderer,
   rendererProps,
@@ -65,10 +65,7 @@ const detailUiSchema: ComputedRef<UISchemaElement> = computed(() => {
 
   return result;
 });
-</script>
 
-<script lang="ts">
-import { isObjectControl } from "@jsonforms/core";
 export const tester = {
   rank: 2,
   controlType: isObjectControl

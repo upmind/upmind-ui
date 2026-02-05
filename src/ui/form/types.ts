@@ -1,6 +1,7 @@
 // --- external
-import type { HTMLAttributes } from "vue";
-import type { VariantProps, CxOptions } from "class-variance-authority";
+import type { formVariants } from "./form.config";
+import type { ButtonProps } from "../button";
+import type { InputProps } from "../input";
 import type {
   // ValidationMode,
   JsonSchema,
@@ -14,13 +15,11 @@ import type {
 } from "@jsonforms/core";
 import type { ErrorObject } from "ajv";
 import type Ajv from "ajv";
+import type { VariantProps, CxOptions } from "class-variance-authority";
+import type { HTMLAttributes } from "vue";
 // --- internal
-import type { formVariants } from "./form.config";
-import type { ButtonProps } from "../button";
 
 type FormVariantProps = VariantProps<typeof formVariants>;
-// --- types
-import type { InputProps } from "../input";
 
 export interface FormProps<T = Record<string, any>> {
   as?: string;

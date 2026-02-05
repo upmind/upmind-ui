@@ -41,7 +41,7 @@ import type { SelectGroupedDropdownItemProps } from "./types";
 
 const props = defineProps<SelectGroupedDropdownItemProps>();
 
-const emits = defineEmits<{
+const _emits = defineEmits<{
   select: [value: string];
   focusNext: [];
   focusPrev: [];

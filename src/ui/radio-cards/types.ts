@@ -7,7 +7,7 @@ import type { CxOptions, VariantProps } from "class-variance-authority";
 import type { RadioGroupRootProps, RadioGroupItemProps } from "radix-vue";
 import type { HTMLAttributes } from "vue";
 
-type RadioCardsItemSizeVariants = VariantProps<typeof itemSizeVariants>;
+type _RadioCardsItemSizeVariants = VariantProps<typeof itemSizeVariants>;
 
 export type RadioCardsItemActionProps = LinkProps & {
   handler?: Function | string;

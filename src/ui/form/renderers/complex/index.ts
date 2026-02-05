@@ -1,5 +1,4 @@
 // -----------------------------------------------------------------------------
-
 import ObjectRenderer, { tester as objectTest } from "./ObjectRenderer.vue";
 import OneOfRenderer, { tester as oneOfTest } from "./OneOfRenderer.vue";
 import { registerEntry } from "../utils";

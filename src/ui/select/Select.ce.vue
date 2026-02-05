@@ -74,12 +74,9 @@
 <script setup lang="ts">
 // --- external
 import { useVModel } from "@vueuse/core";
+import { timestamp } from "@vueuse/shared";
 import { useForwardPropsEmits } from "radix-vue";
 import { ref, watch, computed } from "vue";
-
-defineOptions({
-  inheritAttrs: false
-});
 // --- internal
 import Icon from "../icon/Icon.vue";
 import config from "./select.config";
@@ -89,14 +86,16 @@ import SelectGroup from "./SelectGroup.vue";
 import SelectItem from "./SelectItem.vue";
 import SelectTrigger from "./SelectTrigger.vue";
 import SelectValue from "./SelectValue.vue";
-import { cn, useStyles } from "../../utils";
-// --- components
 // --- utils
+import { cn, useStyles } from "../../utils";
 import { isEmpty, isEqual, isNull, find } from "lodash-es";
 // --- types
 import type { SelectProps } from "./types";
 import type { SelectRootEmits, SelectContentEmits } from "radix-vue";
-import { timestamp } from "@vueuse/shared";
+
+defineOptions({
+  inheritAttrs: false
+});
 
 const props = withDefaults(defineProps<SelectProps>(), {
   // --- props

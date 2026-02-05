@@ -49,7 +49,7 @@ const props = withDefaults(defineProps<RadioCardsCollapsibleItemProps>(), {
   columns: 1
 });
 
-const emits = defineEmits(["focus"]);
+const _emits = defineEmits(["focus"]);
 
 const isSelected = computed(() => {
   return props.modelValue === props.value;

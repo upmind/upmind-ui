@@ -108,7 +108,7 @@ const onChange = (value: any) => {
   }
 };
 
-const onAction = (value: any) => {
+const _onAction = (value: any) => {
   emits("action", value);
 };
 </script>

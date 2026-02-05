@@ -14,17 +14,15 @@
 <script lang="ts" setup>
 // --- external
 import { computed, ref, watchEffect } from "vue";
+// --- internal
 import theme from "../../utils/useThemes";
 import config from "./icon.config";
 import { loadIcon } from "./utils/iconLoader";
-// --- internal
-
 import {
   useStyles,
   cn
   //stylesheet
 } from "../../utils";
-// --- utils
 import { isObject, isEmpty } from "lodash-es";
 // --- types
 import type { IconProps } from ".";

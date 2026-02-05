@@ -11,6 +11,13 @@
 
 <script lang="ts" setup>
 // --- external
+import {
+  uiTypeIs,
+  and,
+  schemaMatches,
+  hasType,
+  schemaSubPathMatches
+} from "@jsonforms/core";
 import { useJsonFormsMultiEnumControl } from "@jsonforms/vue";
 // --- components
 import { CheckboxCards } from "../../../checkbox-cards";
@@ -27,16 +34,6 @@ const { control, formFieldProps, onInput } = useUpmindUIRenderer({
   ...useJsonFormsMultiEnumControl(props),
   handleChange: () => {} // Provide a default handleChange function
 });
-</script>
-
-<script lang="ts">
-import {
-  uiTypeIs,
-  and,
-  schemaMatches,
-  hasType,
-  schemaSubPathMatches
-} from "@jsonforms/core";
 
 const hasOneOfItems = (schema: JsonSchema) =>
   schema.oneOf !== undefined &&

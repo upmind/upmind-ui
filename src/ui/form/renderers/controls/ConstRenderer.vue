@@ -6,6 +6,7 @@
 
 <script lang="ts" setup>
 // --- external
+import { formatIs, uiTypeIs, schemaMatches, and, or } from "@jsonforms/core";
 import { useJsonFormsControl } from "@jsonforms/vue";
 // --- components
 import FormField from "../../FormField.vue";
@@ -21,10 +22,7 @@ const props = defineProps<RendererProps<ControlElement>>();
 const { control, formFieldProps } = useUpmindUIRenderer(
   useJsonFormsControl(props)
 );
-</script>
 
-<script lang="ts">
-import { formatIs, uiTypeIs, schemaMatches, and, or } from "@jsonforms/core";
 export const tester = {
   rank: 2,
   controlType: and(

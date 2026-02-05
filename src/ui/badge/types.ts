@@ -1,11 +1,11 @@
 // --- external
-import type { HTMLAttributes } from "vue";
 import type { badgeVariants } from "./badge.config";
-import type { CxOptions, VariantProps } from "class-variance-authority";
-// --- internal
-type BadgeVariantProps = VariantProps<typeof badgeVariants>;
-// --- types
 import type { Icon } from "../icon/types";
+import type { CxOptions, VariantProps } from "class-variance-authority";
+import type { HTMLAttributes } from "vue";
+// --- internal
+
+type BadgeVariantProps = VariantProps<typeof badgeVariants>;
 
 export interface BadgeProps {
   label?: string;
