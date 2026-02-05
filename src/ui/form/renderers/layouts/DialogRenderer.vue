@@ -32,7 +32,9 @@ const props = defineProps({
 });
 
 const { layout } = useJsonFormsLayout(props);
+</script>
 
+<script lang="ts">
 export const tester = {
   rank: 2,
   controlType: uiTypeIs("Dialog")

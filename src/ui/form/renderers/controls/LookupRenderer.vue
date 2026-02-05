@@ -40,7 +40,9 @@ const doSearch: AutocompleteSearchFunction | undefined = get(
   control.value,
   "schema.lookup"
 );
+</script>
 
+<script lang="ts">
 export const tester = {
   rank: 3,
   controlType: and(

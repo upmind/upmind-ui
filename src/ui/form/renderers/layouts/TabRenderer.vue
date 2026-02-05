@@ -70,7 +70,9 @@ const tabItems = computed((): TabItem[] => {
 const switchTab = (value: string | number) => {
   activeTabIndex.value = Number(value);
 };
+</script>
 
+<script lang="ts">
 export const tester = {
   rank: 2,
   controlType: and(isLayout, uiTypeIs("Tabs"))

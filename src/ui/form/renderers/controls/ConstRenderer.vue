@@ -22,7 +22,9 @@ const props = defineProps<RendererProps<ControlElement>>();
 const { control, formFieldProps } = useUpmindUIRenderer(
   useJsonFormsControl(props)
 );
+</script>
 
+<script lang="ts">
 export const tester = {
   rank: 2,
   controlType: and(

@@ -231,7 +231,9 @@ function onSearch(value: string): ComboboxItemProps[] {
       )
   );
 }
+</script>
 
+<script lang="ts">
 export const tester = {
   rank: 10,
   controlType: and(

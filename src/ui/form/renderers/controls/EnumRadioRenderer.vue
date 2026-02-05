@@ -53,7 +53,9 @@ const items = computed(() => {
     }
   );
 });
+</script>
 
+<script lang="ts">
 export const tester = {
   rank: 3,
   controlType: and(isEnumControl, optionIs("format", "radio"))

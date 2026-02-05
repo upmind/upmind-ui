@@ -59,6 +59,8 @@ const styles = useStyles(["layout"], meta, config, props.uiConfig ?? {});
 const { layout, appliedOptions: _appliedOptions } = useUpmindUILayoutRenderer(
   useJsonFormsLayout(props)
 );
+</script>
 
+<script lang="ts">
 export const tester = { rank: 1, controlType: isLayout };
 </script>

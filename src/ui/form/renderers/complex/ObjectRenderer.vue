@@ -65,7 +65,9 @@ const detailUiSchema: ComputedRef<UISchemaElement> = computed(() => {
 
   return result;
 });
+</script>
 
+<script lang="ts">
 export const tester = {
   rank: 2,
   controlType: isObjectControl

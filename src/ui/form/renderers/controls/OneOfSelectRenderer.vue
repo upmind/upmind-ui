@@ -26,6 +26,8 @@ const props = defineProps<RendererProps<ControlElement>>();
 
 const { control, formFieldProps, onInput, appliedOptions } =
   useUpmindUIRenderer(useJsonFormsOneOfEnumControl(props));
+</script>
 
+<script lang="ts">
 export const tester = { rank: 2, controlType: isOneOfControl };
 </script>

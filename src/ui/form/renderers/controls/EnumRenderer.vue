@@ -48,6 +48,8 @@ const items = computed(() => {
   };
   return schema.options || options || [];
 });
+</script>
 
+<script lang="ts">
 export const tester = { rank: 2, controlType: isEnumControl };
 </script>

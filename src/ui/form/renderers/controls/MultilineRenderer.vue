@@ -49,7 +49,9 @@ const safeMax: ComputedRef<number | undefined> = computed(() => {
 
   return undefined;
 });
+</script>
 
+<script lang="ts">
 export const tester = {
   rank: 2,
   controlType: and(isStringControl, isMultiLineControl)

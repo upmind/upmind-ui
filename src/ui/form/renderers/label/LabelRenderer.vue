@@ -21,7 +21,9 @@ const renderer = useUpmindUILabelRenderer(useJsonFormsLabel(props));
 
 // Destructure renderer properties
 const { label, appliedOptions } = renderer;
+</script>
 
+<script lang="ts">
 export const tester = {
   rank: 1,
   controlType: uiTypeIs("Label")
