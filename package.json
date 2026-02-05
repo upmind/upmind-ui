@@ -1,7 +1,7 @@
 {
   "name": "@upmind-automation/upmind-ui",
   "version": "0.0.6",
-  "description": "",
+  "description": "Vue 3 component library built with Tailwind CSS v4 and CVA for consistent, themeable UI primitives",
   "type": "module",
   "sideEffects": [
     "*.css",
