@@ -67,8 +67,8 @@
     "placeholder": "Registreret skat eller moms"
   },
   "country": {
-    "label": "Skattenummer",
-    "placeholder": "Skatte-ID"
+    "label": "Land",
+    "placeholder": "Vælg et land"
   },
   "domain": {
     "placeholder": "Indtast dit domæne..."
