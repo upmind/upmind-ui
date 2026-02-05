@@ -13,6 +13,8 @@ bin/pnpm
 bin/pnpx
 tsconfig.tsbuildinfo
 .agent/
+.claude/*
+
 
 # Playwright
 tests/Playwright/e2e/test-output/

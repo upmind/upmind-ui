@@ -44,7 +44,7 @@ const { formatPrice } = useMoney();
 const { ui, data } = useConfig();
 
 const priceMeta = computed(() => ({
-  useMonthlyFromPrice: props.useMonthlyFromPrice,
+  useMonthlyFromPrice: !!props.useMonthlyFromPrice,
   isFree: props.free
 }));
 
