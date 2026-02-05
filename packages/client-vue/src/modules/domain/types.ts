@@ -70,6 +70,7 @@ export type DomainCardProps = {
   added?: DomainProduct["meta"]["added"];
   owned?: DomainProduct["meta"]["owned"];
   discounted?: DomainProduct["meta"]["discounted"];
+  free?: DomainProduct["meta"]["free"];
   exactMatch?: boolean;
 };
 

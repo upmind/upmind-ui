@@ -69,10 +69,13 @@
         </div>
 
         <section :class="styles.card.footer.price.root">
-          <h3 :class="styles.card.footer.price.amount">
-            {{ props.price.currentPrice }}
-          </h3>
-          <small :class="styles.card.footer.price.term"
+          <CurrentPrice
+            is="h3"
+            :class="styles.card.footer.price.amount"
+            :current-price="props.price.currentPrice"
+          />
+
+          <small v-if="!props.free" :class="styles.card.footer.price.term"
             >/ {{ parseBillingCycle(props.cycle!).suffix }}</small
           >
 
@@ -144,6 +147,7 @@ import config from "../domain.config";
 
 // --- components
 import DomainDescription from "./DomainDescription.vue";
+import CurrentPrice from "../../product/components/pricing/CurrentPrice.vue";
 
 // --- types
 import type { DomainCardProps } from "../types";
