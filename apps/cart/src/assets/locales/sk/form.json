@@ -67,8 +67,8 @@
     "placeholder": "Registrovaná daň alebo DPH"
   },
   "country": {
-    "label": "Daňové číslo",
-    "placeholder": "DIČ"
+    "label": "Krajina",
+    "placeholder": "Vyberte krajinu"
   },
   "domain": {
     "placeholder": "Zadajte svoju doménu..."

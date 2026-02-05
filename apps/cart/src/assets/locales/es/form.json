@@ -67,8 +67,8 @@
     "placeholder": "Impuesto registrado o GST"
   },
   "country": {
-    "label": "Número de identificación fiscal",
-    "placeholder": "Identificación fiscal"
+    "label": "País",
+    "placeholder": "Selecciona un país"
   },
   "domain": {
     "placeholder": "Ingrese su dominio..."
