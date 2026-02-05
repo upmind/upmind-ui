@@ -23,7 +23,12 @@
 
 <script lang="ts" setup>
 // --- external
-import { createDefaultValue } from "@jsonforms/core";
+import {
+  createDefaultValue,
+  isOneOfControl,
+  optionIs,
+  and
+} from "@jsonforms/core";
 import { useJsonFormsOneOfControl, DispatchRenderer } from "@jsonforms/vue";
 import { computed, ref } from "vue";
 // --- components
@@ -93,10 +98,7 @@ const setDefaults = () => {
     defaultsSet.value = true;
   }
 };
-</script>
 
-<script lang="ts">
-import { isOneOfControl, optionIs, and } from "@jsonforms/core";
 export const tester = {
   rank: 2,
   controlType: and(isOneOfControl, optionIs("toggle", true))

@@ -58,8 +58,8 @@
 
 <script lang="ts" setup>
 // --- external
+import { isBooleanControl, and, optionIs } from "@jsonforms/core";
 import { useJsonFormsControl } from "@jsonforms/vue";
-
 // -- components
 import { Toggle } from "../../../toggle";
 import FormControl from "../../FormControl.vue";
@@ -79,10 +79,7 @@ const { control, formFieldProps, onInput } = useUpmindUIRenderer(
   useJsonFormsControl(props),
   value => !!value // Ensure bool value is set to the opposite value rather than null
 );
-</script>
 
-<script lang="ts">
-import { isBooleanControl, and, optionIs } from "@jsonforms/core";
 export const tester = {
   rank: 2,
   controlType: and(isBooleanControl, optionIs("format", "toggle"))

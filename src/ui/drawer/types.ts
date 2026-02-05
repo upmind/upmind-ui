@@ -10,10 +10,10 @@ import type { DrawerDirection, DrawerPortalProps } from "vaul-vue";
 // --- internal
 import type { HTMLAttributes } from "vue";
 
-type DrawerOverlayVariantProps = VariantProps<typeof overlayVariant>;
+type _DrawerOverlayVariantProps = VariantProps<typeof overlayVariant>;
 type DrawerContainerVariantProps = VariantProps<typeof containerVariant>;
 type DrawerInnerVariantProps = VariantProps<typeof innerVariant>;
-type DrawerHeightVariantProps = VariantProps<typeof innerVariant>["height"];
+type _DrawerHeightVariantProps = VariantProps<typeof innerVariant>["height"];
 
 export interface DrawerProps extends DrawerPortalProps {
   // --- root props

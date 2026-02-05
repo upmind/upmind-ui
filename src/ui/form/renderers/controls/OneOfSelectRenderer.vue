@@ -11,6 +11,7 @@
 
 <script lang="ts" setup>
 // --- external
+import { isOneOfControl } from "@jsonforms/core";
 import { useJsonFormsOneOfEnumControl } from "@jsonforms/vue";
 // --- components
 import { Select } from "../../../select";
@@ -25,9 +26,6 @@ const props = defineProps<RendererProps<ControlElement>>();
 
 const { control, formFieldProps, onInput, appliedOptions } =
   useUpmindUIRenderer(useJsonFormsOneOfEnumControl(props));
-</script>
 
-<script lang="ts">
-import { isOneOfControl } from "@jsonforms/core";
 export const tester = { rank: 2, controlType: isOneOfControl };
 </script>

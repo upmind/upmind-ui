@@ -11,6 +11,7 @@
 
 <script lang="ts" setup>
 // --- external
+import { isStringControl, isMultiLineControl, and } from "@jsonforms/core";
 import { useJsonFormsControl } from "@jsonforms/vue";
 import { computed } from "vue";
 // --- components
@@ -48,10 +49,7 @@ const safeMax: ComputedRef<number | undefined> = computed(() => {
 
   return undefined;
 });
-</script>
 
-<script lang="ts">
-import { isStringControl, isMultiLineControl, and } from "@jsonforms/core";
 export const tester = {
   rank: 2,
   controlType: and(isStringControl, isMultiLineControl)

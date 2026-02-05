@@ -62,8 +62,8 @@
 
 <script lang="ts" setup>
 // --- external
+import { isBooleanControl } from "@jsonforms/core";
 import { useJsonFormsControl } from "@jsonforms/vue";
-
 // -- components
 import { Checkbox } from "../../../checkbox";
 import FormControl from "../../FormControl.vue";
@@ -84,9 +84,6 @@ const { control, formFieldProps, onInput } = useUpmindUIRenderer(
   useJsonFormsControl(props),
   value => !!value // Ensure bool value is set to the opposite value rather than null
 );
-</script>
 
-<script lang="ts">
-import { isBooleanControl } from "@jsonforms/core";
 export const tester = { rank: 1, controlType: isBooleanControl };
 </script>

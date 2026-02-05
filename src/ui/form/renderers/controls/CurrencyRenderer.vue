@@ -25,6 +25,14 @@
 
 <script lang="ts" setup>
 // --- external
+import {
+  isNumberControl,
+  isIntegerControl,
+  and,
+  or,
+  optionIs,
+  formatIs
+} from "@jsonforms/core";
 import { useJsonFormsControl } from "@jsonforms/vue";
 import { computed } from "vue";
 // --- internal
@@ -35,9 +43,8 @@ import NumberFieldDecrement from "../../../number-field/NumberFieldDecrement.vue
 import NumberFieldIncrement from "../../../number-field/NumberFieldIncrement.vue";
 import NumberFieldInput from "../../../number-field/NumberFieldInput.vue";
 import FormField from "../../FormField.vue";
-import { useStyles } from "../../../../utils";
-// --- components
 // --- utils
+import { useStyles } from "../../../../utils";
 import { useUpmindUIRenderer } from "../utils";
 import { isNumber, get, isArray, includes } from "lodash-es";
 // --- types
@@ -103,17 +110,6 @@ const min: ComputedRef<number | undefined> = computed(() => {
 
   return undefined;
 });
-</script>
-
-<script lang="ts">
-import {
-  isNumberControl,
-  isIntegerControl,
-  and,
-  or,
-  optionIs,
-  formatIs
-} from "@jsonforms/core";
 
 export const tester = {
   rank: 2,

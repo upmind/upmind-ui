@@ -104,10 +104,8 @@ import {
   FormDescription,
   FormMessage
 } from ".";
-import { cn, useStyles } from "../../utils";
-
-// -- components
 // --- utils
+import { cn, useStyles } from "../../utils";
 import { isEmpty, isNil, some, kebabCase } from "lodash-es";
 // --- types
 import type { FormControlProps } from "./types";
@@ -181,7 +179,7 @@ const meta = computed(
   })
 );
 
-const styles = useStyles(
+const _styles = useStyles(
   ["input", "input.feedback", "input.description"],
   meta,
   config,

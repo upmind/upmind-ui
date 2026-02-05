@@ -1,17 +1,15 @@
 // --- external
+import type { AvatarProps } from "../avatar";
+import type { triggerVariants } from "./selectCards.config";
 import type { BadgeProps } from "../badge/types";
 import type { ButtonProps } from "../button";
-import type { triggerVariants } from "./selectCards.config";
 import type { Icon } from "../icon/types";
 import type { CxOptions, VariantProps } from "class-variance-authority";
 import type { PopoverContentProps } from "radix-vue";
 import type { HTMLAttributes, Component } from "vue";
-// --- types
 // --- internal
 
 type TriggerVariantProps = VariantProps<typeof triggerVariants>;
-// --- types
-import type { AvatarProps } from "../avatar";
 
 /**
  * Base props from radix-vue primitives, inlined to avoid type portability issues

@@ -1,16 +1,15 @@
 // --- external
 import { defineCustomElement } from "vue";
 // --- internal
+import Tabs from "./Tabs.ce.vue";
+import { variants } from "./tabs.config";
+// --- utils
 import { parseVariants, type VariantValues } from "../../utils";
-// --- vue elements
+
 export { default as Tabs } from "./Tabs.ce.vue";
 export type { TabsProps, TabItem } from "./types";
-// --- custom elements
-import Tabs from "./Tabs.ce.vue";
 
 export const UpmTabs = defineCustomElement(Tabs);
-// --- types
-import { variants } from "./tabs.config";
 
 export const TABS_OVERFLOW = parseVariants(variants.overflow);
 

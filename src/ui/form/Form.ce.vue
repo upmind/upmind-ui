@@ -52,7 +52,6 @@ import config from "./form.config";
 import { upmindUIRenderers } from "./renderers";
 import { iterateSchema } from "./renderers/utils";
 // --- utils
-
 import { useStyles, isDeepEmpty, useValidation } from "../../utils";
 import { cn } from "../../utils";
 import {
@@ -103,7 +102,7 @@ const emits = defineEmits<{
   ];
 }>();
 
-const slots = defineSlots<{
+const _slots = defineSlots<{
   footer: FormFooterProps;
   actions: FormActionsProps;
 }>();
@@ -319,7 +318,7 @@ onMounted(() => {
 // --- effects
 watch(
   () => props,
-  ({ uischema, additionalErrors, touched }) => {
+  ({ uischema, additionalErrors: _additionalErrors, touched: _touched }) => {
     syncUischema();
     updateUischema(uischema);
   },

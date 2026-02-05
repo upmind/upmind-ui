@@ -43,6 +43,14 @@
 
 <script lang="ts" setup>
 // --- external
+import {
+  and,
+  isStringControl,
+  isObjectControl,
+  schemaMatches,
+  or,
+  formatIs
+} from "@jsonforms/core";
 import { useJsonFormsControl } from "@jsonforms/vue";
 import { countries, getCountryCode } from "countries-list";
 import {
@@ -52,7 +60,6 @@ import {
 } from "libphonenumber-js";
 import examples from "libphonenumber-js/mobile/examples";
 import { computed, ref } from "vue";
-// --- internal
 // --- components
 import { Combobox } from "../../../combobox";
 import InputGroup from "../../../groups/InputGroup.vue";
@@ -177,7 +184,7 @@ function parsePhone(
   let parsed;
   try {
     parsed = parsePhoneNumberWithError(phonenumber, code);
-  } catch (error) {
+  } catch (_error) {
     // do nothing, we will return the original value
   }
 
@@ -208,7 +215,7 @@ function onPhoneInput(value: string | number) {
       requiresString ? phone.value.number : phone.value,
       !isEmpty(phone.value) // NB only set touched IF we also have a phone number
     );
-  } catch (error) {
+  } catch (_error) {
     // We don't want to spam the console with errors
   }
 }
@@ -224,17 +231,6 @@ function onSearch(value: string): ComboboxItemProps[] {
       )
   );
 }
-</script>
-
-<script lang="ts">
-import {
-  and,
-  isStringControl,
-  isObjectControl,
-  schemaMatches,
-  or,
-  formatIs
-} from "@jsonforms/core";
 
 export const tester = {
   rank: 10,

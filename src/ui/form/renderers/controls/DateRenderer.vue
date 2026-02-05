@@ -11,6 +11,7 @@
 
 <script lang="ts" setup>
 // --- external
+import { and, isStringControl, or, formatIs } from "@jsonforms/core";
 import { useJsonFormsControl } from "@jsonforms/vue";
 // --- components
 import { Input } from "../../../input";
@@ -25,10 +26,7 @@ const props = defineProps<RendererProps<ControlElement>>();
 
 const { control, appliedOptions, formFieldProps, onInput } =
   useUpmindUIRenderer(useJsonFormsControl(props));
-</script>
 
-<script lang="ts">
-import { and, isStringControl, or, formatIs } from "@jsonforms/core";
 export const tester = {
   rank: 2,
   controlType: and(isStringControl, or(formatIs("date"), formatIs("date-time")))

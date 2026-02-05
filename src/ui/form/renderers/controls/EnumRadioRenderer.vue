@@ -13,6 +13,7 @@
 
 <script lang="ts" setup>
 // --- external
+import { isEnumControl, and, optionIs } from "@jsonforms/core";
 import { useJsonFormsEnumControl } from "@jsonforms/vue";
 import { computed } from "vue";
 // --- components
@@ -52,10 +53,7 @@ const items = computed(() => {
     }
   );
 });
-</script>
 
-<script lang="ts">
-import { isEnumControl, and, optionIs } from "@jsonforms/core";
 export const tester = {
   rank: 3,
   controlType: and(isEnumControl, optionIs("format", "radio"))

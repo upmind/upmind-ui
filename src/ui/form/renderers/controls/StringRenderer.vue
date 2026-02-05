@@ -18,6 +18,7 @@
 
 <script lang="ts" setup>
 // --- external
+import { isStringControl } from "@jsonforms/core";
 import { useJsonFormsControl } from "@jsonforms/vue";
 import { computed } from "vue";
 // --- components
@@ -68,9 +69,6 @@ const safeMax: ComputedRef<number | undefined> = computed(() => {
 
   return undefined;
 });
-</script>
 
-<script lang="ts">
-import { isStringControl } from "@jsonforms/core";
 export const tester = { rank: 1, controlType: isStringControl };
 </script>

@@ -18,6 +18,7 @@
 
 <script lang="ts" setup>
 // --- external
+import { schemaMatches, uiTypeIs, and } from "@jsonforms/core";
 import { useJsonFormsOneOfEnumControl } from "@jsonforms/vue";
 // --- components
 import { Autocomplete } from "../../../autocomplete";
@@ -39,10 +40,7 @@ const doSearch: AutocompleteSearchFunction | undefined = get(
   control.value,
   "schema.lookup"
 );
-</script>
 
-<script lang="ts">
-import { schemaMatches, uiTypeIs, and } from "@jsonforms/core";
 export const tester = {
   rank: 3,
   controlType: and(

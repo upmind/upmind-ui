@@ -10,7 +10,7 @@ import type { HTMLAttributes } from "vue";
 
 type CheckboxLabelVariantProps = VariantProps<typeof checkboxLabelVariants>;
 
-type CheckboxCardsItemVariants = typeof variants;
+type _CheckboxCardsItemVariants = typeof variants;
 
 export type CheckboxCardsItemActionProps = LinkProps & {
   handler?: Function | string;

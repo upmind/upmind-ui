@@ -27,6 +27,7 @@
 
 <script lang="ts" setup>
 // --- external
+import { isLayout, uiTypeIs, and } from "@jsonforms/core";
 import { useJsonFormsLayout, DispatchRenderer } from "@jsonforms/vue";
 import { computed, ref } from "vue";
 // --- components
@@ -69,10 +70,6 @@ const tabItems = computed((): TabItem[] => {
 const switchTab = (value: string | number) => {
   activeTabIndex.value = Number(value);
 };
-</script>
-
-<script lang="ts">
-import { isLayout, uiTypeIs, and } from "@jsonforms/core";
 
 export const tester = {
   rank: 2,

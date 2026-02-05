@@ -11,6 +11,7 @@
 
 <script lang="ts" setup>
 // --- external
+import { isEnumControl } from "@jsonforms/core";
 import { useJsonFormsEnumControl } from "@jsonforms/vue";
 import { computed } from "vue";
 // --- components
@@ -47,9 +48,6 @@ const items = computed(() => {
   };
   return schema.options || options || [];
 });
-</script>
 
-<script lang="ts">
-import { isEnumControl } from "@jsonforms/core";
 export const tester = { rank: 2, controlType: isEnumControl };
 </script>

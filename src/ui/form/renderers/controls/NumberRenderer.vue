@@ -13,6 +13,7 @@
 
 <script lang="ts" setup>
 // --- external
+import { isNumberControl, isIntegerControl, or } from "@jsonforms/core";
 import { useJsonFormsControl } from "@jsonforms/vue";
 import { computed } from "vue";
 // --- components
@@ -75,10 +76,7 @@ const min: ComputedRef<number | undefined> = computed(() => {
 
   return undefined;
 });
-</script>
 
-<script lang="ts">
-import { isNumberControl, isIntegerControl, or } from "@jsonforms/core";
 export const tester = {
   rank: 1,
   controlType: or(isNumberControl, isIntegerControl)

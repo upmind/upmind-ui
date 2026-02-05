@@ -42,7 +42,7 @@ const props = withDefaults(defineProps<InputProps>(), {
   class: ""
 });
 
-const emits = defineEmits<{
+const _emits = defineEmits<{
   (e: "update:modelValue", payload: string | number): void;
 }>();
 
