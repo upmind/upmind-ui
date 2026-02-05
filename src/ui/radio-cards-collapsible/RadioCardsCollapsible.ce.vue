@@ -22,7 +22,7 @@
           :columns="props.columns"
           :value="selectedItem.value"
           :minimal="props.minimal"
-          :data-testid="`radio-card-${props.label}`"
+          :data-testid="`radio-card-${kebabCase(props.label)}`"
           :uiConfig="selectedItemUiConfig"
         >
           <template #item="slotProps">
@@ -98,6 +98,7 @@
 <script setup lang="ts">
 // --- external
 import { computed } from "vue";
+import { kebabCase } from "lodash-es";
 // --- internal
 // --- components
 import { Button } from "../button";
