@@ -18,7 +18,7 @@ export const variants = {
 };
 
 export const checkboxLabelVariants = cva(
-  "text-md m-0 flex h-full w-full flex-col gap-1 rounded leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
+  "text-md m-0 flex h-full w-full flex-col gap-1 leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
   {
     variants: {
       cursor: {
