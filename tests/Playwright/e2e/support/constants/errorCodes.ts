@@ -2,7 +2,7 @@ import { URLs } from "./urls";
 
 export const ErrorCodes = {
   plannedMaintenance: {
-    route: "**/api/*",
+    route: "**/api/**",
     url: `${URLs.starterHosting}`,
     errorCode: 503,
     status: "error",
@@ -32,7 +32,7 @@ export const ErrorCodes = {
   },
 
   unauthorizedAccess: {
-    route: "**/api/**",
+    route: "**/api/basket/products/**",
     url: `${URLs.starterHosting}`,
     errorCode: 403,
     status: "error",
@@ -47,7 +47,7 @@ export const ErrorCodes = {
   },
 
   productNotFound: {
-    route: "**/api/**",
+    route: "**/api/basket/products/**",
     url: `${URLs.starterHosting}`,
     errorCode: 404,
     status: "error",
@@ -61,7 +61,7 @@ export const ErrorCodes = {
     errorType: "redirect"
   },
   generic500: {
-    route: "**/api/*",
+    route: "**/api/orders/current**",
     url: `${URLs.starterHosting}`,
     errorCode: 500,
     status: "error",
@@ -75,7 +75,7 @@ export const ErrorCodes = {
     errorType: "toast"
   },
   timeout504: {
-    route: "**/api/*",
+    route: "**/api/orders/current**",
     url: `${URLs.starterHosting}`,
     errorCode: 504,
     status: "error",

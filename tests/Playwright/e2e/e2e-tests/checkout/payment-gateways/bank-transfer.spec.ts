@@ -1,15 +1,7 @@
 import { expect } from "@playwright/test";
 import { test } from "../../../support/fixtures/test";
-import { fakerEN_GB } from "@faker-js/faker";
 import { URLs } from "../../../support/constants/urls";
-import {
-  createOrder,
-  addProductToOrder
-} from "../../../support/utils/functions/basket";
-import {
-  getSessionToken,
-  getClientToken
-} from "../../../support/utils/functions/tokens";
+import { getClientToken } from "../../../support/utils/functions/tokens";
 import { Checkout } from "../../../support/page-objects/templates/Checkout";
 import { Logins } from "../../../support/constants/logins";
 import { goToCheckout } from "../../../support/utils/apiHelper";
@@ -17,8 +9,6 @@ import { goToCheckout } from "../../../support/utils/apiHelper";
 let checkout: Checkout;
 
 test.describe("Checkout with Bank Transfer", () => {
-  let token: string;
-  let orderId: string | null;
   test.beforeEach(async ({ page }) => {
     checkout = new Checkout(page);
     await page.goto(URLs.login);

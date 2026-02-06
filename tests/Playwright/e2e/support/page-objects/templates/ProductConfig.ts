@@ -13,6 +13,7 @@ import { kebabCase } from "../../utils/functions/helpers";
 export class ProductConfig {
   readonly page: Page;
   readonly textInput: TextInput;
+  readonly productConfigSection: Locator;
   readonly checkboxes: Checkboxes;
   readonly radioButtons: RadioButtons;
   readonly button: Button;
@@ -105,6 +106,9 @@ export class ProductConfig {
 
     /* Product Options */
     this.textInput = new TextInput(page);
+    this.productConfigSection = page.getByTestId(
+      "section-product-configuration"
+    );
     this.billingTerms = page.getByTestId("form-item-terms");
     this.options = page.getByTestId("options-container-options");
     this.domainRegister = page.getByTestId("accordion-item-register");
@@ -239,7 +243,7 @@ export class ProductConfig {
     await radioOption.click();
     await radioOption
       .getByTestId("accordion-content")
-      .getByTestId(`input-dac-${kebabCase(option)}`)
+      .locator("input")
       .fill(domainName);
   }
 
@@ -250,11 +254,34 @@ export class ProductConfig {
     await sldFormField.fill(sld);
   }
 
-  async addDomain() {
-    const drawer = this.drawer.domainResults;
-    const card = drawer.getByTestId("dac-card").first().locator("footer");
-    const button = card.getByTestId("button-register");
-    await button.click();
+  async addDomain(option: string) {
+    // Wait for the domain check to complete
+    try {
+      await this.page.waitForResponse(
+        response =>
+          response.url().includes("modules/web_hosting/domains/search") &&
+          response.status() === 200,
+        { timeout: 30000 }
+      );
+    } catch (e) {
+      console.log("Domain check response not detected or timed out");
+    }
+
+    if (option === "transfer") {
+      await this.page
+        .getByTestId("drawer-content")
+        .getByTestId("button-transfer-domain")
+        .first()
+        .dispatchEvent("click");
+    }
+    if (option === "new") {
+      await this.page
+        .getByTestId("drawer-content")
+        .getByTestId("button-add-to-basket")
+        .first()
+        .dispatchEvent("click");
+    }
+    await this.page.getByTestId("button-continue").click();
   }
 
   getFormField(container: Locator) {

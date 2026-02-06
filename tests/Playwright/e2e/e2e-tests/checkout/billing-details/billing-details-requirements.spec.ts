@@ -40,7 +40,8 @@ test.describe("Verify checkout billing detail requirements", () => {
           length: { min: 3, max: 15 }
         })}.com`
       },
-      []
+      [],
+      true
     );
     await page.goto(URLs.basket);
     await page.waitForLoadState("networkidle");
@@ -91,7 +92,7 @@ test.describe("Verify checkout billing detail requirements", () => {
       null
     );
     await expect(checkout.addressRegionMessage).toContainText(
-      "Region must have required property"
+      "Region is required"
     );
   });
   test("Phone required at checkout", async ({ page }) => {

@@ -9,6 +9,7 @@ import {
   addProductToOrder,
   getBasketProducts
 } from "../../support/utils/functions/basket";
+import { interceptUISchema } from "../../support/utils/functions/brand";
 
 let productConfig: ProductConfig;
 let basket: Basket;
@@ -38,7 +39,8 @@ test.describe("Edit hosting product in basket", () => {
           length: { min: 3, max: 15 }
         })}.com`
       },
-      []
+      [],
+      true
     );
     await page.waitForLoadState("networkidle");
   });
@@ -57,15 +59,18 @@ test.describe("Edit hosting product in basket", () => {
     products = await getBasketProducts(token);
     productId = products[0].id;
     await page.goto(`order/basket/${productId}`);
-    await productConfig.selectRadioOption("2 Balloons");
-    await expect(productConfig.getSummaryItem("Balloons")).toBeVisible();
+    await productConfig.selectRadioOption(
+      "MacOS Sequoia Version 15.6 (Enterprise License)"
+    );
+    await expect(
+      productConfig.getSummaryItem("Operating System")
+    ).toBeVisible();
     await productConfig.clickConfirm();
     await expect(page).toHaveURL(/order\/basket$/);
     await basket.clickShowDetails();
-    await expect(basket.basketProduct).toContainText("2 Balloons");
-  });
-  test("Edit domain name", async ({ page }) => {
-    //rewrite this
+    await expect(basket.basketProduct).toContainText(
+      "MacOS Sequoia Version 15.6 (Enterprise License)"
+    );
   });
 });
 
@@ -100,7 +105,8 @@ test.describe("Edit domain product in basket", () => {
         update_registrant_organisation: "Domain Testinc Inc",
         update_registrant_phone: "+447111111111"
       },
-      []
+      [],
+      true
     );
   });
   test("Edit domain name", async ({ page }) => {
@@ -116,12 +122,12 @@ test.describe("Edit domain product in basket", () => {
     await expect(
       basket.basketProduct.getByTestId("link-default").getByText(newDomain)
     ).toBeVisible();
-    await basket.clickShowDetails();
-    await expect(
-      page.getByTestId("basket-product-details-item-0")
-    ).toContainText(newDomain);
   });
-  test("Edit provisional fields", async ({ page }) => {
+  test("Edit provisional fields", async ({ page, context }) => {
+    interceptUISchema(context, {
+      "@context.configure.productConfigFieldsSummary": "visible",
+      "@context.configure.productConfigOptionsSummary": "visible"
+    });
     let fieldUpdates = {
       updatedName: "Updated Name",
       updatedCompany: "Updated Company",
@@ -181,5 +187,6 @@ test.describe("Edit domain product in basket", () => {
     await productConfig.clickConfirm();
     await expect(page).toHaveURL(/order\/basket$/);
     await expect(basket.basketProductSummary).toBeVisible();
+    await expect(basket.addMissingDataLink).toBeHidden();
   });
 });

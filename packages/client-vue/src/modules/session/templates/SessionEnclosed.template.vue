@@ -12,7 +12,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { onMounted } from "vue";
+import { onBeforeMount, onUnmounted } from "vue";
 
 // --- internal
 import { useFooter } from "../../../components/footer/useFooter";
@@ -41,7 +41,7 @@ useLayout({
   variant: LAYOUT_VARIANTS.SPLIT_VERTICAL
 });
 
-onMounted(() => {
+onBeforeMount(() => {
   useHeader({
     background: HEADER_BACKGROUND.SURFACE,
     border: "none",
@@ -63,5 +63,11 @@ onMounted(() => {
     noCurrency: true,
     noCopyright: true
   });
+});
+
+onUnmounted(() => {
+  useHeader({});
+  useLayout({});
+  useFooter({});
 });
 </script>

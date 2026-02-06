@@ -25,7 +25,8 @@ test.describe("Basket - Displaying Warning Notes", () => {
       [],
       [],
       {},
-      []
+      [],
+      true
     );
   });
   test("Warning Notes Displayed", async ({ page }) => {

@@ -43,7 +43,7 @@ export class Checkout {
 
     this.checkoutContent = page.getByTestId("checkout-content");
     this.billingDetails = page.getByTestId("billing");
-    this.addressCard = page.getByTestId("radio-card-change");
+    this.addressCard = this.billingDetails.getByTestId("radio-card-group");
     this.addressSearch = this.billingDetails.getByTestId(
       "input-address-search-search"
     );
@@ -152,7 +152,14 @@ export class Checkout {
     await stripeFrame.getByPlaceholder("WS11 1DB").fill("SW1A 2AB");
   }
 
-  async inputSepaDetails(iban: string, email: string, fullName: string) {
+  async inputSepaDetails(
+    iban: string,
+    email: string,
+    fullName: string,
+    address: string,
+    city: string,
+    postCode: string
+  ) {
     const stripeFrame = this.page.frameLocator(
       'iframe[title="Secure payment input frame"]'
     );
@@ -162,6 +169,9 @@ export class Checkout {
     await stripeFrame
       .getByRole("textbox", { name: "full name" })
       .fill(fullName);
+    await stripeFrame.locator("[id='payment-addressLine1Input']").fill(address);
+    await stripeFrame.locator("[id='payment-localityInput']").fill(city);
+    await stripeFrame.locator("[id='payment-postalCodeInput']").fill(postCode);
   }
 
   async inputIdealDetails(email: string, fullName: string) {

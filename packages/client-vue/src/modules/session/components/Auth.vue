@@ -7,6 +7,7 @@
         icon="alert-triangle"
         :title="alertTitle"
         :description="errors"
+        data-testid="auth-alert"
       />
 
       <Form
