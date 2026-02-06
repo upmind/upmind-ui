@@ -14,7 +14,6 @@ let checkout: Checkout;
 let registration: Registration;
 
 test.describe("3D Secure Authentication", async () => {
-  let orderId: string | null;
   test.beforeEach(async ({ page, context }) => {
     checkout = new Checkout(page);
     registration = new Registration(page, context);
@@ -39,7 +38,8 @@ test.describe("3D Secure Authentication", async () => {
             length: { min: 3, max: 15 }
           })}.com`
         },
-        []
+        [],
+        true
       );
       await page.goto(URLs.checkout);
       await registration.inputRegistration();

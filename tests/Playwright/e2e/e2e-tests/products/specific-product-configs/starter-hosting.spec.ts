@@ -32,6 +32,7 @@ test.describe("Product Config - Happy Paths - Starter Hosting", async () => {
           .getByTestId("accordion-content")
           .locator("input")
           .fill(domainName);
+        await productConfig.addDomain("new");
       }
       if (domainSelection.includes(1)) {
         await productConfig.domainTransfer.click();
@@ -39,6 +40,7 @@ test.describe("Product Config - Happy Paths - Starter Hosting", async () => {
           .getByTestId("accordion-content")
           .locator("input")
           .fill(domainName);
+        await productConfig.addDomain("transfer");
       }
       if (domainSelection.includes(2)) {
         await productConfig.domainExisting.click();
@@ -46,10 +48,6 @@ test.describe("Product Config - Happy Paths - Starter Hosting", async () => {
           .getByTestId("accordion-content")
           .locator("input")
           .fill(domainName);
-      }
-      if (!domainSelection.includes(2) && !domainSelection.includes(3)) {
-        await productConfig.addDomain();
-        await productConfig.domainAddToBasket.click();
       }
 
       /* SUMMARY FIELDS */

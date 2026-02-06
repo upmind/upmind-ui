@@ -1,11 +1,9 @@
-import { test, expect, BrowserContext, Browser } from "@playwright/test";
+import { test, expect, BrowserContext } from "@playwright/test";
 import { URLs } from "../support/constants/urls";
 import { ProductConfig } from "../support/page-objects/templates/ProductConfig";
 import { Basket } from "../support/page-objects/templates/Basket";
 import {
-  getCurrentOrderId,
   addProductToOrder,
-  setOrderCurrency,
   createOrder
 } from "../support/utils/functions/basket";
 import {
@@ -88,7 +86,7 @@ test.describe("Promotions", () => {
     });
   });
   test.describe("Availability & Eligibility Settings", () => {
-    test.describe.skip("Apply to multiple renewals", () => {
+    test.describe("Apply to multiple renewals", () => {
       test.skip("Promotion applied on recurring renewals - Multiple (1 renewal)", async () => {
         // TODO: Implement test
       });
@@ -149,7 +147,8 @@ test.describe("Promotions", () => {
           [],
           [],
           {},
-          []
+          [],
+          true
         );
       });
       test("Use with other promotions - Yes", async ({ page }) => {
@@ -198,7 +197,8 @@ test.describe("Promotions", () => {
         [],
         [],
         {},
-        []
+        [],
+        true
       );
     });
     test("Single use promotion - Yes", async ({ page, context }) => {

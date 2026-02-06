@@ -86,7 +86,8 @@ for (const { language, username, password } of localeLogins) {
         [],
         [],
         { domain: "uicheckout.com" },
-        []
+        [],
+        true
       );
       await page.reload();
       await page.waitForLoadState("networkidle");

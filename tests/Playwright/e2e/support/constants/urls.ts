@@ -63,11 +63,11 @@ export const ProductIds = {
   starterHosting: "3de78642-de53-9714-76df-21208469530d",
   sharedHostingCategory: "5d085e69-d562-3719-794c-218e940d4237",
   /* Subproduct IDs */
-  subproductLondon: "5952098d-3de4-0917-793c-31578626e347",
-  subproductMailbox: "78985742-6489-7012-820a-21e325d0ed36",
-  subproductBalloons: "4d036794-24d0-e710-42eb-3153698d582e"
+  subproductTokyo: "320e4357-95e7-8d18-077b-31643202d986",
+  subproductMailbox: "4d036794-24d0-e710-42eb-3153698d582e",
+  subproductOperatingSystem: "5952098d-3de4-0917-793c-31578626e347"
 };
 
 /* Helper to build product add URL */
 export const productAddUrl = (productId: string) =>
-  `${URLs.baseUrl}order/product/add/${productId}`;
+  `${URLs.baseUrl}order/product/${productId}`;
