@@ -53,3 +53,32 @@ export async function goToCheckout(
   await page.goto(URLs.basket);
   await page.getByTestId("button-proceed-to-checkout").click();
 }
+
+/**
+ * Mocks CORS preflight (OPTIONS) requests for the staging API.
+ * Only intercepts OPTIONS requests; all other methods pass through to the real API.
+ */
+export async function mockCorsPreflightRequests(page: Page) {
+  await page.route("**/api.staging.upmind.io/**", async route => {
+    const request = route.request();
+
+    // Only intercept OPTIONS requests
+    if (request.method() === "OPTIONS") {
+      await route.fulfill({
+        status: 204,
+        headers: {
+          "Access-Control-Allow-Origin": request.headers()["origin"] || "*",
+          "Access-Control-Allow-Methods":
+            "GET, POST, PUT, PATCH, DELETE, OPTIONS",
+          "Access-Control-Allow-Headers":
+            "authorization, content-type, accept, x-requested-with",
+          "Access-Control-Allow-Credentials": "true",
+          "Access-Control-Max-Age": "86400"
+        }
+      });
+    } else {
+      // Let all other requests (GET, POST, etc.) pass through to the real API
+      await route.continue();
+    }
+  });
+}

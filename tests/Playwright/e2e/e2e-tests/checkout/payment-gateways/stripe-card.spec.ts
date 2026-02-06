@@ -8,15 +8,6 @@ import { DeclinedCards } from "../../../support/constants/checkout/payment-cards
 import { FraudCheckCards } from "../../../support/constants/checkout/payment-cards/FraudChecks";
 import { ErrorCards } from "../../../support/constants/checkout/payment-cards/InvalidData";
 
-import { URLs } from "../../../support/constants/urls";
-import { getSessionToken } from "../../../support/utils/functions/tokens";
-import {
-  createOrder,
-  addProductToOrder
-} from "../../../support/utils/functions/basket";
-import { products } from "../../../support/constants/products";
-import { fakerEN_GB } from "@faker-js/faker";
-
 let checkout: Checkout;
 let registration: Registration;
 
@@ -121,9 +112,12 @@ test.describe("Checkout with Stripe", () => {
       await registration.inputRegistration();
       await checkout.selectPaymentMethod("Stripe");
       await checkout.inputSepaDetails(
-        "AT611904300234573201",
+        "GB82WEST12345698765432",
         "nathan.robinson+sepa@upmind.com",
-        "Test User"
+        "Test User",
+        "10 Downing Street",
+        "London",
+        "SW1A 2AA"
       );
       await checkout.clickPlaceOrderAndPay();
       await expect(checkout.dialogWindow).toBeVisible();
@@ -134,7 +128,7 @@ test.describe("Checkout with Stripe", () => {
     });
   });
   test.describe("iDEAL", async () => {
-    test("Valid iDEAL", async ({ page, context }) => {
+    test("Successful iDEAL payment", async ({ page, context }) => {
       await goToCheckout(page, context, null, "EUR");
       await registration.inputRegistration();
       await checkout.selectPaymentMethod("Stripe");
@@ -143,11 +137,22 @@ test.describe("Checkout with Stripe", () => {
         "Test User"
       );
       await checkout.clickPlaceOrderAndPay();
-      await expect(checkout.dialogWindow).toBeVisible();
-      await expect(
-        checkout.dialogWindow.locator(page.getByText("Converting your order"))
-      ).toBeVisible();
+      await page.getByTestId("authorize-test-payment-button").click();
       await expect(checkout.dialogWindow).toContainText("Order complete!");
+    });
+    test("Failed iDEAL payment", async ({ page, context }) => {
+      await goToCheckout(page, context, null, "EUR");
+      await registration.inputRegistration();
+      await checkout.selectPaymentMethod("Stripe");
+      await checkout.inputIdealDetails(
+        "nathan.robinson+ideal@upmind.com",
+        "Test User"
+      );
+      await checkout.clickPlaceOrderAndPay();
+      await page.getByTestId("fail-test-payment-button").click();
+      await expect(checkout.dialogWindow).toContainText(
+        "Unable to process payment"
+      );
     });
   });
   test.describe("Stripe Errors", async () => {

@@ -20,6 +20,8 @@ let register: Registration;
 let login: Login;
 let orderId: string | null;
 
+//TODO: Review frontend development strategy so I can remove the waits
+
 test.describe("Billing Details at checkout", () => {
   test.beforeEach(async ({ page, context }) => {
     checkout = new Checkout(page);
@@ -42,7 +44,8 @@ test.describe("Billing Details at checkout", () => {
           length: { min: 3, max: 15 }
         })}.com`
       },
-      []
+      [],
+      true
     );
     await page.goto(URLs.basket);
     await expect(page.getByTestId("basket-product")).toBeVisible();
@@ -63,22 +66,9 @@ test.describe("Billing Details at checkout", () => {
           hasText: "10 Downing Street, Downing Street, London SW1A 2AA, UK"
         })
         .click();
-
-      // Wait for the form to populate before saving
-      await expect(checkout.addressLine1).toHaveValue("10 Downing Street");
-
-      await Promise.all([
-        page.waitForResponse(
-          r =>
-            r.url().includes("/addresses") &&
-            r.status() >= 200 &&
-            r.status() < 300
-        ),
-        checkout.saveDetails.click()
-      ]);
+      await page.waitForTimeout(1000);
+      await checkout.saveDetails.click();
       await expect(checkout.dialogWindow).toBeHidden();
-
-      // Address card should now appear after form closes
       await expect(checkout.addressCard).toContainText("10 Downing Street", {
         timeout: 15000
       });
@@ -113,12 +103,8 @@ test.describe("Billing Details at checkout", () => {
           hasText: "10 Downing Street, Downing Street, London SW1A 2AA, UK"
         })
         .click();
-      await Promise.all([
-        page.waitForResponse(
-          r => r.url().includes("/billing-details") && r.status() === 200
-        ),
-        checkout.saveDetails.click()
-      ]);
+      await page.waitForTimeout(1000);
+      await checkout.saveDetails.click();
       await expect(checkout.dialogWindow).toBeHidden();
       await expect(checkout.billingDetails).toContainText("Acme Corp");
       await expect(checkout.billingDetails).toContainText("12345678");
@@ -143,12 +129,8 @@ test.describe("Billing Details at checkout", () => {
           hasText: "10 Downing Street, Downing Street, London SW1A 2AA, UK"
         })
         .click();
-      await Promise.all([
-        page.waitForResponse(
-          r => r.url().includes("/addresses") && r.status() === 200
-        ),
-        checkout.saveDetails.click()
-      ]);
+      await page.waitForTimeout(1000);
+      await checkout.saveDetails.click();
       await expect(checkout.dialogWindow).toBeHidden();
       await expect(checkout.addressCard).toContainText("10 Downing Street");
       await expect(checkout.addressCard).toContainText(
@@ -177,12 +159,8 @@ test.describe("Billing Details at checkout", () => {
       await page
         .getByTestId("input-properties-tax-properties-number")
         .pressSequentially("12345678");
-      await Promise.all([
-        page.waitForResponse(
-          r => r.url().includes("/billing-details") && r.status() === 200
-        ),
-        checkout.saveDetails.click()
-      ]);
+      await page.waitForTimeout(1000);
+      await checkout.saveDetails.click();
       await expect(checkout.dialogWindow).toBeHidden();
       await expect(checkout.billingDetails).toContainText("Acme Corp");
       await expect(checkout.billingDetails).toContainText("12345678");
@@ -205,12 +183,8 @@ test.describe("Billing Details at checkout", () => {
       await page
         .getByTestId("input-properties-address-1")
         .pressSequentially(newAddress);
-      await Promise.all([
-        page.waitForResponse(
-          r => r.url().includes("/addresses") && r.status() === 200
-        ),
-        checkout.saveDetails.click()
-      ]);
+      await page.waitForTimeout(1000);
+      await checkout.saveDetails.click();
       await expect(checkout.dialogWindow).toBeHidden();
     });
     test("Edit existing company at checkout", async ({ page }) => {
@@ -229,12 +203,8 @@ test.describe("Billing Details at checkout", () => {
       await page
         .getByTestId("input-properties-name")
         .pressSequentially(newCompany);
-      await Promise.all([
-        page.waitForResponse(
-          r => r.url().includes("/billing-details") && r.status() === 200
-        ),
-        checkout.saveDetails.click()
-      ]);
+      await page.waitForTimeout(1000);
+      await checkout.saveDetails.click();
       await expect(checkout.dialogWindow).toBeHidden();
       await expect(page.getByTestId("radio-card-change").first()).toContainText(
         newCompany

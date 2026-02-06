@@ -57,7 +57,8 @@ for (const { language, locale } of languages) {
         [],
         [],
         { domain: "uitesting.com" },
-        []
+        [],
+        true
       );
       await page.goto(URLs.basket);
       await page.waitForLoadState("load");
@@ -80,7 +81,8 @@ for (const { language, locale } of languages) {
         [],
         [],
         { domain: "uitesting1.com" },
-        []
+        [],
+        true
       );
       await addProductToOrder(
         token,
@@ -91,7 +93,8 @@ for (const { language, locale } of languages) {
         [],
         [],
         { domain: "uitesting2.com" },
-        []
+        [],
+        true
       );
       await page.goto(URLs.basket);
       await page.waitForLoadState("load");
@@ -113,7 +116,8 @@ for (const { language, locale } of languages) {
         [],
         [],
         { domain: "uitesting1.com" },
-        []
+        [],
+        true
       );
       await addPromotionToOrder(orderId, "genericpromo", token);
       await page.reload();
