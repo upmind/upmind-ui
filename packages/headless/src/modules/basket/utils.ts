@@ -120,17 +120,21 @@ export const parseBasket = (
   };
 
   // Start with defaultsDeep for scalar properties
-  const merged = defaultsDeep({}, newBasket, basket);
+  // const merged = newBasket || [];
 
   // Override arrays with smart ID-based merge (not index-based)
   if (newBasket?.products !== undefined) {
-    merged.products = mergeArrayById(newBasket.products, basket.products);
+    newBasket.products = (mergeArrayById(newBasket.products, basket.products) ??
+      []) as IBasket["products"];
   }
   if (newBasket?.promotions !== undefined) {
-    merged.promotions = mergeArrayById(newBasket.promotions, basket.promotions);
+    newBasket.promotions = (mergeArrayById(
+      newBasket.promotions,
+      basket.promotions
+    ) ?? []) as IBasket["promotions"];
   }
 
-  return merged;
+  return newBasket;
 };
 
 // --- SUMMARY
