@@ -12,7 +12,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { onMounted } from "vue";
+import { onBeforeMount, onUnmounted } from "vue";
 
 // --- components
 import Layout from "../../../components/layout/Layout.vue";
@@ -22,8 +22,6 @@ import { useHeader } from "../../../components/header/useHeader";
 import { useFooter } from "../../../components/footer/useFooter";
 import { useLayout } from "../../../components/layout/useLayout";
 // --- types
-import { HEADER_BACKGROUND } from "../../../components/header/types";
-import { FOOTER_LAYOUT } from "../../../components/footer/types";
 import { LAYOUT_VARIANTS } from "../../../components/layout/types";
 import type { SessionRoutes } from "../types";
 
@@ -41,7 +39,7 @@ useLayout({
   variant: LAYOUT_VARIANTS.SPLIT_HORIZONTAL
 });
 
-onMounted(() => {
+onBeforeMount(() => {
   useHeader({
     visible: false
   });
@@ -49,5 +47,11 @@ onMounted(() => {
   useFooter({
     visible: false
   });
+});
+
+onUnmounted(() => {
+  useHeader({});
+  useLayout({});
+  useFooter({});
 });
 </script>
