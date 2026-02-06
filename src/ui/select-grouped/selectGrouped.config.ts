@@ -6,7 +6,7 @@ const focusRing = `${baseRing} [&:focus,&[data-focus=true]]:outline-[var(--color
 export const groupSizeVariants = cva("col-span-12");
 
 export const groupVariants = cva(
-  `bg-control-surface text-control-foreground group control-radius shadow-control-default hover:shadow-control-hover relative z-10 flex cursor-pointer list-none gap-2 rounded py-4 pr-4 pl-3 font-normal transition-all duration-200 ${focusRing}`,
+  `bg-control-surface text-control-foreground control-radius shadow-control-default hover:shadow-control-hover relative flex cursor-pointer list-none gap-2 rounded py-4 pr-4 pl-3 font-normal transition-shadow duration-200 ${focusRing}`,
   {
     variants: {
       isOpen: {
@@ -21,11 +21,11 @@ export const groupVariants = cva(
 );
 
 export const dropdownVariants = cva(
-  "bg-control-surface control-radius border-border w-full rounded-t-none border border-t-0"
+  "group/dropdown bg-control-surface control-radius border-border w-full rounded-t-none border border-t-0"
 );
 
 export const dropdownItemVariants = cva(
-  `border-border data-[focused=true]:bg-muted flex cursor-pointer items-center gap-3 border-t px-4 py-3 outline outline-2 -outline-offset-4 outline-transparent transition-colors first:border-t-0 data-[focused=true]:outline-[var(--color-control-ring)]`
+  `group/item border-border data-[focused=true]:bg-muted flex cursor-pointer items-start gap-3 border-t px-4 py-3 outline outline-2 -outline-offset-4 outline-transparent transition-colors first:border-t-0 data-[focused=true]:outline-[var(--color-control-ring)]`
 );
 
 export const rootVariants = cva("grid w-full grid-cols-12 gap-2");
@@ -38,7 +38,7 @@ export default {
       size: groupSizeVariants
     },
     header: {
-      root: cva("flex w-full items-center justify-between"),
+      root: cva("flex w-full items-start justify-between gap-2"),
       icon: cva("text-muted size-5 shrink-0"),
       chevron: cva(
         "text-muted ml-2 size-4 shrink-0 transition-transform duration-200"
@@ -48,7 +48,7 @@ export default {
       root: dropdownVariants,
       item: dropdownItemVariants
     },
-    radio: cva("flex shrink-0 items-center justify-center"),
+    radio: cva("size-lh flex shrink-0 items-center justify-center"),
     indicator: cva(
       "flex aspect-square h-4 w-4 shrink-0 cursor-pointer items-center justify-center rounded-full transition-none duration-0",
       {
@@ -65,8 +65,8 @@ export default {
     ),
     indicatorDot: cva("text-control-checked-contrast h-2 w-2 fill-current"),
     content: {
-      label: cva("text-md-tight text-display font-medium"),
-      secondaryLabel: cva("text-md-tight text-muted font-medium"),
+      label: cva("text-md-tight font-medium"),
+      secondaryLabel: cva("text-md-tight font-medium"),
       description: cva("text-sm-tight text-base font-normal"),
       secondaryDescription: cva("text-muted text-sm-tight font-normal")
     }

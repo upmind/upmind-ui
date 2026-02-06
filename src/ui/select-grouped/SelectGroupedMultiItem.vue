@@ -41,11 +41,17 @@
         >
           <div :class="styles.selectGrouped.header.root">
             <slot name="icon" v-bind="{ group: props.group }" />
-            <div class="flex flex-1 flex-col">
-              <div class="flex items-center gap-2">
+            <div class="flex flex-1 flex-col gap-1">
+              <div class="flex items-center gap-1">
                 <span :class="styles.selectGrouped.content.label">
                   {{ props.group.name }}
                 </span>
+                <Icon
+                  v-if="selectedItem?.label"
+                  icon="arrow-right"
+                  size="nano"
+                  class="text-control-foreground"
+                />
                 <span
                   v-if="selectedItem?.label"
                   :class="styles.selectGrouped.content.secondaryLabel"
@@ -54,22 +60,29 @@
                 </span>
               </div>
               <p
-                v-if="props.group.description"
+                v-if="selectedItem?.description"
                 :class="styles.selectGrouped.content.description"
+                class="text-sm-tight text-muted text-base"
               >
-                {{ props.group.description }}
+                {{ selectedItem.description }}
               </p>
             </div>
             <slot
               name="header-label"
               v-bind="{ group: props.group, selectedItem, expanded: isOpen }"
             />
-            <Icon
-              icon="chevron-down"
-              :class="
-                cn(styles.selectGrouped.header.chevron, isOpen && 'rotate-180')
-              "
-            />
+
+            <div class="h-lh">
+              <Icon
+                icon="chevron-down"
+                :class="
+                  cn(
+                    styles.selectGrouped.header.chevron,
+                    isOpen && 'rotate-180'
+                  )
+                "
+              />
+            </div>
           </div>
         </slot>
       </div>

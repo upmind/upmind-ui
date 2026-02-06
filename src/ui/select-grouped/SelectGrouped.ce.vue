@@ -23,9 +23,6 @@
       @focus-next-group="focusGroup(index + 1)"
       @focus-prev-group="focusGroup(index - 1)"
     >
-      <template #item="slotProps">
-        <slot name="item" v-bind="slotProps" />
-      </template>
       <template v-if="$slots.icon" #icon="slotProps">
         <slot name="icon" v-bind="slotProps" />
       </template>
