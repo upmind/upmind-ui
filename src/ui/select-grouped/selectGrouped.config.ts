@@ -35,11 +35,11 @@ export const groupVariants = cva(
 );
 
 export const dropdownVariants = cva(
-  "group/dropdown bg-control-surface control-radius border-border w-full rounded-t-none border border-t-0"
+  "group/dropdown bg-control-surface control-radius border-border divide-border flex w-full flex-col divide-y rounded-t-none border border-t-0 p-2"
 );
 
 export const dropdownItemVariants = cva(
-  `group/item border-border data-[focused=true]:bg-muted flex cursor-pointer items-start gap-3 border-t px-4 py-3 transition-colors first:border-t-0`
+  `group/item control-radius data-[state=checked]:bg-control-selected data-[focused=true]:bg-muted flex cursor-pointer items-start gap-3 px-4 py-3 transition-colors`
 );
 
 export const rootVariants = cva("grid w-full grid-cols-12 gap-2");

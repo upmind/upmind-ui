@@ -31,6 +31,8 @@
       <DropdownMenuContent
         :class="cn(styles.select.content, props.contentClass)"
         :align="props.align"
+        @keydown="isKeyboardNav = true"
+        @pointermove="isKeyboardNav = false"
       >
         <div :class="styles.select.items">
           <DropdownMenuItem
@@ -94,6 +96,7 @@ const props = withDefaults(defineProps<SelectCardsProps>(), {
 const emits = defineEmits(["update:modelValue"]);
 
 const open = ref(false);
+const isKeyboardNav = ref(false);
 const modelValue = useVModel(props, "modelValue", emits, {
   passive: true,
   defaultValue: props.defaultValue
@@ -118,7 +121,7 @@ function onChange(value: any) {
 }
 
 function onHighlight(value: any) {
-  if (value !== undefined) {
+  if (isKeyboardNav.value && value !== undefined) {
     modelValue.value = value;
   }
 }
