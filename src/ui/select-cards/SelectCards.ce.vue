@@ -37,6 +37,7 @@
             v-for="(item, index) in items"
             :key="item.id || index"
             @click="onChange(item.value)"
+            @focus="onHighlight(item.value)"
             :class="styles.select.item"
             v-intersection-observer="[maybeFocus, { threshold: 0.25 }]"
             :data-state="item.value === modelValue ? 'checked' : null"
@@ -114,6 +115,12 @@ function onChange(value: any) {
     modelValue.value = value;
   }
   open.value = false;
+}
+
+function onHighlight(value: any) {
+  if (value !== undefined) {
+    modelValue.value = value;
+  }
 }
 
 function maybeFocus([section]: IntersectionObserverEntry[]) {
