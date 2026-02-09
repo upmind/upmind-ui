@@ -54,18 +54,12 @@ export class Checkout {
     this.companyFormMessage = page.getByTestId(
       "form-item-message-company-name"
     );
-    this.phone = this.billingDetails.getByTestId("form-item-phone-phone");
+    this.phone = this.page.getByTestId("form-item-phone-phone");
     this.addressManualEntry = page.getByTestId("link-enter-address-manually");
-    this.addressLine1 = this.billingDetails.getByTestId(
-      "input-properties-address-1"
-    );
-    this.addressLine2 = this.billingDetails.getByTestId(
-      "input-properties-address-2"
-    );
-    this.city = this.billingDetails.getByTestId("input-properties-city");
-    this.postCode = this.billingDetails.getByTestId(
-      "input-properties-region-id"
-    );
+    this.addressLine1 = this.page.getByTestId("input-properties-address-1");
+    this.addressLine2 = this.page.getByTestId("input-properties-address-2");
+    this.city = this.page.getByTestId("input-properties-city");
+    this.postCode = this.page.getByTestId("input-properties-postcode");
     this.phoneRegion = this.phone.getByTestId("popover-trigger");
     this.phoneInput = this.textInputComponent.getTextInputField(this.phone);
     this.paymentDetails = page.getByTestId("payment-details");
@@ -97,19 +91,21 @@ export class Checkout {
 
   async manuallyInputAddress(
     addressLine1: string,
-    addressLine2: string,
     city: string,
     postCode: string,
     phoneInput: string | null
   ) {
     await this.addressManualEntry.click();
     await this.addressLine1.fill(addressLine1);
-    //await this.addressLine2.fill(addressLine2);
     await this.city.fill(city);
     await this.postCode.fill(postCode);
     if (phoneInput != null) {
       await this.phoneInput.fill(phoneInput);
     }
+    await this.saveDetails.click();
+    await expect(this.page.getByTestId("form-item-message-address")).toBeHidden(
+      { timeout: 5000 }
+    );
     await this.saveDetails.click();
   }
 
