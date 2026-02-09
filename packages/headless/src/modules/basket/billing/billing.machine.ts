@@ -84,6 +84,12 @@ export default createMachine(
           checking: {
             entry: ["clearError"],
             initial: "parsing",
+            on: {
+              SET: {
+                target: "checking",
+                actions: ["setModel", "setAutoUpdate"]
+              }
+            },
             states: {
               parsing: {
                 invoke: {
