@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { fakerEN_GB } from "@faker-js/faker";
+import { getCurrentAddressId } from "../../../support/utils/apiHelper";
 import { Checkout } from "../../../support/page-objects/templates/Checkout";
 import { Registration } from "../../../support/page-objects/templates/Registration";
 import { Login } from "../../../support/page-objects/templates/Login";
@@ -20,7 +21,7 @@ let register: Registration;
 let login: Login;
 let orderId: string | null;
 
-//TODO: Review frontend development strategy so I can remove the waits
+//TODO: Review testing strategy so I can remove the waits, may need additional frontend work
 
 test.describe("Billing Details at checkout", () => {
   test.beforeEach(async ({ page, context }) => {
@@ -109,33 +110,37 @@ test.describe("Billing Details at checkout", () => {
       await expect(checkout.billingDetails).toContainText("Acme Corp");
       await expect(checkout.billingDetails).toContainText("12345678");
     });
-    test("Existing User add new address at checkout", async ({ page }) => {
+    test("Existing User add new address at checkout", async ({
+      page,
+      context
+    }) => {
       await getClientToken(
         page,
         Logins.checkoutUser.username,
         Logins.checkoutUser.password
       );
+      let token = await getSessionToken(context);
       await page.goto(URLs.checkout);
       await expect(checkout.billingDetails).toBeVisible();
       await page.getByText("Personal details").click();
+      let currentAddress = await getCurrentAddressId(token);
       await checkout.page.getByTestId("link-change").click();
       await checkout.page.getByTestId("link-add-new").click();
-      await checkout.addressSearch.fill(
-        "10 Downing St, Westminster, London SW1A 2AA, UK"
+      const streetName = fakerEN_GB.location.streetAddress();
+      await checkout.manuallyInputAddress(
+        streetName,
+        "London",
+        "SW1A 2AA",
+        null
       );
-      const dropdown = page.locator('[role="dialog"][data-state="open"]');
-      await dropdown
-        .locator("li", {
-          hasText: "10 Downing Street, Downing Street, London SW1A 2AA, UK"
-        })
-        .click();
-      await page.waitForTimeout(1000);
-      await checkout.saveDetails.click();
       await expect(checkout.dialogWindow).toBeHidden();
-      await expect(checkout.addressCard).toContainText("10 Downing Street");
+      await expect(checkout.addressCard).toContainText(streetName);
       await expect(checkout.addressCard).toContainText(
-        "London, SW1A 2AA, Greater London, United Kingdom"
+        "London, SW1A 2AA, United Kingdom"
       );
+      await page.waitForTimeout(5000);
+      let newAddress = await getCurrentAddressId(token);
+      expect(newAddress).not.toBe(currentAddress);
     });
     test("Existing User add new company details at checkout", async ({
       page
