@@ -50,10 +50,7 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits);
           <slot />
         </div>
       </ScrollAreaViewport>
-      <ScrollAreaScrollbar
-        orientation="vertical"
-        :class="props.scrollbarClass"
-      >
+      <ScrollAreaScrollbar orientation="vertical" :class="props.scrollbarClass">
         <ScrollAreaThumb :class="props.scrollbarThumbClass" />
       </ScrollAreaScrollbar>
     </ScrollAreaRoot>
