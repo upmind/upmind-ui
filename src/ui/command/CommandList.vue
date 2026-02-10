@@ -1,11 +1,24 @@
 <script lang="ts" setup>
-import { ComboboxContent, useForwardPropsEmits } from "radix-vue";
+import {
+  ComboboxContent,
+  ScrollAreaRoot,
+  ScrollAreaViewport,
+  ScrollAreaScrollbar,
+  ScrollAreaThumb,
+  useForwardPropsEmits
+} from "radix-vue";
 import { type HTMLAttributes, computed } from "vue";
 import { cn } from "../../utils";
 import type { ComboboxContentEmits, ComboboxContentProps } from "radix-vue";
 
 const props = withDefaults(
-  defineProps<ComboboxContentProps & { class?: HTMLAttributes["class"] }>(),
+  defineProps<
+    ComboboxContentProps & {
+      class?: HTMLAttributes["class"];
+      scrollbarClass?: HTMLAttributes["class"];
+      scrollbarThumbClass?: HTMLAttributes["class"];
+    }
+  >(),
   {
     dismissable: false
   }
@@ -13,7 +26,12 @@ const props = withDefaults(
 const emits = defineEmits<ComboboxContentEmits>();
 
 const delegatedProps = computed(() => {
-  const { class: _, ...delegated } = props;
+  const {
+    class: _,
+    scrollbarClass: _s,
+    scrollbarThumbClass: _st,
+    ...delegated
+  } = props;
 
   return delegated;
 });
@@ -24,10 +42,20 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits);
 <template>
   <ComboboxContent
     v-bind="forwarded"
-    :class="cn('max-h-[300px] overflow-x-hidden overflow-y-auto', props.class)"
+    :class="cn('max-h-[300px] overflow-hidden', props.class)"
   >
-    <div role="presentation">
-      <slot />
-    </div>
+    <ScrollAreaRoot type="always" class="flex h-full max-h-[300px] flex-col">
+      <ScrollAreaViewport>
+        <div role="presentation">
+          <slot />
+        </div>
+      </ScrollAreaViewport>
+      <ScrollAreaScrollbar
+        orientation="vertical"
+        :class="props.scrollbarClass"
+      >
+        <ScrollAreaThumb :class="props.scrollbarThumbClass" />
+      </ScrollAreaScrollbar>
+    </ScrollAreaRoot>
   </ComboboxContent>
 </template>

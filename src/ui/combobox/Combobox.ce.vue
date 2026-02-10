@@ -82,7 +82,9 @@
           </CommandInput>
         </template>
         <CommandList
-          class="border-control-default w-full max-w-full border-t"
+          :class="styles.combobox.list"
+          :scrollbar-class="styles.combobox.scrollbar"
+          :scrollbar-thumb-class="styles.combobox.scrollbarThumb"
           loop
         >
           <CommandEmpty class="text-muted">{{ emptyMessage }}</CommandEmpty>
@@ -92,8 +94,7 @@
               :key="(item as Record<string, any>)[itemValue]"
               :value="(item as Record<string, any>)[itemValue]"
               @select="doSelect(get(item, itemValue))"
-              class="group flex cursor-pointer items-center justify-start gap-4"
-              :class="styles.combobox.item"
+              :class="cn(styles.combobox.listItem, styles.combobox.item)"
               :data-selected="isSelected(item) ? 'true' : 'false'"
             >
               <Avatar v-if="item.avatar" v-bind="item.avatar" size="xs" />
