@@ -32,30 +32,35 @@
         :class="cn(styles.select.content, props.contentClass)"
         :align="props.align"
       >
-        <div :class="styles.select.items">
-          <DropdownMenuItem
-            v-for="(item, index) in items"
-            :key="item.id || index"
-            @click="onChange(item.value)"
-            :class="styles.select.item"
-            v-intersection-observer="[maybeFocus, { threshold: 0.25 }]"
-            :data-state="item.value === modelValue ? 'checked' : null"
-          >
-            <slot
-              name="dropdown-item"
-              v-bind="{ ...item, index } as SelectCardsItemProps"
+        <ScrollAreaRoot type="always" :class="styles.select.items">
+          <ScrollAreaViewport>
+            <DropdownMenuItem
+              v-for="(item, index) in items"
+              :key="item.id || index"
+              @click="onChange(item.value)"
+              :class="styles.select.item"
+              v-intersection-observer="[maybeFocus, { threshold: 0.25 }]"
+              :data-state="item.value === modelValue ? 'checked' : null"
             >
-              <Item v-bind="item" />
-            </slot>
-          </DropdownMenuItem>
+              <slot
+                name="dropdown-item"
+                v-bind="{ ...item, index } as SelectCardsItemProps"
+              >
+                <Item v-bind="item" />
+              </slot>
+            </DropdownMenuItem>
 
-          <DropdownMenuItem
-            v-if="$slots['additional-item']"
-            :class="styles.select.item"
-          >
-            <slot name="additional-item" />
-          </DropdownMenuItem>
-        </div>
+            <DropdownMenuItem
+              v-if="$slots['additional-item']"
+              :class="styles.select.item"
+            >
+              <slot name="additional-item" />
+            </DropdownMenuItem>
+          </ScrollAreaViewport>
+          <ScrollAreaScrollbar orientation="vertical" :class="styles.select.scrollbar">
+            <ScrollAreaThumb :class="styles.select.scrollbarThumb" />
+          </ScrollAreaScrollbar>
+        </ScrollAreaRoot>
       </DropdownMenuContent>
     </DropdownMenuPortal>
   </DropdownMenuRoot>
@@ -70,7 +75,11 @@ import {
   DropdownMenuItem,
   DropdownMenuPortal,
   DropdownMenuRoot,
-  DropdownMenuTrigger
+  DropdownMenuTrigger,
+  ScrollAreaRoot,
+  ScrollAreaViewport,
+  ScrollAreaScrollbar,
+  ScrollAreaThumb
 } from "radix-vue";
 import { ref, computed } from "vue";
 // --- internal
