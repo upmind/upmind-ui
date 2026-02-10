@@ -52,12 +52,15 @@
               :value="item.value"
               :disabled="item.disabled"
               :icon="item.icon"
+              :avatar="item.avatar"
               :label="item.label"
               :ring="false"
             />
           </DropdownMenuItem>
         </template>
       </DropdownMenuGroup>
+
+      <slot />
     </DropdownMenuContent>
   </DropdownMenu>
 </template>
