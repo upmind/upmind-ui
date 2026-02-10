@@ -99,7 +99,9 @@ export default {
     item: itemVariants,
     listItem: cva("group flex cursor-pointer items-center justify-start gap-4"),
     input: inputVariants,
-    scrollbar: cva("flex w-2 touch-none select-none p-px"),
-    scrollbarThumb: cva("relative flex-1 rounded-full bg-(--border-control-default)")
+    scrollbar: cva("flex w-2 touch-none p-px select-none"),
+    scrollbarThumb: cva(
+      "relative flex-1 rounded-full bg-(--border-control-default)"
+    )
   }
 };

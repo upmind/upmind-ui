@@ -57,7 +57,10 @@
               <slot name="additional-item" />
             </DropdownMenuItem>
           </ScrollAreaViewport>
-          <ScrollAreaScrollbar orientation="vertical" :class="styles.select.scrollbar">
+          <ScrollAreaScrollbar
+            orientation="vertical"
+            :class="styles.select.scrollbar"
+          >
             <ScrollAreaThumb :class="styles.select.scrollbarThumb" />
           </ScrollAreaScrollbar>
         </ScrollAreaRoot>
