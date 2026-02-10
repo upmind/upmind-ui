@@ -6,7 +6,8 @@ export const variants = {
     solid: ""
   },
   color: {
-    danger: "bg-accent-danger text-accent-danger-contrast"
+    danger: "bg-accent-danger text-accent-danger-contrast",
+    warning: "bg-accent-warning text-accent-warning-contrast"
   }
 };
 
@@ -18,24 +19,17 @@ export const rootVariants = cva("text-md w-full font-medium", {
   }
 });
 
-const containerVariants = cva(
-  "mx-auto flex w-full items-center justify-between px-5 py-4"
-);
-
-const spacerVariants = cva("size-lh shrink-0");
-
-const contentVariants = cva("flex-1 text-center");
-
-const actionVariants = cva(
-  "size-lh flex shrink-0 cursor-pointer items-center justify-center"
-);
-// -----------------------------------------------------------------------------
 export default {
   banner: {
     root: rootVariants,
-    container: containerVariants,
-    spacer: spacerVariants,
-    content: contentVariants,
-    action: actionVariants
+    container: cva(
+      "mx-auto flex w-full items-center justify-between px-5 py-4"
+    ),
+    spacer: "size-lh shrink-0",
+    content: cva("flex-1 text-center"),
+    action: cva(
+      "size-lh flex shrink-0 cursor-pointer items-center justify-center"
+    ),
+    icon: cva("[&>svg]:size-7")
   }
 };

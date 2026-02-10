@@ -1,7 +1,15 @@
 <template>
-  <section :class="cn(styles.banner.root, props.class)" role="banner" aria-live="polite">
+  <section
+    :class="cn(styles.banner.root, props.class)"
+    role="banner"
+    aria-live="polite"
+  >
     <div :class="styles.banner.container">
-      <span v-if="icon || $slots['action']" :class="styles.banner.spacer" aria-hidden="true" />
+      <span
+        v-if="icon || $slots['action']"
+        :class="styles.banner.spacer"
+        aria-hidden="true"
+      />
 
       <p :class="styles.banner.content">
         <slot>
@@ -11,11 +19,13 @@
 
       <Link
         v-if="icon"
-        :icon="icon"
         size="sm"
+        color="inherit"
         :class="styles.banner.action"
         @click="emit('action')"
-      />
+      >
+        <Icon :icon="icon" :class="styles.banner.icon" />
+      </Link>
     </div>
   </section>
 </template>
@@ -23,10 +33,15 @@
 <script lang="ts" setup>
 // --- external
 import { computed } from "vue";
+
 // --- internal
-import { Link } from "../link";
 import config from "./banner.config";
 import { useStyles, cn } from "../../utils";
+
+// --- components
+import { Link } from "../link";
+import { Icon } from "../icon";
+
 // --- types
 import type { BannerProps } from "./types";
 // -----------------------------------------------------------------------------
