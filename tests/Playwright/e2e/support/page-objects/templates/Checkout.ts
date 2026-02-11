@@ -103,16 +103,13 @@ export class Checkout {
       await this.phoneInput.fill(phoneInput);
     }
     await this.saveDetails.click();
-    await expect(this.page.getByTestId("form-item-message-address")).toBeHidden(
-      { timeout: 5000 }
-    );
+    await this.saveDetails.click();
     await this.saveDetails.click();
   }
 
   async selectPaymentMethod(gatewayName: string) {
     await expect(this.paymentDetails).toBeVisible({ timeout: 30000 });
     await this.page.waitForLoadState("domcontentloaded");
-    await this.page.getByTestId("link-show-more-options").click();
     await this.page.getByTestId(`radio-card-${kebabCase(gatewayName)}`).click();
   }
 

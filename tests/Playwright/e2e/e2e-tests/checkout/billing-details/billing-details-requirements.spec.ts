@@ -86,7 +86,6 @@ test.describe("Verify checkout billing detail requirements", () => {
     await page.goto(URLs.checkout);
     await checkout.manuallyInputAddress(
       `${fakerEN_GB.location.streetAddress()}`,
-      `${fakerEN_GB.location.streetAddress()}`,
       `${fakerEN_GB.location.city()}`,
       "HU15 1EG",
       null
