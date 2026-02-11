@@ -5,7 +5,7 @@
     aria-live="polite"
   >
     <div :class="styles.banner.container">
-      <span
+      <div
         v-if="icon || $slots['action']"
         :class="styles.banner.spacer"
         aria-hidden="true"

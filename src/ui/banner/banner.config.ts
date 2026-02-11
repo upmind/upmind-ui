@@ -30,6 +30,6 @@ export default {
     action: cva(
       "size-lh flex shrink-0 cursor-pointer items-center justify-center"
     ),
-    icon: cva("[&>svg]:size-7")
+    icon: cva("[&>svg]:size-6")
   }
 };
