@@ -17,10 +17,12 @@
           index: 0,
           modelValue: selectedPaymentMethod,
           label: gateway?.name,
-          action: {
-            label: t('action.change'),
-            handler: clearGateway
-          }
+          action: props.singleGateway
+            ? undefined
+            : {
+                label: t('action.change'),
+                handler: clearGateway
+              }
         }
       ]"
     />

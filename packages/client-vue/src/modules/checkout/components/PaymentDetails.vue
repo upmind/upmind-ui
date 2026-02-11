@@ -22,7 +22,7 @@
     </template>
 
     <Loading
-      :active="!meta.isAvailable"
+      :active="meta.isLoading"
       :class="styles.checkout.root"
       v-auto-animate
     >
@@ -34,7 +34,7 @@
       />
 
       <!-- Needs Payment -->
-      <template v-if="meta.isAvailable && !meta.isFree">
+      <template v-if="meta.showPaymentSection">
         <!-- Account Credit -->
         <AccountCredit
           v-if="meta.hasAccountCredit"
@@ -52,11 +52,7 @@
 
         <!-- Stored Payments -->
         <StoredPaymentMethods
-          v-if="
-            meta.needsPayment &&
-            meta.hasStoredPaymentMethods &&
-            !meta.hasGateway
-          "
+          v-if="meta.showStoredPaymentMethods"
           v-bind="props"
           :errors="errors"
           :filtered="meta.hasUnsupportedPaymentMethods"
@@ -71,17 +67,14 @@
         <PaymentGateway
           v-if="meta.hasGateway"
           :key="model!.gateway_id"
+          :single-gateway="meta.hasSingleGateway"
           @cancel="setGateway(null)"
         />
 
         <PayLater v-else-if="meta.isPayLater" @cancel="clear" />
 
         <PaymentActions
-          v-if="
-            !meta.needsPayment ||
-            meta.hasGateway ||
-            meta.hasSelectedPaymentMethod
-          "
+          v-if="meta.showPaymentActions"
           @resolve="checkout"
           :disabled="!meta.isValid && !meta.isUnavailable"
           :offline="meta.isPayOffline"
@@ -91,7 +84,7 @@
 
         <!-- Payment Gateways selection -->
         <PaymentGateways
-          v-if="meta.needsPayment && !meta.hasGateway && meta.hasGateways"
+          v-if="meta.showGatewaySelection"
           v-bind="props"
           :processing="meta.isProcessing"
           :modelValue="model?.gateway_id"

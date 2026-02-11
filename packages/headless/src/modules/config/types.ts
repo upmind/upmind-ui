@@ -46,7 +46,7 @@ export type PropertyDefinition = {
   default: unknown;
   contexts: UIContext[];
   scopes: UIScope[];
-  locked?: UIContext[];
+  locked?: Partial<Record<UIContext, unknown>>;
 };
 
 export const META_PREFIX = {
