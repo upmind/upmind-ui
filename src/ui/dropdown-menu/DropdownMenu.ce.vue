@@ -43,19 +43,21 @@
             :disabled="item.disabled"
             @select="doAction(item)"
           >
-            <Button
-              :class="styles.dropdownMenu.item"
-              variant="ghost"
-              align="left"
-              block
-              :size="props.size"
-              :value="item.value"
-              :disabled="item.disabled"
-              :icon="item.icon"
-              :avatar="item.avatar"
-              :label="item.label"
-              :ring="false"
-            />
+            <slot name="item" v-bind="{ item }">
+              <Button
+                :class="styles.dropdownMenu.item"
+                variant="ghost"
+                align="left"
+                block
+                :size="props.size"
+                :value="item.value"
+                :disabled="item.disabled"
+                :icon="item.icon"
+                :avatar="item.avatar"
+                :label="item.label"
+                :ring="false"
+              />
+            </slot>
           </DropdownMenuItem>
         </template>
       </DropdownMenuGroup>
