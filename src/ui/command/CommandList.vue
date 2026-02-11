@@ -44,7 +44,7 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits);
     v-bind="forwarded"
     :class="cn('max-h-[300px] overflow-hidden', props.class)"
   >
-    <ScrollAreaRoot type="always" class="flex h-full max-h-[300px] flex-col">
+    <ScrollAreaRoot type="auto" class="flex h-full max-h-[300px] flex-col">
       <ScrollAreaViewport>
         <div role="presentation">
           <slot />

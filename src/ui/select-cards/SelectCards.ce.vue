@@ -32,7 +32,7 @@
         :class="cn(styles.select.content, props.contentClass)"
         :align="props.align"
       >
-        <ScrollAreaRoot type="always" :class="styles.select.items">
+        <ScrollAreaRoot type="auto" :class="styles.select.items">
           <ScrollAreaViewport>
             <DropdownMenuItem
               v-for="(item, index) in items"
