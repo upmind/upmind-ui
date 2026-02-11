@@ -17,7 +17,8 @@ import {
   values,
   first,
   has,
-  compact
+  compact,
+  size
 } from "lodash-es";
 import {
   ErrorOrigin,
@@ -341,10 +342,14 @@ async function parse(context: PaymentDetailsContext, { data }: AnyEventObject) {
 
   if (needsPayment) {
     // Ensure we have a payment method selected,
-    // try preselec the firt payment detail if we have one
-    // otherwise preselect the first available gateway
+    // try preselect the first payment detail if we have one
+    // otherwise preselect the first available gateway if there's only one
     if (!safeModel.gateway_id && !safeModel.payment_details_id) {
-      safeModel.payment_details_id = first(lookups.storedPaymentMethods)?.id;
+      if (!isEmpty(lookups.storedPaymentMethods)) {
+        safeModel.payment_details_id = first(lookups.storedPaymentMethods)?.id;
+      } else if (size(lookups.gateways) === 1) {
+        safeModel.gateway_id = first(lookups.gateways)?.gateway_id;
+      }
     }
   } else {
     unset(safeModel, "gateway_id");

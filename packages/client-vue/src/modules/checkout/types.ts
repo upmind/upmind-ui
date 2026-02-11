@@ -14,6 +14,7 @@ export type PaymentGatewayProps = {
   color?: ButtonProps["color"];
   processing?: boolean;
   modelValue?: PaymentDetailsContext["model"]["gateway_id"];
+  singleGateway?: boolean;
 };
 
 export type PaymentGatewaysProps = {

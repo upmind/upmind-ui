@@ -26,7 +26,7 @@ import {
   includes,
   some,
   gt,
-  values
+  size
 } from "lodash-es";
 
 // --- types
@@ -39,6 +39,7 @@ import type {
   PaymentDetailsContext
 } from "./types";
 import { GatewayTypes, PaymentType } from "@upmind-automation/types";
+import type { ControlElement } from "@jsonforms/core";
 import { useSchemaDefinitions, useUischemaDefinitions } from "./schemas";
 import { zeroDecimalCurrencies } from "./gateways/utils";
 
@@ -78,9 +79,13 @@ export const usePaymentDetail = (actor: ComputedRef<UseActor | undefined>) => {
   const meta = computed(() => ({
     isAvailable:
       !!actor.value && stateMatches(actor, ["available", "complete"]),
-    isLoading: !actor.value || stateMatches(actor, ["loading"]),
+    isLoading:
+      !actor.value ||
+      stateMatches(actor, ["loading"]) ||
+      stateMatches(actor, ["available.checking"]),
     hasGateway: contextMatches(actor, ["gatewayHelper"]),
     hasGateways: !isEmpty(gateways.value),
+    hasSingleGateway: size(gateways.value) === 1,
     hasStoredPaymentMethods: !isEmpty(storedPaymentMethods.value),
     hasSelectedPaymentMethod: !isEmpty(
       contextValue<PaymentDetailModel>(actor, "model.payment_details_id")
@@ -131,7 +136,37 @@ export const usePaymentDetail = (actor: ComputedRef<UseActor | undefined>) => {
     isComplete:
       !contextValue(actor, "amount") ||
       stateValue(actor, "done", false) ||
-      stateMatches(actor, ["processed", "complete"])
+      stateMatches(actor, ["processed", "complete"]),
+
+    showPaymentSection:
+      (!!actor.value &&
+        stateMatches(actor, ["available", "complete"]) &&
+        !!contextValue(actor, "amount")) ||
+      ((!actor.value ||
+        stateMatches(actor, ["loading"]) ||
+        stateMatches(actor, ["available.checking"])) &&
+        !isEmpty(gateways.value)),
+
+    showStoredPaymentMethods:
+      !isEmpty(storedPaymentMethods.value) &&
+      !contextMatches(actor, ["gatewayHelper"]) &&
+      !contextMatches(actor, "model.type", PaymentType.PAY_LATER),
+
+    showPaymentActions:
+      (!contextValue(actor, "model.amount", 0) && isEmpty(gateways.value)) ||
+      contextMatches(actor, ["gatewayHelper"]) ||
+      !isEmpty(
+        contextValue<PaymentDetailModel>(actor, "model.payment_details_id")
+      ) ||
+      ((!actor.value ||
+        stateMatches(actor, ["loading"]) ||
+        stateMatches(actor, ["available.checking"])) &&
+        (!isEmpty(storedPaymentMethods.value) || size(gateways.value) === 1)),
+
+    showGatewaySelection:
+      !isEmpty(gateways.value) &&
+      !contextMatches(actor, ["gatewayHelper"]) &&
+      !contextMatches(actor, "model.type", PaymentType.PAY_LATER)
   }));
 
   // --- context
@@ -218,18 +253,18 @@ export const usePaymentDetail = (actor: ComputedRef<UseActor | undefined>) => {
 
   const uischemaStoredPaymentMethods = computed(() => ({
     type: "VerticalLayout",
-    elements: [
-      useUischemaDefinitions(contextValue<PaymentDetailsContext>(actor)!)
-        .payment_details_id
-    ]
+    elements: filter(
+      useUischemaDefinitions(contextValue<PaymentDetailsContext>(actor)!),
+      d => (d as ControlElement).scope === "#/properties/payment_details_id"
+    )
   }));
 
   const uischemaGateways = computed(() => ({
     type: "VerticalLayout",
-    elements: [
-      useUischemaDefinitions(contextValue<PaymentDetailsContext>(actor)!)
-        .gateway_id
-    ]
+    elements: filter(
+      useUischemaDefinitions(contextValue<PaymentDetailsContext>(actor)!),
+      d => (d as ControlElement).scope === "#/properties/gateway_id"
+    )
   }));
 
   const uischemaAmount = computed(() => ({
@@ -250,10 +285,10 @@ export const usePaymentDetail = (actor: ComputedRef<UseActor | undefined>) => {
 
   const uischemaAmountCredit = computed(() => ({
     type: "VerticalLayout",
-    elements: [
-      useUischemaDefinitions(contextValue<PaymentDetailsContext>(actor)!)
-        .wallet_amount
-    ]
+    elements: filter(
+      useUischemaDefinitions(contextValue<PaymentDetailsContext>(actor)!),
+      d => (d as ControlElement).scope === "#/properties/wallet_amount"
+    )
   }));
   const storedPaymentMethods = useContext<
     PaymentDetailsContext["lookups"]["storedPaymentMethods"]

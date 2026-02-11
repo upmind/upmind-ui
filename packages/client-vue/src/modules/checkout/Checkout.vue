@@ -30,7 +30,14 @@
         </slot>
       </template>
 
-      <template v-if="ui.trustMessaging.isVisible && showCheckout" #markdown>
+      <template
+        v-if="
+          ui.trustMessaging.isVisible &&
+          showCheckout &&
+          data.trustMessagingMarkdown
+        "
+        #markdown
+      >
         <slot name="markdown">
           <Markdown
             data-testid="slots:summary-append"

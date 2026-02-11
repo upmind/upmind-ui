@@ -56,6 +56,7 @@
         <Column
           :background="COLUMN_BACKGROUND.SURFACE"
           :width="COLUMN_WIDTH.FULL"
+          class="pt-0 lg:pt-0"
         >
           <Content :gap="CONTENT_GAP.MD" :flow="CONTENT_FLOW.VERTICAL">
             <slot name="default" />
@@ -71,6 +72,7 @@
         <Column
           v-if="meta.hasAside && !isMobile"
           :background="COLUMN_BACKGROUND.CANVAS"
+          class="pt-0 lg:pt-0"
         >
           <Content
             as="aside"

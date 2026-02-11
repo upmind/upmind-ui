@@ -230,7 +230,7 @@ export interface UIPropertyDefinition {
   default?: string;
   contexts: UIContext[];
   scopes: UIScope[];
-  locked?: UIContext[];
+  locked?: Partial<Record<UIContext, string>>;
 }
 
 export interface DataPropertyDefinition {
