@@ -95,7 +95,13 @@ export default {
     trigger: triggerVariants,
     content: contentVariants,
     label: labelVariants,
+    list: cva("border-control-default w-full max-w-full border-t"),
     item: itemVariants,
-    input: inputVariants
+    listItem: cva("group flex cursor-pointer items-center justify-start gap-4"),
+    input: inputVariants,
+    scrollbar: cva("flex w-2 touch-none p-px select-none"),
+    scrollbarThumb: cva(
+      "relative flex-1 rounded-full bg-(--border-control-default)"
+    )
   }
 };
