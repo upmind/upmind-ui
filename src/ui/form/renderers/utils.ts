@@ -20,6 +20,7 @@ import {
   isFunction,
   map,
   merge,
+  reduce,
   set
 } from "lodash-es";
 // --- types
@@ -311,18 +312,20 @@ export const createIndexedOneOfRenderInfos = (
     control.uischemas
   );
 
-  return result
-    .filter(info => info.uischema)
-    .map((info, index) => {
-      if (oneOfUiSchemas && oneOfUiSchemas[index]) {
-        return {
-          ...info,
-          uischema: oneOfUiSchemas[index],
-          index: index
-        };
-      }
-      return { ...info, index: index };
-    });
+  return reduce(
+    result,
+    (acc, info, index) => {
+      if (!info.uischema) return acc;
+
+      acc.push(
+        oneOfUiSchemas && oneOfUiSchemas[index]
+          ? { ...info, uischema: oneOfUiSchemas[index], index }
+          : { ...info, index }
+      );
+      return acc;
+    },
+    [] as (CombinatorSubSchemaRenderInfo & { index: number })[]
+  );
 };
 // -----------------------------------------------------------------------------
 

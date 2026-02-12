@@ -1,5 +1,5 @@
 // --- external
-import { keys, zipObject, upperCase } from "lodash-es";
+import { keys, zipObject, upperCase, map } from "lodash-es";
 
 /**
  * Creates a variant constants object from a config object
@@ -23,7 +23,7 @@ export function parseVariants<T extends Record<string, any>>(
 ): ParsedVariants<T> {
   const variantKeys = keys(config);
   return zipObject(
-    variantKeys.map(upperCase),
+    map(variantKeys, upperCase),
     variantKeys
   ) as ParsedVariants<T>;
 }
