@@ -6,6 +6,7 @@ import { twMerge } from "./twMerge";
 import theme from "./useThemes";
 // --- utils
 import {
+  flatMap,
   flattenDeep,
   forEach,
   get,
@@ -56,7 +57,7 @@ function applyVariants(configs: ClassValue[], context: object = {}) {
   //      and merge the results into a single object with the CX helper
   //      finally we us the twMerge helper to clean up the final object
 
-  const configKeys = configs.map(keys).flat();
+  const configKeys = flatMap(configs, keys);
 
   if (isEmpty(configKeys)) {
     return twMerge(
