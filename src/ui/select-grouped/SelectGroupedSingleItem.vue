@@ -1,34 +1,37 @@
 <template>
-  <li
-    ref="rootRef"
-    :class="
-      cn(styles.selectGrouped.group.root, styles.selectGrouped.group.size)
-    "
-    role="radio"
-    :aria-checked="isSelected"
-    :aria-disabled="props.disabled"
-    :tabindex="
-      props.disabled ? -1 : props.index === props.focusedGroupIndex ? 0 : -1
-    "
-    :data-state="isSelected ? 'checked' : 'unchecked'"
-    @focus="handleFocus"
-    @click="toggleSelection"
-    @keydown.enter="toggleSelection"
-    @keydown.space.prevent="toggleSelection"
-    @keydown.down.prevent="emits('focus-next-group')"
-    @keydown.up.prevent="emits('focus-prev-group')"
-  >
-    <span :class="styles.selectGrouped.radio">
-      <span :class="styles.selectGrouped.indicator">
-        <Circle v-if="isSelected" :class="styles.selectGrouped.indicatorDot" />
-      </span>
-    </span>
-    <slot
-      name="item"
-      v-bind="{ item: props.item, group: props.group, selected: isSelected }"
+  <li class="relative" :class="styles.selectGrouped.group.size">
+    <div
+      ref="rootRef"
+      :class="styles.selectGrouped.group.singleRoot"
+      role="radio"
+      :aria-checked="isSelected"
+      :aria-disabled="props.disabled"
+      :tabindex="
+        props.disabled ? -1 : props.index === props.focusedGroupIndex ? 0 : -1
+      "
+      :data-state="isSelected ? 'checked' : 'unchecked'"
+      @focus="handleFocus"
+      @click="toggleSelection"
+      @keydown.enter="toggleSelection"
+      @keydown.space.prevent="toggleSelection"
+      @keydown.down.prevent="emits('focus-next-group')"
+      @keydown.up.prevent="emits('focus-prev-group')"
     >
-      <SelectGroupedItemContent :item="props.item" />
-    </slot>
+      <span :class="styles.selectGrouped.radio">
+        <span :class="styles.selectGrouped.indicator">
+          <Circle
+            v-if="isSelected"
+            :class="styles.selectGrouped.indicatorDot"
+          />
+        </span>
+      </span>
+      <slot
+        name="item"
+        v-bind="{ item: props.item, group: props.group, selected: isSelected }"
+      >
+        <SelectGroupedItemContent :item="props.item" />
+      </slot>
+    </div>
   </li>
 </template>
 
@@ -48,7 +51,7 @@ import { computed, ref } from "vue";
 import config from "./selectGrouped.config";
 import SelectGroupedItemContent from "./SelectGroupedItemContent.vue";
 import { toggleSelectionValue } from "./utils";
-import { cn, useStyles } from "../../utils";
+import { useStyles } from "../../utils";
 // --- components
 import { isArray, includes, isEqual } from "lodash-es";
 import type { SelectGroupedSingleItemRendererProps } from "./types";
@@ -97,6 +100,7 @@ const styles = useStyles<typeof config>(
 // --- Methods
 
 function toggleSelection() {
+  rootRef.value?.focus();
   const newValue = toggleSelectionValue({
     currentValue: props.modelValue,
     itemValue: props.item.value,

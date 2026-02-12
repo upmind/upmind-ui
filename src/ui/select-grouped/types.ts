@@ -63,6 +63,7 @@ export interface SelectGroupedGroupProps {
   icon?: string;
   description?: string;
   items: SelectGroupedItemProps[];
+  dropdown?: boolean;
 }
 
 export interface SelectGroupedProps {

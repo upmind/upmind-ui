@@ -31,6 +31,8 @@
       <DropdownMenuContent
         :class="cn(styles.select.content, props.contentClass)"
         :align="props.align"
+        @keydown="isKeyboardNav = true"
+        @pointermove="isKeyboardNav = false"
       >
         <ScrollAreaRoot type="auto" :class="styles.select.items">
           <ScrollAreaViewport>
@@ -38,6 +40,7 @@
               v-for="(item, index) in items"
               :key="item.id || index"
               @click="onChange(item.value)"
+              @focus="onHighlight(item.value)"
               :class="styles.select.item"
               v-intersection-observer="[maybeFocus, { threshold: 0.25 }]"
               :data-state="item.value === modelValue ? 'checked' : null"
@@ -105,6 +108,7 @@ const props = withDefaults(defineProps<SelectCardsProps>(), {
 const emits = defineEmits(["update:modelValue"]);
 
 const open = ref(false);
+const isKeyboardNav = ref(false);
 const modelValue = useVModel(props, "modelValue", emits, {
   passive: true,
   defaultValue: props.defaultValue
@@ -126,6 +130,12 @@ function onChange(value: any) {
     modelValue.value = value;
   }
   open.value = false;
+}
+
+function onHighlight(value: any) {
+  if (isKeyboardNav.value && value !== undefined) {
+    modelValue.value = value;
+  }
 }
 
 function maybeFocus([section]: IntersectionObserverEntry[]) {

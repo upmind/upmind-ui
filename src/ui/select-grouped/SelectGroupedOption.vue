@@ -1,6 +1,6 @@
 <template>
   <SelectGroupedSingleItem
-    v-if="isSingleItem"
+    v-if="!props.group.dropdown"
     ref="singleItemRef"
     :item="singleItem!"
     v-bind="forwarded"
@@ -63,16 +63,15 @@ const singleItemRef = ref<{ setFocus: () => void } | null>(null);
 const multiItemRef = ref<{ setFocus: () => void } | null>(null);
 // --- Computed
 
-const isSingleItem = computed(() => props.group.items.length === 1);
 const singleItem = computed(() => first(props.group.items));
 
 // Expose setFocus method for parent navigation
 defineExpose({
   setFocus: () => {
-    if (isSingleItem.value) {
-      singleItemRef.value?.setFocus();
-    } else {
+    if (props.group.dropdown) {
       multiItemRef.value?.setFocus();
+    } else {
+      singleItemRef.value?.setFocus();
     }
   }
 });
