@@ -5,6 +5,7 @@ export * from "./ui/alert";
 export * from "./ui/autocomplete";
 export * from "./ui/avatar";
 export * from "./ui/badge";
+export * from "./ui/banner";
 export * from "./ui/breadcrumb";
 export * from "./ui/button";
 export * from "./ui/button-group";
