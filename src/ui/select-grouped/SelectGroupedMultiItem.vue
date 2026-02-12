@@ -6,99 +6,118 @@
     @focusout="handleFocusOut"
   >
     <Collapsible v-model:open="isOpen">
-      <!-- Collapsible header/trigger -->
-      <div
-        ref="headerRef"
-        :class="styles.selectGrouped.group.root"
-        role="combobox"
-        :aria-expanded="isOpen"
-        :aria-haspopup="'listbox'"
-        :aria-controls="`dropdown-${groupId}`"
-        :aria-disabled="props.disabled"
-        :tabindex="
-          props.disabled ? -1 : props.index === props.focusedGroupIndex ? 0 : -1
-        "
-        :data-state="hasSelection ? 'checked' : 'unchecked'"
-        @focus="handleFocus"
-        @click="toggleOpen"
-        @keydown.enter.prevent="handleEnterSpace"
-        @keydown.space.prevent="handleEnterSpace"
-        @keydown.escape="isOpen = false"
-        @keydown.down.prevent="handleArrowDown"
-        @keydown.up.prevent="handleArrowUp"
-      >
-        <span :class="styles.selectGrouped.radio">
-          <span :class="styles.selectGrouped.indicator">
-            <Circle
-              v-if="hasSelection"
-              :class="styles.selectGrouped.indicatorDot"
-            />
-          </span>
-        </span>
-        <slot
-          name="header"
-          v-bind="{ group: props.group, selectedItem, expanded: isOpen }"
+      <div :class="styles.selectGrouped.group.wrapper">
+        <!-- Collapsible header/trigger -->
+        <div
+          ref="headerRef"
+          :class="styles.selectGrouped.group.root"
+          role="combobox"
+          :aria-expanded="isOpen"
+          :aria-haspopup="'listbox'"
+          :aria-controls="`dropdown-${groupId}`"
+          :aria-disabled="props.disabled"
+          :tabindex="
+            props.disabled
+              ? -1
+              : props.index === props.focusedGroupIndex
+                ? 0
+                : -1
+          "
+          :data-state="hasSelection ? 'checked' : 'unchecked'"
+          @focus="handleFocus"
+          @click="toggleOpen"
+          @keydown.enter.prevent="handleEnterSpace"
+          @keydown.space.prevent="handleEnterSpace"
+          @keydown.escape="isOpen = false"
+          @keydown.down.prevent="handleArrowDown"
+          @keydown.up.prevent="handleArrowUp"
         >
-          <div :class="styles.selectGrouped.header.root">
-            <slot name="icon" v-bind="{ group: props.group }" />
-            <div class="flex flex-1 flex-col">
-              <div class="flex items-center gap-2">
-                <span :class="styles.selectGrouped.content.label">
-                  {{ props.group.name }}
-                </span>
-                <span
-                  v-if="selectedItem?.label"
-                  :class="styles.selectGrouped.content.secondaryLabel"
-                >
-                  {{ selectedItem.label }}
-                </span>
-              </div>
-              <p
-                v-if="props.group.description"
-                :class="styles.selectGrouped.content.description"
-              >
-                {{ props.group.description }}
-              </p>
-            </div>
-            <slot
-              name="header-label"
-              v-bind="{ group: props.group, selectedItem, expanded: isOpen }"
-            />
-            <Icon
-              icon="chevron-down"
-              :class="
-                cn(styles.selectGrouped.header.chevron, isOpen && 'rotate-180')
-              "
-            />
-          </div>
-        </slot>
-      </div>
-
-      <!-- Dropdown content -->
-      <CollapsibleContent>
-        <ul
-          :id="`dropdown-${groupId}`"
-          role="listbox"
-          :aria-label="props.group.name || 'Options'"
-          :class="styles.selectGrouped.dropdown.root"
-        >
-          <SelectGroupedItem
-            v-for="(item, index) in props.group.items"
-            :key="item.value"
-            :item="item"
-            :model-value="props.modelValue"
-            :focused="focusedIndex === index"
-            @select="onItemSelect"
-          >
-            <template v-if="$slots['dropdown-item']" #item="slotProps">
-              <slot
-                name="dropdown-item"
-                v-bind="{ ...slotProps, group: props.group }"
+          <span :class="styles.selectGrouped.radio">
+            <span :class="styles.selectGrouped.indicator">
+              <Circle
+                v-if="hasSelection"
+                :class="styles.selectGrouped.indicatorDot"
               />
-            </template>
-          </SelectGroupedItem>
-        </ul>
-      </CollapsibleContent>
+            </span>
+          </span>
+          <slot
+            name="header"
+            v-bind="{ group: props.group, selectedItem, expanded: isOpen }"
+          >
+            <div :class="styles.selectGrouped.header.root">
+              <slot name="icon" v-bind="{ group: props.group }" />
+              <div class="flex flex-1 flex-col gap-1">
+                <div class="flex items-center gap-1">
+                  <span :class="styles.selectGrouped.content.label">
+                    {{ props.group.name }}
+                  </span>
+                  <Icon
+                    v-if="selectedItem?.label"
+                    icon="arrow-right"
+                    size="nano"
+                    class="text-control-foreground"
+                  />
+                  <span
+                    v-if="selectedItem?.label"
+                    :class="styles.selectGrouped.content.secondaryLabel"
+                  >
+                    {{ selectedItem.label }}
+                  </span>
+                </div>
+                <p
+                  v-if="selectedItem?.description"
+                  :class="styles.selectGrouped.content.description"
+                  class="text-sm-tight text-muted text-base"
+                >
+                  {{ selectedItem.description }}
+                </p>
+              </div>
+              <slot
+                name="header-label"
+                v-bind="{ group: props.group, selectedItem, expanded: isOpen }"
+              />
+
+              <div class="h-lh">
+                <Icon
+                  icon="chevron-down"
+                  :class="
+                    cn(
+                      styles.selectGrouped.header.chevron,
+                      isOpen && 'rotate-180'
+                    )
+                  "
+                />
+              </div>
+            </div>
+          </slot>
+        </div>
+
+        <!-- Dropdown content -->
+        <CollapsibleContent>
+          <ul
+            :id="`dropdown-${groupId}`"
+            role="listbox"
+            :aria-label="props.group.name || 'Options'"
+            :class="styles.selectGrouped.dropdown.root"
+          >
+            <SelectGroupedItem
+              v-for="(item, index) in props.group.items"
+              :key="item.value"
+              :item="item"
+              :model-value="props.modelValue"
+              :focused="focusedIndex === index"
+              @select="onItemSelect"
+            >
+              <template v-if="$slots['dropdown-item']" #item="slotProps">
+                <slot
+                  name="dropdown-item"
+                  v-bind="{ ...slotProps, group: props.group }"
+                />
+              </template>
+            </SelectGroupedItem>
+          </ul>
+        </CollapsibleContent>
+      </div>
     </Collapsible>
   </li>
 </template>

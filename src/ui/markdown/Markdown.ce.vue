@@ -1,5 +1,10 @@
 <template>
-  <Sanitized :tag="tag" :modelValue="compiledMarkdown" data-testid="markdown" />
+  <Sanitized
+    :tag="tag"
+    :modelValue="compiledMarkdown"
+    class="prose prose-p:text-inherit prose-li:text-inherit prose-headings:text-inherit prose-strong:font-[inherit] prose-a:text-inherit font-[inherit] text-[length:inherit] leading-[inherit] text-inherit"
+    data-testid="markdown"
+  />
 </template>
 
 <script lang="ts" setup>

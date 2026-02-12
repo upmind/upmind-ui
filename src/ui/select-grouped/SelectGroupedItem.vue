@@ -1,7 +1,6 @@
 <template>
   <li
     ref="rootRef"
-    :class="styles.selectGrouped.dropdown.item"
     role="option"
     :aria-selected="isSelected"
     :data-state="isSelected ? 'checked' : 'unchecked'"
@@ -13,9 +12,15 @@
     @keydown.down.prevent="$emit('focusNext')"
     @keydown.up.prevent="$emit('focusPrev')"
   >
-    <slot name="item" v-bind="{ item: props.item, selected: isSelected }">
-      <SelectGroupedItemContent :item="props.item" />
-    </slot>
+    <div
+      :class="styles.selectGrouped.dropdown.item"
+      :data-state="isSelected ? 'checked' : 'unchecked'"
+      :data-focused="props.focused"
+    >
+      <slot name="item" v-bind="{ item: props.item, selected: isSelected }">
+        <SelectGroupedItemContent :item="props.item" />
+      </slot>
+    </div>
   </li>
 </template>
 
