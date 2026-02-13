@@ -33,15 +33,11 @@
 <script lang="ts" setup>
 // --- external
 import { computed } from "vue";
-
 // --- internal
+import { Icon } from "../icon";
+import { Link } from "../link";
 import config from "./banner.config";
 import { useStyles, cn } from "../../utils";
-
-// --- components
-import { Link } from "../link";
-import { Icon } from "../icon";
-
 // --- types
 import type { BannerProps } from "./types";
 // -----------------------------------------------------------------------------
