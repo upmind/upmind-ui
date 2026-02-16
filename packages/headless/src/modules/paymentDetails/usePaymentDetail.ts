@@ -158,6 +158,7 @@ export const usePaymentDetail = (actor: ComputedRef<UseActor | undefined>) => {
       !isEmpty(
         contextValue<PaymentDetailModel>(actor, "model.payment_details_id")
       ) ||
+      contextMatches(actor, "model.type", PaymentType.PAY_LATER) ||
       ((!actor.value ||
         stateMatches(actor, ["loading"]) ||
         stateMatches(actor, ["available.checking"])) &&
