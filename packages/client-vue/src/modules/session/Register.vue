@@ -9,7 +9,7 @@
     <template #hero>
       <slot name="hero">
         <Hero :title="t('action.create_account')">
-          <template #description>
+          <template #subtitle>
             <span class="font-normal"
               >{{ t("auth.register_description") }}&nbsp;</span
             >

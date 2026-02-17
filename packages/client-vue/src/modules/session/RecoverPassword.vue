@@ -15,7 +15,7 @@
     <template #hero>
       <slot name="hero">
         <Hero :title="t('text.forgot_your_password_qn')">
-          <template #description>
+          <template #subtitle>
             <i18n-t
               keypath="auth.forgot_password_help"
               scope="global"

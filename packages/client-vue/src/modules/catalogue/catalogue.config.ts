@@ -101,14 +101,6 @@ export default {
         "flex w-full flex-col items-start justify-between gap-4 md:flex-row md:items-center md:gap-0"
       )
     },
-    header: {
-      root: cva("flex max-w-2xl flex-col gap-y-3 empty:hidden"),
-      title: {
-        root: cva("flex items-center gap-x-5 gap-y-2"),
-        text: cva("font-display text-5xl font-normal text-balance")
-      },
-      description: cva("text-md text-muted m-0")
-    },
     item: {
       root: cva(
         "group before:border-surface relative z-10 m-0 flex h-full w-full flex-col items-start justify-start gap-4 rounded-none border-none p-8 text-left text-base whitespace-normal shadow-none before:absolute before:-inset-px before:-z-10 before:border before:border-solid before:content-['']"
