@@ -48,6 +48,7 @@
           :key="key"
           v-bind="action"
           color="muted"
+          size="sm"
           @click="doAction(action, $event)"
         />
       </slot>
