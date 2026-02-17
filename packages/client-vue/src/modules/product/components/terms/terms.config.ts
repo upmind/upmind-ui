@@ -32,11 +32,11 @@ export default {
       }),
       item: {
         root: cva(
-          "text-md m-0 flex h-full w-full cursor-pointer flex-col flex-wrap items-start gap-4 rounded-lg sm:flex-row",
+          "text-md m-0 flex h-full w-full cursor-pointer flex-col flex-wrap items-start rounded-lg sm:flex-row",
           {
             variants: {
               layout: {
-                stacked: "text-base",
+                stacked: "gap-4 text-base",
                 inline: "w-full items-start justify-between sm:items-center"
               }
             },
