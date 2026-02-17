@@ -13,7 +13,8 @@ import {
   isEmpty,
   startsWith,
   isFunction,
-  isNumber
+  isNumber,
+  trim
 } from "lodash-es";
 
 // --- types
@@ -36,14 +37,13 @@ export const useSemanticTypeKeyword: KeywordDefinition = {
 export const useTrimKeyword: KeywordDefinition = {
   keyword: "trim",
   schemaType: "boolean",
-  validate: function (data, parentData, parentDataProperty) {
-    if (isString(data)) {
-      debugger;
-      parentData[parentDataProperty] = trim(data); // Mutate data
+  validate: function (schema, data, _parentSchema, dataCxt) {
+    if (schema && isString(data) && dataCxt) {
+      dataCxt.parentData[dataCxt.parentDataProperty] = trim(data);
     }
-    return true; // Always valid
+    return true;
   },
-  modifying: true, // Tell Ajv to allow mutation
+  modifying: true,
   errors: false
 };
 
