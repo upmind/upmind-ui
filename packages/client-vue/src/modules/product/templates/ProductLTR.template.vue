@@ -8,13 +8,13 @@
       <slot name="configuration" />
     </template>
 
-    <template #aside-header>
+    <template v-if="!isMobile" #aside-header>
       <slot name="image" />
     </template>
 
     <template #aside>
+      <slot v-if="isMobile" name="actions" />
       <slot name="pricing" />
-      <slot name="actions" />
       <slot name="errors" />
       <slot name="markdown" />
     </template>
@@ -36,6 +36,9 @@ import { useLayout } from "../../../components/layout/useLayout";
 
 // --- components
 import Layout from "../../../components/layout/Layout.vue";
+
+// --- utils
+import { isMobile } from "@upmind-automation/upmind-ui";
 
 // --- types
 import { LAYOUT_VARIANTS } from "../../../components/layout/types";
