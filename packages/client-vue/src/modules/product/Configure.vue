@@ -319,7 +319,7 @@ const template = computed(() =>
   validateTemplate(
     configMeta.ui.template.value || props.template,
     PRODUCT_TEMPLATE,
-    PRODUCT_TEMPLATE.TWO_COLUMN_LTR
+    PRODUCT_TEMPLATE.TWO_COLUMN_RTL
   )
 );
 
