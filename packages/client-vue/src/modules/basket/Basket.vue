@@ -9,7 +9,6 @@
                 v-if="props.storefrontRoute"
                 :to="props.storefrontRoute"
                 :label="t('action.continue_shopping')"
-                class="mt-4"
               />
             </template>
           </BasketSummary>
