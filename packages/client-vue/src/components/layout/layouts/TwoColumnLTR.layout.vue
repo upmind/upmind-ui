@@ -13,7 +13,7 @@
           :width="COLUMN_WIDTH.FULL"
         >
           <Content
-            :gap="CONTENT_GAP.MD"
+            :gap="CONTENT_GAP.LG"
             :flow="CONTENT_FLOW.VERTICAL"
             :padding="false"
           >
@@ -31,15 +31,23 @@
           </Content>
         </Column>
 
-        <Column :show="COLUMN_SHOW.LG" :background="COLUMN_BACKGROUND.CANVAS">
-          <Content :width="CONTENT_WIDTH.ASIDE">
+        <Column
+          as="aside"
+          :show="COLUMN_SHOW.LG"
+          :background="COLUMN_BACKGROUND.CANVAS"
+        >
+          <Content
+            :width="CONTENT_WIDTH.ASIDE"
+            :gap="CONTENT_GAP.LG"
+            :sticky="!meta.hasAside ? CONTENT_STICKY.TOP : CONTENT_STICKY.NONE"
+          >
             <slot name="aside-header" />
           </Content>
           <Content
             v-if="meta.hasAsideHeader && meta.hasAside"
-            as="aside"
             :width="CONTENT_WIDTH.ASIDE"
             :sticky="CONTENT_STICKY.TOP"
+            :gap="CONTENT_GAP.LG"
           >
             <slot name="aside" />
           </Content>
@@ -56,7 +64,7 @@
         <Column
           :background="COLUMN_BACKGROUND.SURFACE"
           :width="COLUMN_WIDTH.FULL"
-          class="pt-0 lg:pt-0"
+          class="lg:pt-0"
         >
           <Content :gap="CONTENT_GAP.MD" :flow="CONTENT_FLOW.VERTICAL">
             <slot name="default" />
@@ -139,7 +147,7 @@ const slots = useSlots();
 
 const meta = computed(() => ({
   // We require the aside on desktop otherwise the two column layout will break
-  hasAside: !isEmptySlot("aside", slots) || !isMobile.value,
+  hasAside: !isEmptySlot("aside", slots),
   hasAsideHeader: !isEmptySlot("aside-header", slots) && !isMobile.value
 }));
 </script>

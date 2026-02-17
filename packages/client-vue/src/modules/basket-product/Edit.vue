@@ -109,6 +109,28 @@
             />
 
             <PricingSkeleton v-else />
+
+            <slot
+              v-if="
+                template === BASKET_PRODUCT_TEMPLATE.TWO_COLUMN_LTR && !isMobile
+              "
+              name="actions"
+              :product="product"
+              :config-meta="configMeta"
+              :product-meta="productMeta"
+              :template="props.template"
+              :do-resolve="doResolve"
+              :update-quantity="updateQuantity"
+            >
+              <BasketActions
+                v-if="product && productMeta?.isAvailable"
+                :product="product"
+                :meta="productMeta"
+                :template="props.template"
+                @resolve="doResolve"
+                @update:quantity="updateQuantity"
+              />
+            </slot>
           </Section>
         </slot>
       </template>
