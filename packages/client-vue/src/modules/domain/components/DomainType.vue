@@ -72,6 +72,7 @@
                 />
               </FormControl>
 
+              <!-- existing -->
               <FormControl
                 v-else-if="meta.showExisting"
                 :formItemId="`dac-${type}`"
@@ -89,6 +90,7 @@
                 />
               </FormControl>
 
+              <!-- basket -->
               <FormControl
                 v-else-if="meta.showBasket"
                 key="basket"

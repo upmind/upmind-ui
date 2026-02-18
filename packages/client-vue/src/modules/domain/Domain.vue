@@ -35,6 +35,7 @@
         @update:selected="select"
         @update:type="choose"
         @update:query="value => (queryValue = value || '')"
+        @error="onError"
       />
     </template>
 
@@ -152,6 +153,7 @@ const props = withDefaults(defineProps<DomainProps>(), {
 });
 
 const emit = defineEmits<{
+  (e: "error", value: string): void;
   (e: "update:modelValue", value: string): void;
   (e: "resolve", value?: string): void;
   (e: "reset"): void;
@@ -192,6 +194,7 @@ const {
   type,
   // ---
   choose,
+  errors,
   reset,
   select,
   stop,
@@ -237,39 +240,50 @@ await isReady().then(() => {
   modelValue.value = selected.value;
 });
 
-watch(queryValue, value => {
-  if (!value) {
-    debouncedSearch.cancel();
-    reset();
-  } else {
-    debouncedSearch(value);
-  }
-});
-
 watch(
-  searchParams,
-  search => {
-    if (!search?.query) {
-      queryValue.value = "";
+  [queryValue, searchParams, selected, meta, available],
+  (
+    [query, search, sel, metaVal, avail],
+    [oldQuery, _oldSearch, _oldSel, _oldMetaVal, _oldAvail]
+  ) => {
+    // Query changed → debounce search or reset
+    if (query !== oldQuery) {
+      if (!query) {
+        debouncedSearch.cancel();
+        reset();
+      } else {
+        debouncedSearch(query);
+      }
     }
+
+    // Search params cleared → clear query input
+    if (!search?.query) queryValue.value = "";
+
+    // Sync selected domain → model value
+    modelValue.value = sel;
+
+    // Auto-open drawer when search results are ready
+    const { isSearching, showSearchResults, showDac } = metaVal;
+    if (showDac && (showSearchResults || isSearching)) {
+      open.value = true;
+      processingBasket.value = false;
+    }
+
+    // Store result count for smooth skeleton loading
+    resultCount.value = avail?.length ?? 0;
   },
   { immediate: true, deep: true }
 );
 
-watch(selected, value => (modelValue.value = value));
-
-watch(meta, ({ isSearching, showSearchResults, showDac }) => {
-  const shouldOpen = showDac && (showSearchResults || isSearching);
-  if (shouldOpen) {
-    open.value = true;
-    processingBasket.value = false;
-  }
+// Watch for validation errors from the domain machine (e.g. invalid_domain in existing mode)
+// and escalate them to the parent renderer
+watch(errors, error => {
+  emit("error", error?.message ?? "");
 });
 
-// Stores the previous result count for smooth skeleton loading
-watch(available, previous => {
-  resultCount.value = previous?.length ?? 0;
-});
+function onError(error: string) {
+  emit("error", error);
+}
 
 onUnmounted(() => {
   stop();
