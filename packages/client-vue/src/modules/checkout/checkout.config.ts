@@ -75,7 +75,7 @@ export default {
     },
     action: cva("flex w-full self-center md:inline-flex md:w-auto"),
     clickwrap: cva(
-      "text-muted prose prose-a:font-normal prose-a:text-inherit text-left text-sm leading-snug"
+      "text-muted prose prose-a:font-normal prose-a:text-inherit max-w-full text-left text-sm leading-snug"
     ),
 
     isFree: cva("w-full")
