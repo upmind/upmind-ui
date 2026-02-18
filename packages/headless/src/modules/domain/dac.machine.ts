@@ -110,14 +110,73 @@ export default createMachine(
             target: "invalid",
             cond: "isInvalid"
           }
-        ]
+        ],
+        on: {
+          ADD: [
+            {
+              target: "checking",
+              actions: ["add", "setProcessing", "setCheckingDomain"],
+              cond: "isValidDomain"
+            }
+          ]
+        }
       },
 
       invalid: {
-        always: [{ target: "valid", cond: "isValid" }]
+        always: [{ target: "valid", cond: "isValid" }],
+        on: {
+          ADD: [
+            {
+              target: "checking",
+              actions: ["add", "setProcessing", "setCheckingDomain"],
+              cond: "isValidDomain"
+            }
+          ]
+        }
       },
 
       error: {},
+
+      checking: {
+        entry: ["clearError"],
+        invoke: {
+          src: "checkAvailability",
+          onDone: [
+            {
+              target: "valid",
+              actions: ["addToBasketFromChecking"],
+              cond: "isDomainAvailable"
+            },
+            {
+              target: "invalid",
+              actions: [
+                "clearCheckingProcessing",
+                "removeCheckingDomain",
+                "setUnavailableError"
+              ]
+            }
+          ],
+          onError: [
+            {
+              target: "invalid",
+              actions: [
+                "clearCheckingProcessing",
+                "removeCheckingDomain",
+                "setError",
+                "setFeedbackError"
+              ],
+              cond: "isNotCancelled"
+            },
+            {
+              actions: [
+                "clearCheckingProcessing",
+                "removeCheckingDomain",
+                "setError"
+              ]
+            }
+          ]
+        }
+      },
 
       complete: {
         type: "final",
@@ -145,14 +204,6 @@ export default createMachine(
     },
 
     on: {
-      ADD: [
-        {
-          target: "valid",
-          actions: ["add", "setProcessing", "addToBasket"],
-          cond: "isValidDomain"
-        }
-      ],
-
       UPDATED: {
         actions: ["setBasketProducts"]
       },
@@ -648,7 +699,63 @@ export default createMachine(
         // }
       }),
 
-      clearError: assign({ error: undefined })
+      clearError: assign({ error: undefined }),
+
+      setCheckingDomain: assign({
+        checkingDomain: (_context: DacContext, { data }: AnyEventObject) => {
+          const parsed = parseDomain(data);
+          return parsed?.domain ?? data;
+        }
+      }),
+
+      // Used from checking state where event.data is the availability response,
+      // not the domain string — reads context.checkingDomain instead.
+      addToBasketFromChecking: pure(
+        (context: DacContext, _event: AnyEventObject) => {
+          if (!context.basketHelper) return;
+
+          const product = find(context.lookups.searched, [
+            "domain",
+            context.checkingDomain
+          ]) as DomainProduct;
+
+          const model = isFunction(context?.parseProductModel)
+            ? context.parseProductModel(product)
+            : product?.configuration;
+
+          if (model) {
+            model.coupons ??= context.coupons ?? [];
+            model.silent = true;
+
+            return sendTo(context.basketHelper, {
+              type: "ADD_UPDATE",
+              target: model,
+              context
+            });
+          }
+        }
+      ),
+
+      clearCheckingProcessing: assign({
+        lookups: ({ lookups, checkingDomain }: DacContext) => {
+          const product = find(lookups.searched, [
+            "domain",
+            checkingDomain
+          ]) as DomainProduct;
+          if (product) product.meta.processing = false;
+          return lookups;
+        }
+      }),
+
+      removeCheckingDomain: assign({
+        model: ({ model, checkingDomain }: DacContext) =>
+          reject(model, ["domain", checkingDomain])
+      }),
+
+      setUnavailableError: assign({
+        error: (_context: DacContext) =>
+          mapToHeadlessError(new Error("domain_unavailable"))
+      })
     },
 
     guards: {
@@ -679,7 +786,10 @@ export default createMachine(
         isEmpty(model) || !every(model, parseDomain),
 
       isNotCancelled: (_context, { data }: AnyEventObject) =>
-        data?.name !== "AbortError"
+        data?.name !== "AbortError",
+
+      isDomainAvailable: (_context, { data }: AnyEventObject) =>
+        data?.can_register === true
     },
 
     delays: {
