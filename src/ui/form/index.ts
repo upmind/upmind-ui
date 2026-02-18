@@ -1,6 +1,3 @@
-import { defineCustomElement } from "vue";
-import FormCE from "./Form.ce.vue";
-
 export * from "./renderers/utils";
 export { default as Form } from "./Form.ce.vue";
 export { default as FormField } from "./FormField.vue";
@@ -14,5 +11,3 @@ export { default as FormNotRequiredIndicator } from "./FormNotRequiredIndicator.
 export { default as FormLabelGroup } from "./FormLabelGroup.vue";
 
 export * from "./types";
-
-export const UpmForm = defineCustomElement(FormCE);

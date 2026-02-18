@@ -1,6 +1,3 @@
-import { defineCustomElement } from "vue";
-import NumberField from "./NumberField.ce.vue";
-
 // export { default as NumberFieldRoot } from "./NumberField.vue";
 // export { default as NumberFieldInput } from "./NumberFieldInput.vue";
 // export { default as NumberFieldIncrement } from "./NumberFieldIncrement.vue";
@@ -9,5 +6,3 @@ import NumberField from "./NumberField.ce.vue";
 
 export { default as NumberField } from "./NumberField.ce.vue";
 export { type NumberFieldProps } from "./types";
-
-export const UpmNumberField = defineCustomElement(NumberField);
