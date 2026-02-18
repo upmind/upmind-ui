@@ -2,24 +2,19 @@
   <Layout>
     <template #content-header>
       <slot name="product-details" />
-      <slot v-if="!isMobile" name="configuration" />
     </template>
 
     <template #content>
-      <slot v-if="isMobile" name="configuration" />
+      <slot name="configuration" />
     </template>
 
     <template v-if="!isMobile" #aside-header>
       <slot name="image" />
-      <slot name="pricing" />
-      <slot name="actions" />
-      <slot name="errors" />
-      <slot name="markdown" />
     </template>
 
-    <template v-if="isMobile" #aside>
+    <template #aside>
+      <slot v-if="isMobile" name="actions" />
       <slot name="pricing" />
-      <slot name="actions" />
       <slot name="errors" />
       <slot name="markdown" />
     </template>

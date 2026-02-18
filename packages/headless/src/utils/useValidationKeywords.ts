@@ -13,7 +13,8 @@ import {
   isEmpty,
   startsWith,
   isFunction,
-  isNumber
+  isNumber,
+  trim
 } from "lodash-es";
 
 // --- types
@@ -30,6 +31,19 @@ export const useManageKeyword: KeywordDefinition = {
 export const useSemanticTypeKeyword: KeywordDefinition = {
   keyword: "semantic_type",
   schemaType: "string",
+  errors: false
+};
+
+export const useTrimKeyword: KeywordDefinition = {
+  keyword: "trim",
+  schemaType: "boolean",
+  validate: function (schema, data, _parentSchema, dataCxt) {
+    if (schema && isString(data) && dataCxt) {
+      dataCxt.parentData[dataCxt.parentDataProperty] = trim(data);
+    }
+    return true;
+  },
+  modifying: true,
   errors: false
 };
 

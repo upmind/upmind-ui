@@ -17,7 +17,7 @@ import {
   useContext,
   useContextActor
 } from "../../utils";
-import { useBrand } from "../brand";
+import { useConfig } from "../config";
 import {
   isEmpty,
   isEqual,
@@ -263,8 +263,7 @@ export const usePaymentDetail = (actor: ComputedRef<UseActor | undefined>) => {
     PaymentDetailsContext["lookups"]["accountCredit"]
   >(actor, "lookups.accountCredit");
 
-  const { uiCart } = useBrand();
-  const clickwrap = computed(() => uiCart.value?.clickwrap_disclaimer);
+  const { data } = useConfig();
 
   // --- methods
 
@@ -442,7 +441,7 @@ export const usePaymentDetail = (actor: ComputedRef<UseActor | undefined>) => {
     uischemaAmountCredit,
 
     /** The payment details clickwrap disclaimer. */
-    clickwrap,
+    clickwrap: data.clickwrapDisclaimer,
 
     // --- methods
 

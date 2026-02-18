@@ -14,7 +14,8 @@ import {
   mapToHeadlessError,
   responseCodes,
   type ResponseError,
-  useTime
+  useTime,
+  DOMAIN_LIKE_VALIDATION
 } from "../../utils";
 import {
   getDomainRawBasketProducts,
@@ -37,6 +38,7 @@ import {
   remove,
   set,
   some,
+  trim,
   values
 } from "lodash-es";
 
@@ -47,6 +49,7 @@ import { DomainTypes } from "./types";
 import type { DomainModel, DomainContext, DomainProduct } from "./types";
 import { parseBasketProduct } from "../basketProduct/utils";
 import { type ProductProps } from "../product";
+import { useI18n } from "../system";
 
 // -----------------------------------------------------------------------------
 export default createMachine(
@@ -186,7 +189,7 @@ export default createMachine(
             {
               target: ".valid",
               actions: ["clearError", "setExisting", "persistModel"],
-              cond: "isValid"
+              cond: "isDomainLike"
             },
             {
               target: ".invalid",
@@ -445,7 +448,8 @@ export default createMachine(
             if (
               !isDomainProduct({
                 serviceIdentifier: raw.service_identifier,
-                blueprintCode: raw?.product?.provision_blueprint?.code,
+                blueprintCode:
+                  raw?.product?.provision_blueprint?.category?.code,
                 provisionFields: raw?.provision_fields
               })
             )
@@ -508,7 +512,7 @@ export default createMachine(
 
       setExisting: assign({
         model: (_context: DomainContext, { data }: AnyEventObject) => {
-          const value = isArray(data) ? first(data) : data;
+          const value = trim(isArray(data) ? first(data) : data);
           const parsed = parseDomain(value, true);
           const domain: DomainModel = {
             type: DomainTypes.existing,
@@ -610,11 +614,11 @@ export default createMachine(
 
       setErrorInvalidDomain: assign({
         error: (_context: DomainContext, { data }: AnyEventObject) => {
+          const { t } = useI18n();
           return {
-            code: "invalid_domain",
             data: null,
             status: responseCodes.Unprocessable_Entity,
-            message: "Invalid domain",
+            message: t("error.domain_not_valid"),
             origin: ErrorOrigin.Headless
           } as ResponseError;
         }
@@ -645,6 +649,10 @@ export default createMachine(
       },
 
       isInvalid: ({ model }: DomainContext) => isEmpty(parseDomain(model)),
+
+      isDomainLike: (_context: DomainContext, { data }: AnyEventObject) => {
+        return DOMAIN_LIKE_VALIDATION.test(data.toString());
+      },
 
       isDomainTransfer: (
         { choices }: DomainContext,

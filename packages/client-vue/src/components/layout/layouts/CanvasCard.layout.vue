@@ -1,5 +1,5 @@
 <template>
-  <Root :class="styles.canvasCard.root">
+  <Root :class="styles.canvasCard.root" :overflow="overflow">
     <div :class="styles.canvasCard.container">
       <Card as="article" :class="styles.canvasCard.card" spacious>
         <!-- Content Header -->
@@ -26,11 +26,13 @@
 import { computed } from "vue";
 import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "../layout.config";
-import type { VariantProps } from "../types";
 
 // --- components
 import { Card } from "@upmind-automation/upmind-ui";
 import Root from "../components/root/Root.vue";
+
+// --- types
+import type { VariantProps } from "../types";
 
 defineProps<VariantProps>();
 

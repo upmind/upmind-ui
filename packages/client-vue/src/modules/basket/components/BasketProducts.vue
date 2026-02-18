@@ -11,19 +11,16 @@
     }"
     :card="false"
     :border="false"
+    :actions="[
+      {
+        label: t('action.details_toggle', open ? 0 : 1),
+        handler: () => (open = !open)
+      }
+    ]"
   >
     <slot name="products" :open="open">
       <ProductCards v-model:open="open" :edit-route="props.editRoute" />
     </slot>
-
-    <template #actions>
-      <Link
-        color="muted"
-        :label="t('action.details_toggle', open ? 0 : 1)"
-        @click="open = !open"
-        size="sm"
-      />
-    </template>
   </Section>
 
   <BasketFieldsSection />
@@ -40,7 +37,6 @@ import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "../basket.config";
 
 // --- components
-import { Link } from "@upmind-automation/upmind-ui";
 import ProductCards from "../../basket-product/components/card/BasketProductCards.vue";
 import Section from "../../../components/section/Section.vue";
 import BasketFieldsSection from "./BasketFieldsSection.vue";

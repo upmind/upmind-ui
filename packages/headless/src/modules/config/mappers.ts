@@ -50,8 +50,10 @@ function getPropertyValue(
   // (skipped when no context - returns wildcard values only)
   if (input.context && input.context !== UIContext.ALL) {
     if (!includes(definition.contexts, input.context)) return undefined;
-    // Lock check - return default if property is locked in this context (UI only)
-    if (includes(definition.locked, input.context)) return definition.default;
+    // Lock check - return locked value if property is locked in this context (UI only)
+    if (definition.locked && input.context in definition.locked) {
+      return definition.locked[input.context];
+    }
   }
 
   // Scope cascade - check scopes from highest to lowest priority
