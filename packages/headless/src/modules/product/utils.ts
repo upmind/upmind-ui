@@ -167,7 +167,7 @@ export function useProductName(
   if (!basketProduct?.service_identifier) return name;
 
   // individual product types may have different naming conventions
-  switch (basketProduct?.product.provision_blueprint?.code) {
+  switch (basketProduct?.product.provision_blueprint?.category?.code) {
     case ProvisionCategoryCodes.DOMAIN_NAMES:
       return basketProduct?.service_identifier;
 
@@ -204,7 +204,8 @@ function getPriceDisplayType(raw: IProduct): PriceDisplayTypes | undefined {
 
   let productDisplayType = undefined;
   // individual product types may have different naming conventions
-  switch (raw.provision_blueprint?.code) {
+  debugger;
+  switch (raw.provision_blueprint?.category?.code) {
     case ProvisionCategoryCodes.DOMAIN_NAMES:
       productDisplayType ??= PriceDisplayTypes.CYCLE;
       break;
@@ -611,7 +612,7 @@ export const parseProductDetails = (
       fallback: useProductName(rawProduct, rawBasketProduct)
     }),
     brand: useTranslateName(rawProduct?.brand),
-    blueprintCode: rawProduct?.provision_blueprint?.code,
+    blueprintCode: rawProduct?.provision_blueprint?.category?.code,
     categoryId: rawProduct?.category_id,
     category: useTranslateName(rawProduct?.category),
     categories: reverse(
