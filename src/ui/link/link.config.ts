@@ -50,7 +50,7 @@ const itemsVariants = cva(
     variants: {
       size: {
         icon: "",
-        sm: "[&>i]:p-[3px]",
+        sm: "[&>i]:p-[4px]",
         md: "[&>i]:p-[4px]",
         lg: "[&>i]:p-[4px]",
         inherit: "[&>i]:p-[4px]"
