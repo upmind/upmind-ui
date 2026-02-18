@@ -1,9 +1,6 @@
-// --- external
 import { defineCustomElement } from "vue";
-// --- internal
 import Sonner from "./Sonner.ce.vue";
 import config from "./sonner.config";
-// --- utils
 import { parseVariants } from "../../utils";
 
 export { toast } from "vue-sonner";

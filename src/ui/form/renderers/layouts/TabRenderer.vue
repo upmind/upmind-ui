@@ -26,16 +26,12 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { isLayout, uiTypeIs, and } from "@jsonforms/core";
 import { useJsonFormsLayout, DispatchRenderer } from "@jsonforms/vue";
 import { computed, ref } from "vue";
-// --- components
 import { Tabs } from "../../../tabs";
-// --- utils
 import { useUpmindUILayoutRenderer } from "../utils";
 import { get } from "lodash-es";
-// --- types
 import type { TabItem } from "../../../tabs";
 import type { Layout, UISchemaElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";

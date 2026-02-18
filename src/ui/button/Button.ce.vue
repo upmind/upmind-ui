@@ -45,15 +45,12 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed, useSlots } from "vue";
 import { RouterLink } from "vue-router";
-// --- internal
 import { Spinner } from "../spinner";
 import config from "./button.config";
 import Button from "./Button.vue";
 import ButtonItems from "./ButtonItems.vue";
-// --- utils
 import { useStyles, cn } from "../../utils";
 import { kebabCase } from "lodash-es";
 // -- types

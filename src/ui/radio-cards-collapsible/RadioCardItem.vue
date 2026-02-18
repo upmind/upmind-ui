@@ -31,16 +31,12 @@
 </template>
 
 <script setup lang="ts">
-// --- external
 import { watchOnce } from "@vueuse/core";
 import { computed } from "vue";
-// --- internal
-// --- components
 import Label from "../label/Label.ce.vue";
 import { RadioGroupItem } from "../radio-group";
 import config from "./radioCards.config";
 import { useStyles } from "../../utils";
-// --- types
 import type { RadioCardsCollapsibleItemProps } from "./types";
 // -----------------------------------------------------------------------------
 

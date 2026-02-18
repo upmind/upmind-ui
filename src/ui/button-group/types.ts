@@ -1,9 +1,7 @@
-// --- external
 import type { ButtonProps } from "../button/types";
 import type { SelectProps } from "../select/types";
 import type { CxOptions } from "class-variance-authority";
 import type { HTMLAttributes } from "vue";
-// --- internal
 
 export type ButtonGroupItem = ButtonGroupButtonItem | ButtonGroupDropdownItem;
 export interface ButtonGroupProps {

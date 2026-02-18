@@ -1,5 +1,3 @@
-// --- external
-// --- internal
 import type { rootVariants as alertVariants } from "./alert.config";
 import type { Icon } from "../icon/types";
 import type { LinkProps } from "../link/types";

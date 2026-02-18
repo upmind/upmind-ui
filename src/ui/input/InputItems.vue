@@ -9,13 +9,10 @@
 </template>
 
 <script setup lang="ts">
-// --- components
 import { Avatar } from "../avatar";
 import { Icon } from "../icon";
-// --- internal
 import config from "./input.config";
 import { useStyles } from "../../utils";
-// --- types
 import type { InputItemsProps } from "./types";
 
 defineProps<InputItemsProps>();

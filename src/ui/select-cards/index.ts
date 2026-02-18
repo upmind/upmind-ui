@@ -1,6 +1,4 @@
-// --- external
 import { defineCustomElement } from "vue";
-// --- internal
 import SelectCards from "./SelectCards.ce.vue";
 import { variants } from "./selectCards.config";
 import { keys } from "lodash-es";

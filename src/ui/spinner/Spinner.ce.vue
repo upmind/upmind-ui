@@ -12,15 +12,10 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { Primitive } from "radix-vue";
 import { computed } from "vue";
-// --- internal
 import config from "./spinner.config";
 import { useStyles, cn } from "../../utils";
-// --- components
-// --- utils
-// --- types
 import type { SpinnerProps } from ".";
 // -----------------------------------------------------------------------------
 

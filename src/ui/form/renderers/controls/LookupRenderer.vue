@@ -17,16 +17,12 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { schemaMatches, uiTypeIs, and } from "@jsonforms/core";
 import { useJsonFormsOneOfEnumControl } from "@jsonforms/vue";
-// --- components
 import { Autocomplete } from "../../../autocomplete";
 import FormField from "../../FormField.vue";
-// --- utils
 import { useUpmindUIRenderer } from "../utils";
 import { has, get } from "lodash-es";
-// --- types
 import type { AutocompleteSearchFunction } from "../../../autocomplete";
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";

@@ -68,10 +68,7 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { ref, computed } from "vue";
-// --- internal
-// --- components
 import Button from "../button/Button.ce.vue";
 import config from "./dropdown-menu.config";
 import DropdownMenu from "./DropdownMenu.vue";
@@ -81,9 +78,7 @@ import DropdownMenuItem from "./DropdownMenuItem.vue";
 import DropdownMenuLabel from "./DropdownMenuLabel.vue";
 import DropdownMenuTrigger from "./DropdownMenuTrigger.vue";
 import { cn, useStyles } from "../../utils";
-// --- utils
 import { isFunction } from "lodash-es";
-// --- types
 import type { DropdownMenuProps, DropdownMenuItemProps } from "./types";
 
 const props = withDefaults(defineProps<DropdownMenuProps>(), {

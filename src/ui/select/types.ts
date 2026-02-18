@@ -1,4 +1,3 @@
-// --- external
 import type { IconProps } from "../icon";
 import type { rootVariants } from "./select.config";
 import type { CxOptions, VariantProps } from "class-variance-authority";
@@ -8,8 +7,6 @@ import type {
   SelectItemProps,
   SelectValueProps
 } from "radix-vue";
-// --- components
-// --- types
 import type { HTMLAttributes } from "vue";
 
 type RootVariants = VariantProps<typeof rootVariants>;

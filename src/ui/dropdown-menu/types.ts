@@ -1,5 +1,3 @@
-// --- external
-// --- internal
 import type { AvatarProps } from "../avatar";
 import type { ButtonProps } from "../button";
 import type { IconProps } from "../icon";

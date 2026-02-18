@@ -71,14 +71,11 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { useVModel } from "@vueuse/core";
 import { useForwardPropsEmits } from "radix-vue";
 import { DrawerTrigger, DrawerClose } from "vaul-vue";
 import { computed } from "vue";
-// --- internal
 import config from "./drawer.config";
-// --- components
 import Drawer from "./Drawer.vue";
 import DrawerContent from "./DrawerContent.vue";
 import DrawerDescription from "./DrawerDescription.vue";
@@ -86,10 +83,8 @@ import DrawerFooter from "./DrawerFooter.vue";
 import DrawerHeader from "./DrawerHeader.vue";
 import DrawerTitle from "./DrawerTitle.vue";
 import { useStyles, cn } from "../../utils";
-// --- types
 import { pick } from "lodash-es";
 import type { DrawerProps } from "./types";
-// --- utils
 
 const props = withDefaults(defineProps<DrawerProps>(), {
   // --- props

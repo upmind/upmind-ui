@@ -9,17 +9,12 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { useVModel } from "@vueuse/core";
 import { computed } from "vue";
-// --- components
 import config from "./toggle.config";
 import Toggle from "./Toggle.vue";
-// --- internal
 import { useStyles, cn } from "../../utils";
-// --- utils
 import { omit } from "lodash-es";
-// --- types
 import type { ToggleProps } from "./types";
 // -----------------------------------------------------------------------------
 

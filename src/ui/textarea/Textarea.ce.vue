@@ -9,17 +9,12 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { useVModel } from "@vueuse/core";
 import { computed } from "vue";
-// --- components
 import config from "./textarea.config";
 import Textarea from "./Textarea.vue";
-// --- internal
 import { useStyles, cn } from "../../utils";
-// --- utils
 import { omit } from "lodash-es";
-// --- types
 import type { TextareaProps } from "./types";
 // -----------------------------------------------------------------------------
 

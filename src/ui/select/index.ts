@@ -1,6 +1,4 @@
-// --- external
 import { defineCustomElement } from "vue";
-// --- internal
 import Select from "./Select.ce.vue";
 import { variants } from "./select.config";
 import { keys } from "lodash-es";

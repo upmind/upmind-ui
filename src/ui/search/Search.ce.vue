@@ -50,7 +50,6 @@
 </template>
 
 <script setup lang="ts">
-// --- external
 import {
   PopoverRoot,
   PopoverTrigger,
@@ -58,13 +57,10 @@ import {
   PopoverPortal
 } from "radix-vue";
 import { ref, computed, watch } from "vue";
-// --- components
 import { FormControl } from "../form";
 import Input from "../input/Input.ce.vue";
-// --- utils
 import config from "./search.config";
 import { useStyles } from "../../utils";
-// --- types
 import { uniqueId } from "lodash-es";
 import type { SearchItem } from "./types";
 // -----------------------------------------------------------------------------

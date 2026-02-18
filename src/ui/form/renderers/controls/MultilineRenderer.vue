@@ -10,17 +10,13 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { isStringControl, isMultiLineControl, and } from "@jsonforms/core";
 import { useJsonFormsControl } from "@jsonforms/vue";
 import { computed } from "vue";
-// --- components
 import { Textarea } from "../../../textarea";
 import FormField from "../../FormField.vue";
-// --- utils
 import { useUpmindUIRenderer } from "../utils";
 import { isNil } from "lodash-es";
-// --- types
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
 import type { ComputedRef } from "vue";

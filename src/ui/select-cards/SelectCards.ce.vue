@@ -73,7 +73,6 @@
 </template>
 
 <script setup lang="ts">
-// --- external
 import { vIntersectionObserver } from "@vueuse/components";
 import { useVModel } from "@vueuse/core";
 import {
@@ -88,13 +87,10 @@ import {
   ScrollAreaThumb
 } from "radix-vue";
 import { ref, computed } from "vue";
-// --- internal
 import Item from "./components/Item.vue";
 import TriggerButton from "./components/TriggerButton.vue";
 import config from "./selectCards.config";
 import { cn, useStyles } from "../../utils";
-// --- components
-// --- types
 import { first, find } from "lodash-es";
 import type { SelectCardsProps, SelectCardsItemProps } from "./types";
 

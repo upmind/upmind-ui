@@ -75,13 +75,10 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { useElementBounding } from "@vueuse/core";
-// --- internal
 import { useVModel } from "@vueuse/core";
 import { useForwardPropsEmits } from "radix-vue";
 import { computed, ref, useSlots } from "vue";
-// --- components
 import { Icon } from "../icon";
 import config from "./tabs.config";
 import Tabs from "./Tabs.vue";
@@ -89,10 +86,8 @@ import TabsContent from "./TabsContent.vue";
 import TabsList from "./TabsList.vue";
 import TabsTrigger from "./TabsTrigger.vue";
 import { useStyles } from "../../utils";
-// --- utils
 import { isEmptySlot } from "../../utils";
 import { first } from "lodash-es";
-// --- types
 import type { TabsProps, TabItem } from ".";
 import type { TabsRootEmits } from "radix-vue";
 // -----------------------------------------------------------------------------

@@ -37,14 +37,10 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed, useSlots } from "vue";
 import { RouterLink } from "vue-router";
-// --- internal
 import config from "./link.config";
-// --- components
 import LinkItems from "./LinkItems.vue";
-// --- utils
 import { useStyles, cn } from "../../utils";
 import { kebabCase, isEmpty } from "lodash-es";
 // -- types

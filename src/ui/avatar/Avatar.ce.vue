@@ -34,11 +34,8 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { AvatarRoot, AvatarImage } from "radix-vue";
 import { computed } from "vue";
-// --- internal
-// --- components
 import { Icon } from "../icon";
 import IconAnimated from "../icon-animated/IconAnimated.ce.vue";
 import config from "./avatar.config";
@@ -47,9 +44,7 @@ import {
   cn
   //stylesheet
 } from "../../utils";
-// --- utils
 import { isEmpty, isString } from "lodash-es";
-// --- types
 import type { AvatarProps } from ".";
 // -----------------------------------------------------------------------------
 

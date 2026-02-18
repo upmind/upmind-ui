@@ -89,9 +89,7 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { ref, computed, useSlots } from "vue";
-// --- internal
 import { Icon } from "../icon";
 import { Tooltip } from "../tooltip";
 import config from "./form.config";
@@ -104,10 +102,8 @@ import {
   FormDescription,
   FormMessage
 } from ".";
-// --- utils
 import { cn, useStyles } from "../../utils";
 import { isEmpty, isNil, some, kebabCase } from "lodash-es";
-// --- types
 import type { FormControlProps } from "./types";
 // -----------------------------------------------------------------------------
 

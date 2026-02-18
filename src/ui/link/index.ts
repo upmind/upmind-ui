@@ -1,6 +1,4 @@
-// --- external
 import { defineCustomElement } from "vue";
-// --- internal
 import Link from "./Link.ce.vue";
 import { variants } from "./link.config";
 import { keys } from "lodash-es";

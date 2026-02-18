@@ -39,18 +39,14 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed } from "vue";
-// --- internal
 import Link from "../link/Link.ce.vue";
 import config from "./breadcrumb.config";
-// --- components
 import Breadcrumb from "./Breadcrumb.vue";
 import BreadcrumbItem from "./BreadcrumbItem.vue";
 import BreadcrumbList from "./BreadcrumbList.vue";
 import BreadcrumbSeparator from "./BreadcrumbSeparator.vue";
 import { cn, useStyles } from "../../utils";
-// --- types
 import type {
   BreadcrumbConsolidateProps,
   BreadcrumbItem as BreadcrumbItemType

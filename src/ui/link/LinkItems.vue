@@ -12,15 +12,11 @@
 </template>
 
 <script setup lang="ts">
-// --- external
 import { computed } from "vue";
-// --- components
 import { Avatar } from "../avatar";
 import { Icon } from "../icon";
-// --- internal
 import config from "./link.config";
 import { useStyles } from "../../utils";
-// --- types
 import type { LinkItemsProps } from "./types";
 
 const props = defineProps<LinkItemsProps>();

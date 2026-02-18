@@ -14,7 +14,6 @@ import {
   every,
   find
 } from "lodash-es";
-// --- types
 import type { IconEntry, IconImportMap, LoadIconOptions } from "../types";
 // -----------------------------------------------------------------------------
 

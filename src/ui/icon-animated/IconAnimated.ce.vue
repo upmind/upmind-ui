@@ -13,13 +13,10 @@
 
 <span class="text-icon-primary text-icon-neutral hidden" />
 <script lang="ts" setup>
-// --- external
 import { onMounted, computed, ref, watch } from "vue";
-// --- internal
 import config from "./iconAnimated.config";
 import { loadAnimation } from "./utils/animationLoader";
 import { useStyles, cn, getComputedColor } from "../../utils";
-// --- types
 import type { AnimatedIconProps } from "./types";
 
 const props = withDefaults(defineProps<AnimatedIconProps>(), {

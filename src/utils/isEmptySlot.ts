@@ -1,5 +1,3 @@
-// --- utils
-
 import { Fragment } from "vue";
 import { isEmpty } from "lodash-es";
 import type { VNode } from "vue";

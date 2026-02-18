@@ -1,4 +1,3 @@
-// --- external
 import type { rootVariants } from "./button.config";
 import type { AvatarProps } from "../avatar";
 import type { Icon } from "../icon/types";
@@ -9,8 +8,6 @@ import type {
   RouteLocationAsRelativeGeneric,
   RouteLocationAsPathGeneric
 } from "vue-router";
-// --- internal
-// --- types
 
 type ButtonVariantProps = VariantProps<typeof rootVariants>;
 

@@ -1,6 +1,4 @@
-// --- external
 import { defineCustomElement } from "vue";
-// --- internal
 import NumberField from "./NumberField.ce.vue";
 
 // export { default as NumberFieldRoot } from "./NumberField.vue";

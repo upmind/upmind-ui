@@ -21,12 +21,9 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { useForwardPropsEmits, TooltipArrow } from "radix-vue";
 import { computed } from "vue";
-// --- internal
 import config from "./tooltip.config";
-// --- components
 import Tooltip from "./Tooltip.vue";
 import TooltipContent from "./TooltipContent.vue";
 import TooltipProvider from "./TooltipProvider.vue";
@@ -36,9 +33,7 @@ import {
   useStyles
   //stylesheet
 } from "../../utils";
-// --- utils
 import { isEmpty } from "lodash-es";
-// --- types
 import type { TooltipProps } from "./types";
 import type { TooltipContentEmits, TooltipRootEmits } from "radix-vue";
 // -----------------------------------------------------------------------------

@@ -54,7 +54,7 @@ export * from "./ui/textarea";
 export * from "./ui/tooltip";
 
 export { default as plugins } from "./plugins";
-// --- utils
+
 export {
   useStyles,
   cn,

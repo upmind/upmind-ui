@@ -1,9 +1,7 @@
-// --- external
 import { defineCustomElement } from "vue";
-// --- vue elements
+import Interstitial from "./Interstitial.ce.vue";
+
 export { default as Interstitial } from "./Interstitial.ce.vue";
 export * from "./types";
-// --- custom elements
-import Interstitial from "./Interstitial.ce.vue";
 
 export const UpmInterstitial = defineCustomElement(Interstitial);

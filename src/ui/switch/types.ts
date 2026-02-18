@@ -1,8 +1,7 @@
-// --- external
 import type { switchVariants } from "./switch.config";
 import type { CxOptions, VariantProps } from "class-variance-authority";
 import type { InputTypeHTMLAttribute, HTMLAttributes } from "vue";
-// --- internal
+
 type _InputVariantProps = VariantProps<typeof switchVariants>;
 
 export interface SwitchProps {

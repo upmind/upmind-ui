@@ -8,13 +8,9 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { onMounted, computed, useSlots, shallowRef } from "vue";
-// --- components
 import Sanitized from "../sanitized/Sanitized.vue";
-// --- utils
 import { first, lowerCase } from "lodash-es";
-// --- types
 import type { MarkdownProps } from "./types";
 import type { Marked } from "marked";
 import type { VNode } from "vue";

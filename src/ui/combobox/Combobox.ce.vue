@@ -127,9 +127,7 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { ref, computed, watch } from "vue";
-// --- internal
 import { isMobile } from "../../utils/isMobile";
 import Avatar from "../avatar/Avatar.ce.vue";
 import Button from "../button/Button.ce.vue";
@@ -145,10 +143,7 @@ import Icon from "../icon/Icon.ce.vue";
 import { Popover, PopoverContent, PopoverTrigger } from "../popover";
 import config from "./combobox.config";
 import { cn, useStyles } from "../../utils";
-// --- components
-// --- utils
 import { find, get, isEmpty, isEqual, isFunction, has } from "lodash-es";
-// --- types
 import type { ComboboxProps, ComboboxItemProps } from "./types";
 
 const props = withDefaults(defineProps<ComboboxProps>(), {

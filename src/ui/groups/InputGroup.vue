@@ -8,7 +8,6 @@
 </template>
 
 <script lang="ts" setup>
-// --- utils=
 import { ringClasses, invalidRingClasses } from "../../assets/styles";
 
 withDefaults(

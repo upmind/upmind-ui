@@ -1,9 +1,8 @@
-// --- external
 import type { itemVariants } from "./radioCards.config";
 import type { CxOptions, VariantProps } from "class-variance-authority";
 import type { RadioGroupRootProps, RadioGroupItemProps } from "radix-vue";
 import type { HTMLAttributes } from "vue";
-// --- types
+
 type _RadioCardsItemVariantProps = VariantProps<typeof itemVariants>;
 
 export interface RadioCardsCollapsibleItemProps extends RadioGroupItemProps {

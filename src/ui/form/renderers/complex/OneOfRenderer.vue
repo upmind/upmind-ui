@@ -22,7 +22,6 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import {
   createDefaultValue,
   isOneOfControl,
@@ -31,14 +30,11 @@ import {
 } from "@jsonforms/core";
 import { useJsonFormsOneOfControl, DispatchRenderer } from "@jsonforms/vue";
 import { computed, ref } from "vue";
-// --- components
 import { Tabs } from "../../../tabs";
 import FormField from "../../FormField.vue";
-// --- utils
 import { useUpmindUIRenderer } from "../utils";
 import { createIndexedOneOfRenderInfos } from "../utils";
 import { forEach } from "lodash-es";
-// --- types
 import type { TabItem } from "../../../tabs";
 import type {
   ControlElement,
