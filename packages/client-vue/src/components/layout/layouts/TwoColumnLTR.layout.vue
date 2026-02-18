@@ -1,9 +1,8 @@
 <template>
-  <Root>
+  <Root :overflow="overflow">
     <Ribbon
       :background="isMobile ? RIBBON_BACKGROUND.CANVAS : RIBBON_BACKGROUND.LTR"
       :border="RIBBON_BORDER.NONE"
-      :height="RIBBON_HEIGHT.GROW"
     >
       <Container :flow="CONTAINER_FLOW.HORIZONTAL">
         <Column
@@ -78,8 +77,9 @@
         </Column>
 
         <Column
-          v-if="meta.hasAside && !isMobile"
+          v-if="!isMobile"
           :background="COLUMN_BACKGROUND.CANVAS"
+          class="lg:pt-0"
         >
           <Content
             as="aside"
@@ -138,9 +138,14 @@ import {
 import { isMobile } from "@upmind-automation/upmind-ui";
 import { isEmptySlot } from "@upmind-automation/upmind-ui";
 
+// --- types
+import type { VariantProps } from "../types";
+
 defineOptions({
   inheritAttrs: false
 });
+
+defineProps<VariantProps>();
 
 const slots = useSlots();
 

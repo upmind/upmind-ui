@@ -1,5 +1,5 @@
 <template>
-  <Root :class="styles.split.root">
+  <Root :class="styles.split.root" :overflow="overflow">
     <article :class="styles.split.container">
       <!-- Content -->
       <div :class="styles.split.content.root">

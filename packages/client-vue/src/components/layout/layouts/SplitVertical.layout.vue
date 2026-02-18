@@ -1,5 +1,5 @@
 <template>
-  <Root>
+  <Root :overflow="overflow">
     <Ribbon
       v-if="meta.hasContentHeader"
       :background="RIBBON_BACKGROUND.SURFACE"
