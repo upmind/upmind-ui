@@ -33,6 +33,20 @@ export const useSemanticTypeKeyword: KeywordDefinition = {
   errors: false
 };
 
+export const useTrimKeyword: KeywordDefinition = {
+  keyword: "trim",
+  schemaType: "boolean",
+  validate: function (data, parentData, parentDataProperty) {
+    if (isString(data)) {
+      debugger;
+      parentData[parentDataProperty] = trim(data); // Mutate data
+    }
+    return true; // Always valid
+  },
+  modifying: true, // Tell Ajv to allow mutation
+  errors: false
+};
+
 export const phoneCountryCodeKeyword: KeywordDefinition = {
   keyword: "phone_country_code",
   type: ["string", "object", "null"],
