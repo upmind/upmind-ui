@@ -51,7 +51,7 @@ export default {
 
     gateway: {
       root: cva("flex flex-col gap-5"),
-      form: cva("flex w-full flex-col items-center justify-center gap-6", {
+      form: cva("flex w-full flex-col justify-center gap-6", {
         variants: {
           hasErrors: {
             true: "border-control-error focus-within:ring-control-error focus-within:ring-opacity-20 focus-within:ring-4",
