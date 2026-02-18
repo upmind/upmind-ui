@@ -15,7 +15,7 @@ export default {
         direction: "horizontal"
       }
     }),
-    details: cva("flex w-full flex-col gap-3 md:flex-1 md:pr-6", {
+    details: cva("w-full md:flex-1 md:pr-6", {
       variants: {
         hasImage: {
           true: "max-w-xl",
@@ -26,22 +26,6 @@ export default {
         hasImage: false
       }
     }),
-    title: {
-      root: cva("flex min-w-0 gap-x-5 gap-y-2 text-4xl", {
-        variants: {
-          direction: {
-            horizontal: "flex-col-reverse items-start md:text-5xl xl:flex-row",
-            vertical: "flex-col-reverse items-start"
-          }
-        },
-        defaultVariants: {
-          direction: "horizontal"
-        }
-      }),
-      badge: cva("flex h-lh items-center justify-center"),
-      text: cva("font-display break-word min-w-0 text-balance")
-    },
-    description: cva("text-md text-muted font-normal"),
     price: cva("font-normal", {
       variants: {
         direction: {
@@ -56,8 +40,7 @@ export default {
     aside: cva("text-right", {
       variants: {
         direction: {
-          horizontal:
-            "md:h-[var(--details-h)] md:max-h-64 md:w-1/2 md:max-w-1/2",
+          horizontal: "md:h-[var(--details-h)] md:max-h-64 md:max-w-1/2",
           vertical: ""
         }
       },
@@ -65,6 +48,28 @@ export default {
         direction: "horizontal"
       }
     }),
-    image: cva("inline-block h-full max-w-full")
+    image: cva("inline-block h-full max-w-full"),
+    heroTitle: cva("", {
+      variants: {
+        direction: {
+          horizontal: "",
+          vertical: "md:text-4xl"
+        }
+      },
+      defaultVariants: {
+        direction: "horizontal"
+      }
+    }),
+    heroDescription: cva("", {
+      variants: {
+        direction: {
+          horizontal: "",
+          vertical: "md:text-md-tight"
+        }
+      },
+      defaultVariants: {
+        direction: "horizontal"
+      }
+    })
   }
 };
