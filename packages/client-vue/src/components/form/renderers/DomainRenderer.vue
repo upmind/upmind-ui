@@ -1,5 +1,9 @@
 <template>
-  <FormField v-bind="formFieldProps" :optional-text="t('text.optional')">
+  <FormField
+    v-bind="formFieldProps"
+    :errors="defaultsDeep(formFieldProps.errors, domainErrors)"
+    :optional-text="t('text.optional')"
+  >
     <Domain
       :template="DOMAIN_TEMPLATE.DRAWER"
       :model-value="control.data"
@@ -8,6 +12,7 @@
       :disabled="formFieldProps.disabled"
       @update:modelValue="onInput"
       @update:type="resetInput"
+      @error="onError"
     />
   </FormField>
 </template>
@@ -31,20 +36,28 @@ import { DOMAIN_TEMPLATE } from "../../../modules/domain/types";
 
 // -----------------------------------------------------------------------------
 const props = defineProps<RendererProps<ControlElement>>();
+const domainErrors = ref<string[]>([]);
 
 const { t } = useI18n();
+
 const { control, formFieldProps, onInput } = useUpmindUIRenderer(
-  useJsonFormsControl(props)
+  useJsonFormsControl(props),
+  (value: string) => trim(value)
 );
 
 const resetInput = (value?: string) => {
   onInput(value, false);
 };
+
+const onError = (error: string) => {
+  domainErrors.value = error ? [error] : [];
+};
 </script>
 
 <script lang="ts">
 import { uiTypeIs, and, optionIs, or, schemaMatches } from "@jsonforms/core";
-import { includes } from "lodash-es";
+import { defaultsDeep, includes, isEmpty, trim } from "lodash-es";
+import { ref } from "vue";
 
 export const tester = {
   rank: 3,

@@ -1,5 +1,5 @@
 <template>
-  <Root>
+  <Root :overflow="overflow">
     <Ribbon
       :background="isMobile ? RIBBON_BACKGROUND.CANVAS : RIBBON_BACKGROUND.RTL"
       :height="RIBBON_HEIGHT.GROW"
@@ -95,10 +95,13 @@ import {
   CONTENT_FLOW,
   CONTENT_WIDTH
 } from "../components/content";
+import type { VariantProps } from "../types";
 
 defineOptions({
   inheritAttrs: false
 });
+
+defineProps<VariantProps>();
 
 const stickyFooterRef = ref<InstanceType<typeof TwoColumnSticky> | null>(null);
 

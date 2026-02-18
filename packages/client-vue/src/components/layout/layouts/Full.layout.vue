@@ -1,5 +1,5 @@
 <template>
-  <Root>
+  <Root :overflow="overflow">
     <Ribbon v-if="meta.hasContentHeader" as="header">
       <Container>
         <Column :class="meta.hasTabs ? 'pb-0 lg:pb-0' : ''">
@@ -85,7 +85,6 @@ import { useLayout } from "../useLayout";
 
 // --- types
 import { computed, useSlots } from "vue";
-import { type VariantProps } from "../types";
 import {
   RIBBON_BACKGROUND,
   RIBBON_BORDER,
@@ -100,6 +99,7 @@ import {
   CONTENT_GAP,
   CONTENT_HEIGHT
 } from "../components/content";
+import type { VariantProps } from "../types";
 
 const props = defineProps<VariantProps>();
 

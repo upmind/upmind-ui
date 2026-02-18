@@ -1,5 +1,6 @@
 import { type FormatDefinition } from "ajv";
 import { isString, isNil } from "lodash-es";
+import { DOMAIN_LIKE_VALIDATION } from "./useValidation";
 
 export interface NamedFormatDefinition<
   T extends string | number = string
@@ -13,11 +14,7 @@ export const domainNameFormat: NamedFormatDefinition<string> = {
   validate: (data: string): boolean => {
     if (isNil(data)) return true;
     if (!isString(data)) return false;
-    // Modern domain regex: supports subdomains, modern TLDs, case-insensitive
-    // Matches: api.mydomain.digital, sub.domain.com, example.technology, etc.
-    return /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)*[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/i.test(
-      data
-    );
+    return DOMAIN_LIKE_VALIDATION.test(data);
   }
 };
 
