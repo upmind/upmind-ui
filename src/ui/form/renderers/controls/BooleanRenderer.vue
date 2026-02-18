@@ -63,7 +63,6 @@
 <script lang="ts" setup>
 import { isBooleanControl } from "@jsonforms/core";
 import { useJsonFormsControl } from "@jsonforms/vue";
-// -- components
 import { Checkbox } from "../../../checkbox";
 import FormControl from "../../FormControl.vue";
 import FormDescription from "../../FormDescription.vue";

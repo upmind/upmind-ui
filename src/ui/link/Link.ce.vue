@@ -43,7 +43,6 @@ import config from "./link.config";
 import LinkItems from "./LinkItems.vue";
 import { useStyles, cn } from "../../utils";
 import { kebabCase, isEmpty } from "lodash-es";
-// -- types
 import type { LinkProps } from "./types";
 
 const props = withDefaults(defineProps<LinkProps>(), {

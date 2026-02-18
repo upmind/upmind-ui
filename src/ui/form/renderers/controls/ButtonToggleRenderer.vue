@@ -59,7 +59,6 @@
 <script lang="ts" setup>
 import { isBooleanControl, and, optionIs } from "@jsonforms/core";
 import { useJsonFormsControl } from "@jsonforms/vue";
-// -- components
 import { Toggle } from "../../../toggle";
 import FormControl from "../../FormControl.vue";
 import FormDescription from "../../FormDescription.vue";
