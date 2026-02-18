@@ -1,7 +1,7 @@
 <template>
   <Hero
     :title="t('cart.basket_title')"
-    :description="
+    :subtitle="
       !meta.isFree
         ? t('cart.basket_summary_desc', {
             count: count ?? 0,

@@ -1,18 +1,20 @@
 <template>
-  <component
-    :is="component"
+  <Lineclamp
+    v-if="lineclamp"
     :label-more="t('action.show_more')"
     :label-less="t('action.show_less')"
     :lines="lines"
   >
+    <p>{{ description }}</p>
+  </Lineclamp>
+  <p v-else>
     {{ description }}
-  </component>
+  </p>
 </template>
 
 <script setup lang="ts">
 // --- external
 import { useI18n } from "vue-i18n";
-import { computed } from "vue";
 
 // --- components
 import { Lineclamp } from "@upmind-automation/upmind-ui";
@@ -31,13 +33,6 @@ const props = withDefaults(
     lines: 3
   }
 );
-
-const component = computed(() => {
-  if (props.lineclamp) {
-    return Lineclamp;
-  }
-  return "p";
-});
 
 const { t } = useI18n();
 </script>

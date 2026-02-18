@@ -1,7 +1,7 @@
 <template>
   <Hero
     :title="t('domain.domain_title')"
-    :description="t('domain.domain_description')"
+    :subtitle="t('domain.domain_description')"
   >
     <template #default>
       <DomainSearch

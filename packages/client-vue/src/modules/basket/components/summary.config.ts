@@ -3,7 +3,7 @@ import { cva } from "class-variance-authority";
 
 export default {
   summary: {
-    root: cva("mb-4 flex flex-col gap-2 font-normal"),
+    root: cva("flex flex-col gap-2 font-normal"),
     item: {
       root: cva("flex items-center justify-between font-medium"),
       term: cva("text-xl-loose flex-shrink-0 text-left"),

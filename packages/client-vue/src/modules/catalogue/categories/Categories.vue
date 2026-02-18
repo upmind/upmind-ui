@@ -1,7 +1,6 @@
 <template>
   <div :class="styles.categories.root" v-auto-animate>
     <CategoriesHeader
-      v-model="modelValue"
       v-bind="{ ...props, ...currentCategory }"
       :description="props.description"
       :badge="props.badge"
