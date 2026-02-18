@@ -9,7 +9,7 @@
     <template #hero>
       <slot name="hero">
         <Hero :title="t('auth.login_title')">
-          <template #description>
+          <template #subtitle>
             <i18n-t keypath="auth.login_description" scope="global" tag="span">
               <template #[`login_description_action`]>
                 <Link

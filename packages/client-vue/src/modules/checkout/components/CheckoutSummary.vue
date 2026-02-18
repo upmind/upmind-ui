@@ -1,7 +1,7 @@
 <template>
   <Hero
     :title="t('text.secure_checkout')"
-    :description="
+    :subtitle="
       t('cart.basket_summary_desc', {
         count: products?.length ?? 0,
         total: summary?.total ?? 0

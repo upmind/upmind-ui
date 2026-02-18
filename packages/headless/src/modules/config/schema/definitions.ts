@@ -139,7 +139,7 @@ export const UI_META_DEFINITIONS = {
     default: VISIBILITY.VISIBLE,
     contexts: [UIContext.CONFIGURE, UIContext.BASKET],
     scopes: [UIScope.BRAND, UIScope.PRODUCT_CATEGORY, UIScope.PRODUCT],
-    locked: [UIContext.BASKET]
+    locked: { [UIContext.BASKET]: VISIBILITY.VISIBLE }
   },
   productDescription: {
     type: CLAMPABLE_VISIBILITY,
@@ -272,7 +272,11 @@ export const UI_META_DEFINITIONS = {
       UIScope.OPTION_CATEGORY,
       UIScope.OPTION
     ],
-    locked: [UIContext.AUTH, UIContext.CHECKOUT, UIContext.CONFIRMATION]
+    locked: {
+      [UIContext.AUTH]: ZERO_PRICE_DISPLAY.NUMERIC,
+      [UIContext.CHECKOUT]: ZERO_PRICE_DISPLAY.NUMERIC,
+      [UIContext.CONFIRMATION]: ZERO_PRICE_DISPLAY.NUMERIC
+    }
   },
 
   // --- Options ---
@@ -313,7 +317,7 @@ export const UI_META_DEFINITIONS = {
   },
   optionSelector: {
     type: OPTION_SELECTOR,
-    default: OPTION_SELECTOR.RADIO_GRID,
+    default: OPTION_SELECTOR.RADIO_ROWS,
     contexts: [UIContext.CONFIGURE],
     scopes: [
       UIScope.BRAND,
@@ -377,10 +381,10 @@ export const UI_META_DEFINITIONS = {
 
   basketFields: {
     type: VISIBILITY,
-    default: VISIBILITY.VISIBLE,
+    default: VISIBILITY.HIDDEN,
     contexts: [UIContext.BASKET, UIContext.CHECKOUT],
     scopes: [UIScope.BRAND],
-    locked: [UIContext.BASKET]
+    locked: { [UIContext.BASKET]: VISIBILITY.VISIBLE }
   },
   basketItems: {
     type: VISIBILITY,
@@ -393,7 +397,7 @@ export const UI_META_DEFINITIONS = {
     default: VISIBILITY.VISIBLE,
     contexts: [UIContext.AUTH, UIContext.CHECKOUT],
     scopes: [UIScope.BRAND],
-    locked: [UIContext.CHECKOUT]
+    locked: { [UIContext.CHECKOUT]: VISIBILITY.VISIBLE }
   },
   basketTaxes: {
     type: TAXES_DISPLAY,
@@ -411,7 +415,7 @@ export const UI_META_DEFINITIONS = {
     default: EDITABILITY.EDITABLE,
     contexts: [UIContext.BILLING_DETAILS, UIContext.CHECKOUT],
     scopes: [UIScope.BRAND],
-    locked: [UIContext.BILLING_DETAILS]
+    locked: { [UIContext.BILLING_DETAILS]: EDITABILITY.EDITABLE }
   },
   paymentGatewaysCap: {
     type: GATEWAY_CAP,

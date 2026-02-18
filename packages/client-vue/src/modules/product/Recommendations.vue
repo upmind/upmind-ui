@@ -3,7 +3,7 @@
     <template #content-header>
       <Hero
         :title="t('text.complete_online_toolkit_md')"
-        :description="t('text.popular_offers')"
+        :subtitle="t('text.popular_offers')"
       />
     </template>
 

@@ -59,7 +59,7 @@ export default {
 
     carousel: {
       navigation: cva("flex justify-end space-x-2"),
-      item: cva("pl-12 md:basis-1/2 xl:basis-1/3")
+      item: cva("basis-3/4 pl-12 md:basis-1/2 xl:basis-1/3")
     },
 
     drawer: {

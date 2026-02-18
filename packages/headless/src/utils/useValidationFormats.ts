@@ -1,5 +1,6 @@
 import { type FormatDefinition } from "ajv";
 import { isString, isNil } from "lodash-es";
+import { DOMAIN_LIKE_VALIDATION } from "./useValidation";
 
 export interface NamedFormatDefinition<
   T extends string | number = string
@@ -13,9 +14,7 @@ export const domainNameFormat: NamedFormatDefinition<string> = {
   validate: (data: string): boolean => {
     if (isNil(data)) return true;
     if (!isString(data)) return false;
-    return /^(?!-)[A-Za-z0-9-]+([-.]{1}[a-z0-9]+)*\.[A-Za-z]{2,6}$/.test(data);
-    // Original regex (slighly modified for use)
-    // return /^(((?!-))(xn--|_)?[a-z0-9-]{0,61}[a-z0-9]{1,1}\.)*(xn--)?([a-z0-9][a-z0-9\-]{0,60}|[a-z0-9-]{1,30}\.[a-z]{2,})$/.test(data);
+    return DOMAIN_LIKE_VALIDATION.test(data);
   }
 };
 

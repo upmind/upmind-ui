@@ -1,5 +1,5 @@
 <template>
-  <Root :class="styles.surfaceBox.root">
+  <Root :class="styles.surfaceBox.root" :overflow="overflow">
     <div :class="styles.surfaceBox.container">
       <component
         :is="card ? 'article' : Card"
