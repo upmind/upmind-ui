@@ -1,19 +1,17 @@
 <template>
   <header :class="styles.hero.root">
+    <Badge
+      v-bind="isString(badge) ? { label: badge } : badge"
+      class="shrink-0"
+      variant="minimal"
+      color="neutral"
+    />
     <hgroup>
       <slot name="prepend" />
       <h1 :class="styles.hero.title">
         <slot name="title">
           <Sanitized v-if="props.title" :modelValue="props.title" />
         </slot>
-        <span v-if="badge" :class="styles.hero.badge">
-          <Badge
-            v-bind="isString(badge) ? { label: badge } : badge"
-            class="shrink-0"
-            variant="minimal"
-            color="neutral"
-          />
-        </span>
       </h1>
 
       <component
