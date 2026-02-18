@@ -313,7 +313,7 @@ export const UI_META_DEFINITIONS = {
   },
   optionSelector: {
     type: OPTION_SELECTOR,
-    default: OPTION_SELECTOR.RADIO_GRID,
+    default: OPTION_SELECTOR.RADIO_ROWS,
     contexts: [UIContext.CONFIGURE],
     scopes: [
       UIScope.BRAND,
