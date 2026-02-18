@@ -34,7 +34,7 @@ function loadList(params?: Partial<QueryParams>) {
     queryKey: [...queryKey, { promocodes }],
     url: useUrl(`basket/products`, {
       // NB: Always exclude domain names from the product catalogue as we use the Domain widget for the category
-      "filter[provision_blueprint.code|neq]":
+      "filter[provision_blueprint.category.code|neq]":
         ProvisionCategoryCodes.DOMAIN_NAMES,
       with: [
         "image",
@@ -68,7 +68,7 @@ function loadInfinite(params?: Partial<QueryParams>) {
     queryKey,
     url: useUrl(`basket/products`, {
       // NB: Always exclude domain names from the product catalogue as we use the Domain widget for the category
-      "filter[provision_blueprint.code|neq]":
+      "filter[provision_blueprint.category.code|neq]":
         ProvisionCategoryCodes.DOMAIN_NAMES,
       with: [
         "image",
