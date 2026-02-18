@@ -53,7 +53,6 @@ import Button from "./Button.vue";
 import ButtonItems from "./ButtonItems.vue";
 import { useStyles, cn } from "../../utils";
 import { kebabCase } from "lodash-es";
-// -- types
 import type { ButtonProps } from "./types";
 
 const props = withDefaults(defineProps<ButtonProps>(), {
