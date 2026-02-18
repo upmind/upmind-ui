@@ -206,7 +206,7 @@ export function getDomainRawBasketProducts(
   // check if we have the parsed basket product structure
   return filter(products, raw => {
     return isDomainProduct({
-      blueprintCode: raw?.product?.provision_blueprint?.code,
+      blueprintCode: raw?.product?.provision_blueprint?.category?.code,
       provisionFields: raw?.provision_fields,
       serviceIdentifier: raw?.service_identifier ?? undefined
     });
