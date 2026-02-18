@@ -9,6 +9,51 @@ import type { ResponseError } from "../../utils";
 // -----------------------------------------------------------------------------
 
 /**
+ * A single domain result from the /suggestions endpoint.
+ */
+export interface IDomainSuggestionResult {
+  sld: string;
+  tld: string;
+  product_id: string;
+  domain_available: boolean;
+}
+
+/**
+ * A price entry within a suggestion product.
+ */
+export interface IDomainSuggestionPrice {
+  billing_cycle_months: number;
+  price_formatted: string;
+  price_discounted_formatted: string | null;
+}
+
+/**
+ * A product returned alongside suggestion results.
+ */
+export interface IDomainSuggestionProduct {
+  id: string;
+  name: string;
+  prices: IDomainSuggestionPrice[];
+}
+
+/**
+ * The full response shape from /suggestions.
+ */
+export interface IDomainSuggestionsResponse {
+  results: IDomainSuggestionResult[];
+  products: IDomainSuggestionProduct[];
+}
+
+/**
+ * The response shape from /availability/{domain}.
+ */
+export interface IDomainAvailabilityResponse {
+  can_register: boolean;
+  can_transfer: boolean;
+  is_premium: boolean;
+}
+
+/**
  * Enumeration defining the different types of domain management flows.
  * These types dictate the user interface, available actions, and underlying logic
  * for how a customer interacts with domain names, e.g. registering a new one,
@@ -176,6 +221,11 @@ export interface DacContext extends BasketHelperContext<DomainProduct> {
    * An `ActorRef` to a basket helper service.
    */
   basketHelper?: ActorRef<any>;
+
+  /**
+   * The domain currently being availability-checked (set when ADD event fires).
+   */
+  checkingDomain?: string;
 }
 
 export interface DomainContext extends BasketHelperContext<DomainProduct> {

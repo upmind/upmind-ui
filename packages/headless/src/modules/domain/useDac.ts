@@ -70,7 +70,10 @@ export const useDac = () => {
   const meta = computed(() => {
     return {
       isLoading: stateMatches(state, ["subscribing", "loading"]),
-      isProcessing: some(available.value, "meta.processing"),
+      isChecking: stateMatches(state, ["checking"]),
+      isProcessing:
+        stateMatches(state, ["checking"]) ||
+        some(available.value, "meta.processing"),
       isSearching:
         stateMatches(state, "searching") && (query.value?.length ?? 0) > 2,
       isSearchingMore:

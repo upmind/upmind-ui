@@ -28,7 +28,11 @@ import {
   ProvisionCategoryCodes
 } from "@upmind-automation/types";
 import type { BasketProduct } from "../basketProduct";
-import type { DomainProduct, DomainModel } from "./types";
+import type {
+  DomainProduct,
+  DomainModel,
+  IDomainSuggestionsResponse
+} from "./types";
 import { type ProductProps } from "../product";
 
 // ----------------------------------------------------------------------------
@@ -130,6 +134,68 @@ export function parseAvailable(
   });
 
   // and ensure we don't have any duplicates or falsy
+  return compact(uniqBy(available, "domain"));
+}
+
+/**
+ * Maps the new /suggestions API response shape into DomainProduct[].
+ * Joins results[] to products[] via product_id, maps price_formatted /
+ * price_discounted_formatted into the PriceDetail shape.
+ */
+export function parseSuggestions(
+  sld: string,
+  response: IDomainSuggestionsResponse,
+  preferredCycle?: number
+): DomainProduct[] {
+  const { results = [], products = [] } = response;
+
+  const available = map(results, result => {
+    const { tld, product_id, domain_available } = result;
+    const domain = `${sld}${tld}`;
+    const parsedDomain = parseDomain(domain);
+
+    const product = find(products, ["id", product_id]);
+    const prices = product?.prices ?? [];
+    const priceEntry =
+      find(prices, ["billing_cycle_months", preferredCycle]) ?? first(prices);
+
+    const priceFormatted = priceEntry?.price_formatted ?? "";
+    const priceDiscountedFormatted =
+      priceEntry?.price_discounted_formatted ?? null;
+    const billingCycleMonths = priceEntry?.billing_cycle_months ?? 12;
+
+    return {
+      domain: parsedDomain?.domain ?? domain,
+      sld: parsedDomain?.sld ?? sld,
+      tld: parsedDomain?.tld ?? tld,
+      configuration: {
+        productId: product_id,
+        term: billingCycleMonths,
+        quantity: 1,
+        provisionFields: { sld }
+      },
+      price: {
+        currentPrice: priceDiscountedFormatted ?? priceFormatted,
+        currentAmount: 0,
+        regularPrice: priceFormatted,
+        regularAmount: 0,
+        savingAmount: 0,
+        savingPrice: "",
+        savingPercent: ""
+      },
+      meta: {
+        available: domain_available
+      },
+      productDetails: {
+        id: product_id,
+        title: domain,
+        name: product?.name ?? tld
+      },
+      pricing: [],
+      details: []
+    } as unknown as DomainProduct;
+  });
+
   return compact(uniqBy(available, "domain"));
 }
 

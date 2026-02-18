@@ -12,13 +12,101 @@ import {
 
 // --- utils
 import { isEmpty, map, omitBy } from "lodash-es";
-import { parseAvailable, parseDomain, parseDomainParts } from "./utils";
+import { parseDomain, parseDomainParts, parseSuggestions } from "./utils";
 
 // --- types
-import type { IProduct } from "@upmind-automation/types";
-import type { DomainContext, DacContext } from "./types";
+import type {
+  DomainContext,
+  DacContext,
+  IDomainSuggestionsResponse,
+  IDomainAvailabilityResponse
+} from "./types";
 import { DetailedError, ErrorOrigin, responseCodes } from "../../utils";
 import { parsePromotionsOrCoupons } from "../basketProduct/utils";
+
+// -----------------------------------------------------------------------------
+// Mock data for development — remove once real endpoints are available
+
+const MOCK_SUGGESTIONS_RESPONSE: IDomainSuggestionsResponse = {
+  results: [
+    {
+      sld: "QUERY_SLD",
+      tld: ".com",
+      product_id: "aaa-111-bbb",
+      domain_available: true
+    },
+    {
+      sld: "QUERY_SLD",
+      tld: ".io",
+      product_id: "aaa-222-bbb",
+      domain_available: true
+    },
+    {
+      sld: "QUERY_SLD",
+      tld: ".net",
+      product_id: "aaa-333-bbb",
+      domain_available: false
+    },
+    {
+      sld: "QUERY_SLD",
+      tld: ".co.uk",
+      product_id: "aaa-444-bbb",
+      domain_available: true
+    }
+  ],
+  products: [
+    {
+      id: "aaa-111-bbb",
+      name: ".com",
+      prices: [
+        {
+          billing_cycle_months: 12,
+          price_formatted: "$12.99",
+          price_discounted_formatted: "$9.99"
+        }
+      ]
+    },
+    {
+      id: "aaa-222-bbb",
+      name: ".io",
+      prices: [
+        {
+          billing_cycle_months: 12,
+          price_formatted: "$39.99",
+          price_discounted_formatted: null
+        }
+      ]
+    },
+    {
+      id: "aaa-333-bbb",
+      name: ".net",
+      prices: [
+        {
+          billing_cycle_months: 12,
+          price_formatted: "$14.99",
+          price_discounted_formatted: null
+        }
+      ]
+    },
+    {
+      id: "aaa-444-bbb",
+      name: ".co.uk",
+      prices: [
+        {
+          billing_cycle_months: 12,
+          price_formatted: "$8.99",
+          price_discounted_formatted: null
+        }
+      ]
+    }
+  ]
+};
+
+const MOCK_AVAILABILITY_RESPONSE: IDomainAvailabilityResponse = {
+  can_register: true,
+  can_transfer: false,
+  is_premium: false
+};
 
 // -----------------------------------------------------------------------------
 
@@ -30,7 +118,7 @@ async function search({
   preferredCycle
 }: DacContext) {
   const { t } = useI18n();
-  const { cancel, getList, useUrl } = useQuery();
+  const { cancel } = useQuery();
 
   if (!search?.query?.length)
     return Promise.reject(
@@ -41,36 +129,73 @@ async function search({
       )
     );
 
-  const { sld, tld } = parseDomainParts(search.query);
+  const { sld } = parseDomainParts(search.query);
 
-  // lets ensure we parse our coupons correctly
-  const promocodes = parsePromotionsOrCoupons(coupons).join();
+  cancel(["domains", "suggestions"]);
 
-  // --- Build the request and Fetch the search results
-  const params = omitBy(
-    {
-      sld,
-      tld,
-      with: ["prices", "options", "options.prices", "attributes"].join(),
-      basket_id: basketId,
-      brand_id: brandId,
-      promotions: promocodes
-    },
-    isEmpty
-  );
+  // TODO: remove mock once /suggestions endpoint is live
+  // const promocodes = parsePromotionsOrCoupons(coupons).join();
+  // const { tld } = parseDomainParts(search.query);
+  // const params = omitBy(
+  //   { sld, tld, basket_id: basketId, brand_id: brandId, promotions: promocodes },
+  //   isEmpty
+  // );
+  // return getList<IDomainSuggestionsResponse, DomainProduct[]>({
+  //   url: useUrl("modules/web_hosting/domains/suggestions", params),
+  //   queryKey: ["domains", "suggestions", { ...params }],
+  //   pagination: { limit: search?.limit ?? PAGINATION.limit, offset: search?.offset ?? PAGINATION.offset },
+  //   withAccessToken: true,
+  //   withCurrency: true,
+  //   select: data => parseSuggestions(sld, data ?? { results: [], products: [] }, preferredCycle)
+  // });
 
-  cancel(["domains", "search"]);
+  // --- MOCK: simulate network delay and return test data
+  return new Promise<{ data: DomainProduct[]; total: number }>(resolve => {
+    setTimeout(() => {
+      const mockWithSld: IDomainSuggestionsResponse = {
+        ...MOCK_SUGGESTIONS_RESPONSE,
+        results: MOCK_SUGGESTIONS_RESPONSE.results.map(r => ({ ...r, sld }))
+      };
+      const data = parseSuggestions(sld, mockWithSld, preferredCycle);
+      console.log("[MOCK] /suggestions response:", {
+        data,
+        total: data.length
+      });
+      resolve({ data, total: data.length });
+    }, 800);
+  });
+}
 
-  return getList<IProduct[], DomainProduct[]>({
-    url: useUrl("modules/web_hosting/domains/search", params),
-    queryKey: ["domains", "search", { ...params }],
-    pagination: {
-      limit: search?.limit ?? PAGINATION.limit,
-      offset: search?.offset ?? PAGINATION.offset
-    },
-    withAccessToken: true,
-    withCurrency: true,
-    select: data => parseAvailable(sld, data ?? [], preferredCycle)
+async function checkAvailability({ checkingDomain }: DacContext) {
+  const { get, useUrl } = useQuery();
+
+  if (!checkingDomain)
+    return Promise.reject(
+      new DetailedError(
+        "No domain specified for availability check",
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless
+      )
+    );
+
+  // TODO: remove mock once /availability endpoint is live
+  // return get<any, IDomainAvailabilityResponse>({
+  //   url: useUrl(`modules/web_hosting/domains/availability/${checkingDomain}`),
+  //   queryKey: ["domains", "availability", checkingDomain],
+  //   withAccessToken: true,
+  //   withCurrency: true,
+  //   select: data => data
+  // });
+
+  // --- MOCK: simulate network delay and return available
+  return new Promise<IDomainAvailabilityResponse>(resolve => {
+    setTimeout(() => {
+      console.log(
+        `[MOCK] /availability/${checkingDomain} response:`,
+        MOCK_AVAILABILITY_RESPONSE
+      );
+      resolve({ ...MOCK_AVAILABILITY_RESPONSE });
+    }, 600);
   });
 }
 
@@ -95,5 +220,6 @@ async function getClientDomains(_context: DomainContext | DacContext) {
 
 export default {
   search,
+  checkAvailability,
   getClientDomains
 };
