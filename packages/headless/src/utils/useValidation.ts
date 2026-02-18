@@ -35,6 +35,12 @@ import Ajv, { type ErrorObject } from "ajv";
 // --- types
 import type { JsonSchema7, JsonSchema } from "@jsonforms/core";
 
+// Allows: example.com, foo.bar.example.solutions
+// Disallows: -foo.com, foo-.com, foo..com, foo.com-
+// Notes: ASCII only; allows punycode/ no IDN.
+export const DOMAIN_LIKE_VALIDATION =
+  /^(?=.{1,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+(?:[a-z]{2,63}|xn--[a-z0-9-]{2,59})$/i;
+
 let ajvInstance: Ajv;
 // -----------------------------------------------------------------------------
 
@@ -115,7 +121,8 @@ function mapLaravelRuleToJSONSchema(
   } else if (rule == "domain_name" || rule == "domain-name") {
     return {
       type: "string",
-      format: "domain_name"
+      format: "domain_name",
+      trim: true
     };
   } else if (rule === "alpha") {
     return {
