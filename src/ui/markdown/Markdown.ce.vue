@@ -46,7 +46,7 @@ const compiledMarkdown = computed((): string => {
     first(slotContent)?.children?.toString() || props.modelValue || "";
 
   if (props.keys) {
-    modelValue = modelValue.replace(/({{\\s?\\w+\\s?}})/gi, (match, key) => {
+    modelValue = modelValue.replace(/({{\s?\w+\s?}})/gi, (match, key) => {
       return props.keys?.[lowerCase(key)] || match;
     });
   }
