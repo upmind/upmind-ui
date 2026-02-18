@@ -448,7 +448,8 @@ export default createMachine(
             if (
               !isDomainProduct({
                 serviceIdentifier: raw.service_identifier,
-                blueprintCode: raw?.product?.provision_blueprint?.code,
+                blueprintCode:
+                  raw?.product?.provision_blueprint?.category?.code,
                 provisionFields: raw?.provision_fields
               })
             )
