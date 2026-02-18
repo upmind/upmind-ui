@@ -18,7 +18,6 @@ import {
   forEach,
   get,
   includes,
-  isBoolean,
   isEmpty,
   isString,
   map,
@@ -247,10 +246,9 @@ export function parseRecommendation(
         useTranslateField(raw, "description") || productDetails?.description,
       excerpt:
         useTranslateField(raw, "short_description") || productDetails?.excerpt,
-      imgUrl:
-        isBoolean(raw.image_url) && !raw.image_url
-          ? ""
-          : raw.image_url || useImageUrl(productDetails?.imgUrl, "400x400"),
+      images: raw.image_url
+        ? [{ url: raw.image_url, alt: productDetails?.title }]
+        : productDetails?.images,
       // --- additional ui data
       badge: isString(raw?.badge)
         ? ({ label: raw?.badge } as Badge)
