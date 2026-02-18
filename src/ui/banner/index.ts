@@ -1,11 +1,7 @@
-// --- external
 import { defineCustomElement } from "vue";
-
-// --- internal
 import Banner from "./Banner.ce.vue";
 import { variants } from "./banner.config";
 import { keys } from "lodash-es";
-
 // --- exports
 export { default as Banner } from "./Banner.ce.vue";
 export { type BannerProps } from "./types";

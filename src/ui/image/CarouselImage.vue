@@ -5,14 +5,10 @@
 </template>
 
 <script setup lang="ts">
-// --- external
 import { computed } from "vue";
-// --- internal
 import { CarouselItem } from "../carousel";
 import config from "./image.config";
 import { useStyles } from "../../utils";
-// --- components
-// --- types
 import type { CarouselImageProps } from "./types";
 
 const props = defineProps<CarouselImageProps>();

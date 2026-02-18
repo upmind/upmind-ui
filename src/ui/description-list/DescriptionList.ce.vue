@@ -23,14 +23,11 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { vAutoAnimate } from "@formkit/auto-animate";
 import { computed } from "vue";
-// --- internal
 import config from "./descriptionList.config";
 import { useStyles, cn } from "../../utils";
 import { kebabCase } from "lodash-es";
-// --- types
 import type { DescriptionListProps } from "./types";
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<DescriptionListProps>(), {

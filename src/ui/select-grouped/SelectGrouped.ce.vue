@@ -48,15 +48,12 @@
  * and multi-item options (collapsible dropdown). Manages focus navigation between
  * options and emits selection changes via v-model.
  */
-// --- external
+
 import { vAutoAnimate } from "@formkit/auto-animate";
 import { computed, ref } from "vue";
-// --- internal
 import config from "./selectGrouped.config";
-// --- components
 import SelectGroupedOption from "./SelectGroupedOption.vue";
 import { cn, useStyles } from "../../utils";
-// --- types
 import type { SelectGroupedProps } from "./types";
 // -----------------------------------------------------------------------------
 

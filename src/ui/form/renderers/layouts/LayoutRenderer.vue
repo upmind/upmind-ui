@@ -19,7 +19,6 @@
 </template>
 
 <script setup lang="ts">
-// --- external
 import { isLayout } from "@jsonforms/core";
 import {
   DispatchRenderer,
@@ -29,10 +28,8 @@ import {
 import { computed } from "vue";
 // --- local
 import config from "./layouts.config";
-// --- utils
 import { useStyles } from "../../../../utils";
 import { useUpmindUILayoutRenderer } from "../utils";
-// --- types
 import type { Layout } from "@jsonforms/core";
 // -------------------------------------------------------------------
 

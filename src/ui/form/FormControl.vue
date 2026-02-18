@@ -16,13 +16,10 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { useIntersectionObserver } from "@vueuse/core"; // or '@vueuse/integrations' in some setups
 import { Slot } from "radix-vue";
 import { ref, computed, watch } from "vue";
-// --- utils
 import { first, isFunction } from "lodash-es";
-// --- types
 import type { ComponentPublicInstance } from "vue";
 // -----------------------------------------------------------------------------
 

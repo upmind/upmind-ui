@@ -1,6 +1,4 @@
-// --- external
 import { defineCustomElement } from "vue";
-// --- internal
 import Combobox from "./Combobox.ce.vue";
 import { variants } from "./combobox.config";
 import { keys } from "lodash-es";

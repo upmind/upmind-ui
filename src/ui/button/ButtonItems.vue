@@ -12,15 +12,11 @@
 </template>
 
 <script setup lang="ts">
-// --- external
 import { computed } from "vue";
-// --- components
 import { Avatar } from "../avatar";
 import { Icon } from "../icon";
-// --- internal
 import config from "./button.config";
 import { useStyles } from "../../utils";
-// --- types
 import type { ButtonItemsProps } from "./types";
 
 const props = defineProps<ButtonItemsProps>();

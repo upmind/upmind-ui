@@ -1,6 +1,6 @@
-// --- external
 import { defineCustomElement } from "vue";
-// --- vue elements
+import IconAnimated from "./IconAnimated.ce.vue";
+
 export { default as IconAnimated } from "./IconAnimated.ce.vue";
 export { type AnimatedIconProps, type AnimationImportMap } from "./types";
 // --- animation loader utilities
@@ -9,7 +9,5 @@ export {
   hasRegisteredAnimations,
   getAnimationCount
 } from "./utils/animationLoader";
-// --- custom elements
-import IconAnimated from "./IconAnimated.ce.vue";
 
 export const UpmIconAnimated = defineCustomElement(IconAnimated);

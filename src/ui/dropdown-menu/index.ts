@@ -1,9 +1,7 @@
-// --- external
 import { defineCustomElement } from "vue";
 import { variants } from "./dropdown-menu.config";
 import DropdownMenu from "./DropdownMenu.ce.vue";
 import { keys } from "lodash-es";
-// --- internal
 
 export { DropdownMenuPortal } from "radix-vue";
 export { default as DropdownMenuRoot } from "./DropdownMenu.vue";

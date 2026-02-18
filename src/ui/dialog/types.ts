@@ -1,4 +1,3 @@
-// --- external
 import type { contentVariant, overlayVariant } from "./dialog.config";
 import type { VariantProps, CxOptions } from "class-variance-authority";
 import type {
@@ -10,7 +9,6 @@ import type {
   DialogPortalProps
 } from "radix-vue";
 import type { HTMLAttributes } from "vue";
-// --- internal
 
 type DialogContentVariantProps = VariantProps<typeof contentVariant>;
 type _DialogOverlayVariantProps = VariantProps<typeof overlayVariant>;

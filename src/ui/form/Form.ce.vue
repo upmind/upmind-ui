@@ -40,18 +40,14 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
-// --- components
 import { JsonForms } from "@jsonforms/vue";
 import { useVModel } from "@vueuse/core";
 import { ref, watch, computed, onMounted, useTemplateRef } from "vue";
-// --- custom elements
 import { Button } from "../button";
 // --- local
 import config from "./form.config";
 import { upmindUIRenderers } from "./renderers";
 import { iterateSchema } from "./renderers/utils";
-// --- utils
 import { useStyles, isDeepEmpty, useValidation } from "../../utils";
 import { cn } from "../../utils";
 import {
@@ -63,7 +59,6 @@ import {
   merge,
   get
 } from "lodash-es";
-// --- types
 import type {
   FormProps,
   FormActionProps,

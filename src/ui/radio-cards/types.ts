@@ -1,5 +1,3 @@
-// --- external
-// --- types
 import type { itemSizeVariants } from "./radioCards.config";
 import type { BadgeProps } from "../badge";
 import type { LinkProps } from "../link";

@@ -1,7 +1,4 @@
-// --- external
-// --- types
 import type { BadgeProps } from "../badge";
-// --- internal
 import type { checkboxLabelVariants, variants } from "./checkboxCards.config";
 import type { LinkProps } from "../link";
 import type { CxOptions, VariantProps } from "class-variance-authority";

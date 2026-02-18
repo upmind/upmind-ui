@@ -1,8 +1,7 @@
-// --- external
 import type { textareaVariants } from "./textarea.config";
 import type { CxOptions, VariantProps } from "class-variance-authority";
 import type { HTMLAttributes } from "vue";
-// --- internal
+
 type _TextareaVariantProps = VariantProps<typeof textareaVariants>;
 
 export interface TextareaProps {

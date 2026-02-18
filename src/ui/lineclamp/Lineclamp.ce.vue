@@ -19,7 +19,6 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import {
   ref,
   computed,
@@ -29,12 +28,9 @@ import {
   watch,
   onUnmounted
 } from "vue";
-// --- internal
 import { Link } from "../link"; //
 import config from "./lineclamp.config";
-// --- utils
 import { useStyles } from "../../utils";
-// --- types
 import type { ComputedRef } from "vue";
 // ---------------------------------------------------------------------------
 

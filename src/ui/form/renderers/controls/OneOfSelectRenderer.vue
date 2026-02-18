@@ -10,15 +10,11 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { isOneOfControl } from "@jsonforms/core";
 import { useJsonFormsOneOfEnumControl } from "@jsonforms/vue";
-// --- components
 import { Select } from "../../../select";
 import FormField from "../../FormField.vue";
-// --- utils
 import { useUpmindUIRenderer } from "../utils";
-// --- types
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
 // -----------------------------------------------------------------------------

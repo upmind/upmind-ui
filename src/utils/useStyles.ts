@@ -1,10 +1,8 @@
-// --- external
 import { clsx } from "clsx";
 import { unref, toRaw, computed } from "vue";
 import defaultStylesheet from "../main.css?url";
 import { twMerge } from "./twMerge";
 import theme from "./useThemes";
-// --- utils
 import {
   flatMap,
   flattenDeep,
@@ -22,7 +20,6 @@ import {
   set,
   keys
 } from "lodash-es";
-// --- types
 import type { ClassValue } from "clsx";
 import type { ClassNameValue } from "tailwind-merge";
 import type { ComputedRef } from "vue";

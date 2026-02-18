@@ -45,19 +45,15 @@
 </template>
 
 <script setup lang="ts">
-// ---external
 import { vAutoAnimate } from "@formkit/auto-animate";
 import { useVModel } from "@vueuse/core";
 import { useForwardPropsEmits } from "radix-vue";
 import { computed } from "vue";
-// --- internal
-// --- components
 import { RadioGroup } from "../radio-group";
 import RadioCardItem from "./RadioCardItem.vue";
 import config from "./radioCards.config";
 import { cn, useStyles } from "../../utils";
 import { kebabCase } from "lodash-es";
-// --- types
 import type { RadioCardsProps } from "./types";
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<RadioCardsProps>(), {

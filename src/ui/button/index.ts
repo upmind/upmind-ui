@@ -1,6 +1,4 @@
-// --- external
 import { defineCustomElement } from "vue";
-// --- internal
 import Button from "./Button.ce.vue";
 import { variants } from "./button.config";
 import { keys } from "lodash-es";

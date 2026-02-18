@@ -1,4 +1,3 @@
-// --- external
 import type {
   numberFieldVariants,
   numberFieldRootVariants
@@ -10,7 +9,6 @@ import type {
   NumberFieldIncrementProps
 } from "radix-vue";
 import type { HTMLAttributes } from "vue";
-// --- types
 
 type NumberFieldRootVariants = VariantProps<typeof numberFieldRootVariants>;
 type NumberFieldVariants = VariantProps<typeof numberFieldVariants>;

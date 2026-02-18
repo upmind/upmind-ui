@@ -31,14 +31,11 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed } from "vue";
-// --- internal
 import { Icon } from "../icon";
 import { Link } from "../link";
 import config from "./banner.config";
 import { useStyles, cn } from "../../utils";
-// --- types
 import type { BannerProps } from "./types";
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<BannerProps>(), {

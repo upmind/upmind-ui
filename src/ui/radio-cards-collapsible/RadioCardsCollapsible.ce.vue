@@ -96,11 +96,7 @@
 </template>
 
 <script setup lang="ts">
-// --- external
 import { computed } from "vue";
-import { kebabCase } from "lodash-es";
-// --- internal
-// --- components
 import { Button } from "../button";
 import { Collapsible, CollapsibleContent } from "../collapsible";
 import { RadioGroup } from "../radio-group";
@@ -108,7 +104,7 @@ import { Skeleton } from "../skeleton";
 import RadioCardItem from "./RadioCardItem.vue";
 import config from "./radioCards.config";
 import { cn, useStyles } from "../../utils";
-// --- types
+import { kebabCase } from "lodash-es";
 import type { RadioCardsCollapsibleProps } from "./types";
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<RadioCardsCollapsibleProps>(), {

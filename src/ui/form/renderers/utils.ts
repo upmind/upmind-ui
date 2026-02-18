@@ -1,4 +1,3 @@
-// --- external
 import {
   composePaths,
   createCombinatorRenderInfos,
@@ -11,7 +10,6 @@ import {
   Resolve
 } from "@jsonforms/core";
 import { computed, ref, inject, watch } from "vue";
-// --- utils
 import {
   cloneDeep,
   defaults,
@@ -23,7 +21,6 @@ import {
   reduce,
   set
 } from "lodash-es";
-// --- types
 import type { FormControlProps } from "../types";
 import type {
   Tester,
@@ -44,7 +41,6 @@ export const useUpmindUIRenderer = <
   const jsonforms = inject<JsonFormsSubStates>("jsonforms");
   if (!jsonforms) throw new Error("jsonforms not found");
 
-  // --- utils
   function getErrors() {
     if (!jsonforms?.core) return [];
 

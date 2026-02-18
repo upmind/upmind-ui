@@ -1,5 +1,3 @@
-// --- external
-// --- internal
 import type { IconProps } from "../icon";
 import type { AnimatedIconProps } from "../icon-animated";
 import type { avatarVariants } from "./avatar.config";

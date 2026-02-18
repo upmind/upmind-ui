@@ -1,5 +1,3 @@
-// --- external
-// --- internal
 import type { IconProps } from "../icon";
 import type { indicatorVariants } from "./indicator.config";
 import type { CxOptions, VariantProps } from "class-variance-authority";

@@ -92,22 +92,17 @@
 </template>
 
 <script setup lang="ts">
-// ---external
 import { vAutoAnimate } from "@formkit/auto-animate";
 import { useVModel } from "@vueuse/core";
 import { ToggleGroupRoot } from "radix-vue";
 import { computed } from "vue";
-// --- internal
 import { Badge } from "../badge";
 import { Label } from "../label";
 import { Link } from "../link";
 import CheckboxCardItem from "./CheckboxCardItem.vue";
 import config from "./checkboxCards.config";
 import { cn, useStyles } from "../../utils";
-// --- components
-// --- utils
 import { includes, isFunction, isString, isNil, kebabCase } from "lodash-es";
-// --- types
 import type { CheckboxCardsItemActionProps, CheckboxCardsProps } from "./types";
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<CheckboxCardsProps>(), {

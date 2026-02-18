@@ -1,5 +1,3 @@
-// --- external
-// --- internal
 import type { AvatarProps } from "../avatar";
 import type { IconProps } from "../icon";
 import type { contentVariants, triggerVariants } from "./combobox.config";

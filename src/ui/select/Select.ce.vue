@@ -72,12 +72,10 @@
 </template>
 
 <script setup lang="ts">
-// --- external
 import { useVModel } from "@vueuse/core";
 import { timestamp } from "@vueuse/shared";
 import { useForwardPropsEmits } from "radix-vue";
 import { ref, watch, computed } from "vue";
-// --- internal
 import Icon from "../icon/Icon.vue";
 import config from "./select.config";
 import Select from "./Select.vue";
@@ -86,10 +84,8 @@ import SelectGroup from "./SelectGroup.vue";
 import SelectItem from "./SelectItem.vue";
 import SelectTrigger from "./SelectTrigger.vue";
 import SelectValue from "./SelectValue.vue";
-// --- utils
 import { cn, useStyles } from "../../utils";
 import { isEmpty, isEqual, isNull, find } from "lodash-es";
-// --- types
 import type { SelectProps } from "./types";
 import type { SelectRootEmits, SelectContentEmits } from "radix-vue";
 

@@ -49,15 +49,12 @@
  * Renders the label, badge, description, and action layout used by both
  * SingleItem and Item components.
  */
-// --- external
+
 import { computed } from "vue";
-// --- internal
-// --- components
 import { Badge } from "../badge";
 import { Link } from "../link";
 import config from "./selectGrouped.config";
 import { useStyles } from "../../utils";
-// --- types
 import { isNil } from "lodash-es";
 import type { SelectGroupedItemProps } from "./types";
 // -----------------------------------------------------------------------------

@@ -19,18 +19,13 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import IMask, { type InputElement } from "imask";
 import { useTemplateRef, computed, onMounted } from "vue";
-// --- internal
 import config from "./input.config";
-// --- components
 import InputItems from "./InputItems.vue";
 import { useStyles, cn } from "../../utils";
 import { kebabCase } from "lodash-es";
-// --- utils
 import { omit } from "lodash-es";
-// --- types
 import type { InputProps } from "./types";
 // -----------------------------------------------------------------------------
 

@@ -1,6 +1,4 @@
-// --- external
 import type { AvatarProps } from "../avatar/types";
-// --- internal
 import type { ButtonProps } from "../button/types";
 import type { DialogProps } from "../dialog/types";
 import type { IconProps } from "../icon/types";

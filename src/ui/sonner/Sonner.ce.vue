@@ -75,11 +75,8 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { Toaster as Sonner } from "vue-sonner";
-// --- internal
 import config from "./sonner.config";
-// --- types
 import {
   useStyles,
   cn

@@ -32,12 +32,10 @@
  * label, description, badges, and optional action button. Emits selection
  * and action events to the parent MultiItem component.
  */
-// --- external
+
 import { useFocus } from "@vueuse/core";
 import { computed, ref } from "vue";
-// --- internal
 import config from "./selectGrouped.config";
-// --- components
 import SelectGroupedItemContent from "./SelectGroupedItemContent.vue";
 import { useStyles } from "../../utils";
 import { isArray, includes, isEqual } from "lodash-es";

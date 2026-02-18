@@ -33,20 +33,16 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { isStringControl, and, or, optionIs, formatIs } from "@jsonforms/core";
 import { useJsonFormsControl } from "@jsonforms/vue";
 import { computed, ref } from "vue";
-// --- components
 import InputGroup from "../../../groups/InputGroup.vue";
 import { Icon } from "../../../icon";
 import { Input } from "../../../input";
 import { Link } from "../../../link";
 import FormField from "../../FormField.vue";
-// --- utils
 import { useUpmindUIRenderer } from "../utils";
 import { isNil } from "lodash-es";
-// --- types
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
 import type { ComputedRef } from "vue";

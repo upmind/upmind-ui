@@ -17,9 +17,7 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed } from "vue";
-// --- internal
 import { Icon } from "../icon";
 import config from "./indicator.config";
 import {
@@ -27,10 +25,7 @@ import {
   cn
   //stylesheet
 } from "../../utils";
-// --- components
-// --- utils
 import { isEmpty } from "lodash-es";
-// --- types
 import type { IndicatorProps } from ".";
 // -----------------------------------------------------------------------------
 

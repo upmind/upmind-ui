@@ -12,7 +12,6 @@
 </template>
 
 <script setup lang="ts">
-// --- external
 import { Generate, findUISchema, isObjectControl } from "@jsonforms/core";
 import {
   DispatchRenderer,
@@ -20,10 +19,8 @@ import {
   useJsonFormsControlWithDetail
 } from "@jsonforms/vue";
 import { computed } from "vue";
-// --- utils
 import { useUpmindUIRenderer } from "../utils";
 import { isEmpty } from "lodash-es";
-// --- types
 import type {
   ControlElement,
   GroupLayout,

@@ -1,7 +1,6 @@
 import type { rootVariants } from "./pagination.config";
 import type { CxOptions, VariantProps } from "class-variance-authority";
 import type { HTMLAttributes } from "vue";
-// --- internal
 
 type PaginationRootVariantProps = VariantProps<typeof rootVariants>;
 

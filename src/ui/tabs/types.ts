@@ -1,4 +1,3 @@
-// --- external
 import type { tabsRootVariants } from "./tabs.config";
 import type { CxOptions, VariantProps } from "class-variance-authority";
 import type { TabsRootProps, TabsListProps } from "radix-vue";

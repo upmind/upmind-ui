@@ -34,13 +34,11 @@
  * a MultiItem (for groups with multiple items that need a dropdown). Forwards
  * all slots and events to the appropriate child component.
  */
-// --- external
+
 import { useForwardPropsEmits } from "radix-vue";
 import { computed, ref } from "vue";
-// --- components
 import SelectGroupedMultiItem from "./SelectGroupedMultiItem.vue";
 import SelectGroupedSingleItem from "./SelectGroupedSingleItem.vue";
-// --- types
 import { first } from "lodash-es";
 import type { SelectGroupedOptionRendererProps } from "./types";
 // -----------------------------------------------------------------------------

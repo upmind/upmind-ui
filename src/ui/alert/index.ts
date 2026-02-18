@@ -1,6 +1,4 @@
-// --- external
 import { defineCustomElement } from "vue";
-// --- internal
 import Alert from "./Alert.ce.vue";
 import { variants } from "./alert.config";
 import { keys } from "lodash-es";

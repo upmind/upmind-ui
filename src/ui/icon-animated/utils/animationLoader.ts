@@ -4,7 +4,6 @@
 
 import { ref, computed, type ComputedRef } from "vue";
 import { toPairs, split, last } from "lodash-es";
-// --- types
 import type { AnimationImportMap, AnimationEntry } from "../types";
 // -----------------------------------------------------------------------------
 

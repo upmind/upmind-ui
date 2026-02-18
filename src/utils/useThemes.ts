@@ -1,6 +1,4 @@
-// --- external
 import { ref, computed, readonly } from "vue";
-// --- utils
 import {
   compact,
   find,
@@ -13,7 +11,6 @@ import {
 } from "lodash-es";
 import type { cva } from "class-variance-authority"; // If you have a type for cva, otherwise use `any`
 // ---
-// --- types
 
 export type UIConfigValue =
   | ReturnType<typeof cva>

@@ -71,15 +71,12 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { useVModel } from "@vueuse/core";
 import { useForwardPropsEmits } from "radix-vue";
 import { computed, nextTick } from "vue";
-// --- internal
 import { usePointerEvents } from "../../utils/usePointerEvents";
 import { Link } from "../link";
 import config from "./dialog.config";
-// --- components
 import Dialog from "./Dialog.vue";
 import DialogClose from "./DialogClose.vue";
 import DialogContent from "./DialogContent.vue";
@@ -89,11 +86,10 @@ import DialogHeader from "./DialogHeader.vue";
 import DialogTitle from "./DialogTitle.vue";
 import DialogTrigger from "./DialogTrigger.vue";
 import { useStyles, cn } from "../../utils";
-// --- types
 import { pick } from "lodash-es";
 import type { DialogProps } from "./types";
 import type { DialogRootEmits, DialogContentEmits } from "radix-vue";
-// --- utils
+
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<DialogProps>(), {

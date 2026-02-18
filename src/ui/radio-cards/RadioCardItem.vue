@@ -78,18 +78,14 @@
 </template>
 
 <script setup lang="ts">
-// --- external
 import { watchOnce } from "@vueuse/core";
 import { computed } from "vue";
-// --- internal
-// --- components
 import { Badge } from "../badge";
 import Label from "../label/Label.ce.vue";
 import { Link } from "../link";
 import { RadioGroupItem } from "../radio-group";
 import config from "./radioCards.config";
 import { cn, useStyles } from "../../utils";
-// --- types
 import { isFunction, isString, isNil } from "lodash-es";
 import type { RadioCardsItemActionProps, RadioCardsItemProps } from "./types";
 // -----------------------------------------------------------------------------

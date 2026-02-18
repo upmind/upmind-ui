@@ -97,7 +97,6 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import {
   ComboboxAnchor,
   ComboboxContent,
@@ -109,14 +108,11 @@ import {
   ComboboxViewport
 } from "radix-vue";
 import { ref, computed, watch } from "vue";
-// --- internal
 import Avatar from "../avatar/Avatar.ce.vue";
 import Icon from "../icon/Icon.ce.vue";
 import config from "./autocomplete.config";
 import { useStyles } from "../../utils";
 import { cn } from "../../utils";
-// --- components
-// --- utils
 import {
   debounce,
   filter,
@@ -130,7 +126,6 @@ import {
   isObject,
   uniqBy
 } from "lodash-es";
-// --- types
 import type { AutocompleteProps, AutocompleteItemProps } from "./types";
 import type { ComboboxContentEmits, ComboboxRootEmits } from "radix-vue";
 import type { Ref } from "vue";

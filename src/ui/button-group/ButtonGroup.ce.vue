@@ -36,14 +36,10 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed } from "vue";
-// --- internal
-// --- components
 import { Button } from "../button";
 import { Select } from "../select";
 import config from "./buttonGroup.config";
-// --- types
 import { ButtonGroup } from "./types";
 import { useStyles, cn } from "../../utils";
 import type { ButtonGroupProps } from "./types";

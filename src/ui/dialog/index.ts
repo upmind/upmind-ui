@@ -1,6 +1,4 @@
-// --- external
 import { defineCustomElement } from "vue";
-// --- internal
 import Dialog from "./Dialog.ce.vue";
 import { variants } from "./dialog.config";
 import { keys } from "lodash-es";

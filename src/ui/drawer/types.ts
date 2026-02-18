@@ -1,4 +1,3 @@
-// --- external
 import type {
   overlayVariant,
   containerVariant,
@@ -7,7 +6,6 @@ import type {
 import type { ButtonProps } from "../..";
 import type { VariantProps, CxOptions } from "class-variance-authority";
 import type { DrawerDirection, DrawerPortalProps } from "vaul-vue";
-// --- internal
 import type { HTMLAttributes } from "vue";
 
 type _DrawerOverlayVariantProps = VariantProps<typeof overlayVariant>;

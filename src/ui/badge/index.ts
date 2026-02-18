@@ -1,6 +1,4 @@
-// --- external
 import { defineCustomElement } from "vue";
-// --- internal
 import Badge from "./Badge.ce.vue";
 import { variants } from "./badge.config";
 import { keys } from "lodash-es";
