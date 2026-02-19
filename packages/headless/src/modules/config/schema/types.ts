@@ -280,8 +280,8 @@ export interface ProductRecommendConfig {
   description?: string;
   /** Optional short description override for the recommendation */
   short_description?: string | null;
-  /** Optional image URL override for the recommendation (false to hide image) */
-  image_url?: string | boolean;
+  /** Optional image URL override for the recommendation */
+  image_url?: string;
   /** Optional badge to display with the recommendation */
   badge?: Badge;
   /** Optional benefits to display with the recommendation */
