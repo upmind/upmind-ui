@@ -8,7 +8,7 @@ import {
   useFieldsSchemaParser,
   useFieldsUischemaParser
 } from "../../../utils";
-import { filter, get, remove } from "lodash-es";
+import { get, remove } from "lodash-es";
 
 // --- types
 import type {
@@ -79,7 +79,7 @@ export const useRegisterSchemaParser = (data: any) => {
           }
         }
       },
-      customFields: useFieldsSchemaParser(visibleCustomFields(data))
+      customFields: useFieldsSchemaParser(data)
     }
   };
 
@@ -153,7 +153,7 @@ export const useRegisterUischemaParser = (data: any) => {
           side: "bottom"
         }
       },
-      ...useFieldsUischemaParser(visibleCustomFields(data))
+      ...useFieldsUischemaParser(data)
     ]
   };
 
@@ -174,7 +174,7 @@ export const useRegisterModelParser = (
     username: model?.username,
     password: model?.password,
     phone: model?.phone,
-    customFields: useFieldsModelParser(visibleCustomFields(customfields))
+    customFields: useFieldsModelParser(customfields)
   };
 };
 
@@ -314,9 +314,3 @@ export const useRecoverModelParser = (model: RecoverModel): RecoverModel => {
     username: model?.username
   };
 };
-
-// -----------------------------------------------------------------------------
-
-function visibleCustomFields(fields: GuestContext["customFields"]) {
-  return filter(fields, field => field?.meta?.showOnOrderForm !== false);
-}
