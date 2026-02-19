@@ -141,8 +141,9 @@ async function getCustomFields(_context: GuestContext, _event: AnyEventObject) {
   const { get, useUrl } = useQuery();
 
   return get({
-    // url: useUrl("clients_fields", { brand_id: null }),
-    url: useUrl("clients_fields"),
+    url: useUrl("clients_fields", {
+      "filter[show_on_order_form]": true
+    }),
     queryKey: ["session", "client", "custom-fields"],
     select: data => map(data ?? [], mapCustomField)
   });
