@@ -30,25 +30,25 @@ import { parsePromotionsOrCoupons } from "../basketProduct/utils";
 const MOCK_SUGGESTIONS_RESPONSE: IDomainSuggestionsResponse = {
   results: [
     {
-      sld: "QUERY_SLD",
+      sld: "upminddev",
       tld: ".com",
-      product_id: "aaa-111-bbb",
+      product_id: "98574264-8970-1282-7e5f-e1e325d0ed36",
       domain_available: true
     },
     {
-      sld: "QUERY_SLD",
+      sld: "upminddev",
       tld: ".io",
       product_id: "aaa-222-bbb",
       domain_available: true
     },
     {
-      sld: "QUERY_SLD",
+      sld: "upminddev",
       tld: ".net",
       product_id: "aaa-333-bbb",
       domain_available: false
     },
     {
-      sld: "QUERY_SLD",
+      sld: "upminddev",
       tld: ".co.uk",
       product_id: "aaa-444-bbb",
       domain_available: true
@@ -56,7 +56,7 @@ const MOCK_SUGGESTIONS_RESPONSE: IDomainSuggestionsResponse = {
   ],
   products: [
     {
-      id: "aaa-111-bbb",
+      id: "98574264-8970-1282-7e5f-e1e325d0ed36",
       name: ".com",
       prices: [
         {
