@@ -2,7 +2,12 @@
   <Sanitized
     :tag="tag"
     :modelValue="compiledMarkdown"
-    :class="cn('prose prose-p:text-inherit prose-li:text-inherit prose-headings:text-inherit prose-strong:font-[inherit] prose-a:text-inherit font-[inherit] text-[length:inherit] leading-[inherit] text-inherit', props.class)"
+    :class="
+      cn(
+        'prose prose-p:text-inherit prose-li:text-inherit prose-headings:text-inherit prose-strong:font-[inherit] prose-a:text-inherit font-[inherit] text-[length:inherit] leading-[inherit] text-inherit',
+        props.class
+      )
+    "
     data-testid="markdown"
   />
 </template>
