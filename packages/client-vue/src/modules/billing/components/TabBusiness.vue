@@ -136,7 +136,6 @@ const selectedCompany = computed({
   },
   set(val?: string) {
     const found = find(companies.value, ["id", val]) ?? defaultCompany();
-
     modelValue.value = {
       ...modelValue.value,
       companyId: found?.id ?? val,
@@ -151,7 +150,6 @@ const selectedPhone = computed({
   },
   set(val?: string) {
     const found = find(phones.value, ["id", val]) ?? defaultPhone();
-
     modelValue.value = {
       ...modelValue.value,
       phoneId: found?.id ?? val

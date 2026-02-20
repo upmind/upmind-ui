@@ -91,7 +91,7 @@ const props = withDefaults(
 );
 
 const emits = defineEmits<{
-  (e: "update:modelValue", value: any): void; // return the full <T> of the Mutate composable
+  (e: "update:modelValue", value: string): void;
   (e: "processing", value: boolean): void;
 }>();
 
@@ -125,7 +125,8 @@ function doReject() {
 }
 
 function doResolve(value?: any) {
-  modelValue.value = get(value, props.identifier, value);
+  modelValue.value = get(value, props.identifier ?? "id", value);
+  emits("update:modelValue", modelValue.value ?? "");
   openForm.value = false;
   if (!props.forceOpen) {
     safeOpen.value = false;
