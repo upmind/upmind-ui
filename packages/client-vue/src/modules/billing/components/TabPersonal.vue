@@ -65,7 +65,6 @@
 // --- external
 import { useI18n } from "vue-i18n";
 import { computed, ref } from "vue";
-import { useVModel } from "@vueuse/core";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
@@ -86,7 +85,7 @@ import { find, set } from "lodash-es";
 
 // --- types
 import { UnifiedType } from "@upmind-automation/headless";
-import type { BillingModel, Phone } from "@upmind-automation/headless";
+import type { BillingModel } from "@upmind-automation/headless";
 import AddressItem from "./AddressItem.vue";
 import PhoneItem from "./PhoneItem.vue";
 
@@ -98,16 +97,13 @@ const props = defineProps<{
   touched?: boolean;
 }>();
 
-const { t } = useI18n();
-
-const emits = defineEmits<{
-  (e: "update:modelValue", value: BillingModel): void;
-}>();
+const modelValue = defineModel<BillingModel>("modelValue", {});
 
 const showForm = ref(false);
 const touched = defineModel<boolean>("touched");
 
 // -----------------------------------------------------------------------------
+const { t } = useI18n();
 
 const { useUnifiedBillingDetail, meta: billingMeta, wait } = useBasketBilling();
 
@@ -130,16 +126,6 @@ const meta = computed(() => ({
   isLoading: addressMeta.value.isLoading || phoneMeta.value.isLoading
 }));
 
-const modelValue = useVModel(props, "modelValue", emits, {
-  passive: true,
-  deep: true,
-  defaultValue: {
-    companyId: undefined,
-    addressId: defaultAddress()?.id,
-    phoneId: billingMeta.value.needsPhone ? defaultPhone()?.id : undefined
-  }
-});
-
 // -----------------------------------------------------------------------------
 
 // --- context
@@ -149,23 +135,26 @@ const selectedAddress = computed({
     return modelValue.value?.addressId ?? defaultAddress()?.id ?? undefined;
   },
   set(val?: string) {
-    modelValue.value ??= {};
     const found = find(addresses.value, ["id", val]) ?? defaultAddress();
-    set(modelValue.value, "companyId", undefined);
-    set(modelValue.value, "addressId", found?.id);
+    modelValue.value = {
+      ...modelValue.value,
+      companyId: undefined,
+      addressId: found?.id ?? val
+    };
   }
 });
 
-const selectedPhone = computed<string | undefined>({
+const selectedPhone = computed({
   get() {
     return modelValue.value?.phoneId ?? defaultPhone()?.id ?? undefined;
   },
   set(val?: string) {
-    modelValue.value ??= {};
-    const found = (find(phones.value, ["id", val]) ?? defaultPhone()) as
-      | Phone
-      | undefined;
-    set(modelValue.value, "phoneId", found?.id ?? undefined);
+    const found = find(phones.value, ["id", val]) ?? defaultPhone();
+
+    modelValue.value = {
+      ...modelValue.value,
+      phoneId: found?.id ?? val
+    };
   }
 });
 // --- methods
@@ -176,18 +165,20 @@ function doResolve(value: BillingModel) {
     : undefined;
 
   selectedAddress.value = value?.addressId ?? defaultAddress()?.id ?? undefined;
-
   showForm.value = false;
 }
 
 // --- side effects
 
 await Promise.all([isAddressesReady(), isPhonesReady()]).then(() => {
-  // Ensure modelValue is initialized with default values
-  selectedAddress.value = modelValue.value?.addressId ?? undefined;
-  selectedPhone.value = billingMeta.value.needsPhone
-    ? (modelValue.value?.phoneId ?? undefined)
-    : undefined;
+  // ensure we select our defaults
+  modelValue.value = {
+    companyId: undefined,
+    addressId: modelValue.value?.addressId ?? defaultAddress()?.id,
+    phoneId: billingMeta.value.needsPhone
+      ? (modelValue.value?.phoneId ?? defaultPhone()?.id)
+      : undefined
+  };
 
   showForm.value = addressMeta.value.isEmpty && phoneMeta.value.isEmpty;
 });
