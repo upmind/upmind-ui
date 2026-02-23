@@ -5,7 +5,6 @@
         :model-value="modelValue"
         :required="props.required"
         :disabled="props.disabled"
-        data-testid="radio-card-group"
         @update:model-value="onSelectionChange"
         :class="cn(styles.radioCards.root, 'gap-0')"
       >
