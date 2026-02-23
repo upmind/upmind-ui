@@ -47,7 +47,6 @@
 <script setup lang="ts">
 // ---external
 import { vAutoAnimate } from "@formkit/auto-animate";
-import { useVModel } from "@vueuse/core";
 import { useForwardPropsEmits } from "radix-vue";
 import { computed } from "vue";
 // --- internal
@@ -72,7 +71,6 @@ const props = withDefaults(defineProps<RadioCardsProps>(), {
 });
 
 const emits = defineEmits<{
-  "update:modelValue": [string | number];
   focus: [FocusEvent];
   reject: [Event];
   resolve: [Event];
@@ -82,10 +80,7 @@ const emits = defineEmits<{
 
 const forwarded = useForwardPropsEmits({}, emits);
 
-const modelValue = useVModel(props, "modelValue", emits, {
-  passive: true,
-  defaultValue: props.defaultValue
-});
+const modelValue = defineModel<string | number>();
 
 const meta = computed(() => ({
   columns: props.columns
