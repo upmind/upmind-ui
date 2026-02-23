@@ -91,7 +91,8 @@ import {
   useTemplateRef,
   type ComputedRef,
   computed,
-  ref
+  ref,
+  onUnmounted
 } from "vue";
 import { useI18n } from "vue-i18n";
 
@@ -158,5 +159,9 @@ const clearGateway = () => {
 // otherwise watch in case it's provided later
 onMounted(() => {
   render(container.value);
+});
+
+onUnmounted(() => {
+  clearGateway();
 });
 </script>
