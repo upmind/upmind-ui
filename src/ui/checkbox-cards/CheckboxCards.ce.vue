@@ -20,7 +20,7 @@
         :class="cn(styles.checkboxCards.input, props.itemClass)"
         :itemClass="styles.checkboxCards.item"
         :checked="includes(modelValue, item.value)"
-        :data-testid="`checkbox-item-${kebabCase(item.id) || item.label || kebabCase(item.name)}`"
+        :data-testid="`checkbox-item-${kebabCase(item.id) || kebabCase(item.label) || kebabCase(item.name)}`"
         :data-hover="props.dataHover"
         :data-focus="props.dataFocus"
       >
