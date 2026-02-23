@@ -131,7 +131,7 @@ const hasItems = computed(() => {
   return !isNil(props.modelValue) && !!props.items?.length;
 });
 
-function doResolve(value: string | number) {
+function doResolve(value: string | number | undefined) {
   if (props.disabled) return;
   emits("update:modelValue", toNumber(value));
 }
