@@ -5,7 +5,6 @@
     :required="props.required"
     :disabled="props.disabled"
     :class="cn(styles.radioCards.root, props.class)"
-    data-testid="radio-card-group"
     @update:model-value="(v: string | number) => onChange(v)"
     v-auto-animate
   >
