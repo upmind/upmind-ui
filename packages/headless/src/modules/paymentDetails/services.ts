@@ -18,7 +18,8 @@ import {
   first,
   has,
   compact,
-  size
+  size,
+  isNil
 } from "lodash-es";
 import {
   ErrorOrigin,
@@ -258,8 +259,19 @@ async function parse(context: PaymentDetailsContext, { data }: AnyEventObject) {
 
   // ---
   // NB: This parse function can be reached after a refresh from the basket, so we can check for that
-  //     if It is a basket refresh, we do not want to parse any incoming data, as it will wipe out the user selection
-  const isBasketData = has(data, "unpaid_amount_converted");
+  //     we do not want to parse any invalid/unmatched incoming data, as it will wipe out the user selection
+  const safeData =
+    has(data, "unpaid_amount_converted") || isNil(data)
+      ? model // fallback to the prev model
+      : pick(data, [
+          "type",
+          "amount",
+          "wallet_amount",
+          "payment_details_id",
+          "gateway_id",
+          "return_url",
+          "cancel_url"
+        ]);
 
   // NB: We always want to ensure the model amount/wallet_amount is correct based on the latest basket data
   //     IF a user has set a partial amount, we need to ensure we respect that up to the total amount due
@@ -283,17 +295,7 @@ async function parse(context: PaymentDetailsContext, { data }: AnyEventObject) {
 
   const safeModel = useModelParser<PaymentDetailModel>(
     schema,
-    !isBasketData
-      ? pick(data, [
-          "type",
-          "amount",
-          "wallet_amount",
-          "payment_details_id",
-          "gateway_id",
-          "return_url",
-          "cancel_url"
-        ])
-      : {},
+    safeData,
     {
       ...model,
       amount: safeAmount,
@@ -303,6 +305,7 @@ async function parse(context: PaymentDetailsContext, { data }: AnyEventObject) {
       allowExtraProps: false
     }
   );
+
   // ---
 
   // FORCE payment type if we have the gateway wet to pay later (syntactic sugar)

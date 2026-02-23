@@ -204,7 +204,6 @@ function getPriceDisplayType(raw: IProduct): PriceDisplayTypes | undefined {
 
   let productDisplayType = undefined;
   // individual product types may have different naming conventions
-  debugger;
   switch (raw.provision_blueprint?.category?.code) {
     case ProvisionCategoryCodes.DOMAIN_NAMES:
       productDisplayType ??= PriceDisplayTypes.CYCLE;

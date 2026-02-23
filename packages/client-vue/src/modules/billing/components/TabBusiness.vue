@@ -22,6 +22,7 @@
           useMutate: useClientPhoneManager
         }"
         :show-label="!!selectedPhone"
+        :readonly="readonly"
         @processing="wait"
         v-model:touched="touched"
       >
@@ -43,6 +44,7 @@
           useMutate: useClientCompanyManager
         }"
         :show-label="!!selectedCompany"
+        :readonly="readonly"
         @processing="wait"
         v-model:touched="touched"
       >
@@ -63,7 +65,6 @@
 // --- external
 import { useI18n } from "vue-i18n";
 import { computed, ref } from "vue";
-import { useVModel } from "@vueuse/core";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
@@ -84,7 +85,7 @@ import { find, set } from "lodash-es";
 
 // --- types
 import { UnifiedType } from "@upmind-automation/headless";
-import type { BillingModel, Company, Phone } from "@upmind-automation/headless";
+import type { BillingModel } from "@upmind-automation/headless";
 import CompanyItem from "./CompanyItem.vue";
 import PhoneItem from "./PhoneItem.vue";
 
@@ -96,16 +97,13 @@ const props = defineProps<{
   touched?: boolean;
 }>();
 
-const { t } = useI18n();
-
-const emits = defineEmits<{
-  (e: "update:modelValue", value: BillingModel): void;
-}>();
+const modelValue = defineModel<BillingModel>("modelValue", {});
 
 const showForm = ref(false);
 const touched = defineModel<boolean>("touched");
 
 // -----------------------------------------------------------------------------
+const { t } = useI18n();
 
 const { useUnifiedBillingDetail, meta: billingMeta, wait } = useBasketBilling();
 
@@ -128,16 +126,6 @@ const meta = computed(() => ({
   isLoading: companyMeta.value.isLoading || phoneMeta.value.isLoading
 }));
 
-const modelValue = useVModel(props, "modelValue", emits, {
-  passive: true,
-  deep: true,
-  defaultValue: {
-    companyId: defaultCompany()?.id,
-    addressId: defaultCompany()?.addressId,
-    phoneId: billingMeta.value.needsPhone ? defaultPhone()?.id : undefined
-  }
-});
-
 // -----------------------------------------------------------------------------
 
 // --- context
@@ -147,26 +135,27 @@ const selectedCompany = computed({
     return modelValue.value?.companyId ?? defaultCompany()?.id ?? undefined;
   },
   set(val?: string) {
-    modelValue.value ??= {};
     const found = find(companies.value, ["id", val]) ?? defaultCompany();
-    set(modelValue.value, "companyId", found?.id);
-    set(modelValue.value, "addressId", found?.addressId);
+    modelValue.value = {
+      ...modelValue.value,
+      companyId: found?.id ?? val,
+      addressId: found?.addressId
+    };
   }
 });
 
-const selectedPhone = computed<string | undefined>({
+const selectedPhone = computed({
   get() {
     return modelValue.value?.phoneId ?? defaultPhone()?.id ?? undefined;
   },
   set(val?: string) {
-    modelValue.value ??= {};
-    const found = (find(phones.value, ["id", val]) ?? defaultPhone()) as
-      | Phone
-      | undefined;
-    set(modelValue.value, "phoneId", found?.id ?? undefined);
+    const found = find(phones.value, ["id", val]) ?? defaultPhone();
+    modelValue.value = {
+      ...modelValue.value,
+      phoneId: found?.id ?? val
+    };
   }
 });
-
 // --- methods
 
 function doResolve(value: BillingModel) {
@@ -175,18 +164,20 @@ function doResolve(value: BillingModel) {
     : undefined;
 
   selectedCompany.value = value?.companyId ?? defaultCompany()?.id ?? undefined;
-
   showForm.value = false;
 }
 
 // --- side effects
 
 await Promise.all([isCompaniesReady(), isPhonesReady()]).then(() => {
-  // Ensure modelValue is initialized with default values
-  selectedCompany.value = modelValue.value?.companyId ?? undefined;
-  selectedPhone.value = billingMeta.value.needsPhone
-    ? (modelValue.value?.phoneId ?? undefined)
-    : undefined;
+  // ensure we select our defaults
+  modelValue.value = {
+    companyId: modelValue.value?.companyId ?? defaultCompany()?.id,
+    addressId: modelValue.value?.addressId ?? defaultCompany()?.addressId,
+    phoneId: billingMeta.value.needsPhone
+      ? (modelValue.value?.phoneId ?? defaultPhone()?.id)
+      : undefined
+  };
 
   showForm.value = companyMeta.value.isEmpty && phoneMeta.value.isEmpty;
 });
