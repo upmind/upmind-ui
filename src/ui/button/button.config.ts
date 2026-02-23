@@ -5,9 +5,9 @@ import { ringClasses, invalidRingClasses } from "../../assets/styles";
 
 export const variants = {
   size: {
-    sm: "p-2 text-sm",
+    sm: "gap-0.5 px-2 py-1 text-sm",
     md: "gap-0.5 px-3 py-2 text-sm",
-    lg: "text-md gap-0.5 px-4 py-2",
+    lg: "gap-0.5 px-4 py-2 text-md",
     icon: ""
   },
   variant: {
@@ -111,12 +111,12 @@ export const rootVariants = cva(
 const labelVariants = cva("", {
   variants: {
     variant: {
-      flat: "px-1",
-      outline: "px-1",
-      ghost: "px-1",
-      tonal: "px-1",
-      inverse: "px-1",
-      control: "px-1"
+      solid: "px-0.5",
+      outline: "px-0.5",
+      ghost: "px-0.5",
+      tonal: "px-0.5",
+      inverse: "px-0.5",
+      control: "px-0.5"
     },
     isIconOnly: {
       true: "sr-only"
