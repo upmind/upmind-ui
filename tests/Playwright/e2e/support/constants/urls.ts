@@ -12,6 +12,8 @@ export const URLs = {
   logout: `${baseUrl}order/auth/logout`,
   register: `${baseUrl}order/auth/register`,
   forgottenPassword: `${baseUrl}order/auth/recover`,
+  domainSearch: `${baseUrl}domains`,
+  domainWidget: `${baseUrl}order/shop?catid=8d632507-9806-5d1e-302f-8174e234e98d`,
 
   /* ADD PRODUCT URLS */
   devBlocks: `${baseUrl}order/product/78985742-6489-7012-8e2b-21e325d0ed36`,
