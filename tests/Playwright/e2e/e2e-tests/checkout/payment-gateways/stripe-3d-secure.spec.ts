@@ -24,7 +24,8 @@ test.describe("3D Secure Authentication", async () => {
       await page.goto(URLs.basket);
       await page.waitForLoadState("networkidle");
       let token = await getSessionToken(context);
-      let orderId = await createOrder(token);
+      let order = await createOrder(token);
+      let orderId = order.id;
       await addProductToOrder(
         `${token}`,
         `${orderId}`,

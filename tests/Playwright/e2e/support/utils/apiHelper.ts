@@ -3,12 +3,12 @@ import { URLs } from "../constants/urls";
 import { getSessionToken } from "./functions/tokens";
 import {
   createOrder,
+  Order,
   addProductToOrder,
   addPromotionToOrder,
   setOrderCurrency
 } from "./functions/basket";
 import { fakerEN_GB } from "@faker-js/faker";
-import { products } from "../constants/products";
 
 /**
  * Creates an order with a domain registration product and navigates to checkout.
@@ -22,6 +22,7 @@ import { products } from "../constants/products";
 export async function goToCheckout(
   page: Page,
   context: BrowserContext,
+  product: { id: string; billingCycle: number; type: string },
   promotion: string | null = null,
   currency: string | null = null
 ) {
@@ -30,34 +31,43 @@ export async function goToCheckout(
     .poll(
       async () => {
         const cookies = await context.cookies();
-        return cookies.some(c => c.name === "upm_guest_session");
+        return cookies.some(
+          c => c.name === "upm_guest_session" || c.name === "upm_client_session"
+        );
       },
       { timeout: 30000 }
     )
     .toBeTruthy();
   let token = await getSessionToken(context);
-  let orderId = await createOrder(token);
+  let order: Order = await createOrder(token);
+  let orderId = order.id;
+  console.log("Order ID:", orderId);
+  if (currency !== null) {
+    await setOrderCurrency(token, orderId, currency);
+  }
+  const provisionFields =
+    product.type === "domain" || product.type === "hosting"
+      ? {
+          domain: `${fakerEN_GB.string.alphanumeric({
+            length: { min: 3, max: 15 }
+          })}.com`
+        }
+      : {};
+
   await addProductToOrder(
     `${token}`,
     `${orderId}`,
-    products.DOMAIN_REGISTRATION,
+    product.id,
     1,
-    24,
+    product.billingCycle,
     [],
     [],
-    {
-      domain: `${fakerEN_GB.string.alphanumeric({
-        length: { min: 3, max: 15 }
-      })}.com`
-    },
+    provisionFields,
     [],
     true
   );
   if (promotion !== null) {
     await addPromotionToOrder(orderId, promotion, token);
-  }
-  if (currency !== null) {
-    await setOrderCurrency(token, orderId, currency);
   }
   await page.goto(URLs.checkout);
 }
