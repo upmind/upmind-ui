@@ -9,15 +9,18 @@ import {
 import { getSessionToken } from "../support/utils/functions/tokens";
 import { Registration } from "../support/page-objects/templates/Registration";
 import { Checkout } from "../support/page-objects/templates/Checkout";
+import { Confirmation } from "../support/page-objects/templates/Confirmation";
 import { goToCheckout, mockPromos } from "../support/utils/apiHelper";
 import { returnError } from "../support/utils/functions/errors";
 import { fakerEN_GB } from "@faker-js/faker";
+import { products } from "../support/constants/products";
 
 let context: BrowserContext;
 let productConfig: ProductConfig;
 let basket: Basket;
 let registration: Registration;
 let checkout: Checkout;
+let confirmation: Confirmation;
 
 const promoCode = "genericpromo";
 const promoError = (message: string) => ({
@@ -145,7 +148,8 @@ test.describe("Promotions", () => {
       await page.goto(URLs.baseUrl);
       await page.waitForLoadState("networkidle");
       let token = await getSessionToken(context);
-      let orderId = await createOrder(token);
+      let order = await createOrder(token);
+      let orderId = order.id;
       await addProductToOrder(
         token,
         orderId,
@@ -206,7 +210,7 @@ test.describe("Promotions", () => {
     test.beforeEach(async ({ page, context }) => {
       checkout = new Checkout(page);
       registration = new Registration(page, context);
-      await goToCheckout(page, context, null, null);
+      await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
       await registration.inputRegistration();
     });
     test("Promo badge/details displayed at checkout", async ({ page }) => {
@@ -239,6 +243,9 @@ test.describe("Promotions", () => {
       page
     }) => {
       //TODO: Add tests
+      test.beforeEach(async ({ page, context }) => {
+        confirmation = new Confirmation(page);
+      });
     });
   });
 });
