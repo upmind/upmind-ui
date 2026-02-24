@@ -20,7 +20,7 @@ export const variants = {
 };
 
 export const rootVariants = cva(
-  "message-radius flex w-full flex-wrap items-end justify-between gap-x-4 gap-y-2",
+  "message-radius flex w-full items-start gap-x-3 gap-y-1",
   {
     variants: {
       variant: {
@@ -201,7 +201,7 @@ const descriptionVariants = cva("text-sm-tight font-normal", {
   ]
 });
 
-const iconVariants = cva("", {
+const iconVariants = cva("p-0.5", {
   variants: {
     variant: {
       muted: "",
@@ -282,8 +282,10 @@ const iconVariants = cva("", {
 export default {
   alert: {
     root: rootVariants,
-    title: titleVariants,
+    actionIcon: cva("p-1.5 [&>svg]:size-3"),
+    content: cva("text-md-tight w-full gap-2"),
     description: descriptionVariants,
-    icon: iconVariants
+    icon: iconVariants,
+    title: titleVariants
   }
 };
