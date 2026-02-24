@@ -4,13 +4,15 @@
       <InputItems :icon="props.icon" :avatar="props.avatar" />
     </slot>
 
-    <input
-      ref="input"
-      v-bind="delegatedProps"
-      v-model="modelValue"
-      :class="styles.input.field"
-      :data-testid="`input-${kebabCase(props.id || props.type)}`"
-    />
+    <slot v-bind="{ modelValue, styles, delegatedProps }">
+      <input
+        ref="input"
+        v-bind="delegatedProps"
+        v-model="modelValue"
+        :class="styles.input.field"
+        :data-testid="`input-${kebabCase(props.id || props.type)}`"
+      />
+    </slot>
 
     <slot name="append">
       <InputItems :icon="props.iconAppend" :avatar="props.avatarAppend" />
