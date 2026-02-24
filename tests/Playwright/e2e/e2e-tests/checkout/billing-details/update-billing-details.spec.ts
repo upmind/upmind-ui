@@ -6,6 +6,7 @@ import { Registration } from "../../../support/page-objects/templates/Registrati
 import { Login } from "../../../support/page-objects/templates/Login";
 import {
   createOrder,
+  Order,
   addProductToOrder
 } from "../../../support/utils/functions/basket";
 import { URLs } from "../../../support/constants/urls";
@@ -31,11 +32,12 @@ test.describe("Billing Details at checkout", () => {
     await page.goto(URLs.basket);
     await page.waitForLoadState("networkidle");
     token = await getSessionToken(context);
-    orderId = await createOrder(token);
+    let order = await createOrder(token);
+    orderId = order.id;
     await addProductToOrder(
       `${token}`,
       `${orderId}`,
-      products.DOMAIN_REGISTRATION,
+      products.STARTER_HOSTING.id,
       1,
       24,
       [],

@@ -1,7 +1,27 @@
 import { request, APIRequestContext, Page } from "@playwright/test";
 import { URLs } from "../../constants/urls";
 
-export async function createOrder(token: string): Promise<string> {
+export interface Order {
+  id: string;
+  number: string | null;
+  status_id: string;
+  brand_id: string;
+  account_id: string | null;
+  client_id: string | null;
+  gateway_id: string | null;
+  category_id: string;
+  currency_id: string;
+  total_amount: number;
+  net_amount: number;
+  tax_amount: number;
+  paid_amount: number;
+  total_amount_formatted: string;
+  display_status: string;
+  products: unknown[];
+  promotions: unknown[];
+}
+
+export async function createOrder(token: string): Promise<Order> {
   const context: APIRequestContext = await request.newContext({
     baseURL: `${URLs.apiUrl}`,
     extraHTTPHeaders: {
@@ -22,7 +42,7 @@ export async function createOrder(token: string): Promise<string> {
     });
 
     const body = await response.json();
-    return body.data.id;
+    return body.data;
   } finally {
     await context.dispose();
   }
@@ -52,7 +72,9 @@ export async function getBasketProducts(token: string) {
   return body.data.products ?? null;
 }
 
-export async function getCurrentOrderId(token: string): Promise<string | null> {
+export async function getCurrentOrder(
+  token: string
+): Promise<Record<string, any> | null> {
   const context: APIRequestContext = await request.newContext({
     baseURL: "https://api.staging.upmind.io",
     extraHTTPHeaders: {
@@ -94,7 +116,7 @@ export async function getCurrentOrderId(token: string): Promise<string | null> {
     }
 
     console.log("ORDER ID:", body?.data?.id);
-    return body?.data?.id ?? null;
+    return body?.data ?? null;
   } finally {
     await context.dispose();
   }
@@ -291,4 +313,34 @@ export async function overrideWarningNotes(
       body: JSON.stringify(body)
     });
   });
+}
+
+export async function getInvoice(
+  token: string,
+  invoiceId: string
+): Promise<Record<string, any> | null> {
+  const context: APIRequestContext = await request.newContext({
+    baseURL: "https://api.staging.upmind.io",
+    extraHTTPHeaders: {
+      accept: "*/*",
+      "accept-language": "en-GB;q=0.9,en;q=0.8",
+      authorization: `Bearer ${token}`,
+      "content-type": "application/json",
+      origin: `${URLs.apiOrigin}`,
+      referer: `${URLs.apiUrl}`,
+      "user-agent":
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36"
+    }
+  });
+
+  try {
+    const response = await context.get(
+      `/api/invoices/${invoiceId}?with=brand%2Ctaxes%2Cclient%2Cstatus%2Ccontract%2Cpayments%2Cpayments.payment_details%2Cproducts%2Cpromotions%2Cclient.tags%2Cproducts.tags%2Ctaxes.tax_tag_data%2Ccustom_fields.field%2Caffiliate_commissions%2Cproducts.product.image%2Caccount.affiliate_referral.affiliate_account.account.client&lang=en`
+    );
+
+    const body = await response.json();
+    return body?.data ?? null;
+  } finally {
+    await context.dispose();
+  }
 }

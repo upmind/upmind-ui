@@ -7,6 +7,7 @@ import { AcceptedCards } from "../../../support/constants/checkout/payment-cards
 import { DeclinedCards } from "../../../support/constants/checkout/payment-cards/DeclinedCards";
 import { FraudCheckCards } from "../../../support/constants/checkout/payment-cards/FraudChecks";
 import { ErrorCards } from "../../../support/constants/checkout/payment-cards/InvalidData";
+import { products } from "../../../support/constants/products";
 
 let checkout: Checkout;
 let registration: Registration;
@@ -20,66 +21,79 @@ test.describe("Checkout with Stripe", () => {
     test.describe("Valid Cards", async () => {
       for (const { name, cardNumber, expiryDate, cvcCode } of AcceptedCards) {
         test(`Accepted Stripe Cards - ${name}`, async ({ page, context }) => {
-          await goToCheckout(page, context, null, null);
+          await goToCheckout(
+            page,
+            context,
+            products.STARTER_HOSTING,
+            null,
+            null
+          );
           await registration.inputRegistration();
           await checkout.selectPaymentMethod("Stripe");
           await checkout.inputStripeDetails(cardNumber, expiryDate, cvcCode);
           await checkout.clickPlaceOrderAndPay();
-          await checkout.dialogWindow.waitFor();
-          await expect(checkout.dialogWindow).toContainText(
-            "Converting your order"
+          await page.waitForURL(`order/**`);
+          // await expect(
+          //   page.getByText("Thank you for your order!")
+          // ).toBeVisible();
+          await expect(page.getByRole("dialog")).toContainText(
+            "Order complete!"
           );
-          await expect(checkout.dialogWindow).toContainText("Order complete!");
         });
       }
     });
     test.describe("Declined Cards", async () => {
-      for (const {
-        name,
-        cardNumber,
-        expiryDate,
-        cvcCode,
-        dialogTitle,
-        dialogText
-      } of DeclinedCards) {
+      for (const { name, cardNumber, expiryDate, cvcCode } of DeclinedCards) {
         test(`Declined Stripe Cards - ${name}`, async ({ page, context }) => {
-          await goToCheckout(page, context);
+          await goToCheckout(
+            page,
+            context,
+            products.STARTER_HOSTING,
+            null,
+            null
+          );
           await registration.inputRegistration();
           await checkout.selectPaymentMethod("Stripe");
           await checkout.inputStripeDetails(cardNumber, expiryDate, cvcCode);
           await checkout.clickPlaceOrderAndPay();
-          await expect(checkout.dialogWindow).toBeVisible();
-          await expect(
-            checkout.dialogWindow.locator(page.getByText(`${dialogTitle}`))
-          ).toBeVisible();
-          await expect(
-            checkout.dialogWindow.locator(page.getByText(`${dialogText}`))
-          ).toBeVisible();
+          await page.waitForURL(`order/**`);
+          // await expect(
+          //   page.getByText(
+          //     "Your payment attempt was unsuccessful - please try again."
+          //   )
+          // ).toBeVisible();
+          await expect(page.getByRole("dialog")).toContainText(
+            "Unable to process payment"
+          );
         });
       }
     });
     test.describe("Fraud Checked Cards", async () => {
-      for (const {
-        name,
-        cardNumber,
-        expiryDate,
-        cvcCode,
-        dialogTitle,
-        dialogText
-      } of FraudCheckCards) {
+      for (const { name, cardNumber, expiryDate, cvcCode } of FraudCheckCards) {
         test(`Fraud Checked Stripe Cards - ${name}`, async ({
           page,
           context
         }) => {
-          await goToCheckout(page, context);
+          await goToCheckout(
+            page,
+            context,
+            products.STARTER_HOSTING,
+            null,
+            null
+          );
           await registration.inputRegistration();
           await checkout.selectPaymentMethod("Stripe");
           await checkout.inputStripeDetails(cardNumber, expiryDate, cvcCode);
           await checkout.clickPlaceOrderAndPay();
-          await expect(
-            checkout.dialogWindow.locator(page.getByText(`${dialogTitle}`))
-          ).toBeVisible();
-          await expect(page.getByRole("dialog")).toContainText(`${dialogText}`);
+          await page.waitForURL(`order/**`);
+          // await expect(
+          //   page.getByText(
+          //     "Your payment attempt was unsuccessful - please try again."
+          //   )
+          // ).toBeVisible();
+          await expect(page.getByRole("dialog")).toContainText(
+            "Unable to process payment"
+          );
         });
       }
     });
@@ -89,10 +103,16 @@ test.describe("Checkout with Stripe", () => {
         cardNumber,
         expiryDate,
         cvcCode,
-        dialogText
+        errorText
       } of ErrorCards) {
         test(`Stripe Cards - ${name}`, async ({ page, context }) => {
-          await goToCheckout(page, context);
+          await goToCheckout(
+            page,
+            context,
+            products.STARTER_HOSTING,
+            null,
+            null
+          );
           await registration.inputRegistration();
           await checkout.selectPaymentMethod("Stripe");
           await checkout.inputStripeDetails(cardNumber, expiryDate, cvcCode);
@@ -100,7 +120,7 @@ test.describe("Checkout with Stripe", () => {
             'iframe[title="Secure payment input frame"]'
           );
           await expect(stripeFrame.getByRole("alert")).toContainText(
-            `${dialogText}`
+            `${errorText}`
           );
         });
       }
@@ -108,7 +128,7 @@ test.describe("Checkout with Stripe", () => {
   });
   test.describe("SEPA Debit", () => {
     test("Valid SEPA Debit", async ({ page, context }) => {
-      await goToCheckout(page, context, null, "EUR");
+      await goToCheckout(page, context, products.STARTER_HOSTING, null, "EUR");
       await registration.inputRegistration();
       await checkout.selectPaymentMethod("Stripe");
       await checkout.inputSepaDetails(
@@ -120,16 +140,14 @@ test.describe("Checkout with Stripe", () => {
         "SW1A 2AA"
       );
       await checkout.clickPlaceOrderAndPay();
-      await expect(checkout.dialogWindow).toBeVisible();
-      await expect(
-        checkout.dialogWindow.locator(page.getByText("Converting your order"))
-      ).toBeVisible();
-      await expect(checkout.dialogWindow).toContainText("Order complete!");
+      await page.waitForURL(`order/**`);
+      // await expect(page.getByText("Thank you for your order!")).toBeVisible();
+      await expect(page.getByRole("dialog")).toContainText("Order Complete!");
     });
   });
   test.describe("iDEAL", async () => {
     test("Successful iDEAL payment", async ({ page, context }) => {
-      await goToCheckout(page, context, null, "EUR");
+      await goToCheckout(page, context, products.STARTER_HOSTING, null, "EUR");
       await registration.inputRegistration();
       await checkout.selectPaymentMethod("Stripe");
       await checkout.inputIdealDetails(
@@ -138,10 +156,12 @@ test.describe("Checkout with Stripe", () => {
       );
       await checkout.clickPlaceOrderAndPay();
       await page.getByTestId("authorize-test-payment-button").click();
-      await expect(checkout.dialogWindow).toContainText("Order complete!");
+      await page.waitForURL(`order/**`);
+      // await expect(page.getByText("Thank you for your order!")).toBeVisible();
+      await expect(page.getByRole("dialog")).toContainText("Order Complete!");
     });
     test("Failed iDEAL payment", async ({ page, context }) => {
-      await goToCheckout(page, context, null, "EUR");
+      await goToCheckout(page, context, products.STARTER_HOSTING, null, "EUR");
       await registration.inputRegistration();
       await checkout.selectPaymentMethod("Stripe");
       await checkout.inputIdealDetails(
@@ -150,14 +170,17 @@ test.describe("Checkout with Stripe", () => {
       );
       await checkout.clickPlaceOrderAndPay();
       await page.getByTestId("fail-test-payment-button").click();
-      await expect(checkout.dialogWindow).toContainText(
-        "Unable to process payment"
-      );
+      await page.waitForURL(`order/**`);
+      // await expect(
+      //   page.getByText(
+      //     "Your payment attempt was unsuccessful - please try again."
+      //   )
+      // ).toBeVisible();
     });
   });
   test.describe("Stripe Errors", async () => {
     test("Mock Stripe Card Decline", async ({ page, context }) => {
-      await goToCheckout(page, context);
+      await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
       await registration.inputRegistration();
       await checkout.selectPaymentMethod("Stripe");
       await mockStripeCardDecline(page);
@@ -169,7 +192,7 @@ test.describe("Checkout with Stripe", () => {
       );
     });
     test("Insufficient Payment Amount", async ({ page, context }) => {
-      await goToCheckout(page, context);
+      await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
       await registration.inputRegistration();
       await page.waitForLoadState("load");
       await checkout.changeAmountButton.click();

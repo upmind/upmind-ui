@@ -3,6 +3,7 @@ import { fakerEN_GB } from "@faker-js/faker";
 import { Checkout } from "../../../support/page-objects/templates/Checkout";
 import {
   createOrder,
+  Order,
   addProductToOrder
 } from "../../../support/utils/functions/basket";
 import { interceptConfigValues } from "../../../support/utils/functions/brand";
@@ -26,7 +27,8 @@ test.describe("Verify checkout billing detail requirements", () => {
     await page.goto(URLs.basket);
     await page.waitForLoadState("networkidle");
     token = await getSessionToken(context);
-    orderId = await createOrder(token);
+    let order = await createOrder(token);
+    orderId = order.id;
     await addProductToOrder(
       `${token}`,
       `${orderId}`,
