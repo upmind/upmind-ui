@@ -22,6 +22,7 @@ import { remove, xorBy, get, isEmpty } from "lodash-es";
 import type { AnyEventObject } from "xstate";
 import type { PromotionsContext, PromotionModel } from "./types";
 import { useI18n } from "../../system";
+import { parsePromotionDetails } from "../../product/utils";
 
 // -----------------------------------------------------------------------------
 export default createMachine(
@@ -183,7 +184,7 @@ export default createMachine(
         (_context: PromotionsContext, { data: basket }: AnyEventObject) => {
           return {
             basketId: basket?.id,
-            promotions: basket?.promotions
+            promotions: parsePromotionDetails(basket?.promotions ?? [])
           };
         }
       ),
