@@ -26,7 +26,7 @@ export default {
       }
     },
     skeleton: {
-      root: cva("group relative flex min-h-80 flex-col text-base"),
+      root: cva("group relative flex flex-col text-base"),
       content: cva("flex h-full flex-col"),
       image: cva("h-64 w-full rounded"),
       details: cva("mt-4 flex flex-1 flex-col"),
