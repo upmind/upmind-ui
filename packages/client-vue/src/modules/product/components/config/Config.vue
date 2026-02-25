@@ -135,7 +135,7 @@ import {
   type UseProductConfig,
   type UseMetaResult
 } from "@upmind-automation/headless";
-import { useStyles, cn } from "@upmind-automation/upmind-ui";
+import { useStyles, Link, Button, cn } from "@upmind-automation/upmind-ui";
 import config from "../../product.config";
 
 // --- components
