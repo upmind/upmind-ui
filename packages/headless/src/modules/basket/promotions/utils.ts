@@ -69,14 +69,12 @@ export const parsePromotionDetails = (
   return reduce(
     raw,
     (acc: PromotionDetails[], basketPromotion: IBasketPromotion) => {
-      debugger;
       if (
         !basketPromotion?.promotion?.show_on_catalog ||
         !!basketPromotion?.promotion?.hidden
       )
         return acc;
 
-      debugger;
       acc.push({
         id: basketPromotion.id,
         code: basketPromotion.promotion.code,
