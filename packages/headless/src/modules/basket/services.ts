@@ -8,7 +8,6 @@ import { useTracking } from "../system";
 
 // --- utils
 import {
-  contextValue,
   DetailedError,
   ErrorOrigin,
   responseCodes,
@@ -113,12 +112,6 @@ async function load(context: BasketContext, _event: AnyEventObject) {
     withAccessToken: true
     //revalidateIfStale: true,
   }).then((basket: IBasket) => getProvisioningFieldsValues(basket));
-}
-
-async function refresh(context: BasketContext, _event: AnyEventObject) {
-  return context.basket?.id
-    ? load(context, _event)
-    : Promise.resolve({ basket: context.basket });
 }
 
 async function dismissWarningNotes(
@@ -268,7 +261,7 @@ async function getProvisioningFieldsValues(basket: IBasket) {
 export default {
   load,
   dismissWarningNotes,
-  refresh,
+  refresh: load,
   convert,
   isAuthenticated: () => useSession().isAuthenticated()
 };
