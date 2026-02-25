@@ -12,4 +12,5 @@ export type BasketProductEditProps = {
   storefrontRoute: RouteLocationAsRelativeGeneric;
   catalogueRoute?: RouteLocationAsRelativeGeneric;
   hideSlots?: string[];
+  hideTerms?: boolean;
 };

@@ -155,9 +155,78 @@ export default {
         }
       }),
 
-      fields: cva(
-        "flex w-full flex-none flex-wrap items-start gap-5 empty:hidden"
-      ),
+      fields: cva("flex w-full flex-none flex-wrap items-start empty:hidden", {
+        variants: {
+          divide: {
+            hidden: "",
+            solid:
+              "divide-y divide-solid [&>*:first-child]:pt-0 [&>*:last-child]:pb-0",
+            dashed:
+              "divide-y divide-dashed [&>*:first-child]:pt-0 [&>*:last-child]:pb-0",
+            dotted:
+              "divide-y divide-dotted [&>*:first-child]:pt-0 [&>*:last-child]:pb-0"
+          },
+          spacing: {
+            "2": "",
+            "4": "",
+            "6": "",
+            "8": "",
+            "10": ""
+          }
+        },
+        compoundVariants: [
+          { divide: "hidden", spacing: "2", class: "gap-2" },
+          { divide: "hidden", spacing: "4", class: "gap-4" },
+          { divide: "hidden", spacing: "6", class: "gap-6" },
+          { divide: "hidden", spacing: "8", class: "gap-8" },
+          { divide: "hidden", spacing: "10", class: "gap-10" }
+        ]
+      }),
+
+      field: cva("", {
+        variants: {
+          divide: {
+            hidden: "",
+            solid: "",
+            dashed: "",
+            dotted: ""
+          },
+          spacing: {
+            "2": "",
+            "4": "",
+            "6": "",
+            "8": "",
+            "10": ""
+          }
+        },
+        compoundVariants: [
+          {
+            divide: ["solid", "dashed", "dotted"],
+            spacing: "2",
+            class: "py-2"
+          },
+          {
+            divide: ["solid", "dashed", "dotted"],
+            spacing: "4",
+            class: "py-4"
+          },
+          {
+            divide: ["solid", "dashed", "dotted"],
+            spacing: "6",
+            class: "py-6"
+          },
+          {
+            divide: ["solid", "dashed", "dotted"],
+            spacing: "8",
+            class: "py-8"
+          },
+          {
+            divide: ["solid", "dashed", "dotted"],
+            spacing: "10",
+            class: "py-10"
+          }
+        ]
+      }),
 
       footer: cva(
         "mt-6 flex w-full items-center justify-between gap-x-10 border-t px-6 py-4"
