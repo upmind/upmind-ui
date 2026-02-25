@@ -162,6 +162,7 @@ const props = withDefaults(
     disabled?: boolean;
     required?: boolean;
     hideTerms?: boolean;
+    noFooter?: boolean;
     class?: HTMLAttributes["class"];
     meta: UseMetaResult;
   }>(),
