@@ -543,6 +543,7 @@ export type SubproductValue = ProductDetails & {
  * Type alias for detailed information about a promotion.
  */
 export type PromotionDetails = {
+  id?: string;
   /** The promotion code. */
   code: string;
   /** The untranslated name of the promotion, often for reporting. */

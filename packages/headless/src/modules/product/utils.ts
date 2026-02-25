@@ -919,7 +919,6 @@ export const parsePromotionDetails = (
   //  - As a summary percentage, eg "Save 20%"
   //  - As individual names, eg ["20% off", "Black Friday"]
   // NB: we always supply the amounts so we can show meta data if needed, eg a tooltip
-
   // ---
   const { getConfig } = useBrand();
 
@@ -934,10 +933,13 @@ export const parsePromotionDetails = (
   // ---
 
   if (promotionDisplayType == PromotionDisplayTypes.NAME) {
-    return map(
+    return reduce(
       raw.promotions,
-      rawPromo =>
-        ({
+      (acc: PromotionDetails[], rawPromo) => {
+        if (!rawPromo.show_on_catalog || !rawPromo.hidden) return acc;
+
+        acc.push({
+          id: rawPromo.id,
           code: rawPromo.code,
           name: rawPromo.name,
           title: useTranslateName(rawPromo),
@@ -953,7 +955,11 @@ export const parsePromotionDetails = (
             savingPrice: rawPromo.amount_formatted,
             savingPercent: "" //TODO: missing % value from response
           }
-        }) as PromotionDetails
+        } as PromotionDetails);
+
+        return acc;
+      },
+      []
     );
   } else {
     const saving =
