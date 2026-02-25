@@ -55,6 +55,7 @@ export default {
     },
     header: {
       root: cva("flex w-full items-start justify-between gap-2"),
+      container: cva("w-full items-start justify-between gap-2 md:flex"),
       icon: cva("text-muted size-5 shrink-0"),
       chevron: cva(
         "text-muted ml-2 size-4 shrink-0 transition-transform duration-200"

@@ -24,6 +24,7 @@
                 : -1
           "
           :data-state="hasSelection ? 'checked' : 'unchecked'"
+          @mousedown.prevent
           @focus="handleFocus"
           @click="toggleOpen"
           @keydown.enter.prevent="handleEnterSpace"
@@ -46,8 +47,8 @@
           >
             <div :class="styles.selectGrouped.header.root">
               <slot name="icon" v-bind="{ group: props.group }" />
-              <div class="flex flex-1 flex-col gap-1">
-                <div class="flex items-center gap-1">
+              <div :class="styles.selectGrouped.header.container">
+                <div class="flex-1">
                   <span :class="styles.selectGrouped.content.label">
                     {{ props.group.name }}
                   </span>
@@ -55,7 +56,7 @@
                     v-if="selectedItem?.label"
                     icon="arrow-right"
                     size="nano"
-                    class="text-control-foreground"
+                    class="text-control-foreground inline-flex h-lh items-center justify-center px-1 align-top"
                   />
                   <span
                     v-if="selectedItem?.label"
@@ -63,19 +64,23 @@
                   >
                     {{ selectedItem.label }}
                   </span>
+                  <p
+                    v-if="selectedItem?.description"
+                    :class="styles.selectGrouped.content.description"
+                    class="text-sm-tight text-muted text-base"
+                  >
+                    {{ selectedItem.description }}
+                  </p>
                 </div>
-                <p
-                  v-if="selectedItem?.description"
-                  :class="styles.selectGrouped.content.description"
-                  class="text-sm-tight text-muted text-base"
-                >
-                  {{ selectedItem.description }}
-                </p>
+                <slot
+                  name="header-label"
+                  v-bind="{
+                    group: props.group,
+                    selectedItem,
+                    expanded: isOpen
+                  }"
+                />
               </div>
-              <slot
-                name="header-label"
-                v-bind="{ group: props.group, selectedItem, expanded: isOpen }"
-              />
 
               <div class="h-lh">
                 <Icon
@@ -236,6 +241,8 @@ function toggleSelection(value: string) {
 
 function toggleOpen() {
   if (props.disabled) return;
+
+  headerRef.value?.focus();
 
   isOpen.value = !isOpen.value;
 
