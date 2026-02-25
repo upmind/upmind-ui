@@ -19,6 +19,8 @@ import type {
   GatewayCap,
   Breadcrumbs,
   IconVariant,
+  DividerStyle,
+  OptionGroupSpacing,
   Benefit,
   ProductBundleConfig,
   ProductRecommendConfig,
@@ -95,6 +97,10 @@ export interface UISchema {
   // --- Options
   /** Display option group descriptions (eg. Location) */
   optionGroupDescription?: DescriptionDisplay;
+  /** Divider style between option groups */
+  optionGroupDividers?: DividerStyle;
+  /** Spacing between option groups (in Tailwind spacing units) */
+  optionGroupSpacing?: OptionGroupSpacing;
   /** Display option item benefits (if set in option @data) */
   optionItemBenefits?: Visibility;
   /** Display option item descriptions (eg. US Central 1) */

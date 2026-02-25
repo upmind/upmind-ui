@@ -42,6 +42,7 @@
           :label="t('action.recover_password')"
           icon="user-03"
           v-show="!meta.isAuthenticated"
+          class="max-w-3xl"
         >
           <Auth
             class="rounded-box w-full max-w-5xl items-start"

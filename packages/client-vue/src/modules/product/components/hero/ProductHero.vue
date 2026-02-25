@@ -40,10 +40,6 @@
             :lineclamp="meta.ui.productDescription.isClamped"
             :lines="toNumber(meta.ui.productDescriptionClamp?.value)"
           />
-
-          <p v-if="productDetails?.excerpt && meta.ui.productExcerpt.isVisible">
-            {{ productDetails?.excerpt }}
-          </p>
         </template>
 
         <template #append>

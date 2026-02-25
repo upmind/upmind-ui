@@ -4,7 +4,11 @@
       <div :class="styles.card.header.content">
         <div :class="styles.card.header.titleWrapper">
           <div :class="styles.card.header.titleInner">
-            <SubproductImage v-if="image" :src="image" :alt="title" />
+            <SubproductImage
+              v-if="image && !meta.isDropdown"
+              :src="image"
+              :alt="title"
+            />
             <h5 :class="styles.card.header.title">
               {{ title }}
               <Tooltip
@@ -50,6 +54,7 @@
             :meta="props.productMeta"
             :cycle="props.cycle"
             :term="props.term"
+            :class="styles.card.pricing.text"
           />
         </div>
       </div>
@@ -71,12 +76,15 @@
           @keydown.enter.prevent.stop
         />
 
-        <div :class="styles.card.pricing.lg">
+        <div
+          v-if="props.price && !props.productMeta?.free"
+          :class="styles.card.pricing.lg"
+        >
           <SubproductCardPricing
-            v-if="props.price"
             :price="props.price"
             :meta="props.productMeta"
             :cycle="props.cycle"
+            :class="styles.card.pricing.text"
             :term="props.term"
           />
         </div>
@@ -116,7 +124,8 @@ const emit = defineEmits(["update:quantity"]);
 const props = defineProps<SubproductCardProps>();
 
 const meta = computed(() => ({
-  isMinimal: props.minimal
+  isMinimal: props.minimal,
+  isDropdown: props.dropdown
 }));
 
 const { ui } = props.meta.with({
