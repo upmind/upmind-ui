@@ -5,7 +5,7 @@
     :label-less="t('action.show_less')"
     :lines="lines"
   >
-    <Markdown tag="p" :model-value="description" />
+    <Markdown :class="props.class" tag="p" :model-value="description" />
   </Lineclamp>
 </template>
 
@@ -21,7 +21,8 @@ import type { ProductDescriptionProps } from "./types";
 
 const props = withDefaults(defineProps<ProductDescriptionProps>(), {
   lineclamp: true,
-  lines: 3
+  lines: 3,
+  class: ""
 });
 
 const { t } = useI18n();

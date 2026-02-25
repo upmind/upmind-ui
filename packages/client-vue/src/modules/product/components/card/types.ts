@@ -13,6 +13,7 @@ import type { VariantProps } from "class-variance-authority";
 import { rootVariant } from "./card.config";
 import type { ButtonProps, ImageProps } from "@upmind-automation/upmind-ui";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
+import type { HTMLAttributes } from "vue";
 
 export type RootVariants = VariantProps<typeof rootVariant>;
 
@@ -76,4 +77,5 @@ export interface ProductDescriptionProps {
   description?: Product["productDetails"]["description"];
   lineclamp?: boolean;
   lines?: number;
+  class?: HTMLAttributes["class"];
 }
