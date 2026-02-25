@@ -936,7 +936,7 @@ export const parsePromotionDetails = (
     return reduce(
       raw.promotions,
       (acc: PromotionDetails[], rawPromo) => {
-        if (!rawPromo.show_on_catalog || !!rawPromo.hidden) return acc;
+        if (rawPromo?.hidden) return acc;
 
         acc.push({
           id: rawPromo.id,
