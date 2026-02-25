@@ -22,7 +22,9 @@ import {
   CLAMP_LINES,
   ZERO_PRICE_DISPLAY,
   TERM_SELECTOR,
-  ICON_VARIANT
+  ICON_VARIANT,
+  DIVIDER_STYLE,
+  OPTION_GROUP_SPACING
 } from "./types";
 
 export const UI_META_DEFINITIONS = {
@@ -290,6 +292,18 @@ export const UI_META_DEFINITIONS = {
       UIScope.PRODUCT,
       UIScope.OPTION_CATEGORY
     ]
+  },
+  optionGroupDividers: {
+    type: DIVIDER_STYLE,
+    default: DIVIDER_STYLE.HIDDEN,
+    contexts: [UIContext.CONFIGURE],
+    scopes: [UIScope.BRAND, UIScope.PRODUCT_CATEGORY, UIScope.PRODUCT]
+  },
+  optionGroupSpacing: {
+    type: OPTION_GROUP_SPACING,
+    default: OPTION_GROUP_SPACING.FOUR,
+    contexts: [UIContext.CONFIGURE],
+    scopes: [UIScope.BRAND, UIScope.PRODUCT_CATEGORY, UIScope.PRODUCT]
   },
   optionItemBenefits: {
     type: VISIBILITY,
