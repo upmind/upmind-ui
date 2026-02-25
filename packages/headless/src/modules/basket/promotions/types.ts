@@ -3,7 +3,7 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // --- internal
 import type { ResponseError } from "../../../utils";
-import type { PromotionDetails } from "@/modules/product";
+import type { PromotionDetails } from "../../product";
 
 // -----------------------------------------------------------------------------
 
