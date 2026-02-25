@@ -1,11 +1,6 @@
 <template>
   <Alert :class="cn(styles.alert.root, props.class)">
-    <Icon
-      v-if="icon"
-      :icon="icon"
-      size="2xs"
-      :class="styles.alert.icon"
-    />
+    <Icon v-if="icon" :icon="icon" size="2xs" :class="styles.alert.icon" />
     <div :class="styles.alert.content">
       <AlertTitle :class="styles.alert.title">
         <slot name="title">
@@ -47,10 +42,7 @@ import config from "./alert.config";
 import Alert from "./Alert.vue";
 import AlertDescription from "./AlertDescription.vue";
 import AlertTitle from "./AlertTitle.vue";
-import {
-  useStyles,
-  cn
-} from "../../utils";
+import { useStyles, cn } from "../../utils";
 
 // --- types
 import type { AlertProps } from "./types";
@@ -79,7 +71,7 @@ defineSlots<{
 }>();
 
 const emit = defineEmits<{
-  "click": [];
+  click: [];
 }>();
 
 function onClick() {
