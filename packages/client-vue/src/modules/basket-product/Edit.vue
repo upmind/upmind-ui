@@ -62,6 +62,7 @@
                 :meta="configMeta"
                 :item="basketProduct"
                 :model-value="basketProduct?.id"
+                :hide-terms="props.hideTerms"
                 :no-footer="true"
                 as="div"
                 @resolve="doResolve"
@@ -80,20 +81,20 @@
       </template>
 
       <template #pricing>
-        <slot
-          name="pricing"
-          :product="product"
-          :model="model"
-          :terms="terms"
-          :product-meta="productMeta"
-          :config-meta="configMeta"
-          :do-resolve="doResolve"
-          :update-quantity="updateQuantity"
-          :update-term="updateTerm"
+        <Section
+          :label="t('text.configuration_summary')"
+          icon="shopping-bag-02"
         >
-          <Section
-            :label="t('text.configuration_summary')"
-            icon="shopping-bag-02"
+          <slot
+            name="pricing"
+            :product="product"
+            :model="model"
+            :terms="terms"
+            :product-meta="productMeta"
+            :config-meta="configMeta"
+            :do-resolve="doResolve"
+            :update-quantity="updateQuantity"
+            :update-term="updateTerm"
           >
             <Pricing
               v-if="product && productMeta?.isAvailable"
@@ -131,8 +132,8 @@
                 @update:quantity="updateQuantity"
               />
             </slot>
-          </Section>
-        </slot>
+          </slot>
+        </Section>
       </template>
 
       <template
