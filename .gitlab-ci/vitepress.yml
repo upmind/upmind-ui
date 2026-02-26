@@ -1,6 +1,3 @@
-variables:
-  GOOGLE_APPLICATION_CREDENTIALS: /tmp/credentials.json
-
 (docs) build:
   extends: .pnpm
   stage: build
@@ -51,7 +48,7 @@ variables:
       dotenv: "deploy.env"
   script:
     - apk add jq
-    - echo "${DOCS_GCP_SERVICE_ACCOUNT_JSON}" > ${GOOGLE_APPLICATION_CREDENTIALS}
+    - echo "${GCP_SERVICE_ACCOUNT_JSON_DOCS}" > ${GOOGLE_APPLICATION_CREDENTIALS}
     - pnpm --filter docs exec firebase --non-interactive hosting:channel:deploy "${CI_COMMIT_REF_SLUG}" --expires 7d
   after_script:
     - url=$(pnpm --filter docs exec firebase hosting:channel:list --json | jq -r ".result.channels[] | select(.name | endswith(\"/${CI_COMMIT_REF_SLUG}\")) | .url")
@@ -70,7 +67,7 @@ variables:
       allow_failure: true
   script:
     - apk add jq
-    - echo "${DOCS_GCP_SERVICE_ACCOUNT_JSON}" > ${GOOGLE_APPLICATION_CREDENTIALS}
+    - echo "${GCP_SERVICE_ACCOUNT_JSON_DOCS}" > ${GOOGLE_APPLICATION_CREDENTIALS}
     - pnpm --filter docs exec firebase hosting:channel:delete "${CI_COMMIT_REF_SLUG}" --force
 
 (docs) deploy production:
@@ -88,5 +85,5 @@ variables:
     - if: $CI_FORCE_DOCS == "true"
   script:
     - apk add jq
-    - echo "${DOCS_GCP_SERVICE_ACCOUNT_JSON}" > ${GOOGLE_APPLICATION_CREDENTIALS}
+    - echo "${GCP_SERVICE_ACCOUNT_JSON_DOCS}" > ${GOOGLE_APPLICATION_CREDENTIALS}
     - pnpm --filter docs exec firebase deploy

@@ -8,7 +8,8 @@ variables:
   INTERNAL_NPMRC: |
     @upmind-automation:registry=https://git.upmind.io/api/v4/projects/105/packages/npm/
     //git.upmind.io/api/v4/projects/105/packages/npm/:_authToken=${CI_JOB_TOKEN}
-  SLACK_NOTIFY_IMAGE: 391282194726.dkr.ecr.eu-west-1.amazonaws.com/upmind/slacker:main-bb8cb4ee
+  SLACK_NOTIFY_IMAGE: 391282194726.dkr.ecr.eu-west-1.amazonaws.com/upmind/slacker:main-6574f255
+  GOOGLE_APPLICATION_CREDENTIALS: /tmp/credentials.json
 
 stages:
   - dependencies
@@ -45,6 +46,7 @@ workflow:
   rules:
     # Prefer MR pipelines; fall back to branch pipelines; but no duplicates!
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_PIPELINE_SOURCE == "web"
     - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS
       when: never
     - if: $CI_COMMIT_BRANCH
@@ -66,6 +68,8 @@ dependencies:
       paths:
         - node_modules
         - playgrounds/storybook/node_modules
+        - apps/cart/node_modules
+        - apps/cart-nuxt/node_modules
         - apps/velia/node_modules
         - apps/webcentral/node_modules
         - apps/hosting/node_modules
@@ -82,6 +86,7 @@ dependencies:
       - node_modules
       - playgrounds/storybook/node_modules
       - apps/cart/node_modules
+      - apps/cart-nuxt/node_modules
       - apps/velia/node_modules
       - apps/webcentral/node_modules
       - apps/hosting/node_modules
