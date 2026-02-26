@@ -3,7 +3,11 @@
     v-if="props.basketRoute"
     as="router-link"
     :to="props.basketRoute"
-    :loading="!meta.isAvailable && sessionMeta.isAuthenticated"
+    :loading="
+      !meta.isAvailable &&
+      (meta.isLoading || meta.isProcessing) &&
+      sessionMeta.isAuthenticated
+    "
     variant="ghost"
     size="lg"
     icon="shopping-bag-02"
