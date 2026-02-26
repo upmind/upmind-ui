@@ -66,19 +66,11 @@
       </div>
     </div>
 
-    <ProductDescription
-      v-if="!hideDescription"
-      :description="productDetails?.description"
-      :lineclamp="productMeta?.ui.productDescription.isClamped"
-      :lines="toNumber(productMeta?.ui.productDescriptionClamp?.value)"
-      :class="styles.product.header.info.description"
-    />
-
     <p
       v-if="productDetails?.excerpt && productMeta?.ui.productExcerpt.isVisible"
       :class="styles.product.header.info.description"
     >
-      {{ productDetails?.excerpt }}
+      {{ productDetails?.excerpt || productDetails?.description }}
     </p>
   </section>
 </template>

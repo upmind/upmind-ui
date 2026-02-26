@@ -1,17 +1,14 @@
 import { cva } from "class-variance-authority";
 
-export const rootVariant = cva(
-  "relative flex h-full min-h-80 flex-col text-base",
-  {
-    variants: {
-      variant: {
-        flush: "",
-        carded: "bg-base-background rounded-lg border p-9",
-        "flush-carded": "bg-base-background"
-      }
+export const rootVariant = cva("relative flex h-full flex-col text-base", {
+  variants: {
+    variant: {
+      flush: "",
+      carded: "bg-base-background rounded-lg border p-9",
+      "flush-carded": "bg-base-background"
     }
   }
-);
+});
 
 export const contentVariant = cva("flex h-full flex-col", {
   variants: {
@@ -29,6 +26,10 @@ export const detailsVariant = cva("flex flex-1 flex-col gap-8", {
       flush: "",
       carded: "",
       "flush-carded": "rounded-b-lg border border-t-0 p-9"
+    },
+    hideTerms: {
+      true: "gap-8",
+      false: "gap-3"
     }
   }
 });

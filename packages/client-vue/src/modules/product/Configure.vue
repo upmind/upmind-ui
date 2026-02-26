@@ -43,19 +43,19 @@
       </template>
 
       <template #configuration>
-        <slot
-          name="configuration"
-          :product="product"
-          :pending-product="pendingProduct"
-          :config-meta="configMeta"
-          :product-meta="productMeta"
-          :do-resolve="doResolve"
-          :do-reject="doReject"
+        <Section
+          :label="t('text.product_configuration')"
+          icon="settings-04"
+          :actions="configurationActions"
         >
-          <Section
-            :label="t('text.product_configuration')"
-            icon="settings-04"
-            :actions="configurationActions"
+          <slot
+            name="configuration"
+            :product="product"
+            :pending-product="pendingProduct"
+            :config-meta="configMeta"
+            :product-meta="productMeta"
+            :do-resolve="doResolve"
+            :do-reject="doReject"
           >
             <form @submit.prevent @reset.prevent>
               <ProductConfig
@@ -64,7 +64,7 @@
                 :item="pendingProduct"
                 :model-value="pendingProduct?.id"
                 :meta="configMeta"
-                no-footer
+                :hide-terms="hideTerms"
                 @resolve="doResolve"
                 @reject="doReject"
               />
@@ -76,26 +76,26 @@
 
               <ConfigSkeleton v-else />
             </form>
-          </Section>
-        </slot>
+          </slot>
+        </Section>
       </template>
 
       <template #pricing>
-        <slot
-          name="pricing"
-          :product="product"
-          :model="model"
-          :terms="terms"
-          :product-meta="productMeta"
-          :config-meta="configMeta"
-          :do-resolve="doResolve"
-          :update-quantity="updateQuantity"
-          :update-term="updateTerm"
+        <Section
+          :label="t('text.configuration_summary')"
+          icon="shopping-bag-02"
+          :class="styles.product.summary"
         >
-          <Section
-            :label="t('text.configuration_summary')"
-            icon="shopping-bag-02"
-            :class="styles.product.summary"
+          <slot
+            name="pricing"
+            :product="product"
+            :model="model"
+            :terms="terms"
+            :product-meta="productMeta"
+            :config-meta="configMeta"
+            :do-resolve="doResolve"
+            :update-quantity="updateQuantity"
+            :update-term="updateTerm"
           >
             <Pricing
               v-if="product && productMeta?.isAvailable"
@@ -131,8 +131,8 @@
                 @update:quantity="updateQuantity"
               />
             </slot>
-          </Section>
-        </slot>
+          </slot>
+        </Section>
       </template>
 
       <template
