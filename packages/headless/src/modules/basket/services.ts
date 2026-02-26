@@ -20,11 +20,9 @@ import { getTokenFromStorage, dumpTokenFromStorage } from "../session/utils";
 import {
   compact,
   concat,
-  differenceBy,
   forEach,
   isEmpty,
   isNil,
-  isObject,
   map,
   omitBy,
   reduce,
@@ -35,7 +33,6 @@ import {
 import { Contexts, type IBasket } from "@upmind-automation/types";
 import type { BasketContext } from "./types";
 import type { AnyEventObject } from "xstate";
-import { type CurrencyModel } from "./currency/types";
 
 // ---  UTILS
 
@@ -111,7 +108,10 @@ async function load(context: BasketContext, _event: AnyEventObject) {
     gcTime: 0, // force cache to be cleared immediately, to prevent stale data
     withAccessToken: true
     //revalidateIfStale: true,
-  }).then((basket: IBasket) => getProvisioningFieldsValues(basket));
+  }).then((basket: IBasket) => {
+    if (isEmpty(basket)) return { basket: context.basket }; // NB ensure we persist any prev basket
+    return getProvisioningFieldsValues(basket);
+  });
 }
 
 async function dismissWarningNotes(
