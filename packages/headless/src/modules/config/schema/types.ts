@@ -164,6 +164,24 @@ export const ICON_VARIANT = {
 } as const;
 export type IconVariant = (typeof ICON_VARIANT)[keyof typeof ICON_VARIANT];
 
+export const DIVIDER_STYLE = {
+  HIDDEN: "hidden",
+  SOLID: "solid",
+  DASHED: "dashed",
+  DOTTED: "dotted"
+} as const;
+export type DividerStyle = (typeof DIVIDER_STYLE)[keyof typeof DIVIDER_STYLE];
+
+export const OPTION_GROUP_SPACING = {
+  TWO: "2",
+  FOUR: "4",
+  SIX: "6",
+  EIGHT: "8",
+  TEN: "10"
+} as const;
+export type OptionGroupSpacing =
+  (typeof OPTION_GROUP_SPACING)[keyof typeof OPTION_GROUP_SPACING];
+
 export interface BadgeObject {
   label: string;
   icon?: string;
@@ -223,7 +241,9 @@ export type ValueType =
   | typeof EDITABILITY
   | typeof GATEWAY_CAP
   | typeof BREADCRUMBS
-  | typeof ICON_VARIANT;
+  | typeof ICON_VARIANT
+  | typeof DIVIDER_STYLE
+  | typeof OPTION_GROUP_SPACING;
 
 export interface UIPropertyDefinition {
   type?: ValueType;

@@ -71,3 +71,9 @@ export interface ProductPriceProps extends Omit<ProductPrice, "name"> {
   hidePrice?: boolean;
   hideTermSummary?: boolean;
 }
+
+export interface ProductDescriptionProps {
+  description?: Product["productDetails"]["description"];
+  lineclamp?: boolean;
+  lines?: number;
+}
