@@ -11,7 +11,8 @@
       <div :class="cn(styles.product.config.fields)">
         <!-- terms -->
         <component
-          v-if="meta.hasTerms"
+          v-if="meta.hasTerms && !hideTerms"
+          :class="styles.product.config.field"
           :is="getTermsComponent"
           :type="ui.termSelector.value"
           :columns="ui.termSelectorGrid.asNumber"
@@ -30,6 +31,7 @@
         <SubproductCards
           v-for="option in options"
           :key="option.id"
+          :class="styles.product.config.field"
           :subproduct="option"
           :meta="props.meta"
           :model-value="keys(model?.['options']?.[option.id])"
@@ -53,6 +55,7 @@
         <SubproductCards
           v-for="attribute in attributes"
           :key="attribute.id"
+          :class="styles.product.config.field"
           :subproduct="attribute"
           :meta="props.meta"
           :model-value="keys(model?.['attributes']?.[attribute.id])"
@@ -69,6 +72,7 @@
         <!-- provisional fields -->
         <ConfigForm
           v-if="meta.hasProvisioning"
+          :class="styles.product.config.field"
           :processing="meta.isProcessing || meta.isLoading"
           :disabled="meta.isProcessing"
           :additional-errors="additionalErrors?.provisionFields"
@@ -79,52 +83,13 @@
         />
       </div>
     </div>
-
-    <!-- footer -->
-    <footer
-      :class="styles.product.config.footer"
-      v-if="!meta.isLoading && !props.noFooter"
-    >
-      <slot name="footer">
-        <Link
-          type="reset"
-          tabindex="1"
-          :label="t('action.cancel')"
-          :disabled="meta.isProcessing || required"
-          size="lg"
-          color="muted"
-          @click="doReject"
-        />
-
-        <span
-          :class="styles.product.config.itemtotal"
-          v-if="product?.price?.regularAmount"
-        >
-          <span>{{ t("text.total") }}</span>
-          <strong :class="styles.product.config.bold">
-            {{ product?.price?.regularPrice }}
-          </strong>
-        </span>
-
-        <Button
-          type="submit"
-          tabindex="0"
-          :label="t('action.add_to_basket')"
-          :loading="meta.isProcessing"
-          :disabled="meta.isLoading"
-          color="primary"
-          size="lg"
-          @click="doResolve"
-        />
-      </slot>
-    </footer>
   </component>
 </template>
 
 <script lang="ts" setup>
 // --- external
 import { useI18n } from "vue-i18n";
-import { computed, inject, onMounted, onUpdated } from "vue";
+import { computed, inject, onUpdated } from "vue";
 
 // --- internal
 import {
@@ -139,9 +104,6 @@ import TermsConfigRadio from "../terms/TermsConfigRadio.vue";
 import TermsConfigSelect from "../terms/TermsConfigSelect.vue";
 import SubproductCards from "../subproduct/SubproductCards.vue";
 import ConfigForm from "./ConfigForm.vue";
-
-// --- custom elements
-import { Button, Link } from "@upmind-automation/upmind-ui";
 
 // --- utils
 import { reduce, get, set, keys } from "lodash-es";
@@ -160,9 +122,7 @@ const props = withDefaults(
     as?: string;
     disabled?: boolean;
     required?: boolean;
-    noHeader?: boolean;
-    noTitle?: boolean;
-    noFooter?: boolean;
+    hideTerms?: boolean;
     class?: HTMLAttributes["class"];
     meta: UseMetaResult;
   }>(),
@@ -198,9 +158,17 @@ const {
   reset
 } = productConfig;
 
-const styles = useStyles(["product.config"], meta, config);
-
 const { ui } = props.meta;
+
+const stylesMeta = computed(() => {
+  return {
+    ...meta.value,
+    divide: ui.optionGroupDividers.value,
+    spacing: ui.optionGroupSpacing.value
+  };
+});
+
+const styles = useStyles(["product.config"], stylesMeta, config);
 
 const getTermsComponent = computed(() => {
   return ui.termSelector.isSelect ? TermsConfigSelect : TermsConfigRadio;
