@@ -33,7 +33,7 @@ export default {
   ) => {
     const route = targetRoute ?? currentRoute;
     const { getParam } = useQueryParams(route as RouteLocationGeneric);
-    return !isEmpty(getParam("basketId"));
+    return !isEmpty(getParam("bid"));
   },
   /**
    * Returns true when the current route has a `bid` query param.
