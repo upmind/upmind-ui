@@ -83,6 +83,45 @@
         />
       </div>
     </div>
+
+    <!-- footer -->
+    <footer
+      :class="styles.product.config.footer"
+      v-if="!meta.isLoading && !props.noFooter"
+    >
+      <slot name="footer">
+        <Link
+          type="reset"
+          tabindex="1"
+          :label="t('action.cancel')"
+          :disabled="meta.isProcessing || required"
+          size="lg"
+          color="muted"
+          @click="doReject"
+        />
+
+        <span
+          :class="styles.product.config.itemtotal"
+          v-if="product?.price?.regularAmount"
+        >
+          <span>{{ t("text.total") }}</span>
+          <strong :class="styles.product.config.bold">
+            {{ product?.price?.regularPrice }}
+          </strong>
+        </span>
+
+        <Button
+          type="submit"
+          tabindex="0"
+          :label="t('action.add_to_basket')"
+          :loading="meta.isProcessing"
+          :disabled="meta.isLoading"
+          color="primary"
+          size="lg"
+          @click="doResolve"
+        />
+      </slot>
+    </footer>
   </component>
 </template>
 
@@ -96,7 +135,7 @@ import {
   type UseProductConfig,
   type UseMetaResult
 } from "@upmind-automation/headless";
-import { useStyles, cn } from "@upmind-automation/upmind-ui";
+import { useStyles, Link, Button, cn } from "@upmind-automation/upmind-ui";
 import config from "../../product.config";
 
 // --- components
@@ -123,6 +162,7 @@ const props = withDefaults(
     disabled?: boolean;
     required?: boolean;
     hideTerms?: boolean;
+    noFooter?: boolean;
     class?: HTMLAttributes["class"];
     meta: UseMetaResult;
   }>(),

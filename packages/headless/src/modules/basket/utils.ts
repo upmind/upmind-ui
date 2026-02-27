@@ -10,6 +10,7 @@ import currencyMachine from "./currency/currency.machine";
 import billingMachine from "./billing/billing.machine";
 
 // --- utils
+import { parsePromotionDetails } from "./promotions/utils";
 import { parseBasketProduct } from "../basketProduct/utils";
 
 import {
@@ -87,7 +88,7 @@ export function spawnPromotions(basket?: IBasket) {
   return spawn(
     promotionsMachine.withContext({
       basketId: basket?.id,
-      promotions: basket?.promotions
+      promotions: parsePromotionDetails(basket?.promotions ?? [])
     }),
     { name: "promotions", sync: true }
   );

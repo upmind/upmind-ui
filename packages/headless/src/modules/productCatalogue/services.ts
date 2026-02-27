@@ -2,7 +2,7 @@
 
 // --- internal
 import { useQuery } from "../..";
-import { useBasketCurrency, useBasketPromotions } from "../basket";
+import { useBasket, useBasketCurrency, useBasketPromotions } from "../basket";
 
 // --- utils
 import { map } from "lodash-es";
@@ -61,11 +61,11 @@ function loadList(params?: Partial<QueryParams>) {
 function loadInfinite(params?: Partial<QueryParams>) {
   const { listInfinite, useUrl } = useQuery();
   const { currencyCode } = useBasketCurrency();
-  const { promotions } = useBasketPromotions();
+  const { promocodes } = useBasketPromotions();
 
   return listInfinite<IProduct[], InfiniteData<Product[]>>({
     ...(params as any),
-    queryKey,
+    queryKey: [...queryKey, { promocodes }],
     url: useUrl(`basket/products`, {
       // NB: Always exclude domain names from the product catalogue as we use the Domain widget for the category
       "filter[provision_blueprint.category.code|neq]":
@@ -80,9 +80,9 @@ function loadInfinite(params?: Partial<QueryParams>) {
         `category${".top_category".repeat(4)}`
       ].join(",")
     }),
-    promotions: parsePromotionsOrCoupons(promotions.value).join(),
     withAccessToken: true,
     withCurrency: true,
+    withBasket: true,
     // --- options
     select: data => map(data ?? [], parseProduct),
     staleTime: useTime().HOUR,

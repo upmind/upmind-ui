@@ -64,6 +64,7 @@
                 :item="pendingProduct"
                 :model-value="pendingProduct?.id"
                 :meta="configMeta"
+                no-footer
                 :hide-terms="hideTerms"
                 @resolve="doResolve"
                 @reject="doReject"
@@ -135,13 +136,7 @@
         </Section>
       </template>
 
-      <template
-        v-if="
-          configMeta.ui.trustMessaging.isVisible &&
-          configMeta.data.trustMessagingMarkdown
-        "
-        #markdown
-      >
+      <template v-if="configMeta.ui.trustMessaging.isVisible" #markdown>
         <slot
           name="markdown"
           :product="product"
