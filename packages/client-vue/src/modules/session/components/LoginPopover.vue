@@ -13,7 +13,7 @@
       data-testid="popover-content"
     >
       <div class="flex h-full flex-col md:flex-row">
-        <div class="w-screen p-8 md:w-104">
+        <div class="md:w-104 w-screen p-8">
           <Auth
             v-if="!meta.isAuthenticated"
             :class="styles.session.content"

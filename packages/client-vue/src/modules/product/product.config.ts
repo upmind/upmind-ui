@@ -55,10 +55,10 @@ export default {
       // ---
       loading: cva("size-7"),
       title: cva(
-        "m-0 inline-flex w-full items-center gap-2 text-2xl leading-none font-normal tracking-wide"
+        "m-0 inline-flex w-full items-center gap-2 text-2xl font-normal leading-none tracking-wide"
       ),
       meta: cva(
-        "text-muted m-0 flex w-full items-center gap-4 text-left text-sm leading-snug lowercase"
+        "text-muted m-0 flex w-full items-center gap-4 text-left text-sm lowercase leading-snug"
       ),
 
       text: cva("m-0 w-full text-left text-sm leading-normal"),
@@ -69,9 +69,9 @@ export default {
           }
         }
       }),
-      total: cva("text-2xl leading-snug font-medium tracking-wide"),
+      total: cva("text-2xl font-medium leading-snug tracking-wide"),
       discount: cva(
-        "text-md text-muted leading-snug font-normal tracking-wide line-through"
+        "text-md text-muted font-normal leading-snug tracking-wide line-through"
       ),
       pricing: cva("flex flex-row gap-2 text-right font-medium"),
       // ---
@@ -236,7 +236,7 @@ export default {
       loading: cva("size-7"),
       title: cva("m-0 text-2xl leading-none tracking-wide"),
       meta: cva(
-        "text-muted m-0 flex w-full items-center gap-4 text-left text-sm leading-snug lowercase"
+        "text-muted m-0 flex w-full items-center gap-4 text-left text-sm lowercase leading-snug"
       ),
       text: cva("text-muted m-0 w-full text-left leading-normal"),
       bold: cva("font-medium", {
@@ -248,7 +248,7 @@ export default {
       }),
       // ---
       total: cva(
-        "block text-right text-2xl leading-snug font-medium tracking-wide",
+        "block text-right text-2xl font-medium leading-snug tracking-wide",
         {
           variants: {
             isCalculating: {
@@ -268,7 +268,7 @@ export default {
         }
       ),
       discount: cva(
-        "text-md text-muted block w-full text-right leading-snug font-normal tracking-wide line-through",
+        "text-md text-muted block w-full text-right font-normal leading-snug tracking-wide line-through",
         {
           variants: {
             isCalculating: {
@@ -289,15 +289,15 @@ export default {
           header: cva(
             "flex flex-1 flex-wrap items-center justify-between gap-x-2 gap-y-0"
           ),
-          footer: cva("flex flex-shrink-1 items-center justify-end gap-4"),
+          footer: cva("flex-shrink-1 flex items-center justify-end gap-4"),
           title: cva("text-md m-0 font-normal"),
           badges: cva("flex items-center justify-end gap-4 px-4"),
           price: cva("min-w-20 text-right"),
           total: cva(
-            "text-md block text-right leading-snug font-medium tracking-wide"
+            "text-md block text-right font-medium leading-snug tracking-wide"
           ),
           discount: cva(
-            "text-muted block text-right text-sm leading-snug font-normal tracking-wide line-through"
+            "text-muted block text-right text-sm font-normal leading-snug tracking-wide line-through"
           )
         }
       },

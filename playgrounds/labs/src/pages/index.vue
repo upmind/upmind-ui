@@ -85,7 +85,7 @@
             v-for="link in quickLinks"
             :key="link.route"
             :to="{ name: link.route }"
-            class="group hover:border-primary-500 dark:hover:border-primary-500 flex items-center gap-4 rounded-xl border border-neutral-200 bg-white p-4 transition-all hover:shadow-md dark:border-neutral-800 dark:bg-neutral-900"
+            class="hover:border-primary-500 dark:hover:border-primary-500 group flex items-center gap-4 rounded-xl border border-neutral-200 bg-white p-4 transition-all hover:shadow-md dark:border-neutral-800 dark:bg-neutral-900"
           >
             <div
               class="group-hover:bg-primary-100 group-hover:text-primary-600 dark:group-hover:bg-primary-900 dark:group-hover:text-primary-400 flex h-12 w-12 items-center justify-center rounded-lg bg-neutral-100 text-neutral-600 transition-colors dark:bg-neutral-800 dark:text-neutral-400"
@@ -106,7 +106,7 @@
 
       <!-- Getting Started -->
       <div
-        class="from-primary-50 dark:from-primary-950 rounded-xl border border-neutral-200 bg-linear-to-br to-blue-50 p-8 dark:border-neutral-800 dark:to-blue-950"
+        class="from-primary-50 dark:from-primary-950 bg-linear-to-br rounded-xl border border-neutral-200 to-blue-50 p-8 dark:border-neutral-800 dark:to-blue-950"
       >
         <h2
           class="mb-4 text-2xl font-semibold text-neutral-900 dark:text-white"

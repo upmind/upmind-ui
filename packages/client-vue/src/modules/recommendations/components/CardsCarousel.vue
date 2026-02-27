@@ -3,7 +3,7 @@
     v-resize-observer="setActive"
     :key="`recommendations-active-${active}`"
     @init-api="setApi"
-    class="embla relative max-w-dvw md:max-w-full"
+    class="embla max-w-dvw relative md:max-w-full"
     :opts="{
       loop: false,
       align: 'center',

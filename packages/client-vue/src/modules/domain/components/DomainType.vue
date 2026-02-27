@@ -27,7 +27,7 @@
                     :checked="isSelected(item.value)"
                     tabindex="-1"
                     disabled
-                    class="relative cursor-pointer! opacity-100!"
+                    class="cursor-pointer! opacity-100! relative"
                 /></span>
                 {{ item.label }}
               </label>

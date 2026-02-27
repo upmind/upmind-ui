@@ -9,7 +9,7 @@ export default {
         {
           variants: {
             isDisabled: {
-              true: "pointer-events-none cursor-not-allowed!",
+              true: "cursor-not-allowed! pointer-events-none",
               false: ""
             },
             isLoading: {
@@ -40,7 +40,7 @@ export default {
       title: {
         root: cva("flex items-center gap-2"),
         link: cva("no-underline"),
-        text: cva("text-xl-tight font-medium break-all")
+        text: cva("text-xl-tight break-all font-medium")
       },
       icon: cva("[&>svg]:p-[2px]"),
       image: cva("image-radius m-0 h-12"),
@@ -59,7 +59,7 @@ export default {
       footer: cva("flex flex-col items-end")
     },
     pricing: {
-      current: cva("text-lg leading-7! font-medium md:text-xl"),
+      current: cva("leading-7! text-lg font-medium md:text-xl"),
       ex: cva("text-sm! leading-5! italic")
     }
   }
