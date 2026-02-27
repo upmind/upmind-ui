@@ -23,10 +23,33 @@ import {
   SemanticTypes,
   UpmindModuleCodes
 } from "@upmind-automation/types";
-import { filter, first, reduce } from "lodash-es";
+import { filter, first, isEmpty, reduce } from "lodash-es";
 import type { RouteLocationGeneric } from "vue-router";
 
 // -----------------------------------------------------------------------------
+
+/**
+ * Checks whether a route has a `bid` query/path param and, if so, sets the
+ * target basket in the basket machine so it loads `orders/{bid}` instead of
+ * `orders/current`.  Called at the top of every guard service so that a hard
+ * refresh at any route (e.g. `/order/checkout?bid=xxx`) restores the targeted
+ * basket correctly.
+ */
+async function ensureTargetBasket(route: RouteLocationGeneric): Promise<void> {
+  const { getParam } = useQueryParams(route);
+  const bid = getParam(QUERY_PARAMS.BASKET_ID) ?? getParam("bid");
+  if (!bid) return;
+
+  const { isReady, setTargetBasket, targetBasketId } = useBasket();
+
+  // Only set if it differs from what the machine already has to avoid
+  // triggering an unnecessary reload.
+  await isReady();
+  if (targetBasketId.value !== bid) {
+    setTargetBasket(bid);
+    await isReady();
+  }
+}
 
 /**
  * Services to handle asynchronous operations and validations within states.
@@ -170,6 +193,7 @@ export default {
   }: FunnelContext): Promise<FunnelResponse> => {
     const { get: getPendingProduct, resolve } = useBasketProductsPending();
     const route = targetRoute ?? currentRoute;
+    await ensureTargetBasket(route as RouteLocationGeneric);
     const { productId, consumeParam } = useQueryParams(
       route as RouteLocationGeneric
     );
@@ -227,6 +251,7 @@ export default {
   }: FunnelContext): Promise<FunnelResponse> => {
     const { getProduct } = useBasket();
     const route = targetRoute ?? currentRoute;
+    await ensureTargetBasket(route as RouteLocationGeneric);
     const { basketProductId } = useQueryParams(route as RouteLocationGeneric);
     return getProduct(basketProductId).then(() => ({
       target: {
@@ -241,6 +266,9 @@ export default {
     { data }: AnyEventObject
   ): Promise<FunnelResponse> => {
     const { isReady } = useBasket();
+
+    const route = targetRoute ?? currentRoute;
+    await ensureTargetBasket(route as RouteLocationGeneric);
 
     return isReady().then(async () => {
       const { hasProducts, getNextRelated, getNextInvalid } =
@@ -328,8 +356,11 @@ export default {
   },
 
   guardBasket: async ({
+    currentRoute,
     targetRoute
   }: FunnelContext): Promise<FunnelResponse> => {
+    const route = targetRoute ?? currentRoute;
+    await ensureTargetBasket(route as RouteLocationGeneric);
     const { meta, isReady } = useBasket();
     await isReady();
     if (!meta.value.hasProducts) return Promise.reject();
@@ -389,12 +420,16 @@ export default {
   },
 
   guardCheckout: async ({
+    currentRoute,
     targetRoute
   }: FunnelContext): Promise<FunnelResponse> => {
     const { meta, isReady } = useBasket();
     const { isReady: isFieldsReady, meta: fieldsMeta } = useBasketFields();
     const { isReady: isBillingReady } = useBasketBilling();
     const { getConfigValue } = useBrand();
+
+    const route = targetRoute ?? currentRoute;
+    await ensureTargetBasket(route as RouteLocationGeneric);
 
     // first wait for the basket to be ready
     await isReady();
