@@ -19,6 +19,7 @@ import {
 import {
   BrandConfigKeys,
   CheckoutFlows,
+  QUERY_PARAMS,
   SemanticTypes,
   UpmindModuleCodes
 } from "@upmind-automation/types";
@@ -333,6 +334,58 @@ export default {
     await isReady();
     if (!meta.value.hasProducts) return Promise.reject();
     return { target: targetRoute ?? { name: ROUTE.BASKET } };
+  },
+
+  /**
+   * 🎯 Guard: BASKET_WITH_ID
+   * Validates access to a basket specified by UUID in the route param.
+   *
+   * When a basketId is present in the current route:
+   * 1. If the user is not authenticated, reject with the SESSION route so they can log in.
+   * 2. If authenticated, set the target basket ID in the basket machine to load `orders/{basketId}`.
+   * 3. Resolve so the funnel stays on the BASKET_WITH_ID route.
+   *
+   * On RESET/CLEAR the basket machine clears targetBasketId and reverts to `orders/current`.
+   */
+  guardBasketWithId: async ({
+    currentRoute,
+    targetRoute
+  }: FunnelContext): Promise<FunnelResponse> => {
+    const { isReady, setTargetBasket } = useBasket();
+    const { isAuthenticated } = useSession();
+    const route = targetRoute ?? currentRoute;
+    const { getParam } = useQueryParams(route as RouteLocationGeneric);
+
+    // Resolve basketId from route params (set by the :basketId(UUID) route param)
+    // or from the `bid` query param (e.g. ?bid=xyz redirected to this state from LOADING)
+    const basketId = getParam("basketId") ?? getParam(QUERY_PARAMS.BASKET_ID);
+
+    if (!basketId) return Promise.reject();
+
+    // Gate: user must be authenticated to access a basket by ID
+    // Reject with SESSION target so the funnel redirects to login and returns here
+    const authenticated = await isAuthenticated().catch(() => false);
+    if (!authenticated) {
+      return Promise.reject({
+        target: { name: ROUTE.SESSION }
+      } as FunnelResponse);
+    }
+
+    // Wait for basket to be in a stable state before setting target
+    await isReady();
+
+    // Load the specific basket by ID
+    setTargetBasket(basketId);
+
+    // Wait for basket to reload with the new target
+    await isReady();
+
+    return {
+      target: targetRoute ?? {
+        name: ROUTE.BASKET_WITH_ID,
+        params: { basketId }
+      }
+    };
   },
 
   guardCheckout: async ({

@@ -409,7 +409,17 @@ export default createMachine(
       // restart the baslket process once the order is complete
       RESET: {
         target: "loading",
-        actions: ["clearBasket", "clearActors"]
+        actions: ["clearBasket", "clearActors", "clearTargetBasketId"]
+      },
+
+      /**
+       * SET_TARGET_BASKET is used to set a specific basket ID to load via URL.
+       * It stores the ID in context and reloads the basket from the server
+       * using `orders/{targetBasketId}` instead of `orders/current`.
+       */
+      SET_TARGET_BASKET: {
+        target: "loading",
+        actions: ["setTargetBasketId", "clearBasket", "clearActors"]
       },
 
       REFRESH: [
@@ -685,7 +695,14 @@ export default createMachine(
           mapToHeadlessError(data)
       }),
 
-      clearError: assign({ error: undefined })
+      clearError: assign({ error: undefined }),
+
+      setTargetBasketId: assign({
+        targetBasketId: (_context: BasketContext, { data }: AnyEventObject) =>
+          data ?? undefined
+      }),
+
+      clearTargetBasketId: assign({ targetBasketId: undefined })
     },
 
     guards: {

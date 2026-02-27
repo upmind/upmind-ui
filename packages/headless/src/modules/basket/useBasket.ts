@@ -274,6 +274,16 @@ export const useBasket = () => {
     return send({ type: "CLEAR" });
   }
 
+  /**
+   * Sets the target basket ID to load a specific basket by ID via URL.
+   * Triggers a machine reload so the basket fetches `orders/{id}` instead of `orders/current`.
+   * Pass `undefined` to revert to loading the current basket.
+   * @param {string | undefined} id - The basket ID to load, or undefined to revert to `orders/current`.
+   */
+  function setTargetBasket(id: string | undefined): void {
+    send({ type: "SET_TARGET_BASKET", data: id });
+  }
+
   function checkout() {
     return send({ type: "CHECKOUT" });
   }
@@ -737,7 +747,15 @@ export const useBasket = () => {
      * @param {string} bpid The basket product ID.
      * @returns {Promise<ActorRef<any>>} The product actor.
      */
-    getProduct
+    getProduct,
+
+    /**
+     * Sets the target basket ID to load a specific basket by URL.
+     * Triggers a machine reload using `orders/{id}` instead of `orders/current`.
+     * Pass `undefined` to revert to the current basket.
+     * @param {string | undefined} id - The basket ID, or undefined to clear.
+     */
+    setTargetBasket
   };
 };
 
