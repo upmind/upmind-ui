@@ -12,6 +12,7 @@ export type SubproductCardProps = Omit<SubproductValue, "meta"> & {
   term?: number;
   productMeta?: ProductSummaryMeta;
   image?: string;
+  dropdown?: boolean;
 };
 
 export interface SubproductCardImage {

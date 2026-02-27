@@ -44,8 +44,6 @@ import type { Message } from "../feedback";
 import type { BasketContext } from "./types";
 import type { AnyEventObject } from "xstate";
 import type { PaymentArgs } from "../payment";
-import { PaymentType } from "@upmind-automation/types";
-import billingMachine from "./billing/billing.machine";
 import { useQuery } from "../query";
 
 // -----------------------------------------------------------------------------

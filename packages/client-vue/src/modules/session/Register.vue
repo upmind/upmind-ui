@@ -32,6 +32,7 @@
           :label="t('action.register')"
           icon="user-03"
           v-show="!meta.isAuthenticated"
+          class="max-w-3xl"
         >
           <Auth
             v-show="!meta.isLoading"
