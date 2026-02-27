@@ -71,7 +71,7 @@ export const imageRootVariant = cva("w-full", {
 export const promotionVariant = cva("", {
   variants: {
     preservePromotion: {
-      true: "opacity-0 select-none",
+      true: "select-none opacity-0",
       false: ""
     }
   }
@@ -84,7 +84,7 @@ export default {
       link: cva("block w-full"),
       container: imageContainerVariant,
       root: imageRootVariant,
-      badge: cva("absolute top-4 right-4")
+      badge: cva("absolute right-4 top-4")
     },
     content: contentVariant,
     details: detailsVariant,
@@ -103,7 +103,7 @@ export default {
         item: cva(
           "text-sm-loose m-0 flex items-start justify-start gap-2 text-base font-medium"
         ),
-        icon: cva("flex h-lh items-center justify-center")
+        icon: cva("h-lh flex items-center justify-center")
       },
       price: {
         root: cva("flex flex-1 flex-col justify-end gap-0.5"),

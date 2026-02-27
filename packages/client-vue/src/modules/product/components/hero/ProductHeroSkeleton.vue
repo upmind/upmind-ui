@@ -9,7 +9,7 @@
           <div class="w-full pr-6">
             <Skeleton :class="styles.header.price" class="mr-12 h-8 w-full" />
           </div>
-          <Skeleton :class="styles.header.price" class="h-8 w-65" />
+          <Skeleton :class="styles.header.price" class="w-65 h-8" />
         </div>
       </hgroup>
     </div>

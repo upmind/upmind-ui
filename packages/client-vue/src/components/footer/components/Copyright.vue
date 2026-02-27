@@ -1,5 +1,5 @@
 <template>
-  <p class="text-muted text-sm whitespace-nowrap">
+  <p class="text-muted whitespace-nowrap text-sm">
     {{
       t("text.copyright", {
         year: new Date().getFullYear(),

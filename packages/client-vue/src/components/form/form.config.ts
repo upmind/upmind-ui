@@ -20,7 +20,7 @@ export default {
       ),
       header: {
         root: cva("flex items-center gap-2"),
-        label: cva("text-display text-md-tight font-medium break-all")
+        label: cva("text-display text-md-tight break-all font-medium")
       },
       footer: {
         root: cva(
@@ -35,7 +35,7 @@ export default {
     }
   },
   modal: {
-    content: cva("gap-6 p-8 text-center md:p-18"),
+    content: cva("md:p-18 gap-6 p-8 text-center"),
     container: cva("gap-9"),
     header: cva("flex flex-col gap-2 text-center"),
     title: cva("text-3xl font-normal md:text-4xl"),

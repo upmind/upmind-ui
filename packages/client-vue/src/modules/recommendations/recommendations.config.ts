@@ -3,13 +3,13 @@ import { cva } from "class-variance-authority";
 
 export default {
   recommendation: {
-    root: cva("relative h-full w-full p-0!"),
+    root: cva("p-0! relative h-full w-full"),
     container: cva("flex h-full flex-col"),
 
     image: {
       root: cva("m-0 aspect-video shrink-0 overflow-hidden rounded-t-lg"),
       placeholder: cva(
-        "from-promotion to-promotion-200 block h-full w-full bg-linear-to-br"
+        "from-promotion to-promotion-200 bg-linear-to-br block h-full w-full"
       ),
       image: cva("m-0 h-full w-full rounded-t-lg object-cover object-center")
     },
@@ -23,7 +23,7 @@ export default {
         }
       }),
       breakdown: cva(
-        "flex flex-1 flex-col gap-y-6 text-sm leading-6 font-medium"
+        "flex flex-1 flex-col gap-y-6 text-sm font-medium leading-6"
       ),
 
       details: {
@@ -49,7 +49,7 @@ export default {
       list: cva("m-0 mt-6 flex flex-col gap-2 p-0")
     },
 
-    badge: cva("absolute left-4 -translate-y-1/2 text-sm! ring-1 ring-white"),
+    badge: cva("text-sm! absolute left-4 -translate-y-1/2 ring-1 ring-white"),
 
     benefit: {
       root: cva("flex items-start gap-2 text-base leading-tight"),
@@ -67,18 +67,18 @@ export default {
     },
 
     skeleton: {
-      root: cva("h-full w-full p-0!"),
+      root: cva("p-0! h-full w-full"),
       container: cva("flex h-full flex-col"),
       image: {
         root: cva("aspect-video shrink-0 overflow-hidden"),
         skeleton: cva(
-          "h-full w-full rounded-t-lg rounded-b-none! pt-2 text-base text-lg font-medium"
+          "rounded-b-none! h-full w-full rounded-t-lg pt-2 text-base text-lg font-medium"
         )
       },
       content: {
         root: cva("flex flex-1 flex-col justify-between space-y-8 p-6"),
         inner: cva(
-          "flex flex-1 flex-col justify-between gap-y-8 text-sm leading-6 font-medium"
+          "flex flex-1 flex-col justify-between gap-y-8 text-sm font-medium leading-6"
         ),
         title: {
           root: cva("flex flex-col gap-x-2"),

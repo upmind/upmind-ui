@@ -96,7 +96,7 @@
       id="bottom-left-modal"
       data-modal-placement="bottom-left"
       tabindex="1"
-      class="gdprTheme h-modal fixed inset-x-0 right-0 bottom-0 left-0 z-2147483002 items-end overflow-y-auto p-4 md:right-auto"
+      class="gdprTheme h-modal z-2147483002 fixed inset-x-0 bottom-0 left-0 right-0 items-end overflow-y-auto p-4 md:right-auto"
     >
       <div class="relative h-full max-w-lg md:h-auto">
         <div
