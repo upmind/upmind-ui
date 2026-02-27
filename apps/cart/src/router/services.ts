@@ -340,9 +340,9 @@ export default {
    * 🎯 Guard: BASKET_WITH_ID
    * Validates access to a basket specified by UUID in the route param.
    *
-   * When a basketId is present in the current route:
+   * When a bid is present in the current route:
    * 1. If the user is not authenticated, reject with the SESSION route so they can log in.
-   * 2. If authenticated, set the target basket ID in the basket machine to load `orders/{basketId}`.
+   * 2. If authenticated, set the target basket ID in the basket machine to load `orders/{bid}`.
    * 3. Resolve so the funnel stays on the BASKET_WITH_ID route.
    *
    * On RESET/CLEAR the basket machine clears targetBasketId and reverts to `orders/current`.
@@ -356,9 +356,9 @@ export default {
     const route = targetRoute ?? currentRoute;
     const { getParam } = useQueryParams(route as RouteLocationGeneric);
 
-    // Resolve basketId from route params (set by the :basketId(UUID) route param)
+    // Resolve basketId from route params (set by the :bid(UUID) route param)
     // or from the `bid` query param (e.g. ?bid=xyz redirected to this state from LOADING)
-    const basketId = getParam("basketId") ?? getParam(QUERY_PARAMS.BASKET_ID);
+    const basketId = getParam("bid") ?? getParam(QUERY_PARAMS.BASKET_ID);
 
     if (!basketId) return Promise.reject();
 
@@ -383,7 +383,7 @@ export default {
     return {
       target: targetRoute ?? {
         name: ROUTE.BASKET_WITH_ID,
-        params: { basketId }
+        params: { bid: basketId }
       }
     };
   },
