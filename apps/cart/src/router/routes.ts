@@ -70,6 +70,25 @@ export default [
   },
 
   /**
+   * Route for accessing a specific basket by its unique ID.
+   * Accepts an optional UUID basket ID as a route parameter.
+   * When a basket ID is present, the basket machine loads `orders/{id}` instead of `orders/current`.
+   * Unauthenticated users are redirected to login and returned here after authentication.
+   *
+   * This route must appear before BASKET_PRODUCT_EDIT so that direct URL navigation to
+   * `/order/basket/{uuid}` resolves to this route. Navigation to BASKET_PRODUCT_EDIT
+   * always happens programmatically by route name, so the order does not affect it.
+   */
+  {
+    path: `/order/basket/:basketId(${RegexMatch.UUID})`,
+    name: ROUTE.BASKET_WITH_ID,
+    component: () => import("../pages/Basket.vue"),
+    meta: {
+      actionEmptyBasket: true
+    }
+  },
+
+  /**
    * Redirect from /orders/:oid to /order/:oid for legacy support.
    */
   {

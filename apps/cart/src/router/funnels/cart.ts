@@ -37,10 +37,17 @@ export default <FunnelProps>{
      * Depending on whether product configurations are present,
      * it transitions to either the PRODUCT route (if configurations exist)
      * or the CATALOGUE route (if no configurations are found).
+     *
+     * Also handles `?bid=xyz` query param by routing to BASKET_WITH_ID so the user
+     * can access a specific basket by ID.
      */
     [ROUTE.LOADING]: {
       entry: ["setResolving"],
       always: [
+        {
+          target: ROUTE.BASKET_WITH_ID,
+          cond: "hasBid"
+        },
         {
           target: ROUTE.PRODUCT_CONFIGURE,
           cond: "hasProductConfigs"
@@ -184,6 +191,42 @@ export default <FunnelProps>{
         NEXT: {
           target: ROUTE.CHECKOUT_FLOW,
           actions: [assign({ targetRoute: { name: ROUTE.CHECKOUT_FLOW } })]
+        },
+        BACK: {
+          target: ROUTE.BASKET,
+          actions: [assign({ targetRoute: { name: ROUTE.BASKET } })]
+        }
+      }
+    },
+
+    /**
+     * 🎯 ROUTE.BASKET_WITH_ID
+     * This state manages access to a specific basket identified by a UUID in the route param.
+     * It invokes a 'guard' that:
+     *   1. Checks the user is authenticated (redirects to SESSION if not).
+     *   2. Sets the target basket ID in the basket machine so it loads `orders/{id}`.
+     *   3. Resolves so the Basket page is rendered for the specified basket.
+     *
+     * On RESET/CLEAR the basket machine clears targetBasketId and reverts to `orders/current`.
+     */
+    [ROUTE.BASKET_WITH_ID]: {
+      entry: ["setCurrency"],
+      invoke: {
+        src: "guardBasketWithId",
+        onDone: { actions: ["setResolved"] },
+        onError: [
+          {
+            target: ROUTE.SESSION,
+            actions: ["setResolving"],
+            cond: "isSession"
+          },
+          { target: ROUTE.BASKET, actions: ["setResolving"] }
+        ]
+      },
+      on: {
+        NEXT: {
+          target: ROUTE.CHECKOUT,
+          actions: [assign({ targetRoute: { name: ROUTE.CHECKOUT } })]
         },
         BACK: {
           target: ROUTE.BASKET,

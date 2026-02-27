@@ -66,52 +66,76 @@ async function load(context: BasketContext, _event: AnyEventObject) {
   const { isReady } = useBrand();
   await isReady();
 
+  // Determine the basket endpoint:
+  // - If a targetBasketId is provided, load that specific basket via `orders/{id}`
+  // - Otherwise, fall back to `orders/current`
+  const basketEndpoint = context.targetBasketId
+    ? `orders/${context.targetBasketId}`
+    : "orders/current";
+
+  const withRelations = [
+    "address",
+    "address.country",
+    "currency",
+    "custom_fields.field",
+    "promotions",
+    "taxes",
+    "taxes.tax_tag_data",
+    "client",
+    // "account.brand.image",
+    // "account.pricelist",
+    // "brand.image",
+    // "client.image",
+    // "contract",
+    // "payments",
+    "products.product.image",
+    "products.product.images",
+    "products.product.prices",
+    "products.product.products_attributes",
+    "products.product.products_attributes.category",
+    "products.product.products_options",
+    "products.product.products_options.category",
+    "products.product.products_options.prices",
+    "products.product.provision_blueprint.category",
+    "products.product.provision_field_values",
+    // "products.tags",
+    "products.product.related",
+    // "status",
+    "products.product.category",
+    `products.product.category${".top_category".repeat(4)}`
+  ];
+
   // finally return a basket with all the relevant data, include the provisioning fields
   // NB  we DON'T cache the current basket as it can change frequently, and it is the source of truth
   // for the current state of the basket
   return get<IBasket>({
-    url: useUrl("orders/current", {
-      with: [
-        "address",
-        "address.country",
-        "currency",
-        "custom_fields.field",
-        "promotions",
-        "taxes",
-        "taxes.tax_tag_data",
-        "client",
-        // "account.brand.image",
-        // "account.pricelist",
-        // "brand.image",
-        // "client.image",
-        // "contract",
-        // "payments",
-        "products.product.image",
-        "products.product.images",
-        "products.product.prices",
-        "products.product.products_attributes",
-        "products.product.products_attributes.category",
-        "products.product.products_options",
-        "products.product.products_options.category",
-        "products.product.products_options.prices",
-        "products.product.provision_blueprint.category",
-        "products.product.provision_field_values",
-        // "products.tags",
-        "products.product.related",
-        // "status",
-        "products.product.category",
-        `products.product.category${".top_category".repeat(4)}`
-      ].join()
-    }),
-    queryKey: ["basket", "current"],
+    url: useUrl(basketEndpoint, { with: withRelations.join() }),
+    queryKey: ["basket", context.targetBasketId ?? "current"],
     staleTime: 0, // disable cache, this may still return stale data while the request is in flight
     gcTime: 0, // force cache to be cleared immediately, to prevent stale data
     withAccessToken: true
     //revalidateIfStale: true,
-  }).then((basket: IBasket) => {
-    if (isEmpty(basket)) return { basket: context.basket }; // NB ensure we persist any prev basket
-    return getProvisioningFieldsValues(basket);
-  });
+  })
+    .then((basket: IBasket) => {
+      if (isEmpty(basket)) return { basket: context.basket }; // NB ensure we persist any prev basket
+      return getProvisioningFieldsValues(basket);
+    })
+    .catch(async (error: any) => {
+      // If loading a specific basket fails (404 or completed basket), fall back to orders/current
+      if (context.targetBasketId) {
+        return get<IBasket>({
+          url: useUrl("orders/current", { with: withRelations.join() }),
+          queryKey: ["basket", "current"],
+          staleTime: 0,
+          gcTime: 0,
+          withAccessToken: true
+        }).then((basket: IBasket) => {
+          if (isEmpty(basket)) return { basket: context.basket };
+          return getProvisioningFieldsValues(basket);
+        });
+      }
+      return Promise.reject(error);
+    });
 }
 
 async function dismissWarningNotes(
