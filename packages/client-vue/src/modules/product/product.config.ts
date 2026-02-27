@@ -73,6 +73,7 @@ export default {
       discount: cva(
         "text-md text-muted leading-snug font-normal tracking-wide line-through"
       ),
+      pricing: cva("flex flex-row gap-2 text-right font-medium"),
       // ---
       toggle: cva("size-3 transition-all aria-checked:rotate-180"),
       image: cva("h-full w-full object-cover"),

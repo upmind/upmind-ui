@@ -1,8 +1,13 @@
 <template>
   <Button
     v-if="props.basketRoute"
-    :to="props.basketRoute"
     as="router-link"
+    :to="props.basketRoute"
+    :loading="
+      !meta.isAvailable &&
+      (meta.isLoading || meta.isProcessing) &&
+      sessionMeta.isAuthenticated
+    "
     variant="ghost"
     size="lg"
     icon="shopping-bag-02"
@@ -35,7 +40,7 @@
 // --- external
 
 // --- internal
-import { useBasket } from "@upmind-automation/headless";
+import { useBasket, useSession } from "@upmind-automation/headless";
 
 // --- components
 import { Button } from "@upmind-automation/upmind-ui";
@@ -49,7 +54,9 @@ const props = defineProps<{
   basketRoute?: RouteLocationAsRelativeGeneric;
 }>();
 
-const { count } = useBasket();
+const { meta: sessionMeta } = useSession();
+
+const { count, meta } = useBasket();
 </script>
 
 <style scoped>

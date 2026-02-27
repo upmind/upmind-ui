@@ -43,7 +43,7 @@
         />
       </template>
       <template v-if="hasGroups" #header-label="{ selectedItem }">
-        <div class="font-medium">
+        <div :class="styles.product.card.pricing">
           <SubproductCardPricing
             v-if="
               selectedItem &&
@@ -166,7 +166,7 @@ const modelValue = defineModel<string | string[] | any>("modelValue", {
 const { t } = useI18n();
 
 const styles = useStyles(
-  ["product.config.list", "product.config.list.item"],
+  ["product.config.list", "product.config.list.item", "product.card"],
   props,
   config
 );

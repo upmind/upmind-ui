@@ -72,6 +72,14 @@
     >
       {{ productDetails?.excerpt || productDetails?.description }}
     </p>
+
+    <ProductDescription
+      v-else-if="!hideDescription"
+      :description="productDetails?.description"
+      :lineclamp="productMeta?.ui.productDescription.isClamped"
+      :lines="toNumber(productMeta?.ui.productDescriptionClamp?.value)"
+      :class="styles.product.header.info.description"
+    />
   </section>
 </template>
 
