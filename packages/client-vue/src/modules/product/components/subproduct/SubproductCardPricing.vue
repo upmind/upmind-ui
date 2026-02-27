@@ -13,6 +13,7 @@
       <span class="flex items-center justify-center hover:cursor-help">
         <Icon icon="switch-horizontal-01" size="nano" class="text-inherit" />
         <CurrentPrice
+          :class="props.class"
           :current-price="props.price?.currentPrice ?? ''"
           :monthly-from-current-price="
             props.price?.monthlyFromCurrentPrice ?? ''
@@ -39,6 +40,7 @@
       <span class="flex items-center hover:cursor-help">
         <span>+</span>
         <CurrentPrice
+          :class="props.class"
           :current-price="props.price?.currentPrice ?? ''"
           :monthly-from-current-price="
             props.price?.monthlyFromCurrentPrice ?? ''
@@ -76,6 +78,7 @@ const props = defineProps<{
   meta?: SubproductValue["meta"];
   cycle: SubproductValue["cycle"];
   term?: number;
+  class?: string;
 }>();
 
 const { t } = useI18n();

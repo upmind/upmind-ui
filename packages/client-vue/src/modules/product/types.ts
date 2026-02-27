@@ -5,6 +5,7 @@ export type ConfigureProps = {
   catalogueRoute?: RouteLocationAsRelativeGeneric;
   template?: PRODUCT_TEMPLATE;
   hideSlots?: string[];
+  hideTerms?: boolean;
 };
 
 export type Item = {

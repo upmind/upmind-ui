@@ -200,13 +200,7 @@ export default createMachine(
             // otherwise just update context and actors
             {
               target: "available.checking",
-              actions: [
-                (ctx, evt, mta) => {
-                  debugger;
-                },
-                "refresh",
-                "refreshActors"
-              ],
+              actions: ["refresh", "refreshActors"],
               cond: "hasAmountChanged"
             }
           ]
