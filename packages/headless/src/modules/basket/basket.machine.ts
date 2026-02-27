@@ -413,6 +413,15 @@ export default createMachine(
       },
 
       /**
+       * CLEAR is used to reset the basket and clear the target basket ID.
+       * This reverts the basket to loading `orders/current` instead of a specific basket.
+       */
+      CLEAR: {
+        target: "loading",
+        actions: ["clearBasket", "clearActors", "clearTargetBasketId"]
+      },
+
+      /**
        * SET_TARGET_BASKET is used to set a specific basket ID to load via URL.
        * It stores the ID in context and reloads the basket from the server
        * using `orders/{targetBasketId}` instead of `orders/current`.

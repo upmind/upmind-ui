@@ -219,6 +219,10 @@ export const useBasket = () => {
   const basket = useContext<BasketContext["basket"]>(state, "basket");
   const basketId = useContext<IBasket["id"]>(state, "basket.id");
   const context = useContext<BasketContext>(state);
+  const targetBasketId = useContext<BasketContext["targetBasketId"]>(
+    state,
+    "targetBasketId"
+  );
   const currency = useContext<ICurrency>(state, "basket.currency");
   const errors = useContext<ResponseError>(state, "error");
   const invoice = useContext<IInvoice>(state, "invoice");
@@ -599,6 +603,13 @@ export const useBasket = () => {
      * The current basket ID.
      */
     basketId,
+
+    /**
+     * The target basket ID currently loaded via URL, if any.
+     * Set via `setTargetBasket(id)`. When set, the basket loads `orders/{id}` instead of `orders/current`.
+     * Undefined when loading the default current basket.
+     */
+    targetBasketId,
 
     /**
      * The current basket currency.
