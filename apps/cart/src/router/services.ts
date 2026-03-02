@@ -1,4 +1,5 @@
 import { ROUTE } from ".";
+import { getBidParams } from "./funnels/cart";
 import {
   type FunnelContext,
   useBasket,
@@ -39,6 +40,7 @@ import type { RouteLocationGeneric } from "vue-router";
 async function ensureTargetBasket(route: RouteLocationGeneric): Promise<void> {
   const { getParam } = useQueryParams(route);
   const bid = getParam(QUERY_PARAMS.BASKET_ID) ?? getParam("bid");
+
   if (!bid) return;
 
   const { isReady, setTargetBasket, targetBasketId } = useBasket();
@@ -156,7 +158,7 @@ export default {
           return Promise.reject({
             target: {
               name: ROUTE.BASKET_PRODUCT_EDIT,
-              params: { bpid: basketItem!.id }
+              params: { bpid: basketItem!.id, ...getBidParams() }
               // query: { pfields: provisionFields } // TODO pass the updated provision fields so we can prefill
             }
           } as FunnelResponse);
@@ -169,7 +171,7 @@ export default {
       return Promise.reject({
         target: {
           name: ROUTE.BASKET_PRODUCT_EDIT,
-          params: { bpid: basketItem.id }
+          params: { bpid: basketItem.id, ...getBidParams() }
         }
       } as FunnelResponse);
     }
@@ -179,7 +181,7 @@ export default {
       return Promise.reject({
         target: {
           name: ROUTE.PRODUCT_CONFIGURE,
-          params: { pid: productId }
+          params: { pid: productId, ...getBidParams() }
         }
       } as FunnelResponse);
     }
@@ -211,7 +213,7 @@ export default {
             return {
               target: {
                 name: ROUTE.PRODUCT_CONFIGURE,
-                params: { pid: productId }
+                params: { pid: productId, ...getBidParams() }
               }
             } as FunnelResponse;
           }
@@ -222,7 +224,7 @@ export default {
               return {
                 type: "NEXT",
                 target: {
-                  params: { pid: productId }
+                  params: { pid: productId, ...getBidParams() }
                 }
               } as FunnelResponse;
             })
@@ -230,7 +232,7 @@ export default {
               return {
                 target: {
                   name: ROUTE.PRODUCT_CONFIGURE,
-                  params: { pid: productId }
+                  params: { pid: productId, ...getBidParams() }
                 }
               } as FunnelResponse;
             });
@@ -240,7 +242,7 @@ export default {
         return Promise.reject({
           target: {
             name: ROUTE.PRODUCT_NOT_FOUND,
-            params: { pid: productId }
+            params: { pid: productId, ...getBidParams() }
           }
         } as FunnelResponse);
       });
@@ -257,7 +259,7 @@ export default {
     return getProduct(basketProductId).then(() => ({
       target: {
         name: ROUTE.BASKET_PRODUCT_EDIT,
-        params: { bpid: basketProductId }
+        params: { bpid: basketProductId, ...getBidParams() }
       }
     }));
   },
@@ -296,7 +298,7 @@ export default {
         return {
           target: {
             name: ROUTE.BASKET_PRODUCT_EDIT,
-            query: { bpid: relatedBasketProduct?.id }
+            params: { bpid: relatedBasketProduct?.id, ...getBidParams() }
           }
         };
       }
@@ -304,7 +306,7 @@ export default {
       return {
         target: {
           name: ROUTE.BASKET_PRODUCT_REQUIRES_ACTION,
-          params: { bpid: nextInvalidProduct!.id }
+          params: { bpid: nextInvalidProduct!.id, ...getBidParams() }
         }
       };
     });
@@ -324,7 +326,7 @@ export default {
         ? {
             target: targetRoute ?? {
               name: ROUTE.PRODUCT_RECOMMENDATIONS,
-              params: { pid: productId }
+              params: { pid: productId, ...getBidParams() }
             }
           }
         : Promise.reject();
@@ -337,7 +339,12 @@ export default {
     const { meta, isReady } = useRecommendations();
     return isReady().then(() => {
       return meta.value.hasUnseenRecommendations
-        ? { target: targetRoute ?? { name: ROUTE.RECOMMENDATIONS } }
+        ? {
+            target: targetRoute ?? {
+              name: ROUTE.RECOMMENDATIONS,
+              params: getBidParams()
+            }
+          }
         : Promise.reject();
     });
   },
@@ -426,6 +433,7 @@ export default {
       return Promise.reject({
         target: {
           name: ROUTE.SESSION,
+          params: { _basket: "basket", bid: basketId },
           query: { returnUrl: `/order/basket/${basketId}` }
         }
       } as FunnelResponse);
@@ -473,12 +481,16 @@ export default {
 
     // We always need to be authenticated to proceed to checkout
     if (meta.value.needsAuth) {
-      return Promise.reject({ target: { name: ROUTE.SESSION } });
+      return Promise.reject({
+        target: { name: ROUTE.SESSION, params: getBidParams() }
+      });
     }
 
     // We always need products in the basket to proceed to checkout
     if (!meta.value.hasProducts) {
-      return Promise.reject({ target: { name: ROUTE.BASKET } });
+      return Promise.reject({
+        target: { name: ROUTE.BASKET, params: getBidParams() }
+      });
     }
 
     // NB: In Stepped flow, we need to ALSO validate products and fields, so we ensure everything is valid before proceeding to checkout
@@ -487,14 +499,19 @@ export default {
     ) {
       if (meta.value.hasInvalidProducts) {
         return Promise.reject({
-          target: { name: ROUTE.BASKET_PRODUCT_REQUIRES_ACTION }
+          target: {
+            name: ROUTE.BASKET_PRODUCT_REQUIRES_ACTION,
+            params: getBidParams()
+          }
         });
       }
 
       await isFieldsReady();
       const validFields = fieldsMeta.value.isComplete;
       if (!validFields) {
-        return Promise.reject({ target: { name: ROUTE.BASKET } });
+        return Promise.reject({
+          target: { name: ROUTE.BASKET, params: getBidParams() }
+        });
       }
     }
 
@@ -504,6 +521,8 @@ export default {
     //   useClientAddresses().isReady(),
     //   useClientCompanies().isReady()
     // ]);
-    return { target: targetRoute ?? { name: ROUTE.CHECKOUT } };
+    return {
+      target: targetRoute ?? { name: ROUTE.CHECKOUT, params: getBidParams() }
+    };
   }
 };

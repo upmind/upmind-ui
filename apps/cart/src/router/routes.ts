@@ -2,12 +2,21 @@
 
 import { useBrand } from "@upmind-automation/client-vue";
 import { trimStart } from "lodash-es";
+import { getBidParams } from "./funnels/cart";
 
 // --- types
 import { ROUTE, RegexMatch } from "./types";
 import type { RouteLocationGeneric, RouteRecordRaw } from "vue-router";
 
 // -----------------------------------------------------------------------------
+
+/**
+ * Optional basket ID path prefix used by most routes.
+ * When both params are provided (`_basket: 'basket'`, `bid: '<uuid>'`),
+ * routes render as `/order/basket/{bid}/...`.
+ * When omitted, routes render as `/order/...` (current basket).
+ */
+const BID_PREFIX = `:_basket(basket)?/:bid(${RegexMatch.UUID})?`;
 
 export default [
   /**
@@ -103,7 +112,7 @@ export default [
    * and may include suggestions or links to continue shopping.
    */
   {
-    path: "/order/basket/empty",
+    path: `/order/basket/:bid(${RegexMatch.UUID})?/empty`,
     name: ROUTE.BASKET_EMPTY,
     component: () => import("../pages/Empty.vue")
   },
@@ -115,7 +124,7 @@ export default [
    * or configurations for the selected basket item.
    */
   {
-    path: `/order/basket/:bpid(${RegexMatch.UUID})`,
+    path: `/order/basket/:bid(${RegexMatch.UUID})?/edit/:bpid(${RegexMatch.UUID})`,
     name: ROUTE.BASKET_PRODUCT_EDIT,
     component: () => import("../pages/product/Edit.vue")
   },
@@ -144,7 +153,7 @@ export default [
    * such as selecting options or configurations for the product.
    */
   {
-    path: `/order/basket/requires-action/:bpid(${RegexMatch.UUID})?`,
+    path: `/order/basket/:bid(${RegexMatch.UUID})?/requires-action/:bpid(${RegexMatch.UUID})?`,
     name: ROUTE.BASKET_PRODUCT_REQUIRES_ACTION,
     component: () => import("../pages/product/RequiresAction.vue")
   },
@@ -164,7 +173,7 @@ export default [
    * This route is typically accessed after reviewing the basket contents.
    */
   {
-    path: "/order/checkout",
+    path: `/order/${BID_PREFIX}/checkout`,
     name: ROUTE.CHECKOUT,
     component: () => import("../pages/Checkout.vue"),
     meta: {
@@ -215,10 +224,14 @@ export default [
       }
 
       // Otherwise, if we allow storefront: redirect to internal catalogue
-      if (hasStorefront.value) return { name: ROUTE.CATALOGUE };
+      if (hasStorefront.value)
+        return { name: ROUTE.CATALOGUE, params: getBidParams() };
 
       // Fallback to basket if no storefront is available
-      return { name: ROUTE.BASKET };
+      const bidParams = getBidParams();
+      return bidParams.bid
+        ? { name: ROUTE.BASKET_WITH_ID, params: { bid: bidParams.bid } }
+        : { name: ROUTE.BASKET };
     }
   },
 
@@ -228,7 +241,7 @@ export default [
    * Users can also filter/navigate products by categories from this page.
    */
   {
-    path: "/order/shop",
+    path: `/order/${BID_PREFIX}/shop`,
     name: ROUTE.CATALOGUE,
     component: () => import("../pages/Catalogue.vue")
   },
@@ -247,7 +260,7 @@ export default [
    * This is based on ALL products in the basket, not just a single product.
    */
   {
-    path: "/order/recommendations",
+    path: `/order/${BID_PREFIX}/recommendations`,
     name: ROUTE.RECOMMENDATIONS,
     component: () => import("../pages/Recommendations.vue")
   },
@@ -258,18 +271,18 @@ export default [
    * Users can search for, register, and manage domains from this page.
    */
   {
-    path: `/order/domains`,
+    path: `/order/${BID_PREFIX}/domains`,
     name: ROUTE.DOMAINS,
     component: () => import("../pages/Domains.vue")
   },
 
   {
-    path: `/order/domains/:pid(${RegexMatch.UUID})`,
+    path: `/order/${BID_PREFIX}/domains/:pid(${RegexMatch.UUID})`,
     name: ROUTE.DOMAINS_WITH_PRODUCT,
     component: () => import("../pages/Domains.vue")
   },
   {
-    path: `/order/domains/:pid(${RegexMatch.UUID})/processing`,
+    path: `/order/${BID_PREFIX}/domains/:pid(${RegexMatch.UUID})/processing`,
     name: ROUTE.DOMAINS_WITH_PRODUCT_PROCESSING,
     component: () => import("../pages/Index.vue")
   },
@@ -279,7 +292,7 @@ export default [
    * These routes are nested under /order/auth for better organization.
    */
   {
-    path: "/order/auth",
+    path: `/order/${BID_PREFIX}/auth`,
     name: ROUTE.SESSION,
     component: () => import("../pages/session/Index.vue"),
     children: [
@@ -315,7 +328,7 @@ export default [
    * These routes are nested under /order/product for better organization.
    */
   {
-    path: "/order/product",
+    path: `/order/${BID_PREFIX}/product`,
     name: ROUTE.PRODUCT,
     component: () => import("../pages/product/Index.vue"),
     children: [
