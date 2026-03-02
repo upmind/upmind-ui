@@ -17,18 +17,18 @@ import { ROUTE } from "../types";
 // -----------------------------------------------------------------------------
 // BID PRESERVATION:
 //   Basket routes use `/order/basket/:bid?/...` with an optional `:bid` param.
-//   Other routes use a BID_PREFIX `:_basket(basket)?/:bid?` so URLs render
+//   Other routes use a BID_PREFIX `:segment(basket)?/:bid?` so URLs render
 //   as `/order/basket/{bid}/...` when a bid is active, or `/order/...` when not.
 //
 //   Bid injection is handled holistically by the `setResolved` override
 //   in `actions.ts`. When any state resolves, `setResolved` reads
 //   `targetBasketId` from the basket composable and auto-injects bid params.
 //   For basket routes it injects `{ bid }` only; for BID_PREFIX routes it
-//   injects `{ _basket: 'basket', bid }`.
+//   injects `{ segment: 'basket', bid }`.
 //
 //   `getBidParams()` is exported for guard services that return route targets
 //   directly (outside the setResolved flow). It returns `{ bid }` only —
-//   `injectBid` in `setResolved` handles adding `_basket` for BID_PREFIX routes.
+//   `injectBid` in `setResolved` handles adding `segment` for BID_PREFIX routes.
 // -----------------------------------------------------------------------------
 
 /**

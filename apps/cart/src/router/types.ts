@@ -115,13 +115,6 @@ export enum ROUTE {
   BASKET = "basket",
 
   /**
-   * The route for accessing a specific basket by ID via URL.
-   * Accepts an optional UUID basket ID as a route parameter.
-   * When a basket ID is present, the basket machine loads `orders/{id}` instead of `orders/current`.
-   */
-  BASKET_WITH_ID = "basket-with-id",
-
-  /**
    * The route for an empty shopping basket.
    */
   BASKET_EMPTY = "basket-empty",
