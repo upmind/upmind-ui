@@ -121,17 +121,12 @@ async function load(context: BasketContext, _event: AnyEventObject) {
       return getProvisioningFieldsValues(basket);
     })
     .catch(async (error: any) => {
-      // If loading a specific basket fails (404 or completed basket), fall back to orders/current
+      // If loading a specific basket fails (404, expired, or completed basket),
+      // reject with a flag so the machine can clear targetBasketId and retry with orders/current
       if (context.targetBasketId) {
-        return get<IBasket>({
-          url: useUrl("orders/current", { with: withRelations.join() }),
-          queryKey: ["basket", "current"],
-          staleTime: 0,
-          gcTime: 0,
-          withAccessToken: true
-        }).then((basket: IBasket) => {
-          if (isEmpty(basket)) return { basket: context.basket };
-          return getProvisioningFieldsValues(basket);
+        return Promise.reject({
+          targetBasketInvalid: true,
+          originalError: error
         });
       }
       return Promise.reject(error);

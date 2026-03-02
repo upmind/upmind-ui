@@ -5,6 +5,7 @@ import {
   useBasketProductsPending,
   useBrand,
   useQueryParams,
+  useRoutingEngine,
   useRouteRequiresAction,
   useProductRecommendations,
   useRecommendations,
@@ -342,13 +343,33 @@ export default {
   },
 
   guardSession: async ({
+    currentRoute,
     targetRoute
   }: FunnelContext): Promise<FunnelResponse> => {
     const { isAuthenticated } = useSession();
+    const { router } = useRoutingEngine();
+
     // NB for session guard, we want to REJECT if authenticated, so that we can redirect away from auth pages
     return isAuthenticated()
       .then(() => {
-        return { target: targetRoute };
+        // Check for a returnUrl query param to redirect back to after auth
+        const route = targetRoute ?? currentRoute;
+        const returnUrlRaw = route?.query?.returnUrl?.toString();
+
+        if (returnUrlRaw) {
+          const resolvedRoute = router.resolve(returnUrlRaw);
+          return {
+            target: resolvedRoute.name
+              ? {
+                  name: resolvedRoute.name,
+                  params: resolvedRoute.params,
+                  query: resolvedRoute.query
+                }
+              : { path: resolvedRoute.path || returnUrlRaw }
+          } as FunnelResponse;
+        }
+
+        return { target: { name: ROUTE.CHECKOUT } };
       })
       .catch(() => {
         return Promise.reject();
@@ -382,7 +403,7 @@ export default {
     currentRoute,
     targetRoute
   }: FunnelContext): Promise<FunnelResponse> => {
-    const { isReady, setTargetBasket } = useBasket();
+    const { isReady, setTargetBasket, targetBasketId } = useBasket();
     const { isAuthenticated } = useSession();
     const route = targetRoute ?? currentRoute;
     const { getParam } = useQueryParams(route as RouteLocationGeneric);
@@ -391,14 +412,22 @@ export default {
     // or from the `bid` query param (e.g. ?bid=xyz redirected to this state from LOADING)
     const basketId = getParam("bid") ?? getParam(QUERY_PARAMS.BASKET_ID);
 
-    if (!basketId) return Promise.reject();
+    if (!basketId) {
+      return Promise.reject({
+        target: { name: ROUTE.BASKET }
+      } as FunnelResponse);
+    }
 
     // Gate: user must be authenticated to access a basket by ID
-    // Reject with SESSION target so the funnel redirects to login and returns here
+    // Reject with SESSION target and a returnUrl so the funnel can redirect
+    // back to BASKET_WITH_ID after login via the returnUrl pattern
     const authenticated = await isAuthenticated().catch(() => false);
     if (!authenticated) {
       return Promise.reject({
-        target: { name: ROUTE.SESSION }
+        target: {
+          name: ROUTE.SESSION,
+          query: { returnUrl: `/order/basket/${basketId}` }
+        }
       } as FunnelResponse);
     }
 
@@ -410,6 +439,14 @@ export default {
 
     // Wait for basket to reload with the new target
     await isReady();
+
+    // If the machine cleared targetBasketId (invalid/expired basket),
+    // the basket fell back to orders/current. Redirect to the regular BASKET route.
+    if (!targetBasketId.value) {
+      return Promise.reject({
+        target: { name: ROUTE.BASKET }
+      } as FunnelResponse);
+    }
 
     return {
       target: targetRoute ?? {
