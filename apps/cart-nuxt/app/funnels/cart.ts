@@ -15,6 +15,22 @@ import {
 import { ROUTE } from "./types";
 
 // -----------------------------------------------------------------------------
+// BID PRESERVATION:
+//   Basket routes use `/order/basket/:bid?/...` with an optional `:bid` param.
+//   Other routes use a BID_PREFIX `:segment(basket)?/:bid?` so URLs render
+//   as `/order/basket/{bid}/...` when a bid is active, or `/order/...` when not.
+//
+//   Bid injection is handled holistically by the `setResolved` override
+//   in `actions.ts`. When any state resolves, `setResolved` reads
+//   `targetBasketId` from the basket composable and auto-injects bid params.
+//   For basket routes it injects `{ bid }` only; for BID_PREFIX routes it
+//   injects `{ segment: 'basket', bid }`.
+//
+//   Guard services no longer need to manually inject bid params — the
+//   `ensureBidAuth()` helper in services.ts handles auth-gating for bid
+//   routes, and `injectBid()` in actions.ts handles param injection via
+//   the `setResolved` override.
+// -----------------------------------------------------------------------------
 // NAVIGATION PATTERN FOR NEXT/BACK HANDLERS:
 // Each NEXT/BACK handler requires BOTH:
 //   - `target`: Transitions the XState state machine to the target state
@@ -44,6 +60,10 @@ export default <FunnelProps>{
         {
           target: ROUTE.PRODUCT_CONFIGURE,
           cond: "hasProductConfigs"
+        },
+        {
+          target: ROUTE.BASKET,
+          cond: "hasBid"
         },
         {
           target: ROUTE.CATALOGUE
@@ -204,10 +224,29 @@ export default <FunnelProps>{
       invoke: {
         src: "guardBasket",
         onDone: { actions: ["setResolved"] },
-        onError: {
-          target: ROUTE.BASKET_EMPTY,
-          actions: ["setResolving"]
-        }
+        onError: [
+          {
+            target: ROUTE.SESSION_LOGIN,
+            actions: [
+              "setResolving",
+              assign({
+                targetRoute: (
+                  _context: FunnelContext,
+                  { data }: AnyEventObject
+                ) => ({
+                  name: ROUTE.SESSION_LOGIN,
+                  params: data?.target?.params ?? {},
+                  query: data?.target?.query ?? {}
+                })
+              })
+            ],
+            cond: "isSession"
+          },
+          {
+            target: ROUTE.BASKET_EMPTY,
+            actions: ["setResolving"]
+          }
+        ]
       },
       on: {
         NEXT: {
@@ -442,10 +481,21 @@ export default <FunnelProps>{
     [ROUTE.SESSION]: {
       invoke: {
         src: "guardSession",
-        onDone: ROUTE.CHECKOUT,
+        onDone: { actions: ["setResolved"] },
         onError: {
-          target: ROUTE.SESSION_REGISTER,
-          actions: ["setResolving"]
+          target: ROUTE.SESSION_LOGIN,
+          // NB: Preserve targetRoute query (returnUrl) but update route name
+          // to SESSION_LOGIN so Vue Router navigates to /auth/login, not /auth.
+          // Using inline assign instead of "setResolving" which clears targetRoute.
+          actions: [
+            assign({
+              resolved: false,
+              targetRoute: ({ targetRoute }: FunnelContext) => ({
+                ...targetRoute,
+                name: ROUTE.SESSION_LOGIN
+              })
+            })
+          ]
         }
         // BRAND SETTING TO DECIDE DEFAULT SESSION ROUTE
       }
@@ -462,16 +512,14 @@ export default <FunnelProps>{
       entry: ["setCurrency"],
       invoke: {
         src: "guardSession",
-        onDone: {
-          target: ROUTE.CHECKOUT,
-          actions: ["setResolving"]
-        },
+        onDone: { actions: ["setResolved"] },
         onError: { actions: ["setResolved"] }
       },
       on: {
         NEXT: {
-          target: ROUTE.CHECKOUT,
-          actions: [assign({ targetRoute: { name: ROUTE.CHECKOUT } })]
+          target: ROUTE.SESSION_LOGIN,
+          // NB: Preserve targetRoute (returnUrl) — only reset resolved flag.
+          actions: [assign({ resolved: false })]
         },
         BACK: {
           target: ROUTE.BASKET,
@@ -490,16 +538,14 @@ export default <FunnelProps>{
     [ROUTE.SESSION_REGISTER]: {
       invoke: {
         src: "guardSession",
-        onDone: {
-          target: ROUTE.CHECKOUT,
-          actions: ["setResolving"]
-        },
+        onDone: { actions: ["setResolved"] },
         onError: { actions: ["setResolved"] }
       },
       on: {
         NEXT: {
-          target: ROUTE.CHECKOUT,
-          actions: [assign({ targetRoute: { name: ROUTE.CHECKOUT } })]
+          target: ROUTE.SESSION_REGISTER,
+          // NB: Preserve targetRoute (returnUrl) — only reset resolved flag.
+          actions: [assign({ resolved: false })]
         },
         BACK: {
           target: ROUTE.BASKET,
@@ -518,7 +564,7 @@ export default <FunnelProps>{
     [ROUTE.SESSION_RECOVER_PASSWORD]: {
       invoke: {
         src: "guardSession",
-        onDone: ROUTE.CHECKOUT,
+        onDone: { actions: ["setResolved"] },
         onError: [
           {
             actions: ["setResolved"]

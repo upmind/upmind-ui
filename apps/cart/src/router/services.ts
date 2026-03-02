@@ -1,5 +1,3 @@
-import { ROUTE } from ".";
-import { getBidParams } from "./funnels/cart";
 import {
   type FunnelContext,
   useBasket,
@@ -25,8 +23,48 @@ import {
   SemanticTypes,
   UpmindModuleCodes
 } from "@upmind-automation/types";
+import { ROUTE } from ".";
 import { filter, first, reduce } from "lodash-es";
 import type { RouteLocationGeneric } from "vue-router";
+
+// -----------------------------------------------------------------------------
+
+/**
+ * Checks whether the current route carries a basket ID (bid).
+ * When a bid is present and the user is NOT authenticated, rejects with a
+ * SESSION redirect so the user can log in before accessing the basket.
+ * Returns the detected bid (or undefined) so callers can act on it.
+ */
+async function ensureBidAuth(
+  context: FunnelContext
+): Promise<string | undefined> {
+  const { targetRoute, currentRoute } = context;
+  const route = (targetRoute ?? currentRoute) as RouteLocationGeneric;
+  const { getParam } = useQueryParams(route);
+
+  const basketId = getParam("bid") ?? getParam(QUERY_PARAMS.BASKET_ID);
+  if (!basketId) return undefined;
+
+  const { isAuthenticated } = useSession();
+  const authenticated = await isAuthenticated().catch(() => false);
+
+  if (!authenticated) {
+    // Use the actual route path so post-login redirects back to the
+    // original page (e.g. /shop, /checkout) — not just the basket.
+    const returnUrl =
+      route?.fullPath || route?.path || `/order/basket/${basketId}`;
+
+    return Promise.reject({
+      target: {
+        name: ROUTE.SESSION,
+        params: { segment: "basket", bid: basketId },
+        query: { returnUrl }
+      }
+    } as FunnelResponse);
+  }
+
+  return basketId;
+}
 
 // -----------------------------------------------------------------------------
 
@@ -49,28 +87,28 @@ export default {
     };
   },
 
-  guardCatalogue: async ({
-    targetRoute
-  }: FunnelContext): Promise<FunnelResponse> => {
+  guardCatalogue: async (context: FunnelContext): Promise<FunnelResponse> => {
+    await ensureBidAuth(context);
+
     const { hasStorefront } = useBrand();
     if (!hasStorefront.value) return Promise.reject();
 
     // TODO CHECK catalog enabled brand settings
 
     return {
-      target: targetRoute
+      target: context.targetRoute
     };
   },
 
-  guardDomains: async ({
-    targetRoute
-  }: FunnelContext): Promise<FunnelResponse> => {
+  guardDomains: async (context: FunnelContext): Promise<FunnelResponse> => {
+    await ensureBidAuth(context);
+
     const { hasModuleEnabled } = useBrand();
     if (!hasModuleEnabled(UpmindModuleCodes.WEB_HOSTING))
       return Promise.reject();
 
     return {
-      target: targetRoute
+      target: context.targetRoute
     };
   },
 
@@ -134,7 +172,7 @@ export default {
           return Promise.reject({
             target: {
               name: ROUTE.BASKET_PRODUCT_EDIT,
-              params: { bpid: basketItem!.id, ...getBidParams() }
+              params: { bpid: basketItem!.id }
               // query: { pfields: provisionFields } // TODO pass the updated provision fields so we can prefill
             }
           } as FunnelResponse);
@@ -147,7 +185,7 @@ export default {
       return Promise.reject({
         target: {
           name: ROUTE.BASKET_PRODUCT_EDIT,
-          params: { bpid: basketItem.id, ...getBidParams() }
+          params: { bpid: basketItem.id }
         }
       } as FunnelResponse);
     }
@@ -157,7 +195,7 @@ export default {
       return Promise.reject({
         target: {
           name: ROUTE.PRODUCT_CONFIGURE,
-          params: { pid: productId, ...getBidParams() }
+          params: { pid: productId }
         }
       } as FunnelResponse);
     }
@@ -166,13 +204,13 @@ export default {
     return { target: undefined } as FunnelResponse;
   },
 
-  guardProductConfigure: async ({
-    currentRoute,
-    targetRoute
-  }: FunnelContext): Promise<FunnelResponse> => {
-    const { get: getPendingProduct, resolve } = useBasketProductsPending();
-    const route = targetRoute ?? currentRoute;
+  guardProductConfigure: async (
+    context: FunnelContext
+  ): Promise<FunnelResponse> => {
+    await ensureBidAuth(context);
 
+    const { get: getPendingProduct, resolve } = useBasketProductsPending();
+    const route = context.targetRoute ?? context.currentRoute;
     const { productId, consumeParam } = useQueryParams(
       route as RouteLocationGeneric
     );
@@ -189,7 +227,7 @@ export default {
             return {
               target: {
                 name: ROUTE.PRODUCT_CONFIGURE,
-                params: { pid: productId, ...getBidParams() }
+                params: { pid: productId }
               }
             } as FunnelResponse;
           }
@@ -200,7 +238,7 @@ export default {
               return {
                 type: "NEXT",
                 target: {
-                  params: { pid: productId, ...getBidParams() }
+                  params: { pid: productId }
                 }
               } as FunnelResponse;
             })
@@ -208,42 +246,42 @@ export default {
               return {
                 target: {
                   name: ROUTE.PRODUCT_CONFIGURE,
-                  params: { pid: productId, ...getBidParams() }
+                  params: { pid: productId }
                 }
               } as FunnelResponse;
             });
         });
       })
-      .catch((error: Error) => {
+      .catch((_error: Error) => {
         return Promise.reject({
           target: {
             name: ROUTE.PRODUCT_NOT_FOUND,
-            params: { pid: productId, ...getBidParams() }
+            params: { pid: productId }
           }
         } as FunnelResponse);
       });
   },
 
-  guardProductEdit: async ({
-    currentRoute,
-    targetRoute
-  }: FunnelContext): Promise<FunnelResponse> => {
-    const { getProduct } = useBasket();
-    const route = targetRoute ?? currentRoute;
+  guardProductEdit: async (context: FunnelContext): Promise<FunnelResponse> => {
+    await ensureBidAuth(context);
 
+    const { getProduct } = useBasket();
+    const route = context.targetRoute ?? context.currentRoute;
     const { basketProductId } = useQueryParams(route as RouteLocationGeneric);
     return getProduct(basketProductId).then(() => ({
       target: {
         name: ROUTE.BASKET_PRODUCT_EDIT,
-        params: { bpid: basketProductId, ...getBidParams() }
+        params: { bpid: basketProductId }
       }
     }));
   },
 
   guardProductRequiresAction: async (
-    { currentRoute, targetRoute }: FunnelContext,
+    context: FunnelContext,
     { data }: AnyEventObject
   ): Promise<FunnelResponse> => {
+    await ensureBidAuth(context);
+
     const { isReady } = useBasket();
 
     return isReady().then(async () => {
@@ -254,7 +292,7 @@ export default {
 
       if (!hasProducts()) return Promise.reject();
 
-      const route = targetRoute ?? currentRoute;
+      const route = context.targetRoute ?? context.currentRoute;
       let { basketProductId } =
         useQueryParams(route as RouteLocationGeneric) ?? data?.id;
       const basketProduct =
@@ -271,7 +309,7 @@ export default {
         return {
           target: {
             name: ROUTE.BASKET_PRODUCT_EDIT,
-            params: { bpid: relatedBasketProduct?.id, ...getBidParams() }
+            params: { bpid: relatedBasketProduct?.id }
           }
         };
       }
@@ -279,17 +317,18 @@ export default {
       return {
         target: {
           name: ROUTE.BASKET_PRODUCT_REQUIRES_ACTION,
-          params: { bpid: nextInvalidProduct!.id, ...getBidParams() }
+          params: { bpid: nextInvalidProduct!.id }
         }
       };
     });
   },
 
-  guardProductRecommendations: async ({
-    currentRoute,
-    targetRoute
-  }: FunnelContext): Promise<FunnelResponse> => {
-    const route = targetRoute ?? currentRoute;
+  guardProductRecommendations: async (
+    context: FunnelContext
+  ): Promise<FunnelResponse> => {
+    await ensureBidAuth(context);
+
+    const route = context.targetRoute ?? context.currentRoute;
     const { productId } = useQueryParams(route as RouteLocationGeneric);
     if (!productId) return Promise.reject();
 
@@ -297,25 +336,26 @@ export default {
     return isReady().then(() => {
       return meta.value.hasUnseenRecommendations
         ? {
-            target: targetRoute ?? {
+            target: context.targetRoute ?? {
               name: ROUTE.PRODUCT_RECOMMENDATIONS,
-              params: { pid: productId, ...getBidParams() }
+              params: { pid: productId }
             }
           }
         : Promise.reject();
     });
   },
 
-  guardRecommendations: async ({
-    targetRoute
-  }: FunnelContext): Promise<FunnelResponse> => {
+  guardRecommendations: async (
+    context: FunnelContext
+  ): Promise<FunnelResponse> => {
+    await ensureBidAuth(context);
+
     const { meta, isReady } = useRecommendations();
     return isReady().then(() => {
       return meta.value.hasUnseenRecommendations
         ? {
-            target: targetRoute ?? {
-              name: ROUTE.RECOMMENDATIONS,
-              params: getBidParams()
+            target: context.targetRoute ?? {
+              name: ROUTE.RECOMMENDATIONS
             }
           }
         : Promise.reject();
@@ -384,11 +424,18 @@ export default {
     if (basketId) {
       const authenticated = await isAuthenticated().catch(() => false);
       if (!authenticated) {
+        // Use the actual route path so post-login redirects back to the
+        // original page — not just the basket.
+        const returnUrl =
+          (route as RouteLocationGeneric)?.fullPath ||
+          (route as RouteLocationGeneric)?.path ||
+          `/order/basket/${basketId}`;
+
         return Promise.reject({
           target: {
             name: ROUTE.SESSION,
-            params: { bid: basketId },
-            query: { returnUrl: `/order/basket/${basketId}` }
+            params: { segment: "basket", bid: basketId },
+            query: { returnUrl }
           }
         } as FunnelResponse);
       }
@@ -419,12 +466,12 @@ export default {
     return { target: targetRoute ?? { name: ROUTE.BASKET } };
   },
 
-  guardCheckout: async ({
-    targetRoute
-  }: FunnelContext): Promise<FunnelResponse> => {
+  guardCheckout: async (context: FunnelContext): Promise<FunnelResponse> => {
+    await ensureBidAuth(context);
+
     const { meta, isReady } = useBasket();
     const { isReady: isFieldsReady, meta: fieldsMeta } = useBasketFields();
-    const { isReady: isBillingReady } = useBasketBilling();
+    const { isReady: _isBillingReady } = useBasketBilling();
     const { getConfigValue } = useBrand();
 
     // first wait for the basket to be ready
@@ -432,16 +479,12 @@ export default {
 
     // We always need to be authenticated to proceed to checkout
     if (meta.value.needsAuth) {
-      return Promise.reject({
-        target: { name: ROUTE.SESSION, params: getBidParams() }
-      });
+      return Promise.reject({ target: { name: ROUTE.SESSION } });
     }
 
     // We always need products in the basket to proceed to checkout
     if (!meta.value.hasProducts) {
-      return Promise.reject({
-        target: { name: ROUTE.BASKET, params: getBidParams() }
-      });
+      return Promise.reject({ target: { name: ROUTE.BASKET } });
     }
 
     // NB: In Stepped flow, we need to ALSO validate products and fields, so we ensure everything is valid before proceeding to checkout
@@ -450,19 +493,14 @@ export default {
     ) {
       if (meta.value.hasInvalidProducts) {
         return Promise.reject({
-          target: {
-            name: ROUTE.BASKET_PRODUCT_REQUIRES_ACTION,
-            params: getBidParams()
-          }
+          target: { name: ROUTE.BASKET_PRODUCT_REQUIRES_ACTION }
         });
       }
 
       await isFieldsReady();
       const validFields = fieldsMeta.value.isComplete;
       if (!validFields) {
-        return Promise.reject({
-          target: { name: ROUTE.BASKET, params: getBidParams() }
-        });
+        return Promise.reject({ target: { name: ROUTE.BASKET } });
       }
     }
 
@@ -472,8 +510,6 @@ export default {
     //   useClientAddresses().isReady(),
     //   useClientCompanies().isReady()
     // ]);
-    return {
-      target: targetRoute ?? { name: ROUTE.CHECKOUT, params: getBidParams() }
-    };
+    return { target: context.targetRoute ?? { name: ROUTE.CHECKOUT } };
   }
 };

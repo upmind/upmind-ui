@@ -13,6 +13,7 @@ import {
   useBasket
 } from "@upmind-automation/client-vue";
 import { ROUTE } from "../types";
+// Note: useBasket and QUERY_PARAMS are still used by the CHECKOUT NEXT handler.
 
 // -----------------------------------------------------------------------------
 // BID PRESERVATION:
@@ -26,22 +27,11 @@ import { ROUTE } from "../types";
 //   For basket routes it injects `{ bid }` only; for BID_PREFIX routes it
 //   injects `{ segment: 'basket', bid }`.
 //
-//   `getBidParams()` is exported for guard services that return route targets
-//   directly (outside the setResolved flow). It returns `{ bid }` only —
-//   `injectBid` in `setResolved` handles adding `segment` for BID_PREFIX routes.
+//   Guard services no longer need to manually inject bid params — the
+//   `ensureBidAuth()` helper in services.ts handles auth-gating for bid
+//   routes, and `injectBid()` in actions.ts handles param injection via
+//   the `setResolved` override.
 // -----------------------------------------------------------------------------
-
-/**
- * Returns route params with the active basket ID.
- * When a `targetBasketId` is active, returns `{ bid }`.
- * When no target basket, returns `{}`.
- */
-export function getBidParams(): Record<string, string> {
-  const { targetBasketId } = useBasket();
-  const bid = targetBasketId.value;
-  if (!bid) return {};
-  return { bid };
-}
 
 export default <FunnelProps>{
   id: "cart",
@@ -238,10 +228,7 @@ export default <FunnelProps>{
                   { data }: AnyEventObject
                 ) => ({
                   name: ROUTE.SESSION_LOGIN,
-                  params: {
-                    ...(data?.target?.params ?? {}),
-                    ...getBidParams()
-                  },
+                  params: data?.target?.params ?? {},
                   query: data?.target?.query ?? {}
                 })
               })
@@ -487,10 +474,21 @@ export default <FunnelProps>{
     [ROUTE.SESSION]: {
       invoke: {
         src: "guardSession",
-        onDone: ROUTE.CHECKOUT,
+        onDone: { actions: ["setResolved"] },
         onError: {
-          target: ROUTE.SESSION_REGISTER,
-          actions: ["setResolving"]
+          target: ROUTE.SESSION_LOGIN,
+          // NB: Preserve targetRoute query (returnUrl) but update route name
+          // to SESSION_LOGIN so Vue Router navigates to /auth/login, not /auth.
+          // Using inline assign instead of "setResolving" which clears targetRoute.
+          actions: [
+            assign({
+              resolved: false,
+              targetRoute: ({ targetRoute }: FunnelContext) => ({
+                ...targetRoute,
+                name: ROUTE.SESSION_LOGIN
+              })
+            })
+          ]
         }
         // BRAND SETTING TO DECIDE DEFAULT SESSION ROUTE
       }
@@ -500,7 +498,8 @@ export default <FunnelProps>{
      * 🎯 ROUTE.SESSION_LOGIN
      * This state manages the login process for user sessions.
      * It invokes a 'guard' to check if the user is authenticated.
-     * If the user is authenticated, it redirects to the BASKET route.
+     * When a bid is present, routes to BASKET after auth so `setTargetBasket`
+     * loads the correct basket. Otherwise routes to CHECKOUT.
      * From here, users can proceed to the CHECKOUT route or return to the BASKET.
      */
     [ROUTE.SESSION_LOGIN]: {
@@ -513,7 +512,8 @@ export default <FunnelProps>{
       on: {
         NEXT: {
           target: ROUTE.SESSION_LOGIN,
-          actions: ["setResolving", "setTargetRoute"]
+          // NB: Preserve targetRoute (returnUrl) — only reset resolved flag.
+          actions: [assign({ resolved: false })]
         },
         BACK: {
           target: ROUTE.BASKET,
@@ -526,22 +526,21 @@ export default <FunnelProps>{
      * 🎯 ROUTE.SESSION_REGISTER
      * This state manages the registration process for new user sessions.
      * It invokes a 'guard' to check if the user is authenticated.
-     * If the user is authenticated, it redirects to the BASKET route.
+     * When a bid is present, routes to BASKET after auth so `setTargetBasket`
+     * loads the correct basket. Otherwise routes to CHECKOUT.
      * From here, users can proceed to the CHECKOUT route or return to the BASKET.
      */
     [ROUTE.SESSION_REGISTER]: {
       invoke: {
         src: "guardSession",
-        onDone: {
-          target: ROUTE.CHECKOUT,
-          actions: ["setResolving"]
-        },
+        onDone: { actions: ["setResolved"] },
         onError: { actions: ["setResolved"] }
       },
       on: {
         NEXT: {
-          target: ROUTE.CHECKOUT,
-          actions: [assign({ targetRoute: { name: ROUTE.CHECKOUT } })]
+          target: ROUTE.SESSION_REGISTER,
+          // NB: Preserve targetRoute (returnUrl) — only reset resolved flag.
+          actions: [assign({ resolved: false })]
         },
         BACK: {
           target: ROUTE.BASKET,
@@ -560,7 +559,7 @@ export default <FunnelProps>{
     [ROUTE.SESSION_RECOVER_PASSWORD]: {
       invoke: {
         src: "guardSession",
-        onDone: ROUTE.CHECKOUT,
+        onDone: { actions: ["setResolved"] },
         onError: [
           {
             actions: ["setResolved"]
