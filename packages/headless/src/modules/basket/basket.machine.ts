@@ -6,6 +6,7 @@ import services from "./services";
 import paymentMachine from "../payment/payment.machine";
 import { useDataLayer, useI18n } from "../system";
 import { authSubscription } from "../session/helper";
+import { useSession } from "../session";
 
 import { useFeedback } from "../feedback";
 
@@ -433,7 +434,8 @@ export default createMachine(
        */
       SET_TARGET_BASKET: {
         target: "loading",
-        actions: ["setTargetBasketId", "clearBasket", "clearActors"]
+        actions: ["setTargetBasketId", "clearBasket", "clearActors"],
+        cond: "isAuthenticated"
       },
 
       REFRESH: [
@@ -813,7 +815,12 @@ export default createMachine(
       ) => !!data?.targetBasketInvalid,
 
       hasNoProducts: ({ products }) => isEmpty(products),
-      hasProducts: ({ products }) => !isEmpty(products)
+      hasProducts: ({ products }) => !isEmpty(products),
+
+      isAuthenticated: () => {
+        const { meta } = useSession();
+        return meta.value.isAuthenticated;
+      }
     },
 
     delays: {
