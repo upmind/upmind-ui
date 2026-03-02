@@ -1,9 +1,7 @@
 // --- internal
-
 import { useBrand } from "@upmind-automation/client-vue";
 import { trimStart } from "lodash-es";
 import { getBidParams } from "./funnels/cart";
-
 // --- types
 import { ROUTE, RegexMatch } from "./types";
 import type { RouteLocationGeneric, RouteRecordRaw } from "vue-router";
@@ -70,27 +68,8 @@ export default [
    * or modify the items they intend to purchase.
    */
   {
-    path: "/order/basket",
+    path: `/order/basket/:bid(${RegexMatch.UUID})?`,
     name: ROUTE.BASKET,
-    component: () => import("../pages/Basket.vue"),
-    meta: {
-      actionEmptyBasket: true
-    }
-  },
-
-  /**
-   * Route for accessing a specific basket by its unique ID.
-   * Accepts a UUID basket ID as the `:bid` route parameter.
-   * When a bid is present, the basket machine loads `orders/{bid}` instead of `orders/current`.
-   * Unauthenticated users are redirected to login and returned here after authentication.
-   *
-   * This route must appear before BASKET_PRODUCT_EDIT so that direct URL navigation to
-   * `/order/basket/{uuid}` resolves to this route. Navigation to BASKET_PRODUCT_EDIT
-   * always happens programmatically by route name, so the order does not affect it.
-   */
-  {
-    path: `/order/basket/:bid(${RegexMatch.UUID})`,
-    name: ROUTE.BASKET_WITH_ID,
     component: () => import("../pages/Basket.vue"),
     meta: {
       actionEmptyBasket: true
@@ -228,10 +207,7 @@ export default [
         return { name: ROUTE.CATALOGUE, params: getBidParams() };
 
       // Fallback to basket if no storefront is available
-      const bidParams = getBidParams();
-      return bidParams.bid
-        ? { name: ROUTE.BASKET_WITH_ID, params: { bid: bidParams.bid } }
-        : { name: ROUTE.BASKET };
+      return { name: ROUTE.BASKET, params: getBidParams() };
     }
   },
 

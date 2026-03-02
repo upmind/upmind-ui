@@ -25,32 +25,10 @@ import {
   SemanticTypes,
   UpmindModuleCodes
 } from "@upmind-automation/types";
-import { filter, first, isEmpty, reduce } from "lodash-es";
+import { filter, first, reduce } from "lodash-es";
 import type { RouteLocationGeneric } from "vue-router";
 
 // -----------------------------------------------------------------------------
-
-/**
- * Checks whether a route has a `bid` query/path param and, if so, sets the
- * target basket in the basket machine so it loads `orders/{bid}` instead of
- * `orders/current`.  Called at the top of every guard service so that a hard
- * refresh at any route (e.g. `/order/checkout?bid=xxx`) restores the targeted
- * basket correctly.
- */
-async function ensureTargetBasket(route: RouteLocationGeneric): Promise<void> {
-  const { getParam } = useQueryParams(route);
-  const bid = getParam(QUERY_PARAMS.BASKET_ID) ?? getParam("bid");
-
-  if (!bid) return;
-
-  const { isReady, setTargetBasket, targetBasketId } = useBasket();
-
-  // Set target BEFORE waiting — single load, no actors to cancel.
-  if (targetBasketId.value !== bid) {
-    setTargetBasket(bid);
-  }
-  await isReady();
-}
 
 /**
  * Services to handle asynchronous operations and validations within states.
@@ -194,7 +172,7 @@ export default {
   }: FunnelContext): Promise<FunnelResponse> => {
     const { get: getPendingProduct, resolve } = useBasketProductsPending();
     const route = targetRoute ?? currentRoute;
-    await ensureTargetBasket(route as RouteLocationGeneric);
+
     const { productId, consumeParam } = useQueryParams(
       route as RouteLocationGeneric
     );
@@ -252,7 +230,7 @@ export default {
   }: FunnelContext): Promise<FunnelResponse> => {
     const { getProduct } = useBasket();
     const route = targetRoute ?? currentRoute;
-    await ensureTargetBasket(route as RouteLocationGeneric);
+
     const { basketProductId } = useQueryParams(route as RouteLocationGeneric);
     return getProduct(basketProductId).then(() => ({
       target: {
@@ -267,9 +245,6 @@ export default {
     { data }: AnyEventObject
   ): Promise<FunnelResponse> => {
     const { isReady } = useBasket();
-
-    const route = targetRoute ?? currentRoute;
-    await ensureTargetBasket(route as RouteLocationGeneric);
 
     return isReady().then(async () => {
       const { hasProducts, getNextRelated, getNextInvalid } =
@@ -381,96 +356,76 @@ export default {
       });
   },
 
+  /**
+   * 🎯 Guard: BASKET
+   * Validates access to the basket. Handles two flows:
+   *
+   * **With bid (basket ID in route):**
+   * 1. Gate on authentication — reject with SESSION if not logged in.
+   * 2. Set target basket ID so the machine loads `orders/{bid}`.
+   * 3. If the bid is invalid/expired, fall through to current basket.
+   *
+   * **Without bid (current basket):**
+   * 1. Wait for basket to be ready.
+   * 2. Reject if basket has no products (→ BASKET_EMPTY).
+   */
   guardBasket: async ({
     currentRoute,
     targetRoute
   }: FunnelContext): Promise<FunnelResponse> => {
-    const route = targetRoute ?? currentRoute;
-    await ensureTargetBasket(route as RouteLocationGeneric);
-    const { meta, isReady } = useBasket();
-    await isReady();
-    if (!meta.value.hasProducts) return Promise.reject();
-    return { target: targetRoute ?? { name: ROUTE.BASKET } };
-  },
-
-  /**
-   * 🎯 Guard: BASKET_WITH_ID
-   * Validates access to a basket specified by UUID in the route param.
-   *
-   * When a bid is present in the current route:
-   * 1. If the user is not authenticated, reject with the SESSION route so they can log in.
-   * 2. If authenticated, set the target basket ID in the basket machine to load `orders/{bid}`.
-   * 3. Resolve so the funnel stays on the BASKET_WITH_ID route.
-   *
-   * On RESET/CLEAR the basket machine clears targetBasketId and reverts to `orders/current`.
-   */
-  guardBasketWithId: async ({
-    currentRoute,
-    targetRoute
-  }: FunnelContext): Promise<FunnelResponse> => {
-    const { isReady, setTargetBasket, targetBasketId } = useBasket();
+    const { meta, isReady, setTargetBasket, targetBasketId } = useBasket();
     const { isAuthenticated } = useSession();
     const route = targetRoute ?? currentRoute;
     const { getParam } = useQueryParams(route as RouteLocationGeneric);
 
     const basketId = getParam("bid") ?? getParam(QUERY_PARAMS.BASKET_ID);
 
-    if (!basketId) {
-      return Promise.reject({
-        target: { name: ROUTE.BASKET }
-      } as FunnelResponse);
-    }
-
-    // Gate: user must be authenticated to access a basket by ID
-    const authenticated = await isAuthenticated().catch(() => false);
-    if (!authenticated) {
-      return Promise.reject({
-        target: {
-          name: ROUTE.SESSION,
-          params: { _basket: "basket", bid: basketId },
-          query: { returnUrl: `/order/basket/${basketId}` }
-        }
-      } as FunnelResponse);
-    }
-
-    // Set target BEFORE waiting — single load, no actors to cancel.
-    // SET_TARGET_BASKET is a root-level event handler, accepted from any state
-    // (including "loading"). This avoids the double-load pattern where we'd
-    // first load orders/current (spawning actors), then immediately kill them
-    // via clearActors to reload orders/{bid} — which caused CancelledError
-    // toasts and a brief loading/view overlap.
-    if (targetBasketId.value !== basketId) {
-      setTargetBasket(basketId);
-    }
-    await isReady();
-
-    // If the machine cleared targetBasketId (invalid/expired basket),
-    // fall back to the regular BASKET route
-    if (!targetBasketId.value) {
-      return Promise.reject({
-        target: { name: ROUTE.BASKET }
-      } as FunnelResponse);
-    }
-
-    return {
-      target: targetRoute ?? {
-        name: ROUTE.BASKET_WITH_ID,
-        params: { bid: basketId }
+    // When accessing a specific basket by ID, gate on authentication
+    if (basketId) {
+      const authenticated = await isAuthenticated().catch(() => false);
+      if (!authenticated) {
+        return Promise.reject({
+          target: {
+            name: ROUTE.SESSION,
+            params: { bid: basketId },
+            query: { returnUrl: `/order/basket/${basketId}` }
+          }
+        } as FunnelResponse);
       }
-    };
+
+      // Set target BEFORE waiting — single load, no actors to cancel.
+      if (targetBasketId.value !== basketId) {
+        setTargetBasket(basketId);
+      }
+      await isReady();
+
+      // If the basket loaded successfully with the target ID, resolve
+      if (targetBasketId.value) {
+        return {
+          target: targetRoute ?? {
+            name: ROUTE.BASKET,
+            params: { bid: basketId }
+          }
+        };
+      }
+
+      // Otherwise the machine cleared targetBasketId (invalid/expired basket).
+      // Fall through to the standard basket check below.
+    }
+
+    // Standard basket guard — check current basket has products
+    await isReady();
+    if (!meta.value.hasProducts) return Promise.reject();
+    return { target: targetRoute ?? { name: ROUTE.BASKET } };
   },
 
   guardCheckout: async ({
-    currentRoute,
     targetRoute
   }: FunnelContext): Promise<FunnelResponse> => {
     const { meta, isReady } = useBasket();
     const { isReady: isFieldsReady, meta: fieldsMeta } = useBasketFields();
     const { isReady: isBillingReady } = useBasketBilling();
     const { getConfigValue } = useBrand();
-
-    const route = targetRoute ?? currentRoute;
-    await ensureTargetBasket(route as RouteLocationGeneric);
 
     // first wait for the basket to be ready
     await isReady();
