@@ -21,43 +21,58 @@ import type {
   IDomainSuggestionsResponse,
   IDomainAvailabilityResponse
 } from "./types";
+import { DomainTypes } from "./types";
 import { DetailedError, ErrorOrigin, responseCodes } from "../../utils";
 import { parsePromotionsOrCoupons } from "../basketProduct/utils";
 
 // -----------------------------------------------------------------------------
 // Mock data for development — remove once real endpoints are available
 
-const MOCK_SUGGESTIONS_RESPONSE: IDomainSuggestionsResponse = {
-  results: [
-    {
-      sld: "upminddev",
-      tld: ".com",
-      product_id: "98574264-8970-1282-7e5f-e1e325d0ed36",
-      domain_available: true
-    },
-    {
-      sld: "upminddev",
-      tld: ".io",
-      product_id: "aaa-222-bbb",
-      domain_available: true
-    },
-    {
-      sld: "upminddev",
-      tld: ".net",
-      product_id: "aaa-333-bbb",
-      domain_available: false
-    },
-    {
-      sld: "upminddev",
-      tld: ".co.uk",
-      product_id: "aaa-444-bbb",
-      domain_available: true
-    }
-  ],
-  products: [
-    {
-      id: "98574264-8970-1282-7e5f-e1e325d0ed36",
-      name: ".com",
+function mockSuggestions(sld: string): IDomainSuggestionsResponse {
+  const tlds = [".com", ".io", ".net", ".co.uk"];
+  const productIds = [
+    "98574264-8970-1282-7e5f-e1e325d0ed36",
+    "aaa-222-bbb",
+    "aaa-333-bbb",
+    "aaa-444-bbb"
+  ];
+  const prices = ["$12.99", "$39.99", "$14.99", "$8.99"];
+  const discounted = ["$9.99", null, null, null];
+
+  return {
+    results: tlds.map((tld, i) => ({
+      sld,
+      tld,
+      product_id: productIds[i],
+      domain_available: i !== 2 // .net is unavailable
+    })),
+    products: tlds.map((tld, i) => ({
+      id: productIds[i],
+      name: tld,
+      prices: [
+        {
+          billing_cycle_months: 12,
+          price_formatted: prices[i],
+          price_discounted_formatted: discounted[i]
+        }
+      ]
+    }))
+  };
+}
+
+function mockAvailability(tld?: string): IDomainAvailabilityResponse {
+  // Find a matching product from the suggestions mock, or build one
+  const productId = "98574264-8970-1282-7e5f-e1e325d0ed36";
+  const productName = tld ?? ".com";
+
+  return {
+    // Toggle these values to test different branches:
+    can_register: false,
+    can_transfer: true,
+    is_premium: false,
+    product: {
+      id: productId,
+      name: productName,
       prices: [
         {
           billing_cycle_months: 12,
@@ -65,58 +80,75 @@ const MOCK_SUGGESTIONS_RESPONSE: IDomainSuggestionsResponse = {
           price_discounted_formatted: "$9.99"
         }
       ]
-    },
-    {
-      id: "aaa-222-bbb",
-      name: ".io",
-      prices: [
-        {
-          billing_cycle_months: 12,
-          price_formatted: "$39.99",
-          price_discounted_formatted: null
-        }
-      ]
-    },
-    {
-      id: "aaa-333-bbb",
-      name: ".net",
-      prices: [
-        {
-          billing_cycle_months: 12,
-          price_formatted: "$14.99",
-          price_discounted_formatted: null
-        }
-      ]
-    },
-    {
-      id: "aaa-444-bbb",
-      name: ".co.uk",
-      prices: [
-        {
-          billing_cycle_months: 12,
-          price_formatted: "$8.99",
-          price_discounted_formatted: null
-        }
-      ]
     }
-  ]
-};
-
-const MOCK_AVAILABILITY_RESPONSE: IDomainAvailabilityResponse = {
-  can_register: true,
-  can_transfer: false,
-  is_premium: false
-};
+  };
+}
 
 // -----------------------------------------------------------------------------
 
-async function search({
-  search,
-  basketId,
-  brandId,
-  coupons,
-  preferredCycle
-}: DacContext) {
+/**
+ * Builds a DomainProduct from an availability response.
+ * Used in transfer mode where there are no suggestions — only a single
+ * availability check that returns product data.
+ */
+function buildDomainProductFromAvailability(
+  domain: string,
+  availability: IDomainAvailabilityResponse,
+  preferredCycle?: number
+): DomainProduct {
+  const { sld, tld } = parseDomainParts(domain);
+  const parsed = parseDomain(domain);
+  const product = availability.product;
+  const prices = product?.prices ?? [];
+  const priceEntry =
+    prices.find(p => p.billing_cycle_months === preferredCycle) ?? prices[0];
+
+  const priceFormatted = priceEntry?.price_formatted ?? "";
+  const priceDiscountedFormatted =
+    priceEntry?.price_discounted_formatted ?? null;
+  const billingCycleMonths = priceEntry?.billing_cycle_months ?? 12;
+
+  return {
+    domain: parsed?.domain ?? domain,
+    sld: parsed?.sld ?? sld,
+    tld: parsed?.tld ?? tld ?? "",
+    configuration: {
+      productId: product?.id ?? "",
+      term: billingCycleMonths,
+      quantity: 1,
+      provisionFields: { sld }
+    },
+    price: {
+      currentPrice: priceDiscountedFormatted ?? priceFormatted,
+      currentAmount: 0,
+      regularPrice: priceFormatted,
+      regularAmount: 0,
+      savingAmount: 0,
+      savingPrice: "",
+      savingPercent: ""
+    },
+    meta: {
+      available: availability.can_register,
+      canTransfer: !availability.can_register && availability.can_transfer,
+      unavailable: !availability.can_register && !availability.can_transfer,
+      checkedAvailability: true,
+      disabled: !availability.can_register && !availability.can_transfer,
+      exactMatch: true
+    },
+    productDetails: {
+      id: product?.id ?? "",
+      title: domain,
+      name: product?.name ?? tld ?? ""
+    },
+    pricing: [],
+    details: []
+  } as unknown as DomainProduct;
+}
+
+// -----------------------------------------------------------------------------
+
+async function search(context: DacContext) {
+  const { search, preferredCycle, mode } = context;
   const { t } = useI18n();
   const { cancel } = useQuery();
 
@@ -129,34 +161,57 @@ async function search({
       )
     );
 
-  const { sld } = parseDomainParts(search.query);
+  const { sld, tld } = parseDomainParts(search.query);
+
+  console.log(
+    "[DEBUG search()] mode:",
+    mode,
+    "query:",
+    search.query,
+    "sld:",
+    sld,
+    "tld:",
+    tld
+  );
 
   cancel(["domains", "suggestions"]);
 
-  // TODO: remove mock once /suggestions endpoint is live
-  // const promocodes = parsePromotionsOrCoupons(coupons).join();
-  // const { tld } = parseDomainParts(search.query);
-  // const params = omitBy(
-  //   { sld, tld, basket_id: basketId, brand_id: brandId, promotions: promocodes },
-  //   isEmpty
-  // );
-  // return getList<IDomainSuggestionsResponse, DomainProduct[]>({
-  //   url: useUrl("modules/web_hosting/domains/suggestions", params),
-  //   queryKey: ["domains", "suggestions", { ...params }],
-  //   pagination: { limit: search?.limit ?? PAGINATION.limit, offset: search?.offset ?? PAGINATION.offset },
-  //   withAccessToken: true,
-  //   withCurrency: true,
-  //   select: data => parseSuggestions(sld, data ?? { results: [], products: [] }, preferredCycle)
-  // });
+  // --- TRANSFER mode: only checkAvailability, no suggestions
+  if (mode === DomainTypes.transfer) {
+    const domain = search.query;
+    const availability = await checkAvailability({
+      ...context,
+      checkingDomain: domain
+    } as DacContext);
 
-  // --- MOCK: simulate network delay and return test data
-  return new Promise<{ data: DomainProduct[]; total: number }>(resolve => {
+    const product = buildDomainProductFromAvailability(
+      domain,
+      availability,
+      preferredCycle
+    );
+
+    console.log("[MOCK] Transfer mode — single availability check:", {
+      domain,
+      availability,
+      product
+    });
+
+    return {
+      data: [product],
+      total: 1,
+      availability,
+      exactDomain: domain
+    };
+  }
+
+  // --- Suggestions call (always runs)
+  const suggestionsPromise = new Promise<{
+    data: DomainProduct[];
+    total: number;
+  }>(resolve => {
     setTimeout(() => {
-      const mockWithSld: IDomainSuggestionsResponse = {
-        ...MOCK_SUGGESTIONS_RESPONSE,
-        results: MOCK_SUGGESTIONS_RESPONSE.results.map(r => ({ ...r, sld }))
-      };
-      const data = parseSuggestions(sld, mockWithSld, preferredCycle);
+      const mockData = mockSuggestions(sld);
+      const data = parseSuggestions(sld, mockData, preferredCycle);
       console.log("[MOCK] /suggestions response:", {
         data,
         total: data.length
@@ -164,6 +219,26 @@ async function search({
       resolve({ data, total: data.length });
     }, 800);
   });
+
+  // --- Availability call (only when query has a TLD)
+  const availabilityPromise: Promise<IDomainAvailabilityResponse | null> = tld
+    ? checkAvailability({
+        ...context,
+        checkingDomain: `${sld}${tld}`
+      } as DacContext)
+    : Promise.resolve(null);
+
+  const [suggestions, availability] = await Promise.all([
+    suggestionsPromise,
+    availabilityPromise
+  ]);
+
+  return {
+    data: suggestions.data,
+    total: suggestions.total,
+    availability,
+    exactDomain: tld ? `${sld}${tld}` : undefined
+  };
 }
 
 async function checkAvailability({ checkingDomain }: DacContext) {
@@ -188,13 +263,41 @@ async function checkAvailability({ checkingDomain }: DacContext) {
   // });
 
   // --- MOCK: simulate network delay and return available
+  const { tld } = parseDomainParts(checkingDomain);
+  const response = mockAvailability(tld);
+  return new Promise<IDomainAvailabilityResponse>(resolve => {
+    setTimeout(() => {
+      console.log(`[MOCK] /availability/${checkingDomain} response:`, response);
+      resolve({ ...response });
+    }, 600);
+  });
+}
+
+/**
+ * Simulates a basket-add call that fails with availability data.
+ * In production this would be the real basket add endpoint — if the domain
+ * is unavailable the API returns availability info in the error response.
+ */
+async function addDomainToBasket({ checkingDomain }: DacContext) {
+  if (!checkingDomain)
+    return Promise.reject(
+      new DetailedError(
+        "No domain specified",
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless
+      )
+    );
+
+  // --- MOCK: simulate basket add failing with availability data
+  const { tld } = parseDomainParts(checkingDomain ?? "");
+  const response = mockAvailability(tld);
   return new Promise<IDomainAvailabilityResponse>(resolve => {
     setTimeout(() => {
       console.log(
-        `[MOCK] /availability/${checkingDomain} response:`,
-        MOCK_AVAILABILITY_RESPONSE
+        `[MOCK] Basket add for ${checkingDomain} failed — returning availability:`,
+        response
       );
-      resolve({ ...MOCK_AVAILABILITY_RESPONSE });
+      resolve({ ...response });
     }, 600);
   });
 }
@@ -221,5 +324,6 @@ async function getClientDomains(_context: DomainContext | DacContext) {
 export default {
   search,
   checkAvailability,
+  addDomainToBasket,
   getClientDomains
 };

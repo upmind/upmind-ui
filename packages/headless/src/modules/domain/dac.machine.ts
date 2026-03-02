@@ -33,7 +33,12 @@ import {
 // --- types
 import type { AnyEventObject } from "xstate";
 import { type IBasketProduct } from "@upmind-automation/types";
-import type { DomainModel, DacContext, DomainProduct } from "./types";
+import {
+  type DomainModel,
+  type DacContext,
+  type DomainProduct,
+  DomainTypes
+} from "./types";
 import type { ProductProps } from "../product";
 import { parseBasketProduct } from "../basketProduct/utils";
 import { PAGINATION } from "../query";
@@ -114,6 +119,12 @@ export default createMachine(
         on: {
           ADD: [
             {
+              // Already availability-checked & transferable — skip re-check
+              target: "valid",
+              actions: ["add", "setProcessing", "addToBasket"],
+              cond: "isAlreadyChecked"
+            },
+            {
               target: "checking",
               actions: ["add", "setProcessing", "setCheckingDomain"],
               cond: "isValidDomain"
@@ -126,6 +137,12 @@ export default createMachine(
         always: [{ target: "valid", cond: "isValid" }],
         on: {
           ADD: [
+            {
+              // Already availability-checked & transferable — skip re-check
+              target: "valid",
+              actions: ["add", "setProcessing", "addToBasket"],
+              cond: "isAlreadyChecked"
+            },
             {
               target: "checking",
               actions: ["add", "setProcessing", "setCheckingDomain"],
@@ -140,7 +157,7 @@ export default createMachine(
       checking: {
         entry: ["clearError"],
         invoke: {
-          src: "checkAvailability",
+          src: "addDomainToBasket",
           onDone: [
             {
               target: "valid",
@@ -148,11 +165,22 @@ export default createMachine(
               cond: "isDomainAvailable"
             },
             {
+              // can_register=false BUT can_transfer=true → convert row to transfer
               target: "invalid",
               actions: [
                 "clearCheckingProcessing",
                 "removeCheckingDomain",
-                "setUnavailableError"
+                "setTransferable"
+              ],
+              cond: "isDomainTransferable"
+            },
+            {
+              // can_register=false AND can_transfer=false → fully unavailable
+              target: "invalid",
+              actions: [
+                "clearCheckingProcessing",
+                "removeCheckingDomain",
+                "setFullyUnavailable"
               ]
             }
           ],
@@ -572,6 +600,25 @@ export default createMachine(
                 item.meta.exactMatch = true;
               }
 
+              // If this is the exact match domain and we have availability data,
+              // merge the availability flags into the product
+              if (
+                response?.exactDomain &&
+                item.domain === response.exactDomain &&
+                response.availability
+              ) {
+                const avail = response.availability;
+                item.meta.exactMatch = true;
+                item.meta.checkedAvailability = true;
+                item.meta.available = avail.can_register;
+                item.meta.canTransfer =
+                  !avail.can_register && avail.can_transfer;
+                item.meta.unavailable =
+                  !avail.can_register && !avail.can_transfer;
+                item.meta.disabled =
+                  item.meta.owned || item.meta.unavailable || false;
+              }
+
               return item as DomainProduct;
             }
           );
@@ -610,7 +657,7 @@ export default createMachine(
 
       setOwned: assign({
         lookups: ({ lookups }: DacContext, { data }: AnyEventObject) => {
-          const available = map(data, (item: DomainModel) => {
+          const available = map(compact(data), (item: DomainModel) => {
             return {
               domain: item.domain,
               tld: item.tld,
@@ -755,6 +802,57 @@ export default createMachine(
       setUnavailableError: assign({
         error: (_context: DacContext) =>
           mapToHeadlessError(new Error("domain_unavailable"))
+      }),
+
+      // --- Availability fallback actions ---
+
+      setTransferable: assign({
+        lookups: ({ lookups, checkingDomain }: DacContext) => {
+          const { t } = useI18n();
+          const product = find(lookups.searched, [
+            "domain",
+            checkingDomain
+          ]) as DomainProduct;
+
+          if (product) {
+            product.meta.available = false;
+            product.meta.canTransfer = true;
+            product.meta.checkedAvailability = true;
+            product.meta.processing = false;
+          }
+
+          useFeedback().addError({
+            title: t("error.domain_register_unavailable"),
+            copy: checkingDomain ?? ""
+          });
+
+          return lookups;
+        }
+      }),
+
+      setFullyUnavailable: assign({
+        lookups: ({ lookups, checkingDomain }: DacContext) => {
+          const { t } = useI18n();
+          const product = find(lookups.searched, [
+            "domain",
+            checkingDomain
+          ]) as DomainProduct;
+
+          if (product) {
+            product.meta.available = false;
+            product.meta.unavailable = true;
+            product.meta.disabled = true;
+            product.meta.checkedAvailability = true;
+            product.meta.processing = false;
+          }
+
+          useFeedback().addError({
+            title: t("error.domain_unavailable"),
+            copy: checkingDomain ?? ""
+          });
+
+          return lookups;
+        }
       })
     },
 
@@ -764,11 +862,20 @@ export default createMachine(
       isValidDomain: (_context, { data }: AnyEventObject) =>
         !isEmpty(parseDomain(data)),
 
-      hasSearchQuery: ({ search }: DacContext, _event: AnyEventObject) => {
+      hasSearchQuery: (
+        { search, mode }: DacContext,
+        _event: AnyEventObject
+      ) => {
+        if (mode === DomainTypes.transfer) {
+          return !isEmpty(parseDomain(search?.query ?? ""));
+        }
         const sld = parseSld(search?.query ?? "");
         return sld?.length > 2;
       },
-      validSearchQuery: (_context, { data }: AnyEventObject) => {
+      validSearchQuery: ({ mode }: DacContext, { data }: AnyEventObject) => {
+        if (mode === DomainTypes.transfer) {
+          return !isEmpty(parseDomain(data ?? ""));
+        }
         const sld = parseSld(data ?? "");
         return sld?.length > 2 && sld.length <= 63;
       },
@@ -789,7 +896,20 @@ export default createMachine(
         data?.name !== "AbortError",
 
       isDomainAvailable: (_context, { data }: AnyEventObject) =>
-        data?.can_register === true
+        data?.can_register === true,
+
+      isDomainTransferable: (_context, { data }: AnyEventObject) =>
+        data?.can_register === false && data?.can_transfer === true,
+
+      isAlreadyChecked: ({ lookups }: DacContext, { data }: AnyEventObject) => {
+        const domain = parseDomain(data);
+        if (!domain) return false;
+        const product = find(lookups.searched, [
+          "domain",
+          domain.domain
+        ]) as DomainProduct;
+        return !!product?.meta?.checkedAvailability;
+      }
     },
 
     delays: {

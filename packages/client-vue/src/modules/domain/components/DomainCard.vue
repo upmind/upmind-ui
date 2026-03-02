@@ -55,7 +55,12 @@
     </header>
 
     <footer :class="styles.card.footer.root">
-      <template v-if="meta.isAvailable">
+      <template v-if="meta.isUnavailable">
+        <p class="text-destructive mt-1 text-sm font-medium">
+          {{ t("text.unavailable") }}
+        </p>
+      </template>
+      <template v-else-if="meta.isAvailable">
         <div v-if="!isMobile">
           <Badge
             v-if="props.price.savingPercent"
@@ -166,13 +171,15 @@ const props = defineProps<DomainCardProps>();
 const { t } = useI18n();
 
 const meta = computed(() => ({
-  isDisabled: !!props.disabled,
+  isDisabled: !!props.disabled || !!props.unavailable,
   isProcessing: !!props.processing,
   isAvailable: !!props.available,
   isAdded: !!props.added,
   isExactMatch: !!props.exactMatch,
   isOwned: !!props.owned,
-  isDiscounted: !!props.discounted
+  isDiscounted: !!props.discounted,
+  isUnavailable: !!props.unavailable,
+  isTransferable: !!props.canTransfer
 }));
 
 const styles = useStyles(
@@ -191,7 +198,9 @@ const styles = useStyles(
 );
 
 const getStatus = computed(() => {
-  if (meta.value.isOwned) {
+  if (meta.value.isUnavailable) {
+    return t("text.unavailable");
+  } else if (meta.value.isOwned) {
     return t("confirm.in_use");
   } else if (meta.value.isAdded) {
     return t("confirm.in_basket");
@@ -213,7 +222,9 @@ const getIcon = computed(() => {
 });
 
 const getLabel = computed(() => {
-  if (meta.value.isAdded) {
+  if (meta.value.isUnavailable) {
+    return t("text.unavailable");
+  } else if (meta.value.isAdded) {
     return t("confirm.in_basket");
   } else if (meta.value.isAvailable) {
     return t("action.add_to_basket");
@@ -222,7 +233,9 @@ const getLabel = computed(() => {
 });
 
 const getTooltip = computed(() => {
-  if (meta.value.isProcessing && !meta.value.isAdded) {
+  if (meta.value.isUnavailable) {
+    return t("text.unavailable");
+  } else if (meta.value.isProcessing && !meta.value.isAdded) {
     return t("action.adding");
   } else if (meta.value.isProcessing && meta.value.isAdded) {
     return t("action.removing");

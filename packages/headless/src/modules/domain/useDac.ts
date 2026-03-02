@@ -19,7 +19,7 @@ import {
 } from "../../utils";
 
 // --- types
-import { type DomainContext, type DomainProduct } from "./types";
+import { type DomainContext, type DomainProduct, DomainTypes } from "./types";
 import { PAGINATION } from "../query";
 
 // -----------------------------------------------------------------------------
@@ -42,6 +42,8 @@ export const useDac = () => {
 
   const service = interpret(
     dacMachine.withContext({
+      mode: DomainTypes.register, // set by domain.machine.ts when invoked as child
+      // mode: DomainTypes.transfer,
       preferredCycle: getParam(QUERY_PARAMS.BILLING_CYCLE_MONTHS),
       coupons: getParams(QUERY_PARAMS.COUPONS),
       search: {
