@@ -45,13 +45,11 @@ async function ensureTargetBasket(route: RouteLocationGeneric): Promise<void> {
 
   const { isReady, setTargetBasket, targetBasketId } = useBasket();
 
-  // Only set if it differs from what the machine already has to avoid
-  // triggering an unnecessary reload.
-  await isReady();
+  // Set target BEFORE waiting — single load, no actors to cancel.
   if (targetBasketId.value !== bid) {
     setTargetBasket(bid);
-    await isReady();
   }
+  await isReady();
 }
 
 /**
@@ -415,8 +413,6 @@ export default {
     const route = targetRoute ?? currentRoute;
     const { getParam } = useQueryParams(route as RouteLocationGeneric);
 
-    // Resolve basketId from route params (set by the :bid(UUID) route param)
-    // or from the `bid` query param (e.g. ?bid=xyz redirected to this state from LOADING)
     const basketId = getParam("bid") ?? getParam(QUERY_PARAMS.BASKET_ID);
 
     if (!basketId) {
@@ -426,8 +422,6 @@ export default {
     }
 
     // Gate: user must be authenticated to access a basket by ID
-    // Reject with SESSION target and a returnUrl so the funnel can redirect
-    // back to BASKET_WITH_ID after login via the returnUrl pattern
     const authenticated = await isAuthenticated().catch(() => false);
     if (!authenticated) {
       return Promise.reject({
@@ -439,17 +433,19 @@ export default {
       } as FunnelResponse);
     }
 
-    // Wait for basket to be in a stable state before setting target
-    await isReady();
-
-    // Load the specific basket by ID
-    setTargetBasket(basketId);
-
-    // Wait for basket to reload with the new target
+    // Set target BEFORE waiting — single load, no actors to cancel.
+    // SET_TARGET_BASKET is a root-level event handler, accepted from any state
+    // (including "loading"). This avoids the double-load pattern where we'd
+    // first load orders/current (spawning actors), then immediately kill them
+    // via clearActors to reload orders/{bid} — which caused CancelledError
+    // toasts and a brief loading/view overlap.
+    if (targetBasketId.value !== basketId) {
+      setTargetBasket(basketId);
+    }
     await isReady();
 
     // If the machine cleared targetBasketId (invalid/expired basket),
-    // the basket fell back to orders/current. Redirect to the regular BASKET route.
+    // fall back to the regular BASKET route
     if (!targetBasketId.value) {
       return Promise.reject({
         target: { name: ROUTE.BASKET }
