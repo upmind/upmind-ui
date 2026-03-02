@@ -39,7 +39,7 @@
 
       <Tooltip
         v-for="promotion in promotions"
-        :key="promotion.promotion.code"
+        :key="promotion.code"
         :label="tooltipLabel(promotion)"
         :open="!!open[promotion.id]"
         :ui-config="{ trigger: ['rounded-pill'] }"
@@ -48,7 +48,7 @@
           variant="solid"
           color="promo"
           size="md"
-          :label="promotion.promotion.code"
+          :label="promotion.code"
           @click="toggleTooltip(promotion.id)"
           @mouseenter="toggleTooltip(promotion.id, true)"
           @mouseleave="toggleTooltip(promotion.id, false)"
@@ -83,7 +83,10 @@ import Form from "../../../components/form/Form.vue";
 import { Icon, Badge, Tooltip, Link } from "@upmind-automation/upmind-ui";
 
 // --- internal
-import { useBasketPromotions } from "@upmind-automation/headless";
+import {
+  useBasketPromotions,
+  type PromotionDetails
+} from "@upmind-automation/headless";
 import config from "../basket.config";
 
 // --- types
@@ -142,11 +145,11 @@ const actions = computed((): Record<string, FormActionProps> => {
   };
 });
 
-const tooltipLabel = computed(() => ({ promotion }: any) => {
-  if (promotion.amountFormatted) {
+const tooltipLabel = computed(() => (promotion: PromotionDetails) => {
+  if (promotion?.price?.savingPrice) {
     return t("cart.promotion_help", {
       code: promotion.code,
-      amount: promotion.amountFormatted,
+      amount: promotion.price.savingPrice,
       description: promotion.excerpt ? `. (${promotion.excerpt})` : ""
     });
   }

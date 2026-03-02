@@ -9,7 +9,14 @@
           "sprighost-checkout-dev"
         ],
         "hosting": [
-          "upmind-checkout-dev"
+          "hosting-checkout-dev"
+        ],
+        "upmind-cart": [
+          "upmind-cart"
+        ],
+
+        "upmind-cart-staging": [
+          "upmind-cart-staging"
         ]
       }
     }

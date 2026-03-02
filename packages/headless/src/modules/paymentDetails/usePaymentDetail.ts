@@ -201,6 +201,7 @@ export const usePaymentDetail = (actor: ComputedRef<UseActor | undefined>) => {
 
   const schemaStoredPaymentMethods = computed(() => ({
     type: "object",
+    required: ["payment_details_id"],
     definitions: useSchemaDefinitions(
       contextValue<PaymentDetailsContext>(actor)!
     ),

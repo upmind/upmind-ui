@@ -12,6 +12,8 @@ export const URLs = {
   logout: `${baseUrl}order/auth/logout`,
   register: `${baseUrl}order/auth/register`,
   forgottenPassword: `${baseUrl}order/auth/recover`,
+  domainSearch: `${baseUrl}domains`,
+  domainWidget: `${baseUrl}order/shop?catid=8d632507-9806-5d1e-302f-8174e234e98d`,
 
   /* ADD PRODUCT URLS */
   devBlocks: `${baseUrl}order/product/78985742-6489-7012-8e2b-21e325d0ed36`,
@@ -23,6 +25,7 @@ export const URLs = {
   comDomain: `${baseUrl}order/product/825d96e7-63ed-0913-792c-417482528340`,
   ukDomain: `${baseUrl}order/product/320e4357-95e7-8d18-050b-31643202d986`,
   managementTraining: `${baseUrl}order/product/20403869-6e54-721d-2e7c-518d9305e7d2`,
+  startupPlanning: `${baseUrl}order/product/8d632507-9806-5d1e-de4a-8174e234e98d`,
   uiTestProduct: `${baseUrl}order/product/3de78642-de53-9714-725b-21208469530d`,
   recommendations1: `${baseUrl}order/product/78985742-6489-7012-852f-21e325d0ed36`,
   recommendations2: `${baseUrl}order/product/320e4357-95e7-8d18-090c-31643202d986`,

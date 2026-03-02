@@ -42,6 +42,21 @@
           :alt="group?.name"
         />
       </template>
+      <template v-if="hasGroups" #header-label="{ selectedItem }">
+        <div :class="styles.product.card.pricing">
+          <SubproductCardPricing
+            v-if="
+              selectedItem &&
+              getSubproductValue(selectedItem.value)?.price &&
+              !getSubproductValue(selectedItem.value)?.meta?.free
+            "
+            :price="getSubproductValue(selectedItem.value).price"
+            :meta="getSubproductValue(selectedItem.value).meta"
+            :cycle="getSubproductValue(selectedItem.value).cycle"
+            :term="props.term"
+          />
+        </div>
+      </template>
       <template #item="{ item, group }: any">
         <CardSubproduct
           v-bind="getSubproductValue(getItemId(item))"
@@ -62,6 +77,7 @@
           :product-meta="getSubproductValue(getItemId(item)).meta"
           @update:quantity="doUpdateQuantity(getItemId(item), $event)"
           minimal
+          dropdown
         />
       </template>
     </component>
@@ -86,6 +102,7 @@ import {
   SelectGrouped
 } from "@upmind-automation/upmind-ui";
 import CardSubproduct from "./SubproductCard.vue";
+import SubproductCardPricing from "./SubproductCardPricing.vue";
 import SubproductImage from "./SubproductImage.vue";
 
 // --- utils
@@ -149,7 +166,7 @@ const modelValue = defineModel<string | string[] | any>("modelValue", {
 const { t } = useI18n();
 
 const styles = useStyles(
-  ["product.config.list", "product.config.list.item"],
+  ["product.config.list", "product.config.list.item", "product.card"],
   props,
   config
 );
@@ -233,14 +250,17 @@ const groups = computed(() => {
   );
   return map(grouped, items => {
     const firstItem = first(items);
+    const hasGroupLabel = !!firstItem?.groupLabel;
     return {
       name: firstItem?.groupLabel || firstItem?.name,
       icon: firstItem?.groupImg,
       iconName: firstItem?.groupIcon,
+      dropdown: hasGroupLabel,
       items: map(items, item => ({
         value: item.id,
         label: item.name,
-        description: item.excerpt
+        description: item.excerpt,
+        secondaryLabel: item.meta?.free ? "" : item.price?.currentPrice
       }))
     };
   });

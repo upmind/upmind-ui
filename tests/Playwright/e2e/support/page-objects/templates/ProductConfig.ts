@@ -254,7 +254,7 @@ export class ProductConfig {
     await sldFormField.fill(sld);
   }
 
-  async addDomain(option: string) {
+  async addDomain(domain: string) {
     // Wait for the domain check to complete
     try {
       await this.page.waitForResponse(
@@ -266,21 +266,11 @@ export class ProductConfig {
     } catch (e) {
       console.log("Domain check response not detected or timed out");
     }
-
-    if (option === "transfer") {
-      await this.page
-        .getByTestId("drawer-content")
-        .getByTestId("button-transfer-domain")
-        .first()
-        .dispatchEvent("click");
-    }
-    if (option === "new") {
-      await this.page
-        .getByTestId("drawer-content")
-        .getByTestId("button-add-to-basket")
-        .first()
-        .dispatchEvent("click");
-    }
+    await this.page
+      .getByTestId("drawer-content")
+      .getByTestId(`checkbox-item-${kebabCase(domain)}`)
+      .getByRole("button")
+      .dispatchEvent("click");
     await this.page.getByTestId("button-continue").click();
   }
 

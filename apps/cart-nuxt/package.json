@@ -27,10 +27,9 @@
     "start": "pnpm dev",
     "start:test": "vite --mode test --dotenv .env.test",
     "dev": "nuxt dev --host collabstudio.localhost --dotenv .env.development",
-    "build": "pnpm generate",
-    "build:staging": "nuxt generate --mode staging --dotenv .env.staging",
+    "generate": "pnpm generate",
+    "generate:staging": "nuxt generate --mode staging --dotenv .env.staging",
     "build-only": "nuxt build",
-    "generate": "nuxt generate",
     "postinstall": "nuxt prepare",
     "type-check": "nuxt typecheck",
     "preview": "nuxt preview",
@@ -38,8 +37,8 @@
     "format": "prettier --write .",
     "localazy": "localazy download && pnpm format",
     "localazy:upload": "localazy upload",
-    "deploy:staging": "pnpm build:staging  && firebase deploy --only hosting:staging",
-    "deploy": "pnpm build && firebase deploy --only hosting:cart"
+    "deploy:staging": "pnpm generate:staging  && firebase deploy --only hosting:staging",
+    "deploy": "pnpm generate && firebase deploy --only hosting:cart"
   },
   "dependencies": {
     "@formkit/auto-animate": "^0.8.2",
