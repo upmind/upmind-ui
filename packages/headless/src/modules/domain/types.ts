@@ -51,6 +51,7 @@ export interface IDomainAvailabilityResponse {
   can_register: boolean;
   can_transfer: boolean;
   is_premium: boolean;
+  product?: IDomainSuggestionProduct;
 }
 
 /**
@@ -97,6 +98,12 @@ export type DomainProduct = Product &
     meta: ProductSummaryDetail["meta"] & {
       /** `true` if the domain is available for registration. */
       available?: boolean;
+      /** `true` if the domain can be transferred (set after availability check). */
+      canTransfer?: boolean;
+      /** `true` if the domain is fully unavailable (cannot register or transfer). */
+      unavailable?: boolean;
+      /** `true` once /availability has been called for this domain. */
+      checkedAvailability?: boolean;
       /** `true` if the client already owns the domain. */
       owned?: boolean;
       /** `true` if the domain has been added to the basket. */
@@ -148,6 +155,11 @@ export type DomainProps = {
  * search queries, and related lookups.
  */
 export interface DacContext extends BasketHelperContext<DomainProduct> {
+  /**
+   * The domain flow mode: 'register' (default) runs suggestions + availability,
+   * 'transfer' runs only checkAvailability.
+   */
+  mode?: DomainTypes;
   /**
    * The current {@link DomainModel} or array of models representing the selected domains.
    */
