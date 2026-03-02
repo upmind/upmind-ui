@@ -5,6 +5,7 @@ import { TextInput } from "../components/TextInput";
 export class Checkout {
   readonly page: Page;
   readonly checkoutContent: Locator;
+  readonly basketSummary: Locator;
   readonly addressSearch: Locator;
   readonly addressFormMessage: Locator;
   readonly addressRegionMessage: Locator;
@@ -24,8 +25,10 @@ export class Checkout {
   readonly addVoucherForm: Locator;
   readonly addVoucherButton: Locator;
   readonly addVoucherInput: Locator;
+  readonly addVoucherMessage: Locator;
   readonly applyVoucherButton: Locator;
   readonly dialogWindow: Locator;
+  readonly accountCreditCheckbox: Locator;
   readonly placeOrderAndPay: Locator;
   readonly placeOrder: Locator;
   readonly payAmount: Locator;
@@ -41,43 +44,54 @@ export class Checkout {
     this.page = page;
     this.textInputComponent = new TextInput(page);
 
-    this.checkoutContent = page.getByTestId("checkout-content");
-    this.billingDetails = page.getByTestId("billing");
+    this.checkoutContent = this.page.getByTestId("checkout-content");
+    this.basketSummary = this.page.getByTestId("section-summary");
+    this.billingDetails = this.page.getByTestId("billing");
     this.addressCard = this.billingDetails.getByTestId("radio-card-group");
     this.addressSearch = this.billingDetails.getByTestId(
       "input-address-search-search"
     );
-    this.addressFormMessage = page.getByTestId("form-item-message-address");
-    this.addressRegionMessage = page.getByTestId(
+    this.addressFormMessage = this.page.getByTestId(
+      "form-item-message-address"
+    );
+    this.addressRegionMessage = this.page.getByTestId(
       "form-item-message-address-regionId"
     );
-    this.companyFormMessage = page.getByTestId(
+    this.companyFormMessage = this.page.getByTestId(
       "form-item-message-company-name"
     );
     this.phone = this.page.getByTestId("form-item-phone-phone");
-    this.addressManualEntry = page.getByTestId("link-enter-address-manually");
+    this.addressManualEntry = this.page.getByTestId(
+      "link-enter-address-manually"
+    );
     this.addressLine1 = this.page.getByTestId("input-properties-address-1");
     this.addressLine2 = this.page.getByTestId("input-properties-address-2");
     this.city = this.page.getByTestId("input-properties-city");
     this.postCode = this.page.getByTestId("input-properties-postcode");
     this.phoneRegion = this.phone.getByTestId("popover-trigger");
     this.phoneInput = this.textInputComponent.getTextInputField(this.phone);
-    this.paymentDetails = page.getByTestId("payment-details");
-    this.saveDetails = page.getByTestId("button-save-details");
-    this.addVoucherForm = page.getByTestId("form-item-promocode");
-    this.addVoucherButton = page.getByTestId("link-add-a-voucher-code");
+    this.paymentDetails = this.page.getByTestId("payment-details");
+    this.saveDetails = this.page.getByTestId("button-save-details");
+    this.addVoucherForm = this.page.getByTestId("form-item-promocode");
+    this.addVoucherButton = this.page.getByTestId("link-add-a-voucher-code");
     this.addVoucherInput = this.textInputComponent.getTextInputField(
       this.addVoucherForm
     );
-    this.applyVoucherButton = page.getByTestId("button-apply");
-    this.dialogWindow = page.getByTestId("dialog-window");
-    this.placeOrderAndPay = page.getByTestId("button-place-order-and-pay");
-    this.placeOrder = page.getByTestId("button-place-order");
-    this.payAmount = page
+    this.addVoucherMessage = this.page.getByTestId(
+      "form-item-message-promocode"
+    );
+    this.applyVoucherButton = this.page.getByTestId("button-apply");
+    this.dialogWindow = this.page.getByTestId("dialog-window");
+    this.accountCreditCheckbox = this.page.getByTestId(
+      "checkbox-item-account-credit"
+    );
+    this.placeOrderAndPay = this.page.getByTestId("button-place-order-and-pay");
+    this.placeOrder = this.page.getByTestId("button-place-order");
+    this.payAmount = this.page
       .getByTestId("payment-details")
       .getByRole("heading", { level: 4 });
-    this.changeAmountButton = page.getByTestId("change-amount");
-    this.changeAmountForm = page.getByTestId("form-item-amount");
+    this.changeAmountButton = this.page.getByTestId("change-amount");
+    this.changeAmountForm = this.page.getByTestId("form-item-amount");
     this.changeAmountInput =
       this.changeAmountForm.getByTestId("number-field-input");
     this.changeAmountIncrement = this.changeAmountForm.getByTestId(
@@ -86,7 +100,7 @@ export class Checkout {
     this.changeAmountDecrement = this.changeAmountForm.getByTestId(
       "number-field-decrement"
     );
-    this.confirmAmountButton = page.getByTestId("button-confirm-amount");
+    this.confirmAmountButton = this.page.getByTestId("button-confirm-amount");
   }
 
   async manuallyInputAddress(
@@ -107,6 +121,12 @@ export class Checkout {
     await this.saveDetails.click();
   }
 
+  async getPaymentMethod(gatewayName: string) {
+    await expect(this.paymentDetails).toBeVisible({ timeout: 30000 });
+    await this.page.waitForLoadState("domcontentloaded");
+    return this.page.getByTestId(`radio-card-${kebabCase(gatewayName)}`);
+  }
+
   async selectPaymentMethod(gatewayName: string) {
     await expect(this.paymentDetails).toBeVisible({ timeout: 30000 });
     await this.page.waitForLoadState("domcontentloaded");
@@ -116,7 +136,15 @@ export class Checkout {
   async clickPlaceOrderAndPay() {
     const placeOrderButton = this.placeOrderAndPay;
     await expect(placeOrderButton).toBeEnabled();
-    await placeOrderButton.click();
+    await expect
+      .poll(
+        async () => {
+          await placeOrderButton.click();
+          return await placeOrderButton.isDisabled();
+        },
+        { timeout: 10000, intervals: [500, 1000, 2000] }
+      )
+      .toBe(true);
   }
 
   async clickPlaceOrder() {

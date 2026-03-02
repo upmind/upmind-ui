@@ -3,6 +3,7 @@ import { Checkout } from "../../../support/page-objects/templates/Checkout";
 import { Registration } from "../../../support/page-objects/templates/Registration";
 import { payPalDetails } from "../../../support/secrets/paypal";
 import { goToCheckout } from "../../../support/utils/apiHelper";
+import { products } from "../../../support/constants/products";
 
 let checkout: Checkout;
 let registration: Registration;
@@ -17,7 +18,7 @@ test.describe("Partial payment at Checkout", () => {
       page,
       context
     }) => {
-      await goToCheckout(page, context);
+      await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
       await page.waitForLoadState("networkidle");
       await registration.inputRegistration();
       await page.waitForLoadState("load");
@@ -28,14 +29,15 @@ test.describe("Partial payment at Checkout", () => {
       await checkout.selectPaymentMethod("Stripe");
       await checkout.inputStripeDetails("4242424242424242", "12/34", "123");
       await checkout.clickPlaceOrderAndPay();
-      await checkout.dialogWindow.waitFor();
-      await expect(checkout.dialogWindow).toContainText("Order complete!");
+      await page.waitForURL(`order/**`);
+      // await expect(page.getByText("Thank you for your order!")).toBeVisible();
+      await expect(page.getByRole("dialog")).toContainText("Order complete!");
     });
     test("Partial Payment in foreign currency (AUD)", async ({
       page,
       context
     }) => {
-      await goToCheckout(page, context, null, "AUD");
+      await goToCheckout(page, context, products.STARTER_HOSTING, null, "AUD");
       await page.waitForLoadState("networkidle");
       await registration.inputRegistration();
       await page.waitForLoadState("load");
@@ -46,11 +48,18 @@ test.describe("Partial payment at Checkout", () => {
       await checkout.selectPaymentMethod("Stripe");
       await checkout.inputStripeDetails("4242424242424242", "12/34", "123");
       await checkout.clickPlaceOrderAndPay();
-      await checkout.dialogWindow.waitFor();
-      await expect(checkout.dialogWindow).toContainText("Order complete!");
+      await page.waitForURL(`order/**`);
+      // await expect(page.getByText("Thank you for your order!")).toBeVisible();
+      await expect(page.getByRole("dialog")).toContainText("Order complete!");
     });
     test("Partial payment with promo (GBP)", async ({ page, context }) => {
-      await goToCheckout(page, context, "genericpromo", null);
+      await goToCheckout(
+        page,
+        context,
+        products.STARTER_HOSTING,
+        "genericpromo",
+        null
+      );
       await page.waitForLoadState("networkidle");
       await registration.inputRegistration();
       await page.waitForLoadState("load");
@@ -62,11 +71,18 @@ test.describe("Partial payment at Checkout", () => {
       await checkout.selectPaymentMethod("Stripe");
       await checkout.inputStripeDetails("4242424242424242", "12/34", "123");
       await checkout.clickPlaceOrderAndPay();
-      await checkout.dialogWindow.waitFor();
-      await expect(checkout.dialogWindow).toContainText("Order complete!");
+      await page.waitForURL(`order/**`);
+      // await expect(page.getByText("Thank you for your order!")).toBeVisible();
+      await expect(page.getByRole("dialog")).toContainText("Order complete!");
     });
     test("Partial payment with promo (AUD)", async ({ page, context }) => {
-      await goToCheckout(page, context, "genericpromo", "AUD");
+      await goToCheckout(
+        page,
+        context,
+        products.STARTER_HOSTING,
+        "genericpromo",
+        "AUD"
+      );
       await page.waitForLoadState("networkidle");
       await registration.inputRegistration();
       await page.waitForLoadState("load");
@@ -78,8 +94,9 @@ test.describe("Partial payment at Checkout", () => {
       await checkout.selectPaymentMethod("Stripe");
       await checkout.inputStripeDetails("4242424242424242", "12/34", "123");
       await checkout.clickPlaceOrderAndPay();
-      await checkout.dialogWindow.waitFor();
-      await expect(checkout.dialogWindow).toContainText("Order complete!");
+      await page.waitForURL(`order/**`);
+      // await expect(page.getByText("Thank you for your order!")).toBeVisible();
+      await expect(page.getByRole("dialog")).toContainText("Order complete!");
     });
   });
   test.describe("Partial Payments with PayPal", () => {
@@ -87,7 +104,7 @@ test.describe("Partial payment at Checkout", () => {
       page,
       context
     }) => {
-      await goToCheckout(page, context, null, null);
+      await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
       await page.waitForLoadState("networkidle");
       await registration.inputRegistration();
       await page.waitForLoadState("load");
@@ -107,15 +124,15 @@ test.describe("Partial payment at Checkout", () => {
       await page.getByPlaceholder("Password").fill(payPalDetails.password);
       await page.click("#btnLogin");
       await page.getByTestId("submit-button-initial").click();
-      await page.waitForURL(`http://qa-automation.local:5173/order/**`);
-      await checkout.dialogWindow.waitFor();
-      await expect(checkout.dialogWindow).toContainText("Order complete!");
+      await page.waitForURL(`order/**`);
+      // await expect(page.getByText("Thank you for your order!")).toBeVisible();
+      await expect(page.getByRole("dialog")).toContainText("Order complete!");
     });
     test("Partial Payment in foreign currency (AUD)", async ({
       page,
       context
     }) => {
-      await goToCheckout(page, context, null, "AUD");
+      await goToCheckout(page, context, products.STARTER_HOSTING, null, "AUD");
       await page.waitForLoadState("networkidle");
       await registration.inputRegistration();
       await page.waitForLoadState("load");
@@ -135,12 +152,18 @@ test.describe("Partial payment at Checkout", () => {
       await page.getByPlaceholder("Password").fill(payPalDetails.password);
       await page.click("#btnLogin");
       await page.getByTestId("submit-button-initial").click();
-      await page.waitForURL(`http://qa-automation.local:5173/order/**`);
-      await checkout.dialogWindow.waitFor();
-      await expect(checkout.dialogWindow).toContainText("Order complete!");
+      await page.waitForURL(`order/**`);
+      // await expect(page.getByText("Thank you for your order!")).toBeVisible();
+      await expect(page.getByRole("dialog")).toContainText("Order complete!");
     });
     test("Partial payment with promo (GBP)", async ({ page, context }) => {
-      await goToCheckout(page, context, "genericpromo", null);
+      await goToCheckout(
+        page,
+        context,
+        products.STARTER_HOSTING,
+        "genericpromo",
+        null
+      );
       await registration.inputRegistration();
       await page.waitForLoadState("load");
       await expect(checkout.payAmount).toHaveText("Pay £57.60");
@@ -159,9 +182,9 @@ test.describe("Partial payment at Checkout", () => {
       await page.getByPlaceholder("Password").fill(payPalDetails.password);
       await page.click("#btnLogin");
       await page.getByTestId("submit-button-initial").click();
-      await page.waitForURL(`http://qa-automation.local:5173/order/**`);
-      await checkout.dialogWindow.waitFor();
-      await expect(checkout.dialogWindow).toContainText("Order complete!");
+      await page.waitForURL(`order/**`);
+      // await expect(page.getByText("Thank you for your order!")).toBeVisible();
+      await expect(page.getByRole("dialog")).toContainText("Order complete!");
     });
   });
   test.describe("Partial payment using Account Credit", () => {

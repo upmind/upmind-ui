@@ -1,15 +1,12 @@
 <template>
   <Lineclamp
-    v-if="lineclamp"
+    :disabled="!lineclamp"
     :label-more="t('action.show_more')"
     :label-less="t('action.show_less')"
     :lines="lines"
   >
-    <p>{{ description }}</p>
+    <Markdown :class="props.class" tag="p" :model-value="description" />
   </Lineclamp>
-  <p v-else>
-    {{ description }}
-  </p>
 </template>
 
 <script setup lang="ts">
@@ -17,22 +14,16 @@
 import { useI18n } from "vue-i18n";
 
 // --- components
-import { Lineclamp } from "@upmind-automation/upmind-ui";
+import { Lineclamp, Markdown } from "@upmind-automation/upmind-ui";
 
 // --- types
-import type { Product } from "@upmind-automation/headless";
+import type { ProductDescriptionProps } from "./types";
 
-const props = withDefaults(
-  defineProps<{
-    description?: Product["productDetails"]["description"];
-    lineclamp?: boolean;
-    lines?: number;
-  }>(),
-  {
-    lineclamp: true,
-    lines: 3
-  }
-);
+const props = withDefaults(defineProps<ProductDescriptionProps>(), {
+  lineclamp: true,
+  lines: 3,
+  class: ""
+});
 
 const { t } = useI18n();
 </script>

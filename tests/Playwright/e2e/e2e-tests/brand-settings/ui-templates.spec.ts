@@ -10,6 +10,7 @@ import { getClientToken } from "../../support/utils/functions/tokens";
 import { getSessionToken } from "../../support/utils/functions/tokens";
 import {
   createOrder,
+  Order,
   addProductToOrder
 } from "../../support/utils/functions/basket";
 
@@ -97,7 +98,8 @@ test.describe("Brand Settings - UI Templates", () => {
       await page.goto(URLs.login);
       await page.waitForLoadState("networkidle");
       token = await getSessionToken(page.context());
-      orderId = await createOrder(token);
+      let order = await createOrder(token);
+      orderId = order.id;
       await addProductToOrder(
         `${token}`,
         `${orderId}`,
@@ -225,7 +227,8 @@ test.describe("Brand Settings - UI Templates", () => {
       await page.goto(URLs.login);
       await page.waitForLoadState("networkidle");
       token = await getSessionToken(page.context());
-      orderId = await createOrder(token);
+      let order = await createOrder(token);
+      orderId = order.id;
       await addProductToOrder(
         `${token}`,
         `${orderId}`,
@@ -326,7 +329,8 @@ test.describe("Brand Settings - UI Templates", () => {
       );
       await page.reload();
       token = await getSessionToken(page.context());
-      orderId = await createOrder(token);
+      let order = await createOrder(token);
+      orderId = order.id;
       await addProductToOrder(
         `${token}`,
         `${orderId}`,
@@ -414,7 +418,8 @@ test.describe("Brand Settings - UI Templates", () => {
       );
       await page.reload();
       token = await getSessionToken(page.context());
-      orderId = await createOrder(token);
+      let order = await createOrder(token);
+      orderId = order.id;
       await addProductToOrder(
         `${token}`,
         `${orderId}`,
@@ -497,7 +502,8 @@ test.describe("Brand Settings - UI Templates", () => {
       );
       await page.reload();
       token = await getSessionToken(page.context());
-      orderId = await createOrder(token);
+      let order = await createOrder(token);
+      orderId = order.id;
       await addProductToOrder(
         `${token}`,
         `${orderId}`,

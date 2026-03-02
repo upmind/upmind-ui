@@ -54,12 +54,7 @@ export default createMachine(
       },
 
       invalid: {
-        id: "invalid",
-        on: {
-          "xstate.update": {
-            target: "checking"
-          }
-        }
+        id: "invalid"
       },
 
       valid: {
@@ -71,10 +66,7 @@ export default createMachine(
           }
         ],
         on: {
-          PAY: { target: "processing" },
-          "xstate.update": {
-            target: "checking"
-          }
+          PAY: { target: "processing" }
         }
       },
 

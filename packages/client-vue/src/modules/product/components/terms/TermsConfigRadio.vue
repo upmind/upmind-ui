@@ -24,7 +24,7 @@
       :class="styles.terms.radio.items"
       :model-value="props.modelValue?.toString()"
       @update:modelValue="doResolve"
-      :columns="0"
+      :columns="type === TERM_SELECTOR.RADIO_ROWS ? 1 : 0"
     >
       <template #item="{ item }">
         <CardTerm v-bind="item" :summary="summary" />
@@ -131,7 +131,7 @@ const hasItems = computed(() => {
   return !isNil(props.modelValue) && !!props.items?.length;
 });
 
-function doResolve(value: string | number) {
+function doResolve(value: string | number | undefined) {
   if (props.disabled) return;
   emits("update:modelValue", toNumber(value));
 }
