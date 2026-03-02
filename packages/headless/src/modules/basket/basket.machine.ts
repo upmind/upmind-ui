@@ -88,6 +88,11 @@ export default createMachine(
                   cond: "hasAuthError"
                 },
                 {
+                  target: "#loading",
+                  cond: "hasInvalidTargetBasket",
+                  actions: ["clearTargetBasketId", "notifyTargetBasketInvalid"]
+                },
+                {
                   target: "#error",
                   actions: ["updateBasket", "setWarningNotes"]
                 }
@@ -711,7 +716,15 @@ export default createMachine(
           data ?? undefined
       }),
 
-      clearTargetBasketId: assign({ targetBasketId: undefined })
+      clearTargetBasketId: assign({ targetBasketId: undefined }),
+
+      notifyTargetBasketInvalid: () => {
+        const { t } = useI18n();
+        useFeedback().addWarning({
+          hash: "target-basket-invalid",
+          copy: t("error.basket_not_available")
+        });
+      }
     },
 
     guards: {
@@ -793,6 +806,11 @@ export default createMachine(
       needsPayment: ({ paymentDetail }: BasketContext) =>
         !isEmpty(paymentDetail),
       // --- Item Guards
+
+      hasInvalidTargetBasket: (
+        _context: BasketContext,
+        { data }: AnyEventObject
+      ) => !!data?.targetBasketInvalid,
 
       hasNoProducts: ({ products }) => isEmpty(products),
       hasProducts: ({ products }) => !isEmpty(products)
