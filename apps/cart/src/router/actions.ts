@@ -44,19 +44,10 @@ function injectBid(route: any): any {
 
   if (!bid) return route;
 
-  // Don't prime the basket machine on session routes — the user might not
-  // be authenticated yet. guardBasket will call setTargetBasket after auth.
-  const SESSION_ROUTES: string[] = [
-    ROUTE.SESSION,
-    ROUTE.SESSION_LOGIN,
-    ROUTE.SESSION_REGISTER,
-    ROUTE.SESSION_RECOVER_PASSWORD,
-    ROUTE.SESSION_END
-  ];
-
-  if (!SESSION_ROUTES.includes(route.name) && targetBasketId.value !== bid) {
-    setTargetBasket(bid);
-  }
+  // Prime the basket machine to load orders/{bid}.
+  // The basket machine's SET_TARGET_BASKET event has an isAuthenticated guard,
+  // so this is a no-op when not logged in — preventing 403 API calls.
+  if (targetBasketId.value !== bid) setTargetBasket(bid);
 
   // Basket routes have :bid directly in their path (/order/basket/:bid/...)
   // Other routes use BID_PREFIX (/order/:_basket(basket)?/:bid/...)
