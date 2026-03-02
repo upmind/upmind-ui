@@ -103,7 +103,7 @@ export default {
     },
     item: {
       root: cva(
-        "before:border-surface group relative z-10 m-0 flex h-full w-full flex-col items-start justify-start gap-4 whitespace-normal rounded-none border-none p-8 text-left text-base shadow-none before:absolute before:-inset-px before:-z-10 before:border before:border-solid before:content-['']"
+        "before:border-surface group relative z-10 m-0 flex h-full w-full flex-col items-start justify-start gap-4 rounded-none border-none p-8 text-left text-base whitespace-normal shadow-none before:absolute before:-inset-px before:-z-10 before:border before:border-solid before:content-['']"
       ),
       icon: cva(
         "text-muted text-icon-primary transition-all duration-200 [&>svg]:p-px"
@@ -116,12 +116,12 @@ export default {
       ),
       title: cva(""),
       link: cva("font-medium"),
-      badge: cva("mr-auto mt-1"),
+      badge: cva("mt-1 mr-auto"),
       arrowIcon: cva(
         "text-muted mt-1.5 transition-all duration-200 group-hover:text-base"
       ),
       description: cva(
-        "text-muted m-0 line-clamp-3 whitespace-normal text-sm font-normal transition-all duration-200"
+        "text-muted m-0 line-clamp-3 text-sm font-normal whitespace-normal transition-all duration-200"
       )
     }
   }

@@ -47,7 +47,7 @@ export default {
       }),
       container: cva("flex-row lg:flex-row"),
       left: {
-        column: cva("pt-18 lg:pt-18 justify-end self-stretch pb-9 lg:pb-9", {
+        column: cva("justify-end self-stretch pt-18 pb-9 lg:pt-18 lg:pb-9", {
           variants: {
             background: {
               LTR: "flex-1",
@@ -65,7 +65,7 @@ export default {
         })
       },
       right: {
-        column: cva("pt-18 lg:pt-18 justify-end self-stretch pb-9 lg:pb-9", {
+        column: cva("justify-end self-stretch pt-18 pb-9 lg:pt-18 lg:pb-9", {
           variants: {
             background: {
               LTR: "bg-canvas flex-none",

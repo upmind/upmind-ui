@@ -1,6 +1,6 @@
 <template>
   <li
-    class="border-primary from-primary to-primary bg-linear-to-r bg-bottom-left flex items-end rounded-none border-b bg-no-repeat py-5 text-xl transition-all duration-200 ease-in-out"
+    class="border-primary from-primary to-primary flex items-end rounded-none border-b bg-linear-to-r bg-bottom-left bg-no-repeat py-5 text-xl transition-all duration-200 ease-in-out"
     :class="{
       'text-auto hover:text-dm/25 dark:hover:text-dm-contrast/50':
         modelValue !== category.id,
@@ -30,7 +30,7 @@
       <span class="font-bold md:text-2xl">{{ category.name }}</span>
       <span
         v-if="category.count"
-        class="ml-auto mr-4 rounded-full bg-gray-200 px-3 py-1 text-sm font-medium text-gray-700"
+        class="mr-4 ml-auto rounded-full bg-gray-200 px-3 py-1 text-sm font-medium text-gray-700"
         >{{ category.count }}</span
       >
     </div>

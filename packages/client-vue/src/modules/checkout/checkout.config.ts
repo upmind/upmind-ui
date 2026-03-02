@@ -54,7 +54,7 @@ export default {
       form: cva("flex w-full flex-col justify-center gap-6", {
         variants: {
           hasErrors: {
-            true: "border-control-error focus-within:ring-control-error focus-within:ring-4 focus-within:ring-opacity-20",
+            true: "border-control-error focus-within:ring-control-error focus-within:ring-opacity-20 focus-within:ring-4",
             false: ""
           }
         },
@@ -69,7 +69,7 @@ export default {
     footer: {
       root: cva("flex w-full flex-col gap-6"),
       actions: cva(
-        "flex flex-col items-stretch justify-start space-x-0 space-y-2 md:flex-row md:space-x-4 md:space-y-0"
+        "flex flex-col items-stretch justify-start space-y-2 space-x-0 md:flex-row md:space-y-0 md:space-x-4"
       ),
       terms: cva("text-muted text-sm")
     },

@@ -33,7 +33,7 @@ export default {
         ]
       }),
       tooltip: cva("control-radius max-w-72 text-center text-xs"),
-      trigger: cva("h-lh ml-1 inline-flex items-center align-top"),
+      trigger: cva("ml-1 inline-flex h-lh items-center align-top"),
       icon: cva(
         "text-muted hover:text-control-selected cursor-help transition-colors duration-300"
       ),

@@ -106,7 +106,7 @@
 
       <!-- Getting Started -->
       <div
-        class="from-primary-50 dark:from-primary-950 bg-linear-to-br rounded-xl border border-neutral-200 to-blue-50 p-8 dark:border-neutral-800 dark:to-blue-950"
+        class="from-primary-50 dark:from-primary-950 rounded-xl border border-neutral-200 bg-linear-to-br to-blue-50 p-8 dark:border-neutral-800 dark:to-blue-950"
       >
         <h2
           class="mb-4 text-2xl font-semibold text-neutral-900 dark:text-white"

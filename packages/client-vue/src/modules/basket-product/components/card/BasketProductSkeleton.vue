@@ -8,7 +8,7 @@
         <!-- Header: Image, Category, Name -->
         <header class="flex gap-3">
           <!-- Product Image -->
-          <Skeleton class="m-0 h-12 min-w-12 max-w-12" />
+          <Skeleton class="m-0 h-12 max-w-12 min-w-12" />
 
           <div class="w-full">
             <!-- Category Row with Delete Action -->

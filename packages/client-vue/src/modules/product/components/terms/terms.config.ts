@@ -67,7 +67,7 @@ export default {
             layout: "stacked"
           }
         }),
-        title: cva("m-0 text-nowrap font-medium text-inherit", {
+        title: cva("m-0 font-medium text-nowrap text-inherit", {
           variants: {
             layout: {
               stacked: "text-md-tight",

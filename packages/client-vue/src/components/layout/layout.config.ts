@@ -27,7 +27,7 @@ export default {
       }
     }),
     container: cva(
-      "bg-surface flex min-h-screen w-full flex-col justify-between px-6 py-7 md:w-1/2 lg:px-16 lg:pb-9 lg:pt-24 2xl:px-32"
+      "bg-surface flex min-h-screen w-full flex-col justify-between px-6 py-7 md:w-1/2 lg:px-16 lg:pt-24 lg:pb-9 2xl:px-32"
     ),
     content: {
       root: cva("flex grow flex-col gap-4"),
