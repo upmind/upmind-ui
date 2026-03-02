@@ -58,6 +58,34 @@ export default defineNuxtRouteMiddleware(async to => {
     }
   }
 
+  // --- BID Route Rewriting ---
+  // Bridges path-based bid URLs (used by other apps) to Nuxt file-system routing.
+  // /order/basket/{uuid}/{rest} → /order/{rest}/?bid={uuid}
+  // /order/cart/{uuid}/{rest}   → /order/{rest}/?bid={uuid} (legacy)
+  const bidPathMatch = path.match(
+    new RegExp(`^/order/(?:basket|cart)/(${RegexMatch.UUID})/(.+)$`)
+  );
+  if (bidPathMatch) {
+    const [, bid, rest] = bidPathMatch;
+    return navigateTo({
+      path: `/order/${rest}/`,
+      query: { ...to.query, bid }
+    });
+  }
+
+  // /order/basket/{uuid} (bare) → /order/basket/?bid={uuid}
+  // /order/cart/{uuid} (bare)   → /order/basket/?bid={uuid} (legacy)
+  const bidOnlyMatch = path.match(
+    new RegExp(`^/order/(?:basket|cart)/(${RegexMatch.UUID})$`)
+  );
+  if (bidOnlyMatch) {
+    const [, bid] = bidOnlyMatch;
+    return navigateTo({
+      path: `/order/basket/`,
+      query: { ...to.query, bid }
+    });
+  }
+
   // --- Route Renames ---
 
   // /order/cart -> /order/basket
