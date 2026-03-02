@@ -16,70 +16,31 @@ import { ROUTE } from "../types";
 
 // -----------------------------------------------------------------------------
 // BID PRESERVATION:
-//   Routes use an optional `:_basket(basket)?/:bid(UUID)?` prefix.
-//   When both params are provided, URLs render as `/order/basket/{bid}/...`.
-//   When omitted, URLs stay as `/order/...` (current basket).
+//   Basket routes use `/order/basket/:bid?/...` with an optional `:bid` param.
+//   Other routes use a BID_PREFIX `:_basket(basket)?/:bid?` so URLs render
+//   as `/order/basket/{bid}/...` when a bid is active, or `/order/...` when not.
 //
-//   `withBid()` wraps XState assign actions to auto-inject bid params.
-//   `getBidParams()` is used in guard services (non-assign contexts).
+//   Bid injection is handled holistically by the `setResolved` override
+//   in `actions.ts`. When any state resolves, `setResolved` reads
+//   `targetBasketId` from the basket composable and auto-injects bid params.
+//   For basket routes it injects `{ bid }` only; for BID_PREFIX routes it
+//   injects `{ _basket: 'basket', bid }`.
+//
+//   `getBidParams()` is exported for guard services that return route targets
+//   directly (outside the setResolved flow). It returns `{ bid }` only —
+//   `injectBid` in `setResolved` handles adding `_basket` for BID_PREFIX routes.
 // -----------------------------------------------------------------------------
 
-type RouteTarget = {
-  name: string;
-  params?: Record<string, string>;
-  query?: Record<string, string>;
-};
-
 /**
- * Returns route params to fill the optional `/basket/:bid` prefix.
- * When a `targetBasketId` is active, returns `{ _basket: 'basket', bid }`.
- * When no target basket, returns `{}` so the prefix is omitted.
+ * Returns route params with the active basket ID.
+ * When a `targetBasketId` is active, returns `{ bid }`.
+ * When no target basket, returns `{}`.
  */
 export function getBidParams(): Record<string, string> {
   const { targetBasketId } = useBasket();
   const bid = targetBasketId.value;
   if (!bid) return {};
-  return { _basket: "basket", bid };
-}
-
-/**
- * Wraps an XState assign action to auto-inject bid params into `targetRoute`.
- * When a `targetBasketId` is active:
- *   - Injects `{ _basket: 'basket', bid }` into params for BID_PREFIX routes
- *   - Auto-switches `ROUTE.BASKET` → `ROUTE.BASKET_WITH_ID` so the basket
- *     route renders as `/order/basket/{bid}` instead of `/order/basket`
- *
- * Accepts either a static route target or a function that receives
- * `(context, event)` and returns a route target.
- */
-function withBid(
-  routeOrFn:
-    | RouteTarget
-    | ((ctx: FunnelContext, evt: AnyEventObject) => RouteTarget)
-) {
-  return assign({
-    targetRoute: (context: FunnelContext, event: AnyEventObject) => {
-      const route =
-        typeof routeOrFn === "function" ? routeOrFn(context, event) : routeOrFn;
-
-      const { targetBasketId } = useBasket();
-      const bid = targetBasketId.value;
-
-      // Auto-switch BASKET → BASKET_WITH_ID when bid exists
-      const name =
-        route.name === ROUTE.BASKET && bid ? ROUTE.BASKET_WITH_ID : route.name;
-
-      const bidParams: Record<string, string> = bid
-        ? { _basket: "basket", bid }
-        : {};
-
-      return {
-        ...route,
-        name,
-        params: { ...bidParams, ...(route.params || {}) }
-      };
-    }
-  }) as any;
+  return { bid };
 }
 
 export default <FunnelProps>{
@@ -92,24 +53,21 @@ export default <FunnelProps>{
      * Depending on whether product configurations are present,
      * it transitions to either the PRODUCT route (if configurations exist)
      * or the CATALOGUE route (if no configurations are found).
-     *
-     * Also handles `?bid=xyz` query param by routing to BASKET_WITH_ID so the user
-     * can access a specific basket by ID.
      */
     [ROUTE.LOADING]: {
       entry: ["setResolving"],
       always: [
         {
-          target: ROUTE.BASKET_WITH_ID,
-          cond: "hasBid"
-        },
-        {
           target: ROUTE.PRODUCT_CONFIGURE,
           cond: "hasProductConfigs"
         },
         {
+          target: ROUTE.BASKET,
+          cond: "hasBid"
+        },
+        {
           target: ROUTE.CATALOGUE
-        } // Add logic to decide where to go next based on Brand Config
+        }
       ]
     },
 
@@ -129,11 +87,11 @@ export default <FunnelProps>{
       on: {
         NEXT: {
           target: ROUTE.RECOMMENDATIONS,
-          actions: [withBid({ name: ROUTE.RECOMMENDATIONS })]
+          actions: [assign({ targetRoute: { name: ROUTE.RECOMMENDATIONS } })]
         },
         BACK: {
           target: ROUTE.BASKET,
-          actions: [withBid({ name: ROUTE.BASKET })]
+          actions: [assign({ targetRoute: { name: ROUTE.BASKET } })]
         }
       }
     },
@@ -189,17 +147,20 @@ export default <FunnelProps>{
         NEXT: {
           target: ROUTE.PRODUCT_RECOMMENDATIONS,
           actions: [
-            withBid(
-              ({ targetRoute }: FunnelContext, { data }: AnyEventObject) => ({
+            assign({
+              targetRoute: (
+                { targetRoute }: FunnelContext,
+                { data }: AnyEventObject
+              ) => ({
                 name: ROUTE.PRODUCT_RECOMMENDATIONS,
                 params: data?.targetRoute?.params ?? targetRoute?.params ?? {}
               })
-            )
+            })
           ]
         },
         BACK: {
           target: ROUTE.CATALOGUE,
-          actions: [withBid({ name: ROUTE.CATALOGUE })]
+          actions: [assign({ targetRoute: { name: ROUTE.CATALOGUE } })]
         }
       }
     },
@@ -220,7 +181,7 @@ export default <FunnelProps>{
         },
         BACK: {
           target: ROUTE.BASKET,
-          actions: [withBid({ name: ROUTE.BASKET })]
+          actions: [assign({ targetRoute: { name: ROUTE.BASKET } })]
         }
       }
     },
@@ -245,25 +206,26 @@ export default <FunnelProps>{
         },
         BACK: {
           target: ROUTE.BASKET,
-          actions: [withBid({ name: ROUTE.BASKET })]
+          actions: [assign({ targetRoute: { name: ROUTE.BASKET } })]
         }
       }
     },
 
     /**
-     * 🎯 ROUTE.BASKET_WITH_ID
-     * This state manages access to a specific basket identified by a UUID in the route param.
-     * It invokes a 'guard' that:
+     * 🎯 ROUTE.BASKET
+     * This state manages the basket view of the application.
+     * When a bid (basket ID) is present in the route, the guard:
      *   1. Checks the user is authenticated (redirects to SESSION if not).
-     *   2. Sets the target basket ID in the basket machine so it loads `orders/{id}`.
-     *   3. Resolves so the Basket page is rendered for the specified basket.
-     *
-     * On RESET/CLEAR the basket machine clears targetBasketId and reverts to `orders/current`.
+     *   2. Sets the target basket ID so the basket machine loads `orders/{bid}`.
+     *   3. Falls back to current basket if the bid is invalid/expired.
+     * When no bid, the guard checks the current basket has products.
+     * In case of an error (e.g., empty basket), it redirects to the EMPTY route.
+     * From here, users can proceed to the CHECKOUT route or return to the CATALOGUE.
      */
-    [ROUTE.BASKET_WITH_ID]: {
+    [ROUTE.BASKET]: {
       entry: ["setCurrency"],
       invoke: {
-        src: "guardBasketWithId",
+        src: "guardBasket",
         onDone: { actions: ["setResolved"] },
         onError: [
           {
@@ -286,46 +248,20 @@ export default <FunnelProps>{
             ],
             cond: "isSession"
           },
-          { target: ROUTE.BASKET, actions: ["setResolving"] }
+          {
+            target: ROUTE.BASKET_EMPTY,
+            actions: ["setResolving"]
+          }
         ]
       },
       on: {
         NEXT: {
           target: ROUTE.CHECKOUT,
-          actions: [withBid({ name: ROUTE.CHECKOUT })]
-        },
-        BACK: {
-          target: ROUTE.BASKET,
-          actions: [withBid({ name: ROUTE.BASKET })]
-        }
-      }
-    },
-
-    /**
-     * 🎯 ROUTE.BASKET
-     * This state manages the basket view of the application.
-     * It invokes a 'guard' to ensure that the basket actually has products.
-     * In case of an error (e.g., the basket is empty), it redirects to the EMPTY route.
-     * From here, users can proceed to the CHECKOUT route or return to the CATALOGUE.
-     */
-    [ROUTE.BASKET]: {
-      entry: ["setCurrency"],
-      invoke: {
-        src: "guardBasket",
-        onDone: { actions: ["setResolved"] },
-        onError: {
-          target: ROUTE.BASKET_EMPTY,
-          actions: ["setResolving"]
-        }
-      },
-      on: {
-        NEXT: {
-          target: ROUTE.CHECKOUT,
-          actions: [withBid({ name: ROUTE.CHECKOUT })]
+          actions: [assign({ targetRoute: { name: ROUTE.CHECKOUT } })]
         },
         BACK: {
           target: ROUTE.CATALOGUE,
-          actions: [withBid({ name: ROUTE.CATALOGUE })]
+          actions: [assign({ targetRoute: { name: ROUTE.CATALOGUE } })]
         }
       }
     },
@@ -347,11 +283,11 @@ export default <FunnelProps>{
       on: {
         NEXT: {
           target: ROUTE.CATALOGUE,
-          actions: [withBid({ name: ROUTE.CATALOGUE })]
+          actions: [assign({ targetRoute: { name: ROUTE.CATALOGUE } })]
         },
         BACK: {
           target: ROUTE.CATALOGUE,
-          actions: [withBid({ name: ROUTE.CATALOGUE })]
+          actions: [assign({ targetRoute: { name: ROUTE.CATALOGUE } })]
         }
       }
     },
@@ -375,11 +311,11 @@ export default <FunnelProps>{
       on: {
         NEXT: {
           target: ROUTE.RECOMMENDATIONS,
-          actions: [withBid({ name: ROUTE.RECOMMENDATIONS })]
+          actions: [assign({ targetRoute: { name: ROUTE.RECOMMENDATIONS } })]
         },
         BACK: {
           target: ROUTE.BASKET,
-          actions: [withBid({ name: ROUTE.BASKET })]
+          actions: [assign({ targetRoute: { name: ROUTE.BASKET } })]
         }
       }
     },
@@ -409,11 +345,13 @@ export default <FunnelProps>{
       on: {
         NEXT: {
           target: ROUTE.BASKET_PRODUCT_EDIT,
-          actions: [withBid({ name: ROUTE.BASKET_PRODUCT_EDIT })]
+          actions: [
+            assign({ targetRoute: { name: ROUTE.BASKET_PRODUCT_EDIT } })
+          ]
         },
         BACK: {
           target: ROUTE.BASKET,
-          actions: [withBid({ name: ROUTE.BASKET })]
+          actions: [assign({ targetRoute: { name: ROUTE.BASKET } })]
         }
       }
     },
@@ -462,11 +400,11 @@ export default <FunnelProps>{
       on: {
         NEXT: {
           target: ROUTE.RECOMMENDATIONS,
-          actions: [withBid({ name: ROUTE.RECOMMENDATIONS })]
+          actions: [assign({ targetRoute: { name: ROUTE.RECOMMENDATIONS } })]
         },
         BACK: {
           target: ROUTE.BASKET,
-          actions: [withBid({ name: ROUTE.BASKET })]
+          actions: [assign({ targetRoute: { name: ROUTE.BASKET } })]
         }
       }
     },
@@ -493,11 +431,15 @@ export default <FunnelProps>{
       on: {
         NEXT: {
           target: ROUTE.DOMAINS_WITH_PRODUCT_PROCESSING,
-          actions: [withBid({ name: ROUTE.DOMAINS_WITH_PRODUCT_PROCESSING })]
+          actions: [
+            assign({
+              targetRoute: { name: ROUTE.DOMAINS_WITH_PRODUCT_PROCESSING }
+            })
+          ]
         },
         BACK: {
           target: ROUTE.BASKET,
-          actions: [withBid({ name: ROUTE.BASKET })]
+          actions: [assign({ targetRoute: { name: ROUTE.BASKET } })]
         }
       }
     },
@@ -575,7 +517,7 @@ export default <FunnelProps>{
         },
         BACK: {
           target: ROUTE.BASKET,
-          actions: [withBid({ name: ROUTE.BASKET })]
+          actions: [assign({ targetRoute: { name: ROUTE.BASKET } })]
         }
       }
     },
@@ -599,11 +541,11 @@ export default <FunnelProps>{
       on: {
         NEXT: {
           target: ROUTE.CHECKOUT,
-          actions: [withBid({ name: ROUTE.CHECKOUT })]
+          actions: [assign({ targetRoute: { name: ROUTE.CHECKOUT } })]
         },
         BACK: {
           target: ROUTE.BASKET,
-          actions: [withBid({ name: ROUTE.BASKET })]
+          actions: [assign({ targetRoute: { name: ROUTE.BASKET } })]
         }
       }
     },
@@ -628,11 +570,11 @@ export default <FunnelProps>{
       on: {
         NEXT: {
           target: ROUTE.SESSION_LOGIN,
-          actions: [withBid({ name: ROUTE.SESSION_LOGIN })]
+          actions: [assign({ targetRoute: { name: ROUTE.SESSION_LOGIN } })]
         },
         BACK: {
           target: ROUTE.SESSION_LOGIN,
-          actions: [withBid({ name: ROUTE.SESSION_LOGIN })]
+          actions: [assign({ targetRoute: { name: ROUTE.SESSION_LOGIN } })]
         }
       }
     },
@@ -655,11 +597,11 @@ export default <FunnelProps>{
       on: {
         NEXT: {
           target: ROUTE.CATALOGUE,
-          actions: [withBid({ name: ROUTE.CATALOGUE })]
+          actions: [assign({ targetRoute: { name: ROUTE.CATALOGUE } })]
         },
         BACK: {
           target: ROUTE.BASKET,
-          actions: [withBid({ name: ROUTE.BASKET })]
+          actions: [assign({ targetRoute: { name: ROUTE.BASKET } })]
         }
       }
     },
@@ -735,7 +677,7 @@ export default <FunnelProps>{
         },
         BACK: {
           target: ROUTE.BASKET,
-          actions: [withBid({ name: ROUTE.BASKET })]
+          actions: [assign({ targetRoute: { name: ROUTE.BASKET } })]
         }
       }
     },

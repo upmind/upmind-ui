@@ -187,7 +187,6 @@ export const useFunnelMachine = ({
       },
       services,
       actions: {
-        ...actions,
         setCurrentRoute: assign({
           currentRoute: (
             { targetRoute }: FunnelContext,
@@ -242,7 +241,10 @@ export const useFunnelMachine = ({
         setResolving: assign({
           resolved: false,
           targetRoute: undefined
-        })
+        }),
+
+        // Consumer actions spread last so they can override defaults
+        ...actions
       }
     }
   );
