@@ -1,9 +1,9 @@
 // --- internal
 import { useBrand } from "@upmind-automation/client-vue";
-import { trimStart } from "lodash-es";
-import { getBidParams } from "./funnels/cart";
-// --- types
 import { ROUTE, RegexMatch } from "./types";
+// --- utils
+import { trimStart } from "lodash-es";
+// --- types
 import type { RouteLocationGeneric, RouteRecordRaw } from "vue-router";
 
 // -----------------------------------------------------------------------------
@@ -138,11 +138,6 @@ export default [
   },
 
   /**
-   * Catch-all redirect for any unmatched routes under /order/basket.
-   * Ensures that any invalid or idle basket-related routes
-   * are redirected back to the main basket page.
-   */
-  /**
    * NOTE: No catch-all redirect here for /order/basket/:pathMatch(.*)*
    * because it would intercept BID_PREFIX routes that render as
    * /order/basket/{bid}/shop, /order/basket/{bid}/checkout, etc.
@@ -205,11 +200,10 @@ export default [
       }
 
       // Otherwise, if we allow storefront: redirect to internal catalogue
-      if (hasStorefront.value)
-        return { name: ROUTE.CATALOGUE, params: getBidParams() };
+      if (hasStorefront.value) return { name: ROUTE.CATALOGUE };
 
       // Fallback to basket if no storefront is available
-      return { name: ROUTE.BASKET, params: getBidParams() };
+      return { name: ROUTE.BASKET };
     }
   },
 

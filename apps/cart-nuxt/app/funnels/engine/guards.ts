@@ -6,6 +6,7 @@ import {
   useBasket,
   useQueryParams
 } from "@upmind-automation/client-vue";
+import { QUERY_PARAMS } from "@upmind-automation/types";
 import type { RouteLocationGeneric } from "vue-router";
 
 // -----------------------------------------------------------------------------
@@ -25,6 +26,24 @@ export default {
     const route = data?.target ?? targetRoute;
     const { basketProductId } = useQueryParams(route as RouteLocationGeneric);
     return !isEmpty(basketProductId);
+  },
+  hasBasketId: (
+    { currentRoute, targetRoute }: FunnelContext,
+    _event: AnyEventObject
+  ) => {
+    const route = (targetRoute ?? currentRoute) as RouteLocationGeneric;
+    return !isEmpty(route?.params?.bid) || !isEmpty(route?.query?.bid);
+  },
+  /**
+   * Returns true when the current route has a `bid` path param or query param.
+   * Used in the LOADING state to redirect `?bid=xyz` to the BASKET route with the bid as a path param.
+   */
+  hasBid: ({ currentRoute }: FunnelContext, _event: AnyEventObject) => {
+    const route = currentRoute as RouteLocationGeneric;
+    return (
+      !isEmpty(route?.params?.bid) ||
+      !isEmpty(route?.query?.[QUERY_PARAMS.BASKET_ID])
+    );
   },
   hasProductConfigs: ({ currentRoute }: FunnelContext) => {
     const { productConfigs } = useQueryParams(currentRoute);

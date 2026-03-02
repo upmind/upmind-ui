@@ -1,9 +1,7 @@
 // --- external
 import { createRouter, createWebHistory } from "vue-router";
-
 // --- internal
 import routes from "./routes";
-
 // ---types
 export * from "./types";
 

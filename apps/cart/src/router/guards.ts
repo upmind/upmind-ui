@@ -1,12 +1,11 @@
-import { isEmpty } from "lodash-es";
-
 import {
   type AnyEventObject,
   type FunnelContext,
+  QUERY_PARAMS,
   useBasket,
   useQueryParams
 } from "@upmind-automation/client-vue";
-import { QUERY_PARAMS } from "@upmind-automation/types";
+import { isEmpty } from "lodash-es";
 import type { RouteLocationGeneric } from "vue-router";
 
 // -----------------------------------------------------------------------------
