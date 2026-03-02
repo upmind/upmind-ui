@@ -10,11 +10,11 @@ import type { RouteLocationGeneric, RouteRecordRaw } from "vue-router";
 
 /**
  * Optional basket ID path prefix used by most routes.
- * When both params are provided (`_basket: 'basket'`, `bid: '<uuid>'`),
+ * When both params are provided (`segment: 'basket'`, `bid: '<uuid>'`),
  * routes render as `/order/basket/{bid}/...`.
  * When omitted, routes render as `/order/...` (current basket).
  */
-const BID_PREFIX = `:_basket(basket)?/:bid(${RegexMatch.UUID})?`;
+const BID_PREFIX = `:segment(basket)?/:bid(${RegexMatch.UUID})?`;
 
 export default [
   /**
@@ -142,10 +142,12 @@ export default [
    * Ensures that any invalid or idle basket-related routes
    * are redirected back to the main basket page.
    */
-  {
-    path: "/order/basket/:pathMatch(.*)*",
-    redirect: { name: ROUTE.BASKET }
-  },
+  /**
+   * NOTE: No catch-all redirect here for /order/basket/:pathMatch(.*)*
+   * because it would intercept BID_PREFIX routes that render as
+   * /order/basket/{bid}/shop, /order/basket/{bid}/checkout, etc.
+   * Unknown basket URLs fall through to the NOT_FOUND catch-all above.
+   */
   /**
    * Route for the checkout process.
    * Displays the checkout page where users can finalize their orders.

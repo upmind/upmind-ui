@@ -21,50 +21,32 @@ import { ROUTE } from "./types";
  *
  * When a bid is found:
  *   1. Calls `setTargetBasket(bid)` so the basket machine loads `orders/{bid}`
- *   2. Strips bid from query to avoid double-presence in URL
- *   3. Injects bid into route params (with `_basket` prefix for non-basket routes)
- *
- * Basket routes (`/order/basket/:bid/...`) only need `{ bid }`.
- * BID_PREFIX routes (`/order/:_basket(basket)?/:bid/...`) need `{ _basket, bid }`.
+ *   2. Injects `{ bid }` into route params
  *
  * Skips injection for ROUTE.ORDER which has its own `:oid` param.
  */
 function injectBid(route: any): any {
   if (!route) return route;
 
-  // Skip ORDER — it has its own :oid param, no bid prefix
+  // Skip ORDER — it has its own :oid param, no bid
   if (route.name === ROUTE.ORDER) return route;
 
   const { targetBasketId, setTargetBasket } = useBasket();
   const { consumeParam } = useQueryParams();
 
-  // Read bid from the current route (params or query)
+  // Read bid: params first (via consumeParam), then basket machine state
   const bid: string | undefined =
     consumeParam(QUERY_PARAMS.BASKET_ID) ?? targetBasketId.value;
 
   if (!bid) return route;
 
   // Prime the basket machine to load orders/{bid}.
-  // The basket machine's SET_TARGET_BASKET event has an isAuthenticated guard,
-  // so this is a no-op when not logged in — preventing 403 API calls.
+  // SET_TARGET_BASKET has an isAuthenticated guard — no-op when not logged in.
   if (targetBasketId.value !== bid) setTargetBasket(bid);
-
-  // Basket routes have :bid directly in their path (/order/basket/:bid/...)
-  // Other routes use BID_PREFIX (/order/:_basket(basket)?/:bid/...)
-  const BASKET_ROUTES: string[] = [
-    ROUTE.BASKET,
-    ROUTE.BASKET_EMPTY,
-    ROUTE.BASKET_PRODUCT_EDIT,
-    ROUTE.BASKET_PRODUCT_REQUIRES_ACTION
-  ];
-
-  const params = BASKET_ROUTES.includes(route.name)
-    ? { bid, ...(route.params || {}) }
-    : { _basket: "basket", bid, ...(route.params || {}) };
 
   return {
     ...route,
-    params
+    params: { segment: "basket", bid, ...(route.params || {}) }
   };
 }
 

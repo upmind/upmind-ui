@@ -36,7 +36,7 @@ export default {
   },
   /**
    * Returns true when the current route has a `bid` path param or query param.
-   * Used in the LOADING state to redirect `?bid=xyz` to the BASKET_WITH_ID route.
+   * Used in the LOADING state to redirect `?bid=xyz` to the BASKET route with the bid as a path param.
    */
   hasBid: ({ currentRoute }: FunnelContext, _event: AnyEventObject) => {
     const route = currentRoute as RouteLocationGeneric;
