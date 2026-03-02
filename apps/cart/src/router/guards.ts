@@ -31,17 +31,19 @@ export default {
     { currentRoute, targetRoute }: FunnelContext,
     _event: AnyEventObject
   ) => {
-    const route = targetRoute ?? currentRoute;
-    const { getParam } = useQueryParams(route as RouteLocationGeneric);
-    return !isEmpty(getParam("bid"));
+    const route = (targetRoute ?? currentRoute) as RouteLocationGeneric;
+    return !isEmpty(route?.params?.bid) || !isEmpty(route?.query?.bid);
   },
   /**
-   * Returns true when the current route has a `bid` query param.
+   * Returns true when the current route has a `bid` path param or query param.
    * Used in the LOADING state to redirect `?bid=xyz` to the BASKET_WITH_ID route.
    */
   hasBid: ({ currentRoute }: FunnelContext, _event: AnyEventObject) => {
-    const { getParam } = useQueryParams(currentRoute as RouteLocationGeneric);
-    return !isEmpty(getParam(QUERY_PARAMS.BASKET_ID));
+    const route = currentRoute as RouteLocationGeneric;
+    return (
+      !isEmpty(route?.params?.bid) ||
+      !isEmpty(route?.query?.[QUERY_PARAMS.BASKET_ID])
+    );
   },
   hasProductConfigs: ({ currentRoute }: FunnelContext) => {
     const { productConfigs } = useQueryParams(currentRoute);
