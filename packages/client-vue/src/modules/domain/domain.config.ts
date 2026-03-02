@@ -22,8 +22,8 @@ export default {
         variants: {
           padding: {
             none: "py-0 lg:py-0",
-            md: "pb-0 pt-12 lg:pt-24",
-            lg: "pb-0 pt-24 lg:pt-28"
+            md: "pt-12 pb-0 lg:pt-24",
+            lg: "pt-24 pb-0 lg:pt-28"
           }
         }
       })
@@ -67,7 +67,7 @@ export default {
     search: {
       root: cva("gap-4 py-4 pl-6 text-xl font-medium"),
       icon: cva(
-        "text-muted hidden items-center justify-center pl-1 pr-4 md:flex"
+        "text-muted hidden items-center justify-center pr-4 pl-1 md:flex"
       ),
       actions: cva("flex items-center justify-center gap-4")
     },
@@ -79,12 +79,12 @@ export default {
       badges: cva("flex items-center gap-2"),
       title: cva("m-0 text-xl font-normal tracking-wide"),
       text: cva(
-        "text-emphasis-medium m-0 inline-flex items-center gap-2 text-xs font-normal leading-5"
+        "text-emphasis-medium m-0 inline-flex items-center gap-2 text-xs leading-5 font-normal"
       ),
 
       // ---
       footer: cva(
-        "text-emphasis-medium m-0 flex w-full items-center justify-end gap-10 text-right text-xs font-normal leading-5"
+        "text-emphasis-medium m-0 flex w-full items-center justify-end gap-10 text-right text-xs leading-5 font-normal"
       ),
       actions: cva("w-full min-w-48 empty:hidden md:w-auto"),
       owned: {
@@ -123,7 +123,7 @@ export default {
           "bg-primary text-primary-foreground inline-flex size-5 items-center justify-center rounded-full p-0.5"
         ),
         prices: cva("inline-block"),
-        price: cva("m-0 text-lg font-semibold not-italic tracking-wide"),
+        price: cva("m-0 text-lg font-semibold tracking-wide not-italic"),
         discount: cva(
           "text-emphasis-medium block text-xs font-normal line-through"
         ),

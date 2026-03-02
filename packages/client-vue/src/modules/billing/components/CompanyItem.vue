@@ -1,7 +1,7 @@
 <template>
   <div class="flex w-full flex-col gap-1">
     <header
-      class="cursor-pointer! pointer-events-none flex w-full items-start justify-between"
+      class="pointer-events-none flex w-full cursor-pointer! items-start justify-between"
     >
       <h3 class="text-md m-0 flex items-center gap-x-2 font-medium">
         {{ title }}
