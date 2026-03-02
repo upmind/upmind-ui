@@ -374,7 +374,7 @@ export default {
           } as FunnelResponse;
         }
 
-        return { target: { name: ROUTE.CHECKOUT } };
+        return { target: targetRoute };
       })
       .catch(() => {
         return Promise.reject();
