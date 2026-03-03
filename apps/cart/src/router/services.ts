@@ -378,13 +378,7 @@ export default {
         if (returnUrlRaw)
           return { target: router.resolve(returnUrlRaw) } as FunnelResponse;
 
-        // if our target route is the same as our current route we cant return because we are already authenticated, so lets fall back to the checkout
-        const target =
-          targetRoute?.name != currentRoute?.name
-            ? targetRoute
-            : { name: ROUTE.CHECKOUT };
-
-        return { target };
+        return { target: targetRoute };
       })
       .catch(() => {
         return Promise.reject();
