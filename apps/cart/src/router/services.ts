@@ -14,7 +14,9 @@ import {
   type FunnelResponse,
   useBasketProducts,
   isDomainProduct,
-  useBasketBilling
+  useBasketBilling,
+  FunnelActions,
+  type FunnelTarget
 } from "@upmind-automation/client-vue";
 import {
   BrandConfigKeys,
@@ -24,7 +26,7 @@ import {
   UpmindModuleCodes
 } from "@upmind-automation/types";
 import { ROUTE } from ".";
-import { filter, first, reduce } from "lodash-es";
+import { filter, first, includes, reduce } from "lodash-es";
 import type { RouteLocationGeneric } from "vue-router";
 
 // -----------------------------------------------------------------------------
@@ -363,26 +365,55 @@ export default {
   },
 
   guardSession: async ({
-    currentRoute,
     targetRoute
   }: FunnelContext): Promise<FunnelResponse> => {
-    const { isAuthenticated } = useSession();
     const { router } = useRoutingEngine();
 
     // NB for session guard, we want to REJECT if authenticated, so that we can redirect away from auth pages
-    return isAuthenticated()
-      .then(() => {
-        // Check for a returnUrl query param to redirect back to after auth
-        const returnUrlRaw = currentRoute?.query?.returnUrl?.toString();
+    // EXCEPT for the logout route, where we want to allow the user to proceed with logging out.
+    if (targetRoute?.name === ROUTE.SESSION_END) {
+      return {
+        type: FunnelActions.NEXT
+      };
+    }
 
-        if (returnUrlRaw)
-          return { target: router.resolve(returnUrlRaw) } as FunnelResponse;
+    const session = useSession();
 
-        return { target: targetRoute };
-      })
-      .catch(() => {
-        return Promise.reject();
-      });
+    // Wait for session to be fully ready and authenticated if a transition is in progress
+    await session.isReady();
+
+    // Check if we are authenticated. We use the check method to ensure
+    // we wait for the profile load to complete.
+    if (
+      session.meta.value.isAuthenticated ||
+      (await session.isAuthenticated().catch(() => false))
+    ) {
+      // We are authenticated and profile is loaded
+    } else {
+      return Promise.reject();
+    }
+
+    const returnUrl = targetRoute?.query?.returnUrl?.toString();
+    const resolved = returnUrl ? router.resolve(returnUrl) : undefined;
+    const isSessionRoute = includes(
+      [
+        ROUTE.SESSION,
+        ROUTE.SESSION_LOGIN,
+        ROUTE.SESSION_REGISTER,
+        ROUTE.SESSION_RECOVER_PASSWORD,
+        ROUTE.SESSION_END,
+        ROUTE.SESSION_TRANSFER
+      ],
+      resolved?.name
+    );
+
+    const resolvedRoute =
+      resolved && !isSessionRoute ? (resolved as FunnelTarget) : targetRoute;
+    debugger;
+    return {
+      type: FunnelActions.REDIRECT,
+      target: resolvedRoute
+    };
   },
 
   /**

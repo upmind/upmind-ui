@@ -506,7 +506,14 @@ export default <FunnelProps>{
       entry: ["setCurrency"],
       invoke: {
         src: "guardSession",
-        onDone: { actions: ["setResolved"] },
+        onDone: [
+          {
+            target: ROUTE.CHECKOUT,
+            actions: ["setResolving"],
+            cond: "isSameRoute"
+          },
+          { actions: ["setResolved"] }
+        ],
         onError: { actions: ["setResolved"] }
       },
       on: {
@@ -533,12 +540,19 @@ export default <FunnelProps>{
     [ROUTE.SESSION_REGISTER]: {
       invoke: {
         src: "guardSession",
-        onDone: { actions: ["setResolved"] },
+        onDone: [
+          {
+            target: ROUTE.CHECKOUT,
+            actions: ["setResolving"],
+            cond: "isSameRoute"
+          },
+          { actions: ["setResolved"] }
+        ],
         onError: { actions: ["setResolved"] }
       },
       on: {
         NEXT: {
-          target: ROUTE.SESSION_REGISTER,
+          target: ROUTE.CHECKOUT,
           // NB: Preserve targetRoute (returnUrl) — only reset resolved flag.
           actions: [assign({ resolved: false })]
         },
