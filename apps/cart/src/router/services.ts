@@ -38,7 +38,8 @@ import { useRouter, type RouteLocationGeneric } from "vue-router";
  * Returns the detected bid (or undefined) so callers can act on it.
  */
 async function ensureBidAuth(
-  context: FunnelContext
+  context: FunnelContext,
+  returnRoute?: FunnelTarget
 ): Promise<string | undefined> {
   const { targetRoute, currentRoute } = context;
   const route = (targetRoute ?? currentRoute) as RouteLocationGeneric;
@@ -51,10 +52,18 @@ async function ensureBidAuth(
   const authenticated = await isAuthenticated().catch(() => false);
 
   if (!authenticated) {
-    // Use the actual route path so post-login redirects back to the
-    // original page (e.g. /shop, /checkout) — not just the basket.
-    const returnUrl =
-      route?.fullPath || route?.path || `/order/basket/${basketId}`;
+    const { router } = useRoutingEngine();
+    // Resolve the returnUrl from the caller's route definition (with bid merged),
+    // falling back to the current route path or the basket route.
+    const returnUrl = returnRoute
+      ? router.resolve({
+          ...returnRoute,
+          params: { segment: "basket", bid: basketId, ...returnRoute.params }
+        }).fullPath
+      : route?.fullPath ||
+        route?.path ||
+        router.resolve({ name: ROUTE.BASKET, params: { bid: basketId } })
+          .fullPath;
 
     return Promise.reject({
       target: {
@@ -90,7 +99,7 @@ export default {
   },
 
   guardCatalogue: async (context: FunnelContext): Promise<FunnelResponse> => {
-    await ensureBidAuth(context);
+    await ensureBidAuth(context, { name: ROUTE.CATALOGUE });
 
     const { hasStorefront } = useBrand();
     if (!hasStorefront.value) return Promise.reject();
@@ -103,7 +112,10 @@ export default {
   },
 
   guardDomains: async (context: FunnelContext): Promise<FunnelResponse> => {
-    await ensureBidAuth(context);
+    await ensureBidAuth(context, {
+      name: ROUTE.DOMAINS,
+      query: context.targetRoute?.query
+    });
 
     const { hasModuleEnabled } = useBrand();
     if (!hasModuleEnabled(UpmindModuleCodes.WEB_HOSTING))
@@ -209,7 +221,7 @@ export default {
   guardProductConfigure: async (
     context: FunnelContext
   ): Promise<FunnelResponse> => {
-    await ensureBidAuth(context);
+    await ensureBidAuth(context, { name: ROUTE.PRODUCT_CONFIGURE });
 
     const { get: getPendingProduct, resolve } = useBasketProductsPending();
     const route = context.targetRoute ?? context.currentRoute;
@@ -265,7 +277,7 @@ export default {
   },
 
   guardProductEdit: async (context: FunnelContext): Promise<FunnelResponse> => {
-    await ensureBidAuth(context);
+    await ensureBidAuth(context, { name: ROUTE.BASKET_PRODUCT_EDIT });
 
     const { getProduct } = useBasket();
     const route = context.targetRoute ?? context.currentRoute;
@@ -282,7 +294,9 @@ export default {
     context: FunnelContext,
     { data }: AnyEventObject
   ): Promise<FunnelResponse> => {
-    await ensureBidAuth(context);
+    await ensureBidAuth(context, {
+      name: ROUTE.BASKET_PRODUCT_REQUIRES_ACTION
+    });
 
     const { isReady } = useBasket();
 
@@ -328,7 +342,7 @@ export default {
   guardProductRecommendations: async (
     context: FunnelContext
   ): Promise<FunnelResponse> => {
-    await ensureBidAuth(context);
+    await ensureBidAuth(context, { name: ROUTE.PRODUCT_RECOMMENDATIONS });
 
     const route = context.targetRoute ?? context.currentRoute;
     const { productId } = useQueryParams(route as RouteLocationGeneric);
@@ -350,7 +364,7 @@ export default {
   guardRecommendations: async (
     context: FunnelContext
   ): Promise<FunnelResponse> => {
-    await ensureBidAuth(context);
+    await ensureBidAuth(context, { name: ROUTE.RECOMMENDATIONS });
 
     const { meta, isReady } = useRecommendations();
     return isReady().then(() => {
@@ -409,7 +423,7 @@ export default {
 
     const resolvedRoute =
       resolved && !isSessionRoute ? (resolved as FunnelTarget) : targetRoute;
-    debugger;
+
     return {
       type: FunnelActions.REDIRECT,
       target: resolvedRoute
@@ -489,27 +503,26 @@ export default {
   },
 
   guardCheckout: async (context: FunnelContext): Promise<FunnelResponse> => {
-    await ensureBidAuth(context);
+    await ensureBidAuth(context, { name: ROUTE.CHECKOUT });
 
     const { meta, isReady } = useBasket();
     const { isReady: isFieldsReady, meta: fieldsMeta } = useBasketFields();
     const { isReady: _isBillingReady } = useBasketBilling();
     const { getConfigValue } = useBrand();
-    const router = useRouter();
 
     // first wait for the basket to be ready
     await isReady();
 
     // We always need to be authenticated to proceed to checkout
     if (meta.value.needsAuth) {
+      const { router } = useRoutingEngine();
       const { targetBasketId } = useBasket();
       const bid = targetBasketId.value;
-      const checkoutRoute = router.resolve({
+      const returnUrl = router.resolve({
         name: ROUTE.CHECKOUT,
         params: bid ? { segment: "basket", bid } : {}
-      });
-      const returnUrl = checkoutRoute.fullPath;
-      debugger;
+      }).fullPath;
+
       return Promise.reject({
         target: {
           name: ROUTE.SESSION,
