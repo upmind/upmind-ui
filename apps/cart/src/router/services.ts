@@ -27,7 +27,7 @@ import {
 } from "@upmind-automation/types";
 import { ROUTE } from ".";
 import { filter, first, includes, reduce } from "lodash-es";
-import type { RouteLocationGeneric } from "vue-router";
+import { useRouter, type RouteLocationGeneric } from "vue-router";
 
 // -----------------------------------------------------------------------------
 
@@ -435,9 +435,14 @@ export default {
   }: FunnelContext): Promise<FunnelResponse> => {
     const { meta, isReady, setTargetBasket, targetBasketId } = useBasket();
     const { isAuthenticated } = useSession();
-    const route = targetRoute ?? currentRoute;
-    const { getParam } = useQueryParams(route as RouteLocationGeneric);
+    const { router } = useRoutingEngine();
 
+    const route: RouteLocationGeneric =
+      (targetRoute as RouteLocationGeneric) ??
+      (currentRoute as RouteLocationGeneric) ??
+      router.resolve({ name: ROUTE.BASKET, params: { bid: "" } });
+
+    const { getParam } = useQueryParams(route);
     const basketId = getParam("bid") ?? getParam(QUERY_PARAMS.BASKET_ID);
 
     // When accessing a specific basket by ID, gate on authentication
@@ -446,10 +451,7 @@ export default {
       if (!authenticated) {
         // Use the actual route path so post-login redirects back to the
         // original page — not just the basket.
-        const returnUrl =
-          (route as RouteLocationGeneric)?.fullPath ||
-          (route as RouteLocationGeneric)?.path ||
-          `/order/basket/${basketId}`;
+        const returnUrl = route?.fullPath || route?.path;
 
         return Promise.reject({
           target: {
@@ -493,13 +495,27 @@ export default {
     const { isReady: isFieldsReady, meta: fieldsMeta } = useBasketFields();
     const { isReady: _isBillingReady } = useBasketBilling();
     const { getConfigValue } = useBrand();
+    const router = useRouter();
 
     // first wait for the basket to be ready
     await isReady();
 
     // We always need to be authenticated to proceed to checkout
     if (meta.value.needsAuth) {
-      return Promise.reject({ target: { name: ROUTE.SESSION } });
+      const { targetBasketId } = useBasket();
+      const bid = targetBasketId.value;
+      const checkoutRoute = router.resolve({
+        name: ROUTE.CHECKOUT,
+        params: bid ? { segment: "basket", bid } : {}
+      });
+      const returnUrl = checkoutRoute.fullPath;
+      debugger;
+      return Promise.reject({
+        target: {
+          name: ROUTE.SESSION,
+          query: { returnUrl }
+        }
+      } as FunnelResponse);
     }
 
     // We always need products in the basket to proceed to checkout
