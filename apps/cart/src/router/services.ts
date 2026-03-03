@@ -507,7 +507,6 @@ export default {
 
     const { meta, isReady } = useBasket();
     const { isReady: isFieldsReady, meta: fieldsMeta } = useBasketFields();
-    const { isReady: _isBillingReady } = useBasketBilling();
     const { getConfigValue } = useBrand();
 
     // first wait for the basket to be ready
