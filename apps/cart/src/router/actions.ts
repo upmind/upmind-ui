@@ -1,9 +1,10 @@
-import { isEmpty, isString } from "lodash-es";
+import { isEmpty, isString, omit } from "lodash-es";
 
 import {
   type AnyEventObject,
   assign,
   type FunnelContext,
+  type FunnelTarget,
   QUERY_PARAMS,
   useBasket,
   useBasketProductsPending,
@@ -30,11 +31,11 @@ const BASKET_ROUTES: string[] = [
  * Routes that should never receive bid params.
  */
 const SKIP_BID_ROUTES: string[] = [
-  ROUTE.ORDER,
-  ROUTE.NOT_FOUND,
-  ROUTE.LOADING,
-  ROUTE.STOREFRONT,
-  ROUTE.ERROR
+  ROUTE.ORDER
+  // ROUTE.NOT_ FOUND,
+  // ROUTE.LOADING,
+  // ROUTE.STOREFRONT,
+  // ROUTE.ERROR
 ];
 
 /**
@@ -49,29 +50,42 @@ const SKIP_BID_ROUTES: string[] = [
  *
  * Skips injection for ORDER, NOT_FOUND, LOADING, etc.
  */
-function injectBid(route: any): any {
+function injectBid(route: any): FunnelTarget {
   if (!route) return route;
 
   // Skip routes that don't support bid params
   if (SKIP_BID_ROUTES.includes(route.name)) return route;
 
-  const { targetBasketId, setTargetBasket } = useBasket();
+  const { targetBasketId, setTargetBasket, reset, meta } = useBasket();
   const { consumeParam } = useQueryParams();
 
   // Read bid: params first (via consumeParam), then basket machine state
   const bid: string | undefined =
     consumeParam(QUERY_PARAMS.BASKET_ID) ?? targetBasketId.value;
-
   if (!bid) return route;
 
   // Prime the basket machine to load orders/{bid}.
   // SET_TARGET_BASKET has an isAuthenticated guard — no-op when not logged in.
-  if (targetBasketId.value !== bid) setTargetBasket(bid);
+  if (targetBasketId.value !== bid && !meta.value.isUnavailable) {
+    setTargetBasket(bid);
+  }
+
+  // If the basket is not available, return to the original route
+  // This happens if the basket is not valid for the user or does not exist
+  if (meta.value.isUnavailable) {
+    // reset();
+    return {
+      ...route, //go to the original route
+      params: omit(route.params, ["segment", "bid"]) // but without the basket segment
+    } as FunnelTarget;
+  }
 
   // Basket routes use `:bid` directly — no `:segment` param.
   // BID_PREFIX routes use `:segment(basket)?/:bid?` — need both.
   const isBasketRoute = BASKET_ROUTES.includes(route.name);
-  const bidParams = isBasketRoute ? { bid } : { segment: "basket", bid };
+  const isValidBasket = meta.value.isAvailable;
+  const bidParams =
+    isBasketRoute || !isValidBasket ? { bid } : { segment: "basket", bid };
 
   return {
     ...route,

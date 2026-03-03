@@ -8,7 +8,7 @@ import { useDataLayer, useI18n } from "../system";
 import { authSubscription } from "../session/helper";
 import { useSession } from "../session";
 
-import { useFeedback } from "../feedback";
+import { messageDisplays, messageTypes, useFeedback } from "../feedback";
 
 // --- utils
 import {
@@ -89,9 +89,9 @@ export default createMachine(
                   cond: "hasAuthError"
                 },
                 {
-                  target: "#loading",
+                  target: "#unavailable",
                   cond: "hasInvalidTargetBasket",
-                  actions: ["clearTargetBasketId", "notifyTargetBasketInvalid"]
+                  actions: ["notifyTargetBasketInvalid"] // nB we dont clear so we dont reset it by accident. RESEt is needed
                 },
                 {
                   target: "#error",
@@ -400,6 +400,10 @@ export default createMachine(
       // Handle errors
       error: {
         id: "error"
+      },
+
+      unavailable: {
+        id: "unavailable"
       },
       // ---
 
@@ -720,11 +724,36 @@ export default createMachine(
 
       clearTargetBasketId: assign({ targetBasketId: undefined }),
 
-      notifyTargetBasketInvalid: () => {
+      notifyTargetBasketInvalid: (
+        context: BasketContext,
+        _event: AnyEventObject
+      ) => {
         const { t } = useI18n();
-        useFeedback().addWarning({
+        useFeedback().add({
           hash: "target-basket-invalid",
-          copy: t("error.basket_not_available")
+          type: messageTypes.WARNING,
+          title: t("error.basket_not_available"),
+          copy: t("error.404_text"),
+          actions: [
+            {
+              label: t("action.back_to_shop"),
+              value: "dismiss",
+              handler: () => {
+                useFeedback().dismiss("target-basket-invalid");
+                debugger;
+                // context.send({ type: "RESET" });
+              }
+            }
+          ],
+          data: {
+            ...context?.error,
+            status: responseCodes.No_Content,
+            data: {
+              ...context?.error?.data,
+              targetBasketId: context.targetBasketId
+            }
+          },
+          display: messageDisplays.INTERSTITIAL
         });
       }
     },

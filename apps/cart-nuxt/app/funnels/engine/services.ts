@@ -45,7 +45,8 @@ async function ensureBidAuth(
   const route = (targetRoute ?? currentRoute) as RouteLocationGeneric;
   const { getParam } = useQueryParams(route);
 
-  const basketId = getParam("bid") ?? getParam(QUERY_PARAMS.BASKET_ID);
+  const basketId =
+    getParam(QUERY_PARAMS.BASKET_ID) ?? getParam(QUERY_PARAMS.BASKET_ID);
   if (!basketId) return undefined;
 
   const { isAuthenticated } = useSession();
@@ -457,7 +458,8 @@ export default {
       router.resolve({ name: ROUTE.BASKET, params: { bid: "" } });
 
     const { getParam } = useQueryParams(route);
-    const basketId = getParam("bid") ?? getParam(QUERY_PARAMS.BASKET_ID);
+    const basketId =
+      getParam(QUERY_PARAMS.BASKET_ID) ?? getParam(QUERY_PARAMS.BASKET_ID);
 
     // When accessing a specific basket by ID, gate on authentication
     if (basketId) {
