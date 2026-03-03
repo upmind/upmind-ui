@@ -477,7 +477,12 @@ export default createMachine(
     actions: {
       setAuthHelper: assign({
         authHelper: ({ authHelper }: BasketContext, _event: AnyEventObject) =>
-          authHelper ?? spawn(authSubscription)
+          authHelper ?? spawn(authSubscription),
+        resetHelper: ({ resetHelper }: BasketContext) =>
+          resetHelper ??
+          spawn((callback: any, onReceive: any) => {
+            onReceive((event: any) => callback(event));
+          })
       }),
 
       updateBasket: assign({
@@ -740,8 +745,7 @@ export default createMachine(
               value: "dismiss",
               handler: () => {
                 useFeedback().dismiss("target-basket-invalid");
-                debugger;
-                // context.send({ type: "RESET" });
+                context.resetHelper?.send({ type: "RESET" });
               }
             }
           ],
