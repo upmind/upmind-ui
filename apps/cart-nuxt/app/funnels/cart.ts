@@ -512,8 +512,16 @@ export default <FunnelProps>{
       entry: ["setCurrency"],
       invoke: {
         src: "guardSession",
-        onDone: { actions: ["setResolved"] },
-        onError: { actions: ["setResolved"] }
+        onDone: [
+          {
+            target: ROUTE.CHECKOUT,
+            actions: [
+              assign({ targetRoute: { name: ROUTE.CHECKOUT }, resolved: false })
+            ],
+            cond: "isSameRoute"
+          },
+          { actions: ["setResolved"] }
+        ]
       },
       on: {
         NEXT: {
@@ -538,7 +546,16 @@ export default <FunnelProps>{
     [ROUTE.SESSION_REGISTER]: {
       invoke: {
         src: "guardSession",
-        onDone: { actions: ["setResolved"] },
+        onDone: [
+          {
+            target: ROUTE.CHECKOUT,
+            actions: [
+              assign({ targetRoute: { name: ROUTE.CHECKOUT }, resolved: false })
+            ],
+            cond: "isSameRoute"
+          },
+          { actions: ["setResolved"] }
+        ],
         onError: { actions: ["setResolved"] }
       },
       on: {
@@ -642,8 +659,20 @@ export default <FunnelProps>{
         onDone: { actions: ["setResolved"] },
         onError: [
           {
-            target: ROUTE.SESSION,
-            actions: ["setResolving"],
+            target: ROUTE.SESSION_LOGIN,
+            actions: [
+              "setResolving",
+              assign({
+                targetRoute: (
+                  _context: FunnelContext,
+                  { data }: AnyEventObject
+                ) => ({
+                  name: ROUTE.SESSION_LOGIN,
+                  params: data?.target?.params ?? {},
+                  query: data?.target?.query ?? {}
+                })
+              })
+            ],
             cond: "isSession"
           },
           {
