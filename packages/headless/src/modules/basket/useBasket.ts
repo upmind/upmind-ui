@@ -116,6 +116,8 @@ export const useBasket = () => {
           "checkout.available"
         ]) && contextMatches(state, ["products"]),
 
+      isUnavailable: stateMatches(state, ["unavailable"]),
+
       needsAuth: !sessionMeta.value?.isAuthenticated,
 
       // ---
@@ -284,8 +286,21 @@ export const useBasket = () => {
    * Pass `undefined` to revert to loading the current basket.
    * @param {string | undefined} id - The basket ID to load, or undefined to revert to `orders/current`.
    */
-  function setTargetBasket(id: string | undefined): void {
+  async function setTargetBasket(id: string | undefined): Promise<boolean> {
     send({ type: "SET_TARGET_BASKET", data: id });
+    return waitFor(
+      service,
+      state => stateMatches(state, ["shopping", "unavailable", "done"]),
+      {
+        timeout: 60_000
+      }
+    ).then(state => {
+      if (stateMatches(state, ["unavailable"])) {
+        return false;
+      }
+
+      return true;
+    });
   }
 
   function checkout() {

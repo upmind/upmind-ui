@@ -44,9 +44,11 @@ async function ensureBidAuth(
   const { targetRoute, currentRoute } = context;
   const route = (targetRoute ?? currentRoute) as RouteLocationGeneric;
   const { getParam } = useQueryParams(route);
+  const { meta } = useBasket();
 
-  const basketId = getParam("bid") ?? getParam(QUERY_PARAMS.BASKET_ID);
-  if (!basketId) return undefined;
+  const basketId = getParam(QUERY_PARAMS.BASKET_ID);
+
+  if (!basketId || meta.value.isUnavailable) return undefined;
 
   const { isAuthenticated } = useSession();
   const authenticated = await isAuthenticated().catch(() => false);
@@ -457,10 +459,11 @@ export default {
       router.resolve({ name: ROUTE.BASKET, params: { bid: "" } });
 
     const { getParam } = useQueryParams(route);
-    const basketId = getParam("bid") ?? getParam(QUERY_PARAMS.BASKET_ID);
+    let basketId =
+      getParam(QUERY_PARAMS.BASKET_ID) ?? getParam(QUERY_PARAMS.BASKET_ID);
 
     // When accessing a specific basket by ID, gate on authentication
-    if (basketId) {
+    if (basketId && !meta.value.isUnavailable) {
       const authenticated = await isAuthenticated().catch(() => false);
       if (!authenticated) {
         // Use the actual route path so post-login redirects back to the
@@ -478,7 +481,14 @@ export default {
 
       // Set target BEFORE waiting — single load, no actors to cancel.
       if (targetBasketId.value !== basketId) {
-        setTargetBasket(basketId);
+        await setTargetBasket(basketId);
+        if (meta.value.isUnavailable) {
+          return {
+            target: targetRoute ?? {
+              name: ROUTE.BASKET
+            }
+          };
+        }
       }
       await isReady();
 

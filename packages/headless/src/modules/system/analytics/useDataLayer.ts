@@ -176,7 +176,6 @@ class TrackingEvent {
 
     const { currencyCode } = useBasketCurrency();
 
-    debugger;
     if (isEmpty(currencyCode.value))
       throw new DetailedError(
         t("error.currency_not_available"),
@@ -184,7 +183,6 @@ class TrackingEvent {
         ErrorOrigin.Headless
       );
 
-    debugger;
     // When a user submits their billing address
     const payload: DataLayerEcommerceItems = {
       currency: currencyCode.value ?? "",
@@ -198,7 +196,6 @@ class TrackingEvent {
       items: map(safeItems, mapBasketProduct) as DataLayerEcommerceItem[]
     };
 
-    debugger;
     set(this.args, "ecommerce", omitBy(payload, isNil));
 
     return this; // nb this is needed to chain the methods

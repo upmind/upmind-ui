@@ -86,6 +86,10 @@ export interface BasketContext {
    */
   authHelper?: ActorRef<any>;
   /**
+   * An `ActorRef` to a helper that can send RESET back to the basket machine from deferred callbacks.
+   */
+  resetHelper?: ActorRef<any>;
+  /**
    * An `ActorRef` to the payment state machine, managing the overall payment process.
    */
   payment?: ActorRef<any>;

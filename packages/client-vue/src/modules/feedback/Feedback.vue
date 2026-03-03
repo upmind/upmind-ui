@@ -19,8 +19,12 @@
       :visible-toasts="6"
     />
 
+    <pre>{{ system }}</pre>
     <Error
       v-for="error in system"
+      :title="error.message.value?.title"
+      :copy="error.message.value?.copy"
+      :actions="error.message.value?.actions"
       :key="error.id"
       :status="error?.message.value?.data?.status"
       :open="error.meta.value.isActive"

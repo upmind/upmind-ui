@@ -44,7 +44,7 @@ export default createMachine(
           },
           onError: {
             target: "error",
-            actions: ["setError", "setFeedbackError"]
+            actions: ["setError"]
           }
         }
       },
