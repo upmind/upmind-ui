@@ -2,7 +2,7 @@ import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 export default {
   card: {
-    root: cva("bg-surface card-radius w-full text-base", {
+    root: cva("bg-surface card-radius border-control w-full border text-base", {
       variants: {
         isDisabled: {
           true: "pointer-events-none opacity-50"
