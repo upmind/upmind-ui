@@ -16,12 +16,7 @@ const delegatedProps = computed(() => {
 
 <template>
   <TabsContent
-    :class="
-      cn(
-        'w-full outline-hidden',
-        props.class
-      )
-    "
+    :class="cn('w-full outline-hidden', props.class)"
     v-bind="delegatedProps"
   >
     <slot />
