@@ -373,23 +373,18 @@ export default {
     return isAuthenticated()
       .then(() => {
         // Check for a returnUrl query param to redirect back to after auth
-        const route = targetRoute ?? currentRoute;
-        const returnUrlRaw = route?.query?.returnUrl?.toString();
+        const returnUrlRaw = currentRoute?.query?.returnUrl?.toString();
 
-        if (returnUrlRaw) {
-          const resolvedRoute = router.resolve(returnUrlRaw);
-          return {
-            target: resolvedRoute.name
-              ? {
-                  name: resolvedRoute.name,
-                  params: resolvedRoute.params,
-                  query: resolvedRoute.query
-                }
-              : { path: resolvedRoute.path || returnUrlRaw }
-          } as FunnelResponse;
-        }
+        if (returnUrlRaw)
+          return { target: router.resolve(returnUrlRaw) } as FunnelResponse;
 
-        return { target: targetRoute };
+        // if our target route is the same as our current route we cant return because we are already authenticated, so lets fall back to the checkout
+        const target =
+          targetRoute?.name != currentRoute?.name
+            ? targetRoute
+            : { name: ROUTE.CHECKOUT };
+
+        return { target };
       })
       .catch(() => {
         return Promise.reject();
