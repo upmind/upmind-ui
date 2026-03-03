@@ -552,7 +552,7 @@ export default <FunnelProps>{
       },
       on: {
         NEXT: {
-          target: ROUTE.CHECKOUT,
+          target: ROUTE.SESSION_REGISTER,
           // NB: Preserve targetRoute (returnUrl) — only reset resolved flag.
           actions: [assign({ resolved: false })]
         },
@@ -574,11 +574,7 @@ export default <FunnelProps>{
       invoke: {
         src: "guardSession",
         onDone: { actions: ["setResolved"] },
-        onError: [
-          {
-            actions: ["setResolved"]
-          }
-        ]
+        onError: { actions: ["setResolved"] }
       },
       on: {
         NEXT: {
@@ -652,7 +648,19 @@ export default <FunnelProps>{
         onError: [
           {
             target: ROUTE.SESSION,
-            actions: ["setResolving"],
+            actions: [
+              assign({
+                resolved: false,
+                targetRoute: (
+                  _context: FunnelContext,
+                  { data }: AnyEventObject
+                ) => ({
+                  name: ROUTE.SESSION,
+                  params: data?.target?.params ?? {},
+                  query: data?.target?.query ?? {}
+                })
+              })
+            ],
             cond: "isSession"
           },
           {
