@@ -159,5 +159,11 @@ export enum ROUTE {
   /**
    * Represents an unavailable state, indicating a resource or feature is not currently accessible.
    */
-  UNAVAILABLE = "unavailable"
+  UNAVAILABLE = "unavailable",
+
+  /**
+   * This is a MAGIC route used to indicate a redirect within funnels.
+   * It is not a real route, but a placeholder to signal that a redirect should occur to a given target.
+   */
+  REDIRECT = "#calculating"
 }

@@ -17,6 +17,13 @@ import type { RouteLocationGeneric } from "vue-router";
  * @returns  boolean
  */
 export default {
+  /**
+   * Returns true when the service response target matches the current route.
+   * Used by SESSION states to detect when guardSession resolves back to the
+   * same page (no returnUrl), so the funnel can fall through to its own default.
+   */
+  isSameRoute: ({ currentRoute }: FunnelContext, { data }: AnyEventObject) =>
+    data?.target?.name === currentRoute?.name,
   hasPid: ({ targetRoute }: FunnelContext, { data }: AnyEventObject) => {
     const route = data?.target ?? targetRoute;
     const { productId } = useQueryParams(route as RouteLocationGeneric);
