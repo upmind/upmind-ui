@@ -1,4 +1,4 @@
-import { trimStart } from "lodash-es";
+import { includes, trimStart } from "lodash-es";
 import { useBrand } from "@upmind-automation/client-vue";
 import { ROUTE, RegexMatch } from "~/funnels/types";
 
@@ -58,37 +58,37 @@ export default defineNuxtRouteMiddleware(async to => {
     }
   }
 
-  // --- BID Route Rewriting ---
-  // Bridges path-based bid URLs (used by other apps) to Nuxt file-system routing.
-  // /order/basket/{uuid}/{rest} → /order/{rest}/?bid={uuid}
-  // /order/cart/{uuid}/{rest}   → /order/{rest}/?bid={uuid} (legacy)
-  const bidPathMatch = path.match(
-    new RegExp(`^/order/(?:basket|cart)/(${RegexMatch.UUID})/(.+)$`)
-  );
-  if (bidPathMatch) {
-    const [, bid, rest] = bidPathMatch;
-    return navigateTo({
-      path: `/order/${rest}/`,
-      query: { ...to.query, bid }
-    });
-  }
+  // // --- BID Route Rewriting ---
+  // // Bridges path-based bid URLs (used by other apps) to Nuxt file-system routing.
+  // // /order/basket/{uuid}/{rest} → /order/{rest}/?bid={uuid}
+  // // /order/cart/{uuid}/{rest}   → /order/{rest}/?bid={uuid} (legacy)
+  // const bidPathMatch = path.match(
+  //   new RegExp(`^/order/(?:basket|cart)/(${RegexMatch.UUID})/(.+)$`)
+  // );
+  // if (bidPathMatch) {
+  //   const [, bid, rest] = bidPathMatch;
+  //   return navigateTo({
+  //     path: `/order/${rest}/`,
+  //     query: { ...to.query, bid }
+  //   });
+  // }
 
-  // /order/basket/{uuid} (bare) → /order/basket/?bid={uuid}
-  // /order/cart/{uuid} (bare)   → /order/basket/?bid={uuid} (legacy)
-  const bidOnlyMatch = path.match(
-    new RegExp(`^/order/(?:basket|cart)/(${RegexMatch.UUID})$`)
-  );
-  if (bidOnlyMatch) {
-    const [, bid] = bidOnlyMatch;
-    return navigateTo({
-      path: `/order/basket/`,
-      query: { ...to.query, bid }
-    });
-  }
+  // // /order/basket/{uuid} (bare) → /order/basket/?bid={uuid}
+  // // /order/cart/{uuid} (bare)   → /order/basket/?bid={uuid} (legacy)
+  // const bidOnlyMatch = path.match(
+  //   new RegExp(`^/order/(?:basket|cart)/(${RegexMatch.UUID})$`)
+  // );
+  // if (bidOnlyMatch) {
+  //   const [, bid] = bidOnlyMatch;
+  //   return navigateTo({
+  //     path: `/order/basket/`,
+  //     query: { ...to.query, bid }
+  //   });
+  // }
 
   // --- Route Renames ---
 
-  // /order/cart -> /order/basket
+  // /order/cart -&gt; /order/basket
   if (path === "/order/cart") {
     return navigateTo(
       { name: ROUTE.BASKET, query: to.query },
@@ -96,8 +96,8 @@ export default defineNuxtRouteMiddleware(async to => {
     );
   }
 
-  // /order/products -> /order/shop
-  if (path === "/order/products") {
+  // /order (bare, no oid) or /order/products -> /order/shop
+  if (includes(["/order", "/order/products"], path)) {
     return navigateTo(
       { name: ROUTE.CATALOGUE, query: to.query },
       { redirectCode: 301 }
