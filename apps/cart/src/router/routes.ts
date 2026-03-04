@@ -77,10 +77,10 @@ export default [
   },
 
   /**
-   * Redirect from /orders/:oid to /order/:oid for legacy support.
+   * Redirect from /order/cart to /order/basket for legacy support.
    */
   {
-    path: "/order/cart/",
+    path: "/order/cart/:pathMatch(.*)*",
     redirect: { name: ROUTE.BASKET }
   },
 

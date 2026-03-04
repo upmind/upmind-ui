@@ -55,17 +55,30 @@ const SKIP_BID_ROUTES: string[] = [
  */
 function resolveBidParams(route: any): FunnelTarget {
   if (!route) return route;
+  const { getParam } = useQueryParams(route);
+  const resetBid = getParam("reset", false);
 
   // Skip routes that don't support bid params
-  if (SKIP_BID_ROUTES.includes(route.name)) return route;
+  // OR if navigating with ?reset, skip bid injection — the basket is being reset
+  if (SKIP_BID_ROUTES.includes(route.name) || resetBid) {
+    return {
+      ...route,
+      query: omit(route.query, ["reset"])
+    };
+  }
 
   const { targetBasketId, setTargetBasket, meta, reset } = useBasket();
-  const { consumeParam } = useQueryParams();
 
   // Read bid: params first (via consumeParam), then basket machine state
-  const bid: string | undefined =
-    consumeParam(QUERY_PARAMS.BASKET_ID) ?? targetBasketId.value;
-  if (!bid) return route;
+  const bid: string | undefined = getParam(
+    QUERY_PARAMS.BASKET_ID,
+    targetBasketId.value
+  );
+  if (!bid)
+    return {
+      ...route,
+      query: omit(route.query, [QUERY_PARAMS.BASKET_ID, "segment"])
+    };
 
   // Prime the basket machine to load orders/{bid}.
   // SET_TARGET_BASKET has an isAuthenticated guard — no-op when not logged in.
