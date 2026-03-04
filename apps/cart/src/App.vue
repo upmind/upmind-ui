@@ -9,6 +9,9 @@
         :recover-route="{ name: ROUTE.SESSION_RECOVER_PASSWORD }"
       />
     </template>
+    <template #append>
+      <UpmBasketUnavailable :storefront-route="{ name: ROUTE.STOREFRONT }" />
+    </template>
   </Upm>
 </template>
 
@@ -21,6 +24,7 @@ import { useRoute, useRouter } from "vue-router";
 import {
   Upm,
   UpmBasketAction,
+  UpmBasketUnavailable,
   UpmAuthAction,
   useBasket,
   useRoutingEngine,

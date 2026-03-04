@@ -272,8 +272,15 @@ export const useBasket = () => {
   });
   // --- methods
 
-  function reset() {
-    return send({ type: "RESET" });
+  async function reset(): Promise<boolean> {
+    send({ type: "RESET" });
+    return waitFor(
+      service,
+      state => stateMatches(state, ["shopping", "done"]),
+      { timeout: 60_000 }
+    ).then(state => {
+      return true;
+    });
   }
 
   function clear() {

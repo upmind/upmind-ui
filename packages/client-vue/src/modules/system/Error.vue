@@ -178,7 +178,6 @@ const actions = computed((): InterstitialActionProps[] => {
       };
       break;
   }
-  debugger;
   return isNil(props.actions) ? [defaultAction] : props.actions;
 });
 </script>

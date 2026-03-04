@@ -8,7 +8,7 @@ import { useDataLayer, useI18n } from "../system";
 import { authSubscription } from "../session/helper";
 import { useSession } from "../session";
 
-import { messageDisplays, messageTypes, useFeedback } from "../feedback";
+import { useFeedback } from "../feedback";
 
 // --- utils
 import {
@@ -90,8 +90,7 @@ export default createMachine(
                 },
                 {
                   target: "#unavailable",
-                  cond: "hasInvalidTargetBasket",
-                  actions: ["notifyTargetBasketInvalid"] // nB we dont clear so we dont reset it by accident. RESEt is needed
+                  cond: "hasInvalidTargetBasket"
                 },
                 {
                   target: "#error",
@@ -727,39 +726,7 @@ export default createMachine(
           data ?? undefined
       }),
 
-      clearTargetBasketId: assign({ targetBasketId: undefined }),
-
-      notifyTargetBasketInvalid: (
-        context: BasketContext,
-        _event: AnyEventObject
-      ) => {
-        const { t } = useI18n();
-        useFeedback().add({
-          hash: "target-basket-invalid",
-          type: messageTypes.WARNING,
-          title: t("error.basket_not_available"),
-          copy: t("error.404_text"),
-          actions: [
-            {
-              label: t("action.back_to_shop"),
-              value: "dismiss",
-              handler: () => {
-                useFeedback().dismiss("target-basket-invalid");
-                context.resetHelper?.send({ type: "RESET" });
-              }
-            }
-          ],
-          data: {
-            ...context?.error,
-            status: responseCodes.No_Content,
-            data: {
-              ...context?.error?.data,
-              targetBasketId: context.targetBasketId
-            }
-          },
-          display: messageDisplays.INTERSTITIAL
-        });
-      }
+      clearTargetBasketId: assign({ targetBasketId: undefined })
     },
 
     guards: {

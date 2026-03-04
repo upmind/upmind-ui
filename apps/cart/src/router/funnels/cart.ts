@@ -29,7 +29,7 @@ import { ROUTE } from "../types";
 //
 //   Guard services no longer need to manually inject bid params — the
 //   `ensureBidAuth()` helper in services.ts handles auth-gating for bid
-//   routes, and `injectBid()` in actions.ts handles param injection via
+//   routes, and `resolveBidParams()` in actions.ts handles param injection via
 //   the `setResolved` override.
 // -----------------------------------------------------------------------------
 
