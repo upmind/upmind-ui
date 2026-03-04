@@ -56,7 +56,7 @@ export default [
   {
     path: "/",
     name: ROUTE.LOADING,
-    alias: ["/order", "/loading"],
+    alias: ["/order/", "/loading/"],
     component: () => import("../pages/Index.vue"),
     meta: { replace: true }
   },
@@ -68,7 +68,7 @@ export default [
    * or modify the items they intend to purchase.
    */
   {
-    path: `/order/basket/:bid(${RegexMatch.UUID})?`,
+    path: `/order/basket/:bid(${RegexMatch.UUID})?/`,
     name: ROUTE.BASKET,
     component: () => import("../pages/Basket.vue"),
     meta: {
@@ -80,7 +80,7 @@ export default [
    * Redirect from /orders/:oid to /order/:oid for legacy support.
    */
   {
-    path: "/order/cart",
+    path: "/order/cart/",
     redirect: { name: ROUTE.BASKET }
   },
 
@@ -91,7 +91,7 @@ export default [
    * and may include suggestions or links to continue shopping.
    */
   {
-    path: `/order/basket/:bid(${RegexMatch.UUID})?/empty`,
+    path: `/order/basket/:bid(${RegexMatch.UUID})?/empty/`,
     name: ROUTE.BASKET_EMPTY,
     component: () => import("../pages/Empty.vue")
   },
@@ -103,7 +103,7 @@ export default [
    * or configurations for the selected basket item.
    */
   {
-    path: `/order/basket/:bid(${RegexMatch.UUID})?/edit/:bpid(${RegexMatch.UUID})`,
+    path: `/order/basket/:bid(${RegexMatch.UUID})?/edit/:bpid(${RegexMatch.UUID})/`,
     name: ROUTE.BASKET_PRODUCT_EDIT,
     component: () => import("../pages/product/Edit.vue")
   },
@@ -114,7 +114,7 @@ export default [
    * are redirected to the current basket product edit route.
    */
   {
-    path: `/order/product/edit/:bpid(${RegexMatch.UUID})`,
+    path: `/order/product/edit/:bpid(${RegexMatch.UUID})/`,
     redirect: (to: RouteLocationGeneric) => {
       // 'to' is the target route location object, which includes the original query
       return {
@@ -132,7 +132,7 @@ export default [
    * such as selecting options or configurations for the product.
    */
   {
-    path: `/order/basket/:bid(${RegexMatch.UUID})?/requires-action/:bpid(${RegexMatch.UUID})?`,
+    path: `/order/basket/:bid(${RegexMatch.UUID})?/requires-action/:bpid(${RegexMatch.UUID})?/`,
     name: ROUTE.BASKET_PRODUCT_REQUIRES_ACTION,
     component: () => import("../pages/product/RequiresAction.vue")
   },
@@ -149,7 +149,7 @@ export default [
    * This route is typically accessed after reviewing the basket contents.
    */
   {
-    path: `/order/${BID_PREFIX}/checkout`,
+    path: `/order/${BID_PREFIX}/checkout/`,
     name: ROUTE.CHECKOUT,
     component: () => import("../pages/Checkout.vue"),
     meta: {
@@ -162,7 +162,7 @@ export default [
    * The :oid parameter captures the unique order identifier (UUID format).
    */
   {
-    path: `/order/:oid(${RegexMatch.UUID})`,
+    path: `/order/:oid(${RegexMatch.UUID})/`,
     name: ROUTE.ORDER,
     component: () => import("../pages/Order.vue")
   },
@@ -171,7 +171,7 @@ export default [
    * Redirect from /orders/:oid to /order/:oid for legacy support.
    */
   {
-    path: `/orders/:oid(${RegexMatch.UUID})`,
+    path: `/orders/:oid(${RegexMatch.UUID})/`,
     redirect: (to: RouteLocationGeneric) => {
       // 'to' is the target route location object, which includes the original query
       return {
@@ -188,7 +188,7 @@ export default [
    * Otherwise, it redirects to the internal catalogue or basket route.
    */
   {
-    path: "/storefront",
+    path: "/storefront/",
     name: ROUTE.STOREFRONT,
     redirect: () => {
       const { hasStorefront, storefrontUrl } = useBrand();
@@ -213,7 +213,7 @@ export default [
    * Users can also filter/navigate products by categories from this page.
    */
   {
-    path: `/order/${BID_PREFIX}/shop`,
+    path: `/order/${BID_PREFIX}/shop/`,
     name: ROUTE.CATALOGUE,
     component: () => import("../pages/Catalogue.vue")
   },
@@ -222,7 +222,7 @@ export default [
    * Redirect from /order/products to /order/shop for consistency.
    */
   {
-    path: "/order/products",
+    path: "/order/products/",
     redirect: { name: ROUTE.CATALOGUE }
   },
 
@@ -232,7 +232,7 @@ export default [
    * This is based on ALL products in the basket, not just a single product.
    */
   {
-    path: `/order/${BID_PREFIX}/recommendations`,
+    path: `/order/${BID_PREFIX}/recommendations/`,
     name: ROUTE.RECOMMENDATIONS,
     component: () => import("../pages/Recommendations.vue")
   },
@@ -243,18 +243,18 @@ export default [
    * Users can search for, register, and manage domains from this page.
    */
   {
-    path: `/order/${BID_PREFIX}/domains`,
+    path: `/order/${BID_PREFIX}/domains/`,
     name: ROUTE.DOMAINS,
     component: () => import("../pages/Domains.vue")
   },
 
   {
-    path: `/order/${BID_PREFIX}/domains/:pid(${RegexMatch.UUID})`,
+    path: `/order/${BID_PREFIX}/domains/:pid(${RegexMatch.UUID})/`,
     name: ROUTE.DOMAINS_WITH_PRODUCT,
     component: () => import("../pages/Domains.vue")
   },
   {
-    path: `/order/${BID_PREFIX}/domains/:pid(${RegexMatch.UUID})/processing`,
+    path: `/order/${BID_PREFIX}/domains/:pid(${RegexMatch.UUID})/processing/`,
     name: ROUTE.DOMAINS_WITH_PRODUCT_PROCESSING,
     component: () => import("../pages/Index.vue")
   },
@@ -264,29 +264,29 @@ export default [
    * These routes are nested under /order/auth for better organization.
    */
   {
-    path: `/order/${BID_PREFIX}/auth`,
+    path: `/order/${BID_PREFIX}/auth/`,
     name: ROUTE.SESSION,
     component: () => import("../pages/session/Index.vue"),
     children: [
       {
-        path: "login",
+        path: "login/",
         name: ROUTE.SESSION_LOGIN,
         component: () => import("../pages/session/Login.vue")
       },
       {
-        path: "register",
+        path: "register/",
         name: ROUTE.SESSION_REGISTER,
-        alias: ["signup"],
+        alias: ["signup/"],
         component: () => import("../pages/session/Register.vue")
       },
       {
-        path: "logout",
+        path: "logout/",
         name: ROUTE.SESSION_END,
-        alias: ["signout"],
+        alias: ["signout/"],
         component: () => import("../pages/session/End.vue")
       },
       {
-        path: "recover",
+        path: "recover/",
         name: ROUTE.SESSION_RECOVER_PASSWORD,
         component: () => import("../pages/session/Recover.vue")
       }
@@ -300,22 +300,22 @@ export default [
    * These routes are nested under /order/product for better organization.
    */
   {
-    path: `/order/${BID_PREFIX}/product`,
+    path: `/order/${BID_PREFIX}/product/`,
     name: ROUTE.PRODUCT,
     component: () => import("../pages/product/Index.vue"),
     children: [
       {
-        path: `:pid(${RegexMatch.UUID})`,
+        path: `:pid(${RegexMatch.UUID})/`,
         name: ROUTE.PRODUCT_CONFIGURE,
         component: () => import("../pages/product/Configure.vue")
       },
       {
-        path: `:pid(${RegexMatch.UUID})/not-found`,
+        path: `:pid(${RegexMatch.UUID})/not-found/`,
         name: ROUTE.PRODUCT_NOT_FOUND,
         component: () => import("../pages/product/NotFound.vue")
       },
       {
-        path: `:pid(${RegexMatch.UUID})/recommendations`,
+        path: `:pid(${RegexMatch.UUID})/recommendations/`,
         name: ROUTE.PRODUCT_RECOMMENDATIONS,
         component: () => import("../pages/product/Recommendations.vue")
       }
@@ -323,7 +323,7 @@ export default [
   },
 
   {
-    path: `/order/product/add/:pid(${RegexMatch.UUID})`,
+    path: `/order/product/add/:pid(${RegexMatch.UUID})/`,
     redirect: (to: RouteLocationGeneric) => {
       // 'to' is the target route location object, which includes the original query
       return {
