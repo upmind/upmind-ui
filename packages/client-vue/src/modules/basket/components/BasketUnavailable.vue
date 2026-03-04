@@ -7,12 +7,13 @@
       :text="t('error.basket_unavailable_text')"
       :actions="[
         {
-          to: props.storefrontRoute,
+          to: { ...props.storefrontRoute, query: { reset: 'true' } },
           variant: 'solid',
           color: 'primary',
           icon: 'arrow-left',
           label: t('action.return_to_shop'),
-          size: 'lg'
+          size: 'lg',
+          handler: () => reset()
         }
       ]"
     />
@@ -55,7 +56,7 @@ const props = withDefaults(
 );
 // -----------------------------------------------------------------------------
 const { t } = useI18n();
-const { meta: basketMeta } = useBasket();
+const { meta: basketMeta, reset } = useBasket();
 
 const meta = computed(() => ({
   isUnavailable: basketMeta.value.isUnavailable,
