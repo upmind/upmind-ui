@@ -61,7 +61,7 @@ function resolveBidParams(route: any): FunnelTarget {
   // Skip routes that don't support bid params
   if (SKIP_BID_ROUTES.includes(route.name)) return route;
 
-  const { targetBasketId, setTargetBasket, meta, reset } = useBasket();
+  const { targetBasketId, setTargetBasket, meta } = useBasket();
   const { getParam } = useQueryParams(route);
 
   // Read bid: getParam first (via query), then basket machine state
@@ -77,9 +77,8 @@ function resolveBidParams(route: any): FunnelTarget {
     setTargetBasket(bid);
   }
 
-  // If the basket is unavailable, reset and redirect to the unavailable route
+  // If the basket is unavailable, redirect to the unavailable route
   if (meta.value.isUnavailable) {
-    reset();
     return { name: ROUTE.BASKET_UNAVAILABLE } as FunnelTarget;
   }
 
