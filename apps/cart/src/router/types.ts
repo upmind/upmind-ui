@@ -130,6 +130,11 @@ export enum ROUTE {
   BASKET_PRODUCT_REQUIRES_ACTION = "basket-product-requires-action",
 
   /**
+   * The route displayed when a basket is unavailable or invalid.
+   */
+  BASKET_UNAVAILABLE = "basket-unavailable",
+
+  /**
    * The route for the checkout process.
    */
   CHECKOUT = "checkout",

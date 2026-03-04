@@ -9,9 +9,6 @@
         :recover-route="{ name: ROUTE.SESSION_RECOVER_PASSWORD }"
       />
     </template>
-    <template #append>
-      <UpmBasketUnavailable :storefront-route="{ name: ROUTE.STOREFRONT }" />
-    </template>
   </Upm>
 </template>
 
@@ -24,7 +21,6 @@ import { useRoute, useRouter } from "vue-router";
 import {
   Upm,
   UpmBasketAction,
-  UpmBasketUnavailable,
   UpmAuthAction,
   useBasket,
   useRoutingEngine,
@@ -66,8 +62,14 @@ isReady().then(() => {
   watch(
     [basketMeta, sessionMeta],
     (
-      [{ hasProducts, isComplete, isCheckout }, { isAuthenticated }],
-      [{ hasProducts: hadProducts }, { isAuthenticated: wasAuthenticated }]
+      [
+        { hasProducts, isComplete, isCheckout, isUnavailable },
+        { isAuthenticated }
+      ],
+      [
+        { hasProducts: hadProducts, isUnavailable: wasUnavailable },
+        { isAuthenticated: wasAuthenticated }
+      ]
     ) => {
       if (!routingMeta.value.isResolved) return;
 
@@ -77,6 +79,12 @@ isReady().then(() => {
         route.name !== ROUTE.SESSION_END
       ) {
         router.push({ name: ROUTE.SESSION_END });
+      } else if (
+        isUnavailable &&
+        !wasUnavailable &&
+        route.name !== ROUTE.BASKET_UNAVAILABLE
+      ) {
+        router.replace({ name: ROUTE.BASKET_UNAVAILABLE });
       } else if (!hasProducts && hadProducts && !isCheckout && !isComplete) {
         if (route.meta.actionEmptyBasket && route.name !== ROUTE.BASKET_EMPTY) {
           router.push({ name: ROUTE.BASKET_EMPTY });
