@@ -42,6 +42,7 @@
         </slot>
       </Page>
 
+      <slot name="append" />
       <Feedback v-if="meta.isAvailable" :storefront-route="storefrontRoute" />
     </Loading>
   </Suspense>

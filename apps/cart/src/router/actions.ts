@@ -31,32 +31,35 @@ const BASKET_ROUTES: string[] = [
  * Routes that should never receive bid params.
  */
 const SKIP_BID_ROUTES: string[] = [
-  ROUTE.ORDER
+  ROUTE.ORDER,
+  ROUTE.ERROR
   // ROUTE.NOT_ FOUND,
   // ROUTE.LOADING,
   // ROUTE.STOREFRONT,
-  // ROUTE.ERROR
 ];
 
 /**
- * Injects bid params into a route target and primes the basket machine.
+ * Resolves bid params for a route target based on basket state.
  * Reads bid from the current route (params or query), falls back to the
  * basket machine's `targetBasketId`.
  *
- * When a bid is found:
+ * When a valid bid is found:
  *   1. Calls `setTargetBasket(bid)` so the basket machine loads `orders/{bid}`
  *   2. For basket routes (`:bid` only): injects `{ bid }`
  *   3. For BID_PREFIX routes (`:segment/:bid`): injects `{ segment: "basket", bid }`
  *
- * Skips injection for ORDER, NOT_FOUND, LOADING, etc.
+ * When the basket is unavailable:
+ *   - Resets the basket and strips bid/segment params from the route.
+ *
+ * Skips resolution for ORDER, ERROR, etc.
  */
-function injectBid(route: any): FunnelTarget {
+function resolveBidParams(route: any): FunnelTarget {
   if (!route) return route;
 
   // Skip routes that don't support bid params
   if (SKIP_BID_ROUTES.includes(route.name)) return route;
 
-  const { targetBasketId, setTargetBasket, reset, meta } = useBasket();
+  const { targetBasketId, setTargetBasket, meta, reset } = useBasket();
   const { consumeParam } = useQueryParams();
 
   // Read bid: params first (via consumeParam), then basket machine state
@@ -73,10 +76,10 @@ function injectBid(route: any): FunnelTarget {
   // If the basket is not available, return to the original route
   // This happens if the basket is not valid for the user or does not exist
   if (meta.value.isUnavailable) {
-    // reset();
+    reset();
     return {
-      ...route, //go to the original route
-      params: omit(route.params, ["segment", "bid"]) // but without the basket segment
+      ...route,
+      params: omit(route.params, ["segment", "bid"])
     } as FunnelTarget;
   }
 
@@ -143,7 +146,7 @@ export default {
         ? { name: data.target }
         : data?.target;
 
-      return injectBid(target ?? context.targetRoute);
+      return resolveBidParams(target ?? context.targetRoute);
     },
     resolved: true
   })
