@@ -32,8 +32,9 @@ const BASKET_ROUTES: string[] = [
  */
 const SKIP_BID_ROUTES: string[] = [
   ROUTE.ORDER,
-  ROUTE.ERROR
-  // ROUTE.NOT_ FOUND,
+  ROUTE.ERROR,
+  ROUTE.BASKET_UNAVAILABLE
+  // ROUTE.NOT_FOUND,
   // ROUTE.LOADING,
   // ROUTE.STOREFRONT,
 ];
@@ -49,36 +50,25 @@ const SKIP_BID_ROUTES: string[] = [
  *   3. For BID_PREFIX routes (`:segment/:bid`): injects `{ segment: "basket", bid }`
  *
  * When the basket is unavailable:
- *   - Resets the basket and strips bid/segment params from the route.
+ *   - Resets the basket and redirects to the unavailable route.
  *
- * Skips resolution for ORDER, ERROR, etc.
+ * Skips resolution for ORDER, ERROR, BASKET_UNAVAILABLE, etc.
  */
 function resolveBidParams(route: any): FunnelTarget {
   if (!route) return route;
-  const { getParam } = useQueryParams(route);
-  const resetBid = getParam("reset", false);
 
   // Skip routes that don't support bid params
-  // OR if navigating with ?reset, skip bid injection — the basket is being reset
-  if (SKIP_BID_ROUTES.includes(route.name) || resetBid) {
-    return {
-      ...route,
-      query: omit(route.query, ["reset"])
-    };
-  }
+  if (SKIP_BID_ROUTES.includes(route.name)) return route;
 
   const { targetBasketId, setTargetBasket, meta, reset } = useBasket();
+  const { getParam } = useQueryParams(route);
 
-  // Read bid: params first (via consumeParam), then basket machine state
+  // Read bid: getParam first (via query), then basket machine state
   const bid: string | undefined = getParam(
     QUERY_PARAMS.BASKET_ID,
     targetBasketId.value
   );
-  if (!bid)
-    return {
-      ...route,
-      query: omit(route.query, [QUERY_PARAMS.BASKET_ID, "segment"])
-    };
+  if (!bid) return route;
 
   // Prime the basket machine to load orders/{bid}.
   // SET_TARGET_BASKET has an isAuthenticated guard — no-op when not logged in.
@@ -86,14 +76,10 @@ function resolveBidParams(route: any): FunnelTarget {
     setTargetBasket(bid);
   }
 
-  // If the basket is not available, return to the original route
-  // This happens if the basket is not valid for the user or does not exist
+  // If the basket is unavailable, reset and redirect to the unavailable route
   if (meta.value.isUnavailable) {
     reset();
-    return {
-      ...route,
-      params: omit(route.params, ["segment", "bid"])
-    } as FunnelTarget;
+    return { name: ROUTE.BASKET_UNAVAILABLE } as FunnelTarget;
   }
 
   // Basket routes use `:bid` directly — no `:segment` param.

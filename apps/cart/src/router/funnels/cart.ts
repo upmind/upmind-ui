@@ -280,6 +280,26 @@ export default <FunnelProps>{
     },
 
     /**
+     * 🎯 ROUTE.BASKET_UNAVAILABLE
+     * This state handles scenarios where the basket cannot be retrieved.
+     * Resolves immediately — no guard needed since there is no basket to validate.
+     * Users can return to the catalogue/storefront from here.
+     */
+    [ROUTE.BASKET_UNAVAILABLE]: {
+      entry: ["setResolved"],
+      on: {
+        NEXT: {
+          target: ROUTE.CATALOGUE,
+          actions: [assign({ targetRoute: { name: ROUTE.CATALOGUE } })]
+        },
+        BACK: {
+          target: ROUTE.CATALOGUE,
+          actions: [assign({ targetRoute: { name: ROUTE.CATALOGUE } })]
+        }
+      }
+    },
+
+    /**
      * 🎯 ROUTE.BASKET_PRODUCT_EDIT
      * This state manages the editing of a product already in the basket.
      * It invokes a 'guard' to validate the product based on the basket product ID (bpid) from the route.

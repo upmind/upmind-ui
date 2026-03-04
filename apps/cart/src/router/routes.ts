@@ -19,13 +19,20 @@ const BID_PREFIX = `:segment(basket)?/:bid(${RegexMatch.UUID})?`;
 export default [
   /**
    * Catch-all route for handling not found pages within the /order context.
-   * Redirects to a generic error (404) page component.
+   * If the path simply lacks a trailing slash, redirect to the slashed version
+   * (avoids a 404 flash caused by `strict: true` in the router config).
+   * Otherwise renders a generic error (404) page component.
    */
   {
     path: "/order/:pathMatch(.*)*",
     name: ROUTE.NOT_FOUND,
     component: () => import("../pages/Error.vue"),
-    meta: {}
+    meta: {},
+    beforeEnter: to => {
+      if (!to.path.endsWith("/")) {
+        return { path: `${to.path}/`, query: to.query, hash: to.hash };
+      }
+    }
   },
 
   /**
@@ -81,7 +88,10 @@ export default [
    */
   {
     path: "/order/cart/:pathMatch(.*)*",
-    redirect: { name: ROUTE.BASKET }
+    redirect: to => ({
+      path: `/order/basket/${(to.params.pathMatch as string[])?.join("/") || ""}`,
+      query: to.query
+    })
   },
 
   /**
@@ -94,6 +104,15 @@ export default [
     path: `/order/basket/:bid(${RegexMatch.UUID})?/empty/`,
     name: ROUTE.BASKET_EMPTY,
     component: () => import("../pages/Empty.vue")
+  },
+
+  /**
+   * Route displayed when a basket is unavailable or invalid.
+   */
+  {
+    path: `/order/basket/unavailable/`,
+    name: ROUTE.BASKET_UNAVAILABLE,
+    component: () => import("../pages/BasketUnavailable.vue")
   },
 
   /**
