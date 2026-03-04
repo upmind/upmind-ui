@@ -85,6 +85,7 @@ export default [
 
   /**
    * Redirect from /order/cart to /order/basket for legacy support.
+   * Preserves path segments and query params.
    */
   {
     path: "/order/cart/:pathMatch(.*)*",
@@ -138,7 +139,7 @@ export default [
       // 'to' is the target route location object, which includes the original query
       return {
         name: ROUTE.BASKET_PRODUCT_EDIT,
-        params: { bpid: to.params.bpid }, // Persist the basket product ID parameter
+        params: { bpid: to.params.bpid }, // Persist the cart product ID parameter
         query: to.query // Persist all original query parameters
       };
     }
