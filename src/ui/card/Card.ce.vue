@@ -19,7 +19,7 @@ const props = withDefaults(
     class?: HTMLAttributes["class"];
     disabled?: boolean;
     width?: "app" | "full";
-    spacious?: boolean;
+    padding?: "md" | "lg";
   }>(),
   {
     as: "div",
@@ -30,7 +30,7 @@ const props = withDefaults(
 const meta = computed(() => ({
   isDisabled: props.disabled,
   width: props.width,
-  spacious: props.spacious
+  padding: props.padding
 }));
 
 const styles = useStyles(["card"], meta, config);
