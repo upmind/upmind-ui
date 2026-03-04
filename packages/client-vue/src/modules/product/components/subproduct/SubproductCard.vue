@@ -9,7 +9,7 @@
               :src="image"
               :alt="title"
             />
-            <h5 :class="styles.card.header.title">
+            <strong :class="styles.card.header.title">
               {{ title }}
               <Tooltip
                 v-if="ui.optionItemDescription.isTooltip && desc"
@@ -33,7 +33,7 @@
                   :class="styles.card.header.icon"
                 />
               </Tooltip>
-            </h5>
+            </strong>
           </div>
 
           <Promotion
