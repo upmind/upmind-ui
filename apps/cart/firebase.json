@@ -4,7 +4,6 @@
       "target": "upmind-cart",
       "public": "dist",
       "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
-      "trailingSlash": true,
       "rewrites": [
         {
           "source": "/auth/transfer",
@@ -44,7 +43,6 @@
       "target": "upmind-cart-staging",
       "public": "dist",
       "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
-      "trailingSlash": true,
       "rewrites": [
         {
           "source": "/auth/transfer",
@@ -84,7 +82,6 @@
       "target": "staging",
       "public": "dist",
       "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
-      "trailingSlash": true,
       "rewrites": [
         {
           "source": "/auth/transfer",
@@ -128,7 +125,6 @@
       "target": "hosting",
       "public": "dist",
       "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
-      "trailingSlash": true,
       "rewrites": [
         {
           "source": "/auth/transfer",
