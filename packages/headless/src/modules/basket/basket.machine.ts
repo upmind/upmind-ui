@@ -418,7 +418,7 @@ export default createMachine(
       // restart the baslket process once the order is complete
       RESET: {
         target: "loading",
-        actions: ["clearBasket", "clearActors", "clearTargetBasketId"]
+        actions: ["clearBasket", "clearActors"]
       },
 
       /**
@@ -427,7 +427,7 @@ export default createMachine(
        */
       CLEAR: {
         target: "loading",
-        actions: ["clearBasket", "clearActors", "clearTargetBasketId"]
+        actions: ["clearBasket", "clearActors"]
       },
 
       /**
@@ -437,7 +437,7 @@ export default createMachine(
        */
       SET_TARGET_BASKET: {
         target: "loading",
-        actions: ["setTargetBasketId", "clearBasket", "clearActors"],
+        actions: ["clearBasket", "clearActors", "setTargetBasketId"],
         cond: "isAuthenticated"
       },
 
@@ -509,7 +509,8 @@ export default createMachine(
         error: undefined,
         paymentDetail: undefined,
         payment: undefined,
-        invoice: undefined
+        invoice: undefined,
+        targetBasketId: undefined
       }),
 
       setPaymentDetail: assign({
@@ -724,9 +725,7 @@ export default createMachine(
       setTargetBasketId: assign({
         targetBasketId: (_context: BasketContext, { data }: AnyEventObject) =>
           data ?? undefined
-      }),
-
-      clearTargetBasketId: assign({ targetBasketId: undefined })
+      })
     },
 
     guards: {
