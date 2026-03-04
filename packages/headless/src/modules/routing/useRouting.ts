@@ -7,7 +7,7 @@ import { get } from "lodash-es";
 // --- types
 import type { Router, RouteLocation } from "vue-router";
 import { type UIRouteOptions } from "../brand/types";
-import { decorateRoutes, hasRouteChanged } from "./utils";
+import { decorateRoutes, ensureTrailingSlash, hasRouteChanged } from "./utils";
 
 // -----------------------------------------------------------------------------
 
@@ -31,6 +31,11 @@ export const useRouting = (router: Router): void => {
    */
   async function guardRoute(route: RouteLocation) {
     // console.debug("Guarding route:", route);
+
+    // Enforce trailing slash before any other guard logic
+    const trailingSlashRedirect = ensureTrailingSlash(route);
+    if (trailingSlashRedirect) return trailingSlashRedirect;
+
     if (route?.query?.funnel) {
       await switchFunnel(route.query.funnel.toString(), route);
     }
@@ -55,7 +60,7 @@ export const useRouting = (router: Router): void => {
     await decorateRoutes(router.getRoutes());
     const target = await guardRoute(router.currentRoute.value);
     if (target) {
-      await router.push(target);
+      await router.replace(target);
     }
   });
 
