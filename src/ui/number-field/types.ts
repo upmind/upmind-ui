@@ -15,11 +15,7 @@ import type { HTMLAttributes } from "vue";
 type NumberFieldRootVariants = VariantProps<typeof numberFieldRootVariants>;
 type NumberFieldVariants = VariantProps<typeof numberFieldVariants>;
 
-export interface NumberFieldProps
-  extends
-    NumberFieldRootProps,
-    NumberFieldDecrementProps,
-    NumberFieldIncrementProps {
+export type NumberFieldProps = NumberFieldRootProps & NumberFieldDecrementProps & NumberFieldIncrementProps & {
   // --- variants
   size?: NumberFieldRootVariants["size"];
   width?: NumberFieldRootVariants["width"];

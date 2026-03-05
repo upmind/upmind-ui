@@ -9,16 +9,16 @@ type CarouselPlugin = UseCarouselParameters[1];
 
 export type UnwrapRefCarouselApi = UnwrapRef<CarouselApi>;
 
-export interface CarouselProps {
+export type CarouselProps = {
   opts?: CarouselOptions;
   plugins?: CarouselPlugin;
   orientation?: "horizontal" | "vertical";
 }
 
-export interface CarouselEmits {
+export type CarouselEmits = {
   (e: "init-api", payload: UnwrapRefCarouselApi): void;
 }
 
-export interface WithClassAsProps {
+export type WithClassAsProps = {
   class?: HTMLAttributes["class"];
 }

@@ -19,11 +19,11 @@ export type UIConfigValue =
   | ReturnType<typeof cva>
   | { [component: string]: UIConfigValue };
 
-export interface UIConfig {
+export type UIConfig = {
   [component: string]: UIConfigValue;
 }
 
-export interface Theme {
+export type Theme = {
   name: string;
   id: string;
   icon?: string;
@@ -31,7 +31,7 @@ export interface Theme {
   tokens?: string;
 }
 
-export interface ITheme {
+export type ITheme = {
   value: string;
   label: string;
   icon?: string;

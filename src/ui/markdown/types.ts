@@ -1,5 +1,5 @@
 import type { HTMLAttributes } from "vue";
-export interface MarkdownProps {
+export type MarkdownProps = {
   class?: HTMLAttributes["class"];
   tag?: string;
   modelValue?: string;

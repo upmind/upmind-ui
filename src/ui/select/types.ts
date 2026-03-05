@@ -14,11 +14,7 @@ import type { HTMLAttributes } from "vue";
 
 type RootVariants = VariantProps<typeof rootVariants>;
 
-export interface SelectProps
-  extends
-    Omit<SelectRootProps, "variant">,
-    SelectContentProps,
-    SelectValueProps {
+export type SelectProps = Omit<SelectRootProps, "variant"> & SelectContentProps & SelectValueProps & {
   // --- state
   items: ({
     label?: string;
@@ -46,7 +42,7 @@ export interface SelectProps
   dataFocus?: boolean;
 }
 
-export interface SelectItemAdditional {
+export type SelectItemAdditional = {
   textValue: string;
   value: string;
   icon: IconProps["icon"];

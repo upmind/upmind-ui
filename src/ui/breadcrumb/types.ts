@@ -5,7 +5,7 @@ import type { HTMLAttributes } from "vue";
 // --- internal
 import type { RouterLinkProps } from "vue-router";
 
-export interface BreadcrumbItem extends RouterLinkProps {
+export type BreadcrumbItem = RouterLinkProps & {
   label?: string;
   icon?: string;
   current?: boolean;
@@ -16,7 +16,7 @@ export interface BreadcrumbItem extends RouterLinkProps {
 
 export type BreadcrumbVariant = "visible" | "condensed" | "parent" | "hidden";
 
-export interface BreadcrumbConsolidateProps {
+export type BreadcrumbConsolidateProps = {
   items: BreadcrumbItem[];
   // --- variants
   variant?: BreadcrumbVariant;

@@ -8,12 +8,7 @@ import type {
 } from "radix-vue";
 import type { HTMLAttributes } from "vue";
 // --- internal
-export interface TooltipProps
-  extends
-    TooltipRootProps,
-    TooltipContentProps,
-    TooltipProviderProps,
-    TooltipTriggerProps {
+export type TooltipProps = TooltipRootProps & TooltipContentProps & TooltipProviderProps & TooltipTriggerProps & {
   active?: boolean;
   label?: string;
   to?: string;

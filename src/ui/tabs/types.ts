@@ -6,14 +6,14 @@ import type { HTMLAttributes } from "vue";
 
 type TabsRootVariantsProps = VariantProps<typeof tabsRootVariants>;
 
-export interface TabItem {
+export type TabItem = {
   label: string;
   value: string;
   icon?: string;
   eager?: boolean;
 }
 
-export interface TabsProps extends TabsRootProps, TabsListProps {
+export type TabsProps = TabsRootProps & TabsListProps & {
   tabs: TabItem[];
   defaultValue?: string;
   force?: boolean;

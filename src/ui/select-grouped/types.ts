@@ -5,20 +5,20 @@ import type { LinkProps } from "../link";
 import type { CxOptions } from "class-variance-authority";
 import type { HTMLAttributes, Ref, ComputedRef } from "vue";
 
-export interface ToggleSelectionOptions {
+export type ToggleSelectionOptions = {
   currentValue: string | undefined;
   itemValue: string;
   required?: boolean;
   disabled?: boolean;
-}
+};
 
-export interface UseListNavigationOptions {
+export type UseListNavigationOptions = {
   wrap?: boolean;
   orientation?: "vertical" | "horizontal" | "both";
   initialIndex?: number;
-}
+};
 
-export interface UseListNavigationReturn {
+export type UseListNavigationReturn = {
   focusedIndex: Ref<number>;
   hasFocus: ComputedRef<boolean>;
   focusItem: (index: number) => void;
@@ -28,24 +28,24 @@ export interface UseListNavigationReturn {
   focusLast: () => void;
   resetFocus: () => void;
   getKeyboardHandlers: (options?: KeyboardHandlerOptions) => KeyboardHandlers;
-}
+};
 
-export interface KeyboardHandlerOptions {
+export type KeyboardHandlerOptions = {
   onNavigate?: (index: number, direction: "next" | "prev") => void;
   onNavigateEdge?: (index: number, edge: "first" | "last") => void;
   preventDefault?: boolean;
-}
+};
 
-export interface KeyboardHandlers {
+export type KeyboardHandlers = {
   onKeydown: (event: KeyboardEvent) => void;
-}
+};
 
-export interface SelectGroupedItemActionProps extends LinkProps {
+export type SelectGroupedItemActionProps = LinkProps & {
   handler?: Function;
   visible?: boolean;
-}
+};
 
-export interface SelectGroupedItemProps {
+export type SelectGroupedItemProps = {
   value: string;
   label?: string;
   secondaryLabel?: string;
@@ -56,17 +56,17 @@ export interface SelectGroupedItemProps {
   action?: SelectGroupedItemActionProps;
   icon?: string;
   disabled?: boolean;
-}
+};
 
-export interface SelectGroupedGroupProps {
+export type SelectGroupedGroupProps = {
   name?: string;
   icon?: string;
   description?: string;
   items: SelectGroupedItemProps[];
   dropdown?: boolean;
-}
+};
 
-export interface SelectGroupedProps {
+export type SelectGroupedProps = {
   groups: SelectGroupedGroupProps[];
   modelValue?: string;
   defaultValue?: string;
@@ -76,32 +76,34 @@ export interface SelectGroupedProps {
   as?: "ul" | "ol";
   class?: HTMLAttributes["class"];
   uiConfig?: { selectGrouped: CxOptions };
-}
+};
 
-export interface SelectGroupedBaseGroupProps {
+export type SelectGroupedBaseGroupProps = {
   index?: number;
   focusedGroupIndex?: number;
   modelValue?: string;
   required?: boolean;
   disabled?: boolean;
   uiConfig?: { selectGrouped: CxOptions };
-}
+};
 
-export interface SelectGroupedOptionRendererProps extends SelectGroupedBaseGroupProps {
+export type SelectGroupedOptionRendererProps = SelectGroupedBaseGroupProps & {
   group: SelectGroupedGroupProps;
-}
+};
 
-export interface SelectGroupedSingleItemRendererProps extends SelectGroupedBaseGroupProps {
-  item: SelectGroupedItemProps;
-  group: SelectGroupedGroupProps;
-}
+export type SelectGroupedSingleItemRendererProps =
+  SelectGroupedBaseGroupProps & {
+    item: SelectGroupedItemProps;
+    group: SelectGroupedGroupProps;
+  };
 
-export interface SelectGroupedMultiItemRendererProps extends SelectGroupedBaseGroupProps {
-  group: SelectGroupedGroupProps;
-}
+export type SelectGroupedMultiItemRendererProps =
+  SelectGroupedBaseGroupProps & {
+    group: SelectGroupedGroupProps;
+  };
 
-export interface SelectGroupedDropdownItemProps {
+export type SelectGroupedDropdownItemProps = {
   item: SelectGroupedItemProps;
   modelValue?: string;
   focused?: boolean;
-}
+};

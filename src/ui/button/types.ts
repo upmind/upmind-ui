@@ -51,7 +51,7 @@ export type ButtonProps = {
   | { to?: undefined; href?: undefined }
 );
 
-export interface ButtonItemsProps {
+export type ButtonItemsProps = {
   variant?: ButtonProps["variant"];
   icon?: ButtonProps["icon"];
   avatar?: ButtonProps["avatar"];

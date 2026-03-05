@@ -4,7 +4,7 @@ import type { HTMLAttributes } from "vue";
 
 export type SpinnerVariantProps = VariantProps<typeof spinnerVariants>;
 
-export interface LoadingProps {
+export type LoadingProps = {
   is?: string;
   active?: boolean;
   transparent?: boolean;
