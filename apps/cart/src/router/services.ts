@@ -450,38 +450,37 @@ export default {
     targetRoute
   }: FunnelContext): Promise<FunnelResponse> => {
     const { meta, isReady, setTargetBasket, targetBasketId } = useBasket();
-    const { isAuthenticated } = useSession();
+    const { meta: authMeta } = useSession();
     const { router } = useRoutingEngine();
 
-    const route: RouteLocationGeneric =
-      (targetRoute as RouteLocationGeneric) ??
-      (currentRoute as RouteLocationGeneric) ??
-      router.resolve({ name: ROUTE.BASKET, params: { bid: "" } });
-
-    const { getParam } = useQueryParams(route);
-    let basketId =
-      getParam(QUERY_PARAMS.BASKET_ID) ?? getParam(QUERY_PARAMS.BASKET_ID);
+    const { getParam } = useQueryParams(
+      (targetRoute ?? currentRoute) as RouteLocationGeneric
+    );
+    let bid = getParam(QUERY_PARAMS.BASKET_ID);
 
     // When accessing a specific basket by ID, gate on authentication
-    if (basketId && !meta.value.isUnavailable) {
-      const authenticated = await isAuthenticated().catch(() => false);
-      if (!authenticated) {
-        // Use the actual route path so post-login redirects back to the
-        // original page — not just the basket.
-        const returnUrl = route?.fullPath || route?.path;
+    if (bid && !meta.value.isUnavailable) {
+      if (!authMeta.value.isAuthenticated) {
+        const route: RouteLocationGeneric =
+          (targetRoute as RouteLocationGeneric) ??
+          (currentRoute as RouteLocationGeneric) ??
+          router.resolve({
+            name: ROUTE.BASKET,
+            params: { bid }
+          });
 
         return Promise.reject({
           target: {
             name: ROUTE.SESSION,
-            params: { segment: "basket", bid: basketId },
-            query: { returnUrl }
+            params: { segment: "basket", bid },
+            query: { returnUrl: route.fullPath }
           }
         } as FunnelResponse);
       }
 
       // Set target BEFORE waiting — single load, no actors to cancel.
-      if (targetBasketId.value !== basketId) {
-        await setTargetBasket(basketId);
+      if (targetBasketId.value !== bid) {
+        await setTargetBasket(bid);
         if (meta.value.isUnavailable) {
           return {
             target: targetRoute ?? {
@@ -497,7 +496,7 @@ export default {
         return {
           target: targetRoute ?? {
             name: ROUTE.BASKET,
-            params: { bid: basketId }
+            params: { bid }
           }
         };
       }
@@ -509,6 +508,7 @@ export default {
     // Standard basket guard — check current basket has products
     await isReady();
     if (!meta.value.hasProducts) return Promise.reject();
+
     return { target: targetRoute ?? { name: ROUTE.BASKET } };
   },
 

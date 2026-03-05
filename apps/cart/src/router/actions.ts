@@ -126,6 +126,22 @@ export default {
     }
   }),
 
+  /**
+   * Prime the basket machine with the target basket ID from the current route.
+   * Fires synchronously on funnel entry — before any async guards run —
+   * so the machine stores the ID while still in `subscribing` state.
+   * When `SESSION` fires next, the first `load` already uses `orders/{id}`.
+   */
+  setBasket: ({ currentRoute }: FunnelContext) => {
+    if (!currentRoute) return;
+    const { getParam } = useQueryParams(currentRoute);
+    const bid = getParam(QUERY_PARAMS.BASKET_ID);
+    if (bid) {
+      const { setTargetBasket } = useBasket();
+      setTargetBasket(bid); // fire-and-forget: sends SET_TARGET_BASKET to the machine
+    }
+  },
+
   // Force end the session by logging out the user
   logout: () => {
     const { logout } = useSession();

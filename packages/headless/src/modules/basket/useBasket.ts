@@ -83,9 +83,9 @@ export const useBasket = () => {
   async function isReady(): Promise<boolean> {
     return waitFor(
       service,
-      state => stateMatches(state, ["shopping", "error"]),
+      state => stateMatches(state, ["shopping", "unavailable", "error"]),
       { timeout: Infinity }
-    ).then(state => !stateMatches(state, ["error"]));
+    ).then(state => !stateMatches(state, ["error", "unavailable"]));
   }
 
   const meta = computed(() => {
