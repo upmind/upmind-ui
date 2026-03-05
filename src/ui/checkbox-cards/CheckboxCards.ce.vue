@@ -30,60 +30,10 @@
           data-testid="checkbox-label"
         >
           <slot name="item" v-bind="{ item, index }">
-            <article :class="styles.checkboxCards.content.root">
-              <header class="flex w-full items-start justify-between gap-4">
-                <div class="flex flex-1 items-center gap-2">
-                  <p :class="styles.checkboxCards.content.label">
-                    {{ item.label || item.name }}
-                  </p>
-                  <Badge v-if="item.badge" v-bind="item.badge" size="sm" />
-                </div>
-
-                <div
-                  v-if="item.secondaryLabel || item.secondaryBadge"
-                  class="flex items-center gap-2"
-                >
-                  <Badge
-                    v-if="item.secondaryBadge"
-                    v-bind="item.secondaryBadge"
-                    size="sm"
-                  />
-                  <p
-                    v-if="item.secondaryLabel"
-                    :class="styles.checkboxCards.content.secondaryLabel"
-                  >
-                    {{ item.secondaryLabel }}
-                  </p>
-                </div>
-
-                <div
-                  v-if="item.action"
-                  :class="styles.checkboxCards.content.action"
-                >
-                  <Link
-                    v-show="isNil(item.action.visible) || item.action.visible"
-                    v-bind="item.action"
-                    color="muted"
-                    size="sm"
-                    @click.stop="doAction(item.action, $event)"
-                  />
-                </div>
-              </header>
-
-              <p
-                v-if="item.description"
-                :class="styles.checkboxCards.content.description"
-              >
-                {{ item.description }}
-              </p>
-
-              <p
-                v-if="item.secondaryDescription"
-                :class="styles.checkboxCards.content.secondaryDescription"
-              >
-                {{ item.secondaryDescription }}
-              </p>
-            </article>
+            <ItemContent
+              :item="item"
+              @action="emits('action', $event)"
+            />
           </slot>
         </Label>
       </CheckboxCardItem>
@@ -92,23 +42,21 @@
 </template>
 
 <script setup lang="ts">
-// ---external
+// --- external
 import { vAutoAnimate } from "@formkit/auto-animate";
 import { useVModel } from "@vueuse/core";
 import { ToggleGroupRoot } from "radix-vue";
 import { computed } from "vue";
 // --- internal
-import { Badge } from "../badge";
+import { ItemContent } from "../item-content";
 import { Label } from "../label";
-import { Link } from "../link";
 import CheckboxCardItem from "./CheckboxCardItem.vue";
 import config from "./checkboxCards.config";
 import { cn, useStyles } from "../../utils";
-// --- components
 // --- utils
-import { includes, isFunction, isString, isNil, kebabCase } from "lodash-es";
+import { includes, kebabCase } from "lodash-es";
 // --- types
-import type { CheckboxCardsItemActionProps, CheckboxCardsProps } from "./types";
+import type { CheckboxCardsProps } from "./types";
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<CheckboxCardsProps>(), {
   cursor: "pointer",
@@ -118,10 +66,7 @@ const props = withDefaults(defineProps<CheckboxCardsProps>(), {
 
 const emits = defineEmits<{
   "update:modelValue": [string[]];
-  reject: [Event];
-  resolve: [Event];
-  click: [Event];
-  action: [{ name: string; event: Event }];
+  action: [event: Event];
 }>();
 
 defineSlots<{
@@ -146,32 +91,4 @@ const styles = useStyles(
   config,
   props.uiConfig ?? {}
 );
-
-function doAction(item: CheckboxCardsItemActionProps, $event: Event) {
-  $event.preventDefault(); // prevent default form actions as we are handling it ourselves
-
-  if (isFunction(item.handler)) {
-    item.handler($event);
-    return;
-  }
-
-  if (isString(item.handler)) {
-    emits("action", {
-      name: item.handler,
-      event: $event
-    });
-    return;
-  }
-
-  // fallback for submit/reset
-  if (item.type === "submit") {
-    emits("resolve", $event);
-    return;
-  } else if (item.type === "reset") {
-    emits("reject", $event);
-    return;
-  }
-
-  emits("click", $event);
-}
 </script>

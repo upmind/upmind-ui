@@ -10,7 +10,6 @@
   >
     <template v-for="(option, index) in items" :key="option.id || index">
       <RadioCardItem
-        v-bind="forwarded"
         :item="option.item"
         :index="option.index || overrideIndex || index"
         :name="props.name"
@@ -33,6 +32,7 @@
         :data-testid="`radio-card-${kebabCase(option.label) || index}`"
         @keydown.enter="onChange(option.value)"
         @click="() => onChange(option.value)"
+        @action="emits('action', $event)"
       >
         <template #item="slotProps">
           <slot name="item" v-bind="slotProps" />
@@ -44,40 +44,31 @@
 </template>
 
 <script setup lang="ts">
-// ---external
+// --- external
 import { vAutoAnimate } from "@formkit/auto-animate";
-import { useForwardPropsEmits } from "radix-vue";
 import { computed } from "vue";
 // --- internal
-// --- components
 import { RadioGroup } from "../radio-group";
 import RadioCardItem from "./RadioCardItem.vue";
 import config from "./radioCards.config";
 import { cn, useStyles } from "../../utils";
+// --- utils
 import { kebabCase } from "lodash-es";
 // --- types
 import type { RadioCardsProps } from "./types";
 // -----------------------------------------------------------------------------
+
 const props = withDefaults(defineProps<RadioCardsProps>(), {
-  // --- props
   overrideIndex: 0,
   useInputGroup: true,
-  // -- variants
   columns: 1,
-  // --- styles
   class: "",
   radioClass: ""
 });
 
 const emits = defineEmits<{
-  focus: [FocusEvent];
-  reject: [Event];
-  resolve: [Event];
-  click: [Event];
-  action: [{ name: string; event: Event }];
+  action: [event: Event];
 }>();
-
-const forwarded = useForwardPropsEmits({}, emits);
 
 const modelValue = defineModel<string | number>();
 
@@ -100,9 +91,5 @@ const onChange = (value: any) => {
   } else {
     modelValue.value = value;
   }
-};
-
-const _onAction = (value: any) => {
-  emits("action", value);
 };
 </script>

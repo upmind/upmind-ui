@@ -26,6 +26,7 @@ export * from "./ui/indicator";
 export * from "./ui/image";
 export * from "./ui/input";
 export * from "./ui/interstitial";
+export * from "./ui/item-content";
 export * from "./ui/label";
 export * from "./ui/lineclamp";
 export * from "./ui/list";

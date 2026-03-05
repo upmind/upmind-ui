@@ -18,7 +18,7 @@
       :data-focused="props.focused"
     >
       <slot name="item" v-bind="{ item: props.item, selected: isSelected }">
-        <SelectGroupedItemContent :item="props.item" />
+        <ItemContent :item="props.item" />
       </slot>
     </div>
   </li>
@@ -36,9 +36,9 @@
 import { useFocus } from "@vueuse/core";
 import { computed, ref } from "vue";
 // --- internal
+import { ItemContent } from "../item-content";
 import config from "./selectGrouped.config";
 // --- components
-import SelectGroupedItemContent from "./SelectGroupedItemContent.vue";
 import { useStyles } from "../../utils";
 import { isArray, includes, isEqual } from "lodash-es";
 import type { SelectGroupedDropdownItemProps } from "./types";

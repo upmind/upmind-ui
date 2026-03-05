@@ -16,11 +16,11 @@ export const groupWrapperVariants = cva(`control-radius ${focusWithinRing}`, {
 });
 
 export const groupSingleVariants = cva(
-  `bg-control-surface text-control-foreground control-radius shadow-control-default hover:shadow-control-hover relative flex cursor-pointer list-none gap-2 py-4 pr-4 pl-3 font-normal transition-shadow duration-200 ${focusRing}`
+  `group/item bg-control-surface text-control-foreground control-radius shadow-control-default hover:shadow-control-hover relative flex cursor-pointer list-none gap-2 py-4 pr-4 pl-3 font-normal transition-shadow duration-200 ${focusRing}`
 );
 
 export const groupVariants = cva(
-  `bg-control-surface text-control-foreground shadow-control-default hover:shadow-control-hover relative flex cursor-pointer list-none gap-2 py-4 pr-4 pl-3 font-normal transition-shadow duration-200 outline-none focus:outline-none focus-visible:outline-none`,
+  `group/item bg-control-surface text-control-foreground shadow-control-default hover:shadow-control-hover relative flex cursor-pointer list-none gap-2 py-4 pr-4 pl-3 font-normal transition-shadow duration-200 outline-none focus:outline-none focus-visible:outline-none`,
   {
     variants: {
       isOpen: {

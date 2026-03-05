@@ -13,7 +13,7 @@
     <slot name="prepend" />
 
     <slot v-if="selected" name="item" v-bind="{ item: selected }">
-      {{ selected?.label || label }}
+      <ItemContent :item="selected" />
     </slot>
 
     <slot v-if="!selected" name="placeholder" v-bind="{ item: selected }">
@@ -40,6 +40,7 @@
 // --- components
 import { Button } from "../../button";
 import { Icon } from "../../icon";
+import { ItemContent } from "../../item-content";
 import config from "../selectCards.config";
 import { cn, useStyles } from "../../../utils";
 // --- types

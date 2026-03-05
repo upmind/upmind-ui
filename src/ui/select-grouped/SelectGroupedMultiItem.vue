@@ -48,30 +48,16 @@
             <div :class="styles.selectGrouped.header.root">
               <slot name="icon" v-bind="{ group: props.group }" />
               <div :class="styles.selectGrouped.header.container">
-                <div class="flex-1">
-                  <span :class="styles.selectGrouped.content.label">
-                    {{ props.group.name }}
-                  </span>
-                  <Icon
-                    v-if="selectedItem?.label"
-                    icon="arrow-right"
-                    size="nano"
-                    class="text-control-foreground inline-flex h-lh items-center justify-center px-1 align-top"
-                  />
-                  <span
-                    v-if="selectedItem?.label"
-                    :class="styles.selectGrouped.content.secondaryLabel"
-                  >
-                    {{ selectedItem.label }}
-                  </span>
-                  <p
-                    v-if="selectedItem?.description"
-                    :class="styles.selectGrouped.content.description"
-                    class="text-sm-tight text-muted text-base"
-                  >
-                    {{ selectedItem.description }}
-                  </p>
-                </div>
+                <slot
+                  name="item"
+                  v-bind="{
+                    item: headerItem,
+                    group: props.group,
+                    selected: hasSelection
+                  }"
+                >
+                  <ItemContent :item="headerItem" />
+                </slot>
                 <slot
                   name="header-label"
                   v-bind="{
@@ -144,6 +130,7 @@ import { useId } from "radix-vue";
 import { computed, ref } from "vue";
 import { Collapsible, CollapsibleContent } from "../collapsible";
 import { Icon } from "../icon";
+import { ItemContent } from "../item-content";
 import config from "./selectGrouped.config";
 import SelectGroupedItem from "./SelectGroupedItem.vue";
 import {
@@ -201,6 +188,12 @@ const hasSelection = computed(() => {
     return isEqual(item.value, props.modelValue);
   });
 });
+
+const headerItem = computed(() => ({
+  label: props.group.name,
+  secondaryLabel: selectedItem.value?.label,
+  description: selectedItem.value?.description
+}));
 
 const meta = computed(() => ({
   isOpen,

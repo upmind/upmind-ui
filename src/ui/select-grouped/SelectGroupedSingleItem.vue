@@ -29,7 +29,7 @@
         name="item"
         v-bind="{ item: props.item, group: props.group, selected: isSelected }"
       >
-        <SelectGroupedItemContent :item="props.item" />
+        <ItemContent :item="props.item" />
       </slot>
     </div>
   </li>
@@ -48,8 +48,8 @@ import { useFocus } from "@vueuse/core";
 import { Circle } from "lucide-vue-next";
 import { computed, ref } from "vue";
 // --- internal
+import { ItemContent } from "../item-content";
 import config from "./selectGrouped.config";
-import SelectGroupedItemContent from "./SelectGroupedItemContent.vue";
 import { toggleSelectionValue } from "./utils";
 import { useStyles } from "../../utils";
 // --- components

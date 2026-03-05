@@ -27,52 +27,10 @@
         item: { ...props.item, value }
       }"
     >
-      <div class="flex w-full items-start gap-4">
-        <span class="flex flex-1 flex-col">
-          <header
-            v-if="props.label || props.secondaryLabel"
-            class="flex justify-between"
-          >
-            <span class="flex gap-2">
-              <h5 :class="styles.radioCards.content.label">
-                {{ props.label }}
-              </h5>
-              <Badge v-if="props.badge" v-bind="props.badge" size="sm" />
-            </span>
-            <span class="flex gap-2">
-              <Badge
-                v-if="props.secondaryBadge"
-                v-bind="props.secondaryBadge"
-                size="sm"
-              />
-              <h5 :class="styles.radioCards.content.secondaryLabel">
-                {{ props.secondaryLabel }}
-              </h5>
-            </span>
-          </header>
-          <p
-            v-if="props.description"
-            :class="styles.radioCards.content.description"
-          >
-            {{ props.description }}
-          </p>
-          <p
-            v-if="props.secondaryDescription"
-            :class="styles.radioCards.content.secondaryDescription"
-          >
-            {{ props.secondaryDescription }}
-          </p>
-        </span>
-        <span v-if="props.action" class="leading-none">
-          <Link
-            v-show="isNil(props.action?.visible) || props.action?.visible"
-            v-bind="props.action"
-            color="muted"
-            size="sm"
-            @click.stop="doAction(props.action, $event)"
-          />
-        </span>
-      </div>
+      <ItemContent
+        :item="props"
+        @action="emits('action', $event)"
+      />
     </slot>
   </Label>
 </template>
@@ -82,16 +40,13 @@
 import { watchOnce } from "@vueuse/core";
 import { computed } from "vue";
 // --- internal
-// --- components
-import { Badge } from "../badge";
+import { ItemContent } from "../item-content";
 import Label from "../label/Label.ce.vue";
-import { Link } from "../link";
 import { RadioGroupItem } from "../radio-group";
 import config from "./radioCards.config";
 import { cn, useStyles } from "../../utils";
 // --- types
-import { isFunction, isString, isNil } from "lodash-es";
-import type { RadioCardsItemActionProps, RadioCardsItemProps } from "./types";
+import type { RadioCardsItemProps } from "./types";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<RadioCardsItemProps>(), {
@@ -100,12 +55,8 @@ const props = withDefaults(defineProps<RadioCardsItemProps>(), {
 });
 
 const emits = defineEmits<{
-  "update:modelValue": [string[]];
-  focus: [FocusEvent];
-  reject: [Event];
-  resolve: [Event];
   click: [Event];
-  action: [{ name: string; event: Event }];
+  action: [event: Event];
 }>();
 
 const isSelected = computed(() => {
@@ -149,32 +100,4 @@ const onRadioClick = (e: MouseEvent) => {
     emits("click", e);
   }
 };
-
-function doAction(item: RadioCardsItemActionProps, $event: Event) {
-  $event.preventDefault(); // prevent default form actions as we are handling it ourselves
-
-  if (isFunction(item.handler)) {
-    item.handler($event);
-    return;
-  }
-
-  if (isString(item.handler)) {
-    emits("action", {
-      name: item.handler,
-      event: $event
-    });
-    return;
-  }
-
-  // fallback for submit/reset
-  if (item.type === "submit") {
-    emits("resolve", $event);
-    return;
-  } else if (item.type === "reset") {
-    emits("reject", $event);
-    return;
-  }
-
-  emits("click", $event);
-}
 </script>

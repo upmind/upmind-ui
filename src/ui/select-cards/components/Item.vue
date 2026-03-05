@@ -1,18 +1,16 @@
 <template>
-  <li
-    class="text-md flex w-full list-none items-center justify-between font-medium"
-  >
-    <div class="flex items-center gap-2">
-      {{ label }}
-      <Badge v-if="badge" v-bind="badgeProps" size="sm" />
-    </div>
-    <span>{{ appendLabel }}</span>
-  </li>
+  <ItemContent
+    :item="{
+      label: props.label,
+      badge: badgeProps ?? undefined,
+      secondaryLabel: props.appendLabel
+    }"
+  />
 </template>
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { Badge } from "../../badge";
+import { ItemContent } from "../../item-content";
 import { isObject } from "lodash-es";
 import type { SelectCardsItemProps } from "../types";
 

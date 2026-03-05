@@ -1,7 +1,9 @@
 // --- external
 // --- types
-import type { BadgeProps } from "../badge";
-import type { LinkProps } from "../link";
+import type {
+  ItemContentItemProps,
+  ItemContentActionProps
+} from "../item-content";
 import type { CxOptions } from "class-variance-authority";
 import type { HTMLAttributes, Ref, ComputedRef } from "vue";
 
@@ -40,20 +42,10 @@ export interface KeyboardHandlers {
   onKeydown: (event: KeyboardEvent) => void;
 }
 
-export interface SelectGroupedItemActionProps extends LinkProps {
-  handler?: Function;
-  visible?: boolean;
-}
+export type SelectGroupedItemActionProps = ItemContentActionProps;
 
-export interface SelectGroupedItemProps {
+export interface SelectGroupedItemProps extends ItemContentItemProps {
   value: string;
-  label?: string;
-  secondaryLabel?: string;
-  description?: string;
-  secondaryDescription?: string;
-  badge?: BadgeProps;
-  secondaryBadge?: BadgeProps;
-  action?: SelectGroupedItemActionProps;
   icon?: string;
   disabled?: boolean;
 }

@@ -1,33 +1,24 @@
 // --- external
 // --- types
 import type { itemSizeVariants } from "./radioCards.config";
-import type { BadgeProps } from "../badge";
-import type { LinkProps } from "../link";
+import type {
+  ItemContentItemProps,
+  ItemContentActionProps
+} from "../item-content";
 import type { CxOptions, VariantProps } from "class-variance-authority";
 import type { RadioGroupRootProps, RadioGroupItemProps } from "radix-vue";
 import type { HTMLAttributes } from "vue";
 
 type _RadioCardsItemSizeVariants = VariantProps<typeof itemSizeVariants>;
 
-export type RadioCardsItemActionProps = LinkProps & {
-  handler?: Function | string;
-  type?: HTMLButtonElement["type"];
-  visible?: boolean;
-};
+export type RadioCardsItemActionProps = ItemContentActionProps;
 
-export interface RadioCardsItemProps extends RadioGroupItemProps {
+export interface RadioCardsItemProps
+  extends RadioGroupItemProps,
+    ItemContentItemProps {
   item?: any;
   index: number;
   name?: string;
-  // ---
-  label?: string;
-  secondaryLabel?: string;
-  description?: string;
-  secondaryDescription?: string;
-  badge?: BadgeProps;
-  secondaryBadge?: BadgeProps;
-  action?: RadioCardsItemActionProps;
-
   // ---
   required?: boolean;
   disabled?: boolean;
