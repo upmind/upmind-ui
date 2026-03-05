@@ -38,12 +38,7 @@ export default defineNuxtRouteMiddleware(async to => {
   // Redirect routes without /order prefix to /order/* structure
   if (path !== "/" && !path.startsWith("/order")) {
     // Exclude system/syntactic routes from prefixing
-    const excludedRoutes = [
-      "/loading",
-      "/error",
-      "/unavailable",
-      "/not-found",
-    ];
+    const excludedRoutes = ["/loading", "/error", "/unavailable", "/not-found"];
     if (!excludedRoutes.includes(path)) {
       return navigateTo(
         {

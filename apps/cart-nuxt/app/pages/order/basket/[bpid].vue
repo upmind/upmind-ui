@@ -9,7 +9,7 @@
 <script lang="ts" setup>
 import { UpmBasketProductEdit, useBrand } from "@upmind-automation/client-vue";
 import type { ProductDetails } from "@upmind-automation/headless";
-import { ROUTE } from "~/funnels/types"
+import { ROUTE } from "~/funnels/types";
 import { useStorefrontRoute } from "~/composables/useStorefrontRoute";
 import { useI18n } from "vue-i18n";
 

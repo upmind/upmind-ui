@@ -9,7 +9,7 @@
 import { UpmBasketProductEdit } from "@upmind-automation/client-vue";
 
 // --- types
-import { ROUTE } from "../../router"
+import { ROUTE } from "../../router";
 import { useStorefrontRoute } from "../../composables/useStorefrontRoute";
 const { storefrontRoute } = useStorefrontRoute();
 </script>
