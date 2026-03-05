@@ -214,7 +214,10 @@ import {
   useBasketProducts,
   useQueryParams,
   useProductConfig,
-  type ProductDetails
+  type ProductDetails,
+  DetailedError,
+  responseCodes,
+  ErrorOrigin
 } from "@upmind-automation/headless";
 import { useHeader } from "../../components/header/useHeader";
 import { useFooter } from "../../components/footer/useFooter";
@@ -287,7 +290,13 @@ const {
 } = await configure(basketProductId);
 
 const productConfig = useProductConfig(basketProduct);
-if (!productConfig) throw new Error("useProductConfig not provided");
+
+if (!productConfig)
+  throw new DetailedError(
+    t("error.product_not_available"),
+    responseCodes.Service_Unavailable,
+    ErrorOrigin.Headless
+  );
 provide("useProductConfig", productConfig);
 
 const {

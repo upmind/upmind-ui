@@ -1,10 +1,10 @@
 <template>
-  <div :class="styles.checkout.stored.root">
+  <div :class="styles.payment.stored.root">
     <Form
       v-model="model"
       :processing="meta.isProcessing"
-      :schema="props.schema"
-      :uischema="props.uischema"
+      :schema="schema"
+      :uischema="uischema"
       no-actions
     />
 
@@ -31,25 +31,18 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import config from "../checkout.config";
+import config from "../payment.config";
 import { useStyles } from "@upmind-automation/upmind-ui";
-import TermsAndConditions from "../../brand/TermsAndConditions.vue";
 
 // --- components
-import { Alert, Markdown, Button } from "@upmind-automation/upmind-ui";
+import { Alert } from "@upmind-automation/upmind-ui";
 import Form from "../../../components/form/Form.vue";
-
-// --- utils
-import { isEmpty } from "lodash-es";
 
 // --- types
 import type { StoredPaymentMethodProps } from "../types";
 
 // -----------------------------------------------------------------------------
 const props = defineProps<StoredPaymentMethodProps>();
-const emit = defineEmits<{
-  (e: "resolve"): void;
-}>();
 
 const model = defineModel("modelValue", {
   get(value) {
@@ -69,5 +62,5 @@ const meta = computed(() => {
   };
 });
 
-const styles = useStyles(["checkout", "checkout.stored"], meta, config);
+const styles = useStyles(["payment", "payment.stored"], meta, config);
 </script>

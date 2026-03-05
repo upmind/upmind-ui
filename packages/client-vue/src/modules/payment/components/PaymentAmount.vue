@@ -12,11 +12,13 @@
     modal
     no-actions
     :modelValue="model"
-    :processing="props.processing"
-    :schema="props.schema"
-    :uischema="props.uischema"
+    :processing="processing"
+    :schema="schema"
+    :uischema="uischema"
     :title="t('cart.payment_amount')"
-    :description="t('cart.payment_amount_msg', { amount: summary?.total })"
+    :description="
+      t('cart.payment_amount_msg', { amount: amountsFormatted?.amount })
+    "
     :label="t('action.confirm_amount')"
     @resolve="doUpdate"
   />
@@ -26,9 +28,6 @@
 // --- external
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
-
-// --- internal
-import { useBasket } from "@upmind-automation/headless";
 
 // --- components
 import FormModal from "../../../components/form/FormModal.vue";
@@ -46,7 +45,7 @@ const emit = defineEmits<{
 }>();
 
 const { t } = useI18n();
-const { summary } = useBasket();
+
 const open = ref(false);
 
 const model = computed({

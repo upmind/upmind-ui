@@ -61,6 +61,7 @@
   "currency_update_failed": "Възникна грешка при актуализирането на валутата",
   "currency_validation_failed": "Валидацията на валутата не бе успешна",
   "domain_add_failed": "Добавянето на домейна в кошницата не бе успешно",
+  "domain_not_valid": "Трябва да е валиден домейн или поддомейн",
   "feedback_action_not_available": "Действие със стойност '{data}' не е налично.",
   "funnel_not_available": "Фунията не е налична",
   "funnels_not_available": "Фуниите не са налични",

@@ -26,7 +26,7 @@ import {
 
 // --- types
 import type { IBasket } from "@upmind-automation/types";
-import { TaxTagTypes } from "@upmind-automation/types";
+import { InvoiceStatus, TaxTagTypes } from "@upmind-automation/types";
 
 import { type PaymentDetailsContext } from "../paymentDetails";
 import { type BasketContext } from "./types";
@@ -74,6 +74,7 @@ export function spawnPaymentDetail(basket?: IBasket) {
   return spawn(
     paymentDetailsMachine.withContext({
       orderId: basket?.id,
+      orderStatus: basket?.status?.code || InvoiceStatus.DRAFT,
       currency: basket?.currency,
       address: basket?.address,
       client: basket?.client,

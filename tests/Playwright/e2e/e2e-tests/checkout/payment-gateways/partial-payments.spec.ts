@@ -125,8 +125,7 @@ test.describe("Partial payment at Checkout", () => {
       await page.click("#btnLogin");
       await page.getByTestId("submit-button-initial").click();
       await page.waitForURL(`order/**`);
-      // await expect(page.getByText("Thank you for your order!")).toBeVisible();
-      await expect(page.getByRole("dialog")).toContainText("Order complete!");
+      await expect(page.getByText("Thank you for your order!")).toBeVisible();
     });
     test("Partial Payment in foreign currency (AUD)", async ({
       page,
@@ -153,8 +152,7 @@ test.describe("Partial payment at Checkout", () => {
       await page.click("#btnLogin");
       await page.getByTestId("submit-button-initial").click();
       await page.waitForURL(`order/**`);
-      // await expect(page.getByText("Thank you for your order!")).toBeVisible();
-      await expect(page.getByRole("dialog")).toContainText("Order complete!");
+      await expect(page.getByText("Thank you for your order!")).toBeVisible();
     });
     test("Partial payment with promo (GBP)", async ({ page, context }) => {
       await goToCheckout(
@@ -183,14 +181,13 @@ test.describe("Partial payment at Checkout", () => {
       await page.click("#btnLogin");
       await page.getByTestId("submit-button-initial").click();
       await page.waitForURL(`order/**`);
-      // await expect(page.getByText("Thank you for your order!")).toBeVisible();
-      await expect(page.getByRole("dialog")).toContainText("Order complete!");
+      await expect(page.getByText("Thank you for your order!")).toBeVisible();
     });
   });
   test.describe("Partial payment using Account Credit", () => {
-    // Going to take some brainpower to solve this one - need to find
-    test("Partial Payment in base Currency (GBP)", async ({ page }) => {}); // a way to get around credit limit being used up in every test
-    test("Partial Payment in foreign currency (INR)", async ({ page }) => {}); // (making a fresh user every time will require limit setting every time)
+    // TODO: Need a way to mock the credit limit and successfully check out (real credit data would be useless after one test)
+    test("Partial Payment in base Currency (GBP)", async ({ page }) => {});
+    test("Partial Payment in foreign currency (INR)", async ({ page }) => {});
     test("Partial payment with promo (GBP)", async ({ page }) => {});
   });
 });

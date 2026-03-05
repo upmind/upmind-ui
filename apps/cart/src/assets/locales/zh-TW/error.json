@@ -61,6 +61,7 @@
   "currency_update_failed": "我們在更新貨幣時遇到了錯誤",
   "currency_validation_failed": "貨幣驗證失敗",
   "domain_add_failed": "無法將網域加入購物籃",
+  "domain_not_valid": "必須是符合格式的網域或子網域",
   "feedback_action_not_available": "有價值的行動'{data}' 無法使用。",
   "funnel_not_available": "漏斗不可用",
   "funnels_not_available": "漏斗不可用",

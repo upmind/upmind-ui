@@ -19,7 +19,8 @@ import {
   has,
   compact,
   size,
-  isNil
+  isNil,
+  set
 } from "lodash-es";
 import {
   ErrorOrigin,
@@ -56,7 +57,8 @@ import {
   BrandConfigKeys,
   type IBrandGateway,
   type IPaymentDetail,
-  type IWalletBalance
+  type IWalletBalance,
+  InvoiceStatus
 } from "@upmind-automation/types";
 import type { QueryKey } from "@tanstack/vue-query";
 
@@ -96,7 +98,15 @@ export function loadList() {
 // -----------------------------------------------------------------------------
 
 async function loadLookups(
-  { currency, address, orderId, lookups, client }: PaymentDetailsContext,
+  {
+    currency,
+    address,
+    orderId,
+    lookups,
+    client,
+    paidAmount,
+    orderStatus
+  }: PaymentDetailsContext,
   _event: AnyEventObject
 ) {
   const { meta } = useSession();
@@ -229,6 +239,10 @@ async function loadLookups(
       PaymentDetail[],
       IBrandGateway[]
     ]) => {
+      // NB disable pay later when there we have an actual order and not a Basket (draft = basket)
+      if (orderStatus !== InvoiceStatus.DRAFT)
+        set(config, BrandConfigKeys.PAY_LATER_ENABLED, false);
+
       return {
         config,
         accountCredit,
@@ -318,7 +332,11 @@ async function parse(context: PaymentDetailsContext, { data }: AnyEventObject) {
   }
 
   // NB: Filter our lookups based on the safe model
-  lookups.gateways = filterGateways(context.raw.gateways ?? [], safeModel);
+  lookups.gateways = filterGateways(
+    context.raw.gateways ?? [],
+    safeModel,
+    context.orderStatus
+  );
   lookups.storedPaymentMethods = filterPaymentDetails(
     context.raw.storedPaymentMethods ?? [],
     lookups.gateways
@@ -346,11 +364,14 @@ async function parse(context: PaymentDetailsContext, { data }: AnyEventObject) {
   if (needsPayment) {
     // Ensure we have a payment method selected,
     // try preselect the first payment detail if we have one
-    // otherwise preselect the first available gateway if there's only one
+    // otherwise preselect the first available gateway if there's only one AND PAY_LATER is not an option
     if (!safeModel.gateway_id && !safeModel.payment_details_id) {
       if (!isEmpty(lookups.storedPaymentMethods)) {
         safeModel.payment_details_id = first(lookups.storedPaymentMethods)?.id;
-      } else if (size(lookups.gateways) === 1) {
+      } else if (
+        size(lookups.gateways) === 1 &&
+        !includes(lookups.paymentTypes, PaymentType.PAY_LATER)
+      ) {
         safeModel.gateway_id = first(lookups.gateways)?.gateway_id;
       }
     }

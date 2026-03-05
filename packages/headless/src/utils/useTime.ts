@@ -67,11 +67,16 @@ export function useRelativeTime(
   return target.from(now);
 }
 
+export type FormattedDate = {
+  date?: string | null;
+  relative?: string | null;
+};
+
 export function useDateMapper(
   timestamp: EpochTimeStamp | string | null | undefined,
   currentTime?: EpochTimeStamp,
   format = useI18n().t("MMM Do, YYYY HH:mm:ss A")
-): { date?: string | null; relative?: string | null } {
+): FormattedDate {
   const { t } = useI18n();
   // Guard against null/undefined inputs using lodash
   if (isNil(timestamp)) return {};
