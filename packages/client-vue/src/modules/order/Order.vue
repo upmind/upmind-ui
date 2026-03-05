@@ -38,7 +38,7 @@
 <script lang="ts" setup>
 // --- external
 import { computed, ref } from "vue";
-import { useRouter, type RouteLocationAsRelativeGeneric } from "vue-router";
+import { useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -57,9 +57,12 @@ import { useConfig } from "@upmind-automation/headless";
 import { Interstitial, Button } from "@upmind-automation/upmind-ui";
 import { useThemes } from "@upmind-automation/upmind-ui";
 
+// --- types
+import type { StorefrontRoute } from "../../types";
+
 // -----------------------------------------------------------------------------
 const props = defineProps<{
-  storefrontRoute?: RouteLocationAsRelativeGeneric;
+  storefrontRoute?: StorefrontRoute;
 }>();
 
 // -----------------------------------------------------------------------------
@@ -160,7 +163,13 @@ const processing = ref(false);
 
 function doAction() {
   if (!meta.value.isAuthenticated) {
-    window.location.href = router.resolve(props.storefrontRoute ?? "/").href;
+    if (props.storefrontRoute?.href) {
+      window.location.href = props.storefrontRoute.href;
+    } else if (props.storefrontRoute?.to) {
+      window.location.href = router.resolve(props.storefrontRoute.to).href;
+    } else {
+      window.location.href = "/";
+    }
     processing.value = false;
     return;
   }
