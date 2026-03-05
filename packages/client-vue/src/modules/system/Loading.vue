@@ -5,31 +5,25 @@
   >
     <Interstitial
       v-bind="props"
+      :modal="meta.useModal"
       :title="t('text.loading_title_md')"
       :text="t('text.almost_there_msg')"
-    >
-      <template #background>
-        <slot name="loading-background"></slot>
-      </template>
-    </Interstitial>
+    />
   </div>
 </template>
 
 <script lang="ts" setup>
 // --- external
 import { useI18n } from "vue-i18n";
-
-// --- internal
+import { useRoute } from "vue-router";
+import { computed } from "vue";
 
 // -- components
 import { Interstitial } from "@upmind-automation/upmind-ui";
-import Layout from "../../components/layout/Layout.vue";
 
 // -- types
 import { type InterstitialProps } from "@upmind-automation/upmind-ui";
-
 // -----------------------------------------------------------------------------
-const { t } = useI18n();
 
 const props = withDefaults(defineProps<InterstitialProps>(), {
   open: true,
@@ -42,4 +36,11 @@ const props = withDefaults(defineProps<InterstitialProps>(), {
     size: "4xl"
   })
 });
+// -----------------------------------------------------------------------------
+const { t } = useI18n();
+const route = useRoute();
+const routeMeta = route.meta;
+const meta = computed(() => ({
+  useModal: props.modal || !!routeMeta.modal
+}));
 </script>

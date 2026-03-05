@@ -106,7 +106,7 @@ export const useFunnelMachine = ({
               }),
               {
                 target: "available.idle",
-                actions: ["setCurrentRoute", "setTargetRoute"]
+                actions: ["setResolved", "setCurrentRoute", "setTargetRoute"]
               }
             ]
           }
