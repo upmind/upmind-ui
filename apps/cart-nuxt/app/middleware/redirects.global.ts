@@ -1,4 +1,5 @@
 import { includes, trimStart } from "lodash-es";
+import { useBrand } from "@upmind-automation/client-vue";
 import { ROUTE, RegexMatch } from "~/funnels/types";
 
 /**
@@ -43,6 +44,7 @@ export default defineNuxtRouteMiddleware(async to => {
       "/error",
       "/unavailable",
       "/not-found",
+      "/storefront"
     ];
     if (!excludedRoutes.includes(path)) {
       return navigateTo(
@@ -149,5 +151,28 @@ export default defineNuxtRouteMiddleware(async to => {
       },
       { redirectCode: 301 }
     );
+  }
+
+  // ---------------------------------------------------------------------------
+  // SECTION 3: SYNTACTIC SUGAR ROUTES
+  // Convenience routes that resolve to internal destinations
+  // ---------------------------------------------------------------------------
+
+  // /storefront - Resolves to external URL, internal catalogue, or basket
+  if (path === "/storefront") {
+    const { hasStorefront, storefrontUrl } = useBrand();
+
+    // Priority 1: External storefront URL (e.g., brand's main website)
+    if (storefrontUrl.value) {
+      return navigateTo(storefrontUrl.value, { external: true });
+    }
+
+    // Priority 2: Internal catalogue if storefront is enabled
+    if (hasStorefront.value) {
+      return navigateTo({ name: ROUTE.CATALOGUE });
+    }
+
+    // Fallback: Basket page
+    return navigateTo({ name: ROUTE.BASKET });
   }
 });

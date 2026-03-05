@@ -1,6 +1,6 @@
 <template>
   <UpmBasketProductEdit
-    :storefront-route="storefrontRoute"
+    :storefront-route="{ name: ROUTE.STOREFRONT }"
     :catalogue-route="{ name: ROUTE.CATALOGUE }"
     @product-details="handleProductDetails"
   />
@@ -9,8 +9,7 @@
 <script lang="ts" setup>
 import { UpmBasketProductEdit, useBrand } from "@upmind-automation/client-vue";
 import type { ProductDetails } from "@upmind-automation/headless";
-import { ROUTE } from "~/funnels/types"
-import { useStorefrontRoute } from "~/composables/useStorefrontRoute";
+import { ROUTE } from "~/funnels/types";
 import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
@@ -58,5 +57,4 @@ function handleProductDetails(details: ProductDetails) {
 definePageMeta({
   name: ROUTE.BASKET_PRODUCT_EDIT
 });
-const { storefrontRoute } = useStorefrontRoute();
 </script>

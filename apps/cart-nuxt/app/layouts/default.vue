@@ -1,6 +1,6 @@
 <template>
   <UpmPage :class="styles.page">
-    <UpmHeader :storefront-route="storefrontRoute">
+    <UpmHeader :storefront-route="{ name: ROUTE.STOREFRONT }">
       <template #actions>
         <UpmBasketAction :basket-route="{ name: ROUTE.BASKET }" />
         <UpmAuthAction
@@ -21,7 +21,7 @@
     </UpmMain>
 
     <UpmFooter />
-    <!-- <UpmFeedback :storefront-route="storefrontRoute" /> -->
+    <!-- <UpmFeedback :storefront-route="{ name: ROUTE.STOREFRONT }" /> -->
   </UpmPage>
 </template>
 
@@ -48,11 +48,9 @@ import {
 import { useStyles } from "@upmind-automation/upmind-ui";
 import { includes, get } from "lodash-es";
 import { ROUTE } from "~/funnels/types";
-import { useStorefrontRoute } from "~/composables/useStorefrontRoute";
 
 // -----------------------------------------------------------------------------
 const route = useRoute();
-const { storefrontRoute } = useStorefrontRoute();
 const router = useRouter();
 
 const { isLoading } = useLoadingIndicator();

@@ -21,6 +21,7 @@ const UUID = RegexMatch.UUID;
  * These will be filtered OUT of the scanned routes.
  */
 const REPLACED_ROUTE_NAMES = new Set([
+  "storefront",
   "catalogue",
   "checkout",
   "recommendations",
@@ -58,6 +59,13 @@ export default {
 
     // Push BID-aware routes with the SAME names (so router.resolve works)
     filtered.push(
+      // --- storefront
+      {
+        name: ROUTE.STOREFRONT,
+        path: `/${BID_PREFIX}/storefront`,
+        component: () => import("~/pages/storefront.vue")
+      },
+
       // --- shop / catalogue
       {
         name: ROUTE.CATALOGUE,

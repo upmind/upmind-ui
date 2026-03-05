@@ -59,7 +59,7 @@ export default {
 <script setup lang="ts">
 // --- external
 import { computed, nextTick, ref } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, type RouteLocationAsRelativeGeneric } from "vue-router";
 
 // --- internal
 import useUpmind, {
@@ -87,14 +87,13 @@ import { get } from "lodash-es";
 // --- types
 import type { InterstitialProps } from "@upmind-automation/upmind-ui";
 import { UIContext } from "@upmind-automation/headless";
-import type { StorefrontRoute } from "./types";
 // -----------------------------------------------------------------------------
 
 const props = defineProps<{
   theme?: string;
   logo?: string;
   loadingProps?: InterstitialProps;
-  storefrontRoute?: StorefrontRoute;
+  storefrontRoute?: RouteLocationAsRelativeGeneric;
 }>();
 
 // -----------------------------------------------------------------------------

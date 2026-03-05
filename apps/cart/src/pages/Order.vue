@@ -1,13 +1,12 @@
 <template>
-  <UpmOrder :storefront-route="storefrontRoute" />
+  <UpmOrder :storefront-route="{ name: ROUTE.STOREFRONT }" />
 </template>
 
 <script lang="ts" setup>
 import { UpmOrder } from "@upmind-automation/client-vue";
 
 // --- internal
-import { useStorefrontRoute } from "../composables/useStorefrontRoute";
+import { ROUTE } from "../router";
 
 // -----------------------------------------------------------------------------
-const { storefrontRoute } = useStorefrontRoute();
 </script>

@@ -1,11 +1,10 @@
 <template>
-  <UpmProductRequiresAction :storefront-route="storefrontRoute" />
+  <UpmProductRequiresAction :storefront-route="{ name: ROUTE.STOREFRONT }" />
 </template>
 
 <script lang="ts" setup>
 import { UpmProductRequiresAction } from "@upmind-automation/client-vue";
-import { ROUTE } from "~/funnels/types"
-import { useStorefrontRoute } from "~/composables/useStorefrontRoute";
+import { ROUTE } from "~/funnels/types";
 import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
@@ -23,5 +22,4 @@ useSeoMeta({
 definePageMeta({
   name: ROUTE.BASKET_PRODUCT_REQUIRES_ACTION
 });
-const { storefrontRoute } = useStorefrontRoute();
 </script>
