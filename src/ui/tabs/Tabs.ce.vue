@@ -61,16 +61,16 @@
       </div>
     </header>
 
-    <component
-      :is="useTabs ? TabsContent : 'footer'"
-      v-for="item in tabs"
-      :key="item.value"
-      :value="item.value"
-      :forceMount="item?.eager"
-      tabindex="-1"
-    >
-      <slot :name="`content.${item.value}`"></slot>
-    </component>
+    <template v-for="item in tabs" :key="item.value">
+      <component
+        :is="useTabs ? TabsContent : 'footer'"
+        :value="item.value"
+        :forceMount="item?.eager"
+        tabindex="-1"
+      >
+        <slot :name="`content.${item.value}`"></slot>
+      </component>
+    </template>
   </component>
 </template>
 
@@ -81,6 +81,7 @@ import { useElementBounding } from "@vueuse/core";
 import { useVModel } from "@vueuse/core";
 import { useForwardPropsEmits } from "radix-vue";
 import { computed, ref, useSlots } from "vue";
+import type { Slots } from "vue";
 // --- components
 import { Icon } from "../icon";
 import config from "./tabs.config";
@@ -115,7 +116,7 @@ const props = withDefaults(defineProps<TabsProps>(), {
 
 const emits = defineEmits<TabsRootEmits>();
 const forwarded = useForwardPropsEmits(props, emits);
-const slots = useSlots();
+const slots: Slots = useSlots();
 const modelValue = useVModel(props, "modelValue", emits, {
   passive: true,
   defaultValue: props.defaultValue || first(props.tabs)?.value
