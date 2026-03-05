@@ -18,6 +18,7 @@ import {
   DetailedError,
   ErrorOrigin,
   responseCodes,
+  stateMatches,
   stopService
 } from "../../utils";
 import { isEmpty, get, add, subtract, debounce } from "lodash-es";
@@ -73,10 +74,14 @@ export const useBasketProduct = (bpid: string) => {
 
   // ---------------------------------------------------------------------------
 
-  async function isReady(): Promise<void> {
-    return waitFor(service, state => state.matches("available"), {
-      timeout: Infinity
-    }).then(() => {});
+  async function isReady(): Promise<boolean> {
+    return waitFor(
+      service,
+      state => stateMatches(state, ["available", "error", "done"]),
+      { timeout: Infinity }
+    ).then(state => {
+      return stateMatches(state, ["available"]);
+    });
   }
 
   async function getProduct(): Promise<Product> {
@@ -96,12 +101,12 @@ export const useBasketProduct = (bpid: string) => {
 
   async function update(): Promise<void> {
     service.send({ type: "UPDATE" });
-    return waitFor(service, state => !state.matches("processing"), {
+    return waitFor(service, state => !stateMatches(state, "processing"), {
       timeout: 60_000
     })
       .then(state => {
         if (
-          ["error", "available.invalid", "available.error"].some(state.matches)
+          stateMatches(state, ["error", "available.invalid", "available.error"])
         ) {
           return Promise.reject(
             new DetailedError(

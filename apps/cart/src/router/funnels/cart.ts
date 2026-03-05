@@ -68,7 +68,7 @@ export default <FunnelProps>{
      * In case of an error, it redirects to the BASKET route.
      */
     [ROUTE.CATALOGUE]: {
-      entry: ["setCurrency"],
+      entry: ["setCurrency", "setBasket"],
       invoke: {
         src: "guardCatalogue",
         onDone: { actions: ["setResolved"] },
@@ -113,7 +113,7 @@ export default <FunnelProps>{
      * (if a product ID is present) or back to the BASKET route.
      */
     [ROUTE.PRODUCT_CONFIGURE]: {
-      entry: ["setCurrency", "setProductConfigs"],
+      entry: ["setCurrency", "setBasket", "setProductConfigs"],
       invoke: {
         src: "guardProductConfigure",
         onDone: [
@@ -183,7 +183,7 @@ export default <FunnelProps>{
      * In case of an error (e.g., no recommendations available), it redirects to the CHECKOUT_FLOW route.
      */
     [ROUTE.PRODUCT_RECOMMENDATIONS]: {
-      entry: ["setCurrency"],
+      entry: ["setCurrency", "setBasket"],
       invoke: {
         src: "guardProductRecommendations",
         onDone: { actions: ["setResolved"] },
@@ -262,6 +262,7 @@ export default <FunnelProps>{
      * Users can navigate to the CATALOGUE route from here to continue shopping.
      */
     [ROUTE.BASKET_EMPTY]: {
+      entry: ["setBasket"],
       invoke: {
         src: "guardBasket",
         onDone: { target: ROUTE.BASKET, actions: ["setResolving"] },
@@ -309,7 +310,7 @@ export default <FunnelProps>{
      * or return to the BASKET.
      */
     [ROUTE.BASKET_PRODUCT_EDIT]: {
-      entry: ["setCurrency"],
+      entry: ["setCurrency", "setBasket"],
       invoke: {
         src: "guardProductEdit",
         onDone: { actions: ["setResolved"] },
@@ -336,7 +337,7 @@ export default <FunnelProps>{
      * In case of an error, it redirects back to the BASKET route.
      */
     [ROUTE.BASKET_PRODUCT_REQUIRES_ACTION]: {
-      entry: ["setCurrency"],
+      entry: ["setCurrency", "setBasket"],
       invoke: {
         src: "guardProductRequiresAction",
         onDone: { actions: ["setResolved"] },
@@ -372,7 +373,7 @@ export default <FunnelProps>{
      * or return to the BASKET.
      */
     [ROUTE.RECOMMENDATIONS]: {
-      entry: ["setCurrency"],
+      entry: ["setCurrency", "setBasket"],
       invoke: {
         src: "guardRecommendations",
         onDone: { actions: ["setResolved"] },
@@ -398,7 +399,7 @@ export default <FunnelProps>{
      * or return to the BASKET.
      */
     [ROUTE.DOMAINS]: {
-      entry: ["setCurrency"],
+      entry: ["setCurrency", "setBasket"],
       invoke: {
         src: "guardDomains",
         onDone: { actions: ["setResolved"] },
@@ -426,7 +427,7 @@ export default <FunnelProps>{
      * or return to the 'complete' state to finalize the funnel.
      */
     [ROUTE.DOMAINS_WITH_PRODUCT]: {
-      entry: ["setCurrency"],
+      entry: ["setCurrency", "setBasket"],
       invoke: {
         src: "guardDomains",
         onDone: { actions: ["setResolved"] },
@@ -661,7 +662,7 @@ export default <FunnelProps>{
      * or return to the BASKET to make changes.
      */
     [ROUTE.CHECKOUT]: {
-      entry: ["setCurrency"],
+      entry: ["setCurrency", "setBasket"],
       invoke: {
         src: "guardCheckout",
         onDone: { actions: ["setResolved"] },
