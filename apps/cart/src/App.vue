@@ -31,7 +31,9 @@ import {
 import { includes } from "lodash-es";
 
 // --- types
-import { ROUTE } from "./router"
+import { ROUTE } from "./router";
+
+// --- composables
 import { useStorefrontRoute } from "./composables/useStorefrontRoute";
 
 // -----------------------------------------------------------------------------
