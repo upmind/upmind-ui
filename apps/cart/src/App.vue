@@ -1,5 +1,5 @@
 <template>
-  <Upm :storefront-route="storefrontRoute">
+  <Upm :storefront-route="{ name: ROUTE.STOREFRONT }">
     <template #header-actions>
       <UpmBasketAction :basket-route="{ name: ROUTE.BASKET }" />
       <UpmAuthAction
@@ -31,11 +31,9 @@ import {
 import { includes } from "lodash-es";
 
 // --- types
-import { ROUTE } from "./router"
-import { useStorefrontRoute } from "./composables/useStorefrontRoute";
+import { ROUTE } from "./router";
 
 // -----------------------------------------------------------------------------
-const { storefrontRoute } = useStorefrontRoute();
 const route = useRoute();
 const router = useRouter();
 const { meta: routingMeta, isReady } = useRoutingEngine();

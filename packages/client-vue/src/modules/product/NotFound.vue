@@ -7,7 +7,7 @@
       :text="t('error.product_not_found')"
       :actions="[
         {
-          ...props.storefrontRoute,
+          to: props.storefrontRoute,
           variant: 'solid',
           color: 'primary',
           icon: 'arrow-left',
@@ -33,12 +33,12 @@ import { useI18n } from "vue-i18n";
 
 // -- components
 import { Interstitial } from "@upmind-automation/upmind-ui";
-import type { StorefrontRoute } from "../../types";
+import type { RouteLocationAsRelativeGeneric } from "vue-router";
 
 // -----------------------------------------------------------------------------
 
 const props = defineProps<{
-  storefrontRoute: StorefrontRoute;
+  storefrontRoute: RouteLocationAsRelativeGeneric;
 }>();
 // -----------------------------------------------------------------------------
 

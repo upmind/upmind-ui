@@ -11,17 +11,21 @@ import { useI18n } from "vue-i18n";
 // --- types
 import type { BreadcrumbVariant as UIBreadcrumbVariant } from "@upmind-automation/upmind-ui";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
-import type { StorefrontRoute } from "../types";
 
 export interface BreadcrumbCategory {
   id: string;
   label: string;
 }
 
+type RouteOrHref =
+  | RouteLocationAsRelativeGeneric
+  | { href: string }
+  | undefined;
+
 export interface UseBreadcrumbItemsOptions {
   categories: MaybeRefOrGetter<BreadcrumbCategory[]>;
-  route: MaybeRefOrGetter<RouteLocationAsRelativeGeneric | undefined>;
-  storefrontRoute?: MaybeRefOrGetter<StorefrontRoute | undefined>;
+  route: MaybeRefOrGetter<RouteOrHref>;
+  storefrontRoute?: MaybeRefOrGetter<RouteOrHref>;
   variant?: MaybeRefOrGetter<BreadcrumbVariant | undefined>;
   selectedId?: MaybeRefOrGetter<string | undefined>;
   currentItem?: MaybeRefOrGetter<{ label: string } | undefined>;

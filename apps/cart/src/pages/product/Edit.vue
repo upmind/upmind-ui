@@ -1,6 +1,6 @@
 <template>
   <UpmBasketProductEdit
-    :storefront-route="storefrontRoute"
+    :storefront-route="{ name: ROUTE.STOREFRONT }"
     :catalogue-route="{ name: ROUTE.CATALOGUE }"
   />
 </template>
@@ -9,7 +9,5 @@
 import { UpmBasketProductEdit } from "@upmind-automation/client-vue";
 
 // --- types
-import { ROUTE } from "../../router"
-import { useStorefrontRoute } from "../../composables/useStorefrontRoute";
-const { storefrontRoute } = useStorefrontRoute();
+import { ROUTE } from "../../router";
 </script>

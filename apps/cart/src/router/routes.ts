@@ -207,6 +207,26 @@ export default [
    * If an external storefront URL is configured, the browser will navigate to that URL.
    * Otherwise, it redirects to the internal catalogue or basket route.
    */
+  {
+    path: "/storefront/",
+    name: ROUTE.STOREFRONT,
+    redirect: () => {
+      const { hasStorefront, storefrontUrl } = useBrand();
+
+      // Redirect to external storefront URL if available
+      if (storefrontUrl.value) {
+        window.location.replace(storefrontUrl.value);
+        return false;
+      }
+
+      // Otherwise, if we allow storefront: redirect to internal catalogue
+      if (hasStorefront.value) return { name: ROUTE.CATALOGUE };
+
+      // Fallback to basket if no storefront is available
+      return { name: ROUTE.BASKET };
+    }
+  },
+
   /**
    * Route for the product catalogue page within the order context.
    * Displays the list of products available for browsing and selection.

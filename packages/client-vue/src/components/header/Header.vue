@@ -68,7 +68,7 @@ import { COLUMN_BACKGROUND } from "../layout/components/column";
 
 // --- types
 import { HEADER_BACKGROUND } from "./types";
-import type { StorefrontRoute } from "../../types";
+import type { RouteLocationAsRelativeGeneric } from "vue-router";
 
 // -----------------------------------------------------------------------------
 const { meta } = useHeader();
@@ -81,7 +81,7 @@ const stylesMeta = computed(() => ({
 
 const props = defineProps<{
   logo?: string;
-  storefrontRoute?: StorefrontRoute;
+  storefrontRoute?: RouteLocationAsRelativeGeneric;
 }>();
 
 const styles = useStyles(

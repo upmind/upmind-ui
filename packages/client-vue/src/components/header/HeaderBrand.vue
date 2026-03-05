@@ -1,5 +1,5 @@
 <template>
-  <Link id="logo" :class="styles.header.link" v-bind="props.storefrontRoute">
+  <Link id="logo" :class="styles.header.link" :to="props.storefrontRoute">
     <picture v-if="logo" :class="styles.header.picture">
       <slot name="logo" :logo="logo">
         <img v-if="logo" :src="logo" :class="styles.header.image" alt="logo" />
@@ -17,7 +17,7 @@
 <script lang="ts" setup>
 // --- external
 import { useI18n } from "vue-i18n";
-import { useRoute } from "vue-router";
+import { useRoute, type RouteLocationAsRelativeGeneric } from "vue-router";
 
 // --- internal
 import { useBrand } from "@upmind-automation/headless";
@@ -29,7 +29,6 @@ import { computed } from "vue";
 
 // --- types
 import type { ComputedRef } from "vue";
-import type { StorefrontRoute } from "../../types";
 
 const route = useRoute();
 const { name, image } = useBrand();
@@ -38,7 +37,7 @@ const { name, image } = useBrand();
 const { t } = useI18n();
 const props = defineProps<{
   logo?: string;
-  storefrontRoute?: StorefrontRoute;
+  storefrontRoute?: RouteLocationAsRelativeGeneric;
 }>();
 
 const layout = computed(() => {
