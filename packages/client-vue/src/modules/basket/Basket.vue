@@ -135,6 +135,7 @@ import { get, includes } from "lodash-es";
 import { BASKET_TEMPLATE } from "./types";
 import { UIContext } from "@upmind-automation/headless";
 import type { StorefrontRoute } from "../../types";
+import type { RouteLocationAsRelativeGeneric } from "vue-router";
 import { LAYOUT_VARIANTS } from "../../components/layout/types";
 // -----------------------------------------------------------------------------
 
