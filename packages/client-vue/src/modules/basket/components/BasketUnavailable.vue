@@ -54,7 +54,7 @@ const route = useRoute();
 const routeMeta = route.meta;
 
 const meta = computed(() => ({
-  useModal: props.modal || routeMeta.modal !== false
+  useModal: props.modal || !!routeMeta.modal
 }));
 
 function handleReturn() {

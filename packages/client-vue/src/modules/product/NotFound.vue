@@ -1,8 +1,8 @@
 <template>
   <div class="flex grow items-center justify-center">
     <Interstitial
-      open
-      modal
+      v-bind="props"
+      :modal="meta.useModal"
       :title="t('cart.product_not_found_md')"
       :text="t('error.product_not_found')"
       :actions="[
@@ -10,17 +10,11 @@
           ...props.storefrontRoute,
           variant: 'solid',
           color: 'primary',
-          icon: 'arrow-left',
-          label: t('action.continue_shopping')
+          iconAppend: 'arrow-right',
+          label: t('action.continue_shopping'),
+          size: 'lg'
         }
       ]"
-      :animatedIcon="{
-        icon: 'basket',
-        delay: 5000,
-        primaryColor: 'primary',
-        secondaryColor: 'accent',
-        size: '4xl'
-      }"
     />
   </div>
 </template>
@@ -28,19 +22,41 @@
 <script lang="ts" setup>
 // --- external
 import { useI18n } from "vue-i18n";
-
-// --- internal
+import { useRoute } from "vue-router";
+import { computed } from "vue";
 
 // -- components
 import { Interstitial } from "@upmind-automation/upmind-ui";
+
+// -- types
+import { type InterstitialProps } from "@upmind-automation/upmind-ui";
 import type { StorefrontRoute } from "../../types";
-
 // -----------------------------------------------------------------------------
 
-const props = defineProps<{
-  storefrontRoute: StorefrontRoute;
-}>();
+const props = withDefaults(
+  defineProps<
+    InterstitialProps & {
+      storefrontRoute: StorefrontRoute;
+    }
+  >(),
+  {
+    open: true,
+    modal: true,
+    animatedIcon: () => ({
+      icon: "basket",
+      delay: 5000,
+      primaryColor: "primary",
+      secondaryColor: "accent",
+      size: "4xl"
+    })
+  }
+);
 // -----------------------------------------------------------------------------
-
 const { t } = useI18n();
+const route = useRoute();
+const routeMeta = route.meta;
+
+const meta = computed(() => ({
+  useModal: props.modal || !!routeMeta.modal
+}));
 </script>
