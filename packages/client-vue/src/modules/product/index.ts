@@ -14,7 +14,6 @@ export { default as UpmProductConfigForm } from "./components/config/ConfigForm.
 export { default as UpmTermsConfigSelect } from "./components/terms/TermsConfigSelect.vue";
 export { default as UpmTermCard } from "./components/terms/TermCard.vue";
 export { default as UpmConfigSkeleton } from "./components/ConfigSkeleton.vue";
-export { default as UpmSubproductCard } from "./components/subproduct/SubproductCard.vue";
 export { default as UpmSubproductCardPricing } from "./components/subproduct/SubproductCardPricing.vue";
 
 // --- Export Types

@@ -57,7 +57,6 @@ import type { RadioCardsItemProps } from "@upmind-automation/upmind-ui";
 import type { TermDetails } from "@upmind-automation/headless";
 import {
   TERM_SELECTOR,
-  GRID_LAYOUT,
   type TermSelector,
   type GridLayout
 } from "@upmind-automation/headless";
@@ -101,10 +100,7 @@ const { t } = useI18n();
 
 const stylesMeta = computed(() => ({
   type: props.type,
-  columns:
-    props.type === TERM_SELECTOR.RADIO_ROWS
-      ? GRID_LAYOUT.ONE_COL
-      : props.columns,
+  columns: props.columns,
   disabled: props.disabled
 }));
 

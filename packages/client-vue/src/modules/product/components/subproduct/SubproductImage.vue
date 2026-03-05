@@ -1,18 +1,19 @@
 <template>
-  <figure v-if="src" :class="styles.card.image.root">
-    <img :src="src" :alt="alt" :class="styles.card.image.img" />
+  <figure
+    v-if="src"
+    class="flex h-6 min-h-6 w-6 min-w-6 shrink-0 items-center justify-start"
+  >
+    <img
+      :src="src"
+      :alt="alt"
+      class="inline-block h-5 min-h-5 w-5 min-w-5 object-cover object-center"
+    />
   </figure>
 </template>
 
 <script lang="ts" setup>
-// --- internal
-import { useStyles } from "@upmind-automation/upmind-ui";
-import config from "./subproduct-card.config";
-
 // --- types
 import type { SubproductCardImage } from "./types";
 
 defineProps<SubproductCardImage>();
-
-const styles = useStyles(["card.image"], {}, config);
 </script>
