@@ -30,10 +30,7 @@
           data-testid="checkbox-label"
         >
           <slot name="item" v-bind="{ item, index }">
-            <ItemContent
-              :item="item"
-              @action="emits('action', $event)"
-            />
+            <ItemContent :item="item" @action="emits('action', $event)" />
           </slot>
         </Label>
       </CheckboxCardItem>

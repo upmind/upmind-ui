@@ -14,8 +14,7 @@ type _RadioCardsItemSizeVariants = VariantProps<typeof itemSizeVariants>;
 export type RadioCardsItemActionProps = ItemContentActionProps;
 
 export interface RadioCardsItemProps
-  extends RadioGroupItemProps,
-    ItemContentItemProps {
+  extends RadioGroupItemProps, ItemContentItemProps {
   item?: any;
   index: number;
   name?: string;

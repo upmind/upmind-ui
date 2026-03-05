@@ -27,10 +27,7 @@
         item: { ...props.item, value }
       }"
     >
-      <ItemContent
-        :item="props"
-        @action="emits('action', $event)"
-      />
+      <ItemContent :item="props" @action="emits('action', $event)" />
     </slot>
   </Label>
 </template>

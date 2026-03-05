@@ -17,8 +17,7 @@ type _CheckboxCardsItemVariants = typeof variants;
 export type CheckboxCardsItemActionProps = ItemContentActionProps;
 
 export interface CheckboxCardsItemProps
-  extends ToggleGroupItemProps,
-    ItemContentItemProps {
+  extends ToggleGroupItemProps, ItemContentItemProps {
   label: string;
   id?: string;
   /** When `true`, prevents the user from interacting with the radio item. */
