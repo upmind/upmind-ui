@@ -9,13 +9,11 @@ import type { CxOptions } from "class-variance-authority";
 import type { HTMLAttributes } from "vue";
 // --------------------------------------------------------
 // ---
-export interface InterstitialActionProps extends ButtonProps {
+export type InterstitialActionProps = {
   handler?: Function | string;
-  href?: string;
   prependIcon?: IconProps;
   appendIcon?: IconProps;
-  variant?: ButtonProps["variant"];
-}
+} & ButtonProps;
 
 export interface InterstitialProps {
   modal?: boolean;
