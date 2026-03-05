@@ -14,7 +14,7 @@ import type { HTMLAttributes } from "vue";
 type AnchorVariantProps = VariantProps<typeof anchorVariants>;
 type ContentVariantProps = VariantProps<typeof contentVariants>;
 
-export interface AutocompleteItemProps extends ComboboxItemProps {
+export type AutocompleteItemProps = ComboboxItemProps & {
   label: string;
   tag?: string | string[];
   value: string;
@@ -25,15 +25,14 @@ export interface AutocompleteItemProps extends ComboboxItemProps {
   persist?: boolean;
 }
 
-export interface AutocompleteSearchFunction {
+export type AutocompleteSearchFunction = {
   (
     value: string,
     items?: AutocompleteItemProps[]
   ): Promise<AutocompleteItemProps[]>;
 }
 
-export interface AutocompleteProps
-  extends ComboboxRootProps, ComboboxInputProps {
+export type AutocompleteProps = ComboboxRootProps & ComboboxInputProps & {
   // --- state
   itemLabel?: string;
   itemValue?: string;

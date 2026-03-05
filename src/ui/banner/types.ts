@@ -5,7 +5,7 @@ import type { HTMLAttributes } from "vue";
 
 type BannerVariantProps = VariantProps<typeof rootVariants>;
 
-export interface BannerProps {
+export type BannerProps = {
   /** The text content of the banner */
   text?: string;
   /** An optional icon for the action area */

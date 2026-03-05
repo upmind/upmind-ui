@@ -15,14 +15,7 @@ import type { HTMLAttributes } from "vue";
 type DialogContentVariantProps = VariantProps<typeof contentVariant>;
 type _DialogOverlayVariantProps = VariantProps<typeof overlayVariant>;
 
-export interface DialogProps
-  extends
-    DialogRootProps,
-    DialogContentProps,
-    DialogDescriptionProps,
-    DialogTitleProps,
-    DialogTriggerProps,
-    DialogPortalProps {
+export type DialogProps = DialogRootProps & DialogContentProps & DialogDescriptionProps & DialogTitleProps & DialogTriggerProps & DialogPortalProps & {
   title?: string;
   description?: string;
   // ---

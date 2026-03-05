@@ -8,7 +8,7 @@ export type ImageVariants = VariantProps<typeof containerVariant>;
 
 export type ImageMode = "auto" | "single" | "carousel";
 
-export interface ImageProps {
+export type ImageProps = {
   mode?: ImageMode;
   image?: ImageItem[] | ImageItem | string;
   ratio?: ImageVariants["ratio"];
@@ -21,12 +21,12 @@ export interface ImageProps {
   class?: ImgHTMLAttributes["class"];
 }
 
-export interface ImageItem {
+export type ImageItem = {
   url: string;
   alt: string;
 }
 
-export interface CarouselImageProps {
+export type CarouselImageProps = {
   image: ImageItem;
   index?: number;
   total?: number;

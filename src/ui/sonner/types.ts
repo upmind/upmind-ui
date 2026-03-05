@@ -5,7 +5,7 @@ import type { HTMLAttributes } from "vue";
 import type { ToasterProps } from "vue-sonner";
 // --- types
 
-export interface SonnerProps extends ToasterProps {
+export type SonnerProps = ToasterProps & {
   variant?: typeof TOAST_VARIANTS;
   // ---
   uiConfig?: { sonner: CxOptions };

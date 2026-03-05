@@ -21,7 +21,7 @@ import type { HTMLAttributes } from "vue";
 
 type FormVariantProps = VariantProps<typeof formVariants>;
 
-export interface FormProps<T = Record<string, any>> {
+export type FormProps<T = Record<string, any>> = {
   as?: string;
   // --- JSOn Forms props
   i18n?: JsonFormsI18nState;
@@ -53,7 +53,7 @@ export interface FormProps<T = Record<string, any>> {
   // --- Provide a way to add custom variants for a specific instance of the component
   uiConfig?: { form: CxOptions };
   class?: HTMLAttributes["class"];
-}
+};
 
 export type FormMeta = {
   canTranslate: boolean;
@@ -66,22 +66,22 @@ export type FormMeta = {
   isDisabled: boolean;
 };
 
-export interface FormActionsProps {
+export type FormActionsProps = {
   meta: FormMeta;
   doReject: () => void;
   doResolve: () => void;
-}
+};
 
-export interface FormFooterProps {
+export type FormFooterProps = {
   meta: FormMeta;
-}
+};
 
-export interface FormActionProps extends ButtonProps {
+export type FormActionProps = ButtonProps & {
   handler?: Function | string;
   needsValid?: boolean;
-}
+};
 
-export interface FormControlProps extends InputProps {
+export type FormControlProps = InputProps & {
   // --- required
   id: string;
   name: string;
@@ -116,31 +116,28 @@ export interface FormControlProps extends InputProps {
     };
   };
   class?: HTMLAttributes["class"];
-}
+};
 
-interface SharedBindingObject<TValue = any> {
+type SharedBindingObject<TValue = any> = {
   name: string;
   onBlur: (e: Event) => void;
   onInput: (e: Event | unknown) => void;
   onChange: (e: Event | unknown) => void;
   "onUpdate:modelValue"?: ((e: TValue) => unknown) | undefined;
-}
+};
 
-export interface FieldBindingObject<
-  TValue = any
-> extends SharedBindingObject<TValue> {
+export type FieldBindingObject<TValue = any> = SharedBindingObject<TValue> & {
   value?: TValue;
   checked?: boolean;
-}
+};
 
-export interface ComponentFieldBindingObject<
-  TValue = any
-> extends SharedBindingObject<TValue> {
-  modelValue?: TValue;
-}
+export type ComponentFieldBindingObject<TValue = any> =
+  SharedBindingObject<TValue> & {
+    modelValue?: TValue;
+  };
 // --------------------------------------------
 
-export interface FormControlRenderProps {
+export type FormControlRenderProps = {
   uischema: ControlElement;
   schema: NonNullable<JsonSchema>;
   path: string;
@@ -154,4 +151,4 @@ export interface FormControlRenderProps {
   config: any;
   id: string;
   errors: string | string[];
-}
+};

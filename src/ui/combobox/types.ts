@@ -14,7 +14,7 @@ import type { HTMLAttributes } from "vue";
 type ContentVariantsProps = VariantProps<typeof contentVariants>;
 type TriggerVariantProps = VariantProps<typeof triggerVariants>;
 
-export interface ComboboxItemProps {
+export type ComboboxItemProps = {
   label: string;
   selectedLabel: string;
   sublabel?: string;
@@ -27,12 +27,11 @@ export interface ComboboxItemProps {
   persist?: boolean;
 }
 
-export interface ComboboxSearchFunction {
+export type ComboboxSearchFunction = {
   (value: string, items?: ComboboxItemProps[]): ComboboxItemProps[];
 }
 
-export interface ComboboxProps
-  extends PopoverRootProps, PopoverContentProps, PopoverTriggerProps {
+export type ComboboxProps = PopoverRootProps & PopoverContentProps & PopoverTriggerProps & {
   label?: string;
   sublabel?: string;
   tag?: string;

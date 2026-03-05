@@ -14,7 +14,7 @@ import type { HTMLAttributes } from "vue";
 
 type ContentVariantProps = VariantProps<typeof contentVariants>;
 
-export interface DropdownMenuItemProps {
+export type DropdownMenuItemProps = {
   label: string;
   value: string;
   icon?: IconProps["icon"];
@@ -25,11 +25,7 @@ export interface DropdownMenuItemProps {
   class?: HTMLAttributes["class"];
 }
 
-export interface DropdownMenuProps
-  extends
-    DropdownMenuRootProps,
-    DropdownMenuContentProps,
-    DropdownMenuTriggerProps {
+export type DropdownMenuProps = DropdownMenuRootProps & DropdownMenuContentProps & DropdownMenuTriggerProps & {
   title?: string;
   label?: string;
   sublabel?: string;

@@ -18,7 +18,7 @@ export type CheckboxCardsItemActionProps = LinkProps & {
   visible?: boolean;
 };
 
-export interface CheckboxCardsItemProps extends ToggleGroupItemProps {
+export type CheckboxCardsItemProps = ToggleGroupItemProps & {
   label: string;
   secondaryLabel?: string;
   description?: string;
@@ -36,7 +36,7 @@ export interface CheckboxCardsItemProps extends ToggleGroupItemProps {
 
 type HTMLClassAttributes = HTMLAttributes["class"];
 type Cursor = CheckboxLabelVariantProps["cursor"];
-export interface CheckboxCardsProps extends ToggleGroupRootProps {
+export type CheckboxCardsProps = ToggleGroupRootProps & {
   modelValue?: string[];
   /** The default active value. Use when you do not need to control the state of the items. */
   defaultValue?: string[];

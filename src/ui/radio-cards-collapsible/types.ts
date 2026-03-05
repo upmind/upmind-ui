@@ -6,7 +6,7 @@ import type { HTMLAttributes } from "vue";
 // --- types
 type _RadioCardsItemVariantProps = VariantProps<typeof itemVariants>;
 
-export interface RadioCardsCollapsibleItemProps extends RadioGroupItemProps {
+export type RadioCardsCollapsibleItemProps = RadioGroupItemProps & {
   item?: any;
   index: number;
   name?: string;
@@ -24,7 +24,7 @@ export interface RadioCardsCollapsibleItemProps extends RadioGroupItemProps {
   uiConfig?: { radioCards: CxOptions };
 }
 
-export interface RadioCardsCollapsibleProps extends RadioGroupRootProps {
+export type RadioCardsCollapsibleProps = RadioGroupRootProps & {
   label?: string;
   placeholder?: string;
   noneText?: string;

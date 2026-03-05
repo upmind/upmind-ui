@@ -15,7 +15,7 @@ export type InterstitialActionProps = {
   appendIcon?: IconProps;
 } & ButtonProps;
 
-export interface InterstitialProps {
+export type InterstitialProps = {
   modal?: boolean;
   open?: DialogProps["open"];
   to?: DialogProps["to"];

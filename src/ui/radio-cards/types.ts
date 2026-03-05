@@ -15,7 +15,7 @@ export type RadioCardsItemActionProps = LinkProps & {
   visible?: boolean;
 };
 
-export interface RadioCardsItemProps extends RadioGroupItemProps {
+export type RadioCardsItemProps = RadioGroupItemProps & {
   item?: any;
   index: number;
   name?: string;
@@ -42,7 +42,7 @@ export interface RadioCardsItemProps extends RadioGroupItemProps {
   dataFocus?: boolean;
 }
 
-export interface RadioCardsProps extends RadioGroupRootProps {
+export type RadioCardsProps = RadioGroupRootProps & {
   label?: string;
   // placeholder?: string;
   noneText?: string;

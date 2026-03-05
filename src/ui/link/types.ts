@@ -43,7 +43,7 @@ export type LinkProps = {
   | { to?: undefined; href?: undefined }
 );
 
-export interface LinkItemsProps {
+export type LinkItemsProps = {
   color?: LinkProps["color"];
   icon?: LinkProps["icon"];
   avatar?: LinkProps["avatar"];

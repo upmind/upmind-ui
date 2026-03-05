@@ -43,7 +43,7 @@ export type InputProps = {
   class?: HTMLAttributes["class"];
 };
 
-export interface InputItemsProps {
+export type InputItemsProps = {
   icon?: InputProps["icon"];
   avatar?: InputProps["avatar"];
 }
