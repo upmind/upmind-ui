@@ -61,10 +61,30 @@ export default createMachine(
         id: "subscribing",
         entry: ["setAuthHelper"],
         on: {
+          /**
+           * Accept target basket ID while still waiting for a session.
+           * No auth guard, no transition — just store the ID so the first
+           * `load` invocation after AUTHENTICATED already uses `orders/{id}`.
+           */
+          SET_TARGET_BASKET: {
+            actions: ["setTargetBasketId"]
+          },
           REFRESH: {
             // do nothing until we have a session
           },
-          SESSION: {
+          SESSION: [
+            {
+              // If we have a target basket, do NOT load yet — wait for AUTHENTICATED
+              // because a specific basket requires client auth, not a guest token.
+              cond: "hasTargetBasketId"
+            },
+            { target: "#loading" }
+          ],
+          /**
+           * When a target basket is pending, AUTHENTICATED is the signal
+           * that the client token is available and we can safely load `orders/{id}`.
+           */
+          AUTHENTICATED: {
             target: "#loading"
           }
         }
@@ -812,6 +832,9 @@ export default createMachine(
         _context: BasketContext,
         { data }: AnyEventObject
       ) => !!data?.targetBasketInvalid,
+
+      hasTargetBasketId: ({ targetBasketId }: BasketContext) =>
+        !isEmpty(targetBasketId),
 
       hasNoProducts: ({ products }) => isEmpty(products),
       hasProducts: ({ products }) => !isEmpty(products),

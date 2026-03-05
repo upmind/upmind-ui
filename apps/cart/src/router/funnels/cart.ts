@@ -45,7 +45,7 @@ export default <FunnelProps>{
      * or the CATALOGUE route (if no configurations are found).
      */
     [ROUTE.LOADING]: {
-      entry: ["setResolving"],
+      entry: ["setResolving", "setBasket"],
       always: [
         {
           target: ROUTE.PRODUCT_CONFIGURE,
@@ -213,7 +213,7 @@ export default <FunnelProps>{
      * From here, users can proceed to the CHECKOUT route or return to the CATALOGUE.
      */
     [ROUTE.BASKET]: {
-      entry: ["setCurrency"],
+      entry: ["setCurrency", "setBasket"],
       invoke: {
         src: "guardBasket",
         onDone: { actions: ["setResolved"] },
