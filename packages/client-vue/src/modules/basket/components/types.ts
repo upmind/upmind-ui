@@ -7,16 +7,14 @@ import type {
 } from "@upmind-automation/upmind-ui";
 
 // ---
-export interface ActionProps extends ButtonProps {
+export type ActionProps = {
   type?: HTMLButtonElement["type"];
   handler?: Function | string;
   auto?: boolean;
-  href?: string;
   prependIcon?: IconProps["icon"];
   appendIcon?: IconProps["icon"];
-  variant?: ButtonProps["variant"];
   visible?: boolean;
-}
+} & ButtonProps;
 
 export interface BasketModalProps {
   modal?: boolean;
