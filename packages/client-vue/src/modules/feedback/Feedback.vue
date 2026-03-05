@@ -55,12 +55,12 @@ import Error from "../system/Error.vue";
 import { get, some, forEach } from "lodash-es";
 import { messageTypes } from "@upmind-automation/headless";
 import { TOAST_VARIANTS } from "@upmind-automation/upmind-ui";
-import type { RouteLocationAsRelativeGeneric } from "vue-router";
+import type { StorefrontRoute } from "../../types";
 
 // -----------------------------------------------------------------------------
 const props = defineProps<{
   scheduled?: boolean;
-  storefrontRoute?: RouteLocationAsRelativeGeneric;
+  storefrontRoute?: StorefrontRoute;
 }>();
 const styles = useStyles(["feedback"], props, config);
 

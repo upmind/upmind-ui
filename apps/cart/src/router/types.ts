@@ -13,11 +13,6 @@ export enum RegexMatch {
 export enum ROUTE {
   // --- SHOP ROUTES -----------------------------------------------------------
 
-  /**
-   * The main storefront route, typically the landing page for users.
-   * This may be an internal OR external route depending on the application setup.
-   */
-  STOREFRONT = "storefront",
 
   /**
    * The configuration key used to determine the checkout flow for the brand.
