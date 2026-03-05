@@ -57,7 +57,7 @@ const isAuthRoute = computed(() =>
 
 // set up automatic redirects when the user logs in or out or if the basket is emptied
 isReady().then(() => {
-  const { meta: basketMeta, reset } = useBasket();
+  const { meta: basketMeta } = useBasket();
   const { meta: sessionMeta } = useSession();
   watch(
     [basketMeta, sessionMeta],
