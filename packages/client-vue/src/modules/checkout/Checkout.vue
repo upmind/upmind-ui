@@ -45,13 +45,13 @@
           />
         </slot>
       </template>
-
-      <template v-if="meta.hasErrors" #errors>
-        <slot name="errors">
-          <CheckoutErrors v-show="showCheckout" />
-        </slot>
-      </template>
     </component>
+
+    <template v-if="meta.hasErrors" #errors>
+      <slot name="errors">
+        <CheckoutErrors v-show="showCheckout" />
+      </slot>
+    </template>
   </Transitions>
 
   <!-- Basket processing -->

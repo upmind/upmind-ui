@@ -24,9 +24,6 @@ test.describe("Checkout with Offline Payment", () => {
     await page.waitForLoadState("domcontentloaded");
     await checkout.selectPaymentMethod("Offline Payment");
     await checkout.clickPlaceOrder();
-    await expect(page.getByRole("dialog")).toContainText(
-      "Converting your order"
-    );
-    await expect(page.getByRole("dialog")).toContainText("Order complete!");
+    await expect(page.getByText("Thank you for your order!")).toBeVisible();
   });
 });

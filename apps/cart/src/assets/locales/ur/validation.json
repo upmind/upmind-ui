@@ -26,7 +26,7 @@
   "multipleOf": "{title} کا کثیر ہونا ضروری ہے۔ {multipleOf}",
   "not": "{title} 'not'میں اسکیما کے مطابق درست نہیں ہونا چاہیے",
   "oneOf": "{title} 'oneOf'میں اسکیموں میں سے ایک سے بالکل مماثل ہونا چاہیے",
-  "pattern": "{title} پیٹرن سے ملنا چاہئے {pattern}",
+  "pattern": "{title} پیٹرن {pattern} سے مماثل ہونا چاہیے",
   "patternProperties": "{title} پراپرٹی کا نام{propertyName} غلط ہے (پیٹرن مماثل نہیں)",
   "phone": "{title} درست بین الاقوامی فون نمبر ہونا چاہیے",
   "propertyNames": "{title} پراپرٹی کا نام{propertyName} غلط ہے",

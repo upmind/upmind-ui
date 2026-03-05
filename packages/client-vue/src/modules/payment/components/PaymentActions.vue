@@ -1,28 +1,29 @@
 <template>
-  <footer key="actions" :class="styles.checkout.footer.root">
-    <div :class="styles.checkout.footer.actions">
+  <footer key="actions" :class="styles.payment.footer.root">
+    <div :class="styles.payment.footer.actions">
       <Button
+        :class="styles.payment.action"
+        :label="action"
         :disabled="meta.isDisabled"
         :loading="meta.isProcessing"
+        icon-append="arrow-right"
         size="lg"
-        @click.prevent="onResolve"
-        :label="action"
-        :class="styles.checkout.action"
         block
+        @click.prevent="onResolve"
       />
     </div>
 
     <Markdown
       v-if="clickwrap"
       tag="p"
-      :class="styles.checkout.clickwrap"
+      :class="styles.payment.clickwrap"
       :model-value="clickwrap"
       :keys="{ action }"
     />
 
     <TermsAndConditions
       v-else
-      :class="styles.checkout.footer.terms"
+      :class="styles.payment.footer.terms"
       :label="action"
     />
   </footer>
@@ -30,11 +31,11 @@
 
 <script lang="ts" setup>
 // --- external
-import { useI18n } from "vue-i18n";
 import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 
 // --- internal
-import config from "../checkout.config";
+import config from "../payment.config";
 import { useStyles } from "@upmind-automation/upmind-ui";
 
 // --- components
@@ -57,16 +58,18 @@ const meta = computed(() => ({
   isProcessing: props.processing,
   isDisabled: props.disabled,
   isPayOffline: props.offline,
-  isFree: props.free
+  isFree: props.free,
+  isSettlement: props.settlement
 }));
 
 const action = computed(() => {
+  if (meta.value.isSettlement) return t("action.pay_now");
   if (meta.value.isPayOffline || meta.value.isFree)
     return t("action.place_order");
   return t("action.place_order_and_pay");
 });
 const styles = useStyles(
-  ["checkout", "checkout.stored", "checkout.footer"],
+  ["payment", "payment.stored", "payment.footer"],
   meta,
   config
 );

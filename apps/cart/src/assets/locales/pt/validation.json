@@ -26,7 +26,7 @@
   "multipleOf": "{title} tem de ser um múltiplo de {multipleOf}",
   "not": "{title} não deve ser válido de acordo com o esquema em 'not'",
   "oneOf": "{title} tem de corresponder exatamente a um dos esquemas em 'oneOf'",
-  "pattern": "{title} tem que combinar com o padrão {pattern}",
+  "pattern": "{title} deve corresponder ao padrão {pattern}",
   "patternProperties": "A propriedade {title} {propertyName} está inválida (padrão incompatível)",
   "phone": "{title} deve ser um número de telefone válido em formato internacional",
   "propertyNames": "A propriedade {title} {propertyName} não está certo.",

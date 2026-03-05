@@ -61,6 +61,7 @@
   "currency_update_failed": "Experimentamos un error al actualizar la moneda",
   "currency_validation_failed": "La validación de la moneda falló",
   "domain_add_failed": "No se pudo agregar el dominio a la cesta",
+  "domain_not_valid": "Debe ser un dominio o subdominio válido",
   "feedback_action_not_available": "Acción con valor '{data}' No disponible.",
   "funnel_not_available": "Embudo no disponible",
   "funnels_not_available": "Embudos no disponibles",

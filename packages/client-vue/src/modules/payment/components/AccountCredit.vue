@@ -29,9 +29,9 @@
       modal
       no-actions
       :modelValue="model"
-      :processing="props.processing"
-      :schema="props.schema"
-      :uischema="props.uischema"
+      :processing="processing"
+      :schema="schema"
+      :uischema="uischema"
       :title="t('cart.account_credit')"
       :description="
         t('cart.account_credit_msg', {
@@ -60,10 +60,6 @@ import type { AccountCreditProps } from "../types";
 
 // -----------------------------------------------------------------------------
 const props = defineProps<AccountCreditProps>();
-
-const emit = defineEmits<{
-  (e: "resolve"): void;
-}>();
 
 const open = ref(false);
 

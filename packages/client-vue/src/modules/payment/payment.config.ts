@@ -2,7 +2,7 @@ import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 
 export default {
-  checkout: {
+  payment: {
     root: cva("flex min-h-24 flex-col gap-5"),
     backButton: cva("relative -top-4 mt-6 md:mt-0"),
     section: cva(
@@ -79,9 +79,5 @@ export default {
     ),
 
     isFree: cva("w-full")
-  },
-
-  client: {
-    title: cva("flex justify-between")
   }
 };

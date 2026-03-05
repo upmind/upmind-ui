@@ -1,11 +1,11 @@
 // --- external
 import type { AnyEventObject } from "xstate";
-import { createMachine, assign, sendParent, actions } from "xstate";
+import { createMachine, assign, sendParent, actions, spawn } from "xstate";
 const { escalate } = actions;
 
 // --- internal
 import services from "./services";
-import { useFeedback } from "../feedback";
+import { authSubscription } from "../session/helper";
 import { useDataLayer } from "../system";
 
 // --- utils
@@ -23,9 +23,17 @@ export default createMachine(
     //tsTypes: {} as import("./payment.machine.typegen").Typegen0,
     id: "",
     predictableActionArguments: true,
-    initial: "loading",
+    initial: "subscribing",
     context: {} as PaymentContext,
     states: {
+      // Subscribe to auth changes and wait for a valid session
+      subscribing: {
+        entry: ["setAuthHelper"],
+        on: {
+          AUTHENTICATED: { target: "loading" }
+        }
+      },
+
       loading: {
         invoke: {
           src: "load",
@@ -133,14 +141,27 @@ export default createMachine(
       },
 
       error: {
-        entry: escalate(({ error }, _event) => error),
+        entry: "escalateError",
         id: "error"
         // type: "final",
+      }
+    },
+
+    on: {
+      // Auth lost — return to subscribing
+      UNAUTHENTICATED: {
+        target: "subscribing",
+        actions: ["clearError"]
       }
     }
   },
   {
     actions: {
+      setAuthHelper: assign({
+        authHelper: ({ authHelper }: PaymentContext, _event: AnyEventObject) =>
+          authHelper ?? spawn(authSubscription)
+      }),
+
       setContext: assign(
         // (_context: PaymentDetailsContext, { data }: PaymentDetailsEvent) => data
         (_context, { data }: AnyEventObject) => data
@@ -176,7 +197,11 @@ export default createMachine(
         }
       }),
 
-      clearError: assign({ error: undefined })
+      clearError: assign({ error: undefined }),
+
+      escalateError: escalate(
+        ({ error }: PaymentContext, _event: AnyEventObject) => error
+      )
     },
 
     guards: {

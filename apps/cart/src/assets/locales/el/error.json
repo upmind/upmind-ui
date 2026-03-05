@@ -61,6 +61,7 @@
   "currency_update_failed": "Παρουσιάστηκε σφάλμα κατά την ενημέρωση του νομίσματος",
   "currency_validation_failed": "Η επικύρωση νομίσματος απέτυχε.",
   "domain_add_failed": "Αποτυχία προσθήκης του domain στο καλάθι",
+  "domain_not_valid": "Πρέπει να είναι σωστά μορφοποιημένο όνομα τομέα ή υποτομέα",
   "feedback_action_not_available": "Η ενέργεια με τιμή ‘{data}’ δεν είναι διαθέσιμη.",
   "funnel_not_available": "Η διοχέτευση δεν είναι διαθέσιμη",
   "funnels_not_available": "Οι διοχετεύσεις δεν είναι διαθέσιμες",

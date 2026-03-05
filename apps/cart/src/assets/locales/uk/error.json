@@ -61,6 +61,7 @@
   "currency_update_failed": "Під час оновлення валюти сталася помилка",
   "currency_validation_failed": "Не вдалося перевірити валюту",
   "domain_add_failed": "Не вдалося додати домен до кошика",
+  "domain_not_valid": "Має бути коректним доменним ім’ям або піддоменом",
   "feedback_action_not_available": "Дія з цінністю '{data}' недоступно.",
   "funnel_not_available": "Воронка продажів недоступна",
   "funnels_not_available": "Воронки продажів недоступні",
