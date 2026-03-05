@@ -8,7 +8,7 @@
 
 <script lang="ts" setup>
 import { UpmBasket } from "@upmind-automation/client-vue";
-import { ROUTE } from "~/funnels/types"
+import { ROUTE } from "~/funnels/types";
 import { useStorefrontRoute } from "~/composables/useStorefrontRoute";
 import { useI18n } from "vue-i18n";
 
