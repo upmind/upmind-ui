@@ -1,10 +1,11 @@
 <template>
-  <UpmError :storefront-route="{ name: ROUTE.STOREFRONT }" />
+  <UpmError :storefront-route="storefrontRoute" />
 </template>
 
 <script lang="ts" setup>
 import { UpmError } from "@upmind-automation/client-vue";
-import { ROUTE } from "~/funnels/types";
+import { ROUTE } from "~/funnels/types"
+import { useStorefrontRoute } from "~/composables/useStorefrontRoute";
 import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
@@ -22,4 +23,5 @@ useSeoMeta({
 definePageMeta({
   name: ROUTE.ERROR
 });
+const { storefrontRoute } = useStorefrontRoute();
 </script>

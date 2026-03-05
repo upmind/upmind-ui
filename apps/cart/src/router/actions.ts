@@ -37,7 +37,6 @@ const SKIP_BID_ROUTES: string[] = [
   ROUTE.SESSION_END
   // ROUTE.NOT_FOUND,
   // ROUTE.LOADING,
-  // ROUTE.STOREFRONT,
 ];
 
 /**

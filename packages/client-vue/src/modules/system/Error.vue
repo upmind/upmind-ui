@@ -26,7 +26,7 @@ import { type InterstitialProps } from "@upmind-automation/upmind-ui";
 import { computed } from "vue";
 import { first, isNil } from "lodash-es";
 import { responseCodes, type Message } from "@upmind-automation/headless";
-import type { RouteLocationAsRelativeGeneric } from "vue-router";
+import type { StorefrontRoute } from "../../types";
 const { t } = useI18n();
 
 const props = withDefaults(
@@ -36,7 +36,7 @@ const props = withDefaults(
       copy?: Message["copy"];
       actions?: Message["actions"];
       status?: Message["data"]["status"];
-      storefrontRoute?: RouteLocationAsRelativeGeneric;
+      storefrontRoute?: StorefrontRoute;
     } & InterstitialProps
   >(),
   {
@@ -169,7 +169,7 @@ const actions = computed((): InterstitialActionProps[] => {
     // for all other errors, we want to redirect back to the storefront
     default:
       defaultAction = {
-        to: props.storefrontRoute,
+        ...props.storefrontRoute,
         handler: () => emit("dismiss"),
         variant: "solid",
         color: "primary",

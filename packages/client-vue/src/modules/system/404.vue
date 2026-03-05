@@ -6,7 +6,7 @@
       :text="t('error.404_text')"
       :actions="[
         {
-          to: props.storefrontRoute,
+          ...props.storefrontRoute,
           variant: 'solid',
           color: 'primary',
           icon: 'arrow-left',
@@ -43,14 +43,14 @@ import { Interstitial, IconAnimated } from "@upmind-automation/upmind-ui";
 
 // -- types
 import { type InterstitialProps } from "@upmind-automation/upmind-ui";
-import type { RouteLocationAsRelativeGeneric } from "vue-router";
+import type { StorefrontRoute } from "../../types";
 
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(
   defineProps<
     InterstitialProps & {
-      storefrontRoute: RouteLocationAsRelativeGeneric;
+      storefrontRoute: StorefrontRoute;
     }
   >(),
   {
