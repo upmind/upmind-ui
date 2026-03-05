@@ -26,7 +26,7 @@
       </component>
 
       <component
-        v-if="!hasSubtitle && hasDescription"
+        v-if="!meta.hasSubtitle && meta.hasDescription"
         :is="$slots.description ? 'div' : 'p'"
         :class="styles.hero.description"
       >
@@ -37,7 +37,7 @@
     </hgroup>
 
     <component
-      v-if="hasSubtitle && hasDescription"
+      v-if="meta.hasSubtitle && meta.hasDescription"
       :is="$slots.description ? 'div' : 'p'"
       :class="styles.hero.description"
     >
@@ -72,10 +72,10 @@ import type { HeroProps } from "./types";
 const props = defineProps<HeroProps>();
 const slots = defineSlots();
 
-const hasSubtitle = computed(() => !!props.subtitle || !!slots.subtitle);
-const hasDescription = computed(
-  () => !props.loading && (!!props.description || !!slots.description)
-);
+const meta = computed(() => ({
+  hasSubtitle: !!props.subtitle || !!slots.subtitle,
+  hasDescription: !!props.description || !!slots.description
+}));
 
-const styles = useStyles(["hero"], {}, config, props.uiConfig ?? {});
+const styles = useStyles(["hero"], meta, config, props.uiConfig ?? {});
 </script>

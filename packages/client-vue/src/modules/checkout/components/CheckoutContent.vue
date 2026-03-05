@@ -52,21 +52,30 @@
   />
 
   <!-- Payment Details -->
-  <PaymentDetails v-show="showCheckout" data-testid="payment-details" />
+  <PaymentDetails
+    v-show="showCheckout"
+    data-testid="payment-details"
+    @resolve="checkout"
+  />
 </template>
 
 <script lang="ts" setup>
 // --- external
+import { provide } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useBasket, useBasketFields } from "@upmind-automation/headless";
+import {
+  useBasket,
+  useBasketFields,
+  useBasketPaymentDetails
+} from "@upmind-automation/headless";
 import { useConfig } from "@upmind-automation/headless";
 
 // --- components
 import Section from "../../../components/section/Section.vue";
 import BillingDetails from "../../billing/Billing.vue";
-import PaymentDetails from "./PaymentDetails.vue";
+import PaymentDetails from "../../payment/components/PaymentDetails.vue";
 import ProductCards from "../../basket-product/components/card/BasketProductCards.vue";
 import Form from "../../../components/form/Form.vue";
 import BasketErrors from "../../basket/components/BasketErrors.vue";
@@ -86,9 +95,12 @@ const props = defineProps<{
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
-const { meta, uischema } = useBasket();
+const { meta, uischema, checkout, errors } = useBasket();
 
 const { ui } = useConfig();
+
+const paymentDetails = useBasketPaymentDetails();
+provide("usePaymentDetails", paymentDetails);
 
 const {
   errors: fieldsErrors,

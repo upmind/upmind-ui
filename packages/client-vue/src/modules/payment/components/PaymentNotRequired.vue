@@ -1,5 +1,5 @@
 <template>
-  <div :class="styles.checkout.gateway">
+  <div :class="styles.payment.gateway">
     <Alert
       variant="minimal"
       icon="check-circle"
@@ -9,11 +9,11 @@
   </div>
 
   <PaymentActions
-    :free="meta.isFree"
-    :processing="meta.isProcessing"
-    :disabled="meta.isProcessing"
-    :errors="meta.hasErrors"
-    :offline="meta.isPayOffline"
+    :free="free"
+    :processing="processing"
+    :disabled="processing"
+    :errors="hasErrors"
+    :offline="payOffline"
     @resolve="handleCheckout"
   />
 </template>
@@ -23,34 +23,27 @@
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useBasketPaymentDetails } from "@upmind-automation/headless";
-import config from "../checkout.config";
+import config from "../payment.config";
 import { useStyles } from "@upmind-automation/upmind-ui";
 import PaymentActions from "./PaymentActions.vue";
 
 // --- components
 import { Alert } from "@upmind-automation/upmind-ui";
 
-// --- utils
-
 // --- types
-import type { PaymentGatewayProps } from "../types";
+import type { PaymentNotRequiredProps } from "../types";
 
 // -----------------------------------------------------------------------------
-const props = defineProps<PaymentGatewayProps>();
+const props = defineProps<PaymentNotRequiredProps>();
 const emit = defineEmits<{
   (e: "resolve"): void;
 }>();
 
-const { meta } = useBasketPaymentDetails();
-
 const { t } = useI18n();
 
-const styles = useStyles(["checkout", "checkout.footer"], meta, config);
+const styles = useStyles(["payment", "payment.footer"], {}, config);
 
 const handleCheckout = () => {
   emit("resolve");
 };
-
-// --- side effects
 </script>

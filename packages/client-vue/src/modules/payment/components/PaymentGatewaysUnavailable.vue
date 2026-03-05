@@ -1,43 +1,42 @@
 <template>
-  <div :class="styles.checkout.gateway">
+  <div :class="styles.payment.gateway">
     <Alert
       variant="minimal"
       color="warning"
       icon="alert-triangle"
       :title="
         t('error.payment_gateways_not_available_title', {
-          currency: currency?.code,
-          country: address?.country?.name
+          currency: currencyCode,
+          country: countryName
         })
       "
       :description="t('error.payment_gateways_not_available_msg')"
     />
 
     <!-- Actions and Terms -->
-    <footer key="actions" :class="styles.checkout.footer.root">
-      <div :class="styles.checkout.footer.actions">
+    <footer key="actions" :class="styles.payment.footer.root">
+      <div :class="styles.payment.footer.actions">
         <Button
-          :disabled="meta.isProcessing"
-          :loading="meta.isProcessing"
-          :color="props.color"
+          :disabled="processing"
+          :loading="processing"
           size="lg"
           @click.prevent="handleCheckout"
           :label="t('action.place_order')"
-          :class="styles.checkout.action"
+          :class="styles.payment.action"
         />
       </div>
 
       <Markdown
         v-if="clickwrap"
         tag="p"
-        :class="styles.checkout.clickwrap"
+        :class="styles.payment.clickwrap"
         :model-value="clickwrap"
         :keys="{ action: t('action.place_order') }"
       />
 
       <TermsAndConditions
         v-else
-        :class="styles.checkout.footer.terms"
+        :class="styles.payment.footer.terms"
         :label="t('action.place_order')"
       />
     </footer>
@@ -49,32 +48,27 @@
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useBasketPaymentDetails } from "@upmind-automation/headless";
-import config from "../checkout.config";
+import config from "../payment.config";
 import { useStyles } from "@upmind-automation/upmind-ui";
 import TermsAndConditions from "../../brand/TermsAndConditions.vue";
 
 // --- components
 import { Alert, Markdown, Button } from "@upmind-automation/upmind-ui";
 
-// --- utils
-
 // --- types
-import type { PaymentGatewayProps } from "../types";
+import type { PaymentGatewaysUnavailableProps } from "../types";
 
 // -----------------------------------------------------------------------------
-const props = defineProps<PaymentGatewayProps>();
-const emit = defineEmits(["checkout"]);
-
-const { meta, clickwrap, currency, address } = useBasketPaymentDetails();
+const props = defineProps<PaymentGatewaysUnavailableProps>();
+const emit = defineEmits<{
+  (e: "resolve"): void;
+}>();
 
 const { t } = useI18n();
 
-const styles = useStyles(["checkout", "checkout.footer"], meta, config);
+const styles = useStyles(["payment", "payment.footer"], {}, config);
 
 const handleCheckout = () => {
-  emit("checkout");
+  emit("resolve");
 };
-
-// --- side effects
 </script>

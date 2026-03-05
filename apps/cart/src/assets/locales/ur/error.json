@@ -61,6 +61,7 @@
   "currency_update_failed": "ہمیں کرنسی کو اپ ڈیٹ کرنے میں ایک خرابی کا سامنا کرنا پڑا",
   "currency_validation_failed": "کرنسی کی توثیق ناکام ہو گئی۔",
   "domain_add_failed": "ڈومین کو ٹوکری میں شامل کرنے میں ناکام",
+  "domain_not_valid": "درست ڈومین یا سب ڈومین ہونا چاہیے",
   "feedback_action_not_available": "قدر کے ساتھ ایکشن'{data}' دستیاب نہیں",
   "funnel_not_available": "فینل دستیاب نہیں ہے۔",
   "funnels_not_available": "فنل دستیاب نہیں ہیں۔",

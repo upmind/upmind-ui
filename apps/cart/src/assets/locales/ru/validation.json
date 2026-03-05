@@ -26,7 +26,7 @@
   "multipleOf": "{title} должно быть кратно {multipleOf}",
   "not": "{title} НЕ должно быть допустимым согласно схеме в 'not'",
   "oneOf": "{title} должен соответствовать только одной из схем в «oneOf»",
-  "pattern": "{title} должен соответствовать шаблону {pattern}",
+  "pattern": "{title} должно соответствовать шаблону {pattern}",
   "patternProperties": "{title} имя свойства {propertyName} недействителен (несоответствие шаблону)",
   "phone": "{title} должен быть корректным международным номером телефона",
   "propertyNames": "{title} имя свойства {propertyName} недействителен",

@@ -133,7 +133,10 @@ import { computed, inject, onUpdated } from "vue";
 // --- internal
 import {
   type UseProductConfig,
-  type UseMetaResult
+  type UseMetaResult,
+  DetailedError,
+  responseCodes,
+  ErrorOrigin
 } from "@upmind-automation/headless";
 import { useStyles, Link, Button, cn } from "@upmind-automation/upmind-ui";
 import config from "../../product.config";
@@ -177,7 +180,12 @@ const props = withDefaults(
 );
 
 const productConfig = inject<UseProductConfig>("useProductConfig");
-if (!productConfig) throw new Error("useProductConfig not provided");
+if (!productConfig)
+  throw new DetailedError(
+    t("error.product_not_available"),
+    responseCodes.Service_Unavailable,
+    ErrorOrigin.Headless
+  );
 
 const {
   product,

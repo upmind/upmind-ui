@@ -1,4 +1,5 @@
 // --- external
+import type { ActorRef } from "xstate";
 
 // --- internal
 import type {
@@ -29,6 +30,10 @@ export interface PaymentArgs {
  * approvals, and tracking the payment attempt itself.
  */
 export interface PaymentContext extends PaymentArgs {
+  /**
+   * Spawned auth subscription actor.
+   */
+  authHelper?: ActorRef<any>;
   /**
    * Optional details for handling payment cancellation, e.g. for 3D Secure redirects.
    */

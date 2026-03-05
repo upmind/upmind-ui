@@ -28,6 +28,8 @@ import {
 // --- components
 import { Interstitial } from "@upmind-automation/upmind-ui";
 
+// -----------------------------------------------------------------------------
+
 const { t } = useI18n();
 const { meta } = useBasket();
 const { meta: paymentDetailsMeta } = useBasketPaymentDetails();

@@ -61,6 +61,7 @@
   "currency_update_failed": "Kami mengalami kesalahan saat memperbarui mata uang",
   "currency_validation_failed": "Validasi mata uang gagal",
   "domain_add_failed": "Gagal menambahkan domain ke keranjang",
+  "domain_not_valid": "Harus berupa domain atau subdomain yang valid",
   "feedback_action_not_available": "Tindakan dengan nilai '{data}' tidak tersedia.",
   "funnel_not_available": "Corong tidak tersedia",
   "funnels_not_available": "Corong tidak tersedia",

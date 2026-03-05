@@ -20,7 +20,7 @@ import {
 } from "../../utils";
 import { useTime, useValidationParser } from "../../utils";
 import { useSchema, useUischema } from "./schemas";
-import { isEqual, isEmpty, find, map, isNil, set } from "lodash-es";
+import { isEqual, isEmpty, find, map, isNil, set, includes } from "lodash-es";
 
 // --- types
 import type { AnyEventObject } from "xstate";
@@ -29,7 +29,8 @@ import { responseCodes } from "../../utils";
 import {
   PaymentType,
   GatewayContext as GatewayCtx,
-  type IBasket
+  type IBasket,
+  InvoiceStatus
 } from "@upmind-automation/types";
 import { mapPaymentData } from "./mappers";
 
@@ -56,7 +57,11 @@ export default createMachine(
       checking: {
         invoke: {
           src: "isAuthenticated",
-          onDone: { target: "loading" },
+          onDone: [
+            { target: "loading", cond: "isPayable" },
+            { target: "unavailable" }
+          ],
+
           onError: { target: "unavailable" }
         }
       },
@@ -251,12 +256,16 @@ export default createMachine(
 
       setLookups: assign({
         lookups: (
-          { model, raw }: PaymentDetailsContext,
+          { model, raw, orderStatus }: PaymentDetailsContext,
           { data }: AnyEventObject
         ) => {
           // NB: Filter out  gateways and payment details that are not valid base don our model
           const safePaymentTypes = filterPaymentTypes(raw.config, model);
-          const safeGateways = filterGateways(raw.gateways ?? [], model);
+          const safeGateways = filterGateways(
+            raw.gateways ?? [],
+            model,
+            orderStatus
+          );
           const safePaymentDetails = filterPaymentDetails(
             raw.storedPaymentMethods ?? [],
             safeGateways
@@ -467,6 +476,20 @@ export default createMachine(
     },
 
     guards: {
+      isPayable: (
+        { orderStatus }: PaymentDetailsContext,
+        _event: AnyEventObject
+      ) =>
+        includes(
+          [
+            InvoiceStatus.DRAFT,
+            InvoiceStatus.ADJUSTED,
+            InvoiceStatus.UNPAID,
+            InvoiceStatus.OVERDUE
+          ],
+          orderStatus
+        ),
+
       hasBasket: ({ orderId }: PaymentDetailsContext, _event: AnyEventObject) =>
         !!orderId,
 
