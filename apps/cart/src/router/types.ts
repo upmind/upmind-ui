@@ -13,7 +13,6 @@ export enum RegexMatch {
 export enum ROUTE {
   // --- SHOP ROUTES -----------------------------------------------------------
 
-
   /**
    * The configuration key used to determine the checkout flow for the brand.
    * This key helps in selecting between different checkout funnel implementations.

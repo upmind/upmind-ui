@@ -11,7 +11,9 @@
 import { UpmBasket } from "@upmind-automation/client-vue";
 
 // --- internal
-import { ROUTE } from "../router"
+import { ROUTE } from "../router";
 import { useStorefrontRoute } from "../composables/useStorefrontRoute";
+
+// -----------------------------------------------------------------------------
 const { storefrontRoute } = useStorefrontRoute();
 </script>

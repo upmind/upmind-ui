@@ -20,7 +20,6 @@ export const BID_PREFIX = `:segment(basket)?/:bid(${RegexMatch.UUID})?`;
 export enum ROUTE {
   // --- SHOP ROUTES -----------------------------------------------------------
 
-
   /**
    * The configuration key used to determine the checkout flow for the brand.
    * This key helps in selecting between different checkout funnel implementations.
