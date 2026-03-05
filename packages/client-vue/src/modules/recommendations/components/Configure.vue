@@ -47,7 +47,10 @@ import {
   useBasketProductsPending,
   useConfig,
   useProductConfig,
-  UIContext
+  UIContext,
+  DetailedError,
+  responseCodes,
+  ErrorOrigin
 } from "@upmind-automation/headless";
 import { Link } from "@upmind-automation/upmind-ui";
 
@@ -82,7 +85,12 @@ const {
 } = await add(props.modelValue.productId, props.modelValue);
 
 const productConfig = useProductConfig(pendingProduct);
-if (!productConfig) throw new Error("useProductConfig not provided");
+if (!productConfig)
+  throw new DetailedError(
+    t("error.product_not_available"),
+    responseCodes.Service_Unavailable,
+    ErrorOrigin.Headless
+  );
 provide("useProductConfig", productConfig);
 
 const { meta: productMeta, product } = productConfig;

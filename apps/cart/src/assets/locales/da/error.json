@@ -61,6 +61,7 @@
   "currency_update_failed": "Der opstod en fejl under opdatering af valutaen",
   "currency_validation_failed": "Valutavalidering mislykkedes",
   "domain_add_failed": "Domænet kunne ikke tilføjes til kurven",
+  "domain_not_valid": "Skal være et gyldigt domæne eller subdomæne",
   "feedback_action_not_available": "Handling med værdi '{data}' ikke tilgængelig.",
   "funnel_not_available": "Tragt ikke tilgængelig",
   "funnels_not_available": "Tragte er ikke tilgængelige",

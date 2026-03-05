@@ -1,5 +1,5 @@
 <template>
-  <div :class="styles.checkout.gateway.root">
+  <div :class="styles.payment.gateway.root">
     <RadioCards
       model-value="pay-later"
       required
@@ -22,31 +22,16 @@
 
 <script lang="ts" setup>
 // --- external
-import {
-  onMounted,
-  useTemplateRef,
-  type ComputedRef,
-  computed,
-  ref
-} from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useBasketPaymentGateway } from "@upmind-automation/headless";
-import config from "../checkout.config";
-import { useStyles, Loading } from "@upmind-automation/upmind-ui";
+import config from "../payment.config";
+import { useStyles } from "@upmind-automation/upmind-ui";
 
 // --- components
-import {
-  Alert,
-  Markdown,
-  Button,
-  RadioCards
-} from "@upmind-automation/upmind-ui";
-import Form from "../../../components/form/Form.vue";
+import { RadioCards } from "@upmind-automation/upmind-ui";
 
 // --- types
-import type { PaymentGatewayProps } from "../types";
 
 // -----------------------------------------------------------------------------
 const emit = defineEmits(["resolve", "reject", "cancel"]);
@@ -54,7 +39,7 @@ const emit = defineEmits(["resolve", "reject", "cancel"]);
 const { t } = useI18n();
 
 const styles = useStyles(
-  ["checkout", "checkout.footer", "checkout.gateway"],
+  ["payment", "payment.footer", "payment.gateway"],
   {},
   config
 );

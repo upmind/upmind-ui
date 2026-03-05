@@ -1,10 +1,10 @@
 <template>
-  <div :class="styles.checkout.gateway">
+  <div :class="styles.payment.gateway">
     <Form
       v-model="model"
       :processing="meta.isProcessing"
-      :schema="props.schema"
-      :uischema="props.uischema"
+      :schema="schema"
+      :uischema="uischema"
       no-actions
     />
   </div>
@@ -13,11 +13,9 @@
 <script lang="ts" setup>
 // --- external
 import { computed } from "vue";
-import { useI18n } from "vue-i18n";
 
 // --- internal
-
-import config from "../checkout.config";
+import config from "../payment.config";
 import { useStyles } from "@upmind-automation/upmind-ui";
 
 // --- components
@@ -28,9 +26,6 @@ import type { PaymentGatewaysProps } from "../types";
 
 // -----------------------------------------------------------------------------
 const props = defineProps<PaymentGatewaysProps>();
-const emit = defineEmits<{
-  (e: "resolve"): void;
-}>();
 
 const model = defineModel("modelValue", {
   get(value) {
@@ -41,8 +36,6 @@ const model = defineModel("modelValue", {
   }
 });
 
-const { t } = useI18n();
-
 const meta = computed(() => {
   return {
     isProcessing: props.processing
@@ -50,16 +43,8 @@ const meta = computed(() => {
 });
 
 const styles = useStyles(
-  ["checkout", "checkout.accordion", "checkout.accordion.trigger"],
+  ["payment", "payment.accordion", "payment.accordion.trigger"],
   meta,
   config
 );
-
-// --- methods
-
-function onResolve() {
-  emit("resolve");
-}
-
-// --- side effects
 </script>

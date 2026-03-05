@@ -61,6 +61,7 @@
   "currency_update_failed": "Para birimini güncellerken bir hatayla karşılaştık",
   "currency_validation_failed": "Para birimi doğrulaması başarısız oldu",
   "domain_add_failed": "Alan adı sepete eklenemedi",
+  "domain_not_valid": "Geçerli bir alan adı veya alt alan adı olmalıdır",
   "feedback_action_not_available": "Değerli eylem '{data}' müsait değil.",
   "funnel_not_available": "Huni mevcut değil",
   "funnels_not_available": "Huni mevcut değil",

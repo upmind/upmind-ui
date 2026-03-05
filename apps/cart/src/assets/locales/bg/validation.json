@@ -26,7 +26,7 @@
   "multipleOf": "{title} трябва да е кратно на {multipleOf}",
   "not": "{title} НЕ трябва да е валидно според схемата в „не“",
   "oneOf": "{title} трябва да съвпада точно с една от схемите в „oneOf“",
-  "pattern": "{title} трябва да съответства на шаблона {pattern}",
+  "pattern": "{title} трябва да съответства на модела {pattern}",
   "patternProperties": "{title} име на имот {propertyName} е невалидно (несъответствие на шаблона)",
   "phone": "{title} трябва да е валиден телефонен номер в международен формат",
   "propertyNames": "{title} име на имот {propertyName} е невалидно",

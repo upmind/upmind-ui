@@ -61,6 +61,7 @@
   "currency_update_failed": "Am întâmpinat o eroare la actualizarea monedei",
   "currency_validation_failed": "Validarea monedei a eșuat",
   "domain_add_failed": "Nu s-a putut adăuga domeniul în coș",
+  "domain_not_valid": "Trebuie să fie un domeniu sau un subdomeniu valid",
   "feedback_action_not_available": "Acțiune cu valoare '{data}' nu este disponibil.",
   "funnel_not_available": "Pâlnia nu este disponibilă",
   "funnels_not_available": "Pâlnii nu sunt disponibile",

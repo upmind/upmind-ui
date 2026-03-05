@@ -12,6 +12,7 @@
     <template #actions>
       <PaymentAmount
         v-if="!meta.isFree && meta.canMakePartialPayment"
+        :amountsFormatted="amountsFormatted"
         :processing="meta.isProcessing"
         :modelValue="model?.amount"
         :currency="currency"
@@ -21,16 +22,17 @@
       />
     </template>
 
-    <Loading
-      :active="meta.isLoading"
-      :class="styles.checkout.root"
-      v-auto-animate
-    >
+    <Loading :active="meta.isLoading" :class="styles.payment.root">
+      <slot name="prepend" />
+
       <!-- Free -->
       <PaymentNotRequired
         v-if="meta.isAvailable && meta.isFree"
-        v-bind="props"
-        @resolve="checkout"
+        :free="meta.isFree"
+        :processing="meta.isProcessing"
+        :hasErrors="meta.hasErrors"
+        :payOffline="meta.isPayOffline"
+        @resolve="doResolve"
       />
 
       <!-- Needs Payment -->
@@ -38,7 +40,6 @@
         <!-- Account Credit -->
         <AccountCredit
           v-if="meta.hasAccountCredit"
-          v-bind="props"
           :processing="meta.isProcessing"
           :modelValue="model?.wallet_amount ?? 0"
           :amount="model?.amount ?? 0"
@@ -53,7 +54,6 @@
         <!-- Stored Payments -->
         <StoredPaymentMethods
           v-if="meta.showStoredPaymentMethods"
-          v-bind="props"
           :errors="errors"
           :filtered="meta.hasUnsupportedPaymentMethods"
           :processing="meta.isProcessing"
@@ -63,10 +63,21 @@
           @update:modelValue="setStoredPaymentMethod"
         />
 
+        <!-- Payment Error (shown when no gateway is active to display it) -->
+        <Alert
+          v-if="error && !meta.hasSelectedGateway"
+          color="danger"
+          variant="minimal"
+          icon="alert-triangle"
+          :title="t('text.payment_failed')"
+          :description="error"
+        />
+
         <!-- Selected Payment Gateway -->
         <PaymentGateway
-          v-if="meta.hasGateway"
+          v-if="meta.hasSelectedGateway"
           :key="model!.gateway_id"
+          :error="error"
           :single-gateway="meta.hasSingleGateway"
           @cancel="setGateway(null)"
         />
@@ -75,17 +86,17 @@
 
         <PaymentActions
           v-if="meta.showPaymentActions"
-          @resolve="checkout"
           :disabled="!meta.isValid && !meta.isUnavailable"
           :offline="meta.isPayOffline"
-          :processing="meta.isProcessing"
+          :processing="meta.isProcessing || processing"
           :clickwrap="clickwrap"
+          :settlement="meta.isSettlement"
+          @resolve="doResolve"
         />
 
         <!-- Payment Gateways selection -->
         <PaymentGateways
           v-if="meta.showGatewaySelection"
-          v-bind="props"
           :processing="meta.isProcessing"
           :modelValue="model?.gateway_id"
           :schema="schemaGateways"
@@ -96,8 +107,14 @@
         <!-- No Gateways Available -->
         <PaymentGatewaysUnavailable
           v-if="meta.needsPayment && !meta.hasGateways"
-          @resolve="checkout"
+          :clickwrap="clickwrap"
+          :currencyCode="currency?.code"
+          :countryName="address?.country?.name"
+          :processing="meta.isProcessing"
+          @resolve="doResolve"
         />
+
+        <slot name="append" />
       </template>
     </Loading>
   </Section>
@@ -105,17 +122,14 @@
 
 <script lang="ts" setup>
 // --- external
-import { vAutoAnimate } from "@formkit/auto-animate";
+import { inject } from "vue";
+import { useI18n } from "vue-i18n";
 
 // --- internal
-import {
-  useBasketPaymentDetails,
-  useBasket
-} from "@upmind-automation/headless";
-import config from "../checkout.config";
+import config from "../payment.config";
 
 // --- components
-import { Loading, useStyles } from "@upmind-automation/upmind-ui";
+import { Alert, Loading, useStyles } from "@upmind-automation/upmind-ui";
 import Section from "../../../components/section/Section.vue";
 import AccountCredit from "./AccountCredit.vue";
 import PaymentNotRequired from "./PaymentNotRequired.vue";
@@ -128,22 +142,43 @@ import StoredPaymentMethods from "./StoredPaymentMethods.vue";
 import PaymentActions from "./PaymentActions.vue";
 
 // --- types
+import {
+  DetailedError,
+  ErrorOrigin,
+  responseCodes,
+  type UsePaymentDetails
+} from "@upmind-automation/headless";
 import type { PaymentDetailsProps } from "../types";
-import { useI18n } from "vue-i18n";
 
 // -----------------------------------------------------------------------------
+
 const props = withDefaults(defineProps<PaymentDetailsProps>(), {
   as: "div",
   class: "bg-surface"
 });
 
+const emit = defineEmits<{
+  resolve: [];
+}>();
+
 const { t } = useI18n();
 
-const styles = useStyles(["checkout"], {}, config);
+const styles = useStyles(["payment"], {}, config);
+
+const paymentDetails = inject<UsePaymentDetails>("usePaymentDetails");
+
+if (!paymentDetails)
+  throw new DetailedError(
+    t("error.payment_detail_not_available"),
+    responseCodes.Service_Unavailable,
+    ErrorOrigin.Headless
+  );
 
 const {
   accountCredit,
+  address,
   amountsFormatted,
+  clear,
   clickwrap,
   currency,
   errors,
@@ -153,17 +188,17 @@ const {
   schemaAmountCredit,
   schemaGateways,
   schemaStoredPaymentMethods,
-  uischemaAmount,
-  uischemaAmountCredit,
-  uischemaGateways,
-  uischemaStoredPaymentMethods,
-  // ---
-  clear,
   setAmount,
   setAmountCredit,
   setGateway,
-  setStoredPaymentMethod
-} = useBasketPaymentDetails();
+  setStoredPaymentMethod,
+  uischemaAmount,
+  uischemaAmountCredit,
+  uischemaGateways,
+  uischemaStoredPaymentMethods
+} = paymentDetails;
 
-const { checkout } = useBasket();
+function doResolve() {
+  emit("resolve");
+}
 </script>

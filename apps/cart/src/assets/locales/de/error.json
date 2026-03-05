@@ -61,6 +61,7 @@
   "currency_update_failed": "Beim Aktualisieren der Währung ist ein Fehler aufgetreten",
   "currency_validation_failed": "Währungsvalidierung fehlgeschlagen",
   "domain_add_failed": "Das Hinzufügen der Domain zum Warenkorb ist fehlgeschlagen",
+  "domain_not_valid": "Muss eine gültige Domain oder Subdomain sein",
   "feedback_action_not_available": "Aktion mit Wert '{data}' nicht verfügbar.",
   "funnel_not_available": "Trichter nicht verfügbar",
   "funnels_not_available": "Funnels nicht verfügbar",

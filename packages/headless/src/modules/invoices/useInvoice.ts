@@ -7,7 +7,7 @@ import { useSession } from "../session";
 import { invalidateQueryByKey } from "../query";
 
 // --- utils
-import { isEmpty } from "lodash-es";
+import { isEmpty, gt, eq } from "lodash-es";
 
 // --- types
 import type { Invoice } from "./types";
@@ -28,14 +28,22 @@ export const useInvoice = (invoiceId: Invoice["id"]) => {
   const query = service.loadInvoice({ invoiceId });
 
   const meta = computed(() => ({
+    isAuthenticated: sessionMeta.value.isAuthenticated,
     isPaid:
       !isEmpty(query.data?.value?.payments) &&
-      query.data?.value?.unpaid_amount === 0,
+      eq(query.data?.value?.summary.unpaidAmount, 0),
     isFree:
       isEmpty(query.data?.value?.payments) &&
-      query.data?.value?.unpaid_amount === 0,
+      eq(query.data?.value?.summary.unpaidAmount, 0),
+    isPartiallyPaid:
+      gt(query.data?.value?.summary.paidAmount, 0) &&
+      gt(query.data?.value?.summary.unpaidAmount, 0),
+    isPending:
+      isEmpty(query.data?.value?.payments) &&
+      gt(query.data?.value?.summary.unpaidAmount, 0),
     isEmpty: isEmpty(query.data?.value),
     hasError: !isEmpty(query?.error.value),
+    isFetching: query?.isFetching.value,
     isLoading: query?.isLoading.value || !query?.isFetched.value,
     isComplete: query?.isFetched.value,
     isAvailable: sessionMeta.value.isAuthenticated
@@ -95,6 +103,12 @@ export const useInvoice = (invoiceId: Invoice["id"]) => {
      * This will be populated if the query fails to fetch data.
      */
     error: query?.error,
+
+    /**
+     * Refetch the invoice data from the server.
+     * Returns a promise that resolves when the refetch is complete.
+     */
+    refetch: query.refetch,
 
     // --- methods
 

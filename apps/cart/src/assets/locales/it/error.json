@@ -61,6 +61,7 @@
   "currency_update_failed": "Si è verificato un errore durante l'aggiornamento della valuta",
   "currency_validation_failed": "Convalida della valuta non riuscita",
   "domain_add_failed": "Impossibile aggiungere il dominio al carrello",
+  "domain_not_valid": "Deve essere un nome di dominio o sottodominio valido",
   "feedback_action_not_available": "Azione con valore '{data}' non disponibile.",
   "funnel_not_available": "Imbuto non disponibile",
   "funnels_not_available": "Imbuti non disponibili",

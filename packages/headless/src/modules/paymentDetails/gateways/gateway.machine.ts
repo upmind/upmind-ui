@@ -57,7 +57,7 @@ export default <T = unknown>(name: string) =>
             ],
             onError: {
               target: "unavailable",
-              actions: ["setError", "setSchemas"]
+              actions: ["setError"]
             }
           }
         },

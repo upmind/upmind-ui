@@ -210,7 +210,10 @@ import {
   useQueryParams,
   useProductConfig,
   UIContext,
-  type ProductDetails
+  type ProductDetails,
+  DetailedError,
+  responseCodes,
+  ErrorOrigin
 } from "@upmind-automation/headless";
 import { useConfig, validateTemplate } from "@upmind-automation/headless";
 import { useStyles } from "@upmind-automation/upmind-ui";
@@ -284,7 +287,13 @@ const {
 } = await configure(productId);
 
 const productConfig = useProductConfig(pendingProduct);
-if (!productConfig) throw new Error("useProductConfig not provided");
+if (!productConfig)
+  throw new DetailedError(
+    t("error.product_not_available"),
+    responseCodes.Service_Unavailable,
+    ErrorOrigin.Headless
+  );
+
 provide("useProductConfig", productConfig);
 
 const {

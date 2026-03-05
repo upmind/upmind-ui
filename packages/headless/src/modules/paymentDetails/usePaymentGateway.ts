@@ -1,5 +1,5 @@
 // --- external
-import { computed, unref, toRaw, type ComputedRef } from "vue";
+import { computed, unref, toRaw, type ComputedRef, isRef } from "vue";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
@@ -15,7 +15,8 @@ import {
   DetailedError,
   responseCodes,
   type UseActor,
-  ErrorOrigin
+  ErrorOrigin,
+  useActor
 } from "../../utils";
 import { isNil, isEqual, every, isEmpty } from "lodash-es";
 import { useConfig } from "../config";
@@ -26,6 +27,7 @@ import { isFunction } from "lodash-es";
 import { type QueryResponseError } from "../query";
 import { type ErrorObject } from "ajv";
 import { GatewayTypes } from "@upmind-automation/types";
+import type { ActorRef } from "xstate";
 
 // -----------------------------------------------------------------------------
 /**
@@ -33,9 +35,16 @@ import { GatewayTypes } from "@upmind-automation/types";
  * @param actor - A computed ref to the payment gateway actor.
  * @returns An object containing the payment gateway state and methods.
  */
-export const usePaymentGateway = (actor: ComputedRef<UseActor | undefined>) => {
+export const usePaymentGateway = (
+  service: ActorRef<any, any> | ComputedRef<UseActor | undefined>
+) => {
   // --- state
   const { t } = useI18n();
+
+  const actor: ComputedRef<UseActor | undefined> = isRef(service)
+    ? (service as ComputedRef<UseActor>)
+    : useActor(service as ActorRef<any, any>);
+
   /**
    * Waits for the payment gateway actor to be ready (not loading or error state).
    * @returns {Promise<boolean>} Resolves true if ready, false if error.

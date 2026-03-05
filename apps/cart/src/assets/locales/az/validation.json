@@ -26,7 +26,7 @@
   "multipleOf": "{title} çox olmalıdır {multipleOf}",
   "not": "{title} 'deyil' dəki sxemə görə etibarlı OLMAMALIDIR",
   "oneOf": "{title} 'oneOf' dakı sxemlərdən birinə tam uyğun olmalıdır",
-  "pattern": "{title} naxışa uyğun olmalıdır {pattern}",
+  "pattern": "{title} şablona uyğun olmalıdır {pattern}",
   "patternProperties": "{title} əmlak adı {propertyName} yanlışdır (naxış uyğunsuzluğu)",
   "phone": "{title} düzgün beynəlxalq formatda telefon nömrəsi olmalıdır",
   "propertyNames": "{title} əmlak adı {propertyName} etibarsızdır",

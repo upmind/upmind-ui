@@ -213,7 +213,11 @@ export const useUischemaDefinitions = ({
       scope: "#/properties/gateway_id",
       i18n: "form.gateway_id",
       options: {
-        width: size(lookups?.gateways) === 1 ? 1 : 2
+        width:
+          size(lookups?.gateways) === 1 &&
+          !includes(lookups.paymentTypes, PaymentType.PAY_LATER)
+            ? 1
+            : 2
       }
     };
   }

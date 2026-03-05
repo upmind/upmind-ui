@@ -61,6 +61,7 @@
   "currency_update_failed": "Pri aktualizácii meny sa vyskytla chyba",
   "currency_validation_failed": "Overenie meny zlyhalo",
   "domain_add_failed": "Pridanie domény do košíka zlyhalo",
+  "domain_not_valid": "Musí byť platný názov domény alebo subdomény",
   "feedback_action_not_available": "Akcia s hodnotou '{data}' nie je k dispozícii.",
   "funnel_not_available": "Lievik nie je k dispozícii",
   "funnels_not_available": "Lieviky nie sú k dispozícii",

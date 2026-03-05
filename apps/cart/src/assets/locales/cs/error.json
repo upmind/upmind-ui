@@ -61,6 +61,7 @@
   "currency_update_failed": "Při aktualizaci měny došlo k chybě.",
   "currency_validation_failed": "Ověření měny se nezdařilo",
   "domain_add_failed": "Nepodařilo se přidat doménu do košíku",
+  "domain_not_valid": "Platná doména nebo subdoména",
   "feedback_action_not_available": "Akce s hodnotou '{data}' není k dispozici.",
   "funnel_not_available": "Trychtýř není k dispozici",
   "funnels_not_available": "Trychtýře nejsou k dispozici",

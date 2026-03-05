@@ -61,6 +61,7 @@
   "currency_update_failed": "Vi oppsto en feil under oppdatering av valutaen",
   "currency_validation_failed": "Valutavalidering mislyktes",
   "domain_add_failed": "Kunne ikke legge domenet til i handlekurven",
+  "domain_not_valid": "Må være et gyldig domene eller et underdomene",
   "feedback_action_not_available": "Handling med verdi {data} ikke tilgjengelig.",
   "funnel_not_available": "Trakt ikke tilgjengelig",
   "funnels_not_available": "Trakter er ikke tilgjengelige",

@@ -26,7 +26,7 @@
   "multipleOf": "{title} harus kelipatan dari {multipleOf}",
   "not": "{title} TIDAK boleh valid menurut skema di 'tidak'",
   "oneOf": "{title} harus cocok dengan tepat satu skema di 'oneOf'",
-  "pattern": "{title} harus sesuai pola {pattern}",
+  "pattern": "{title} harus sesuai dengan pola {pattern}",
   "patternProperties": "{title} nama properti {propertyName} tidak valid (pola tidak cocok)",
   "phone": "{title} wajib berupa nomor telepon internasional yang valid",
   "propertyNames": "{title} nama properti {propertyName} tidak valid",
