@@ -174,6 +174,9 @@ import {
 // --- internal
 import config from "./order.config";
 import { useAnnouncement } from "../../components/announcement/useAnnouncement";
+import { useHeader } from "../../components/header/useHeader";
+import { useLayout } from "../../components/layout/useLayout";
+import { useFooter } from "../../components/footer/useFooter";
 
 // --- utils
 import { capitalize, first, get } from "lodash-es";
@@ -480,6 +483,9 @@ watch(
 );
 
 onUnmounted(() => {
+  useHeader({});
+  useLayout({});
+  useFooter({});
   dismissAnnouncement();
 });
 </script>
