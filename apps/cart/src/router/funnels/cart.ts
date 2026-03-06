@@ -497,7 +497,7 @@ export default <FunnelProps>{
         src: "guardSession",
         onDone: { actions: ["setResolved"] },
         onError: {
-          target: ROUTE.SESSION_LOGIN,
+          target: ROUTE.SESSION_REGISTER,
           // NB: Preserve targetRoute query (returnUrl) but update route name
           // to SESSION_LOGIN so Vue Router navigates to /auth/login, not /auth.
           // Using inline assign instead of "setResolving" which clears targetRoute.
@@ -506,7 +506,7 @@ export default <FunnelProps>{
               resolved: false,
               targetRoute: ({ targetRoute }: FunnelContext) => ({
                 ...targetRoute,
-                name: ROUTE.SESSION_LOGIN
+                name: ROUTE.SESSION_REGISTER
               })
             })
           ]
