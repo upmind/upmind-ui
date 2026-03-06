@@ -19,7 +19,6 @@
       :visible-toasts="6"
     />
 
-    <pre>{{ system }}</pre>
     <Error
       v-for="error in system"
       :title="error.message.value?.title"
