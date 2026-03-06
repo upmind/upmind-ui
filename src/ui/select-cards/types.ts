@@ -34,7 +34,7 @@ export interface SelectCardsItemProps extends PrimitiveBaseProps {
   icon?: Icon | string;
   avatar?: Partial<AvatarProps>;
   appendLabel?: string;
-  badge?: BadgeProps | string;
+  badge?: BadgeProps | BadgeProps[] | string;
 }
 
 export interface SelectCardsProps extends PrimitiveBaseProps {
@@ -60,7 +60,18 @@ export interface SelectCardsProps extends PrimitiveBaseProps {
   focusable?: boolean;
   to?: string;
 
-  uiConfig?: { select: CxOptions };
+  uiConfig?: {
+    select: {
+      content?: CxOptions;
+      trigger?: CxOptions;
+      item?: CxOptions;
+      items?: CxOptions;
+      scrollbar?: CxOptions;
+      scrollbarThumb?: CxOptions;
+      group?: CxOptions;
+      input?: CxOptions;
+    };
+  };
   class?: HTMLAttributes["class"];
   contentClass?: HTMLAttributes["class"];
   dataHover?: boolean;

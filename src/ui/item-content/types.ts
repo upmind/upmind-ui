@@ -13,7 +13,7 @@ export interface ItemContentItemProps {
   secondaryLabel?: string;
   description?: string;
   secondaryDescription?: string;
-  badge?: BadgeProps;
-  secondaryBadge?: BadgeProps;
+  badge?: BadgeProps | BadgeProps[];
+  secondaryBadge?: BadgeProps | BadgeProps[];
   action?: ItemContentActionProps;
 }

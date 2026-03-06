@@ -9,18 +9,24 @@
               <strong v-if="item?.label" :class="styles.itemContent.label">
                 {{ item.label }}
               </strong>
-              <Badge v-if="item?.badge" v-bind="item.badge" size="sm" />
+              <Badge
+                v-for="(item, index) in badges"
+                :key="index"
+                v-bind="item"
+                size="sm"
+              />
             </span>
           </slot>
 
           <slot name="secondary">
             <span
-              v-if="item?.secondaryLabel || item?.secondaryBadge"
+              v-if="item?.secondaryLabel || secondaryBadges.length"
               :class="styles.itemContent.header.secondary"
             >
               <Badge
-                v-if="item?.secondaryBadge"
-                v-bind="item.secondaryBadge"
+                v-for="(item, index) in secondaryBadges"
+                :key="index"
+                v-bind="item"
                 size="sm"
               />
               <strong
@@ -66,31 +72,6 @@
 </template>
 
 <script setup lang="ts">
-/**
- * Shared content layout for card-based selection components.
- *
- * Extracts the common label / badge / description / action layout used by
- * CheckboxCards, RadioCards, SelectCards, and SelectGrouped into a single
- * reusable component. Structure mirrors the Figma UpmRadioRowCore atom:
- *
- *   root (flex-wrap container)
- *   ├── content (flex-1, gap-4 between group and appended content)
- *   │   ├── group (gap-1, header + descriptions)
- *   │   │   ├── header (flex-wrap)
- *   │   │   │   ├── primary (label + badge)
- *   │   │   │   └── secondary (secondary badge + label)
- *   │   │   ├── description
- *   │   │   └── secondaryDescription
- *   │   └── #append slot (e.g., pricing)
- *   └── action link
- *
- * Slots:
- * - #prepend: Content before label (e.g., image/avatar)
- * - #primary: Override left header content (label + badge area)
- * - #secondary: Override right header content (secondary label + badge area)
- * - #description: Override description
- * - #append: Content after group inside content area (e.g., pricing)
- */
 // --- external
 import { computed } from "vue";
 // --- internal
@@ -99,7 +80,7 @@ import { Link } from "../link";
 import config from "./itemContent.config";
 import { useStyles } from "../../utils";
 // --- utils
-import { isNil } from "lodash-es";
+import { castArray, isNil } from "lodash-es";
 // --- types
 import type { ItemContentItemProps } from "./types";
 // -----------------------------------------------------------------------------
@@ -111,6 +92,14 @@ const props = defineProps<{
 const emit = defineEmits<{
   action: [event: Event];
 }>();
+
+const badges = computed(() =>
+  props.item?.badge ? castArray(props.item.badge) : []
+);
+
+const secondaryBadges = computed(() =>
+  props.item?.secondaryBadge ? castArray(props.item.secondaryBadge) : []
+);
 
 const meta = computed(() => ({}));
 

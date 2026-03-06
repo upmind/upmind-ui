@@ -18,7 +18,14 @@
       >
         <template #item="{ item }">
           <slot name="item" v-bind="item as SelectCardsItemProps">
-            <Item v-bind="item" />
+            <Item v-bind="item">
+              <template v-if="$slots.secondary" #secondary>
+                <slot name="secondary" v-bind="item as SelectCardsItemProps" />
+              </template>
+              <template v-if="$slots.append" #append>
+                <slot name="append" v-bind="item as SelectCardsItemProps" />
+              </template>
+            </Item>
           </slot>
         </template>
         <template #placeholder>
@@ -49,7 +56,20 @@
                 name="dropdown-item"
                 v-bind="{ ...item, index } as SelectCardsItemProps"
               >
-                <Item v-bind="item" />
+                <Item v-bind="item">
+                  <template v-if="$slots.secondary" #secondary>
+                    <slot
+                      name="secondary"
+                      v-bind="{ ...item, index } as SelectCardsItemProps"
+                    />
+                  </template>
+                  <template v-if="$slots.append" #append>
+                    <slot
+                      name="append"
+                      v-bind="{ ...item, index } as SelectCardsItemProps"
+                    />
+                  </template>
+                </Item>
               </slot>
             </DropdownMenuItem>
 
