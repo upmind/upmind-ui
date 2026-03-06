@@ -4,6 +4,7 @@
       "target": "upmind",
       "public": ".output/public",
       "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+      "trailingSlash": true,
       "rewrites": [
         {
           "source": "/auth/transfer",
@@ -43,6 +44,7 @@
       "target": "staging",
       "public": ".output/public",
       "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+      "trailingSlash": true,
       "rewrites": [
         {
           "source": "/auth/transfer",

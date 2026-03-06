@@ -6,6 +6,7 @@ import services from "./services";
 import paymentMachine from "../payment/payment.machine";
 import { useDataLayer, useI18n } from "../system";
 import { authSubscription } from "../session/helper";
+import { useSession } from "../session";
 
 import { useFeedback } from "../feedback";
 
@@ -60,10 +61,30 @@ export default createMachine(
         id: "subscribing",
         entry: ["setAuthHelper"],
         on: {
+          /**
+           * Accept target basket ID while still waiting for a session.
+           * No auth guard, no transition — just store the ID so the first
+           * `load` invocation after AUTHENTICATED already uses `orders/{id}`.
+           */
+          SET_TARGET_BASKET: {
+            actions: ["setTargetBasketId"]
+          },
           REFRESH: {
             // do nothing until we have a session
           },
-          SESSION: {
+          SESSION: [
+            {
+              // If we have a target basket, do NOT load yet — wait for AUTHENTICATED
+              // because a specific basket requires client auth, not a guest token.
+              cond: "hasTargetBasketId"
+            },
+            { target: "#loading" }
+          ],
+          /**
+           * When a target basket is pending, AUTHENTICATED is the signal
+           * that the client token is available and we can safely load `orders/{id}`.
+           */
+          AUTHENTICATED: {
             target: "#loading"
           }
         }
@@ -86,6 +107,10 @@ export default createMachine(
                 {
                   target: "#subscribing",
                   cond: "hasAuthError"
+                },
+                {
+                  target: "#unavailable",
+                  cond: "hasInvalidTargetBasket"
                 },
                 {
                   target: "#error",
@@ -395,6 +420,10 @@ export default createMachine(
       error: {
         id: "error"
       },
+
+      unavailable: {
+        id: "unavailable"
+      },
       // ---
 
       failed: {
@@ -410,6 +439,26 @@ export default createMachine(
       RESET: {
         target: "loading",
         actions: ["clearBasket", "clearActors"]
+      },
+
+      /**
+       * CLEAR is used to reset the basket and clear the target basket ID.
+       * This reverts the basket to loading `orders/current` instead of a specific basket.
+       */
+      CLEAR: {
+        target: "loading",
+        actions: ["clearBasket", "clearActors"]
+      },
+
+      /**
+       * SET_TARGET_BASKET is used to set a specific basket ID to load via URL.
+       * It stores the ID in context and reloads the basket from the server
+       * using `orders/{targetBasketId}` instead of `orders/current`.
+       */
+      SET_TARGET_BASKET: {
+        target: "loading",
+        actions: ["clearBasket", "clearActors", "setTargetBasketId"],
+        cond: "isAuthenticated"
       },
 
       REFRESH: [
@@ -447,7 +496,12 @@ export default createMachine(
     actions: {
       setAuthHelper: assign({
         authHelper: ({ authHelper }: BasketContext, _event: AnyEventObject) =>
-          authHelper ?? spawn(authSubscription)
+          authHelper ?? spawn(authSubscription),
+        resetHelper: ({ resetHelper }: BasketContext) =>
+          resetHelper ??
+          spawn((callback: any, onReceive: any) => {
+            onReceive((event: any) => callback(event));
+          })
       }),
 
       updateBasket: assign({
@@ -475,7 +529,8 @@ export default createMachine(
         error: undefined,
         paymentDetail: undefined,
         payment: undefined,
-        invoice: undefined
+        invoice: undefined,
+        targetBasketId: undefined
       }),
 
       setPaymentDetail: assign({
@@ -685,7 +740,12 @@ export default createMachine(
           mapToHeadlessError(data)
       }),
 
-      clearError: assign({ error: undefined })
+      clearError: assign({ error: undefined }),
+
+      setTargetBasketId: assign({
+        targetBasketId: (_context: BasketContext, { data }: AnyEventObject) =>
+          data ?? undefined
+      })
     },
 
     guards: {
@@ -768,8 +828,21 @@ export default createMachine(
         !isEmpty(paymentDetail),
       // --- Item Guards
 
+      hasInvalidTargetBasket: (
+        _context: BasketContext,
+        { data }: AnyEventObject
+      ) => !!data?.targetBasketInvalid,
+
+      hasTargetBasketId: ({ targetBasketId }: BasketContext) =>
+        !isEmpty(targetBasketId),
+
       hasNoProducts: ({ products }) => isEmpty(products),
-      hasProducts: ({ products }) => !isEmpty(products)
+      hasProducts: ({ products }) => !isEmpty(products),
+
+      isAuthenticated: () => {
+        const { meta } = useSession();
+        return meta.value.isAuthenticated;
+      }
     },
 
     delays: {

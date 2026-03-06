@@ -6,7 +6,7 @@
       :text="t('text.continue_shopping_desc')"
       :actions="[
         {
-          to: props.storefrontRoute,
+          ...props.storefrontRoute,
           variant: 'solid',
           color: 'primary',
           iconAppend: 'arrow-right',
@@ -30,13 +30,13 @@ import { Interstitial } from "@upmind-automation/upmind-ui";
 // -- types
 import { type InterstitialProps } from "@upmind-automation/upmind-ui";
 import { onMounted } from "vue";
-import type { RouteLocationAsRelativeGeneric } from "vue-router";
+import type { StorefrontRoute } from "../../types";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(
   defineProps<
     InterstitialProps & {
-      storefrontRoute: RouteLocationAsRelativeGeneric;
+      storefrontRoute: StorefrontRoute;
     }
   >(),
   {

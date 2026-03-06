@@ -6,18 +6,19 @@ export enum RegexMatch {
 }
 
 /**
+ * Optional path prefix for basket ID routes.
+ * Matches: `/basket/{uuid}/` or empty string (both segments optional).
+ * Used in definePageMeta `path` overrides — mirrors cart's routes.ts.
+ */
+export const BID_PREFIX = `:segment(basket)?/:bid(${RegexMatch.UUID})?`;
+
+/**
  * Enumeration representing predefined application routes and navigational paths.
  * These routes are used consistently throughout the Upmind Cart for navigation,
  * deep linking, and managing application state transitions.
  * */
 export enum ROUTE {
   // --- SHOP ROUTES -----------------------------------------------------------
-
-  /**
-   * The main storefront route, typically the landing page for users.
-   * This may be an internal OR external route depending on the application setup.
-   */
-  STOREFRONT = "storefront",
 
   /**
    * The configuration key used to determine the checkout flow for the brand.
@@ -159,5 +160,11 @@ export enum ROUTE {
   /**
    * Represents an unavailable state, indicating a resource or feature is not currently accessible.
    */
-  UNAVAILABLE = "unavailable"
+  UNAVAILABLE = "unavailable",
+
+  /**
+   * This is a MAGIC route used to indicate a redirect within funnels.
+   * It is not a real route, but a placeholder to signal that a redirect should occur to a given target.
+   */
+  REDIRECT = "#calculating"
 }

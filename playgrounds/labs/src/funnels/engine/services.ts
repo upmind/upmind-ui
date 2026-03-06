@@ -4,8 +4,10 @@ import {
   useRoutingEngine,
   useSession,
   type FunnelResponse,
-  FunnelActions
+  FunnelActions,
+  type FunnelTarget
 } from "@upmind-automation/client-vue";
+import { includes } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
@@ -16,6 +18,7 @@ import {
  */
 export default {
   guardSession: async ({
+    currentRoute,
     targetRoute
   }: FunnelContext): Promise<FunnelResponse> => {
     const { router } = useRoutingEngine();
@@ -44,23 +47,26 @@ export default {
       return Promise.reject();
     }
 
-    const returnUrlRaw =
-      targetRoute?.query?.returnUrl?.toString() || "/account";
-    const isLoginPath =
-      returnUrlRaw.includes("/login") || returnUrlRaw.includes("/auth");
-    const finalReturnUrl = isLoginPath ? "/account" : returnUrlRaw;
+    const returnUrlRaw = targetRoute?.query?.returnUrl?.toString();
+    const sessionRoutes = [
+      ROUTE.SESSION,
+      ROUTE.SESSION_LOGIN,
+      ROUTE.SESSION_REGISTER,
+      ROUTE.SESSION_RECOVER_PASSWORD
+    ];
 
-    const resolvedRoute = router.resolve(finalReturnUrl);
+    // Resolve the returnUrl via the router to get a named route
+    const resolved = returnUrlRaw ? router.resolve(returnUrlRaw) : undefined;
+    const isSessionRoute = resolved?.name
+      ? includes(sessionRoutes, resolved.name as string)
+      : false;
+
+    const resolvedRoute =
+      resolved && !isSessionRoute ? (resolved as FunnelTarget) : targetRoute;
 
     return {
       type: FunnelActions.REDIRECT,
-      target: resolvedRoute.name
-        ? {
-            name: resolvedRoute.name,
-            params: resolvedRoute.params,
-            query: resolvedRoute.query
-          }
-        : { path: resolvedRoute.path || finalReturnUrl }
+      target: resolvedRoute
     };
   }
 };

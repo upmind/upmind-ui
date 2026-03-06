@@ -50,6 +50,7 @@
         </slot>
       </Page>
 
+      <slot name="append" />
       <Feedback v-if="meta.isAvailable" :storefront-route="storefrontRoute" />
     </Loading>
   </Suspense>
@@ -66,7 +67,7 @@ export default {
 <script setup lang="ts">
 // --- external
 import { computed, nextTick, ref } from "vue";
-import { useRoute, type RouteLocationAsRelativeGeneric } from "vue-router";
+import { useRoute } from "vue-router";
 
 // --- internal
 import useUpmind, {
@@ -95,13 +96,14 @@ import { get } from "lodash-es";
 // --- types
 import type { InterstitialProps } from "@upmind-automation/upmind-ui";
 import { UIContext } from "@upmind-automation/headless";
+import type { StorefrontRoute } from "./types";
 // -----------------------------------------------------------------------------
 
 const props = defineProps<{
   theme?: string;
   logo?: string;
   loadingProps?: InterstitialProps;
-  storefrontRoute?: RouteLocationAsRelativeGeneric;
+  storefrontRoute?: StorefrontRoute;
 }>();
 
 // -----------------------------------------------------------------------------

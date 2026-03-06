@@ -104,6 +104,7 @@ const supportedTemplates = {
 import { CHECKOUT_TEMPLATE } from "./types";
 import { UIContext } from "@upmind-automation/headless";
 import { get, isEqual, includes } from "lodash-es";
+import type { StorefrontRoute } from "../../types";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
 
 // -----------------------------------------------------------------------------
@@ -115,7 +116,7 @@ const props = withDefaults(
     editRoute: RouteLocationAsRelativeGeneric;
     billingRoute?: RouteLocationAsRelativeGeneric;
     fieldsRoute?: RouteLocationAsRelativeGeneric;
-    storefrontRoute?: RouteLocationAsRelativeGeneric;
+    storefrontRoute?: StorefrontRoute;
   }>(),
   {
     hideSlots: () => []
