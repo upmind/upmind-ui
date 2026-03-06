@@ -418,7 +418,14 @@ const action = computed(() => {
 
 function doAction() {
   if (!meta.value.isAuthenticated) {
-    window.location.href = router.resolve(props.storefrontRoute ?? "/").href;
+    const route = props.storefrontRoute;
+
+    if (route?.href) {
+      window.location.href = route.href;
+    } else {
+      router.push(route?.to ?? "/");
+    }
+
     actionProcessing.value = false;
     return;
   }
