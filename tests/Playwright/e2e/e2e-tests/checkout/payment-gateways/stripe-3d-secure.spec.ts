@@ -50,14 +50,14 @@ test.describe("3D Secure Authentication", async () => {
       page.on("framenavigated", async frame => {
         const url = frame.url();
         if (url.startsWith("https://hooks.stripe.com/3d_secure_2/hosted")) {
-          let returnUrl = `http://qa-automation.local:5173/order/${orderId}?payment_success=true`;
+          let returnUrl = `http://qa-automation.local:5173/order/${orderId}/?payment_success=true`;
           await page.goto(returnUrl);
           await expect(page).toHaveURL(/payment_success=true/);
           await expect(
             page.getByText("Thank you for your order!")
           ).toBeVisible();
         } else {
-          let returnUrl = `http://qa-automation.local:5173/order/${orderId}?payment_success=false`;
+          let returnUrl = `http://qa-automation.local:5173/order/${orderId}/?payment_success=false`;
           await page.goto(returnUrl);
           await expect(page).toHaveURL(/payment_success=false/);
           await expect(

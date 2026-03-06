@@ -50,7 +50,7 @@ test.describe("Error Code Handling", () => {
         await expect(dialog.getByTestId(`button-${button}`)).toBeVisible();
       } else if (errorType === "redirect") {
         await expect(page).toHaveURL(
-          `${URLs.baseUrl}order/product/3de78642-de53-9714-76df-21208469530d/not-found`
+          `${URLs.baseUrl}order/product/3de78642-de53-9714-76df-21208469530d/not-found/`
         );
       } else if (errorType === "toast") {
         const toast = page
