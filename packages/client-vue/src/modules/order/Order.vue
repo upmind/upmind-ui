@@ -318,11 +318,8 @@ const title = computed(() => {
   if (meta.value.isUnavailable) {
     return t("invoice.order_not_found");
   }
-  if (meta.value.isComplete) {
+  if (meta.value.isComplete || meta.value.isPartial) {
     return t("invoice.order_complete");
-  }
-  if (meta.value.isPartial) {
-    return t("invoice.order_partial_payment");
   }
   return t("invoice.order_placed");
 });
