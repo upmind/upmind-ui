@@ -32,7 +32,10 @@
           <slot name="item" v-bind="{ item, index }">
             <ItemContent :item="item" @action="emits('action', $event)">
               <template v-if="$slots.append" #append>
-                <slot name="append" v-bind="{ item: item.item, option: item }" />
+                <slot
+                  name="append"
+                  v-bind="{ item: item.item, option: item }"
+                />
               </template>
             </ItemContent>
           </slot>

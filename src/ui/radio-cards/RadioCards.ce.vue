@@ -76,7 +76,7 @@ const emits = defineEmits<{
 defineSlots<{
   item(props: { item: any }): any;
   append(props: { item: any; option: RadioCardsItemProps }): any;
-  'additional-item'(props: { size: string }): any;
+  "additional-item"(props: { size: string }): any;
 }>();
 
 const modelValue = defineModel<string | number>();
