@@ -181,9 +181,9 @@ export class ProductConfig {
     this.addons = page.getByTestId("description-list-item-addons");
     this.tracking = page.getByTestId("description-list-item-tracking");
     this.tldValue = page.getByTestId("description-list-item-domain-names");
-    this.domainName = page.getByTestId(
-      "description-list-item-account-domain-name"
-    );
+    this.domainName = page
+      .getByTestId("description-list-item-account-domain-name")
+      .locator("dd");
     this.domainSetup = page.getByTestId(
       "description-list-item-domain-setup-(free)"
     );
@@ -250,7 +250,7 @@ export class ProductConfig {
   async enterSld(sld: string) {
     const sldFormField = this.page
       .getByTestId("form-item-sld")
-      .locator("input");
+      .getByTestId("input-properties-sld");
     await sldFormField.fill(sld);
   }
 
