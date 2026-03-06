@@ -10,13 +10,14 @@ export default {
         width: {
           full: "w-full"
         },
-        spacious: {
-          false: "px-7 py-8",
-          true: "p-6 md:p-18"
+        padding: {
+          md: "p-6 lg:px-8 lg:py-9",
+          lg: "p-6 lg:p-18"
         }
       },
       defaultVariants: {
-        isDisabled: false
+        isDisabled: false,
+        padding: "lg"
       }
     })
   }
