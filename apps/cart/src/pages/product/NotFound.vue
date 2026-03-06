@@ -1,12 +1,13 @@
 <template>
-  <UpmProductNotFound :storefront-route="{ name: ROUTE.STOREFRONT }" />
+  <UpmProductNotFound :storefront-route="storefrontRoute" />
 </template>
 <script lang="ts" setup>
 // --- components
 import { UpmProductNotFound } from "@upmind-automation/client-vue";
 
 // --- internal
-import { ROUTE } from "../../router";
+import { useStorefrontRoute } from "../../composables/useStorefrontRoute";
 
 // -----------------------------------------------------------------------------
+const { storefrontRoute } = useStorefrontRoute();
 </script>

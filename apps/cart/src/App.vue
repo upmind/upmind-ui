@@ -1,5 +1,5 @@
 <template>
-  <Upm :storefront-route="{ name: ROUTE.STOREFRONT }">
+  <Upm :storefront-route="storefrontRoute">
     <template #header-actions>
       <UpmBasketAction :basket-route="{ name: ROUTE.BASKET }" />
       <UpmAuthAction
@@ -33,7 +33,11 @@ import { includes } from "lodash-es";
 // --- types
 import { ROUTE } from "./router";
 
+// --- composables
+import { useStorefrontRoute } from "./composables/useStorefrontRoute";
+
 // -----------------------------------------------------------------------------
+const { storefrontRoute } = useStorefrontRoute();
 const route = useRoute();
 const router = useRouter();
 const { meta: routingMeta, isReady } = useRoutingEngine();
@@ -62,8 +66,14 @@ isReady().then(() => {
   watch(
     [basketMeta, sessionMeta],
     (
-      [{ hasProducts, isComplete, isCheckout }, { isAuthenticated }],
-      [{ hasProducts: hadProducts }, { isAuthenticated: wasAuthenticated }]
+      [
+        { hasProducts, isComplete, isCheckout, isUnavailable },
+        { isAuthenticated }
+      ],
+      [
+        { hasProducts: hadProducts, isUnavailable: wasUnavailable },
+        { isAuthenticated: wasAuthenticated }
+      ]
     ) => {
       if (!routingMeta.value.isResolved) return;
 
@@ -73,6 +83,13 @@ isReady().then(() => {
         route.name !== ROUTE.SESSION_END
       ) {
         router.push({ name: ROUTE.SESSION_END });
+      } else if (
+        isUnavailable &&
+        !wasUnavailable &&
+        isAuthenticated &&
+        route.name !== ROUTE.BASKET_UNAVAILABLE
+      ) {
+        router.replace({ name: ROUTE.BASKET_UNAVAILABLE });
       } else if (!hasProducts && hadProducts && !isCheckout && !isComplete) {
         if (route.meta.actionEmptyBasket && route.name !== ROUTE.BASKET_EMPTY) {
           router.push({ name: ROUTE.BASKET_EMPTY });

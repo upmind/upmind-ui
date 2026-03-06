@@ -1,13 +1,20 @@
 <template>
-  <div
-    class="flex items-center justify-center"
-    :class="props.open ? 'grow' : ''"
-  >
+  <div class="flex grow items-center justify-center">
     <Interstitial
       v-bind="props"
       :modal="meta.useModal"
-      :title="t('text.loading_title_md')"
-      :text="t('text.almost_there_msg')"
+      :title="t('error.basket_unavailable_md')"
+      :text="t('error.basket_unavailable_text')"
+      :actions="[
+        {
+          variant: 'solid',
+          color: 'primary',
+          icon: 'arrow-left',
+          label: t('action.return_to_shop'),
+          size: 'lg',
+          handler: handleReturn
+        }
+      ]"
     />
   </div>
 </template>
@@ -18,6 +25,9 @@ import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
 import { computed } from "vue";
 
+// --- internal
+import { useBasket, useRoutingEngine } from "@upmind-automation/headless";
+
 // -- components
 import { Interstitial } from "@upmind-automation/upmind-ui";
 
@@ -27,20 +37,28 @@ import { type InterstitialProps } from "@upmind-automation/upmind-ui";
 
 const props = withDefaults(defineProps<InterstitialProps>(), {
   open: true,
-  modal: false,
+  modal: true,
   animatedIcon: () => ({
-    icon: "loading",
-    delay: 250,
+    icon: "basket-empty",
+    trigger: "loop",
     primaryColor: "base-foreground",
-    secondaryColor: "secondary",
+    secondaryColor: "tertiary",
     size: "4xl"
   })
 });
 // -----------------------------------------------------------------------------
 const { t } = useI18n();
+const { reset } = useBasket();
+const { navigateNext } = useRoutingEngine();
 const route = useRoute();
 const routeMeta = route.meta;
+
 const meta = computed(() => ({
   useModal: props.modal || !!routeMeta.modal
 }));
+
+function handleReturn() {
+  reset();
+  return navigateNext();
+}
 </script>

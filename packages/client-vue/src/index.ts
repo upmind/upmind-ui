@@ -1,6 +1,9 @@
 // --- expose our package exports
 export * from "@upmind-automation/headless";
 
+// --- expose shared types
+export type { StorefrontRoute } from "./types";
+
 // --- expose composables
 export {
   useConfig,

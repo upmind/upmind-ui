@@ -33,11 +33,7 @@ import {
 import type { ActorRef } from "xstate";
 import type { BasketProduct } from "../basketProduct";
 import { REQUIRES_ACTION } from "./types";
-import {
-  type RouteLocation,
-  type Router,
-  type RouteRecordRaw
-} from "vue-router";
+import { type RouteLocation, type RouteRecordRaw } from "vue-router";
 import { useBrand } from "../brand";
 import { type UIRouteOptions } from "../brand/types";
 
@@ -84,6 +80,26 @@ export async function awaitResolved(
       // console.debug("Route did not resolve", service.getSnapshot().context);
       return undefined; //contextValue<RouteLocation>(service, "currentRoute");
     });
+}
+
+/**
+ * Ensures the route path ends with a trailing slash.
+ * Returns a redirect location if a trailing slash needs to be appended,
+ * or undefined if the path already has one.
+ * @param route - The current route location to check
+ */
+export function ensureTrailingSlash(
+  route: RouteLocation
+): { path: string; query: RouteLocation["query"]; hash: string } | undefined {
+  if (!route?.path || route.path === "/" || route.path.endsWith("/")) {
+    return undefined;
+  }
+
+  return {
+    path: `${route.path}/`,
+    query: route.query,
+    hash: route.hash
+  };
 }
 
 /**

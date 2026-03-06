@@ -2,7 +2,7 @@
 import * as Sentry from "@sentry/vue";
 
 // --- internal
-import { useBasket, useI18n, useLocale } from "../..";
+import { useBasket, useBasketCurrency, useI18n, useLocale } from "../..";
 import packageJson from "../../../../package.json";
 
 // --- utils
@@ -174,17 +174,18 @@ class TrackingEvent {
       );
     }
 
-    const { basket } = useBasket();
-    if (isEmpty(basket))
+    const { currencyCode } = useBasketCurrency();
+
+    if (isEmpty(currencyCode.value))
       throw new DetailedError(
-        t("error.basket_not_available"),
+        t("error.currency_not_available"),
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless
       );
 
     // When a user submits their billing address
     const payload: DataLayerEcommerceItems = {
-      currency: basket.value!.currency.code,
+      currency: currencyCode.value ?? "",
       value: sumBy(
         safeItems,
         ({ price }) =>

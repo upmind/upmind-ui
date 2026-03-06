@@ -6,6 +6,7 @@ import {
   useBasket,
   useQueryParams
 } from "@upmind-automation/client-vue";
+import { QUERY_PARAMS } from "@upmind-automation/types";
 import type { RouteLocationGeneric } from "vue-router";
 
 // -----------------------------------------------------------------------------
@@ -16,6 +17,13 @@ import type { RouteLocationGeneric } from "vue-router";
  * @returns  boolean
  */
 export default {
+  /**
+   * Returns true when the service response target matches the current route.
+   * Used by SESSION states to detect when guardSession resolves back to the
+   * same page (no returnUrl), so the funnel can fall through to its own default.
+   */
+  isSameRoute: ({ currentRoute }: FunnelContext, { data }: AnyEventObject) =>
+    data?.target?.name === currentRoute?.name,
   hasPid: ({ targetRoute }: FunnelContext, { data }: AnyEventObject) => {
     const route = data?.target ?? targetRoute;
     const { productId } = useQueryParams(route as RouteLocationGeneric);
@@ -25,6 +33,24 @@ export default {
     const route = data?.target ?? targetRoute;
     const { basketProductId } = useQueryParams(route as RouteLocationGeneric);
     return !isEmpty(basketProductId);
+  },
+  hasBasketId: (
+    { currentRoute, targetRoute }: FunnelContext,
+    _event: AnyEventObject
+  ) => {
+    const route = (targetRoute ?? currentRoute) as RouteLocationGeneric;
+    return !isEmpty(route?.params?.bid) || !isEmpty(route?.query?.bid);
+  },
+  /**
+   * Returns true when the current route has a `bid` path param or query param.
+   * Used in the LOADING state to redirect `?bid=xyz` to the BASKET route with the bid as a path param.
+   */
+  hasBid: ({ currentRoute }: FunnelContext, _event: AnyEventObject) => {
+    const route = currentRoute as RouteLocationGeneric;
+    return (
+      !isEmpty(route?.params?.bid) ||
+      !isEmpty(route?.query?.[QUERY_PARAMS.BASKET_ID])
+    );
   },
   hasProductConfigs: ({ currentRoute }: FunnelContext) => {
     const { productConfigs } = useQueryParams(currentRoute);

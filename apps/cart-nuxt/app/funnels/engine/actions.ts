@@ -1,13 +1,82 @@
-import { isEmpty } from "lodash-es";
+import { isEmpty, isString } from "lodash-es";
 
 import {
+  type AnyEventObject,
   assign,
   type FunnelContext,
+  QUERY_PARAMS,
   useBasket,
   useBasketProductsPending,
   useQueryParams,
   useSession
 } from "@upmind-automation/client-vue";
+import { ROUTE } from "../types";
+
+// -----------------------------------------------------------------------------
+
+/**
+ * Routes whose path uses `/order/basket/:bid?/...` directly (no `:segment`).
+ * These only need `{ bid }` — injecting `segment` would be discarded by
+ * Vue Router and can cause infinite redirect loops.
+ */
+const BASKET_ROUTES: string[] = [
+  ROUTE.BASKET,
+  ROUTE.BASKET_EMPTY,
+  ROUTE.BASKET_PRODUCT_EDIT,
+  ROUTE.BASKET_PRODUCT_REQUIRES_ACTION
+];
+
+/**
+ * Routes that should never receive bid params.
+ */
+const SKIP_BID_ROUTES: string[] = [
+  ROUTE.ORDER,
+  ROUTE.NOT_FOUND,
+  ROUTE.LOADING,
+  ROUTE.ERROR
+];
+
+/**
+ * Injects bid params into a route target and primes the basket machine.
+ * Reads bid from the current route (params or query), falls back to the
+ * basket machine's `targetBasketId`.
+ *
+ * When a bid is found:
+ *   1. Calls `setTargetBasket(bid)` so the basket machine loads `orders/{bid}`
+ *   2. For basket routes (`:bid` only): injects `{ bid }`
+ *   3. For BID_PREFIX routes (`:segment/:bid`): injects `{ segment: "basket", bid }`
+ *
+ * Skips injection for ORDER, NOT_FOUND, LOADING, etc.
+ */
+function injectBid(route: any): any {
+  if (!route) return route;
+
+  // Skip routes that don't support bid params
+  if (SKIP_BID_ROUTES.includes(route.name)) return route;
+
+  const { targetBasketId, setTargetBasket } = useBasket();
+  const { consumeParam } = useQueryParams();
+
+  // Read bid: params first (via consumeParam), then basket machine state
+  const bid: string | undefined =
+    consumeParam(QUERY_PARAMS.BASKET_ID) ?? targetBasketId.value;
+
+  if (!bid) return route;
+
+  // Prime the basket machine to load orders/{bid}.
+  // SET_TARGET_BASKET has an isAuthenticated guard — no-op when not logged in.
+  if (targetBasketId.value !== bid) setTargetBasket(bid);
+
+  // Basket routes use `:bid` directly — no `:segment` param.
+  // BID_PREFIX routes use `:segment(basket)?/:bid?` — need both.
+  const isBasketRoute = BASKET_ROUTES.includes(route.name);
+  const bidParams = isBasketRoute ? { bid } : { segment: "basket", bid };
+
+  return {
+    ...route,
+    params: { ...bidParams, ...(route.params || {}) }
+  };
+}
 
 // -----------------------------------------------------------------------------
 
@@ -44,5 +113,23 @@ export default {
   logout: () => {
     const { logout } = useSession();
     logout();
-  }
+  },
+
+  /**
+   * Overrides the headless setResolved to auto-inject bid params into
+   * targetRoute. This is the single hook point for bid preservation —
+   * every state that resolves via setResolved gets bid params injected
+   * into the route automatically, so individual transitions don't need
+   * to worry about it.
+   */
+  setResolved: assign({
+    targetRoute: (context: FunnelContext, { data }: AnyEventObject) => {
+      const target = isString(data?.target)
+        ? { name: data.target }
+        : data?.target;
+
+      return injectBid(target ?? context.targetRoute);
+    },
+    resolved: true
+  })
 };

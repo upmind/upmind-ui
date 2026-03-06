@@ -57,9 +57,16 @@ export default <FunnelProps>{
       entry: ["setCurrency"],
       invoke: {
         src: "guardSession",
-        onDone: {
-          actions: ["setResolved"]
-        },
+        onDone: [
+          {
+            target: ROUTE.HOME,
+            actions: [
+              assign({ targetRoute: { name: ROUTE.HOME }, resolved: false })
+            ],
+            cond: "isSameRoute"
+          },
+          { actions: ["setResolved"] }
+        ],
         onError: { actions: ["setResolved"] }
       },
       on: {
@@ -81,9 +88,16 @@ export default <FunnelProps>{
     [ROUTE.SESSION_REGISTER]: {
       invoke: {
         src: "guardSession",
-        onDone: {
-          actions: ["setResolved"]
-        },
+        onDone: [
+          {
+            target: ROUTE.HOME,
+            actions: [
+              assign({ targetRoute: { name: ROUTE.HOME }, resolved: false })
+            ],
+            cond: "isSameRoute"
+          },
+          { actions: ["setResolved"] }
+        ],
         onError: { actions: ["setResolved"] }
       },
       on: {

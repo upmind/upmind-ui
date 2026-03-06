@@ -1,6 +1,6 @@
 <template>
   <UpmCheckout
-    :storefront-route="{ name: ROUTE.STOREFRONT }"
+    :storefront-route="storefrontRoute"
     :edit-route="{ name: ROUTE.BASKET_PRODUCT_EDIT }"
     :fields-route="{ name: ROUTE.BASKET }"
   />
@@ -9,7 +9,9 @@
 <script lang="ts" setup>
 // --- internal
 import { ROUTE } from "../router";
+import { useStorefrontRoute } from "../composables/useStorefrontRoute";
 
 // --- components
 import { UpmCheckout } from "@upmind-automation/client-vue";
+const { storefrontRoute } = useStorefrontRoute();
 </script>

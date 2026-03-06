@@ -1,6 +1,6 @@
 <template>
   <UpmBasket
-    :storefront-route="{ name: ROUTE.STOREFRONT }"
+    :storefront-route="storefrontRoute"
     :basket-route="{ name: ROUTE.BASKET }"
     :edit-route="{ name: ROUTE.BASKET_PRODUCT_EDIT }"
   />
@@ -12,4 +12,8 @@ import { UpmBasket } from "@upmind-automation/client-vue";
 
 // --- internal
 import { ROUTE } from "../router";
+import { useStorefrontRoute } from "../composables/useStorefrontRoute";
+
+// -----------------------------------------------------------------------------
+const { storefrontRoute } = useStorefrontRoute();
 </script>
