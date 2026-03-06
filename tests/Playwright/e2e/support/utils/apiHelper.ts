@@ -8,24 +8,43 @@ import {
   addPromotionToOrder,
   setOrderCurrency
 } from "./functions/basket";
+import {
+  registerAndLogin,
+  RegisterClientOptions
+} from "./functions/registration";
 import { fakerEN_GB } from "@faker-js/faker";
 
 /**
- * Creates an order with a domain registration product and navigates to checkout.
- * Optionally applies a promotion code and/or sets a specific currency.
+ * Creates an order with a product and navigates to checkout.
+ * Optionally registers a new client via the API, applies a promotion code,
+ * and/or sets a specific currency.
+ *
+ * When `register` is true (default), a new client account is registered via
+ * the API after creating the order — skipping the UI registration page entirely.
+ * This is faster and avoids CDP hangs caused by the registration UI.
  *
  * @param page - Playwright page instance
  * @param context - Browser context (used to read the session token)
+ * @param product - Product config with id, billingCycle, and type
  * @param promotion - Optional promotion code to apply to the order
- * @param currency - Optional currency ID to set on the order
+ * @param currency - Optional currency code to set on the order
+ * @param options - Additional options
+ * @param options.register - Whether to register a new client via API (default: true)
+ * @param options.registrationOptions - Overrides for the registration fields
  */
 export async function goToCheckout(
   page: Page,
   context: BrowserContext,
   product: { id: string; billingCycle: number; type: string },
   promotion: string | null = null,
-  currency: string | null = null
+  currency: string | null = null,
+  options: {
+    register?: boolean;
+    registrationOptions?: RegisterClientOptions;
+  } = {}
 ) {
+  const { register = true, registrationOptions = {} } = options;
+
   await page.goto(URLs.basket);
   await expect
     .poll(
@@ -69,7 +88,29 @@ export async function goToCheckout(
   if (promotion !== null) {
     await addPromotionToOrder(orderId, promotion, token);
   }
-  await page.goto(URLs.checkout);
+
+  if (register) {
+    // Register a new client via the API — skips the registration UI entirely.
+    // Pass currency context so the registration uses the same currency as the order.
+    const regOptions: RegisterClientOptions = { ...registrationOptions };
+    if (currency !== null && !regOptions.currencyId) {
+      // Map currency code to known IDs, fallback to default GBP
+      const currencyMap: Record<string, string> = {
+        GBP: "3825d96e-763e-d091-3dc4-174825283406",
+        EUR: "4825d96e-763e-d091-3dc4-174825283406",
+        USD: "5825d96e-763e-d091-3dc4-174825283406"
+      };
+      regOptions.currencyId = currencyMap[currency] ?? undefined;
+    }
+    await registerAndLogin(page, context, regOptions);
+    await page.goto(URLs.checkout);
+  } else {
+    await page.goto(URLs.checkout);
+    // Ensure we land on the registration page after checkout navigation
+    if (!page.url().includes("/order/auth/register/")) {
+      await page.goto(URLs.register);
+    }
+  }
 }
 
 /**

@@ -9,7 +9,7 @@
     />
     <hgroup>
       <slot name="prepend" />
-      <h1 :class="styles.hero.title">
+      <h1 :class="styles.hero.title" data-testid="hero-title">
         <slot name="title">
           <Sanitized v-if="props.title" :modelValue="props.title" />
         </slot>
