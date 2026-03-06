@@ -103,7 +103,7 @@ export default {
     },
     item: {
       root: cva(
-        "group before:border-surface relative z-10 m-0 flex h-full w-full flex-col items-start justify-start gap-4 rounded-none border-none p-8 text-left text-base whitespace-normal shadow-none before:absolute before:-inset-px before:-z-10 before:border before:border-solid before:content-['']"
+        "before:border-surface group relative z-10 m-0 flex h-full w-full flex-col items-start justify-start gap-4 rounded-none border-none p-8 text-left text-base whitespace-normal shadow-none before:absolute before:-inset-px before:-z-10 before:border before:border-solid before:content-['']"
       ),
       icon: cva(
         "text-muted text-icon-primary transition-all duration-200 [&>svg]:p-px"

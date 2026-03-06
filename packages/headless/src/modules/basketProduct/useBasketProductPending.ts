@@ -5,7 +5,7 @@ import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import productMachine from "../product/product.machine";
-import { useBasket } from "../basket";
+import { useBasket, useBasketCurrency } from "../basket";
 import { useDataLayer, useI18n } from "../system";
 import { useProductConfig } from "../product";
 
@@ -127,10 +127,13 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
    * @returns A promise that resolves when the product service is ready.
    */
   async function isReady(): Promise<void> {
-    return waitFor(
-      service,
-      state => stateMatches(state, ["available", "complete", "done"]),
-      { timeout: Infinity }
+    const { isReady: currencyIsReady } = useBasketCurrency();
+    return currencyIsReady().then(() =>
+      waitFor(
+        service,
+        state => stateMatches(state, ["available", "complete", "done"]),
+        { timeout: Infinity }
+      )
     );
   }
 

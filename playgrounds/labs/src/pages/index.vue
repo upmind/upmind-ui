@@ -85,7 +85,7 @@
             v-for="link in quickLinks"
             :key="link.route"
             :to="{ name: link.route }"
-            class="group hover:border-primary-500 dark:hover:border-primary-500 flex items-center gap-4 rounded-xl border border-neutral-200 bg-white p-4 transition-all hover:shadow-md dark:border-neutral-800 dark:bg-neutral-900"
+            class="hover:border-primary-500 dark:hover:border-primary-500 group flex items-center gap-4 rounded-xl border border-neutral-200 bg-white p-4 transition-all hover:shadow-md dark:border-neutral-800 dark:bg-neutral-900"
           >
             <div
               class="group-hover:bg-primary-100 group-hover:text-primary-600 dark:group-hover:bg-primary-900 dark:group-hover:text-primary-400 flex h-12 w-12 items-center justify-center rounded-lg bg-neutral-100 text-neutral-600 transition-colors dark:bg-neutral-800 dark:text-neutral-400"

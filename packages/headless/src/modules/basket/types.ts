@@ -14,6 +14,12 @@ import { type PaymentDetailData } from "../paymentDetails";
  */
 export interface BasketContext {
   /**
+   * An optional target basket ID used to load a specific basket by ID via URL.
+   * When set, the basket `load` service fetches `orders/{targetBasketId}` instead of `orders/current`.
+   * Falls back to `orders/current` on 404 or completion errors.
+   */
+  targetBasketId?: string;
+  /**
    * The raw `IBasket` object representing the current state of the shopping basket.
    */
   basket?: IBasket;
@@ -79,6 +85,10 @@ export interface BasketContext {
    * An `ActorRef` to an authentication helper service for managing session-related concerns.
    */
   authHelper?: ActorRef<any>;
+  /**
+   * An `ActorRef` to a helper that can send RESET back to the basket machine from deferred callbacks.
+   */
+  resetHelper?: ActorRef<any>;
   /**
    * An `ActorRef` to the payment state machine, managing the overall payment process.
    */

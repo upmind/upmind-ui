@@ -83,9 +83,9 @@ export const useBasket = () => {
   async function isReady(): Promise<boolean> {
     return waitFor(
       service,
-      state => stateMatches(state, ["shopping", "error"]),
+      state => stateMatches(state, ["shopping", "unavailable", "error"]),
       { timeout: Infinity }
-    ).then(state => !stateMatches(state, ["error"]));
+    ).then(state => !stateMatches(state, ["error", "unavailable"]));
   }
 
   const meta = computed(() => {
@@ -115,6 +115,8 @@ export const useBasket = () => {
           "checkout.configuring",
           "checkout.available"
         ]) && contextMatches(state, ["products"]),
+
+      isUnavailable: stateMatches(state, ["unavailable"]),
 
       needsAuth: !sessionMeta.value?.isAuthenticated,
 
@@ -219,6 +221,10 @@ export const useBasket = () => {
   const basket = useContext<BasketContext["basket"]>(state, "basket");
   const basketId = useContext<IBasket["id"]>(state, "basket.id");
   const context = useContext<BasketContext>(state);
+  const targetBasketId = useContext<BasketContext["targetBasketId"]>(
+    state,
+    "targetBasketId"
+  );
   const currency = useContext<ICurrency>(state, "basket.currency");
   const errors = useContext<ResponseError>(state, "error");
   const invoice = useContext<IInvoice>(state, "invoice");
@@ -266,12 +272,42 @@ export const useBasket = () => {
   });
   // --- methods
 
-  function reset() {
-    return send({ type: "RESET" });
+  async function reset(): Promise<boolean> {
+    send({ type: "RESET" });
+    return waitFor(
+      service,
+      state => stateMatches(state, ["shopping", "done"]),
+      { timeout: 60_000 }
+    ).then(state => {
+      return true;
+    });
   }
 
   function clear() {
     return send({ type: "CLEAR" });
+  }
+
+  /**
+   * Sets the target basket ID to load a specific basket by ID via URL.
+   * Triggers a machine reload so the basket fetches `orders/{id}` instead of `orders/current`.
+   * Pass `undefined` to revert to loading the current basket.
+   * @param {string | undefined} id - The basket ID to load, or undefined to revert to `orders/current`.
+   */
+  async function setTargetBasket(id: string | undefined): Promise<boolean> {
+    send({ type: "SET_TARGET_BASKET", data: id });
+    return waitFor(
+      service,
+      state => stateMatches(state, ["shopping", "unavailable", "done"]),
+      {
+        timeout: 60_000
+      }
+    ).then(state => {
+      if (stateMatches(state, ["unavailable"])) {
+        return false;
+      }
+
+      return true;
+    });
   }
 
   function checkout() {
@@ -591,6 +627,13 @@ export const useBasket = () => {
     basketId,
 
     /**
+     * The target basket ID currently loaded via URL, if any.
+     * Set via `setTargetBasket(id)`. When set, the basket loads `orders/{id}` instead of `orders/current`.
+     * Undefined when loading the default current basket.
+     */
+    targetBasketId,
+
+    /**
      * The current basket currency.
      */
     currency,
@@ -737,7 +780,15 @@ export const useBasket = () => {
      * @param {string} bpid The basket product ID.
      * @returns {Promise<ActorRef<any>>} The product actor.
      */
-    getProduct
+    getProduct,
+
+    /**
+     * Sets the target basket ID to load a specific basket by URL.
+     * Triggers a machine reload using `orders/{id}` instead of `orders/current`.
+     * Pass `undefined` to revert to the current basket.
+     * @param {string | undefined} id - The basket ID, or undefined to clear.
+     */
+    setTargetBasket
   };
 };
 

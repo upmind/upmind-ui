@@ -1,4 +1,8 @@
-import { useBasket } from "@upmind-automation/client-vue";
+import {
+  type AnyEventObject,
+  type FunnelContext,
+  useBasket
+} from "@upmind-automation/client-vue";
 
 // -----------------------------------------------------------------------------
 
@@ -8,6 +12,13 @@ import { useBasket } from "@upmind-automation/client-vue";
  * @returns  boolean
  */
 export default {
+  /**
+   * Returns true when the service response target matches the current route.
+   * Used by SESSION states to detect when guardSession resolves back to the
+   * same page (no returnUrl), so the funnel can fall through to its own default.
+   */
+  isSameRoute: ({ currentRoute }: FunnelContext, { data }: AnyEventObject) =>
+    data?.target?.name === currentRoute?.name,
   needsAuth: () => {
     const { meta } = useBasket();
     return meta.value?.needsAuth;

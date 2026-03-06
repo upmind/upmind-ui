@@ -1,11 +1,12 @@
 <template>
-  <UpmError :status="404" :storefront-route="{ name: ROUTE.STOREFRONT }" />
+  <UpmError :status="404" :storefront-route="storefrontRoute" />
 </template>
 <script lang="ts" setup>
 // --- components
-import { UpmError, useRoutingEngine } from "@upmind-automation/client-vue";
+import { UpmError } from "@upmind-automation/client-vue";
 
 // --- internal
-import { ROUTE } from "../router";
+import { useStorefrontRoute } from "../composables/useStorefrontRoute";
 // -----------------------------------------------------------------------------
+const { storefrontRoute } = useStorefrontRoute();
 </script>

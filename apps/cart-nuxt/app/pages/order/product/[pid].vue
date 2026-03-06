@@ -1,6 +1,6 @@
 <template>
   <UpmProductConfigure
-    :storefront-route="storefrontRoute || { name: ROUTE.STOREFRONT }"
+    :storefront-route="storefrontRoute"
     :catalogue-route="{ name: ROUTE.CATALOGUE }"
     @product-details="handleProductDetails"
   />
@@ -10,6 +10,7 @@
 import { UpmProductConfigure, useBrand } from "@upmind-automation/client-vue";
 import type { ProductDetails } from "@upmind-automation/headless";
 import { ROUTE } from "~/funnels/types";
+import { useStorefrontRoute } from "~/composables/useStorefrontRoute";
 import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
@@ -60,4 +61,5 @@ function handleProductDetails(details: ProductDetails) {
 definePageMeta({
   name: ROUTE.PRODUCT_CONFIGURE
 });
+const { storefrontRoute } = useStorefrontRoute();
 </script>

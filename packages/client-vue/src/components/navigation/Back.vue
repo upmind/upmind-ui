@@ -3,6 +3,7 @@
     :is="button ? Button : Link"
     :label="safeLabel"
     :to="to"
+    :href="href"
     size="lg"
     :variant="button ? 'subtle' : undefined"
     :color="!button ? 'muted' : undefined"
@@ -22,11 +23,22 @@ import type {
 const { t } = useI18n();
 
 const props = withDefaults(
-  defineProps<{
-    to?: string | RouteLocationAsRelativeGeneric | RouteLocationAsPathGeneric;
-    label?: string;
-    button?: boolean;
-  }>(),
+  defineProps<
+    {
+      label?: string;
+      button?: boolean;
+    } & (
+      | {
+          to:
+            | string
+            | RouteLocationAsRelativeGeneric
+            | RouteLocationAsPathGeneric;
+          href?: never;
+        }
+      | { href: string; to?: never }
+      | { to?: undefined; href?: undefined }
+    )
+  >(),
   {}
 );
 
