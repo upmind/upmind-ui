@@ -25,7 +25,7 @@ test.describe("Manipulating elements/behaviour with URL query strings @url-param
       await page.goto(`${URLs.baseUrl}?pid=${invalidPid}&navigateOnly=true`);
       await expect(page.getByTestId("dialog-window")).toBeVisible();
       await page.waitForURL(
-        `${URLs.baseUrl}order/product/${invalidPid}/not-found`
+        `${URLs.baseUrl}order/product/${invalidPid}/not-found/`
       );
     });
   });
@@ -208,8 +208,10 @@ test.describe("Manipulating elements/behaviour with URL query strings @url-param
       await page.goto(
         `${URLs.catalogueRoot1}?catid=${ProductIds.sharedHostingCategory}`
       );
-      await expect(page.getByTestId("title")).toBeVisible();
-      await expect(page.getByTestId("title")).toContainText("Shared Hosting");
+      await expect(page.getByTestId("hero-title")).toBeVisible();
+      await expect(page.getByTestId("hero-title")).toContainText(
+        "Shared Hosting"
+      );
     });
   });
 });

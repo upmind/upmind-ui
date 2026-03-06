@@ -22,7 +22,7 @@ test.describe("Edit hosting product in basket", () => {
   test.beforeEach(async ({ page, context }) => {
     productConfig = new ProductConfig(page);
     basket = new Basket(page);
-    await page.goto(URLs.basket);
+    await page.goto(URLs.baseUrl);
     await page.waitForLoadState("networkidle");
     token = await getSessionToken(context);
     let order = await createOrder(token);

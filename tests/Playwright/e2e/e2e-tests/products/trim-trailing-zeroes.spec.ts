@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { ProductConfig } from "../../support/page-objects/templates/ProductConfig";
 import { URLs } from "../../support/constants/urls";
-import { interceptAndPatchResponse } from "../../support/utils/functions/patch-api-response";
+import { interceptUISchema } from "../../support/utils/functions/brand";
 
 let productConfig: ProductConfig;
 
@@ -13,14 +13,11 @@ test.describe("Trim trailing zeroes on product prices", () => {
     page,
     context
   }) => {
-    await interceptAndPatchResponse(
-      context,
-      "**/api/basket/products/*?currency_id=*",
-      "data.brand.meta.cart.ui.product.display_price",
-      { trim_trailing_zeroes: true }
-    );
+    await interceptUISchema(context, { "@data.trimTrailingZeroes": true });
     await page.goto(URLs.starterHosting);
-    await expect(page.getByTestId("radio-card-item").nth(0)).toHaveText("£4");
+    await expect(
+      page.getByTestId("radio-card-monthly").locator("footer")
+    ).toHaveText("£4");
   });
   test.skip("Setting is only applied to decimal zeroes and not whole numbers", async () => {
     // TODO: Implement test
