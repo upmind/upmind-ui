@@ -1,5 +1,6 @@
 <template>
   <span :class="styles.itemContent.root">
+    <slot name="indicator" />
     <span :class="styles.itemContent.content">
       <span :class="styles.itemContent.group">
         <span :class="styles.itemContent.header.root">
@@ -85,9 +86,13 @@ import { castArray, isNil } from "lodash-es";
 import type { ItemContentItemProps } from "./types";
 // -----------------------------------------------------------------------------
 
-const props = defineProps<{
-  item?: ItemContentItemProps;
-}>();
+const props = withDefaults(
+  defineProps<{
+    item?: ItemContentItemProps;
+    size?: "sm" | "md";
+  }>(),
+  { size: "sm" }
+);
 
 const emit = defineEmits<{
   action: [event: Event];
@@ -101,7 +106,9 @@ const secondaryBadges = computed(() =>
   props.item?.secondaryBadge ? castArray(props.item.secondaryBadge) : []
 );
 
-const meta = computed(() => ({}));
+const meta = computed(() => ({
+  size: props.size
+}));
 
 const styles = useStyles<typeof config>(
   ["itemContent", "itemContent.header"],

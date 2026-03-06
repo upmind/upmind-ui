@@ -29,7 +29,7 @@
         name="item"
         v-bind="{ item: props.item, group: props.group, selected: isSelected }"
       >
-        <ItemContent :item="props.item" />
+        <ItemContent size="md" :item="props.item" />
       </slot>
     </div>
   </li>

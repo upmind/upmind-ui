@@ -7,9 +7,16 @@ import type { Icon } from "../icon/types";
 import type { CxOptions, VariantProps } from "class-variance-authority";
 import type { PopoverContentProps } from "radix-vue";
 import type { HTMLAttributes, Component } from "vue";
+// --- types
+import type {
+  ItemContentItemProps,
+  ItemContentActionProps
+} from "../item-content";
 // --- internal
 
 type TriggerVariantProps = VariantProps<typeof triggerVariants>;
+
+export type SelectCardsItemActionProps = ItemContentActionProps;
 
 /**
  * Base props from radix-vue primitives, inlined to avoid type portability issues
@@ -20,7 +27,8 @@ interface PrimitiveBaseProps {
   asChild?: boolean;
 }
 
-export interface SelectCardsItemProps extends PrimitiveBaseProps {
+export interface SelectCardsItemProps
+  extends PrimitiveBaseProps, Omit<ItemContentItemProps, "badge"> {
   /** The value given as data when submitted with a `name`. */
   value?: string;
   /** When `true`, prevents the user from interacting with the radio item. */

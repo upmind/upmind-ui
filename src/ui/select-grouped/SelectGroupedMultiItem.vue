@@ -56,7 +56,7 @@
                     selected: hasSelection
                   }"
                 >
-                  <ItemContent :item="headerItem" />
+                  <ItemContent size="md" :item="headerItem" />
                 </slot>
                 <slot
                   name="header-label"

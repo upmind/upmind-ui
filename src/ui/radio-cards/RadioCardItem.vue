@@ -6,21 +6,6 @@
     :data-hover="props.dataHover"
     :data-focus="props.dataFocus"
   >
-    <span :class="styles.radioCards.radio" @click.capture="onRadioClick">
-      <RadioGroupItem
-        :id="`${props.name}-${index}`"
-        :value="value"
-        :name="props.name"
-        :required="props.required"
-        :disabled="props.disabled"
-        :tabindex="isSelected || !modelValue ? 0 : -1"
-        :data-state="isSelected ? 'checked' : 'unchecked'"
-        :uiConfig="uiConfig"
-        @blur="onBlur"
-        :data-focus="props.dataFocus"
-        :data-hover="props.dataHover"
-      />
-    </span>
     <slot
       name="item"
       v-bind="{
@@ -28,6 +13,29 @@
       }"
     >
       <ItemContent :item="props" @action="emits('action', $event)">
+        <template #indicator>
+          <span :class="styles.radioCards.radio" @click.capture="onRadioClick">
+            <RadioGroupItem
+              :id="`${props.name}-${index}`"
+              :value="value"
+              :name="props.name"
+              :required="props.required"
+              :disabled="props.disabled"
+              :tabindex="isSelected || !modelValue ? 0 : -1"
+              :data-state="isSelected ? 'checked' : 'unchecked'"
+              :uiConfig="uiConfig"
+              @blur="onBlur"
+              :data-focus="props.dataFocus"
+              :data-hover="props.dataHover"
+            />
+          </span>
+        </template>
+        <template v-if="$slots.prepend" #prepend>
+          <slot name="prepend" />
+        </template>
+        <template v-if="$slots.secondary" #secondary>
+          <slot name="secondary" />
+        </template>
         <template v-if="$slots.append" #append>
           <slot name="append" />
         </template>
@@ -62,7 +70,9 @@ const emits = defineEmits<{
 
 defineSlots<{
   item(props: { item: any }): any;
+  prepend(): any;
   append(): any;
+  secondary(): any;
 }>();
 
 const isSelected = computed(() => {

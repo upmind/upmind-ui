@@ -18,7 +18,7 @@
       :data-focused="props.focused"
     >
       <slot name="item" v-bind="{ item: props.item, selected: isSelected }">
-        <ItemContent :item="props.item" />
+        <ItemContent size="md" :item="props.item" />
       </slot>
     </div>
   </li>

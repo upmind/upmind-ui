@@ -31,6 +31,26 @@
         >
           <slot name="item" v-bind="{ item, index }">
             <ItemContent :item="item" @action="emits('action', $event)">
+              <template #indicator>
+                <CheckboxIndicator
+                  :checked="includes(modelValue, item.value)"
+                  :noInput="props.noInput"
+                  :dataHover="props.dataHover"
+                  :dataFocus="props.dataFocus"
+                />
+              </template>
+              <template v-if="$slots.prepend" #prepend>
+                <slot
+                  name="prepend"
+                  v-bind="{ item: item.item, option: item }"
+                />
+              </template>
+              <template v-if="$slots.secondary" #secondary>
+                <slot
+                  name="secondary"
+                  v-bind="{ item: item.item, option: item }"
+                />
+              </template>
               <template v-if="$slots.append" #append>
                 <slot
                   name="append"
@@ -42,6 +62,7 @@
         </Label>
       </CheckboxCardItem>
     </template>
+    <slot name="additional-item" />
   </ToggleGroupRoot>
 </template>
 
@@ -55,6 +76,7 @@ import { computed } from "vue";
 import { ItemContent } from "../item-content";
 import { Label } from "../label";
 import CheckboxCardItem from "./CheckboxCardItem.vue";
+import CheckboxIndicator from "./CheckboxIndicator.vue";
 import config from "./checkboxCards.config";
 import { cn, useStyles } from "../../utils";
 // --- utils
@@ -76,8 +98,14 @@ const emits = defineEmits<{
 defineSlots<{
   /** Provide a checkbox card item */
   item(props: { item: any; index: number }): any;
+  /** Content prepended before the label inside ItemContent header */
+  prepend(props: { item: any; option: any }): any;
   /** Content appended after the group inside ItemContent */
   append(props: { item: any; option: any }): any;
+  /** Content rendered in the header secondary area (right-aligned with label) */
+  secondary(props: { item: any; option: any }): any;
+  /** Additional item rendered after the loop */
+  "additional-item"(props: {}): any;
 }>();
 
 const modelValue = useVModel(props, "modelValue", emits, {

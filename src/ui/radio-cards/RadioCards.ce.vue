@@ -37,6 +37,12 @@
         <template v-if="$slots.item" #item="slotProps">
           <slot name="item" v-bind="slotProps" />
         </template>
+        <template v-if="$slots.prepend" #prepend>
+          <slot name="prepend" v-bind="{ item: option.item, option }" />
+        </template>
+        <template v-if="$slots.secondary" #secondary>
+          <slot name="secondary" v-bind="{ item: option.item, option }" />
+        </template>
         <template v-if="$slots.append" #append>
           <slot name="append" v-bind="{ item: option.item, option }" />
         </template>
@@ -75,7 +81,9 @@ const emits = defineEmits<{
 
 defineSlots<{
   item(props: { item: any }): any;
+  prepend(props: { item: any; option: RadioCardsItemProps }): any;
   append(props: { item: any; option: RadioCardsItemProps }): any;
+  secondary(props: { item: any; option: RadioCardsItemProps }): any;
   "additional-item"(props: { size: string }): any;
 }>();
 

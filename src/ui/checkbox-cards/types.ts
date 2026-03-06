@@ -20,6 +20,7 @@ export interface CheckboxCardsItemProps
   extends ToggleGroupItemProps, ItemContentItemProps {
   label: string;
   id?: string;
+  item?: any;
   /** When `true`, prevents the user from interacting with the radio item. */
   disabled?: boolean;
   /** When `true`, indicates that the user must check the radio item before the owning form can be submitted. */

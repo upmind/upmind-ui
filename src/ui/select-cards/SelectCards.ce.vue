@@ -18,7 +18,10 @@
       >
         <template #item="{ item }">
           <slot name="item" v-bind="item as SelectCardsItemProps">
-            <Item v-bind="item">
+            <Item v-bind="item" @action="emits('action', $event)">
+              <template v-if="$slots.prepend" #prepend>
+                <slot name="prepend" v-bind="item as SelectCardsItemProps" />
+              </template>
               <template v-if="$slots.secondary" #secondary>
                 <slot name="secondary" v-bind="item as SelectCardsItemProps" />
               </template>
@@ -56,7 +59,13 @@
                 name="dropdown-item"
                 v-bind="{ ...item, index } as SelectCardsItemProps"
               >
-                <Item v-bind="item">
+                <Item v-bind="item" @action="emits('action', $event)">
+                  <template v-if="$slots.prepend" #prepend>
+                    <slot
+                      name="prepend"
+                      v-bind="{ ...item, index } as SelectCardsItemProps"
+                    />
+                  </template>
                   <template v-if="$slots.secondary" #secondary>
                     <slot
                       name="secondary"
@@ -125,7 +134,10 @@ const props = withDefaults(defineProps<SelectCardsProps>(), {
   size: "md"
 });
 
-const emits = defineEmits(["update:modelValue"]);
+const emits = defineEmits<{
+  "update:modelValue": [value: string | undefined];
+  action: [event: Event];
+}>();
 
 const open = ref(false);
 const isKeyboardNav = ref(false);

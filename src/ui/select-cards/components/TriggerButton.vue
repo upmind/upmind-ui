@@ -13,7 +13,7 @@
     <slot name="prepend" />
 
     <slot v-if="selected" name="item" v-bind="{ item: selected }">
-      <ItemContent :item="selected" />
+      <ItemContent size="md" :item="selected" />
     </slot>
 
     <slot v-if="!selected" name="placeholder" v-bind="{ item: selected }">
