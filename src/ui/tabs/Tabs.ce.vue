@@ -66,7 +66,6 @@
         :is="useTabs ? TabsContent : 'footer'"
         :value="item.value"
         :forceMount="item?.eager"
-        tabindex="-1"
       >
         <slot :name="`content.${item.value}`"></slot>
       </component>
