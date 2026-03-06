@@ -24,16 +24,19 @@ import {
 // -- types
 import { type InterstitialProps } from "@upmind-automation/upmind-ui";
 import { computed } from "vue";
-import { isNil } from "lodash-es";
-import { responseCodes } from "@upmind-automation/headless";
-import type { RouteLocationAsRelativeGeneric } from "vue-router";
+import { first, isNil } from "lodash-es";
+import { responseCodes, type Message } from "@upmind-automation/headless";
+import type { StorefrontRoute } from "../../types";
 const { t } = useI18n();
 
 const props = withDefaults(
   defineProps<
     {
-      status?: number;
-      storefrontRoute?: RouteLocationAsRelativeGeneric;
+      title?: Message["title"];
+      copy?: Message["copy"];
+      actions?: Message["actions"];
+      status?: Message["data"]["status"];
+      storefrontRoute?: StorefrontRoute;
     } & InterstitialProps
   >(),
   {
@@ -55,6 +58,8 @@ const emit = defineEmits<{
 
 const title = computed(() => {
   switch (props.status) {
+    case responseCodes.No_Content:
+      return props?.title ?? t("error.generic_title_md");
     case responseCodes.Unauthorized:
       return t("error.401_title_md");
     case responseCodes.Forbidden:
@@ -74,6 +79,8 @@ const title = computed(() => {
 
 const text = computed(() => {
   switch (props.status) {
+    case responseCodes.No_Content:
+      return props?.copy ?? t("error.generic_text");
     case responseCodes.Unauthorized:
       return t("error.404_text");
     case responseCodes.Forbidden:
@@ -93,6 +100,9 @@ const text = computed(() => {
 
 const icon = computed(() => {
   switch (props.status) {
+    case responseCodes.No_Content:
+      return first(props?.actions)?.icon ?? "arrow-left";
+
     case responseCodes.Unauthorized:
       return "arrow-left";
     case responseCodes.Forbidden:
@@ -112,6 +122,9 @@ const icon = computed(() => {
 
 const action = computed(() => {
   switch (props.status) {
+    case responseCodes.No_Content:
+      return first(props?.actions)?.label ?? t("action.back_to_shop");
+
     case responseCodes.Unauthorized:
       return t("action.back_to_shop");
     case responseCodes.Forbidden:
@@ -156,7 +169,7 @@ const actions = computed((): InterstitialActionProps[] => {
     // for all other errors, we want to redirect back to the storefront
     default:
       defaultAction = {
-        to: props.storefrontRoute,
+        ...props.storefrontRoute,
         handler: () => emit("dismiss"),
         variant: "solid",
         color: "primary",

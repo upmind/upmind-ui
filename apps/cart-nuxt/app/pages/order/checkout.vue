@@ -1,6 +1,6 @@
 <template>
   <UpmCheckout
-    :storefront-route="{ name: ROUTE.STOREFRONT }"
+    :storefront-route="storefrontRoute"
     :edit-route="{ name: ROUTE.BASKET_PRODUCT_EDIT }"
     :fields-route="{ name: ROUTE.BASKET }"
   />
@@ -9,6 +9,7 @@
 <script lang="ts" setup>
 import { UpmCheckout } from "@upmind-automation/client-vue";
 import { ROUTE } from "~/funnels/types";
+import { useStorefrontRoute } from "~/composables/useStorefrontRoute";
 import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
@@ -35,4 +36,5 @@ useSchemaOrg([
 definePageMeta({
   name: ROUTE.CHECKOUT
 });
+const { storefrontRoute } = useStorefrontRoute();
 </script>

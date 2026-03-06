@@ -18,7 +18,8 @@ import {
   type PropertyPath,
   compact,
   pick,
-  includes
+  includes,
+  reject
 } from "lodash-es";
 
 // --- types
@@ -115,6 +116,7 @@ const safeState = (
 };
 
 // --- state matching
+
 export const stateMatches = (
   stateLike: StateLike | MachineLike,
   states: string | string[],
@@ -124,12 +126,22 @@ export const stateMatches = (
 
   states = isArray(states) ? states : [states];
 
-  // special check for 'done' state, as xstate does not allow us to check for done using matches
-  if (includes(states, "done")) !!state?.done;
+  // --- done check: xstate does not support state.matches("done")
+  const isDone = includes(states, "done") && !!state?.done;
 
-  if (!isFunction(state?.matches)) return false;
+  // --- filter out "done" before passing to state.matches
+  const matchStates = reject(states, "done");
 
-  return matchAll ? states.every(state.matches) : states.some(state.matches);
+  // --- if state has no matches method, done is the only possible match
+  if (!isFunction(state?.matches)) return isDone;
+
+  // --- match remaining states
+  const isMatch =
+    !isEmpty(matchStates) && matchAll
+      ? states.every(state.matches)
+      : states.some(state.matches);
+
+  return isMatch || isDone;
 };
 
 export const contextMatches = (

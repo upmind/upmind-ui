@@ -77,7 +77,14 @@ export function setTokens(theme: Theme) {
 
 export function setDocumentTitle(brandName?: string) {
   if (!brandName) return;
-  document.title = `Checkout | ${brandName}`;
+
+  const preserveTitle = document.querySelector(
+    "meta[name='upmind-preserve-title'][content='true']"
+  );
+
+  if (!preserveTitle) {
+    document.title = `Checkout | ${brandName}`;
+  }
 
   const meta = document.querySelector(
     "meta[name='apple-mobile-web-app-title']"

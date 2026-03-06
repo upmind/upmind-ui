@@ -1,7 +1,8 @@
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
+import type { StorefrontRoute } from "../../types";
 
 export type ConfigureProps = {
-  storefrontRoute: RouteLocationAsRelativeGeneric;
+  storefrontRoute: StorefrontRoute;
   catalogueRoute?: RouteLocationAsRelativeGeneric;
   template?: PRODUCT_TEMPLATE;
   hideSlots?: string[];

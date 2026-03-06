@@ -7,7 +7,7 @@
             <template #append>
               <Back
                 v-if="props.storefrontRoute"
-                :to="props.storefrontRoute"
+                v-bind="props.storefrontRoute"
                 :label="t('action.continue_shopping')"
               />
             </template>
@@ -134,15 +134,16 @@ import { get, includes } from "lodash-es";
 // --- types
 import { BASKET_TEMPLATE } from "./types";
 import { UIContext } from "@upmind-automation/headless";
-import type { RouteLocationAsRelativeGeneric } from "vue-router";
+import type { StorefrontRoute } from "../../types";
 import { LAYOUT_VARIANTS } from "../../components/layout/types";
+import type { RouteLocationAsRelativeGeneric } from "vue-router";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(
   defineProps<{
     template?: BASKET_TEMPLATE;
     basketRoute?: RouteLocationAsRelativeGeneric;
-    storefrontRoute?: RouteLocationAsRelativeGeneric;
+    storefrontRoute?: StorefrontRoute;
     editRoute: RouteLocationAsRelativeGeneric;
     hideSlots?: string[];
   }>(),

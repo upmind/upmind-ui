@@ -14,12 +14,6 @@ export enum ROUTE {
   // --- SHOP ROUTES -----------------------------------------------------------
 
   /**
-   * The main storefront route, typically the landing page for users.
-   * This may be an internal OR external route depending on the application setup.
-   */
-  STOREFRONT = "storefront",
-
-  /**
    * The configuration key used to determine the checkout flow for the brand.
    * This key helps in selecting between different checkout funnel implementations.
    *
@@ -130,6 +124,11 @@ export enum ROUTE {
   BASKET_PRODUCT_REQUIRES_ACTION = "basket-product-requires-action",
 
   /**
+   * The route displayed when a basket is unavailable or invalid.
+   */
+  BASKET_UNAVAILABLE = "basket-unavailable",
+
+  /**
    * The route for the checkout process.
    */
   CHECKOUT = "checkout",
@@ -159,5 +158,11 @@ export enum ROUTE {
   /**
    * Represents an unavailable state, indicating a resource or feature is not currently accessible.
    */
-  UNAVAILABLE = "unavailable"
+  UNAVAILABLE = "unavailable",
+
+  /**
+   * This is a MAGIC route used to indicate a redirect within funnels.
+   * It is not a real route, but a placeholder to signal that a redirect should occur to a given target.
+   */
+  REDIRECT = "#calculating"
 }
