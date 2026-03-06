@@ -34,8 +34,11 @@
         @click="() => onChange(option.value)"
         @action="emits('action', $event)"
       >
-        <template #item="slotProps">
+        <template v-if="$slots.item" #item="slotProps">
           <slot name="item" v-bind="slotProps" />
+        </template>
+        <template v-if="$slots.append" #append>
+          <slot name="append" v-bind="{ item: option.item, option }" />
         </template>
       </RadioCardItem>
     </template>
@@ -55,7 +58,7 @@ import { cn, useStyles } from "../../utils";
 // --- utils
 import { kebabCase } from "lodash-es";
 // --- types
-import type { RadioCardsProps } from "./types";
+import type { RadioCardsProps, RadioCardsItemProps } from "./types";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<RadioCardsProps>(), {
@@ -68,6 +71,12 @@ const props = withDefaults(defineProps<RadioCardsProps>(), {
 
 const emits = defineEmits<{
   action: [event: Event];
+}>();
+
+defineSlots<{
+  item(props: { item: any }): any;
+  append(props: { item: any; option: RadioCardsItemProps }): any;
+  'additional-item'(props: { size: string }): any;
 }>();
 
 const modelValue = defineModel<string | number>();

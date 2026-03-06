@@ -27,7 +27,11 @@
         item: { ...props.item, value }
       }"
     >
-      <ItemContent :item="props" @action="emits('action', $event)" />
+      <ItemContent :item="props" @action="emits('action', $event)">
+        <template v-if="$slots.append" #append>
+          <slot name="append" />
+        </template>
+      </ItemContent>
     </slot>
   </Label>
 </template>
@@ -54,6 +58,11 @@ const props = withDefaults(defineProps<RadioCardsItemProps>(), {
 const emits = defineEmits<{
   click: [Event];
   action: [event: Event];
+}>();
+
+defineSlots<{
+  item(props: { item: any }): any;
+  append(): any;
 }>();
 
 const isSelected = computed(() => {

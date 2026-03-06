@@ -30,7 +30,11 @@
           data-testid="checkbox-label"
         >
           <slot name="item" v-bind="{ item, index }">
-            <ItemContent :item="item" @action="emits('action', $event)" />
+            <ItemContent :item="item" @action="emits('action', $event)">
+              <template v-if="$slots.append" #append>
+                <slot name="append" v-bind="{ item: item.item, option: item }" />
+              </template>
+            </ItemContent>
           </slot>
         </Label>
       </CheckboxCardItem>
@@ -69,6 +73,8 @@ const emits = defineEmits<{
 defineSlots<{
   /** Provide a checkbox card item */
   item(props: { item: any; index: number }): any;
+  /** Content appended after the group inside ItemContent */
+  append(props: { item: any; option: any }): any;
 }>();
 
 const modelValue = useVModel(props, "modelValue", emits, {

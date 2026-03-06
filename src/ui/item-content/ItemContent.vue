@@ -49,6 +49,8 @@
           {{ item.secondaryDescription }}
         </span>
       </span>
+
+      <slot name="append" />
     </span>
 
     <Link
@@ -60,8 +62,6 @@
       size="sm"
       @click.stop="onAction"
     />
-
-    <slot name="append" />
   </span>
 </template>
 
@@ -74,22 +74,22 @@
  * reusable component. Structure mirrors the Figma UpmRadioRowCore atom:
  *
  *   root (flex-wrap container)
- *   ├── content (flex-1, additional content gets gap-4)
- *   │   └── group (gap-1, header + descriptions)
- *   │       ├── header (flex-wrap)
- *   │       │   ├── primary (label + badge)
- *   │       │   └── secondary (secondary badge + label)
- *   │       ├── description
- *   │       └── secondaryDescription
- *   ├── action link
- *   └── #append slot
+ *   ├── content (flex-1, gap-4 between group and appended content)
+ *   │   ├── group (gap-1, header + descriptions)
+ *   │   │   ├── header (flex-wrap)
+ *   │   │   │   ├── primary (label + badge)
+ *   │   │   │   └── secondary (secondary badge + label)
+ *   │   │   ├── description
+ *   │   │   └── secondaryDescription
+ *   │   └── #append slot (e.g., pricing)
+ *   └── action link
  *
  * Slots:
  * - #prepend: Content before label (e.g., image/avatar)
  * - #primary: Override left header content (label + badge area)
  * - #secondary: Override right header content (secondary label + badge area)
  * - #description: Override description
- * - #append: Content after action link at root level (e.g., pricing)
+ * - #append: Content after group inside content area (e.g., pricing)
  */
 // --- external
 import { computed } from "vue";
