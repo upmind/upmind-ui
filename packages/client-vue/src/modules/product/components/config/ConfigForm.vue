@@ -37,31 +37,20 @@ import Form from "../../../../components/form/Form.vue";
 import { isEmpty } from "lodash-es";
 
 // ---types
+import type { ConfigFormProps } from "./types";
 
 const emit = defineEmits<{
   (e: "update:modelValue", model: any): void;
 }>();
 
-const props = withDefaults(
-  defineProps<{
-    disabled?: boolean;
-    loading?: boolean;
-    processing?: boolean;
-    touched?: boolean;
-    fields: any;
-    modelValue: any;
-    additionalErrors?: any[];
-    label?: string;
-  }>(),
-  {
-    disabled: false,
-    loading: false,
-    processing: false,
-    touched: false,
-    additionalErrors: () => [],
-    label: ""
-  }
-);
+const props = withDefaults(defineProps<ConfigFormProps>(), {
+  disabled: false,
+  loading: false,
+  processing: false,
+  touched: false,
+  additionalErrors: () => [],
+  label: ""
+});
 
 // -----------------------------------------------------------------------------
 

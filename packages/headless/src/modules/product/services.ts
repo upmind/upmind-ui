@@ -16,6 +16,7 @@ import {
 import {
   parseQuantity,
   parseTerm,
+  parseTrial,
   parseSubproducts,
   checkPriceOverride,
   checkQuantity,
@@ -215,7 +216,8 @@ async function parse(context: ProductConfigContext, { data }: AnyEventObject) {
       term: data?.term,
       options: data?.options,
       attributes: data?.attributes,
-      provisionFields: data?.provisionFields
+      provisionFields: data?.provisionFields,
+      startTrial: data?.startTrial
     },
     baseModel
   );
@@ -232,6 +234,8 @@ async function parse(context: ProductConfigContext, { data }: AnyEventObject) {
   }
 
   values.quantity = parseQuantity(values.quantity, context?.lookups?.product);
+
+  values.startTrial = parseTrial(values.startTrial, context?.lookups?.product);
 
   const term = parseTerm(context, values?.term, values.quantity);
   values.term = term.term;

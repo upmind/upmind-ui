@@ -279,6 +279,15 @@ export type ProductDetails = {
   uiMeta?: UIMeta;
   /** Optional UI meta-data specific to the product's category. */
   uiCategoryMeta?: Record<string, any>;
+  // --- trial
+  /** `true` if the product supports a free trial period. */
+  trialSupported?: boolean;
+  /** The trial duration in days. */
+  trialDuration?: number;
+  /** `true` if the trial is forced (user cannot opt out). */
+  trialForce?: boolean;
+  /** The action taken when the trial ends. See `TrialEndActionTypes`. */
+  trialEndAction?: number;
 };
 
 /**
@@ -301,6 +310,9 @@ export type ProductModel = {
   options?: SubproductModel;
   /** Key-value pairs for provision field values. */
   provisionFields?: Record<string, any>;
+  // --- trial
+  /** `true` to start a free trial for this product. */
+  startTrial?: boolean;
 };
 
 /**
@@ -427,7 +439,9 @@ export type ProductSummaryMeta = {
   /** `true` if the product is the default selection. */
   default?: boolean;
   /** `true` if the product offers a free trial. */
-  freeTrail?: boolean;
+  freeTrial?: boolean;
+  /** The formatted renewal price for the current billing cycle (e.g. "$9.99"). */
+  renewalPrice?: string;
   /** `true` if monthly pricing should be derived from the product's price. */
   useMonthlyFromPrice?: boolean;
 };

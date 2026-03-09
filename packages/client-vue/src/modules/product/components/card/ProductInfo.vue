@@ -14,6 +14,15 @@
       />
 
       <Badge
+        v-else-if="productDetails?.trialSupported"
+        :label="t('text.free_trial')"
+        icon="clock-stopwatch"
+        size="sm"
+        variant="muted"
+        color="promo"
+      />
+
+      <Badge
         v-else-if="meta?.discounted || preservePromotion"
         :label="t('text.on_sale')"
         icon="tag-02"

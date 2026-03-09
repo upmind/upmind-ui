@@ -438,6 +438,20 @@ export function parseQuantity(
   return quantity;
 }
 
+/**
+ * Resolves the trial state: force-enables when required, defaults to true on first parse.
+ */
+export function parseTrial(
+  value: boolean | undefined,
+  product?: ProductDetails
+): boolean | undefined {
+  return (
+    product?.trialForce || // forced by product config
+    (product?.trialSupported && isNil(value)) || // default to enabled on first parse
+    value // preserve existing selection
+  );
+}
+
 export function parseTerm(
   { lookups }: ProductConfigContext,
   value?: ProductModel["term"],
@@ -604,6 +618,8 @@ export const parseProductDetails = (
   rawProduct: IProduct,
   rawBasketProduct?: IBasketProduct
 ): ProductDetails => {
+  const { t } = useI18n();
+
   return {
     id: rawProduct?.id,
     name: rawProduct.name,
@@ -667,7 +683,12 @@ export const parseProductDetails = (
       rawProduct?.category as IProductCategory,
       (rawProduct?.brand?.meta as BrandMeta)?.cart?.ui ?? {}
     ),
-    uiCategoryMeta: rawProduct?.category?.meta || undefined
+    uiCategoryMeta: rawProduct?.category?.meta || undefined,
+    // --- trial
+    trialSupported: !!rawProduct?.trial_supported,
+    trialDuration: rawProduct?.trial_duration,
+    trialForce: !!rawProduct?.trial_force,
+    trialEndAction: rawProduct?.trial_end_action
   };
 };
 
@@ -872,6 +893,7 @@ export const parseSummaryDetail = (
       discounted,
       includesTax: includesTax.value,
       free: (raw.price_discounted ?? raw.price) == 0,
+      freeTrial: !!rawProduct?.trial_supported,
       overrides: !!overrides,
       useMonthlyFromPrice
     }
@@ -1247,7 +1269,8 @@ export const parseModel = (data: ProductModel): ProductModel => {
     term: data.term,
     options: data.options,
     attributes: data.attributes,
-    provisionFields: data.provisionFields
+    provisionFields: data.provisionFields,
+    startTrial: data?.startTrial
   };
 };
 
@@ -1285,7 +1308,8 @@ export const parseProductProps = (
     term: data?.term ?? defaultTerm.cycle,
     options: merge({}, options, data?.options),
     attributes: merge({}, attributes, data?.attributes),
-    provisionFields: data.provisionFields || {}
+    provisionFields: data.provisionFields || {},
+    startTrial: data?.startTrial
   };
 };
 
@@ -1298,7 +1322,8 @@ export const parseBasketProductModel = (raw: IBasketProduct): ProductModel => {
     term: raw.billing_cycle_months,
     options: parseBasketSubproductDetailsChoices(raw.options),
     attributes: parseBasketSubproductDetailsChoices(raw.attributes),
-    provisionFields: raw.provision_fields
+    provisionFields: raw.provision_fields,
+    startTrial: !!raw?.in_trial
   };
 };
 
