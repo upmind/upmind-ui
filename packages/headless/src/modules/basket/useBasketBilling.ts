@@ -62,27 +62,42 @@ export const useBasketBilling = () => {
     );
   }
 
-  const meta = computed(() => ({
-    isLoading: !actor.value || stateMatches(actor, ["loading"]),
-    isAvailable:
-      !!actor.value && stateMatches(actor, ["available", "complete"]),
-    hasErrors: stateMatches(actor, ["available.error"]),
-    isProcessing: stateMatches(actor, [
-      "available.processing",
-      "available.waiting"
-    ]),
-    isValid: stateMatches(actor, ["available.valid"]),
-    isComplete:
-      stateValue(actor, "done", false) ||
-      stateMatches(actor, ["available.processed", "complete"]),
-    isDirty: isDirty(
-      contextValue<BillingContext["model"]>(actor, "model"),
-      contextValue<BillingContext["baseModel"]>(actor, "baseModel")
-    ),
-    needsAddress: config.value?.requiresAddress ?? false,
-    needsCompany: config.value?.requiresCompany ?? false,
-    needsPhone: config.value?.requiresPhone ?? false
-  }));
+  const meta = computed(() => {
+    const needsAddress = config.value?.requiresAddress ?? false;
+    const needsCompany = config.value?.requiresCompany ?? false;
+    const needsPhone = config.value?.requiresPhone ?? false;
+    const hasAddress = !!model.value?.addressId;
+    const hasCompany = !!model.value?.companyId;
+    const hasPhone = !!model.value?.phoneId;
+    const hasRequirements = needsAddress || needsCompany || needsPhone;
+
+    return {
+      isLoading: !actor.value || stateMatches(actor, ["loading"]),
+      isAvailable:
+        !!actor.value && stateMatches(actor, ["available", "complete"]),
+      hasErrors: stateMatches(actor, ["available.error"]),
+      isProcessing: stateMatches(actor, [
+        "available.processing",
+        "available.waiting"
+      ]),
+      isValid: stateMatches(actor, ["available.valid"]),
+      isComplete:
+        stateValue(actor, "done", false) ||
+        stateMatches(actor, ["available.processed", "complete"]),
+      isDirty: isDirty(
+        contextValue<BillingContext["model"]>(actor, "model"),
+        contextValue<BillingContext["baseModel"]>(actor, "baseModel")
+      ),
+      needsAddress,
+      needsCompany,
+      needsPhone,
+      needsInput:
+        (needsAddress && !hasAddress) ||
+        (needsCompany && !hasCompany) ||
+        (needsPhone && !hasPhone) ||
+        (!hasRequirements && !hasAddress && !hasCompany && !hasPhone)
+    };
+  });
 
   // --- context
 

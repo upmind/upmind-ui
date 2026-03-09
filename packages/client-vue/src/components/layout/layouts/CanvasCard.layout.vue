@@ -1,7 +1,7 @@
 <template>
   <Root :class="styles.canvasCard.root" :overflow="overflow">
     <div :class="styles.canvasCard.container">
-      <Card as="article" :class="styles.canvasCard.card" spacious>
+      <Card as="article" :class="styles.canvasCard.card">
         <!-- Content Header -->
         <section :class="styles.canvasCard.contentHeader">
           <slot name="controls" />

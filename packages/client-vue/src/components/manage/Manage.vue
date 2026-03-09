@@ -126,7 +126,6 @@ function doReject() {
 
 function doResolve(value?: any) {
   modelValue.value = get(value, props.identifier ?? "id", value);
-  emits("update:modelValue", modelValue.value ?? "");
   openForm.value = false;
   if (!props.forceOpen) {
     safeOpen.value = false;
