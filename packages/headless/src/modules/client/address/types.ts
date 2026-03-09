@@ -96,9 +96,17 @@ export interface Address extends AddressModel {
    */
   title: string;
   /**
+   * The name of the country for this address.
+   */
+  countryName?: string;
+  /**
    * A detailed description of the address, potentially including full address lines.
    */
   description: string;
+  /**
+   * The name of the region/state for this address.
+   */
+  regionName?: string;
   /**
    * The type of address, corresponding to keys in {@link AddressTypes} (e.g., 1 for "Home").
    */

@@ -44,12 +44,14 @@
     />
   </Section>
 
-  <!-- Billing Details -->
-  <BillingDetails
-    id="basket-billing"
-    v-show="showCheckout && uischema.showBillingOnCheckout"
-    :touched="meta.showErrors"
-  />
+  <!-- Billing -->
+  <template v-if="showCheckout">
+    <BillingSummary
+      v-if="ui.billingDetails.isReadonly"
+      :billing-route="props.billingRoute"
+    />
+    <BillingForm v-else />
+  </template>
 
   <!-- Payment Details -->
   <PaymentDetails
@@ -74,14 +76,14 @@ import { useConfig } from "@upmind-automation/headless";
 
 // --- components
 import Section from "../../../components/section/Section.vue";
-import BillingDetails from "../../billing/Billing.vue";
+import BillingForm from "../../billing/components/BillingForm.vue";
+import BillingSummary from "../../billing/components/BillingSummary.vue";
 import PaymentDetails from "../../payment/components/PaymentDetails.vue";
 import ProductCards from "../../basket-product/components/card/BasketProductCards.vue";
 import Form from "../../../components/form/Form.vue";
 import BasketErrors from "../../basket/components/BasketErrors.vue";
 
 // --- types
-import { UIContext } from "@upmind-automation/headless";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
 
 // -----------------------------------------------------------------------------
@@ -89,7 +91,7 @@ import type { RouteLocationAsRelativeGeneric } from "vue-router";
 const props = defineProps<{
   showCheckout: boolean;
   editRoute: RouteLocationAsRelativeGeneric;
-  billingRoute?: RouteLocationAsRelativeGeneric;
+  billingRoute: RouteLocationAsRelativeGeneric;
   fieldsRoute?: RouteLocationAsRelativeGeneric;
 }>();
 // -----------------------------------------------------------------------------

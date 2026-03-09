@@ -2,6 +2,7 @@
   <Card
     as="li"
     class="shadow-control-default card-radius relative flex list-none flex-col gap-y-3 px-8 py-5 text-base"
+    padding="md"
   >
     <div class="flex flex-col divide-y divide-dashed [&>*]:py-4">
       <article class="flex flex-col gap-2 lg:gap-4">

@@ -1,4 +1,4 @@
-import type { BadgeProps } from "@upmind-automation/upmind-ui";
+import type { BadgeProps, ButtonProps } from "@upmind-automation/upmind-ui";
 import type { CxOptions } from "class-variance-authority";
 
 export interface HeroProps {
@@ -7,6 +7,7 @@ export interface HeroProps {
   subtitle?: string;
   description?: string;
   loading?: boolean;
+  action?: ButtonProps;
   uiConfig?: {
     hero?: {
       root?: CxOptions;
