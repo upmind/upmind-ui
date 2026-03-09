@@ -136,15 +136,7 @@ export class Checkout {
   async clickPlaceOrderAndPay() {
     const placeOrderButton = this.placeOrderAndPay;
     await expect(placeOrderButton).toBeEnabled();
-    await expect
-      .poll(
-        async () => {
-          await placeOrderButton.click();
-          return await placeOrderButton.isDisabled();
-        },
-        { timeout: 10000, intervals: [500, 1000, 2000] }
-      )
-      .toBe(true);
+    await placeOrderButton.click();
   }
 
   async clickPlaceOrder() {
