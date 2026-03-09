@@ -11,21 +11,12 @@ import { computed } from "vue";
 import config from "./card.config";
 import { cn, useStyles } from "../../utils";
 // --- types
-import type { HTMLAttributes } from "vue";
+import type { CardProps } from "./types";
 // -----------------------------------------------------------------------------
-const props = withDefaults(
-  defineProps<{
-    as?: string;
-    class?: HTMLAttributes["class"];
-    disabled?: boolean;
-    width?: "app" | "full";
-    padding?: "md" | "lg";
-  }>(),
-  {
-    as: "div",
-    width: "full"
-  }
-);
+const props = withDefaults(defineProps<CardProps>(), {
+  as: "div",
+  width: "full"
+});
 
 const meta = computed(() => ({
   isDisabled: props.disabled,
