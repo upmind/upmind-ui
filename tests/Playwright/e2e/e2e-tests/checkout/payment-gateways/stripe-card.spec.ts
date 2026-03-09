@@ -10,12 +10,12 @@ import { ErrorCards } from "../../../support/constants/checkout/payment-cards/In
 import { products } from "../../../support/constants/products";
 
 let checkout: Checkout;
-let registration: Registration;
+let register: Registration;
 
 test.describe("Checkout with Stripe", () => {
   test.beforeEach(async ({ page, context }) => {
     checkout = new Checkout(page);
-    registration = new Registration(page, context);
+    register = new Registration(page, context);
   });
   test.describe("Stripe Cards", () => {
     test.describe("Valid Cards", async () => {
@@ -28,14 +28,12 @@ test.describe("Checkout with Stripe", () => {
             null,
             null
           );
-          await registration.inputRegistration();
+          await register.inputRegistration();
           await checkout.selectPaymentMethod("Stripe");
           await checkout.inputStripeDetails(cardNumber, expiryDate, cvcCode);
           await checkout.clickPlaceOrderAndPay();
           await page.waitForURL(`order/**`);
-          await expect(
-            page.getByText("Thank you for your order!")
-          ).toBeVisible();
+          await expect(page.getByText("Order complete!")).toBeVisible();
         });
       }
     });
@@ -49,7 +47,7 @@ test.describe("Checkout with Stripe", () => {
             null,
             null
           );
-          await registration.inputRegistration();
+          await register.inputRegistration();
           await checkout.selectPaymentMethod("Stripe");
           await checkout.inputStripeDetails(cardNumber, expiryDate, cvcCode);
           await checkout.clickPlaceOrderAndPay();
@@ -75,7 +73,7 @@ test.describe("Checkout with Stripe", () => {
             null,
             null
           );
-          await registration.inputRegistration();
+          await register.inputRegistration();
           await checkout.selectPaymentMethod("Stripe");
           await checkout.inputStripeDetails(cardNumber, expiryDate, cvcCode);
           await checkout.clickPlaceOrderAndPay();
@@ -104,7 +102,7 @@ test.describe("Checkout with Stripe", () => {
             null,
             null
           );
-          await registration.inputRegistration();
+          await register.inputRegistration();
           await checkout.selectPaymentMethod("Stripe");
           await checkout.inputStripeDetails(cardNumber, expiryDate, cvcCode);
           const stripeFrame = page.frameLocator(
@@ -120,7 +118,7 @@ test.describe("Checkout with Stripe", () => {
   test.describe("SEPA Debit", () => {
     test("Valid SEPA Debit", async ({ page, context }) => {
       await goToCheckout(page, context, products.STARTER_HOSTING, null, "EUR");
-      await registration.inputRegistration();
+      await register.inputRegistration();
       await checkout.selectPaymentMethod("Stripe");
       await checkout.inputSepaDetails(
         "GB82WEST12345698765432",
@@ -138,7 +136,7 @@ test.describe("Checkout with Stripe", () => {
   test.describe("iDEAL", async () => {
     test("Successful iDEAL payment", async ({ page, context }) => {
       await goToCheckout(page, context, products.STARTER_HOSTING, null, "EUR");
-      await registration.inputRegistration();
+      await register.inputRegistration();
       await checkout.selectPaymentMethod("Stripe");
       await checkout.inputIdealDetails(
         "nathan.robinson+ideal@upmind.com",
@@ -151,7 +149,7 @@ test.describe("Checkout with Stripe", () => {
     });
     test("Failed iDEAL payment", async ({ page, context }) => {
       await goToCheckout(page, context, products.STARTER_HOSTING, null, "EUR");
-      await registration.inputRegistration();
+      await register.inputRegistration();
       await checkout.selectPaymentMethod("Stripe");
       await checkout.inputIdealDetails(
         "nathan.robinson+ideal@upmind.com",
@@ -170,7 +168,7 @@ test.describe("Checkout with Stripe", () => {
   test.describe("Stripe Errors", async () => {
     test("Mock Stripe Card Decline", async ({ page, context }) => {
       await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
-      await registration.inputRegistration();
+      await register.inputRegistration();
       await checkout.selectPaymentMethod("Stripe");
       await mockStripeCardDecline(page);
       await checkout.inputStripeDetails("4242424242424242", "12/34", "123");
@@ -182,7 +180,7 @@ test.describe("Checkout with Stripe", () => {
     });
     test("Insufficient Payment Amount", async ({ page, context }) => {
       await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
-      await registration.inputRegistration();
+      await register.inputRegistration();
       await page.waitForLoadState("load");
       await checkout.changeAmountButton.click();
       await checkout.changeAmountInput.fill("0.20");

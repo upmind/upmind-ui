@@ -18,9 +18,10 @@ import { products } from "../support/constants/products";
 let context: BrowserContext;
 let productConfig: ProductConfig;
 let basket: Basket;
-let registration: Registration;
+
 let checkout: Checkout;
 let confirmation: Confirmation;
+let register: Registration;
 
 const promoCode = "genericpromo";
 const promoError = (message: string) => ({
@@ -209,9 +210,9 @@ test.describe("Promotions", () => {
   test.describe("Promotion displayed on Checkout", () => {
     test.beforeEach(async ({ page, context }) => {
       checkout = new Checkout(page);
-      registration = new Registration(page, context);
+      register = new Registration(page, context);
       await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
-      await registration.inputRegistration();
+      await register.inputRegistration();
     });
     test("Promo badge/details displayed at checkout", async ({ page }) => {
       await checkout.addVoucherButton.click();

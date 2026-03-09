@@ -15,19 +15,19 @@ import { Logins } from "../../support/constants/logins";
 import { URLs } from "../../support/constants/urls";
 
 let checkout: Checkout;
-let registration: Registration;
+let register: Registration;
 let confirmation: Confirmation;
 
 //TODO: Update the tests to account for the different messaging on different order states (e.g. 'We received £20')
 test.describe("Confirmation Page Display", () => {
-  test.beforeEach(({ page, context, authenticatedPage }) => {
+  test.beforeEach(({ page, context }) => {
     checkout = new Checkout(page);
-    registration = new Registration(page, context);
+    register = new Registration(page, context);
     confirmation = new Confirmation(page);
   });
   test("Successful Paid Order (New Card)", async ({ page, context }) => {
     await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
-    await registration.inputRegistration();
+    await register.inputRegistration();
     await checkout.selectPaymentMethod("Stripe");
     await checkout.inputStripeDetails("4242424242424242", "12/50", "123");
     await checkout.clickPlaceOrderAndPay();
@@ -72,6 +72,7 @@ test.describe("Confirmation Page Display", () => {
       null,
       null
     );
+    await register.inputRegistration();
     await checkout.selectPaymentMethod("Visa ending 4242");
     await checkout.clickPlaceOrderAndPay();
     let token = await getSessionToken(authedContext);
@@ -105,7 +106,7 @@ test.describe("Confirmation Page Display", () => {
   });
   test("Successful Free Order", async ({ page, context }) => {
     await goToCheckout(page, context, products.FREE_HOSTING, null, null);
-    await registration.inputRegistration();
+    await register.inputRegistration();
     await checkout.placeOrder.click();
     let token = await getSessionToken(context);
     let order = await getCurrentOrder(token);
@@ -138,7 +139,7 @@ test.describe("Confirmation Page Display", () => {
       "genericpromo",
       null
     );
-    await registration.inputRegistration();
+    await register.inputRegistration();
     await checkout.selectPaymentMethod("Stripe");
     await checkout.inputStripeDetails("4242424242424242", "12/50", "123");
     await checkout.clickPlaceOrderAndPay();
@@ -170,7 +171,7 @@ test.describe("Confirmation Page Display", () => {
   });
   test("Unsuccessful Payment on Order", async ({ page, context }) => {
     await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
-    await registration.inputRegistration();
+    await register.inputRegistration();
     await checkout.selectPaymentMethod("Stripe");
     await checkout.inputStripeDetails("4000000000009995", "12/50", "123");
     await checkout.clickPlaceOrderAndPay();
@@ -211,7 +212,7 @@ test.describe("Confirmation Page Display", () => {
   });
   test("Pay Later on Order", async ({ page, context }) => {
     await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
-    await registration.inputRegistration();
+    await register.inputRegistration();
     await checkout.selectPaymentMethod("Pay Later");
     await checkout.placeOrder.click();
     let token = await getSessionToken(context);
@@ -239,7 +240,7 @@ test.describe("Confirmation Page Display", () => {
   });
   test("Successful Partial Payment on Order", async ({ page, context }) => {
     await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
-    await registration.inputRegistration();
+    await register.inputRegistration();
     await checkout.changeAmountButton.click();
     await checkout.changeAmountInput.fill("20");
     await checkout.clickConfirmAmount();
