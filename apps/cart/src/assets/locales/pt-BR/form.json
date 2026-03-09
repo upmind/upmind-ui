@@ -23,7 +23,15 @@
     "placeholder": "nome@email.com"
   },
   "auth_password": {
-    "error": "É necessária uma senha forte",
+    "error": {
+      "min_length": "A senha deve ter pelo menos 8 caracteres",
+      "min_length_lowercase": "A senha deve ter pelo menos 8 caracteres e conter uma letra minúscula.",
+      "min_length_lowercase_number": "A senha deve ter no mínimo 8 caracteres, incluir uma letra minúscula e um dígito numérico",
+      "min_length_number": "A senha deve ter pelo menos 8 caracteres e conter um número.",
+      "missing_lowercase": "A senha deve conter uma letra minúscula",
+      "missing_lowercase_number": "A senha deve conter uma letra minúscula e um número",
+      "missing_number": "A senha deve conter um número"
+    },
     "label": "Senha",
     "placeholder": "Senha ou frase-senha"
   },

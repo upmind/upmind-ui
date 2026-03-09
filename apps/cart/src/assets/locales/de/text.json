@@ -51,6 +51,9 @@
   "forgot_your_password_qn": "Passwort vergessen?",
   "free": "FREI",
   "free_trial": "Kostenlose Testversion",
+  "free_trial_alert": "Dieser Artikel enthält eine kostenlose Testphase von {days} Tagen.",
+  "free_trial_desc": "Gute Nachrichten – du kannst dieses Produkt jetzt 7 Tage kostenlos testen, ganz ohne Verpflichtungen. Nach Ablauf der Testphase startet automatisch dein {term}-Plan.",
+  "free_trial_included_desc": "Dieses Produkt enthält eine kostenlose Testphase.",
   "from": "Aus",
   "fully_encrypted_title": "Vollständig verschlüsselt",
   "item": "Artikel",
@@ -102,6 +105,7 @@
   "session_expired_md": "@.markdown:{'text.session_expired'}",
   "session_expired_return_store_msg": "Wir können Ihre letzte Bestellung nicht abrufen, da Ihre Sitzung abgelaufen ist. Um einen neuen Einkauf zu starten, klicken Sie bitte auf die Schaltfläche unten, um zu unserem Shop zurückzukehren.",
   "shop": "Geschäft",
+  "start_free_trial": "Kostenlose Testversion starten",
   "subject": "Thema",
   "subtotal": "Zwischensumme",
   "summary": "Zusammenfassung",
@@ -119,6 +123,9 @@
   "terms_of_service": "Servicebedingungen",
   "to": "Zu",
   "total": "Gesamt",
+  "trial_renews_at_msg": "Nach der Testphase automatische Verlängerung zum Preis von {price}",
+  "try_before_you_buy": "Erst testen, dann kaufen",
+  "try_free_for_days": "{days} Tage kostenlos testen",
   "unverified_label": "Unbestätigt",
   "welcome_back_msg": "Willkommen zurück, {name}"
 }

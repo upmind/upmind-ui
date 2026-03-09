@@ -23,7 +23,15 @@
     "placeholder": "isim@e-posta.com"
   },
   "auth_password": {
-    "error": "Güçlü bir parola gereklidir",
+    "error": {
+      "min_length": "Şifre en az 8 karakterden oluşmalıdır.",
+      "min_length_lowercase": "Şifre en az 8 karakterden oluşmalı ve küçük harf içermelidir.",
+      "min_length_lowercase_number": "Şifre en az 8 karakter olmalı, en az bir küçük harf ve en az bir rakam içermeli.",
+      "min_length_number": "Şifre en az 8 karakterden oluşmalı ve bir rakam içermelidir.",
+      "missing_lowercase": "Şifre küçük harf içermelidir",
+      "missing_lowercase_number": "Şifre, küçük harf ve rakam içermelidir.",
+      "missing_number": "Şifre bir rakam içermelidir"
+    },
     "label": "Şifre",
     "placeholder": "Şifre veya parola ifadesi"
   },

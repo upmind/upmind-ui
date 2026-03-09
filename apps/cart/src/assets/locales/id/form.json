@@ -23,7 +23,15 @@
     "placeholder": "nama@email.com"
   },
   "auth_password": {
-    "error": "Diperlukan kata sandi yang kuat",
+    "error": {
+      "min_length": "Kata sandi harus terdiri dari minimal 8 karakter.",
+      "min_length_lowercase": "Kata sandi harus terdiri dari minimal 8 karakter dan mengandung huruf kecil.",
+      "min_length_lowercase_number": "Kata sandi harus minimal 8 karakter, mengandung setidaknya satu huruf Latin kecil (a–z), dan setidaknya satu digit (0–9).",
+      "min_length_number": "Kata sandi harus terdiri dari minimal 8 karakter dan mengandung angka.",
+      "missing_lowercase": "Kata sandi harus mengandung huruf kecil.",
+      "missing_lowercase_number": "Kata sandi harus mengandung huruf kecil dan angka.",
+      "missing_number": "Kata sandi harus mengandung angka."
+    },
     "label": "Kata sandi",
     "placeholder": "Kata sandi atau frasa sandi"
   },
