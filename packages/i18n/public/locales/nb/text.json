@@ -14,7 +14,7 @@
   "billing_details": "Faktureringsdetaljer",
   "bounced": "Spratt tilbake",
   "bounced_label": "Spratt tilbake",
-  "bounced_msg": "Den siste e-posten til denne adressen ble sendt tilbake {datetime} .",
+  "bounced_msg": "Den siste e-posten til denne adressen ble sendt tilbake {datetime}.",
   "business": "Forretninger",
   "business_details": "Forretningsdetaljer",
   "cant_decide_right_qn": "Klarer du ikke å bestemme deg akkurat nå?",

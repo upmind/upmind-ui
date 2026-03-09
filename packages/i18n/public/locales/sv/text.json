@@ -14,7 +14,7 @@
   "billing_details": "Faktureringsuppgifter",
   "bounced": "Studsade",
   "bounced_label": "Studsade",
-  "bounced_msg": "Det senaste mejlet till den här adressen studsade {datetime} .",
+  "bounced_msg": "Det senaste mejlet till den här adressen studsade {datetime}.",
   "business": "Företag",
   "business_details": "Företagsinformation",
   "cant_decide_right_qn": "Kan du inte bestämma dig just nu?",

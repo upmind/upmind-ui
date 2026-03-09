@@ -14,7 +14,7 @@
   "billing_details": "Detalles de facturación",
   "bounced": "Rebotó",
   "bounced_label": "Rebotó",
-  "bounced_msg": "El último correo electrónico a esta dirección rebotó en {datetime} .",
+  "bounced_msg": "El último correo electrónico a esta dirección rebotó en {datetime}.",
   "business": "Negocio",
   "business_details": "Detalles comerciales",
   "cant_decide_right_qn": "¿No puedes decidir ahora?",

@@ -14,7 +14,7 @@
   "billing_details": "Faktureringsoplysninger",
   "bounced": "Afvist",
   "bounced_label": "Afvist",
-  "bounced_msg": "Den sidste e-mail til denne adresse blev sendt tilbage{datetime} .",
+  "bounced_msg": "Den sidste e-mail til denne adresse blev sendt tilbage {datetime}.",
   "business": "Forretning",
   "business_details": "Virksomhedsoplysninger",
   "cant_decide_right_qn": "Kan du ikke beslutte dig lige nu?",

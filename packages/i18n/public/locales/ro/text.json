@@ -14,7 +14,7 @@
   "billing_details": "Detalii de facturare",
   "bounced": "Respins",
   "bounced_label": "Respins",
-  "bounced_msg": "Ultimul e-mail către această adresă a fost respins pe {datetime} .",
+  "bounced_msg": "Ultimul e-mail către această adresă a fost respins pe {datetime}.",
   "business": "Afaceri",
   "business_details": "Detalii despre companie",
   "cant_decide_right_qn": "Nu te poți decide acum?",

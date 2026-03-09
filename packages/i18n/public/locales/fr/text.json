@@ -14,7 +14,7 @@
   "billing_details": "Détails de facturation",
   "bounced": "Rebondi",
   "bounced_label": "Rebondi",
-  "bounced_msg": "Le dernier courriel envoyé à cette adresse a été rejeté.{datetime} .",
+  "bounced_msg": "Le dernier courriel envoyé à cette adresse a été rejeté.{datetime}.",
   "business": "Entreprise",
   "business_details": "Détails de l'entreprise",
   "cant_decide_right_qn": "Vous n'arrivez pas à vous décider pour l'instant ?",

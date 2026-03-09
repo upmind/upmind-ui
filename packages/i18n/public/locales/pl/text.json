@@ -14,7 +14,7 @@
   "billing_details": "Szczegóły rozliczeń",
   "bounced": "Odbite",
   "bounced_label": "Odbite",
-  "bounced_msg": "Ostatni e-mail wysłany na ten adres nie został wysłany{datetime} .",
+  "bounced_msg": "Ostatni e-mail wysłany na ten adres nie został wysłany {datetime}.",
   "business": "Biznes",
   "business_details": "Szczegóły firmy",
   "cant_decide_right_qn": "Nie możesz się teraz zdecydować?",

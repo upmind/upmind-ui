@@ -4,7 +4,7 @@
   "account_credit_use": "Χρησιμοποιήστε {amount} πίστωση λογαριασμού",
   "account_credit_use_msg": "Έχετε {ownedAmount} πίστωση λογαριασμού, συν ένα όριο πίστωσης {creditAmount} που μπορείτε επίσης να χρησιμοποιήσετε. | Έχετε {ownedAmount} πίστωση λογαριασμού.",
   "basket_billing_review_msg": "Ορισμένα στοιχεία χρέωσης λείπουν ή είναι λανθασμένα – {review}.",
-  "basket_count": "κενό| {count} στοιχείο | {count} στοιχεία",
+  "basket_count": "κενό | {count} στοιχείο | {count} στοιχεία",
   "basket_fields_review_msg": "Ορισμένα πεδία του καλαθιού λείπουν ή είναι λανθασμένα – {review}.",
   "basket_items": "δεν υπάρχουν είδη στο καλάθι | {count} είδος στο καλάθι | {count} είδη στο καλάθι",
   "basket_product_missing_data": "Λείπουν δεδομένα από το στοιχείο",

@@ -14,7 +14,7 @@
   "billing_details": "Detail penagihan",
   "bounced": "Terpental",
   "bounced_label": "Terpental",
-  "bounced_msg": "Email terakhir ke alamat ini gagal terkirim pada{datetime} .",
+  "bounced_msg": "Email terakhir ke alamat ini gagal terkirim pada {datetime}.",
   "business": "Bisnis",
   "business_details": "Rincian bisnis",
   "cant_decide_right_qn": "Tidak dapat memutuskan sekarang?",

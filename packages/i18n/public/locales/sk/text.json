@@ -14,7 +14,7 @@
   "billing_details": "Fakturačné údaje",
   "bounced": "Odražené",
   "bounced_label": "Odražené",
-  "bounced_msg": "Posledný e-mail na túto adresu bol vrátený dňa {datetime} .",
+  "bounced_msg": "Posledný e-mail na túto adresu bol vrátený dňa {datetime}.",
   "business": "Obchod",
   "business_details": "Podrobnosti o firme",
   "cant_decide_right_qn": "Neviete sa teraz rozhodnúť?",
