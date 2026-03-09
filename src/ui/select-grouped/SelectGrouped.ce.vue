@@ -35,6 +35,15 @@
       <template v-if="$slots['dropdown-item']" #dropdown-item="slotProps">
         <slot name="dropdown-item" v-bind="slotProps" />
       </template>
+      <template v-if="$slots.prepend" #prepend="slotProps">
+        <slot name="prepend" v-bind="slotProps" />
+      </template>
+      <template v-if="$slots.secondary" #secondary="slotProps">
+        <slot name="secondary" v-bind="slotProps" />
+      </template>
+      <template v-if="$slots.append" #append="slotProps">
+        <slot name="append" v-bind="slotProps" />
+      </template>
     </SelectGroupedOption>
     <slot name="additional-item" :size="styles.selectGrouped.group.size" />
   </component>

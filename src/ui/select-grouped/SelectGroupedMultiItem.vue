@@ -46,6 +46,9 @@
             v-bind="{ group: props.group, selectedItem, expanded: isOpen }"
           >
             <div :class="styles.selectGrouped.header.root">
+              <template v-if="$slots.prepend && selectedItem">
+                <slot name="prepend" v-bind="{ item: selectedItem.item, option: selectedItem }" />
+              </template>
               <slot name="icon" v-bind="{ group: props.group }" />
               <div :class="styles.selectGrouped.header.container">
                 <slot
@@ -56,7 +59,19 @@
                     selected: hasSelection
                   }"
                 >
-                  <ItemContent size="md" :item="headerItem" />
+                  <ItemContent size="md" :item="headerItem">
+                    <template #primary>
+                      <SelectGroupedHeaderLabel
+                        :group-name="props.group.name"
+                        :selected-label="selectedItem?.label"
+                        :badge="selectedItem?.badge"
+                        :ui-config="props.uiConfig"
+                      />
+                    </template>
+                    <template v-if="$slots.secondary && selectedItem" #secondary>
+                      <slot name="secondary" v-bind="{ item: selectedItem.item, option: selectedItem }" />
+                    </template>
+                  </ItemContent>
                 </slot>
                 <slot
                   name="header-label"
@@ -105,6 +120,15 @@
                   v-bind="{ ...slotProps, group: props.group }"
                 />
               </template>
+              <template v-if="$slots.prepend" #prepend>
+                <slot name="prepend" v-bind="{ item: item.item, option: item }" />
+              </template>
+              <template v-if="$slots.secondary" #secondary>
+                <slot name="secondary" v-bind="{ item: item.item, option: item }" />
+              </template>
+              <template v-if="$slots.append" #append>
+                <slot name="append" v-bind="{ item: item.item, option: item }" />
+              </template>
             </SelectGroupedItem>
           </ul>
         </CollapsibleContent>
@@ -132,6 +156,7 @@ import { Collapsible, CollapsibleContent } from "../collapsible";
 import { Icon } from "../icon";
 import { ItemContent } from "../item-content";
 import config from "./selectGrouped.config";
+import SelectGroupedHeaderLabel from "./SelectGroupedHeaderLabel.vue";
 import SelectGroupedItem from "./SelectGroupedItem.vue";
 import {
   toggleSelectionValue,
@@ -191,7 +216,6 @@ const hasSelection = computed(() => {
 
 const headerItem = computed(() => ({
   label: props.group.name,
-  secondaryLabel: selectedItem.value?.label,
   description: selectedItem.value?.description
 }));
 

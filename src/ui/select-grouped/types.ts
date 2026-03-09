@@ -48,6 +48,7 @@ export interface SelectGroupedItemProps extends ItemContentItemProps {
   value: string;
   icon?: string;
   disabled?: boolean;
+  item?: any;
 }
 
 export interface SelectGroupedGroupProps {

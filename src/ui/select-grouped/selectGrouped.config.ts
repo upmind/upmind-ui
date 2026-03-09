@@ -59,7 +59,10 @@ export default {
       icon: cva("text-muted size-5 shrink-0"),
       chevron: cva(
         "text-muted ml-2 size-4 shrink-0 transition-transform duration-200"
-      )
+      ),
+      primary: cva("flex flex-1 items-center gap-2"),
+      label: cva("text-display text-md-tight font-medium whitespace-nowrap"),
+      arrow: cva("text-control-foreground [&>svg]:size-4")
     },
     dropdown: {
       root: dropdownVariants,

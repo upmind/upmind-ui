@@ -18,7 +18,17 @@
       :data-focused="props.focused"
     >
       <slot name="item" v-bind="{ item: props.item, selected: isSelected }">
-        <ItemContent size="md" :item="props.item" />
+        <ItemContent size="md" :item="props.item">
+          <template v-if="$slots.prepend" #prepend>
+            <slot name="prepend" />
+          </template>
+          <template v-if="$slots.secondary" #secondary>
+            <slot name="secondary" />
+          </template>
+          <template v-if="$slots.append" #append>
+            <slot name="append" />
+          </template>
+        </ItemContent>
       </slot>
     </div>
   </li>

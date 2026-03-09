@@ -29,7 +29,17 @@
         name="item"
         v-bind="{ item: props.item, group: props.group, selected: isSelected }"
       >
-        <ItemContent size="md" :item="props.item" />
+        <ItemContent size="md" :item="props.item">
+          <template v-if="$slots.prepend" #prepend>
+            <slot name="prepend" v-bind="{ item: props.item.item, option: props.item }" />
+          </template>
+          <template v-if="$slots.secondary" #secondary>
+            <slot name="secondary" v-bind="{ item: props.item.item, option: props.item }" />
+          </template>
+          <template v-if="$slots.append" #append>
+            <slot name="append" v-bind="{ item: props.item.item, option: props.item }" />
+          </template>
+        </ItemContent>
       </slot>
     </div>
   </li>
