@@ -43,7 +43,6 @@ import {
   set,
   some,
   subtract,
-  times,
   toNumber,
   trim,
   uniq,
@@ -445,7 +444,7 @@ export function parseTerm(
   quantity?: ProductModel["quantity"]
 ): { term: ProductModel["term"]; price: PriceCalculations["term"] } {
   let term: TermDetails | undefined = undefined;
-  const price: number[] = [];
+  const price: PriceCalculations["term"] = [];
   // ---
   // try ge the full term object from the lookups terms
   term = find(lookups?.terms, ["cycle", value]);
@@ -462,9 +461,12 @@ export function parseTerm(
 
   // set price values, taking into account the quantity and unit quantity
   // NB: we NEVER add, we always push into an array for the backend to handle
-  times(quantity ?? 0, () => {
-    price.push(term?.price?.currentAmount ?? 0);
-  });
+  if (quantity) {
+    price.push({
+      price: term?.price?.currentAmount ?? 0,
+      quantity: quantity ?? 0
+    });
+  }
 
   return { term: get(term, "cycle") as number, price };
 }
@@ -574,8 +576,9 @@ export function parseSubproducts(
             // if we have a price, set price values, taking into account the quantity and unit quantity
             // NB: we NEVER add, we always push into an array for the backend to handle
             if (!isEmpty(product?.price)) {
-              times(value.quantity * (quantity ?? 1), () => {
-                price.push(product?.price?.currentAmount);
+              price.push({
+                price: product?.price?.currentAmount,
+                quantity: value.quantity * (quantity ?? 1)
               });
             }
 
