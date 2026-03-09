@@ -70,7 +70,11 @@ const unmask = ref(false);
 
 const fieldErrors = computed(() => {
   const { requirements, error: messages } = appliedOptions.value ?? {};
-  return get(messages, getPasswordErrorKey(requirements, control.value?.data), "");
+  return get(
+    messages,
+    getPasswordErrorKey(requirements, control.value?.data),
+    ""
+  );
 });
 
 /** Returns the i18n error key for the current combination of failing password requirements. */
@@ -80,7 +84,7 @@ function getPasswordErrorKey(
 ): string {
   // Omit requirements that the current value satisfies
   const unmet = keys(
-    omitBy(requirements, (pattern: string) => new RegExp(pattern).test(value))
+    omitBy(requirements, (pattern: string) => new RegExp(pattern).test(value ?? ""))
   );
 
   // Prefix with "missing" when length is met but character rules aren't
