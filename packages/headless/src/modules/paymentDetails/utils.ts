@@ -267,7 +267,7 @@ export function filterPaymentDetails(
     filter(paymentDetails, method =>
       some(gateways, ["gateway_id", method.gatewayId])
     ),
-    ["order"]
+    [method => !method.meta.isDefault, "order"]
   );
 }
 
