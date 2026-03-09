@@ -51,4 +51,4 @@ export type LinkItemsProps = {
   checked?: boolean;
   loading?: boolean;
   uiConfig?: { link: { items: CxOptions } };
-}
+};

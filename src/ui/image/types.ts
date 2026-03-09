@@ -19,12 +19,12 @@ export type ImageProps = {
   fallback?: boolean;
   // ---
   class?: ImgHTMLAttributes["class"];
-}
+};
 
 export type ImageItem = {
   url: string;
   alt: string;
-}
+};
 
 export type CarouselImageProps = {
   image: ImageItem;
@@ -32,4 +32,4 @@ export type CarouselImageProps = {
   total?: number;
   fit?: RootVariants["fit"];
   position?: RootVariants["position"];
-}
+};

@@ -18,4 +18,4 @@ export type IndicatorProps = {
   // ---
   uiConfig?: { indicator: CxOptions };
   class?: HTMLAttributes["class"];
-}
+};

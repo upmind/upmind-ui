@@ -7,11 +7,11 @@ export type SkeletonProps = {
   // --- styles
   uiConfig?: { skeleton: CxOptions };
   class?: HTMLAttributes["class"];
-}
+};
 
 export type SkeletonListProps = {
   rows?: number;
   // --- styles
   uiConfig?: { skeletonList: CxOptions };
   class?: HTMLAttributes["class"];
-}
+};

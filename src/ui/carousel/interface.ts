@@ -13,12 +13,12 @@ export type CarouselProps = {
   opts?: CarouselOptions;
   plugins?: CarouselPlugin;
   orientation?: "horizontal" | "vertical";
-}
+};
 
 export type CarouselEmits = {
   (e: "init-api", payload: UnwrapRefCarouselApi): void;
-}
+};
 
 export type WithClassAsProps = {
   class?: HTMLAttributes["class"];
-}
+};

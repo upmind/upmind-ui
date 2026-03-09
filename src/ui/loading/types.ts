@@ -11,4 +11,4 @@ export type LoadingProps = {
   size?: SpinnerVariantProps["size"] | string;
   class?: HTMLAttributes["class"];
   classActive?: HTMLAttributes["class"];
-}
+};

@@ -27,4 +27,4 @@ export type ToggleProps = {
   // ---
   uiConfig?: { input: CxOptions };
   class?: HTMLAttributes["class"];
-}
+};

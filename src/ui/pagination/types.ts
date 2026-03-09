@@ -29,4 +29,4 @@ export type PaginationProps = {
   // --- styles
   uiConfig?: { pagination?: CxOptions };
   class?: HTMLAttributes["class"];
-}
+};

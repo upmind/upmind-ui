@@ -24,4 +24,4 @@ export type AlertProps = {
   // ---
   uiConfig?: { alert: CxOptions };
   class?: HTMLAttributes["class"];
-}
+};

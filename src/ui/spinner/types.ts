@@ -13,4 +13,4 @@ export type SpinnerProps = PrimitiveProps & {
   // ---
   uiConfig?: { spinner: CxOptions };
   class?: HTMLAttributes["class"];
-}
+};

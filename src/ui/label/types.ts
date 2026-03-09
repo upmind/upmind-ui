@@ -11,4 +11,4 @@ export type LabelProps = RootLabelProps & {
   // ---
   uiConfig?: { label: CxOptions };
   class?: HTMLAttributes["class"];
-}
+};

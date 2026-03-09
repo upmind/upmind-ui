@@ -8,7 +8,7 @@ type IconVariantProps = VariantProps<typeof iconVariants>;
 export type Icon = {
   name: string;
   path: string;
-}
+};
 // --- types
 export type IconProps = {
   icon: string | Icon;
@@ -20,7 +20,7 @@ export type IconProps = {
   // ---
   uiConfig?: { icon: CxOptions };
   class?: HTMLAttributes["class"];
-}
+};
 
 export type IconEntry = {
   /** Full resolved path from Vite's import.meta.glob */

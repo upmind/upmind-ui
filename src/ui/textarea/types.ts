@@ -29,4 +29,4 @@ export type TextareaProps = {
   class?: HTMLAttributes["class"];
   dataHover?: boolean;
   dataFocus?: boolean;
-}
+};

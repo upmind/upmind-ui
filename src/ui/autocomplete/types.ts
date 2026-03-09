@@ -23,37 +23,38 @@ export type AutocompleteItemProps = ComboboxItemProps & {
   handler?: Function;
   class?: HTMLAttributes["class"];
   persist?: boolean;
-}
+};
 
 export type AutocompleteSearchFunction = {
   (
     value: string,
     items?: AutocompleteItemProps[]
   ): Promise<AutocompleteItemProps[]>;
-}
+};
 
-export type AutocompleteProps = ComboboxRootProps & ComboboxInputProps & {
-  // --- state
-  itemLabel?: string;
-  itemValue?: string;
-  // --- state
-  items: AutocompleteItemProps[];
-  modelValue?: string | AutocompleteItemProps;
-  defaultValue?: AutocompleteItemProps | AutocompleteItemProps[];
+export type AutocompleteProps = ComboboxRootProps &
+  ComboboxInputProps & {
+    // --- state
+    itemLabel?: string;
+    itemValue?: string;
+    // --- state
+    items: AutocompleteItemProps[];
+    modelValue?: string | AutocompleteItemProps;
+    defaultValue?: AutocompleteItemProps | AutocompleteItemProps[];
 
-  // --- Search
-  search?: AutocompleteSearchFunction;
-  placeholder?: string;
-  emptyMessage?: string;
-  // --- variants
-  size?: AnchorVariantProps["size"] | string;
-  // color?: ItemVariantProps["color"];
-  // variant?: ButtonProps["variant"];
-  width?: AnchorVariantProps["width"] | string;
-  popoverWidth?: ContentVariantProps["popoverWidth"] | string;
-  iconSize?: AvatarProps["size"];
-  // --- styles
-  uiConfig?: { autocomplete: CxOptions };
-  class?: HTMLAttributes["class"];
-  popoverClass?: HTMLAttributes["class"];
-}
+    // --- Search
+    search?: AutocompleteSearchFunction;
+    placeholder?: string;
+    emptyMessage?: string;
+    // --- variants
+    size?: AnchorVariantProps["size"] | string;
+    // color?: ItemVariantProps["color"];
+    // variant?: ButtonProps["variant"];
+    width?: AnchorVariantProps["width"] | string;
+    popoverWidth?: ContentVariantProps["popoverWidth"] | string;
+    iconSize?: AvatarProps["size"];
+    // --- styles
+    uiConfig?: { autocomplete: CxOptions };
+    class?: HTMLAttributes["class"];
+    popoverClass?: HTMLAttributes["class"];
+  };

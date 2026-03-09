@@ -23,4 +23,4 @@ export type AvatarProps = {
   // ---
   uiConfig?: { avatar: CxOptions };
   class?: HTMLAttributes["class"];
-}
+};

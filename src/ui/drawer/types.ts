@@ -52,4 +52,4 @@ export type DrawerProps = DrawerPortalProps & {
   classHeader?: HTMLAttributes["class"];
   classContent?: HTMLAttributes["class"];
   classFooter?: HTMLAttributes["class"];
-}
+};

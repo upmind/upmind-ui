@@ -16,7 +16,7 @@ export type AnimatedIconProps = {
   class?: HTMLAttributes["class"];
   primaryColor?: string;
   secondaryColor?: string;
-}
+};
 
 /**
  * The type for the import map returned by import.meta.glob for animations.
@@ -34,4 +34,4 @@ export type AnimationEntry = {
   name: string;
   /** Lazy loader function that returns the animation URL */
   loader: () => Promise<string>;
-}
+};

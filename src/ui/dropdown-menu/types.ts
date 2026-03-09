@@ -23,36 +23,38 @@ export type DropdownMenuItemProps = {
   disabled?: boolean;
   hidden?: boolean;
   class?: HTMLAttributes["class"];
-}
+};
 
-export type DropdownMenuProps = DropdownMenuRootProps & DropdownMenuContentProps & DropdownMenuTriggerProps & {
-  title?: string;
-  label?: string;
-  sublabel?: string;
-  tag?: string;
-  avatar?: Partial<AvatarProps>;
-  icon?: IconProps["icon"];
-  to?: string;
-  // --- state
-  items: DropdownMenuItemProps[];
-  loading?: boolean;
-  // --- variants
-  variant?: ButtonProps["variant"];
-  size?: ButtonProps["size"];
-  width?: ContentVariantProps["width"];
-  ring?: ButtonProps["ring"];
-  // --- styles
-  uiConfig?: {
-    dropdownMenu: {
-      trigger?: CxOptions;
-      content?: CxOptions;
-      item?: CxOptions;
-      label?: CxOptions;
-      group?: CxOptions;
-      icon?: CxOptions;
+export type DropdownMenuProps = DropdownMenuRootProps &
+  DropdownMenuContentProps &
+  DropdownMenuTriggerProps & {
+    title?: string;
+    label?: string;
+    sublabel?: string;
+    tag?: string;
+    avatar?: Partial<AvatarProps>;
+    icon?: IconProps["icon"];
+    to?: string;
+    // --- state
+    items: DropdownMenuItemProps[];
+    loading?: boolean;
+    // --- variants
+    variant?: ButtonProps["variant"];
+    size?: ButtonProps["size"];
+    width?: ContentVariantProps["width"];
+    ring?: ButtonProps["ring"];
+    // --- styles
+    uiConfig?: {
+      dropdownMenu: {
+        trigger?: CxOptions;
+        content?: CxOptions;
+        item?: CxOptions;
+        label?: CxOptions;
+        group?: CxOptions;
+        icon?: CxOptions;
+      };
     };
+    class?: HTMLAttributes["class"];
+    popoverClass?: HTMLAttributes["class"];
+    itemClass?: HTMLAttributes["class"];
   };
-  class?: HTMLAttributes["class"];
-  popoverClass?: HTMLAttributes["class"];
-  itemClass?: HTMLAttributes["class"];
-}
