@@ -28,3 +28,6 @@ tests/__fixtures__/recordings*/
 tests/__fixtures__/recordings-velia/
 .playwright-mcp/
 
+
+# Git worktrees
+.worktrees/
