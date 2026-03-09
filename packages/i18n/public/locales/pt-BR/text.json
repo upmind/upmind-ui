@@ -14,7 +14,7 @@
   "billing_details": "Detalhes de faturamento",
   "bounced": "Rebateu",
   "bounced_label": "Rebateu",
-  "bounced_msg": "O último e-mail enviado para este endereço retornou com erro.{datetime} .",
+  "bounced_msg": "O último e-mail enviado para este endereço retornou com erro.{datetime}.",
   "business": "Negócios",
   "business_details": "Detalhes do negócio",
   "cant_decide_right_qn": "Não consegue decidir agora?",

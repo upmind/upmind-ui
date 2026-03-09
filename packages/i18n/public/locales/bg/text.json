@@ -14,7 +14,7 @@
   "billing_details": "Данни за фактуриране",
   "bounced": "Отскочи",
   "bounced_label": "Отскочи",
-  "bounced_msg": "Последният имейл до този адрес е върнат на{datetime} .",
+  "bounced_msg": "Последният имейл до този адрес е върнат на{datetime}.",
   "business": "Бизнес",
   "business_details": "Данни за бизнеса",
   "cant_decide_right_qn": "Не можете да решите точно сега?",

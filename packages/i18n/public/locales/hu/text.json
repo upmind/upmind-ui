@@ -14,7 +14,7 @@
   "billing_details": "Számlázási adatok",
   "bounced": "Visszapattant",
   "bounced_label": "Visszapattant",
-  "bounced_msg": "Az erre a címre küldött utolsó e-mail visszapattant.{datetime} .",
+  "bounced_msg": "Az erre a címre küldött utolsó e-mail visszapattant.{datetime}.",
   "business": "Üzleti",
   "business_details": "Üzleti adatok",
   "cant_decide_right_qn": "Nem tudsz most dönteni?",

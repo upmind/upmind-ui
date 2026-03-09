@@ -14,7 +14,7 @@
   "billing_details": "Платіжні дані",
   "bounced": "Відскочило",
   "bounced_label": "Відскочило",
-  "bounced_msg": "Останній електронний лист на цю адресу повернуто {datetime} .",
+  "bounced_msg": "Останній електронний лист на цю адресу повернуто {datetime}.",
   "business": "Бізнес",
   "business_details": "Деталі бізнесу",
   "cant_decide_right_qn": "Не можете зараз вирішити?",

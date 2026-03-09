@@ -14,7 +14,7 @@
   "billing_details": "Fatura detayları",
   "bounced": "Sıçradı",
   "bounced_label": "Sıçradı",
-  "bounced_msg": "Bu adrese gönderilen son e-posta şu anda geri döndü: {datetime} .",
+  "bounced_msg": "Bu adrese gönderilen son e-posta şu anda geri döndü: {datetime}.",
   "business": "İşletme",
   "business_details": "İşletme bilgileri",
   "cant_decide_right_qn": "Şu anda karar veremiyor musun?",

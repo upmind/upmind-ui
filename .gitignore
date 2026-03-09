@@ -12,7 +12,7 @@ dist
 bin/pnpm
 bin/pnpx
 tsconfig.tsbuildinfo
-.agent/
+
 .claude/*
 
 

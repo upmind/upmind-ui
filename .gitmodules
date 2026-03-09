@@ -10,3 +10,6 @@
 [submodule "apps/hosting"]
 	path = apps/hosting
 	url = git@git.upmind.io:upmind/groups/frontend-team/hosting.com-checkout.git
+[submodule ".agent"]
+	path = .agent
+	url = git@git.upmind.io:upmind/groups/frontend-team/monorepo-agent.git
