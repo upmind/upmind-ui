@@ -55,7 +55,7 @@ import FormField from "../../FormField.vue";
 import FormMessage from "../../FormMessage.vue";
 // --- utils
 import { useUpmindUIRenderer } from "../utils";
-import { get, includes, isEmpty, isNil, map, reject } from "lodash-es";
+import { get, includes, isEmpty, isNil, keys, omitBy } from "lodash-es";
 // --- types
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
@@ -69,25 +69,24 @@ const { control, appliedOptions, formFieldProps, onInput } =
 const unmask = ref(false);
 
 const fieldErrors = computed(() => {
-  const requirements = appliedOptions.value?.requirements;
-  const errors = appliedOptions.value?.error;
-  if (!requirements || isEmpty(errors)) return "";
-
-  // Collect keys of requirements not yet satisfied by the current value
-  const value = control.value?.data || "";
-  const failing = map(
-    reject(requirements, (r: { pattern: string }) =>
-      new RegExp(r.pattern).test(value)
-    ),
-    "key"
-  ) as string[];
-  if (isEmpty(failing)) return "";
-
-  // Compose i18n key — prefix with "missing_" when min_length already passes
-  // e.g. "min_length_lowercase_number" vs "missing_lowercase"
-  const prefix = includes(failing, "min_length") ? "" : "missing_";
-  return get(errors, `${prefix}${failing.join("_")}`, "");
+  const { requirements, error: messages } = appliedOptions.value ?? {};
+  return get(messages, getPasswordErrorKey(requirements, control.value?.data), "");
 });
+
+/** Returns the i18n error key for the current combination of failing password requirements. */
+function getPasswordErrorKey(
+  requirements?: Record<string, string>,
+  value?: string
+): string {
+  // Omit requirements that the current value satisfies
+  const unmet = keys(
+    omitBy(requirements, (pattern: string) => new RegExp(pattern).test(value))
+  );
+
+  // Prefix with "missing" when length is met but character rules aren't
+  if (!includes(unmet, "min_length")) unmet.unshift("missing");
+  return unmet.join("_");
+}
 
 const safeMin: ComputedRef<number | undefined> = computed(() => {
   const applied = appliedOptions.value?.min;
