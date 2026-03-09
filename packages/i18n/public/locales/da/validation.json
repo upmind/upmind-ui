@@ -13,7 +13,7 @@
   "enum": "{title} skal være lig med en af ​​de tilladte værdier",
   "exclusiveMaximum": "{title} skal være mindre end {exclusiveMaximum}",
   "exclusiveMinimum": "{title} skal være større end {exclusiveMinimum}",
-  "format": "{title} skal have samme format som {format}",
+  "format": "{title} skal matche formatet {format}",
   "if": "{title} skal matche 'så'-skemaet | {title} skal matche 'else'-skemaet",
   "maxItems": "{title} må IKKE have mere end {maxItems} vare | {title} må IKKE have mere end {maxItems} varer",
   "maxLength": "{title} må IKKE være længere end {maxLength} karakter | {title} må IKKE være længere end {maxLength} karakterer",

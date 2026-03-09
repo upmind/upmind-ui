@@ -26,11 +26,11 @@
   "multipleOf": "{title} debe ser un múltiplo de {multipleOf}",
   "not": "{title} NO debe ser válido según el esquema en 'no'",
   "oneOf": "{title} debe coincidir exactamente con uno de los esquemas en 'oneOf'",
-  "pattern": "{title} debe coincidir con el patrón {pattern}",
+  "pattern": "{title} Debe coincidir con el patrón. {pattern}",
   "patternProperties": "{title} nombre de la propiedad {propertyName} no es válido (no coincide el patrón)",
   "phone": "{title} debe ser un número de teléfono internacional válido",
   "propertyNames": "{title} nombre de la propiedad {propertyName} no es válido",
-  "required": "{title} es obligatorio",
+  "required": "{title} se requiere",
   "type": "{title} debe ser {type}",
   "uniqueItems": "{title} NO debe tener elementos duplicados (elementos {j} y {i} son idénticos)"
 }

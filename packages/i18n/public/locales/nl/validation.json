@@ -30,7 +30,7 @@
   "patternProperties": "{title} eigenschapsnaam {propertyName} is ongeldig (patroon komt niet overeen)",
   "phone": "{title} moet een geldig internationaal telefoonnummer zijn",
   "propertyNames": "{title} eigenschapsnaam {propertyName} is ongeldig",
-  "required": "{title} is verplicht",
+  "required": "{title} is vereist",
   "type": "{title} moet zijn {type}",
   "uniqueItems": "{title} mag GEEN dubbele items hebben (items {j} En {i} zijn identiek)"
 }

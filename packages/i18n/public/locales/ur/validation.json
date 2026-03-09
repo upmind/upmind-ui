@@ -13,7 +13,7 @@
   "enum": "{title} اجازت شدہ اقدار میں سے ایک کے برابر ہونا چاہیے۔",
   "exclusiveMaximum": "{title} سے کم ہونا چاہیے۔ {exclusiveMaximum}",
   "exclusiveMinimum": "{title} سے زیادہ ہونا چاہیے۔ {exclusiveMinimum}",
-  "format": "{title} کا فارمیٹ {format} سے مطابقت رکھنا چاہیے",
+  "format": "{title} فارمیٹ سے مماثل ہونا ضروری ہے۔ {format}",
   "if": "{title} 'پھر'اسکیما سے مماثل ہونا چاہیے | {title} 'اور'اسکیما سے مماثل ہونا چاہیے۔",
   "maxItems": "{title} سے زیادہ نہیں ہونا چاہیے۔{maxItems} آئٹم | {title} سے زیادہ نہیں ہونا چاہیے۔{maxItems} اشیاء",
   "maxLength": "{title} سے زیادہ لمبا نہیں ہونا چاہئے۔{maxLength} کردار | {title} سے زیادہ لمبا نہیں ہونا چاہئے۔{maxLength} حروف",
@@ -26,11 +26,11 @@
   "multipleOf": "{title} کا کثیر ہونا ضروری ہے۔ {multipleOf}",
   "not": "{title} 'not'میں اسکیما کے مطابق درست نہیں ہونا چاہیے",
   "oneOf": "{title} 'oneOf'میں اسکیموں میں سے ایک سے بالکل مماثل ہونا چاہیے",
-  "pattern": "{title} پیٹرن سے ملنا چاہئے {pattern}",
+  "pattern": "{title} پیٹرن {pattern} سے مماثل ہونا چاہیے",
   "patternProperties": "{title} پراپرٹی کا نام{propertyName} غلط ہے (پیٹرن مماثل نہیں)",
   "phone": "{title} درست بین الاقوامی فون نمبر ہونا چاہیے",
   "propertyNames": "{title} پراپرٹی کا نام{propertyName} غلط ہے",
-  "required": "{title} درکار ہے",
+  "required": "{title} کی ضرورت ہے",
   "type": "{title} ہونا ضروری ہے {type}",
   "uniqueItems": "{title} ڈپلیکیٹ اشیاء (آئٹمز{j} اور{i} ایک جیسے ہیں)"
 }

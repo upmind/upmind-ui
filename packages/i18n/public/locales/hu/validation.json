@@ -13,7 +13,7 @@
   "enum": "{title} meg kell egyeznie az engedélyezett értékek egyikével",
   "exclusiveMaximum": "{title} kisebbnek kell lennie, mint {exclusiveMaximum}",
   "exclusiveMinimum": "{title} nagyobbnak kell lennie, mint {exclusiveMinimum}",
-  "format": "{title} formátuma egyezzen a {format} formátumával",
+  "format": "{title} egyeznie kell a formátummal {format}",
   "if": "{title} meg kell egyeznie az 'akkor' sémával | {title} egyeznie kell az „else” sémával",
   "maxItems": "{title} NEM lehet több, mint {maxItems} tétel | {title} NEM lehet több, mint {maxItems} tételek",
   "maxLength": "{title} NEM lehet hosszabb, mint {maxLength} karakter | {title} NEM lehet hosszabb, mint {maxLength} karakterek",
@@ -26,11 +26,11 @@
   "multipleOf": "{title} többszörösének kell lennie {multipleOf}",
   "not": "{title} A 'not' sémája szerint NEM lehet érvényes",
   "oneOf": "{title} pontosan egyeznie kell az 'oneOf' sémák egyikével",
-  "pattern": "{title} mintának kell egyeznie {pattern}",
+  "pattern": "{title} meg kell egyeznie a mintával {pattern}",
   "patternProperties": "{title} ingatlan neve {propertyName} érvénytelen (mintahiba)",
   "phone": "{title} érvényes, országkóddal megadott telefonszámnak kell lennie",
   "propertyNames": "{title} ingatlan neve {propertyName} érvénytelen",
-  "required": "{title} megadása kötelező",
+  "required": "{title} kötelező",
   "type": "{title} kell lennie {type}",
   "uniqueItems": "{title} NEM tartalmazhatnak ismétlődő elemeket (elemeket {j} és {i} azonosak)"
 }
