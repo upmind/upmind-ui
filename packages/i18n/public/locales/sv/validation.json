@@ -13,7 +13,7 @@
   "enum": "{title} måste vara lika med ett av de tillåtna värdena",
   "exclusiveMaximum": "{title} måste vara mindre än {exclusiveMaximum}",
   "exclusiveMinimum": "{title} måste vara större än {exclusiveMinimum}",
-  "format": "{title} måste matcha formatet för {format}",
+  "format": "{title} måste matcha formatet {format}",
   "if": "{title} måste matcha 'sedan'-schemat | {title} måste matcha schemat 'annars'",
   "maxItems": "{title} får INTE ha mer än {maxItems} föremål | {title} får INTE ha mer än {maxItems} föremål",
   "maxLength": "{title} får INTE vara längre än {maxLength} karaktär | {title} får INTE vara längre än {maxLength} karaktärer",
@@ -30,7 +30,7 @@
   "patternProperties": "{title} fastighetsnamn {propertyName} är ogiltig (mönstermatchningsfel)",
   "phone": "{title} måste vara ett giltigt internationellt telefonnummer",
   "propertyNames": "{title} fastighetsnamn {propertyName} är ogiltig",
-  "required": "{title} är obligatoriskt",
+  "required": "{title} krävs",
   "type": "{title} måste vara {type}",
   "uniqueItems": "{title} får INTE ha dubbletter (artiklar {j} och {i} är identiska)"
 }

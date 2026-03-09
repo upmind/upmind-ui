@@ -30,7 +30,7 @@
   "patternProperties": "{title} název nemovitosti {propertyName} je neplatné (neshoda vzorů)",
   "phone": "{title} musí být správně naformátované telefonní číslo v mezinárodním formátu",
   "propertyNames": "{title} název nemovitosti {propertyName} je neplatný",
-  "required": "Je nutné vyplnit {title}",
+  "required": "{title} je vyžadováno",
   "type": "{title} musí být {type}",
   "uniqueItems": "{title} NESMÍ mít duplicitní položky (položky {j} a {i} jsou identické)"
 }
