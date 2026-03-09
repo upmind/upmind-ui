@@ -802,15 +802,17 @@ export type Benefit =
 /**
  * Type alias for displaying price calculation states.
  */
+export type PriceEntry = number | { price: number; quantity: number };
+
 export type PriceCalculations = {
   /** `true` if prices are currently being calculated. */
   calculating?: boolean;
   /** An array of billing terms that prices are calculated for. */
-  term?: number[];
+  term?: PriceEntry[];
   /** An array of option IDs for which prices are calculated. */
-  options?: number[];
+  options?: PriceEntry[];
   /** An array of attribute IDs for which prices are calculated. */
-  attributes?: number[];
+  attributes?: PriceEntry[];
 };
 
 /**
