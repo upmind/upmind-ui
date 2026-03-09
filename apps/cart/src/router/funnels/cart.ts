@@ -724,6 +724,35 @@ export default <FunnelProps>{
       }
     },
 
+    /**
+     * 🎯 ROUTE.BILLING
+     * This state manages the standalone billing details page.
+     * It reuses the checkout guard to ensure the user is authenticated and has products.
+     * In case of an error, it follows the same redirect logic as checkout.
+     * From here, users return to the CHECKOUT route.
+     */
+    [ROUTE.BILLING]: {
+      entry: ["setCurrency"],
+      invoke: {
+        src: "guardCheckout",
+        onDone: { actions: ["setResolved"] },
+        onError: [
+          {
+            target: ROUTE.SESSION,
+            actions: ["setResolving"],
+            cond: "isSession"
+          },
+          { target: ROUTE.BASKET, actions: ["setResolving"] }
+        ]
+      },
+      on: {
+        BACK: {
+          target: ROUTE.CHECKOUT,
+          actions: [assign({ targetRoute: { name: ROUTE.CHECKOUT } })]
+        }
+      }
+    },
+
     /** 🎯 ROUTE.ORDER
      * This is the final state of the funnel, representing the order completion stage.
      */
