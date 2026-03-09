@@ -1,24 +1,22 @@
 import { test, expect } from "@playwright/test";
 import { URLs } from "../../support/constants/urls";
 import { Checkout } from "../../support/page-objects/templates/Checkout";
-import { Registration } from "../../support/page-objects/templates/Registration";
 import { goToCheckout } from "../../support/utils/apiHelper";
 import { products } from "../../support/constants/products";
+import { Registration } from "../../support/page-objects/templates/Registration";
 
 let checkout: Checkout;
-let registration: Registration;
+let register: Registration;
 
 test.describe("Checkout - Pay Amount", () => {
   test.beforeEach(async ({ page, context }) => {
     checkout = new Checkout(page);
-    registration = new Registration(page, context);
-    await page.goto(URLs.login);
+    register = new Registration(page, context);
   });
   test.describe("Pay Amount on Checkout", async () => {
     test("Value on initial load", async ({ page, context }) => {
       await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
-      await page.waitForLoadState("networkidle");
-      await registration.inputRegistration();
+      await register.inputRegistration();
       await expect(checkout.payAmount).toHaveText("Pay £72.00");
     });
     test("Value with promo applied", async ({ page, context }) => {
@@ -29,22 +27,19 @@ test.describe("Checkout - Pay Amount", () => {
         "genericpromo",
         null
       );
-      await page.waitForLoadState("networkidle");
-      await registration.inputRegistration();
+      await register.inputRegistration();
       await expect(checkout.payAmount).toHaveText("Pay £57.60");
     });
     test("Value in alternate currency", async ({ page, context }) => {
       await goToCheckout(page, context, products.STARTER_HOSTING, null, "INR");
-      await page.waitForLoadState("networkidle");
-      await registration.inputRegistration();
+      await register.inputRegistration();
       await expect(checkout.payAmount).toHaveText("Pay ₹24,000.00");
     });
   });
   test.describe("Changing Pay Amount value", async () => {
     test("Manually update Pay Amount", async ({ page, context }) => {
       await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
-      await page.waitForLoadState("networkidle");
-      await registration.inputRegistration();
+      await register.inputRegistration();
       await checkout.changeAmountButton.click();
       await checkout.changeAmountInput.fill("10");
       await checkout.clickConfirmAmount();
@@ -55,8 +50,7 @@ test.describe("Checkout - Pay Amount", () => {
       context
     }) => {
       await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
-      await page.waitForLoadState("networkidle");
-      await registration.inputRegistration();
+      await register.inputRegistration();
       await checkout.addVoucherButton.click();
       await checkout.addVoucherInput.fill("genericpromo");
       await checkout.applyVoucherButton.click();
@@ -64,8 +58,7 @@ test.describe("Checkout - Pay Amount", () => {
     });
     test("Changing currency of Pay Amount", async ({ page, context }) => {
       await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
-      await page.waitForLoadState("networkidle");
-      await registration.inputRegistration();
+      await register.inputRegistration();
       await expect(checkout.billingDetails).toBeVisible();
       await page
         .getByTestId("currency-selector")

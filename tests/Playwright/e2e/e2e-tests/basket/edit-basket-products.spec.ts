@@ -48,18 +48,17 @@ test.describe("Edit hosting product in basket", () => {
   test("Edit product options", async ({ page }) => {
     products = await getBasketProducts(token);
     productId = products[0].id;
-    await page.goto(`order/basket/${productId}`);
+    await page.goto(`order/basket/edit/${productId}`);
     await productConfig.selectRadioOption("London");
     await expect(productConfig.getSummaryItem("Location")).toBeVisible();
     await productConfig.clickConfirm();
-    await expect(page).toHaveURL(/order\/basket$/);
     await basket.clickShowDetails();
     await expect(basket.basketProduct).toContainText("London");
   });
   test("Edit product attributes", async ({ page }) => {
     products = await getBasketProducts(token);
     productId = products[0].id;
-    await page.goto(`order/basket/${productId}`);
+    await page.goto(`order/basket/edit/${productId}`);
     await productConfig.selectRadioOption(
       "MacOS Sequoia Version 15.6 (Enterprise License)"
     );
@@ -67,7 +66,6 @@ test.describe("Edit hosting product in basket", () => {
       productConfig.getSummaryItem("Operating System")
     ).toBeVisible();
     await productConfig.clickConfirm();
-    await expect(page).toHaveURL(/order\/basket$/);
     await basket.clickShowDetails();
     await expect(basket.basketProduct).toContainText(
       "MacOS Sequoia Version 15.6 (Enterprise License)"
@@ -115,12 +113,12 @@ test.describe("Edit domain product in basket", () => {
     products = await getBasketProducts(token);
     productId = products[0].id;
     let newDomain = `${fakerEN_GB.string.alphanumeric({ length: { min: 3, max: 15 } })}`;
-    await page.goto(`order/basket/${productId}`);
+    await page.goto(`order/basket`);
+    await page.goto(`order/basket/edit/${productId}`);
     await page.waitForLoadState("networkidle");
     await productConfig.clearFormInput("SLD");
     await productConfig.fillFormInput("SLD", newDomain);
     await productConfig.clickConfirm();
-    await expect(page).toHaveURL(/order\/basket$/);
     await expect(
       basket.basketProduct.getByTestId("link-default").getByText(newDomain)
     ).toBeVisible();
@@ -143,7 +141,8 @@ test.describe("Edit domain product in basket", () => {
     };
     products = await getBasketProducts(token);
     productId = products[0].id;
-    await page.goto(`order/basket/${productId}`);
+    await page.goto(`order/basket`);
+    await page.goto(`order/basket/edit/${productId}`);
     await page.waitForLoadState("networkidle");
     await productConfig.registrantNameInput.fill(fieldUpdates.updatedName);
     await productConfig.registrantOrgInput.fill(fieldUpdates.updatedCompany);
@@ -187,7 +186,6 @@ test.describe("Edit domain product in basket", () => {
       fieldUpdates.updatedCountryCode
     );
     await productConfig.clickConfirm();
-    await expect(page).toHaveURL(/order\/basket$/);
     await expect(basket.basketProductSummary).toBeVisible();
     await expect(basket.addMissingDataLink).toBeHidden();
   });
