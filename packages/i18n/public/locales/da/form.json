@@ -24,13 +24,13 @@
   },
   "auth_password": {
     "error": {
-      "min_length": "Password must be at least 8 characters",
-      "min_length_lowercase": "Password must be at least 8 characters and contain a lowercase letter",
-      "min_length_lowercase_number": "Password must be at least 8 characters, contain a lowercase letter, and a number",
-      "min_length_number": "Password must be at least 8 characters and contain a number",
-      "missing_lowercase": "Password must contain a lowercase letter",
-      "missing_lowercase_number": "Password must contain a lowercase letter and a number",
-      "missing_number": "Password must contain a number"
+      "min_length": "Adgangskoden skal bestå af mindst 8 tegn",
+      "min_length_lowercase": "Adgangskoden skal bestå af mindst 8 tegn og indeholde et lille bogstav.",
+      "min_length_lowercase_number": "Adgangskoden skal være mindst 8 tegn, indeholde mindst ét lille bogstav og mindst ét ciffer",
+      "min_length_number": "Adgangskoden skal bestå af mindst 8 tegn og indeholde et tal.",
+      "missing_lowercase": "Adgangskoden skal indeholde et lille bogstav",
+      "missing_lowercase_number": "Adgangskoden skal indeholde et lille bogstav og et tal.",
+      "missing_number": "Adgangskoden skal indeholde et tal"
     },
     "label": "Adgangskode",
     "placeholder": "Adgangskode eller adgangsfrase"

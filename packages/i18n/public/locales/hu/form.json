@@ -24,13 +24,13 @@
   },
   "auth_password": {
     "error": {
-      "min_length": "Password must be at least 8 characters",
-      "min_length_lowercase": "Password must be at least 8 characters and contain a lowercase letter",
-      "min_length_lowercase_number": "Password must be at least 8 characters, contain a lowercase letter, and a number",
-      "min_length_number": "Password must be at least 8 characters and contain a number",
-      "missing_lowercase": "Password must contain a lowercase letter",
-      "missing_lowercase_number": "Password must contain a lowercase letter and a number",
-      "missing_number": "Password must contain a number"
+      "min_length": "A jelszónak legalább 8 karakterből kell állnia.",
+      "min_length_lowercase": "A jelszónak legalább 8 karakterből kell állnia, és kisbetűket kell tartalmaznia.",
+      "min_length_lowercase_number": "A jelszónak legalább 8 karakterből kell állnia, és tartalmaznia kell egy kisbetűt és egy számjegyet.",
+      "min_length_number": "A jelszónak legalább 8 karakterből kell állnia és számot kell tartalmaznia.",
+      "missing_lowercase": "A jelszónak kisbetűket kell tartalmaznia",
+      "missing_lowercase_number": "A jelszónak kisbetűt és számot kell tartalmaznia.",
+      "missing_number": "A jelszónak számot kell tartalmaznia"
     },
     "label": "Jelszó",
     "placeholder": "Jelszó vagy jelszó"
