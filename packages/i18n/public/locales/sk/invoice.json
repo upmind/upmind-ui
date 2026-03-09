@@ -1,12 +1,12 @@
 {
-  "order_complete": "Objednávka **dokončená**!",
+  "order_complete": "Ďakujeme za Vašu objednávku!",
   "order_complete_md": "@.markdown:{'invoice.order_complete'}",
-  "order_complete_msg": "Ďakujeme za vašu objednávku, váš nákup je teraz dokončený. Čoskoro dostanete potvrdenie e-mailom.",
-  "order_not_found": "Objednávka **nenájdená**!",
+  "order_complete_msg": "Poslali sme vám e-mail so všetkými informáciami, ktoré potrebujete vedieť o vašom nákupe.",
+  "order_not_found": "Objednávka nebola nájdená",
   "order_not_found_md": "@.markdown:{'invoice.order_not_found'}",
-  "order_not_found_msg": "Vašu objednávku sa nám, žiaľ, nepodarilo nájsť. Kliknite na tlačidlo nižšie a vráťte sa do svojho účtu.",
-  "order_payment_failed": "Platbu sa nepodarilo **spracovať**",
+  "order_not_found_msg": "Bohužiaľ, vašu objednávku sme nenašli. Kliknite na tlačidlo nižšie, aby ste si mohli prezrieť svoje objednávky.",
+  "order_payment_failed": "Nemožno spracovať platbu",
   "order_payment_failed_md": "@.markdown:{'invoice.order_payment_failed'}",
-  "order_payment_failed_msg": "Nepodarilo sa nám spracovať vašu platbu za túto objednávku, čo mohlo byť z viacerých dôvodov.",
+  "order_payment_failed_msg": "Vašu platbu za túto objednávku sa nám nepodarilo spracovať. Kliknite nižšie, aby ste prešli na faktúru, kde môžete platbu zopakovať.",
   "order_payment_retry_msg": "Kliknite nižšie a prejdite na svoju faktúru, kde môžete skúsiť platbu znova."
 }

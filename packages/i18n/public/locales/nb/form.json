@@ -23,7 +23,15 @@
     "placeholder": "navn@epost.com"
   },
   "auth_password": {
-    "error": "Et sterkt passord er nødvendig",
+    "error": {
+      "min_length": "Password must be at least 8 characters",
+      "min_length_lowercase": "Password must be at least 8 characters and contain a lowercase letter",
+      "min_length_lowercase_number": "Password must be at least 8 characters, contain a lowercase letter, and a number",
+      "min_length_number": "Password must be at least 8 characters and contain a number",
+      "missing_lowercase": "Password must contain a lowercase letter",
+      "missing_lowercase_number": "Password must contain a lowercase letter and a number",
+      "missing_number": "Password must contain a number"
+    },
     "label": "Passord",
     "placeholder": "Passord eller passordfrase"
   },
@@ -88,6 +96,10 @@
     "error": "Fornavnet ditt er obligatorisk",
     "label": "Fornavn"
   },
+  "language": {
+    "error": "Språket ditt er obligatorisk",
+    "label": "Språk"
+  },
   "lastname": {
     "error": "Etternavnet ditt er obligatorisk",
     "label": "Etternavn"
@@ -121,6 +133,10 @@
     "error": "Ugyldig kampanjekode",
     "placeholder": "Skriv inn kupongkoden her"
   },
+  "publicName": {
+    "error": "Ditt offentlige navn er obligatorisk",
+    "label": "Offentlig navn"
+  },
   "recover": {
     "error": "Vi oppsto en feil under forsøket på å sende deg en e-post for tilbakestilling av passord."
   },
@@ -139,9 +155,5 @@
   },
   "stored_payment_method": {
     "label": ""
-  },
-  "taxNumber": {
-    "label": "Skattenummer",
-    "placeholder": "Skatte-ID"
   }
 }

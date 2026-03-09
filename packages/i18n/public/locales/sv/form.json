@@ -23,7 +23,15 @@
     "placeholder": "namn@epost.com"
   },
   "auth_password": {
-    "error": "Ett starkt lösenord krävs",
+    "error": {
+      "min_length": "Password must be at least 8 characters",
+      "min_length_lowercase": "Password must be at least 8 characters and contain a lowercase letter",
+      "min_length_lowercase_number": "Password must be at least 8 characters, contain a lowercase letter, and a number",
+      "min_length_number": "Password must be at least 8 characters and contain a number",
+      "missing_lowercase": "Password must contain a lowercase letter",
+      "missing_lowercase_number": "Password must contain a lowercase letter and a number",
+      "missing_number": "Password must contain a number"
+    },
     "label": "Lösenord",
     "placeholder": "Lösenord eller lösenfras"
   },
@@ -68,7 +76,7 @@
   },
   "country": {
     "label": "Land",
-    "placeholder": "Välj ett land"
+    "placeholder": "Välj land"
   },
   "domain": {
     "placeholder": "Ange din domän..."
@@ -87,6 +95,10 @@
   "firstname": {
     "error": "Ditt förnamn är obligatoriskt",
     "label": "Förnamn"
+  },
+  "language": {
+    "error": "Ditt språk är obligatoriskt",
+    "label": "Språk"
   },
   "lastname": {
     "error": "Ditt efternamn är obligatoriskt",
@@ -121,6 +133,10 @@
     "error": "Ogiltig kampanjkod",
     "placeholder": "Ange kupongkoden här"
   },
+  "publicName": {
+    "error": "Ditt offentliga namn är obligatoriskt",
+    "label": "Offentligt namn"
+  },
   "recover": {
     "error": "Vi uppstod ett fel när vi försökte skicka ett e-postmeddelande för återställning av lösenordet till dig."
   },
@@ -139,9 +155,5 @@
   },
   "stored_payment_method": {
     "label": ""
-  },
-  "taxNumber": {
-    "label": "Skattenummer",
-    "placeholder": "Skatte-ID"
   }
 }

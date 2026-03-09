@@ -25,7 +25,7 @@
   "continue_label": "Continuar",
   "continue_shopping": "Continuar a comprar",
   "create_account": "Criar uma conta",
-  "create_one_here": "Crie um aqui",
+  "create_one_here": "criar um aqui",
   "details_toggle": "Expandir todos os detalhes | Recolher todos os detalhes",
   "dismiss": "Dispensar",
   "do_this_later": "Vou fazer isso mais tarde",
@@ -59,6 +59,7 @@
   "save_value": "Poupe {value}",
   "search": "Pesquisar",
   "send_reset": "Enviar pedido",
+  "set_as_default": "Definir como padrão",
   "share": "Partilhar",
   "show_details": "Mostrar detalhes",
   "show_less": "Mostrar menos",
@@ -68,5 +69,9 @@
   "sign_in_with_another_account": "Não é você? Entre com outra conta {action}.",
   "sort_by_default": "Ordenar por padrão",
   "sort_by_name": "Ordenar por nome",
-  "sort_by_price": "Ordenar por preço"
+  "sort_by_price": "Ordenar por preço",
+  "sort_by_subject": "Ordenar por assunto",
+  "verify": "Verificar",
+  "view": "Visualizar",
+  "view_email": "Ver e-mail"
 }
