@@ -226,6 +226,9 @@ export default createMachine(
           },
           "SET.PROVISIONING": {
             target: "available.checking"
+          },
+          "SET.TRIAL": {
+            target: "available.checking"
           }
         }
       },
