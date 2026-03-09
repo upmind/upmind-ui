@@ -23,7 +23,15 @@
     "placeholder": "naam@email.com"
   },
   "auth_password": {
-    "error": "Een sterk wachtwoord is vereist",
+    "error": {
+      "min_length": "Password must be at least 8 characters",
+      "min_length_lowercase": "Password must be at least 8 characters and contain a lowercase letter",
+      "min_length_lowercase_number": "Password must be at least 8 characters, contain a lowercase letter, and a number",
+      "min_length_number": "Password must be at least 8 characters and contain a number",
+      "missing_lowercase": "Password must contain a lowercase letter",
+      "missing_lowercase_number": "Password must contain a lowercase letter and a number",
+      "missing_number": "Password must contain a number"
+    },
     "label": "Wachtwoord",
     "placeholder": "Wachtwoord of wachtwoordzin"
   },
@@ -88,6 +96,10 @@
     "error": "Uw voornaam is vereist",
     "label": "Voornaam"
   },
+  "language": {
+    "error": "Uw taal is vereist.",
+    "label": "Taal"
+  },
   "lastname": {
     "error": "Uw achternaam is vereist",
     "label": "Achternaam"
@@ -121,6 +133,10 @@
     "error": "Ongeldige promotiecode",
     "placeholder": "Voer hier de vouchercode in"
   },
+  "publicName": {
+    "error": "Uw openbare naam is verplicht.",
+    "label": "Publieke naam"
+  },
   "recover": {
     "error": "Er is een fout opgetreden bij het verzenden van een e-mail om uw wachtwoord opnieuw in te stellen."
   },
@@ -139,9 +155,5 @@
   },
   "stored_payment_method": {
     "label": ""
-  },
-  "taxNumber": {
-    "label": "Belastingnummer",
-    "placeholder": "Belastingnummer"
   }
 }

@@ -19,6 +19,7 @@
   "basket_review_msg": "Vă rugăm să verificați următoarele elemente înainte de a continua",
   "basket_section": "Rezumatul coșului",
   "basket_summary_desc": "Aveți {count} articol din coș, în valoare totală {total} | Ai {count} articole din coșul dvs., în valoare totală {total}.",
+  "basket_summary_desc_free": "Aveți {count} articol în coșul dvs. | Aveți {count} articolele din coșul dvs.",
   "basket_title": "Coșul dumneavoastră",
   "change_amount": "Modifică suma",
   "empty": "Coșul tău este gol",

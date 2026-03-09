@@ -13,7 +13,7 @@
   "enum": "{title} deve ser igual a um dos valores permitidos",
   "exclusiveMaximum": "{title} deve ser menor que {exclusiveMaximum}",
   "exclusiveMinimum": "{title} deve ser maior que {exclusiveMinimum}",
-  "format": "{title} deve seguir o formato {format}",
+  "format": "{title} deve corresponder ao formato {format}",
   "if": "{title} deve corresponder ao esquema 'then' | {title} deve corresponder ao esquema 'else'",
   "maxItems": "{title} NÃO deve ter mais de {maxItems} item | {title} NÃO deve ter mais de {maxItems} Unid",
   "maxLength": "{title} NÃO deve ser maior que {maxLength} personagem | {title} NÃO deve ser maior que {maxLength} personagens",
@@ -30,7 +30,7 @@
   "patternProperties": "{title} nome da propriedade {propertyName} é inválido (incompatibilidade de padrões)",
   "phone": "{title} deve ser um número de telefone válido no formato internacional",
   "propertyNames": "{title} nome da propriedade {propertyName} é inválido",
-  "required": "{title} é obrigatório",
+  "required": "{title} é necessário",
   "type": "{title} deve ser {type}",
   "uniqueItems": "{title} NÃO deve ter itens duplicados (itens {j} e {i} são idênticos)"
 }

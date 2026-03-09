@@ -13,7 +13,7 @@
   "enum": "{title} doit être égal à l'une des valeurs autorisées",
   "exclusiveMaximum": "{title} doit être inférieur à {exclusiveMaximum}",
   "exclusiveMinimum": "{title} doit être supérieur à {exclusiveMinimum}",
-  "format": "{title} doit respecter le format {format}",
+  "format": "{title} doit correspondre au format {format}",
   "if": "{title} doit correspondre au schéma « alors » | {title} doit correspondre au schéma « else »",
   "maxItems": "{title} ne doit PAS avoir plus de {maxItems} article {title} ne doit PAS avoir plus de {maxItems} articles",
   "maxLength": "{title} ne doit PAS être plus long que {maxLength} personnage {title} ne doit PAS être plus long que {maxLength} personnages",

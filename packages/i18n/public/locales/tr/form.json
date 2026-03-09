@@ -23,7 +23,15 @@
     "placeholder": "isim@e-posta.com"
   },
   "auth_password": {
-    "error": "Güçlü bir parola gereklidir",
+    "error": {
+      "min_length": "Password must be at least 8 characters",
+      "min_length_lowercase": "Password must be at least 8 characters and contain a lowercase letter",
+      "min_length_lowercase_number": "Password must be at least 8 characters, contain a lowercase letter, and a number",
+      "min_length_number": "Password must be at least 8 characters and contain a number",
+      "missing_lowercase": "Password must contain a lowercase letter",
+      "missing_lowercase_number": "Password must contain a lowercase letter and a number",
+      "missing_number": "Password must contain a number"
+    },
     "label": "Şifre",
     "placeholder": "Şifre veya parola ifadesi"
   },
@@ -88,6 +96,10 @@
     "error": "Adınız gereklidir",
     "label": "İlk adı"
   },
+  "language": {
+    "error": "Diliniz gereklidir.",
+    "label": "Dil"
+  },
   "lastname": {
     "error": "Soyadınız gereklidir",
     "label": "Soy isim"
@@ -121,6 +133,10 @@
     "error": "Geçersiz promosyon kodu",
     "placeholder": "Kupon kodunu buraya girin"
   },
+  "publicName": {
+    "error": "Herkese açık adınız gereklidir.",
+    "label": "Halka açık isim"
+  },
   "recover": {
     "error": "Size şifre sıfırlama e-postası göndermeye çalışırken bir hatayla karşılaştık."
   },
@@ -139,9 +155,5 @@
   },
   "stored_payment_method": {
     "label": ""
-  },
-  "taxNumber": {
-    "label": "Vergi Numarası",
-    "placeholder": "Vergi Kimlik No"
   }
 }

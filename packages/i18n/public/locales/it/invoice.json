@@ -1,12 +1,12 @@
 {
-  "order_complete": "Ordine **completato**!",
+  "order_complete": "Grazie per il tuo ordine!",
   "order_complete_md": "@.markdown:{'invoice.order_complete'}",
-  "order_complete_msg": "Grazie per il tuo ordine, l'acquisto è ora completato. Riceverai a breve un'e-mail di conferma.",
-  "order_not_found": "Ordine **non trovato**!",
+  "order_complete_msg": "Ti abbiamo inviato un'e-mail con tutte le informazioni necessarie relative al tuo acquisto.",
+  "order_not_found": "Ordine non trovato",
   "order_not_found_md": "@.markdown:{'invoice.order_not_found'}",
-  "order_not_found_msg": "Purtroppo non siamo riusciti a trovare il tuo ordine. Clicca sul pulsante qui sotto per tornare al tuo account.",
-  "order_payment_failed": "Impossibile **elaborare** il pagamento",
+  "order_not_found_msg": "Purtroppo non siamo riusciti a trovare il tuo ordine. Clicca sul pulsante qui sotto per visualizzare i tuoi ordini.",
+  "order_payment_failed": "Impossibile elaborare il pagamento",
   "order_payment_failed_md": "@.markdown:{'invoice.order_payment_failed'}",
-  "order_payment_failed_msg": "Non siamo riusciti a elaborare il pagamento per questo ordine. Ciò potrebbe dipendere da diversi motivi.",
+  "order_payment_failed_msg": "Non siamo riusciti a elaborare il pagamento per questo ordine. Clicca qui sotto per accedere alla fattura, dove potrai riprovare a effettuare il pagamento.",
   "order_payment_retry_msg": "Clicca qui sotto per andare alla tua fattura e provare a effettuare nuovamente il pagamento."
 }
