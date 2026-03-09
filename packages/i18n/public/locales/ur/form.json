@@ -24,13 +24,13 @@
   },
   "auth_password": {
     "error": {
-      "min_length": "Password must be at least 8 characters",
-      "min_length_lowercase": "Password must be at least 8 characters and contain a lowercase letter",
-      "min_length_lowercase_number": "Password must be at least 8 characters, contain a lowercase letter, and a number",
-      "min_length_number": "Password must be at least 8 characters and contain a number",
-      "missing_lowercase": "Password must contain a lowercase letter",
-      "missing_lowercase_number": "Password must contain a lowercase letter and a number",
-      "missing_number": "Password must contain a number"
+      "min_length": "پاس ورڈ کم از کم 8 حروف کا ہونا چاہیے۔",
+      "min_length_lowercase": "پاس ورڈ کم از کم 8 حروف کا ہونا چاہیے اور اس میں چھوٹے حروف کا ہونا چاہیے۔",
+      "min_length_lowercase_number": "پاس ورڈ کم از کم 8 کریکٹرز پر مشتمل ہو، اس میں ایک چھوٹا (lowercase) حرف، اور ایک ہندسہ شامل ہو",
+      "min_length_number": "پاس ورڈ کم از کم 8 حروف کا ہونا چاہیے اور اس میں ایک نمبر ہونا چاہیے۔",
+      "missing_lowercase": "پاس ورڈ میں چھوٹے حروف کا ہونا ضروری ہے۔",
+      "missing_lowercase_number": "پاس ورڈ میں ایک چھوٹے حروف اور نمبر کا ہونا ضروری ہے۔",
+      "missing_number": "پاس ورڈ میں ایک نمبر ہونا ضروری ہے۔"
     },
     "label": "پاس ورڈ",
     "placeholder": "پاس ورڈ یا پاس ورڈ"

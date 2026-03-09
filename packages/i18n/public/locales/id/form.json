@@ -24,13 +24,13 @@
   },
   "auth_password": {
     "error": {
-      "min_length": "Password must be at least 8 characters",
-      "min_length_lowercase": "Password must be at least 8 characters and contain a lowercase letter",
-      "min_length_lowercase_number": "Password must be at least 8 characters, contain a lowercase letter, and a number",
-      "min_length_number": "Password must be at least 8 characters and contain a number",
-      "missing_lowercase": "Password must contain a lowercase letter",
-      "missing_lowercase_number": "Password must contain a lowercase letter and a number",
-      "missing_number": "Password must contain a number"
+      "min_length": "Kata sandi harus terdiri dari minimal 8 karakter.",
+      "min_length_lowercase": "Kata sandi harus terdiri dari minimal 8 karakter dan mengandung huruf kecil.",
+      "min_length_lowercase_number": "Kata sandi harus minimal 8 karakter, mengandung setidaknya satu huruf Latin kecil (a–z), dan setidaknya satu digit (0–9).",
+      "min_length_number": "Kata sandi harus terdiri dari minimal 8 karakter dan mengandung angka.",
+      "missing_lowercase": "Kata sandi harus mengandung huruf kecil.",
+      "missing_lowercase_number": "Kata sandi harus mengandung huruf kecil dan angka.",
+      "missing_number": "Kata sandi harus mengandung angka."
     },
     "label": "Kata sandi",
     "placeholder": "Kata sandi atau frasa sandi"

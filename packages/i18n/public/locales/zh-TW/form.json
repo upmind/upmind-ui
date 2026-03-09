@@ -24,13 +24,13 @@
   },
   "auth_password": {
     "error": {
-      "min_length": "Password must be at least 8 characters",
-      "min_length_lowercase": "Password must be at least 8 characters and contain a lowercase letter",
-      "min_length_lowercase_number": "Password must be at least 8 characters, contain a lowercase letter, and a number",
-      "min_length_number": "Password must be at least 8 characters and contain a number",
-      "missing_lowercase": "Password must contain a lowercase letter",
-      "missing_lowercase_number": "Password must contain a lowercase letter and a number",
-      "missing_number": "Password must contain a number"
+      "min_length": "密碼必須至少包含8個字元",
+      "min_length_lowercase": "密碼必須至少包含8個字元，並包含一個小寫字母",
+      "min_length_lowercase_number": "密碼須至少 8 個字元，且包含 1 個小寫英文字母與 1 個數字",
+      "min_length_number": "密碼必須至少包含8個字元，並包含一個數字。",
+      "missing_lowercase": "密碼必須包含小寫字母",
+      "missing_lowercase_number": "密碼必須包含一個小寫字母和一個數字",
+      "missing_number": "密碼必須包含一個數字"
     },
     "label": "密碼",
     "placeholder": "密碼或口令"

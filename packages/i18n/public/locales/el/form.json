@@ -24,13 +24,13 @@
   },
   "auth_password": {
     "error": {
-      "min_length": "Password must be at least 8 characters",
-      "min_length_lowercase": "Password must be at least 8 characters and contain a lowercase letter",
-      "min_length_lowercase_number": "Password must be at least 8 characters, contain a lowercase letter, and a number",
-      "min_length_number": "Password must be at least 8 characters and contain a number",
-      "missing_lowercase": "Password must contain a lowercase letter",
-      "missing_lowercase_number": "Password must contain a lowercase letter and a number",
-      "missing_number": "Password must contain a number"
+      "min_length": "Ο κωδικός πρόσβασης πρέπει να έχει τουλάχιστον 8 χαρακτήρες",
+      "min_length_lowercase": "Ο κωδικός πρόσβασης πρέπει να έχει τουλάχιστον 8 χαρακτήρες και να περιέχει ένα μικρό γράμμα.",
+      "min_length_lowercase_number": "Ο κωδικός πρόσβασης πρέπει να έχει τουλάχιστον 8 χαρακτήρες, να περιέχει ένα πεζό γράμμα και ένα ψηφίο.",
+      "min_length_number": "Ο κωδικός πρόσβασης πρέπει να έχει τουλάχιστον 8 χαρακτήρες και να περιέχει έναν αριθμό.",
+      "missing_lowercase": "Ο κωδικός πρόσβασης πρέπει να περιέχει ένα μικρό γράμμα",
+      "missing_lowercase_number": "Ο κωδικός πρόσβασης πρέπει να περιέχει ένα μικρό γράμμα και έναν αριθμό.",
+      "missing_number": "Ο κωδικός πρόσβασης πρέπει να περιέχει έναν αριθμό"
     },
     "label": "Κωδικός πρόσβασης",
     "placeholder": "Κωδικός πρόσβασης ή φράση πρόσβασης"

@@ -24,13 +24,13 @@
   },
   "auth_password": {
     "error": {
-      "min_length": "Password must be at least 8 characters",
-      "min_length_lowercase": "Password must be at least 8 characters and contain a lowercase letter",
-      "min_length_lowercase_number": "Password must be at least 8 characters, contain a lowercase letter, and a number",
-      "min_length_number": "Password must be at least 8 characters and contain a number",
-      "missing_lowercase": "Password must contain a lowercase letter",
-      "missing_lowercase_number": "Password must contain a lowercase letter and a number",
-      "missing_number": "Password must contain a number"
+      "min_length": "Şifre en az 8 karakterden oluşmalıdır.",
+      "min_length_lowercase": "Şifre en az 8 karakterden oluşmalı ve küçük harf içermelidir.",
+      "min_length_lowercase_number": "Şifre en az 8 karakter olmalı, en az bir küçük harf ve en az bir rakam içermeli.",
+      "min_length_number": "Şifre en az 8 karakterden oluşmalı ve bir rakam içermelidir.",
+      "missing_lowercase": "Şifre küçük harf içermelidir",
+      "missing_lowercase_number": "Şifre, küçük harf ve rakam içermelidir.",
+      "missing_number": "Şifre bir rakam içermelidir"
     },
     "label": "Şifre",
     "placeholder": "Şifre veya parola ifadesi"

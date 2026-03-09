@@ -24,13 +24,13 @@
   },
   "auth_password": {
     "error": {
-      "min_length": "Password must be at least 8 characters",
-      "min_length_lowercase": "Password must be at least 8 characters and contain a lowercase letter",
-      "min_length_lowercase_number": "Password must be at least 8 characters, contain a lowercase letter, and a number",
-      "min_length_number": "Password must be at least 8 characters and contain a number",
-      "missing_lowercase": "Password must contain a lowercase letter",
-      "missing_lowercase_number": "Password must contain a lowercase letter and a number",
-      "missing_number": "Password must contain a number"
+      "min_length": "Passordet må bestå av minst 8 tegn",
+      "min_length_lowercase": "Passordet må bestå av minst 8 tegn og inneholde en liten bokstav.",
+      "min_length_lowercase_number": "Passordet må være minst 8 tegn, inneholde minst én liten bokstav og minst ett siffer",
+      "min_length_number": "Passordet må bestå av minst 8 tegn og inneholde et tall.",
+      "missing_lowercase": "Passordet må inneholde en liten bokstav",
+      "missing_lowercase_number": "Passordet må inneholde en liten bokstav og et tall",
+      "missing_number": "Passordet må inneholde et tall"
     },
     "label": "Passord",
     "placeholder": "Passord eller passordfrase"
