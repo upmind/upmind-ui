@@ -29,6 +29,15 @@
         </template>
       </Input>
     </InputGroup>
+
+    <template v-if="!isEmpty(appliedOptions?.requirements)" #messages>
+      <FormMessage
+        v-if="formFieldProps.touched && fieldErrors"
+        :errors="fieldErrors"
+        :formMessageId="`form-item-message-${control.id}`"
+        :name="control.path"
+      />
+    </template>
   </FormField>
 </template>
 
@@ -43,9 +52,10 @@ import { Icon } from "../../../icon";
 import { Input } from "../../../input";
 import { Link } from "../../../link";
 import FormField from "../../FormField.vue";
+import FormMessage from "../../FormMessage.vue";
 // --- utils
 import { useUpmindUIRenderer } from "../utils";
-import { isNil } from "lodash-es";
+import { get, includes, isEmpty, isNil, keys, omitBy } from "lodash-es";
 // --- types
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
@@ -57,6 +67,30 @@ const { control, appliedOptions, formFieldProps, onInput } =
   useUpmindUIRenderer(useJsonFormsControl(props));
 
 const unmask = ref(false);
+
+const fieldErrors = computed(() => {
+  const { requirements, error: messages } = appliedOptions.value ?? {};
+  return get(
+    messages,
+    getPasswordErrorKey(requirements, control.value?.data),
+    ""
+  );
+});
+
+/** Returns the i18n error key for the current combination of failing password requirements. */
+function getPasswordErrorKey(
+  requirements?: Record<string, string>,
+  value?: string
+): string {
+  // Omit requirements that the current value satisfies
+  const unmet = keys(
+    omitBy(requirements, (pattern: string) => new RegExp(pattern).test(value ?? ""))
+  );
+
+  // Prefix with "missing" when length is met but character rules aren't
+  if (!includes(unmet, "min_length")) unmet.unshift("missing");
+  return unmet.join("_");
+}
 
 const safeMin: ComputedRef<number | undefined> = computed(() => {
   const applied = appliedOptions.value?.min;
