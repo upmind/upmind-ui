@@ -31,10 +31,12 @@ import {
   compact,
   concat,
   defaultsDeep,
+  filter,
   get,
   isEmpty,
   isEqual,
   isNil,
+  isNumber,
   map,
   omitBy,
   set,
@@ -51,6 +53,7 @@ import {
 import type {
   Price,
   PriceCalculations,
+  PriceEntry,
   ProductModel,
   SubproductModel,
   ProductConfigContext,
@@ -349,19 +352,22 @@ async function validate(context: ProductConfigContext, _event: AnyEventObject) {
 
 // We have a valid AUTH session when we are logged in as a client (TODO: admin + actor)
 // this will fire every time we transition to a new state
-function calculate(prices: PriceCalculations, overrides: boolean): number[] {
+function calculate(
+  prices: PriceCalculations,
+  overrides: boolean
+): PriceEntry[] {
   const values = concat(
     overrides ? [] : prices?.term,
     prices?.attributes,
     prices?.options
   );
 
-  return values.filter(value => !isNil(value));
+  return filter(values, value => !isNil(value)) as PriceEntry[];
 }
 
 async function formatCalculation(
   currencyId: string,
-  values: number[]
+  values: PriceEntry[]
 ): Promise<Price> {
   const { post, useUrl } = useQuery();
 
@@ -416,7 +422,11 @@ export function calculateSubscription(callback: Function, onReceive: Function) {
 
       const values = calculate(lookups.prices, overrides);
       // Check if we actually need to calculate the price
-      if (price?.total == sum(values) || !values?.length) {
+      // Compute a numeric total for cache comparison (handles both number and {price, quantity} entries)
+      const total = sum(
+        map(values, v => (isNumber(v) ? v : (v.price ?? 0) * (v.quantity ?? 1)))
+      );
+      if (price?.total == total || !values?.length) {
         // no need to recalculate, just return the current price
         callback({ type: "CALCULATED", data: price });
         return;
