@@ -367,7 +367,9 @@ async function parse(context: PaymentDetailsContext, { data }: AnyEventObject) {
     // otherwise preselect the first available gateway if there's only one AND PAY_LATER is not an option
     if (!safeModel.gateway_id && !safeModel.payment_details_id) {
       if (!isEmpty(lookups.storedPaymentMethods)) {
-        safeModel.payment_details_id = first(lookups.storedPaymentMethods)?.id;
+        safeModel.payment_details_id =
+          find(lookups.storedPaymentMethods, "meta.isDefault")?.id ??
+          first(lookups.storedPaymentMethods)?.id;
       } else if (
         size(lookups.gateways) === 1 &&
         !includes(lookups.paymentTypes, PaymentType.PAY_LATER)
