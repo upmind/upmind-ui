@@ -50,6 +50,48 @@ Before starting, identify your gateway type from [GATEWAYS.md](../GATEWAYS.md):
 
 ---
 
+## API-Assisted Verification
+
+The following API endpoints can be used to **programmatically verify** gateway configuration. The `/verify-gateway` workflow uses these automatically.
+
+### Endpoints
+
+| What | Method | Endpoint | Notes |
+|------|--------|----------|-------|
+| **Brand gateways** | `GET` | `/api/brands/{brandId}/gateways?limit=0&filter[active]=1&with=gateway.gateway_provider,gateway.card_types&filter[gateway.currencies.id]={currencyId}` | Returns all active gateways for a brand, filtered by currency. Verifies gateway visibility, type, provider, and card types. |
+| **Gateway details** | Included above | `gateway_provider`, `card_types`, `currencies` relations | Verify provider name, supported card types, currency list |
+| **Stored payment methods** | `GET` | `/api/clients/{clientId}/payment_details?limit=0&brand_id={brandId}&active=true&filter[gateway.currencies.id]={currencyId}&with=gateway,client` | Verify stored methods exist and are filtered correctly |
+| **Wallet balance** | `GET` | `/api/wallet/balance` | Verify account credit for wallet payment testing |
+| **Brand config** | `GET` | `/api/config/brand/values?keys=...` | Check `billing.gateway.force_card_storage`, `billing.gateway.force_auto_payment`, `billing.gateway.client_allow_partial_payments`, `invoices.common.is_available_pay_later` |
+| **Payments** | `POST` | `/api/payments` | Submit a payment (verify backend records it) |
+| **Order** | `GET` | `/api/order/{orderId}` | Verify order status, amounts, invoice |
+
+### What Can Be Auto-Verified
+
+The workflow can automatically check:
+
+- ✅ Gateway exists in brand gateway list
+- ✅ Gateway `payment_type` matches expected type
+- ✅ Gateway `provider` and `gateway_provider` are correct
+- ✅ `card_types` are populated (for card gateways)
+- ✅ Currency is in the gateway's supported currency list
+- ✅ `gateway_settings` flags (`canStore`, `mustStore`, `useFrontendImplementation`)
+- ✅ Brand config flags (partial payments, pay later, force storage)
+- ✅ Stored payment methods appear after a successful stored payment
+- ✅ Payment record exists in backend after a transaction
+- ✅ Payment amount matches submitted amount
+- ✅ Order status transitions after payment
+
+### What Requires Manual Verification
+
+- ❌ Gateway provider's dashboard (external system)
+- ❌ 3DS challenge flow (interactive UI)
+- ❌ Redirect flow UX (visual/behavioral)
+- ❌ SDK rendering (visual)
+- ❌ Error message clarity (subjective)
+
+---
+
 ## Gateway Verification Template
 
 Copy everything below this line into your verification file.
@@ -301,7 +343,64 @@ Copy everything below this line into your verification file.
 
 ---
 
-## Phase 9: Final Sign-Off
+## Phase 9: Fixture Generation
+
+> Capture real API responses during verification to use as test fixtures. These fixtures are **essential** for unit tests and prevent hand-crafting fake data.
+
+Fixtures should be saved to `tests/__fixtures__/recordings/` following the existing naming convention: `{method}-{path-segments}-{hash}.json`
+
+### Gateway Config Fixture
+
+- [ ] Save the `GET /api/brands/{brandId}/gateways` response for this gateway
+  - Filename: `get-brands-{brandId}-gateways-{gatewayCode}.json`
+  - Must include `gateway_provider`, `card_types`, and `currencies` relations
+- [ ] Save the brand config response with payment-related keys
+  - Filename: `get-config-brand-values-payment-{gatewayCode}.json`
+
+### Payment Response Fixtures
+
+- [ ] **Successful payment** — Save the `POST /api/payments` response
+  - Filename: `post-payments-{gatewayCode}-success.json`
+- [ ] **Failed payment** (declined card) — Save the error response
+  - Filename: `post-payments-{gatewayCode}-declined.json`
+- [ ] **3DS required** — Save the response that triggers 3DS (if applicable)
+  - Filename: `post-payments-{gatewayCode}-3ds-required.json`
+- [ ] **3DS success** — Save the post-3DS success response
+  - Filename: `post-payments-{gatewayCode}-3ds-success.json`
+- [ ] **Redirect response** — Save the response with redirect URL (if redirect-based)
+  - Filename: `post-payments-{gatewayCode}-redirect.json`
+
+### Stored Payment Method Fixtures
+
+- [ ] **Payment details list** — Save `GET /api/clients/{clientId}/payment_details` with this gateway's stored methods
+  - Filename: `get-payment-details-{gatewayCode}.json`
+- [ ] **Wallet balance** — Save `GET /api/wallet/balance` response
+  - Filename: `get-wallet-balance.json` (shared, only if not already captured)
+
+### Order State Fixtures
+
+- [ ] **Order after payment** — Save `GET /api/order/{orderId}` after successful payment
+  - Filename: `get-order-paid-{gatewayCode}.json`
+- [ ] **Order after partial payment** — Save order with partial paid status
+  - Filename: `get-order-partial-{gatewayCode}.json`
+
+### Sanitisation Checklist
+
+- [ ] Remove real API keys/tokens from all fixtures
+- [ ] Remove or anonymise PII (client names, emails, addresses)
+- [ ] Replace real IDs with UUIDs that won't clash with production
+- [ ] Keep amounts, currencies, and status codes intact (these are the test data)
+
+### Index Update
+
+- [ ] Add entries to `tests/__fixtures__/recordings/_index.json` for each new fixture
+
+**Notes:**
+> {List any fixtures that couldn't be captured and why}
+
+---
+
+## Phase 10: Final Sign-Off
 
 ### Summary
 
@@ -315,6 +414,7 @@ Copy everything below this line into your verification file.
 | 6. Reconciliation | ☐ Pass / ☐ N/A | |
 | 7. Error Handling | ☐ Pass / ☐ N/A | |
 | 8. Stored Methods | ☐ Pass / ☐ N/A | |
+| 9. Fixtures | ☐ Pass / ☐ N/A | |
 
 ### Gateway-Specific Quirks / Known Limitations
 
