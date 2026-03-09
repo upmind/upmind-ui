@@ -46,4 +46,4 @@ export type InputProps = {
 export type InputItemsProps = {
   icon?: InputProps["icon"];
   avatar?: InputProps["avatar"];
-}
+};

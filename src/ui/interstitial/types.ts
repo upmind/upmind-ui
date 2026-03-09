@@ -32,4 +32,4 @@ export type InterstitialProps = {
   // ---
   uiConfig?: { interstitial: CxOptions };
   class?: HTMLAttributes["class"];
-}
+};

@@ -21,4 +21,4 @@ export type SwitchProps = {
   // ---
   uiConfig?: { input: CxOptions };
   class?: HTMLAttributes["class"];
-}
+};

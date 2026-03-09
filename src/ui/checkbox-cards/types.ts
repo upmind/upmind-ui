@@ -32,7 +32,7 @@ export type CheckboxCardsItemProps = ToggleGroupItemProps & {
   /** When `true`, indicates that the user must check the radio item before the owning form can be submitted. */
   required?: boolean;
   name?: string;
-}
+};
 
 type HTMLClassAttributes = HTMLAttributes["class"];
 type Cursor = CheckboxLabelVariantProps["cursor"];
@@ -61,4 +61,4 @@ export type CheckboxCardsProps = ToggleGroupRootProps & {
   itemClass?: HTMLClassAttributes;
   dataHover?: boolean;
   dataFocus?: boolean;
-}
+};

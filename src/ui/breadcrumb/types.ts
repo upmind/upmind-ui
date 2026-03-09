@@ -12,7 +12,7 @@ export type BreadcrumbItem = RouterLinkProps & {
   value?: string | number;
   handler?: Function;
   href?: string;
-}
+};
 
 export type BreadcrumbVariant = "visible" | "condensed" | "parent" | "hidden";
 
@@ -25,4 +25,4 @@ export type BreadcrumbConsolidateProps = {
   // --- styles
   uiConfig?: { breadcrumbConsolidate?: CxOptions };
   class?: HTMLAttributes["class"];
-}
+};

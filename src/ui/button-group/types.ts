@@ -12,7 +12,7 @@ export type ButtonGroupProps = {
   to?: string;
   uiConfig?: { buttonGroup: CxOptions };
   class?: HTMLAttributes["class"];
-}
+};
 
 export namespace ButtonGroup {
   export const Button = "button" as const;
@@ -25,16 +25,16 @@ export type ButtonGroupItemBase = {
   type: ButtonGroup.Type;
   class?: HTMLAttributes["class"];
   active?: boolean;
-}
+};
 
 export type ButtonGroupButtonItem = ButtonGroupItemBase & {
   type: typeof ButtonGroup.Button;
   props: Omit<ButtonProps, "variant" | "size">;
   handler?: (event: Event) => void;
-}
+};
 
 export type ButtonGroupDropdownItem = ButtonGroupItemBase & {
   type: typeof ButtonGroup.Select;
   props: Omit<SelectProps, "variant" | "size">;
   handler?: (value: any) => void;
-}
+};

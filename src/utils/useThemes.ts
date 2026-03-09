@@ -21,7 +21,7 @@ export type UIConfigValue =
 
 export type UIConfig = {
   [component: string]: UIConfigValue;
-}
+};
 
 export type Theme = {
   name: string;
@@ -29,14 +29,14 @@ export type Theme = {
   icon?: string;
   uiConfig?: UIConfig;
   tokens?: string;
-}
+};
 
 export type ITheme = {
   value: string;
   label: string;
   icon?: string;
   handler: () => void;
-}
+};
 // -----------------------------------------------------------------------------
 // --- global context
 

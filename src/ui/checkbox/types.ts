@@ -17,4 +17,4 @@ export type CheckboxProps = CheckboxRootProps & {
   // ---
   uiConfig?: { checkbox: CxOptions };
   class?: HTMLAttributes["class"];
-}
+};

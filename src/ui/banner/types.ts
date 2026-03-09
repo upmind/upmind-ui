@@ -16,4 +16,4 @@ export type BannerProps = {
   // ---
   uiConfig?: { banner: CxOptions };
   class?: HTMLAttributes["class"];
-}
+};

@@ -7,9 +7,9 @@ export type DescriptionListProps = {
   // ---
   uiConfig?: { descriptionList: CxOptions };
   class?: HTMLAttributes["class"];
-}
+};
 
 export type DescriptionItem = {
   term: string;
   description: string;
-}
+};

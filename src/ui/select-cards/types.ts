@@ -18,7 +18,7 @@ type TriggerVariantProps = VariantProps<typeof triggerVariants>;
 type PrimitiveBaseProps = {
   as?: string | Component;
   asChild?: boolean;
-}
+};
 
 export type SelectCardsItemProps = PrimitiveBaseProps & {
   /** The value given as data when submitted with a `name`. */
@@ -35,7 +35,7 @@ export type SelectCardsItemProps = PrimitiveBaseProps & {
   avatar?: Partial<AvatarProps>;
   appendLabel?: string;
   badge?: BadgeProps | string;
-}
+};
 
 export type SelectCardsProps = PrimitiveBaseProps & {
   /** The controlled value of the radio item to check. Can be binded as `v-model`. */
@@ -65,7 +65,7 @@ export type SelectCardsProps = PrimitiveBaseProps & {
   contentClass?: HTMLAttributes["class"];
   dataHover?: boolean;
   dataFocus?: boolean;
-}
+};
 export type SelectCardsTriggerProps = Omit<
   ButtonProps,
   "variant" | "uiConfig"
@@ -81,4 +81,4 @@ export type SelectCardsTriggerProps = Omit<
   chevron?: boolean;
   dataHover?: boolean;
   dataFocus?: boolean;
-}
+};

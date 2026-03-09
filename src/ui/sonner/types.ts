@@ -10,4 +10,4 @@ export type SonnerProps = ToasterProps & {
   // ---
   uiConfig?: { sonner: CxOptions };
   class?: HTMLAttributes["class"];
-}
+};

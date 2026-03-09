@@ -40,7 +40,7 @@ export type RadioCardsItemProps = RadioGroupItemProps & {
   uiConfig?: { radioCards: CxOptions };
   dataHover?: boolean;
   dataFocus?: boolean;
-}
+};
 
 export type RadioCardsProps = RadioGroupRootProps & {
   label?: string;
@@ -61,4 +61,4 @@ export type RadioCardsProps = RadioGroupRootProps & {
   radioClass?: HTMLAttributes["class"];
   dataHover?: boolean;
   dataFocus?: boolean;
-}
+};

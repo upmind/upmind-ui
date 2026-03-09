@@ -19,4 +19,4 @@ export type BadgeProps = {
   // --- styles
   uiConfig?: { badge: CxOptions };
   class?: HTMLAttributes["class"];
-}
+};

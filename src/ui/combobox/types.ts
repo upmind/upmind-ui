@@ -25,41 +25,43 @@ export type ComboboxItemProps = {
   handler?: Function;
   class?: HTMLAttributes["class"];
   persist?: boolean;
-}
+};
 
 export type ComboboxSearchFunction = {
   (value: string, items?: ComboboxItemProps[]): ComboboxItemProps[];
-}
+};
 
-export type ComboboxProps = PopoverRootProps & PopoverContentProps & PopoverTriggerProps & {
-  label?: string;
-  sublabel?: string;
-  tag?: string;
-  avatar?: Partial<AvatarProps>;
-  icon?: IconProps["icon"];
-  itemLabel?: string;
-  itemValue?: string;
-  truncate?: boolean;
-  // --- state
-  items: ComboboxItemProps[];
-  modelValue?: string;
-  loading?: boolean;
-  disabled?: boolean;
-  // --- Search
-  search?: boolean | ComboboxSearchFunction;
-  placeholder?: string;
-  searchPlaceholder?: string;
-  emptyMessage?: string;
-  checkedIcon?: boolean;
-  // --- variants
-  size?: TriggerVariantProps["size"];
-  width?: TriggerVariantProps["width"];
-  dropdownWidth?: ContentVariantsProps["dropdownWidth"];
-  ring?: boolean;
-  // --- styles
-  uiConfig?: { combobox: CxOptions };
-  class?: HTMLAttributes["class"];
-  popoverClass?: HTMLAttributes["class"];
-  dataHover?: boolean;
-  dataFocus?: boolean;
-}
+export type ComboboxProps = PopoverRootProps &
+  PopoverContentProps &
+  PopoverTriggerProps & {
+    label?: string;
+    sublabel?: string;
+    tag?: string;
+    avatar?: Partial<AvatarProps>;
+    icon?: IconProps["icon"];
+    itemLabel?: string;
+    itemValue?: string;
+    truncate?: boolean;
+    // --- state
+    items: ComboboxItemProps[];
+    modelValue?: string;
+    loading?: boolean;
+    disabled?: boolean;
+    // --- Search
+    search?: boolean | ComboboxSearchFunction;
+    placeholder?: string;
+    searchPlaceholder?: string;
+    emptyMessage?: string;
+    checkedIcon?: boolean;
+    // --- variants
+    size?: TriggerVariantProps["size"];
+    width?: TriggerVariantProps["width"];
+    dropdownWidth?: ContentVariantsProps["dropdownWidth"];
+    ring?: boolean;
+    // --- styles
+    uiConfig?: { combobox: CxOptions };
+    class?: HTMLAttributes["class"];
+    popoverClass?: HTMLAttributes["class"];
+    dataHover?: boolean;
+    dataFocus?: boolean;
+  };
