@@ -84,7 +84,9 @@ function getPasswordErrorKey(
 ): string {
   // Omit requirements that the current value satisfies
   const unmet = keys(
-    omitBy(requirements, (pattern: string) => new RegExp(pattern).test(value ?? ""))
+    omitBy(requirements, (pattern: string) =>
+      new RegExp(pattern).test(value ?? "")
+    )
   );
 
   // Prefix with "missing" when length is met but character rules aren't
