@@ -177,6 +177,10 @@ export function parsSummaryWithPrice(
     oneoff: raw.billing_cycle_months == 0,
     discounted: raw.configuration_net_amount_discount_converted > 0,
     free: raw.configuration_net_amount_discounted_converted == 0,
+    freeTrial: !!raw?.in_trial,
+    renewalPrice: find(raw.product?.prices, {
+      billing_cycle_months: raw.billing_cycle_months
+    })?.price_formatted,
     overrides: raw?.product?.category?.price_override,
     mixed: raw?.product?.mixed_promotions, //TODO: check if this is correct
     includesTax: includesTax.value
@@ -364,7 +368,9 @@ export function parseBasketProductData(
     provision_field_values: model.provisionFields || {},
     provision_field_values_validate: !model.silent, // suppress prov field validation errors if silent is true
     // ---
-    promotions: map(model.coupons, coupon => ({ promocode: coupon }))
+    promotions: map(model.coupons, coupon => ({ promocode: coupon })),
+    // ---
+    start_trial: model?.startTrial
   };
 
   if (!clean) return data;

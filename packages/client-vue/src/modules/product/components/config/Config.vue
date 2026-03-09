@@ -9,6 +9,15 @@
     <div :class="styles.product.config.content" v-if="product?.productDetails">
       <!-- fields -->
       <div :class="cn(styles.product.config.fields)">
+        <!-- trial opt-in -->
+        <CheckboxCards
+          v-if="meta.hasTrial"
+          :model-value="meta.isTrialSelected ? ['trial'] : []"
+          :items="trialItems"
+          :disabled="isTrialDisabled"
+          @update:model-value="(values: string[]) => setTrial(!!values.length)"
+        />
+
         <!-- terms -->
         <component
           v-if="meta.hasTerms && !hideTerms"
@@ -133,12 +142,18 @@ import { computed, inject, onUpdated } from "vue";
 // --- internal
 import {
   type UseProductConfig,
-  type UseMetaResult,
   DetailedError,
   responseCodes,
-  ErrorOrigin
+  ErrorOrigin,
+  parseBillingCycle
 } from "@upmind-automation/headless";
-import { useStyles, Link, Button, cn } from "@upmind-automation/upmind-ui";
+import {
+  useStyles,
+  Link,
+  Button,
+  CheckboxCards,
+  cn
+} from "@upmind-automation/upmind-ui";
 import config from "../../product.config";
 
 // --- components
@@ -151,33 +166,22 @@ import ConfigForm from "./ConfigForm.vue";
 import { reduce, get, set, keys } from "lodash-es";
 
 // --- types
-import type { ActorRef } from "xstate";
-import type { HTMLAttributes } from "vue";
+import type { ConfigProps } from "./types";
+import type { BadgeProps } from "@upmind-automation/upmind-ui";
 
 // -----------------------------------------------------------------------------
 const { t } = useI18n();
 
 const emit = defineEmits(["reject", "resolve"]);
 
-const props = withDefaults(
-  defineProps<{
-    as?: string;
-    disabled?: boolean;
-    required?: boolean;
-    hideTerms?: boolean;
-    noFooter?: boolean;
-    class?: HTMLAttributes["class"];
-    meta: UseMetaResult;
-  }>(),
-  {
-    as: "form",
-    disabled: false,
-    required: false,
-    class: "",
-    noHeader: false,
-    noFooter: false
-  }
-);
+const props = withDefaults(defineProps<ConfigProps>(), {
+  as: "form",
+  disabled: false,
+  required: false,
+  class: "",
+  noHeader: false,
+  noFooter: false
+});
 
 const productConfig = inject<UseProductConfig>("useProductConfig");
 if (!productConfig)
@@ -193,6 +197,7 @@ const {
   options,
   attributes,
   fields,
+  lookups,
   // ---
   errors,
   additionalErrors,
@@ -203,6 +208,7 @@ const {
   setOptions,
   updateOptionQuantity,
   setProvisioningFields,
+  setTrial,
   reset
 } = productConfig;
 
@@ -221,6 +227,35 @@ const styles = useStyles(["product.config"], stylesMeta, config);
 const getTermsComponent = computed(() => {
   return ui.termSelector.isSelect ? TermsConfigSelect : TermsConfigRadio;
 });
+
+const isTrialDisabled = computed(
+  () =>
+    props.disabled ||
+    meta.value.isLoading ||
+    meta.value.isProcessing ||
+    meta.value.isTrialForced
+);
+
+const trialDescription = computed(() => {
+  const duration = lookups.value?.product?.trialDuration;
+  const term = parseBillingCycle(model.value?.term ?? 0).numeric;
+
+  return t("text.free_trial_desc", { days: duration, term });
+});
+
+const trialItems = computed(() => [
+  {
+    value: "trial",
+    label: t("text.try_before_you_buy"),
+    secondaryDescription: trialDescription.value,
+    disabled: isTrialDisabled.value,
+    badge: {
+      label: t("text.free_trial"),
+      color: "promo",
+      variant: "minimal"
+    } as BadgeProps
+  }
+]);
 
 function getQuantities(subproduct: any): Record<string, number> {
   const value = reduce(
