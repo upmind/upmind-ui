@@ -150,7 +150,11 @@ export const useProductConfig = (service: ActorRef<any>) => {
     hasAttributes: !isEmpty(state.value.context?.lookups?.attributes),
     hasOptions: !isEmpty(state.value.context?.lookups?.options),
     hasTerms: !isEmpty(state.value.context?.lookups?.terms),
-    hasTaxIncluded: includesTax.value
+    hasTaxIncluded: includesTax.value,
+    // --- trial
+    hasTrial: !!state.value.context?.lookups?.product?.trialSupported,
+    isTrialForced: !!state.value.context?.lookups?.product?.trialForce,
+    isTrialSelected: !!model.value?.startTrial
   }));
 
   // --
@@ -160,7 +164,8 @@ export const useProductConfig = (service: ActorRef<any>) => {
       | "SET.TERM"
       | "SET.ATTRIBUTES"
       | "SET.OPTIONS"
-      | "SET.PROVISIONING",
+      | "SET.PROVISIONING"
+      | "SET.TRIAL",
     data: Partial<ProductModel>
   ) {
     touched.value = true;
@@ -333,6 +338,12 @@ export const useProductConfig = (service: ActorRef<any>) => {
     return get(model.value, ["provisionFields", field]);
   }
 
+  // --- TRIAL
+
+  async function setTrial(enabled: boolean): Promise<void> {
+    return setValues("SET.TRIAL", { startTrial: enabled });
+  }
+
   // ---------------------------------------------------------------------------
   return {
     id,
@@ -376,6 +387,8 @@ export const useProductConfig = (service: ActorRef<any>) => {
     // ---
     setProvisioningFields,
     getProvisioningField,
+    // ---
+    setTrial,
     // ---
     reset: () => send({ type: "RESET" }),
     onDone: () =>
@@ -423,4 +436,8 @@ export type UseProductConfigMeta = {
   hasOptions: boolean;
   hasTerms: boolean;
   hasTaxIncluded: boolean;
+  // --- trial
+  hasTrial: boolean;
+  isTrialForced: boolean;
+  isTrialSelected: boolean;
 };
