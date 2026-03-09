@@ -15,12 +15,15 @@ import {
   useTime,
   useValidation
 } from "../../../utils";
+import { useSessionStorage } from "../../../utils/useStorage";
+import { find } from "lodash-es";
 
 // --- types
 import type { ICurrency } from "@upmind-automation/types";
 import type { CurrencyContext, CurrencyModel } from "./types";
 
 // -----------------------------------------------------------------------------
+export const CURRENCY_STORAGE_KEY = "currency";
 
 async function load(
   { schema, model }: CurrencyContext,
@@ -40,11 +43,17 @@ async function load(
     )
   );
 
-  // set our base model to match the default brand currency
-  const baseModel = {
-    id: currency.value?.id,
-    code: currency.value?.code
-  };
+  // --- check sessionStorage for a persisted currency selection
+  const storage = useSessionStorage();
+  const code = storage.get(CURRENCY_STORAGE_KEY);
+  const persistedCurrency = code
+    ? find(currencies.value, { code: code })
+    : undefined;
+
+  // set our base model to match the persisted or default brand currency
+  const baseModel = persistedCurrency
+    ? { id: persistedCurrency.id, code: persistedCurrency.code }
+    : { id: currency.value?.id, code: currency.value?.code };
 
   const safeModel = useModelParser<CurrencyModel>(schema, model, baseModel);
 

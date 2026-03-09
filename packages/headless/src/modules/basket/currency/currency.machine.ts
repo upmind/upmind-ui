@@ -2,7 +2,7 @@
 import { assign, createMachine, sendParent } from "xstate";
 
 // --- internal
-import services from "./services";
+import services, { CURRENCY_STORAGE_KEY } from "./services";
 import { useI18n } from "../../system";
 import { useFeedback } from "../../feedback";
 
@@ -16,6 +16,7 @@ import {
 } from "../../../utils";
 import { useSchema, useUischema } from "./utils";
 import { cloneDeep, get, isEqual } from "lodash-es";
+import { useSessionStorage } from "../../../utils/useStorage";
 
 // --- types
 import type { AnyEventObject } from "xstate";
@@ -89,7 +90,7 @@ export default createMachine(
         id: "valid",
         always: [
           { target: "processing", cond: "shouldUpdate" },
-          // if we should update but can't,  we dont have a basket,
+          // if we should update but can't, we dont have a basket,
           {
             actions: ["persistModel", "clearAutoUpdate", "refreshBasket"],
             cond: "cantUpdate"
@@ -210,7 +211,14 @@ export default createMachine(
       }),
 
       persistModel: assign({
-        baseModel: ({ model }: CurrencyContext) => cloneDeep(model) // we use spread to ensure its a new array
+        baseModel: ({ model }: CurrencyContext) => {
+          const baseModel = cloneDeep(model);
+          // NB: persist to storage so that we can retrieve the currency when the user refreshes the page without a basket
+          if (baseModel?.code) {
+            useSessionStorage().set(CURRENCY_STORAGE_KEY, baseModel.code);
+          }
+          return baseModel;
+        }
       }),
 
       setAutoUpdate: assign({
