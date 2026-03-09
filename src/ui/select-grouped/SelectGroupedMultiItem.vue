@@ -47,7 +47,10 @@
           >
             <div :class="styles.selectGrouped.header.root">
               <template v-if="$slots.prepend && selectedItem">
-                <slot name="prepend" v-bind="{ item: selectedItem.item, option: selectedItem }" />
+                <slot
+                  name="prepend"
+                  v-bind="{ item: selectedItem.item, option: selectedItem }"
+                />
               </template>
               <slot name="icon" v-bind="{ group: props.group }" />
               <div :class="styles.selectGrouped.header.container">
@@ -68,8 +71,17 @@
                         :ui-config="props.uiConfig"
                       />
                     </template>
-                    <template v-if="$slots.secondary && selectedItem" #secondary>
-                      <slot name="secondary" v-bind="{ item: selectedItem.item, option: selectedItem }" />
+                    <template
+                      v-if="$slots.secondary && selectedItem"
+                      #secondary
+                    >
+                      <slot
+                        name="secondary"
+                        v-bind="{
+                          item: selectedItem.item,
+                          option: selectedItem
+                        }"
+                      />
                     </template>
                   </ItemContent>
                 </slot>
@@ -121,13 +133,22 @@
                 />
               </template>
               <template v-if="$slots.prepend" #prepend>
-                <slot name="prepend" v-bind="{ item: item.item, option: item }" />
+                <slot
+                  name="prepend"
+                  v-bind="{ item: item.item, option: item }"
+                />
               </template>
               <template v-if="$slots.secondary" #secondary>
-                <slot name="secondary" v-bind="{ item: item.item, option: item }" />
+                <slot
+                  name="secondary"
+                  v-bind="{ item: item.item, option: item }"
+                />
               </template>
               <template v-if="$slots.append" #append>
-                <slot name="append" v-bind="{ item: item.item, option: item }" />
+                <slot
+                  name="append"
+                  v-bind="{ item: item.item, option: item }"
+                />
               </template>
             </SelectGroupedItem>
           </ul>

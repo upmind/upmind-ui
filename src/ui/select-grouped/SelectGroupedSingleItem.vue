@@ -31,13 +31,22 @@
       >
         <ItemContent size="md" :item="props.item">
           <template v-if="$slots.prepend" #prepend>
-            <slot name="prepend" v-bind="{ item: props.item.item, option: props.item }" />
+            <slot
+              name="prepend"
+              v-bind="{ item: props.item.item, option: props.item }"
+            />
           </template>
           <template v-if="$slots.secondary" #secondary>
-            <slot name="secondary" v-bind="{ item: props.item.item, option: props.item }" />
+            <slot
+              name="secondary"
+              v-bind="{ item: props.item.item, option: props.item }"
+            />
           </template>
           <template v-if="$slots.append" #append>
-            <slot name="append" v-bind="{ item: props.item.item, option: props.item }" />
+            <slot
+              name="append"
+              v-bind="{ item: props.item.item, option: props.item }"
+            />
           </template>
         </ItemContent>
       </slot>

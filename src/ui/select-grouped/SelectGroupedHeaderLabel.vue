@@ -4,10 +4,7 @@
       {{ props.groupName }}
     </strong>
     <template v-if="props.selectedLabel">
-      <Icon
-        icon="arrow-right"
-        :class="styles.selectGrouped.header.arrow"
-      />
+      <Icon icon="arrow-right" :class="styles.selectGrouped.header.arrow" />
       <strong :class="styles.selectGrouped.header.label">
         {{ props.selectedLabel }}
       </strong>
@@ -49,9 +46,7 @@ const props = defineProps<{
   uiConfig?: { selectGrouped: CxOptions };
 }>();
 
-const badges = computed(() =>
-  props.badge ? castArray(props.badge) : []
-);
+const badges = computed(() => (props.badge ? castArray(props.badge) : []));
 
 const meta = computed(() => ({}));
 
