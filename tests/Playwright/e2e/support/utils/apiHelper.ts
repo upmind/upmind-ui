@@ -37,14 +37,8 @@ export async function goToCheckout(
   context: BrowserContext,
   product: { id: string; billingCycle: number; type: string },
   promotion: string | null = null,
-  currency: string | null = null,
-  options: {
-    register?: boolean;
-    registrationOptions?: RegisterClientOptions;
-  } = {}
+  currency: string | null = null
 ) {
-  const { register = true, registrationOptions = {} } = options;
-
   await page.goto(URLs.basket);
   await expect
     .poll(
@@ -72,7 +66,6 @@ export async function goToCheckout(
           })}.com`
         }
       : {};
-
   await addProductToOrder(
     `${token}`,
     `${orderId}`,
@@ -88,29 +81,7 @@ export async function goToCheckout(
   if (promotion !== null) {
     await addPromotionToOrder(orderId, promotion, token);
   }
-
-  if (register) {
-    // Register a new client via the API — skips the registration UI entirely.
-    // Pass currency context so the registration uses the same currency as the order.
-    const regOptions: RegisterClientOptions = { ...registrationOptions };
-    if (currency !== null && !regOptions.currencyId) {
-      // Map currency code to known IDs, fallback to default GBP
-      const currencyMap: Record<string, string> = {
-        GBP: "3825d96e-763e-d091-3dc4-174825283406",
-        EUR: "4825d96e-763e-d091-3dc4-174825283406",
-        USD: "5825d96e-763e-d091-3dc4-174825283406"
-      };
-      regOptions.currencyId = currencyMap[currency] ?? undefined;
-    }
-    await registerAndLogin(page, context, regOptions);
-    await page.goto(URLs.checkout);
-  } else {
-    await page.goto(URLs.checkout);
-    // Ensure we land on the registration page after checkout navigation
-    if (!page.url().includes("/order/auth/register/")) {
-      await page.goto(URLs.register);
-    }
-  }
+  await page.goto(URLs.checkout);
 }
 
 /**
