@@ -152,7 +152,7 @@ const router = useRouter();
 
 const styles = useStyles(["billing.card", "billing.summary"], {}, config);
 
-const { isReady, meta: billingMeta, model } = useBasketBilling();
+const { isReady, meta: billingMeta, model, setDefaults } = useBasketBilling();
 
 // --- data loading
 
@@ -162,6 +162,8 @@ await Promise.allSettled([
   useClientCompanies().isReady(),
   useClientPhones().isReady()
 ]);
+
+setDefaults();
 
 // --- summary
 
