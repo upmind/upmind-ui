@@ -4,7 +4,7 @@ import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 export default {
   table: {
-    wrapper: cva("w-0 min-w-full overflow-x-auto"),
+    wrapper: cva("w-0 min-w-full overflow-x-auto lg:px-9 lg:py-9"),
     root: cva("w-full text-sm"),
     header: {
       root: cva(""),

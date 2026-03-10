@@ -39,6 +39,7 @@ export type Invoice = {
     unpaidAmountFormatted: string;
   };
   dateCreated: FormattedDate;
+  datePaid: FormattedDate;
 };
 
 export type Payment = {

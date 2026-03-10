@@ -2,10 +2,10 @@
   <header :class="styles.hero.root">
     <Badge
       v-if="badge"
-      v-bind="isString(badge) ? { label: badge } : badge"
       class="shrink-0"
       variant="minimal"
       color="neutral"
+      v-bind="isString(badge) ? { label: badge } : badge"
     />
     <hgroup>
       <slot name="prepend" />
