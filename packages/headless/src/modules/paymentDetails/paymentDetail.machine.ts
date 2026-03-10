@@ -380,8 +380,8 @@ export default createMachine(
       refresh: assign({
         orderId: (_context: PaymentDetailsContext, { data }: AnyEventObject) =>
           data?.id,
-        client: (_context: PaymentDetailsContext, { data }: AnyEventObject) =>
-          data?.client,
+        client: ({ client }: PaymentDetailsContext, { data }: AnyEventObject) =>
+          data?.client ?? client,
         currency: (
           { currency }: PaymentDetailsContext,
           { data }: AnyEventObject

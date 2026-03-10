@@ -32,6 +32,7 @@ import {
 
 // --- types
 import type { ActorRef } from "xstate";
+import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
 import type {
   Product,
   ProductDetails,
@@ -91,8 +92,11 @@ export const useProductConfig = (service: ActorRef<any>) => {
   const options = useContext<SubproductDetails[]>(state, "lookups.options");
   const fields = useContext<Record<string, any>>(
     state,
-    "lookups.provisionFields"
+    "schema.properties.provisionFields"
   );
+
+  const schema = useContext<JsonSchema7>(state, "schema");
+  const uischema = useContext<UISchemaElement>(state, "uischema");
 
   // ---
   const errors = useContext<Product["errors"]>(state, "error.message");
@@ -133,7 +137,7 @@ export const useProductConfig = (service: ActorRef<any>) => {
       contextMatches(state, [
         "lookups.attributes",
         "lookups.options",
-        "lookups.provisionFields.properties"
+        "lookups.provisionFields"
       ]),
     isInvalid: stateMatches(state, ["available.invalid"]),
     isCalculating: contextMatches(state, ["lookups.prices.calculating"]),
@@ -144,9 +148,7 @@ export const useProductConfig = (service: ActorRef<any>) => {
     isDone: !state.value || state.value?.done,
 
     // ---
-    hasProvisioning: !isEmpty(
-      state.value.context?.lookups?.provisionFields?.properties
-    ),
+    hasProvisioning: !isEmpty(state.value.context?.lookups?.provisionFields),
     hasAttributes: !isEmpty(state.value.context?.lookups?.attributes),
     hasOptions: !isEmpty(state.value.context?.lookups?.options),
     hasTerms: !isEmpty(state.value.context?.lookups?.terms),
@@ -165,7 +167,8 @@ export const useProductConfig = (service: ActorRef<any>) => {
       | "SET.ATTRIBUTES"
       | "SET.OPTIONS"
       | "SET.PROVISIONING"
-      | "SET.TRIAL",
+      | "SET.TRIAL"
+      | "SET",
     data: Partial<ProductModel>
   ) {
     touched.value = true;
@@ -176,6 +179,10 @@ export const useProductConfig = (service: ActorRef<any>) => {
       state => ["available.valid", "available.invalid"].some(state.matches),
       { timeout: 60_000 }
     );
+  }
+
+  async function setConfig(data: Partial<ProductModel>): Promise<void> {
+    setValues("SET", data);
   }
 
   // --- QUANTITY
@@ -357,6 +364,8 @@ export const useProductConfig = (service: ActorRef<any>) => {
     // ---
     lookups,
     raw,
+    schema,
+    uischema,
     title,
     // productDetails,
     productImage,
@@ -385,6 +394,7 @@ export const useProductConfig = (service: ActorRef<any>) => {
     incrementOption,
     decrementOption,
     // ---
+    setConfig,
     setProvisioningFields,
     getProvisioningField,
     // ---
