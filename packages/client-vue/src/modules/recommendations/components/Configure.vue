@@ -55,7 +55,7 @@ import {
 import { Link } from "@upmind-automation/upmind-ui";
 
 // --- components
-import ProductConfig from "../../product/components/config/Config.vue";
+import ProductConfig from "../../product/components/Config.vue";
 import { Button, Drawer } from "@upmind-automation/upmind-ui";
 
 // --- types

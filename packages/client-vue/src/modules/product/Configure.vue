@@ -60,7 +60,7 @@
             <form @submit.prevent @reset.prevent>
               <ProductConfig
                 v-if="pendingProduct && productMeta?.isAvailable"
-                as="div"
+                as="fieldset"
                 :item="pendingProduct"
                 :model-value="pendingProduct?.id"
                 :meta="configMeta"
@@ -173,7 +173,10 @@
       </template>
 
       <template #errors>
-        <ConfigErrors v-if="productMeta?.isAvailable" :meta="productMeta" />
+        <ConfigErrors
+          :visible="productMeta?.showErrors"
+          :errors="validationErrors"
+        />
       </template>
 
       <template #total>
@@ -232,7 +235,7 @@ import Pricing from "./components/pricing-list/Pricing.vue";
 import PricingSkeleton from "./components/pricing-list/PricingSkeleton.vue";
 import PricingTotal from "./components/pricing-list/PricingTotal.vue";
 import ProductActions from "./components/ProductActions.vue";
-import ProductConfig from "./components/config/Config.vue";
+import ProductConfig from "./components/Config.vue";
 import ProductHero from "./components/hero/ProductHero.vue";
 import ProductHeroSkeleton from "./components/hero/ProductHeroSkeleton.vue";
 import ProductImage from "./components/hero/ProductImage.vue";
@@ -300,6 +303,7 @@ const {
   meta: productMeta,
   model,
   product,
+  validationErrors,
   productImage,
   updateQuantity,
   updateTerm,

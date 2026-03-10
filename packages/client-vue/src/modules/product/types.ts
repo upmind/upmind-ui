@@ -1,5 +1,7 @@
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
 import type { StorefrontRoute } from "../../types";
+import type { HTMLAttributes } from "vue";
+import type { UseMetaResult } from "@upmind-automation/headless";
 
 export type ConfigureProps = {
   storefrontRoute: StorefrontRoute;
@@ -7,6 +9,16 @@ export type ConfigureProps = {
   template?: PRODUCT_TEMPLATE;
   hideSlots?: string[];
   hideTerms?: boolean;
+};
+
+export type ConfigProps = {
+  as?: "form" | "fieldset";
+  disabled?: boolean;
+  required?: boolean;
+  hideTerms?: boolean;
+  noFooter?: boolean;
+  class?: HTMLAttributes["class"];
+  meta: UseMetaResult;
 };
 
 export type Item = {
