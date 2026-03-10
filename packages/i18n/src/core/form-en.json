@@ -138,6 +138,11 @@
     "label": null,
     "placeholder": "Search by product name..."
   },
+  "product_trial": {
+    "description": null,
+    "label": null,
+    "placeholder": null
+  },
   "select_option": {
     "description": null,
     "label": null,

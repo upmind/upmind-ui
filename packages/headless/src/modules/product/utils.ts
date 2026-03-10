@@ -11,7 +11,6 @@ import {
   useLaravalSchemaParser,
   useTranslateField,
   useTranslateName,
-  useValidation,
   useImageUrl
 } from "../../utils";
 
@@ -36,7 +35,6 @@ import {
   maxBy,
   merge,
   minBy,
-  omitBy,
   orderBy,
   reduce,
   reverse,
@@ -45,6 +43,7 @@ import {
   subtract,
   toNumber,
   trim,
+  trimStart,
   uniq,
   values
 } from "lodash-es";
@@ -70,7 +69,6 @@ import {
 } from "@upmind-automation/types";
 
 import type {
-  ExternalError,
   PriceCalculations,
   PriceDetail,
   PriceDisplay,
@@ -277,89 +275,6 @@ export function checkPriceOverride(
 }
 // -----------------------------------------------------------------------------
 
-export function checkQuantity(
-  { lookups }: ProductConfigContext,
-  value?: number
-): string | undefined {
-  const product = get(lookups, "product");
-  const quantity = parseQuantity(value ?? 0, product);
-
-  return !isNumber(value) || value < 1 || value !== quantity
-    ? "Invalid Quantity Selected"
-    : undefined;
-}
-
-export function checkTerm(
-  { lookups }: ProductConfigContext,
-  value?: number
-): string | undefined {
-  let term: TermDetails | undefined;
-
-  term = find(lookups?.terms, ["cycle", value]);
-
-  return isNil(term) ? "Valid Term is required" : undefined;
-}
-
-export function checkSubproducts(
-  type: "attributes" | "options",
-  { lookups }: ProductConfigContext,
-  values?: ProductModel["attributes"] | ProductModel["options"]
-): Record<string, string[]> | undefined {
-  const errors: any = {};
-  // ---
-  // safety check, resolve if we have no attributes to check
-  if (!lookups?.[type]?.length && isEmpty(values)) return undefined;
-
-  forEach(lookups?.[type], (subproduct: SubproductDetails) => {
-    let selected: Record<string, SubproductModelValue> = get(
-      values,
-      subproduct.id,
-      {}
-    );
-
-    let error = [];
-
-    // check if we are missing the required subproduct, if we are (and its not multiple) then automatically select the first one
-    // NB we only do this on the initial load, not when we are updating the values
-    if (isEmpty(selected) && subproduct?.meta.required) {
-      error.push(`${subproduct.name} is required`);
-    }
-
-    // if we have selected values, ensure they are valid and fully formed
-
-    // then parse each selected value and ensure it has all its required and VALID values
-    forEach(selected, (value: SubproductModelValue) => {
-      const product = find(subproduct.values, ["id", value.productId]);
-
-      // safety check, ensure we have a valid product otherwise bail
-      if (isEmpty(product))
-        error.push(`${subproduct.name} is not a valid product`);
-    });
-
-    // check if we values too many values for this subproduct
-    if (!subproduct?.meta.multiple && keys(selected)?.length > 1)
-      error.push(`${subproduct.name} does not allow multiple choice`);
-
-    if (!isEmpty(error)) errors[subproduct.id] = error;
-  });
-
-  return !isEmpty(errors) ? errors : undefined;
-}
-
-export function checkProvisioning(
-  { lookups }: ProductConfigContext,
-  values?: ProductModel["provisionFields"]
-): ErrorObject[] {
-  // this is our bypass for the validation when e are doing an express add
-  // bail if we dont actually have any provision fields to check
-  if (isEmpty(lookups?.provisionFields?.properties)) return [];
-  const { validate } = useValidation();
-
-  return lookups?.provisionFields
-    ? validate(lookups.provisionFields, values)
-    : [];
-}
-
 export const calculateBillingTerm = (
   period: DefaultPaymentPeriod | undefined,
   available: TermDetails[]
@@ -521,7 +436,7 @@ export function parseSubproducts(
         });
       }
 
-      // check if we are missing required subproduct, if we are (and its not multiple) then automaticaly select the first one
+      // check if we are missing required subproduct, if we are (and its not multiple) then automaticaly select the first one ONLY if there is 1 choice
       // NB we only do this on the initial load, not when we are updating the values
       if (isEmpty(selected) && isInitial) {
         const defaultSubproduct = find(
@@ -534,11 +449,8 @@ export function parseSubproducts(
             productId: defaultSubproduct.id
           });
         } else if (
-          // TODO: simplyfy this to be just: we jsut need to update the ui errors before doing this
-          //  subproduct?.meta.required && subproduct.values?.length === 1
           subproduct?.meta.required &&
-          (!subproduct.meta.multiple ||
-            (subproduct.meta.multiple && subproduct.values?.length === 1))
+          subproduct.values?.length === 1
         ) {
           const pid = get(first(subproduct.values), "id");
           if (pid) set(selected, pid, { productId: pid });
@@ -1039,7 +951,13 @@ export const parseProvisioningSchema = (data: any, product: IProduct) => {
 
 export const parseProduct = (
   price: PriceDisplay,
-  { model, lookups, error, rawBasketProduct }: Partial<ProductConfigContext>
+  {
+    model,
+    lookups,
+    error,
+    rawBasketProduct,
+    schema
+  }: Partial<ProductConfigContext>
 ): Product => {
   // sanity check
   if (isEmpty(model) || isEmpty(lookups) || !lookups.product)
@@ -1107,27 +1025,27 @@ export const parseProduct = (
   const termDetails = parseSummaryTerm(
     model.term ?? 0,
     lookups.terms ?? [],
-    (error as ExternalError)?.term
+    error as ErrorObject[]
   );
 
   const optionDetails = parseSummarySubproduct(
     "option",
     model.options,
     lookups.options,
-    (error as ExternalError)?.options
+    error as ErrorObject[]
   );
 
   const attributeDetail = parseSummarySubproduct(
     "attribute",
     model.attributes,
     lookups.attributes,
-    (error as ExternalError)?.attributes
+    error as ErrorObject[]
   );
 
   const provisionFieldDetails = parseSummaryProvisionFields(
     model.provisionFields,
-    lookups.provisionFields,
-    (error as ExternalError)?.provisionFields
+    get(schema, "properties.provisionFields"),
+    error as ErrorObject[]
   );
 
   // ---------------------------------------------------------------------------
@@ -1148,14 +1066,14 @@ export const parseProduct = (
         provisionFieldDetails
       )
     ),
-    errors: omitBy(error, isEmpty) as ExternalError
+    errors: error as ErrorObject[]
   };
 };
 
 const parseSummaryTerm = (
   cycle: number,
   terms: TermDetails[],
-  error?: ExternalError["term"]
+  errors?: ErrorObject[]
 ): TermDetails | undefined => {
   const { t } = useI18n();
   const term = find(terms, ["cycle", cycle]);
@@ -1164,7 +1082,7 @@ const parseSummaryTerm = (
     term.category = t("text.billing_cycle");
     term.meta = {
       ...term.meta,
-      invalid: has(error, "term")
+      invalid: some(errors, e => e.instancePath?.startsWith("/term"))
     };
     return term;
   }
@@ -1176,7 +1094,7 @@ const parseSummarySubproduct = (
   key: string,
   data: ProductModel["options"],
   lookup?: SubproductDetails[],
-  error?: ExternalError["options" | "attributes"]
+  errors?: ErrorObject[]
 ): (ProductSummaryDetail | ProductSummaryDetailWithPrice)[] => {
   return reduce(
     data,
@@ -1206,7 +1124,7 @@ const parseSummarySubproduct = (
                 meta: {
                   ...subproduct.meta,
                   ...subproduct?.uiMeta,
-                  invalid: has(error, `${key}.${id}`)
+                  invalid: some(errors, e => e.instancePath?.includes(`/${id}`))
                 },
                 // ---
                 ...(subproduct.price ?? {})
@@ -1230,7 +1148,7 @@ const parseSummarySubproduct = (
 const parseSummaryProvisionFields = (
   data: any,
   schema: any,
-  error?: ExternalError["provisionFields"]
+  errors?: ErrorObject[]
 ): ProductSummaryDetail[] => {
   return reduce(
     schema?.properties,
@@ -1250,7 +1168,9 @@ const parseSummaryProvisionFields = (
         regularAmount: undefined,
         regularPrice: undefined,
         meta: {
-          invalid: some(error, ["data.schemaPath", key])
+          invalid: some(errors, e =>
+            e.instancePath?.includes(`/provisionFields/${key}`)
+          )
         }
       });
       return result;
