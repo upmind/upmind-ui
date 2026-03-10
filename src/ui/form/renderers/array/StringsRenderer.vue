@@ -2,7 +2,7 @@
   <FormField v-bind="formFieldProps">
     <CheckboxCards
       :model-value="control.data"
-      :items="control.options"
+      :items="appliedOptions.items ?? control.options"
       @update:modelValue="onInput"
       multiple
     />
@@ -30,10 +30,11 @@ import type { RendererProps } from "@jsonforms/vue";
 // ----------------------------------------------
 const props = defineProps<RendererProps<ControlElement>>();
 
-const { control, formFieldProps, onInput } = useUpmindUIRenderer({
-  ...useJsonFormsMultiEnumControl(props),
-  handleChange: () => {} // Provide a default handleChange function
-});
+const { control, appliedOptions, formFieldProps, onInput } =
+  useUpmindUIRenderer({
+    ...useJsonFormsMultiEnumControl(props),
+    handleChange: () => {} // Provide a default handleChange function
+  });
 </script>
 
 <script lang="ts">
