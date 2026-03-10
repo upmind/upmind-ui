@@ -75,15 +75,12 @@ export const useBasketBilling = () => {
       isLoading: !actor.value || stateMatches(actor, ["loading"]),
       isAvailable:
         !!actor.value && stateMatches(actor, ["available", "complete"]),
-      hasErrors: stateMatches(actor, ["available.error"]),
-      isProcessing: stateMatches(actor, [
-        "available.processing",
-        "available.waiting"
-      ]),
+      hasErrors: stateMatches(actor, ["error"]),
+      isProcessing: stateMatches(actor, ["processing", "available.waiting"]),
       isValid: stateMatches(actor, ["available.valid"]),
       isComplete:
         stateValue(actor, "done", false) ||
-        stateMatches(actor, ["available.processed", "complete"]),
+        stateMatches(actor, ["processed", "complete"]),
       isDirty: isDirty(
         contextValue<BillingContext["model"]>(actor, "model"),
         contextValue<BillingContext["baseModel"]>(actor, "baseModel")
@@ -131,8 +128,8 @@ export const useBasketBilling = () => {
       actor.value!.service,
       state =>
         stateMatches(state, [
-          "available.processed",
-          "available.error",
+          "processed",
+          "error",
           "available.invalid",
           "complete"
         ]),
