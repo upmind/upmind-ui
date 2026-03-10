@@ -9,7 +9,7 @@
         :badge="badge"
       >
         <template #append>
-          <div v-if="action">
+          <div v-if="action && !meta.isComplete">
             <Button
               variant="subtle"
               size="lg"
@@ -123,7 +123,19 @@
     </template>
 
     <template v-if="!meta.isUnavailable" #order-products>
-      <OrderProducts v-show="!meta.isProcessing" />
+      <OrderProducts v-show="!meta.isProcessing">
+        <template #append>
+          <Button
+            v-if="action && meta.isComplete"
+            size="lg"
+            :label="t(action)"
+            :loading="actionProcessing"
+            @click.stop="doAction"
+            :icon="!meta.isAuthenticated ? 'arrow-left' : ''"
+            :icon-append="meta.isAuthenticated ? 'arrow-right' : ''"
+          />
+        </template>
+      </OrderProducts>
     </template>
   </component>
 
@@ -168,7 +180,8 @@ import {
   Skeleton,
   useStyles,
   type AlertProps,
-  type DescriptionItem
+  type DescriptionItem,
+  type BadgeProps
 } from "@upmind-automation/upmind-ui";
 
 // --- internal
@@ -260,7 +273,8 @@ const badge = computed(() => {
   if (meta.value.isComplete)
     return {
       label: t("text.confirmed"),
-      icon: "sale-02"
+      icon: "check-circle",
+      color: "success" as BadgeProps["color"]
     };
 
   return {
@@ -463,12 +477,19 @@ function doAction() {
 // -----------------------------------------------------------------------------
 
 watch(
-  () => meta.value.hasError,
-  failed => {
-    if (failed) {
+  () => [meta.value.hasError, meta.value.isComplete],
+  ([hasError, isComplete]) => {
+    if (hasError) {
       showAnnouncement({
         text: t("invoice.payment_failed_banner"),
         type: "danger"
+      });
+    } else if (isComplete && orderData.value?.datePaid?.date) {
+      showAnnouncement({
+        text: t("invoice.payment_success_banner", {
+          date: orderData.value.datePaid.date
+        }),
+        type: "success"
       });
     } else {
       dismissAnnouncement();
