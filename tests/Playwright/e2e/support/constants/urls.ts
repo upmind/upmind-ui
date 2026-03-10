@@ -8,6 +8,7 @@ export const URLs = {
   basket: `${baseUrl}order/basket/`,
   emptyBasket: `${baseUrl}order/basket/empty/`,
   checkout: `${baseUrl}order/checkout/`,
+  billing: `${baseUrl}order/billing`,
   login: `${baseUrl}order/auth/login/`,
   logout: `${baseUrl}order/auth/logout/`,
   register: `${baseUrl}order/auth/register/`,
