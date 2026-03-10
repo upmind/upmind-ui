@@ -130,7 +130,8 @@ test.describe("UPM Campaign Tracking", () => {
         })}.com`
       },
       [],
-      true
+      true,
+      false
     );
     await page.goto(URLs.checkout);
     await registration.inputRegistration();
