@@ -10,7 +10,9 @@ import {
   ErrorOrigin,
   responseCodes,
   DetailedError,
-  useModelParser
+  useModelParser,
+  useValidation,
+  useValidationErrorsTranslator
 } from "../../utils";
 
 import {
@@ -19,10 +21,6 @@ import {
   parseTrial,
   parseSubproducts,
   checkPriceOverride,
-  checkQuantity,
-  checkTerm,
-  checkSubproducts,
-  checkProvisioning,
   parseSubproductDetails,
   parseProvisioningSchema,
   parseProductProps
@@ -39,7 +37,6 @@ import {
   isNil,
   isNumber,
   map,
-  omitBy,
   set,
   sum
 } from "lodash-es";
@@ -56,12 +53,12 @@ import type {
   PriceCalculations,
   PriceEntry,
   ProductModel,
-  SubproductModel,
   ProductConfigContext,
   ProductProps
 } from "./types";
 
 import { type AnyEventObject } from "xstate";
+import { type ErrorObject } from "ajv";
 import { parseBasketSubproductConfig } from "../basketProduct/utils";
 
 // -----------------------------------------------------------------------------
@@ -197,30 +194,21 @@ async function loadProvisioningFields(
 
 async function parse(context: ProductConfigContext, { data }: AnyEventObject) {
   const { t } = useI18n();
-  const baseModel = defaultsDeep(context.model, {
-    productId: undefined,
-    quantity: 1,
-    term: 0,
-    options: {},
-    attributes: {},
-    provisionFields: {}
-  });
 
   const lookups = context.lookups ?? {};
   lookups.prices = context.lookups?.prices || {};
 
-  let values: ProductModel = defaultsDeep(
-    {
-      productId: data?.productId,
-      quantity: data?.quantity,
-      term: data?.term,
-      options: data?.options,
-      attributes: data?.attributes,
-      provisionFields: data?.provisionFields,
-      startTrial: data?.startTrial
-    },
-    baseModel
-  );
+  // build our values based on our prev context ( if any ) with sensible fallbacks
+  let values: ProductModel = {
+    productId: data?.productId ?? context?.model?.productId ?? undefined,
+    quantity: data?.quantity ?? context?.model?.quantity ?? 1,
+    term: data?.term ?? context?.model?.term ?? 0,
+    options: data?.options ?? context?.model?.options ?? {},
+    attributes: data?.attributes ?? context?.model?.attributes ?? {},
+    provisionFields:
+      data?.provisionFields ?? context?.model?.provisionFields ?? {},
+    startTrial: data?.startTrial ?? context?.model?.startTrial ?? false
+  };
 
   // safety check, ensure we have a valid product
   if (!values?.productId) {
@@ -244,7 +232,7 @@ async function parse(context: ProductConfigContext, { data }: AnyEventObject) {
   // NB:if terms have changed.....
   // reset the lookup options based on the term selected
   // as this may impact what price and options are available
-  if (!isEqual(baseModel?.term, values?.term)) {
+  if (!isEqual(context?.model?.term, values?.term)) {
     lookups.options = parseSubproductDetails(
       context.rawProduct?.products_options,
       values.term
@@ -282,13 +270,17 @@ async function parse(context: ProductConfigContext, { data }: AnyEventObject) {
     {} as AnyEventObject
   );
 
-  lookups.provisionFields = parseProvisioningSchema(
+  // Store raw provision fields in lookups — schema generation handles parsing
+  lookups.provisionFields = rawProvisionFields;
+
+  // Parse locally for model normalization only
+  const provisionSchema = parseProvisioningSchema(
     rawProvisionFields,
     context.rawProduct!
   );
 
   values.provisionFields = useModelParser(
-    lookups.provisionFields,
+    provisionSchema,
     values.provisionFields,
     {}
   );
@@ -304,28 +296,16 @@ async function validate(context: ProductConfigContext, _event: AnyEventObject) {
   //  especially usefully when adding bulk products, recommendations etc.
   if (context.silent) return Promise.resolve(context.model);
 
-  // TODO: validate the model as per normal using the schema
-  // const { validate } = useValidation();
-  //  const errors = validate(schema, model);
+  const { schema, model } = context;
+  let errors: ErrorObject[] = [];
 
-  // Till then we will validate individually
-  const errors = omitBy(
-    {
-      quantity: checkQuantity(context, context?.model?.quantity),
-      term: checkTerm(context, context?.model?.term),
-      options: checkSubproducts("options", context, context.model?.options),
-      attributes: checkSubproducts(
-        "attributes",
-        context,
-        context.model?.attributes
-      ),
-      provisionFields: checkProvisioning(
-        context,
-        context.model?.provisionFields
-      )
-    },
-    isEmpty
-  );
+  if (schema && model) {
+    const { validate: ajvValidate } = useValidation();
+    const rawErrors = ajvValidate(schema, model);
+    if (!isEmpty(rawErrors)) {
+      errors = useValidationErrorsTranslator(rawErrors, schema);
+    }
+  }
 
   return new Promise((resolve, reject) => {
     if (!isEmpty(errors)) {

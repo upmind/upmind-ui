@@ -80,8 +80,7 @@ import {
 } from "@upmind-automation/headless";
 
 // --- utils
-import { has, sum } from "lodash-es";
-import { isString } from "xstate/lib/utils";
+import { sum } from "lodash-es";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
 
 // --- types
