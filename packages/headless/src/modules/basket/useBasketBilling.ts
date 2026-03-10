@@ -3,6 +3,11 @@ import { computed, toRaw, unref } from "vue";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
+import {
+  useClientAddresses,
+  useClientCompanies,
+  useClientPhones
+} from "../client";
 import { useI18n } from "../system";
 import { useBasket } from ".";
 import { useUnified } from "./billing/unified/useUnified";
@@ -169,6 +174,24 @@ export const useBasketBilling = () => {
     });
   }
 
+  function setDefaults(): void {
+    if (!meta.value.needsInput) return;
+
+    const { default: defaultAddress } = useClientAddresses();
+    const { default: defaultCompany } = useClientCompanies();
+    const { default: defaultPhone } = useClientPhones();
+
+    const company = defaultCompany();
+    const address = defaultAddress();
+    const phone = defaultPhone();
+
+    update({
+      companyId: model.value?.companyId ?? company?.id,
+      addressId: model.value?.addressId ?? company?.addressId ?? address?.id,
+      phoneId: model.value?.phoneId ?? phone?.id
+    }).catch(() => {});
+  }
+
   // ---------------------------------------------------------------------------
   return {
     // --- state
@@ -232,6 +255,9 @@ export const useBasketBilling = () => {
 
     /** Clears the billing state. */
     clear,
+
+    /** Sets the billing model with client defaults when IDs are missing. */
+    setDefaults,
 
     /**
      * Updates the billing if the code has changed.
