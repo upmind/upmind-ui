@@ -20,7 +20,7 @@ export const variants = {
 };
 
 export const rootVariants = cva(
-  "message-radius flex w-full items-start gap-x-3 gap-y-1",
+  "message-radius flex w-full items-start gap-y-1",
   {
     variants: {
       variant: {
@@ -28,8 +28,8 @@ export const rootVariants = cva(
         minimal: "bg-surface border-[1.5px]" // Border and surface background
       },
       size: {
-        sm: "p-4",
-        md: "px-4 py-5"
+        sm: "gap-x-2 p-4",
+        md: "gap-x-3 px-4 py-5"
       },
       color: variants.color
     },
@@ -111,7 +111,10 @@ const titleVariants = cva("text-md-tight font-medium", {
       muted: "",
       minimal: "text-base"
     },
-    size: variants.size,
+    size: {
+      sm: "text-sm",
+      md: "text-md-tight"
+    },
     color: variants.color
   },
   defaultVariants: {
@@ -153,7 +156,7 @@ const titleVariants = cva("text-md-tight font-medium", {
   ]
 });
 
-const descriptionVariants = cva("text-sm-tight font-normal", {
+const descriptionVariants = cva("text-sm font-normal", {
   variants: {
     variant: {
       muted: "",
@@ -201,7 +204,7 @@ const descriptionVariants = cva("text-sm-tight font-normal", {
   ]
 });
 
-const iconVariants = cva("p-0.5", {
+const iconVariants = cva("p-[3px] [&>svg]:size-4.5", {
   variants: {
     variant: {
       muted: "",
