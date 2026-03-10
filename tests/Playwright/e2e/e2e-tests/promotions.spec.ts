@@ -211,15 +211,7 @@ test.describe("Promotions", () => {
     test.beforeEach(async ({ page, context }) => {
       checkout = new Checkout(page);
       registration = new Registration(page, context);
-      await goToCheckout(
-        page,
-        context,
-        products.STARTER_HOSTING,
-        null,
-        null,
-        { register: true },
-        false
-      );
+      await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
       await registration.inputRegistration();
     });
     test("Promo badge/details displayed at checkout", async ({ page }) => {
