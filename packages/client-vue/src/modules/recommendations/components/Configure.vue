@@ -9,7 +9,7 @@
   >
     <ProductConfig
       v-if="pendingProduct && productMeta?.isAvailable"
-      as="div"
+      as="fieldset"
       :item="pendingProduct"
       :model-value="pendingProduct?.id"
       :meta="configMeta"

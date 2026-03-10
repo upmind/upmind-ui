@@ -64,7 +64,7 @@
                 :model-value="basketProduct?.id"
                 :hide-terms="props.hideTerms"
                 :no-footer="true"
-                as="div"
+                as="fieldset"
                 @resolve="doResolve"
                 @reject="doReject"
               />
