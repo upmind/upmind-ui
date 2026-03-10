@@ -1,0 +1,337 @@
+import { expect, test } from "@playwright/test";
+import { Checkout } from "../../../support/page-objects/templates/Checkout";
+import { BillingPage } from "../../../support/page-objects/templates/BillingPage";
+import { URLs } from "../../../support/constants/urls";
+import {
+  goToCheckout,
+  addAddressToClient
+} from "../../../support/utils/apiHelper";
+import { products } from "../../../support/constants/products";
+import {
+  interceptUISchema,
+  interceptConfigValues
+} from "../../../support/utils/functions/brand";
+import {
+  getSessionToken,
+  getClientToken
+} from "../../../support/utils/functions/tokens";
+import { Logins } from "../../../support/constants/logins";
+import { Registration } from "../../../support/page-objects/templates/Registration";
+import { getCurrentOrder } from "../../../support/utils/functions/basket";
+
+let checkout: Checkout;
+let billingPage: BillingPage;
+let registration: Registration;
+
+test.describe("Standalone Billing Details Page @standalone-billing", () => {
+  test.describe("Checkout - Billing Summary Mode (default)", () => {
+    test.beforeEach(async ({ page, context }) => {
+      checkout = new Checkout(page);
+      registration = new Registration(page, context);
+      interceptUISchema(context, {
+        "@data.billingdetails.billingDetailsDisabled": false
+      });
+    });
+
+    test("1.1 BillingSummary card is visible at checkout", async ({
+      page,
+      context
+    }) => {
+      await goToCheckout(
+        page,
+        context,
+        products.OPTIONAL_TRIAL_PRODUCT,
+        null,
+        null,
+        false
+      );
+      await registration.inputRegistration();
+      await expect(checkout.billingDetails).toBeVisible({ timeout: 15000 });
+      await expect(checkout.addNewAddress).toBeVisible();
+    });
+
+    test("1.2 Summary displays selected address", async ({ page, context }) => {
+      await goToCheckout(
+        page,
+        context,
+        products.OPTIONAL_TRIAL_PRODUCT,
+        null,
+        null,
+        false
+      );
+      await registration.inputRegistration();
+      await checkout.billingDetails.waitFor();
+      let token = await getSessionToken(context);
+      let order = await getCurrentOrder(token);
+      let client = order?.client_id;
+      await addAddressToClient(token, client);
+      await page.reload();
+      await page.waitForURL("**/order/checkout**");
+      await expect(checkout.billingDetails).toBeVisible({ timeout: 15000 });
+      await expect(checkout.billingDetails).toContainText("10 Downing Street");
+      await expect(checkout.billingDetails).toContainText("London");
+      await expect(checkout.billingDetails).toContainText("SW1A 2AB");
+      await expect(checkout.billingDetails).toContainText("United Kingdom");
+    });
+
+    test("1.3 'Change' link navigates to billing page", async ({
+      page,
+      context
+    }) => {
+      await goToCheckout(
+        page,
+        context,
+        products.OPTIONAL_TRIAL_PRODUCT,
+        null,
+        null,
+        false
+      );
+      await registration.inputRegistration();
+      await checkout.billingDetails.waitFor();
+      let token = await getSessionToken(context);
+      let order = await getCurrentOrder(token);
+      let client = order?.client_id;
+      await addAddressToClient(token, client);
+      await page.reload();
+      await page.waitForURL("**/order/checkout**");
+      await expect(checkout.billingSummaryChangeLink).toBeVisible({
+        timeout: 15000
+      });
+      await checkout.billingSummaryChangeLink.click();
+      await page.waitForURL("**/order/billing**");
+      await expect(checkout.billingCards).toBeVisible({ timeout: 15000 });
+    });
+  });
+
+  test.describe("Checkout - Inline Mode (billingDetailsDisabled)", () => {
+    test.beforeEach(async ({ page, context }) => {
+      checkout = new Checkout(page);
+      registration = new Registration(page, context);
+      interceptUISchema(context, {
+        "@data.billingdetails.billingDetailsDisabled": true
+      });
+      await goToCheckout(page, context, products.STARTER_HOSTING);
+      await registration.inputRegistration();
+    });
+
+    test("2.1 Inline billing form shown when standalone is disabled", async () => {
+      await expect(checkout.billingCards).toBeVisible({ timeout: 15000 });
+      await expect(checkout.billingDetails).toBeHidden();
+    });
+  });
+
+  test.describe("Standalone Billing Page", () => {
+    test.beforeEach(async ({ page, context }) => {
+      billingPage = new BillingPage(page);
+      interceptUISchema(context, {
+        "@data.billingdetails.billingDetailsDisabled": true
+      });
+      await goToCheckout(page, context, products.STARTER_HOSTING);
+      await registration.inputRegistration();
+    });
+
+    test("3.1 Billing page loads at /order/billing", async ({ page }) => {
+      await page.goto(URLs.billing);
+      await expect(billingPage.billingSection).toBeVisible({ timeout: 15000 });
+    });
+
+    test("3.2 'Back to checkout' link navigates back", async ({ page }) => {
+      await page.goto(URLs.billing);
+      await expect(billingPage.backToCheckout).toBeVisible({ timeout: 15000 });
+      await billingPage.backToCheckout.click();
+      await page.waitForURL("**/order/checkout/**");
+      await expect(page).toHaveURL("/order/checkout/");
+    });
+
+    test("3.3 Can add new address on billing page", async ({ page }) => {
+      await page.goto(URLs.billing);
+      await expect(billingPage.billingSection).toBeVisible({ timeout: 15000 });
+      if (await billingPage.personalTab.isVisible()) {
+        await billingPage.personalTab.click();
+      }
+      await billingPage.manuallyInputAddress(
+        "10 Downing Street",
+        "London",
+        "SW1A 2AB"
+      );
+      await page.waitForURL("**/order/checkout**");
+      await expect(checkout.billingDetails).toBeVisible({ timeout: 15000 });
+      await expect(checkout.billingDetails).toContainText("10 Downing Street");
+      await expect(checkout.billingDetails).toContainText("London");
+      await expect(checkout.billingDetails).toContainText("SW1A 2AB");
+    });
+
+    test("3.4 Personal/Business tab switching", async ({ page, context }) => {
+      await page.goto(URLs.billing);
+      await expect(billingPage.billingSection).toBeVisible({ timeout: 15000 });
+      if (
+        (await billingPage.personalTab.isVisible()) &&
+        (await billingPage.businessTab.isVisible())
+      ) {
+        await billingPage.businessTab.click();
+        await expect(billingPage.companyName).toBeVisible({ timeout: 5000 });
+        await billingPage.personalTab.click();
+      }
+    });
+  });
+
+  test.describe("Navigation: Checkout → Billing → Checkout", () => {
+    test.beforeEach(async ({ page, context }) => {
+      checkout = new Checkout(page);
+      registration = new Registration(page, context);
+      billingPage = new BillingPage(page);
+      interceptUISchema(context, {
+        "@context.*.billingDetailsDisabled": false
+      });
+      await goToCheckout(page, context, products.STARTER_HOSTING);
+      await registration.inputRegistration();
+      let token = await getSessionToken(context);
+      let order = await getCurrentOrder(token);
+      let client = order?.client_id;
+      await addAddressToClient(token, client);
+      await page.reload();
+      await page.waitForURL("**/order/checkout**");
+    });
+
+    test("4.1 Round-trip: update address on billing page", async ({
+      page,
+      context
+    }) => {
+      await expect(checkout.billingSummaryChangeLink).toBeVisible({
+        timeout: 15000
+      });
+      await checkout.billingSummaryChangeLink.click();
+      await page.waitForURL("**/order/billing**");
+      await expect(billingPage.billingSection).toBeVisible({ timeout: 15000 });
+      if (await billingPage.personalTab.isVisible()) {
+        await billingPage.personalTab.click();
+      }
+      const changeLink = page.getByTestId("link-change");
+      const addNew = page.getByTestId("link-add-new");
+      if (await changeLink.isVisible()) {
+        await changeLink.click();
+        if (await addNew.isVisible()) {
+          await addNew.click();
+        }
+      }
+      await billingPage.manuallyInputAddress(
+        "15 White Hart Lane",
+        "Manchester",
+        "M1 1AA"
+      );
+
+      await billingPage.backToCheckout.click();
+      await page.waitForURL("**/order/checkout/**");
+      await expect(checkout.billingDetails).toBeVisible({ timeout: 15000 });
+      await expect(checkout.billingDetails).toContainText("15 White Hart Lane");
+      await expect(checkout.billingDetails).toContainText("Manchester");
+      await expect(checkout.billingDetails).toContainText("M1 1AA");
+    });
+
+    test("4.2 Round-trip: add company on billing page", async ({ page }) => {
+      await expect(checkout.billingSummaryChangeLink).toBeVisible({
+        timeout: 15000
+      });
+      await checkout.billingSummaryChangeLink.click();
+      await page.waitForURL("**/order/billing**");
+      await expect(billingPage.billingSection).toBeVisible({ timeout: 15000 });
+      if (await billingPage.businessTab.isVisible()) {
+        await billingPage.businessTab.click();
+      }
+      if (await billingPage.companyName.isVisible()) {
+        await billingPage.companyName.fill("E2E Test Company Ltd");
+      }
+      await checkout.saveDetails.click();
+      await billingPage.backToCheckout.click();
+      await page.waitForURL("**/order/checkout/**");
+      await expect(checkout.billingDetails).toBeVisible({ timeout: 15000 });
+    });
+  });
+
+  test.describe("Missing Billing Data", () => {
+    test("5.1 'Add address' link when address required but missing", async ({
+      page,
+      context
+    }) => {
+      checkout = new Checkout(page);
+      registration = new Registration(page, context);
+      await goToCheckout(page, context, products.STARTER_HOSTING);
+      await registration.inputRegistration();
+      await page.waitForURL("**/order/checkout/**");
+      const token = await getSessionToken(context);
+      interceptConfigValues(page, token, {
+        requireAddressForOrders: true,
+        requireCompanyForOrders: false,
+        requireRegionInAddress: false,
+        requirePhoneForOrders: false
+      });
+      await page.reload();
+      await expect(checkout.billingDetails).toBeVisible({ timeout: 15000 });
+      await expect(checkout.billingAddAddress).toBeVisible();
+    });
+
+    test("5.2 'Add company' link when company required but missing", async ({
+      page,
+      context
+    }) => {
+      checkout = new Checkout(page);
+      registration = new Registration(page, context);
+      await goToCheckout(page, context, products.STARTER_HOSTING);
+      await registration.inputRegistration();
+      await page.waitForURL("**/order/checkout/**");
+      const token = await getSessionToken(context);
+      interceptConfigValues(page, token, {
+        requireAddressForOrders: false,
+        requireCompanyForOrders: true,
+        requireRegionInAddress: false,
+        requirePhoneForOrders: false
+      });
+      await page.reload();
+      await expect(checkout.billingDetails).toBeVisible({ timeout: 15000 });
+      await expect(checkout.billingAddCompany).toBeVisible();
+    });
+
+    test("5.3 'Add number' link when phone required but missing", async ({
+      page,
+      context
+    }) => {
+      checkout = new Checkout(page);
+      registration = new Registration(page, context);
+      await goToCheckout(page, context, products.STARTER_HOSTING);
+      await registration.inputRegistration();
+      await page.waitForURL("**/order/checkout/**");
+      const token = await getSessionToken(context);
+      interceptConfigValues(page, token, {
+        requireAddressForOrders: false,
+        requireCompanyForOrders: false,
+        requireRegionInAddress: false,
+        requirePhoneForOrders: true
+      });
+      await page.reload();
+      await expect(checkout.billingDetails).toBeVisible({ timeout: 15000 });
+      await expect(checkout.billingAddNumber).toBeVisible();
+    });
+  });
+
+  test.describe("Access Control", () => {
+    test("6.1 Billing page requires authentication", async ({ page }) => {
+      await page.goto(URLs.billing);
+      await page.waitForLoadState("networkidle");
+      await expect(page).not.toHaveURL("order/billing/");
+    });
+
+    test("6.2 Billing page requires basket with products", async ({
+      page,
+      context
+    }) => {
+      await getClientToken(
+        page,
+        Logins.checkoutUser.username,
+        Logins.checkoutUser.password
+      );
+      await page.goto(URLs.billing);
+      await page.waitForLoadState("networkidle");
+      await expect(page).not.toHaveURL("order/billing/");
+    });
+  });
+});
