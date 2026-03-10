@@ -1,5 +1,8 @@
 // -----------------------------------------------------------------------------
 import BooleanRenderer, { tester as BooleanTest } from "./BooleanRenderer.vue";
+import BooleanCardRenderer, {
+  tester as BooleanCardTest
+} from "./BooleanCardRenderer.vue";
 import BooleanSwitchRenderer, {
   tester as BooleanSwitchTest
 } from "./BooleanSwitchRenderer.vue";
@@ -40,6 +43,7 @@ export const controlRenderers = [
   registerEntry(ConstRenderer, ConstTest),
   registerEntry(StringRenderer, StringTest),
   registerEntry(BooleanRenderer, BooleanTest),
+  registerEntry(BooleanCardRenderer, BooleanCardTest),
   registerEntry(BooleanSwitchRenderer, BooleanSwitchTest),
   registerEntry(ButtonToggleRenderer, ButtonToggleTest),
   registerEntry(CurrencyRenderer, CurrencyTest),
