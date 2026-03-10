@@ -16,6 +16,7 @@ import { orderBy, map } from "lodash-es";
 export function mapInvoice(raw: IInvoice): Invoice {
   return {
     id: raw.id,
+    locked: !!raw.locked,
     status: raw.status.code as InvoiceStatus,
     number: raw.number,
     client: useClientParser(raw.client)!,
