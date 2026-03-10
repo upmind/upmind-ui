@@ -26,13 +26,13 @@
 
     <template #order-payment-details v-if="meta.isAvailable">
       <Alert
-        v-if="failedAlert"
-        v-bind="failedAlert"
+        v-if="primaryAlert"
+        v-bind="primaryAlert"
         variant="minimal"
-        @click="failedAlert?.onClick"
+        @click="primaryAlert?.onClick"
       />
       <PaymentDetails
-        v-else
+        v-if="!meta.isLocked"
         v-show="!meta.isProcessing"
         :label="t('action.pay_now')"
         :processing="meta.isProcessing"
@@ -41,10 +41,10 @@
       >
         <template #prepend>
           <Alert
-            v-if="warningAlert"
-            v-bind="warningAlert"
+            v-if="secondaryAlert"
+            v-bind="secondaryAlert"
             variant="minimal"
-            @click="warningAlert?.onClick"
+            @click="secondaryAlert?.onClick"
           />
         </template>
       </PaymentDetails>
@@ -269,9 +269,16 @@ const badge = computed(() => {
   };
 });
 
-const failedAlert = computed<
+const primaryAlert = computed<
   (AlertProps & { onClick?: () => void }) | undefined
 >(() => {
+  if (meta.value.isLocked)
+    return {
+      title: t("invoice.order_locked"),
+      description: t("invoice.order_locked_msg"),
+      icon: "lock-03",
+      color: "neutral"
+    };
   if (meta.value.hasError)
     return {
       title: t("invoice.payment_retry"),
@@ -285,7 +292,7 @@ const failedAlert = computed<
     };
 });
 
-const warningAlert = computed<
+const secondaryAlert = computed<
   (AlertProps & { onClick?: () => void }) | undefined
 >(() => {
   if (meta.value.isPending)
