@@ -130,7 +130,7 @@ export default createMachine(
 
           valid: {
             id: "valid",
-            always: [{ target: "processing", cond: "shouldUpdate" }],
+            always: [{ target: "#processing", cond: "shouldUpdate" }],
             on: {
               PAYMENT_DETAILS: [
                 {
@@ -154,28 +154,13 @@ export default createMachine(
                   cond: "hasPaymentDetails"
                 },
 
-                { target: "processing", cond: "hasBasket" }
+                { target: "#processing", cond: "hasBasket" }
               ]
             }
           },
 
           invalid: {
             id: "invalid"
-          },
-
-          processing: {
-            entry: ["forwardCheckout"],
-            on: {
-              CANCEL: {
-                target: "#invalid", // no need to set the error, it will be set by the gateway
-                actions: ["cancelPaymentDetails", "clearAutoUpdate"]
-              },
-              // ths is the response from the gateway
-              PAYMENT_DETAILS: {
-                target: "#complete",
-                actions: ["setPaymentDetails", "clearAutoUpdate"]
-              }
-            }
           }
         },
         on: {
@@ -209,6 +194,22 @@ export default createMachine(
               cond: "hasAmountChanged"
             }
           ]
+        }
+      },
+
+      processing: {
+        id: "processing",
+        entry: ["forwardCheckout"],
+        on: {
+          CANCEL: {
+            target: "#invalid", // no need to set the error, it will be set by the gateway
+            actions: ["cancelPaymentDetails", "clearAutoUpdate"]
+          },
+          // ths is the response from the gateway
+          PAYMENT_DETAILS: {
+            target: "#complete",
+            actions: ["setPaymentDetails", "clearAutoUpdate"]
+          }
         }
       },
 
