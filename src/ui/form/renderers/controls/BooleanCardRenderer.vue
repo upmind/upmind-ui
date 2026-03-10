@@ -27,10 +27,7 @@ import type { RendererProps } from "@jsonforms/vue";
 const props = defineProps<RendererProps<ControlElement>>();
 
 const { control, appliedOptions, formFieldProps, onInput } =
-  useUpmindUIRenderer(
-    useJsonFormsControl(props),
-    value => !!value
-  );
+  useUpmindUIRenderer(useJsonFormsControl(props), value => !!value);
 
 // --- boolean ↔ string[] conversion
 const CHECKED_VALUE = "true";
