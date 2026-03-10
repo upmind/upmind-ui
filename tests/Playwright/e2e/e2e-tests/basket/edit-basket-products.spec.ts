@@ -41,7 +41,8 @@ test.describe("Edit hosting product in basket", () => {
         })}.com`
       },
       [],
-      true
+      true,
+      false
     );
     await page.waitForLoadState("networkidle");
   });
@@ -108,7 +109,8 @@ test.describe("Edit domain product in basket", () => {
         update_registrant_phone: "+447111111111"
       },
       [],
-      true
+      true,
+      false
     );
   });
   test("Edit domain name", async ({ page }) => {

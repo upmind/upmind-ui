@@ -38,13 +38,8 @@ export async function goToCheckout(
   product: { id: string; billingCycle: number; type: string },
   promotion: string | null = null,
   currency: string | null = null,
-  options: {
-    register?: boolean;
-    registrationOptions?: RegisterClientOptions;
-  } = {}
+  trialValue: boolean
 ) {
-  const { register = true, registrationOptions = {} } = options;
-
   await page.goto(URLs.basket);
   await expect
     .poll(
@@ -83,33 +78,16 @@ export async function goToCheckout(
     [],
     provisionFields,
     [],
-    true
+    true,
+    trialValue
   );
   if (promotion !== null) {
     await addPromotionToOrder(orderId, promotion, token);
   }
-
-  if (register) {
-    // Register a new client via the API — skips the registration UI entirely.
-    // Pass currency context so the registration uses the same currency as the order.
-    const regOptions: RegisterClientOptions = { ...registrationOptions };
-    if (currency !== null && !regOptions.currencyId) {
-      // Map currency code to known IDs, fallback to default GBP
-      const currencyMap: Record<string, string> = {
-        GBP: "3825d96e-763e-d091-3dc4-174825283406",
-        EUR: "4825d96e-763e-d091-3dc4-174825283406",
-        USD: "5825d96e-763e-d091-3dc4-174825283406"
-      };
-      regOptions.currencyId = currencyMap[currency] ?? undefined;
-    }
-    await registerAndLogin(page, context, regOptions);
-    await page.goto(URLs.checkout);
-  } else {
-    await page.goto(URLs.checkout);
-    // Ensure we land on the registration page after checkout navigation
-    if (!page.url().includes("/order/auth/register/")) {
-      await page.goto(URLs.register);
-    }
+  await page.goto(URLs.checkout);
+  // Ensure we land on the registration page after checkout navigation
+  if (!page.url().includes("/order/auth/register/")) {
+    await page.goto(URLs.register);
   }
 }
 
@@ -451,6 +429,76 @@ export function mockWalletBalance(
           currency_id: currencyId
         }
       })
+    });
+  });
+}
+
+/**
+ * Intercepts product API responses and injects free trial fields.
+ * Handles both single-product responses (product config page) and
+ * multi-product responses (catalogue / recommendations).
+ *
+ * Follows the same pattern as `mockPromos` — intercepts the route,
+ * modifies the JSON response, and re-fulfills.
+ *
+ * @param context - Browser context to register the route on
+ * @param route - API path to intercept (e.g. "/api/basket/products/")
+ * @param options - Trial configuration fields to inject
+ * @param options.trialSupported - Whether the product supports a trial (default: true)
+ * @param options.trialForce - Whether the trial is forced / cannot be opted out (default: false)
+ * @param options.trialDuration - Trial duration in days (default: 7)
+ * @param options.trialEndAction - What happens when the trial ends (default: "convert")
+ */
+export function mockTrialProduct(
+  context: BrowserContext,
+  route: string,
+  options: {
+    trialSupported?: boolean;
+    trialForce?: boolean;
+    trialDuration?: number;
+    trialEndAction?: string;
+  } = {}
+) {
+  const {
+    trialSupported = true,
+    trialForce = false,
+    trialDuration = 7,
+    trialEndAction = "convert"
+  } = options;
+
+  context.route(`**${route}**`, async (route: Route) => {
+    // Let CORS preflight requests pass through without modification
+    if (route.request().method() === "OPTIONS") {
+      await route.fallback();
+      return;
+    }
+
+    const response = await route.fetch();
+    const json = await response.json();
+
+    const injectTrialFields = (product: Record<string, unknown>) => {
+      product["trial_supported"] = trialSupported;
+      product["trial_force"] = trialForce;
+      product["trial_duration"] = trialDuration;
+      product["trial_end_action"] = trialEndAction;
+    };
+
+    const data = json?.data;
+    if (Array.isArray(data)) {
+      // Catalogue / recommendations: data is an array of products
+      for (const product of data) {
+        injectTrialFields(product);
+      }
+    } else if (data && typeof data === "object") {
+      // Product config page: data is a single product object
+      injectTrialFields(data);
+    }
+
+    await route.fulfill({
+      status: response.status(),
+      contentType: "application/json",
+      headers: response.headers(),
+      body: JSON.stringify(json)
     });
   });
 }

@@ -90,7 +90,8 @@ for (const { language, username, password } of localeLogins) {
         [],
         { domain: "uicheckout.com" },
         [],
-        true
+        true,
+        false
       );
       await page.reload();
       await page.waitForLoadState("networkidle");
@@ -102,7 +103,15 @@ for (const { language, username, password } of localeLogins) {
     });
     test("Checkout - Registered User", async ({ page, context }) => {
       await getClientToken(page, username, password);
-      await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
+      await goToCheckout(
+        page,
+        context,
+        products.STARTER_HOSTING,
+        null,
+        null,
+        { register: true },
+        false
+      );
       await page.waitForLoadState("load");
       await page.waitForLoadState("networkidle");
       await expect(page).toHaveScreenshot(
