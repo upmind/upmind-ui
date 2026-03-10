@@ -145,43 +145,43 @@ export default createMachine(
                 actions: ["setAutoUpdate"]
               }
             }
+          }
+        }
+      },
+
+      processing: {
+        id: "processing",
+        entry: ["clearError"],
+
+        invoke: {
+          src: "update",
+          onDone: {
+            target: "#processed",
+            actions: ["persistModel", "clearAutoUpdate"]
           },
+          onError: {
+            target: "#error",
+            actions: ["setError", "setFeedbackError"]
+          }
+        }
+      },
 
-          processing: {
-            id: "processing",
-            entry: ["clearError"],
+      processed: {
+        id: "processed",
+        entry: sendParent({ type: "REFRESH" }),
+        after: {
+          wait: {
+            target: "#complete"
+          }
+        }
+      },
 
-            invoke: {
-              src: "update",
-              onDone: {
-                target: "processed",
-                actions: ["persistModel", "clearAutoUpdate"]
-              },
-              onError: {
-                target: "#error",
-                actions: ["setError", "setFeedbackError"]
-              }
-            }
-          },
-
-          processed: {
-            id: "processed",
-            entry: sendParent({ type: "REFRESH" }),
-            after: {
-              wait: {
-                target: "#complete"
-              }
-            }
-          },
-
-          error: {
-            id: "error",
-            on: {
-              SET: {
-                target: "checking",
-                actions: ["setAutoUpdate"]
-              }
-            }
+      error: {
+        id: "error",
+        on: {
+          SET: {
+            target: "available.checking",
+            actions: ["setAutoUpdate"]
           }
         }
       },

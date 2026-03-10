@@ -46,48 +46,40 @@ export default createMachine(
       unavailable: {},
 
       available: {
-        initial: "idle",
-        states: {
-          idle: {
-            on: {
-              GENERATE_TOKEN: {
-                target: "processing"
-              }
-            }
-          },
-          processing: {
-            invoke: {
-              src: "generateToken",
-              onDone: {
-                target: "processed",
-                actions: ["setToken"]
-              },
-              onError: {
-                target: "error",
-                actions: ["setError"]
-              }
-            }
-          },
-          processed: {
-            after: {
-              expired: {
-                target: "idle",
-                actions: ["clearToken"]
-              }
-            }
-          },
-          error: {
-            after: {
-              error: {
-                target: "idle",
-                actions: ["clearToken", "clearError"]
-              }
-            }
-          }
-        },
         on: {
-          CLEAR: {
-            target: "available.idle",
+          GENERATE_TOKEN: {
+            target: "processing"
+          }
+        }
+      },
+
+      processing: {
+        invoke: {
+          src: "generateToken",
+          onDone: {
+            target: "processed",
+            actions: ["setToken"]
+          },
+          onError: {
+            target: "error",
+            actions: ["setError"]
+          }
+        }
+      },
+
+      processed: {
+        after: {
+          expired: {
+            target: "available",
+            actions: ["clearToken"]
+          }
+        }
+      },
+
+      error: {
+        after: {
+          error: {
+            target: "available",
             actions: ["clearToken", "clearError"]
           }
         }
@@ -95,6 +87,12 @@ export default createMachine(
 
       complete: {
         type: "final"
+      }
+    },
+    on: {
+      CLEAR: {
+        target: "available",
+        actions: ["clearToken", "clearError"]
       }
     }
   },

@@ -61,12 +61,10 @@ export const useRecaptcha = () => {
   const meta = computed(() => ({
     isInitialised: !stateMatches(state, "subscribing"),
     isLoading: stateMatches(state, ["subscribing", "loading"]),
-    isAvailable: stateMatches(state, "available"),
-    isProcessing: stateMatches(state, "available.processing"),
-    hasErrors: stateMatches(state, "available.error"),
-    hasToken:
-      stateMatches(state, "available.processed") &&
-      contextMatches(state, "token")
+    isAvailable: stateMatches(state, ["available", "processing", "processed"]),
+    isProcessing: stateMatches(state, "processing"),
+    hasErrors: stateMatches(state, "error"),
+    hasToken: stateMatches(state, "processed") && contextMatches(state, "token")
   }));
 
   // --- context
@@ -85,21 +83,21 @@ export const useRecaptcha = () => {
     return waitFor(service, state => ["available"].some(state.matches))
       .then(() => {
         service.send({ type: "GENERATE_TOKEN", data: { action } });
-        return waitFor(service, state =>
-          state.matches("available.processed")
-        ).then(() => {
-          if (!token) {
-            return Promise.reject(
-              new DetailedError(
-                t("error.recaptcha_not_available"),
-                responseCodes.Not_Found,
-                ErrorOrigin.Headless,
-                errors.value
-              )
-            );
+        return waitFor(service, state => state.matches("processed")).then(
+          () => {
+            if (!token) {
+              return Promise.reject(
+                new DetailedError(
+                  t("error.recaptcha_not_available"),
+                  responseCodes.Not_Found,
+                  ErrorOrigin.Headless,
+                  errors.value
+                )
+              );
+            }
+            return token.value;
           }
-          return token.value;
-        });
+        );
       })
       .catch(() => {
         return Promise.reject(

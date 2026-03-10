@@ -96,10 +96,7 @@ export const useBasket = () => {
         stateMatches(state, ["shopping.refreshing.processing"]) ||
         machineMatches(actors.currency, ["processing"]) ||
         machineMatches(actors.customFields, ["processing"]) ||
-        machineMatches(actors.billing, [
-          "processing",
-          "available.processing"
-        ]) ||
+        machineMatches(actors.billing, ["processing"]) ||
         machineMatches(actors.promotions, ["processing"]),
 
       isDirty:
@@ -136,7 +133,7 @@ export const useBasket = () => {
       hasPaymentDetails: machineMatches(actors.paymentDetail, [
         "complete",
         "available.valid",
-        "available.processing"
+        "processing"
       ]),
 
       hasFields: machineMatches(actors.customFields, ["complete"]),
