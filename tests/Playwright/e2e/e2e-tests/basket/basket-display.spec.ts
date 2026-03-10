@@ -33,7 +33,8 @@ test.describe("Basket Tests", () => {
       [],
       { domain: domain },
       [],
-      true
+      true,
+      false
     );
     await page.goto(URLs.basket);
     await expect(basket.basketProductSummary).toContainText("Shared Hosting");

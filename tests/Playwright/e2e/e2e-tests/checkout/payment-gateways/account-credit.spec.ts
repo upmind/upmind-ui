@@ -34,7 +34,7 @@ test.describe("Account Credit at Checkout", () => {
       context
     }) => {
       mockWalletBalance(context, { ownedAmount: 5 });
-      await goToCheckout(page, context, products.CONSULTATION);
+      await goToCheckout(page, context, products.STARTER_HOSTING);
       await registration.inputRegistration();
       await expect(checkout.accountCreditCheckbox).toBeVisible();
       await expect(await validCheckoutState(page)).toBe(true);
@@ -45,7 +45,7 @@ test.describe("Account Credit at Checkout", () => {
       context
     }) => {
       mockWalletBalance(context, { ownedAmount: 0, creditAmount: 0 });
-      await goToCheckout(page, context, products.CONSULTATION);
+      await goToCheckout(page, context, products.STARTER_HOSTING);
       await registration.inputRegistration();
       await expect(checkout.accountCreditCheckbox).toBeHidden();
       await expect(await validCheckoutState(page)).toBe(true);
@@ -56,7 +56,7 @@ test.describe("Account Credit at Checkout", () => {
       context
     }) => {
       mockWalletBalance(context, { ownedAmount: 10, creditAmount: 5 });
-      await goToCheckout(page, context, products.CONSULTATION);
+      await goToCheckout(page, context, products.STARTER_HOSTING);
       await registration.inputRegistration();
       await expect(checkout.accountCreditCheckbox).toBeVisible();
       await expect(await validCheckoutState(page)).toBe(true);
@@ -69,7 +69,7 @@ test.describe("Account Credit at Checkout", () => {
       context
     }) => {
       mockWalletBalance(context, { ownedAmount: 5 });
-      await goToCheckout(page, context, products.CONSULTATION);
+      await goToCheckout(page, context, products.STARTER_HOSTING);
       await registration.inputRegistration();
       await expect(checkout.accountCreditCheckbox).toHaveAttribute(
         "data-state",

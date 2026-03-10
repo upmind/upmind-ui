@@ -48,7 +48,8 @@ test.describe("Billing Details at checkout", () => {
         })}.com`
       },
       [],
-      true
+      true,
+      false
     );
     await page.goto(URLs.basket);
     await expect(page.getByTestId("basket-product")).toBeVisible();

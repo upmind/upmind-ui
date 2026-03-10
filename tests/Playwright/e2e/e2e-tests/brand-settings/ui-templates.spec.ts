@@ -115,7 +115,8 @@ test.describe("Brand Settings - UI Templates", () => {
           })}.com`
         },
         [],
-        true
+        true,
+        false
       );
       interceptUISchema(context, {
         "@context.auth.template": "two-column-ltr"
@@ -244,7 +245,8 @@ test.describe("Brand Settings - UI Templates", () => {
           })}.com`
         },
         [],
-        true
+        true,
+        false
       );
       interceptUISchema(context, {
         "@context.auth.template": "two-column-ltr"
@@ -345,7 +347,8 @@ test.describe("Brand Settings - UI Templates", () => {
           })}.com`
         },
         [],
-        true
+        true,
+        false
       );
     });
     test("Fallback to default (Two Column (LTR))", async ({ page }) => {
@@ -434,7 +437,8 @@ test.describe("Brand Settings - UI Templates", () => {
           })}.com`
         },
         [],
-        true
+        true,
+        false
       );
     });
     test("Fallback to default (Two Column (LTR))", async ({ page }) => {
@@ -516,7 +520,8 @@ test.describe("Brand Settings - UI Templates", () => {
           domain: `testingdomain.com`
         },
         [],
-        true
+        true,
+        false
       );
     });
     test("Fallback to Default (Two Column LTR)", async ({ page }) => {

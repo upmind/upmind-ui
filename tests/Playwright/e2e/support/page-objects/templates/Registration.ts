@@ -28,9 +28,7 @@ export class Registration {
     await this.email.fill(
       `nathan.robinson+${faker.string.alpha({ length: 10 })}@upmind.com`
     );
-    await this.password.fill(
-      `${faker.internet.password({ length: 10, pattern: /[A-Z]/, prefix: "123" })}`
-    );
+    await this.password.fill("Password1");
     await this.page.getByTestId("button-continue").click();
 
     // Wait for registration to complete by checking for the payment details section
