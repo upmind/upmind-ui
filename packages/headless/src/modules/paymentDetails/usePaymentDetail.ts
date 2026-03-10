@@ -384,6 +384,13 @@ export const usePaymentDetail = (
     });
   }
 
+  async function resetPartialAmount() {
+    actor.value?.send({
+      type: "SET_PARTIAL_PAYMENT",
+      data: { amount: undefined }
+    });
+  }
+
   async function setGateway(value: PaymentDetailModel["gateway_id"] | null) {
     actor.value?.send({
       type: "SET",
@@ -561,6 +568,12 @@ export const usePaymentDetail = (
      *
      */
     setAmount,
+
+    /**
+     * Resets the partial payment amount back to the full outstanding balance.
+     * @returns {void} Does not return anything.
+     */
+    resetPartialAmount,
 
     /**
      * Updates the payment details with the specified wallet amount ( ie. account credit ) to be used for this payment.
