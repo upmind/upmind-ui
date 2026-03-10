@@ -43,7 +43,8 @@ test.describe("Verify checkout billing detail requirements", () => {
         })}.com`
       },
       [],
-      true
+      true,
+      false
     );
     await page.goto(URLs.basket);
     await page.waitForLoadState("networkidle");
