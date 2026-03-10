@@ -183,6 +183,12 @@ export interface PaymentDetailsContext extends PaymentDetailsArgs {
       amount: string;
 
       /**
+       * The full outstanding balance (context.amount) formatted as per locale and currency.
+       * This represents the total amount due on the order before any partial payment.
+       */
+      outstanding: string;
+
+      /**
        * The account credit/wallet amount (model.wallet_amount) formatted as per locale and currency.
        * This represents the amount being paid from the customer's credit balance.
        */

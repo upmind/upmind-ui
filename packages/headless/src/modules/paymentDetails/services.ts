@@ -251,6 +251,7 @@ async function loadLookups(
         client,
         amountsFormatted: {
           amount: lookups?.amountsFormatted?.amount || "",
+          outstanding: lookups?.amountsFormatted?.outstanding || "",
           wallet: lookups?.amountsFormatted?.wallet || ""
         }
       } as unknown as PaymentDetailsContext["lookups"];
@@ -442,14 +443,22 @@ async function parse(context: PaymentDetailsContext, { data }: AnyEventObject) {
     }).catch(() => lookups.amountsFormatted?.amount || ""),
     calculate(context, {
       data: {
+        value: amount,
+        prev: lookups.amountsFormatted?.outstanding ? amount : 0
+      },
+      type: "calculate"
+    }).catch(() => lookups.amountsFormatted?.outstanding || ""),
+    calculate(context, {
+      data: {
         value: safeModel.wallet_amount ?? 0,
         prev: model?.wallet_amount ?? 0
       },
       type: "calculate"
     }).catch(() => lookups.amountsFormatted?.wallet || "")
-  ]).then(([amountFormatted, walletAmountFormatted]) => {
+  ]).then(([amountFormatted, outstandingFormatted, walletAmountFormatted]) => {
     return {
       amount: amountFormatted,
+      outstanding: outstandingFormatted,
       wallet: walletAmountFormatted
     };
   });
