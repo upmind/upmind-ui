@@ -7,6 +7,8 @@
   "order_placed_msg": "Your order has been confirmed. Please continue with payment to complete your purchase.",
   "order_partial_payment": "Thank you for your payment",
   "order_partial_payment_msg": "We've received {paid_amount}. Please continue with payment to complete your order.",
+  "order_locked": "Invoice locked",
+  "order_locked_msg": "This invoice is locked, typically because a charge attempt is in progress. Locking prevents the invoice from being charged twice.",
   "order_not_found": "Order not found",
   "order_not_found_msg": "Unfortunately, we were unable to find your order. Please click the button below to view your orders.",
   "order_payment_failed": "Unable to process payment",
