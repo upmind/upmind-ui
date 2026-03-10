@@ -40,7 +40,8 @@ test.describe("3D Secure Authentication", async () => {
           })}.com`
         },
         [],
-        true
+        true,
+        false
       );
       await page.goto(URLs.checkout);
       await registration.inputRegistration();

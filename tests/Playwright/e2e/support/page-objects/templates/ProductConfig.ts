@@ -90,6 +90,11 @@ export class ProductConfig {
   /* Meta Slots*/
   readonly summaryMetaSlot: Locator;
 
+  /* Trial Opt-In */
+  readonly trialCheckbox: Locator;
+  readonly trialBadge: Locator;
+  readonly trialDescription: Locator;
+
   constructor(page: Page) {
     this.page = page;
     this.checkboxes = new Checkboxes(page);
@@ -226,6 +231,13 @@ export class ProductConfig {
 
     /* Meta Slots */
     this.summaryMetaSlot = page.getByTestId("slots:summary-append");
+
+    /* Trial Opt-In (CheckboxCards) */
+    this.trialCheckbox = page.getByTestId("checkbox-item-try-before-you-buy");
+    this.trialBadge = this.trialCheckbox.getByTestId("badge");
+    this.trialDescription = this.trialCheckbox.getByTestId(
+      "secondary-item-description"
+    );
   }
 
   /* Product Functions */
@@ -350,5 +362,20 @@ export class ProductConfig {
 
   async clickConfirm() {
     await this.confirm.click();
+  }
+
+  /* Trial Helper Methods */
+  async isTrialSelected(): Promise<boolean> {
+    const state = await this.trialCheckbox.getAttribute("data-state");
+    return state === "on";
+  }
+
+  async toggleTrial() {
+    await this.trialCheckbox.click();
+  }
+
+  async isTrialDisabled(): Promise<boolean> {
+    const disabled = await this.trialCheckbox.getAttribute("data-disabled");
+    return disabled !== null;
   }
 }
