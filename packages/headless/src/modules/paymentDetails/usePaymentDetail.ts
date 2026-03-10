@@ -126,7 +126,8 @@ export const usePaymentDetail = (
     // TRUE if actor exists AND machine is in available state
     // OR if refreshing (loading with previously loaded data)
     const isAvailable =
-      !!actor.value && (stateMatches(actor, ["available"]) || isRefreshing);
+      !!actor.value &&
+      (stateMatches(actor, ["available", "processing"]) || isRefreshing);
 
     // TRUE if actor is not ready
     // OR machine is in initial loading state
