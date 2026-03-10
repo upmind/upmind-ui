@@ -277,6 +277,7 @@ export default createMachine(
             accountCredit: raw?.accountCredit,
             amountsFormatted: data?.amountsFormatted ?? {
               amount: "",
+              outstanding: "",
               wallet: ""
             }
           };

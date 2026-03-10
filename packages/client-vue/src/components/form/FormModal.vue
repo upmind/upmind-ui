@@ -41,7 +41,7 @@
         @click="doResolve"
       />
       <Link
-        :label="t('action.cancel')"
+        :label="cancelLabel || t('action.cancel')"
         :disabled="!isValid"
         color="muted"
         size="lg"

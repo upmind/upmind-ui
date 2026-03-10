@@ -72,6 +72,7 @@ export type AccountCreditProps = {
 };
 
 export type PaymentAmountProps = {
+  amount?: PaymentDetailsContext["model"]["amount"];
   amountsFormatted?: PaymentDetailsContext["lookups"]["amountsFormatted"];
   processing?: boolean;
   modelValue?: PaymentDetailsContext["model"]["amount"];

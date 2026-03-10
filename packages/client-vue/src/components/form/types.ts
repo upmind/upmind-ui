@@ -5,4 +5,5 @@ export interface FormModalProps extends Omit<FormProps, "ajv"> {
   title?: string;
   description?: string;
   label?: string;
+  cancelLabel?: string;
 }
