@@ -19,7 +19,7 @@ test.describe("Product UI Metadata Tests", () => {
     await expect(page).toHaveScreenshot(
       "uimetadata-billing-term-dropdown-closed"
     );
-    await page.getByTestId("form-item-terms").locator("button").click();
+    await productConfig.billingTerms.locator("button").click();
     await expect(page).toHaveScreenshot(
       "uimetadata-billing-term-dropdown-open"
     );
