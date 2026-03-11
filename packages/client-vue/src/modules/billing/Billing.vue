@@ -24,7 +24,7 @@
 
       <template #content>
         <slot name="content">
-          <BillingForm />
+          <BillingForm show-continue />
         </slot>
       </template>
 
