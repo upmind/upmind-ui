@@ -114,7 +114,6 @@ async function verify2fa({ token }: GuestContext, { data }: AnyEventObject) {
     withAccessToken: token.access_token,
     data: {
       grant_type: GrantTypes.TWOFA,
-      twofa_provider: TwofaProviders.GOOGLE,
       twofa_code: data
     }
   })
