@@ -567,7 +567,8 @@ export default {
     // Redirect to standalone billing if it needs input and user can't edit inline.
     // needsInput defaults to true before billing loads — guardBilling does the
     // real check after loading and will resolve straight to checkout if satisfied.
-    const { meta: billingMeta } = useBasketBilling();
+    const { isReady: isBillingReady, meta: billingMeta } = useBasketBilling();
+    await isBillingReady();
 
     if (billingMeta.value.needsInput) {
       const { ui } = useConfig({ context: UIContext.CHECKOUT });
@@ -590,7 +591,10 @@ export default {
     return { target: context.targetRoute ?? { name: ROUTE.CHECKOUT } };
   },
 
-  guardBilling: async (context: FunnelContext): Promise<FunnelResponse> => {
+  guardBilling: async (
+    context: FunnelContext,
+    { data: eventData }: AnyEventObject
+  ): Promise<FunnelResponse> => {
     await ensureBidAuth(context, { name: ROUTE.BILLING });
 
     // If standalone billing isn't enabled, skip to checkout
@@ -600,22 +604,24 @@ export default {
       return { target: context.targetRoute ?? { name: ROUTE.CHECKOUT } };
     }
 
-    // Explicit navigation (e.g. "Change" from checkout) — always allow access.
-    // RESOLVE sets currentRoute to the billing route; automatic flow (BASKET NEXT)
-    // leaves currentRoute as the previous route.
-    if (context.currentRoute?.name === ROUTE.BILLING) {
-      return Promise.reject();
-    }
-
-    // Automatic flow: skip to checkout if billing doesn't need input
-    const { isReady: isBillingReady, meta: billingMeta } = useBasketBilling();
-    await isBillingReady();
-
-    if (!billingMeta.value.needsInput) {
+    // Skip billing when not authenticated — billing requires a client_id
+    // to load. Checkout handles the auth redirect.
+    const { meta: basketMeta } = useBasket();
+    if (basketMeta.value.needsAuth) {
       return { target: context.targetRoute ?? { name: ROUTE.CHECKOUT } };
     }
 
-    // Still needs input — show billing page
+    // Load billing and check if it still needs input
+    const { isReady: isBillingReady, meta: billingMeta } = useBasketBilling();
+    await isBillingReady();
+
+    // Skip billing when input isn't needed, unless the user explicitly
+    // navigated here (e.g. the "Change" button on BillingSummary).
+    if (!billingMeta.value.needsInput && !eventData?.target) {
+      return { target: context.targetRoute ?? { name: ROUTE.CHECKOUT } };
+    }
+
+    // Show billing page
     return Promise.reject();
   }
 };
