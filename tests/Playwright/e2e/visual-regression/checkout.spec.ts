@@ -109,7 +109,6 @@ for (const { language, username, password } of localeLogins) {
         products.STARTER_HOSTING,
         null,
         null,
-        { register: true },
         false
       );
       await page.waitForLoadState("load");

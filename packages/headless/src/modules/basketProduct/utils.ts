@@ -9,8 +9,10 @@ import {
   useTranslateName,
   DetailedError,
   responseCodes,
-  parseError,
-  ErrorOrigin
+  parseScalarErrors,
+  parseNestedErrors,
+  ErrorOrigin,
+  parseArrayErrors
 } from "../../utils";
 import {
   useUischemaTitle,
@@ -20,7 +22,7 @@ import {
 } from "../product/utils";
 
 import {
-  concat,
+  filter,
   find,
   findLast,
   first,
@@ -29,7 +31,6 @@ import {
   has,
   isEmpty,
   isNil,
-  isObject,
   isObjectLike,
   map,
   mapValues,
@@ -67,7 +68,6 @@ import type {
   ProductSummaryDetailWithPrice,
   ProductSummaryDetail,
   PriceDetail,
-  ExternalError,
   ProductProps
 } from "../product";
 
@@ -99,8 +99,7 @@ export const parseBasketProduct = (
     details: [], // will be built up below
 
     // --- errors
-    // TODO: check the errors provided and map correctly
-    errors: omitBy(errors, isEmpty)
+    errors: errors
   };
 
   // --- because we are a full basket product, we may have a service identifier
@@ -140,7 +139,10 @@ export const parseBasketProduct = (
 
   // ---
   forEach(raw?.provision_fields, (value, key) => {
-    const fieldError = find(errors?.provisionFields, ["propertyName", key]);
+    const fieldError = filter(
+      errors,
+      e => e?.instancePath === `/provisionFields/${key}`
+    );
     const field = parseProvisionFieldSummary(key.toString(), value, fieldError);
     if (field) basketProduct.details.push(field);
   });
@@ -327,7 +329,7 @@ export function parseTermSummary(
 export function parseProvisionFieldSummary(
   key: string,
   data: any,
-  error?: ExternalError["provisionFields"]
+  error?: ErrorObject[]
 ): ProductSummaryDetail {
   const title = get(data, key, data); // just in case its an object > unti lwe have types
   return {
@@ -336,7 +338,9 @@ export function parseProvisionFieldSummary(
     title,
     error,
     meta: {
-      invalid: !!error
+      invalid: some(error, e =>
+        e.instancePath?.includes(`/provisionFields/${key}`)
+      )
     }
   };
 }
@@ -423,44 +427,26 @@ export function getBasketProduct(id: string, basket: IBasket) {
   return value;
 }
 
-export function parseBasketProductError(
-  rawError: any | any[]
-): Record<string, ErrorObject[]> {
-  const error = {
-    term: reduce(
-      rawError?.term,
-      (result: ErrorObject[], value, key) => {
-        const parsed = parseError(value, key);
-        return concat(result, parsed);
-      },
-      []
-    ),
-    options: reduce(
-      rawError?.options,
-      (result: ErrorObject[], value, key) => {
-        const parsed = parseError(value, key);
-        return concat(result, parsed);
-      },
-      []
-    ),
-    attributes: reduce(
-      rawError?.attributes,
-      (result: ErrorObject[], value, key) => {
-        const parsed = parseError(value, key);
-        return concat(result, parsed);
-      },
-      []
-    ),
-    provisionFields: reduce(
-      rawError?.provision_field_values,
-      (result: ErrorObject[], value, key) => {
-        const parsed = parseError(value, key);
-        return concat(result, parsed);
-      },
-      []
-    )
-  };
-  return omitBy(error, isEmpty) as Record<string, ErrorObject[]>;
+/**
+ * Maps API error responses to AJV-compatible ErrorObject[] with schema-aligned instancePaths.
+ *
+ * API field names differ from our schema property names:
+ *   quantity                       → /quantity
+ *   billing_cycle_months           → /term
+ *   provision_field_values.{key}   → /provisionFields/{key}
+ *   options[i].{field}             → /options
+ *   attributes[i].{field}         → /attributes
+ */
+export function parseBasketProductError(rawError: any | any[]): ErrorObject[] {
+  if (isNil(rawError) || isEmpty(rawError)) return [];
+
+  return [
+    ...parseScalarErrors(rawError, "quantity", "quantity"),
+    ...parseScalarErrors(rawError, "billing_cycle_months", "term"),
+    ...parseNestedErrors(rawError, "provision_field_values", "provisionFields"),
+    ...parseArrayErrors(rawError, "options", "options"),
+    ...parseArrayErrors(rawError, "attributes", "attributes")
+  ];
 }
 
 /**

@@ -114,7 +114,7 @@ const props = withDefaults(
     template?: CHECKOUT_TEMPLATE;
     hideSlots?: string[];
     editRoute: RouteLocationAsRelativeGeneric;
-    billingRoute?: RouteLocationAsRelativeGeneric;
+    billingRoute: RouteLocationAsRelativeGeneric;
     fieldsRoute?: RouteLocationAsRelativeGeneric;
     storefrontRoute?: StorefrontRoute;
   }>(),

@@ -1,5 +1,6 @@
 import type { ActorRef } from "xstate";
 import type { ErrorObject } from "ajv";
+import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
 
 import type {
   IBasketProduct,
@@ -195,16 +196,7 @@ export type Product = {
   /**
    * An optional object containing errors related to various aspects of the product's configuration.
    */
-  errors?: {
-    /** Errors related to the product's billing term. */
-    term?: any;
-    /** Errors related to the product's attributes. */
-    attributes?: any;
-    /** Errors related to the product's options. */
-    options?: any;
-    /** Errors related to the product's provision fields. */
-    provisionFields?: any;
-  };
+  errors?: ErrorObject[];
 };
 
 /**
@@ -830,18 +822,9 @@ export type PriceCalculations = {
 };
 
 /**
- * Type alias for external error structures, typically from validation or API responses.
+ * @deprecated Use `ErrorObject[]` directly. This alias is redundant.
  */
-export type ExternalError = {
-  /** Array of Ajv {@link ErrorObject} for term-related errors. */
-  term?: ErrorObject[];
-  /** Array of Ajv {@link ErrorObject} for option-related errors. */
-  options?: ErrorObject[];
-  /** Array of Ajv {@link ErrorObject} for attribute-related errors. */
-  attributes?: ErrorObject[];
-  /** Array of Ajv {@link ErrorObject} for provision field errors. */
-  provisionFields?: ErrorObject[];
-};
+export type ExternalError = ErrorObject[];
 
 /**
  * Interface representing a product bundle, extending {@link IRelatedObject}.
@@ -898,8 +881,8 @@ export interface ProductConfigContext {
     options?: SubproductDetails[];
     /** An array of {@link SubproductDetails} for available attributes. */
     attributes?: SubproductDetails[];
-    /** A record of provision field definitions. */
-    provisionFields?: Record<string, any>;
+    /** Raw provision fields from the API. Parsed into JSON schema during schema generation. */
+    provisionFields?: IBlueprintField[];
     /** {@link PriceCalculations} for current pricing state. */
     prices?: PriceCalculations;
     /** An array of {@link ProductModel} for bundled products. */
@@ -910,16 +893,20 @@ export interface ProductConfigContext {
   product?: Product;
   /** Optional {@link UIMeta} for UI-specific configuration. */
   meta?: UIMeta;
+  /** Generated JSON schema for the unified product config form. */
+  schema?: JsonSchema7;
+  /** Generated UI schema for the unified product config form layout. */
+  uischema?: UISchemaElement;
   // ---
   /** An `ActorRef` for a price calculation callback. */
   calculateCallback?: ActorRef<any>;
   /**
-   * An {@link ResponseError} or {@link ExternalError} object if an error occurred during configuration.
+   * An {@link ResponseError} or `ErrorObject[]` if an error occurred during configuration.
    * @todo Implement the new response errors types from the API.
    */
-  error?: ResponseError | ExternalError;
+  error?: ResponseError | ErrorObject[];
   /** External errors object. */
-  errorExternal?: ExternalError;
+  errorExternal?: ErrorObject[];
   /** Number of attempts made for an operation. */
   attempts?: number;
   // ---
