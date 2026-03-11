@@ -82,12 +82,16 @@ const { navigateNext } = useRoutingEngine();
 
 const activeTab = ref<UnifiedType>();
 
-const formMeta = computed(() => ({
-  allowContinue:
-    !addressMeta.value.isEmpty &&
-    !companyMeta.value.isEmpty &&
-    (!meta.value.needsPhone || !phoneMeta.value.isEmpty)
-}));
+const formMeta = computed(() => {
+  const phoneReady = !meta.value.needsPhone || !phoneMeta.value.isEmpty;
+
+  return {
+    allowContinue:
+      activeTab.value === UnifiedType.PERSONAL
+        ? !addressMeta.value.isEmpty && phoneReady
+        : !companyMeta.value.isEmpty && phoneReady
+  };
+});
 
 await Promise.allSettled([
   isReady(),
@@ -170,8 +174,12 @@ const tabs = computed((): TabItem[] => {
 // --- methods
 
 function doContinue() {
+  const phoneId = meta.value.needsPhone
+    ? (modelValue.value?.phoneId ?? defaultPhone()?.id)
+    : undefined;
+
   if (activeTab.value === UnifiedType.PERSONAL) {
-    modelValue.value = { ...modelValue.value, companyId: undefined };
+    modelValue.value = { ...modelValue.value, companyId: undefined, phoneId };
   } else if (
     activeTab.value === UnifiedType.BUSINESS &&
     !modelValue.value?.companyId
@@ -180,8 +188,11 @@ function doContinue() {
     modelValue.value = {
       ...modelValue.value,
       companyId: company?.id,
-      addressId: company?.addressId
+      addressId: company?.addressId,
+      phoneId
     };
+  } else {
+    modelValue.value = { ...modelValue.value, phoneId };
   }
   navigateNext();
 }
