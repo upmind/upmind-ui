@@ -565,8 +565,6 @@ export default {
     }
 
     // Redirect to standalone billing if it needs input and user can't edit inline.
-    // needsInput defaults to true before billing loads — guardBilling does the
-    // real check after loading and will resolve straight to checkout if satisfied.
     const { isReady: isBillingReady, meta: billingMeta } = useBasketBilling();
     await isBillingReady();
 
