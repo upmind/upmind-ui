@@ -162,27 +162,35 @@ export default {
       update
     } = useBasketBilling();
 
-    const { default: defaultAddress, isReady: isAddressesReady } =
-      useClientAddresses();
-    const { default: defaultCompany, isReady: isCompaniesReady } =
-      useClientCompanies();
-    const { default: defaultPhone, isReady: isPhonesReady } = useClientPhones();
+    const { isAuthenticated } = useSession();
 
-    Promise.allSettled([
-      isBillingReady(),
-      isAddressesReady(),
-      isCompaniesReady(),
-      isPhonesReady()
-    ]).then(() => {
-      if (!billingMeta.value.needsInput) return;
+    isAuthenticated()
+      .then(() => {
+        const { default: defaultAddress, isReady: isAddressesReady } =
+          useClientAddresses();
+        const { default: defaultCompany, isReady: isCompaniesReady } =
+          useClientCompanies();
+        const { default: defaultPhone, isReady: isPhonesReady } =
+          useClientPhones();
 
-      const company = billingConfig.value?.requiresCompany && defaultCompany();
-      return update({
-        companyId: company?.id,
-        addressId: company?.addressId ?? defaultAddress()?.id,
-        phoneId: defaultPhone()?.id
-      }).catch(() => {});
-    });
+        return Promise.allSettled([
+          isBillingReady(),
+          isAddressesReady(),
+          isCompaniesReady(),
+          isPhonesReady()
+        ]).then(() => {
+          if (!billingMeta.value.needsInput) return;
+
+          const company =
+            billingConfig.value?.requiresCompany && defaultCompany();
+          return update({
+            companyId: company?.id,
+            addressId: company?.addressId ?? defaultAddress()?.id,
+            phoneId: defaultPhone()?.id
+          }).catch(() => {});
+        });
+      })
+      .catch(() => {});
   },
 
   /**
