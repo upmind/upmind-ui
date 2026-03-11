@@ -8,7 +8,6 @@ export const variants = {
   color: {
     success: "bg-accent-success text-accent-success-contrast",
     danger: "bg-accent-danger text-accent-danger-contrast",
-    success: "bg-accent-success text-accent-success-contrast",
     warning: "bg-accent-warning text-accent-warning-contrast"
   }
 };
