@@ -116,14 +116,14 @@
 // --- external
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { useRouter } from "vue-router";
 
 // --- internal
 import {
   useBasketBilling,
   useClientAddresses,
   useClientCompanies,
-  useClientPhones
+  useClientPhones,
+  useRoutingEngine
 } from "@upmind-automation/headless";
 import { useStyles } from "@upmind-automation/upmind-ui";
 
@@ -149,7 +149,7 @@ const props = defineProps<{
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
-const router = useRouter();
+const { navigate } = useRoutingEngine();
 
 const styles = useStyles(["billing.card", "billing.summary"], {}, config);
 
@@ -180,5 +180,5 @@ const selectedAddress = computed(() =>
   getAddress(model.value?.addressId ?? undefined)
 );
 
-const navigateToBilling = () => router.push(props.billingRoute);
+const navigateToBilling = () => navigate(props.billingRoute);
 </script>
