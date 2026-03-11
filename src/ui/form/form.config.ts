@@ -17,6 +17,7 @@ export default {
   form: {
     root: cva("relative flex w-full flex-col gap-6"),
     loading: cva(""),
+    wrapper: cva("w-full space-y-4"),
     content: cva("transition-opacity duration-200", {
       variants: {
         disabled: {
