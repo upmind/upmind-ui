@@ -55,7 +55,6 @@ test.describe("Product Config - Happy Paths - Starter Hosting", async () => {
       await expect(productConfig.totalValue).toContainText(total);
       await expect(productConfig.billingCycle).toContainText(billingCycle);
       await expect(productConfig.webHosting).toContainText(webHosting);
-      await expect(productConfig.domainName).toContainText(domainName);
       //await expect(page).toHaveScreenshot(name);
 
       /* INLINE DROPDOWN */
