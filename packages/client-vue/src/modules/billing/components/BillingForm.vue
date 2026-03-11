@@ -11,7 +11,7 @@
         <TabPersonal v-model="modelValue" v-model:touched="touched" />
 
         <Button
-          v-if="formMeta.allowContinue"
+          v-if="props.showContinue && formMeta.allowContinue"
           :label="t('action.continue_label')"
           icon-append="arrow-right"
           color="primary"
@@ -25,7 +25,7 @@
         <TabBusiness v-model="modelValue" v-model:touched="touched" />
 
         <Button
-          v-if="formMeta.allowContinue"
+          v-if="props.showContinue && formMeta.allowContinue"
           :label="t('action.continue_label')"
           icon-append="arrow-right"
           color="primary"

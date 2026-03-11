@@ -14,6 +14,7 @@ export interface BillingFormProps {
   modelValue?: BillingModel;
   as?: Component | "div";
   billingRoute?: RouteLocationAsRelativeGeneric;
+  showContinue?: boolean;
 }
 
 export interface BillingProps {
