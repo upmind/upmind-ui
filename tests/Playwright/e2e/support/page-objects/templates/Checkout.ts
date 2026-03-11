@@ -6,6 +6,7 @@ export class Checkout {
   readonly page: Page;
   readonly checkoutContent: Locator;
   readonly basketSummary: Locator;
+  readonly addNewAddress: Locator;
   readonly addressSearch: Locator;
   readonly addressFormMessage: Locator;
   readonly addressRegionMessage: Locator;
@@ -13,6 +14,7 @@ export class Checkout {
   readonly phone: Locator;
   readonly addressManualEntry: Locator;
   readonly billingDetails: Locator;
+  readonly billingCards: Locator;
   readonly addressCard: Locator;
   readonly addressLine1: Locator;
   readonly addressLine2: Locator;
@@ -38,6 +40,12 @@ export class Checkout {
   readonly changeAmountIncrement: Locator;
   readonly changeAmountDecrement: Locator;
   readonly confirmAmountButton: Locator;
+  readonly billingSummaryChangeLink: Locator;
+  readonly billingNeedsInputAlert: Locator;
+  readonly billingAddAddress: Locator;
+  readonly billingAddCompany: Locator;
+  readonly billingAddNumber: Locator;
+  readonly backToCheckout: Locator;
   private readonly textInputComponent: TextInput;
 
   constructor(page: Page) {
@@ -46,11 +54,11 @@ export class Checkout {
 
     this.checkoutContent = this.page.getByTestId("checkout-content");
     this.basketSummary = this.page.getByTestId("section-summary");
-    this.billingDetails = this.page.getByTestId("billing");
-    this.addressCard = this.billingDetails.getByTestId("radio-card-group");
-    this.addressSearch = this.billingDetails.getByTestId(
-      "input-address-search-search"
-    );
+    this.billingDetails = this.page.getByTestId("section-billing-details");
+    this.billingCards = this.page.getByTestId("billing");
+    this.addressCard = this.page.getByTestId("radio-card-group");
+    this.addNewAddress = this.page.getByTestId("link-add-address");
+    this.addressSearch = this.page.getByTestId("input-address-search-search");
     this.addressFormMessage = this.page.getByTestId(
       "form-item-message-address"
     );
@@ -101,6 +109,13 @@ export class Checkout {
       "number-field-decrement"
     );
     this.confirmAmountButton = this.page.getByTestId("button-confirm-amount");
+    this.billingSummaryChangeLink =
+      this.billingDetails.getByTestId("link-change");
+    this.billingNeedsInputAlert = this.billingDetails.getByRole("alert");
+    this.billingAddAddress = this.billingDetails.getByText("Add address");
+    this.billingAddCompany = this.billingDetails.getByText("Add company");
+    this.billingAddNumber = this.billingDetails.getByText("Add number");
+    this.backToCheckout = this.page.getByTestId("button-back-to-checkout");
   }
 
   async manuallyInputAddress(
@@ -116,8 +131,6 @@ export class Checkout {
     if (phoneInput != null) {
       await this.phoneInput.fill(phoneInput);
     }
-    await this.saveDetails.click();
-    await this.saveDetails.click();
     await this.saveDetails.click();
   }
 

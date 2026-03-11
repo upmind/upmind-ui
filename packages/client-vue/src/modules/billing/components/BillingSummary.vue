@@ -169,14 +169,16 @@ const { getOne: getAddress, default: defaultAddress } = useClientAddresses();
 const { getOne: getCompany } = useClientCompanies();
 const { getOne: getPhone, default: defaultPhone } = useClientPhones();
 
-const selectedCompany = computed(() => getCompany(model.value?.companyId));
+const selectedCompany = computed(() =>
+  getCompany(model.value?.companyId ?? undefined)
+);
 const selectedPhone = computed(
-  () => getPhone(model.value?.phoneId) ?? defaultPhone()
+  () => getPhone(model.value?.phoneId ?? undefined) ?? defaultPhone()
 );
 const selectedAddress = computed(
   () =>
-    getAddress(selectedCompany.value?.addressId) ??
-    getAddress(model.value?.addressId) ??
+    getAddress(selectedCompany.value?.addressId ?? undefined) ??
+    getAddress(model.value?.addressId ?? undefined) ??
     defaultAddress()
 );
 
