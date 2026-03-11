@@ -114,7 +114,7 @@ export class ProductConfig {
     this.productConfigSection = page.getByTestId(
       "section-product-configuration"
     );
-    this.billingTerms = page.getByTestId("form-item-terms");
+    this.billingTerms = page.getByTestId("form-item-term");
     this.options = page.getByTestId("options-container-options");
     this.domainRegister = page.getByTestId("accordion-item-register");
     this.domainRegisterInput = page
@@ -124,16 +124,16 @@ export class ProductConfig {
     this.domainExisting = page.getByTestId("accordion-item-existing");
     this.domainBasket = page.getByTestId("accordion-item-basket");
     this.registrantNameInput = page
-      .getByTestId("form-item-update-registrant-name")
+      .getByTestId("form-item-provision-fields-update-registrant-name")
       .locator("input");
     this.registrantOrgInput = page
-      .getByTestId("form-item-update-registrant-organisation")
+      .getByTestId("form-item-provision-fields-update-registrant-organisation")
       .locator("input");
     this.registrantEmailInput = page
-      .getByTestId("form-item-update-registrant-email")
+      .getByTestId("form-item-provision-fields-update-registrant-organisation")
       .locator("input");
     this.registrantPhoneForm = page.getByTestId(
-      "form-item-update-registrant-phone"
+      "form-item-provision-fields-update-registrant-phone"
     );
     this.registrantPhoneCountrySelectButton =
       this.registrantPhoneForm.getByTestId("button-default");
@@ -143,19 +143,23 @@ export class ProductConfig {
       this.popover.popoverContent.getByRole("option");
     this.registrantPhoneInput = this.registrantPhoneForm.locator("input");
     this.registrantAddr1Input = page
-      .getByTestId("form-item-update-registrant-address-1")
+      .getByTestId("form-item-provision-fields-update-registrant-address-1")
       .locator("input");
     this.registrantCityInput = page
-      .getByTestId("form-item-update-registrant-address-city")
+      .getByTestId("form-item-provision-fields-update-registrant-address-city")
       .locator("input");
     this.registrantStateInput = page
-      .getByTestId("form-item-update-registrant-address-state")
+      .getByTestId("form-item-provision-fields-update-registrant-address-state")
       .locator("input");
     this.registrantPostcodeInput = page
-      .getByTestId("form-item-update-registrant-address-postcode")
+      .getByTestId(
+        "form-item-provision-fields-update-registrant-address-postcode"
+      )
       .locator("input");
     this.registrantCountryInput = page
-      .getByTestId("form-item-update-registrant-address-country-code")
+      .getByTestId(
+        "form-item-provision-fields-update-registrant-address-country-code"
+      )
       .locator("button");
     this.promoBadge = page.getByTestId("badge");
 
