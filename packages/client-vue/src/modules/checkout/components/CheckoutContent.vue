@@ -47,7 +47,11 @@
   <!-- Billing -->
   <template v-if="showCheckout">
     <BillingSummary
-      v-if="props.billingRoute && ui.billingDetails.isReadonly"
+      v-if="
+        props.billingRoute &&
+        !billingDetailsDisabled &&
+        ui.billingDetails.isReadonly
+      "
       :billing-route="props.billingRoute"
     />
     <BillingForm v-else />
@@ -63,7 +67,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { provide } from "vue";
+import { computed, provide } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -72,7 +76,7 @@ import {
   useBasketFields,
   useBasketPaymentDetails
 } from "@upmind-automation/headless";
-import { useConfig } from "@upmind-automation/headless";
+import { useConfig, UIContext } from "@upmind-automation/headless";
 
 // --- components
 import Section from "../../../components/section/Section.vue";
@@ -100,6 +104,12 @@ const { t } = useI18n();
 const { meta, uischema, checkout, errors } = useBasket();
 
 const { ui } = useConfig();
+
+const billingDetailsDisabled = computed(
+  () =>
+    useConfig({ context: UIContext.BILLING_DETAILS }).data
+      .billingDetailsDisabled
+);
 
 const paymentDetails = useBasketPaymentDetails();
 provide("usePaymentDetails", paymentDetails);

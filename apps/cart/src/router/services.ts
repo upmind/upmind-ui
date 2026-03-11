@@ -571,7 +571,8 @@ export default {
 
     if (billingMeta.value.needsInput) {
       const { ui } = useConfig({ context: UIContext.CHECKOUT });
-      if (ui.billingDetails.isReadonly) {
+      const { data } = useConfig({ context: UIContext.BILLING_DETAILS });
+      if (!data.billingDetailsDisabled && ui.billingDetails.isReadonly) {
         const { router } = useRoutingEngine();
         if (
           !includes(
@@ -594,7 +595,8 @@ export default {
 
     // If standalone billing isn't enabled, skip to checkout
     const { ui } = useConfig({ context: UIContext.CHECKOUT });
-    if (!ui.billingDetails.isReadonly) {
+    const { data } = useConfig({ context: UIContext.BILLING_DETAILS });
+    if (data.billingDetailsDisabled || !ui.billingDetails.isReadonly) {
       return { target: context.targetRoute ?? { name: ROUTE.CHECKOUT } };
     }
 

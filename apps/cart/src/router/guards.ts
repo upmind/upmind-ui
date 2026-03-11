@@ -85,6 +85,7 @@ export default {
    */
   hasStandaloneBilling: () => {
     const { ui } = useConfig({ context: UIContext.CHECKOUT });
-    return ui.billingDetails.isReadonly;
+    const { data } = useConfig({ context: UIContext.BILLING_DETAILS });
+    return !data.billingDetailsDisabled && ui.billingDetails.isReadonly;
   }
 };
