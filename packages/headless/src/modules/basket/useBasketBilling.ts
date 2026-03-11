@@ -91,8 +91,7 @@ export const useBasketBilling = () => {
       needsInput:
         (needsAddress && !hasAddress) ||
         (needsCompany && !hasCompany) ||
-        (needsPhone && !hasPhone) ||
-        (!hasRequirements && !hasAddress && !hasCompany && !hasPhone)
+        (needsPhone && !hasPhone)
     };
   });
 

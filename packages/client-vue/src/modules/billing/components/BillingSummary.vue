@@ -76,7 +76,7 @@
         <div :class="styles.billing.summary.row">
           <dt
             :class="styles.billing.summary.label"
-            :data-danger="!selectedAddress"
+            :data-danger="billingMeta.needsAddress && !selectedAddress"
           >
             {{ t("text.address") }}:
           </dt>
@@ -102,7 +102,7 @@
             <Link
               :label="t('action.add_address')"
               size="sm"
-              color="danger"
+              :color="billingMeta.needsAddress ? 'danger' : 'primary'"
               @click="navigateToBilling"
             />
           </dd>
