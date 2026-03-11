@@ -7,7 +7,11 @@ import {
   type FunnelTarget,
   QUERY_PARAMS,
   useBasket,
+  useBasketBilling,
   useBasketProductsPending,
+  useClientAddresses,
+  useClientCompanies,
+  useClientPhones,
   useQueryParams,
   useSession
 } from "@upmind-automation/client-vue";
@@ -145,6 +149,40 @@ export default {
   logout: () => {
     const { logout } = useSession();
     logout();
+  },
+
+  /**
+   * Sets billing defaults from the client's default address, company, and phone.
+   */
+  setBillingDefaults: () => {
+    const {
+      isReady: isBillingReady,
+      meta: billingMeta,
+      config: billingConfig,
+      update
+    } = useBasketBilling();
+
+    const { default: defaultAddress, isReady: isAddressesReady } =
+      useClientAddresses();
+    const { default: defaultCompany, isReady: isCompaniesReady } =
+      useClientCompanies();
+    const { default: defaultPhone, isReady: isPhonesReady } = useClientPhones();
+
+    Promise.allSettled([
+      isBillingReady(),
+      isAddressesReady(),
+      isCompaniesReady(),
+      isPhonesReady()
+    ]).then(() => {
+      if (!billingMeta.value.needsInput) return;
+
+      const company = billingConfig.value?.requiresCompany && defaultCompany();
+      return update({
+        companyId: company?.id,
+        addressId: company?.addressId ?? defaultAddress()?.id,
+        phoneId: defaultPhone()?.id
+      }).catch(() => {});
+    });
   },
 
   /**

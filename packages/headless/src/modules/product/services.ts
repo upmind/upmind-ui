@@ -207,7 +207,7 @@ async function parse(context: ProductConfigContext, { data }: AnyEventObject) {
     attributes: data?.attributes ?? context?.model?.attributes ?? {},
     provisionFields:
       data?.provisionFields ?? context?.model?.provisionFields ?? {},
-    startTrial: data?.startTrial ?? context?.model?.startTrial ?? false
+    startTrial: data?.startTrial ?? context?.model?.startTrial
   };
 
   // safety check, ensure we have a valid product
