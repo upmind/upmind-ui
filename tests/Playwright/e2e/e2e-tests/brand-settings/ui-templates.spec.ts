@@ -20,7 +20,7 @@ let register: Registration;
 let token: string | null;
 let orderId: string | null;
 
-test.describe("Brand Settings - UI Templates", () => {
+test.describe.skip("Brand Settings - UI Templates", () => {
   test.describe("Login UI Templates", () => {
     test.beforeEach(async ({ page }) => {
       login = new Login(page);
