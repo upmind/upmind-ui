@@ -8,24 +8,24 @@ export class Form {
     this.page = page;
   }
 
-  async getFormField(label: string) {
-    const formField = this.page.getByTestId(`form-item-${kebabCase(label)}`);
+  async getFormField(field: string) {
+    const formField = this.page.getByTestId(`${kebabCase(field)}`);
     return formField;
   }
 
-  async getFormInput(label: string): Promise<Locator> {
-    const formField = await this.getFormField(label);
+  async getFormInput(field: string): Promise<Locator> {
+    const formField = await this.getFormField(field);
     const formInput = await formField.locator("input, textarea, select");
     return formInput;
   }
 
-  async fillFormInput(label: string, content: string) {
-    let inputField = await this.getFormInput(label);
+  async fillFormInput(field: string, content: string) {
+    let inputField = await this.getFormInput(field);
     await inputField.fill(content);
   }
 
-  async clearFormInput(label: string) {
-    const formInput = await this.getFormInput(label);
+  async clearFormInput(field: string) {
+    const formInput = await this.getFormInput(field);
     return formInput.clear();
   }
 }

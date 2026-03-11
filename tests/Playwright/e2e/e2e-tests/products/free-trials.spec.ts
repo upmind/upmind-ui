@@ -20,7 +20,6 @@ let registration: Registration;
 
 const trialButtonId = "button-try-free-for-7-days";
 const trialPeriod = "7 days";
-const billingTerm = "1-year";
 
 test.describe("Free Trials @free-trials", () => {
   test.describe("Product Config — Optional Trial", () => {
@@ -39,7 +38,7 @@ test.describe("Free Trials @free-trials", () => {
       await expect(productConfig.trialBadge).toContainText("Free Trial");
       await expect(productConfig.trialDescription).toBeVisible();
       await expect(productConfig.trialDescription).toContainText(
-        `Good news—you can now try this product free for ${trialPeriod}, no strings attached. After your trial period ends, your ${billingTerm} plan will then begin.`
+        `Good news—you can now try this product free for ${trialPeriod}, no strings attached. After your trial period ends, your plan will then begin.`
       );
     });
     test("1.3 User can deselect trial (opt out)", async () => {
@@ -79,7 +78,7 @@ test.describe("Free Trials @free-trials", () => {
       await expect(productConfig.trialBadge).toContainText("Free Trial");
       await expect(productConfig.trialDescription).toBeVisible();
       await expect(productConfig.trialDescription).toContainText(
-        `Good news—you can now try this product free for ${trialPeriod}, no strings attached. After your trial period ends, your ${billingTerm} plan will then begin.`
+        `Good news—you can now try this product free for ${trialPeriod}, no strings attached. After your trial period ends, your plan will then begin.`
       );
     });
   });
