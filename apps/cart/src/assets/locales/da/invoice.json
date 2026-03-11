@@ -1,8 +1,10 @@
 {
-  "order_complete": "Bestilling afsluttet!",
-  "order_complete_msg": "Vi har sendt dig en e-mail med alt, hvad du behøver at vide om dit køb.",
+  "order_complete": "Tak for din ordre – den er **gennemført**!",
+  "order_complete_msg": "Vi har sendt dig en ordrebekræftelse via e-mail med detaljerne om din ordre. Du modtager den om lidt, og den indeholder alt, du har brug for at vide om dit køb.",
   "order_free": "Intet tilbage at betale",
   "order_free_msg": "Din ordre er blevet afgivet. Ingen betaling kræves.",
+  "order_locked": "Faktura spærret",
+  "order_locked_msg": "Denne faktura er spærret, typisk fordi et debiteringsforsøg er i gang. Spærringen forhindrer, at fakturaen bliver debiteret to gange.",
   "order_not_found": "Ordren blev ikke fundet!",
   "order_not_found_msg": "Desværre kunne vi ikke finde din ordre. Klik på knappen nedenfor for at se dine ordrer.",
   "order_partial_payment": "Tak for din betaling",
@@ -19,6 +21,7 @@
   "payment_retry": "Betaling for denne ordre skal stadig betales fuldt ud.",
   "payment_retry_action": "Prøv ny betalingsmetode",
   "payment_retry_msg": "Desværre mislykkedes dit tidligere betalingsforsøg – dette kan skyldes en række årsager. Prøv igen med en anden betalingsmetode.",
+  "payment_success_banner": "Betalingen for denne ordre er modtaget {date}.",
   "product_information": "Produktinformation",
   "your_order": "Din ordre"
 }

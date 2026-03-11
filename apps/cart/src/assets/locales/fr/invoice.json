@@ -1,8 +1,10 @@
 {
-  "order_complete": "Commande terminée !",
-  "order_complete_msg": "Nous vous avons envoyé un e-mail contenant toutes les informations nécessaires concernant votre achat.",
+  "order_complete": "Merci pour votre commande !",
+  "order_complete_msg": "Nous vous avons envoyé un e-mail de confirmation avec les détails de votre commande. Vous y trouverez également toutes les informations dont vous avez besoin concernant votre achat.",
   "order_free": "Plus rien à payer",
   "order_free_msg": "Votre commande a été enregistrée avec succès. Aucun paiement n'est requis.",
+  "order_locked": "Facture verrouillée",
+  "order_locked_msg": "Cette facture est verrouillée, généralement parce qu’une tentative de paiement est en cours. Le verrouillage évite un double débit de la facture.",
   "order_not_found": "Commande introuvable !",
   "order_not_found_msg": "Malheureusement, nous n'avons pas pu trouver votre commande. Veuillez cliquer sur le bouton ci-dessous pour afficher vos commandes.",
   "order_partial_payment": "Merci pour votre paiement.",
@@ -19,6 +21,7 @@
   "payment_retry": "Le paiement de cette commande reste dû dans son intégralité.",
   "payment_retry_action": "Essayer un nouveau mode de paiement",
   "payment_retry_msg": "Malheureusement, votre précédente tentative de paiement n'a pas abouti. Cela peut être dû à plusieurs raisons. Veuillez réessayer en utilisant un autre moyen de paiement.",
+  "payment_success_banner": "Le paiement de cette commande a bien été reçu {date}.",
   "product_information": "Informations sur le produit",
   "your_order": "Votre commande"
 }

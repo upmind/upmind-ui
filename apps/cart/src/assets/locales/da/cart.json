@@ -38,6 +38,7 @@
   "pay_with_stored": "Betal med en eksisterende metode",
   "payment_amount": "Betalingsbeløb",
   "payment_amount_msg": "Din ordretotal er {amount}. Indtast det beløb, du ønsker at betale nu. Den resterende saldo skal betales, før din ordre aktiveres.",
+  "payment_amount_reset": "Betal det udestående beløb på {amount}",
   "payment_awaiting_approval": "**Venter** på godkendelse",
   "payment_awaiting_approval_md": "@.markdown:{'cart.payment_awaiting_approval'}",
   "payment_awaiting_approval_msg": "Vi venter på godkendelse. Det burde kun tage et øjeblik.",

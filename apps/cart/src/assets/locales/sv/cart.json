@@ -38,6 +38,7 @@
   "pay_with_stored": "Betala med en befintlig metod",
   "payment_amount": "Betalningsbelopp",
   "payment_amount_msg": "Ditt totala orderbelopp är {amount}. Ange beloppet du vill betala nu. Återstående saldo måste betalas innan din order aktiveras.",
+  "payment_amount_reset": "Betala återstående belopp på {amount}",
   "payment_awaiting_approval": "**Väntar** på godkännande",
   "payment_awaiting_approval_md": "@.markdown:{'cart.payment_awaiting_approval'}",
   "payment_awaiting_approval_msg": "Vi väntar på godkännande. Det här borde bara ta en stund.",

@@ -1,8 +1,10 @@
 {
-  "order_complete": "Beställningen är klar!",
-  "order_complete_msg": "Vi har skickat ett e-postmeddelande med all information du behöver om ditt köp.",
+  "order_complete": "Tack för din beställning!",
+  "order_complete_msg": "Vi har skickat ett bekräftelsemejl med detaljerna om din beställning. Där hittar du allt du behöver veta om ditt köp.",
   "order_free": "Inget kvar att betala",
   "order_free_msg": "Din beställning har gjorts. Ingen betalning krävs.",
+  "order_locked": "Faktura låst",
+  "order_locked_msg": "Den här fakturan är låst, vanligtvis eftersom ett debiteringsförsök pågår. Låsningen förhindrar att fakturan debiteras dubbelt.",
   "order_not_found": "Beställningen hittades inte!",
   "order_not_found_msg": "Tyvärr kunde vi inte hitta din beställning. Klicka på knappen nedan för att visa dina beställningar.",
   "order_partial_payment": "Tack för din betalning",
@@ -19,6 +21,7 @@
   "payment_retry": "Betalningen för denna beställning ska fortfarande betalas i sin helhet.",
   "payment_retry_action": "Prova ny betalningsmetod",
   "payment_retry_msg": "Tyvärr misslyckades ditt tidigare betalningsförsök – detta kan bero på flera olika orsaker. Försök igen med en alternativ metod.",
+  "payment_success_banner": "Betalningen för den här beställningen har mottagits {date}.",
   "product_information": "Produktinformation",
   "your_order": "Din beställning"
 }

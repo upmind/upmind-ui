@@ -38,6 +38,7 @@
   "pay_with_stored": "Pay with an existing method",
   "payment_amount": "Payment amount",
   "payment_amount_msg": "Your order total is {amount}. Enter the amount you’d like to pay now. The remaining balance must be paid before your order is activated.",
+  "payment_amount_reset": "Pay outstanding balance of {amount}",
   "payment_awaiting_approval": "**Waiting** for approval",
   "payment_awaiting_approval_md": "@.markdown:{'cart.payment_awaiting_approval'}",
   "payment_awaiting_approval_msg": "We're waiting for approval. This should only take a moment.",

@@ -1,8 +1,10 @@
 {
-  "order_complete": "Objednávka dokončená!",
-  "order_complete_msg": "Poslali sme vám e-mail so všetkými informáciami, ktoré potrebujete vedieť o vašom nákupe.",
+  "order_complete": "Ďakujeme za objednávku. **Dokončená**!",
+  "order_complete_msg": "Poslali sme vám potvrdzovací e-mail s podrobnosťami o vašej objednávke. Nájdete v ňom všetko, čo potrebujete vedieť o vašom nákupe.",
   "order_free": "Nič nezostáva na zaplatenie",
   "order_free_msg": "Vaša objednávka bola úspešne odoslaná. Platba nie je potrebná.",
+  "order_locked": "Uzamknutá faktúra",
+  "order_locked_msg": "Táto faktúra je uzamknutá, zvyčajne preto, že práve prebieha pokus o strhnutie platby. Uzamknutie zabraňuje tomu, aby bola platba za faktúru strhnutá dvakrát.",
   "order_not_found": "Objednávka nebola nájdená!",
   "order_not_found_msg": "Bohužiaľ, vašu objednávku sme nenašli. Kliknite na tlačidlo nižšie, aby ste si mohli prezrieť svoje objednávky.",
   "order_partial_payment": "Ďakujeme za platbu",
@@ -19,6 +21,7 @@
   "payment_retry": "Platba za túto objednávku je stále splatná v plnej výške.",
   "payment_retry_action": "Vyskúšajte novú platbu",
   "payment_retry_msg": "Bohužiaľ, váš predchádzajúci pokus o platbu nebol úspešný – môže to mať viacero dôvodov. Skúste to prosím znovu pomocou alternatívnej metódy.",
+  "payment_success_banner": "Platba za túto objednávku bola prijatá {date}.",
   "product_information": "Informácie o produkte",
   "your_order": "Vaša objednávka"
 }
