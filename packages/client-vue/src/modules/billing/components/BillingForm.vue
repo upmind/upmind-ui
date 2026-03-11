@@ -1,9 +1,5 @@
 <template>
-  <Loading
-    :active="meta.isProcessing"
-    class-active="w-full rounded"
-    :class="meta.isProcessing ? 'overflow-hidden' : ''"
-  >
+  <Loading :active="meta.isProcessing" class-active="w-full rounded">
     <Sections
       id="basket-billing"
       class="min-h-32"
@@ -13,10 +9,30 @@
     >
       <template v-slot:[`section-personal`]>
         <TabPersonal v-model="modelValue" v-model:touched="touched" />
+
+        <Button
+          v-if="formMeta.allowContinue"
+          :label="t('action.continue_label')"
+          icon-append="arrow-right"
+          color="primary"
+          size="lg"
+          block
+          @click="doContinue"
+        />
       </template>
 
       <template v-slot:[`section-business`]>
         <TabBusiness v-model="modelValue" v-model:touched="touched" />
+
+        <Button
+          v-if="formMeta.allowContinue"
+          :label="t('action.continue_label')"
+          icon-append="arrow-right"
+          color="primary"
+          size="lg"
+          block
+          @click="doContinue"
+        />
       </template>
     </Sections>
   </Loading>
@@ -34,11 +50,12 @@ import {
   useBasketBilling,
   useClientAddresses,
   useClientCompanies,
-  useClientPhones
+  useClientPhones,
+  useRoutingEngine
 } from "@upmind-automation/headless";
 
 // --- components
-import { Loading } from "@upmind-automation/upmind-ui";
+import { Loading, Button } from "@upmind-automation/upmind-ui";
 import Sections from "../../../components/section/Sections.vue";
 import TabBusiness from "./TabBusiness.vue";
 import TabPersonal from "./TabPersonal.vue";
@@ -59,10 +76,18 @@ const { t } = useI18n();
 
 const { client } = useSession();
 const { isReady, meta, config, update, model } = useBasketBilling();
+const { navigateNext } = useRoutingEngine();
 
 // ensure we preload our data for speed between the tab
 
 const activeTab = ref<UnifiedType>();
+
+const formMeta = computed(() => ({
+  allowContinue:
+    !addressMeta.value.isEmpty &&
+    !companyMeta.value.isEmpty &&
+    (!meta.value.needsPhone || !phoneMeta.value.isEmpty)
+}));
 
 await Promise.allSettled([
   isReady(),
@@ -86,9 +111,21 @@ await Promise.allSettled([
 
 // --- summary
 
-const { getOne: getAddress } = useClientAddresses();
-const { getOne: getCompany } = useClientCompanies();
-const { getOne: getPhone } = useClientPhones();
+const {
+  getOne: getAddress,
+  meta: addressMeta,
+  default: defaultAddress
+} = useClientAddresses();
+const {
+  getOne: getCompany,
+  meta: companyMeta,
+  default: defaultCompany
+} = useClientCompanies();
+const {
+  getOne: getPhone,
+  meta: phoneMeta,
+  default: defaultPhone
+} = useClientPhones();
 
 const selectedAddress = computed(() =>
   getAddress(model.value?.addressId ?? undefined)
@@ -129,6 +166,25 @@ const tabs = computed((): TabItem[] => {
 
   return tabItems;
 });
+
+// --- methods
+
+function doContinue() {
+  if (activeTab.value === UnifiedType.PERSONAL) {
+    modelValue.value = { ...modelValue.value, companyId: undefined };
+  } else if (
+    activeTab.value === UnifiedType.BUSINESS &&
+    !modelValue.value?.companyId
+  ) {
+    const company = defaultCompany();
+    modelValue.value = {
+      ...modelValue.value,
+      companyId: company?.id,
+      addressId: company?.addressId
+    };
+  }
+  navigateNext();
+}
 
 // --- side effects
 

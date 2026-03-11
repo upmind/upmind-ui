@@ -44,7 +44,15 @@
       @processing="emits('processing', $event)"
       :no-actions="!openForm"
       v-model:touched="touched"
-    />
+    >
+      <template v-if="$slots.additional" #additional>
+        <slot name="additional" />
+      </template>
+    </Form>
+
+    <div v-if="$slots.additional && !openForm && !meta.isEmpty" class="pt-4">
+      <slot name="additional" />
+    </div>
   </div>
 </template>
 

@@ -102,16 +102,6 @@ export const useUischema = ({
     elements: []
   };
 
-  if (get(config, BrandConfigKeys.CHECKOUT_REQUIRE_PHONE)) {
-    uiSchema.elements.push({
-      type: "Control",
-      scope: "#/properties/phone",
-      options: {
-        detail: usePhoneUischema()
-      }
-    } as any);
-  }
-
   if (type == UnifiedType.PERSONAL) {
     const addressSchema = useAddressUischema({ regions, countries });
 
@@ -138,6 +128,16 @@ export const useUischema = ({
           countries,
           regions
         })
+      }
+    } as any);
+  }
+
+  if (get(config, BrandConfigKeys.CHECKOUT_REQUIRE_PHONE)) {
+    uiSchema.elements.push({
+      type: "Control",
+      scope: "#/properties/phone",
+      options: {
+        detail: usePhoneUischema()
       }
     } as any);
   }

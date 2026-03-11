@@ -760,8 +760,8 @@ export default <FunnelProps>{
           actions: [assign({ targetRoute: { name: ROUTE.CHECKOUT } })]
         },
         BACK: {
-          target: ROUTE.CHECKOUT,
-          actions: [assign({ targetRoute: { name: ROUTE.CHECKOUT } })]
+          target: ROUTE.BASKET,
+          actions: [assign({ targetRoute: { name: ROUTE.BASKET } })]
         }
       }
     },
