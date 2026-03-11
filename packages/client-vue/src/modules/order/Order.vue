@@ -484,7 +484,11 @@ watch(
         text: t("invoice.payment_failed_banner"),
         type: "danger"
       });
-    } else if (isComplete && orderData.value?.datePaid?.date) {
+    } else if (
+      isComplete &&
+      !meta.value.isFree &&
+      orderData.value?.datePaid?.date
+    ) {
       showAnnouncement({
         text: t("invoice.payment_success_banner", {
           date: orderData.value.datePaid.date

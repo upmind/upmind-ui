@@ -47,7 +47,7 @@
   <!-- Billing -->
   <template v-if="showCheckout">
     <BillingSummary
-      v-if="ui.billingDetails.isReadonly"
+      v-if="props.billingRoute && ui.billingDetails.isReadonly"
       :billing-route="props.billingRoute"
     />
     <BillingForm v-else />
@@ -91,7 +91,7 @@ import type { RouteLocationAsRelativeGeneric } from "vue-router";
 const props = defineProps<{
   showCheckout: boolean;
   editRoute: RouteLocationAsRelativeGeneric;
-  billingRoute: RouteLocationAsRelativeGeneric;
+  billingRoute?: RouteLocationAsRelativeGeneric;
   fieldsRoute?: RouteLocationAsRelativeGeneric;
 }>();
 // -----------------------------------------------------------------------------

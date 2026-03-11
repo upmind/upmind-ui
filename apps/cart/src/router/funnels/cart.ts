@@ -242,10 +242,17 @@ export default <FunnelProps>{
         ]
       },
       on: {
-        NEXT: {
-          target: ROUTE.CHECKOUT,
-          actions: [assign({ targetRoute: { name: ROUTE.CHECKOUT } })]
-        },
+        NEXT: [
+          {
+            target: ROUTE.BILLING,
+            actions: [assign({ targetRoute: { name: ROUTE.BILLING } })],
+            cond: "hasStandaloneBilling"
+          },
+          {
+            target: ROUTE.CHECKOUT,
+            actions: [assign({ targetRoute: { name: ROUTE.CHECKOUT } })]
+          }
+        ],
         BACK: {
           target: ROUTE.CATALOGUE,
           actions: [assign({ targetRoute: { name: ROUTE.CATALOGUE } })]
@@ -662,7 +669,7 @@ export default <FunnelProps>{
      * or return to the BASKET to make changes.
      */
     [ROUTE.CHECKOUT]: {
-      entry: ["setCurrency", "setBasket"],
+      entry: ["setCurrency", "setBasket", "setBillingDefaults"],
       invoke: {
         src: "guardCheckout",
         onDone: { actions: ["setResolved"] },
@@ -688,6 +695,11 @@ export default <FunnelProps>{
             target: ROUTE.BASKET_PRODUCT_REQUIRES_ACTION,
             actions: ["setResolving"],
             cond: "hasInvalidProducts"
+          },
+          {
+            target: ROUTE.BILLING,
+            actions: ["setResolving"],
+            cond: "isBilling"
           },
           { target: ROUTE.BASKET, actions: ["setResolving"] }
         ]
@@ -727,25 +739,23 @@ export default <FunnelProps>{
     /**
      * 🎯 ROUTE.BILLING
      * This state manages the standalone billing details page.
-     * It reuses the checkout guard to ensure the user is authenticated and has products.
-     * In case of an error, it follows the same redirect logic as checkout.
-     * From here, users return to the CHECKOUT route.
+     * If billing is already satisfied, guardBilling resolves and skips to checkout.
+     * If user input is needed, the page renders and Billing.vue auto-navigates
+     * to checkout via NEXT when billing completes.
+     * Users can also return to CHECKOUT via BACK.
      */
     [ROUTE.BILLING]: {
-      entry: ["setCurrency"],
+      entry: ["setCurrency", "setBillingDefaults"],
       invoke: {
-        src: "guardCheckout",
-        onDone: { actions: ["setResolved"] },
-        onError: [
-          {
-            target: ROUTE.SESSION,
-            actions: ["setResolving"],
-            cond: "isSession"
-          },
-          { target: ROUTE.BASKET, actions: ["setResolving"] }
-        ]
+        src: "guardBilling",
+        onDone: { target: ROUTE.CHECKOUT, actions: ["setResolving"] },
+        onError: { actions: ["setResolved"] }
       },
       on: {
+        NEXT: {
+          target: ROUTE.CHECKOUT,
+          actions: [assign({ targetRoute: { name: ROUTE.CHECKOUT } })]
+        },
         BACK: {
           target: ROUTE.CHECKOUT,
           actions: [assign({ targetRoute: { name: ROUTE.CHECKOUT } })]

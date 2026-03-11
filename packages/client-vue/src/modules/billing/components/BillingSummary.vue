@@ -1,5 +1,6 @@
 <template>
   <Section
+    id="basket-billing"
     :label="t('text.billing_details')"
     icon="building-07"
     :card="false"
@@ -7,7 +8,7 @@
     :actions="[
       {
         label: t('action.change'),
-        handler: () => props.billingRoute && router.push(props.billingRoute)
+        handler: navigateToBilling
       }
     ]"
   >
@@ -165,21 +166,18 @@ await Promise.allSettled([
 
 // --- summary
 
-const { getOne: getAddress, default: defaultAddress } = useClientAddresses();
+const { getOne: getAddress } = useClientAddresses();
 const { getOne: getCompany } = useClientCompanies();
-const { getOne: getPhone, default: defaultPhone } = useClientPhones();
+const { getOne: getPhone } = useClientPhones();
 
 const selectedCompany = computed(() =>
   getCompany(model.value?.companyId ?? undefined)
 );
-const selectedPhone = computed(
-  () => getPhone(model.value?.phoneId ?? undefined) ?? defaultPhone()
+const selectedPhone = computed(() =>
+  getPhone(model.value?.phoneId ?? undefined)
 );
-const selectedAddress = computed(
-  () =>
-    getAddress(selectedCompany.value?.addressId ?? undefined) ??
-    getAddress(model.value?.addressId ?? undefined) ??
-    defaultAddress()
+const selectedAddress = computed(() =>
+  getAddress(model.value?.addressId ?? undefined)
 );
 
 const navigateToBilling = () => router.push(props.billingRoute);
