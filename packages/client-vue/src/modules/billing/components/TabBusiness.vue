@@ -81,7 +81,7 @@ import Manage from "../../../components/manage/Manage.vue";
 import Form from "../../../components/manage/Form.vue";
 
 // --- utils
-import { find, set } from "lodash-es";
+import { find } from "lodash-es";
 
 // --- types
 import { UnifiedType } from "@upmind-automation/headless";
@@ -159,25 +159,34 @@ const selectedPhone = computed({
 // --- methods
 
 function doResolve(value: BillingModel) {
-  selectedPhone.value = billingMeta.value.needsPhone
-    ? (value?.phoneId ?? defaultPhone()?.id ?? undefined)
-    : undefined;
-
-  selectedCompany.value = value?.companyId ?? defaultCompany()?.id ?? undefined;
+  const company =
+    find(companies.value, ["id", value?.companyId]) ?? defaultCompany();
+  modelValue.value = {
+    phoneId: billingMeta.value.needsPhone
+      ? (value?.phoneId ?? defaultPhone()?.id ?? undefined)
+      : undefined,
+    companyId: company?.id ?? value?.companyId,
+    addressId: company?.addressId
+  };
   showForm.value = false;
 }
 
 // --- side effects
 
 await Promise.all([isCompaniesReady(), isPhonesReady()]).then(() => {
-  // ensure we select our defaults
-  modelValue.value = {
-    companyId: modelValue.value?.companyId ?? defaultCompany()?.id,
-    addressId: modelValue.value?.addressId ?? defaultCompany()?.addressId,
-    phoneId: billingMeta.value.needsPhone
-      ? (modelValue.value?.phoneId ?? defaultPhone()?.id)
-      : undefined
-  };
+  const hasDefaults = !!defaultCompany()?.id || !!defaultPhone()?.id;
+  const needsDefaults =
+    hasDefaults && !modelValue.value?.companyId && !modelValue.value?.phoneId;
+
+  if (needsDefaults) {
+    modelValue.value = {
+      companyId: modelValue.value?.companyId ?? defaultCompany()?.id,
+      addressId: modelValue.value?.addressId ?? defaultCompany()?.addressId,
+      phoneId: billingMeta.value.needsPhone
+        ? (modelValue.value?.phoneId ?? defaultPhone()?.id)
+        : undefined
+    };
+  }
 
   showForm.value = companyMeta.value.isEmpty && phoneMeta.value.isEmpty;
 });

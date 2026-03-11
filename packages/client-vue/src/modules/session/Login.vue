@@ -1,5 +1,6 @@
 <template>
-  <component :is="templateVariant" v-bind="props" v-if="!isResolving">
+  <Loading v-if="isResolving" />
+  <component :is="templateVariant" v-bind="props" v-else>
     <template #back>
       <slot name="back">
         <Back />
@@ -77,6 +78,7 @@ import { Link } from "@upmind-automation/upmind-ui";
 import Auth from "./components/Auth.vue";
 import Hero from "../../components/hero/Hero.vue";
 import Back from "./components/Back.vue";
+import Loading from "../system/Loading.vue";
 import Section from "../../components/section/Section.vue";
 import Summary from "../basket/components/Summary.vue";
 
