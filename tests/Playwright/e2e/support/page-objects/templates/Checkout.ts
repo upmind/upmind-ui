@@ -7,6 +7,8 @@ export class Checkout {
   readonly checkoutContent: Locator;
   readonly basketSummary: Locator;
   readonly addNewAddress: Locator;
+  readonly addNewCompany: Locator;
+  readonly addNewPhone: Locator;
   readonly addressSearch: Locator;
   readonly addressFormMessage: Locator;
   readonly addressRegionMessage: Locator;
@@ -58,6 +60,8 @@ export class Checkout {
     this.billingCards = this.page.getByTestId("billing");
     this.addressCard = this.page.getByTestId("radio-card-group");
     this.addNewAddress = this.page.getByTestId("link-add-address");
+    this.addNewCompany = this.page.getByTestId("link-add-company");
+    this.addNewPhone = this.page.getByTestId("link-add-number");
     this.addressSearch = this.page.getByTestId("input-address-search-search");
     this.addressFormMessage = this.page.getByTestId(
       "form-item-message-address"
@@ -149,7 +153,8 @@ export class Checkout {
   async clickPlaceOrderAndPay() {
     const placeOrderButton = this.placeOrderAndPay;
     await expect(placeOrderButton).toBeEnabled();
-    await expect
+    const currentUrl = this.page.url();
+    const pollForDisabled = expect
       .poll(
         async () => {
           await placeOrderButton.click();
@@ -158,6 +163,11 @@ export class Checkout {
         { timeout: 10000, intervals: [500, 1000, 2000] }
       )
       .toBe(true);
+    const waitForNavigation = this.page.waitForURL(
+      url => url.toString() !== currentUrl,
+      { timeout: 10000 }
+    );
+    await Promise.race([pollForDisabled, waitForNavigation]);
   }
 
   async clickPlaceOrder() {
