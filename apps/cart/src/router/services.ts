@@ -15,6 +15,8 @@ import {
   useBasketProducts,
   isDomainProduct,
   useBasketBilling,
+  useConfig,
+  UIContext,
   FunnelActions,
   type FunnelTarget
 } from "@upmind-automation/client-vue";
@@ -562,12 +564,50 @@ export default {
       }
     }
 
-    // if we are definitely going to checkout, ensure billing is ready!
-    // await Promise.allSettled([
-    //   isBillingReady(),
-    //   useClientAddresses().isReady(),
-    //   useClientCompanies().isReady()
-    // ]);
+    // Redirect to standalone billing if it needs input and user can't edit inline.
+    // needsInput defaults to true before billing loads — guardBilling does the
+    // real check after loading and will resolve straight to checkout if satisfied.
+    const { meta: billingMeta } = useBasketBilling();
+
+    if (billingMeta.value.needsInput) {
+      const { ui } = useConfig({ context: UIContext.CHECKOUT });
+      if (ui.billingDetails.isReadonly) {
+        const { router } = useRoutingEngine();
+        if (
+          !includes(
+            [ROUTE.BILLING, ROUTE.CHECKOUT],
+            router.currentRoute.value?.name
+          )
+        ) {
+          return Promise.reject({
+            target: { name: ROUTE.BILLING }
+          } as FunnelResponse);
+        }
+      }
+    }
+
     return { target: context.targetRoute ?? { name: ROUTE.CHECKOUT } };
+  },
+
+  guardBilling: async (context: FunnelContext): Promise<FunnelResponse> => {
+    await ensureBidAuth(context, { name: ROUTE.BILLING });
+
+    // If standalone billing isn't enabled, skip to checkout
+    const { ui } = useConfig({ context: UIContext.CHECKOUT });
+    if (!ui.billingDetails.isReadonly) {
+      return { target: context.targetRoute ?? { name: ROUTE.CHECKOUT } };
+    }
+
+    // Load billing and check if it still needs input
+    const { isReady: isBillingReady, meta: billingMeta } = useBasketBilling();
+    await isBillingReady();
+
+    // If defaults were sufficient, skip to checkout
+    if (!billingMeta.value.needsInput) {
+      return { target: context.targetRoute ?? { name: ROUTE.CHECKOUT } };
+    }
+
+    // Still needs input — show billing page
+    return Promise.reject();
   }
 };

@@ -12,19 +12,11 @@
       data-testid="billing"
     >
       <template v-slot:[`section-personal`]>
-        <TabPersonal
-          v-model="modelValue"
-          v-model:touched="touched"
-          :readonly="ui.billingDetails.isReadonly"
-        />
+        <TabPersonal v-model="modelValue" v-model:touched="touched" />
       </template>
 
       <template v-slot:[`section-business`]>
-        <TabBusiness
-          v-model="modelValue"
-          v-model:touched="touched"
-          :readonly="ui.billingDetails.isReadonly"
-        />
+        <TabBusiness v-model="modelValue" v-model:touched="touched" />
       </template>
     </Sections>
   </Loading>
@@ -44,7 +36,6 @@ import {
   useClientCompanies,
   useClientPhones
 } from "@upmind-automation/headless";
-import { useConfig } from "@upmind-automation/headless";
 
 // --- components
 import { Loading } from "@upmind-automation/upmind-ui";
@@ -68,7 +59,6 @@ const { t } = useI18n();
 
 const { client } = useSession();
 const { isReady, meta, config, update, model } = useBasketBilling();
-const { ui } = useConfig();
 
 // ensure we preload our data for speed between the tab
 
