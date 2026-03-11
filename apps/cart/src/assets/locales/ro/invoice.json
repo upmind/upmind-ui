@@ -1,8 +1,10 @@
 {
-  "order_complete": "Comanda finalizată!",
-  "order_complete_msg": "V-am trimis un e-mail cu toate informațiile necesare despre achiziția dvs.",
+  "order_complete": "Vă mulțumim! Comanda a fost **finalizată**!",
+  "order_complete_msg": "V-am trimis un e-mail de confirmare cu detaliile comenzii. Ar trebui să ajungă în curând, împreună cu tot ce trebuie să știți despre achiziția dvs.",
   "order_free": "Nu mai rămâne nimic de plătit",
   "order_free_msg": "Comanda dvs. a fost plasată cu succes. Nu este necesară nicio plată.",
+  "order_locked": "Factură blocată",
+  "order_locked_msg": "Această factură este blocată, de obicei deoarece este în curs o încercare de debitare. Blocarea previne debitarea facturii de două ori.",
   "order_not_found": "Comanda nu a fost găsită!",
   "order_not_found_msg": "Din păcate, nu am putut găsi comanda dvs. Vă rugăm să faceți clic pe butonul de mai jos pentru a vizualiza comenzile dvs.",
   "order_partial_payment": "Vă mulțumim pentru plata efectuată.",
@@ -19,6 +21,7 @@
   "payment_retry": "Plata pentru această comandă este încă datorată în întregime.",
   "payment_retry_action": "Încercați o nouă metodă de plată",
   "payment_retry_msg": "Din păcate, încercarea dvs. anterioară de plată nu a reușit - acest lucru se poate datora mai multor motive. Vă rugăm să încercați din nou folosind o altă metodă.",
+  "payment_success_banner": "Plata pentru această comandă specifică a fost înregistrată cu succes {date}.",
   "product_information": "Informații despre produs",
   "your_order": "Comanda dumneavoastră"
 }
