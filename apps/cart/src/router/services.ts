@@ -598,11 +598,17 @@ export default {
       return { target: context.targetRoute ?? { name: ROUTE.CHECKOUT } };
     }
 
-    // Load billing and check if it still needs input
+    // Explicit navigation (e.g. "Change" from checkout) — always allow access.
+    // RESOLVE sets currentRoute to the billing route; automatic flow (BASKET NEXT)
+    // leaves currentRoute as the previous route.
+    if (context.currentRoute?.name === ROUTE.BILLING) {
+      return Promise.reject();
+    }
+
+    // Automatic flow: skip to checkout if billing doesn't need input
     const { isReady: isBillingReady, meta: billingMeta } = useBasketBilling();
     await isBillingReady();
 
-    // If defaults were sufficient, skip to checkout
     if (!billingMeta.value.needsInput) {
       return { target: context.targetRoute ?? { name: ROUTE.CHECKOUT } };
     }

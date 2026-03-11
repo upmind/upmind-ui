@@ -245,7 +245,10 @@ export default <FunnelProps>{
         NEXT: [
           {
             target: ROUTE.BILLING,
-            actions: [assign({ targetRoute: { name: ROUTE.BILLING } })],
+            actions: [
+              "setResolving",
+              assign({ targetRoute: { name: ROUTE.BILLING } })
+            ],
             cond: "hasStandaloneBilling"
           },
           {
