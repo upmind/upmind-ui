@@ -80,6 +80,7 @@
               <p
                 v-if="item.secondaryDescription"
                 :class="styles.checkboxCards.content.secondaryDescription"
+                data-testid="secondary-item-description"
               >
                 {{ item.secondaryDescription }}
               </p>
