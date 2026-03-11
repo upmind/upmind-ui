@@ -67,7 +67,7 @@ isReady().then(() => {
     [basketMeta, sessionMeta],
     (
       [
-        { hasProducts, isComplete, isCheckout, isUnavailable },
+        { hasProducts, isComplete, isCheckout, isUnavailable, isAvailable },
         { isAuthenticated }
       ],
       [
@@ -90,7 +90,13 @@ isReady().then(() => {
         route.name !== ROUTE.BASKET_UNAVAILABLE
       ) {
         router.replace({ name: ROUTE.BASKET_UNAVAILABLE });
-      } else if (!hasProducts && hadProducts && !isCheckout && !isComplete) {
+      } else if (
+        isAvailable &&
+        !hasProducts &&
+        hadProducts &&
+        !isCheckout &&
+        !isComplete
+      ) {
         if (route.meta.actionEmptyBasket && route.name !== ROUTE.BASKET_EMPTY) {
           router.push({ name: ROUTE.BASKET_EMPTY });
         }
