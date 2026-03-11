@@ -11,7 +11,7 @@
               icon: 'lock-04'
             }"
             :action="{
-              label: t('action.back_to_checkout'),
+              label: t('action.back_to_basket'),
               icon: 'flip-backward',
               color: 'primary',
               variant: 'subtle',

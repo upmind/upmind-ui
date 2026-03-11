@@ -13,30 +13,6 @@
 
     <template v-else>
       <Manage
-        v-if="billingMeta.needsPhone"
-        :label="t('text.phone')"
-        v-model="selectedPhone"
-        as="select"
-        :manage="{
-          useList: useClientPhones,
-          useMutate: useClientPhoneManager
-        }"
-        :show-label="!!selectedPhone"
-        :readonly="readonly"
-        @processing="wait"
-        v-model:touched="touched"
-      >
-        <template #item="{ item, readonly, doEdit, doRemove }">
-          <PhoneItem
-            v-bind="item"
-            :readonly="readonly"
-            @edit="doEdit"
-            @remove="doRemove"
-          />
-        </template>
-      </Manage>
-
-      <Manage
         :label="t('text.company')"
         v-model="selectedCompany"
         :manage="{
@@ -55,6 +31,31 @@
             @edit="doEdit"
             @remove="doRemove"
           />
+        </template>
+
+        <template v-if="billingMeta.needsPhone" #additional>
+          <Manage
+            :label="t('text.phone')"
+            v-model="selectedPhone"
+            as="select"
+            :manage="{
+              useList: useClientPhones,
+              useMutate: useClientPhoneManager
+            }"
+            :show-label="!!selectedPhone"
+            :readonly="readonly"
+            @processing="wait"
+            v-model:touched="touched"
+          >
+            <template #item="{ item, readonly, doEdit, doRemove }">
+              <PhoneItem
+                v-bind="item"
+                :readonly="readonly"
+                @edit="doEdit"
+                @remove="doRemove"
+              />
+            </template>
+          </Manage>
         </template>
       </Manage>
     </template>

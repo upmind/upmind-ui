@@ -8,6 +8,9 @@
     :optional-text="t('text.optional')"
     data-testid="form"
   >
+    <template #additional="{ meta }">
+      <slot name="additional" v-bind="{ meta }"></slot>
+    </template>
     <template #footer="{ meta }">
       <slot name="footer" v-bind="{ meta }"></slot>
     </template>

@@ -2,6 +2,7 @@
   <footer class="flex w-full flex-col gap-2 md:flex-row md:justify-start">
     <Button
       :label="t('action.save_details')"
+      :block="props.noCancel"
       color="primary"
       size="lg"
       :disabled="props.disabled || props.loading"

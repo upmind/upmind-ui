@@ -9,9 +9,36 @@
       :modal="false"
       @resolve="doResolve"
       v-model:touched="touched"
+      :ui-config="{
+        form: {
+          root: ['gap-9']
+        }
+      }"
     />
 
     <template v-else>
+      <Manage
+        :label="t('text.address')"
+        v-model="selectedAddress"
+        :manage="{
+          useList: useClientAddresses,
+          useMutate: useClientAddressManager
+        }"
+        :show-label="!!selectedAddress"
+        :readonly="readonly"
+        @processing="wait"
+        v-model:touched="touched"
+      >
+        <template #item="{ item, readonly, doEdit, doRemove }">
+          <AddressItem
+            v-bind="item"
+            :readonly="readonly"
+            @edit="doEdit"
+            @remove="doRemove"
+          />
+        </template>
+      </Manage>
+
       <Manage
         v-if="billingMeta.needsPhone"
         :label="t('text.phone')"
@@ -28,28 +55,6 @@
       >
         <template #item="{ item, readonly, doEdit, doRemove }">
           <PhoneItem
-            v-bind="item"
-            :readonly="readonly"
-            @edit="doEdit"
-            @remove="doRemove"
-          />
-        </template>
-      </Manage>
-
-      <Manage
-        :label="t('text.address')"
-        v-model="selectedAddress"
-        :manage="{
-          useList: useClientAddresses,
-          useMutate: useClientAddressManager
-        }"
-        :show-label="!!selectedAddress"
-        :readonly="readonly"
-        @processing="wait"
-        v-model:touched="touched"
-      >
-        <template #item="{ item, readonly, doEdit, doRemove }">
-          <AddressItem
             v-bind="item"
             :readonly="readonly"
             @edit="doEdit"
