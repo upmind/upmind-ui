@@ -21,7 +21,7 @@ import { NumberField } from "../../../number-field";
 import FormField from "../../FormField.vue";
 // --- utils
 import { useUpmindUIRenderer } from "../utils";
-import { get, isArray, includes, isNumber } from "lodash-es";
+import { isNumber, get, isArray, includes } from "lodash-es";
 // --- types
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
