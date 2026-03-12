@@ -5,7 +5,7 @@ import { cva } from "class-variance-authority";
 export default {
   billing: {
     card: {
-      root: cva("space-y-4 lg:px-8 lg:py-9")
+      root: cva("space-y-4")
     },
     summary: {
       root: cva("space-y-1 text-sm"),
