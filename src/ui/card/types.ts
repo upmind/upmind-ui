@@ -10,6 +10,6 @@ export interface CardProps {
   as?: string;
   class?: HTMLAttributes["class"];
   disabled?: boolean;
-  padding?: CardVariantProps["padding"];
   width?: CardVariantProps["width"];
+  size?: CardVariantProps["size"];
 }
