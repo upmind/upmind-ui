@@ -38,6 +38,7 @@ import { useFormI18n } from ".";
 // --- types
 import type {
   FormProps,
+  FormAdditionalProps,
   FormFooterProps,
   FormActionsProps
 } from "@upmind-automation/upmind-ui";
@@ -62,6 +63,7 @@ const emits = defineEmits<{
 }>();
 
 const slots = defineSlots<{
+  additional: FormAdditionalProps;
   footer: FormFooterProps;
   actions: FormActionsProps;
 }>();
