@@ -5,7 +5,7 @@ export default {
   product: {
     root: {
       card: cva(
-        "divide-border-control-default relative flex list-none flex-col divide-y divide-dashed text-base *:py-4 *:first:pt-0 *:last:pb-0",
+        "divide-border-control-default relative flex list-none flex-col divide-y divide-dashed text-base *:py-4 *:first:pt-0 *:last:pb-0 lg:px-8 lg:py-9",
         {
           variants: {
             isDisabled: {
