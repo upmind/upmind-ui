@@ -33,8 +33,9 @@
 
 <script setup lang="ts">
 // --- external
-import { useI18n } from "vue-i18n";
 import { computed } from "vue";
+import { useI18n } from "vue-i18n";
+import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- components
 import { Alert, Link } from "@upmind-automation/upmind-ui";
