@@ -43,12 +43,13 @@ async function load(
   }));
 }
 
-async function parse({ model, schema }: FieldsContext, _event: AnyEventObject) {
-  // ---
-  model = useModelParser<FieldsModel>(schema, model);
-
-  // we dont have any parsing checks or transforms so we can pass through the model
-  return Promise.resolve({ model });
+async function parse(
+  { model, schema }: FieldsContext,
+  { data }: AnyEventObject
+) {
+  const safeData = get(data, "model", data);
+  const safeModel = useModelParser<FieldsModel>(schema, safeData ?? model);
+  return Promise.resolve({ model: safeModel });
 }
 
 async function validate(
