@@ -186,7 +186,7 @@ export default {
           return update({
             companyId: company?.id,
             addressId: company?.addressId ?? defaultAddress()?.id,
-            phoneId: defaultPhone()?.id
+            phoneId: billingConfig.value?.requiresPhone && defaultPhone()?.id
           }).catch(() => {});
         });
       })
