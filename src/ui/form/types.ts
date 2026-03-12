@@ -72,6 +72,10 @@ export type FormActionsProps = {
   doResolve: () => void;
 };
 
+export type FormAdditionalProps = {
+  meta: FormMeta;
+};
+
 export type FormFooterProps = {
   meta: FormMeta;
 };
