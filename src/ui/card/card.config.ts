@@ -11,14 +11,15 @@ export const rootVariants = cva(
         app: "",
         full: "w-full"
       },
-      padding: {
-        md: "p-6 lg:px-8 lg:py-9",
+      size: {
+        sm: "p-6 lg:p-8",
+        md: "p-6 lg:p-12",
         lg: "p-6 lg:p-18"
       }
     },
     defaultVariants: {
       isDisabled: false,
-      padding: "lg"
+      size: "md"
     }
   }
 );

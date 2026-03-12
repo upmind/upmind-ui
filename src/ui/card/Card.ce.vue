@@ -15,7 +15,8 @@ import type { CardProps } from "./types";
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<CardProps>(), {
   as: "div",
-  width: "full"
+  width: "full",
+  size: "md"
 });
 
 const meta = computed(() => ({
