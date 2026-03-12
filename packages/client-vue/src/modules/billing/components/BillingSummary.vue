@@ -14,7 +14,7 @@
   >
     <Card :class="styles.billing.card.root" padding="md">
       <Alert
-        v-if="billingMeta.needsInput"
+        v-if="!billingMeta.isComplete"
         :title="t('billing.details_required_msg')"
         icon="alert-octagon"
         color="danger"
@@ -180,5 +180,7 @@ const selectedAddress = computed(() =>
   getAddress(model.value?.addressId ?? undefined)
 );
 
-const navigateToBilling = () => navigate(props.billingRoute);
+const navigateToBilling = () => {
+  if (props.billingRoute) navigate(props.billingRoute);
+};
 </script>
