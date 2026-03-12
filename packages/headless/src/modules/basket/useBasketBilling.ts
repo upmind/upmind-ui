@@ -63,14 +63,6 @@ export const useBasketBilling = () => {
   }
 
   const meta = computed(() => {
-    const needsAddress = config.value?.requiresAddress ?? false;
-    const needsCompany = config.value?.requiresCompany ?? false;
-    const needsPhone = config.value?.requiresPhone ?? false;
-    const hasAddress = !!model.value?.addressId;
-    const hasCompany = !!model.value?.companyId;
-    const hasPhone = !!model.value?.phoneId;
-    const hasRequirements = needsAddress || needsCompany || needsPhone;
-
     return {
       isLoading: !actor.value || stateMatches(actor, ["loading"]),
       isAvailable:
@@ -85,13 +77,9 @@ export const useBasketBilling = () => {
         contextValue<BillingContext["model"]>(actor, "model"),
         contextValue<BillingContext["baseModel"]>(actor, "baseModel")
       ),
-      needsAddress,
-      needsCompany,
-      needsPhone,
-      needsInput:
-        (needsAddress && !hasAddress) ||
-        (needsCompany && !hasCompany) ||
-        (needsPhone && !hasPhone)
+      needsAddress: !!config.value?.requiresAddress,
+      needsCompany: !!config.value?.requiresCompany,
+      needsPhone: !!config.value?.requiresPhone
     };
   });
 
