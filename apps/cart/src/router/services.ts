@@ -15,6 +15,9 @@ import {
   useBasketProducts,
   isDomainProduct,
   useBasketBilling,
+  useClientAddresses,
+  useClientCompanies,
+  useClientPhones,
   useConfig,
   UIContext,
   FunnelActions,
@@ -30,6 +33,52 @@ import {
 import { ROUTE } from ".";
 import { filter, first, includes, reduce } from "lodash-es";
 import { useRouter, type RouteLocationGeneric } from "vue-router";
+
+// -----------------------------------------------------------------------------
+
+/**
+ * Applies the client's default address, company and phone to the basket
+ * billing details.  Returns a promise that resolves once the update settles
+ * (or immediately if billing is already complete).
+ *
+ * Shared between the `setBillingDefaults` entry action (fire-and-forget) and
+ * `guardBilling` (awaited) so the logic lives in a single place.
+ */
+export async function applyBillingDefaults(): Promise<void> {
+  const {
+    isReady: isBillingReady,
+    meta: billingMeta,
+    config: billingConfig,
+    update
+  } = useBasketBilling();
+
+  const { isAuthenticated } = useSession();
+
+  await isAuthenticated();
+  await isBillingReady();
+
+  if (billingMeta.value.isComplete) return;
+
+  const { default: defaultAddress, isReady: isAddressesReady } =
+    useClientAddresses();
+  const { default: defaultCompany, isReady: isCompaniesReady } =
+    useClientCompanies();
+  const { default: defaultPhone, isReady: isPhonesReady } = useClientPhones();
+
+  await Promise.allSettled([
+    isAddressesReady(),
+    isCompaniesReady(),
+    isPhonesReady()
+  ]);
+
+  const company = billingConfig.value?.requiresCompany && defaultCompany();
+
+  await update({
+    companyId: company?.id,
+    addressId: company?.addressId ?? defaultAddress()?.id,
+    phoneId: billingConfig.value?.requiresPhone && defaultPhone()?.id
+  }).catch(() => {});
+}
 
 // -----------------------------------------------------------------------------
 
@@ -611,6 +660,14 @@ export default {
     // Load billing and check if it still needs input
     const { isReady: isBillingReady, meta: billingMeta } = useBasketBilling();
     await isBillingReady();
+
+    // If billing is not yet complete, try applying client defaults (address,
+    // company, phone) before deciding whether to skip.  This must be awaited
+    // here rather than relying on the fire-and-forget `setBillingDefaults`
+    // entry action, which races with this guard.
+    if (!billingMeta.value.isComplete) {
+      await applyBillingDefaults().catch(() => {});
+    }
 
     // Skip billing when input isn't needed, unless the user explicitly
     // navigated here (e.g. the "Change" button on BillingSummary).
