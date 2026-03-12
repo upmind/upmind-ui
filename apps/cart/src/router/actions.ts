@@ -165,9 +165,10 @@ export default {
     const { isAuthenticated } = useSession();
 
     isAuthenticated()
+      .then(() => isBillingReady())
       .then(() => {
-        //  TODO check if we already have values.
-        //  if we do, we can skip this step
+        if (billingMeta.value.isComplete) return;
+
         const { default: defaultAddress, isReady: isAddressesReady } =
           useClientAddresses();
         const { default: defaultCompany, isReady: isCompaniesReady } =
@@ -176,13 +177,10 @@ export default {
           useClientPhones();
 
         return Promise.allSettled([
-          isBillingReady(),
           isAddressesReady(),
           isCompaniesReady(),
           isPhonesReady()
         ]).then(() => {
-          if (billingMeta.value.isComplete) return;
-
           const company =
             billingConfig.value?.requiresCompany && defaultCompany();
           return update({
