@@ -13,6 +13,7 @@
       :class="props.class"
       class="text-md"
       :minimal="props.minimal"
+      :force-open="props.forceOpen"
       @add="doAdd"
       @edit="doEdit"
       @remove="doRemove"

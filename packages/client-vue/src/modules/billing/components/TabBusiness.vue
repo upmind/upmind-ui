@@ -21,6 +21,7 @@
         }"
         :show-label="!!selectedCompany"
         :readonly="readonly"
+        :force-open="props.expand"
         @processing="wait"
         v-model:touched="touched"
       >
@@ -93,6 +94,7 @@ import PhoneItem from "./PhoneItem.vue";
 // -----------------------------------------------------------------------------
 
 const props = defineProps<{
+  expand?: boolean;
   modelValue?: BillingModel;
   readonly?: boolean;
   touched?: boolean;

@@ -24,7 +24,7 @@
 
       <template #content>
         <slot name="content">
-          <BillingForm show-continue />
+          <BillingForm expand :auto-update="false" />
         </slot>
       </template>
 
@@ -96,15 +96,15 @@ const props = withDefaults(defineProps<BillingProps>(), {
 
 const { t } = useI18n();
 const { set } = useThemes();
-const { navigateBack, navigateNext, isResolved } = useRoutingEngine();
+const { navigateBack, navigateNext } = useRoutingEngine();
 
-const { meta: billingMeta } = useBasketBilling();
+const { meta: billingMeta, model: billingModel, update } = useBasketBilling();
 
 watch(
   () => billingMeta.value.needsInput,
   async (needsInput, prevNeedsInput) => {
     if (prevNeedsInput && !needsInput) {
-      await isResolved();
+      await update(billingModel.value!);
       navigateNext();
     }
   }

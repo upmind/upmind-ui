@@ -8,6 +8,7 @@
     :class="props.class"
     :list="false"
     :minimal="props.minimal"
+    :force-open="props.forceOpen"
     required
   >
     <template #item="{ item }">
@@ -95,6 +96,7 @@ const props = defineProps<{
   modelValue?: string;
   readonly?: boolean;
   open?: boolean;
+  forceOpen?: boolean;
   minimal?: boolean; // if true, the component will not show the actions and will not be collapsible
   class?: HtmlHTMLAttributes["class"];
 }>();
