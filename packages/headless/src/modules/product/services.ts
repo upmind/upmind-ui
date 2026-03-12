@@ -37,6 +37,7 @@ import {
   isNil,
   isNumber,
   map,
+  reject,
   set,
   sum
 } from "lodash-es";
@@ -355,7 +356,8 @@ async function formatCalculation(
 ): Promise<Price> {
   const { post, useUrl } = useQuery();
 
-  if (isEmpty(compact(values))) return Promise.reject();
+  const prices = reject(values, isNil);
+  if (isEmpty(prices)) return Promise.reject();
 
   return post({
     mutationKey: ["cart", "calculate"],
@@ -363,7 +365,7 @@ async function formatCalculation(
     withAccessToken: true,
     data: {
       currency_id: currencyId,
-      prices: compact(values)
+      prices
     }
   }).then(data => {
     return {
@@ -403,7 +405,6 @@ export function calculateSubscription(callback: Function, onReceive: Function) {
         !!model?.options &&
         !!lookups?.options &&
         checkPriceOverride(model.options, lookups.options);
-
       const values = calculate(lookups.prices, overrides);
       // Check if we actually need to calculate the price
       // Compute a numeric total for cache comparison (handles both number and {price, quantity} entries)

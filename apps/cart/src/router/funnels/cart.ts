@@ -751,8 +751,15 @@ export default <FunnelProps>{
       entry: ["setCurrency", "setBillingDefaults"],
       invoke: {
         src: "guardBilling",
-        onDone: { target: ROUTE.CHECKOUT, actions: ["setResolving"] },
-        onError: { actions: ["setResolved"] }
+        onDone: { actions: ["setResolved"] },
+        onError: [
+          {
+            target: ROUTE.CHECKOUT,
+            actions: ["setResolving"],
+            cond: "isSession"
+          },
+          { target: ROUTE.CHECKOUT, actions: ["setResolving"] }
+        ]
       },
       on: {
         NEXT: {
