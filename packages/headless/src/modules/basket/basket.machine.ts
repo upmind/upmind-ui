@@ -673,7 +673,9 @@ export default createMachine(
 
       clearActors: assign({
         actors: ({ actors }: BasketContext) => {
-          forEach(actors, actor => (actor ? stopService(actor) : null));
+          forEach(actors, actor => {
+            if (actor) stopService(actor);
+          });
           return undefined;
         }
       }),
