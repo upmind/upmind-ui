@@ -12,6 +12,7 @@
           v-model="modelValue"
           v-model:touched="touched"
           :expand="expand"
+          @form-resolve="onFormResolve"
         />
 
         <Button
@@ -31,6 +32,7 @@
           v-model="modelValue"
           v-model:touched="touched"
           :expand="expand"
+          @form-resolve="onFormResolve"
         />
 
         <Button
@@ -88,7 +90,7 @@ const touched = defineModel<BillingFormProps["touched"]>("touched");
 const { t } = useI18n();
 
 const { client } = useSession();
-const { isReady, meta, config, set, update, model } = useBasketBilling();
+const { isReady, meta, config, set, update, wait, model } = useBasketBilling();
 const { navigateNext } = useRoutingEngine();
 
 // ensure we preload our data for speed between the tab
@@ -211,6 +213,14 @@ async function doContinue() {
   await update(value!);
   modelValue.value = value;
   navigateNext();
+}
+
+async function onFormResolve() {
+  if (!props.autoUpdate) {
+    await wait(true);
+    await update(buildModel()!);
+    navigateNext();
+  }
 }
 
 // --- side effects

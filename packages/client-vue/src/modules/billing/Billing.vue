@@ -45,12 +45,11 @@
 
 <script lang="ts" setup>
 // --- external
-import { computed, onUnmounted, watch, defineAsyncComponent } from "vue";
+import { computed, onUnmounted, defineAsyncComponent } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
 import {
-  useBasketBilling,
   useConfig,
   useRoutingEngine,
   validateTemplate
@@ -96,19 +95,7 @@ const props = withDefaults(defineProps<BillingProps>(), {
 
 const { t } = useI18n();
 const { set } = useThemes();
-const { navigateBack, navigateNext } = useRoutingEngine();
-
-const { meta: billingMeta, model: billingModel, update } = useBasketBilling();
-
-watch(
-  () => billingMeta.value.needsInput,
-  async (needsInput, prevNeedsInput) => {
-    if (prevNeedsInput && !needsInput) {
-      await update(billingModel.value!);
-      navigateNext();
-    }
-  }
-);
+const { navigateBack } = useRoutingEngine();
 
 const { ui, data } = useConfig({
   context: UIContext.BILLING_DETAILS,
