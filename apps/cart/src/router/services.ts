@@ -568,7 +568,7 @@ export default {
     const { isReady: isBillingReady, meta: billingMeta } = useBasketBilling();
     await isBillingReady();
 
-    if (billingMeta.value.needsInput) {
+    if (!billingMeta.value.isComplete) {
       const { ui } = useConfig({ context: UIContext.CHECKOUT });
       const { data } = useConfig({ context: UIContext.BILLING_DETAILS });
       if (!data.billingDetailsDisabled && ui.billingDetails.isReadonly) {
@@ -594,7 +594,6 @@ export default {
     { data: eventData }: AnyEventObject
   ): Promise<FunnelResponse> => {
     await ensureBidAuth(context, { name: ROUTE.BILLING });
-
     // If standalone billing isn't enabled, skip to checkout
     const { ui } = useConfig({ context: UIContext.CHECKOUT });
     const { data } = useConfig({ context: UIContext.BILLING_DETAILS });
@@ -604,9 +603,9 @@ export default {
 
     // Skip billing when not authenticated — billing requires a client_id
     // to load. Checkout handles the auth redirect.
-    const { meta: basketMeta } = useBasket();
-    if (basketMeta.value.needsAuth) {
-      return { target: context.targetRoute ?? { name: ROUTE.CHECKOUT } };
+    const { meta: authMeta } = useSession();
+    if (!authMeta.value.isAuthenticated) {
+      return { target: { name: ROUTE.SESSION } };
     }
 
     // Load billing and check if it still needs input
@@ -615,11 +614,11 @@ export default {
 
     // Skip billing when input isn't needed, unless the user explicitly
     // navigated here (e.g. the "Change" button on BillingSummary).
-    if (!billingMeta.value.needsInput && !eventData?.target) {
-      return { target: context.targetRoute ?? { name: ROUTE.CHECKOUT } };
-    }
 
+    if (billingMeta.value.isComplete && !eventData?.target) {
+      return { target: { name: ROUTE.CHECKOUT } };
+    }
     // Show billing page
-    return Promise.reject();
+    return { target: context.targetRoute ?? { name: ROUTE.BILLING } };
   }
 };

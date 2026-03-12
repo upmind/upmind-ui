@@ -391,12 +391,13 @@ export function parseTerm(
   // set price values, taking into account the quantity and unit quantity
   // NB: we NEVER add, we always push into an array for the backend to handle
   if (quantity) {
-    price.push({
-      price: term?.price?.currentAmount ?? 0,
-      quantity: quantity ?? 0
-    });
+    if (quantity == 1) price.push(term?.price?.currentAmount ?? 0);
+    else
+      price.push({
+        price: term?.price?.currentAmount ?? 0,
+        quantity
+      });
   }
-
   return { term: get(term, "cycle") as number, price };
 }
 
@@ -502,10 +503,12 @@ export function parseSubproducts(
             // if we have a price, set price values, taking into account the quantity and unit quantity
             // NB: we NEVER add, we always push into an array for the backend to handle
             if (!isEmpty(product?.price)) {
-              price.push({
-                price: product?.price?.currentAmount,
-                quantity: value.quantity * (quantity ?? 1)
-              });
+              if (quantity == 1) price.push(product?.price?.currentAmount);
+              else
+                price.push({
+                  price: product?.price?.currentAmount,
+                  quantity: value.quantity * (quantity ?? 1)
+                });
             }
 
             // ---
@@ -530,8 +533,6 @@ export const parseProductDetails = (
   rawProduct: IProduct,
   rawBasketProduct?: IBasketProduct
 ): ProductDetails => {
-  const { t } = useI18n();
-
   return {
     id: rawProduct?.id,
     name: rawProduct.name,

@@ -177,19 +177,14 @@ function doResolve(value: BillingModel) {
 // --- side effects
 
 await Promise.all([isCompaniesReady(), isPhonesReady()]).then(() => {
-  const hasDefaults = !!defaultCompany()?.id || !!defaultPhone()?.id;
-  const needsDefaults =
-    hasDefaults && !modelValue.value?.companyId && !modelValue.value?.phoneId;
-
-  if (needsDefaults) {
-    modelValue.value = {
-      companyId: modelValue.value?.companyId ?? defaultCompany()?.id,
-      addressId: modelValue.value?.addressId ?? defaultCompany()?.addressId,
-      phoneId: billingMeta.value.needsPhone
-        ? (modelValue.value?.phoneId ?? defaultPhone()?.id)
-        : undefined
-    };
-  }
+  // Set our initial / default values
+  modelValue.value = {
+    companyId: modelValue.value?.companyId ?? defaultCompany()?.id,
+    addressId: modelValue.value?.addressId ?? defaultCompany()?.addressId,
+    phoneId: billingMeta.value.needsPhone
+      ? (modelValue.value?.phoneId ?? defaultPhone()?.id)
+      : undefined
+  };
 
   showForm.value = companyMeta.value.isEmpty && phoneMeta.value.isEmpty;
 });

@@ -44,12 +44,8 @@
           />
         </div>
 
-        <div
-          v-if="props.price && !props.productMeta?.free"
-          :class="styles.card.pricing.sm"
-        >
+        <div v-if="props.price" :class="styles.card.pricing.sm">
           <SubproductCardPricing
-            v-if="props.price"
             :price="props.price"
             :meta="props.productMeta"
             :cycle="props.cycle"
@@ -76,10 +72,7 @@
           @keydown.enter.prevent.stop
         />
 
-        <div
-          v-if="props.price && !props.productMeta?.free"
-          :class="styles.card.pricing.lg"
-        >
+        <div v-if="props.price" :class="styles.card.pricing.lg">
           <SubproductCardPricing
             :price="props.price"
             :meta="props.productMeta"

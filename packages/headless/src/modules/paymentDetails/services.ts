@@ -20,7 +20,8 @@ import {
   compact,
   size,
   isNil,
-  set
+  set,
+  reject
 } from "lodash-es";
 import {
   ErrorOrigin,
@@ -272,13 +273,12 @@ async function parse(context: PaymentDetailsContext, { data }: AnyEventObject) {
   } = context;
   // ---
   let paymentDetail = undefined;
-
   // ---
   // NB: This parse function can be reached after a refresh from the basket, so we can check for that
   //     we do not want to parse any invalid/unmatched incoming data, as it will wipe out the user selection
   const safeData =
     has(data, "unpaid_amount_converted") || isNil(data)
-      ? model // fallback to the prev model
+      ? { ...model } // fallback to the prev model NB: destruct to break accidental mutation
       : pick(data, [
           "type",
           "amount",
@@ -292,6 +292,7 @@ async function parse(context: PaymentDetailsContext, { data }: AnyEventObject) {
   // NB: We always want to ensure the model amount/wallet_amount is correct based on the latest basket data
   //     IF a user has set a partial amount, we need to ensure we respect that up to the total amount due
   const safeAmount = amountPartial ? Math.min(amountPartial, amount) : amount;
+  safeData.amount = safeAmount;
 
   // NB: We also need to ensure the wallet amount is not greater than the safe amount or the available wallet balance
   //  IF a user has set a wallet amount, we need to respect that up to the safe amount
@@ -308,15 +309,12 @@ async function parse(context: PaymentDetailsContext, { data }: AnyEventObject) {
         0,
         Math.min(safeAmount, lookups.accountCredit?.total.value || 0)
       );
+  safeData.wallet_amount = safeWalletAmount;
 
   const safeModel = useModelParser<PaymentDetailModel>(
     schema,
     safeData,
-    {
-      ...model,
-      amount: safeAmount,
-      wallet_amount: safeWalletAmount
-    },
+    { ...model },
     {
       allowExtraProps: false
     }
@@ -439,20 +437,28 @@ async function parse(context: PaymentDetailsContext, { data }: AnyEventObject) {
   // NB: Only fire these if the amounts have changed
   lookups.amountsFormatted = await Promise.all([
     calculate(context, {
-      data: { value: safeModel.amount ?? 0, prev: model?.amount ?? 0 },
+      data: {
+        value: safeModel.amount ?? 0,
+        prev: model?.amount ?? 0,
+        force: isEmpty(lookups.amountsFormatted?.amount)
+      },
       type: "calculate"
-    }).catch(() => lookups.amountsFormatted?.amount || ""),
+    }).catch(() => {
+      return lookups.amountsFormatted?.amount || "";
+    }),
     calculate(context, {
       data: {
         value: amount,
-        prev: lookups.amountsFormatted?.outstanding ? amount : 0
+        prev: lookups.amountsFormatted?.outstanding ?? 0,
+        force: isEmpty(lookups.amountsFormatted?.outstanding)
       },
       type: "calculate"
     }).catch(() => lookups.amountsFormatted?.outstanding || ""),
     calculate(context, {
       data: {
         value: safeModel.wallet_amount ?? 0,
-        prev: model?.wallet_amount ?? 0
+        prev: model?.wallet_amount ?? 0,
+        force: isEmpty(lookups.amountsFormatted?.wallet)
       },
       type: "calculate"
     }).catch(() => lookups.amountsFormatted?.wallet || "")
@@ -530,10 +536,10 @@ async function calculate(
   { data }: AnyEventObject
 ) {
   const { post, useUrl } = useQuery();
-
-  if (isEqual(data.value, data.prev)) return Promise.reject();
-
-  if (isEmpty(compact([data.value]))) return Promise.reject();
+  const prices = reject([data.value], isNil);
+  if (!data.force && (isEqual(data.value, data.prev) || isEmpty(prices))) {
+    return Promise.reject();
+  }
 
   // we need to calculate the total account credit including negative allowance
   // and get a formatted version based on the currency
@@ -543,7 +549,7 @@ async function calculate(
     withAccessToken: true,
     data: {
       currency_id: currency.id,
-      prices: compact([data.value])
+      prices
     }
   }).then(res => get(res, "total_formatted", ""));
 }
