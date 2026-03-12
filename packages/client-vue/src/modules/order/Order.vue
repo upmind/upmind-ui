@@ -432,9 +432,8 @@ const action = computed(() => {
     return "action.return_to_shop";
   } else if (meta.value.isUnavailable) {
     return "action.go_to_my_orders";
-  } else if (meta.value.isComplete) {
-    return "action.go_to_my_account";
   }
+  return "action.go_to_my_account";
 });
 
 function doAction() {
