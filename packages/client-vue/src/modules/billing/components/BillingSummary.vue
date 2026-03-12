@@ -14,7 +14,7 @@
   >
     <Card :class="styles.billing.card.root" padding="md">
       <Alert
-        v-if="!billingMeta.isComplete"
+        v-if="billingMeta.isAvailable && !billingMeta.isComplete"
         :title="t('billing.details_required_msg')"
         icon="alert-octagon"
         color="danger"
