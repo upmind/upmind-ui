@@ -568,7 +568,7 @@ export default {
     const { isReady: isBillingReady, meta: billingMeta } = useBasketBilling();
     await isBillingReady();
 
-    if (billingMeta.value.needsInput) {
+    if (!billingMeta.value.isComplete) {
       const { ui } = useConfig({ context: UIContext.CHECKOUT });
       const { data } = useConfig({ context: UIContext.BILLING_DETAILS });
       if (!data.billingDetailsDisabled && ui.billingDetails.isReadonly) {
