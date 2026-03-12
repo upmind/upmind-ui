@@ -594,7 +594,6 @@ export default {
     { data: eventData }: AnyEventObject
   ): Promise<FunnelResponse> => {
     await ensureBidAuth(context, { name: ROUTE.BILLING });
-    debugger;
     // If standalone billing isn't enabled, skip to checkout
     const { ui } = useConfig({ context: UIContext.CHECKOUT });
     const { data } = useConfig({ context: UIContext.BILLING_DETAILS });
@@ -617,7 +616,6 @@ export default {
     // navigated here (e.g. the "Change" button on BillingSummary).
 
     if (!billingMeta.value.isComplete && !eventData?.target) {
-      debugger;
       return { target: { name: ROUTE.CHECKOUT } };
     }
 
