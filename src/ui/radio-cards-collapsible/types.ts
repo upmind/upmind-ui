@@ -34,6 +34,7 @@ export type RadioCardsCollapsibleProps = RadioGroupRootProps & {
   open?: boolean;
   autoCollapse?: boolean;
   minimal?: boolean;
+  forceOpen?: boolean;
   changeButtonLabel?: string;
   // --- state
   items: RadioCardsCollapsibleItemProps[];
