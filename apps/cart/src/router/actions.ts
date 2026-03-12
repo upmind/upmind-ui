@@ -166,6 +166,8 @@ export default {
 
     isAuthenticated()
       .then(() => {
+        //  TODO check if we already have values.
+        //  if we do, we can skip this step
         const { default: defaultAddress, isReady: isAddressesReady } =
           useClientAddresses();
         const { default: defaultCompany, isReady: isCompaniesReady } =
@@ -179,7 +181,7 @@ export default {
           isCompaniesReady(),
           isPhonesReady()
         ]).then(() => {
-          if (!billingMeta.value.needsInput) return;
+          if (billingMeta.value.isComplete) return;
 
           const company =
             billingConfig.value?.requiresCompany && defaultCompany();
