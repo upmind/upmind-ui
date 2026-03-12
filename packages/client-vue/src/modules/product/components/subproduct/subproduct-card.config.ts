@@ -15,7 +15,7 @@ export default {
             true: ""
           },
           isDropdown: {
-            true: "text-muted group-hover/item:text-control-selected text-control-selected group-hover/item:font-medium group-data-[state=checked]/item:font-medium",
+            true: "text-base font-normal group-hover/item:text-base group-hover/item:font-medium group-data-[state=checked]/item:font-medium",
             false: "font-medium"
           }
         },
