@@ -72,6 +72,7 @@ import type {
   FormProps,
   FormActionProps,
   FormActionsProps,
+  FormAdditionalProps,
   FormFooterProps
 } from "./types";
 import type {
@@ -109,6 +110,7 @@ const emits = defineEmits<{
 const _slots = defineSlots<{
   footer: FormFooterProps;
   actions: FormActionsProps;
+  additional: FormAdditionalProps;
 }>();
 
 defineExpose({
