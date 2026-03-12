@@ -742,16 +742,25 @@ export default <FunnelProps>{
     /**
      * 🎯 ROUTE.BILLING
      * This state manages the standalone billing details page.
-     * If billing is already satisfied, guardBilling resolves and skips to checkout.
+     * If billing is already satisfied, guardBilling resolves with target CHECKOUT
+     * and the onDone isCheckout guard transitions the machine to CHECKOUT state,
+     * skipping the billing page entirely.
      * If user input is needed, the page renders and Billing.vue auto-navigates
      * to checkout via NEXT when billing completes.
-     * Users can also return to CHECKOUT via BACK.
+     * Users can also return to BASKET via BACK.
      */
     [ROUTE.BILLING]: {
-      entry: ["setCurrency", "setBillingDefaults"],
+      entry: ["setCurrency"],
       invoke: {
         src: "guardBilling",
-        onDone: { actions: ["setResolved"] },
+        onDone: [
+          {
+            target: ROUTE.CHECKOUT,
+            actions: ["setResolving"],
+            cond: "isCheckout"
+          },
+          { actions: ["setResolved"] }
+        ],
         onError: [
           {
             target: ROUTE.CHECKOUT,
