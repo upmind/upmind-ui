@@ -13,8 +13,9 @@ export interface BillingFormProps {
   touched?: boolean;
   modelValue?: BillingModel;
   as?: Component | "div";
+  autoUpdate?: boolean;
   billingRoute?: RouteLocationAsRelativeGeneric;
-  showContinue?: boolean;
+  expand?: boolean;
 }
 
 export interface BillingProps {
