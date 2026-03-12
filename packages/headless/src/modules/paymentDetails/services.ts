@@ -189,6 +189,7 @@ async function loadLookups(
     queryKey: [
       "payment-details",
       {
+        orderId,
         brandId: unref(brandId),
         clientId: client.id,
         currencyId,
