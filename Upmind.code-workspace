@@ -1,32 +1,32 @@
 {
   "folders": [
-	{
-		"name": "monorepo",
-		"path": "."
-	},
-	{
-		"name": "headless",
-		"path": "./packages/headless"
-	},
-	{
-		"name": "client-vue",
-		"path": "./packages/client-vue"
-	},
-	{
-		"name": "cart",
-		"path": "./apps/cart"
-	},
-	{
-		"path": "./playgrounds/labs"
-	}
-],
+    {
+      "name": "monorepo",
+      "path": "."
+    },
+    {
+      "name": "headless",
+      "path": "./packages/headless"
+    },
+    {
+      "name": "client-vue",
+      "path": "./packages/client-vue"
+    },
+    {
+      "name": "cart",
+      "path": "./apps/cart"
+    },
+    {
+      "path": "./playgrounds/labs"
+    }
+  ],
   "settings": {
     "vue.codeActions.enabled": false,
     "tailwindCSS.classAttributes": [
       "class",
       "className",
       "ngClass",
-      ".*upwConfig",
+      ".*upwConfig"
     ],
     "cSpell.words": [
       "clickwrap",
@@ -42,10 +42,11 @@
       "promocode",
       "promocodes",
       "recaptcha",
+      "Subproduct",
       "twofa",
       "uischema",
-      "upmind",
-    ],
+      "upmind"
+    ]
   },
   "extensions": {
     "recommendations": [
@@ -53,7 +54,7 @@
       "dbaeumer.vscode-eslint",
       "esbenp.prettier-vscode",
       "mrmlnc.vscode-scss",
-      "bradlc.vscode-tailwindcss",
-    ],
-  },
+      "bradlc.vscode-tailwindcss"
+    ]
+  }
 }
