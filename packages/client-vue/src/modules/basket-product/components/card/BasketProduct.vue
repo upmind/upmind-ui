@@ -1,6 +1,6 @@
 <template>
   <Loading :active="meta.isLoading || meta.isProcessing" v-auto-animate>
-    <Card :class="styles.product.root.card" padding="md">
+    <Card :class="styles.product.root.card">
       <template
         v-for="(summary, index) in props.pricing"
         :key="`${props.id}-${index}`"

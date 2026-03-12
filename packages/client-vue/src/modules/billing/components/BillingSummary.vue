@@ -12,7 +12,7 @@
       }
     ]"
   >
-    <Card :class="styles.billing.card.root" padding="md">
+    <Card :class="styles.billing.card.root" size="sm">
       <Alert
         v-if="billingMeta.isAvailable && !billingMeta.isComplete"
         :title="t('billing.details_required_msg')"
