@@ -22,7 +22,7 @@ const props = withDefaults(defineProps<CardProps>(), {
 const meta = computed(() => ({
   isDisabled: props.disabled,
   width: props.width,
-  padding: props.padding
+  size: props.size
 }));
 
 const styles = useStyles(["card"], meta, config);
