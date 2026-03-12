@@ -1,6 +1,6 @@
 <template>
   <div :class="cn('w-full', props.class)">
-    <Collapsible v-model:open="open">
+    <Collapsible v-model:open="isExpanded">
       <RadioGroup
         :model-value="modelValue"
         :required="props.required"
@@ -9,7 +9,7 @@
         :class="cn(styles.radioCards.root, 'gap-0')"
       >
         <RadioCardItem
-          v-if="selectedItem"
+          v-if="!props.forceOpen && selectedItem"
           data-state="checked"
           :item="selectedItem.item"
           :index="0"
@@ -29,7 +29,7 @@
           </template>
         </RadioCardItem>
 
-        <template v-else>
+        <template v-else-if="!props.forceOpen">
           <Skeleton class="col-span-12">
             <RadioCardItem
               :item="{
@@ -53,13 +53,12 @@
           "
         >
           <template
-            v-for="(option, index) in unselectedItems"
+            v-for="(option, index) in displayItems"
             :key="option.id || index"
           >
             <RadioCardItem
-              class="mt-2"
               :item="option.item"
-              :index="index + 1"
+              :index="props.forceOpen ? index : index + 1"
               :name="props.name"
               :label="option?.label"
               :required="props.required"
@@ -67,7 +66,7 @@
               :model-value="modelValue"
               :columns="props.columns"
               :value="option.value"
-              :class="props.radioClass"
+              :class="[(!props.forceOpen || index > 0) && 'mt-2', props.radioClass]"
               :minimal="props.minimal"
               data-testid="radio-card-item"
               :uiConfig="props.uiConfig"
@@ -81,7 +80,7 @@
         </CollapsibleContent>
       </RadioGroup>
 
-      <slot name="actions">
+      <slot v-if="!props.forceOpen" name="actions">
         <Button
           :label="label"
           size="sm"
@@ -116,6 +115,7 @@ const props = withDefaults(defineProps<RadioCardsCollapsibleProps>(), {
   useInputGroup: true,
   label: "Change",
   autoCollapse: true,
+  forceOpen: false,
   // -- variants
   columns: 1,
   // --- styles
@@ -131,6 +131,13 @@ const _emits = defineEmits<{
 const modelValue = defineModel<string>("modelValue");
 const open = defineModel<boolean>("open");
 
+const isExpanded = computed({
+  get: () => props.forceOpen || !!open.value,
+  set: (val: boolean) => {
+    open.value = val;
+  }
+});
+
 const meta = computed(() => ({
   isMinimal: props.minimal,
   columns: props.columns
@@ -142,8 +149,10 @@ const selectedItem = computed(() => {
   return props.items.find(item => item.value === modelValue.value);
 });
 
-const unselectedItems = computed(() => {
-  return props.items.filter(item => item.value !== modelValue.value);
+const displayItems = computed(() => {
+  return props.forceOpen
+    ? props.items
+    : props.items.filter(item => item.value !== modelValue.value);
 });
 
 const selectedItemUiConfig = {
@@ -165,7 +174,7 @@ const onSelectionChange = (value: any) => {
     modelValue.value = value;
   }
 
-  if (props.autoCollapse && value !== undefined) {
+  if (props.autoCollapse && !props.forceOpen && value !== undefined) {
     open.value = false;
   }
 };
