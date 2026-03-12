@@ -615,10 +615,9 @@ export default {
     // Skip billing when input isn't needed, unless the user explicitly
     // navigated here (e.g. the "Change" button on BillingSummary).
 
-    if (!billingMeta.value.isComplete && !eventData?.target) {
+    if (billingMeta.value.isComplete && !eventData?.target) {
       return { target: { name: ROUTE.CHECKOUT } };
     }
-
     // Show billing page
     return { target: context.targetRoute ?? { name: ROUTE.BILLING } };
   }
