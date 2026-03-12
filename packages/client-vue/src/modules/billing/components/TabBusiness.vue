@@ -23,6 +23,11 @@
         :readonly="readonly"
         :force-open="props.expand"
         @processing="wait"
+        @resolve="
+          (add: boolean) => {
+            if (add) emit('formResolve');
+          }
+        "
         v-model:touched="touched"
       >
         <template #item="{ item, readonly, doEdit, doRemove }">
@@ -46,6 +51,11 @@
             :show-label="!!selectedPhone"
             :readonly="readonly"
             @processing="wait"
+            @resolve="
+              (add: boolean) => {
+                if (add) emit('formResolve');
+              }
+            "
             v-model:touched="touched"
           >
             <template #item="{ item, readonly, doEdit, doRemove }">
@@ -98,6 +108,7 @@ const props = defineProps<{
   touched?: boolean;
 }>();
 
+const emit = defineEmits<{ formResolve: [] }>();
 const modelValue = defineModel<BillingModel>("modelValue", {});
 
 const showForm = ref(false);
@@ -170,6 +181,7 @@ function doResolve(value: BillingModel) {
     addressId: company?.addressId
   };
   showForm.value = false;
+  emit("formResolve");
 }
 
 // --- side effects
