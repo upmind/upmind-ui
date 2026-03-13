@@ -64,7 +64,7 @@
                 :model-value="basketProduct?.id"
                 :hide-terms="props.hideTerms"
                 :no-footer="true"
-                as="div"
+                as="fieldset"
                 @resolve="doResolve"
                 @reject="doReject"
               />
@@ -178,7 +178,10 @@
       </template>
 
       <template #errors>
-        <ConfigErrors v-if="productMeta?.isAvailable" :meta="productMeta" />
+        <ConfigErrors
+          :visible="productMeta?.showErrors"
+          :errors="validationErrors"
+        />
       </template>
 
       <template #total>
@@ -233,7 +236,7 @@ import ConfigSkeleton from "../product/components/ConfigSkeleton.vue";
 import Pricing from "../product/components/pricing-list/Pricing.vue";
 import PricingSkeleton from "../product/components/pricing-list/PricingSkeleton.vue";
 import PricingTotal from "../product/components/pricing-list/PricingTotal.vue";
-import ProductConfig from "../product/components/config/Config.vue";
+import ProductConfig from "../product/components/Config.vue";
 import ProductHero from "../product/components/hero/ProductHero.vue";
 import ProductHeroSkeleton from "../product/components/hero/ProductHeroSkeleton.vue";
 import ProductImage from "../product/components/hero/ProductImage.vue";
@@ -303,6 +306,7 @@ const {
   meta: productMeta,
   model,
   product,
+  validationErrors,
   productImage,
   updateQuantity,
   updateTerm,

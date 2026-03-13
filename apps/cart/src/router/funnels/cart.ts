@@ -242,10 +242,20 @@ export default <FunnelProps>{
         ]
       },
       on: {
-        NEXT: {
-          target: ROUTE.CHECKOUT,
-          actions: [assign({ targetRoute: { name: ROUTE.CHECKOUT } })]
-        },
+        NEXT: [
+          {
+            target: ROUTE.BILLING,
+            actions: [
+              "setResolving",
+              assign({ targetRoute: { name: ROUTE.BILLING } })
+            ],
+            cond: "hasStandaloneBilling"
+          },
+          {
+            target: ROUTE.CHECKOUT,
+            actions: [assign({ targetRoute: { name: ROUTE.CHECKOUT } })]
+          }
+        ],
         BACK: {
           target: ROUTE.CATALOGUE,
           actions: [assign({ targetRoute: { name: ROUTE.CATALOGUE } })]
@@ -662,7 +672,7 @@ export default <FunnelProps>{
      * or return to the BASKET to make changes.
      */
     [ROUTE.CHECKOUT]: {
-      entry: ["setCurrency", "setBasket"],
+      entry: ["setCurrency", "setBasket", "setBillingDefaults"],
       invoke: {
         src: "guardCheckout",
         onDone: { actions: ["setResolved"] },
@@ -688,6 +698,11 @@ export default <FunnelProps>{
             target: ROUTE.BASKET_PRODUCT_REQUIRES_ACTION,
             actions: ["setResolving"],
             cond: "hasInvalidProducts"
+          },
+          {
+            target: ROUTE.BILLING,
+            actions: ["setResolving"],
+            cond: "isBilling"
           },
           { target: ROUTE.BASKET, actions: ["setResolving"] }
         ]
@@ -716,6 +731,49 @@ export default <FunnelProps>{
               }
             })
           ]
+        },
+        BACK: {
+          target: ROUTE.BASKET,
+          actions: [assign({ targetRoute: { name: ROUTE.BASKET } })]
+        }
+      }
+    },
+
+    /**
+     * 🎯 ROUTE.BILLING
+     * This state manages the standalone billing details page.
+     * If billing is already satisfied, guardBilling resolves with target CHECKOUT
+     * and the onDone isCheckout guard transitions the machine to CHECKOUT state,
+     * skipping the billing page entirely.
+     * If user input is needed, the page renders and Billing.vue auto-navigates
+     * to checkout via NEXT when billing completes.
+     * Users can also return to BASKET via BACK.
+     */
+    [ROUTE.BILLING]: {
+      entry: ["setCurrency"],
+      invoke: {
+        src: "guardBilling",
+        onDone: [
+          {
+            target: ROUTE.CHECKOUT,
+            actions: ["setResolving"],
+            cond: "isCheckout"
+          },
+          { actions: ["setResolved"] }
+        ],
+        onError: [
+          {
+            target: ROUTE.CHECKOUT,
+            actions: ["setResolving"],
+            cond: "isSession"
+          },
+          { target: ROUTE.CHECKOUT, actions: ["setResolving"] }
+        ]
+      },
+      on: {
+        NEXT: {
+          target: ROUTE.CHECKOUT,
+          actions: [assign({ targetRoute: { name: ROUTE.CHECKOUT } })]
         },
         BACK: {
           target: ROUTE.BASKET,

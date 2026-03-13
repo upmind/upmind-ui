@@ -23,7 +23,15 @@
     "placeholder": "nome@email.com"
   },
   "auth_password": {
-    "error": "É necessária uma senha forte",
+    "error": {
+      "min_length": "A senha deve ter pelo menos 8 caracteres",
+      "min_length_lowercase": "A senha deve ter pelo menos 8 caracteres e conter uma letra minúscula.",
+      "min_length_lowercase_number": "A senha deve ter no mínimo 8 caracteres, incluir uma letra minúscula e um dígito numérico",
+      "min_length_number": "A senha deve ter pelo menos 8 caracteres e conter um número.",
+      "missing_lowercase": "A senha deve conter uma letra minúscula",
+      "missing_lowercase_number": "A senha deve conter uma letra minúscula e um número",
+      "missing_number": "A senha deve conter um número"
+    },
     "label": "Senha",
     "placeholder": "Senha ou frase-senha"
   },
@@ -88,6 +96,10 @@
     "error": "Seu primeiro nome é obrigatório",
     "label": "Primeiro nome"
   },
+  "language": {
+    "error": "É necessário que você fale o seu idioma.",
+    "label": "Linguagem"
+  },
   "lastname": {
     "error": "Seu sobrenome é obrigatório",
     "label": "Sobrenome"
@@ -121,6 +133,10 @@
     "error": "É necessário um código promocional válido",
     "placeholder": "Insira o código do voucher aqui"
   },
+  "publicName": {
+    "error": "Seu nome público é obrigatório.",
+    "label": "Nome público"
+  },
   "recover": {
     "error": "Ocorreu um erro ao tentar enviar um e-mail de redefinição de senha."
   },
@@ -139,9 +155,5 @@
   },
   "stored_payment_method": {
     "label": ""
-  },
-  "taxNumber": {
-    "label": "Número de identificação fiscal",
-    "placeholder": "ID fiscal"
   }
 }

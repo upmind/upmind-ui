@@ -14,17 +14,24 @@ import {
   parseModel,
   parseBasketProductModel,
   parseProduct,
-  parseBundledProducts,
-  parseProvisioningSchema
+  parseBundledProducts
 } from "./utils";
+
+import { useProductConfigSchema, useProductConfigUischema } from "./schemas";
 
 import {
   cloneDeep,
+  compact,
+  filter,
+  get,
+  isArray,
   isEmpty,
   isEqual,
   map,
   merge,
   pick,
+  split,
+  trimStart,
   xorBy
 } from "lodash-es";
 
@@ -74,6 +81,7 @@ export default createMachine(
                   actions: [
                     "initModel",
                     "setLookups",
+                    "setSchemas",
                     "setProduct",
                     "persistModel"
                   ]
@@ -97,7 +105,12 @@ export default createMachine(
               onDone: [
                 {
                   target: "#available",
-                  actions: ["setProduct", "setModel", "persistModel"]
+                  actions: [
+                    "setProduct",
+                    "setModel",
+                    "setSchemas",
+                    "persistModel"
+                  ]
                 }
               ],
               onError: [
@@ -123,7 +136,7 @@ export default createMachine(
           onDone: [
             {
               target: "available",
-              actions: ["setLookups"]
+              actions: ["setLookups", "setSchemas"]
             }
           ],
           onError: {
@@ -146,7 +159,12 @@ export default createMachine(
                   src: "parse",
                   onDone: {
                     target: "validating",
-                    actions: ["setModel", "calculate", "setProduct"]
+                    actions: [
+                      "setModel",
+                      "setSchemas",
+                      "calculate",
+                      "setProduct"
+                    ]
                   }
                 }
               },
@@ -210,7 +228,7 @@ export default createMachine(
           },
           // ---
           SET: {
-            target: "available.invalid"
+            target: "available.checking"
           },
           "SET.QUANTITY": {
             target: "available.checking"
@@ -225,6 +243,9 @@ export default createMachine(
             target: "available.checking"
           },
           "SET.PROVISIONING": {
+            target: "available.checking"
+          },
+          "SET.TRIAL": {
             target: "available.checking"
           }
         }
@@ -463,12 +484,16 @@ export default createMachine(
             model?.term
           ),
           attributes: parseSubproductDetails(data.product.products_attributes),
-          provisionFields: parseProvisioningSchema(
-            data.rawProvisionFields,
-            data.product
-          ),
+          provisionFields: data.rawProvisionFields,
           bundled: parseBundledProducts(data.product, bundle)
         })
+      }),
+
+      setSchemas: assign({
+        schema: (context: ProductConfigContext) =>
+          useProductConfigSchema(context),
+        uischema: (context: ProductConfigContext) =>
+          useProductConfigUischema(context)
       }),
 
       persistModel: assign({
@@ -489,30 +514,30 @@ export default createMachine(
           { data }: AnyEventObject
         ) => data?.rawProvisionFields ?? rawProvisionFields ?? {},
         errorExternal: (
-          { errorExternal, model }: ProductConfigContext,
+          { errorExternal, baseModel }: ProductConfigContext,
           { data }: AnyEventObject
         ) => {
           // Change in Logic...if we have interacted with the product,
-          // we can clear the external errors and let our normal validation handle it
-          return !isEqual(model?.provisionFields, data.model?.provisionFields)
-            ? undefined
-            : errorExternal;
+          // we can clear any external errors for fields that have changed.
+          if (!isArray(errorExternal)) return errorExternal;
 
-          // DEPRECATED
-          // lets parse/override our error message and data, specifically external errors.
-          // For any dirty/hydrated field, remove any external error to allow for normal validation
-          // Once the external error is removed, we dont ever want to show it again, unless we refresh the product
-          // forEach(data.model.provisionFields, (field, key) => {
-          //   if (
-          //     !isEmpty(field) ||
-          //     (!isNil(field) &&
-          //       isObject(errorExternal) &&
-          //       !isEmpty(errorExternal?.provisionFields))
-          //   ) {
-          //     remove(errorExternal!.provisionFields!, ["propertyName", key]);
-          //   }
-          // });
-          // return omitBy(errorExternal, isEmpty) as ExternalError;
+          const newModel = data?.model ?? data;
+          const remaining = filter(errorExternal, error => {
+            const field = compact(
+              split(trimStart(error.instancePath, "/"), "/")
+            );
+            const baseValue = get(baseModel, field);
+            const newValue = get(newModel, field);
+
+            // Treat all nilish/empty values as equivalent — the user
+            // hasn't meaningfully changed a field that went from
+            // undefined → null → "" etc.
+            if (!baseValue && !newValue) return true;
+
+            return isEqual(baseValue, newValue);
+          });
+
+          return isEmpty(remaining) ? undefined : remaining;
         }
       }),
 
@@ -652,9 +677,7 @@ export default createMachine(
         errorExternal: (
           _context: ProductConfigContext,
           { data }: AnyEventObject
-        ) => mapToHeadlessError(data)?.data, // NB we only need the exact errors from the api
-        error: (_context: ProductConfigContext, { data }: AnyEventObject) =>
-          mapToHeadlessError(data)
+        ) => mapToHeadlessError(data) // NB we only need the exact errors from the api
       }),
 
       setError: assign({
@@ -663,7 +686,7 @@ export default createMachine(
       }),
 
       clearError: assign({
-        error: {}
+        error: []
       })
     },
     services,

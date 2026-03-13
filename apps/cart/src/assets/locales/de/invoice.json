@@ -1,8 +1,10 @@
 {
-  "order_complete": "Bestellung abgeschlossen!",
-  "order_complete_msg": "Wir haben Ihnen eine E-Mail mit allen wichtigen Informationen zu Ihrem Kauf geschickt.",
+  "order_complete": "Danke für Ihre Bestellung – erfolgreich **abgeschlossen**!",
+  "order_complete_msg": "Wir haben Ihnen eine Bestätigungs-E-Mail mit den Details zu Ihrer Bestellung gesendet. Darin finden Sie alle Informationen zu Ihrem Kauf.",
   "order_free": "Nichts mehr zu bezahlen",
   "order_free_msg": "Ihre Bestellung wurde erfolgreich aufgegeben. Es ist keine Zahlung erforderlich.",
+  "order_locked": "Rechnung gesperrt",
+  "order_locked_msg": "Diese Rechnung ist gesperrt, in der Regel, weil gerade ein Zahlungsversuch läuft. Die Sperre verhindert, dass die Rechnung zweimal belastet wird.",
   "order_not_found": "Bestellung nicht gefunden!",
   "order_not_found_msg": "Leider konnten wir Ihre Bestellung nicht finden. Bitte klicken Sie auf die Schaltfläche unten, um Ihre Bestellungen anzuzeigen.",
   "order_partial_payment": "Vielen Dank für Ihre Zahlung.",
@@ -19,6 +21,7 @@
   "payment_retry": "Die Zahlung für diese Bestellung ist noch in voller Höhe fällig.",
   "payment_retry_action": "Neue Zahlungsmethode ausprobieren",
   "payment_retry_msg": "Leider war Ihr vorheriger Zahlungsversuch nicht erfolgreich – dies kann verschiedene Gründe haben. Bitte versuchen Sie es erneut mit einer anderen Zahlungsmethode.",
+  "payment_success_banner": "Die Zahlung für diese Bestellung wurde erhalten {date}.",
   "product_information": "Produktinformationen",
   "your_order": "Ihre Bestellung"
 }

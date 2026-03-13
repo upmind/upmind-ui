@@ -9,9 +9,42 @@
       :modal="false"
       @resolve="doResolve"
       v-model:touched="touched"
+      :ui-config="{
+        form: {
+          root: ['gap-9']
+        }
+      }"
     />
 
     <template v-else>
+      <Manage
+        :label="t('text.address')"
+        v-model="selectedAddress"
+        :manage="{
+          useList: useClientAddresses,
+          useMutate: useClientAddressManager
+        }"
+        :show-label="!!selectedAddress"
+        :readonly="readonly"
+        :force-open="props.expand"
+        @processing="wait"
+        @resolve="
+          (add: boolean) => {
+            if (add) emit('formResolve');
+          }
+        "
+        v-model:touched="touched"
+      >
+        <template #item="{ item, readonly, doEdit, doRemove }">
+          <AddressItem
+            v-bind="item"
+            :readonly="readonly"
+            @edit="doEdit"
+            @remove="doRemove"
+          />
+        </template>
+      </Manage>
+
       <Manage
         v-if="billingMeta.needsPhone"
         :label="t('text.phone')"
@@ -24,32 +57,15 @@
         :show-label="!!selectedPhone"
         :readonly="readonly"
         @processing="wait"
+        @resolve="
+          (add: boolean) => {
+            if (add) emit('formResolve');
+          }
+        "
         v-model:touched="touched"
       >
         <template #item="{ item, readonly, doEdit, doRemove }">
           <PhoneItem
-            v-bind="item"
-            :readonly="readonly"
-            @edit="doEdit"
-            @remove="doRemove"
-          />
-        </template>
-      </Manage>
-
-      <Manage
-        :label="t('text.address')"
-        v-model="selectedAddress"
-        :manage="{
-          useList: useClientAddresses,
-          useMutate: useClientAddressManager
-        }"
-        :show-label="!!selectedAddress"
-        :readonly="readonly"
-        @processing="wait"
-        v-model:touched="touched"
-      >
-        <template #item="{ item, readonly, doEdit, doRemove }">
-          <AddressItem
             v-bind="item"
             :readonly="readonly"
             @edit="doEdit"
@@ -81,7 +97,7 @@ import Manage from "../../../components/manage/Manage.vue";
 import Form from "../../../components/manage/Form.vue";
 
 // --- utils
-import { find, set } from "lodash-es";
+import { find } from "lodash-es";
 
 // --- types
 import { UnifiedType } from "@upmind-automation/headless";
@@ -92,11 +108,13 @@ import PhoneItem from "./PhoneItem.vue";
 // -----------------------------------------------------------------------------
 
 const props = defineProps<{
+  expand?: boolean;
   modelValue?: BillingModel;
   readonly?: boolean;
   touched?: boolean;
 }>();
 
+const emit = defineEmits<{ formResolve: [] }>();
 const modelValue = defineModel<BillingModel>("modelValue", {});
 
 const showForm = ref(false);
@@ -160,18 +178,21 @@ const selectedPhone = computed({
 // --- methods
 
 function doResolve(value: BillingModel) {
-  selectedPhone.value = billingMeta.value.needsPhone
-    ? (value?.phoneId ?? defaultPhone()?.id ?? undefined)
-    : undefined;
-
-  selectedAddress.value = value?.addressId ?? defaultAddress()?.id ?? undefined;
+  modelValue.value = {
+    phoneId: billingMeta.value.needsPhone
+      ? (value?.phoneId ?? defaultPhone()?.id ?? undefined)
+      : undefined,
+    companyId: undefined,
+    addressId: value?.addressId ?? defaultAddress()?.id ?? undefined
+  };
   showForm.value = false;
+  emit("formResolve");
 }
 
 // --- side effects
 
 await Promise.all([isAddressesReady(), isPhonesReady()]).then(() => {
-  // ensure we select our defaults
+  // Set our initial / default values
   modelValue.value = {
     companyId: undefined,
     addressId: modelValue.value?.addressId ?? defaultAddress()?.id,

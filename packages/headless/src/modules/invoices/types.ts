@@ -18,6 +18,7 @@ export type PaymentState = `${PAYMENT_STATE}`;
 
 export type Invoice = {
   id: string;
+  locked: boolean;
   status: InvoiceStatus;
   number: string;
   client: Client;
@@ -38,6 +39,7 @@ export type Invoice = {
     unpaidAmountFormatted: string;
   };
   dateCreated: FormattedDate;
+  datePaid: FormattedDate;
 };
 
 export type Payment = {

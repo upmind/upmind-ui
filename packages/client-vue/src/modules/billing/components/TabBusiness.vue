@@ -13,30 +13,6 @@
 
     <template v-else>
       <Manage
-        v-if="billingMeta.needsPhone"
-        :label="t('text.phone')"
-        v-model="selectedPhone"
-        as="select"
-        :manage="{
-          useList: useClientPhones,
-          useMutate: useClientPhoneManager
-        }"
-        :show-label="!!selectedPhone"
-        :readonly="readonly"
-        @processing="wait"
-        v-model:touched="touched"
-      >
-        <template #item="{ item, readonly, doEdit, doRemove }">
-          <PhoneItem
-            v-bind="item"
-            :readonly="readonly"
-            @edit="doEdit"
-            @remove="doRemove"
-          />
-        </template>
-      </Manage>
-
-      <Manage
         :label="t('text.company')"
         v-model="selectedCompany"
         :manage="{
@@ -45,7 +21,13 @@
         }"
         :show-label="!!selectedCompany"
         :readonly="readonly"
+        :force-open="props.expand"
         @processing="wait"
+        @resolve="
+          (add: boolean) => {
+            if (add) emit('formResolve');
+          }
+        "
         v-model:touched="touched"
       >
         <template #item="{ item, readonly, doEdit, doRemove }">
@@ -55,6 +37,36 @@
             @edit="doEdit"
             @remove="doRemove"
           />
+        </template>
+
+        <template v-if="billingMeta.needsPhone" #additional>
+          <Manage
+            :label="t('text.phone')"
+            v-model="selectedPhone"
+            as="select"
+            :manage="{
+              useList: useClientPhones,
+              useMutate: useClientPhoneManager
+            }"
+            :show-label="!!selectedPhone"
+            :readonly="readonly"
+            @processing="wait"
+            @resolve="
+              (add: boolean) => {
+                if (add) emit('formResolve');
+              }
+            "
+            v-model:touched="touched"
+          >
+            <template #item="{ item, readonly, doEdit, doRemove }">
+              <PhoneItem
+                v-bind="item"
+                :readonly="readonly"
+                @edit="doEdit"
+                @remove="doRemove"
+              />
+            </template>
+          </Manage>
         </template>
       </Manage>
     </template>
@@ -81,7 +93,7 @@ import Manage from "../../../components/manage/Manage.vue";
 import Form from "../../../components/manage/Form.vue";
 
 // --- utils
-import { find, set } from "lodash-es";
+import { find } from "lodash-es";
 
 // --- types
 import { UnifiedType } from "@upmind-automation/headless";
@@ -92,11 +104,13 @@ import PhoneItem from "./PhoneItem.vue";
 // -----------------------------------------------------------------------------
 
 const props = defineProps<{
+  expand?: boolean;
   modelValue?: BillingModel;
   readonly?: boolean;
   touched?: boolean;
 }>();
 
+const emit = defineEmits<{ formResolve: [] }>();
 const modelValue = defineModel<BillingModel>("modelValue", {});
 
 const showForm = ref(false);
@@ -159,18 +173,23 @@ const selectedPhone = computed({
 // --- methods
 
 function doResolve(value: BillingModel) {
-  selectedPhone.value = billingMeta.value.needsPhone
-    ? (value?.phoneId ?? defaultPhone()?.id ?? undefined)
-    : undefined;
-
-  selectedCompany.value = value?.companyId ?? defaultCompany()?.id ?? undefined;
+  const company =
+    find(companies.value, ["id", value?.companyId]) ?? defaultCompany();
+  modelValue.value = {
+    phoneId: billingMeta.value.needsPhone
+      ? (value?.phoneId ?? defaultPhone()?.id ?? undefined)
+      : undefined,
+    companyId: company?.id ?? value?.companyId,
+    addressId: company?.addressId
+  };
   showForm.value = false;
+  emit("formResolve");
 }
 
 // --- side effects
 
 await Promise.all([isCompaniesReady(), isPhonesReady()]).then(() => {
-  // ensure we select our defaults
+  // Set our initial / default values
   modelValue.value = {
     companyId: modelValue.value?.companyId ?? defaultCompany()?.id,
     addressId: modelValue.value?.addressId ?? defaultCompany()?.addressId,

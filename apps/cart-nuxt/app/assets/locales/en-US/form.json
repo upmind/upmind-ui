@@ -23,7 +23,6 @@
     "placeholder": "name@email.com"
   },
   "auth_password": {
-    "error": "A strong password is required",
     "label": "Password",
     "placeholder": "Password or passphrase"
   },

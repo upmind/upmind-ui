@@ -19,6 +19,7 @@
   "basket_review_msg": "Gennemgå venligst følgende punkter, før du fortsætter",
   "basket_section": "Kurvoversigt",
   "basket_summary_desc": "Du har {count} vare i din kurv, i alt {total} | Du har {count} varer i din kurv, i alt {total}.",
+  "basket_summary_desc_free": "Du har {count} vare i din kurv. | Du har {count} varer i din kurv.",
   "basket_title": "Din kurv",
   "change_amount": "Ændr beløb",
   "empty": "Din **kurv** er tom",

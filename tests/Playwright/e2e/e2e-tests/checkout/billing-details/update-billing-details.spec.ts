@@ -48,7 +48,8 @@ test.describe("Billing Details at checkout", () => {
         })}.com`
       },
       [],
-      true
+      true,
+      false
     );
     await page.goto(URLs.basket);
     await expect(page.getByTestId("basket-product")).toBeVisible();
@@ -60,6 +61,8 @@ test.describe("Billing Details at checkout", () => {
       await page.goto(URLs.checkout);
       await expect(register.registrationForm).toBeVisible();
       await register.inputRegistration();
+      //await checkout.addNewAddress.click();
+      await expect(checkout.billingCards).toBeVisible();
       await checkout.addressSearch.fill(
         "10 Downing St, Westminster, London SW1A 2AA, UK"
       );
@@ -71,19 +74,18 @@ test.describe("Billing Details at checkout", () => {
         .click();
       await page.waitForTimeout(1000);
       await checkout.saveDetails.click();
-      await expect(checkout.dialogWindow).toBeHidden();
-      await expect(checkout.addressCard).toContainText("10 Downing Street", {
-        timeout: 15000
-      });
-      await expect(checkout.addressCard).toContainText(
-        "London, SW1A 2AA, Greater London, United Kingdom"
+      await expect(checkout.billingDetails).toContainText(
+        "10 Downing Street, London, SW1A 2AA, Greater London, United Kingdom"
       );
     });
     test("New User add new company details at checkout", async ({ page }) => {
       await page.goto(URLs.checkout);
       await expect(register.registrationForm).toBeVisible();
       await register.inputRegistration();
-      await page.getByText("Business details").click();
+      await checkout.addNewAddress.click();
+      await expect(checkout.billingCards).toBeVisible();
+      await page.getByTestId("tab-business-details").click();
+      await expect(page.getByTestId("form")).toBeVisible();
       const companyNameInput = page
         .getByTestId("form-item-company-name")
         .locator("input");
@@ -108,7 +110,8 @@ test.describe("Billing Details at checkout", () => {
         .click();
       await page.waitForTimeout(1000);
       await checkout.saveDetails.click();
-      await expect(checkout.dialogWindow).toBeHidden();
+      await checkout.saveDetails.click();
+      await checkout.saveDetails.click();
       await expect(checkout.billingDetails).toContainText("Acme Corp");
       await expect(checkout.billingDetails).toContainText("12345678");
     });
@@ -124,10 +127,12 @@ test.describe("Billing Details at checkout", () => {
       let token = await getSessionToken(context);
       await page.goto(URLs.checkout);
       await expect(checkout.billingDetails).toBeVisible();
-      await page.getByText("Personal details").click();
+      await page.getByTestId("link-change").click();
+      await expect(checkout.billingCards).toBeVisible();
+      await page.getByTestId("tab-personal-details").click();
       let currentAddress = await getCurrentAddressId(token);
-      await checkout.page.getByTestId("link-change").click();
-      await checkout.page.getByTestId("link-add-new").click();
+      await page.getByTestId("link-change").click();
+      await page.getByTestId("link-add-new").click();
       const streetName = fakerEN_GB.location.streetAddress();
       await checkout.manuallyInputAddress(
         streetName,
@@ -135,7 +140,6 @@ test.describe("Billing Details at checkout", () => {
         "SW1A 2AA",
         null
       );
-      await expect(checkout.dialogWindow).toBeHidden();
       await expect(checkout.addressCard).toContainText(streetName);
       await expect(checkout.addressCard).toContainText(
         "London, SW1A 2AA, United Kingdom"
@@ -154,7 +158,9 @@ test.describe("Billing Details at checkout", () => {
       );
       await page.goto(URLs.checkout);
       await expect(checkout.billingDetails).toBeVisible();
-      await page.getByText("Business details").click();
+      await page.getByTestId("link-change").click();
+      await expect(checkout.billingCards).toBeVisible();
+      await page.getByTestId("tab-business-details").click();
       await page.getByTestId("link-change").click();
       await page.getByTestId("link-add-new").click();
       const companyNameInput = page.getByTestId("input-properties-name");
@@ -168,7 +174,8 @@ test.describe("Billing Details at checkout", () => {
         .pressSequentially("12345678");
       await page.waitForTimeout(1000);
       await checkout.saveDetails.click();
-      await expect(checkout.dialogWindow).toBeHidden();
+      await checkout.saveDetails.click();
+      await checkout.saveDetails.click();
       await expect(checkout.billingDetails).toContainText("Acme Corp");
       await expect(checkout.billingDetails).toContainText("12345678");
     });
@@ -182,8 +189,10 @@ test.describe("Billing Details at checkout", () => {
         Logins.checkoutUser.password
       );
       await page.goto(URLs.checkout);
-      await page.getByText("Personal details").click();
-      await expect(checkout.billingDetails).toBeVisible();
+      await checkout.addNewAddress.click();
+      await expect(checkout.billingCards).toBeVisible();
+      await page.getByTestId("tab-personal-details").click();
+      await page.getByTestId("link-change").click();
       await page.getByTestId("link-change").click();
       await page.getByTestId("link-edit").first().click();
       await page.getByTestId("input-properties-address-1").clear();
@@ -191,6 +200,8 @@ test.describe("Billing Details at checkout", () => {
         .getByTestId("input-properties-address-1")
         .pressSequentially(newAddress);
       await page.waitForTimeout(1000);
+      await checkout.saveDetails.click();
+      await checkout.saveDetails.click();
       await checkout.saveDetails.click();
       await expect(checkout.dialogWindow).toBeHidden();
     });
@@ -202,8 +213,9 @@ test.describe("Billing Details at checkout", () => {
         Logins.checkoutUser.password
       );
       await page.goto(URLs.checkout);
-      await page.getByText("Business details").click();
-      await expect(checkout.billingDetails).toBeVisible();
+      await checkout.addNewAddress.click();
+      await expect(checkout.billingCards).toBeVisible();
+      await page.getByTestId("tab-business-details").click();
       await page.getByTestId("link-change").click();
       await page.getByTestId("link-edit").first().click();
       await page.getByTestId("input-properties-name").clear();

@@ -18,14 +18,7 @@ export default {
   },
 
   split: {
-    root: cva("flex min-h-screen w-full flex-row", {
-      variants: {
-        overflow: {
-          hidden: "overflow-hidden",
-          visible: "overflow-visible"
-        }
-      }
-    }),
+    root: cva("flex min-h-screen w-full flex-row"),
     container: cva(
       "bg-surface flex min-h-screen w-full flex-col justify-between px-6 py-7 md:w-1/2 lg:px-16 lg:pt-24 lg:pb-9 2xl:px-32"
     ),
@@ -39,14 +32,7 @@ export default {
   },
 
   canvasCard: {
-    root: cva("w-full px-6", {
-      variants: {
-        overflow: {
-          hidden: "overflow-hidden",
-          visible: "overflow-visible"
-        }
-      }
-    }),
+    root: cva("w-full px-6"),
     container: cva("max-w-app lgp:y-24 mx-auto py-12"),
     header: cva("w-full"),
     card: cva(
@@ -58,15 +44,7 @@ export default {
 
   surfaceBox: {
     root: cva(
-      "bg-canvas flex min-h-screen w-full grow items-center justify-center",
-      {
-        variants: {
-          overflow: {
-            hidden: "overflow-hidden",
-            visible: "overflow-visible"
-          }
-        }
-      }
+      "bg-canvas flex min-h-screen w-full grow items-center justify-center"
     ),
     container: cva("flex w-full flex-col px-6 py-12 lg:px-8 lg:py-24"),
     header: cva("flex h-24 w-full items-end justify-between"),

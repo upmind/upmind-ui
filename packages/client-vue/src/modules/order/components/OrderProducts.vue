@@ -3,10 +3,10 @@
     id="order-products"
     :label="t('invoice.your_order')"
     icon="shopping-bag-02"
+    :card="false"
     :border="false"
-    card
   >
-    <div :class="styles.table.wrapper">
+    <Card :class="styles.table.wrapper">
       <table :class="styles.table.root">
         <thead :class="styles.table.header.root">
           <tr>
@@ -89,7 +89,9 @@
           </tr>
         </tfoot>
       </table>
-    </div>
+    </Card>
+
+    <slot name="append" />
   </Section>
 </template>
 
@@ -103,7 +105,7 @@ import { flatMap, map, filter } from "lodash-es";
 import Section from "../../../components/section/Section.vue";
 import OrderProductsRow from "./OrderProductsRow.vue";
 import config from "../order.config";
-import { useStyles, Link, Icon } from "@upmind-automation/upmind-ui";
+import { useStyles, Link, Icon, Card } from "@upmind-automation/upmind-ui";
 import { parseBillingCycle } from "@upmind-automation/headless";
 import { buildPricingRow, buildOptionRow, buildDetailRow } from "../utils";
 

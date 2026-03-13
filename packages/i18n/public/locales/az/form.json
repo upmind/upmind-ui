@@ -23,7 +23,15 @@
     "placeholder": "name@email.com"
   },
   "auth_password": {
-    "error": "Güclü parol tələb olunur",
+    "error": {
+      "min_length": "Şifrə ən azı 8 simvoldan ibarət olmalıdır",
+      "min_length_lowercase": "Şifrə ən azı 8 simvoldan ibarət olmalı və kiçik hərflərdən ibarət olmalıdır",
+      "min_length_lowercase_number": "Şifrə ən azı 8 simvoldan ibarət olmalı, bir kiçik latın hərfi və bir rəqəm daxil etməlidir",
+      "min_length_number": "Şifrə ən azı 8 simvoldan ibarət olmalı və rəqəmdən ibarət olmalıdır",
+      "missing_lowercase": "Şifrə kiçik hərflərdən ibarət olmalıdır",
+      "missing_lowercase_number": "Şifrə kiçik hərf və rəqəmdən ibarət olmalıdır",
+      "missing_number": "Şifrə rəqəmdən ibarət olmalıdır"
+    },
     "label": "parol",
     "placeholder": "Parol və ya parol"
   },
@@ -67,7 +75,7 @@
     "placeholder": "Qeydiyyatdan keçmiş vergi və ya GST"
   },
   "country": {
-    "label": "ölkə",
+    "label": "Ölkə",
     "placeholder": "Ölkə seçin"
   },
   "domain": {
@@ -87,6 +95,10 @@
   "firstname": {
     "error": "Adınız tələb olunur",
     "label": "Ad"
+  },
+  "language": {
+    "error": "Diliniz tələb olunur",
+    "label": "Dil"
   },
   "lastname": {
     "error": "Soyadınız tələb olunur",
@@ -121,6 +133,10 @@
     "error": "Etibarlı promo kod tələb olunur",
     "placeholder": "Kupon kodunu buraya daxil edin"
   },
+  "publicName": {
+    "error": "İctimai adınız tələb olunur",
+    "label": "İctimai ad"
+  },
   "recover": {
     "error": "Sizə parol sıfırlama e-poçtu göndərmək istəyərkən xəta ilə üzləşdik."
   },
@@ -139,9 +155,5 @@
   },
   "stored_payment_method": {
     "label": ""
-  },
-  "taxNumber": {
-    "label": "Vergi nömrəsi",
-    "placeholder": "Vergi İD"
   }
 }

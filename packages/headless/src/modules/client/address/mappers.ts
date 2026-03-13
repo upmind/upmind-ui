@@ -20,6 +20,7 @@ export function mapAddress(raw: IAddress): Address {
     clientId: raw.client_id,
     // ---
     title: raw.address_1 || "New Address",
+    countryName: get(raw, "country.name"),
     description: compact([
       get(raw, "address_2"),
       get(raw, "street"),
@@ -28,6 +29,7 @@ export function mapAddress(raw: IAddress): Address {
       get(raw, "region.name"),
       get(raw, "country.name")
     ]).join(", "),
+    regionName: get(raw, "region.name"),
     // ---
     name: raw.name,
     address: {

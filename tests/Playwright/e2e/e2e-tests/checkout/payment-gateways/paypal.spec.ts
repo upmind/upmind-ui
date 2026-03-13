@@ -34,6 +34,6 @@ test.describe("Checkout with PayPal", () => {
     await page.click("#btnLogin");
     await page.getByTestId("submit-button-initial").click();
     await page.waitForURL(`http://qa-automation.local:5173/order/**`);
-    await expect(page.getByText("Order Complete!")).toBeVisible();
+    await expect(page.getByText("Thank you for your order.")).toBeVisible();
   });
 });

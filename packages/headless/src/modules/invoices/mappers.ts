@@ -16,6 +16,7 @@ import { orderBy, map } from "lodash-es";
 export function mapInvoice(raw: IInvoice): Invoice {
   return {
     id: raw.id,
+    locked: !!raw.locked,
     status: raw.status.code as InvoiceStatus,
     number: raw.number,
     client: useClientParser(raw.client)!,
@@ -35,7 +36,8 @@ export function mapInvoice(raw: IInvoice): Invoice {
       unpaidAmountConverted: raw.unpaid_amount_converted,
       unpaidAmountFormatted: raw.unpaid_amount_formatted
     },
-    dateCreated: useDateMapper(raw.create_datetime, undefined, "MMM Do, YYYY")
+    dateCreated: useDateMapper(raw.create_datetime, undefined, "MMM Do, YYYY"),
+    datePaid: useDateMapper(raw.paid_datetime, undefined, "MMM Do, YYYY h:mm A")
   };
 }
 

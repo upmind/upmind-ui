@@ -1,11 +1,7 @@
 <template>
-  <Root :class="styles.surfaceBox.root" :overflow="overflow">
+  <Root :class="styles.surfaceBox.root">
     <div :class="styles.surfaceBox.container">
-      <component
-        :is="card ? 'article' : Card"
-        :class="styles.surfaceBox.card"
-        spacious
-      >
+      <component :is="card ? 'article' : Card" :class="styles.surfaceBox.card">
         <!-- Content Header -->
         <section :class="styles.surfaceBox.contentHeader">
           <slot name="controls" />

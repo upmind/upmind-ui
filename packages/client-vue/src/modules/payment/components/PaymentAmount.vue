@@ -9,9 +9,9 @@
 
   <FormModal
     v-model:open="open"
+    v-model="model"
     modal
     no-actions
-    :modelValue="model"
     :processing="processing"
     :schema="schema"
     :uischema="uischema"
@@ -20,7 +20,9 @@
       t('cart.payment_amount_msg', { amount: amountsFormatted?.amount })
     "
     :label="t('action.confirm_amount')"
+    :cancel-label="cancelLabel"
     @resolve="doUpdate"
+    @reject="doReject"
   />
 </template>
 
@@ -41,29 +43,40 @@ const props = defineProps<PaymentAmountProps>();
 
 const emit = defineEmits<{
   (e: "update:modelValue", value: number): void;
-  (e: "resolve"): void;
+  (e: "reject"): void;
 }>();
 
 const { t } = useI18n();
 
 const open = ref(false);
 
-const model = computed({
-  get() {
-    return { amount: props.modelValue ?? 0 };
-  },
-  set(value: { amount: number }) {
-    if (value?.amount !== undefined) {
-      emit("update:modelValue", value.amount);
-    }
+const model = ref({ amount: props.modelValue ?? props.amount ?? 0 });
+
+const cancelLabel = computed(() => {
+  // Show "Pay outstanding balance" only when a partial payment has been
+  // confirmed AND the input still differs from the full amount
+  if (
+    props.modelValue !== props.amount &&
+    model.value.amount !== props.amount
+  ) {
+    return t("cart.payment_amount_reset", {
+      amount: props.amountsFormatted?.outstanding
+    });
   }
 });
 
 function openForm() {
+  model.value = { amount: props.modelValue ?? props.amount ?? 0 };
   open.value = true;
 }
 
 function doUpdate(data: Record<string, any>) {
-  model.value = data as { amount: number };
+  if (data?.amount !== undefined) {
+    emit("update:modelValue", data.amount);
+  }
+}
+
+function doReject() {
+  emit("reject");
 }
 </script>

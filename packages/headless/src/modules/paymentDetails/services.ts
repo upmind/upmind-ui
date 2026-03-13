@@ -20,7 +20,8 @@ import {
   compact,
   size,
   isNil,
-  set
+  set,
+  reject
 } from "lodash-es";
 import {
   ErrorOrigin,
@@ -180,19 +181,20 @@ async function loadLookups(
     url: useUrl(`clients/${client.id}/payment_details`, {
       limit: 0,
       brand_id: unref(brandId),
+      country_id: address?.country_id,
+      currency_code: currency.code,
       active: true,
-      "filter[gateway.currencies.id]": currencyId,
-      // "filter[gateway.active]": 1,
       order: ["-default", "id"].join(),
       with: ["gateway", "client"].join()
     }),
     queryKey: [
       "payment-details",
       {
+        orderId,
         brandId: unref(brandId),
         clientId: client.id,
         currencyId,
-        addressId: address?.country_id
+        countryId: address?.country_id
       }
     ],
     withAccessToken: true,
@@ -205,21 +207,22 @@ async function loadLookups(
       limit: 0,
       client_id: client.id,
       invoice_id: orderId,
+      country_id: address?.country_id,
+      currency_code: currency.code,
       order: "order",
-      "filter[gateway.currencies.id]": currencyId,
-      "filter[active]": 1,
+      active: true,
+      // "filter[active]": 1,
       with: ["gateway.gateway_provider", "gateway.card_types"].join()
     }),
     queryKey: [
       "payment-details",
       "gateways",
       {
+        orderId,
         brandId: unref(brandId),
-        invoice_id: orderId,
         clientId: client.id,
         currencyId,
-        invoiceId: orderId,
-        addressId: address?.country_id
+        countryId: address?.country_id
       }
     ],
     withAccessToken: true
@@ -251,6 +254,7 @@ async function loadLookups(
         client,
         amountsFormatted: {
           amount: lookups?.amountsFormatted?.amount || "",
+          outstanding: lookups?.amountsFormatted?.outstanding || "",
           wallet: lookups?.amountsFormatted?.wallet || ""
         }
       } as unknown as PaymentDetailsContext["lookups"];
@@ -270,13 +274,12 @@ async function parse(context: PaymentDetailsContext, { data }: AnyEventObject) {
   } = context;
   // ---
   let paymentDetail = undefined;
-
   // ---
   // NB: This parse function can be reached after a refresh from the basket, so we can check for that
   //     we do not want to parse any invalid/unmatched incoming data, as it will wipe out the user selection
   const safeData =
     has(data, "unpaid_amount_converted") || isNil(data)
-      ? model // fallback to the prev model
+      ? { ...model } // fallback to the prev model NB: destruct to break accidental mutation
       : pick(data, [
           "type",
           "amount",
@@ -290,10 +293,11 @@ async function parse(context: PaymentDetailsContext, { data }: AnyEventObject) {
   // NB: We always want to ensure the model amount/wallet_amount is correct based on the latest basket data
   //     IF a user has set a partial amount, we need to ensure we respect that up to the total amount due
   const safeAmount = amountPartial ? Math.min(amountPartial, amount) : amount;
+  safeData.amount = safeAmount;
 
   // NB: We also need to ensure the wallet amount is not greater than the safe amount or the available wallet balance
   //  IF a user has set a wallet amount, we need to respect that up to the safe amount
-  const safeWalletAmount = amountWallet
+  const safeWalletAmount = !isNil(amountWallet)
     ? Math.max(
         0,
         Math.min(
@@ -306,15 +310,12 @@ async function parse(context: PaymentDetailsContext, { data }: AnyEventObject) {
         0,
         Math.min(safeAmount, lookups.accountCredit?.total.value || 0)
       );
+  safeData.wallet_amount = safeWalletAmount;
 
   const safeModel = useModelParser<PaymentDetailModel>(
     schema,
     safeData,
-    {
-      ...model,
-      amount: safeAmount,
-      wallet_amount: safeWalletAmount
-    },
+    { ...model },
     {
       allowExtraProps: false
     }
@@ -367,7 +368,9 @@ async function parse(context: PaymentDetailsContext, { data }: AnyEventObject) {
     // otherwise preselect the first available gateway if there's only one AND PAY_LATER is not an option
     if (!safeModel.gateway_id && !safeModel.payment_details_id) {
       if (!isEmpty(lookups.storedPaymentMethods)) {
-        safeModel.payment_details_id = first(lookups.storedPaymentMethods)?.id;
+        safeModel.payment_details_id =
+          find(lookups.storedPaymentMethods, "meta.isDefault")?.id ??
+          first(lookups.storedPaymentMethods)?.id;
       } else if (
         size(lookups.gateways) === 1 &&
         !includes(lookups.paymentTypes, PaymentType.PAY_LATER)
@@ -435,19 +438,35 @@ async function parse(context: PaymentDetailsContext, { data }: AnyEventObject) {
   // NB: Only fire these if the amounts have changed
   lookups.amountsFormatted = await Promise.all([
     calculate(context, {
-      data: { value: safeModel.amount ?? 0, prev: model?.amount ?? 0 },
+      data: {
+        value: safeModel.amount ?? 0,
+        prev: model?.amount ?? 0,
+        force: isEmpty(lookups.amountsFormatted?.amount)
+      },
       type: "calculate"
-    }).catch(() => lookups.amountsFormatted?.amount || ""),
+    }).catch(() => {
+      return lookups.amountsFormatted?.amount || "";
+    }),
+    calculate(context, {
+      data: {
+        value: amount,
+        prev: lookups.amountsFormatted?.outstanding ?? 0,
+        force: isEmpty(lookups.amountsFormatted?.outstanding)
+      },
+      type: "calculate"
+    }).catch(() => lookups.amountsFormatted?.outstanding || ""),
     calculate(context, {
       data: {
         value: safeModel.wallet_amount ?? 0,
-        prev: model?.wallet_amount ?? 0
+        prev: model?.wallet_amount ?? 0,
+        force: isEmpty(lookups.amountsFormatted?.wallet)
       },
       type: "calculate"
     }).catch(() => lookups.amountsFormatted?.wallet || "")
-  ]).then(([amountFormatted, walletAmountFormatted]) => {
+  ]).then(([amountFormatted, outstandingFormatted, walletAmountFormatted]) => {
     return {
       amount: amountFormatted,
+      outstanding: outstandingFormatted,
       wallet: walletAmountFormatted
     };
   });
@@ -514,14 +533,14 @@ async function validate(
 }
 
 async function calculate(
-  { currency }: PaymentDetailsContext,
+  { currency, lookups }: PaymentDetailsContext,
   { data }: AnyEventObject
 ) {
   const { post, useUrl } = useQuery();
-
-  if (isEqual(data.value, data.prev)) return Promise.reject();
-
-  if (isEmpty(compact([data.value]))) return Promise.reject();
+  const prices = reject([data.value], isNil);
+  if (!data.force && (isEqual(data.value, data.prev) || isEmpty(prices))) {
+    return Promise.reject();
+  }
 
   // we need to calculate the total account credit including negative allowance
   // and get a formatted version based on the currency
@@ -531,7 +550,7 @@ async function calculate(
     withAccessToken: true,
     data: {
       currency_id: currency.id,
-      prices: compact([data.value])
+      prices
     }
   }).then(res => get(res, "total_formatted", ""));
 }

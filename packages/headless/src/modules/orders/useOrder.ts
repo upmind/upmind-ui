@@ -68,6 +68,7 @@ export const useOrder = (invoiceId: string) => {
         (isAvailable && paymentFailed.value),
       isAuthenticated: authMeta.value.isAuthenticated,
       isAvailable,
+      isLocked: !!invoice.value?.locked,
       isComplete: stateMatches(state, ["complete"]),
       isFree,
       isLoading: stateMatches(state, ["subscribing", "loading"]),

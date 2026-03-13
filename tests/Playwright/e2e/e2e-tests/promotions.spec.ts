@@ -161,7 +161,8 @@ test.describe("Promotions", () => {
         [],
         { domain: domain },
         [],
-        true
+        true,
+        false
       );
     });
     test("Promo request sent when adding promo to basket", async ({ page }) => {

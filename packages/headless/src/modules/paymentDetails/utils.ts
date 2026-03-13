@@ -6,12 +6,14 @@ import gatewayMachine from "./gateways/gateway.machine";
 
 // --- gateways
 import braintreeConfig from "./gateways/braintree";
+import dlocalConfig from "./gateways/dlocal";
 import openPayConfig from "./gateways/openPay";
 import stripeConfig from "./gateways/stripe";
 import razorpayConfig from "./gateways/razorpay";
 // import mercadoPagoConfig from "./gateways/mercadoPago";
 
 // --- utils
+import { filter, get, includes, some, sortBy, unset } from "lodash-es";
 
 // --- types
 import {
@@ -27,10 +29,10 @@ import { GatewayProviderCodes } from "@upmind-automation/types";
 import { type StripeContext } from "./gateways/stripe/types";
 import { type BraintreeContext } from "./gateways/braintree/types";
 import { type OpenPayContext } from "./gateways/openPay/types";
-import { filter, get, includes, some, sortBy, unset } from "lodash-es";
-import { type RazorpayContext } from "./gateways/razorpay/types";
-import { type PaymentDetail, type PaymentDetailsContext } from "./types";
+import type { RazorpayContext } from "./gateways/razorpay/types";
+import type { PaymentDetail, PaymentDetailsContext } from "./types";
 // import { MercadoPagoContext } from "./gateways/mercadoPago/types";
+import type { DLocalContext } from "./gateways/dlocal/types";
 
 // -----------------------------------------------------------------------------
 
@@ -162,6 +164,22 @@ export function spawnGateway({
           .withConfig(razorpayConfig),
         { name: gateway.id, sync: true }
       );
+    case GatewayProviderCodes.D_LOCAL_CARD:
+      return spawn(
+        gatewayMachine<DLocalContext>(gateway.gateway_provider.code)
+          .withContext({
+            address,
+            amount,
+            client,
+            ctx: GatewayCtx.PAY,
+            currency,
+            gateway,
+            orderId,
+            supported: true
+          })
+          .withConfig(dlocalConfig),
+        { name: gateway.id, sync: true }
+      );
 
     // SUPPORTED NON SDK "SIMPLE" GATEWAYS
     case GatewayProviderCodes.BANK_TRANSFER:
@@ -267,7 +285,7 @@ export function filterPaymentDetails(
     filter(paymentDetails, method =>
       some(gateways, ["gateway_id", method.gatewayId])
     ),
-    ["order"]
+    [method => !method.meta.isDefault, "order"]
   );
 }
 

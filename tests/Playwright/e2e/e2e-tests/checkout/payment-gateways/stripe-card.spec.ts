@@ -145,7 +145,7 @@ test.describe("Checkout with Stripe", () => {
       await checkout.clickPlaceOrderAndPay();
       await page.getByTestId("authorize-test-payment-button").click();
       await page.waitForURL(`order/**`);
-      await expect(page.getByText("Thank you for your order!")).toBeVisible();
+      await expect(page.getByText("Order complete!")).toBeVisible();
     });
     test("Failed iDEAL payment", async ({ page, context }) => {
       await goToCheckout(page, context, products.STARTER_HOSTING, null, "EUR");

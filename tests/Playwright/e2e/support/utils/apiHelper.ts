@@ -8,10 +8,6 @@ import {
   addPromotionToOrder,
   setOrderCurrency
 } from "./functions/basket";
-import {
-  registerAndLogin,
-  RegisterClientOptions
-} from "./functions/registration";
 import { fakerEN_GB } from "@faker-js/faker";
 
 /**
@@ -37,7 +33,8 @@ export async function goToCheckout(
   context: BrowserContext,
   product: { id: string; billingCycle: number; type: string },
   promotion: string | null = null,
-  currency: string | null = null
+  currency: string | null = null,
+  trialValue: boolean = false
 ) {
   await page.goto(URLs.basket);
   await expect
@@ -66,6 +63,7 @@ export async function goToCheckout(
           })}.com`
         }
       : {};
+
   await addProductToOrder(
     `${token}`,
     `${orderId}`,
@@ -76,12 +74,17 @@ export async function goToCheckout(
     [],
     provisionFields,
     [],
-    true
+    true,
+    trialValue
   );
   if (promotion !== null) {
     await addPromotionToOrder(orderId, promotion, token);
   }
   await page.goto(URLs.checkout);
+  // Ensure we land on the registration page after checkout navigation
+  if (!page.url().includes("/order/auth/register/")) {
+    await page.goto(URLs.register);
+  }
 }
 
 /**
@@ -424,4 +427,179 @@ export function mockWalletBalance(
       })
     });
   });
+}
+
+/**
+ * Intercepts product API responses and injects free trial fields.
+ * Handles both single-product responses (product config page) and
+ * multi-product responses (catalogue / recommendations).
+ *
+ * Follows the same pattern as `mockPromos` — intercepts the route,
+ * modifies the JSON response, and re-fulfills.
+ *
+ * @param context - Browser context to register the route on
+ * @param route - API path to intercept (e.g. "/api/basket/products/")
+ * @param options - Trial configuration fields to inject
+ * @param options.trialSupported - Whether the product supports a trial (default: true)
+ * @param options.trialForce - Whether the trial is forced / cannot be opted out (default: false)
+ * @param options.trialDuration - Trial duration in days (default: 7)
+ * @param options.trialEndAction - What happens when the trial ends (default: "convert")
+ */
+export function mockTrialProduct(
+  context: BrowserContext,
+  route: string,
+  options: {
+    trialSupported?: boolean;
+    trialForce?: boolean;
+    trialDuration?: number;
+    trialEndAction?: string;
+  } = {}
+) {
+  const {
+    trialSupported = true,
+    trialForce = false,
+    trialDuration = 7,
+    trialEndAction = "convert"
+  } = options;
+
+  context.route(`**${route}**`, async (route: Route) => {
+    // Let CORS preflight requests pass through without modification
+    if (route.request().method() === "OPTIONS") {
+      await route.fallback();
+      return;
+    }
+
+    const response = await route.fetch();
+    const json = await response.json();
+
+    const injectTrialFields = (product: Record<string, unknown>) => {
+      product["trial_supported"] = trialSupported;
+      product["trial_force"] = trialForce;
+      product["trial_duration"] = trialDuration;
+      product["trial_end_action"] = trialEndAction;
+    };
+
+    const data = json?.data;
+    if (Array.isArray(data)) {
+      // Catalogue / recommendations: data is an array of products
+      for (const product of data) {
+        injectTrialFields(product);
+      }
+    } else if (data && typeof data === "object") {
+      // Product config page: data is a single product object
+      injectTrialFields(data);
+    }
+
+    await route.fulfill({
+      status: response.status(),
+      contentType: "application/json",
+      headers: response.headers(),
+      body: JSON.stringify(json)
+    });
+  });
+}
+
+/**
+ * Intercepts GET requests to /api/clients/{id}/addresses and overrides
+ * billing-address fields in the first object of the response `data` array.
+ * All other fields and subsequent addresses are left unchanged.
+ *
+ * The route uses a wildcard for the client ID so it works regardless of
+ * which client is authenticated during the test run.
+ *
+ * @param context - Browser context to register the route on
+ */
+export function mockClientAddresses(context: BrowserContext) {
+  context.route("**/api/clients/*/addresses**", async (route: Route) => {
+    // Let CORS preflight requests pass through without modification
+    if (route.request().method() === "OPTIONS") {
+      await route.fallback();
+      return;
+    }
+
+    const response = await route.fetch();
+    const json = await response.json();
+
+    const data = json?.data;
+    if (Array.isArray(data) && data.length > 0) {
+      const first = data[0];
+
+      // Override address fields
+      first["name"] = "10 Downing Street";
+      first["address_1"] = "10 Downing Street";
+      first["address_2"] = "";
+      first["region_id"] = "none";
+      first["country_id"] = "320e4357-95e7-8d18-484f-31643202d986";
+      first["city"] = "London";
+      first["county"] = null;
+      first["postcode"] = "SW1A 2AA";
+
+      // Inject country relation
+      first["country"] = {
+        id: "320e4357-95e7-8d18-484f-31643202d986",
+        name: "United Kingdom",
+        code: "GB",
+        code3: "",
+        created_at: "2017-10-18 14:16:22",
+        updated_at: "2026-03-04 12:44:08",
+        vat: "20.00",
+        eea: 1,
+        phone_code: "+44",
+        post_code_regex: "/^[a-zA-Z]{1,2}[0-9][a-zA-Z0-9]? ?[0-9][a-zA-Z]{2}$/"
+      };
+    }
+
+    await route.fulfill({
+      status: response.status(),
+      contentType: "application/json",
+      headers: response.headers(),
+      body: JSON.stringify(json)
+    });
+  });
+}
+
+/**
+ * Adds a hardcoded 10 Downing Street address to a client account via the API.
+ *
+ * @param token - Bearer token for the client session
+ * @param clientId - The client UUID to add the address to
+ * @returns The created address data from the API response
+ */
+export async function addAddressToClient(
+  token: string,
+  clientId: string
+): Promise<Record<string, unknown>> {
+  const response = await fetch(
+    `${URLs.apiUrl}api/clients/${clientId}/addresses`,
+    {
+      method: "POST",
+      headers: {
+        accept: "application/json",
+        authorization: `Bearer ${token}`,
+        "content-type": "application/json",
+        origin: `${URLs.apiOrigin}`
+      },
+      body: JSON.stringify({
+        name: "10 Downing Street",
+        address_1: "10 Downing Street",
+        address_2: "",
+        country_id: "320e4357-95e7-8d18-484f-31643202d986",
+        region_id: "de78642d-e539-7146-295f-21208469530d",
+        city: "London",
+        postcode: "SW1A 2AB",
+        type: 1,
+        default: false
+      })
+    }
+  );
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(
+      `Failed to add address to client ${clientId}: ${response.status} ${response.statusText} - ${errorText}`
+    );
+  }
+
+  const body = await response.json();
+  return body.data;
 }

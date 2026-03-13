@@ -19,6 +19,7 @@
   "basket_review_msg": "Veuillez examiner les éléments suivants avant de continuer",
   "basket_section": "Résumé du panier",
   "basket_summary_desc": "Tu as {count} article dans votre panier, totalisant {total}. | Vous avez {count} articles dans votre panier, totalisant {total}.",
+  "basket_summary_desc_free": "Tu as {count} article dans votre panier. | Vous avez {count} articles dans votre panier.",
   "basket_title": "Votre panier",
   "change_amount": "Modifier le montant",
   "empty": "Votre **panier** est vide",

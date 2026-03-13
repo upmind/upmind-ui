@@ -23,7 +23,15 @@
     "placeholder": "név@email.com"
   },
   "auth_password": {
-    "error": "Erős jelszó szükséges",
+    "error": {
+      "min_length": "A jelszónak legalább 8 karakterből kell állnia.",
+      "min_length_lowercase": "A jelszónak legalább 8 karakterből kell állnia, és kisbetűket kell tartalmaznia.",
+      "min_length_lowercase_number": "A jelszónak legalább 8 karakterből kell állnia, és tartalmaznia kell egy kisbetűt és egy számjegyet.",
+      "min_length_number": "A jelszónak legalább 8 karakterből kell állnia és számot kell tartalmaznia.",
+      "missing_lowercase": "A jelszónak kisbetűket kell tartalmaznia",
+      "missing_lowercase_number": "A jelszónak kisbetűt és számot kell tartalmaznia.",
+      "missing_number": "A jelszónak számot kell tartalmaznia"
+    },
     "label": "Jelszó",
     "placeholder": "Jelszó vagy jelszó"
   },
@@ -68,7 +76,7 @@
   },
   "country": {
     "label": "Ország",
-    "placeholder": "Válasszon egy országot"
+    "placeholder": "Válasszon országot"
   },
   "domain": {
     "placeholder": "Add meg a domainedet..."
@@ -87,6 +95,10 @@
   "firstname": {
     "error": "A keresztneved megadása kötelező",
     "label": "Keresztnév"
+  },
+  "language": {
+    "error": "A nyelv megadása kötelező",
+    "label": "Nyelv"
   },
   "lastname": {
     "error": "A vezetékneved megadása kötelező",
@@ -121,6 +133,10 @@
     "error": "Érvénytelen promóciós kód",
     "placeholder": "Írd be ide az utalványkódot"
   },
+  "publicName": {
+    "error": "A nyilvános neved megadása kötelező",
+    "label": "Nyilvános név"
+  },
   "recover": {
     "error": "Hiba történt a jelszó-visszaállítási e-mail elküldése során."
   },
@@ -139,9 +155,5 @@
   },
   "stored_payment_method": {
     "label": ""
-  },
-  "taxNumber": {
-    "label": "Adószám",
-    "placeholder": "Adóazonosító"
   }
 }
