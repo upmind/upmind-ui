@@ -1,3 +1,5 @@
+import { some } from "lodash-es";
+
 export * from "./isDeepEmpty";
 export * from "./useCookies";
 export * from "./useCollections";
@@ -22,4 +24,16 @@ export const ANIMATION_DELAY = 500;
 
 export function isPromise(func: any): func is Promise<any> {
   return func && func.constructor && func.constructor.name === "AsyncFunction";
+}
+
+/**
+ * Generic type guard that checks if a value matches a model shape
+ * by verifying at least one of the specified keys exists on the object.
+ */
+export function isModelShape<T>(data: unknown, keys: (keyof T)[]): data is T {
+  return (
+    !!data &&
+    typeof data === "object" &&
+    some(keys, key => key in (data as object))
+  );
 }
