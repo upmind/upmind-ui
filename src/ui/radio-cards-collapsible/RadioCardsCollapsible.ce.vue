@@ -66,7 +66,10 @@
               :model-value="modelValue"
               :columns="props.columns"
               :value="option.value"
-              :class="[(!props.forceOpen || index > 0) && 'mt-2', props.radioClass]"
+              :class="[
+                (!props.forceOpen || index > 0) && 'mt-2',
+                props.radioClass
+              ]"
               :minimal="props.minimal"
               data-testid="radio-card-item"
               :uiConfig="props.uiConfig"
