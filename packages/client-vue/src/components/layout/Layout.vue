@@ -63,10 +63,7 @@ import SurfaceBoxLayout from "./layouts/SurfaceBox.layout.vue";
 import type { LayoutProps } from "./types";
 import { LAYOUT_VARIANTS } from "./types";
 
-const props = withDefaults(defineProps<LayoutProps>(), {
-  overflow: "visible",
-  sticky: true
-});
+const props = defineProps<LayoutProps>();
 
 const { variant } = useLayout();
 

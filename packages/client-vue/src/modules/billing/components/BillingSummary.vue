@@ -125,6 +125,8 @@ import {
   useClientPhones,
   useRoutingEngine
 } from "@upmind-automation/headless";
+
+import type { FunnelTarget } from "@upmind-automation/headless";
 import { useStyles } from "@upmind-automation/upmind-ui";
 
 // --- components
@@ -181,6 +183,6 @@ const selectedAddress = computed(() =>
 );
 
 const navigateToBilling = () => {
-  if (props.billingRoute) navigate(props.billingRoute);
+  if (props.billingRoute) navigate(props.billingRoute as FunnelTarget);
 };
 </script>
