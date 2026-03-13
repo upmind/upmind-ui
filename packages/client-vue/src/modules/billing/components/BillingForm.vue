@@ -1,5 +1,5 @@
 <template>
-  <Loading :active="meta.isProcessing" class-active="w-full rounded">
+  <Loading :active="meta.isProcessing" class-active="w-full rounded max-w-3xl">
     <Sections
       id="basket-billing"
       class="min-h-32 max-w-3xl"
