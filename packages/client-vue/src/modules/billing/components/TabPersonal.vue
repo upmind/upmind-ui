@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!meta.isLoading" class="flex w-full flex-col gap-4" v-auto-animate>
+  <div v-if="!meta.isLoading" class="flex w-full flex-col gap-4">
     <Form
       v-if="showForm"
       i18nKey="form.address"
@@ -26,7 +26,13 @@
         }"
         :show-label="!!selectedAddress"
         :readonly="readonly"
+        :force-open="props.expand"
         @processing="wait"
+        @resolve="
+          (add: boolean) => {
+            if (add) emit('formResolve');
+          }
+        "
         v-model:touched="touched"
       >
         <template #item="{ item, readonly, doEdit, doRemove }">
@@ -51,6 +57,11 @@
         :show-label="!!selectedPhone"
         :readonly="readonly"
         @processing="wait"
+        @resolve="
+          (add: boolean) => {
+            if (add) emit('formResolve');
+          }
+        "
         v-model:touched="touched"
       >
         <template #item="{ item, readonly, doEdit, doRemove }">
@@ -70,7 +81,6 @@
 // --- external
 import { useI18n } from "vue-i18n";
 import { computed, ref } from "vue";
-import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
 import {
@@ -97,11 +107,13 @@ import PhoneItem from "./PhoneItem.vue";
 // -----------------------------------------------------------------------------
 
 const props = defineProps<{
+  expand?: boolean;
   modelValue?: BillingModel;
   readonly?: boolean;
   touched?: boolean;
 }>();
 
+const emit = defineEmits<{ formResolve: [] }>();
 const modelValue = defineModel<BillingModel>("modelValue", {});
 
 const showForm = ref(false);
@@ -173,6 +185,7 @@ function doResolve(value: BillingModel) {
     addressId: value?.addressId ?? defaultAddress()?.id ?? undefined
   };
   showForm.value = false;
+  emit("formResolve");
 }
 
 // --- side effects

@@ -7,15 +7,12 @@ import {
   type FunnelTarget,
   QUERY_PARAMS,
   useBasket,
-  useBasketBilling,
   useBasketProductsPending,
-  useClientAddresses,
-  useClientCompanies,
-  useClientPhones,
   useQueryParams,
   useSession
 } from "@upmind-automation/client-vue";
 import { ROUTE } from "./types";
+import { applyBillingDefaults } from "./services";
 
 // -----------------------------------------------------------------------------
 
@@ -153,46 +150,10 @@ export default {
 
   /**
    * Sets billing defaults from the client's default address, company, and phone.
+   * Fire-and-forget — uses the shared `applyBillingDefaults` helper.
    */
   setBillingDefaults: () => {
-    const {
-      isReady: isBillingReady,
-      meta: billingMeta,
-      config: billingConfig,
-      update
-    } = useBasketBilling();
-
-    const { isAuthenticated } = useSession();
-
-    isAuthenticated()
-      .then(() => {
-        //  TODO check if we already have values.
-        //  if we do, we can skip this step
-        const { default: defaultAddress, isReady: isAddressesReady } =
-          useClientAddresses();
-        const { default: defaultCompany, isReady: isCompaniesReady } =
-          useClientCompanies();
-        const { default: defaultPhone, isReady: isPhonesReady } =
-          useClientPhones();
-
-        return Promise.allSettled([
-          isBillingReady(),
-          isAddressesReady(),
-          isCompaniesReady(),
-          isPhonesReady()
-        ]).then(() => {
-          if (billingMeta.value.isComplete) return;
-
-          const company =
-            billingConfig.value?.requiresCompany && defaultCompany();
-          return update({
-            companyId: company?.id,
-            addressId: company?.addressId ?? defaultAddress()?.id,
-            phoneId: billingConfig.value?.requiresPhone && defaultPhone()?.id
-          }).catch(() => {});
-        });
-      })
-      .catch(() => {});
+    applyBillingDefaults();
   },
 
   /**

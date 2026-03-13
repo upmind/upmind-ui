@@ -296,7 +296,7 @@ async function parse(context: PaymentDetailsContext, { data }: AnyEventObject) {
 
   // NB: We also need to ensure the wallet amount is not greater than the safe amount or the available wallet balance
   //  IF a user has set a wallet amount, we need to respect that up to the safe amount
-  const safeWalletAmount = amountWallet
+  const safeWalletAmount = !isNil(amountWallet)
     ? Math.max(
         0,
         Math.min(

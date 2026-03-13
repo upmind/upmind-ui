@@ -13,6 +13,7 @@
       :class="props.class"
       class="text-md"
       :minimal="props.minimal"
+      :force-open="props.forceOpen"
       @add="doAdd"
       @edit="doEdit"
       @remove="doRemove"
@@ -101,6 +102,7 @@ const props = withDefaults(
 const emits = defineEmits<{
   (e: "update:modelValue", value: string): void;
   (e: "processing", value: boolean): void;
+  (e: "resolve", add: boolean): void;
 }>();
 
 const touched = defineModel<boolean>("touched");
@@ -133,13 +135,14 @@ function doReject() {
 }
 
 function doResolve(value?: any) {
+  const add = !editId.value;
   modelValue.value = get(value, props.identifier ?? "id", value);
   openForm.value = false;
   if (!props.forceOpen) {
     safeOpen.value = false;
   }
-
   editId.value = "";
+  emits("resolve", add);
 }
 
 function doAdd() {
