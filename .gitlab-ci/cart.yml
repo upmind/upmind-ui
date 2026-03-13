@@ -23,7 +23,7 @@ build base:
   artifacts:
     when: on_success
     access: all
-    expire_in: "1 day"
+    expire_in: "3 days"
     paths:
       - packages/client-vue/dist
       - packages/headless/dist
@@ -68,6 +68,12 @@ build base:
   needs:
     - dependencies
     - build base
+  artifacts:
+    when: on_success
+    access: all
+    expire_in: "1 day"
+    paths:
+      - apps/cart/dist
   rules:
     - if: $CI_PIPELINE_SOURCE == 'web'
       when: manual
@@ -222,7 +228,7 @@ build base:
         message="${CI_COMMIT_SHORT_SHA}"
       fi
 
-      pnpm --dir ${APP_DIR} exec firebase deploy --only hosting:${FIREBASE_DEPLOY_TARGET} --message "${message}"
+      pnpm --dir ${APP_DIR} exec firebase deploy --project ${FIREBASE_PROJECT:-default} --only hosting:${FIREBASE_DEPLOY_TARGET} --message "${message}"
 
 (apps/cart) deploy firebase - staging:
   extends: .deploy firebase
@@ -239,6 +245,7 @@ build base:
     url: ${FIREBASE_ENVIRONMENT_URL_STAGING}
   variables:
     APP_DIR: apps/cart
+    FIREBASE_PROJECT: upmind-cart
     FIREBASE_DEPLOY_TARGET: upmind-cart-staging
 
 (apps/cart) deploy firebase - production:
@@ -259,6 +266,7 @@ build base:
     url: ${FIREBASE_ENVIRONMENT_URL_PRODUCTION}
   variables:
     APP_DIR: apps/cart
+    FIREBASE_PROJECT: upmind-cart
     FIREBASE_DEPLOY_TARGET: upmind-cart
 
 (apps/velia) deploy firebase:
