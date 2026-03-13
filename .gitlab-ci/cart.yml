@@ -6,63 +6,155 @@ variables:
 # 🛠️ Build
 #-------------------------------------------------------------------------------
 
-.(apps/cart) build base:
+build base:
   extends: .pnpm
   stage: build
   interruptible: true
   needs:
     - dependencies
-  cache:
-    - key:
-        files:
-          - apps/cart/package.json
-          - apps/cart/pnpm-lock.yaml
-      paths:
-        - apps/cart/node_modules
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'web'
+    - if: $CI_COMMIT_TAG =~ /^cart-v\d+(\.\d+)+$/
+    - if: $CI_COMMIT_TAG =~ /^cart-v\d+(\.\d+)+-rc\d+$/
+    - if: $CI_COMMIT_TAG =~ /^cart-staging-v\d+(\.\d+)+$/
+    - if: $CI_COMMIT_TAG =~ /^velia-v\d+(\.\d+)+$/
+    - if: $CI_COMMIT_TAG =~ /^hosting-v\d+(\.\d+)+$/
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'main'
   artifacts:
     when: on_success
     access: all
     expire_in: "1 day"
     paths:
+      - packages/client-vue/dist
+      - packages/headless/dist
+      - packages/ui/dist
+      - packages/icons/dist
+      - packages/i18n/dist
+      - packages/types/dist
+
       - apps/cart/dist
-  before_script:
-    - corepack enable
-    - corepack prepare pnpm@latest --activate
-    - pnpm --version
+
+  script:
+    - ls -a apps/hosting
+    - ls -a apps/velia
+    - ls -a packages/types
+    - ls -a packages/ui
     - pnpm -r --workspace-concurrency=1 build
 
 (apps/cart) build staging:
-  extends: .(apps/cart) build base
+  extends: .pnpm
+  stage: build
+  interruptible: true
+  needs:
+    - dependencies
+    - build base
   rules:
     - if: $CI_PIPELINE_SOURCE == 'web'
       when: manual
     - if: $CI_COMMIT_TAG =~ /^cart-staging-v\d+(\.\d+)+$/
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'main'
   script:
-    # Rebuild the cart for staging
+    # The production cart is built in 'build-base' - rebuild the cart for staging
     - rm -rf apps/cart/dist
     - pnpm --dir apps/cart run build:staging
+
+    # For Cloudflare pages
     - cp apps/cart/_headers apps/cart/dist/_headers
 
 (apps/cart) build production:
-  extends: .(apps/cart) build base
+  extends: .pnpm
+  stage: build
+  interruptible: true
+  needs:
+    - dependencies
+    - build base
   rules:
     - if: $CI_PIPELINE_SOURCE == 'web'
       when: manual
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'develop'
+      allow_failure: true
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
       when: manual
       allow_failure: true
     - if: $CI_COMMIT_TAG =~ /^cart-v\d+(\.\d+)+$/
     - if: $CI_COMMIT_TAG =~ /^cart-v\d+(\.\d+)+-rc\d+$/
   script:
+    # For Cloudflare pages
     - cp apps/cart/_headers apps/cart/dist/_headers
 
+(apps/velia) build:
+  extends: .pnpm
+  stage: build
+  interruptible: true
+  needs:
+    - dependencies
+    - build base
+  cache:
+    - key:
+        files:
+          - apps/velia/package.json
+          - apps/velia/pnpm-lock.yaml
+      paths:
+        - apps/velia/node_modules
+  artifacts:
+    when: on_success
+    access: all
+    expire_in: "3 days"
+    paths:
+      - apps/velia/dist
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'web'
+      when: manual
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'develop'
+      allow_failure: true
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      when: manual
+      allow_failure: true
+    - if: $CI_COMMIT_TAG =~ /^cart-v\d+(\.\d+)+$/
+    - if: $CI_COMMIT_TAG =~ /^velia-v\d+(\.\d+)+$/
+  script:
+    - cd apps/velia
+    - pnpm run build:prod
+
+(apps/hosting) build:
+  extends: .pnpm
+  stage: build
+  interruptible: true
+  needs:
+    - dependencies
+    - build base
+  cache:
+    - key:
+        files:
+          - apps/hosting/package.json
+          - apps/hosting/pnpm-lock.yaml
+      paths:
+        - apps/hosting/node_modules
+  artifacts:
+    when: on_success
+    access: all
+    expire_in: "3 days"
+    paths:
+      - apps/hosting/dist
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'web'
+      when: manual
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'develop'
+      allow_failure: true
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      when: manual
+      allow_failure: true
+    - if: $CI_COMMIT_TAG =~ /^cart-v\d+(\.\d+)+$/
+    - if: $CI_COMMIT_TAG =~ /^hosting-v\d+(\.\d+)+$/
+  script:
+    - cd apps/hosting
+    - pnpm run build:prod
+
 #-------------------------------------------------------------------------------
-# 🌤️ Cloudflare pages deployments
+# 🌤️ Cloudflare pages deployments - Vanilla cart
 #-------------------------------------------------------------------------------
 
-.(apps/cart) deploy base - cloudflare pages:
+.deploy cloudflare pages:
   extends: .pnpm
   stage: deploy
   interruptible: true
@@ -76,8 +168,8 @@ variables:
         --project-name "${PAGES_PROJECT_NAME}" \
         dist
 
-(apps/cart) deploy staging - cloudflare pages:
-  extends: .(apps/cart) deploy base - cloudflare pages
+(apps/cart) deploy cloudflare pages - staging:
+  extends: .deploy cloudflare pages
   needs:
     - dependencies
     - (apps/cart) build staging
@@ -93,14 +185,14 @@ variables:
     DEPLOY_BRANCH: staging
     PAGES_PROJECT_NAME: upmind-cart-staging
 
-(apps/cart) deploy production - cloudflare pages:
-  extends: .(apps/cart) deploy base - cloudflare pages
+(apps/cart) deploy cloudflare pages - production:
+  extends: .deploy cloudflare pages
   stage: deploy
   needs:
     - dependencies
     - (apps/cart) build production
   rules:
-    # Allow failure when it's not the primary deloy mechanism
+    # Allow failure when it's not the primary deploy mechanism
     - if: $CI_COMMIT_TAG =~ /^cart-v\d+(\.\d+)+$/ && $CART_PRIMARY_DEPLOY =~ /cloudflare/
       allow_failure: false
     - if: $CI_COMMIT_TAG =~ /^cart-v\d+(\.\d+)+$/ && $CART_PRIMARY_DEPLOY !~ /cloudflare/
@@ -114,15 +206,15 @@ variables:
     PAGES_PROJECT_NAME: upmind-cart
 
 #-------------------------------------------------------------------------------
-# 🔥 Firebase deployments
+# 🔥 Firebase deployments - All flavours
 #-------------------------------------------------------------------------------
 
-.(apps/cart) deploy base - firebase:
+.deploy firebase:
   extends: .pnpm
   stage: deploy
   script:
+    - set -u
     - echo "${GCP_SERVICE_ACCOUNT_JSON}" > ${GOOGLE_APPLICATION_CREDENTIALS}
-    - cd apps/cart
     - |
       if [ -n "${CI_COMMIT_TAG}" ]; then
         message="${CI_COMMIT_TAG}"
@@ -130,10 +222,10 @@ variables:
         message="${CI_COMMIT_SHORT_SHA}"
       fi
 
-      pnpm exec firebase deploy --only hosting:${FIREBASE_DEPLOY_TARGET} --message "${message}"
+      pnpm --dir ${APP_DIR} exec firebase deploy --only hosting:${FIREBASE_DEPLOY_TARGET} --message "${message}"
 
-(apps/cart) deploy staging - firebase:
-  extends: .(apps/cart) deploy base - firebase
+(apps/cart) deploy firebase - staging:
+  extends: .deploy firebase
   needs:
     - dependencies
     - (apps/cart) build staging
@@ -146,16 +238,17 @@ variables:
     action: start
     url: ${FIREBASE_ENVIRONMENT_URL_STAGING}
   variables:
+    APP_DIR: apps/cart
     FIREBASE_DEPLOY_TARGET: upmind-cart-staging
 
-(apps/cart) deploy production - firebase:
-  extends: .(apps/cart) deploy base - firebase
+(apps/cart) deploy firebase - production:
+  extends: .deploy firebase
   stage: deploy
   needs:
     - dependencies
     - (apps/cart) build production
   rules:
-    # Allow failure when it's not the primary deloy mechanism
+    # Allow failure when it's not the primary deploy mechanism
     - if: $CI_COMMIT_TAG =~ /^cart-v\d+(\.\d+)+$/ && $CART_PRIMARY_DEPLOY =~ /firebase/
       allow_failure: false
     - if: $CI_COMMIT_TAG =~ /^cart-v\d+(\.\d+)+$/ && $CART_PRIMARY_DEPLOY !~ /firebase/
@@ -165,7 +258,60 @@ variables:
     action: start
     url: ${FIREBASE_ENVIRONMENT_URL_PRODUCTION}
   variables:
+    APP_DIR: apps/cart
     FIREBASE_DEPLOY_TARGET: upmind-cart
+
+(apps/velia) deploy firebase:
+  extends: .deploy firebase
+  stage: deploy
+  needs:
+    - dependencies
+    - build base
+    - (apps/velia) build
+  rules:
+    # Allow failure when it's not the primary deploy mechanism
+    - if: $CI_COMMIT_TAG =~ /^cart-v\d+(\.\d+)+$/ && $CART_PRIMARY_DEPLOY =~ /firebase/
+      allow_failure: false
+    - if: $CI_COMMIT_TAG =~ /^velia-v\d+(\.\d+)+$/ && $CART_PRIMARY_DEPLOY =~ /firebase/
+      allow_failure: false
+
+    - if: $CI_COMMIT_TAG =~ /^cart-v\d+(\.\d+)+$/ && $CART_PRIMARY_DEPLOY !~ /firebase/
+      allow_failure: true
+    - if: $CI_COMMIT_TAG =~ /^velia-v\d+(\.\d+)+$/ && $CART_PRIMARY_DEPLOY !~ /firebase/
+      allow_failure: true
+  environment:
+    name: apps/velia/firebase/production
+    action: start
+    url: ${FIREBASE_ENVIRONMENT_URL_PRODUCTION}
+  variables:
+    APP_DIR: apps/velia
+    FIREBASE_DEPLOY_TARGET: velia
+
+(apps/hosting) deploy firebase:
+  extends: .deploy firebase
+  stage: deploy
+  needs:
+    - dependencies
+    - build base
+    - (apps/hosting) build
+  rules:
+    # Allow failure when it's not the primary deploy mechanism
+    - if: $CI_COMMIT_TAG =~ /^cart-v\d+(\.\d+)+$/ && $CART_PRIMARY_DEPLOY =~ /firebase/
+      allow_failure: false
+    - if: $CI_COMMIT_TAG =~ /^hosting-v\d+(\.\d+)+$/ && $CART_PRIMARY_DEPLOY =~ /firebase/
+      allow_failure: false
+
+    - if: $CI_COMMIT_TAG =~ /^cart-v\d+(\.\d+)+$/ && $CART_PRIMARY_DEPLOY !~ /firebase/
+      allow_failure: true
+    - if: $CI_COMMIT_TAG =~ /^hosting-v\d+(\.\d+)+$/ && $CART_PRIMARY_DEPLOY !~ /firebase/
+      allow_failure: true
+  environment:
+    name: apps/hosting/firebase/production
+    action: start
+    url: ${FIREBASE_ENVIRONMENT_URL_PRODUCTION}
+  variables:
+    APP_DIR: apps/hosting
+    FIREBASE_DEPLOY_TARGET: hosting
 
 #------------------------------------------------------------------------------
 # 📢 Notify
