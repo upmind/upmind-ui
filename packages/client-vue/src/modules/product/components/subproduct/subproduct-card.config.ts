@@ -51,7 +51,7 @@ export default {
       lg: cva("hidden flex-col gap-2 text-right md:flex md:flex-row", {
         variants: {
           isDropdown: {
-            true: "text-control-selected font-normal group-hover/item:font-medium group-data-[state=checked]/item:font-medium",
+            true: "text-base font-normal group-hover/item:font-medium group-data-[state=checked]/item:font-medium",
             false: "font-medium"
           }
         }
@@ -59,7 +59,7 @@ export default {
       text: cva("", {
         variants: {
           isDropdown: {
-            true: "text-sm-tight text-control-selected font-normal transition-all duration-300 group-hover/item:font-medium group-data-[state=checked]/item:font-medium",
+            true: "text-sm-tight text-base font-normal transition-all duration-300 group-hover/item:font-medium group-data-[state=checked]/item:font-medium",
             false: "text-md font-medium"
           }
         }

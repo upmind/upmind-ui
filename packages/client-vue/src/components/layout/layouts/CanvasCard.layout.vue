@@ -1,5 +1,5 @@
 <template>
-  <Root :class="styles.canvasCard.root" :overflow="overflow">
+  <Root :class="styles.canvasCard.root">
     <div :class="styles.canvasCard.container">
       <Card as="article" :class="styles.canvasCard.card" size="lg">
         <!-- Content Header -->
