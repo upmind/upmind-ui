@@ -105,6 +105,11 @@ export const useBasketBilling = () => {
 
   // --- methods
 
+  function set(value: BillingModel): void {
+    value = omitBy(toRaw(unref(value)), isEmpty);
+    actor.value?.send({ type: "SET", data: value });
+  }
+
   async function update(value: BillingModel): Promise<void> {
     // first check if our fields have change, ie: model.code has changed
     value = omitBy(toRaw(unref(value)), isEmpty);
@@ -203,6 +208,9 @@ export const useBasketBilling = () => {
 
     /** The billing schema. */
     schema,
+
+    /** Sets the billing model without triggering an API update. */
+    set,
 
     /** The billing UI schema. */
     uischema,

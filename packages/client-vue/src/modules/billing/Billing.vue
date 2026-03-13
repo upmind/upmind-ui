@@ -24,7 +24,7 @@
 
       <template #content>
         <slot name="content">
-          <BillingForm show-continue />
+          <BillingForm expand :auto-update="false" />
         </slot>
       </template>
 
@@ -45,12 +45,11 @@
 
 <script lang="ts" setup>
 // --- external
-import { computed, onUnmounted, watch, defineAsyncComponent } from "vue";
+import { computed, onUnmounted, defineAsyncComponent } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
 import {
-  useBasketBilling,
   useConfig,
   useRoutingEngine,
   validateTemplate
@@ -96,19 +95,7 @@ const props = withDefaults(defineProps<BillingProps>(), {
 
 const { t } = useI18n();
 const { set } = useThemes();
-const { navigateBack, navigateNext, isResolved } = useRoutingEngine();
-
-const { meta: billingMeta } = useBasketBilling();
-
-watch(
-  () => billingMeta.value.needsInput,
-  async (needsInput, prevNeedsInput) => {
-    if (prevNeedsInput && !needsInput) {
-      await isResolved();
-      navigateNext();
-    }
-  }
-);
+const { navigateBack } = useRoutingEngine();
 
 const { ui, data } = useConfig({
   context: UIContext.BILLING_DETAILS,

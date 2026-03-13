@@ -8,29 +8,41 @@
       data-testid="billing"
     >
       <template v-slot:[`section-personal`]>
-        <TabPersonal v-model="modelValue" v-model:touched="touched" />
+        <TabPersonal
+          v-model="modelValue"
+          v-model:touched="touched"
+          :expand="expand"
+          @form-resolve="onFormResolve"
+        />
 
         <Button
-          v-if="props.showContinue && formMeta.allowContinue"
+          v-if="!autoUpdate && formMeta.allowContinue"
           :label="t('action.continue_label')"
           icon-append="arrow-right"
           color="primary"
           size="lg"
           block
+          :disabled="meta.isProcessing"
           @click="doContinue"
         />
       </template>
 
       <template v-slot:[`section-business`]>
-        <TabBusiness v-model="modelValue" v-model:touched="touched" />
+        <TabBusiness
+          v-model="modelValue"
+          v-model:touched="touched"
+          :expand="expand"
+          @form-resolve="onFormResolve"
+        />
 
         <Button
-          v-if="props.showContinue && formMeta.allowContinue"
+          v-if="!autoUpdate && formMeta.allowContinue"
           :label="t('action.continue_label')"
           icon-append="arrow-right"
           color="primary"
           size="lg"
           block
+          :disabled="meta.isProcessing"
           @click="doContinue"
         />
       </template>
@@ -62,11 +74,14 @@ import TabPersonal from "./TabPersonal.vue";
 
 // --- types
 import type { TabItem } from "@upmind-automation/upmind-ui";
+import type { BillingModel } from "@upmind-automation/headless";
 import type { BillingFormProps } from "../types";
 
 // -----------------------------------------------------------------------------
 
-const props = defineProps<BillingFormProps>();
+const props = withDefaults(defineProps<BillingFormProps>(), {
+  autoUpdate: true
+});
 
 const modelValue = defineModel<BillingFormProps["modelValue"]>("modelValue");
 const touched = defineModel<BillingFormProps["touched"]>("touched");
@@ -75,7 +90,7 @@ const touched = defineModel<BillingFormProps["touched"]>("touched");
 const { t } = useI18n();
 
 const { client } = useSession();
-const { isReady, meta, config, update, model } = useBasketBilling();
+const { isReady, meta, config, set, update, wait, model } = useBasketBilling();
 const { navigateNext } = useRoutingEngine();
 
 // ensure we preload our data for speed between the tab
@@ -141,11 +156,6 @@ const selectedPhone = computed(() =>
   getPhone(model.value?.phoneId ?? undefined)
 );
 
-const hasBillingSelected = computed(
-  () =>
-    !!selectedAddress.value || !!selectedCompany.value || !!selectedPhone.value
-);
-
 // --- tabs
 
 const tabs = computed((): TabItem[] => {
@@ -173,28 +183,44 @@ const tabs = computed((): TabItem[] => {
 
 // --- methods
 
-function doContinue() {
+function buildModel(): BillingModel | undefined {
   const phoneId = meta.value.needsPhone
     ? (modelValue.value?.phoneId ?? defaultPhone()?.id)
     : undefined;
 
   if (activeTab.value === UnifiedType.PERSONAL) {
-    modelValue.value = { ...modelValue.value, companyId: undefined, phoneId };
-  } else if (
+    return { ...modelValue.value, companyId: undefined, phoneId };
+  }
+
+  if (
     activeTab.value === UnifiedType.BUSINESS &&
     !modelValue.value?.companyId
   ) {
     const company = defaultCompany();
-    modelValue.value = {
+    return {
       ...modelValue.value,
       companyId: company?.id,
       addressId: company?.addressId,
       phoneId
     };
-  } else {
-    modelValue.value = { ...modelValue.value, phoneId };
   }
+
+  return { ...modelValue.value, phoneId };
+}
+
+async function doContinue() {
+  const value = buildModel();
+  await update(value!);
+  modelValue.value = value;
   navigateNext();
+}
+
+async function onFormResolve() {
+  if (!props.autoUpdate) {
+    await wait(true);
+    await update(buildModel()!);
+    navigateNext();
+  }
 }
 
 // --- side effects
@@ -202,7 +228,9 @@ function doContinue() {
 watch(
   modelValue,
   value => {
-    if (value) update(value);
+    if (value && !meta.value.isProcessing) {
+      props.autoUpdate ? update(value) : set(value);
+    }
   },
   {
     immediate: true,

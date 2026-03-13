@@ -432,9 +432,8 @@ const action = computed(() => {
     return "action.return_to_shop";
   } else if (meta.value.isUnavailable) {
     return "action.go_to_my_orders";
-  } else if (meta.value.isComplete) {
-    return "action.go_to_my_account";
   }
+  return "action.go_to_my_account";
 });
 
 function doAction() {
@@ -477,15 +476,15 @@ function doAction() {
 // -----------------------------------------------------------------------------
 
 watch(
-  () => [meta.value.hasError, meta.value.isComplete],
-  ([hasError, isComplete]) => {
+  () => [meta.value.hasError, meta.value.isComplete, meta.value.isPartial],
+  ([hasError, isComplete, isPartial]) => {
     if (hasError) {
       showAnnouncement({
         text: t("invoice.payment_failed_banner"),
         type: "danger"
       });
     } else if (
-      isComplete &&
+      (isComplete || isPartial) &&
       !meta.value.isFree &&
       orderData.value?.datePaid?.date
     ) {
