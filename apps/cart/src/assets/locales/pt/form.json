@@ -23,7 +23,15 @@
     "placeholder": "name@email.com"
   },
   "auth_password": {
-    "error": "É necessário uma palavra-passe forte",
+    "error": {
+      "min_length": "A palavra-passe deve ter pelo menos 8 caracteres",
+      "min_length_lowercase": "A palavra-passe deve ter pelo menos 8 caracteres e conter uma letra minúscula.",
+      "min_length_lowercase_number": "A palavra-passe deve ter pelo menos 8 caracteres, incluir uma letra minúscula e um número",
+      "min_length_number": "A palavra-passe deve ter pelo menos 8 caracteres e conter um número.",
+      "missing_lowercase": "A palavra-passe deve conter uma letra minúscula",
+      "missing_lowercase_number": "A palavra-passe deve conter uma letra minúscula e um número",
+      "missing_number": "A palavra-passe deve conter um número"
+    },
     "label": "Palavra-passe",
     "placeholder": "Palavra-passe ou frase secreta"
   },

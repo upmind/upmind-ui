@@ -95,7 +95,7 @@ import { last } from "lodash-es";
 import type { ProductCategory } from "@upmind-automation/headless";
 import type { LAYOUT_VARIANTS } from "../../components/layout";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
-import { PRODUCT_LIST_STYLE } from "@upmind-automation/headless";
+import { PRODUCT_LIST_STYLE, LIST_STYLE } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 
@@ -182,6 +182,6 @@ const widget = computed(() => {
 const styles = useStyles(["products", "products.facets"], {}, config);
 
 const isFaceted = computed(() => {
-  return !!uiCart.value?.catalogue?.facet;
+  return ui.categoryList.value === LIST_STYLE.GRID_FACET;
 });
 </script>

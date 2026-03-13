@@ -32,5 +32,4 @@ export async function returnError(
       })
     });
   });
-  console.log(JSON.stringify(route, null, 2));
 }

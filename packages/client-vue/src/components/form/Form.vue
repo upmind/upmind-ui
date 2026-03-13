@@ -8,6 +8,9 @@
     :optional-text="t('text.optional')"
     data-testid="form"
   >
+    <template #additional="{ meta }">
+      <slot name="additional" v-bind="{ meta }"></slot>
+    </template>
     <template #footer="{ meta }">
       <slot name="footer" v-bind="{ meta }"></slot>
     </template>
@@ -35,6 +38,7 @@ import { useFormI18n } from ".";
 // --- types
 import type {
   FormProps,
+  FormAdditionalProps,
   FormFooterProps,
   FormActionsProps
 } from "@upmind-automation/upmind-ui";
@@ -59,6 +63,7 @@ const emits = defineEmits<{
 }>();
 
 const slots = defineSlots<{
+  additional: FormAdditionalProps;
   footer: FormFooterProps;
   actions: FormActionsProps;
 }>();

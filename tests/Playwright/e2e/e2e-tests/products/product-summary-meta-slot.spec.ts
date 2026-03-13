@@ -3,7 +3,7 @@ import { ProductConfig } from "../../support/page-objects/templates/ProductConfi
 import { URLs } from "../../support/constants/urls";
 
 let productConfig: ProductConfig;
-
+//TODO: Fix these with the brand meta intercept
 test.describe("Product Config Meta Elements", () => {
   test.beforeEach(({ page }) => {
     productConfig = new ProductConfig(page);

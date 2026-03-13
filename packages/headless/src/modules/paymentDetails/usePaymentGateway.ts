@@ -1,5 +1,5 @@
 // --- external
-import { computed, unref, toRaw, type ComputedRef } from "vue";
+import { computed, unref, toRaw, type ComputedRef, isRef } from "vue";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
@@ -15,7 +15,8 @@ import {
   DetailedError,
   responseCodes,
   type UseActor,
-  ErrorOrigin
+  ErrorOrigin,
+  useActor
 } from "../../utils";
 import { isNil, isEqual, every, isEmpty } from "lodash-es";
 import { useConfig } from "../config";
@@ -26,6 +27,7 @@ import { isFunction } from "lodash-es";
 import { type QueryResponseError } from "../query";
 import { type ErrorObject } from "ajv";
 import { GatewayTypes } from "@upmind-automation/types";
+import type { ActorRef } from "xstate";
 
 // -----------------------------------------------------------------------------
 /**
@@ -33,9 +35,16 @@ import { GatewayTypes } from "@upmind-automation/types";
  * @param actor - A computed ref to the payment gateway actor.
  * @returns An object containing the payment gateway state and methods.
  */
-export const usePaymentGateway = (actor: ComputedRef<UseActor | undefined>) => {
+export const usePaymentGateway = (
+  service: ActorRef<any, any> | ComputedRef<UseActor | undefined>
+) => {
   // --- state
   const { t } = useI18n();
+
+  const actor: ComputedRef<UseActor | undefined> = isRef(service)
+    ? (service as ComputedRef<UseActor>)
+    : useActor(service as ActorRef<any, any>);
+
   /**
    * Waits for the payment gateway actor to be ready (not loading or error state).
    * @returns {Promise<boolean>} Resolves true if ready, false if error.
@@ -74,15 +83,16 @@ export const usePaymentGateway = (actor: ComputedRef<UseActor | undefined>) => {
       !actor.value || contextValue<boolean>(actor, "supported") !== true,
     isLoading: !!actor.value && stateMatches(actor, ["loading"]),
     isRendering: !actor.value || stateMatches(actor, ["rendering"]),
-    isAvailable: !!actor.value && stateMatches(actor, ["available"]),
+    isAvailable:
+      !!actor.value && stateMatches(actor, ["available", "processing"]),
     isUnavailable: !!actor.value && stateMatches(actor, ["unavailable"]),
-    hasErrors: stateMatches(actor, ["available.error"]),
-    isProcessing: stateMatches(actor, ["available.processing"]),
+    hasErrors: stateMatches(actor, ["error"]),
+    isProcessing: stateMatches(actor, ["processing"]),
     isValid: stateMatches(actor, ["available.valid"]),
     isDirty: !isEmpty(contextValue<GatewayContext["model"]>(actor, "model")),
     isComplete:
       stateValue(actor, "done", false) ||
-      stateMatches(actor, ["available.processed", "complete"]),
+      stateMatches(actor, ["processed", "complete"]),
     isRenderless:
       contextMatches(actor, ["renderless"]) ||
       every(
@@ -138,16 +148,11 @@ export const usePaymentGateway = (actor: ComputedRef<UseActor | undefined>) => {
 
     return waitFor(
       actor.value!.service,
-      state =>
-        stateMatches(state, [
-          "available.processed",
-          "available.error",
-          "complete"
-        ]),
+      state => stateMatches(state, ["processed", "error", "complete"]),
       { timeout: 60_000 }
     )
       .then(state => {
-        if (stateMatches(state, "available.error")) throw state.context.error;
+        if (stateMatches(state, "error")) throw state.context.error;
         return Promise.resolve();
       })
       .catch(error => {

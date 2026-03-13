@@ -6,7 +6,7 @@
       :model-value="control.data"
       :items="displayItems"
       @update:model-value="onInput"
-      :columns="2"
+      :columns="appliedOptions.width ?? 2"
     >
       <template v-if="allowShowMore" #additional-item="{ size }">
         <div :class="[styles.form.radioCollapsible.root, size]">

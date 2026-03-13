@@ -13,7 +13,7 @@
   "enum": "{title} трябва да е равно на една от разрешените стойности",
   "exclusiveMaximum": "{title} трябва да е по-малко от {exclusiveMaximum}",
   "exclusiveMinimum": "{title} трябва да е по-голямо от {exclusiveMinimum}",
-  "format": "{title} трябва да съвпада с формат {format}",
+  "format": "{title} трябва да съответства на формата {format}",
   "if": "{title} трябва да съответства на схемата „then“ {title} трябва да съответства на схемата „else“",
   "maxItems": "{title} НЕ трябва да има повече от {maxItems} артикул | {title} НЕ трябва да има повече от {maxItems} артикули",
   "maxLength": "{title} НЕ трябва да е по-дълго от {maxLength} характер | {title} НЕ трябва да е по-дълго от {maxLength} герои",
@@ -26,11 +26,11 @@
   "multipleOf": "{title} трябва да е кратно на {multipleOf}",
   "not": "{title} НЕ трябва да е валидно според схемата в „не“",
   "oneOf": "{title} трябва да съвпада точно с една от схемите в „oneOf“",
-  "pattern": "{title} трябва да съответства на шаблона {pattern}",
+  "pattern": "{title} трябва да съответства на модела {pattern}",
   "patternProperties": "{title} име на имот {propertyName} е невалидно (несъответствие на шаблона)",
   "phone": "{title} трябва да е валиден телефонен номер в международен формат",
   "propertyNames": "{title} име на имот {propertyName} е невалидно",
-  "required": "{title} е задължително за попълване",
+  "required": "{title} е задължително",
   "type": "{title} трябва да бъде {type}",
   "uniqueItems": "{title} НЕ трябва да има дублиращи се елементи (елементи {j} и {i} са идентични)"
 }

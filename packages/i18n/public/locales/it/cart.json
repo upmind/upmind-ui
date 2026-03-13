@@ -19,6 +19,7 @@
   "basket_review_msg": "Si prega di esaminare i seguenti elementi prima di continuare",
   "basket_section": "Riepilogo del carrello",
   "basket_summary_desc": "Hai {count} articolo nel tuo carrello, per un totale di {total}. | Tu hai {count} articoli nel tuo carrello, per un totale di {total}.",
+  "basket_summary_desc_free": "Hai {count} articolo nel tuo carrello. | Hai {count} articoli nel tuo carrello.",
   "basket_title": "Il tuo carrello",
   "change_amount": "Modifica importo",
   "empty": "Il tuo **carrello** è vuoto",

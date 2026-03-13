@@ -1,19 +1,20 @@
 // --- external
 import type { AnyEventObject } from "xstate";
-import { createMachine, assign, sendParent, actions } from "xstate";
+import { createMachine, assign, sendParent, actions, spawn } from "xstate";
 const { escalate } = actions;
 
 // --- internal
 import services from "./services";
-import { useFeedback } from "../feedback";
+import { authSubscription } from "../session/helper";
 import { useDataLayer } from "../system";
 
 // --- utils
-import { mapApproval } from "./mappers";
+import { mapApproval, hasRenderer } from "./mappers";
 import { mapToHeadlessError, useTime, useValidationParser } from "../../utils";
 import { isEmpty } from "lodash-es";
 
 // --- types
+import { GatewayTypes, TransactionStatus } from "@upmind-automation/types";
 import type { PaymentContext } from "./types";
 import { responseCodes } from "../../utils";
 
@@ -21,11 +22,19 @@ import { responseCodes } from "../../utils";
 export default createMachine(
   {
     //tsTypes: {} as import("./payment.machine.typegen").Typegen0,
-    id: "",
+    id: "PaymentManager",
     predictableActionArguments: true,
-    initial: "loading",
+    initial: "subscribing",
     context: {} as PaymentContext,
     states: {
+      // Subscribe to auth changes and wait for a valid session
+      subscribing: {
+        entry: ["setAuthHelper"],
+        on: {
+          AUTHENTICATED: { target: "loading" }
+        }
+      },
+
       loading: {
         invoke: {
           src: "load",
@@ -89,9 +98,13 @@ export default createMachine(
         after: {
           wait: [
             {
-              target: "approving",
-              cond: "needsApproval",
-              actions: ["setApproval"]
+              target: "challenging",
+              actions: ["setApproval"],
+              cond: "needsChallenge"
+            },
+            {
+              target: "instructions",
+              cond: "needsInstructions"
             },
             {
               target: "complete"
@@ -100,9 +113,28 @@ export default createMachine(
         }
       },
 
-      approving: {
-        initial: "redirecting",
+      /**
+       * Challenge state for payment approval/3DS verification.
+       * Supports two flows:
+       * - Redirect: Offsite payment approval (PayPal, 3DS redirect, etc.)
+       * - Render: Inline 3DS challenge that renders gateway-specific UI
+       */
+      challenging: {
+        initial: "determining",
         states: {
+          // Determine which flow to use based on whether a renderer exists
+          determining: {
+            always: [
+              {
+                target: "render",
+                cond: "hasRenderer"
+              },
+              {
+                target: "redirecting"
+              }
+            ]
+          },
+          // Redirect flow - offsite payment approval (original behavior)
           redirecting: {
             invoke: {
               src: "redirect",
@@ -116,12 +148,65 @@ export default createMachine(
               }
             }
           },
+          // Offsite state - waiting for external callback
           offsite: {
             on: {
-              APPROVED: {
+              CHALLENGE_RESPONSE: {
                 target: "#complete"
+              },
+              CHALLENGE_CANCELLED: {
+                target: "#error"
               }
             }
+          },
+          // Render flow - gateway-specific UI rendering
+          render: {
+            initial: "waiting",
+            states: {
+              // Wait for container element before rendering
+              waiting: {
+                on: {
+                  RENDER: {
+                    target: "rendering"
+                  }
+                }
+              },
+              rendering: {
+                invoke: {
+                  src: "render",
+                  onDone: {
+                    target: "idle"
+                  },
+                  onError: {
+                    target: "#error",
+                    actions: ["setError"]
+                  }
+                }
+              },
+              idle: {}
+            },
+            on: {
+              CHALLENGE_RESPONSE: {
+                target: "#complete"
+              },
+              CHALLENGE_CANCELLED: {
+                target: "#error",
+                actions: ["setError"]
+              }
+            }
+          }
+        }
+      },
+
+      /**
+       * Instructions state for displaying payment instructions.
+       * Waits for user to dismiss before transitioning to complete.
+       */
+      instructions: {
+        id: "instructions",
+        on: {
+          DISMISS_INSTRUCTIONS: {
+            target: "#complete"
           }
         }
       },
@@ -133,14 +218,27 @@ export default createMachine(
       },
 
       error: {
-        entry: escalate(({ error }, _event) => error),
+        entry: "escalateError",
         id: "error"
         // type: "final",
+      }
+    },
+
+    on: {
+      // Auth lost — return to subscribing
+      UNAUTHENTICATED: {
+        target: "subscribing",
+        actions: ["clearError"]
       }
     }
   },
   {
     actions: {
+      setAuthHelper: assign({
+        authHelper: ({ authHelper }: PaymentContext, _event: AnyEventObject) =>
+          authHelper ?? spawn(authSubscription)
+      }),
+
       setContext: assign(
         // (_context: PaymentDetailsContext, { data }: PaymentDetailsEvent) => data
         (_context, { data }: AnyEventObject) => data
@@ -176,7 +274,11 @@ export default createMachine(
         }
       }),
 
-      clearError: assign({ error: undefined })
+      clearError: assign({ error: undefined }),
+
+      escalateError: escalate(
+        ({ error }: PaymentContext, _event: AnyEventObject) => error
+      )
     },
 
     guards: {
@@ -185,8 +287,26 @@ export default createMachine(
         _event: AnyEventObject
       ) => !isEmpty(paymentDetail),
 
-      needsApproval: ({ payment }: PaymentContext, _event: AnyEventObject) =>
-        !isEmpty(payment?.approval_url)
+      needsChallenge: ({ payment }: PaymentContext, _event: AnyEventObject) => {
+        return !isEmpty(payment?.approval_url);
+      },
+
+      // Check if a renderer exists for this gateway
+      hasRenderer: (context: PaymentContext, _event: AnyEventObject) => {
+        const gatewayCode = (context as any).gateway?.gateway_provider_code;
+        const value = hasRenderer(gatewayCode);
+        return value;
+      },
+
+      needsInstructions: (
+        { payment, paymentDetail, rawOrder }: PaymentContext,
+        _event: AnyEventObject
+      ) => {
+        return (
+          payment?.transaction_status === TransactionStatus.WAITING &&
+          rawOrder?.gateway?.type === GatewayTypes.AWAITING_CLIENT
+        );
+      }
     },
 
     delays: {

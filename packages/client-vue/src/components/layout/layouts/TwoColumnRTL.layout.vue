@@ -1,5 +1,5 @@
 <template>
-  <Root :overflow="overflow">
+  <Root>
     <Ribbon
       :background="isMobile ? RIBBON_BACKGROUND.CANVAS : RIBBON_BACKGROUND.RTL"
       :height="RIBBON_HEIGHT.GROW"
@@ -40,15 +40,15 @@
           :background="COLUMN_BACKGROUND.SURFACE"
           :width="COLUMN_WIDTH.FULL"
         >
-          <Content :gap="CONTENT_GAP.LG" :flow="CONTENT_FLOW.VERTICAL">
+          <Content :gap="CONTENT_GAP.MD" :flow="CONTENT_FLOW.VERTICAL">
             <slot name="default" />
             <slot name="content" />
-          </Content>
 
-          <Content v-if="isMobile">
-            <slot name="aside-footer" />
-            <slot name="content-footer" />
-            <slot name="aside" />
+            <template v-if="isMobile">
+              <slot name="aside-footer" />
+              <slot name="content-footer" />
+              <slot name="aside" />
+            </template>
           </Content>
         </Column>
       </Container>

@@ -1,24 +1,15 @@
 import { expect } from "@playwright/test";
-import { test } from "../../../support/fixtures/test";
-import { fakerEN_GB } from "@faker-js/faker";
+import { test } from "../../../support/fixtures/testContexts";
 import { URLs } from "../../../support/constants/urls";
-import {
-  createOrder,
-  addProductToOrder
-} from "../../../support/utils/functions/basket";
-import {
-  getSessionToken,
-  getClientToken
-} from "../../../support/utils/functions/tokens";
+import { getClientToken } from "../../../support/utils/functions/tokens";
 import { Checkout } from "../../../support/page-objects/templates/Checkout";
 import { Logins } from "../../../support/constants/logins";
 import { goToCheckout } from "../../../support/utils/apiHelper";
+import { products } from "../../../support/constants/products";
 
 let checkout: Checkout;
 
 test.describe("Checkout with Bank Transfer", () => {
-  let token: string;
-  let orderId: string | null;
   test.beforeEach(async ({ page }) => {
     checkout = new Checkout(page);
     await page.goto(URLs.login);
@@ -29,10 +20,9 @@ test.describe("Checkout with Bank Transfer", () => {
       Logins.bankTransfer.username,
       Logins.bankTransfer.password
     );
-    await goToCheckout(page, context);
+    await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
     await checkout.selectPaymentMethod("Direct Bank Transfer");
     await checkout.clickPlaceOrder();
-    await expect(page.getByRole("dialog")).toBeVisible();
-    await expect(page.getByRole("dialog")).toContainText("Order complete!");
+    await expect(page.getByText("Order complete!")).toBeVisible();
   });
 });

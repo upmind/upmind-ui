@@ -6,18 +6,21 @@ import gatewayMachine from "./gateways/gateway.machine";
 
 // --- gateways
 import braintreeConfig from "./gateways/braintree";
+import dlocalConfig from "./gateways/dlocal";
 import openPayConfig from "./gateways/openPay";
 import stripeConfig from "./gateways/stripe";
 import razorpayConfig from "./gateways/razorpay";
 // import mercadoPagoConfig from "./gateways/mercadoPago";
 
 // --- utils
+import { filter, get, includes, some, sortBy, unset } from "lodash-es";
 
 // --- types
 import {
   BrandConfigKeys,
   GatewayContext as GatewayCtx,
   GatewayTypes,
+  InvoiceStatus,
   type IBrandGateway,
   PaymentType
 } from "@upmind-automation/types";
@@ -26,10 +29,10 @@ import { GatewayProviderCodes } from "@upmind-automation/types";
 import { type StripeContext } from "./gateways/stripe/types";
 import { type BraintreeContext } from "./gateways/braintree/types";
 import { type OpenPayContext } from "./gateways/openPay/types";
-import { filter, get, includes, some, sortBy, unset } from "lodash-es";
-import { type RazorpayContext } from "./gateways/razorpay/types";
-import { type PaymentDetail, type PaymentDetailsContext } from "./types";
+import type { RazorpayContext } from "./gateways/razorpay/types";
+import type { PaymentDetail, PaymentDetailsContext } from "./types";
 // import { MercadoPagoContext } from "./gateways/mercadoPago/types";
+import type { DLocalContext } from "./gateways/dlocal/types";
 
 // -----------------------------------------------------------------------------
 
@@ -161,6 +164,22 @@ export function spawnGateway({
           .withConfig(razorpayConfig),
         { name: gateway.id, sync: true }
       );
+    case GatewayProviderCodes.D_LOCAL_CARD:
+      return spawn(
+        gatewayMachine<DLocalContext>(gateway.gateway_provider.code)
+          .withContext({
+            address,
+            amount,
+            client,
+            ctx: GatewayCtx.PAY,
+            currency,
+            gateway,
+            orderId,
+            supported: true
+          })
+          .withConfig(dlocalConfig),
+        { name: gateway.id, sync: true }
+      );
 
     // SUPPORTED NON SDK "SIMPLE" GATEWAYS
     case GatewayProviderCodes.BANK_TRANSFER:
@@ -266,25 +285,28 @@ export function filterPaymentDetails(
     filter(paymentDetails, method =>
       some(gateways, ["gateway_id", method.gatewayId])
     ),
-    ["order"]
+    [method => !method.meta.isDefault, "order"]
   );
 }
 
 /**
- * Filters gateways based on the payment type.
- * If we have are paying with account credit then we CANNOT use offline or Bank Transfer gateways.
+ * Filters gateways based on the payment type and order status.
+ * If we are paying with account credit OR the order is not a draft (basket),
+ * we CANNOT use offline or Bank Transfer gateways
  * as these gateways dont provide a payment method we can send to the backend.
- * @param gateways
- * @param paymentType
+ * @param brandGateways
+ * @param model
+ * @param orderStatus
  * @returns
  */
 export function filterGateways(
   brandGateways: IBrandGateway[],
-  model: PaymentDetailsContext["model"]
+  model: PaymentDetailsContext["model"],
+  orderStatus: PaymentDetailsContext["orderStatus"]
 ): IBrandGateway[] {
   const values = sortBy(
     filter(brandGateways, ({ gateway }) => {
-      if (model?.wallet_amount) {
+      if (model?.wallet_amount || orderStatus !== InvoiceStatus.DRAFT) {
         return !includes(
           [GatewayTypes.OFFLINE, GatewayTypes.BANK_TRANSFER],
           gateway?.gateway_provider?.type

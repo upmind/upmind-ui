@@ -23,7 +23,16 @@
     "placeholder": "name@email.com"
   },
   "auth_password": {
-    "error": "A strong password is required",
+    "description": null,
+    "error": {
+      "min_length": "Password must be at least 8 characters",
+      "min_length_lowercase": "Password must be at least 8 characters and contain a lowercase letter",
+      "min_length_lowercase_number": "Password must be at least 8 characters, contain a lowercase letter, and a number",
+      "min_length_number": "Password must be at least 8 characters and contain a number",
+      "missing_lowercase": "Password must contain a lowercase letter",
+      "missing_lowercase_number": "Password must contain a lowercase letter and a number",
+      "missing_number": "Password must contain a number"
+    },
     "label": "Password",
     "placeholder": "Password or passphrase"
   },

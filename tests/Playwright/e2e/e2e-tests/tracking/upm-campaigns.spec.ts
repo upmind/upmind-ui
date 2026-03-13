@@ -54,8 +54,6 @@ async function getTrackingData(page: Page, requestUrl: string) {
 }
 
 test.describe("UPM Campaign Tracking", () => {
-  let token: string;
-  let orderId: string | null;
   test.beforeEach(async ({ page, context, browser }) => {
     registration = new Registration(page, context);
     checkout = new Checkout(page);
@@ -116,7 +114,8 @@ test.describe("UPM Campaign Tracking", () => {
     await page.goto(URLs.basket);
     await page.waitForLoadState("networkidle");
     let token = await getSessionToken(context);
-    let orderId = await createOrder(token);
+    let order = await createOrder(token);
+    let orderId = order.id;
     await addProductToOrder(
       `${token}`,
       `${orderId}`,
@@ -130,7 +129,9 @@ test.describe("UPM Campaign Tracking", () => {
           length: { min: 3, max: 15 }
         })}.com`
       },
-      []
+      [],
+      true,
+      false
     );
     await page.goto(URLs.checkout);
     await registration.inputRegistration();

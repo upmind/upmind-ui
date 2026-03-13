@@ -1,3 +1,9 @@
+import { faker } from "@faker-js/faker";
+
+const randomDomain1 = `${faker.string.alpha(8).toLowerCase()}-${faker.string.alpha(8).toLowerCase()}.uk`;
+const randomDomain2 = `${faker.string.alpha(8).toLowerCase()}-${faker.string.alpha(8).toLowerCase()}.uk`;
+const randomDomain3 = `${faker.string.alpha(8).toLowerCase()}-${faker.string.alpha(8).toLowerCase()}.uk`;
+
 export const StarterHosting = [
   /* Register New Domain */
   {
@@ -7,7 +13,7 @@ export const StarterHosting = [
     billingCycle: "1-month",
     addons: "",
     webHosting: "Starter Hosting",
-    domainName: "wcautotestingjghfjhf.uk",
+    domainName: randomDomain1,
     domainSelection: [0]
   },
   {
@@ -17,7 +23,7 @@ export const StarterHosting = [
     billingCycle: "1-year",
     addons: "",
     webHosting: "Starter Hosting",
-    domainName: "wcautotestingasdfg.uk",
+    domainName: randomDomain2,
     domainSelection: [0]
   },
   {
@@ -27,7 +33,7 @@ export const StarterHosting = [
     billingCycle: "2-year",
     addons: "",
     webHosting: "Starter Hosting",
-    domainName: "wcautotestingzxa.uk",
+    domainName: randomDomain3,
     domainSelection: [0]
   },
 
@@ -39,7 +45,7 @@ export const StarterHosting = [
     billingCycle: "1-month",
     addons: "",
     webHosting: "Starter Hosting",
-    domainName: "wcautotestingjghfjhf.uk",
+    domainName: randomDomain1,
     domainSelection: [1]
   },
   {
@@ -49,7 +55,7 @@ export const StarterHosting = [
     billingCycle: "1-year",
     addons: "",
     webHosting: "Starter Hosting",
-    domainName: "wcautotestingasdfg.uk",
+    domainName: randomDomain2,
     domainSelection: [1]
   },
   {
@@ -59,7 +65,7 @@ export const StarterHosting = [
     billingCycle: "2-year",
     addons: "",
     webHosting: "Starter Hosting",
-    domainName: "wcautotestingzxa.uk",
+    domainName: randomDomain3,
     domainSelection: [1]
   },
 
@@ -71,7 +77,7 @@ export const StarterHosting = [
     billingCycle: "1-month",
     addons: "",
     webHosting: "Starter Hosting",
-    domainName: "wcautotestingjghfjhf.uk",
+    domainName: randomDomain1,
     domainSelection: [2]
   },
   {
@@ -81,7 +87,7 @@ export const StarterHosting = [
     billingCycle: "1-year",
     addons: "",
     webHosting: "Starter Hosting",
-    domainName: "wcautotestingasdfg.uk",
+    domainName: randomDomain2,
     domainSelection: [2]
   },
   {
@@ -91,7 +97,7 @@ export const StarterHosting = [
     billingCycle: "2-year",
     addons: "",
     webHosting: "Starter Hosting",
-    domainName: "wcautotestingzxa.uk",
+    domainName: randomDomain3,
     domainSelection: [2]
   }
 ];

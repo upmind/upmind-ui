@@ -12,8 +12,6 @@ import type {
   IGateway,
   IOrder,
   IPaymentDetail,
-  IWalletBalance,
-  IWalletCurrencyBalance,
   PaymentType,
   SelectPaymentMethodData
 } from "@upmind-automation/types";
@@ -108,6 +106,9 @@ export interface PaymentDetailsArgs {
    * The unique identifier of the order for which payment details are being managed.
    */
   orderId: IOrder["id"];
+
+  /** The status of the order, this determines if we har draft/paid/partially paid, etc */
+  orderStatus: IOrder["status"]["code"];
   /**
    * The unique identifier of the client managing their payment details.
    */
@@ -124,6 +125,12 @@ export interface PaymentDetailsArgs {
    * The total amount of the payment.
    */
   amount: number;
+
+  /**
+   * The amount already paid on this order. Used to determine if this is a
+   * settlement (retry/partial) — when > 0, "Pay Later" is disabled.
+   */
+  paidAmount?: number;
 
   /**
    * The partial amount set by the user to pay (if applicable).
@@ -144,6 +151,7 @@ export interface PaymentDetailsArgs {
  */
 export interface PaymentDetailsContext extends PaymentDetailsArgs {
   // ctx: GatewayCtx; // TODo when we have Add and pay contexts
+
   /**
    * An array of stored payment method models available to the client.
    * This will return ALL the clients stored payment methods UNFILTERED
@@ -171,6 +179,12 @@ export interface PaymentDetailsContext extends PaymentDetailsArgs {
        * This represents the full/partial payment amount that needs to be paid.
        */
       amount: string;
+
+      /**
+       * The full outstanding balance (context.amount) formatted as per locale and currency.
+       * This represents the total amount due on the order before any partial payment.
+       */
+      outstanding: string;
 
       /**
        * The account credit/wallet amount (model.wallet_amount) formatted as per locale and currency.

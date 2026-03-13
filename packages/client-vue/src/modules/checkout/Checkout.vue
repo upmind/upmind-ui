@@ -30,7 +30,14 @@
         </slot>
       </template>
 
-      <template v-if="ui.trustMessaging.isVisible && showCheckout" #markdown>
+      <template
+        v-if="
+          ui.trustMessaging.isVisible &&
+          showCheckout &&
+          data.trustMessagingMarkdown
+        "
+        #markdown
+      >
         <slot name="markdown">
           <Markdown
             data-testid="slots:summary-append"
@@ -38,13 +45,13 @@
           />
         </slot>
       </template>
-
-      <template v-if="meta.hasErrors" #errors>
-        <slot name="errors">
-          <CheckoutErrors v-show="showCheckout" />
-        </slot>
-      </template>
     </component>
+
+    <template v-if="meta.hasErrors" #errors>
+      <slot name="errors">
+        <CheckoutErrors v-show="showCheckout" />
+      </slot>
+    </template>
   </Transitions>
 
   <!-- Basket processing -->
@@ -107,7 +114,7 @@ const props = withDefaults(
     template?: CHECKOUT_TEMPLATE;
     hideSlots?: string[];
     editRoute: RouteLocationAsRelativeGeneric;
-    billingRoute?: RouteLocationAsRelativeGeneric;
+    billingRoute: RouteLocationAsRelativeGeneric;
     fieldsRoute?: RouteLocationAsRelativeGeneric;
     storefrontRoute?: StorefrontRoute;
   }>(),

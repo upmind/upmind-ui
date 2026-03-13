@@ -4,7 +4,7 @@
 
 // --- utils
 import { useTranslateName } from "../../utils";
-import { map, values, includes, isEmpty } from "lodash-es";
+import { map, values, includes, isEmpty, size, compact } from "lodash-es";
 
 // --- types
 import type { PaymentDetailsContext } from "./types";
@@ -193,14 +193,10 @@ export const useUischemaDefinitions = ({
     };
   }
 
-  // conditionally add payment method controls if payment is needed
-  const needsPayment =
-    includes(
-      [PaymentType.PAY_IN_FULL, PaymentType.PARTIAL_PAYMENT],
-      model?.type
-    ) && (model?.amount ?? 0) > (model?.wallet_amount ?? 0);
-
-  if (needsPayment) {
+  // Include payment method controls if lookups exist.
+  // Visibility is controlled by the Vue template conditions (meta.hasStoredPaymentMethods, meta.hasGateways).
+  // This prevents layout shifts during refresh/transitions.
+  if (!isEmpty(lookups?.storedPaymentMethods)) {
     definitions.payment_details_id = {
       type: "Control",
       scope: "#/properties/payment_details_id",
@@ -209,24 +205,30 @@ export const useUischemaDefinitions = ({
         format: "radio"
       }
     };
+  }
 
+  if (!isEmpty(lookups?.gateways)) {
     definitions.gateway_id = {
       type: "Control",
       scope: "#/properties/gateway_id",
       i18n: "form.gateway_id",
       options: {
-        width: 2
+        width:
+          size(lookups?.gateways) === 1 &&
+          !includes(lookups.paymentTypes, PaymentType.PAY_LATER)
+            ? 1
+            : 2
       }
     };
   }
 
-  return definitions;
+  return compact(values(definitions));
 };
 
 export function useUischema(context: PaymentDetailsContext): UISchemaElement {
   const schema = {
     type: "VerticalLayout",
-    elements: [values(useUischemaDefinitions(context))]
+    elements: useUischemaDefinitions(context)
   };
 
   return schema as UISchemaElement;

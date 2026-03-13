@@ -30,7 +30,7 @@
   "patternProperties": "{title} le nom de propriété n'{propertyName} est pas valide (modèle non concordant)",
   "phone": "{title} doit être un numéro de téléphone valide au format international",
   "propertyNames": "{title} nom de la propriété {propertyName} est invalide",
-  "required": "{title} est obligatoire",
+  "required": "{title} est requis",
   "type": "{title} doit être {type}",
   "uniqueItems": "{title} ne doit PAS contenir d'articles dupliqués (articles {j} et {i} identiques)"
 }

@@ -121,4 +121,8 @@ export interface IBasketProductModel {
    * An optional array of promotion codes to apply to this product in the basket.
    */
   promotions?: { promocode: string }[];
+  /**
+   * An optional flag indicating whether to start a free trial for this product.
+   */
+  start_trial?: boolean;
 }

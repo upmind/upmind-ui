@@ -4,6 +4,7 @@ export class Basket {
   readonly page: Page;
   readonly basketProduct: Locator;
   readonly basketProductSummary: Locator;
+  readonly addMissingDataLink: Locator;
   readonly subtotalSummary: Locator;
   readonly summaryFooter: Locator;
   readonly promotionForm: Locator;
@@ -12,13 +13,17 @@ export class Basket {
   readonly applyPromo: Locator;
   readonly promoMessage: Locator;
   readonly promoBadge: Locator;
-  readonly showDetails: Locator;
   readonly proceedToCheckout: Locator;
+
+  /* Trial */
+  readonly trialAlert: Locator;
+  readonly trialPriceLabel: Locator;
 
   constructor(page: Page) {
     this.page = page;
     this.basketProduct = page.getByTestId("basket-product");
     this.basketProductSummary = page.getByTestId("basket-product-summary");
+    this.addMissingDataLink = page.getByTestId("link-add-missing-data");
     this.subtotalSummary = page.getByTestId("card-container-summary");
     this.summaryFooter = page.getByTestId("summary-footer");
     this.promotionForm = page.getByTestId("promotions-form");
@@ -31,8 +36,13 @@ export class Basket {
       "form-item-message-promocode"
     );
     this.promoBadge = this.summaryFooter.getByTestId("badge");
-    this.showDetails = page.getByTestId("tooltip-trigger");
     this.proceedToCheckout = page.getByTestId("button-proceed-to-checkout");
+
+    /* Trial */
+    this.trialAlert = this.basketProductSummary.getByRole("alert");
+    this.trialPriceLabel = this.basketProductSummary
+      .locator("footer")
+      .getByText("Free Trial");
   }
 
   async enterPromoCode(promoCode: string | null) {
@@ -47,6 +57,7 @@ export class Basket {
   }
 
   async clickShowDetails() {
-    await this.showDetails.nth(1).click();
+    const card = this.basketProduct.first();
+    await card.getByTestId("link-default").nth(3).click();
   }
 }

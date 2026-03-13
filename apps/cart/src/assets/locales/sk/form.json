@@ -23,7 +23,15 @@
     "placeholder": "meno@email.com"
   },
   "auth_password": {
-    "error": "Vyžaduje sa silné heslo",
+    "error": {
+      "min_length": "Heslo musí mať minimálne 8 znakov",
+      "min_length_lowercase": "Heslo musí mať minimálne 8 znakov a obsahovať malé písmeno.",
+      "min_length_lowercase_number": "Heslo musí mať aspoň 8 znakov, obsahovať aspoň jedno malé písmeno abecedy a aspoň jednu číslicu",
+      "min_length_number": "Heslo musí mať minimálne 8 znakov a obsahovať číslo.",
+      "missing_lowercase": "Heslo musí obsahovať malé písmeno",
+      "missing_lowercase_number": "Heslo musí obsahovať malé písmeno a číslo.",
+      "missing_number": "Heslo musí obsahovať číslo"
+    },
     "label": "Heslo",
     "placeholder": "Heslo alebo prístupová fráza"
   },

@@ -1,31 +1,55 @@
 // --- types
-import type { IBasket, IInvoice } from "@upmind-automation/types";
+import type { BasketProduct } from "../basketProduct";
+import type { Address } from "../client/address/types";
+import type { Currency } from "../currency/types";
+import type { Client } from "../session/types";
+import type { FormattedDate } from "../../utils";
+import type { InvoiceStatus } from "@upmind-automation/types";
 
-export type Invoice = IBasket & {
-  data: IInvoice["data"];
-  locked: IInvoice["locked"];
-  payments: IInvoice["payments"];
-  products: IInvoice["products"];
-  proforma: IInvoice["proforma"];
-  //
-  objectMeta: IInvoice["object_meta"];
-  currentData: IInvoice["current_data"];
-  toBeCredited: IInvoice["to_be_credited"];
-  proformaNumber: IInvoice["proforma_number"];
-  delegateRelated: IInvoice["delegate_related"];
-  isConsolidation: IInvoice["is_consolidation"];
-  paymentCurrency: IInvoice["payment_currency"];
-  paymentCurrencyId: IInvoice["payment_currency_id"];
-  netAmountConverted: IInvoice["net_amount_converted"];
-  taxAmountConverted: IInvoice["tax_amount_converted"];
-  allowProductCredit: IInvoice["allow_product_credit"];
-  affiliateCommissions: IInvoice["affiliate_commissions"];
-  cancellationDatetime: IInvoice["cancellation_datetime"];
-  partialAmountCredited: IInvoice["partial_amount_credited"];
-  productUpgradeQuantity: IInvoice["product_upgrade_quantity"];
-  proformaCreateDatetime: IInvoice["proforma_create_datetime"];
-  partialAmountCreditedConverted: IInvoice["partial_amount_credited_converted"];
-  partialAmountCreditedFormatted: IInvoice["partial_amount_credited_formatted"];
-  partialAmountToCreditConverted: IInvoice["partial_amount_to_credit_converted"];
-  partialAmountToCreditFormatted: IInvoice["partial_amount_to_credit_formatted"];
+export enum PAYMENT_STATE {
+  COMPLETE = "complete",
+  FREE = "free",
+  PARTIAL = "partial",
+  FAILED = "failed",
+  PENDING = "pending"
+}
+
+export type PaymentState = `${PAYMENT_STATE}`;
+
+export type Invoice = {
+  id: string;
+  locked: boolean;
+  status: InvoiceStatus;
+  number: string;
+  client: Client;
+  address?: Address;
+  currency: Currency;
+  products: BasketProduct[];
+  payments: Payment[];
+  summary: {
+    discount: string;
+    discountAmount: number;
+    paidAmount: number;
+    paidAmountFormatted: string;
+    subtotal: string;
+    taxes: { title: string; amount: string }[];
+    total: string;
+    unpaidAmount: number;
+    unpaidAmountConverted: number;
+    unpaidAmountFormatted: string;
+  };
+  dateCreated: FormattedDate;
+  datePaid: FormattedDate;
+};
+
+export type Payment = {
+  id: string;
+  meta: {
+    isPending: boolean;
+    isSuccessful: boolean;
+  };
+  cardType: string | null;
+  cardLast4: string | null;
+  amountFormatted: string;
+  createdAt: string;
 };

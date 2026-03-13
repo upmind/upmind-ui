@@ -41,6 +41,14 @@ export interface RequiredAlertProps {
   editRoute: RouteLocationAsRelativeGeneric;
 }
 
+export interface RenewDescriptionProps {
+  cycle?: number;
+  discounted?: boolean;
+  freeTrial?: boolean;
+  regularPrice?: string;
+  renewalPrice?: string;
+}
+
 export interface TermsDescriptionProps extends TermDetails {
   separate?: boolean;
 }

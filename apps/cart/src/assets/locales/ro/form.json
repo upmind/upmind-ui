@@ -23,7 +23,15 @@
     "placeholder": "nume@email.com"
   },
   "auth_password": {
-    "error": "Este necesară o parolă puternică",
+    "error": {
+      "min_length": "Parola trebuie să aibă cel puțin 8 caractere",
+      "min_length_lowercase": "Parola trebuie să aibă cel puțin 8 caractere și să conțină o literă mică.",
+      "min_length_lowercase_number": "Parola trebuie să aibă cel puțin 8 caractere, să conțină o literă minusculă și o cifră.",
+      "min_length_number": "Parola trebuie să aibă cel puțin 8 caractere și să conțină un număr.",
+      "missing_lowercase": "Parola trebuie să conțină o literă mică",
+      "missing_lowercase_number": "Parola trebuie să conțină o literă mică și un număr.",
+      "missing_number": "Parola trebuie să conțină un număr"
+    },
     "label": "Parolă",
     "placeholder": "Parolă sau frază de acces"
   },

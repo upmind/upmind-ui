@@ -23,7 +23,15 @@
     "placeholder": "nom@email.com"
   },
   "auth_password": {
-    "error": "Un mot de passe fort est requis",
+    "error": {
+      "min_length": "Le mot de passe doit comporter au moins 8 caractères.",
+      "min_length_lowercase": "Le mot de passe doit comporter au moins 8 caractères et contenir une lettre minuscule.",
+      "min_length_lowercase_number": "Le mot de passe doit comporter au moins 8 caractères et inclure au moins une lettre minuscule et au moins un chiffre.",
+      "min_length_number": "Le mot de passe doit comporter au moins 8 caractères et contenir un chiffre.",
+      "missing_lowercase": "Le mot de passe doit contenir une lettre minuscule.",
+      "missing_lowercase_number": "Le mot de passe doit contenir une lettre minuscule et un chiffre.",
+      "missing_number": "Le mot de passe doit contenir un chiffre."
+    },
     "label": "Mot de passe",
     "placeholder": "Mot de passe ou phrase secrète"
   },

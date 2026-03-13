@@ -10,7 +10,6 @@
     </template>
 
     <template #aside>
-      <slot name="errors" />
       <slot v-if="!isMobile" name="pricing" />
       <slot name="markdown" />
     </template>
