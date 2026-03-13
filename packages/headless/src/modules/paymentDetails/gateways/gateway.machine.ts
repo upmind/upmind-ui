@@ -57,7 +57,7 @@ export default <T = unknown>(name: string) =>
             ],
             onError: {
               target: "unavailable",
-              actions: ["setError", "setSchemas"]
+              actions: ["setError"]
             }
           }
         },
@@ -132,61 +132,10 @@ export default <T = unknown>(name: string) =>
             valid: {
               id: "valid",
               on: {
-                CHECKOUT: "processing.payment",
-                PAY: "processing.payment",
-                ADD: "processing.adding"
+                CHECKOUT: "#processing.payment",
+                PAY: "#processing.payment",
+                ADD: "#processing.adding"
               }
-            },
-
-            processing: {
-              entry: ["clearError"],
-              states: {
-                payment: {
-                  invoke: {
-                    src: "pay",
-                    onDone: {
-                      target: "#processed",
-                      actions: ["setPaymentDetails", "providePaymentDetails"]
-                    },
-                    onError: [
-                      {
-                        target: "#checking",
-                        actions: ["cancelPaymentDetails"],
-                        cond: "noErrorProvided"
-                      },
-                      {
-                        target: "#error",
-                        actions: ["setError", "cancelPaymentDetails"]
-                      }
-                    ]
-                  }
-                },
-                adding: {
-                  invoke: {
-                    src: "add",
-                    onDone: {
-                      target: "#processed",
-                      actions: ["set"]
-                    }
-                  }
-                }
-              },
-              on: { VALIDATE: { actions: [] /*do nothing*/ } }
-            },
-
-            processed: {
-              id: "processed",
-              after: {
-                wait: {
-                  target: "#complete",
-                  cond: "hasNoOutstandingBalance"
-                }
-              },
-              on: { VALIDATE: { actions: [] /*do nothing*/ } }
-            },
-
-            error: {
-              id: "error"
             }
           },
           on: {
@@ -208,6 +157,58 @@ export default <T = unknown>(name: string) =>
               target: "available.checking.validating"
             }
           }
+        },
+
+        processing: {
+          id: "processing",
+          entry: ["clearError"],
+          states: {
+            payment: {
+              invoke: {
+                src: "pay",
+                onDone: {
+                  target: "#processed",
+                  actions: ["setPaymentDetails", "providePaymentDetails"]
+                },
+                onError: [
+                  {
+                    target: "#checking",
+                    actions: ["cancelPaymentDetails"],
+                    cond: "noErrorProvided"
+                  },
+                  {
+                    target: "#error",
+                    actions: ["setError", "cancelPaymentDetails"]
+                  }
+                ]
+              }
+            },
+            adding: {
+              invoke: {
+                src: "add",
+                onDone: {
+                  target: "#processed",
+                  actions: ["set"]
+                }
+              }
+            }
+          },
+          on: { VALIDATE: { actions: [] /*do nothing*/ } }
+        },
+
+        processed: {
+          id: "processed",
+          after: {
+            wait: {
+              target: "#complete",
+              cond: "hasNoOutstandingBalance"
+            }
+          },
+          on: { VALIDATE: { actions: [] /*do nothing*/ } }
+        },
+
+        error: {
+          id: "error"
         },
 
         unavailable: {

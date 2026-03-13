@@ -12,6 +12,7 @@ import {
   useSession
 } from "@upmind-automation/client-vue";
 import { ROUTE } from "./types";
+import { applyBillingDefaults } from "./services";
 
 // -----------------------------------------------------------------------------
 
@@ -145,6 +146,14 @@ export default {
   logout: () => {
     const { logout } = useSession();
     logout();
+  },
+
+  /**
+   * Sets billing defaults from the client's default address, company, and phone.
+   * Fire-and-forget — uses the shared `applyBillingDefaults` helper.
+   */
+  setBillingDefaults: () => {
+    applyBillingDefaults();
   },
 
   /**

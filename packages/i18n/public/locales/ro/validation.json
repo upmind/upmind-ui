@@ -30,7 +30,7 @@
   "patternProperties": "{title} numele proprietății {propertyName} este invalid (nepotrivire de model)",
   "phone": "{title} trebuie să fie un număr de telefon valid în format internațional",
   "propertyNames": "{title} numele proprietății {propertyName} este invalid",
-  "required": "{title} este obligatoriu",
+  "required": "{title} este necesară",
   "type": "{title} trebuie să fie {type}",
   "uniqueItems": "{title} NU trebuie să aibă articole duplicate (articole {j} şi {i} sunt identice)"
 }

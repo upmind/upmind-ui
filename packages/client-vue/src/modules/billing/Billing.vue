@@ -1,129 +1,125 @@
 <template>
-  <Loading
-    :active="meta.isProcessing"
-    class-active="w-full rounded"
-    :class="meta.isProcessing ? 'overflow-hidden' : ''"
-  >
-    <Sections
-      class="min-h-40"
-      v-model="activeTab"
-      :sections="tabs"
-      data-testid="billing"
-    >
-      <template v-slot:[`section-personal`]>
-        <TabPersonal
-          v-model="modelValue"
-          v-model:touched="touched"
-          :readonly="ui.billingDetails.isReadonly"
-        />
+  <Transitions>
+    <component :is="templateVariant">
+      <template v-if="!isSlotHidden('hero')" #hero>
+        <slot name="hero">
+          <Hero
+            :title="t('billing.your_details')"
+            :description="t('billing.your_details_msg')"
+            :badge="{
+              label: t('text.fully_encrypted_title'),
+              icon: 'lock-04'
+            }"
+            :action="{
+              label: t('action.back_to_basket'),
+              icon: 'flip-backward',
+              color: 'primary',
+              variant: 'subtle',
+              size: 'lg'
+            }"
+            @action="navigateBack"
+          />
+        </slot>
       </template>
 
-      <template v-slot:[`section-business`]>
-        <TabBusiness
-          v-model="modelValue"
-          v-model:touched="touched"
-          :readonly="ui.billingDetails.isReadonly"
-        />
+      <template #content>
+        <slot name="content">
+          <BillingForm expand :auto-update="false" />
+        </slot>
       </template>
-    </Sections>
-  </Loading>
+
+      <template
+        v-if="ui.trustMessaging.isVisible && data.trustMessagingMarkdown"
+        #markdown
+      >
+        <slot name="markdown">
+          <Markdown
+            data-testid="slots:summary-append"
+            :model-value="data.trustMessagingMarkdown"
+          />
+        </slot>
+      </template>
+    </component>
+  </Transitions>
 </template>
 
 <script lang="ts" setup>
 // --- external
-import { computed, ref, watch } from "vue";
+import { computed, onUnmounted, defineAsyncComponent } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
 import {
-  UnifiedType,
-  useSession,
-  useBasketBilling,
-  useClientAddresses,
-  useClientCompanies
+  useConfig,
+  useRoutingEngine,
+  validateTemplate
 } from "@upmind-automation/headless";
-import { useConfig } from "@upmind-automation/headless";
+import { useHeader } from "../../components/header/useHeader";
+import { useFooter } from "../../components/footer/useFooter";
+import { useThemes, Markdown } from "@upmind-automation/upmind-ui";
 
 // --- components
-import { Loading } from "@upmind-automation/upmind-ui";
-import Sections from "../../components/section/Sections.vue";
-import TabBusiness from "./components/TabBusiness.vue";
-import TabPersonal from "./components/TabPersonal.vue";
+import Hero from "../../components/hero/Hero.vue";
+import Transitions from "../../components/layout/components/transition/Transition.vue";
+import BillingForm from "./components/BillingForm.vue";
+
+// --- templates
+const supportedTemplates = {
+  [BILLING_TEMPLATE.FULL]: defineAsyncComponent(
+    () => import("./templates/BillingFull.template.vue")
+  ),
+  [BILLING_TEMPLATE.TWO_COLUMN_LTR]: defineAsyncComponent(
+    () => import("./templates/BillingLTR.template.vue")
+  ),
+  [BILLING_TEMPLATE.TWO_COLUMN_RTL]: defineAsyncComponent(
+    () => import("./templates/BillingRTL.template.vue")
+  ),
+  [BILLING_TEMPLATE.ENCLOSED]: defineAsyncComponent(
+    () => import("./templates/BillingEnclosed.template.vue")
+  )
+};
 
 // --- utils
+import { get, includes } from "lodash-es";
 
 // --- types
-import type { TabItem } from "@upmind-automation/upmind-ui";
+import { BILLING_TEMPLATE } from "./types";
 import type { BillingProps } from "./types";
+import { UIContext } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 
-const modelValue = defineModel<BillingProps["modelValue"]>("modelValue");
-const touched = defineModel<BillingProps["touched"]>("touched");
-// -----------------------------------------------------------------------------
+const props = withDefaults(defineProps<BillingProps>(), {
+  hideSlots: () => []
+});
 
 const { t } = useI18n();
+const { set } = useThemes();
+const { navigateBack } = useRoutingEngine();
 
-const { client } = useSession();
-const { isReady, meta, config, update, model } = useBasketBilling();
-const { ui } = useConfig();
-
-// ensure we preload our data for speed between the tab
-
-const activeTab = ref<UnifiedType>();
-
-await Promise.allSettled([
-  isReady(),
-  useClientAddresses().isReady(),
-  useClientCompanies().isReady()
-]).then(() => {
-  const { default: defaultCompany } = useClientCompanies();
-  // set initial value from the basket billing model
-  modelValue.value ??= model.value;
-  if (
-    config.value?.requiresCompany ||
-    model.value?.companyId ||
-    (!model.value?.addressId && defaultCompany()?.id) // if we dont have an address but do have a default company, prefer business
-  ) {
-    activeTab.value = UnifiedType.BUSINESS;
-  } else {
-    activeTab.value = UnifiedType.PERSONAL;
-  }
+const { ui, data } = useConfig({
+  context: UIContext.BILLING_DETAILS,
+  provide: true
 });
 
-const tabs = computed((): TabItem[] => {
-  const tabItems: TabItem[] = [];
+set(ui.theme.value);
 
-  if (!client.value?.id) return tabItems;
+const isSlotHidden = (name: string) => includes(props.hideSlots, name);
 
-  if (!config.value?.requiresCompany) {
-    tabItems.push({
-      icon: "user-01",
-      label: t("text.personal_details"),
-      value: UnifiedType.PERSONAL,
-      eager: false
-    });
-  }
-  tabItems.push({
-    icon: "building-07",
-    label: t("text.business_details"),
-    value: UnifiedType.BUSINESS,
-    eager: !!config.value?.requiresCompany
-  });
-
-  return tabItems;
-});
-
-// --- side effects
-
-watch(
-  modelValue,
-  value => {
-    if (value) update(value);
-  },
-  {
-    immediate: true,
-    deep: true
-  }
+const template = computed(() =>
+  validateTemplate(
+    ui.template.value || props.template,
+    BILLING_TEMPLATE,
+    BILLING_TEMPLATE.TWO_COLUMN_RTL
+  )
 );
+
+const templateVariant = computed(() => get(supportedTemplates, template.value));
+
+// -----------------------------------------------------------------------------
+
+onUnmounted(() => {
+  useFooter({});
+  useHeader({});
+});
 </script>

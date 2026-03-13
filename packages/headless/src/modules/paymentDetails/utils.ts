@@ -18,6 +18,7 @@ import {
   BrandConfigKeys,
   GatewayContext as GatewayCtx,
   GatewayTypes,
+  InvoiceStatus,
   type IBrandGateway,
   PaymentType
 } from "@upmind-automation/types";
@@ -266,25 +267,28 @@ export function filterPaymentDetails(
     filter(paymentDetails, method =>
       some(gateways, ["gateway_id", method.gatewayId])
     ),
-    ["order"]
+    [method => !method.meta.isDefault, "order"]
   );
 }
 
 /**
- * Filters gateways based on the payment type.
- * If we have are paying with account credit then we CANNOT use offline or Bank Transfer gateways.
+ * Filters gateways based on the payment type and order status.
+ * If we are paying with account credit OR the order is not a draft (basket),
+ * we CANNOT use offline or Bank Transfer gateways
  * as these gateways dont provide a payment method we can send to the backend.
- * @param gateways
- * @param paymentType
+ * @param brandGateways
+ * @param model
+ * @param orderStatus
  * @returns
  */
 export function filterGateways(
   brandGateways: IBrandGateway[],
-  model: PaymentDetailsContext["model"]
+  model: PaymentDetailsContext["model"],
+  orderStatus: PaymentDetailsContext["orderStatus"]
 ): IBrandGateway[] {
   const values = sortBy(
     filter(brandGateways, ({ gateway }) => {
-      if (model?.wallet_amount) {
+      if (model?.wallet_amount || orderStatus !== InvoiceStatus.DRAFT) {
         return !includes(
           [GatewayTypes.OFFLINE, GatewayTypes.BANK_TRANSFER],
           gateway?.gateway_provider?.type

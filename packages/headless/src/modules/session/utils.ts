@@ -182,3 +182,15 @@ export function useClientParser(raw: IClient): Client | undefined {
     username: raw.username
   } as Client;
 }
+
+export function mapIClient(client: Client): IClient {
+  return {
+    id: client.id,
+    email: client.email,
+    firstname: client.firstName,
+    fullname: client.fullName,
+    lastname: client.lastName,
+    public_name: client.publicName,
+    username: client.username
+  } as IClient;
+}

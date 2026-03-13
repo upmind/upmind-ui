@@ -16,7 +16,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { onMounted, onUnmounted } from "vue";
+import { onUnmounted, onBeforeMount } from "vue";
 
 // --- components
 import Layout from "../../../components/layout/Layout.vue";
@@ -50,7 +50,7 @@ useLayout({
 });
 
 // --- methods
-onMounted(() => {
+onBeforeMount(() => {
   useHeader({
     background: HEADER_BACKGROUND.RTL,
     border: "none",

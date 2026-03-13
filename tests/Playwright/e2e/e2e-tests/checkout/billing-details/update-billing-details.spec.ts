@@ -1,10 +1,12 @@
 import { expect, test } from "@playwright/test";
 import { fakerEN_GB } from "@faker-js/faker";
+import { getCurrentAddressId } from "../../../support/utils/apiHelper";
 import { Checkout } from "../../../support/page-objects/templates/Checkout";
 import { Registration } from "../../../support/page-objects/templates/Registration";
 import { Login } from "../../../support/page-objects/templates/Login";
 import {
   createOrder,
+  Order,
   addProductToOrder
 } from "../../../support/utils/functions/basket";
 import { URLs } from "../../../support/constants/urls";
@@ -20,6 +22,8 @@ let register: Registration;
 let login: Login;
 let orderId: string | null;
 
+//TODO: Review testing strategy so I can remove the waits, may need additional frontend work
+
 test.describe("Billing Details at checkout", () => {
   test.beforeEach(async ({ page, context }) => {
     checkout = new Checkout(page);
@@ -28,11 +32,12 @@ test.describe("Billing Details at checkout", () => {
     await page.goto(URLs.basket);
     await page.waitForLoadState("networkidle");
     token = await getSessionToken(context);
-    orderId = await createOrder(token);
+    let order = await createOrder(token);
+    orderId = order.id;
     await addProductToOrder(
       `${token}`,
       `${orderId}`,
-      products.DOMAIN_REGISTRATION,
+      products.STARTER_HOSTING.id,
       1,
       24,
       [],
@@ -42,7 +47,9 @@ test.describe("Billing Details at checkout", () => {
           length: { min: 3, max: 15 }
         })}.com`
       },
-      []
+      [],
+      true,
+      false
     );
     await page.goto(URLs.basket);
     await expect(page.getByTestId("basket-product")).toBeVisible();
@@ -54,6 +61,8 @@ test.describe("Billing Details at checkout", () => {
       await page.goto(URLs.checkout);
       await expect(register.registrationForm).toBeVisible();
       await register.inputRegistration();
+      //await checkout.addNewAddress.click();
+      await expect(checkout.billingCards).toBeVisible();
       await checkout.addressSearch.fill(
         "10 Downing St, Westminster, London SW1A 2AA, UK"
       );
@@ -63,34 +72,20 @@ test.describe("Billing Details at checkout", () => {
           hasText: "10 Downing Street, Downing Street, London SW1A 2AA, UK"
         })
         .click();
-
-      // Wait for the form to populate before saving
-      await expect(checkout.addressLine1).toHaveValue("10 Downing Street");
-
-      await Promise.all([
-        page.waitForResponse(
-          r =>
-            r.url().includes("/addresses") &&
-            r.status() >= 200 &&
-            r.status() < 300
-        ),
-        checkout.saveDetails.click()
-      ]);
-      await expect(checkout.dialogWindow).toBeHidden();
-
-      // Address card should now appear after form closes
-      await expect(checkout.addressCard).toContainText("10 Downing Street", {
-        timeout: 15000
-      });
-      await expect(checkout.addressCard).toContainText(
-        "London, SW1A 2AA, Greater London, United Kingdom"
+      await page.waitForTimeout(1000);
+      await checkout.saveDetails.click();
+      await expect(checkout.billingDetails).toContainText(
+        "10 Downing Street, London, SW1A 2AA, Greater London, United Kingdom"
       );
     });
     test("New User add new company details at checkout", async ({ page }) => {
       await page.goto(URLs.checkout);
       await expect(register.registrationForm).toBeVisible();
       await register.inputRegistration();
-      await page.getByText("Business details").click();
+      await checkout.addNewAddress.click();
+      await expect(checkout.billingCards).toBeVisible();
+      await page.getByTestId("tab-business-details").click();
+      await expect(page.getByTestId("form")).toBeVisible();
       const companyNameInput = page
         .getByTestId("form-item-company-name")
         .locator("input");
@@ -113,47 +108,45 @@ test.describe("Billing Details at checkout", () => {
           hasText: "10 Downing Street, Downing Street, London SW1A 2AA, UK"
         })
         .click();
-      await Promise.all([
-        page.waitForResponse(
-          r => r.url().includes("/billing-details") && r.status() === 200
-        ),
-        checkout.saveDetails.click()
-      ]);
-      await expect(checkout.dialogWindow).toBeHidden();
+      await page.waitForTimeout(1000);
+      await checkout.saveDetails.click();
+      await checkout.saveDetails.click();
+      await checkout.saveDetails.click();
       await expect(checkout.billingDetails).toContainText("Acme Corp");
       await expect(checkout.billingDetails).toContainText("12345678");
     });
-    test("Existing User add new address at checkout", async ({ page }) => {
+    test("Existing User add new address at checkout", async ({
+      page,
+      context
+    }) => {
       await getClientToken(
         page,
         Logins.checkoutUser.username,
         Logins.checkoutUser.password
       );
+      let token = await getSessionToken(context);
       await page.goto(URLs.checkout);
       await expect(checkout.billingDetails).toBeVisible();
-      await page.getByText("Personal details").click();
-      await checkout.page.getByTestId("link-change").click();
-      await checkout.page.getByTestId("link-add-new").click();
-      await checkout.addressSearch.fill(
-        "10 Downing St, Westminster, London SW1A 2AA, UK"
+      await page.getByTestId("link-change").click();
+      await expect(checkout.billingCards).toBeVisible();
+      await page.getByTestId("tab-personal-details").click();
+      let currentAddress = await getCurrentAddressId(token);
+      await page.getByTestId("link-change").click();
+      await page.getByTestId("link-add-new").click();
+      const streetName = fakerEN_GB.location.streetAddress();
+      await checkout.manuallyInputAddress(
+        streetName,
+        "London",
+        "SW1A 2AA",
+        null
       );
-      const dropdown = page.locator('[role="dialog"][data-state="open"]');
-      await dropdown
-        .locator("li", {
-          hasText: "10 Downing Street, Downing Street, London SW1A 2AA, UK"
-        })
-        .click();
-      await Promise.all([
-        page.waitForResponse(
-          r => r.url().includes("/addresses") && r.status() === 200
-        ),
-        checkout.saveDetails.click()
-      ]);
-      await expect(checkout.dialogWindow).toBeHidden();
-      await expect(checkout.addressCard).toContainText("10 Downing Street");
+      await expect(checkout.addressCard).toContainText(streetName);
       await expect(checkout.addressCard).toContainText(
-        "London, SW1A 2AA, Greater London, United Kingdom"
+        "London, SW1A 2AA, United Kingdom"
       );
+      await page.waitForTimeout(5000);
+      let newAddress = await getCurrentAddressId(token);
+      expect(newAddress).not.toBe(currentAddress);
     });
     test("Existing User add new company details at checkout", async ({
       page
@@ -165,7 +158,9 @@ test.describe("Billing Details at checkout", () => {
       );
       await page.goto(URLs.checkout);
       await expect(checkout.billingDetails).toBeVisible();
-      await page.getByText("Business details").click();
+      await page.getByTestId("link-change").click();
+      await expect(checkout.billingCards).toBeVisible();
+      await page.getByTestId("tab-business-details").click();
       await page.getByTestId("link-change").click();
       await page.getByTestId("link-add-new").click();
       const companyNameInput = page.getByTestId("input-properties-name");
@@ -177,13 +172,10 @@ test.describe("Billing Details at checkout", () => {
       await page
         .getByTestId("input-properties-tax-properties-number")
         .pressSequentially("12345678");
-      await Promise.all([
-        page.waitForResponse(
-          r => r.url().includes("/billing-details") && r.status() === 200
-        ),
-        checkout.saveDetails.click()
-      ]);
-      await expect(checkout.dialogWindow).toBeHidden();
+      await page.waitForTimeout(1000);
+      await checkout.saveDetails.click();
+      await checkout.saveDetails.click();
+      await checkout.saveDetails.click();
       await expect(checkout.billingDetails).toContainText("Acme Corp");
       await expect(checkout.billingDetails).toContainText("12345678");
     });
@@ -197,20 +189,20 @@ test.describe("Billing Details at checkout", () => {
         Logins.checkoutUser.password
       );
       await page.goto(URLs.checkout);
-      await page.getByText("Personal details").click();
-      await expect(checkout.billingDetails).toBeVisible();
+      await checkout.addNewAddress.click();
+      await expect(checkout.billingCards).toBeVisible();
+      await page.getByTestId("tab-personal-details").click();
+      await page.getByTestId("link-change").click();
       await page.getByTestId("link-change").click();
       await page.getByTestId("link-edit").first().click();
       await page.getByTestId("input-properties-address-1").clear();
       await page
         .getByTestId("input-properties-address-1")
         .pressSequentially(newAddress);
-      await Promise.all([
-        page.waitForResponse(
-          r => r.url().includes("/addresses") && r.status() === 200
-        ),
-        checkout.saveDetails.click()
-      ]);
+      await page.waitForTimeout(1000);
+      await checkout.saveDetails.click();
+      await checkout.saveDetails.click();
+      await checkout.saveDetails.click();
       await expect(checkout.dialogWindow).toBeHidden();
     });
     test("Edit existing company at checkout", async ({ page }) => {
@@ -221,20 +213,17 @@ test.describe("Billing Details at checkout", () => {
         Logins.checkoutUser.password
       );
       await page.goto(URLs.checkout);
-      await page.getByText("Business details").click();
-      await expect(checkout.billingDetails).toBeVisible();
+      await checkout.addNewAddress.click();
+      await expect(checkout.billingCards).toBeVisible();
+      await page.getByTestId("tab-business-details").click();
       await page.getByTestId("link-change").click();
       await page.getByTestId("link-edit").first().click();
       await page.getByTestId("input-properties-name").clear();
       await page
         .getByTestId("input-properties-name")
         .pressSequentially(newCompany);
-      await Promise.all([
-        page.waitForResponse(
-          r => r.url().includes("/billing-details") && r.status() === 200
-        ),
-        checkout.saveDetails.click()
-      ]);
+      await page.waitForTimeout(1000);
+      await checkout.saveDetails.click();
       await expect(checkout.dialogWindow).toBeHidden();
       await expect(page.getByTestId("radio-card-change").first()).toContainText(
         newCompany

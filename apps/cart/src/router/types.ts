@@ -134,6 +134,11 @@ export enum ROUTE {
   CHECKOUT = "checkout",
 
   /**
+   * The route for managing billing details on a standalone page.
+   */
+  BILLING = "billing",
+
+  /**
    * The route for viewing a completed order.
    */
   ORDER = "order",

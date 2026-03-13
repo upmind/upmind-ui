@@ -24,7 +24,7 @@ import {
   DEBOUNCE_DELAY
 } from "../../../utils";
 import { invalidateQueryByKey } from "../../query";
-import { mapAddress, mapAddresses, mapIAddress } from "./mappers";
+import { mapAddress, mapAddresses, mapIAddressData } from "./mappers";
 import { get, isString, isEmpty, find, some, pick, isArray } from "lodash-es";
 
 // --- types
@@ -138,7 +138,7 @@ async function add(data: AddressModel) {
   return post<IAddress>({
     mutationKey: ["client", "addresses", "add"],
     url: useUrl(`clients/${clientId.value}/addresses`),
-    data: mapIAddress(data),
+    data: mapIAddressData(data),
     withAccessToken: true
   }).then(invalidateQueryByKey(queryKey, { exact: false }));
 }
@@ -154,7 +154,7 @@ async function update(id: Address["id"], data: AddressModel) {
   return put<IAddress>({
     mutationKey: ["client", "addresses", id],
     url: useUrl(`clients/${clientId.value}/addresses/${id}`),
-    data: mapIAddress(data),
+    data: mapIAddressData(data),
     withAccessToken: true
   }).then(invalidateQueryByKey(queryKey, { exact: false }));
 }

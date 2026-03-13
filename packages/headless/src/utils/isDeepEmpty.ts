@@ -1,112 +1,78 @@
 import {
   isEmpty,
-  isObject,
   isArray,
+  isBoolean,
   isNil,
+  isNumber,
+  isString,
+  map,
   reduce,
+  reject,
   isObjectLike,
-  compact,
-  isEqual
+  isEqual,
+  size
 } from "lodash-es";
 import { toRaw, unref } from "vue";
 
 // -----------------------------------------------------------------------------
 
-// a custom isEmpty that can handle deeply nested objects
-export function isDeepEmpty(
-  value: any,
-  seen: WeakSet<object> = new WeakSet()
-): boolean {
-  // Unwrap Vue reactive/computed values to get the raw underlying object
-  let rawValue = unref(value);
-  if (isObjectLike(rawValue)) {
-    rawValue = toRaw(rawValue);
-  }
-
-  if (isEmpty(rawValue)) {
-    return true;
-  }
-
-  // Handle circular references - if we've seen this object, treat as empty to break the cycle
-  if (isObjectLike(rawValue)) {
-    if (seen.has(rawValue)) {
-      return true;
-    }
-    seen.add(rawValue);
-  }
-
-  if (isObject(rawValue)) {
-    for (const item of Object.values(rawValue)) {
-      // if item is not undefined and is a primitive, return false
-      // otherwise dig deeper
-      if (
-        (item !== undefined && typeof item !== "object") ||
-        !isDeepEmpty(item, seen)
-      ) {
-        return false;
-      }
-    }
-    return true;
-  }
-  if (isArray(rawValue)) {
-    return rawValue.every(item => isDeepEmpty(item, seen));
-  }
-  return isEmpty(rawValue);
+/**
+ * A value carries real data if it is:
+ * - any non-empty string
+ * - any number (including 0)
+ * - any boolean (including false)
+ */
+function isMeaningful(value: unknown): boolean {
+  if (isNil(value)) return false;
+  if (isString(value)) return !isEmpty(value);
+  if (isNumber(value)) return true;
+  if (isBoolean(value)) return true;
+  return true;
 }
 
-export function compactDeep(
-  value?: any,
-  seen: WeakSet<object> = new WeakSet(),
-  path: string = "root"
-): any {
-  // Unwrap Vue reactive/computed values to get the raw underlying object
-  let rawValue = unref(value);
-  if (isObjectLike(rawValue)) {
-    rawValue = toRaw(rawValue);
+/**
+ * Recursively strips all non-meaningful values from a structure.
+ * Strips: null, undefined, empty strings, empty objects, empty arrays.
+ * Keeps: non-empty strings, all numbers (including 0), all booleans (including false).
+ * Returns undefined if the entire value is empty.
+ */
+export function compactDeep(value?: any): any {
+  const raw = toRaw(unref(value));
+
+  // --- primitives
+  if (!isObjectLike(raw)) {
+    return isMeaningful(raw) ? raw : undefined;
   }
 
-  let cleaned = undefined;
-
-  // Handle circular references - if we've seen this object, return undefined to break the cycle
-  if (isObjectLike(rawValue)) {
-    if (seen.has(rawValue)) {
-      console.trace(
-        `[compactDeep] Circular reference detected at path: ${path}`,
-        { keys: Object.keys(rawValue).slice(0, 10) }
-      );
-      return undefined;
-    }
-    seen.add(rawValue);
+  // --- arrays
+  if (isArray(raw)) {
+    const cleaned = reject(map(raw, compactDeep), isNil);
+    return size(cleaned) ? cleaned : undefined;
   }
 
-  if (isObject(rawValue)) {
-    cleaned = reduce(
-      rawValue,
-      (acc: Record<string, any>, val, key: string) => {
-        const cleanedValue = compactDeep(val, seen, `${path}.${key}`);
-        if (!isNil(cleanedValue)) {
-          // Check if the object itself is empty, even if it has properties
-          if (!isEmpty(cleanedValue) || !isObjectLike(cleanedValue)) {
-            acc[key] = cleanedValue;
-          }
-        }
-        return acc;
-      },
-      {}
-    );
-  } else if (isArray(rawValue)) {
-    cleaned = compact(
-      rawValue.map((item, index) =>
-        compactDeep(item, seen, `${path}[${index}]`)
-      )
-    );
-  } else {
-    cleaned = rawValue;
-  }
+  // --- objects
+  const cleaned = reduce(
+    raw,
+    (acc: Record<string, any>, val, key: string) => {
+      const stripped = compactDeep(val);
+      if (!isNil(stripped)) acc[key] = stripped;
+      return acc;
+    },
+    {}
+  );
 
-  // console.debug("compactDeep", value, "cleaned", cleaned);
-  return cleaned;
+  return size(cleaned) ? cleaned : undefined;
 }
+
+/**
+ * Checks if a value is deeply empty (no meaningful data).
+ * Uses compactDeep to strip all non-meaningful values and checks if nothing remains.
+ */
+export function isDeepEmpty(value: any): boolean {
+  return isNil(compactDeep(value));
+}
+
+// -----------------------------------------------------------------------------
 
 export function isDirty(baseModel: any, model: any): boolean {
   return !isEqual(compactDeep(baseModel), compactDeep(model));

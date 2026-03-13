@@ -1,5 +1,5 @@
 <template>
-  <Root :overflow="overflow">
+  <Root>
     <Ribbon
       :background="isMobile ? RIBBON_BACKGROUND.CANVAS : RIBBON_BACKGROUND.LTR"
       :border="RIBBON_BORDER.NONE"

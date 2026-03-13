@@ -426,7 +426,7 @@ export const UI_META_DEFINITIONS = {
   },
   billingDetails: {
     type: EDITABILITY,
-    default: EDITABILITY.EDITABLE,
+    default: EDITABILITY.READONLY,
     contexts: [UIContext.BILLING_DETAILS, UIContext.CHECKOUT],
     scopes: [UIScope.BRAND],
     locked: { [UIContext.BILLING_DETAILS]: EDITABILITY.EDITABLE }

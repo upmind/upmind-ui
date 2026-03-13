@@ -10,8 +10,16 @@ import currencyMachine from "./currency/currency.machine";
 import billingMachine from "./billing/billing.machine";
 
 // --- utils
+import {
+  parseNestedErrors,
+  unflattenErrors,
+  type ResponseError
+} from "../../utils";
 import { parsePromotionDetails } from "./promotions/utils";
-import { parseBasketProduct } from "../basketProduct/utils";
+import {
+  parseBasketProduct,
+  parseBasketProductError
+} from "../basketProduct/utils";
 
 import {
   compact,
@@ -26,7 +34,7 @@ import {
 
 // --- types
 import type { IBasket } from "@upmind-automation/types";
-import { TaxTagTypes } from "@upmind-automation/types";
+import { InvoiceStatus, TaxTagTypes } from "@upmind-automation/types";
 
 import { type PaymentDetailsContext } from "../paymentDetails";
 import { type BasketContext } from "./types";
@@ -60,11 +68,17 @@ export function spawnCurrency(basket?: IBasket) {
   );
 }
 
-export function spawnCustomFields(basket?: IBasket) {
+export function spawnCustomFields(basket?: IBasket, error?: ResponseError) {
   return spawn(
     customFieldsMachine.withContext({
       basketId: basket?.id,
-      model: parseBasketFieldsModel(basket)
+      model: parseBasketFieldsModel(basket),
+      error: !error
+        ? undefined
+        : {
+            ...error,
+            data: error?.data?.fieldErrors ?? []
+          }
     }),
     { name: "customFields", sync: true }
   );
@@ -74,6 +88,7 @@ export function spawnPaymentDetail(basket?: IBasket) {
   return spawn(
     paymentDetailsMachine.withContext({
       orderId: basket?.id,
+      orderStatus: basket?.status?.code || InvoiceStatus.DRAFT,
       currency: basket?.currency,
       address: basket?.address,
       client: basket?.client,
@@ -221,3 +236,31 @@ export const parseBasketFieldsModel = (basket: any, data = {}) => {
     customFields
   };
 };
+
+/**
+ * Parses API error responses into structured field and product errors.
+ * Always extracts both custom_fields and products errors from the unflattened data.
+ */
+export function parseBasketErrors(
+  error: ResponseError,
+  products: IBasket["products"]
+) {
+  const unflattened = unflattenErrors(error?.data);
+
+  return {
+    fieldErrors: parseNestedErrors(
+      unflattened,
+      "custom_fields",
+      "customFields"
+    ),
+    productErrors: reduce(
+      get(unflattened, "products"),
+      (result, value, key: number) => {
+        const bpid = products[key]?.id;
+        if (!bpid) return result;
+        return set(result, bpid, parseBasketProductError(value));
+      },
+      {}
+    )
+  };
+}

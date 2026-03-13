@@ -11,10 +11,9 @@ import {
   DetailedError,
   ErrorOrigin,
   responseCodes,
-  unflattenErrors,
   useCookies
 } from "../../utils";
-import { parseBasketProductError } from "../basketProduct/utils";
+import { parseBasketErrors } from "./utils";
 import { getTokenFromStorage, dumpTokenFromStorage } from "../session/utils";
 
 import {
@@ -206,21 +205,8 @@ async function getProvisioningFieldsValues(basket: IBasket) {
       return undefined;
     })
     .catch(error => {
-      // rawErrors will return a flattened object path in dot notation, so we need to convert back it to an object
-      // and then we 'pick' the products out of the object
-      const { products: rawErrors } = unflattenErrors(error?.data);
-      // then we parse the errors into a more usable format, replacing their indexes with the product ids
-      // this will allow us to easily access the provisioning fields for each product
-      const errors = reduce(
-        rawErrors,
-        (result, value, key: number) => {
-          const bpid = basket.products[key]?.id;
-          if (!bpid) return result;
-          return set(result, bpid, parseBasketProductError(value));
-        },
-        {}
-      );
-      return errors;
+      const { productErrors } = parseBasketErrors(error, basket.products);
+      return productErrors;
     });
 
   provisioningPromises.push(checkPromise);

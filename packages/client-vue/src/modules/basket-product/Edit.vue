@@ -64,7 +64,7 @@
                 :model-value="basketProduct?.id"
                 :hide-terms="props.hideTerms"
                 :no-footer="true"
-                as="div"
+                as="fieldset"
                 @resolve="doResolve"
                 @reject="doReject"
               />
@@ -136,7 +136,13 @@
         </Section>
       </template>
 
-      <template v-if="configMeta.ui.trustMessaging.isVisible" #markdown>
+      <template
+        v-if="
+          configMeta.ui.trustMessaging.isVisible &&
+          configMeta.data.trustMessagingMarkdown
+        "
+        #markdown
+      >
         <slot
           name="markdown"
           :product="product"
@@ -172,7 +178,10 @@
       </template>
 
       <template #errors>
-        <ConfigErrors v-if="productMeta?.isAvailable" :meta="productMeta" />
+        <ConfigErrors
+          :visible="productMeta?.showErrors"
+          :errors="validationErrors"
+        />
       </template>
 
       <template #total>
@@ -208,7 +217,10 @@ import {
   useBasketProducts,
   useQueryParams,
   useProductConfig,
-  type ProductDetails
+  type ProductDetails,
+  DetailedError,
+  responseCodes,
+  ErrorOrigin
 } from "@upmind-automation/headless";
 import { useHeader } from "../../components/header/useHeader";
 import { useFooter } from "../../components/footer/useFooter";
@@ -224,7 +236,7 @@ import ConfigSkeleton from "../product/components/ConfigSkeleton.vue";
 import Pricing from "../product/components/pricing-list/Pricing.vue";
 import PricingSkeleton from "../product/components/pricing-list/PricingSkeleton.vue";
 import PricingTotal from "../product/components/pricing-list/PricingTotal.vue";
-import ProductConfig from "../product/components/config/Config.vue";
+import ProductConfig from "../product/components/Config.vue";
 import ProductHero from "../product/components/hero/ProductHero.vue";
 import ProductHeroSkeleton from "../product/components/hero/ProductHeroSkeleton.vue";
 import ProductImage from "../product/components/hero/ProductImage.vue";
@@ -281,13 +293,20 @@ const {
 } = await configure(basketProductId);
 
 const productConfig = useProductConfig(basketProduct);
-if (!productConfig) throw new Error("useProductConfig not provided");
+
+if (!productConfig)
+  throw new DetailedError(
+    t("error.product_not_available"),
+    responseCodes.Service_Unavailable,
+    ErrorOrigin.Headless
+  );
 provide("useProductConfig", productConfig);
 
 const {
   meta: productMeta,
   model,
   product,
+  validationErrors,
   productImage,
   updateQuantity,
   updateTerm,

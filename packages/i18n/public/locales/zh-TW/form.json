@@ -23,7 +23,15 @@
     "placeholder": "name@email.com"
   },
   "auth_password": {
-    "error": "需要強密碼",
+    "error": {
+      "min_length": "密碼必須至少包含8個字元",
+      "min_length_lowercase": "密碼必須至少包含8個字元，並包含一個小寫字母",
+      "min_length_lowercase_number": "密碼須至少 8 個字元，且包含 1 個小寫英文字母與 1 個數字",
+      "min_length_number": "密碼必須至少包含8個字元，並包含一個數字。",
+      "missing_lowercase": "密碼必須包含小寫字母",
+      "missing_lowercase_number": "密碼必須包含一個小寫字母和一個數字",
+      "missing_number": "密碼必須包含一個數字"
+    },
     "label": "密碼",
     "placeholder": "密碼或口令"
   },
@@ -68,7 +76,7 @@
   },
   "country": {
     "label": "國家",
-    "placeholder": "選擇一個國家"
+    "placeholder": "選擇國家"
   },
   "domain": {
     "placeholder": "輸入您的網域名稱..."
@@ -87,6 +95,10 @@
   "firstname": {
     "error": "需要您的名字",
     "label": "名"
+  },
+  "language": {
+    "error": "您需要輸入的語言",
+    "label": "語言"
   },
   "lastname": {
     "error": "您的姓氏是必填項",
@@ -121,6 +133,10 @@
     "error": "需要有效的促銷代碼",
     "placeholder": "在此輸入優惠券代碼"
   },
+  "publicName": {
+    "error": "您的公開姓名是必填。",
+    "label": "公共名稱"
+  },
   "recover": {
     "error": "我們在嘗試向您發送密碼重設電子郵件時遇到錯誤。"
   },
@@ -139,9 +155,5 @@
   },
   "stored_payment_method": {
     "label": ""
-  },
-  "taxNumber": {
-    "label": "稅號",
-    "placeholder": "稅號"
   }
 }

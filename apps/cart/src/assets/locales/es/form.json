@@ -23,7 +23,15 @@
     "placeholder": "nombre@email.com"
   },
   "auth_password": {
-    "error": "Se requiere una contraseña segura",
+    "error": {
+      "min_length": "La contraseña debe tener al menos 8 caracteres.",
+      "min_length_lowercase": "La contraseña debe tener al menos 8 caracteres y contener una letra minúscula.",
+      "min_length_lowercase_number": "La contraseña debe tener al menos 8 caracteres, incluir al menos una letra minúscula y un número",
+      "min_length_number": "La contraseña debe tener al menos 8 caracteres y contener un número.",
+      "missing_lowercase": "La contraseña debe contener una letra minúscula.",
+      "missing_lowercase_number": "La contraseña debe contener una letra minúscula y un número.",
+      "missing_number": "La contraseña debe contener un número."
+    },
     "label": "Contraseña",
     "placeholder": "Contraseña o frase de contraseña"
   },

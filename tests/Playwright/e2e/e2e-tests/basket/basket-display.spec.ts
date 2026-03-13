@@ -21,7 +21,8 @@ test.describe("Basket Tests", () => {
     await page.goto(URLs.basket);
     await page.waitForLoadState("networkidle");
     token = await getSessionToken(context);
-    orderId = await createOrder(token);
+    let order = await createOrder(token);
+    orderId = order.id;
     await addProductToOrder(
       token,
       orderId,
@@ -31,7 +32,9 @@ test.describe("Basket Tests", () => {
       [],
       [],
       { domain: domain },
-      []
+      [],
+      true,
+      false
     );
     await page.goto(URLs.basket);
     await expect(basket.basketProductSummary).toContainText("Shared Hosting");

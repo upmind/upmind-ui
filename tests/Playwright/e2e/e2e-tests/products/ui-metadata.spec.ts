@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { interceptProductMeta } from "../../support/utils/functions/product";
+import { interceptUISchema } from "../../support/utils/functions/brand";
 import { URLs } from "../../support/constants/urls";
 import { ProductConfig } from "../../support/page-objects/templates/ProductConfig";
 
@@ -9,13 +9,9 @@ test.describe("Product UI Metadata Tests", () => {
   test.beforeEach(async ({ page }) => {
     productConfig = new ProductConfig(page);
   });
-  test("Billing Terms - Display as dropdown", async ({ page }) => {
-    await interceptProductMeta(page, {
-      uischema: {
-        billing: {
-          control: "TermsConfigSelect"
-        }
-      }
+  test("Billing Terms - Display as dropdown", async ({ page, context }) => {
+    await interceptUISchema(context, {
+      "@context.configure.termSelector": "select"
     });
     await page.goto(URLs.uiTestProduct);
     await page.waitForLoadState("load");
@@ -23,7 +19,7 @@ test.describe("Product UI Metadata Tests", () => {
     await expect(page).toHaveScreenshot(
       "uimetadata-billing-term-dropdown-closed"
     );
-    await page.getByTestId("form-item-terms").locator("button").click();
+    await productConfig.billingTerms.locator("button").click();
     await expect(page).toHaveScreenshot(
       "uimetadata-billing-term-dropdown-open"
     );

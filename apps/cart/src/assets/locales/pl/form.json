@@ -23,7 +23,15 @@
     "placeholder": "nazwa@email.com"
   },
   "auth_password": {
-    "error": "Wymagane jest silne hasło",
+    "error": {
+      "min_length": "Hasło musi mieć co najmniej 8 znaków.",
+      "min_length_lowercase": "Hasło musi mieć co najmniej 8 znaków i zawierać małą literę.",
+      "min_length_lowercase_number": "Hasło musi mieć co najmniej 8 znaków, zawierać małą literę oraz cyfrę",
+      "min_length_number": "Hasło musi mieć co najmniej 8 znaków i zawierać cyfrę.",
+      "missing_lowercase": "Hasło musi zawierać małą literę.",
+      "missing_lowercase_number": "Hasło musi zawierać małą literę i cyfrę.",
+      "missing_number": "Hasło musi zawierać cyfrę."
+    },
     "label": "Hasło",
     "placeholder": "Hasło lub fraza tajna"
   },

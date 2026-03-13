@@ -133,7 +133,7 @@ Resolves true if ready, false if error.
 ```ts
 meta: ComputedRef<{
   hasErrors: boolean;
-  hasGateway: boolean;
+  hasSelectedGateway: boolean;
   hasGateways: boolean;
   hasStoredPaymentMethods: boolean;
   isAvailable: boolean;

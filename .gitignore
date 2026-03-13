@@ -12,7 +12,6 @@ dist
 bin/pnpm
 bin/pnpx
 tsconfig.tsbuildinfo
-.agent/
 .claude/*
 
 
@@ -23,5 +22,11 @@ tests/Playwright/blob-report/
 tests/Playwright/playwright/.cache/
 tests/Playwright/e2e/support/secrets
 tests/Playwright/e2e/snapshots/
+tests/__fixtures__/recordings/
 tests/__fixtures__/recordings*/
+tests/__fixtures__/recordings-velia/
 .playwright-mcp/
+
+
+# Git worktrees
+.worktrees/

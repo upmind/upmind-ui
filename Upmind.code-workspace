@@ -1,0 +1,60 @@
+{
+  "folders": [
+    {
+      "name": "monorepo",
+      "path": "."
+    },
+    {
+      "name": "headless",
+      "path": "./packages/headless"
+    },
+    {
+      "name": "client-vue",
+      "path": "./packages/client-vue"
+    },
+    {
+      "name": "cart",
+      "path": "./apps/cart"
+    },
+    {
+      "path": "./playgrounds/labs"
+    }
+  ],
+  "settings": {
+    "vue.codeActions.enabled": false,
+    "tailwindCSS.classAttributes": [
+      "class",
+      "className",
+      "ngClass",
+      ".*upwConfig"
+    ],
+    "cSpell.words": [
+      "clickwrap",
+      "Ecommerce",
+      "initialisations",
+      "initialise",
+      "Initialised",
+      "initialising",
+      "jsonform",
+      "Localazy",
+      "Localisation",
+      "organisation",
+      "promocode",
+      "promocodes",
+      "recaptcha",
+      "Subproduct",
+      "twofa",
+      "uischema",
+      "upmind"
+    ]
+  },
+  "extensions": {
+    "recommendations": [
+      "editorconfig.editorconfig",
+      "dbaeumer.vscode-eslint",
+      "esbenp.prettier-vscode",
+      "mrmlnc.vscode-scss",
+      "bradlc.vscode-tailwindcss"
+    ]
+  }
+}

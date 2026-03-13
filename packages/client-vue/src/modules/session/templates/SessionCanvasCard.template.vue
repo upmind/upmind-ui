@@ -12,7 +12,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { onMounted } from "vue";
+import { onBeforeMount, onUnmounted } from "vue";
 
 // --- components
 import Layout from "../../../components/layout/Layout.vue";
@@ -42,7 +42,7 @@ useLayout({
   mode: LAYOUT_MODE.CENTERED
 });
 
-onMounted(() => {
+onBeforeMount(() => {
   useHeader({
     visible: false
   });
@@ -50,5 +50,11 @@ onMounted(() => {
   useFooter({
     visible: false
   });
+});
+
+onUnmounted(() => {
+  useHeader({});
+  useLayout({});
+  useFooter({});
 });
 </script>

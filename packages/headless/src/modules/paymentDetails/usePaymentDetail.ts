@@ -1,6 +1,6 @@
 // --- external
 import { waitFor } from "xstate/lib/waitFor";
-import { computed, toRaw, unref } from "vue";
+import { computed, isRef, toRaw, unref } from "vue";
 
 // --- internal
 import { useI18n } from "../system";
@@ -14,6 +14,7 @@ import {
   responseCodes,
   stateMatches,
   stateValue,
+  useActor,
   useContext,
   useContextActor
 } from "../../utils";
@@ -26,7 +27,7 @@ import {
   includes,
   some,
   gt,
-  values
+  size
 } from "lodash-es";
 
 // --- types
@@ -39,6 +40,7 @@ import type {
   PaymentDetailsContext
 } from "./types";
 import { GatewayTypes, PaymentType } from "@upmind-automation/types";
+import type { ControlElement } from "@jsonforms/core";
 import { useSchemaDefinitions, useUischemaDefinitions } from "./schemas";
 import { zeroDecimalCurrencies } from "./gateways/utils";
 
@@ -47,13 +49,19 @@ import { zeroDecimalCurrencies } from "./gateways/utils";
 /**
  * A composable function that provides access to the payment gateway actor.
  * in the PAY context
- * @param actor - A computed ref to the payment gateway actor.
+ * @param service - A computed ref to the payment gateway actor or its underlying service.
  * @returns An object containing the payment gateway state and methods to make a payment.
  */
-export const usePaymentDetail = (actor: ComputedRef<UseActor | undefined>) => {
+export const usePaymentDetail = (
+  service: ActorRef<any, any> | ComputedRef<UseActor | undefined>
+) => {
   const { t } = useI18n();
 
   // --- state
+
+  const actor: ComputedRef<UseActor | undefined> = isRef(service)
+    ? (service as ComputedRef<UseActor>)
+    : useActor(service as ActorRef<any, any>);
 
   async function isReady(): Promise<boolean> {
     return new Promise(resolve => {
@@ -75,64 +83,150 @@ export const usePaymentDetail = (actor: ComputedRef<UseActor | undefined>) => {
     );
   }
 
-  const meta = computed(() => ({
-    isAvailable:
-      !!actor.value && stateMatches(actor, ["available", "complete"]),
-    isLoading: !actor.value || stateMatches(actor, ["loading"]),
-    hasGateway: contextMatches(actor, ["gatewayHelper"]),
-    hasGateways: !isEmpty(gateways.value),
-    hasStoredPaymentMethods: !isEmpty(storedPaymentMethods.value),
-    hasSelectedPaymentMethod: !isEmpty(
-      contextValue<PaymentDetailModel>(actor, "model.payment_details_id")
-    ),
-    hasUnsupportedPaymentMethods:
-      (contextValue<PaymentDetail[]>(actor, ["raw.storedPaymentMethods"])
-        ?.length ?? 0) < (storedPaymentMethods.value?.length ?? 0),
-    hasAccountCredit: gt(accountCredit.value?.total.value, 0),
-    hasErrors: !isEmpty(errors.value),
-    isProcessing: stateMatches(actor, ["checking", "processing"]),
-    isValid: gateway.value
-      ? stateMatches(gateway.value, ["available.valid"])
-      : stateMatches(actor, ["available.valid"]),
-    isUnavailable:
-      !gateway.value || stateMatches(gateway.value, ["unavailable"]),
-    isDirty: !isEmpty(
-      contextValue<PaymentDetailsContext["model"]>(actor, "model")
-    ),
+  const meta = computed(() => {
+    // --- gateway
+    const hasSelectedGateway = contextMatches(actor, ["gatewayHelper"]);
+    const hasGateways = !isEmpty(gateways.value);
 
-    isFree: !contextValue(actor, "amount"),
+    // --- payment
+    const isFree = !contextValue(actor, "amount");
+    const hasAmount = !!contextValue(actor, "model.amount", 0)!;
+    const isFullyCoveredByWallet = isEqual(
+      contextValue(actor, "model.amount", 0)!,
+      contextValue(actor, "model.wallet_amount", 0)!
+    );
+    const isPayable = includes(
+      [PaymentType.PARTIAL_PAYMENT, PaymentType.PAY_IN_FULL],
+      contextValue(actor, "model.type")
+    );
+    const isPayLater = contextMatches(
+      actor,
+      "model.type",
+      PaymentType.PAY_LATER
+    );
 
-    isPayLater: contextMatches(actor, "model.type", PaymentType.PAY_LATER),
+    // --- payment methods
+    const hasStoredPaymentMethods = !isEmpty(storedPaymentMethods.value);
+    const hasSelectedPaymentMethod = !!contextValue<PaymentDetailModel>(
+      actor,
+      "model.payment_details_id"
+    );
 
-    isPayOffline:
-      contextMatches(actor, "model.type", PaymentType.PAY_LATER) ||
-      contextMatches(gateway, "supported", false) ||
-      includes(
-        [GatewayTypes.OFFLINE, GatewayTypes.BANK_TRANSFER],
-        contextValue(gateway, "gateway.type")
+    // --- state
+
+    // TRUE if gateways have been loaded before (not initial load)
+    // AND machine is re-fetching lookups
+    // OR machine is re-parsing model AND model has not yet been repopulated with a payment type or amount
+    const isRefreshing =
+      hasGateways &&
+      (stateMatches(actor, ["loading"]) ||
+        (stateMatches(actor, ["available.checking"]) &&
+          (!isPayable || !hasAmount)));
+
+    // TRUE if actor exists AND machine is in available state
+    // OR if refreshing (loading with previously loaded data)
+    const isAvailable =
+      !!actor.value &&
+      (stateMatches(actor, ["available", "processing"]) || isRefreshing);
+
+    // TRUE if actor is not ready
+    // OR machine is in initial loading state
+    // OR is refreshing
+    const isLoading =
+      !actor.value || stateMatches(actor, ["loading"]) || isRefreshing;
+
+    // TRUE if model has a payable amount that is not fully covered by wallet
+    // OR if refreshing a paid order (model may be stale)
+    // OR if context says payment is needed but model amount has not caught up yet
+    const needsPayment =
+      (hasAmount && !isFullyCoveredByWallet && isPayable) ||
+      (isRefreshing && !isFree) ||
+      (!isFree && !hasAmount);
+
+    return {
+      // --- state
+      hasErrors: !isEmpty(errors.value),
+      isAvailable,
+      isDirty: !isEmpty(
+        contextValue<PaymentDetailsContext["model"]>(actor, "model")
       ),
+      isLoading,
+      isProcessing:
+        stateMatches(actor, ["checking", "processing"]) || isRefreshing,
+      isRefreshing,
+      isValid: gateway.value
+        ? stateMatches(gateway.value, ["available.valid"])
+        : stateMatches(actor, ["available.valid"]),
 
-    needsPayment:
-      !!contextValue(actor, "model.amount", 0)! &&
-      !isEqual(
-        contextValue(actor, "model.amount", 0)!,
-        contextValue(actor, "model.wallet_amount", 0)!
-      ) &&
-      includes(
-        [PaymentType.PARTIAL_PAYMENT, PaymentType.PAY_IN_FULL],
-        contextValue(actor, "model.type")
+      // --- gateway
+      hasGateways,
+      hasSelectedGateway,
+      hasSingleGateway:
+        size(gateways.value) === 1 &&
+        !includes(paymentTypes.value, PaymentType.PAY_LATER),
+      isUnavailable:
+        !gateway.value || stateMatches(gateway.value, ["unavailable"]),
+
+      // --- payment
+      canMakePartialPayment: some(
+        contextValue<PaymentType[]>(actor, "lookups.paymentTypes", []),
+        value => value === PaymentType.PARTIAL_PAYMENT
       ),
+      hasAccountCredit: gt(accountCredit.value?.total.value, 0),
+      isComplete:
+        isFree ||
+        stateValue(actor, "done", false) ||
+        stateMatches(actor, ["processed", "complete"]),
+      isFree,
+      isPayLater,
+      isPayOffline:
+        isPayLater ||
+        contextMatches(gateway, "supported", false) ||
+        stateMatches(gateway, ["unavailable"]) ||
+        includes(
+          [GatewayTypes.OFFLINE, GatewayTypes.BANK_TRANSFER],
+          contextValue(gateway, "gateway.type")
+        ),
+      isSettlement: contextMatches(actor, ["paidAmount"]),
+      needsPayment,
 
-    canMakePartialPayment: some(
-      contextValue<PaymentType[]>(actor, "lookups.paymentTypes", []),
-      value => value === PaymentType.PARTIAL_PAYMENT
-    ),
+      // --- payment methods
+      hasSelectedPaymentMethod,
+      hasStoredPaymentMethods,
+      hasUnsupportedPaymentMethods:
+        (contextValue<PaymentDetail[]>(actor, ["raw.storedPaymentMethods"])
+          ?.length ?? 0) < (storedPaymentMethods.value?.length ?? 0),
 
-    isComplete:
-      !contextValue(actor, "amount") ||
-      stateValue(actor, "done", false) ||
-      stateMatches(actor, ["processed", "complete"])
-  }));
+      // --- visibility
+
+      // SHOW if payment is needed
+      // AND gateways are available
+      // AND gateway is NOT selected
+      showGatewaySelection: needsPayment && hasGateways && !hasSelectedGateway,
+
+      // SHOW if payment is NOT needed (free) to allow checkout without gateway or payment method
+      // OR if a gateway is selected
+      // OR if a existing payment method is selected
+      showPaymentActions:
+        !needsPayment ||
+        hasSelectedGateway ||
+        hasSelectedPaymentMethod ||
+        isRefreshing,
+
+      // SHOW if payment details are available AND NOT free
+      showPaymentSection: isAvailable && !isFree,
+
+      // SHOW if payment is needed
+      // AND stored methods exist
+      // AND gateway is NOT selected
+      // AND payment details are available
+      showStoredPaymentMethods:
+        needsPayment &&
+        hasStoredPaymentMethods &&
+        !hasSelectedGateway &&
+        isAvailable
+    };
+  });
 
   // --- context
 
@@ -142,6 +236,10 @@ export const usePaymentDetail = (actor: ComputedRef<UseActor | undefined>) => {
     actor,
     "lookups.gateways"
   );
+  const paymentTypes = useContext<
+    PaymentDetailsContext["lookups"]["paymentTypes"]
+  >(actor, "lookups.paymentTypes");
+
   const errors = useContext<PaymentDetailsContext["error"]>(actor, "error");
   const validationErrors = useContext<ErrorObject[]>(actor, "error.data");
 
@@ -219,18 +317,18 @@ export const usePaymentDetail = (actor: ComputedRef<UseActor | undefined>) => {
 
   const uischemaStoredPaymentMethods = computed(() => ({
     type: "VerticalLayout",
-    elements: [
-      useUischemaDefinitions(contextValue<PaymentDetailsContext>(actor)!)
-        .payment_details_id
-    ]
+    elements: filter(
+      useUischemaDefinitions(contextValue<PaymentDetailsContext>(actor)!),
+      d => (d as ControlElement).scope === "#/properties/payment_details_id"
+    )
   }));
 
   const uischemaGateways = computed(() => ({
     type: "VerticalLayout",
-    elements: [
-      useUischemaDefinitions(contextValue<PaymentDetailsContext>(actor)!)
-        .gateway_id
-    ]
+    elements: filter(
+      useUischemaDefinitions(contextValue<PaymentDetailsContext>(actor)!),
+      d => (d as ControlElement).scope === "#/properties/gateway_id"
+    )
   }));
 
   const uischemaAmount = computed(() => ({
@@ -251,11 +349,12 @@ export const usePaymentDetail = (actor: ComputedRef<UseActor | undefined>) => {
 
   const uischemaAmountCredit = computed(() => ({
     type: "VerticalLayout",
-    elements: [
-      useUischemaDefinitions(contextValue<PaymentDetailsContext>(actor)!)
-        .wallet_amount
-    ]
+    elements: filter(
+      useUischemaDefinitions(contextValue<PaymentDetailsContext>(actor)!),
+      d => (d as ControlElement).scope === "#/properties/wallet_amount"
+    )
   }));
+
   const storedPaymentMethods = useContext<
     PaymentDetailsContext["lookups"]["storedPaymentMethods"]
   >(actor, "lookups.storedPaymentMethods", []);
@@ -282,6 +381,13 @@ export const usePaymentDetail = (actor: ComputedRef<UseActor | undefined>) => {
         amount: value,
         type: PaymentType.PARTIAL_PAYMENT
       }
+    });
+  }
+
+  async function resetPartialAmount() {
+    actor.value?.send({
+      type: "SET_PARTIAL_PAYMENT",
+      data: { amount: undefined }
     });
   }
 
@@ -364,18 +470,17 @@ export const usePaymentDetail = (actor: ComputedRef<UseActor | undefined>) => {
      * @typedef {Object} PaymentDetailsMeta
      * @property {boolean} isAvailable - Indicates if the payment details actor is available.
      * @property {boolean} isLoading - Indicates if the payment details actor is loading.
+     * @property {boolean} isRefreshing - Indicates if the payment details is reloading (loading with previously loaded data).
      * @property {boolean} hasErrors - Indicates if there are errors.
      * @property {boolean} isProcessing - Indicates if the payment details is processing.
      * @property {boolean} isValid - Indicates if the payment details is valid.
      * @property {boolean} isDirty - Indicates if the payment details is dirty.
-     * @property {boolean} hasGateway - Indicates if the payment details has a gateway actor.
+     * @property {boolean} hasSelectedGateway - Indicates if the payment details has a gateway actor.
      * @property {boolean} isComplete - Indicates if the payment details is complete.
      * @property {boolean} isFree - Indicates if the payment is free (no amount).
      * @property {boolean} hasStoredPaymentMethods - Indicates if there are stored payment methods available.
      * @property {boolean} hasGateways - Indicates if there are multiple payment gateways available.
      * @property {boolean} hasUnsupportedPaymentMethods - Indicates if some stored payment methods are being filtered out due to currency/country restrictions.
-     * @property {boolean} isFree - Indicates if the payment amount is zero or not set.
-     * @property {boolean} isComplete - Indicates if the payment details process is complete.
      * @type {PaymentDetailsMeta}
      */
     meta,
@@ -463,6 +568,12 @@ export const usePaymentDetail = (actor: ComputedRef<UseActor | undefined>) => {
      *
      */
     setAmount,
+
+    /**
+     * Resets the partial payment amount back to the full outstanding balance.
+     * @returns {void} Does not return anything.
+     */
+    resetPartialAmount,
 
     /**
      * Updates the payment details with the specified wallet amount ( ie. account credit ) to be used for this payment.
