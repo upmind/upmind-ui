@@ -640,7 +640,7 @@ export default {
 
   guardBilling: async (
     context: FunnelContext,
-    { data: eventData }: AnyEventObject
+    event: AnyEventObject
   ): Promise<FunnelResponse> => {
     await ensureBidAuth(context, { name: ROUTE.BILLING });
     // If standalone billing isn't enabled, skip to checkout
@@ -670,9 +670,10 @@ export default {
     }
 
     // Skip billing when input isn't needed, unless the user explicitly
-    // navigated here (e.g. the "Change" button on BillingSummary).
-
-    if (billingMeta.value.isComplete && !eventData?.target) {
+    // navigated here (e.g. the "Change" button on BillingSummary sends a
+    // RESOLVE event via navigate()).  Auto-redirects from guardCheckout
+    // arrive as error events and should be skipped when billing is complete.
+    if (billingMeta.value.isComplete && event.type !== "RESOLVE") {
       return { target: { name: ROUTE.CHECKOUT } };
     }
     // Show billing page
