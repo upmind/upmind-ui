@@ -677,9 +677,7 @@ export default createMachine(
         errorExternal: (
           _context: ProductConfigContext,
           { data }: AnyEventObject
-        ) => mapToHeadlessError(data)?.data, // NB we only need the exact errors from the api
-        error: (_context: ProductConfigContext, { data }: AnyEventObject) =>
-          mapToHeadlessError(data)
+        ) => mapToHeadlessError(data) // NB we only need the exact errors from the api
       }),
 
       setError: assign({
