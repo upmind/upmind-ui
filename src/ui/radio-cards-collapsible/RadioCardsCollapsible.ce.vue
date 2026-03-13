@@ -80,8 +80,9 @@
         </CollapsibleContent>
       </RadioGroup>
 
-      <slot v-if="!props.forceOpen" name="actions">
+      <slot name="actions">
         <Button
+          v-if="!props.forceOpen"
           :label="label"
           size="sm"
           variant="solid"
