@@ -31,22 +31,22 @@ Alternatively, use the `/verify-gateway` workflow which walks you through this i
 
 Before starting, identify your gateway type from [GATEWAYS.md](../GATEWAYS.md):
 
-| Type | Code | Examples | Key Differences |
-|------|------|----------|-----------------|
-| **Card** | `1` | Stripe, Braintree, Adyen | SDK or Redirect, supports 3DS, card storage |
-| **Bank Transfer** | `2` | Manual bank transfer | Offline, instructions-based, no real-time confirmation |
-| **Direct Debit** | `3` | GoCardless | Mandate setup, recurring-focused |
-| **Offline** | `5` | Manual/offline | No gateway interaction, manual confirmation |
-| **Mobile** | `6` | MoMo MTN | Mobile money flow |
-| **Awaiting Client** | `10` | BitPay, Blockonomics, DLocal | Redirect/external, async confirmation |
+| Type                | Code | Examples                     | Key Differences                                        |
+| ------------------- | ---- | ---------------------------- | ------------------------------------------------------ |
+| **Card**            | `1`  | Stripe, Braintree, Adyen     | SDK or Redirect, supports 3DS, card storage            |
+| **Bank Transfer**   | `2`  | Manual bank transfer         | Offline, instructions-based, no real-time confirmation |
+| **Direct Debit**    | `3`  | GoCardless                   | Mandate setup, recurring-focused                       |
+| **Offline**         | `5`  | Manual/offline               | No gateway interaction, manual confirmation            |
+| **Mobile**          | `6`  | MoMo MTN                     | Mobile money flow                                      |
+| **Awaiting Client** | `10` | BitPay, Blockonomics, DLocal | Redirect/external, async confirmation                  |
 
 ### Integration Patterns
 
-| Pattern | Gateways | What to Expect |
-|---------|----------|----------------|
-| **SDK** | Stripe, Braintree, Adyen, MercadoPago, OpenPay, RazorPay | Embedded form, client-side tokenisation |
-| **Redirect** | PayPal, Flutterwave, Paystack, PayU, Opayo, CoinGate | Redirect to external site → return URL |
-| **Manual** | Bank Transfer, Offline | Instructions displayed, no automated flow |
+| Pattern      | Gateways                                                 | What to Expect                            |
+| ------------ | -------------------------------------------------------- | ----------------------------------------- |
+| **SDK**      | Stripe, Braintree, Adyen, MercadoPago, OpenPay, RazorPay | Embedded form, client-side tokenisation   |
+| **Redirect** | PayPal, Flutterwave, Paystack, PayU, Opayo, CoinGate     | Redirect to external site → return URL    |
+| **Manual**   | Bank Transfer, Offline                                   | Instructions displayed, no automated flow |
 
 ---
 
@@ -56,15 +56,15 @@ The following API endpoints can be used to **programmatically verify** gateway c
 
 ### Endpoints
 
-| What | Method | Endpoint | Notes |
-|------|--------|----------|-------|
-| **Brand gateways** | `GET` | `/api/brands/{brandId}/gateways?limit=0&filter[active]=1&with=gateway.gateway_provider,gateway.card_types&filter[gateway.currencies.id]={currencyId}` | Returns all active gateways for a brand, filtered by currency. Verifies gateway visibility, type, provider, and card types. |
-| **Gateway details** | Included above | `gateway_provider`, `card_types`, `currencies` relations | Verify provider name, supported card types, currency list |
-| **Stored payment methods** | `GET` | `/api/clients/{clientId}/payment_details?limit=0&brand_id={brandId}&active=true&filter[gateway.currencies.id]={currencyId}&with=gateway,client` | Verify stored methods exist and are filtered correctly |
-| **Wallet balance** | `GET` | `/api/wallet/balance` | Verify account credit for wallet payment testing |
-| **Brand config** | `GET` | `/api/config/brand/values?keys=...` | Check `billing.gateway.force_card_storage`, `billing.gateway.force_auto_payment`, `billing.gateway.client_allow_partial_payments`, `invoices.common.is_available_pay_later` |
-| **Payments** | `POST` | `/api/payments` | Submit a payment (verify backend records it) |
-| **Order** | `GET` | `/api/order/{orderId}` | Verify order status, amounts, invoice |
+| What                       | Method         | Endpoint                                                                                                                                              | Notes                                                                                                                                                                       |
+| -------------------------- | -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Brand gateways**         | `GET`          | `/api/brands/{brandId}/gateways?limit=0&filter[active]=1&with=gateway.gateway_provider,gateway.card_types&filter[gateway.currencies.id]={currencyId}` | Returns all active gateways for a brand, filtered by currency. Verifies gateway visibility, type, provider, and card types.                                                 |
+| **Gateway details**        | Included above | `gateway_provider`, `card_types`, `currencies` relations                                                                                              | Verify provider name, supported card types, currency list                                                                                                                   |
+| **Stored payment methods** | `GET`          | `/api/clients/{clientId}/payment_details?limit=0&brand_id={brandId}&active=true&filter[gateway.currencies.id]={currencyId}&with=gateway,client`       | Verify stored methods exist and are filtered correctly                                                                                                                      |
+| **Wallet balance**         | `GET`          | `/api/wallet/balance`                                                                                                                                 | Verify account credit for wallet payment testing                                                                                                                            |
+| **Brand config**           | `GET`          | `/api/config/brand/values?keys=...`                                                                                                                   | Check `billing.gateway.force_card_storage`, `billing.gateway.force_auto_payment`, `billing.gateway.client_allow_partial_payments`, `invoices.common.is_available_pay_later` |
+| **Payments**               | `POST`         | `/api/payments`                                                                                                                                       | Submit a payment (verify backend records it)                                                                                                                                |
+| **Order**                  | `GET`          | `/api/order/{orderId}`                                                                                                                                | Verify order status, amounts, invoice                                                                                                                                       |
 
 ### What Can Be Auto-Verified
 
@@ -100,19 +100,19 @@ Copy everything below this line into your verification file.
 
 # Gateway Verification: {GATEWAY_NAME}
 
-| Field | Value |
-|-------|-------|
-| **Gateway Provider** | {e.g., Stripe, Braintree} |
-| **Gateway Code** | {e.g., STRIPE, BRAINTREE} |
-| **Payment Type** | {Card / Bank Transfer / Direct Debit / Offline / Mobile / Awaiting Client} |
-| **Integration Pattern** | {SDK / Redirect / Manual} |
-| **Supported Currencies** | {e.g., USD, EUR, GBP} |
-| **3DS Support** | {Yes / No / N/A} |
-| **Can Store Payment Methods** | {Yes / No} |
-| **Sandbox/Test Dashboard URL** | {URL} |
-| **Test Cards/Credentials** | {Link to provider's test docs} |
-| **Date** | {YYYY-MM-DD} |
-| **Verified By** | {Your name} |
+| Field                          | Value                                                                      |
+| ------------------------------ | -------------------------------------------------------------------------- |
+| **Gateway Provider**           | {e.g., Stripe, Braintree}                                                  |
+| **Gateway Code**               | {e.g., STRIPE, BRAINTREE}                                                  |
+| **Payment Type**               | {Card / Bank Transfer / Direct Debit / Offline / Mobile / Awaiting Client} |
+| **Integration Pattern**        | {SDK / Redirect / Manual}                                                  |
+| **Supported Currencies**       | {e.g., USD, EUR, GBP}                                                      |
+| **3DS Support**                | {Yes / No / N/A}                                                           |
+| **Can Store Payment Methods**  | {Yes / No}                                                                 |
+| **Sandbox/Test Dashboard URL** | {URL}                                                                      |
+| **Test Cards/Credentials**     | {Link to provider's test docs}                                             |
+| **Date**                       | {YYYY-MM-DD}                                                               |
+| **Verified By**                | {Your name}                                                                |
 
 ---
 
@@ -133,6 +133,7 @@ Copy everything below this line into your verification file.
 - [ ] Gateway-specific SDK script loads correctly (if SDK-based)
 
 **Notes:**
+
 > {Any setup issues or deviations noted here}
 
 ---
@@ -160,6 +161,7 @@ Copy everything below this line into your verification file.
   - [ ] Invoice amount matches payment amount
 
 **Notes:**
+
 > {Any discrepancies or observations}
 
 ---
@@ -202,6 +204,7 @@ Copy everything below this line into your verification file.
 - [ ] Mobile Money: flow completes, confirmation received
 
 **Notes:**
+
 > {Which methods were tested, which are N/A}
 
 ---
@@ -230,6 +233,7 @@ Copy everything below this line into your verification file.
   - [ ] User can attempt payment again
 
 **Notes:**
+
 > {3DS test card numbers used, any quirks}
 
 ---
@@ -269,6 +273,7 @@ Copy everything below this line into your verification file.
 - [ ] Currency-specific decimal places are respected (e.g., JPY has 0 decimals)
 
 **Notes:**
+
 > {Amounts tested, any precision issues}
 
 ---
@@ -277,13 +282,13 @@ Copy everything below this line into your verification file.
 
 > The **money must match** across all three systems. This is non-negotiable.
 
-| Check | Frontend | Backend | Gateway Dashboard | Match? |
-|-------|----------|---------|-------------------|--------|
-| Payment Amount | $ | $ | $ | ☐ |
-| Currency | | | | ☐ |
-| Transaction/Ref ID | | | | ☐ |
-| Payment Status | | | | ☐ |
-| Timestamp (reasonable) | | | | ☐ |
+| Check                  | Frontend | Backend | Gateway Dashboard | Match? |
+| ---------------------- | -------- | ------- | ----------------- | ------ |
+| Payment Amount         | $        | $       | $                 | ☐      |
+| Currency               |          |         |                   | ☐      |
+| Transaction/Ref ID     |          |         |                   | ☐      |
+| Payment Status         |          |         |                   | ☐      |
+| Timestamp (reasonable) |          |         |                   | ☐      |
 
 ### Additional Reconciliation
 
@@ -292,6 +297,7 @@ Copy everything below this line into your verification file.
 - [ ] For redirect flows: `return_url` parameters contain the correct transaction reference
 
 **Notes:**
+
 > {Fill in the table above with actual values from a test transaction}
 
 ---
@@ -322,6 +328,7 @@ Copy everything below this line into your verification file.
 - [ ] **Very large amount:** Maximum limits handled (if applicable)
 
 **Notes:**
+
 > {Error messages observed, any unhandled scenarios}
 
 ---
@@ -339,6 +346,7 @@ Copy everything below this line into your verification file.
 - [ ] Cannot use a stored method from a different gateway
 
 **Notes:**
+
 > {Any storage quirks}
 
 ---
@@ -396,6 +404,7 @@ Fixtures should be saved to `tests/__fixtures__/recordings/` following the exist
 - [ ] Add entries to `tests/__fixtures__/recordings/_index.json` for each new fixture
 
 **Notes:**
+
 > {List any fixtures that couldn't be captured and why}
 
 ---
@@ -404,17 +413,17 @@ Fixtures should be saved to `tests/__fixtures__/recordings/` following the exist
 
 ### Summary
 
-| Phase | Status | Notes |
-|-------|--------|-------|
-| 1. Setup & Configuration | ☐ Pass / ☐ N/A | |
-| 2. Basic Payment | ☐ Pass / ☐ N/A | |
-| 3. Payment Types & Methods | ☐ Pass / ☐ N/A | |
-| 4. 3D Secure | ☐ Pass / ☐ N/A | |
-| 5. Partial Payments | ☐ Pass / ☐ N/A | |
-| 6. Reconciliation | ☐ Pass / ☐ N/A | |
-| 7. Error Handling | ☐ Pass / ☐ N/A | |
-| 8. Stored Methods | ☐ Pass / ☐ N/A | |
-| 9. Fixtures | ☐ Pass / ☐ N/A | |
+| Phase                      | Status         | Notes |
+| -------------------------- | -------------- | ----- |
+| 1. Setup & Configuration   | ☐ Pass / ☐ N/A |       |
+| 2. Basic Payment           | ☐ Pass / ☐ N/A |       |
+| 3. Payment Types & Methods | ☐ Pass / ☐ N/A |       |
+| 4. 3D Secure               | ☐ Pass / ☐ N/A |       |
+| 5. Partial Payments        | ☐ Pass / ☐ N/A |       |
+| 6. Reconciliation          | ☐ Pass / ☐ N/A |       |
+| 7. Error Handling          | ☐ Pass / ☐ N/A |       |
+| 8. Stored Methods          | ☐ Pass / ☐ N/A |       |
+| 9. Fixtures                | ☐ Pass / ☐ N/A |       |
 
 ### Gateway-Specific Quirks / Known Limitations
 
