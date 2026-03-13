@@ -3,6 +3,7 @@
     id="order-products"
     :label="t('invoice.your_order')"
     icon="shopping-bag-02"
+    :card="false"
     :border="false"
   >
     <Card :class="styles.table.wrapper">
