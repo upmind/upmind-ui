@@ -45,7 +45,7 @@ async function load(
 }
 
 async function parse(
-  { model, schema }: FieldsContext,
+  { baseModel, model, schema }: FieldsContext,
   { data }: AnyEventObject
 ) {
   const fieldsKeys: (keyof FieldsModel)[] = ["notes", "customFields"];
@@ -55,8 +55,13 @@ async function parse(
     : isModelShape<FieldsModel>(get(data, "model"), fieldsKeys)
       ? get(data, "model")
       : undefined; // it's a basket or unknown shape — fall back to context.model
-
-  const safeModel = useModelParser<FieldsModel>(schema, safeData ?? model);
+  debugger;
+  const safeModel = useModelParser<FieldsModel>(
+    schema,
+    safeData ?? model,
+    baseModel,
+    { allowExtraProps: false }
+  );
   return Promise.resolve({ model: safeModel });
 }
 
