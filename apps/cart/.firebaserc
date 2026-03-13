@@ -12,11 +12,11 @@
           "hosting-checkout-dev"
         ],
         "upmind-cart": [
-          "upmind-cart"
+          "upmind-cart-5ec8d"
         ],
 
         "upmind-cart-staging": [
-          "upmind-cart-staging"
+          "upmind-cart-staging-745b9"
         ]
       }
     }

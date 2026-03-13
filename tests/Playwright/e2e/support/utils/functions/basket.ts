@@ -132,7 +132,8 @@ export async function addProductToOrder(
   optionValues: [],
   provisionFields: {},
   promotionValues: [],
-  provisionFieldsValidate: boolean
+  provisionFieldsValidate: boolean,
+  start_trial: boolean
 ): Promise<any> {
   const context: APIRequestContext = await request.newContext({
     baseURL: `${URLs.apiUrl}`,
@@ -160,7 +161,8 @@ export async function addProductToOrder(
           options: optionValues,
           provision_field_values: provisionFields,
           promotions: promotionValues,
-          provision_field_values_validate: provisionFieldsValidate
+          provision_field_values_validate: provisionFieldsValidate,
+          start_trial: start_trial
         }
       }
     );

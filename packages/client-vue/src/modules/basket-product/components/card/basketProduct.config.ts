@@ -5,7 +5,7 @@ export default {
   product: {
     root: {
       card: cva(
-        "bg-surface shadow-control-default card-radius relative flex list-none flex-col gap-y-3 px-8 py-5 text-base",
+        "divide-border-control-default relative flex list-none flex-col divide-y divide-dashed text-base *:py-4 *:first:pt-0 *:last:pb-0 lg:px-8 lg:py-9",
         {
           variants: {
             isDisabled: {
@@ -23,8 +23,7 @@ export default {
             }
           ]
         }
-      ),
-      container: cva("divide-border-control-default divide-y divide-dashed")
+      )
     },
     summary: {
       article: cva("flex flex-col gap-2 lg:gap-4"),

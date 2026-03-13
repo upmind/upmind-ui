@@ -23,7 +23,15 @@
     "placeholder": "name@email.com"
   },
   "auth_password": {
-    "error": "Ein sicheres Passwort ist erforderlich",
+    "error": {
+      "min_length": "Das Passwort muss mindestens 8 Zeichen lang sein.",
+      "min_length_lowercase": "Das Passwort muss mindestens 8 Zeichen lang sein und einen Kleinbuchstaben enthalten.",
+      "min_length_lowercase_number": "Das Passwort muss mindestens 8 Zeichen lang sein, mindestens einen Kleinbuchstaben und mindestens eine Ziffer enthalten",
+      "min_length_number": "Das Passwort muss mindestens 8 Zeichen lang sein und eine Zahl enthalten.",
+      "missing_lowercase": "Das Passwort muss einen Kleinbuchstaben enthalten.",
+      "missing_lowercase_number": "Das Passwort muss einen Kleinbuchstaben und eine Zahl enthalten.",
+      "missing_number": "Das Passwort muss eine Zahl enthalten."
+    },
     "label": "Passwort",
     "placeholder": "Passwort oder Passphrase"
   },
@@ -68,7 +76,7 @@
   },
   "country": {
     "label": "Land",
-    "placeholder": "Wählen Sie ein Land"
+    "placeholder": "Wählen Sie ein Land aus"
   },
   "domain": {
     "placeholder": "Geben Sie Ihre Domäne ein..."
@@ -87,6 +95,10 @@
   "firstname": {
     "error": "Ihr Vorname ist erforderlich",
     "label": "Vorname"
+  },
+  "language": {
+    "error": "Ihre Sprache wird benötigt",
+    "label": "Sprache"
   },
   "lastname": {
     "error": "Ihr Nachname ist erforderlich",
@@ -121,6 +133,10 @@
     "error": "Ein gültiger Promo-Code ist erforderlich",
     "placeholder": "Gutscheincode hier eingeben"
   },
+  "publicName": {
+    "error": "Ihr öffentlicher Name ist erforderlich.",
+    "label": "Öffentlicher Name"
+  },
   "recover": {
     "error": "Beim Versuch, Ihnen eine E-Mail zum Zurücksetzen des Passworts zu senden, ist ein Fehler aufgetreten."
   },
@@ -139,9 +155,5 @@
   },
   "stored_payment_method": {
     "label": ""
-  },
-  "taxNumber": {
-    "label": "Steuernummer",
-    "placeholder": "Steuernummer"
   }
 }

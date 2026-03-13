@@ -12,8 +12,6 @@ import type {
   IGateway,
   IOrder,
   IPaymentDetail,
-  IWalletBalance,
-  IWalletCurrencyBalance,
   PaymentType,
   SelectPaymentMethodData
 } from "@upmind-automation/types";
@@ -181,6 +179,12 @@ export interface PaymentDetailsContext extends PaymentDetailsArgs {
        * This represents the full/partial payment amount that needs to be paid.
        */
       amount: string;
+
+      /**
+       * The full outstanding balance (context.amount) formatted as per locale and currency.
+       * This represents the total amount due on the order before any partial payment.
+       */
+      outstanding: string;
 
       /**
        * The account credit/wallet amount (model.wallet_amount) formatted as per locale and currency.

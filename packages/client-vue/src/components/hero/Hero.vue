@@ -2,10 +2,10 @@
   <header :class="styles.hero.root">
     <Badge
       v-if="badge"
-      v-bind="isString(badge) ? { label: badge } : badge"
       class="shrink-0"
       variant="minimal"
       color="neutral"
+      v-bind="isString(badge) ? { label: badge } : badge"
     />
     <hgroup>
       <slot name="prepend" />
@@ -46,6 +46,16 @@
       </slot>
     </component>
 
+    <div>
+      <Button
+        v-if="props.action"
+        v-bind="props.action"
+        variant="subtle"
+        size="lg"
+        @click="emit('action')"
+      />
+    </div>
+
     <slot name="append" />
 
     <slot />
@@ -57,7 +67,7 @@
 import { computed } from "vue";
 
 // --- components
-import { Badge } from "@upmind-automation/upmind-ui";
+import { Badge, Button } from "@upmind-automation/upmind-ui";
 
 // --- internal
 import config from "./hero.config";
@@ -72,9 +82,13 @@ import type { HeroProps } from "./types";
 const props = defineProps<HeroProps>();
 const slots = defineSlots();
 
+const emit = defineEmits<{
+  (e: "action"): void;
+}>();
+
 const meta = computed(() => ({
   hasSubtitle: !!props.subtitle || !!slots.subtitle,
-  hasDescription: !!props.description || !!slots.description
+  hasDescription: !props.loading && (!!props.description || !!slots.description)
 }));
 
 const styles = useStyles(["hero"], meta, config, props.uiConfig ?? {});

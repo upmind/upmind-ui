@@ -9,7 +9,7 @@
         :badge="badge"
       >
         <template #append>
-          <div v-if="action">
+          <div v-if="action && !meta.isComplete">
             <Button
               variant="subtle"
               size="lg"
@@ -26,13 +26,13 @@
 
     <template #order-payment-details v-if="meta.isAvailable">
       <Alert
-        v-if="failedAlert"
-        v-bind="failedAlert"
+        v-if="primaryAlert"
+        v-bind="primaryAlert"
         variant="minimal"
-        @click="failedAlert?.onClick"
+        @click="primaryAlert?.onClick"
       />
       <PaymentDetails
-        v-else
+        v-if="!meta.isLocked"
         v-show="!meta.isProcessing"
         :label="t('action.pay_now')"
         :processing="meta.isProcessing"
@@ -41,10 +41,10 @@
       >
         <template #prepend>
           <Alert
-            v-if="warningAlert"
-            v-bind="warningAlert"
+            v-if="secondaryAlert"
+            v-bind="secondaryAlert"
             variant="minimal"
-            @click="warningAlert?.onClick"
+            @click="secondaryAlert?.onClick"
           />
         </template>
       </PaymentDetails>
@@ -123,7 +123,19 @@
     </template>
 
     <template v-if="!meta.isUnavailable" #order-products>
-      <OrderProducts v-show="!meta.isProcessing" />
+      <OrderProducts v-show="!meta.isProcessing">
+        <template #append>
+          <Button
+            v-if="action && meta.isComplete"
+            size="lg"
+            :label="t(action)"
+            :loading="actionProcessing"
+            @click.stop="doAction"
+            :icon="!meta.isAuthenticated ? 'arrow-left' : ''"
+            :icon-append="meta.isAuthenticated ? 'arrow-right' : ''"
+          />
+        </template>
+      </OrderProducts>
     </template>
   </component>
 
@@ -168,7 +180,8 @@ import {
   Skeleton,
   useStyles,
   type AlertProps,
-  type DescriptionItem
+  type DescriptionItem,
+  type BadgeProps
 } from "@upmind-automation/upmind-ui";
 
 // --- internal
@@ -260,7 +273,8 @@ const badge = computed(() => {
   if (meta.value.isComplete)
     return {
       label: t("text.confirmed"),
-      icon: "sale-02"
+      icon: "check-circle",
+      color: "success" as BadgeProps["color"]
     };
 
   return {
@@ -269,9 +283,16 @@ const badge = computed(() => {
   };
 });
 
-const failedAlert = computed<
+const primaryAlert = computed<
   (AlertProps & { onClick?: () => void }) | undefined
 >(() => {
+  if (meta.value.isLocked)
+    return {
+      title: t("invoice.order_locked"),
+      description: t("invoice.order_locked_msg"),
+      icon: "lock-03",
+      color: "neutral"
+    };
   if (meta.value.hasError)
     return {
       title: t("invoice.payment_retry"),
@@ -285,7 +306,7 @@ const failedAlert = computed<
     };
 });
 
-const warningAlert = computed<
+const secondaryAlert = computed<
   (AlertProps & { onClick?: () => void }) | undefined
 >(() => {
   if (meta.value.isPending)
@@ -411,9 +432,8 @@ const action = computed(() => {
     return "action.return_to_shop";
   } else if (meta.value.isUnavailable) {
     return "action.go_to_my_orders";
-  } else if (meta.value.isComplete) {
-    return "action.go_to_my_account";
   }
+  return "action.go_to_my_account";
 });
 
 function doAction() {
@@ -456,12 +476,23 @@ function doAction() {
 // -----------------------------------------------------------------------------
 
 watch(
-  () => meta.value.hasError,
-  failed => {
-    if (failed) {
+  () => [meta.value.hasError, meta.value.isComplete, meta.value.isPartial],
+  ([hasError, isComplete, isPartial]) => {
+    if (hasError) {
       showAnnouncement({
         text: t("invoice.payment_failed_banner"),
         type: "danger"
+      });
+    } else if (
+      (isComplete || isPartial) &&
+      !meta.value.isFree &&
+      orderData.value?.datePaid?.date
+    ) {
+      showAnnouncement({
+        text: t("invoice.payment_success_banner", {
+          date: orderData.value.datePaid.date
+        }),
+        type: "success"
       });
     } else {
       dismissAnnouncement();

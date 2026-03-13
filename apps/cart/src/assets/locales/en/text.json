@@ -51,6 +51,9 @@
   "forgot_your_password_qn": "Forgot your password?",
   "free": "FREE",
   "free_trial": "Free Trial",
+  "free_trial_alert": "This item comes with a {days}-day free trial.",
+  "free_trial_desc": "Good news - you can now try this product free for 7 days, no strings attached. After your trial period ends, your {term} plan will then begin.",
+  "free_trial_included_desc": "This product includes a free trial period.",
   "from": "From",
   "fully_encrypted_title": "Fully Encrypted",
   "item": "Item",
@@ -102,6 +105,7 @@
   "session_expired_md": "@.markdown:{'text.session_expired'}",
   "session_expired_return_store_msg": "We're unable to retrieve your past order as your session has expired. To start a new purchase, please click the button below to return to our store.",
   "shop": "Shop",
+  "start_free_trial": "Start free trial",
   "subject": "Subject",
   "subtotal": "Subtotal",
   "summary": "Summary",
@@ -119,6 +123,9 @@
   "terms_of_service": "Terms of service",
   "to": "To",
   "total": "Total",
+  "trial_renews_at_msg": "Renews at {price} after trial",
+  "try_before_you_buy": "Try before you buy",
+  "try_free_for_days": "Try free for {days} days",
   "unverified_label": "Unverified",
   "welcome_back_msg": "Welcome back, {name}"
 }

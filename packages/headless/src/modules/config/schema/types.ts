@@ -52,7 +52,7 @@ export type CategoryGridLayout =
   (typeof CATEGORY_GRID_LAYOUT)[keyof typeof CATEGORY_GRID_LAYOUT];
 
 export const EDITABILITY = {
-  //READONLY: "readonly", // Not supported yet
+  READONLY: "readonly",
   EDITABLE: "editable"
 } as const;
 export type Editability = (typeof EDITABILITY)[keyof typeof EDITABILITY];

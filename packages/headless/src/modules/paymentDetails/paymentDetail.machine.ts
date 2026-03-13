@@ -130,7 +130,7 @@ export default createMachine(
 
           valid: {
             id: "valid",
-            always: [{ target: "processing", cond: "shouldUpdate" }],
+            always: [{ target: "#processing", cond: "shouldUpdate" }],
             on: {
               PAYMENT_DETAILS: [
                 {
@@ -154,28 +154,13 @@ export default createMachine(
                   cond: "hasPaymentDetails"
                 },
 
-                { target: "processing", cond: "hasBasket" }
+                { target: "#processing", cond: "hasBasket" }
               ]
             }
           },
 
           invalid: {
             id: "invalid"
-          },
-
-          processing: {
-            entry: ["forwardCheckout"],
-            on: {
-              CANCEL: {
-                target: "#invalid", // no need to set the error, it will be set by the gateway
-                actions: ["cancelPaymentDetails", "clearAutoUpdate"]
-              },
-              // ths is the response from the gateway
-              PAYMENT_DETAILS: {
-                target: "#complete",
-                actions: ["setPaymentDetails", "clearAutoUpdate"]
-              }
-            }
           }
         },
         on: {
@@ -209,6 +194,22 @@ export default createMachine(
               cond: "hasAmountChanged"
             }
           ]
+        }
+      },
+
+      processing: {
+        id: "processing",
+        entry: ["forwardCheckout"],
+        on: {
+          CANCEL: {
+            target: "#invalid", // no need to set the error, it will be set by the gateway
+            actions: ["cancelPaymentDetails", "clearAutoUpdate"]
+          },
+          // ths is the response from the gateway
+          PAYMENT_DETAILS: {
+            target: "#complete",
+            actions: ["setPaymentDetails", "clearAutoUpdate"]
+          }
         }
       },
 
@@ -277,6 +278,7 @@ export default createMachine(
             accountCredit: raw?.accountCredit,
             amountsFormatted: data?.amountsFormatted ?? {
               amount: "",
+              outstanding: "",
               wallet: ""
             }
           };
@@ -378,8 +380,8 @@ export default createMachine(
       refresh: assign({
         orderId: (_context: PaymentDetailsContext, { data }: AnyEventObject) =>
           data?.id,
-        client: (_context: PaymentDetailsContext, { data }: AnyEventObject) =>
-          data?.client,
+        client: ({ client }: PaymentDetailsContext, { data }: AnyEventObject) =>
+          data?.client ?? client,
         currency: (
           { currency }: PaymentDetailsContext,
           { data }: AnyEventObject

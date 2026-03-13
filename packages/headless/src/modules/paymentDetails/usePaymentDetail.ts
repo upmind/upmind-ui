@@ -126,7 +126,8 @@ export const usePaymentDetail = (
     // TRUE if actor exists AND machine is in available state
     // OR if refreshing (loading with previously loaded data)
     const isAvailable =
-      !!actor.value && (stateMatches(actor, ["available"]) || isRefreshing);
+      !!actor.value &&
+      (stateMatches(actor, ["available", "processing"]) || isRefreshing);
 
     // TRUE if actor is not ready
     // OR machine is in initial loading state
@@ -383,6 +384,13 @@ export const usePaymentDetail = (
     });
   }
 
+  async function resetPartialAmount() {
+    actor.value?.send({
+      type: "SET_PARTIAL_PAYMENT",
+      data: { amount: undefined }
+    });
+  }
+
   async function setGateway(value: PaymentDetailModel["gateway_id"] | null) {
     actor.value?.send({
       type: "SET",
@@ -440,6 +448,14 @@ export const usePaymentDetail = (
 
   function clear() {
     actor.value?.send({ type: "CLEAR" });
+  }
+
+  function renderChallenge(container: HTMLElement) {
+    actor.value?.send({ type: "RENDER", data: { container } });
+  }
+
+  function cancelChallenge() {
+    actor.value?.send({ type: "CHALLENGE_CANCELLED" });
   }
 
   function useStoredPayment(model: PaymentDetailModel) {
@@ -562,6 +578,12 @@ export const usePaymentDetail = (
     setAmount,
 
     /**
+     * Resets the partial payment amount back to the full outstanding balance.
+     * @returns {void} Does not return anything.
+     */
+    resetPartialAmount,
+
+    /**
      * Updates the payment details with the specified wallet amount ( ie. account credit ) to be used for this payment.
      * @param {number} value The wallet amount to set for the payment details.
      * @returns {void} Does not return anything.
@@ -595,7 +617,19 @@ export const usePaymentDetail = (
      * @returns {void} Does not return anything.
      */
     //
-    useStoredPayment
+    useStoredPayment,
+
+    /**
+     * Renders the payment challenge into the specified container.
+     * @param {HTMLElement} container The HTML element to render the challenge into.
+     */
+    render: renderChallenge,
+
+    /**
+     * Cancels the payment challenge.
+     * @returns {void} Does not return anything.
+     */
+    cancelChallenge
   };
 };
 

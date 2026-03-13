@@ -23,7 +23,15 @@
     "placeholder": "name@email.com"
   },
   "auth_password": {
-    "error": "Ein sicheres Passwort ist erforderlich",
+    "error": {
+      "min_length": "Das Passwort muss mindestens 8 Zeichen lang sein.",
+      "min_length_lowercase": "Das Passwort muss mindestens 8 Zeichen lang sein und einen Kleinbuchstaben enthalten.",
+      "min_length_lowercase_number": "Das Passwort muss mindestens 8 Zeichen lang sein, mindestens einen Kleinbuchstaben und mindestens eine Ziffer enthalten",
+      "min_length_number": "Das Passwort muss mindestens 8 Zeichen lang sein und eine Zahl enthalten.",
+      "missing_lowercase": "Das Passwort muss einen Kleinbuchstaben enthalten.",
+      "missing_lowercase_number": "Das Passwort muss einen Kleinbuchstaben und eine Zahl enthalten.",
+      "missing_number": "Das Passwort muss eine Zahl enthalten."
+    },
     "label": "Passwort",
     "placeholder": "Passwort oder Passphrase"
   },

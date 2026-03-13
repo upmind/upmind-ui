@@ -40,7 +40,8 @@ test.describe("3D Secure Authentication", async () => {
           })}.com`
         },
         [],
-        true
+        true,
+        false
       );
       await page.goto(URLs.checkout);
       await registration.inputRegistration();
@@ -53,15 +54,13 @@ test.describe("3D Secure Authentication", async () => {
           let returnUrl = `http://qa-automation.local:5173/order/${orderId}/?payment_success=true`;
           await page.goto(returnUrl);
           await expect(page).toHaveURL(/payment_success=true/);
-          await expect(page.getByText("Order Complete!")).toBeVisible();
+          await expect(page.getByText("Order complete!")).toBeVisible();
         } else {
           let returnUrl = `http://qa-automation.local:5173/order/${orderId}/?payment_success=false`;
           await page.goto(returnUrl);
           await expect(page).toHaveURL(/payment_success=false/);
           await expect(
-            page.getByText(
-              "Your payment attempt was unsuccessful - please try again."
-            )
+            page.getByText("Unable to process payment")
           ).toBeVisible();
         }
       });

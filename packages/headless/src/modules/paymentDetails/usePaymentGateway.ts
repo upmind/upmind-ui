@@ -83,15 +83,16 @@ export const usePaymentGateway = (
       !actor.value || contextValue<boolean>(actor, "supported") !== true,
     isLoading: !!actor.value && stateMatches(actor, ["loading"]),
     isRendering: !actor.value || stateMatches(actor, ["rendering"]),
-    isAvailable: !!actor.value && stateMatches(actor, ["available"]),
+    isAvailable:
+      !!actor.value && stateMatches(actor, ["available", "processing"]),
     isUnavailable: !!actor.value && stateMatches(actor, ["unavailable"]),
-    hasErrors: stateMatches(actor, ["available.error"]),
-    isProcessing: stateMatches(actor, ["available.processing"]),
+    hasErrors: stateMatches(actor, ["error"]),
+    isProcessing: stateMatches(actor, ["processing"]),
     isValid: stateMatches(actor, ["available.valid"]),
     isDirty: !isEmpty(contextValue<GatewayContext["model"]>(actor, "model")),
     isComplete:
       stateValue(actor, "done", false) ||
-      stateMatches(actor, ["available.processed", "complete"]),
+      stateMatches(actor, ["processed", "complete"]),
     isRenderless:
       contextMatches(actor, ["renderless"]) ||
       every(
@@ -147,16 +148,11 @@ export const usePaymentGateway = (
 
     return waitFor(
       actor.value!.service,
-      state =>
-        stateMatches(state, [
-          "available.processed",
-          "available.error",
-          "complete"
-        ]),
+      state => stateMatches(state, ["processed", "error", "complete"]),
       { timeout: 60_000 }
     )
       .then(state => {
-        if (stateMatches(state, "available.error")) throw state.context.error;
+        if (stateMatches(state, "error")) throw state.context.error;
         return Promise.resolve();
       })
       .catch(error => {

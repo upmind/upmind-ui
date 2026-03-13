@@ -62,27 +62,26 @@ export const useBasketBilling = () => {
     );
   }
 
-  const meta = computed(() => ({
-    isLoading: !actor.value || stateMatches(actor, ["loading"]),
-    isAvailable:
-      !!actor.value && stateMatches(actor, ["available", "complete"]),
-    hasErrors: stateMatches(actor, ["available.error"]),
-    isProcessing: stateMatches(actor, [
-      "available.processing",
-      "available.waiting"
-    ]),
-    isValid: stateMatches(actor, ["available.valid"]),
-    isComplete:
-      stateValue(actor, "done", false) ||
-      stateMatches(actor, ["available.processed", "complete"]),
-    isDirty: isDirty(
-      contextValue<BillingContext["model"]>(actor, "model"),
-      contextValue<BillingContext["baseModel"]>(actor, "baseModel")
-    ),
-    needsAddress: config.value?.requiresAddress ?? false,
-    needsCompany: config.value?.requiresCompany ?? false,
-    needsPhone: config.value?.requiresPhone ?? false
-  }));
+  const meta = computed(() => {
+    return {
+      isLoading: !actor.value || stateMatches(actor, ["loading"]),
+      isAvailable:
+        !!actor.value && stateMatches(actor, ["available", "complete"]),
+      hasErrors: stateMatches(actor, ["error"]),
+      isProcessing: stateMatches(actor, ["processing", "available.waiting"]),
+      isValid: stateMatches(actor, ["available.valid"]),
+      isComplete:
+        stateValue(actor, "done", false) ||
+        stateMatches(actor, ["processed", "complete"]),
+      isDirty: isDirty(
+        contextValue<BillingContext["model"]>(actor, "model"),
+        contextValue<BillingContext["baseModel"]>(actor, "baseModel")
+      ),
+      needsAddress: !!config.value?.requiresAddress,
+      needsCompany: !!config.value?.requiresCompany,
+      needsPhone: !!config.value?.requiresPhone
+    };
+  });
 
   // --- context
 
@@ -106,6 +105,11 @@ export const useBasketBilling = () => {
 
   // --- methods
 
+  function set(value: BillingModel): void {
+    value = omitBy(toRaw(unref(value)), isEmpty);
+    actor.value?.send({ type: "SET", data: value });
+  }
+
   async function update(value: BillingModel): Promise<void> {
     // first check if our fields have change, ie: model.code has changed
     value = omitBy(toRaw(unref(value)), isEmpty);
@@ -116,8 +120,8 @@ export const useBasketBilling = () => {
       actor.value!.service,
       state =>
         stateMatches(state, [
-          "available.processed",
-          "available.error",
+          "processed",
+          "error",
           "available.invalid",
           "complete"
         ]),
@@ -204,6 +208,9 @@ export const useBasketBilling = () => {
 
     /** The billing schema. */
     schema,
+
+    /** Sets the billing model without triggering an API update. */
+    set,
 
     /** The billing UI schema. */
     uischema,

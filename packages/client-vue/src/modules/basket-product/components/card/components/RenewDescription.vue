@@ -6,11 +6,13 @@
     })
   }}.
 
-  <template v-if="props.meta?.discounted && cycle !== 0"
-    >{{
-      t("term.renews_usually_msg", { price: props.price.regularPrice })
-    }}.</template
-  >
+  <template v-if="props.discounted && cycle !== 0">
+    {{ t("term.renews_usually_msg", { price: props.regularPrice }) }}.
+  </template>
+
+  <template v-else-if="props.freeTrial && props.renewalPrice">
+    {{ t("term.renews_usually_msg", { price: props.renewalPrice }) }}.
+  </template>
 </template>
 
 <script lang="ts" setup>
@@ -21,9 +23,11 @@ import { useI18n } from "vue-i18n";
 import { parseBillingCycle } from "@upmind-automation/headless";
 
 // --- types
-import type { TermDetails } from "@upmind-automation/headless";
+import type { RenewDescriptionProps } from "./types";
+
+// -----------------------------------------------------------------------------
 
 const { t } = useI18n();
 
-const props = defineProps<TermDetails>();
+const props = defineProps<RenewDescriptionProps>();
 </script>

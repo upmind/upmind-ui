@@ -10,7 +10,6 @@
       "password": {
         "label": "Password",
         "placeholder": "Password or passphrase",
-        "error": "A strong password is required",
         "description": null
       },
       "firstname": {
@@ -37,7 +36,6 @@
       "password": {
         "label": "Password",
         "placeholder": "Password or passphrase",
-        "error": "A strong password is required",
         "description": null
       },
       "actions": {

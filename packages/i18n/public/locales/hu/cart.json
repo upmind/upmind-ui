@@ -19,6 +19,7 @@
   "basket_review_msg": "Kérjük, tekintse át a következő elemeket, mielőtt folytatná",
   "basket_section": "Kosár összefoglaló",
   "basket_summary_desc": "Van {count} tétel a kosarában, összesen {total}. | Neked van {count} a kosárban lévő tételek, összesen {total}.",
+  "basket_summary_desc_free": "Van {count} tétel a kosarában. | Önnek van {count} tételek a kosaradban.",
   "basket_title": "A kosarad",
   "change_amount": "Összeg módosítása",
   "empty": "A **kosarad** üres",

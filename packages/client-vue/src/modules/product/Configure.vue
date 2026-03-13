@@ -60,7 +60,7 @@
             <form @submit.prevent @reset.prevent>
               <ProductConfig
                 v-if="pendingProduct && productMeta?.isAvailable"
-                as="div"
+                as="fieldset"
                 :item="pendingProduct"
                 :model-value="pendingProduct?.id"
                 :meta="configMeta"
@@ -173,7 +173,18 @@
       </template>
 
       <template #errors>
-        <ConfigErrors v-if="productMeta?.isAvailable" :meta="productMeta" />
+        <Alert
+          class="w-full"
+          v-if="externalErrors?.message"
+          color="danger"
+          variant="minimal"
+          icon="alert-triangle"
+          :title="externalErrors?.message"
+        />
+        <ConfigErrors
+          :visible="productMeta?.showErrors"
+          :errors="validationErrors"
+        />
       </template>
 
       <template #total>
@@ -225,14 +236,14 @@ import { useBreadcrumbs } from "../../composables/useBreadcrumbs";
 import { useThemes } from "@upmind-automation/upmind-ui";
 
 // --- components
-import { Breadcrumb, Markdown } from "@upmind-automation/upmind-ui";
+import { Breadcrumb, Markdown, Alert } from "@upmind-automation/upmind-ui";
 import ConfigErrors from "./components/ConfigErrors.vue";
 import ConfigSkeleton from "./components/ConfigSkeleton.vue";
 import Pricing from "./components/pricing-list/Pricing.vue";
 import PricingSkeleton from "./components/pricing-list/PricingSkeleton.vue";
 import PricingTotal from "./components/pricing-list/PricingTotal.vue";
 import ProductActions from "./components/ProductActions.vue";
-import ProductConfig from "./components/config/Config.vue";
+import ProductConfig from "./components/Config.vue";
 import ProductHero from "./components/hero/ProductHero.vue";
 import ProductHeroSkeleton from "./components/hero/ProductHeroSkeleton.vue";
 import ProductImage from "./components/hero/ProductImage.vue";
@@ -300,6 +311,8 @@ const {
   meta: productMeta,
   model,
   product,
+  externalErrors,
+  validationErrors,
   productImage,
   updateQuantity,
   updateTerm,

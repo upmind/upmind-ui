@@ -8,11 +8,12 @@ export const URLs = {
   basket: `${baseUrl}order/basket/`,
   emptyBasket: `${baseUrl}order/basket/empty/`,
   checkout: `${baseUrl}order/checkout/`,
+  billing: `${baseUrl}order/billing`,
   login: `${baseUrl}order/auth/login/`,
   logout: `${baseUrl}order/auth/logout/`,
   register: `${baseUrl}order/auth/register/`,
   forgottenPassword: `${baseUrl}order/auth/recover/`,
-  domainSearch: `${baseUrl}domains`,
+  domainSearch: `${baseUrl}domains/`,
   domainWidget: `${baseUrl}order/shop?catid=8d632507-9806-5d1e-302f-8174e234e98d`,
 
   /* ADD PRODUCT URLS */
@@ -31,8 +32,8 @@ export const URLs = {
   recommendations2: `${baseUrl}order/product/320e4357-95e7-8d18-090c-31643202d986/`,
 
   /* CATALOGUE URLS */
-  catalogueRoot1: `${baseUrl}order/shop/`,
-  catalogueRoot2: `${baseUrl}order/shop?page=2/`,
+  catalogueRoot1: `${baseUrl}order/shop`,
+  catalogueRoot2: `${baseUrl}order/shop?page=2`,
   categoryPage: `${baseUrl}order/shop?catid=5d085e69-d562-3719-794c-218e940d4237`,
   nestedCategoryPage: `${baseUrl}order/shop?catid=20403869-6e54-721d-593f-518d9305e7d2`,
   catalogueDomainSearch: `${baseUrl}order/shop?catid=8d632507-9806-5d1e-302f-8174e234e98d`,
@@ -52,6 +53,11 @@ export const URLs = {
   inactivePromo: `${baseUrl}order/product/5d085e69-d562-3719-489f-218e940d4237/`,
   singleUsePromo: `${baseUrl}order/product/2785d26e-9678-3d16-934b-314502e70439/`,
   autoAppliedPromo: `${baseUrl}order/product/825d96e7-63ed-0913-722a-417482528340/`,
+
+  /* FREE TRIAL PRODUCT URLS */
+  freeTrialsCategory: `${baseUrl}order/shop/?catid=78985742-6489-7012-266a-21e325d0ed36`,
+  optionalTrialProduct: `${baseUrl}order/product/3de78642-de53-9714-986f-21208469530d/`,
+  forcedTrialProduct: `${baseUrl}order/product/78985742-6489-7012-7d8b-21e325d0ed36/`,
 
   /* API URLS */
   apiUrl: "https://api.staging.upmind.io/",

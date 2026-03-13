@@ -19,6 +19,7 @@
   "basket_review_msg": "Please review the following items before continuing",
   "basket_section": "Basket summary",
   "basket_summary_desc": "You have {count} item in your basket, totalling {total}. | You have {count} items in your basket, totalling {total}.",
+  "basket_summary_desc_free": "You have {count} item in your basket. | You have {count} items in your basket.",
   "basket_title": "Your basket",
   "change_amount": "Change amount",
   "empty": "Your **basket** is empty",

@@ -29,27 +29,35 @@
   },
   "auth_password": {
     "description": null,
-    "error": "A strong password is required",
+    "error": {
+      "min_length": "Password must be at least 8 characters",
+      "min_length_lowercase": "Password must be at least 8 characters and contain a lowercase letter",
+      "min_length_lowercase_number": "Password must be at least 8 characters, contain a lowercase letter, and a number",
+      "min_length_number": "Password must be at least 8 characters and contain a number",
+      "missing_lowercase": "Password must contain a lowercase letter",
+      "missing_lowercase_number": "Password must contain a lowercase letter and a number",
+      "missing_number": "Password must contain a number"
+    },
     "label": "Password",
     "placeholder": "Password or passphrase"
   },
   "card_cvv": {
     "description": null,
-    "error": "A valid CVV is required",
     "label": "CVV",
-    "placeholder": "CVC"
+    "placeholder": "CVC",
+    "error": "A valid CVV is required"
   },
   "card_expiry": {
     "description": null,
-    "error": "A valid expiry date is required",
     "label": "Expiry date",
-    "placeholder": "MM/YY"
+    "placeholder": "MM/YY",
+    "error": "A valid expiry date is required"
   },
   "card_num": {
     "description": null,
-    "error": "A valid card number is required",
     "label": "Card number",
-    "placeholder": "1234 1234 1234 1234"
+    "placeholder": "1234 1234 1234 1234",
+    "error": "A valid card number is required"
   },
   "cardholder_name": {
     "description": null,
@@ -90,40 +98,35 @@
   },
   "email": {
     "description": null,
+    "error": "A valid Email Address is required",
     "label": "Email",
     "placeholder": null,
-    "error": "A valid Email Address is required",
     "title": "Add New Email | Update Email"
   },
   "phone": {
     "description": null,
+    "error": "A valid Phone Number is required",
     "label": "Phone",
     "placeholder": null,
-    "error": "A valid Phone Number is required",
     "title": "Add New Phone Number | Update Phone Number"
   },
   "login": {
     "description": null,
+    "error": "We experienced an error while trying to log you in.",
     "label": null,
-    "placeholder": null,
-    "error": "We experienced an error while trying to log you in."
+    "placeholder": null
   },
   "register": {
     "description": null,
+    "error": "We experienced an error while trying to create your account.",
     "label": null,
-    "placeholder": null,
-    "error": "We experienced an error while trying to create your account."
+    "placeholder": null
   },
   "recover": {
     "description": null,
+    "error": "We experienced an error while trying to send you a password reset email.",
     "label": null,
-    "placeholder": null,
-    "error": "We experienced an error while trying to send you a password reset email."
-  },
-  "category_search": {
-    "description": null,
-    "label": null,
-    "placeholder": "Category search..."
+    "placeholder": null
   },
   "domain_search": {
     "description": null,
@@ -135,48 +138,25 @@
     "label": null,
     "placeholder": "Search by product name..."
   },
+  "product_trial": {
+    "description": null,
+    "label": null,
+    "placeholder": null
+  },
   "select_option": {
     "description": null,
     "label": null,
     "placeholder": "Select an option"
   },
-  "allow_auto_payment": {
-    "description": "Allow this payment method to be used for making automated offline payments – such as paying a renewal invoice.",
-    "label": "Allow auto payment",
-    "placeholder": null
-  },
   "promocode": {
     "description": null,
+    "error": "A valid promo code is required",
     "label": null,
-    "placeholder": "Enter voucher code here",
-    "error": "A valid promo code is required"
-  },
-  "cardholder_name": {
-    "description": null,
-    "label": "Cardholder name",
-    "placeholder": "Enter cardholder name"
-  },
-  "card_num": {
-    "description": null,
-    "label": "Card number",
-    "placeholder": "1234 1234 1234 1234",
-    "error": "A valid card number is required"
-  },
-  "card_expiry": {
-    "description": null,
-    "label": "Expiry date",
-    "placeholder": "MM/YY",
-    "error": "A valid expiry date is required"
-  },
-  "card_cvv": {
-    "description": null,
-    "label": "CVV",
-    "placeholder": "CVC",
-    "error": "A valid CVV is required"
+    "placeholder": "Enter voucher code here"
   },
   "payment_details_id": {
-    "label": "",
     "description": null,
+    "label": "",
     "placeholder": null
   },
   "store_on_payment": {
@@ -188,18 +168,6 @@
     "description": null,
     "label": null,
     "placeholder": "Enter your domain..."
-  },
-  "domain_search": {
-    "description": null,
-    "label": null,
-    "placeholder": "Search for a domain..."
-  },
-  "email": {
-    "description": null,
-    "error": "A valid Email Address is required",
-    "label": "Email",
-    "placeholder": null,
-    "title": "Add New Email | Update Email"
   },
   "field_notes": {
     "description": null,
@@ -224,87 +192,6 @@
     "label": "Last name",
     "placeholder": null
   },
-  "login": {
-    "description": null,
-    "error": "We experienced an error while trying to log you in.",
-    "label": null,
-    "placeholder": null
-  },
-  "payment_details_id": {
-    "description": null,
-    "label": "",
-    "placeholder": null
-  },
-  "payment_method_type": {
-    "description": null,
-    "error": "A valid payment type is required",
-    "label": "Select payment type",
-    "partial-payment": "Make a partial payment",
-    "pay-later": "Pay later",
-    "placeholder": null,
-    "stored-card": "Pay full balance"
-  },
-  "phone": {
-    "description": null,
-    "error": "A valid Phone Number is required",
-    "label": "Phone",
-    "placeholder": null,
-    "title": "Add New Phone Number | Update Phone Number"
-  },
-  "postcode": {
-    "description": null,
-    "label": "Postcode",
-    "placeholder": "eg. 10011"
-  },
-  "product_name_search": {
-    "description": null,
-    "label": null,
-    "placeholder": "Search by product name..."
-  },
-  "promocode": {
-    "description": null,
-    "error": "A valid promo code is required",
-    "label": null,
-    "placeholder": "Enter voucher code here"
-  },
-  "publicName": {
-    "description": null,
-    "error": "Your public name is required",
-    "label": "Public name",
-    "placeholder": null
-  },
-  "recover": {
-    "description": null,
-    "error": "We experienced an error while trying to send you a password reset email.",
-    "label": null,
-    "placeholder": null
-  },
-  "region": {
-    "description": null,
-    "label": "Region",
-    "placeholder": "Select a region…"
-  },
-  "register": {
-    "description": null,
-    "error": "We experienced an error while trying to create your account.",
-    "label": null,
-    "placeholder": null
-  },
-  "select_option": {
-    "description": null,
-    "label": null,
-    "placeholder": "Select an option"
-  },
-  "store_on_payment": {
-    "description": null,
-    "label": "Save payment details",
-    "placeholder": null
-  },
-  "stored_payment_method": {
-    "description": null,
-    "label": "",
-    "placeholder": null
-  },
   "payment_method_type": {
     "description": null,
     "label": "Select payment type",
@@ -313,5 +200,26 @@
     "stored-card": "Pay full balance",
     "partial-payment": "Make a partial payment",
     "pay-later": "Pay later"
+  },
+  "postcode": {
+    "description": null,
+    "label": "Postcode",
+    "placeholder": "eg. 10011"
+  },
+  "publicName": {
+    "description": null,
+    "error": "Your public name is required",
+    "label": "Public name",
+    "placeholder": null
+  },
+  "region": {
+    "description": null,
+    "label": "Region",
+    "placeholder": "Select a region…"
+  },
+  "stored_payment_method": {
+    "description": null,
+    "label": "",
+    "placeholder": null
   }
 }

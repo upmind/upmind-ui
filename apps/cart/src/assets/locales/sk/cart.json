@@ -38,6 +38,7 @@
   "pay_with_stored": "Zaplaťte existujúcou metódou",
   "payment_amount": "Suma platby",
   "payment_amount_msg": "Celková suma vašej objednávky je {amount}. Zadajte sumu, ktorú chcete zaplatiť teraz. Zvyšný zostatok musí byť uhradený pred aktiváciou vašej objednávky.",
+  "payment_amount_reset": "Uhradiť nezaplatenú sumu {amount}",
   "payment_awaiting_approval": "**Čakám** na schválenie",
   "payment_awaiting_approval_md": "@.markdown:{'cart.payment_awaiting_approval'}",
   "payment_awaiting_approval_msg": "Čakáme na schválenie. Malo by to trvať len chvíľu.",

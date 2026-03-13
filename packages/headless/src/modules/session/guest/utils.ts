@@ -52,8 +52,9 @@ export const useRegisterSchemaParser = (data: any) => {
       password: {
         type: "string",
         title: "Your password",
+        format: "password",
         minLength: 8,
-        format: "password"
+        pattern: "(?=.*[a-z])(?=.*\\d)"
       },
       phone: {
         type: ["object", "null"],
@@ -136,8 +137,13 @@ export const useRegisterUischemaParser = (data: any) => {
         i18n: "form.auth_password",
         options: {
           type: "password",
-          autocomplete: "current-password",
-          placeholder: "Use a strong password or passphrase"
+          autocomplete: "new-password",
+          placeholder: "Use a strong password or passphrase",
+          requirements: {
+            min_length: ".{8,}",
+            lowercase: "(?=.*[a-z])",
+            number: "(?=.*\\d)"
+          }
         }
       },
       {

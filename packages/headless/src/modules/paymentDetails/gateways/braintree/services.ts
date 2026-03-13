@@ -12,7 +12,7 @@ import {
   responseCodes,
   useValidation
 } from "../../../../utils";
-import { defaultsDeep, isNil, pick, set } from "lodash-es";
+import { defaultsDeep, pick, set, some } from "lodash-es";
 
 // --- types
 import {
@@ -177,7 +177,10 @@ async function validate(
 
   // NB: our SDK helper for stripe will generate their own errors and persist them to our error context
   //     so we can check against that as well
-  if (errors?.length || error?.data?.length) {
+  if (
+    errors?.length ||
+    some(error?.data, ["instancePath", "/payment_method_addition"])
+  ) {
     throw new DetailedError(
       t("error.payment_gateway_validation_failed"),
       responseCodes.Unprocessable_Entity,

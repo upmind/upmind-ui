@@ -1,5 +1,5 @@
 <template>
-  <Layout overflow="hidden">
+  <Layout>
     <template #content-header>
       <Hero
         :title="t('text.complete_online_toolkit_md')"
@@ -44,10 +44,10 @@
         />
 
         <section
-          class="md:bg-control-surface md:border-surface control-radius mt-8 flex flex-col items-center justify-between bg-transparent p-0 md:mt-8 md:flex-row md:border md:px-8 md:py-6"
+          class="lg:bg-control-surface lg:border-surface control-radius mt-8 flex flex-col items-center justify-between bg-transparent p-0 pr-12 lg:mr-0 lg:flex-row lg:border lg:px-8 lg:py-6"
         >
           <div
-            class="text-md order-last mt-4 text-center font-medium md:order-first md:mt-0 md:text-left"
+            class="text-md order-last mt-4 text-center font-medium lg:order-first lg:mt-0 lg:text-left"
           >
             {{ t("cart.basket_items", { count: count ?? 0 }) }}
           </div>
@@ -57,7 +57,7 @@
             :label="t('action.continue_label')"
             color="primary"
             size="lg"
-            class="w-full md:w-auto"
+            class="w-full lg:w-auto"
             iconAppend="arrow-right"
           />
         </section>

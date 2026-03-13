@@ -51,6 +51,9 @@
   "forgot_your_password_qn": "忘記密碼了嗎？",
   "free": "自由的",
   "free_trial": "免費試用",
+  "free_trial_alert": "此項目附有 {days} 天 0 元試用期。",
+  "free_trial_desc": "好消息—現在可享 7 天 0 元試用，無須綁約。試用期結束後，{term} 方案將開始。",
+  "free_trial_included_desc": "此產品附有 0 元試用期。",
   "from": "從",
   "fully_encrypted_title": "完全加密",
   "item": "項目",
@@ -102,6 +105,7 @@
   "session_expired_md": "@.markdown：{'text.session_expired'}",
   "session_expired_return_store_msg": "由於您的會話已過期，我們無法檢索您先前的訂單。要開始新的購買，請點擊下方按鈕返回我們的商店。",
   "shop": "店鋪",
+  "start_free_trial": "開始免費試用",
   "subject": "主題",
   "subtotal": "小計",
   "summary": "概括",
@@ -119,6 +123,9 @@
   "terms_of_service": "服務條款",
   "to": "到",
   "total": "全部的",
+  "trial_renews_at_msg": "試用期結束後將以 {price} 自動續訂並收費",
+  "try_before_you_buy": "先試用，滿意再買",
+  "try_free_for_days": "免費試用 {days} 天",
   "unverified_label": "未經證實",
   "welcome_back_msg": "歡迎回來， {name}"
 }

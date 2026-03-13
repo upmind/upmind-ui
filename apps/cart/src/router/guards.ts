@@ -2,7 +2,9 @@ import {
   type AnyEventObject,
   type FunnelContext,
   QUERY_PARAMS,
+  UIContext,
   useBasket,
+  useConfig,
   useQueryParams
 } from "@upmind-automation/client-vue";
 import { isEmpty } from "lodash-es";
@@ -75,5 +77,15 @@ export default {
   hasFields: () => {
     const { meta } = useBasket();
     return meta.value?.hasFields;
+  },
+  /**
+   * Returns true when standalone billing is enabled (billing is readonly on checkout).
+   * Used by BASKET NEXT to route through the billing page, and by CHECKOUT onError
+   * to redirect when billing needs input.
+   */
+  hasStandaloneBilling: () => {
+    const { ui } = useConfig({ context: UIContext.CHECKOUT });
+    const { data } = useConfig({ context: UIContext.BILLING_DETAILS });
+    return !data.billingDetailsDisabled && ui.billingDetails.isReadonly;
   }
 };

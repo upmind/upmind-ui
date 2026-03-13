@@ -12,6 +12,7 @@
     <template #actions>
       <PaymentAmount
         v-if="!meta.isFree && meta.canMakePartialPayment"
+        :amount="amount"
         :amountsFormatted="amountsFormatted"
         :processing="meta.isProcessing"
         :modelValue="model?.amount"
@@ -19,6 +20,7 @@
         :schema="schemaAmount"
         :uischema="uischemaAmount"
         @update:modelValue="setAmount"
+        @reject="resetPartialAmount"
       />
     </template>
 
@@ -177,6 +179,7 @@ if (!paymentDetails)
 const {
   accountCredit,
   address,
+  amount,
   amountsFormatted,
   clear,
   clickwrap,
@@ -184,6 +187,7 @@ const {
   errors,
   meta,
   model,
+  resetPartialAmount,
   schemaAmount,
   schemaAmountCredit,
   schemaGateways,

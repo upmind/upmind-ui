@@ -19,6 +19,7 @@
   "basket_review_msg": "Bitte überprüfen Sie die folgenden Punkte, bevor Sie fortfahren.",
   "basket_section": "Warenkorb-Zusammenfassung",
   "basket_summary_desc": "Du hast {count} Artikel in Ihrem Warenkorb, insgesamt {total}. | Sie haben {count} Artikel in Ihrem Warenkorb, insgesamt {total}.",
+  "basket_summary_desc_free": "Du hast {count} Artikel in Ihrem Warenkorb. | Sie haben {count} Artikel in Ihrem Warenkorb.",
   "basket_title": "Ihr Warenkorb",
   "change_amount": "Betrag ändern",
   "empty": "Ihr **Warenkorb** ist leer",

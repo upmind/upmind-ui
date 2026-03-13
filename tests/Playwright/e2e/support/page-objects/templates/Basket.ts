@@ -15,6 +15,10 @@ export class Basket {
   readonly promoBadge: Locator;
   readonly proceedToCheckout: Locator;
 
+  /* Trial */
+  readonly trialAlert: Locator;
+  readonly trialPriceLabel: Locator;
+
   constructor(page: Page) {
     this.page = page;
     this.basketProduct = page.getByTestId("basket-product");
@@ -33,6 +37,12 @@ export class Basket {
     );
     this.promoBadge = this.summaryFooter.getByTestId("badge");
     this.proceedToCheckout = page.getByTestId("button-proceed-to-checkout");
+
+    /* Trial */
+    this.trialAlert = this.basketProductSummary.getByRole("alert");
+    this.trialPriceLabel = this.basketProductSummary
+      .locator("footer")
+      .getByText("Free Trial");
   }
 
   async enterPromoCode(promoCode: string | null) {

@@ -1,7 +1,7 @@
 import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 
-export const contentVariants = cva("flex w-full flex-col gap-8", {
+export const contentVariants = cva("flex w-full flex-col gap-9", {
   variants: {
     hasCard: {
       false: "",

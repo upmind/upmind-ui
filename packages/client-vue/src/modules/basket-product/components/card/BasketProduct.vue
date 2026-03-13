@@ -1,11 +1,6 @@
 <template>
-  <Loading
-    as="li"
-    :class="styles.product.root.card"
-    v-auto-animate
-    :active="meta.isLoading || meta.isProcessing"
-  >
-    <div class="flex flex-col divide-y divide-dashed [&>*]:py-4">
+  <Loading :active="meta.isLoading || meta.isProcessing" v-auto-animate>
+    <Card :class="styles.product.root.card">
       <template
         v-for="(summary, index) in props.pricing"
         :key="`${props.id}-${index}`"
@@ -37,7 +32,7 @@
           ></slot>
         </component>
       </template>
-    </div>
+    </Card>
   </Loading>
 </template>
 
@@ -53,7 +48,7 @@ import config from "./basketProduct.config";
 import { useConfig } from "@upmind-automation/headless";
 
 // --- components
-import { Loading } from "@upmind-automation/upmind-ui";
+import { Card, Loading } from "@upmind-automation/upmind-ui";
 import BasketProductSummary from "./BasketProductSummary.vue";
 import BasketProductOptionSummary from "./BasketProductOptionSummary.vue";
 

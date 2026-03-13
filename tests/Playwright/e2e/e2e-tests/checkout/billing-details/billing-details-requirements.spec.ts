@@ -43,13 +43,14 @@ test.describe("Verify checkout billing detail requirements", () => {
         })}.com`
       },
       [],
-      true
+      true,
+      false
     );
     await page.goto(URLs.basket);
     await page.waitForLoadState("networkidle");
   });
   test("Address required at checkout", async ({ page, context }) => {
-    await interceptConfigValues(page, token, {
+    interceptConfigValues(page, token, {
       requireAddressForOrders: true,
       requireCompanyForOrders: false,
       requireRegionInAddress: false,
@@ -58,34 +59,35 @@ test.describe("Verify checkout billing detail requirements", () => {
     await page.goto(URLs.checkout);
     await checkout.selectPaymentMethod("Offline Payment");
     await checkout.clickPlaceOrder();
-    await expect(checkout.addressFormMessage).toContainText(
-      "Your address is required"
+    await expect(page.getByRole("alert")).toContainText(
+      "Please provide the details below in order to proceed."
     );
+    await expect(checkout.addNewAddress).toBeVisible();
   });
   test("Company required at checkout", async ({ page }) => {
-    await interceptConfigValues(page, token, {
+    interceptConfigValues(page, token, {
       requireAddressForOrders: false,
       requireCompanyForOrders: true,
       requireRegionInAddress: false,
       requirePhoneForOrders: false
     });
     await page.goto(URLs.checkout);
-    await expect(page.getByTestId("billing")).toContainText("Company Name");
-    await expect(page.getByTestId("tablist")).toHaveCount(0);
     await checkout.selectPaymentMethod("Offline Payment");
     await checkout.clickPlaceOrder();
-    await expect(checkout.companyFormMessage).toContainText(
-      "Company Name must be string"
+    await expect(page.getByRole("alert")).toContainText(
+      "Please provide the details below in order to proceed."
     );
+    await expect(checkout.addNewCompany).toBeVisible();
   });
   test("Region required on address", async ({ page, context }) => {
-    await interceptConfigValues(page, token, {
+    interceptConfigValues(page, token, {
       requireAddressForOrders: true,
       requireCompanyForOrders: false,
       requireRegionInAddress: true,
       requirePhoneForOrders: false
     });
     await page.goto(URLs.checkout);
+    await checkout.addNewAddress.click();
     await checkout.manuallyInputAddress(
       `${fakerEN_GB.location.streetAddress()}`,
       `${fakerEN_GB.location.city()}`,
@@ -97,13 +99,16 @@ test.describe("Verify checkout billing detail requirements", () => {
     );
   });
   test("Phone required at checkout", async ({ page }) => {
-    await interceptConfigValues(page, token, {
+    interceptConfigValues(page, token, {
       requireAddressForOrders: false,
       requireCompanyForOrders: false,
       requireRegionInAddress: false,
       requirePhoneForOrders: true
     });
     await page.goto(URLs.checkout);
-    await expect(checkout.phone).toBeVisible();
+    await expect(page.getByRole("alert")).toContainText(
+      "Please provide the details below in order to proceed."
+    );
+    await expect(checkout.addNewPhone).toBeVisible();
   });
 });
