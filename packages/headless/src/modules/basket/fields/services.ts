@@ -55,7 +55,6 @@ async function parse(
     : isModelShape<FieldsModel>(get(data, "model"), fieldsKeys)
       ? get(data, "model")
       : undefined; // it's a basket or unknown shape — fall back to context.model
-  debugger;
   const safeModel = useModelParser<FieldsModel>(
     schema,
     safeData ?? model,
