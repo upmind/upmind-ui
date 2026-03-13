@@ -205,7 +205,8 @@ async function getProvisioningFieldsValues(basket: IBasket) {
       return undefined;
     })
     .catch(error => {
-      return parseBasketErrors(error, basket.products);
+      const { productErrors } = parseBasketErrors(error, basket.products);
+      return productErrors;
     });
 
   provisioningPromises.push(checkPromise);
