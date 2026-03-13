@@ -3,7 +3,7 @@ import { useQuery } from "../query";
 import { useSession } from "../session";
 
 // --- utils
-import { parseInvoice } from "./mappers";
+import { mapInvoice } from "./mappers";
 import { useTime, NotAuthenticatedError } from "../../utils";
 
 // --- types
@@ -29,6 +29,7 @@ function loadInvoice({ invoiceId }: { invoiceId: Invoice["id"] }) {
         "status",
         "contract",
         "payments",
+        "payments.payment_details",
         "products",
         "promotions",
         "client.tags",
@@ -52,8 +53,9 @@ function loadInvoice({ invoiceId }: { invoiceId: Invoice["id"] }) {
       }),
     // --- options
     retry: 1,
-    select: parseInvoice,
+    select: mapInvoice,
     staleTime: useTime()?.DAY,
+    refetchOnWindowFocus: false,
     enabled: () => meta.value.isAuthenticated && !!client.value?.id
   });
 }

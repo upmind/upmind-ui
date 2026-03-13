@@ -9,7 +9,7 @@
   >
     <ProductConfig
       v-if="pendingProduct && productMeta?.isAvailable"
-      as="div"
+      as="fieldset"
       :item="pendingProduct"
       :model-value="pendingProduct?.id"
       :meta="configMeta"
@@ -47,12 +47,15 @@ import {
   useBasketProductsPending,
   useConfig,
   useProductConfig,
-  UIContext
+  UIContext,
+  DetailedError,
+  responseCodes,
+  ErrorOrigin
 } from "@upmind-automation/headless";
 import { Link } from "@upmind-automation/upmind-ui";
 
 // --- components
-import ProductConfig from "../../product/components/config/Config.vue";
+import ProductConfig from "../../product/components/Config.vue";
 import { Button, Drawer } from "@upmind-automation/upmind-ui";
 
 // --- types
@@ -82,7 +85,12 @@ const {
 } = await add(props.modelValue.productId, props.modelValue);
 
 const productConfig = useProductConfig(pendingProduct);
-if (!productConfig) throw new Error("useProductConfig not provided");
+if (!productConfig)
+  throw new DetailedError(
+    t("error.product_not_available"),
+    responseCodes.Service_Unavailable,
+    ErrorOrigin.Headless
+  );
 provide("useProductConfig", productConfig);
 
 const { meta: productMeta, product } = productConfig;

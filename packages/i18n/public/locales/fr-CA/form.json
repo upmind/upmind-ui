@@ -23,7 +23,15 @@
     "placeholder": "nom@email.com"
   },
   "auth_password": {
-    "error": "Un mot de passe fort est requis",
+    "error": {
+      "min_length": "Le mot de passe doit comporter au moins 8 caractères.",
+      "min_length_lowercase": "Le mot de passe doit comporter au moins 8 caractères et contenir une lettre minuscule.",
+      "min_length_lowercase_number": "Le mot de passe doit comporter au moins 8 caractères et inclure au moins une lettre minuscule et au moins un chiffre.",
+      "min_length_number": "Le mot de passe doit comporter au moins 8 caractères et contenir un chiffre.",
+      "missing_lowercase": "Le mot de passe doit contenir une lettre minuscule.",
+      "missing_lowercase_number": "Le mot de passe doit contenir une lettre minuscule et un chiffre.",
+      "missing_number": "Le mot de passe doit contenir un chiffre."
+    },
     "label": "Mot de passe",
     "placeholder": "Mot de passe ou phrase secrète"
   },
@@ -68,7 +76,7 @@
   },
   "country": {
     "label": "Pays",
-    "placeholder": "Choisissez un pays"
+    "placeholder": "Sélectionnez un pays"
   },
   "domain": {
     "placeholder": "Entrez votre domaine..."
@@ -87,6 +95,10 @@
   "firstname": {
     "error": "Votre prénom est obligatoire",
     "label": "Prénom"
+  },
+  "language": {
+    "error": "Votre langue est requise",
+    "label": "Langage"
   },
   "lastname": {
     "error": "Votre nom de famille est obligatoire",
@@ -121,6 +133,10 @@
     "error": "Un code promo valide est requis",
     "placeholder": "Entrez le code promo ici"
   },
+  "publicName": {
+    "error": "Votre nom public est requis.",
+    "label": "Nom public"
+  },
   "recover": {
     "error": "Nous avons rencontré une erreur lors de la tentative d'envoi d'un courriel de réinitialisation de mot de passe."
   },
@@ -139,9 +155,5 @@
   },
   "stored_payment_method": {
     "label": ""
-  },
-  "taxNumber": {
-    "label": "Numéro d'identification fiscale",
-    "placeholder": "Numéro d'identification fiscale"
   }
 }

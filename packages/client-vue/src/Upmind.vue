@@ -7,6 +7,14 @@
       :transparent="false"
     >
       <Page v-if="meta.isAvailable && meta.hasSettings">
+        <Banner
+          v-if="announcementVisible"
+          :text="announcement?.text"
+          :color="announcement?.type"
+          :icon="announcement?.icon"
+          @action="announcement?.onAction?.() ?? dismissAnnouncement()"
+        />
+
         <slot name="header">
           <Header :logo="props.logo" :storefront-route="props.storefrontRoute">
             <template #branding>
@@ -79,7 +87,8 @@ import Feedback from "./modules/feedback/Feedback.vue";
 import Page from "./components/page/Page.vue";
 import Main from "./components/main/Main.vue";
 import AsyncLoading from "./modules/system/Loading.vue";
-import { Loading } from "@upmind-automation/upmind-ui";
+import { Banner, Loading } from "@upmind-automation/upmind-ui";
+import { useAnnouncement } from "./components/announcement/useAnnouncement";
 
 // --- utils
 import { get } from "lodash-es";
@@ -100,6 +109,11 @@ const props = defineProps<{
 // -----------------------------------------------------------------------------
 const { set } = useThemes();
 const { meta: routingMeta } = useRoutingEngine();
+const {
+  announcement,
+  isVisible: announcementVisible,
+  dismiss: dismissAnnouncement
+} = useAnnouncement();
 const themeReady = ref(false);
 const route = useRoute();
 

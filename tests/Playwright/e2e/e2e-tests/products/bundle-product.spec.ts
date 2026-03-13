@@ -14,9 +14,9 @@ test.describe("Bundled Products", () => {
     test("Bundle product added automatically after product config", async ({
       page
     }) => {
-      await productConfig.addProductToBasket(URLs.managementTraining);
+      await productConfig.addProductToBasket(URLs.startupPlanning);
       await expect(basket.basketProduct.nth(0)).toContainText(
-        "Management Training"
+        "Startup Planning"
       );
       await expect(basket.basketProduct.nth(1)).toContainText(
         "Coaching Session"
@@ -25,26 +25,22 @@ test.describe("Bundled Products", () => {
   });
   test.describe("Bundle added via URL param", () => {
     test("Valid Bundle", async ({ page }) => {
-      await page.goto(
-        "http://qa-automation.local:5173?pid=8d632507-9806-5d1e-de4a-8174e234e98d&bundle=coaching"
-      );
+      await page.goto(`${URLs.managementTraining}?bundle=coaching`);
       await page.waitForLoadState("networkidle");
       await productConfig.addToBasket.click();
       await expect(basket.basketProductSummary.nth(0)).toContainText(
-        "Startup Planning"
+        "Management Training"
       );
       await expect(basket.basketProductSummary.nth(1)).toContainText(
-        "Coaching"
+        "Coaching Session"
       );
     });
     test("Invalid Bundle", async ({ page }) => {
-      await page.goto(
-        "http://qa-automation.local:5173?pid=8d632507-9806-5d1e-de4a-8174e234e98d&bundle=invalidstring"
-      );
+      await page.goto(`${URLs.managementTraining}?bundle=invalidstring`);
       await page.waitForLoadState("networkidle");
       await productConfig.addToBasket.click();
       await expect(basket.basketProduct.nth(0)).toContainText(
-        "Startup Planning"
+        "Management Training"
       );
       await expect(basket.basketProduct.nth(1)).toBeHidden();
     });

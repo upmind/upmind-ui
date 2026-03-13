@@ -1,126 +1,63 @@
 // --- types
-import type { Invoice } from "./types";
-import type { IInvoice, IPromotion } from "@upmind-automation/types";
+import type { Invoice, Payment } from "./types";
+import type { IInvoice, InvoiceStatus } from "@upmind-automation/types";
 
-export function parseInvoice(raw: IInvoice): Invoice {
+// --- utils
+import { useDateMapper } from "../../utils";
+import { parseBasketProduct } from "../basketProduct/utils";
+import { parseTaxes } from "../basket/utils";
+import { mapCurrency } from "../currency/mappers";
+import { useClientParser } from "../session/utils";
+import { mapAddress } from "../client/address/mappers";
+import { orderBy, map } from "lodash-es";
+
+// -----------------------------------------------------------------------------
+
+export function mapInvoice(raw: IInvoice): Invoice {
   return {
-    // invoice properties
-    data: raw.data,
-    locked: raw.locked,
-    payments: raw.payments,
-    proforma: raw.proforma,
-    // invoice properties - snake_case (converted to camelCase)
-    objectMeta: raw.object_meta,
-    currentData: raw.current_data,
-    toBeCredited: raw.to_be_credited,
-    proformaNumber: raw.proforma_number,
-    delegateRelated: raw.delegate_related,
-    isConsolidation: raw.is_consolidation,
-    paymentCurrency: raw.payment_currency,
-    paymentCurrencyId: raw.payment_currency_id,
-    netAmountConverted: raw.net_amount_converted,
-    taxAmountConverted: raw.tax_amount_converted,
-    allowProductCredit: raw.allow_product_credit,
-    affiliateCommissions: raw.affiliate_commissions,
-    cancellationDatetime: raw.cancellation_datetime,
-    partialAmountCredited: raw.partial_amount_credited,
-    productUpgradeQuantity: raw.product_upgrade_quantity,
-    proformaCreateDatetime: raw.proforma_create_datetime,
-    partialAmountCreditedConverted: raw.partial_amount_credited_converted,
-    partialAmountCreditedFormatted: raw.partial_amount_credited_formatted,
-    partialAmountToCreditConverted: raw.partial_amount_to_credit_converted,
-    partialAmountToCreditFormatted: raw.partial_amount_to_credit_formatted,
-    // basket properties
     id: raw.id,
-    ip: raw.ip,
-    brand: raw.brand,
-    notes: raw.notes,
-    phone: raw.phone,
-    taxes: raw.taxes,
-    client: raw.client,
-    legacy: raw.legacy,
+    locked: !!raw.locked,
+    status: raw.status.code as InvoiceStatus,
     number: raw.number,
-    status: raw.status,
-    account: raw.account,
-    address: raw.address,
-    balance: raw.balance,
-    company: raw.company,
-    category: raw.category,
-    credited: raw.credited,
-    currency: raw.currency,
-    products: raw.products,
-    promotions: raw.promotions,
-    // promotions: raw.promotions.map(promotion => ({
-    //   id: promotion.id,
-    //   autoapply: promotion.autoapply,
-    //   invoiceId: promotion.invoice_id,
-    //   promotion: promotion.promotion, // TODO this should be mapped as well
-    //   promotionId: promotion.promotion_id
-    //   // --- not currently used
-    //   // createdAt: promotion.created_at;
-    //   // updatedAt: promotion.updated_at;
-    //   // deletedAt: promotion.deleted_at,
-    // })),
-    // basket properties - snake_case (this might need to be updated in the future)
-    user_id: raw.user_id,
-    brand_id: raw.brand_id,
-    due_date: raw.due_date,
-    phone_id: raw.phone_id,
-    client_id: raw.client_id,
-    status_id: raw.status_id,
-    account_id: raw.account_id,
-    address_id: raw.address_id,
-    company_id: raw.company_id,
-    created_at: raw.created_at,
-    deleted_at: raw.deleted_at,
-    gateway_id: raw.gateway_id,
-    net_amount: raw.net_amount,
-    tax_amount: raw.tax_amount,
-    updated_at: raw.updated_at,
-    fraud_score: raw.fraud_score,
-    category_id: raw.category_id,
-    contract_id: raw.contract_id,
-    currency_id: raw.currency_id,
-    paid_amount: raw.paid_amount,
-    fraud_status: raw.fraud_status,
-    pricelist_id: raw.pricelist_id,
-    total_amount: raw.total_amount,
-    warning_notes: raw.warning_notes,
-    custom_fields: raw.custom_fields,
-    paid_datetime: raw.paid_datetime,
-    refund_status: raw.refund_status,
-    unpaid_amount: raw.unpaid_amount,
-    refund_changed: raw.refund_changed,
-    refund_request: raw.refund_request,
-    create_datetime: raw.create_datetime,
-    payment_details: raw.payment_details,
-    balance_formatted: raw.balance_formatted,
-    credit_invoice_id: raw.credit_invoice_id,
-    net_selling_price: raw.net_selling_price,
-    payment_details_id: raw.payment_details_id,
-    net_discount_amount: raw.net_discount_amount,
-    reseller_account_id: raw.reseller_account_id,
-    consolidation_status: raw.consolidation_status,
-    net_amount_converted: raw.net_amount_converted,
-    net_amount_formatted: raw.net_amount_formatted,
-    tax_amount_converted: raw.tax_amount_converted,
-    tax_amount_formatted: raw.tax_amount_formatted,
-    paid_amount_converted: raw.paid_amount_converted,
-    paid_amount_formatted: raw.paid_amount_formatted,
-    total_discount_amount: raw.total_discount_amount,
-    total_amount_converted: raw.total_amount_converted,
-    total_amount_formatted: raw.total_amount_formatted,
-    unpaid_amount_converted: raw.unpaid_amount_converted,
-    unpaid_amount_formatted: raw.unpaid_amount_formatted,
-    consolidation_invoice_id: raw.consolidation_invoice_id,
-    net_global_discount_amount: raw.net_global_discount_amount,
-    net_product_discount_amount: raw.net_product_discount_amount,
-    net_selling_price_formatted: raw.net_selling_price_formatted,
-    net_discount_amount_formatted: raw.net_discount_amount_formatted,
-    total_discount_amount_formatted: raw.total_discount_amount_formatted,
-    net_global_discount_amount_formatted:
-      raw.net_global_discount_amount_formatted,
-    net_product_discount_amount_formatted:
-      raw.net_product_discount_amount_formatted
+    client: useClientParser(raw.client)!,
+    address: raw.address ? mapAddress(raw.address) : undefined,
+    currency: mapCurrency(raw.currency),
+    products: map(raw.products, product => parseBasketProduct(product)),
+    payments: mapPayments(raw.payments),
+    summary: {
+      discount: raw.net_discount_amount_formatted,
+      discountAmount: raw.net_discount_amount,
+      paidAmount: raw.paid_amount,
+      paidAmountFormatted: raw.paid_amount_formatted,
+      subtotal: raw.net_amount_formatted,
+      taxes: parseTaxes(raw.taxes),
+      total: raw.total_amount_formatted,
+      unpaidAmount: raw.unpaid_amount,
+      unpaidAmountConverted: raw.unpaid_amount_converted,
+      unpaidAmountFormatted: raw.unpaid_amount_formatted
+    },
+    dateCreated: useDateMapper(raw.create_datetime, undefined, "MMM Do, YYYY"),
+    datePaid: useDateMapper(raw.paid_datetime, undefined, "MMM Do, YYYY h:mm A")
   };
+}
+
+function mapPayments(payments: IInvoice["payments"]): Payment[] {
+  if (!payments?.length) return [];
+
+  const mapped = map(payments, payment => {
+    const details = payment.payment_details;
+    return {
+      id: payment.id,
+      meta: {
+        isPending: !!payment.pending,
+        isSuccessful: !payment.pending && payment.captured > 0
+      },
+      cardType: details?.card_type,
+      cardLast4: details?.card_last4,
+      amountFormatted: payment.amount_formatted,
+      createdAt: payment.created_at
+    };
+  });
+
+  return orderBy(mapped, ["createdAt"], ["desc"]);
 }

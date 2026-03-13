@@ -13,6 +13,7 @@ import { kebabCase } from "../../utils/functions/helpers";
 export class ProductConfig {
   readonly page: Page;
   readonly textInput: TextInput;
+  readonly productConfigSection: Locator;
   readonly checkboxes: Checkboxes;
   readonly radioButtons: RadioButtons;
   readonly button: Button;
@@ -89,6 +90,11 @@ export class ProductConfig {
   /* Meta Slots*/
   readonly summaryMetaSlot: Locator;
 
+  /* Trial Opt-In */
+  readonly trialCheckbox: Locator;
+  readonly trialBadge: Locator;
+  readonly trialDescription: Locator;
+
   constructor(page: Page) {
     this.page = page;
     this.checkboxes = new Checkboxes(page);
@@ -105,7 +111,10 @@ export class ProductConfig {
 
     /* Product Options */
     this.textInput = new TextInput(page);
-    this.billingTerms = page.getByTestId("form-item-terms");
+    this.productConfigSection = page.getByTestId(
+      "section-product-configuration"
+    );
+    this.billingTerms = page.getByTestId("form-item-term");
     this.options = page.getByTestId("options-container-options");
     this.domainRegister = page.getByTestId("accordion-item-register");
     this.domainRegisterInput = page
@@ -115,16 +124,16 @@ export class ProductConfig {
     this.domainExisting = page.getByTestId("accordion-item-existing");
     this.domainBasket = page.getByTestId("accordion-item-basket");
     this.registrantNameInput = page
-      .getByTestId("form-item-update-registrant-name")
+      .getByTestId("form-item-provision-fields-update-registrant-name")
       .locator("input");
     this.registrantOrgInput = page
-      .getByTestId("form-item-update-registrant-organisation")
+      .getByTestId("form-item-provision-fields-update-registrant-organisation")
       .locator("input");
     this.registrantEmailInput = page
-      .getByTestId("form-item-update-registrant-email")
+      .getByTestId("form-item-provision-fields-update-registrant-organisation")
       .locator("input");
     this.registrantPhoneForm = page.getByTestId(
-      "form-item-update-registrant-phone"
+      "form-item-provision-fields-update-registrant-phone"
     );
     this.registrantPhoneCountrySelectButton =
       this.registrantPhoneForm.getByTestId("button-default");
@@ -134,19 +143,23 @@ export class ProductConfig {
       this.popover.popoverContent.getByRole("option");
     this.registrantPhoneInput = this.registrantPhoneForm.locator("input");
     this.registrantAddr1Input = page
-      .getByTestId("form-item-update-registrant-address-1")
+      .getByTestId("form-item-provision-fields-update-registrant-address-1")
       .locator("input");
     this.registrantCityInput = page
-      .getByTestId("form-item-update-registrant-address-city")
+      .getByTestId("form-item-provision-fields-update-registrant-address-city")
       .locator("input");
     this.registrantStateInput = page
-      .getByTestId("form-item-update-registrant-address-state")
+      .getByTestId("form-item-provision-fields-update-registrant-address-state")
       .locator("input");
     this.registrantPostcodeInput = page
-      .getByTestId("form-item-update-registrant-address-postcode")
+      .getByTestId(
+        "form-item-provision-fields-update-registrant-address-postcode"
+      )
       .locator("input");
     this.registrantCountryInput = page
-      .getByTestId("form-item-update-registrant-address-country-code")
+      .getByTestId(
+        "form-item-provision-fields-update-registrant-address-country-code"
+      )
       .locator("button");
     this.promoBadge = page.getByTestId("badge");
 
@@ -177,9 +190,9 @@ export class ProductConfig {
     this.addons = page.getByTestId("description-list-item-addons");
     this.tracking = page.getByTestId("description-list-item-tracking");
     this.tldValue = page.getByTestId("description-list-item-domain-names");
-    this.domainName = page.getByTestId(
-      "description-list-item-account-domain-name"
-    );
+    this.domainName = page
+      .getByTestId("description-list-item-account-domain-name")
+      .locator("dd");
     this.domainSetup = page.getByTestId(
       "description-list-item-domain-setup-(free)"
     );
@@ -222,6 +235,13 @@ export class ProductConfig {
 
     /* Meta Slots */
     this.summaryMetaSlot = page.getByTestId("slots:summary-append");
+
+    /* Trial Opt-In (CheckboxCards) */
+    this.trialCheckbox = page.getByTestId("checkbox-item-try-before-you-buy");
+    this.trialBadge = this.trialCheckbox.getByTestId("badge");
+    this.trialDescription = this.trialCheckbox.getByTestId(
+      "secondary-item-description"
+    );
   }
 
   /* Product Functions */
@@ -239,22 +259,35 @@ export class ProductConfig {
     await radioOption.click();
     await radioOption
       .getByTestId("accordion-content")
-      .getByTestId(`input-dac-${kebabCase(option)}`)
+      .locator("input")
       .fill(domainName);
   }
 
   async enterSld(sld: string) {
     const sldFormField = this.page
       .getByTestId("form-item-sld")
-      .locator("input");
+      .getByTestId("input-properties-sld");
     await sldFormField.fill(sld);
   }
 
-  async addDomain() {
-    const drawer = this.drawer.domainResults;
-    const card = drawer.getByTestId("dac-card").first().locator("footer");
-    const button = card.getByTestId("button-register");
-    await button.click();
+  async addDomain(domain: string) {
+    // Wait for the domain check to complete
+    try {
+      await this.page.waitForResponse(
+        response =>
+          response.url().includes("modules/web_hosting/domains/search") &&
+          response.status() === 200,
+        { timeout: 30000 }
+      );
+    } catch (e) {
+      console.log("Domain check response not detected or timed out");
+    }
+    await this.page
+      .getByTestId("drawer-content")
+      .getByTestId(`checkbox-item-${kebabCase(domain)}`)
+      .getByRole("button")
+      .dispatchEvent("click");
+    await this.page.getByTestId("button-continue").click();
   }
 
   getFormField(container: Locator) {
@@ -333,5 +366,20 @@ export class ProductConfig {
 
   async clickConfirm() {
     await this.confirm.click();
+  }
+
+  /* Trial Helper Methods */
+  async isTrialSelected(): Promise<boolean> {
+    const state = await this.trialCheckbox.getAttribute("data-state");
+    return state === "on";
+  }
+
+  async toggleTrial() {
+    await this.trialCheckbox.click();
+  }
+
+  async isTrialDisabled(): Promise<boolean> {
+    const disabled = await this.trialCheckbox.getAttribute("data-disabled");
+    return disabled !== null;
   }
 }

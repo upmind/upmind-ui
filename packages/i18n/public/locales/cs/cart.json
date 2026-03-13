@@ -19,6 +19,7 @@
   "basket_review_msg": "Před pokračováním prosím zkontrolujte následující položky",
   "basket_section": "Souhrn košíku",
   "basket_summary_desc": "Máte {count} položka ve vašem košíku, celkem {total} | Máte {count} položky ve vašem košíku, celkem {total}.",
+  "basket_summary_desc_free": "Máte {count} položku ve vašem košíku. | Máte {count} položky ve vašem košíku.",
   "basket_title": "Váš košík",
   "change_amount": "Změnit částku",
   "empty": "Váš **košík** je prázdný",

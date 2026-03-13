@@ -60,7 +60,7 @@
             <form @submit.prevent @reset.prevent>
               <ProductConfig
                 v-if="pendingProduct && productMeta?.isAvailable"
-                as="div"
+                as="fieldset"
                 :item="pendingProduct"
                 :model-value="pendingProduct?.id"
                 :meta="configMeta"
@@ -173,7 +173,18 @@
       </template>
 
       <template #errors>
-        <ConfigErrors v-if="productMeta?.isAvailable" :meta="productMeta" />
+        <Alert
+          class="w-full"
+          v-if="externalErrors?.message"
+          color="danger"
+          variant="minimal"
+          icon="alert-triangle"
+          :title="externalErrors?.message"
+        />
+        <ConfigErrors
+          :visible="productMeta?.showErrors"
+          :errors="validationErrors"
+        />
       </template>
 
       <template #total>
@@ -210,7 +221,10 @@ import {
   useQueryParams,
   useProductConfig,
   UIContext,
-  type ProductDetails
+  type ProductDetails,
+  DetailedError,
+  responseCodes,
+  ErrorOrigin
 } from "@upmind-automation/headless";
 import { useConfig, validateTemplate } from "@upmind-automation/headless";
 import { useStyles } from "@upmind-automation/upmind-ui";
@@ -222,14 +236,14 @@ import { useBreadcrumbs } from "../../composables/useBreadcrumbs";
 import { useThemes } from "@upmind-automation/upmind-ui";
 
 // --- components
-import { Breadcrumb, Markdown } from "@upmind-automation/upmind-ui";
+import { Breadcrumb, Markdown, Alert } from "@upmind-automation/upmind-ui";
 import ConfigErrors from "./components/ConfigErrors.vue";
 import ConfigSkeleton from "./components/ConfigSkeleton.vue";
 import Pricing from "./components/pricing-list/Pricing.vue";
 import PricingSkeleton from "./components/pricing-list/PricingSkeleton.vue";
 import PricingTotal from "./components/pricing-list/PricingTotal.vue";
 import ProductActions from "./components/ProductActions.vue";
-import ProductConfig from "./components/config/Config.vue";
+import ProductConfig from "./components/Config.vue";
 import ProductHero from "./components/hero/ProductHero.vue";
 import ProductHeroSkeleton from "./components/hero/ProductHeroSkeleton.vue";
 import ProductImage from "./components/hero/ProductImage.vue";
@@ -284,13 +298,21 @@ const {
 } = await configure(productId);
 
 const productConfig = useProductConfig(pendingProduct);
-if (!productConfig) throw new Error("useProductConfig not provided");
+if (!productConfig)
+  throw new DetailedError(
+    t("error.product_not_available"),
+    responseCodes.Service_Unavailable,
+    ErrorOrigin.Headless
+  );
+
 provide("useProductConfig", productConfig);
 
 const {
   meta: productMeta,
   model,
   product,
+  externalErrors,
+  validationErrors,
   productImage,
   updateQuantity,
   updateTerm,

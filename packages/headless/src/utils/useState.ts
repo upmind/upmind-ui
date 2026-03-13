@@ -1,6 +1,6 @@
 // --- external
 import { computed, unref } from "vue";
-import { useActor } from "@xstate/vue";
+import { useActor as useXStateActor } from "@xstate/vue";
 
 // --- internal
 
@@ -281,7 +281,7 @@ export const createActor = (service: ActorRef<any>): UseActor | undefined => {
   if (!service || !service.id || !isFunction(service?.getSnapshot))
     return undefined;
 
-  const actor = useActor(service);
+  const actor = useXStateActor(service);
   if (!actor) return undefined;
   return {
     id: service.id,
@@ -304,6 +304,10 @@ export const useContext = <T = unknown>(
   fallback?: any
 ): ComputedRef<T | undefined> =>
   computed(() => contextValue<T>(stateLike, prop, fallback));
+
+export const useActor = (
+  service: ActorRef<any>
+): ComputedRef<UseActor | undefined> => computed(() => createActor(service));
 
 export const useChildActor = (
   stateLike: StateLike,

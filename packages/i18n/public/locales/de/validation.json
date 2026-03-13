@@ -13,7 +13,7 @@
   "enum": "{title} muss einem der zulässigen Werte entsprechen",
   "exclusiveMaximum": "{title} muss kleiner sein als {exclusiveMaximum}",
   "exclusiveMinimum": "{title} muss größer sein als {exclusiveMinimum}",
-  "format": "{title} muss dem Format {format} entsprechen",
+  "format": "{title} muss dem Format entsprechen {format}",
   "if": "{title} muss mit dem Schema „dann“ übereinstimmen | {title} muss mit dem Schema „else“ übereinstimmen",
   "maxItems": "{title} darf NICHT mehr haben als {maxItems} Artikel | {title} darf NICHT mehr haben als {maxItems} Artikel",
   "maxLength": "{title} darf NICHT länger sein als {maxLength} Charakter | {title} darf NICHT länger sein als {maxLength} Charaktere",

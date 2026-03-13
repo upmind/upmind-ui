@@ -11,7 +11,8 @@ import {
   DEBOUNCE_DELAY,
   contextValue,
   useImageUrl,
-  useContext
+  useContext,
+  type ResponseError
 } from "../../utils";
 
 // --- utils
@@ -32,6 +33,7 @@ import {
 
 // --- types
 import type { ActorRef } from "xstate";
+import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
 import type {
   Product,
   ProductDetails,
@@ -91,17 +93,21 @@ export const useProductConfig = (service: ActorRef<any>) => {
   const options = useContext<SubproductDetails[]>(state, "lookups.options");
   const fields = useContext<Record<string, any>>(
     state,
-    "lookups.provisionFields"
+    "schema.properties.provisionFields"
   );
 
+  const schema = useContext<JsonSchema7>(state, "schema");
+  const uischema = useContext<UISchemaElement>(state, "uischema");
+
   // ---
-  const errors = useContext<Product["errors"]>(state, "error.message");
+  const errors = useContext<Product["errors"]>(state, "error");
 
   const validationErrors = useContext<Product["errors"]>(state, "error.data");
   const additionalErrors = useContext<Product["errors"]>(
     state,
-    "errorExternal"
+    "errorExternal.data"
   );
+  const externalErrors = useContext<ResponseError>(state, "errorExternal");
 
   const shareUrl = computed(() => {
     const baseUrl = `${window.location.origin}/order/product/${productDetails.value?.id}`;
@@ -121,7 +127,7 @@ export const useProductConfig = (service: ActorRef<any>) => {
     ),
     isTouched: touched.value,
     showErrors:
-      contextMatches(state, "errorExternal") ||
+      isArray(contextValue(state, "errorExternal")) ||
       (contextMatches(state, ["error"]) && contextMatches(state, ["attempts"])),
 
     hasErrors:
@@ -133,7 +139,7 @@ export const useProductConfig = (service: ActorRef<any>) => {
       contextMatches(state, [
         "lookups.attributes",
         "lookups.options",
-        "lookups.provisionFields.properties"
+        "lookups.provisionFields"
       ]),
     isInvalid: stateMatches(state, ["available.invalid"]),
     isCalculating: contextMatches(state, ["lookups.prices.calculating"]),
@@ -144,13 +150,15 @@ export const useProductConfig = (service: ActorRef<any>) => {
     isDone: !state.value || state.value?.done,
 
     // ---
-    hasProvisioning: !isEmpty(
-      state.value.context?.lookups?.provisionFields?.properties
-    ),
+    hasProvisioning: !isEmpty(state.value.context?.lookups?.provisionFields),
     hasAttributes: !isEmpty(state.value.context?.lookups?.attributes),
     hasOptions: !isEmpty(state.value.context?.lookups?.options),
     hasTerms: !isEmpty(state.value.context?.lookups?.terms),
-    hasTaxIncluded: includesTax.value
+    hasTaxIncluded: includesTax.value,
+    // --- trial
+    hasTrial: !!state.value.context?.lookups?.product?.trialSupported,
+    isTrialForced: !!state.value.context?.lookups?.product?.trialForce,
+    isTrialSelected: !!model.value?.startTrial
   }));
 
   // --
@@ -160,7 +168,9 @@ export const useProductConfig = (service: ActorRef<any>) => {
       | "SET.TERM"
       | "SET.ATTRIBUTES"
       | "SET.OPTIONS"
-      | "SET.PROVISIONING",
+      | "SET.PROVISIONING"
+      | "SET.TRIAL"
+      | "SET",
     data: Partial<ProductModel>
   ) {
     touched.value = true;
@@ -171,6 +181,10 @@ export const useProductConfig = (service: ActorRef<any>) => {
       state => ["available.valid", "available.invalid"].some(state.matches),
       { timeout: 60_000 }
     );
+  }
+
+  async function setConfig(data: Partial<ProductModel>): Promise<void> {
+    setValues("SET", data);
   }
 
   // --- QUANTITY
@@ -333,6 +347,12 @@ export const useProductConfig = (service: ActorRef<any>) => {
     return get(model.value, ["provisionFields", field]);
   }
 
+  // --- TRIAL
+
+  async function setTrial(enabled: boolean): Promise<void> {
+    return setValues("SET.TRIAL", { startTrial: enabled });
+  }
+
   // ---------------------------------------------------------------------------
   return {
     id,
@@ -342,10 +362,13 @@ export const useProductConfig = (service: ActorRef<any>) => {
     errors,
     validationErrors,
     additionalErrors,
+    externalErrors,
     meta,
     // ---
     lookups,
     raw,
+    schema,
+    uischema,
     title,
     // productDetails,
     productImage,
@@ -374,8 +397,11 @@ export const useProductConfig = (service: ActorRef<any>) => {
     incrementOption,
     decrementOption,
     // ---
+    setConfig,
     setProvisioningFields,
     getProvisioningField,
+    // ---
+    setTrial,
     // ---
     reset: () => send({ type: "RESET" }),
     onDone: () =>
@@ -423,4 +449,8 @@ export type UseProductConfigMeta = {
   hasOptions: boolean;
   hasTerms: boolean;
   hasTaxIncluded: boolean;
+  // --- trial
+  hasTrial: boolean;
+  isTrialForced: boolean;
+  isTrialSelected: boolean;
 };

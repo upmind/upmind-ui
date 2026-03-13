@@ -23,7 +23,15 @@
     "placeholder": "name@email.com"
   },
   "auth_password": {
-    "error": "A strong password is required",
+    "error": {
+      "min_length": "Password must be at least 8 characters",
+      "min_length_lowercase": "Password must be at least 8 characters and contain a lowercase letter",
+      "min_length_lowercase_number": "Password must be at least 8 characters and include at least one lowercase letter and one number.",
+      "min_length_number": "Password must be at least 8 characters and contain a number",
+      "missing_lowercase": "Password must contain a lowercase letter",
+      "missing_lowercase_number": "Password must contain a lowercase letter and a number",
+      "missing_number": "Password must contain a number"
+    },
     "label": "Password",
     "placeholder": "Password or passphrase"
   },
@@ -88,6 +96,10 @@
     "error": "Your first name is required",
     "label": "First name"
   },
+  "language": {
+    "error": "Your language is required",
+    "label": "Language"
+  },
   "lastname": {
     "error": "Your last name is required",
     "label": "Last name"
@@ -121,6 +133,10 @@
     "error": "Invalid promo code",
     "placeholder": "Enter voucher code here"
   },
+  "publicName": {
+    "error": "Your public name is required",
+    "label": "Public name"
+  },
   "recover": {
     "error": "We experienced an error while trying to send you a password reset email."
   },
@@ -139,9 +155,5 @@
   },
   "stored_payment_method": {
     "label": ""
-  },
-  "taxNumber": {
-    "label": "Tax Number",
-    "placeholder": "Tax Id"
   }
 }

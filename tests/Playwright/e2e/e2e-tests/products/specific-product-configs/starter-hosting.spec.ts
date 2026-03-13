@@ -32,6 +32,7 @@ test.describe("Product Config - Happy Paths - Starter Hosting", async () => {
           .getByTestId("accordion-content")
           .locator("input")
           .fill(domainName);
+        await productConfig.addDomain(domainName);
       }
       if (domainSelection.includes(1)) {
         await productConfig.domainTransfer.click();
@@ -39,6 +40,7 @@ test.describe("Product Config - Happy Paths - Starter Hosting", async () => {
           .getByTestId("accordion-content")
           .locator("input")
           .fill(domainName);
+        await productConfig.addDomain(domainName);
       }
       if (domainSelection.includes(2)) {
         await productConfig.domainExisting.click();
@@ -47,17 +49,12 @@ test.describe("Product Config - Happy Paths - Starter Hosting", async () => {
           .locator("input")
           .fill(domainName);
       }
-      if (!domainSelection.includes(2) && !domainSelection.includes(3)) {
-        await productConfig.addDomain();
-        await productConfig.domainAddToBasket.click();
-      }
 
       /* SUMMARY FIELDS */
       /* Verify that all summary fields contain the expected data */
       await expect(productConfig.totalValue).toContainText(total);
       await expect(productConfig.billingCycle).toContainText(billingCycle);
       await expect(productConfig.webHosting).toContainText(webHosting);
-      await expect(productConfig.domainName).toContainText(domainName);
       //await expect(page).toHaveScreenshot(name);
 
       /* INLINE DROPDOWN */

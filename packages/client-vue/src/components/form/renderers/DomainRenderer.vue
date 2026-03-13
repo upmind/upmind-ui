@@ -56,7 +56,7 @@ const onError = (error: string) => {
 
 <script lang="ts">
 import { uiTypeIs, and, optionIs, or, schemaMatches } from "@jsonforms/core";
-import { defaultsDeep, includes, isEmpty, trim } from "lodash-es";
+import { defaultsDeep, includes, trim } from "lodash-es";
 import { ref } from "vue";
 
 export const tester = {

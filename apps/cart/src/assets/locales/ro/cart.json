@@ -38,6 +38,7 @@
   "pay_with_stored": "Plătiți cu o metodă existentă",
   "payment_amount": "Suma de plată",
   "payment_amount_msg": "Totalul comenzii dvs. este {amount}. Introduceți suma pe care doriți să o plătiți acum. Soldul rămas trebuie plătit înainte ca comanda dvs. să fie activată.",
+  "payment_amount_reset": "Achitați soldul restant de {amount}",
   "payment_awaiting_approval": "**În așteptare** pentru aprobare",
   "payment_awaiting_approval_md": "@.markdown:{'cart.payment_awaiting_approval'}",
   "payment_awaiting_approval_msg": "Așteptăm aprobarea. Ar trebui să dureze doar un moment.",

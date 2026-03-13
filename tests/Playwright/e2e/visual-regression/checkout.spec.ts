@@ -4,12 +4,13 @@ import { Basket } from "../support/page-objects/templates/Basket";
 import { Checkout } from "../support/page-objects/templates/Checkout";
 import { getSessionToken } from "../support/utils/functions/tokens";
 import {
-  getCurrentOrderId,
+  getCurrentOrder,
   addProductToOrder
 } from "../support/utils/functions/basket";
 import { getClientToken } from "../support/utils/functions/tokens";
 import { Logins } from "../support/constants/logins";
 import { goToCheckout } from "../support/utils/apiHelper";
+import { products } from "../support/constants/products";
 
 let basket: Basket;
 let checkout: Checkout;
@@ -52,6 +53,7 @@ const localeLogins = localeKeys.map(key => ({
 for (const { language, username, password } of localeLogins) {
   test.describe(`Checkout Visual Regression Tests - ${language}`, () => {
     let token: string;
+    let order: any | null;
     let orderId: string | null;
     test.beforeEach(async ({ page }) => {
       basket = new Basket(page);
@@ -76,7 +78,8 @@ for (const { language, username, password } of localeLogins) {
       await page.waitForLoadState("load");
       await page.waitForLoadState("networkidle");
       token = await getSessionToken(context);
-      orderId = await getCurrentOrderId(token);
+      order = await getCurrentOrder(token);
+      orderId = order?.id;
       await addProductToOrder(
         token,
         orderId,
@@ -86,7 +89,9 @@ for (const { language, username, password } of localeLogins) {
         [],
         [],
         { domain: "uicheckout.com" },
-        []
+        [],
+        true,
+        false
       );
       await page.reload();
       await page.waitForLoadState("networkidle");
@@ -98,7 +103,14 @@ for (const { language, username, password } of localeLogins) {
     });
     test("Checkout - Registered User", async ({ page, context }) => {
       await getClientToken(page, username, password);
-      await goToCheckout(page, context, null, null);
+      await goToCheckout(
+        page,
+        context,
+        products.STARTER_HOSTING,
+        null,
+        null,
+        false
+      );
       await page.waitForLoadState("load");
       await page.waitForLoadState("networkidle");
       await expect(page).toHaveScreenshot(

@@ -128,7 +128,7 @@ export const useLocale = () => {
           const exactMatch = some(
             langs,
             supportedLocale =>
-              supportedLocale.toLocaleLowerCase() == code.toLocaleLowerCase()
+              supportedLocale?.toLocaleLowerCase() == code?.toLocaleLowerCase()
           );
 
           if (exactMatch) {

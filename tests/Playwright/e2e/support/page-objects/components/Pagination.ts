@@ -18,12 +18,4 @@ export class Pagination {
   clickPrevious() {
     return this.previousButton.click();
   }
-
-  isNextDisabled() {
-    return this.nextButton.isDisabled();
-  }
-
-  isPreviousDisabled() {
-    return this.previousButton.isDisabled();
-  }
 }

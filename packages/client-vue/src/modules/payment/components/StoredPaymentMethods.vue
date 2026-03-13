@@ -1,0 +1,66 @@
+<template>
+  <div :class="styles.payment.stored.root">
+    <Form
+      v-model="model"
+      :processing="meta.isProcessing"
+      :schema="schema"
+      :uischema="uischema"
+      no-actions
+    />
+
+    <!-- Errors and Feedback -->
+
+    <Alert
+      v-if="meta.hasErrors"
+      color="warning"
+      icon="alert-triangle"
+      :title="t('text.payment_failed')"
+    >
+      <div class="mt-2 text-sm">
+        <li class="my-0 py-0">
+          {{ props.errors }}
+        </li>
+      </div>
+    </Alert>
+  </div>
+</template>
+
+<script lang="ts" setup>
+// --- external
+import { computed } from "vue";
+import { useI18n } from "vue-i18n";
+
+// --- internal
+import config from "../payment.config";
+import { useStyles } from "@upmind-automation/upmind-ui";
+
+// --- components
+import { Alert } from "@upmind-automation/upmind-ui";
+import Form from "../../../components/form/Form.vue";
+
+// --- types
+import type { StoredPaymentMethodProps } from "../types";
+
+// -----------------------------------------------------------------------------
+const props = defineProps<StoredPaymentMethodProps>();
+
+const model = defineModel("modelValue", {
+  get(value) {
+    return { payment_details_id: value };
+  },
+  set(value: { payment_details_id?: string }) {
+    return value.payment_details_id;
+  }
+});
+
+const { t } = useI18n();
+
+const meta = computed(() => {
+  return {
+    isProcessing: props.processing,
+    hasErrors: !!props.errors
+  };
+});
+
+const styles = useStyles(["payment", "payment.stored"], meta, config);
+</script>

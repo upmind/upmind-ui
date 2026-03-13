@@ -16,9 +16,9 @@
       <div :class="styles.product.summary.header.content">
         <div :class="styles.product.summary.header.top">
           <div :class="styles.product.summary.category.root">
-            <h5 :class="styles.product.summary.category.text">
+            <strong :class="styles.product.summary.category.text">
               {{ summary.category }}
-            </h5>
+            </strong>
 
             <Link
               v-if="isMobile && !isEmpty(filteredDetails)"
@@ -89,6 +89,16 @@
       :edit-route="props.editRoute"
     />
 
+    <Alert
+      v-if="summary.meta?.freeTrial"
+      :title="
+        t('text.free_trial_alert', { days: productDetails.trialDuration })
+      "
+      icon="clock-stopwatch"
+      size="sm"
+      color="promo"
+    />
+
     <RequiredAlert
       v-if="error"
       :id="id"
@@ -118,7 +128,15 @@
             :ui-config="{ pricing: { ex: [styles.product.pricing.ex] } }"
           />
 
+          <strong
+            v-if="summary.meta?.freeTrial"
+            :class="styles.product.pricing.current"
+          >
+            {{ t("text.free_trial") }}
+          </strong>
+
           <CurrentPrice
+            v-else
             :current-price="summary.price.currentPrice"
             :monthly-from-current-price="
               summary.price.monthlyFromCurrentPrice ?? ''
@@ -141,7 +159,13 @@ import { useVModel } from "@vueuse/core";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- components
-import { Link, Icon, Tooltip, Image } from "@upmind-automation/upmind-ui";
+import {
+  Link,
+  Icon,
+  Tooltip,
+  Image,
+  Alert
+} from "@upmind-automation/upmind-ui";
 import RequiredAlert from "./components/RequiredAlert.vue";
 import CurrentPrice from "../../../product/components/pricing/CurrentPrice.vue";
 import ExPrice from "../../../product/components/pricing/ExPrice.vue";

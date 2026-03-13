@@ -38,6 +38,7 @@
   "pay_with_stored": "Платете с наличен метод",
   "payment_amount": "Сума за плащане",
   "payment_amount_msg": "Общата сума на вашата поръчка е {amount}. Въведете сумата, която искате да платите сега. Оставащият баланс трябва да бъде платен преди активирането на вашата поръчка.",
+  "payment_amount_reset": "Платете непогасения остатък от {amount}",
   "payment_awaiting_approval": "**Чака** одобрение",
   "payment_awaiting_approval_md": "@.markdown:{'cart.payment_awaiting_approval'}",
   "payment_awaiting_approval_msg": "Чакаме одобрение. Това би трябвало да отнеме само малко време.",

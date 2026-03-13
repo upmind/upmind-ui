@@ -15,7 +15,8 @@ test.describe("Basket - Displaying Warning Notes", () => {
     await page.goto(URLs.basket);
     await page.waitForLoadState("networkidle");
     const token = await getSessionToken(context);
-    const orderId = await createOrder(token);
+    const order = await createOrder(token);
+    const orderId = order.id;
     await addProductToOrder(
       `${token}`,
       `${orderId}`,
@@ -25,7 +26,9 @@ test.describe("Basket - Displaying Warning Notes", () => {
       [],
       [],
       {},
-      []
+      [],
+      true,
+      false
     );
   });
   test("Warning Notes Displayed", async ({ page }) => {

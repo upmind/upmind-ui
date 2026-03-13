@@ -178,6 +178,19 @@ export default [
   },
 
   /**
+   * Route for managing billing details on a standalone page.
+   * Accessed from the checkout billing summary "Change" link.
+   */
+  {
+    path: "/order/billing",
+    name: ROUTE.BILLING,
+    component: () => import("../pages/Billing.vue"),
+    meta: {
+      actionEmptyBasket: true
+    }
+  },
+
+  /**
    * Route for viewing a completed order.
    * The :oid parameter captures the unique order identifier (UUID format).
    */

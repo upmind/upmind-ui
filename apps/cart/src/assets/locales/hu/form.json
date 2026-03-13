@@ -23,7 +23,15 @@
     "placeholder": "név@email.com"
   },
   "auth_password": {
-    "error": "Erős jelszó szükséges",
+    "error": {
+      "min_length": "A jelszónak legalább 8 karakterből kell állnia.",
+      "min_length_lowercase": "A jelszónak legalább 8 karakterből kell állnia, és kisbetűket kell tartalmaznia.",
+      "min_length_lowercase_number": "A jelszónak legalább 8 karakterből kell állnia, és tartalmaznia kell egy kisbetűt és egy számjegyet.",
+      "min_length_number": "A jelszónak legalább 8 karakterből kell állnia és számot kell tartalmaznia.",
+      "missing_lowercase": "A jelszónak kisbetűket kell tartalmaznia",
+      "missing_lowercase_number": "A jelszónak kisbetűt és számot kell tartalmaznia.",
+      "missing_number": "A jelszónak számot kell tartalmaznia"
+    },
     "label": "Jelszó",
     "placeholder": "Jelszó vagy jelszó"
   },

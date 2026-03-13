@@ -11,6 +11,7 @@
 
     <template #aside>
       <slot name="pricing" />
+      <slot name="errors" />
     </template>
 
     <template #footer>

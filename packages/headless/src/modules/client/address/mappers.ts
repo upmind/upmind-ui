@@ -20,6 +20,7 @@ export function mapAddress(raw: IAddress): Address {
     clientId: raw.client_id,
     // ---
     title: raw.address_1 || "New Address",
+    countryName: get(raw, "country.name"),
     description: compact([
       get(raw, "address_2"),
       get(raw, "street"),
@@ -28,6 +29,7 @@ export function mapAddress(raw: IAddress): Address {
       get(raw, "region.name"),
       get(raw, "country.name")
     ]).join(", "),
+    regionName: get(raw, "region.name"),
     // ---
     name: raw.name,
     address: {
@@ -49,7 +51,7 @@ export function mapAddress(raw: IAddress): Address {
   };
 }
 
-export function mapIAddress(data: AddressModel): IAddress {
+export function mapIAddressData(data: AddressModel | Address): IAddress {
   return {
     name: data.name || data.address.address1 || "",
     address_1: data.address.address1 ?? "",
@@ -60,5 +62,24 @@ export function mapIAddress(data: AddressModel): IAddress {
     region_id: data.address.regionId,
     country_id: data.address.countryId,
     type: 1 // We are forcing type to always be 1 for simplicity
+  } as IAddress;
+}
+
+export function mapIAddress(data: Address): IAddress | undefined {
+  return {
+    id: data.id,
+    client_id: data.clientId,
+    name: data.name,
+    address_1: data.address.address1,
+    address_2: data.address.address2,
+    city: data.address.city,
+    country_id: data.address.countryId,
+    default: data.meta.isDefault,
+    can_delete: data.meta.canDelete,
+    postcode: data.address.postcode,
+    region_id: data.address.regionId,
+    state: data.address.state,
+    type: data.type,
+    verified: data.meta.isVerified ? 1 : 0
   } as IAddress;
 }
