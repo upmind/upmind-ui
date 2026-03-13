@@ -46,7 +46,12 @@ export const usePayment = (initial: PaymentArgs) => {
     isChecking: stateMatches(state, ["checking"]),
     isValid: stateMatches(state, ["valid"]),
     isProcessing: stateMatches(state, ["processing"]),
-    needsApproval: stateMatches(state, ["approving"]),
+    isChallenging: stateMatches(state, ["challenging"]),
+    isOffsiteChallenge: stateMatches(state, [
+      "challenging.redirecting",
+      "challenging.offsite"
+    ]),
+    isRenderingChallenge: stateMatches(state, ["challenging.render"]),
     hasPaid: stateMatches(state, ["complete"]),
     hasFailed: stateMatches(state, ["error"])
   }));
@@ -69,6 +74,32 @@ export const usePayment = (initial: PaymentArgs) => {
     send({ type: "REFRESH", data: context });
   }
 
+  /**
+   * Renders an inline payment challenge into the provided container.
+   * Call when isRenderingChallenge is true and the container is mounted.
+   * @param container - The HTML element to render the challenge into.
+   */
+  function renderChallenge(container: HTMLElement): void {
+    send({ type: "RENDER", data: { container } });
+  }
+
+  /**
+   * Completes an inline challenge with optional response data.
+   * Triggers verification of the challenge.
+   * @param data - Optional data from the challenge completion.
+   */
+  function completeChallenge(data?: Record<string, unknown>): void {
+    send({ type: "CHALLENGE_RESPONSE", data });
+  }
+
+  /**
+   * Cancels an inline challenge.
+   * Transitions the payment machine to error state.
+   */
+  function cancelChallenge(): void {
+    send({ type: "CHALLENGE_CANCELLED" });
+  }
+
   // -----------------------------------------------------------------------------
   return {
     // --- state
@@ -87,7 +118,9 @@ export const usePayment = (initial: PaymentArgs) => {
      * @property {boolean} isChecking - Indicates if the payment is being checked.
      * @property {boolean} isValid - Indicates if the payment is valid.
      * @property {boolean} isProcessing - Indicates if the payment is processing.
-     * @property {boolean} needsApproval - Indicates if the payment needs approval.
+     * @property {boolean} isChallenging - Indicates if the payment needs approval.
+     * @property {boolean} isOffsiteChallenge - Indicates if the challenge requires offsite redirect.
+     * @property {boolean} isRenderingChallenge - Indicates if the challenge renders inline.
      * @property {boolean} hasPaid - Indicates if the payment has been completed.
      * @property {boolean} hasFailed - Indicates if the payment has failed.
      */
@@ -123,7 +156,24 @@ export const usePayment = (initial: PaymentArgs) => {
      * @param {PaymentArgs} [context] - Optional new context to update the payment machine.
      * @returns void
      */
-    refresh
+    refresh,
+
+    /**
+     * Renders an inline challenge into the provided container element.
+     * @param {HTMLElement} container - The container to render the challenge into.
+     */
+    renderChallenge,
+
+    /**
+     * Completes an inline challenge with optional response data.
+     * @param {Record<string, unknown>} [data] - Optional challenge response data.
+     */
+    completeChallenge,
+
+    /**
+     * Cancels an inline challenge.
+     */
+    cancelChallenge
   };
 };
 
