@@ -23,7 +23,15 @@
     "placeholder": "nome@email.com"
   },
   "auth_password": {
-    "error": "È richiesta una password complessa",
+    "error": {
+      "min_length": "La password deve contenere almeno 8 caratteri",
+      "min_length_lowercase": "La password deve contenere almeno 8 caratteri e una lettera minuscola.",
+      "min_length_lowercase_number": "La password deve avere almeno 8 caratteri, contenere una lettera minuscola e una cifra",
+      "min_length_number": "La password deve contenere almeno 8 caratteri e un numero.",
+      "missing_lowercase": "La password deve contenere una lettera minuscola",
+      "missing_lowercase_number": "La password deve contenere una lettera minuscola e un numero",
+      "missing_number": "La password deve contenere un numero"
+    },
     "label": "Password",
     "placeholder": "Password o frase segreta"
   },

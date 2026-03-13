@@ -10,18 +10,17 @@ import {
   ErrorOrigin,
   responseCodes,
   DetailedError,
-  useModelParser
+  useModelParser,
+  useValidation,
+  useValidationErrorsTranslator
 } from "../../utils";
 
 import {
   parseQuantity,
   parseTerm,
+  parseTrial,
   parseSubproducts,
   checkPriceOverride,
-  checkQuantity,
-  checkTerm,
-  checkSubproducts,
-  checkProvisioning,
   parseSubproductDetails,
   parseProvisioningSchema,
   parseProductProps
@@ -31,12 +30,14 @@ import {
   compact,
   concat,
   defaultsDeep,
+  filter,
   get,
   isEmpty,
   isEqual,
   isNil,
+  isNumber,
   map,
-  omitBy,
+  reject,
   set,
   sum
 } from "lodash-es";
@@ -51,13 +52,14 @@ import {
 import type {
   Price,
   PriceCalculations,
+  PriceEntry,
   ProductModel,
-  SubproductModel,
   ProductConfigContext,
   ProductProps
 } from "./types";
 
 import { type AnyEventObject } from "xstate";
+import { type ErrorObject } from "ajv";
 import { parseBasketSubproductConfig } from "../basketProduct/utils";
 
 // -----------------------------------------------------------------------------
@@ -193,29 +195,21 @@ async function loadProvisioningFields(
 
 async function parse(context: ProductConfigContext, { data }: AnyEventObject) {
   const { t } = useI18n();
-  const baseModel = defaultsDeep(context.model, {
-    productId: undefined,
-    quantity: 1,
-    term: 0,
-    options: {},
-    attributes: {},
-    provisionFields: {}
-  });
 
   const lookups = context.lookups ?? {};
   lookups.prices = context.lookups?.prices || {};
 
-  let values: ProductModel = defaultsDeep(
-    {
-      productId: data?.productId,
-      quantity: data?.quantity,
-      term: data?.term,
-      options: data?.options,
-      attributes: data?.attributes,
-      provisionFields: data?.provisionFields
-    },
-    baseModel
-  );
+  // build our values based on our prev context ( if any ) with sensible fallbacks
+  let values: ProductModel = {
+    productId: data?.productId ?? context?.model?.productId ?? undefined,
+    quantity: data?.quantity ?? context?.model?.quantity ?? 1,
+    term: data?.term ?? context?.model?.term ?? 0,
+    options: data?.options ?? context?.model?.options ?? {},
+    attributes: data?.attributes ?? context?.model?.attributes ?? {},
+    provisionFields:
+      data?.provisionFields ?? context?.model?.provisionFields ?? {},
+    startTrial: data?.startTrial ?? context?.model?.startTrial
+  };
 
   // safety check, ensure we have a valid product
   if (!values?.productId) {
@@ -230,6 +224,8 @@ async function parse(context: ProductConfigContext, { data }: AnyEventObject) {
 
   values.quantity = parseQuantity(values.quantity, context?.lookups?.product);
 
+  values.startTrial = parseTrial(values.startTrial, context?.lookups?.product);
+
   const term = parseTerm(context, values?.term, values.quantity);
   values.term = term.term;
   lookups.prices.term = term.price;
@@ -237,7 +233,7 @@ async function parse(context: ProductConfigContext, { data }: AnyEventObject) {
   // NB:if terms have changed.....
   // reset the lookup options based on the term selected
   // as this may impact what price and options are available
-  if (!isEqual(baseModel?.term, values?.term)) {
+  if (!isEqual(context?.model?.term, values?.term)) {
     lookups.options = parseSubproductDetails(
       context.rawProduct?.products_options,
       values.term
@@ -275,13 +271,17 @@ async function parse(context: ProductConfigContext, { data }: AnyEventObject) {
     {} as AnyEventObject
   );
 
-  lookups.provisionFields = parseProvisioningSchema(
+  // Store raw provision fields in lookups — schema generation handles parsing
+  lookups.provisionFields = rawProvisionFields;
+
+  // Parse locally for model normalization only
+  const provisionSchema = parseProvisioningSchema(
     rawProvisionFields,
     context.rawProduct!
   );
 
   values.provisionFields = useModelParser(
-    lookups.provisionFields,
+    provisionSchema,
     values.provisionFields,
     {}
   );
@@ -297,28 +297,16 @@ async function validate(context: ProductConfigContext, _event: AnyEventObject) {
   //  especially usefully when adding bulk products, recommendations etc.
   if (context.silent) return Promise.resolve(context.model);
 
-  // TODO: validate the model as per normal using the schema
-  // const { validate } = useValidation();
-  //  const errors = validate(schema, model);
+  const { schema, model } = context;
+  let errors: ErrorObject[] = [];
 
-  // Till then we will validate individually
-  const errors = omitBy(
-    {
-      quantity: checkQuantity(context, context?.model?.quantity),
-      term: checkTerm(context, context?.model?.term),
-      options: checkSubproducts("options", context, context.model?.options),
-      attributes: checkSubproducts(
-        "attributes",
-        context,
-        context.model?.attributes
-      ),
-      provisionFields: checkProvisioning(
-        context,
-        context.model?.provisionFields
-      )
-    },
-    isEmpty
-  );
+  if (schema && model) {
+    const { validate: ajvValidate } = useValidation();
+    const rawErrors = ajvValidate(schema, model);
+    if (!isEmpty(rawErrors)) {
+      errors = useValidationErrorsTranslator(rawErrors, schema);
+    }
+  }
 
   return new Promise((resolve, reject) => {
     if (!isEmpty(errors)) {
@@ -349,23 +337,27 @@ async function validate(context: ProductConfigContext, _event: AnyEventObject) {
 
 // We have a valid AUTH session when we are logged in as a client (TODO: admin + actor)
 // this will fire every time we transition to a new state
-function calculate(prices: PriceCalculations, overrides: boolean): number[] {
+function calculate(
+  prices: PriceCalculations,
+  overrides: boolean
+): PriceEntry[] {
   const values = concat(
     overrides ? [] : prices?.term,
     prices?.attributes,
     prices?.options
   );
 
-  return values.filter(value => !isNil(value));
+  return filter(values, value => !isNil(value)) as PriceEntry[];
 }
 
 async function formatCalculation(
   currencyId: string,
-  values: number[]
+  values: PriceEntry[]
 ): Promise<Price> {
   const { post, useUrl } = useQuery();
 
-  if (isEmpty(compact(values))) return Promise.reject();
+  const prices = reject(values, isNil);
+  if (isEmpty(prices)) return Promise.reject();
 
   return post({
     mutationKey: ["cart", "calculate"],
@@ -373,7 +365,7 @@ async function formatCalculation(
     withAccessToken: true,
     data: {
       currency_id: currencyId,
-      prices: compact(values)
+      prices
     }
   }).then(data => {
     return {
@@ -413,10 +405,13 @@ export function calculateSubscription(callback: Function, onReceive: Function) {
         !!model?.options &&
         !!lookups?.options &&
         checkPriceOverride(model.options, lookups.options);
-
       const values = calculate(lookups.prices, overrides);
       // Check if we actually need to calculate the price
-      if (price?.total == sum(values) || !values?.length) {
+      // Compute a numeric total for cache comparison (handles both number and {price, quantity} entries)
+      const total = sum(
+        map(values, v => (isNumber(v) ? v : (v.price ?? 0) * (v.quantity ?? 1)))
+      );
+      if (price?.total == total || !values?.length) {
         // no need to recalculate, just return the current price
         callback({ type: "CALCULATED", data: price });
         return;

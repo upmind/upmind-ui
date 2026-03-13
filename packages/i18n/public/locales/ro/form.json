@@ -23,7 +23,15 @@
     "placeholder": "nume@email.com"
   },
   "auth_password": {
-    "error": "Este necesară o parolă puternică",
+    "error": {
+      "min_length": "Parola trebuie să aibă cel puțin 8 caractere",
+      "min_length_lowercase": "Parola trebuie să aibă cel puțin 8 caractere și să conțină o literă mică.",
+      "min_length_lowercase_number": "Parola trebuie să aibă cel puțin 8 caractere, să conțină o literă minusculă și o cifră.",
+      "min_length_number": "Parola trebuie să aibă cel puțin 8 caractere și să conțină un număr.",
+      "missing_lowercase": "Parola trebuie să conțină o literă mică",
+      "missing_lowercase_number": "Parola trebuie să conțină o literă mică și un număr.",
+      "missing_number": "Parola trebuie să conțină un număr"
+    },
     "label": "Parolă",
     "placeholder": "Parolă sau frază de acces"
   },
@@ -67,7 +75,7 @@
     "placeholder": "Taxă înregistrată sau GST"
   },
   "country": {
-    "label": "Ţară",
+    "label": "Țara",
     "placeholder": "Selectați o țară"
   },
   "domain": {
@@ -87,6 +95,10 @@
   "firstname": {
     "error": "Prenumele dumneavoastră este obligatoriu",
     "label": "Prenume"
+  },
+  "language": {
+    "error": "Limba dvs. este obligatorie",
+    "label": "Limbă"
   },
   "lastname": {
     "error": "Numele dumneavoastră de familie este obligatoriu",
@@ -121,6 +133,10 @@
     "error": "Cod promoțional nevalid",
     "placeholder": "Introduceți codul voucherului aici"
   },
+  "publicName": {
+    "error": "Numele tău public este obligatoriu",
+    "label": "Nume public"
+  },
   "recover": {
     "error": "Am întâmpinat o eroare în timp ce încercam să vă trimitem un e-mail de resetare a parolei."
   },
@@ -139,9 +155,5 @@
   },
   "stored_payment_method": {
     "label": ""
-  },
-  "taxNumber": {
-    "label": "Cod fiscal",
-    "placeholder": "Cod fiscal"
   }
 }

@@ -6,6 +6,8 @@ import { useI18n } from "../modules";
 
 // --- utils
 import {
+  flatMap,
+  get,
   map,
   reduce,
   set,
@@ -14,8 +16,7 @@ import {
   isObject,
   isNil,
   isString,
-  isNumber,
-  isEmpty
+  isNumber
 } from "lodash-es";
 
 // --- types
@@ -102,7 +103,7 @@ export function unflattenErrors(data: any) {
   const parsed = reduce(
     data,
     (result, value, key) => set(result, key, value),
-    []
+    {}
   ) as Record<string, any>;
 
   return parsed;
@@ -131,6 +132,53 @@ export function parseError(
       params: {},
       external: !!external
     } as ErrorObject;
+  });
+}
+
+/**
+ * Parses a scalar API error field into ErrorObject[].
+ * e.g. { quantity: ["msg"] } → instancePath: /quantity
+ */
+export function parseScalarErrors(
+  raw: any,
+  apiField: string,
+  schemaPath: string
+): ErrorObject[] {
+  const messages = get(raw, apiField);
+  if (isNil(messages)) return [];
+  return parseError(messages, schemaPath);
+}
+
+/**
+ * Parses a nested keyed API error field into ErrorObject[].
+ * e.g. { provision_field_values: { hostname: ["msg"] } } → instancePath: /provisionFields/hostname
+ */
+export function parseNestedErrors(
+  raw: any,
+  apiField: string,
+  schemaPath: string
+): ErrorObject[] {
+  const section = get(raw, apiField);
+  if (isNil(section)) return [];
+  return flatMap(section, (messages: string | string[], key: string) =>
+    parseError(messages, `${schemaPath}/${key}`)
+  );
+}
+
+// --- { options: [{ product_id: ["msg"] }] } → instancePath: /options
+export function parseArrayErrors(
+  raw: any,
+  apiField: string,
+  schemaPath: string
+): ErrorObject[] {
+  const entries = get(raw, apiField);
+  if (isNil(entries) || !isArray(entries)) return [];
+  return flatMap(entries, (entry: any) => {
+    if (isNil(entry)) return [];
+    return flatMap(entry, (messages: string | string[]) => {
+      if (!isString(messages) && !isArray(messages)) return [];
+      return parseError(messages, schemaPath);
+    });
   });
 }
 

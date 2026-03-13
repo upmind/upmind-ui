@@ -1,5 +1,5 @@
 <template>
-  <Root :overflow="overflow">
+  <Root>
     <Ribbon
       v-if="meta.hasContentHeader"
       :background="RIBBON_BACKGROUND.SURFACE"
@@ -104,7 +104,6 @@ const { card } = useSection();
 
 const meta = computed(() => ({
   variant: "full",
-  overflow: props.overflow,
   hasContentHeader: !isEmptySlot("content-header", slots),
   hasContent: !isEmptySlot("default", slots) || !isEmptySlot("content", slots),
   hasFooter: !isEmptySlot("footer", slots),

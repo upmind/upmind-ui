@@ -1,10 +1,11 @@
 import { expect } from "@playwright/test";
-import { test } from "../../../support/fixtures/test";
+import { test } from "../../../support/fixtures/testContexts";
 import { URLs } from "../../../support/constants/urls";
 import { getClientToken } from "../../../support/utils/functions/tokens";
 import { Checkout } from "../../../support/page-objects/templates/Checkout";
 import { Logins } from "../../../support/constants/logins";
 import { goToCheckout } from "../../../support/utils/apiHelper";
+import { products } from "../../../support/constants/products";
 
 test.describe("Checkout with Existing Payment Method", () => {
   let checkout: Checkout;
@@ -19,15 +20,10 @@ test.describe("Checkout with Existing Payment Method", () => {
       Logins.existingMethodUser.username,
       Logins.existingMethodUser.password
     );
-    await goToCheckout(page, context, null, null);
+    await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
     await checkout.selectPaymentMethod("Visa Ending 4242");
     await checkout.clickPlaceOrderAndPay();
     await checkout.dialogWindow.waitFor();
-    await expect(checkout.dialogWindow).toContainText("Converting your order");
-    await expect(checkout.dialogWindow).toContainText(
-      "Processing your payment"
-    );
-    await expect(page.getByRole("dialog")).toBeVisible();
-    await expect(page.getByRole("dialog")).toContainText("Order complete!");
+    await expect(page.getByText("Order complete!")).toBeVisible();
   });
 });

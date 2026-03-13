@@ -23,7 +23,15 @@
     "placeholder": "nome@email.com"
   },
   "auth_password": {
-    "error": "È richiesta una password complessa",
+    "error": {
+      "min_length": "La password deve contenere almeno 8 caratteri",
+      "min_length_lowercase": "La password deve contenere almeno 8 caratteri e una lettera minuscola.",
+      "min_length_lowercase_number": "La password deve avere almeno 8 caratteri, contenere una lettera minuscola e una cifra",
+      "min_length_number": "La password deve contenere almeno 8 caratteri e un numero.",
+      "missing_lowercase": "La password deve contenere una lettera minuscola",
+      "missing_lowercase_number": "La password deve contenere una lettera minuscola e un numero",
+      "missing_number": "La password deve contenere un numero"
+    },
     "label": "Password",
     "placeholder": "Password o frase segreta"
   },
@@ -88,6 +96,10 @@
     "error": "Il tuo nome è obbligatorio",
     "label": "Nome di battesimo"
   },
+  "language": {
+    "error": "La tua lingua è obbligatoria",
+    "label": "Lingua"
+  },
   "lastname": {
     "error": "Il tuo cognome è obbligatorio",
     "label": "Cognome"
@@ -121,6 +133,10 @@
     "error": "Codice promozionale non valido",
     "placeholder": "Inserisci qui il codice voucher"
   },
+  "publicName": {
+    "error": "Il tuo nome pubblico è obbligatorio",
+    "label": "Nome pubblico"
+  },
   "recover": {
     "error": "Si è verificato un errore durante il tentativo di inviarti un'e-mail per reimpostare la password."
   },
@@ -139,9 +155,5 @@
   },
   "stored_payment_method": {
     "label": ""
-  },
-  "taxNumber": {
-    "label": "Codice fiscale",
-    "placeholder": "Codice fiscale"
   }
 }

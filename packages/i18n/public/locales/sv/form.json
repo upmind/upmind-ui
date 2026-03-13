@@ -23,7 +23,15 @@
     "placeholder": "namn@epost.com"
   },
   "auth_password": {
-    "error": "Ett starkt lösenord krävs",
+    "error": {
+      "min_length": "Lösenordet måste bestå av minst 8 tecken",
+      "min_length_lowercase": "Lösenordet måste bestå av minst 8 tecken och innehålla en gemen bokstav.",
+      "min_length_lowercase_number": "Lösenordet måste vara minst 8 tecken och innehålla minst en gemen (a–z) och en siffra (0–9)",
+      "min_length_number": "Lösenordet måste bestå av minst 8 tecken och innehålla en siffra.",
+      "missing_lowercase": "Lösenordet måste innehålla en gemen bokstav",
+      "missing_lowercase_number": "Lösenordet måste innehålla en gemen bokstav och en siffra.",
+      "missing_number": "Lösenordet måste innehålla en siffra"
+    },
     "label": "Lösenord",
     "placeholder": "Lösenord eller lösenfras"
   },
@@ -68,7 +76,7 @@
   },
   "country": {
     "label": "Land",
-    "placeholder": "Välj ett land"
+    "placeholder": "Välj land"
   },
   "domain": {
     "placeholder": "Ange din domän..."
@@ -87,6 +95,10 @@
   "firstname": {
     "error": "Ditt förnamn är obligatoriskt",
     "label": "Förnamn"
+  },
+  "language": {
+    "error": "Ditt språk är obligatoriskt",
+    "label": "Språk"
   },
   "lastname": {
     "error": "Ditt efternamn är obligatoriskt",
@@ -121,6 +133,10 @@
     "error": "Ogiltig kampanjkod",
     "placeholder": "Ange kupongkoden här"
   },
+  "publicName": {
+    "error": "Ditt offentliga namn är obligatoriskt",
+    "label": "Offentligt namn"
+  },
   "recover": {
     "error": "Vi uppstod ett fel när vi försökte skicka ett e-postmeddelande för återställning av lösenordet till dig."
   },
@@ -139,9 +155,5 @@
   },
   "stored_payment_method": {
     "label": ""
-  },
-  "taxNumber": {
-    "label": "Skattenummer",
-    "placeholder": "Skatte-ID"
   }
 }

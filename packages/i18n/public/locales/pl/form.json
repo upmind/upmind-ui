@@ -23,7 +23,15 @@
     "placeholder": "nazwa@email.com"
   },
   "auth_password": {
-    "error": "Wymagane jest silne hasło",
+    "error": {
+      "min_length": "Hasło musi mieć co najmniej 8 znaków.",
+      "min_length_lowercase": "Hasło musi mieć co najmniej 8 znaków i zawierać małą literę.",
+      "min_length_lowercase_number": "Hasło musi mieć co najmniej 8 znaków, zawierać małą literę oraz cyfrę",
+      "min_length_number": "Hasło musi mieć co najmniej 8 znaków i zawierać cyfrę.",
+      "missing_lowercase": "Hasło musi zawierać małą literę.",
+      "missing_lowercase_number": "Hasło musi zawierać małą literę i cyfrę.",
+      "missing_number": "Hasło musi zawierać cyfrę."
+    },
     "label": "Hasło",
     "placeholder": "Hasło lub fraza tajna"
   },
@@ -88,6 +96,10 @@
     "error": "Twoje imię jest wymagane",
     "label": "Imię"
   },
+  "language": {
+    "error": "Twój język jest wymagany",
+    "label": "Język"
+  },
   "lastname": {
     "error": "Twoje nazwisko jest wymagane",
     "label": "Nazwisko"
@@ -121,6 +133,10 @@
     "error": "Nieprawidłowy kod promocyjny",
     "placeholder": "Wprowadź tutaj kod kuponu"
   },
+  "publicName": {
+    "error": "Twoje imię publiczne jest wymagane",
+    "label": "Nazwa publiczna"
+  },
   "recover": {
     "error": "Wystąpił błąd podczas próby wysłania do Ciebie wiadomości e-mail umożliwiającej zresetowanie hasła."
   },
@@ -139,9 +155,5 @@
   },
   "stored_payment_method": {
     "label": ""
-  },
-  "taxNumber": {
-    "label": "Numer podatkowy",
-    "placeholder": "Numer identyfikacji podatkowej"
   }
 }

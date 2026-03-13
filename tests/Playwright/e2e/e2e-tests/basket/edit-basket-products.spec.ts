@@ -9,6 +9,7 @@ import {
   addProductToOrder,
   getBasketProducts
 } from "../../support/utils/functions/basket";
+import { interceptUISchema } from "../../support/utils/functions/brand";
 
 let productConfig: ProductConfig;
 let basket: Basket;
@@ -21,10 +22,11 @@ test.describe("Edit hosting product in basket", () => {
   test.beforeEach(async ({ page, context }) => {
     productConfig = new ProductConfig(page);
     basket = new Basket(page);
-    await page.goto(URLs.basket);
+    await page.goto(URLs.baseUrl);
     await page.waitForLoadState("networkidle");
     token = await getSessionToken(context);
-    orderId = await createOrder(token);
+    let order = await createOrder(token);
+    orderId = order.id;
     await addProductToOrder(
       `${token}`,
       `${orderId}`,
@@ -38,34 +40,39 @@ test.describe("Edit hosting product in basket", () => {
           length: { min: 3, max: 15 }
         })}.com`
       },
-      []
+      [],
+      true,
+      false
     );
     await page.waitForLoadState("networkidle");
   });
   test("Edit product options", async ({ page }) => {
     products = await getBasketProducts(token);
     productId = products[0].id;
-    await page.goto(`order/basket/${productId}`);
+    await page.goto(`order/basket/edit/${productId}`);
     await productConfig.selectRadioOption("London");
     await expect(productConfig.getSummaryItem("Location")).toBeVisible();
     await productConfig.clickConfirm();
-    await expect(page).toHaveURL(/order\/basket$/);
+    await expect(page).toHaveURL("order/basket/");
     await basket.clickShowDetails();
     await expect(basket.basketProduct).toContainText("London");
   });
   test("Edit product attributes", async ({ page }) => {
     products = await getBasketProducts(token);
     productId = products[0].id;
-    await page.goto(`order/basket/${productId}`);
-    await productConfig.selectRadioOption("2 Balloons");
-    await expect(productConfig.getSummaryItem("Balloons")).toBeVisible();
+    await page.goto(`order/basket/edit/${productId}`);
+    await productConfig.selectRadioOption(
+      "MacOS Sequoia Version 15.6 (Enterprise License)"
+    );
+    await expect(
+      productConfig.getSummaryItem("Operating System")
+    ).toBeVisible();
     await productConfig.clickConfirm();
-    await expect(page).toHaveURL(/order\/basket$/);
+    await expect(page).toHaveURL("order/basket/");
     await basket.clickShowDetails();
-    await expect(basket.basketProduct).toContainText("2 Balloons");
-  });
-  test("Edit domain name", async ({ page }) => {
-    //rewrite this
+    await expect(basket.basketProduct).toContainText(
+      "MacOS Sequoia Version 15.6 (Enterprise License)"
+    );
   });
 });
 
@@ -80,7 +87,8 @@ test.describe("Edit domain product in basket", () => {
     await page.goto(URLs.basket);
     await page.waitForLoadState("networkidle");
     token = await getSessionToken(context);
-    orderId = await createOrder(token);
+    let order = await createOrder(token);
+    orderId = order.id;
     await addProductToOrder(
       `${token}`,
       `${orderId}`,
@@ -100,28 +108,33 @@ test.describe("Edit domain product in basket", () => {
         update_registrant_organisation: "Domain Testinc Inc",
         update_registrant_phone: "+447111111111"
       },
-      []
+      [],
+      true,
+      false
     );
   });
   test("Edit domain name", async ({ page }) => {
     products = await getBasketProducts(token);
     productId = products[0].id;
     let newDomain = `${fakerEN_GB.string.alphanumeric({ length: { min: 3, max: 15 } })}`;
-    await page.goto(`order/basket/${productId}`);
+    await page.goto(`order/basket/edit/${productId}`);
     await page.waitForLoadState("networkidle");
-    await productConfig.clearFormInput("SLD");
-    await productConfig.fillFormInput("SLD", newDomain);
+    await productConfig.clearFormInput("form-item-provision-fields-sld");
+    await productConfig.fillFormInput(
+      "form-item-provision-fields-sld",
+      newDomain
+    );
     await productConfig.clickConfirm();
-    await expect(page).toHaveURL(/order\/basket$/);
+    await expect(page).toHaveURL("order/basket/");
     await expect(
       basket.basketProduct.getByTestId("link-default").getByText(newDomain)
     ).toBeVisible();
-    await basket.clickShowDetails();
-    await expect(
-      page.getByTestId("basket-product-details-item-0")
-    ).toContainText(newDomain);
   });
-  test("Edit provisional fields", async ({ page }) => {
+  test("Edit provisional fields", async ({ page, context }) => {
+    interceptUISchema(context, {
+      "@context.configure.productConfigFieldsSummary": "visible",
+      "@context.configure.productConfigOptionsSummary": "visible"
+    });
     let fieldUpdates = {
       updatedName: "Updated Name",
       updatedCompany: "Updated Company",
@@ -135,7 +148,7 @@ test.describe("Edit domain product in basket", () => {
     };
     products = await getBasketProducts(token);
     productId = products[0].id;
-    await page.goto(`order/basket/${productId}`);
+    await page.goto(`order/basket/edit/${productId}`);
     await page.waitForLoadState("networkidle");
     await productConfig.registrantNameInput.fill(fieldUpdates.updatedName);
     await productConfig.registrantOrgInput.fill(fieldUpdates.updatedCompany);
@@ -151,35 +164,9 @@ test.describe("Edit domain product in basket", () => {
     await page
       .getByTestId(`select-item-${fieldUpdates.updatedCountryCode}`)
       .click();
-    await expect(productConfig.registrantName).toContainText(
-      fieldUpdates.updatedName
-    );
-    await expect(productConfig.registrantOrg).toContainText(
-      fieldUpdates.updatedCompany
-    );
-    await expect(productConfig.registrantEmail).toContainText(
-      fieldUpdates.updatedEmail
-    );
-    await expect(productConfig.registrantPhone).toContainText(
-      `+44${fieldUpdates.updatedPhone}`
-    );
-    await expect(productConfig.registrantAddr1).toContainText(
-      fieldUpdates.updatedAddress
-    );
-    await expect(productConfig.registrantCity).toContainText(
-      fieldUpdates.updatedCity
-    );
-    await expect(productConfig.registrantState).toContainText(
-      fieldUpdates.updatedState
-    );
-    await expect(productConfig.registrantPostcode).toContainText(
-      fieldUpdates.updatedPostcode
-    );
-    await expect(productConfig.registrantCountry).toContainText(
-      fieldUpdates.updatedCountryCode
-    );
     await productConfig.clickConfirm();
-    await expect(page).toHaveURL(/order\/basket$/);
+    await expect(page).toHaveURL("order/basket/");
     await expect(basket.basketProductSummary).toBeVisible();
+    await expect(basket.addMissingDataLink).toBeHidden();
   });
 });

@@ -1,6 +1,6 @@
 <template>
   <UpmSections
-    class="min-h-40"
+    class="min-h-44"
     v-model="activeTab"
     :sections="sections"
     data-testid="billing"

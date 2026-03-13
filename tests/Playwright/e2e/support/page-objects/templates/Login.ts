@@ -25,7 +25,7 @@ export class Login {
       .getByRole("textbox");
     this.popoverTrigger = page.getByTestId("login-popover-trigger");
     this.popoverContent = page.getByTestId("popover-content");
-    this.alert = page.getByRole("alert");
+    this.alert = page.getByTestId("auth-alert");
   }
 
   async inputLogin(username: string, password: string) {

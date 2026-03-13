@@ -67,7 +67,7 @@ isReady().then(() => {
     [basketMeta, sessionMeta],
     (
       [
-        { hasProducts, isComplete, isCheckout, isUnavailable },
+        { hasProducts, isComplete, isCheckout, isUnavailable, isAvailable },
         { isAuthenticated }
       ],
       [
@@ -76,23 +76,37 @@ isReady().then(() => {
       ]
     ) => {
       if (!routingMeta.value.isResolved) return;
-
+      /* If we were authenticated and now we are not, redirect to the session end page */
       if (
         !isAuthenticated &&
         wasAuthenticated &&
         route.name !== ROUTE.SESSION_END
       ) {
-        router.push({ name: ROUTE.SESSION_END });
-      } else if (
+        return router.push({ name: ROUTE.SESSION_END });
+      }
+
+      /* If the basket is unavailable and we are authenticated, redirect to the basket unavailable page */
+      if (
         isUnavailable &&
         !wasUnavailable &&
         isAuthenticated &&
         route.name !== ROUTE.BASKET_UNAVAILABLE
       ) {
-        router.replace({ name: ROUTE.BASKET_UNAVAILABLE });
-      } else if (!hasProducts && hadProducts && !isCheckout && !isComplete) {
+        return router.replace({ name: ROUTE.BASKET_UNAVAILABLE });
+      }
+
+      /** If the basket is available and we have no products and we had products
+       *  and we are not in the process of checking out
+       *  and we the basket is NOT complete */
+      if (
+        !isUnavailable &&
+        !hasProducts &&
+        hadProducts &&
+        !isCheckout &&
+        !isComplete
+      ) {
         if (route.meta.actionEmptyBasket && route.name !== ROUTE.BASKET_EMPTY) {
-          router.push({ name: ROUTE.BASKET_EMPTY });
+          return router.push({ name: ROUTE.BASKET_EMPTY });
         }
       }
     }

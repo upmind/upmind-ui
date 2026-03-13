@@ -12,7 +12,7 @@
   "429_title": "Sorry, you have made too many **requests**",
   "429_title_md": "@.markdown:{'error.429_title'}",
   "500_text": "We are currently experiencing technical issues. Please try again later.",
-  "500_title": "Sorry, we are experiencing **technical issues**",
+  "500_title": "Sorry, we are experiencing technical issues",
   "500_title_md": "@.markdown:{'error.500_title'}",
   "503_text": "Sorry, but our service is temporarily unavailable whilst we carry out some scheduled maintenance. Please bear with us during this upgrade – things should be back to normal in no time! 👷",
   "503_title": "Service **temporarily** unavailable",

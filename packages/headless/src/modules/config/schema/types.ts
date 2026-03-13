@@ -35,6 +35,7 @@ export type TaxesDisplay = (typeof TAXES_DISPLAY)[keyof typeof TAXES_DISPLAY];
 
 export const LIST_STYLE = {
   GRID: "grid",
+  GRID_FACET: "grid-facet",
   CAROUSEL: "carousel"
 } as const;
 export type ListStyle = (typeof LIST_STYLE)[keyof typeof LIST_STYLE];
@@ -51,7 +52,7 @@ export type CategoryGridLayout =
   (typeof CATEGORY_GRID_LAYOUT)[keyof typeof CATEGORY_GRID_LAYOUT];
 
 export const EDITABILITY = {
-  //READONLY: "readonly", // Not supported yet
+  READONLY: "readonly",
   EDITABLE: "editable"
 } as const;
 export type Editability = (typeof EDITABILITY)[keyof typeof EDITABILITY];

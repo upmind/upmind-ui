@@ -89,6 +89,12 @@
 
         <footer :class="styles.product.footer">
           <Button
+            v-bind="action"
+            :loading="processing"
+            variant="solid"
+            :color="color"
+            size="lg"
+            block
             :to="
               navigate
                 ? {
@@ -106,15 +112,6 @@
                 : undefined
             "
             :disabled="processing || disabled"
-            :icon="meta?.added ? 'check-circle-broken' : 'shopping-bag-02'"
-            :loading="processing"
-            variant="solid"
-            :color="color"
-            size="lg"
-            block
-            :label="
-              meta?.added ? t('confirm.in_basket') : t('action.add_to_basket')
-            "
             @click="doResolve"
           />
         </footer>
@@ -249,6 +246,21 @@ const styles = useStyles(
 );
 
 const processing = ref(false);
+
+const action = computed(() => {
+  if (props.meta?.added) {
+    return { icon: "check-circle-broken", label: t("confirm.in_basket") };
+  }
+  if (props.productDetails?.trialSupported) {
+    return {
+      icon: "clock-stopwatch",
+      label: t("text.try_free_for_days", {
+        days: props.productDetails.trialDuration
+      })
+    };
+  }
+  return { icon: "shopping-bag-02", label: t("action.add_to_basket") };
+});
 
 function doResolve() {
   if (!props.id) return;

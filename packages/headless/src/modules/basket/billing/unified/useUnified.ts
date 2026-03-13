@@ -93,7 +93,7 @@ export const useUnified = (
   const meta = computed(() => ({
     isAvailable: stateMatches(state, "available"),
     isLoading: stateMatches(state, ["subscribing", "loading"]),
-    hasErrors: stateMatches(state, "available.error"),
+    hasErrors: stateMatches(state, "error"),
     isValid: stateMatches(state, "available.valid"),
     isNew: true, // always true for new billing details
     isDirty: isDirty(
@@ -167,17 +167,14 @@ export const useUnified = (
         stateMatches(state, [
           "complete",
           "processed",
-          "available.error",
+          "error",
           "available.invalid"
         ]),
       { timeout: 60_000 }
     )
       .then(state => {
         const model = contextValue<UnifiedModel>(state, "model");
-        if (
-          !model ||
-          stateMatches(state, ["available.error", "available.invalid"])
-        )
+        if (!model || stateMatches(state, ["error", "available.invalid"]))
           throw state.context.error;
         return model;
       })

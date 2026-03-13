@@ -20,7 +20,7 @@ import {
 } from "../../utils";
 import { useTime, useValidationParser } from "../../utils";
 import { useSchema, useUischema } from "./schemas";
-import { isEqual, isEmpty, find, map, isNil, set } from "lodash-es";
+import { isEqual, isEmpty, find, map, isNil, set, includes } from "lodash-es";
 
 // --- types
 import type { AnyEventObject } from "xstate";
@@ -29,7 +29,8 @@ import { responseCodes } from "../../utils";
 import {
   PaymentType,
   GatewayContext as GatewayCtx,
-  type IBasket
+  type IBasket,
+  InvoiceStatus
 } from "@upmind-automation/types";
 import { mapPaymentData } from "./mappers";
 
@@ -56,7 +57,11 @@ export default createMachine(
       checking: {
         invoke: {
           src: "isAuthenticated",
-          onDone: { target: "loading" },
+          onDone: [
+            { target: "loading", cond: "isPayable" },
+            { target: "unavailable" }
+          ],
+
           onError: { target: "unavailable" }
         }
       },
@@ -125,7 +130,7 @@ export default createMachine(
 
           valid: {
             id: "valid",
-            always: [{ target: "processing", cond: "shouldUpdate" }],
+            always: [{ target: "#processing", cond: "shouldUpdate" }],
             on: {
               PAYMENT_DETAILS: [
                 {
@@ -149,28 +154,13 @@ export default createMachine(
                   cond: "hasPaymentDetails"
                 },
 
-                { target: "processing", cond: "hasBasket" }
+                { target: "#processing", cond: "hasBasket" }
               ]
             }
           },
 
           invalid: {
             id: "invalid"
-          },
-
-          processing: {
-            entry: ["forwardCheckout"],
-            on: {
-              CANCEL: {
-                target: "#invalid", // no need to set the error, it will be set by the gateway
-                actions: ["cancelPaymentDetails", "clearAutoUpdate"]
-              },
-              // ths is the response from the gateway
-              PAYMENT_DETAILS: {
-                target: "#complete",
-                actions: ["setPaymentDetails", "clearAutoUpdate"]
-              }
-            }
           }
         },
         on: {
@@ -204,6 +194,22 @@ export default createMachine(
               cond: "hasAmountChanged"
             }
           ]
+        }
+      },
+
+      processing: {
+        id: "processing",
+        entry: ["forwardCheckout"],
+        on: {
+          CANCEL: {
+            target: "#invalid", // no need to set the error, it will be set by the gateway
+            actions: ["cancelPaymentDetails", "clearAutoUpdate"]
+          },
+          // ths is the response from the gateway
+          PAYMENT_DETAILS: {
+            target: "#complete",
+            actions: ["setPaymentDetails", "clearAutoUpdate"]
+          }
         }
       },
 
@@ -251,12 +257,16 @@ export default createMachine(
 
       setLookups: assign({
         lookups: (
-          { model, raw }: PaymentDetailsContext,
+          { model, raw, orderStatus }: PaymentDetailsContext,
           { data }: AnyEventObject
         ) => {
           // NB: Filter out  gateways and payment details that are not valid base don our model
           const safePaymentTypes = filterPaymentTypes(raw.config, model);
-          const safeGateways = filterGateways(raw.gateways ?? [], model);
+          const safeGateways = filterGateways(
+            raw.gateways ?? [],
+            model,
+            orderStatus
+          );
           const safePaymentDetails = filterPaymentDetails(
             raw.storedPaymentMethods ?? [],
             safeGateways
@@ -268,6 +278,7 @@ export default createMachine(
             accountCredit: raw?.accountCredit,
             amountsFormatted: data?.amountsFormatted ?? {
               amount: "",
+              outstanding: "",
               wallet: ""
             }
           };
@@ -369,8 +380,8 @@ export default createMachine(
       refresh: assign({
         orderId: (_context: PaymentDetailsContext, { data }: AnyEventObject) =>
           data?.id,
-        client: (_context: PaymentDetailsContext, { data }: AnyEventObject) =>
-          data?.client,
+        client: ({ client }: PaymentDetailsContext, { data }: AnyEventObject) =>
+          data?.client ?? client,
         currency: (
           { currency }: PaymentDetailsContext,
           { data }: AnyEventObject
@@ -467,6 +478,20 @@ export default createMachine(
     },
 
     guards: {
+      isPayable: (
+        { orderStatus }: PaymentDetailsContext,
+        _event: AnyEventObject
+      ) =>
+        includes(
+          [
+            InvoiceStatus.DRAFT,
+            InvoiceStatus.ADJUSTED,
+            InvoiceStatus.UNPAID,
+            InvoiceStatus.OVERDUE
+          ],
+          orderStatus
+        ),
+
       hasBasket: ({ orderId }: PaymentDetailsContext, _event: AnyEventObject) =>
         !!orderId,
 

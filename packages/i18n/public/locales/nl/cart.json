@@ -19,6 +19,7 @@
   "basket_review_msg": "Controleer de volgende items voordat u doorgaat",
   "basket_section": "Overzicht winkelwagen",
   "basket_summary_desc": "Je hebt {count} artikel in uw winkelwagen, totaal {total}. | Je hebt {count} artikelen in uw winkelwagen, met een totaalbedrag {total}.",
+  "basket_summary_desc_free": "Je hebt {count} Artikel in je winkelmandje. | Je hebt {count} artikelen in je winkelmandje.",
   "basket_title": "Uw winkelmandje",
   "change_amount": "Bedrag wijzigen",
   "empty": "Je **winkelwagentje** is leeg",

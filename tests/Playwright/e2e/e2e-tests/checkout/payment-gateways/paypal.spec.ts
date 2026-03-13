@@ -1,11 +1,12 @@
 import { expect } from "@playwright/test";
-import { test } from "../../../support/fixtures/test";
+import { test } from "../../../support/fixtures/testContexts";
 import { URLs } from "../../../support/constants/urls";
 import { getClientToken } from "../../../support/utils/functions/tokens";
 import { Checkout } from "../../../support/page-objects/templates/Checkout";
 import { Logins } from "../../../support/constants/logins";
 import { payPalDetails } from "../../../support/secrets/paypal";
 import { goToCheckout } from "../../../support/utils/apiHelper";
+import { products } from "../../../support/constants/products";
 
 let checkout: Checkout;
 
@@ -20,7 +21,7 @@ test.describe("Checkout with PayPal", () => {
       Logins.checkoutUser.username,
       Logins.checkoutUser.password
     );
-    await goToCheckout(page, context, null, null);
+    await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
     await checkout.selectPaymentMethod("Pay-Pal Express");
     await checkout.clickPlaceOrderAndPay();
     await page.waitForURL(
@@ -33,6 +34,6 @@ test.describe("Checkout with PayPal", () => {
     await page.click("#btnLogin");
     await page.getByTestId("submit-button-initial").click();
     await page.waitForURL(`http://qa-automation.local:5173/order/**`);
-    await expect(page.getByRole("dialog")).toContainText("Order complete!");
+    await expect(page.getByText("Thank you for your order.")).toBeVisible();
   });
 });

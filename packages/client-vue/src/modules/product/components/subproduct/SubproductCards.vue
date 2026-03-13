@@ -1,109 +1,84 @@
 <template>
-  <FormField
+  <component
+    :is="as"
     :id="subproduct.id"
+    v-model="modelValue"
     :name="subproduct.id"
-    :class="styles.product.config.list.root"
     :required="subproduct.meta.required"
+    :items="parsedValues"
+    :groups="groups"
     :disabled="props.disabled"
-    :visible="props.visible"
-    :dirty="blurred"
-    :errors="props.errors"
-    :label="subproduct.title"
-    :tooltip="
-      ui.optionGroupDescription.isTooltip ? subproduct?.description : ''
-    "
-    :description="
-      ui.optionGroupDescription.isInline ? subproduct?.description : ''
-    "
-    @blur="blurred = true"
-    :optional-text="props.optionalText"
-    :required-text="props.requiredText"
-    :icon="ui.optionSelectorIcons.isVisible ? data.optionGroupIcon : ''"
+    :errors="errors"
+    :none-text="t('text.none')"
+    :placeholder="t('form.select_option.placeholder')"
+    :multiple="subproduct.meta.multiple"
+    :columns="gridColumns"
   >
-    <component
-      :is="as"
-      :id="subproduct.id"
-      v-model="modelValue"
-      :name="subproduct.id"
-      :required="subproduct.meta.required"
-      :items="parsedValues"
-      :groups="groups"
-      :disabled="props.disabled"
-      :errors="errors"
-      :none-text="t('text.none')"
-      :placeholder="t('form.select_option.placeholder')"
-      :multiple="subproduct.meta.multiple"
-      :columns="gridColumns"
-    >
-      <template v-if="hasGroups" #icon="{ group }">
-        <SubproductImage
-          v-if="group?.icon"
-          :src="group.icon"
-          :alt="group?.name"
-        />
-      </template>
-      <template v-if="hasGroups" #header-label="{ selectedItem }">
-        <div :class="styles.product.card.pricing">
-          <SubproductCardPricing
-            v-if="
-              selectedItem &&
-              getSubproductValue(selectedItem.value)?.price &&
-              !getSubproductValue(selectedItem.value)?.meta?.free
-            "
-            :price="getSubproductValue(selectedItem.value).price"
-            :meta="getSubproductValue(selectedItem.value).meta"
-            :cycle="getSubproductValue(selectedItem.value).cycle"
-            :term="props.term"
-          />
-        </div>
-      </template>
-      <template #item="{ item, group }: any">
-        <CardSubproduct
-          v-bind="getSubproductValue(getItemId(item))"
-          :image="group?.icon || getOptionImage(getItemId(item))"
-          :meta="meta"
+    <template v-if="hasGroups" #icon="{ group }">
+      <SubproductImage
+        v-if="group?.icon"
+        :src="group.icon"
+        :alt="group?.name"
+      />
+    </template>
+    <template v-if="hasGroups" #header-label="{ selectedItem }">
+      <div :class="styles.product.card.pricing">
+        <SubproductCardPricing
+          v-if="
+            selectedItem &&
+            getSubproductValue(selectedItem.value)?.price &&
+            !getSubproductValue(selectedItem.value)?.meta?.free
+          "
+          :price="getSubproductValue(selectedItem.value).price"
+          :meta="getSubproductValue(selectedItem.value).meta"
+          :cycle="getSubproductValue(selectedItem.value).cycle"
           :term="props.term"
-          :product-meta="getSubproductValue(getItemId(item)).meta"
-          @update:quantity="doUpdateQuantity(getItemId(item), $event)"
-          :minimal="mapComponentName !== 'SelectCards'"
         />
-      </template>
-      <template #dropdown-item="{ item }: any">
-        <CardSubproduct
-          v-bind="getSubproductValue(getItemId(item))"
-          :image="getOptionImage(getItemId(item))"
-          :term="props.term"
-          :meta="meta"
-          :product-meta="getSubproductValue(getItemId(item)).meta"
-          @update:quantity="doUpdateQuantity(getItemId(item), $event)"
-          minimal
-          dropdown
-        />
-      </template>
-    </component>
-  </FormField>
+      </div>
+    </template>
+    <template #item="{ item, group }: any">
+      <CardSubproduct
+        v-bind="getSubproductValue(getItemId(item))"
+        :image="group?.icon || getOptionImage(getItemId(item))"
+        :meta="meta"
+        :term="props.term"
+        :product-meta="getSubproductValue(getItemId(item)).meta"
+        @update:quantity="doUpdateQuantity(getItemId(item), $event)"
+        :minimal="mapComponentName !== 'SelectCards'"
+      />
+    </template>
+    <template #dropdown-item="{ item }: any">
+      <CardSubproduct
+        v-bind="getSubproductValue(getItemId(item))"
+        :image="getOptionImage(getItemId(item))"
+        :term="props.term"
+        :meta="meta"
+        :product-meta="getSubproductValue(getItemId(item)).meta"
+        @update:quantity="doUpdateQuantity(getItemId(item), $event)"
+        minimal
+        dropdown
+      />
+    </template>
+  </component>
 </template>
 
 <script lang="ts" setup>
 // --- external
-import { computed, ref } from "vue";
+import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-
-// --- internal
-import { useStyles } from "@upmind-automation/upmind-ui";
-import config from "../../product.config";
 
 // --- components
 import {
   RadioCards,
   CheckboxCards,
-  FormField,
   SelectCards,
-  SelectGrouped
+  SelectGrouped,
+  useStyles
 } from "@upmind-automation/upmind-ui";
 import CardSubproduct from "./SubproductCard.vue";
 import SubproductCardPricing from "./SubproductCardPricing.vue";
 import SubproductImage from "./SubproductImage.vue";
+import config from "../../product.config";
 
 // --- utils
 import { find, map, get, isArray, first, groupBy, some, size } from "lodash-es";
@@ -137,7 +112,7 @@ const props = defineProps<{
   requiredText?: string;
 }>();
 
-const { ui, data } = props.meta.with({
+const { ui } = props.meta.with({
   optionGroup: () => props.subproduct
 });
 
@@ -294,8 +269,6 @@ const gridColumns = computed(() => {
 
   return isRadioGrid && hasMultipleValues ? ui.optionSelectorGrid.asNumber : 1;
 });
-
-const blurred = ref(false);
 
 function doUpdateQuantity(value: any, quantity: number) {
   emit("update:quantity", value, quantity);

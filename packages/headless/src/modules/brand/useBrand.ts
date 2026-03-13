@@ -319,7 +319,7 @@ export const useBrand = () => {
     if (isEmpty(languages.value) || isEmpty(locale)) return false;
 
     const found = some(languages.value, ({ code }) => {
-      return code?.toLocaleLowerCase() === locale.toLocaleLowerCase();
+      return code?.toLocaleLowerCase() === locale?.toLocaleLowerCase();
     });
 
     return found;

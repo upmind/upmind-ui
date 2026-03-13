@@ -1,7 +1,9 @@
 // --- external
+import type { ActorRef } from "xstate";
 
 // --- internal
 import type {
+  IInvoice,
   IOrder,
   IPaymentAttempt,
   Methods
@@ -30,6 +32,10 @@ export interface PaymentArgs {
  */
 export interface PaymentContext extends PaymentArgs {
   /**
+   * Spawned auth subscription actor.
+   */
+  authHelper?: ActorRef<any>;
+  /**
    * Optional details for handling payment cancellation, e.g. for 3D Secure redirects.
    */
   cancel?: {
@@ -55,6 +61,8 @@ export interface PaymentContext extends PaymentArgs {
    * The {@link IPaymentAttempt} object representing the current status and details of the payment attempt.
    */
   payment?: IPaymentAttempt & {};
+
+  rawOrder?: IInvoice;
   /**
    * An error object if any issue occurred during the payment process.
    */

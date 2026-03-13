@@ -44,35 +44,50 @@
     />
   </Section>
 
-  <!-- Billing Details -->
-  <BillingDetails
-    id="basket-billing"
-    v-show="showCheckout && uischema.showBillingOnCheckout"
-    :touched="meta.showErrors"
-  />
+  <!-- Billing -->
+  <template v-if="showCheckout">
+    <BillingSummary
+      v-if="
+        props.billingRoute &&
+        !billingDetailsDisabled &&
+        ui.billingDetails.isReadonly
+      "
+      :billing-route="props.billingRoute"
+    />
+    <BillingForm v-else />
+  </template>
 
   <!-- Payment Details -->
-  <PaymentDetails v-show="showCheckout" data-testid="payment-details" />
+  <PaymentDetails
+    v-show="showCheckout"
+    data-testid="payment-details"
+    @resolve="checkout"
+  />
 </template>
 
 <script lang="ts" setup>
 // --- external
+import { computed, provide } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useBasket, useBasketFields } from "@upmind-automation/headless";
-import { useConfig } from "@upmind-automation/headless";
+import {
+  useBasket,
+  useBasketFields,
+  useBasketPaymentDetails
+} from "@upmind-automation/headless";
+import { useConfig, UIContext } from "@upmind-automation/headless";
 
 // --- components
 import Section from "../../../components/section/Section.vue";
-import BillingDetails from "../../billing/Billing.vue";
-import PaymentDetails from "./PaymentDetails.vue";
+import BillingForm from "../../billing/components/BillingForm.vue";
+import BillingSummary from "../../billing/components/BillingSummary.vue";
+import PaymentDetails from "../../payment/components/PaymentDetails.vue";
 import ProductCards from "../../basket-product/components/card/BasketProductCards.vue";
 import Form from "../../../components/form/Form.vue";
 import BasketErrors from "../../basket/components/BasketErrors.vue";
 
 // --- types
-import { UIContext } from "@upmind-automation/headless";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
 
 // -----------------------------------------------------------------------------
@@ -86,9 +101,18 @@ const props = defineProps<{
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
-const { meta, uischema } = useBasket();
+const { meta, uischema, checkout, errors } = useBasket();
 
 const { ui } = useConfig();
+
+const billingDetailsDisabled = computed(
+  () =>
+    useConfig({ context: UIContext.BILLING_DETAILS }).data
+      .billingDetailsDisabled
+);
+
+const paymentDetails = useBasketPaymentDetails();
+provide("usePaymentDetails", paymentDetails);
 
 const {
   errors: fieldsErrors,

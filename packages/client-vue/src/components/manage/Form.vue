@@ -33,9 +33,11 @@
         :no-actions="noActions"
         v-model:touched="touched"
       >
+        <template v-if="$slots.additional" #additional>
+          <slot name="additional" />
+        </template>
         <template #actions="{ doReject, doResolve, meta: formMeta }">
           <Actions
-            v-show="modal || meta.isDirty || (formMeta as any)?.isTouched"
             :disabled="meta.isProcessing"
             :processing="meta.isProcessing"
             :no-cancel="!modal"

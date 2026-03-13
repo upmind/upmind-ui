@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 import { URLs } from "../support/constants/urls";
 import { getSessionToken } from "../support/utils/functions/tokens";
 import {
-  getCurrentOrderId,
+  createOrder,
   addProductToOrder,
   addPromotionToOrder
 } from "../support/utils/functions/basket";
@@ -47,7 +47,8 @@ for (const { language, locale } of languages) {
       await page.waitForLoadState("load");
       await page.waitForLoadState("networkidle");
       token = await getSessionToken(context);
-      orderId = await getCurrentOrderId(token);
+      let order = await createOrder(token);
+      let orderId = order.id;
       await addProductToOrder(
         token,
         orderId,
@@ -57,7 +58,9 @@ for (const { language, locale } of languages) {
         [],
         [],
         { domain: "uitesting.com" },
-        []
+        [],
+        true,
+        false
       );
       await page.goto(URLs.basket);
       await page.waitForLoadState("load");
@@ -70,7 +73,8 @@ for (const { language, locale } of languages) {
       await page.waitForLoadState("load");
       await page.waitForLoadState("networkidle");
       token = await getSessionToken(context);
-      orderId = await getCurrentOrderId(token);
+      let order = await createOrder(token);
+      let orderId = order.id;
       await addProductToOrder(
         token,
         orderId,
@@ -80,7 +84,9 @@ for (const { language, locale } of languages) {
         [],
         [],
         { domain: "uitesting1.com" },
-        []
+        [],
+        true,
+        false
       );
       await addProductToOrder(
         token,
@@ -91,7 +97,9 @@ for (const { language, locale } of languages) {
         [],
         [],
         { domain: "uitesting2.com" },
-        []
+        [],
+        true,
+        false
       );
       await page.goto(URLs.basket);
       await page.waitForLoadState("load");
@@ -102,8 +110,8 @@ for (const { language, locale } of languages) {
       await page.goto(URLs.basket);
       await setLocale(page, locale);
       await page.waitForLoadState("networkidle");
-      token = await getSessionToken(context);
-      orderId = await getCurrentOrderId(token);
+      let order = await createOrder(token);
+      let orderId = order.id;
       await addProductToOrder(
         token,
         orderId,
@@ -113,7 +121,9 @@ for (const { language, locale } of languages) {
         [],
         [],
         { domain: "uitesting1.com" },
-        []
+        [],
+        true,
+        false
       );
       await addPromotionToOrder(orderId, "genericpromo", token);
       await page.reload();
