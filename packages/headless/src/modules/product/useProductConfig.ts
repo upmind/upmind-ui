@@ -105,7 +105,7 @@ export const useProductConfig = (service: ActorRef<any>) => {
   const validationErrors = useContext<Product["errors"]>(state, "error.data");
   const additionalErrors = useContext<Product["errors"]>(
     state,
-    "errorExternal"
+    "errorExternal.data"
   );
   const externalErrors = useContext<ResponseError>(state, "errorExternal");
 
@@ -127,7 +127,7 @@ export const useProductConfig = (service: ActorRef<any>) => {
     ),
     isTouched: touched.value,
     showErrors:
-      contextMatches(state, "errorExternal") ||
+      isArray(contextValue(state, "errorExternal")) ||
       (contextMatches(state, ["error"]) && contextMatches(state, ["attempts"])),
 
     hasErrors:
