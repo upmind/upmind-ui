@@ -10,7 +10,7 @@
     {{ t("term.renews_usually_msg", { price: props.regularPrice }) }}.
   </template>
 
-  <template v-if="props.freeTrial && props.renewalPrice">
+  <template v-else-if="props.freeTrial && props.renewalPrice">
     {{ t("term.renews_usually_msg", { price: props.renewalPrice }) }}.
   </template>
 </template>

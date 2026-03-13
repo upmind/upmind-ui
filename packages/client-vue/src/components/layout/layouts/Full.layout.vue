@@ -1,5 +1,5 @@
 <template>
-  <Root :overflow="overflow">
+  <Root>
     <Ribbon v-if="meta.hasContentHeader" as="header">
       <Container>
         <Column :class="meta.hasTabs ? 'pb-0 lg:pb-0' : ''">
@@ -107,7 +107,6 @@ const slots = useSlots();
 
 const meta = computed(() => ({
   variant: "full",
-  overflow: props.overflow,
   hasContentHeader: !isEmptySlot("content-header", slots),
   hasContent: !isEmptySlot("default", slots) || !isEmptySlot("content", slots),
   hasFooter: !isEmptySlot("footer", slots),

@@ -3,7 +3,6 @@ import type { CxOptions } from "class-variance-authority";
 export interface LayoutProps {
   variant?: LAYOUT_VARIANTS;
   minimal?: boolean;
-  overflow?: "hidden" | "visible";
   class?: string;
 }
 export interface VariantProps extends LayoutProps {
