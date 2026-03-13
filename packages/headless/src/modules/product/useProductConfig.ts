@@ -11,7 +11,8 @@ import {
   DEBOUNCE_DELAY,
   contextValue,
   useImageUrl,
-  useContext
+  useContext,
+  type ResponseError
 } from "../../utils";
 
 // --- utils
@@ -99,13 +100,14 @@ export const useProductConfig = (service: ActorRef<any>) => {
   const uischema = useContext<UISchemaElement>(state, "uischema");
 
   // ---
-  const errors = useContext<Product["errors"]>(state, "error.message");
+  const errors = useContext<Product["errors"]>(state, "error");
 
   const validationErrors = useContext<Product["errors"]>(state, "error.data");
   const additionalErrors = useContext<Product["errors"]>(
     state,
     "errorExternal"
   );
+  const externalErrors = useContext<ResponseError>(state, "errorExternal");
 
   const shareUrl = computed(() => {
     const baseUrl = `${window.location.origin}/order/product/${productDetails.value?.id}`;
@@ -360,6 +362,7 @@ export const useProductConfig = (service: ActorRef<any>) => {
     errors,
     validationErrors,
     additionalErrors,
+    externalErrors,
     meta,
     // ---
     lookups,
