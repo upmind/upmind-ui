@@ -7,8 +7,7 @@ import {
   defaults,
   add,
   isEmpty,
-  get,
-  omit
+  get
 } from "lodash-es";
 
 // --- types
@@ -26,10 +25,7 @@ import type {
   IPaymentDetail,
   SelectPaymentMethodData,
   StoredCardData,
-  GatewayCardData,
   GatewayData,
-  GatewayExternalCardData,
-  GatewayMobileData,
   IWalletBalance,
   ICurrency,
   IWalletCurrencyBalance
@@ -191,19 +187,20 @@ export function mapPaymentData({
       // Type 1: CARD (SDK/REDIRECT) GATEWAYS
       case GatewayProviderCodes.BRAINTREE:
       case GatewayProviderCodes.COIN_GATE:
+      case GatewayProviderCodes.D_LOCAL_CARD:
       case GatewayProviderCodes.FLUTTERWAVE:
       case GatewayProviderCodes.MICROPAYMENT:
       case GatewayProviderCodes.OPENPAY:
+      case GatewayProviderCodes.PAY_FAST:
+      case GatewayProviderCodes.PAY_U:
       case GatewayProviderCodes.PAYPAL_BILLING_AGREEMENT:
       case GatewayProviderCodes.PAYPAL_EXPRESS:
       case GatewayProviderCodes.PAYPAL_PRO:
       case GatewayProviderCodes.PAYSAFECARD:
       case GatewayProviderCodes.PAYSTACK:
-      case GatewayProviderCodes.PAY_FAST:
-      case GatewayProviderCodes.PAY_U:
       case GatewayProviderCodes.PESA_PAL:
-      case GatewayProviderCodes.RAZOR_PAY:
       case GatewayProviderCodes.RAZOR_PAY_CHECKOUT:
+      case GatewayProviderCodes.RAZOR_PAY:
       case GatewayProviderCodes.STRIPE:
       case GatewayProviderCodes.WORLD_PAY_JSON:
         return defaults(

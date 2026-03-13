@@ -450,6 +450,14 @@ export const usePaymentDetail = (
     actor.value?.send({ type: "CLEAR" });
   }
 
+  function renderChallenge(container: HTMLElement) {
+    actor.value?.send({ type: "RENDER", data: { container } });
+  }
+
+  function cancelChallenge() {
+    actor.value?.send({ type: "CHALLENGE_CANCELLED" });
+  }
+
   function useStoredPayment(model: PaymentDetailModel) {
     actor.value?.send({ type: "PAYMENT_DETAILS", data: model });
   }
@@ -609,7 +617,19 @@ export const usePaymentDetail = (
      * @returns {void} Does not return anything.
      */
     //
-    useStoredPayment
+    useStoredPayment,
+
+    /**
+     * Renders the payment challenge into the specified container.
+     * @param {HTMLElement} container The HTML element to render the challenge into.
+     */
+    render: renderChallenge,
+
+    /**
+     * Cancels the payment challenge.
+     * @returns {void} Does not return anything.
+     */
+    cancelChallenge
   };
 };
 
