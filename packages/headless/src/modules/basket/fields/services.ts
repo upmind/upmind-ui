@@ -9,6 +9,7 @@ import { mapCustomField } from "../../client/customFields/mappers";
 import {
   DetailedError,
   ErrorOrigin,
+  isModelShape,
   responseCodes,
   useModelParser,
   useTime,
@@ -47,7 +48,14 @@ async function parse(
   { model, schema }: FieldsContext,
   { data }: AnyEventObject
 ) {
-  const safeData = get(data, "model", data);
+  const fieldsKeys: (keyof FieldsModel)[] = ["notes", "customFields"];
+
+  const safeData = isModelShape<FieldsModel>(data, fieldsKeys)
+    ? data
+    : isModelShape<FieldsModel>(get(data, "model"), fieldsKeys)
+      ? get(data, "model")
+      : undefined; // it's a basket or unknown shape — fall back to context.model
+
   const safeModel = useModelParser<FieldsModel>(schema, safeData ?? model);
   return Promise.resolve({ model: safeModel });
 }
