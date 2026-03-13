@@ -3,6 +3,7 @@ import {
   isObject,
   isArray,
   isNil,
+  isString,
   reduce,
   isObjectLike,
   compact,
@@ -84,7 +85,10 @@ export function compactDeep(
       rawValue,
       (acc: Record<string, any>, val, key: string) => {
         const cleanedValue = compactDeep(val, seen, `${path}.${key}`);
-        if (!isNil(cleanedValue)) {
+        if (
+          !isNil(cleanedValue) &&
+          !(isString(cleanedValue) && isEmpty(cleanedValue))
+        ) {
           // Check if the object itself is empty, even if it has properties
           if (!isEmpty(cleanedValue) || !isObjectLike(cleanedValue)) {
             acc[key] = cleanedValue;
@@ -101,7 +105,7 @@ export function compactDeep(
       )
     );
   } else {
-    cleaned = rawValue;
+    cleaned = isString(rawValue) && isEmpty(rawValue) ? undefined : rawValue;
   }
 
   // console.debug("compactDeep", value, "cleaned", cleaned);
