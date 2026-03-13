@@ -15,16 +15,23 @@
           @form-resolve="onFormResolve"
         />
 
-        <Button
-          v-if="!autoUpdate && formMeta.allowContinue"
-          :label="t('action.continue_label')"
-          icon-append="arrow-right"
-          color="primary"
-          size="lg"
-          block
-          :disabled="meta.isProcessing"
-          @click="doContinue"
-        />
+        <Transition
+          appear
+          enter-active-class="transition-opacity duration-250 delay-500 ease-in"
+          enter-from-class="opacity-0"
+          enter-to-class="opacity-100"
+        >
+          <Button
+            v-if="!autoUpdate && formMeta.allowContinue"
+            :label="t('action.continue_label')"
+            icon-append="arrow-right"
+            color="primary"
+            size="lg"
+            block
+            :disabled="meta.isProcessing"
+            @click="doContinue"
+          />
+        </Transition>
       </template>
 
       <template v-slot:[`section-business`]>
@@ -35,16 +42,23 @@
           @form-resolve="onFormResolve"
         />
 
-        <Button
-          v-if="!autoUpdate && formMeta.allowContinue"
-          :label="t('action.continue_label')"
-          icon-append="arrow-right"
-          color="primary"
-          size="lg"
-          block
-          :disabled="meta.isProcessing"
-          @click="doContinue"
-        />
+        <Transition
+          appear
+          enter-active-class="transition-opacity duration-250 delay-500 ease-in"
+          enter-from-class="opacity-0"
+          enter-to-class="opacity-100"
+        >
+          <Button
+            v-if="!autoUpdate && formMeta.allowContinue"
+            :label="t('action.continue_label')"
+            icon-append="arrow-right"
+            color="primary"
+            size="lg"
+            block
+            :disabled="meta.isProcessing"
+            @click="doContinue"
+          />
+        </Transition>
       </template>
     </Sections>
   </Loading>
