@@ -2,7 +2,7 @@
   <Loading :active="meta.isProcessing" class-active="w-full rounded">
     <Sections
       id="basket-billing"
-      class="min-h-32"
+      class="min-h-32 max-w-3xl"
       v-model="activeTab"
       :sections="tabs"
       data-testid="billing"
