@@ -461,9 +461,16 @@ export const useModelParser = <
     }
 
     // NB ensure we always cast booleans correctly, we dont want null or undefined for booleans
-    if (field?.type === "boolean" || includes(field?.type, "boolean")) {
+    if (includes(["boolean"], field?.type)) {
       return field?.const ?? get(values, key, field?.default) ?? false;
     }
+
+    // NB ensure we sanitize NaN for number/integer fields - empty string parsed as a number produces NaN
+    if (includes(["number", "integer"], field?.type)) {
+      const raw = field?.const ?? get(values, key, field?.default);
+      return (isFinite(raw) ? raw : field?.default) ?? null;
+    }
+
     return field?.const ?? get(values, key, field?.default) ?? null;
   }
 

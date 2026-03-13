@@ -141,7 +141,7 @@ export default createMachine(
       },
       SET: {
         target: "checking",
-        actions: ["setModel", "setAutoUpdate"]
+        actions: ["setAutoUpdate"]
       },
 
       UNAUTHENTICATED: {
@@ -161,7 +161,8 @@ export default createMachine(
         (_context: FieldsContext, { data }: AnyEventObject) => {
           return {
             basketId: data?.id,
-            model: parseBasketFieldsModel(data)
+            model: parseBasketFieldsModel(data),
+            error: data?.error
           };
         }
       ),
@@ -178,13 +179,6 @@ export default createMachine(
       clearSchemas: assign({
         schema: undefined,
         uischema: undefined
-      }),
-
-      setModel: assign({
-        model: ({ schema, model }: FieldsContext, { data }: AnyEventObject) => {
-          if (!schema) return data ?? model;
-          return useModelParser<FieldsModel>(schema, data ?? model);
-        }
       }),
 
       clearModel: assign({
