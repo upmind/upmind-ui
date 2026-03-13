@@ -161,7 +161,8 @@ export default createMachine(
         (_context: FieldsContext, { data }: AnyEventObject) => {
           return {
             basketId: data?.id,
-            model: parseBasketFieldsModel(data)
+            model: parseBasketFieldsModel(data),
+            error: data?.error
           };
         }
       ),
