@@ -181,9 +181,9 @@ async function loadLookups(
     url: useUrl(`clients/${client.id}/payment_details`, {
       limit: 0,
       brand_id: unref(brandId),
+      country_id: address?.country_id,
+      currency_code: currency.code,
       active: true,
-      "filter[gateway.currencies.id]": currencyId,
-      // "filter[gateway.active]": 1,
       order: ["-default", "id"].join(),
       with: ["gateway", "client"].join()
     }),
@@ -194,7 +194,7 @@ async function loadLookups(
         brandId: unref(brandId),
         clientId: client.id,
         currencyId,
-        addressId: address?.country_id
+        countryId: address?.country_id
       }
     ],
     withAccessToken: true,
@@ -207,21 +207,22 @@ async function loadLookups(
       limit: 0,
       client_id: client.id,
       invoice_id: orderId,
+      country_id: address?.country_id,
+      currency_code: currency.code,
       order: "order",
-      "filter[gateway.currencies.id]": currencyId,
-      "filter[active]": 1,
+      active: true,
+      // "filter[active]": 1,
       with: ["gateway.gateway_provider", "gateway.card_types"].join()
     }),
     queryKey: [
       "payment-details",
       "gateways",
       {
+        orderId,
         brandId: unref(brandId),
-        invoice_id: orderId,
         clientId: client.id,
         currencyId,
-        invoiceId: orderId,
-        addressId: address?.country_id
+        countryId: address?.country_id
       }
     ],
     withAccessToken: true
@@ -532,7 +533,7 @@ async function validate(
 }
 
 async function calculate(
-  { currency }: PaymentDetailsContext,
+  { currency, lookups }: PaymentDetailsContext,
   { data }: AnyEventObject
 ) {
   const { post, useUrl } = useQuery();

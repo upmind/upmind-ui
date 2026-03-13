@@ -12,8 +12,6 @@ import type {
   IGateway,
   IOrder,
   IPaymentDetail,
-  IWalletBalance,
-  IWalletCurrencyBalance,
   PaymentType,
   SelectPaymentMethodData
 } from "@upmind-automation/types";

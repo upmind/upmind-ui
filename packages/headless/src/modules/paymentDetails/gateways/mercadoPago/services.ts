@@ -1,3 +1,4 @@
+/// <reference types="@types/mercadopago-sdk-js" />
 // --- external
 
 // --- internal
@@ -129,7 +130,7 @@ async function render(
             onSubmit: () => {
               return Promise.resolve(); // Do nothing as we handle submit separately
             },
-            onError: error => {
+            onError: (error: bricks.BrickError) => {
               reject(error);
             }
           }
@@ -162,22 +163,24 @@ async function pay({ gateway, sdk }: MercadoPagoContext) {
       ErrorOrigin.Headless
     );
 
-  return sdk.mercadoPagoController?.getFormData().then(cardFormData => {
-    if (!cardFormData)
-      throw new DetailedError(
-        t("error.payment_gateway_validation_failed"),
-        responseCodes.Not_Found,
-        ErrorOrigin.Headless
-      );
+  return sdk.mercadoPagoController
+    ?.getFormData()
+    .then((cardFormData: bricks.FormData<"cardPayment"> | undefined) => {
+      if (!cardFormData)
+        throw new DetailedError(
+          t("error.payment_gateway_validation_failed"),
+          responseCodes.Not_Found,
+          ErrorOrigin.Headless
+        );
 
-    return {
-      gateway_id: gateway?.id,
-      payment_method_addition: {
-        payment_method_id: cardFormData.payment_method_id,
-        token: cardFormData.token
-      }
-    };
-  });
+      return {
+        gateway_id: gateway?.id,
+        payment_method_addition: {
+          payment_method_id: cardFormData.payment_method_id,
+          token: cardFormData.token
+        }
+      };
+    });
 }
 
 // -----------------------------------------------------------------------------
