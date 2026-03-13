@@ -24,6 +24,7 @@ import {
   compact,
   filter,
   get,
+  isArray,
   isEmpty,
   isEqual,
   map,
@@ -518,7 +519,7 @@ export default createMachine(
         ) => {
           // Change in Logic...if we have interacted with the product,
           // we can clear any external errors for fields that have changed.
-          if (!errorExternal) return undefined;
+          if (!isArray(errorExternal)) return errorExternal;
 
           const newModel = data?.model ?? data;
           const remaining = filter(errorExternal, error => {
@@ -676,9 +677,7 @@ export default createMachine(
         errorExternal: (
           _context: ProductConfigContext,
           { data }: AnyEventObject
-        ) => mapToHeadlessError(data)?.data, // NB we only need the exact errors from the api
-        error: (_context: ProductConfigContext, { data }: AnyEventObject) =>
-          mapToHeadlessError(data)
+        ) => mapToHeadlessError(data) // NB we only need the exact errors from the api
       }),
 
       setError: assign({

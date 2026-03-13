@@ -382,6 +382,7 @@ export default createMachine(
               "setError",
               "incrementAttempts",
               "restartActors",
+              "refreshActors",
               "setWarningNotes"
             ]
           }
@@ -609,7 +610,7 @@ export default createMachine(
       },
 
       restartActors: assign({
-        actors: ({ actors, basket }: BasketContext) => {
+        actors: ({ actors, basket, error }: BasketContext) => {
           // safety check - if we have no actors, then spawn them all
           const activeActors: BasketContext["actors"] = {
             currency:
@@ -618,7 +619,7 @@ export default createMachine(
                 : actors.currency,
             customFields:
               !actors?.customFields || isStoppedService(actors.customFields)
-                ? spawnCustomFields(basket)
+                ? spawnCustomFields(basket, error)
                 : actors.customFields,
             promotions:
               !actors?.promotions || isStoppedService(actors.promotions)
@@ -639,10 +640,11 @@ export default createMachine(
       }),
 
       refreshActors: assign({
-        actors: ({ actors, basket }: BasketContext) => {
+        actors: ({ actors, basket, error }: BasketContext) => {
           //Refresh any existing actors with the new basket data
           forEach(actors, actor => {
-            if (actor?.send) actor.send({ type: "REFRESH", data: basket });
+            if (actor?.send)
+              actor.send({ type: "REFRESH", data: { ...basket, error } });
           });
 
           // And then check/ensure we have spawned any missing actors
