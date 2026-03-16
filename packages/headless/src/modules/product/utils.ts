@@ -28,9 +28,6 @@ import {
   isEmpty,
   isFunction,
   isNil,
-  isNumber,
-  isString,
-  keys,
   map,
   maxBy,
   merge,
@@ -404,10 +401,9 @@ export function parseSubproducts(
   subproducts = reduce(
     lookups[type],
     (result, subproduct: SubproductDetails) => {
-      let selected: Record<string, SubproductModelValue> = get(
+      let selected: Record<string, SubproductModelValue> | undefined = get(
         values,
-        subproduct.id,
-        {}
+        subproduct.id
       );
 
       // try set anymatching pre-selected values for this subproduct ( subproductIds ),
@@ -415,6 +411,7 @@ export function parseSubproducts(
       if (isEmpty(values)) {
         forEach(subproductIds, pid => {
           if (some(subproduct.values, ["id", pid])) {
+            selected ??= {};
             set(selected, pid, { productId: pid });
           }
         });
@@ -480,7 +477,7 @@ export function parseSubproducts(
         );
       }
 
-      // ---
+      // --- only store non-empty selections; absent keys get defaults via AJV
       set(result, subproduct.id, selected);
 
       return result;
