@@ -1,5 +1,5 @@
 // --- external
-import { first, forEach, isEmpty, keys, map, size } from "lodash-es";
+import { find, first, forEach, isEmpty, keys, map, size } from "lodash-es";
 
 // --- internal
 import { useI18n } from "../system";
@@ -163,6 +163,7 @@ function buildTrialSchema(product: ProductDetails): Record<string, any> {
   return {
     type: "boolean",
     title: "Start trail",
+    default: true,
     readOnly: product.trialForce,
     const: product.trialForce || undefined
   };
@@ -243,21 +244,23 @@ function buildSubproductGroupSchema(
     };
 
     // --- selection constraints
-    if (isRequired) {
-      schema.minProperties = 1;
-    }
+    if (isRequired) schema.minProperties = 1;
 
-    if (!subproduct.meta.multiple) {
-      schema.maxProperties = 1;
-    }
+    if (!subproduct.meta.multiple) schema.maxProperties = 1;
 
-    // Auto-select default when required and only one choice is available
-    if (isRequired && hasSingleValue) {
-      const singleValue = first(subproduct.values)!;
+    // --- auto-select default value
+    // Priority: (1) value flagged as default, (2) required + not multiple → first
+    const defaultValue =
+      find(subproduct.values, "meta.default") ??
+      (isRequired && !subproduct.meta.multiple
+        ? first(subproduct.values)
+        : undefined);
+
+    if (defaultValue) {
       schema.default = {
-        [singleValue.id]: {
-          productId: singleValue.id,
-          quantity: singleValue.quantity
+        [defaultValue.id]: {
+          productId: defaultValue.id,
+          quantity: defaultValue.quantity
         }
       };
     }
