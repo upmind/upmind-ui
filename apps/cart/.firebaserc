@@ -1,6 +1,7 @@
 {
   "projects": {
-    "default": "upmind-labs"
+    "default": "upmind-labs",
+    "upmind-cart": "upmind-cart"
   },
   "targets": {
     "upmind-labs": {
@@ -10,11 +11,14 @@
         ],
         "hosting": [
           "hosting-checkout-dev"
-        ],
+        ]
+      }
+    },
+    "upmind-cart": {
+      "hosting": {
         "upmind-cart": [
           "upmind-cart-5ec8d"
         ],
-
         "upmind-cart-staging": [
           "upmind-cart-staging-745b9"
         ]
