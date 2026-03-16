@@ -59,6 +59,7 @@ workflow:
 dependencies:
   extends: .pnpm
   stage: dependencies
+  interruptible: true
 
   cache:
     - key:
@@ -75,6 +76,8 @@ dependencies:
         - apps/hosting/node_modules
         - packages/headless/node_modules
         - packages/client-vue/node_modules
+        - packages/icons/node_modules
+        - packages/i18n/node_modules
         - docs/node_modules
 
   artifacts:
@@ -93,6 +96,7 @@ dependencies:
       - packages/headless/node_modules
       - packages/client-vue/node_modules
       - docs/node_modules
+
       - packages/types
       - packages/ui
   script:
@@ -130,7 +134,6 @@ dependencies:
       chmod 600 ~/.ssh/id*
 
     - git config --global --add safe.directory '*'
-    - pnpm clean
     - git submodule update --init --recursive
     - pnpm install
     - pnpm --filter types install
