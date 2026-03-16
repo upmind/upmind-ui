@@ -401,12 +401,13 @@ export function parseSubproducts(
   subproducts = reduce(
     lookups[type],
     (result, subproduct: SubproductDetails) => {
+      // NB dont create an empty object here as it will break defautls being applied. only init the object when needed for an actual value
       let selected: Record<string, SubproductModelValue> | undefined = get(
         values,
         subproduct.id
       );
 
-      // try set anymatching pre-selected values for this subproduct ( subproductIds ),
+      // try set any matching pre-selected values for this subproduct ( subproductIds ),
       // NB: ONLY when values is being set for the first time
       if (isEmpty(values)) {
         forEach(subproductIds, pid => {
