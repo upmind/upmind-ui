@@ -474,12 +474,6 @@ export const useModelParser = <
       return (isFinite(raw) ? raw : field?.default) ?? null;
     }
 
-    // For object types, treat empty objects as "no value" so defaults can apply
-    const current = get(values, key);
-    if (isObject(current) && isEmpty(current) && field?.default) {
-      return field.default;
-    }
-
     return field?.const ?? get(values, key, field?.default) ?? null;
   }
 
