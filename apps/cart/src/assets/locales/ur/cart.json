@@ -38,7 +38,6 @@
   "pay_with_stored": "موجودہ طریقہ سے ادائیگی کریں",
   "payment_amount": "ادائیگی کی رقم",
   "payment_amount_msg": "آپ کے آرڈر کی کل رقم {amount} ہے۔ وہ رقم درج کریں جو آپ ابھی ادا کرنا چاہتے ہیں۔ باقی رقم آپ کے آرڈر کے فعال ہونے سے پہلے ادا کرنی ہوگی۔",
-  "payment_amount_reset": "{amount} کا بقایا ادا کریں",
   "payment_awaiting_approval": "**منظوری کا انتظار**",
   "payment_awaiting_approval_md": "@.markdown:{'cart.payment_awaiting_approval'}",
   "payment_awaiting_approval_msg": "ہم منظوری کا انتظار کر رہے ہیں۔ اس میں صرف ایک لمحہ لگنا چاہئے۔",

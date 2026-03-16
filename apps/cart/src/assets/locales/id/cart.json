@@ -38,7 +38,6 @@
   "pay_with_stored": "Bayar dengan metode yang sudah ada",
   "payment_amount": "Jumlah pembayaran",
   "payment_amount_msg": "Total pesanan Anda adalah {amount}. Masukkan jumlah yang ingin Anda bayar sekarang. Sisa saldo harus dibayar sebelum pesanan Anda diaktifkan.",
-  "payment_amount_reset": "Bayar sisa tagihan {amount}",
   "payment_awaiting_approval": "**Menunggu** persetujuan",
   "payment_awaiting_approval_md": "@.markdown:{'cart.payment_awaiting_approval'}",
   "payment_awaiting_approval_msg": "Kami sedang menunggu persetujuan. Proses ini hanya akan memakan waktu beberapa saat.",

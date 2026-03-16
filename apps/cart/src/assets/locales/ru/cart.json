@@ -38,7 +38,6 @@
   "pay_with_stored": "Оплатить существующим методом",
   "payment_amount": "Сумма платежа",
   "payment_amount_msg": "Итоговая сумма вашего заказа составляет {amount}. Введите сумму, которую вы хотите оплатить сейчас. Оставшаяся часть должна быть оплачена до активации вашего заказа.",
-  "payment_amount_reset": "Оплатить задолженность на сумму {amount}",
   "payment_awaiting_approval": "**Ожидаем** одобрения",
   "payment_awaiting_approval_md": "@.markdown:{'cart.payment_awaiting_approval'}",
   "payment_awaiting_approval_msg": "Мы ждём одобрения. Это займёт всего минуту.",

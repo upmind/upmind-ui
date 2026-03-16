@@ -1,10 +1,8 @@
 {
-  "order_complete": "訂單已**完成**，感謝您的訂購！",
-  "order_complete_msg": "您的結帳已完成。\n我們已寄出包含訂單明細的確認電子郵件，您很快就會收到，信中也包含本次購買的相關資訊。",
+  "order_complete": "訂單完成！",
+  "order_complete_msg": "我們已向您發送一封電子郵件，其中包含您購買所需的所有資訊。",
   "order_free": "無需再支付任何費用",
   "order_free_msg": "您的訂單已成功提交。無需付款。",
-  "order_locked": "發票已鎖定",
-  "order_locked_msg": "此發票已鎖定，通常是因為扣款正在進行中。鎖定可避免同一張發票被重複扣款。",
   "order_not_found": "訂單未找到！",
   "order_not_found_msg": "很遺憾，我們未能找到您的訂單。請點擊下方按鈕查看您的訂單。",
   "order_partial_payment": "感謝您的付款",
@@ -21,7 +19,6 @@
   "payment_retry": "此訂單的款項仍須全額支付",
   "payment_retry_action": "嘗試新付款方式",
   "payment_retry_msg": "很遺憾，您之前的付款嘗試未能成功——這可能是由於多種原因所致。請嘗試使用其他付款方式再次操作。",
-  "payment_success_banner": "此筆訂單款項已收到 {date}。",
   "product_information": "產品資訊",
   "your_order": "您的訂單"
 }

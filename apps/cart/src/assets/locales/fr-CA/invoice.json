@@ -1,10 +1,8 @@
 {
-  "order_complete": "Merci pour votre commande ! Elle est **confirmée** !",
-  "order_complete_msg": "Nous venons de vous envoyer un courriel de confirmation contenant les détails de votre commande, ainsi que tout ce que vous devez savoir au sujet de votre achat.",
+  "order_complete": "Commande terminée !",
+  "order_complete_msg": "Nous vous avons envoyé un e-mail contenant toutes les informations nécessaires concernant votre achat.",
   "order_free": "Plus rien à payer",
   "order_free_msg": "Votre commande a été enregistrée avec succès. Aucun paiement n'est requis.",
-  "order_locked": "Facture bloquée",
-  "order_locked_msg": "Cette facture est bloquée, généralement parce qu’une tentative de paiement est en cours. Le blocage empêche que la facture soit débitée deux fois.",
   "order_not_found": "Commande introuvable !",
   "order_not_found_msg": "Malheureusement, nous n'avons pas pu trouver votre commande. Veuillez cliquer sur le bouton ci-dessous pour afficher vos commandes.",
   "order_partial_payment": "Merci pour votre paiement.",
@@ -21,7 +19,6 @@
   "payment_retry": "Le paiement de cette commande reste dû dans son intégralité.",
   "payment_retry_action": "Essayer un nouveau mode de paiement",
   "payment_retry_msg": "Malheureusement, votre précédente tentative de paiement n'a pas abouti. Cela peut être dû à plusieurs raisons. Veuillez réessayer en utilisant un autre moyen de paiement.",
-  "payment_success_banner": "Le paiement de cette commande a été reçu {date}.",
   "product_information": "Informations sur le produit",
   "your_order": "Votre commande"
 }

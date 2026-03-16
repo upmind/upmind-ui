@@ -38,7 +38,6 @@
   "pay_with_stored": "Сплатити існуючим методом",
   "payment_amount": "Сума платежу",
   "payment_amount_msg": "Загальна сума вашого замовлення становить {amount}. Введіть суму, яку ви хочете сплатити зараз. Залишок має бути сплачено до активації вашого замовлення.",
-  "payment_amount_reset": "Сплатіть заборгованість {amount}",
   "payment_awaiting_approval": "**Очікування** на схвалення",
   "payment_awaiting_approval_md": "@.markdown:{'cart.payment_awaiting_approval'}",
   "payment_awaiting_approval_msg": "Ми чекаємо на схвалення. Це займе лише хвилинку.",

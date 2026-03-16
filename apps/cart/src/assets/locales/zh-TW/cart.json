@@ -38,7 +38,6 @@
   "pay_with_stored": "使用現有的付款方式",
   "payment_amount": "付款金額",
   "payment_amount_msg": "您的訂單總金額是{amount}。請輸入您現在想支付的金額。剩餘餘額必須在您的訂單啟用前支付。",
-  "payment_amount_reset": "支付未付金額 {amount}",
   "payment_awaiting_approval": "**等待**批准",
   "payment_awaiting_approval_md": "@.markdown：{'cart.payment_awaiting_approval'}",
   "payment_awaiting_approval_msg": "我們正在等待批准。這應該只需要一點時間。",
