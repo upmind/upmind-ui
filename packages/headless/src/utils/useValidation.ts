@@ -448,7 +448,10 @@ export const useModelParser = <
    * @returns
    */
   function safeValue(field: JsonSchema, values: any, key: string): any {
-    if (field?.type === "object" || field?.properties) {
+    // Only recurse into objects with explicit named properties
+    // NB: schemas using additionalProperties (e.g. subproduct categories)
+    // should fall through to default handling below
+    if (!isEmpty(field?.properties)) {
       return reduce(
         field.properties,
         (result, subField, subKey) => {
@@ -469,6 +472,12 @@ export const useModelParser = <
     if (includes(["number", "integer"], field?.type)) {
       const raw = field?.const ?? get(values, key, field?.default);
       return (isFinite(raw) ? raw : field?.default) ?? null;
+    }
+
+    // For object types, treat empty objects as "no value" so defaults can apply
+    const current = get(values, key);
+    if (isObject(current) && isEmpty(current) && field?.default) {
+      return field.default;
     }
 
     return field?.const ?? get(values, key, field?.default) ?? null;
