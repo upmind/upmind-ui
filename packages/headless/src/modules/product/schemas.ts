@@ -249,14 +249,23 @@ function buildSubproductGroupSchema(
     if (!subproduct.meta.multiple) schema.maxProperties = 1;
 
     // --- auto-select default value
-    // Priority: (1) value flagged as default, (2) required + not multiple → first
+    // Priority: (1) value flagged as default, (2) required + single-select → first
     const defaultValue =
       find(subproduct.values, "meta.default") ??
       (isRequired && !subproduct.meta.multiple
         ? first(subproduct.values)
         : undefined);
 
-    if (defaultValue) {
+    // Required + single value = const (cannot be deselected)
+    if (isRequired && hasSingleValue) {
+      const value = defaultValue ?? first(subproduct.values)!;
+      schema.const = {
+        [value.id]: {
+          productId: value.id,
+          quantity: value.quantity
+        }
+      };
+    } else if (defaultValue) {
       schema.default = {
         [defaultValue.id]: {
           productId: defaultValue.id,
