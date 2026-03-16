@@ -38,7 +38,6 @@
   "pay_with_stored": "Mit einer bestehenden Methode bezahlen",
   "payment_amount": "Zahlungsbetrag",
   "payment_amount_msg": "Ihr Gesamtbestellwert beträgt {amount}. Geben Sie den Betrag ein, den Sie jetzt zahlen möchten. Der verbleibende Restbetrag muss vor der Aktivierung Ihrer Bestellung bezahlt werden.",
-  "payment_amount_reset": "Zahle den offenen Betrag von {amount}",
   "payment_awaiting_approval": "**Warten** auf Genehmigung",
   "payment_awaiting_approval_md": "@.markdown:{'cart.payment_awaiting_approval'}",
   "payment_awaiting_approval_msg": "Wir warten auf die Genehmigung. Dies sollte nur einen Moment dauern.",

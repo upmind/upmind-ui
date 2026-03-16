@@ -1,10 +1,8 @@
 {
-  "order_complete": "Ordine **completato**! Grazie per il tuo ordine.",
-  "order_complete_msg": "Ti abbiamo inviato un’email di conferma con i dettagli del tuo ordine e tutte le informazioni sul tuo acquisto: ti arriverà a breve.",
+  "order_complete": "Ordine completato!",
+  "order_complete_msg": "Ti abbiamo inviato un'e-mail con tutte le informazioni necessarie relative al tuo acquisto.",
   "order_free": "Niente da pagare",
   "order_free_msg": "Il tuo ordine è stato effettuato con successo. Non è richiesto alcun pagamento.",
-  "order_locked": "Fattura bloccata",
-  "order_locked_msg": "Questa fattura è temporaneamente bloccata, di solito perché è in corso un tentativo di addebito. Il blocco impedisce un doppio addebito.",
   "order_not_found": "Ordine non trovato!",
   "order_not_found_msg": "Purtroppo non siamo riusciti a trovare il tuo ordine. Clicca sul pulsante qui sotto per visualizzare i tuoi ordini.",
   "order_partial_payment": "Grazie per il pagamento",
@@ -21,7 +19,6 @@
   "payment_retry": "Il pagamento per questo ordine è ancora dovuto per intero.",
   "payment_retry_action": "Prova un nuovo metodo di pagamento",
   "payment_retry_msg": "Purtroppo, il tuo precedente tentativo di pagamento non è andato a buon fine, per una serie di motivi. Ti preghiamo di riprovare utilizzando un metodo alternativo.",
-  "payment_success_banner": "Pagamento ricevuto per questo ordine {date}.",
   "product_information": "Informazioni sul prodotto",
   "your_order": "Il tuo ordine"
 }

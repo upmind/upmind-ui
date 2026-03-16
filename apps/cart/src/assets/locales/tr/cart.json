@@ -38,7 +38,6 @@
   "pay_with_stored": "Mevcut bir yöntemle ödeyin",
   "payment_amount": "Ödeme tutarı",
   "payment_amount_msg": "Sipariş toplamınız {amount}. Şimdi ödemek istediğiniz tutarı girin. Kalan bakiye, siparişinizin etkinleştirilmesinden önce ödenmelidir.",
-  "payment_amount_reset": "{amount} tutarındaki kalan bakiyeyi öde",
   "payment_awaiting_approval": "Onay **bekleniyor**",
   "payment_awaiting_approval_md": "@.markdown:{'cart.payment_awaiting_approval'}",
   "payment_awaiting_approval_msg": "Onay bekliyoruz. Bu sadece bir dakika sürecektir.",

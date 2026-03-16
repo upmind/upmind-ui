@@ -1,10 +1,8 @@
 {
-  "order_complete": "Bestillingen er **fullført**! Takk!",
-  "order_complete_msg": "Vi har sendt deg en bekreftelses-e-post med detaljer om bestillingen din og alt du trenger å vite om kjøpet.",
+  "order_complete": "Bestillingen er fullført!",
+  "order_complete_msg": "Vi har sendt deg en e-post med alt du trenger å vite om kjøpet ditt.",
   "order_free": "Ingenting igjen å betale",
   "order_free_msg": "Bestillingen din er registrert. Ingen betaling kreves.",
-  "order_locked": "Faktura er låst",
-  "order_locked_msg": "Denne fakturaen er låst, vanligvis fordi et forsøk på å belaste betalingsmåten pågår. Låsingen hindrer at fakturaen belastes to ganger.",
   "order_not_found": "Bestillingen ble ikke funnet!",
   "order_not_found_msg": "Dessverre kunne vi ikke finne bestillingen din. Klikk på knappen nedenfor for å se bestillingene dine.",
   "order_partial_payment": "Takk for betalingen din",
@@ -21,7 +19,6 @@
   "payment_retry": "Betaling for denne bestillingen er fortsatt forfalt i sin helhet.",
   "payment_retry_action": "Prøv ny betalingsmåte",
   "payment_retry_msg": "Dessverre mislyktes ditt forrige betalingsforsøk – dette kan skyldes flere årsaker. Prøv igjen med en alternativ metode.",
-  "payment_success_banner": "Betaling for denne bestillingen er mottatt {date}.",
   "product_information": "Produktinformasjon",
   "your_order": "Din bestilling"
 }
