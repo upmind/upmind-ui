@@ -1,7 +1,8 @@
 import { defineNuxtPlugin } from "#app";
 import UpmindClient, {
   useTheme,
-  decorateRoutes
+  decorateRoutes,
+  registerOverlayRoutes
 } from "@upmind-automation/client-vue";
 import { plugins as uiPlugins } from "@upmind-automation/upmind-ui";
 import { registerFunnels } from "~/funnels";
@@ -69,7 +70,10 @@ export default defineNuxtPlugin(async nuxtApp => {
   // This is done once at initialization to avoid Vue Router meta mutation warnings
   decorateRoutes(router.getRoutes());
 
-  // 5. Wait for theme to be ready so we dont have any flash of unstyled content
+  // 5. Register overlay routes (auth, 2fa, verify-email) on eligible routes
+  registerOverlayRoutes(router);
+
+  // 6. Wait for theme to be ready so we dont have any flash of unstyled content
   const theme = runtimeConfig.public.THEME as string;
   await useTheme(theme).isReady();
 });

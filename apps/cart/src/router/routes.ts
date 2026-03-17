@@ -27,7 +27,7 @@ export default [
     path: "/order/:pathMatch(.*)*",
     name: ROUTE.NOT_FOUND,
     component: () => import("../pages/Error.vue"),
-    meta: {},
+    meta: { allowOverlays: false },
     beforeEnter: to => {
       if (!to.path.endsWith("/")) {
         return { path: `${to.path}/`, query: to.query, hash: to.hash };
@@ -65,7 +65,7 @@ export default [
     name: ROUTE.LOADING,
     alias: ["/order/", "/loading/"],
     component: () => import("../pages/Index.vue"),
-    meta: { replace: true }
+    meta: { replace: true, allowOverlays: false }
   },
 
   /**
@@ -280,6 +280,7 @@ export default [
     path: `/order/${BID_PREFIX}/auth/`,
     name: ROUTE.SESSION,
     component: () => import("../pages/session/Index.vue"),
+    meta: { allowOverlays: false },
     children: [
       {
         path: "login/",

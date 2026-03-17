@@ -8,6 +8,7 @@ import { get } from "lodash-es";
 import type { Router, RouteLocation } from "vue-router";
 import { type UIRouteOptions } from "../brand/types";
 import { decorateRoutes, ensureTrailingSlash, hasRouteChanged } from "./utils";
+import { registerOverlayRoutes } from "./overlays";
 
 // -----------------------------------------------------------------------------
 
@@ -59,6 +60,7 @@ export const useRouting = (router: Router): void => {
    */
   router.isReady().then(async () => {
     await decorateRoutes(router.getRoutes());
+    registerOverlayRoutes(router);
     const target = await guardRoute(router.currentRoute.value);
     if (target) {
       await router.replace(target);
