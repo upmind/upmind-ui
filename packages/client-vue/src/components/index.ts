@@ -8,3 +8,4 @@ export * from "./header";
 export * from "./emailHistory";
 
 export { default as UpmLocale } from "./LocaleSwitcher.vue";
+export { default as UpmOverlayController } from "./overlays/OverlayController.vue";

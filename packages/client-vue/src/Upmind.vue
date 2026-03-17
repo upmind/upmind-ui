@@ -45,6 +45,9 @@
           </slot>
         </Main>
 
+        <!-- Overlay routes — auth, 2fa, verify-email -->
+        <UpmOverlayController />
+
         <slot name="footer">
           <Footer />
         </slot>
@@ -87,6 +90,7 @@ import Feedback from "./modules/feedback/Feedback.vue";
 import Page from "./components/page/Page.vue";
 import Main from "./components/main/Main.vue";
 import AsyncLoading from "./modules/system/Loading.vue";
+import UpmOverlayController from "./components/overlays/OverlayController.vue";
 import { Banner, Loading } from "@upmind-automation/upmind-ui";
 import { useAnnouncement } from "./components/announcement/useAnnouncement";
 
