@@ -21,6 +21,10 @@
     </UpmMain>
 
     <UpmFooter />
+
+    <!-- Overlay routes — auth, 2fa, verify-email -->
+    <UpmOverlayController />
+
     <!-- <UpmFeedback :storefront-route="storefrontRoute" /> -->
   </UpmPage>
 </template>
@@ -42,6 +46,7 @@ import {
   UpmRoot,
   UpmBasketAction,
   UpmAuthAction,
+  UpmOverlayController,
   useBasket,
   useSession
 } from "@upmind-automation/client-vue";
