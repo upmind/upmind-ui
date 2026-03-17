@@ -38,6 +38,7 @@
   "pay_with_stored": "Mövcud üsulla ödə",
   "payment_amount": "Ödəniş məbləği",
   "payment_amount_msg": "Sifarişinizin ümumi məbləği {amount}. İndi ödəmək istədiyiniz məbləği daxil edin. Qalan məbləğ sifarişiniz aktivləşdirilməzdən əvvəl ödənilməlidir.",
+  "payment_amount_reset": "{amount} məbləğində qalıq borcu ödəyin",
   "payment_awaiting_approval": "**Təsdiqi gözləyirik**",
   "payment_awaiting_approval_md": "@.markdown:{'cart.payment_awaiting_approval'}",
   "payment_awaiting_approval_msg": "Təsdiqi gözləyirik. Bu, yalnız bir an çəkməlidir.",
