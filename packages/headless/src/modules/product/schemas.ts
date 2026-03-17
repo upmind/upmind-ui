@@ -262,14 +262,16 @@ function buildSubproductGroupSchema(
       schema.const = {
         [value.id]: {
           productId: value.id,
-          quantity: value.quantity
+          quantity: value.quantity,
+          cycle: value.cycle
         }
       };
     } else if (defaultValue) {
       schema.default = {
         [defaultValue.id]: {
           productId: defaultValue.id,
-          quantity: defaultValue.quantity
+          quantity: defaultValue.quantity,
+          cycle: defaultValue.cycle
         }
       };
     }

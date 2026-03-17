@@ -88,6 +88,7 @@ export const useBasketCurrency = () => {
   );
   const currencyCode = useContext<CurrencyModel["code"]>(actor, "model.code");
   const currencyId = useContext<CurrencyModel["id"]>(actor, "model.id");
+  const currency = useContext<CurrencyModel>(actor, "model");
 
   // --- methods
 
@@ -183,6 +184,8 @@ export const useBasketCurrency = () => {
     currencyCode,
 
     currencyId,
+
+    currency,
 
     // --- context
 
