@@ -11,6 +11,14 @@
  * @see apps/cart/src/router/routes.ts — source of truth for route paths
  */
 import { BID_PREFIX, RegexMatch, ROUTE } from "./funnels/types";
+import { registerChunkErrorRecovery } from "./funnels/utils";
+
+// -----------------------------------------------------------------------------
+
+// --- chunk error recovery (client-side only)
+if (import.meta.client) {
+  registerChunkErrorRecovery();
+}
 
 // -----------------------------------------------------------------------------
 
