@@ -2,7 +2,7 @@
 
 // --- internal
 import { useBrand } from "../brand";
-import { useI18n, useQuery } from "../..";
+import { useBasketCurrency, useI18n, useQuery } from "../..";
 
 // --- utils
 import {
@@ -89,11 +89,16 @@ async function load(
   // lets ensure we have a valid currency > fallback to default
   // as well as ensuring our promo display type is available
   const { validateCurrency, ensureConfig } = useBrand();
+  const { currency: basketCurrency, isReady: isCurrencyReady } =
+    useBasketCurrency();
 
+  // Fallback to basket's persisted currency when no explicit currency is set
   const [currency] = await Promise.all([
-    validateCurrency(
-      currencyCode ? { code: currencyCode } : { id: currencyId }
-    ),
+    !currencyCode && !currencyId
+      ? isCurrencyReady().then(() => basketCurrency?.value)
+      : validateCurrency(
+          currencyCode ? { code: currencyCode } : { id: currencyId }
+        ),
     ensureConfig(BrandConfigKeys.SHOW_PROMOTION_AS)
   ]);
 
