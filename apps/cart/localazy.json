@@ -13,22 +13,5 @@
       "source": "${lang}",
       "operations": "formatLang: LL, LL-RR, LL, LL-RR"
     }
-  ],
-  "upload": {
-    "folder": "./src/",
-    "type": "json",
-    "deprecate": "file",
-    "importAsNew": false,
-    "forceCurrent": true,
-    "forceSource": false,
-    "files": [
-      {
-        "lang": "${autodetectLang}",
-        "file": "${autodetectFile}",
-        "pattern": "/**/locales/**/*.json",
-        "excludes": ["en/*.json"],
-        "type": "json"
-      }
-    ]
-  }
+  ]
 }
