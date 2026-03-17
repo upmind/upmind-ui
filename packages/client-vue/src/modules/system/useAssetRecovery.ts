@@ -4,10 +4,11 @@
  * @description Composable for handling Vite chunk load failures.
  *
  * Provides a shared, module-level reactive flag (`isOpen`) that both the router
- * and the AssetUnavailable component consume. The router registers the listener
- * and clears the flag; the component reads it to show/hide the interstitial.
+ * and the Feedback system consume. When a chunk error fires, it triggers a
+ * system interstitial via useFeedback — no custom component needed.
  */
 import { ref } from "vue";
+import { useFeedback, messageDisplays } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 
@@ -38,6 +39,15 @@ export function useAssetRecovery() {
         sessionStorage.setItem(CHUNK_RETRY_KEY, "true");
         console.warn("[Vite] Chunk load failed:", url);
         isOpen.value = true;
+
+        // Fire a system interstitial via the feedback system
+        const { addError } = useFeedback();
+        addError(
+          { data: { status: 1000, url } },
+          messageDisplays.INTERSTITIAL,
+          0, // no delay
+          0 // maxAge 0 = persistent
+        );
       } else {
         console.error("[Vite] Chunk load failed after retry:", url);
       }

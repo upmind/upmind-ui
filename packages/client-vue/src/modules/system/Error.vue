@@ -58,6 +58,8 @@ const emit = defineEmits<{
 
 const title = computed(() => {
   switch (props.status) {
+    case 1000:
+      return t("error.chunk_error_title_md");
     case responseCodes.No_Content:
       return props?.title ?? t("error.generic_title_md");
     case responseCodes.Unauthorized:
@@ -79,6 +81,8 @@ const title = computed(() => {
 
 const text = computed(() => {
   switch (props.status) {
+    case 1000:
+      return t("error.chunk_error_text");
     case responseCodes.No_Content:
       return props?.copy ?? t("error.generic_text");
     case responseCodes.Unauthorized:
@@ -100,6 +104,8 @@ const text = computed(() => {
 
 const icon = computed(() => {
   switch (props.status) {
+    case 1000:
+      return "refresh-cw-01";
     case responseCodes.No_Content:
       return first(props?.actions)?.icon ?? "arrow-left";
 
@@ -122,6 +128,8 @@ const icon = computed(() => {
 
 const action = computed(() => {
   switch (props.status) {
+    case 1000:
+      return t("action.reload_page");
     case responseCodes.No_Content:
       return first(props?.actions)?.label ?? t("action.back_to_shop");
 
@@ -154,6 +162,8 @@ const actions = computed((): InterstitialActionProps[] => {
   let defaultAction: InterstitialActionProps;
 
   switch (props.status) {
+    // for chunk/asset errors, reload to fetch fresh assets
+    case 1000:
     // for service errors, we want to reload the page as its likely a temporary issue
     case responseCodes.Service_Unavailable:
     case responseCodes.Internal_Server_Error:
