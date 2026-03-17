@@ -153,3 +153,38 @@ export enum FunnelActions {
   BACK = "BACK",
   REDIRECT = "REDIRECT"
 }
+
+// --- overlay types
+
+/**
+ * Enumeration representing the UI container type for overlay routes.
+ */
+export enum OverlayType {
+  MODAL = "modal",
+  DRAWER = "drawer"
+}
+
+/**
+ * Definition for an overlay route that can be injected as a child on eligible routes.
+ */
+export type OverlayDefinition = {
+  /** Path segment appended to parent route */
+  path: string;
+  /** Unique identifier for this overlay type */
+  id: string;
+  /** Default render type — brands can override via UI meta */
+  defaultType: OverlayType;
+};
+
+// --- Vue Router meta extension
+
+declare module "vue-router" {
+  interface RouteMeta {
+    /** When set, indicates this route renders as an overlay (modal or drawer) */
+    overlay?: OverlayType;
+    /** The overlay identifier: 'auth', '2fa', 'verify-email', etc. */
+    overlayId?: string;
+    /** Set to false to prevent overlay child routes from being injected */
+    allowOverlays?: boolean;
+  }
+}
