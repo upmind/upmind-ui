@@ -7,7 +7,35 @@
       :title="title"
       :text="text"
       data-testid="error"
-    />
+    >
+      <!-- For chunk errors (status 1000), render an inline SVG so it's always
+           available even when hashed asset URLs are stale after a deploy. -->
+      <template #avatar>
+        <svg
+          v-if="props.status === 1000"
+          xmlns="http://www.w3.org/2000/svg"
+          width="96"
+          height="96"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="text-tertiary"
+        >
+          <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+          <path d="M3 3v5h5" />
+          <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" />
+          <path d="M16 21h5v-5" />
+        </svg>
+        <Avatar
+          v-else
+          :animated-icon="animatedIcon"
+          class="size-36 overflow-visible bg-transparent"
+        />
+      </template>
+    </Interstitial>
   </div>
 </template>
 
@@ -17,6 +45,7 @@ import { useI18n } from "vue-i18n";
 
 // -- components
 import {
+  Avatar,
   Interstitial,
   type InterstitialActionProps
 } from "@upmind-automation/upmind-ui";
