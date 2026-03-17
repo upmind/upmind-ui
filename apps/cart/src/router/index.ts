@@ -14,7 +14,7 @@ export * from "./types";
 // during the first route resolution. When a lazy chunk fails to preload
 // (e.g. after a deploy with new hashed filenames), the handler fires a
 // system interstitial via useFeedback prompting the user to reload.
-if (import.meta.client) {
+if (typeof window !== "undefined") {
   useAssetRecovery().register();
 }
 
