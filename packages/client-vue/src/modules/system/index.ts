@@ -7,4 +7,8 @@ export { default as UpmError } from "./Error.vue";
 export { default as UpmEmpty } from "./Empty.vue";
 export { default as UpmRouteView } from "./RouteView.vue";
 
+// --- Export Composables
+export { useAssetRecovery } from "./useAssetRecovery";
+
 // --- Export Types
+export type { UseAssetRecovery } from "./useAssetRecovery";

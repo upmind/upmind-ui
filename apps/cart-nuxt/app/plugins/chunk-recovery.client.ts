@@ -4,12 +4,14 @@
  * @description Client-only plugin that clears the chunk retry flag
  * after each successful page navigation.
  */
-import { clearChunkRetryFlag } from "~/funnels/utils";
+import { useAssetRecovery } from "@upmind-automation/client-vue";
 
 // -----------------------------------------------------------------------------
 
 export default defineNuxtPlugin(({ hook }) => {
+  const { clear } = useAssetRecovery();
+
   hook("page:finish", () => {
-    clearChunkRetryFlag();
+    clear();
   });
 });
