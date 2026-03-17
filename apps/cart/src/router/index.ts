@@ -2,14 +2,15 @@
 import { createRouter, createWebHistory } from "vue-router";
 // --- internal
 import routes from "./routes";
-import { clearChunkRetryFlag, registerChunkErrorRecovery } from "./utils";
+import { useAssetRecovery } from "@upmind-automation/client-vue";
 // ---types
 export * from "./types";
 
 // -----------------------------------------------------------------------------
 
 // --- chunk error recovery
-registerChunkErrorRecovery();
+const { register, clear } = useAssetRecovery();
+register();
 
 // -----------------------------------------------------------------------------
 
@@ -34,7 +35,7 @@ const router = createRouter({
 
 // --- clear retry flag on successful navigation
 router.afterEach(() => {
-  clearChunkRetryFlag();
+  clear();
 });
 
 export default router;

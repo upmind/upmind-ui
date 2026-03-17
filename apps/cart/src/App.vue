@@ -12,7 +12,7 @@
   </Upm>
 
   <!-- Eagerly loaded — always in DOM, never chunked -->
-  <UpmAssetUnavailable :open="chunkErrorOccurred" />
+  <UpmAssetUnavailable />
 </template>
 
 <script lang="ts" setup>
@@ -36,9 +36,6 @@ import { includes } from "lodash-es";
 
 // --- types
 import { ROUTE } from "./router";
-
-// --- utils
-import { chunkErrorOccurred } from "./router/utils";
 
 // --- composables
 import { useStorefrontRoute } from "./composables/useStorefrontRoute";

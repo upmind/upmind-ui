@@ -2,6 +2,7 @@
   <div class="flex grow items-center justify-center">
     <Interstitial
       v-bind="props"
+      :open="isOpen"
       :modal="true"
       :title="t('error.chunk_error_title_md')"
       :text="t('error.chunk_error_text')"
@@ -12,7 +13,7 @@
           icon: 'refresh-cw-01',
           label: t('action.reload_page'),
           size: 'lg',
-          handler: handleReload
+          handler: reload
         }
       ]"
       data-testid="asset-unavailable"
@@ -26,6 +27,9 @@ import { useI18n } from "vue-i18n";
 
 // -- components
 import { Interstitial } from "@upmind-automation/upmind-ui";
+
+// -- composables
+import { useAssetRecovery } from "./useAssetRecovery";
 
 // -- types
 import { type InterstitialProps } from "@upmind-automation/upmind-ui";
@@ -45,8 +49,5 @@ const props = withDefaults(defineProps<InterstitialProps>(), {
 });
 
 const { t } = useI18n();
-
-function handleReload() {
-  window.location.reload();
-}
+const { isOpen, reload } = useAssetRecovery();
 </script>
