@@ -21,7 +21,8 @@ useSeoMeta({
 });
 
 definePageMeta({
-  name: ROUTE.ERROR
+  name: ROUTE.ERROR,
+  allowOverlays: false
 });
 const { storefrontRoute } = useStorefrontRoute();
 </script>

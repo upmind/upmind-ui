@@ -15,6 +15,7 @@ useSeoMeta({
 });
 
 definePageMeta({
-  name: ROUTE.SESSION
+  name: ROUTE.SESSION,
+  allowOverlays: false
 });
 </script>
