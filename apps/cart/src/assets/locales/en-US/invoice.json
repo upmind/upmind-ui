@@ -3,6 +3,8 @@
   "order_complete_msg": "We’ve sent you a confirmation email shortly with the details of your order, along with everything you need to know about your purchase.",
   "order_free": "Nothing left to pay",
   "order_free_msg": "Your order has been placed successfully. No payment required.",
+  "order_locked": "Invoice locked",
+  "order_locked_msg": "This invoice is locked, typically because a charge attempt is in progress. Locking prevents the invoice from being charged twice.",
   "order_not_found": "Order not found!",
   "order_not_found_msg": "Unfortunately, we were unable to find your order. Please click the button below to view your orders.",
   "order_partial_payment": "Thank you for your payment",
@@ -19,6 +21,7 @@
   "payment_retry": "Payment for this order is still due in full",
   "payment_retry_action": "Try new payment",
   "payment_retry_msg": "Unfortunately, your previous payment attempt was unsuccessful - this can be for a number of reasons. Please try again using an alternative method.",
+  "payment_success_banner": "Payment received for order {date}.",
   "product_information": "Product information",
   "your_order": "Your order"
 }

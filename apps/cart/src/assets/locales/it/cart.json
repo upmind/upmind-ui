@@ -38,6 +38,7 @@
   "pay_with_stored": "Paga con un metodo esistente",
   "payment_amount": "Importo del pagamento",
   "payment_amount_msg": "Il totale del tuo ordine è {amount}. Inserisci l'importo che desideri pagare ora. Il saldo rimanente deve essere pagato prima che il tuo ordine venga attivato.",
+  "payment_amount_reset": "Paga l'importo residuo {amount}",
   "payment_awaiting_approval": "**In attesa** di approvazione",
   "payment_awaiting_approval_md": "@.markdown:{'cart.payment_awaiting_approval'}",
   "payment_awaiting_approval_msg": "Stiamo aspettando l'approvazione. Ci vorrà solo un attimo.",

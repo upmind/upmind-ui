@@ -1,8 +1,10 @@
 {
-  "order_complete": "Sipariş tamamlandı!",
-  "order_complete_msg": "Satın alma işleminizle ilgili bilmeniz gereken her şeyi içeren bir e-posta gönderdik.",
+  "order_complete": "Siparişiniz **tamam**! Teşekkür ederiz!",
+  "order_complete_msg": "Tamamlanan siparişinizin ayrıntılarıyla birlikte satın alma işleminiz hakkında bilmeniz gereken her şeyi içeren bir onay e-postasını size gönderdik.",
   "order_free": "Ödenecek bir şey kalmadı",
   "order_free_msg": "Siparişiniz başarıyla verilmiştir. Ödeme gerekmemektedir.",
+  "order_locked": "Fatura kilitli",
+  "order_locked_msg": "Bu fatura kilitlidir; genellikle bir tahsilat denemesi devam ettiği için. Kilitleme, faturanın iki kez tahsil edilmesini önler.",
   "order_not_found": "Sipariş bulunamadı!",
   "order_not_found_msg": "Maalesef, siparişinizi bulamadık. Siparişlerinizi görüntülemek için lütfen aşağıdaki düğmeyi tıklayın.",
   "order_partial_payment": "Ödemeniz için teşekkür ederiz.",
@@ -19,6 +21,7 @@
   "payment_retry": "Bu siparişin ödemesi hala tam olarak ödenmemiştir.",
   "payment_retry_action": "Yeni ödeme yöntemini deneyin",
   "payment_retry_msg": "Maalesef, önceki ödeme denemeniz başarısız oldu. Bunun çeşitli nedenleri olabilir. Lütfen alternatif bir yöntem kullanarak tekrar deneyin.",
+  "payment_success_banner": "{date} için ödeme alındı.",
   "product_information": "Ürün bilgileri",
   "your_order": "Siparişiniz"
 }
