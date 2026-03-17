@@ -231,12 +231,15 @@ export default <FunnelProps>{
               "setResolving",
               assign({
                 targetRoute: (
-                  _context: FunnelContext,
+                  { currentRoute }: FunnelContext,
                   { data }: AnyEventObject
                 ) => ({
-                  name: ROUTE.SESSION_LOGIN,
-                  params: data?.target?.params ?? {},
-                  query: data?.target?.query ?? {}
+                  name: `${String(currentRoute?.name ?? ROUTE.BASKET)}--auth`,
+                  query: {
+                    mode: "login",
+                    returnUrl: ROUTE.BASKET,
+                    ...data?.target?.query
+                  }
                 })
               })
             ],
@@ -664,12 +667,15 @@ export default <FunnelProps>{
               "setResolving",
               assign({
                 targetRoute: (
-                  _context: FunnelContext,
+                  { currentRoute }: FunnelContext,
                   { data }: AnyEventObject
                 ) => ({
-                  name: ROUTE.SESSION_LOGIN,
-                  params: data?.target?.params ?? {},
-                  query: data?.target?.query ?? {}
+                  name: `${String(currentRoute?.name ?? ROUTE.CHECKOUT)}--auth`,
+                  query: {
+                    mode: "login",
+                    returnUrl: ROUTE.CHECKOUT,
+                    ...data?.target?.query
+                  }
                 })
               })
             ],
