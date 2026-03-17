@@ -5,19 +5,26 @@
  *
  * When a deployment replaces hashed chunk files, users with stale bundles
  * will trigger `vite:preloadError` on lazy route navigation. These utilities
- * provide a one-shot page reload with loop prevention via sessionStorage.
+ * expose a reactive flag that triggers a modal interstitial (eager-loaded in
+ * app.vue) instead of auto-reloading — giving the user control.
  */
+import { ref } from "vue";
 
 // -----------------------------------------------------------------------------
 
 const CHUNK_RETRY_KEY = "vite-chunk-retry";
 
+// --- state
+
+/** Reactive flag indicating a chunk load error has occurred. */
+export const chunkErrorOccurred = ref(false);
+
 // -----------------------------------------------------------------------------
 
 /**
  * Register a handler for Vite chunk preload errors.
- * Reloads the page once on failure; prevents infinite reload loops
- * via a sessionStorage flag.
+ * Sets `chunkErrorOccurred` to show the interstitial modal.
+ * Does NOT auto-reload — the user clicks a button instead.
  *
  * Call this before router creation so the listener is active
  * when the first lazy route resolves.
@@ -27,22 +34,27 @@ export function registerChunkErrorRecovery(): void {
     event.preventDefault();
 
     const url = (event as CustomEvent)?.detail?.url ?? "unknown";
+    console.warn("[Vite] Chunk load failed:", url);
 
-    if (!sessionStorage.getItem(CHUNK_RETRY_KEY)) {
-      sessionStorage.setItem(CHUNK_RETRY_KEY, "true");
-      console.warn("[Vite] Chunk load failed, reloading:", url);
-      window.location.reload();
-    } else {
-      console.error("[Vite] Chunk load failed after retry:", url);
-    }
+    chunkErrorOccurred.value = true;
+    sessionStorage.setItem(CHUNK_RETRY_KEY, "true");
   });
 }
 
 /**
  * Clear the chunk retry flag after a successful navigation.
  * Call this in a Nuxt `page:finish` hook to reset the retry mechanism
- * so future deployments can trigger a fresh reload.
+ * so future deployments can trigger a fresh notification.
  */
 export function clearChunkRetryFlag(): void {
   sessionStorage.removeItem(CHUNK_RETRY_KEY);
+  chunkErrorOccurred.value = false;
+}
+
+/**
+ * Reload the page to fetch fresh assets.
+ * Called from the interstitial modal's action button.
+ */
+export function reloadPage(): void {
+  window.location.reload();
 }

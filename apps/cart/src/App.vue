@@ -10,6 +10,9 @@
       />
     </template>
   </Upm>
+
+  <!-- Eagerly loaded — always in DOM, never chunked -->
+  <UpmAssetUnavailable :open="chunkErrorOccurred" />
 </template>
 
 <script lang="ts" setup>
@@ -20,6 +23,7 @@ import { useRoute, useRouter } from "vue-router";
 // --- internal
 import {
   Upm,
+  UpmAssetUnavailable,
   UpmBasketAction,
   UpmAuthAction,
   useBasket,
@@ -32,6 +36,9 @@ import { includes } from "lodash-es";
 
 // --- types
 import { ROUTE } from "./router";
+
+// --- utils
+import { chunkErrorOccurred } from "./router/utils";
 
 // --- composables
 import { useStorefrontRoute } from "./composables/useStorefrontRoute";
