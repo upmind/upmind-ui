@@ -11,15 +11,11 @@
   </div>
 </template>
 
-<!-- Pre-load animations and icons at import time so they're cached and
+<!-- Pre-load asset/chunk unavailable animations and icons at import time so they're cached and
      available even when asset URLs become stale after a deploy. -->
 <script lang="ts">
 import { loadAnimation, loadIcon } from "@upmind-automation/upmind-ui";
-
-loadAnimation("error");
-loadAnimation("unavailable");
 loadAnimation("refresh");
-loadIcon("arrow-left");
 loadIcon("refresh-cw-01");
 </script>
 
@@ -163,7 +159,12 @@ const action = computed(() => {
 });
 
 const animatedIcon = computed(() => ({
-  icon: props.status === 1000 ? "refresh" : (props.status ?? 0) >= 500 ? "unavailable" : "error",
+  icon:
+    props.status === 1000
+      ? "refresh"
+      : (props.status ?? 0) >= 500
+        ? "unavailable"
+        : "error",
   trigger: props.animatedIcon.trigger,
   primaryColor: props.animatedIcon.primaryColor,
   secondaryColor: props.animatedIcon.secondaryColor,
