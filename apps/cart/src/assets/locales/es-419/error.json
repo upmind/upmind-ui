@@ -19,7 +19,7 @@
   "503_title_md": "@.markdown:{'error.503_title'}",
   "adding_or_updating": "Se produjo un error al agregar | Se produjo un error al actualizar",
   "asset_unavailable_text": "Acabamos de actualizar la app y tu versión actual está desactualizada. Recarga para continuar.",
-  "asset_unavailable_title": "Recarga necesaria",
+  "asset_unavailable_title": "Recarga requerida",
   "asset_unavailable_title_md": "@.markdown:{'error.asset_unavailable_title'}",
   "basket_convert_failed": "Error en la conversión de cesta",
   "basket_fields_update_failed": "Experimentamos un error al actualizar los campos de la cesta.",
