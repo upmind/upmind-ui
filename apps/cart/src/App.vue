@@ -24,7 +24,8 @@ import {
   UpmAuthAction,
   useBasket,
   useRoutingEngine,
-  useSession
+  useSession,
+  useOverlayRoute
 } from "@upmind-automation/client-vue";
 
 // --- utils
@@ -42,19 +43,25 @@ const route = useRoute();
 const router = useRouter();
 const { meta: routingMeta, isReady } = useRoutingEngine();
 
+const { isOpen: isOverlayOpen, overlayId } = useOverlayRoute();
+
 // --- computed
-const isAuthRoute = computed(() =>
-  includes(
-    [
-      ROUTE.SESSION,
-      ROUTE.SESSION_END,
-      ROUTE.SESSION_LOGIN,
-      ROUTE.SESSION_REGISTER,
-      ROUTE.SESSION_RECOVER_PASSWORD,
-      ROUTE.SESSION_TRANSFER
-    ],
-    route.name
-  )
+const isAuthRoute = computed(
+  () =>
+    // Hide auth action on dedicated auth pages
+    includes(
+      [
+        ROUTE.SESSION,
+        ROUTE.SESSION_END,
+        ROUTE.SESSION_LOGIN,
+        ROUTE.SESSION_REGISTER,
+        ROUTE.SESSION_RECOVER_PASSWORD,
+        ROUTE.SESSION_TRANSFER
+      ],
+      route.name
+    ) ||
+    // Also hide when auth overlay is open
+    (isOverlayOpen.value && overlayId.value === "auth")
 );
 
 // --- side effects

@@ -48,7 +48,8 @@ import {
   UpmAuthAction,
   UpmOverlayController,
   useBasket,
-  useSession
+  useSession,
+  useOverlayRoute
 } from "@upmind-automation/client-vue";
 import { useStyles } from "@upmind-automation/upmind-ui";
 import { includes, get } from "lodash-es";
@@ -121,18 +122,24 @@ const styles = useStyles(
   })
 ) as any;
 
-const isAuthRoute = computed(() =>
-  includes(
-    [
-      ROUTE.SESSION,
-      ROUTE.SESSION_END,
-      ROUTE.SESSION_LOGIN,
-      ROUTE.SESSION_REGISTER,
-      ROUTE.SESSION_RECOVER_PASSWORD,
-      ROUTE.SESSION_TRANSFER
-    ],
-    route.name as string
-  )
+const { isOpen: isOverlayOpen, overlayId } = useOverlayRoute();
+
+const isAuthRoute = computed(
+  () =>
+    // Hide auth action on dedicated auth pages
+    includes(
+      [
+        ROUTE.SESSION,
+        ROUTE.SESSION_END,
+        ROUTE.SESSION_LOGIN,
+        ROUTE.SESSION_REGISTER,
+        ROUTE.SESSION_RECOVER_PASSWORD,
+        ROUTE.SESSION_TRANSFER
+      ],
+      route.name as string
+    ) ||
+    // Also hide when auth overlay is open
+    (isOverlayOpen.value && overlayId.value === "auth")
 );
 
 // --- side effects
