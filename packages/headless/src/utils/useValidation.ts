@@ -448,7 +448,10 @@ export const useModelParser = <
    * @returns
    */
   function safeValue(field: JsonSchema, values: any, key: string): any {
-    if (field?.type === "object" || field?.properties) {
+    // Only recurse into objects with explicit named properties
+    // NB: schemas using additionalProperties (e.g. subproduct categories)
+    // should fall through to default handling below
+    if (!isEmpty(field?.properties)) {
       return reduce(
         field.properties,
         (result, subField, subKey) => {

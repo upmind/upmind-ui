@@ -28,9 +28,6 @@ import {
   isEmpty,
   isFunction,
   isNil,
-  isNumber,
-  isString,
-  keys,
   map,
   maxBy,
   merge,
@@ -354,17 +351,14 @@ export function parseQuantity(
 }
 
 /**
- * Resolves the trial state: force-enables when required, defaults to true on first parse.
+ * Resolves the trial state: force-enables when required, preserves existing selection.
+ * Default value is handled by the schema.
  */
 export function parseTrial(
   value: boolean | undefined,
   product?: ProductDetails
 ): boolean | undefined {
-  return (
-    product?.trialForce || // forced by product config
-    (product?.trialSupported && isNil(value)) || // default to enabled on first parse
-    value // preserve existing selection
-  );
+  return product?.trialForce || value;
 }
 
 export function parseTerm(
@@ -372,21 +366,9 @@ export function parseTerm(
   value?: ProductModel["term"],
   quantity?: ProductModel["quantity"]
 ): { term: ProductModel["term"]; price: PriceCalculations["term"] } {
-  let term: TermDetails | undefined = undefined;
   const price: PriceCalculations["term"] = [];
-  // ---
-  // try ge the full term object from the lookups terms
-  term = find(lookups?.terms, ["cycle", value]);
-  if (!term) {
-    if (lookups?.terms?.length === 1) {
-      term = first(lookups?.terms);
-    } else {
-      term = calculateBillingTerm(
-        lookups?.product?.defaultPaymentPeriod,
-        lookups?.terms ?? []
-      );
-    }
-  }
+  // --- resolve the term from lookups (default is handled by schema)
+  const term = find(lookups?.terms, ["cycle", value]);
 
   // set price values, taking into account the quantity and unit quantity
   // NB: we NEVER add, we always push into an array for the backend to handle
@@ -416,46 +398,24 @@ export function parseSubproducts(
   // safety check, resolve if we have no attributes to check
   if (!lookups?.[type]?.length) return { subproducts, price };
 
-  const isInitial = isEmpty(model?.[type]);
-
   subproducts = reduce(
     lookups[type],
     (result, subproduct: SubproductDetails) => {
-      let selected: Record<string, SubproductModelValue> = get(
+      // NB dont create an empty object here as it will break defautls being applied. only init the object when needed for an actual value
+      let selected: Record<string, SubproductModelValue> | undefined = get(
         values,
-        subproduct.id,
-        {}
+        subproduct.id
       );
 
-      // try set anymatching pre-selected values for this subproduct ( subproductIds ),
+      // try set any matching pre-selected values for this subproduct ( subproductIds ),
       // NB: ONLY when values is being set for the first time
       if (isEmpty(values)) {
         forEach(subproductIds, pid => {
           if (some(subproduct.values, ["id", pid])) {
+            selected ??= {};
             set(selected, pid, { productId: pid });
           }
         });
-      }
-
-      // check if we are missing required subproduct, if we are (and its not multiple) then automaticaly select the first one ONLY if there is 1 choice
-      // NB we only do this on the initial load, not when we are updating the values
-      if (isEmpty(selected) && isInitial) {
-        const defaultSubproduct = find(
-          subproduct.values,
-          "meta.default"
-        ) as SubproductValue;
-
-        if (defaultSubproduct) {
-          set(selected, defaultSubproduct.id, {
-            productId: defaultSubproduct.id
-          });
-        } else if (
-          subproduct?.meta.required &&
-          subproduct.values?.length === 1
-        ) {
-          const pid = get(first(subproduct.values), "id");
-          if (pid) set(selected, pid, { productId: pid });
-        }
       }
 
       // if we have selected values, ensure they are valid and fully formed
@@ -518,7 +478,7 @@ export function parseSubproducts(
         );
       }
 
-      // ---
+      // --- only store non-empty selections; absent keys get defaults via AJV
       set(result, subproduct.id, selected);
 
       return result;
