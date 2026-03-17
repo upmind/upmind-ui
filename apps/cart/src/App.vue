@@ -10,9 +10,6 @@
       />
     </template>
   </Upm>
-
-  <!-- Eagerly loaded — always in DOM, never chunked -->
-  <UpmAssetUnavailable />
 </template>
 
 <script lang="ts" setup>
@@ -23,7 +20,6 @@ import { useRoute, useRouter } from "vue-router";
 // --- internal
 import {
   Upm,
-  UpmAssetUnavailable,
   UpmBasketAction,
   UpmAuthAction,
   useBasket,
