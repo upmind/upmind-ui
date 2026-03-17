@@ -2,12 +2,18 @@
 import { createRouter, createWebHistory } from "vue-router";
 // --- internal
 import routes from "./routes";
+import { clearChunkRetryFlag, registerChunkErrorRecovery } from "./utils";
 // ---types
 export * from "./types";
 
 // -----------------------------------------------------------------------------
 
-export default createRouter({
+// --- chunk error recovery
+registerChunkErrorRecovery();
+
+// -----------------------------------------------------------------------------
+
+const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   strict: true,
   routes,
@@ -25,3 +31,10 @@ export default createRouter({
     }
   }
 });
+
+// --- clear retry flag on successful navigation
+router.afterEach(() => {
+  clearChunkRetryFlag();
+});
+
+export default router;
