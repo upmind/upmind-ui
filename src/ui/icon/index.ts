@@ -3,6 +3,8 @@ import { defineCustomElement } from "vue";
 // --- vue elements
 export { default as Icon } from "./Icon.ce.vue";
 export { type IconProps, type IconImportMap } from "./types";
+export { loadIcon } from "./utils/iconLoader";
+
 // --- icon loader utilities
 export {
   registerIcons,
