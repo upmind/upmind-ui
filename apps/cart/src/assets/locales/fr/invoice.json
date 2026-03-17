@@ -1,5 +1,5 @@
 {
-  "order_complete": "Merci pour votre commande !",
+  "order_complete": "Commande terminée !",
   "order_complete_msg": "Nous vous avons envoyé un e-mail de confirmation avec les détails de votre commande. Vous y trouverez également toutes les informations dont vous avez besoin concernant votre achat.",
   "order_free": "Plus rien à payer",
   "order_free_msg": "Votre commande a été enregistrée avec succès. Aucun paiement n'est requis.",
