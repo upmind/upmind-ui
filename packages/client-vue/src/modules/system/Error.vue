@@ -59,7 +59,7 @@ const emit = defineEmits<{
 const title = computed(() => {
   switch (props.status) {
     case 1000:
-      return t("error.chunk_error_title_md");
+      return t("error.asset_unavailable_title_md");
     case responseCodes.No_Content:
       return props?.title ?? t("error.generic_title_md");
     case responseCodes.Unauthorized:
@@ -82,7 +82,7 @@ const title = computed(() => {
 const text = computed(() => {
   switch (props.status) {
     case 1000:
-      return t("error.chunk_error_text");
+      return t("error.asset_unavailable_text");
     case responseCodes.No_Content:
       return props?.copy ?? t("error.generic_text");
     case responseCodes.Unauthorized:
@@ -151,7 +151,7 @@ const action = computed(() => {
 });
 
 const animatedIcon = computed(() => ({
-  icon: (props.status ?? 0) >= 500 ? "unavailable" : "error",
+  icon: props.status === 1000 ? "refresh" : (props.status ?? 0) >= 500 ? "unavailable" : "error",
   trigger: props.animatedIcon.trigger,
   primaryColor: props.animatedIcon.primaryColor,
   secondaryColor: props.animatedIcon.secondaryColor,
