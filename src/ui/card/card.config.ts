@@ -1,7 +1,7 @@
 import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 export const rootVariants = cva(
-  "bg-surface card-radius border-control w-full border text-base",
+  "bg-surface card-radius shadow-border-surface w-full text-base",
   {
     variants: {
       isDisabled: {
