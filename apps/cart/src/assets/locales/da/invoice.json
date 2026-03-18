@@ -1,5 +1,5 @@
 {
-  "order_complete": "Tak for din ordre – den er **gennemført**!",
+  "order_complete": "Bestilling afsluttet!",
   "order_complete_msg": "Vi har sendt dig en ordrebekræftelse via e-mail med detaljerne om din ordre. Du modtager den om lidt, og den indeholder alt, du har brug for at vide om dit køb.",
   "order_free": "Intet tilbage at betale",
   "order_free_msg": "Din ordre er blevet afgivet. Ingen betaling kræves.",

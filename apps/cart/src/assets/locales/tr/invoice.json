@@ -1,5 +1,5 @@
 {
-  "order_complete": "Siparişiniz **tamam**! Teşekkür ederiz!",
+  "order_complete": "Sipariş tamamlandı!",
   "order_complete_msg": "Tamamlanan siparişinizin ayrıntılarıyla birlikte satın alma işleminiz hakkında bilmeniz gereken her şeyi içeren bir onay e-postasını size gönderdik.",
   "order_free": "Ödenecek bir şey kalmadı",
   "order_free_msg": "Siparişiniz başarıyla verilmiştir. Ödeme gerekmemektedir.",

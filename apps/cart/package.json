@@ -35,7 +35,6 @@
     "lint": "eslint . --fix",
     "format": "prettier --write src/",
     "localazy": "localazy download && pnpm format",
-    "localazy:upload": "localazy upload",
     "deploy:preview": "pnpm build && firebase cart:channel:deploy $(git branch --show-current) --only hosting:cart",
     "deploy:staging": "pnpm build:staging  && firebase deploy --only hosting:staging",
     "deploy": "pnpm build && firebase deploy --only hosting:cart"
