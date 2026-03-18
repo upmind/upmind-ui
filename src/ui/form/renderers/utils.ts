@@ -18,6 +18,7 @@ import {
   isEmpty,
   isEqual,
   isFunction,
+  isNil,
   map,
   merge,
   reduce,
@@ -130,11 +131,11 @@ export const useUpmindUIRenderer = <
   watch(input.control, _control => {
     touched.value =
       touched.value || jsonforms?.core?.validationMode === "ValidateAndShow";
-
     errors.value = getErrors();
   });
 
   const onInput = (value: any, isTouched: boolean = true) => {
+    if (isNil(value)) return; // NB values that are not set cannot be dirty
     input.handleChange(input.control.value.path, adaptTarget(value));
     touched.value = isTouched;
   };
