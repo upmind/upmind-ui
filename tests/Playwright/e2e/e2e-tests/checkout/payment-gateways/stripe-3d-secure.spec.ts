@@ -60,7 +60,9 @@ test.describe("3D Secure Authentication", async () => {
           await page.goto(returnUrl);
           await expect(page).toHaveURL(/payment_success=false/);
           await expect(
-            page.getByText("Unable to process payment")
+            page.getByText(
+              "Your payment attempt was unsuccessful - please try again."
+            )
           ).toBeVisible();
         }
       });
