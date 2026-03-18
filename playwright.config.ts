@@ -35,6 +35,9 @@ export default defineConfig({
     /* Setting headless to false will cuse the test runner to open a real browser window for each test (headless:true is the default setting)*/
     headless: true,
 
+    /* Take a screenshot on test failure */
+    screenshot: "only-on-failure",
+
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: "on-first-retry",
     //video: 'retain-on-failure',
@@ -49,10 +52,6 @@ export default defineConfig({
     launchOptions: {
       args: ["--disable-animations"]
     }
-
-    // launchOptions: {
-    //   args: ["--disable-animations"]
-    // },
 
     // contextOptions: {
     //   reducedMotion: "reduce"

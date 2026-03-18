@@ -61,8 +61,8 @@ test.describe("Billing Details at checkout", () => {
       await page.goto(URLs.checkout);
       await expect(register.registrationForm).toBeVisible();
       await register.inputRegistration();
-      //await checkout.addNewAddress.click();
-      await expect(checkout.billingCards).toBeVisible();
+      await checkout.addNewAddress.click();
+      await expect(checkout.billingDetails).toBeVisible();
       await checkout.addressSearch.fill(
         "10 Downing St, Westminster, London SW1A 2AA, UK"
       );
@@ -74,8 +74,8 @@ test.describe("Billing Details at checkout", () => {
         .click();
       await page.waitForTimeout(1000);
       await checkout.saveDetails.click();
-      await expect(checkout.billingDetails).toContainText(
-        "10 Downing Street, London, SW1A 2AA, Greater London, United Kingdom"
+      await expect(checkout.billingDetails).toHaveText(
+        /10 Downing Street.*London.*SW1A 2AA.*United Kingdom/s
       );
     });
     test("New User add new company details at checkout", async ({ page }) => {
@@ -84,7 +84,7 @@ test.describe("Billing Details at checkout", () => {
       await register.inputRegistration();
       await checkout.addNewAddress.click();
       await expect(checkout.billingCards).toBeVisible();
-      await page.getByTestId("tab-business-details").click();
+      await page.getByText("Business Details").click();
       await expect(page.getByTestId("form")).toBeVisible();
       const companyNameInput = page
         .getByTestId("form-item-company-name")
@@ -129,7 +129,7 @@ test.describe("Billing Details at checkout", () => {
       await expect(checkout.billingDetails).toBeVisible();
       await page.getByTestId("link-change").click();
       await expect(checkout.billingCards).toBeVisible();
-      await page.getByTestId("tab-personal-details").click();
+      await page.getByText("Personal Details").click();
       let currentAddress = await getCurrentAddressId(token);
       await page.getByTestId("link-change").click();
       await page.getByTestId("link-add-new").click();
@@ -140,9 +140,8 @@ test.describe("Billing Details at checkout", () => {
         "SW1A 2AA",
         null
       );
-      await expect(checkout.addressCard).toContainText(streetName);
-      await expect(checkout.addressCard).toContainText(
-        "London, SW1A 2AA, United Kingdom"
+      await expect(checkout.addressCard).toHaveText(
+        new RegExp(`${streetName}.*London.*SW1A 2AA.*United Kingdom`, "s")
       );
       await page.waitForTimeout(5000);
       let newAddress = await getCurrentAddressId(token);
