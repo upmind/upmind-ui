@@ -1,5 +1,5 @@
 {
-  "order_complete": "Děkujeme za objednávku – **hotovo**!",
+  "order_complete": "Objednávka dokončena!",
   "order_complete_msg": "Právě jsme vám odeslali potvrzovací e-mail s podrobnostmi objednávky. Už za chvíli v něm najdete vše, co potřebujete vědět o svém nákupu.",
   "order_free": "Není co platit",
   "order_free_msg": "Vaše objednávka byla úspěšně odeslána. Není vyžadována žádná platba.",
