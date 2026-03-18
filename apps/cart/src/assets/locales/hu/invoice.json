@@ -1,5 +1,5 @@
 {
-  "order_complete": "A rendelés **kész**! Köszönjük!",
+  "order_complete": "Rendelés teljes!",
   "order_complete_msg": "Elküldtük Önnek a rendelés részleteit tartalmazó visszaigazoló e-mailt, benne minden fontos tudnivalóval a vásárlásról.",
   "order_free": "Nincs több fizetnivaló",
   "order_free_msg": "Megrendelése sikeresen leadásra került. Fizetés nem szükséges.",

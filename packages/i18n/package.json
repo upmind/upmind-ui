@@ -27,7 +27,8 @@
     "lint": "eslint . --fix",
     "format": "prettier --write src/",
     "localazy": "localazy upload",
-    "localazy:sync": "localazy upload --config localazy.sync.json && localazy download --config localazy.sync.json && pnpm format"
+    "localazy:download": "localazy download --config localazy.sync.json && pnpm format",
+    "localazy:overwrite": "localazy upload --config localazy.sync.json"
   },
   "dependencies": {
     "@localazy/cli": "^2.0.8",
