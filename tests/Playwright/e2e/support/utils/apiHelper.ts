@@ -1,6 +1,6 @@
-import { BrowserContext, Page, Route, expect } from "@playwright/test";
+import { BrowserContext, Page, Route, expect, request } from "@playwright/test";
 import { URLs } from "../constants/urls";
-import { getSessionToken } from "./functions/tokens";
+import { getSessionToken, getClientToken } from "./functions/tokens";
 import {
   createOrder,
   Order,
@@ -80,6 +80,64 @@ export async function goToCheckout(
     await addPromotionToOrder(orderId, promotion, token);
   }
   await page.goto(URLs.checkout);
+}
+
+/**
+ * Registers a new client account via the API, bypassing the UI registration
+ * form entirely. This is faster and avoids CDP hangs caused by the
+ * registration UI.
+ *
+ * Requires a guest session cookie to already exist (e.g. after visiting the
+ * basket page). The function replaces the guest cookie with a client cookie
+ * so the browser is immediately authenticated as the new user.
+ *
+ * @param page - Playwright page instance (used to set the session cookie)
+ * @param context - Browser context (used to read the guest session token)
+ * @returns The generated { username, password } for use in subsequent test steps
+ */
+export async function registerClient(
+  page: Page,
+  context: BrowserContext
+): Promise<{ username: string; password: string }> {
+  const guestToken = await getSessionToken(context);
+
+  const username = `nathan.robinson+${fakerEN_GB.string.alpha({ length: 10 })}@upmind.com`;
+  const password = "Password1";
+
+  const apiContext = await request.newContext();
+
+  try {
+    const response = await apiContext.post(
+      `${URLs.apiUrl}api/clients/register?lang=en`,
+      {
+        headers: {
+          accept: "*/*",
+          authorization: `Bearer ${guestToken}`,
+          "content-type": "application/json",
+          origin: `${URLs.baseUrl}`,
+          referer: `${URLs.baseUrl}`
+        },
+        data: {
+          custom_fields: {},
+          email: username,
+          username: username,
+          firstname: fakerEN_GB.person.firstName(),
+          lastname: fakerEN_GB.person.lastName(),
+          password: password
+        }
+      }
+    );
+
+    if (!response.ok()) {
+      const errorText = await response.text();
+      throw new Error(
+        `Client registration failed: ${response.status()} ${response.statusText()} - ${errorText}`
+      );
+    }
+  } finally {
+    await apiContext.dispose();
+  }
+  return { username, password };
 }
 
 /**
