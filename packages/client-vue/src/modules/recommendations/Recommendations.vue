@@ -54,7 +54,7 @@
 
           <Button
             @click="doClose"
-            :label="t('action.continue_label')"
+            :label="t('action.skip')"
             color="primary"
             size="lg"
             class="w-full lg:w-auto"
