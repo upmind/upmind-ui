@@ -92,6 +92,10 @@ export interface QueryResponse<TData = unknown> {
    * An array of informational or success messages, or `null`.
    */
   messages: string[] | null;
+  /**
+   * Optional related resources included alongside the main data, e.g. `products`.
+   */
+  related?: Record<string, any> | null;
 }
 
 /**

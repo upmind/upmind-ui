@@ -94,7 +94,11 @@ import { useHeader } from "../../components/header/useHeader";
 import { useFooter } from "../../components/footer/useFooter";
 import { useLayout } from "../../components/layout/useLayout";
 import { isMobile } from "@upmind-automation/upmind-ui";
-import { useBasket } from "@upmind-automation/headless";
+import {
+  useBasket,
+  useBasketCurrency,
+  useQuery
+} from "@upmind-automation/headless";
 
 // --- components
 import DomainHero from "./components/DomainHero.vue";
@@ -165,6 +169,8 @@ const {
 } = useDac();
 
 const { count, summary, meta: basketMeta } = useBasket();
+const { currencyCode } = useBasketCurrency();
+const { queryClient } = useQuery();
 
 // ---------------------------------------------------------------------------
 
@@ -232,6 +238,15 @@ watch(meta, ({ isSearching, showSearchResults }) => {
 // Stores the previous result count for smooth skeleton loading
 watch(available, previous => {
   resultCount.value = previous?.length ?? 0;
+});
+
+// Re-trigger search when currency changes so prices update
+watch(currencyCode, (newCode, oldCode) => {
+  if (newCode && oldCode && newCode !== oldCode && queryValue.value) {
+    // Invalidate cached domain queries so fresh prices are fetched
+    queryClient.removeQueries({ queryKey: ["domains"] });
+    search(queryValue.value);
+  }
 });
 
 onUnmounted(() => {
