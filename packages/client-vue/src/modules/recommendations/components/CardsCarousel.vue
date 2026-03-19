@@ -7,7 +7,8 @@
     :opts="{
       loop: false,
       align: 'center',
-      dragFree: true
+      dragFree: true,
+      watchDrag: active
     }"
   >
     <div v-if="active" :class="styles.recommendation.carousel.navigation">
