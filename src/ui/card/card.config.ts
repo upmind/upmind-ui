@@ -14,7 +14,7 @@ export const rootVariants = cva(
       size: {
         sm: "p-6 lg:p-8",
         md: "p-6 lg:p-12",
-        lg: "p-6 lg:p-18"
+        lg: "p-8 lg:p-18"
       }
     },
     defaultVariants: {
