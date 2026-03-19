@@ -158,8 +158,6 @@ export function interceptUISchema(
       }
     }
 
-    //console.log("Schema Intercepted", json.data.meta.cart);
-
     await route.fulfill({
       status: response.status(),
       contentType: "application/json",

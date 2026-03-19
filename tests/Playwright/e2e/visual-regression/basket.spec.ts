@@ -1,12 +1,12 @@
 import { test, expect } from "@playwright/test";
 import { URLs } from "../support/constants/urls";
-import { getSessionToken } from "../support/utils/functions/tokens";
+import { getSessionToken } from "../support/api/auth";
 import {
   createOrder,
   addProductToOrder,
   addPromotionToOrder
-} from "../support/utils/functions/basket";
-import { setLocale } from "../support/utils/functions/locale-helper";
+} from "../support/api/basket";
+import { setLocale } from "../support/helpers/locale";
 import { Languages as languages } from "../support/constants/languages";
 
 let token: string;

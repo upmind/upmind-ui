@@ -1,9 +1,9 @@
 import { expect, test } from "@playwright/test";
 import { URLs } from "../../support/constants/urls";
-import { getClientToken } from "../../support/utils/functions/tokens";
-import { Checkout } from "../../support/page-objects/templates/Checkout";
+import { getClientToken } from "../../support/api/auth";
+import { Checkout } from "../../support/page-objects/templates/checkout";
 import { Logins } from "../../support/constants/logins";
-import { goToCheckout } from "../../support/utils/apiHelper";
+import { goToCheckout } from "../../support/flows/checkout";
 import { products } from "../../support/constants/products";
 
 let checkout: Checkout;

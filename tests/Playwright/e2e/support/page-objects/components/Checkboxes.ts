@@ -1,5 +1,5 @@
 import { Locator, Page } from "@playwright/test";
-import { kebabCase } from "../../utils/functions/helpers";
+import { kebabCase } from "../../helpers/strings";
 
 export class Checkboxes {
   readonly page: Page;

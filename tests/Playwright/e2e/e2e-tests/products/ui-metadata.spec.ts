@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
-import { interceptUISchema } from "../../support/utils/functions/brand";
+import { interceptUISchema } from "../../support/mocks/brand";
 import { URLs } from "../../support/constants/urls";
-import { ProductConfig } from "../../support/page-objects/templates/ProductConfig";
+import { ProductConfig } from "../../support/page-objects/templates/product-config";
 
 let productConfig: ProductConfig;
 

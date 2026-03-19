@@ -1,16 +1,14 @@
 import { test, expect } from "@playwright/test";
 import { URLs } from "../../support/constants/urls";
 import { products } from "../../support/constants/products";
-import { ProductConfig } from "../../support/page-objects/templates/ProductConfig";
-import { Basket } from "../../support/page-objects/templates/Basket";
-import { Checkout } from "../../support/page-objects/templates/Checkout";
-import { Registration } from "../../support/page-objects/templates/Registration";
-import { goToCheckout, mockTrialProduct } from "../../support/utils/apiHelper";
-import {
-  addProductToOrder,
-  createOrder
-} from "../../support/utils/functions/basket";
-import { getSessionToken } from "../../support/utils/functions/tokens";
+import { ProductConfig } from "../../support/page-objects/templates/product-config";
+import { Basket } from "../../support/page-objects/templates/basket";
+import { Checkout } from "../../support/page-objects/templates/checkout";
+import { Registration } from "../../support/page-objects/templates/registration";
+import { goToCheckout } from "../../support/flows/checkout";
+import { mockTrialProduct } from "../../support/mocks/products";
+import { addProductToOrder, createOrder } from "../../support/api/basket";
+import { getSessionToken } from "../../support/api/auth";
 import { fakerEN_GB } from "@faker-js/faker";
 
 let productConfig: ProductConfig;

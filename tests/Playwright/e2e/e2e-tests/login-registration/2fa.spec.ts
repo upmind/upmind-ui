@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { Secret, TOTP } from "otpauth";
 import { URLs } from "../../support/constants/urls";
-import { Login } from "../../support/page-objects/templates/Login";
+import { Login } from "../../support/page-objects/templates/login";
 import { Logins } from "../../support/constants/logins";
 //import { secretKey } from "../../support/secrets/2fa-secret";
 let login: Login;

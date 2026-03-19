@@ -8,7 +8,7 @@ import { Accordion } from "../components/Accordion";
 import { Select } from "../components/Select";
 import { Drawer } from "../components/Drawer";
 import { Form } from "../components/Form";
-import { kebabCase } from "../../utils/functions/helpers";
+import { kebabCase } from "../../helpers/strings";
 
 export class ProductConfig {
   readonly page: Page;

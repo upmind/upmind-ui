@@ -1,15 +1,15 @@
 import { test, expect } from "@playwright/test";
 import { fakerEN_GB } from "@faker-js/faker";
 import { URLs } from "../../support/constants/urls";
-import { ProductConfig } from "../../support/page-objects/templates/ProductConfig";
-import { Basket } from "../../support/page-objects/templates/Basket";
-import { getSessionToken } from "../../support/utils/functions/tokens";
+import { ProductConfig } from "../../support/page-objects/templates/product-config";
+import { Basket } from "../../support/page-objects/templates/basket";
+import { getSessionToken } from "../../support/api/auth";
 import {
   createOrder,
   addProductToOrder,
   getBasketProducts
-} from "../../support/utils/functions/basket";
-import { interceptUISchema } from "../../support/utils/functions/brand";
+} from "../../support/api/basket";
+import { interceptUISchema } from "../../support/mocks/brand";
 
 let productConfig: ProductConfig;
 let basket: Basket;

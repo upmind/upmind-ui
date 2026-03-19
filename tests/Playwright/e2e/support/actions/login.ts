@@ -1,9 +1,11 @@
 import { Page } from "@playwright/test";
-import { URLs } from "../../constants/urls";
-import { Logins } from "../../constants/logins";
+import { URLs } from "../constants/urls";
+import { Logins } from "../constants/logins";
 import { faker } from "@faker-js/faker";
 
-/* Logs in as checkout test user */
+/**
+ * Logs in as checkout test user via UI form fill.
+ */
 export async function inputLogin(page: Page) {
   const username = page.getByTestId(
     "form-field-your-username-or-email-address"
@@ -15,7 +17,9 @@ export async function inputLogin(page: Page) {
   await page.getByTestId("button-log-into-my-account").click();
 }
 
-/* Registers a new user account and logs in */
+/**
+ * Registers a new user account via UI form fill and logs in.
+ */
 export async function inputRegistration(page: Page) {
   const firstName = page.getByTestId("form-field-first-name");
   const lastName = page.getByTestId("form-field-last-name");
