@@ -1,5 +1,6 @@
 // --- external
 import type { ActorRef } from "xstate";
+import type { IProduct } from "@upmind-automation/types";
 
 // --- internal
 import type { Product, ProductSummaryDetail } from "../product";
@@ -12,36 +13,25 @@ import type { ResponseError } from "../../utils";
  * A single domain result from the /suggestions endpoint.
  */
 export interface IDomainSuggestionResult {
+  domain: string;
   sld: string;
   tld: string;
+  can_register: boolean;
+  can_transfer: boolean;
   product_id: string;
-  domain_available: boolean;
-}
-
-/**
- * A price entry within a suggestion product.
- */
-export interface IDomainSuggestionPrice {
-  billing_cycle_months: number;
-  price_formatted: string;
-  price_discounted_formatted: string | null;
-}
-
-/**
- * A product returned alongside suggestion results.
- */
-export interface IDomainSuggestionProduct {
-  id: string;
-  name: string;
-  prices: IDomainSuggestionPrice[];
 }
 
 /**
  * The full response shape from /suggestions.
+ * `data` contains the suggestion results, and `related.products` is a map
+ * of product_id → full IProduct objects.
  */
 export interface IDomainSuggestionsResponse {
-  results: IDomainSuggestionResult[];
-  products: IDomainSuggestionProduct[];
+  data: IDomainSuggestionResult[];
+  related: {
+    products: Record<string, IProduct>;
+  };
+  total: number;
 }
 
 /**
@@ -51,7 +41,7 @@ export interface IDomainAvailabilityResponse {
   can_register: boolean;
   can_transfer: boolean;
   is_premium: boolean;
-  product?: IDomainSuggestionProduct;
+  product?: IProduct;
 }
 
 /**
@@ -119,6 +109,12 @@ export type DomainProduct = Product &
       /** `true` if the domain is currently being processed (e.g. during 'add to basket'). */
       processing?: boolean;
     };
+    /**
+     * Optional reference to the raw IProduct data from the API.
+     * Stored so we can re-run parseProductProps when the domain mode changes
+     * (e.g. register → transfer after a domain_transfer_only error).
+     */
+    rawProduct?: IProduct;
   };
 
 /**

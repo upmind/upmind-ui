@@ -56,9 +56,7 @@
 
     <footer :class="styles.card.footer.root">
       <template v-if="meta.isUnavailable">
-        <p class="text-destructive mt-1 text-sm font-medium">
-          {{ t("text.unavailable") }}
-        </p>
+        <!-- No extra text for unavailable state -->
       </template>
       <template v-else-if="meta.isAvailable">
         <div v-if="!isMobile">
@@ -212,7 +210,9 @@ const getStatus = computed(() => {
 });
 
 const getIcon = computed(() => {
-  if (meta.value.isAdded) {
+  if (meta.value.isUnavailable) {
+    return "alert-circle";
+  } else if (meta.value.isAdded) {
     return "check-circle-broken";
   } else if (meta.value.isAvailable) {
     return "shopping-bag-02";
