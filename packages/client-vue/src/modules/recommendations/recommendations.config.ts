@@ -59,7 +59,7 @@ export default {
 
     carousel: {
       navigation: cva("flex justify-end space-x-2"),
-      item: cva("basis-3/4 pl-12 md:basis-1/2 xl:basis-1/3")
+      item: cva("pl-12 md:basis-1/2 xl:basis-1/3")
     },
 
     drawer: {
@@ -68,7 +68,7 @@ export default {
 
     actions: {
       root: cva(
-        "lg:bg-control-surface lg:border-surface control-radius mt-8 flex flex-col items-center justify-between bg-transparent p-0 pr-12 lg:mr-0 lg:flex-row lg:border lg:px-8 lg:py-6"
+        "lg:bg-control-surface lg:border-surface card-radius mt-8 flex flex-col items-center justify-between bg-transparent p-0 lg:flex-row lg:border lg:px-8 lg:py-6"
       ),
       label: cva(
         "text-md order-last mt-4 text-center font-medium lg:order-first lg:mt-0 lg:text-left"
