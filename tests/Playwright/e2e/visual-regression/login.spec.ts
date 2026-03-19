@@ -1,8 +1,8 @@
 import { test, expect } from "@playwright/test";
-import { Login } from "../support/page-objects/templates/Login";
+import { Login } from "../support/page-objects/templates/login";
 import { Logins } from "../support/constants/logins";
 import { URLs } from "../support/constants/urls";
-import { setLocale } from "../support/utils/functions/locale-helper";
+import { setLocale } from "../support/helpers/locale";
 import { Languages as languages } from "../support/constants/languages";
 
 let login: Login;

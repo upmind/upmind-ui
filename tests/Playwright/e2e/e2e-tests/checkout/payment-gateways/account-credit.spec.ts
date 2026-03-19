@@ -1,11 +1,9 @@
 import { test, expect, Page } from "@playwright/test";
-import { Checkout } from "../../../support/page-objects/templates/Checkout";
-import {
-  goToCheckout,
-  mockWalletBalance
-} from "../../../support/utils/apiHelper";
+import { Checkout } from "../../../support/page-objects/templates/checkout";
+import { Registration } from "../../../support/page-objects/templates/registration";
+import { goToCheckout } from "../../../support/flows/checkout";
+import { mockWalletBalance } from "../../../support/mocks/wallet";
 import { products } from "../../../support/constants/products";
-import { Registration } from "../../../support/page-objects/templates/Registration";
 
 let checkout: Checkout;
 let registration: Registration;
