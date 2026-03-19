@@ -1,6 +1,6 @@
 import { Page, expect, Locator } from "@playwright/test";
 import { kebabCase } from "../../helpers/strings";
-import { TextInput } from "../components/TextInput";
+import { TextInput } from "../components/text-input";
 
 export class Checkout {
   readonly page: Page;
