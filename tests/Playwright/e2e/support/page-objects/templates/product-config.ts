@@ -1,13 +1,13 @@
 import { Locator, Page, expect } from "@playwright/test";
-import { TextInput } from "../components/TextInput";
-import { Checkboxes } from "../components/Checkboxes";
-import { RadioButtons } from "../components/RadioButtons";
-import { Button } from "../components/Button";
-import { Popover } from "../components/Popover";
-import { Accordion } from "../components/Accordion";
-import { Select } from "../components/Select";
-import { Drawer } from "../components/Drawer";
-import { Form } from "../components/Form";
+import { TextInput } from "../components/text-input";
+import { Checkboxes } from "../components/checkboxes";
+import { RadioButtons } from "../components/radio-buttons";
+import { Button } from "../components/button";
+import { Popover } from "../components/popover";
+import { Accordion } from "../components/accordion";
+import { Select } from "../components/select";
+import { Drawer } from "../components/drawer";
+import { Form } from "../components/form";
 import { kebabCase } from "../../helpers/strings";
 
 export class ProductConfig {
