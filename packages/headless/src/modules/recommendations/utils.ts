@@ -273,6 +273,7 @@ export function parseRecommendation(
       ),
 
       term: config?.bcm ?? term?.cycle ?? 0,
+      startTrial: productDetails?.trialSupported,
       subproducts: compact(config?.sub_pids ?? []),
       provisionFields: config?.pfields ?? {},
       coupons: compact(config?.coupons ?? [])
