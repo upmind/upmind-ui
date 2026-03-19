@@ -43,24 +43,7 @@
           @resolve="doClose"
         />
 
-        <section
-          class="lg:bg-control-surface lg:border-surface control-radius mt-8 flex flex-col items-center justify-between bg-transparent p-0 pr-12 lg:mr-0 lg:flex-row lg:border lg:px-8 lg:py-6"
-        >
-          <div
-            class="text-md order-last mt-4 text-center font-medium lg:order-first lg:mt-0 lg:text-left"
-          >
-            {{ t("cart.basket_items", { count: count ?? 0 }) }}
-          </div>
-
-          <Button
-            @click="doClose"
-            :label="t('action.skip')"
-            color="primary"
-            size="lg"
-            class="w-full lg:w-auto"
-            iconAppend="arrow-right"
-          />
-        </section>
+        <Actions @skip="doClose" />
       </template>
     </template>
   </Layout>
@@ -72,7 +55,6 @@ import { useI18n } from "vue-i18n";
 
 // --- internal
 import {
-  useBasket,
   useProductRecommendations,
   useQueryParams,
   useRoutingEngine,
@@ -85,10 +67,11 @@ import { useFooter } from "../../components/footer/useFooter";
 import { useThemes } from "@upmind-automation/upmind-ui";
 
 // --- components
-import { Button, Interstitial } from "@upmind-automation/upmind-ui";
+import { Interstitial } from "@upmind-automation/upmind-ui";
 import Layout from "../../components/layout/Layout.vue";
 import Configure from "../recommendations/components/Configure.vue";
 import CardsCarousel from "../recommendations/components/CardsCarousel.vue";
+import Actions from "../recommendations/components/Actions.vue";
 import Hero from "../../components/hero/Hero.vue";
 import type { LAYOUT_VARIANTS } from "../../";
 import { LAYOUT_OVERFLOW } from "../../components/layout/types";
@@ -117,7 +100,6 @@ set(ui.theme.value);
 const { navigateNext } = useRoutingEngine();
 const { productId } = useQueryParams();
 
-const { count } = useBasket();
 const {
   seen,
   isReady,
