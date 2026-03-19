@@ -1,8 +1,8 @@
 import { test, expect, BrowserContext } from "@playwright/test";
 import { URLs } from "../../support/constants/urls";
-import { Registration } from "../../support/page-objects/templates/Registration";
-import { interceptTermsAndConditions } from "../../support/utils/functions/brand";
-import { getSessionToken } from "../../support/utils/functions/tokens";
+import { Registration } from "../../support/page-objects/templates/registration";
+import { interceptTermsAndConditions } from "../../support/mocks/brand";
+import { getSessionToken } from "../../support/api/auth";
 
 let registration: Registration;
 

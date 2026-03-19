@@ -1,7 +1,7 @@
 import { test, expect, BrowserContext } from "@playwright/test";
 import { faker } from "@faker-js/faker";
 import { URLs } from "../../support/constants/urls";
-import { Registration } from "../../support/page-objects/templates/Registration";
+import { Registration } from "../../support/page-objects/templates/registration";
 let registration: Registration;
 
 test.describe("User Registration", () => {

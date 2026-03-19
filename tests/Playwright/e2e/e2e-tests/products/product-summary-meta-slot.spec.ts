@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { ProductConfig } from "../../support/page-objects/templates/ProductConfig";
+import { ProductConfig } from "../../support/page-objects/templates/product-config";
 import { URLs } from "../../support/constants/urls";
 
 let productConfig: ProductConfig;

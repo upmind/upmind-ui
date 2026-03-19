@@ -1,13 +1,10 @@
 import { test, BrowserContext, expect, Page } from "@playwright/test";
 import { fakerEN_GB } from "@faker-js/faker";
 import { URLs } from "../../support/constants/urls";
-import { Registration } from "../../support/page-objects/templates/Registration";
-import { Checkout } from "../../support/page-objects/templates/Checkout";
-import { getSessionToken } from "../../support/utils/functions/tokens";
-import {
-  createOrder,
-  addProductToOrder
-} from "../../support/utils/functions/basket";
+import { Registration } from "../../support/page-objects/templates/registration";
+import { Checkout } from "../../support/page-objects/templates/checkout";
+import { getSessionToken } from "../../support/api/auth";
+import { createOrder, addProductToOrder } from "../../support/api/basket";
 
 let registration: Registration;
 let checkout: Checkout;

@@ -1,5 +1,5 @@
 import { Page, Locator } from "@playwright/test";
-import { kebabCase } from "../../utils/functions/helpers";
+import { kebabCase } from "../../helpers/strings";
 
 export class Form {
   readonly page: Page;

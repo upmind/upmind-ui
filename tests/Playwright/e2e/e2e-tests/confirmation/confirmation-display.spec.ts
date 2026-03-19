@@ -1,15 +1,12 @@
 import { expect } from "@playwright/test";
-import { authenticatedUserTest as test } from "../../support/fixtures/authContext";
-import { Checkout } from "../../support/page-objects/templates/Checkout";
-import { Registration } from "../../support/page-objects/templates/Registration";
-import { Confirmation } from "../../support/page-objects/templates/Confirmation";
-import { goToCheckout } from "../../support/utils/apiHelper";
-import {
-  getCurrentOrder,
-  getInvoice
-} from "../../support/utils/functions/basket";
-import { getSessionToken } from "../../support/utils/functions/tokens";
-import { getFormattedDate } from "../../support/utils/functions/helpers";
+import { authenticatedUserTest as test } from "../../support/fixtures/auth-context";
+import { Checkout } from "../../support/page-objects/templates/checkout";
+import { Registration } from "../../support/page-objects/templates/registration";
+import { Confirmation } from "../../support/page-objects/templates/confirmation";
+import { goToCheckout } from "../../support/flows/checkout";
+import { getCurrentOrder, getInvoice } from "../../support/api/basket";
+import { getSessionToken } from "../../support/api/auth";
+import { getFormattedDate } from "../../support/helpers";
 import { products } from "../../support/constants/products";
 import { Logins } from "../../support/constants/logins";
 import { URLs } from "../../support/constants/urls";

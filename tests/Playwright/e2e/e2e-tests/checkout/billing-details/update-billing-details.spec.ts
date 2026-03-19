@@ -1,19 +1,16 @@
 import { expect, test } from "@playwright/test";
 import { fakerEN_GB } from "@faker-js/faker";
-import { getCurrentAddressId } from "../../../support/utils/apiHelper";
-import { Checkout } from "../../../support/page-objects/templates/Checkout";
-import { Registration } from "../../../support/page-objects/templates/Registration";
-import { Login } from "../../../support/page-objects/templates/Login";
+import { getCurrentAddressId } from "../../../support/api/client";
+import { Checkout } from "../../../support/page-objects/templates/checkout";
+import { Registration } from "../../../support/page-objects/templates/registration";
+import { Login } from "../../../support/page-objects/templates/login";
 import {
   createOrder,
   Order,
   addProductToOrder
-} from "../../../support/utils/functions/basket";
+} from "../../../support/api/basket";
 import { URLs } from "../../../support/constants/urls";
-import {
-  getSessionToken,
-  getClientToken
-} from "../../../support/utils/functions/tokens";
+import { getSessionToken, getClientToken } from "../../../support/api/auth";
 import { Logins } from "../../../support/constants/logins";
 import { products } from "../../../support/constants/products";
 let checkout: Checkout;

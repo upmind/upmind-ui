@@ -1,17 +1,15 @@
 import { test, expect, BrowserContext } from "@playwright/test";
 import { URLs } from "../support/constants/urls";
-import { ProductConfig } from "../support/page-objects/templates/ProductConfig";
-import { Basket } from "../support/page-objects/templates/Basket";
-import {
-  addProductToOrder,
-  createOrder
-} from "../support/utils/functions/basket";
-import { getSessionToken } from "../support/utils/functions/tokens";
-import { Registration } from "../support/page-objects/templates/Registration";
-import { Checkout } from "../support/page-objects/templates/Checkout";
-import { Confirmation } from "../support/page-objects/templates/Confirmation";
-import { goToCheckout, mockPromos } from "../support/utils/apiHelper";
-import { returnError } from "../support/utils/functions/errors";
+import { ProductConfig } from "../support/page-objects/templates/product-config";
+import { Basket } from "../support/page-objects/templates/basket";
+import { addProductToOrder, createOrder } from "../support/api/basket";
+import { getSessionToken } from "../support/api/auth";
+import { Registration } from "../support/page-objects/templates/registration";
+import { Checkout } from "../support/page-objects/templates/checkout";
+import { Confirmation } from "../support/page-objects/templates/confirmation";
+import { goToCheckout } from "../support/flows/checkout";
+import { mockPromos } from "../support/mocks/promotions";
+import { returnError } from "../support/mocks/errors";
 import { fakerEN_GB } from "@faker-js/faker";
 import { products } from "../support/constants/products";
 

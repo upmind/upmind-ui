@@ -1,4 +1,4 @@
-// e2e/support/fixtures/testContexts.ts
+// e2e/support/fixtures/auth-context.ts
 import { test as base, request, Page, BrowserContext } from "@playwright/test";
 import { URLs } from "../constants/urls";
 

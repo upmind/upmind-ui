@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
-import { ErrorCodes } from "../../support/constants/errorCodes";
-import { returnError } from "../../support/utils/functions/errors";
+import { ErrorCodes } from "../../support/constants/error-codes";
+import { returnError } from "../../support/mocks/errors";
 import { URLs } from "../../support/constants/urls";
 
 /**

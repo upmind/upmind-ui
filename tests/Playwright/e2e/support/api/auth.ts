@@ -1,7 +1,9 @@
 import { BrowserContext, Page, request } from "@playwright/test";
-import { URLs } from "../../constants/urls";
+import { URLs } from "../constants/urls";
 
-/* Extracts the upm_client_session token from the browser context's cookies. */
+/**
+ * Extracts the upm_client_session token from the browser context's cookies.
+ */
 export async function getSessionToken(
   context: BrowserContext
 ): Promise<string> {
@@ -15,11 +17,12 @@ export async function getSessionToken(
   }
 
   const parsed = JSON.parse(decodeURIComponent(sessionCookie.value));
-  //console.log('Session Token:', parsed.access_token);
   return parsed.access_token;
 }
 
-/* Helper to encode JSON to base64url (No longer used in Dev) */
+/**
+ * Helper to encode JSON to base64url (No longer used in Dev).
+ */
 function base64urlEncode(obj: any): string {
   const json = JSON.stringify(obj);
   return Buffer.from(json)
@@ -29,7 +32,9 @@ function base64urlEncode(obj: any): string {
     .replace(/=+$/, "");
 }
 
-/* Logs in by getting a token and creating the upm_client_session cookie */
+/**
+ * Logs in by getting a token and creating the upm_client_session cookie.
+ */
 export async function getClientToken(
   page: Page,
   username: string,
