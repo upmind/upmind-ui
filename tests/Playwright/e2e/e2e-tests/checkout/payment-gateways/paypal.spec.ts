@@ -1,11 +1,11 @@
 import { expect } from "@playwright/test";
-import { test } from "../../../support/fixtures/testContexts";
+import { test } from "../../../support/fixtures/test-contexts";
 import { URLs } from "../../../support/constants/urls";
-import { getClientToken } from "../../../support/utils/functions/tokens";
-import { Checkout } from "../../../support/page-objects/templates/Checkout";
+import { getClientToken } from "../../../support/api/auth";
+import { Checkout } from "../../../support/page-objects/templates/checkout";
 import { Logins } from "../../../support/constants/logins";
 import { payPalDetails } from "../../../support/secrets/paypal";
-import { goToCheckout } from "../../../support/utils/apiHelper";
+import { goToCheckout } from "../../../support/flows/checkout";
 import { products } from "../../../support/constants/products";
 
 let checkout: Checkout;

@@ -1,9 +1,9 @@
 import { test, expect } from "@playwright/test";
 import { URLs } from "../../support/constants/urls";
-import { Checkout } from "../../support/page-objects/templates/Checkout";
-import { goToCheckout } from "../../support/utils/apiHelper";
+import { Checkout } from "../../support/page-objects/templates/checkout";
+import { goToCheckout } from "../../support/flows/checkout";
 import { products } from "../../support/constants/products";
-import { Registration } from "../../support/page-objects/templates/Registration";
+import { Registration } from "../../support/page-objects/templates/registration";
 
 let checkout: Checkout;
 let register: Registration;

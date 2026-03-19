@@ -1,12 +1,12 @@
 import { test, expect } from "@playwright/test";
-import { Basket } from "../../support/page-objects/templates/Basket";
+import { Basket } from "../../support/page-objects/templates/basket";
 import { URLs } from "../../support/constants/urls";
-import { getSessionToken } from "../../support/utils/functions/tokens";
+import { getSessionToken } from "../../support/api/auth";
 import {
   createOrder,
   addProductToOrder,
   overrideWarningNotes
-} from "../../support/utils/functions/basket";
+} from "../../support/api/basket";
 let basket: Basket;
 
 test.describe("Basket - Displaying Warning Notes", () => {

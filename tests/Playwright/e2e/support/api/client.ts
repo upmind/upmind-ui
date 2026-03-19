@@ -1,6 +1,6 @@
 import { BrowserContext, Page, request } from "@playwright/test";
-import { URLs } from "../../constants/urls";
-import { getSessionToken } from "./tokens";
+import { URLs } from "../constants/urls";
+import { getSessionToken } from "./auth";
 import { faker } from "@faker-js/faker";
 
 // -----------------------------------------------------------------------------
@@ -122,7 +122,7 @@ export async function registerAndLogin(
   const registrationResponse = await registerClient(guestToken, options);
 
   // Set the client session cookie with the registration response
-  // This follows the same pattern as getClientToken() in tokens.ts
+  // This follows the same pattern as getClientToken() in auth.ts
   await context.addCookies([
     {
       name: "upm_client_session",
@@ -136,4 +136,74 @@ export async function registerAndLogin(
   ]);
 
   return registrationResponse;
+}
+
+/**
+ * Fetches the current order and returns its address ID.
+ *
+ * @param token - Bearer token for authentication
+ * @returns The address ID from the current order, or null if not set
+ */
+export async function getCurrentAddressId(
+  token: string
+): Promise<string | null> {
+  const response = await fetch(
+    `${URLs.apiUrl}api/orders/current?with=address%2Caddress.country%2Ccurrency%2Ccustom_fields.field%2Cpromotions%2Ctaxes%2Ctaxes.tax_tag_data%2Cproducts.product.image%2Cproducts.product.images%2Cproducts.product.prices%2Cproducts.product.products_attributes%2Cproducts.product.products_attributes.category%2Cproducts.product.products_options%2Cproducts.product.products_options.category%2Cproducts.product.products_options.prices%2Cproducts.product.provision_blueprint%2Cproducts.product.provision_field_values%2Cproducts.tags%2Cproducts.product.related%2Cproducts.product.category%2Cproducts.product.category.top_category.top_category.top_category.top_category&lang=en`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
+        Origin: URLs.apiOrigin
+      }
+    }
+  );
+  const body = await response.json();
+  return body.data.address_id ?? null;
+}
+
+/**
+ * Adds a hardcoded 10 Downing Street address to a client account via the API.
+ *
+ * @param token - Bearer token for the client session
+ * @param clientId - The client UUID to add the address to
+ * @returns The created address data from the API response
+ */
+export async function addAddressToClient(
+  token: string,
+  clientId: string
+): Promise<Record<string, unknown>> {
+  const response = await fetch(
+    `${URLs.apiUrl}api/clients/${clientId}/addresses`,
+    {
+      method: "POST",
+      headers: {
+        accept: "application/json",
+        authorization: `Bearer ${token}`,
+        "content-type": "application/json",
+        origin: `${URLs.apiOrigin}`
+      },
+      body: JSON.stringify({
+        name: "10 Downing Street",
+        address_1: "10 Downing Street",
+        address_2: "",
+        country_id: "320e4357-95e7-8d18-484f-31643202d986",
+        region_id: "de78642d-e539-7146-295f-21208469530d",
+        city: "London",
+        postcode: "SW1A 2AB",
+        type: 1,
+        default: false
+      })
+    }
+  );
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(
+      `Failed to add address to client ${clientId}: ${response.status} ${response.statusText} - ${errorText}`
+    );
+  }
+
+  const body = await response.json();
+  return body.data;
 }

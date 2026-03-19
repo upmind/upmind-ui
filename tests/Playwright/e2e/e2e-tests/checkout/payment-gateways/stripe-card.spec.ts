@@ -1,8 +1,8 @@
 import { test, expect } from "@playwright/test";
-import { Checkout } from "../../../support/page-objects/templates/Checkout";
-import { goToCheckout } from "../../../support/utils/apiHelper";
-import { mockStripeCardDecline } from "../../../support/utils/checkoutMocks";
-import { Registration } from "../../../support/page-objects/templates/Registration";
+import { Checkout } from "../../../support/page-objects/templates/checkout";
+import { goToCheckout } from "../../../support/flows/checkout";
+import { mockStripeCardDecline } from "../../../support/mocks/checkout";
+import { Registration } from "../../../support/page-objects/templates/registration";
 import { AcceptedCards } from "../../../support/constants/checkout/payment-cards/AcceptedCards";
 import { DeclinedCards } from "../../../support/constants/checkout/payment-cards/DeclinedCards";
 import { FraudCheckCards } from "../../../support/constants/checkout/payment-cards/FraudChecks";

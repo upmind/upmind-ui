@@ -1,23 +1,18 @@
 import { expect, test } from "@playwright/test";
-import { Checkout } from "../../../support/page-objects/templates/Checkout";
-import { BillingPage } from "../../../support/page-objects/templates/BillingPage";
+import { Checkout } from "../../../support/page-objects/templates/checkout";
+import { BillingPage } from "../../../support/page-objects/templates/billing-page";
 import { URLs } from "../../../support/constants/urls";
-import {
-  goToCheckout,
-  addAddressToClient
-} from "../../../support/utils/apiHelper";
+import { goToCheckout } from "../../../support/flows/checkout";
+import { addAddressToClient } from "../../../support/api/client";
 import { products } from "../../../support/constants/products";
 import {
   interceptUISchema,
   interceptConfigValues
-} from "../../../support/utils/functions/brand";
-import {
-  getSessionToken,
-  getClientToken
-} from "../../../support/utils/functions/tokens";
+} from "../../../support/mocks/brand";
+import { getSessionToken, getClientToken } from "../../../support/api/auth";
 import { Logins } from "../../../support/constants/logins";
-import { Registration } from "../../../support/page-objects/templates/Registration";
-import { getCurrentOrder } from "../../../support/utils/functions/basket";
+import { Registration } from "../../../support/page-objects/templates/registration";
+import { getCurrentOrder } from "../../../support/api/basket";
 
 let checkout: Checkout;
 let billingPage: BillingPage;
