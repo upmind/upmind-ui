@@ -6,21 +6,25 @@
     ref="form"
     @submit.prevent="doSubmit"
   >
-    <JsonForms
-      ref="jsonform"
-      :additionalErrors="additionalErrors"
-      :ajv="ajv as any"
-      :class="styles.form.content"
-      :data="model"
-      :enabled="!meta.isDisabled"
-      :i18n="i18n"
-      :readonly="readonly"
-      :renderers="renderers"
-      :schema="schema"
-      :uischema="uischema"
-      :validationMode="mode"
-      @change="onChange"
-    />
+    <div :class="styles.form.wrapper">
+      <JsonForms
+        ref="jsonform"
+        :additionalErrors="additionalErrors"
+        :ajv="ajv as any"
+        :class="styles.form.content"
+        :data="model"
+        :enabled="!meta.isDisabled"
+        :i18n="i18n"
+        :readonly="readonly"
+        :renderers="renderers"
+        :schema="schema"
+        :uischema="uischema"
+        :validationMode="mode"
+        @change="onChange"
+      />
+
+      <slot name="additional" v-bind="{ meta }"></slot>
+    </div>
 
     <slot name="footer" v-bind="{ meta }"></slot>
 
@@ -68,6 +72,7 @@ import type {
   FormProps,
   FormActionProps,
   FormActionsProps,
+  FormAdditionalProps,
   FormFooterProps
 } from "./types";
 import type {
@@ -105,6 +110,7 @@ const emits = defineEmits<{
 const _slots = defineSlots<{
   footer: FormFooterProps;
   actions: FormActionsProps;
+  additional: FormAdditionalProps;
 }>();
 
 defineExpose({

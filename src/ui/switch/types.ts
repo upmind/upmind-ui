@@ -5,7 +5,7 @@ import type { InputTypeHTMLAttribute, HTMLAttributes } from "vue";
 // --- internal
 type _InputVariantProps = VariantProps<typeof switchVariants>;
 
-export interface SwitchProps {
+export type SwitchProps = {
   modelValue?: boolean | number;
   defaultValue?: boolean | number;
   // ---
@@ -21,4 +21,4 @@ export interface SwitchProps {
   // ---
   uiConfig?: { input: CxOptions };
   class?: HTMLAttributes["class"];
-}
+};

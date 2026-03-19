@@ -6,13 +6,13 @@ import type { HTMLAttributes } from "vue";
 // --- internal
 
 export type ButtonGroupItem = ButtonGroupButtonItem | ButtonGroupDropdownItem;
-export interface ButtonGroupProps {
+export type ButtonGroupProps = {
   items: ButtonGroupItem[];
   disabled?: boolean;
   to?: string;
   uiConfig?: { buttonGroup: CxOptions };
   class?: HTMLAttributes["class"];
-}
+};
 
 export namespace ButtonGroup {
   export const Button = "button" as const;
@@ -21,20 +21,20 @@ export namespace ButtonGroup {
   export type Type = typeof Button | typeof Select;
 }
 
-export interface ButtonGroupItemBase {
+export type ButtonGroupItemBase = {
   type: ButtonGroup.Type;
   class?: HTMLAttributes["class"];
   active?: boolean;
-}
+};
 
-export interface ButtonGroupButtonItem extends ButtonGroupItemBase {
+export type ButtonGroupButtonItem = ButtonGroupItemBase & {
   type: typeof ButtonGroup.Button;
   props: Omit<ButtonProps, "variant" | "size">;
   handler?: (event: Event) => void;
-}
+};
 
-export interface ButtonGroupDropdownItem extends ButtonGroupItemBase {
+export type ButtonGroupDropdownItem = ButtonGroupItemBase & {
   type: typeof ButtonGroup.Select;
   props: Omit<SelectProps, "variant" | "size">;
   handler?: (value: any) => void;
-}
+};

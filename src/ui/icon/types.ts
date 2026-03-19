@@ -5,12 +5,12 @@ import type { HTMLAttributes } from "vue";
 // --- internal
 type IconVariantProps = VariantProps<typeof iconVariants>;
 
-export interface Icon {
+export type Icon = {
   name: string;
   path: string;
-}
+};
 // --- types
-export interface IconProps {
+export type IconProps = {
   icon: string | Icon;
   fallback?: string | Icon;
   checked?: boolean;
@@ -20,7 +20,7 @@ export interface IconProps {
   // ---
   uiConfig?: { icon: CxOptions };
   class?: HTMLAttributes["class"];
-}
+};
 
 export type IconEntry = {
   /** Full resolved path from Vite's import.meta.glob */

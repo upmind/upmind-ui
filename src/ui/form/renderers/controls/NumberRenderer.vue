@@ -31,11 +31,8 @@ const props = defineProps<RendererProps<ControlElement>>();
 
 const { control, appliedOptions, formFieldProps, onInput } =
   useUpmindUIRenderer(useJsonFormsControl(props), (value: string) => {
-    return !isNumber(value)
-      ? undefined
-      : isInteger.value
-        ? parseInt(value)
-        : parseFloat(value);
+    const parsed = isInteger.value ? parseInt(value) : parseFloat(value);
+    return isFinite(parsed) ? parsed : undefined;
   });
 
 const isInteger = computed(() => {

@@ -2,16 +2,16 @@
 import type { CxOptions } from "class-variance-authority";
 import type { HTMLAttributes } from "vue";
 // --- types
-export interface SkeletonProps {
+export type SkeletonProps = {
   active?: boolean;
   // --- styles
   uiConfig?: { skeleton: CxOptions };
   class?: HTMLAttributes["class"];
-}
+};
 
-export interface SkeletonListProps {
+export type SkeletonListProps = {
   rows?: number;
   // --- styles
   uiConfig?: { skeletonList: CxOptions };
   class?: HTMLAttributes["class"];
-}
+};

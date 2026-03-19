@@ -15,22 +15,20 @@ import type { HTMLAttributes } from "vue";
 type NumberFieldRootVariants = VariantProps<typeof numberFieldRootVariants>;
 type NumberFieldVariants = VariantProps<typeof numberFieldVariants>;
 
-export interface NumberFieldProps
-  extends
-    NumberFieldRootProps,
-    NumberFieldDecrementProps,
-    NumberFieldIncrementProps {
-  // --- variants
-  size?: NumberFieldRootVariants["size"];
-  width?: NumberFieldRootVariants["width"];
-  variant?: NumberFieldVariants["variant"];
-  // --- behavior
-  singleStep?: boolean;
-  // --- styles
-  uiConfig?: { numberField: CxOptions };
-  class?: HTMLAttributes["class"];
-  classField?: HTMLAttributes["class"];
-}
+export type NumberFieldProps = NumberFieldRootProps &
+  NumberFieldDecrementProps &
+  NumberFieldIncrementProps & {
+    // --- variants
+    size?: NumberFieldRootVariants["size"];
+    width?: NumberFieldRootVariants["width"];
+    variant?: NumberFieldVariants["variant"];
+    // --- behavior
+    singleStep?: boolean;
+    // --- styles
+    uiConfig?: { numberField: CxOptions };
+    class?: HTMLAttributes["class"];
+    classField?: HTMLAttributes["class"];
+  };
 
 export enum NUMBER_FIELD_VARIANTS {
   FLAT = "flat",
