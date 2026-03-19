@@ -14,7 +14,7 @@ import type { HTMLAttributes } from "vue";
 type AnchorVariantProps = VariantProps<typeof anchorVariants>;
 type ContentVariantProps = VariantProps<typeof contentVariants>;
 
-export interface AutocompleteItemProps extends ComboboxItemProps {
+export type AutocompleteItemProps = ComboboxItemProps & {
   label: string;
   tag?: string | string[];
   value: string;
@@ -23,38 +23,38 @@ export interface AutocompleteItemProps extends ComboboxItemProps {
   handler?: Function;
   class?: HTMLAttributes["class"];
   persist?: boolean;
-}
+};
 
-export interface AutocompleteSearchFunction {
+export type AutocompleteSearchFunction = {
   (
     value: string,
     items?: AutocompleteItemProps[]
   ): Promise<AutocompleteItemProps[]>;
-}
+};
 
-export interface AutocompleteProps
-  extends ComboboxRootProps, ComboboxInputProps {
-  // --- state
-  itemLabel?: string;
-  itemValue?: string;
-  // --- state
-  items: AutocompleteItemProps[];
-  modelValue?: string | AutocompleteItemProps;
-  defaultValue?: AutocompleteItemProps | AutocompleteItemProps[];
+export type AutocompleteProps = ComboboxRootProps &
+  ComboboxInputProps & {
+    // --- state
+    itemLabel?: string;
+    itemValue?: string;
+    // --- state
+    items: AutocompleteItemProps[];
+    modelValue?: string | AutocompleteItemProps;
+    defaultValue?: AutocompleteItemProps | AutocompleteItemProps[];
 
-  // --- Search
-  search?: AutocompleteSearchFunction;
-  placeholder?: string;
-  emptyMessage?: string;
-  // --- variants
-  size?: AnchorVariantProps["size"] | string;
-  // color?: ItemVariantProps["color"];
-  // variant?: ButtonProps["variant"];
-  width?: AnchorVariantProps["width"] | string;
-  popoverWidth?: ContentVariantProps["popoverWidth"] | string;
-  iconSize?: AvatarProps["size"];
-  // --- styles
-  uiConfig?: { autocomplete: CxOptions };
-  class?: HTMLAttributes["class"];
-  popoverClass?: HTMLAttributes["class"];
-}
+    // --- Search
+    search?: AutocompleteSearchFunction;
+    placeholder?: string;
+    emptyMessage?: string;
+    // --- variants
+    size?: AnchorVariantProps["size"] | string;
+    // color?: ItemVariantProps["color"];
+    // variant?: ButtonProps["variant"];
+    width?: AnchorVariantProps["width"] | string;
+    popoverWidth?: ContentVariantProps["popoverWidth"] | string;
+    iconSize?: AvatarProps["size"];
+    // --- styles
+    uiConfig?: { autocomplete: CxOptions };
+    class?: HTMLAttributes["class"];
+    popoverClass?: HTMLAttributes["class"];
+  };

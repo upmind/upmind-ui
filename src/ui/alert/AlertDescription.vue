@@ -8,7 +8,14 @@ const props = defineProps<{
 </script>
 
 <template>
-  <p :class="cn('text-sm [&_p]:leading-relaxed', props.class)">
+  <p
+    :class="
+      cn(
+        'flex flex-wrap items-baseline justify-between gap-2 text-sm [&_p]:leading-relaxed',
+        props.class
+      )
+    "
+  >
     <slot />
   </p>
 </template>

@@ -1,5 +1,6 @@
 <template>
-  <div class="upm-lineclamp" :class="styles.lineclamp.root">
+  <slot v-if="disabled" />
+  <div v-else class="upm-lineclamp" :class="styles.lineclamp.root">
     <div ref="wrapper" :class="styles.lineclamp.wrapper">
       <slot />
     </div>
@@ -46,6 +47,7 @@ const props = withDefaults(
     iconLess?: string;
     lines?: number;
     forceOpen?: boolean;
+    disabled?: boolean;
   }>(),
   {
     labelMore: "Show more",
@@ -53,7 +55,8 @@ const props = withDefaults(
     iconMore: "chevron-down",
     iconLess: "chevron-up",
     lines: 3,
-    forceOpen: false
+    forceOpen: false,
+    disabled: false
   }
 );
 
@@ -76,6 +79,7 @@ const windowWidth: ComputedRef<number> = computed(() => {
 const observer = ref<MutationObserver | null>(null);
 // --- methods
 function setDefaultClampState() {
+  if (props.disabled) return;
   nextTick(() => {
     if (wrapper.value) {
       truncated.value = wrapper.value.scrollHeight > wrapper.value.clientHeight;
@@ -90,7 +94,7 @@ onMounted(() => {
 
     // Setup observer for content changes
     observer.value = new MutationObserver(setDefaultClampState);
-    if (wrapper.value) {
+    if (!props.disabled && wrapper.value) {
       observer.value.observe(wrapper.value, {
         childList: true,
         subtree: true,

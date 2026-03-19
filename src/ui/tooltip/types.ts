@@ -8,20 +8,18 @@ import type {
 } from "radix-vue";
 import type { HTMLAttributes } from "vue";
 // --- internal
-export interface TooltipProps
-  extends
-    TooltipRootProps,
-    TooltipContentProps,
-    TooltipProviderProps,
-    TooltipTriggerProps {
-  active?: boolean;
-  label?: string;
-  to?: string;
-  // ---
-  uiConfig?: {
-    content?: CxOptions;
-    arrow?: CxOptions;
-    trigger?: CxOptions;
+export type TooltipProps = TooltipRootProps &
+  TooltipContentProps &
+  TooltipProviderProps &
+  TooltipTriggerProps & {
+    active?: boolean;
+    label?: string;
+    to?: string;
+    // ---
+    uiConfig?: {
+      content?: CxOptions;
+      arrow?: CxOptions;
+      trigger?: CxOptions;
+    };
+    class?: HTMLAttributes["class"];
   };
-  class?: HTMLAttributes["class"];
-}

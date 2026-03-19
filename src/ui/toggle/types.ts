@@ -8,7 +8,7 @@ type ToggleVariantProps = VariantProps<typeof toggleVariants>;
 
 export type { ToggleVariantProps };
 
-export interface ToggleProps {
+export type ToggleProps = {
   modelValue?: boolean | number;
   defaultValue?: boolean | number;
   // ---
@@ -27,4 +27,4 @@ export interface ToggleProps {
   // ---
   uiConfig?: { input: CxOptions };
   class?: HTMLAttributes["class"];
-}
+};

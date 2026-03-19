@@ -6,7 +6,7 @@ export const groupSizeVariants = cva("col-span-12");
 export const groupWrapperVariants = cva(`control-radius ${focusWithinRing}`, {
   variants: {
     isOpen: {
-      true: "rounded-b-none",
+      true: "",
       false: ""
     }
   },
@@ -16,16 +16,16 @@ export const groupWrapperVariants = cva(`control-radius ${focusWithinRing}`, {
 });
 
 export const groupSingleVariants = cva(
-  `bg-control-surface text-control-foreground control-radius shadow-control-default hover:shadow-control-hover relative flex cursor-pointer list-none gap-2 rounded py-4 pr-4 pl-3 font-normal transition-shadow duration-200 ${focusRing}`
+  `bg-control-surface text-control-foreground control-radius shadow-control-default hover:shadow-control-hover relative flex cursor-pointer list-none gap-2 py-4 pr-4 pl-3 font-normal transition-shadow duration-200 ${focusRing}`
 );
 
 export const groupVariants = cva(
-  `bg-control-surface text-control-foreground control-radius shadow-control-default hover:shadow-control-hover relative flex cursor-pointer list-none gap-2 rounded py-4 pr-4 pl-3 font-normal transition-shadow duration-200 outline-none focus:outline-none focus-visible:outline-none`,
+  `bg-control-surface text-control-foreground shadow-control-default hover:shadow-control-hover relative flex cursor-pointer list-none gap-2 py-4 pr-4 pl-3 font-normal transition-shadow duration-200 outline-none focus:outline-none focus-visible:outline-none`,
   {
     variants: {
       isOpen: {
-        true: "rounded-b-none",
-        false: ""
+        true: "control-radius-t",
+        false: "control-radius"
       }
     },
     defaultVariants: {
@@ -35,11 +35,11 @@ export const groupVariants = cva(
 );
 
 export const dropdownVariants = cva(
-  "group/dropdown bg-control-surface control-radius border-border w-full rounded-t-none border border-t-0"
+  "group/dropdown bg-control-surface border-border control-radius-b divide-border flex w-full flex-col divide-y rounded-t-none border border-t-0 p-2"
 );
 
 export const dropdownItemVariants = cva(
-  `group/item border-border data-[focused=true]:bg-muted flex cursor-pointer items-start gap-3 border-t px-4 py-3 transition-colors first:border-t-0`
+  `group/item data-[state=checked]:bg-control-selected data-[focused=true]:bg-muted flex cursor-pointer items-start gap-3 px-4 py-3 transition-colors`
 );
 
 export const rootVariants = cva("grid w-full grid-cols-12 gap-2");
@@ -55,6 +55,7 @@ export default {
     },
     header: {
       root: cva("flex w-full items-start justify-between gap-2"),
+      container: cva("w-full items-start justify-between gap-2 md:flex"),
       icon: cva("text-muted size-5 shrink-0"),
       chevron: cva(
         "text-muted ml-2 size-4 shrink-0 transition-transform duration-200"

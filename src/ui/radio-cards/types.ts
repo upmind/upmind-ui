@@ -15,7 +15,7 @@ export type RadioCardsItemActionProps = LinkProps & {
   visible?: boolean;
 };
 
-export interface RadioCardsItemProps extends RadioGroupItemProps {
+export type RadioCardsItemProps = RadioGroupItemProps & {
   item?: any;
   index: number;
   name?: string;
@@ -40,9 +40,9 @@ export interface RadioCardsItemProps extends RadioGroupItemProps {
   uiConfig?: { radioCards: CxOptions };
   dataHover?: boolean;
   dataFocus?: boolean;
-}
+};
 
-export interface RadioCardsProps extends RadioGroupRootProps {
+export type RadioCardsProps = RadioGroupRootProps & {
   label?: string;
   // placeholder?: string;
   noneText?: string;
@@ -61,4 +61,4 @@ export interface RadioCardsProps extends RadioGroupRootProps {
   radioClass?: HTMLAttributes["class"];
   dataHover?: boolean;
   dataFocus?: boolean;
-}
+};

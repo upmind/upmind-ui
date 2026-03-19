@@ -18,8 +18,10 @@ import {
   isEmpty,
   isEqual,
   isFunction,
+  isNil,
   map,
   merge,
+  reduce,
   set
 } from "lodash-es";
 // --- types
@@ -129,11 +131,11 @@ export const useUpmindUIRenderer = <
   watch(input.control, _control => {
     touched.value =
       touched.value || jsonforms?.core?.validationMode === "ValidateAndShow";
-
     errors.value = getErrors();
   });
 
   const onInput = (value: any, isTouched: boolean = true) => {
+    if (isNil(value)) return; // NB values that are not set cannot be dirty
     input.handleChange(input.control.value.path, adaptTarget(value));
     touched.value = isTouched;
   };
@@ -311,18 +313,20 @@ export const createIndexedOneOfRenderInfos = (
     control.uischemas
   );
 
-  return result
-    .filter(info => info.uischema)
-    .map((info, index) => {
-      if (oneOfUiSchemas && oneOfUiSchemas[index]) {
-        return {
-          ...info,
-          uischema: oneOfUiSchemas[index],
-          index: index
-        };
-      }
-      return { ...info, index: index };
-    });
+  return reduce(
+    result,
+    (acc, info, index) => {
+      if (!info.uischema) return acc;
+
+      acc.push(
+        oneOfUiSchemas && oneOfUiSchemas[index]
+          ? { ...info, uischema: oneOfUiSchemas[index], index }
+          : { ...info, index }
+      );
+      return acc;
+    },
+    [] as (CombinatorSubSchemaRenderInfo & { index: number })[]
+  );
 };
 // -----------------------------------------------------------------------------
 

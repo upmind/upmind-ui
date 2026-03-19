@@ -8,7 +8,7 @@ import type { HTMLAttributes } from "vue";
 
 type AlertVariantProps = VariantProps<typeof alertVariants>;
 
-export interface AlertProps {
+export type AlertProps = {
   /** The title of the alert */
   title?: string;
   /** An optional description of the alert */
@@ -24,4 +24,4 @@ export interface AlertProps {
   // ---
   uiConfig?: { alert: CxOptions };
   class?: HTMLAttributes["class"];
-}
+};

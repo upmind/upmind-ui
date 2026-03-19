@@ -6,7 +6,7 @@ import type { HTMLAttributes } from "vue";
 // --- types
 type _RadioCardsItemVariantProps = VariantProps<typeof itemVariants>;
 
-export interface RadioCardsCollapsibleItemProps extends RadioGroupItemProps {
+export type RadioCardsCollapsibleItemProps = RadioGroupItemProps & {
   item?: any;
   index: number;
   name?: string;
@@ -22,9 +22,9 @@ export interface RadioCardsCollapsibleItemProps extends RadioGroupItemProps {
   /** Number of items per row (0-6). 0 = custom grid, 1 = full width. Example: columns={3} displays 3 items per row. */
   columns?: number;
   uiConfig?: { radioCards: CxOptions };
-}
+};
 
-export interface RadioCardsCollapsibleProps extends RadioGroupRootProps {
+export type RadioCardsCollapsibleProps = RadioGroupRootProps & {
   label?: string;
   placeholder?: string;
   noneText?: string;
@@ -34,6 +34,7 @@ export interface RadioCardsCollapsibleProps extends RadioGroupRootProps {
   open?: boolean;
   autoCollapse?: boolean;
   minimal?: boolean;
+  forceOpen?: boolean;
   changeButtonLabel?: string;
   // --- state
   items: RadioCardsCollapsibleItemProps[];
@@ -45,4 +46,4 @@ export interface RadioCardsCollapsibleProps extends RadioGroupRootProps {
   uiConfig?: { radioCards: CxOptions };
   class?: HTMLAttributes["class"];
   radioClass?: HTMLAttributes["class"];
-}
+};

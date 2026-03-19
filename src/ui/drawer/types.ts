@@ -15,7 +15,7 @@ type DrawerContainerVariantProps = VariantProps<typeof containerVariant>;
 type DrawerInnerVariantProps = VariantProps<typeof innerVariant>;
 type _DrawerHeightVariantProps = VariantProps<typeof innerVariant>["height"];
 
-export interface DrawerProps extends DrawerPortalProps {
+export type DrawerProps = DrawerPortalProps & {
   // --- root props
   activeSnapPoint?: number | string | null;
   closeThreshold?: number;
@@ -52,4 +52,4 @@ export interface DrawerProps extends DrawerPortalProps {
   classHeader?: HTMLAttributes["class"];
   classContent?: HTMLAttributes["class"];
   classFooter?: HTMLAttributes["class"];
-}
+};

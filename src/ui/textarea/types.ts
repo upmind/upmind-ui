@@ -5,7 +5,7 @@ import type { HTMLAttributes } from "vue";
 // --- internal
 type _TextareaVariantProps = VariantProps<typeof textareaVariants>;
 
-export interface TextareaProps {
+export type TextareaProps = {
   modelValue?: string | number;
   defaultValue?: string | number;
   // ---
@@ -29,4 +29,4 @@ export interface TextareaProps {
   class?: HTMLAttributes["class"];
   dataHover?: boolean;
   dataFocus?: boolean;
-}
+};

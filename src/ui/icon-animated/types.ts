@@ -4,7 +4,7 @@ import type { HTMLAttributes } from "vue";
 // --- internal
 type IconVariantProps = VariantProps<typeof iconVariants>;
 // --- types
-export interface AnimatedIconProps {
+export type AnimatedIconProps = {
   icon: string;
   trigger?: string;
   sequence?: string;
@@ -16,7 +16,7 @@ export interface AnimatedIconProps {
   class?: HTMLAttributes["class"];
   primaryColor?: string;
   secondaryColor?: string;
-}
+};
 
 /**
  * The type for the import map returned by import.meta.glob for animations.
@@ -27,11 +27,11 @@ export type AnimationImportMap = Record<string, () => Promise<unknown>>;
 /**
  * Animation entry storing parsed metadata for efficient matching.
  */
-export interface AnimationEntry {
+export type AnimationEntry = {
   /** Full resolved path from Vite's import.meta.glob */
   fullPath: string;
   /** Animation name without extension */
   name: string;
   /** Lazy loader function that returns the animation URL */
   loader: () => Promise<string>;
-}
+};

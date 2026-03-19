@@ -7,7 +7,7 @@ import type { HTMLAttributes } from "vue";
 
 type IndicatorVariantProps = VariantProps<typeof indicatorVariants>;
 
-export interface IndicatorProps {
+export type IndicatorProps = {
   modelValue: { type: string };
   icon?: IconProps["icon"];
   // ---
@@ -18,4 +18,4 @@ export interface IndicatorProps {
   // ---
   uiConfig?: { indicator: CxOptions };
   class?: HTMLAttributes["class"];
-}
+};

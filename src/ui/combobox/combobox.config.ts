@@ -26,7 +26,7 @@ export const variants = {
 };
 
 export const triggerVariants = cva(
-  "text-md bg-control-surface [&:hover,&[data-hover=true]]:shadow-control-hover control-radius shadow-control-default h-auto justify-between gap-2 text-base transition-all duration-200",
+  "text-md bg-control-surface [&:hover,&[data-hover=true]]:shadow-control-hover control-radius shadow-control-default text-control-selected h-auto justify-between gap-2 transition-all duration-200",
   {
     variants
   }
@@ -95,7 +95,13 @@ export default {
     trigger: triggerVariants,
     content: contentVariants,
     label: labelVariants,
+    list: cva("border-control-default w-full max-w-full border-t"),
     item: itemVariants,
-    input: inputVariants
+    listItem: cva("group flex cursor-pointer items-center justify-start gap-4"),
+    input: inputVariants,
+    scrollbar: cva("flex w-2 touch-none p-px select-none"),
+    scrollbarThumb: cva(
+      "relative flex-1 rounded-full bg-(--border-control-default)"
+    )
   }
 };

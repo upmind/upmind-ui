@@ -63,7 +63,11 @@ export default {
     content: contentVariants,
     trigger: triggerVariants,
     item: itemVariants,
-    items: cva("flex min-h-0 w-full flex-col gap-0 overflow-y-auto"),
+    items: cva("flex min-h-0 w-full flex-col gap-0 overflow-hidden"),
+    scrollbar: cva("flex w-2 touch-none p-px select-none"),
+    scrollbarThumb: cva(
+      "relative flex-1 rounded-full bg-(--border-control-default)"
+    ),
     group: groupVariants,
     input: cva(
       "bg-control-surface text-control-active my-3 mr-1 ml-3 leading-normal"

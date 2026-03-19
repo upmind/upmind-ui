@@ -7,7 +7,7 @@
       :aria-checked="checked"
       aria-hidden="true"
     />
-    <Avatar v-if="avatar" :avatar="avatar" size="xs" />
+    <Avatar v-if="avatar" v-bind="avatar" size="xs" />
   </span>
 </template>
 
