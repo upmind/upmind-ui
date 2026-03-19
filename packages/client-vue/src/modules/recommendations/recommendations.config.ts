@@ -67,9 +67,7 @@ export default {
     },
 
     actions: {
-      root: cva(
-        "lg:bg-control-surface lg:border-surface card-radius mt-8 flex flex-col items-center justify-between bg-transparent p-0 lg:flex-row lg:border lg:px-8 lg:py-6"
-      ),
+      root: cva("flex flex-col items-center justify-between lg:flex-row"),
       label: cva(
         "text-md order-last mt-4 text-center font-medium lg:order-first lg:mt-0 lg:text-left"
       ),

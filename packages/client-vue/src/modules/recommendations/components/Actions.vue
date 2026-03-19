@@ -1,8 +1,12 @@
 <template>
-  <section :class="styles.recommendation.actions.root">
-    <div :class="styles.recommendation.actions.label">
+  <component
+    :is="isMobile ? 'section' : Card"
+    :class="styles.recommendation.actions.root"
+    size="sm"
+  >
+    <p :class="styles.recommendation.actions.label">
       {{ t("cart.basket_items", { count: count ?? 0 }) }}
-    </div>
+    </p>
 
     <Button
       @click="$emit('skip')"
@@ -12,13 +16,18 @@
       :class="styles.recommendation.actions.button"
       iconAppend="arrow-right"
     />
-  </section>
+  </component>
 </template>
 
 <script lang="ts" setup>
 // --- external
 import { useI18n } from "vue-i18n";
-import { Button, useStyles } from "@upmind-automation/upmind-ui";
+import {
+  Button,
+  Card,
+  isMobile,
+  useStyles
+} from "@upmind-automation/upmind-ui";
 
 // --- internal
 import config from "../recommendations.config";
