@@ -43,11 +43,11 @@
     border-radius: 0 var(--image-radius) var(--image-radius) 0;
   }
 
-  .card-radius {
-    border-radius: var(--card-radius);
-  }
-
   .message-radius {
     border-radius: var(--message-radius);
   }
+}
+
+@utility card-radius {
+  border-radius: var(--card-radius);
 }
