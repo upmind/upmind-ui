@@ -126,6 +126,7 @@
   "trial_renews_at_msg": "Подновява се за {price} след пробния период",
   "try_before_you_buy": "Пробвайте преди да купите",
   "try_free_for_days": "Пробвайте безплатно за {days} дни",
+  "unavailable": "Не е налично",
   "unverified_label": "Непроверено",
   "welcome_back_msg": "Добре дошъл отново, {name}"
 }

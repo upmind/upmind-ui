@@ -126,6 +126,7 @@
   "trial_renews_at_msg": "Renews at {price} after trial",
   "try_before_you_buy": "Try before you buy",
   "try_free_for_days": "Try free for {days} days",
+  "unavailable": "Unavailable",
   "unverified_label": "Unverified",
   "welcome_back_msg": "Welcome back, {name}"
 }

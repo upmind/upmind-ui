@@ -126,6 +126,7 @@
   "trial_renews_at_msg": "Förnyas automatiskt till {price} efter provperioden",
   "try_before_you_buy": "Testa innan du köper",
   "try_free_for_days": "Prova gratis i {days} dagar",
+  "unavailable": "Inte tillgänglig",
   "unverified_label": "Overifierad",
   "welcome_back_msg": "Välkommen tillbaka, {name}"
 }

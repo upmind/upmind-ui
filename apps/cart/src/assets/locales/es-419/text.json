@@ -126,6 +126,7 @@
   "trial_renews_at_msg": "Se renueva y se cobra {price} después de la prueba",
   "try_before_you_buy": "Prueba antes de comprar",
   "try_free_for_days": "Prueba gratis por {days} días",
+  "unavailable": "No disponible",
   "unverified_label": "Inconfirmado",
   "welcome_back_msg": "Bienvenido de nuevo, {name}"
 }

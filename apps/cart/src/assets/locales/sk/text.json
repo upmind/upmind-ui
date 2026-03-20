@@ -126,6 +126,7 @@
   "trial_renews_at_msg": "Po skúšobnom období sa predplatné automaticky obnoví a bude účtované za {price}",
   "try_before_you_buy": "Vyskúšajte pred kúpou",
   "try_free_for_days": "Vyskúšajte zdarma na {days} dní",
+  "unavailable": "Nedostupné",
   "unverified_label": "Neoverené",
   "welcome_back_msg": "Vitaj späť, {name}"
 }

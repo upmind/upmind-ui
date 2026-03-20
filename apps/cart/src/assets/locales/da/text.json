@@ -126,6 +126,7 @@
   "trial_renews_at_msg": "Fornyes og faktureres til {price} efter prøveperioden",
   "try_before_you_buy": "Prøv før du køber",
   "try_free_for_days": "Prøv gratis i {days} dage",
+  "unavailable": "Utilgængelig",
   "unverified_label": "Ubekræftet",
   "welcome_back_msg": "Velkommen tilbage, {name}"
 }

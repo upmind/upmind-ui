@@ -126,6 +126,7 @@
   "trial_renews_at_msg": "Nach der Testphase automatische Verlängerung zum Preis von {price}",
   "try_before_you_buy": "Erst testen, dann kaufen",
   "try_free_for_days": "{days} Tage kostenlos testen",
+  "unavailable": "Unverfügbar",
   "unverified_label": "Unbestätigt",
   "welcome_back_msg": "Willkommen zurück, {name}"
 }

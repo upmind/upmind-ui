@@ -126,6 +126,7 @@
   "trial_renews_at_msg": "Próbaidőszak után {price} áron automatikusan megújul",
   "try_before_you_buy": "Próbáld ki fizetés előtt",
   "try_free_for_days": "Próbáld ki ingyen {days} napig",
+  "unavailable": "Nem elérhető",
   "unverified_label": "Ellenőrizetlen",
   "welcome_back_msg": "Isten hozott ismét, {name}"
 }

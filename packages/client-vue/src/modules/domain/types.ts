@@ -71,6 +71,8 @@ export type DomainCardProps = {
   owned?: DomainProduct["meta"]["owned"];
   discounted?: DomainProduct["meta"]["discounted"];
   free?: DomainProduct["meta"]["free"];
+  canTransfer?: DomainProduct["meta"]["canTransfer"];
+  unavailable?: DomainProduct["meta"]["unavailable"];
   exactMatch?: boolean;
 };
 
@@ -88,6 +90,8 @@ export interface DomainCardMeta {
   isExactMatch: boolean;
   isOwned: boolean;
   isDiscounted: boolean;
+  isUnavailable: boolean;
+  isTransferable: boolean;
 }
 
 export interface DomainCardSkeletonProps {
