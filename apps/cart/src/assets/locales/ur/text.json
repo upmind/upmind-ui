@@ -126,6 +126,7 @@
   "trial_renews_at_msg": "ٹرائل کے بعد {price} پر خودکار تجدید اور چارج ہوگا",
   "try_before_you_buy": "پہلے آزمائیں، پھر خریدیں",
   "try_free_for_days": "{days} دن مفت آزمائیں",
+  "unavailable": "دستیاب نہیں۔",
   "unverified_label": "غیر تصدیق شدہ",
   "welcome_back_msg": "دوبارہ خوش آمدید، {name}"
 }

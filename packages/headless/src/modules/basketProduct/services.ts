@@ -458,10 +458,32 @@ async function generateBasket(products: IBasketProductModel[] = []) {
   const { get: getTracking } = useTracking();
   const { currencyCode } = useBasketCurrency();
 
+  // For basket creation (POST /orders), promotions must be at the root payload
+  // level, not nested inside each product. Extract and hoist them.
+  const promotions = reduce(
+    products,
+    (acc: any[], product) => {
+      if (!isEmpty(product.promotions)) {
+        acc.push(...product.promotions);
+      }
+      return acc;
+    },
+    []
+  );
+
+  // Remove promotions from individual products to avoid duplication
+  const cleanProducts = map(products, product => {
+    const { promotions: _promotions, ...rest } = product;
+    return rest;
+  });
+
   const data: Record<string, any> = {
     category_slug: "new_contract",
-    products
+    products: cleanProducts
   };
+
+  // Add promotions at root level if any exist
+  if (!isEmpty(promotions)) data.promotions = promotions;
   // ---
   // Conditional data
   // add currency if available

@@ -126,6 +126,7 @@
   "trial_renews_at_msg": "試用期結束後將以 {price} 自動續訂並收費",
   "try_before_you_buy": "先試用，滿意再買",
   "try_free_for_days": "免費試用 {days} 天",
+  "unavailable": "不可用",
   "unverified_label": "未經證實",
   "welcome_back_msg": "歡迎回來， {name}"
 }

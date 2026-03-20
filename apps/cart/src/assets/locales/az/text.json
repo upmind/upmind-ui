@@ -126,6 +126,7 @@
   "trial_renews_at_msg": "Sınaqdan sonra {price} qiymətinə yenilənir",
   "try_before_you_buy": "Əvvəl sına, sonra al",
   "try_free_for_days": "{days} gün pulsuz sına",
+  "unavailable": "Əlçatan deyil",
   "unverified_label": "Təsdiqlənməmiş",
   "welcome_back_msg": "Xoş gəldiniz, {name}"
 }

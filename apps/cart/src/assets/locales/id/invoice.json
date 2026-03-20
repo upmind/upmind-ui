@@ -1,6 +1,6 @@
 {
   "order_complete": "Pesanan selesai!",
-  "order_complete_msg": "Kami telah mengirimkan email konfirmasi berisi detail pesanan Anda. Di dalamnya juga tercantum semua informasi yang perlu Anda ketahui tentang pembelian Anda.",
+  "order_complete_msg": "Kami telah mengirimkan email konfirmasi berisi detail pesanan Anda, beserta semua informasi yang perlu Anda ketahui tentang pembelian Anda.",
   "order_free": "Tidak ada lagi yang perlu dibayar.",
   "order_free_msg": "Pesanan Anda telah berhasil diproses. Tidak diperlukan pembayaran.",
   "order_locked": "Invoice terkunci",

@@ -126,6 +126,7 @@
   "trial_renews_at_msg": "Na de proefperiode verlengt het voor {price}",
   "try_before_you_buy": "Eerst proberen, dan kopen",
   "try_free_for_days": "Probeer {days} dagen gratis uit",
+  "unavailable": "Niet beschikbaar",
   "unverified_label": "Niet geverifieerd",
   "welcome_back_msg": "Welkom terug, {name}"
 }

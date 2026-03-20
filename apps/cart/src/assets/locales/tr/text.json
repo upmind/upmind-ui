@@ -126,6 +126,7 @@
   "trial_renews_at_msg": "Deneme sonrası {price} ücretle otomatik yenilenir",
   "try_before_you_buy": "Dene, beğenirsen satın al",
   "try_free_for_days": "{days} gün ücretsiz dene",
+  "unavailable": "Mevcut değil",
   "unverified_label": "Doğrulanmamış",
   "welcome_back_msg": "Tekrar hoşgeldiniz, {name}"
 }

@@ -126,6 +126,7 @@
   "trial_renews_at_msg": "Se reînnoiește automat la {price} după perioada de probă",
   "try_before_you_buy": "Testează înainte să cumperi",
   "try_free_for_days": "Încearcă gratuit timp de {days} zile",
+  "unavailable": "Indisponibil",
   "unverified_label": "Neverificat",
   "welcome_back_msg": "Bine ai revenit, {name}"
 }
