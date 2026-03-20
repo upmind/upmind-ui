@@ -181,7 +181,8 @@ export function parsSummaryWithPrice(
     free: raw.configuration_net_amount_discounted_converted == 0,
     freeTrial: !!raw?.in_trial,
     renewalPrice: find(raw.product?.prices, {
-      billing_cycle_months: raw.billing_cycle_months
+      billing_cycle_months: raw.billing_cycle_months,
+      currency_id: raw.base_price_currency_id
     })?.price_formatted,
     overrides: raw?.product?.category?.price_override,
     mixed: raw?.product?.mixed_promotions, //TODO: check if this is correct
