@@ -35,6 +35,7 @@
   "date_sent": "Göndərilmə tarixi",
   "default_label": "Defolt",
   "discount": "Endirim",
+  "domain_not_available_msg": "Bu domen bizim vasitəmizlə mövcud deyil.",
   "edit_configuration": "Konfiqurasiyanı redaktə edin",
   "email_bounced": "E-poçt geri qaytarıldı",
   "email_history": "E-poçt Tarixçəsi",

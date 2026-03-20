@@ -35,6 +35,7 @@
   "date_sent": "Дата отправки",
   "default_label": "По умолчанию",
   "discount": "Скидка",
+  "domain_not_available_msg": "Этот домен недоступен через нас.",
   "edit_configuration": "Изменить конфигурацию",
   "email_bounced": "Письмо не дошло до адресата.",
   "email_history": "История электронных писем",

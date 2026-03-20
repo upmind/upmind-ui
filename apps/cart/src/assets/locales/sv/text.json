@@ -35,6 +35,7 @@
   "date_sent": "Datum skickat",
   "default_label": "Standard",
   "discount": "Rabatt",
+  "domain_not_available_msg": "Denna domän är inte tillgänglig via oss.",
   "edit_configuration": "Redigera konfiguration",
   "email_bounced": "E-postmeddelandet studsade",
   "email_history": "E-posthistorik",

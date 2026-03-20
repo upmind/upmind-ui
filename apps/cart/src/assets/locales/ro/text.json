@@ -35,6 +35,7 @@
   "date_sent": "Data trimiterii",
   "default_label": "Implicit",
   "discount": "Reducere",
+  "domain_not_available_msg": "Acest domeniu nu este disponibil prin intermediul nostru.",
   "edit_configuration": "Editați configurația",
   "email_bounced": "E-mail respins",
   "email_history": "Istoricul e-mailurilor",

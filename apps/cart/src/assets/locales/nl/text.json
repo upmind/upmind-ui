@@ -35,6 +35,7 @@
   "date_sent": "Datum verzonden",
   "default_label": "Standaard",
   "discount": "Korting",
+  "domain_not_available_msg": "Dit domein is niet via ons beschikbaar.",
   "edit_configuration": "Configuratie bewerken",
   "email_bounced": "E-mail is teruggestuurd",
   "email_history": "E-mailgeschiedenis",

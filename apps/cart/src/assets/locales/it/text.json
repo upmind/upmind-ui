@@ -35,6 +35,7 @@
   "date_sent": "Data di invio",
   "default_label": "Predefinito",
   "discount": "Sconto",
+  "domain_not_available_msg": "Questo dominio non è disponibile tramite noi.",
   "edit_configuration": "Modifica configurazione",
   "email_bounced": "Email respinta",
   "email_history": "Cronologia e-mail",
