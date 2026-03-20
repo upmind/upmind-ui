@@ -35,6 +35,7 @@
   "date_sent": "Дата відправлення",
   "default_label": "За замовчуванням",
   "discount": "Знижка",
+  "domain_not_available_msg": "Цей домен недоступний через нас.",
   "edit_configuration": "Редагувати конфігурацію",
   "email_bounced": "Електронний лист повернуто",
   "email_history": "Історія електронної пошти",

@@ -35,6 +35,7 @@
   "date_sent": "Data wysłania",
   "default_label": "Domyślny",
   "discount": "Rabat",
+  "domain_not_available_msg": "Ta domena nie jest dostępna w naszej ofercie.",
   "edit_configuration": "Edytuj konfigurację",
   "email_bounced": "E-mail został zwrócony",
   "email_history": "Historia wiadomości e-mail",

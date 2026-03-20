@@ -35,6 +35,7 @@
   "date_sent": "Дата на изпращане",
   "default_label": "По подразбиране",
   "discount": "Отстъпка",
+  "domain_not_available_msg": "Този домейн не е наличен чрез нас.",
   "edit_configuration": "Редактиране на конфигурацията",
   "email_bounced": "Имейлът е върнат",
   "email_history": "История на имейлите",

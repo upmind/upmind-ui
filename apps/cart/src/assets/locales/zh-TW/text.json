@@ -35,6 +35,7 @@
   "date_sent": "發送日期",
   "default_label": "預設",
   "discount": "折扣",
+  "domain_not_available_msg": "該域名無法透過我們取得。",
   "edit_configuration": "編輯配置",
   "email_bounced": "郵件退回",
   "email_history": "電子郵件歷史記錄",

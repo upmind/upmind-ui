@@ -35,6 +35,7 @@
   "date_sent": "Tanggal pengiriman",
   "default_label": "Bawaan",
   "discount": "Diskon",
+  "domain_not_available_msg": "Domain ini tidak tersedia melalui kami.",
   "edit_configuration": "Edit konfigurasi",
   "email_bounced": "Email gagal terkirim.",
   "email_history": "Riwayat Email",

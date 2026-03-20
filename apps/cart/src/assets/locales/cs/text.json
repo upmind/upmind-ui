@@ -35,6 +35,7 @@
   "date_sent": "Datum odeslání",
   "default_label": "Výchozí",
   "discount": "Sleva",
+  "domain_not_available_msg": "Tato doména není u nás dostupná.",
   "edit_configuration": "Upravit konfiguraci",
   "email_bounced": "E-mail nedoručen",
   "email_history": "Historie e-mailů",

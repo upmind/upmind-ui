@@ -35,6 +35,7 @@
   "date_sent": "Datum des Versands",
   "default_label": "Standard",
   "discount": "Rabatt",
+  "domain_not_available_msg": "Diese Domain ist bei uns nicht verfügbar.",
   "edit_configuration": "Konfiguration bearbeiten",
   "email_bounced": "E-Mail zurückgewiesen",
   "email_history": "E-Mail-Verlauf",
