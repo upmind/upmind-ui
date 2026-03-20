@@ -464,7 +464,7 @@ async function generateBasket(products: IBasketProductModel[] = []) {
     products,
     (acc: any[], product) => {
       if (!isEmpty(product.promotions)) {
-        acc.push(...product.promotions);
+        acc.push(...(product.promotions ?? []));
       }
       return acc;
     },
