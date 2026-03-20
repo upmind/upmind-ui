@@ -5,6 +5,7 @@
         :cycle="termDetails.cycle"
         :discounted="termDetails.meta?.discounted"
         :free-trial="termDetails.meta?.freeTrial"
+        :oneoff="termDetails.meta?.oneoff"
         :regular-price="termDetails.price?.regularPrice"
         :renewal-price="termDetails.meta?.renewalPrice"
       />
@@ -18,6 +19,7 @@
           :cycle="termDetails.cycle"
           :discounted="termDetails.meta?.discounted"
           :free-trial="termDetails.meta?.freeTrial"
+          :oneoff="termDetails.meta?.oneoff"
           :regular-price="termDetails.price?.regularPrice"
           :renewal-price="termDetails.meta?.renewalPrice"
         />
