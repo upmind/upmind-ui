@@ -70,12 +70,14 @@
               </Link>
             </Tooltip>
 
-            <Promotion
-              v-for="(promotion, index) in summary.promotions"
-              :key="index"
-              v-bind="promotion"
-              :disabled="error"
-            />
+            <template v-if="!summary.meta?.freeTrial">
+              <Promotion
+                v-for="(promotion, index) in summary.promotions"
+                :key="index"
+                v-bind="promotion"
+                :disabled="error"
+              />
+            </template>
           </template>
         </hgroup>
       </div>
@@ -120,6 +122,7 @@
 
         <div :class="styles.product.summary.footer.price.container">
           <ExPrice
+            v-if="!summary.meta?.freeTrial"
             :regular-price="summary.price.regularPrice"
             :monthly-from-regular-price="
               summary.price.monthlyFromRegularPrice ?? ''

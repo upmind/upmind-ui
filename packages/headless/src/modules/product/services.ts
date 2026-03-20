@@ -70,6 +70,7 @@ async function load(
     currencyId,
     currencyCode,
     coupons,
+    promotions: basketPromotions,
     basketId,
     rawBasketProduct
   }: ProductConfigContext,
@@ -135,7 +136,8 @@ async function load(
       {
         basketId,
         currency_id: currency?.id,
-        promotions
+        promotions,
+        basketPromotions: map(basketPromotions, "promotion_id")
       }
     ],
     staleTime: useTime()?.DAY, // product data is not updated often, so we can cache for a day

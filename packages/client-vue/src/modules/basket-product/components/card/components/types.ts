@@ -45,6 +45,7 @@ export interface RenewDescriptionProps {
   cycle?: number;
   discounted?: boolean;
   freeTrial?: boolean;
+  oneoff?: boolean;
   regularPrice?: string;
   renewalPrice?: string;
 }
