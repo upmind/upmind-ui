@@ -109,13 +109,14 @@ function buildDomainProductFromAvailability(
   }
 
   // Fallback when product is missing (unavailable domains)
-  const prices = product?.prices ?? [];
+  // Use availability.product to avoid TS narrowing (product is `never` after the early return)
+  const prices = (availability.product as any)?.prices ?? [];
   const sortedPrices = [...prices].sort(
-    (a, b) => a.billing_cycle_months - b.billing_cycle_months
+    (a: any, b: any) => a.billing_cycle_months - b.billing_cycle_months
   );
   const priceEntry =
-    prices.find(p => p.billing_cycle_months === 12) ??
-    prices.find(p => p.billing_cycle_months === preferredCycle) ??
+    prices.find((p: any) => p.billing_cycle_months === 12) ??
+    prices.find((p: any) => p.billing_cycle_months === preferredCycle) ??
     sortedPrices[0];
 
   const priceFormatted = priceEntry?.price_formatted ?? "";
@@ -247,10 +248,12 @@ function search(context: DacContext) {
     // Helper: build the merged result from whatever data is available
     const buildResult = () => {
       // Clone suggestion data to avoid mutating TanStack cache
-      let data = (suggestionsData ?? []).map((item: DomainProduct) => ({
-        ...item,
-        meta: { ...item.meta, exactMatch: false as boolean }
-      }));
+      let data: DomainProduct[] = (suggestionsData ?? []).map(
+        (item: DomainProduct) => ({
+          ...item,
+          meta: { ...item.meta, exactMatch: false as boolean }
+        })
+      );
 
       if (exactDomain && availabilityData) {
         data = data.filter(
@@ -261,7 +264,7 @@ function search(context: DacContext) {
           availabilityData,
           preferredCycle
         );
-        data.unshift(exactProduct);
+        data.unshift(exactProduct as any);
       }
 
       return {
