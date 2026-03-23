@@ -9,3 +9,5 @@ export * from "./emailHistory";
 
 export { default as UpmLocale } from "./LocaleSwitcher.vue";
 export { default as UpmOverlayController } from "./overlays/OverlayController.vue";
+export { useOverlayRoute } from "./overlays/useOverlayRoute";
+export type { UseOverlayRoute } from "./overlays/useOverlayRoute";

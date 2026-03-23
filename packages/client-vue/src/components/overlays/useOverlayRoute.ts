@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 /**
- * @module routing/useOverlayRoute
+ * @module composables/useOverlayRoute
  * @description Composable for controlling overlay routes (modals/drawers)
  * triggered by named route endpoints. Watches the current route's matched
  * records for overlay meta and exposes reactive state + close() method.
@@ -14,7 +14,7 @@ import { useRoute, useRouter } from "vue-router";
 import { find } from "lodash-es";
 
 // --- types
-import { OverlayType } from "./types";
+import type { OverlayType } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 
@@ -22,6 +22,9 @@ import { OverlayType } from "./types";
  * Composable for controlling overlay routes (modals/drawers).
  * Watches the current route's matched records for overlay meta
  * and exposes reactive state for rendering the correct overlay.
+ *
+ * NB: `returnRoute` query param holds a Vue Router **route name** (not a URL path).
+ * Funnels set it when redirecting to an overlay, e.g. `returnRoute: ROUTE.CHECKOUT`.
  */
 export function useOverlayRoute() {
   const route = useRoute();
@@ -49,14 +52,19 @@ export function useOverlayRoute() {
 
   // --- methods
 
-  /** Close overlay and navigate to returnUrl or back to parent */
+  /** Close overlay and navigate to returnRoute (route name) or back to parent */
   function close(): void {
-    const returnUrl = route.query?.returnUrl as string | undefined;
-    if (returnUrl) {
-      router.push({ name: returnUrl });
+    const returnRoute = route.query?.returnRoute as string | undefined;
+    if (returnRoute) {
+      router.push({ name: returnRoute });
     } else {
       router.back();
     }
+  }
+
+  /** Waits for the composable to be ready — resolves immediately (no async init). */
+  async function isReady(): Promise<boolean> {
+    return Promise.resolve(true);
   }
 
   // ---------------------------------------------------------------------------
@@ -66,10 +74,12 @@ export function useOverlayRoute() {
     isOpen,
     /** The overlay identifier */
     overlayId,
+    /** Whether the composable is ready */
+    isReady,
     /** The overlay render type: 'modal' | 'drawer' */
     overlayType,
     // --- methods
-    /** Close the overlay */
+    /** Close the overlay, navigating to returnRoute or router.back() */
     close
   };
 }

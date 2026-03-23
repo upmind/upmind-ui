@@ -6,7 +6,7 @@
 /**
  * Auth Overlay Content
  * Renders the session Auth component inside an overlay (drawer/modal).
- * On authentication completion, navigates to returnUrl or closes the overlay.
+ * On authentication completion, navigates to returnRoute (route name) or closes the overlay.
  */
 
 // --- external
@@ -36,11 +36,11 @@ const initialMode = computed(
   () => get(route, "query.mode", "login") as SessionProps["modelValue"]
 );
 
-/** Navigate to returnUrl on auth success, or emit close */
+/** Navigate to returnRoute (route name) on auth success, or emit close */
 function onAuthComplete(): void {
-  const returnUrl = get(route, "query.returnUrl") as string | undefined;
-  if (returnUrl) {
-    router.push({ name: returnUrl });
+  const returnRoute = get(route, "query.returnRoute") as string | undefined;
+  if (returnRoute) {
+    router.push({ name: returnRoute });
   } else {
     emit("close");
   }
