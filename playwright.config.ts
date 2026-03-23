@@ -1,11 +1,13 @@
 import { defineConfig, devices } from "@playwright/test";
 
+const baseURL = "http://qa-automation.local:5173/";
+
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
   /* Timeouts */
-  timeout: 90000,
+  timeout: 30000,
   expect: {
     timeout: 30000,
     toHaveScreenshot: { maxDiffPixels: 2000 }
@@ -28,9 +30,17 @@ export default defineConfig({
   /* Reporter to use for test results. See https://playwright.dev/docs/test-reporters */
   reporter: [["html", { outputFolder: "./tests/Playwright/e2e/reports/html" }]],
 
+  /* Run your local dev server before starting the tests */
+  webServer: {
+    command: "pnpm start",
+    cwd: "./apps/cart",
+    url: baseURL,
+    reuseExistingServer: !process.env.CI
+  },
+
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: "http://qa-automation.local:5173/",
+    baseURL,
 
     /* Setting headless to false will cuse the test runner to open a real browser window for each test (headless:true is the default setting)*/
     headless: true,
@@ -117,11 +127,4 @@ export default defineConfig({
     //   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
     // },
   ]
-
-  /* Run your local dev server before starting the tests */
-  // webServer: {
-  //   command: 'npm run start',
-  //   url: 'http://127.0.0.1:3000',
-  //   reuseExistingServer: !process.env.CI,
-  // },
 });

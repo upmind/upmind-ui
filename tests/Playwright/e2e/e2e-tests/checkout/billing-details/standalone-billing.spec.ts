@@ -13,6 +13,7 @@ import { getSessionToken, getClientToken } from "../../../support/api/auth";
 import { Logins } from "../../../support/constants/logins";
 import { Registration } from "../../../support/page-objects/templates/registration";
 import { getCurrentOrder } from "../../../support/api/basket";
+import { registerClient } from "../../../support/api/client";
 
 let checkout: Checkout;
 let billingPage: BillingPage;
@@ -23,6 +24,25 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
     test.beforeEach(async ({ page, context }) => {
       checkout = new Checkout(page);
       registration = new Registration(page, context);
+      await page.goto("/");
+      await expect
+        .poll(
+          async () => {
+            const cookies = await context.cookies();
+            return cookies.some(
+              c =>
+                c.name === "upm_guest_session" ||
+                c.name === "upm_client_session"
+            );
+          },
+          { timeout: 30000 }
+        )
+        .toBeTruthy();
+      let guestToken = await getSessionToken(context);
+      let user = await registerClient(guestToken);
+      let username = user.email;
+      let password = user.password;
+      await getClientToken(page, username, password);
       interceptUISchema(context, {
         "@data.billingdetails.billingDetailsDisabled": false
       });
@@ -40,7 +60,6 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
         null,
         false
       );
-      await registration.inputRegistration();
       await expect(checkout.billingDetails).toBeVisible({ timeout: 15000 });
       await expect(checkout.addNewAddress).toBeVisible();
     });
@@ -54,7 +73,6 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
         null,
         false
       );
-      await registration.inputRegistration();
       await checkout.billingDetails.waitFor();
       let token = await getSessionToken(context);
       let order = await getCurrentOrder(token);
@@ -63,10 +81,9 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       await page.reload();
       await page.waitForURL("**/order/checkout**");
       await expect(checkout.billingDetails).toBeVisible({ timeout: 15000 });
-      await expect(checkout.billingDetails).toContainText("10 Downing Street");
-      await expect(checkout.billingDetails).toContainText("London");
-      await expect(checkout.billingDetails).toContainText("SW1A 2AB");
-      await expect(checkout.billingDetails).toContainText("United Kingdom");
+      await expect(checkout.billingDetails).toHaveText(
+        /10 Downing Street.*London.*SW1A 2AA.*United Kingdom/s
+      );
     });
 
     test("1.3 'Change' link navigates to billing page", async ({
@@ -81,7 +98,6 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
         null,
         false
       );
-      await registration.inputRegistration();
       await checkout.billingDetails.waitFor();
       let token = await getSessionToken(context);
       let order = await getCurrentOrder(token);
@@ -106,7 +122,6 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
         "@data.billingdetails.billingDetailsDisabled": true
       });
       await goToCheckout(page, context, products.STARTER_HOSTING);
-      await registration.inputRegistration();
     });
 
     test("2.1 Inline billing form shown when standalone is disabled", async () => {
@@ -122,7 +137,6 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
         "@data.billingdetails.billingDetailsDisabled": true
       });
       await goToCheckout(page, context, products.STARTER_HOSTING);
-      await registration.inputRegistration();
     });
 
     test("3.1 Billing page loads at /order/billing", async ({ page }) => {
@@ -151,9 +165,9 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       );
       await page.waitForURL("**/order/checkout**");
       await expect(checkout.billingDetails).toBeVisible({ timeout: 15000 });
-      await expect(checkout.billingDetails).toContainText("10 Downing Street");
-      await expect(checkout.billingDetails).toContainText("London");
-      await expect(checkout.billingDetails).toContainText("SW1A 2AB");
+      await expect(checkout.billingDetails).toHaveText(
+        /10 Downing Street.*London.*SW1A 2AA.*United Kingdom/s
+      );
     });
 
     test("3.4 Personal/Business tab switching", async ({ page, context }) => {
@@ -179,7 +193,6 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
         "@context.*.billingDetailsDisabled": false
       });
       await goToCheckout(page, context, products.STARTER_HOSTING);
-      await registration.inputRegistration();
       let token = await getSessionToken(context);
       let order = await getCurrentOrder(token);
       let client = order?.client_id;
@@ -251,7 +264,6 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       checkout = new Checkout(page);
       registration = new Registration(page, context);
       await goToCheckout(page, context, products.STARTER_HOSTING);
-      await registration.inputRegistration();
       await page.waitForURL("**/order/checkout/**");
       const token = await getSessionToken(context);
       interceptConfigValues(page, token, {
@@ -272,7 +284,6 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       checkout = new Checkout(page);
       registration = new Registration(page, context);
       await goToCheckout(page, context, products.STARTER_HOSTING);
-      await registration.inputRegistration();
       await page.waitForURL("**/order/checkout/**");
       const token = await getSessionToken(context);
       interceptConfigValues(page, token, {
@@ -293,7 +304,6 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       checkout = new Checkout(page);
       registration = new Registration(page, context);
       await goToCheckout(page, context, products.STARTER_HOSTING);
-      await registration.inputRegistration();
       await page.waitForURL("**/order/checkout/**");
       const token = await getSessionToken(context);
       interceptConfigValues(page, token, {
