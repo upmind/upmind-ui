@@ -23,6 +23,7 @@
             :ref="(el: HTMLElement | null) => setTriggerRef(el, index)"
             :value="item.value"
             :class="[styles.tabs.trigger, 'cursor-pointer']"
+            :data-testid="`tab-${kebabCase(item.label)}`"
           >
             <Icon
               v-if="item.icon"
@@ -76,6 +77,7 @@
 <script lang="ts" setup>
 // --- external
 import { useElementBounding } from "@vueuse/core";
+import { kebabCase } from "lodash-es";
 // --- internal
 import { useVModel } from "@vueuse/core";
 import { useForwardPropsEmits } from "radix-vue";
