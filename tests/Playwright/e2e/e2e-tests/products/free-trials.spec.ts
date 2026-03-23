@@ -4,17 +4,21 @@ import { products } from "../../support/constants/products";
 import { ProductConfig } from "../../support/page-objects/templates/product-config";
 import { Basket } from "../../support/page-objects/templates/basket";
 import { Checkout } from "../../support/page-objects/templates/checkout";
-import { Registration } from "../../support/page-objects/templates/registration";
 import { goToCheckout } from "../../support/flows/checkout";
 import { mockTrialProduct } from "../../support/mocks/products";
-import { addProductToOrder, createOrder } from "../../support/api/basket";
-import { getSessionToken } from "../../support/api/auth";
-import { fakerEN_GB } from "@faker-js/faker";
+import {
+  getSessionToken,
+  registerClient,
+  createOrder,
+  addProductToOrder,
+  getClientToken,
+  addPromotionToOrder,
+  getCurrentOrder
+} from "../../support/api/index";
 
 let productConfig: ProductConfig;
 let basket: Basket;
 let checkout: Checkout;
-let registration: Registration;
 
 const trialButtonId = "button-try-free-for-7-days";
 const trialPeriod = "7 days";
@@ -57,6 +61,18 @@ test.describe("Free Trials @free-trials", () => {
       await productConfig.toggleTrial();
       checked = await productConfig.isTrialSelected();
       await expect(checked).toBe(true);
+    });
+    test("1.5 Promo details display on trial product", async ({
+      page,
+      context
+    }) => {
+      const token = await getSessionToken(context);
+      const order = await createOrder(token);
+      let orderId = order.id;
+      await addPromotionToOrder(orderId, "genericpromo", token);
+      await page.reload();
+      await expect(productConfig.trialCheckbox).toBeVisible();
+      await expect(page.getByTestId("badge").first()).toHaveText("Save 20%");
     });
   });
   test.describe("Product Config — Forced Trial", () => {
@@ -126,6 +142,18 @@ test.describe("Free Trials @free-trials", () => {
       await expect(checked).toBe(true);
     });
   });
+  test.describe("Recommendations", () => {
+    test("5.1 Free Trials display on Recommendations page", async ({
+      page
+    }) => {
+      //TODO
+    });
+    test("5.2 Free Trials display on Recommendations page", async ({
+      page
+    }) => {
+      //TODO
+    });
+  });
   test.describe("Basket Display with Trial", () => {
     test.beforeEach(async ({ page, context }) => {
       basket = new Basket(page);
@@ -133,7 +161,7 @@ test.describe("Free Trials @free-trials", () => {
         trialSupported: true,
         trialDuration: 7
       });
-      await page.goto(URLs.baseUrl);
+      await page.goto("/");
       await page.waitForLoadState("networkidle");
       const token = await getSessionToken(context);
       const order = await createOrder(token);
@@ -154,15 +182,15 @@ test.describe("Free Trials @free-trials", () => {
       await page.goto(URLs.basket);
       await page.waitForLoadState("networkidle");
     });
-    test("5.1 'Free Trial' shown instead of price", async () => {
+    test("6.1 'Free Trial' shown instead of price", async () => {
       await expect(basket.trialPriceLabel).toBeVisible();
     });
-    test("5.2 Trial alert visible", async () => {
+    test("6.2 Trial alert visible", async () => {
       await expect(basket.trialAlert).toBeVisible();
       await expect(basket.trialAlert).toContainText("free trial");
     });
 
-    test("5.3 Renewal price shown", async () => {
+    test("6.3 Renewal price shown", async () => {
       await expect(basket.basketProductSummary.locator("footer")).toContainText(
         "Renews every year."
       );
@@ -177,7 +205,25 @@ test.describe("Free Trials @free-trials", () => {
   test.describe("Checkout with Trial Product", () => {
     test.beforeEach(async ({ page, context }) => {
       checkout = new Checkout(page);
-      registration = new Registration(page, context);
+      await page.goto("/");
+      await expect
+        .poll(
+          async () => {
+            const cookies = await context.cookies();
+            return cookies.some(
+              c =>
+                c.name === "upm_guest_session" ||
+                c.name === "upm_client_session"
+            );
+          },
+          { timeout: 30000 }
+        )
+        .toBeTruthy();
+      let guestToken = await getSessionToken(context);
+      let user = await registerClient(guestToken);
+      let username = user.email;
+      let password = user.password;
+      await getClientToken(page, username, password);
       await goToCheckout(
         page,
         context,
@@ -186,17 +232,23 @@ test.describe("Free Trials @free-trials", () => {
         null,
         true
       );
-      await registration.inputRegistration();
+      await page.reload();
     });
-    test("6.1 Trial shows as free in checkout summary", async ({ page }) => {
+    test("7.1 Trial shows as free in checkout summary", async ({ page }) => {
       await expect(checkout.basketSummary).toBeVisible();
       await expect(
         page
           .getByTestId("description-list-item-trial-product-optional")
-          .getByText("FREE")
+          .getByText("£0.00")
       ).toBeVisible();
     });
-    test("6.2 'Place Order' button shown for zero-amount trial order", async () => {
+    test("7.2 Zero-amount checkout displays for trial-only order", async ({
+      page
+    }) => {
+      await expect(checkout.basketSummary).toBeVisible();
+      await expect(
+        page.getByText("Great news – there's nothing to pay!")
+      ).toBeVisible();
       // For a zero-amount order (free trial), the button should say
       // "Place Order" instead of "Place Order and Pay"
       await expect(checkout.placeOrder).toBeVisible();

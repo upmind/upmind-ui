@@ -8,6 +8,8 @@ import { Accordion } from "../components/accordion";
 import { Select } from "../components/select";
 import { Drawer } from "../components/drawer";
 import { Form } from "../components/form";
+import { Markdown } from "../components/markdown";
+import { Lineclamp } from "../components/lineclamp";
 import { kebabCase } from "../../helpers/strings";
 
 export class ProductConfig {
@@ -22,11 +24,11 @@ export class ProductConfig {
   readonly select: Select;
   readonly drawer: Drawer;
   readonly form: Form;
+  readonly markdown: Markdown;
+  readonly lineclamp: Lineclamp;
 
   /* Product Options */
   readonly optionsContainer: Locator;
-  readonly checkoutMarkdown: Locator;
-  readonly markdownLineclamp: Locator;
   readonly billingTerms: Locator;
   readonly options: Locator;
   readonly domainRegister: Locator;
@@ -105,9 +107,9 @@ export class ProductConfig {
     this.select = new Select(page);
     this.drawer = new Drawer(page);
     this.form = new Form(page);
+    this.markdown = new Markdown(page);
+    this.lineclamp = new Lineclamp(page);
     this.optionsContainer = page.getByTestId("content-section").first();
-    this.checkoutMarkdown = page.getByTestId("markdown"); //TODO: Find a way to move to shared component page object
-    this.markdownLineclamp = page.getByTestId("lineclamp"); //TODO: as above
 
     /* Product Options */
     this.textInput = new TextInput(page);
@@ -251,7 +253,7 @@ export class ProductConfig {
   }
 
   async clickLineclamp() {
-    await this.markdownLineclamp.click();
+    await this.lineclamp.clickLineclamp();
   }
 
   async enterDomain(option: string, domainName: string) {

@@ -19,8 +19,6 @@ let register: Registration;
 let login: Login;
 let orderId: string | null;
 
-//TODO: Review testing strategy so I can remove the waits, may need additional frontend work
-
 test.describe("Billing Details at checkout", () => {
   test.beforeEach(async ({ page, context }) => {
     checkout = new Checkout(page);
