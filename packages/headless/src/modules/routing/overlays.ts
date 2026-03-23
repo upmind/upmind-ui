@@ -38,7 +38,8 @@ const OverlayStub = defineComponent({ render: () => null });
 
 /**
  * Inject global overlay child routes into all eligible parent routes.
- * Call ONCE at app startup, after all routes are registered.
+ * Call at app startup, after all routes are registered.
+ * Safe to call multiple times — skips routes already registered.
  *
  * Routes opt out via `meta: { allowOverlays: false }`.
  */
@@ -56,9 +57,11 @@ export function registerOverlayRoutes(
 
   for (const route of routes) {
     for (const overlay of overlays) {
+      const routeName = `${String(route.name)}--${overlay.id}`;
+      if (router.hasRoute(routeName)) continue; // idempotent — skip if already registered
       router.addRoute(route.name!, {
         path: overlay.path,
-        name: `${String(route.name)}--${overlay.id}`,
+        name: routeName,
         component: OverlayStub,
         meta: {
           overlay: overlay.defaultType,

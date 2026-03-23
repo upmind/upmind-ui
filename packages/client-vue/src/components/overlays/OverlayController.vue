@@ -3,7 +3,7 @@
   <component
     :is="overlayContainer"
     v-if="isOpen && overlayComponent"
-    open
+    :open="isOpen"
     size="lg"
     @close="close"
   >
@@ -23,8 +23,9 @@
 import { computed } from "vue";
 
 // --- internal
-import { useOverlayRoute, OverlayType } from "@upmind-automation/headless";
-import { Drawer, Modal } from "@upmind-automation/upmind-ui";
+import { OverlayType } from "@upmind-automation/headless";
+import { useOverlayRoute } from "./useOverlayRoute";
+import { Drawer, Dialog } from "@upmind-automation/upmind-ui";
 
 // --- utils
 import { get } from "lodash-es";
@@ -36,9 +37,9 @@ import { OVERLAY_REGISTRY } from "./overlayRegistry";
 
 const { isOpen, overlayId, overlayType, close } = useOverlayRoute();
 
-/** Resolve container (Drawer or Modal) from overlay type */
+/** Resolve container (Dialog or Drawer) from overlay type */
 const overlayContainer = computed(() =>
-  overlayType.value === OverlayType.MODAL ? Modal : Drawer
+  overlayType.value === OverlayType.MODAL ? Dialog : Drawer
 );
 
 /** Resolve content component from registry by overlayId */

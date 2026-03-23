@@ -230,7 +230,7 @@ export default <FunnelProps>{
                   name: `${String(currentRoute?.name ?? ROUTE.BASKET)}--auth`,
                   query: {
                     mode: "login",
-                    returnUrl: ROUTE.BASKET,
+                    returnRoute: ROUTE.BASKET,
                     ...data?.target?.query
                   }
                 })
@@ -683,6 +683,7 @@ export default <FunnelProps>{
           {
             target: ROUTE.SESSION,
             actions: [
+              "setResolving",
               assign({
                 resolved: false,
                 targetRoute: (
@@ -692,7 +693,7 @@ export default <FunnelProps>{
                   name: `${String(currentRoute?.name ?? ROUTE.CHECKOUT)}--auth`,
                   query: {
                     mode: "login",
-                    returnUrl: ROUTE.CHECKOUT,
+                    returnRoute: ROUTE.CHECKOUT,
                     ...data?.target?.query
                   }
                 })
