@@ -191,6 +191,32 @@ export default [
   },
 
   /**
+   * Route for editing domain registrant details.
+   * Displayed after billing when basket contains domain products.
+   */
+  {
+    path: "/order/registrant/",
+    name: ROUTE.REGISTRANT,
+    component: () => import("../pages/Registrant.vue"),
+    meta: {
+      actionEmptyBasket: true
+    }
+  },
+
+  /**
+   * Route for reviewing domain registrant details before checkout.
+   * Shows all domain registrant statuses with completeness tracking.
+   */
+  {
+    path: "/order/registrant/review/",
+    name: ROUTE.REGISTRANT_REVIEW,
+    component: () => import("../pages/RegistrantReview.vue"),
+    meta: {
+      actionEmptyBasket: true
+    }
+  },
+
+  /**
    * Route for viewing a completed order.
    * The :oid parameter captures the unique order identifier (UUID format).
    */
