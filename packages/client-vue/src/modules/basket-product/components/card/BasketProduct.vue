@@ -24,6 +24,7 @@
           @update:open="setOpen"
           @update:quantity="doUpdateQuantity"
           @remove="doRemove"
+          :inline-editor="props.inlineEditor"
         >
           <slot
             :productDetails="props.productDetails"
@@ -59,7 +60,16 @@ import { isEmpty, some, compact, map } from "lodash-es";
 import { type Product } from "@upmind-automation/headless";
 import type { BasketProductProps } from "./types";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
+import type { UseBasketProduct } from "@upmind-automation/headless";
 // -----------------------------------------------------------------------------
+
+type InlineEditorState = {
+  showOptionUpsells: boolean;
+  showTermSelector: boolean;
+  showQuantity: boolean;
+  hasInlineControls: boolean;
+  config?: UseBasketProduct;
+};
 
 const props = withDefaults(
   defineProps<
@@ -69,6 +79,7 @@ const props = withDefaults(
         processing?: boolean;
         disabled?: boolean;
         editRoute: RouteLocationAsRelativeGeneric;
+        inlineEditor?: InlineEditorState;
       }
   >(),
   {

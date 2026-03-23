@@ -108,6 +108,30 @@
       :edit-route="props.editRoute"
     />
 
+    <div
+      v-if="inlineEditor"
+      class="border-base flex flex-col gap-3 border-t pt-3"
+      data-testid="basket-product-inline-controls"
+    >
+      <BasketProductTermSelector
+        v-if="inlineEditor.showTermSelector && inlineEditor.config"
+        :terms="inlineEditor.config.terms?.value ?? []"
+        :model-value="inlineEditor.config.model?.value?.term"
+        :disabled="error"
+        :processing="inlineEditor.config.meta?.value?.isProcessing"
+        @update:modelValue="doUpdateTerm"
+      />
+
+      <BasketProductOptionSwitch
+        v-if="inlineEditor.showOptionUpsells && inlineEditor.config"
+        :options="inlineEditor.config.options?.value ?? []"
+        :model-value="inlineEditor.config.model?.value?.options"
+        :disabled="error"
+        :processing="inlineEditor.config.meta?.value?.isProcessing"
+        @update:modelValue="doToggleOption"
+      />
+    </div>
+
     <footer :class="styles.product.summary.footer.root">
       <TermsDescription v-bind="summary" :separate="!isMobile" />
 
@@ -176,6 +200,8 @@ import TermsDescription from "./components/TermsDescription.vue";
 import Promotion from "./components/Promotion.vue";
 import QuantityField from "./components/QuantityField.vue";
 import BasketProductConfigurationDetails from "./BasketProductConfigurationDetails.vue";
+import BasketProductTermSelector from "./components/BasketProductTermSelector.vue";
+import BasketProductOptionSwitch from "./components/BasketProductOptionSwitch.vue";
 
 // --- internal
 import { useStyles } from "@upmind-automation/upmind-ui";
@@ -188,11 +214,28 @@ import { isEmpty, includes } from "lodash-es";
 
 // --- types
 import { type BasketProductSummaryProps } from "./types";
+import type { UseBasketProduct } from "@upmind-automation/headless";
+import type {
+  SubproductDetails,
+  SubproductValue
+} from "@upmind-automation/headless";
 import { computed } from "vue";
 
 const { t } = useI18n();
 
-const props = defineProps<BasketProductSummaryProps>();
+type InlineEditorState = {
+  showOptionUpsells: boolean;
+  showTermSelector: boolean;
+  showQuantity: boolean;
+  hasInlineControls: boolean;
+  config?: UseBasketProduct;
+};
+
+const props = defineProps<
+  BasketProductSummaryProps & {
+    inlineEditor?: InlineEditorState;
+  }
+>();
 
 const emits = defineEmits(["update:quantity", "remove", "update:open"]);
 
@@ -254,5 +297,26 @@ function doUpdateQuantity(value: number) {
 
 function doRemove() {
   emits("remove");
+}
+
+async function doUpdateTerm(value: number) {
+  if (!props.inlineEditor?.config) return;
+  await props.inlineEditor.config.updateTerm(value);
+  await props.inlineEditor.config.update();
+}
+
+async function doToggleOption(payload: {
+  option: SubproductDetails;
+  value: SubproductValue;
+  enabled: boolean;
+}) {
+  if (!props.inlineEditor?.config) return;
+  const { option, value, enabled } = payload;
+  if (enabled) {
+    await props.inlineEditor.config.setOptions(option, [value.id]);
+  } else {
+    await props.inlineEditor.config.setOptions(option, []);
+  }
+  await props.inlineEditor.config.update();
 }
 </script>
