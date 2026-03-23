@@ -1,24 +1,4 @@
-import { BrowserContext, Page, Route } from "@playwright/test";
-
-/**
- * Intercepts requests to /api/orders/current and re-fulfills them.
- * Currently a passthrough — extend this to modify order data as needed.
- *
- * @param context - Browser context to register the route on
- */
-// TODO: Make a generic order data getter and remove all the functions that point at this endpoint
-export function currentOrderData(context: BrowserContext) {
-  context.route("**/api/orders/current**", async (route: Route) => {
-    const response = await route.fetch();
-    const json = await response.json();
-    await route.fulfill({
-      status: response.status(),
-      contentType: "application/json",
-      headers: response.headers(),
-      body: JSON.stringify(json)
-    });
-  });
-}
+import { Page, Route } from "@playwright/test";
 
 /**
  * Waits for a PUT request to the specified order endpoint.

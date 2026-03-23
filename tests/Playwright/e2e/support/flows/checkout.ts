@@ -79,8 +79,4 @@ export async function goToCheckout(
     await addPromotionToOrder(orderId, promotion, token);
   }
   await page.goto(URLs.checkout);
-  // Ensure we land on the registration page after checkout navigation
-  if (!page.url().includes("/order/auth/register/")) {
-    await page.goto(URLs.register);
-  }
 }
