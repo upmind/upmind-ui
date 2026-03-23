@@ -17,6 +17,7 @@ import {
   isEmpty,
   isObject,
   map,
+  reduce,
   uniqBy
 } from "lodash-es";
 
@@ -28,7 +29,13 @@ import {
   ProvisionCategoryCodes
 } from "@upmind-automation/types";
 import type { BasketProduct } from "../basketProduct";
-import type { DomainProduct, DomainModel } from "./types";
+import type {
+  DomainProduct,
+  DomainModel,
+  RegistrantDetails,
+  RegistrantFieldMapEntry
+} from "./types";
+import { REGISTRANT_FIELD_MAP, REQUIRED_REGISTRANT_FIELDS } from "./types";
 import { type ProductProps } from "../product";
 
 // ----------------------------------------------------------------------------
@@ -211,4 +218,97 @@ export function getDomainRawBasketProducts(
       serviceIdentifier: raw?.service_identifier ?? undefined
     });
   });
+}
+
+// -----------------------------------------------------------------------------
+// Registrant mapping utilities (FE-2457)
+// -----------------------------------------------------------------------------
+
+/**
+ * Creates an empty registrant details object with all fields as empty strings.
+ */
+export function emptyRegistrant(): RegistrantDetails {
+  return {
+    name: "",
+    organisation: "",
+    email: "",
+    phone: "",
+    address1: "",
+    city: "",
+    state: "",
+    postcode: "",
+    country: ""
+  };
+}
+
+/**
+ * Maps billing/client data to registrant details using REGISTRANT_FIELD_MAP.
+ * Accepts a generic source object and resolves each field via the billingKey path.
+ *
+ * @param source - Flat or nested object with billing/client data
+ * @returns Populated RegistrantDetails (unfound fields default to "")
+ */
+export function mapBillingToRegistrant(
+  source: Record<string, any>
+): RegistrantDetails {
+  return reduce(
+    REGISTRANT_FIELD_MAP,
+    (result: RegistrantDetails, entry: RegistrantFieldMapEntry) => {
+      const value = get(source, entry.billingKey, "");
+      result[entry.registrantKey] = value?.toString() ?? "";
+      return result;
+    },
+    emptyRegistrant()
+  );
+}
+
+/**
+ * Transforms registrant details into provision field values for the basket product API.
+ * Uses REGISTRANT_FIELD_MAP to map registrantKey → provisionKey.
+ *
+ * @param registrant - The registrant details to transform
+ * @returns Record of provision field key → value pairs
+ */
+export function mapRegistrantToProvisionFields(
+  registrant: RegistrantDetails
+): Record<string, string> {
+  return reduce(
+    REGISTRANT_FIELD_MAP,
+    (result: Record<string, string>, entry: RegistrantFieldMapEntry) => {
+      const value = registrant[entry.registrantKey];
+      if (!isEmpty(value)) {
+        result[entry.provisionKey] = value;
+      }
+      return result;
+    },
+    {}
+  );
+}
+
+/**
+ * Returns the list of required registrant field keys that are missing (empty) values.
+ *
+ * @param registrant - The registrant details to check (undefined → all required fields missing)
+ * @returns Array of missing required field keys
+ */
+export function getMissingRegistrantFields(
+  registrant?: RegistrantDetails
+): (keyof RegistrantDetails)[] {
+  if (!registrant) return [...REQUIRED_REGISTRANT_FIELDS];
+
+  return filter(REQUIRED_REGISTRANT_FIELDS, (key: keyof RegistrantDetails) =>
+    isEmpty(registrant[key]?.toString())
+  );
+}
+
+/**
+ * Returns `true` when all required registrant fields have non-empty values.
+ *
+ * @param registrant - The registrant details to validate
+ * @returns `true` if complete, `false` otherwise
+ */
+export function hasAllRequiredRegistrantFields(
+  registrant?: RegistrantDetails
+): boolean {
+  return isEmpty(getMissingRegistrantFields(registrant));
 }
