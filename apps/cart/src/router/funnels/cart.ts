@@ -230,7 +230,8 @@ export default <FunnelProps>{
                   name: `${String(currentRoute?.name ?? ROUTE.BASKET)}--auth`,
                   query: {
                     mode: "login",
-                    returnRoute: ROUTE.CATALOGUE,
+                    returnRoute: ROUTE.BASKET,
+                    fallbackRoute: ROUTE.CATALOGUE,
                     ...data?.target?.query
                   }
                 })

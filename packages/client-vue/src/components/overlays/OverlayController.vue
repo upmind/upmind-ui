@@ -5,7 +5,7 @@
     v-if="isOpen && overlayComponent"
     :open="drawerOpen"
     size="lg"
-    @close="handleClose"
+    @close="handleDismiss"
   >
     <component :is="overlayComponent" @close="handleClose" />
   </component>
@@ -38,7 +38,7 @@ import { OVERLAY_REGISTRY } from "./overlayRegistry";
 
 // -----------------------------------------------------------------------------
 
-const { isOpen, overlayId, overlayType, close } = useOverlayRoute();
+const { isOpen, overlayId, overlayType, close, dismiss } = useOverlayRoute();
 
 /** Resolve container (Dialog or Drawer) from overlay type */
 const overlayContainer = computed(() =>
@@ -61,10 +61,17 @@ watch(
   { immediate: true }
 );
 
-/** Close the drawer immediately, then navigate */
+/** Close after overlay flow completes (e.g. auth success) → returnRoute */
 function handleClose(): void {
   if (!drawerOpen.value) return;
   drawerOpen.value = false;
   close();
+}
+
+/** Dismissed via backdrop click → go back, fallback to "/" */
+function handleDismiss(): void {
+  if (!drawerOpen.value) return;
+  drawerOpen.value = false;
+  dismiss();
 }
 </script>

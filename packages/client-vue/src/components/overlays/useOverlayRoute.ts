@@ -52,13 +52,22 @@ export function useOverlayRoute() {
 
   // --- methods
 
-  /** Close overlay and navigate to returnRoute (route name) or back to parent */
+  /** Close the overlay and navigate to returnRoute (e.g. after auth success) */
   function close(): void {
     const returnRoute = route.query?.returnRoute as string | undefined;
     if (returnRoute) {
-      router.push({ name: returnRoute, params: route.params });
+      router.push({ name: returnRoute });
     } else {
       router.back();
+    }
+  }
+
+  /** Dismiss the overlay (backdrop click) — go back, or fallbackRoute if no history */
+  function dismiss(): void {
+    if (window.history.state?.back) {
+      router.back();
+    } else {
+      router.push({ name: route.query.fallbackRoute as string });
     }
   }
 
@@ -80,7 +89,9 @@ export function useOverlayRoute() {
     overlayType,
     // --- methods
     /** Close the overlay, navigating to returnRoute or router.back() */
-    close
+    close,
+    /** Dismiss the overlay (backdrop), navigating back or to fallbackRoute */
+    dismiss
   };
 }
 
