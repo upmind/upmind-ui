@@ -15,6 +15,7 @@ const props = defineProps<
     DialogPortalProps & {
       class?: HTMLAttributes["class"];
       classOverlay?: HTMLAttributes["class"];
+      dismissible?: boolean;
     }
 >();
 const emits = defineEmits<
@@ -34,7 +35,7 @@ const forwarded = useForwardPropsEmits(props, emits);
 
 <template>
   <DrawerPortal :to="props.to">
-    <DrawerOverlay :class="props.classOverlay" @click="() => emits('close')" />
+    <DrawerOverlay :class="props.classOverlay" @click="() => props.dismissible !== false && emits('close')" />
     <DrawerContent
       v-bind="forwarded"
       :class="
