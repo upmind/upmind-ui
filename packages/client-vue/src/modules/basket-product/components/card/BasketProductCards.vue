@@ -38,10 +38,7 @@ import { ref, watch } from "vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
-import {
-  useBasketProducts,
-  useBasketInlineEditors
-} from "@upmind-automation/headless";
+import { useBasketProductsInline } from "@upmind-automation/headless";
 import BasketProduct from "./BasketProduct.vue";
 
 // --- components
@@ -57,12 +54,14 @@ const props = withDefaults(defineProps<BasketProductCardsProps>(), {
 
 const emits = defineEmits(["update:open"]);
 
-const { meta, products, updateQuantity, remove } = useBasketProducts();
 const {
-  editors,
+  meta,
+  products,
+  updateQuantity,
+  remove,
   getEditor,
   refresh: refreshEditors
-} = useBasketInlineEditors();
+} = useBasketProductsInline();
 
 const open = ref<Record<string, boolean>>(forceOpen(props.open));
 
@@ -87,10 +86,14 @@ function trackOpen(id: string, value: boolean) {
   }
 }
 
-watch(products, () => {
-  open.value = forceOpen(props.open);
-  refreshEditors();
-});
+watch(
+  products,
+  () => {
+    open.value = forceOpen(props.open);
+    refreshEditors();
+  },
+  { immediate: true }
+);
 
 watch(
   () => props.open,

@@ -213,23 +213,15 @@ import { isMobile } from "@upmind-automation/upmind-ui";
 import { isEmpty, includes } from "lodash-es";
 
 // --- types
-import { type BasketProductSummaryProps } from "./types";
-import type { UseBasketProduct } from "@upmind-automation/headless";
+import type { BasketProductSummaryProps } from "./types";
 import type {
+  InlineEditorState,
   SubproductDetails,
   SubproductValue
 } from "@upmind-automation/headless";
 import { computed } from "vue";
 
 const { t } = useI18n();
-
-type InlineEditorState = {
-  showOptionUpsells: boolean;
-  showTermSelector: boolean;
-  showQuantity: boolean;
-  hasInlineControls: boolean;
-  config?: UseBasketProduct;
-};
 
 const props = defineProps<
   BasketProductSummaryProps & {

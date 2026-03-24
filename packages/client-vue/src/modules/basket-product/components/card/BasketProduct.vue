@@ -57,19 +57,10 @@ import BasketProductOptionSummary from "./BasketProductOptionSummary.vue";
 import { isEmpty, some, compact, map } from "lodash-es";
 
 // --- types
-import { type Product } from "@upmind-automation/headless";
 import type { BasketProductProps } from "./types";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
-import type { UseBasketProduct } from "@upmind-automation/headless";
+import type { InlineEditorState, Product } from "@upmind-automation/headless";
 // -----------------------------------------------------------------------------
-
-type InlineEditorState = {
-  showOptionUpsells: boolean;
-  showTermSelector: boolean;
-  showQuantity: boolean;
-  hasInlineControls: boolean;
-  config?: UseBasketProduct;
-};
 
 const props = withDefaults(
   defineProps<

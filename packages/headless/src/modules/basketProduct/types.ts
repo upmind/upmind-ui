@@ -3,6 +3,7 @@ import type {
   IBasketPromotion
 } from "@upmind-automation/types";
 import type { ProductProps, Product } from "../product";
+import type { UseBasketProduct } from "./useBasketProduct";
 // -----------------------------------------------------------------------------
 
 /**
@@ -126,3 +127,22 @@ export interface IBasketProductModel {
    */
   start_trial?: boolean;
 }
+
+/**
+ * Per-product inline editor state including meta resolution flags
+ * and an optional product config API (spawned only when needed).
+ */
+export type InlineEditorState = {
+  /** Whether option upsell toggles should be shown for this product. */
+  showOptionUpsells: boolean;
+  /** Whether the term selector dropdown should be shown for this product. */
+  showTermSelector: boolean;
+  /** Whether quantity controls should be shown for this product. */
+  showQuantity: boolean;
+  /** Whether any inline controls are available (triggers machine spawn). */
+  hasInlineControls: boolean;
+  /** Whether the config machine is currently being spawned. */
+  isConfiguring: boolean;
+  /** Product config API, only present when hasInlineControls is true. */
+  config?: UseBasketProduct;
+};
