@@ -1,7 +1,7 @@
 import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 
-export const containerVariant = cva("mx-auto w-full px-6 pb-6", {
+export const containerVariant = cva("mx-auto w-full px-6 pb-6 lg:px-18", {
   variants: {
     width: {
       xs: "max-w-xs",
