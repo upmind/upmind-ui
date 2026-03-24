@@ -146,7 +146,7 @@ const forwardedDrawer = useForwardPropsEmits(
   emits
 );
 const forwardedDrawerContent = useForwardPropsEmits(
-  pick(props, ["to", "disabled", "forceMount"]),
+  pick(props, ["to", "disabled", "forceMount", "dismissible"]),
   emits
 );
 
