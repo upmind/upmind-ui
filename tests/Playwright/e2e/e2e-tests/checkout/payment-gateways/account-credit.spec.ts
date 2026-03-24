@@ -4,14 +4,37 @@ import { Registration } from "../../../support/page-objects/templates/registrati
 import { goToCheckout } from "../../../support/flows/checkout";
 import { mockWalletBalance } from "../../../support/mocks/wallet";
 import { products } from "../../../support/constants/products";
+import {
+  getClientToken,
+  getSessionToken,
+  registerClient
+} from "../../../support/api/index";
 
 let checkout: Checkout;
 let registration: Registration;
 
 test.describe("Account Credit at Checkout", () => {
-  test.beforeEach(({ page, context }) => {
+  test.beforeEach(async ({ page, context }) => {
     checkout = new Checkout(page);
     registration = new Registration(page, context);
+    await page.goto("/");
+    await expect
+      .poll(
+        async () => {
+          const cookies = await context.cookies();
+          return cookies.some(
+            c =>
+              c.name === "upm_guest_session" || c.name === "upm_client_session"
+          );
+        },
+        { timeout: 30000 }
+      )
+      .toBeTruthy();
+    let guestToken = await getSessionToken(context);
+    let user = await registerClient(guestToken);
+    let username = user.email;
+    let password = user.password;
+    await getClientToken(page, username, password);
   });
   //TODO: Add tests for mixed payment types e.g. account credit + stripe
   test.describe("Account Credit displayed at Checkout", () => {
@@ -21,7 +44,6 @@ test.describe("Account Credit at Checkout", () => {
     }) => {
       mockWalletBalance(context, { ownedAmount: 5 });
       await goToCheckout(page, context, products.STARTER_HOSTING);
-      await registration.inputRegistration();
       await expect(checkout.accountCreditCheckbox).toBeVisible();
       await expect(page.getByTestId("form-item-gateway-id")).toBeVisible();
     });
@@ -32,7 +54,6 @@ test.describe("Account Credit at Checkout", () => {
     }) => {
       mockWalletBalance(context, { ownedAmount: 0, creditAmount: 0 });
       await goToCheckout(page, context, products.STARTER_HOSTING);
-      await registration.inputRegistration();
       await expect(checkout.accountCreditCheckbox).toBeHidden();
       await expect(page.getByTestId("form-item-gateway-id")).toBeVisible();
     });
@@ -43,7 +64,6 @@ test.describe("Account Credit at Checkout", () => {
     }) => {
       mockWalletBalance(context, { ownedAmount: 10, creditAmount: 5 });
       await goToCheckout(page, context, products.STARTER_HOSTING);
-      await registration.inputRegistration();
       await expect(checkout.accountCreditCheckbox).toBeVisible();
       await expect(page.getByTestId("form-item-gateway-id")).toBeVisible();
     });
@@ -56,7 +76,6 @@ test.describe("Account Credit at Checkout", () => {
     }) => {
       mockWalletBalance(context, { ownedAmount: 5 });
       await goToCheckout(page, context, products.STARTER_HOSTING);
-      await registration.inputRegistration();
       await expect(checkout.accountCreditCheckbox).toHaveAttribute(
         "data-state",
         "on"
