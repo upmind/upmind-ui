@@ -6,12 +6,12 @@
 /**
  * Auth Overlay Content
  * Renders the session Auth component inside an overlay (drawer/modal).
- * On authentication completion, navigates to returnRoute (route name) or closes the overlay.
+ * On auth completion, emits close — the OverlayController handles navigation.
  */
 
 // --- external
 import { computed } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { useRoute } from "vue-router";
 
 // --- internal
 import Auth from "../../modules/session/components/Auth.vue";
@@ -25,7 +25,6 @@ import type { SessionProps } from "../../modules/session/types";
 // -----------------------------------------------------------------------------
 
 const route = useRoute();
-const router = useRouter();
 
 const emit = defineEmits<{
   close: [];
@@ -36,13 +35,8 @@ const initialMode = computed(
   () => get(route, "query.mode", "login") as SessionProps["modelValue"]
 );
 
-/** Navigate to returnRoute (route name) on auth success, or emit close */
+/** Emit close on auth success — OverlayController handles drawer close + navigation */
 function onAuthComplete(): void {
-  const returnRoute = get(route, "query.returnRoute") as string | undefined;
-  if (returnRoute) {
-    router.push({ name: returnRoute, params: route.params });
-  } else {
-    emit("close");
-  }
+  emit("close");
 }
 </script>
