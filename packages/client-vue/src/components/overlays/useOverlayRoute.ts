@@ -56,7 +56,7 @@ export function useOverlayRoute() {
   function close(): void {
     const returnRoute = route.query?.returnRoute as string | undefined;
     if (returnRoute) {
-      router.push({ name: returnRoute });
+      router.push({ name: returnRoute, params: route.params });
     } else {
       router.back();
     }

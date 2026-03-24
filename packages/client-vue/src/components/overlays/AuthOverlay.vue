@@ -40,7 +40,7 @@ const initialMode = computed(
 function onAuthComplete(): void {
   const returnRoute = get(route, "query.returnRoute") as string | undefined;
   if (returnRoute) {
-    router.push({ name: returnRoute });
+    router.push({ name: returnRoute, params: route.params });
   } else {
     emit("close");
   }
