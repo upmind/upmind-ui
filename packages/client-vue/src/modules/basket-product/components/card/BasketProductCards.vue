@@ -1,5 +1,8 @@
 <template>
-  <div v-if="!meta.isLoading" class="flex flex-col gap-4">
+  <div
+    v-if="!meta.isLoading && basketMeta.isAvailable"
+    class="flex flex-col gap-4"
+  >
     <template v-for="product in products" :key="product.id">
       <BasketProduct
         v-bind="product"
@@ -37,7 +40,7 @@ import { ref, watch } from "vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
-import { useBasketProducts } from "@upmind-automation/headless";
+import { useBasketProducts, useBasket } from "@upmind-automation/headless";
 import BasketProduct from "./BasketProduct.vue";
 
 // --- components
@@ -54,6 +57,7 @@ const props = withDefaults(defineProps<BasketProductCardsProps>(), {
 const emits = defineEmits(["update:open"]);
 
 const { meta, products, updateQuantity, remove } = useBasketProducts();
+const { meta: basketMeta } = useBasket();
 
 const open = ref<Record<string, boolean>>(forceOpen(props.open));
 
