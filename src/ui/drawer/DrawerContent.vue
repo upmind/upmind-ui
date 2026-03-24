@@ -10,14 +10,17 @@ import type {
 } from "radix-vue";
 import type { HTMLAttributes } from "vue";
 
-const props = defineProps<
-  DialogContentProps &
-    DialogPortalProps & {
-      class?: HTMLAttributes["class"];
-      classOverlay?: HTMLAttributes["class"];
-      dismissible?: boolean;
-    }
->();
+const props = withDefaults(
+  defineProps<
+    DialogContentProps &
+      DialogPortalProps & {
+        class?: HTMLAttributes["class"];
+        classOverlay?: HTMLAttributes["class"];
+        dismissible?: boolean;
+      }
+  >(),
+  { dismissible: true }
+);
 const emits = defineEmits<
   DialogContentEmits & {
     close: [];
@@ -25,6 +28,10 @@ const emits = defineEmits<
 >();
 
 const forwarded = useForwardPropsEmits(props, emits);
+
+function onOverlayClick() {
+  if (props.dismissible) emits("close");
+}
 </script>
 
 <!--
@@ -35,7 +42,10 @@ const forwarded = useForwardPropsEmits(props, emits);
 
 <template>
   <DrawerPortal :to="props.to">
-    <DrawerOverlay :class="props.classOverlay" @click="() => props.dismissible !== false && emits('close')" />
+    <DrawerOverlay
+      :class="props.classOverlay"
+      @click="onOverlayClick"
+    />
     <DrawerContent
       v-bind="forwarded"
       :class="

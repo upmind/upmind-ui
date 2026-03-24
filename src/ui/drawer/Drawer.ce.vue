@@ -10,6 +10,7 @@
       :classOverlay="styles.drawer.overlay"
       @open-auto-focus="e => emits('openAutoFocus', e)"
       @close-auto-focus="e => emits('closeAutoFocus', e)"
+      @close="emits('close')"
     >
       <div
         class="drag-handle from-bg-button-subtle-0 to-bg-button-subtle-1 mx-auto mt-2 mb-8 min-h-2 w-[100px] rounded-full bg-gradient-to-r"
