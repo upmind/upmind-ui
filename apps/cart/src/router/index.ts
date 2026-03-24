@@ -2,12 +2,13 @@
 import { createRouter, createWebHistory } from "vue-router";
 // --- internal
 import routes from "./routes";
+import { registerOverlayRoutes } from "@upmind-automation/headless";
 // ---types
 export * from "./types";
 
 // -----------------------------------------------------------------------------
 
-export default createRouter({
+const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   strict: true,
   routes,
@@ -25,3 +26,8 @@ export default createRouter({
     }
   }
 });
+
+// Register overlay routes before initial navigation so deep-linked URLs resolve
+registerOverlayRoutes(router);
+
+export default router;
