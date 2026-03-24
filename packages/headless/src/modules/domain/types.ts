@@ -248,3 +248,141 @@ export interface DomainContext extends BasketHelperContext<DomainProduct> {
    */
   basketHelper?: ActorRef<any>;
 }
+
+// -----------------------------------------------------------------------------
+// Registrant Details (FE-2457)
+// -----------------------------------------------------------------------------
+
+/**
+ * Registrant-specific fields for domain provision.
+ * Maps to ICANN/registrar-required registrant contact data.
+ */
+export type RegistrantDetails = {
+  /** Full name of the registrant. */
+  name: string;
+  /** Organisation name (optional — not required by all registrars). */
+  organisation: string;
+  /** Contact email for the registrant. */
+  email: string;
+  /** Contact phone number for the registrant (with country code). */
+  phone: string;
+  /** Street address (line 1) for the registrant. */
+  address1: string;
+  /** City for the registrant. */
+  city: string;
+  /** State or region for the registrant (optional — not required in all countries). */
+  state: string;
+  /** Postcode / zip code for the registrant. */
+  postcode: string;
+  /** Country code (ISO 3166-1 alpha-2) for the registrant. */
+  country: string;
+};
+
+/**
+ * Per-domain registrant status — tracks completeness of registrant data
+ * for a single domain product in the basket.
+ */
+export type DomainRegistrantStatus = {
+  /** Basket product ID. */
+  productId: string;
+  /** Domain name (e.g. "bondiyoga.com"). */
+  domain: string;
+  /** Current registrant details for this domain. */
+  registrant: RegistrantDetails;
+  /** `true` when all required registrant fields are populated. */
+  complete: boolean;
+  /** Names of required fields that are missing values. */
+  missingFields: (keyof RegistrantDetails)[];
+  /** `true` when the user has explicitly skipped registrant assignment. */
+  skipped: boolean;
+};
+
+/**
+ * Single entry in the billing → registrant → provision field mapping.
+ */
+export type RegistrantFieldMapEntry = {
+  /** Key in the billing/client data source. */
+  billingKey: string;
+  /** Key in the RegistrantDetails type. */
+  registrantKey: keyof RegistrantDetails;
+  /** Provision field key sent to the API. */
+  provisionKey: string;
+  /** Whether this field is required for registrant completeness. */
+  required: boolean;
+};
+
+/**
+ * Maps billing/client data fields → registrant fields → domain provision field keys.
+ * Used to pre-fill registrant details from billing and to transform registrant
+ * data into provision field values for the basket product API.
+ */
+export const REGISTRANT_FIELD_MAP: RegistrantFieldMapEntry[] = [
+  {
+    billingKey: "name",
+    registrantKey: "name",
+    provisionKey: "registrant_name",
+    required: true
+  },
+  {
+    billingKey: "company",
+    registrantKey: "organisation",
+    provisionKey: "registrant_organisation",
+    required: false
+  },
+  {
+    billingKey: "email",
+    registrantKey: "email",
+    provisionKey: "registrant_email",
+    required: true
+  },
+  {
+    billingKey: "phone",
+    registrantKey: "phone",
+    provisionKey: "registrant_phone",
+    required: true
+  },
+  {
+    billingKey: "address_1",
+    registrantKey: "address1",
+    provisionKey: "registrant_address_1",
+    required: true
+  },
+  {
+    billingKey: "city",
+    registrantKey: "city",
+    provisionKey: "registrant_city",
+    required: true
+  },
+  {
+    billingKey: "state",
+    registrantKey: "state",
+    provisionKey: "registrant_state",
+    required: false
+  },
+  {
+    billingKey: "postcode",
+    registrantKey: "postcode",
+    provisionKey: "registrant_postcode",
+    required: true
+  },
+  {
+    billingKey: "country",
+    registrantKey: "country",
+    provisionKey: "registrant_country",
+    required: true
+  }
+] as const;
+
+/**
+ * Required registrant field keys — derived from REGISTRANT_FIELD_MAP.
+ * Only fields with `required: true` are included.
+ */
+export const REQUIRED_REGISTRANT_FIELDS: (keyof RegistrantDetails)[] = [
+  "name",
+  "email",
+  "phone",
+  "address1",
+  "city",
+  "postcode",
+  "country"
+] as const;
