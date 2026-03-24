@@ -285,6 +285,11 @@ export default createMachine(
                   actions: ["addBundle"],
                   cond: "hasBundles"
                 },
+                {
+                  target: "#available",
+                  actions: ["persistModel"],
+                  cond: "continueEditing"
+                },
                 { target: "#complete" }
               ]
             }
@@ -751,6 +756,9 @@ export default createMachine(
       }: ProductConfigContext) => {
         return !rawBasketProduct || !isEqual(model, baseModel);
       },
+
+      continueEditing: ({ allowMultipleEdits }: ProductConfigContext) =>
+        !!allowMultipleEdits,
 
       isUnauthorized: (
         _context: ProductConfigContext,

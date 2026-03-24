@@ -919,6 +919,8 @@ export interface ProductConfigContext {
   // ---
   /** The ID of the current shopping basket. */
   basketId?: string;
+  /** When `true`, the machine returns to `available` after update instead of `complete`. */
+  allowMultipleEdits?: boolean;
   /** An `ActorRef` to the basket helper service. */
   basketHelper?: ActorRef<any>;
   /** A function to parse a {@link ProductModel} for the basket. */

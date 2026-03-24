@@ -294,7 +294,10 @@ export const useBasketProducts = () => {
      * @returns A promise resolving to the {@link UseBasketProduct} composable for the specified product.
      * @throws {DetailedError} If the basket product is not found.
      */
-    configure: async (bpid: string): Promise<UseBasketProduct> => {
+    configure: async (
+      bpid: string,
+      options?: { allowMultipleEdits?: boolean }
+    ): Promise<UseBasketProduct> => {
       const basketProduct = await getBasketProduct(bpid);
       if (isEmpty(basketProduct))
         return Promise.reject(
@@ -304,7 +307,7 @@ export const useBasketProducts = () => {
             ErrorOrigin.Headless
           )
         );
-      return Promise.resolve(useBasketProduct(basketProduct.id));
+      return Promise.resolve(useBasketProduct(basketProduct.id, options));
     },
 
     // --- context

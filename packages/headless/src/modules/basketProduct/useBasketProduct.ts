@@ -34,7 +34,10 @@ import type { Product } from "../product";
  * such as quantity management, readiness checks, and error handling. It initialises and returns methods
  * that allow interaction with the basket product through a state machine.
  */
-export const useBasketProduct = (bpid: string) => {
+export const useBasketProduct = (
+  bpid: string,
+  options?: { allowMultipleEdits?: boolean }
+) => {
   const { t } = useI18n();
   const { basket: rawBasket, errors } = useBasket();
 
@@ -64,7 +67,8 @@ export const useBasketProduct = (bpid: string) => {
       coupons: [],
       // ---
       rawBasketProduct,
-      errorExternal: get(errors.value, bpid)
+      errorExternal: get(errors.value, bpid),
+      allowMultipleEdits: options?.allowMultipleEdits
     }),
     {
       id: bpid,
