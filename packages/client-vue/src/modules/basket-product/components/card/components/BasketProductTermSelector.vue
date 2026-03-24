@@ -12,7 +12,6 @@
       :disabled="disabled || processing"
       :placeholder="t('form.select_option.placeholder')"
       content-class="max-h-74!"
-      size="sm"
       @update:modelValue="doUpdateTerm"
     >
       <template #item="slotProps">
@@ -32,7 +31,7 @@ import { useI18n } from "vue-i18n";
 
 // --- components
 import { SelectCards } from "@upmind-automation/upmind-ui";
-import TermCard from "../../../product/components/terms/TermCard.vue";
+import TermCard from "../../../../product/components/terms/TermCard.vue";
 
 // --- utils
 import { map, toNumber } from "lodash-es";
@@ -63,9 +62,9 @@ const selectedTerm = computed(() => props.modelValue?.toString());
 
 const parsedTerms = computed<SelectCardsItemProps[]>(() =>
   map(props.terms, (item: TermDetails, index: number) => ({
-    id: item.cycle,
+    id: item.cycle?.toString(),
     value: item.cycle?.toString(),
-    label: item.title,
+    label: item.title ?? "",
     item,
     index,
     modelValue: selectedTerm.value
