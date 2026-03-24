@@ -109,26 +109,24 @@
     />
 
     <div
-      v-if="meta?.hasInlineControls && config"
+      v-if="props.inlineMeta?.hasInlineControls"
       class="flex flex-col gap-3"
       data-testid="basket-product-inline-controls"
     >
       <BasketProductTermSelector
-        v-if="meta.showTermSelector && config"
-        :terms="config.terms?.value ?? []"
-        :model-value="config.model?.value?.term"
+        v-if="props.inlineMeta.showTermSelector && props.terms"
+        :terms="props.terms"
+        v-model="term"
         :disabled="error"
-        :processing="config.meta?.value?.isProcessing"
-        @update:modelValue="doUpdateTerm"
+        :processing="processing"
       />
 
       <BasketProductOptionSwitch
-        v-if="meta.showOptionUpsells && config"
-        :options="upsellOptions"
-        :model-value="config.model?.value?.options"
+        v-if="props.inlineMeta.showOptionUpsells && props.upsellOptions"
+        :options="props.upsellOptions"
+        v-model="options"
         :disabled="error"
-        :processing="config.meta?.value?.isProcessing"
-        @update:modelValue="doToggleOption"
+        :processing="processing"
       />
     </div>
 
@@ -139,9 +137,8 @@
         <QuantityField
           v-bind="productDetails"
           :id="id"
-          :quantity="quantity"
+          v-model:quantity="quantity"
           :disabled="error"
-          @update:quantity="doUpdateQuantity"
         />
 
         <div :class="styles.product.summary.footer.price.container">
@@ -182,7 +179,6 @@
 <script lang="ts" setup>
 // --- external
 import { useI18n } from "vue-i18n";
-import { useVModel } from "@vueuse/core";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- components
@@ -206,7 +202,7 @@ import BasketProductOptionSwitch from "./components/BasketProductOptionSwitch.vu
 // --- internal
 import { useStyles } from "@upmind-automation/upmind-ui";
 import styleConfig from "./basketProduct.config";
-import { useConfig, useBasketProductInline } from "@upmind-automation/headless";
+import { useConfig, type ProductModel } from "@upmind-automation/headless";
 
 // --- utils
 import { isMobile } from "@upmind-automation/upmind-ui";
@@ -214,17 +210,15 @@ import { isEmpty, includes } from "lodash-es";
 
 // --- types
 import type { BasketProductSummaryProps } from "./types";
-import type {
-  SubproductDetails,
-  SubproductValue
-} from "@upmind-automation/headless";
 import { computed } from "vue";
+
+// -----------------------------------------------------------------------------
 
 const { t } = useI18n();
 
 const props = defineProps<BasketProductSummaryProps>();
 
-const emits = defineEmits(["update:quantity", "remove", "update:open"]);
+const emits = defineEmits(["remove", "update:open"]);
 
 const styles = useStyles(
   [
@@ -240,23 +234,14 @@ const styles = useStyles(
   styleConfig
 );
 
-const open = useVModel(props, "open", emits);
+const open = defineModel<boolean>("open");
+const quantity = defineModel<ProductModel["quantity"]>("quantity");
+const term = defineModel<ProductModel["term"]>("term");
+const options = defineModel<ProductModel["options"]>("options");
 
 const { ui, data } = useConfig().with({
   product: () => props
 });
-
-const { meta, configure, filterUpsellOptions } = useBasketProductInline(
-  props.id
-);
-
-const config = meta.value?.hasInlineControls ? await configure() : undefined;
-
-if (config) await config.isReady();
-
-const upsellOptions = computed(() =>
-  filterUpsellOptions(config?.options?.value ?? [])
-);
 
 const filteredDetails = computed(() => {
   const showOptions = ui.productConfigOptionsSummary.isVisible;
@@ -289,31 +274,6 @@ const filteredDetails = computed(() => {
     return !includes(props.pricing, detail.id) && !isField;
   });
 });
-
-async function doUpdateQuantity(value: number) {
-  config?.updateQuantity(value)?.then(() => config?.update());
-}
-
-async function doUpdateTerm(value: number) {
-  config?.updateTerm(value)?.then(() => config?.update());
-}
-
-async function doToggleOption({
-  option,
-  value,
-  enabled
-}: {
-  option: SubproductDetails;
-  value: SubproductValue;
-  enabled: boolean;
-}) {
-  config?.toggleOption(option, value.id, enabled)?.then(() => {
-    debugger;
-    return config.update().then(() => {
-      debugger;
-    });
-  });
-}
 
 function doRemove() {
   emits("remove");

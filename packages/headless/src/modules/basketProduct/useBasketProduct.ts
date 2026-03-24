@@ -136,6 +136,7 @@ export const useBasketProduct = (
 
   // --- methods
 
+  /** @deprecated Use useProductConfig.updateQuantity via inline composable. */
   const updateQuantity = debounce(
     async (value: number): Promise<void> =>
       getProduct().then(product => {
@@ -159,6 +160,7 @@ export const useBasketProduct = (
     DEBOUNCE_DELAY
   );
 
+  /** @deprecated Use useProductConfig.incrementQuantity via inline composable. */
   const incrementQuantity = debounce(
     async (): Promise<void> =>
       getProduct().then(product => {
@@ -186,6 +188,7 @@ export const useBasketProduct = (
     DEBOUNCE_DELAY
   );
 
+  /** @deprecated Use useProductConfig.decrementQuantity via inline composable. */
   const decrementQuantity = debounce(
     async (): Promise<void> =>
       getProduct().then(product => {
@@ -220,9 +223,9 @@ export const useBasketProduct = (
     isReady,
     stop: () => stopService(service),
     // ---
-    updateQuantity,
-    incrementQuantity,
-    decrementQuantity,
+    // updateQuantity,
+    // incrementQuantity,
+    // decrementQuantity,
     update
   };
 };
