@@ -20,12 +20,14 @@ import {
   add,
   compact,
   debounce,
+  filter,
   find,
   forEach,
   get,
   isArray,
   isEmpty,
   isEqual,
+  keys,
   set,
   some,
   subtract
@@ -251,6 +253,25 @@ export const useProductConfig = (service: ActorRef<any>) => {
     return setValues("SET.ATTRIBUTES", { attributes });
   }
 
+  async function toggleAttribute(
+    attribute: SubproductDetails,
+    valueId: string,
+    enabled: boolean
+  ): Promise<void> {
+    if (!attribute.meta.multiple) {
+      return setAttributes(attribute, enabled ? [valueId] : []);
+    }
+
+    const currentSelections = model.value?.attributes?.[attribute.id] ?? {};
+    const currentIds = keys(currentSelections);
+
+    const updatedIds = enabled
+      ? [...currentIds, valueId]
+      : filter(currentIds, id => id !== valueId);
+
+    return setAttributes(attribute, updatedIds);
+  }
+
   // --- OPTIONS
 
   function isSelectedOption(optionId: string, value: string): boolean {
@@ -283,6 +304,31 @@ export const useProductConfig = (service: ActorRef<any>) => {
 
     // emit the event
     return setValues("SET.OPTIONS", { options });
+  }
+
+  async function toggleOption(
+    option: SubproductDetails,
+    valueId: string,
+    enabled: boolean
+  ): Promise<void> {
+    if (!option.meta.multiple) {
+      if (enabled) {
+        return setOptions(option, [valueId]);
+      }
+
+      const options = { ...(model.value?.options ?? {}) };
+      delete options[option.id];
+      return setValues("SET.OPTIONS", { options });
+    }
+
+    const currentSelections = model.value?.options?.[option.id] ?? {};
+    const currentIds = keys(currentSelections);
+
+    const updatedIds = enabled
+      ? [...currentIds, valueId]
+      : filter(currentIds, id => id !== valueId);
+
+    return setOptions(option, updatedIds);
   }
 
   async function updateOptionQuantity(
@@ -390,9 +436,11 @@ export const useProductConfig = (service: ActorRef<any>) => {
     // ---
     isSelectedAttribute,
     setAttributes,
+    toggleAttribute,
     // ---
     isSelectedOption,
     setOptions,
+    toggleOption,
     updateOptionQuantity,
     incrementOption,
     decrementOption,

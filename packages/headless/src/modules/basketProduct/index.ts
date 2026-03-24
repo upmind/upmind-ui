@@ -12,4 +12,4 @@ export * from "./useBasketProduct";
 export * from "./useBasketProducts";
 export * from "./useBasketProductPending";
 export * from "./useBasketProductsPending";
-export * from "./useBasketProductsInline";
+export * from "./useBasketProductInline";

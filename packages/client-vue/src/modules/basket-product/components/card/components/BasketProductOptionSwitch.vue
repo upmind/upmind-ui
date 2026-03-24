@@ -18,10 +18,9 @@
 
           <Switch
             :id="`option-${option.id}-${value.id}`"
-            :model-value="isSelected(option.id, value.id)"
+            :checked="isSelected(option.id, value.id)"
             :disabled="disabled || processing"
-            size="sm"
-            @update:modelValue="doToggle(option, value, $event)"
+            @update:checked="doToggle(option, value, $event)"
           />
         </div>
       </template>
@@ -68,6 +67,7 @@ function doToggle(
   value: SubproductValue,
   enabled: boolean
 ) {
+  debugger;
   if (props.disabled) return;
   emits("update:modelValue", { option, value, enabled });
 }

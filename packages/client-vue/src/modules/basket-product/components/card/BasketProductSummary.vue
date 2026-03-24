@@ -109,25 +109,25 @@
     />
 
     <div
-      v-if="inlineEditor"
-      class="border-base flex flex-col gap-3 border-t pt-3"
+      v-if="meta?.hasInlineControls && config"
+      class="flex flex-col gap-3"
       data-testid="basket-product-inline-controls"
     >
       <BasketProductTermSelector
-        v-if="inlineEditor.showTermSelector && inlineEditor.config"
-        :terms="inlineEditor.config.terms?.value ?? []"
-        :model-value="inlineEditor.config.model?.value?.term"
+        v-if="meta.showTermSelector && config"
+        :terms="config.terms?.value ?? []"
+        :model-value="config.model?.value?.term"
         :disabled="error"
-        :processing="inlineEditor.config.meta?.value?.isProcessing"
+        :processing="config.meta?.value?.isProcessing"
         @update:modelValue="doUpdateTerm"
       />
 
       <BasketProductOptionSwitch
-        v-if="inlineEditor.showOptionUpsells && inlineEditor.config"
-        :options="inlineEditor.config.options?.value ?? []"
-        :model-value="inlineEditor.config.model?.value?.options"
+        v-if="meta.showOptionUpsells && config"
+        :options="upsellOptions"
+        :model-value="config.model?.value?.options"
         :disabled="error"
-        :processing="inlineEditor.config.meta?.value?.isProcessing"
+        :processing="config.meta?.value?.isProcessing"
         @update:modelValue="doToggleOption"
       />
     </div>
@@ -205,8 +205,8 @@ import BasketProductOptionSwitch from "./components/BasketProductOptionSwitch.vu
 
 // --- internal
 import { useStyles } from "@upmind-automation/upmind-ui";
-import config from "./basketProduct.config";
-import { useConfig } from "@upmind-automation/headless";
+import styleConfig from "./basketProduct.config";
+import { useConfig, useBasketProductInline } from "@upmind-automation/headless";
 
 // --- utils
 import { isMobile } from "@upmind-automation/upmind-ui";
@@ -215,7 +215,6 @@ import { isEmpty, includes } from "lodash-es";
 // --- types
 import type { BasketProductSummaryProps } from "./types";
 import type {
-  InlineEditorState,
   SubproductDetails,
   SubproductValue
 } from "@upmind-automation/headless";
@@ -223,11 +222,7 @@ import { computed } from "vue";
 
 const { t } = useI18n();
 
-const props = defineProps<
-  BasketProductSummaryProps & {
-    inlineEditor?: InlineEditorState;
-  }
->();
+const props = defineProps<BasketProductSummaryProps>();
 
 const emits = defineEmits(["update:quantity", "remove", "update:open"]);
 
@@ -242,7 +237,7 @@ const styles = useStyles(
     "product.pricing"
   ],
   props,
-  config
+  styleConfig
 );
 
 const open = useVModel(props, "open", emits);
@@ -250,6 +245,18 @@ const open = useVModel(props, "open", emits);
 const { ui, data } = useConfig().with({
   product: () => props
 });
+
+const { meta, configure, filterUpsellOptions } = useBasketProductInline(
+  props.id
+);
+
+const config = meta.value?.hasInlineControls ? await configure() : undefined;
+
+if (config) await config.isReady();
+
+const upsellOptions = computed(() =>
+  filterUpsellOptions(config?.options?.value ?? [])
+);
 
 const filteredDetails = computed(() => {
   const showOptions = ui.productConfigOptionsSummary.isVisible;
@@ -283,32 +290,32 @@ const filteredDetails = computed(() => {
   });
 });
 
-function doUpdateQuantity(value: number) {
-  emits("update:quantity", value);
-}
-
-function doRemove() {
-  emits("remove");
+async function doUpdateQuantity(value: number) {
+  config?.updateQuantity(value)?.then(() => config?.update());
 }
 
 async function doUpdateTerm(value: number) {
-  if (!props.inlineEditor?.config) return;
-  await props.inlineEditor.config.updateTerm(value);
-  await props.inlineEditor.config.update();
+  config?.updateTerm(value)?.then(() => config?.update());
 }
 
-async function doToggleOption(payload: {
+async function doToggleOption({
+  option,
+  value,
+  enabled
+}: {
   option: SubproductDetails;
   value: SubproductValue;
   enabled: boolean;
 }) {
-  if (!props.inlineEditor?.config) return;
-  const { option, value, enabled } = payload;
-  if (enabled) {
-    await props.inlineEditor.config.setOptions(option, [value.id]);
-  } else {
-    await props.inlineEditor.config.setOptions(option, []);
-  }
-  await props.inlineEditor.config.update();
+  config?.toggleOption(option, value.id, enabled)?.then(() => {
+    debugger;
+    return config.update().then(() => {
+      debugger;
+    });
+  });
+}
+
+function doRemove() {
+  emits("remove");
 }
 </script>

@@ -553,7 +553,7 @@ export const DATA_DEFINITIONS = {
   optionUpsellEnabled: {
     default: false,
     contexts: [UIContext.BASKET, UIContext.CHECKOUT],
-    scopes: [UIScope.BRAND]
+    scopes: [UIScope.OPTION_CATEGORY, UIScope.OPTION]
   },
   productBadge: {
     default: undefined,
