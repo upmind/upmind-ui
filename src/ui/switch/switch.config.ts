@@ -5,6 +5,7 @@ import { cva } from "class-variance-authority";
 export const switchVariants = cva(
   "shadow-control-default data-[state=checked]:bg-control-active data-[state=unchecked]:bg-control-foreground w-11!"
 );
+
 // -----------------------------------------------------------------------------
 export default {
   switch: switchVariants
