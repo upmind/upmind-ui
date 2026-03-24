@@ -4,14 +4,37 @@ import { Registration } from "../../../support/page-objects/templates/registrati
 import { payPalDetails } from "../../../support/secrets/paypal";
 import { goToCheckout } from "../../../support/flows/checkout";
 import { products } from "../../../support/constants/products";
+import {
+  getClientToken,
+  getSessionToken,
+  registerClient
+} from "../../../support/api/index";
 
 let checkout: Checkout;
 let register: Registration;
 
 test.describe("Partial payment at Checkout", () => {
-  test.beforeEach(({ page, context }) => {
+  test.beforeEach(async ({ page, context }) => {
     checkout = new Checkout(page);
     register = new Registration(page, context);
+    await page.goto("/");
+    await expect
+      .poll(
+        async () => {
+          const cookies = await context.cookies();
+          return cookies.some(
+            c =>
+              c.name === "upm_guest_session" || c.name === "upm_client_session"
+          );
+        },
+        { timeout: 30000 }
+      )
+      .toBeTruthy();
+    let guestToken = await getSessionToken(context);
+    let user = await registerClient(guestToken);
+    let username = user.email;
+    let password = user.password;
+    await getClientToken(page, username, password);
   });
   test.describe("Partial Payments with Stripe", () => {
     test("Partial Payment in base Currency (GBP)", async ({
@@ -19,7 +42,6 @@ test.describe("Partial payment at Checkout", () => {
       context
     }) => {
       await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
-      await register.inputRegistration();
       await page.waitForLoadState("networkidle");
       await page.waitForLoadState("load");
       await checkout.changeAmountButton.click();
@@ -37,7 +59,6 @@ test.describe("Partial payment at Checkout", () => {
       context
     }) => {
       await goToCheckout(page, context, products.STARTER_HOSTING, null, "AUD");
-      await register.inputRegistration();
       await page.waitForLoadState("networkidle");
       await page.waitForLoadState("load");
       await checkout.changeAmountButton.click();
@@ -58,7 +79,6 @@ test.describe("Partial payment at Checkout", () => {
         "genericpromo",
         null
       );
-      await register.inputRegistration();
       await page.waitForLoadState("networkidle");
       await page.waitForLoadState("load");
       await expect(checkout.payAmount).toHaveText("Pay £57.60");
@@ -80,7 +100,6 @@ test.describe("Partial payment at Checkout", () => {
         "genericpromo",
         "AUD"
       );
-      await register.inputRegistration();
       await page.waitForLoadState("networkidle");
       await page.waitForLoadState("load");
       await expect(checkout.payAmount).toHaveText("Pay A$131.71");
@@ -101,7 +120,6 @@ test.describe("Partial payment at Checkout", () => {
       context
     }) => {
       await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
-      await register.inputRegistration();
       await page.waitForLoadState("networkidle");
       await page.waitForLoadState("load");
       await expect(checkout.payAmount).toHaveText("Pay £72.00");
@@ -128,7 +146,6 @@ test.describe("Partial payment at Checkout", () => {
       context
     }) => {
       await goToCheckout(page, context, products.STARTER_HOSTING, null, "AUD");
-      await register.inputRegistration();
       await page.waitForLoadState("networkidle");
       await page.waitForLoadState("load");
       await expect(checkout.payAmount).toHaveText("Pay A$164.64");
@@ -158,7 +175,6 @@ test.describe("Partial payment at Checkout", () => {
         "genericpromo",
         null
       );
-      await register.inputRegistration();
       await page.waitForLoadState("load");
       await expect(checkout.payAmount).toHaveText("Pay £57.60");
       await checkout.changeAmountButton.click();

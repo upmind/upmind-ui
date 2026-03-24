@@ -22,7 +22,10 @@ test.describe("Edit hosting product in basket", () => {
   test.beforeEach(async ({ page, context }) => {
     productConfig = new ProductConfig(page);
     basket = new Basket(page);
-    await page.goto(URLs.baseUrl);
+    interceptUISchema(context, {
+      "@context.basket.productConfigFieldsSummary": "visible"
+    });
+    await page.goto("/");
     await page.waitForLoadState("networkidle");
     token = await getSessionToken(context);
     let order = await createOrder(token);
@@ -64,15 +67,13 @@ test.describe("Edit hosting product in basket", () => {
     await productConfig.selectRadioOption(
       "MacOS Sequoia Version 15.6 (Enterprise License)"
     );
-    await expect(
-      productConfig.getSummaryItem("Operating System")
-    ).toBeVisible();
+    await expect(page.getByText(/Operating System/s)).toBeVisible();
     await productConfig.clickConfirm();
     await expect(page).toHaveURL("order/basket/");
     await basket.clickShowDetails();
-    await expect(basket.basketProduct).toContainText(
-      "MacOS Sequoia Version 15.6 (Enterprise License)"
-    );
+    await expect(
+      page.getByText(/MacOS Sequoia Version 15.6 (Enterprise License)/s)
+    ).toBeVisible();
   });
 });
 
