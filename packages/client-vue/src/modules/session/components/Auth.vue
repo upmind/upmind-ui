@@ -1,5 +1,8 @@
 <template>
-  <section v-if="!meta.isAuthenticated && !meta.isLoading">
+  <section
+    :class="styles.session.auth.container"
+    v-if="!meta.isAuthenticated && !meta.isLoading"
+  >
     <div class="auth" :class="cn(styles.session.auth.root, props.class)">
       <Alert
         v-if="meta.hasErrors"

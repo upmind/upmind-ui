@@ -17,6 +17,9 @@
     "
     :loading="loading"
   >
+    <template #subtitle>
+      <Skeleton v-if="loading || !meta.isAvailable" class="h-5 w-80" />
+    </template>
     <template #prepend>
       <slot name="prepend" />
     </template>
@@ -36,6 +39,7 @@ import { useMoney } from "@upmind-automation/headless";
 
 // --- components
 import Hero from "../../../components/hero/Hero.vue";
+import { Skeleton } from "@upmind-automation/upmind-ui";
 
 defineProps<{
   loading?: boolean;
