@@ -191,13 +191,13 @@ export const useProductConfig = (service: ActorRef<any>) => {
 
   // --- QUANTITY
 
-  const updateQuantity = debounce(async (value?: number): Promise<void> => {
-    setValues("SET.QUANTITY", {
+  async function updateQuantity(value?: number): Promise<void> {
+    return setValues("SET.QUANTITY", {
       quantity: value
     });
-  }, DEBOUNCE_DELAY);
+  }
 
-  const incrementQuantity = debounce(async (value?: number): Promise<void> => {
+  async function incrementQuantity(value?: number): Promise<void> {
     // sanity check
     if (!lookups.value?.product?.quantifiable) return;
 
@@ -205,9 +205,9 @@ export const useProductConfig = (service: ActorRef<any>) => {
 
     // emit the event
     return updateQuantity(add(qty, lookups.value.product?.step || 1));
-  }, DEBOUNCE_DELAY);
+  }
 
-  const decrementQuantity = debounce(async (value?: number): Promise<void> => {
+  async function decrementQuantity(value?: number): Promise<void> {
     // sanity check
     if (!lookups.value?.product?.quantifiable) return;
 
@@ -215,7 +215,7 @@ export const useProductConfig = (service: ActorRef<any>) => {
 
     // emit the event
     return updateQuantity(subtract(qty, lookups.value.product?.step || 1));
-  }, DEBOUNCE_DELAY);
+  }
 
   // --- TERMS
 
@@ -223,10 +223,11 @@ export const useProductConfig = (service: ActorRef<any>) => {
     return isEqual(value, model.value?.term);
   }
 
-  const updateTerm = async (value: number): Promise<void> =>
-    setValues("SET.TERM", {
+  async function updateTerm(value: number): Promise<void> {
+    return setValues("SET.TERM", {
       term: value
     });
+  }
 
   // --- ATTRIBUTES
 

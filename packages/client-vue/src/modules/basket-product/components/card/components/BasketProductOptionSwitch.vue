@@ -67,7 +67,6 @@ function doToggle(
   value: SubproductValue,
   enabled: boolean
 ) {
-  debugger;
   if (props.disabled) return;
   emits("update:modelValue", { option, value, enabled });
 }
