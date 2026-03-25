@@ -42,10 +42,7 @@ function onOverlayClick() {
 
 <template>
   <DrawerPortal :to="props.to">
-    <DrawerOverlay
-      :class="props.classOverlay"
-      @click="onOverlayClick"
-    />
+    <DrawerOverlay :class="props.classOverlay" @click="onOverlayClick" />
     <DrawerContent
       v-bind="forwarded"
       :class="
