@@ -168,12 +168,14 @@ export enum OverlayType {
  * Definition for an overlay route that can be injected as a child on eligible routes.
  */
 export type OverlayDefinition = {
-  /** Path segment appended to parent route */
-  path: string;
-  /** Unique identifier for this overlay type */
-  id: string;
   /** Default render type — brands can override via UI meta */
   defaultType: OverlayType;
+  /** Unique identifier for this overlay type */
+  id: string;
+  /** Path segment appended to parent route */
+  path: string;
+  /** When true, overlay is only accessible to unauthenticated (guest) users */
+  requiresGuest?: boolean;
 };
 
 // --- Vue Router meta extension
@@ -186,5 +188,7 @@ declare module "vue-router" {
     overlayId?: string;
     /** Set to false to prevent overlay child routes from being injected */
     allowOverlays?: boolean;
+    /** When true, overlay is only accessible to unauthenticated (guest) users */
+    requiresGuest?: boolean;
   }
 }

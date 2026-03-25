@@ -26,9 +26,24 @@ import { OverlayType } from "./types";
  *   `@context.cart.overlay.auth.type: "modal" | "drawer"`
  */
 export const GLOBAL_OVERLAYS: OverlayDefinition[] = [
-  { path: "auth", id: "auth", defaultType: OverlayType.DRAWER },
-  { path: "2fa", id: "2fa", defaultType: OverlayType.MODAL },
-  { path: "verify-email", id: "verify-email", defaultType: OverlayType.MODAL }
+  {
+    path: "auth",
+    id: "auth",
+    defaultType: OverlayType.DRAWER,
+    requiresGuest: true
+  },
+  {
+    path: "2fa",
+    id: "2fa",
+    defaultType: OverlayType.MODAL,
+    requiresGuest: true
+  },
+  {
+    path: "verify-email",
+    id: "verify-email",
+    defaultType: OverlayType.MODAL,
+    requiresGuest: true
+  }
 ];
 
 // -----------------------------------------------------------------------------
@@ -65,7 +80,8 @@ export function registerOverlayRoutes(
         component: OverlayStub,
         meta: {
           overlay: overlay.defaultType,
-          overlayId: overlay.id
+          overlayId: overlay.id,
+          ...(overlay.requiresGuest && { requiresGuest: true })
         }
       });
     }
