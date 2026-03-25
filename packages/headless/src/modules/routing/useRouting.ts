@@ -60,6 +60,8 @@ export const useRouting = (router: Router): void => {
    */
   router.isReady().then(async () => {
     await decorateRoutes(router.getRoutes());
+    // NB: Apps may also call registerOverlayRoutes() eagerly at router creation
+    // for deep-link support. This call is idempotent and acts as a fallback.
     registerOverlayRoutes(router);
     const target = await guardRoute(router.currentRoute.value);
     if (target) {
