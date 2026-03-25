@@ -1,8 +1,8 @@
 // --- internal
-import { useBrand, useDataLayer, useRoutingEngine } from "../";
+import { useBrand, useDataLayer, useRoutingEngine, useSession } from "../";
 
 // --- utils
-import { get } from "lodash-es";
+import { find } from "lodash-es";
 
 // --- types
 import type { Router, RouteLocation } from "vue-router";
@@ -27,11 +27,38 @@ export const useRouting = (router: Router): void => {
   // --- methods
 
   /**
+   * Guard overlay routes that require a guest (unauthenticated) user.
+   * If the user is already authenticated, redirect to the parent route.
+   * Returns the parent route location if redirect needed, undefined otherwise.
+   */
+  function guardOverlayAuth(route: RouteLocation) {
+    const overlayRecord = find(route.matched, r => !!r.meta?.requiresGuest);
+    if (!overlayRecord) return;
+
+    const { meta } = useSession();
+    if (!meta.value.isAuthenticated) return;
+
+    // Resolve the parent route — nearest non-overlay ancestor
+    const parent = find(
+      [...route.matched].reverse(),
+      r => !!r.name && !r.meta?.overlay
+    );
+
+    return parent
+      ? { name: parent.name as string, params: route.params }
+      : { path: "/" };
+  }
+
+  /**
    * Guard the route, using the routing engine to determine if navigation should proceed
    * @param route
    */
   async function guardRoute(route: RouteLocation) {
     // console.debug("Guarding route:", route);
+
+    // Auth guard: prevent authenticated users from opening guest-only overlays
+    const overlayRedirect = guardOverlayAuth(route);
+    if (overlayRedirect) return overlayRedirect;
 
     // NB: Trailing slash enforcement is now handled by the NOT_FOUND catch-all
     // route's beforeEnter guard in each app's routes.ts.

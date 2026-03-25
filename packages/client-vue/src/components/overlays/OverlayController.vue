@@ -24,9 +24,10 @@
 
 // --- external
 import { computed, ref, watch } from "vue";
+import { useRoute } from "vue-router";
 
 // --- internal
-import { OverlayType } from "@upmind-automation/headless";
+import { OverlayType, useSession } from "@upmind-automation/headless";
 import { useOverlayRoute } from "./useOverlayRoute";
 import { Drawer, Dialog } from "@upmind-automation/upmind-ui";
 
@@ -38,7 +39,9 @@ import { OVERLAY_REGISTRY } from "./overlayRegistry";
 
 // -----------------------------------------------------------------------------
 
+const route = useRoute();
 const { isOpen, overlayId, overlayType, close, dismiss } = useOverlayRoute();
+const { meta: sessionMeta } = useSession();
 
 /** Resolve container (Dialog or Drawer) from overlay type */
 const overlayContainer = computed(() =>
@@ -56,6 +59,17 @@ const drawerOpen = ref(false);
 watch(
   isOpen,
   open => {
+    // Auth guard (defense-in-depth): if user is already authenticated
+    // and the overlay requires a guest, close immediately.
+    // Primary guard is in useRouting guardRoute — this catches edge cases.
+    if (
+      open &&
+      route.meta?.requiresGuest &&
+      sessionMeta.value.isAuthenticated
+    ) {
+      close();
+      return;
+    }
     drawerOpen.value = open;
   },
   { immediate: true }

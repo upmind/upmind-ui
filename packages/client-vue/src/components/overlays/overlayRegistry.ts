@@ -19,9 +19,10 @@ export const OVERLAY_REGISTRY: Record<
   string,
   ReturnType<typeof defineAsyncComponent>
 > = {
-  auth: defineAsyncComponent(() => import("./AuthOverlay.vue"))
-  // TODO: Add 2fa overlay component — route injected by GLOBAL_OVERLAYS but no content yet
-  // "2fa": defineAsyncComponent(() => import("./TwoFaOverlay.vue")),
-  // TODO: Add verify-email overlay component — route injected by GLOBAL_OVERLAYS but no content yet
-  // "verify-email": defineAsyncComponent(() => import("./VerifyEmailOverlay.vue")),
+  auth: defineAsyncComponent(() => import("./AuthOverlay.vue")),
+  // NB: 2FA and verify-email are internal steps within the Auth flow.
+  // The Auth component handles `login → 2FA challenge` and `register → verify-email`
+  // transitions automatically via the guest state machine.
+  "2fa": defineAsyncComponent(() => import("./AuthOverlay.vue")),
+  "verify-email": defineAsyncComponent(() => import("./AuthOverlay.vue"))
 };
