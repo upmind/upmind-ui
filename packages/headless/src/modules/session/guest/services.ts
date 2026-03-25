@@ -114,7 +114,8 @@ async function verify2fa({ token }: GuestContext, { data }: AnyEventObject) {
     withAccessToken: token.access_token,
     data: {
       grant_type: GrantTypes.TWOFA,
-      twofa_code: data
+      twofa_code: data,
+      twofa_provider: token.twofa_provider
     }
   })
     .then(data => {
