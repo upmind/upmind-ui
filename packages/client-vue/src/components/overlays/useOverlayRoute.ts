@@ -50,30 +50,46 @@ export function useOverlayRoute() {
     () => overlayMeta.value?.overlayId as string | undefined
   );
 
+  // --- private
+
+  /**
+   * Resolves the parent route — the nearest matched non-overlay ancestor.
+   * Used by both close() and dismiss() to navigate away from the overlay.
+   */
+  function resolveParentRoute() {
+    const parent = find(
+      [...route.matched].reverse(),
+      r => !!r.name && !r.meta?.overlay
+    );
+    return parent
+      ? { name: parent.name as string, params: route.params }
+      : { path: "/" };
+  }
+
   // --- methods
 
-  /** Close the overlay and navigate to returnRoute (e.g. after auth success) */
+  /**
+   * Close the overlay after a flow completes (e.g. auth success).
+   * Navigates to `returnRoute` if provided by the funnel, otherwise
+   * replaces the current URL with the parent route (strips overlay segment).
+   * Uses replace() to keep browser history clean — no stale overlay routes.
+   */
   function close(): void {
     const returnRoute = route.query?.returnRoute as string | undefined;
     if (returnRoute) {
       router.push({ name: returnRoute });
     } else {
-      router.back();
+      router.replace(resolveParentRoute());
     }
   }
 
-  /** Dismiss the overlay (backdrop click) — go back, or fallbackRoute if no history */
+  /** Dismiss the overlay (backdrop click) — go back, or to parent route if no history */
   function dismiss(): void {
     if (window.history.state?.back) {
       router.back();
     } else {
-      // Prefer explicit fallbackRoute, then parent route, then root
       const fallback = route.query.fallbackRoute as string | undefined;
-      const parentRoute = find(
-        [...route.matched].reverse(),
-        r => !!r.name && !r.meta?.overlay
-      );
-      router.push({ name: fallback ?? (parentRoute?.name as string) ?? "/" });
+      router.push(fallback ? { name: fallback } : resolveParentRoute());
     }
   }
 
