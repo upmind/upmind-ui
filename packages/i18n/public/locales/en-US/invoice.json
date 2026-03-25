@@ -1,6 +1,6 @@
 {
-  "order_complete": "Order complete!",
-  "order_complete_msg": "We've sent you an email with everything you need to know about your purchase.",
+  "order_complete": "Thanks for your order!",
+  "order_complete_msg": "We’ve sent you a confirmation email shortly with the details of your order, along with everything you need to know about your purchase.",
   "order_free": "Nothing left to pay",
   "order_free_msg": "Your order has been placed successfully. No payment required.",
   "order_not_found": "Order not found!",

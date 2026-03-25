@@ -84,12 +84,11 @@
       </div>
     </header>
 
-    <p
+    <Markdown
       v-if="ui.optionItemDescription.isInline && desc"
       :class="styles.card.excerpt"
-    >
-      {{ desc }}
-    </p>
+      :model-value="desc"
+    />
   </section>
 </template>
 
@@ -102,8 +101,12 @@ import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./subproduct-card.config";
 
 // --- components
-import { NumberField, Tooltip, Icon } from "@upmind-automation/upmind-ui";
-import { isEmpty } from "lodash-es";
+import {
+  NumberField,
+  Tooltip,
+  Icon,
+  Markdown
+} from "@upmind-automation/upmind-ui";
 import SubproductCardPricing from "./SubproductCardPricing.vue";
 import SubproductImage from "./SubproductImage.vue";
 import Promotion from "../../../basket-product/components/card/components/Promotion.vue";

@@ -11,6 +11,14 @@
   </div>
 </template>
 
+<!-- Pre-load asset/chunk unavailable animations and icons at import time so they're cached and
+     available even when asset URLs become stale after a deploy. -->
+<script lang="ts">
+import { loadAnimation, loadIcon } from "@upmind-automation/upmind-ui";
+loadAnimation("refresh");
+loadIcon("refresh-cw-01");
+</script>
+
 <script lang="ts" setup>
 // --- external
 import { useI18n } from "vue-i18n";
@@ -58,6 +66,8 @@ const emit = defineEmits<{
 
 const title = computed(() => {
   switch (props.status) {
+    case 1000:
+      return t("error.asset_unavailable_title_md");
     case responseCodes.No_Content:
       return props?.title ?? t("error.generic_title_md");
     case responseCodes.Unauthorized:
@@ -79,6 +89,8 @@ const title = computed(() => {
 
 const text = computed(() => {
   switch (props.status) {
+    case 1000:
+      return t("error.asset_unavailable_text");
     case responseCodes.No_Content:
       return props?.copy ?? t("error.generic_text");
     case responseCodes.Unauthorized:
@@ -100,6 +112,8 @@ const text = computed(() => {
 
 const icon = computed(() => {
   switch (props.status) {
+    case 1000:
+      return "refresh-cw-01";
     case responseCodes.No_Content:
       return first(props?.actions)?.icon ?? "arrow-left";
 
@@ -122,6 +136,8 @@ const icon = computed(() => {
 
 const action = computed(() => {
   switch (props.status) {
+    case 1000:
+      return t("action.reload_page");
     case responseCodes.No_Content:
       return first(props?.actions)?.label ?? t("action.back_to_shop");
 
@@ -143,7 +159,12 @@ const action = computed(() => {
 });
 
 const animatedIcon = computed(() => ({
-  icon: (props.status ?? 0) >= 500 ? "unavailable" : "error",
+  icon:
+    props.status === 1000
+      ? "refresh"
+      : (props.status ?? 0) >= 500
+        ? "unavailable"
+        : "error",
   trigger: props.animatedIcon.trigger,
   primaryColor: props.animatedIcon.primaryColor,
   secondaryColor: props.animatedIcon.secondaryColor,
@@ -154,6 +175,8 @@ const actions = computed((): InterstitialActionProps[] => {
   let defaultAction: InterstitialActionProps;
 
   switch (props.status) {
+    // for chunk/asset errors, reload to fetch fresh assets
+    case 1000:
     // for service errors, we want to reload the page as its likely a temporary issue
     case responseCodes.Service_Unavailable:
     case responseCodes.Internal_Server_Error:

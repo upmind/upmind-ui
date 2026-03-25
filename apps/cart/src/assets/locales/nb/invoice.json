@@ -1,5 +1,5 @@
 {
-  "order_complete": "Bestillingen er **fullført**! Takk!",
+  "order_complete": "Bestillingen er fullført!",
   "order_complete_msg": "Vi har sendt deg en bekreftelses-e-post med detaljer om bestillingen din og alt du trenger å vite om kjøpet.",
   "order_free": "Ingenting igjen å betale",
   "order_free_msg": "Bestillingen din er registrert. Ingen betaling kreves.",

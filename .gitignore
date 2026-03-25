@@ -30,3 +30,6 @@ tests/__fixtures__/recordings-velia/
 
 # Git worktrees
 .worktrees/
+
+# Asset registry (post-build chunk manifests)
+.asset-registry/
