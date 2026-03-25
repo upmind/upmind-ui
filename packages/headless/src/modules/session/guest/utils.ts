@@ -281,10 +281,9 @@ export const use2faUischemaParser = (provider?: TwofaProviders) => {
         scope: "#/properties/token",
         i18n: i18nKey,
         options: {
+          format: "otp",
           autoFocus: true,
-          autocomplete: "off",
-          placeholder: "123 456"
-          // mask: "000 000"
+          autocomplete: "off"
         }
       }
     ]
