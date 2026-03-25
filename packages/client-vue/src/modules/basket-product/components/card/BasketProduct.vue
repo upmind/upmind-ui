@@ -14,6 +14,7 @@
           :summary="summary"
           :details="details"
           :error="meta.hasErrors"
+          :config-errors="configErrors"
           :loading="meta.isLoading"
           :processing="meta.isProcessing"
           :pricing="pricingProductIds"
@@ -113,6 +114,7 @@ const meta = computed(() => ({
   isProcessing: props.processing || !!config?.meta?.value?.isProcessing,
   isUnavailable: isEmpty(props.id),
   hasErrors: !isEmpty(props.errors) || some(props.details, "meta.invalid"),
+  hasConfigErrors: !!config?.meta?.value?.hasErrors,
 
   // ---
   hasTerms: !!props?.configuration?.term,
@@ -135,6 +137,10 @@ const editRoute = computed(() => {
 });
 
 const pricingProductIds = computed(() => compact(map(props.pricing, "id")));
+
+const configErrors = computed(
+  () => config?.validationErrors?.value || config?.errors?.value
+);
 
 function getSummaryComponent(index: number) {
   return index === 0 ? BasketProductContent : BasketProductOptionContent;
