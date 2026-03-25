@@ -283,8 +283,8 @@ export const use2faUischemaParser = (provider?: TwofaProviders) => {
         options: {
           autoFocus: true,
           autocomplete: "off",
-          placeholder: "123 456",
-          mask: "000 000"
+          placeholder: "123 456"
+          // mask: "000 000"
         }
       }
     ]
