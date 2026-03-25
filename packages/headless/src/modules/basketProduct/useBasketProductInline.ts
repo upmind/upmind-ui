@@ -72,8 +72,6 @@ export const useBasketProductInline = (bpid: string) => {
     return reduce(
       options,
       (result: SubproductDetails[], optionGroup) => {
-        if (optionGroup.meta.required) return result;
-
         const eligibleValues = filter(optionGroup.values, option =>
           isOptionUpsellEnabled(optionGroup, option)
         );

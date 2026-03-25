@@ -102,7 +102,7 @@
     />
 
     <RequiredAlert
-      v-if="error"
+      v-if="error || !isEmpty(props.configErrors)"
       :id="id"
       size="sm"
       :edit-route="props.editRoute"
@@ -117,7 +117,7 @@
         v-if="props.inlineMeta.showTermSelector && props.terms"
         :terms="props.terms"
         v-model="term"
-        :disabled="error"
+        :disabled="error || !isEmpty(props.configErrors)"
         :processing="processing"
       />
 
@@ -125,7 +125,7 @@
         v-if="props.inlineMeta.showOptionUpsells && props.upsellOptions"
         :options="props.upsellOptions"
         v-model="options"
-        :disabled="error"
+        :disabled="error || !isEmpty(props.configErrors)"
         :processing="processing"
       />
     </div>
