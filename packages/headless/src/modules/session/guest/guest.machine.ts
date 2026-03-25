@@ -334,7 +334,7 @@ export default createMachine(
         schema: (_context: GuestContext, { data }: AnyEventObject) =>
           use2faSchemaParser(),
         uischema: (_context: GuestContext, { data }: AnyEventObject) =>
-          use2faUischemaParser(),
+          use2faUischemaParser(data?.twofa_provider),
         model: ({ model }: GuestContext) =>
           use2faModelParser(model as TWOFAModel)
       }),
