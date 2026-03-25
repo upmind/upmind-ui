@@ -132,10 +132,9 @@ export const useSession = () => {
       stateMatches(guestActor, [
         "available.login.authenticating",
         "available.login.verifying",
-        "available.register.checking",
-        "available.register.verifying",
         "available.register.registering",
         "available.register.authenticating",
+        "available.register.verifying",
         "available.recover.recovering"
       ]) || stateMatches(clientActor, "processing"),
     isAuthenticated: stateMatches(state, "client"),
@@ -149,11 +148,12 @@ export const useSession = () => {
         "available.recover.error"
       ]) ||
       stateMatches(clientActor, "error"),
-    showReCaptcha: stateMatches(guestActor, "available.register.challenging"),
     showLoginForm: stateMatches(guestActor, "available.login"),
     show2fa: stateMatches(guestActor, [
       "available.login.challenging",
-      "available.login.verifying"
+      "available.login.verifying",
+      "available.register.challenging",
+      "available.register.verifying"
     ]),
     canShowForms: stateMatches(guestActor, "available"),
     showRegisterForm: stateMatches(guestActor, "available.register"),
@@ -584,9 +584,8 @@ export const useSession = () => {
      * @property {boolean} isAuthenticated - Indicates whether the client is authenticated within the session.
      * @property {boolean} isTransferring - Indicates whether the session is currently transferring data.
      * @property {boolean} hasExpired - Indicates whether the session has expired.
-     * @property {boolean} showReCaptcha - Indicates whether the ReCaptcha challenge should be displayed.
      * @property {boolean} showLoginForm - Indicates whether the login form should be displayed.
-     * @property {boolean} show2fa - Indicates whether the two-factor authentication (2FA) challenge is required and should be shown.
+     * @property {boolean} show2fa - Indicates whether the two-factor authentication (2FA) challenge is required and should be shown (login or register).
      * @property {boolean} showRegisterForm - Indicates whether the registration form should be displayed.
      * @property {boolean} showRecoverPasswordForm - Indicates whether the Send reset form should be displayed.
      * @property {boolean} canShowForms - Indicates whether any forms (login or register) can be shown to the client.
