@@ -2,7 +2,7 @@
 
 // --- internal
 import { useBrand } from "../brand";
-import { useI18n, useQuery } from "../..";
+import { useBasketCurrency, useI18n, useQuery } from "../..";
 
 // --- utils
 import {
@@ -16,15 +16,14 @@ import {
 } from "../../utils";
 
 import {
-  parseQuantity,
   parseTerm,
-  parseTrial,
   parseSubproducts,
   checkPriceOverride,
   parseSubproductDetails,
-  parseProvisioningSchema,
   parseProductProps
 } from "./utils";
+
+import { useProductConfigSchema } from "./schemas";
 
 import {
   compact,
@@ -90,11 +89,16 @@ async function load(
   // lets ensure we have a valid currency > fallback to default
   // as well as ensuring our promo display type is available
   const { validateCurrency, ensureConfig } = useBrand();
+  const { currency: basketCurrency, isReady: isCurrencyReady } =
+    useBasketCurrency();
 
+  // Fallback to basket's persisted currency when no explicit currency is set
   const [currency] = await Promise.all([
-    validateCurrency(
-      currencyCode ? { code: currencyCode } : { id: currencyId }
-    ),
+    !currencyCode && !currencyId
+      ? isCurrencyReady().then(() => basketCurrency?.value)
+      : validateCurrency(
+          currencyCode ? { code: currencyCode } : { id: currencyId }
+        ),
     ensureConfig(BrandConfigKeys.SHOW_PROMOTION_AS)
   ]);
 
@@ -199,15 +203,15 @@ async function parse(context: ProductConfigContext, { data }: AnyEventObject) {
   const lookups = context.lookups ?? {};
   lookups.prices = context.lookups?.prices || {};
 
-  // build our values based on our prev context ( if any ) with sensible fallbacks
+  // build our values based on our prev context ( if any )
+  // NB: schema defaults are applied by AJV (useDefaults: true) during validation
   let values: ProductModel = {
-    productId: data?.productId ?? context?.model?.productId ?? undefined,
-    quantity: data?.quantity ?? context?.model?.quantity ?? 1,
-    term: data?.term ?? context?.model?.term ?? 0,
-    options: data?.options ?? context?.model?.options ?? {},
-    attributes: data?.attributes ?? context?.model?.attributes ?? {},
-    provisionFields:
-      data?.provisionFields ?? context?.model?.provisionFields ?? {},
+    productId: data?.productId ?? context?.model?.productId,
+    quantity: data?.quantity ?? context?.model?.quantity,
+    term: data?.term ?? context?.model?.term,
+    options: data?.options ?? context?.model?.options,
+    attributes: data?.attributes ?? context?.model?.attributes,
+    provisionFields: data?.provisionFields ?? context?.model?.provisionFields,
     startTrial: data?.startTrial ?? context?.model?.startTrial
   };
 
@@ -222,12 +226,7 @@ async function parse(context: ProductConfigContext, { data }: AnyEventObject) {
     );
   }
 
-  values.quantity = parseQuantity(values.quantity, context?.lookups?.product);
-
-  values.startTrial = parseTrial(values.startTrial, context?.lookups?.product);
-
   const term = parseTerm(context, values?.term, values.quantity);
-  values.term = term.term;
   lookups.prices.term = term.price;
 
   // NB:if terms have changed.....
@@ -274,17 +273,9 @@ async function parse(context: ProductConfigContext, { data }: AnyEventObject) {
   // Store raw provision fields in lookups — schema generation handles parsing
   lookups.provisionFields = rawProvisionFields;
 
-  // Parse locally for model normalization only
-  const provisionSchema = parseProvisioningSchema(
-    rawProvisionFields,
-    context.rawProduct!
-  );
-
-  values.provisionFields = useModelParser(
-    provisionSchema,
-    values.provisionFields,
-    {}
-  );
+  // Apply schema defaults to the entire model
+  const schema = useProductConfigSchema({ ...context, lookups, model: values });
+  values = useModelParser(schema, values, {});
 
   // ---
   return Promise.resolve({ model: values, lookups, rawProvisionFields });
