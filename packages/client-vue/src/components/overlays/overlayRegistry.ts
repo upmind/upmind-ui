@@ -20,4 +20,8 @@ export const OVERLAY_REGISTRY: Record<
   ReturnType<typeof defineAsyncComponent>
 > = {
   auth: defineAsyncComponent(() => import("./AuthOverlay.vue"))
+  // TODO: Add 2fa overlay component — route injected by GLOBAL_OVERLAYS but no content yet
+  // "2fa": defineAsyncComponent(() => import("./TwoFaOverlay.vue")),
+  // TODO: Add verify-email overlay component — route injected by GLOBAL_OVERLAYS but no content yet
+  // "verify-email": defineAsyncComponent(() => import("./VerifyEmailOverlay.vue")),
 };

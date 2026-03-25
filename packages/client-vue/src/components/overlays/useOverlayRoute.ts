@@ -67,7 +67,13 @@ export function useOverlayRoute() {
     if (window.history.state?.back) {
       router.back();
     } else {
-      router.push({ name: route.query.fallbackRoute as string });
+      // Prefer explicit fallbackRoute, then parent route, then root
+      const fallback = route.query.fallbackRoute as string | undefined;
+      const parentRoute = find(
+        [...route.matched].reverse(),
+        r => !!r.name && !r.meta?.overlay
+      );
+      router.push({ name: fallback ?? (parentRoute?.name as string) ?? "/" });
     }
   }
 
@@ -81,10 +87,10 @@ export function useOverlayRoute() {
     // --- state
     /** Whether an overlay is currently active */
     isOpen,
-    /** The overlay identifier */
-    overlayId,
     /** Whether the composable is ready */
     isReady,
+    /** The overlay identifier */
+    overlayId,
     /** The overlay render type: 'modal' | 'drawer' */
     overlayType,
     // --- methods

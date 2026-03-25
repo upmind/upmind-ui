@@ -43,12 +43,8 @@
           @resolve="doClose"
         />
 
-        <section
-          class="lg:bg-control-surface lg:border-surface control-radius mt-8 flex flex-col items-center justify-between bg-transparent p-0 pr-12 lg:mr-0 lg:flex-row lg:border lg:px-8 lg:py-6"
-        >
-          <div
-            class="text-md order-last mt-4 text-center font-medium lg:order-first lg:mt-0 lg:text-left"
-          >
+        <section :class="actionStyles.recommendation.actions.root">
+          <div :class="actionStyles.recommendation.actions.label">
             {{ t("cart.basket_items", { count: count ?? 0 }) }}
           </div>
 
@@ -57,7 +53,7 @@
             :label="t('action.continue_label')"
             color="primary"
             size="lg"
-            class="w-full lg:w-auto"
+            :class="actionStyles.recommendation.actions.button"
             iconAppend="arrow-right"
           />
         </section>
@@ -85,11 +81,12 @@ import { useFooter } from "../../components/footer/useFooter";
 import { useThemes } from "@upmind-automation/upmind-ui";
 
 // --- components
-import { Button, Interstitial } from "@upmind-automation/upmind-ui";
+import { Button, Interstitial, useStyles } from "@upmind-automation/upmind-ui";
 import Layout from "../../components/layout/Layout.vue";
 import Configure from "../recommendations/components/Configure.vue";
 import CardsCarousel from "../recommendations/components/CardsCarousel.vue";
 import Hero from "../../components/hero/Hero.vue";
+import recommendationsConfig from "../recommendations/recommendations.config";
 import type { LAYOUT_VARIANTS } from "../../";
 import { LAYOUT_OVERFLOW } from "../../components/layout/types";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
@@ -117,6 +114,11 @@ set(ui.theme.value);
 const { navigateNext } = useRoutingEngine();
 const { productId } = useQueryParams();
 
+const actionStyles = useStyles(
+  ["recommendation.actions"],
+  {},
+  recommendationsConfig
+);
 const { count } = useBasket();
 const {
   seen,

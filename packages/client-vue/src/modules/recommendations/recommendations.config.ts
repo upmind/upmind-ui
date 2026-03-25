@@ -66,6 +66,16 @@ export default {
       footer: cva("flex-row items-center justify-between gap-x-4")
     },
 
+    actions: {
+      root: cva(
+        "lg:bg-control-surface lg:border-surface control-radius mt-8 flex flex-col items-center justify-between bg-transparent p-0 pr-12 lg:mr-0 lg:flex-row lg:border lg:px-8 lg:py-6"
+      ),
+      label: cva(
+        "text-md order-last mt-4 text-center font-medium lg:order-first lg:mt-0 lg:text-left"
+      ),
+      button: cva("w-full lg:w-auto")
+    },
+
     skeleton: {
       root: cva("h-full w-full p-0!"),
       container: cva("flex h-full flex-col"),
