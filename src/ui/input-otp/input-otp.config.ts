@@ -32,7 +32,7 @@ export const slotVariants = cva(
     variants: {
       size: {
         md: "h-10 w-10 text-base",
-        lg: "h-13 w-13 text-lg",
+        lg: "h-13 w-13 text-lg"
       },
       hasRing: {
         true: `${ringClasses}`,

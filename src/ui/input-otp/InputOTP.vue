@@ -41,7 +41,7 @@
     <!-- Second half -->
     <div :class="groupClass">
       <input
-        v-for="idx in (props.maxlength - midpoint)"
+        v-for="idx in props.maxlength - midpoint"
         :key="idx - 1 + midpoint"
         ref="inputRefs"
         :value="chars[idx - 1 + midpoint] ?? ''"
@@ -53,7 +53,12 @@
         inputmode="numeric"
         autocomplete="off"
         data-testid="input-otp-slot"
-        @input="onChange(idx - 1 + midpoint, ($event.target as HTMLInputElement).value)"
+        @input="
+          onChange(
+            idx - 1 + midpoint,
+            ($event.target as HTMLInputElement).value
+          )
+        "
         @focus="onSlotFocus(idx - 1 + midpoint)"
         @keydown.delete="onDelete(idx - 1 + midpoint)"
         @keydown.left="setFocusedIndex(idx - 2 + midpoint)"
@@ -72,13 +77,7 @@
 
 <script lang="ts" setup>
 // --- external
-import {
-  computed,
-  nextTick,
-  onMounted,
-  ref,
-  watch
-} from "vue";
+import { computed, nextTick, onMounted, ref, watch } from "vue";
 
 // --- components
 import InputItems from "../input/InputItems.vue";
@@ -133,7 +132,12 @@ const containerMeta = computed(() => ({
   hasRing: props.ring
 }));
 
-const styles = useStyles(["input"], containerMeta, config, props.uiConfig ?? {});
+const styles = useStyles(
+  ["input"],
+  containerMeta,
+  config,
+  props.uiConfig ?? {}
+);
 const containerStyles = computed(() => styles.value.input.container);
 
 function slotClass(index: number) {
@@ -145,7 +149,9 @@ function slotClass(index: number) {
 }
 
 const isComplete = computed(() => chars.value.every(c => c !== ""));
-const effectiveInvalid = computed(() => isComplete.value && !!props.ariaInvalid);
+const effectiveInvalid = computed(
+  () => isComplete.value && !!props.ariaInvalid
+);
 const groupClass = computed(() =>
   cn("flex items-center", effectiveInvalid.value ? "gap-4" : "gap-3")
 );
@@ -242,7 +248,7 @@ function onDelete(index: number) {
 function onCycleDigit(index: number, direction: number) {
   if (props.disabled) return;
   const current = chars.value[index];
-  const digit = current ? parseInt(current, 10) : (direction > 0 ? -1 : 10);
+  const digit = current ? parseInt(current, 10) : direction > 0 ? -1 : 10;
   const next = ((digit + direction + 10) % 10).toString();
   chars.value[index] = next;
   nextTick(() => {
@@ -291,8 +297,12 @@ onMounted(() => {
 
 watch(
   () => modelValue.value,
-  (newVal) => {
-    if (newVal && newVal.length === props.maxlength && newVal !== currentValue.value) {
+  newVal => {
+    if (
+      newVal &&
+      newVal.length === props.maxlength &&
+      newVal !== currentValue.value
+    ) {
       init();
     }
   }
