@@ -4,13 +4,14 @@
  * @description Type definitions for the InputOTP component.
  */
 
-import type { containerVariants } from "./input-otp.config";
+import type { containerVariants, slotVariants } from "./input-otp.config";
 import type { AvatarProps } from "../avatar";
 import type { Icon } from "../icon/types";
 import type { CxOptions, VariantProps } from "class-variance-authority";
 import type { HTMLAttributes } from "vue";
 
 export type ContainerVariantProps = VariantProps<typeof containerVariants>;
+export type SlotVariantProps = VariantProps<typeof slotVariants>;
 
 export type InputOTPProps = {
   /** Model value. */
@@ -51,6 +52,10 @@ export type InputOTPProps = {
   // --- variants
   /** Width variant. */
   width?: ContainerVariantProps["width"] | string | undefined;
+  /** Alignment variant. */
+  align?: ContainerVariantProps["align"] | string | undefined;
+  /** Size variant for slots. */
+  size?: SlotVariantProps["size"] | string | undefined;
   // --- customisation
   /** UI config overrides. */
   uiConfig?: { input?: CxOptions };
@@ -67,6 +72,8 @@ export type InputOTPSlotProps = {
   isActive: boolean;
   /** Whether the overall input is focused. */
   isFocused?: boolean;
+  /** Size variant for the slot. */
+  size?: SlotVariantProps["size"] | string | undefined;
   /** The placeholder character. */
   placeholderChar?: string | null;
 };

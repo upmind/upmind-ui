@@ -30,6 +30,7 @@ import type { InputOTPSlotProps } from "./types";
 const props = defineProps<InputOTPSlotProps>();
 
 const meta = computed(() => ({
+  size: props.size,
   hasRing: true,
   isFocused: !!(props.isActive && props.isFocused)
 }));
