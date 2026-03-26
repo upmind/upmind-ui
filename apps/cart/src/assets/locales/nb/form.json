@@ -155,5 +155,20 @@
   },
   "stored_payment_method": {
     "label": ""
+  },
+  "twofa": {
+    "description": "Denne kontoen er sikret med tofaktorautentisering. Vennligst skriv inn bekreftelseskoden din.",
+    "label": "Verifiseringskode",
+    "placeholder": "123 456"
+  },
+  "twofa_email": {
+    "description": "For din sikkerhet har vi sendt en engangskode til e-postadressen din. For å fullføre denne forespørselen, vennligst skriv inn koden nedenfor.",
+    "label": "Verifiseringskode",
+    "placeholder": "123 456"
+  },
+  "twofa_totp": {
+    "description": "For å fullføre denne forespørselen, vennligst skriv inn engangskoden som genereres av Authenticator-appen din.",
+    "label": "Verifiseringskode",
+    "placeholder": "123 456"
   }
 }
