@@ -155,5 +155,20 @@
   },
   "stored_payment_method": {
     "label": ""
+  },
+  "twofa": {
+    "description": "Tento účet je zabezpečen dvoufaktorovým ověřováním. Zadejte prosím svůj ověřovací kód.",
+    "label": "Ověřovací kód",
+    "placeholder": "123 456"
+  },
+  "twofa_email": {
+    "description": "Pro vaši ochranu jsme vám na váš e-mail zaslali jednorázový přístupový kód. Pro dokončení této žádosti prosím zadejte níže uvedený kód.",
+    "label": "Ověřovací kód",
+    "placeholder": "123 456"
+  },
+  "twofa_totp": {
+    "description": "Chcete-li tento požadavek dokončit, zadejte jednorázový kód vygenerovaný aplikací Authenticator.",
+    "label": "Ověřovací kód",
+    "placeholder": "123 456"
   }
 }
