@@ -149,7 +149,7 @@ export const useRoutingEngine = () => {
 
     send({
       type: "RESOLVE",
-      data: { target, route: router?.currentRoute?.value, event }
+      data: { target, route: router?.currentRoute?.value, event: data }
     });
 
     return awaitResolved(funnel.value?.service)

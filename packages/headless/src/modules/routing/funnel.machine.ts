@@ -244,7 +244,9 @@ export const useFunnelMachine = ({
         isBack: ({ resolved }: FunnelContext, { data }: AnyEventObject) =>
           data?.type === "BACK" && !resolved,
 
-        // Consumer guards spread last so they can override defaults
+        // Consumer guards spread last so they can override auto-generated
+        // `is{State}` guards. If a consumer defines a guard with the same name
+        // as an auto-generated one, the consumer's version takes precedence.
         ...guards
       },
       services: {
