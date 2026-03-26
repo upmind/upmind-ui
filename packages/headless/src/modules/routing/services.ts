@@ -30,10 +30,12 @@ async function prepare({
 }: RoutingEngineContext) {
   const { t } = useI18n();
   const funnelConfig = get(funnels, currentFunnel);
-  // Add any provided target route to the funnel context
-  const context = funnelConfig?.context ?? {};
-  context.targetRoute = targetRoute;
-  context.watchers = watchers;
+  // Spread to avoid mutating the original config object across invocations
+  const context = {
+    ...(funnelConfig?.context ?? {}),
+    targetRoute,
+    watchers
+  };
 
   // Generate endpoint state nodes from overlay definitions
   const endpoints = createEndpointNodes(GLOBAL_OVERLAYS);

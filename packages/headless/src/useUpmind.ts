@@ -5,9 +5,6 @@ import { type QueryClient, VueQueryPlugin } from "@tanstack/vue-query";
 
 // --- internal
 import {
-  type Funnels,
-  type FunnelWatcher,
-  type GlobbedFiles,
   useBrand,
   useDataLayer,
   useLocale,
@@ -18,6 +15,7 @@ import {
   useSystem,
   useTracking
 } from "./modules";
+import type { Funnels, FunnelWatcher, GlobbedFiles } from "./modules";
 import { get, isFunction } from "lodash-es";
 import { useRouting } from "./modules/routing/useRouting";
 import { useTheming } from "./modules/theming/useTheming";

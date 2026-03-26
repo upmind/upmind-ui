@@ -106,6 +106,8 @@ export function createEndpointNodes(overlays: OverlayDefinition[]) {
       targetRoute: ({ currentRoute, targetRoute }: FunnelContext) => {
         const route = targetRoute ?? currentRoute;
         const name = route?.name?.toString() ?? "";
+        // NB: Strips the last `--{id}` suffix. Safe because overlay route names
+        // use `parentName--overlayId` convention. Standard routes use single hyphens.
         const parentName = name.replace(/--[^-]+$/, "");
         return { ...route, name: parentName || route?.name || undefined };
       }
