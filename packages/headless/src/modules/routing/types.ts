@@ -127,6 +127,12 @@ export type FunnelContext = {
    */
   resolved?: boolean;
 
+  /**
+   * True if the last RESOLVE fell through to idle (no state matched the route).
+   * Useful for diagnostics — check in dev-mode to catch misconfigured funnels.
+   */
+  fallbackResolved?: boolean;
+
   // ---
   /**
    * An error object encountered by the funnel.
