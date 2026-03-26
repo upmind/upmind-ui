@@ -197,6 +197,8 @@ export type OverlayDefinition = {
   id: string;
   /** Default render type — brands can override via UI meta */
   defaultType: OverlayType;
+  /** Guard service name to invoke when this overlay route is matched by the funnel */
+  guard?: string;
 };
 
 // --- Vue Router meta extension
