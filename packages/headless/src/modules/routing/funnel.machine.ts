@@ -91,6 +91,10 @@ export const useFunnelMachine = ({
             BACK: {
               actions: ["setResolving"]
             },
+            // Pre-lock: immediately mark as unresolved to prevent watcher races (FE-2587)
+            PRE_RESOLVE: {
+              actions: ["setUnresolved"]
+            },
             // Generic RESOLVE event to transition to a specific state within the Available funnel
             RESOLVE: [
               ...keys(states).map(state => {

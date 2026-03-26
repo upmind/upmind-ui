@@ -141,13 +141,14 @@ export const useRoutingEngine = () => {
   }
 
   async function navigate(target: string | FunnelTarget, data?: any) {
-    // bail out if we are already processing a resolution
-    if (meta.value.isResolved) {
-      send({
-        type: "RESOLVE",
-        data: { target, route: router?.currentRoute?.value, event }
-      });
-    }
+    // Pre-lock: set resolved:false BEFORE sending RESOLVE to close the race
+    // window between programmatic navigation and reactive watchers (FE-2587)
+    send({ type: "PRE_RESOLVE" });
+
+    send({
+      type: "RESOLVE",
+      data: { target, route: router?.currentRoute?.value, event }
+    });
 
     return awaitResolved(funnel.value?.service)
       .then(updateRouter)
@@ -161,9 +162,11 @@ export const useRoutingEngine = () => {
   }
 
   async function navigateNext(event?: any) {
-    if (meta.value.isResolved) {
-      send({ type: "NEXT", data: { route: router.currentRoute.value, event } });
-    }
+    // Pre-lock (FE-2587)
+    send({ type: "PRE_RESOLVE" });
+
+    send({ type: "NEXT", data: { route: router.currentRoute.value, event } });
+
     return awaitResolved(funnel.value?.service)
       .then(updateRouter)
       .catch((error: any) => {
@@ -176,9 +179,11 @@ export const useRoutingEngine = () => {
   }
 
   async function navigateBack(event?: any) {
-    if (meta.value.isResolved) {
-      send({ type: "BACK", data: { route: router.currentRoute.value, event } });
-    }
+    // Pre-lock (FE-2587)
+    send({ type: "PRE_RESOLVE" });
+
+    send({ type: "BACK", data: { route: router.currentRoute.value, event } });
+
     return awaitResolved(funnel.value?.service)
       .then(updateRouter)
       .catch((error: any) => {
