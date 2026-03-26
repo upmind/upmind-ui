@@ -208,7 +208,9 @@ function onCountyInput(value: any) {
   );
 }
 
-function onPhoneInput(value: string | number) {
+function onPhoneInput(value: string | number | undefined) {
+  if (value === undefined) return;
+
   try {
     phone.value = parsePhone(value as string, phone.value?.country);
     onInput(

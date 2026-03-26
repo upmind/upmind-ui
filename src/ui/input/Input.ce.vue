@@ -44,10 +44,6 @@ const props = withDefaults(defineProps<InputProps>(), {
   class: ""
 });
 
-const _emits = defineEmits<{
-  (e: "update:modelValue", payload: string | number): void;
-}>();
-
 const input = useTemplateRef<InputElement>("input");
 const modelValue = defineModel<InputProps["modelValue"]>("modelValue", {});
 

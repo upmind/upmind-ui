@@ -99,7 +99,8 @@ const meta = computed(() => ({
 
 const styles = useStyles(["search"], meta, config, {});
 
-const onSearch = (value: string | number) => {
+const onSearch = (value: string | number | undefined) => {
+  if (value === undefined) return;
   emit("update:search", value);
 };
 

@@ -19,6 +19,7 @@ import EnumRadioRenderer, {
 } from "./EnumRadioRenderer.vue";
 import EnumRenderer, { tester as EnumTest } from "./EnumRenderer.vue";
 import LookupRenderer, { tester as lookupTest } from "./LookupRenderer.vue";
+import OTPRenderer, { tester as OTPTest } from "./OTPRenderer.vue";
 import MultilineRenderer, {
   tester as MultilineTest
 } from "./MultilineRenderer.vue";
@@ -58,5 +59,6 @@ export const controlRenderers = [
   registerEntry(OneOfRadioRenderer, OneOfRadioTest),
   registerEntry(OneOfSelectRenderer, OneOfSelectTest),
   registerEntry(MultilineRenderer, MultilineTest),
-  registerEntry(LookupRenderer, lookupTest)
+  registerEntry(LookupRenderer, lookupTest),
+  registerEntry(OTPRenderer, OTPTest)
 ];
