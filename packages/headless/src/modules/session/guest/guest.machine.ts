@@ -171,38 +171,7 @@ export default createMachine(
               },
               available: {
                 on: {
-                  REGISTER: { target: "checking", actions: ["setModel"] }
-                }
-              },
-              checking: {
-                invoke: {
-                  src: "checkForReCaptcha",
-                  onDone: [
-                    { target: "challenging", cond: "requiresReCaptcha" },
-                    { target: "registering" }
-                  ],
-                  onError: {
-                    target: "available",
-                    actions: ["setError", "setFeedbackError"]
-                  }
-                }
-              },
-              challenging: {
-                on: {
-                  VERIFY: { target: "verifying" }
-                }
-              },
-              verifying: {
-                invoke: {
-                  src: "verifyReCaptcha",
-                  onDone: {
-                    target: "registering",
-                    actions: []
-                  },
-                  onError: {
-                    target: "challenging",
-                    actions: ["setError", "setFeedbackError"]
-                  }
+                  REGISTER: { target: "registering", actions: ["setModel"] }
                 }
               },
               registering: {
@@ -220,12 +189,38 @@ export default createMachine(
               authenticating: {
                 invoke: {
                   src: "authenticate",
+                  onDone: [
+                    {
+                      target: "challenging",
+                      actions: ["set2faToken", "set2faSchemas"],
+                      cond: "requires2fa"
+                    },
+                    {
+                      target: "#complete",
+                      actions: ["setActor", "pushRegister"]
+                    }
+                  ],
+                  onError: {
+                    target: "error",
+                    actions: ["setError", "setFeedbackError"]
+                  }
+                }
+              },
+              challenging: {
+                on: {
+                  VERIFY: { target: "verifying" },
+                  CANCEL: { target: "available" }
+                }
+              },
+              verifying: {
+                invoke: {
+                  src: "verify2fa",
                   onDone: {
                     target: "#complete",
                     actions: ["setActor", "pushRegister"]
                   },
                   onError: {
-                    target: "error",
+                    target: "challenging",
                     actions: ["setError", "setFeedbackError"]
                   }
                 }
@@ -233,7 +228,7 @@ export default createMachine(
               error: {
                 on: {
                   SET: { target: "available", actions: ["setModel"] },
-                  REGISTER: { target: "checking", actions: ["setModel"] }
+                  REGISTER: { target: "registering", actions: ["setModel"] }
                 }
               }
             }
@@ -334,7 +329,7 @@ export default createMachine(
         schema: (_context: GuestContext, { data }: AnyEventObject) =>
           use2faSchemaParser(),
         uischema: (_context: GuestContext, { data }: AnyEventObject) =>
-          use2faUischemaParser(),
+          use2faUischemaParser(data?.twofa_provider),
         model: ({ model }: GuestContext) =>
           use2faModelParser(model as TWOFAModel)
       }),
@@ -414,9 +409,7 @@ export default createMachine(
         return (
           data.actor_type == GrantTypes.TWOFA && !!data?.second_factor_required
         );
-      },
-      requiresReCaptcha: (_context: GuestContext, { data }: AnyEventObject) =>
-        !!data?.recaptcha_required
+      }
     },
 
     delays: {},
