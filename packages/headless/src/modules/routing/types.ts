@@ -160,6 +160,23 @@ export enum FunnelActions {
   REDIRECT = "REDIRECT"
 }
 
+/**
+ * Meta properties for funnel state nodes.
+ * Used by the factory to auto-generate NEXT/BACK handlers (FE-2583).
+ */
+export type FunnelStateMeta = {
+  /** Route name for NEXT navigation. */
+  next?: string;
+  /** Route name for BACK navigation. */
+  prev?: string;
+  /** Step position for progress tracking (1-indexed). */
+  step?: number;
+  /** Human-readable label for breadcrumbs / progress indicators. */
+  label?: string;
+  /** Whether this state is a decision node (no UI). */
+  decision?: boolean;
+};
+
 // --- overlay types
 
 /**
