@@ -114,6 +114,11 @@ export interface Token {
    * A guest token string, used for non-authenticated sessions.
    */
   guest_token?: string | null;
+  /**
+   * The 2FA provider type (e.g. 'google', 'sms') returned when `second_factor_required` is true.
+   * Sent back in the verify request so the API knows which provider to validate against.
+   */
+  twofa_provider?: string | null;
 }
 
 /**
