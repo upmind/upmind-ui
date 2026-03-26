@@ -6,6 +6,7 @@ import { type QueryClient, VueQueryPlugin } from "@tanstack/vue-query";
 // --- internal
 import {
   type Funnels,
+  type FunnelWatcher,
   type GlobbedFiles,
   useBrand,
   useDataLayer,
@@ -133,7 +134,11 @@ export interface UpmindProps {
     /** Whether to guard routes or not */
     guardRoutes?: boolean;
     /** A function to Register routing flows with the routing engine. */
-    registerFunnels?: () => { defaultFunnel?: string; funnels?: Funnels };
+    registerFunnels?: () => {
+      defaultFunnel?: string;
+      funnels?: Funnels;
+      watchers?: FunnelWatcher[];
+    };
   };
   /**
    * Configuration for Vue I18n internationalization.

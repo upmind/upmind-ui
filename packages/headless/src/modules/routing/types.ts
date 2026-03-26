@@ -99,6 +99,12 @@ export type RoutingEngineContext = {
    */
   currentFunnel: string;
 
+  /**
+   * Reactive watchers registered alongside funnels.
+   * Passed through to the funnel context during prepare().
+   */
+  watchers?: FunnelWatcher[];
+
   // ---
   /**
    * An error object encountered by the routing engine.
@@ -133,6 +139,12 @@ export type FunnelContext = {
    */
   fallbackResolved?: boolean;
 
+  /**
+   * Reactive watchers to invoke as callbacks when the funnel is in the `available` state.
+   * Each watcher subscribes to a reactive source and triggers navigation through the pipeline.
+   */
+  watchers?: FunnelWatcher[];
+
   // ---
   /**
    * An error object encountered by the funnel.
@@ -159,6 +171,29 @@ export enum FunnelActions {
   BACK = "BACK",
   REDIRECT = "REDIRECT"
 }
+
+// --- watcher types
+
+/**
+ * A reactive watcher that subscribes to state changes and triggers
+ * navigation through the funnel pipeline.
+ *
+ * Must return a cleanup function (unsubscribe).
+ * The watcher receives the funnel context for `resolved` mutex checking.
+ */
+export type FunnelWatcher = {
+  /** Unique identifier for this watcher (e.g. 'session-logout') */
+  id: string;
+  /** The invoked callback function. Receives `sendBack` (unused) and `onReceive` (unused). */
+  handler: FunnelWatcherHandler;
+};
+
+/**
+ * Signature for the watcher handler function.
+ * Self-contained: sets up its own Vue watch() and imports useRoutingEngine
+ * for navigation. Must return a cleanup function that unsubscribes.
+ */
+export type FunnelWatcherHandler = () => () => void;
 
 /**
  * Meta properties for funnel state nodes.
