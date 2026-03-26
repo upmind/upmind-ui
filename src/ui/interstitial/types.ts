@@ -26,6 +26,8 @@ export type InterstitialProps = {
   animatedIcon?: AnimatedIconProps;
   // ---
   actions?: InterstitialActionProps[];
+  /** Whether the modal can be dismissed via Esc key. Defaults to false. */
+  dismissable?: boolean;
   // ---
   size?: DialogProps["size"];
   fit?: DialogProps["fit"];
