@@ -7,7 +7,8 @@
     :fit="fit"
     :to="to"
     no-header
-    :dismissable="false"
+    :dismissable="props.dismissable"
+    no-footer
   >
     <div :class="cn(styles.interstitial.root, props.class)">
       <slot name="avatar">
@@ -82,7 +83,8 @@ const props = withDefaults(defineProps<InterstitialProps>(), {
     primaryColor: "primary",
     secondaryColor: "secondary",
     size: "4xl"
-  })
+  }),
+  dismissable: false
 });
 
 const processing = ref(false);

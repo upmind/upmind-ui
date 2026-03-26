@@ -27,6 +27,8 @@
         @keydown.delete="onDelete(idx - 1)"
         @keydown.left="setFocusedIndex(idx - 2)"
         @keydown.right="setFocusedIndex(idx)"
+        @keydown.up.prevent="onCycleDigit(idx - 1, 1)"
+        @keydown.down.prevent="onCycleDigit(idx - 1, -1)"
         @paste.prevent="onPaste($event)"
       />
     </div>
@@ -56,6 +58,8 @@
         @keydown.delete="onDelete(idx - 1 + midpoint)"
         @keydown.left="setFocusedIndex(idx - 2 + midpoint)"
         @keydown.right="setFocusedIndex(idx + midpoint)"
+        @keydown.up.prevent="onCycleDigit(idx - 1 + midpoint, 1)"
+        @keydown.down.prevent="onCycleDigit(idx - 1 + midpoint, -1)"
         @paste.prevent="onPaste($event)"
       />
     </div>
@@ -233,6 +237,20 @@ function onDelete(index: number) {
     setFocusedIndex(index - 1);
     emitValue();
   }
+}
+
+function onCycleDigit(index: number, direction: number) {
+  if (props.disabled) return;
+  const current = chars.value[index];
+  const digit = current ? parseInt(current, 10) : (direction > 0 ? -1 : 10);
+  const next = ((digit + direction + 10) % 10).toString();
+  chars.value[index] = next;
+  nextTick(() => {
+    if (inputRefs.value[index]) {
+      inputRefs.value[index].value = next;
+    }
+  });
+  emitValue();
 }
 
 function onPaste(event: ClipboardEvent) {
