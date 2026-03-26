@@ -106,7 +106,11 @@ export const useFunnelMachine = ({
               }),
               {
                 target: "available.idle",
-                actions: ["setResolved", "setCurrentRoute", "setTargetRoute"]
+                actions: [
+                  "setFallbackResolved",
+                  "setCurrentRoute",
+                  "setTargetRoute"
+                ]
               }
             ]
           }
@@ -136,7 +140,6 @@ export const useFunnelMachine = ({
       // 4. Options Injection: Wiring up the logic implementations
       // These options map string names used in states
       guards: {
-        ...guards,
         ...reduce(
           states,
           (acc, _value, state) => {
@@ -183,7 +186,10 @@ export const useFunnelMachine = ({
           data?.type === "NEXT" && !resolved,
 
         isBack: ({ resolved }: FunnelContext, { data }: AnyEventObject) =>
-          data?.type === "BACK" && !resolved
+          data?.type === "BACK" && !resolved,
+
+        // Consumer guards spread last so they can override defaults
+        ...guards
       },
       services,
       actions: {
@@ -238,9 +244,47 @@ export const useFunnelMachine = ({
           resolved: true
         }),
 
+        /**
+         * @deprecated Use setUnresolved + clearTarget separately.
+         * Sets resolved: false AND clears targetRoute.
+         */
         setResolving: assign({
           resolved: false,
+          targetRoute: undefined,
+          fallbackResolved: false
+        }),
+
+        /** Only sets resolved: false — preserves targetRoute. */
+        setUnresolved: assign({
+          resolved: false
+        }),
+
+        /** Only clears targetRoute — preserves resolved state. */
+        clearTarget: assign({
           targetRoute: undefined
+        }),
+
+        /** Sets resolved + marks as fallback (no state matched). Logs dev warning. */
+        setFallbackResolved: assign({
+          targetRoute: (
+            { targetRoute }: FunnelContext,
+            { data }: AnyEventObject
+          ) => {
+            const target = isString(data?.target)
+              ? { name: data.target }
+              : data?.target;
+
+            if (import.meta.env.DEV) {
+              const routeName = (target ?? targetRoute)?.name ?? "unknown";
+              console.warn(
+                `[funnel] Route "${String(routeName)}" fell through to idle — no state matched. Check your funnel config.`
+              );
+            }
+
+            return target ?? targetRoute;
+          },
+          resolved: true,
+          fallbackResolved: true
         }),
 
         // Consumer actions spread last so they can override defaults
