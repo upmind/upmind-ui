@@ -109,12 +109,14 @@ export const useRoutingEngine = () => {
   // --- methods
   function register({
     defaultFunnel,
-    funnels
+    funnels,
+    watchers
   }: {
     defaultFunnel?: RoutingEngineContext["defaultFunnel"];
     funnels?: RoutingEngineContext["funnels"];
+    watchers?: RoutingEngineContext["watchers"];
   }) {
-    send({ type: "REGISTER", data: { defaultFunnel, funnels } });
+    send({ type: "REGISTER", data: { defaultFunnel, funnels, watchers } });
   }
 
   async function guard(route: RouteLocation): Promise<RouteLocation> {

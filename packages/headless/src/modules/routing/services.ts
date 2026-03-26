@@ -25,13 +25,15 @@ async function prepare({
   funnels,
   currentFunnel,
   defaultFunnel,
-  targetRoute
+  targetRoute,
+  watchers
 }: RoutingEngineContext) {
   const { t } = useI18n();
   const funnelConfig = get(funnels, currentFunnel);
   // Add any provided target route to the funnel context
   const context = funnelConfig?.context ?? {};
   context.targetRoute = targetRoute;
+  context.watchers = watchers;
 
   // Generate endpoint state nodes from overlay definitions
   const endpoints = createEndpointNodes(GLOBAL_OVERLAYS);

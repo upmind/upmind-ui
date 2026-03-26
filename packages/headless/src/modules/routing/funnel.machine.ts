@@ -7,12 +7,14 @@ import { useI18n } from "../system";
 // --- utils
 import { DetailedError, responseCodes, ErrorOrigin } from "../../utils";
 import {
+  forEach,
   isEmpty,
+  includes,
+  isString,
   keys,
+  map,
   mapValues,
   reduce,
-  isString,
-  includes,
   some
 } from "lodash-es";
 import { pascalCase } from "./utils";
@@ -117,6 +119,14 @@ export const useFunnelMachine = ({
         // 2. The main AVAILABLE state that contains the dynamic funnel states
         available: {
           initial: "idle",
+
+          // FE-2546: Invoke watcher subscriptions as an invoked callback.
+          // Watchers subscribe to reactive sources (session, basket) and trigger
+          // navigation through the funnel pipeline. Cleanup runs on state exit.
+          invoke: {
+            id: "watcherSubscription",
+            src: "watcherSubscription"
+          },
 
           // 🎯 INJECTION POINT: The dynamic nodes are spread into the AVAILABLE states
           states: {
@@ -237,7 +247,44 @@ export const useFunnelMachine = ({
         // Consumer guards spread last so they can override defaults
         ...guards
       },
-      services,
+      services: {
+        /**
+         * FE-2546: Invoked callback that subscribes to all registered watchers.
+         * Each watcher is self-contained — it sets up its own Vue watch() and
+         * calls navigate() from useRoutingEngine internally.
+         * The funnel machine just starts/stops them when entering/exiting available.
+         */
+        watcherSubscription:
+          ({ watchers }: FunnelContext) =>
+          () => {
+            if (!watchers || isEmpty(watchers)) return () => {};
+
+            // Start all watchers — each returns its own cleanup function
+            const cleanups = map(watchers, watcher => {
+              try {
+                return watcher.handler();
+              } catch (error) {
+                console.error(
+                  `[funnel] Watcher "${watcher.id}" failed to initialize:`,
+                  error
+                );
+                return () => {};
+              }
+            });
+
+            // Return cleanup function — called when funnel exits available
+            return () => {
+              forEach(cleanups, (cleanup: () => void) => {
+                try {
+                  cleanup();
+                } catch (error) {
+                  console.error("[funnel] Watcher cleanup failed:", error);
+                }
+              });
+            };
+          },
+        ...services
+      },
       actions: {
         setCurrentRoute: assign({
           currentRoute: (
