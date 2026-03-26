@@ -10,6 +10,8 @@
       :readonly="appliedOptions?.readonly"
       :required="appliedOptions?.required"
       :disabled="appliedOptions?.disabled"
+      :size="appliedOptions?.size"
+      :align="appliedOptions?.align"
       @update:model-value="onInput"
     />
   </FormField>

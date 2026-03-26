@@ -10,10 +10,16 @@ export const containerVariants = cva(
       width: {
         auto: "w-auto",
         full: "w-full"
+      },
+      align: {
+        left: "justify-start",
+        center: "justify-center",
+        right: "justify-end"
       }
     },
     defaultVariants: {
-      width: "full"
+      width: "full",
+      align: "left"
     }
   }
 );
@@ -21,9 +27,14 @@ export const containerVariants = cva(
 // Each OTP slot mirrors Input containerVariants (surface, shadow, radius, ring, transition)
 // with slot-specific overrides: fixed size (h-10 w-10), centered text, no padding.
 export const slotVariants = cva(
-  `bg-control-surface shadow-control-default hover:shadow-control-hover autofill control-radius flex h-10 w-10 items-center justify-center text-base transition-[border-color,opacity,box-shadow] duration-200`,
+  `bg-control-surface shadow-control-default hover:shadow-control-hover autofill control-radius flex items-center justify-center transition-[border-color,opacity,box-shadow] duration-200`,
   {
     variants: {
+      size: {
+        md: "h-10 w-10 text-base",
+        lg: "h-14 w-14 text-xl",
+        xl: "h-16 w-16 text-2xl"
+      },
       hasRing: {
         true: `${ringClasses}`,
         false: ""
@@ -32,6 +43,9 @@ export const slotVariants = cva(
         true: "z-10 outline-(--color-control-ring)",
         false: ""
       }
+    },
+    defaultVariants: {
+      size: "md"
     },
     compoundVariants: [
       {

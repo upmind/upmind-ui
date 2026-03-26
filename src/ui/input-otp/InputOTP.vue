@@ -18,6 +18,7 @@
               :key="idx"
               v-bind="slot"
               :is-focused="isFocused"
+              :size="props.size"
             />
           </InputOTPGroup>
           <InputOTPSeparator />
@@ -27,6 +28,7 @@
               :key="idx + midpoint"
               v-bind="slot"
               :is-focused="isFocused"
+              :size="props.size"
             />
           </InputOTPGroup>
         </template>
@@ -68,6 +70,7 @@ const props = withDefaults(defineProps<InputOTPProps>(), {
   maxlength: 6,
   textAlign: "center",
   width: "full",
+  align: "left",
   ring: true,
   // ---
   uiConfig: () => ({ input: [] }),
@@ -114,6 +117,7 @@ const delegatedProps = computed(
 
 const meta = computed(() => ({
   width: props.width,
+  align: props.align,
   hasRing: props.ring
 }));
 
