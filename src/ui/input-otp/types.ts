@@ -56,24 +56,11 @@ export type InputOTPProps = {
   align?: ContainerVariantProps["align"] | string | undefined;
   /** Size variant for slots. */
   size?: SlotVariantProps["size"] | string | undefined;
+  /** Aria invalid state for error styling. */
+  ariaInvalid?: boolean | "true" | "false";
   // --- customisation
   /** UI config overrides. */
   uiConfig?: { input?: CxOptions };
   /** Additional CSS classes. */
   class?: HTMLAttributes["class"];
-};
-
-export type InputOTPSlotProps = {
-  /** The character in this slot. */
-  char: string | null;
-  /** Whether to show a fake caret. */
-  hasFakeCaret?: boolean;
-  /** Whether this slot is the active input position. */
-  isActive: boolean;
-  /** Whether the overall input is focused. */
-  isFocused?: boolean;
-  /** Size variant for the slot. */
-  size?: SlotVariantProps["size"] | string | undefined;
-  /** The placeholder character. */
-  placeholderChar?: string | null;
 };
