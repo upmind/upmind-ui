@@ -6,11 +6,23 @@ import { useI18n } from "../system";
 
 // --- utils
 import { DetailedError, responseCodes, ErrorOrigin } from "../../utils";
-import { isEmpty, keys, reduce, isString, includes, some } from "lodash-es";
+import {
+  isEmpty,
+  keys,
+  mapValues,
+  reduce,
+  isString,
+  includes,
+  some
+} from "lodash-es";
 import { pascalCase } from "./utils";
 
 // -- -types
-import { type FunnelContext, type FunnelProps } from "./types";
+import {
+  type FunnelContext,
+  type FunnelProps,
+  type FunnelStateMeta
+} from "./types";
 
 // -----------------------------------------------------------------------------
 
@@ -34,6 +46,36 @@ export const useFunnelMachine = ({
   services = {},
   actions = {}
 }: FunnelProps) => {
+  // --- FE-2583: Auto-generate NEXT/BACK handlers from state meta
+  // States declaring meta.next / meta.prev get auto-wired handlers.
+  // Explicit `on.NEXT` / `on.BACK` in the state config take precedence.
+  const enrichedStates = mapValues(states, (config: any) => {
+    const meta = config.meta as FunnelStateMeta | undefined;
+    if (!meta) return config;
+
+    const metaHandlers: Record<string, any> = {};
+
+    if (meta.next) {
+      metaHandlers.NEXT = {
+        actions: [assign({ targetRoute: { name: meta.next } })]
+      };
+    }
+    if (meta.prev) {
+      metaHandlers.BACK = {
+        actions: [assign({ targetRoute: { name: meta.prev } })]
+      };
+    }
+
+    if (isEmpty(metaHandlers)) return config;
+
+    return {
+      ...config,
+      on: {
+        ...metaHandlers, // Meta-derived handlers (defaults)
+        ...config.on // Explicit handlers override meta
+      }
+    };
+  });
   return createMachine(
     {
       id: `${id}Funnel`,
@@ -80,7 +122,7 @@ export const useFunnelMachine = ({
           states: {
             // --- A fallback UNKNOWN state to catch any undefined routes
             idle: {},
-            ...states
+            ...enrichedStates
           },
           // 3. Global Event Handlers for the entire funnel (Optional, usually handled by nodes)
           on: {
