@@ -8,11 +8,16 @@
 
 // --- external
 import { defineComponent } from "vue";
-import { filter } from "lodash-es";
+import { assign } from "xstate";
+import { filter, reduce, isString } from "lodash-es";
+
+// --- utils
+import { pascalCase } from "./utils";
 
 // --- types
 import type { Router } from "vue-router";
-import type { OverlayDefinition } from "./types";
+import type { AnyEventObject } from "xstate";
+import type { FunnelContext, OverlayDefinition } from "./types";
 import { OverlayType } from "./types";
 
 // -----------------------------------------------------------------------------
@@ -26,10 +31,89 @@ import { OverlayType } from "./types";
  *   `@context.cart.overlay.auth.type: "modal" | "drawer"`
  */
 export const GLOBAL_OVERLAYS: OverlayDefinition[] = [
-  { path: "auth", id: "auth", defaultType: OverlayType.DRAWER },
-  { path: "2fa", id: "2fa", defaultType: OverlayType.MODAL },
-  { path: "verify-email", id: "verify-email", defaultType: OverlayType.MODAL }
+  {
+    path: "auth",
+    id: "auth",
+    defaultType: OverlayType.DRAWER,
+    guard: "guardSession"
+  },
+  {
+    path: "2fa",
+    id: "2fa",
+    defaultType: OverlayType.MODAL,
+    guard: "guardSession"
+  },
+  {
+    path: "verify-email",
+    id: "verify-email",
+    defaultType: OverlayType.MODAL,
+    guard: "guardSession"
+  }
 ];
+
+// -----------------------------------------------------------------------------
+
+/**
+ * Generate funnel endpoint state nodes from overlay definitions.
+ * Each guarded overlay gets a state node that invokes its guard service:
+ * - **onDone** (guard passes, e.g. user IS authenticated) → redirect to parent route
+ * - **onError** (guard fails, e.g. user NOT authenticated) → resolve normally, overlay renders
+ *
+ * @returns `{ states, guards, actions }` to merge into funnel config
+ */
+export function createEndpointNodes(overlays: OverlayDefinition[]) {
+  const guarded = filter(overlays, ep => !!ep.guard);
+
+  // --- states: endpoint state nodes with guard invocations
+  const states = reduce(
+    guarded,
+    (acc: Record<string, any>, ep) => {
+      acc[`endpoint:${ep.id}`] = {
+        meta: { isEndpoint: true, overlayId: ep.id },
+        invoke: {
+          src: ep.guard!,
+          onDone: { actions: ["resolveToParent"] },
+          onError: { actions: ["setResolved"] }
+        }
+      };
+      return acc;
+    },
+    {} as Record<string, any>
+  );
+
+  // --- guards: endsWith matching (e.g. "basket--auth" matches endpoint:auth)
+  const guards = reduce(
+    guarded,
+    (acc: Record<string, any>, ep) => {
+      acc[`isEndpoint${pascalCase(ep.id)}`] = (
+        { targetRoute }: FunnelContext,
+        { data }: AnyEventObject
+      ) => {
+        const target =
+          (isString(data?.target) ? { name: data.target } : data?.target) ??
+          targetRoute;
+        return !!target?.name?.toString().endsWith(`--${ep.id}`);
+      };
+      return acc;
+    },
+    {} as Record<string, any>
+  );
+
+  // --- actions: resolveToParent strips the overlay suffix and redirects
+  const actions = {
+    resolveToParent: assign({
+      resolved: true,
+      targetRoute: ({ currentRoute, targetRoute }: FunnelContext) => {
+        const route = targetRoute ?? currentRoute;
+        const name = route?.name?.toString() ?? "";
+        const parentName = name.replace(/--[^-]+$/, "");
+        return { ...route, name: parentName || route?.name || undefined };
+      }
+    })
+  };
+
+  return { states, guards, actions };
+}
 
 // -----------------------------------------------------------------------------
 
