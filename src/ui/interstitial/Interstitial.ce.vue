@@ -9,6 +9,7 @@
     no-header
     :dismissable="props.dismissable"
     no-footer
+    @update:open="onDialogClose"
   >
     <div :class="cn(styles.interstitial.root, props.class)">
       <slot name="avatar">
@@ -87,6 +88,8 @@ const props = withDefaults(defineProps<InterstitialProps>(), {
   dismissable: false
 });
 
+const emit = defineEmits(["reject"]);
+
 const processing = ref(false);
 const meta = computed(() => ({
   isProcessing: processing.value,
@@ -104,5 +107,9 @@ async function doAction(handler: InterstitialActionProps["handler"]) {
     await handler();
     processing.value = false;
   }
+}
+
+function onDialogClose(open: boolean) {
+  if (!open) emit("reject");
 }
 </script>
