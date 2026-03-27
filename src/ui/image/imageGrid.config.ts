@@ -88,8 +88,8 @@ export default {
       "scale-100 text-white opacity-0 transition-all duration-200 group-hover:scale-125 group-hover:opacity-100"
     ),
     icon: cva("bg-surface p-2"),
-    thumbnails: cva("gap-1"),
-    thumbnailItem: cva("min-w-0 basis-1/5"),
+    thumbnails: cva("-ml-2"),
+    thumbnailItem: cva("min-w-0 basis-1/5 pl-2"),
     thumbnail: thumbnailVariant,
     thumbnailImage: cva("image-radius aspect-square w-full object-cover")
   }

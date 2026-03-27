@@ -12,7 +12,7 @@
           ref="imageRef"
           :src="props.image.url"
           :alt="props.image.alt"
-          class="max-h-[90vh] max-w-[90vw] object-contain select-none"
+          class="image-radius max-h-[90vh] max-w-[90vw] object-contain select-none"
           :style="zoomStyle"
           @click="onImageClick"
           draggable="false"
