@@ -82,7 +82,7 @@ export default {
     preview: previewVariant,
     previewImage: previewImageVariant,
     overlay: cva(
-      "absolute inset-0 flex items-center justify-center bg-transparent transition-all duration-200 group-hover:bg-core-overlay/50"
+      "group-hover:bg-core-overlay/50 absolute inset-0 flex items-center justify-center bg-transparent transition-all duration-200"
     ),
     overlayIcon: cva(
       "scale-100 text-white opacity-0 transition-all duration-200 group-hover:scale-125 group-hover:opacity-100"

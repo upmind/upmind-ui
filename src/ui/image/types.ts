@@ -24,6 +24,7 @@ export type ImageProps = {
 export type ImageItem = {
   url: string;
   alt: string;
+  previewUrl?: string;
 };
 
 export type CarouselImageProps = {
