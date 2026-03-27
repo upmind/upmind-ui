@@ -82,14 +82,14 @@ export default {
     preview: previewVariant,
     previewImage: previewImageVariant,
     overlay: cva(
-      "absolute inset-0 flex items-center justify-center bg-black/0 transition-all duration-200 group-hover:bg-black/33"
+      "absolute inset-0 flex items-center justify-center bg-transparent transition-all duration-200 group-hover:bg-core-overlay/50"
     ),
     overlayIcon: cva(
       "scale-100 text-white opacity-0 transition-all duration-200 group-hover:scale-125 group-hover:opacity-100"
     ),
     icon: cva("bg-surface p-2"),
-    thumbnails: cva(""),
-    thumbnailItem: cva("min-w-0 basis-1/5 pl-2"),
+    thumbnails: cva("gap-1"),
+    thumbnailItem: cva("min-w-0 basis-1/5"),
     thumbnail: thumbnailVariant,
     thumbnailImage: cva("image-radius aspect-square w-full object-cover")
   }

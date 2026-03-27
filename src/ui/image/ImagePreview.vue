@@ -1,12 +1,11 @@
 <template>
   <DialogRoot :open="props.open" @update:open="emits('update:open', $event)">
     <DialogPortal>
-      <DialogOverlay />
-
       <DialogContent
-        class="fixed inset-0 z-50 flex touch-none items-center justify-center overflow-hidden p-4 outline-none"
+        class="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fill-mode-both animation-duration-200 fixed inset-0 z-50 flex touch-none items-center justify-center overflow-hidden bg-overlay p-4 outline-none"
         @touchstart="onTouchStart"
         @wheel="onWheel"
+        @click.self="emits('update:open', false)"
       >
         <img
           v-if="props.image?.url"
@@ -37,7 +36,6 @@ import {
   DialogContent,
   DialogClose
 } from "radix-vue";
-import DialogOverlay from "../dialog/DialogOverlay.vue";
 import { Icon } from "../icon";
 import { useImageZoom } from "../../utils";
 import type { ImagePreviewProps } from "./types";
