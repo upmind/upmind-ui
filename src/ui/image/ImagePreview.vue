@@ -18,11 +18,12 @@
           draggable="false"
         />
 
-        <DialogClose
-          class="absolute top-4 right-4 z-10 flex size-10 items-center justify-center rounded-full bg-black/50 text-white transition-colors hover:bg-black/70"
-        >
-          <Icon icon="x-close" size="md" />
-        </DialogClose>
+        <Link
+          icon="x-close"
+          color="inherit"
+          class="absolute top-4 right-4 z-10 text-tooltip"
+          @click="emits('update:open', false)"
+        />
       </DialogContent>
     </DialogPortal>
   </DialogRoot>
@@ -33,10 +34,9 @@ import { ref, watch } from "vue";
 import {
   DialogRoot,
   DialogPortal,
-  DialogContent,
-  DialogClose
+  DialogContent
 } from "radix-vue";
-import { Icon } from "../icon";
+import { Link } from "../link";
 import { useImageZoom } from "../../utils";
 import type { ImagePreviewProps } from "./types";
 
