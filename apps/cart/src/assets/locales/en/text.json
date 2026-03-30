@@ -8,6 +8,7 @@
   "almost_there_msg": "Almost there! Getting things ready for you.",
   "amount_save": "Save {amount}",
   "available": "Available",
+  "unavailable": "Unavailable",
   "basket_total": "Basket total",
   "billing": "Billing",
   "billing_cycle": "Billing cycle",
