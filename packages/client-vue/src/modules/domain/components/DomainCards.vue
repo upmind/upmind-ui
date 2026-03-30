@@ -37,6 +37,8 @@
           :owned="item.meta.owned"
           :discounted="item.meta.discounted"
           :free="item.meta.free"
+          :canTransfer="item.meta.canTransfer"
+          :unavailable="item.meta.unavailable"
           :exactMatch="isExactMatch(value.toString())"
           @add="onAdd"
           @remove="onRemove"

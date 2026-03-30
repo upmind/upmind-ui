@@ -1,5 +1,6 @@
 // --- external
 import type { ActorRef } from "xstate";
+import type { IProduct } from "@upmind-automation/types";
 
 // --- internal
 import type { Product, ProductSummaryDetail } from "../product";
@@ -7,6 +8,41 @@ import type { BasketHelperContext } from "../basketProduct";
 import type { ResponseError } from "../../utils";
 
 // -----------------------------------------------------------------------------
+
+/**
+ * A single domain result from the /suggestions endpoint.
+ */
+export interface IDomainSuggestionResult {
+  domain: string;
+  sld: string;
+  tld: string;
+  can_register: boolean;
+  can_transfer: boolean;
+  product_id: string;
+}
+
+/**
+ * The full response shape from /suggestions.
+ * `data` contains the suggestion results, and `related.products` is a map
+ * of product_id → full IProduct objects.
+ */
+export interface IDomainSuggestionsResponse {
+  data: IDomainSuggestionResult[];
+  related: {
+    products: Record<string, IProduct>;
+  };
+  total: number;
+}
+
+/**
+ * The response shape from /availability/{domain}.
+ */
+export interface IDomainAvailabilityResponse {
+  can_register: boolean;
+  can_transfer: boolean;
+  is_premium: boolean;
+  product?: IProduct;
+}
 
 /**
  * Enumeration defining the different types of domain management flows.
@@ -52,6 +88,12 @@ export type DomainProduct = Product &
     meta: ProductSummaryDetail["meta"] & {
       /** `true` if the domain is available for registration. */
       available?: boolean;
+      /** `true` if the domain can be transferred (set after availability check). */
+      canTransfer?: boolean;
+      /** `true` if the domain is fully unavailable (cannot register or transfer). */
+      unavailable?: boolean;
+      /** `true` once /availability has been called for this domain. */
+      checkedAvailability?: boolean;
       /** `true` if the client already owns the domain. */
       owned?: boolean;
       /** `true` if the domain has been added to the basket. */
@@ -67,6 +109,12 @@ export type DomainProduct = Product &
       /** `true` if the domain is currently being processed (e.g. during 'add to basket'). */
       processing?: boolean;
     };
+    /**
+     * Optional reference to the raw IProduct data from the API.
+     * Stored so we can re-run parseProductProps when the domain mode changes
+     * (e.g. register → transfer after a domain_transfer_only error).
+     */
+    rawProduct?: IProduct;
   };
 
 /**
@@ -103,6 +151,11 @@ export type DomainProps = {
  * search queries, and related lookups.
  */
 export interface DacContext extends BasketHelperContext<DomainProduct> {
+  /**
+   * The domain flow mode: 'register' (default) runs suggestions + availability,
+   * 'transfer' runs only checkAvailability.
+   */
+  mode?: DomainTypes;
   /**
    * The current {@link DomainModel} or array of models representing the selected domains.
    */
@@ -176,6 +229,11 @@ export interface DacContext extends BasketHelperContext<DomainProduct> {
    * An `ActorRef` to a basket helper service.
    */
   basketHelper?: ActorRef<any>;
+
+  /**
+   * The domain currently being availability-checked (set when ADD event fires).
+   */
+  checkingDomain?: string;
 }
 
 export interface DomainContext extends BasketHelperContext<DomainProduct> {
