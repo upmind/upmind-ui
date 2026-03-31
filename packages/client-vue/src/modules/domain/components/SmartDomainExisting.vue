@@ -137,7 +137,7 @@ function onClear(): void {
 // --- Clear button visibility
 
 const showClearButton = computed(() => {
-  return props.valid || props.checked || props.transferred || props.unavailable;
+  return !!props.isDomainLike && !props.validating;
 });
 
 // --- Transfer info text
