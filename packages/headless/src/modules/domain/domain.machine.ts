@@ -177,6 +177,17 @@ export default createMachine(
           },
           onDone: [
             {
+              target: "#basket",
+              cond: "hasDacDomains",
+              actions: [
+                "setModelFromDac",
+                "ensureSelected",
+                "checkChoices",
+                "setTypeBasket",
+                "persistModel"
+              ]
+            },
+            {
               target: "#idle", // NB go back to start and let it work out where to go
               actions: ["setModelFromDac", "ensureSelected", "checkType"]
             }
@@ -906,6 +917,10 @@ export default createMachine(
         type: () => undefined
       }),
 
+      setTypeBasket: assign({
+        type: () => DomainTypes.basket
+      }),
+
       storePendingUpdate: assign({
         pendingUpdate: (_context: DomainContext, { data }: AnyEventObject) => {
           const d = data;
@@ -1008,6 +1023,9 @@ export default createMachine(
         return isArray(products) && products.length === 0;
       },
 
+      hasDacDomains: (_context: DomainContext, { data }: AnyEventObject) =>
+        !isEmpty(data?.domains),
+
       isInTransferredState: (
         _ctx: DomainContext,
         _event: AnyEventObject,
@@ -1060,7 +1078,7 @@ export default createMachine(
         return isEmpty(choices) || !has(DomainTypes, data) || type == data;
       },
 
-      isValid: ({ model }: DomainContext) => isEmpty(parseDomain(model)),
+      isValid: ({ model }: DomainContext) => !isEmpty(parseDomain(model)),
 
       isSelectable: (
         { model, lookups }: DomainContext,
