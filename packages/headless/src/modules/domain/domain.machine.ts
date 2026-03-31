@@ -199,7 +199,7 @@ export default createMachine(
             always: {
               target: "valid",
               cond: "isOwnedDomain",
-              actions: ["setExisting", "persistModel"]
+              actions: ["persistModel"]
             },
             invoke: {
               src: "checkAvailability",

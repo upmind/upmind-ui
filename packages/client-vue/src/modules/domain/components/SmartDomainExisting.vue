@@ -66,10 +66,11 @@ import {
   Link,
   useStyles
 } from "@upmind-automation/upmind-ui";
-import { filter, includes, map } from "lodash-es";
+import { filter, includes, map, debounce } from "lodash-es";
 import config from "../smartDomainField.config";
 import type { SearchItem } from "@upmind-automation/upmind-ui";
 import type { SmartDomainExistingProps } from "../types";
+import { DEBOUNCE_DELAY } from "@upmind-automation/headless";
 // -----------------------------------------------------------------------------
 
 const props = defineProps<SmartDomainExistingProps>();
@@ -100,17 +101,25 @@ const ownedItems = computed((): SearchItem[] =>
 
 const filteredOwned = ref<SearchItem[] | null>(null);
 
+// --- Debounced emit to parent
+
+const debouncedEmit = debounce(
+  (value: string) => emit("update:modelValue", value),
+  DEBOUNCE_DELAY
+);
+
 // --- Search handler: filters owned domains AND emits typed value to parent
 
 function onSearch(value: string | number) {
   const str = value.toString();
 
   if (!str) {
+    debouncedEmit.cancel();
     filteredOwned.value = null;
     return;
   }
 
-  emit("update:modelValue", str);
+  debouncedEmit(str);
 
   const matches = filter(ownedItems.value, item =>
     includes(item.label.toLowerCase(), str.toLowerCase())
@@ -122,7 +131,9 @@ function onSearch(value: string | number) {
 
 function onSelect(item: SearchItem): void {
   if (item.id) {
+    debouncedEmit.cancel();
     emit("update:modelValue", item.label);
+    filteredOwned.value = null;
   }
 }
 

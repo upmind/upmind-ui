@@ -281,7 +281,6 @@ const isResolved = computed(
   () =>
     registerResolved.value ||
     (meta.value.showBasket && meta.value.isValid) ||
-    meta.value.isExistingValid ||
     meta.value.isExistingTransferred
 );
 
