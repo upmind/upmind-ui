@@ -279,11 +279,9 @@ const isEditing = ref(false);
 const isDrawerOpen = ref(false);
 const resultCount = ref(0);
 const queryValue = ref(query.value || "");
-const registerResolved = ref(false);
 
 const isResolved = computed(
   () =>
-    registerResolved.value ||
     (meta.value.showBasket && meta.value.isValid) ||
     meta.value.isExistingTransferred
 );
@@ -373,7 +371,7 @@ function onBasketSelect(value: string) {
 function doResolve() {
   isDrawerOpen.value = false;
   stopDac();
-  registerResolved.value = true;
+  isEditing.value = false;
 }
 
 function doReset() {
@@ -386,7 +384,6 @@ function doReset() {
 
 function onChangeClick() {
   isEditing.value = true;
-  registerResolved.value = false;
 }
 
 // --- Side effects
@@ -408,12 +405,15 @@ watch(
   }
 );
 
-// Auto-collapse when resolved
-watch(isResolved, resolved => {
-  if (resolved) {
-    isEditing.value = false;
+// Collapse when existing transfer completes
+watch(
+  () => meta.value.isExistingTransferred,
+  transferred => {
+    if (transferred) {
+      isEditing.value = false;
+    }
   }
-});
+);
 
 // Open drawer when search starts
 watch(meta, ({ isSearching, showSearchResults, showDac }) => {
