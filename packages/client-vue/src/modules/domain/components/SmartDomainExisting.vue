@@ -28,7 +28,10 @@
   </p>
 
   <!-- Transfer info section (checked or transferred) -->
-  <div v-if="checked || transferred" :class="styles.field.transfer.root">
+  <div
+    v-if="checked || transferred || transferring || removing"
+    :class="styles.field.transfer.root"
+  >
     <p :class="styles.field.transfer.text">
       {{ transferInfoText }}
     </p>
@@ -46,9 +49,9 @@
 
     <Button
       v-if="transferred"
-      variant="secondary"
+      variant="solid"
       size="lg"
-      icon-prepend="check-circle-broken"
+      icon="check-circle-broken"
       :label="t('domain.existing.add_transfer')"
       :disabled="removing"
       @click="emit('removeTransfer')"

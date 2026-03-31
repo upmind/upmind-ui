@@ -225,7 +225,10 @@ const emit = defineEmits<{
 const { t, tm, rt } = useI18n();
 const stylesMeta = computed(() => ({
   hasTransferInfo:
-    meta.value.isExistingChecked || meta.value.isExistingTransferred
+    meta.value.isExistingChecked ||
+    meta.value.isExistingTransferred ||
+    meta.value.isExistingTransferring ||
+    meta.value.isExistingRemoving
 }));
 const styles = useStyles(
   ["field", "field.summary", "field.transfer"],
@@ -287,11 +290,7 @@ const isDrawerOpen = ref(false);
 const resultCount = ref(0);
 const queryValue = ref(query.value || "");
 
-const isResolved = computed(
-  () =>
-    (meta.value.showBasket && meta.value.isValid) ||
-    meta.value.isExistingTransferred
-);
+const isResolved = computed(() => meta.value.showBasket && meta.value.isValid);
 
 // --- Sorted and filtered choices
 
@@ -408,16 +407,6 @@ watch(
   isSkip => {
     if (isSkip) {
       emit("update:modelValue", null);
-    }
-  }
-);
-
-// Collapse when existing transfer completes
-watch(
-  () => meta.value.isExistingTransferred,
-  transferred => {
-    if (transferred) {
-      isEditing.value = false;
     }
   }
 );

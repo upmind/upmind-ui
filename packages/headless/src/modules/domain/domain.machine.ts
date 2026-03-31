@@ -362,6 +362,9 @@ export default createMachine(
           error: {}
         },
         on: {
+          REFRESH: {
+            actions: ["setBasketProducts", "refreshContext", "checkChoices"]
+          },
           UPDATE: [
             {
               target: ".removing",
