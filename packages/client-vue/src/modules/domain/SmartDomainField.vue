@@ -59,6 +59,7 @@
                 :model-value="model ?? null"
                 :owned="owned"
                 :validating="meta.isExistingValidating"
+                :valid="meta.isExistingValid"
                 :checked="meta.isExistingChecked"
                 :transferred="meta.isExistingTransferred"
                 :transferring="meta.isExistingTransferring"
