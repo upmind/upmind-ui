@@ -220,7 +220,7 @@ export default createMachine(
               ],
               onError: {
                 target: "error",
-                actions: ["setError", "setFeedbackAvailabilityError"]
+                actions: ["setError"]
               }
             }
           },
@@ -976,14 +976,6 @@ export default createMachine(
       clearTransferProductId: assign({
         transferProductId: () => undefined
       }),
-
-      setFeedbackAvailabilityError: (context: DomainContext) => {
-        const { t } = useI18n();
-        useFeedback().addError({
-          title: t("domain.error.availability_check_failed"),
-          copy: context.checkingDomain
-        });
-      },
 
       setFeedbackTransferAddError: (context: DomainContext) => {
         const { t } = useI18n();

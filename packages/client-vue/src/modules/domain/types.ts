@@ -109,8 +109,8 @@ export type SmartDomainExistingProps = {
   modelValue: string | null;
   owned?: DomainProduct[];
   filteredOwned?: DomainProduct[] | null;
+  isDomainLike?: boolean;
   validating?: boolean;
-  valid?: boolean;
   checked?: boolean;
   transferred?: boolean;
   transferring?: boolean;
