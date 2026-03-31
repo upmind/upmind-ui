@@ -18,7 +18,8 @@ import {
   get,
   isEmpty,
   filter,
-  includes
+  includes,
+  reject
 } from "lodash-es";
 import {
   stopService,
@@ -27,6 +28,7 @@ import {
   contextMatches,
   contextValue,
   DEBOUNCE_DELAY,
+  DOMAIN_LIKE_VALIDATION,
   useChildActor
 } from "../../utils";
 import { parseDomain } from "./utils";
@@ -185,6 +187,16 @@ export const useDomain = (
   const type = useContext<DomainContext["type"]>(state, "type");
 
   const owned = useContext<DomainProduct[]>(state, "lookups.owned", []);
+
+  const filteredOwned = computed(() => {
+    const domain = model.value;
+    if (!domain || DOMAIN_LIKE_VALIDATION.test(domain)) return null;
+    const matches = reject(
+      filter(owned.value, item => includes(item.domain, domain)),
+      ["domain", domain]
+    );
+    return matches.length ? matches : null;
+  });
 
   const basket = useContext<DomainProduct[]>(state, "lookups.basket", []);
 
@@ -373,6 +385,12 @@ export const useDomain = (
     owned,
 
     /**
+     * Owned domains filtered by the current model value.
+     * Excludes exact matches and returns null when domain-like.
+     */
+    filteredOwned,
+
+    /**
      * List of domains in the basket.
      */
     basket,
@@ -480,6 +498,13 @@ export const useDomain = (
 
     /** Clear the existing domain input and reset to invalid state. */
     clearExisting,
+
+    /** Check if a string looks like a valid domain name. */
+    isDomainLike: computed(() =>
+      DOMAIN_LIKE_VALIDATION.test(
+        get(contextValue(state, "model"), "domain") ?? ""
+      )
+    ),
 
     /** Stop the domain service.
      * @returns {void}
