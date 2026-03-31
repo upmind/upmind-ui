@@ -62,14 +62,19 @@
                 :is-domain-like="isDomainLike"
                 :validating="meta.isExistingValidating"
                 :checked="meta.isExistingChecked"
+                :registerable="meta.isExistingRegisterable"
+                :registering="meta.isExistingRegistering"
                 :transferred="meta.isExistingTransferred"
                 :transferring="meta.isExistingTransferring"
                 :removing="meta.isExistingRemoving"
                 :unavailable="meta.isExistingUnavailable"
                 :transfer-price="transferPrice"
+                :register-price="registerPrice"
+                :register-cycle="registerCycle"
                 @update:model-value="onExistingUpdate"
                 @add-transfer="addTransfer"
                 @remove-transfer="removeTransfer"
+                @add-registration="addRegistration"
               />
             </div>
 
@@ -266,6 +271,7 @@ const {
   update,
   availabilityResult,
   addTransfer,
+  addRegistration,
   removeTransfer,
   clearExisting,
   isDomainLike,
@@ -317,10 +323,39 @@ const basketItems = computed((): SelectItemProps[] =>
 
 const transferPrice = computed(() => {
   const product = availabilityResult.value?.product;
+  if (product) {
+    const prices = product.prices ?? [];
+    const annual = find(prices, (p: any) => p.billing_cycle_months === 12);
+    return annual?.price_formatted ?? first(prices)?.price_formatted ?? "";
+  }
+  // Fallback: use basket product pricing (on remount, availabilityResult
+  // is lost but the basket product has its own price data)
+  const domain = selected.value;
+  if (domain) {
+    const matched = find(basket.value, ["domain", domain]);
+    return matched?.price?.currentPrice ?? "";
+  }
+  return "";
+});
+
+// --- Registration price and cycle from availability result
+
+const registerPrice = computed(() => {
+  const product = availabilityResult.value?.product;
   if (!product) return "";
   const prices = product.prices ?? [];
   const annual = find(prices, (p: any) => p.billing_cycle_months === 12);
   return annual?.price_formatted ?? first(prices)?.price_formatted ?? "";
+});
+
+const registerCycle = computed(() => {
+  const product = availabilityResult.value?.product;
+  if (!product) return 12;
+  const prices = product.prices ?? [];
+  const annual = find(prices, (p: any) => p.billing_cycle_months === 12);
+  return (
+    annual?.billing_cycle_months ?? first(prices)?.billing_cycle_months ?? 12
+  );
 });
 
 // --- Search debounce (single pipeline)

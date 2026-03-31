@@ -227,6 +227,11 @@ export default createMachine(
                   actions: ["setAvailabilityResult"]
                 },
                 {
+                  target: "registerable",
+                  cond: "isDomainRegisterable",
+                  actions: ["setAvailabilityResult"]
+                },
+                {
                   target: "unavailable",
                   cond: "isDomainUnavailable"
                 },
@@ -245,6 +250,32 @@ export default createMachine(
           checked: {
             on: {
               ADD_TRANSFER: { target: "transferring" }
+            }
+          },
+
+          registerable: {
+            on: {
+              ADD_REGISTRATION: { target: "registering" }
+            }
+          },
+
+          registering: {
+            invoke: {
+              src: "addExistingRegistration",
+              onDone: {
+                target: "#basket",
+                actions: [
+                  "setModelFromRegistration",
+                  "ensureSelected",
+                  "checkChoices",
+                  "setTypeBasket",
+                  "persistModel"
+                ]
+              },
+              onError: {
+                target: "registerable",
+                actions: ["setError", "setFeedbackRegistrationAddError"]
+              }
             }
           },
 
@@ -1066,6 +1097,21 @@ export default createMachine(
         const { t } = useI18n();
         useFeedback().addError({
           title: t("domain.error.transfer_remove_failed"),
+          copy: context.checkingDomain
+        });
+      },
+
+      setModelFromRegistration: assign({
+        model: (_ctx: DomainContext, { data }: AnyEventObject) => {
+          if (!data?.domain) return undefined;
+          return parseDomain(data.domain) as DomainModel;
+        }
+      }),
+
+      setFeedbackRegistrationAddError: (context: DomainContext) => {
+        const { t } = useI18n();
+        useFeedback().addError({
+          title: t("domain.error.registration_add_failed"),
           copy: context.checkingDomain
         });
       }

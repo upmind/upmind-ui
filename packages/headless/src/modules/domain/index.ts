@@ -4,6 +4,7 @@ export * from "./useDomainRegistrant";
 export * from "./types";
 export {
   parseDomain,
+  parseDomainParts,
   isDomainProduct,
   getDomainBasketProducts,
   emptyRegistrant,
