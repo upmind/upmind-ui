@@ -519,14 +519,17 @@ export async function addExistingTransfer(
   model.coupons ??= coupons ?? [];
   model.silent = true;
 
-  // --- Authoritative pre-add snapshot ---
-  // Use useBasket().refresh() to get current basket state before adding.
+  // --- Pre-add snapshot ---
+  // Read the current basket state without triggering a refresh.
+  // Calling refreshBasket() here would trigger a reactive cascade that
+  // causes the parent component to remount SmartDomainField, destroying
+  // this machine instance mid-flight.
   const { useBasket } = await import("../basket");
-  const { refresh: refreshBasket } = useBasket();
-  const currentBasket = await refreshBasket();
+  const { basket: basketRef } = useBasket();
+  const currentProducts = basketRef.value?.products ?? [];
   const existingBpids = new Set(
     map(
-      filter(currentBasket?.products, (p: any) =>
+      filter(currentProducts, (p: any) =>
         isDomainProduct({
           serviceIdentifier: p.service_identifier,
           blueprintCode: p?.product?.provision_blueprint?.category?.code,
@@ -537,11 +540,11 @@ export async function addExistingTransfer(
     )
   );
 
-  const basket = await productServices.update(basketId, model);
+  const updatedBasket = await productServices.update(basketId, model);
 
   // Find products matching our domain that are NEW (not in the pre-existing set).
   const candidates = filter(
-    basket.products,
+    updatedBasket.products,
     (p: any) =>
       p.service_identifier === checkingDomain && !existingBpids.has(p.id)
   );
@@ -570,7 +573,7 @@ export async function addExistingTransfer(
     "[domain] addExistingTransfer: added product not found in basket response",
     {
       checkingDomain,
-      productCount: basket.products?.length,
+      productCount: updatedBasket.products?.length,
       existingBpidCount: existingBpids.size
     }
   );

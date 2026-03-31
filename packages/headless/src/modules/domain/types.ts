@@ -96,6 +96,8 @@ export type DomainProduct = Product &
       available?: boolean;
       /** `true` if the domain can be transferred (set after availability check). */
       canTransfer?: boolean;
+      /** `true` if this basket product was added as a domain transfer (vs registration). */
+      isTransfer?: boolean;
       /** `true` if the domain is fully unavailable (cannot register or transfer). */
       unavailable?: boolean;
       /** `true` once /availability has been called for this domain. */

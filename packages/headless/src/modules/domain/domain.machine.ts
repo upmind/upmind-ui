@@ -4,7 +4,7 @@ import { createMachine, assign, spawn, sendTo, pure } from "xstate";
 // --- internal
 import DACmachine from "./dac.machine";
 
-import services, { removeExistingTransfer } from "./services";
+import services from "./services";
 import { basketSubscription } from "../basketProduct/helper";
 import { authSubscription } from "../session/helper";
 
@@ -134,7 +134,8 @@ export default createMachine(
           },
           {
             target: "existing",
-            cond: ({ type }) => type === DomainTypes.existing
+            cond: ({ type }) => type === DomainTypes.existing,
+            actions: ["setTransferFromBasket"]
           },
           {
             target: "basket",
@@ -203,7 +204,12 @@ export default createMachine(
         id: "existing",
         initial: "invalid",
         states: {
-          invalid: {},
+          invalid: {
+            always: {
+              target: "transferred",
+              cond: "hasTransferProductId"
+            }
+          },
 
           validating: {
             entry: ["setCheckingDomain"],
@@ -383,26 +389,6 @@ export default createMachine(
           ]
         },
         exit: [
-          (context: DomainContext, event: AnyEventObject) => {
-            const isInvokeCompletion = event.type.startsWith("done.invoke");
-            if (isInvokeCompletion && context.removalInFlight) return;
-
-            if (!context.transferProductId) {
-              if (context.checkingDomain) {
-                console.warn(
-                  "[domain] exit cleanup: transferProductId missing, skipping removal (REFRESH will reconcile)",
-                  { checkingDomain: context.checkingDomain }
-                );
-              }
-              return;
-            }
-            removeExistingTransfer(context).catch((err: unknown) => {
-              console.warn(
-                "[domain] exit cleanup: transfer removal failed, will reconcile on next REFRESH",
-                err
-              );
-            });
-          },
           "clearModel",
           "clearCheckingDomain",
           "clearAvailabilityResult",
@@ -520,8 +506,14 @@ export default createMachine(
         target: "complete"
       },
 
-      AUTHENTICATED: { target: "loading", actions: ["clearLookups"] },
-      UNAUTHENTICATED: { target: "loading", actions: ["clearLookups"] }
+      AUTHENTICATED: {
+        target: "loading",
+        actions: ["clearLookups"]
+      },
+      UNAUTHENTICATED: {
+        target: "loading",
+        actions: ["clearLookups"]
+      }
     }
   },
   {
@@ -647,8 +639,12 @@ export default createMachine(
             (includes(choices, DomainTypes.basket) ||
               includes(choices, DomainTypes.existing))
           ) {
-            const added = some(lookups.basket, ["domain", domain]);
-            if (added) {
+            const matched = find(lookups.basket, ["domain", domain]);
+            if (matched) {
+              // Transfer products should route to existing, not basket
+              if (matched.meta?.isTransfer) {
+                return DomainTypes.existing;
+              }
               return DomainTypes.basket;
             }
             return DomainTypes.existing;
@@ -738,6 +734,58 @@ export default createMachine(
             basketProduct.domain = parsed.domain;
             basketProduct.meta.selected = parsed.domain === primaryDomain;
             basketProduct.productDetails.title = parsed.domain;
+
+            // Detect transfer: check if basket product options match transfer sub-product IDs
+            const transferSubIds =
+              (raw.product as any)?.setup_function_sub_ids?.transfer ?? [];
+            if (
+              transferSubIds.length > 0 &&
+              some(raw.options, (opt: any) =>
+                includes(transferSubIds, opt.product_id)
+              )
+            ) {
+              basketProduct.meta.isTransfer = true;
+            }
+
+            // Fallback: setup_function_sub_ids is unavailable in the basket
+            // API response. Match basket option product_ids against catalog
+            // products_options and check for transfer indicators.
+            if (!basketProduct.meta.isTransfer && raw.options?.length) {
+              const hasTransferIndicator = (product: any): boolean => {
+                if (!product) return false;
+                const name = (product.name ?? "").toLowerCase();
+                const code = (product.code ?? "").toLowerCase();
+                const opCode = (
+                  product.domain_operation_code ?? ""
+                ).toLowerCase();
+                return (
+                  name.includes("transfer") ||
+                  code.includes("transfer") ||
+                  opCode === "transfer"
+                );
+              };
+
+              const basketOptionProductIds = new Set(
+                map(raw.options, (opt: any) => opt.product_id)
+              );
+              const catalogOptions = raw.product?.products_options ?? [];
+
+              const isTransfer =
+                some(
+                  catalogOptions,
+                  (catOpt: any) =>
+                    basketOptionProductIds.has(catOpt.id) &&
+                    hasTransferIndicator(catOpt)
+                ) ||
+                some(raw.options, (opt: any) =>
+                  hasTransferIndicator(opt.product)
+                );
+
+              if (isTransfer) {
+                basketProduct.meta.isTransfer = true;
+              }
+            }
+
             return basketProduct;
           },
 
@@ -991,6 +1039,17 @@ export default createMachine(
         ) => data?.bpid
       }),
 
+      setTransferFromBasket: assign({
+        transferProductId: ({ lookups, model }: DomainContext) => {
+          const domain = get(model, "domain");
+          if (!domain) return undefined;
+          // If checkType routed to existing AND domain is in basket,
+          // it must be a transfer product (non-transfers go to basket type)
+          const matched = find(lookups.basket, ["domain", domain]);
+          return matched?.id;
+        }
+      }),
+
       clearTransferProductId: assign({
         transferProductId: () => undefined
       }),
@@ -1067,6 +1126,9 @@ export default createMachine(
 
       hasPendingChoose: ({ pendingChoose }: DomainContext) =>
         pendingChoose !== undefined,
+
+      hasTransferProductId: ({ transferProductId }: DomainContext) =>
+        !!transferProductId,
 
       hasPendingUpdateDomainLike: ({ pendingUpdate }: DomainContext) =>
         !!pendingUpdate && DOMAIN_LIKE_VALIDATION.test(pendingUpdate),
