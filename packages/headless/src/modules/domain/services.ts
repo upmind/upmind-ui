@@ -21,7 +21,7 @@ import {
 } from "lodash-es";
 import { parseDomain, parseDomainParts, parseSuggestions } from "./utils";
 import productServices from "../basketProduct/services";
-import { parseProductProps } from "../product/utils";
+import { parseProductProps, parsePrice } from "../product/utils";
 import { isDomainProduct } from "./utils";
 
 // --- types
@@ -92,15 +92,17 @@ function buildDomainProductFromAvailability(
     sld: parsed?.sld ?? sld,
     tld: parsed?.tld ?? tld ?? "",
     configuration,
-    price: {
-      currentPrice: priceDiscountedFormatted ?? priceFormatted,
-      currentAmount: 0,
-      regularPrice: priceFormatted,
-      regularAmount: 0,
-      savingAmount: 0,
-      savingPrice: "",
-      savingPercent: ""
-    },
+    price: priceEntry
+      ? parsePrice(priceEntry)
+      : {
+          currentPrice: "",
+          currentAmount: 0,
+          regularPrice: "",
+          regularAmount: 0,
+          savingAmount: 0,
+          savingPrice: "",
+          savingPercent: ""
+        },
     meta: {
       available: availability.can_register,
       canTransfer: !availability.can_register && availability.can_transfer,

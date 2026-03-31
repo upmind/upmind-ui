@@ -2,6 +2,7 @@ import type {
   DomainModel,
   DomainProduct,
   DomainTypes,
+  PriceDetail,
   UseDac,
   UseDomain
 } from "@upmind-automation/headless";
@@ -59,6 +60,7 @@ export interface DomainActionsProps {
 }
 
 export type DomainCardProps = {
+  class?: string;
   domain: DomainProduct["domain"];
   sld: DomainModel["tld"];
   tld: DomainModel["tld"];
@@ -74,6 +76,7 @@ export type DomainCardProps = {
   canTransfer?: DomainProduct["meta"]["canTransfer"];
   unavailable?: DomainProduct["meta"]["unavailable"];
   exactMatch?: boolean;
+  disableHover?: boolean;
 };
 
 export interface DomainSummaryProps {
@@ -121,4 +124,5 @@ export type SmartDomainExistingProps = {
   transferPrice?: string;
   registerPrice?: string;
   registerCycle?: number;
+  registerPricing?: { price: PriceDetail; cycle: number } | null;
 };
