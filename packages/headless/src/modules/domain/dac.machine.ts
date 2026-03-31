@@ -1072,6 +1072,6 @@ export default createMachine(
       wait: () => useTime().WAIT
     },
 
-    services
+    services: services as any
   }
 );

@@ -3,6 +3,7 @@
 // --- Export Views
 export { default as UpmDomain } from "./Domain.vue";
 export { default as UpmDac } from "./Dac.vue";
+export { default as SmartDomainField } from "./SmartDomainField.vue";
 
 // --- Export Components
 export { default as DomainCheckboxes } from "./components/DomainCheckboxes.vue";

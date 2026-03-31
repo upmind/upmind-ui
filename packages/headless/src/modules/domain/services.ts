@@ -10,10 +10,19 @@ import {
 } from "../..";
 
 // --- utils
-import { compact, find, isFunction, map } from "lodash-es";
+import {
+  compact,
+  filter,
+  find,
+  includes,
+  isFunction,
+  map,
+  sortBy
+} from "lodash-es";
 import { parseDomain, parseDomainParts, parseSuggestions } from "./utils";
 import productServices from "../basketProduct/services";
 import { parseProductProps } from "../product/utils";
+import { isDomainProduct } from "./utils";
 
 // --- types
 import type {
@@ -44,12 +53,10 @@ function buildDomainProductFromAvailability(
   const product = availability.product;
   const prices = product?.prices ?? [];
   // Prefer 12-month price, then preferred cycle, then lowest term
-  const sortedPrices = [...prices].sort(
-    (a, b) => a.billing_cycle_months - b.billing_cycle_months
-  );
+  const sortedPrices = sortBy(prices, "billing_cycle_months");
   const priceEntry =
-    prices.find(p => p.billing_cycle_months === 12) ??
-    prices.find(p => p.billing_cycle_months === preferredCycle) ??
+    find(prices, p => p.billing_cycle_months === 12) ??
+    find(prices, p => p.billing_cycle_months === preferredCycle) ??
     sortedPrices[0];
 
   const priceFormatted = priceEntry?.price_formatted ?? "";
@@ -74,7 +81,7 @@ function buildDomainProductFromAvailability(
         preferredCycle
       )
     : {
-        productId: product?.id ?? "",
+        productId: "",
         term: billingCycleMonths,
         quantity: 1,
         provisionFields: { sld }
@@ -199,13 +206,17 @@ function search(context: DacContext) {
     // Helper: build the merged result from whatever data is available
     const buildResult = () => {
       // Clone suggestion data to avoid mutating TanStack cache
-      let data = (suggestionsData ?? []).map((item: DomainProduct) => ({
-        ...item,
-        meta: { ...item.meta, exactMatch: false }
-      }));
+      let data: DomainProduct[] = map(
+        suggestionsData ?? [],
+        (item: DomainProduct) => ({
+          ...item,
+          meta: { ...item.meta, exactMatch: false }
+        })
+      ) as DomainProduct[];
 
       if (exactDomain && availabilityData) {
-        data = data.filter(
+        data = filter(
+          data,
           (item: DomainProduct) => item.domain !== exactDomain
         );
         const exactProduct = buildDomainProductFromAvailability(
@@ -287,7 +298,11 @@ function search(context: DacContext) {
   };
 }
 
-async function checkAvailability({ checkingDomain }: DacContext) {
+async function checkAvailability({
+  checkingDomain
+}: {
+  checkingDomain?: string;
+}) {
   const { get, useUrl } = useQuery();
 
   if (!checkingDomain)
@@ -403,14 +418,14 @@ async function addDomainToBasket(context: DacContext) {
     //    the error code string has been stripped from the error object.
     const errorMessage = (error?.message ?? "").toLowerCase();
 
-    if (errorMessage.includes("cannot be registered")) {
+    if (includes(errorMessage, "cannot be registered")) {
       return {
         can_register: false,
         can_transfer: true,
         error_code: "web_hosting::domain_transfer_only"
       };
     }
-    if (errorMessage.includes("cannot be transferred")) {
+    if (includes(errorMessage, "cannot be transferred")) {
       return {
         can_register: true,
         can_transfer: false,
@@ -418,8 +433,8 @@ async function addDomainToBasket(context: DacContext) {
       };
     }
     if (
-      errorMessage.includes("not for sale") ||
-      errorMessage.includes("not available")
+      includes(errorMessage, "not for sale") ||
+      includes(errorMessage, "not available")
     ) {
       return {
         can_register: false,
@@ -460,11 +475,135 @@ async function getClientDomains(_context: DomainContext | DacContext) {
   });
 }
 
+/**
+ * Adds a transfer product to the basket for the existing domain flow.
+ * Builds the product model from the availability result, then diffs
+ * pre/post basket state to extract the new basket product ID.
+ */
+export async function addExistingTransfer(
+  context: DomainContext
+): Promise<{ bpid?: string }> {
+  const {
+    checkingDomain,
+    basketId,
+    availabilityResult,
+    coupons,
+    preferredCycle
+  } = context;
+
+  if (!checkingDomain || !availabilityResult?.product) {
+    throw new DetailedError(
+      "No domain or availability data for transfer",
+      responseCodes.Unprocessable_Entity,
+      ErrorOrigin.Headless
+    );
+  }
+
+  // Build a DomainProduct from the availability response
+  const domainProduct = buildDomainProductFromAvailability(
+    checkingDomain,
+    availabilityResult,
+    preferredCycle
+  );
+
+  const model = domainProduct.configuration;
+
+  if (!model) {
+    throw new DetailedError(
+      "Product model not found for transfer domain",
+      responseCodes.Unprocessable_Entity,
+      ErrorOrigin.Headless
+    );
+  }
+
+  model.coupons ??= coupons ?? [];
+  model.silent = true;
+
+  // --- Authoritative pre-add snapshot ---
+  // Use useBasket().refresh() to get current basket state before adding.
+  const { useBasket } = await import("../basket");
+  const { refresh: refreshBasket } = useBasket();
+  const currentBasket = await refreshBasket();
+  const existingBpids = new Set(
+    map(
+      filter(currentBasket?.products, (p: any) =>
+        isDomainProduct({
+          serviceIdentifier: p.service_identifier,
+          blueprintCode: p?.product?.provision_blueprint?.category?.code,
+          provisionFields: p?.provision_fields
+        })
+      ),
+      "id"
+    )
+  );
+
+  const basket = await productServices.update(basketId, model);
+
+  // Find products matching our domain that are NEW (not in the pre-existing set).
+  const candidates = filter(
+    basket.products,
+    (p: any) =>
+      p.service_identifier === checkingDomain && !existingBpids.has(p.id)
+  );
+
+  if (candidates.length === 1) {
+    return { bpid: (candidates[0] as any).id };
+  }
+  if (candidates.length > 1) {
+    console.warn(
+      "[domain] addExistingTransfer: multiple new products found, cannot determine which was just added",
+      {
+        count: candidates.length,
+        domain: checkingDomain,
+        candidateIds: map(candidates, "id")
+      }
+    );
+    throw new DetailedError(
+      "Multiple matching products found — cannot determine which was just added. Please try again.",
+      responseCodes.Conflict,
+      ErrorOrigin.Headless
+    );
+  }
+
+  // No new products found — extraction failed.
+  console.warn(
+    "[domain] addExistingTransfer: added product not found in basket response",
+    {
+      checkingDomain,
+      productCount: basket.products?.length,
+      existingBpidCount: existingBpids.size
+    }
+  );
+  return {};
+}
+
+/**
+ * Removes a transfer product from the basket.
+ * Requires an exact transferProductId — does NOT fall back to domain-name lookup.
+ */
+export async function removeExistingTransfer(
+  context: DomainContext
+): Promise<void> {
+  const { basketId, transferProductId } = context;
+
+  if (!transferProductId) {
+    throw new DetailedError(
+      "Transfer product ID missing — cannot identify which basket item to remove. Please refresh and try again.",
+      responseCodes.Unprocessable_Entity,
+      ErrorOrigin.Headless
+    );
+  }
+
+  await productServices.remove(basketId!, transferProductId!);
+}
+
 // -----------------------------------------------------------------------------
 
 export default {
   search,
   checkAvailability,
   addDomainToBasket,
+  addExistingTransfer,
+  removeExistingTransfer,
   getClientDomains
 };

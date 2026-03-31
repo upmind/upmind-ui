@@ -98,3 +98,21 @@ export interface DomainCardSkeletonProps {
   active?: boolean;
   exactMatch?: boolean;
 }
+
+export interface SmartDomainFieldProps {
+  modelValue?: string | null;
+  disabled?: boolean;
+  required?: boolean;
+}
+
+export type SmartDomainExistingProps = {
+  modelValue: string | null;
+  owned?: DomainProduct[];
+  validating?: boolean;
+  checked?: boolean;
+  transferred?: boolean;
+  transferring?: boolean;
+  removing?: boolean;
+  unavailable?: boolean;
+  transferPrice?: string;
+};

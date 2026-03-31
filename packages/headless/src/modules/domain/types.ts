@@ -54,6 +54,12 @@ export interface IDomainAvailabilityResponse {
  */
 export enum DomainTypes {
   /**
+   * Represents the flow where the user explicitly defers domain selection ("I'll decide later").
+   * Only available when the field is optional (`required === false`).
+   * Produces a `null` model value.
+   */
+  skip = "skip",
+  /**
    * Represents the flow for **registering a new domain name**.
    * Used when a customer wants to acquire an available domain.
    */
@@ -245,15 +251,23 @@ export interface DomainContext extends BasketHelperContext<DomainProduct> {
    * The currently active {@link DomainTypes} being managed.
    */
   type?: DomainProps["type"];
+  /**
+   * Whether the domain field is required.
+   * - `true`: skip excluded, no default type
+   * - `false`: skip enabled, skip is default type
+   * - `undefined`: legacy/default (no skip, auto-select fallback)
+   */
+  required?: boolean;
   // ---
   /**
    * The current {@link DomainModel} representing the selected domain.
+   * `null` when skip is selected (distinct from `undefined` = no value set).
    */
-  model?: DomainModel;
+  model?: DomainModel | null;
   /**
    * The base {@link DomainModel}, representing the initial state before user modifications.
    */
-  baseModel?: DomainModel;
+  baseModel?: DomainModel | null;
   // ---
   /**
    * Lookups for domain data, including searched, history, owned, and basket domains.
@@ -305,6 +319,35 @@ export interface DomainContext extends BasketHelperContext<DomainProduct> {
    * An `ActorRef` to a basket helper service.
    */
   basketHelper?: ActorRef<any>;
+
+  // --- existing flow (availability check + transfer)
+
+  /**
+   * The domain currently being availability-checked in the existing flow.
+   */
+  checkingDomain?: string;
+  /**
+   * Stored availability result for transfer price/renewal display
+   * and for building the basket product model in addExistingTransfer.
+   */
+  availabilityResult?: IDomainAvailabilityResponse;
+  /**
+   * The basket line item ID (bpid) of the added transfer product.
+   * Used by removeExistingTransfer for exact-ID removal.
+   */
+  transferProductId?: string;
+  /**
+   * Stores the new domain input while the `removing` state processes basket removal.
+   */
+  pendingUpdate?: string;
+  /**
+   * Stores the target type for a blocked type-switch while `removing` processes basket removal.
+   */
+  pendingChoose?: DomainTypes;
+  /**
+   * True while `removing` invoke is in-flight.
+   */
+  removalInFlight: boolean;
 }
 
 // -----------------------------------------------------------------------------
