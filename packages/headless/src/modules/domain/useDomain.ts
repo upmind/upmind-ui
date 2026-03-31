@@ -157,6 +157,8 @@ export const useDomain = (
       isExistingInvalid: stateMatches(state, "existing.invalid"),
       isExistingValidating: stateMatches(state, "existing.validating"),
       isExistingChecked: stateMatches(state, "existing.checked"),
+      isExistingRegisterable: stateMatches(state, "existing.registerable"),
+      isExistingRegistering: stateMatches(state, "existing.registering"),
       isExistingTransferring: stateMatches(state, "existing.transferring"),
       isExistingTransferred: stateMatches(state, "existing.transferred"),
       isExistingRemoving: stateMatches(state, "existing.removing"),
@@ -311,6 +313,10 @@ export const useDomain = (
 
   function addTransfer(): void {
     send({ type: "ADD_TRANSFER" });
+  }
+
+  function addRegistration(): void {
+    send({ type: "ADD_REGISTRATION" });
   }
 
   function removeTransfer(): void {
@@ -492,6 +498,9 @@ export const useDomain = (
 
     /** Add a transfer product to the basket for the current domain. */
     addTransfer,
+
+    /** Add a registration product to the basket for the current domain. */
+    addRegistration,
 
     /** Remove the transfer product from the basket. */
     removeTransfer,

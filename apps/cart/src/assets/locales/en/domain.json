@@ -49,6 +49,7 @@
   "error": {
     "transfer_add_failed": "Failed to add transfer to basket",
     "transfer_remove_failed": "Failed to remove transfer from basket",
+    "registration_add_failed": "Failed to add domain to basket",
     "availability_check_failed": "Failed to check domain availability"
   },
   "search": "Enter a domain to search"

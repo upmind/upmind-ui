@@ -112,9 +112,13 @@ export type SmartDomainExistingProps = {
   isDomainLike?: boolean;
   validating?: boolean;
   checked?: boolean;
+  registerable?: boolean;
+  registering?: boolean;
   transferred?: boolean;
   transferring?: boolean;
   removing?: boolean;
   unavailable?: boolean;
   transferPrice?: string;
+  registerPrice?: string;
+  registerCycle?: number;
 };

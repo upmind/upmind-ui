@@ -600,6 +600,54 @@ export async function removeExistingTransfer(
   await productServices.remove(basketId!, transferProductId!);
 }
 
+/**
+ * Adds a registration product to the basket for the existing domain flow.
+ * Used when a domain typed in the "existing" input turns out to be available
+ * for registration (can_register=true).
+ */
+export async function addExistingRegistration(
+  context: DomainContext
+): Promise<{ domain: string }> {
+  const {
+    checkingDomain,
+    basketId,
+    availabilityResult,
+    coupons,
+    preferredCycle
+  } = context;
+
+  if (!checkingDomain || !availabilityResult?.product) {
+    throw new DetailedError(
+      "No domain or availability data for registration",
+      responseCodes.Unprocessable_Entity,
+      ErrorOrigin.Headless
+    );
+  }
+
+  const domainProduct = buildDomainProductFromAvailability(
+    checkingDomain,
+    availabilityResult,
+    preferredCycle
+  );
+
+  const model = domainProduct.configuration;
+
+  if (!model) {
+    throw new DetailedError(
+      "Product model not found for registration domain",
+      responseCodes.Unprocessable_Entity,
+      ErrorOrigin.Headless
+    );
+  }
+
+  model.coupons ??= coupons ?? [];
+  model.silent = true;
+
+  await productServices.update(basketId, model);
+
+  return { domain: checkingDomain };
+}
+
 // -----------------------------------------------------------------------------
 
 export default {
@@ -607,6 +655,7 @@ export default {
   checkAvailability,
   addDomainToBasket,
   addExistingTransfer,
+  addExistingRegistration,
   removeExistingTransfer,
   getClientDomains
 };
