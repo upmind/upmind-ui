@@ -28,11 +28,10 @@ export default {
     unavailable: cva("text-destructive text-sm"),
 
     summary: {
-      root: cva(
-        "bg-control-surface border-control-default control-radius border"
-      ),
-      row: cva("flex items-start gap-2 py-3 pr-4 pl-3"),
-      domain: cva("text-display text-base leading-6 font-medium"),
+      root: cva("bg-control-surface shadow-control-default control-radius"),
+      row: cva("flex items-start gap-2 p-4 pl-3"),
+      indicator: cva("size-lh flex items-center justify-center"),
+      domain: cva("text-display text-base-tight font-medium"),
       change: cva(
         "text-button-muted-link ml-auto shrink-0 cursor-pointer text-sm leading-6 font-normal underline"
       )

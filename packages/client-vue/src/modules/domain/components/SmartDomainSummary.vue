@@ -1,20 +1,21 @@
 <template>
   <div :class="styles.field.summary.root">
-    <div :class="styles.field.summary.row">
-      <div
-        class="flex min-w-[160px] flex-1 flex-wrap items-center gap-x-4 gap-y-1"
-      >
-        <span :class="styles.field.summary.domain">{{ domain }}</span>
-
-        <button
-          type="button"
-          :class="styles.field.summary.change"
-          @click="emit('change')"
+    <RadioGroup model-value="selected">
+      <div :class="styles.field.summary.row">
+        <div :class="styles.field.summary.indicator">
+          <RadioGroupItem value="selected" />
+        </div>
+        <div
+          class="flex min-w-[160px] flex-1 flex-wrap items-center gap-x-4 gap-y-1"
         >
-          {{ t("action.change") }}
-        </button>
+          <span :class="styles.field.summary.domain">{{ domain }}</span>
+
+          <Link :class="styles.field.summary.change" @click="emit('change')">
+            {{ t("action.change") }}
+          </Link>
+        </div>
       </div>
-    </div>
+    </RadioGroup>
   </div>
 </template>
 
@@ -23,7 +24,12 @@
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useStyles } from "@upmind-automation/upmind-ui";
+import {
+  useStyles,
+  RadioGroup,
+  RadioGroupItem,
+  Link
+} from "@upmind-automation/upmind-ui";
 import config from "../smartDomainField.config";
 
 // -----------------------------------------------------------------------------
