@@ -32,8 +32,15 @@ import {
 import { parseDomain } from "./utils";
 
 // --- types
-import { DomainTypes, type DomainContext, type DomainProduct } from "./types";
+import {
+  DomainTypes,
+  type DomainContext,
+  type DomainProduct,
+  type IDomainAvailabilityResponse
+} from "./types";
 import { PAGINATION } from "../query";
+
+export type DomainChoice = { value: DomainTypes; label: string };
 
 // -----------------------------------------------------------------------------
 
@@ -51,6 +58,7 @@ export const useDomain = (
   value: string,
   options: {
     type?: DomainTypes;
+    required?: boolean;
   } = {
     type: undefined
   }
@@ -66,6 +74,7 @@ export const useDomain = (
     domainMachine.withContext({
       type: safeType,
       choices: safeType,
+      required: options?.required,
       model: parseDomain(value),
       preferredCycle: getParam(QUERY_PARAMS.BILLING_CYCLE_MONTHS),
       coupons: getParam(QUERY_PARAMS.COUPONS),
@@ -139,7 +148,22 @@ export const useDomain = (
           "dac.complete",
           "existing.complete",
           "basket.complete"
-        ]) && contextMatches(state, "model")
+        ]) && contextMatches(state, "model"),
+
+      // --- SmartDomainField canonical flags
+      isSkip: stateMatches(state, "skip"),
+      isExistingInvalid: stateMatches(state, "existing.invalid"),
+      isExistingValidating: stateMatches(state, "existing.validating"),
+      isExistingChecked: stateMatches(state, "existing.checked"),
+      isExistingTransferring: stateMatches(state, "existing.transferring"),
+      isExistingTransferred: stateMatches(state, "existing.transferred"),
+      isExistingRemoving: stateMatches(state, "existing.removing"),
+      isExistingUnavailable: stateMatches(state, "existing.unavailable"),
+      isExistingValid: stateMatches(state, "existing.valid"),
+      isExistingError: stateMatches(state, "existing.error"),
+      canTransfer:
+        stateMatches(state, ["existing.checked", "existing.transferred"]) &&
+        !!contextValue(state, "availabilityResult")
     };
   });
 
@@ -147,11 +171,11 @@ export const useDomain = (
 
   const context = useContext<DomainContext>(state);
 
-  const choices = computed(() =>
-    map(
-      contextValue<DomainContext["choices"]>(state, "choices"),
-      (value, key) => ({ value: key, label: value })
-    )
+  const choices = computed((): DomainChoice[] =>
+    map(contextValue<DomainContext["choices"]>(state, "choices"), type => ({
+      value: type,
+      label: type
+    }))
   );
 
   const model = computed(
@@ -192,6 +216,12 @@ export const useDomain = (
 
   function choose(value?: string | DomainTypes): void {
     if (!value) return;
+
+    if (import.meta.env.DEV && typeof value === "number") {
+      console.error(
+        `[useDomain] choose() received a number (${value}) — expected a DomainTypes string. This likely means a consumer is passing choice.value from the old numeric-index format. Update to use the new DomainChoice shape.`
+      );
+    }
 
     send({
       type: "CHOOSE",
@@ -259,6 +289,24 @@ export const useDomain = (
 
   function isSelected(value: string): boolean {
     return model.value == value;
+  }
+
+  // --- existing flow methods
+
+  const availabilityResult = useContext<
+    IDomainAvailabilityResponse | undefined
+  >(state, "availabilityResult");
+
+  function addTransfer(): void {
+    send({ type: "ADD_TRANSFER" });
+  }
+
+  function removeTransfer(): void {
+    send({ type: "REMOVE_TRANSFER" });
+  }
+
+  function clearExisting(): void {
+    send({ type: "UPDATE", data: [""] });
   }
 
   // -----------------------------------------------------------------------------
@@ -418,6 +466,20 @@ export const useDomain = (
      * @returns {boolean} True if the value is selected, false otherwise.
      */
     isSelected,
+
+    // --- existing flow
+
+    /** Availability result for the current domain (transfer price, renewal info). */
+    availabilityResult,
+
+    /** Add a transfer product to the basket for the current domain. */
+    addTransfer,
+
+    /** Remove the transfer product from the basket. */
+    removeTransfer,
+
+    /** Clear the existing domain input and reset to invalid state. */
+    clearExisting,
 
     /** Stop the domain service.
      * @returns {void}

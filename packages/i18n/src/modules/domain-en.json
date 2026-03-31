@@ -20,7 +20,7 @@
   "domain_not_required_label": "Continue without domain",
   "choices": {
     "register": {
-      "label": "Register new domain",
+      "label": "Register a new domain",
       "tooltip": "Don't already have a domain? Register a new one with us"
     },
     "transfer": {
@@ -28,13 +28,13 @@
       "tooltip": "Already own a domain? You can transfer it to us"
     },
     "existing": {
-      "label": "Use existing domain",
+      "label": "Use a domain I already own",
       "tooltip": "You can use an existing domain by updating the nameservers"
     },
     "basket": {
-      "label": "Use domain in basket",
+      "label": "Use a domain from my basket",
       "tooltip": "These domains are already in your basket"
     }
   },
-  "search": "Search domains"
+  "search": "Enter a domain to search"
 }

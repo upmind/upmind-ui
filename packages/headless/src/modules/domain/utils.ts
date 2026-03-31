@@ -18,6 +18,7 @@ import {
   isObject,
   map,
   reduce,
+  sortBy,
   uniqBy
 } from "lodash-es";
 
@@ -217,13 +218,11 @@ export function parseSuggestions(
     // Fallback when product is missing or parsing failed
     const prices = product?.prices ?? [];
     // Prefer 12-month price, then preferred cycle, then lowest term
-    const sortedPrices = [...prices].sort(
-      (a: any, b: any) => a.billing_cycle_months - b.billing_cycle_months
-    );
+    const sortedPrices = sortBy(prices, "billing_cycle_months");
     const priceEntry =
-      prices.find((p: any) => p.billing_cycle_months === 12) ??
-      prices.find((p: any) => p.billing_cycle_months === preferredCycle) ??
-      sortedPrices[0];
+      find(prices, (p: any) => p.billing_cycle_months === 12) ??
+      find(prices, (p: any) => p.billing_cycle_months === preferredCycle) ??
+      first(sortedPrices);
     const priceFormatted = priceEntry?.price_formatted ?? "";
     const priceDiscountedFormatted =
       priceEntry?.price_discounted_formatted ?? null;
