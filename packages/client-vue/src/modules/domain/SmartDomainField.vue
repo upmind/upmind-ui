@@ -15,12 +15,19 @@
 
   <!-- Edit mode -->
   <div v-else :class="styles.field.root">
-    <RadioGroup :model-value="type" @update:model-value="onChoose">
+    <RadioGroup
+      :model-value="type"
+      :disabled="props.disabled"
+      @update:model-value="onChoose"
+    >
       <div :class="styles.field.container">
         <div :class="styles.field.content">
           <template v-for="choice in sortedChoices" :key="choice.value">
             <!-- Radio option row -->
-            <div :class="styles.field.option" @click="onChoose(choice.value)">
+            <div
+              :class="styles.field.option"
+              @click="!props.disabled && onChoose(choice.value)"
+            >
               <div :class="styles.field.indicator">
                 <RadioGroupItem :value="choice.value" />
               </div>
