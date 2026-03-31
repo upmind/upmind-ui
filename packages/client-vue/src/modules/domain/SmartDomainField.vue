@@ -58,6 +58,7 @@
               <SmartDomainExisting
                 :model-value="model ?? null"
                 :owned="owned"
+                :filtered-owned="filteredOwned"
                 :validating="meta.isExistingValidating"
                 :valid="meta.isExistingValid"
                 :checked="meta.isExistingChecked"
@@ -264,7 +265,9 @@ const {
   addTransfer,
   removeTransfer,
   clearExisting,
-  owned
+  isDomainLike,
+  owned,
+  filteredOwned
 } = useDomain(props.modelValue ?? "", {
   type: undefined,
   required: props.required

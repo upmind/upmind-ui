@@ -108,6 +108,7 @@ export interface SmartDomainFieldProps {
 export type SmartDomainExistingProps = {
   modelValue: string | null;
   owned?: DomainProduct[];
+  filteredOwned?: DomainProduct[] | null;
   validating?: boolean;
   valid?: boolean;
   checked?: boolean;

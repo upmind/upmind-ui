@@ -2,7 +2,7 @@
   <!-- Domain search -->
   <Search
     v-model="searchValue"
-    :results="filteredOwned"
+    :results="ownedItems"
     :placeholder="t('domain.existing.placeholder')"
     :disabled="removing"
     :min-query-length="1"
@@ -66,7 +66,7 @@ import {
   Link,
   useStyles
 } from "@upmind-automation/upmind-ui";
-import { filter, includes, map, debounce } from "lodash-es";
+import { map, debounce } from "lodash-es";
 import config from "../smartDomainField.config";
 import type { SearchItem } from "@upmind-automation/upmind-ui";
 import type { SmartDomainExistingProps } from "../types";
@@ -90,16 +90,13 @@ const searchValue = ref(props.modelValue ?? "");
 
 // --- Owned domains mapped for Search
 
-const ownedItems = computed((): SearchItem[] =>
-  map(props.owned ?? [], item => ({
+const ownedItems = computed((): SearchItem[] | null => {
+  if (!props.filteredOwned) return null;
+  return map(props.filteredOwned, item => ({
     id: item.domain?.toString() ?? "",
     label: item.domain?.toString() ?? ""
-  }))
-);
-
-// --- Filtered results (updated on each search)
-
-const filteredOwned = ref<SearchItem[] | null>(null);
+  }));
+});
 
 // --- Debounced emit to parent
 
@@ -108,23 +105,17 @@ const debouncedEmit = debounce(
   DEBOUNCE_DELAY
 );
 
-// --- Search handler: filters owned domains AND emits typed value to parent
+// --- Search handler: emits typed value to parent
 
 function onSearch(value: string | number) {
   const str = value.toString();
 
   if (!str) {
     debouncedEmit.cancel();
-    filteredOwned.value = null;
     return;
   }
 
   debouncedEmit(str);
-
-  const matches = filter(ownedItems.value, item =>
-    includes(item.label.toLowerCase(), str.toLowerCase())
-  );
-  filteredOwned.value = matches.length ? matches : null;
 }
 
 // --- Selection handler (item picked from dropdown)
@@ -133,7 +124,6 @@ function onSelect(item: SearchItem): void {
   if (item.id) {
     debouncedEmit.cancel();
     emit("update:modelValue", item.label);
-    filteredOwned.value = null;
   }
 }
 
@@ -141,7 +131,6 @@ function onSelect(item: SearchItem): void {
 
 function onClear(): void {
   searchValue.value = "";
-  filteredOwned.value = null;
   emit("update:modelValue", "");
 }
 
