@@ -1,13 +1,13 @@
 <template>
-  <!-- Domain autocomplete -->
-  <Autocomplete
-    :model-value="modelValue ?? undefined"
-    :items="ownedItems"
+  <!-- Domain search -->
+  <Search
+    v-model="searchValue"
+    :results="filteredOwned"
     :placeholder="t('domain.existing.placeholder')"
     :disabled="removing"
-    :search="doSearch"
-    width="full"
-    @update:model-value="onSelect"
+    :min-query-length="1"
+    @update:search="onSearch"
+    @select="onSelect"
   >
     <template #append>
       <Link v-if="showClearButton" @click="onClear">
@@ -20,7 +20,7 @@
       />
       <Icon v-else icon="arrow-right" class="size-5" />
     </template>
-  </Autocomplete>
+  </Search>
 
   <!-- Unavailable message -->
   <p v-if="unavailable" :class="styles.field.unavailable">
@@ -57,10 +57,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import {
-  Autocomplete,
+  Search,
   Button,
   Icon,
   Link,
@@ -68,7 +68,7 @@ import {
 } from "@upmind-automation/upmind-ui";
 import { filter, includes, map } from "lodash-es";
 import config from "../smartDomainField.config";
-import type { AutocompleteItemProps } from "@upmind-automation/upmind-ui";
+import type { SearchItem } from "@upmind-automation/upmind-ui";
 import type { SmartDomainExistingProps } from "../types";
 // -----------------------------------------------------------------------------
 
@@ -83,38 +83,54 @@ const emit = defineEmits<{
 const { t } = useI18n();
 const styles = useStyles(["field.transfer", "field.unavailable"], {}, config);
 
-// --- Owned domains mapped for Autocomplete
+// --- Local search value (synced via v-model on Search)
 
-const ownedItems = computed((): AutocompleteItemProps[] =>
+const searchValue = ref(props.modelValue ?? "");
+
+// --- Owned domains mapped for Search
+
+const ownedItems = computed((): SearchItem[] =>
   map(props.owned ?? [], item => ({
-    label: item.domain?.toString() ?? "",
-    value: item.domain?.toString() ?? ""
+    id: item.domain?.toString() ?? "",
+    label: item.domain?.toString() ?? ""
   }))
 );
 
-// --- Search function: filters owned domains AND emits typed value to parent
+// --- Filtered results (updated on each search)
 
-async function doSearch(value: string): Promise<AutocompleteItemProps[]> {
-  emit("update:modelValue", value);
+const filteredOwned = ref<SearchItem[] | null>(null);
 
-  return filter(ownedItems.value, item =>
-    includes(item.value.toLowerCase(), value.toLowerCase())
+// --- Search handler: filters owned domains AND emits typed value to parent
+
+function onSearch(value: string | number) {
+  const str = value.toString();
+
+  if (!str) {
+    filteredOwned.value = null;
+    return;
+  }
+
+  emit("update:modelValue", str);
+
+  const matches = filter(ownedItems.value, item =>
+    includes(item.label.toLowerCase(), str.toLowerCase())
   );
+  filteredOwned.value = matches.length ? matches : null;
 }
 
 // --- Selection handler (item picked from dropdown)
 
-function onSelect(
-  value: string | number | boolean | Record<string, any>
-): void {
-  if (value) {
-    emit("update:modelValue", value.toString());
+function onSelect(item: SearchItem): void {
+  if (item.id) {
+    emit("update:modelValue", item.label);
   }
 }
 
 // --- Clear handler
 
 function onClear(): void {
+  searchValue.value = "";
+  filteredOwned.value = null;
   emit("update:modelValue", "");
 }
 
