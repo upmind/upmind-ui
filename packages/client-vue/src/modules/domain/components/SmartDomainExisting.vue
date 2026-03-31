@@ -30,19 +30,23 @@
   <!-- Register card (domain is available for registration) -->
   <DomainCard
     v-if="registerable || registering"
+    :class="styles.field.domain"
+    disable-hover
     :domain="modelValue ?? ''"
     :sld="domainParts.sld"
     :tld="domainParts.tld ?? ''"
-    :price="{
-      currentPrice: registerPrice ?? '',
-      currentAmount: 0,
-      regularPrice: registerPrice ?? '',
-      regularAmount: 0,
-      savingAmount: 0,
-      savingPrice: '',
-      savingPercent: ''
-    }"
-    :cycle="registerCycle"
+    :price="
+      registerPricing?.price ?? {
+        currentPrice: '',
+        currentAmount: 0,
+        regularPrice: '',
+        regularAmount: 0,
+        savingAmount: 0,
+        savingPrice: '',
+        savingPercent: ''
+      }
+    "
+    :cycle="registerPricing?.cycle"
     :available="true"
     :processing="registering"
     @add="emit('addRegistration')"
@@ -90,7 +94,11 @@ import {
   Link,
   useStyles
 } from "@upmind-automation/upmind-ui";
-import { parseDomainParts } from "@upmind-automation/headless";
+import {
+  parseDomainParts,
+  useOwnedDomains,
+  DEBOUNCE_DELAY
+} from "@upmind-automation/headless";
 import { map, debounce } from "lodash-es";
 import config from "../smartDomainField.config";
 import DomainCard from "./DomainCard.vue";
@@ -109,7 +117,11 @@ const emit = defineEmits<{
 }>();
 
 const { t } = useI18n();
-const styles = useStyles(["field.transfer", "field.unavailable"], {}, config);
+const styles = useStyles(
+  ["field.transfer", "field.unavailable", "field.domain"],
+  {},
+  config
+);
 
 // --- Local search value (synced via v-model on Search)
 

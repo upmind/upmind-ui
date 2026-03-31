@@ -71,6 +71,7 @@
                 :transfer-price="transferPrice"
                 :register-price="registerPrice"
                 :register-cycle="registerCycle"
+                :register-pricing="registerPricing"
                 @update:model-value="onExistingUpdate"
                 @add-transfer="addTransfer"
                 @remove-transfer="removeTransfer"
@@ -173,6 +174,7 @@ import {
   useDomain,
   DomainTypes,
   DEBOUNCE_DELAY,
+  parsePrice,
   type DomainChoice
 } from "@upmind-automation/headless";
 import {
@@ -338,24 +340,19 @@ const transferPrice = computed(() => {
   return "";
 });
 
-// --- Registration price and cycle from availability result
+// --- Registration pricing from availability result
 
-const registerPrice = computed(() => {
+const registerPricing = computed(() => {
   const product = availabilityResult.value?.product;
-  if (!product) return "";
+  if (!product) return null;
   const prices = product.prices ?? [];
   const annual = find(prices, (p: any) => p.billing_cycle_months === 12);
-  return annual?.price_formatted ?? first(prices)?.price_formatted ?? "";
-});
-
-const registerCycle = computed(() => {
-  const product = availabilityResult.value?.product;
-  if (!product) return 12;
-  const prices = product.prices ?? [];
-  const annual = find(prices, (p: any) => p.billing_cycle_months === 12);
-  return (
-    annual?.billing_cycle_months ?? first(prices)?.billing_cycle_months ?? 12
-  );
+  const priceEntry = annual ?? first(prices);
+  if (!priceEntry) return null;
+  return {
+    price: parsePrice(priceEntry),
+    cycle: priceEntry.billing_cycle_months ?? 12
+  };
 });
 
 // --- Search debounce (single pipeline)

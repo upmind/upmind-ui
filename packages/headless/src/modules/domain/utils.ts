@@ -3,7 +3,11 @@ import { parse } from "psl";
 
 // --- internals
 import { useBrand } from "../brand";
-import { calculateBillingTerm, parseProductProps } from "../product/utils";
+import {
+  calculateBillingTerm,
+  parseProductProps,
+  parsePrice
+} from "../product/utils";
 
 // --- utils
 import { parseProductDetails, parseTermDetails } from "../product/utils";
@@ -223,9 +227,6 @@ export function parseSuggestions(
       find(prices, (p: any) => p.billing_cycle_months === 12) ??
       find(prices, (p: any) => p.billing_cycle_months === preferredCycle) ??
       first(sortedPrices);
-    const priceFormatted = priceEntry?.price_formatted ?? "";
-    const priceDiscountedFormatted =
-      priceEntry?.price_discounted_formatted ?? null;
     const billingCycleMonths = priceEntry?.billing_cycle_months ?? 12;
 
     return {
@@ -238,15 +239,17 @@ export function parseSuggestions(
         quantity: 1,
         provisionFields: { sld }
       },
-      price: {
-        currentPrice: priceDiscountedFormatted ?? priceFormatted,
-        currentAmount: 0,
-        regularPrice: priceFormatted,
-        regularAmount: 0,
-        savingAmount: 0,
-        savingPrice: "",
-        savingPercent: ""
-      },
+      price: priceEntry
+        ? parsePrice(priceEntry)
+        : {
+            currentPrice: "",
+            currentAmount: 0,
+            regularPrice: "",
+            regularAmount: 0,
+            savingAmount: 0,
+            savingPrice: "",
+            savingPercent: ""
+          },
       meta: {
         available: can_register,
         canTransfer: can_transfer

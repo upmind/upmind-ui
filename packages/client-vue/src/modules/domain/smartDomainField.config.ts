@@ -19,6 +19,7 @@ export default {
         }
       }
     }),
+    domain: cva("px-0 md:px-0"),
 
     transfer: {
       root: cva("flex w-full flex-wrap items-start gap-x-12 gap-y-0"),
