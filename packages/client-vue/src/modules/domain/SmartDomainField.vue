@@ -1,14 +1,7 @@
 <template>
-  <!-- Loading -->
-  <div v-if="meta.isLoading" class="flex items-center gap-2 py-4">
-    <div
-      class="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"
-    />
-  </div>
-
   <!-- Summary mode -->
   <SmartDomainSummary
-    v-else-if="isResolved && !isEditing"
+    v-if="isResolved && !isEditing"
     :domain="model ?? ''"
     @change="onChangeClick"
   />
