@@ -2,7 +2,6 @@ import type {
   DomainModel,
   DomainProduct,
   DomainTypes,
-  PriceDetail,
   UseDac,
   UseDomain
 } from "@upmind-automation/headless";
@@ -123,6 +122,4 @@ export type SmartDomainExistingProps = {
   unavailable?: boolean;
   transferPrice?: string;
   registerPrice?: string;
-  registerCycle?: number;
-  registerPricing?: { price: PriceDetail; cycle: number } | null;
 };
