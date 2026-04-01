@@ -68,6 +68,7 @@
                 :transferring="meta.isExistingTransferring"
                 :removing="meta.isExistingRemoving"
                 :unavailable="meta.isExistingUnavailable"
+                :dns-only="meta.isExistingValid || meta.isExistingError"
                 :transfer-price="transferPrice"
                 :register-price="registerPricing?.price?.currentPrice ?? ''"
                 @update:model-value="onExistingUpdate"
@@ -228,7 +229,9 @@ const stylesMeta = computed(() => ({
     meta.value.isExistingRegistering ||
     meta.value.isExistingTransferred ||
     meta.value.isExistingTransferring ||
-    meta.value.isExistingRemoving
+    meta.value.isExistingRemoving ||
+    meta.value.isExistingValid ||
+    meta.value.isExistingError
 }));
 const styles = useStyles(
   ["field", "field.summary", "field.transfer"],

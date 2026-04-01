@@ -120,6 +120,7 @@ export type SmartDomainExistingProps = {
   transferring?: boolean;
   removing?: boolean;
   unavailable?: boolean;
+  dnsOnly?: boolean;
   transferPrice?: string;
   registerPrice?: string;
 };
