@@ -406,6 +406,7 @@ export default createMachine(
         (
           {
             model,
+            baseModel,
             lookups,
             rawProduct,
             error,
@@ -449,7 +450,7 @@ export default createMachine(
             rawBasketProduct: rawBasketProduct ?? basket_product, // ensure we honoure any given basket product
             baseModel: basket_product
               ? parseBasketProductModel(basket_product)
-              : cloneDeep(model),
+              : baseModel,
             model: basket_product
               ? parseBasketProductModel(basket_product)
               : cloneDeep(model),
