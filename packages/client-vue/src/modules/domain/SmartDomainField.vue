@@ -1,7 +1,7 @@
 <template>
   <!-- Summary mode -->
   <SmartDomainSummary
-    v-if="isResolved && !isEditing"
+    v-if="meta.showSummary && !isEditing"
     :domain="model ?? ''"
     @change="onChangeClick"
   />
@@ -290,8 +290,6 @@ const isEditing = ref(false);
 const isDrawerOpen = ref(false);
 const resultCount = ref(0);
 const queryValue = ref(query.value || "");
-
-const isResolved = computed(() => meta.value.showBasket && meta.value.isValid);
 
 // --- Sorted and filtered choices
 

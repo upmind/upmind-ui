@@ -141,6 +141,12 @@ export const useDomain = (
         !!query.value,
       showExisting: stateMatches(state, ["existing"]),
       showBasket: stateMatches(state, ["basket"]),
+      showSummary:
+        (stateMatches(state, ["basket"]) &&
+          stateMatches(state, ["basket.valid"]) &&
+          contextMatches(state, "model")) ||
+        (stateMatches(state, ["existing"]) &&
+          !!contextValue<DomainContext["model"]>(state, "model")?.domain),
       isValid:
         (stateMatches(dac, ["valid"]) && contextMatches(dac, "model")) ||
         (stateMatches(state, ["existing.valid", "basket.valid"]) &&
