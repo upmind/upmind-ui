@@ -205,10 +205,21 @@ export default createMachine(
         initial: "invalid",
         states: {
           invalid: {
-            always: {
-              target: "transferred",
-              cond: "hasTransferProductId"
-            }
+            always: [
+              {
+                target: "transferred",
+                cond: "hasTransferProductId"
+              },
+              {
+                target: "transferred",
+                cond: "isTransferInBasket",
+                actions: ["setTransferFromBasket"]
+              },
+              {
+                target: "validating",
+                cond: "hasModelDomainLike"
+              }
+            ]
           },
 
           validating: {
@@ -248,8 +259,20 @@ export default createMachine(
           },
 
           checked: {
+            always: {
+              target: "transferred",
+              cond: "isTransferInBasket",
+              actions: ["setTransferFromBasket"]
+            },
             on: {
-              ADD_TRANSFER: { target: "transferring" }
+              ADD_TRANSFER: [
+                {
+                  target: "transferred",
+                  cond: "isTransferInBasket",
+                  actions: ["setTransferFromBasket"]
+                },
+                { target: "transferring" }
+              ]
             }
           },
 
@@ -769,6 +792,7 @@ export default createMachine(
             // Detect transfer: check if basket product options match transfer sub-product IDs
             const transferSubIds =
               (raw.product as any)?.setup_function_sub_ids?.transfer ?? [];
+
             if (
               transferSubIds.length > 0 &&
               some(raw.options, (opt: any) =>
@@ -836,9 +860,8 @@ export default createMachine(
         ) => {
           const primary = model || first(lookups.basket);
           // 1st filter out only the domain products from the basket products
-          const domains = getDomainRawBasketProducts(
-            data?.products as IBasketProduct[]
-          );
+          const allProducts = data?.products as IBasketProduct[];
+          const domains = getDomainRawBasketProducts(allProducts);
           // then parse them into our DomainProduct type
           const available = reduce(
             domains,
@@ -856,6 +879,20 @@ export default createMachine(
 
           set(lookups, "basket", available);
           return lookups;
+        },
+
+        // If the model domain has a product in the basket that isn't a domain
+        // product (e.g. hosting), recover the transferProductId so the existing
+        // flow knows it's already in the basket.
+        transferProductId: (
+          { model, transferProductId }: DomainContext,
+          { data }: AnyEventObject
+        ) => {
+          if (transferProductId) return transferProductId;
+          const modelDomain = get(model, "domain");
+          if (!modelDomain) return undefined;
+          const allProducts = data?.products as IBasketProduct[];
+          return find(allProducts, ["service_identifier", modelDomain])?.id;
         }
       }),
 
@@ -1071,13 +1108,15 @@ export default createMachine(
       }),
 
       setTransferFromBasket: assign({
-        transferProductId: ({ lookups, model }: DomainContext) => {
+        transferProductId: ({
+          lookups,
+          model,
+          transferProductId
+        }: DomainContext) => {
           const domain = get(model, "domain");
-          if (!domain) return undefined;
-          // If checkType routed to existing AND domain is in basket,
-          // it must be a transfer product (non-transfers go to basket type)
+          if (!domain) return transferProductId;
           const matched = find(lookups.basket, ["domain", domain]);
-          return matched?.id;
+          return matched?.id ?? transferProductId;
         }
       }),
 
@@ -1175,6 +1214,16 @@ export default createMachine(
 
       hasTransferProductId: ({ transferProductId }: DomainContext) =>
         !!transferProductId,
+
+      isTransferInBasket: ({ lookups, model }: DomainContext) => {
+        const domain = get(model, "domain");
+        return !!domain && !!find(lookups.basket, ["domain", domain]);
+      },
+
+      hasModelDomainLike: ({ model }: DomainContext) => {
+        const domain = get(model, "domain");
+        return !!domain && DOMAIN_LIKE_VALIDATION.test(domain);
+      },
 
       hasPendingUpdateDomainLike: ({ pendingUpdate }: DomainContext) =>
         !!pendingUpdate && DOMAIN_LIKE_VALIDATION.test(pendingUpdate),
