@@ -47,12 +47,7 @@ import {
 import type { AnyEventObject } from "xstate";
 import { type IBasketProduct } from "@upmind-automation/types";
 import { DomainTypes } from "./types";
-import type {
-  DomainModel,
-  DomainContext,
-  DomainProduct,
-  IDomainAvailabilityResponse
-} from "./types";
+import type { DomainModel, DomainContext, DomainProduct } from "./types";
 import { parseBasketProduct } from "../basketProduct/utils";
 import { type ProductProps } from "../product";
 import { useI18n } from "../system";
@@ -867,35 +862,6 @@ export default createMachine(
 
           set(lookups, "basket", available);
           return lookups;
-        },
-
-        // If the model domain has a non-domain product in the basket
-        // (e.g. hosting), recover transfer state so the existing flow
-        // knows it's already in the basket.
-        transferProductId: (
-          { model, transferProductId }: DomainContext,
-          { data }: AnyEventObject
-        ) => {
-          if (transferProductId) return transferProductId;
-          const domain = get(model, "domain");
-          if (!domain) return undefined;
-          return find(data?.products, ["service_identifier", domain])?.id;
-        },
-        availabilityResult: (
-          { model, availabilityResult }: DomainContext,
-          { data }: AnyEventObject
-        ) => {
-          if (availabilityResult) return availabilityResult;
-          const domain = get(model, "domain");
-          if (!domain) return undefined;
-          const match = find(data?.products, ["service_identifier", domain]);
-          if (!match?.product) return undefined;
-          return {
-            can_register: false,
-            can_transfer: true,
-            is_premium: false,
-            product: match.product
-          } as IDomainAvailabilityResponse;
         }
       }),
 
