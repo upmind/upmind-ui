@@ -44,6 +44,8 @@
     "placeholder": "Tell us the domain you want to use.",
     "transfer_info": "If you own this domain you can transfer it to us for only {price}, which includes a 1-year renewal. Alternatively, you will need to update the domain's nameserver (NS) records.",
     "add_transfer": "Add transfer",
+    "register_info": "This domain is available to register for only {price}.",
+    "add_registration": "Add to basket",
     "unavailable": "This domain cannot be registered or transferred."
   },
   "error": {

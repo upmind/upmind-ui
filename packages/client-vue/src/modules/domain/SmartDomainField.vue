@@ -70,8 +70,6 @@
                 :unavailable="meta.isExistingUnavailable"
                 :transfer-price="transferPrice"
                 :register-price="registerPricing?.price?.currentPrice ?? ''"
-                :register-cycle="registerPricing?.cycle"
-                :register-pricing="registerPricing"
                 @update:model-value="onExistingUpdate"
                 @add-transfer="addTransfer"
                 @remove-transfer="removeTransfer"
@@ -226,6 +224,8 @@ const { t, tm, rt } = useI18n();
 const stylesMeta = computed(() => ({
   hasTransferInfo:
     meta.value.isExistingChecked ||
+    meta.value.isExistingRegisterable ||
+    meta.value.isExistingRegistering ||
     meta.value.isExistingTransferred ||
     meta.value.isExistingTransferring ||
     meta.value.isExistingRemoving
