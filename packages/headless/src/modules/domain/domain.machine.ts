@@ -47,7 +47,12 @@ import {
 import type { AnyEventObject } from "xstate";
 import { type IBasketProduct } from "@upmind-automation/types";
 import { DomainTypes } from "./types";
-import type { DomainModel, DomainContext, DomainProduct } from "./types";
+import type {
+  DomainModel,
+  DomainContext,
+  DomainProduct,
+  IDomainAvailabilityResponse
+} from "./types";
 import { parseBasketProduct } from "../basketProduct/utils";
 import { type ProductProps } from "../product";
 import { useI18n } from "../system";
@@ -211,11 +216,6 @@ export default createMachine(
                 cond: "hasTransferProductId"
               },
               {
-                target: "transferred",
-                cond: "isTransferInBasket",
-                actions: ["setTransferFromBasket"]
-              },
-              {
                 target: "validating",
                 cond: "hasModelDomainLike"
               }
@@ -259,20 +259,8 @@ export default createMachine(
           },
 
           checked: {
-            always: {
-              target: "transferred",
-              cond: "isTransferInBasket",
-              actions: ["setTransferFromBasket"]
-            },
             on: {
-              ADD_TRANSFER: [
-                {
-                  target: "transferred",
-                  cond: "isTransferInBasket",
-                  actions: ["setTransferFromBasket"]
-                },
-                { target: "transferring" }
-              ]
+              ADD_TRANSFER: { target: "transferring" }
             }
           },
 
@@ -792,7 +780,6 @@ export default createMachine(
             // Detect transfer: check if basket product options match transfer sub-product IDs
             const transferSubIds =
               (raw.product as any)?.setup_function_sub_ids?.transfer ?? [];
-
             if (
               transferSubIds.length > 0 &&
               some(raw.options, (opt: any) =>
@@ -860,8 +847,9 @@ export default createMachine(
         ) => {
           const primary = model || first(lookups.basket);
           // 1st filter out only the domain products from the basket products
-          const allProducts = data?.products as IBasketProduct[];
-          const domains = getDomainRawBasketProducts(allProducts);
+          const domains = getDomainRawBasketProducts(
+            data?.products as IBasketProduct[]
+          );
           // then parse them into our DomainProduct type
           const available = reduce(
             domains,
@@ -881,18 +869,33 @@ export default createMachine(
           return lookups;
         },
 
-        // If the model domain has a product in the basket that isn't a domain
-        // product (e.g. hosting), recover the transferProductId so the existing
-        // flow knows it's already in the basket.
+        // If the model domain has a non-domain product in the basket
+        // (e.g. hosting), recover transfer state so the existing flow
+        // knows it's already in the basket.
         transferProductId: (
           { model, transferProductId }: DomainContext,
           { data }: AnyEventObject
         ) => {
           if (transferProductId) return transferProductId;
-          const modelDomain = get(model, "domain");
-          if (!modelDomain) return undefined;
-          const allProducts = data?.products as IBasketProduct[];
-          return find(allProducts, ["service_identifier", modelDomain])?.id;
+          const domain = get(model, "domain");
+          if (!domain) return undefined;
+          return find(data?.products, ["service_identifier", domain])?.id;
+        },
+        availabilityResult: (
+          { model, availabilityResult }: DomainContext,
+          { data }: AnyEventObject
+        ) => {
+          if (availabilityResult) return availabilityResult;
+          const domain = get(model, "domain");
+          if (!domain) return undefined;
+          const match = find(data?.products, ["service_identifier", domain]);
+          if (!match?.product) return undefined;
+          return {
+            can_register: false,
+            can_transfer: true,
+            is_premium: false,
+            product: match.product
+          } as IDomainAvailabilityResponse;
         }
       }),
 
@@ -1214,11 +1217,6 @@ export default createMachine(
 
       hasTransferProductId: ({ transferProductId }: DomainContext) =>
         !!transferProductId,
-
-      isTransferInBasket: ({ lookups, model }: DomainContext) => {
-        const domain = get(model, "domain");
-        return !!domain && !!find(lookups.basket, ["domain", domain]);
-      },
 
       hasModelDomainLike: ({ model }: DomainContext) => {
         const domain = get(model, "domain");
