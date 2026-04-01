@@ -14,15 +14,20 @@ import {
   compact,
   filter,
   find,
+  first,
   includes,
   isFunction,
   map,
   sortBy
 } from "lodash-es";
-import { parseDomain, parseDomainParts, parseSuggestions } from "./utils";
+import {
+  getDomainRawBasketProducts,
+  parseDomain,
+  parseDomainParts,
+  parseSuggestions
+} from "./utils";
 import productServices from "../basketProduct/services";
 import { parseProductProps, parsePrice } from "../product/utils";
-import { isDomainProduct } from "./utils";
 
 // --- types
 import type {
@@ -500,8 +505,6 @@ export async function addExistingTransfer(
       ErrorOrigin.Headless
     );
   }
-
-  // Build a DomainProduct from the availability response
   const domainProduct = buildDomainProductFromAvailability(
     checkingDomain,
     availabilityResult,
@@ -528,31 +531,29 @@ export async function addExistingTransfer(
   // this machine instance mid-flight.
   const { useBasket } = await import("../basket");
   const { basket: basketRef } = useBasket();
-  const currentProducts = basketRef.value?.products ?? [];
+  const domainProducts = getDomainRawBasketProducts(
+    basketRef.value?.products ?? []
+  );
   const existingBpids = new Set(
     map(
-      filter(currentProducts, (p: any) =>
-        isDomainProduct({
-          serviceIdentifier: p.service_identifier,
-          blueprintCode: p?.product?.provision_blueprint?.category?.code,
-          provisionFields: p?.provision_fields
-        })
-      ),
+      filter(domainProducts, p => p.service_identifier === checkingDomain),
       "id"
     )
   );
 
   const updatedBasket = await productServices.update(basketId, model);
 
-  // Find products matching our domain that are NEW (not in the pre-existing set).
+  // Find domain products matching our domain that are NEW (not in the pre-existing set).
+  const updatedDomainProducts = getDomainRawBasketProducts(
+    updatedBasket.products
+  );
   const candidates = filter(
-    updatedBasket.products,
-    (p: any) =>
-      p.service_identifier === checkingDomain && !existingBpids.has(p.id)
+    updatedDomainProducts,
+    p => p.service_identifier === checkingDomain && !existingBpids.has(p.id)
   );
 
   if (candidates.length === 1) {
-    return { bpid: (candidates[0] as any).id };
+    return { bpid: first(candidates)?.id };
   }
   if (candidates.length > 1) {
     console.warn(
