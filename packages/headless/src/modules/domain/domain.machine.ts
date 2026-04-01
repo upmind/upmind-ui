@@ -705,11 +705,8 @@ export default createMachine(
               return DomainTypes.skip;
             }
             // required === true → auto-select register when no basket items
-            if (required === true) {
-              if (
-                isEmpty(lookups.basket) &&
-                includes(choices, DomainTypes.register)
-              ) {
+            if (required) {
+              if (includes(choices, DomainTypes.register)) {
                 return DomainTypes.register;
               }
               return undefined;

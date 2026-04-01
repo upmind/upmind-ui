@@ -375,6 +375,7 @@ watch(queryValue, value => {
 // --- Methods
 
 function onChoose(value: string | DomainTypes) {
+  isEditing.value = true;
   choose(value);
 }
 
