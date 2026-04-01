@@ -62,7 +62,7 @@
     </p>
 
     <Button
-      v-if="!transferred"
+      v-if="!transferred && !removing"
       variant="outline"
       size="lg"
       icon="refresh-cw-05"
@@ -73,12 +73,13 @@
     />
 
     <Button
-      v-if="transferred"
+      v-if="transferred || removing"
       variant="solid"
       size="lg"
       icon="check-circle-broken"
       :label="t('domain.existing.add_transfer')"
       :disabled="removing"
+      :loading="removing"
       @click="emit('removeTransfer')"
     />
   </div>
