@@ -46,6 +46,7 @@
     "add_transfer": "Add transfer",
     "register_info": "This domain is available to register for only {price}.",
     "add_registration": "Add to basket",
+    "dns_info": "To use this domain, you will need to update the domain's DNS with the existing registrar.",
     "unavailable": "This domain cannot be registered or transferred."
   },
   "error": {

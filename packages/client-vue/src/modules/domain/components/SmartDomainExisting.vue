@@ -10,7 +10,7 @@
     @select="onSelect"
   >
     <template #append>
-      <Link v-if="showClearButton" @click="onClear">
+      <Link v-if="isDomainLike && !validating" @click="onClear">
         <Icon icon="x-close" class="size-5" />
       </Link>
       <Icon
@@ -44,13 +44,18 @@
     />
   </div>
 
+  <!-- DNS info (no transfer or registration available) -->
+  <p v-if="dnsOnly" :class="styles.field.transfer.text">
+    {{ t("domain.existing.dns_info") }}
+  </p>
+
   <!-- Transfer info section (checked or transferred) -->
   <div
     v-if="checked || transferred || transferring || removing"
     :class="styles.field.transfer.root"
   >
     <p :class="styles.field.transfer.text">
-      {{ transferInfoText }}
+      {{ t("domain.existing.transfer_info", { price: transferPrice ?? "" }) }}
     </p>
 
     <Button
@@ -106,11 +111,7 @@ const emit = defineEmits<{
 const { t } = useI18n();
 const styles = useStyles(["field.transfer", "field.unavailable"], {}, config);
 
-// --- Local search value (synced via v-model on Search)
-
 const searchValue = ref(props.modelValue ?? "");
-
-// --- Owned domains mapped for Search
 
 const ownedItems = computed((): SearchItem[] | null => {
   if (!props.filteredOwned) return null;
@@ -120,14 +121,10 @@ const ownedItems = computed((): SearchItem[] | null => {
   }));
 });
 
-// --- Debounced emit to parent
-
 const debouncedEmit = debounce(
   (value: string) => emit("update:modelValue", value),
   DEBOUNCE_DELAY
 );
-
-// --- Search handler: emits typed value to parent
 
 function onSearch(value: string | number) {
   const str = value.toString();
@@ -140,8 +137,6 @@ function onSearch(value: string | number) {
   debouncedEmit(str);
 }
 
-// --- Selection handler (item picked from dropdown)
-
 function onSelect(item: SearchItem): void {
   if (item.id) {
     debouncedEmit.cancel();
@@ -149,23 +144,8 @@ function onSelect(item: SearchItem): void {
   }
 }
 
-// --- Clear handler
-
 function onClear(): void {
   searchValue.value = "";
   emit("update:modelValue", "");
 }
-
-// --- Clear button visibility
-
-const showClearButton = computed(() => {
-  return !!props.isDomainLike && !props.validating;
-});
-
-// --- Transfer info text
-
-const transferInfoText = computed(() => {
-  const price = props.transferPrice ?? "";
-  return t("domain.existing.transfer_info", { price });
-});
 </script>
