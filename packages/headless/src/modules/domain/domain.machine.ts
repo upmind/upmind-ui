@@ -436,12 +436,7 @@ export default createMachine(
 
       basket: {
         id: "basket",
-        entry: [
-          "resetModel",
-          "checkModel",
-          "ensureBasketModel",
-          "ensureSelected"
-        ],
+        entry: ["resetModel", "checkModel", "ensureSelected"],
         initial: "loading",
         states: {
           loading: {
@@ -539,7 +534,7 @@ export default createMachine(
         },
         {
           target: "basket",
-          actions: ["setType"],
+          actions: ["setType", "ensureBasketModel", "persistModel"],
           cond: "isBasket"
         }
       ],
