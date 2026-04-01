@@ -436,7 +436,12 @@ export default createMachine(
 
       basket: {
         id: "basket",
-        entry: ["resetModel", "checkModel", "ensureSelected"],
+        entry: [
+          "resetModel",
+          "checkModel",
+          "ensureBasketModel",
+          "ensureSelected"
+        ],
         initial: "loading",
         states: {
           loading: {
@@ -608,6 +613,26 @@ export default createMachine(
             set(model, "selected", true);
           }
           return model;
+        }
+      }),
+
+      ensureBasketModel: assign({
+        model: ({ model, lookups }: DomainContext) => {
+          const domain = get(model, "domain");
+          if (domain && some(lookups.basket, ["domain", domain])) {
+            return model;
+          }
+          const fallback = first(lookups.basket);
+          if (fallback) {
+            return {
+              domain: fallback.domain,
+              tld: fallback.tld,
+              sld: fallback.sld,
+              type: DomainTypes.basket,
+              selected: true
+            } as DomainModel;
+          }
+          return undefined;
         }
       }),
 
