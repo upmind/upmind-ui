@@ -79,7 +79,7 @@ const props = withDefaults(
     as?: string;
     items: TermDetails[];
     modelValue?: string | number;
-    errors?: string;
+    errors?: string | string[];
     // ---
     label?: string;
     description?: string;
