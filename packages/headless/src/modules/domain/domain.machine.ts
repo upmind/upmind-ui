@@ -592,21 +592,8 @@ export default createMachine(
       }),
 
       checkModel: assign({
-        model: ({ model, lookups }: DomainContext) => {
-          let value = parseDomain(model);
-          if (isEmpty(value) && !isEmpty(lookups.basket)) {
-            const parsed = map(lookups.basket, item => {
-              return {
-                domain: item.domain,
-                tld: item.tld,
-                sld: item.sld,
-                type: DomainTypes.basket,
-                selected: item.meta.selected
-              } as DomainModel;
-            });
-
-            value = find(parsed, "selected") || first(parsed);
-          }
+        model: ({ model }: DomainContext) => {
+          const value = parseDomain(model);
 
           // ensure the selected flag is set on the selected domain
           if (value) set(value, "selected", true);
