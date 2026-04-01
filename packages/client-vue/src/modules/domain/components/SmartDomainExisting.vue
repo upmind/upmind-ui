@@ -94,17 +94,12 @@ import {
   Link,
   useStyles
 } from "@upmind-automation/upmind-ui";
-import {
-  parseDomainParts,
-  useOwnedDomains,
-  DEBOUNCE_DELAY
-} from "@upmind-automation/headless";
+import { parseDomainParts, DEBOUNCE_DELAY } from "@upmind-automation/headless";
 import { map, debounce } from "lodash-es";
 import config from "../smartDomainField.config";
 import DomainCard from "./DomainCard.vue";
 import type { SearchItem } from "@upmind-automation/upmind-ui";
 import type { SmartDomainExistingProps } from "../types";
-import { DEBOUNCE_DELAY } from "@upmind-automation/headless";
 // -----------------------------------------------------------------------------
 
 const props = defineProps<SmartDomainExistingProps>();
