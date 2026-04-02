@@ -123,4 +123,5 @@ export type SmartDomainExistingProps = {
   dnsOnly?: boolean;
   transferPrice?: string;
   registerPrice?: string;
+  cycle?: number;
 };
