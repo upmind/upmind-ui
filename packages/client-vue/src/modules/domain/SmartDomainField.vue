@@ -364,7 +364,9 @@ const transferPrice = computed(() => {
   const domain = selected.value;
   if (domain) {
     const matched = find(basket.value, ["domain", domain]);
-    return matched?.price?.currentPrice ?? "";
+    return matched?.price?.currentAmount
+      ? matched.price.currentPrice
+      : matched?.meta?.renewalPrice;
   }
   return "";
 });
