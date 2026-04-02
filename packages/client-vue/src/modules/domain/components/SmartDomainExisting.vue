@@ -74,7 +74,7 @@
       variant="solid"
       size="lg"
       icon="check-circle-broken"
-      :label="t('domain.existing.remove_transfer')"
+      :label="t('domain.existing.transfer_added')"
       :disabled="removing"
       :loading="removing"
       @click="emit('removeTransfer')"

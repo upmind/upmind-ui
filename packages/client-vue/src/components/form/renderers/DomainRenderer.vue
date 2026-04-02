@@ -3,11 +3,14 @@
     v-bind="formFieldProps"
     :errors="defaultsDeep(formFieldProps.errors, domainErrors)"
     :optional-text="t('text.optional')"
+    no-errors
   >
     <SmartDomainField
       :model-value="control.data"
       :required="effectiveRequired"
       :disabled="formFieldProps.disabled"
+      :errors="defaultsDeep(formFieldProps.errors, domainErrors)"
+      :touched="formFieldProps.touched"
       @update:modelValue="onDomainInput"
       @error="onError"
     />

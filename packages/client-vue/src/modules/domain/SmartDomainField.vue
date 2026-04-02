@@ -45,6 +45,13 @@
                 @update:model-value="onRegisterInput"
                 @focus="openDrawer"
               />
+              <FormMessage
+                v-if="hasVisibleErrors"
+                form-message-id="domain-register-error"
+                name="domain"
+                :errors="props.errors!"
+                show-all-errors
+              />
             </div>
 
             <!-- Sub-content: Existing -->
@@ -76,6 +83,13 @@
                 @remove-transfer="removeTransfer"
                 @add-registration="addRegistration"
               />
+              <FormMessage
+                v-if="hasVisibleErrors"
+                form-message-id="domain-existing-error"
+                name="domain"
+                :errors="props.errors!"
+                show-all-errors
+              />
             </div>
 
             <!-- Sub-content: Basket -->
@@ -91,6 +105,13 @@
                 :items="basketItems"
                 :placeholder="t('domain.basket_placeholder')"
                 @update:model-value="onBasketSelect"
+              />
+              <FormMessage
+                v-if="hasVisibleErrors"
+                form-message-id="domain-basket-error"
+                name="domain"
+                :errors="props.errors!"
+                show-all-errors
               />
             </div>
           </template>
@@ -182,6 +203,7 @@ import {
   Input,
   Button,
   Select,
+  FormMessage,
   useStyles,
   isMobile
 } from "@upmind-automation/upmind-ui";
@@ -213,6 +235,8 @@ const props = defineProps<{
   modelValue?: string | null;
   disabled?: boolean;
   required?: boolean;
+  errors?: string[];
+  touched?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -239,6 +263,10 @@ const styles = useStyles(
   config
 );
 const isMobileView = isMobile;
+
+const hasVisibleErrors = computed(
+  () => !!(props.touched && props.errors?.length)
+);
 
 // --- Canonical choices order (Figma)
 const SMART_DOMAIN_CHOICES_ORDER = [

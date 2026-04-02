@@ -11,7 +11,7 @@ export default {
     option: cva("flex w-full cursor-pointer items-start gap-3"),
     indicator: cva("flex h-7 items-center"),
     label: cva("text-base leading-7 font-medium"),
-    subContent: cva("flex w-full flex-col py-2 pl-7", {
+    subContent: cva("flex w-full flex-col gap-1 py-2 pl-7", {
       variants: {
         hasTransferInfo: {
           true: "gap-3",
