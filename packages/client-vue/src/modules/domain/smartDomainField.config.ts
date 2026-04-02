@@ -32,6 +32,9 @@ export default {
       root: cva("bg-control-surface shadow-control-default control-radius"),
       row: cva("flex items-start gap-2 p-4 pl-3"),
       indicator: cva("size-lh flex items-center justify-center"),
+      content: cva(
+        "flex min-w-[160px] flex-1 flex-wrap items-center gap-x-4 gap-y-1"
+      ),
       domain: cva("text-display text-base-tight font-medium"),
       change: cva(
         "text-button-muted-link ml-auto shrink-0 cursor-pointer text-sm leading-6 font-normal underline"
