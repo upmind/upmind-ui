@@ -31,10 +31,7 @@
 
             <!-- Sub-content: Register -->
             <div
-              v-if="
-                choice.value === DomainTypes.register &&
-                type === DomainTypes.register
-              "
+              v-if="choice.value === type && type === DomainTypes.register"
               :class="styles.field.subContent"
             >
               <Input
@@ -56,10 +53,7 @@
 
             <!-- Sub-content: Existing -->
             <div
-              v-if="
-                choice.value === DomainTypes.existing &&
-                type === DomainTypes.existing
-              "
+              v-if="choice.value === type && type === DomainTypes.existing"
               :class="styles.field.subContent"
             >
               <SmartDomainExisting
@@ -95,10 +89,7 @@
 
             <!-- Sub-content: Basket -->
             <div
-              v-if="
-                choice.value === DomainTypes.basket &&
-                type === DomainTypes.basket
-              "
+              v-if="choice.value === type && type === DomainTypes.basket"
               :class="styles.field.subContent"
             >
               <Select
@@ -121,73 +112,33 @@
     </RadioGroup>
 
     <!-- Register drawer -->
-    <DomainDrawer
+    <SmartDomainDrawer
       v-model:open="isDrawerOpen"
-      :loading="meta.isSearching || meta.isProcessing"
-      @reset="meta.isEmpty ? doReset() : doResolve()"
-    >
-      <template #domain-type />
-
-      <template #search>
-        <DomainSearch
-          v-model="queryValue"
-          :searching="meta.isSearching"
-          :processing="meta.isProcessing"
-          :type="type"
-          @search="search"
-          @reset="doReset"
-        />
-      </template>
-
-      <template #results>
-        <DomainCards
-          :model-value="added"
-          :items="available || []"
-          :offset="pagination.offset"
-          :query="query"
-          :processing="meta.isProcessing"
-          :loading="meta.isLoading"
-          :searching="meta.isSearching"
-          :valid="meta.isValid"
-          :template="DOMAIN_TEMPLATE.DRAWER"
-          :result-count="resultCount"
-          :skeleton-count="5"
-          @add="add"
-          @remove="remove"
-          @search-more="searchMore"
-        />
-      </template>
-
-      <template #cancel>
-        <Button
-          :label="t('action.cancel')"
-          variant="subtle"
-          size="lg"
-          :block="isMobileView"
-          :disabled="meta.isProcessing || meta.isLoading"
-          @click="doReset"
-        />
-      </template>
-
-      <template #resolve>
-        <Button
-          :label="t('action.continue_label')"
-          variant="solid"
-          color="primary"
-          size="lg"
-          icon-append="arrow-right"
-          :disabled="meta.isProcessing || meta.isEmpty || meta.isLoading"
-          :block="isMobileView"
-          @click="doResolve"
-        />
-      </template>
-    </DomainDrawer>
+      v-model:query="queryValue"
+      :search-query="query"
+      :type="type"
+      :added="added"
+      :available="available || []"
+      :offset="pagination.offset"
+      :result-count="resultCount"
+      :searching="meta.isSearching"
+      :processing="meta.isProcessing"
+      :loading="meta.isLoading"
+      :valid="meta.isValid"
+      :empty="meta.isEmpty"
+      @search="search"
+      @search-more="searchMore"
+      @add="add"
+      @remove="remove"
+      @reset="doReset"
+      @resolve="doResolve"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 // --- external
-import { computed, onUnmounted, ref, watch, defineAsyncComponent } from "vue";
+import { computed, onUnmounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -201,29 +152,21 @@ import {
   RadioGroup,
   RadioGroupItem,
   Input,
-  Button,
   Select,
   FormMessage,
-  useStyles,
-  isMobile
+  useStyles
 } from "@upmind-automation/upmind-ui";
 import type { SelectItemProps } from "@upmind-automation/upmind-ui";
 
 // --- components
 import SmartDomainSummary from "./components/SmartDomainSummary.vue";
 import SmartDomainExisting from "./components/SmartDomainExisting.vue";
-import DomainCards from "./components/DomainCards.vue";
-import DomainSearch from "./components/DomainSearch.vue";
+import SmartDomainDrawer from "./components/SmartDomainDrawer.vue";
 import config from "./smartDomainField.config";
-import { DOMAIN_TEMPLATE } from "./types";
+import { SMART_DOMAIN_CHOICES_ORDER } from "./types";
 
 // --- utils
 import { debounce, filter, map, sortBy, indexOf } from "lodash-es";
-
-// --- templates
-const DomainDrawer = defineAsyncComponent(
-  () => import("./templates/DomainDrawer.template.vue")
-);
 
 // -----------------------------------------------------------------------------
 
@@ -241,8 +184,6 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: "update:modelValue", value: string | null): void;
-  (e: "resolve", value?: string | null): void;
-  (e: "error", value: string): void;
 }>();
 
 const { t, tm, rt } = useI18n();
@@ -262,19 +203,10 @@ const styles = useStyles(
   stylesMeta,
   config
 );
-const isMobileView = isMobile;
 
 const hasVisibleErrors = computed(
   () => !!(props.touched && props.errors?.length)
 );
-
-// --- Canonical choices order (Figma)
-const SMART_DOMAIN_CHOICES_ORDER = [
-  DomainTypes.skip,
-  DomainTypes.register,
-  DomainTypes.existing,
-  DomainTypes.basket
-];
 
 // --- Composable
 
@@ -296,7 +228,6 @@ const {
   selected,
   type,
   choose,
-  errors,
   reset,
   select,
   stop,

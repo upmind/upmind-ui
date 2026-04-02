@@ -1,9 +1,9 @@
-import type {
-  DomainModel,
-  DomainProduct,
+import {
   DomainTypes,
-  UseDac,
-  UseDomain
+  type DomainModel,
+  type DomainProduct,
+  type UseDac,
+  type UseDomain
 } from "@upmind-automation/headless";
 
 export enum DOMAIN_TEMPLATE {
@@ -129,3 +129,26 @@ export type SmartDomainExistingProps = {
   registerPrice?: string;
   cycle?: number;
 };
+
+export const SMART_DOMAIN_CHOICES_ORDER = [
+  DomainTypes.skip,
+  DomainTypes.register,
+  DomainTypes.existing,
+  DomainTypes.basket
+];
+
+export interface SmartDomainDrawerProps {
+  open: boolean;
+  query: string;
+  searchQuery?: string;
+  type?: DomainTypes;
+  added: UseDac["model"]["value"];
+  available: DomainProduct[];
+  offset: number;
+  resultCount: number;
+  searching: boolean;
+  processing: boolean;
+  loading: boolean;
+  valid: boolean;
+  empty: boolean;
+}
