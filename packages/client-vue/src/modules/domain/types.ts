@@ -105,6 +105,8 @@ export interface SmartDomainFieldProps {
   modelValue?: string | null;
   disabled?: boolean;
   required?: boolean;
+  errors?: string[];
+  touched?: boolean;
 }
 
 export interface SmartDomainSummaryProps {

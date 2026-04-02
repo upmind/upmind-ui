@@ -167,7 +167,10 @@ import SmartDomainSummary from "./components/SmartDomainSummary.vue";
 import SmartDomainExisting from "./components/SmartDomainExisting.vue";
 import SmartDomainDrawer from "./components/SmartDomainDrawer.vue";
 import config from "./smartDomainField.config";
-import { SMART_DOMAIN_CHOICES_ORDER } from "./types";
+import {
+  SMART_DOMAIN_CHOICES_ORDER,
+  type SmartDomainFieldProps
+} from "./types";
 
 // --- utils
 import { debounce, filter, map, sortBy, indexOf } from "lodash-es";
@@ -178,13 +181,7 @@ defineOptions({
   inheritAttrs: false
 });
 
-const props = defineProps<{
-  modelValue?: string | null;
-  disabled?: boolean;
-  required?: boolean;
-  errors?: string[];
-  touched?: boolean;
-}>();
+const props = defineProps<SmartDomainFieldProps>();
 
 const emit = defineEmits<{
   (e: "update:modelValue", value: string | null): void;
@@ -192,15 +189,7 @@ const emit = defineEmits<{
 
 const { t, tm, rt } = useI18n();
 const stylesMeta = computed(() => ({
-  hasTransferInfo:
-    meta.value.isExistingChecked ||
-    meta.value.isExistingRegisterable ||
-    meta.value.isExistingRegistering ||
-    meta.value.isExistingTransferred ||
-    meta.value.isExistingTransferring ||
-    meta.value.isExistingRemoving ||
-    meta.value.isExistingValid ||
-    meta.value.isExistingError
+  hasInfo: meta.value.hasInfo
 }));
 const styles = useStyles(
   ["field", "field.summary", "field.transfer"],

@@ -187,6 +187,15 @@ export const useDomain = (
       isExistingUnavailable: stateMatches(state, "existing.unavailable"),
       isExistingValid: stateMatches(state, "existing.valid") && isInBasket,
       isExistingError: stateMatches(state, "existing.error"),
+      hasInfo:
+        stateMatches(state, "existing.checked") ||
+        stateMatches(state, "existing.registerable") ||
+        stateMatches(state, "existing.registering") ||
+        stateMatches(state, "existing.transferred") ||
+        stateMatches(state, "existing.transferring") ||
+        stateMatches(state, "existing.removing") ||
+        (stateMatches(state, "existing.valid") && isInBasket) ||
+        stateMatches(state, "existing.error"),
       canTransfer:
         stateMatches(state, ["existing.checked", "existing.transferred"]) &&
         !!contextValue(state, "availabilityResult")
