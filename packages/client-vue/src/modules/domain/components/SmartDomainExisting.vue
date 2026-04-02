@@ -33,7 +33,7 @@
       {{
         t("domain.existing.register_info", {
           price: registerPrice ?? "",
-          period
+          period: parseBillingCycle(props.cycle).numeric
         })
       }}
     </p>
@@ -64,7 +64,7 @@
       {{
         t("domain.existing.transfer_info", {
           price: transferPrice ?? "",
-          period
+          period: parseBillingCycle(props.cycle).numeric
         })
       }}
     </p>
@@ -126,8 +126,6 @@ const { t } = useI18n();
 const styles = useStyles(["field.transfer", "field.unavailable"], {}, config);
 
 const searchValue = ref(props.modelValue ?? "");
-
-const period = computed(() => parseBillingCycle(props.cycle ?? 12).numeric);
 
 const ownedItems = computed((): SearchItem[] | null => {
   if (!props.filteredOwned) return null;
