@@ -141,14 +141,8 @@ const debouncedEmit = debounce(
 );
 
 function onSearch(value: string | number) {
-  const str = value.toString();
-
-  if (!str) {
-    debouncedEmit.cancel();
-    return;
-  }
-
-  debouncedEmit(str);
+  if (!value) return debouncedEmit.cancel();
+  debouncedEmit(value.toString());
 }
 
 function onSelect(item: SearchItem): void {
