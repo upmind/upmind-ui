@@ -134,8 +134,7 @@ export default createMachine(
           },
           {
             target: "existing",
-            cond: ({ type }) => type === DomainTypes.existing,
-            actions: ["setTransferFromBasket"]
+            cond: ({ type }) => type === DomainTypes.existing
           },
           {
             target: "basket",
@@ -202,6 +201,7 @@ export default createMachine(
 
       existing: {
         id: "existing",
+        entry: ["setTransferFromBasket"],
         initial: "invalid",
         states: {
           invalid: {
@@ -219,11 +219,18 @@ export default createMachine(
 
           validating: {
             entry: ["setCheckingDomain"],
-            always: {
-              target: "valid",
-              cond: "isOwnedDomain",
-              actions: ["persistModel"]
-            },
+            always: [
+              {
+                target: "transferred",
+                cond: "isTransferInBasket",
+                actions: ["setTransferFromBasket"]
+              },
+              {
+                target: "valid",
+                cond: "isOwnedDomain",
+                actions: ["persistModel"]
+              }
+            ],
             invoke: {
               src: "checkAvailability",
               onDone: [
@@ -269,12 +276,11 @@ export default createMachine(
             invoke: {
               src: "addExistingRegistration",
               onDone: {
-                target: "#basket",
+                target: "valid",
                 actions: [
                   "setModelFromRegistration",
                   "ensureSelected",
                   "checkChoices",
-                  "setTypeBasket",
                   "persistModel"
                 ]
               },
@@ -410,11 +416,6 @@ export default createMachine(
           },
           UPDATE: [
             {
-              target: ".removing",
-              cond: "isTransferred",
-              actions: ["storePendingUpdate"]
-            },
-            {
               target: ".validating",
               cond: "isDomainLike",
               actions: ["clearError", "setExisting", "persistModel"]
@@ -500,12 +501,6 @@ export default createMachine(
         {
           // Already removing — absorb the new target type, don't restart removal
           cond: "isInRemovingState",
-          actions: ["storePendingChoose"]
-        },
-        {
-          // In transferred — must remove transfer before switching types (blocking)
-          target: "#existing.removing",
-          cond: "isInTransferredState",
           actions: ["storePendingChoose"]
         },
         {
@@ -1146,12 +1141,6 @@ export default createMachine(
       hasDacDomains: (_context: DomainContext, { data }: AnyEventObject) =>
         !isEmpty(data?.domains),
 
-      isInTransferredState: (
-        _ctx: DomainContext,
-        _event: AnyEventObject,
-        { state }: any
-      ) => state.matches("existing.transferred"),
-
       isInRemovingState: (
         _ctx: DomainContext,
         _event: AnyEventObject,
@@ -1176,17 +1165,17 @@ export default createMachine(
         { data }: AnyEventObject
       ) => data?.can_register === false && data?.can_transfer === false,
 
-      isTransferred: (
-        _ctx: DomainContext,
-        _event: AnyEventObject,
-        { state }: any
-      ) => state.matches("existing.transferred"),
-
       hasPendingChoose: ({ pendingChoose }: DomainContext) =>
         pendingChoose !== undefined,
 
       hasTransferProductId: ({ transferProductId }: DomainContext) =>
         !!transferProductId,
+
+      isTransferInBasket: ({ model, lookups }: DomainContext) =>
+        some(lookups.basket, {
+          domain: get(model, "domain"),
+          meta: { isTransfer: true }
+        }),
 
       hasModelDomainLike: ({ model }: DomainContext) => {
         const domain = get(model, "domain");

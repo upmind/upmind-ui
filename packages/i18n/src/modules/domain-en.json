@@ -39,7 +39,8 @@
   "search": "Enter a domain to search",
   "basket_placeholder": "Select a domain",
   "existing": {
-    "remove_transfer": "Remove transfer"
+    "remove_transfer": "Remove transfer",
+    "transfer_added": "Transfer added"
   },
   "error": {
     "transfer_add_failed": "Failed to add transfer to basket",
