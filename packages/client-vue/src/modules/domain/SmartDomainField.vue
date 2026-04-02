@@ -33,7 +33,7 @@
             <!-- Sub-content: Register -->
             <div
               v-if="choice.value === type && type === DomainTypes.register"
-              :class="styles.field.subContent"
+              :class="styles.field.expanded"
             >
               <Input
                 v-if="!isDrawerOpen"
@@ -45,7 +45,7 @@
                 @focus="openDrawer"
               />
               <FormMessage
-                v-if="hasVisibleErrors"
+                v-if="!!(props.touched && props.errors?.length)"
                 form-message-id="domain-register-error"
                 name="domain"
                 :errors="props.errors!"
@@ -56,7 +56,7 @@
             <!-- Sub-content: Existing -->
             <div
               v-if="choice.value === type && type === DomainTypes.existing"
-              :class="styles.field.subContent"
+              :class="styles.field.expanded"
             >
               <SmartDomainExisting
                 :model-value="model ?? null"
@@ -82,7 +82,7 @@
                 @add-registration="addRegistration"
               />
               <FormMessage
-                v-if="hasVisibleErrors"
+                v-if="!!(props.touched && props.errors?.length)"
                 form-message-id="domain-existing-error"
                 name="domain"
                 :errors="props.errors!"
@@ -93,7 +93,7 @@
             <!-- Sub-content: Basket -->
             <div
               v-if="choice.value === type && type === DomainTypes.basket"
-              :class="styles.field.subContent"
+              :class="styles.field.expanded"
             >
               <Select
                 :model-value="model"
@@ -103,7 +103,7 @@
                 @update:model-value="onBasketSelect"
               />
               <FormMessage
-                v-if="hasVisibleErrors"
+                v-if="!!(props.touched && props.errors?.length)"
                 form-message-id="domain-basket-error"
                 name="domain"
                 :errors="props.errors!"
@@ -188,20 +188,16 @@ const emit = defineEmits<{
 }>();
 
 const { t, tm, rt } = useI18n();
+
 const stylesMeta = computed(() => ({
   hasInfo: meta.value.hasInfo
 }));
+
 const styles = useStyles(
   ["field", "field.summary", "field.transfer"],
   stylesMeta,
   config
 );
-
-const hasVisibleErrors = computed(
-  () => !!(props.touched && props.errors?.length)
-);
-
-// --- Composable
 
 const {
   isReady,
@@ -340,7 +336,6 @@ function onChangeClick() {
 }
 
 // --- Side effects
-
 await isReady();
 
 // Sync model → emit

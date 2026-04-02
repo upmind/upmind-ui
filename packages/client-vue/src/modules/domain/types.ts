@@ -59,7 +59,6 @@ export interface DomainActionsProps {
 }
 
 export type DomainCardProps = {
-  class?: string;
   domain: DomainProduct["domain"];
   sld: DomainModel["tld"];
   tld: DomainModel["tld"];
@@ -75,7 +74,6 @@ export type DomainCardProps = {
   canTransfer?: DomainProduct["meta"]["canTransfer"];
   unavailable?: DomainProduct["meta"]["unavailable"];
   exactMatch?: boolean;
-  disableHover?: boolean;
 };
 
 export interface DomainSummaryProps {
