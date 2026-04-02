@@ -204,9 +204,6 @@ export default {
                 true: "text-3xl md:text-4xl",
                 false:
                   "text-2xl transition-transform duration-300 ease-out group-hover:translate-x-2"
-              },
-              isHoverDisabled: {
-                true: "transition-none group-hover:translate-x-0"
               }
             }
           }),
