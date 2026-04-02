@@ -1,5 +1,5 @@
 <template>
-  <article :class="cn(styles.card.root, props.class)">
+  <article :class="styles.card.root">
     <header :class="styles.card.header.root">
       <!-- TODO: Add favourite action -->
 
@@ -144,8 +144,7 @@ import {
   isMobile,
   Badge,
   Button,
-  Tooltip,
-  cn
+  Tooltip
 } from "@upmind-automation/upmind-ui";
 import config from "../domain.config";
 
@@ -178,8 +177,7 @@ const meta = computed(() => ({
   isOwned: !!props.owned,
   isDiscounted: !!props.discounted,
   isUnavailable: !!props.unavailable,
-  isTransferable: !!props.canTransfer,
-  isHoverDisabled: !!props.disableHover
+  isTransferable: !!props.canTransfer
 }));
 
 const styles = useStyles(
