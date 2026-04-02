@@ -1072,6 +1072,10 @@ export default createMachine(
       wait: () => useTime().WAIT
     },
 
-    services: services as any
+    services: {
+      search: services.search,
+      addDomainToBasket: services.addDomainToBasket,
+      getClientDomains: services.getClientDomains
+    }
   }
 );
