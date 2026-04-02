@@ -107,6 +107,10 @@ export interface SmartDomainFieldProps {
   required?: boolean;
 }
 
+export interface SmartDomainSummaryProps {
+  domain: string;
+}
+
 export type SmartDomainExistingProps = {
   modelValue: string | null;
   owned?: DomainProduct[];
