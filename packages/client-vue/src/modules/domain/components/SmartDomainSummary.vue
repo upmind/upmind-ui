@@ -6,7 +6,11 @@
           <RadioGroupItem value="selected" />
         </div>
         <span :class="styles.field.summary.domain">{{ domain }}</span>
-        <Link :class="styles.field.summary.change" @click="emit('change')">
+        <Link
+          v-if="!disabled"
+          :class="styles.field.summary.change"
+          @click="emit('change')"
+        >
           {{ t("action.change") }}
         </Link>
       </div>

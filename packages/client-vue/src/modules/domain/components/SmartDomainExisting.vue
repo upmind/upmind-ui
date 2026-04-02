@@ -4,13 +4,13 @@
     v-model="searchValue"
     :results="ownedItems"
     :placeholder="t('domain.existing.placeholder')"
-    :disabled="removing || registering"
+    :disabled="disabled || removing || registering"
     :min-query-length="1"
     @update:search="onSearch"
     @select="onSelect"
   >
     <template #append>
-      <Link v-if="isDomainLike && !validating" @click="onClear">
+      <Link v-if="isDomainLike && !validating && !disabled" @click="onClear">
         <Icon icon="x-close" class="size-5" />
       </Link>
       <Icon
@@ -43,7 +43,7 @@
       size="lg"
       icon="shopping-cart-01"
       :label="t('domain.existing.add_registration')"
-      :disabled="registering"
+      :disabled="disabled || registering"
       :loading="registering"
       :block="isMobile"
       @click="emit('addRegistration')"
@@ -75,7 +75,7 @@
       size="lg"
       icon="refresh-cw-05"
       :label="t('domain.existing.add_transfer')"
-      :disabled="transferring"
+      :disabled="disabled || transferring"
       :loading="transferring"
       :block="isMobile"
       @click="emit('addTransfer')"
@@ -87,7 +87,7 @@
       size="lg"
       icon="check-circle-broken"
       :label="t('domain.existing.transfer_added')"
-      :disabled="removing"
+      :disabled="disabled || removing"
       :loading="removing"
       :block="isMobile"
       @click="emit('removeTransfer')"

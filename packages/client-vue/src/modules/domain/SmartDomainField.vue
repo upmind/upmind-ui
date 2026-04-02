@@ -3,6 +3,7 @@
   <SmartDomainSummary
     v-if="meta.showSummary && !isEditing"
     :domain="model ?? ''"
+    :disabled="props.disabled"
     @change="onChangeClick"
   />
 
@@ -38,6 +39,7 @@
                 v-if="!isDrawerOpen"
                 :model-value="queryValue"
                 :placeholder="t('domain.search')"
+                :disabled="props.disabled"
                 icon-append="arrow-right"
                 @update:model-value="onRegisterInput"
                 @focus="openDrawer"
@@ -61,6 +63,7 @@
                 :owned="owned"
                 :filtered-owned="filteredOwned"
                 :is-domain-like="isDomainLike"
+                :disabled="props.disabled"
                 :validating="meta.isExistingValidating"
                 :checked="meta.isExistingChecked"
                 :registerable="meta.isExistingRegisterable"
@@ -95,6 +98,7 @@
               <Select
                 :model-value="model"
                 :items="basketItems"
+                :disabled="props.disabled"
                 :placeholder="t('domain.basket_placeholder')"
                 @update:model-value="onBasketSelect"
               />

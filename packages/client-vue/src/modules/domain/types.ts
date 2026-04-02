@@ -109,6 +109,7 @@ export interface SmartDomainFieldProps {
 
 export interface SmartDomainSummaryProps {
   domain: string;
+  disabled?: boolean;
 }
 
 export type SmartDomainExistingProps = {
@@ -116,6 +117,7 @@ export type SmartDomainExistingProps = {
   owned?: DomainProduct[];
   filteredOwned?: DomainProduct[] | null;
   isDomainLike?: boolean;
+  disabled?: boolean;
   validating?: boolean;
   checked?: boolean;
   registerable?: boolean;
