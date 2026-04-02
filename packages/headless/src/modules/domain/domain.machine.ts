@@ -680,10 +680,6 @@ export default createMachine(
           ) {
             const matched = find(lookups.basket, ["domain", domain]);
             if (matched) {
-              // Transfer products should route to existing, not basket
-              if (matched.meta?.isTransfer) {
-                return DomainTypes.existing;
-              }
               return DomainTypes.basket;
             }
             return DomainTypes.existing;
