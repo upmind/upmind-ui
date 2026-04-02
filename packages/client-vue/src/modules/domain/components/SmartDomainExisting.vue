@@ -45,6 +45,7 @@
       :label="t('domain.existing.add_registration')"
       :disabled="registering"
       :loading="registering"
+      :block="isMobile"
       @click="emit('addRegistration')"
     />
   </div>
@@ -76,6 +77,7 @@
       :label="t('domain.existing.add_transfer')"
       :disabled="transferring"
       :loading="transferring"
+      :block="isMobile"
       @click="emit('addTransfer')"
     />
 
@@ -87,6 +89,7 @@
       :label="t('domain.existing.transfer_added')"
       :disabled="removing"
       :loading="removing"
+      :block="isMobile"
       @click="emit('removeTransfer')"
     />
   </div>
@@ -100,7 +103,8 @@ import {
   Button,
   Icon,
   Link,
-  useStyles
+  useStyles,
+  isMobile
 } from "@upmind-automation/upmind-ui";
 import { DEBOUNCE_DELAY, parseBillingCycle } from "@upmind-automation/headless";
 import { map, debounce } from "lodash-es";

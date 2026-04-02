@@ -22,7 +22,9 @@ export default {
     domain: cva("px-0 md:px-0"),
 
     transfer: {
-      root: cva("flex w-full flex-wrap items-start gap-x-12 gap-y-0"),
+      root: cva(
+        "flex w-full flex-col items-start gap-2 lg:flex-row lg:flex-wrap lg:gap-x-12 lg:gap-y-2"
+      ),
       text: cva("text-muted flex-1 text-sm leading-6")
     },
 
