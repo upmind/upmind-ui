@@ -206,11 +206,11 @@ const meta = computed(() => ({
 const mappedChoices = computed(() => {
   return map(props.choices, (choice, index) => {
     const translations: { label: string } = tm(
-      `domain.choices.${choice.value}`
+      `domain.choices.${choice.label}`
     );
     return {
-      value: choice.value,
-      label: rt(translations?.label) || choice.value,
+      value: choice.label,
+      label: rt(translations?.label) || choice.label,
       item: choice,
       index,
       modelValue: choice.value
