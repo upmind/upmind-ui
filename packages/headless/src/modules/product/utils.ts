@@ -502,7 +502,7 @@ export const parseProductDetails = (
       valueKey: "meta.uischema.title",
       fallback: useProductName(rawProduct, rawBasketProduct)
     }),
-    brand: useTranslateName(rawProduct?.brand) ?? "",
+    brand: useTranslateName(rawProduct?.brand),
     blueprintCode: rawProduct?.provision_blueprint?.category?.code,
     categoryId: rawProduct?.category_id,
     category: useTranslateName(rawProduct?.category),
