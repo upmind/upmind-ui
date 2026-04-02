@@ -18,6 +18,8 @@ import {
   get,
   isEmpty,
   filter,
+  find,
+  first,
   includes,
   reject
 } from "lodash-es";
@@ -32,6 +34,7 @@ import {
   useChildActor
 } from "../../utils";
 import { parseDomain } from "./utils";
+import { parsePrice } from "../product/utils";
 
 // --- types
 import {
@@ -317,6 +320,36 @@ export const useDomain = (
     IDomainAvailabilityResponse | undefined
   >(state, "availabilityResult");
 
+  const pricing = computed(() => {
+    const product = availabilityResult.value?.product;
+    if (product) {
+      const prices = product.prices ?? [];
+      const annual = find(prices, (p: any) => p.billing_cycle_months === 12);
+      const priceEntry = annual ?? first(prices);
+      if (priceEntry) {
+        return {
+          price: parsePrice(priceEntry).currentPrice,
+          cycle: priceEntry.billing_cycle_months ?? 12
+        };
+      }
+    }
+    // Fallback: basket product pricing (on remount, availabilityResult
+    // is lost but the basket product has its own price data)
+    const domain = selected.value;
+    if (domain) {
+      const matched = find(basket.value, ["domain", domain]);
+      if (matched) {
+        return {
+          price: matched.price?.currentAmount
+            ? matched.price.currentPrice
+            : (matched?.meta?.renewalPrice ?? ""),
+          cycle: 12
+        };
+      }
+    }
+    return null;
+  });
+
   function addTransfer(): void {
     send({ type: "ADD_TRANSFER" });
   }
@@ -501,6 +534,9 @@ export const useDomain = (
 
     /** Availability result for the current domain (transfer price, renewal info). */
     availabilityResult,
+
+    /** Pricing derived from the availability result with basket fallback ({ price, cycle }). */
+    pricing,
 
     /** Add a transfer product to the basket for the current domain. */
     addTransfer,

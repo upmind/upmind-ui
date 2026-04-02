@@ -30,7 +30,12 @@
   <!-- Register info section (domain is available for registration) -->
   <div v-if="registerable || registering" :class="styles.field.transfer.root">
     <p :class="styles.field.transfer.text">
-      {{ t("domain.existing.register_info", { price: registerPrice ?? "" }) }}
+      {{
+        t("domain.existing.register_info", {
+          price: registerPrice ?? "",
+          period
+        })
+      }}
     </p>
 
     <Button
@@ -55,7 +60,12 @@
     :class="styles.field.transfer.root"
   >
     <p :class="styles.field.transfer.text">
-      {{ t("domain.existing.transfer_info", { price: transferPrice ?? "" }) }}
+      {{
+        t("domain.existing.transfer_info", {
+          price: transferPrice ?? "",
+          period
+        })
+      }}
     </p>
 
     <Button
@@ -92,7 +102,7 @@ import {
   Link,
   useStyles
 } from "@upmind-automation/upmind-ui";
-import { DEBOUNCE_DELAY } from "@upmind-automation/headless";
+import { DEBOUNCE_DELAY, parseBillingCycle } from "@upmind-automation/headless";
 import { map, debounce } from "lodash-es";
 import config from "../smartDomainField.config";
 import type { SearchItem } from "@upmind-automation/upmind-ui";
@@ -112,6 +122,8 @@ const { t } = useI18n();
 const styles = useStyles(["field.transfer", "field.unavailable"], {}, config);
 
 const searchValue = ref(props.modelValue ?? "");
+
+const period = computed(() => parseBillingCycle(props.cycle ?? 12).numeric);
 
 const ownedItems = computed((): SearchItem[] | null => {
   if (!props.filteredOwned) return null;

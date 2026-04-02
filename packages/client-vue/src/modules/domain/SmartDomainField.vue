@@ -76,8 +76,9 @@
                 :removing="meta.isExistingRemoving"
                 :unavailable="meta.isExistingUnavailable"
                 :dns-only="meta.isExistingValid || meta.isExistingError"
-                :transfer-price="transferPrice"
-                :register-price="registerPricing?.price?.currentPrice ?? ''"
+                :transfer-price="pricing?.price ?? ''"
+                :register-price="pricing?.price ?? ''"
+                :cycle="pricing?.cycle"
                 @update:model-value="onExistingUpdate"
                 @add-transfer="addTransfer"
                 @remove-transfer="removeTransfer"
@@ -194,7 +195,6 @@ import {
   useDomain,
   DomainTypes,
   DEBOUNCE_DELAY,
-  parsePrice,
   type DomainChoice
 } from "@upmind-automation/headless";
 import {
@@ -218,7 +218,7 @@ import config from "./smartDomainField.config";
 import { DOMAIN_TEMPLATE } from "./types";
 
 // --- utils
-import { debounce, filter, find, first, map, sortBy, indexOf } from "lodash-es";
+import { debounce, filter, map, sortBy, indexOf } from "lodash-es";
 
 // --- templates
 const DomainDrawer = defineAsyncComponent(
@@ -302,7 +302,7 @@ const {
   stop,
   stopDac,
   update,
-  availabilityResult,
+  pricing,
   addTransfer,
   addRegistration,
   removeTransfer,
@@ -349,42 +349,6 @@ const basketItems = computed((): SelectItemProps[] =>
     label: item.domain?.toString() ?? ""
   }))
 );
-
-// --- Transfer price from availability result
-
-const transferPrice = computed(() => {
-  const product = availabilityResult.value?.product;
-  if (product) {
-    const prices = product.prices ?? [];
-    const annual = find(prices, (p: any) => p.billing_cycle_months === 12);
-    return annual?.price_formatted ?? first(prices)?.price_formatted ?? "";
-  }
-  // Fallback: use basket product pricing (on remount, availabilityResult
-  // is lost but the basket product has its own price data)
-  const domain = selected.value;
-  if (domain) {
-    const matched = find(basket.value, ["domain", domain]);
-    return matched?.price?.currentAmount
-      ? matched.price.currentPrice
-      : matched?.meta?.renewalPrice;
-  }
-  return "";
-});
-
-// --- Registration pricing from availability result
-
-const registerPricing = computed(() => {
-  const product = availabilityResult.value?.product;
-  if (!product) return null;
-  const prices = product.prices ?? [];
-  const annual = find(prices, (p: any) => p.billing_cycle_months === 12);
-  const priceEntry = annual ?? first(prices);
-  if (!priceEntry) return null;
-  return {
-    price: parsePrice(priceEntry),
-    cycle: priceEntry.billing_cycle_months ?? 12
-  };
-});
 
 // --- Search debounce (single pipeline)
 
