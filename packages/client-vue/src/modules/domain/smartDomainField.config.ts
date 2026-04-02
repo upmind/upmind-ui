@@ -13,7 +13,7 @@ export default {
     label: cva("text-base leading-7 font-medium"),
     subContent: cva("flex w-full flex-col gap-1 py-2 pl-7", {
       variants: {
-        hasTransferInfo: {
+        hasInfo: {
           true: "gap-3",
           false: ""
         }
