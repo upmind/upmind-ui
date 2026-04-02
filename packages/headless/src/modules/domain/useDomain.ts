@@ -107,6 +107,14 @@ export const useDomain = (
   }
 
   const meta = computed(() => {
+    const domain = contextValue<DomainContext["model"]>(state, "model")?.domain;
+    const isInBasket =
+      !!domain &&
+      some(contextValue<DomainProduct[]>(state, "lookups.basket"), [
+        "domain",
+        domain
+      ]);
+
     return {
       isLoading: stateMatches(state, ["subscribing", "loading"]),
 
@@ -167,12 +175,17 @@ export const useDomain = (
       isExistingValidating: stateMatches(state, "existing.validating"),
       isExistingChecked: stateMatches(state, "existing.checked"),
       isExistingRegisterable: stateMatches(state, "existing.registerable"),
-      isExistingRegistering: stateMatches(state, "existing.registering"),
-      isExistingTransferring: stateMatches(state, "existing.transferring"),
-      isExistingTransferred: stateMatches(state, "existing.transferred"),
+      isExistingRegistering:
+        stateMatches(state, "existing.registering") ||
+        (stateMatches(state, "existing.valid") && !isInBasket),
+      isExistingTransferring:
+        stateMatches(state, "existing.transferring") ||
+        (stateMatches(state, "existing.transferred") && !isInBasket),
+      isExistingTransferred:
+        stateMatches(state, "existing.transferred") && isInBasket,
       isExistingRemoving: stateMatches(state, "existing.removing"),
       isExistingUnavailable: stateMatches(state, "existing.unavailable"),
-      isExistingValid: stateMatches(state, "existing.valid"),
+      isExistingValid: stateMatches(state, "existing.valid") && isInBasket,
       isExistingError: stateMatches(state, "existing.error"),
       canTransfer:
         stateMatches(state, ["existing.checked", "existing.transferred"]) &&
@@ -366,6 +379,13 @@ export const useDomain = (
     send({ type: "UPDATE", data: [""] });
   }
 
+  /** Re-enter editing from summary, auto-selecting basket type if the domain is in the basket. */
+  function change(): void {
+    if (some(basket.value, ["domain", model.value])) {
+      choose(DomainTypes.basket);
+    }
+  }
+
   // -----------------------------------------------------------------------------
   return {
     // --- state
@@ -549,6 +569,9 @@ export const useDomain = (
 
     /** Clear the existing domain input and reset to invalid state. */
     clearExisting,
+
+    /** Re-enter editing from summary, auto-selecting basket type if the domain is in the basket. */
+    change,
 
     /** Check if a string looks like a valid domain name. */
     isDomainLike: computed(() =>

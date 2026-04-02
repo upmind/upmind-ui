@@ -238,6 +238,7 @@ const {
   addRegistration,
   removeTransfer,
   clearExisting,
+  change,
   isDomainLike,
   owned,
   filteredOwned
@@ -342,6 +343,7 @@ function doReset() {
 
 function onChangeClick() {
   isEditing.value = true;
+  change();
 }
 
 // --- Side effects
@@ -375,6 +377,16 @@ watch(meta, ({ isSearching, showSearchResults, showDac }) => {
 watch(available, previous => {
   resultCount.value = previous?.length ?? 0;
 });
+
+// Show summary after domain is added to basket via registration
+watch(
+  () => meta.value.isExistingValid,
+  valid => {
+    if (valid) {
+      isEditing.value = false;
+    }
+  }
+);
 
 // Sync search params reset
 watch(
