@@ -2,7 +2,9 @@
   <section :class="styles.field.summary.root">
     <RadioGroup model-value="selected">
       <div :class="styles.field.summary.row">
-        <RadioGroupItem value="selected" />
+        <div :class="styles.field.summary.indicator">
+          <RadioGroupItem value="selected" />
+        </div>
         <span :class="styles.field.summary.domain">{{ domain }}</span>
         <Link :class="styles.field.summary.change" @click="emit('change')">
           {{ t("action.change") }}
