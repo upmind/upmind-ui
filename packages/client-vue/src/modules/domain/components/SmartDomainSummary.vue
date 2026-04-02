@@ -5,9 +5,7 @@
         <div :class="styles.field.summary.indicator">
           <RadioGroupItem value="selected" />
         </div>
-        <div
-          class="flex min-w-[160px] flex-1 flex-wrap items-center gap-x-4 gap-y-1"
-        >
+        <div :class="styles.field.summary.content">
           <span :class="styles.field.summary.domain">{{ domain }}</span>
 
           <Link :class="styles.field.summary.change" @click="emit('change')">
