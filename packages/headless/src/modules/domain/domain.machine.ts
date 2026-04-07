@@ -313,7 +313,6 @@ export default createMachine(
           },
 
           removing: {
-            entry: ["setRemovalInFlight"],
             on: {
               UPDATE: { actions: ["storePendingUpdate"] },
               CHOOSE: { actions: ["storePendingChoose"] }
@@ -328,7 +327,6 @@ export default createMachine(
                     "applyPendingChoose",
                     "clearPendingChoose",
                     "clearPendingUpdate",
-                    "clearRemovalInFlight",
                     "clearModel",
                     "clearCheckingDomain",
                     "clearAvailabilityResult",
@@ -343,7 +341,6 @@ export default createMachine(
                     "persistModel",
                     "clearPendingUpdate",
                     "clearAvailabilityResult",
-                    "clearRemovalInFlight",
                     "clearTransferProductId"
                   ]
                 },
@@ -355,13 +352,12 @@ export default createMachine(
                     "persistModel",
                     "clearPendingUpdate",
                     "clearAvailabilityResult",
-                    "clearRemovalInFlight",
                     "clearTransferProductId"
                   ]
                 },
                 {
                   target: "checked",
-                  actions: ["clearRemovalInFlight", "clearTransferProductId"]
+                  actions: ["clearTransferProductId"]
                 }
               ],
               onError: [
@@ -372,8 +368,7 @@ export default createMachine(
                     "setError",
                     "setFeedbackTransferRemoveError",
                     "clearPendingChoose",
-                    "clearPendingUpdate",
-                    "clearRemovalInFlight"
+                    "clearPendingUpdate"
                   ]
                 },
                 {
@@ -381,8 +376,7 @@ export default createMachine(
                   actions: [
                     "setError",
                     "setFeedbackTransferRemoveError",
-                    "clearPendingUpdate",
-                    "clearRemovalInFlight"
+                    "clearPendingUpdate"
                   ]
                 }
               ]
@@ -435,7 +429,6 @@ export default createMachine(
           "clearModel",
           "clearCheckingDomain",
           "clearAvailabilityResult",
-          "clearRemovalInFlight",
           "clearTransferProductId"
         ]
       },
@@ -578,7 +571,7 @@ export default createMachine(
           transferProductId: undefined,
           pendingUpdate: undefined,
           pendingChoose: undefined,
-          removalInFlight: false,
+
           // ---
           authHelper: undefined,
           basketHelper: undefined,
@@ -1026,14 +1019,6 @@ export default createMachine(
           return undefined;
         },
         error: undefined
-      }),
-
-      setRemovalInFlight: assign({
-        removalInFlight: () => true
-      }),
-
-      clearRemovalInFlight: assign({
-        removalInFlight: () => false
       }),
 
       setCheckingDomain: assign({
