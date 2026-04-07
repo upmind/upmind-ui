@@ -994,12 +994,7 @@ export const useQuery = () => {
           withAccessToken
         }).then(response => {
           if (isFunction(select))
-            return (
-              select as (
-                data: TQueryFnData,
-                related?: QueryResponse["related"]
-              ) => TData
-            )(response.data!, response.related);
+            return select(response.data!, response.related);
           return response.data as TQueryFnData;
         });
       },

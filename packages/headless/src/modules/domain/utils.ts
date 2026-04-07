@@ -341,6 +341,25 @@ export function getDomainRawBasketProducts(
   });
 }
 
+/**
+ * Checks whether a product object indicates a domain transfer
+ * by inspecting its name, code, or domain_operation_code fields.
+ *
+ * @param product - A raw product or catalog option object.
+ * @returns `true` if the product is identified as a transfer product.
+ */
+export function hasTransferIndicator(product: any): boolean {
+  if (!product) return false;
+  const name = (product.name ?? "").toLowerCase();
+  const code = (product.code ?? "").toLowerCase();
+  const opCode = (product.domain_operation_code ?? "").toLowerCase();
+  return (
+    name.includes("transfer") ||
+    code.includes("transfer") ||
+    opCode === "transfer"
+  );
+}
+
 // -----------------------------------------------------------------------------
 // Registrant mapping utilities (FE-2457)
 // -----------------------------------------------------------------------------
