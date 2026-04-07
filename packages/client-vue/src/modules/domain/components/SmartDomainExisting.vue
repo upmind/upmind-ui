@@ -33,7 +33,7 @@
       {{
         t("domain.existing.register_info", {
           price: registerPrice ?? "",
-          period: parseBillingCycle(props.cycle).numeric
+          period: parseBillingCycle(props.cycle ?? 0).numeric
         })
       }}
     </p>
@@ -64,7 +64,7 @@
       {{
         t("domain.existing.transfer_info", {
           price: transferPrice ?? "",
-          period: parseBillingCycle(props.cycle).numeric
+          period: parseBillingCycle(props.cycle ?? 0).numeric
         })
       }}
     </p>
