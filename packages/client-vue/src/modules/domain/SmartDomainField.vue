@@ -237,14 +237,12 @@ const {
 });
 
 // --- State
-
 const editing = ref(false);
 const open = ref(false);
 const resultCount = ref(0);
 const queryValue = ref(query.value || "");
 
 // --- Sorted and filtered choices
-
 const sortedChoices = computed(() =>
   sortBy(choices.value, (c: DomainChoice) =>
     indexOf(SMART_DOMAIN_CHOICES_ORDER, c.value)
@@ -252,7 +250,6 @@ const sortedChoices = computed(() =>
 );
 
 // --- Basket items for Select
-
 const basketItems = computed((): SelectItemProps[] =>
   map(basket.value, (item, index) => ({
     index,
@@ -263,7 +260,6 @@ const basketItems = computed((): SelectItemProps[] =>
 );
 
 // --- Search debounce (single pipeline)
-
 const debouncedSearch = debounce(
   (value: string) => search(value),
   DEBOUNCE_DELAY
@@ -279,7 +275,6 @@ watch(queryValue, value => {
 });
 
 // --- Methods
-
 function onChoose(value: string | DomainTypes) {
   editing.value = true;
   choose(value);
@@ -334,13 +329,12 @@ watch(selected, value => {
   emit("update:modelValue", value ?? null);
 });
 
-// Skip state → emit null to clear the field
+// Ensures null is emitted on skip even when no domain was ever selected
+// (selected stays undefined, so watch(selected) won't fire).
 watch(
   () => meta.value.isSkip,
   isSkip => {
-    if (isSkip) {
-      emit("update:modelValue", null);
-    }
+    if (isSkip) emit("update:modelValue", null);
   }
 );
 
