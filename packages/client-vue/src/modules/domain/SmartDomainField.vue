@@ -1,7 +1,7 @@
 <template>
   <!-- Summary mode -->
   <SmartDomainSummary
-    v-if="meta.showSummary && !isEditing"
+    v-if="meta.showSummary && !editing"
     :domain="model ?? ''"
     :disabled="props.disabled"
     @change="onChangeClick"
@@ -36,7 +36,7 @@
               :class="styles.field.expanded"
             >
               <Input
-                v-if="!isDrawerOpen"
+                v-if="!open"
                 :model-value="queryValue"
                 :placeholder="t('domain.search')"
                 :disabled="props.disabled"
@@ -117,7 +117,7 @@
 
     <!-- Register drawer -->
     <SmartDomainDrawer
-      v-model:open="isDrawerOpen"
+      v-model:open="open"
       v-model:query="queryValue"
       :search-query="query"
       :type="type"
@@ -238,8 +238,8 @@ const {
 
 // --- State
 
-const isEditing = ref(false);
-const isDrawerOpen = ref(false);
+const editing = ref(false);
+const open = ref(false);
 const resultCount = ref(0);
 const queryValue = ref(query.value || "");
 
@@ -286,16 +286,12 @@ watch(queryValue, value => {
 // --- Methods
 
 function onChoose(value: string | DomainTypes) {
-  isEditing.value = true;
+  editing.value = true;
   choose(value);
 }
 
 function onRegisterInput(value: string | number | undefined) {
   queryValue.value = value?.toString() ?? "";
-}
-
-function openDrawer() {
-  isDrawerOpen.value = true;
 }
 
 function onExistingUpdate(value: string) {
@@ -313,13 +309,13 @@ function onBasketSelect(value: string) {
 }
 
 function doResolve() {
-  isDrawerOpen.value = false;
+  open.value = false;
   stopDac();
-  isEditing.value = false;
+  editing.value = false;
 }
 
 function doReset() {
-  isDrawerOpen.value = false;
+  open.value = false;
   resultCount.value = 0;
   queryValue.value = "";
   debouncedSearch.cancel();
@@ -327,7 +323,7 @@ function doReset() {
 }
 
 function onChangeClick() {
-  isEditing.value = true;
+  editing.value = true;
   change();
 }
 
@@ -349,15 +345,13 @@ watch(
   }
 );
 
-// Open drawer when search starts
+// Open drawer when machine enters searching or has results
 watch(meta, ({ isSearching, showSearchResults, showDac }) => {
-  const shouldOpen = showDac && (showSearchResults || isSearching);
-  if (shouldOpen) {
-    isDrawerOpen.value = true;
+  if (showDac && (showSearchResults || isSearching)) {
+    open.value = true;
   }
 });
 
-// Track result count for skeleton loading
 watch(available, previous => {
   resultCount.value = previous?.length ?? 0;
 });
@@ -367,7 +361,7 @@ watch(
   () => meta.value.isExistingValid,
   valid => {
     if (valid) {
-      isEditing.value = false;
+      editing.value = false;
     }
   }
 );
