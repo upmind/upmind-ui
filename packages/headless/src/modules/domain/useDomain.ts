@@ -193,7 +193,7 @@ export const useDomain = (
         stateMatches(state, "existing.transferred") ||
         stateMatches(state, "existing.transferring") ||
         stateMatches(state, "existing.removing") ||
-        (stateMatches(state, "existing.valid") && isInBasket) ||
+        stateMatches(state, "existing.valid") ||
         stateMatches(state, "existing.error")
     };
   });
