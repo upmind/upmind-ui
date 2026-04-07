@@ -46,7 +46,7 @@ import {
 // --- types
 import type { AnyEventObject } from "xstate";
 import { type IBasketProduct } from "@upmind-automation/types";
-import { DomainTypes } from "./types";
+import { DomainTypes, DomainMode } from "./types";
 import type { DomainModel, DomainContext, DomainProduct } from "./types";
 import { parseBasketProduct } from "../basketProduct/utils";
 import { type ProductProps } from "../product";
@@ -127,7 +127,7 @@ export default createMachine(
             target: "dac",
             cond: ({ type }) => {
               return includes(
-                [DomainTypes.register, DomainTypes.transfer],
+                [DomainTypes.register, DomainMode.transfer],
                 type
               );
             }
@@ -1210,7 +1210,7 @@ export default createMachine(
       isDomainTransfer: (
         { choices }: DomainContext,
         { data }: AnyEventObject
-      ) => !isEmpty(choices) && data === DomainTypes.transfer,
+      ) => !isEmpty(choices) && data === DomainMode.transfer,
 
       isExistingDomain: (
         { choices }: DomainContext,

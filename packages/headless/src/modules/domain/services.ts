@@ -35,7 +35,7 @@ import type {
   DacContext,
   IDomainAvailabilityResponse
 } from "./types";
-import { DomainTypes } from "./types";
+import { DomainMode } from "./types";
 import { DetailedError, ErrorOrigin, responseCodes } from "../../utils";
 
 // Shared `with` parameter for API calls to include full product/price data
@@ -152,7 +152,7 @@ function search(context: DacContext) {
     cancel(["domains", "suggestions"]);
 
     // --- TRANSFER mode: only checkAvailability, no suggestions
-    if (mode === DomainTypes.transfer) {
+    if (mode === DomainMode.transfer) {
       const domain = search.query;
       checkAvailability({
         ...context,

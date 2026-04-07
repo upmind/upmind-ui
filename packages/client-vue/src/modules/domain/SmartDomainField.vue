@@ -173,7 +173,7 @@ import {
 } from "./types";
 
 // --- utils
-import { debounce, filter, map, sortBy, indexOf } from "lodash-es";
+import { debounce, map, sortBy, indexOf } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
@@ -245,15 +245,11 @@ const queryValue = ref(query.value || "");
 
 // --- Sorted and filtered choices
 
-const sortedChoices = computed(() => {
-  const filtered = filter(
-    choices.value,
-    (c: DomainChoice) => c.value !== DomainTypes.transfer
-  );
-  return sortBy(filtered, (c: DomainChoice) =>
+const sortedChoices = computed(() =>
+  sortBy(choices.value, (c: DomainChoice) =>
     indexOf(SMART_DOMAIN_CHOICES_ORDER, c.value)
-  );
-});
+  )
+);
 
 function choiceLabel(value: DomainTypes): string {
   const translations: { label?: string } = tm(`domain.choices.${value}`);

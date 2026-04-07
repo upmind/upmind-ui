@@ -38,7 +38,7 @@ import {
   type DomainModel,
   type DacContext,
   type DomainProduct,
-  DomainTypes
+  DomainMode
 } from "./types";
 import type { ProductProps } from "../product";
 import { parseBasketProduct } from "../basketProduct/utils";
@@ -1009,14 +1009,14 @@ export default createMachine(
         { search, mode }: DacContext,
         _event: AnyEventObject
       ) => {
-        if (mode === DomainTypes.transfer) {
+        if (mode === DomainMode.transfer) {
           return !isEmpty(parseDomain(search?.query ?? ""));
         }
         const sld = parseSld(search?.query ?? "");
         return sld?.length > 2;
       },
       validSearchQuery: ({ mode }: DacContext, { data }: AnyEventObject) => {
-        if (mode === DomainTypes.transfer) {
+        if (mode === DomainMode.transfer) {
           return !isEmpty(parseDomain(data ?? ""));
         }
         const sld = parseSld(data ?? "");
