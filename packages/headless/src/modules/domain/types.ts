@@ -355,10 +355,6 @@ export interface DomainContext extends BasketHelperContext<DomainProduct> {
    * Stores the target type for a blocked type-switch while `removing` processes basket removal.
    */
   pendingChoose?: DomainTypes;
-  /**
-   * True while `removing` invoke is in-flight.
-   */
-  removalInFlight: boolean;
 }
 
 // -----------------------------------------------------------------------------
