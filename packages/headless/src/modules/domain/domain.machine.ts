@@ -774,7 +774,7 @@ export default createMachine(
 
             // Detect transfer: check if basket product options match transfer sub-product IDs
             const transferSubIds =
-              (raw.product as any)?.setup_function_sub_ids?.transfer ?? [];
+              raw.product?.setup_function_sub_ids?.transfer ?? [];
             if (
               transferSubIds.length > 0 &&
               some(raw.options, (opt: any) =>
