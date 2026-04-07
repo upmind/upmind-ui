@@ -65,11 +65,6 @@ export enum DomainTypes {
    */
   register = "register",
   /**
-   * Represents the flow for **transferring an existing domain name** from another registrar.
-   * Used when a customer wants to consolidate domain management under Upmind.
-   */
-  transfer = "transfer",
-  /**
    * Represents the flow where a customer chooses to **use an existing domain name** they already own,
    * without transferring it. They will typically update nameservers manually.
    */
@@ -79,6 +74,20 @@ export enum DomainTypes {
    * Used for multistep checkouts or when combining items.
    */
   basket = "basket"
+}
+
+/**
+ * Enumeration defining the internal operation mode for the Domain Availability Checker (DAC).
+ * This is distinct from {@link DomainTypes} which represents user-facing choices.
+ *
+ * - `register`: runs suggestions + availability check (default search behaviour)
+ * - `transfer`: skips suggestions, runs availability check + owned domain lookup only
+ *
+ * @enum {string}
+ */
+export enum DomainMode {
+  register = "register",
+  transfer = "transfer"
 }
 
 /**
@@ -163,7 +172,7 @@ export interface DacContext extends BasketHelperContext<DomainProduct> {
    * The domain flow mode: 'register' (default) runs suggestions + availability,
    * 'transfer' runs only checkAvailability.
    */
-  mode?: DomainTypes;
+  mode?: DomainMode;
   /**
    * The current {@link DomainModel} or array of models representing the selected domains.
    */
