@@ -495,7 +495,8 @@ export async function addExistingTransfer(
     basketId,
     availabilityResult,
     coupons,
-    preferredCycle
+    preferredCycle,
+    lookups
   } = context;
 
   if (!checkingDomain || !availabilityResult?.product) {
@@ -524,19 +525,11 @@ export async function addExistingTransfer(
   model.coupons ??= coupons ?? [];
   model.silent = true;
 
-  // --- Pre-add snapshot ---
-  // Read the current basket state without triggering a refresh.
-  // Calling refreshBasket() here would trigger a reactive cascade that
-  // causes the parent component to remount SmartDomainField, destroying
-  // this machine instance mid-flight.
-  const { useBasket } = await import("../basket");
-  const { basket: basketRef } = useBasket();
-  const domainProducts = getDomainRawBasketProducts(
-    basketRef.value?.products ?? []
-  );
+  // Read the current basket state from context without triggering a refresh
+  // to avoid a reactive cascade that could remount SmartDomainField.
   const existingBpids = new Set(
     map(
-      filter(domainProducts, p => p.service_identifier === checkingDomain),
+      filter(lookups?.basket, p => p.domain === checkingDomain),
       "id"
     )
   );
