@@ -384,25 +384,7 @@ export default createMachine(
           },
 
           valid: {},
-          unavailable: {
-            on: {
-              UPDATE: [
-                {
-                  target: "validating",
-                  cond: "isDomainLike",
-                  actions: ["clearError", "setExisting", "persistModel"]
-                },
-                {
-                  target: "invalid",
-                  actions: [
-                    "setErrorInvalidDomain",
-                    "setExisting",
-                    "persistModel"
-                  ]
-                }
-              ]
-            }
-          },
+          unavailable: {},
           error: {}
         },
         on: {
