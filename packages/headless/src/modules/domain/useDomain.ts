@@ -346,7 +346,7 @@ export const useDomain = (
     const product = availabilityResult.value?.product;
     if (product) {
       const prices = product.prices ?? [];
-      const annual = find(prices, (p: any) => p.billing_cycle_months === 12);
+      const annual = find(prices, { billing_cycle_months: 12 });
       const priceEntry = annual ?? first(prices);
       if (priceEntry) {
         return {
