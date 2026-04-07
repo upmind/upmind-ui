@@ -177,8 +177,15 @@ export type QueryParams<
 > = RequestParams &
   Omit<
     QueryObserverOptions<TQueryFnData, DefaultError, TData>,
-    "queryFn" | "initialData"
-  >;
+    "queryFn" | "initialData" | "select"
+  > & {
+    /**
+     * Optional transform applied to the raw API data before it reaches consumers.
+     * Receives the main data payload and, when available, the `related` sideloaded
+     * resources from the response.
+     */
+    select?: (data: TQueryFnData, related?: QueryResponse["related"]) => TData;
+  };
 
 /**
  * Type alias for reactive query keys used to create dynamic query keys for TanStack Query.

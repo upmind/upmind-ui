@@ -261,7 +261,7 @@ function search(context: DacContext) {
       queryKey: ["domains", "suggestions", sld],
       withAccessToken: true,
       withCurrency: true,
-      select: ((results: any, related?: any) => {
+      select: (results: any, related?: any) => {
         const productsMap = related?.products ?? {};
         const data = parseSuggestions(
           results ?? [],
@@ -270,7 +270,7 @@ function search(context: DacContext) {
           "register"
         );
         return { data, total: data.length };
-      }) as any
+      }
     })
       .then(suggestions => {
         suggestionsData = suggestions.data;
@@ -328,14 +328,14 @@ async function checkAvailability({
     queryKey: ["domains", "availability", checkingDomain],
     withAccessToken: true,
     withCurrency: true,
-    select: ((data: any, related?: any) => {
+    select: (data: any, related?: any) => {
       // The product may be in related.products (keyed by product_id)
       // rather than directly on the data object
       if (!data.product && data.product_id && related?.products) {
         data.product = related.products[data.product_id];
       }
       return data;
-    }) as any
+    }
   });
 }
 

@@ -153,11 +153,9 @@ export const useDomain = (
       showExisting: stateMatches(state, ["existing"]),
       showBasket: stateMatches(state, ["basket"]),
       showSummary:
-        (stateMatches(state, ["basket"]) &&
-          stateMatches(state, ["basket.valid"]) &&
+        (stateMatches(state, ["basket.valid"]) &&
           contextMatches(state, "model")) ||
-        (stateMatches(state, ["existing"]) &&
-          !!contextValue<DomainContext["model"]>(state, "model")?.domain),
+        stateMatches(state, ["existing.valid", "existing.transferred"]),
       isValid:
         (stateMatches(dac, ["valid"]) && contextMatches(dac, "model")) ||
         (stateMatches(state, ["existing.valid", "basket.valid"]) &&
@@ -175,10 +173,12 @@ export const useDomain = (
       isExistingValidating: stateMatches(state, "existing.validating"),
       isExistingChecked: stateMatches(state, "existing.checked"),
       isExistingRegisterable: stateMatches(state, "existing.registerable"),
-      isExistingRegistering:
+      // True while registration is in-flight OR completed but not yet reflected in basket
+      isExistingPendingRegistration:
         stateMatches(state, "existing.registering") ||
         (stateMatches(state, "existing.valid") && !isInBasket),
-      isExistingTransferring:
+      // True while transfer is in-flight OR completed but not yet reflected in basket
+      isExistingPendingTransfer:
         stateMatches(state, "existing.transferring") ||
         (stateMatches(state, "existing.transferred") && !isInBasket),
       isExistingTransferred:
@@ -364,7 +364,7 @@ export const useDomain = (
         return {
           price: matched.price?.currentAmount
             ? matched.price.currentPrice
-            : (matched?.meta?.renewalPrice ?? ""),
+            : (matched.price?.regularPrice ?? ""),
           cycle: 12
         };
       }
@@ -388,10 +388,12 @@ export const useDomain = (
     send({ type: "UPDATE", data: [""] });
   }
 
-  /** Re-enter editing from summary, auto-selecting basket type if the domain is in the basket. */
+  /** Re-enter editing from summary, auto-selecting basket or existing type. */
   function change(): void {
     if (some(basket.value, ["domain", model.value])) {
       choose(DomainTypes.basket);
+    } else {
+      choose(DomainTypes.existing);
     }
   }
 

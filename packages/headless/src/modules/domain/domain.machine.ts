@@ -19,6 +19,7 @@ import {
 } from "../../utils";
 import {
   getDomainRawBasketProducts,
+  hasTransferIndicator,
   isDomainProduct,
   parseDomain
 } from "./utils";
@@ -414,6 +415,10 @@ export default createMachine(
           REFRESH: {
             actions: ["setBasketProducts", "refreshContext", "checkChoices"]
           },
+          // NB: The `removing` child state overrides UPDATE to queue the value
+          // via `storePendingUpdate` instead of transitioning. XState v4 resolves
+          // child handlers before parent, so this handler only fires when NOT in
+          // the `removing` state.
           UPDATE: [
             {
               target: ".validating",
@@ -783,20 +788,6 @@ export default createMachine(
             // API response. Match basket option product_ids against catalog
             // products_options and check for transfer indicators.
             if (!basketProduct.meta.isTransfer && raw.options?.length) {
-              const hasTransferIndicator = (product: any): boolean => {
-                if (!product) return false;
-                const name = (product.name ?? "").toLowerCase();
-                const code = (product.code ?? "").toLowerCase();
-                const opCode = (
-                  product.domain_operation_code ?? ""
-                ).toLowerCase();
-                return (
-                  name.includes("transfer") ||
-                  code.includes("transfer") ||
-                  opCode === "transfer"
-                );
-              };
-
               const basketOptionProductIds = new Set(
                 map(raw.options, (opt: any) => opt.product_id)
               );
@@ -1137,10 +1128,14 @@ export default createMachine(
       hasDacDomains: (_context: DomainContext, { data }: AnyEventObject) =>
         !isEmpty(data?.domains),
 
+      // NB: This guard inspects the current machine state via the third
+      // argument provided by XState v4 guards. Raw `state.matches()` is used
+      // because `stateMatches` is a composable-level utility, not available
+      // inside machine configuration.
       isInRemovingState: (
         _ctx: DomainContext,
         _event: AnyEventObject,
-        { state }: any
+        { state }: { state: { matches: (value: string) => boolean } }
       ) => state.matches("existing.removing"),
 
       isOwnedDomain: ({ model, lookups }: DomainContext) =>
@@ -1204,7 +1199,7 @@ export default createMachine(
       isInvalid: ({ model }: DomainContext) => isEmpty(parseDomain(model)),
 
       isDomainLike: (_context: DomainContext, { data }: AnyEventObject) => {
-        return DOMAIN_LIKE_VALIDATION.test(data.toString());
+        return !!data && DOMAIN_LIKE_VALIDATION.test(String(data));
       },
 
       isDomainTransfer: (
@@ -1231,6 +1226,12 @@ export default createMachine(
       wait: () => useTime().WAIT
     },
 
-    services: services as any
+    services: {
+      getClientDomains: services.getClientDomains,
+      checkAvailability: services.checkAvailability,
+      addExistingTransfer: services.addExistingTransfer,
+      addExistingRegistration: services.addExistingRegistration,
+      removeExistingTransfer: services.removeExistingTransfer
+    }
   }
 );
