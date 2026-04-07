@@ -493,13 +493,13 @@ async function addExistingTransfer(
   const {
     checkingDomain,
     basketId,
-    availabilityResult,
+    availability,
     coupons,
     preferredCycle,
     lookups
   } = context;
 
-  if (!checkingDomain || !availabilityResult?.product)
+  if (!checkingDomain || !availability?.product)
     return Promise.reject(
       new DetailedError(
         "No domain or availability data for transfer",
@@ -510,7 +510,7 @@ async function addExistingTransfer(
 
   const domainProduct = buildDomainProductFromAvailability(
     checkingDomain,
-    availabilityResult,
+    availability,
     preferredCycle
   );
 
@@ -608,15 +608,10 @@ async function removeExistingTransfer(context: DomainContext): Promise<void> {
 async function addExistingRegistration(
   context: DomainContext
 ): Promise<{ domain: string }> {
-  const {
-    checkingDomain,
-    basketId,
-    availabilityResult,
-    coupons,
-    preferredCycle
-  } = context;
+  const { checkingDomain, basketId, availability, coupons, preferredCycle } =
+    context;
 
-  if (!checkingDomain || !availabilityResult?.product)
+  if (!checkingDomain || !availability?.product)
     return Promise.reject(
       new DetailedError(
         "No domain or availability data for registration",
@@ -627,7 +622,7 @@ async function addExistingRegistration(
 
   const domainProduct = buildDomainProductFromAvailability(
     checkingDomain,
-    availabilityResult,
+    availability,
     preferredCycle
   );
 

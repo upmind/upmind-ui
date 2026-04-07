@@ -549,7 +549,7 @@ export default createMachine(
           error: undefined,
           // --- existing flow
           checkingDomain: undefined,
-          availabilityResult: undefined,
+          availability: undefined,
           transferProductId: undefined,
           pendingUpdate: undefined,
           pendingChoose: undefined,
@@ -965,14 +965,12 @@ export default createMachine(
       }),
 
       setAvailabilityResult: assign({
-        availabilityResult: (
-          _context: DomainContext,
-          { data }: AnyEventObject
-        ) => data
+        availability: (_context: DomainContext, { data }: AnyEventObject) =>
+          data
       }),
 
       clearAvailabilityResult: assign({
-        availabilityResult: () => undefined
+        availability: () => undefined
       }),
 
       setTransferProductId: assign({

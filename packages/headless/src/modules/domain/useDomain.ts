@@ -169,7 +169,6 @@ export const useDomain = (
 
       // --- SmartDomainField canonical flags
       isSkip: stateMatches(state, "skip"),
-      isExistingInvalid: stateMatches(state, "existing.invalid"),
       isExistingValidating: stateMatches(state, "existing.validating"),
       isExistingChecked: stateMatches(state, "existing.checked"),
       isExistingRegisterable: stateMatches(state, "existing.registerable"),
@@ -195,10 +194,7 @@ export const useDomain = (
         stateMatches(state, "existing.transferring") ||
         stateMatches(state, "existing.removing") ||
         (stateMatches(state, "existing.valid") && isInBasket) ||
-        stateMatches(state, "existing.error"),
-      canTransfer:
-        stateMatches(state, ["existing.checked", "existing.transferred"]) &&
-        !!contextValue(state, "availabilityResult")
+        stateMatches(state, "existing.error")
     };
   });
 
@@ -338,12 +334,13 @@ export const useDomain = (
 
   // --- existing flow methods
 
-  const availabilityResult = useContext<
-    IDomainAvailabilityResponse | undefined
-  >(state, "availabilityResult");
+  const availability = useContext<IDomainAvailabilityResponse | undefined>(
+    state,
+    "availability"
+  );
 
   const pricing = computed(() => {
-    const product = availabilityResult.value?.product;
+    const product = availability.value?.product;
     if (product) {
       const prices = product.prices ?? [];
       const annual = find(prices, { billing_cycle_months: 12 });
@@ -351,11 +348,11 @@ export const useDomain = (
       if (priceEntry) {
         return {
           price: parsePrice(priceEntry).currentPrice,
-          cycle: priceEntry.billing_cycle_months ?? 12
+          cycle: priceEntry.billing_cycle_months
         };
       }
     }
-    // Fallback: basket product pricing (on remount, availabilityResult
+    // Fallback: basket product pricing (on remount, availability
     // is lost but the basket product has its own price data)
     const domain = selected.value;
     if (domain) {
@@ -365,7 +362,7 @@ export const useDomain = (
           price: matched.price?.currentAmount
             ? matched.price.currentPrice
             : (matched.price?.regularPrice ?? ""),
-          cycle: 12
+          cycle: matched.configuration?.term ?? matched.productDetails?.cycle
         };
       }
     }
@@ -563,8 +560,8 @@ export const useDomain = (
 
     // --- existing flow
 
-    /** Availability result for the current domain (transfer price, renewal info). */
-    availabilityResult,
+    /** Availability response for the current domain (transfer price, renewal info). */
+    availability,
 
     /** Pricing derived from the availability result with basket fallback ({ price, cycle }). */
     pricing,

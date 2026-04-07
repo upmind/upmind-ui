@@ -336,10 +336,10 @@ export interface DomainContext extends BasketHelperContext<DomainProduct> {
    */
   checkingDomain?: string;
   /**
-   * Stored availability result for transfer price/renewal display
+   * Stored availability response for transfer price/renewal display
    * and for building the basket product model in addExistingTransfer.
    */
-  availabilityResult?: IDomainAvailabilityResponse;
+  availability?: IDomainAvailabilityResponse;
   /**
    * The basket line item ID (bpid) of the added transfer product.
    * Used by removeExistingTransfer for exact-ID removal.
