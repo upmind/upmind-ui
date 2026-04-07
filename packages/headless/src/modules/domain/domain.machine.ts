@@ -534,7 +534,7 @@ export default createMachine(
         return defaultsDeep(context, {
           choices: values(DomainTypes),
           type: undefined,
-          required: undefined,
+          required: true,
           model: undefined,
           lookups: {
             owned: [],
@@ -611,8 +611,7 @@ export default createMachine(
           choices ??= [];
           if (isString(choices)) choices = [choices as DomainTypes];
 
-          // exclude skip when not explicitly optional
-          if (required !== false) {
+          if (required) {
             remove(choices, value => value === DomainTypes.skip);
           }
           // add skip when explicitly optional and not already present
@@ -666,18 +665,10 @@ export default createMachine(
           }
 
           if (!type && !isEmpty(choices)) {
-            // required === false → default to skip (explicitly optional)
-            if (required === false) {
-              return DomainTypes.skip;
+            if (!required) return DomainTypes.skip;
+            if (includes(choices, DomainTypes.register)) {
+              return DomainTypes.register;
             }
-            // required === true → auto-select register when no basket items
-            if (required) {
-              if (includes(choices, DomainTypes.register)) {
-                return DomainTypes.register;
-              }
-              return undefined;
-            }
-            // required === undefined (legacy) → auto-select first choice
             return first(choices);
           }
 

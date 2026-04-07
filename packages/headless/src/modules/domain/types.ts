@@ -263,12 +263,10 @@ export interface DomainContext extends BasketHelperContext<DomainProduct> {
    */
   type?: DomainProps["type"];
   /**
-   * Whether the domain field is required.
-   * - `true`: skip excluded, no default type
-   * - `false`: skip enabled, skip is default type
-   * - `undefined`: legacy/default (no skip, auto-select fallback)
+   * Whether the domain field is required. Defaults to `true`.
+   * When `false`, skip is available and selected by default.
    */
-  required?: boolean;
+  required: boolean;
   // ---
   /**
    * The current {@link DomainModel} representing the selected domain.
