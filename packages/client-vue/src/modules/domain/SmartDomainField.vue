@@ -343,7 +343,7 @@ watch(selected, value => {
   emit("update:modelValue", value ?? null);
 });
 
-// Skip state → emit null
+// Skip state → emit null to clear the field
 watch(
   () => meta.value.isSkip,
   isSkip => {

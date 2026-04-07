@@ -41,10 +41,8 @@ const { control, formFieldProps, onInput, handleChange } = useUpmindUIRenderer(
   (value: string) => trim(value)
 );
 
-const onDomainInput = (value: any, isTouched = true) => {
-  // Skip emits null — convert to undefined to remove the property from form data,
-  // bypassing onInput's isNil guard.
-  if (value === null) return handleChange(control.value.path, undefined);
+const onDomainInput = (value: string | null, isTouched = true) => {
+  if (!value) return handleChange(control.value.path, undefined);
   onInput(value, isTouched);
 };
 </script>
