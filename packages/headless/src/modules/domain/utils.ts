@@ -31,6 +31,7 @@ import {
   type IBasketProduct,
   type IBlueprint,
   type IProduct,
+  type IProductPrice,
   ProvisionCategoryCodes
 } from "@upmind-automation/types";
 import type { BasketProduct } from "../basketProduct";
@@ -219,14 +220,17 @@ export function parseSuggestions(
       }
     }
 
-    // Fallback when product is missing or parsing failed
     const prices = product?.prices ?? [];
     // Prefer 12-month price, then preferred cycle, then lowest term
     const sortedPrices = sortBy(prices, "billing_cycle_months");
     const priceEntry =
-      find(prices, (p: any) => p.billing_cycle_months === 12) ??
-      find(prices, (p: any) => p.billing_cycle_months === preferredCycle) ??
+      find(prices, (p: IProductPrice) => p.billing_cycle_months === 12) ??
+      find(
+        prices,
+        (p: IProductPrice) => p.billing_cycle_months === preferredCycle
+      ) ??
       first(sortedPrices);
+
     const billingCycleMonths = priceEntry?.billing_cycle_months ?? 12;
 
     return {
@@ -239,17 +243,7 @@ export function parseSuggestions(
         quantity: 1,
         provisionFields: { sld }
       },
-      price: priceEntry
-        ? parsePrice(priceEntry)
-        : {
-            currentPrice: "",
-            currentAmount: 0,
-            regularPrice: "",
-            regularAmount: 0,
-            savingAmount: 0,
-            savingPrice: "",
-            savingPercent: ""
-          },
+      price: parsePrice(priceEntry as IProductPrice),
       meta: {
         available: can_register,
         canTransfer: can_transfer
