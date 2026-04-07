@@ -12,7 +12,7 @@
       :disabled="appliedOptions?.disabled"
       :size="appliedOptions?.size"
       :align="appliedOptions?.align"
-      @update:model-value="onInput"
+      @update:model-value="(value: any) => onInput(value)"
     />
   </FormField>
 </template>
