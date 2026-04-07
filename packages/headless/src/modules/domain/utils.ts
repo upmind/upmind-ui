@@ -179,7 +179,7 @@ export function parseSuggestions(
         );
 
         // Extract sub_pids from setup_function_sub_ids based on mode
-        const setupSubIds = (product as any).setup_function_sub_ids;
+        const setupSubIds = product.setup_function_sub_ids;
         const subproducts: string[] = compact(
           setupSubIds?.[mode] ?? [product.sub_product_id]
         );

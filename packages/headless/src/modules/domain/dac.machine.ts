@@ -879,8 +879,7 @@ export default createMachine(
 
             // Rebuild configuration with register sub_pids from setup_function_sub_ids
             if (product.rawProduct) {
-              const setupSubIds = (product.rawProduct as any)
-                .setup_function_sub_ids;
+              const setupSubIds = product.rawProduct.setup_function_sub_ids;
               const subproducts: string[] = compact(
                 setupSubIds?.register ?? [product.rawProduct.sub_product_id]
               );
@@ -921,8 +920,7 @@ export default createMachine(
 
             // Rebuild configuration with transfer sub_pids from setup_function_sub_ids
             if (product.rawProduct) {
-              const setupSubIds = (product.rawProduct as any)
-                .setup_function_sub_ids;
+              const setupSubIds = product.rawProduct.setup_function_sub_ids;
               const subproducts: string[] = compact(
                 setupSubIds?.transfer ?? [product.rawProduct.sub_product_id]
               );
