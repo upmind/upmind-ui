@@ -114,6 +114,12 @@ export const useDomain = (
         "domain",
         domain
       ]);
+    const isOwned =
+      !!domain &&
+      some(contextValue<DomainProduct[]>(state, "lookups.owned"), [
+        "domain",
+        domain
+      ]);
 
     return {
       isLoading: stateMatches(state, ["subscribing", "loading"]),
@@ -175,7 +181,7 @@ export const useDomain = (
       // True while registration is in-flight OR completed but not yet reflected in basket
       isExistingPendingRegistration:
         stateMatches(state, "existing.registering") ||
-        (stateMatches(state, "existing.valid") && !isInBasket),
+        (stateMatches(state, "existing.valid") && !isInBasket && !isOwned),
       // True while transfer is in-flight OR completed but not yet reflected in basket
       isExistingPendingTransfer:
         stateMatches(state, "existing.transferring") ||
@@ -185,6 +191,7 @@ export const useDomain = (
       isExistingRemoving: stateMatches(state, "existing.removing"),
       isExistingUnavailable: stateMatches(state, "existing.unavailable"),
       isExistingValid: stateMatches(state, "existing.valid") && isInBasket,
+      isExistingOwned: stateMatches(state, "existing.valid") && isOwned,
       isExistingError: stateMatches(state, "existing.error"),
       hasInfo:
         stateMatches(state, "existing.checked") ||

@@ -789,7 +789,7 @@ export default createMachine(
           const parsed = parseDomain(value, true);
           const domain: DomainModel = {
             type: DomainTypes.existing,
-            domain: value,
+            domain: parsed?.domain ?? value,
             tld: parsed?.tld ?? "",
             sld: parsed?.sld ?? "",
             selected: true

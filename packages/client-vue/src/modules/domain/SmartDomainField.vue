@@ -72,7 +72,11 @@
                 :transferring="meta.isExistingPendingTransfer"
                 :removing="meta.isExistingRemoving"
                 :unavailable="meta.isExistingUnavailable"
-                :dns-only="meta.isExistingValid || meta.isExistingError"
+                :dns-only="
+                  meta.isExistingValid ||
+                  meta.isExistingError ||
+                  meta.isExistingOwned
+                "
                 :transfer-price="pricing?.price ?? ''"
                 :register-price="pricing?.price ?? ''"
                 :cycle="pricing?.cycle"
