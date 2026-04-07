@@ -735,10 +735,9 @@ export default createMachine(
             basketProduct.tld = parsed.tld;
             basketProduct.sld = parsed.sld;
             basketProduct.domain = parsed.domain;
+            basketProduct.meta.isTransfer = isBasketTransfer(raw);
             basketProduct.meta.selected = parsed.domain === primaryDomain;
             basketProduct.productDetails.title = parsed.domain;
-
-            basketProduct.meta.isTransfer = isBasketTransfer(raw);
 
             return basketProduct;
           },
@@ -927,10 +926,8 @@ export default createMachine(
       }),
 
       storePendingUpdate: assign({
-        pendingUpdate: (_context: DomainContext, { data }: AnyEventObject) => {
-          const d = data;
-          return trim(isArray(d) ? first(d) : d);
-        }
+        pendingUpdate: (_context: DomainContext, { data }: AnyEventObject) =>
+          trim(isArray(data) ? first(data) : data)
       }),
 
       clearPendingUpdate: assign({
