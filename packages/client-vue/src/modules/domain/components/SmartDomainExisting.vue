@@ -130,8 +130,8 @@ const searchValue = ref(props.modelValue ?? "");
 const ownedItems = computed((): SearchItem[] | null => {
   if (!props.filteredOwned) return null;
   return map(props.filteredOwned, item => ({
-    id: item.domain?.toString() ?? "",
-    label: item.domain?.toString() ?? ""
+    id: item.domain,
+    label: item.domain
   }));
 });
 
