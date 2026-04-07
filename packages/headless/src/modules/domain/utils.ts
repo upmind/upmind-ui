@@ -18,10 +18,12 @@ import {
   first,
   get,
   has,
+  includes,
   isEmpty,
   isObject,
   map,
   reduce,
+  some,
   sortBy,
   uniqBy
 } from "lodash-es";
@@ -357,6 +359,40 @@ export function hasTransferIndicator(product: any): boolean {
     name.includes("transfer") ||
     code.includes("transfer") ||
     opCode === "transfer"
+  );
+}
+
+/**
+ * Determines whether a raw basket product represents a domain transfer.
+ *
+ * Uses a tiered approach:
+ * 1. Match option product IDs against typed `setup_function_sub_ids.transfer`.
+ * 2. Check option sideloaded products for transfer indicators.
+ * 3. Match against catalog `products_options` for transfer indicators.
+ *
+ * @param raw - A raw basket product from the API.
+ * @returns `true` if the basket product is a domain transfer.
+ */
+export function isBasketTransfer(raw: IBasketProduct): boolean {
+  const transferSubIds = raw.product?.setup_function_sub_ids?.transfer ?? [];
+
+  if (
+    transferSubIds.length > 0 &&
+    some(raw.options, (opt: any) => includes(transferSubIds, opt.product_id))
+  ) {
+    return true;
+  }
+
+  if (some(raw.options, (opt: any) => hasTransferIndicator(opt.product))) {
+    return true;
+  }
+
+  const catalogOptions = raw.product?.products_options ?? [];
+  return some(
+    catalogOptions,
+    (catOpt: any) =>
+      some(raw.options, (opt: any) => opt.product_id === catOpt.id) &&
+      hasTransferIndicator(catOpt)
   );
 }
 

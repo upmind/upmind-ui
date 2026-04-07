@@ -19,7 +19,7 @@ import {
 } from "../../utils";
 import {
   getDomainRawBasketProducts,
-  hasTransferIndicator,
+  isBasketTransfer,
   isDomainProduct,
   parseDomain
 } from "./utils";
@@ -738,42 +738,7 @@ export default createMachine(
             basketProduct.meta.selected = parsed.domain === primaryDomain;
             basketProduct.productDetails.title = parsed.domain;
 
-            // Detect transfer: check if basket product options match transfer sub-product IDs
-            const transferSubIds =
-              raw.product?.setup_function_sub_ids?.transfer ?? [];
-            if (
-              transferSubIds.length > 0 &&
-              some(raw.options, (opt: any) =>
-                includes(transferSubIds, opt.product_id)
-              )
-            ) {
-              basketProduct.meta.isTransfer = true;
-            }
-
-            // Fallback: setup_function_sub_ids is unavailable in the basket
-            // API response. Match basket option product_ids against catalog
-            // products_options and check for transfer indicators.
-            if (!basketProduct.meta.isTransfer && raw.options?.length) {
-              const basketOptionProductIds = new Set(
-                map(raw.options, (opt: any) => opt.product_id)
-              );
-              const catalogOptions = raw.product?.products_options ?? [];
-
-              const isTransfer =
-                some(
-                  catalogOptions,
-                  (catOpt: any) =>
-                    basketOptionProductIds.has(catOpt.id) &&
-                    hasTransferIndicator(catOpt)
-                ) ||
-                some(raw.options, (opt: any) =>
-                  hasTransferIndicator(opt.product)
-                );
-
-              if (isTransfer) {
-                basketProduct.meta.isTransfer = true;
-              }
-            }
+            basketProduct.meta.isTransfer = isBasketTransfer(raw);
 
             return basketProduct;
           },
