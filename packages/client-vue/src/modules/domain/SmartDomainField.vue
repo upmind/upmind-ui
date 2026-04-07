@@ -26,7 +26,7 @@
                 <RadioGroupItem :value="choice.value" />
               </div>
               <label :class="styles.field.label">
-                {{ choiceLabel(choice.value) }}
+                {{ rt(tm(`domain.choices.${choice.value}`).label) }}
               </label>
             </div>
 
@@ -251,11 +251,6 @@ const sortedChoices = computed(() =>
   )
 );
 
-function choiceLabel(value: DomainTypes): string {
-  const translations: { label?: string } = tm(`domain.choices.${value}`);
-  return rt(translations?.label ?? "") || value;
-}
-
 // --- Basket items for Select
 
 const basketItems = computed((): SelectItemProps[] =>
@@ -292,6 +287,10 @@ function onChoose(value: string | DomainTypes) {
 
 function onRegisterInput(value: string | number | undefined) {
   queryValue.value = value?.toString() ?? "";
+}
+
+function openDrawer() {
+  open.value = true;
 }
 
 function onExistingUpdate(value: string) {
