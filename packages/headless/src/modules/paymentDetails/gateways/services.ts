@@ -1,7 +1,7 @@
 // --- external
 
 // --- internal
-import { useBrand, useI18n, useSession } from "../../..";
+import { useBrand, useI18n, useQuery, useSession } from "../../..";
 
 // --- utils
 import { canBeStored } from "./utils";
@@ -15,14 +15,17 @@ import {
 import { get, isNil } from "lodash-es";
 
 // --- types
-import { BrandConfigKeys } from "@upmind-automation/types";
+import {
+  BrandConfigKeys,
+  GatewayContext as GatewayCtx
+} from "@upmind-automation/types";
 import type { GatewayContext } from "./types";
 import type { AnyEventObject } from "xstate";
 
 // -----------------------------------------------------------------------------
 
 async function load(
-  { gateway, supported }: GatewayContext,
+  { gateway, supported, ctx }: GatewayContext,
   _event: AnyEventObject
 ) {
   const { isAuthenticated } = useSession();
@@ -32,6 +35,16 @@ async function load(
   const { isReady, ensureConfig } = useBrand();
 
   await isReady().catch(error => Promise.reject(error));
+
+  // --- reject early if ADD context and gateway cannot store outside payment
+  if (ctx === GatewayCtx.ADD && !canBeStored(gateway)) {
+    const { t } = useI18n();
+    throw new DetailedError(
+      t("error.payment_gateway_not_available"),
+      responseCodes.Unprocessable_Entity,
+      ErrorOrigin.Headless
+    );
+  }
 
   // ---
   // check our brand for what to do with card storage and auto payment
@@ -127,6 +140,124 @@ async function pay({ model }: GatewayContext) {
   return Promise.resolve(model);
 }
 
+/**
+ * @name beginSetup
+ * @description Calls the tokenize-begin API to initiate storing a payment method.
+ * Returns gateway_specific data (e.g. clientSecret for Stripe, clientToken for Braintree)
+ * and the client_payment_details_id needed for endSetup.
+ */
+export async function beginSetup({ gateway, client }: GatewayContext) {
+  const { t } = useI18n();
+  const { post, useUrl } = useQuery();
+
+  if (!gateway?.id || !client?.id) {
+    throw new DetailedError(
+      t("error.payment_gateway_not_available"),
+      responseCodes.Bad_Request,
+      ErrorOrigin.Headless
+    );
+  }
+
+  return post({
+    mutationKey: ["gateway", "tokenize-begin", gateway.id],
+    url: useUrl(`gateway/frontend/tokenize-begin/${gateway.id}`),
+    withAccessToken: true,
+    data: {
+      client_id: client.id,
+      gateway_id: gateway.id
+    }
+  });
+}
+
+/**
+ * @name endSetup
+ * @description Calls the tokenize-end API to finalize storing a payment method.
+ * Requires the client_payment_details_id from beginSetup and a gateway-specific
+ * token (nonce, payment_method_id, etc.) from the SDK.
+ */
+export async function endSetup(
+  { gateway, client, model }: GatewayContext,
+  payload: {
+    client_payment_details_id: string;
+    token?: string;
+    payment_method_nonce?: string;
+    payment_method_id?: string;
+    payment_method_type?: string;
+    [key: string]: unknown;
+  }
+) {
+  const { t } = useI18n();
+  const { post, useUrl } = useQuery();
+
+  if (!gateway?.id || !client?.id) {
+    throw new DetailedError(
+      t("error.payment_gateway_not_available"),
+      responseCodes.Bad_Request,
+      ErrorOrigin.Headless
+    );
+  }
+
+  return post({
+    mutationKey: ["gateway", "tokenize-end", gateway.id],
+    url: useUrl(`gateway/frontend/tokenize-end/${gateway.id}`),
+    withAccessToken: true,
+    data: {
+      auto_payment: model?.store_on_payment_auto_payment ?? false,
+      client_id: client.id,
+      ...payload
+    }
+  });
+}
+
+/**
+ * @name add
+ * @description Default add service for non-SDK gateways.
+ * Calls beginSetup → endSetup without SDK token acquisition.
+ * SDK gateways (Stripe, Braintree, etc.) override this with their own
+ * implementation that acquires a token between the two API calls.
+ */
+async function add(context: GatewayContext) {
+  const { t } = useI18n();
+  const { gateway } = context;
+
+  if (!gateway) {
+    throw new DetailedError(
+      t("error.payment_gateway_not_available"),
+      responseCodes.Not_Found,
+      ErrorOrigin.Headless
+    );
+  }
+
+  if (!canBeStored(gateway)) {
+    throw new DetailedError(
+      t("error.payment_gateway_not_available"),
+      responseCodes.Unprocessable_Entity,
+      ErrorOrigin.Headless
+    );
+  }
+
+  const setupResponse = await beginSetup(context);
+  const clientPaymentDetailsId = get(
+    setupResponse,
+    "client_payment_details.id"
+  );
+
+  if (!clientPaymentDetailsId) {
+    throw new DetailedError(
+      t("error.payment_gateway_not_available"),
+      responseCodes.Unprocessable_Entity,
+      ErrorOrigin.Headless
+    );
+  }
+
+  return {
+    gatewayId: gateway.id,
+    data: {
+      client_payment_details_id: clientPaymentDetailsId
+    }
+  };
+}
+
 // -----------------------------------------------------------------------------
 
 export default {
@@ -134,5 +265,6 @@ export default {
   parse,
   validate,
   // ---
-  pay
+  pay,
+  add
 };

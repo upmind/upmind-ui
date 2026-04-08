@@ -48,8 +48,8 @@ export const useOrder = (invoiceId: string) => {
 
   const paymentDetailActor = useContextActor(state, "paymentDetailActor");
 
-  const paymentDetails = usePaymentDetail(paymentDetailActor);
-  const gateway = usePaymentGateway(paymentDetails.gateway);
+  const paymentDetail = usePaymentDetail(paymentDetailActor);
+  const gateway = usePaymentGateway(paymentDetail.gateway);
 
   // --- context
 
@@ -156,7 +156,7 @@ export const useOrder = (invoiceId: string) => {
     pay,
 
     /** Delegated payment detail composable (for provide/inject). */
-    paymentDetails,
+    paymentDetail,
 
     /** Re-fetch the invoice (e.g. after offsite 3DS return). */
     refresh,

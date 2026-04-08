@@ -7,7 +7,7 @@ import { useDateMapper } from "../../utils";
 import { parseBasketProduct } from "../basketProduct/utils";
 import { parseTaxes } from "../basket/utils";
 import { mapCurrency } from "../currency/mappers";
-import { useClientParser } from "../session/utils";
+import { mapClient } from "../session/utils";
 import { mapAddress } from "../client/address/mappers";
 import { orderBy, map } from "lodash-es";
 
@@ -19,7 +19,7 @@ export function mapInvoice(raw: IInvoice): Invoice {
     locked: !!raw.locked,
     status: raw.status.code as InvoiceStatus,
     number: raw.number,
-    client: useClientParser(raw.client)!,
+    client: mapClient(raw.client)!,
     address: raw.address ? mapAddress(raw.address) : undefined,
     currency: mapCurrency(raw.currency),
     products: map(raw.products, product => parseBasketProduct(product)),

@@ -4,6 +4,7 @@
 // --- internal
 import { useI18n, useLocale } from "../../..";
 import sharedServices from "../services";
+import { beginSetup } from "../services";
 
 // --- utils
 import {
@@ -12,6 +13,7 @@ import {
   responseCodes,
   useScripts
 } from "../../../../utils";
+import { get } from "lodash-es";
 
 // --- types
 import { MERCADOPAGO_FIELDS, type MercadoPagoContext } from "./types";
@@ -183,6 +185,56 @@ async function pay({ gateway, sdk }: MercadoPagoContext) {
     });
 }
 
+/**
+ * @name add
+ * @desc Stores a payment method via MercadoPago in the ADD context.
+ * Calls beginSetup → SDK getFormData (token + payment_method_id) → endSetup.
+ */
+async function add(context: MercadoPagoContext) {
+  const { sdk, model } = context;
+  const { t } = useI18n();
+
+  if (!sdk?.mercadoPago || !sdk?.mercadoPagoController)
+    throw new DetailedError(
+      t("error.payment_gateway_not_available"),
+      responseCodes.Not_Found,
+      ErrorOrigin.Headless
+    );
+
+  const setupResponse = await beginSetup(context);
+  const clientPaymentDetailsId = get(
+    setupResponse,
+    "client_payment_details.id"
+  );
+
+  if (!clientPaymentDetailsId) {
+    throw new DetailedError(
+      t("error.payment_gateway_not_available"),
+      responseCodes.Unprocessable_Entity,
+      ErrorOrigin.Headless
+    );
+  }
+
+  const cardFormData = await sdk.mercadoPagoController?.getFormData();
+
+  if (!cardFormData)
+    throw new DetailedError(
+      t("error.payment_gateway_validation_failed"),
+      responseCodes.Not_Found,
+      ErrorOrigin.Headless
+    );
+
+  return {
+    gatewayId: context.gateway?.id,
+    data: {
+      client_payment_details_id: clientPaymentDetailsId,
+      auto_payment: model?.store_on_payment_auto_payment ?? false,
+      token: cardFormData.token,
+      payment_method_id: cardFormData.payment_method_id
+    }
+  };
+}
+
 // -----------------------------------------------------------------------------
 
 export default {
@@ -190,5 +242,6 @@ export default {
   // ---
   load,
   render,
-  pay
+  pay,
+  add
 };

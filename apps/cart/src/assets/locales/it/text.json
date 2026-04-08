@@ -35,6 +35,7 @@
   "date_sent": "Data di invio",
   "default_label": "Predefinito",
   "discount": "Sconto",
+  "domain_not_available_msg": "Questo dominio non è disponibile tramite noi.",
   "edit_configuration": "Modifica configurazione",
   "email_bounced": "Email respinta",
   "email_history": "Cronologia e-mail",
@@ -126,6 +127,7 @@
   "trial_renews_at_msg": "Rinnovo a {price} dopo il periodo di prova",
   "try_before_you_buy": "Prova prima, poi decidi",
   "try_free_for_days": "Prova gratis per {days} giorni",
+  "unavailable": "Non disponibile",
   "unverified_label": "Non verificato",
   "welcome_back_msg": "Bentornato, {name}"
 }

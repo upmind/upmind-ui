@@ -35,6 +35,7 @@
   "date_sent": "Дата отправки",
   "default_label": "По умолчанию",
   "discount": "Скидка",
+  "domain_not_available_msg": "Этот домен недоступен через нас.",
   "edit_configuration": "Изменить конфигурацию",
   "email_bounced": "Письмо не дошло до адресата.",
   "email_history": "История электронных писем",
@@ -126,6 +127,7 @@
   "trial_renews_at_msg": "Автопродление за {price} после пробного периода",
   "try_before_you_buy": "Сначала попробуйте — потом покупайте",
   "try_free_for_days": "Попробуйте бесплатно на {days} дн.",
+  "unavailable": "Недоступно",
   "unverified_label": "Непроверено",
   "welcome_back_msg": "Добро пожаловать, {name}"
 }
