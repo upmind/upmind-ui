@@ -1,6 +1,6 @@
 {
   "order_complete": "Bestellung abgeschlossen!",
-  "order_complete_msg": "Wir haben Ihnen eine Bestätigungs-E-Mail mit den Details zu Ihrer Bestellung gesendet. Darin finden Sie alle Informationen zu Ihrem Kauf.",
+  "order_complete_msg": "Wir haben Ihnen eine Bestätigungs-E-Mail mit den Details Ihrer Bestellung und allen wichtigen Informationen zu Ihrem Kauf gesendet.",
   "order_free": "Nichts mehr zu bezahlen",
   "order_free_msg": "Ihre Bestellung wurde erfolgreich aufgegeben. Es ist keine Zahlung erforderlich.",
   "order_locked": "Rechnung gesperrt",

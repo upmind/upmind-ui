@@ -46,7 +46,8 @@
       "twofa",
       "uischema",
       "upmind"
-    ]
+    ],
+    "workbench.colorTheme": "Catppuccin Frappé"
   },
   "extensions": {
     "recommendations": [

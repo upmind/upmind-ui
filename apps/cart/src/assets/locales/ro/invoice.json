@@ -1,6 +1,6 @@
 {
   "order_complete": "Comanda finalizată!",
-  "order_complete_msg": "V-am trimis un e-mail de confirmare cu detaliile comenzii. Ar trebui să ajungă în curând, împreună cu tot ce trebuie să știți despre achiziția dvs.",
+  "order_complete_msg": "Ți-am trimis un e-mail de confirmare cu detaliile comenzii tale, împreună cu tot ce trebuie să știi despre achiziție.",
   "order_free": "Nu mai rămâne nimic de plătit",
   "order_free_msg": "Comanda dvs. a fost plasată cu succes. Nu este necesară nicio plată.",
   "order_locked": "Factură blocată",

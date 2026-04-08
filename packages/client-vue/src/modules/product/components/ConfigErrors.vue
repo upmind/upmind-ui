@@ -19,7 +19,7 @@
       >
         <Link
           size="inherit"
-          :href="toControlId(error)"
+          :href="`#${toControlId(error)}`"
           :label="t('action.review')"
         >
           <span>{{ error?.message }}</span>
@@ -38,7 +38,7 @@ import { useI18n } from "vue-i18n";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- components
-import { Alert, Link } from "@upmind-automation/upmind-ui";
+import { Alert, Link, toSafeControlId } from "@upmind-automation/upmind-ui";
 
 // --- utils
 import { compact, join, size, split, take, trimStart } from "lodash-es";
@@ -58,20 +58,10 @@ const { t } = useI18n();
 const errorCount = computed(() => size(props.errors));
 
 /**
- * Converts an AJV error's instancePath to a jsonforms control ID.
- * Jsonforms generates control IDs from the uischema scope, e.g.
- * `#/properties/term`, `#/properties/options/properties/{catId}`.
- *
- * AJV instancePath uses `/` delimiters: `/term`, `/options/{catId}`.
- * We convert by joining segments with `/properties/` and prefixing `#/properties/`.
- *
- * For deep paths (e.g. `/options/catId/productId/quantity`), we truncate
- * to the rendered control depth (2 segments for nested sections).
+ * Converts an AJV error's instancePath to a safe control ID matching
+ * the sanitized element ID rendered by JSON Forms via toSafeControlId.
  */
 function toControlId(error: ErrorObject): string {
-  // For `required` errors, AJV sets instancePath to the parent object
-  // and places the missing field name in params.missingProperty.
-  // We must combine them to get the full path to the actual field.
   let path = trimStart(error.instancePath, "/");
   if (error.keyword === "required" && error.params?.missingProperty) {
     path = path
@@ -79,11 +69,8 @@ function toControlId(error: ErrorObject): string {
       : error.params.missingProperty;
   }
   const segments = compact(split(path, "/"));
-
-  // Rendered controls exist at max depth 2 (e.g. options/{catId}, provisionFields/{key})
-  // Root-level controls (term, quantity) naturally have only 1 segment
   const truncated = take(segments, 2);
 
-  return `##/properties/${join(truncated, "/properties/")}`;
+  return toSafeControlId(`#/properties/${join(truncated, "/properties/")}`);
 }
 </script>
