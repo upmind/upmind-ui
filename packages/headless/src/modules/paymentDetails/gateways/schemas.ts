@@ -28,7 +28,7 @@ export const useSchema = (context: GatewayContext) => {
       //  ---
       store_on_payment: {
         type: "boolean",
-        const: isAdding ? true : undefined,
+        ...(isAdding ? { const: true } : {}),
         default: context.canStore,
         readOnly: context.canStore == false
       },
