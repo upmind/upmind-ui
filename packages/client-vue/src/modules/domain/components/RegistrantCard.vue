@@ -10,7 +10,7 @@
   >
     <header class="flex items-center justify-between">
       <div class="flex items-center gap-2">
-        <Icon name="globe-02" size="md" class="text-fg-quaternary" />
+        <Icon icon="globe-02" size="md" class="text-fg-quaternary" />
         <h4 class="text-fg-primary text-sm font-semibold">
           {{ status.domain }}
         </h4>
@@ -34,7 +34,7 @@
         <Badge
           v-else
           variant="muted"
-          color="error"
+          color="danger"
           size="sm"
           icon="alert-triangle"
           :label="t('domain.missing_data')"

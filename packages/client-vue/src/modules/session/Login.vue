@@ -141,9 +141,9 @@ import {
   useBasket,
   useRoutingEngine,
   useSession,
-  UIContext
+  UIContext,
+  ClientTemplateSlotCodes
 } from "@upmind-automation/headless";
-import { ClientTemplateSlotCodes } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 
