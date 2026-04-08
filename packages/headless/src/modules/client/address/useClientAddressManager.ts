@@ -82,11 +82,15 @@ export const useClientAddressManager = (
 
   // the clientId is required to bring the machine into the available state
   const { isAuthenticated } = useSession();
-  isAuthenticated().then(client => {
-    if (client?.id && !contextMatches(state, "clientId")) {
-      send({ type: "REFRESH", data: { clientId: client.id } });
-    }
-  });
+  isAuthenticated()
+    .then(client => {
+      if (client?.id && !contextMatches(state, "clientId")) {
+        send({ type: "REFRESH", data: { clientId: client.id } });
+      }
+    })
+    .catch(() => {
+      /* guest sessions won't be authenticated — silently skip */
+    });
 
   async function isReady(): Promise<boolean> {
     return waitFor(service, state => stateMatches(state, "available"), {
