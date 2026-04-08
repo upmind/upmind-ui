@@ -418,6 +418,8 @@ export type ProductSummaryMeta = {
   invalid?: boolean;
   /** `true` if the product's configuration overrides a default. */
   overrides?: boolean;
+  /** `true` if the product has an overridden custom price*/
+  overridden?: boolean;
   /** `true` if the product has mixed configuration options. */
   mixed?: boolean;
   /** `true` if the product includes other items. */
@@ -523,6 +525,8 @@ export type SubproductDetails = {
     required: boolean;
     /** `true` if this subproduct selection overrides a default. */
     overrides: boolean;
+    /** `true` if the product has an overridden custom price*/
+    overridden?: boolean;
   };
   // ---
   /** An array of {@link SubproductValue} objects representing the available choices for this subproduct. */

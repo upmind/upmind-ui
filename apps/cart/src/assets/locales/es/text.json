@@ -35,6 +35,7 @@
   "date_sent": "Fecha de envío",
   "default_label": "Por defecto",
   "discount": "Descuento",
+  "domain_not_available_msg": "Este dominio no está disponible a través de nosotros.",
   "edit_configuration": "Editar configuración",
   "email_bounced": "Correo electrónico rebotado",
   "email_history": "Historial de correo electrónico",
@@ -126,6 +127,7 @@
   "trial_renews_at_msg": "Al finalizar la prueba, se renovará por {price}",
   "try_before_you_buy": "Pruébalo antes de comprar",
   "try_free_for_days": "Pruébalo gratis durante {days} días",
+  "unavailable": "Indisponible",
   "unverified_label": "Inconfirmado",
   "welcome_back_msg": "Bienvenido de nuevo, {name}"
 }

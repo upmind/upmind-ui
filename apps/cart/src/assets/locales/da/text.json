@@ -35,6 +35,7 @@
   "date_sent": "Dato sendt",
   "default_label": "Misligholdelse",
   "discount": "Rabat",
+  "domain_not_available_msg": "Dette domæne er ikke tilgængeligt gennem os.",
   "edit_configuration": "Rediger konfiguration",
   "email_bounced": "E-mail afvist",
   "email_history": "E-mailhistorik",
@@ -126,6 +127,7 @@
   "trial_renews_at_msg": "Fornyes og faktureres til {price} efter prøveperioden",
   "try_before_you_buy": "Prøv før du køber",
   "try_free_for_days": "Prøv gratis i {days} dage",
+  "unavailable": "Utilgængelig",
   "unverified_label": "Ubekræftet",
   "welcome_back_msg": "Velkommen tilbage, {name}"
 }

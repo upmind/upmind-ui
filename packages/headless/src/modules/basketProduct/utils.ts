@@ -180,6 +180,7 @@ export function parsSummaryWithPrice(
     discounted: raw.configuration_net_amount_discount_converted > 0,
     free: raw.configuration_net_amount_discounted_converted == 0,
     freeTrial: !!raw?.in_trial,
+    overridden: raw.price_type === "manual",
     renewalPrice: find(raw.product?.prices, {
       billing_cycle_months: raw.billing_cycle_months,
       currency_id: raw.base_price_currency_id

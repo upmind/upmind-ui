@@ -77,6 +77,18 @@
                 v-bind="promotion"
                 :disabled="error"
               />
+
+              <Tooltip
+                v-if="summary.meta?.overridden"
+                :label="t('text.price_manually_adjusted_msg')"
+              >
+                <Badge
+                  :label="t('text.custom_price')"
+                  size="sm"
+                  variant="muted"
+                  color="warning"
+                />
+              </Tooltip>
             </template>
           </template>
         </hgroup>
@@ -149,6 +161,7 @@
               summary.price.monthlyFromRegularPrice ?? ''
             "
             :discounted="summary.meta.discounted ?? false"
+            :overridden="summary.meta.overridden"
             :ui-config="{ pricing: { ex: [styles.product.pricing.ex] } }"
           />
 
@@ -183,6 +196,7 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- components
 import {
+  Badge,
   Link,
   Icon,
   Tooltip,

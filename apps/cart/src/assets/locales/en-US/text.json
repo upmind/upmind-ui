@@ -35,6 +35,7 @@
   "date_sent": "Date sent",
   "default_label": "Default",
   "discount": "Discount",
+  "domain_not_available_msg": "This domain is not available through us.",
   "edit_configuration": "Edit configuration",
   "email_bounced": "Email bounced",
   "email_history": "Email History",
@@ -126,6 +127,7 @@
   "trial_renews_at_msg": "Renews at {price} after trial",
   "try_before_you_buy": "Try before you buy",
   "try_free_for_days": "Try free for {days} days",
+  "unavailable": "Unavailable",
   "unverified_label": "Unverified",
   "welcome_back_msg": "Welcome back, {name}"
 }

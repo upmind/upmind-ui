@@ -35,6 +35,7 @@
   "date_sent": "發送日期",
   "default_label": "預設",
   "discount": "折扣",
+  "domain_not_available_msg": "該域名無法透過我們取得。",
   "edit_configuration": "編輯配置",
   "email_bounced": "郵件退回",
   "email_history": "電子郵件歷史記錄",
@@ -126,6 +127,7 @@
   "trial_renews_at_msg": "試用期結束後將以 {price} 自動續訂並收費",
   "try_before_you_buy": "先試用，滿意再買",
   "try_free_for_days": "免費試用 {days} 天",
+  "unavailable": "不可用",
   "unverified_label": "未經證實",
   "welcome_back_msg": "歡迎回來， {name}"
 }
