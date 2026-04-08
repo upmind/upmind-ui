@@ -5,7 +5,6 @@ import {
   UIContext,
   useBasket,
   useConfig,
-  useDomainRegistrant,
   useQueryParams
 } from "@upmind-automation/client-vue";
 import { isEmpty } from "lodash-es";
@@ -88,23 +87,5 @@ export default {
     const { ui } = useConfig({ context: UIContext.CHECKOUT });
     const { data } = useConfig({ context: UIContext.BILLING_DETAILS });
     return !data.billingDetailsDisabled && ui.billingDetails.isReadonly;
-  },
-
-  /**
-   * Returns true when the basket contains domain products that need registrant details.
-   * Used by BILLING NEXT to route through the registrant flow.
-   */
-  hasDomainProducts: () => {
-    const { hasDomainProducts } = useDomainRegistrant();
-    return hasDomainProducts.value;
-  },
-
-  /**
-   * Returns true when all domain registrant details are complete or skipped.
-   * Used by REGISTRANT_REVIEW to skip when already complete.
-   */
-  isRegistrantComplete: () => {
-    const { isComplete } = useDomainRegistrant();
-    return isComplete.value;
   }
 };
