@@ -19,6 +19,7 @@ import {
   isEqual,
   isFunction,
   isNil,
+  kebabCase,
   map,
   merge,
   reduce,
@@ -35,6 +36,21 @@ import type {
 } from "@jsonforms/core";
 import type { ErrorObject } from "ajv";
 // -----------------------------------------------------------------------------
+
+/**
+ * Converts a JSON Schema scope path into a CSS/HTML-safe element ID.
+ * JSON Forms generates control IDs from the uischema scope (e.g.
+ * `#/properties/provisionFields/properties/create_hostname`) which contain
+ * `#` and `/` — invalid in CSS selectors and problematic as HTML IDs.
+ *
+ * @example
+ * toSafeControlId("#/properties/term") // "properties-term"
+ * toSafeControlId("#/properties/provisionFields/properties/create_hostname")
+ * // "properties-provision-fields-properties-create-hostname"
+ */
+export function toSafeControlId(scope: string): string {
+  return kebabCase(scope);
+}
 
 export const useUpmindUIRenderer = <
   I extends { control: any; handleChange: Function }
@@ -151,7 +167,7 @@ export const useUpmindUIRenderer = <
       requiredText: appliedOptions.value?.requiredText
     });
 
-    set(props, "id", input.control.value?.id);
+    set(props, "id", toSafeControlId(input.control.value?.id ?? ""));
     set(props, "name", input.control.value.path);
     set(props, "errors", map(errors.value, "message"));
     set(
@@ -232,7 +248,7 @@ export const useUpmindUIArrayRenderer = <
       dirty: !isEqual(input.control.value.data, input.control.value.initial)
     });
 
-    set(props, "id", input.control.value.id);
+    set(props, "id", toSafeControlId(input.control.value.id ?? ""));
     set(props, "name", input.control.value.path);
     set(props, "errors", input.control.value.errors);
 
