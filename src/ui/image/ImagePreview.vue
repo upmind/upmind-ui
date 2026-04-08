@@ -21,7 +21,7 @@
         <Link
           icon="x-close"
           color="inherit"
-          class="absolute top-4 right-4 z-10 text-tooltip"
+          class="text-tooltip absolute top-4 right-4 z-10"
           @click="emits('update:open', false)"
         />
       </DialogContent>
@@ -31,11 +31,7 @@
 
 <script lang="ts" setup>
 import { ref, watch } from "vue";
-import {
-  DialogRoot,
-  DialogPortal,
-  DialogContent
-} from "radix-vue";
+import { DialogRoot, DialogPortal, DialogContent } from "radix-vue";
 import { Link } from "../link";
 import { useImageZoom } from "../../utils";
 import type { ImagePreviewProps } from "./types";
