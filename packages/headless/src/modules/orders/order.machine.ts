@@ -239,7 +239,7 @@ export default createMachine(
       }),
 
       forwardPay: ({ paymentDetailActor }: OrderContext) => {
-        paymentDetailActor?.send({ type: "CHECKOUT" });
+        paymentDetailActor?.send({ type: "PAY" });
       }
     },
 

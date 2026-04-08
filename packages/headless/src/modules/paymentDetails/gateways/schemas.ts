@@ -6,11 +6,14 @@
 
 // --- types
 import type { GatewayContext } from "./types";
+import { GatewayContext as GatewayCtx } from "@upmind-automation/types";
 import { RuleEffect, type Layout } from "@jsonforms/core";
 
 // -----------------------------------------------------------------------------
 
 export const useSchema = (context: GatewayContext) => {
+  const isAdding = context.ctx === GatewayCtx.ADD;
+
   const schema = {
     type: "object",
     title: "Payment Gateway Options",
@@ -25,6 +28,7 @@ export const useSchema = (context: GatewayContext) => {
       //  ---
       store_on_payment: {
         type: "boolean",
+        const: isAdding ? true : undefined,
         default: context.canStore,
         readOnly: context.canStore == false
       },
@@ -42,12 +46,14 @@ export const useSchema = (context: GatewayContext) => {
 };
 
 export const useUischema = (context: GatewayContext) => {
+  const isAdding = context.ctx === GatewayCtx.ADD;
+
   const uischema: Layout = {
     type: "VerticalLayout",
     elements: []
   };
 
-  if (context.canStore && !context.mustStore) {
+  if (!isAdding && context.canStore && !context.mustStore) {
     uischema.elements.push({
       type: "Control",
       scope: "#/properties/store_on_payment",

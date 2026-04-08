@@ -9,6 +9,7 @@ import {
   isEmpty,
   get
 } from "lodash-es";
+import { isFree, isPayLater } from "./utils";
 
 // --- types
 import type {
@@ -64,7 +65,7 @@ export function mapAccountCredit(
   };
 }
 
-export function mapPaymentDetailDetails(
+export function mapPaymentDetails(
   raw: IPaymentDetail | IPaymentDetail[]
 ): PaymentDetail[] {
   const rawListings = isArray(raw) ? raw : [raw];
@@ -146,17 +147,20 @@ export function mapPaymentData({
   clientId,
   data,
   model,
-  lookups
+  lookups,
+  requirePaymentForFreeOrders
 }: {
   clientId: PaymentDetailsContext["client"]["id"];
   data?: SelectPaymentMethodData;
   lookups: PaymentDetailsContext["lookups"];
   model: PaymentDetailModel;
+  requirePaymentForFreeOrders?: boolean;
 }): PaymentDetailData | undefined {
-  // First check if we are deferring payment OR have nothin gto pay,
-  // in which case we return undefined
-  if (model.type === PaymentType.PAY_LATER || model.amount === 0)
-    return undefined;
+  // Deferring payment — nothing to send
+  if (isPayLater(model)) return undefined;
+
+  // Free order — unless brand requires a payment method to be captured
+  if (isFree(model) && !requirePaymentForFreeOrders) return undefined;
 
   // Create the base payment detail object that ALL payment methods will use
   const paymentDetail: Partial<PaymentDetailData> = {

@@ -106,7 +106,9 @@ export type QueryProps = {
    * Optional sorting parameters: `[direction, property]`.
    * `direction` can be {@link RequestSortDirection.ASC} or {@link RequestSortDirection.DESC}.
    */
-  sort?: [direction: RequestSortDirection, property: string];
+  sort?:
+    | [direction: RequestSortDirection, property: string]
+    | [direction: RequestSortDirection, property: string][];
   /**
    * Optional filtering parameters, represented as a record of key-value pairs.
    */
@@ -192,7 +194,12 @@ export type ReactiveQueryKeys = {
   /**
    * A reactive reference to sorting parameters.
    */
-  sort?: MaybeRef<undefined | string[] | [RequestSortDirection, string]>;
+  sort?: MaybeRef<
+    | undefined
+    | string[]
+    | [RequestSortDirection, string]
+    | [RequestSortDirection, string][]
+  >;
   /**
    * A reactive reference to filter parameters.
    */

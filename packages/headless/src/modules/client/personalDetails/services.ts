@@ -19,7 +19,7 @@ import {
   useModelParser
 } from "../../../utils";
 import { mapCustomFieldValue, mapIProfileFields } from "./mappers";
-import { useClientParser } from "../../session/utils";
+import { mapClient } from "../../session/utils";
 import { get, find, pick, reduce, set, isEmpty } from "lodash-es";
 
 // --- types
@@ -104,7 +104,7 @@ async function update(data: FieldsModel) {
     .then(invalidateQueryByKey(queryKey, { exact: false }))
     .then(response => {
       // Parse the updated client
-      const client = useClientParser(response as IClient);
+      const client = mapClient(response as IClient);
       if (!client) return;
       // ensure we honor the clients locale ( it may have changed )
       useLocale().setLocale(client.locale);
