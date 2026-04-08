@@ -10,8 +10,17 @@ import {
 } from "../..";
 
 // --- utils
-import { compact, find, isEmpty, isFunction, map, omitBy } from "lodash-es";
 import {
+  compact,
+  find,
+  isEmpty,
+  isFunction,
+  map,
+  omitBy,
+  reject
+} from "lodash-es";
+import {
+  buildFallbackPricing,
   parseAvailable,
   parseDomain,
   parseDomainParts,
@@ -29,13 +38,13 @@ import {
 import { useBrand } from "../brand";
 
 // --- types
-import type {
-  DomainContext,
-  DacContext,
-  IDomainAvailabilityResponse
-} from "./types";
+import type { DomainContext, DacContext } from "./types";
 import { DomainTypes } from "./types";
-import type { IProduct } from "@upmind-automation/types";
+import type {
+  IDomainAvailabilityResponse,
+  IDomainSuggestionResult,
+  IProduct
+} from "@upmind-automation/types";
 import { DetailedError, ErrorOrigin, responseCodes } from "../../utils";
 
 // Shared `with` parameter for API calls to include full product/price data
@@ -79,7 +88,7 @@ function buildDomainProductFromAvailability(
         subproducts,
         provisionFields: { sld }
       },
-      product as any,
+      product,
       preferredCycle
     );
 
@@ -110,17 +119,10 @@ function buildDomainProductFromAvailability(
 
   // Fallback when product is missing (unavailable domains)
   // Use availability.product to avoid TS narrowing (product is `never` after the early return)
-  const prices = (availability.product as any)?.prices ?? [];
-  const sortedPrices = [...prices].sort(
-    (a: any, b: any) => a.billing_cycle_months - b.billing_cycle_months
+  const { price, billingCycleMonths } = buildFallbackPricing(
+    (availability.product as any)?.prices ?? [],
+    preferredCycle
   );
-  const priceEntry =
-    prices.find((p: any) => p.billing_cycle_months === 12) ??
-    prices.find((p: any) => p.billing_cycle_months === preferredCycle) ??
-    sortedPrices[0];
-
-  const priceFormatted = priceEntry?.price_formatted ?? "";
-  const billingCycleMonths = priceEntry?.billing_cycle_months ?? 12;
 
   return {
     domain: parsed?.domain ?? domain,
@@ -132,15 +134,7 @@ function buildDomainProductFromAvailability(
       quantity: 1,
       provisionFields: { sld }
     },
-    price: {
-      currentPrice: priceFormatted,
-      currentAmount: 0,
-      regularPrice: priceFormatted,
-      regularAmount: 0,
-      savingAmount: 0,
-      savingPrice: "",
-      savingPercent: ""
-    },
+    price,
     meta: {
       available: availability.can_register,
       canTransfer: !availability.can_register && availability.can_transfer,
@@ -248,7 +242,8 @@ function search(context: DacContext) {
     // Helper: build the merged result from whatever data is available
     const buildResult = () => {
       // Clone suggestion data to avoid mutating TanStack cache
-      let data: DomainProduct[] = (suggestionsData ?? []).map(
+      let data: DomainProduct[] = map(
+        suggestionsData ?? [],
         (item: DomainProduct) => ({
           ...item,
           meta: { ...item.meta, exactMatch: false as boolean }
@@ -256,9 +251,7 @@ function search(context: DacContext) {
       );
 
       if (exactDomain && availabilityData) {
-        data = data.filter(
-          (item: DomainProduct) => item.domain !== exactDomain
-        );
+        data = reject(data, ["domain", exactDomain]) as DomainProduct[];
         const exactProduct = buildDomainProductFromAvailability(
           rawExactDomain!,
           availabilityData,
@@ -305,16 +298,19 @@ function search(context: DacContext) {
       queryKey: ["domains", "suggestions", sld],
       withAccessToken: true,
       withCurrency: true,
-      select: ((results: any, related?: any) => {
-        const productsMap = related?.products ?? {};
+      select: ((results: unknown, related?: Record<string, any>) => {
+        const productsMap = (related?.products ?? {}) as Record<
+          string,
+          IProduct
+        >;
         const data = parseSuggestions(
-          results ?? [],
+          (results ?? []) as IDomainSuggestionResult[],
           productsMap,
           preferredCycle,
           "register"
         );
         return { data, total: data.length };
-      }) as any
+      }) as (data: unknown) => { data: DomainProduct[]; total: number }
     })
       .then(suggestions => {
         suggestionsData = suggestions.data;
@@ -384,14 +380,14 @@ async function checkAvailability({
     queryKey: ["domains", "availability", checkingDomain],
     withAccessToken: true,
     withCurrency: true,
-    select: ((data: any, related?: any) => {
+    select: ((data: Record<string, any>, related?: Record<string, any>) => {
       // The product may be in related.products (keyed by product_id)
       // rather than directly on the data object
       if (!data.product && data.product_id && related?.products) {
         data.product = related.products[data.product_id];
       }
       return data;
-    }) as any
+    }) as (data: unknown) => IDomainAvailabilityResponse
   });
 }
 
