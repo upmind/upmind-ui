@@ -100,7 +100,7 @@ const props = defineProps<{
   meta: UseMetaResult;
   modelValue?: string | string[];
   quantities?: Record<string, number>;
-  errors?: string;
+  errors?: string | string[];
   term?: number;
   // --- state
   disabled?: boolean;
