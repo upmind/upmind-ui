@@ -155,5 +155,20 @@
   },
   "stored_payment_method": {
     "label": ""
+  },
+  "twofa": {
+    "description": "Dit account is beveiligd met tweefactorauthenticatie. Voer uw verificatiecode in.",
+    "label": "Verificatiecode",
+    "placeholder": "123 456"
+  },
+  "twofa_email": {
+    "description": "Ter bescherming van uw gegevens hebben we een eenmalige toegangscode naar uw e-mailadres gestuurd. Voer de onderstaande code in om dit verzoek te voltooien.",
+    "label": "Verificatiecode",
+    "placeholder": "123 456"
+  },
+  "twofa_totp": {
+    "description": "Voer de eenmalige toegangscode in die door uw Authenticator-app is gegenereerd om dit verzoek te voltooien.",
+    "label": "Verificatiecode",
+    "placeholder": "123 456"
   }
 }
