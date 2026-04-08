@@ -385,16 +385,20 @@ export function isFullyCoveredByWallet(
 }
 
 /**
- * Returns all payment state flags for a given model and context.
+ * Returns all payment state flags derived from the machine context.
  * Single entry point — composables destructure the result.
+ *
+ * Uses `amount` as a stable fallback for `isFree` when
+ * `model` is not yet populated (e.g. during a currency-change refresh).
  */
 export function usePaymentState(
   model?: Partial<PaymentDetailModel>,
   ctx?: GatewayCtx,
+  amount?: number,
   requirePaymentForFreeOrders?: boolean,
   isRefreshing?: boolean
 ) {
-  const _isFree = isFree(model, ctx);
+  const _isFree = isFree(model, ctx) && !amount;
   const _hasAmount = hasAmount(model, ctx);
   const _needsPayment =
     needsPayment(model, requirePaymentForFreeOrders) ||

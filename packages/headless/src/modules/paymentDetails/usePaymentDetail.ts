@@ -110,7 +110,13 @@ export const usePaymentDetail = (
             !hasAmount(model.value, ctx))));
 
     const { hasSelectedPaymentMethod, isFree, isPayLater, needsPayment } =
-      usePaymentState(model.value, ctx, forcePaymentMethod, isRefreshing);
+      usePaymentState(
+        model.value,
+        ctx,
+        amount.value,
+        forcePaymentMethod,
+        isRefreshing
+      );
 
     // --- payment methods
     const hasStoredPaymentMethods = !isEmpty(storedPaymentMethods.value);
