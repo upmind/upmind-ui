@@ -132,9 +132,8 @@ export default <T = unknown>(name: string) =>
             valid: {
               id: "valid",
               on: {
-                CHECKOUT: "#processing.payment",
-                PAY: "#processing.payment",
-                ADD: "#processing.adding"
+                PAY: { target: "#processing.payment", cond: "isPaying" },
+                ADD: { target: "#processing.adding", cond: "isAdding" }
               }
             }
           },
@@ -188,8 +187,19 @@ export default <T = unknown>(name: string) =>
                 src: "add",
                 onDone: {
                   target: "#processed",
-                  actions: ["set"]
-                }
+                  actions: ["setPaymentDetails", "providePaymentDetails"]
+                },
+                onError: [
+                  {
+                    target: "#checking",
+                    actions: ["cancelPaymentDetails"],
+                    cond: "noErrorProvided"
+                  },
+                  {
+                    target: "#error",
+                    actions: ["setError", "cancelPaymentDetails"]
+                  }
+                ]
               }
             }
           },
@@ -216,6 +226,7 @@ export default <T = unknown>(name: string) =>
         },
 
         complete: {
+          type: "final",
           id: "complete",
           data: ({ paymentDetail }: GatewayContext, _event: AnyEventObject) =>
             paymentDetail
@@ -375,12 +386,11 @@ export default <T = unknown>(name: string) =>
         noErrorProvided: (_context: GatewayContext, { data }: AnyEventObject) =>
           isEmpty(data),
 
-        isAdding: ({ ctx }: GatewayContext, _event: AnyEventObject) => {
-          return ctx !== undefined && ctx == GatewayCtx.ADD;
-        },
-        isPaying: ({ ctx }: GatewayContext, _event: AnyEventObject) => {
-          return ctx !== undefined && ctx == GatewayCtx.PAY;
-        }
+        isAdding: ({ ctx }: GatewayContext, _event: AnyEventObject) =>
+          ctx == GatewayCtx.ADD,
+
+        isPaying: ({ ctx }: GatewayContext, _event: AnyEventObject) =>
+          ctx == GatewayCtx.PAY
       },
       delays: {
         error: () => useTime().ERROR,

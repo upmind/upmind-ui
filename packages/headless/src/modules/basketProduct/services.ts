@@ -5,6 +5,7 @@ import { AsyncQueuer } from "@tanstack/pacer";
 import { useBrand } from "../brand";
 import {
   invalidateQueryByKey,
+  RequestSortDirection,
   useBasket,
   useBasketCurrency,
   useDataLayer,
@@ -341,7 +342,6 @@ async function fetchRelated(
     offset,
     omit_basket_products: true,
     "filter[active]": true,
-    order: "order",
     with: [
       "image",
       "images",
@@ -362,6 +362,7 @@ async function fetchRelated(
 
   return get({
     url: useUrl(`basket/products/${productId}/related`, params),
+    sort: [[RequestSortDirection.ASC, "order"]],
     queryKey: [
       "basket",
       "products",

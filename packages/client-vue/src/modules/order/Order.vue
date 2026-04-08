@@ -240,14 +240,14 @@ const {
   isReady,
   meta,
   pay,
-  paymentDetails,
+  paymentDetail,
   refresh,
   retry
 } = useOrder(orderId);
 
 await isReady();
 
-provide("usePaymentDetails", paymentDetails);
+provide("usePaymentDetail", paymentDetail);
 provide("orderInvoice", orderData);
 
 const { show: showAnnouncement, dismiss: dismissAnnouncement } =

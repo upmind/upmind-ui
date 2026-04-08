@@ -34,6 +34,7 @@ export function spawnOrderPaymentDetail(
 ) {
   return spawn(
     paymentDetailMachine.withContext({
+      isInvoked: true,
       orderId: invoice.id,
       orderStatus: invoice.status,
       currency: mapICurrency(invoice.currency),

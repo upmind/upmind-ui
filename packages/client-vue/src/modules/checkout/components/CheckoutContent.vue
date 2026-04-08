@@ -111,8 +111,8 @@ const billingDetailsDisabled = computed(
       .billingDetailsDisabled
 );
 
-const paymentDetails = useBasketPaymentDetails();
-provide("usePaymentDetails", paymentDetails);
+const paymentDetail = useBasketPaymentDetails();
+provide("usePaymentDetail", paymentDetail);
 
 const {
   errors: fieldsErrors,

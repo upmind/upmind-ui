@@ -3,6 +3,7 @@
 // --- internal
 import { useI18n, useLocale } from "../../..";
 import sharedServices from "../services";
+import { beginSetup } from "../services";
 
 // --- utils
 import {
@@ -16,7 +17,11 @@ import { get, some } from "lodash-es";
 import { parseSettings } from "../utils";
 
 // --- types
-import { DLOCAL_FIELDS, type DLocalContext } from "./types";
+import {
+  CURRENCY_TO_COUNTRY,
+  DLOCAL_FIELDS,
+  type DLocalContext
+} from "./types";
 import type { AnyEventObject } from "xstate";
 
 // -----------------------------------------------------------------------------
@@ -41,7 +46,9 @@ async function load(context: DLocalContext, _event: AnyEventObject) {
     const settings = parseSettings(gateway);
     const smartFieldsKey = get(settings, DLOCAL_FIELDS.SMART_FIELDS_KEY);
     const testMode = get(settings, DLOCAL_FIELDS.TEST_MODE);
-    const country = address?.country?.code;
+    const country =
+      address?.country?.code ||
+      CURRENCY_TO_COUNTRY[context.currency?.code?.toUpperCase() ?? ""];
 
     if (!smartFieldsKey || !country)
       throw new DetailedError(
@@ -194,6 +201,65 @@ async function pay({ sdk, model, gateway, currency }: DLocalContext) {
     });
 }
 
+/**
+ * @name add
+ * @desc Stores a payment method via dLocal in the ADD context.
+ * Calls beginSetup → SDK createToken → endSetup.
+ */
+async function add(context: DLocalContext) {
+  const { sdk, model } = context;
+  const { t } = useI18n();
+
+  if (!sdk?.dlocal || !sdk?.fields)
+    throw new DetailedError(
+      t("error.payment_gateway_not_available"),
+      responseCodes.Not_Found,
+      ErrorOrigin.Headless
+    );
+
+  const setupResponse = await beginSetup(context);
+  const clientPaymentDetailsId = get(
+    setupResponse,
+    "client_payment_details.id"
+  );
+
+  if (!clientPaymentDetailsId) {
+    throw new DetailedError(
+      t("error.payment_gateway_not_available"),
+      responseCodes.Unprocessable_Entity,
+      ErrorOrigin.Headless
+    );
+  }
+
+  const tokenField = sdk.fields.pan ?? sdk.fields.card;
+
+  return sdk.dlocal
+    .createToken(tokenField, {
+      name: model!.holder_name,
+      document: model?.payment_method_addition?.document,
+      phone: model?.payment_method_addition?.phone?.number ?? undefined
+    })
+    .then(result => {
+      return {
+        gatewayId: context.gateway?.id,
+        data: {
+          client_payment_details_id: clientPaymentDetailsId,
+          auto_payment: model?.store_on_payment_auto_payment ?? false,
+          token: result.token
+        }
+      };
+    })
+    .catch(({ error }) => {
+      const errorMessage = (error as { message?: string })?.message;
+      throw new DetailedError(
+        errorMessage ?? t("error.payment_gateway_update_failed"),
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.External,
+        error
+      );
+    });
+}
+
 // -----------------------------------------------------------------------------
 
 export default {
@@ -202,5 +268,6 @@ export default {
   load,
   render,
   validate,
-  pay
+  pay,
+  add
 };

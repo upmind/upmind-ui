@@ -5,6 +5,7 @@ import { createRouter, createWebHistory, type Router } from "vue-router";
 import Home from "./pages/index.vue";
 import { get } from "lodash-es";
 import { ROUTE } from "./funnels";
+import { useSession } from "@upmind-automation/client-vue";
 
 // -----------------------------------------------------------------------------
 // Dynamic Routes from pages - self registering
@@ -58,6 +59,24 @@ const router: Router = createRouter({
       // always scroll to the top
       return { behavior: "smooth", top: 0 };
     }
+  }
+});
+
+// -----------------------------------------------------------------------------
+// --- auth guard
+
+router.beforeEach(async to => {
+  if (!to.meta.needsAuth) return;
+
+  const { meta: sessionMeta, isReady } = useSession();
+
+  await isReady();
+
+  if (!sessionMeta.value.isAuthenticated) {
+    return {
+      name: ROUTE.SESSION_LOGIN,
+      query: { returnUrl: to.fullPath }
+    };
   }
 });
 
