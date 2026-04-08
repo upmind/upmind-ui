@@ -193,6 +193,7 @@ export function mapPaymentData({
       case GatewayProviderCodes.COIN_GATE:
       case GatewayProviderCodes.D_LOCAL_CARD:
       case GatewayProviderCodes.FLUTTERWAVE:
+      case GatewayProviderCodes.MERCADO_PAGO_OTHER_PAYMENTS:
       case GatewayProviderCodes.MICROPAYMENT:
       case GatewayProviderCodes.OPENPAY:
       case GatewayProviderCodes.PAY_FAST:
@@ -227,6 +228,7 @@ export function mapPaymentData({
       case GatewayProviderCodes.BLOCKONOMICS:
       case GatewayProviderCodes.COIN_GATE:
       case GatewayProviderCodes.D_LOCAL:
+      case GatewayProviderCodes.MERCADO_PAGO:
       case GatewayProviderCodes.OPENPAY_NON_CARD:
       case GatewayProviderCodes.PAYTM:
         return defaults(
@@ -245,8 +247,6 @@ export function mapPaymentData({
 
       // UNKNOWN + UNSUPPORTED GATEWAYS
       default:
-      case GatewayProviderCodes.MERCADO_PAGO:
-      case GatewayProviderCodes.MERCADO_PAGO_OTHER_PAYMENTS:
       case GatewayProviderCodes.ADYEN: // SDK
       case GatewayProviderCodes.SAGE_PAY_DIRECT:
         //  DO NOTHING, FALLBACK TO PAY LATER

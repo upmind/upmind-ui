@@ -37,6 +37,7 @@ export function mapInvoice(raw: IInvoice): Invoice {
       unpaidAmountFormatted: raw.unpaid_amount_formatted
     },
     dateCreated: useDateMapper(raw.create_datetime, undefined, "MMM Do, YYYY"),
+    dateDue: useDateMapper(raw.due_date, undefined, "MMM Do, YYYY"),
     datePaid: useDateMapper(raw.paid_datetime, undefined, "MMM Do, YYYY h:mm A")
   };
 }
