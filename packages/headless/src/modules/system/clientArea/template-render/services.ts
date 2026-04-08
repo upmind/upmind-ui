@@ -29,6 +29,7 @@ function load({
       object_id: objectId
     }),
     init: { method: "PATCH" },
+    withAccessToken: true,
     retry: (_failureCount, error: any) => {
       return error.code < 400;
     },
