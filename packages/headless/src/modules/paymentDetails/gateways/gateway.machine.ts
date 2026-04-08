@@ -131,6 +131,12 @@ export default <T = unknown>(name: string) =>
 
             valid: {
               id: "valid",
+              // NB: Notify the parent to re-validate when the gateway becomes valid.
+              //     After a failed payment the parent lands in `invalid` (because the
+              //     gateway was in `available.error`). When the user fixes input and the
+              //     gateway recovers to `valid`, the parent needs to re-check so it can
+              //     also transition back to `valid` and accept PAY again.
+              entry: sendParent(() => ({ type: "SET" })),
               on: {
                 PAY: { target: "#processing.payment", cond: "isPaying" },
                 ADD: { target: "#processing.adding", cond: "isAdding" }
@@ -153,7 +159,7 @@ export default <T = unknown>(name: string) =>
             },
             SET: {
               target: "available.checking",
-              actions: ["setModel"]
+              actions: ["clearError", "setModel"]
             },
             VALIDATE: {
               actions: ["setErrorSDK"],

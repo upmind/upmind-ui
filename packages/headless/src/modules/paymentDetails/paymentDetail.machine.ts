@@ -253,7 +253,7 @@ export default createMachine(
         },
         on: {
           CANCEL: {
-            target: "#invalid", // no need to set the error, it will be set by the gateway
+            target: "available.checking",
             actions: ["cancelPaymentDetails", "clearAutoUpdate"]
           },
           // --- PAY context: gateway returns finalized payment details → complete
