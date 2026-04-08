@@ -12,6 +12,7 @@
       <slot v-if="isMobile" name="errors" />
       <slot name="pricing" />
       <slot v-if="!isMobile" name="errors" />
+      <slot name="custom-price" />
       <slot name="markdown" />
     </template>
   </Layout>

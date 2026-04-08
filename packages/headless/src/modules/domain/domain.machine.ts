@@ -24,6 +24,7 @@ import {
 } from "./utils";
 import {
   cloneDeep,
+  compact,
   defaultsDeep,
   find,
   first,
@@ -142,6 +143,7 @@ export default createMachine(
           id: "dac",
           src: DACmachine,
           data: ({
+            type,
             search,
             currency,
             basketId,
@@ -150,6 +152,7 @@ export default createMachine(
             preferredCycle,
             tlds
           }: DomainContext) => ({
+            mode: type,
             search,
             currency,
             basketId,
@@ -554,7 +557,7 @@ export default createMachine(
 
       setOwned: assign({
         lookups: ({ lookups }: DomainContext, { data }: AnyEventObject) => {
-          const available = map(data, (item: DomainModel) => {
+          const available = map(compact(data), (item: DomainModel) => {
             return {
               domain: item.domain,
               tld: item.tld,

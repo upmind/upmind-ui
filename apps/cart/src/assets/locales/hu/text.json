@@ -35,6 +35,7 @@
   "date_sent": "Küldés dátuma",
   "default_label": "Alapértelmezett",
   "discount": "Kedvezmény",
+  "domain_not_available_msg": "Ez a domain nem érhető el rajtunk keresztül.",
   "edit_configuration": "Konfiguráció szerkesztése",
   "email_bounced": "E-mail visszapattant",
   "email_history": "E-mail előzmények",
@@ -126,6 +127,7 @@
   "trial_renews_at_msg": "Próbaidőszak után {price} áron automatikusan megújul",
   "try_before_you_buy": "Próbáld ki fizetés előtt",
   "try_free_for_days": "Próbáld ki ingyen {days} napig",
+  "unavailable": "Nem elérhető",
   "unverified_label": "Ellenőrizetlen",
   "welcome_back_msg": "Isten hozott ismét, {name}"
 }

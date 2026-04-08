@@ -35,6 +35,7 @@
   "date_sent": "Ημερομηνία αποστολής",
   "default_label": "Προεπιλογή",
   "discount": "Εκπτωση",
+  "domain_not_available_msg": "Αυτό το domain δεν είναι διαθέσιμο μέσω εμάς.",
   "edit_configuration": "Επεξεργασία διαμόρφωσης",
   "email_bounced": "Το email αναπήδησε",
   "email_history": "Ιστορικό ηλεκτρονικού ταχυδρομείου",
@@ -126,6 +127,7 @@
   "trial_renews_at_msg": "Ανανεώνεται με χρέωση {price} μετά τη δοκιμαστική περίοδο",
   "try_before_you_buy": "Δοκιμάστε πριν την αγορά",
   "try_free_for_days": "Δοκιμάστε δωρεάν για {days} ημέρες",
+  "unavailable": "Μη διαθέσιμο",
   "unverified_label": "Ανεπιβεβαίωτος",
   "welcome_back_msg": "Καλώς ήρθατε ξανά, {name}"
 }
