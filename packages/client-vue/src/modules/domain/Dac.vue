@@ -109,7 +109,7 @@ import { Button } from "@upmind-automation/upmind-ui";
 
 // --- utils
 import { DEBOUNCE_DELAY } from "@upmind-automation/headless";
-import { debounce } from "lodash-es";
+import { debounce, includes, some } from "lodash-es";
 
 //  --- templates
 const supportedTemplates = {
@@ -167,7 +167,6 @@ const {
   reset,
   stop
 } = useDac();
-// } = useDac({ useSuggestions: false });
 
 const { count, summary, meta: basketMeta } = useBasket();
 const { currencyCode } = useBasketCurrency();
@@ -213,8 +212,9 @@ function doReset() {
 }
 
 const hasActiveItems = computed(() =>
-  available.value?.some(
-    item => model.value?.includes(item.domain) && item.meta?.added // must be in current session's model // successfully in basket
+  some(
+    available.value,
+    item => includes(model.value, item.domain) && item.meta?.added // must be in current session's model // successfully in basket
   )
 );
 

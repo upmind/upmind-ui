@@ -6,6 +6,7 @@ import { useActor } from "@xstate/vue";
 
 // --- internal
 import { useI18n } from "../system";
+import { useBrand } from "../brand";
 import { QUERY_PARAMS, useQueryParams } from "../routing";
 import dacMachine from "./dac.machine";
 
@@ -19,8 +20,14 @@ import {
 } from "../../utils";
 
 // --- types
-import { type DomainContext, type DomainProduct, DomainTypes } from "./types";
+import {
+  type DacContext,
+  type DomainContext,
+  type DomainProduct,
+  DomainTypes
+} from "./types";
 import { PAGINATION } from "../query";
+import { BrandConfigKeys, DomainSearchMethod } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 
@@ -30,21 +37,24 @@ import { PAGINATION } from "../query";
  *
  * @param value - Initial domain(s) to use as the model.
  * @param options - required configuration for the domain type.
- * @param options.type - The type of domain to manage (e.g., "dac", "existing", "basket").
- *                     If not provided, defaults to all available domain types.
+ * @param options.mode - The domain operation mode (register or transfer). Defaults to register.
  * @returns Domain management API (state, computed, and methods)
  */
-export const useDac = (options?: { useSuggestions?: boolean }) => {
+export const useDac = (options?: { mode?: DomainTypes }) => {
   const { t } = useI18n();
   const { getParam, getParams, setParam, unsetParam } = useQueryParams();
+  const { getConfigValue } = useBrand();
 
-  // safety check to ensure forcedType is valid
+  // Determine search flow from brand setting, fallback to dac-search (legacy)
+  const searchMethod =
+    getConfigValue<DomainSearchMethod>(BrandConfigKeys.DOMAIN_SEARCH_METHOD) ??
+    DomainSearchMethod.DAC_SEARCH;
+  const useSuggestions = searchMethod === DomainSearchMethod.DOMAIN_SPINNER;
 
   const service = interpret(
     dacMachine.withContext({
-      mode: DomainTypes.register, // set by domain.machine.ts when invoked as child
-      // mode: DomainTypes.transfer,
-      useSuggestions: options?.useSuggestions ?? true,
+      mode: options?.mode ?? DomainTypes.register,
+      useSuggestions,
       preferredCycle: getParam(QUERY_PARAMS.BILLING_CYCLE_MONTHS),
       coupons: getParams(QUERY_PARAMS.COUPONS),
       search: {
@@ -52,7 +62,7 @@ export const useDac = (options?: { useSuggestions?: boolean }) => {
         limit: PAGINATION.limit,
         offset: PAGINATION.offset
       }
-    } as any),
+    } as unknown as DacContext),
     { devTools: true }
   );
 
@@ -183,6 +193,7 @@ export const useDac = (options?: { useSuggestions?: boolean }) => {
      * Meta information about the domain state.
      * @typedef {Object} DomainMeta
      * @property {boolean} isEmpty - Indicates if no domains are selected.
+     * @property {boolean} isChecking - Indicates if a domain availability check is in progress.
      * @property {boolean} isLoading - Indicates if the domain state is loading.
      * @property {boolean} isLoadingMore - Indicates if more search results are being loaded.
      * @property {boolean} isProcessing - Indicates if the domain state is syncing.
@@ -195,7 +206,6 @@ export const useDac = (options?: { useSuggestions?: boolean }) => {
      * @property {boolean} showDac - Indicates if DAC view is active.
      * @property {boolean} showExisting - Indicates if existing view is active.
      * @property {boolean} showBasket - Indicates if basket view is active.
-     * @property {boolean} showSelected - Indicates if a selection is shown.
      * @property {boolean} showSelected - Indicates if a selection is shown.
      */
     meta,

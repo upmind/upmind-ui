@@ -9,7 +9,13 @@ import { useFeedback } from "../feedback";
 
 // --- utils
 import { mapToHeadlessError, useTime } from "../../utils";
-import { parseDomain, parseValue, parseSld, isDomainProduct } from "./utils";
+import {
+  parseDomain,
+  parseValue,
+  parseSld,
+  isDomainProduct,
+  sanitizeDomainInput
+} from "./utils";
 import { parseProductProps } from "../product/utils";
 import {
   compact,
@@ -379,7 +385,7 @@ export default createMachine(
               total: 0
             },
             // ---
-            useSuggestions: true,
+            useSuggestions: false,
             // ---
             error: undefined,
             // ---
@@ -615,7 +621,7 @@ export default createMachine(
       setSearchQuery: assign({
         search: ({ search }: DacContext, { data }: AnyEventObject) => {
           return {
-            query: data?.slice(0, 63), // max domain length is 63 characters as per BE
+            query: sanitizeDomainInput(data ?? "").slice(0, 63), // sanitise + max domain length is 63 characters as per BE
             offset: PAGINATION.offset,
             limit: search?.limit ?? PAGINATION.limit,
             total: 0
@@ -659,7 +665,7 @@ export default createMachine(
           { lookups, model, search }: DacContext,
           { data: response }: AnyEventObject
         ) => {
-          const previous = (search?.offset ?? 0 > 0) ? lookups.searched : [];
+          const previous = (search?.offset ?? 0) > 0 ? lookups.searched : [];
 
           const available: DomainProduct[] = map(
             response?.data,
@@ -866,8 +872,7 @@ export default createMachine(
 
             // Rebuild configuration with register sub_pids from setup_function_sub_ids
             if (product.rawProduct) {
-              const setupSubIds = (product.rawProduct as any)
-                .setup_function_sub_ids;
+              const setupSubIds = product.rawProduct.setup_function_sub_ids;
               const subproducts: string[] = compact(
                 setupSubIds?.register ?? [product.rawProduct.sub_product_id]
               );
@@ -908,8 +913,7 @@ export default createMachine(
 
             // Rebuild configuration with transfer sub_pids from setup_function_sub_ids
             if (product.rawProduct) {
-              const setupSubIds = (product.rawProduct as any)
-                .setup_function_sub_ids;
+              const setupSubIds = product.rawProduct.setup_function_sub_ids;
               const subproducts: string[] = compact(
                 setupSubIds?.transfer ?? [product.rawProduct.sub_product_id]
               );
