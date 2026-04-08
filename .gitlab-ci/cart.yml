@@ -48,7 +48,8 @@ build base:
   interruptible: true
   needs:
     - dependencies
-    - build base
+    - job: build base
+      optional: true
   rules:
     - if: $CI_PIPELINE_SOURCE == 'web'
       when: manual
@@ -69,7 +70,8 @@ build base:
   interruptible: true
   needs:
     - dependencies
-    - build base
+    - job: build base
+      optional: true
   artifacts:
     when: on_success
     access: all
@@ -98,7 +100,8 @@ build base:
   interruptible: true
   needs:
     - dependencies
-    - build base
+    - job: build base
+      optional: true
   cache:
     - key:
         files:
@@ -134,7 +137,8 @@ build base:
   interruptible: true
   needs:
     - dependencies
-    - build base
+    - job: build base
+      optional: true
   cache:
     - key:
         files:
@@ -282,7 +286,8 @@ build base:
   stage: deploy
   needs:
     - dependencies
-    - build base
+    - job: build base
+      optional: true
     - (apps/velia) build
   rules:
     # Allow failure when it's not the primary deploy mechanism
@@ -308,7 +313,8 @@ build base:
   stage: deploy
   needs:
     - dependencies
-    - build base
+    - job: build base
+      optional: true
     - (apps/hosting) build
   rules:
     # Allow failure when it's not the primary deploy mechanism
