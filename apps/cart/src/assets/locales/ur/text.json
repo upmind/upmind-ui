@@ -35,6 +35,7 @@
   "date_sent": "بھیجنے کی تاریخ",
   "default_label": "طے شدہ",
   "discount": "رعایت",
+  "domain_not_available_msg": "یہ ڈومین ہمارے ذریعے دستیاب نہیں ہے۔",
   "edit_configuration": "ترتیب میں ترمیم کریں۔",
   "email_bounced": "ای میل باؤنس ہو گئی۔",
   "email_history": "ای میل کی تاریخ",
@@ -126,6 +127,7 @@
   "trial_renews_at_msg": "ٹرائل کے بعد {price} پر خودکار تجدید اور چارج ہوگا",
   "try_before_you_buy": "پہلے آزمائیں، پھر خریدیں",
   "try_free_for_days": "{days} دن مفت آزمائیں",
+  "unavailable": "دستیاب نہیں۔",
   "unverified_label": "غیر تصدیق شدہ",
   "welcome_back_msg": "دوبارہ خوش آمدید، {name}"
 }

@@ -3,6 +3,7 @@
   "account_credit_msg": "You have {ownedAmount} in account credit and a {creditAmount} credit limit available. How much would you like to apply to this transaction? | You have {ownedAmount} in account credit. How much would you like to apply to this transaction?",
   "account_credit_use": "Use {amount} account credit",
   "account_credit_use_msg": "You have {ownedAmount} account credit, plus a {creditAmount} credit limit that you can also use. | You have {ownedAmount} account credit.",
+  "add_payment_method": "Add payment method",
   "basket_billing_review_msg": "Some billing details are missing or incorrect – {review}.",
   "basket_count": "empty | {count} item | {count} items",
   "basket_fields_review_msg": "Some basket fields are missing or incorrect – {review}.",

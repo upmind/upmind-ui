@@ -35,6 +35,7 @@
   "date_sent": "Дата на изпращане",
   "default_label": "По подразбиране",
   "discount": "Отстъпка",
+  "domain_not_available_msg": "Този домейн не е наличен чрез нас.",
   "edit_configuration": "Редактиране на конфигурацията",
   "email_bounced": "Имейлът е върнат",
   "email_history": "История на имейлите",
@@ -126,6 +127,7 @@
   "trial_renews_at_msg": "Подновява се за {price} след пробния период",
   "try_before_you_buy": "Пробвайте преди да купите",
   "try_free_for_days": "Пробвайте безплатно за {days} дни",
+  "unavailable": "Не е налично",
   "unverified_label": "Непроверено",
   "welcome_back_msg": "Добре дошъл отново, {name}"
 }

@@ -1,4 +1,10 @@
-import { type IClient, AccessRoleTypes } from "@upmind-automation/types";
+import {
+  type IAccount,
+  type IClient,
+  type ICurrency,
+  AccessRoleTypes
+} from "@upmind-automation/types";
+import type { IPricelist } from "@upmind-automation/types";
 import type { ResponseError } from "../../utils";
 
 // -----------------------------------------------------------------------------
@@ -185,4 +191,39 @@ export interface Client {
   locale: IClient["interface_language_code"];
 
   customFields?: IClient["custom_fields"];
+
+  /**
+   * The client's parsed accounts.
+   */
+  accounts?: Account[];
+}
+
+/**
+ * Interface representing a parsed client account.
+ */
+export interface Account {
+  /**
+   * The unique identifier of the account.
+   */
+  id: IAccount["id"];
+
+  /**
+   * The account currency.
+   */
+  currency?: ICurrency;
+
+  /**
+   * The account pricelist.
+   */
+  pricelist?: IPricelist;
+
+  /**
+   * Meta flags for the account.
+   */
+  meta: {
+    /**
+     * `true` if wallet top-up is enabled for this account.
+     */
+    canTopup: boolean;
+  };
 }

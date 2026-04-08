@@ -35,6 +35,7 @@
   "date_sent": "Gönderim tarihi",
   "default_label": "Varsayılan",
   "discount": "İndirim",
+  "domain_not_available_msg": "Bu alan adı bizim aracılığımızla edinilemez.",
   "edit_configuration": "Yapılandırmayı düzenle",
   "email_bounced": "E-posta geri döndü",
   "email_history": "E-posta Geçmişi",
@@ -126,6 +127,7 @@
   "trial_renews_at_msg": "Deneme sonrası {price} ücretle otomatik yenilenir",
   "try_before_you_buy": "Dene, beğenirsen satın al",
   "try_free_for_days": "{days} gün ücretsiz dene",
+  "unavailable": "Mevcut değil",
   "unverified_label": "Doğrulanmamış",
   "welcome_back_msg": "Tekrar hoşgeldiniz, {name}"
 }
