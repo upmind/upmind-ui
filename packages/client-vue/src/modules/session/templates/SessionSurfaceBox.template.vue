@@ -5,6 +5,7 @@
     </template>
 
     <template #content>
+      <slot name="markdown" />
       <slot name="form" />
     </template>
   </Layout>

@@ -1,7 +1,11 @@
 <template>
   <Root :class="styles.surfaceBox.root">
     <div :class="styles.surfaceBox.container">
-      <component :is="card ? 'article' : Card" :class="styles.surfaceBox.card">
+      <component
+        :is="card ? 'article' : Card"
+        :class="styles.surfaceBox.card"
+        size="lg"
+      >
         <!-- Content Header -->
         <section :class="styles.surfaceBox.contentHeader">
           <slot name="controls" />

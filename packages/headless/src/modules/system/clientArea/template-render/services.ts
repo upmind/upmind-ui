@@ -1,6 +1,9 @@
 // --- internal
 import { type QueryParams, useQuery } from "../../../query";
 
+// --- utils
+import { useTime } from "../../../../utils";
+
 // --- types
 import type { QueryKey } from "@tanstack/vue-query";
 import type { ClientAreaTemplate } from "./types";
@@ -26,10 +29,10 @@ function load({
       object_id: objectId
     }),
     init: { method: "PATCH" },
-    withAccessToken: true,
     retry: (_failureCount, error: any) => {
       return error.code < 400;
-    }
+    },
+    staleTime: useTime()?.DAY
   });
 }
 
