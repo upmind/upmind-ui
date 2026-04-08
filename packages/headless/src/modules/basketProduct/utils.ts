@@ -191,12 +191,12 @@ export function parsSummaryWithPrice(
   };
 
   summary.promotions = parsePromotionDetails(raw);
-  summary.price = parsPrice(raw);
+  summary.price = parsePrice(raw);
 
   return summary as ProductSummaryDetailWithPrice;
 }
 
-export function parsPrice(raw: IBasketProduct): PriceDetail {
+export function parsePrice(raw: IBasketProduct): PriceDetail {
   const { includesTax } = useBrand();
 
   const discounted = raw.configuration_net_amount_discount_converted > 0;
@@ -285,7 +285,7 @@ export const parsePromotionDetails = (
   //  - As a summary percentage, eg "Save 20%"
   // NB: we always supply the amounts so we can show meta data if needed, eg a tooltip
 
-  const price = parsPrice(raw);
+  const price = parsePrice(raw);
 
   if (!price.savingAmount) return [];
 
