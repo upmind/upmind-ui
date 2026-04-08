@@ -34,7 +34,8 @@ import {
   useBrand,
   useLocale,
   useBasketCurrency,
-  useClientTemplate
+  useClientTemplate,
+  ClientTemplateSlotCodes
 } from "@upmind-automation/headless";
 
 // --- utils
@@ -47,8 +48,6 @@ import UpmCurrency from "../../modules/basket/components/CurrencySwitcher.vue";
 import UpmLocale from "../../components/LocaleSwitcher.vue";
 import { Markdown } from "@upmind-automation/upmind-ui";
 
-// --- types
-import { ClientTemplateSlotCodes } from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
 
 const { meta, layout } = useFooter();
