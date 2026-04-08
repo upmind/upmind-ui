@@ -23,6 +23,7 @@
             summary.price.monthlyFromRegularPrice ?? ''
           "
           :discounted="summary.meta.discounted ?? false"
+          :overridden="summary.meta.overridden"
           :ui-config="{ pricing: { ex: [styles.product.pricing.ex] } }"
         />
         <CurrentPrice
@@ -43,9 +44,6 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
-import { useI18n } from "vue-i18n";
-
 // --- components
 import { Link } from "@upmind-automation/upmind-ui";
 import CurrentPrice from "../../../product/components/pricing/CurrentPrice.vue";
@@ -58,8 +56,6 @@ import config from "./basketProduct.config";
 
 // --- types
 import { type BasketProductSummaryProps } from "./types";
-
-const { t } = useI18n();
 
 const props = defineProps<BasketProductSummaryProps>();
 

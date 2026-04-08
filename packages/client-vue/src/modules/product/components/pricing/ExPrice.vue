@@ -1,5 +1,8 @@
 <template>
-  <del v-if="priceMeta.isDiscounted" :class="styles.pricing.ex">
+  <del
+    v-if="priceMeta.isDiscounted || priceMeta.isOverridden"
+    :class="styles.pricing.ex"
+  >
     {{
       formatPrice(
         priceMeta.useMonthlyFromPrice
@@ -37,7 +40,8 @@ const { formatPrice } = useMoney();
 
 const priceMeta = computed(() => ({
   useMonthlyFromPrice: props.useMonthlyFromPrice,
-  isDiscounted: props.discounted
+  isDiscounted: props.discounted,
+  isOverridden: props.overridden
 }));
 
 const styles = useStyles(["pricing"], priceMeta, config, props.uiConfig ?? {});

@@ -487,7 +487,10 @@ export default createMachine(
           { data }: AnyEventObject
         ) => ({
           product: parseProductDetails(data.product, rawBasketProduct),
-          terms: parseTermDetails(data.product),
+          terms: parseTermDetails(
+            data.product,
+            rawBasketProduct?.price_option_override
+          ),
           options: parseSubproductDetails(
             data.product.products_options,
             model?.term
