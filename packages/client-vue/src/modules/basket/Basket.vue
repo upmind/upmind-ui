@@ -87,6 +87,17 @@
           />
         </slot>
       </template>
+
+      <template #custom-price>
+        <Alert
+          v-if="meta.hasCustomPrice"
+          variant="minimal"
+          color="warning"
+          icon="switch-horizontal-01"
+          :title="t('text.custom_price_applied')"
+          :description="t('text.basket_custom_price_alert')"
+        />
+      </template>
     </component>
   </Transitions>
 </template>
@@ -113,7 +124,7 @@ import BasketErrors from "./components/BasketErrors.vue";
 import BasketCheckout from "./components/BasketCheckout.vue";
 import BasketTotal from "./components/BasketTotal.vue";
 import Transitions from "../../components/layout/components/transition/Transition.vue";
-import { Markdown } from "@upmind-automation/upmind-ui";
+import { Alert, Markdown } from "@upmind-automation/upmind-ui";
 
 // --- templates
 const supportedTemplates = {

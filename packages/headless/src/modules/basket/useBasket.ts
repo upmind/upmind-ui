@@ -190,7 +190,12 @@ export const useBasket = () => {
       showErrors: contextMatches(state, ["attempts"]),
       isFree:
         contextMatches(state, ["products"]) &&
-        !contextValue<number>(state, "basket.total_amount", 1)
+        !contextValue<number>(state, "basket.total_amount", 1),
+
+      hasCustomPrice: some(
+        contextValue<IBasketPromotion[]>(state, "basket.promotions", []),
+        p => !!p.promotion?.adjusted_basket_id
+      )
     };
   });
 

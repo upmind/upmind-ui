@@ -601,9 +601,14 @@ export const parseMeta = (
   return result;
 };
 
-export const parseTermDetails = (raw: IProduct): TermDetails[] => {
+export const parseTermDetails = (
+  raw: IProduct,
+  priceOptionOverride?: boolean
+): TermDetails[] => {
   return map(orderBy(raw?.prices, "billing_cycle_months"), rawTerm => {
     const details: TermDetails = parseSummaryDetailWithPrice(rawTerm, raw);
+
+    details.meta.overridden = details.meta.overridden && !priceOptionOverride;
 
     details.price.monthlyFromCurrentAmount =
       rawTerm.monthly_price_from_discounted ?? rawTerm.monthly_price_from;
@@ -691,7 +696,6 @@ export const parseSubproductDetails = (
         find(pricing, ["cycle", 0]) || find(pricing, ["cycle", cycle]);
 
       const productDetails = parseProductDetails(rawSubproduct);
-
       const value: SubproductValue = {
         ...productDetails,
         cycle: price?.cycle ?? productDetails.cycle,
@@ -699,12 +703,12 @@ export const parseSubproductDetails = (
         pricing: pricing,
         promotions: price?.promotions,
         meta: {
-          // NB: only show term pricing if recurring!
-          oneoff: rawSubproduct.billing_cycle_months == 0,
+          oneoff: !!price?.meta.oneoff,
           discounted: !!price?.meta?.discounted,
           includesTax: includesTax.value,
           free: price?.price?.currentAmount == 0,
-          overrides: rawSubproduct.category.price_override,
+          overrides: !!price?.meta.overrides,
+          overridden: price?.meta.overridden,
           default: !!rawSubproduct?.pivot?.default
         },
         order: rawSubproduct.pivot.order
@@ -735,7 +739,9 @@ export const parseSummaryDetail = (
   const cycle = getBillingCycle(raw.billing_cycle_months);
 
   const discounted =
-    !isNil(raw.price_discounted) && raw.price !== raw.price_discounted;
+    !raw.overridden_price &&
+    !isNil(raw.price_discounted) &&
+    raw.price !== raw.price_discounted;
 
   const displayType = getPriceDisplayType(rawProduct);
 
@@ -768,6 +774,7 @@ export const parseSummaryDetail = (
       free: (raw.price_discounted ?? raw.price) == 0,
       freeTrial: !!rawProduct?.trial_supported,
       overrides: !!overrides,
+      overridden: !!raw.overridden_price,
       useMonthlyFromPrice
     }
   } as ProductSummaryDetailWithPrice;
@@ -775,18 +782,32 @@ export const parseSummaryDetail = (
 
 export const parsePrice = (raw: IProductPrice): PriceDetail => {
   //  TODO: currently IProductPrice does not provide nett/gross values, only the brand setting
-  const savingAmount =
-    Math.round(subtract(raw.price, raw?.price_discounted ?? raw.price) * 100) /
-    100;
-
+  // When a price is manually overridden, promotions don't apply — ignore price_discounted entirely.
   const discounted =
-    !isNil(raw.price_discounted) && raw.price !== raw.price_discounted;
+    !raw.overridden_price &&
+    !isNil(raw.price_discounted) &&
+    raw.price !== raw.price_discounted;
+
+  const savingAmount = discounted
+    ? Math.round(subtract(raw.price, raw.price_discounted!) * 100) / 100
+    : 0;
+
+  // When a price has been manually overridden, `price` is the custom amount
+  // and `original_price` is the pre-override pricelist price.
+  const regularAmount = raw.overridden_price
+    ? (raw.original_price ?? raw.price)
+    : raw.price;
+  const regularPrice = raw.overridden_price
+    ? (raw.original_price_formatted ?? raw.price_formatted ?? "")
+    : (raw.price_formatted ?? "");
 
   return {
-    currentAmount: raw.price_discounted ?? raw.price,
-    currentPrice: raw.price_discounted_formatted ?? raw.price_formatted ?? "",
-    regularAmount: raw.price,
-    regularPrice: raw.price_formatted ?? "",
+    currentAmount: discounted ? (raw.price_discounted ?? raw.price) : raw.price,
+    currentPrice: discounted
+      ? (raw.price_discounted_formatted ?? raw.price_formatted ?? "")
+      : (raw.price_formatted ?? ""),
+    regularAmount,
+    regularPrice,
     savingAmount,
     savingPrice: "", //TODO: missing formatted value
     savingPercent: discounted

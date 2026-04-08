@@ -35,6 +35,7 @@
   "date_sent": "Dato sendt",
   "default_label": "Misligholde",
   "discount": "Rabatt",
+  "domain_not_available_msg": "Dette domenet er ikke tilgjengelig gjennom oss.",
   "edit_configuration": "Rediger konfigurasjon",
   "email_bounced": "E-post returnert",
   "email_history": "E-posthistorikk",
@@ -126,6 +127,7 @@
   "trial_renews_at_msg": "Fornyes automatisk for {price} etter prøveperioden",
   "try_before_you_buy": "Prøv før du kjøper",
   "try_free_for_days": "Prøv gratis i {days} dager",
+  "unavailable": "Utilgjengelig",
   "unverified_label": "Ubekreftet",
   "welcome_back_msg": "Velkommen tilbake, {name}"
 }
