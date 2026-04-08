@@ -155,5 +155,20 @@
   },
   "stored_payment_method": {
     "label": ""
+  },
+  "twofa": {
+    "description": "Tento účet je zabezpečený dvojfaktorovým overením. Zadajte, prosím, svoj overovací kód.",
+    "label": "Overovací kód",
+    "placeholder": "123 456"
+  },
+  "twofa_email": {
+    "description": "Pre vašu ochranu sme vám na váš e-mail poslali jednorazový prístupový kód. Pre dokončenie tejto žiadosti zadajte kód nižšie.",
+    "label": "Overovací kód",
+    "placeholder": "123 456"
+  },
+  "twofa_totp": {
+    "description": "Na dokončenie tejto žiadosti zadajte jednorazový prístupový kód vygenerovaný aplikáciou Authenticator.",
+    "label": "Overovací kód",
+    "placeholder": "123 456"
   }
 }
