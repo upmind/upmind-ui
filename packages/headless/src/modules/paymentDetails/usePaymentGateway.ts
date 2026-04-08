@@ -86,7 +86,7 @@ export const usePaymentGateway = (
     isAvailable:
       !!actor.value && stateMatches(actor, ["available", "processing"]),
     isUnavailable: !!actor.value && stateMatches(actor, ["unavailable"]),
-    hasErrors: stateMatches(actor, ["error"]),
+    hasErrors: stateMatches(actor, ["available.error"]),
     isProcessing: stateMatches(actor, ["processing"]),
     isValid: stateMatches(actor, ["available.valid"]),
     isDirty: !isEmpty(contextValue<GatewayContext["model"]>(actor, "model")),
@@ -148,11 +148,12 @@ export const usePaymentGateway = (
 
     return waitFor(
       actor.value!.service,
-      state => stateMatches(state, ["processed", "error", "complete"]),
+      state =>
+        stateMatches(state, ["processed", "available.error", "complete"]),
       { timeout: 60_000 }
     )
       .then(state => {
-        if (stateMatches(state, "error")) throw state.context.error;
+        if (stateMatches(state, "available.error")) throw state.context.error;
         return Promise.resolve();
       })
       .catch(error => {
@@ -179,6 +180,7 @@ export const usePaymentGateway = (
       return;
     }
 
+    console.log("PaymentGateway", "render");
     return isReady().then(() => {
       waitFor(
         actor.value!.service,

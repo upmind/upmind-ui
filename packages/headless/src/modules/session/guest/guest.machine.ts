@@ -122,7 +122,10 @@ export default createMachine(
               challenging: {
                 on: {
                   VERIFY: { target: "verifying" },
-                  CANCEL: { target: "available" }
+                  CANCEL: {
+                    target: "available",
+                    actions: ["setLoginSchemas", "clearError"]
+                  }
                 }
               },
               verifying: {

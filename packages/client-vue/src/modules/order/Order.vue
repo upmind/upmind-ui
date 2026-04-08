@@ -36,7 +36,6 @@
         v-show="!meta.isProcessing"
         :label="t('action.pay_now')"
         :processing="meta.isProcessing"
-        :error="errors?.message"
         @resolve="pay"
       >
         <template #prepend>
@@ -235,6 +234,7 @@ set(ui.theme.value);
 
 const { transferTo } = useSession();
 const {
+  cancelChallenge,
   errors,
   invoice: orderData,
   isReady,
@@ -242,12 +242,14 @@ const {
   pay,
   paymentDetail,
   refresh,
+  renderChallenge,
   retry
 } = useOrder(orderId);
 
 await isReady();
 
 provide("usePaymentDetail", paymentDetail);
+provide("usePaymentChallenge", { renderChallenge, cancelChallenge, meta });
 provide("orderInvoice", orderData);
 
 const { show: showAnnouncement, dismiss: dismissAnnouncement } =
@@ -304,6 +306,20 @@ const primaryAlert = computed<
       },
       onClick: retry
     };
+  if (meta.value.isPaymentDue)
+    return {
+      title: t("invoice.payment_due"),
+      description: orderData.value?.dateDue?.date
+        ? t("invoice.payment_due_msg", {
+            amount: orderData.value?.summary.unpaidAmountFormatted,
+            due_date: orderData.value?.dateDue?.date
+          })
+        : t("invoice.payment_required_msg", {
+            amount: orderData.value?.summary.unpaidAmountFormatted
+          }),
+      icon: "calendar",
+      color: "warning"
+    };
 });
 
 const secondaryAlert = computed<
@@ -325,7 +341,7 @@ const secondaryAlert = computed<
     return {
       title: t("invoice.payment_partial"),
       description: t("invoice.payment_partial_msg", {
-        paid_amount: orderData.value?.summary.unpaidAmountFormatted
+        remaining_amount: orderData.value?.summary.unpaidAmountFormatted
       }),
       icon: "alert-octagon",
       color: "warning"

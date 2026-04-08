@@ -5,12 +5,9 @@ import { spawn } from "xstate";
 import paymentDetailMachine from "../paymentDetails/paymentDetail.machine";
 
 // --- utils
-import { mapIClient } from "../session/utils";
-import { mapIAddress } from "../client/address/mappers";
-import { mapICurrency } from "../currency/mappers";
 
 // --- types
-import type { Invoice } from "../invoices/types";
+import type { IInvoice } from "@upmind-automation/types";
 import type { PaymentDetailsContext } from "../paymentDetails/types";
 import type { LastPaymentModel } from "./order.types";
 
@@ -29,19 +26,19 @@ import type { LastPaymentModel } from "./order.types";
  * cancelPaymentDetails sends CANCEL to the parent order machine.
  */
 export function spawnOrderPaymentDetail(
-  invoice: Invoice,
+  rawInvoice?: IInvoice,
   lastPaymentModel?: LastPaymentModel
 ) {
   return spawn(
     paymentDetailMachine.withContext({
       isInvoked: true,
-      orderId: invoice.id,
-      orderStatus: invoice.status,
-      currency: mapICurrency(invoice.currency),
-      address: invoice.address ? mapIAddress(invoice.address) : undefined,
-      client: mapIClient(invoice.client),
-      amount: invoice.summary.unpaidAmountConverted || 0.0,
-      paidAmount: invoice.summary.paidAmount,
+      orderId: rawInvoice?.id,
+      orderStatus: rawInvoice?.status.code,
+      currency: rawInvoice?.currency,
+      address: rawInvoice?.address,
+      client: rawInvoice?.client,
+      amount: rawInvoice?.unpaid_amount_converted || 0.0,
+      paidAmount: rawInvoice?.paid_amount || 0.0,
       amountPartial: lastPaymentModel?.amount,
       model: lastPaymentModel
         ? {

@@ -1,21 +1,29 @@
 // --- external
 
 // --- internal
-import { useI18n, useQuery } from "../..";
+import { useBrand, useI18n, useQuery } from "../..";
 
 // --- utils
-import { isEmpty } from "lodash-es";
+import { find, isEmpty, isNil, omitBy } from "lodash-es";
 import { DetailedError, ErrorOrigin, responseCodes } from "../../utils";
 
 // --- types
 import { Methods } from "@upmind-automation/types";
+import type {
+  GatewayProviderCodes,
+  IBrandGateway,
+  IInvoice
+} from "@upmind-automation/types";
 import { type PaymentContext } from "./types";
 import type { AnyEventObject } from "xstate";
 import { submitViaForm } from "./utils";
 
 // -----------------------------------------------------------------------------
 
-async function load({ orderId }: PaymentContext, { data }: AnyEventObject) {
+function load(
+  { orderId, paymentDetail }: PaymentContext,
+  { data }: AnyEventObject
+) {
   const { t } = useI18n();
   const { get, useUrl } = useQuery();
 
@@ -28,7 +36,10 @@ async function load({ orderId }: PaymentContext, { data }: AnyEventObject) {
       )
     );
 
-  return get({
+  const gatewayId = paymentDetail?.gateway_id;
+  const { brandId } = useBrand();
+
+  return get<IInvoice>({
     url: useUrl(`invoices/${orderId}`, {
       with: [
         "brand",
@@ -50,10 +61,45 @@ async function load({ orderId }: PaymentContext, { data }: AnyEventObject) {
         "account.affiliate_referral.affiliate_account.account.client"
       ].join()
     }),
-    queryKey: ["invoice", { id: orderId }]
-  }).then(data => {
-    return { rawOrder: data };
-  });
+    queryKey: ["invoice", { id: orderId }],
+    withAccessToken: true
+  }).then(rawOrder =>
+    get<IBrandGateway[]>({
+      url: useUrl(
+        `brands/${brandId.value}/gateways`,
+        omitBy(
+          {
+            limit: 0,
+            client_id: rawOrder?.client_id,
+            invoice_id: orderId,
+            country_id: rawOrder?.address?.country_id,
+            currency_code: rawOrder?.currency?.code,
+            order: "order",
+            active: true,
+            with: ["gateway.gateway_provider", "gateway.card_types"].join()
+          },
+          isNil
+        )
+      ),
+      queryKey: [
+        "payment-details",
+        "gateways",
+        {
+          orderId,
+          brandId: brandId.value,
+          clientId: rawOrder?.client_id,
+          currencyId: rawOrder?.currency_id,
+          countryId: rawOrder?.address?.country_id
+        }
+      ],
+      withAccessToken: true
+    }).then(brandGateways => {
+      return {
+        rawOrder,
+        gateway: find(brandGateways, ["gateway_id", gatewayId])?.gateway
+      };
+    })
+  );
 }
 
 async function update(
@@ -89,8 +135,10 @@ async function render(context: PaymentContext, event: AnyEventObject) {
   const { t } = useI18n();
   const { mapRenderer } = await import("./mappers");
 
-  const gatewayCode = (context as any).gateway?.gateway_provider_code;
-  const renderer = mapRenderer(gatewayCode);
+  const gatewayCode = context.gateway?.gateway_provider?.code as
+    | GatewayProviderCodes
+    | undefined;
+  const renderer = gatewayCode ? mapRenderer(gatewayCode) : undefined;
 
   if (!renderer) {
     return Promise.reject(

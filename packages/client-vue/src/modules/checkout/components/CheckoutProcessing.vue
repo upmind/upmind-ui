@@ -1,6 +1,6 @@
 <template>
   <Interstitial
-    open
+    :open="!meta.isPaying && !meta.needsApproval"
     modal
     size="2xl"
     :animatedIcon="{
@@ -12,6 +12,8 @@
     :title="processingTitle"
     :text="processingText"
   />
+
+  <PaymentProcessing :open="meta.isPaying || meta.needsApproval" />
 </template>
 
 <script lang="ts" setup>
@@ -27,6 +29,7 @@ import {
 
 // --- components
 import { Interstitial } from "@upmind-automation/upmind-ui";
+import PaymentProcessing from "../../payment/components/PaymentProcessing.vue";
 
 // -----------------------------------------------------------------------------
 
@@ -35,16 +38,8 @@ const { meta } = useBasket();
 const { meta: paymentDetailsMeta } = useBasketPaymentDetails();
 
 const processingTitle = computed(() => {
-  if (meta.value.needsApproval) {
-    return t("cart.payment_awaiting_approval_md");
-  }
-
   if (meta.value.isConverting) {
     return t("cart.order_converting_md");
-  }
-
-  if (meta.value.isPaying) {
-    return t("cart.payment_processing_md");
   }
 
   if (meta.value.isCheckout) {
@@ -59,16 +54,8 @@ const processingTitle = computed(() => {
 });
 
 const processingText = computed(() => {
-  if (meta.value.needsApproval) {
-    return t("cart.payment_awaiting_approval_msg");
-  }
-
   if (meta.value.isConverting) {
     return t("cart.order_converting_msg");
-  }
-
-  if (meta.value.isPaying) {
-    return t("cart.payment_processing_msg");
   }
 
   if (meta.value.isCheckout) {
@@ -83,16 +70,8 @@ const processingText = computed(() => {
 });
 
 const processingIcon = computed(() => {
-  if (meta.value.needsApproval) {
-    return "tapping-card";
-  }
-
   if (meta.value.isConverting) {
     return "receipt";
-  }
-
-  if (meta.value.isPaying) {
-    return "tapping-card";
   }
 
   if (meta.value.isCheckout) {

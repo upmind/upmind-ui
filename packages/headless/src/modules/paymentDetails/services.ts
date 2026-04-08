@@ -184,6 +184,7 @@ async function loadLookups(
           limit: 0,
           brand_id: unref(brandId),
           country_id: address?.country_id,
+          // "filter[gateway.currencies.id]": currency.id,
           currency_code: currency.code,
           active: true,
           with: ["gateway", "client"].join()
@@ -219,6 +220,7 @@ async function loadLookups(
           client_id: client.id,
           invoice_id: orderId,
           country_id: address?.country_id,
+          // "filter[gateway.currencies.id]": currency.id,
           currency_code: currency?.code,
           active: true,
           with: ["gateway.gateway_provider", "gateway.card_types"].join()
