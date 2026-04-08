@@ -34,7 +34,13 @@
           icon="user-03"
           v-show="!meta.isAuthenticated"
           class="max-w-3xl"
+          :active="templateMeta.hasActiveSection"
         >
+          <Markdown
+            v-if="templateMeta.hasActiveSection"
+            tag="section"
+            :model-value="loginTemplate.body"
+          />
           <Auth
             class="rounded-box w-full max-w-5xl items-start"
             no-tabs
@@ -58,6 +64,17 @@
         </Section>
       </slot>
     </template>
+
+    <template
+      v-if="loginTemplate?.body && templateMeta.hasMarkdownSlot"
+      #markdown
+    >
+      <Markdown
+        tag="section"
+        :class="templateMeta.isSplit ? '' : styles.session.markdown"
+        :model-value="loginTemplate.body"
+      />
+    </template>
   </component>
 </template>
 
@@ -70,11 +87,18 @@ import { useI18n } from "vue-i18n";
 import { useHeader } from "../../components/header/useHeader";
 import { useFooter } from "../../components/footer/useFooter";
 import { useLayout } from "../../components/layout/useLayout";
-import { useConfig, validateTemplate } from "@upmind-automation/headless";
-import { useThemes } from "@upmind-automation/upmind-ui";
+import {
+  useConfig,
+  validateTemplate,
+  useClientTemplate,
+  useBrand
+} from "@upmind-automation/headless";
+import { useThemes, useStyles } from "@upmind-automation/upmind-ui";
+import sessionConfig from "./session.config";
+import { useSessionTemplates } from "./session.utils";
 
 // --- components
-import { Link } from "@upmind-automation/upmind-ui";
+import { Link, Markdown } from "@upmind-automation/upmind-ui";
 import Auth from "./components/Auth.vue";
 import Hero from "../../components/hero/Hero.vue";
 import Back from "./components/Back.vue";
@@ -119,6 +143,7 @@ import {
   useSession,
   UIContext
 } from "@upmind-automation/headless";
+import { ClientTemplateSlotCodes } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 
@@ -136,9 +161,16 @@ const { meta, isReady } = useSession();
 const { meta: basketMeta } = useBasket();
 const { navigateNext, navigateBack, navigate } = useRoutingEngine();
 
+const styles = useStyles(["session"], {}, sessionConfig);
+
 const { ui } = useConfig({
   context: UIContext.AUTH,
   provide: true
+});
+const { brandId } = useBrand();
+const { data: loginTemplate } = useClientTemplate({
+  code: ClientTemplateSlotCodes.LOGIN_PAGE,
+  objectId: brandId.value
 });
 
 await isReady();
@@ -156,6 +188,7 @@ const template = computed(() =>
 );
 
 const templateVariant = computed(() => get(supportedTemplates, template.value));
+const { meta: templateMeta } = useSessionTemplates(template);
 
 function doUpdate(value: SessionProps["modelValue"]) {
   if (value === "login") {

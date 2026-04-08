@@ -82,6 +82,8 @@ export default {
           }
         })
       }
-    }
+    },
+
+    copyright: cva("text-muted text-sm whitespace-nowrap")
   }
 };
