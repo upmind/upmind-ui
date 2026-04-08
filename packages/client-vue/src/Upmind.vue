@@ -45,9 +45,11 @@
           </slot>
         </Main>
 
-        <slot name="footer">
-          <Footer />
-        </slot>
+        <template #footer>
+          <slot name="footer">
+            <Footer />
+          </slot>
+        </template>
       </Page>
 
       <slot name="append" />
