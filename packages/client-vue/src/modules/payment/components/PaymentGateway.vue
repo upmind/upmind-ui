@@ -85,7 +85,8 @@ import {
   onUnmounted,
   useTemplateRef,
   computed,
-  ref
+  ref,
+  watch
 } from "vue";
 import { useI18n } from "vue-i18n";
 
@@ -161,12 +162,20 @@ const clearGateway = () => {
 };
 // --- side effects
 
-// wait till we mount then try to render the gateway if it's provided
-// otherwise watch in case it's provided later
+// Re-render when gateway enters rendering state (handles gateway switches)
+watch(
+  () => meta.value.isRendering,
+  rendering => {
+    if (rendering && container.value) {
+      render(container.value);
+    }
+  },
+  { immediate: true, flush: "post" }
+);
+// Render gateway on mount
 onMounted(() => {
   render(container.value);
 });
-
 onUnmounted(() => {
   clearGateway();
 });

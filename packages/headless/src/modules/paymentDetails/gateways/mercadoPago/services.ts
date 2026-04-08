@@ -91,6 +91,7 @@ async function render(
   }
 
   const bricksBuilder = sdk.mercadoPago.bricks();
+
   // IIFE;
   await new Promise<void>((resolve, reject) =>
     (async (bricksBuilder: bricks.Bricks) => {

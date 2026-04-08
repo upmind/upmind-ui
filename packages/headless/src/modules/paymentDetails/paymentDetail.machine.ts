@@ -444,7 +444,10 @@ export default createMachine(
         ) => {
           if (gatewayHelper?.id != model?.gateway_id) {
             // stop any existing gateways if they are different
-            if (gatewayHelper) stopService(gatewayHelper);
+            if (gatewayHelper) {
+              gatewayHelper.send({ type: "CLEANUP" });
+              stopService(gatewayHelper);
+            }
 
             // then find the gateway in the list
             const brandGateway = find(lookups.gateways, [
@@ -472,7 +475,10 @@ export default createMachine(
 
       reset: assign({
         gatewayHelper: ({ gatewayHelper }: PaymentDetailsContext) => {
-          if (gatewayHelper) stopService(gatewayHelper);
+          if (gatewayHelper) {
+            gatewayHelper.send({ type: "CLEANUP" });
+            stopService(gatewayHelper);
+          }
           return undefined;
         },
         // NB reset the model AND amounts so we force a reparse and recalculation

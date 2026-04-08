@@ -75,15 +75,6 @@ export const usePayment = (initial: PaymentArgs) => {
   }
 
   /**
-   * Renders an inline payment challenge into the provided container.
-   * Call when isRenderingChallenge is true and the container is mounted.
-   * @param container - The HTML element to render the challenge into.
-   */
-  function renderChallenge(container: HTMLElement): void {
-    send({ type: "RENDER", data: { container } });
-  }
-
-  /**
    * Completes an inline challenge with optional response data.
    * Triggers verification of the challenge.
    * @param data - Optional data from the challenge completion.
@@ -93,8 +84,18 @@ export const usePayment = (initial: PaymentArgs) => {
   }
 
   /**
-   * Cancels an inline challenge.
-   * Transitions the payment machine to error state.
+   * Renders an inline payment challenge into the provided container.
+   * Call when meta.isRenderingChallenge is true and the container is mounted.
+   */
+  function renderChallenge(container: HTMLElement): void {
+    send({
+      type: "RENDER",
+      data: { container, onComplete: completeChallenge }
+    });
+  }
+
+  /**
+   * Cancels an inline payment challenge.
    */
   function cancelChallenge(): void {
     send({ type: "CHALLENGE_CANCELLED" });
