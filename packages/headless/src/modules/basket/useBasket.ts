@@ -182,7 +182,8 @@ export const useBasket = () => {
         stateMatches(state, ["shopping.paymentDetail.processing"]),
       isConverting: stateMatches(state, ["converting"]),
       isPaying: stateMatches(state, ["paying"]),
-      needsApproval: machineMatches(payment, ["approving"]),
+      needsApproval: machineMatches(payment, ["challenging"]),
+      isRenderingChallenge: machineMatches(payment, ["challenging.render"]),
       isComplete: stateMatches(state, ["complete", "failed"]),
       hasPaid: stateMatches(state, ["complete"]),
       hasFailed: stateMatches(state, ["failed"]),
@@ -314,6 +315,33 @@ export const useBasket = () => {
 
   function checkout() {
     return send({ type: "CHECKOUT" });
+  }
+
+  /**
+   * Renders an inline payment challenge into the provided container.
+   * Call when meta.isRenderingChallenge is true and the container is mounted.
+   */
+  function renderChallenge(container: HTMLElement): void {
+    payment.value?.send({
+      type: "RENDER",
+      data: { container, onComplete: completeChallenge }
+    });
+  }
+
+  /**
+   * Completes an inline challenge with optional response data.
+   * Triggers verification of the challenge.
+   * @param data - Optional data from the challenge completion.
+   */
+  function completeChallenge(data?: Record<string, unknown>): void {
+    payment.value?.send({ type: "CHALLENGE_RESPONSE", data });
+  }
+
+  /**
+   * Cancels an inline payment challenge.
+   */
+  function cancelChallenge(): void {
+    payment.value?.send({ type: "CHALLENGE_CANCELLED" });
   }
 
   async function refresh(data?: IBasket): Promise<IBasket | undefined> {
@@ -790,7 +818,17 @@ export const useBasket = () => {
      * Pass `undefined` to revert to the current basket.
      * @param {string | undefined} id - The basket ID, or undefined to clear.
      */
-    setTargetBasket
+    setTargetBasket,
+
+    /**
+     * Renders an inline payment challenge into the provided container.
+     */
+    renderChallenge,
+
+    /**
+     * Cancels an inline payment challenge.
+     */
+    cancelChallenge
   };
 };
 

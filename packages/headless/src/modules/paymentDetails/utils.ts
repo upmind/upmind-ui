@@ -10,7 +10,7 @@ import dlocalConfig from "./gateways/dlocal";
 import openPayConfig from "./gateways/openPay";
 import stripeConfig from "./gateways/stripe";
 import razorpayConfig from "./gateways/razorpay";
-// import mercadoPagoConfig from "./gateways/mercadoPago";
+import mercadoPagoConfig from "./gateways/mercadoPago";
 
 // --- utils
 import { filter, get, includes, isEqual, some, sortBy, unset } from "lodash-es";
@@ -26,20 +26,20 @@ import {
   PaymentType,
   QUERY_PARAMS
 } from "@upmind-automation/types";
-import { type GatewayParams } from "./gateways/types";
 import { GatewayProviderCodes } from "@upmind-automation/types";
-import { type StripeContext } from "./gateways/stripe/types";
-import { type BraintreeContext } from "./gateways/braintree/types";
-import { type OpenPayContext } from "./gateways/openPay/types";
+import type { GatewayParams } from "./gateways/types";
+import type { StripeContext } from "./gateways/stripe/types";
+import type { BraintreeContext } from "./gateways/braintree/types";
+import type { OpenPayContext } from "./gateways/openPay/types";
 import type { RazorpayContext } from "./gateways/razorpay/types";
+import type { MercadoPagoContext } from "./gateways/mercadoPago/types";
+import type { DLocalContext } from "./gateways/dlocal/types";
 import type {
   PaymentDetail,
   PaymentDetailModel,
   PaymentDetailsContext,
   PendingOperation
 } from "./types";
-// import { MercadoPagoContext } from "./gateways/mercadoPago/types";
-import type { DLocalContext } from "./gateways/dlocal/types";
 
 // -----------------------------------------------------------------------------
 
@@ -67,25 +67,19 @@ export function spawnGateway(params: GatewayParams) {
           sync: true
         }
       );
-    // case GatewayProviderCodes.MERCADO_PAGO:
-    //   return spawn(
-    //     gatewayMachine<MercadoPagoContext>(gateway.gateway_provider.code)
-    //       .withContext({
-    //         address,
-    //         amount,
-    //         client,
-    //         ctx: GatewayCtx.PAY,
-    //         currency,
-    //         gateway,
-    //         orderId,
-    //         supported: true
-    //       })
-    //       .withConfig(mercadoPagoConfig),
-    //     {
-    //       name: gateway.id,
-    //       sync: true
-    //     }
-    //   );
+    case GatewayProviderCodes.MERCADO_PAGO:
+      return spawn(
+        gatewayMachine<MercadoPagoContext>(gateway.gateway_provider.code)
+          .withContext({
+            ...params,
+            supported: true
+          })
+          .withConfig(mercadoPagoConfig),
+        {
+          name: gateway.id,
+          sync: true
+        }
+      );
     case GatewayProviderCodes.OPENPAY:
       return spawn(
         gatewayMachine<OpenPayContext>(gateway.gateway_provider.code)
@@ -155,6 +149,7 @@ export function spawnGateway(params: GatewayParams) {
     case GatewayProviderCodes.FLUTTERWAVE:
     case GatewayProviderCodes.GO_CARDLESS:
     case GatewayProviderCodes.MICROPAYMENT:
+    case GatewayProviderCodes.MERCADO_PAGO_OTHER_PAYMENTS:
     case GatewayProviderCodes.OFFLINE:
     case GatewayProviderCodes.OPENPAY_NON_CARD:
     case GatewayProviderCodes.PAY_FAST:
@@ -182,34 +177,19 @@ export function spawnGateway(params: GatewayParams) {
     // UNSUPPORTED/UNKNOWN GATEWAYS
     default:
     case GatewayProviderCodes.ADYEN:
-    case GatewayProviderCodes.MERCADO_PAGO_OTHER_PAYMENTS:
-    case GatewayProviderCodes.MERCADO_PAGO:
     // --- DEPRECATED SDK GATEWAYS
+    /** @deprecated No longer supported via Headless — will be removed in a future release. */
     case GatewayProviderCodes.MOMO_MTN_COLLECTIONS:
+    /** @deprecated No longer supported via Headless — will be removed in a future release. */
     case GatewayProviderCodes.SAGE_PAY_DIRECT:
+    /** @deprecated No longer supported via Headless — will be removed in a future release. */
     case GatewayProviderCodes.FLUTTERWAVE_CARD:
+    /** @deprecated No longer supported via Headless — will be removed in a future release. */
     case GatewayProviderCodes.PAYPAL_LEGACY_SUBSCRIPTION:
+    /** @deprecated No longer supported via Headless — will be removed in a future release. */
     case GatewayProviderCodes.PAYPAL_REST:
+    /** @deprecated No longer supported via Headless — will be removed in a future release. */
     case GatewayProviderCodes.PAYPAL_SUBSCRIPTION_AGREEMENT:
-      // --- Deprecation warnings
-      if (
-        includes(
-          [
-            GatewayProviderCodes.MOMO_MTN_COLLECTIONS,
-            GatewayProviderCodes.SAGE_PAY_DIRECT,
-            GatewayProviderCodes.FLUTTERWAVE_CARD,
-            GatewayProviderCodes.PAYPAL_LEGACY_SUBSCRIPTION,
-            GatewayProviderCodes.PAYPAL_REST,
-            GatewayProviderCodes.PAYPAL_SUBSCRIPTION_AGREEMENT
-          ],
-          gateway.gateway_provider?.code
-        )
-      ) {
-        console.warn(
-          `DEPRECATION: ${gateway.name} is no longer supported via Headless`
-        );
-      }
-
       // spawn a renderless unsupported gateway machine to allow orders to be placed without payment
       return spawn(
         gatewayMachine(gateway.gateway_provider.code).withContext({

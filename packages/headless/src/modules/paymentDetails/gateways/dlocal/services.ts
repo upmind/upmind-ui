@@ -13,7 +13,7 @@ import {
   useScripts,
   useValidation
 } from "../../../../utils";
-import { get, some } from "lodash-es";
+import { forEach, get, some } from "lodash-es";
 import { parseSettings } from "../utils";
 
 // --- types
@@ -124,7 +124,19 @@ async function load(context: DLocalContext, _event: AnyEventObject) {
 //     template ref. The machine still transitions through rendering→available
 //     (preserving the hasRendered guard), but no DOM work happens here.
 async function render({ sdk }: DLocalContext, _event: AnyEventObject) {
-  return Promise.resolve({ sdk });
+  const validationHelper = (callback: any, _onReceiveEvent: AnyEventObject) => {
+    if (sdk?.fields) {
+      forEach(sdk.fields, (field: any) => {
+        field.on("complete", (event: any) => {
+          callback({ type: "VALIDATE", data: event });
+        });
+      });
+    }
+
+    return () => {};
+  };
+
+  return Promise.resolve({ sdk, container: null, validationHelper });
 }
 
 async function validate(

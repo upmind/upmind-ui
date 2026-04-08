@@ -61,7 +61,7 @@ import { useI18n } from "vue-i18n";
 // --- components
 import Skeleton from "./Skeleton.vue";
 import Actions from "./Actions.vue";
-import { UpmForm } from "../form";
+import UpmForm from "../form/Form.vue";
 import { Alert, Dialog } from "@upmind-automation/upmind-ui";
 
 // --- utils

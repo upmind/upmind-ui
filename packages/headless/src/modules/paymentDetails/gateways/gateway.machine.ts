@@ -135,6 +135,10 @@ export default <T = unknown>(name: string) =>
                 PAY: { target: "#processing.payment", cond: "isPaying" },
                 ADD: { target: "#processing.adding", cond: "isAdding" }
               }
+            },
+
+            error: {
+              id: "error"
             }
           },
           on: {
@@ -217,22 +221,23 @@ export default <T = unknown>(name: string) =>
           on: { VALIDATE: { actions: [] /*do nothing*/ } }
         },
 
-        error: {
-          id: "error"
-        },
-
         unavailable: {
-          id: "unavailable"
+          id: "unavailable",
+          entry: ["cleanupSdk"]
         },
 
         complete: {
           type: "final",
           id: "complete",
+          entry: ["cleanupSdk"],
           data: ({ paymentDetail }: GatewayContext, _event: AnyEventObject) =>
             paymentDetail
         }
       },
       on: {
+        CLEANUP: {
+          actions: ["cleanupSdk"]
+        },
         UNAUTHENTICATED: {
           target: "loading",
           actions: ["clearError", "clearModel", "clearSchemas"]
@@ -354,6 +359,10 @@ export default <T = unknown>(name: string) =>
           error: ({ error }: GatewayContext<any>, { data }: AnyEventObject) =>
             error // do nothing by default.... individual sdk gateways can override
         }),
+
+        cleanupSdk: () => {
+          // no-op — override in SDK-specific gateway configs
+        },
 
         clearError: assign({
           error: undefined
