@@ -13,12 +13,10 @@ import config from "./main.config";
 import { useLayout } from "../layout/useLayout";
 
 // --- types
-import type { HTMLAttributes } from "vue";
+import type { MainProps } from "./types";
 
 // -----------------------------------------------------------------------------
-const props = defineProps<{
-  class?: HTMLAttributes["class"];
-}>();
+const props = defineProps<MainProps>();
 
 const { mode, overflow } = useLayout();
 

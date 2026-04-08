@@ -60,14 +60,16 @@
         </slot>
       </template>
 
-      <template
-        v-if="ui.trustMessaging.isVisible && data.trustMessagingMarkdown"
-        #markdown
-      >
+      <template #markdown>
         <slot name="markdown">
           <Markdown
+            v-if="ui.trustMessaging.isVisible && data.trustMessagingMarkdown"
             data-testid="slots:summary-append"
             :model-value="data.trustMessagingMarkdown"
+          />
+          <Markdown
+            v-else-if="basketSummaryTemplate?.body"
+            :model-value="basketSummaryTemplate.body"
           />
         </slot>
       </template>
@@ -101,7 +103,11 @@ import { useBasket, useRoutingEngine } from "@upmind-automation/headless";
 import { useLayout } from "../../components/layout/useLayout";
 import { useHeader } from "../../components/header/useHeader";
 import { useFooter } from "../../components/footer/useFooter";
-import { useConfig, validateTemplate } from "@upmind-automation/headless";
+import {
+  useConfig,
+  validateTemplate,
+  useClientTemplate
+} from "@upmind-automation/headless";
 import { useThemes } from "@upmind-automation/upmind-ui";
 
 // --- components
@@ -137,6 +143,7 @@ import { get, includes } from "lodash-es";
 // --- types
 import { BASKET_TEMPLATE } from "./types";
 import { UIContext } from "@upmind-automation/headless";
+import { ClientTemplateSlotCodes } from "@upmind-automation/types";
 import type { StorefrontRoute } from "../../types";
 import { LAYOUT_VARIANTS } from "../../components/layout/types";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
@@ -160,7 +167,7 @@ const props = withDefaults(
 const { t } = useI18n();
 const { set } = useThemes();
 const { navigateNext } = useRoutingEngine();
-const { isReady, meta } = useBasket();
+const { isReady, meta, basketId } = useBasket();
 const { variant } = useLayout();
 
 const open = ref(false);
@@ -171,7 +178,6 @@ const { ui, data } = useConfig({
   context: UIContext.BASKET,
   provide: true
 });
-
 const template = computed(() =>
   validateTemplate(
     ui.template.value || props.template,
@@ -183,6 +189,11 @@ const template = computed(() =>
 const templateVariant = computed(() => get(supportedTemplates, template.value));
 
 await isReady();
+
+const { data: basketSummaryTemplate } = useClientTemplate({
+  code: ClientTemplateSlotCodes.BASKET_SUMMARY_FOOTER,
+  objectId: basketId.value
+});
 
 set(ui.theme.value);
 
