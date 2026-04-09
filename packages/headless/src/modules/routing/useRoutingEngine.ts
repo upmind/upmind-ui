@@ -36,6 +36,8 @@ import type { FunnelTarget, RoutingEngineContext } from "./types";
 const service = interpret(routingEngine, { devTools: true });
 let router: Router;
 let initialRoute = ref(true);
+/** Mutex — prevents overlapping navigate calls from queuing duplicate RESOLVE events. */
+let navigating = ref(false);
 export { router };
 
 // -----------------------------------------------------------------------------
@@ -143,6 +145,9 @@ export const useRoutingEngine = () => {
   }
 
   async function navigate(target: string | FunnelTarget, data?: any) {
+    if (navigating.value) return;
+    navigating.value = true;
+
     // Pre-lock: set resolved:false BEFORE sending RESOLVE to close the race
     // window between programmatic navigation and reactive watchers (FE-2587)
     send({ type: "PRE_RESOLVE" });
@@ -155,45 +160,58 @@ export const useRoutingEngine = () => {
     return awaitResolved(funnel.value?.service)
       .then(updateRouter)
       .catch((error: any) => {
-        console.warn("UseRouteingEngine", "Navigate route Failed", {
+        console.warn("UseRoutingEngine", "Navigate route failed", {
           route: router.currentRoute.value,
           data,
           error
         });
+      })
+      .finally(() => {
+        navigating.value = false;
       });
   }
 
   async function navigateNext(event?: any) {
+    if (navigating.value) return;
+    navigating.value = true;
+
     // Pre-lock (FE-2587)
     send({ type: "PRE_RESOLVE" });
-
     send({ type: "NEXT", data: { route: router.currentRoute.value, event } });
 
     return awaitResolved(funnel.value?.service)
       .then(updateRouter)
       .catch((error: any) => {
-        console.warn("UseRouteingEngine", "Next route Failed", {
+        console.warn("UseRoutingEngine", "Next route failed", {
           route: router.currentRoute.value,
           event,
           error
         });
+      })
+      .finally(() => {
+        navigating.value = false;
       });
   }
 
   async function navigateBack(event?: any) {
+    if (navigating.value) return;
+    navigating.value = true;
+
     // Pre-lock (FE-2587)
     send({ type: "PRE_RESOLVE" });
-
     send({ type: "BACK", data: { route: router.currentRoute.value, event } });
 
     return awaitResolved(funnel.value?.service)
       .then(updateRouter)
       .catch((error: any) => {
-        console.warn("UseRouteingEngine", "Back route Failed", {
+        console.warn("UseRoutingEngine", "Back route failed", {
           route: router.currentRoute.value,
           event,
           error
         });
+      })
+      .finally(() => {
+        navigating.value = false;
       });
   }
 
