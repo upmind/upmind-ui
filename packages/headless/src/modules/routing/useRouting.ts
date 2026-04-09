@@ -31,13 +31,6 @@ export const useRouting = (router: Router): void => {
    * @param route
    */
   async function guardRoute(route: RouteLocation) {
-    // console.debug("Guarding route:", route);
-
-    // NB: Trailing slash enforcement is now handled by the NOT_FOUND catch-all
-    // route's beforeEnter guard in each app's routes.ts.
-    // const trailingSlashRedirect = ensureTrailingSlash(route);
-    // if (trailingSlashRedirect) return trailingSlashRedirect;
-
     if (route?.query?.funnel) {
       await switchFunnel(route.query.funnel.toString(), route);
     }
