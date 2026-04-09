@@ -290,7 +290,7 @@ const {
   service: basketProduct,
   onDone,
   isReady
-} = await configure(basketProductId);
+} = await configure(basketProductId, { allowMultipleEdits: true });
 
 const productConfig = useProductConfig(basketProduct);
 
@@ -406,7 +406,8 @@ const handleShare = () => {
 };
 
 onUnmounted(() => {
-  stop();
+  // Don't stop the config machine — it may be reused by the inline editor.
+  // Housekeeping (pruneConfigs) cleans up machines for removed products.
 
   useHeader({});
   useLayout({});

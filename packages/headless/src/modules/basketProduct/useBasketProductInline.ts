@@ -90,8 +90,9 @@ export const useBasketProductInline = (bpid: string) => {
 
   /** Inline control flags for this product. */
   const meta = computed(() => {
-    const showOptionUpsells = ui.optionUpsells.isVisible;
+    const hasUpsellOptions = !!basketProduct.productDetails.configurableInline;
 
+    const showOptionUpsells = ui.optionUpsells.isVisible && hasUpsellOptions;
     const showTermSelector =
       ui.productTermSelector.isVisible && !basketProduct.meta?.oneoff;
 
@@ -99,6 +100,7 @@ export const useBasketProductInline = (bpid: string) => {
 
     return {
       hasInlineControls: showOptionUpsells || showTermSelector || showQuantity,
+      hasUpsellOptions,
       showOptionUpsells,
       showQuantity,
       showTermSelector

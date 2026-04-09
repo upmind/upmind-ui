@@ -542,6 +542,26 @@ export const parseProductDetails = (
       !isEmpty(rawProduct.products_options) ||
       !isEmpty(rawProduct.provision_fields),
 
+    configurableInline: (() => {
+      const config = useConfig();
+      return (
+        some(rawProduct.products_options, option => {
+          const { data } = config.with({
+            product: () => ({ productDetails: { uiMeta: rawProduct.meta } }),
+            option: () => ({ uiMeta: option.meta })
+          });
+          return !!data.optionUpsellEnabled;
+        }) ||
+        some(rawProduct.products_attributes, attr => {
+          const { data } = config.with({
+            product: () => ({ productDetails: { uiMeta: rawProduct.meta } }),
+            option: () => ({ uiMeta: attr.meta })
+          });
+          return !!data.optionUpsellEnabled;
+        })
+      );
+    })(),
+
     quantity: rawProduct?.min_order_quantity || rawProduct?.unit_quantity || 1,
     quantifiable: rawProduct?.order_type == 2,
     step: rawProduct?.unit_quantity || 1,
