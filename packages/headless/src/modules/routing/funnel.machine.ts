@@ -19,12 +19,22 @@ import {
 } from "lodash-es";
 import { pascalCase } from "./utils";
 
-// -- -types
+// --- types
 import {
   type FunnelContext,
   type FunnelProps,
   type FunnelStateMeta
 } from "./types";
+
+/**
+ * Minimal shape of a state node config used by the meta enrichment.
+ * Avoids `any` while keeping compatibility with XState's StateNodeConfig.
+ */
+type StateNodeShape = {
+  meta?: FunnelStateMeta;
+  on?: Record<string, unknown>;
+  [key: string]: unknown;
+};
 
 // -----------------------------------------------------------------------------
 
@@ -51,19 +61,21 @@ export const useFunnelMachine = ({
   // --- FE-2583: Auto-generate NEXT/BACK handlers from state meta
   // States declaring meta.next / meta.prev get auto-wired handlers.
   // Explicit `on.NEXT` / `on.BACK` in the state config take precedence.
-  const enrichedStates = mapValues(states, (config: any) => {
+  const enrichedStates = mapValues(states, (config: StateNodeShape) => {
     const meta = config.meta as FunnelStateMeta | undefined;
     if (!meta) return config;
 
-    const metaHandlers: Record<string, any> = {};
+    const metaHandlers: Record<string, unknown> = {};
 
     if (meta.next) {
       metaHandlers.NEXT = {
+        target: meta.next,
         actions: [assign({ targetRoute: { name: meta.next } })]
       };
     }
     if (meta.prev) {
       metaHandlers.BACK = {
+        target: meta.prev,
         actions: [assign({ targetRoute: { name: meta.prev } })]
       };
     }
@@ -252,8 +264,8 @@ export const useFunnelMachine = ({
       services: {
         /**
          * FE-2546: Invoked callback that subscribes to all registered watchers.
-         * Each watcher is self-contained — it sets up its own Vue watch() and
-         * calls navigate() from useRoutingEngine internally.
+         * Each watcher is self-contained — it sets up its own reactive subscription
+         * and handles navigation internally.
          * The funnel machine just starts/stops them when entering/exiting available.
          */
         watcherSubscription:
