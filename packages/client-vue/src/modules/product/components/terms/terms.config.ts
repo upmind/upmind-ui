@@ -83,7 +83,7 @@ export default {
           variants: {
             layout: {
               stacked: "text-3xl font-medium",
-              inline: "font-normal"
+              inline: "text-md font-medium"
             }
           },
           defaultVariants: {

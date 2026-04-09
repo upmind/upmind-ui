@@ -33,6 +33,7 @@
           :meta="getSubproductValue(selectedItem.value).meta"
           :cycle="getSubproductValue(selectedItem.value).cycle"
           :term="props.term"
+          dropdown
         />
       </div>
     </template>
