@@ -64,6 +64,12 @@ export type FunnelProps = {
   guards?: MachineOptions<FunnelContext, AnyEventObject>["guards"];
   services?: MachineOptions<FunnelContext, AnyEventObject>["services"];
   actions?: MachineOptions<FunnelContext, AnyEventObject>["actions"];
+  /** Endpoint state nodes generated from overlay definitions (merged in services.ts). */
+  endpoints?: {
+    states: Record<string, unknown>;
+    guards: Record<string, unknown>;
+    actions: Record<string, unknown>;
+  };
 };
 
 export type Funnels = Record<string, FunnelProps>;
@@ -190,8 +196,8 @@ export type FunnelWatcher = {
 
 /**
  * Signature for the watcher handler function.
- * Self-contained: sets up its own Vue watch() and imports useRoutingEngine
- * for navigation. Must return a cleanup function that unsubscribes.
+ * Sets up a reactive subscription and returns a cleanup function.
+ * Must be self-contained — the handler manages its own lifecycle.
  */
 export type FunnelWatcherHandler = () => () => void;
 
