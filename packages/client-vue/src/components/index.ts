@@ -6,7 +6,6 @@ export * from "./footer";
 export * from "./layout";
 export * from "./header";
 export * from "./emailHistory";
-
 export { default as UpmLocale } from "./LocaleSwitcher.vue";
 export { default as UpmOverlayController } from "./overlays/OverlayController.vue";
 export { useOverlayRoute } from "./overlays/useOverlayRoute";

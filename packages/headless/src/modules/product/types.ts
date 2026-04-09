@@ -253,6 +253,9 @@ export type ProductDetails = {
   /** Indicates whether the product is configurable. ie has terms, options, attributes or provision fields that need configuring */
   configurable?: boolean;
 
+  /** `true` if the product has options or attributes that can be configured inline (e.g. upsells on the basket card). */
+  configurableInline?: boolean;
+
   /** `true` if the product allows quantity selection, `false` otherwise. */
   quantifiable: boolean;
   /** The default or current quantity of the product. */
@@ -418,6 +421,8 @@ export type ProductSummaryMeta = {
   invalid?: boolean;
   /** `true` if the product's configuration overrides a default. */
   overrides?: boolean;
+  /** `true` if the product has an overridden custom price*/
+  overridden?: boolean;
   /** `true` if the product has mixed configuration options. */
   mixed?: boolean;
   /** `true` if the product includes other items. */
@@ -523,6 +528,8 @@ export type SubproductDetails = {
     required: boolean;
     /** `true` if this subproduct selection overrides a default. */
     overrides: boolean;
+    /** `true` if the product has an overridden custom price*/
+    overridden?: boolean;
   };
   // ---
   /** An array of {@link SubproductValue} objects representing the available choices for this subproduct. */
@@ -919,6 +926,8 @@ export interface ProductConfigContext {
   // ---
   /** The ID of the current shopping basket. */
   basketId?: string;
+  /** When `true`, the machine returns to `available` after update instead of `complete`. */
+  allowMultipleEdits?: boolean;
   /** An `ActorRef` to the basket helper service. */
   basketHelper?: ActorRef<any>;
   /** A function to parse a {@link ProductModel} for the basket. */

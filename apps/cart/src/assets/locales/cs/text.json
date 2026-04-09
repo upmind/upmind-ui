@@ -35,6 +35,7 @@
   "date_sent": "Datum odeslání",
   "default_label": "Výchozí",
   "discount": "Sleva",
+  "domain_not_available_msg": "Tato doména není u nás dostupná.",
   "edit_configuration": "Upravit konfiguraci",
   "email_bounced": "E-mail nedoručen",
   "email_history": "Historie e-mailů",
@@ -126,6 +127,7 @@
   "trial_renews_at_msg": "Po skončení zkušební doby se automaticky obnoví za {price}",
   "try_before_you_buy": "Vyzkoušejte před koupí",
   "try_free_for_days": "Vyzkoušejte zdarma na {days} dní",
+  "unavailable": "Nedostupné",
   "unverified_label": "Neověřené",
   "welcome_back_msg": "Vítej zpět, {name}"
 }

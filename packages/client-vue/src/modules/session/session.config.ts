@@ -14,6 +14,7 @@ export default {
       "flex flex-col gap-2 text-sm leading-tight font-light tracking-tight"
     ),
     content: cva("rounded-box w-full max-w-5xl items-start"),
+    markdown: cva("my-6"),
 
     transition: {
       enter: {

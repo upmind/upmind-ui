@@ -1,6 +1,6 @@
 {
   "order_complete": "Sipariş tamamlandı!",
-  "order_complete_msg": "Tamamlanan siparişinizin ayrıntılarıyla birlikte satın alma işleminiz hakkında bilmeniz gereken her şeyi içeren bir onay e-postasını size gönderdik.",
+  "order_complete_msg": "Siparişinizin detaylarını ve satın alma işleminizle ilgili bilmeniz gereken her şeyi içeren bir onay e-postası gönderdik.",
   "order_free": "Ödenecek bir şey kalmadı",
   "order_free_msg": "Siparişiniz başarıyla verilmiştir. Ödeme gerekmemektedir.",
   "order_locked": "Fatura kilitli",

@@ -1,6 +1,6 @@
 {
   "order_complete": "Commande terminée !",
-  "order_complete_msg": "Nous venons de vous envoyer un courriel de confirmation contenant les détails de votre commande, ainsi que tout ce que vous devez savoir au sujet de votre achat.",
+  "order_complete_msg": "Nous vous avons envoyé un courriel de confirmation contenant les détails de votre commande, ainsi que tous les renseignements nécessaires concernant votre achat.",
   "order_free": "Plus rien à payer",
   "order_free_msg": "Votre commande a été enregistrée avec succès. Aucun paiement n'est requis.",
   "order_locked": "Facture bloquée",

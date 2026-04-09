@@ -85,7 +85,8 @@ import {
   onUnmounted,
   useTemplateRef,
   computed,
-  ref
+  ref,
+  watch
 } from "vue";
 import { useI18n } from "vue-i18n";
 
@@ -104,7 +105,7 @@ import { Alert, Markdown, RadioCards } from "@upmind-automation/upmind-ui";
 import Form from "../../../components/form/Form.vue";
 
 // --- types
-import type { UsePaymentDetails } from "@upmind-automation/headless";
+import type { UsePaymentDetail } from "@upmind-automation/headless";
 import type { PaymentGatewayProps } from "../types";
 
 // -----------------------------------------------------------------------------
@@ -112,8 +113,8 @@ const props = defineProps<PaymentGatewayProps>();
 const emit = defineEmits(["resolve", "reject", "cancel"]);
 const { t } = useI18n();
 
-const paymentDetails = inject<UsePaymentDetails>("usePaymentDetails");
-if (!paymentDetails)
+const paymentDetail = inject<UsePaymentDetail>("usePaymentDetail");
+if (!paymentDetail)
   throw new DetailedError(
     t("error.payment_gateway_not_available"),
     responseCodes.Service_Unavailable,
@@ -134,7 +135,7 @@ const {
   clickwrap,
   instructions,
   gateway
-} = usePaymentGateway(paymentDetails.gateway);
+} = usePaymentGateway(paymentDetail.gateway);
 
 const container = useTemplateRef("container");
 
@@ -161,12 +162,20 @@ const clearGateway = () => {
 };
 // --- side effects
 
-// wait till we mount then try to render the gateway if it's provided
-// otherwise watch in case it's provided later
+// Re-render when gateway enters rendering state (handles gateway switches)
+watch(
+  () => meta.value.isRendering,
+  rendering => {
+    if (rendering && container.value) {
+      render(container.value);
+    }
+  },
+  { immediate: true, flush: "post" }
+);
+// Render gateway on mount
 onMounted(() => {
   render(container.value);
 });
-
 onUnmounted(() => {
   clearGateway();
 });

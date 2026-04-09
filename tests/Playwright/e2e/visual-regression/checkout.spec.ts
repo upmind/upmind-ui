@@ -1,15 +1,12 @@
 import { test, expect } from "@playwright/test";
 import { URLs } from "../support/constants/urls";
-import { Basket } from "../support/page-objects/templates/Basket";
-import { Checkout } from "../support/page-objects/templates/Checkout";
-import { getSessionToken } from "../support/utils/functions/tokens";
-import {
-  getCurrentOrder,
-  addProductToOrder
-} from "../support/utils/functions/basket";
-import { getClientToken } from "../support/utils/functions/tokens";
+import { Basket } from "../support/page-objects/templates/basket";
+import { Checkout } from "../support/page-objects/templates/checkout";
+import { getSessionToken } from "../support/api/auth";
+import { getCurrentOrder, addProductToOrder } from "../support/api/basket";
+import { getClientToken } from "../support/api/auth";
 import { Logins } from "../support/constants/logins";
-import { goToCheckout } from "../support/utils/apiHelper";
+import { goToCheckout } from "../support/flows/checkout";
 import { products } from "../support/constants/products";
 
 let basket: Basket;

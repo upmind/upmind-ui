@@ -13,8 +13,9 @@ import type { AnyEventObject } from "xstate";
 
 /**
  * MercadoPago challenge renderer.
- * Creates an iframe-based challenge form that posts to the external challenge URL
- * and listens for completion messages from the iframe.
+ * Creates an iframe-based challenge form that posts to the external challenge URL.
+ * Resolves immediately once the iframe is mounted and the form is submitted.
+ * Challenge completion is communicated via the `onComplete` callback from the event.
  *
  * Based on the legacy MercadopagoSCAChallengeModal component.
  */
@@ -24,6 +25,9 @@ export async function render(
 ): Promise<ChallengeRenderResult> {
   const { payment } = context;
   const container = event.data?.container as HTMLElement | undefined;
+  const onComplete = event.data?.onComplete as
+    | ((data?: Record<string, unknown>) => void)
+    | undefined;
 
   if (!container) {
     throw new Error("Container element is required for MercadoPago challenge");
@@ -43,73 +47,80 @@ export async function render(
     throw new Error("Challenge URL (external_resource_url) is required");
   }
 
-  return new Promise((resolve, reject) => {
-    // Create iframe
-    const iframe = document.createElement("iframe");
-    iframe.height = "100%";
-    iframe.width = "100%";
-    iframe.name = "challengeFrame";
-    iframe.className = "h-full w-full border-none";
-    iframe.style.minHeight = "400px";
-    container.appendChild(iframe);
+  // --- Create iframe
+  const iframe = document.createElement("iframe");
+  iframe.height = "100%";
+  iframe.width = "100%";
+  iframe.name = "challengeFrame";
+  iframe.className = "h-full w-full border-none";
+  iframe.style.minHeight = "400px";
+  container.appendChild(iframe);
 
-    // Message handler for challenge completion
-    const handleMessage = (e: MessageEvent) => {
-      if (e.data?.status === "COMPLETE") {
-        cleanup();
-        resolve({
-          data: {
-            redirectUrl,
-            status: "COMPLETE"
-          },
-          cleanup
-        });
-      }
-    };
-
-    // Cleanup function
-    const cleanup = () => {
-      window.removeEventListener("message", handleMessage);
-      if (iframe.parentNode) {
-        iframe.parentNode.removeChild(iframe);
-      }
-    };
-
-    // Add message listener
-    window.addEventListener("message", handleMessage);
-
-    // Wait for iframe to be ready, then create and submit the challenge form
-    iframe.onload = () => {
-      // We only want to handle the initial load, not subsequent loads
-      iframe.onload = null;
-    };
-
-    // Create form and submit to iframe
-    const iframeDoc = iframe.contentWindow?.document;
-    if (!iframeDoc) {
-      cleanup();
-      reject(new Error("Cannot access iframe document"));
-      return;
+  // --- Cleanup function
+  let completed = false;
+  const cleanup = () => {
+    window.removeEventListener("message", handleMessage);
+    iframe.onload = null;
+    if (iframe.parentNode) {
+      iframe.parentNode.removeChild(iframe);
     }
+  };
 
-    // Create the challenge form
-    const challengeForm = iframeDoc.createElement("form");
-    challengeForm.name = "challengeForm";
-    challengeForm.setAttribute("target", "challengeFrame");
-    challengeForm.setAttribute("method", "post");
-    challengeForm.setAttribute("action", challengeUrl);
+  // --- Challenge completion handler
+  const complete = () => {
+    if (completed) return;
+    completed = true;
+    cleanup();
+    onComplete?.({ redirectUrl, status: "COMPLETE" });
+  };
 
-    // Add creq hidden field
-    const hiddenField = iframeDoc.createElement("input");
-    hiddenField.setAttribute("type", "hidden");
-    hiddenField.setAttribute("name", "creq");
-    hiddenField.setAttribute("value", creq || "");
-    challengeForm.appendChild(hiddenField);
+  // --- Message handler for challenge completion (postMessage from iframe)
+  const handleMessage = (e: MessageEvent) => {
+    if (e.data?.status === "COMPLETE") {
+      complete();
+    }
+  };
 
-    // Append form to iframe body and submit
-    iframeDoc.body.appendChild(challengeForm);
-    challengeForm.submit();
-  });
+  window.addEventListener("message", handleMessage);
+
+  // --- Track iframe loads — first load is the challenge page,
+  // subsequent loads indicate the challenge completed (redirect)
+  let loadCount = 0;
+  iframe.onload = () => {
+    loadCount++;
+    if (loadCount > 1) {
+      complete();
+    }
+  };
+
+  // --- Create form and submit to iframe
+  const iframeDoc = iframe.contentWindow?.document;
+  if (!iframeDoc) {
+    cleanup();
+    throw new Error("Cannot access iframe document");
+  }
+
+  const challengeForm = iframeDoc.createElement("form");
+  challengeForm.name = "challengeForm";
+  challengeForm.setAttribute("target", "challengeFrame");
+  challengeForm.setAttribute("method", "post");
+  challengeForm.setAttribute("action", challengeUrl);
+
+  const hiddenField = iframeDoc.createElement("input");
+  hiddenField.setAttribute("type", "hidden");
+  hiddenField.setAttribute("name", "creq");
+  hiddenField.setAttribute("value", creq || "");
+  challengeForm.appendChild(hiddenField);
+
+  iframeDoc.body.appendChild(challengeForm);
+  challengeForm.submit();
+
+  // --- Resolve immediately — the iframe is mounted and form submitted.
+  // Challenge completion will be communicated via onComplete callback.
+  return {
+    data: { redirectUrl, status: "MOUNTED" },
+    cleanup
+  };
 }
 
 /**

@@ -3,6 +3,7 @@ import type {
   IBasketPromotion
 } from "@upmind-automation/types";
 import type { ProductProps, Product } from "../product";
+import type { UseBasketProduct } from "./useBasketProduct";
 // -----------------------------------------------------------------------------
 
 /**

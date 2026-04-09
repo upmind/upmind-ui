@@ -28,7 +28,11 @@ import {
   ProvisionCategoryCodes
 } from "@upmind-automation/types";
 import type { BasketProduct } from "../basketProduct";
-import type { DomainProduct, DomainModel } from "./types";
+import type {
+  DomainProduct,
+  DomainModel,
+  IDomainSuggestionResult
+} from "./types";
 import { type ProductProps } from "../product";
 
 // ----------------------------------------------------------------------------
@@ -125,11 +129,135 @@ export function parseAvailable(
       },
       price: termDetails.price,
       pricing: [],
-      details: []
+      details: [],
+      rawProduct: raw
     } as DomainProduct;
   });
 
   // and ensure we don't have any duplicates or falsy
+  return compact(uniqBy(available, "domain"));
+}
+
+/**
+ * Maps the /suggestions API results into DomainProduct[].
+ * Joins results to products via product_id, and uses the full
+ * IProduct parsing utilities for proper billing cycle / pricing support.
+ */
+export function parseSuggestions(
+  results: IDomainSuggestionResult[],
+  productsMap: Record<string, IProduct>,
+  preferredCycle?: number,
+  mode: "register" | "transfer" = "register"
+): DomainProduct[] {
+  const { defaultPaymentPeriod } = useBrand();
+  const paymentPeriod = preferredCycle ?? defaultPaymentPeriod.value;
+
+  const available = map(results, result => {
+    const { domain, sld, tld, can_register, can_transfer, product_id } = result;
+    const fullDomain = `${sld}.${tld}`;
+    const parsedDomain = parseDomain(fullDomain);
+    const product = productsMap[product_id];
+
+    if (product) {
+      try {
+        // Full IProduct available — use proper product parsing
+        const productDetails = parseProductDetails(product);
+        const terms = parseTermDetails(product);
+        const termDetails = calculateBillingTerm(
+          paymentPeriod || product.default_payment_period,
+          terms
+        );
+
+        // Extract sub_pids from setup_function_sub_ids based on mode
+        const setupSubIds = (product as any).setup_function_sub_ids;
+        const subproducts: string[] = compact(
+          setupSubIds?.[mode] ?? [product.sub_product_id]
+        );
+
+        return {
+          configuration: parseProductProps(
+            {
+              productId: product.id,
+              quantity: product.unit_quantity,
+              subproducts,
+              provisionFields: { sld }
+            },
+            product,
+            preferredCycle
+          ),
+          domain: parsedDomain?.domain ?? fullDomain,
+          sld: parsedDomain?.sld ?? sld,
+          tld: parsedDomain?.tld ?? `.${tld}`,
+          meta: {
+            ...(termDetails.meta ?? {}),
+            available: can_register,
+            canTransfer: can_transfer
+          },
+          productDetails: {
+            ...productDetails,
+            title: fullDomain
+          },
+          price: termDetails.price,
+          pricing: [],
+          details: [],
+          rawProduct: product
+        } as DomainProduct;
+      } catch (err) {
+        console.warn(
+          `[parseSuggestions] Product parsing failed for ${fullDomain}, using fallback`,
+          err
+        );
+      }
+    }
+
+    // Fallback when product is missing or parsing failed
+    const prices = product?.prices ?? [];
+    // Prefer 12-month price, then preferred cycle, then lowest term
+    const sortedPrices = [...prices].sort(
+      (a: any, b: any) => a.billing_cycle_months - b.billing_cycle_months
+    );
+    const priceEntry =
+      prices.find((p: any) => p.billing_cycle_months === 12) ??
+      prices.find((p: any) => p.billing_cycle_months === preferredCycle) ??
+      sortedPrices[0];
+    const priceFormatted = priceEntry?.price_formatted ?? "";
+    const priceDiscountedFormatted =
+      priceEntry?.price_discounted_formatted ?? null;
+    const billingCycleMonths = priceEntry?.billing_cycle_months ?? 12;
+
+    return {
+      domain: parsedDomain?.domain ?? fullDomain,
+      sld: parsedDomain?.sld ?? sld,
+      tld: parsedDomain?.tld ?? `.${tld}`,
+      configuration: {
+        productId: product_id,
+        term: billingCycleMonths,
+        quantity: 1,
+        provisionFields: { sld }
+      },
+      price: {
+        currentPrice: priceDiscountedFormatted ?? priceFormatted,
+        currentAmount: 0,
+        regularPrice: priceFormatted,
+        regularAmount: 0,
+        savingAmount: 0,
+        savingPrice: "",
+        savingPercent: ""
+      },
+      meta: {
+        available: can_register,
+        canTransfer: can_transfer
+      },
+      productDetails: {
+        id: product_id,
+        title: fullDomain,
+        name: product?.name ?? `.${tld}`
+      },
+      pricing: [],
+      details: []
+    } as unknown as DomainProduct;
+  });
+
   return compact(uniqBy(available, "domain"));
 }
 

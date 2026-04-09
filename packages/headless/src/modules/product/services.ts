@@ -70,6 +70,7 @@ async function load(
     currencyId,
     currencyCode,
     coupons,
+    promotions: basketPromotions,
     basketId,
     rawBasketProduct
   }: ProductConfigContext,
@@ -121,21 +122,26 @@ async function load(
       "provision_blueprint.category"
     ].join()
   };
-  // conditionally agd the basket_id / basket_product_id if we have them,
+  // conditionally add the basket_id / basket_product_id if we have them,
   // this is important to get the correct prices once added to the basket
   if (basketId) set(params, "basket_id", basketId);
   if (rawBasketProduct?.id)
     set(params, "basket_product_id", rawBasketProduct.id);
 
+  const url = rawBasketProduct?.id
+    ? `basket/${basketId}/products/${rawBasketProduct.id}`
+    : `basket/products/${productId}`;
+
   const productPromise = getRequest<IProduct>({
-    url: useUrl(`basket/products/${productId}`, params),
+    url: useUrl(url, params),
     queryKey: [
       "product",
       productId,
       {
         basketId,
         currency_id: currency?.id,
-        promotions
+        promotions,
+        basketPromotions: map(basketPromotions, "promotion_id")
       }
     ],
     staleTime: useTime()?.DAY, // product data is not updated often, so we can cache for a day

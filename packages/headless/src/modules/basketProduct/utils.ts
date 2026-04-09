@@ -180,8 +180,10 @@ export function parsSummaryWithPrice(
     discounted: raw.configuration_net_amount_discount_converted > 0,
     free: raw.configuration_net_amount_discounted_converted == 0,
     freeTrial: !!raw?.in_trial,
+    overridden: raw.price_type === "manual",
     renewalPrice: find(raw.product?.prices, {
-      billing_cycle_months: raw.billing_cycle_months
+      billing_cycle_months: raw.billing_cycle_months,
+      currency_id: raw.base_price_currency_id
     })?.price_formatted,
     overrides: raw?.product?.category?.price_override,
     mixed: raw?.product?.mixed_promotions, //TODO: check if this is correct
@@ -189,12 +191,12 @@ export function parsSummaryWithPrice(
   };
 
   summary.promotions = parsePromotionDetails(raw);
-  summary.price = parsPrice(raw);
+  summary.price = parsePrice(raw);
 
   return summary as ProductSummaryDetailWithPrice;
 }
 
-export function parsPrice(raw: IBasketProduct): PriceDetail {
+export function parsePrice(raw: IBasketProduct): PriceDetail {
   const { includesTax } = useBrand();
 
   const discounted = raw.configuration_net_amount_discount_converted > 0;
@@ -283,7 +285,7 @@ export const parsePromotionDetails = (
   //  - As a summary percentage, eg "Save 20%"
   // NB: we always supply the amounts so we can show meta data if needed, eg a tooltip
 
-  const price = parsPrice(raw);
+  const price = parsePrice(raw);
 
   if (!price.savingAmount) return [];
 

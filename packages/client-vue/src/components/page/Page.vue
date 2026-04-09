@@ -1,6 +1,9 @@
 <template>
   <div :class="cn(styles.page, props.class)">
-    <slot />
+    <div :class="styles.content">
+      <slot />
+    </div>
+    <slot name="footer" />
   </div>
 </template>
 
@@ -17,5 +20,5 @@ const props = defineProps<{
   class?: HTMLAttributes["class"];
 }>();
 
-const styles = useStyles(["page"], {}, config);
+const styles = useStyles(["page", "content"], {}, config);
 </script>

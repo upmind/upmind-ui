@@ -1,18 +1,18 @@
 import { test, expect } from "@playwright/test";
 import { fakerEN_GB } from "@faker-js/faker";
 import { URLs } from "../../support/constants/urls";
-import { interceptUISchema } from "../../support/utils/functions/brand";
+import { interceptUISchema } from "../../support/mocks/brand";
 import { Logins } from "../../support/constants/logins";
-import { Login } from "../../support/page-objects/templates/Login";
-import { Registration } from "../../support/page-objects/templates/Registration";
-import { Checkout } from "../../support/page-objects/templates/Checkout";
-import { getClientToken } from "../../support/utils/functions/tokens";
-import { getSessionToken } from "../../support/utils/functions/tokens";
+import { Login } from "../../support/page-objects/templates/login";
+import { Registration } from "../../support/page-objects/templates/registration";
+import { Checkout } from "../../support/page-objects/templates/checkout";
+import { getClientToken } from "../../support/api/auth";
+import { getSessionToken } from "../../support/api/auth";
 import {
   createOrder,
   Order,
   addProductToOrder
-} from "../../support/utils/functions/basket";
+} from "../../support/api/basket";
 
 let checkout: Checkout;
 let login: Login;

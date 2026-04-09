@@ -1,9 +1,13 @@
 import { test, expect } from "@playwright/test";
-import { URLs } from "../../support/constants/urls";
-import { Checkout } from "../../support/page-objects/templates/Checkout";
-import { goToCheckout } from "../../support/utils/apiHelper";
+import { Checkout } from "../../support/page-objects/templates/checkout";
+import { Registration } from "../../support/page-objects/templates/registration";
+import { goToCheckout } from "../../support/flows/checkout";
 import { products } from "../../support/constants/products";
-import { Registration } from "../../support/page-objects/templates/Registration";
+import {
+  getClientToken,
+  getSessionToken,
+  registerClient
+} from "../../support/api/index";
 
 let checkout: Checkout;
 let register: Registration;
@@ -12,11 +16,28 @@ test.describe("Checkout - Pay Amount", () => {
   test.beforeEach(async ({ page, context }) => {
     checkout = new Checkout(page);
     register = new Registration(page, context);
+    await page.goto("/");
+    await expect
+      .poll(
+        async () => {
+          const cookies = await context.cookies();
+          return cookies.some(
+            c =>
+              c.name === "upm_guest_session" || c.name === "upm_client_session"
+          );
+        },
+        { timeout: 30000 }
+      )
+      .toBeTruthy();
+    let guestToken = await getSessionToken(context);
+    let user = await registerClient(guestToken);
+    let username = user.email;
+    let password = user.password;
+    await getClientToken(page, username, password);
   });
   test.describe("Pay Amount on Checkout", async () => {
     test("Value on initial load", async ({ page, context }) => {
       await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
-      await register.inputRegistration();
       await expect(checkout.payAmount).toHaveText("Pay £72.00");
     });
     test("Value with promo applied", async ({ page, context }) => {
@@ -27,19 +48,16 @@ test.describe("Checkout - Pay Amount", () => {
         "genericpromo",
         null
       );
-      await register.inputRegistration();
       await expect(checkout.payAmount).toHaveText("Pay £57.60");
     });
     test("Value in alternate currency", async ({ page, context }) => {
       await goToCheckout(page, context, products.STARTER_HOSTING, null, "INR");
-      await register.inputRegistration();
       await expect(checkout.payAmount).toHaveText("Pay ₹24,000.00");
     });
   });
   test.describe("Changing Pay Amount value", async () => {
     test("Manually update Pay Amount", async ({ page, context }) => {
       await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
-      await register.inputRegistration();
       await checkout.changeAmountButton.click();
       await checkout.changeAmountInput.fill("10");
       await checkout.clickConfirmAmount();
@@ -50,7 +68,6 @@ test.describe("Checkout - Pay Amount", () => {
       context
     }) => {
       await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
-      await register.inputRegistration();
       await checkout.addVoucherButton.click();
       await checkout.addVoucherInput.fill("genericpromo");
       await checkout.applyVoucherButton.click();
@@ -58,7 +75,6 @@ test.describe("Checkout - Pay Amount", () => {
     });
     test("Changing currency of Pay Amount", async ({ page, context }) => {
       await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
-      await register.inputRegistration();
       await expect(checkout.billingDetails).toBeVisible();
       await page
         .getByTestId("currency-selector")

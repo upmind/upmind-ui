@@ -15,7 +15,7 @@ import { useFeedback } from "../../feedback";
 import { omit } from "lodash-es";
 import { useTime, useCookies, mapToHeadlessError } from "../../../utils";
 const { removeTopLevel: removeCookie, setTopLevel: setCookie } = useCookies();
-import { useClientParser } from "../utils";
+import { mapClient } from "../utils";
 
 // --- types
 import { responseCodes } from "../../../utils";
@@ -132,7 +132,7 @@ export default createMachine(
 
       setClient: assign({
         client: (_context, { data }: AnyEventObject) =>
-          useClientParser(data.actor)
+          mapClient(data.actor, data.accounts)
       }),
       setLocale: ({ client }) => {
         if (!client) return;

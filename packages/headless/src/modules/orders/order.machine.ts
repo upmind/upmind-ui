@@ -113,7 +113,7 @@ export default createMachine(
                 actions: ["clearError"]
               },
               onError: {
-                target: "#failed",
+                target: "#collecting",
                 actions: ["setError"]
               }
             }
@@ -138,17 +138,6 @@ export default createMachine(
               onError: {
                 target: "#complete",
                 actions: ["setError"]
-              }
-            }
-          },
-
-          // Payment error — user can retry
-          failed: {
-            id: "failed",
-            on: {
-              RETRY: {
-                target: "#collecting",
-                actions: ["clearError"]
               }
             }
           }
@@ -223,9 +212,12 @@ export default createMachine(
       }),
 
       spawnPaymentDetail: assign({
-        paymentDetailActor: ({ invoice, lastPaymentModel }: OrderContext) => {
-          if (!invoice) return undefined;
-          return spawnOrderPaymentDetail(invoice, lastPaymentModel);
+        paymentDetailActor: ({
+          rawInvoice,
+          lastPaymentModel
+        }: OrderContext) => {
+          if (!rawInvoice) return undefined;
+          return spawnOrderPaymentDetail(rawInvoice, lastPaymentModel);
         }
       }),
 
@@ -239,7 +231,7 @@ export default createMachine(
       }),
 
       forwardPay: ({ paymentDetailActor }: OrderContext) => {
-        paymentDetailActor?.send({ type: "CHECKOUT" });
+        paymentDetailActor?.send({ type: "PAY" });
       }
     },
 

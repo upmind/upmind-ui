@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { URLs } from "../../support/constants/urls";
-import { Pagination } from "../../support/page-objects/components/Pagination";
+import { Pagination } from "../../support/page-objects/components/pagination";
 let pagination: Pagination;
 
 test.describe("Catalogue Pagination", () => {

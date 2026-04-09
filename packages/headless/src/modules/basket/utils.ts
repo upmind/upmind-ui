@@ -34,10 +34,16 @@ import {
 
 // --- types
 import type { IBasket } from "@upmind-automation/types";
-import { InvoiceStatus, TaxTagTypes } from "@upmind-automation/types";
+import {
+  BrandConfigKeys,
+  GatewayContext,
+  InvoiceStatus,
+  TaxTagTypes
+} from "@upmind-automation/types";
 
 import { type PaymentDetailsContext } from "../paymentDetails";
 import { type BasketContext } from "./types";
+import { useBrand } from "../brand";
 
 // -----------------------------------------------------------------------------
 
@@ -85,8 +91,15 @@ export function spawnCustomFields(basket?: IBasket, error?: ResponseError) {
 }
 
 export function spawnPaymentDetail(basket?: IBasket) {
+  const { getConfigValue } = useBrand();
+
   return spawn(
     paymentDetailsMachine.withContext({
+      isInvoked: true,
+      ctx: GatewayContext.PAY,
+      requirePaymentForFreeOrders: !!getConfigValue(
+        BrandConfigKeys.REQUIRE_PAYMENT_METHOD_FOR_FREE_ORDERS
+      ),
       orderId: basket?.id,
       orderStatus: basket?.status?.code || InvoiceStatus.DRAFT,
       currency: basket?.currency,

@@ -38,7 +38,7 @@ export default {
           }
         }
       }),
-      content: cva("h-24 w-full py-0 lg:py-0", {
+      content: cva("h-18 w-full py-0 lg:h-24 lg:py-0", {
         variants: {
           background: {
             LTR: "",
@@ -56,7 +56,7 @@ export default {
           }
         }
       }),
-      content: cva("flex h-24 w-full gap-2 py-0 lg:py-0", {
+      content: cva("flex h-18 w-full gap-2 py-0 lg:h-24 lg:py-0", {
         variants: {
           background: {
             LTR: "max-w-app-aside lg:min-w-app-aside",
