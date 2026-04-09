@@ -202,14 +202,30 @@ export type FunnelWatcher = {
 export type FunnelWatcherHandler = () => () => void;
 
 /**
+ * A single conditional navigation target.
+ * Used in meta.next / meta.prev arrays for guard-based routing.
+ */
+export type FunnelMetaTarget = {
+  /** Route name to navigate to. */
+  target: string;
+  /** Guard name — when omitted this entry acts as the default fallback. */
+  cond?: string;
+};
+
+/**
  * Meta properties for funnel state nodes.
  * Used by the factory to auto-generate NEXT/BACK handlers (FE-2583).
+ *
+ * `next` / `prev` accept either:
+ * - A **string** — unconditional target (simple case).
+ * - An **array of FunnelMetaTarget** — evaluated in order; first matching
+ *   `cond` wins. Omit `cond` on the last entry for a default fallback.
  */
 export type FunnelStateMeta = {
-  /** Route name for NEXT navigation. */
-  next?: string;
-  /** Route name for BACK navigation. */
-  prev?: string;
+  /** Route name (or conditional targets) for NEXT navigation. */
+  next?: string | FunnelMetaTarget[];
+  /** Route name (or conditional targets) for BACK navigation. */
+  prev?: string | FunnelMetaTarget[];
   /** Step position for progress tracking (1-indexed). */
   step?: number;
   /** Human-readable label for breadcrumbs / progress indicators. */
