@@ -440,7 +440,7 @@ export default <FunnelProps>{
      * From here, users can proceed to the CHECKOUT route or return to the BASKET.
      */
     [ROUTE.SESSION_LOGIN]: {
-      meta: { prev: ROUTE.BASKET },
+      meta: { next: ROUTE.SESSION_LOGIN, prev: ROUTE.BASKET },
       entry: ["setCurrency"],
       always: [
         {
@@ -460,13 +460,6 @@ export default <FunnelProps>{
           { actions: ["setResolved"] }
         ],
         onError: { actions: ["setResolved"] }
-      },
-      on: {
-        NEXT: {
-          target: ROUTE.SESSION_LOGIN,
-          // NB: Preserve targetRoute (returnUrl) — only reset resolved flag.
-          actions: [assign({ resolved: false })]
-        }
       }
     },
 
@@ -479,7 +472,7 @@ export default <FunnelProps>{
      * From here, users can proceed to the CHECKOUT route or return to the BASKET.
      */
     [ROUTE.SESSION_REGISTER]: {
-      meta: { prev: ROUTE.BASKET },
+      meta: { next: ROUTE.SESSION_REGISTER, prev: ROUTE.BASKET },
       always: [
         {
           target: ROUTE.CHECKOUT_FLOW,
@@ -498,13 +491,6 @@ export default <FunnelProps>{
           { actions: ["setResolved"] }
         ],
         onError: { actions: ["setResolved"] }
-      },
-      on: {
-        NEXT: {
-          target: ROUTE.SESSION_REGISTER,
-          // NB: Preserve targetRoute (returnUrl) — only reset resolved flag.
-          actions: [assign({ resolved: false })]
-        }
       }
     },
 
