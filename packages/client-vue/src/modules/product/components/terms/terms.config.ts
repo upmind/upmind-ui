@@ -93,7 +93,7 @@ export default {
         ex: cva("", {
           variants: {
             layout: {
-              stacked: "",
+              stacked: "text-sm",
               inline: "text-sm"
             }
           },
