@@ -61,6 +61,10 @@ export const useFunnelMachine = ({
   // --- FE-2583: Auto-generate NEXT/BACK handlers from state meta
   // States declaring meta.next / meta.prev get auto-wired handlers.
   // Explicit `on.NEXT` / `on.BACK` in the state config take precedence.
+  //
+  // Supports two formats:
+  //   meta: { next: "route" }                          — unconditional
+  //   meta: { next: [{ target: "a", cond: "guard" }, { target: "b" }] } — conditional
   const enrichedStates = mapValues(states, (config: StateNodeShape) => {
     const meta = config.meta as FunnelStateMeta | undefined;
     if (!meta) return config;
@@ -68,16 +72,28 @@ export const useFunnelMachine = ({
     const metaHandlers: Record<string, unknown> = {};
 
     if (meta.next) {
-      metaHandlers.NEXT = {
-        target: meta.next,
-        actions: [assign({ targetRoute: { name: meta.next } })]
-      };
+      metaHandlers.NEXT = isString(meta.next)
+        ? {
+            target: meta.next,
+            actions: [assign({ targetRoute: { name: meta.next } })]
+          }
+        : map(meta.next, entry => ({
+            target: entry.target,
+            actions: [assign({ targetRoute: { name: entry.target } })],
+            ...(entry.cond ? { cond: entry.cond } : {})
+          }));
     }
     if (meta.prev) {
-      metaHandlers.BACK = {
-        target: meta.prev,
-        actions: [assign({ targetRoute: { name: meta.prev } })]
-      };
+      metaHandlers.BACK = isString(meta.prev)
+        ? {
+            target: meta.prev,
+            actions: [assign({ targetRoute: { name: meta.prev } })]
+          }
+        : map(meta.prev, entry => ({
+            target: entry.target,
+            actions: [assign({ targetRoute: { name: entry.target } })],
+            ...(entry.cond ? { cond: entry.cond } : {})
+          }));
     }
 
     if (isEmpty(metaHandlers)) return config;
