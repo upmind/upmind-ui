@@ -37,7 +37,11 @@ async function prepare({
     watchers
   };
 
-  // Generate endpoint state nodes from overlay definitions
+  // Generate endpoint state nodes from overlay definitions.
+  // ⚠️ MERGE ORDER MATTERS: Endpoint states MUST be spread AFTER regular funnel
+  // states so that RESOLVE evaluates app guards first, endpoint guards second,
+  // and the idle fallback last. Changing the spread order below will break
+  // guard evaluation priority.
   const endpoints = createEndpointNodes(GLOBAL_OVERLAYS);
 
   if (!funnelConfig) {
