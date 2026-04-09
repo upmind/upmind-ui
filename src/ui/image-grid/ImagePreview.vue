@@ -65,10 +65,10 @@ function initZoom() {
     maxScale: 4,
     overflow: "visible",
     step: 0.03,
-    touchAction: "none",
+    touchAction: "none"
   });
 
-  imageRef.value.addEventListener("panzoomchange", (e) => {
+  imageRef.value.addEventListener("panzoomchange", e => {
     isZoomed.value = (e as CustomEvent).detail.scale > 1;
   });
 }
@@ -84,13 +84,13 @@ function onWheel(e: WheelEvent) {
   e.deltaY < 0 ? pz.zoomIn({ animate: false }) : pz.zoomOut({ animate: false });
 }
 
-watch(imageRef, (el) => {
+watch(imageRef, el => {
   if (el) initZoom();
 });
 
 watch(
   () => props.open,
-  (open) => {
+  open => {
     if (!open) {
       pz?.reset({ animate: false });
       isZoomed.value = false;
