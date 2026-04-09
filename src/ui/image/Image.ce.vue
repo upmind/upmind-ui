@@ -5,7 +5,7 @@
     v-if="meta.isCarousel && (!meta.isEmpty || meta.hasFallback)"
     :class="cn(styles.image.container, props.class)"
   >
-    <CarouselContent :class="styles.image.carousel.content" class="ml-0 h-full">
+    <CarouselContent :class="styles.image.carousel.content">
       <CarouselImage
         v-for="(data, index) in image as ImageItem[]"
         :key="data.url || index"
@@ -24,10 +24,7 @@
         :class="styles.image.nav.item"
       >
         <div
-          :class="[
-            'h-2 w-2 cursor-pointer rounded-full bg-current',
-            isSelected(index) ? '' : 'opacity-50'
-          ]"
+          :class="indicatorVariant({ isActive: isSelected(index) })"
           @click="selectImage(index)"
         />
       </span>
@@ -40,7 +37,7 @@
     :style="meta.hasFallback ? fallbackStyle : ''"
   >
     <!-- Single image with fallback -->
-    <picture v-if="!meta.isEmpty" class="contents w-full">
+    <picture v-if="!meta.isEmpty" :class="styles.image.picture">
       <img
         :key="isString(currentImage) ? currentImage : currentImage?.url"
         :src="isString(currentImage) ? currentImage : currentImage?.url"
@@ -64,7 +61,7 @@ import { Carousel, CarouselContent } from "../carousel";
 import { Icon } from "../icon";
 import CarouselImage from "./CarouselImage.vue";
 // --- internal
-import config from "./image.config";
+import config, { indicatorVariant } from "./image.config";
 // --- utils
 import { useStyles, cn, getComputedColor } from "../../utils";
 import { isEmpty, isArray, isString } from "lodash-es";
