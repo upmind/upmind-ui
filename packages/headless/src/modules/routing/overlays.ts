@@ -62,23 +62,26 @@ export const GLOBAL_OVERLAYS: OverlayDefinition[] = [
  * @returns `{ states, guards, actions }` to merge into funnel config
  */
 export function createEndpointNodes(overlays: OverlayDefinition[]) {
-  const guarded = filter(overlays, ep => !!ep.guard);
+  const guarded = filter(
+    overlays,
+    (ep): ep is OverlayDefinition & { guard: string } => !!ep.guard
+  );
 
   // --- states: endpoint state nodes with guard invocations
   const states = reduce(
     guarded,
-    (acc: Record<string, any>, ep) => {
+    (acc: Record<string, unknown>, ep) => {
       acc[`endpoint:${ep.id}`] = {
         meta: { isEndpoint: true, overlayId: ep.id },
         invoke: {
-          src: ep.guard!,
+          src: ep.guard,
           onDone: { actions: ["resolveToParent"] },
           onError: { actions: ["setResolved"] }
         }
       };
       return acc;
     },
-    {} as Record<string, any>
+    {} as Record<string, unknown>
   );
 
   // --- guards: endsWith matching (e.g. "basket--auth" matches endpoint:auth)
