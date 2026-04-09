@@ -1,5 +1,5 @@
 // --- external
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 
 // --- internal
 import { useBasket } from "../basket";
@@ -8,7 +8,13 @@ import { useI18n } from "../system";
 
 // --- utils
 import { get, add, subtract, has, set, unset } from "lodash-es";
-import { DetailedError, ErrorOrigin, responseCodes } from "../../utils";
+import {
+  DetailedError,
+  ErrorOrigin,
+  isStoppedService,
+  responseCodes,
+  stopService
+} from "../../utils";
 
 // --- types
 import type { BasketProduct } from "./types";
@@ -18,10 +24,16 @@ import { type IBasket } from "@upmind-automation/types";
 import { type UseBasketProduct, useBasketProduct } from "./useBasketProduct";
 
 // --- utils
-import { isEmpty, debounce, remove as _remove } from "lodash-es";
+import { isEmpty, debounce, forEach, some, remove as _remove } from "lodash-es";
 import { DEBOUNCE_DELAY } from "../../utils";
+// -----------------------------------------------------------------------------
 
-// --- types
+// --- state
+const processing = ref<Record<string, boolean>>({});
+
+// --- config registry: singleton — reuse existing product config composables by bpid
+const configRegistry: Record<string, UseBasketProduct> = {};
+
 // -----------------------------------------------------------------------------
 
 /**
@@ -45,8 +57,15 @@ export const useBasketProducts = () => {
   } = useBasket();
   const { t } = useI18n();
 
-  // --- state
-  const processing = ref<Record<string, boolean>>({});
+  // --- housekeeping: prune config machines for products no longer in the basket
+  watch(products, currentProducts => {
+    forEach(configRegistry, (config, bpid) => {
+      if (!some(currentProducts, ["id", bpid])) {
+        config.stop();
+        unset(configRegistry, bpid);
+      }
+    });
+  });
 
   // --- methods
 
@@ -261,6 +280,18 @@ export const useBasketProducts = () => {
     }, delay) as (...args: Parameters<T>) => Promise<IBasket>;
   }
 
+  // --- Side Effects
+
+  // --- housekeeping: prune config machines for products no longer in the basket
+  watch(products, currentProducts => {
+    forEach(configRegistry, (config, bpid) => {
+      if (!some(currentProducts, ["id", bpid])) {
+        config.stop();
+        unset(configRegistry, bpid);
+      }
+    });
+  });
+
   // ---------------------------------------------------------------------------
 
   return {
@@ -298,6 +329,19 @@ export const useBasketProducts = () => {
       bpid: string,
       options?: { allowMultipleEdits?: boolean }
     ): Promise<UseBasketProduct> => {
+      // --- reuse cached config if the underlying service is still running
+      debugger;
+      const cached = get(configRegistry, bpid) as UseBasketProduct | undefined;
+      debugger;
+      if (cached) {
+        debugger;
+        if (!isStoppedService(cached.service)) {
+          return Promise.resolve(cached);
+        }
+        // --- stale entry: service has stopped/completed, clean up and respawn
+        unset(configRegistry, bpid);
+      }
+
       const basketProduct = await getBasketProduct(bpid);
       if (isEmpty(basketProduct))
         return Promise.reject(
@@ -307,7 +351,10 @@ export const useBasketProducts = () => {
             ErrorOrigin.Headless
           )
         );
-      return Promise.resolve(useBasketProduct(basketProduct.id, options));
+
+      const config = useBasketProduct(basketProduct.id, options);
+      set(configRegistry, bpid, config);
+      return Promise.resolve(config);
     },
 
     // --- context

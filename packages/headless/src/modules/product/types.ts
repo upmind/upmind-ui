@@ -253,6 +253,9 @@ export type ProductDetails = {
   /** Indicates whether the product is configurable. ie has terms, options, attributes or provision fields that need configuring */
   configurable?: boolean;
 
+  /** `true` if the product has options or attributes that can be configured inline (e.g. upsells on the basket card). */
+  configurableInline?: boolean;
+
   /** `true` if the product allows quantity selection, `false` otherwise. */
   quantifiable: boolean;
   /** The default or current quantity of the product. */
