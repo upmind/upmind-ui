@@ -5,7 +5,8 @@ import {
   UIContext,
   useBasket,
   useConfig,
-  useQueryParams
+  useQueryParams,
+  useSession
 } from "@upmind-automation/client-vue";
 import { isEmpty } from "lodash-es";
 import type { RouteLocationGeneric } from "vue-router";
@@ -87,5 +88,14 @@ export default {
     const { ui } = useConfig({ context: UIContext.CHECKOUT });
     const { data } = useConfig({ context: UIContext.BILLING_DETAILS });
     return !data.billingDetailsDisabled && ui.billingDetails.isReadonly;
+  },
+  /**
+   * Returns true when the user is already authenticated.
+   * Synchronous check — reads reactive session meta without awaiting.
+   * Used as an `always` guard to skip auth pages instantly.
+   */
+  isAuthenticated: () => {
+    const { meta } = useSession();
+    return !!meta.value?.isAuthenticated;
   }
 };

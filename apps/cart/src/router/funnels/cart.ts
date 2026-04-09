@@ -411,9 +411,23 @@ export default <FunnelProps>{
      * It always transitions to the SESSION_REGISTER route to handle user registration as the default action.
      */
     [ROUTE.SESSION]: {
+      always: [
+        {
+          target: ROUTE.CHECKOUT_FLOW,
+          actions: ["setResolving"],
+          cond: "isAuthenticated"
+        }
+      ],
       invoke: {
         src: "guardSession",
-        onDone: { actions: ["setResolved"] },
+        onDone: [
+          {
+            target: ROUTE.CHECKOUT_FLOW,
+            actions: ["setResolving"],
+            cond: "isSameRoute"
+          },
+          { actions: ["setResolved"] }
+        ],
         onError: {
           target: ROUTE.SESSION_REGISTER,
           // NB: Preserve targetRoute query (returnUrl) but update route name
@@ -443,6 +457,13 @@ export default <FunnelProps>{
      */
     [ROUTE.SESSION_LOGIN]: {
       entry: ["setCurrency"],
+      always: [
+        {
+          target: ROUTE.CHECKOUT_FLOW,
+          actions: ["setResolving"],
+          cond: "isAuthenticated"
+        }
+      ],
       invoke: {
         src: "guardSession",
         onDone: [
@@ -477,6 +498,13 @@ export default <FunnelProps>{
      * From here, users can proceed to the CHECKOUT route or return to the BASKET.
      */
     [ROUTE.SESSION_REGISTER]: {
+      always: [
+        {
+          target: ROUTE.CHECKOUT_FLOW,
+          actions: ["setResolving"],
+          cond: "isAuthenticated"
+        }
+      ],
       invoke: {
         src: "guardSession",
         onDone: [
@@ -511,9 +539,23 @@ export default <FunnelProps>{
      */
     [ROUTE.SESSION_RECOVER_PASSWORD]: {
       meta: { next: ROUTE.SESSION_LOGIN, prev: ROUTE.SESSION_LOGIN },
+      always: [
+        {
+          target: ROUTE.CHECKOUT_FLOW,
+          actions: ["setResolving"],
+          cond: "isAuthenticated"
+        }
+      ],
       invoke: {
         src: "guardSession",
-        onDone: { actions: ["setResolved"] },
+        onDone: [
+          {
+            target: ROUTE.CHECKOUT_FLOW,
+            actions: ["setResolving"],
+            cond: "isSameRoute"
+          },
+          { actions: ["setResolved"] }
+        ],
         onError: { actions: ["setResolved"] }
       }
     },
