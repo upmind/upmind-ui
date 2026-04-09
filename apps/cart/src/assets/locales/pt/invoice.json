@@ -1,6 +1,6 @@
 {
   "order_complete": "Pedido concluído!",
-  "order_complete_msg": "Enviámos-lhe um e-mail de confirmação com os detalhes da sua encomenda, bem como tudo o que precisa de saber sobre a mesma.",
+  "order_complete_msg": "Enviamos um e-mail de confirmação com os detalhes do seu pedido, juntamente com tudo o que você precisa saber sobre a sua compra.",
   "order_free": "Não há mais nada a pagar",
   "order_free_msg": "A sua encomenda foi efetuada com sucesso. Não é necessário efetuar qualquer pagamento.",
   "order_locked": "Fatura bloqueada",

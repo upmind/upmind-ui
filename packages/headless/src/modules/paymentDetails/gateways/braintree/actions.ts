@@ -58,5 +58,11 @@ export default {
 
       return undefined;
     }
-  })
+  }),
+
+  cleanupSdk: ({ sdk }: BraintreeContext) => {
+    if (sdk?.braintree?.teardown) {
+      sdk.braintree.teardown();
+    }
+  }
 };

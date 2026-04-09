@@ -1,7 +1,7 @@
 // --- external
 
 // --- internal
-import { useQuery, type QueryParams } from "../..";
+import { RequestSortDirection, useQuery, type QueryParams } from "../..";
 
 // --- utils
 import { useTime } from "../../../utils";
@@ -28,9 +28,9 @@ function loadList(params: Partial<QueryParams> = { pagination: { limit: 0 } }) {
     ...(params as any),
     queryKey,
     url: useUrl(`custom_fields`, {
-      "filter[object_type]": CustomFieldsMajorTypes.CLIENT,
-      order: "order"
+      "filter[object_type]": CustomFieldsMajorTypes.CLIENT
     }),
+    sort: [[RequestSortDirection.ASC, "order"]],
     withAccessToken: true,
     // --- options
     select: data => map(data ?? [], mapCustomField),

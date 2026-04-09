@@ -1,17 +1,14 @@
 import { test, expect } from "@playwright/test";
 import { fakerEN_GB } from "@faker-js/faker";
-import { Checkout } from "../../../support/page-objects/templates/Checkout";
+import { Checkout } from "../../../support/page-objects/templates/checkout";
 import {
   createOrder,
   Order,
   addProductToOrder
-} from "../../../support/utils/functions/basket";
-import { interceptConfigValues } from "../../../support/utils/functions/brand";
+} from "../../../support/api/basket";
+import { interceptConfigValues } from "../../../support/mocks/brand";
 import { URLs } from "../../../support/constants/urls";
-import {
-  getSessionToken,
-  getClientToken
-} from "../../../support/utils/functions/tokens";
+import { getSessionToken, getClientToken } from "../../../support/api/auth";
 import { Logins } from "../../../support/constants/logins";
 let checkout: Checkout;
 let token: string;

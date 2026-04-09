@@ -12,6 +12,7 @@ import {
   useModelParser
 } from "../../../../utils";
 import { useSchema, useUischema } from "./schemas";
+import { forEach } from "lodash-es";
 
 // --- types
 import type { DLocalContext, DLocalModel } from "./types";
@@ -52,5 +53,13 @@ export default {
 
       return undefined;
     }
-  })
+  }),
+
+  cleanupSdk: ({ sdk }: DLocalContext) => {
+    if (sdk?.fields) {
+      forEach(sdk.fields, field => {
+        if (field?.unmount) field.unmount();
+      });
+    }
+  }
 };

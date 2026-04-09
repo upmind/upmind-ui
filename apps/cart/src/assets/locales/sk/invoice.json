@@ -1,6 +1,6 @@
 {
   "order_complete": "Objednávka dokončená!",
-  "order_complete_msg": "Poslali sme vám potvrdzovací e-mail s podrobnosťami o vašej objednávke. Nájdete v ňom všetko, čo potrebujete vedieť o vašom nákupe.",
+  "order_complete_msg": "Poslali sme vám potvrdzovací e-mail s podrobnosťami o vašej objednávke a všetkými potrebnými informáciami o vašom nákupe.",
   "order_free": "Nič nezostáva na zaplatenie",
   "order_free_msg": "Vaša objednávka bola úspešne odoslaná. Platba nie je potrebná.",
   "order_locked": "Uzamknutá faktúra",

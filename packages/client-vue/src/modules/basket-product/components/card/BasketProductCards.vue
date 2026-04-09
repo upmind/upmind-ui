@@ -82,9 +82,13 @@ function trackOpen(id: string, value: boolean) {
   }
 }
 
-watch(products, () => {
-  open.value = forceOpen(props.open);
-});
+watch(
+  products,
+  () => {
+    open.value = forceOpen(props.open);
+  },
+  { immediate: true }
+);
 
 watch(
   () => props.open,

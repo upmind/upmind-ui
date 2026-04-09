@@ -66,7 +66,7 @@
 
           <ProductBenefits
             v-if="!configMeta.hideBenefits"
-            :benefits="productMeta.data.productBenefits"
+            :benefits="benefits"
           />
 
           <ProductPrice
@@ -215,6 +215,12 @@ const mappedImage = computed(() => {
 
 const isImageEmpty = computed(
   () => isEmpty(images.value) && !props.productDetails.imgUrl
+);
+
+const benefits = computed(() =>
+  !isEmpty(productMeta.data.productBenefits)
+    ? productMeta.data.productBenefits
+    : props.productDetails?.benefits
 );
 
 const configMeta = computed(() => ({

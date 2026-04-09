@@ -155,5 +155,20 @@
   },
   "stored_payment_method": {
     "label": ""
+  },
+  "twofa": {
+    "description": "Ez a fiók kétfaktoros hitelesítéssel van védve. Kérjük, adja meg az ellenőrző kódját.",
+    "label": "Ellenőrző kód",
+    "placeholder": "123 456"
+  },
+  "twofa_email": {
+    "description": "Védelmed érdekében küldtünk egy egyszer használatos belépési kódot az e-mail címedre. A kérés teljesítéséhez kérjük, add meg az alábbi kódot.",
+    "label": "Ellenőrző kód",
+    "placeholder": "123 456"
+  },
+  "twofa_totp": {
+    "description": "A kérés teljesítéséhez kérjük, adja meg a Hitelesítő alkalmazás által generált egyszer használatos jelszót.",
+    "label": "Ellenőrző kód",
+    "placeholder": "123 456"
   }
 }

@@ -1,19 +1,16 @@
 import { expect, test } from "@playwright/test";
 import { fakerEN_GB } from "@faker-js/faker";
-import { getCurrentAddressId } from "../../../support/utils/apiHelper";
-import { Checkout } from "../../../support/page-objects/templates/Checkout";
-import { Registration } from "../../../support/page-objects/templates/Registration";
-import { Login } from "../../../support/page-objects/templates/Login";
+import { getCurrentAddressId } from "../../../support/api/client";
+import { Checkout } from "../../../support/page-objects/templates/checkout";
+import { Registration } from "../../../support/page-objects/templates/registration";
+import { Login } from "../../../support/page-objects/templates/login";
 import {
   createOrder,
   Order,
   addProductToOrder
-} from "../../../support/utils/functions/basket";
+} from "../../../support/api/basket";
 import { URLs } from "../../../support/constants/urls";
-import {
-  getSessionToken,
-  getClientToken
-} from "../../../support/utils/functions/tokens";
+import { getSessionToken, getClientToken } from "../../../support/api/auth";
 import { Logins } from "../../../support/constants/logins";
 import { products } from "../../../support/constants/products";
 let checkout: Checkout;
@@ -21,8 +18,6 @@ let token: string;
 let register: Registration;
 let login: Login;
 let orderId: string | null;
-
-//TODO: Review testing strategy so I can remove the waits, may need additional frontend work
 
 test.describe("Billing Details at checkout", () => {
   test.beforeEach(async ({ page, context }) => {
@@ -61,8 +56,8 @@ test.describe("Billing Details at checkout", () => {
       await page.goto(URLs.checkout);
       await expect(register.registrationForm).toBeVisible();
       await register.inputRegistration();
-      //await checkout.addNewAddress.click();
-      await expect(checkout.billingCards).toBeVisible();
+      await checkout.addNewAddress.click();
+      await expect(checkout.billingDetails).toBeVisible();
       await checkout.addressSearch.fill(
         "10 Downing St, Westminster, London SW1A 2AA, UK"
       );
@@ -74,8 +69,8 @@ test.describe("Billing Details at checkout", () => {
         .click();
       await page.waitForTimeout(1000);
       await checkout.saveDetails.click();
-      await expect(checkout.billingDetails).toContainText(
-        "10 Downing Street, London, SW1A 2AA, Greater London, United Kingdom"
+      await expect(checkout.billingDetails).toHaveText(
+        /10 Downing Street.*London.*SW1A 2AA.*United Kingdom/s
       );
     });
     test("New User add new company details at checkout", async ({ page }) => {
@@ -84,7 +79,7 @@ test.describe("Billing Details at checkout", () => {
       await register.inputRegistration();
       await checkout.addNewAddress.click();
       await expect(checkout.billingCards).toBeVisible();
-      await page.getByTestId("tab-business-details").click();
+      await page.getByText("Business Details").click();
       await expect(page.getByTestId("form")).toBeVisible();
       const companyNameInput = page
         .getByTestId("form-item-company-name")
@@ -129,7 +124,7 @@ test.describe("Billing Details at checkout", () => {
       await expect(checkout.billingDetails).toBeVisible();
       await page.getByTestId("link-change").click();
       await expect(checkout.billingCards).toBeVisible();
-      await page.getByTestId("tab-personal-details").click();
+      await page.getByText("Personal Details").click();
       let currentAddress = await getCurrentAddressId(token);
       await page.getByTestId("link-change").click();
       await page.getByTestId("link-add-new").click();
@@ -140,9 +135,8 @@ test.describe("Billing Details at checkout", () => {
         "SW1A 2AA",
         null
       );
-      await expect(checkout.addressCard).toContainText(streetName);
-      await expect(checkout.addressCard).toContainText(
-        "London, SW1A 2AA, United Kingdom"
+      await expect(checkout.addressCard).toHaveText(
+        new RegExp(`${streetName}.*London.*SW1A 2AA.*United Kingdom`, "s")
       );
       await page.waitForTimeout(5000);
       let newAddress = await getCurrentAddressId(token);

@@ -43,20 +43,7 @@
           @resolve="doClose"
         />
 
-        <section :class="actionStyles.recommendation.actions.root">
-          <div :class="actionStyles.recommendation.actions.label">
-            {{ t("cart.basket_items", { count: count ?? 0 }) }}
-          </div>
-
-          <Button
-            @click="doClose"
-            :label="t('action.continue_label')"
-            color="primary"
-            size="lg"
-            :class="actionStyles.recommendation.actions.button"
-            iconAppend="arrow-right"
-          />
-        </section>
+        <Actions @skip="doClose" />
       </template>
     </template>
   </Layout>
@@ -68,7 +55,6 @@ import { useI18n } from "vue-i18n";
 
 // --- internal
 import {
-  useBasket,
   useProductRecommendations,
   useQueryParams,
   useRoutingEngine,
@@ -81,10 +67,11 @@ import { useFooter } from "../../components/footer/useFooter";
 import { useThemes } from "@upmind-automation/upmind-ui";
 
 // --- components
-import { Button, Interstitial, useStyles } from "@upmind-automation/upmind-ui";
+import { Interstitial } from "@upmind-automation/upmind-ui";
 import Layout from "../../components/layout/Layout.vue";
 import Configure from "../recommendations/components/Configure.vue";
 import CardsCarousel from "../recommendations/components/CardsCarousel.vue";
+import Actions from "../recommendations/components/Actions.vue";
 import Hero from "../../components/hero/Hero.vue";
 import recommendationsConfig from "../recommendations/recommendations.config";
 import type { LAYOUT_VARIANTS } from "../../";
@@ -114,12 +101,6 @@ set(ui.theme.value);
 const { navigateNext } = useRoutingEngine();
 const { productId } = useQueryParams();
 
-const actionStyles = useStyles(
-  ["recommendation.actions"],
-  {},
-  recommendationsConfig
-);
-const { count } = useBasket();
 const {
   seen,
   isReady,

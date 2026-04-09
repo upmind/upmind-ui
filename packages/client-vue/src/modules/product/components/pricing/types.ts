@@ -21,6 +21,8 @@ export interface ExPriceProps extends BasePrice {
   regularPrice: string;
   monthlyFromRegularPrice: string;
   discounted: boolean;
+  /** True when a price has been manually overridden (may be higher or lower than the pricelist price). */
+  overridden?: boolean;
 }
 
 export interface CurrentPriceProps extends BasePrice {

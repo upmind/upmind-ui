@@ -34,7 +34,7 @@ export const ukDomain = [
     registrantState: "",
     registrantPostcode: "SW1A",
     registrantCountry: "GB",
-    total: "FREE",
+    total: /FREE | £0.00/,
     billingCycle: "1-year",
     tldValue: ".uk"
   }

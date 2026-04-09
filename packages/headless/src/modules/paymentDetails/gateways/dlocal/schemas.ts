@@ -7,7 +7,13 @@ import {
   useSchema as useDefaultSchema,
   useUischema as useDefaultUischema
 } from "../schemas";
-import { getCountry, needsDocument, needsPhone } from "./utils";
+import {
+  getCountry,
+  getCurrency,
+  getDocumentName,
+  needsDocument,
+  needsPhone
+} from "./utils";
 
 // --- types
 import type { GatewayContext } from "../types";
@@ -21,6 +27,8 @@ import { GatewayProviderCodes } from "@upmind-automation/types";
 export const useSchema = (context: GatewayContext) => {
   const defaultSchema = useDefaultSchema(context);
   const country = getCountry(context);
+  const currency = getCurrency(context);
+  const documentName = getDocumentName(country, currency);
 
   const schema = {
     type: "object",
@@ -43,7 +51,7 @@ export const useSchema = (context: GatewayContext) => {
           },
           document: {
             type: ["string", "null"],
-            title: "Document",
+            title: documentName,
             ...(needsDocument(country) &&
             country &&
             DOCUMENT_REGEX_RULES[country]
@@ -96,6 +104,8 @@ export const useSchema = (context: GatewayContext) => {
 export const useUischema = (context: DLocalContext) => {
   const defaultUischema = useDefaultUischema(context);
   const country = getCountry(context);
+  const currency = getCurrency(context);
+  const documentName = getDocumentName(country, currency);
 
   const dlocalElements: UISchemaElement[] = [
     {
@@ -129,6 +139,7 @@ export const useUischema = (context: DLocalContext) => {
       type: "Control",
       scope: "#/properties/payment_method_addition/properties/document",
       i18n: "form.document",
+      label: documentName,
       options: {
         autocomplete: "off"
       }

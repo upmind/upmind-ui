@@ -1,19 +1,21 @@
 import { test, expect, BrowserContext } from "@playwright/test";
 import { URLs } from "../support/constants/urls";
-import { ProductConfig } from "../support/page-objects/templates/ProductConfig";
-import { Basket } from "../support/page-objects/templates/Basket";
-import {
-  addProductToOrder,
-  createOrder
-} from "../support/utils/functions/basket";
-import { getSessionToken } from "../support/utils/functions/tokens";
-import { Registration } from "../support/page-objects/templates/Registration";
-import { Checkout } from "../support/page-objects/templates/Checkout";
-import { Confirmation } from "../support/page-objects/templates/Confirmation";
-import { goToCheckout, mockPromos } from "../support/utils/apiHelper";
-import { returnError } from "../support/utils/functions/errors";
+import { ProductConfig } from "../support/page-objects/templates/product-config";
+import { Basket } from "../support/page-objects/templates/basket";
+import { addProductToOrder, createOrder } from "../support/api/basket";
+import { Registration } from "../support/page-objects/templates/registration";
+import { Checkout } from "../support/page-objects/templates/checkout";
+import { Confirmation } from "../support/page-objects/templates/confirmation";
+import { goToCheckout } from "../support/flows/checkout";
+import { mockPromos } from "../support/mocks/promotions";
+import { returnError } from "../support/mocks/errors";
 import { fakerEN_GB } from "@faker-js/faker";
 import { products } from "../support/constants/products";
+import {
+  getClientToken,
+  getSessionToken,
+  registerClient
+} from "../support/api/index";
 
 let context: BrowserContext;
 let productConfig: ProductConfig;
@@ -21,7 +23,6 @@ let basket: Basket;
 
 let checkout: Checkout;
 let confirmation: Confirmation;
-let register: Registration;
 
 const promoCode = "genericpromo";
 const promoError = (message: string) => ({
@@ -146,7 +147,7 @@ test.describe("Promotions", () => {
   test.describe("Promotion displayed on Basket", () => {
     test.beforeEach(async ({ page, context }) => {
       const domain = `${fakerEN_GB.string.alphanumeric({ length: 15 })}.com`;
-      await page.goto(URLs.baseUrl);
+      await page.goto("/");
       await page.waitForLoadState("networkidle");
       let token = await getSessionToken(context);
       let order = await createOrder(token);
@@ -154,7 +155,7 @@ test.describe("Promotions", () => {
       await addProductToOrder(
         token,
         orderId,
-        "3de78642-de53-9714-76df-21208469530d", //TODO: Update to products file ref
+        products.OPTIONAL_TRIAL_PRODUCT.id,
         1,
         24,
         [],
@@ -211,9 +212,26 @@ test.describe("Promotions", () => {
   test.describe("Promotion displayed on Checkout", () => {
     test.beforeEach(async ({ page, context }) => {
       checkout = new Checkout(page);
-      register = new Registration(page, context);
+      await page.goto("/");
+      await expect
+        .poll(
+          async () => {
+            const cookies = await context.cookies();
+            return cookies.some(
+              c =>
+                c.name === "upm_guest_session" ||
+                c.name === "upm_client_session"
+            );
+          },
+          { timeout: 30000 }
+        )
+        .toBeTruthy();
+      let guestToken = await getSessionToken(context);
+      let user = await registerClient(guestToken);
+      let username = user.email;
+      let password = user.password;
+      await getClientToken(page, username, password);
       await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
-      await register.inputRegistration();
     });
     test("Promo badge/details displayed at checkout", async ({ page }) => {
       await checkout.addVoucherButton.click();
@@ -241,13 +259,38 @@ test.describe("Promotions", () => {
     }
   });
   test.describe("Promotion displayed on Confirmation", () => {
-    test.fixme("Promo badge/details displayed at confirmation", async ({
-      page
+    test("Promo badge/details displayed at confirmation", async ({
+      page,
+      context
     }) => {
-      //TODO: Add tests
-      test.beforeEach(async ({ page, context }) => {
-        confirmation = new Confirmation(page);
-      });
+      checkout = new Checkout(page);
+      confirmation = new Confirmation(page);
+      await page.goto(URLs.catalogueRoot1);
+      await expect
+        .poll(
+          async () => {
+            const cookies = await context.cookies();
+            return cookies.some(c => c.name === "upm_guest_session");
+          },
+          { timeout: 30000 }
+        )
+        .toBeTruthy();
+      let guestToken = await getSessionToken(context);
+      let user = await registerClient(guestToken);
+      let username = user.email;
+      let password = user.password;
+      await getClientToken(page, username, password);
+      await goToCheckout(
+        page,
+        context,
+        products.STARTER_HOSTING,
+        "genericpromo"
+      );
+      await expect(page.getByText("Secure checkout")).toBeVisible();
+      await checkout.selectPaymentMethod("Direct Bank Transfer");
+      await checkout.clickPlaceOrder();
+      await expect(page.getByText("Order complete!")).toBeVisible();
+      await expect(page.getByText("Discount")).toBeVisible();
     });
   });
 });

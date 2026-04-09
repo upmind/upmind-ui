@@ -265,7 +265,7 @@ export default createMachine(
                   actions: ["update"],
                   cond: "isDirty"
                 },
-                { target: "#complete" }
+                { target: "#processed" }
               ],
               onError: {
                 target: "#invalid",
@@ -285,7 +285,7 @@ export default createMachine(
                   actions: ["addBundle"],
                   cond: "hasBundles"
                 },
-                { target: "#complete" }
+                { target: "#processed", actions: ["persistModel"] }
               ]
             }
           },
@@ -294,9 +294,9 @@ export default createMachine(
               PROCESSING: {
                 // do nothing as we are already'processing'
               },
-              UPDATED: { target: "#complete" },
-              ERROR: { target: "#complete" }, // fail silently > move on
-              CANCEL: { target: "#complete" } // cancel the bundle > move on
+              UPDATED: { target: "#processed" },
+              ERROR: { target: "#processed" }, // fail silently > move on
+              CANCEL: { target: "#processed" } // cancel the bundle > move on
             }
           }
         },
@@ -308,6 +308,15 @@ export default createMachine(
 
       error: {
         id: "error"
+      },
+
+      // Decide whether to continue editing or stop
+      processed: {
+        id: "processed",
+        always: [
+          { target: "#available", cond: "continueEditing" },
+          { target: "#complete" }
+        ]
       },
 
       // Handle completion, stop the machine and prevent further products
@@ -478,7 +487,10 @@ export default createMachine(
           { data }: AnyEventObject
         ) => ({
           product: parseProductDetails(data.product, rawBasketProduct),
-          terms: parseTermDetails(data.product),
+          terms: parseTermDetails(
+            data.product,
+            rawBasketProduct?.price_option_override
+          ),
           options: parseSubproductDetails(
             data.product.products_options,
             model?.term
@@ -751,6 +763,9 @@ export default createMachine(
       }: ProductConfigContext) => {
         return !rawBasketProduct || !isEqual(model, baseModel);
       },
+
+      continueEditing: ({ allowMultipleEdits }: ProductConfigContext) =>
+        !!allowMultipleEdits,
 
       isUnauthorized: (
         _context: ProductConfigContext,

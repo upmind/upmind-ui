@@ -31,7 +31,7 @@ import { useTranslateField, useTranslateName, useImageUrl } from "../../utils";
 import { ProductTypes } from "@upmind-automation/types";
 import type { IBasket, IBasketProduct } from "@upmind-automation/types";
 import type { Recommendation, RelatedProduct } from "./types";
-import { UIContext, type Badge } from "../config/schema";
+import { UIContext, type Badge, type Benefit } from "../config/schema";
 import { calculateBillingTerm } from "../product/utils";
 import {
   type ProductDetails,
@@ -252,7 +252,10 @@ export function parseRecommendation(
       // --- additional ui data
       badge: isString(raw?.badge)
         ? ({ label: raw?.badge } as Badge)
-        : raw?.badge
+        : raw?.badge,
+      benefits: map(raw?.benefits, benefit =>
+        isString(benefit) ? ({ label: benefit } as Benefit) : benefit
+      )
     },
     meta: term?.meta,
     promotions: term?.promotions,
@@ -270,6 +273,7 @@ export function parseRecommendation(
       ),
 
       term: config?.bcm ?? term?.cycle ?? 0,
+      startTrial: productDetails?.trialSupported,
       subproducts: compact(config?.sub_pids ?? []),
       provisionFields: config?.pfields ?? {},
       coupons: compact(config?.coupons ?? [])

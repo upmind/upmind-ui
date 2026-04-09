@@ -52,9 +52,9 @@ export async function applyBillingDefaults(): Promise<void> {
     update
   } = useBasketBilling();
 
-  const { isAuthenticated } = useSession();
-
-  await isAuthenticated();
+  // NB: isBillingReady() already gates on a valid auth session via the
+  // billing machine's `subscribing` state (`hasClient` guard), so no
+  // separate isAuthenticated() call is needed here.
   await isBillingReady();
 
   if (billingMeta.value.isComplete) return;

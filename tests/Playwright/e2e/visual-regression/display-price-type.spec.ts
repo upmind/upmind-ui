@@ -1,6 +1,6 @@
 import { test, expect, Page } from "@playwright/test";
-import { getSessionToken } from "../support/utils/functions/tokens";
-import { interceptConfigValues } from "../support/utils/functions/brand";
+import { getSessionToken } from "../support/api/auth";
+import { interceptConfigValues } from "../support/mocks/brand";
 import { URLs } from "../support/constants/urls";
 
 test.describe("Display Price Types", () => {

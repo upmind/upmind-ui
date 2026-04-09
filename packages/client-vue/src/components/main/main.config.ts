@@ -5,7 +5,7 @@ export default {
     variants: {
       mode: {
         grow: "grow",
-        centered: "items-center justify-center"
+        centered: "grow items-center justify-center"
       },
       overflow: {
         hidden: "overflow-hidden",

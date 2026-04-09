@@ -148,22 +148,6 @@ async function getCustomFields(_context: GuestContext, _event: AnyEventObject) {
   });
 }
 
-async function checkForReCaptcha(
-  _context: GuestContext,
-  { data }: AnyEventObject
-) {
-  // not implemented so pass through
-  return Promise.resolve(data);
-}
-
-async function verifyReCaptcha(
-  _context: GuestContext,
-  { data }: AnyEventObject
-) {
-  // not implemented so pass through
-  return Promise.resolve(data);
-}
-
 async function register({ model }: GuestContext<RegisterModel>) {
   const { currency } = useBasket();
   const { post, useUrl } = useQuery();
@@ -252,8 +236,6 @@ export default {
   authenticate,
   // ---
   getCustomFields,
-  checkForReCaptcha,
-  verifyReCaptcha,
   recover,
   register
 };

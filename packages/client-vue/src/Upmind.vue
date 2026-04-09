@@ -47,10 +47,11 @@
 
         <!-- Overlay routes — auth, 2fa, verify-email -->
         <UpmOverlayController />
-
-        <slot name="footer">
-          <Footer />
-        </slot>
+        <template #footer>
+          <slot name="footer">
+            <Footer />
+          </slot>
+        </template>
       </Page>
 
       <slot name="append" />
@@ -154,9 +155,11 @@ function scrollToAnchor() {
   const { hash } = location;
   if (!hash) return;
 
-  const decoded = decodeURIComponent(hash);
+  // NB: use getElementById — querySelector throws on invalid CSS selectors
+  // (e.g. JSON Schema $ref paths like ##/properties/...)
+  const id = decodeURIComponent(hash).replace(/^#/, "");
   nextTick(() => {
-    document.querySelector(decoded)?.scrollIntoView({
+    document.getElementById(id)?.scrollIntoView({
       block: "start",
       inline: "nearest",
       behavior: "smooth"

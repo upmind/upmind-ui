@@ -3,11 +3,12 @@
     v-resize-observer="setActive"
     :key="`recommendations-active-${active}`"
     @init-api="setApi"
-    class="embla relative max-w-dvw"
+    class="embla relative max-w-dvw contain-[inline-size]"
     :opts="{
       loop: false,
       align: 'center',
-      dragFree: true
+      dragFree: true,
+      watchDrag: active
     }"
   >
     <div v-if="active" :class="styles.recommendation.carousel.navigation">

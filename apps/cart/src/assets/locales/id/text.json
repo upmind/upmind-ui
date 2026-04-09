@@ -35,6 +35,7 @@
   "date_sent": "Tanggal pengiriman",
   "default_label": "Bawaan",
   "discount": "Diskon",
+  "domain_not_available_msg": "Domain ini tidak tersedia melalui kami.",
   "edit_configuration": "Edit konfigurasi",
   "email_bounced": "Email gagal terkirim.",
   "email_history": "Riwayat Email",
@@ -126,6 +127,7 @@
   "trial_renews_at_msg": "Akan diperpanjang otomatis dengan biaya {price} setelah uji coba",
   "try_before_you_buy": "Coba dulu, baru bayar",
   "try_free_for_days": "Coba gratis selama {days} hari",
+  "unavailable": "Tidak tersedia",
   "unverified_label": "Tidak terverifikasi",
   "welcome_back_msg": "Selamat Datang kembali, {name}"
 }
