@@ -14,17 +14,14 @@
 
 <script lang="ts" setup>
 // --- external
-import { computed, watch } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { computed } from "vue";
+import { useRoute } from "vue-router";
 
 // --- internal
 import {
   Upm,
   UpmBasketAction,
   UpmAuthAction,
-  useBasket,
-  useRoutingEngine,
-  useSession,
   useOverlayRoute
 } from "@upmind-automation/client-vue";
 
@@ -40,8 +37,6 @@ import { useStorefrontRoute } from "./composables/useStorefrontRoute";
 // -----------------------------------------------------------------------------
 const { storefrontRoute } = useStorefrontRoute();
 const route = useRoute();
-const router = useRouter();
-const { meta: routingMeta, isReady } = useRoutingEngine();
 
 const { isOpen: isOverlayOpen, overlayId } = useOverlayRoute();
 
@@ -63,60 +58,4 @@ const isAuthRoute = computed(
     // Also hide when auth overlay is open
     (isOverlayOpen.value && overlayId.value === "auth")
 );
-
-// --- side effects
-
-// set up automatic redirects when the user logs in or out or if the basket is emptied
-isReady().then(() => {
-  const { meta: basketMeta } = useBasket();
-  const { meta: sessionMeta } = useSession();
-  watch(
-    [basketMeta, sessionMeta],
-    (
-      [
-        { hasProducts, isComplete, isCheckout, isUnavailable, isAvailable },
-        { isAuthenticated }
-      ],
-      [
-        { hasProducts: hadProducts, isUnavailable: wasUnavailable },
-        { isAuthenticated: wasAuthenticated }
-      ]
-    ) => {
-      if (!routingMeta.value.isResolved) return;
-      /* If we were authenticated and now we are not, redirect to the session end page */
-      if (
-        !isAuthenticated &&
-        wasAuthenticated &&
-        route.name !== ROUTE.SESSION_END
-      ) {
-        return router.push({ name: ROUTE.SESSION_END });
-      }
-
-      /* If the basket is unavailable and we are authenticated, redirect to the basket unavailable page */
-      if (
-        isUnavailable &&
-        !wasUnavailable &&
-        isAuthenticated &&
-        route.name !== ROUTE.BASKET_UNAVAILABLE
-      ) {
-        return router.replace({ name: ROUTE.BASKET_UNAVAILABLE });
-      }
-
-      /** If the basket is available and we have no products and we had products
-       *  and we are not in the process of checking out
-       *  and we the basket is NOT complete */
-      if (
-        !isUnavailable &&
-        !hasProducts &&
-        hadProducts &&
-        !isCheckout &&
-        !isComplete
-      ) {
-        if (route.meta.actionEmptyBasket && route.name !== ROUTE.BASKET_EMPTY) {
-          return router.push({ name: ROUTE.BASKET_EMPTY });
-        }
-      }
-    }
-  );
-});
 </script>
