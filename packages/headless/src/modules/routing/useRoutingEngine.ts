@@ -221,10 +221,13 @@ export const useRoutingEngine = () => {
     event?: any
   ) {
     const targetName = typeof target === "string" ? target : target?.name;
-    const currentTargetName =
-      funnel.value?.state?.value?.context?.targetRoute?.name;
+    const currentState = funnel.value?.state?.value;
+    const currentTargetName = currentState?.context?.targetRoute?.name;
+    const availableStateName = meta.value.availableStateName;
     const alreadyResolved =
-      meta.value.isResolved && currentTargetName === targetName;
+      meta.value.isResolved &&
+      currentTargetName === targetName &&
+      availableStateName === targetName;
 
     if (!alreadyResolved && (!meta.value.hasTarget || meta.value.isResolved)) {
       send({ type: "RESOLVE", data: { target, route, event } });
