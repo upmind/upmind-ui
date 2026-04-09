@@ -2,7 +2,7 @@
   <DialogRoot :open="props.open" @update:open="emits('update:open', $event)">
     <DialogPortal>
       <DialogContent
-        class="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fill-mode-both animation-duration-200 bg-overlay fixed inset-0 z-50 flex touch-none items-center justify-center overflow-hidden p-4 outline-none"
+        :class="styles.preview.dialog"
         @wheel="onWheel"
         @click.self="emits('update:open', false)"
       >
@@ -11,8 +11,7 @@
           ref="imageRef"
           :src="props.image.previewUrl ?? props.image.url"
           :alt="props.image.alt"
-          :class="isZoomed ? 'cursor-zoom-out' : 'cursor-zoom-in'"
-          class="image-radius max-h-[90vh] max-w-[90vw] object-contain select-none"
+          :class="styles.preview.image"
           draggable="false"
           @click="onImageClick"
         />
@@ -20,7 +19,7 @@
         <Link
           icon="x-close"
           color="inherit"
-          class="text-tooltip absolute top-4 right-4 z-10"
+          :class="styles.preview.close"
           @click="emits('update:open', false)"
         />
       </DialogContent>
@@ -29,10 +28,12 @@
 </template>
 
 <script lang="ts" setup>
-import { onUnmounted, ref, watch } from "vue";
+import { computed, onUnmounted, ref, watch } from "vue";
 import { DialogContent, DialogPortal, DialogRoot } from "radix-vue";
 import Panzoom from "@panzoom/panzoom";
 import { Link } from "../link";
+import config from "./imageGrid.config";
+import { useStyles } from "../../utils";
 
 import type { PanzoomObject } from "@panzoom/panzoom";
 import type { ImagePreviewProps } from "./types";
@@ -47,6 +48,12 @@ const emits = defineEmits<{
 const imageRef = ref<HTMLImageElement | null>(null);
 const isZoomed = ref(false);
 let pz: PanzoomObject | null = null;
+
+const meta = computed(() => ({
+  isZoomed: isZoomed.value
+}));
+
+const styles = useStyles(["preview"], meta, config);
 
 function initZoom() {
   pz?.destroy();

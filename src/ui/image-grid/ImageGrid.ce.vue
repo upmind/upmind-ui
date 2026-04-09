@@ -2,7 +2,6 @@
   <div :class="styles.imageGrid.container">
     <!-- Preview image -->
     <figure
-      class="group"
       :class="cn(styles.imageGrid.preview, props.class)"
       :style="meta.hasFallback ? fallbackStyle : ''"
       @click="openLightbox"
@@ -87,7 +86,8 @@ import ImagePreview from "./ImagePreview.vue";
 import { useStyles, cn, getComputedColor } from "../../utils";
 import { isEmpty, isArray } from "lodash-es";
 // --- types
-import type { ImageGridProps, ImageItem } from "./types";
+import type { ImageGridProps } from "./types";
+import type { ImageItem } from "../image/types";
 import type { CarouselApi } from "../carousel";
 // -----------------------------------------------------------------------------
 

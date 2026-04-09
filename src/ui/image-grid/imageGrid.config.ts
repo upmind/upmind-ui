@@ -2,7 +2,7 @@ import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 
 export const previewVariant = cva(
-  "image-radius relative block w-full cursor-pointer overflow-hidden",
+  "group image-radius relative block w-full cursor-pointer overflow-hidden",
   {
     variants: {
       ratio: {
@@ -92,5 +92,25 @@ export default {
     thumbnailItem: cva("min-w-0 basis-1/5 pl-2"),
     thumbnail: thumbnailVariant,
     thumbnailImage: cva("image-radius aspect-square w-full object-cover")
+  },
+  preview: {
+    dialog: cva(
+      "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fill-mode-both animation-duration-200 bg-overlay fixed inset-0 z-50 flex touch-none items-center justify-center overflow-hidden p-4 outline-none"
+    ),
+    image: cva(
+      "image-radius max-h-[90vh] max-w-[90vw] object-contain select-none",
+      {
+        variants: {
+          isZoomed: {
+            true: "cursor-zoom-out",
+            false: "cursor-zoom-in"
+          }
+        },
+        defaultVariants: {
+          isZoomed: false
+        }
+      }
+    ),
+    close: cva("text-tooltip absolute top-4 right-4 z-10")
   }
 };

@@ -71,19 +71,36 @@ export const containerVariant = cva(
   }
 );
 
+export const indicatorVariant = cva(
+  "h-2 w-2 cursor-pointer rounded-full bg-current",
+  {
+    variants: {
+      isActive: {
+        true: "",
+        false: "opacity-50"
+      }
+    },
+    defaultVariants: {
+      isActive: true
+    }
+  }
+);
+
 export default {
   image: {
     container: containerVariant,
     root: rootVariant,
+    picture: cva("contents w-full"),
     icon: cva("bg-surface p-2"),
     carousel: {
-      content: cva(""),
+      content: cva("ml-0 h-full"),
       list: cva("m-0 flex p-0"),
       item: cva("pl-0")
     },
     nav: {
       root: cva("absolute right-5.5 bottom-5.5 flex gap-0.5"),
-      item: cva("grid size-3 place-items-center text-white")
+      item: cva("grid size-3 place-items-center text-white"),
+      dot: indicatorVariant
     }
   }
 };
