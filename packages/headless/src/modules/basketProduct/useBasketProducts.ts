@@ -330,11 +330,8 @@ export const useBasketProducts = () => {
       options?: { allowMultipleEdits?: boolean }
     ): Promise<UseBasketProduct> => {
       // --- reuse cached config if the underlying service is still running
-      debugger;
       const cached = get(configRegistry, bpid) as UseBasketProduct | undefined;
-      debugger;
       if (cached) {
-        debugger;
         if (!isStoppedService(cached.service)) {
           return Promise.resolve(cached);
         }
