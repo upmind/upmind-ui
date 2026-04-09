@@ -41,6 +41,9 @@ import { ROUTE } from "./types";
 //
 // For NORMAL ROUTES (user-facing pages):
 //   - Use both `target` AND `actions` to ensure XState transitions AND Vue Router navigates
+//
+// States using `meta: { next, prev }` auto-generate these handlers via FE-2583.
+// Explicit `on.NEXT` / `on.BACK` handlers override the auto-generated ones.
 // -----------------------------------------------------------------------------
 
 export default <FunnelProps>{
@@ -79,21 +82,12 @@ export default <FunnelProps>{
      * The
      */
     [ROUTE.CATALOGUE]: {
+      meta: { next: ROUTE.RECOMMENDATIONS, prev: ROUTE.BASKET },
       entry: ["setCurrency"],
       invoke: {
         src: "guardCatalogue",
         onDone: { actions: ["setResolved"] },
         onError: { target: ROUTE.BASKET, actions: ["setResolving"] }
-      },
-      on: {
-        NEXT: {
-          target: ROUTE.RECOMMENDATIONS,
-          actions: [assign({ targetRoute: { name: ROUTE.RECOMMENDATIONS } })]
-        },
-        BACK: {
-          target: ROUTE.BASKET,
-          actions: [assign({ targetRoute: { name: ROUTE.BASKET } })]
-        }
       }
     },
 
@@ -130,7 +124,7 @@ export default <FunnelProps>{
         onDone: [
           {
             target: ROUTE.PRODUCT_RECOMMENDATIONS,
-            actions: ["setResolving", "setTargetRoute"],
+            actions: ["setUnresolved", "setTargetRoute"],
             cond: "isNext"
           },
           { actions: ["setResolved"] }
@@ -138,7 +132,7 @@ export default <FunnelProps>{
         onError: [
           {
             target: ROUTE.PRODUCT_NOT_FOUND,
-            actions: ["setResolving", "setTargetRoute"],
+            actions: ["setUnresolved", "setTargetRoute"],
             cond: "isProductNotFound"
           },
           { target: ROUTE.CHECKOUT_FLOW, actions: ["setResolving"] }
@@ -174,17 +168,8 @@ export default <FunnelProps>{
      * From here, users can navigate back to the BASKET route .
      */
     [ROUTE.PRODUCT_NOT_FOUND]: {
-      entry: ["setResolved"],
-      on: {
-        NEXT: {
-          target: ROUTE.CHECKOUT_FLOW,
-          actions: [assign({ targetRoute: { name: ROUTE.CHECKOUT_FLOW } })]
-        },
-        BACK: {
-          target: ROUTE.BASKET,
-          actions: [assign({ targetRoute: { name: ROUTE.BASKET } })]
-        }
-      }
+      meta: { next: ROUTE.CHECKOUT_FLOW, prev: ROUTE.BASKET },
+      entry: ["setResolved"]
     },
 
     /**
@@ -194,21 +179,12 @@ export default <FunnelProps>{
      * In case of an error (e.g., no recommendations available), it redirects to the CHECKOUT_FLOW route.
      */
     [ROUTE.PRODUCT_RECOMMENDATIONS]: {
+      meta: { next: ROUTE.CHECKOUT_FLOW, prev: ROUTE.BASKET },
       entry: ["setCurrency"],
       invoke: {
         src: "guardProductRecommendations",
         onDone: { actions: ["setResolved"] },
         onError: { target: ROUTE.CHECKOUT_FLOW, actions: ["setResolving"] }
-      },
-      on: {
-        NEXT: {
-          target: ROUTE.CHECKOUT_FLOW,
-          actions: [assign({ targetRoute: { name: ROUTE.CHECKOUT_FLOW } })]
-        },
-        BACK: {
-          target: ROUTE.BASKET,
-          actions: [assign({ targetRoute: { name: ROUTE.BASKET } })]
-        }
       }
     },
 
@@ -228,7 +204,7 @@ export default <FunnelProps>{
           {
             target: ROUTE.SESSION_LOGIN,
             actions: [
-              "setResolving",
+              "setUnresolved",
               assign({
                 targetRoute: (
                   { currentRoute }: FunnelContext,
@@ -272,20 +248,11 @@ export default <FunnelProps>{
      * Users can navigate to the CATALOGUE route from here to continue shopping.
      */
     [ROUTE.BASKET_EMPTY]: {
+      meta: { next: ROUTE.CATALOGUE, prev: ROUTE.CATALOGUE },
       invoke: {
         src: "guardBasket",
         onDone: { target: ROUTE.BASKET, actions: ["setResolving"] },
         onError: { actions: ["setResolved"] }
-      },
-      on: {
-        NEXT: {
-          target: ROUTE.CATALOGUE,
-          actions: [assign({ targetRoute: { name: ROUTE.CATALOGUE } })]
-        },
-        BACK: {
-          target: ROUTE.CATALOGUE,
-          actions: [assign({ targetRoute: { name: ROUTE.CATALOGUE } })]
-        }
       }
     },
 
@@ -299,21 +266,12 @@ export default <FunnelProps>{
      * or return to the BASKET.
      */
     [ROUTE.BASKET_PRODUCT_EDIT]: {
+      meta: { next: ROUTE.RECOMMENDATIONS, prev: ROUTE.BASKET },
       entry: ["setCurrency"],
       invoke: {
         src: "guardProductEdit",
         onDone: { actions: ["setResolved"] },
         onError: ROUTE.BASKET
-      },
-      on: {
-        NEXT: {
-          target: ROUTE.RECOMMENDATIONS,
-          actions: [assign({ targetRoute: { name: ROUTE.RECOMMENDATIONS } })]
-        },
-        BACK: {
-          target: ROUTE.BASKET,
-          actions: [assign({ targetRoute: { name: ROUTE.BASKET } })]
-        }
       }
     },
 
@@ -326,6 +284,7 @@ export default <FunnelProps>{
      * In case of an error, it redirects back to the BASKET route.
      */
     [ROUTE.BASKET_PRODUCT_REQUIRES_ACTION]: {
+      meta: { next: ROUTE.BASKET_PRODUCT_EDIT, prev: ROUTE.BASKET },
       entry: ["setCurrency"],
       invoke: {
         src: "guardProductRequiresAction",
@@ -333,23 +292,11 @@ export default <FunnelProps>{
         onError: [
           {
             target: ROUTE.BASKET_PRODUCT_EDIT,
-            actions: ["setResolving", "setTargetRoute"],
+            actions: ["setUnresolved", "setTargetRoute"],
             cond: "isBasketProductEdit"
           },
           { target: ROUTE.CHECKOUT_FLOW, actions: ["setResolving"] }
         ]
-      },
-      on: {
-        NEXT: {
-          target: ROUTE.BASKET_PRODUCT_EDIT,
-          actions: [
-            assign({ targetRoute: { name: ROUTE.BASKET_PRODUCT_EDIT } })
-          ]
-        },
-        BACK: {
-          target: ROUTE.BASKET,
-          actions: [assign({ targetRoute: { name: ROUTE.BASKET } })]
-        }
       }
     },
 
@@ -362,21 +309,12 @@ export default <FunnelProps>{
      * or return to the BASKET.
      */
     [ROUTE.RECOMMENDATIONS]: {
+      meta: { next: ROUTE.CHECKOUT_FLOW, prev: ROUTE.CHECKOUT_FLOW },
       entry: ["setCurrency"],
       invoke: {
         src: "guardRecommendations",
         onDone: { actions: ["setResolved"] },
         onError: ROUTE.CHECKOUT_FLOW
-      },
-      on: {
-        NEXT: {
-          target: ROUTE.CHECKOUT_FLOW,
-          actions: [assign({ targetRoute: { name: ROUTE.CHECKOUT_FLOW } })]
-        },
-        BACK: {
-          target: ROUTE.CHECKOUT_FLOW,
-          actions: [assign({ targetRoute: { name: ROUTE.CHECKOUT_FLOW } })]
-        }
       }
     },
 
@@ -388,21 +326,12 @@ export default <FunnelProps>{
      * or return to the BASKET.
      */
     [ROUTE.DOMAINS]: {
+      meta: { next: ROUTE.RECOMMENDATIONS, prev: ROUTE.BASKET },
       entry: ["setCurrency"],
       invoke: {
         src: "guardDomains",
         onDone: { actions: ["setResolved"] },
         onError: ROUTE.RECOMMENDATIONS
-      },
-      on: {
-        NEXT: {
-          target: ROUTE.RECOMMENDATIONS,
-          actions: [assign({ targetRoute: { name: ROUTE.RECOMMENDATIONS } })]
-        },
-        BACK: {
-          target: ROUTE.BASKET,
-          actions: [assign({ targetRoute: { name: ROUTE.BASKET } })]
-        }
       }
     },
 
@@ -416,6 +345,7 @@ export default <FunnelProps>{
      * or return to the 'complete' state to finalize the funnel.
      */
     [ROUTE.DOMAINS_WITH_PRODUCT]: {
+      meta: { next: ROUTE.DOMAINS_WITH_PRODUCT_PROCESSING, prev: ROUTE.BASKET },
       entry: ["setCurrency"],
       invoke: {
         src: "guardDomains",
@@ -423,20 +353,6 @@ export default <FunnelProps>{
         onError: {
           target: ROUTE.DOMAINS_WITH_PRODUCT_PROCESSING,
           actions: ["setResolving"]
-        }
-      },
-      on: {
-        NEXT: {
-          target: ROUTE.DOMAINS_WITH_PRODUCT_PROCESSING,
-          actions: [
-            assign({
-              targetRoute: { name: ROUTE.DOMAINS_WITH_PRODUCT_PROCESSING }
-            })
-          ]
-        },
-        BACK: {
-          target: ROUTE.BASKET,
-          actions: [assign({ targetRoute: { name: ROUTE.BASKET } })]
         }
       }
     },
@@ -455,22 +371,22 @@ export default <FunnelProps>{
         src: "processDomainsWithProduct",
         onDone: {
           target: ROUTE.RECOMMENDATIONS,
-          actions: ["setResolving", "setTargetRoute"]
+          actions: ["setUnresolved", "setTargetRoute"]
         },
         onError: [
           {
             target: ROUTE.BASKET_PRODUCT_EDIT,
-            actions: ["setResolving", "setTargetRoute"],
+            actions: ["setUnresolved", "setTargetRoute"],
             cond: "isBasketProductEdit"
           },
           {
             target: ROUTE.PRODUCT_CONFIGURE,
-            actions: ["setResolving", "setTargetRoute"],
+            actions: ["setUnresolved", "setTargetRoute"],
             cond: "isProductConfigure"
           },
           {
             target: ROUTE.CHECKOUT_FLOW,
-            actions: ["setResolving", "setTargetRoute"]
+            actions: ["setUnresolved", "setTargetRoute"]
           }
         ]
       }
@@ -582,6 +498,7 @@ export default <FunnelProps>{
      * From here, users can navigate to the SESSION_LOGIN route to log in after recovering their password.
      */
     [ROUTE.SESSION_RECOVER_PASSWORD]: {
+      meta: { next: ROUTE.SESSION_LOGIN, prev: ROUTE.SESSION_LOGIN },
       invoke: {
         src: "guardSession",
         onDone: { actions: ["setResolved"] },
@@ -590,16 +507,6 @@ export default <FunnelProps>{
             actions: ["setResolved"]
           }
         ]
-      },
-      on: {
-        NEXT: {
-          target: ROUTE.SESSION_LOGIN,
-          actions: [assign({ targetRoute: { name: ROUTE.SESSION_LOGIN } })]
-        },
-        BACK: {
-          target: ROUTE.SESSION_LOGIN,
-          actions: [assign({ targetRoute: { name: ROUTE.SESSION_LOGIN } })]
-        }
       }
     },
 
@@ -612,21 +519,12 @@ export default <FunnelProps>{
      * or return to the BASKET if needed.
      */
     [ROUTE.SESSION_END]: {
+      meta: { next: ROUTE.CATALOGUE, prev: ROUTE.BASKET },
       entry: ["setResolved"],
       invoke: {
         src: "guardSession",
         onDone: { actions: ["logout"] },
         onError: { actions: [] }
-      },
-      on: {
-        NEXT: {
-          target: ROUTE.CATALOGUE,
-          actions: [assign({ targetRoute: { name: ROUTE.CATALOGUE } })]
-        },
-        BACK: {
-          target: ROUTE.BASKET,
-          actions: [assign({ targetRoute: { name: ROUTE.BASKET } })]
-        }
       }
     },
 
@@ -664,7 +562,7 @@ export default <FunnelProps>{
           {
             target: ROUTE.SESSION,
             actions: [
-              "setResolving",
+              "setUnresolved",
               assign({
                 targetRoute: (
                   { currentRoute }: FunnelContext,
