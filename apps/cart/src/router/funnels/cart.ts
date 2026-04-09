@@ -104,6 +104,7 @@ export default <FunnelProps>{
      * (if a product ID is present) or back to the BASKET route.
      */
     [ROUTE.PRODUCT_CONFIGURE]: {
+      meta: { prev: ROUTE.CATALOGUE },
       entry: ["setCurrency", "setBasket", "setProductConfigs"],
       invoke: {
         src: "guardProductConfigure",
@@ -138,10 +139,6 @@ export default <FunnelProps>{
               })
             })
           ]
-        },
-        BACK: {
-          target: ROUTE.CATALOGUE,
-          actions: [assign({ targetRoute: { name: ROUTE.CATALOGUE } })]
         }
       }
     },
@@ -186,6 +183,13 @@ export default <FunnelProps>{
      * From here, users can proceed to the CHECKOUT route or return to the CATALOGUE.
      */
     [ROUTE.BASKET]: {
+      meta: {
+        next: [
+          { target: ROUTE.BILLING, cond: "hasStandaloneBilling" },
+          { target: ROUTE.CHECKOUT }
+        ],
+        prev: ROUTE.CATALOGUE
+      },
       entry: ["setCurrency", "setBasket"],
       invoke: {
         src: "guardBasket",
@@ -217,26 +221,6 @@ export default <FunnelProps>{
             actions: ["setResolving"]
           }
         ]
-      },
-      on: {
-        NEXT: [
-          {
-            target: ROUTE.BILLING,
-            actions: [
-              "setUnresolved",
-              assign({ targetRoute: { name: ROUTE.BILLING } })
-            ],
-            cond: "hasStandaloneBilling"
-          },
-          {
-            target: ROUTE.CHECKOUT,
-            actions: [assign({ targetRoute: { name: ROUTE.CHECKOUT } })]
-          }
-        ],
-        BACK: {
-          target: ROUTE.CATALOGUE,
-          actions: [assign({ targetRoute: { name: ROUTE.CATALOGUE } })]
-        }
       }
     },
 
@@ -456,6 +440,7 @@ export default <FunnelProps>{
      * From here, users can proceed to the CHECKOUT route or return to the BASKET.
      */
     [ROUTE.SESSION_LOGIN]: {
+      meta: { prev: ROUTE.BASKET },
       entry: ["setCurrency"],
       always: [
         {
@@ -481,10 +466,6 @@ export default <FunnelProps>{
           target: ROUTE.SESSION_LOGIN,
           // NB: Preserve targetRoute (returnUrl) — only reset resolved flag.
           actions: [assign({ resolved: false })]
-        },
-        BACK: {
-          target: ROUTE.BASKET,
-          actions: [assign({ targetRoute: { name: ROUTE.BASKET } })]
         }
       }
     },
@@ -498,6 +479,7 @@ export default <FunnelProps>{
      * From here, users can proceed to the CHECKOUT route or return to the BASKET.
      */
     [ROUTE.SESSION_REGISTER]: {
+      meta: { prev: ROUTE.BASKET },
       always: [
         {
           target: ROUTE.CHECKOUT_FLOW,
@@ -522,10 +504,6 @@ export default <FunnelProps>{
           target: ROUTE.SESSION_REGISTER,
           // NB: Preserve targetRoute (returnUrl) — only reset resolved flag.
           actions: [assign({ resolved: false })]
-        },
-        BACK: {
-          target: ROUTE.BASKET,
-          actions: [assign({ targetRoute: { name: ROUTE.BASKET } })]
         }
       }
     },
@@ -604,6 +582,7 @@ export default <FunnelProps>{
      * or return to the BASKET to make changes.
      */
     [ROUTE.CHECKOUT]: {
+      meta: { prev: ROUTE.BASKET },
       entry: ["setCurrency", "setBasket", "setBillingDefaults"],
       invoke: {
         src: "guardCheckout",
@@ -666,10 +645,6 @@ export default <FunnelProps>{
               }
             })
           ]
-        },
-        BACK: {
-          target: ROUTE.BASKET,
-          actions: [assign({ targetRoute: { name: ROUTE.BASKET } })]
         }
       }
     },
