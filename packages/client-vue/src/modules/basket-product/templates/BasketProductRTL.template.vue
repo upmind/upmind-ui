@@ -10,6 +10,7 @@
     </template>
 
     <template #aside>
+      <slot name="errors" />
       <slot name="pricing" />
     </template>
 
