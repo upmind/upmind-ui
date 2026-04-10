@@ -42,7 +42,7 @@
 
       <!-- Upsell options -->
       <div
-        v-for="upsell in filteredUpsells"
+        v-for="{ upsell, benefits } in filteredUpsells"
         :key="`${props.id}-upsell-${upsell.id}`"
         :class="styles.product.option.upsell"
       >
@@ -64,11 +64,7 @@
           upsell
           v-model:options="optionsModel"
         />
-        <BasketProductBenefits
-          :benefits="
-            productConfig.with({ option: () => upsell }).data.optionBenefits
-          "
-        />
+        <BasketProductBenefits :benefits="benefits" />
       </div>
     </Card>
   </Loading>
@@ -92,7 +88,7 @@ import BasketProductOptionContent from "./BasketProductOptionContent.vue";
 import BasketProductBenefits from "./components/BasketProductBenefits.vue";
 
 // --- utils
-import { isEmpty, some, compact, map, debounce, filter } from "lodash-es";
+import { isEmpty, some, compact, map, debounce, find } from "lodash-es";
 
 // --- types
 import type { BasketProductProps, OptionTogglePayload } from "./types";
@@ -145,22 +141,30 @@ const upsellOptions = computed(() =>
 );
 
 const filteredUpsells = computed(() => {
-  return filter(
-    resolveUpsells(config?.options?.value) as BasketOptionSummary[],
-    upsell => {
-      const { data } = productConfig.with({ option: () => upsell });
-      if (!data.optionUpsellEnabled) return false;
+  return compact(
+    map(
+      resolveUpsells(config?.options?.value) as BasketOptionSummary[],
+      upsell => {
+        const { data } = productConfig.with({
+          optionGroup: () => resolveOptionGroup(upsell),
+          option: () => upsell
+        });
+        if (!data.optionUpsellEnabled) return undefined;
 
-      // Hide upsells already selected when the machine was spawned (configured elsewhere).
-      if (upsell.meta.toggle?.selected) {
-        return !some(config?.raw?.value?.basketProduct?.options, [
-          "product_id",
-          upsell.meta.toggle?.valueId
-        ]);
+        // Hide upsells already selected when the machine was spawned (configured elsewhere).
+        if (upsell.meta.toggle?.selected) {
+          if (
+            some(config?.raw?.value?.basketProduct?.options, [
+              "product_id",
+              upsell.meta.toggle?.valueId
+            ])
+          )
+            return undefined;
+        }
+
+        return { upsell, benefits: data.optionBenefits };
       }
-
-      return true;
-    }
+    )
   );
 });
 
@@ -206,6 +210,10 @@ const configErrors = computed(
 
 function getSummaryComponent(index: number) {
   return index === 0 ? BasketProductContent : BasketProductOptionContent;
+}
+
+function resolveOptionGroup(upsell: BasketOptionSummary) {
+  return find(config?.options?.value, { id: upsell.meta.toggle?.categoryId });
 }
 
 // --- writable models for v-model bindings
