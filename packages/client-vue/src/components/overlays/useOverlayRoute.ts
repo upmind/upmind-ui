@@ -81,7 +81,7 @@ export function useOverlayRoute() {
   function close(): void {
     const returnUrl = getParam(QUERY_PARAMS.RETURN_URL);
     if (returnUrl) {
-      router.push(returnUrl);
+      router.replace(returnUrl);
     } else {
       router.replace(resolveParentRoute());
     }
