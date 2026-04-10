@@ -3,8 +3,10 @@ import { createRouter, createWebHistory } from "vue-router";
 
 // --- internal
 import routes from "./routes";
-import { registerOverlayRoutes } from "@upmind-automation/headless";
-import { useAssetRecovery } from "@upmind-automation/client-vue";
+import {
+  registerOverlayRoutes,
+  useAssetRecovery
+} from "@upmind-automation/client-vue";
 
 // ---types
 export * from "./types";
