@@ -767,7 +767,7 @@ export default <FunnelProps>{
             actions: ["setResolving"],
             cond: "isSession"
           },
-          { target: ROUTE.CHECKOUT, actions: ["setResolving"] }
+          { target: ROUTE.BASKET, actions: ["setResolving"] }
         ]
       },
       on: {
