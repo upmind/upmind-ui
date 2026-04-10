@@ -178,6 +178,14 @@
       </template>
 
       <template #errors>
+        <Alert
+          class="w-full"
+          v-if="externalErrors?.message"
+          color="danger"
+          variant="minimal"
+          icon="alert-triangle"
+          :title="externalErrors?.message"
+        />
         <ConfigErrors
           :visible="productMeta?.showErrors"
           :errors="validationErrors"
@@ -229,7 +237,7 @@ import { useBreadcrumbs } from "../../composables/useBreadcrumbs";
 import { useConfig, validateTemplate } from "@upmind-automation/headless";
 
 // --- components
-import { Breadcrumb, Markdown } from "@upmind-automation/upmind-ui";
+import { Breadcrumb, Markdown, Alert } from "@upmind-automation/upmind-ui";
 import BasketActions from "./components/BasketActions.vue";
 import ConfigErrors from "../product/components/ConfigErrors.vue";
 import ConfigSkeleton from "../product/components/ConfigSkeleton.vue";
@@ -306,6 +314,7 @@ const {
   meta: productMeta,
   model,
   product,
+  externalErrors,
   validationErrors,
   productImage,
   updateQuantity,
