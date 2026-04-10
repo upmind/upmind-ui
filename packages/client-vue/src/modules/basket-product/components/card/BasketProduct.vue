@@ -143,7 +143,10 @@ const upsellOptions = computed(() =>
 const filteredUpsells = computed(() => {
   return compact(
     map(
-      resolveUpsells(config?.options?.value) as BasketOptionSummary[],
+      resolveUpsells(
+        config?.options?.value,
+        config?.model?.value?.options
+      ) as BasketOptionSummary[],
       upsell => {
         const { data } = productConfig.with({
           optionGroup: () => resolveOptionGroup(upsell),
@@ -249,8 +252,9 @@ const optionsModel = computed({
   set: (value: OptionTogglePayload) => {
     if (!config || !value) return;
     const { option, value: optValue, enabled } = value;
-    config.toggleOption(option, optValue.id, enabled);
-    debouncedUpdate();
+    config
+      .toggleOption(option, optValue.id, enabled)
+      .then(() => config.update());
   }
 });
 
