@@ -12,6 +12,7 @@ import {
   filter,
   find,
   flatMap,
+  includes,
   isEmpty,
   map,
   reduce
@@ -52,6 +53,16 @@ export const useBasketProductInline = (bpid: string) => {
   });
 
   // --- private
+
+  const preConfiguredIds = compact(
+    map(
+      filter(
+        (basketProduct.upsells ?? []) as BasketOptionSummary[],
+        "meta.toggle.selected"
+      ),
+      "meta.toggle.valueId"
+    )
+  );
 
   /**
    * Checks whether a specific option value has upsells enabled by resolving
@@ -101,6 +112,10 @@ export const useBasketProductInline = (bpid: string) => {
    * available (includes coupon-adjusted pricing), otherwise falls back to
    * catalog-level data from the basket response.
    *
+   * Options that were already selected before the inline machine was spawned
+   * (i.e. configured on the full product page) are excluded — they are managed
+   * elsewhere and should not appear as inline toggles.
+   *
    * @param machineOptions - Available option lookups from the product machine.
    * @param modelOptions - Current model selections (reflects toggle state).
    */
@@ -115,7 +130,13 @@ export const useBasketProductInline = (bpid: string) => {
     const selected = flatMap(modelOptions, group =>
       map(group, (choice, id) => ({ product_id: choice.productId ?? id }))
     );
-    return parseOptionUpsells(selected as any, machineOptions);
+    const summaries = parseOptionUpsells(selected as any, machineOptions);
+
+    // Exclude options that were pre-configured before inline editing began.
+    return filter(
+      summaries,
+      s => !includes(preConfiguredIds, s.meta.toggle?.valueId)
+    );
   }
 
   // --- computed
@@ -153,6 +174,7 @@ export const useBasketProductInline = (bpid: string) => {
     /**
      * Resolves upsell summaries with coupon-adjusted pricing when
      * machine options are available, otherwise returns catalog data.
+     * Excludes pre-configured options automatically.
      */
     resolveUpsells,
 
