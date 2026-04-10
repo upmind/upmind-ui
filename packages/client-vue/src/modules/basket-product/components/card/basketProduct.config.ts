@@ -56,7 +56,7 @@ export default {
     },
     option: {
       row: cva("flex items-center justify-between"),
-      root: cva("flex flex-col gap-2"),
+      root: cva("flex flex-col"),
       upsell: cva(
         "border-surface flex flex-col gap-4 border-t px-6 py-6 lg:px-8"
       ),
