@@ -4,23 +4,13 @@
     class="flex items-center gap-2"
     data-testid="basket-product-term-selector"
   >
-    <SelectCards
-      id="inline-term"
-      name="inline-term"
+    <Select
+      v-model="selectedTerm"
       :items="parsedTerms"
-      :model-value="selectedTerm"
       :disabled="disabled || processing"
       :placeholder="t('form.select_option.placeholder')"
-      content-class="max-h-74!"
-      @update:modelValue="doUpdateTerm"
-    >
-      <template #item="slotProps">
-        <TermCard v-bind="slotProps.item" layout="inline" :summary="false" />
-      </template>
-      <template #dropdown-item="slotProps">
-        <TermCard v-bind="slotProps.item" layout="inline" :summary="false" />
-      </template>
-    </SelectCards>
+      size="md"
+    />
   </div>
 </template>
 
@@ -30,15 +20,17 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- components
-import { SelectCards } from "@upmind-automation/upmind-ui";
-import TermCard from "../../../../product/components/terms/TermCard.vue";
+import { Select } from "@upmind-automation/upmind-ui";
+
+// --- internal
+import { parseBillingCycle } from "@upmind-automation/headless";
 
 // --- utils
 import { map, toNumber } from "lodash-es";
 
 // --- types
 import type { TermDetails } from "@upmind-automation/headless";
-import type { SelectCardsItemProps } from "@upmind-automation/upmind-ui";
+import type { SelectItemProps } from "@upmind-automation/upmind-ui";
 // -----------------------------------------------------------------------------
 
 const props = defineProps<{
@@ -58,21 +50,18 @@ const { t } = useI18n();
 
 const hasTerms = computed(() => (props.terms?.length ?? 0) > 1);
 
-const selectedTerm = computed(() => props.modelValue?.toString());
+const selectedTerm = computed({
+  get: () => props.modelValue?.toString(),
+  set: (value: string | undefined) => {
+    if (props.disabled || !value) return;
+    emits("update:modelValue", toNumber(value));
+  }
+});
 
-const parsedTerms = computed<SelectCardsItemProps[]>(() =>
-  map(props.terms, (item: TermDetails, index: number) => ({
-    id: item.cycle?.toString(),
-    value: item.cycle?.toString(),
-    label: item.title ?? "",
-    item,
-    index,
-    modelValue: selectedTerm.value
+const parsedTerms = computed<SelectItemProps[]>(() =>
+  map(props.terms, (item: TermDetails) => ({
+    value: item.cycle?.toString() ?? "",
+    label: parseBillingCycle(item.cycle ?? 0).numeric
   }))
 );
-
-function doUpdateTerm(value: string | number) {
-  if (props.disabled) return;
-  emits("update:modelValue", toNumber(value));
-}
 </script>

@@ -18,20 +18,26 @@ import {
   useUischemaTitle,
   useProductName,
   parseProductDetails,
-  parseBasketProductModel
+  parseBasketProductModel,
+  parseTermDetails,
+  parseSubproductDetails
 } from "../product/utils";
 
 import {
+  compact,
   filter,
   find,
   findLast,
   first,
+  flatMap,
   forEach,
   get,
   has,
+  includes,
   isEmpty,
   isNil,
   isObjectLike,
+  isString,
   map,
   mapValues,
   omitBy,
@@ -57,6 +63,7 @@ import {
 
 import type {
   BasketProduct,
+  BasketOptionSummary,
   IBasketProductModel,
   IBasketSubproductModel
 } from "./types";
@@ -65,10 +72,13 @@ import type {
   PromotionDetails,
   ProductModel,
   SubproductModel,
+  SubproductDetails,
+  SubproductValue,
   ProductSummaryDetailWithPrice,
   ProductSummaryDetail,
   PriceDetail,
-  ProductProps
+  ProductProps,
+  Benefit
 } from "../product";
 
 // -----------------------------------------------------------------------------
@@ -99,7 +109,15 @@ export const parseBasketProduct = (
     details: [], // will be built up below
 
     // --- errors
-    errors: errors
+    errors: errors,
+
+    // --- inline editing lookups
+    availableTerms: parseTermDetails(raw.product, raw.base_price_currency_id),
+    availableOptions: parseSubproductDetails(
+      raw.product?.products_options,
+      raw.billing_cycle_months,
+      raw.base_price_currency_id
+    )
   };
 
   // --- because we are a full basket product, we may have a service identifier
@@ -124,9 +142,25 @@ export const parseBasketProduct = (
         basketProduct.pricing.push(subproduct);
 
       subproduct.name = "option";
+
+      // Enrich with toggle metadata from available options
+      const toggle = resolveOptionToggle(
+        subproduct.id,
+        basketProduct.availableOptions
+      );
+      if (toggle) {
+        set(subproduct, "meta.toggle", toggle);
+      }
+
       basketProduct.details.push(subproduct as ProductSummaryDetailWithPrice);
     }
   });
+
+  // --- build upsells from available options (selected + unselected)
+  basketProduct.upsells = parseOptionUpsells(
+    raw?.options,
+    basketProduct.availableOptions
+  );
 
   // ---
   forEach(raw?.attributes, attribute => {
@@ -326,6 +360,72 @@ export function parseTermSummary(
   }
 
   return summary;
+}
+
+export function resolveOptionToggle(
+  productId: string | undefined,
+  availableOptions?: SubproductDetails[]
+) {
+  if (!productId || !availableOptions) return undefined;
+
+  for (const option of availableOptions) {
+    const value = find(option.values, { id: productId });
+    if (value) {
+      return {
+        categoryId: option.id,
+        valueId: value.id,
+        cycle: value.cycle ?? 0,
+        selected: true,
+        benefits: map(value.benefits, (b: Benefit) =>
+          isString(b) ? { label: b } : b
+        )
+      };
+    }
+  }
+
+  return undefined;
+}
+
+export function parseOptionUpsells(
+  selectedOptions: IBasketProduct[],
+  availableOptions?: SubproductDetails[]
+): BasketOptionSummary[] {
+  if (isEmpty(availableOptions)) return [];
+
+  const selectedIds = map(selectedOptions, "product_id");
+
+  return flatMap(availableOptions, option =>
+    compact(
+      map(option.values, (value: SubproductValue) => {
+        const selected = includes(selectedIds, value.id);
+        if (!selected && !value.price) return undefined;
+
+        return {
+          id: value.id,
+          name: "option",
+          title: value.title,
+          category: option.title,
+          cycle: value.cycle,
+          quantity: value.quantity,
+          promotions: value.promotions,
+          uiMeta: value.uiMeta,
+          meta: {
+            ...value.meta,
+            toggle: {
+              categoryId: option.id,
+              valueId: value.id,
+              cycle: value.cycle ?? 0,
+              selected,
+              benefits: map(value.benefits, (b: Benefit) =>
+                isString(b) ? { label: b } : b
+              )
+            }
+          },
+          price: value.price
+        } as BasketOptionSummary;
+      })
+    )
+  );
 }
 
 export function parseProvisionFieldSummary(

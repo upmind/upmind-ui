@@ -7,11 +7,12 @@ import { useConfig } from "../config";
 import { useI18n } from "../system";
 
 // --- utils
-import { filter, find, isEmpty, reduce } from "lodash-es";
+import { compact, filter, find, isEmpty, map, reduce } from "lodash-es";
 import { DetailedError, ErrorOrigin, responseCodes } from "../../utils";
+import { parseOptionUpsells } from "./utils";
 
 // --- types
-import type { BasketProduct } from "./types";
+import type { BasketProduct, BasketOptionSummary } from "./types";
 import type { SubproductDetails, SubproductValue } from "../product";
 // -----------------------------------------------------------------------------
 
@@ -86,6 +87,26 @@ export const useBasketProductInline = (bpid: string) => {
     );
   }
 
+  /**
+   * Resolves upsell summaries from the product machine's option data when
+   * available (includes coupon-adjusted pricing), otherwise falls back to
+   * catalog-level data from the basket response.
+   */
+  function resolveUpsells(
+    machineOptions?: SubproductDetails[]
+  ): BasketOptionSummary[] {
+    const catalogUpsells = (basketProduct.upsells ??
+      []) as BasketOptionSummary[];
+    if (isEmpty(machineOptions)) return catalogUpsells;
+
+    const selected = compact(
+      map(filter(catalogUpsells, "meta.toggle.selected"), u => ({
+        product_id: u.id
+      }))
+    );
+    return parseOptionUpsells(selected as any, machineOptions);
+  }
+
   // --- computed
 
   /** Inline control flags for this product. */
@@ -115,6 +136,12 @@ export const useBasketProductInline = (bpid: string) => {
      * Excludes required options and those without `optionUpsellEnabled`.
      */
     filterUpsellOptions,
+
+    /**
+     * Resolves upsell summaries with coupon-adjusted pricing when
+     * machine options are available, otherwise returns catalog data.
+     */
+    resolveUpsells,
 
     /** Inline control flags for this product. */
     meta
