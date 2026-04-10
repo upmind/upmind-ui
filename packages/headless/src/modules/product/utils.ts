@@ -733,6 +733,7 @@ export const parseSubproductDetails = (
       const productDetails = parseProductDetails(rawSubproduct);
       const value: SubproductValue = {
         ...productDetails,
+        uiMeta: rawSubproduct?.meta ?? {},
         cycle: price?.cycle ?? productDetails.cycle,
         price: price?.price,
         pricing: pricing,

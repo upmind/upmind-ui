@@ -50,13 +50,10 @@ export const useBasketProductInline = (bpid: string) => {
     optionGroup: SubproductDetails,
     option: SubproductValue
   ): boolean {
-    const { data } = parentConfig.with({
+    const { data, ui } = parentConfig.with({
       product: () => basketProduct,
+      optionGroup: () => optionGroup,
       option: () => option
-    });
-    const { ui } = parentConfig.with({
-      product: () => basketProduct,
-      optionGroup: () => optionGroup
     });
 
     return !!data.optionUpsellEnabled && ui.optionUpsells.isVisible;
