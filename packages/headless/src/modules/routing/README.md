@@ -65,3 +65,52 @@ Every funnel must conclude by transitioning to a state defined as `type: 'final'
 | **Specialized Activation** | User adds Web Hosting product. Application emits `SWITCH_FUNNEL: { funnelId: 'webHosting' }`. | `selectingFunnel` sets `activeFunnelId: 'webHosting'` $\rightarrow$ `guiding` invokes **Web Hosting Funnel**.                                                            |
 | **Funnel Chaining**        | Web Hosting Funnel hits `type: 'final'` state. It returns `{ nextFunnelId: 'express' }`.      | `guiding` receives `onDone`. `activeFunnelId` is set to `'express'`. $\rightarrow$ `selectingFunnel` invokes **Express Funnel**.                                         |
 | **Fallback to Default**    | Specialized Funnel hits `type: 'final'`. It returns `{ nextFunnelId: undefined }`.            | `guiding` receives `onDone`. `updateFunnelContextOnDone` sets `activeFunnelId` to `context.defaultFunnelId`. $\rightarrow$ `selectingFunnel` invokes **Default Funnel**. |
+
+---
+
+## 5. 👁️ Reactive Watchers
+
+Watchers are reactive subscriptions that run while the funnel is in `available`. They monitor app state and trigger navigation when conditions change.
+
+| Watcher | Monitors | Triggers |
+|---------|----------|----------|
+| `session-logout` | Session machine (via `subscribe()`) | Navigate to `SESSION_END` on logout |
+| `basket-unavailable` | Basket meta (via `watch()`) | Navigate to `BASKET_UNAVAILABLE` |
+| `basket-empty` | Basket meta (via `watch()`) | Navigate to `BASKET_EMPTY` |
+
+Watchers are registered per-funnel in the app's configuration and started/stopped automatically by the `watcherSubscription` invoked callback.
+
+> See [docs/watchers.md](./docs/watchers.md) for patterns and implementation details.
+
+---
+
+## 6. 🪟 Overlay Routes
+
+Named routes that render modals/drawers on top of the current page (e.g., `/auth` for login). They use `QUERY_PARAMS.RETURN_URL` and `QUERY_PARAMS.CANCEL_URL` to navigate back when the overlay is closed or dismissed.
+
+> See [docs/overlay-routes.md](./docs/overlay-routes.md) for the full overlay route API.
+
+---
+
+## 7. 🔑 Query Parameter Conventions
+
+All query parameter keys use the `QUERY_PARAMS` enum from `@upmind-automation/types`:
+
+```typescript
+import { QUERY_PARAMS } from "@upmind-automation/types";
+
+query: { [QUERY_PARAMS.RETURN_URL]: route.fullPath }
+```
+
+---
+
+## 📚 Documentation
+
+| Document | Contents |
+|----------|----------|
+| [docs/README.md](./docs/README.md) | Overview and quick start |
+| [docs/architecture.md](./docs/architecture.md) | State machines, data flow, ADRs |
+| [docs/watchers.md](./docs/watchers.md) | Watcher patterns and implementation |
+| [docs/overlay-routes.md](./docs/overlay-routes.md) | Auth overlay and route-based modals |
+| [docs/gotchas.md](./docs/gotchas.md) | Edge cases and known issues |
+| [docs/CHANGELOG.md](./docs/CHANGELOG.md) | Version history |
