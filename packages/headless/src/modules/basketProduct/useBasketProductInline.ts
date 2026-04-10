@@ -7,13 +7,25 @@ import { useConfig } from "../config";
 import { useI18n } from "../system";
 
 // --- utils
-import { compact, filter, find, isEmpty, map, reduce } from "lodash-es";
+import {
+  compact,
+  filter,
+  find,
+  flatMap,
+  isEmpty,
+  map,
+  reduce
+} from "lodash-es";
 import { DetailedError, ErrorOrigin, responseCodes } from "../../utils";
 import { parseOptionUpsells } from "./utils";
 
 // --- types
 import type { BasketProduct, BasketOptionSummary } from "./types";
-import type { SubproductDetails, SubproductValue } from "../product";
+import type {
+  ProductModel,
+  SubproductDetails,
+  SubproductValue
+} from "../product";
 // -----------------------------------------------------------------------------
 
 /**
@@ -88,18 +100,20 @@ export const useBasketProductInline = (bpid: string) => {
    * Resolves upsell summaries from the product machine's option data when
    * available (includes coupon-adjusted pricing), otherwise falls back to
    * catalog-level data from the basket response.
+   *
+   * @param machineOptions - Available option lookups from the product machine.
+   * @param modelOptions - Current model selections (reflects toggle state).
    */
   function resolveUpsells(
-    machineOptions?: SubproductDetails[]
+    machineOptions?: SubproductDetails[],
+    modelOptions?: ProductModel["options"]
   ): BasketOptionSummary[] {
     const catalogUpsells = (basketProduct.upsells ??
       []) as BasketOptionSummary[];
     if (isEmpty(machineOptions)) return catalogUpsells;
 
-    const selected = compact(
-      map(filter(catalogUpsells, "meta.toggle.selected"), u => ({
-        product_id: u.id
-      }))
+    const selected = flatMap(modelOptions, group =>
+      map(group, (choice, id) => ({ product_id: choice.productId ?? id }))
     );
     return parseOptionUpsells(selected as any, machineOptions);
   }

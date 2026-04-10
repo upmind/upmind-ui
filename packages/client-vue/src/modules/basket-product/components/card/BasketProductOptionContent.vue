@@ -21,7 +21,7 @@
         <Switch
           v-if="props.upsell && summary.meta.toggle"
           :id="`option-${summary.meta.toggle.categoryId}-${summary.meta.toggle.valueId}`"
-          :defaultChecked="summary.meta.toggle?.selected ?? false"
+          :checked="summary.meta.toggle?.selected ?? false"
           :disabled="error || processing"
           size="sm"
           @update:checked="doToggle"
