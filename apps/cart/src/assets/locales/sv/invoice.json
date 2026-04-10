@@ -1,6 +1,6 @@
 {
   "order_complete": "Beställningen är klar!",
-  "order_complete_msg": "Vi har skickat ett bekräftelsemejl med detaljerna om din beställning. Där hittar du allt du behöver veta om ditt köp.",
+  "order_complete_msg": "Vi har skickat ett bekräftelsemejl till dig med information om din beställning, tillsammans med allt du behöver veta om ditt köp.",
   "order_free": "Inget kvar att betala",
   "order_free_msg": "Din beställning har gjorts. Ingen betalning krävs.",
   "order_locked": "Faktura låst",
