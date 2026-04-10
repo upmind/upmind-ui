@@ -2,7 +2,7 @@
 # deploy-gcs.sh — Upload built cart assets to a GCS bucket.
 #
 # Usage:
-#   bash scripts/deploy-gcs.sh --bucket upmind-cart [--dist dist] [--dry-run] [--show-progress]
+#   bash scripts/deploy-gcs.sh --bucket upmind-cart [--prefix production] [--dist dist] [--dry-run] [--show-progress]
 #
 # Environment variables (all optional, pulled from CI automatically):
 #   GOOGLE_APPLICATION_CREDENTIALS  Path to GCP service account JSON
@@ -17,6 +17,7 @@ set -euo pipefail
 
 # Defaults
 BUCKET=""
+PREFIX=""
 DIST_DIR="dist"
 DRY_RUN=false
 SHOW_PROGRESS=false
@@ -24,6 +25,7 @@ SHOW_PROGRESS=false
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --bucket)         BUCKET="$2";        shift 2 ;;
+    --prefix)         PREFIX="$2";        shift 2 ;;
     --dist)           DIST_DIR="$2";      shift 2 ;;
     --show-progress)  SHOW_PROGRESS=true; shift   ;;
     --dry-run)        DRY_RUN=true;       shift   ;;
@@ -42,12 +44,17 @@ DEPLOY_TAG="${CI_COMMIT_TAG:-local}"
 PIPELINE_ID="${CI_PIPELINE_ID:-local}"
 DEPLOY_DATE="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
-GCS_URL="gs://${BUCKET}"
+if [[ -n "$PREFIX" ]]; then
+  GCS_URL="gs://${BUCKET}/${PREFIX}"
+else
+  GCS_URL="gs://${BUCKET}"
+fi
 
 cat <<EOF
 GCS Asset Deploy
 
 Bucket    ${BUCKET}
+Prefix    ${PREFIX:-/}
 Source    ${DIST_DIR}/
 Commit    ${COMMIT_SHA}
 Tag       ${DEPLOY_TAG}
