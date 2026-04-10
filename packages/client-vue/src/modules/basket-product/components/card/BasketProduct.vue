@@ -154,17 +154,6 @@ const filteredUpsells = computed(() => {
         });
         if (!data.optionUpsellEnabled) return undefined;
 
-        // Hide upsells already selected when the machine was spawned (configured elsewhere).
-        if (upsell.meta.toggle?.selected) {
-          if (
-            some(config?.raw?.value?.basketProduct?.options, [
-              "product_id",
-              upsell.meta.toggle?.valueId
-            ])
-          )
-            return undefined;
-        }
-
         return { upsell, benefits: data.optionBenefits };
       }
     )
