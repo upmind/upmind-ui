@@ -1,7 +1,7 @@
 # ADR 018: Funnel Reactive Watchers
 
 **Date:** March 2026
-**Status:** Proposed
+**Status:** Accepted (Implemented April 2026, FE-1365)
 **Authors:** Dominic da Costa
 **Related:** [ADR 005: XState State Management](./005-xstate-state-management.md), [ADR 017: Funnel Navigation via State Meta](./017-funnel-navigation-via-state-meta.md)
 
@@ -155,9 +155,49 @@ AFTER:  watch fires → navigate() → RESOLVE → funnel guard → awaitResolve
 
 ---
 
+## Implementation Notes (April 2026)
+
+Discovered during FE-1365 implementation:
+
+### Subscribe vs Watch for XState Transitions
+
+Vue `watch()` on computed `sessionMeta` does **not** reliably detect XState state transitions in the non-component watcher context (invoked callback). The `sessionLogout` watcher uses `subscribe()` (direct XState service subscription) instead.
+
+```typescript
+// ❌ Unreliable in invoked callback context
+const stop = watch(sessionMeta, ({ isAuthenticated }) => { ... });
+
+// ✅ Direct XState subscription — fires synchronously on every transition
+const { unsubscribe } = subscribe(state => {
+  const isAuthenticated = stateMatches(state, "client");
+  ...
+});
+```
+
+Basket watchers still use Vue `watch()` since they observe Vue computed refs that fire reliably.
+
+### State Tracking Before Resolution Gate
+
+All watchers must update tracking flags **before** the `isResolved` gate. Otherwise, transitions occurring while the funnel is unresolved are silently lost:
+
+```typescript
+// ✅ Track first, gate second
+const didLogout = !isAuthenticated && wasAuthenticated;
+wasAuthenticated = isAuthenticated; // ← tracked before gate
+if (!routingMeta.value.isResolved) return;
+if (didLogout) navigate(...);
+
+// ❌ Gate blocks tracking — transitions lost
+if (!routingMeta.value.isResolved) return;
+wasAuthenticated = isAuthenticated; // ← never reached when unresolved
+```
+
+---
+
 ## Related Documents
 
 - [ADR 005: XState State Management](./005-xstate-state-management.md)
 - [ADR 017: Funnel Navigation via State Meta](./017-funnel-navigation-via-state-meta.md)
 - Linear: [FE-2546](https://linear.app/upmind-automation/issue/FE-2546)
 - Linear: [FE-2581](https://linear.app/upmind-automation/issue/FE-2581)
+- Linear: [FE-1365](https://linear.app/upmind-automation/issue/FE-1365)
