@@ -650,11 +650,11 @@ export default {
       return { target: context.targetRoute ?? { name: ROUTE.CHECKOUT } };
     }
 
-    // Reject when not authenticated — billing requires a client_id to load.
-    // Must reject (not resolve) so the funnel's onError → isSession guard fires.
+    // Skip billing when not authenticated — billing requires a client_id
+    // to load. Checkout handles the auth redirect.
     const { meta: authMeta } = useSession();
     if (!authMeta.value.isAuthenticated) {
-      return Promise.reject({ target: { name: ROUTE.SESSION } });
+      return { target: { name: ROUTE.SESSION } };
     }
 
     // Load billing and check if it still needs input
