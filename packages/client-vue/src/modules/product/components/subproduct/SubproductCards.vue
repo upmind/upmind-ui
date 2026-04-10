@@ -171,10 +171,7 @@ const mapComponent = (name: string) => {
 
 const optionsWithConfig = computed(() =>
   map(props.subproduct?.values, option => {
-    const { data } = props.meta.with({
-      optionGroup: () => props.subproduct,
-      option: () => option
-    });
+    const { data } = props.meta.with({ option: () => option });
     return {
       ...option,
       groupLabel: data.optionGroupLabel,

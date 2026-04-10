@@ -9,7 +9,9 @@
       </strong>
 
       <Tooltip
-        v-if="props.meta?.overridden"
+        v-if="
+          props.meta?.overridden && !(props.meta?.free && props.meta?.freeTrial)
+        "
         :label="t('text.price_manually_adjusted_msg')"
       >
         <Badge
