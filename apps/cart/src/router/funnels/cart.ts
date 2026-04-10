@@ -207,8 +207,7 @@ export default <FunnelProps>{
                   name: `${String(currentRoute?.name ?? ROUTE.BASKET)}--auth`,
                   query: {
                     mode: "login",
-                    returnRoute: ROUTE.BASKET,
-                    fallbackRoute: ROUTE.CATALOGUE,
+                    [QUERY_PARAMS.CANCEL_URL]: ROUTE.CATALOGUE,
                     ...data?.target?.query
                   }
                 })
@@ -586,7 +585,6 @@ export default <FunnelProps>{
                   name: `${String(currentRoute?.name ?? ROUTE.CHECKOUT)}--auth`,
                   query: {
                     mode: "login",
-                    returnRoute: ROUTE.CHECKOUT,
                     ...data?.target?.query
                   }
                 })

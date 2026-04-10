@@ -3,6 +3,7 @@ import { watch } from "vue";
 
 // --- internal
 import {
+  stateMatches,
   useBasket,
   useRoutingEngine,
   useSession
@@ -31,21 +32,30 @@ const sessionLogout: FunnelWatcher = {
   id: "session-logout",
   handler: () => {
     const { meta: routingMeta, navigate } = useRoutingEngine();
-    const { meta: sessionMeta } = useSession();
+    const { subscribe, meta: sessionMeta } = useSession();
 
     let wasAuthenticated = sessionMeta.value.isAuthenticated;
 
-    const stop = watch(sessionMeta, ({ isAuthenticated }) => {
-      if (!routingMeta.value.isResolved) return;
-
-      if (!isAuthenticated && wasAuthenticated) {
-        navigate({ name: ROUTE.SESSION_END });
-      }
-
+    const { unsubscribe } = subscribe(state => {
+      const isAuthenticated = stateMatches(state, "client");
+      const didLogout = !isAuthenticated && wasAuthenticated;
       wasAuthenticated = isAuthenticated;
+
+      if (!didLogout) return;
+
+      if (routingMeta.value.isResolved) {
+        navigate({ name: ROUTE.SESSION_END });
+      } else {
+        // Await resolution then navigate if not already at SESSION_END
+        const stop = watch(routingMeta, ({ isResolved }) => {
+          if (!isResolved) return;
+          stop();
+          navigate({ name: ROUTE.SESSION_END });
+        });
+      }
     });
 
-    return stop;
+    return unsubscribe;
   }
 };
 
@@ -63,17 +73,15 @@ const basketUnavailable: FunnelWatcher = {
     let wasUnavailable = basketMeta.value.isUnavailable;
 
     const stop = watch(basketMeta, ({ isUnavailable }) => {
+      const becameUnavailable =
+        isUnavailable && !wasUnavailable && sessionMeta.value.isAuthenticated;
+      wasUnavailable = isUnavailable;
+
       if (!routingMeta.value.isResolved) return;
 
-      if (
-        isUnavailable &&
-        !wasUnavailable &&
-        sessionMeta.value.isAuthenticated
-      ) {
+      if (becameUnavailable) {
         navigate({ name: ROUTE.BASKET_UNAVAILABLE });
       }
-
-      wasUnavailable = isUnavailable;
     });
 
     return stop;
@@ -95,19 +103,19 @@ const basketEmpty: FunnelWatcher = {
     const stop = watch(
       basketMeta,
       ({ hasProducts, isUnavailable, isCheckout, isComplete }) => {
-        if (!routingMeta.value.isResolved) return;
-
-        if (
+        const becameEmpty =
           !isUnavailable &&
           !hasProducts &&
           hadProducts &&
           !isCheckout &&
-          !isComplete
-        ) {
+          !isComplete;
+        hadProducts = hasProducts;
+
+        if (!routingMeta.value.isResolved) return;
+
+        if (becameEmpty) {
           navigate({ name: ROUTE.BASKET_EMPTY });
         }
-
-        hadProducts = hasProducts;
       }
     );
 

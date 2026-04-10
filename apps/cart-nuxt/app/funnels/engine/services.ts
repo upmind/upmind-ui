@@ -39,7 +39,7 @@ import { useRouter, type RouteLocationGeneric } from "vue-router";
  */
 async function ensureBidAuth(
   context: FunnelContext,
-  returnRoute?: FunnelTarget
+  returnUrl?: FunnelTarget
 ): Promise<string | undefined> {
   const { targetRoute, currentRoute } = context;
   const route = (targetRoute ?? currentRoute) as RouteLocationGeneric;
@@ -56,10 +56,10 @@ async function ensureBidAuth(
     const { router } = useRoutingEngine();
     // Resolve the returnUrl from the caller's route definition (with bid merged),
     // falling back to the current route path or the basket route.
-    const returnUrl = returnRoute
+    const returnUrl = returnUrl
       ? router.resolve({
-          ...returnRoute,
-          params: { segment: "basket", bid: basketId, ...returnRoute.params }
+          ...returnUrl,
+          params: { segment: "basket", bid: basketId, ...returnUrl.params }
         }).fullPath
       : route?.fullPath ||
         route?.path ||
@@ -70,7 +70,7 @@ async function ensureBidAuth(
       target: {
         name: ROUTE.SESSION,
         params: { segment: "basket", bid: basketId },
-        query: { returnUrl }
+        query: { [QUERY_PARAMS.RETURN_URL]: returnUrl }
       }
     } as FunnelResponse);
   }
@@ -408,7 +408,7 @@ export default {
       return Promise.reject();
     }
 
-    const returnUrl = targetRoute?.query?.returnUrl?.toString();
+    const returnUrl = targetRoute?.query?.[QUERY_PARAMS.RETURN_URL]?.toString();
     const resolved = returnUrl ? router.resolve(returnUrl) : undefined;
     const isSessionRoute = includes(
       [
@@ -473,7 +473,7 @@ export default {
           target: {
             name: ROUTE.SESSION,
             params: { segment: "basket", bid: basketId },
-            query: { returnUrl }
+            query: { [QUERY_PARAMS.RETURN_URL]: returnUrl }
           }
         } as FunnelResponse);
       }
@@ -527,7 +527,7 @@ export default {
       return Promise.reject({
         target: {
           name: ROUTE.SESSION,
-          query: { returnUrl }
+          query: { [QUERY_PARAMS.RETURN_URL]: returnUrl }
         }
       } as FunnelResponse);
     }
