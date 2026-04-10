@@ -626,9 +626,7 @@ export const parseTermDetails = (
   currencyIdOrOverride?: string | boolean
 ): TermDetails[] => {
   const currencyId =
-    typeof currencyIdOrOverride === "string"
-      ? currencyIdOrOverride
-      : undefined;
+    typeof currencyIdOrOverride === "string" ? currencyIdOrOverride : undefined;
   const priceOptionOverride =
     typeof currencyIdOrOverride === "boolean"
       ? currencyIdOrOverride
