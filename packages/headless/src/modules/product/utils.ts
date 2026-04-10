@@ -623,9 +623,22 @@ export const parseMeta = (
 
 export const parseTermDetails = (
   raw: IProduct,
-  priceOptionOverride?: boolean
+  currencyIdOrOverride?: string | boolean
 ): TermDetails[] => {
-  return map(orderBy(raw?.prices, "billing_cycle_months"), rawTerm => {
+  const currencyId =
+    typeof currencyIdOrOverride === "string"
+      ? currencyIdOrOverride
+      : undefined;
+  const priceOptionOverride =
+    typeof currencyIdOrOverride === "boolean"
+      ? currencyIdOrOverride
+      : undefined;
+
+  const prices = currencyId
+    ? filter(raw?.prices, { currency_id: currencyId })
+    : raw?.prices;
+
+  return map(orderBy(prices, "billing_cycle_months"), rawTerm => {
     const details: TermDetails = parseSummaryDetailWithPrice(rawTerm, raw);
 
     details.meta.overridden = details.meta.overridden && !priceOptionOverride;
@@ -645,7 +658,8 @@ export const parseTermDetails = (
 
 export const parseSubproductDetails = (
   data?: (IProductAttribute | IProductOption)[],
-  cycle?: number
+  cycle?: number,
+  currencyId?: string
 ): SubproductDetails[] => {
   const { includesTax } = useBrand();
 
@@ -685,6 +699,11 @@ export const parseSubproductDetails = (
         }
       });
 
+      // filter prices by currency if provided (eg basket products have a known currency)
+      const prices = currencyId
+        ? filter(rawSubproduct.prices, { currency_id: currencyId })
+        : rawSubproduct.prices;
+
       // check EARLY if we have a price for one of the following:
       //  * no billing cycle set
       //  * a one off price
@@ -693,7 +712,7 @@ export const parseSubproductDetails = (
       const valid =
         isNil(cycle) ||
         rawSubproduct.billing_cycle_months == 0 ||
-        some(rawSubproduct.prices, ["billing_cycle_months", cycle]);
+        some(prices, ["billing_cycle_months", cycle]);
 
       // bail if the value is not valid, ie has no price that matches the current billing cycle
       if (!valid) return result;
@@ -702,14 +721,12 @@ export const parseSubproductDetails = (
       const values: SubproductValue[] = get(option, "values", []);
 
       // ---
-      const pricing: ProductSummaryDetailWithPrice[] = map(
-        rawSubproduct.prices,
-        rawPrice =>
-          parseSummaryDetailWithPrice(
-            rawPrice,
-            rawSubproduct,
-            rawSubproduct.category.price_override
-          )
+      const pricing: ProductSummaryDetailWithPrice[] = map(prices, rawPrice =>
+        parseSummaryDetailWithPrice(
+          rawPrice,
+          rawSubproduct,
+          rawSubproduct.category.price_override
+        )
       );
 
       const price =
