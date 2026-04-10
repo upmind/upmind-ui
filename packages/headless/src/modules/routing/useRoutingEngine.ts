@@ -11,11 +11,13 @@ import routingEngine from "./routingEngine.machine";
 // --- utils
 import {
   contextMatches,
+  contextValue,
   DetailedError,
   ErrorOrigin,
   responseCodes,
   type ResponseError,
   stateMatches,
+  stateValue,
   stopService,
   useChildActor,
   useContext
@@ -221,9 +223,14 @@ export const useRoutingEngine = () => {
     event?: any
   ) {
     const targetName = typeof target === "string" ? target : target?.name;
-    const currentState = funnel.value?.state?.value;
-    const currentTargetName = currentState?.context?.targetRoute?.name;
-    const availableStateName = meta.value.availableStateName;
+    const currentTargetName = contextValue<string>(
+      funnel.value?.state,
+      "targetRoute.name"
+    );
+    const availableStateName = stateValue<string>(
+      funnel.value?.state,
+      "value.available"
+    );
     const alreadyResolved =
       meta.value.isResolved &&
       currentTargetName === targetName &&
