@@ -178,6 +178,14 @@
       </template>
 
       <template #errors>
+        <Alert
+          class="w-full"
+          v-if="externalErrors?.message"
+          color="danger"
+          variant="minimal"
+          icon="alert-triangle"
+          :title="externalErrors?.message"
+        />
         <ConfigErrors
           :visible="productMeta?.showErrors"
           :errors="validationErrors"
@@ -306,6 +314,7 @@ const {
   meta: productMeta,
   model,
   product,
+  externalErrors,
   validationErrors,
   productImage,
   updateQuantity,
