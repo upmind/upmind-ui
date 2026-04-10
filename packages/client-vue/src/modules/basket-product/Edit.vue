@@ -237,7 +237,7 @@ import { useBreadcrumbs } from "../../composables/useBreadcrumbs";
 import { useConfig, validateTemplate } from "@upmind-automation/headless";
 
 // --- components
-import { Breadcrumb, Markdown } from "@upmind-automation/upmind-ui";
+import { Breadcrumb, Markdown, Alert } from "@upmind-automation/upmind-ui";
 import BasketActions from "./components/BasketActions.vue";
 import ConfigErrors from "../product/components/ConfigErrors.vue";
 import ConfigSkeleton from "../product/components/ConfigSkeleton.vue";
