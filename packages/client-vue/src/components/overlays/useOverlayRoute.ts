@@ -10,6 +10,9 @@
 import { computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
+// --- internal
+import { useQueryParams, QUERY_PARAMS } from "@upmind-automation/headless";
+
 // --- utils
 import { find } from "lodash-es";
 
@@ -23,12 +26,13 @@ import type { OverlayType } from "@upmind-automation/headless";
  * Watches the current route's matched records for overlay meta
  * and exposes reactive state for rendering the correct overlay.
  *
- * NB: `returnRoute` query param holds a Vue Router **route name** (not a URL path).
- * Funnels set it when redirecting to an overlay, e.g. `returnRoute: ROUTE.CHECKOUT`.
+ * NB: `returnUrl` query param holds a Vue Router **route name** (not a URL path).
+ * Funnels set it when redirecting to an overlay, e.g. `returnUrl: ROUTE.CHECKOUT`.
  */
 export function useOverlayRoute() {
   const route = useRoute();
   const router = useRouter();
+  const { getParam } = useQueryParams();
 
   // --- state
 
@@ -70,14 +74,14 @@ export function useOverlayRoute() {
 
   /**
    * Close the overlay after a flow completes (e.g. auth success).
-   * Navigates to `returnRoute` if provided by the funnel, otherwise
+   * Navigates to `returnUrl` if provided by the funnel, otherwise
    * replaces the current URL with the parent route (strips overlay segment).
    * Uses replace() to keep browser history clean — no stale overlay routes.
    */
   function close(): void {
-    const returnRoute = route.query?.returnRoute as string | undefined;
-    if (returnRoute) {
-      router.push({ name: returnRoute });
+    const returnUrl = getParam(QUERY_PARAMS.RETURN_URL);
+    if (returnUrl) {
+      router.push(returnUrl);
     } else {
       router.replace(resolveParentRoute());
     }
@@ -88,8 +92,8 @@ export function useOverlayRoute() {
     if (window.history.state?.back) {
       router.back();
     } else {
-      const fallback = route.query.fallbackRoute as string | undefined;
-      router.push(fallback ? { name: fallback } : resolveParentRoute());
+      const cancelUrl = getParam(QUERY_PARAMS.CANCEL_URL);
+      router.push(cancelUrl ? { name: cancelUrl } : resolveParentRoute());
     }
   }
 
@@ -110,9 +114,9 @@ export function useOverlayRoute() {
     /** The overlay render type: 'modal' | 'drawer' */
     overlayType,
     // --- methods
-    /** Close the overlay, navigating to returnRoute or router.back() */
+    /** Close the overlay, navigating to returnUrl or router.back() */
     close,
-    /** Dismiss the overlay (backdrop), navigating back or to fallbackRoute */
+    /** Dismiss the overlay (backdrop), navigating back or to cancelUrl */
     dismiss
   };
 }

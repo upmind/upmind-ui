@@ -61,7 +61,7 @@ watch(
   { immediate: true }
 );
 
-/** Close after overlay flow completes (e.g. auth success) → returnRoute */
+/** Close after overlay flow completes (e.g. auth success) → returnUrl */
 function handleClose(): void {
   if (!drawerOpen.value) return;
   drawerOpen.value = false;
