@@ -264,7 +264,6 @@ function doResolve(model: any) {
 }
 
 function doReject() {
-  debugger;
   reject().then(() => emit("reject"));
 }
 
