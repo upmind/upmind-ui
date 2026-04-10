@@ -28,13 +28,7 @@
         />
 
         <h3 :class="styles.product.summary.title.text">
-          <component
-            :is="props.upsell ? 'span' : Link"
-            v-bind="!props.upsell && props.editRoute"
-            :class="!props.upsell && styles.product.summary.title.link"
-          >
-            {{ summary.title }}
-          </component>
+          {{ summary.title }}
         </h3>
 
         <Promotion
@@ -69,7 +63,7 @@
 
 <script lang="ts" setup>
 // --- components
-import { Link, Switch } from "@upmind-automation/upmind-ui";
+import { Switch } from "@upmind-automation/upmind-ui";
 import CurrentPrice from "../../../product/components/pricing/CurrentPrice.vue";
 import ExPrice from "../../../product/components/pricing/ExPrice.vue";
 import TermsDescription from "./components/TermsDescription.vue";
