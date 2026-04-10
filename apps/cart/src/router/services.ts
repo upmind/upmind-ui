@@ -108,7 +108,7 @@ async function ensureBidAuth(
     const { router } = useRoutingEngine();
     // Resolve the returnUrl from the caller's route definition (with bid merged),
     // falling back to the current route path or the basket route.
-    const returnUrl = returnUrl
+    const resolvedReturnUrl = returnUrl
       ? router.resolve({
           ...returnUrl,
           params: { segment: "basket", bid: basketId, ...returnUrl.params }
@@ -122,7 +122,7 @@ async function ensureBidAuth(
       target: {
         name: ROUTE.SESSION,
         params: { segment: "basket", bid: basketId },
-        query: { [QUERY_PARAMS.RETURN_URL]: returnUrl }
+        query: { [QUERY_PARAMS.RETURN_URL]: resolvedReturnUrl }
       }
     } as FunnelResponse);
   }
