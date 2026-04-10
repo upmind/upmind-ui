@@ -201,11 +201,12 @@ export const usePaymentDetail = (
       // SHOW if payment is NOT needed (free) to allow checkout without gateway or payment method
       // OR if a gateway is selected
       // OR if a existing payment method is selected
+      // OR if refreshing AND there are stored payment methods (so user can still act)
       showPaymentActions:
         !needsPayment ||
         hasSelectedGateway ||
         hasSelectedPaymentMethod ||
-        isRefreshing,
+        (isRefreshing && hasStoredPaymentMethods),
 
       // SHOW if payment details are available AND NOT free (or in ADD context)
       showPaymentSection:
