@@ -94,7 +94,7 @@ build base:
     - if: $CI_COMMIT_TAG =~ /^cart-v\d+(\.\d+)+-rc\d+$/
   script:
     # For Cloudflare pages
-    - cp apps/cart/_headers apps/cart/dist/_headers
+    - cp apps/cart/deploy/_headers apps/cart/dist/_headers
 
 (apps/velia) build:
   extends: .pnpm
