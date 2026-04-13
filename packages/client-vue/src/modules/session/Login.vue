@@ -37,7 +37,7 @@
           :active="templateMeta.hasActiveSection"
         >
           <Markdown
-            v-if="templateMeta.hasActiveSection"
+            v-if="templateMeta.hasActiveSection && loginTemplate?.body"
             tag="section"
             :model-value="loginTemplate.body"
           />
