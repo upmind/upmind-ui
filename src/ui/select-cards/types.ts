@@ -60,7 +60,14 @@ export type SelectCardsProps = PrimitiveBaseProps & {
   focusable?: boolean;
   to?: string;
 
-  uiConfig?: { select: CxOptions };
+  uiConfig?: {
+    select?: {
+      content?: CxOptions;
+      trigger?: CxOptions;
+      item?: CxOptions;
+      items?: CxOptions;
+    };
+  };
   class?: HTMLAttributes["class"];
   contentClass?: HTMLAttributes["class"];
   dataHover?: boolean;
