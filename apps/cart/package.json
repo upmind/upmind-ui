@@ -37,7 +37,7 @@
     "localazy": "localazy download && pnpm format",
     "deploy:production": "pnpm build && pnpm deploy:gcs:production && pnpm deploy:firebase:production",
     "deploy:staging": "pnpm build:staging && pnpm deploy:gcs:staging && pnpm deploy:firebase:staging",
-    "deploy:sprighost": "pnpm build && pnpm deploy:gcs:sprighost && pnpm deploy:firebase:sprighost",
+    "deploy:sprighost": "pnpm build:staging && pnpm deploy:firebase:sprighost",
     "deploy:gcs:production": "bash scripts/deploy-gcs.sh --bucket upmind-cart --prefix production",
     "deploy:gcs:production:dry-run": "bash scripts/deploy-gcs.sh --bucket upmind-cart --prefix production --dry-run",
     "deploy:gcs:staging": "bash scripts/deploy-gcs.sh --bucket upmind-cart-staging --prefix staging",
