@@ -8,7 +8,9 @@
       :ui-config="{
         pricing: { ex: [styles.card.pricing.ex] }
       }"
-    />
+    >
+      <template v-if="!props.meta?.overrides" #prefix>+</template>
+    </ExPrice>
 
     <Tooltip
       v-if="props.meta?.overrides && props.price"
@@ -42,7 +44,6 @@
 
     <Tooltip v-else :label="t('text.adds_to_price')">
       <span :class="styles.card.pricing.current">
-        <span>+</span>
         <CurrentPrice
           :class="props.class"
           :current-price="props.price?.currentPrice ?? ''"
@@ -53,7 +54,9 @@
           :ui-config="{
             pricing: { current: [styles.card.pricing.current] }
           }"
-        />
+        >
+          <template #prefix>+</template>
+        </CurrentPrice>
         <span
           v-if="
             props.meta?.oneoff &&
