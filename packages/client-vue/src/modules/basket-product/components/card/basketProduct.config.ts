@@ -39,13 +39,16 @@ export default {
       title: {
         root: cva("flex items-center gap-2"),
         link: cva("no-underline"),
-        text: cva("text-xl-tight font-medium break-all")
+        text: cva("text-xl-tight font-medium break-all no-underline")
       },
       icon: cva("[&>svg]:p-[2px]"),
       image: cva("image-radius m-0 h-12"),
       footer: {
         root: cva("flex flex-col justify-between gap-2 lg:flex-row"),
-        terms: cva("flex items-center gap-2"),
+        terms: {
+          root: cva("flex items-center gap-2"),
+          content: cva("max-h-74!")
+        },
         price: {
           root: cva("flex items-end justify-between gap-4 lg:justify-end"),
           container: cva(
@@ -60,7 +63,7 @@ export default {
       upsell: cva(
         "border-surface flex flex-col gap-4 border-t px-6 py-6 lg:px-8"
       ),
-      content: cva("flex items-center gap-2"),
+      content: cva("flex items-center gap-3"),
       footer: cva("flex flex-col items-end"),
       benefits: {
         list: cva("text-muted flex flex-col gap-1 text-sm"),
@@ -70,7 +73,9 @@ export default {
       }
     },
     pricing: {
-      current: cva("text-lg leading-7! font-medium md:text-xl"),
+      current: cva(
+        "shrink-0 text-lg leading-7! font-medium whitespace-nowrap md:text-xl"
+      ),
       ex: cva("text-sm! leading-5! italic")
     }
   }

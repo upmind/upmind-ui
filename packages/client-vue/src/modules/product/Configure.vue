@@ -136,7 +136,13 @@
         </Section>
       </template>
 
-      <template v-if="configMeta.ui.trustMessaging.isVisible" #markdown>
+      <template
+        v-if="
+          configMeta.ui.trustMessaging.isVisible &&
+          configMeta.data.trustMessagingMarkdown
+        "
+        #markdown
+      >
         <slot
           name="markdown"
           :product="product"
