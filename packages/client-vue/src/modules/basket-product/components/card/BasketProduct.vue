@@ -141,6 +141,8 @@ const upsellOptions = computed(() =>
 );
 
 const filteredUpsells = computed(() => {
+  if (!ui.optionUpsells.isVisible) return [];
+
   return compact(
     map(
       resolveUpsells(
