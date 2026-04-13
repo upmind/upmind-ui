@@ -72,11 +72,11 @@ Every funnel must conclude by transitioning to a state defined as `type: 'final'
 
 Watchers are reactive subscriptions that run while the funnel is in `available`. They monitor app state and trigger navigation when conditions change.
 
-| Watcher | Monitors | Triggers |
-|---------|----------|----------|
-| `session-logout` | Session machine (via `subscribe()`) | Navigate to `SESSION_END` on logout |
-| `basket-unavailable` | Basket meta (via `watch()`) | Navigate to `BASKET_UNAVAILABLE` |
-| `basket-empty` | Basket meta (via `watch()`) | Navigate to `BASKET_EMPTY` |
+| Watcher              | Monitors                            | Triggers                            |
+| -------------------- | ----------------------------------- | ----------------------------------- |
+| `session-logout`     | Session machine (via `subscribe()`) | Navigate to `SESSION_END` on logout |
+| `basket-unavailable` | Basket meta (via `watch()`)         | Navigate to `BASKET_UNAVAILABLE`    |
+| `basket-empty`       | Basket meta (via `watch()`)         | Navigate to `BASKET_EMPTY`          |
 
 Watchers are registered per-funnel in the app's configuration and started/stopped automatically by the `watcherSubscription` invoked callback.
 
@@ -106,11 +106,11 @@ query: { [QUERY_PARAMS.RETURN_URL]: route.fullPath }
 
 ## 📚 Documentation
 
-| Document | Contents |
-|----------|----------|
-| [docs/README.md](./docs/README.md) | Overview and quick start |
-| [docs/architecture.md](./docs/architecture.md) | State machines, data flow, ADRs |
-| [docs/watchers.md](./docs/watchers.md) | Watcher patterns and implementation |
+| Document                                           | Contents                            |
+| -------------------------------------------------- | ----------------------------------- |
+| [docs/README.md](./docs/README.md)                 | Overview and quick start            |
+| [docs/architecture.md](./docs/architecture.md)     | State machines, data flow, ADRs     |
+| [docs/watchers.md](./docs/watchers.md)             | Watcher patterns and implementation |
 | [docs/overlay-routes.md](./docs/overlay-routes.md) | Auth overlay and route-based modals |
-| [docs/gotchas.md](./docs/gotchas.md) | Edge cases and known issues |
-| [docs/CHANGELOG.md](./docs/CHANGELOG.md) | Version history |
+| [docs/gotchas.md](./docs/gotchas.md)               | Edge cases and known issues         |
+| [docs/CHANGELOG.md](./docs/CHANGELOG.md)           | Version history                     |

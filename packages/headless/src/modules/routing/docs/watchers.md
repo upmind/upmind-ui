@@ -65,7 +65,7 @@ return unsubscribe;
 
 Detects when a basket becomes unavailable (e.g., expired, deleted) and redirects to `BASKET_UNAVAILABLE`.
 
-**State tracking before gate:** The `wasUnavailable` flag is updated *before* the `isResolved` check. This ensures the transition is captured even when the funnel is still resolving.
+**State tracking before gate:** The `wasUnavailable` flag is updated _before_ the `isResolved` check. This ensures the transition is captured even when the funnel is still resolving.
 
 ```typescript
 const stop = watch(basketMeta, ({ isUnavailable }) => {
@@ -85,14 +85,21 @@ const stop = watch(basketMeta, ({ isUnavailable }) => {
 Detects when a basket loses all its products and redirects to `BASKET_EMPTY`.
 
 ```typescript
-const stop = watch(basketMeta, ({ hasProducts, isUnavailable, isCheckout, isComplete }) => {
-  const becameEmpty =
-    !isUnavailable && !hasProducts && hadProducts && !isCheckout && !isComplete;
-  hadProducts = hasProducts;
+const stop = watch(
+  basketMeta,
+  ({ hasProducts, isUnavailable, isCheckout, isComplete }) => {
+    const becameEmpty =
+      !isUnavailable &&
+      !hasProducts &&
+      hadProducts &&
+      !isCheckout &&
+      !isComplete;
+    hadProducts = hasProducts;
 
-  if (!routingMeta.value.isResolved) return;
-  if (becameEmpty) navigate({ name: ROUTE.BASKET_EMPTY });
-});
+    if (!routingMeta.value.isResolved) return;
+    if (becameEmpty) navigate({ name: ROUTE.BASKET_EMPTY });
+  }
+);
 ```
 
 > **🧪 For Testers:** Add a product to the basket, then remove it. Verify you're redirected to the empty basket page.
@@ -133,7 +140,7 @@ hadProducts = hasProducts;          // ← never reached when unresolved
 
 Use `subscribe()` when Vue's `watch()` doesn't reliably fire in the watcher context:
 
-| Method | Use When |
-|--------|----------|
+| Method        | Use When                                                      |
+| ------------- | ------------------------------------------------------------- |
 | `subscribe()` | Monitoring XState service transitions (e.g., session machine) |
-| `watch()` | Monitoring Vue computed refs (e.g., basket meta) |
+| `watch()`     | Monitoring Vue computed refs (e.g., basket meta)              |

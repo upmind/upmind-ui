@@ -22,12 +22,12 @@ stateDiagram-v2
 
 ### States
 
-| State | Purpose |
-|-------|---------|
-| `subscribing` | Initial setup, loads config and default funnel ID |
-| `selectingFunnel` | Picks the funnel machine config, runs factory |
-| `guiding` | Invokes the active funnel sub-machine |
-| `error` | Error state with retry capability |
+| State             | Purpose                                           |
+| ----------------- | ------------------------------------------------- |
+| `subscribing`     | Initial setup, loads config and default funnel ID |
+| `selectingFunnel` | Picks the funnel machine config, runs factory     |
+| `guiding`         | Invokes the active funnel sub-machine             |
+| `error`           | Error state with retry capability                 |
 
 ## State Machine: Funnel (Factory-Built)
 
@@ -98,17 +98,17 @@ sequenceDiagram
 
 Architectural decisions for the routing module are documented in the centralized [`docs/adr/`](../../../../../docs/adr/) folder:
 
-| ADR | Decision | Status |
-|-----|----------|--------|
-| [018 — Funnel Reactive Watchers](../../../../../docs/adr/018-funnel-reactive-watchers.md) | Watcher subscription mechanism, subscribe vs watch, state tracking patterns | Accepted |
-| [017 — Funnel Navigation via State Meta](../../../../../docs/adr/017-funnel-navigation-via-state-meta.md) | Declarative meta-driven navigation | Accepted |
+| ADR                                                                                                       | Decision                                                                    | Status   |
+| --------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- | -------- |
+| [018 — Funnel Reactive Watchers](../../../../../docs/adr/018-funnel-reactive-watchers.md)                 | Watcher subscription mechanism, subscribe vs watch, state tracking patterns | Accepted |
+| [017 — Funnel Navigation via State Meta](../../../../../docs/adr/017-funnel-navigation-via-state-meta.md) | Declarative meta-driven navigation                                          | Accepted |
 
 ## Integration Points
 
-| Component | Role | File |
-|-----------|------|------|
-| `useRoutingEngine` | Composable API for apps | `useRoutingEngine.ts` |
-| `useRouting` | Router integration | `useRouting.ts` |
-| `useOverlayRoute` | Overlay close/dismiss | `packages/client-vue/.../useOverlayRoute.ts` |
-| `useQueryParams` | Type-safe query access | `useQueryParams.ts` |
-| Funnel watchers | Reactive navigation | `apps/cart/src/router/funnels/watchers.ts` |
+| Component          | Role                    | File                                         |
+| ------------------ | ----------------------- | -------------------------------------------- |
+| `useRoutingEngine` | Composable API for apps | `useRoutingEngine.ts`                        |
+| `useRouting`       | Router integration      | `useRouting.ts`                              |
+| `useOverlayRoute`  | Overlay close/dismiss   | `packages/client-vue/.../useOverlayRoute.ts` |
+| `useQueryParams`   | Type-safe query access  | `useQueryParams.ts`                          |
+| Funnel watchers    | Reactive navigation     | `apps/cart/src/router/funnels/watchers.ts`   |

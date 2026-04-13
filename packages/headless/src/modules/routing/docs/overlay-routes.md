@@ -30,11 +30,11 @@ const { getParam } = useQueryParams(route);
 const returnUrl = getParam(QUERY_PARAMS.RETURN_URL);
 ```
 
-| Parameter | Enum | Used By | Purpose |
-|-----------|------|---------|---------|
-| `returnUrl` | `QUERY_PARAMS.RETURN_URL` | `close()` | Where to go after successful flow |
-| `cancelUrl` | `QUERY_PARAMS.CANCEL_URL` | `dismiss()` | Where to go when user cancels |
-| `bid` | `QUERY_PARAMS.BASKET_ID` | `guardBasket` | Basket identifier to load |
+| Parameter   | Enum                      | Used By       | Purpose                           |
+| ----------- | ------------------------- | ------------- | --------------------------------- |
+| `returnUrl` | `QUERY_PARAMS.RETURN_URL` | `close()`     | Where to go after successful flow |
+| `cancelUrl` | `QUERY_PARAMS.CANCEL_URL` | `dismiss()`   | Where to go when user cancels     |
+| `bid`       | `QUERY_PARAMS.BASKET_ID`  | `guardBasket` | Basket identifier to load         |
 
 ## `useOverlayRoute` Composable
 
@@ -42,12 +42,12 @@ const returnUrl = getParam(QUERY_PARAMS.RETURN_URL);
 import { useOverlayRoute } from "@upmind-automation/client-vue";
 
 const {
-  isOpen,         // Whether an overlay is currently active
-  isReady,        // Whether the composable is ready
-  overlayId,      // The overlay identifier
-  overlayType,    // 'modal' | 'drawer'
-  close,          // Close after success → navigates to returnUrl
-  dismiss         // Dismiss (backdrop click) → navigates back or to cancelUrl
+  isOpen, // Whether an overlay is currently active
+  isReady, // Whether the composable is ready
+  overlayId, // The overlay identifier
+  overlayType, // 'modal' | 'drawer'
+  close, // Close after success → navigates to returnUrl
+  dismiss // Dismiss (backdrop click) → navigates back or to cancelUrl
 } = useOverlayRoute();
 ```
 
@@ -59,7 +59,7 @@ Called after a successful flow (e.g., user logged in). Uses `router.replace()` t
 function close(): void {
   const returnUrl = getParam(QUERY_PARAMS.RETURN_URL);
   if (returnUrl) {
-    router.replace(returnUrl);    // Replace overlay with return destination
+    router.replace(returnUrl); // Replace overlay with return destination
   } else {
     router.replace(resolveParentRoute()); // Strip overlay segment
   }
@@ -73,7 +73,7 @@ Called when the user clicks the backdrop or presses Escape.
 ```typescript
 function dismiss(): void {
   if (window.history.state?.back) {
-    router.back();                // Go back if there's history
+    router.back(); // Go back if there's history
   } else {
     const cancelUrl = getParam(QUERY_PARAMS.CANCEL_URL);
     router.push(cancelUrl ? { name: cancelUrl } : resolveParentRoute());
@@ -94,6 +94,7 @@ The most common overlay is the authentication modal on basket routes:
 7. `guardBasket` re-runs → authenticated → basket loads
 
 > **🧪 For Testers:**
+>
 > - Verify auth overlay appears when navigating to `/basket/:bid` while logged out
 > - After login, verify you're returned to the basket (no extra page reload)
 > - Press Escape or click backdrop — verify you're navigated away from the overlay

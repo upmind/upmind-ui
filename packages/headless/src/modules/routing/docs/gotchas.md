@@ -25,7 +25,7 @@ const { unsubscribe } = subscribe(state => {
 
 ## 2. State Tracking Must Precede the `isResolved` Gate
 
-**Problem:** If `wasAuthenticated` / `wasUnavailable` / `hadProducts` is updated *after* the `isResolved` check, transitions that occur while the funnel is unresolved are silently lost.
+**Problem:** If `wasAuthenticated` / `wasUnavailable` / `hadProducts` is updated _after_ the `isResolved` check, transitions that occur while the funnel is unresolved are silently lost.
 
 **Symptoms:** Logout during initial page load doesn't trigger redirect. Basket becoming empty during auth flow is missed.
 
@@ -34,10 +34,10 @@ const { unsubscribe } = subscribe(state => {
 ```typescript
 // ✅ Track first, gate second
 const didLogout = !isAuthenticated && wasAuthenticated;
-wasAuthenticated = isAuthenticated;  // ← before gate
+wasAuthenticated = isAuthenticated; // ← before gate
 if (!routingMeta.value.isResolved) return;
 
 // ❌ Gate blocks tracking
 if (!routingMeta.value.isResolved) return;
-wasAuthenticated = isAuthenticated;  // ← never reached when unresolved
+wasAuthenticated = isAuthenticated; // ← never reached when unresolved
 ```

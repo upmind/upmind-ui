@@ -21,24 +21,27 @@ if (meta.value.isResolved) {
 
 ## Features
 
-| Feature | Status | Description |
-|---------|--------|-------------|
-| Funnel-based routing | ✅ | Declarative state-driven navigation |
-| Overlay routes | ✅ | Auth/session modals via named routes |
-| Reactive watchers | ✅ | Auto-redirect on session/basket changes |
-| Query param normalization | ✅ | `QUERY_PARAMS` enum for type-safe param access |
-| BID preservation | ✅ | Basket ID survives auth redirects |
-| Navigation mutex | ✅ | Prevents double-navigation race conditions |
+| Feature                   | Status | Description                                    |
+| ------------------------- | ------ | ---------------------------------------------- |
+| Funnel-based routing      | ✅     | Declarative state-driven navigation            |
+| Overlay routes            | ✅     | Auth/session modals via named routes           |
+| Reactive watchers         | ✅     | Auto-redirect on session/basket changes        |
+| Query param normalization | ✅     | `QUERY_PARAMS` enum for type-safe param access |
+| BID preservation          | ✅     | Basket ID survives auth redirects              |
+| Navigation mutex          | ✅     | Prevents double-navigation race conditions     |
 
 ## Key Concepts
 
 ### Funnels
+
 A funnel is a set of routing rules for a specific customer journey (e.g., cart checkout, web hosting setup). The **Routing Engine** acts as a broker — it picks the right funnel and delegates.
 
 ### Watchers
+
 Watchers are reactive subscriptions that monitor app state (session, basket) and trigger navigation when conditions change. They run while the funnel is in its `available` state.
 
 ### Overlay Routes
+
 Named routes like `/auth` render as modals/drawers on top of the underlying page. They use `returnUrl` / `cancelUrl` query params to navigate back when dismissed.
 
 ## Documentation
