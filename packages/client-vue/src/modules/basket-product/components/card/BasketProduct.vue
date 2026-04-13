@@ -237,7 +237,8 @@ const termModel = computed({
 });
 
 const optionsModel = computed({
-  get: () => config?.model?.value?.options,
+  get: () =>
+    config?.model?.value?.options as unknown as OptionTogglePayload | undefined,
   set: (value: OptionTogglePayload) => {
     if (!config || !value) return;
     const { option, value: optValue, enabled } = value;
