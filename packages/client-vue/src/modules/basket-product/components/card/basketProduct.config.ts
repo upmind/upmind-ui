@@ -45,7 +45,10 @@ export default {
       image: cva("image-radius m-0 h-12"),
       footer: {
         root: cva("flex flex-col justify-between gap-2 lg:flex-row"),
-        terms: cva("flex items-center gap-2"),
+        terms: {
+          root: cva("flex items-center gap-2"),
+          content: cva("max-h-74! w-screen max-w-96")
+        },
         price: {
           root: cva("flex items-end justify-between gap-4 lg:justify-end"),
           container: cva(

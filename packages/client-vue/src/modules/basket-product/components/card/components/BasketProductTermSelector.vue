@@ -1,16 +1,24 @@
 <template>
   <div
     v-if="hasTerms && terms"
-    class="flex items-center gap-2"
+    :class="styles.product.summary.footer.terms.root"
     data-testid="basket-product-term-selector"
   >
-    <Select
+    <SelectCards
       v-model="selectedTerm"
       :items="parsedTerms"
       :disabled="disabled || processing"
       :placeholder="t('form.select_option.placeholder')"
-      size="md"
-    />
+      :ui-config="{
+        select: {
+          content: [styles.product.summary.footer.terms.content]
+        }
+      }"
+    >
+      <template #dropdown-item="slotProps">
+        <TermCard v-bind="slotProps.item" layout="inline" :summary="false" />
+      </template>
+    </SelectCards>
   </div>
 </template>
 
@@ -20,33 +28,29 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- components
-import { Select } from "@upmind-automation/upmind-ui";
+import { SelectCards, useStyles } from "@upmind-automation/upmind-ui";
+import TermCard from "../../../../product/components/terms/TermCard.vue";
 
 // --- internal
 import { parseBillingCycle } from "@upmind-automation/headless";
+import styleConfig from "../basketProduct.config";
 
 // --- utils
 import { map, toNumber } from "lodash-es";
 
 // --- types
 import type { TermDetails } from "@upmind-automation/headless";
-import type { SelectItemProps } from "@upmind-automation/upmind-ui";
+import type { SelectCardsItemProps } from "@upmind-automation/upmind-ui";
+import type { TermSelectorProps } from "./types";
 // -----------------------------------------------------------------------------
 
-const props = defineProps<{
-  /** Available billing terms. */
-  terms: TermDetails[];
-  /** Currently selected term cycle in months. */
-  modelValue?: number;
-  /** Whether the selector is disabled. */
-  disabled?: boolean;
-  /** Whether an update is processing. */
-  processing?: boolean;
-}>();
+const props = defineProps<TermSelectorProps>();
 
 const emits = defineEmits(["update:modelValue"]);
 
 const { t } = useI18n();
+
+const styles = useStyles(["product.summary.footer.terms"], {}, styleConfig);
 
 const hasTerms = computed(() => (props.terms?.length ?? 0) > 1);
 
@@ -58,10 +62,12 @@ const selectedTerm = computed({
   }
 });
 
-const parsedTerms = computed<SelectItemProps[]>(() =>
-  map(props.terms, (item: TermDetails) => ({
-    value: item.cycle?.toString() ?? "",
-    label: parseBillingCycle(item.cycle ?? 0).numeric
+const parsedTerms = computed<SelectCardsItemProps[]>(() =>
+  map(props.terms, (term: TermDetails, index: number) => ({
+    value: term.cycle?.toString() ?? "",
+    label: parseBillingCycle(term.cycle ?? 0).numeric,
+    item: term,
+    index
   }))
 );
 </script>
