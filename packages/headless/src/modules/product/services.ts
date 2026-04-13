@@ -128,9 +128,12 @@ async function load(
   if (rawBasketProduct?.id)
     set(params, "basket_product_id", rawBasketProduct.id);
 
-  const url = rawBasketProduct?.id
-    ? `basket/${basketId}/products/${rawBasketProduct.id}`
-    : `basket/products/${productId}`;
+  // TODO: DC (13/4/26) :Re-instate WHEN BE have deployed the basket product endpoint
+  // const url = rawBasketProduct?.id
+  //   ? `basket/${basketId}/products/${rawBasketProduct.id}`
+  //   : `basket/products/${productId}`;
+
+  const url = `basket/products/${productId}`;
 
   const productPromise = getRequest<IProduct>({
     url: useUrl(url, params),
