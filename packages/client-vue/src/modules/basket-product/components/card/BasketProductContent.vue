@@ -121,7 +121,7 @@
     />
 
     <footer :class="styles.product.summary.footer.root">
-      <div :class="styles.product.summary.footer.terms">
+      <div :class="styles.product.summary.footer.terms.root">
         <BasketProductTermSelector
           v-if="props.inlineMeta?.showTermSelector && props.terms"
           :terms="props.terms"
@@ -228,6 +228,7 @@ const styles = useStyles(
     "product.summary.category",
     "product.summary.title",
     "product.summary.footer",
+    "product.summary.footer.terms",
     "product.summary.footer.price",
     "product.pricing"
   ],

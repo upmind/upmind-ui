@@ -27,11 +27,20 @@
           @update:checked="doToggle"
         />
 
-        <h3 :class="styles.product.summary.title.text">
+        <component
+          :is="meta.isToggleable ? Link : 'h3'"
+          as="h3"
+          :class="styles.product.summary.title.text"
+          @click="
+            meta.isToggleable &&
+            doToggle(!(summary.meta?.toggle?.selected ?? false))
+          "
+        >
           {{ summary.title }}
-        </h3>
+        </component>
 
         <Promotion
+          v-if="!isMobile"
           v-for="(promotion, index) in summary.promotions"
           :key="index"
           v-bind="promotion"
@@ -48,9 +57,7 @@
           pricing: { current: [styles.product.pricing.current] }
         }"
       >
-        <template v-if="summary.meta.toggle?.selected === false" #prefix
-          >+
-        </template>
+        <template #prefix>+</template>
         <template v-if="summary.quantity && summary.quantity > 1" #suffix>
           (x{{ summary.quantity }})
         </template>
@@ -62,15 +69,18 @@
 </template>
 
 <script lang="ts" setup>
+// --- external
+import { computed } from "vue";
+
 // --- components
-import { Switch } from "@upmind-automation/upmind-ui";
+import { Link, Switch } from "@upmind-automation/upmind-ui";
 import CurrentPrice from "../../../product/components/pricing/CurrentPrice.vue";
 import ExPrice from "../../../product/components/pricing/ExPrice.vue";
 import TermsDescription from "./components/TermsDescription.vue";
 import Promotion from "./components/Promotion.vue";
 
 // --- internal
-import { useStyles } from "@upmind-automation/upmind-ui";
+import { useStyles, isMobile } from "@upmind-automation/upmind-ui";
 import config from "./basketProduct.config";
 
 // --- types
@@ -86,6 +96,12 @@ const emits = defineEmits(["update:quantity", "toggle:option", "remove"]);
 
 const options = defineModel<OptionTogglePayload>("options");
 
+const meta = computed(() => {
+  return {
+    isToggleable: props.upsell && props.summary.meta.toggle
+  };
+});
+
 const styles = useStyles(
   [
     "product.summary",
@@ -95,7 +111,8 @@ const styles = useStyles(
     "product.pricing"
   ],
   props,
-  config
+  config,
+  meta
 );
 
 // --- methods

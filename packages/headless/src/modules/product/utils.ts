@@ -61,6 +61,7 @@ import {
   ProductTypes,
   PromotionDisplayTypes,
   ProvisionCategoryCodes,
+  PaymentTermDescriptions,
   PriceDisplayTypes,
   QUERY_PARAMS
 } from "@upmind-automation/types";
@@ -463,7 +464,8 @@ export function parseSubproducts(
             // if we have a price, set price values, taking into account the quantity and unit quantity
             // NB: we NEVER add, we always push into an array for the backend to handle
             if (!isEmpty(product?.price)) {
-              if (quantity == 1) price.push(product?.price?.currentAmount);
+              if (quantity == 1 && value.quantity == 1)
+                price.push(product?.price?.currentAmount);
               else
                 price.push({
                   price: product?.price?.currentAmount,
@@ -1389,6 +1391,12 @@ export const parseProductImages = (images: IImage[]): ProductImage[] => {
 export function parseBillingCycle(months: number) {
   const years = months / 12;
   const { t } = useI18n();
+  const { getConfigValue } = useBrand();
+
+  const useMonthly =
+    getConfigValue<PaymentTermDescriptions>(
+      BrandConfigKeys.BASKET_PAYMENT_TERM_DESCRIPTIONS
+    ) === PaymentTermDescriptions.MONTHLY && months >= 12;
 
   switch (months) {
     case 0:
@@ -1426,26 +1434,38 @@ export function parseBillingCycle(months: number) {
     case 12:
       return {
         adverbial: t("term.annually"), // Annually
-        descriptive: t("term.n_years", years), // year
+        descriptive: useMonthly
+          ? t("term.n_months", months) // 12 months
+          : t("term.n_years", years), // year
         monthly: t("term.n_months", months), // 12 months
         suffix: t("term.n_yr", years), // yr
-        numeric: t("term.n_year", { n: years.toString() }) // 1-year
+        numeric: useMonthly
+          ? t("term.n_month", { n: months.toString() }) // 12-month
+          : t("term.n_year", { n: years.toString() }) // 1-year
       };
     case 24:
       return {
         adverbial: t("term.biennially"), // Biennially
-        descriptive: t("term.n_years", years), // 2 years
+        descriptive: useMonthly
+          ? t("term.n_months", months) // 24 months
+          : t("term.n_years", years), // 2 years
         monthly: t("term.n_months", months), // 24 months
         suffix: t("term.n_yr", years), // 2yr
-        numeric: t("term.n_year", { n: years.toString() }) // 2-year
+        numeric: useMonthly
+          ? t("term.n_month", { n: months.toString() }) // 24-month
+          : t("term.n_year", { n: years.toString() }) // 2-year
       };
     case 36:
       return {
         adverbial: t("term.triennially"), // Triennially
-        descriptive: t("term.n_years", years), // 3 years
+        descriptive: useMonthly
+          ? t("term.n_months", months) // 36 months
+          : t("term.n_years", years), // 3 years
         monthly: t("term.n_months", months), // 36 months
         suffix: t("term.n_yr", years), // 3yr
-        numeric: t("term.n_year", { n: years.toString() }) // 3-year
+        numeric: useMonthly
+          ? t("term.n_month", { n: months.toString() }) // 36-month
+          : t("term.n_year", { n: years.toString() }) // 3-year
       };
     case 48:
     case 60:
@@ -1456,10 +1476,14 @@ export function parseBillingCycle(months: number) {
     case 120:
       return {
         adverbial: t("term.n_years", years), // {n} years
-        descriptive: t("term.n_years", years), // {n} years
+        descriptive: useMonthly
+          ? t("term.n_months", months) // {n} months
+          : t("term.n_years", years), // {n} years
         monthly: t("term.n_months", months), // {n} months
         suffix: t("term.n_yr", years), // {n}yr
-        numeric: t("term.n_year", { n: years.toString() }) // {n}-year
+        numeric: useMonthly
+          ? t("term.n_month", { n: months.toString() }) // {n}-month
+          : t("term.n_year", { n: years.toString() }) // {n}-year
       };
     default:
       return {
