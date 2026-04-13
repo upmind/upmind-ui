@@ -3,7 +3,7 @@
     v-if="priceMeta.isDiscounted || priceMeta.isOverridden"
     :class="styles.pricing.ex"
   >
-    {{
+    <slot name="prefix" />{{
       formatPrice(
         priceMeta.useMonthlyFromPrice
           ? props.monthlyFromRegularPrice
