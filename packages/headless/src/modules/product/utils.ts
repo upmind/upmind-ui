@@ -61,7 +61,7 @@ import {
   ProductTypes,
   PromotionDisplayTypes,
   ProvisionCategoryCodes,
-  PaymentTermDescriptions,
+  PaymentTermDesignations,
   PriceDisplayTypes,
   QUERY_PARAMS
 } from "@upmind-automation/types";
@@ -1394,9 +1394,9 @@ export function parseBillingCycle(months: number) {
   const { getConfigValue } = useBrand();
 
   const useMonthly =
-    getConfigValue<PaymentTermDescriptions>(
+    getConfigValue<PaymentTermDesignations>(
       BrandConfigKeys.BASKET_PAYMENT_TERM_DESCRIPTIONS
-    ) === PaymentTermDescriptions.MONTHLY && months >= 12;
+    ) === PaymentTermDesignations.MONTHLY && months >= 12;
 
   switch (months) {
     case 0:
