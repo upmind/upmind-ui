@@ -70,7 +70,9 @@ export default {
       }
     },
     pricing: {
-      current: cva("text-lg leading-7! font-medium md:text-xl"),
+      current: cva(
+        "shrink-0 text-lg leading-7! font-medium whitespace-nowrap md:text-xl"
+      ),
       ex: cva("text-sm! leading-5! italic")
     }
   }
