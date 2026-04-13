@@ -16,6 +16,11 @@ import {
   useBasketProducts,
   isDomainProduct,
   useBasketBilling,
+  useClientAddresses,
+  useClientCompanies,
+  useClientPhones,
+  useConfig,
+  UIContext,
   FunnelActions,
   type FunnelTarget
 } from "@upmind-automation/client-vue";
@@ -76,6 +81,52 @@ async function ensureBidAuth(
   }
 
   return basketId;
+}
+
+// -----------------------------------------------------------------------------
+
+/**
+ * Applies the client's default address, company and phone to the basket
+ * billing details.  Returns a promise that resolves once the update settles
+ * (or immediately if billing is already complete).
+ *
+ * Shared between the `setBillingDefaults` entry action (fire-and-forget) and
+ * `guardBilling` (awaited) so the logic lives in a single place.
+ */
+export async function applyBillingDefaults(): Promise<void> {
+  const {
+    isReady: isBillingReady,
+    meta: billingMeta,
+    config: billingConfig,
+    update
+  } = useBasketBilling();
+
+  // NB: isBillingReady() already gates on a valid auth session via the
+  // billing machine's `subscribing` state (`hasClient` guard), so no
+  // separate isAuthenticated() call is needed here.
+  await isBillingReady();
+
+  if (billingMeta.value.isComplete) return;
+
+  const { default: defaultAddress, isReady: isAddressesReady } =
+    useClientAddresses();
+  const { default: defaultCompany, isReady: isCompaniesReady } =
+    useClientCompanies();
+  const { default: defaultPhone, isReady: isPhonesReady } = useClientPhones();
+
+  await Promise.allSettled([
+    isAddressesReady(),
+    isCompaniesReady(),
+    isPhonesReady()
+  ]);
+
+  const company = billingConfig.value?.requiresCompany && defaultCompany();
+
+  await update({
+    companyId: company?.id,
+    addressId: company?.addressId ?? defaultAddress()?.id,
+    phoneId: billingConfig.value?.requiresPhone && defaultPhone()?.id
+  }).catch(() => {});
 }
 
 // -----------------------------------------------------------------------------
@@ -554,12 +605,70 @@ export default {
       }
     }
 
-    // if we are definitely going to checkout, ensure billing is ready!
-    // await Promise.allSettled([
-    //   isBillingReady(),
-    //   useClientAddresses().isReady(),
-    //   useClientCompanies().isReady()
-    // ]);
+    // Redirect to standalone billing if it needs input and user can't edit inline.
+    const { isReady: isBillingReady, meta: billingMeta } = useBasketBilling();
+    await isBillingReady();
+
+    if (!billingMeta.value.isComplete) {
+      const { ui } = useConfig({ context: UIContext.CHECKOUT });
+      const { data } = useConfig({ context: UIContext.BILLING_DETAILS });
+      if (!data.billingDetailsDisabled && ui.billingDetails.isReadonly) {
+        const { router } = useRoutingEngine();
+        if (
+          !includes(
+            [ROUTE.BILLING, ROUTE.CHECKOUT],
+            router.currentRoute.value?.name
+          )
+        ) {
+          return Promise.reject({
+            target: { name: ROUTE.BILLING }
+          } as FunnelResponse);
+        }
+      }
+    }
+
     return { target: context.targetRoute ?? { name: ROUTE.CHECKOUT } };
+  },
+
+  guardBilling: async (
+    context: FunnelContext,
+    event: AnyEventObject
+  ): Promise<FunnelResponse> => {
+    await ensureBidAuth(context, { name: ROUTE.BILLING });
+    // If standalone billing isn't enabled, skip to checkout
+    const { ui } = useConfig({ context: UIContext.CHECKOUT });
+    const { data } = useConfig({ context: UIContext.BILLING_DETAILS });
+    if (data.billingDetailsDisabled || !ui.billingDetails.isReadonly) {
+      return { target: context.targetRoute ?? { name: ROUTE.CHECKOUT } };
+    }
+
+    // Skip billing when not authenticated — billing requires a client_id
+    // to load. Checkout handles the auth redirect.
+    const { meta: authMeta } = useSession();
+    if (!authMeta.value.isAuthenticated) {
+      return { target: { name: ROUTE.SESSION } };
+    }
+
+    // Load billing and check if it still needs input
+    const { isReady: isBillingReady, meta: billingMeta } = useBasketBilling();
+    await isBillingReady();
+
+    // If billing is not yet complete, try applying client defaults (address,
+    // company, phone) before deciding whether to skip.  This must be awaited
+    // here rather than relying on the fire-and-forget `setBillingDefaults`
+    // entry action, which races with this guard.
+    if (!billingMeta.value.isComplete) {
+      await applyBillingDefaults().catch(() => {});
+    }
+
+    // Skip billing when input isn't needed, unless the user explicitly
+    // navigated here (e.g. the "Change" button on BillingSummary sends a
+    // RESOLVE event via navigate()).  Auto-redirects from guardCheckout
+    // arrive as error events and should be skipped when billing is complete.
+    if (billingMeta.value.isComplete && event.type !== "RESOLVE") {
+      return { target: { name: ROUTE.CHECKOUT } };
+    }
+    // Show billing page
+    return { target: context.targetRoute ?? { name: ROUTE.BILLING } };
   }
 };

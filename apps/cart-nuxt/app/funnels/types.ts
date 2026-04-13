@@ -131,9 +131,19 @@ export enum ROUTE {
   BASKET_PRODUCT_REQUIRES_ACTION = "basket-product-requires-action",
 
   /**
+   * The route displayed when a basket is unavailable or invalid.
+   */
+  BASKET_UNAVAILABLE = "basket-unavailable",
+
+  /**
    * The route for the checkout process.
    */
   CHECKOUT = "checkout",
+
+  /**
+   * The route for managing billing details on a standalone page.
+   */
+  BILLING = "billing",
 
   /**
    * The route for viewing a completed order.

@@ -3,6 +3,7 @@
     :storefront-route="storefrontRoute"
     :edit-route="{ name: ROUTE.BASKET_PRODUCT_EDIT }"
     :fields-route="{ name: ROUTE.BASKET }"
+    :billing-route="{ name: ROUTE.BILLING }"
   />
 </template>
 
