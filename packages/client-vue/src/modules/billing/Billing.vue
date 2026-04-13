@@ -39,6 +39,12 @@
           />
         </slot>
       </template>
+
+      <template #content-footer>
+        <slot name="content-footer">
+          <div id="billing-actions" />
+        </slot>
+      </template>
     </component>
   </Transitions>
 </template>

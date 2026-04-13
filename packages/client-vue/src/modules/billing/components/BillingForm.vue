@@ -1,8 +1,11 @@
 <template>
-  <Loading :active="meta.isProcessing" class-active="w-full rounded max-w-3xl">
+  <Loading
+    :active="meta.isProcessing"
+    :class-active="styles.billing.form.spinner"
+  >
     <Sections
       id="basket-billing"
-      class="min-h-32 max-w-3xl"
+      :class="styles.billing.form.sections"
       v-model="activeTab"
       :sections="tabs"
       data-testid="billing"
@@ -14,24 +17,16 @@
           :expand="expand"
           @form-resolve="onFormResolve"
         />
-
-        <Transition
-          appear
-          enter-active-class="transition-opacity duration-250 delay-500 ease-in"
-          enter-from-class="opacity-0"
-          enter-to-class="opacity-100"
-        >
-          <Button
-            v-if="!autoUpdate && formMeta.allowContinue"
-            :label="t('action.continue_label')"
-            icon-append="arrow-right"
-            color="primary"
-            size="lg"
-            block
-            :disabled="meta.isProcessing"
-            @click="doContinue"
-          />
-        </Transition>
+        <Button
+          v-if="isMobile && !autoUpdate && formMeta.allowContinue"
+          :label="t('action.continue_label')"
+          icon-append="arrow-right"
+          color="primary"
+          size="lg"
+          block
+          :disabled="meta.isProcessing"
+          @click="doContinue"
+        />
       </template>
 
       <template v-slot:[`section-business`]>
@@ -41,33 +36,39 @@
           :expand="expand"
           @form-resolve="onFormResolve"
         />
-
-        <Transition
-          appear
-          enter-active-class="transition-opacity duration-250 delay-500 ease-in"
-          enter-from-class="opacity-0"
-          enter-to-class="opacity-100"
-        >
-          <Button
-            v-if="!autoUpdate && formMeta.allowContinue"
-            :label="t('action.continue_label')"
-            icon-append="arrow-right"
-            color="primary"
-            size="lg"
-            block
-            :disabled="meta.isProcessing"
-            @click="doContinue"
-          />
-        </Transition>
+        <Button
+          v-if="isMobile && !autoUpdate && formMeta.allowContinue"
+          :label="t('action.continue_label')"
+          icon-append="arrow-right"
+          color="primary"
+          size="lg"
+          block
+          :disabled="meta.isProcessing"
+          @click="doContinue"
+        />
       </template>
     </Sections>
   </Loading>
+
+  <Teleport v-if="isMounted" to="#billing-actions">
+    <Button
+      v-if="!isMobile && !autoUpdate && formMeta.allowContinue"
+      :label="t('action.continue_label')"
+      icon-append="arrow-right"
+      color="primary"
+      size="lg"
+      block
+      :disabled="meta.isProcessing"
+      @click="doContinue"
+    />
+  </Teleport>
 </template>
 
 <script lang="ts" setup>
 // --- external
 import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
+import { useMounted } from "@vueuse/core";
 
 // --- internal
 import {
@@ -79,9 +80,15 @@ import {
   useClientPhones,
   useRoutingEngine
 } from "@upmind-automation/headless";
+import billingConfig from "../billing.config";
 
 // --- components
-import { Loading, Button } from "@upmind-automation/upmind-ui";
+import {
+  Loading,
+  Button,
+  isMobile,
+  useStyles
+} from "@upmind-automation/upmind-ui";
 import Sections from "../../../components/section/Sections.vue";
 import TabBusiness from "./TabBusiness.vue";
 import TabPersonal from "./TabPersonal.vue";
@@ -102,6 +109,11 @@ const touched = defineModel<BillingFormProps["touched"]>("touched");
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
+const styles = useStyles(["billing.form"], {}, billingConfig);
+
+// Teleport cannot use `defer` inside async setup (Suspense + KeepAlive conflict),
+// so we gate it on isMounted to ensure the DOM target exists before teleporting.
+const isMounted = useMounted();
 
 const { client } = useSession();
 const { isReady, meta, config, set, update, wait, model } = useBasketBilling();
