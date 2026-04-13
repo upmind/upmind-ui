@@ -27,9 +27,17 @@
           @update:checked="doToggle"
         />
 
-        <h3 :class="styles.product.summary.title.text">
+        <component
+          :is="meta.isToggleable ? Link : 'h3'"
+          as="h3"
+          :class="styles.product.summary.title.text"
+          @click="
+            meta.isToggleable &&
+            doToggle(!(summary.meta?.toggle?.selected ?? false))
+          "
+        >
           {{ summary.title }}
-        </h3>
+        </component>
 
         <Promotion
           v-if="!isMobile"
@@ -63,8 +71,11 @@
 </template>
 
 <script lang="ts" setup>
+// --- external
+import { computed } from "vue";
+
 // --- components
-import { Switch } from "@upmind-automation/upmind-ui";
+import { Link, Switch } from "@upmind-automation/upmind-ui";
 import CurrentPrice from "../../../product/components/pricing/CurrentPrice.vue";
 import ExPrice from "../../../product/components/pricing/ExPrice.vue";
 import TermsDescription from "./components/TermsDescription.vue";
@@ -87,6 +98,12 @@ const emits = defineEmits(["update:quantity", "toggle:option", "remove"]);
 
 const options = defineModel<OptionTogglePayload>("options");
 
+const meta = computed(() => {
+  return {
+    isToggleable: props.upsell && props.summary.meta.toggle
+  };
+});
+
 const styles = useStyles(
   [
     "product.summary",
@@ -96,7 +113,8 @@ const styles = useStyles(
     "product.pricing"
   ],
   props,
-  config
+  config,
+  meta
 );
 
 // --- methods

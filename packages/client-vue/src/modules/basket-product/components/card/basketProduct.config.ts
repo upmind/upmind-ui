@@ -39,7 +39,7 @@ export default {
       title: {
         root: cva("flex items-center gap-2"),
         link: cva("no-underline"),
-        text: cva("text-xl-tight font-medium break-all")
+        text: cva("text-xl-tight font-medium break-all no-underline")
       },
       icon: cva("[&>svg]:p-[2px]"),
       image: cva("image-radius m-0 h-12"),
