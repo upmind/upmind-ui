@@ -463,7 +463,8 @@ export function parseSubproducts(
             // if we have a price, set price values, taking into account the quantity and unit quantity
             // NB: we NEVER add, we always push into an array for the backend to handle
             if (!isEmpty(product?.price)) {
-              if (quantity == 1) price.push(product?.price?.currentAmount);
+              if (quantity == 1 && value.quantity == 1)
+                price.push(product?.price?.currentAmount);
               else
                 price.push({
                   price: product?.price?.currentAmount,
