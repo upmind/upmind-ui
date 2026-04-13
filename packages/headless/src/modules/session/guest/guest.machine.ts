@@ -38,7 +38,7 @@ import {
   useRegisterSchemaParser,
   useRegisterUischemaParser
 } from "./utils";
-import { omit } from "lodash-es";
+import { cloneDeep, omit } from "lodash-es";
 
 // --- types
 import { responseCodes } from "../../../utils";
@@ -92,7 +92,20 @@ export default createMachine(
               },
               // loading: {} // loading state not required?
               available: {
+                initial: "checking",
+                states: {
+                  checking: {
+                    invoke: {
+                      src: "validate",
+                      onDone: { target: "valid", actions: ["clearError"] },
+                      onError: { target: "invalid", actions: ["setError"] }
+                    }
+                  },
+                  valid: {},
+                  invalid: {}
+                },
                 on: {
+                  SET: { target: ".checking", actions: ["setModel"] },
                   AUTHENTICATE: {
                     target: "authenticating",
                     actions: ["setModel"]
@@ -105,7 +118,7 @@ export default createMachine(
                   onDone: [
                     {
                       target: "challenging",
-                      actions: ["set2faToken", "set2faSchemas"],
+                      actions: ["set2faToken", "persistModel", "set2faSchemas"],
                       cond: "requires2fa"
                     },
                     {
@@ -120,11 +133,27 @@ export default createMachine(
                 }
               },
               challenging: {
+                initial: "checking",
+                states: {
+                  checking: {
+                    invoke: {
+                      src: "validate",
+                      onDone: {
+                        target: "#login.verifying",
+                        actions: ["clearError"]
+                      },
+                      onError: { target: "invalid", actions: ["setError"] }
+                    }
+                  },
+                  valid: {},
+                  invalid: {}
+                },
                 on: {
+                  SET: { target: ".checking", actions: ["setModel"] },
                   VERIFY: { target: "verifying" },
                   CANCEL: {
                     target: "available",
-                    actions: ["setLoginSchemas", "clearError"]
+                    actions: ["resetModel", "setLoginSchemas", "clearError"]
                   }
                 }
               },
@@ -136,7 +165,7 @@ export default createMachine(
                     actions: ["setActor", "pushLogin"]
                   },
                   onError: {
-                    target: "challenging",
+                    target: "challenging.invalid",
                     actions: ["setError", "setFeedbackError"]
                   }
                 }
@@ -173,7 +202,20 @@ export default createMachine(
                 }
               },
               available: {
+                initial: "checking",
+                states: {
+                  checking: {
+                    invoke: {
+                      src: "validate",
+                      onDone: { target: "valid", actions: ["clearError"] },
+                      onError: { target: "invalid", actions: ["setError"] }
+                    }
+                  },
+                  valid: {},
+                  invalid: {}
+                },
                 on: {
+                  SET: { target: ".checking", actions: ["setModel"] },
                   REGISTER: { target: "registering", actions: ["setModel"] }
                 }
               },
@@ -195,7 +237,7 @@ export default createMachine(
                   onDone: [
                     {
                       target: "challenging",
-                      actions: ["set2faToken", "set2faSchemas"],
+                      actions: ["set2faToken", "persistModel", "set2faSchemas"],
                       cond: "requires2fa"
                     },
                     {
@@ -210,9 +252,28 @@ export default createMachine(
                 }
               },
               challenging: {
+                initial: "checking",
+                states: {
+                  checking: {
+                    invoke: {
+                      src: "validate",
+                      onDone: {
+                        target: "#register.verifying",
+                        actions: ["clearError"]
+                      },
+                      onError: { target: "invalid", actions: ["setError"] }
+                    }
+                  },
+                  valid: {},
+                  invalid: {}
+                },
                 on: {
+                  SET: { target: ".checking", actions: ["setModel"] },
                   VERIFY: { target: "verifying" },
-                  CANCEL: { target: "available" }
+                  CANCEL: {
+                    target: "available",
+                    actions: ["resetModel", "setRegisterSchemas", "clearError"]
+                  }
                 }
               },
               verifying: {
@@ -223,7 +284,7 @@ export default createMachine(
                     actions: ["setActor", "pushRegister"]
                   },
                   onError: {
-                    target: "challenging",
+                    target: "challenging.invalid",
                     actions: ["setError", "setFeedbackError"]
                   }
                 }
@@ -351,6 +412,14 @@ export default createMachine(
       }),
       set2faToken: assign({
         token: (_context: GuestContext, { data }: AnyEventObject) => data
+      }),
+
+      persistModel: assign({
+        baseModel: ({ model }: GuestContext) => cloneDeep(model)
+      }),
+
+      resetModel: assign({
+        model: ({ baseModel }: GuestContext) => cloneDeep(baseModel)
       }),
 
       setFeedbackSuccess: (_context: GuestContext, _event: AnyEventObject) => {

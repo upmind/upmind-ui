@@ -89,7 +89,7 @@ export const useSession = () => {
 
         return waitFor(
           clientActor.value.service,
-          state => stateMatches(state, "available"),
+          state => stateMatches(state, ["available", "done"]),
           {
             timeout: 60_000
           }
@@ -225,7 +225,7 @@ export const useSession = () => {
 
     return waitFor(
       clientActor.value.service,
-      state => !stateMatches(state, "loading"),
+      state => !stateMatches(state, ["loading"]),
       {
         timeout: 60_000
       }
@@ -266,7 +266,7 @@ export const useSession = () => {
 
     return await waitFor(
       guestActor.value.service,
-      state => stateMatches(state, "available.login"),
+      state => stateMatches(state, ["available.login", "done"]),
       { timeout: 60000 }
     )
       .then(() => true)
@@ -282,7 +282,7 @@ export const useSession = () => {
 
     return await waitFor(
       guestActor.value.service,
-      state => stateMatches(state, "available.register"),
+      state => stateMatches(state, ["available.register", "done"]),
       { timeout: 60000 }
     )
       .then(() => true)
@@ -298,7 +298,7 @@ export const useSession = () => {
 
     return await waitFor(
       guestActor.value.service,
-      state => stateMatches(state, "available.recover"),
+      state => stateMatches(state, ["available.recover", "done"]),
       { timeout: 60000 }
     )
       .then(() => true)
@@ -317,7 +317,8 @@ export const useSession = () => {
 
     return await waitFor(
       guestActor.value.service,
-      state => stateMatches(state, ["complete", "available.login.error"]),
+      state =>
+        stateMatches(state, ["complete", "available.login.error", "done"]),
       {
         timeout: 60000
       }
@@ -326,17 +327,18 @@ export const useSession = () => {
       .catch(() => false);
   }
 
-  async function verify2fa({ token }: { token: string }): Promise<any> {
+  async function verify2fa(model: { token: string }): Promise<any> {
     if (!guestActor.value) return true; // already logged in
 
     service.send({
       type: "VERIFY",
-      data: get(token, "value", token) // ensure we dont have any reactive refs
+      data: model
     });
 
     return await waitFor(
       guestActor.value.service,
-      state => stateMatches(state, ["complete", "available.login.error"]),
+      state =>
+        stateMatches(state, ["complete", "available.login.error", "done"]),
       {
         timeout: 60000
       }
@@ -355,7 +357,8 @@ export const useSession = () => {
 
     return await waitFor(
       guestActor.value.service,
-      state => stateMatches(state, ["complete", "available.register.error"]),
+      state =>
+        stateMatches(state, ["complete", "available.register.error", "done"]),
       {
         timeout: 60000
       }
@@ -377,7 +380,8 @@ export const useSession = () => {
       state =>
         stateMatches(state, [
           "available.recover.complete",
-          "available.recover.error"
+          "available.recover.error",
+          "done"
         ]),
       { timeout: 60_000 }
     )
@@ -394,7 +398,7 @@ export const useSession = () => {
 
     return await waitFor(
       clientActor.value.service,
-      state => stateMatches(state, "complete"),
+      state => stateMatches(state, ["complete", "done"]),
       {
         timeout: 60000
       }
@@ -423,7 +427,7 @@ export const useSession = () => {
 
     return waitFor(
       clientActor.value.service,
-      newState => stateMatches(newState, "transferring.available"),
+      newState => stateMatches(newState, ["transferring.available", "done"]),
       { timeout: 60_000 }
     )
       .then(newState => {
@@ -465,7 +469,7 @@ export const useSession = () => {
 
     return waitFor(
       service,
-      newState => stateMatches(newState, "transferring.processed"),
+      newState => stateMatches(newState, ["transferring.processed", "done"]),
       { timeout: 60_000 }
     )
       .then(newState => {
@@ -524,7 +528,8 @@ export const useSession = () => {
       type: "CANCEL"
     });
     const guest = state.value?.children?.guest;
-    return waitFor(guest, state => stateMatches(state, "available"), {
+    if (!guest) return Promise.resolve(true);
+    return waitFor(guest, state => stateMatches(state, ["available", "done"]), {
       timeout: 60_000
     });
   }
@@ -545,7 +550,7 @@ export const useSession = () => {
 
     return await waitFor(
       clientActor.value.service,
-      state => stateMatches(state, "available"),
+      state => stateMatches(state, ["available", "done"]),
       {
         timeout: 60000
       }
