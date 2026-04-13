@@ -58,7 +58,7 @@ export default <FunnelProps>{
      * or the CATALOGUE route (if no configurations are found).
      */
     [ROUTE.LOADING]: {
-      entry: ["setResolving"],
+      entry: ["setResolving", "setBasket"],
       always: [
         {
           target: ROUTE.PRODUCT_CONFIGURE,
@@ -83,7 +83,7 @@ export default <FunnelProps>{
      */
     [ROUTE.CATALOGUE]: {
       meta: { next: ROUTE.RECOMMENDATIONS, prev: ROUTE.BASKET },
-      entry: ["setCurrency"],
+      entry: ["setCurrency", "setBasket"],
       invoke: {
         src: "guardCatalogue",
         onDone: { actions: ["setResolved"] },
@@ -118,7 +118,7 @@ export default <FunnelProps>{
      * (if a product ID is present) or back to the BASKET route.
      */
     [ROUTE.PRODUCT_CONFIGURE]: {
-      entry: ["setCurrency", "setProductConfigs"],
+      entry: ["setCurrency", "setBasket", "setProductConfigs"],
       invoke: {
         src: "guardProductConfigure",
         onDone: [
@@ -180,7 +180,7 @@ export default <FunnelProps>{
      */
     [ROUTE.PRODUCT_RECOMMENDATIONS]: {
       meta: { next: ROUTE.CHECKOUT_FLOW, prev: ROUTE.BASKET },
-      entry: ["setCurrency"],
+      entry: ["setCurrency", "setBasket"],
       invoke: {
         src: "guardProductRecommendations",
         onDone: { actions: ["setResolved"] },
@@ -196,7 +196,14 @@ export default <FunnelProps>{
      * From here, users can proceed to the CHECKOUT route or return to the CATALOGUE.
      */
     [ROUTE.BASKET]: {
-      entry: ["setCurrency"],
+      meta: {
+        next: [
+          { target: ROUTE.BILLING, cond: "hasStandaloneBilling" },
+          { target: ROUTE.CHECKOUT }
+        ],
+        prev: ROUTE.CATALOGUE
+      },
+      entry: ["setCurrency", "setBasket"],
       invoke: {
         src: "guardBasket",
         onDone: { actions: ["setResolved"] },
@@ -226,16 +233,6 @@ export default <FunnelProps>{
             actions: ["setResolving"]
           }
         ]
-      },
-      on: {
-        NEXT: {
-          target: ROUTE.CHECKOUT,
-          actions: [assign({ targetRoute: { name: ROUTE.CHECKOUT } })]
-        },
-        BACK: {
-          target: ROUTE.CATALOGUE,
-          actions: [assign({ targetRoute: { name: ROUTE.CATALOGUE } })]
-        }
       }
     },
 
@@ -249,11 +246,23 @@ export default <FunnelProps>{
      */
     [ROUTE.BASKET_EMPTY]: {
       meta: { next: ROUTE.CATALOGUE, prev: ROUTE.CATALOGUE },
+      entry: ["setBasket"],
       invoke: {
         src: "guardBasket",
         onDone: { target: ROUTE.BASKET, actions: ["setResolving"] },
         onError: { actions: ["setResolved"] }
       }
+    },
+
+    /**
+     * 🎯 ROUTE.BASKET_UNAVAILABLE
+     * This state handles scenarios where the basket cannot be retrieved.
+     * Resolves immediately — no guard needed since there is no basket to validate.
+     * Users can return to the catalogue/storefront from here.
+     */
+    [ROUTE.BASKET_UNAVAILABLE]: {
+      meta: { next: ROUTE.CATALOGUE, prev: ROUTE.CATALOGUE },
+      entry: ["setResolved"]
     },
 
     /**
@@ -267,7 +276,7 @@ export default <FunnelProps>{
      */
     [ROUTE.BASKET_PRODUCT_EDIT]: {
       meta: { next: ROUTE.RECOMMENDATIONS, prev: ROUTE.BASKET },
-      entry: ["setCurrency"],
+      entry: ["setCurrency", "setBasket"],
       invoke: {
         src: "guardProductEdit",
         onDone: { actions: ["setResolved"] },
@@ -285,7 +294,7 @@ export default <FunnelProps>{
      */
     [ROUTE.BASKET_PRODUCT_REQUIRES_ACTION]: {
       meta: { next: ROUTE.BASKET_PRODUCT_EDIT, prev: ROUTE.BASKET },
-      entry: ["setCurrency"],
+      entry: ["setCurrency", "setBasket"],
       invoke: {
         src: "guardProductRequiresAction",
         onDone: { actions: ["setResolved"] },
@@ -310,7 +319,7 @@ export default <FunnelProps>{
      */
     [ROUTE.RECOMMENDATIONS]: {
       meta: { next: ROUTE.CHECKOUT_FLOW, prev: ROUTE.CHECKOUT_FLOW },
-      entry: ["setCurrency"],
+      entry: ["setCurrency", "setBasket"],
       invoke: {
         src: "guardRecommendations",
         onDone: { actions: ["setResolved"] },
@@ -327,7 +336,7 @@ export default <FunnelProps>{
      */
     [ROUTE.DOMAINS]: {
       meta: { next: ROUTE.RECOMMENDATIONS, prev: ROUTE.BASKET },
-      entry: ["setCurrency"],
+      entry: ["setCurrency", "setBasket"],
       invoke: {
         src: "guardDomains",
         onDone: { actions: ["setResolved"] },
@@ -346,7 +355,7 @@ export default <FunnelProps>{
      */
     [ROUTE.DOMAINS_WITH_PRODUCT]: {
       meta: { next: ROUTE.DOMAINS_WITH_PRODUCT_PROCESSING, prev: ROUTE.BASKET },
-      entry: ["setCurrency"],
+      entry: ["setCurrency", "setBasket"],
       invoke: {
         src: "guardDomains",
         onDone: { actions: ["setResolved"] },
@@ -554,7 +563,7 @@ export default <FunnelProps>{
      * or return to the BASKET to make changes.
      */
     [ROUTE.CHECKOUT]: {
-      entry: ["setCurrency"],
+      entry: ["setCurrency", "setBasket", "setBillingDefaults"],
       invoke: {
         src: "guardCheckout",
         onDone: { actions: ["setResolved"] },
@@ -582,6 +591,11 @@ export default <FunnelProps>{
             target: ROUTE.BASKET_PRODUCT_REQUIRES_ACTION,
             actions: ["setResolving"],
             cond: "hasInvalidProducts"
+          },
+          {
+            target: ROUTE.BILLING,
+            actions: ["setResolving"],
+            cond: "isBilling"
           },
           { target: ROUTE.BASKET, actions: ["setResolving"] }
         ]
@@ -615,6 +629,40 @@ export default <FunnelProps>{
           target: ROUTE.BASKET,
           actions: [assign({ targetRoute: { name: ROUTE.BASKET } })]
         }
+      }
+    },
+
+    /**
+     * 🎯 ROUTE.BILLING
+     * This state manages the standalone billing details page.
+     * If billing is already satisfied, guardBilling resolves with target CHECKOUT
+     * and the onDone isCheckout guard transitions the machine to CHECKOUT state,
+     * skipping the billing page entirely.
+     * If user input is needed, the page renders and Billing.vue auto-navigates
+     * to checkout via NEXT when billing completes.
+     * Users can also return to BASKET via BACK.
+     */
+    [ROUTE.BILLING]: {
+      meta: { next: ROUTE.CHECKOUT, prev: ROUTE.BASKET },
+      entry: ["setCurrency"],
+      invoke: {
+        src: "guardBilling",
+        onDone: [
+          {
+            target: ROUTE.CHECKOUT,
+            actions: ["setResolving"],
+            cond: "isCheckout"
+          },
+          { actions: ["setResolved"] }
+        ],
+        onError: [
+          {
+            target: ROUTE.CHECKOUT,
+            actions: ["setResolving"],
+            cond: "isSession"
+          },
+          { target: ROUTE.CHECKOUT, actions: ["setResolving"] }
+        ]
       }
     },
 

@@ -11,6 +11,7 @@ import {
   useSession
 } from "@upmind-automation/client-vue";
 import { ROUTE } from "../types";
+import { applyBillingDefaults } from "./services";
 
 // -----------------------------------------------------------------------------
 
@@ -31,9 +32,9 @@ const BASKET_ROUTES: string[] = [
  */
 const SKIP_BID_ROUTES: string[] = [
   ROUTE.ORDER,
-  ROUTE.NOT_FOUND,
-  ROUTE.LOADING,
-  ROUTE.ERROR
+  ROUTE.ERROR,
+  ROUTE.BASKET_UNAVAILABLE,
+  ROUTE.SESSION_END
 ];
 
 /**
@@ -113,6 +114,30 @@ export default {
   logout: () => {
     const { logout } = useSession();
     logout();
+  },
+
+  /**
+   * Prime the basket machine with the target basket ID from the current route.
+   * Fires synchronously on funnel entry — before any async guards run —
+   * so the machine stores the ID while still in `subscribing` state.
+   * When `SESSION` fires next, the first `load` already uses `orders/{id}`.
+   */
+  setBasket: ({ currentRoute }: FunnelContext) => {
+    if (!currentRoute) return;
+    const { getParam } = useQueryParams(currentRoute);
+    const bid = getParam(QUERY_PARAMS.BASKET_ID);
+    if (bid) {
+      const { setTargetBasket } = useBasket();
+      setTargetBasket(bid); // fire-and-forget: sends SET_TARGET_BASKET to the machine
+    }
+  },
+
+  /**
+   * Sets billing defaults from the client's default address, company, and phone.
+   * Fire-and-forget — uses the shared `applyBillingDefaults` helper.
+   */
+  setBillingDefaults: () => {
+    applyBillingDefaults();
   },
 
   /**

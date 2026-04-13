@@ -3,8 +3,11 @@ import { isEmpty } from "lodash-es";
 import {
   type AnyEventObject,
   type FunnelContext,
+  UIContext,
   useBasket,
-  useQueryParams
+  useConfig,
+  useQueryParams,
+  useSession
 } from "@upmind-automation/client-vue";
 import { QUERY_PARAMS } from "@upmind-automation/types";
 import type { RouteLocationGeneric } from "vue-router";
@@ -75,5 +78,24 @@ export default {
   hasFields: () => {
     const { meta } = useBasket();
     return meta.value?.hasFields;
+  },
+  /**
+   * Returns true when standalone billing is enabled (billing is readonly on checkout).
+   * Used by BASKET NEXT to route through the billing page, and by CHECKOUT onError
+   * to redirect when billing needs input.
+   */
+  hasStandaloneBilling: () => {
+    const { ui } = useConfig({ context: UIContext.CHECKOUT });
+    const { data } = useConfig({ context: UIContext.BILLING_DETAILS });
+    return !data.billingDetailsDisabled && ui.billingDetails.isReadonly;
+  },
+  /**
+   * Returns true when the user is already authenticated.
+   * Synchronous check — reads reactive session meta without awaiting.
+   * Used as an `always` guard to skip auth pages instantly.
+   */
+  isAuthenticated: () => {
+    const { meta } = useSession();
+    return !!meta.value?.isAuthenticated;
   }
 };
