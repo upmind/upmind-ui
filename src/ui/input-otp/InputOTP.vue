@@ -20,7 +20,7 @@
         type="text"
         pattern="\d*"
         inputmode="numeric"
-        autocomplete="off"
+        autocomplete="one-time-code"
         data-testid="input-otp-slot"
         @input="onChange(idx - 1, ($event.target as HTMLInputElement).value)"
         @focus="onSlotFocus(idx - 1)"
@@ -51,7 +51,7 @@
         type="text"
         pattern="\d*"
         inputmode="numeric"
-        autocomplete="off"
+        autocomplete="one-time-code"
         data-testid="input-otp-slot"
         @input="
           onChange(
@@ -109,6 +109,7 @@ const props = withDefaults(defineProps<InputOTPProps>(), {
 
 const emit = defineEmits<{
   "update:modelValue": [value: string];
+  complete: [value: string];
 }>();
 
 const modelValue = defineModel<InputOTPProps["modelValue"]>("modelValue", {});
@@ -186,6 +187,9 @@ function emitValue() {
   const isComplete = chars.value.every(c => c !== "");
   modelValue.value = isComplete ? value : value;
   emit("update:modelValue", isComplete ? value : "");
+  if (isComplete) {
+    emit("complete", value);
+  }
 }
 
 function onChange(index: number, value: string) {
