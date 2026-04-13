@@ -37,7 +37,8 @@ export default {
             variants: {
               layout: {
                 stacked: "gap-4 text-base",
-                inline: "w-full items-start justify-between sm:items-center"
+                inline:
+                  "w-full items-start justify-between gap-x-4 sm:items-center"
               }
             },
             defaultVariants: {
