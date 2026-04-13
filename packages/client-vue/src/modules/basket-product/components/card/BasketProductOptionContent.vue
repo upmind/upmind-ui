@@ -57,9 +57,7 @@
           pricing: { current: [styles.product.pricing.current] }
         }"
       >
-        <template v-if="summary.meta.toggle?.selected === false" #prefix
-          >+
-        </template>
+        <template #prefix>+</template>
         <template v-if="summary.quantity && summary.quantity > 1" #suffix>
           (x{{ summary.quantity }})
         </template>
