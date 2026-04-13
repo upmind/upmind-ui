@@ -47,7 +47,7 @@ export default {
         root: cva("flex flex-col justify-between gap-2 lg:flex-row"),
         terms: {
           root: cva("flex items-center gap-2"),
-          content: cva("max-h-74! w-screen max-w-96")
+          content: cva("max-h-74!")
         },
         price: {
           root: cva("flex items-end justify-between gap-4 lg:justify-end"),
