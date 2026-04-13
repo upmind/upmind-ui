@@ -32,6 +32,7 @@
         </h3>
 
         <Promotion
+          v-if="!isMobile"
           v-for="(promotion, index) in summary.promotions"
           :key="index"
           v-bind="promotion"
@@ -70,7 +71,7 @@ import TermsDescription from "./components/TermsDescription.vue";
 import Promotion from "./components/Promotion.vue";
 
 // --- internal
-import { useStyles } from "@upmind-automation/upmind-ui";
+import { useStyles, isMobile } from "@upmind-automation/upmind-ui";
 import config from "./basketProduct.config";
 
 // --- types
