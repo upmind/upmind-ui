@@ -1,7 +1,7 @@
 {
   "name": "@upmind-automation/cart",
   "private": true,
-  "version": "0.15.5",
+  "version": "0.17.0",
   "description": "Bespoke Vue.js, e-commerce platform built on the Upmind platform",
   "keywords": [
     "Upmind",
@@ -37,12 +37,16 @@
     "localazy": "localazy download && pnpm format",
     "deploy:production": "pnpm build && pnpm deploy:gcs:production && pnpm deploy:firebase:production",
     "deploy:staging": "pnpm build:staging && pnpm deploy:gcs:staging && pnpm deploy:firebase:staging",
-    "deploy:gcs:production": "bash scripts/deploy-gcs.sh --bucket upmind-cart",
-    "deploy:gcs:production:dry-run": "bash scripts/deploy-gcs.sh --bucket upmind-cart --dry-run",
-    "deploy:gcs:staging": "bash scripts/deploy-gcs.sh --bucket upmind-cart-staging",
-    "deploy:gcs:staging:dry-run": "bash scripts/deploy-gcs.sh --bucket upmind-cart-staging --dry-run",
+    "deploy:sprighost": "pnpm build && pnpm deploy:gcs:sprighost && pnpm deploy:firebase:sprighost",
+    "deploy:gcs:production": "bash scripts/deploy-gcs.sh --bucket upmind-cart --prefix production",
+    "deploy:gcs:production:dry-run": "bash scripts/deploy-gcs.sh --bucket upmind-cart --prefix production --dry-run",
+    "deploy:gcs:staging": "bash scripts/deploy-gcs.sh --bucket upmind-cart-staging --prefix staging",
+    "deploy:gcs:staging:dry-run": "bash scripts/deploy-gcs.sh --bucket upmind-cart-staging --prefix staging --dry-run",
+    "deploy:gcs:sprighost": "bash scripts/deploy-gcs.sh --bucket upmind-cart --prefix sprighost",
+    "deploy:gcs:sprighost:dry-run": "bash scripts/deploy-gcs.sh --bucket upmind-cart --prefix sprighost --dry-run",
     "deploy:firebase:production": "firebase deploy --project upmind-cart --only hosting:upmind-cart",
-    "deploy:firebase:staging": "firebase deploy --project upmind-cart --only hosting:upmind-cart-staging"
+    "deploy:firebase:staging": "firebase deploy --project upmind-cart --only hosting:upmind-cart-staging",
+    "deploy:firebase:sprighost": "firebase deploy --only hosting:staging"
   },
   "dependencies": {
     "@formkit/auto-animate": "^0.8.2",
