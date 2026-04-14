@@ -19,7 +19,7 @@
   "payment_due_msg": "Bestillingen din er bekreftet. Betaling av{amount} forfaller innen{due_date} .",
   "payment_failed_banner": "Betalingsforsøket ditt mislyktes – prøv igjen.",
   "payment_partial": "Utestående betaling",
-  "payment_partial_msg": "Du har enn {paid_amount} er igjen. Fullfør betalingen for å fullføre bestillingen.",
+  "payment_partial_msg": "Du har {remaining_amount} gjenværende. Vennligst fullfør betalingen for å fullføre bestillingen.",
   "payment_required_msg": "Bestillingen din er bekreftet. Betaling av{amount} er nødvendig for å fullføre bestillingen din.",
   "payment_retry": "Betaling for denne bestillingen er fortsatt forfalt i sin helhet.",
   "payment_retry_action": "Prøv ny betalingsmåte",

@@ -21,6 +21,7 @@
   "asset_unavailable_text": "Nous venons de mettre à jour l’application et votre version n’est plus à jour. Rechargez pour continuer.",
   "asset_unavailable_title": "Rechargement requis",
   "asset_unavailable_title_md": "@.markdown:{'error.asset_unavailable_title'}",
+  "auth_not_valid": "Les champs d&#39;authentification ne sont pas valides.",
   "basket_convert_failed": "La conversion du panier a échoué",
   "basket_fields_update_failed": "Nous avons rencontré une erreur lors de la mise à jour des champs du panier",
   "basket_fields_validation_failed": "La validation des champs a échoué",

@@ -21,6 +21,7 @@
   "asset_unavailable_text": "我們剛更新了應用程式，您目前的版本已過期。重新載入以繼續。",
   "asset_unavailable_title": "必須重新載入",
   "asset_unavailable_title_md": "@.markdown:{'error.asset_unavailable_title'}",
+  "auth_not_valid": "身份驗證欄位無效",
   "basket_convert_failed": "轉換購物籃失敗",
   "basket_fields_update_failed": "更新購物籃字段時出錯",
   "basket_fields_validation_failed": "字段驗證失敗",
