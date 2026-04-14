@@ -76,30 +76,20 @@ import Promotion from "../../../basket-product/components/card/components/Promot
 // --- utils
 import { isEmpty, has } from "lodash-es";
 
-// --- types
-import type { TermDetails } from "@upmind-automation/headless";
+import type { TermCardProps } from "./types";
 
 // -----------------------------------------------------------------------------
 
-const props = withDefaults(
-  defineProps<
-    TermDetails & {
-      summary?: boolean;
-      layout?: "stacked" | "inline";
-      priceDisplayType?: PriceDisplayTypes;
-    }
-  >(),
-  {
-    summary: true,
-    layout: "stacked"
-  }
-);
+const props = withDefaults(defineProps<TermCardProps>(), {
+  summary: true,
+  layout: "stacked"
+});
 
 const { t } = useI18n();
 
 const useMonthlyFromPrice = computed(() =>
-  props.priceDisplayType
-    ? props.priceDisplayType !== PriceDisplayTypes.CYCLE
+  props.type
+    ? props.type !== PriceDisplayTypes.CYCLE
     : props.meta?.useMonthlyFromPrice
 );
 

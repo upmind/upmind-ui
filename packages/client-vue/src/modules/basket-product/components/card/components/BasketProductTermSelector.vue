@@ -20,7 +20,7 @@
           v-bind="slotProps.item"
           layout="inline"
           :summary="false"
-          :price-display-type="PriceDisplayTypes.CYCLE"
+          :type="PriceDisplayTypes.CYCLE"
         />
       </template>
     </SelectCards>
