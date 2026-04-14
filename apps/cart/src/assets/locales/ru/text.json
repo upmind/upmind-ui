@@ -118,7 +118,7 @@
   "tax_excluded": "без учета налогов",
   "tax_included": "включая налоги",
   "tax_invalid": "{number} недействительный налоговый номер.",
-  "tax_number": "Налоговый номер:{taxNumber}",
+  "tax_number": "Налоговый номер: {taxNumber}",
   "tax_pending": "Этот налоговый номер еще не подтвержден.",
   "tax_valid": "Проверено {relative}",
   "term": "срок",

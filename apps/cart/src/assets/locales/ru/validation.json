@@ -13,7 +13,7 @@
   "enum": "{title} должно быть равно одному из допустимых значений",
   "exclusiveMaximum": "{title} должно быть меньше {exclusiveMaximum}",
   "exclusiveMinimum": "{title} должно быть больше, чем {exclusiveMinimum}",
-  "format": "@:validation .{format} |{title} формат должен соответствовать {format}",
+  "format": "@:validation.{format} | {title} формат должен соответствовать {format}",
   "if": "{title} должно соответствовать схеме «then» | {title} должно соответствовать схеме «else»",
   "maxItems": "{title} НЕ должно быть больше, чем {maxItems} предмет | {title} НЕ должно быть больше, чем {maxItems} предметы",
   "maxLength": "{title} НЕ должно быть длиннее, чем {maxLength} персонаж | {title} НЕ должно быть длиннее, чем {maxLength} персонажи",

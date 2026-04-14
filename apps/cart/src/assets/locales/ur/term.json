@@ -12,7 +12,7 @@
   "once": "ایک بار",
   "one_time": "ایک بار",
   "price_by_n_years": "{price}/سال | {price} /{n} سال",
-  "price_msg": "صرف{price} | سے{price} ایک مہینہ | سے{price} ہر{period}",
+  "price_msg": "صرف {price} | سے {price} ایک مہینہ | سے {price} ہر {period}",
   "quarterly": "سہ ماہی",
   "renews_msg": "ایک بار ادائیگی | ہر {cycle} پر تجدید ہوتی ہے | ہر {cycle} پر تجدید ہوتی ہے",
   "renews_usually_msg": "عام طور پر {price}",

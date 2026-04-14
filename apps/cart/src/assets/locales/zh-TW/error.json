@@ -79,7 +79,7 @@
   "generic_text": "讓我們幫你回到正軌",
   "generic_title": "抱歉，我們遇到了**錯誤**",
   "generic_title_md": "@.markdown：{'error.generic_title'}",
-  "http_method_not_valid": "無效的方法：{method}",
+  "http_method_not_valid": "無效的方法： {method}",
   "input_not_available": "輸入不可用",
   "language_load_failed": "無法載入語言",
   "local_storage_not_available": "本地儲存不可用",

@@ -13,7 +13,7 @@
   "enum": "{title} måste vara lika med ett av de tillåtna värdena",
   "exclusiveMaximum": "{title} måste vara mindre än {exclusiveMaximum}",
   "exclusiveMinimum": "{title} måste vara större än {exclusiveMinimum}",
-  "format": "@:validation .{format} |{title} måste matcha formatet {format}",
+  "format": "@:validation.{format} | {title} måste matcha formatet {format}",
   "if": "{title} måste matcha 'sedan'-schemat | {title} måste matcha schemat 'annars'",
   "maxItems": "{title} får INTE ha mer än {maxItems} föremål | {title} får INTE ha mer än {maxItems} föremål",
   "maxLength": "{title} får INTE vara längre än {maxLength} karaktär | {title} får INTE vara längre än {maxLength} karaktärer",

@@ -13,7 +13,7 @@
   "enum": "{title} trebuie să fie egal cu una dintre valorile permise",
   "exclusiveMaximum": "{title} trebuie să fie mai mic decât {exclusiveMaximum}",
   "exclusiveMinimum": "{title} trebuie să fie mai mare decât {exclusiveMinimum}",
-  "format": "@:validation .{format} |{title} trebuie să corespundă formatului {format}",
+  "format": "@:validation.{format} | {title} trebuie să corespundă formatului {format}",
   "if": "{title} trebuie să corespundă schemei „then” | {title} trebuie să corespundă schemei „else”",
   "maxItems": "{title} NU trebuie să aibă mai mult de {maxItems} articol | {title} NU trebuie să aibă mai mult de {maxItems} articole",
   "maxLength": "{title} NU trebuie să fie mai lung decât {maxLength} personaj {title} NU trebuie să fie mai lung decât {maxLength} personaje",

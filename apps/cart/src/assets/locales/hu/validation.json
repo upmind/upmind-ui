@@ -13,7 +13,7 @@
   "enum": "{title} meg kell egyeznie az engedélyezett értékek egyikével",
   "exclusiveMaximum": "{title} kisebbnek kell lennie, mint {exclusiveMaximum}",
   "exclusiveMinimum": "{title} nagyobbnak kell lennie, mint {exclusiveMinimum}",
-  "format": "@:validation .{format} |{title} formátumnak kell egyeznie {format}",
+  "format": "@:validation.{format} | {title} formátumnak kell egyeznie {format}",
   "if": "{title} meg kell egyeznie az 'akkor' sémával | {title} egyeznie kell az „else” sémával",
   "maxItems": "{title} NEM lehet több, mint {maxItems} tétel | {title} NEM lehet több, mint {maxItems} tételek",
   "maxLength": "{title} NEM lehet hosszabb, mint {maxLength} karakter | {title} NEM lehet hosszabb, mint {maxLength} karakterek",

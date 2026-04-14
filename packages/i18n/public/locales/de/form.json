@@ -155,5 +155,20 @@
   },
   "stored_payment_method": {
     "label": ""
+  },
+  "twofa": {
+    "description": "Dieses Konto ist durch Zwei-Faktor-Authentifizierung gesichert. Bitte geben Sie Ihren Bestätigungscode ein.",
+    "label": "Bestätigungscode",
+    "placeholder": "123 456"
+  },
+  "twofa_email": {
+    "description": "Zu Ihrem Schutz haben wir Ihnen einen Einmalpasscode per E-Mail zugesendet. Um diese Anfrage abzuschließen, geben Sie bitte den Code unten ein.",
+    "label": "Bestätigungscode",
+    "placeholder": "123 456"
+  },
+  "twofa_totp": {
+    "description": "Um diese Anfrage abzuschließen, geben Sie bitte den von Ihrer Authenticator-App generierten Einmalpasswortcode ein.",
+    "label": "Bestätigungscode",
+    "placeholder": "123 456"
   }
 }
