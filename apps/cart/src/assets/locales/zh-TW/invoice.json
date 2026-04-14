@@ -19,7 +19,7 @@
   "payment_due_msg": "您的訂單已確認。付款方式{amount}到期{due_date}。",
   "payment_failed_banner": "您的付款嘗試未成功——請重試。",
   "payment_partial": "未付款項",
-  "payment_partial_msg": "您尚餘{paid_amount} 。請完成付款以完成訂單。",
+  "payment_partial_msg": "你有 {remaining_amount} 還剩少量款項。請完成付款以完成訂單。",
   "payment_required_msg": "您的訂單已確認。付款方式{amount}完成訂單需要此資訊。",
   "payment_retry": "此訂單的款項仍須全額支付",
   "payment_retry_action": "嘗試新付款方式",

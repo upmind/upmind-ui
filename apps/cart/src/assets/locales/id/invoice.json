@@ -19,7 +19,7 @@
   "payment_due_msg": "Pesanan Anda telah dikonfirmasi. Pembayaran{amount} disebabkan oleh{due_date} .",
   "payment_failed_banner": "Upaya pembayaran Anda tidak berhasil - silakan coba lagi.",
   "payment_partial": "Pembayaran yang belum dibayar",
-  "payment_partial_msg": "Anda masih memiliki {paid_amount} yang tersisa. Silakan selesaikan pembayaran Anda untuk menyelesaikan pesanan Anda.",
+  "payment_partial_msg": "Anda memiliki {remaining_amount} tersisa. Mohon selesaikan pembayaran Anda untuk menyelesaikan pesanan Anda.",
   "payment_required_msg": "Pesanan Anda telah dikonfirmasi. Pembayaran{amount} Diperlukan untuk menyelesaikan pesanan Anda.",
   "payment_retry": "Pembayaran untuk pesanan ini masih harus dibayarkan secara penuh.",
   "payment_retry_action": "Coba metode pembayaran baru",

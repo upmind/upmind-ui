@@ -19,7 +19,7 @@
   "payment_due_msg": "Vaše objednávka je potvrzena. Platba{amount} je splatný do{due_date} .",
   "payment_failed_banner": "Váš pokus o platbu nebyl úspěšný – zkuste to prosím znovu.",
   "payment_partial": "Neuhrazená platba",
-  "payment_partial_msg": "Zbývá vám ještě {paid_amount}. Dokončete prosím platbu, abyste dokončili objednávku.",
+  "payment_partial_msg": "Máte {remaining_amount} Zbývá. Pro dokončení objednávky prosím dokončete platbu.",
   "payment_required_msg": "Vaše objednávka je potvrzena. Platba{amount} je nutné k dokončení vaší objednávky.",
   "payment_retry": "Platba za tuto objednávku je stále splatná v plné výši.",
   "payment_retry_action": "Vyzkoušejte novou platební metodu",
