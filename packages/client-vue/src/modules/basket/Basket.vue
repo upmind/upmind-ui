@@ -201,7 +201,9 @@ const template = computed(() =>
 
 const templateVariant = computed(() => get(supportedTemplates, template.value));
 
-await isReady();
+// @deprecated — Removed to avoid blocking render behind the global loader.
+// Components now rely on inline skeleton states for loading feedback instead.
+// await isReady();
 
 const { data: basketSummaryTemplate } = useClientTemplate({
   code: ClientTemplateSlotCodes.BASKET_SUMMARY_FOOTER,
