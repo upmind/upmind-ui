@@ -7,7 +7,7 @@
  * update visibility when teleported or dynamic content changes.
  */
 
-import { ref, nextTick, onMounted } from "vue";
+import { ref, computed, nextTick, onMounted } from "vue";
 import type { ShallowRef, Ref } from "vue";
 import { useMutationObserver } from "@vueuse/core";
 import { isEmpty } from "lodash-es";
@@ -60,14 +60,16 @@ export function useContentVisibility(
 ): Ref<boolean> {
   const visible = ref(false);
 
+  const el = computed(
+    () => (templateRef.value?.$el as HTMLElement | undefined) ?? null
+  );
+
   const check = () => {
-    visible.value = templateRef.value?.$el
-      ? hasSignificantContent(templateRef.value.$el)
-      : false;
+    visible.value = el.value ? hasSignificantContent(el.value) : false;
   };
 
   // --- side effects
-  useMutationObserver(templateRef, check, {
+  useMutationObserver(el, check, {
     childList: true,
     subtree: true
   });
