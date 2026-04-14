@@ -13,7 +13,7 @@
   "enum": "{title} harus sama dengan salah satu nilai yang diizinkan",
   "exclusiveMaximum": "{title} harus kurang dari {exclusiveMaximum}",
   "exclusiveMinimum": "{title} harus lebih besar dari {exclusiveMinimum}",
-  "format": "@:validation .{format} |{title} harus sesuai format {format}",
+  "format": "@:validation.{format} | {title} harus sesuai format {format}",
   "if": "{title} harus cocok dengan skema 'then' | {title} harus cocok dengan skema 'else'",
   "maxItems": "{title} TIDAK boleh memiliki lebih dari {maxItems} barang | {title} TIDAK boleh memiliki lebih dari {maxItems} barang-barang",
   "maxLength": "{title} TIDAK boleh lebih panjang dari {maxLength} karakter | {title} TIDAK boleh lebih panjang dari {maxLength} karakter",

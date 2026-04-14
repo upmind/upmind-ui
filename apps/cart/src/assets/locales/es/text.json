@@ -118,7 +118,7 @@
   "tax_excluded": "excluyendo impuestos",
   "tax_included": "incluidos impuestos",
   "tax_invalid": "{number} es un número de identificación fiscal no válido.",
-  "tax_number": "Número de impuesto:{taxNumber}",
+  "tax_number": "Número de impuesto: {taxNumber}",
   "tax_pending": "Este número de identificación fiscal aún no ha sido validado.",
   "tax_valid": "Validado {relative}",
   "term": "término",

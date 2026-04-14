@@ -13,7 +13,7 @@
   "enum": "{title} musí být rovno jedné z povolených hodnot",
   "exclusiveMaximum": "{title} musí být menší než {exclusiveMaximum}",
   "exclusiveMinimum": "{title} musí být větší než {exclusiveMinimum}",
-  "format": "@:validation .{format} |{title} musí odpovídat formátu {format}",
+  "format": "@:validation.{format} | {title} musí odpovídat formátu {format}",
   "if": "{title} musí odpovídat schématu 'then '{title} musí odpovídat schématu 'else'",
   "maxItems": "{title} NESMÍ mít více než {maxItems} položka | {title} NESMÍ mít více než {maxItems} položky",
   "maxLength": "{title} NESMÍ být delší než {maxLength} postava {title} NESMÍ být delší než {maxLength} postavy",

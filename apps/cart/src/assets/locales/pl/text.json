@@ -118,7 +118,7 @@
   "tax_excluded": "bez podatków",
   "tax_included": "w tym podatki",
   "tax_invalid": "{number} jest nieprawidłowym numerem identyfikacji podatkowej.",
-  "tax_number": "Numer podatku:{taxNumber}",
+  "tax_number": "Numer podatku: {taxNumber}",
   "tax_pending": "Ten numer podatkowy nie został jeszcze zweryfikowany.",
   "tax_valid": "Zweryfikowany {relative}",
   "term": "termin",

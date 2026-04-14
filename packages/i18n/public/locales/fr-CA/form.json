@@ -155,5 +155,20 @@
   },
   "stored_payment_method": {
     "label": ""
+  },
+  "twofa": {
+    "description": "Ce compte est sécurisé par une authentification à deux facteurs. Veuillez saisir votre code de vérification.",
+    "label": "Le code de vérification",
+    "placeholder": "123 456"
+  },
+  "twofa_email": {
+    "description": "Pour votre sécurité, nous vous avons envoyé un code d'accès à usage unique par e-mail. Pour finaliser cette demande, veuillez saisir ce code ci-dessous.",
+    "label": "Le code de vérification",
+    "placeholder": "123 456"
+  },
+  "twofa_totp": {
+    "description": "Pour finaliser cette demande, veuillez saisir le code d'accès à usage unique généré par votre application d'authentification.",
+    "label": "Le code de vérification",
+    "placeholder": "123 456"
   }
 }
