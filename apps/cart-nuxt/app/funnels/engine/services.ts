@@ -534,7 +534,9 @@ export default {
       if (targetBasketId.value !== basketId) {
         setTargetBasket(basketId);
       }
-      await isReady();
+      // @deprecated — Removed to avoid blocking render behind the global loader.
+      // Basket pages now rely on inline skeleton states for loading feedback.
+      // await isReady();
 
       // If the basket loaded successfully with the target ID, resolve
       if (targetBasketId.value) {
