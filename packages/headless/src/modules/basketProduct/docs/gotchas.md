@@ -18,7 +18,7 @@ For inline editing and upsell-specific gotchas, see [Inline Editing](./inline-ed
 
 ## 2. `basketProductChanged` Typo Fix (FE-1502)
 
-FE-1502 fixed a typo in `product.machine.ts` — `basketPoductChanged` → `basketProductChanged`. Also fixed a bug where `clientId == data?.client_id` used loose equality instead of `!==` (it was checking equality when it should have been checking _in_equality).
+FE-1502 fixed a typo in `product.machine.ts` — `basketPoductChanged` → `basketProductChanged`. Also fixed a bug where `clientId == data?.client_id` used loose equality instead of `!==` (it was checking equality when it should have been checking \_in_equality).
 
 Additionally, the comparison now correctly looks up the basket product from `data.products` by ID rather than comparing against the old `data.basketProduct` reference — which could be stale after a basket refresh.
 
@@ -28,10 +28,10 @@ Additionally, the comparison now correctly looks up the basket product from `dat
 
 **FE-1502 corrected two config definitions:**
 
-| Property | Old Scope | New Scope | Reason |
-|----------|-----------|-----------|--------|
-| `optionBenefits` | `PRODUCT_CATEGORY, PRODUCT` | `OPTION_CATEGORY, OPTION` | Benefits are per-option, not per-product |
-| `optionUpsellEnabled` | `OPTION_CATEGORY, OPTION` | `OPTION` only | Upsell toggle is per-option value, not per-category |
+| Property              | Old Scope                   | New Scope                 | Reason                                              |
+| --------------------- | --------------------------- | ------------------------- | --------------------------------------------------- |
+| `optionBenefits`      | `PRODUCT_CATEGORY, PRODUCT` | `OPTION_CATEGORY, OPTION` | Benefits are per-option, not per-product            |
+| `optionUpsellEnabled` | `OPTION_CATEGORY, OPTION`   | `OPTION` only             | Upsell toggle is per-option value, not per-category |
 
 > **🔧 For Contributors:** If you add meta properties for options, make sure to scope them correctly. See `config/schema/definitions.ts`. Scoping too broadly (e.g., at product level) means the setting applies to all options, which is rarely the intent.
 
