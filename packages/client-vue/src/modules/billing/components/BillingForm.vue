@@ -1,7 +1,12 @@
 <template>
   <Loading
     :active="meta.isProcessing"
-    :ui-config="{ loading: billingConfig.billing.loading }"
+    :ui-config="{
+      loading: {
+        root: [styles.billing.loading.root],
+        spinner: [styles.billing.loading.spinner]
+      }
+    }"
   >
     <Sections
       id="basket-billing"
@@ -110,7 +115,11 @@ const touched = defineModel<BillingFormProps["touched"]>("touched");
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
-const styles = useStyles(["billing.form"], {}, billingConfig);
+const styles = useStyles(
+  ["billing.form", "billing.loading"],
+  {},
+  billingConfig
+);
 
 // Teleport cannot use `defer` inside async setup (Suspense + KeepAlive conflict),
 // so we gate it on isMounted to ensure the DOM target exists before teleporting.
