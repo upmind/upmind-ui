@@ -35,8 +35,6 @@ The confirm button on the billing page now stays visible in a sticky footer, so 
 ### Payment Term Descriptions
 Product terms now respect the "Payment term descriptions" brand setting, giving you more control over how billing terms are displayed to customers.
 
-### Term Selector in Basket Shows Pricing
-When changing a product's billing term from the basket, you can now see promotions and pricing directly in the term selector dropdown.
 
 ### Subproduct Card Pricing Improvements
 Configuration subproduct cards now show a "+" prefix for the regular price when a current (discounted) price is also displayed, making it clearer which price is the add-on cost.
