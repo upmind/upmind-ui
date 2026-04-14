@@ -41,7 +41,7 @@
         :discounted="props.meta?.discounted ?? false"
         :overridden="props.meta?.overridden"
         :free="props.meta?.free ?? false"
-        :use-monthly-from-price="props.meta?.useMonthlyFromPrice"
+        :use-monthly-from-price="useMonthlyFromPrice"
         :ui-config="{
           pricing: {
             current: [styles.terms.radio.item.total],
@@ -64,6 +64,7 @@ import { useI18n } from "vue-i18n";
 
 // --- internal
 import { parseBillingCycle } from "@upmind-automation/headless";
+import { PriceDisplayTypes } from "@upmind-automation/types";
 import { useStyles, Badge, Tooltip } from "@upmind-automation/upmind-ui";
 import config from "./terms.config";
 
@@ -85,6 +86,7 @@ const props = withDefaults(
     TermDetails & {
       summary?: boolean;
       layout?: "stacked" | "inline";
+      priceDisplayType?: PriceDisplayTypes;
     }
   >(),
   {
@@ -95,11 +97,17 @@ const props = withDefaults(
 
 const { t } = useI18n();
 
+const useMonthlyFromPrice = computed(() =>
+  props.priceDisplayType
+    ? props.priceDisplayType !== PriceDisplayTypes.CYCLE
+    : props.meta?.useMonthlyFromPrice
+);
+
 const meta = computed(() => ({
   layout: props.layout,
   hasPromotions: !isEmpty(props.promotions) || props.meta?.mixed,
   showStacked: !props.summary,
-  showSummary: props.summary && props.meta.useMonthlyFromPrice
+  showSummary: props.summary && useMonthlyFromPrice.value
 }));
 
 const styles = useStyles(["terms.radio", "terms.radio.item"], meta, config);

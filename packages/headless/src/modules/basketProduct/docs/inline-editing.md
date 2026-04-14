@@ -202,6 +202,33 @@ The dropdown shows `parseBillingCycle(cycle).numeric` labels (e.g., "1 month", "
 
 > **🧪 For Testers:** Change the billing term. Verify option prices update, options without a price for the new term disappear, and one-off options (cycle 0) remain visible.
 
+### Pricing Display: Full Term Price (Forced)
+
+The basket term selector **always shows the full term price** (e.g., `$120/yr`) — never the monthly breakdown (e.g., `$10/mo`). This is enforced via the `priceDisplayType` prop on `TermCard` in `BasketProductTermSelector.vue`:
+
+```vue
+<!-- BasketProductTermSelector.vue — dropdown slot -->
+<TermCard v-bind="slotProps.item" :price-display-type="PriceDisplayTypes.CYCLE" />
+```
+
+**Why?** The basket product card displays the total price for the selected billing cycle (via `CurrentPrice` / `ExPrice` in `BasketProductContent.vue`). If the term selector showed monthly prices but the card showed the full term price, the user would see two different price formats side by side — confusing. Forcing `CYCLE` display ensures the term selector matches the adjacent product price.
+
+> **🔧 For Contributors:** `TermCard` accepts an optional `priceDisplayType` prop (`PriceDisplayTypes` enum from `@upmind-automation/types`). When set, it overrides the `meta.useMonthlyFromPrice` flag derived from the brand's `PRICE_DISPLAY_TYPE` setting. Available values: `CYCLE` (full term), `MONTHLY_FROM` (monthly breakdown), `LOWEST_MONTHLY_PRICE` (lowest monthly).
+
+### Price Display Logic (Background)
+
+The brand's `PRICE_DISPLAY_TYPE` setting controls how prices appear across the app:
+
+| Setting | Enum Value | `useMonthlyFromPrice` | Display |
+|---------|------------|----------------------|---------|
+| Show cycle price | `CYCLE` (`"min"`) | `false` | `$120/yr` |
+| Show monthly from | `MONTHLY_FROM` (`"abs_min"`) | `true` | `$10/mo` |
+| Show lowest monthly | `LOWEST_MONTHLY_PRICE` (`"lowest_monthly_price"`) | `true` | `$10/mo` |
+
+This flag is set during `parseSummaryDetail()` in the headless layer and passed via `meta.useMonthlyFromPrice` on each term. `TermCard` reads this flag by default. The `priceDisplayType` prop overrides it when a specific display format is required regardless of brand configuration.
+
+> **🧪 For Testers:** When verifying the basket term selector, toggle the brand's `PRICE_DISPLAY_TYPE` between all three values. The product listing card term selector should change format, but the basket term selector should **always** show the full cycle price.
+
 ---
 
 ## Quantity Editing
