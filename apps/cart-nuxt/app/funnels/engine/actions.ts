@@ -47,7 +47,10 @@ const SKIP_BID_ROUTES: string[] = [
  *   2. For basket routes (`:bid` only): injects `{ bid }`
  *   3. For BID_PREFIX routes (`:segment/:bid`): injects `{ segment: "basket", bid }`
  *
- * Skips injection for ORDER, NOT_FOUND, LOADING, etc.
+ * When the basket is unavailable:
+ *   - Redirects to the unavailable route.
+ *
+ * Skips injection for ORDER, ERROR, BASKET_UNAVAILABLE, SESSION_END.
  */
 function injectBid(route: any): any {
   if (!route) return route;
@@ -55,23 +58,34 @@ function injectBid(route: any): any {
   // Skip routes that don't support bid params
   if (SKIP_BID_ROUTES.includes(route.name)) return route;
 
-  const { targetBasketId, setTargetBasket } = useBasket();
-  const { consumeParam } = useQueryParams();
+  const { targetBasketId, setTargetBasket, meta } = useBasket();
+  const { getParam } = useQueryParams(route);
 
-  // Read bid: params first (via consumeParam), then basket machine state
-  const bid: string | undefined =
-    consumeParam(QUERY_PARAMS.BASKET_ID) ?? targetBasketId.value;
+  // Read bid: getParam first (via query), then basket machine state
+  const bid: string | undefined = getParam(
+    QUERY_PARAMS.BASKET_ID,
+    targetBasketId.value
+  );
 
   if (!bid) return route;
 
   // Prime the basket machine to load orders/{bid}.
   // SET_TARGET_BASKET has an isAuthenticated guard — no-op when not logged in.
-  if (targetBasketId.value !== bid) setTargetBasket(bid);
+  if (targetBasketId.value !== bid && !meta.value.isUnavailable) {
+    setTargetBasket(bid);
+  }
+
+  // If the basket is unavailable, redirect to the unavailable route
+  if (meta.value.isUnavailable) {
+    return { name: ROUTE.BASKET_UNAVAILABLE };
+  }
 
   // Basket routes use `:bid` directly — no `:segment` param.
   // BID_PREFIX routes use `:segment(basket)?/:bid?` — need both.
   const isBasketRoute = BASKET_ROUTES.includes(route.name);
-  const bidParams = isBasketRoute ? { bid } : { segment: "basket", bid };
+  const isValidBasket = meta.value.isAvailable;
+  const bidParams =
+    isBasketRoute || !isValidBasket ? { bid } : { segment: "basket", bid };
 
   return {
     ...route,

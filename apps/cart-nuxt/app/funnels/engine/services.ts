@@ -49,10 +49,11 @@ async function ensureBidAuth(
   const { targetRoute, currentRoute } = context;
   const route = (targetRoute ?? currentRoute) as RouteLocationGeneric;
   const { getParam } = useQueryParams(route);
+  const { meta } = useBasket();
 
-  const basketId =
-    getParam(QUERY_PARAMS.BASKET_ID) ?? getParam(QUERY_PARAMS.BASKET_ID);
-  if (!basketId) return undefined;
+  const basketId = getParam(QUERY_PARAMS.BASKET_ID);
+
+  if (!basketId || meta.value.isUnavailable) return undefined;
 
   const { isAuthenticated } = useSession();
   const authenticated = await isAuthenticated().catch(() => false);
@@ -61,7 +62,7 @@ async function ensureBidAuth(
     const { router } = useRoutingEngine();
     // Resolve the returnUrl from the caller's route definition (with bid merged),
     // falling back to the current route path or the basket route.
-    const returnUrl = returnUrl
+    const resolvedReturnUrl = returnUrl
       ? router.resolve({
           ...returnUrl,
           params: { segment: "basket", bid: basketId, ...returnUrl.params }
@@ -75,7 +76,7 @@ async function ensureBidAuth(
       target: {
         name: ROUTE.SESSION,
         params: { segment: "basket", bid: basketId },
-        query: { [QUERY_PARAMS.RETURN_URL]: returnUrl }
+        query: { [QUERY_PARAMS.RETURN_URL]: resolvedReturnUrl }
       }
     } as FunnelResponse);
   }

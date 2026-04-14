@@ -25,7 +25,8 @@ useSeoMeta({
 });
 
 definePageMeta({
-  name: ROUTE.BASKET
+  name: ROUTE.BASKET,
+  actionEmptyBasket: true
 });
 const { storefrontRoute } = useStorefrontRoute();
 </script>

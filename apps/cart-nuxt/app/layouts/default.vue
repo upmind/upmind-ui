@@ -147,11 +147,23 @@ const isAuthRoute = computed(
 watch(
   [basketMeta, sessionMeta],
   (
-    [{ hasProducts, isComplete, isCheckout }, { isAuthenticated }],
-    [{ hasProducts: hadProducts }, { isAuthenticated: wasAuthenticated }]
+    [
+      { hasProducts, isComplete, isCheckout, isUnavailable },
+      { isAuthenticated }
+    ],
+    [
+      { hasProducts: hadProducts, isUnavailable: wasUnavailable },
+      { isAuthenticated: wasAuthenticated }
+    ]
   ) => {
     if (!isAuthenticated && wasAuthenticated) {
       router.push({ name: ROUTE.SESSION_END });
+    } else if (
+      isUnavailable &&
+      !wasUnavailable &&
+      isAuthenticated
+    ) {
+      router.push({ name: ROUTE.BASKET_UNAVAILABLE });
     } else if (!hasProducts && hadProducts && !isCheckout && !isComplete) {
       if (route.meta.actionEmptyBasket) {
         router.push({ name: ROUTE.BASKET_EMPTY });

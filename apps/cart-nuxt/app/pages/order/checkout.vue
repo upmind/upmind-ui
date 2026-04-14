@@ -35,7 +35,8 @@ useSchemaOrg([
 ]);
 
 definePageMeta({
-  name: ROUTE.CHECKOUT
+  name: ROUTE.CHECKOUT,
+  actionEmptyBasket: true
 });
 const { storefrontRoute } = useStorefrontRoute();
 </script>
