@@ -39,10 +39,10 @@ Additionally, the comparison now correctly looks up the basket product from `dat
 
 ## 4. Basket Term Selector Forced Full-Term Pricing
 
-The basket term selector forces `PriceDisplayTypes.CYCLE` via the `priceDisplayType` prop on `TermCard`, ensuring it always shows the full billing cycle price (e.g., `$120/yr`). This prevents a visual mismatch with the basket product card price.
+The basket term selector forces `PriceDisplayTypes.CYCLE` via the `type` prop on `TermCard`, ensuring it always shows the full billing cycle price (e.g., `$120/yr`). This prevents a visual mismatch with the basket product card price.
 
 The product listing term selector (`ProductTerm.vue`) does NOT override this — it respects the brand's `PRICE_DISPLAY_TYPE` setting via `meta.useMonthlyFromPrice`.
 
 See [Inline Editing — Pricing Display](./inline-editing.md#pricing-display-full-term-price-forced) for full details.
 
-> **🔧 For Contributors:** `TermCard` accepts a generic `priceDisplayType` prop (`PriceDisplayTypes` enum). When set, it overrides `meta.useMonthlyFromPrice`. If you change how prices display in the term selector or on the basket card, ensure both stay in sync.
+> **🔧 For Contributors:** `TermCard` accepts a generic `type` prop (`PriceDisplayTypes` enum). When set, it overrides `meta.useMonthlyFromPrice`. If you change how prices display in the term selector or on the basket card, ensure both stay in sync.
