@@ -63,6 +63,15 @@ export default {
             false: "text-md font-medium"
           }
         }
+      }),
+      ex: cva("text-sm"),
+      current: cva("flex items-center justify-center hover:cursor-help", {
+        variants: {
+          isDropdown: {
+            true: "text-md font-medium",
+            false: "text-md-tight"
+          }
+        }
       })
     },
     excerpt: cva("text-sm-tight whitespace-normal", {

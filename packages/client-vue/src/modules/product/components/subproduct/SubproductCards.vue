@@ -33,6 +33,7 @@
           :meta="getSubproductValue(selectedItem.value).meta"
           :cycle="getSubproductValue(selectedItem.value).cycle"
           :term="props.term"
+          dropdown
         />
       </div>
     </template>
@@ -100,7 +101,7 @@ const props = defineProps<{
   meta: UseMetaResult;
   modelValue?: string | string[];
   quantities?: Record<string, number>;
-  errors?: string;
+  errors?: string | string[];
   term?: number;
   // --- state
   disabled?: boolean;

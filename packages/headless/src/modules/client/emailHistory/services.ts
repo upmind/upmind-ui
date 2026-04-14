@@ -1,7 +1,12 @@
 // --- external
 
 // --- internal
-import { useQuery, useSession, type QueryParams } from "../..";
+import {
+  RequestSortDirection,
+  useQuery,
+  useSession,
+  type QueryParams
+} from "../..";
 import upmind from "../../../useUpmind";
 
 // --- utils
@@ -47,10 +52,10 @@ function loadList(params: Partial<QueryParams> = { pagination: { limit: 0 } }) {
     ...(params as any),
     queryKey: [...queryKey, admin],
     url: useUrl(admin ? "admin/self/email_history" : "self/email_history", {
-      order: "created_at",
       with: ["recipient", "recipient_type", "recipient.image"].join(","),
       ...params.filters
     }),
+    sort: [[RequestSortDirection.DESC, "created_at"]],
     withSplitCount: true,
     withAccessToken: true,
     guard: async () =>

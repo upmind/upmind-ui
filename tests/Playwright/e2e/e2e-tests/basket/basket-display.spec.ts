@@ -1,12 +1,9 @@
 import { test, expect } from "@playwright/test";
 import { fakerEN_GB } from "@faker-js/faker";
 import { URLs } from "../../support/constants/urls";
-import { getSessionToken } from "../../support/utils/functions/tokens";
-import {
-  createOrder,
-  addProductToOrder
-} from "../../support/utils/functions/basket";
-import { Basket } from "../../support/page-objects/templates/Basket";
+import { getSessionToken } from "../../support/api/auth";
+import { createOrder, addProductToOrder } from "../../support/api/basket";
+import { Basket } from "../../support/page-objects/templates/basket";
 
 let basket: Basket;
 

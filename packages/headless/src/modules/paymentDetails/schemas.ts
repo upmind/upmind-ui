@@ -15,7 +15,11 @@ import {
   type UISchemaElement
 } from "@jsonforms/core";
 import { useI18n } from "../system";
-import { PaymentType } from "@upmind-automation/types";
+import {
+  PaymentType,
+  GatewayContext as GatewayCtx,
+  GatewayContext
+} from "@upmind-automation/types";
 import { generateResponseUrls, zeroDecimalCurrencies } from "./gateways/utils";
 
 // -----------------------------------------------------------------------------
@@ -90,14 +94,15 @@ export function useSchemaDefinitions({
   return definitions;
 }
 
-export const useSchema = (context: PaymentDetailsContext): JsonSchema => {
-  // generate our return and cancel urls
+// --- pay schema
+
+const usePaySchema = (context: PaymentDetailsContext): JsonSchema => {
   const { cancelUrl, returnUrl } = generateResponseUrls(
     new URL(`order/${context.orderId}`, window.location.origin),
     { orderId: context.orderId }
   );
 
-  const schema = {
+  return {
     type: "object",
     title: "Payment details",
     required: ["type"],
@@ -138,17 +143,37 @@ export const useSchema = (context: PaymentDetailsContext): JsonSchema => {
         }
       ]
     }
-  };
-
-  return schema as JsonSchema;
+  } as JsonSchema;
 };
 
-export const useUischemaDefinitions = ({
+// --- add schema
+
+const useAddSchema = (context: PaymentDetailsContext): JsonSchema => {
+  return {
+    type: "object",
+    title: "Payment details",
+    required: ["gateway_id"],
+    definitions: useSchemaDefinitions(context),
+
+    properties: {
+      gateway_id: { $ref: "#/definitions/gateway_id" }
+    }
+  } as JsonSchema;
+};
+
+export const useSchema = (context: PaymentDetailsContext): JsonSchema => {
+  return context.ctx === GatewayCtx.ADD
+    ? useAddSchema(context)
+    : usePaySchema(context);
+};
+
+// --- pay uischema
+
+export const usePayUischemaDefinitions = ({
   model,
   lookups,
   currency
 }: PaymentDetailsContext) => {
-  // add our base definitions
   const definitions: Record<string, UISchemaElement> = {
     type: {
       type: "Control",
@@ -225,11 +250,41 @@ export const useUischemaDefinitions = ({
   return compact(values(definitions));
 };
 
-export function useUischema(context: PaymentDetailsContext): UISchemaElement {
-  const schema = {
+const usePayUischema = (context: PaymentDetailsContext): UISchemaElement => {
+  return {
     type: "VerticalLayout",
-    elements: useUischemaDefinitions(context)
-  };
+    elements: usePayUischemaDefinitions(context)
+  } as UISchemaElement;
+};
 
-  return schema as UISchemaElement;
+// --- add uischema
+
+const useAddUischemaDefinitions = ({ lookups }: PaymentDetailsContext) => {
+  const definitions: Record<string, UISchemaElement> = {};
+
+  if (!isEmpty(lookups?.gateways)) {
+    definitions.gateway_id = {
+      type: "Control",
+      scope: "#/properties/gateway_id",
+      i18n: "form.gateway_id",
+      options: {
+        width: size(lookups?.gateways) === 1 ? 1 : 2
+      }
+    };
+  }
+
+  return compact(values(definitions));
+};
+
+const useAddUischema = (context: PaymentDetailsContext): UISchemaElement => {
+  return {
+    type: "VerticalLayout",
+    elements: useAddUischemaDefinitions(context)
+  } as UISchemaElement;
+};
+
+export function useUischema(context: PaymentDetailsContext): UISchemaElement {
+  return context.ctx === GatewayCtx.ADD
+    ? useAddUischema(context)
+    : usePayUischema(context);
 }

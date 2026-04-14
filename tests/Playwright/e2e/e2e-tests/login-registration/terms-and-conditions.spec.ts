@@ -1,15 +1,18 @@
 import { test, expect, BrowserContext } from "@playwright/test";
 import { URLs } from "../../support/constants/urls";
-import { Registration } from "../../support/page-objects/templates/Registration";
-import { interceptTermsAndConditions } from "../../support/utils/functions/brand";
-import { getSessionToken } from "../../support/utils/functions/tokens";
+import { Registration } from "../../support/page-objects/templates/registration";
+import { Markdown } from "../../support/page-objects/components/markdown";
+import { interceptTermsAndConditions } from "../../support/mocks/brand";
+import { getSessionToken } from "../../support/api/auth";
 
 let registration: Registration;
+let markdown: Markdown;
 
 test.describe("Terms and Conditions on Registration", () => {
   let token: string;
   test.beforeEach(async ({ page, context }) => {
     registration = new Registration(page, context);
+    markdown = new Markdown(page);
     await page.goto(URLs.basket);
     await page.waitForLoadState("networkidle");
     token = await getSessionToken(context);
@@ -35,7 +38,7 @@ test.describe("Terms and Conditions on Registration", () => {
     await expect(page.getByTestId("terms-and-conditions")).toBeVisible();
     await expect(page.getByTestId("terms-link")).toBeVisible;
     await page.getByTestId("terms-link").click();
-    await expect(page.getByTestId("markdown")).toBeVisible();
+    await expect(markdown.markdown).toBeVisible();
   });
   test("Terms and conditions set - URL", async ({ page }) => {
     await interceptTermsAndConditions(

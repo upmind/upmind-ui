@@ -15,6 +15,7 @@ export interface GuestContext<ModelType extends GuestModelType = any> {
   // TODO:
   // customFields: Array;
   customFields: any[];
+  baseModel?: GuestModelType;
   model: ModelType;
   schema?: JsonSchema;
   uischema?: UISchemaElement;

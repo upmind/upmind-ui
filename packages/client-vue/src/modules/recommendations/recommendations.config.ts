@@ -59,11 +59,19 @@ export default {
 
     carousel: {
       navigation: cva("flex justify-end space-x-2"),
-      item: cva("basis-3/4 pl-12 md:basis-1/2 xl:basis-1/3")
+      item: cva("pl-12 md:basis-1/2 xl:basis-1/3")
     },
 
     drawer: {
       footer: cva("flex-row items-center justify-between gap-x-4")
+    },
+
+    actions: {
+      root: cva("flex flex-col items-center justify-between lg:flex-row"),
+      label: cva(
+        "text-md order-last mt-4 text-center font-medium lg:order-first lg:mt-0 lg:text-left"
+      ),
+      button: cva("w-full lg:w-auto")
     },
 
     skeleton: {

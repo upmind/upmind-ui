@@ -1,10 +1,11 @@
+/// <reference types="@types/mercadopago-sdk-js" />
 import { type GatewayData } from "@upmind-automation/types";
 import type { GatewayContext } from "../types";
 // -----------------------------------------------------------------------------
 
 declare global {
   interface Window {
-    MercadoPago: typeof MercadoPago;
+    MercadoPago: mercadopago.MercadoPago;
   }
 }
 

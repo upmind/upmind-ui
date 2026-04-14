@@ -1,7 +1,7 @@
 <template>
   <div
     class="flex items-center justify-center"
-    :class="props.open ? 'grow' : ''"
+    :class="props.open ? 'absolute inset-0' : ''"
   >
     <Interstitial
       v-bind="props"

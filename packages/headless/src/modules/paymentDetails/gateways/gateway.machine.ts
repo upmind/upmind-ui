@@ -131,11 +131,20 @@ export default <T = unknown>(name: string) =>
 
             valid: {
               id: "valid",
+              // NB: Notify the parent to re-validate when the gateway becomes valid.
+              //     After a failed payment the parent lands in `invalid` (because the
+              //     gateway was in `available.error`). When the user fixes input and the
+              //     gateway recovers to `valid`, the parent needs to re-check so it can
+              //     also transition back to `valid` and accept PAY again.
+              entry: sendParent(() => ({ type: "SET" })),
               on: {
-                CHECKOUT: "#processing.payment",
-                PAY: "#processing.payment",
-                ADD: "#processing.adding"
+                PAY: { target: "#processing.payment", cond: "isPaying" },
+                ADD: { target: "#processing.adding", cond: "isAdding" }
               }
+            },
+
+            error: {
+              id: "error"
             }
           },
           on: {
@@ -150,7 +159,7 @@ export default <T = unknown>(name: string) =>
             },
             SET: {
               target: "available.checking",
-              actions: ["setModel"]
+              actions: ["clearError", "setModel"]
             },
             VALIDATE: {
               actions: ["setErrorSDK"],
@@ -188,8 +197,19 @@ export default <T = unknown>(name: string) =>
                 src: "add",
                 onDone: {
                   target: "#processed",
-                  actions: ["set"]
-                }
+                  actions: ["setPaymentDetails", "providePaymentDetails"]
+                },
+                onError: [
+                  {
+                    target: "#checking",
+                    actions: ["cancelPaymentDetails"],
+                    cond: "noErrorProvided"
+                  },
+                  {
+                    target: "#error",
+                    actions: ["setError", "cancelPaymentDetails"]
+                  }
+                ]
               }
             }
           },
@@ -207,21 +227,23 @@ export default <T = unknown>(name: string) =>
           on: { VALIDATE: { actions: [] /*do nothing*/ } }
         },
 
-        error: {
-          id: "error"
-        },
-
         unavailable: {
-          id: "unavailable"
+          id: "unavailable",
+          entry: ["cleanupSdk"]
         },
 
         complete: {
+          type: "final",
           id: "complete",
+          entry: ["cleanupSdk"],
           data: ({ paymentDetail }: GatewayContext, _event: AnyEventObject) =>
             paymentDetail
         }
       },
       on: {
+        CLEANUP: {
+          actions: ["cleanupSdk"]
+        },
         UNAUTHENTICATED: {
           target: "loading",
           actions: ["clearError", "clearModel", "clearSchemas"]
@@ -344,6 +366,10 @@ export default <T = unknown>(name: string) =>
             error // do nothing by default.... individual sdk gateways can override
         }),
 
+        cleanupSdk: () => {
+          // no-op — override in SDK-specific gateway configs
+        },
+
         clearError: assign({
           error: undefined
         })
@@ -375,12 +401,11 @@ export default <T = unknown>(name: string) =>
         noErrorProvided: (_context: GatewayContext, { data }: AnyEventObject) =>
           isEmpty(data),
 
-        isAdding: ({ ctx }: GatewayContext, _event: AnyEventObject) => {
-          return ctx !== undefined && ctx == GatewayCtx.ADD;
-        },
-        isPaying: ({ ctx }: GatewayContext, _event: AnyEventObject) => {
-          return ctx !== undefined && ctx == GatewayCtx.PAY;
-        }
+        isAdding: ({ ctx }: GatewayContext, _event: AnyEventObject) =>
+          ctx == GatewayCtx.ADD,
+
+        isPaying: ({ ctx }: GatewayContext, _event: AnyEventObject) =>
+          ctx == GatewayCtx.PAY
       },
       delays: {
         error: () => useTime().ERROR,

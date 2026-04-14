@@ -155,5 +155,20 @@
   },
   "stored_payment_method": {
     "label": ""
+  },
+  "twofa": {
+    "description": "To konto jest zabezpieczone uwierzytelnianiem dwuskładnikowym. Wprowadź kod weryfikacyjny.",
+    "label": "Kod weryfikacyjny",
+    "placeholder": "123 456"
+  },
+  "twofa_email": {
+    "description": "Dla Twojego bezpieczeństwa wysłaliśmy jednorazowy kod dostępu na Twój adres e-mail. Aby zrealizować tę prośbę, wprowadź poniższy kod.",
+    "label": "Kod weryfikacyjny",
+    "placeholder": "123 456"
+  },
+  "twofa_totp": {
+    "description": "Aby dokończyć tę prośbę, wprowadź jednorazowy kod dostępu wygenerowany przez aplikację Authenticator.",
+    "label": "Kod weryfikacyjny",
+    "placeholder": "123 456"
   }
 }

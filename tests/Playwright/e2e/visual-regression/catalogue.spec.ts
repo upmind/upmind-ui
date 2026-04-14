@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { URLs } from "../support/constants/urls";
-import { setLocale } from "../support/utils/functions/locale-helper";
+import { setLocale } from "../support/helpers/locale";
 import { Languages as languages } from "../support/constants/languages";
 
 for (const { language, locale } of languages) {
