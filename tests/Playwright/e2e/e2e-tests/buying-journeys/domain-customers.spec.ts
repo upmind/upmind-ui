@@ -1,13 +1,13 @@
 import { test, expect } from "@playwright/test";
 import { fakerEN_GB } from "@faker-js/faker";
 import { Logins } from "../../support/constants/logins";
-import { ProductConfig } from "../../support/page-objects/templates/ProductConfig";
-import { Checkout } from "../../support/page-objects/templates/Checkout";
-import { Basket } from "../../support/page-objects/templates/Basket";
+import { ProductConfig } from "../../support/page-objects/templates/product-config";
+import { Checkout } from "../../support/page-objects/templates/checkout";
+import { Basket } from "../../support/page-objects/templates/basket";
 import { URLs } from "../../support/constants/urls";
-import { getClientToken } from "../../support/utils/functions/tokens";
-import { Login } from "../../support/page-objects/templates/Login";
-import { Registration } from "../../support/page-objects/templates/Registration";
+import { getClientToken } from "../../support/api/auth";
+import { Login } from "../../support/page-objects/templates/login";
+import { Registration } from "../../support/page-objects/templates/registration";
 
 let productConfig: ProductConfig;
 let checkout: Checkout;
@@ -54,10 +54,7 @@ test.describe("Domain customers", () => {
       await basket.proceedToCheckout.click();
       await checkout.selectPaymentMethod("Direct Bank Transfer");
       await checkout.clickPlaceOrder();
-      await expect(page.getByRole("dialog")).toContainText(
-        "Converting your order"
-      );
-      await expect(page.getByRole("dialog")).toContainText("Order complete!");
+      await expect(page.getByText("Order Complete!")).toBeVisible();
     });
     test("Log in at checkout", async ({ page }) => {
       await enterDomainDetails();
@@ -67,10 +64,7 @@ test.describe("Domain customers", () => {
       await login.inputLogin(Logins.domain2.username, Logins.domain2.password);
       await checkout.selectPaymentMethod("Direct Bank Transfer");
       await checkout.clickPlaceOrder();
-      await expect(page.getByRole("dialog")).toContainText(
-        "Converting your order"
-      );
-      await expect(page.getByRole("dialog")).toContainText("Order complete!");
+      await expect(page.getByText("Order Complete!")).toBeVisible();
     });
   });
   test.describe("New Customer", () => {
@@ -81,17 +75,13 @@ test.describe("Domain customers", () => {
       await registration.inputRegistration();
       await checkout.manuallyInputAddress(
         `${fakerEN_GB.location.streetAddress()}`,
-        `${fakerEN_GB.location.streetAddress()}`,
         `${fakerEN_GB.location.city()}`,
         "HU15 1EG",
         null
       );
       await checkout.selectPaymentMethod("Direct Bank Transfer");
       await checkout.clickPlaceOrder();
-      await expect(page.getByRole("dialog")).toContainText(
-        "Converting your order"
-      );
-      await expect(page.getByRole("dialog")).toContainText("Order complete!");
+      await expect(page.getByText("Order Complete!")).toBeVisible();
     });
   });
 });

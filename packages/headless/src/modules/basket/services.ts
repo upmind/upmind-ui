@@ -29,7 +29,11 @@ import {
 } from "lodash-es";
 
 // --- types
-import { Contexts, type IBasket } from "@upmind-automation/types";
+import {
+  BrandConfigKeys,
+  Contexts,
+  type IBasket
+} from "@upmind-automation/types";
 import type { BasketContext } from "./types";
 import type { AnyEventObject } from "xstate";
 
@@ -39,6 +43,10 @@ import type { AnyEventObject } from "xstate";
 
 async function load(context: BasketContext, _event: AnyEventObject) {
   const { get, patch, useUrl } = useQuery();
+  const { ensureConfig } = useBrand();
+
+  // NB ensure we get this in order to be able to use in basket machine actions
+  ensureConfig([BrandConfigKeys.REQUIRE_PAYMENT_METHOD_FOR_FREE_ORDERS]);
 
   // check if we are logged in as a client
   // then try to get any previous guest token a

@@ -3,6 +3,8 @@ import type { ActorRef } from "xstate";
 
 // --- internal
 import type {
+  IGateway,
+  IInvoice,
   IOrder,
   IPaymentAttempt,
   Methods
@@ -60,6 +62,13 @@ export interface PaymentContext extends PaymentArgs {
    * The {@link IPaymentAttempt} object representing the current status and details of the payment attempt.
    */
   payment?: IPaymentAttempt & {};
+  /**
+   * The {@link IGateway} used for this payment, fetched during load via paymentDetail.gateway_id.
+   * Includes gateway_provider relation for determining challenge renderer.
+   */
+  gateway?: IGateway;
+
+  rawOrder?: IInvoice;
   /**
    * An error object if any issue occurred during the payment process.
    */

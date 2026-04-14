@@ -1,26 +1,40 @@
 import { expect } from "@playwright/test";
-import { test } from "../../../support/fixtures/testContexts";
-import { URLs } from "../../../support/constants/urls";
-import { getClientToken } from "../../../support/utils/functions/tokens";
-import { Checkout } from "../../../support/page-objects/templates/Checkout";
-import { Logins } from "../../../support/constants/logins";
+import { test } from "../../../support/fixtures/test-contexts";
+import { Checkout } from "../../../support/page-objects/templates/checkout";
 import { payPalDetails } from "../../../support/secrets/paypal";
-import { goToCheckout } from "../../../support/utils/apiHelper";
+import { goToCheckout } from "../../../support/flows/checkout";
 import { products } from "../../../support/constants/products";
+import {
+  getClientToken,
+  getSessionToken,
+  registerClient
+} from "../../../support/api/index";
 
 let checkout: Checkout;
 
 test.describe("Checkout with PayPal", () => {
   test.beforeEach(async ({ page, context }) => {
     checkout = new Checkout(page);
-    await page.goto(URLs.login);
+    await page.goto("/");
+    await expect
+      .poll(
+        async () => {
+          const cookies = await context.cookies();
+          return cookies.some(
+            c =>
+              c.name === "upm_guest_session" || c.name === "upm_client_session"
+          );
+        },
+        { timeout: 30000 }
+      )
+      .toBeTruthy();
+    let guestToken = await getSessionToken(context);
+    let user = await registerClient(guestToken);
+    let username = user.email;
+    let password = user.password;
+    await getClientToken(page, username, password);
   });
   test("Pay with PayPal Express", async ({ page, context }) => {
-    await getClientToken(
-      page,
-      Logins.checkoutUser.username,
-      Logins.checkoutUser.password
-    );
     await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
     await checkout.selectPaymentMethod("Pay-Pal Express");
     await checkout.clickPlaceOrderAndPay();

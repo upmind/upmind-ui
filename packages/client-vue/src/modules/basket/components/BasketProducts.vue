@@ -11,12 +11,7 @@
     }"
     :card="false"
     :border="false"
-    :actions="[
-      {
-        label: t('action.details_toggle', open ? 0 : 1),
-        handler: () => (open = !open)
-      }
-    ]"
+    :actions="actions"
   >
     <slot name="products" :open="open">
       <ProductCards v-model:open="open" :edit-route="props.editRoute" />
@@ -33,6 +28,7 @@ import { useI18n } from "vue-i18n";
 import { useRoute, type RouteLocationAsRelativeGeneric } from "vue-router";
 
 // --- internal
+import { useBasketProducts } from "@upmind-automation/headless";
 import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "../basket.config";
 
@@ -54,6 +50,21 @@ const { t } = useI18n();
 const route = useRoute();
 
 const open = defineModel<boolean>("open", { default: false });
+
+const { meta } = useBasketProducts();
+
+const actions = computed(() => {
+  if (meta.value.hasDetails) {
+    return [
+      {
+        label: t("action.details_toggle", open.value ? 0 : 1),
+        handler: () => (open.value = !open.value)
+      }
+    ];
+  }
+
+  return [];
+});
 
 const layout = computed(() => {
   return route?.meta?.template;

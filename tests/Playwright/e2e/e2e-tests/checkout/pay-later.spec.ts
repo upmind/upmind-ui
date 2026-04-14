@@ -1,24 +1,38 @@
 import { expect, test } from "@playwright/test";
-import { URLs } from "../../support/constants/urls";
-import { getClientToken } from "../../support/utils/functions/tokens";
-import { Checkout } from "../../support/page-objects/templates/Checkout";
-import { Logins } from "../../support/constants/logins";
-import { goToCheckout } from "../../support/utils/apiHelper";
+import { Checkout } from "../../support/page-objects/templates/checkout";
+import { goToCheckout } from "../../support/flows/checkout";
 import { products } from "../../support/constants/products";
+import {
+  getClientToken,
+  getSessionToken,
+  registerClient
+} from "../../support/api/index";
 
 let checkout: Checkout;
 
 test.describe("Checkout with Pay Later", () => {
   test.beforeEach(async ({ page, context }) => {
     checkout = new Checkout(page);
-    await page.goto(URLs.login);
+    await page.goto("/");
+    await expect
+      .poll(
+        async () => {
+          const cookies = await context.cookies();
+          return cookies.some(
+            c =>
+              c.name === "upm_guest_session" || c.name === "upm_client_session"
+          );
+        },
+        { timeout: 30000 }
+      )
+      .toBeTruthy();
+    let guestToken = await getSessionToken(context);
+    let user = await registerClient(guestToken);
+    let username = user.email;
+    let password = user.password;
+    await getClientToken(page, username, password);
   });
   test("Pay with Offline payment", async ({ page, context }) => {
-    await getClientToken(
-      page,
-      Logins.payLater.username,
-      Logins.payLater.password
-    );
     await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
     await page.waitForLoadState("domcontentloaded");
     await checkout.selectPaymentMethod("Pay Later");

@@ -155,5 +155,20 @@
   },
   "stored_payment_method": {
     "label": ""
+  },
+  "twofa": {
+    "description": "Bu hesab iki faktorlu identifikasiya ilə qorunur. Zəhmət olmasa, doğrulama kodunuzu daxil edin.",
+    "label": "Təsdiqləmə kodu",
+    "placeholder": "123 456"
+  },
+  "twofa_email": {
+    "description": "Təhlükəsizliyiniz üçün e-poçtunuza birdəfəlik giriş kodu göndərdik. Bu sorğunu tamamlamaq üçün aşağıdakı kodu daxil edin.",
+    "label": "Təsdiq kodu",
+    "placeholder": "123 456"
+  },
+  "twofa_totp": {
+    "description": "Bu sorğunu tamamlamaq üçün, zəhmət olmasa, Authenticator tətbiqiniz tərəfindən yaradılan birdəfəlik giriş kodunu daxil edin.",
+    "label": "Təsdiq kodu",
+    "placeholder": "123 456"
   }
 }

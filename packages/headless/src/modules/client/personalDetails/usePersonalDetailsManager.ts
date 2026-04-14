@@ -74,11 +74,15 @@ export const usePersonalDetailsManager = ({
   const { state, send } = useActor(service.start());
 
   // the clientId is required to bring the machine into the available state
-  isAuthenticated().then(client => {
-    if (client?.id && !contextMatches(state, "id")) {
-      send({ type: "REFRESH", data: { id: client.id, clientId: client.id } });
-    }
-  });
+  isAuthenticated()
+    .then(client => {
+      if (client?.id && !contextMatches(state, "id")) {
+        send({ type: "REFRESH", data: { id: client.id, clientId: client.id } });
+      }
+    })
+    .catch(() => {
+      /* guest sessions won't be authenticated — silently skip */
+    });
 
   async function isReady(): Promise<boolean> {
     return isAuthenticated().then(() =>

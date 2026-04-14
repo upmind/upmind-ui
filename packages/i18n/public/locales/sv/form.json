@@ -155,5 +155,20 @@
   },
   "stored_payment_method": {
     "label": ""
+  },
+  "twofa": {
+    "description": "Det här kontot är skyddat med tvåfaktorsautentisering. Ange din verifieringskod.",
+    "label": "Verifieringskod",
+    "placeholder": "123 456"
+  },
+  "twofa_email": {
+    "description": "För din säkerhet har vi skickat en engångskod till din e-postadress. För att slutföra denna begäran, vänligen ange koden nedan.",
+    "label": "Verifieringskod",
+    "placeholder": "123 456"
+  },
+  "twofa_totp": {
+    "description": "För att slutföra denna begäran, ange engångskoden som genererats av din Authenticator-app.",
+    "label": "Verifieringskod",
+    "placeholder": "123 456"
   }
 }

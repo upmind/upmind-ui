@@ -6,10 +6,15 @@
 
     <template #content>
       <slot name="content" />
+      <slot v-if="isMobile" name="content-footer" />
     </template>
 
     <template #aside>
       <slot name="markdown" />
+    </template>
+
+    <template v-if="!isMobile" #content-footer>
+      <slot name="content-footer" />
     </template>
   </Layout>
 </template>
@@ -31,10 +36,6 @@ import { isMobile } from "@upmind-automation/upmind-ui";
 
 // --- types
 import { HEADER_BACKGROUND } from "../../../components/header/types";
-import {
-  FOOTER_LAYOUT,
-  FOOTER_BACKGROUND
-} from "../../../components/footer/types";
 import { LAYOUT_VARIANTS } from "../../../components/layout/types";
 
 defineOptions({
@@ -53,10 +54,7 @@ onMounted(() => {
   });
 
   useFooter({
-    layout: FOOTER_LAYOUT.FLAT,
-    background: FOOTER_BACKGROUND.LTR,
-    items: "end",
-    justifyRight: "start"
+    visible: false
   });
 });
 </script>

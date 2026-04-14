@@ -1,27 +1,20 @@
 <template>
   <Root :class="styles.split.root">
     <article :class="styles.split.container">
-      <!-- Content -->
-      <div :class="styles.split.content.root">
-        <div :class="styles.split.content.container">
-          <section :class="styles.split.content.header">
-            <slot name="controls" />
-            <slot name="navigation" />
-            <slot name="actions" />
-            <slot name="content-header" />
-            <slot name="aside" />
-            <slot name="aside-footer" />
-          </section>
+      <section>
+        <slot name="controls" />
+        <slot name="navigation" />
+        <slot name="actions" />
+        <slot name="content-header" />
+        <slot name="aside" />
+        <slot name="aside-footer" />
+      </section>
 
-          <section :class="styles.split.content">
-            <slot name="content" />
-            <slot name="default" />
-          </section>
-        </div>
+      <slot name="content" />
+      <slot name="default" />
 
-        <!-- Footer -->
-        <footer :class="styles.split.footer" />
-      </div>
+      <!-- Footer -->
+      <footer :class="styles.split.footer" />
     </article>
 
     <!-- Filler aside -->

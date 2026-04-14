@@ -13,6 +13,7 @@ import {
   isBoolean,
   toString,
   first,
+  map,
   slice,
   isEmpty,
   includes,
@@ -21,8 +22,12 @@ import {
 } from "lodash-es";
 
 // --- types
-import type { Token, Client } from "./types";
-import { Contexts, type IClient } from "@upmind-automation/types";
+import type { Token, Client, Account } from "./types";
+import {
+  Contexts,
+  type IAccount,
+  type IClient
+} from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 function convertToCookie() {
@@ -37,7 +42,7 @@ function convertToCookie() {
     console.warn(
       "Converting Client token to cookies. This is a one-time operation to migrate from localStorage to cookies."
     );
-    setCookie("upm_client_session", useTokenParser(clientToken), {
+    setCookie("upm_client_session", mapToken(clientToken), {
       expires: "8h" //default : refresh token and access token are valid for 8 hours
     });
     localStorage.removeItem(`client/auth/token`);
@@ -47,7 +52,7 @@ function convertToCookie() {
     console.warn(
       "Converting Guest token to cookies. This is a one-time operation to migrate from localStorage to cookies."
     );
-    setCookie("upm_guest_session", useTokenParser(guestToken), {
+    setCookie("upm_guest_session", mapToken(guestToken), {
       expires: "8h" //default : refresh token and access token are valid for 8 hours
     });
     localStorage.removeItem(`guest/auth/token`);
@@ -88,7 +93,7 @@ export function getTokenFromStorage(actor_type?: Token["actor_type"]) {
     token = userCookie || adminCookie || clientCookie || guestCookie || "";
   }
 
-  return useTokenParser(token) as Token;
+  return mapToken(token) as Token;
 }
 
 export function persistTokenToStorage(token: Token) {
@@ -126,7 +131,7 @@ export function dumpTokenFromStorage(actor_type: Token["actor_type"]) {
   useCookies().removeTopLevel(`upm_${actor_type}_session`);
 }
 
-export function useTokenParser(data: string | Token): Token | undefined {
+export function mapToken(data: string | Token): Token | undefined {
   if (isEmpty(data)) return undefined;
 
   if (isString(data)) {
@@ -154,7 +159,7 @@ export function useTokenParser(data: string | Token): Token | undefined {
   } as Token;
 }
 
-export function useInitialsParser(client: IClient, chars: number = 1) {
+export function mapInitials(client: IClient, chars: number = 1) {
   if (!client) return "";
 
   return slice(client?.public_name?.split(" "), 0, chars)
@@ -162,10 +167,25 @@ export function useInitialsParser(client: IClient, chars: number = 1) {
     ?.join("");
 }
 
-export function useClientParser(raw: IClient): Client | undefined {
+export function mapAccount(raw: IAccount): Account {
   return {
+    currency: raw.currency,
+    id: raw.id,
+    pricelist: raw.pricelist,
+    meta: {
+      canTopup: raw.topup_enabled
+    }
+  };
+}
+
+export function mapClient(
+  raw: IClient,
+  accounts?: IAccount[]
+): Client | undefined {
+  return {
+    accounts: map(accounts, mapAccount),
     avatar: {
-      caption: useInitialsParser(raw),
+      caption: mapInitials(raw),
       src: raw.image_url,
       forceCaption: includes(raw?.image_url, "gravatar")
     },

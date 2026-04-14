@@ -8,6 +8,7 @@ import type {
 // --- internal
 import { useI18n, useLocale } from "../../..";
 import sharedServices from "../services";
+import { beginSetup } from "../services";
 
 // --- utils
 import {
@@ -23,16 +24,23 @@ import {
   parseMinorUnitAmount
 } from "./utils";
 
-import { set } from "lodash-es";
+import { get, set, some } from "lodash-es";
+
+import {
+  registerOperation,
+  clearOperation,
+  getOperationReturnUrl
+} from "../../utils";
 
 // --- types
+import { GatewayContext as GatewayCtx } from "@upmind-automation/types";
 import type { StripeContext } from "./types";
 import type { AnyEventObject } from "xstate";
 
 // -----------------------------------------------------------------------------
 
 async function load(context: StripeContext, _event: AnyEventObject) {
-  const { gateway, amount, currency, address } = context;
+  const { gateway, amount, currency, address, ctx } = context;
 
   const { locale } = useLocale();
 
@@ -56,7 +64,7 @@ async function load(context: StripeContext, _event: AnyEventObject) {
       );
 
     return import("@stripe/stripe-js").then(({ loadStripe }) =>
-      loadStripe(key).then(stripe => {
+      loadStripe(key).then(async stripe => {
         if (!stripe)
           throw new DetailedError(
             t("error.payment_gateway_not_available"),
@@ -64,6 +72,44 @@ async function load(context: StripeContext, _event: AnyEventObject) {
             ErrorOrigin.Headless
           );
 
+        // --- ADD context: call beginSetup first, init Elements with clientSecret
+        if (ctx === GatewayCtx.ADD) {
+          return beginSetup(context).then(setupResponse => {
+            const clientSecret = get(
+              setupResponse,
+              "gateway_specific.client_secret"
+            );
+            const clientPaymentDetailsId = get(
+              setupResponse,
+              "client_payment_details.id"
+            );
+
+            if (!clientSecret || !clientPaymentDetailsId) {
+              throw new DetailedError(
+                t("error.payment_gateway_not_available"),
+                responseCodes.Unprocessable_Entity,
+                ErrorOrigin.Headless
+              );
+            }
+
+            const elements: StripeElements = stripe.elements({
+              clientSecret,
+              locale: (locale.value.toLowerCase() ??
+                "auto") as StripeElementLocale
+            });
+
+            const element = elements.create("payment");
+
+            return {
+              sdk: { stripe, elements, element },
+              clientPaymentDetailsId,
+              clientSecret,
+              ...config
+            };
+          });
+        }
+
+        // --- PAY context: init Elements with mode: "payment" + amount
         // Flow ref: https://stripe.com/docs/payments/finalize-payments-on-the-server?platform=web&type=payment#additional-options
         const elements: StripeElements = stripe.elements({
           amount: parseMinorUnitAmount(amount || 0, currency.code),
@@ -81,9 +127,6 @@ async function load(context: StripeContext, _event: AnyEventObject) {
         const element = elements.create("payment", {
           defaultValues: {
             billingDetails: {
-              // name: client.name,
-              // email: client.email,
-              // phone: client.phone,
               address: {
                 country: address?.country?.code,
                 postal_code: address?.postcode,
@@ -95,6 +138,7 @@ async function load(context: StripeContext, _event: AnyEventObject) {
             }
           } as DefaultValuesOption
         });
+
         return { sdk: { stripe, elements, element }, ...config };
       })
     );
@@ -164,7 +208,10 @@ async function validate(
 
   // NB: our SDK helper for stripe will generate their own errors and persist them to our error context
   //     so we can check against that as well
-  if (errors?.length || error?.data?.length) {
+  if (
+    errors?.length ||
+    some(error?.data, ["instancePath", "/payment_method_addition"])
+  ) {
     throw new DetailedError(
       t("error.payment_gateway_validation_failed"),
       responseCodes.Unprocessable_Entity,
@@ -201,7 +248,7 @@ async function pay({ sdk, model }: StripeContext) {
       .then(({ error }) => {
         if (error)
           throw new DetailedError(
-            error.message ?? t("error.payment_gateway_submission_failed"),
+            error.message ?? t("error.payment_gateway_update_failed"),
             responseCodes.Unprocessable_Entity,
             ErrorOrigin.External,
             error
@@ -216,7 +263,7 @@ async function pay({ sdk, model }: StripeContext) {
           .then(({ error, paymentMethod }) => {
             if (error)
               throw new DetailedError(
-                error.message ?? t("error.payment_gateway_submission_failed"),
+                error.message ?? t("error.payment_gateway_update_failed"),
                 responseCodes.Unprocessable_Entity,
                 ErrorOrigin.External,
                 error
@@ -239,6 +286,68 @@ async function pay({ sdk, model }: StripeContext) {
   );
 }
 
+/**
+ * @name add
+ * @desc Confirm the setup of a new payment detail via the Stripe SDK.
+ * Uses stripe.confirmSetup() with the Elements instance initialised with
+ * the clientSecret obtained during load (ADD context).
+ * On success, calls endSetup to finalise storing the payment method.
+ */
+async function add(context: StripeContext) {
+  const { sdk, model, clientPaymentDetailsId, gateway } = context;
+  const { t } = useI18n();
+
+  if (!sdk?.stripe || !sdk?.elements || !clientPaymentDetailsId || !gateway?.id)
+    throw new DetailedError(
+      t("error.payment_gateway_not_available"),
+      responseCodes.Not_Found,
+      ErrorOrigin.Headless
+    );
+
+  // --- Build operation data
+  const operationData = {
+    gatewayId: gateway.id,
+    data: {
+      client_payment_details_id: clientPaymentDetailsId,
+      auto_payment: model?.store_on_payment_auto_payment ?? false
+    }
+  };
+
+  // --- Persist operation for off-site redirect recovery
+  registerOperation(operationData);
+
+  // Confirm setup — may redirect off-site for 3DS/SCA
+  return sdk.stripe
+    .confirmSetup({
+      elements: sdk.elements,
+      redirect: "if_required",
+      confirmParams: {
+        return_url: getOperationReturnUrl()
+      }
+    })
+    .then(({ error: confirmError, setupIntent }) => {
+      // Clean up on inline completion (no redirect)
+      clearOperation();
+
+      if (confirmError)
+        throw new DetailedError(
+          confirmError.message ?? t("error.payment_gateway_update_failed"),
+          responseCodes.Unprocessable_Entity,
+          ErrorOrigin.External,
+          confirmError
+        );
+
+      // Return operation data with token — paymentDetail finalizing will call endSetup
+      return {
+        ...operationData,
+        data: {
+          ...operationData.data,
+          token: setupIntent?.payment_method as string
+        }
+      };
+    });
+}
+
 // -----------------------------------------------------------------------------
 
 export default {
@@ -247,5 +356,6 @@ export default {
   parse: sharedServices.parse,
   validate,
   // ---
-  pay
+  pay,
+  add
 };

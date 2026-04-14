@@ -1,8 +1,8 @@
 import { test, expect, Page } from "@playwright/test";
-import { ProductConfig } from "../../support/page-objects/templates/ProductConfig";
-import { Footer } from "../../support/page-objects/templates/Footer";
+import { ProductConfig } from "../../support/page-objects/templates/product-config";
+import { Footer } from "../../support/page-objects/templates/footer";
 import { URLs, ProductIds, productAddUrl } from "../../support/constants/urls";
-import { waitForEvent } from "../../support/utils/functions/helpers";
+import { waitForEvent } from "../../support/helpers";
 
 let productConfig: ProductConfig;
 let footer: Footer;

@@ -1,9 +1,9 @@
 import { test, expect, Page } from "@playwright/test";
-import { ProductConfig } from "../../support/page-objects/templates/ProductConfig";
+import { ProductConfig } from "../../support/page-objects/templates/product-config";
 import {
   DefaultPaymentTerms,
   DefaultPaymentTermsWithPromo
-} from "../../support/constants/DefaultPaymentTerms";
+} from "../../support/constants/default-payment-terms";
 
 let terms = DefaultPaymentTerms;
 let termsWithPromo = DefaultPaymentTermsWithPromo;

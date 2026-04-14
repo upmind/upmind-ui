@@ -1,8 +1,8 @@
 import { test, expect } from "@playwright/test";
 import { URLs } from "../../../support/constants/urls";
-import { ProductConfig } from "../../../support/page-objects/templates/ProductConfig";
+import { ProductConfig } from "../../../support/page-objects/templates/product-config";
 import { DevBlocks } from "../../../support/constants/checkout/test-cases/DevBlocks";
-import { kebabCase } from "../../../support/utils/functions/helpers";
+import { kebabCase } from "../../../support/helpers";
 let productConfig: ProductConfig;
 let testCases = DevBlocks;
 
