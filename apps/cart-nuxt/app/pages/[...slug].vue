@@ -1,5 +1,5 @@
 <template>
-  <UpmError :storefront-route="storefrontRoute" />
+  <UpmError :status="404" :storefront-route="storefrontRoute" />
 </template>
 
 <script lang="ts" setup>

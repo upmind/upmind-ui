@@ -20,6 +20,7 @@ useSeoMeta({
 });
 
 definePageMeta({
-  name: ROUTE.BILLING
+  name: ROUTE.BILLING,
+  actionEmptyBasket: true
 });
 </script>
