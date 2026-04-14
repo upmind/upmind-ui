@@ -5,7 +5,10 @@ import { cva } from "class-variance-authority";
 export default {
   billing: {
     form: {
-      sections: cva("min-h-32"),
+      sections: cva("min-h-32")
+    },
+    loading: {
+      root: cva("max-w-3xl"),
       spinner: cva("z-10! w-full rounded")
     },
     card: {
