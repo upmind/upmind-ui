@@ -8,7 +8,22 @@
         </template>
       </strong>
 
+      <Tooltip
+        v-if="
+          props.meta?.overridden && !(props.meta?.free && props.meta?.freeTrial)
+        "
+        :label="t('text.price_manually_adjusted_msg')"
+      >
+        <Badge
+          :label="t('text.custom_price')"
+          size="sm"
+          variant="muted"
+          color="warning"
+        />
+      </Tooltip>
+
       <Promotion
+        v-if="!props.meta?.overridden"
         v-for="promotion in props.promotions"
         :key="promotion.code.toString()"
         v-bind="promotion"
@@ -24,6 +39,7 @@
         :current-price="props.price.currentPrice"
         :monthly-from-current-price="props.price.monthlyFromCurrentPrice ?? ''"
         :discounted="props.meta?.discounted ?? false"
+        :overridden="props.meta?.overridden"
         :free="props.meta?.free ?? false"
         :use-monthly-from-price="props.meta?.useMonthlyFromPrice"
         :ui-config="{
@@ -48,7 +64,7 @@ import { useI18n } from "vue-i18n";
 
 // --- internal
 import { parseBillingCycle } from "@upmind-automation/headless";
-import { useStyles } from "@upmind-automation/upmind-ui";
+import { useStyles, Badge, Tooltip } from "@upmind-automation/upmind-ui";
 import config from "./terms.config";
 
 // --- components

@@ -771,79 +771,13 @@ export default <FunnelProps>{
         ]
       },
       on: {
-        NEXT: [
-          {
-            target: ROUTE.REGISTRANT,
-            actions: [assign({ targetRoute: { name: ROUTE.REGISTRANT } })],
-            cond: "hasDomainProducts"
-          },
-          {
-            target: ROUTE.CHECKOUT,
-            actions: [assign({ targetRoute: { name: ROUTE.CHECKOUT } })]
-          }
-        ],
-        BACK: {
-          target: ROUTE.BASKET,
-          actions: [assign({ targetRoute: { name: ROUTE.BASKET } })]
-        }
-      }
-    },
-
-    /**
-     * 🎯 ROUTE.REGISTRANT
-     * This state manages the domain registrant details form.
-     * Users fill in or edit registrant details for domain products in the basket.
-     * Only accessible when the basket contains domain products.
-     * On NEXT, transitions to the registrant review page.
-     */
-    [ROUTE.REGISTRANT]: {
-      entry: ["setCurrency"],
-      invoke: {
-        src: "guardRegistrant",
-        onDone: [
-          {
-            target: ROUTE.REGISTRANT_REVIEW,
-            actions: ["setResolving"],
-            cond: "isRegistrantComplete"
-          },
-          { actions: ["setResolved"] }
-        ],
-        onError: { target: ROUTE.BILLING, actions: ["setResolving"] }
-      },
-      on: {
-        NEXT: {
-          target: ROUTE.REGISTRANT_REVIEW,
-          actions: [assign({ targetRoute: { name: ROUTE.REGISTRANT_REVIEW } })]
-        },
-        BACK: {
-          target: ROUTE.BILLING,
-          actions: [assign({ targetRoute: { name: ROUTE.BILLING } })]
-        }
-      }
-    },
-
-    /**
-     * 🎯 ROUTE.REGISTRANT_REVIEW
-     * This state manages the registrant details review page.
-     * Shows all domain registrant statuses with completeness tracking.
-     * If all domains are complete, the user can proceed to checkout.
-     * If incomplete, the user is blocked until all domains have registrant data.
-     */
-    [ROUTE.REGISTRANT_REVIEW]: {
-      entry: ["setCurrency"],
-      invoke: {
-        src: "guardRegistrantReview",
-        onDone: { actions: ["setResolved"] },
-        onError: { target: ROUTE.REGISTRANT, actions: ["setResolving"] }
-      },
-      on: {
         NEXT: {
           target: ROUTE.CHECKOUT,
           actions: [assign({ targetRoute: { name: ROUTE.CHECKOUT } })]
         },
         BACK: {
-          target: ROUTE.REGISTRANT,
-          actions: [assign({ targetRoute: { name: ROUTE.REGISTRANT } })]
+          target: ROUTE.BASKET,
+          actions: [assign({ targetRoute: { name: ROUTE.BASKET } })]
         }
       }
     },

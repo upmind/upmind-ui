@@ -21,6 +21,7 @@ import type {
 export type PaymentDetailsProps = {
   class?: HtmlHTMLAttributes["class"];
   label?: string;
+  icon?: string;
   processing?: boolean;
   error?: string;
 };

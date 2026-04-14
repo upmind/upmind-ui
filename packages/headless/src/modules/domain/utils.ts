@@ -17,7 +17,6 @@ import {
   isEmpty,
   isObject,
   map,
-  reduce,
   uniqBy
 } from "lodash-es";
 
@@ -32,10 +31,8 @@ import type { BasketProduct } from "../basketProduct";
 import type {
   DomainProduct,
   DomainModel,
-  RegistrantDetails,
-  RegistrantFieldMapEntry
+  IDomainSuggestionResult
 } from "./types";
-import { REGISTRANT_FIELD_MAP, REQUIRED_REGISTRANT_FIELDS } from "./types";
 import { type ProductProps } from "../product";
 
 // ----------------------------------------------------------------------------
@@ -132,11 +129,135 @@ export function parseAvailable(
       },
       price: termDetails.price,
       pricing: [],
-      details: []
+      details: [],
+      rawProduct: raw
     } as DomainProduct;
   });
 
   // and ensure we don't have any duplicates or falsy
+  return compact(uniqBy(available, "domain"));
+}
+
+/**
+ * Maps the /suggestions API results into DomainProduct[].
+ * Joins results to products via product_id, and uses the full
+ * IProduct parsing utilities for proper billing cycle / pricing support.
+ */
+export function parseSuggestions(
+  results: IDomainSuggestionResult[],
+  productsMap: Record<string, IProduct>,
+  preferredCycle?: number,
+  mode: "register" | "transfer" = "register"
+): DomainProduct[] {
+  const { defaultPaymentPeriod } = useBrand();
+  const paymentPeriod = preferredCycle ?? defaultPaymentPeriod.value;
+
+  const available = map(results, result => {
+    const { domain, sld, tld, can_register, can_transfer, product_id } = result;
+    const fullDomain = `${sld}.${tld}`;
+    const parsedDomain = parseDomain(fullDomain);
+    const product = productsMap[product_id];
+
+    if (product) {
+      try {
+        // Full IProduct available — use proper product parsing
+        const productDetails = parseProductDetails(product);
+        const terms = parseTermDetails(product);
+        const termDetails = calculateBillingTerm(
+          paymentPeriod || product.default_payment_period,
+          terms
+        );
+
+        // Extract sub_pids from setup_function_sub_ids based on mode
+        const setupSubIds = (product as any).setup_function_sub_ids;
+        const subproducts: string[] = compact(
+          setupSubIds?.[mode] ?? [product.sub_product_id]
+        );
+
+        return {
+          configuration: parseProductProps(
+            {
+              productId: product.id,
+              quantity: product.unit_quantity,
+              subproducts,
+              provisionFields: { sld }
+            },
+            product,
+            preferredCycle
+          ),
+          domain: parsedDomain?.domain ?? fullDomain,
+          sld: parsedDomain?.sld ?? sld,
+          tld: parsedDomain?.tld ?? `.${tld}`,
+          meta: {
+            ...(termDetails.meta ?? {}),
+            available: can_register,
+            canTransfer: can_transfer
+          },
+          productDetails: {
+            ...productDetails,
+            title: fullDomain
+          },
+          price: termDetails.price,
+          pricing: [],
+          details: [],
+          rawProduct: product
+        } as DomainProduct;
+      } catch (err) {
+        console.warn(
+          `[parseSuggestions] Product parsing failed for ${fullDomain}, using fallback`,
+          err
+        );
+      }
+    }
+
+    // Fallback when product is missing or parsing failed
+    const prices = product?.prices ?? [];
+    // Prefer 12-month price, then preferred cycle, then lowest term
+    const sortedPrices = [...prices].sort(
+      (a: any, b: any) => a.billing_cycle_months - b.billing_cycle_months
+    );
+    const priceEntry =
+      prices.find((p: any) => p.billing_cycle_months === 12) ??
+      prices.find((p: any) => p.billing_cycle_months === preferredCycle) ??
+      sortedPrices[0];
+    const priceFormatted = priceEntry?.price_formatted ?? "";
+    const priceDiscountedFormatted =
+      priceEntry?.price_discounted_formatted ?? null;
+    const billingCycleMonths = priceEntry?.billing_cycle_months ?? 12;
+
+    return {
+      domain: parsedDomain?.domain ?? fullDomain,
+      sld: parsedDomain?.sld ?? sld,
+      tld: parsedDomain?.tld ?? `.${tld}`,
+      configuration: {
+        productId: product_id,
+        term: billingCycleMonths,
+        quantity: 1,
+        provisionFields: { sld }
+      },
+      price: {
+        currentPrice: priceDiscountedFormatted ?? priceFormatted,
+        currentAmount: 0,
+        regularPrice: priceFormatted,
+        regularAmount: 0,
+        savingAmount: 0,
+        savingPrice: "",
+        savingPercent: ""
+      },
+      meta: {
+        available: can_register,
+        canTransfer: can_transfer
+      },
+      productDetails: {
+        id: product_id,
+        title: fullDomain,
+        name: product?.name ?? `.${tld}`
+      },
+      pricing: [],
+      details: []
+    } as unknown as DomainProduct;
+  });
+
   return compact(uniqBy(available, "domain"));
 }
 
@@ -218,97 +339,4 @@ export function getDomainRawBasketProducts(
       serviceIdentifier: raw?.service_identifier ?? undefined
     });
   });
-}
-
-// -----------------------------------------------------------------------------
-// Registrant mapping utilities (FE-2457)
-// -----------------------------------------------------------------------------
-
-/**
- * Creates an empty registrant details object with all fields as empty strings.
- */
-export function emptyRegistrant(): RegistrantDetails {
-  return {
-    name: "",
-    organisation: "",
-    email: "",
-    phone: "",
-    address1: "",
-    city: "",
-    state: "",
-    postcode: "",
-    country: ""
-  };
-}
-
-/**
- * Maps billing/client data to registrant details using REGISTRANT_FIELD_MAP.
- * Accepts a generic source object and resolves each field via the billingKey path.
- *
- * @param source - Flat or nested object with billing/client data
- * @returns Populated RegistrantDetails (unfound fields default to "")
- */
-export function mapBillingToRegistrant(
-  source: Record<string, any>
-): RegistrantDetails {
-  return reduce(
-    REGISTRANT_FIELD_MAP,
-    (result: RegistrantDetails, entry: RegistrantFieldMapEntry) => {
-      const value = get(source, entry.billingKey, "");
-      result[entry.registrantKey] = value?.toString() ?? "";
-      return result;
-    },
-    emptyRegistrant()
-  );
-}
-
-/**
- * Transforms registrant details into provision field values for the basket product API.
- * Uses REGISTRANT_FIELD_MAP to map registrantKey → provisionKey.
- *
- * @param registrant - The registrant details to transform
- * @returns Record of provision field key → value pairs
- */
-export function mapRegistrantToProvisionFields(
-  registrant: RegistrantDetails
-): Record<string, string> {
-  return reduce(
-    REGISTRANT_FIELD_MAP,
-    (result: Record<string, string>, entry: RegistrantFieldMapEntry) => {
-      const value = registrant[entry.registrantKey];
-      if (!isEmpty(value)) {
-        result[entry.provisionKey] = value;
-      }
-      return result;
-    },
-    {}
-  );
-}
-
-/**
- * Returns the list of required registrant field keys that are missing (empty) values.
- *
- * @param registrant - The registrant details to check (undefined → all required fields missing)
- * @returns Array of missing required field keys
- */
-export function getMissingRegistrantFields(
-  registrant?: RegistrantDetails
-): (keyof RegistrantDetails)[] {
-  if (!registrant) return [...REQUIRED_REGISTRANT_FIELDS];
-
-  return filter(REQUIRED_REGISTRANT_FIELDS, (key: keyof RegistrantDetails) =>
-    isEmpty(registrant[key]?.toString())
-  );
-}
-
-/**
- * Returns `true` when all required registrant fields have non-empty values.
- *
- * @param registrant - The registrant details to validate
- * @returns `true` if complete, `false` otherwise
- */
-export function hasAllRequiredRegistrantFields(
-  registrant?: RegistrantDetails
-): boolean {
-  return isEmpty(getMissingRegistrantFields(registrant));
 }

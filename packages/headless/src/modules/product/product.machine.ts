@@ -23,6 +23,7 @@ import {
   cloneDeep,
   compact,
   filter,
+  find,
   get,
   isArray,
   isEmpty,
@@ -487,7 +488,10 @@ export default createMachine(
           { data }: AnyEventObject
         ) => ({
           product: parseProductDetails(data.product, rawBasketProduct),
-          terms: parseTermDetails(data.product),
+          terms: parseTermDetails(
+            data.product,
+            rawBasketProduct?.price_option_override
+          ),
           options: parseSubproductDetails(
             data.product.products_options,
             model?.term
@@ -713,7 +717,7 @@ export default createMachine(
       ) => {
         //  NB: data is raw basket data so use snake_case for comparison
 
-        const clientChanged = clientId == data?.client_id!;
+        const clientChanged = clientId !== data?.client_id!;
         const basketChanged = basketId !== data?.id;
         const promotionsChanged = !isEmpty(
           xorBy(promotions, data?.promotions, "promotion_id")
@@ -721,10 +725,14 @@ export default createMachine(
 
         // lets see if any important value have changed within the basketProduct
         // dont compare the entire object, just the keys that are important to this machine
-        const keys = ["id", "productId", "service_identifier"];
         // todo: check if bbasketProduct exists on data
-        const basketPoductChanged = !isEqual(
-          pick(data?.basketProduct, keys),
+        const keys = ["id", "product_id", "service_identifier"];
+        const dataBasketProduct = find(data?.products, [
+          "id",
+          rawBasketProduct?.id
+        ]);
+        const basketProductChanged = !isEqual(
+          pick(dataBasketProduct, keys),
           pick(rawBasketProduct, keys)
         );
 
@@ -732,7 +740,7 @@ export default createMachine(
           basketChanged ||
           clientChanged ||
           promotionsChanged ||
-          basketPoductChanged;
+          basketProductChanged;
 
         return value;
       },

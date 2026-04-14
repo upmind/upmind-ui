@@ -7,12 +7,26 @@ import { useConfig } from "../config";
 import { useI18n } from "../system";
 
 // --- utils
-import { filter, find, isEmpty, reduce } from "lodash-es";
+import {
+  compact,
+  filter,
+  find,
+  flatMap,
+  includes,
+  isEmpty,
+  map,
+  reduce
+} from "lodash-es";
 import { DetailedError, ErrorOrigin, responseCodes } from "../../utils";
+import { parseOptionUpsells } from "./utils";
 
 // --- types
-import type { BasketProduct } from "./types";
-import type { SubproductDetails, SubproductValue } from "../product";
+import type { BasketProduct, BasketOptionSummary } from "./types";
+import type {
+  ProductModel,
+  SubproductDetails,
+  SubproductValue
+} from "../product";
 // -----------------------------------------------------------------------------
 
 /**
@@ -40,6 +54,16 @@ export const useBasketProductInline = (bpid: string) => {
 
   // --- private
 
+  const preConfiguredIds = compact(
+    map(
+      filter(
+        (basketProduct.upsells ?? []) as BasketOptionSummary[],
+        "meta.toggle.selected"
+      ),
+      "meta.toggle.valueId"
+    )
+  );
+
   /**
    * Checks whether a specific option value has upsells enabled by resolving
    * `data.optionUpsellEnabled` at the option scope and `ui.optionUpsells.isVisible`
@@ -49,13 +73,10 @@ export const useBasketProductInline = (bpid: string) => {
     optionGroup: SubproductDetails,
     option: SubproductValue
   ): boolean {
-    const { data } = parentConfig.with({
+    const { data, ui } = parentConfig.with({
       product: () => basketProduct,
+      optionGroup: () => optionGroup,
       option: () => option
-    });
-    const { ui } = parentConfig.with({
-      product: () => basketProduct,
-      optionGroup: () => optionGroup
     });
 
     return !!data.optionUpsellEnabled && ui.optionUpsells.isVisible;
@@ -86,12 +107,45 @@ export const useBasketProductInline = (bpid: string) => {
     );
   }
 
+  /**
+   * Resolves upsell summaries from the product machine's option data when
+   * available (includes coupon-adjusted pricing), otherwise falls back to
+   * catalog-level data from the basket response.
+   *
+   * Options that were already selected before the inline machine was spawned
+   * (i.e. configured on the full product page) are excluded — they are managed
+   * elsewhere and should not appear as inline toggles.
+   *
+   * @param machineOptions - Available option lookups from the product machine.
+   * @param modelOptions - Current model selections (reflects toggle state).
+   */
+  function resolveUpsells(
+    machineOptions?: SubproductDetails[],
+    modelOptions?: ProductModel["options"]
+  ): BasketOptionSummary[] {
+    const catalogUpsells = (basketProduct.upsells ??
+      []) as BasketOptionSummary[];
+    if (isEmpty(machineOptions)) return catalogUpsells;
+
+    const selected = flatMap(modelOptions, group =>
+      map(group, (choice, id) => ({ product_id: choice.productId ?? id }))
+    );
+    const summaries = parseOptionUpsells(selected as any, machineOptions);
+
+    // Exclude options that were pre-configured before inline editing began.
+    return filter(
+      summaries,
+      s => !includes(preConfiguredIds, s.meta.toggle?.valueId)
+    );
+  }
+
   // --- computed
 
   /** Inline control flags for this product. */
   const meta = computed(() => {
-    const showOptionUpsells = ui.optionUpsells.isVisible;
+    const hasUpsellOptions = !!basketProduct.productDetails.configurableInline;
 
+    const showOptionUpsells = ui.optionUpsells.isVisible && hasUpsellOptions;
     const showTermSelector =
       ui.productTermSelector.isVisible && !basketProduct.meta?.oneoff;
 
@@ -99,6 +153,7 @@ export const useBasketProductInline = (bpid: string) => {
 
     return {
       hasInlineControls: showOptionUpsells || showTermSelector || showQuantity,
+      hasUpsellOptions,
       showOptionUpsells,
       showQuantity,
       showTermSelector
@@ -115,6 +170,13 @@ export const useBasketProductInline = (bpid: string) => {
      * Excludes required options and those without `optionUpsellEnabled`.
      */
     filterUpsellOptions,
+
+    /**
+     * Resolves upsell summaries with coupon-adjusted pricing when
+     * machine options are available, otherwise returns catalog data.
+     * Excludes pre-configured options automatically.
+     */
+    resolveUpsells,
 
     /** Inline control flags for this product. */
     meta
