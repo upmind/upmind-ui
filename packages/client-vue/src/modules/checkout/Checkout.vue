@@ -67,7 +67,8 @@ import {
   computed,
   provide,
   onUnmounted,
-  defineAsyncComponent
+  defineAsyncComponent,
+  onMounted
 } from "vue";
 
 // --- internal
@@ -167,14 +168,7 @@ const template = computed(() =>
 
 const templateVariant = computed(() => get(supportedTemplates, template.value));
 
-// -----------------------------------------------------------------------------
-
-await isReady().then(() => {
-  const { dataLayer } = useDataLayer();
-  dataLayer({ event: "begin_checkout" }).withEcommerce().push();
-});
-
-// -----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 // --- side effects
 
@@ -213,6 +207,11 @@ watch(meta, ({ isComplete }, { isComplete: wasComplete }) => {
   if (isComplete && !wasComplete) {
     navigateNext(invoice.value);
   }
+});
+
+onMounted(() => {
+  const { dataLayer } = useDataLayer();
+  dataLayer({ event: "begin_checkout" }).withEcommerce().push();
 });
 
 onUnmounted(() => {

@@ -106,11 +106,21 @@
 
 <script lang="ts" setup>
 // --- external
-import { ref, computed, defineAsyncComponent, onUnmounted } from "vue";
+import {
+  ref,
+  computed,
+  defineAsyncComponent,
+  onUnmounted,
+  onMounted
+} from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useBasket, useRoutingEngine } from "@upmind-automation/headless";
+import {
+  useBasket,
+  useDataLayer,
+  useRoutingEngine
+} from "@upmind-automation/headless";
 import { useLayout } from "../../components/layout/useLayout";
 import { useHeader } from "../../components/header/useHeader";
 import { useFooter } from "../../components/footer/useFooter";
@@ -212,14 +222,17 @@ const { data: basketSummaryTemplate } = useClientTemplate({
 
 set(ui.theme.value);
 
+// -----------------------------------------------------------------------------
+// --- side effects
+
+onMounted(() => {
+  const { dataLayer } = useDataLayer();
+  dataLayer({ event: "view_cart" }).withEcommerce().push();
+});
+
 onUnmounted(() => {
   useHeader({});
   useLayout({});
   useFooter({});
 });
-
-// -----------------------------------------------------------------------------
-
-// const { dataLayer } = useDataLayer();
-// dataLayer({ event: "view_cart" }).withEcommerce().push();
 </script>
