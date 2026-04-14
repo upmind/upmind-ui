@@ -21,6 +21,7 @@
   "asset_unavailable_text": "Току-що актуализирахме приложението и текущата ви версия е остаряла. Презаредете, за да продължите.",
   "asset_unavailable_title": "Изисква се презареждане",
   "asset_unavailable_title_md": "@.markdown:{'error.asset_unavailable_title'}",
+  "auth_not_valid": "Полетата за оторизация не са валидни",
   "basket_convert_failed": "Конвертирането на кошницата не бе успешно",
   "basket_fields_update_failed": "Възникна грешка при актуализиране на полетата в кошницата",
   "basket_fields_validation_failed": "Валидирането на полетата не бе успешно",

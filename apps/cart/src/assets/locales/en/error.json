@@ -21,6 +21,7 @@
   "asset_unavailable_text": "We've just updated our app and your current version is out of date. Reload to continue.",
   "asset_unavailable_title": "Refresh required",
   "asset_unavailable_title_md": "@.markdown:{'error.asset_unavailable_title'}",
+  "auth_not_valid": "Auth fields are not valid",
   "basket_convert_failed": "Convert basket failed",
   "basket_fields_update_failed": "We experienced an error updating the basket fields",
   "basket_fields_validation_failed": "Fields validation failed",

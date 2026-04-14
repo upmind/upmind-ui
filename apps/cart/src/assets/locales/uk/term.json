@@ -12,7 +12,7 @@
   "once": "Одного разу",
   "one_time": "Один раз",
   "price_by_n_years": "{price}/рік | {price} /{n} років",
-  "price_msg": "Тільки{price} | Від{price} місяць | Від{price} кожен{period}",
+  "price_msg": "Тільки {price} | Від {price} місяць | Від {price} кожен {period}",
   "quarterly": "Щоквартально",
   "renews_msg": "Одноразовий платіж | Оновлюється кожні {cycle} | Оновлюється кожні {cycle}",
   "renews_usually_msg": "Зазвичай {price}",

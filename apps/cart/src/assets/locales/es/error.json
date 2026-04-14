@@ -21,6 +21,7 @@
   "asset_unavailable_text": "Acabamos de actualizar la aplicación y la versión que estás usando no está al día. Recarga para continuar.",
   "asset_unavailable_title": "Recarga necesaria",
   "asset_unavailable_title_md": "@.markdown:{'error.asset_unavailable_title'}",
+  "auth_not_valid": "Los campos de autenticación no son válidos.",
   "basket_convert_failed": "Error en la conversión de cesta",
   "basket_fields_update_failed": "Experimentamos un error al actualizar los campos de la cesta.",
   "basket_fields_validation_failed": "La validación de campos falló",

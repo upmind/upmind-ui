@@ -15,7 +15,7 @@
   "billing_details": "Factureringsgegevens",
   "bounced": "Stuiterde",
   "bounced_label": "Stuiterde",
-  "bounced_msg": "De laatste e-mail naar dit adres is geweigerd.{datetime}.",
+  "bounced_msg": "De laatste e-mail naar dit adres is geweigerd. {datetime}.",
   "business": "Bedrijf",
   "business_details": "Bedrijfsgegevens",
   "cant_decide_right_qn": "Kunt u nu niet beslissen?",

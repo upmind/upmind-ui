@@ -1,7 +1,12 @@
 <template>
   <Loading
     :active="meta.isProcessing"
-    :class-active="styles.billing.form.spinner"
+    :ui-config="{
+      loading: {
+        root: [styles.billing.loading.root],
+        spinner: [styles.billing.loading.spinner]
+      }
+    }"
   >
     <Sections
       id="basket-billing"
@@ -18,7 +23,7 @@
           @form-resolve="onFormResolve"
         />
         <Button
-          v-if="isMobile && !autoUpdate && formMeta.allowContinue"
+          v-if="(isMobile || inline) && !autoUpdate && formMeta.allowContinue"
           :label="t('action.continue_label')"
           icon-append="arrow-right"
           color="primary"
@@ -37,7 +42,7 @@
           @form-resolve="onFormResolve"
         />
         <Button
-          v-if="isMobile && !autoUpdate && formMeta.allowContinue"
+          v-if="(isMobile || inline) && !autoUpdate && formMeta.allowContinue"
           :label="t('action.continue_label')"
           icon-append="arrow-right"
           color="primary"
@@ -50,9 +55,9 @@
     </Sections>
   </Loading>
 
-  <Teleport v-if="isMounted" to="#billing-actions">
+  <Teleport v-if="isMounted && !inline && !isMobile" to="#billing-actions">
     <Button
-      v-if="!isMobile && !autoUpdate && formMeta.allowContinue"
+      v-if="!autoUpdate && formMeta.allowContinue"
       :label="t('action.continue_label')"
       icon-append="arrow-right"
       color="primary"
@@ -101,7 +106,8 @@ import type { BillingFormProps } from "../types";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<BillingFormProps>(), {
-  autoUpdate: true
+  autoUpdate: true,
+  inline: false
 });
 
 const modelValue = defineModel<BillingFormProps["modelValue"]>("modelValue");
@@ -109,7 +115,11 @@ const touched = defineModel<BillingFormProps["touched"]>("touched");
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
-const styles = useStyles(["billing.form"], {}, billingConfig);
+const styles = useStyles(
+  ["billing.form", "billing.loading"],
+  {},
+  billingConfig
+);
 
 // Teleport cannot use `defer` inside async setup (Suspense + KeepAlive conflict),
 // so we gate it on isMounted to ensure the DOM target exists before teleporting.

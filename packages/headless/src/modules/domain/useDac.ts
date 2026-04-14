@@ -44,7 +44,7 @@ export const useDac = (options?: { useSuggestions?: boolean }) => {
     dacMachine.withContext({
       mode: DomainTypes.register, // set by domain.machine.ts when invoked as child
       // mode: DomainTypes.transfer,
-      useSuggestions: options?.useSuggestions ?? true,
+      useSuggestions: options?.useSuggestions ?? false,
       preferredCycle: getParam(QUERY_PARAMS.BILLING_CYCLE_MONTHS),
       coupons: getParams(QUERY_PARAMS.COUPONS),
       search: {
