@@ -21,6 +21,7 @@
   "asset_unavailable_text": "Ми щойно оновили застосунок, і ваша поточна версія застаріла. Перезавантажте сторінку, щоб продовжити.",
   "asset_unavailable_title": "Потрібно перезавантажити",
   "asset_unavailable_title_md": "@.markdown:{'error.asset_unavailable_title'}",
+  "auth_not_valid": "Поля авторизації недійсні",
   "basket_convert_failed": "Не вдалося конвертувати кошик",
   "basket_fields_update_failed": "Виникла помилка під час оновлення полів кошика",
   "basket_fields_validation_failed": "Не вдалося перевірити поля",

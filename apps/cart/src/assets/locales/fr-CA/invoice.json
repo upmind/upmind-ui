@@ -19,7 +19,7 @@
   "payment_due_msg": "Votre commande est confirmée. Paiement du{amount} est dû avant le{due_date} .",
   "payment_failed_banner": "Votre tentative de paiement a échoué. Veuillez réessayer.",
   "payment_partial": "Paiement en souffrance",
-  "payment_partial_msg": "Il vous reste {paid_amount}. Veuillez effectuer votre paiement pour finaliser votre commande.",
+  "payment_partial_msg": "Tu as {remaining_amount} Il reste du montant à payer. Veuillez terminer votre paiement pour compléter votre commande.",
   "payment_required_msg": "Votre commande est confirmée. Paiement du{amount} une fonction est requise pour finaliser votre commande.",
   "payment_retry": "Le paiement de cette commande reste dû dans son intégralité.",
   "payment_retry_action": "Essayer un nouveau mode de paiement",

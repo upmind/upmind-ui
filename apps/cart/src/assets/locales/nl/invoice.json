@@ -19,7 +19,7 @@
   "payment_due_msg": "Uw bestelling is bevestigd. Betaling van{amount} is verschuldigd op{due_date} .",
   "payment_failed_banner": "Uw poging tot betaling is mislukt - probeer het opnieuw.",
   "payment_partial": "Openstaande betaling",
-  "payment_partial_msg": "U heeft nog {paid_amount} over. Voltooi uw betaling om uw bestelling af te ronden.",
+  "payment_partial_msg": "Je hebt {remaining_amount} Resterend. Voltooi uw betaling om uw bestelling af te ronden.",
   "payment_required_msg": "Uw bestelling is bevestigd. Betaling van{amount} is vereist om uw bestelling te voltooien.",
   "payment_retry": "De betaling voor deze bestelling moet nog steeds volledig worden voldaan.",
   "payment_retry_action": "Probeer nieuwe betaalmethode",

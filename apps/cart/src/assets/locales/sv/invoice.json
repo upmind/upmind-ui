@@ -19,7 +19,7 @@
   "payment_due_msg": "Din beställning är bekräftad. Betalning av{amount} förfaller senast{due_date} .",
   "payment_failed_banner": "Din betalning misslyckades – försök igen.",
   "payment_partial": "Utestående betalning",
-  "payment_partial_msg": "Du har {paid_amount} kvar. Slutför din betalning för att avsluta din beställning.",
+  "payment_partial_msg": "Du har {remaining_amount} återstående. Vänligen slutför din betalning för att slutföra din beställning.",
   "payment_required_msg": "Din beställning är bekräftad. Betalning av{amount} krävs för att slutföra din beställning.",
   "payment_retry": "Betalningen för denna beställning ska fortfarande betalas i sin helhet.",
   "payment_retry_action": "Prova ny betalningsmetod",

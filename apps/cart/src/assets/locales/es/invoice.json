@@ -19,7 +19,7 @@
   "payment_due_msg": "Su pedido está confirmado. Pago de{amount} vence el{due_date} .",
   "payment_failed_banner": "Tu intento de pago no se ha realizado correctamente. Inténtalo de nuevo.",
   "payment_partial": "Pago pendiente",
-  "payment_partial_msg": "Le quedan {paid_amount}. Complete el pago para finalizar su pedido.",
+  "payment_partial_msg": "Tienes {remaining_amount} restante. Por favor, complete su pago para finalizar su pedido.",
   "payment_required_msg": "Su pedido está confirmado. Pago de{amount} Es necesario para completar su pedido.",
   "payment_retry": "El pago de este pedido aún está pendiente en su totalidad.",
   "payment_retry_action": "Prueba un nuevo método de pago",
