@@ -1,7 +1,7 @@
 {
   "name": "@upmind-automation/cart",
   "private": true,
-  "version": "0.15.5",
+  "version": "0.17.0",
   "description": "Bespoke Vue.js, e-commerce platform built on the Upmind platform",
   "keywords": [
     "Upmind",
