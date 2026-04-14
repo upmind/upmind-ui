@@ -35,6 +35,6 @@
   "transfer_domain": "ڈومین منتقل کریں۔",
   "transfer_extension_info": "منتقلی میں ایک سال کی توسیع شامل ہے۔",
   "transfer_owner_question": "کیا آپ اس ڈومین کے مالک ہیں؟",
-  "transfer_price_info": "آپ اسے صرف ہمارے پاس منتقل کر سکتے ہیں۔{currentPrice}",
+  "transfer_price_info": "آپ اسے صرف ہمارے پاس منتقل کر سکتے ہیں۔ {currentPrice}",
   "transfer_promotion": "صرف کے لیے ٹرانسفر {currentPrice}، عام طور پر {regularPrice}."
 }

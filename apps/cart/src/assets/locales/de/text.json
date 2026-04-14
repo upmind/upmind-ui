@@ -15,7 +15,7 @@
   "billing_details": "Rechnungsdetails",
   "bounced": "Abgeprallt",
   "bounced_label": "Abgeprallt",
-  "bounced_msg": "Die letzte E-Mail an diese Adresse konnte nicht zugestellt werden.{datetime} Die",
+  "bounced_msg": "Die letzte E-Mail an diese Adresse konnte nicht zugestellt werden. {datetime} Die",
   "business": "Geschäft",
   "business_details": "Geschäftliche Details",
   "cant_decide_right_qn": "Können Sie sich jetzt noch nicht entscheiden?",

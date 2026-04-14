@@ -155,5 +155,20 @@
   },
   "stored_payment_method": {
     "label": ""
+  },
+  "twofa": {
+    "description": "此帳戶已啟用雙重驗證，請輸入驗證碼。",
+    "label": "驗證碼",
+    "placeholder": "123 456"
+  },
+  "twofa_email": {
+    "description": "為了保護您的帳戶安全，我們已向您的郵箱發送了一次性驗證碼。請在下方輸入驗證碼以完成此請求。",
+    "label": "驗證碼",
+    "placeholder": "123 456"
+  },
+  "twofa_totp": {
+    "description": "若要完成此請求，請輸入您的身份驗證器應用程式產生的一次性驗證碼。",
+    "label": "驗證碼",
+    "placeholder": "123 456"
   }
 }
