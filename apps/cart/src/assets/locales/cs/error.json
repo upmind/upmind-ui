@@ -21,6 +21,7 @@
   "asset_unavailable_text": "Právě jsme aktualizovali aplikaci a vaše verze už není aktuální. Pro pokračování ji znovu načtěte.",
   "asset_unavailable_title": "Je nutné **obnovit**",
   "asset_unavailable_title_md": "@.markdown:{'error.asset_unavailable_title'}",
+  "auth_not_valid": "Pole pro autorizaci nejsou platná.",
   "basket_convert_failed": "Převod košíku se nezdařil",
   "basket_fields_update_failed": "Při aktualizaci polí košíku došlo k chybě.",
   "basket_fields_validation_failed": "Ověření polí se nezdařilo",

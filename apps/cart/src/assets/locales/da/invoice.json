@@ -19,7 +19,7 @@
   "payment_due_msg": "Din ordre er bekræftet. Betaling af{amount} forfalder senest{due_date} .",
   "payment_failed_banner": "Dit betalingsforsøg mislykkedes – prøv igen.",
   "payment_partial": "Udestående betaling",
-  "payment_partial_msg": "Du har {paid_amount} tilbage. Afslut din betaling for at færdiggøre din ordre.",
+  "payment_partial_msg": "Du har {remaining_amount} tilbage. Gennemfør venligst din betaling for at afslutte din ordre.",
   "payment_required_msg": "Din ordre er bekræftet. Betaling af{amount} er påkrævet for at fuldføre din ordre.",
   "payment_retry": "Betaling for denne ordre skal stadig betales fuldt ud.",
   "payment_retry_action": "Prøv ny betalingsmetode",

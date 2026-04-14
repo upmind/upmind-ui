@@ -21,6 +21,7 @@
   "asset_unavailable_text": "Vi har nettopp oppdatert appen, og versjonen du bruker er ikke den nyeste. Last inn på nytt for å fortsette.",
   "asset_unavailable_title": "**Ny innlasting** kreves",
   "asset_unavailable_title_md": "@.markdown:{'error.asset_unavailable_title'}",
+  "auth_not_valid": "Autorisasjonsfeltene er ikke gyldige",
   "basket_convert_failed": "Konvertering av handlekurv mislyktes",
   "basket_fields_update_failed": "Det oppsto en feil under oppdatering av handlekurvfeltene",
   "basket_fields_validation_failed": "Validering av felt mislyktes",
