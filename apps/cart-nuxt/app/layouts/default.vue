@@ -158,11 +158,7 @@ watch(
   ) => {
     if (!isAuthenticated && wasAuthenticated) {
       router.push({ name: ROUTE.SESSION_END });
-    } else if (
-      isUnavailable &&
-      !wasUnavailable &&
-      isAuthenticated
-    ) {
+    } else if (isUnavailable && !wasUnavailable && isAuthenticated) {
       router.push({ name: ROUTE.BASKET_UNAVAILABLE });
     } else if (!hasProducts && hadProducts && !isCheckout && !isComplete) {
       if (route.meta.actionEmptyBasket) {
