@@ -77,6 +77,18 @@
                 v-bind="promotion"
                 :disabled="error"
               />
+
+              <Tooltip
+                v-if="summary.meta?.overridden"
+                :label="t('text.price_manually_adjusted_msg')"
+              >
+                <Badge
+                  :label="t('text.custom_price')"
+                  size="sm"
+                  variant="muted"
+                  color="warning"
+                />
+              </Tooltip>
             </template>
           </template>
         </hgroup>
@@ -108,30 +120,18 @@
       :edit-route="props.editRoute"
     />
 
-    <div
-      v-if="props.inlineMeta?.hasInlineControls"
-      class="flex flex-col gap-3"
-      data-testid="basket-product-inline-controls"
-    >
-      <BasketProductTermSelector
-        v-if="props.inlineMeta.showTermSelector && props.terms"
-        :terms="props.terms"
-        v-model="term"
-        :disabled="error || !isEmpty(props.configErrors)"
-        :processing="processing"
-      />
-
-      <BasketProductOptionSwitch
-        v-if="props.inlineMeta.showOptionUpsells && props.upsellOptions"
-        :options="props.upsellOptions"
-        v-model="options"
-        :disabled="error || !isEmpty(props.configErrors)"
-        :processing="processing"
-      />
-    </div>
-
     <footer :class="styles.product.summary.footer.root">
-      <TermsDescription v-bind="summary" :separate="!isMobile" />
+      <div :class="styles.product.summary.footer.terms.root">
+        <BasketProductTermSelector
+          v-if="props.inlineMeta?.showTermSelector && props.terms"
+          :terms="props.terms"
+          v-model="term"
+          :disabled="error || !isEmpty(props.configErrors)"
+          :processing="processing"
+        />
+
+        <TermsDescription v-bind="summary" :separate="!isMobile" />
+      </div>
 
       <div :class="styles.product.summary.footer.price.root">
         <QuantityField
@@ -149,6 +149,7 @@
               summary.price.monthlyFromRegularPrice ?? ''
             "
             :discounted="summary.meta.discounted ?? false"
+            :overridden="summary.meta.overridden"
             :ui-config="{ pricing: { ex: [styles.product.pricing.ex] } }"
           />
 
@@ -183,6 +184,7 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- components
 import {
+  Badge,
   Link,
   Icon,
   Tooltip,
@@ -197,7 +199,6 @@ import Promotion from "./components/Promotion.vue";
 import QuantityField from "./components/QuantityField.vue";
 import BasketProductConfigurationDetails from "./BasketProductConfigurationDetails.vue";
 import BasketProductTermSelector from "./components/BasketProductTermSelector.vue";
-import BasketProductOptionSwitch from "./components/BasketProductOptionSwitch.vue";
 
 // --- internal
 import { useStyles } from "@upmind-automation/upmind-ui";
@@ -227,6 +228,7 @@ const styles = useStyles(
     "product.summary.category",
     "product.summary.title",
     "product.summary.footer",
+    "product.summary.footer.terms",
     "product.summary.footer.price",
     "product.pricing"
   ],
@@ -237,7 +239,6 @@ const styles = useStyles(
 const open = defineModel<boolean>("open");
 const quantity = defineModel<ProductModel["quantity"]>("quantity");
 const term = defineModel<ProductModel["term"]>("term");
-const options = defineModel<ProductModel["options"]>("options");
 
 const { ui, data } = useConfig().with({
   product: () => props

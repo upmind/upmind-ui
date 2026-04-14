@@ -1,5 +1,6 @@
 // --- external
 import type { ActorRef } from "xstate";
+import type { IProduct } from "@upmind-automation/types";
 
 // --- internal
 import type { Product, ProductSummaryDetail } from "../product";
@@ -7,6 +8,41 @@ import type { BasketHelperContext } from "../basketProduct";
 import type { ResponseError } from "../../utils";
 
 // -----------------------------------------------------------------------------
+
+/**
+ * A single domain result from the /suggestions endpoint.
+ */
+export interface IDomainSuggestionResult {
+  domain: string;
+  sld: string;
+  tld: string;
+  can_register: boolean;
+  can_transfer: boolean;
+  product_id: string;
+}
+
+/**
+ * The full response shape from /suggestions.
+ * `data` contains the suggestion results, and `related.products` is a map
+ * of product_id → full IProduct objects.
+ */
+export interface IDomainSuggestionsResponse {
+  data: IDomainSuggestionResult[];
+  related: {
+    products: Record<string, IProduct>;
+  };
+  total: number;
+}
+
+/**
+ * The response shape from /availability/{domain}.
+ */
+export interface IDomainAvailabilityResponse {
+  can_register: boolean;
+  can_transfer: boolean;
+  is_premium: boolean;
+  product?: IProduct;
+}
 
 /**
  * Enumeration defining the different types of domain management flows.
@@ -52,6 +88,12 @@ export type DomainProduct = Product &
     meta: ProductSummaryDetail["meta"] & {
       /** `true` if the domain is available for registration. */
       available?: boolean;
+      /** `true` if the domain can be transferred (set after availability check). */
+      canTransfer?: boolean;
+      /** `true` if the domain is fully unavailable (cannot register or transfer). */
+      unavailable?: boolean;
+      /** `true` once /availability has been called for this domain. */
+      checkedAvailability?: boolean;
       /** `true` if the client already owns the domain. */
       owned?: boolean;
       /** `true` if the domain has been added to the basket. */
@@ -67,6 +109,12 @@ export type DomainProduct = Product &
       /** `true` if the domain is currently being processed (e.g. during 'add to basket'). */
       processing?: boolean;
     };
+    /**
+     * Optional reference to the raw IProduct data from the API.
+     * Stored so we can re-run parseProductProps when the domain mode changes
+     * (e.g. register → transfer after a domain_transfer_only error).
+     */
+    rawProduct?: IProduct;
   };
 
 /**
@@ -103,6 +151,11 @@ export type DomainProps = {
  * search queries, and related lookups.
  */
 export interface DacContext extends BasketHelperContext<DomainProduct> {
+  /**
+   * The domain flow mode: 'register' (default) runs suggestions + availability,
+   * 'transfer' runs only checkAvailability.
+   */
+  mode?: DomainTypes;
   /**
    * The current {@link DomainModel} or array of models representing the selected domains.
    */
@@ -176,6 +229,17 @@ export interface DacContext extends BasketHelperContext<DomainProduct> {
    * An `ActorRef` to a basket helper service.
    */
   basketHelper?: ActorRef<any>;
+
+  /**
+   * The domain currently being availability-checked (set when ADD event fires).
+   */
+  checkingDomain?: string;
+
+  /**
+   * When `true` (default), uses the new `/suggestions` + `/availability` parallel flow.
+   * When `false`, falls back to the legacy `/search` endpoint.
+   */
+  useSuggestions?: boolean;
 }
 
 export interface DomainContext extends BasketHelperContext<DomainProduct> {
@@ -248,141 +312,3 @@ export interface DomainContext extends BasketHelperContext<DomainProduct> {
    */
   basketHelper?: ActorRef<any>;
 }
-
-// -----------------------------------------------------------------------------
-// Registrant Details (FE-2457)
-// -----------------------------------------------------------------------------
-
-/**
- * Registrant-specific fields for domain provision.
- * Maps to ICANN/registrar-required registrant contact data.
- */
-export type RegistrantDetails = {
-  /** Full name of the registrant. */
-  name: string;
-  /** Organisation name (optional — not required by all registrars). */
-  organisation: string;
-  /** Contact email for the registrant. */
-  email: string;
-  /** Contact phone number for the registrant (with country code). */
-  phone: string;
-  /** Street address (line 1) for the registrant. */
-  address1: string;
-  /** City for the registrant. */
-  city: string;
-  /** State or region for the registrant (optional — not required in all countries). */
-  state: string;
-  /** Postcode / zip code for the registrant. */
-  postcode: string;
-  /** Country code (ISO 3166-1 alpha-2) for the registrant. */
-  country: string;
-};
-
-/**
- * Per-domain registrant status — tracks completeness of registrant data
- * for a single domain product in the basket.
- */
-export type DomainRegistrantStatus = {
-  /** Basket product ID. */
-  productId: string;
-  /** Domain name (e.g. "bondiyoga.com"). */
-  domain: string;
-  /** Current registrant details for this domain. */
-  registrant: RegistrantDetails;
-  /** `true` when all required registrant fields are populated. */
-  complete: boolean;
-  /** Names of required fields that are missing values. */
-  missingFields: (keyof RegistrantDetails)[];
-  /** `true` when the user has explicitly skipped registrant assignment. */
-  skipped: boolean;
-};
-
-/**
- * Single entry in the billing → registrant → provision field mapping.
- */
-export type RegistrantFieldMapEntry = {
-  /** Key in the billing/client data source. */
-  billingKey: string;
-  /** Key in the RegistrantDetails type. */
-  registrantKey: keyof RegistrantDetails;
-  /** Provision field key sent to the API. */
-  provisionKey: string;
-  /** Whether this field is required for registrant completeness. */
-  required: boolean;
-};
-
-/**
- * Maps billing/client data fields → registrant fields → domain provision field keys.
- * Used to pre-fill registrant details from billing and to transform registrant
- * data into provision field values for the basket product API.
- */
-export const REGISTRANT_FIELD_MAP: RegistrantFieldMapEntry[] = [
-  {
-    billingKey: "name",
-    registrantKey: "name",
-    provisionKey: "registrant_name",
-    required: true
-  },
-  {
-    billingKey: "company",
-    registrantKey: "organisation",
-    provisionKey: "registrant_organisation",
-    required: false
-  },
-  {
-    billingKey: "email",
-    registrantKey: "email",
-    provisionKey: "registrant_email",
-    required: true
-  },
-  {
-    billingKey: "phone",
-    registrantKey: "phone",
-    provisionKey: "registrant_phone",
-    required: true
-  },
-  {
-    billingKey: "address_1",
-    registrantKey: "address1",
-    provisionKey: "registrant_address_1",
-    required: true
-  },
-  {
-    billingKey: "city",
-    registrantKey: "city",
-    provisionKey: "registrant_city",
-    required: true
-  },
-  {
-    billingKey: "state",
-    registrantKey: "state",
-    provisionKey: "registrant_state",
-    required: false
-  },
-  {
-    billingKey: "postcode",
-    registrantKey: "postcode",
-    provisionKey: "registrant_postcode",
-    required: true
-  },
-  {
-    billingKey: "country",
-    registrantKey: "country",
-    provisionKey: "registrant_country",
-    required: true
-  }
-] as const;
-
-/**
- * Required registrant field keys — derived from REGISTRANT_FIELD_MAP.
- * Only fields with `required: true` are included.
- */
-export const REQUIRED_REGISTRANT_FIELDS: (keyof RegistrantDetails)[] = [
-  "name",
-  "email",
-  "phone",
-  "address1",
-  "city",
-  "postcode",
-  "country"
-] as const;

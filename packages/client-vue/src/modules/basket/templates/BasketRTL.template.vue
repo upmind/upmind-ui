@@ -17,6 +17,7 @@
 
     <template #aside>
       <slot v-if="!isMobile" name="pricing" />
+      <slot name="custom-price" />
       <slot name="markdown" />
     </template>
 

@@ -155,5 +155,20 @@
   },
   "stored_payment_method": {
     "label": ""
+  },
+  "twofa": {
+    "description": "Questo account è protetto tramite autenticazione a due fattori. Inserisci il tuo codice di verifica.",
+    "label": "Codice di verifica",
+    "placeholder": "123 456"
+  },
+  "twofa_email": {
+    "description": "Per la tua sicurezza, ti abbiamo inviato un codice di accesso monouso via email. Per completare la richiesta, inserisci il codice qui sotto.",
+    "label": "Codice di verifica",
+    "placeholder": "123 456"
+  },
+  "twofa_totp": {
+    "description": "Per completare questa richiesta, inserisci il codice di accesso monouso generato dalla tua app di autenticazione.",
+    "label": "Codice di verifica",
+    "placeholder": "123 456"
   }
 }

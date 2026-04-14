@@ -3,6 +3,7 @@
 // --- internal
 import { useI18n } from "../../..";
 import sharedServices from "../services";
+import { beginSetup } from "../services";
 
 // --- utils
 import {
@@ -17,7 +18,7 @@ import { OPENPAY_FIELDS, type OpenPayContext } from "./types";
 import type { AnyEventObject } from "xstate";
 
 // --- utils
-import { isNil, omit } from "lodash-es";
+import { get, isNil, omit } from "lodash-es";
 
 // --- types
 import type { GatewayContext } from "../types";
@@ -83,7 +84,11 @@ async function load(context: OpenPayContext, _event: AnyEventObject) {
     openPay.setId(settings[OPENPAY_FIELDS.MERCHANT_ID]);
     openPay.setApiKey(settings[OPENPAY_FIELDS.PUBLIC_KEY]);
     openPay.setSandboxMode(settings[OPENPAY_FIELDS.TEST_MODE] == 1);
-    return { sdk: { openPay }, ...config };
+
+    // Important: deviceData.setup() must be called AFTER setSandboxMode
+    const deviceSessionId = openPay.deviceData?.setup() ?? "";
+
+    return { sdk: { openPay, deviceSessionId }, ...config };
   });
 }
 
@@ -213,6 +218,72 @@ async function pay({ gateway, sdk, model }: OpenPayContext) {
   });
 }
 
+/**
+ * @name add
+ * @desc Stores a payment method via OpenPay in the ADD context.
+ * Calls beginSetup → SDK token.create → endSetup with token.
+ */
+async function add(context: OpenPayContext) {
+  const { sdk, model, gateway } = context;
+  const { t } = useI18n();
+
+  if (!sdk?.openPay)
+    throw new DetailedError(
+      t("error.payment_gateway_not_available"),
+      responseCodes.Not_Found,
+      ErrorOrigin.Headless
+    );
+
+  const setupResponse = await beginSetup(context);
+  const clientPaymentDetailsId = get(
+    setupResponse,
+    "client_payment_details.id"
+  );
+
+  if (!clientPaymentDetailsId) {
+    throw new DetailedError(
+      t("error.payment_gateway_not_available"),
+      responseCodes.Unprocessable_Entity,
+      ErrorOrigin.Headless
+    );
+  }
+
+  const data = {
+    card_number: model?.openpay.card_number,
+    holder_name: model?.openpay.holder_name,
+    expiration_year:
+      model?.openpay.expiration_date.match(/^\d{2}\/(\d{2})$/)?.[1] || "",
+    expiration_month:
+      model?.openpay.expiration_date.match(/^(\d{2})\/\d{2}$/)?.[1] || "",
+    cvv2: model?.openpay.cvv2
+  };
+
+  return new Promise((resolve, reject) => {
+    sdk.openPay!.token.create(
+      data as Record<string, any>,
+      response =>
+        resolve({
+          gatewayId: context.gateway?.id,
+          data: {
+            auto_payment: model?.store_on_payment_auto_payment ?? false,
+            client_id: context.client.id,
+            client_payment_details_id: clientPaymentDetailsId,
+            token_id: response.data?.id,
+            device_session_id: sdk.deviceSessionId ?? ""
+          }
+        }),
+      response =>
+        reject(
+          new DetailedError(
+            response?.data?.description || response?.message,
+            response.status ?? responseCodes.Unprocessable_Entity,
+            ErrorOrigin.External
+          )
+        )
+    );
+  });
+}
+
 // -----------------------------------------------------------------------------
 
 export default {
@@ -221,5 +292,6 @@ export default {
   load,
   render,
   validate,
-  pay
+  pay,
+  add
 };

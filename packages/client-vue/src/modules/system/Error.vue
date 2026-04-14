@@ -11,31 +11,34 @@
   </div>
 </template>
 
-<!-- Pre-load asset/chunk unavailable animations and icons at import time so they're cached and
-     available even when asset URLs become stale after a deploy. -->
-<script lang="ts">
-import { loadAnimation, loadIcon } from "@upmind-automation/upmind-ui";
-loadAnimation("refresh");
-loadIcon("refresh-cw-01");
-</script>
-
 <script lang="ts" setup>
 // --- external
+import { computed, onBeforeMount } from "vue";
 import { useI18n } from "vue-i18n";
 
 // -- components
 import {
   Interstitial,
+  loadAnimation,
+  loadIcon,
   type InterstitialActionProps
 } from "@upmind-automation/upmind-ui";
 
 // -- types
 import { type InterstitialProps } from "@upmind-automation/upmind-ui";
-import { computed } from "vue";
 import { first, isNil } from "lodash-es";
 import { responseCodes, type Message } from "@upmind-automation/headless";
 import type { StorefrontRoute } from "../../types";
+// -----------------------------------------------------------------------------
+
 const { t } = useI18n();
+
+// Pre-load asset/chunk unavailable animations and icons so they're cached and
+// available even when asset URLs become stale after a deploy.
+onBeforeMount(() => {
+  loadAnimation("refresh");
+  loadIcon("refresh-cw-01");
+});
 
 const props = withDefaults(
   defineProps<

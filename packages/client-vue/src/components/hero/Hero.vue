@@ -46,9 +46,8 @@
       </slot>
     </component>
 
-    <div>
+    <div v-if="props.action">
       <Button
-        v-if="props.action"
         v-bind="props.action"
         variant="subtle"
         size="lg"
