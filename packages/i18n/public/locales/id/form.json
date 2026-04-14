@@ -155,5 +155,20 @@
   },
   "stored_payment_method": {
     "label": ""
+  },
+  "twofa": {
+    "description": "Akun ini diamankan menggunakan otentikasi dua faktor. Silakan masukkan kode verifikasi Anda.",
+    "label": "Kode verifikasi",
+    "placeholder": "123 456"
+  },
+  "twofa_email": {
+    "description": "Demi keamanan Anda, kami telah mengirimkan kode sandi sekali pakai ke email Anda. Untuk menyelesaikan permintaan ini, silakan masukkan kode di bawah ini.",
+    "label": "Kode verifikasi",
+    "placeholder": "123 456"
+  },
+  "twofa_totp": {
+    "description": "Untuk menyelesaikan permintaan ini, silakan masukkan kode sandi satu kali yang dihasilkan oleh aplikasi Authenticator Anda.",
+    "label": "Kode verifikasi",
+    "placeholder": "123 456"
   }
 }

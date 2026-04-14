@@ -13,7 +13,7 @@
   "enum": "{title} 必須等於允許值之一",
   "exclusiveMaximum": "{title} 必須小於 {exclusiveMaximum}",
   "exclusiveMinimum": "{title} 必須大於 {exclusiveMinimum}",
-  "format": "@:validation 。{format} |{title} 必須符合格式 {format}",
+  "format": "@:validation.{format} | {title} 必須符合格式 {format}",
   "if": "{title} 必須符合“then”模式 | {title} 必須匹配“else”架構",
   "maxItems": "{title} 不得超過 {maxItems} 項目 | {title} 不得超過 {maxItems} 專案",
   "maxLength": "{title} 不得超過 {maxLength} 角色 | {title} 不得超過 {maxLength} 人物",

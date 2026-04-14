@@ -13,7 +13,7 @@
   "enum": "{title} musi być równa jednej z dozwolonych wartości",
   "exclusiveMaximum": "{title} musi być mniejsze niż {exclusiveMaximum}",
   "exclusiveMinimum": "{title} musi być większe niż {exclusiveMinimum}",
-  "format": "@:validation .{format} |{title} musi pasować do formatu {format}",
+  "format": "@:validation.{format} | {title} musi pasować do formatu {format}",
   "if": "{title} musi pasować do schematu „wtedy” | {title} musi pasować do schematu „else”",
   "maxItems": "{title} NIE MOŻE mieć więcej niż {maxItems} pozycja | {title} NIE MOŻE mieć więcej niż {maxItems} rzeczy",
   "maxLength": "{title} NIE może być dłuższy niż {maxLength} postać | {title} NIE może być dłuższy niż {maxLength} pismo",

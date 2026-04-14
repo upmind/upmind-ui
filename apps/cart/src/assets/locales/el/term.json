@@ -12,7 +12,7 @@
   "once": "Μια φορά",
   "one_time": "Μία φορά",
   "price_by_n_years": "{price}/έτος | {price} /{n} χρόνια",
-  "price_msg": "Μόνο{price} | Από{price} ένα μήνα | Από{price} κάθε{period}",
+  "price_msg": "Μόνο {price} | Από {price} ένα μήνα | Από {price} κάθε {period}",
   "quarterly": "Τριμηνιαίος",
   "renews_msg": "Εφάπαξ πληρωμή | Ανανεώνεται κάθε {cycle} | Ανανεώνεται κάθε {cycle}",
   "renews_usually_msg": "Συνήθως {price}",

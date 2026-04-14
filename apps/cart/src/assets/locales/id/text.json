@@ -118,7 +118,7 @@
   "tax_excluded": "tidak termasuk pajak",
   "tax_included": "termasuk pajak",
   "tax_invalid": "{number} adalah nomor pajak yang tidak valid.",
-  "tax_number": "Nomor Pajak:{taxNumber}",
+  "tax_number": "Nomor Pajak: {taxNumber}",
   "tax_pending": "Nomor pajak ini belum divalidasi.",
   "tax_valid": "Divalidasi {relative}",
   "term": "ketentuan",
