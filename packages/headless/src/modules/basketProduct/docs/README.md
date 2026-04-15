@@ -7,29 +7,36 @@ Think of it like a basket item card: it knows the product's current price, billi
 ## Quick Start
 
 ```typescript
-import { useBasketProducts, useBasketProductInline } from "@upmind-automation/headless";
+import {
+  useBasketProducts,
+  useBasketProductInline
+} from "@upmind-automation/headless";
 
 // List all basket products
 const { products, configure, remove } = useBasketProducts();
 
 // Inline editing for a specific basket product
-const { meta, configure: spawnConfig, resolveUpsells, filterUpsellOptions } =
-  useBasketProductInline(basketProductId);
+const {
+  meta,
+  configure: spawnConfig,
+  resolveUpsells,
+  filterUpsellOptions
+} = useBasketProductInline(basketProductId);
 ```
 
 ## Features
 
-| Feature | Status | Notes |
-|---------|--------|-------|
-| Basket product parsing | ✅ | Converts API responses to `BasketProduct` |
-| Product configuration | ✅ | Full configure flow via product machine |
-| Inline term editing | ✅ | Change billing cycle directly in basket (FE-1502) |
-| Inline option toggling | ✅ | Add/remove options via switches in basket (FE-1502) |
-| Option upsells | ✅ | Surface available options with pricing (FE-1502) |
-| Provision field validation | ✅ | Parse and display provision errors |
-| Promotion/coupon display | ✅ | Parse basket-level promotions |
-| Pending products | ✅ | Manage products before they're confirmed in basket |
-| Dynamic provision values | ✅ | Template literals resolved from other basket products |
+| Feature                    | Status | Notes                                                 |
+| -------------------------- | ------ | ----------------------------------------------------- |
+| Basket product parsing     | ✅     | Converts API responses to `BasketProduct`             |
+| Product configuration      | ✅     | Full configure flow via product machine               |
+| Inline term editing        | ✅     | Change billing cycle directly in basket (FE-1502)     |
+| Inline option toggling     | ✅     | Add/remove options via switches in basket (FE-1502)   |
+| Option upsells             | ✅     | Surface available options with pricing (FE-1502)      |
+| Provision field validation | ✅     | Parse and display provision errors                    |
+| Promotion/coupon display   | ✅     | Parse basket-level promotions                         |
+| Pending products           | ✅     | Manage products before they're confirmed in basket    |
+| Dynamic provision values   | ✅     | Template literals resolved from other basket products |
 
 ## Key Concepts
 
