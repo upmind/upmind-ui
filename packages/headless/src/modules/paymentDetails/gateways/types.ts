@@ -15,12 +15,20 @@ import type { ResponseError } from "../../../utils";
 import type { PaymentDetailData } from "../types";
 
 // -----------------------------------------------------------------------------
+
+/**
+ * Gateway parameters shared between PAY and ADD contexts.
+ *
+ * `amount` and `orderId` are required for PAY context, optional for ADD.
+ * Downstream gateway services access these without narrowing by `ctx`,
+ * so they must remain accessible on the base type.
+ */
 export type GatewayParams = {
   address?: IAddress;
   /**
-   * The numerical amount of the payment.
+   * The numerical amount of the payment (0 or omitted for ADD context).
    */
-  amount: PaymentDetailData["amount"];
+  amount?: PaymentDetailData["amount"];
   client: IClient;
   /**
    * The {@link GatewayCtx} defining whether the gateway is used for paying or adding a detail.
@@ -35,13 +43,29 @@ export type GatewayParams = {
    */
   gateway: IGateway;
   /**
-   * The unique identifier of the order associated with this payment.
+   * The unique identifier of the order (omitted for ADD context).
    */
-  orderId: IOrder["id"];
+  orderId?: IOrder["id"];
   /**
    * `true` if the gateway integration should operate in a renderless mode (no UI from gateway itself).
    */
   renderless?: boolean;
+};
+
+/**
+ * Gateway parameters for PAY context — requires orderId and amount.
+ */
+export type GatewayPayParams = GatewayParams & {
+  ctx: typeof GatewayCtx.PAY;
+  amount: PaymentDetailData["amount"];
+  orderId: IOrder["id"];
+};
+
+/**
+ * Gateway parameters for ADD context — no orderId or amount needed.
+ */
+export type GatewayAddParams = GatewayParams & {
+  ctx: typeof GatewayCtx.ADD;
 };
 
 export type GenericGatewayContext = {
@@ -112,6 +136,19 @@ export type GenericGatewayContext = {
    * An error object if any issue occurred during payment gateway operations.
    */
   error?: ResponseError;
+
+  // --- ADD context
+
+  /**
+   * The client_payment_details_id obtained from beginSetup (ADD context only).
+   */
+  clientPaymentDetailsId?: string;
+
+  /**
+   * The gateway-specific client secret from beginSetup (ADD context only).
+   * E.g. Stripe SetupIntent client_secret, Braintree client token, etc.
+   */
+  clientSecret?: string;
 };
 
 export type GatewayContext<T = {}> = GatewayParams & GenericGatewayContext & T;

@@ -12,8 +12,10 @@ import { useQueryParams } from "../routing/useQueryParams";
 
 // --- utils
 import {
+  machineMatches,
   stateMatches,
   stopService,
+  useChildActor,
   useContext,
   useContextActor
 } from "../../utils";
@@ -48,8 +50,10 @@ export const useOrder = (invoiceId: string) => {
 
   const paymentDetailActor = useContextActor(state, "paymentDetailActor");
 
-  const paymentDetails = usePaymentDetail(paymentDetailActor);
-  const gateway = usePaymentGateway(paymentDetails.gateway);
+  const paymentDetail = usePaymentDetail(paymentDetailActor);
+  const gateway = usePaymentGateway(paymentDetail.gateway);
+
+  const payment = useChildActor(state, "payment");
 
   // --- context
 
@@ -58,29 +62,37 @@ export const useOrder = (invoiceId: string) => {
 
   const meta = computed(() => {
     const isAvailable = stateMatches(state, ["available"]);
-    const isFree =
-      isEmpty(invoice.value?.payments) &&
-      invoice.value?.summary.unpaidAmount === 0;
+    const isFailed =
+      (stateMatches(state, ["available.collecting"]) &&
+        !isEmpty(errors.value)) ||
+      paymentFailed.value;
+    const hasPendingPayment = some(invoice.value?.payments, "meta.isPending");
+    const paidAmount = invoice.value?.summary.paidAmount ?? 0;
+    const unpaidAmount = invoice.value?.summary.unpaidAmount ?? 0;
+    const isFree = isEmpty(invoice.value?.payments) && unpaidAmount === 0;
 
     return {
-      hasError:
-        stateMatches(state, ["available.failed"]) ||
-        (isAvailable && paymentFailed.value),
+      hasError: isAvailable && isFailed,
       isAuthenticated: authMeta.value.isAuthenticated,
       isAvailable,
       isLocked: !!invoice.value?.locked,
       isComplete: stateMatches(state, ["complete"]),
       isFree,
       isLoading: stateMatches(state, ["subscribing", "loading"]),
-      isPartial:
+      isPartial: isAvailable && paidAmount > 0 && unpaidAmount > 0,
+      isPaymentDue:
         isAvailable &&
-        (invoice.value?.summary.paidAmount ?? 0) > 0 &&
-        (invoice.value?.summary.unpaidAmount ?? 0) > 0,
-      isPending: isAvailable && some(invoice.value?.payments, "meta.isPending"),
+        !isFailed &&
+        !hasPendingPayment &&
+        paidAmount === 0 &&
+        unpaidAmount > 0,
+      isPending: isAvailable && hasPendingPayment,
       isProcessing: stateMatches(state, [
         "available.paying",
         "available.refreshing"
       ]),
+      needsApproval: machineMatches(payment, ["challenging"]),
+      isRenderingChallenge: machineMatches(payment, ["challenging.render"]),
       isUnavailable: stateMatches(state, ["unavailable"])
     };
   });
@@ -110,6 +122,33 @@ export const useOrder = (invoiceId: string) => {
     send({ type: "REFRESH" });
   }
 
+  /**
+   * Renders an inline payment challenge into the provided container.
+   * Call when meta.isRenderingChallenge is true and the container is mounted.
+   */
+  function renderChallenge(container: HTMLElement): void {
+    payment.value?.send({
+      type: "RENDER",
+      data: { container, onComplete: completeChallenge }
+    });
+  }
+
+  /**
+   * Completes an inline challenge with optional response data.
+   * Triggers verification of the challenge.
+   * @param data - Optional data from the challenge completion.
+   */
+  function completeChallenge(data?: Record<string, unknown>): void {
+    payment.value?.send({ type: "CHALLENGE_RESPONSE", data });
+  }
+
+  /**
+   * Cancels an inline payment challenge.
+   */
+  function cancelChallenge(): void {
+    payment.value?.send({ type: "CHALLENGE_CANCELLED" });
+  }
+
   onUnmounted(() => {
     stopService(service);
   });
@@ -125,7 +164,8 @@ export const useOrder = (invoiceId: string) => {
   );
 
   watch(
-    () => stateMatches(state, ["available.failed"]),
+    () =>
+      stateMatches(state, ["available.collecting"]) && !isEmpty(errors.value),
     failed => {
       if (failed) {
         paymentFailed.value = true;
@@ -156,10 +196,16 @@ export const useOrder = (invoiceId: string) => {
     pay,
 
     /** Delegated payment detail composable (for provide/inject). */
-    paymentDetails,
+    paymentDetail,
 
     /** Re-fetch the invoice (e.g. after offsite 3DS return). */
     refresh,
+
+    /** Renders an inline payment challenge into the provided container. */
+    renderChallenge,
+
+    /** Cancels an inline payment challenge. */
+    cancelChallenge,
 
     /** Retry a failed payment. */
     retry

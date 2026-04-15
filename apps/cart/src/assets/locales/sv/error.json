@@ -21,6 +21,7 @@
   "asset_unavailable_text": "Vi har just uppdaterat appen och din version är inaktuell. Ladda om för att fortsätta.",
   "asset_unavailable_title": "Omladdning krävs",
   "asset_unavailable_title_md": "@.markdown:{'error.asset_unavailable_title'}",
+  "auth_not_valid": "Aut.fälten är inte giltiga",
   "basket_convert_failed": "Konvertera varukorgen misslyckades",
   "basket_fields_update_failed": "Vi uppstod ett fel vid uppdatering av varukorgsfälten",
   "basket_fields_validation_failed": "Fältvalideringen misslyckades",

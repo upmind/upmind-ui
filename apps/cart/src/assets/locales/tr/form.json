@@ -155,5 +155,20 @@
   },
   "stored_payment_method": {
     "label": ""
+  },
+  "twofa": {
+    "description": "Bu hesap iki faktörlü kimlik doğrulama ile güvence altına alınmıştır. Lütfen doğrulama kodunuzu girin.",
+    "label": "Doğrulama kodu",
+    "placeholder": "123 456"
+  },
+  "twofa_email": {
+    "description": "Güvenliğiniz için, e-posta adresinize tek kullanımlık bir şifre gönderdik. Bu isteği tamamlamak için lütfen aşağıdaki kodu girin.",
+    "label": "Doğrulama kodu",
+    "placeholder": "123 456"
+  },
+  "twofa_totp": {
+    "description": "Bu isteği tamamlamak için lütfen Authenticator uygulamanız tarafından oluşturulan tek kullanımlık şifreyi girin.",
+    "label": "Doğrulama kodu",
+    "placeholder": "123 456"
   }
 }

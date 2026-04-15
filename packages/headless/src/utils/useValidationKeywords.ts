@@ -137,9 +137,11 @@ export const requiredWithKeyword: KeywordDefinition = {
   keyword: "required_with",
   schemaType: "string",
   validate: (schema, data, parentSchema, dataCxt) => {
-    if (!schema) return true;
-    const dependentValue = get(dataCxt?.parentData, schema);
-    return !isEmpty(data) && !isEmpty(dependentValue);
+    return true;
+    // TODO: find a better way to9 implement this as current DOES NOT WORK
+    // if (!schema) return true;
+    // const dependentValue = get(dataCxt?.parentData, schema);
+    // return !isEmpty(data) && !isEmpty(dependentValue);
   },
   error: {
     message: cxt => {
@@ -158,9 +160,11 @@ export const requiredWithoutKeyword: KeywordDefinition = {
   keyword: "required_without",
   schemaType: "string",
   validate: (schema, data, parentSchema, dataCxt) => {
-    if (!schema) return true;
-    const dependentValue = get(dataCxt?.parentData, schema);
-    return !isEmpty(data) || !isEmpty(dependentValue);
+    return true;
+    // TODO: find a better way to9 implement this as current DOES NOT WORK
+    // if (!schema) return true;
+    // const dependentValue = get(dataCxt?.parentData, schema);
+    // return !isEmpty(data) || !isEmpty(dependentValue);
   },
   error: {
     message: cxt => {

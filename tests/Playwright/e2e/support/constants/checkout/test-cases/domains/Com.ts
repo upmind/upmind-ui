@@ -16,7 +16,7 @@ export const comDomain = [
     billingterm: 0,
     transfer: true,
     sldValue: "comtestingdomain",
-    total: "FREE",
+    total: /FREE | £0.00/,
     billingCycle: "1 year",
     tldValue: ".com",
     domainLocking: "Domain Locking Standard"

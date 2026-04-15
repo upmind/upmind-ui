@@ -21,6 +21,7 @@
   "asset_unavailable_text": "Kami baru saja memperbarui aplikasi kami, dan versi yang Anda gunakan sudah ketinggalan. Muat ulang untuk melanjutkan.",
   "asset_unavailable_title": "Muat Ulang Diperlukan",
   "asset_unavailable_title_md": "@.markdown:{'error.asset_unavailable_title'}",
+  "auth_not_valid": "Kolom autentikasi tidak valid",
   "basket_convert_failed": "Konversi keranjang gagal",
   "basket_fields_update_failed": "Kami mengalami kesalahan saat memperbarui bidang keranjang",
   "basket_fields_validation_failed": "Validasi bidang gagal",

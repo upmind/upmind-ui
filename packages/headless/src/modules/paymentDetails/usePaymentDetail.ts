@@ -19,6 +19,7 @@ import {
   useContextActor
 } from "../../utils";
 import { useConfig } from "../config";
+import { usePaymentState, isPayable, hasAmount } from "./utils";
 import {
   isEmpty,
   isEqual,
@@ -39,9 +40,13 @@ import type {
   PaymentDetailModel,
   PaymentDetailsContext
 } from "./types";
-import { GatewayTypes, PaymentType } from "@upmind-automation/types";
+import {
+  GatewayContext,
+  GatewayTypes,
+  PaymentType
+} from "@upmind-automation/types";
 import type { ControlElement } from "@jsonforms/core";
-import { useSchemaDefinitions, useUischemaDefinitions } from "./schemas";
+import { useSchemaDefinitions, usePayUischemaDefinitions } from "./schemas";
 import { zeroDecimalCurrencies } from "./gateways/utils";
 
 // -----------------------------------------------------------------------------
@@ -89,59 +94,41 @@ export const usePaymentDetail = (
     const hasGateways = !isEmpty(gateways.value);
 
     // --- payment
-    const isFree = !contextValue(actor, "amount");
-    const hasAmount = !!contextValue(actor, "model.amount", 0)!;
-    const isFullyCoveredByWallet = isEqual(
-      contextValue(actor, "model.amount", 0)!,
-      contextValue(actor, "model.wallet_amount", 0)!
-    );
-    const isPayable = includes(
-      [PaymentType.PARTIAL_PAYMENT, PaymentType.PAY_IN_FULL],
-      contextValue(actor, "model.type")
-    );
-    const isPayLater = contextMatches(
+    const ctx = contextValue<GatewayContext>(actor, "ctx");
+    const isPayContext = ctx == GatewayContext.PAY;
+    const forcePaymentMethod = !!contextValue(
       actor,
-      "model.type",
-      PaymentType.PAY_LATER
+      "requirePaymentForFreeOrders"
     );
 
-    // --- payment methods
-    const hasStoredPaymentMethods = !isEmpty(storedPaymentMethods.value);
-    const hasSelectedPaymentMethod = !!contextValue<PaymentDetailModel>(
-      actor,
-      "model.payment_details_id"
-    );
-
-    // --- state
-
-    // TRUE if gateways have been loaded before (not initial load)
-    // AND machine is re-fetching lookups
-    // OR machine is re-parsing model AND model has not yet been repopulated with a payment type or amount
+    // --- state (isRefreshing computed first — usePaymentState needs it)
     const isRefreshing =
       hasGateways &&
       (stateMatches(actor, ["loading"]) ||
         (stateMatches(actor, ["available.checking"]) &&
-          (!isPayable || !hasAmount)));
+          (!isPayable(model.value, forcePaymentMethod, ctx) ||
+            !hasAmount(model.value, ctx))));
 
-    // TRUE if actor exists AND machine is in available state
-    // OR if refreshing (loading with previously loaded data)
+    const { hasSelectedPaymentMethod, isFree, isPayLater, needsPayment } =
+      usePaymentState(
+        model.value,
+        ctx,
+        amount.value,
+        forcePaymentMethod,
+        isRefreshing
+      );
+
+    // --- payment methods
+    const hasStoredPaymentMethods = !isEmpty(storedPaymentMethods.value);
+
     const isAvailable =
       !!actor.value &&
       (stateMatches(actor, ["available", "processing"]) || isRefreshing);
 
-    // TRUE if actor is not ready
-    // OR machine is in initial loading state
-    // OR is refreshing
     const isLoading =
-      !actor.value || stateMatches(actor, ["loading"]) || isRefreshing;
-
-    // TRUE if model has a payable amount that is not fully covered by wallet
-    // OR if refreshing a paid order (model may be stale)
-    // OR if context says payment is needed but model amount has not caught up yet
-    const needsPayment =
-      (hasAmount && !isFullyCoveredByWallet && isPayable) ||
-      (isRefreshing && !isFree) ||
-      (!isFree && !hasAmount);
+      !actor.value ||
+      stateMatches(actor, ["loading", "restoring", "finalising"]) ||
+      isRefreshing;
 
     return {
       // --- state
@@ -152,7 +139,12 @@ export const usePaymentDetail = (
       ),
       isLoading,
       isProcessing:
-        stateMatches(actor, ["checking", "processing"]) || isRefreshing,
+        stateMatches(actor, [
+          "checking",
+          "processing",
+          "finalising",
+          "restoring"
+        ]) || isRefreshing,
       isRefreshing,
       isValid: gateway.value
         ? stateMatches(gateway.value, ["available.valid"])
@@ -168,11 +160,13 @@ export const usePaymentDetail = (
         !gateway.value || stateMatches(gateway.value, ["unavailable"]),
 
       // --- payment
-      canMakePartialPayment: some(
-        contextValue<PaymentType[]>(actor, "lookups.paymentTypes", []),
-        value => value === PaymentType.PARTIAL_PAYMENT
-      ),
-      hasAccountCredit: gt(accountCredit.value?.total.value, 0),
+      canMakePartialPayment:
+        isPayContext &&
+        some(
+          contextValue<PaymentType[]>(actor, "lookups.paymentTypes", []),
+          value => value === PaymentType.PARTIAL_PAYMENT
+        ),
+      hasAccountCredit: isPayContext && gt(accountCredit.value?.total.value, 0),
       isComplete:
         isFree ||
         stateValue(actor, "done", false) ||
@@ -187,7 +181,7 @@ export const usePaymentDetail = (
           [GatewayTypes.OFFLINE, GatewayTypes.BANK_TRANSFER],
           contextValue(gateway, "gateway.type")
         ),
-      isSettlement: contextMatches(actor, ["paidAmount"]),
+      isSettlement: isPayContext && contextMatches(actor, ["paidAmount"]),
       needsPayment,
 
       // --- payment methods
@@ -198,23 +192,25 @@ export const usePaymentDetail = (
           ?.length ?? 0) < (storedPaymentMethods.value?.length ?? 0),
 
       // --- visibility
-
-      // SHOW if payment is needed
-      // AND gateways are available
-      // AND gateway is NOT selected
-      showGatewaySelection: needsPayment && hasGateways && !hasSelectedGateway,
+      showGatewaySelection:
+        needsPayment &&
+        hasGateways &&
+        !hasSelectedGateway &&
+        !(isFree && hasStoredPaymentMethods),
 
       // SHOW if payment is NOT needed (free) to allow checkout without gateway or payment method
       // OR if a gateway is selected
       // OR if a existing payment method is selected
+      // OR if refreshing AND there are stored payment methods (so user can still act)
       showPaymentActions:
         !needsPayment ||
         hasSelectedGateway ||
         hasSelectedPaymentMethod ||
-        isRefreshing,
+        (isRefreshing && hasStoredPaymentMethods),
 
-      // SHOW if payment details are available AND NOT free
-      showPaymentSection: isAvailable && !isFree,
+      // SHOW if payment details are available AND NOT free (or in ADD context)
+      showPaymentSection:
+        isAvailable && (!isFree || !isPayContext || forcePaymentMethod),
 
       // SHOW if payment is needed
       // AND stored methods exist
@@ -224,7 +220,9 @@ export const usePaymentDetail = (
         needsPayment &&
         hasStoredPaymentMethods &&
         !hasSelectedGateway &&
-        isAvailable
+        isAvailable,
+
+      isPayContext
     };
   });
 
@@ -318,7 +316,7 @@ export const usePaymentDetail = (
   const uischemaStoredPaymentMethods = computed(() => ({
     type: "VerticalLayout",
     elements: filter(
-      useUischemaDefinitions(contextValue<PaymentDetailsContext>(actor)!),
+      usePayUischemaDefinitions(contextValue<PaymentDetailsContext>(actor)!),
       d => (d as ControlElement).scope === "#/properties/payment_details_id"
     )
   }));
@@ -326,7 +324,7 @@ export const usePaymentDetail = (
   const uischemaGateways = computed(() => ({
     type: "VerticalLayout",
     elements: filter(
-      useUischemaDefinitions(contextValue<PaymentDetailsContext>(actor)!),
+      usePayUischemaDefinitions(contextValue<PaymentDetailsContext>(actor)!),
       d => (d as ControlElement).scope === "#/properties/gateway_id"
     )
   }));
@@ -350,7 +348,7 @@ export const usePaymentDetail = (
   const uischemaAmountCredit = computed(() => ({
     type: "VerticalLayout",
     elements: filter(
-      useUischemaDefinitions(contextValue<PaymentDetailsContext>(actor)!),
+      usePayUischemaDefinitions(contextValue<PaymentDetailsContext>(actor)!),
       d => (d as ControlElement).scope === "#/properties/wallet_amount"
     )
   }));
@@ -446,8 +444,44 @@ export const usePaymentDetail = (
       });
   }
 
+  function add(): Promise<void> {
+    const { t } = useI18n();
+
+    actor.value?.send({ type: "ADD" });
+    return waitFor(
+      actor.value!.service,
+      state => stateMatches(state, ["processed", "complete", "error"]),
+      { timeout: 60_000 }
+    )
+      .then(state => {
+        if (stateMatches(state, "error")) throw state.context.error;
+        return Promise.resolve();
+      })
+      .catch(error => {
+        return Promise.reject(
+          new DetailedError(
+            error?.message ?? t("error.payment_gateway_update_failed"),
+            error?.status ?? responseCodes.Timeout,
+            error?.origin ?? ErrorOrigin.Headless,
+            {
+              error,
+              state: actor.value?.state?.value
+            }
+          )
+        );
+      });
+  }
+
   function clear() {
     actor.value?.send({ type: "CLEAR" });
+  }
+
+  function renderChallenge(container: HTMLElement) {
+    actor.value?.send({ type: "RENDER", data: { container } });
+  }
+
+  function cancelChallenge() {
+    actor.value?.send({ type: "CHALLENGE_CANCELLED" });
   }
 
   function useStoredPayment(model: PaymentDetailModel) {
@@ -609,9 +643,24 @@ export const usePaymentDetail = (
      * @returns {void} Does not return anything.
      */
     //
-    useStoredPayment
+    useStoredPayment,
+
+    /**
+     * Renders the payment challenge into the specified container.
+     * @param {HTMLElement} container The HTML element to render the challenge into.
+     */
+    render: renderChallenge,
+
+    /**
+     * Cancels the payment challenge.
+     * @returns {void} Does not return anything.
+     */
+    cancelChallenge,
+
+    /** Submit the ADD flow — triggers beginSetup → SDK confirm → endSetup. */
+    add
   };
 };
 
 /** The return type of {@link usePaymentDetail} composable. */
-export type UsePaymentDetails = ReturnType<typeof usePaymentDetail>;
+export type UsePaymentDetail = ReturnType<typeof usePaymentDetail>;

@@ -1,6 +1,10 @@
 import type {
   BasketProduct,
-  ProductSummaryDetailWithPrice
+  BasketOptionSummary,
+  ProductSummaryDetailWithPrice,
+  SubproductDetails,
+  TermDetails,
+  ProductModel
 } from "@upmind-automation/headless";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
 
@@ -32,6 +36,24 @@ export interface BasketProductSummaryProps {
   processing: boolean;
   loading: boolean;
   editRoute: RouteLocationAsRelativeGeneric;
+  // --- inline errors
+  configErrors?: BasketProduct["errors"];
+  // --- inline controls
+  inlineMeta?: {
+    hasInlineControls: boolean;
+    showOptionUpsells: boolean;
+    showTermSelector: boolean;
+    showQuantity: boolean;
+  };
+  upsellOptions?: SubproductDetails[];
+  terms?: TermDetails[];
+  modelValue?: ProductModel;
+}
+
+export interface BasketProductOptionSummaryProps extends BasketProductSummaryProps {
+  summary: BasketOptionSummary;
+  configOptions?: SubproductDetails[];
+  upsell?: boolean;
 }
 
 export interface BasketProductConfigDetailsProps {
@@ -39,6 +61,12 @@ export interface BasketProductConfigDetailsProps {
   summary: ProductSummaryDetailWithPrice;
   details: BasketProduct["details"];
   editRoute: RouteLocationAsRelativeGeneric;
+}
+
+export interface OptionTogglePayload {
+  option: SubproductDetails;
+  value: { id: string };
+  enabled: boolean;
 }
 
 export interface BasketProductCardsProps {

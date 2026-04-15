@@ -1,70 +1,33 @@
 // --- external
 
 // --- internal
-import { useI18n, useQuery } from "../..";
+import { useBrand, useI18n, useQuery } from "../..";
 
 // --- utils
-import { get, isEmpty, map } from "lodash-es";
+import { find, isEmpty, isNil, omitBy } from "lodash-es";
 import { DetailedError, ErrorOrigin, responseCodes } from "../../utils";
 
 // --- types
-import { Methods, Targets } from "@upmind-automation/types";
+import { Methods } from "@upmind-automation/types";
+import type {
+  GatewayProviderCodes,
+  IBrandGateway,
+  IInvoice
+} from "@upmind-automation/types";
 import { type PaymentContext } from "./types";
 import type { AnyEventObject } from "xstate";
+import { submitViaForm } from "./utils";
 
 // -----------------------------------------------------------------------------
 
-/**
- * @name submitViaForm
- * @desc This function lets you programmatically create, insert and
- * submit a new form element so we can reliably hand off to third party origins
- * without encountering any cross-origin (CORS) issues. */
-
-function submitViaForm({
-  fields,
-  method = Methods.GET,
-  target = Targets.SELF,
-  url
-}: {
-  fields?: Record<string, any>;
-  method?: Methods;
-  target?: Targets;
-  url: string;
-}) {
-  return new Promise((resolve, reject) => {
-    try {
-      const form = document.createElement("form");
-
-      form.target = target;
-      form.method = method;
-      form.action = url;
-      form.style.display = "none";
-
-      for (const key in fields || {}) {
-        const input = document.createElement("input");
-        input.type = "hidden";
-        input.name = key;
-        input.value = get(fields, key);
-        form.appendChild(input);
-      }
-      document.body.appendChild(form);
-      form.submit();
-      document.body.removeChild(form);
-      resolve({});
-    } catch (error) {
-      reject(error);
-    }
-  });
-}
-
-async function load({ orderId }: PaymentContext, { data }: AnyEventObject) {
+function load(
+  { orderId, paymentDetail }: PaymentContext,
+  { data }: AnyEventObject
+) {
   const { t } = useI18n();
   const { get, useUrl } = useQuery();
 
-  // if we already have the order, we don't need to load it again, and we can return an empty object
-  if (!isEmpty(orderId)) return Promise.resolve({ fields: [] });
-
-  if (!data?.id)
+  if (!orderId)
     return Promise.reject(
       new DetailedError(
         t("error.order_not_available"),
@@ -73,10 +36,70 @@ async function load({ orderId }: PaymentContext, { data }: AnyEventObject) {
       )
     );
 
-  return get({
-    url: useUrl(`order/${data.id}`),
-    queryKey: ["order", { id: data.id }]
-  }).then(data => ({ fields: data }));
+  const gatewayId = paymentDetail?.gateway_id;
+  const { brandId } = useBrand();
+
+  return get<IInvoice>({
+    url: useUrl(`invoices/${orderId}`, {
+      with: [
+        "brand",
+        "taxes",
+        "client",
+        "gateway",
+        "gateway.gateway_provider",
+        "status",
+        "contract",
+        "payments",
+        "products",
+        "promotions",
+        "client.tags",
+        "products.tags",
+        "taxes.tax_tag_data",
+        "custom_fields.field",
+        "affiliate_commissions",
+        "products.product.image",
+        "account.affiliate_referral.affiliate_account.account.client"
+      ].join()
+    }),
+    queryKey: ["invoice", { id: orderId }],
+    withAccessToken: true
+  }).then(rawOrder =>
+    get<IBrandGateway[]>({
+      url: useUrl(
+        `brands/${brandId.value}/gateways`,
+        omitBy(
+          {
+            limit: 0,
+            client_id: rawOrder?.client_id,
+            invoice_id: orderId,
+            country_id: rawOrder?.address?.country_id,
+            currency_code: rawOrder?.currency?.code,
+            order: "order",
+            active: true,
+            with: ["gateway.gateway_provider", "gateway.card_types"].join()
+          },
+          isNil
+        )
+      ),
+      queryKey: [
+        "payment-details",
+        "gateways",
+        {
+          orderId,
+          brandId: brandId.value,
+          clientId: rawOrder?.client_id,
+          currencyId: rawOrder?.currency_id,
+          countryId: rawOrder?.address?.country_id
+        }
+      ],
+      withAccessToken: true
+    }).then(brandGateways => {
+      return {
+        rawOrder,
+        gateway: find(brandGateways, ["gateway_id", gatewayId])?.gateway
+      };
+    })
+  );
 }
 
 async function update(
@@ -101,6 +124,46 @@ async function update(
     },
     withAccessToken: true
   });
+}
+
+/**
+ * @name render
+ * @desc Renders the challenge UI for the current gateway by delegating to the
+ * appropriate gateway-specific renderer. The renderer injects into the provided container.
+ */
+async function render(context: PaymentContext, event: AnyEventObject) {
+  const { t } = useI18n();
+  const { mapRenderer } = await import("./mappers");
+
+  const gatewayCode = context.gateway?.gateway_provider?.code as
+    | GatewayProviderCodes
+    | undefined;
+  const renderer = gatewayCode ? mapRenderer(gatewayCode) : undefined;
+
+  if (!renderer) {
+    return Promise.reject(
+      new DetailedError(
+        t("error.challenge_renderer_not_available"),
+        responseCodes.Not_Found,
+        ErrorOrigin.Headless,
+        { gatewayCode }
+      )
+    );
+  }
+
+  // Check if this renderer supports the current context
+  if (renderer.isSupported && !renderer.isSupported(context)) {
+    return Promise.reject(
+      new DetailedError(
+        t("error.challenge_not_supported"),
+        responseCodes.Bad_Request,
+        ErrorOrigin.Headless,
+        { gatewayCode }
+      )
+    );
+  }
+
+  return renderer.render(context, event);
 }
 
 /**
@@ -149,5 +212,6 @@ export default {
   load,
   update,
   validate,
-  redirect
+  redirect,
+  render
 };

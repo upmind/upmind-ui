@@ -1,14 +1,15 @@
 import { test, expect } from "@playwright/test";
 import { fakerEN_GB } from "@faker-js/faker";
 import { URLs } from "../../../support/constants/urls";
-import { Checkout } from "../../../support/page-objects/templates/Checkout";
-import { Registration } from "../../../support/page-objects/templates/Registration";
+import { Checkout } from "../../../support/page-objects/templates/checkout";
+import { Registration } from "../../../support/page-objects/templates/registration";
 import { ThreeDSecureCards } from "../../../support/constants/checkout/payment-cards/3dSecureCards";
-import { getSessionToken } from "../../../support/utils/functions/tokens";
 import {
-  createOrder,
-  addProductToOrder
-} from "../../../support/utils/functions/basket";
+  getClientToken,
+  getSessionToken,
+  registerClient
+} from "../../../support/api/index";
+import { createOrder, addProductToOrder } from "../../../support/api/basket";
 
 let checkout: Checkout;
 let registration: Registration;
@@ -17,7 +18,24 @@ test.describe("3D Secure Authentication", async () => {
   test.beforeEach(async ({ page, context }) => {
     checkout = new Checkout(page);
     registration = new Registration(page, context);
-    await page.goto(URLs.login);
+    await page.goto("/");
+    await expect
+      .poll(
+        async () => {
+          const cookies = await context.cookies();
+          return cookies.some(
+            c =>
+              c.name === "upm_guest_session" || c.name === "upm_client_session"
+          );
+        },
+        { timeout: 30000 }
+      )
+      .toBeTruthy();
+    let guestToken = await getSessionToken(context);
+    let user = await registerClient(guestToken);
+    let username = user.email;
+    let password = user.password;
+    await getClientToken(page, username, password);
   });
   for (const { name, cardNumber, expiryDate, cvcCode } of ThreeDSecureCards) {
     test(`Stripe Cards - ${name}`, async ({ page, context }) => {
@@ -44,7 +62,6 @@ test.describe("3D Secure Authentication", async () => {
         false
       );
       await page.goto(URLs.checkout);
-      await registration.inputRegistration();
       await checkout.selectPaymentMethod("Stripe");
       await checkout.inputStripeDetails(cardNumber, expiryDate, cvcCode);
       await checkout.clickPlaceOrderAndPay();
@@ -60,7 +77,9 @@ test.describe("3D Secure Authentication", async () => {
           await page.goto(returnUrl);
           await expect(page).toHaveURL(/payment_success=false/);
           await expect(
-            page.getByText("Unable to process payment")
+            page.getByText(
+              "Your payment attempt was unsuccessful - please try again."
+            )
           ).toBeVisible();
         }
       });

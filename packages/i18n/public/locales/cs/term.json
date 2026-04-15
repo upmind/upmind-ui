@@ -12,7 +12,7 @@
   "once": "Jednou",
   "one_time": "Jednou",
   "price_by_n_years": "{price}/rok | {price} /{n} roky",
-  "price_msg": "Pouze {price} | Od {price} měsíc | Od {price} každý{period}",
+  "price_msg": "Pouze {price} | Od {price} měsíc | Od {price} každý {period}",
   "quarterly": "Čtvrtletní",
   "renews_msg": "Jednorázová platba | Obnovuje se každých {cycle} | Obnovuje se každých {cycle}",
   "renews_usually_msg": "Obvykle {price}",

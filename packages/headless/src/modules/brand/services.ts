@@ -2,7 +2,7 @@
 import { Store } from "@tanstack/vue-store";
 
 // --- internal
-import { localStoragePersister, useQuery } from "../..";
+import { invalidateQueryByKey, localStoragePersister, useQuery } from "../..";
 
 // --- utils
 import { mapBrandConfig, mapBrandSettings } from "./mappers";
@@ -81,21 +81,48 @@ function fetchBrandSettings() {
   });
 }
 
+/**
+ * Fetches brand configuration values for the given keys.
+ *
+ * Keys are append-only — they accumulate in `brandConfigKeysStore` across calls
+ * and are never removed. This means every subsequent call fetches a superset of
+ * all previously requested keys.
+ *
+ * Because keys only grow, a single stable queryKey (`["brand", "config"]`) is
+ * used. When new keys are added, `refetch()` is called to re-fetch with the
+ * expanded key set. Vue-query auto-cancels any in-flight request for the same
+ * queryKey, so an older (smaller) response can never overwrite a newer (larger) one.
+ *
+ * If no new keys are added (same accumulated set), the query returns cached data
+ * (`staleTime: "static"`) without hitting the API.
+ *
+ * @param keys - Brand config keys to ensure are fetched. Defaults to the core set.
+ */
 function fetchBrandConfig(keys: BrandConfigKeys[] = defaultBrandConfigKeys) {
   const { query, useUrl } = useQuery();
 
-  brandConfigKeysStore.setState(oldKeys => uniq([...oldKeys, ...keys]));
+  const currentKeys = brandConfigKeysStore.state;
+  const newKeys = uniq([...currentKeys, ...keys]);
+  brandConfigKeysStore.setState(newKeys);
+  const hasNewKeys = newKeys.length > currentKeys.length;
 
-  return query<Record<BrandConfigKeys, unknown>>({
+  const result = query<Record<BrandConfigKeys, unknown>>({
     url: useUrl("config/brand/values", {
       keys: brandConfigKeysStore.state.join()
     }),
-    queryKey: ["brand", "config", { keys: brandConfigKeysStore.state }],
+    queryKey: ["brand", "config"],
     select: data => mapBrandConfig(data, brandConfigKeysStore.state),
     staleTime: "static",
     withoutLocale: true,
     persister: localStoragePersister.persisterFn
   });
+
+  // New keys added → refetch with expanded URL.
+  // Vue-query auto-cancels any in-flight request for the same queryKey,
+  // so the old (smaller key set) response can never overwrite the new one.
+  if (hasNewKeys && currentKeys?.length) result.refetch();
+
+  return result;
 }
 
 function fetchModules() {

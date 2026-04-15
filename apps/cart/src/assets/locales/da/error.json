@@ -21,6 +21,7 @@
   "asset_unavailable_text": "Vi har lige opdateret appen, og din nuværende version er ikke den nyeste. Genindlæs for at fortsætte.",
   "asset_unavailable_title": "Genindlæsning nødvendig",
   "asset_unavailable_title_md": "@.markdown:{'error.asset_unavailable_title'}",
+  "auth_not_valid": "Godkendelsesfelterne er ikke gyldige",
   "basket_convert_failed": "Konvertering af kurv mislykkedes",
   "basket_fields_update_failed": "Der opstod en fejl under opdatering af kurvsfelterne",
   "basket_fields_validation_failed": "Validering af felter mislykkedes",

@@ -62,7 +62,13 @@
 
 <script lang="ts" setup>
 // --- external
-import { watch, computed, onUnmounted, defineAsyncComponent } from "vue";
+import {
+  watch,
+  computed,
+  provide,
+  onUnmounted,
+  defineAsyncComponent
+} from "vue";
 
 // --- internal
 import {
@@ -125,7 +131,18 @@ const props = withDefaults(
 
 const { set } = useThemes();
 const { navigateNext, navigateBack } = useRoutingEngine();
-const { attempts, meta, isReady, uischema, invoice, reset } = useBasket();
+const {
+  attempts,
+  cancelChallenge,
+  meta,
+  isReady,
+  uischema,
+  invoice,
+  renderChallenge,
+  reset
+} = useBasket();
+
+provide("usePaymentChallenge", { renderChallenge, cancelChallenge, meta });
 
 const { ui, data } = useConfig({
   context: UIContext.CHECKOUT,

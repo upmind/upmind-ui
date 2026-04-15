@@ -86,5 +86,11 @@ export default {
 
       return undefined;
     }
-  })
+  }),
+
+  cleanupSdk: ({ sdk }: StripeContext) => {
+    if (sdk?.element?.destroy) {
+      sdk.element.destroy();
+    }
+  }
 };

@@ -21,6 +21,7 @@
   "asset_unavailable_text": "Práve sme aktualizovali aplikáciu a verzia, ktorú používate, je neaktuálna. Ak chcete pokračovať, znova načítajte aplikáciu.",
   "asset_unavailable_title": "Je potrebné **obnoviť**",
   "asset_unavailable_title_md": "@.markdown:{'error.asset_unavailable_title'}",
+  "auth_not_valid": "Polia autorizácie nie sú platné",
   "basket_convert_failed": "Konvertovať košík sa nepodarilo",
   "basket_fields_update_failed": "Pri aktualizácii polí košíka sa vyskytla chyba",
   "basket_fields_validation_failed": "Overenie polí zlyhalo",

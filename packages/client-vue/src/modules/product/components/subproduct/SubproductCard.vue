@@ -37,11 +37,24 @@
           </div>
 
           <Promotion
+            v-if="!props.productMeta?.overridden"
             v-for="promotion in props.promotions"
             :key="promotion.code.toString()"
             v-bind="promotion"
             size="sm"
           />
+
+          <Tooltip
+            v-if="props.productMeta?.overridden"
+            :label="t('text.price_manually_adjusted_msg')"
+          >
+            <Badge
+              :label="t('text.custom_price')"
+              size="sm"
+              variant="muted"
+              color="warning"
+            />
+          </Tooltip>
         </div>
 
         <div v-if="props.price" :class="styles.card.pricing.sm">
@@ -51,6 +64,7 @@
             :cycle="props.cycle"
             :term="props.term"
             :class="styles.card.pricing.text"
+            :dropdown="props.dropdown"
           />
         </div>
       </div>
@@ -79,6 +93,7 @@
             :cycle="props.cycle"
             :class="styles.card.pricing.text"
             :term="props.term"
+            :dropdown="props.dropdown"
           />
         </div>
       </div>
@@ -95,6 +110,7 @@
 <script setup lang="ts">
 // --- external
 import { computed, ref } from "vue";
+import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useStyles } from "@upmind-automation/upmind-ui";
@@ -102,6 +118,7 @@ import config from "./subproduct-card.config";
 
 // --- components
 import {
+  Badge,
   NumberField,
   Tooltip,
   Icon,
@@ -127,6 +144,8 @@ const meta = computed(() => ({
 const { ui } = props.meta.with({
   option: () => props
 });
+
+const { t } = useI18n();
 
 const tooltipOpen = ref(false);
 

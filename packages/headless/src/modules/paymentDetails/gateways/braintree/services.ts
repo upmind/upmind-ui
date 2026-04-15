@@ -4,6 +4,7 @@
 // --- internal
 import { useI18n, useLocale, useQuery } from "../../..";
 import sharedServices from "../services";
+import { beginSetup } from "../services";
 
 // --- utils
 import {
@@ -12,7 +13,7 @@ import {
   responseCodes,
   useValidation
 } from "../../../../utils";
-import { defaultsDeep, isNil, pick, set } from "lodash-es";
+import { defaultsDeep, get, pick, set, some } from "lodash-es";
 
 // --- types
 import {
@@ -177,7 +178,10 @@ async function validate(
 
   // NB: our SDK helper for stripe will generate their own errors and persist them to our error context
   //     so we can check against that as well
-  if (errors?.length || error?.data?.length) {
+  if (
+    errors?.length ||
+    some(error?.data, ["instancePath", "/payment_method_addition"])
+  ) {
     throw new DetailedError(
       t("error.payment_gateway_validation_failed"),
       responseCodes.Unprocessable_Entity,
@@ -237,6 +241,66 @@ async function pay({ model, sdk, amount, paymentUses3DS }: BraintreeContext) {
     });
 }
 
+/**
+ * @name add
+ * @desc Stores a payment method via Braintree in the ADD context.
+ * Calls beginSetup → SDK requestPaymentMethod (nonce) → endSetup.
+ */
+async function add(context: BraintreeContext) {
+  const { sdk, model, paymentUses3DS, amount } = context;
+  const { t } = useI18n();
+
+  if (!sdk?.braintree || !sdk?.authorization) {
+    throw new DetailedError(
+      t("error.braintree_instance_not_found"),
+      responseCodes.Not_Found,
+      ErrorOrigin.Headless
+    );
+  }
+
+  const setupResponse = await beginSetup(context);
+  const clientPaymentDetailsId = get(
+    setupResponse,
+    "client_payment_details.id"
+  );
+
+  if (!clientPaymentDetailsId) {
+    throw new DetailedError(
+      t("error.payment_gateway_not_available"),
+      responseCodes.Unprocessable_Entity,
+      ErrorOrigin.Headless
+    );
+  }
+
+  const paymentOptions = (
+    paymentUses3DS ? { threeDSecure: { amount: amount?.toString() } } : {}
+  ) as PaymentMethodOptions;
+
+  return sdk.braintree
+    .requestPaymentMethod(paymentOptions)
+    .then((payload: PaymentMethodPayload) => {
+      const isCard = payload.type === BraintreeTypes.CARD;
+
+      if (isCard && paymentUses3DS && !payload.liabilityShifted) {
+        sdk.braintree?.clearSelectedPaymentMethod();
+        throw new DetailedError(
+          "3D Secure challenge failed.",
+          responseCodes.Unprocessable_Entity,
+          ErrorOrigin.External
+        );
+      }
+
+      return {
+        gatewayId: context.gateway?.id,
+        data: {
+          client_payment_details_id: clientPaymentDetailsId,
+          auto_payment: model?.store_on_payment_auto_payment ?? false,
+          payment_method_nonce: payload.nonce
+        }
+      };
+    });
+}
+
 // -----------------------------------------------------------------------------
 
 export default {
@@ -245,5 +309,6 @@ export default {
   parse: sharedServices.parse,
   validate,
   // ---
-  pay
+  pay,
+  add
 };

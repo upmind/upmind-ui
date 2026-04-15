@@ -34,7 +34,10 @@ import type { Product } from "../product";
  * such as quantity management, readiness checks, and error handling. It initialises and returns methods
  * that allow interaction with the basket product through a state machine.
  */
-export const useBasketProduct = (bpid: string) => {
+export const useBasketProduct = (
+  bpid: string,
+  options?: { allowMultipleEdits?: boolean }
+) => {
   const { t } = useI18n();
   const { basket: rawBasket, errors } = useBasket();
 
@@ -64,7 +67,8 @@ export const useBasketProduct = (bpid: string) => {
       coupons: [],
       // ---
       rawBasketProduct,
-      errorExternal: get(errors.value, bpid)
+      errorExternal: get(errors.value, bpid),
+      allowMultipleEdits: options?.allowMultipleEdits
     }),
     {
       id: bpid,
@@ -132,6 +136,7 @@ export const useBasketProduct = (bpid: string) => {
 
   // --- methods
 
+  /** @deprecated Use useProductConfig.updateQuantity via inline composable. */
   const updateQuantity = debounce(
     async (value: number): Promise<void> =>
       getProduct().then(product => {
@@ -155,6 +160,7 @@ export const useBasketProduct = (bpid: string) => {
     DEBOUNCE_DELAY
   );
 
+  /** @deprecated Use useProductConfig.incrementQuantity via inline composable. */
   const incrementQuantity = debounce(
     async (): Promise<void> =>
       getProduct().then(product => {
@@ -182,6 +188,7 @@ export const useBasketProduct = (bpid: string) => {
     DEBOUNCE_DELAY
   );
 
+  /** @deprecated Use useProductConfig.decrementQuantity via inline composable. */
   const decrementQuantity = debounce(
     async (): Promise<void> =>
       getProduct().then(product => {
@@ -216,9 +223,9 @@ export const useBasketProduct = (bpid: string) => {
     isReady,
     stop: () => stopService(service),
     // ---
-    updateQuantity,
-    incrementQuantity,
-    decrementQuantity,
+    // updateQuantity,
+    // incrementQuantity,
+    // decrementQuantity,
     update
   };
 };
