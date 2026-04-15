@@ -28,6 +28,28 @@
         </Badge>
       </header>
 
+      <header
+        v-else-if="meta?.overridden"
+        :class="styles.product.header.price.regularPrice"
+      >
+        <del>
+          {{
+            t("text.price_was", {
+              price:
+                meta?.oneoff || !meta?.useMonthlyFromPrice
+                  ? price?.regularPrice
+                  : price?.monthlyFromRegularPrice
+            })
+          }}
+        </del>
+
+        <Tooltip :label="t('text.price_manually_adjusted_msg')">
+          <Badge variant="minimal" color="warning" size="sm">
+            {{ t("text.custom_price") }}
+          </Badge>
+        </Tooltip>
+      </header>
+
       <p :class="styles.product.header.price.currentPrice.root">
         <strong
           :class="styles.product.header.price.currentPrice.amount"
@@ -91,8 +113,7 @@ import config from "./card.config";
 import { has } from "lodash-es";
 
 // --- components
-import { useStyles } from "@upmind-automation/upmind-ui";
-import { Badge } from "@upmind-automation/upmind-ui";
+import { useStyles, Badge, Tooltip } from "@upmind-automation/upmind-ui";
 
 // --- types
 import type { ProductPriceProps } from "./types";

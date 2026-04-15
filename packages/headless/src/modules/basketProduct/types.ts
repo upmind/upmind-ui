@@ -2,8 +2,12 @@ import type {
   IBasketProduct,
   IBasketPromotion
 } from "@upmind-automation/types";
-import type { ProductProps, Product } from "../product";
-import type { UseBasketProduct } from "./useBasketProduct";
+import type {
+  ProductProps,
+  Product,
+  ProductSummaryDetailWithPrice,
+  ProductSummaryMeta
+} from "../product";
 // -----------------------------------------------------------------------------
 
 /**
@@ -127,3 +131,17 @@ export interface IBasketProductModel {
    */
   start_trial?: boolean;
 }
+
+/** Toggle metadata for option switches in the basket. */
+export type OptionToggleMeta = {
+  categoryId: string;
+  valueId: string;
+  cycle: number;
+  selected: boolean;
+  benefits?: { label: string }[];
+};
+
+/** A product summary detail with basket-specific toggle metadata. */
+export type BasketOptionSummary = ProductSummaryDetailWithPrice & {
+  meta: ProductSummaryMeta & { toggle?: OptionToggleMeta };
+};

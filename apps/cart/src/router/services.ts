@@ -21,7 +21,6 @@ import {
   useConfig,
   UIContext,
   FunnelActions,
-  useDomainRegistrant,
   type FunnelTarget
 } from "@upmind-automation/client-vue";
 import {
@@ -53,9 +52,9 @@ export async function applyBillingDefaults(): Promise<void> {
     update
   } = useBasketBilling();
 
-  const { isAuthenticated } = useSession();
-
-  await isAuthenticated();
+  // NB: isBillingReady() already gates on a valid auth session via the
+  // billing machine's `subscribing` state (`hasClient` guard), so no
+  // separate isAuthenticated() call is needed here.
   await isBillingReady();
 
   if (billingMeta.value.isComplete) return;
@@ -679,38 +678,5 @@ export default {
     }
     // Show billing page
     return { target: context.targetRoute ?? { name: ROUTE.BILLING } };
-  },
-
-  /**
-   * 🎯 Guard: REGISTRANT
-   * Validates that the basket contains domain products requiring registrant details.
-   * If no domain products exist, rejects to redirect back to billing.
-   */
-  guardRegistrant: async (context: FunnelContext): Promise<FunnelResponse> => {
-    await ensureBidAuth(context, { name: ROUTE.REGISTRANT });
-
-    const { hasDomainProducts } = useDomainRegistrant();
-    if (!hasDomainProducts.value) return Promise.reject();
-
-    return { target: context.targetRoute ?? { name: ROUTE.REGISTRANT } };
-  },
-
-  /**
-   * 🎯 Guard: REGISTRANT_REVIEW
-   * Validates that all domain registrant details are complete before
-   * allowing the user to proceed to checkout.
-   * If registrant data is incomplete, rejects to redirect to the registrant form.
-   */
-  guardRegistrantReview: async (
-    context: FunnelContext
-  ): Promise<FunnelResponse> => {
-    await ensureBidAuth(context, { name: ROUTE.REGISTRANT_REVIEW });
-
-    const { hasDomainProducts } = useDomainRegistrant();
-    if (!hasDomainProducts.value) return Promise.reject();
-
-    return {
-      target: context.targetRoute ?? { name: ROUTE.REGISTRANT_REVIEW }
-    };
   }
 };

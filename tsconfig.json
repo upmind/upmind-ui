@@ -16,7 +16,6 @@
   "references": [
     { "path": "./packages/types/tsconfig.build.json" },
     { "path": "./packages/i18n/tsconfig.build.json" },
-    { "path": "./packages/icons/tsconfig.build.json" },
     { "path": "./packages/headless/tsconfig.build.json" },
     { "path": "./packages/ui/tsconfig.build.json" },
     { "path": "./packages/client-vue/tsconfig.build.json" }

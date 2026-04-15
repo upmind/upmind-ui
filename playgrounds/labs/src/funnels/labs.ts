@@ -7,26 +7,19 @@ import guards from "./engine/guards";
 import {
   type AnyEventObject,
   assign,
-  type FunnelProps
+  type FunnelContext,
+  type FunnelProps,
+  QUERY_PARAMS,
+  useBasket
 } from "@upmind-automation/client-vue";
 import { ROUTE } from "./types";
+// Note: useBasket and QUERY_PARAMS are still used by the CHECKOUT NEXT handler.
 
 // -----------------------------------------------------------------------------
 
 export default <FunnelProps>{
   id: "labs",
   states: {
-    /**
-     * 🎯 idle (override)
-     * This is the idle state of the funnel, which acts as a catch-all for unsupported routes.
-     * If the current route is not one of the supported routes for this funnel,
-     * and there is a meaningful target route set, it transitions to the 'complete' state
-     * to allow the default funnel to take over the navigation.
-     */
-    idle: {
-      entry: ["setResolved"]
-    },
-
     /**
      * 🎯 ROUTE.SESSION
      * This state serves as a routing hub for session-related actions.
@@ -35,12 +28,21 @@ export default <FunnelProps>{
     [ROUTE.SESSION]: {
       invoke: {
         src: "guardSession",
-        onDone: {
-          actions: ["setResolved"]
-        },
+        onDone: { actions: ["setResolved"] },
         onError: {
           target: ROUTE.SESSION_REGISTER,
-          actions: ["setResolving"]
+          // NB: Preserve targetRoute query (returnUrl) but update route name
+          // to SESSION_LOGIN so Vue Router navigates to /auth/login, not /auth.
+          // Using inline assign instead of "setResolving" which clears targetRoute.
+          actions: [
+            assign({
+              resolved: false,
+              targetRoute: ({ targetRoute }: FunnelContext) => ({
+                ...targetRoute,
+                name: ROUTE.SESSION_REGISTER
+              })
+            })
+          ]
         }
         // BRAND SETTING TO DECIDE DEFAULT SESSION ROUTE
       }
@@ -50,7 +52,8 @@ export default <FunnelProps>{
      * 🎯 ROUTE.SESSION_LOGIN
      * This state manages the login process for user sessions.
      * It invokes a 'guard' to check if the user is authenticated.
-     * If the user is authenticated, it redirects to the BASKET route.
+     * When a bid is present, routes to BASKET after auth so `setTargetBasket`
+     * loads the correct basket. Otherwise routes to CHECKOUT.
      * From here, users can proceed to the CHECKOUT route or return to the BASKET.
      */
     [ROUTE.SESSION_LOGIN]: {
@@ -59,10 +62,8 @@ export default <FunnelProps>{
         src: "guardSession",
         onDone: [
           {
-            target: ROUTE.HOME,
-            actions: [
-              assign({ targetRoute: { name: ROUTE.HOME }, resolved: false })
-            ],
+            target: ROUTE.CHECKOUT,
+            actions: ["setResolving"],
             cond: "isSameRoute"
           },
           { actions: ["setResolved"] }
@@ -72,9 +73,13 @@ export default <FunnelProps>{
       on: {
         NEXT: {
           target: ROUTE.SESSION_LOGIN,
-          actions: ["setResolving", "setTargetRoute"]
+          // NB: Preserve targetRoute (returnUrl) — only reset resolved flag.
+          actions: [assign({ resolved: false })]
         },
-        BACK: { actions: ["setResolving", "setTargetRoute"] }
+        BACK: {
+          target: ROUTE.BASKET,
+          actions: [assign({ targetRoute: { name: ROUTE.BASKET } })]
+        }
       }
     },
 
@@ -82,7 +87,8 @@ export default <FunnelProps>{
      * 🎯 ROUTE.SESSION_REGISTER
      * This state manages the registration process for new user sessions.
      * It invokes a 'guard' to check if the user is authenticated.
-     * If the user is authenticated, it redirects to the BASKET route.
+     * When a bid is present, routes to BASKET after auth so `setTargetBasket`
+     * loads the correct basket. Otherwise routes to CHECKOUT.
      * From here, users can proceed to the CHECKOUT route or return to the BASKET.
      */
     [ROUTE.SESSION_REGISTER]: {
@@ -90,10 +96,8 @@ export default <FunnelProps>{
         src: "guardSession",
         onDone: [
           {
-            target: ROUTE.HOME,
-            actions: [
-              assign({ targetRoute: { name: ROUTE.HOME }, resolved: false })
-            ],
+            target: ROUTE.CHECKOUT,
+            actions: ["setResolving"],
             cond: "isSameRoute"
           },
           { actions: ["setResolved"] }
@@ -103,9 +107,13 @@ export default <FunnelProps>{
       on: {
         NEXT: {
           target: ROUTE.SESSION_REGISTER,
-          actions: ["setResolving", "setTargetRoute"]
+          // NB: Preserve targetRoute (returnUrl) — only reset resolved flag.
+          actions: [assign({ resolved: false })]
         },
-        BACK: { actions: ["setResolving", "setTargetRoute"] }
+        BACK: {
+          target: ROUTE.BASKET,
+          actions: [assign({ targetRoute: { name: ROUTE.BASKET } })]
+        }
       }
     },
 
@@ -119,17 +127,18 @@ export default <FunnelProps>{
     [ROUTE.SESSION_RECOVER_PASSWORD]: {
       invoke: {
         src: "guardSession",
-        onDone: {
-          actions: ["setResolved"]
-        },
-        onError: [{ actions: ["setResolved"] }]
+        onDone: { actions: ["setResolved"] },
+        onError: { actions: ["setResolved"] }
       },
       on: {
         NEXT: {
-          target: ROUTE.SESSION_RECOVER_PASSWORD,
-          actions: ["setResolving", "setTargetRoute"]
+          target: ROUTE.SESSION_LOGIN,
+          actions: [assign({ targetRoute: { name: ROUTE.SESSION_LOGIN } })]
         },
-        BACK: { actions: ["setResolving", "setTargetRoute"] }
+        BACK: {
+          target: ROUTE.SESSION_LOGIN,
+          actions: [assign({ targetRoute: { name: ROUTE.SESSION_LOGIN } })]
+        }
       }
     },
 
@@ -150,9 +159,13 @@ export default <FunnelProps>{
       },
       on: {
         NEXT: {
-          actions: [assign({ targetRoute: { name: ROUTE.HOME } })]
+          target: ROUTE.CATALOGUE,
+          actions: [assign({ targetRoute: { name: ROUTE.CATALOGUE } })]
         },
-        BACK: { actions: [assign({ targetRoute: { name: ROUTE.HOME } })] }
+        BACK: {
+          target: ROUTE.BASKET,
+          actions: [assign({ targetRoute: { name: ROUTE.BASKET } })]
+        }
       }
     }
   },

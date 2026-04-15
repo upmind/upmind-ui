@@ -167,6 +167,7 @@ const {
   reset,
   stop
 } = useDac();
+// } = useDac({ useSuggestions: false });
 
 const { count, summary, meta: basketMeta } = useBasket();
 const { currencyCode } = useBasketCurrency();

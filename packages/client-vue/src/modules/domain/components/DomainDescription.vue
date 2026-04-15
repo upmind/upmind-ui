@@ -1,6 +1,6 @@
 <template>
   <template v-if="meta.isUnavailable">
-    <!-- No description for unavailable domains -->
+    {{ t("text.domain_not_available_msg") }}
   </template>
   <template v-else-if="!meta.isAvailable">
     <template v-if="meta.isDiscounted">

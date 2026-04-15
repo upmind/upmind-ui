@@ -15,6 +15,7 @@ import { isEmpty } from "lodash-es";
 
 // --- types
 import { GatewayTypes, TransactionStatus } from "@upmind-automation/types";
+import type { GatewayProviderCodes } from "@upmind-automation/types";
 import type { PaymentContext } from "./types";
 import { responseCodes } from "../../utils";
 
@@ -287,24 +288,23 @@ export default createMachine(
         _event: AnyEventObject
       ) => !isEmpty(paymentDetail),
 
-      needsChallenge: ({ payment }: PaymentContext, _event: AnyEventObject) => {
-        return !isEmpty(payment?.approval_url);
-      },
+      needsChallenge: ({ payment }: PaymentContext, _event: AnyEventObject) =>
+        !isEmpty(payment?.approval_url),
 
       // Check if a renderer exists for this gateway
-      hasRenderer: (context: PaymentContext, _event: AnyEventObject) => {
-        const gatewayCode = (context as any).gateway?.gateway_provider_code;
-        const value = hasRenderer(gatewayCode);
-        return value;
+      hasRenderer: ({ gateway }: PaymentContext, _event: AnyEventObject) => {
+        const gatewayCode = gateway?.gateway_provider?.code;
+        if (!gatewayCode) return false;
+        return hasRenderer(gatewayCode as GatewayProviderCodes);
       },
 
       needsInstructions: (
-        { payment, paymentDetail, rawOrder }: PaymentContext,
+        { payment, gateway }: PaymentContext,
         _event: AnyEventObject
       ) => {
         return (
           payment?.transaction_status === TransactionStatus.WAITING &&
-          rawOrder?.gateway?.type === GatewayTypes.AWAITING_CLIENT
+          gateway?.type === GatewayTypes.AWAITING_CLIENT
         );
       }
     },

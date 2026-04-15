@@ -62,6 +62,7 @@ import {
   ProductTypes,
   PromotionDisplayTypes,
   ProvisionCategoryCodes,
+  PaymentTermDesignations,
   PriceDisplayTypes,
   QUERY_PARAMS
 } from "@upmind-automation/types";
@@ -464,7 +465,8 @@ export function parseSubproducts(
             // if we have a price, set price values, taking into account the quantity and unit quantity
             // NB: we NEVER add, we always push into an array for the backend to handle
             if (!isEmpty(product?.price)) {
-              if (quantity == 1) price.push(product?.price?.currentAmount);
+              if (quantity == 1 && value.quantity == 1)
+                price.push(product?.price?.currentAmount);
               else
                 price.push({
                   price: product?.price?.currentAmount,
@@ -543,6 +545,26 @@ export const parseProductDetails = (
       !isEmpty(rawProduct.products_options) ||
       !isEmpty(rawProduct.provision_fields),
 
+    configurableInline: (() => {
+      const config = useConfig();
+      return (
+        some(rawProduct.products_options, option => {
+          const { data } = config.with({
+            product: () => ({ productDetails: { uiMeta: rawProduct.meta } }),
+            option: () => ({ uiMeta: option.meta })
+          });
+          return !!data.optionUpsellEnabled;
+        }) ||
+        some(rawProduct.products_attributes, attr => {
+          const { data } = config.with({
+            product: () => ({ productDetails: { uiMeta: rawProduct.meta } }),
+            option: () => ({ uiMeta: attr.meta })
+          });
+          return !!data.optionUpsellEnabled;
+        })
+      );
+    })(),
+
     quantity: rawProduct?.min_order_quantity || rawProduct?.unit_quantity || 1,
     quantifiable: rawProduct?.order_type == 2,
     step: rawProduct?.unit_quantity || 1,
@@ -602,9 +624,25 @@ export const parseMeta = (
   return result;
 };
 
-export const parseTermDetails = (raw: IProduct): TermDetails[] => {
-  return map(orderBy(raw?.prices, "billing_cycle_months"), rawTerm => {
+export const parseTermDetails = (
+  raw: IProduct,
+  currencyIdOrOverride?: string | boolean
+): TermDetails[] => {
+  const currencyId =
+    typeof currencyIdOrOverride === "string" ? currencyIdOrOverride : undefined;
+  const priceOptionOverride =
+    typeof currencyIdOrOverride === "boolean"
+      ? currencyIdOrOverride
+      : undefined;
+
+  const prices = currencyId
+    ? filter(raw?.prices, { currency_id: currencyId })
+    : raw?.prices;
+
+  return map(orderBy(prices, "billing_cycle_months"), rawTerm => {
     const details: TermDetails = parseSummaryDetailWithPrice(rawTerm, raw);
+
+    details.meta.overridden = details.meta.overridden && !priceOptionOverride;
 
     details.price.monthlyFromCurrentAmount =
       rawTerm.monthly_price_from_discounted ?? rawTerm.monthly_price_from;
@@ -621,7 +659,8 @@ export const parseTermDetails = (raw: IProduct): TermDetails[] => {
 
 export const parseSubproductDetails = (
   data?: (IProductAttribute | IProductOption)[],
-  cycle?: number
+  cycle?: number,
+  currencyId?: string
 ): SubproductDetails[] => {
   const { includesTax } = useBrand();
 
@@ -661,6 +700,11 @@ export const parseSubproductDetails = (
         }
       });
 
+      // filter prices by currency if provided (eg basket products have a known currency)
+      const prices = currencyId
+        ? filter(rawSubproduct.prices, { currency_id: currencyId })
+        : rawSubproduct.prices;
+
       // check EARLY if we have a price for one of the following:
       //  * no billing cycle set
       //  * a one off price
@@ -669,7 +713,7 @@ export const parseSubproductDetails = (
       const valid =
         isNil(cycle) ||
         rawSubproduct.billing_cycle_months == 0 ||
-        some(rawSubproduct.prices, ["billing_cycle_months", cycle]);
+        some(prices, ["billing_cycle_months", cycle]);
 
       // bail if the value is not valid, ie has no price that matches the current billing cycle
       if (!valid) return result;
@@ -678,34 +722,32 @@ export const parseSubproductDetails = (
       const values: SubproductValue[] = get(option, "values", []);
 
       // ---
-      const pricing: ProductSummaryDetailWithPrice[] = map(
-        rawSubproduct.prices,
-        rawPrice =>
-          parseSummaryDetailWithPrice(
-            rawPrice,
-            rawSubproduct,
-            rawSubproduct.category.price_override
-          )
+      const pricing: ProductSummaryDetailWithPrice[] = map(prices, rawPrice =>
+        parseSummaryDetailWithPrice(
+          rawPrice,
+          rawSubproduct,
+          rawSubproduct.category.price_override
+        )
       );
 
       const price =
         find(pricing, ["cycle", 0]) || find(pricing, ["cycle", cycle]);
 
       const productDetails = parseProductDetails(rawSubproduct);
-
       const value: SubproductValue = {
         ...productDetails,
+        uiMeta: rawSubproduct?.meta ?? {},
         cycle: price?.cycle ?? productDetails.cycle,
         price: price?.price,
         pricing: pricing,
         promotions: price?.promotions,
         meta: {
-          // NB: only show term pricing if recurring!
-          oneoff: rawSubproduct.billing_cycle_months == 0,
+          oneoff: !!price?.meta.oneoff,
           discounted: !!price?.meta?.discounted,
           includesTax: includesTax.value,
           free: price?.price?.currentAmount == 0,
-          overrides: rawSubproduct.category.price_override,
+          overrides: !!price?.meta.overrides,
+          overridden: price?.meta.overridden,
           default: !!rawSubproduct?.pivot?.default
         },
         order: rawSubproduct.pivot.order
@@ -736,7 +778,9 @@ export const parseSummaryDetail = (
   const cycle = getBillingCycle(raw.billing_cycle_months);
 
   const discounted =
-    !isNil(raw.price_discounted) && raw.price !== raw.price_discounted;
+    !raw.overridden_price &&
+    !isNil(raw.price_discounted) &&
+    raw.price !== raw.price_discounted;
 
   const displayType = getPriceDisplayType(rawProduct);
 
@@ -769,6 +813,7 @@ export const parseSummaryDetail = (
       free: (raw.price_discounted ?? raw.price) == 0,
       freeTrial: !!rawProduct?.trial_supported,
       overrides: !!overrides,
+      overridden: !!raw.overridden_price,
       useMonthlyFromPrice
     }
   } as ProductSummaryDetailWithPrice;
@@ -776,18 +821,32 @@ export const parseSummaryDetail = (
 
 export const parsePrice = (raw: IProductPrice): PriceDetail => {
   //  TODO: currently IProductPrice does not provide nett/gross values, only the brand setting
-  const savingAmount =
-    Math.round(subtract(raw.price, raw?.price_discounted ?? raw.price) * 100) /
-    100;
-
+  // When a price is manually overridden, promotions don't apply — ignore price_discounted entirely.
   const discounted =
-    !isNil(raw.price_discounted) && raw.price !== raw.price_discounted;
+    !raw.overridden_price &&
+    !isNil(raw.price_discounted) &&
+    raw.price !== raw.price_discounted;
+
+  const savingAmount = discounted
+    ? Math.round(subtract(raw.price, raw.price_discounted!) * 100) / 100
+    : 0;
+
+  // When a price has been manually overridden, `price` is the custom amount
+  // and `original_price` is the pre-override pricelist price.
+  const regularAmount = raw.overridden_price
+    ? (raw.original_price ?? raw.price)
+    : raw.price;
+  const regularPrice = raw.overridden_price
+    ? (raw.original_price_formatted ?? raw.price_formatted ?? "")
+    : (raw.price_formatted ?? "");
 
   return {
-    currentAmount: raw.price_discounted ?? raw.price,
-    currentPrice: raw.price_discounted_formatted ?? raw.price_formatted ?? "",
-    regularAmount: raw.price,
-    regularPrice: raw.price_formatted ?? "",
+    currentAmount: discounted ? (raw.price_discounted ?? raw.price) : raw.price,
+    currentPrice: discounted
+      ? (raw.price_discounted_formatted ?? raw.price_formatted ?? "")
+      : (raw.price_formatted ?? ""),
+    regularAmount,
+    regularPrice,
     savingAmount,
     savingPrice: "", //TODO: missing formatted value
     savingPercent: discounted
@@ -1333,6 +1392,12 @@ export const parseProductImages = (images: IImage[]): ProductImage[] => {
 export function parseBillingCycle(months: number) {
   const years = months / 12;
   const { t } = useI18n();
+  const { getConfigValue } = useBrand();
+
+  const useMonthly =
+    getConfigValue<PaymentTermDesignations>(
+      BrandConfigKeys.BASKET_PAYMENT_TERM_DESCRIPTIONS
+    ) === PaymentTermDesignations.MONTHLY && months >= 12;
 
   switch (months) {
     case 0:
@@ -1370,26 +1435,38 @@ export function parseBillingCycle(months: number) {
     case 12:
       return {
         adverbial: t("term.annually"), // Annually
-        descriptive: t("term.n_years", years), // year
+        descriptive: useMonthly
+          ? t("term.n_months", months) // 12 months
+          : t("term.n_years", years), // year
         monthly: t("term.n_months", months), // 12 months
         suffix: t("term.n_yr", years), // yr
-        numeric: t("term.n_year", { n: toString(years) }) // 1-year
+        numeric: useMonthly
+          ? t("term.n_month", { n: months.toString() }) // 12-month
+          : t("term.n_year", { n: years.toString() }) // 1-year
       };
     case 24:
       return {
         adverbial: t("term.biennially"), // Biennially
-        descriptive: t("term.n_years", years), // 2 years
+        descriptive: useMonthly
+          ? t("term.n_months", months) // 24 months
+          : t("term.n_years", years), // 2 years
         monthly: t("term.n_months", months), // 24 months
         suffix: t("term.n_yr", years), // 2yr
-        numeric: t("term.n_year", { n: toString(years) }) // 2-year
+        numeric: useMonthly
+          ? t("term.n_month", { n: months.toString() }) // 24-month
+          : t("term.n_year", { n: years.toString() }) // 2-year
       };
     case 36:
       return {
         adverbial: t("term.triennially"), // Triennially
-        descriptive: t("term.n_years", years), // 3 years
+        descriptive: useMonthly
+          ? t("term.n_months", months) // 36 months
+          : t("term.n_years", years), // 3 years
         monthly: t("term.n_months", months), // 36 months
         suffix: t("term.n_yr", years), // 3yr
-        numeric: t("term.n_year", { n: toString(years) }) // 3-year
+        numeric: useMonthly
+          ? t("term.n_month", { n: months.toString() }) // 36-month
+          : t("term.n_year", { n: years.toString() }) // 3-year
       };
     case 48:
     case 60:
@@ -1400,10 +1477,14 @@ export function parseBillingCycle(months: number) {
     case 120:
       return {
         adverbial: t("term.n_years", years), // {n} years
-        descriptive: t("term.n_years", years), // {n} years
+        descriptive: useMonthly
+          ? t("term.n_months", months) // {n} months
+          : t("term.n_years", years), // {n} years
         monthly: t("term.n_months", months), // {n} months
         suffix: t("term.n_yr", years), // {n}yr
-        numeric: t("term.n_year", { n: toString(years) }) // {n}-year
+        numeric: useMonthly
+          ? t("term.n_month", { n: months.toString() }) // {n}-month
+          : t("term.n_year", { n: years.toString() }) // {n}-year
       };
     default:
       return {

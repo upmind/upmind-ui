@@ -54,6 +54,7 @@ export type OpenPayModel = GatewayData & {
 export type OpenPayContext = GatewayContext<{
   sdk?: {
     openPay?: OpenPay;
+    deviceSessionId?: string;
   };
   model?: OpenPayModel;
 }>;

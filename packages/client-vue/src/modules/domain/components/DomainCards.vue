@@ -81,7 +81,7 @@
       block
       class="mt-6"
     >
-      Load more
+      {{ t("action.load_more") }}
     </Button>
   </section>
 </template>

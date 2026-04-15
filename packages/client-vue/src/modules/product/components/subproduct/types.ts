@@ -5,7 +5,7 @@ import type {
   ProductSummaryMeta
 } from "@upmind-automation/headless";
 
-export type SubproductCardProps = Omit<SubproductValue, "meta"> & {
+export type SubproductCardProps = Omit<SubproductValue, "meta" | "brand"> & {
   processing?: boolean;
   minimal?: boolean;
   meta: UseMetaResult;
