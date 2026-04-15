@@ -18,9 +18,9 @@
 
           <Switch
             :id="`option-${option.id}-${value.id}`"
-            :checked="isSelected(option.id, value.id)"
+            :model-value="isSelected(option.id, value.id)"
             :disabled="disabled || processing"
-            @update:checked="doToggle(option, value, $event)"
+            @update:modelValue="doToggle(option, value, $event)"
           />
         </div>
       </template>

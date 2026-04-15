@@ -128,6 +128,7 @@ export const useBasketProducts = () => {
     // DataLayer and prefresh are handled in services.ts
     return services.update(basketId.value, { ...data, id } as ProductModel);
   }
+
   //  ---
   /**
    * Increments the quantity of a specific basket product by its defined step.
@@ -307,10 +308,18 @@ export const useBasketProducts = () => {
      * Meta-information computed from the basket's state.
      *
      * @property {boolean} hasProducts - `true` if the basket contains any products.
+     * @property {boolean} hasDetails - `true` if any product has configuration details (billing cycle, options, or attributes).
      * @property {boolean} isLoading - `true` if the basket service is currently in a loading state.
      * @property {function(bpid?: string): boolean} isProcessing - A function that returns `true` if the basket or a specific product (`bpid`) is processing, `false` otherwise.
      */
     meta: computed(() => ({
+      hasDetails: some(
+        products.value,
+        p =>
+          !!p?.productDetails?.cycle ||
+          !isEmpty(p?.configuration?.options) ||
+          !isEmpty(p?.configuration?.attributes)
+      ),
       hasProducts: !isEmpty(products.value),
       isLoading: basketMeta.value.isLoading,
       isProcessing: (bpid?: string) =>
@@ -374,7 +383,7 @@ export const useBasketProducts = () => {
      * @param data - The updated {@link ProductModel} data.
      * @returns A promise resolving to the updated {@link IBasket} or `undefined`.
      */
-    resolve,
+    resolve: action((bpid: string, data: ProductModel) => resolve(bpid, data)),
 
     /**
      * Removes a product from the basket by its ID. This operation is debounced.

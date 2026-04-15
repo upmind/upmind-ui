@@ -144,7 +144,18 @@ export const parseBasket = (
 
     return map(newArray, (newItem: any) => {
       const oldItem = find(oldArray, ["id", newItem.id]);
-      return oldItem ? defaultsDeep({}, newItem, oldItem) : newItem;
+      if (!oldItem) return newItem;
+
+      const merged = defaultsDeep({}, newItem, oldItem);
+
+      // defaultsDeep merges arrays by index — re-merge sub-products by ID
+      if (newItem.options)
+        merged.options = mergeArrayById(newItem.options, oldItem.options) ?? [];
+      if (newItem.attributes)
+        merged.attributes =
+          mergeArrayById(newItem.attributes, oldItem.attributes) ?? [];
+
+      return merged;
     });
   };
 

@@ -50,6 +50,17 @@ export interface RenewDescriptionProps {
   renewalPrice?: string;
 }
 
+export interface TermSelectorProps {
+  /** Available billing terms. */
+  terms: TermDetails[];
+  /** Currently selected term cycle in months. */
+  modelValue?: number;
+  /** Whether the selector is disabled. */
+  disabled?: boolean;
+  /** Whether an update is processing. */
+  processing?: boolean;
+}
+
 export interface TermsDescriptionProps extends TermDetails {
   separate?: boolean;
 }

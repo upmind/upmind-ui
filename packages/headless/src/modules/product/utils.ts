@@ -61,6 +61,7 @@ import {
   ProductTypes,
   PromotionDisplayTypes,
   ProvisionCategoryCodes,
+  PaymentTermDesignations,
   PriceDisplayTypes,
   QUERY_PARAMS
 } from "@upmind-automation/types";
@@ -463,7 +464,8 @@ export function parseSubproducts(
             // if we have a price, set price values, taking into account the quantity and unit quantity
             // NB: we NEVER add, we always push into an array for the backend to handle
             if (!isEmpty(product?.price)) {
-              if (quantity == 1) price.push(product?.price?.currentAmount);
+              if (quantity == 1 && value.quantity == 1)
+                price.push(product?.price?.currentAmount);
               else
                 price.push({
                   price: product?.price?.currentAmount,
@@ -623,9 +625,20 @@ export const parseMeta = (
 
 export const parseTermDetails = (
   raw: IProduct,
-  priceOptionOverride?: boolean
+  currencyIdOrOverride?: string | boolean
 ): TermDetails[] => {
-  return map(orderBy(raw?.prices, "billing_cycle_months"), rawTerm => {
+  const currencyId =
+    typeof currencyIdOrOverride === "string" ? currencyIdOrOverride : undefined;
+  const priceOptionOverride =
+    typeof currencyIdOrOverride === "boolean"
+      ? currencyIdOrOverride
+      : undefined;
+
+  const prices = currencyId
+    ? filter(raw?.prices, { currency_id: currencyId })
+    : raw?.prices;
+
+  return map(orderBy(prices, "billing_cycle_months"), rawTerm => {
     const details: TermDetails = parseSummaryDetailWithPrice(rawTerm, raw);
 
     details.meta.overridden = details.meta.overridden && !priceOptionOverride;
@@ -645,7 +658,8 @@ export const parseTermDetails = (
 
 export const parseSubproductDetails = (
   data?: (IProductAttribute | IProductOption)[],
-  cycle?: number
+  cycle?: number,
+  currencyId?: string
 ): SubproductDetails[] => {
   const { includesTax } = useBrand();
 
@@ -685,6 +699,11 @@ export const parseSubproductDetails = (
         }
       });
 
+      // filter prices by currency if provided (eg basket products have a known currency)
+      const prices = currencyId
+        ? filter(rawSubproduct.prices, { currency_id: currencyId })
+        : rawSubproduct.prices;
+
       // check EARLY if we have a price for one of the following:
       //  * no billing cycle set
       //  * a one off price
@@ -693,7 +712,7 @@ export const parseSubproductDetails = (
       const valid =
         isNil(cycle) ||
         rawSubproduct.billing_cycle_months == 0 ||
-        some(rawSubproduct.prices, ["billing_cycle_months", cycle]);
+        some(prices, ["billing_cycle_months", cycle]);
 
       // bail if the value is not valid, ie has no price that matches the current billing cycle
       if (!valid) return result;
@@ -702,14 +721,12 @@ export const parseSubproductDetails = (
       const values: SubproductValue[] = get(option, "values", []);
 
       // ---
-      const pricing: ProductSummaryDetailWithPrice[] = map(
-        rawSubproduct.prices,
-        rawPrice =>
-          parseSummaryDetailWithPrice(
-            rawPrice,
-            rawSubproduct,
-            rawSubproduct.category.price_override
-          )
+      const pricing: ProductSummaryDetailWithPrice[] = map(prices, rawPrice =>
+        parseSummaryDetailWithPrice(
+          rawPrice,
+          rawSubproduct,
+          rawSubproduct.category.price_override
+        )
       );
 
       const price =
@@ -718,6 +735,7 @@ export const parseSubproductDetails = (
       const productDetails = parseProductDetails(rawSubproduct);
       const value: SubproductValue = {
         ...productDetails,
+        uiMeta: rawSubproduct?.meta ?? {},
         cycle: price?.cycle ?? productDetails.cycle,
         price: price?.price,
         pricing: pricing,
@@ -1373,6 +1391,12 @@ export const parseProductImages = (images: IImage[]): ProductImage[] => {
 export function parseBillingCycle(months: number) {
   const years = months / 12;
   const { t } = useI18n();
+  const { getConfigValue } = useBrand();
+
+  const useMonthly =
+    getConfigValue<PaymentTermDesignations>(
+      BrandConfigKeys.BASKET_PAYMENT_TERM_DESCRIPTIONS
+    ) === PaymentTermDesignations.MONTHLY && months >= 12;
 
   switch (months) {
     case 0:
@@ -1410,26 +1434,38 @@ export function parseBillingCycle(months: number) {
     case 12:
       return {
         adverbial: t("term.annually"), // Annually
-        descriptive: t("term.n_years", years), // year
+        descriptive: useMonthly
+          ? t("term.n_months", months) // 12 months
+          : t("term.n_years", years), // year
         monthly: t("term.n_months", months), // 12 months
         suffix: t("term.n_yr", years), // yr
-        numeric: t("term.n_year", { n: years.toString() }) // 1-year
+        numeric: useMonthly
+          ? t("term.n_month", { n: months.toString() }) // 12-month
+          : t("term.n_year", { n: years.toString() }) // 1-year
       };
     case 24:
       return {
         adverbial: t("term.biennially"), // Biennially
-        descriptive: t("term.n_years", years), // 2 years
+        descriptive: useMonthly
+          ? t("term.n_months", months) // 24 months
+          : t("term.n_years", years), // 2 years
         monthly: t("term.n_months", months), // 24 months
         suffix: t("term.n_yr", years), // 2yr
-        numeric: t("term.n_year", { n: years.toString() }) // 2-year
+        numeric: useMonthly
+          ? t("term.n_month", { n: months.toString() }) // 24-month
+          : t("term.n_year", { n: years.toString() }) // 2-year
       };
     case 36:
       return {
         adverbial: t("term.triennially"), // Triennially
-        descriptive: t("term.n_years", years), // 3 years
+        descriptive: useMonthly
+          ? t("term.n_months", months) // 36 months
+          : t("term.n_years", years), // 3 years
         monthly: t("term.n_months", months), // 36 months
         suffix: t("term.n_yr", years), // 3yr
-        numeric: t("term.n_year", { n: years.toString() }) // 3-year
+        numeric: useMonthly
+          ? t("term.n_month", { n: months.toString() }) // 36-month
+          : t("term.n_year", { n: years.toString() }) // 3-year
       };
     case 48:
     case 60:
@@ -1440,10 +1476,14 @@ export function parseBillingCycle(months: number) {
     case 120:
       return {
         adverbial: t("term.n_years", years), // {n} years
-        descriptive: t("term.n_years", years), // {n} years
+        descriptive: useMonthly
+          ? t("term.n_months", months) // {n} months
+          : t("term.n_years", years), // {n} years
         monthly: t("term.n_months", months), // {n} months
         suffix: t("term.n_yr", years), // {n}yr
-        numeric: t("term.n_year", { n: years.toString() }) // {n}-year
+        numeric: useMonthly
+          ? t("term.n_month", { n: months.toString() }) // {n}-month
+          : t("term.n_year", { n: years.toString() }) // {n}-year
       };
     default:
       return {

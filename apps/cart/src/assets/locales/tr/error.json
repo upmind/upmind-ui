@@ -21,6 +21,7 @@
   "asset_unavailable_text": "Uygulamamızı az önce güncelledik ve mevcut sürümünüz artık güncel değil. Devam etmek için yeniden yükleyin.",
   "asset_unavailable_title": "**Yeniden yükleme** gerekli",
   "asset_unavailable_title_md": "@.markdown:{'error.asset_unavailable_title'}",
+  "auth_not_valid": "Kimlik doğrulama alanları geçerli değil.",
   "basket_convert_failed": "Sepet dönüştürme başarısız oldu",
   "basket_fields_update_failed": "Sepet alanlarını güncellerken bir hatayla karşılaştık",
   "basket_fields_validation_failed": "Alan doğrulaması başarısız oldu",
