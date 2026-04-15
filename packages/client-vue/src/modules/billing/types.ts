@@ -16,6 +16,7 @@ export interface BillingFormProps {
   autoUpdate?: boolean;
   billingRoute?: RouteLocationAsRelativeGeneric;
   expand?: boolean;
+  inline?: boolean;
 }
 
 export interface BillingProps {

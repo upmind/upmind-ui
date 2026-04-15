@@ -197,6 +197,24 @@ export type Product = {
    * An optional object containing errors related to various aspects of the product's configuration.
    */
   errors?: ErrorObject[];
+
+  /**
+   * Available billing terms parsed from the product's prices.
+   * Used for inline term selection in the basket.
+   */
+  availableTerms?: TermDetails[];
+
+  /**
+   * Available option categories and their values parsed from the product's options.
+   * Used for inline option toggling in the basket.
+   */
+  availableOptions?: SubproductDetails[];
+
+  /**
+   * Option upsell summaries for available-but-unselected options.
+   * Pre-computed during basket product parsing for direct rendering.
+   */
+  upsells?: ProductSummaryDetailWithPrice[];
 };
 
 /**
@@ -441,6 +459,8 @@ export type ProductSummaryMeta = {
   renewalPrice?: string;
   /** `true` if monthly pricing should be derived from the product's price. */
   useMonthlyFromPrice?: boolean;
+  /** `true` if the product's price has been overridden. */
+  overriden?: boolean;
 };
 
 /**

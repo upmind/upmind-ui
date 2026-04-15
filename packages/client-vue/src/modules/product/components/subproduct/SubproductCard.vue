@@ -64,6 +64,7 @@
             :cycle="props.cycle"
             :term="props.term"
             :class="styles.card.pricing.text"
+            :dropdown="props.dropdown"
           />
         </div>
       </div>
@@ -92,6 +93,7 @@
             :cycle="props.cycle"
             :class="styles.card.pricing.text"
             :term="props.term"
+            :dropdown="props.dropdown"
           />
         </div>
       </div>

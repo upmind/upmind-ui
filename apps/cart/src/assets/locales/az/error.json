@@ -21,6 +21,7 @@
   "asset_unavailable_text": "Tətbiqi indicə yeniləmişik və sizin hazırkı versiyanız artıq köhnədir. Davam etmək üçün yeniləyin.",
   "asset_unavailable_title": "**Yenilə** tələb olunur",
   "asset_unavailable_title_md": "@.markdown:{'error.asset_unavailable_title'}",
+  "auth_not_valid": "Təsdiq sahələri etibarlı deyil",
   "basket_convert_failed": "Səbəti çevirmək alınmadı",
   "basket_fields_update_failed": "Səbət sahələrini yeniləyərkən xəta baş verdi",
   "basket_fields_validation_failed": "Sahələrin doğrulanması uğursuz oldu",

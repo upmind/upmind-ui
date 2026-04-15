@@ -21,6 +21,7 @@
   "asset_unavailable_text": "Tocmai am actualizat aplicația, iar versiunea pe care o folosiți nu mai este la zi. Reîncărcați pentru a continua.",
   "asset_unavailable_title": "**Reîncărcare** necesară",
   "asset_unavailable_title_md": "@.markdown:{'error.asset_unavailable_title'}",
+  "auth_not_valid": "Câmpurile de autorizare nu sunt valide",
   "basket_convert_failed": "Conversia coșului a eșuat",
   "basket_fields_update_failed": "Am întâmpinat o eroare la actualizarea câmpurilor din coș.",
   "basket_fields_validation_failed": "Validarea câmpurilor a eșuat",

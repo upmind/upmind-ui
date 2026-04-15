@@ -182,7 +182,7 @@ export default [
    * Accessed from the checkout billing summary "Change" link.
    */
   {
-    path: "/order/billing",
+    path: "/order/billing/",
     name: ROUTE.BILLING,
     component: () => import("../pages/Billing.vue"),
     meta: {

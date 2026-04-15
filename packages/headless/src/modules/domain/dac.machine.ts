@@ -379,7 +379,7 @@ export default createMachine(
               total: 0
             },
             // ---
-            useSuggestions: true,
+            useSuggestions: false,
             // ---
             error: undefined,
             // ---

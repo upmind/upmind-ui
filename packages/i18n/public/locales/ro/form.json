@@ -155,5 +155,20 @@
   },
   "stored_payment_method": {
     "label": ""
+  },
+  "twofa": {
+    "description": "Acest cont este securizat folosind autentificarea cu doi factori. Vă rugăm să introduceți codul de verificare.",
+    "label": "Cod de verificare",
+    "placeholder": "123 456"
+  },
+  "twofa_email": {
+    "description": "Pentru protecția dumneavoastră, v-am trimis un cod de acces unic la adresa de e-mail. Pentru a finaliza această solicitare, vă rugăm să introduceți codul de mai jos.",
+    "label": "Cod de verificare",
+    "placeholder": "123 456"
+  },
+  "twofa_totp": {
+    "description": "Pentru a finaliza această solicitare, vă rugăm să introduceți codul de acces unic generat de aplicația Authenticator.",
+    "label": "Cod de verificare",
+    "placeholder": "123 456"
   }
 }
