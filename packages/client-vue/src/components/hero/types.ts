@@ -1,8 +1,8 @@
 import type { BadgeProps, ButtonProps } from "@upmind-automation/upmind-ui";
-import type { CxOptions } from "class-variance-authority";
-import type { variants } from "./hero.config";
+import type { CxOptions, VariantProps } from "class-variance-authority";
+import type { rootVariants } from "./hero.config";
 
-export type HeroSize = keyof typeof variants.size;
+type HeroVariantProps = VariantProps<typeof rootVariants>;
 
 export type HeroProps = {
   badge?: string | BadgeProps;
@@ -10,7 +10,7 @@ export type HeroProps = {
   subtitle?: string;
   description?: string;
   loading?: boolean;
-  size?: HeroSize;
+  size?: HeroVariantProps["size"];
   action?: ButtonProps;
   uiConfig?: {
     hero?: {

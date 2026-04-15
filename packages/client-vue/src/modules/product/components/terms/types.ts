@@ -1,5 +1,7 @@
-import type { PriceDisplayTypes } from "@upmind-automation/types";
-import type { TermDetails } from "@upmind-automation/headless";
+import type {
+  TermDetails,
+  PriceDisplayTypes
+} from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 /**
