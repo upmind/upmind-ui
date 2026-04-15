@@ -41,7 +41,7 @@
         :discounted="props.meta?.discounted ?? false"
         :overridden="props.meta?.overridden"
         :free="props.meta?.free ?? false"
-        :use-monthly-from-price="props.meta?.useMonthlyFromPrice"
+        :use-monthly-from-price="useMonthlyFromPrice"
         :ui-config="{
           pricing: {
             current: [styles.terms.radio.item.total],
@@ -64,6 +64,7 @@ import { useI18n } from "vue-i18n";
 
 // --- internal
 import { parseBillingCycle } from "@upmind-automation/headless";
+import { PriceDisplayTypes } from "@upmind-automation/types";
 import { useStyles, Badge, Tooltip } from "@upmind-automation/upmind-ui";
 import config from "./terms.config";
 
@@ -75,31 +76,28 @@ import Promotion from "../../../basket-product/components/card/components/Promot
 // --- utils
 import { isEmpty, has } from "lodash-es";
 
-// --- types
-import type { TermDetails } from "@upmind-automation/headless";
+import type { TermCardProps } from "./types";
 
 // -----------------------------------------------------------------------------
 
-const props = withDefaults(
-  defineProps<
-    TermDetails & {
-      summary?: boolean;
-      layout?: "stacked" | "inline";
-    }
-  >(),
-  {
-    summary: true,
-    layout: "stacked"
-  }
-);
+const props = withDefaults(defineProps<TermCardProps>(), {
+  summary: true,
+  layout: "stacked"
+});
 
 const { t } = useI18n();
+
+const useMonthlyFromPrice = computed(() =>
+  props.type
+    ? props.type !== PriceDisplayTypes.CYCLE
+    : props.meta?.useMonthlyFromPrice
+);
 
 const meta = computed(() => ({
   layout: props.layout,
   hasPromotions: !isEmpty(props.promotions) || props.meta?.mixed,
   showStacked: !props.summary,
-  showSummary: props.summary && props.meta.useMonthlyFromPrice
+  showSummary: props.summary && useMonthlyFromPrice.value
 }));
 
 const styles = useStyles(["terms.radio", "terms.radio.item"], meta, config);

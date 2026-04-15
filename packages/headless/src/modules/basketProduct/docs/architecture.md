@@ -60,13 +60,13 @@ flowchart TD
 
 ## Integration Points
 
-| Module | Relationship |
-|--------|-------------|
-| **product** | Reuses `parseTermDetails`, `parseSubproductDetails`, product machine |
-| **basket** | Parent module — owns the basket state, provides `configure()` |
-| **config** | Config engine resolves inline editing flags (see [Inline Editing](./inline-editing.md)) |
-| **brand** | `useBrand()` for tax-inclusive pricing |
-| **system** | `useI18n()` for translations |
+| Module      | Relationship                                                                            |
+| ----------- | --------------------------------------------------------------------------------------- |
+| **product** | Reuses `parseTermDetails`, `parseSubproductDetails`, product machine                    |
+| **basket**  | Parent module — owns the basket state, provides `configure()`                           |
+| **config**  | Config engine resolves inline editing flags (see [Inline Editing](./inline-editing.md)) |
+| **brand**   | `useBrand()` for tax-inclusive pricing                                                  |
+| **system**  | `useI18n()` for translations                                                            |
 
 ## Dependencies
 

@@ -18,7 +18,7 @@ For inline editing and upsell-specific gotchas, see [Inline Editing](./inline-ed
 
 ## 2. `basketProductChanged` Typo Fix (FE-1502)
 
-FE-1502 fixed a typo in `product.machine.ts` — `basketPoductChanged` → `basketProductChanged`. Also fixed a bug where `clientId == data?.client_id` used loose equality instead of `!==` (it was checking equality when it should have been checking _in_equality).
+FE-1502 fixed a typo in `product.machine.ts` — `basketPoductChanged` → `basketProductChanged`. Also fixed a bug where `clientId == data?.client_id` used loose equality instead of `!==` (it was checking equality when it should have been checking \_in_equality).
 
 Additionally, the comparison now correctly looks up the basket product from `data.products` by ID rather than comparing against the old `data.basketProduct` reference — which could be stale after a basket refresh.
 
@@ -28,19 +28,21 @@ Additionally, the comparison now correctly looks up the basket product from `dat
 
 **FE-1502 corrected two config definitions:**
 
-| Property | Old Scope | New Scope | Reason |
-|----------|-----------|-----------|--------|
-| `optionBenefits` | `PRODUCT_CATEGORY, PRODUCT` | `OPTION_CATEGORY, OPTION` | Benefits are per-option, not per-product |
-| `optionUpsellEnabled` | `OPTION_CATEGORY, OPTION` | `OPTION` only | Upsell toggle is per-option value, not per-category |
+| Property              | Old Scope                   | New Scope                 | Reason                                              |
+| --------------------- | --------------------------- | ------------------------- | --------------------------------------------------- |
+| `optionBenefits`      | `PRODUCT_CATEGORY, PRODUCT` | `OPTION_CATEGORY, OPTION` | Benefits are per-option, not per-product            |
+| `optionUpsellEnabled` | `OPTION_CATEGORY, OPTION`   | `OPTION` only             | Upsell toggle is per-option value, not per-category |
 
 > **🔧 For Contributors:** If you add meta properties for options, make sure to scope them correctly. See `config/schema/definitions.ts`. Scoping too broadly (e.g., at product level) means the setting applies to all options, which is rarely the intent.
 
 ---
 
-## 4. Term Selector Changed from SelectCards to Select (FE-1502)
+## 4. Basket Term Selector Forced Full-Term Pricing
 
-The inline term selector was simplified from a `SelectCards` component (with custom `TermCard` rendering) to a plain `Select` dropdown using `parseBillingCycle().numeric` labels.
+The basket term selector forces `PriceDisplayTypes.CYCLE` via the `type` prop on `TermCard`, ensuring it always shows the full billing cycle price (e.g., `$120/yr`). This prevents a visual mismatch with the basket product card price.
 
-The model binding also changed from a manual `@update:modelValue` emit handler to a computed `v-model` with get/set.
+The product listing term selector (`ProductTerm.vue`) does NOT override this — it respects the brand's `PRICE_DISPLAY_TYPE` setting via `meta.useMonthlyFromPrice`.
 
-> **🔧 For Contributors:** The old `SelectCards` + `TermCard` pattern is no longer used for inline term editing. If restoring rich term cards, you'd need to switch back to `SelectCards` and re-add the slot templates.
+See [Inline Editing — Pricing Display](./inline-editing.md#pricing-display-full-term-price-forced) for full details.
+
+> **🔧 For Contributors:** `TermCard` accepts a generic `type` prop (`PriceDisplayTypes` enum). When set, it overrides `meta.useMonthlyFromPrice`. If you change how prices display in the term selector or on the basket card, ensure both stay in sync.
