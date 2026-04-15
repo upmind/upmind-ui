@@ -63,8 +63,10 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { parseBillingCycle } from "@upmind-automation/headless";
-import { PriceDisplayTypes } from "@upmind-automation/types";
+import {
+  parseBillingCycle,
+  PriceDisplayTypes
+} from "@upmind-automation/headless";
 import { useStyles, Badge, Tooltip } from "@upmind-automation/upmind-ui";
 import config from "./terms.config";
 

@@ -37,8 +37,10 @@ import { SelectCards, useStyles } from "@upmind-automation/upmind-ui";
 import TermCard from "../../../../product/components/terms/TermCard.vue";
 
 // --- internal
-import { parseBillingCycle } from "@upmind-automation/headless";
-import { PriceDisplayTypes } from "@upmind-automation/types";
+import {
+  parseBillingCycle,
+  PriceDisplayTypes
+} from "@upmind-automation/headless";
 import styleConfig from "../basketProduct.config";
 
 // --- utils
