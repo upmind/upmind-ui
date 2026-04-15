@@ -12,7 +12,7 @@
   "once": "Один раз",
   "one_time": "Один раз",
   "price_by_n_years": "{price}/год | {price} /{n} лет",
-  "price_msg": "Только{price} | От{price} в месяц | От{price} каждый{period}",
+  "price_msg": "Только {price} | От {price} в месяц | От {price} каждый {period}",
   "quarterly": "Ежеквартальный",
   "renews_msg": "Единовременный платеж | Возобновляется каждые {cycle} | Возобновляется каждые {cycle}",
   "renews_usually_msg": "Обычно {price}",

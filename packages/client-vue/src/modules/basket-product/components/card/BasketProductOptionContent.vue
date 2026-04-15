@@ -57,7 +57,7 @@
           pricing: { current: [styles.product.pricing.current] }
         }"
       >
-        <template #prefix>+</template>
+        <template v-if="!summary.meta.free" #prefix>+</template>
         <template v-if="summary.quantity && summary.quantity > 1" #suffix>
           (x{{ summary.quantity }})
         </template>
