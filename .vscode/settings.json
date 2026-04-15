@@ -5,5 +5,23 @@
     ["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
     ["cx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
   ],
-  "cSpell.words": ["Upmind"]
+  "cSpell.words": ["Upmind"],
+  "files.watcherExclude": {
+    "**/node_modules/**": true,
+    "**/dist/**": true,
+    "**/.nuxt/**": true,
+    "**/.output/**": true,
+    "**/.firebase/**": true,
+    "**/.tsbuildinfo": true,
+    "**/tests/Playwright/e2e/test-output/**": true,
+    "**/tests/Playwright/e2e/reports/**": true,
+    "**/.worktrees/**": true,
+    "**/.asset-registry/**": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/.nuxt": true,
+    "**/pnpm-lock.yaml": true
+  }
 }
