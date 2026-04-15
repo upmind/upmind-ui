@@ -24,21 +24,21 @@ The inline composable (`useBasketProductInline`) is created for every basket pro
 
 ```typescript
 {
-  hasInlineControls: boolean;  // master switch — if false, machine is never spawned
-  hasUpsellOptions: boolean;   // product has inline-configurable options
-  showOptionUpsells: boolean;  // upsell section should render
-  showTermSelector: boolean;   // term dropdown should render
-  showQuantity: boolean;       // quantity field should render
+  hasInlineControls: boolean; // master switch — if false, machine is never spawned
+  hasUpsellOptions: boolean; // product has inline-configurable options
+  showOptionUpsells: boolean; // upsell section should render
+  showTermSelector: boolean; // term dropdown should render
+  showQuantity: boolean; // quantity field should render
 }
 ```
 
-| Flag | True when | Config property |
-|------|-----------|-----------------|
-| `hasUpsellOptions` | Any option has `data.optionUpsellEnabled === true` | `optionUpsellEnabled` (OPTION scope) |
-| `showOptionUpsells` | `hasUpsellOptions` AND `ui.optionUpsells.isVisible` | `optionUpsells` (UI visibility) |
-| `showTermSelector` | `ui.productTermSelector.isVisible` AND product is not one-off | `productTermSelector` (UI visibility, default HIDDEN) |
-| `showQuantity` | Product `order_type` is `QUANTIFIABLE` (enum 2) | N/A — derived from product data |
-| `hasInlineControls` | Any of the above three are `true` | — |
+| Flag                | True when                                                     | Config property                                       |
+| ------------------- | ------------------------------------------------------------- | ----------------------------------------------------- |
+| `hasUpsellOptions`  | Any option has `data.optionUpsellEnabled === true`            | `optionUpsellEnabled` (OPTION scope)                  |
+| `showOptionUpsells` | `hasUpsellOptions` AND `ui.optionUpsells.isVisible`           | `optionUpsells` (UI visibility)                       |
+| `showTermSelector`  | `ui.productTermSelector.isVisible` AND product is not one-off | `productTermSelector` (UI visibility, default HIDDEN) |
+| `showQuantity`      | Product `order_type` is `QUANTIFIABLE` (enum 2)               | N/A — derived from product data                       |
+| `hasInlineControls` | Any of the above three are `true`                             | —                                                     |
 
 > **🧪 For Testers:** If no inline controls appear, check: is `productTermSelector` set to visible? Does the product have options with `optionUpsellEnabled`? Is the product quantifiable?
 
@@ -101,8 +101,8 @@ configurableInline: (() => {
 
 **Where:** [BasketProduct.vue](file:///Users/rhodri/upmind-monorepo/packages/client-vue/src/modules/basket-product/components/card/BasketProduct.vue#L144) — `filteredUpsells` computed
 
-| Property | Default | Contexts | Scopes |
-|----------|---------|----------|--------|
+| Property        | Default   | Contexts         | Scopes                                      |
+| --------------- | --------- | ---------------- | ------------------------------------------- |
 | `optionUpsells` | `VISIBLE` | Basket, Checkout | Brand → Category → Product → OptionCategory |
 
 If `hidden`, `filteredUpsells` returns `[]` — no upsell toggles render regardless of per-option settings. Checked in two places:
@@ -114,8 +114,8 @@ If `hidden`, `filteredUpsells` returns `[]` — no upsell toggles render regardl
 
 **Where:** [BasketProduct.vue](file:///Users/rhodri/upmind-monorepo/packages/client-vue/src/modules/basket-product/components/card/BasketProduct.vue#L157) — inside `filteredUpsells` map
 
-| Property | Default | Contexts | Scopes |
-|----------|---------|----------|--------|
+| Property              | Default | Contexts         | Scopes      |
+| --------------------- | ------- | ---------------- | ----------- |
 | `optionUpsellEnabled` | `false` | Basket, Checkout | Option only |
 
 Each option value is checked individually via the config engine. **Defaults to `false`** — upsells are opt-in, not opt-out.
@@ -127,9 +127,9 @@ map(resolvedUpsells, upsell => {
     optionGroup: () => resolveOptionGroup(upsell),
     option: () => upsell
   });
-  if (!data.optionUpsellEnabled) return undefined;  // ← excluded
+  if (!data.optionUpsellEnabled) return undefined; // ← excluded
   return { upsell, benefits: data.optionBenefits };
-})
+});
 ```
 
 ### Layer 4: Data Filtering (`parseOptionUpsells`)
@@ -152,14 +152,18 @@ Options that were already selected before the inline editor opened (i.e., config
 // Capture IDs of options already selected at editor open time
 const preConfiguredIds = compact(
   map(
-    filter(basketProduct.upsells as BasketOptionSummary[], "meta.toggle.selected"),
+    filter(
+      basketProduct.upsells as BasketOptionSummary[],
+      "meta.toggle.selected"
+    ),
     "meta.toggle.valueId"
   )
 );
 
 // Later, in resolveUpsells():
-return filter(summaries, s =>
-  !includes(preConfiguredIds, s.meta.toggle?.valueId)
+return filter(
+  summaries,
+  s => !includes(preConfiguredIds, s.meta.toggle?.valueId)
 );
 ```
 
@@ -167,13 +171,13 @@ return filter(summaries, s =>
 
 ### Summary Table
 
-| Gate | Check | Default | Where Configured |
-|------|-------|---------|-----------------|
-| `configurableInline` | Any option has upsell enabled? | Computed | Product option meta |
-| `ui.optionUpsells.isVisible` | Section visible? | `VISIBLE` | Brand config engine |
-| `data.optionUpsellEnabled` | This specific option enabled? | `false` | Option meta |
-| `parseOptionUpsells()` | Has price or is selected? | N/A | Catalog data |
-| Pre-configured exclusion | Was configured on product page? | N/A | Runtime state |
+| Gate                         | Check                           | Default   | Where Configured    |
+| ---------------------------- | ------------------------------- | --------- | ------------------- |
+| `configurableInline`         | Any option has upsell enabled?  | Computed  | Product option meta |
+| `ui.optionUpsells.isVisible` | Section visible?                | `VISIBLE` | Brand config engine |
+| `data.optionUpsellEnabled`   | This specific option enabled?   | `false`   | Option meta         |
+| `parseOptionUpsells()`       | Has price or is selected?       | N/A       | Catalog data        |
+| Pre-configured exclusion     | Was configured on product page? | N/A       | Runtime state       |
 
 ---
 
@@ -181,15 +185,16 @@ return filter(summaries, s =>
 
 The inline term selector appears as a `Select` dropdown when `showTermSelector` is `true`.
 
-| Condition | Required |
-|-----------|----------|
-| `ui.productTermSelector.isVisible` | Yes — default is `HIDDEN`, must be explicitly enabled |
-| Product is not one-off (`!meta.oneoff`) | Yes — one-off products have no term to change |
-| Product has multiple terms (`terms.length > 1`) | Yes — single-term products hide the selector |
+| Condition                                       | Required                                              |
+| ----------------------------------------------- | ----------------------------------------------------- |
+| `ui.productTermSelector.isVisible`              | Yes — default is `HIDDEN`, must be explicitly enabled |
+| Product is not one-off (`!meta.oneoff`)         | Yes — one-off products have no term to change         |
+| Product has multiple terms (`terms.length > 1`) | Yes — single-term products hide the selector          |
 
 The dropdown shows `parseBillingCycle(cycle).numeric` labels (e.g., "1 month", "12 months").
 
 **When the term changes:**
+
 1. `config.updateTerm(value)` is called
 2. The product machine re-validates — option prices update for the new cycle
 3. Options without a price for the new term are removed from the available list
@@ -229,10 +234,10 @@ sequenceDiagram
 
 Changes flow through computed `v-model` bindings in `BasketProduct.vue`:
 
-| Model | Trigger | Save Mechanism |
-|-------|---------|----------------|
-| `termModel` | User selects new term | `config.updateTerm(value).then(config.update)` — immediate |
-| `optionsModel` | User toggles switch | `config.toggleOption(...).then(config.update)` — immediate |
+| Model           | Trigger               | Save Mechanism                                               |
+| --------------- | --------------------- | ------------------------------------------------------------ |
+| `termModel`     | User selects new term | `config.updateTerm(value).then(config.update)` — immediate   |
+| `optionsModel`  | User toggles switch   | `config.toggleOption(...).then(config.update)` — immediate   |
 | `quantityModel` | User changes quantity | `config.updateQuantity(value)` + debounced `config.update()` |
 
 ---
@@ -241,10 +246,10 @@ Changes flow through computed `v-model` bindings in `BasketProduct.vue`:
 
 Upsell pricing can come from two sources:
 
-| Source | When Used | Includes Coupons? |
-|--------|-----------|-------------------|
-| Catalog data (`basketProduct.upsells`) | Machine not yet resolved | No |
-| Machine data (`config.options`) | Machine resolved and ready | Yes |
+| Source                                 | When Used                  | Includes Coupons? |
+| -------------------------------------- | -------------------------- | ----------------- |
+| Catalog data (`basketProduct.upsells`) | Machine not yet resolved   | No                |
+| Machine data (`config.options`)        | Machine resolved and ready | Yes               |
 
 `resolveUpsells()` prefers machine data when available. During the brief window between spawning the machine and it resolving, catalog prices are shown. Prices may shift once the machine resolves if coupons apply.
 
@@ -254,9 +259,9 @@ Upsell pricing can come from two sources:
 
 Option benefits (`data.optionBenefits`) are resolved per-upsell via the config engine at `OPTION_CATEGORY → OPTION` scope. They're displayed below the toggle using the `BasketProductBenefits` component.
 
-| Property | Default | Contexts | Scopes |
-|----------|---------|----------|--------|
-| `optionBenefits` | `[]` | Configure, Basket, Checkout | OptionCategory → Option |
+| Property         | Default | Contexts                    | Scopes                  |
+| ---------------- | ------- | --------------------------- | ----------------------- |
+| `optionBenefits` | `[]`    | Configure, Basket, Checkout | OptionCategory → Option |
 
 ---
 
@@ -264,17 +269,17 @@ Option benefits (`data.optionBenefits`) are resolved per-upsell via the config e
 
 ### UI Properties
 
-| Property | Type | Default | Scope | Purpose |
-|----------|------|---------|-------|---------|
-| `optionUpsells` | `VISIBILITY` | `VISIBLE` | Brand → Category → Product → OptionCategory | Show/hide entire upsell section |
-| `productTermSelector` | `VISIBILITY` | `HIDDEN` | Brand → Category → Product | Show/hide inline term selector |
+| Property              | Type         | Default   | Scope                                       | Purpose                         |
+| --------------------- | ------------ | --------- | ------------------------------------------- | ------------------------------- |
+| `optionUpsells`       | `VISIBILITY` | `VISIBLE` | Brand → Category → Product → OptionCategory | Show/hide entire upsell section |
+| `productTermSelector` | `VISIBILITY` | `HIDDEN`  | Brand → Category → Product                  | Show/hide inline term selector  |
 
 ### Data Properties
 
-| Property | Type | Default | Scope | Purpose |
-|----------|------|---------|-------|---------|
-| `optionUpsellEnabled` | `boolean` | `false` | Option | Enable specific option for inline upsell |
-| `optionBenefits` | `Benefit[]` | `[]` | OptionCategory → Option | Benefit labels shown below toggle |
+| Property              | Type        | Default | Scope                   | Purpose                                  |
+| --------------------- | ----------- | ------- | ----------------------- | ---------------------------------------- |
+| `optionUpsellEnabled` | `boolean`   | `false` | Option                  | Enable specific option for inline upsell |
+| `optionBenefits`      | `Benefit[]` | `[]`    | OptionCategory → Option | Benefit labels shown below toggle        |
 
 > **🔧 For Contributors:** `optionUpsellEnabled` defaults to `false`. You must explicitly enable it per-option via brand meta. `optionUpsells` (UI visibility) defaults to `VISIBLE` — it's the container, not the per-option flag.
 
@@ -282,11 +287,11 @@ Option benefits (`data.optionBenefits`) are resolved per-upsell via the config e
 
 ## Components
 
-| Component | Purpose |
-|-----------|---------|
-| `BasketProduct.vue` | Orchestrates inline editing — spawns machine, computes `filteredUpsells` |
-| `BasketProductContent.vue` | Main product summary — renders term selector and quantity |
-| `BasketProductOptionContent.vue` | Option row with toggle switch and pricing (used for upsells) |
-| `BasketProductBenefits.vue` | Renders benefit list below an upsell toggle |
-| `BasketProductTermSelector.vue` | `Select` dropdown for billing term |
-| `BasketProductOptionSwitch.vue` | Full option switch (used in expanded config, NOT in inline upsells) |
+| Component                        | Purpose                                                                  |
+| -------------------------------- | ------------------------------------------------------------------------ |
+| `BasketProduct.vue`              | Orchestrates inline editing — spawns machine, computes `filteredUpsells` |
+| `BasketProductContent.vue`       | Main product summary — renders term selector and quantity                |
+| `BasketProductOptionContent.vue` | Option row with toggle switch and pricing (used for upsells)             |
+| `BasketProductBenefits.vue`      | Renders benefit list below an upsell toggle                              |
+| `BasketProductTermSelector.vue`  | `Select` dropdown for billing term                                       |
+| `BasketProductOptionSwitch.vue`  | Full option switch (used in expanded config, NOT in inline upsells)      |
