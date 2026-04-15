@@ -15,13 +15,16 @@
   "order_payment_failed_msg": "We were unable to process your payment for this order. Please click below to go to your invoice where you can retry your payment.",
   "order_pending": "Your payment is pending",
   "order_pending_msg": "Any overpayments will be added as account credit.",
+  "payment_due": "Payment due",
+  "payment_due_msg": "Your order is confirmed. Payment of {amount} is due by {due_date}.",
   "payment_retry": "Payment for this order is still due in full",
   "payment_retry_msg": "Unfortunately, your previous payment attempt was unsuccessful - this can be for a number of reasons. Please try again using an alternative method.",
   "payment_retry_action": "Try new payment",
   "payment_failed_banner": "Your payment attempt was unsuccessful - please try again.",
+  "payment_required_msg": "Your order is confirmed. Payment of {amount} is required to complete your order.",
   "payment_success_banner": "Payment for this order was received {date}.",
   "product_information": "Product information",
   "your_order": "Your order",
   "payment_partial": "Payment outstanding",
-  "payment_partial_msg": "You have {paid_amount} remaining. Please complete your payment to finish your order."
+  "payment_partial_msg": "You have {remaining_amount} remaining. Please complete your payment to finish your order."
 }

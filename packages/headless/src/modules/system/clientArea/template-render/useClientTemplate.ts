@@ -14,6 +14,8 @@ import {
   ClientTemplateSlotCodes
 } from "@upmind-automation/types";
 
+export { ClientTemplateSlotCodes };
+
 /**
  * Composable function to manage the query, the state, and the context for client area templates.
  * Allows fetching, monitoring, and refreshing the data for client area templates.

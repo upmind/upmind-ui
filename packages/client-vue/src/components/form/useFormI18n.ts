@@ -1,17 +1,18 @@
 // --- external
-import { defineAsyncComponent } from "vue";
-// --- vue elements
-export const UpmForm = defineAsyncComponent(() => import("./Form.vue"));
 export * from "./renderers";
 
 // ---
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { isEmpty, isFunction } from "lodash-es";
+import { isEmpty, isFunction, trimStart } from "lodash-es";
 import { useValidationTranslator } from "@upmind-automation/headless";
+import RandExp from "randexp";
+
+// --- types
 import type { JsonFormsI18nState } from "@jsonforms/core";
 
-// ---
+// -----------------------------------------------------------------------------
+
 export const useFormI18n = () => {
   const { t, tm, locale } = useI18n();
 
@@ -22,6 +23,19 @@ export const useFormI18n = () => {
       (_locale: string) => (key: string, defaultMessage: string, data: any) => {
         // Handle any validation errors using the shared headless translator
         if (key.startsWith("validation.")) {
+          const validationKey = trimStart(key, "validation.");
+
+          // Handle pattern errors: show a human-readable example instead of the raw regex
+          if (validationKey === "pattern" && data?.pattern) {
+            try {
+              const randexp = new RandExp(data.pattern);
+              randexp.randInt = (from: number) => from;
+              data = { ...data, pattern: randexp.gen() };
+            } catch {
+              // fallback: keep raw pattern if regex parsing fails
+            }
+          }
+
           return useValidationTranslator(key, defaultMessage, data ?? {});
         }
 

@@ -46,6 +46,7 @@ import type { BasketContext } from "./types";
 import type { AnyEventObject } from "xstate";
 import type { PaymentArgs } from "../payment";
 import { useQuery } from "../query";
+import { GatewayContext } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 export default createMachine(
@@ -298,12 +299,6 @@ export default createMachine(
                 on: {
                   CANCEL: {
                     target: "configuring"
-                  },
-                  // response from the paymentDetail machine = we are ready to convert
-                  PAYMENT_DETAILS: {
-                    target: "complete",
-                    actions: ["setPaymentDetail", "pushPaymentDetail"],
-                    cond: "paymentDetailComplete"
                   }
                 }
               },
@@ -319,6 +314,14 @@ export default createMachine(
             // NB: Checkout is a chained sequence of events, that can only start once ALL the shopping details are complete
             // We must wait for the event to be triggered before we can proceed, othwerwise we may trigger checkout prematurely
             on: {
+              // NB: Handled at this level (not inside processing) because offsite
+              // gateway redirects cause the paymentDetail actor to restore and
+              // complete before the basket has entered processing via CHECKOUT.
+              PAYMENT_DETAILS: {
+                target: ".complete",
+                actions: ["setPaymentDetail", "pushPaymentDetail"],
+                cond: "paymentDetailComplete"
+              },
               CHECKOUT: [
                 {
                   target: ".processing",
@@ -644,7 +647,13 @@ export default createMachine(
           //Refresh any existing actors with the new basket data
           forEach(actors, actor => {
             if (actor?.send)
-              actor.send({ type: "REFRESH", data: { ...basket, error } });
+              actor.send({
+                type: "REFRESH",
+                data: {
+                  ...basket,
+                  error
+                }
+              });
           });
 
           // And then check/ensure we have spawned any missing actors
@@ -683,8 +692,7 @@ export default createMachine(
       }),
 
       forwardCheckout: ({ actors }: BasketContext) => {
-        // for Now  only the payment details is affected by checkout
-        actors?.paymentDetail?.send({ type: "CHECKOUT" });
+        actors?.paymentDetail?.send({ type: "PAY" });
       },
 
       // ---

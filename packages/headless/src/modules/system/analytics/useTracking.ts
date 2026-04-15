@@ -8,7 +8,6 @@ import {
   forEach,
   isEmpty,
   isEqual,
-  keyBy,
   set,
   reduce,
   pick
@@ -152,7 +151,14 @@ export const useTracking = () => {
       const values = Object.freeze(
         defaultsDeep(
           pick(cookie, UPM_TRACK_KEYS),
-          keyBy(UPM_TRACK_KEYS, () => null)
+          reduce(
+            UPM_TRACK_KEYS,
+            (result, key) => {
+              set(result, key, null);
+              return result;
+            },
+            {} as Record<string, null>
+          )
         )
       );
       resolve(values);

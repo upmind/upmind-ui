@@ -3,7 +3,14 @@ import { unref } from "vue";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
-import { useBrand, useI18n, useQuery, useSession } from "..";
+import {
+  RequestSortDirection,
+  useBrand,
+  useI18n,
+  useQuery,
+  useSession
+} from "..";
+import { useQueryParams } from "../routing";
 
 // --- utils
 import {
@@ -21,7 +28,8 @@ import {
   size,
   isNil,
   set,
-  reject
+  reject,
+  omitBy
 } from "lodash-es";
 import {
   ErrorOrigin,
@@ -32,18 +40,17 @@ import {
   useModelParser,
   stateMatches,
   useTime,
+  useSessionStorage,
   DEBOUNCE_DELAY
 } from "../../utils";
+import { invalidateQueryByKey } from "../query/utils";
 import {
   filterGateways,
   filterPaymentDetails,
-  filterPaymentTypes
+  filterPaymentTypes,
+  needsPayment
 } from "./utils";
-import {
-  mapAccountCredit,
-  mapPaymentData,
-  mapPaymentDetailDetails
-} from "./mappers";
+import { mapAccountCredit, mapPaymentData, mapPaymentDetails } from "./mappers";
 
 // --- types
 import type { AnyEventObject } from "xstate";
@@ -56,6 +63,8 @@ import type {
 import {
   PaymentType,
   BrandConfigKeys,
+  GatewayContext as GatewayCtx,
+  QUERY_PARAMS,
   type IBrandGateway,
   type IPaymentDetail,
   type IWalletBalance,
@@ -67,7 +76,7 @@ import type { QueryKey } from "@tanstack/vue-query";
 const queryKey: QueryKey = ["paymentDetail", "stored"];
 
 export function loadList() {
-  const { brandId, currencyId } = useBrand();
+  const { brandId } = useBrand();
   const { meta, clientId } = useSession();
 
   const { query, useUrl } = useQuery();
@@ -77,22 +86,19 @@ export function loadList() {
       limit: 0,
       brand_id: brandId.value,
       active: true,
-      "filter[gateway.currencies.id]": currencyId.value,
-      order: ["-default", "id"].join(),
       with: ["gateway", "client"].join()
     }),
+    sort: [
+      [RequestSortDirection.DESC, "default"],
+      [RequestSortDirection.ASC, "id"]
+    ],
     withAccessToken: true,
-    withCurrency: true,
     // --- options
-
-    select: mapPaymentDetailDetails,
+    select: mapPaymentDetails,
     staleTime: useTime().HOUR,
     retryDelay: DEBOUNCE_DELAY,
     enabled: () =>
-      meta.value.isAuthenticated &&
-      !!clientId.value &&
-      !!currencyId.value &&
-      !!brandId.value
+      meta.value.isAuthenticated && !!clientId.value && !!brandId.value
   });
 }
 
@@ -100,12 +106,12 @@ export function loadList() {
 
 async function loadLookups(
   {
+    ctx,
     currency,
     address,
     orderId,
     lookups,
     client,
-    paidAmount,
     orderStatus
   }: PaymentDetailsContext,
   _event: AnyEventObject
@@ -121,7 +127,6 @@ async function loadLookups(
   const { get: getRequest, post, useUrl } = useQuery();
 
   // ---
-
   const currencyId = currency?.id || defaultCurrencyId.value; // fallback to default currency
 
   const config = ensureConfig([
@@ -131,10 +136,7 @@ async function loadLookups(
     BrandConfigKeys.BILLING_GATEWAY_FORCE_AUTO_PAYMENT
   ]);
 
-  const accountCredit: Promise<AccountCredit> = getRequest<
-    IWalletBalance,
-    AccountCredit
-  >({
+  const accountCredit = getRequest<IWalletBalance, AccountCredit>({
     url: useUrl(`wallet/balance`),
     queryKey: [
       "wallet-balance",
@@ -144,7 +146,7 @@ async function loadLookups(
         currencyId
       }
     ],
-    select: data => mapAccountCredit(data, currency.code),
+    select: data => mapAccountCredit(data, currency?.code),
     withAccessToken: true,
     withCurrency: true
   }).then(account => {
@@ -174,19 +176,26 @@ async function loadLookups(
       });
   });
 
-  const storedPaymentMethods: Promise<PaymentDetail[]> = getRequest<
-    IPaymentDetail[],
-    PaymentDetail[]
-  >({
-    url: useUrl(`clients/${client.id}/payment_details`, {
-      limit: 0,
-      brand_id: unref(brandId),
-      country_id: address?.country_id,
-      currency_code: currency.code,
-      active: true,
-      order: ["-default", "id"].join(),
-      with: ["gateway", "client"].join()
-    }),
+  const storedPaymentMethods = getRequest<IPaymentDetail[], PaymentDetail[]>({
+    url: useUrl(
+      `clients/${client.id}/payment_details`,
+      omitBy(
+        {
+          limit: 0,
+          brand_id: unref(brandId),
+          country_id: address?.country_id,
+          // "filter[gateway.currencies.id]": currency.id,
+          currency_code: currency.code,
+          active: true,
+          with: ["gateway", "client"].join()
+        },
+        isNil
+      )
+    ),
+    sort: [
+      [RequestSortDirection.DESC, "default"],
+      [RequestSortDirection.ASC, "id"]
+    ],
     queryKey: [
       "payment-details",
       {
@@ -198,26 +207,33 @@ async function loadLookups(
       }
     ],
     withAccessToken: true,
-    select: mapPaymentDetailDetails
+    select: mapPaymentDetails
   });
 
   // ---
-  const gateways: any = getRequest<IBrandGateway[]>({
-    url: useUrl(`brands/${unref(brandId)}/gateways`, {
-      limit: 0,
-      client_id: client.id,
-      invoice_id: orderId,
-      country_id: address?.country_id,
-      currency_code: currency.code,
-      order: "order",
-      active: true,
-      // "filter[active]": 1,
-      with: ["gateway.gateway_provider", "gateway.card_types"].join()
-    }),
+  const gateways = getRequest<IBrandGateway[]>({
+    url: useUrl(
+      `brands/${unref(brandId)}/gateways`,
+      omitBy(
+        {
+          limit: 0,
+          client_id: client.id,
+          invoice_id: orderId,
+          country_id: address?.country_id,
+          // "filter[gateway.currencies.id]": currency.id,
+          currency_code: currency?.code,
+          active: true,
+          with: ["gateway.gateway_provider", "gateway.card_types"].join()
+        },
+        isNil
+      )
+    ),
+    sort: [[RequestSortDirection.ASC, "order"]],
     queryKey: [
       "payment-details",
       "gateways",
       {
+        ctx,
         orderId,
         brandId: unref(brandId),
         clientId: client.id,
@@ -270,8 +286,37 @@ async function parse(context: PaymentDetailsContext, { data }: AnyEventObject) {
     model,
     schema,
     lookups,
-    client
+    client,
+    ctx
   } = context;
+
+  // --- ADD context: simplified parsing (no amounts, no wallet, no payment types)
+  if (ctx === GatewayCtx.ADD) {
+    const safeData =
+      data?.gateway_id !== undefined
+        ? { ...model, gateway_id: data.gateway_id }
+        : { ...model };
+
+    // Auto-select if single gateway
+    if (!safeData.gateway_id && size(lookups.gateways) === 1) {
+      safeData.gateway_id = first(lookups.gateways)?.gateway_id;
+    }
+
+    // Validate gateway exists in lookups
+    if (safeData.gateway_id) {
+      const brandGateway = find(lookups.gateways, [
+        "gateway_id",
+        safeData.gateway_id
+      ]);
+      if (!brandGateway) {
+        delete safeData.gateway_id;
+      }
+    }
+
+    return { model: safeData };
+  }
+
+  // --- PAY context: existing behaviour
   // ---
   let paymentDetail = undefined;
   // ---
@@ -292,7 +337,9 @@ async function parse(context: PaymentDetailsContext, { data }: AnyEventObject) {
 
   // NB: We always want to ensure the model amount/wallet_amount is correct based on the latest basket data
   //     IF a user has set a partial amount, we need to ensure we respect that up to the total amount due
-  const safeAmount = amountPartial ? Math.min(amountPartial, amount) : amount;
+  const safeAmount = amountPartial
+    ? Math.min(amountPartial, amount ?? 0)
+    : (amount ?? 0);
   safeData.amount = safeAmount;
 
   // NB: We also need to ensure the wallet amount is not greater than the safe amount or the available wallet balance
@@ -326,7 +373,7 @@ async function parse(context: PaymentDetailsContext, { data }: AnyEventObject) {
   // FORCE payment type if we have the gateway wet to pay later (syntactic sugar)
   if (safeModel?.gateway_id == PaymentType.PAY_LATER) {
     safeModel.type = PaymentType.PAY_LATER;
-    safeModel.amount = amount;
+    safeModel.amount = amount ?? 0;
     unset(safeModel, "gateway_id");
     unset(safeModel, "payment_details_id");
     unset(safeModel, "wallet_amount");
@@ -354,15 +401,13 @@ async function parse(context: PaymentDetailsContext, { data }: AnyEventObject) {
     safeModel.type = PaymentType.PAY_IN_FULL;
 
   // FORCE payment methods to none if no payment is needed
-  const needsPayment =
-    !!safeModel!.amount &&
-    !isEqual(safeModel!.amount, safeModel!.wallet_amount) &&
-    includes(
-      [PaymentType.PARTIAL_PAYMENT, PaymentType.PAY_IN_FULL],
-      safeModel?.type
-    );
+  // UNLESS the brand requires a payment method for free orders
+  const _needsPayment = needsPayment(
+    safeModel!,
+    context.requirePaymentForFreeOrders
+  );
 
-  if (needsPayment) {
+  if (_needsPayment) {
     // Ensure we have a payment method selected,
     // try preselect the first payment detail if we have one
     // otherwise preselect the first available gateway if there's only one AND PAY_LATER is not an option
@@ -420,7 +465,8 @@ async function parse(context: PaymentDetailsContext, { data }: AnyEventObject) {
       paymentDetail = mapPaymentData({
         model: safeModel,
         clientId: client?.id,
-        lookups
+        lookups,
+        requirePaymentForFreeOrders: context.requirePaymentForFreeOrders
       });
     }
   }
@@ -554,12 +600,89 @@ async function calculate(
     }
   }).then(res => get(res, "total_formatted", ""));
 }
+
+// -----------------------------------------------------------------------------
+
+/**
+ * @name restoreOperation
+ * @description Reads a pending gateway operation from sessionStorage after an
+ * off-site redirect (e.g. 3DS/SCA). Returns the operation data so the
+ * finalizing state can call endSetup with it.
+ */
+async function restoreOperation({ client }: PaymentDetailsContext) {
+  const { t } = useI18n();
+
+  const { getParam } = useQueryParams();
+  const operationId = getParam(QUERY_PARAMS.OPERATION_ID);
+
+  if (!operationId || !client?.id) {
+    throw new DetailedError(
+      t("error.payment_gateway_not_available"),
+      responseCodes.Not_Found,
+      ErrorOrigin.Headless
+    );
+  }
+
+  const operation = useSessionStorage().get("operation");
+
+  if (!operation?.gatewayId) {
+    throw new DetailedError(
+      t("error.payment_gateway_not_available"),
+      responseCodes.Not_Found,
+      ErrorOrigin.Headless
+    );
+  }
+
+  return operation;
+}
+
+/**
+ * @name endSetup
+ * @description Calls tokenize-end API to finalize storing a payment method.
+ * Used by both the normal ADD flow (gateway returns operation data) and the
+ * restore flow (operation data read from sessionStorage). Lives at the
+ * paymentDetail level — the single place where all ADD flows complete.
+ */
+async function endSetup({ client, operation }: PaymentDetailsContext) {
+  const { post, useUrl } = useQuery();
+  const { t } = useI18n();
+
+  if (!operation?.gatewayId || !client?.id) {
+    throw new DetailedError(
+      t("error.payment_gateway_not_available"),
+      responseCodes.Bad_Request,
+      ErrorOrigin.Headless
+    );
+  }
+
+  const { gatewayId, data } = operation as {
+    gatewayId: string;
+    data: Record<string, unknown>;
+  };
+
+  return post({
+    mutationKey: ["gateway", "tokenize-end", gatewayId],
+    url: useUrl(`gateway/frontend/tokenize-end/${gatewayId}`),
+    withAccessToken: true,
+    data: {
+      client_id: client.id,
+      ...data
+    }
+  })
+    .then(invalidateQueryByKey(queryKey))
+    .then(response => {
+      return response;
+    });
+}
+
 // -----------------------------------------------------------------------------
 
 export default {
   loadLookups,
   parse,
   validate,
+  restoreOperation,
+  endSetup,
   // ---
   isAuthenticated: () => useSession().isAuthenticated()
 };

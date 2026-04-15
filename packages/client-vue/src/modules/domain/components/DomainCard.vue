@@ -95,6 +95,18 @@
         </section>
       </template>
       <template v-else>
+        <div v-if="!isMobile">
+          <Badge
+            v-if="props.price.savingPercent"
+            variant="muted"
+            color="promo"
+            :size="meta.isExactMatch ? 'md' : 'sm'"
+            :label="
+              t('action.save_value', { value: props.price.savingPercent })
+            "
+          />
+        </div>
+
         <p class="text-muted mt-1 text-sm/tight md:mt-0 md:text-right">
           {{ $t("domain.transfer_owner_question")
           }}<br class="hidden md:block" />
@@ -105,9 +117,24 @@
           }}<br class="hidden md:block" />
           {{ $t("domain.transfer_extension_info") }}
         </p>
+
+        <div class="ml-auto" v-if="isMobile && props.price.savingPercent">
+          <Badge
+            variant="muted"
+            color="promo"
+            :size="meta.isExactMatch ? 'md' : 'sm'"
+            :label="
+              t('action.save_value', { value: props.price.savingPercent })
+            "
+          />
+        </div>
       </template>
 
-      <Tooltip :active="!meta.isExactMatch && !isMobile" :label="getTooltip">
+      <Tooltip
+        v-if="!meta.isUnavailable"
+        :active="!meta.isExactMatch && !isMobile"
+        :label="getTooltip"
+      >
         <Button
           :loading="meta.isProcessing"
           :icon="getIcon"

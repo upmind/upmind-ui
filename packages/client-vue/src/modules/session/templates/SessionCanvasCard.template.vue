@@ -2,6 +2,7 @@
   <Layout>
     <template #content-header>
       <slot name="hero" />
+      <slot name="markdown" />
     </template>
 
     <template #content>
