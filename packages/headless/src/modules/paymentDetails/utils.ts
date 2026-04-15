@@ -340,7 +340,7 @@ export function needsPayment(
       model.type
     );
 
-  return hasPayableAmount || !!requirePaymentForFreeOrders;
+  return hasPayableAmount || (!!requirePaymentForFreeOrders && !model?.amount);
 }
 
 /**
@@ -394,27 +394,22 @@ export function isFullyCoveredByWallet(
 export function usePaymentState(
   model?: Partial<PaymentDetailModel>,
   ctx?: GatewayCtx,
-  amount?: number,
   requirePaymentForFreeOrders?: boolean,
   isRefreshing?: boolean
 ) {
-  const _isFree = isFree(model, ctx) && !amount;
-  const _hasAmount = hasAmount(model, ctx);
-  const _needsPayment =
-    needsPayment(model, requirePaymentForFreeOrders) ||
-    (!!isRefreshing && !_isFree) ||
-    (!_isFree && !_hasAmount) ||
-    ctx === GatewayCtx.ADD;
-
   return {
-    hasAmount: _hasAmount,
+    hasAmount: hasAmount(model, ctx),
     hasSelectedPaymentMethod:
       ctx !== GatewayCtx.ADD && !!model?.payment_details_id,
-    isFree: _isFree,
+    isFree: isFree(model, ctx),
     isFullyCoveredByWallet: isFullyCoveredByWallet(model),
     isPayable: isPayable(model, requirePaymentForFreeOrders, ctx),
     isPayLater: isPayLater(model, ctx),
-    needsPayment: _needsPayment
+    needsPayment:
+      needsPayment(model, requirePaymentForFreeOrders) ||
+      (!!isRefreshing && !isFree(model, ctx)) ||
+      (!isFree(model, ctx) && !hasAmount(model, ctx)) ||
+      ctx === GatewayCtx.ADD
   };
 }
 
