@@ -21,6 +21,7 @@
   "asset_unavailable_text": "Wir haben gerade ein Update für die App veröffentlicht. Die aktuell verwendete Version ist veraltet. Neu laden, um fortzufahren.",
   "asset_unavailable_title": "Neuladen erforderlich",
   "asset_unavailable_title_md": "@.markdown:{'error.asset_unavailable_title'}",
+  "auth_not_valid": "Die Authentifizierungsfelder sind ungültig.",
   "basket_convert_failed": "Konvertierung des Warenkorbs fehlgeschlagen",
   "basket_fields_update_failed": "Beim Aktualisieren der Warenkorbfelder ist ein Fehler aufgetreten",
   "basket_fields_validation_failed": "Die Feldvalidierung ist fehlgeschlagen.",

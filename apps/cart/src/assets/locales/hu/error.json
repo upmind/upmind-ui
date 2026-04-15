@@ -21,6 +21,7 @@
   "asset_unavailable_text": "Most frissítettük az alkalmazást, és az Ön verziója már nem naprakész. A folytatáshoz töltse újra.",
   "asset_unavailable_title": "Újratöltés szükséges",
   "asset_unavailable_title_md": "@.markdown:{'error.asset_unavailable_title'}",
+  "auth_not_valid": "Az engedélyezési mezők érvénytelenek",
   "basket_convert_failed": "Kosár konvertálása sikertelen",
   "basket_fields_update_failed": "Hiba történt a kosár mezőinek frissítésekor",
   "basket_fields_validation_failed": "Mezők ellenőrzése sikertelen",

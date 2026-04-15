@@ -35,18 +35,11 @@
 
 <script lang="ts" setup>
 // --- external
-import {
-  useSlots,
-  computed,
-  useTemplateRef,
-  ref,
-  onMounted,
-  nextTick
-} from "vue";
-import { useMutationObserver } from "@vueuse/core";
+import { useSlots, computed, useTemplateRef } from "vue";
 
 // --- utils
 import { isEmptySlot } from "@upmind-automation/upmind-ui";
+import { useContentVisibility } from "../useContentVisibility";
 
 // --- components
 import Ribbon from "../components/ribbon/Ribbon.vue";
@@ -67,13 +60,12 @@ import {
   COLUMN_ITEMS,
   COLUMN_JUSTIFY
 } from "../components/column";
-import { every, isEmpty } from "lodash-es";
 
 // ----------------------------------------------------------------------------
 const slots = useSlots();
 
 const content = useTemplateRef("content");
-const visible = ref(false);
+const visible = useContentVisibility(content);
 
 const justifyDirection = computed(() => {
   if (
@@ -91,60 +83,6 @@ const justifyDirection = computed(() => {
   }
 
   return COLUMN_JUSTIFY.BETWEEN;
-});
-
-/**
- * Checks if a given node has any significant, non-comment, non-empty children.
- * @param node The DOM node to check.
- * @returns True if the node is effectively empty, false otherwise.
- */
-const hasSignificantContent = (node: Node | undefined | null): boolean => {
-  if (!node) return false;
-
-  // Node types: 1 (Element), 3 (Text), 8 (Comment)
-  if (node.nodeType === Node.COMMENT_NODE) {
-    return false;
-  }
-
-  if (node.nodeType === Node.TEXT_NODE) {
-    // Check if text content is more than just whitespace
-    return !isEmpty(node?.textContent?.trim());
-  }
-
-  // If it's an element, recursively check its children
-  if (node.nodeType === Node.ELEMENT_NODE) {
-    for (const childNode of Array.from(node.childNodes)) {
-      if (hasSignificantContent(childNode)) {
-        return true;
-      }
-    }
-    // Check if the element itself has non-empty text content (e.g., if targetElement has "Hello")
-    return !isEmpty(node?.textContent?.trim());
-  }
-
-  return false;
-};
-
-// --- side effects
-useMutationObserver(
-  content,
-  mutations => {
-    visible.value = content.value?.$el
-      ? hasSignificantContent(content.value?.$el)
-      : false;
-  },
-  {
-    childList: true,
-    subtree: true
-  }
-);
-
-// Initial check on mount - needed because MutationObserver doesn't fire
-// for content that already exists when the observer starts
-onMounted(() => {
-  nextTick(() => {
-    visible.value = hasSignificantContent(content.value?.$el);
-  });
 });
 </script>
 
