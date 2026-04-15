@@ -35,6 +35,8 @@ async function loadLookups(
         "client",
         "status",
         "contract",
+        "address",
+        "address.country",
         "payments",
         "payments.payment_details",
         "products",

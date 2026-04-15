@@ -15,7 +15,8 @@ import {
   DetailedError,
   ErrorOrigin,
   responseCodes,
-  useCookies
+  useCookies,
+  useValidation
 } from "../../../utils";
 import { getTokenFromStorage, persistTokenToStorage } from "../utils";
 
@@ -24,7 +25,8 @@ import type {
   GuestContext,
   LoginModel,
   RecoverModel,
-  RegisterModel
+  RegisterModel,
+  TWOFAModel
 } from "./types";
 import type { AnyEventObject } from "xstate";
 import { mapCustomField } from "../../client/customFields/mappers";
@@ -114,7 +116,7 @@ async function verify2fa({ token }: GuestContext, { data }: AnyEventObject) {
     withAccessToken: token.access_token,
     data: {
       grant_type: GrantTypes.TWOFA,
-      twofa_code: data
+      twofa_code: (data as TWOFAModel).token
     }
   })
     .then(data => {
@@ -146,22 +148,6 @@ async function getCustomFields(_context: GuestContext, _event: AnyEventObject) {
     queryKey: ["session", "client", "custom-fields"],
     select: data => map(data ?? [], mapCustomField)
   });
-}
-
-async function checkForReCaptcha(
-  _context: GuestContext,
-  { data }: AnyEventObject
-) {
-  // not implemented so pass through
-  return Promise.resolve(data);
-}
-
-async function verifyReCaptcha(
-  _context: GuestContext,
-  { data }: AnyEventObject
-) {
-  // not implemented so pass through
-  return Promise.resolve(data);
 }
 
 async function register({ model }: GuestContext<RegisterModel>) {
@@ -243,17 +229,42 @@ async function recover({ model }: GuestContext<RecoverModel>) {
   });
 }
 
+async function validate(
+  { schema, model }: GuestContext,
+  _event: AnyEventObject
+) {
+  const { t } = useI18n();
+  const { validate } = useValidation();
+
+  return new Promise((resolve, reject) => {
+    if (!schema) return resolve(model);
+
+    const errors = validate(schema, model);
+    if (errors?.length) {
+      reject(
+        new DetailedError(
+          t("error.auth_not_valid"),
+          responseCodes.Unprocessable_Entity,
+          ErrorOrigin.Headless,
+          errors
+        )
+      );
+    } else {
+      resolve(model);
+    }
+  });
+}
+
 // -----------------------------------------------------------------------------
 
 export default {
   load,
   // ---
+  validate,
   verify2fa,
   authenticate,
   // ---
   getCustomFields,
-  checkForReCaptcha,
-  verifyReCaptcha,
   recover,
   register
 };

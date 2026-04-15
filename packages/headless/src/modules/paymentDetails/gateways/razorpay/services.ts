@@ -3,6 +3,7 @@
 // --- internal
 import { useI18n, useQuery } from "../../..";
 import sharedServices from "../services";
+import { beginSetup } from "../services";
 
 // --- utils
 import {
@@ -23,7 +24,7 @@ import {
 import type { AnyEventObject } from "xstate";
 
 // --- utils
-import { isEmpty, isNil, omit, set } from "lodash-es";
+import { get, isEmpty, isNil, omit, set } from "lodash-es";
 
 // --- types
 import type { GatewayContext } from "../types";
@@ -189,6 +190,106 @@ async function pay({
   });
 }
 
+/**
+ * @name add
+ * @desc Stores a payment method via Razorpay in the ADD context.
+ * Calls beginSetup → opens Razorpay modal → endSetup with response token.
+ */
+async function add(context: RazorpayContext) {
+  const { sdk, model, currency, client, amount, gateway } = context;
+  const { t } = useI18n();
+
+  if (!sdk?.razorpay)
+    throw new DetailedError(
+      t("error.payment_gateway_not_available"),
+      responseCodes.Not_Found,
+      ErrorOrigin.Headless
+    );
+
+  const setupResponse = await beginSetup(context);
+  const clientPaymentDetailsId = get(
+    setupResponse,
+    "client_payment_details.id"
+  );
+
+  if (!clientPaymentDetailsId) {
+    throw new DetailedError(
+      t("error.payment_gateway_not_available"),
+      responseCodes.Unprocessable_Entity,
+      ErrorOrigin.Headless
+    );
+  }
+
+  const { get: getRequest, useUrl } = useQuery();
+
+  const setup = await getRequest<{ gateway_specific: IRazorpaySetupDetails }>({
+    url: useUrl(`gateway/frontend/${gateway.id}`, {
+      amount: amount || 1,
+      currency: currency.code,
+      client_id: client.id,
+      return_url: window.location.href
+    }),
+    queryKey: ["gateway", "frontend", gateway.id],
+    withAccessToken: true,
+    staleTime: 0,
+    gcTime: 0
+  }).then(response => response.gateway_specific);
+
+  const rzp = new window.Razorpay({
+    customer_id: setup.customer_id,
+    key: setup.key_id,
+    order_id: setup.order_id,
+    recurring: model?.store_on_payment ?? true
+  });
+
+  return new Promise((resolve, reject) => {
+    let error: RazorpayErrorResponse["error"];
+    if (!rzp) throw Error("Razorpay instance not defined.");
+
+    rzp.set("handler", (response: RazorpayResponse) => {
+      if (isNil(response.razorpay_payment_id)) {
+        return reject(
+          new DetailedError(
+            t("error.payment_gateway_not_available"),
+            responseCodes.Unprocessable_Entity,
+            ErrorOrigin.External
+          )
+        );
+      }
+
+      resolve({
+        gatewayId: context.gateway?.id,
+        data: {
+          client_payment_details_id: clientPaymentDetailsId,
+          auto_payment: model?.store_on_payment_auto_payment ?? false,
+          ...response
+        }
+      });
+    });
+
+    rzp.on("payment.failed", (response: RazorpayErrorResponse) => {
+      error = response.error;
+    });
+
+    rzp.set("modal.ondismiss", () => {
+      if (isEmpty(error)) {
+        reject();
+      } else {
+        reject(
+          new DetailedError(
+            error.description,
+            error.code,
+            ErrorOrigin.External,
+            error
+          )
+        );
+      }
+    });
+
+    rzp.open();
+  });
+}
+
 // -----------------------------------------------------------------------------
 
 export default {
@@ -196,5 +297,6 @@ export default {
   // ---
   load,
   render,
-  pay
+  pay,
+  add
 };

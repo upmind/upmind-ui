@@ -2,12 +2,8 @@
   <Section
     id="payment-details"
     value="payment-details"
-    icon="wallet-02"
-    :label="
-      t('cart.payment_details', {
-        amount: amountsFormatted?.amount
-      })
-    "
+    :icon="sectionIcon"
+    :label="sectionLabel"
   >
     <template #actions>
       <PaymentAmount
@@ -29,7 +25,7 @@
 
       <!-- Free -->
       <PaymentNotRequired
-        v-if="meta.isAvailable && meta.isFree"
+        v-if="meta.isAvailable && meta.isFree && !meta.needsPayment"
         :free="meta.isFree"
         :processing="meta.isProcessing"
         :hasErrors="meta.hasErrors"
@@ -57,7 +53,6 @@
         <StoredPaymentMethods
           v-if="meta.showStoredPaymentMethods"
           :errors="errors"
-          :filtered="meta.hasUnsupportedPaymentMethods"
           :processing="meta.isProcessing"
           :schema="schemaStoredPaymentMethods"
           :uischema="uischemaStoredPaymentMethods"
@@ -67,19 +62,19 @@
 
         <!-- Payment Error (shown when no gateway is active to display it) -->
         <Alert
-          v-if="error && !meta.hasSelectedGateway"
+          v-if="paymentError && !meta.hasSelectedGateway"
           color="danger"
           variant="minimal"
           icon="alert-triangle"
           :title="t('text.payment_failed')"
-          :description="error"
+          :description="paymentError"
         />
 
         <!-- Selected Payment Gateway -->
         <PaymentGateway
           v-if="meta.hasSelectedGateway"
           :key="model!.gateway_id"
-          :error="error"
+          :error="paymentError"
           :single-gateway="meta.hasSingleGateway"
           @cancel="setGateway(null)"
         />
@@ -89,6 +84,7 @@
         <PaymentActions
           v-if="meta.showPaymentActions"
           :disabled="!meta.isValid && !meta.isUnavailable"
+          :free="!meta.isPayContext || meta.isFree"
           :offline="meta.isPayOffline"
           :processing="meta.isProcessing || processing"
           :clickwrap="clickwrap"
@@ -124,7 +120,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { inject } from "vue";
+import { computed, inject } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -148,7 +144,7 @@ import {
   DetailedError,
   ErrorOrigin,
   responseCodes,
-  type UsePaymentDetails
+  type UsePaymentDetail
 } from "@upmind-automation/headless";
 import type { PaymentDetailsProps } from "../types";
 
@@ -167,9 +163,9 @@ const { t } = useI18n();
 
 const styles = useStyles(["payment"], {}, config);
 
-const paymentDetails = inject<UsePaymentDetails>("usePaymentDetails");
+const paymentDetail = inject<UsePaymentDetail>("usePaymentDetail");
 
-if (!paymentDetails)
+if (!paymentDetail)
   throw new DetailedError(
     t("error.payment_detail_not_available"),
     responseCodes.Service_Unavailable,
@@ -200,9 +196,24 @@ const {
   uischemaAmountCredit,
   uischemaGateways,
   uischemaStoredPaymentMethods
-} = paymentDetails;
+} = paymentDetail;
 
-function doResolve() {
+const sectionIcon = computed(
+  () =>
+    props.icon ?? (meta.value.isPayContext ? "wallet-02" : "credit-card-plus")
+);
+
+const sectionLabel = computed(
+  () =>
+    props.label ??
+    (meta.value.isPayContext
+      ? t("cart.payment_details", { amount: amountsFormatted?.value?.amount })
+      : t("cart.add_payment_method"))
+);
+
+const paymentError = computed(() => errors?.value?.message || props.error);
+
+async function doResolve() {
   emit("resolve");
 }
 </script>

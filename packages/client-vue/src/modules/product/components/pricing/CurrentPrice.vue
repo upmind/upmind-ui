@@ -1,6 +1,6 @@
 <template>
   <component :is="props.is" :class="styles.pricing.current">
-    {{
+    <slot name="prefix" />{{
       formatPrice(
         priceMeta.useMonthlyFromPrice
           ? props.monthlyFromCurrentPrice
@@ -10,7 +10,7 @@
           trimTrailingZeroes: data.trimTrailingZeroes
         }
       )
-    }}
+    }}<slot name="suffix" />
     <small
       v-if="priceMeta.useMonthlyFromPrice && !priceMeta.isFree"
       :class="styles.pricing.term"

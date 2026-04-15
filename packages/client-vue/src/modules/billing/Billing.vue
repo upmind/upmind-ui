@@ -24,7 +24,14 @@
 
       <template #content>
         <slot name="content">
-          <BillingForm expand :auto-update="false" />
+          <BillingForm
+            expand
+            :auto-update="false"
+            :inline="
+              template === BILLING_TEMPLATE.ENCLOSED ||
+              template === BILLING_TEMPLATE.FULL
+            "
+          />
         </slot>
       </template>
 
@@ -36,6 +43,20 @@
           <Markdown
             data-testid="slots:summary-append"
             :model-value="data.trustMessagingMarkdown"
+          />
+        </slot>
+      </template>
+
+      <template #content-footer>
+        <slot name="content-footer">
+          <div
+            id="billing-actions"
+            :class="
+              template === BILLING_TEMPLATE.ENCLOSED ||
+              template === BILLING_TEMPLATE.FULL
+                ? 'max-w-3xl'
+                : ''
+            "
           />
         </slot>
       </template>

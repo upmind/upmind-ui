@@ -1,26 +1,38 @@
 // --- external
-import { createMachine, assign, spawn, sendParent } from "xstate";
+import { createMachine, assign, spawn, sendParent, pure } from "xstate";
 
 // --- internal
 import services from "./services";
 import { authSubscription } from "../session/helper";
+import { useQueryParams } from "../routing";
 
 // --- utils
 import {
   filterGateways,
   filterPaymentDetails,
   filterPaymentTypes,
+  isAddFlow,
   spawnGateway
 } from "./utils";
 import {
   mapToHeadlessError,
   stateMatches,
   stopService,
-  useModelParser
+  useModelParser,
+  useSessionStorage
 } from "../../utils";
 import { useTime, useValidationParser } from "../../utils";
 import { useSchema, useUischema } from "./schemas";
-import { isEqual, isEmpty, find, map, isNil, set, includes } from "lodash-es";
+import {
+  isEqual,
+  isEmpty,
+  find,
+  get,
+  map,
+  isNil,
+  set,
+  includes
+} from "lodash-es";
 
 // --- types
 import type { AnyEventObject } from "xstate";
@@ -28,11 +40,16 @@ import type { PaymentDetailsContext } from "./types";
 import { responseCodes } from "../../utils";
 import {
   PaymentType,
+  BrandConfigKeys,
   GatewayContext as GatewayCtx,
+  QUERY_PARAMS,
   type IBasket,
   InvoiceStatus
 } from "@upmind-automation/types";
 import { mapPaymentData } from "./mappers";
+import { STRIPE_QUERY_PARAMS } from "./gateways/stripe/types";
+import { useSession } from "../session";
+import { mapIClient } from "../session/utils";
 
 // -----------------------------------------------------------------------------
 export default createMachine(
@@ -47,7 +64,7 @@ export default createMachine(
       subscribing: {
         entry: ["setAuthHelper"],
         on: {
-          AUTHENTICATED: { target: "checking" },
+          AUTHENTICATED: { target: "checking", actions: "setClient" },
           REFRESH: {
             actions: ["refresh"]
           }
@@ -58,6 +75,7 @@ export default createMachine(
         invoke: {
           src: "isAuthenticated",
           onDone: [
+            { target: "restoring", cond: "hasPendingOperation" },
             { target: "loading", cond: "isPayable" },
             { target: "unavailable" }
           ],
@@ -66,14 +84,28 @@ export default createMachine(
         }
       },
 
+      restoring: {
+        id: "restoring",
+        invoke: {
+          src: "restoreOperation",
+          onDone: {
+            target: "finalising",
+            actions: ["setOperation", "resetOperation"]
+          },
+          onError: {
+            target: "error",
+            actions: ["setError", "resetOperation"]
+          }
+        }
+      },
+
       loading: {
         id: "loading",
-        entry: ["clearError"],
         invoke: {
           src: "loadLookups",
           onDone: {
             target: "available",
-            actions: ["setRaw", "setLookups", "setSchemas"]
+            actions: ["setRaw", "setLookups", "resolveCtx", "setSchemas"]
           },
           onError: {
             target: "error",
@@ -84,7 +116,7 @@ export default createMachine(
 
       unavailable: {
         on: {
-          AUTHENTICATED: { target: "checking" }
+          AUTHENTICATED: { target: "checking", actions: "setClient" }
         }
       },
 
@@ -92,7 +124,6 @@ export default createMachine(
         initial: "checking",
         states: {
           checking: {
-            entry: ["clearError"],
             initial: "parsing",
             states: {
               parsing: {
@@ -139,14 +170,19 @@ export default createMachine(
                 }
               ],
 
-              // NB: if we are Free then we can complete CHECKOUT without going to processing
-              //     if we already have payment details, then we can complete immediately on CHECKOUT,
-              //     otherwise we need to go via processing where the spawned gateway will handle the checkout
+              // NB: if we are Free then we can complete PAY without going to processing
+              //     if we already have payment details, then we can complete immediately on PAY,
+              //     otherwise we need to go via processing where the spawned gateway will handle the payment
               //     and return PAYMENT_DETAILS when done
-              CHECKOUT: [
+              PAY: [
+                // Free + requirePaymentForFreeOrders: PAY acts as ADD
+                {
+                  target: "#processing",
+                  cond: "isAddContext"
+                },
                 {
                   target: "#complete",
-                  actions: ["setPaymentDetails"],
+                  actions: ["setPaymentDetail"],
                   cond: "needsNoPayment"
                 },
                 {
@@ -155,6 +191,12 @@ export default createMachine(
                 },
 
                 { target: "#processing", cond: "hasBasket" }
+              ],
+              ADD: [
+                {
+                  target: "#processing",
+                  cond: "isAddContext"
+                }
               ]
             }
           },
@@ -170,27 +212,27 @@ export default createMachine(
           },
           SET: {
             target: "available.checking",
-            actions: ["setAutoUpdate"]
+            actions: ["clearError", "setAutoUpdate"]
           },
           SET_PARTIAL_PAYMENT: {
             target: "available.checking",
-            actions: ["setPartialPayment"]
+            actions: ["clearError", "setPartialPayment"]
           },
           SET_WALLET_AMOUNT: {
             target: "available.checking",
-            actions: ["setWalletAmount"]
+            actions: ["clearError", "setWalletAmount"]
           },
           REFRESH: [
             // NB if we change core values, tear down the gateway and re create it
             {
               target: "#loading",
-              actions: ["reset", "refresh", "refreshActors"],
+              actions: ["reset", "refresh", "resolveCtx", "refreshActors"],
               cond: "hasChanged"
             },
             // otherwise just update context and actors
             {
               target: "available.checking",
-              actions: ["refresh", "refreshActors"],
+              actions: ["refresh", "resolveCtx", "refreshActors"],
               cond: "hasAmountChanged"
             }
           ]
@@ -199,16 +241,47 @@ export default createMachine(
 
       processing: {
         id: "processing",
-        entry: ["forwardCheckout"],
+        entry: ["forwardSubmit"],
+        // NB: If no gateway helper is available, forwardSubmit is a no-op.
+        // Transition to error after a timeout to prevent stuck state.
+        after: {
+          60000: {
+            target: "#error",
+            cond: ({ gatewayHelper }: PaymentDetailsContext) =>
+              !gatewayHelper?.send
+          }
+        },
         on: {
           CANCEL: {
-            target: "#invalid", // no need to set the error, it will be set by the gateway
+            target: "available.checking",
             actions: ["cancelPaymentDetails", "clearAutoUpdate"]
           },
-          // ths is the response from the gateway
-          PAYMENT_DETAILS: {
+          // --- PAY context: gateway returns finalized payment details → complete
+          PAYMENT_DETAILS: [
+            {
+              target: "#finalising",
+              actions: ["setOperation", "clearAutoUpdate"],
+              cond: "isAddContext"
+            },
+            {
+              target: "#complete",
+              actions: ["setPaymentDetail", "clearAutoUpdate"]
+            }
+          ]
+        }
+      },
+
+      finalising: {
+        id: "finalising",
+        invoke: {
+          src: "endSetup",
+          onDone: {
             target: "#complete",
-            actions: ["setPaymentDetails", "clearAutoUpdate"]
+            actions: ["setAddedPaymentDetailId", "setPaymentDetail"]
+          },
+          onError: {
+            target: "#loading",
+            actions: ["setError"]
           }
         }
       },
@@ -221,7 +294,7 @@ export default createMachine(
         id: "complete",
         type: "final",
         data: (
-          { paymentDetail, model }: PaymentDetailsContext,
+          { paymentDetail }: PaymentDetailsContext,
           _event: AnyEventObject
         ) => paymentDetail
       }
@@ -257,22 +330,42 @@ export default createMachine(
 
       setLookups: assign({
         lookups: (
-          { model, raw, orderStatus }: PaymentDetailsContext,
+          {
+            amount,
+            requirePaymentForFreeOrders,
+            model,
+            raw,
+            orderStatus
+          }: PaymentDetailsContext,
           { data }: AnyEventObject
         ) => {
-          // NB: Filter out  gateways and payment details that are not valid base don our model
-          const safePaymentTypes = filterPaymentTypes(raw.config, model);
+          // NB determine if we are in ADD context
+          const safePaymentDetails = filterPaymentDetails(
+            raw.storedPaymentMethods ?? [],
+            raw.gateways ?? []
+          );
+          const isAdd =
+            (amount ?? 0) === 0 &&
+            requirePaymentForFreeOrders &&
+            isEmpty(safePaymentDetails);
+
+          // NB in ADD context, only show store-capable gateways and disable pay later
+          const config = isAdd
+            ? set({ ...raw.config }, BrandConfigKeys.PAY_LATER_ENABLED, false)
+            : raw.config;
+          const safePaymentTypes = filterPaymentTypes(config, model);
           const safeGateways = filterGateways(
             raw.gateways ?? [],
             model,
-            orderStatus
+            orderStatus,
+            { storeOnly: isAdd }
           );
-          const safePaymentDetails = filterPaymentDetails(
-            raw.storedPaymentMethods ?? [],
-            safeGateways
-          );
+
           return {
-            storedPaymentMethods: safePaymentDetails,
+            storedPaymentMethods: filterPaymentDetails(
+              raw.storedPaymentMethods ?? [],
+              safeGateways
+            ),
             gateways: safeGateways,
             paymentTypes: safePaymentTypes,
             accountCredit: raw?.accountCredit,
@@ -308,6 +401,16 @@ export default createMachine(
         ) => data.wallet_amount ?? 0
       }),
 
+      setClient: assign({
+        client: (context: PaymentDetailsContext, { data }: AnyEventObject) => {
+          const { client } = useSession();
+
+          if (!context.client && client.value) return mapIClient(client.value);
+
+          return context.client;
+        }
+      }),
+
       clearSchemas: assign({
         schema: undefined,
         uischema: undefined
@@ -334,13 +437,17 @@ export default createMachine(
             lookups,
             gatewayHelper,
             client,
-            model
+            model,
+            ctx
           }: PaymentDetailsContext,
           _event: AnyEventObject
         ) => {
           if (gatewayHelper?.id != model?.gateway_id) {
             // stop any existing gateways if they are different
-            if (gatewayHelper) stopService(gatewayHelper);
+            if (gatewayHelper) {
+              gatewayHelper.send({ type: "CLEANUP" });
+              stopService(gatewayHelper);
+            }
 
             // then find the gateway in the list
             const brandGateway = find(lookups.gateways, [
@@ -350,7 +457,7 @@ export default createMachine(
 
             if (!brandGateway?.gateway) return undefined;
 
-            // and spawn it if it exists
+            // and spawn it if it exists — use context's ctx (ADD or PAY)
             gatewayHelper = spawnGateway({
               orderId,
               gateway: brandGateway.gateway,
@@ -358,7 +465,7 @@ export default createMachine(
               currency,
               address,
               client,
-              ctx: GatewayCtx.PAY
+              ctx: ctx ?? GatewayCtx.PAY
             });
           }
 
@@ -368,7 +475,10 @@ export default createMachine(
 
       reset: assign({
         gatewayHelper: ({ gatewayHelper }: PaymentDetailsContext) => {
-          if (gatewayHelper) stopService(gatewayHelper);
+          if (gatewayHelper) {
+            gatewayHelper.send({ type: "CLEANUP" });
+            stopService(gatewayHelper);
+          }
           return undefined;
         },
         // NB reset the model AND amounts so we force a reparse and recalculation
@@ -379,7 +489,7 @@ export default createMachine(
 
       refresh: assign({
         orderId: (_context: PaymentDetailsContext, { data }: AnyEventObject) =>
-          data?.id,
+          data?.id ?? data?.orderId,
         client: ({ client }: PaymentDetailsContext, { data }: AnyEventObject) =>
           data?.client ?? client,
         currency: (
@@ -394,8 +504,28 @@ export default createMachine(
           _context: PaymentDetailsContext,
           { data }: AnyEventObject
         ) => undefined, // we clear the payment details so we force a reparse
-        amount: (_context: PaymentDetailsContext, { data }: AnyEventObject) =>
-          data?.unpaid_amount_converted || 0.0 // NB: we always force use the outstanding amount
+        amount: ({ amount }: PaymentDetailsContext, { data }: AnyEventObject) =>
+          data?.unpaid_amount_converted ?? data?.amount ?? amount ?? 0
+      }),
+
+      resolveCtx: assign({
+        ctx: ({
+          ctx,
+          amount,
+          requirePaymentForFreeOrders,
+          lookups
+        }: PaymentDetailsContext) => {
+          if ((amount ?? 0) > 0) return GatewayCtx.PAY;
+
+          if (
+            requirePaymentForFreeOrders &&
+            (amount ?? 0) === 0 &&
+            isEmpty(lookups?.storedPaymentMethods)
+          )
+            return GatewayCtx.ADD;
+
+          return ctx ?? GatewayCtx.PAY; // Nb ensure we force pay if we are not already set
+        }
       }),
 
       refreshActors: assign({
@@ -432,34 +562,78 @@ export default createMachine(
 
       // ---
 
-      setPaymentDetails: assign({
+      setOperation: assign({
+        operation: (
+          _context: PaymentDetailsContext,
+          { data }: AnyEventObject
+        ) => data
+      }),
+
+      setAddedPaymentDetailId: assign({
+        model: (
+          { model }: PaymentDetailsContext,
+          { data }: AnyEventObject
+        ) => ({
+          ...model,
+          payment_details_id: get(data, "client_payment_details.id")
+        })
+      }),
+
+      setPaymentDetail: assign({
         paymentDetail: (
-          { model, lookups, client }: PaymentDetailsContext,
+          {
+            model,
+            lookups,
+            client,
+            requirePaymentForFreeOrders
+          }: PaymentDetailsContext,
           { data }: AnyEventObject
         ) =>
           mapPaymentData({
             clientId: client?.id,
             data,
             lookups,
-            model
+            model,
+            requirePaymentForFreeOrders
           })
       }),
 
-      providePaymentDetails: sendParent(
-        ({ paymentDetail }: PaymentDetailsContext) => ({
-          type: "PAYMENT_DETAILS",
-          data: paymentDetail
-        })
+      providePaymentDetails: pure(
+        ({ isInvoked, paymentDetail }: PaymentDetailsContext) => {
+          if (!isInvoked) return [];
+          return [
+            sendParent(() => ({
+              type: "PAYMENT_DETAILS",
+              data: paymentDetail
+            }))
+          ];
+        }
       ),
 
-      cancelPaymentDetails: sendParent(() => ({
-        type: "CANCEL"
-      })),
+      cancelPaymentDetails: pure(({ isInvoked }: PaymentDetailsContext) => {
+        if (!isInvoked) return [];
+        return [
+          sendParent(() => ({
+            type: "CANCEL"
+          }))
+        ];
+      }),
 
       // ---
 
-      forwardCheckout: ({ gatewayHelper }: PaymentDetailsContext) => {
-        if (gatewayHelper?.send) gatewayHelper.send({ type: "CHECKOUT" });
+      forwardSubmit: ({
+        gatewayHelper,
+        ctx,
+        amount,
+        requirePaymentForFreeOrders
+      }: PaymentDetailsContext) => {
+        if (gatewayHelper?.send) {
+          gatewayHelper.send({
+            type: isAddFlow({ ctx, amount, requirePaymentForFreeOrders })
+              ? "ADD"
+              : "PAY"
+          });
+        }
       },
 
       // ---
@@ -474,14 +648,27 @@ export default createMachine(
         }
       }),
 
-      clearError: assign({ error: undefined })
+      clearError: assign({ error: undefined }),
+
+      resetOperation: () => {
+        const { getParam, unsetParam } = useQueryParams();
+        const operationId = getParam(QUERY_PARAMS.OPERATION_ID);
+        if (operationId) {
+          useSessionStorage().remove("operation");
+          unsetParam(QUERY_PARAMS.OPERATION_ID);
+          unsetParam(STRIPE_QUERY_PARAMS.STRIPE_SETUP_INTENT);
+          unsetParam(STRIPE_QUERY_PARAMS.STRIPE_SETUP_INTENT_CLIENT_SECRET);
+          unsetParam(STRIPE_QUERY_PARAMS.STRIPE_REDIRECT_STATUS);
+        }
+      }
     },
 
     guards: {
       isPayable: (
-        { orderStatus }: PaymentDetailsContext,
+        { orderStatus, ctx }: PaymentDetailsContext,
         _event: AnyEventObject
       ) =>
+        ctx === GatewayCtx.ADD ||
         includes(
           [
             InvoiceStatus.DRAFT,
@@ -492,16 +679,35 @@ export default createMachine(
           orderStatus
         ),
 
+      isAddContext: (
+        { ctx, amount, requirePaymentForFreeOrders }: PaymentDetailsContext,
+        _event: AnyEventObject
+      ) => isAddFlow({ ctx, amount, requirePaymentForFreeOrders }),
+
+      hasPendingOperation: (
+        { ctx, amount, requirePaymentForFreeOrders }: PaymentDetailsContext,
+        _event: AnyEventObject
+      ) => {
+        if (!isAddFlow({ ctx, amount, requirePaymentForFreeOrders }))
+          return false;
+        const { getParam } = useQueryParams();
+        const operationId = getParam(QUERY_PARAMS.OPERATION_ID);
+        if (!operationId) return false;
+        const operation = useSessionStorage().get("operation");
+        return !!operation;
+      },
+
       hasBasket: ({ orderId }: PaymentDetailsContext, _event: AnyEventObject) =>
         !!orderId,
 
       needsNoPayment: (
-        { model }: PaymentDetailsContext,
+        { model, ctx }: PaymentDetailsContext,
         _event: AnyEventObject
       ) =>
-        !model?.amount ||
-        isEqual(model.amount, model.wallet_amount) ||
-        model?.type == PaymentType.PAY_LATER,
+        ctx !== GatewayCtx.ADD &&
+        (!model?.amount ||
+          isEqual(model.amount, model.wallet_amount) ||
+          model?.type == PaymentType.PAY_LATER),
 
       hasPaymentDetails: (
         { paymentDetail, model }: PaymentDetailsContext,
@@ -522,7 +728,15 @@ export default createMachine(
       ) => model?.amount != (data?.unpaid_amount_converted || 0),
 
       hasChanged: (
-        { orderId, client, address, currency }: PaymentDetailsContext,
+        {
+          requirePaymentForFreeOrders,
+          lookups,
+          ctx,
+          orderId,
+          client,
+          address,
+          currency
+        }: PaymentDetailsContext,
         { data }: AnyEventObject
       ) => {
         const orderChanged = orderId != data?.id;
@@ -531,8 +745,23 @@ export default createMachine(
         // NB : We only need to worry if the address country changes  as that is all that affects payment methods
         const countryChanged =
           data?.address && address?.country_id != data?.address?.country_id;
+
+        // CHECk if we  need to change context mid basket
+        let targetCtx: GatewayCtx =
+          requirePaymentForFreeOrders &&
+          !data?.unpaid_amount_converted &&
+          isEmpty(lookups?.storedPaymentMethods)
+            ? GatewayCtx.ADD
+            : GatewayCtx.PAY;
+
+        const ctxChanged = targetCtx !== ctx;
+
         return (
-          orderChanged || clientChanged || countryChanged || currencyChanged
+          orderChanged ||
+          clientChanged ||
+          countryChanged ||
+          currencyChanged ||
+          ctxChanged
         );
       },
 

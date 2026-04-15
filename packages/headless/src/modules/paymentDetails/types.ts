@@ -12,16 +12,29 @@ import type {
   IGateway,
   IOrder,
   IPaymentDetail,
-  IWalletBalance,
-  IWalletCurrencyBalance,
   PaymentType,
   SelectPaymentMethodData
 } from "@upmind-automation/types";
+import { GatewayContext as GatewayCtx } from "@upmind-automation/types";
 
 // --- utils
 import type { ResponseError } from "../../utils";
 
 // -----------------------------------------------------------------------------
+
+/**
+ * Shape of a pending ADD operation stored in sessionStorage.
+ * Used for off-site redirect recovery (e.g. 3DS / SCA).
+ */
+export type PendingOperation = {
+  gatewayId: string;
+  data: {
+    client_payment_details_id: string;
+    token?: string;
+    auto_payment?: boolean;
+    [key: string]: unknown;
+  };
+};
 
 export type AccountCredit = {
   owned: {
@@ -94,39 +107,46 @@ export type PaymentDetailModel = {
 };
 
 // For when adding a new payment detail "Add" context
-export interface PaymentDetailsAddArgs {
-  address: IAddress;
-  client: IClient;
-}
+export type PaymentDetailsAddArgs = {
+  currency?: ICurrency;
+};
 
 /**
- * Interface representing the arguments required to initialise payment details context.
+ * Arguments required to initialise payment details context.
  * These details provide the necessary context for payment forms and gateway interactions.
+ *
+ * For PAY context: orderId, orderStatus, and amount are required.
+ * For ADD context: these are not needed (storing a payment method independently).
  */
-export interface PaymentDetailsArgs {
+export type PaymentDetailsArgs = {
   /**
    * The unique identifier of the order for which payment details are being managed.
+   * Required for PAY context, not needed for ADD context.
    */
-  orderId: IOrder["id"];
+  orderId?: IOrder["id"];
 
-  /** The status of the order, this determines if we har draft/paid/partially paid, etc */
-  orderStatus: IOrder["status"]["code"];
+  /** The status of the order, this determines if we are draft/paid/partially paid, etc.
+   * Required for PAY context, not needed for ADD context.
+   */
+  orderStatus?: IOrder["status"]["code"];
   /**
    * The unique identifier of the client managing their payment details.
    */
   client: IClient;
   /**
    * The {@link ICurrency} object representing the currency of the payment.
+   * Required for PAY context. For ADD context, falls back to client's default account currency.
    */
   currency: ICurrency;
   /**
    * The {@link IAddress} object representing the billing address associated with the payment.
    */
-  address: IAddress;
+  address?: IAddress;
   /**
    * The total amount of the payment.
+   * Required for PAY context, defaults to 0 for ADD context.
    */
-  amount: number;
+  amount?: number;
 
   /**
    * The amount already paid on this order. Used to determine if this is a
@@ -136,7 +156,7 @@ export interface PaymentDetailsArgs {
 
   /**
    * The partial amount set by the user to pay (if applicable).
-   * We need this to handle model amount logic when partial payments are allowed and if basket amounts change die to other factors (e.g., discounts, gift cards, etc.)
+   * We need this to handle model amount logic when partial payments are allowed and if basket amounts change due to other factors (e.g., discounts, gift cards, etc.)
    */
   amountPartial?: number;
 
@@ -144,15 +164,29 @@ export interface PaymentDetailsArgs {
    * The Wallet amount set by the user to pay (if applicable). We only set this when the user explicitly chooses to use SOME wallet funds and not pay the full balance.
    */
   amountWallet?: number;
-}
+};
 
 /**
- * Interface representing the context for payment details management, typically managed by an XState machine.
- * It extends {@link PaymentDetailsArgs} with a comprehensive set of properties for handling
+ * Context for payment details management, used by the XState machine.
+ * Extends {@link PaymentDetailsArgs} with properties for handling
  * available gateways, payment types, stored methods, wallet balance, form schemas, and error states.
+ *
+ * Supports both PAY and ADD contexts via the `ctx` property.
  */
-export interface PaymentDetailsContext extends PaymentDetailsArgs {
-  // ctx: GatewayCtx; // TODo when we have Add and pay contexts
+export type PaymentDetailsContext = PaymentDetailsArgs & {
+  /**
+   * The context mode — PAY (checkout) or ADD (store payment method independently).
+   * Determined internally based on `requirePaymentForFreeOrders`, amount, and stored methods.
+   * Defaults to PAY behaviour when undefined for backward compatibility.
+   */
+  ctx?: GatewayCtx;
+
+  /**
+   * Brand setting: whether to capture a payment method even for zero-amount orders.
+   * When true AND amount is 0 AND no stored payment methods exist, ctx switches to ADD.
+   * When the amount changes back to > 0, ctx reverts to PAY.
+   */
+  requirePaymentForFreeOrders?: boolean;
 
   /**
    * An array of stored payment method models available to the client.
@@ -224,10 +258,13 @@ export interface PaymentDetailsContext extends PaymentDetailsArgs {
    */
   model: PaymentDetailModel;
 
-  /**Flag to indicate if we should try automatially process our payment details subject to being valid */
+  /** Flag to indicate if we should try automatically process our payment details subject to being valid */
   autoupdate?: boolean;
 
   // --- SPAWNED ACTORS/MACHINES
+
+  /** True if this machine was spawned by a parent (e.g., basket). */
+  isInvoked?: boolean;
   gatewayHelper?: ActorRef<any>;
   authHelper?: ActorRef<any>;
   // --- output
@@ -236,8 +273,12 @@ export interface PaymentDetailsContext extends PaymentDetailsArgs {
    */
   paymentDetail?: PaymentDetailData;
   /**
+   * Pending gateway operation data for the ADD context finalizing step.
+   * Contains gatewayId, client_payment_details_id, token, etc.
+   */
+  operation?: Record<string, unknown>;
+  /**
    * An error object if any issue occurred during payment details operations.
    */
   error?: ResponseError;
-  // operationId?: string; TODO when we have more complex operations based on responses and persisted state
-}
+};

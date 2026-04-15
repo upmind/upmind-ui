@@ -22,6 +22,20 @@
         color="promo"
       />
 
+      <Tooltip
+        v-else-if="meta?.overridden"
+        :label="t('text.price_manually_adjusted_msg')"
+      >
+        <Badge
+          :label="t('text.custom_price')"
+          icon="edit-01"
+          size="sm"
+          variant="muted"
+          color="warning"
+          :class="styles.product.header.info.promotion"
+        />
+      </Tooltip>
+
       <Badge
         v-else-if="meta?.discounted || preservePromotion"
         :label="t('text.on_sale')"
@@ -103,7 +117,7 @@ import { QUERY_PARAMS } from "@upmind-automation/headless";
 import config from "./card.config";
 
 // --- components
-import { useStyles, Badge, Link } from "@upmind-automation/upmind-ui";
+import { useStyles, Badge, Link, Tooltip } from "@upmind-automation/upmind-ui";
 import DisplayPrice from "../terms/DisplayPrice.vue";
 import ProductDescription from "./ProductDescription.vue";
 

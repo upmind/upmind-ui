@@ -12,6 +12,7 @@
       <slot name="pricing" />
       <slot name="checkout" />
       <slot name="errors" />
+      <slot name="custom-price" />
       <slot name="markdown" />
     </template>
   </Layout>
@@ -46,7 +47,7 @@ onMounted(() => {
   useHeader({
     background: HEADER_BACKGROUND.SURFACE,
     border: "none",
-    items: "center"
+    items: "end"
   });
 
   useSection({

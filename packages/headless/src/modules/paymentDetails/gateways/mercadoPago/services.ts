@@ -1,8 +1,10 @@
+/// <reference types="@types/mercadopago-sdk-js" />
 // --- external
 
 // --- internal
 import { useI18n, useLocale } from "../../..";
 import sharedServices from "../services";
+import { beginSetup } from "../services";
 
 // --- utils
 import {
@@ -11,6 +13,7 @@ import {
   responseCodes,
   useScripts
 } from "../../../../utils";
+import { get } from "lodash-es";
 
 // --- types
 import { MERCADOPAGO_FIELDS, type MercadoPagoContext } from "./types";
@@ -88,6 +91,7 @@ async function render(
   }
 
   const bricksBuilder = sdk.mercadoPago.bricks();
+
   // IIFE;
   await new Promise<void>((resolve, reject) =>
     (async (bricksBuilder: bricks.Bricks) => {
@@ -129,7 +133,7 @@ async function render(
             onSubmit: () => {
               return Promise.resolve(); // Do nothing as we handle submit separately
             },
-            onError: error => {
+            onError: (error: bricks.BrickError) => {
               reject(error);
             }
           }
@@ -162,22 +166,74 @@ async function pay({ gateway, sdk }: MercadoPagoContext) {
       ErrorOrigin.Headless
     );
 
-  return sdk.mercadoPagoController?.getFormData().then(cardFormData => {
-    if (!cardFormData)
-      throw new DetailedError(
-        t("error.payment_gateway_validation_failed"),
-        responseCodes.Not_Found,
-        ErrorOrigin.Headless
-      );
+  return sdk.mercadoPagoController
+    ?.getFormData()
+    .then((cardFormData: bricks.FormData<"cardPayment"> | undefined) => {
+      if (!cardFormData)
+        throw new DetailedError(
+          t("error.payment_gateway_validation_failed"),
+          responseCodes.Not_Found,
+          ErrorOrigin.Headless
+        );
 
-    return {
-      gateway_id: gateway?.id,
-      payment_method_addition: {
-        payment_method_id: cardFormData.payment_method_id,
-        token: cardFormData.token
-      }
-    };
-  });
+      return {
+        gateway_id: gateway?.id,
+        payment_method_addition: {
+          payment_method_id: cardFormData.payment_method_id,
+          token: cardFormData.token
+        }
+      };
+    });
+}
+
+/**
+ * @name add
+ * @desc Stores a payment method via MercadoPago in the ADD context.
+ * Calls beginSetup → SDK getFormData (token + payment_method_id) → endSetup.
+ */
+async function add(context: MercadoPagoContext) {
+  const { sdk, model } = context;
+  const { t } = useI18n();
+
+  if (!sdk?.mercadoPago || !sdk?.mercadoPagoController)
+    throw new DetailedError(
+      t("error.payment_gateway_not_available"),
+      responseCodes.Not_Found,
+      ErrorOrigin.Headless
+    );
+
+  const setupResponse = await beginSetup(context);
+  const clientPaymentDetailsId = get(
+    setupResponse,
+    "client_payment_details.id"
+  );
+
+  if (!clientPaymentDetailsId) {
+    throw new DetailedError(
+      t("error.payment_gateway_not_available"),
+      responseCodes.Unprocessable_Entity,
+      ErrorOrigin.Headless
+    );
+  }
+
+  const cardFormData = await sdk.mercadoPagoController?.getFormData();
+
+  if (!cardFormData)
+    throw new DetailedError(
+      t("error.payment_gateway_validation_failed"),
+      responseCodes.Not_Found,
+      ErrorOrigin.Headless
+    );
+
+  return {
+    gatewayId: context.gateway?.id,
+    data: {
+      client_payment_details_id: clientPaymentDetailsId,
+      auto_payment: model?.store_on_payment_auto_payment ?? false,
+      token: cardFormData.token,
+      payment_method_id: cardFormData.payment_method_id
+    }
+  };
 }
 
 // -----------------------------------------------------------------------------
@@ -187,5 +243,6 @@ export default {
   // ---
   load,
   render,
-  pay
+  pay,
+  add
 };

@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
-import { ProductConfig } from "../support/page-objects/templates/ProductConfig";
+import { ProductConfig } from "../support/page-objects/templates/product-config";
 import { URLs } from "../support/constants/urls";
-import { setLocale } from "../support/utils/functions/locale-helper";
+import { setLocale } from "../support/helpers/locale";
 import { Languages as languages } from "../support/constants/languages";
 
 let productConfig: ProductConfig;

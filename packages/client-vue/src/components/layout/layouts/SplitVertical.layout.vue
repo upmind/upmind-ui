@@ -34,7 +34,11 @@
       </Container>
     </Ribbon>
 
-    <Ribbon v-if="meta.hasContent" :background="RIBBON_BACKGROUND.CANVAS">
+    <Ribbon
+      v-if="meta.hasContent"
+      :background="RIBBON_BACKGROUND.CANVAS"
+      class="border-0"
+    >
       <Container>
         <Column :flow="COLUMN_FLOW.HORIZONTAL">
           <Content :width="CONTENT_WIDTH.FULL">

@@ -155,5 +155,20 @@
   },
   "stored_payment_method": {
     "label": ""
+  },
+  "twofa": {
+    "description": "Denne konto er sikret med tofaktorgodkendelse. Indtast venligst din bekræftelseskode.",
+    "label": "Bekræftelseskode",
+    "placeholder": "123 456"
+  },
+  "twofa_email": {
+    "description": "For din sikkerhed har vi sendt en engangskode til din e-mail. Indtast venligst koden nedenfor for at fuldføre denne anmodning.",
+    "label": "Bekræftelseskode",
+    "placeholder": "123 456"
+  },
+  "twofa_totp": {
+    "description": "For at gennemføre denne anmodning skal du indtaste den engangskode, der er genereret af din Authenticator-app.",
+    "label": "Bekræftelseskode",
+    "placeholder": "123 456"
   }
 }

@@ -25,6 +25,7 @@ import {
   isInteger,
   isObject,
   isString,
+  map,
   set,
   toNumber,
   unset
@@ -110,9 +111,15 @@ export const useQuery = () => {
     if (init.method === Methods.GET.toUpperCase()) {
       // -- lets add our pagination, sorting, and filtering parameters
       // Set 'order' (sort) parameter
-      if (!isEmpty(sort) && isArray(sort))
-        url.searchParams.set("order", sort.join(""));
-      else url.searchParams.delete("order");
+      if (!isEmpty(sort) && isArray(sort)) {
+        // Multi-sort: [["-", "default"], ["", "id"]] → "-default,id"
+        // Single sort: ["-", "default"] → "-default"
+        const isMultiSort = isArray(sort[0]);
+        const order = isMultiSort
+          ? map(sort as string[][], s => s.join("")).join(",")
+          : (sort as string[]).join("");
+        url.searchParams.set("order", order);
+      } else url.searchParams.delete("order");
 
       // Set 'limit' parameter
       if (has(pagination, "limit")) {

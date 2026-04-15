@@ -89,7 +89,7 @@ export const useSession = () => {
 
         return waitFor(
           clientActor.value.service,
-          state => stateMatches(state, "available"),
+          state => stateMatches(state, ["available", "done"]),
           {
             timeout: 60_000
           }
@@ -132,10 +132,9 @@ export const useSession = () => {
       stateMatches(guestActor, [
         "available.login.authenticating",
         "available.login.verifying",
-        "available.register.checking",
-        "available.register.verifying",
         "available.register.registering",
         "available.register.authenticating",
+        "available.register.verifying",
         "available.recover.recovering"
       ]) || stateMatches(clientActor, "processing"),
     isAuthenticated: stateMatches(state, "client"),
@@ -149,11 +148,12 @@ export const useSession = () => {
         "available.recover.error"
       ]) ||
       stateMatches(clientActor, "error"),
-    showReCaptcha: stateMatches(guestActor, "available.register.challenging"),
     showLoginForm: stateMatches(guestActor, "available.login"),
     show2fa: stateMatches(guestActor, [
       "available.login.challenging",
-      "available.login.verifying"
+      "available.login.verifying",
+      "available.register.challenging",
+      "available.register.verifying"
     ]),
     canShowForms: stateMatches(guestActor, "available"),
     showRegisterForm: stateMatches(guestActor, "available.register"),
@@ -225,7 +225,7 @@ export const useSession = () => {
 
     return waitFor(
       clientActor.value.service,
-      state => !stateMatches(state, "loading"),
+      state => !stateMatches(state, ["loading"]),
       {
         timeout: 60_000
       }
@@ -266,7 +266,7 @@ export const useSession = () => {
 
     return await waitFor(
       guestActor.value.service,
-      state => stateMatches(state, "available.login"),
+      state => stateMatches(state, ["available.login", "done"]),
       { timeout: 60000 }
     )
       .then(() => true)
@@ -282,7 +282,7 @@ export const useSession = () => {
 
     return await waitFor(
       guestActor.value.service,
-      state => stateMatches(state, "available.register"),
+      state => stateMatches(state, ["available.register", "done"]),
       { timeout: 60000 }
     )
       .then(() => true)
@@ -298,7 +298,7 @@ export const useSession = () => {
 
     return await waitFor(
       guestActor.value.service,
-      state => stateMatches(state, "available.recover"),
+      state => stateMatches(state, ["available.recover", "done"]),
       { timeout: 60000 }
     )
       .then(() => true)
@@ -317,7 +317,8 @@ export const useSession = () => {
 
     return await waitFor(
       guestActor.value.service,
-      state => stateMatches(state, ["complete", "available.login.error"]),
+      state =>
+        stateMatches(state, ["complete", "available.login.error", "done"]),
       {
         timeout: 60000
       }
@@ -326,17 +327,18 @@ export const useSession = () => {
       .catch(() => false);
   }
 
-  async function verify2fa({ token }: { token: string }): Promise<any> {
+  async function verify2fa(model: { token: string }): Promise<any> {
     if (!guestActor.value) return true; // already logged in
 
     service.send({
       type: "VERIFY",
-      data: get(token, "value", token) // ensure we dont have any reactive refs
+      data: model
     });
 
     return await waitFor(
       guestActor.value.service,
-      state => stateMatches(state, ["complete", "available.login.error"]),
+      state =>
+        stateMatches(state, ["complete", "available.login.error", "done"]),
       {
         timeout: 60000
       }
@@ -355,7 +357,8 @@ export const useSession = () => {
 
     return await waitFor(
       guestActor.value.service,
-      state => stateMatches(state, ["complete", "available.register.error"]),
+      state =>
+        stateMatches(state, ["complete", "available.register.error", "done"]),
       {
         timeout: 60000
       }
@@ -377,7 +380,8 @@ export const useSession = () => {
       state =>
         stateMatches(state, [
           "available.recover.complete",
-          "available.recover.error"
+          "available.recover.error",
+          "done"
         ]),
       { timeout: 60_000 }
     )
@@ -394,7 +398,7 @@ export const useSession = () => {
 
     return await waitFor(
       clientActor.value.service,
-      state => stateMatches(state, "complete"),
+      state => stateMatches(state, ["complete", "done"]),
       {
         timeout: 60000
       }
@@ -423,7 +427,7 @@ export const useSession = () => {
 
     return waitFor(
       clientActor.value.service,
-      newState => stateMatches(newState, "transferring.available"),
+      newState => stateMatches(newState, ["transferring.available", "done"]),
       { timeout: 60_000 }
     )
       .then(newState => {
@@ -465,7 +469,7 @@ export const useSession = () => {
 
     return waitFor(
       service,
-      newState => stateMatches(newState, "transferring.processed"),
+      newState => stateMatches(newState, ["transferring.processed", "done"]),
       { timeout: 60_000 }
     )
       .then(newState => {
@@ -524,7 +528,8 @@ export const useSession = () => {
       type: "CANCEL"
     });
     const guest = state.value?.children?.guest;
-    return waitFor(guest, state => stateMatches(state, "available"), {
+    if (!guest) return Promise.resolve(true);
+    return waitFor(guest, state => stateMatches(state, ["available", "done"]), {
       timeout: 60_000
     });
   }
@@ -545,7 +550,7 @@ export const useSession = () => {
 
     return await waitFor(
       clientActor.value.service,
-      state => stateMatches(state, "available"),
+      state => stateMatches(state, ["available", "done"]),
       {
         timeout: 60000
       }
@@ -584,9 +589,8 @@ export const useSession = () => {
      * @property {boolean} isAuthenticated - Indicates whether the client is authenticated within the session.
      * @property {boolean} isTransferring - Indicates whether the session is currently transferring data.
      * @property {boolean} hasExpired - Indicates whether the session has expired.
-     * @property {boolean} showReCaptcha - Indicates whether the ReCaptcha challenge should be displayed.
      * @property {boolean} showLoginForm - Indicates whether the login form should be displayed.
-     * @property {boolean} show2fa - Indicates whether the two-factor authentication (2FA) challenge is required and should be shown.
+     * @property {boolean} show2fa - Indicates whether the two-factor authentication (2FA) challenge is required and should be shown (login or register).
      * @property {boolean} showRegisterForm - Indicates whether the registration form should be displayed.
      * @property {boolean} showRecoverPasswordForm - Indicates whether the Send reset form should be displayed.
      * @property {boolean} canShowForms - Indicates whether any forms (login or register) can be shown to the client.

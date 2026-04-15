@@ -37,7 +37,8 @@ export default {
             variants: {
               layout: {
                 stacked: "gap-4 text-base",
-                inline: "w-full items-start justify-between sm:items-center"
+                inline:
+                  "w-full items-start justify-between gap-x-4 sm:items-center"
               }
             },
             defaultVariants: {
@@ -83,7 +84,7 @@ export default {
           variants: {
             layout: {
               stacked: "text-3xl font-medium",
-              inline: "font-normal"
+              inline: "text-md font-medium"
             }
           },
           defaultVariants: {
@@ -93,7 +94,7 @@ export default {
         ex: cva("", {
           variants: {
             layout: {
-              stacked: "",
+              stacked: "text-sm",
               inline: "text-sm"
             }
           },

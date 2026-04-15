@@ -1,33 +1,47 @@
 import { expect } from "@playwright/test";
-import { authenticatedUserTest as test } from "../../support/fixtures/authContext";
-import { Checkout } from "../../support/page-objects/templates/Checkout";
-import { Registration } from "../../support/page-objects/templates/Registration";
-import { Confirmation } from "../../support/page-objects/templates/Confirmation";
-import { goToCheckout } from "../../support/utils/apiHelper";
-import {
-  getCurrentOrder,
-  getInvoice
-} from "../../support/utils/functions/basket";
-import { getSessionToken } from "../../support/utils/functions/tokens";
-import { getFormattedDate } from "../../support/utils/functions/helpers";
+import { authenticatedUserTest as test } from "../../support/fixtures/auth-context";
+import { Checkout } from "../../support/page-objects/templates/checkout";
+import { Confirmation } from "../../support/page-objects/templates/confirmation";
+import { goToCheckout } from "../../support/flows/checkout";
+import { getCurrentOrder, getInvoice } from "../../support/api/basket";
+import { getFormattedDate } from "../../support/helpers";
 import { products } from "../../support/constants/products";
 import { Logins } from "../../support/constants/logins";
+import {
+  getClientToken,
+  getSessionToken,
+  registerClient
+} from "../../support/api/index";
 import { URLs } from "../../support/constants/urls";
 
 let checkout: Checkout;
-let registration: Registration;
 let confirmation: Confirmation;
 
-//TODO: Update the tests to account for the different messaging on different order states (e.g. 'We received £20')
 test.describe("Confirmation Page Display", () => {
-  test.beforeEach(({ page, context, authenticatedPage }) => {
+  test.beforeEach(async ({ page, context }) => {
     checkout = new Checkout(page);
-    registration = new Registration(page, context);
     confirmation = new Confirmation(page);
+    await page.goto(URLs.baseUrl);
+    await expect
+      .poll(
+        async () => {
+          const cookies = await context.cookies();
+          return cookies.some(
+            c =>
+              c.name === "upm_guest_session" || c.name === "upm_client_session"
+          );
+        },
+        { timeout: 30000 }
+      )
+      .toBeTruthy();
+    let guestToken = await getSessionToken(context);
+    let user = await registerClient(guestToken);
+    let username = user.email;
+    let password = user.password;
+    await getClientToken(page, username, password);
   });
   test("Successful Paid Order (New Card)", async ({ page, context }) => {
     await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
-    await registration.inputRegistration();
     await checkout.selectPaymentMethod("Stripe");
     await checkout.inputStripeDetails("4242424242424242", "12/50", "123");
     await checkout.clickPlaceOrderAndPay();
@@ -105,7 +119,6 @@ test.describe("Confirmation Page Display", () => {
   });
   test("Successful Free Order", async ({ page, context }) => {
     await goToCheckout(page, context, products.FREE_HOSTING, null, null);
-    await registration.inputRegistration();
     await checkout.placeOrder.click();
     let token = await getSessionToken(context);
     let order = await getCurrentOrder(token);
@@ -138,7 +151,6 @@ test.describe("Confirmation Page Display", () => {
       "genericpromo",
       null
     );
-    await registration.inputRegistration();
     await checkout.selectPaymentMethod("Stripe");
     await checkout.inputStripeDetails("4242424242424242", "12/50", "123");
     await checkout.clickPlaceOrderAndPay();
@@ -170,7 +182,6 @@ test.describe("Confirmation Page Display", () => {
   });
   test("Unsuccessful Payment on Order", async ({ page, context }) => {
     await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
-    await registration.inputRegistration();
     await checkout.selectPaymentMethod("Stripe");
     await checkout.inputStripeDetails("4000000000009995", "12/50", "123");
     await checkout.clickPlaceOrderAndPay();
@@ -211,7 +222,6 @@ test.describe("Confirmation Page Display", () => {
   });
   test("Pay Later on Order", async ({ page, context }) => {
     await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
-    await registration.inputRegistration();
     await checkout.selectPaymentMethod("Pay Later");
     await checkout.placeOrder.click();
     let token = await getSessionToken(context);
@@ -239,7 +249,6 @@ test.describe("Confirmation Page Display", () => {
   });
   test("Successful Partial Payment on Order", async ({ page, context }) => {
     await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
-    await registration.inputRegistration();
     await checkout.changeAmountButton.click();
     await checkout.changeAmountInput.fill("20");
     await checkout.clickConfirmAmount();
@@ -254,6 +263,7 @@ test.describe("Confirmation Page Display", () => {
     let invoice = await getInvoice(token, orderId);
     let invoiceNumber = invoice?.number;
     let date = getFormattedDate();
+    let outstandingBalance = invoice?.unpaid_amount;
     await expect(confirmation.invoiceNumberHeading).toContainText("Order #");
     await expect(confirmation.invoiceNumber).toContainText(`${invoiceNumber}`);
     await expect(confirmation.orderDateHeading).toContainText("Purchase date");
@@ -262,10 +272,11 @@ test.describe("Confirmation Page Display", () => {
       page.getByRole("alert").getByText("Payment outstanding")
     ).toBeVisible();
     await expect(
-      page.getByRole("alert").getByText(
-        "You have £52.00 remaining. Please complete your payment to finish your order."
-        //TODO: Make the price dynamic, save the paid amount as a variable
-      )
+      page
+        .getByRole("alert")
+        .getByText(
+          `You have ${outstandingBalance} remaining. Please complete your payment to finish your order.`
+        )
     ).toBeVisible();
     await expect(confirmation.orderDetails).toBeVisible();
     await expect(

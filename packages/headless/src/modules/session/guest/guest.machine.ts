@@ -38,7 +38,7 @@ import {
   useRegisterSchemaParser,
   useRegisterUischemaParser
 } from "./utils";
-import { omit } from "lodash-es";
+import { cloneDeep, omit } from "lodash-es";
 
 // --- types
 import { responseCodes } from "../../../utils";
@@ -92,7 +92,20 @@ export default createMachine(
               },
               // loading: {} // loading state not required?
               available: {
+                initial: "checking",
+                states: {
+                  checking: {
+                    invoke: {
+                      src: "validate",
+                      onDone: { target: "valid", actions: ["clearError"] },
+                      onError: { target: "invalid", actions: ["setError"] }
+                    }
+                  },
+                  valid: {},
+                  invalid: {}
+                },
                 on: {
+                  SET: { target: ".checking", actions: ["setModel"] },
                   AUTHENTICATE: {
                     target: "authenticating",
                     actions: ["setModel"]
@@ -105,7 +118,7 @@ export default createMachine(
                   onDone: [
                     {
                       target: "challenging",
-                      actions: ["set2faToken", "set2faSchemas"],
+                      actions: ["set2faToken", "persistModel", "set2faSchemas"],
                       cond: "requires2fa"
                     },
                     {
@@ -120,9 +133,28 @@ export default createMachine(
                 }
               },
               challenging: {
+                initial: "checking",
+                states: {
+                  checking: {
+                    invoke: {
+                      src: "validate",
+                      onDone: {
+                        target: "#login.verifying",
+                        actions: ["clearError"]
+                      },
+                      onError: { target: "invalid", actions: ["setError"] }
+                    }
+                  },
+                  valid: {},
+                  invalid: {}
+                },
                 on: {
+                  SET: { target: ".checking", actions: ["setModel"] },
                   VERIFY: { target: "verifying" },
-                  CANCEL: { target: "available" }
+                  CANCEL: {
+                    target: "available",
+                    actions: ["resetModel", "setLoginSchemas", "clearError"]
+                  }
                 }
               },
               verifying: {
@@ -133,7 +165,7 @@ export default createMachine(
                     actions: ["setActor", "pushLogin"]
                   },
                   onError: {
-                    target: "challenging",
+                    target: "challenging.invalid",
                     actions: ["setError", "setFeedbackError"]
                   }
                 }
@@ -170,39 +202,21 @@ export default createMachine(
                 }
               },
               available: {
-                on: {
-                  REGISTER: { target: "checking", actions: ["setModel"] }
-                }
-              },
-              checking: {
-                invoke: {
-                  src: "checkForReCaptcha",
-                  onDone: [
-                    { target: "challenging", cond: "requiresReCaptcha" },
-                    { target: "registering" }
-                  ],
-                  onError: {
-                    target: "available",
-                    actions: ["setError", "setFeedbackError"]
-                  }
-                }
-              },
-              challenging: {
-                on: {
-                  VERIFY: { target: "verifying" }
-                }
-              },
-              verifying: {
-                invoke: {
-                  src: "verifyReCaptcha",
-                  onDone: {
-                    target: "registering",
-                    actions: []
+                initial: "checking",
+                states: {
+                  checking: {
+                    invoke: {
+                      src: "validate",
+                      onDone: { target: "valid", actions: ["clearError"] },
+                      onError: { target: "invalid", actions: ["setError"] }
+                    }
                   },
-                  onError: {
-                    target: "challenging",
-                    actions: ["setError", "setFeedbackError"]
-                  }
+                  valid: {},
+                  invalid: {}
+                },
+                on: {
+                  SET: { target: ".checking", actions: ["setModel"] },
+                  REGISTER: { target: "registering", actions: ["setModel"] }
                 }
               },
               registering: {
@@ -220,12 +234,57 @@ export default createMachine(
               authenticating: {
                 invoke: {
                   src: "authenticate",
+                  onDone: [
+                    {
+                      target: "challenging",
+                      actions: ["set2faToken", "persistModel", "set2faSchemas"],
+                      cond: "requires2fa"
+                    },
+                    {
+                      target: "#complete",
+                      actions: ["setActor", "pushRegister"]
+                    }
+                  ],
+                  onError: {
+                    target: "error",
+                    actions: ["setError", "setFeedbackError"]
+                  }
+                }
+              },
+              challenging: {
+                initial: "checking",
+                states: {
+                  checking: {
+                    invoke: {
+                      src: "validate",
+                      onDone: {
+                        target: "#register.verifying",
+                        actions: ["clearError"]
+                      },
+                      onError: { target: "invalid", actions: ["setError"] }
+                    }
+                  },
+                  valid: {},
+                  invalid: {}
+                },
+                on: {
+                  SET: { target: ".checking", actions: ["setModel"] },
+                  VERIFY: { target: "verifying" },
+                  CANCEL: {
+                    target: "available",
+                    actions: ["resetModel", "setRegisterSchemas", "clearError"]
+                  }
+                }
+              },
+              verifying: {
+                invoke: {
+                  src: "verify2fa",
                   onDone: {
                     target: "#complete",
                     actions: ["setActor", "pushRegister"]
                   },
                   onError: {
-                    target: "error",
+                    target: "challenging.invalid",
                     actions: ["setError", "setFeedbackError"]
                   }
                 }
@@ -233,7 +292,7 @@ export default createMachine(
               error: {
                 on: {
                   SET: { target: "available", actions: ["setModel"] },
-                  REGISTER: { target: "checking", actions: ["setModel"] }
+                  REGISTER: { target: "registering", actions: ["setModel"] }
                 }
               }
             }
@@ -334,7 +393,7 @@ export default createMachine(
         schema: (_context: GuestContext, { data }: AnyEventObject) =>
           use2faSchemaParser(),
         uischema: (_context: GuestContext, { data }: AnyEventObject) =>
-          use2faUischemaParser(),
+          use2faUischemaParser(data?.twofa_provider),
         model: ({ model }: GuestContext) =>
           use2faModelParser(model as TWOFAModel)
       }),
@@ -353,6 +412,14 @@ export default createMachine(
       }),
       set2faToken: assign({
         token: (_context: GuestContext, { data }: AnyEventObject) => data
+      }),
+
+      persistModel: assign({
+        baseModel: ({ model }: GuestContext) => cloneDeep(model)
+      }),
+
+      resetModel: assign({
+        model: ({ baseModel }: GuestContext) => cloneDeep(baseModel)
       }),
 
       setFeedbackSuccess: (_context: GuestContext, _event: AnyEventObject) => {
@@ -414,9 +481,7 @@ export default createMachine(
         return (
           data.actor_type == GrantTypes.TWOFA && !!data?.second_factor_required
         );
-      },
-      requiresReCaptcha: (_context: GuestContext, { data }: AnyEventObject) =>
-        !!data?.recaptcha_required
+      }
     },
 
     delays: {},
