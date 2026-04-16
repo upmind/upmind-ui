@@ -97,7 +97,7 @@ export const usePaymentDetail = (
     // --- payment
     const ctx = contextValue<GatewayContext>(actor, "ctx");
     const isPayContext = ctx == GatewayContext.PAY;
-    const requirePaymentForFreeOrders = contextMatches(
+    const requirePaymentForFreeOrders = !!contextValue(
       actor,
       "requirePaymentForFreeOrders"
     );
