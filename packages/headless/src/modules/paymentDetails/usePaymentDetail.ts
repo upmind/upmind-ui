@@ -28,7 +28,8 @@ import {
   includes,
   some,
   gt,
-  size
+  size,
+  defaultsDeep
 } from "lodash-es";
 
 // --- types
@@ -96,7 +97,7 @@ export const usePaymentDetail = (
     // --- payment
     const ctx = contextValue<GatewayContext>(actor, "ctx");
     const isPayContext = ctx == GatewayContext.PAY;
-    const forcePaymentMethod = !!contextValue(
+    const requirePaymentForFreeOrders = contextMatches(
       actor,
       "requirePaymentForFreeOrders"
     );
@@ -106,15 +107,22 @@ export const usePaymentDetail = (
       hasGateways &&
       (stateMatches(actor, ["loading"]) ||
         (stateMatches(actor, ["available.checking"]) &&
-          (!isPayable(model.value, forcePaymentMethod, ctx) ||
+          (!isPayable(model.value, requirePaymentForFreeOrders, ctx) ||
             !hasAmount(model.value, ctx))));
 
+    // Backfill amount & wallet_amount from context when model is empty.
+    // During transient states (currency refresh, initial load) the model
+    // is cleared while context-level amounts persist. Without this,
+    // usePaymentState would see undefined amounts and incorrectly report
+    // isFree / needsPayment, causing the payment section to flash.
     const { hasSelectedPaymentMethod, isFree, isPayLater, needsPayment } =
       usePaymentState(
-        model.value,
+        defaultsDeep(model.value, {
+          amount: amount.value,
+          wallet_amount: amountWallet.value
+        } as Partial<PaymentDetailModel>),
         ctx,
-        amount.value,
-        forcePaymentMethod,
+        requirePaymentForFreeOrders,
         isRefreshing
       );
 
@@ -210,7 +218,8 @@ export const usePaymentDetail = (
 
       // SHOW if payment details are available AND NOT free (or in ADD context)
       showPaymentSection:
-        isAvailable && (!isFree || !isPayContext || forcePaymentMethod),
+        isAvailable &&
+        (!isFree || !isPayContext || requirePaymentForFreeOrders),
 
       // SHOW if payment is needed
       // AND stored methods exist
@@ -243,6 +252,12 @@ export const usePaymentDetail = (
 
   // ---
   const amount = useContext<PaymentDetailsContext["amount"]>(actor, "amount");
+
+  const amountWallet = useContext<PaymentDetailsContext["amountWallet"]>(
+    actor,
+    "amountWallet"
+  );
+
   const amountsFormatted = useContext<
     PaymentDetailsContext["lookups"]["amountsFormatted"]
   >(actor, "lookups.amountsFormatted");
