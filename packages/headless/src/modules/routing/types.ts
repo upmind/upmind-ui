@@ -268,5 +268,15 @@ declare module "vue-router" {
     overlayId?: string;
     /** Set to false to prevent overlay child routes from being injected */
     allowOverlays?: boolean;
+    /**
+     * When true, the funnel redirects to the basket-empty route if the basket
+     * has no products. Routes that render basket contents should set this.
+     */
+    actionEmptyBasket?: boolean;
+    /**
+     * When true, this route replaces the current history entry rather than
+     * pushing a new one. Used on transitional routes like loading.
+     */
+    replace?: boolean;
   }
 }

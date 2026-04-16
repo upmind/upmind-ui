@@ -72,68 +72,68 @@ export default {
       // --- shop / catalogue
       {
         name: ROUTE.CATALOGUE,
-        path: `/order/${BID_PREFIX}/shop`,
+        path: `/order/${BID_PREFIX}/shop/`,
         component: () => import("~/pages/order/shop.vue")
       },
       {
         name: ROUTE.CHECKOUT,
-        path: `/order/${BID_PREFIX}/checkout`,
+        path: `/order/${BID_PREFIX}/checkout/`,
         component: () => import("~/pages/order/checkout.vue")
       },
       {
         name: ROUTE.RECOMMENDATIONS,
-        path: `/order/${BID_PREFIX}/recommendations`,
+        path: `/order/${BID_PREFIX}/recommendations/`,
         component: () => import("~/pages/order/recommendations.vue")
       },
 
       // --- domains
       {
         name: ROUTE.DOMAINS,
-        path: `/order/${BID_PREFIX}/domains`,
+        path: `/order/${BID_PREFIX}/domains/`,
         component: () => import("~/pages/order/domains/index.vue")
       },
       {
         name: ROUTE.DOMAINS_WITH_PRODUCT,
-        path: `/order/${BID_PREFIX}/domains/:pid(${UUID})`,
+        path: `/order/${BID_PREFIX}/domains/:pid(${UUID})/`,
         component: () => import("~/pages/order/domains/[pid]/index.vue")
       },
       {
         name: ROUTE.DOMAINS_WITH_PRODUCT_PROCESSING,
-        path: `/order/${BID_PREFIX}/domains/:pid(${UUID})/processing`,
+        path: `/order/${BID_PREFIX}/domains/:pid(${UUID})/processing/`,
         component: () => import("~/pages/order/domains/[pid]/processing.vue")
       },
 
       // --- auth (parent + children, mirrors cart's nested structure)
       {
         name: ROUTE.SESSION,
-        path: `/order/${BID_PREFIX}/auth`,
+        path: `/order/${BID_PREFIX}/auth/`,
         component: () => import("~/pages/order/auth/index.vue"),
         children: [
           {
             name: ROUTE.SESSION_LOGIN,
-            path: "login",
+            path: "login/",
             component: () => import("~/pages/order/auth/login.vue")
           },
           {
             name: ROUTE.SESSION_REGISTER,
-            path: "register",
-            alias: ["signup"],
+            path: "register/",
+            alias: ["signup/"],
             component: () => import("~/pages/order/auth/register.vue")
           },
           {
             name: ROUTE.SESSION_END,
-            path: "logout",
-            alias: ["signout"],
+            path: "logout/",
+            alias: ["signout/"],
             component: () => import("~/pages/order/auth/end.vue")
           },
           {
             name: ROUTE.SESSION_RECOVER_PASSWORD,
-            path: "recover",
+            path: "recover/",
             component: () => import("~/pages/order/auth/recover.vue")
           },
           {
             name: ROUTE.SESSION_TRANSFER,
-            path: "transfer",
+            path: "transfer/",
             component: () => import("~/pages/order/auth/transfer.vue")
           }
         ]
@@ -142,22 +142,22 @@ export default {
       // --- product (parent + children, mirrors cart's nested structure)
       {
         name: ROUTE.PRODUCT,
-        path: `/order/${BID_PREFIX}/product`,
+        path: `/order/${BID_PREFIX}/product/`,
         component: () => import("~/pages/order/product/index.vue"),
         children: [
           {
             name: ROUTE.PRODUCT_CONFIGURE,
-            path: `:pid(${UUID})`,
+            path: `:pid(${UUID})/`,
             component: () => import("~/pages/order/product/[pid].vue")
           },
           {
             name: ROUTE.PRODUCT_NOT_FOUND,
-            path: `:pid(${UUID})/not-found`,
+            path: `:pid(${UUID})/not-found/`,
             component: () => import("~/pages/order/product/not-found.vue")
           },
           {
             name: ROUTE.PRODUCT_RECOMMENDATIONS,
-            path: `:pid(${UUID})/recommendations`,
+            path: `:pid(${UUID})/recommendations/`,
             component: () => import("~/pages/order/product/recommendations.vue")
           }
         ]
