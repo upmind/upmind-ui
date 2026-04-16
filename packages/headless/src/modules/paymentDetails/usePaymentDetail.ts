@@ -198,9 +198,9 @@ export const usePaymentDetail = (
         value => value === PaymentType.PARTIAL_PAYMENT
       );
 
-    // Complete when: free with nothing to pay, OR machine reached done/processed.
+    // Complete when: order is free (no capture needed), OR machine reached done/processed.
     const isComplete =
-      (isFree && !needsPayment) ||
+      isFree ||
       stateValue(actor, "done", false) ||
       stateMatches(actor, ["processed", "complete"]);
 
@@ -228,8 +228,12 @@ export const usePaymentDetail = (
     // =========================================================================
 
     // SHOW gateway list when payment is needed and user hasn't picked one yet.
+    // HIDE gateways when free + stored methods exist — user picks existing card.
     const showGatewaySelection =
-      needsPayment && hasGateways && !hasSelectedGateway;
+      needsPayment &&
+      hasGateways &&
+      !hasSelectedGateway &&
+      !(isFree && hasStoredPaymentMethods);
 
     // SHOW action buttons when no payment needed (free/wallet-covered),
     // or when user has selected a gateway or stored method to proceed with.
@@ -240,8 +244,9 @@ export const usePaymentDetail = (
       (isRefreshing && hasStoredPaymentMethods);
 
     // SHOW the whole payment section unless order is truly free (nothing to do).
-    // Free + requirePaymentForFreeOrders → needsPayment is true → section shows.
-    const showPaymentSection = isAvailable && (!isFree || needsPayment);
+    // Free + requirePaymentForFreeOrders → section shows for card capture.
+    const showPaymentSection =
+      isAvailable && (!isFree || !isPayContext || requirePaymentForFreeOrders);
 
     // SHOW stored methods when user needs to pick, methods exist, and no
     // gateway is already selected.
