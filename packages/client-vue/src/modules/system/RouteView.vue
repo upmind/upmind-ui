@@ -4,12 +4,10 @@
       <RouterView v-slot="routerViewProps" :key="$route.path">
         <slot v-bind="routerViewProps">
           <Suspense>
-            <KeepAlive>
-              <component
-                :is="routerViewProps.Component"
-                @vue:mounted="doResolve"
-              />
-            </KeepAlive>
+            <component
+              :is="routerViewProps.Component"
+              @vue:mounted="doResolve"
+            />
 
             <template #fallback>
               <Loading

@@ -20,6 +20,7 @@ useSeoMeta({
 
 definePageMeta({
   name: ROUTE.LOADING,
-  allowOverlays: false
+  allowOverlays: false,
+  replace: true
 });
 </script>

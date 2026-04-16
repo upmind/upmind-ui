@@ -33,7 +33,8 @@ export default defineNuxtPlugin(async nuxtApp => {
     },
     router: {
       instance: router,
-      registerFunnels
+      registerFunnels,
+      guardRoutes: false
     },
     recaptcha: {
       siteKey: runtimeConfig.public.GOOGLE_RECAPTCHA_V3_SITE_KEY,
