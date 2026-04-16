@@ -1,8 +1,9 @@
 // --- external
-import { createMachine, assign, spawn, sendParent, pure } from "xstate";
+import { createMachine, assign, spawn, sendParent, sendTo, pure } from "xstate";
 
 // --- internal
 import services from "./services";
+import { calculateSubscription } from "./services";
 import { authSubscription } from "../session/helper";
 import { useQueryParams } from "../routing";
 
@@ -135,7 +136,8 @@ export default createMachine(
                       "setParsed",
                       "setLookups",
                       "setGateway",
-                      "setSchemas"
+                      "setSchemas",
+                      "calculate"
                     ]
                   }
                 }
@@ -221,6 +223,9 @@ export default createMachine(
           SET_WALLET_AMOUNT: {
             target: "available.checking",
             actions: ["clearError", "setWalletAmount"]
+          },
+          CALCULATED: {
+            actions: ["setAmountsFormatted"]
           },
           REFRESH: [
             // NB if we change core values, tear down the gateway and re create it
@@ -325,7 +330,10 @@ export default createMachine(
       }),
 
       setRaw: assign({
-        raw: (_context: PaymentDetailsContext, { data }: AnyEventObject) => data
+        raw: (_context: PaymentDetailsContext, { data }: AnyEventObject) =>
+          data,
+        calculateCallback: ({ calculateCallback }: PaymentDetailsContext) =>
+          calculateCallback ?? spawn(calculateSubscription)
       }),
 
       setLookups: assign({
@@ -478,6 +486,13 @@ export default createMachine(
           if (gatewayHelper) {
             gatewayHelper.send({ type: "CLEANUP" });
             stopService(gatewayHelper);
+          }
+          return undefined;
+        },
+        calculateCallback: ({ calculateCallback }: PaymentDetailsContext) => {
+          if (calculateCallback) {
+            calculateCallback.send({ type: "CANCEL" });
+            stopService(calculateCallback);
           }
           return undefined;
         },
@@ -649,6 +664,38 @@ export default createMachine(
       }),
 
       clearError: assign({ error: undefined }),
+
+      calculate: pure(
+        (
+          { calculateCallback, currency, model, amount }: PaymentDetailsContext,
+          _event
+        ) => {
+          if (!calculateCallback) return;
+          return sendTo(calculateCallback, {
+            type: "CALCULATE",
+            data: {
+              currencyId: currency?.id,
+              amount: model?.amount ?? 0,
+              outstandingAmount: amount ?? 0,
+              walletAmount: model?.wallet_amount ?? 0
+            }
+          });
+        }
+      ),
+
+      setAmountsFormatted: assign({
+        lookups: (
+          { lookups }: PaymentDetailsContext,
+          { data }: AnyEventObject
+        ) => ({
+          ...lookups,
+          amountsFormatted: data ?? {
+            amount: "",
+            outstanding: "",
+            wallet: ""
+          }
+        })
+      }),
 
       resetOperation: () => {
         const { getParam, unsetParam } = useQueryParams();

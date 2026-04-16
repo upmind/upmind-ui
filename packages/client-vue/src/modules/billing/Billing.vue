@@ -17,6 +17,7 @@
               variant: 'subtle',
               size: 'lg'
             }"
+            size="3xl"
             @action="navigateBack"
           />
         </slot>

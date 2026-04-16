@@ -1,6 +1,13 @@
 <template>
   <fieldset v-if="items.length > 1">
-    <SelectCards v-model="modelValue" :items="items" />
+    <SelectCards v-model="modelValue" :items="items">
+      <template #item="slotProps">
+        <TermCard v-bind="slotProps.item" layout="inline" :summary="false" />
+      </template>
+      <template #dropdown-item="slotProps">
+        <TermCard v-bind="slotProps.item" layout="inline" :summary="false" />
+      </template>
+    </SelectCards>
   </fieldset>
 </template>
 
@@ -8,7 +15,7 @@
 // --- external
 import { useVModel } from "@vueuse/core";
 import { computed } from "vue";
-import { toString } from "lodash-es";
+import { toString, map } from "lodash-es";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -19,6 +26,7 @@ import {
   SelectCards,
   type SelectCardsItemProps
 } from "@upmind-automation/upmind-ui";
+import TermCard from "../terms/TermCard.vue";
 
 // --- types
 import type { ProductTerm } from "./types";
@@ -33,11 +41,12 @@ const { t } = useI18n();
 const items = computed(() => {
   if (!props.prices) return [];
 
-  return props.prices?.map(price => {
+  return map(props.prices, (price, index) => {
     const item = {
       label: parseBillingCycle(price.cycle!).numeric,
       value: toString(price.cycle),
-      appendLabel: price.price.currentPrice
+      item: price,
+      index
     } as SelectCardsItemProps;
 
     if (!props.hideBadge && price.price?.savingAmount > 0) {

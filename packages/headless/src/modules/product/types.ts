@@ -13,12 +13,16 @@ import type {
   IBlueprintField,
   IBlueprint
 } from "@upmind-automation/types";
-export { PromotionDisplayTypes } from "@upmind-automation/types";
 import { PromotionDisplayTypes } from "@upmind-automation/types";
 import type { Recommendation } from "../recommendations";
 import type { Badge } from "../config/schema";
 import type { BasketProduct } from "../basketProduct";
 import { type ResponseError } from "../../utils";
+
+export {
+  PromotionDisplayTypes,
+  PriceDisplayTypes
+} from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 /**
