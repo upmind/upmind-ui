@@ -40,7 +40,7 @@ test.describe("Hosting customers", async () => {
       await basket.proceedToCheckout.click();
       await checkout.selectPaymentMethod("Direct Bank Transfer");
       await checkout.clickPlaceOrder();
-      await expect(page.getByText("Order Complete!")).toBeVisible();
+      await expect(page.getByText("Thank you for your order.")).toBeVisible();
     });
     test("Log in at checkout", async ({ page }) => {
       await addProductToBasket();
@@ -52,7 +52,7 @@ test.describe("Hosting customers", async () => {
       );
       await checkout.selectPaymentMethod("Direct Bank Transfer");
       await checkout.clickPlaceOrder();
-      await expect(page.getByText("Order Complete!")).toBeVisible();
+      await expect(page.getByText("Thank you for your order.")).toBeVisible();
     });
   });
   test.describe("New Customer", () => {
@@ -68,7 +68,7 @@ test.describe("Hosting customers", async () => {
       );
       await checkout.selectPaymentMethod("Direct Bank Transfer");
       await checkout.clickPlaceOrder();
-      await expect(page.getByText("Order Complete!")).toBeVisible();
+      await expect(page.getByText("Thank you for your order.")).toBeVisible();
     });
   });
 });
