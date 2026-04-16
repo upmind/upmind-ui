@@ -654,7 +654,19 @@ export default {
     // to load. Checkout handles the auth redirect.
     const { meta: authMeta } = useSession();
     if (!authMeta.value.isAuthenticated) {
-      return { target: { name: ROUTE.SESSION } };
+      const { router } = useRoutingEngine();
+      const { targetBasketId } = useBasket();
+      const bid = targetBasketId.value;
+      const returnUrl = router.resolve({
+        name: ROUTE.BILLING,
+        params: bid ? { segment: "basket", bid } : {}
+      }).fullPath;
+      return {
+        target: {
+          name: ROUTE.SESSION,
+          query: { [QUERY_PARAMS.RETURN_URL]: returnUrl }
+        }
+      };
     }
 
     // Load billing and check if it still needs input
