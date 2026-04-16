@@ -54,7 +54,7 @@ test.describe("Domain customers", () => {
       await basket.proceedToCheckout.click();
       await checkout.selectPaymentMethod("Direct Bank Transfer");
       await checkout.clickPlaceOrder();
-      await expect(page.getByText("Order Complete!")).toBeVisible();
+      await expect(page.getByText("Thank you for your order.")).toBeVisible();
     });
     test("Log in at checkout", async ({ page }) => {
       await enterDomainDetails();
@@ -64,7 +64,7 @@ test.describe("Domain customers", () => {
       await login.inputLogin(Logins.domain2.username, Logins.domain2.password);
       await checkout.selectPaymentMethod("Direct Bank Transfer");
       await checkout.clickPlaceOrder();
-      await expect(page.getByText("Order Complete!")).toBeVisible();
+      await expect(page.getByText("Thank you for your order.")).toBeVisible();
     });
   });
   test.describe("New Customer", () => {
@@ -81,7 +81,7 @@ test.describe("Domain customers", () => {
       );
       await checkout.selectPaymentMethod("Direct Bank Transfer");
       await checkout.clickPlaceOrder();
-      await expect(page.getByText("Order Complete!")).toBeVisible();
+      await expect(page.getByText("Thank you for your order.")).toBeVisible();
     });
   });
 });

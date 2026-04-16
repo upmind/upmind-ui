@@ -78,7 +78,7 @@ test.describe("Promotions", () => {
     test("Promotions DAC Drawer", async ({ page }) => {
       mockPromos(
         page.context(),
-        "/api/modules/web_hosting/domains/search",
+        "/api/modules/web_hosting/domains/suggestions",
         {},
         "all",
         "prices"
@@ -89,42 +89,42 @@ test.describe("Promotions", () => {
         .getByTestId("accordion-content")
         .locator("input")
         .fill("promospromospromos");
-      await expect(
-        page
-          .getByTestId("checkbox-item-promospromospromos-com")
-          .getByTestId("badge")
-      ).toBeVisible();
+      const dacCards = page.getByTestId("dac-card");
+      await expect(dacCards.first()).toBeVisible();
+      for (const card of await dacCards.all()) {
+        await expect(card.getByTestId("badge")).toBeVisible();
+      }
     });
     test("Promotions DAC Widget", async ({ page }) => {
       mockPromos(
         page.context(),
-        "/api/modules/web_hosting/domains/search",
+        "/api/modules/web_hosting/domains/suggestions",
         {},
         "all",
         "prices"
       );
       await page.goto(`${URLs.domainWidget}&search=promospromospromos`);
-      await expect(
-        page
-          .getByTestId("checkbox-item-promospromospromos-com")
-          .getByTestId("badge")
-      ).toBeVisible();
+      const dacCards = page.getByTestId("dac-card");
+      await expect(dacCards.first()).toBeVisible();
+      for (const card of await dacCards.all()) {
+        await expect(card.getByTestId("badge")).toBeVisible();
+      }
     });
     test("Promotions DAC Page", async ({ page }) => {
       mockPromos(
         page.context(),
-        "/api/modules/web_hosting/domains/search",
+        "/api/modules/web_hosting/domains/suggestions",
         {},
         "all",
         "prices"
       );
       await page.goto(`${URLs.domainSearch}?search=promospromospromos`);
       await page.waitForLoadState("networkidle");
-      await expect(
-        page
-          .getByTestId("checkbox-item-promospromospromos-com")
-          .getByTestId("badge")
-      ).toBeVisible();
+      const dacCards = page.getByTestId("dac-card");
+      await expect(dacCards.first()).toBeVisible();
+      for (const card of await dacCards.all()) {
+        await expect(card.getByTestId("badge")).toBeVisible();
+      }
     });
   });
   test.describe("Promotion displayed on Catalogue", () => {
@@ -289,7 +289,7 @@ test.describe("Promotions", () => {
       await expect(page.getByText("Secure checkout")).toBeVisible();
       await checkout.selectPaymentMethod("Direct Bank Transfer");
       await checkout.clickPlaceOrder();
-      await expect(page.getByText("Order complete!")).toBeVisible();
+      await expect(page.getByText("Thank you for your order.")).toBeVisible();
       await expect(page.getByText("Discount")).toBeVisible();
     });
   });
