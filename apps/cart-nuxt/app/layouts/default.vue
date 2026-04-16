@@ -13,7 +13,7 @@
     </UpmHeader>
 
     <UpmMain>
-      <UpmLoading v-if="routingMeta.isLoading" modal />
+      <UpmLoading v-if="showLoader" modal />
       <UpmRoot>
         <!-- Page content from NuxtPage -->
         <slot />
@@ -60,6 +60,46 @@ const route = useRoute();
 const { storefrontRoute } = useStorefrontRoute();
 
 const { meta: routingMeta } = useRoutingEngine();
+
+// Debounce before showing loader to avoid flashes on fast funnel resolution.
+// Once shown, enforce a minimum display time so it doesn't flash off instantly.
+const DEBOUNCE_DELAY = 1200;
+const MIN_DISPLAY_TIME = 600;
+const showLoader = ref(false);
+let loaderTimeout: ReturnType<typeof setTimeout> | null = null;
+let loaderShownAt: number | null = null;
+
+watch(
+  () => routingMeta.value.isLoading,
+  loading => {
+    if (loading) {
+      loaderTimeout = setTimeout(() => {
+        showLoader.value = true;
+        loaderShownAt = Date.now();
+      }, DEBOUNCE_DELAY);
+    } else {
+      if (loaderTimeout) {
+        clearTimeout(loaderTimeout);
+        loaderTimeout = null;
+      }
+      if (showLoader.value && loaderShownAt) {
+        const elapsed = Date.now() - loaderShownAt;
+        const remaining = MIN_DISPLAY_TIME - elapsed;
+        if (remaining > 0) {
+          setTimeout(() => {
+            showLoader.value = false;
+            loaderShownAt = null;
+          }, remaining);
+        } else {
+          showLoader.value = false;
+          loaderShownAt = null;
+        }
+      } else {
+        showLoader.value = false;
+      }
+    }
+  }
+);
 
 // --- computed
 
