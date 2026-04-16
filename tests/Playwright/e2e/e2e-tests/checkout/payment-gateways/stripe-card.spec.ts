@@ -59,11 +59,34 @@ test.describe("Checkout with Stripe", () => {
           await checkout.inputStripeDetails(cardNumber, expiryDate, cvcCode);
           await checkout.clickPlaceOrderAndPay();
           await page.waitForURL(`order/**`);
-          await expect(page.getByText("Order complete!")).toBeVisible();
+          await expect(
+            page.getByText("Thank you for your order.")
+          ).toBeVisible();
         });
       }
     });
     test.describe("Declined Cards", async () => {
+      test.beforeEach(async ({ page, context }) => {
+        await page.goto("/");
+        await expect
+          .poll(
+            async () => {
+              const cookies = await context.cookies();
+              return cookies.some(
+                c =>
+                  c.name === "upm_guest_session" ||
+                  c.name === "upm_client_session"
+              );
+            },
+            { timeout: 30000 }
+          )
+          .toBeTruthy();
+        let guestToken = await getSessionToken(context);
+        let user = await registerClient(guestToken);
+        let username = user.email;
+        let password = user.password;
+        await getClientToken(page, username, password);
+      });
       for (const { name, cardNumber, expiryDate, cvcCode } of DeclinedCards) {
         test(`Declined Stripe Cards - ${name}`, async ({ page, context }) => {
           await goToCheckout(
@@ -86,6 +109,27 @@ test.describe("Checkout with Stripe", () => {
       }
     });
     test.describe("Fraud Checked Cards", async () => {
+      test.beforeEach(async ({ page, context }) => {
+        await page.goto("/");
+        await expect
+          .poll(
+            async () => {
+              const cookies = await context.cookies();
+              return cookies.some(
+                c =>
+                  c.name === "upm_guest_session" ||
+                  c.name === "upm_client_session"
+              );
+            },
+            { timeout: 30000 }
+          )
+          .toBeTruthy();
+        let guestToken = await getSessionToken(context);
+        let user = await registerClient(guestToken);
+        let username = user.email;
+        let password = user.password;
+        await getClientToken(page, username, password);
+      });
       for (const { name, cardNumber, expiryDate, cvcCode } of FraudCheckCards) {
         test(`Fraud Checked Stripe Cards - ${name}`, async ({
           page,
@@ -111,6 +155,27 @@ test.describe("Checkout with Stripe", () => {
       }
     });
     test.describe("Invalid Cards", async () => {
+      test.beforeEach(async ({ page, context }) => {
+        await page.goto("/");
+        await expect
+          .poll(
+            async () => {
+              const cookies = await context.cookies();
+              return cookies.some(
+                c =>
+                  c.name === "upm_guest_session" ||
+                  c.name === "upm_client_session"
+              );
+            },
+            { timeout: 30000 }
+          )
+          .toBeTruthy();
+        let guestToken = await getSessionToken(context);
+        let user = await registerClient(guestToken);
+        let username = user.email;
+        let password = user.password;
+        await getClientToken(page, username, password);
+      });
       for (const {
         name,
         cardNumber,
@@ -139,6 +204,27 @@ test.describe("Checkout with Stripe", () => {
     });
   });
   test.describe("SEPA Debit", () => {
+    test.beforeEach(async ({ page, context }) => {
+      await page.goto("/");
+      await expect
+        .poll(
+          async () => {
+            const cookies = await context.cookies();
+            return cookies.some(
+              c =>
+                c.name === "upm_guest_session" ||
+                c.name === "upm_client_session"
+            );
+          },
+          { timeout: 30000 }
+        )
+        .toBeTruthy();
+      let guestToken = await getSessionToken(context);
+      let user = await registerClient(guestToken);
+      let username = user.email;
+      let password = user.password;
+      await getClientToken(page, username, password);
+    });
     test("Valid SEPA Debit", async ({ page, context }) => {
       await goToCheckout(page, context, products.STARTER_HOSTING, null, "EUR");
       await checkout.selectPaymentMethod("Stripe");
@@ -156,6 +242,27 @@ test.describe("Checkout with Stripe", () => {
     });
   });
   test.describe("iDEAL", async () => {
+    test.beforeEach(async ({ page, context }) => {
+      await page.goto("/");
+      await expect
+        .poll(
+          async () => {
+            const cookies = await context.cookies();
+            return cookies.some(
+              c =>
+                c.name === "upm_guest_session" ||
+                c.name === "upm_client_session"
+            );
+          },
+          { timeout: 30000 }
+        )
+        .toBeTruthy();
+      let guestToken = await getSessionToken(context);
+      let user = await registerClient(guestToken);
+      let username = user.email;
+      let password = user.password;
+      await getClientToken(page, username, password);
+    });
     test("Successful iDEAL payment", async ({ page, context }) => {
       await goToCheckout(page, context, products.STARTER_HOSTING, null, "EUR");
       await checkout.selectPaymentMethod("Stripe");
@@ -166,7 +273,7 @@ test.describe("Checkout with Stripe", () => {
       await checkout.clickPlaceOrderAndPay();
       await page.getByTestId("authorize-test-payment-button").click();
       await page.waitForURL(`order/**`);
-      await expect(page.getByText("Order complete!")).toBeVisible();
+      await expect(page.getByText("Thank you for your order.")).toBeVisible();
     });
     test("Failed iDEAL payment", async ({ page, context }) => {
       await goToCheckout(page, context, products.STARTER_HOSTING, null, "EUR");
@@ -186,6 +293,27 @@ test.describe("Checkout with Stripe", () => {
     });
   });
   test.describe("Stripe Errors", async () => {
+    test.beforeEach(async ({ page, context }) => {
+      await page.goto("/");
+      await expect
+        .poll(
+          async () => {
+            const cookies = await context.cookies();
+            return cookies.some(
+              c =>
+                c.name === "upm_guest_session" ||
+                c.name === "upm_client_session"
+            );
+          },
+          { timeout: 30000 }
+        )
+        .toBeTruthy();
+      let guestToken = await getSessionToken(context);
+      let user = await registerClient(guestToken);
+      let username = user.email;
+      let password = user.password;
+      await getClientToken(page, username, password);
+    });
     test("Mock Stripe Card Decline", async ({ page, context }) => {
       await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
       await checkout.selectPaymentMethod("Stripe");

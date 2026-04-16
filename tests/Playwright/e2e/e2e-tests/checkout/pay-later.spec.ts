@@ -40,6 +40,8 @@ test.describe("Checkout with Pay Later", () => {
     await expect(page.getByRole("dialog")).toContainText(
       "Converting your order"
     );
-    await expect(page.getByRole("dialog")).toContainText("Order complete!");
+    await expect(page.getByRole("dialog")).toContainText(
+      "Thank you for your order."
+    );
   });
 });
