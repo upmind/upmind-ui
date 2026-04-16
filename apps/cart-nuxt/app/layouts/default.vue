@@ -61,7 +61,6 @@ const { storefrontRoute } = useStorefrontRoute();
 
 const { meta: routingMeta } = useRoutingEngine();
 
-
 // --- computed
 
 // add any page specific styles here based on route or other state
