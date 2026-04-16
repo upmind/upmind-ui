@@ -87,7 +87,9 @@ const emit = defineEmits<{
 
 const meta = computed(() => ({
   hasSubtitle: !!props.subtitle || !!slots.subtitle,
-  hasDescription: !props.loading && (!!props.description || !!slots.description)
+  hasDescription:
+    !props.loading && (!!props.description || !!slots.description),
+  size: props.size
 }));
 
 const styles = useStyles(["hero"], meta, config, props.uiConfig ?? {});
