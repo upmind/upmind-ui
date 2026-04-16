@@ -54,7 +54,7 @@
       "
       :billing-route="props.billingRoute"
     />
-    <BillingForm v-else />
+    <BillingForm v-else inline />
   </template>
 
   <!-- Payment Details -->

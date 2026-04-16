@@ -22,6 +22,12 @@ import type { ResponseError } from "../../utils";
 
 // -----------------------------------------------------------------------------
 
+export enum AmountKey {
+  AMOUNT = "amount",
+  OUTSTANDING = "outstanding",
+  WALLET = "wallet"
+}
+
 /**
  * Shape of a pending ADD operation stored in sessionStorage.
  * Used for off-site redirect recovery (e.g. 3DS / SCA).
@@ -265,6 +271,7 @@ export type PaymentDetailsContext = PaymentDetailsArgs & {
 
   /** True if this machine was spawned by a parent (e.g., basket). */
   isInvoked?: boolean;
+  calculateCallback?: ActorRef<any>;
   gatewayHelper?: ActorRef<any>;
   authHelper?: ActorRef<any>;
   // --- output
