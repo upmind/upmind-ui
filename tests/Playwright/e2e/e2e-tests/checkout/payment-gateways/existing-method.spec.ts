@@ -24,6 +24,6 @@ test.describe("Checkout with Existing Payment Method", () => {
     await checkout.selectPaymentMethod("Visa Ending 4242");
     await checkout.clickPlaceOrderAndPay();
     await checkout.dialogWindow.waitFor();
-    await expect(page.getByText("Order complete!")).toBeVisible();
+    await expect(page.getByText("Thank you for your order.")).toBeVisible();
   });
 });

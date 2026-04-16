@@ -83,14 +83,22 @@ export function mockPromos(
       }
     };
 
+    // Handle related.products (domain suggestions endpoint)
+    const relatedProducts = json?.related?.products;
+    if (relatedProducts && typeof relatedProducts === "object") {
+      for (const productId of Object.keys(relatedProducts)) {
+        processProduct(relatedProducts[productId]);
+      }
+    }
+
     const data = json?.data;
     if (Array.isArray(data)) {
-      // Domain search: data is an array of products
+      // Multi-product response (e.g. catalogue listings)
       for (const product of data) {
         processProduct(product);
       }
     } else if (data && typeof data === "object") {
-      // Product config: data is a single product object
+      // Single product response (e.g. product config)
       processProduct(data);
     }
 
