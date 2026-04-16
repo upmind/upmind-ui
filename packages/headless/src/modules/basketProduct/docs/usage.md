@@ -12,11 +12,11 @@ import { useBasketProducts } from "@upmind-automation/headless";
 const { products, configure, remove } = useBasketProducts();
 ```
 
-| Return | Type | Description |
-|--------|------|-------------|
-| `products` | `Ref<BasketProduct[]>` | All parsed basket products |
+| Return      | Type                                  | Description                                |
+| ----------- | ------------------------------------- | ------------------------------------------ |
+| `products`  | `Ref<BasketProduct[]>`                | All parsed basket products                 |
 | `configure` | `(id: string, opts?) => ConfigureAPI` | Spawn product machine for a basket product |
-| `remove` | `(id: string) => Promise<void>` | Remove a product from the basket |
+| `remove`    | `(id: string) => Promise<void>`       | Remove a product from the basket           |
 
 ---
 
@@ -31,12 +31,12 @@ const { meta, configure, filterUpsellOptions, resolveUpsells } =
   useBasketProductInline(basketProduct.id);
 ```
 
-| Return | Type | Description |
-|--------|------|-------------|
-| `meta` | `ComputedRef<InlineMeta>` | Inline control visibility flags |
-| `configure` | `() => ConfigureAPI` | Spawns the product machine with `allowMultipleEdits` |
-| `filterUpsellOptions` | `(options) => SubproductDetails[]` | Filters to upsell-eligible option groups |
-| `resolveUpsells` | `(machineOptions?, modelOptions?) => BasketOptionSummary[]` | Resolves upsell summaries with adjusted pricing |
+| Return                | Type                                                        | Description                                          |
+| --------------------- | ----------------------------------------------------------- | ---------------------------------------------------- |
+| `meta`                | `ComputedRef<InlineMeta>`                                   | Inline control visibility flags                      |
+| `configure`           | `() => ConfigureAPI`                                        | Spawns the product machine with `allowMultipleEdits` |
+| `filterUpsellOptions` | `(options) => SubproductDetails[]`                          | Filters to upsell-eligible option groups             |
+| `resolveUpsells`      | `(machineOptions?, modelOptions?) => BasketOptionSummary[]` | Resolves upsell summaries with adjusted pricing      |
 
 ---
 
@@ -72,11 +72,11 @@ Toggle state for an option switch in the basket.
 
 ```typescript
 type OptionToggleMeta = {
-  categoryId: string;              // Option category ID
-  valueId: string;                 // Selected value ID
-  cycle: number;                   // Billing cycle months
-  selected: boolean;               // Currently selected?
-  benefits?: { label: string }[];  // Benefit labels for display
+  categoryId: string; // Option category ID
+  valueId: string; // Selected value ID
+  cycle: number; // Billing cycle months
+  selected: boolean; // Currently selected?
+  benefits?: { label: string }[]; // Benefit labels for display
 };
 ```
 
