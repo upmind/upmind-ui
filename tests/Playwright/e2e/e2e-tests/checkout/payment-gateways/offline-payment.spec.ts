@@ -38,6 +38,6 @@ test.describe("Checkout with Offline Payment", () => {
     await page.waitForLoadState("domcontentloaded");
     await checkout.selectPaymentMethod("Offline Payment");
     await checkout.clickPlaceOrder();
-    await expect(page.getByText("Order complete!")).toBeVisible();
+    await expect(page.getByText("Thank you for your order.")).toBeVisible();
   });
 });
