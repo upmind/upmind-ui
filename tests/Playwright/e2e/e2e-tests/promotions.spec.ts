@@ -20,7 +20,6 @@ import {
 let context: BrowserContext;
 let productConfig: ProductConfig;
 let basket: Basket;
-
 let checkout: Checkout;
 let confirmation: Confirmation;
 
@@ -155,7 +154,7 @@ test.describe("Promotions", () => {
       await addProductToOrder(
         token,
         orderId,
-        products.OPTIONAL_TRIAL_PRODUCT.id,
+        products.STARTER_HOSTING.id,
         1,
         24,
         [],
@@ -289,7 +288,7 @@ test.describe("Promotions", () => {
       await expect(page.getByText("Secure checkout")).toBeVisible();
       await checkout.selectPaymentMethod("Direct Bank Transfer");
       await checkout.clickPlaceOrder();
-      await expect(page.getByText("Order complete!")).toBeVisible();
+      await expect(page.getByText("Order confirmed")).toBeVisible();
       await expect(page.getByText("Discount")).toBeVisible();
     });
   });
