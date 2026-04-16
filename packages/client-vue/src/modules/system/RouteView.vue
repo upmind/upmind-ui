@@ -1,7 +1,7 @@
 <template>
   <Root>
     <slot>
-      <RouterView v-slot="routerViewProps" :key="$route.path">
+      <RouterView v-slot="routerViewProps">
         <slot v-bind="routerViewProps">
           <Suspense>
             <component
