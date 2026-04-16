@@ -71,4 +71,6 @@ export async function getClientToken(
       sameSite: "Lax"
     }
   ]);
+  console.log(json);
+  return json;
 }

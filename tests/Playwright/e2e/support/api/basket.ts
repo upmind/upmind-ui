@@ -276,6 +276,50 @@ export async function setOrderCurrency(
   }
 }
 
+export async function setOrderAddress(
+  token: string,
+  orderId: string,
+  addressId: string,
+  companyId: string | null = null,
+  phoneId: string | null = null
+): Promise<Record<string, any>> {
+  const context: APIRequestContext = await request.newContext({
+    baseURL: `${URLs.apiUrl}`,
+    extraHTTPHeaders: {
+      accept: "*/*",
+      "accept-language": "en-GB;q=0.9,en;q=0.8",
+      authorization: `Bearer ${token}`,
+      "content-type": "application/json",
+      origin: `${URLs.apiOrigin}`,
+      referer: `${URLs.apiUrl}`,
+      "user-agent":
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36"
+    }
+  });
+
+  try {
+    const response = await context.put(`/api/orders/${orderId}?lang=en`, {
+      data: {
+        address_id: addressId,
+        company_id: companyId,
+        phone_id: phoneId
+      }
+    });
+
+    if (!response.ok()) {
+      const errorText = await response.text();
+      throw new Error(
+        `Failed to set order address: ${response.status()} ${response.statusText()} - ${errorText}`
+      );
+    }
+
+    const body = await response.json();
+    return body.data;
+  } finally {
+    await context.dispose();
+  }
+}
+
 export async function getInvoice(
   token: string,
   invoiceId: string
