@@ -164,7 +164,7 @@ export const numberFieldInputLeftVariants = cva(
   {
     variants: {
       variant: {
-        flat: "[&>i]:text-muted hover:[&>i]:text-base [&>i]:disabled:text-muted [&>i]:size-lh cursor-pointer font-normal transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-20 [&>i]:flex [&>i]:items-center [&>i]:justify-center [&>i>svg]:p-px",
+        flat: "[&>i]:text-muted [&>i]:disabled:text-muted [&>i]:size-lh cursor-pointer font-normal transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-20 [&>i]:flex [&>i]:items-center [&>i]:justify-center hover:[&>i]:text-base [&>i>svg]:p-px",
         minimal: "flex h-5 w-5 items-center justify-center p-0"
       },
       size: {
@@ -192,7 +192,7 @@ export const numberFieldInputRightVariants = cva(
   {
     variants: {
       variant: {
-        flat: "[&>i]:text-muted hover:[&>i]:text-base [&>i]:disabled:text-muted [&>i]:size-lh cursor-pointer font-normal transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-20 [&>i]:flex [&>i]:items-center [&>i]:justify-center [&>i>svg]:p-px",
+        flat: "[&>i]:text-muted [&>i]:disabled:text-muted [&>i]:size-lh cursor-pointer font-normal transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-20 [&>i]:flex [&>i]:items-center [&>i]:justify-center hover:[&>i]:text-base [&>i>svg]:p-px",
         minimal: "flex h-5 w-5 items-center justify-center p-0"
       },
       size: {
@@ -206,7 +206,11 @@ export const numberFieldInputRightVariants = cva(
       { variant: "flat", size: "sm", class: "w-1/3 py-2 text-sm" },
       { variant: "flat", size: "md", class: "w-1/3 py-2 text-sm" },
       { variant: "flat", size: "lg", class: "text-md w-1/3 py-2" },
-      { variant: "flat", width: "sm", class: "right-2 w-6 p-1 [&>i>svg]:size-4" }
+      {
+        variant: "flat",
+        width: "sm",
+        class: "right-2 w-6 p-1 [&>i>svg]:size-4"
+      }
     ],
     defaultVariants: {
       variant: "flat",
