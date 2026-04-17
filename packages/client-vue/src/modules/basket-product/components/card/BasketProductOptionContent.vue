@@ -1,43 +1,14 @@
 <template>
   <article :class="styles.product.option.root">
-    <div :class="styles.product.option.row">
+    <div :class="styles.product.option.details">
       <h5 :class="styles.product.summary.category.text">
         {{ summary.category }}
       </h5>
 
-      <ExPrice
-        :regular-price="summary.price.regularPrice"
-        :monthly-from-regular-price="
-          summary.price.monthlyFromRegularPrice ?? ''
-        "
-        :discounted="summary.meta.discounted ?? false"
-        :overridden="summary.meta.overridden"
-        :ui-config="{ pricing: { ex: [styles.product.pricing.ex] } }"
-      />
-    </div>
-
-    <div :class="styles.product.option.row">
-      <div :class="styles.product.option.content">
-        <Switch
-          v-if="props.upsell && summary.meta.toggle"
-          :id="`option-${summary.meta.toggle.categoryId}-${summary.meta.toggle.valueId}`"
-          :checked="summary.meta.toggle?.selected ?? false"
-          :disabled="error || processing"
-          size="sm"
-          @update:checked="doToggle"
-        />
-
-        <component
-          :is="meta.isToggleable ? Link : 'h3'"
-          as="h3"
-          :class="styles.product.summary.title.text"
-          @click="
-            meta.isToggleable &&
-            doToggle(!(summary.meta?.toggle?.selected ?? false))
-          "
-        >
+      <div :class="styles.product.option.title">
+        <h3 :class="styles.product.summary.title.text">
           {{ summary.title }}
-        </component>
+        </h3>
 
         <Promotion
           v-if="!isMobile"
@@ -47,44 +18,66 @@
         />
       </div>
 
-      <CurrentPrice
-        :current-price="summary.price.currentPrice"
-        :monthly-from-current-price="
-          summary.price.monthlyFromCurrentPrice ?? ''
-        "
-        :free="summary.meta.free ?? false"
-        :ui-config="{
-          pricing: { current: [styles.product.pricing.current] }
-        }"
+      <p
+        v-if="!summary.meta?.free && summary.cycle != null"
+        :class="styles.product.option.description"
       >
-        <template v-if="!summary.meta.free" #prefix>+</template>
-        <template v-if="summary.quantity && summary.quantity > 1" #suffix>
-          (x{{ summary.quantity }})
+        <template v-if="summary.meta?.oneoff || summary.cycle === 0">
+          {{ t("term.renews_msg", { n: 0, cycle: "" }) }}.
         </template>
-      </CurrentPrice>
+        <template v-else>
+          +{{
+            t("text.price_per_cycle", {
+              price: summary.price.currentPrice,
+              cycle: parseBillingCycle(summary.cycle).descriptive
+            })
+          }}.
+          <span v-if="summary.meta?.discounted" class="text-muted line-through">
+            {{
+              t("term.renews_usually_msg", {
+                price: summary.price.regularPrice
+              })
+            }}
+          </span>
+        </template>
+      </p>
     </div>
 
-    <p
-      v-if="!summary.meta?.free && summary.cycle != null"
-      class="text-muted text-sm"
-    >
-      <template v-if="summary.meta?.oneoff || summary.cycle === 0">
-        {{ t("term.renews_msg", { n: 0, cycle: "" }) }}.
-      </template>
-      <template v-else>
-        +{{
-          t("text.price_per_cycle", {
-            price: summary.price.currentPrice,
-            cycle: parseBillingCycle(summary.cycle).descriptive
-          })
-        }}.
-        <span v-if="summary.meta?.discounted" class="text-muted line-through">
-          {{
-            t("term.renews_usually_msg", { price: summary.price.regularPrice })
-          }}
-        </span>
-      </template>
-    </p>
+    <Button
+      v-if="!summary.meta?.toggle?.selected"
+      :label="t('action.add_option')"
+      icon="plus"
+      variant="outline"
+      color="neutral"
+      size="md"
+      :class="styles.product.option.action"
+      :disabled="error || processing"
+      @click="doToggle(true)"
+    />
+
+    <Button
+      v-else-if="!summary.meta?.quantifiable"
+      :label="t('action.added_to_basket')"
+      icon="check-circle-broken"
+      variant="solid"
+      color="secondary"
+      size="md"
+      :class="styles.product.option.action"
+      :disabled="error || processing"
+      @click="doToggle(false)"
+    />
+
+    <BasketQuantityField
+      v-else
+      :id="`option-qty-${summary.meta?.toggle?.categoryId}-${summary.meta?.toggle?.valueId}`"
+      :class="styles.product.option.action"
+      quantifiable
+      :quantity="summary.quantity"
+      :min="1"
+      :disabled="error || processing"
+      @update:quantity="value => emits('update:quantity', value)"
+      @remove="doToggle(false)"
+    />
   </article>
 </template>
 
@@ -94,10 +87,9 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- components
-import { Link, Switch } from "@upmind-automation/upmind-ui";
-import CurrentPrice from "../../../product/components/pricing/CurrentPrice.vue";
-import ExPrice from "../../../product/components/pricing/ExPrice.vue";
+import { Button } from "@upmind-automation/upmind-ui";
 import Promotion from "./components/Promotion.vue";
+import BasketQuantityField from "./components/BasketQuantityField.vue";
 
 // --- internal
 import { useStyles, isMobile } from "@upmind-automation/upmind-ui";
@@ -119,11 +111,10 @@ const { t } = useI18n();
 
 const options = defineModel<OptionTogglePayload>("options");
 
-const meta = computed(() => {
-  return {
-    isToggleable: props.upsell && props.summary.meta.toggle
-  };
-});
+const meta = computed(() => ({
+  selected: !!props.summary.meta?.toggle?.selected,
+  quantifiable: !!props.summary.meta?.quantifiable
+}));
 
 const styles = useStyles(
   [
@@ -133,9 +124,8 @@ const styles = useStyles(
     "product.option",
     "product.pricing"
   ],
-  props,
-  config,
-  meta
+  meta,
+  config
 );
 
 // --- methods

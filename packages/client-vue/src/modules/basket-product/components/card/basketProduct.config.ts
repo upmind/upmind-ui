@@ -58,13 +58,22 @@ export default {
       }
     },
     option: {
-      row: cva("flex items-center justify-between"),
-      root: cva("flex flex-col"),
+      root: cva("flex w-full items-center gap-3"),
+      details: cva("flex min-w-0 flex-1 flex-col"),
+      title: cva("flex items-center gap-2"),
+      description: cva("text-base text-sm", {
+        variants: {
+          selected: { true: "", false: "" },
+          quantifiable: { true: "", false: "" }
+        },
+        compoundVariants: [
+          { selected: true, quantifiable: true, class: "text-faint" }
+        ]
+      }),
+      action: cva("min-w-36 shrink-0"),
       upsell: cva(
         "border-surface flex flex-col gap-4 border-t px-6 py-6 lg:px-8"
       ),
-      content: cva("flex items-center gap-3"),
-      footer: cva("flex flex-col items-end"),
       benefits: {
         list: cva("text-muted flex flex-col gap-1 text-sm"),
         item: cva("flex items-start gap-2"),

@@ -246,7 +246,7 @@ const optionsModel = computed({
     const { option, value: optValue, enabled } = value;
     config
       .toggleOption(option, optValue.id, enabled)
-      .then(() => config.update());
+      .then(() => debouncedUpdate());
   }
 });
 
