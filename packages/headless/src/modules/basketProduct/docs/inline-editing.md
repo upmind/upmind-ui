@@ -28,17 +28,17 @@ The inline composable (`useBasketProductInline`) is created for every basket pro
   hasUpsellOptions: boolean; // product has inline-configurable options
   showOptionUpsells: boolean; // upsell section should render
   showTermSelector: boolean; // term dropdown should render
-  showQuantity: boolean; // quantity field should render
 }
 ```
 
-| Flag                | True when                                                     | Config property                                       |
-| ------------------- | ------------------------------------------------------------- | ----------------------------------------------------- |
-| `hasUpsellOptions`  | Any option has `data.optionUpsellEnabled === true`            | `optionUpsellEnabled` (OPTION scope)                  |
-| `showOptionUpsells` | `hasUpsellOptions` AND `ui.optionUpsells.isVisible`           | `optionUpsells` (UI visibility)                       |
-| `showTermSelector`  | `ui.productTermSelector.isVisible` AND product is not one-off | `productTermSelector` (UI visibility, default HIDDEN) |
-| `showQuantity`      | Product `order_type` is `QUANTIFIABLE` (enum 2)               | N/A — derived from product data                       |
-| `hasInlineControls` | Any of the above three are `true`                             | —                                                     |
+| Flag                | True when                                                                                              | Config property                                       |
+| ------------------- | ------------------------------------------------------------------------------------------------------ | ----------------------------------------------------- |
+| `hasUpsellOptions`  | Any option has `data.optionUpsellEnabled === true`                                                     | `optionUpsellEnabled` (OPTION scope)                  |
+| `showOptionUpsells` | `hasUpsellOptions` AND `ui.optionUpsells.isVisible`                                                    | `optionUpsells` (UI visibility)                       |
+| `showTermSelector`  | `ui.productTermSelector.isVisible` AND product is not one-off                                          | `productTermSelector` (UI visibility, default HIDDEN) |
+| `hasInlineControls` | Any of the above two are `true`, OR `productDetails.quantifiable` is `true` (quantity/remove control) | —                                                     |
+
+> The quantity/remove control always renders inline: `NumberField` when `productDetails.quantifiable` is `true`, otherwise a trash-icon button to remove the item. It is not guarded by a `meta` flag — consumers read `productDetails.quantifiable` directly.
 
 > **🧪 For Testers:** If no inline controls appear, check: is `productTermSelector` set to visible? Does the product have options with `optionUpsellEnabled`? Is the product quantifiable?
 
@@ -233,7 +233,7 @@ This flag is set during `parseSummaryDetail()` in the headless layer and passed 
 
 ## Quantity Editing
 
-Appears when `showQuantity` is `true` — the product's `order_type` is `QUANTIFIABLE`.
+Appears when `productDetails.quantifiable` is `true` — the product's `order_type` is `QUANTIFIABLE`. When `false`, the same slot renders a trash button so the item can still be removed inline.
 
 Quantity changes are **debounced** (500ms) before auto-saving to prevent API spam while the user clicks +/-.
 

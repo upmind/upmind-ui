@@ -146,11 +146,24 @@
       <div :class="styles.product.summary.footer.terms.root">
         <div :class="styles.product.summary.footer.terms.controls">
           <BasketQuantityField
+            v-if="productDetails.quantifiable"
             v-bind="productDetails"
             :id="id"
             v-model:quantity="quantity"
             :disabled="error"
             @remove="doRemove"
+          />
+
+          <Button
+            v-else
+            icon="trash-02"
+            variant="control"
+            color="neutral"
+            size="md"
+            icon-only
+            :aria-label="t('action.remove')"
+            :disabled="error"
+            @click="doRemove"
           />
 
           <BasketProductTermSelector
@@ -183,6 +196,7 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 // --- components
 import {
   Badge,
+  Button,
   Link,
   Icon,
   Tooltip,
