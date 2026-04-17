@@ -1,18 +1,28 @@
 <template>
-  {{
-    t("term.renews_msg", {
-      n: props.cycle,
-      cycle: parseBillingCycle(props.cycle!).descriptive
-    })
-  }}.
+  <div>
+    <p class="text-faint text-sm">
+      {{
+        t("term.renews_msg", {
+          n: props.cycle,
+          cycle: parseBillingCycle(props.cycle!).descriptive
+        })
+      }}.
+    </p>
 
-  <template v-if="props.discounted && !props.oneoff && !props.freeTrial">
-    {{ t("term.renews_usually_msg", { price: props.regularPrice }) }}.
-  </template>
+    <p
+      v-if="props.discounted && !props.oneoff && !props.freeTrial"
+      class="text-faint text-sm"
+    >
+      {{ t("term.renews_usually_msg", { price: props.regularPrice }) }}.
+    </p>
 
-  <template v-else-if="props.freeTrial && !props.oneoff && props.renewalPrice">
-    {{ t("term.renews_usually_msg", { price: props.renewalPrice }) }}.
-  </template>
+    <p
+      v-else-if="props.freeTrial && !props.oneoff && props.renewalPrice"
+      class="text-faint text-sm"
+    >
+      {{ t("term.renews_usually_msg", { price: props.renewalPrice }) }}.
+    </p>
+  </div>
 </template>
 
 <script lang="ts" setup>
