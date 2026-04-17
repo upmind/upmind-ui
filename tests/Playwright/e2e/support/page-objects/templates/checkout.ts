@@ -32,7 +32,7 @@ export class Checkout {
   readonly addVoucherMessage: Locator;
   readonly applyVoucherButton: Locator;
   readonly dialogWindow: Locator;
-  readonly accountCreditCheckbox: Locator;
+  readonly accountCredit: Locator;
   readonly placeOrderAndPay: Locator;
   readonly placeOrder: Locator;
   readonly payAmount: Locator;
@@ -94,9 +94,7 @@ export class Checkout {
     );
     this.applyVoucherButton = this.page.getByTestId("button-apply");
     this.dialogWindow = this.page.getByTestId("dialog-window");
-    this.accountCreditCheckbox = this.page.getByTestId(
-      "checkbox-item-account-credit"
-    );
+    this.accountCredit = this.page.getByTestId("account-credit");
     this.placeOrderAndPay = this.page.getByTestId("button-place-order-and-pay");
     this.placeOrder = this.page.getByTestId("button-place-order");
     this.payAmount = this.page
@@ -153,21 +151,7 @@ export class Checkout {
   async clickPlaceOrderAndPay() {
     const placeOrderButton = this.placeOrderAndPay;
     await expect(placeOrderButton).toBeEnabled();
-    const currentUrl = this.page.url();
-    const pollForDisabled = expect
-      .poll(
-        async () => {
-          await placeOrderButton.click();
-          return await placeOrderButton.isDisabled();
-        },
-        { timeout: 10000, intervals: [500, 1000, 2000] }
-      )
-      .toBe(true);
-    const waitForNavigation = this.page.waitForURL(
-      url => url.toString() !== currentUrl,
-      { timeout: 10000 }
-    );
-    await Promise.race([pollForDisabled, waitForNavigation]);
+    await placeOrderButton.click();
   }
 
   async clickPlaceOrder() {
