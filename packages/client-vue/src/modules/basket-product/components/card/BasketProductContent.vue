@@ -122,6 +122,14 @@
 
     <footer :class="styles.product.summary.footer.root">
       <div :class="styles.product.summary.footer.terms.root">
+        <BasketQuantityField
+          v-bind="productDetails"
+          :id="id"
+          v-model:quantity="quantity"
+          :disabled="error"
+          @remove="doRemove"
+        />
+
         <BasketProductTermSelector
           v-if="props.inlineMeta?.showTermSelector && props.terms"
           :terms="props.terms"
@@ -134,14 +142,6 @@
       </div>
 
       <div :class="styles.product.summary.footer.price.root">
-        <BasketQuantityField
-          v-bind="productDetails"
-          :id="id"
-          v-model:quantity="quantity"
-          :disabled="error"
-          @remove="doRemove"
-        />
-
         <div :class="styles.product.summary.footer.price.container">
           <ExPrice
             v-if="!summary.meta?.freeTrial"
