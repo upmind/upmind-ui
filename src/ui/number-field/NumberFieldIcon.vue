@@ -1,9 +1,5 @@
 <template>
-  <Icon
-    :icon="icon"
-    :size="variant === 'flat' ? '2xs' : 'xs'"
-    :class="variant === 'flat' ? '' : '[&>svg]:p-[1px]'"
-  />
+  <Icon :icon="icon" :size="variant === 'flat' ? '2xs' : 'xs'" />
 </template>
 
 <script setup lang="ts">

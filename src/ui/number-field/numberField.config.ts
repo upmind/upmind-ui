@@ -2,19 +2,21 @@ import { cva } from "class-variance-authority";
 import { ringClasses } from "../../assets/styles";
 // -----------------------------------------------------------------------------
 
+const widthVariants = {
+  auto: "",
+  xs: "",
+  sm: "",
+  md: "",
+  lg: "",
+  xl: "",
+  "2xl": "",
+  full: "",
+  app: ""
+};
+
 export const numberFieldRootVariants = cva("group inline-block", {
   variants: {
-    width: {
-      auto: "",
-      xs: "",
-      sm: "",
-      md: "",
-      lg: "",
-      xl: "",
-      "2xl": "",
-      full: "",
-      app: ""
-    },
+    width: widthVariants,
     size: {
       sm: "",
       md: "",
@@ -77,7 +79,7 @@ export const numberFieldRootVariants = cva("group inline-block", {
     {
       variant: "flat",
       width: "sm",
-      class: "lg:w-80"
+      class: "w-21"
     },
     {
       variant: "flat",
@@ -121,7 +123,7 @@ export const numberFieldVariants = cva(
   {
     variants: {
       variant: {
-        flat: `shadow-control-default bg-control-surface hover:shadow-control-hover control-radius`,
+        flat: `shadow-control-default bg-control-surface group-hover:shadow-control-hover control-radius`,
         minimal: "rounded-full py-3 font-medium shadow-none!"
       },
       size: {
@@ -162,19 +164,21 @@ export const numberFieldInputLeftVariants = cva(
   {
     variants: {
       variant: {
-        flat: "bg-control-surface shadow-control-r-none hover:shadow-control-hover-r-none [&>i]:disabled:text-muted [&>i]:size-lh control-radius-l cursor-pointer font-normal transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-20 [&>i]:flex [&>i]:items-center [&>i]:justify-center",
+        flat: "[&>i]:text-muted hover:[&>i]:text-base [&>i]:disabled:text-muted [&>i]:size-lh cursor-pointer font-normal transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-20 [&>i]:flex [&>i]:items-center [&>i]:justify-center [&>i>svg]:p-px",
         minimal: "flex h-5 w-5 items-center justify-center p-0"
       },
       size: {
         sm: "",
         md: "",
         lg: ""
-      }
+      },
+      width: widthVariants
     },
     compoundVariants: [
       { variant: "flat", size: "sm", class: "w-1/3 py-2 text-sm" },
       { variant: "flat", size: "md", class: "w-1/3 py-2 text-sm" },
-      { variant: "flat", size: "lg", class: "text-md w-1/3 py-2" }
+      { variant: "flat", size: "lg", class: "text-md w-1/3 py-2" },
+      { variant: "flat", width: "sm", class: "left-2 w-6 p-1 [&>i>svg]:size-4" }
     ],
     defaultVariants: {
       variant: "flat",
@@ -188,19 +192,21 @@ export const numberFieldInputRightVariants = cva(
   {
     variants: {
       variant: {
-        flat: "bg-control-surface shadow-control-l-none hover:shadow-control-hover-l-none [&>i]:disabled:text-muted [&>i]:size-lh control-radius-r cursor-pointer font-normal transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-20 [&>i]:flex [&>i]:items-center [&>i]:justify-center",
+        flat: "[&>i]:text-muted hover:[&>i]:text-base [&>i]:disabled:text-muted [&>i]:size-lh cursor-pointer font-normal transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-20 [&>i]:flex [&>i]:items-center [&>i]:justify-center [&>i>svg]:p-px",
         minimal: "flex h-5 w-5 items-center justify-center p-0"
       },
       size: {
         sm: "",
         md: "",
         lg: ""
-      }
+      },
+      width: widthVariants
     },
     compoundVariants: [
       { variant: "flat", size: "sm", class: "w-1/3 py-2 text-sm" },
       { variant: "flat", size: "md", class: "w-1/3 py-2 text-sm" },
-      { variant: "flat", size: "lg", class: "text-md w-1/3 py-2" }
+      { variant: "flat", size: "lg", class: "text-md w-1/3 py-2" },
+      { variant: "flat", width: "sm", class: "right-2 w-6 p-1 [&>i>svg]:size-4" }
     ],
     defaultVariants: {
       variant: "flat",
