@@ -123,7 +123,7 @@ export function hasRouteChanged(
   } = {
     guardName: true,
     guardParams: true,
-    guardQuery: false
+    guardQuery: true
   }
 ): boolean {
   if (!target) return false;
@@ -138,7 +138,14 @@ export function hasRouteChanged(
       (value, key) => !isEqual(get(route?.params, key), value)
     );
 
-  const changedQuery = !!guardQuery && !isEqual(route?.query, target?.query);
+  // FE-2651: Only compare keys present in target query — avoids spurious
+  // redirects from defaultsDeep filling query: {} in awaitResolved.
+  const changedQuery =
+    !!guardQuery &&
+    some(
+      target?.query,
+      (value, key) => !isEqual(get(route?.query, key), value)
+    );
 
   // console.debug("Route Change Detection:", {
   //   route,
