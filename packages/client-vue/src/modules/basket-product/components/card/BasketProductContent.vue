@@ -144,21 +144,23 @@
 
     <footer :class="styles.product.summary.footer.root">
       <div :class="styles.product.summary.footer.terms.root">
-        <BasketQuantityField
-          v-bind="productDetails"
-          :id="id"
-          v-model:quantity="quantity"
-          :disabled="error"
-          @remove="doRemove"
-        />
+        <div :class="styles.product.summary.footer.terms.controls">
+          <BasketQuantityField
+            v-bind="productDetails"
+            :id="id"
+            v-model:quantity="quantity"
+            :disabled="error"
+            @remove="doRemove"
+          />
 
-        <BasketProductTermSelector
-          v-if="props.inlineMeta?.showTermSelector && props.terms"
-          :terms="props.terms"
-          v-model="term"
-          :disabled="error || !isEmpty(props.configErrors)"
-          :processing="processing"
-        />
+          <BasketProductTermSelector
+            v-if="props.inlineMeta?.showTermSelector && props.terms"
+            :terms="props.terms"
+            v-model="term"
+            :disabled="error || !isEmpty(props.configErrors)"
+            :processing="processing"
+          />
+        </div>
 
         <RenewDescription
           :cycle="summary.cycle"
