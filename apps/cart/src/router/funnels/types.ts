@@ -6,6 +6,13 @@ export enum RegexMatch {
 }
 
 /**
+ * Optional path prefix for basket ID routes.
+ * Matches: `/basket/{uuid}/` or empty string (both segments optional).
+ * Used in definePageMeta `path` overrides — mirrors cart's routes.ts.
+ */
+export const BID_PREFIX = `:segment(basket)?/:bid(${RegexMatch.UUID})?`;
+
+/**
  * Enumeration representing predefined application routes and navigational paths.
  * These routes are used consistently throughout the Upmind Cart for navigation,
  * deep linking, and managing application state transitions.

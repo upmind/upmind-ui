@@ -1,20 +1,12 @@
 // --- internal
-import { useBrand } from "@upmind-automation/client-vue";
-import { ROUTE, RegexMatch } from "./types";
+import { ROUTE, RegexMatch } from "./funnels/types";
 // --- utils
 import { trimStart } from "lodash-es";
 // --- types
 import type { RouteLocationGeneric, RouteRecordRaw } from "vue-router";
 
+import { BID_PREFIX } from "./funnels/types";
 // -----------------------------------------------------------------------------
-
-/**
- * Optional basket ID path prefix used by most routes.
- * When both params are provided (`segment: 'basket'`, `bid: '<uuid>'`),
- * routes render as `/order/basket/{bid}/...`.
- * When omitted, routes render as `/order/...` (current basket).
- */
-const BID_PREFIX = `:segment(basket)?/:bid(${RegexMatch.UUID})?`;
 
 export default [
   /**

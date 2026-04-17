@@ -1,3 +1,4 @@
+import { ROUTE } from "../types";
 import {
   type FunnelContext,
   useBasket,
@@ -30,55 +31,8 @@ import {
   SemanticTypes,
   UpmindModuleCodes
 } from "@upmind-automation/types";
-import { ROUTE } from ".";
 import { filter, first, includes, reduce } from "lodash-es";
 import { useRouter, type RouteLocationGeneric } from "vue-router";
-
-// -----------------------------------------------------------------------------
-
-/**
- * Applies the client's default address, company and phone to the basket
- * billing details.  Returns a promise that resolves once the update settles
- * (or immediately if billing is already complete).
- *
- * Shared between the `setBillingDefaults` entry action (fire-and-forget) and
- * `guardBilling` (awaited) so the logic lives in a single place.
- */
-export async function applyBillingDefaults(): Promise<void> {
-  const {
-    isReady: isBillingReady,
-    meta: billingMeta,
-    config: billingConfig,
-    update
-  } = useBasketBilling();
-
-  // NB: isBillingReady() already gates on a valid auth session via the
-  // billing machine's `subscribing` state (`hasClient` guard), so no
-  // separate isAuthenticated() call is needed here.
-  await isBillingReady();
-
-  if (billingMeta.value.isComplete) return;
-
-  const { default: defaultAddress, isReady: isAddressesReady } =
-    useClientAddresses();
-  const { default: defaultCompany, isReady: isCompaniesReady } =
-    useClientCompanies();
-  const { default: defaultPhone, isReady: isPhonesReady } = useClientPhones();
-
-  await Promise.allSettled([
-    isAddressesReady(),
-    isCompaniesReady(),
-    isPhonesReady()
-  ]);
-
-  const company = billingConfig.value?.requiresCompany && defaultCompany();
-
-  await update({
-    companyId: company?.id,
-    addressId: company?.addressId ?? defaultAddress()?.id,
-    phoneId: billingConfig.value?.requiresPhone && defaultPhone()?.id
-  }).catch(() => {});
-}
 
 // -----------------------------------------------------------------------------
 
@@ -128,6 +82,52 @@ async function ensureBidAuth(
   }
 
   return basketId;
+}
+
+// -----------------------------------------------------------------------------
+
+/**
+ * Applies the client's default address, company and phone to the basket
+ * billing details.  Returns a promise that resolves once the update settles
+ * (or immediately if billing is already complete).
+ *
+ * Shared between the `setBillingDefaults` entry action (fire-and-forget) and
+ * `guardBilling` (awaited) so the logic lives in a single place.
+ */
+export async function applyBillingDefaults(): Promise<void> {
+  const {
+    isReady: isBillingReady,
+    meta: billingMeta,
+    config: billingConfig,
+    update
+  } = useBasketBilling();
+
+  // NB: isBillingReady() already gates on a valid auth session via the
+  // billing machine's `subscribing` state (`hasClient` guard), so no
+  // separate isAuthenticated() call is needed here.
+  await isBillingReady();
+
+  if (billingMeta.value.isComplete) return;
+
+  const { default: defaultAddress, isReady: isAddressesReady } =
+    useClientAddresses();
+  const { default: defaultCompany, isReady: isCompaniesReady } =
+    useClientCompanies();
+  const { default: defaultPhone, isReady: isPhonesReady } = useClientPhones();
+
+  await Promise.allSettled([
+    isAddressesReady(),
+    isCompaniesReady(),
+    isPhonesReady()
+  ]);
+
+  const company = billingConfig.value?.requiresCompany && defaultCompany();
+
+  await update({
+    companyId: company?.id,
+    addressId: company?.addressId ?? defaultAddress()?.id,
+    phoneId: billingConfig.value?.requiresPhone && defaultPhone()?.id
+  }).catch(() => {});
 }
 
 // -----------------------------------------------------------------------------
@@ -501,53 +501,48 @@ export default {
     targetRoute
   }: FunnelContext): Promise<FunnelResponse> => {
     const { meta, isReady, setTargetBasket, targetBasketId } = useBasket();
-    const { meta: authMeta } = useSession();
+    const { isAuthenticated } = useSession();
     const { router } = useRoutingEngine();
 
-    const { getParam } = useQueryParams(
-      (targetRoute ?? currentRoute) as RouteLocationGeneric
-    );
-    let bid = getParam(QUERY_PARAMS.BASKET_ID);
+    const route: RouteLocationGeneric =
+      (targetRoute as RouteLocationGeneric) ??
+      (currentRoute as RouteLocationGeneric) ??
+      router.resolve({ name: ROUTE.BASKET, params: { bid: "" } });
+
+    const { getParam } = useQueryParams(route);
+    const basketId = getParam(QUERY_PARAMS.BASKET_ID);
 
     // When accessing a specific basket by ID, gate on authentication
-    if (bid && !meta.value.isUnavailable) {
-      if (!authMeta.value.isAuthenticated) {
-        const route: RouteLocationGeneric =
-          (targetRoute as RouteLocationGeneric) ??
-          (currentRoute as RouteLocationGeneric) ??
-          router.resolve({
-            name: ROUTE.BASKET,
-            params: { bid }
-          });
+    if (basketId) {
+      const authenticated = await isAuthenticated().catch(() => false);
+      if (!authenticated) {
+        // Use the actual route path so post-login redirects back to the
+        // original page — not just the basket.
+        const returnUrl = route?.fullPath || route?.path;
 
         return Promise.reject({
           target: {
             name: ROUTE.SESSION,
-            params: { segment: "basket", bid },
-            query: { [QUERY_PARAMS.RETURN_URL]: route.fullPath }
+            params: { segment: "basket", bid: basketId },
+            query: { [QUERY_PARAMS.RETURN_URL]: returnUrl }
           }
         } as FunnelResponse);
       }
 
       // Set target BEFORE waiting — single load, no actors to cancel.
-      if (targetBasketId.value !== bid) {
-        await setTargetBasket(bid);
-        if (meta.value.isUnavailable) {
-          return {
-            target: targetRoute ?? {
-              name: ROUTE.BASKET
-            }
-          };
-        }
+      if (targetBasketId.value !== basketId) {
+        setTargetBasket(basketId);
       }
-      await isReady();
+      // @deprecated — Removed to avoid blocking render behind the global loader.
+      // Basket pages now rely on inline skeleton states for loading feedback.
+      // await isReady();
 
       // If the basket loaded successfully with the target ID, resolve
       if (targetBasketId.value) {
         return {
           target: targetRoute ?? {
             name: ROUTE.BASKET,
-            params: { bid }
+            params: { bid: basketId }
           }
         };
       }
@@ -559,7 +554,6 @@ export default {
     // Standard basket guard — check current basket has products
     await isReady();
     if (!meta.value.hasProducts) return Promise.reject();
-
     return { target: targetRoute ?? { name: ROUTE.BASKET } };
   },
 

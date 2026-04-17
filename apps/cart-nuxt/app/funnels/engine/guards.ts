@@ -105,6 +105,8 @@ export default {
    */
   hasReturnUrl: ({ targetRoute }: FunnelContext) => {
     const returnUrl = get(targetRoute, ["query", QUERY_PARAMS.RETURN_URL]);
-    return !isEmpty(returnUrl);
+    const result = !isEmpty(returnUrl);
+    console.debug("[guard] hasReturnUrl", { returnUrl, result, targetRoute });
+    return result;
   }
 };

@@ -1,14 +1,15 @@
+import { get, isEmpty } from "lodash-es";
+
 import {
   type AnyEventObject,
   type FunnelContext,
-  QUERY_PARAMS,
   UIContext,
   useBasket,
   useConfig,
   useQueryParams,
   useSession
 } from "@upmind-automation/client-vue";
-import { isEmpty } from "lodash-es";
+import { QUERY_PARAMS } from "@upmind-automation/types";
 import type { RouteLocationGeneric } from "vue-router";
 
 // -----------------------------------------------------------------------------
@@ -19,6 +20,13 @@ import type { RouteLocationGeneric } from "vue-router";
  * @returns  boolean
  */
 export default {
+  /**
+   * Returns true when the service response target matches the current route.
+   * Used by SESSION states to detect when guardSession resolves back to the
+   * same page (no returnUrl), so the funnel can fall through to its own default.
+   */
+  isSameRoute: ({ currentRoute }: FunnelContext, { data }: AnyEventObject) =>
+    data?.target?.name === currentRoute?.name,
   hasPid: ({ targetRoute }: FunnelContext, { data }: AnyEventObject) => {
     const route = data?.target ?? targetRoute;
     const { productId } = useQueryParams(route as RouteLocationGeneric);
@@ -47,14 +55,6 @@ export default {
       !isEmpty(route?.query?.[QUERY_PARAMS.BASKET_ID])
     );
   },
-  /**
-   * Returns true when the service response target matches the current route.
-   * Used by SESSION states to detect when guardSession resolves back to the
-   * same page (no returnUrl), so the funnel can fall through to its own default.
-   */
-  isSameRoute: ({ currentRoute }: FunnelContext, { data }: AnyEventObject) =>
-    data?.target?.name === currentRoute?.name,
-
   hasProductConfigs: ({ currentRoute }: FunnelContext) => {
     const { productConfigs } = useQueryParams(currentRoute);
     return !isEmpty(productConfigs);
@@ -97,5 +97,14 @@ export default {
   isAuthenticated: () => {
     const { meta } = useSession();
     return !!meta.value?.isAuthenticated;
+  },
+
+  /**
+   * Returns true when targetRoute.query contains a returnUrl.
+   * Used to conditionally resolve returnUrl after auth success.
+   */
+  hasReturnUrl: ({ targetRoute }: FunnelContext) => {
+    const returnUrl = get(targetRoute, ["query", QUERY_PARAMS.RETURN_URL]);
+    return !isEmpty(returnUrl);
   }
 };

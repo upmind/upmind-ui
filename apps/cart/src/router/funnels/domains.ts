@@ -1,7 +1,7 @@
 // --- internal
-import actions from "../actions";
-import guards from "../guards";
-import services from "../services";
+import actions from "./engine/actions";
+import guards from "./engine/guards";
+import services from "./engine/services";
 
 // --- utils
 
@@ -11,13 +11,11 @@ import {
   useBasketProducts,
   useQueryParams,
   type FunnelProps,
-  parseDomain,
   getDomainBasketProducts
 } from "@upmind-automation/client-vue";
 
-import { ROUTE } from "../types";
-import { ProvisionCategoryCodes } from "@upmind-automation/types";
-import { isEmpty, some } from "lodash-es";
+import { ROUTE } from "./types";
+import { isEmpty } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
