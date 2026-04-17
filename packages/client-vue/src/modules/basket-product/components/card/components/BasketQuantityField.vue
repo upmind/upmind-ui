@@ -7,7 +7,7 @@
     :max="max"
     :step="step"
     :disabled="disabled"
-    width="md"
+    width="sm"
     :decrement-action="decrementAction"
   />
 </template>
@@ -43,7 +43,7 @@ const isAtMinimum = computed(() => props.quantity === effectiveMin.value);
 
 const decrementAction = computed(() => {
   if (isAtMinimum.value) {
-    return { icon: "trash-01", handler: doRemove };
+    return { icon: "trash-02", handler: doRemove };
   }
 });
 

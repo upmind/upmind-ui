@@ -9,6 +9,7 @@
       :items="parsedTerms"
       :disabled="disabled || processing"
       :placeholder="t('form.select_option.placeholder')"
+      size="sm"
       :ui-config="{
         select: {
           content: [styles.product.summary.footer.terms.content]
