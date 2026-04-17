@@ -149,13 +149,13 @@ export const useBasketProductInline = (bpid: string) => {
     const showTermSelector =
       ui.productTermSelector.isVisible && !basketProduct.meta?.oneoff;
 
-    const showQuantity = !!basketProduct.productDetails.quantifiable;
-
     return {
-      hasInlineControls: showOptionUpsells || showTermSelector || showQuantity,
+      hasInlineControls:
+        showOptionUpsells ||
+        showTermSelector ||
+        !!basketProduct.productDetails.quantifiable,
       hasUpsellOptions,
       showOptionUpsells,
-      showQuantity,
       showTermSelector
     };
   });
