@@ -182,8 +182,8 @@ export const useFunnelMachine = ({
                   target: `available.${state}`,
                   actions: [
                     "setResolving",
-                    "setCurrentRoute",
-                    "setTargetRoute"
+                    "setTargetRoute",
+                    "setCurrentRoute"
                   ],
                   cond: `is${pascalCase(state)}`
                 };
@@ -192,8 +192,8 @@ export const useFunnelMachine = ({
                 target: "available.idle",
                 actions: [
                   "setFallbackResolved",
-                  "setCurrentRoute",
-                  "setTargetRoute"
+                  "setTargetRoute",
+                  "setCurrentRoute"
                 ]
               }
             ]
@@ -325,14 +325,31 @@ export const useFunnelMachine = ({
 
         setTargetRoute: assign({
           targetRoute: (
-            { targetRoute }: FunnelContext,
+            { targetRoute, currentRoute }: FunnelContext,
             { data }: AnyEventObject
           ) => {
             const target = isString(data?.target)
               ? { name: data.target }
               : data?.target;
 
-            return target ?? targetRoute;
+            // return target ?? targetRoute;
+
+            const resolved = target ?? targetRoute;
+
+            // FE-2651: Carry forward currentRoute.query when the incoming
+            // target has no/empty query. Runs BEFORE setCurrentRoute so
+            // currentRoute still holds the previous page's data.
+            // Preserves query params (e.g. returnUrl) during in-funnel
+            // transitions like login ↔ register ↔ recover-password.
+            if (
+              resolved &&
+              isEmpty(resolved?.query) &&
+              !isEmpty(currentRoute?.query)
+            ) {
+              return { ...resolved, query: currentRoute.query };
+            }
+
+            return resolved;
           }
         }),
 
