@@ -168,7 +168,13 @@ export default {
         ? { name: data.target }
         : data?.target;
 
-      return injectBid(target ?? context.targetRoute);
+      const result = injectBid(target ?? context.targetRoute);
+      console.debug("[cart:setResolved]", {
+        targetRoute: result?.name,
+        dataTarget: data?.target?.name,
+        contextTarget: context.targetRoute?.name
+      });
+      return result;
     },
     resolved: true
   }),

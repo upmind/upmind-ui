@@ -1,68 +1,66 @@
 <template>
-  <Transitions>
-    <component :is="templateVariant">
-      <template v-if="!isSlotHidden('hero')" #hero>
-        <slot name="hero">
-          <Hero
-            :title="t('billing.your_details')"
-            :description="t('billing.your_details_msg')"
-            :badge="{
-              label: t('text.fully_encrypted_title'),
-              icon: 'lock-04'
-            }"
-            :action="{
-              label: t('action.back_to_basket'),
-              icon: 'flip-backward',
-              color: 'primary',
-              variant: 'subtle',
-              size: 'lg'
-            }"
-            size="3xl"
-            @action="navigateBack"
-          />
-        </slot>
-      </template>
+  <component :is="templateVariant">
+    <template v-if="!isSlotHidden('hero')" #hero>
+      <slot name="hero">
+        <Hero
+          :title="t('billing.your_details')"
+          :description="t('billing.your_details_msg')"
+          :badge="{
+            label: t('text.fully_encrypted_title'),
+            icon: 'lock-04'
+          }"
+          :action="{
+            label: t('action.back_to_basket'),
+            icon: 'flip-backward',
+            color: 'primary',
+            variant: 'subtle',
+            size: 'lg'
+          }"
+          size="3xl"
+          @action="navigateBack"
+        />
+      </slot>
+    </template>
 
-      <template #content>
-        <slot name="content">
-          <BillingForm
-            expand
-            :auto-update="false"
-            :inline="
-              template === BILLING_TEMPLATE.ENCLOSED ||
-              template === BILLING_TEMPLATE.FULL
-            "
-          />
-        </slot>
-      </template>
+    <template #content>
+      <slot name="content">
+        <BillingForm
+          expand
+          :auto-update="false"
+          :inline="
+            template === BILLING_TEMPLATE.ENCLOSED ||
+            template === BILLING_TEMPLATE.FULL
+          "
+        />
+      </slot>
+    </template>
 
-      <template
-        v-if="ui.trustMessaging.isVisible && data.trustMessagingMarkdown"
-        #markdown
-      >
-        <slot name="markdown">
-          <Markdown
-            data-testid="slots:summary-append"
-            :model-value="data.trustMessagingMarkdown"
-          />
-        </slot>
-      </template>
+    <template
+      v-if="ui.trustMessaging.isVisible && data.trustMessagingMarkdown"
+      #markdown
+    >
+      <slot name="markdown">
+        <Markdown
+          data-testid="slots:summary-append"
+          :model-value="data.trustMessagingMarkdown"
+        />
+      </slot>
+    </template>
 
-      <template #content-footer>
-        <slot name="content-footer">
-          <div
-            id="billing-actions"
-            :class="
-              template === BILLING_TEMPLATE.ENCLOSED ||
-              template === BILLING_TEMPLATE.FULL
-                ? 'max-w-3xl'
-                : ''
-            "
-          />
-        </slot>
-      </template>
-    </component>
-  </Transitions>
+    <template #content-footer>
+      <slot name="content-footer">
+        <div
+          id="billing-actions"
+          :class="
+            template === BILLING_TEMPLATE.ENCLOSED ||
+            template === BILLING_TEMPLATE.FULL
+              ? 'max-w-3xl'
+              : ''
+          "
+        />
+      </slot>
+    </template>
+  </component>
 </template>
 
 <script lang="ts" setup>
@@ -82,7 +80,6 @@ import { useThemes, Markdown } from "@upmind-automation/upmind-ui";
 
 // --- components
 import Hero from "../../components/hero/Hero.vue";
-import Transitions from "../../components/layout/components/transition/Transition.vue";
 import BillingForm from "./components/BillingForm.vue";
 
 // --- templates

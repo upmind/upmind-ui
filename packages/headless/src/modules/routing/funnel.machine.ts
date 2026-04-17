@@ -63,7 +63,7 @@ export const useFunnelMachine = ({
   services = {},
   actions = {}
 }: FunnelProps) => {
-  // --- FE-2583: Auto-generate NEXT/BACK handlers from state meta
+  // Auto-generate NEXT/BACK handlers from state meta
   // States declaring meta.next / meta.prev get auto-wired handlers.
   // Explicit `on.NEXT` / `on.BACK` in the state config take precedence.
   //
@@ -227,7 +227,7 @@ export const useFunnelMachine = ({
                 return {
                   target: `available.${state}`,
                   actions: [
-                    // FE-2651: Use setUnresolved instead of setResolving to preserve
+                    // Use setUnresolved instead of setResolving to preserve
                     // targetRoute.query across in-funnel transitions (e.g. login ↔ register).
                     // setResolving clears targetRoute before setTargetRoute can read it.
                     "setUnresolved",
