@@ -41,15 +41,6 @@ export interface RequiredAlertProps {
   editRoute: RouteLocationAsRelativeGeneric;
 }
 
-export interface RenewDescriptionProps {
-  cycle?: number;
-  discounted?: boolean;
-  freeTrial?: boolean;
-  oneoff?: boolean;
-  regularPrice?: string;
-  renewalPrice?: string;
-}
-
 export interface TermSelectorProps {
   /** Available billing terms. */
   terms: TermDetails[];
@@ -61,6 +52,11 @@ export interface TermSelectorProps {
   processing?: boolean;
 }
 
-export interface TermsDescriptionProps extends TermDetails {
-  separate?: boolean;
+export interface RenewDescriptionProps {
+  cycle?: number;
+  discounted?: boolean;
+  freeTrial?: boolean;
+  oneoff?: boolean;
+  regularPrice?: string;
+  renewalPrice?: string;
 }

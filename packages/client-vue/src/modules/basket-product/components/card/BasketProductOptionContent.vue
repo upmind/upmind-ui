@@ -64,23 +64,44 @@
       </CurrentPrice>
     </div>
 
-    <TermsDescription v-bind="summary" />
+    <p
+      v-if="!summary.meta?.free && summary.cycle != null"
+      class="text-muted text-sm"
+    >
+      <template v-if="summary.meta?.oneoff || summary.cycle === 0">
+        {{ t("term.renews_msg", { n: 0, cycle: "" }) }}.
+      </template>
+      <template v-else>
+        +{{
+          t("text.price_per_cycle", {
+            price: summary.price.currentPrice,
+            cycle: parseBillingCycle(summary.cycle).descriptive
+          })
+        }}.
+        <span v-if="summary.meta?.discounted" class="text-muted line-through">
+          {{
+            t("term.renews_usually_msg", { price: summary.price.regularPrice })
+          }}
+        </span>
+      </template>
+    </p>
   </article>
 </template>
 
 <script lang="ts" setup>
 // --- external
 import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 
 // --- components
 import { Link, Switch } from "@upmind-automation/upmind-ui";
 import CurrentPrice from "../../../product/components/pricing/CurrentPrice.vue";
 import ExPrice from "../../../product/components/pricing/ExPrice.vue";
-import TermsDescription from "./components/TermsDescription.vue";
 import Promotion from "./components/Promotion.vue";
 
 // --- internal
 import { useStyles, isMobile } from "@upmind-automation/upmind-ui";
+import { parseBillingCycle } from "@upmind-automation/headless";
 import config from "./basketProduct.config";
 
 // --- types
@@ -93,6 +114,8 @@ import {
 const props = defineProps<BasketProductOptionSummaryProps>();
 
 const emits = defineEmits(["update:quantity", "toggle:option", "remove"]);
+
+const { t } = useI18n();
 
 const options = defineModel<OptionTogglePayload>("options");
 

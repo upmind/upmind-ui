@@ -34,63 +34,85 @@
             </Link>
           </div>
 
-          <Tooltip :label="t('action.remove')" color="neutral">
-            <Link :aria-label="t('action.remove')" @click="doRemove">
-              <Icon
-                icon="trash-01"
-                size="xs"
-                :class="styles.product.summary.icon"
-              />
-            </Link>
-          </Tooltip>
+          <ExPrice
+            v-if="!summary.meta?.freeTrial"
+            :regular-price="summary.price.regularPrice"
+            :monthly-from-regular-price="
+              summary.price.monthlyFromRegularPrice ?? ''
+            "
+            :discounted="summary.meta.discounted ?? false"
+            :overridden="summary.meta.overridden"
+            :ui-config="{ pricing: { ex: [styles.product.pricing.ex] } }"
+          />
         </div>
 
-        <hgroup :class="styles.product.summary.title.root">
-          <Link
-            v-bind="props.editRoute"
-            offset="2"
-            :class="styles.product.summary.title.link"
-          >
-            <h3 :class="styles.product.summary.title.text">
-              {{ data.productName || summary.title }}
-            </h3>
-          </Link>
-
-          <template v-if="!isMobile">
-            <Tooltip
-              v-if="!isEmpty(filteredDetails)"
-              :label="t('action.show_details')"
+        <hgroup :class="[styles.product.summary.title.root, 'justify-between']">
+          <div class="flex items-center gap-2">
+            <Link
+              v-bind="props.editRoute"
+              offset="2"
+              :class="styles.product.summary.title.link"
             >
-              <Link @click="open = !open" aria-label="Product information">
-                <Icon
-                  icon="info-circle"
-                  size="xs"
-                  :class="styles.product.summary.icon"
-                />
-              </Link>
-            </Tooltip>
+              <h3 :class="styles.product.summary.title.text">
+                {{ data.productName || summary.title }}
+              </h3>
+            </Link>
 
-            <template v-if="!summary.meta?.freeTrial">
-              <Promotion
-                v-for="(promotion, index) in summary.promotions"
-                :key="index"
-                v-bind="promotion"
-                :disabled="error"
-              />
-
+            <template v-if="!isMobile">
               <Tooltip
-                v-if="summary.meta?.overridden"
-                :label="t('text.price_manually_adjusted_msg')"
+                v-if="!isEmpty(filteredDetails)"
+                :label="t('action.show_details')"
               >
-                <Badge
-                  :label="t('text.custom_price')"
-                  size="sm"
-                  variant="muted"
-                  color="warning"
-                />
+                <Link @click="open = !open" aria-label="Product information">
+                  <Icon
+                    icon="info-circle"
+                    size="xs"
+                    :class="styles.product.summary.icon"
+                  />
+                </Link>
               </Tooltip>
+
+              <template v-if="!summary.meta?.freeTrial">
+                <Promotion
+                  v-for="(promotion, index) in summary.promotions"
+                  :key="index"
+                  v-bind="promotion"
+                  :disabled="error"
+                />
+
+                <Tooltip
+                  v-if="summary.meta?.overridden"
+                  :label="t('text.price_manually_adjusted_msg')"
+                >
+                  <Badge
+                    :label="t('text.custom_price')"
+                    size="sm"
+                    variant="muted"
+                    color="warning"
+                  />
+                </Tooltip>
+              </template>
             </template>
-          </template>
+          </div>
+
+          <strong
+            v-if="summary.meta?.freeTrial"
+            :class="styles.product.pricing.current"
+          >
+            {{ t("text.free_trial") }}
+          </strong>
+
+          <CurrentPrice
+            v-else
+            :current-price="summary.price.currentPrice"
+            :monthly-from-current-price="
+              summary.price.monthlyFromCurrentPrice ?? ''
+            "
+            :free="summary.meta.free ?? false"
+            :ui-config="{
+              pricing: { current: [styles.product.pricing.current] }
+            }"
+          />
         </hgroup>
       </div>
     </header>
@@ -138,41 +160,14 @@
           :processing="processing"
         />
 
-        <TermsDescription v-bind="summary" :separate="!isMobile" />
-      </div>
-
-      <div :class="styles.product.summary.footer.price.root">
-        <div :class="styles.product.summary.footer.price.container">
-          <ExPrice
-            v-if="!summary.meta?.freeTrial"
-            :regular-price="summary.price.regularPrice"
-            :monthly-from-regular-price="
-              summary.price.monthlyFromRegularPrice ?? ''
-            "
-            :discounted="summary.meta.discounted ?? false"
-            :overridden="summary.meta.overridden"
-            :ui-config="{ pricing: { ex: [styles.product.pricing.ex] } }"
-          />
-
-          <strong
-            v-if="summary.meta?.freeTrial"
-            :class="styles.product.pricing.current"
-          >
-            {{ t("text.free_trial") }}
-          </strong>
-
-          <CurrentPrice
-            v-else
-            :current-price="summary.price.currentPrice"
-            :monthly-from-current-price="
-              summary.price.monthlyFromCurrentPrice ?? ''
-            "
-            :free="summary.meta.free ?? false"
-            :ui-config="{
-              pricing: { current: [styles.product.pricing.current] }
-            }"
-          />
-        </div>
+        <RenewDescription
+          :cycle="summary.cycle"
+          :discounted="summary.meta?.discounted"
+          :free-trial="summary.meta?.freeTrial"
+          :oneoff="summary.meta?.oneoff"
+          :regular-price="summary.price?.regularPrice"
+          :renewal-price="summary.meta?.renewalPrice"
+        />
       </div>
     </footer>
   </article>
@@ -195,7 +190,7 @@ import {
 import RequiredAlert from "./components/RequiredAlert.vue";
 import CurrentPrice from "../../../product/components/pricing/CurrentPrice.vue";
 import ExPrice from "../../../product/components/pricing/ExPrice.vue";
-import TermsDescription from "./components/TermsDescription.vue";
+import RenewDescription from "./components/RenewDescription.vue";
 import Promotion from "./components/Promotion.vue";
 import BasketQuantityField from "./components/BasketQuantityField.vue";
 import BasketProductConfigurationDetails from "./BasketProductConfigurationDetails.vue";
@@ -230,7 +225,6 @@ const styles = useStyles(
     "product.summary.title",
     "product.summary.footer",
     "product.summary.footer.terms",
-    "product.summary.footer.price",
     "product.pricing"
   ],
   props,
