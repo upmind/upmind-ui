@@ -31,11 +31,11 @@ The inline composable (`useBasketProductInline`) is created for every basket pro
 }
 ```
 
-| Flag                | True when                                                                                              | Config property                                       |
-| ------------------- | ------------------------------------------------------------------------------------------------------ | ----------------------------------------------------- |
-| `hasUpsellOptions`  | Any option has `data.optionUpsellEnabled === true`                                                     | `optionUpsellEnabled` (OPTION scope)                  |
-| `showOptionUpsells` | `hasUpsellOptions` AND `ui.optionUpsells.isVisible`                                                    | `optionUpsells` (UI visibility)                       |
-| `showTermSelector`  | `ui.productTermSelector.isVisible` AND product is not one-off                                          | `productTermSelector` (UI visibility, default HIDDEN) |
+| Flag                | True when                                                                                             | Config property                                       |
+| ------------------- | ----------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| `hasUpsellOptions`  | Any option has `data.optionUpsellEnabled === true`                                                    | `optionUpsellEnabled` (OPTION scope)                  |
+| `showOptionUpsells` | `hasUpsellOptions` AND `ui.optionUpsells.isVisible`                                                   | `optionUpsells` (UI visibility)                       |
+| `showTermSelector`  | `ui.productTermSelector.isVisible` AND product is not one-off                                         | `productTermSelector` (UI visibility, default HIDDEN) |
 | `hasInlineControls` | Any of the above two are `true`, OR `productDetails.quantifiable` is `true` (quantity/remove control) | —                                                     |
 
 > The quantity/remove control always renders inline: `NumberField` when `productDetails.quantifiable` is `true`, otherwise a trash-icon button to remove the item. It is not guarded by a `meta` flag — consumers read `productDetails.quantifiable` directly.
