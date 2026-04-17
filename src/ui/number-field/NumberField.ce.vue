@@ -7,38 +7,45 @@
     :class="cn(styles.numberField.root, props.class)"
   >
     <NumberFieldContent>
-      <NumberFieldDecrement
+      <NumberFieldActionButton
+        :is="NumberFieldDecrement"
         :size="props.size"
         :class="styles.numberField.inputLeft"
+        :action="props.decrementAction"
       >
         <NumberFieldIcon
           :icon="
-            props.variant === NUMBER_FIELD_VARIANTS.FLAT
+            props.decrementAction?.icon ??
+            (props.variant === NUMBER_FIELD_VARIANTS.FLAT
               ? 'minus'
-              : 'minus-circle'
+              : 'minus-circle')
           "
           :variant="props.variant"
         />
-      </NumberFieldDecrement>
+      </NumberFieldActionButton>
 
       <NumberFieldInput
         @resize="handleResize"
         :class="cn(styles.numberField.field, props.classField)"
         data-testid="quantity-input"
       />
-      <NumberFieldIncrement
+
+      <NumberFieldActionButton
+        :is="NumberFieldIncrement"
         :size="props.size"
         :class="styles.numberField.inputRight"
+        :action="props.incrementAction"
       >
         <NumberFieldIcon
           :icon="
-            props.variant === NUMBER_FIELD_VARIANTS.FLAT
+            props.incrementAction?.icon ??
+            (props.variant === NUMBER_FIELD_VARIANTS.FLAT
               ? 'plus'
-              : 'plus-circle'
+              : 'plus-circle')
           "
           :variant="props.variant"
         />
-      </NumberFieldIncrement>
+      </NumberFieldActionButton>
     </NumberFieldContent>
   </NumberField>
 </template>
@@ -51,6 +58,7 @@ import config from "./numberField.config";
 // --- components
 import NumberField from "./NumberField.vue";
 import NumberFieldContent from "./NumberFieldContent.vue";
+import NumberFieldActionButton from "./NumberFieldActionButton.vue";
 import NumberFieldDecrement from "./NumberFieldDecrement.vue";
 import NumberFieldIcon from "./NumberFieldIcon.vue";
 import NumberFieldIncrement from "./NumberFieldIncrement.vue";
@@ -96,7 +104,9 @@ const delegatedProps = computed(() =>
     "size",
     "width",
     "variant",
-    "singleStep"
+    "singleStep",
+    "decrementAction",
+    "incrementAction"
   ])
 );
 

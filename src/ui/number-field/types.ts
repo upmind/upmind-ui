@@ -15,6 +15,11 @@ import type { HTMLAttributes } from "vue";
 type NumberFieldRootVariants = VariantProps<typeof numberFieldRootVariants>;
 type NumberFieldVariants = VariantProps<typeof numberFieldVariants>;
 
+export type NumberFieldAction = {
+  icon: string;
+  handler: () => void;
+};
+
 export type NumberFieldProps = NumberFieldRootProps &
   NumberFieldDecrementProps &
   NumberFieldIncrementProps & {
@@ -24,6 +29,11 @@ export type NumberFieldProps = NumberFieldRootProps &
     variant?: NumberFieldVariants["variant"];
     // --- behavior
     singleStep?: boolean;
+    // --- action overrides
+    /** Override the decrement button with a custom action. */
+    decrementAction?: NumberFieldAction;
+    /** Override the increment button with a custom action. */
+    incrementAction?: NumberFieldAction;
     // --- styles
     uiConfig?: { numberField: CxOptions };
     class?: HTMLAttributes["class"];
