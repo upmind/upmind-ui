@@ -240,7 +240,14 @@ export const useRoutingEngine = () => {
       send({ type: "RESOLVE", data: { target, route, event } });
     }
 
-    return awaitResolved(funnel.value?.service).then(target => {
+    // When the route is already resolved (same name, same funnel state),
+    // return the incoming route directly. The stale targetRoute in context may have
+    // outdated query params (e.g. old category) that would cause incorrect redirects.
+    return (
+      alreadyResolved
+        ? Promise.resolve(route)
+        : awaitResolved(funnel.value?.service)
+    ).then(target => {
       // once we have resolved at least once, we are no longer on the initial route
       initialRoute.value = false;
       return target;
