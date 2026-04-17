@@ -162,7 +162,7 @@ export const numberFieldInputLeftVariants = cva(
   {
     variants: {
       variant: {
-        flat: "bg-control-surface shadow-control-default hover:shadow-control-hover [&>i]:disabled:text-muted [&>i]:size-lh font-normal control-radius-l cursor-pointer transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-20 [&>i]:flex [&>i]:items-center [&>i]:justify-center",
+        flat: "bg-control-surface shadow-control-r-none hover:shadow-control-hover-r-none [&>i]:disabled:text-muted [&>i]:size-lh control-radius-l cursor-pointer font-normal transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-20 [&>i]:flex [&>i]:items-center [&>i]:justify-center",
         minimal: "flex h-5 w-5 items-center justify-center p-0"
       },
       size: {
@@ -188,7 +188,7 @@ export const numberFieldInputRightVariants = cva(
   {
     variants: {
       variant: {
-        flat: "bg-control-surface shadow-control-default hover:shadow-control-hover [&>i]:disabled:text-muted [&>i]:size-lh font-normal control-radius-r cursor-pointer transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-20 [&>i]:flex [&>i]:items-center [&>i]:justify-center",
+        flat: "bg-control-surface shadow-control-l-none hover:shadow-control-hover-l-none [&>i]:disabled:text-muted [&>i]:size-lh control-radius-r cursor-pointer font-normal transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-20 [&>i]:flex [&>i]:items-center [&>i]:justify-center",
         minimal: "flex h-5 w-5 items-center justify-center p-0"
       },
       size: {

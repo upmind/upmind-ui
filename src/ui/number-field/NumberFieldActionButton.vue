@@ -6,12 +6,7 @@
   >
     <slot />
   </button>
-  <component
-    v-else
-    :is="props.is"
-    :size="props.size"
-    :class="props.class"
-  >
+  <component v-else :is="props.is" :size="props.size" :class="props.class">
     <slot />
   </component>
 </template>
@@ -25,21 +20,10 @@
  * Otherwise, delegates to the underlying Radix component.
  */
 
-// --- external
-import type { Component, HTMLAttributes } from "vue";
-
 // --- types
-import type { NumberFieldAction } from "./types";
+import type { NumberFieldActionButtonProps } from "./types";
 
 // -----------------------------------------------------------------------------
 
-const props = defineProps<{
-  /** The underlying component to render when no override is provided. */
-  is: Component;
-  /** Custom action — renders a plain button with the action handler. */
-  action?: NumberFieldAction;
-  /** Size variant passed to the underlying component. */
-  size?: string;
-  class?: HTMLAttributes["class"];
-}>();
+const props = defineProps<NumberFieldActionButtonProps>();
 </script>
