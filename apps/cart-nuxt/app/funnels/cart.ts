@@ -45,7 +45,7 @@ export default <FunnelProps>{
      * or the CATALOGUE route (if no configurations are found).
      */
     [ROUTE.LOADING]: {
-      entry: ["setResolving", "setBasket"],
+      entry: ["setUnresolved", "clearTarget", "setBasket"],
       always: [
         {
           target: ROUTE.PRODUCT_CONFIGURE,
@@ -73,7 +73,10 @@ export default <FunnelProps>{
       invoke: {
         src: "guardCatalogue",
         onDone: { actions: ["setResolved"] },
-        onError: { target: ROUTE.BASKET, actions: ["setResolving"] }
+        onError: {
+          target: ROUTE.BASKET,
+          actions: ["setUnresolved", "clearTarget"]
+        }
       }
     },
 
@@ -85,7 +88,7 @@ export default <FunnelProps>{
      * If no configurations are present, it redirects to the BASKET route.
      */
     [ROUTE.PRODUCT]: {
-      entry: ["setResolving"],
+      entry: ["setUnresolved", "clearTarget"],
       always: [
         {
           target: ROUTE.PRODUCT_CONFIGURE,
@@ -122,7 +125,10 @@ export default <FunnelProps>{
             actions: ["setUnresolved", "setTargetRoute"],
             cond: "isProductNotFound"
           },
-          { target: ROUTE.CHECKOUT_FLOW, actions: ["setResolving"] }
+          {
+            target: ROUTE.CHECKOUT_FLOW,
+            actions: ["setUnresolved", "clearTarget"]
+          }
         ]
       },
       on: {
@@ -167,7 +173,10 @@ export default <FunnelProps>{
       invoke: {
         src: "guardProductRecommendations",
         onDone: { actions: ["setResolved"] },
-        onError: { target: ROUTE.CHECKOUT_FLOW, actions: ["setResolving"] }
+        onError: {
+          target: ROUTE.CHECKOUT_FLOW,
+          actions: ["setUnresolved", "clearTarget"]
+        }
       }
     },
 
@@ -217,7 +226,7 @@ export default <FunnelProps>{
           },
           {
             target: ROUTE.BASKET_EMPTY,
-            actions: ["setResolving"]
+            actions: ["setUnresolved", "clearTarget"]
           }
         ]
       }
@@ -236,7 +245,10 @@ export default <FunnelProps>{
       entry: ["setBasket"],
       invoke: {
         src: "guardBasket",
-        onDone: { target: ROUTE.BASKET, actions: ["setResolving"] },
+        onDone: {
+          target: ROUTE.BASKET,
+          actions: ["setUnresolved", "clearTarget"]
+        },
         onError: { actions: ["setResolved"] }
       }
     },
@@ -291,7 +303,10 @@ export default <FunnelProps>{
             actions: ["setUnresolved", "setTargetRoute"],
             cond: "isBasketProductEdit"
           },
-          { target: ROUTE.CHECKOUT_FLOW, actions: ["setResolving"] }
+          {
+            target: ROUTE.CHECKOUT_FLOW,
+            actions: ["setUnresolved", "clearTarget"]
+          }
         ]
       }
     },
@@ -348,7 +363,7 @@ export default <FunnelProps>{
         onDone: { actions: ["setResolved"] },
         onError: {
           target: ROUTE.DOMAINS_WITH_PRODUCT_PROCESSING,
-          actions: ["setResolving"]
+          actions: ["setUnresolved", "clearTarget"]
         }
       }
     },
@@ -362,7 +377,7 @@ export default <FunnelProps>{
      * if further configuration is needed.
      */
     [ROUTE.DOMAINS_WITH_PRODUCT_PROCESSING]: {
-      entry: ["setResolving"],
+      entry: ["setUnresolved", "clearTarget"],
       invoke: {
         src: "processDomainsWithProduct",
         onDone: {
@@ -397,7 +412,7 @@ export default <FunnelProps>{
       always: [
         {
           target: ROUTE.CHECKOUT_FLOW,
-          actions: ["setResolving"],
+          actions: ["setUnresolved", "clearTarget"],
           cond: "isAuthenticated"
         }
       ],
@@ -406,7 +421,7 @@ export default <FunnelProps>{
         onDone: [
           {
             target: ROUTE.CHECKOUT_FLOW,
-            actions: ["setResolving"],
+            actions: ["setUnresolved", "clearTarget"],
             cond: "isSameRoute"
           },
           { actions: ["setResolved"] }
@@ -444,7 +459,7 @@ export default <FunnelProps>{
       always: [
         {
           target: ROUTE.CHECKOUT_FLOW,
-          actions: ["setResolving"],
+          actions: ["setUnresolved", "clearTarget"],
           cond: "isAuthenticated"
         }
       ],
@@ -453,7 +468,7 @@ export default <FunnelProps>{
         onDone: [
           {
             target: ROUTE.CHECKOUT,
-            actions: ["setResolving"],
+            actions: ["setUnresolved", "clearTarget"],
             cond: "isSameRoute"
           },
           { actions: ["setResolved"] }
@@ -475,7 +490,7 @@ export default <FunnelProps>{
       always: [
         {
           target: ROUTE.CHECKOUT_FLOW,
-          actions: ["setResolving"],
+          actions: ["setUnresolved", "clearTarget"],
           cond: "isAuthenticated"
         }
       ],
@@ -484,7 +499,7 @@ export default <FunnelProps>{
         onDone: [
           {
             target: ROUTE.CHECKOUT,
-            actions: ["setResolving"],
+            actions: ["setUnresolved", "clearTarget"],
             cond: "isSameRoute"
           },
           { actions: ["setResolved"] }
@@ -505,7 +520,7 @@ export default <FunnelProps>{
       always: [
         {
           target: ROUTE.CHECKOUT_FLOW,
-          actions: ["setResolving"],
+          actions: ["setUnresolved", "clearTarget"],
           cond: "isAuthenticated"
         }
       ],
@@ -514,7 +529,7 @@ export default <FunnelProps>{
         onDone: [
           {
             target: ROUTE.CHECKOUT_FLOW,
-            actions: ["setResolving"],
+            actions: ["setUnresolved", "clearTarget"],
             cond: "isSameRoute"
           },
           { actions: ["setResolved"] }
@@ -547,7 +562,7 @@ export default <FunnelProps>{
      * This state determines whether we should go to a one-page checkout or a stepped checkout process.
      */
     [ROUTE.CHECKOUT_FLOW]: {
-      entry: "setResolving",
+      entry: ["setUnresolved", "clearTarget"],
       invoke: {
         src: "guardCheckoutFlow",
         onDone: [
@@ -594,15 +609,15 @@ export default <FunnelProps>{
           },
           {
             target: ROUTE.BASKET_PRODUCT_REQUIRES_ACTION,
-            actions: ["setResolving"],
+            actions: ["setUnresolved", "clearTarget"],
             cond: "hasInvalidProducts"
           },
           {
             target: ROUTE.BILLING,
-            actions: ["setResolving"],
+            actions: ["setUnresolved", "clearTarget"],
             cond: "isBilling"
           },
-          { target: ROUTE.BASKET, actions: ["setResolving"] }
+          { target: ROUTE.BASKET, actions: ["setUnresolved", "clearTarget"] }
         ]
       },
       on: {
@@ -651,7 +666,7 @@ export default <FunnelProps>{
         onDone: [
           {
             target: ROUTE.CHECKOUT,
-            actions: ["setResolving"],
+            actions: ["setUnresolved", "clearTarget"],
             cond: "isCheckout"
           },
           { actions: ["setResolved"] }
@@ -659,10 +674,10 @@ export default <FunnelProps>{
         onError: [
           {
             target: ROUTE.CHECKOUT,
-            actions: ["setResolving"],
+            actions: ["setUnresolved", "clearTarget"],
             cond: "isSession"
           },
-          { target: ROUTE.CHECKOUT, actions: ["setResolving"] }
+          { target: ROUTE.CHECKOUT, actions: ["setUnresolved", "clearTarget"] }
         ]
       }
     },
@@ -676,7 +691,7 @@ export default <FunnelProps>{
         onDone: { actions: ["setResolved"] },
         onError: {
           target: ROUTE.SESSION_END,
-          actions: ["setResolving"]
+          actions: ["setUnresolved", "clearTarget"]
         }
       }
       // type: "final"
