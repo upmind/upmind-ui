@@ -1,4 +1,4 @@
-import { isEmpty } from "lodash-es";
+import { get, isEmpty } from "lodash-es";
 
 import {
   type AnyEventObject,
@@ -97,5 +97,14 @@ export default {
   isAuthenticated: () => {
     const { meta } = useSession();
     return !!meta.value?.isAuthenticated;
+  },
+
+  /**
+   * Returns true when targetRoute.query contains a returnUrl.
+   * Used to conditionally resolve returnUrl after auth success.
+   */
+  hasReturnUrl: ({ targetRoute }: FunnelContext) => {
+    const returnUrl = get(targetRoute, ["query", QUERY_PARAMS.RETURN_URL]);
+    return !isEmpty(returnUrl);
   }
 };

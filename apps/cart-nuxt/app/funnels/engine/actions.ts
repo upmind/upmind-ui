@@ -8,6 +8,7 @@ import {
   useBasket,
   useBasketProductsPending,
   useQueryParams,
+  useRoutingEngine,
   useSession
 } from "@upmind-automation/client-vue";
 import { ROUTE } from "../types";
@@ -168,6 +169,23 @@ export default {
         : data?.target;
 
       return injectBid(target ?? context.targetRoute);
+    },
+    resolved: true
+  }),
+
+  /**
+   * Resolves the returnUrl from targetRoute.query and sets it as the target.
+   * Used after auth success to redirect to the originally requested page.
+   */
+  resolveReturnUrl: assign({
+    targetRoute: ({ targetRoute }: FunnelContext) => {
+      const returnUrl =
+        targetRoute?.query?.[QUERY_PARAMS.RETURN_URL]?.toString();
+      if (!returnUrl) return targetRoute;
+
+      const { router } = useRoutingEngine();
+      const resolved = router.resolve(returnUrl);
+      return injectBid(resolved);
     },
     resolved: true
   })
