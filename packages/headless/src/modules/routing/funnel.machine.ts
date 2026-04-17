@@ -3,11 +3,13 @@ import { type AnyEventObject, assign, createMachine, sendParent } from "xstate";
 
 // --- internal
 import { useI18n } from "../system";
+import { useRoutingEngine } from "./useRoutingEngine";
 
 // --- utils
 import { DetailedError, responseCodes, ErrorOrigin } from "../../utils";
 import {
   forEach,
+  get,
   isEmpty,
   includes,
   isString,
@@ -21,6 +23,7 @@ import { pascalCase } from "./utils";
 
 // --- types
 import {
+  QUERY_PARAMS,
   type FunnelContext,
   type FunnelProps,
   type FunnelStateMeta
@@ -75,11 +78,25 @@ export const useFunnelMachine = ({
       metaHandlers.NEXT = isString(meta.next)
         ? {
             target: meta.next,
-            actions: [assign({ targetRoute: { name: meta.next } })]
+            actions: [
+              assign({
+                targetRoute: ({ targetRoute }: FunnelContext) => ({
+                  ...targetRoute,
+                  name: meta.next
+                })
+              })
+            ]
           }
         : map(meta.next, entry => ({
             target: entry.target,
-            actions: [assign({ targetRoute: { name: entry.target } })],
+            actions: [
+              assign({
+                targetRoute: ({ targetRoute }: FunnelContext) => ({
+                  ...targetRoute,
+                  name: entry.target
+                })
+              })
+            ],
             ...(entry.cond ? { cond: entry.cond } : {})
           }));
     }
@@ -87,11 +104,25 @@ export const useFunnelMachine = ({
       metaHandlers.BACK = isString(meta.prev)
         ? {
             target: meta.prev,
-            actions: [assign({ targetRoute: { name: meta.prev } })]
+            actions: [
+              assign({
+                targetRoute: ({ targetRoute }: FunnelContext) => ({
+                  ...targetRoute,
+                  name: meta.prev
+                })
+              })
+            ]
           }
         : map(meta.prev, entry => ({
             target: entry.target,
-            actions: [assign({ targetRoute: { name: entry.target } })],
+            actions: [
+              assign({
+                targetRoute: ({ targetRoute }: FunnelContext) => ({
+                  ...targetRoute,
+                  name: entry.target
+                })
+              })
+            ],
             ...(entry.cond ? { cond: entry.cond } : {})
           }));
     }
@@ -160,6 +191,17 @@ export const useFunnelMachine = ({
           states: {
             // --- A fallback UNKNOWN state to catch any undefined routes
             idle: {},
+
+            // --- Generic redirect state for returnUrl resolution
+            // Any funnel state can target "#calculating" to resolve a returnUrl.
+            // Consumers can override the "resolveReturnUrl" action for custom logic.
+            // Entry runs resolveReturnUrl which sets targetRoute + resolved: true.
+            // The routing engine's awaitResolved() then picks up targetRoute.
+            "#calculating": {
+              id: "calculating",
+              entry: ["resolveReturnUrl"]
+            },
+
             ...enrichedStates
           },
           // 3. Global Event Handlers for the entire funnel (Optional, usually handled by nodes)
@@ -402,7 +444,7 @@ export const useFunnelMachine = ({
 
         /** Only clears targetRoute — preserves resolved state. */
         clearTarget: assign({
-          targetRoute: undefined
+          targetRoute: () => undefined
         }),
 
         /** Sets resolved + marks as fallback (no state matched). Logs dev warning. */
@@ -426,6 +468,25 @@ export const useFunnelMachine = ({
           },
           resolved: true,
           fallbackResolved: true
+        }),
+
+        /**
+         * Resolves returnUrl query param and navigates to that route.
+         * Consumers can override this action for custom logic (e.g. injectBid).
+         */
+        resolveReturnUrl: assign({
+          targetRoute: ({ targetRoute }: FunnelContext) => {
+            const returnUrl = get(targetRoute, [
+              "query",
+              QUERY_PARAMS.RETURN_URL
+            ])?.toString();
+            if (!returnUrl) return targetRoute;
+
+            const { router } = useRoutingEngine();
+            const resolved = router.resolve(returnUrl);
+            return { ...resolved, name: resolved.name ?? undefined };
+          },
+          resolved: true
         }),
 
         // Consumer actions spread last so they can override defaults

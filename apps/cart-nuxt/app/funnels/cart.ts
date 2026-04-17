@@ -449,20 +449,20 @@ export default <FunnelProps>{
      * 🎯 ROUTE.SESSION_LOGIN
      * This state manages the login process for user sessions.
      * It invokes a 'guard' to check if the user is authenticated.
+     * When a returnUrl is present, resolves to that URL after auth.
      * When a bid is present, routes to BASKET after auth so `setTargetBasket`
      * loads the correct basket. Otherwise routes to CHECKOUT.
      * From here, users can proceed to the CHECKOUT route or return to the BASKET.
      */
     [ROUTE.SESSION_LOGIN]: {
-      meta: { next: ROUTE.SESSION_LOGIN, prev: ROUTE.BASKET },
+      meta: {
+        next: [
+          { target: ROUTE.REDIRECT, cond: "hasReturnUrl" },
+          { target: ROUTE.CHECKOUT_FLOW }
+        ],
+        prev: ROUTE.BASKET
+      },
       entry: ["setCurrency"],
-      always: [
-        {
-          target: ROUTE.CHECKOUT_FLOW,
-          actions: ["setUnresolved", "clearTarget"],
-          cond: "isAuthenticated"
-        }
-      ],
       invoke: {
         src: "guardSession",
         onDone: [
@@ -481,19 +481,19 @@ export default <FunnelProps>{
      * 🎯 ROUTE.SESSION_REGISTER
      * This state manages the registration process for new user sessions.
      * It invokes a 'guard' to check if the user is authenticated.
+     * When a returnUrl is present, resolves to that URL after auth.
      * When a bid is present, routes to BASKET after auth so `setTargetBasket`
      * loads the correct basket. Otherwise routes to CHECKOUT.
      * From here, users can proceed to the CHECKOUT route or return to the BASKET.
      */
     [ROUTE.SESSION_REGISTER]: {
-      meta: { next: ROUTE.SESSION_REGISTER, prev: ROUTE.BASKET },
-      always: [
-        {
-          target: ROUTE.CHECKOUT_FLOW,
-          actions: ["setUnresolved", "clearTarget"],
-          cond: "isAuthenticated"
-        }
-      ],
+      meta: {
+        next: [
+          { target: ROUTE.REDIRECT, cond: "hasReturnUrl" },
+          { target: ROUTE.CHECKOUT_FLOW }
+        ],
+        prev: ROUTE.BASKET
+      },
       invoke: {
         src: "guardSession",
         onDone: [
