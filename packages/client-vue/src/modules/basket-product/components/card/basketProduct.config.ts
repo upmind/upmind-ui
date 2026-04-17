@@ -43,10 +43,15 @@ export default {
       },
       icon: cva("[&>svg]:p-[2px]"),
       image: cva("image-radius m-0 h-12"),
+      renew: {
+        renews: cva("text-faint text-sm"),
+        usually: cva("text-faint text-sm leading-5")
+      },
       footer: {
         root: cva("flex flex-col justify-between gap-2 lg:flex-row"),
         terms: {
-          root: cva("flex items-center gap-2"),
+          root: cva("flex items-center gap-4"),
+          controls: cva("flex items-center gap-2"),
           content: cva("max-h-74!")
         },
         price: {
