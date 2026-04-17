@@ -3,22 +3,24 @@
     <slot>
       <RouterView v-slot="routerViewProps">
         <slot v-bind="routerViewProps">
-          <Suspense>
-            <component
-              :is="routerViewProps.Component"
-              @vue:mounted="doResolve"
-            />
-
-            <template #fallback>
-              <Loading
-                v-if="
-                  (meta.isInitialRoute && meta.isResolved && shouldShow) ||
-                  (!meta.isInitialRoute && shouldShow)
-                "
-                v-bind="props.loadingProps"
+          <PageTransition>
+            <Suspense>
+              <component
+                :is="routerViewProps.Component"
+                @vue:mounted="doResolve"
               />
-            </template>
-          </Suspense>
+
+              <template #fallback>
+                <Loading
+                  v-if="
+                    (meta.isInitialRoute && meta.isResolved && shouldShow) ||
+                    (!meta.isInitialRoute && shouldShow)
+                  "
+                  v-bind="props.loadingProps"
+                />
+              </template>
+            </Suspense>
+          </PageTransition>
         </slot>
       </RouterView>
     </slot>
@@ -26,6 +28,8 @@
 </template>
 
 <script lang="ts" setup>
+// --- external
+
 // --- internal
 import { useRoutingEngine } from "@upmind-automation/headless";
 import { useRouteTransition } from "./useRouteTransition";
@@ -33,6 +37,7 @@ import { useRouteTransition } from "./useRouteTransition";
 // --- components
 import Root from "../../components/layout/components/root/Root.vue";
 import Loading from "./Loading.vue";
+import PageTransition from "../../components/layout/components/transition/Transition.vue";
 import type { InterstitialProps } from "@upmind-automation/upmind-ui";
 
 // -----------------------------------------------------------------------------

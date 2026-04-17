@@ -45,6 +45,7 @@ export default <FunnelProps>{
      * or the CATALOGUE route (if no configurations are found).
      */
     [ROUTE.LOADING]: {
+      meta: { transitional: true },
       entry: ["setUnresolved", "clearTarget", "setBasket"],
       always: [
         {
@@ -88,6 +89,7 @@ export default <FunnelProps>{
      * If no configurations are present, it redirects to the BASKET route.
      */
     [ROUTE.PRODUCT]: {
+      meta: { transitional: true },
       entry: ["setUnresolved", "clearTarget"],
       always: [
         {
@@ -562,6 +564,7 @@ export default <FunnelProps>{
      * This state determines whether we should go to a one-page checkout or a stepped checkout process.
      */
     [ROUTE.CHECKOUT_FLOW]: {
+      meta: { transitional: true },
       entry: ["setUnresolved", "clearTarget"],
       invoke: {
         src: "guardCheckoutFlow",

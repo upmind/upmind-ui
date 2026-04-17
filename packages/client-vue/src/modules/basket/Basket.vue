@@ -1,107 +1,105 @@
 <template>
-  <Transitions>
-    <component :is="templateVariant" :key="props.template">
-      <template v-if="!isSlotHidden('summary')" #summary>
-        <slot name="summary">
-          <BasketSummary :loading="meta.isLoading">
-            <template #append>
-              <Back
-                v-if="props.storefrontRoute"
-                v-bind="props.storefrontRoute"
-                :label="t('action.continue_shopping')"
-              />
-            </template>
-          </BasketSummary>
-        </slot>
-      </template>
-
-      <template #products>
-        <BasketProducts v-model:open="open" :edit-route="props.editRoute">
-          <template #products="{ open }">
-            <slot name="products" :open="open" />
+  <component :is="templateVariant" :key="props.template">
+    <template v-if="!isSlotHidden('summary')" #summary>
+      <slot name="summary">
+        <BasketSummary :loading="meta.isLoading">
+          <template #append>
+            <Back
+              v-if="props.storefrontRoute"
+              v-bind="props.storefrontRoute"
+              :label="t('action.continue_shopping')"
+            />
           </template>
-        </BasketProducts>
-      </template>
+        </BasketSummary>
+      </slot>
+    </template>
 
-      <template #pricing>
-        <slot name="pricing">
-          <BasketPricing
-            @resolve="navigateNext"
-            :disabled="
-              meta.isProcessing ||
-              meta.isLoading ||
-              !meta.hasFields ||
-              !meta.hasProducts ||
-              meta.hasInvalidProducts
-            "
-            :loading="meta.isProcessing"
-            :show-checkout="
-              template !== BASKET_TEMPLATE.TWO_COLUMN_RTL &&
-              template !== BASKET_TEMPLATE.ENCLOSED &&
-              !meta.isLoading
-            "
-            :show-total="variant !== LAYOUT_VARIANTS.TWO_COLUMN_RTL"
-          />
-        </slot>
-      </template>
+    <template #products>
+      <BasketProducts v-model:open="open" :edit-route="props.editRoute">
+        <template #products="{ open }">
+          <slot name="products" :open="open" />
+        </template>
+      </BasketProducts>
+    </template>
 
-      <template #total>
-        <BasketTotal footer />
-      </template>
-
-      <template #errors>
-        <slot name="errors">
-          <BasketErrors
-            id="basket-errors"
-            basket-fields
-            basket-products
-            :basket-products-route="props.editRoute"
-          />
-        </slot>
-      </template>
-
-      <template #markdown>
-        <slot name="markdown">
-          <Markdown
-            v-if="ui.trustMessaging.isVisible && data.trustMessagingMarkdown"
-            data-testid="slots:summary-append"
-            :model-value="data.trustMessagingMarkdown"
-          />
-          <Markdown
-            v-else-if="basketSummaryTemplate?.body"
-            :model-value="basketSummaryTemplate.body"
-          />
-        </slot>
-      </template>
-
-      <template v-if="!meta.isLoading" #checkout>
-        <slot name="checkout">
-          <BasketCheckout
-            @resolve="navigateNext"
-            :disabled="
-              meta.isProcessing ||
-              meta.isLoading ||
-              !meta.hasFields ||
-              !meta.hasProducts ||
-              meta.hasInvalidProducts
-            "
-            :loading="meta.isProcessing"
-          />
-        </slot>
-      </template>
-
-      <template #custom-price>
-        <Alert
-          v-if="meta.hasCustomPrice"
-          variant="minimal"
-          color="warning"
-          icon="switch-horizontal-01"
-          :title="t('text.custom_price_applied')"
-          :description="t('text.basket_custom_price_alert')"
+    <template #pricing>
+      <slot name="pricing">
+        <BasketPricing
+          @resolve="navigateNext"
+          :disabled="
+            meta.isProcessing ||
+            meta.isLoading ||
+            !meta.hasFields ||
+            !meta.hasProducts ||
+            meta.hasInvalidProducts
+          "
+          :loading="meta.isProcessing"
+          :show-checkout="
+            template !== BASKET_TEMPLATE.TWO_COLUMN_RTL &&
+            template !== BASKET_TEMPLATE.ENCLOSED &&
+            !meta.isLoading
+          "
+          :show-total="variant !== LAYOUT_VARIANTS.TWO_COLUMN_RTL"
         />
-      </template>
-    </component>
-  </Transitions>
+      </slot>
+    </template>
+
+    <template #total>
+      <BasketTotal footer />
+    </template>
+
+    <template #errors>
+      <slot name="errors">
+        <BasketErrors
+          id="basket-errors"
+          basket-fields
+          basket-products
+          :basket-products-route="props.editRoute"
+        />
+      </slot>
+    </template>
+
+    <template #markdown>
+      <slot name="markdown">
+        <Markdown
+          v-if="ui.trustMessaging.isVisible && data.trustMessagingMarkdown"
+          data-testid="slots:summary-append"
+          :model-value="data.trustMessagingMarkdown"
+        />
+        <Markdown
+          v-else-if="basketSummaryTemplate?.body"
+          :model-value="basketSummaryTemplate.body"
+        />
+      </slot>
+    </template>
+
+    <template v-if="!meta.isLoading" #checkout>
+      <slot name="checkout">
+        <BasketCheckout
+          @resolve="navigateNext"
+          :disabled="
+            meta.isProcessing ||
+            meta.isLoading ||
+            !meta.hasFields ||
+            !meta.hasProducts ||
+            meta.hasInvalidProducts
+          "
+          :loading="meta.isProcessing"
+        />
+      </slot>
+    </template>
+
+    <template #custom-price>
+      <Alert
+        v-if="meta.hasCustomPrice"
+        variant="minimal"
+        color="warning"
+        icon="switch-horizontal-01"
+        :title="t('text.custom_price_applied')"
+        :description="t('text.basket_custom_price_alert')"
+      />
+    </template>
+  </component>
 </template>
 
 <script lang="ts" setup>
@@ -139,7 +137,6 @@ import BasketPricing from "./components/BasketPricing.vue";
 import BasketErrors from "./components/BasketErrors.vue";
 import BasketCheckout from "./components/BasketCheckout.vue";
 import BasketTotal from "./components/BasketTotal.vue";
-import Transitions from "../../components/layout/components/transition/Transition.vue";
 import { Alert, Markdown } from "@upmind-automation/upmind-ui";
 
 // --- templates

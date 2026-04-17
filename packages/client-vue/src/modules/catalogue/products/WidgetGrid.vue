@@ -35,7 +35,7 @@
         data-testid="products-grid"
       >
         <ProductCard
-          v-if="!meta.isLoading"
+          v-if="!meta.isLoading || processing"
           v-for="product in data"
           :disabled="processing"
           :key="product.id"

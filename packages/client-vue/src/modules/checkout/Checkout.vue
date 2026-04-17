@@ -1,58 +1,55 @@
 <template>
-  <Transitions>
-    <component :is="templateVariant">
-      <template #back>
-        <slot name="back">
-          <Back v-show="showCheckout" @click.prevent="navigateBack" />
-        </slot>
-      </template>
+  <component :is="templateVariant">
+    <template #back>
+      <slot name="back">
+        <Back v-show="showCheckout" @click.prevent="navigateBack" />
+      </slot>
+    </template>
 
-      <template v-if="!isSlotHidden('summary')" #summary>
-        <slot name="summary">
-          <CheckoutSummary v-show="showCheckout" :template="props.template" />
-        </slot>
-      </template>
+    <template v-if="!isSlotHidden('summary')" #summary>
+      <slot name="summary">
+        <CheckoutSummary v-show="showCheckout" :template="props.template" />
+      </slot>
+    </template>
 
-      <template #content>
-        <slot name="content">
-          <CheckoutContent
-            :show-checkout="showCheckout"
-            :edit-route="props.editRoute"
-            :billing-route="props.billingRoute"
-            :fields-route="props.fieldsRoute"
-          />
-        </slot>
-      </template>
+    <template #content>
+      <slot name="content">
+        <CheckoutContent
+          :show-checkout="showCheckout"
+          :edit-route="props.editRoute"
+          :billing-route="props.billingRoute"
+          :fields-route="props.fieldsRoute"
+        />
+      </slot>
+    </template>
 
-      <template #pricing>
-        <slot name="pricing">
-          <CheckoutPricing v-show="showCheckout" />
-        </slot>
-      </template>
+    <template #pricing>
+      <slot name="pricing">
+        <CheckoutPricing v-show="showCheckout" />
+      </slot>
+    </template>
 
-      <template
-        v-if="
-          ui.trustMessaging.isVisible &&
-          showCheckout &&
-          data.trustMessagingMarkdown
-        "
-        #markdown
-      >
-        <slot name="markdown">
-          <Markdown
-            data-testid="slots:summary-append"
-            :model-value="data.trustMessagingMarkdown"
-          />
-        </slot>
-      </template>
-    </component>
-
+    <template
+      v-if="
+        ui.trustMessaging.isVisible &&
+        showCheckout &&
+        data.trustMessagingMarkdown
+      "
+      #markdown
+    >
+      <slot name="markdown">
+        <Markdown
+          data-testid="slots:summary-append"
+          :model-value="data.trustMessagingMarkdown"
+        />
+      </slot>
+    </template>
     <template v-if="meta.hasErrors" #errors>
       <slot name="errors">
         <CheckoutErrors v-show="showCheckout" />
       </slot>
     </template>
-  </Transitions>
+  </component>
 
   <!-- Basket processing -->
   <slot name="processing" v-if="meta.isCheckout">
@@ -84,7 +81,6 @@ import { useThemes, Markdown } from "@upmind-automation/upmind-ui";
 
 // --- components
 import Back from "../../components/navigation/Back.vue";
-import Transitions from "../../components/layout/components/transition/Transition.vue";
 import CheckoutProcessing from "./components/CheckoutProcessing.vue";
 import CheckoutSummary from "./components/CheckoutSummary.vue";
 import CheckoutContent from "./components/CheckoutContent.vue";
