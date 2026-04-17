@@ -181,11 +181,14 @@ export default {
     targetRoute: ({ targetRoute }: FunnelContext) => {
       const returnUrl =
         targetRoute?.query?.[QUERY_PARAMS.RETURN_URL]?.toString();
+      console.debug("[action] resolveReturnUrl", { returnUrl, targetRoute });
       if (!returnUrl) return targetRoute;
 
       const { router } = useRoutingEngine();
       const resolved = router.resolve(returnUrl);
-      return injectBid(resolved);
+      const result = injectBid(resolved);
+      console.debug("[action] resolveReturnUrl resolved", { resolved, result });
+      return result;
     },
     resolved: true
   })

@@ -11,15 +11,17 @@ import {
 
 // --- types
 import type { FunnelWatcher } from "@upmind-automation/client-vue";
-import { ROUTE } from "../types";
+import { ROUTE } from "./types";
 
 // -----------------------------------------------------------------------------
 
 /**
- * @module router/watchers
+ * @module funnels/watchers
  * @description Reactive funnel watchers for session and basket state changes.
- * These replace the legacy App.vue watcher by integrating with the routing
- * engine's watcher lifecycle (start on funnel available, cleanup on exit).
+ * These integrate with the routing engine's watcher lifecycle
+ * (start on funnel available, cleanup on exit) and use navigate()
+ * to route through the funnel machine rather than router.push() directly —
+ * avoiding a full middleware cascade on every reactive redirect.
  */
 
 // -----------------------------------------------------------------------------

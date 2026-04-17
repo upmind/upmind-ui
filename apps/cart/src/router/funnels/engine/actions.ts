@@ -1,17 +1,17 @@
-import { isEmpty, isString, omit } from "lodash-es";
+import { isEmpty, isString } from "lodash-es";
 
 import {
   type AnyEventObject,
   assign,
   type FunnelContext,
-  type FunnelTarget,
   QUERY_PARAMS,
   useBasket,
   useBasketProductsPending,
   useQueryParams,
+  useRoutingEngine,
   useSession
 } from "@upmind-automation/client-vue";
-import { ROUTE } from "./types";
+import { ROUTE } from "../types";
 import { applyBillingDefaults } from "./services";
 
 // -----------------------------------------------------------------------------
@@ -36,26 +36,24 @@ const SKIP_BID_ROUTES: string[] = [
   ROUTE.ERROR,
   ROUTE.BASKET_UNAVAILABLE,
   ROUTE.SESSION_END
-  // ROUTE.NOT_FOUND,
-  // ROUTE.LOADING,
 ];
 
 /**
- * Resolves bid params for a route target based on basket state.
+ * Injects bid params into a route target and primes the basket machine.
  * Reads bid from the current route (params or query), falls back to the
  * basket machine's `targetBasketId`.
  *
- * When a valid bid is found:
+ * When a bid is found:
  *   1. Calls `setTargetBasket(bid)` so the basket machine loads `orders/{bid}`
  *   2. For basket routes (`:bid` only): injects `{ bid }`
  *   3. For BID_PREFIX routes (`:segment/:bid`): injects `{ segment: "basket", bid }`
  *
  * When the basket is unavailable:
- *   - Resets the basket and redirects to the unavailable route.
+ *   - Redirects to the unavailable route.
  *
- * Skips resolution for ORDER, ERROR, BASKET_UNAVAILABLE, etc.
+ * Skips injection for ORDER, ERROR, BASKET_UNAVAILABLE, SESSION_END.
  */
-function resolveBidParams(route: any): FunnelTarget {
+function injectBid(route: any): any {
   if (!route) return route;
 
   // Skip routes that don't support bid params
@@ -69,6 +67,7 @@ function resolveBidParams(route: any): FunnelTarget {
     QUERY_PARAMS.BASKET_ID,
     targetBasketId.value
   );
+
   if (!bid) return route;
 
   // Prime the basket machine to load orders/{bid}.
@@ -79,7 +78,7 @@ function resolveBidParams(route: any): FunnelTarget {
 
   // If the basket is unavailable, redirect to the unavailable route
   if (meta.value.isUnavailable) {
-    return { name: ROUTE.BASKET_UNAVAILABLE } as FunnelTarget;
+    return { name: ROUTE.BASKET_UNAVAILABLE };
   }
 
   // Basket routes use `:bid` directly — no `:segment` param.
@@ -126,6 +125,12 @@ export default {
     }
   }),
 
+  // Force end the session by logging out the user
+  logout: () => {
+    const { logout } = useSession();
+    logout();
+  },
+
   /**
    * Prime the basket machine with the target basket ID from the current route.
    * Fires synchronously on funnel entry — before any async guards run —
@@ -140,12 +145,6 @@ export default {
       const { setTargetBasket } = useBasket();
       setTargetBasket(bid); // fire-and-forget: sends SET_TARGET_BASKET to the machine
     }
-  },
-
-  // Force end the session by logging out the user
-  logout: () => {
-    const { logout } = useSession();
-    logout();
   },
 
   /**
@@ -169,7 +168,24 @@ export default {
         ? { name: data.target }
         : data?.target;
 
-      return resolveBidParams(target ?? context.targetRoute);
+      return injectBid(target ?? context.targetRoute);
+    },
+    resolved: true
+  }),
+
+  /**
+   * Resolves the returnUrl from targetRoute.query and sets it as the target.
+   * Used after auth success to redirect to the originally requested page.
+   */
+  resolveReturnUrl: assign({
+    targetRoute: ({ targetRoute }: FunnelContext) => {
+      const returnUrl =
+        targetRoute?.query?.[QUERY_PARAMS.RETURN_URL]?.toString();
+      if (!returnUrl) return targetRoute;
+
+      const { router } = useRoutingEngine();
+      const resolved = router.resolve(returnUrl);
+      return injectBid(resolved);
     },
     resolved: true
   })

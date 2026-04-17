@@ -22,11 +22,13 @@ import {
 import { pascalCase } from "./utils";
 
 // --- types
+import type { Router } from "vue-router";
 import {
   QUERY_PARAMS,
   type FunnelContext,
   type FunnelProps,
-  type FunnelStateMeta
+  type FunnelStateMeta,
+  type FunnelTarget
 } from "./types";
 
 /**
@@ -75,19 +77,20 @@ export const useFunnelMachine = ({
     const metaHandlers: Record<string, unknown> = {};
 
     if (meta.next) {
-      metaHandlers.NEXT = isString(meta.next)
+      const nextTarget = meta.next;
+      metaHandlers.NEXT = isString(nextTarget)
         ? {
-            target: meta.next,
+            target: nextTarget,
             actions: [
               assign({
                 targetRoute: ({ targetRoute }: FunnelContext) => ({
                   ...targetRoute,
-                  name: meta.next
+                  name: nextTarget
                 })
               })
             ]
           }
-        : map(meta.next, entry => ({
+        : map(nextTarget, entry => ({
             target: entry.target,
             actions: [
               assign({
@@ -101,19 +104,20 @@ export const useFunnelMachine = ({
           }));
     }
     if (meta.prev) {
-      metaHandlers.BACK = isString(meta.prev)
+      const prevTarget = meta.prev;
+      metaHandlers.BACK = isString(prevTarget)
         ? {
-            target: meta.prev,
+            target: prevTarget,
             actions: [
               assign({
                 targetRoute: ({ targetRoute }: FunnelContext) => ({
                   ...targetRoute,
-                  name: meta.prev
+                  name: prevTarget
                 })
               })
             ]
           }
-        : map(meta.prev, entry => ({
+        : map(prevTarget, entry => ({
             target: entry.target,
             actions: [
               assign({
@@ -475,14 +479,16 @@ export const useFunnelMachine = ({
          * Consumers can override this action for custom logic (e.g. injectBid).
          */
         resolveReturnUrl: assign({
-          targetRoute: ({ targetRoute }: FunnelContext) => {
+          targetRoute: ({
+            targetRoute
+          }: FunnelContext): FunnelTarget | undefined => {
             const returnUrl = get(targetRoute, [
               "query",
               QUERY_PARAMS.RETURN_URL
             ])?.toString();
             if (!returnUrl) return targetRoute;
 
-            const { router } = useRoutingEngine();
+            const { router } = useRoutingEngine() as { router: Router };
             const resolved = router.resolve(returnUrl);
             return { ...resolved, name: resolved.name ?? undefined };
           },

@@ -32,7 +32,7 @@ import { includes } from "lodash-es";
 import { ROUTE } from "./router";
 
 // --- composables
-import { useStorefrontRoute } from "./composables/useStorefrontRoute";
+import { useStorefrontRoute } from "./router/useStorefrontRoute";
 
 // -----------------------------------------------------------------------------
 const { storefrontRoute } = useStorefrontRoute();

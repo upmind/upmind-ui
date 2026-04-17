@@ -9,7 +9,7 @@ import {
 } from "@upmind-automation/client-vue";
 
 // ---types
-export * from "./types";
+export * from "./funnels/types";
 
 // -----------------------------------------------------------------------------
 

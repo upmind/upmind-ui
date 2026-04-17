@@ -10,7 +10,7 @@
 <script lang="ts" setup>
 // --- internal
 import { ROUTE } from "../router";
-import { useStorefrontRoute } from "../composables/useStorefrontRoute";
+import { useStorefrontRoute } from "../router/useStorefrontRoute";
 
 // --- components
 import { UpmCheckout } from "@upmind-automation/client-vue";
