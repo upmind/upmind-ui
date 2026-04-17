@@ -103,10 +103,6 @@ export default {
    * Returns true when targetRoute.query contains a returnUrl.
    * Used to conditionally resolve returnUrl after auth success.
    */
-  hasReturnUrl: ({ targetRoute }: FunnelContext) => {
-    const returnUrl = get(targetRoute, ["query", QUERY_PARAMS.RETURN_URL]);
-    const result = !isEmpty(returnUrl);
-    console.debug("[guard] hasReturnUrl", { returnUrl, result, targetRoute });
-    return result;
-  }
+  hasReturnUrl: ({ targetRoute }: FunnelContext) =>
+    !isEmpty(get(targetRoute, ["query", QUERY_PARAMS.RETURN_URL]))
 };
