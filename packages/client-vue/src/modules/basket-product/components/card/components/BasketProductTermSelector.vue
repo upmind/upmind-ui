@@ -74,7 +74,9 @@ const selectedTerm = computed({
 const parsedTerms = computed<SelectCardsItemProps[]>(() =>
   map(props.terms, (term: TermDetails, index: number) => ({
     value: term.cycle?.toString() ?? "",
-    label: parseBillingCycle(term.cycle ?? 0).numeric,
+    label: t("text.term_duration", {
+      duration: parseBillingCycle(term.cycle ?? 0).numeric
+    }),
     item: term,
     index
   }))
