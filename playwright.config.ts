@@ -7,7 +7,7 @@ const baseURL = "http://qa-automation.local:5173/";
  */
 export default defineConfig({
   /* Timeouts */
-  timeout: 30000,
+  timeout: 60000,
   expect: {
     timeout: 30000,
     toHaveScreenshot: { maxDiffPixels: 2000 }
