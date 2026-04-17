@@ -49,7 +49,7 @@ export default <FunnelProps>{
      * or the CATALOGUE route (if no configurations are found).
      */
     [ROUTE.LOADING]: {
-      entry: ["setResolving"],
+      entry: ["setUnresolved", "clearTarget"],
       always: [
         { target: ROUTE.PRODUCT, cond: "hasProductConfigs" },
         { target: "#complete" }
@@ -70,7 +70,8 @@ export default <FunnelProps>{
         "setCurrency",
         "setProductConfigs",
         "forceAutoupdate",
-        "setResolving"
+        "setUnresolved",
+        "clearTarget"
       ],
       invoke: {
         src: "guardProductConfigure",

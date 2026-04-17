@@ -130,7 +130,7 @@ export const useFunnelMachine = ({
               ...keys(states).map(state => {
                 return {
                   target: `available.${state}`,
-                  actions: ["setResolving"],
+                  actions: ["setUnresolved", "clearTarget"],
                   cond: `is${pascalCase(state)}`
                 };
               }),
@@ -166,10 +166,10 @@ export const useFunnelMachine = ({
           on: {
             // These events are forwarded from the Parent Routing Engine
             NEXT: {
-              actions: ["setResolving"]
+              actions: ["setUnresolved", "clearTarget"]
             },
             BACK: {
-              actions: ["setResolving"]
+              actions: ["setUnresolved", "clearTarget"]
             },
             // Pre-lock: immediately mark as unresolved to prevent watcher races (FE-2587)
             PRE_RESOLVE: {
@@ -181,7 +181,10 @@ export const useFunnelMachine = ({
                 return {
                   target: `available.${state}`,
                   actions: [
-                    "setResolving",
+                    // FE-2651: Use setUnresolved instead of setResolving to preserve
+                    // targetRoute.query across in-funnel transitions (e.g. login ↔ register).
+                    // setResolving clears targetRoute before setTargetRoute can read it.
+                    "setUnresolved",
                     "setTargetRoute",
                     "setCurrentRoute"
                   ],
@@ -325,28 +328,26 @@ export const useFunnelMachine = ({
 
         setTargetRoute: assign({
           targetRoute: (
-            { targetRoute, currentRoute }: FunnelContext,
+            { targetRoute }: FunnelContext,
             { data }: AnyEventObject
           ) => {
             const target = isString(data?.target)
               ? { name: data.target }
               : data?.target;
 
-            // return target ?? targetRoute;
-
             const resolved = target ?? targetRoute;
 
-            // FE-2651: Carry forward currentRoute.query when the incoming
-            // target has no/empty query. Runs BEFORE setCurrentRoute so
-            // currentRoute still holds the previous page's data.
-            // Preserves query params (e.g. returnUrl) during in-funnel
-            // transitions like login ↔ register ↔ recover-password.
+            // FE-2651: Carry forward targetRoute.query when the incoming
+            // target has no/empty query. Since RESOLVE now uses setUnresolved
+            // (not setResolving), targetRoute still holds the PREVIOUS page's
+            // query. This preserves params (e.g. returnUrl) across unlimited
+            // in-funnel transitions like login ↔ register ↔ recover-password.
             if (
               resolved &&
               isEmpty(resolved?.query) &&
-              !isEmpty(currentRoute?.query)
+              !isEmpty(targetRoute?.query)
             ) {
-              return { ...resolved, query: currentRoute.query };
+              return { ...resolved, query: targetRoute.query };
             }
 
             return resolved;
