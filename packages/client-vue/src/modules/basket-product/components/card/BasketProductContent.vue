@@ -134,11 +134,12 @@
       </div>
 
       <div :class="styles.product.summary.footer.price.root">
-        <QuantityField
+        <BasketQuantityField
           v-bind="productDetails"
           :id="id"
           v-model:quantity="quantity"
           :disabled="error"
+          @remove="doRemove"
         />
 
         <div :class="styles.product.summary.footer.price.container">
@@ -196,7 +197,7 @@ import CurrentPrice from "../../../product/components/pricing/CurrentPrice.vue";
 import ExPrice from "../../../product/components/pricing/ExPrice.vue";
 import TermsDescription from "./components/TermsDescription.vue";
 import Promotion from "./components/Promotion.vue";
-import QuantityField from "./components/QuantityField.vue";
+import BasketQuantityField from "./components/BasketQuantityField.vue";
 import BasketProductConfigurationDetails from "./BasketProductConfigurationDetails.vue";
 import BasketProductTermSelector from "./components/BasketProductTermSelector.vue";
 
