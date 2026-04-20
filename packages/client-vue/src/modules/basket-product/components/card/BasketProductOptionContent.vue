@@ -18,28 +18,20 @@
         />
       </div>
 
-      <p
-        v-if="!summary.meta?.free && summary.cycle != null"
-        :class="styles.product.option.description"
-      >
-        <template v-if="summary.meta?.oneoff || summary.cycle === 0">
-          {{ t("term.renews_msg", { n: 0, cycle: "" }) }}.
-        </template>
-        <template v-else>
-          +{{
-            t("text.price_per_cycle", {
-              price: summary.price.currentPrice,
-              cycle: parseBillingCycle(summary.cycle).descriptive
-            })
-          }}.
-          <span v-if="summary.meta?.discounted" class="text-muted line-through">
-            {{
-              t("term.renews_usually_msg", {
-                price: summary.price.regularPrice
+      <p v-if="!summary.meta?.free" :class="styles.product.option.description">
+        +{{
+          summary.cycle && summary.cycle > 0
+            ? t("text.price_per_cycle", {
+                price: summary.price.currentPrice,
+                cycle: parseBillingCycle(summary.cycle).descriptive
               })
-            }}
-          </span>
-        </template>
+            : t("text.price_one_time", { price: summary.price.currentPrice })
+        }}.
+        <span v-if="summary.meta?.discounted" class="text-muted line-through">
+          {{
+            t("term.renews_usually_msg", { price: summary.price.regularPrice })
+          }}
+        </span>
       </p>
     </div>
 
