@@ -1,4 +1,7 @@
 {
+  "terminal.integrated.env.osx": {
+    "CLAUDE_CONFIG_DIR": "/Users/domdacosta/.claude-upmind"
+  },
   "editor.quickSuggestions": { "strings": "on" },
   "editor.inlineSuggest.enabled": true,
   "tailwindCSS.experimental.classRegex": [
