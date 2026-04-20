@@ -1,5 +1,6 @@
 import { Page, Locator, BrowserContext } from "@playwright/test";
 import { faker } from "@faker-js/faker";
+import { kebabCase } from "../../helpers";
 
 export class Registration {
   readonly page: Page;
@@ -9,7 +10,6 @@ export class Registration {
   readonly lastName: Locator;
   readonly email: Locator;
   readonly password: Locator;
-  readonly alertTitle: Locator;
 
   constructor(page: Page, context: BrowserContext) {
     this.page = page;
@@ -19,7 +19,10 @@ export class Registration {
     this.lastName = page.getByTestId("input-properties-lastname");
     this.email = page.getByTestId("input-properties-username");
     this.password = page.getByTestId("input-password");
-    this.alertTitle = page.getByTestId("alert-title");
+  }
+
+  getValidationError(field: string) {
+    return this.page.getByTestId(`form-item-message-${kebabCase(field)}`);
   }
 
   async inputRegistration() {
