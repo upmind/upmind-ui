@@ -165,6 +165,7 @@
             color="neutral"
             size="md"
             icon-only
+            :class="styles.product.summary.footer.remove"
             :aria-label="t('action.remove')"
             :disabled="error"
             @click="doRemove"
