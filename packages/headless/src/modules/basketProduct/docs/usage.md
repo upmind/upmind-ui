@@ -62,7 +62,10 @@ A product summary detail enriched with basket-specific toggle metadata.
 
 ```typescript
 type BasketOptionSummary = ProductSummaryDetailWithPrice & {
-  meta: ProductSummaryMeta & { toggle?: OptionToggleMeta };
+  toggle?: OptionToggleMeta;
+  min?: number;
+  max?: number;
+  step?: number;
 };
 ```
 

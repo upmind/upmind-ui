@@ -58,9 +58,9 @@ export const useBasketProductInline = (bpid: string) => {
     map(
       filter(
         (basketProduct.upsells ?? []) as BasketOptionSummary[],
-        "meta.toggle.selected"
+        "toggle.selected"
       ),
-      "meta.toggle.valueId"
+      "toggle.valueId"
     )
   );
 
@@ -128,14 +128,17 @@ export const useBasketProductInline = (bpid: string) => {
     if (isEmpty(machineOptions)) return catalogUpsells;
 
     const selected = flatMap(modelOptions, group =>
-      map(group, (choice, id) => ({ product_id: choice.productId ?? id }))
+      map(group, (choice, id) => ({
+        product_id: choice.productId ?? id,
+        unit_quantity: choice.quantity
+      }))
     );
     const summaries = parseOptionUpsells(selected as any, machineOptions);
 
     // Exclude options that were pre-configured before inline editing began.
     return filter(
       summaries,
-      s => !includes(preConfiguredIds, s.meta.toggle?.valueId)
+      s => !includes(preConfiguredIds, s.toggle?.valueId)
     );
   }
 
@@ -149,13 +152,13 @@ export const useBasketProductInline = (bpid: string) => {
     const showTermSelector =
       ui.productTermSelector.isVisible && !basketProduct.meta?.oneoff;
 
+    const showQuantity = !!basketProduct.productDetails.quantifiable;
+
     return {
-      hasInlineControls:
-        showOptionUpsells ||
-        showTermSelector ||
-        !!basketProduct.productDetails.quantifiable,
+      hasInlineControls: showOptionUpsells || showTermSelector || showQuantity,
       hasUpsellOptions,
       showOptionUpsells,
+      showQuantity,
       showTermSelector
     };
   });

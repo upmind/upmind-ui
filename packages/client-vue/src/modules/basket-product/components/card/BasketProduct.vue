@@ -63,6 +63,7 @@
           :config-options="config?.options?.value"
           upsell
           v-model:options="optionsModel"
+          @update:quantity="(value: number) => onOptionQuantity(upsell, value)"
         />
         <BasketProductBenefits :benefits="benefits" />
       </div>
@@ -207,7 +208,7 @@ function getSummaryComponent(index: number) {
 }
 
 function resolveOptionGroup(upsell: BasketOptionSummary) {
-  return find(config?.options?.value, { id: upsell.meta.toggle?.categoryId });
+  return find(config?.options?.value, { id: upsell.toggle?.categoryId });
 }
 
 // --- writable models for v-model bindings
@@ -249,6 +250,15 @@ const optionsModel = computed({
       .then(() => debouncedUpdate());
   }
 });
+
+function onOptionQuantity(upsell: BasketOptionSummary, quantity: number) {
+  const toggle = upsell.toggle;
+  if (!config || !toggle) return;
+  const option = config.options?.value?.find(o => o.id === toggle.categoryId);
+  if (!option) return;
+  config.updateOptionQuantity(option, toggle.valueId, quantity);
+  debouncedUpdate();
+}
 
 function doRemove() {
   emits("remove");

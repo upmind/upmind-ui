@@ -392,12 +392,11 @@ export function parseOptionUpsells(
 ): BasketOptionSummary[] {
   if (isEmpty(availableOptions)) return [];
 
-  const selectedIds = map(selectedOptions, "product_id");
-
   return flatMap(availableOptions, option =>
     compact(
       map(option.values, (value: SubproductValue) => {
-        const selected = includes(selectedIds, value.id);
+        const selectedOption = find(selectedOptions, { product_id: value.id });
+        const selected = !!selectedOption;
         if (!selected && !value.price) return undefined;
 
         return {
@@ -406,20 +405,24 @@ export function parseOptionUpsells(
           title: value.title,
           category: option.title,
           cycle: value.cycle,
-          quantity: value.quantity,
+          quantity: selectedOption?.unit_quantity ?? value.quantity,
+          min: value.min,
+          max: value.max,
+          step: value.step,
           promotions: value.promotions,
           uiMeta: value.uiMeta,
           meta: {
             ...value.meta,
-            toggle: {
-              categoryId: option.id,
-              valueId: value.id,
-              cycle: value.cycle ?? 0,
-              selected,
-              benefits: map(value.benefits, (b: Benefit) =>
-                isString(b) ? { label: b } : b
-              )
-            }
+            quantifiable: value.quantifiable
+          },
+          toggle: {
+            categoryId: option.id,
+            valueId: value.id,
+            cycle: value.cycle ?? 0,
+            selected,
+            benefits: map(value.benefits, (b: Benefit) =>
+              isString(b) ? { label: b } : b
+            )
           },
           price: value.price
         } as BasketOptionSummary;
