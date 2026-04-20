@@ -46,7 +46,7 @@ export default {
       image: cva("image-radius m-0 size-13"),
       renew: {
         renews: cva("text-faint text-sm"),
-        usually: cva("text-faint text-sm/tight")
+        usually: cva("text-faint text-sm-tight")
       },
       footer: {
         root: cva("flex flex-col justify-between gap-2 lg:flex-row"),
