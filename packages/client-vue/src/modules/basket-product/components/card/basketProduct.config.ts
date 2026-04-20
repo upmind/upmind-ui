@@ -23,7 +23,8 @@ export default {
       }),
       summaries: cva(
         "divide-border-control-default flex flex-col divide-y divide-dashed p-6 *:py-4 *:first:pt-0 *:last:pb-0 lg:px-8 lg:py-9"
-      )
+      ),
+      tax: cva("text-faint text-sm leading-5")
     },
     summary: {
       article: cva("flex flex-col gap-4"),
@@ -90,7 +91,7 @@ export default {
       current: cva(
         "shrink-0 text-lg leading-7! font-medium whitespace-nowrap md:text-xl"
       ),
-      ex: cva("text-sm! leading-5! italic")
+      ex: cva("text-sm leading-5")
     }
   }
 };

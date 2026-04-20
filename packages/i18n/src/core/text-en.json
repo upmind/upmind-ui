@@ -94,6 +94,8 @@
   "price_one_time": "{price} one-time",
   "price_per_cycle": "{price} every {cycle}",
   "price_was": "Was {price}",
+  "prices_shown_exclude_taxes": "* Prices shown exclude taxes.",
+  "prices_shown_include_taxes": "* Prices shown include taxes.",
   "privacy_policy": "Privacy policy",
   "product_configuration": "Product configuration",
   "product_configuration_md": "Product **configuration**",
