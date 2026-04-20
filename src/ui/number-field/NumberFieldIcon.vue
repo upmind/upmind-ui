@@ -1,5 +1,5 @@
 <template>
-  <Icon :icon="icon" :size="variant === 'flat' ? '2xs' : 'xs'" />
+  <Icon :icon="icon" :size="variant === 'flat' ? 'md' : 'md'" />
 </template>
 
 <script setup lang="ts">

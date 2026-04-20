@@ -178,7 +178,11 @@ export const numberFieldInputLeftVariants = cva(
       { variant: "flat", size: "sm", class: "w-1/3 py-2 text-sm" },
       { variant: "flat", size: "md", class: "w-1/3 py-2 text-sm" },
       { variant: "flat", size: "lg", class: "text-md w-1/3 py-2" },
-      { variant: "flat", width: "sm", class: "left-2 w-6 p-1 [&>i>svg]:size-4" }
+      {
+        variant: "flat",
+        width: "sm",
+        class: "left-2 w-6 [&>i]:p-0.5 [&>i>svg]:size-4.5"
+      }
     ],
     defaultVariants: {
       variant: "flat",
@@ -209,7 +213,7 @@ export const numberFieldInputRightVariants = cva(
       {
         variant: "flat",
         width: "sm",
-        class: "right-2 w-6 p-1 [&>i>svg]:size-4"
+        class: "right-2 w-6 [&>i]:p-0.5 [&>i>svg]:size-4.5"
       }
     ],
     defaultVariants: {
