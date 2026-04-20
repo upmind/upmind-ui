@@ -43,7 +43,7 @@ export default {
         text: cva("text-xl-tight font-medium break-all no-underline")
       },
       icon: cva("[&>svg]:p-[2px]"),
-      image: cva("image-radius m-0 h-12"),
+      image: cva("image-radius m-0 size-13"),
       renew: {
         renews: cva("text-faint text-sm"),
         usually: cva("text-faint text-sm leading-5")
