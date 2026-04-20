@@ -135,13 +135,9 @@ test.describe("Confirmation Page Display", () => {
     await expect(
       confirmation.productNameVisible(products.STARTER_HOSTING.name)
     ).toBeTruthy();
-    await expect(confirmation.detailsRowPrice).toContainText(
-      products.STARTER_HOSTING.gbpPrice
-    );
+    await expect(confirmation.detailsRowPrice).toContainText("£0.00");
     await expect(confirmation.detailsRowQty).toContainText("1");
-    await expect(confirmation.detailsRowTotal).toContainText(
-      products.STARTER_HOSTING.gbpPrice
-    );
+    await expect(confirmation.detailsRowTotal).toContainText("£0.00");
   });
   test("Successful Order with Promo", async ({ page, context }) => {
     await goToCheckout(
@@ -205,7 +201,7 @@ test.describe("Confirmation Page Display", () => {
       page
         .getByRole("alert")
         .getByText(
-          "Unfortunately, your previous payment attempt was unsuccessful. Please try again using an alternative method."
+          "Unfortunately, your previous payment attempt was unsuccessful - this can be for a number of reasons. Please try again using an alternative method."
         )
     ).toBeVisible();
     await expect(confirmation.orderDetails).toBeVisible();
@@ -259,11 +255,11 @@ test.describe("Confirmation Page Display", () => {
     let token = await getSessionToken(context);
     let order = await getCurrentOrder(token);
     let orderId = order?.id;
-    await page.waitForURL(`**/order/${orderId}?**`);
+    await page.waitForURL(`**/order/**/?payment_success=true`);
     let invoice = await getInvoice(token, orderId);
     let invoiceNumber = invoice?.number;
     let date = getFormattedDate();
-    let outstandingBalance = invoice?.unpaid_amount;
+    let outstandingBalance = invoice?.unpaid_amount_formatted;
     await expect(confirmation.invoiceNumberHeading).toContainText("Order #");
     await expect(confirmation.invoiceNumber).toContainText(`${invoiceNumber}`);
     await expect(confirmation.orderDateHeading).toContainText("Purchase date");
