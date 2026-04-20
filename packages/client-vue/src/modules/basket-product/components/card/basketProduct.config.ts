@@ -26,9 +26,9 @@ export default {
       )
     },
     summary: {
-      article: cva("flex flex-col gap-2 lg:gap-4"),
+      article: cva("flex flex-col gap-4"),
       header: {
-        root: cva("flex gap-3"),
+        root: cva("flex items-start gap-3"),
         content: cva("w-full"),
         top: cva("flex justify-between")
       },
@@ -37,7 +37,7 @@ export default {
         text: cva("text-faint text-sm font-normal")
       },
       title: {
-        root: cva("flex items-center gap-2"),
+        root: cva("flex items-start gap-2"),
         link: cva("no-underline"),
         text: cva("text-xl-tight font-medium break-all no-underline")
       },
@@ -50,7 +50,7 @@ export default {
       footer: {
         root: cva("flex flex-col justify-between gap-2 lg:flex-row"),
         terms: {
-          root: cva("flex items-center gap-4"),
+          root: cva("flex flex-wrap items-center gap-x-4 gap-y-2"),
           controls: cva("flex items-center gap-2"),
           content: cva("max-h-74!")
         },
@@ -63,7 +63,7 @@ export default {
       }
     },
     option: {
-      root: cva("flex w-full items-center gap-3"),
+      root: cva("flex w-full flex-col gap-4 md:flex-row md:items-center"),
       details: cva("flex min-w-0 flex-1 flex-col"),
       title: cva("flex items-center gap-2"),
       description: cva("text-base text-sm", {
@@ -75,7 +75,7 @@ export default {
           { selected: true, quantifiable: true, class: "text-faint" }
         ]
       }),
-      action: cva("w-36 shrink-0"),
+      action: cva("w-full shrink-0 md:w-36"),
       upsell: cva(
         "border-surface flex flex-col gap-4 border-t px-6 py-6 lg:px-8"
       ),
