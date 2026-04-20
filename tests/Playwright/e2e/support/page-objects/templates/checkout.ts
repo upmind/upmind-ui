@@ -25,6 +25,7 @@ export class Checkout {
   readonly phoneInput: Locator;
   readonly phoneRegion: Locator;
   readonly paymentDetails: Locator;
+  readonly expandPaymentDetails: Locator;
   readonly saveDetails: Locator;
   readonly addVoucherForm: Locator;
   readonly addVoucherButton: Locator;
@@ -83,6 +84,7 @@ export class Checkout {
     this.phoneRegion = this.phone.getByTestId("popover-trigger");
     this.phoneInput = this.textInputComponent.getTextInputField(this.phone);
     this.paymentDetails = this.page.getByTestId("payment-details");
+    this.expandPaymentDetails = this.page.getByTestId("link-show-more-options");
     this.saveDetails = this.page.getByTestId("button-save-details");
     this.addVoucherForm = this.page.getByTestId("form-item-promocode");
     this.addVoucherButton = this.page.getByTestId("link-add-a-voucher-code");
@@ -144,6 +146,9 @@ export class Checkout {
 
   async selectPaymentMethod(gatewayName: string) {
     await expect(this.paymentDetails).toBeVisible({ timeout: 30000 });
+    if (await this.expandPaymentDetails.isVisible()) {
+      await this.expandPaymentDetails.click();
+    }
     await this.page.waitForLoadState("domcontentloaded");
     await this.page.getByTestId(`radio-card-${kebabCase(gatewayName)}`).click();
   }
