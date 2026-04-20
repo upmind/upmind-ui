@@ -206,7 +206,7 @@ const openModel = computed({
 });
 
 const quantityModel = computed({
-  get: () => props.configuration.quantity,
+  get: () => config?.model?.value?.quantity ?? props.configuration.quantity,
   set: (value: number) => {
     if (!config) return;
     config.updateQuantity(value);
