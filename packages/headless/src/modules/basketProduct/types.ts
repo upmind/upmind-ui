@@ -143,5 +143,12 @@ export type OptionToggleMeta = {
 
 /** A product summary detail with basket-specific toggle metadata. */
 export type BasketOptionSummary = ProductSummaryDetailWithPrice & {
-  meta: ProductSummaryMeta & { toggle?: OptionToggleMeta };
+  /** Toggle state for this option (selection, category/value IDs, benefits). */
+  toggle?: OptionToggleMeta;
+  /** Minimum order quantity for this option value. */
+  min?: number;
+  /** Maximum order quantity for this option value. */
+  max?: number;
+  /** Quantity increment step for this option value. */
+  step?: number;
 };

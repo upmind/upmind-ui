@@ -43,6 +43,7 @@ export interface BasketProductSummaryProps {
     hasInlineControls: boolean;
     showOptionUpsells: boolean;
     showTermSelector: boolean;
+    showQuantity: boolean;
   };
   upsellOptions?: SubproductDetails[];
   terms?: TermDetails[];

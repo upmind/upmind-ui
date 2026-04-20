@@ -36,7 +36,7 @@
     </div>
 
     <Button
-      v-if="!summary.meta?.toggle?.selected"
+      v-if="!summary.toggle?.selected"
       :label="t('action.add_option')"
       icon="plus"
       variant="outline"
@@ -61,11 +61,13 @@
 
     <BasketQuantityField
       v-else
-      :id="`option-qty-${summary.meta?.toggle?.categoryId}-${summary.meta?.toggle?.valueId}`"
+      :id="`option-qty-${summary.toggle?.categoryId}-${summary.toggle?.valueId}`"
       :class="styles.product.option.action"
       quantifiable
       :quantity="summary.quantity"
-      :min="1"
+      :min="summary.min"
+      :max="summary.max"
+      :step="summary.step"
       :disabled="error || processing"
       @update:quantity="value => emits('update:quantity', value)"
       @remove="doToggle(false)"
@@ -104,7 +106,7 @@ const { t } = useI18n();
 const options = defineModel<OptionTogglePayload>("options");
 
 const meta = computed(() => ({
-  selected: !!props.summary.meta?.toggle?.selected,
+  selected: !!props.summary.toggle?.selected,
   quantifiable: !!props.summary.meta?.quantifiable
 }));
 
@@ -123,7 +125,7 @@ const styles = useStyles(
 // --- methods
 
 function doToggle(enabled: boolean) {
-  const toggle = props.summary.meta.toggle;
+  const toggle = props.summary.toggle;
   if (!toggle) return;
 
   const option = props.configOptions?.find(o => o.id === toggle.categoryId);

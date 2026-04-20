@@ -75,7 +75,7 @@ export default {
           { selected: true, quantifiable: true, class: "text-faint" }
         ]
       }),
-      action: cva("min-w-36 shrink-0"),
+      action: cva("w-36 shrink-0"),
       upsell: cva(
         "border-surface flex flex-col gap-4 border-t px-6 py-6 lg:px-8"
       ),
