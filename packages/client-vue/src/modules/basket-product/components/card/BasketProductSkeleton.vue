@@ -1,44 +1,39 @@
 <template>
-  <Card
-    as="li"
-    class="shadow-control-default card-radius relative flex list-none flex-col gap-y-3 px-8 py-5 text-base"
-    padding="md"
-  >
-    <div class="flex flex-col divide-y divide-dashed [&>*]:py-4">
-      <article class="flex flex-col gap-2 lg:gap-4">
-        <!-- Header: Image, Category, Name -->
-        <header class="flex gap-3">
+  <Card as="li" class="relative flex list-none flex-col p-0 text-base lg:p-0">
+    <div
+      class="divide-border-control-default flex flex-col divide-y divide-dashed p-6 *:py-4 *:first:pt-0 *:last:pb-0 lg:px-8 lg:py-9"
+    >
+      <article class="flex flex-col gap-4">
+        <!-- Header: Image, Category/ExPrice, Name/CurrentPrice -->
+        <header class="flex items-start gap-3">
           <!-- Product Image -->
-          <Skeleton class="m-0 h-12 max-w-12 min-w-12" />
+          <Skeleton class="image-radius m-0 h-12 w-12 shrink-0" />
 
-          <div class="w-full">
-            <!-- Category Row with Delete Action -->
+          <div class="flex w-full flex-col gap-1">
+            <!-- Top row: Category + Ex price -->
             <div class="flex justify-between">
               <div class="flex items-center gap-2">
                 <Skeleton class="h-5 w-24" />
               </div>
-              <Skeleton class="h-6 w-6" />
             </div>
 
-            <!-- Product Name Row -->
-            <div class="flex items-center gap-2">
-              <Skeleton class="h-7 w-48" />
+            <!-- Title row: Name + Current price -->
+            <div class="flex items-start justify-between gap-2">
+              <div class="flex items-center gap-2">
+                <Skeleton class="h-6 w-48" />
+              </div>
+              <Skeleton class="h-6 w-24 shrink-0" />
             </div>
           </div>
         </header>
 
-        <!-- Footer: Terms, Quantity, Price -->
+        <!-- Footer: Controls (quantity + term) + Renew description -->
         <footer class="flex flex-col justify-between gap-2 lg:flex-row">
-          <div class="flex flex-col gap-1">
-            <Skeleton class="h-5 w-40" />
-            <Skeleton class="h-5 w-32" />
-          </div>
-
-          <div class="flex items-end justify-between gap-4 lg:justify-end">
-            <!-- Quantity -->
-            <Skeleton class="h-5 w-16" />
-            <!-- Price -->
-            <Skeleton class="h-7 w-24" />
+          <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
+            <div class="flex items-center gap-2">
+              <Skeleton class="h-10 w-12" />
+            </div>
+            <Skeleton class="h-5 w-28" />
           </div>
         </footer>
       </article>
