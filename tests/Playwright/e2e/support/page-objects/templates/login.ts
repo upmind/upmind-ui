@@ -20,9 +20,7 @@ export class Login {
       .getByTestId("form-item-password")
       .getByRole("textbox");
     this.loginButton = page.getByTestId("button-log-in-to-your-account");
-    this.twoFactorInput = page
-      .getByTestId("form-item-token")
-      .getByRole("textbox");
+    this.twoFactorInput = page.getByTestId("input-otp-slot");
     this.popoverTrigger = page.getByTestId("login-popover-trigger");
     this.popoverContent = page.getByTestId("popover-content");
     this.alert = page.getByTestId("auth-alert");
