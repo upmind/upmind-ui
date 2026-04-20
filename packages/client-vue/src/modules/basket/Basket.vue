@@ -222,7 +222,7 @@ set(ui.theme.value);
 // -----------------------------------------------------------------------------
 // --- side effects
 
-await isReady().then(() => {
+isReady().then(() => {
   const { dataLayer } = useDataLayer();
   dataLayer({ event: "view_cart" }).withEcommerce().push();
 });
