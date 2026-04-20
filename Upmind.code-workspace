@@ -6,20 +6,26 @@
     },
     {
       "name": "headless",
-      "path": "./packages/headless"
+      "path": "packages/headless"
     },
     {
       "name": "client-vue",
-      "path": "./packages/client-vue"
+      "path": "packages/client-vue"
     },
     {
       "name": "cart",
-      "path": "./apps/cart"
+      "path": "apps/cart"
     },
     {
-      "path": "./playgrounds/labs"
+      "name": "cart-nuxt",
+      "path": "apps/cart-nuxt"
     },
     {
+      "name": "labs",
+      "path": "playgrounds/labs"
+    },
+    {
+      "name": "vue-app",
       "path": "../vue-app"
     }
   ],
