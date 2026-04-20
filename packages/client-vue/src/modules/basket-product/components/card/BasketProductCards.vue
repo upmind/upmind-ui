@@ -17,6 +17,14 @@
         </template>
       </BasketProduct>
     </template>
+
+    <p v-if="meta.hasProducts" :class="styles.product.root.tax">
+      {{
+        includesTax
+          ? t("text.prices_shown_include_taxes")
+          : t("text.prices_shown_exclude_taxes")
+      }}
+    </p>
   </div>
 
   <div v-else class="flex flex-col space-y-4" v-auto-animate>
@@ -34,11 +42,14 @@
 <script lang="ts" setup>
 // --- external
 import { ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
-import { useBasketProducts } from "@upmind-automation/headless";
+import { useBasketProducts, useBrand } from "@upmind-automation/headless";
+import { useStyles } from "@upmind-automation/upmind-ui";
 import BasketProduct from "./BasketProduct.vue";
+import config from "./basketProduct.config";
 
 // --- components
 import { every, reduce, set } from "lodash-es";
@@ -53,7 +64,10 @@ const props = withDefaults(defineProps<BasketProductCardsProps>(), {
 
 const emits = defineEmits(["update:open"]);
 
+const { t } = useI18n();
 const { meta, products, updateQuantity, remove } = useBasketProducts();
+const { includesTax } = useBrand();
+const styles = useStyles(["product.root"], {}, config);
 
 const open = ref<Record<string, boolean>>(forceOpen(props.open));
 
