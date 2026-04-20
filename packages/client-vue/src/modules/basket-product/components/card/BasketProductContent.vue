@@ -63,7 +63,11 @@
                 v-if="!isEmpty(filteredDetails)"
                 :label="t('action.show_details')"
               >
-                <Link @click="open = !open" aria-label="Product information">
+                <Link
+                  @click="open = !open"
+                  color="muted"
+                  aria-label="Product information"
+                >
                   <Icon
                     icon="info-circle"
                     size="xs"
