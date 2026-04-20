@@ -31,26 +31,11 @@
       "ngClass",
       ".*upwConfig"
     ],
-    "cSpell.words": [
-      "clickwrap",
-      "Ecommerce",
-      "initialisations",
-      "initialise",
-      "Initialised",
-      "initialising",
-      "jsonform",
-      "Localazy",
-      "Localisation",
-      "organisation",
-      "promocode",
-      "promocodes",
-      "recaptcha",
-      "Subproduct",
-      "twofa",
-      "uischema",
-      "upmind"
-    ],
-    "workbench.colorTheme": "Catppuccin Frappé"
+    "workbench.colorTheme": "Catppuccin Frappé",
+
+    "terminal.integrated.env.osx": {
+      "CLAUDE_CONFIG_DIR": "/Users/domdacosta/.claude-upmind"
+    }
   },
   "extensions": {
     "recommendations": [
