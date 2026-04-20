@@ -14,18 +14,59 @@ test.describe("User Registration", () => {
     await page.waitForURL(URLs.emptyBasket, { timeout: 30000 });
     await expect(registration.getCookie("client")).toBeDefined();
   });
-  test("Invalid password entry", async ({ page }) => {
+  test("Invalid password entry (Too short & no number)", async ({ page }) => {
     await registration.firstName.fill(`${faker.person.firstName()}`);
     await registration.lastName.fill(`${faker.person.lastName()}`);
     await registration.email.fill(
       `nathan.robinson+${faker.string.alpha({ length: 10 })}@upmind.com`
     );
-    await registration.password.fill(
-      `${faker.internet.password({ length: 10, pattern: /[A-Z]/ })}`
+    await registration.password.fill("one");
+    await expect(registration.getValidationError("password")).toContainText(
+      "Password must be at least 8 characters and contain a number"
     );
-    await page.getByTestId("button-continue").click();
-    await expect(registration.alertTitle).toContainText(
-      "We experienced an error while trying to create your account"
+  });
+  test("Invalid password entry (Too short & no letter)", async ({ page }) => {
+    await registration.firstName.fill(`${faker.person.firstName()}`);
+    await registration.lastName.fill(`${faker.person.lastName()}`);
+    await registration.email.fill(
+      `nathan.robinson+${faker.string.alpha({ length: 10 })}@upmind.com`
+    );
+    await registration.password.fill("123456");
+    await expect(registration.getValidationError("password")).toContainText(
+      "Password must be at least 8 characters and contain a lowercase letter"
+    );
+  });
+  test("Invalid password entry (Too short)", async ({ page }) => {
+    await registration.firstName.fill(`${faker.person.firstName()}`);
+    await registration.lastName.fill(`${faker.person.lastName()}`);
+    await registration.email.fill(
+      `nathan.robinson+${faker.string.alpha({ length: 10 })}@upmind.com`
+    );
+    await registration.password.fill("a123456");
+    await expect(registration.getValidationError("password")).toContainText(
+      "Password must be at least 8 characters"
+    );
+  });
+  test("Invalid password entry (No number)", async ({ page }) => {
+    await registration.firstName.fill(`${faker.person.firstName()}`);
+    await registration.lastName.fill(`${faker.person.lastName()}`);
+    await registration.email.fill(
+      `nathan.robinson+${faker.string.alpha({ length: 10 })}@upmind.com`
+    );
+    await registration.password.fill("abcdefgh");
+    await expect(registration.getValidationError("password")).toContainText(
+      "Password must contain a number"
+    );
+  });
+  test("Invalid password entry (No letter)", async ({ page }) => {
+    await registration.firstName.fill(`${faker.person.firstName()}`);
+    await registration.lastName.fill(`${faker.person.lastName()}`);
+    await registration.email.fill(
+      `nathan.robinson+${faker.string.alpha({ length: 10 })}@upmind.com`
+    );
+    await registration.password.fill("12345678");
+    await expect(registration.getValidationError("password")).toContainText(
+      "Password must contain a lowercase letter"
     );
   });
   test("Invalid email entry", async ({ page }) => {
@@ -37,7 +78,7 @@ test.describe("User Registration", () => {
     await registration.password.fill(
       `${faker.internet.password({ length: 10, pattern: /[A-Z]/, prefix: "123" })}`
     );
-    await expect(page.getByTestId("form-item-message-username")).toContainText(
+    await expect(registration.getValidationError("username")).toContainText(
       "A username or email address is required"
     );
   });
