@@ -46,7 +46,7 @@ export default {
       image: cva("image-radius m-0 size-13"),
       renew: {
         renews: cva("text-faint text-sm"),
-        usually: cva("text-faint text-sm leading-5")
+        usually: cva("text-faint text-sm/tight")
       },
       footer: {
         root: cva("flex flex-col justify-between gap-2 lg:flex-row"),
@@ -55,6 +55,7 @@ export default {
           controls: cva("flex items-center gap-2"),
           content: cva("max-h-74!")
         },
+        remove: cva("p-2 [&>span>i>svg]:size-4"),
         price: {
           root: cva("flex items-end justify-between gap-4 lg:justify-end"),
           container: cva(
