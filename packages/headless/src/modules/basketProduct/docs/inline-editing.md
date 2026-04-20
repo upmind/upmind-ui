@@ -152,19 +152,13 @@ Options that were already selected before the inline editor opened (i.e., config
 // Capture IDs of options already selected at editor open time
 const preConfiguredIds = compact(
   map(
-    filter(
-      basketProduct.upsells as BasketOptionSummary[],
-      "toggle.selected"
-    ),
+    filter(basketProduct.upsells as BasketOptionSummary[], "toggle.selected"),
     "toggle.valueId"
   )
 );
 
 // Later, in resolveUpsells():
-return filter(
-  summaries,
-  s => !includes(preConfiguredIds, s.toggle?.valueId)
-);
+return filter(summaries, s => !includes(preConfiguredIds, s.toggle?.valueId));
 ```
 
 > **🧪 For Testers:** Configure a product with options on the product page. In the basket, verify those options appear in the summary but NOT as toggleable upsell switches. Only options that weren't pre-selected should show as inline toggles.

@@ -19,14 +19,26 @@
       </div>
 
       <p v-if="!summary.meta?.free" :class="styles.product.option.description">
-        +{{
-          summary.cycle && summary.cycle > 0
-            ? t("text.price_per_cycle", {
-                price: summary.price.currentPrice,
-                cycle: parseBillingCycle(summary.cycle).descriptive
-              })
-            : t("text.price_one_time", { price: summary.price.currentPrice })
-        }}.
+        <template v-if="upsell">
+          +{{
+            summary.cycle && summary.cycle > 0
+              ? t("text.price_per_cycle", {
+                  price: summary.price.currentPrice,
+                  cycle: parseBillingCycle(summary.cycle).descriptive
+                })
+              : t("text.price_one_time", {
+                  price: summary.price.currentPrice
+                })
+          }}.
+        </template>
+        <template v-else>
+          {{
+            t("term.renews_msg", {
+              n: summary.cycle ?? 0,
+              cycle: parseBillingCycle(summary.cycle ?? 0).descriptive
+            })
+          }}.
+        </template>
         <span v-if="summary.meta?.discounted" class="text-muted line-through">
           {{
             t("term.renews_usually_msg", { price: summary.price.regularPrice })
@@ -35,42 +47,54 @@
       </p>
     </div>
 
-    <Button
-      v-if="!summary.toggle?.selected"
-      :label="t('action.add_option')"
-      icon="plus"
-      variant="outline"
-      color="neutral"
-      size="md"
-      :class="styles.product.option.action"
-      :disabled="error || processing"
-      @click="doToggle(true)"
-    />
+    <template v-if="upsell">
+      <Button
+        v-if="!summary.toggle?.selected"
+        :label="t('action.add_option')"
+        icon="plus"
+        variant="outline"
+        color="neutral"
+        size="md"
+        :class="styles.product.option.action"
+        :disabled="error || processing"
+        @click="doToggle(true)"
+      />
 
-    <Button
-      v-else-if="!summary.meta?.quantifiable"
-      :label="t('action.added_to_basket')"
-      icon="check-circle-broken"
-      variant="solid"
-      color="secondary"
-      size="md"
-      :class="styles.product.option.action"
-      :disabled="error || processing"
-      @click="doToggle(false)"
-    />
+      <Button
+        v-else-if="!summary.meta?.quantifiable"
+        :label="t('action.added_to_basket')"
+        icon="check-circle-broken"
+        variant="solid"
+        color="secondary"
+        size="md"
+        :class="styles.product.option.action"
+        :disabled="error || processing"
+        @click="doToggle(false)"
+      />
 
-    <BasketQuantityField
+      <BasketQuantityField
+        v-else
+        :id="`option-qty-${summary.toggle?.categoryId}-${summary.toggle?.valueId}`"
+        :class="styles.product.option.action"
+        quantifiable
+        :quantity="summary.quantity"
+        :min="summary.min"
+        :max="summary.max"
+        :step="summary.step"
+        :disabled="error || processing"
+        @update:quantity="value => emits('update:quantity', value)"
+        @remove="doToggle(false)"
+      />
+    </template>
+
+    <CurrentPrice
       v-else
-      :id="`option-qty-${summary.toggle?.categoryId}-${summary.toggle?.valueId}`"
-      :class="styles.product.option.action"
-      quantifiable
-      :quantity="summary.quantity"
-      :min="summary.min"
-      :max="summary.max"
-      :step="summary.step"
-      :disabled="error || processing"
-      @update:quantity="value => emits('update:quantity', value)"
-      @remove="doToggle(false)"
+      :current-price="summary.price.currentPrice"
+      :monthly-from-current-price="summary.price.monthlyFromCurrentPrice ?? ''"
+      :free="summary.meta?.free ?? false"
+      :ui-config="{
+        pricing: { current: [styles.product.pricing.current] }
+      }"
     />
   </article>
 </template>
@@ -82,6 +106,7 @@ import { useI18n } from "vue-i18n";
 
 // --- components
 import { Button } from "@upmind-automation/upmind-ui";
+import CurrentPrice from "../../../product/components/pricing/CurrentPrice.vue";
 import Promotion from "./components/Promotion.vue";
 import BasketQuantityField from "./components/BasketQuantityField.vue";
 
