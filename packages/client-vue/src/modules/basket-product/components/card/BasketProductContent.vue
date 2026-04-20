@@ -53,9 +53,9 @@
               offset="2"
               :class="styles.product.summary.title.link"
             >
-              <h3 :class="styles.product.summary.title.text">
+              <strong :class="styles.product.summary.title.text">
                 {{ data.productName || summary.title }}
-              </h3>
+              </strong>
             </Link>
 
             <template v-if="!isMobile">
