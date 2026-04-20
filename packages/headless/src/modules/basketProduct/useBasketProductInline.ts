@@ -23,6 +23,7 @@ import { parseOptionUpsells } from "./utils";
 // --- types
 import type { BasketProduct, BasketOptionSummary } from "./types";
 import type {
+  Benefit,
   ProductModel,
   SubproductDetails,
   SubproductValue
@@ -71,7 +72,7 @@ export const useBasketProductInline = (bpid: string) => {
    */
   function isOptionUpsellEnabled(
     optionGroup: SubproductDetails,
-    option: SubproductValue
+    option: SubproductValue | BasketOptionSummary
   ): boolean {
     const { data, ui } = parentConfig.with({
       product: () => basketProduct,
@@ -108,37 +109,77 @@ export const useBasketProductInline = (bpid: string) => {
   }
 
   /**
-   * Resolves upsell summaries from the product machine's option data when
+   * Builds raw upsell summaries from the resolved option catalogue when
    * available (includes coupon-adjusted pricing), otherwise falls back to
    * catalog-level data from the basket response.
    *
-   * Options that were already selected before the inline machine was spawned
-   * (i.e. configured on the full product page) are excluded — they are managed
-   * elsewhere and should not appear as inline toggles.
-   *
-   * @param machineOptions - Available option lookups from the product machine.
-   * @param modelOptions - Current model selections (reflects toggle state).
+   * Options that were already selected before the inline editor opened
+   * (i.e. configured on the full product page) are excluded — they are
+   * managed elsewhere and should not appear as inline toggles.
    */
-  function resolveUpsells(
-    machineOptions?: SubproductDetails[],
-    modelOptions?: ProductModel["options"]
+  function buildUpsellSummaries(
+    availableOptions?: SubproductDetails[],
+    selections?: ProductModel["options"]
   ): BasketOptionSummary[] {
     const catalogUpsells = (basketProduct.upsells ??
       []) as BasketOptionSummary[];
-    if (isEmpty(machineOptions)) return catalogUpsells;
+    if (isEmpty(availableOptions)) return catalogUpsells;
 
-    const selected = flatMap(modelOptions, group =>
+    const selected = flatMap(selections, group =>
       map(group, (choice, id) => ({
         product_id: choice.productId ?? id,
         unit_quantity: choice.quantity
       }))
     );
-    const summaries = parseOptionUpsells(selected as any, machineOptions);
+    const summaries = parseOptionUpsells(selected as any, availableOptions);
 
-    // Exclude options that were pre-configured before inline editing began.
     return filter(
       summaries,
       s => !includes(preConfiguredIds, s.toggle?.valueId)
+    );
+  }
+
+  /**
+   * Resolves the upsells eligible to render inline, paired with their
+   * resolved benefits. Applies {@link isOptionUpsellEnabled} per option and
+   * the container-level `ui.optionUpsells.isVisible` gate.
+   */
+  function resolveUpsells(
+    availableOptions?: SubproductDetails[],
+    selections?: ProductModel["options"]
+  ): { upsell: BasketOptionSummary; benefits?: Benefit[] }[] {
+    if (!ui.optionUpsells.isVisible) return [];
+
+    return compact(
+      map(buildUpsellSummaries(availableOptions, selections), upsell => {
+        const group = find(availableOptions, {
+          id: upsell.toggle?.categoryId
+        });
+        if (!group || !isOptionUpsellEnabled(group, upsell)) return undefined;
+
+        const { data } = parentConfig.with({
+          product: () => basketProduct,
+          optionGroup: () => group,
+          option: () => upsell
+        });
+        return { upsell, benefits: data.optionBenefits };
+      })
+    );
+  }
+
+  /**
+   * Drops pricing rows whose id is already rendered as a resolved upsell,
+   * so a selected upsell doesn't appear twice. The main product (index 0)
+   * is always kept.
+   */
+  function filterPricing<T extends { id?: string }>(
+    pricing: T[] | undefined,
+    upsells: { upsell: BasketOptionSummary }[]
+  ): T[] {
+    const upsellIds = compact(map(upsells, "upsell.id"));
+    return filter(
+      pricing,
+      (item, index) => index === 0 || !includes(upsellIds, item.id)
     );
   }
 
@@ -175,11 +216,17 @@ export const useBasketProductInline = (bpid: string) => {
     filterUpsellOptions,
 
     /**
-     * Resolves upsell summaries with coupon-adjusted pricing when
-     * machine options are available, otherwise returns catalog data.
-     * Excludes pre-configured options automatically.
+     * Resolves the upsells to render inline, each paired with its benefits.
+     * Applies per-option `optionUpsellEnabled`, container-level visibility,
+     * and pre-configured exclusions.
      */
     resolveUpsells,
+
+    /**
+     * Drops pricing rows that are already rendered as inline upsells so they
+     * don't appear twice. Keeps index 0 (the main product).
+     */
+    filterPricing,
 
     /** Inline control flags for this product. */
     meta

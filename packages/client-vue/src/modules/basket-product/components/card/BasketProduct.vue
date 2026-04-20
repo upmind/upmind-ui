@@ -4,7 +4,7 @@
       <!-- Basket product summary -->
       <div :class="styles.product.root.summaries">
         <template
-          v-for="(summary, index) in props.pricing"
+          v-for="(summary, index) in visiblePricing"
           :key="`${props.id}-${index}`"
         >
           <component
@@ -89,7 +89,7 @@ import BasketProductOptionContent from "./BasketProductOptionContent.vue";
 import BasketProductBenefits from "./components/BasketProductBenefits.vue";
 
 // --- utils
-import { isEmpty, some, compact, map, debounce, find } from "lodash-es";
+import { isEmpty, some, compact, map, debounce } from "lodash-es";
 
 // --- types
 import type { BasketProductProps, OptionTogglePayload } from "./types";
@@ -128,7 +128,8 @@ const {
   meta: inlineMeta,
   configure,
   filterUpsellOptions,
-  resolveUpsells
+  resolveUpsells,
+  filterPricing
 } = useBasketProductInline(props.id);
 
 const config = inlineMeta.value?.hasInlineControls
@@ -141,27 +142,13 @@ const upsellOptions = computed(() =>
   filterUpsellOptions(config?.options?.value ?? [])
 );
 
-const filteredUpsells = computed(() => {
-  if (!ui.optionUpsells.isVisible) return [];
+const filteredUpsells = computed(() =>
+  resolveUpsells(config?.options?.value, config?.model?.value?.options)
+);
 
-  return compact(
-    map(
-      resolveUpsells(
-        config?.options?.value,
-        config?.model?.value?.options
-      ) as BasketOptionSummary[],
-      upsell => {
-        const { data } = productConfig.with({
-          optionGroup: () => resolveOptionGroup(upsell),
-          option: () => upsell
-        });
-        if (!data.optionUpsellEnabled) return undefined;
-
-        return { upsell, benefits: data.optionBenefits };
-      }
-    )
-  );
-});
+const visiblePricing = computed(() =>
+  filterPricing(props.pricing, filteredUpsells.value)
+);
 
 // --- meta
 
@@ -205,10 +192,6 @@ const configErrors = computed(
 
 function getSummaryComponent(index: number) {
   return index === 0 ? BasketProductContent : BasketProductOptionContent;
-}
-
-function resolveOptionGroup(upsell: BasketOptionSummary) {
-  return find(config?.options?.value, { id: upsell.toggle?.categoryId });
 }
 
 // --- writable models for v-model bindings
