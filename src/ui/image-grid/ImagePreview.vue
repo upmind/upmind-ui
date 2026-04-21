@@ -16,6 +16,7 @@
           :style="zoomStyle"
           draggable="false"
           @click="onImageClick"
+          @mousedown="onMouseDown"
         />
 
         <Link
@@ -45,8 +46,15 @@ const emits = defineEmits<{
 
 const imageRef = ref<HTMLImageElement | null>(null);
 
-const { zoomStyle, isZoomed, onImageClick, onWheel, onTouchStart, reset } =
-  useImageZoom(imageRef);
+const {
+  zoomStyle,
+  isZoomed,
+  onImageClick,
+  onMouseDown,
+  onWheel,
+  onTouchStart,
+  reset
+} = useImageZoom(imageRef);
 
 const meta = computed(() => ({
   isZoomed: isZoomed.value
