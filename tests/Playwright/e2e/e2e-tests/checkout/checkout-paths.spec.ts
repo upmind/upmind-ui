@@ -1,31 +1,28 @@
-import { checkoutTest, expect } from "../../support/fixtures/auth-context";
-import { addProductToOrder } from "../../support/api/index";
+import { newUser, expect } from "../../support/fixtures/auth-context";
+import { addProductToOrder, getCurrentOrder } from "../../support/api/index";
 import { mockWalletBalance } from "../../support/mocks/wallet";
 import { products } from "../../support/constants/products";
 import { goToCheckout } from "../../support/flows/checkout";
 
-checkoutTest.describe.configure({ mode: "parallel" });
+newUser.describe.configure({ mode: "parallel" });
 
-checkoutTest.describe("Checkout Paths", () => {
-  checkoutTest.describe("Paid orders", () => {
-    checkoutTest(
-      "1.1 Paid Order with Tax",
-      async ({ page, context, checkout }) => {
-        await goToCheckout(
-          page,
-          context,
-          products.STARTER_HOSTING,
-          null,
-          null,
-          false
-        );
-        await checkout.selectPaymentMethod("Stripe");
-        await checkout.inputStripeDetails("4242424242424242", "12/50", "123");
-        await checkout.clickPlaceOrderAndPay();
-        await expect(page.getByText("Thank you for your order.")).toBeVisible();
-      }
-    );
-    checkoutTest(
+newUser.describe("Checkout Paths", () => {
+  newUser.describe("Paid orders", () => {
+    newUser("1.1 Paid Order with Tax", async ({ page, context, checkout }) => {
+      await goToCheckout(
+        page,
+        context,
+        products.STARTER_HOSTING,
+        null,
+        null,
+        false
+      );
+      await checkout.selectPaymentMethod("Stripe");
+      await checkout.inputStripeDetails("4242424242424242", "12/50", "123");
+      await checkout.clickPlaceOrderAndPay();
+      await expect(page.getByText("Thank you for your order.")).toBeVisible();
+    });
+    newUser(
       "1.2 Paid Order with Tax & Partial Discount",
       async ({ page, context, checkout }) => {
         await goToCheckout(
@@ -42,9 +39,11 @@ checkoutTest.describe("Checkout Paths", () => {
         await expect(page.getByText("Thank you for your order.")).toBeVisible();
       }
     );
-    checkoutTest(
+    newUser(
       "1.3 Paid Order with Tax & Free Trial Product",
-      async ({ page, context, checkout, token, orderId }) => {
+      async ({ page, context, checkout, token }) => {
+        let order = await getCurrentOrder(token);
+        let orderId = order?.id as string;
         await goToCheckout(
           page,
           context,
@@ -73,9 +72,11 @@ checkoutTest.describe("Checkout Paths", () => {
         await expect(page.getByText("Thank you for your order.")).toBeVisible();
       }
     );
-    checkoutTest(
+    newUser(
       "1.4 Paid Order with Tax & Additional Free Product",
-      async ({ page, context, checkout, token, orderId }) => {
+      async ({ page, context, checkout, token }) => {
+        let order = await getCurrentOrder(token);
+        let orderId = order?.id as string;
         await goToCheckout(
           page,
           context,
@@ -104,7 +105,7 @@ checkoutTest.describe("Checkout Paths", () => {
         await expect(page.getByText("Thank you for your order.")).toBeVisible();
       }
     );
-    checkoutTest(
+    newUser(
       "1.5 Paid Order with Tax & Account Credit",
       async ({ page, context, checkout }) => {
         mockWalletBalance(context, {
@@ -123,7 +124,7 @@ checkoutTest.describe("Checkout Paths", () => {
         await expect(page.getByText("Order confirmed")).toBeVisible();
       }
     );
-    checkoutTest(
+    newUser(
       "1.6 Paid Order with No Tax",
       async ({ page, context, checkout }) => {
         await goToCheckout(
@@ -139,7 +140,7 @@ checkoutTest.describe("Checkout Paths", () => {
         await expect(page.getByText("Thank you for your order.")).toBeVisible();
       }
     );
-    checkoutTest(
+    newUser(
       "1.7 Paid Order with No Tax & Partial Discount",
       async ({ page, context, checkout }) => {
         await goToCheckout(
@@ -156,9 +157,11 @@ checkoutTest.describe("Checkout Paths", () => {
         await expect(page.getByText("Thank you for your order.")).toBeVisible();
       }
     );
-    checkoutTest(
+    newUser(
       "1.8 Paid Order with No Tax & Additional Free Trial Product",
-      async ({ page, context, checkout, token, orderId }) => {
+      async ({ page, context, checkout, token }) => {
+        let order = await getCurrentOrder(token);
+        let orderId = order?.id as string;
         await goToCheckout(
           page,
           context,
@@ -187,9 +190,11 @@ checkoutTest.describe("Checkout Paths", () => {
         await expect(page.getByText("Thank you for your order.")).toBeVisible();
       }
     );
-    checkoutTest(
+    newUser(
       "1.9 Paid Order with No Tax & Additional Free Product",
-      async ({ page, context, checkout, token, orderId }) => {
+      async ({ page, context, checkout, token }) => {
+        let order = await getCurrentOrder(token);
+        let orderId = order?.id as string;
         await goToCheckout(
           page,
           context,
@@ -218,7 +223,7 @@ checkoutTest.describe("Checkout Paths", () => {
         await expect(page.getByText("Thank you for your order.")).toBeVisible();
       }
     );
-    checkoutTest(
+    newUser(
       "1.10 Paid Order with No Tax & Account Credit",
       async ({ page, context, checkout }) => {
         mockWalletBalance(context, {
@@ -238,8 +243,8 @@ checkoutTest.describe("Checkout Paths", () => {
       }
     );
   });
-  checkoutTest.describe("Free orders", () => {
-    checkoutTest(
+  newUser.describe("Free orders", () => {
+    newUser(
       "2.1 100% Promotion Applied",
       async ({ page, context, checkout }) => {
         mockWalletBalance(context, {
@@ -262,36 +267,35 @@ checkoutTest.describe("Checkout Paths", () => {
         await expect(page.getByText("Thank you for your order.")).toBeVisible();
       }
     );
-    checkoutTest(
-      "2.2 Free Trial Product",
-      async ({ page, context, checkout }) => {
-        mockWalletBalance(context, {
-          ownedAmount: 10,
-          creditAmount: 10
-        });
-        await goToCheckout(
-          page,
-          context,
-          products.OPTIONAL_TRIAL_PRODUCT,
-          null,
-          null,
-          true
-        );
-        await expect(checkout.accountCredit).toBeHidden();
-        await expect(
-          page.getByText("Great news – there's nothing to pay!")
-        ).toBeVisible();
-        await checkout.clickPlaceOrder();
-        await expect(page.getByText("Thank you for your order.")).toBeVisible();
-      }
-    );
-    checkoutTest(
+    newUser("2.2 Free Trial Product", async ({ page, context, checkout }) => {
+      mockWalletBalance(context, {
+        ownedAmount: 10,
+        creditAmount: 10
+      });
+      await goToCheckout(
+        page,
+        context,
+        products.OPTIONAL_TRIAL_PRODUCT,
+        null,
+        null,
+        true
+      );
+      await expect(checkout.accountCredit).toBeHidden();
+      await expect(
+        page.getByText("Great news – there's nothing to pay!")
+      ).toBeVisible();
+      await checkout.clickPlaceOrder();
+      await expect(page.getByText("Thank you for your order.")).toBeVisible();
+    });
+    newUser(
       "2.3 Free Trial Product & Free Promotion Product",
-      async ({ page, context, checkout, token, orderId }) => {
+      async ({ page, context, checkout, token }) => {
         mockWalletBalance(context, {
           ownedAmount: 10,
           creditAmount: 10
         });
+        let order = await getCurrentOrder(token);
+        let orderId = order?.id as string;
         await goToCheckout(
           page,
           context,

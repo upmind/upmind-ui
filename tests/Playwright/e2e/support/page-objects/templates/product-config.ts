@@ -266,9 +266,9 @@ export class ProductConfig {
   }
 
   async enterSld(sld: string) {
-    const sldFormField = this.page
-      .getByTestId("form-item-sld")
-      .getByTestId("input-properties-sld");
+    const sldFormField = this.page.getByTestId(
+      "input-properties-provision-fields-properties-sld"
+    );
     await sldFormField.fill(sld);
   }
 
