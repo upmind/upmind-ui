@@ -29,6 +29,8 @@ if (meta.value.isResolved) {
 | Query param normalization | ✅     | `QUERY_PARAMS` enum for type-safe param access |
 | BID preservation          | ✅     | Basket ID survives auth redirects              |
 | Navigation mutex          | ✅     | Prevents double-navigation race conditions     |
+| Lifecycle callbacks       | ✅     | `onBeforeLeave`, `onAfterEnter`, `onResolving` |
+| Shell tracking            | ✅     | Prevents cross-page layout bleed (ADR 019)     |
 
 ## Key Concepts
 

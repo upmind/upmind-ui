@@ -1,7 +1,7 @@
 # ADR 019: Shell State Architecture (Layout / Header / Footer / Section)
 
 **Date:** April 2026
-**Status:** Proposed
+**Status:** Accepted (Implemented April 2026, FE-1365)
 **Authors:** Dominic da Costa
 **Related:** [ADR 005: XState State Management](./005-xstate-state-management.md), [ADR 011: Composable Coding Standards](./011-composable-coding-standards.md), [ADR 017: Funnel Navigation via State Meta](./017-funnel-navigation-via-state-meta.md)
 
@@ -183,6 +183,64 @@ Collapsing them into one flat `useShell({ ... })` contract would lose the abilit
 - Dynamic post-mount variant switching — not a current requirement
 - SSR support adoption — the architecture is SSR-safe but we're not enabling SSR now
 - Nuxt native named-layouts (`layouts/basket.vue`) — a follow-up ADR could consider adopting Nuxt's built-in mechanism in place of our `LAYOUT_VARIANTS` enum
+
+---
+
+## Implementation Notes (April 2026)
+
+The full XState machine approach described above was **deferred** in favor of a lighter-weight solution that addresses the immediate bleed issue without requiring migration of 42 files.
+
+### What Was Actually Implemented
+
+Instead of the full `shell.machine.ts`, we implemented a **shell component tracking mechanism** (`useShell`) that works with the existing singleton stores:
+
+```typescript
+// packages/client-vue/src/components/shell/useShell.ts
+const configured = new Set<Shell>();
+
+export const useShell = () => ({
+  reset: () => configured.clear(),
+  mark: (component: Shell) => configured.add(component),
+  has: (component: Shell) => configured.has(component)
+});
+```
+
+**How it works:**
+
+1. On navigation start (`onBeforeLeave`), `useShell().reset()` clears the tracking set
+2. When a page calls `useLayout({ variant })`, it also calls `useShell().mark(SHELL.LAYOUT)`
+3. The layout component checks `useShell().has(SHELL.LAYOUT)` before applying the outgoing page's config
+4. This prevents the bleed: during the transition window, the layout ignores config mutations from the incoming page until navigation completes
+
+### Why the Lighter Approach
+
+| Factor | XState Machine | Shell Tracking |
+|--------|---------------|----------------|
+| Migration effort | 42 files | 0 files (additive) |
+| Bleed prevention | ✅ | ✅ |
+| FOUT prevention | ✅ | Partial (relies on transition timing) |
+| Debug visibility | XState Devtools | Console logging |
+| Future extensibility | High | Limited |
+
+The tracking approach was chosen because:
+- It solves the immediate bleed bug with minimal risk
+- It doesn't require migrating existing page components
+- It can coexist with the singleton stores
+- The full XState solution remains available as a future enhancement
+
+### Files Added
+
+| Package | File | Purpose |
+|---------|------|---------|
+| `client-vue` | `components/shell/useShell.ts` | Component tracking composable |
+| `client-vue` | `components/shell/types.ts` | `SHELL` enum |
+| `client-vue` | `components/shell/index.ts` | Exports |
+
+### Integration Points
+
+- `useLayout()` calls `useShell().mark(SHELL.LAYOUT)` when config is provided
+- `useRoutingEngine().onBeforeLeave()` triggers `useShell().reset()`
+- Layout components check `useShell().has()` before applying pending config
 
 ---
 

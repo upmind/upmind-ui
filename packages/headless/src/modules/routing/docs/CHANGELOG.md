@@ -1,6 +1,6 @@
 # Changelog — Routing Module
 
-## [FE-1365] - 2026-04-10
+## [FE-1365] - 2026-04-21
 
 ### Added
 
@@ -14,6 +14,11 @@
 - **`registerOverlayRoutes()`** — Function to register overlay routes on the router before initial navigation
 - **Overlay route auth guard** — `guardBasket` rejects with SESSION route when BID present but user unauthenticated
 - **Navigation mutex** — Prevents double-navigation race conditions in routing engine
+- **Lifecycle callbacks** — `onAfterEnter`, `onBeforeLeave`, `onResolving`, `onResolved` hooks in routing engine
+- **`isMounted()` method** — Waits for both funnel resolution AND page mount (equivalent to Nuxt's `page:finish`)
+- **`mount()` method** — Called by RouteView to signal page component has mounted
+- **Shell component tracking** — `useShell` composable to prevent cross-page layout bleed during transitions
+- **PRE_RESOLVE event** — Pre-locks funnel before RESOLVE to close watcher race window (FE-2587)
 
 ### Changed
 
