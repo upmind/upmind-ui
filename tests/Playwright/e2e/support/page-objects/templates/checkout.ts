@@ -134,7 +134,20 @@ export class Checkout {
     if (phoneInput != null) {
       await this.phoneInput.fill(phoneInput);
     }
-    await this.saveDetails.click();
+    await this.clickSaveDetails();
+  }
+  async clickSaveDetails() {
+    for (let attempt = 0; attempt < 5; attempt++) {
+      if (!(await this.billingDetails.isHidden())) return;
+      await this.saveDetails.click();
+      try {
+        await this.billingDetails.waitFor({ state: "hidden", timeout: 2000 });
+        return;
+      } catch {
+        // modal still open, try again
+      }
+    }
+    throw new Error("Billing details modal did not close after 5 clicks");
   }
 
   async getPaymentMethod(gatewayName: string) {

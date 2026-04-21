@@ -285,7 +285,8 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       await billingPage.addressLine1.fill("15 White Hart Lane");
       await billingPage.city.fill("Manchester");
       await billingPage.postCode.fill("M1 1AA");
-      await billingPage.saveDetails.click();
+      await page.waitForTimeout(1000);
+      await checkout.clickSaveDetails();
       await billingPage.continue.click();
       await expect(checkout.billingDetails).toBeVisible({ timeout: 15000 });
       await expect(checkout.billingDetails).toContainText("15 White Hart Lane");
@@ -306,7 +307,8 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       if (await billingPage.companyName.isVisible()) {
         await billingPage.companyName.fill("E2E Test Company Ltd");
       }
-      await checkout.saveDetails.click();
+      await page.waitForTimeout(1000);
+      await checkout.clickSaveDetails();
       await billingPage.backToBasket.click();
       await page.waitForURL("**/order/basket/**");
       await page.goto(URLs.checkout);
