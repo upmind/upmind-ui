@@ -25,6 +25,7 @@ export class Checkout {
   readonly phoneInput: Locator;
   readonly phoneRegion: Locator;
   readonly paymentDetails: Locator;
+  readonly expandPaymentDetails: Locator;
   readonly saveDetails: Locator;
   readonly addVoucherForm: Locator;
   readonly addVoucherButton: Locator;
@@ -53,7 +54,6 @@ export class Checkout {
   constructor(page: Page) {
     this.page = page;
     this.textInputComponent = new TextInput(page);
-
     this.checkoutContent = this.page.getByTestId("checkout-content");
     this.basketSummary = this.page.getByTestId("section-summary");
     this.billingDetails = this.page.getByTestId("section-billing-details");
@@ -62,7 +62,7 @@ export class Checkout {
     this.addNewAddress = this.page.getByTestId("link-add-address");
     this.addNewCompany = this.page.getByTestId("link-add-company");
     this.addNewPhone = this.page.getByTestId("link-add-number");
-    this.addressSearch = this.page.getByTestId("input-address-search-search");
+    this.addressSearch = this.page.getByTestId("input-search");
     this.addressFormMessage = this.page.getByTestId(
       "form-item-message-address"
     );
@@ -83,6 +83,7 @@ export class Checkout {
     this.phoneRegion = this.phone.getByTestId("popover-trigger");
     this.phoneInput = this.textInputComponent.getTextInputField(this.phone);
     this.paymentDetails = this.page.getByTestId("payment-details");
+    this.expandPaymentDetails = this.page.getByTestId("link-show-more-options");
     this.saveDetails = this.page.getByTestId("button-save-details");
     this.addVoucherForm = this.page.getByTestId("form-item-promocode");
     this.addVoucherButton = this.page.getByTestId("link-add-a-voucher-code");
@@ -133,7 +134,20 @@ export class Checkout {
     if (phoneInput != null) {
       await this.phoneInput.fill(phoneInput);
     }
-    await this.saveDetails.click();
+    await this.clickSaveDetails();
+  }
+  async clickSaveDetails() {
+    for (let attempt = 0; attempt < 5; attempt++) {
+      if (!(await this.billingDetails.isHidden())) return;
+      await this.saveDetails.click();
+      try {
+        await this.billingDetails.waitFor({ state: "hidden", timeout: 2000 });
+        return;
+      } catch {
+        // modal still open, try again
+      }
+    }
+    throw new Error("Billing details modal did not close after 5 clicks");
   }
 
   async getPaymentMethod(gatewayName: string) {
@@ -144,6 +158,9 @@ export class Checkout {
 
   async selectPaymentMethod(gatewayName: string) {
     await expect(this.paymentDetails).toBeVisible({ timeout: 30000 });
+    if (await this.expandPaymentDetails.isVisible()) {
+      await this.expandPaymentDetails.click();
+    }
     await this.page.waitForLoadState("domcontentloaded");
     await this.page.getByTestId(`radio-card-${kebabCase(gatewayName)}`).click();
   }
