@@ -7,7 +7,7 @@ import {
   registerOverlayRoutes,
   useAssetRecovery
 } from "@upmind-automation/client-vue";
-import { useRoutingEngine } from "@upmind-automation/headless";
+import { useRoutingEngine } from "@upmind-automation/client-vue";
 
 // ---types
 export * from "./funnels/types";
