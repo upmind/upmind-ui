@@ -1,6 +1,7 @@
 import type {
   BasketProduct,
   BasketOptionSummary,
+  BasketUpsellSummary,
   ProductSummaryDetailWithPrice,
   SubproductDetails,
   TermDetails,
@@ -51,8 +52,8 @@ export interface BasketProductSubItemProps {
 
 export interface BasketProductUpsellProps {
   id: BasketProduct["id"];
-  summary: BasketOptionSummary;
-  configOptions?: SubproductDetails[];
+  summary: BasketUpsellSummary;
+  option: SubproductDetails;
   error: boolean;
   processing: boolean;
 }
@@ -62,12 +63,6 @@ export interface BasketProductConfigDetailsProps {
   summary: ProductSummaryDetailWithPrice;
   details: BasketProduct["details"];
   editRoute: RouteLocationAsRelativeGeneric;
-}
-
-export interface OptionTogglePayload {
-  option: SubproductDetails;
-  value: { id: string };
-  enabled: boolean;
 }
 
 export interface BasketProductCardsProps {

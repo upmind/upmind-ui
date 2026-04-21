@@ -21,7 +21,11 @@ import { DetailedError, ErrorOrigin, responseCodes } from "../../utils";
 import { parseOptionUpsells } from "./utils";
 
 // --- types
-import type { BasketProduct, BasketOptionSummary } from "./types";
+import type {
+  BasketProduct,
+  BasketOptionSummary,
+  BasketUpsellSummary
+} from "./types";
 import type {
   Benefit,
   ProductModel,
@@ -59,7 +63,7 @@ export const useBasketProductInline = (bpid: string) => {
   const preConfiguredIds = compact(
     map(
       filter(
-        (basketProduct.upsells ?? []) as BasketOptionSummary[],
+        (basketProduct.upsells ?? []) as BasketUpsellSummary[],
         "toggle.selected"
       ),
       "toggle.valueId"
@@ -121,9 +125,9 @@ export const useBasketProductInline = (bpid: string) => {
   function buildUpsellSummaries(
     availableOptions?: SubproductDetails[],
     selections?: ProductModel["options"]
-  ): BasketOptionSummary[] {
+  ): BasketUpsellSummary[] {
     const catalogUpsells = (basketProduct.upsells ??
-      []) as BasketOptionSummary[];
+      []) as BasketUpsellSummary[];
     if (isEmpty(availableOptions)) return catalogUpsells;
 
     const selected = flatMap(selections, group =>
@@ -136,21 +140,24 @@ export const useBasketProductInline = (bpid: string) => {
 
     return filter(
       summaries,
-      s => !includes(preConfiguredIds, s.toggle?.valueId)
+      s => !includes(preConfiguredIds, s.toggle.valueId)
     );
   }
 
   /**
    * Resolves the upsells eligible to render inline, paired with their
-   * resolved benefits. Applies {@link isOptionUpsellEnabled} per option and
-   * the container-level `ui.optionUpsells.isVisible` gate.
+   * resolved benefits and the option group they belong to. Applies
+   * {@link isOptionUpsellEnabled} per option and the container-level
+   * `ui.optionUpsells.isVisible` gate.
    *
    * Reads selections from the config's `baseModel` (the persisted state) so
    * the UI reflects only confirmed toggles, not optimistic in-flight ones.
    */
-  function resolveUpsells(
-    config?: UseProductConfig
-  ): { upsell: BasketOptionSummary; benefits?: Benefit[] }[] {
+  function resolveUpsells(config?: UseProductConfig): {
+    upsell: BasketUpsellSummary;
+    option: SubproductDetails;
+    benefits?: Benefit[];
+  }[] {
     if (!ui.optionUpsells.isVisible) return [];
 
     const availableOptions = config?.options?.value;
@@ -159,7 +166,7 @@ export const useBasketProductInline = (bpid: string) => {
     return compact(
       map(buildUpsellSummaries(availableOptions, selections), upsell => {
         const group = find(availableOptions, {
-          id: upsell.toggle?.categoryId
+          id: upsell.toggle.categoryId
         });
         if (!group || !isOptionUpsellEnabled(group, upsell)) return undefined;
 
@@ -168,7 +175,7 @@ export const useBasketProductInline = (bpid: string) => {
           optionGroup: () => group,
           option: () => upsell
         });
-        return { upsell, benefits: data.optionBenefits };
+        return { upsell, option: group, benefits: data.optionBenefits };
       })
     );
   }
