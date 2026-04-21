@@ -8,6 +8,7 @@
     :step="step"
     :disabled="disabled"
     width="sm"
+    :single-step="false"
     :decrement-action="decrementAction"
   />
 </template>
