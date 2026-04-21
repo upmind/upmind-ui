@@ -142,8 +142,13 @@ const upsellOptions = computed(() =>
   filterUpsellOptions(config?.options?.value ?? [])
 );
 
+// Resolves static catalog upsells against the live per-card config (pricing,
+// pre-selected filtering, benefits). Lives here because config is spawned
+// per-card; shared with visiblePricing below so both read the same list.
 const filteredUpsells = computed(() => resolveUpsells(config));
 
+// Strip pricing rows already rendered as upsells, otherwise selected upsells
+// would appear twice (once in pricing, once in the upsell section).
 const visiblePricing = computed(() =>
   filterPricing(props.pricing, filteredUpsells.value)
 );
