@@ -5,17 +5,12 @@ import {
 } from "../../../support/fixtures/auth-context";
 import { faker, fakerEN_GB } from "@faker-js/faker";
 import { getCurrentAddressId } from "../../../support/api/client";
-import { URLs } from "../../../support/constants/urls";
 import { Logins } from "../../../support/constants/logins";
 import { products } from "../../../support/constants/products";
 import { goToCheckout } from "../../../support/flows/checkout";
 
-existingUserSession.use({
-  userLogin: Logins.checkoutUser.username,
-  userPassword: Logins.checkoutUser.password
-});
-
 newUserSession.describe("New User - Billing Details at checkout", () => {
+  newUserSession.describe.configure({ mode: "parallel" });
   newUserSession(
     "New User add new address at checkout via address search",
     async ({ page, context, checkout }) => {
@@ -29,6 +24,7 @@ newUserSession.describe("New User - Billing Details at checkout", () => {
       );
       await checkout.addNewAddress.click();
       await expect(checkout.billingDetails).toBeVisible();
+      await page.getByTestId("link-change").click();
       await checkout.addressSearch.fill(
         "10 Downing St, Westminster, London SW1A 2AA, UK"
       );
@@ -64,15 +60,17 @@ newUserSession.describe("New User - Billing Details at checkout", () => {
         .getByTestId("form-item-company-name")
         .locator("input");
       await companyNameInput.waitFor({ state: "visible" });
-      await companyNameInput.fill("Acme Corp");
+      let newCompany = fakerEN_GB.company.name();
+      await companyNameInput.fill(newCompany);
       await page
         .getByTestId("form-item-company-reg-number")
         .locator("input")
-        .fill("12345678");
+        .fill(fakerEN_GB.string.numeric({ length: 9 }));
       await page
         .getByTestId("form-item-company-tax-number")
         .locator("input")
-        .fill("12345678");
+        .fill(fakerEN_GB.string.numeric({ length: 9 }));
+      let newAddress = fakerEN_GB.location.streetAddress();
       await checkout.addressSearch.fill(
         "10 Downing St, Westminster, London SW1A 2AA, UK"
       );
@@ -84,10 +82,10 @@ newUserSession.describe("New User - Billing Details at checkout", () => {
         .click();
       await page.waitForTimeout(1000);
       await checkout.saveDetails.click();
-      await checkout.saveDetails.click();
-      await checkout.saveDetails.click();
-      await expect(checkout.billingDetails).toContainText("Acme Corp");
-      await expect(checkout.billingDetails).toContainText("12345678");
+      await expect(checkout.billingDetails).toContainText(newCompany);
+      await expect(checkout.billingDetails).toContainText(
+        /10 Downing Street.*London.*SW1A 2AA.*United Kingdom/s
+      );
     }
   );
 });
@@ -109,7 +107,12 @@ existingUserSession.describe(
   () => {
     existingUserSession(
       "Existing User add new address at checkout",
-      async ({ page, context, checkout, token }) => {
+      async ({ page, context, checkout, loginAs }) => {
+        const session = await loginAs(
+          Logins.checkoutUser.username,
+          Logins.checkoutUser.password
+        );
+        const token = session.access_token;
         await goToCheckout(
           page,
           context,
@@ -144,7 +147,12 @@ existingUserSession.describe(
     );
     existingUserSession(
       "Existing User add new company details at checkout",
-      async ({ page, context, checkout }) => {
+      async ({ page, context, checkout, loginAs }) => {
+        const session = await loginAs(
+          Logins.checkoutUser.username,
+          Logins.checkoutUser.password
+        );
+        const token = session.access_token;
         await goToCheckout(
           page,
           context,
@@ -174,7 +182,12 @@ existingUserSession.describe(
     );
     existingUserSession(
       "Edit existing address at checkout",
-      async ({ page, context, checkout }) => {
+      async ({ page, context, checkout, loginAs }) => {
+        const session = await loginAs(
+          Logins.checkoutUser.username,
+          Logins.checkoutUser.password
+        );
+        const token = session.access_token;
         await goToCheckout(
           page,
           context,
@@ -202,7 +215,12 @@ existingUserSession.describe(
     );
     existingUserSession(
       "Edit existing company at checkout",
-      async ({ page, context, checkout }) => {
+      async ({ page, context, checkout, loginAs }) => {
+        const session = await loginAs(
+          Logins.checkoutUser.username,
+          Logins.checkoutUser.password
+        );
+        const token = session.access_token;
         await goToCheckout(
           page,
           context,

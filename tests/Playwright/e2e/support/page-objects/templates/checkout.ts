@@ -54,7 +54,6 @@ export class Checkout {
   constructor(page: Page) {
     this.page = page;
     this.textInputComponent = new TextInput(page);
-
     this.checkoutContent = this.page.getByTestId("checkout-content");
     this.basketSummary = this.page.getByTestId("section-summary");
     this.billingDetails = this.page.getByTestId("section-billing-details");
@@ -63,7 +62,7 @@ export class Checkout {
     this.addNewAddress = this.page.getByTestId("link-add-address");
     this.addNewCompany = this.page.getByTestId("link-add-company");
     this.addNewPhone = this.page.getByTestId("link-add-number");
-    this.addressSearch = this.page.getByTestId("input-address-search-search");
+    this.addressSearch = this.page.getByTestId("input-search");
     this.addressFormMessage = this.page.getByTestId(
       "form-item-message-address"
     );

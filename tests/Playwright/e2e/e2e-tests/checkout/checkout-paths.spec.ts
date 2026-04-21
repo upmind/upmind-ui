@@ -1,5 +1,5 @@
 import { newUserSession, expect } from "../../support/fixtures/auth-context";
-import { addProductToOrder } from "../../support/api/index";
+import { addProductToOrder, getCurrentOrder } from "../../support/api/index";
 import { mockWalletBalance } from "../../support/mocks/wallet";
 import { products } from "../../support/constants/products";
 import { goToCheckout } from "../../support/flows/checkout";
@@ -44,7 +44,9 @@ newUserSession.describe("Checkout Paths", () => {
     );
     newUserSession(
       "1.3 Paid Order with Tax & Free Trial Product",
-      async ({ page, context, checkout, token, orderId }) => {
+      async ({ page, context, checkout, token }) => {
+        let order = await getCurrentOrder(token);
+        let orderId = order?.id as string;
         await goToCheckout(
           page,
           context,
@@ -75,7 +77,9 @@ newUserSession.describe("Checkout Paths", () => {
     );
     newUserSession(
       "1.4 Paid Order with Tax & Additional Free Product",
-      async ({ page, context, checkout, token, orderId }) => {
+      async ({ page, context, checkout, token }) => {
+        let order = await getCurrentOrder(token);
+        let orderId = order?.id as string;
         await goToCheckout(
           page,
           context,
@@ -158,7 +162,9 @@ newUserSession.describe("Checkout Paths", () => {
     );
     newUserSession(
       "1.8 Paid Order with No Tax & Additional Free Trial Product",
-      async ({ page, context, checkout, token, orderId }) => {
+      async ({ page, context, checkout, token }) => {
+        let order = await getCurrentOrder(token);
+        let orderId = order?.id as string;
         await goToCheckout(
           page,
           context,
@@ -189,7 +195,9 @@ newUserSession.describe("Checkout Paths", () => {
     );
     newUserSession(
       "1.9 Paid Order with No Tax & Additional Free Product",
-      async ({ page, context, checkout, token, orderId }) => {
+      async ({ page, context, checkout, token }) => {
+        let order = await getCurrentOrder(token);
+        let orderId = order?.id as string;
         await goToCheckout(
           page,
           context,
@@ -287,11 +295,13 @@ newUserSession.describe("Checkout Paths", () => {
     );
     newUserSession(
       "2.3 Free Trial Product & Free Promotion Product",
-      async ({ page, context, checkout, token, orderId }) => {
+      async ({ page, context, checkout, token }) => {
         mockWalletBalance(context, {
           ownedAmount: 10,
           creditAmount: 10
         });
+        let order = await getCurrentOrder(token);
+        let orderId = order?.id as string;
         await goToCheckout(
           page,
           context,
