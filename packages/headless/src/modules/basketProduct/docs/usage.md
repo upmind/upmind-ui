@@ -31,12 +31,12 @@ const { meta, configure, filterUpsellOptions, resolveUpsells } =
   useBasketProductInline(basketProduct.id);
 ```
 
-| Return                | Type                                                        | Description                                          |
-| --------------------- | ----------------------------------------------------------- | ---------------------------------------------------- |
-| `meta`                | `ComputedRef<InlineMeta>`                                   | Inline control visibility flags                      |
-| `configure`           | `() => ConfigureAPI`                                        | Spawns the product machine with `allowMultipleEdits` |
-| `filterUpsellOptions` | `(options) => SubproductDetails[]`                          | Filters to upsell-eligible option groups             |
-| `resolveUpsells`      | `(config?) => BasketOptionSummary[]`                        | Resolves upsell summaries from the config's persisted (baseModel) state |
+| Return                | Type                                 | Description                                                             |
+| --------------------- | ------------------------------------ | ----------------------------------------------------------------------- |
+| `meta`                | `ComputedRef<InlineMeta>`            | Inline control visibility flags                                         |
+| `configure`           | `() => ConfigureAPI`                 | Spawns the product machine with `allowMultipleEdits`                    |
+| `filterUpsellOptions` | `(options) => SubproductDetails[]`   | Filters to upsell-eligible option groups                                |
+| `resolveUpsells`      | `(config?) => BasketOptionSummary[]` | Resolves upsell summaries from the config's persisted (baseModel) state |
 
 ---
 
