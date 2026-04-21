@@ -154,7 +154,7 @@
             v-bind="productDetails"
             :id="id"
             v-model:quantity="quantity"
-            :disabled="error"
+            :disabled="processing"
             @remove="doRemove"
           />
 
@@ -167,7 +167,7 @@
             icon-only
             :class="styles.product.summary.footer.remove"
             :aria-label="t('action.remove')"
-            :disabled="error"
+            :disabled="processing"
             @click="doRemove"
           />
 
