@@ -143,15 +143,6 @@ export const parseBasketProduct = (
 
       subproduct.name = "option";
 
-      // Enrich with toggle metadata from available options
-      const toggle = resolveOptionToggle(
-        subproduct.id,
-        basketProduct.availableOptions
-      );
-      if (toggle) {
-        set(subproduct, "meta.toggle", toggle);
-      }
-
       basketProduct.details.push(subproduct as ProductSummaryDetailWithPrice);
     }
   });
