@@ -13,15 +13,7 @@
         :class="styles.numberField.inputLeft"
         :action="props.decrementAction"
       >
-        <NumberFieldIcon
-          :icon="
-            props.decrementAction?.icon ??
-            (props.variant === NUMBER_FIELD_VARIANTS.FLAT
-              ? 'minus'
-              : 'minus-circle')
-          "
-          :variant="props.variant"
-        />
+        <NumberFieldIcon :icon="decrementIcon" :variant="props.variant" />
       </NumberFieldActionButton>
 
       <NumberFieldInput
@@ -36,15 +28,7 @@
         :class="styles.numberField.inputRight"
         :action="props.incrementAction"
       >
-        <NumberFieldIcon
-          :icon="
-            props.incrementAction?.icon ??
-            (props.variant === NUMBER_FIELD_VARIANTS.FLAT
-              ? 'plus'
-              : 'plus-circle')
-          "
-          :variant="props.variant"
-        />
+        <NumberFieldIcon :icon="incrementIcon" :variant="props.variant" />
       </NumberFieldActionButton>
     </NumberFieldContent>
   </NumberField>
@@ -109,6 +93,18 @@ const delegatedProps = computed(() =>
     "incrementAction"
   ])
 );
+
+const decrementIcon = computed(() => {
+  if (props.decrementAction?.icon) return props.decrementAction.icon;
+  if (props.variant === NUMBER_FIELD_VARIANTS.FLAT) return "minus";
+  return "minus-circle";
+});
+
+const incrementIcon = computed(() => {
+  if (props.incrementAction?.icon) return props.incrementAction.icon;
+  if (props.variant === NUMBER_FIELD_VARIANTS.FLAT) return "plus";
+  return "plus-circle";
+});
 
 // Track value ONLY for instant width calculation - not used for modelValue updates
 const internalValue = ref(modelValue.value);

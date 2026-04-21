@@ -91,7 +91,7 @@ const meta = computed(() => ({
   variant: props.variant,
   color: props.color,
   size: props.size,
-  inlineAction: !hasDescription.value && hasAction.value
+  action: !hasDescription.value && hasAction.value
 }));
 
 const styles = useStyles("alert", meta, config, props.uiConfig ?? {});
