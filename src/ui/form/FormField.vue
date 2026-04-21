@@ -60,7 +60,7 @@
           :formItemId="props.id"
           :auto-focus="props.autoFocus"
           :formDescriptionId="`form-item-description-${props.id}`"
-          :formMessageId="`form-item-message-${props.id.replaceAll('#/properties/', '')}`"
+          :formMessageId="`form-item-message-${props.id}`"
         >
           <slot></slot>
         </FormControl>
