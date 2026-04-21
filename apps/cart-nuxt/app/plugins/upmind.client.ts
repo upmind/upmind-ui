@@ -5,7 +5,9 @@ import UpmindClient, {
   registerOverlayRoutes,
   useHeader,
   useFooter,
-  useLayout
+  useLayout,
+  useShell,
+  SHELL
 } from "@upmind-automation/client-vue";
 import { plugins as uiPlugins } from "@upmind-automation/upmind-ui";
 import { registerFunnels } from "~/funnels";
@@ -81,10 +83,16 @@ export default defineNuxtPlugin(async nuxtApp => {
   const theme = runtimeConfig.public.THEME as string;
   await useTheme(theme).isReady();
 
-  // 7. Register shell state reset on page transition (equivalent to RouteView in cart app)
+  // 7. Register shell state tracking on page transition (equivalent to RouteView in cart app)
+  const shell = useShell();
+
   nuxtApp.hook("page:start", () => {
-    useHeader({});
-    useFooter({});
-    useLayout({});
+    shell.reset();
+  });
+
+  nuxtApp.hook("page:finish", () => {
+    if (!shell.has(SHELL.HEADER)) useHeader({});
+    if (!shell.has(SHELL.FOOTER)) useFooter({});
+    if (!shell.has(SHELL.LAYOUT)) useLayout({});
   });
 });

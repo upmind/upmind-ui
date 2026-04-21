@@ -3,6 +3,8 @@ import { computed, ref } from "vue";
 
 // --- internal
 import { Store } from "@upmind-automation/headless";
+import { useShell } from "../shell/useShell";
+import { SHELL } from "../shell/types";
 
 // --- utils
 import { isEmpty, isObject, merge } from "lodash-es";
@@ -36,6 +38,10 @@ layoutConfig.subscribe(state => (config.value = state.currentVal));
 export const useLayout = (initial?: Partial<UseLayoutProps>) => {
   // Reset to defaults and apply initial overrides if provided
   if (initial) {
+    // Mark as configured if actual config provided (not just empty reset)
+    if (!isEmpty(initial)) {
+      useShell().mark(SHELL.LAYOUT);
+    }
     layoutConfig.setState(
       merge({}, defaultLayoutProps, initial) as UseLayoutProps
     );

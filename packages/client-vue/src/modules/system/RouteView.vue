@@ -38,6 +38,8 @@ import { useRouteTransition } from "./useRouteTransition";
 import { useHeader } from "../../components/header/useHeader";
 import { useFooter } from "../../components/footer/useFooter";
 import { useLayout } from "../../components/layout/useLayout";
+import { useShell } from "../../components/shell/useShell";
+import { SHELL } from "../../components/shell/types";
 
 // --- components
 import Root from "../../components/layout/components/root/Root.vue";
@@ -57,13 +59,17 @@ const emit = defineEmits<{
 const { meta, mount } = useRoutingEngine();
 const { shouldShow, reset } = useRouteTransition();
 
+const shell = useShell();
+
 function doReset() {
-  useHeader({});
-  useFooter({});
-  useLayout({});
+  shell.reset();
 }
 
 function doResolve(el: Element, route: RouteLocation) {
+  if (!shell.has(SHELL.HEADER)) useHeader({});
+  if (!shell.has(SHELL.FOOTER)) useFooter({});
+  if (!shell.has(SHELL.LAYOUT)) useLayout({});
+
   mount(route.name?.toString());
   emit("resolve", el);
   reset();

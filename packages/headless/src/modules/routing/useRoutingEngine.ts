@@ -55,14 +55,6 @@ const lifecycleCallbacks = {
   beforeLeave: new Set<() => void>()
 };
 
-/** Tracks which shell components have been configured during current navigation. */
-const shellConfigState = {
-  navigationId: 0,
-  configured: new Set<string>()
-};
-
-export { shellConfigState };
-
 export { router };
 
 // -----------------------------------------------------------------------------
