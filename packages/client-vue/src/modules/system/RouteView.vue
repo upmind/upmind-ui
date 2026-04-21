@@ -7,8 +7,8 @@
             <Suspense>
               <component
                 :is="routerViewProps.Component"
-                @vue:beforeMount="doReset"
-                @vue:mounted="doResolve($event, routerViewProps.route)"
+                @vue:beforeMount="doPageStart"
+                @vue:mounted="doPageFinish($event, routerViewProps.route)"
               />
 
               <template #fallback>
@@ -61,11 +61,11 @@ const { shouldShow, reset } = useRouteTransition();
 
 const shell = useShell();
 
-function doReset() {
+function doPageStart() {
   shell.reset();
 }
 
-function doResolve(el: Element, route: RouteLocation) {
+function doPageFinish(el: Element, route: RouteLocation) {
   if (!shell.has(SHELL.HEADER)) useHeader({});
   if (!shell.has(SHELL.FOOTER)) useFooter({});
   if (!shell.has(SHELL.LAYOUT)) useLayout({});

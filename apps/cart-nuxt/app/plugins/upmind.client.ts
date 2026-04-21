@@ -86,10 +86,12 @@ export default defineNuxtPlugin(async nuxtApp => {
   // 7. Register shell state tracking on page transition (equivalent to RouteView in cart app)
   const shell = useShell();
 
+  // page:start = doReset
   nuxtApp.hook("page:start", () => {
     shell.reset();
   });
 
+  // page:finish = doResolve
   nuxtApp.hook("page:finish", () => {
     if (!shell.has(SHELL.HEADER)) useHeader({});
     if (!shell.has(SHELL.FOOTER)) useFooter({});
