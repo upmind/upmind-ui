@@ -15,10 +15,7 @@
         </slot>
       </AlertTitle>
 
-      <AlertDescription
-        v-if="hasDescription"
-        :class="styles.alert.description"
-      >
+      <AlertDescription v-if="hasDescription" :class="styles.alert.description">
         <slot name="description">
           {{ description }}
         </slot>
