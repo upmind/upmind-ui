@@ -13,7 +13,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { onBeforeMount, onUnmounted } from "vue";
+import { onBeforeMount } from "vue";
 
 // --- components
 import Layout from "../../../components/layout/Layout.vue";
@@ -21,7 +21,6 @@ import Layout from "../../../components/layout/Layout.vue";
 // --- internal
 import { useFooter } from "../../../components/footer/useFooter";
 import { useHeader } from "../../../components/header/useHeader";
-import { useLayout } from "../../../components/layout/useLayout";
 
 // --- types
 import { LAYOUT_VARIANTS } from "../../../components/layout/types";
@@ -46,11 +45,5 @@ onBeforeMount(() => {
   useFooter({
     visible: false
   });
-});
-
-onUnmounted(() => {
-  useHeader({});
-  useLayout({});
-  useFooter({});
 });
 </script>

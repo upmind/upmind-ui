@@ -72,8 +72,6 @@ import {
   useRoutingEngine,
   useDataLayer
 } from "@upmind-automation/headless";
-import { useHeader } from "../../components/header/useHeader";
-import { useFooter } from "../../components/footer/useFooter";
 import { useConfig, validateTemplate } from "@upmind-automation/headless";
 import { useThemes, Markdown } from "@upmind-automation/upmind-ui";
 
@@ -210,7 +208,5 @@ onMounted(() => {
 
 onUnmounted(() => {
   if (meta.value.isComplete) reset();
-  useFooter({});
-  useHeader({});
 });
 </script>

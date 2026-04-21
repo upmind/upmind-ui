@@ -1,1 +1,2 @@
-// export * from "./types";
+export { useHeader } from "./useHeader";
+export * from "./types";

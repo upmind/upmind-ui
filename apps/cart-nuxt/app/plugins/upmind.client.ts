@@ -2,7 +2,10 @@ import { defineNuxtPlugin } from "#app";
 import UpmindClient, {
   useTheme,
   decorateRoutes,
-  registerOverlayRoutes
+  registerOverlayRoutes,
+  useHeader,
+  useFooter,
+  useLayout
 } from "@upmind-automation/client-vue";
 import { plugins as uiPlugins } from "@upmind-automation/upmind-ui";
 import { registerFunnels } from "~/funnels";
@@ -77,4 +80,11 @@ export default defineNuxtPlugin(async nuxtApp => {
   // 6. Wait for theme to be ready so we dont have any flash of unstyled content
   const theme = runtimeConfig.public.THEME as string;
   await useTheme(theme).isReady();
+
+  // 7. Register shell state reset on page transition (equivalent to RouteView in cart app)
+  nuxtApp.hook("page:start", () => {
+    useHeader({});
+    useFooter({});
+    useLayout({});
+  });
 });

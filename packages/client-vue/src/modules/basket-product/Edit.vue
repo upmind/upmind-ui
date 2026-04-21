@@ -223,9 +223,6 @@ import {
   responseCodes,
   ErrorOrigin
 } from "@upmind-automation/headless";
-import { useHeader } from "../../components/header/useHeader";
-import { useFooter } from "../../components/footer/useFooter";
-import { useLayout } from "../../components/layout/useLayout";
 import { useBreadcrumbs } from "../../composables/useBreadcrumbs";
 import { useConfig, validateTemplate } from "@upmind-automation/headless";
 
@@ -409,10 +406,6 @@ const handleShare = () => {
 onUnmounted(() => {
   // Don't stop the config machine — it may be reused by the inline editor.
   // Housekeeping (pruneConfigs) cleans up machines for removed products.
-
-  useHeader({});
-  useLayout({});
-  useFooter({});
 });
 
 // Emit productDetails when it loads/changes for parent components (e.g., SEO, schema)
