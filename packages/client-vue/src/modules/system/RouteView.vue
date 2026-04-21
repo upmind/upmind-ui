@@ -57,7 +57,7 @@ const emit = defineEmits<{
 }>();
 
 const { meta, mount } = useRoutingEngine();
-const { shouldShow, reset } = useRouteTransition();
+const { shouldShow } = useRouteTransition();
 
 const shell = useShell();
 
@@ -72,6 +72,5 @@ function doPageFinish(el: Element, route: RouteLocation) {
 
   mount(route.name?.toString());
   emit("resolve", el);
-  reset();
 }
 </script>
