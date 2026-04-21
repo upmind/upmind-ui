@@ -142,9 +142,7 @@ const upsellOptions = computed(() =>
   filterUpsellOptions(config?.options?.value ?? [])
 );
 
-const filteredUpsells = computed(() =>
-  resolveUpsells(config?.options?.value, config?.model?.value?.options)
-);
+const filteredUpsells = computed(() => resolveUpsells(config));
 
 const visiblePricing = computed(() =>
   filterPricing(props.pricing, filteredUpsells.value)

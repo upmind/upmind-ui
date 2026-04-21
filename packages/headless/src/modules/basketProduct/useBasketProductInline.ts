@@ -26,7 +26,8 @@ import type {
   Benefit,
   ProductModel,
   SubproductDetails,
-  SubproductValue
+  SubproductValue,
+  UseProductConfig
 } from "../product";
 // -----------------------------------------------------------------------------
 
@@ -143,12 +144,17 @@ export const useBasketProductInline = (bpid: string) => {
    * Resolves the upsells eligible to render inline, paired with their
    * resolved benefits. Applies {@link isOptionUpsellEnabled} per option and
    * the container-level `ui.optionUpsells.isVisible` gate.
+   *
+   * Reads selections from the config's `baseModel` (the persisted state) so
+   * the UI reflects only confirmed toggles, not optimistic in-flight ones.
    */
   function resolveUpsells(
-    availableOptions?: SubproductDetails[],
-    selections?: ProductModel["options"]
+    config?: UseProductConfig
   ): { upsell: BasketOptionSummary; benefits?: Benefit[] }[] {
     if (!ui.optionUpsells.isVisible) return [];
+
+    const availableOptions = config?.options?.value;
+    const selections = config?.baseModel?.value?.options;
 
     return compact(
       map(buildUpsellSummaries(availableOptions, selections), upsell => {
