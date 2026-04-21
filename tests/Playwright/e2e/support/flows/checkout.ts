@@ -49,7 +49,6 @@ export async function goToCheckout(
   let token = await getSessionToken(context);
   let order: Order = await createOrder(token);
   let orderId = order.id;
-  console.log("Order ID:", orderId);
   if (currency !== null) {
     await setOrderCurrency(token, orderId, currency);
   }

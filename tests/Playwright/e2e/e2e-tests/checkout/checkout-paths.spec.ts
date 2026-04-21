@@ -1,14 +1,14 @@
-import { checkoutTest, expect } from "../../support/fixtures/auth-context";
+import { newUserSession, expect } from "../../support/fixtures/auth-context";
 import { addProductToOrder } from "../../support/api/index";
 import { mockWalletBalance } from "../../support/mocks/wallet";
 import { products } from "../../support/constants/products";
 import { goToCheckout } from "../../support/flows/checkout";
 
-checkoutTest.describe.configure({ mode: "parallel" });
+newUserSession.describe.configure({ mode: "parallel" });
 
-checkoutTest.describe("Checkout Paths", () => {
-  checkoutTest.describe("Paid orders", () => {
-    checkoutTest(
+newUserSession.describe("Checkout Paths", () => {
+  newUserSession.describe("Paid orders", () => {
+    newUserSession(
       "1.1 Paid Order with Tax",
       async ({ page, context, checkout }) => {
         await goToCheckout(
@@ -25,7 +25,7 @@ checkoutTest.describe("Checkout Paths", () => {
         await expect(page.getByText("Thank you for your order.")).toBeVisible();
       }
     );
-    checkoutTest(
+    newUserSession(
       "1.2 Paid Order with Tax & Partial Discount",
       async ({ page, context, checkout }) => {
         await goToCheckout(
@@ -42,7 +42,7 @@ checkoutTest.describe("Checkout Paths", () => {
         await expect(page.getByText("Thank you for your order.")).toBeVisible();
       }
     );
-    checkoutTest(
+    newUserSession(
       "1.3 Paid Order with Tax & Free Trial Product",
       async ({ page, context, checkout, token, orderId }) => {
         await goToCheckout(
@@ -73,7 +73,7 @@ checkoutTest.describe("Checkout Paths", () => {
         await expect(page.getByText("Thank you for your order.")).toBeVisible();
       }
     );
-    checkoutTest(
+    newUserSession(
       "1.4 Paid Order with Tax & Additional Free Product",
       async ({ page, context, checkout, token, orderId }) => {
         await goToCheckout(
@@ -104,7 +104,7 @@ checkoutTest.describe("Checkout Paths", () => {
         await expect(page.getByText("Thank you for your order.")).toBeVisible();
       }
     );
-    checkoutTest(
+    newUserSession(
       "1.5 Paid Order with Tax & Account Credit",
       async ({ page, context, checkout }) => {
         mockWalletBalance(context, {
@@ -123,7 +123,7 @@ checkoutTest.describe("Checkout Paths", () => {
         await expect(page.getByText("Order confirmed")).toBeVisible();
       }
     );
-    checkoutTest(
+    newUserSession(
       "1.6 Paid Order with No Tax",
       async ({ page, context, checkout }) => {
         await goToCheckout(
@@ -139,7 +139,7 @@ checkoutTest.describe("Checkout Paths", () => {
         await expect(page.getByText("Thank you for your order.")).toBeVisible();
       }
     );
-    checkoutTest(
+    newUserSession(
       "1.7 Paid Order with No Tax & Partial Discount",
       async ({ page, context, checkout }) => {
         await goToCheckout(
@@ -156,7 +156,7 @@ checkoutTest.describe("Checkout Paths", () => {
         await expect(page.getByText("Thank you for your order.")).toBeVisible();
       }
     );
-    checkoutTest(
+    newUserSession(
       "1.8 Paid Order with No Tax & Additional Free Trial Product",
       async ({ page, context, checkout, token, orderId }) => {
         await goToCheckout(
@@ -187,7 +187,7 @@ checkoutTest.describe("Checkout Paths", () => {
         await expect(page.getByText("Thank you for your order.")).toBeVisible();
       }
     );
-    checkoutTest(
+    newUserSession(
       "1.9 Paid Order with No Tax & Additional Free Product",
       async ({ page, context, checkout, token, orderId }) => {
         await goToCheckout(
@@ -218,7 +218,7 @@ checkoutTest.describe("Checkout Paths", () => {
         await expect(page.getByText("Thank you for your order.")).toBeVisible();
       }
     );
-    checkoutTest(
+    newUserSession(
       "1.10 Paid Order with No Tax & Account Credit",
       async ({ page, context, checkout }) => {
         mockWalletBalance(context, {
@@ -238,8 +238,8 @@ checkoutTest.describe("Checkout Paths", () => {
       }
     );
   });
-  checkoutTest.describe("Free orders", () => {
-    checkoutTest(
+  newUserSession.describe("Free orders", () => {
+    newUserSession(
       "2.1 100% Promotion Applied",
       async ({ page, context, checkout }) => {
         mockWalletBalance(context, {
@@ -262,7 +262,7 @@ checkoutTest.describe("Checkout Paths", () => {
         await expect(page.getByText("Thank you for your order.")).toBeVisible();
       }
     );
-    checkoutTest(
+    newUserSession(
       "2.2 Free Trial Product",
       async ({ page, context, checkout }) => {
         mockWalletBalance(context, {
@@ -285,7 +285,7 @@ checkoutTest.describe("Checkout Paths", () => {
         await expect(page.getByText("Thank you for your order.")).toBeVisible();
       }
     );
-    checkoutTest(
+    newUserSession(
       "2.3 Free Trial Product & Free Promotion Product",
       async ({ page, context, checkout, token, orderId }) => {
         mockWalletBalance(context, {
