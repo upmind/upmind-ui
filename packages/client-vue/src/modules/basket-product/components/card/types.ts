@@ -12,16 +12,7 @@ export interface BasketProductProps extends BasketProduct {
   open?: boolean;
 }
 
-export interface BasketProductActionsProps {
-  id: string;
-  details: BasketProduct["details"]; // any[]
-  // ---
-  open: boolean;
-  disabled: boolean;
-  editRoute: RouteLocationAsRelativeGeneric;
-}
-
-export interface BasketProductSummaryProps {
+export interface BasketProductContentProps {
   id: BasketProduct["id"];
   summary: ProductSummaryDetailWithPrice;
   productDetails: BasketProduct["productDetails"];
@@ -50,10 +41,20 @@ export interface BasketProductSummaryProps {
   modelValue?: ProductModel;
 }
 
-export interface BasketProductOptionSummaryProps extends BasketProductSummaryProps {
+export interface BasketProductSummaryProps {
+  summary: BasketOptionSummary;
+}
+
+export interface BasketProductSubItemProps {
+  summary: BasketOptionSummary;
+}
+
+export interface BasketProductUpsellProps {
+  id: BasketProduct["id"];
   summary: BasketOptionSummary;
   configOptions?: SubproductDetails[];
-  upsell?: boolean;
+  error: boolean;
+  processing: boolean;
 }
 
 export interface BasketProductConfigDetailsProps {

@@ -229,14 +229,14 @@ import { isMobile } from "@upmind-automation/upmind-ui";
 import { isEmpty, includes } from "lodash-es";
 
 // --- types
-import type { BasketProductSummaryProps } from "./types";
+import type { BasketProductContentProps } from "./types";
 import { computed } from "vue";
 
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
 
-const props = defineProps<BasketProductSummaryProps>();
+const props = defineProps<BasketProductContentProps>();
 
 const emits = defineEmits(["remove", "update:open"]);
 

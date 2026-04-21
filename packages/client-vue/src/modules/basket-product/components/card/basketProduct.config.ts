@@ -71,6 +71,7 @@ export default {
           { selected: true, quantifiable: true, class: "text-faint" }
         ]
       }),
+      discounted: cva("text-muted line-through"),
       action: cva("w-full shrink-0 md:w-36"),
       upsell: cva(
         "border-surface flex flex-col gap-4 border-t px-6 py-6 lg:px-8"

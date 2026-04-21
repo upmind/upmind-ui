@@ -7,8 +7,8 @@
           v-for="(summary, index) in visiblePricing"
           :key="`${props.id}-${index}`"
         >
-          <component
-            :is="getSummaryComponent(index)"
+          <BasketProductContent
+            v-if="index === 0"
             data-testid="basket-product-summary"
             :id="id"
             :productDetails="props.productDetails"
@@ -30,13 +30,12 @@
             v-model:term="termModel"
             v-model:options="optionsModel"
             @remove="doRemove"
-          >
-            <slot
-              :productDetails="props.productDetails"
-              :price="price"
-              :quantity="props.configuration.quantity"
-            ></slot>
-          </component>
+          />
+          <BasketProductSubItem
+            v-else
+            data-testid="basket-product-summary"
+            :summary="summary"
+          />
         </template>
       </div>
 
@@ -46,22 +45,13 @@
         :key="`${props.id}-upsell-${upsell.id}`"
         :class="styles.product.option.upsell"
       >
-        <BasketProductOptionContent
+        <BasketProductUpsell
           data-testid="basket-product-upsell"
           :id="id"
-          :productDetails="props.productDetails"
           :summary="upsell"
-          :details="details"
-          :quantity="props.configuration.quantity"
-          :pricing="pricingProductIds"
-          :open="open"
-          :image="false"
           :error="meta.hasErrors"
-          :loading="meta.isLoading"
           :processing="meta.isProcessing"
-          :edit-route="editRoute"
           :config-options="config?.options?.value"
-          upsell
           v-model:options="optionsModel"
           @update:quantity="(value: number) => onOptionQuantity(upsell, value)"
         />
@@ -85,7 +75,8 @@ import { useConfig, useBasketProductInline } from "@upmind-automation/headless";
 // --- components
 import { Card, Loading } from "@upmind-automation/upmind-ui";
 import BasketProductContent from "./BasketProductContent.vue";
-import BasketProductOptionContent from "./BasketProductOptionContent.vue";
+import BasketProductSubItem from "./BasketProductSubItem.vue";
+import BasketProductUpsell from "./BasketProductUpsell.vue";
 import BasketProductBenefits from "./components/BasketProductBenefits.vue";
 
 // --- utils
@@ -192,10 +183,6 @@ const pricingProductIds = computed(() => compact(map(props.pricing, "id")));
 const configErrors = computed(
   () => config?.validationErrors?.value || config?.errors?.value
 );
-
-function getSummaryComponent(index: number) {
-  return index === 0 ? BasketProductContent : BasketProductOptionContent;
-}
 
 // --- writable models for v-model bindings
 
