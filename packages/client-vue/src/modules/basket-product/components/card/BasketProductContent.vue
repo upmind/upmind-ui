@@ -46,8 +46,8 @@
           />
         </div>
 
-        <hgroup :class="[styles.product.summary.title.root, 'justify-between']">
-          <div class="flex items-center gap-2">
+        <hgroup :class="styles.product.summary.title.root">
+          <div :class="styles.product.summary.title.group">
             <Link
               v-bind="props.editRoute"
               offset="2"
