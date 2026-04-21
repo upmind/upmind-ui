@@ -38,7 +38,8 @@ export default {
         text: cva("text-faint text-sm font-normal")
       },
       title: {
-        root: cva("flex items-start gap-x-4"),
+        root: cva("flex items-start justify-between gap-x-4"),
+        group: cva("flex items-center gap-2"),
         link: cva("no-underline"),
         text: cva("text-xl-tight font-medium break-all no-underline")
       },
