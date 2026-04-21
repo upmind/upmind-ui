@@ -29,6 +29,7 @@
     "dev": "nuxt dev --host collabstudio.localhost --dotenv .env.development",
     "generate": "pnpm generate",
     "generate:staging": "nuxt generate --mode staging --dotenv .env.staging",
+    "build:prod": "pnpm type-check && pnpm build-only",
     "build-only": "nuxt build",
     "postinstall": "nuxt prepare",
     "type-check": "nuxt typecheck",
