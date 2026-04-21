@@ -52,8 +52,11 @@ const mountedRoute = ref<string | undefined>(undefined);
 const lifecycleCallbacks = {
   afterEnter: new Set<() => void>(),
   beforeEnter: new Set<() => void>(),
-  beforeLeave: new Set<() => void>()
+  beforeLeave: new Set<() => void>(),
+  resolving: new Set<() => void>(),
+  resolved: new Set<() => void>()
 };
+let resolvingInitialised = false;
 
 export { router };
 
@@ -376,6 +379,35 @@ export const useRoutingEngine = () => {
     return () => lifecycleCallbacks.beforeLeave.delete(callback);
   }
 
+  /** Register a callback to run when route starts resolving. Returns unsubscribe function. */
+  function onResolving(callback: () => void): () => void {
+    lifecycleCallbacks.resolving.add(callback);
+    return () => lifecycleCallbacks.resolving.delete(callback);
+  }
+
+  /** Register a callback to run when route is resolved. Returns unsubscribe function. */
+  function onResolved(callback: () => void): () => void {
+    lifecycleCallbacks.resolved.add(callback);
+    return () => lifecycleCallbacks.resolved.delete(callback);
+  }
+
+  // Watch isResolved and fire callbacks on state changes
+  watch(
+    () => meta.value.isResolved,
+    (isResolved, wasResolved) => {
+      if (!resolvingInitialised) {
+        resolvingInitialised = true;
+        return;
+      }
+      if (!isResolved && wasResolved) {
+        forEach([...lifecycleCallbacks.resolving], cb => cb());
+      } else if (isResolved && !wasResolved) {
+        forEach([...lifecycleCallbacks.resolved], cb => cb());
+      }
+    },
+    { immediate: true }
+  );
+
   // ---------------------------------------------------------------------------
   return {
     // --- state
@@ -395,6 +427,8 @@ export const useRoutingEngine = () => {
     mount,
     onAfterEnter,
     onBeforeLeave,
+    onResolved,
+    onResolving,
     register,
     switchFunnel,
     guard,
