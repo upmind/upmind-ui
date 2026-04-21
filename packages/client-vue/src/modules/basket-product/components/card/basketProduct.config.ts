@@ -89,6 +89,19 @@ export default {
         "shrink-0 text-lg leading-7! font-medium whitespace-nowrap md:text-xl"
       ),
       ex: cva("text-sm leading-5")
+    },
+    skeleton: {
+      image: cva("image-radius m-0 h-12 w-12 shrink-0"),
+      stack: cva("flex w-full flex-col gap-1"),
+      category: cva("h-5 w-24"),
+      title: {
+        row: cva("flex items-start justify-between gap-2"),
+        text: cva("h-6 w-48")
+      },
+      price: cva("h-6 w-24 shrink-0"),
+      controls: cva("flex flex-wrap items-center gap-x-3 gap-y-2"),
+      quantity: cva("h-10 w-12"),
+      renew: cva("h-5 w-28")
     }
   }
 };
