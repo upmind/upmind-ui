@@ -30,7 +30,9 @@ export default {
       root: itemVariants,
       size: itemSizeVariants
     },
-    radio: cva("size-lh text-md-tight flex items-center justify-center"),
+    radio: cva(
+      "size-lh text-md-tight flex shrink-0 items-center justify-center"
+    ),
     content: {
       label: cva("text-md-tight text-display font-medium"),
       secondaryLabel: cva("text-md-tight text-display font-medium"),
