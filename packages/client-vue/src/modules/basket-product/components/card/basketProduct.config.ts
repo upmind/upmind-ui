@@ -55,13 +55,7 @@ export default {
           controls: cva("flex items-center gap-2"),
           content: cva("max-h-74!")
         },
-        remove: cva("p-2 [&>span>i>svg]:size-4"),
-        price: {
-          root: cva("flex items-end justify-between gap-4 lg:justify-end"),
-          container: cva(
-            "flex flex-row flex-wrap items-center gap-2 lg:flex-col lg:items-end lg:gap-0"
-          )
-        }
+        remove: cva("p-2 [&>span>i>svg]:size-4")
       }
     },
     option: {
