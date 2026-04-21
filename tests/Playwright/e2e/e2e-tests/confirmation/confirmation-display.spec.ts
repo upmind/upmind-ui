@@ -1,18 +1,14 @@
 import { expect } from "@playwright/test";
-import {
-  existingUserSession,
-  newUserSession
-} from "../../support/fixtures/auth-context";
-import { Confirmation } from "../../support/page-objects/templates/confirmation";
+import { registeredUser, newUser } from "../../support/fixtures/auth-context";
 import { goToCheckout } from "../../support/flows/checkout";
 import { getFormattedDate } from "../../support/helpers";
 import { products } from "../../support/constants/products";
 import { Logins } from "../../support/constants/logins";
 import { getCurrentOrder, getInvoice } from "../../support/api/index";
 
-newUserSession.describe("Confirmation Page Display - New Users", () => {
-  newUserSession.describe.configure({ mode: "parallel" });
-  newUserSession(
+newUser.describe("Confirmation Page Display - New Users", () => {
+  newUser.describe.configure({ mode: "parallel" });
+  newUser(
     "Successful Paid Order (New Card)",
     async ({ page, context, checkout, confirmation, token }) => {
       await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
@@ -46,7 +42,7 @@ newUserSession.describe("Confirmation Page Display - New Users", () => {
       );
     }
   );
-  newUserSession(
+  newUser(
     "Successful Free Order",
     async ({ page, context, checkout, confirmation, token }) => {
       await goToCheckout(page, context, products.FREE_HOSTING, null, null);
@@ -74,7 +70,7 @@ newUserSession.describe("Confirmation Page Display - New Users", () => {
       await expect(confirmation.detailsRowTotal).toContainText("£0.00");
     }
   );
-  newUserSession(
+  newUser(
     "Successful Order with Promo",
     async ({ page, context, checkout, confirmation, token }) => {
       await goToCheckout(
@@ -115,13 +111,13 @@ newUserSession.describe("Confirmation Page Display - New Users", () => {
       );
     }
   );
-  newUserSession.skip(
+  newUser.skip(
     "Successful Order with Multiple Taxes",
     async ({ page, context }) => {
       //TODO: Need a new tax setup for this, potentially a specific user with the right address already set up
     }
   );
-  newUserSession(
+  newUser(
     "Unsuccessful Payment on Order",
     async ({ page, context, checkout, confirmation, token }) => {
       await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
@@ -167,7 +163,7 @@ newUserSession.describe("Confirmation Page Display - New Users", () => {
       );
     }
   );
-  newUserSession(
+  newUser(
     "Pay Later on Order",
     async ({ page, context, checkout, confirmation, token }) => {
       await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
@@ -200,7 +196,7 @@ newUserSession.describe("Confirmation Page Display - New Users", () => {
       );
     }
   );
-  newUserSession(
+  newUser(
     "Successful Partial Payment on Order",
     async ({ page, context, checkout, confirmation, token }) => {
       await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
@@ -250,59 +246,56 @@ newUserSession.describe("Confirmation Page Display - New Users", () => {
     }
   );
 });
-existingUserSession.describe(
-  "Confirmation Page Display - Existing Users",
-  () => {
-    existingUserSession(
-      "Successful Paid Order (Existing Card)",
-      async ({ page, context, checkout, confirmation, orderId, loginAs }) => {
-        const session = await loginAs(
-          Logins.checkoutUser.username,
-          Logins.checkoutUser.password
-        );
-        const token = session.access_token;
-        await goToCheckout(
-          page,
-          context,
-          products.STARTER_HOSTING,
-          null,
-          null,
-          false
-        );
-        await checkout.selectPaymentMethod("Visa ending 4242");
-        await checkout.clickPlaceOrderAndPay();
-        await page.waitForURL(`/order/**/?payment_success=true`);
-        let invoice = await getInvoice(token, orderId);
-        let invoiceNumber = invoice?.number;
-        let date = getFormattedDate();
-        await expect(confirmation.invoiceNumberHeading).toContainText(
-          "Order #"
-        );
-        await expect(confirmation.invoiceNumber).toContainText(
-          `${invoiceNumber}`
-        );
-        await expect(confirmation.orderDateHeading).toContainText(
-          "Purchase date"
-        );
-        await expect(confirmation.orderDate).toContainText(`${date}`);
-        await expect(confirmation.orderPaymentMethodHeading).toContainText(
-          "Payment method"
-        );
-        await expect(confirmation.orderPaymentMethod).toContainText(
-          "Visa ending 4242"
-        );
-        await expect(confirmation.orderDetails).toBeVisible();
-        await expect(
-          confirmation.productNameVisible(products.STARTER_HOSTING.name)
-        ).toBeTruthy();
-        await expect(confirmation.detailsRowPrice).toContainText(
-          products.STARTER_HOSTING.gbpPrice
-        );
-        await expect(confirmation.detailsRowQty).toContainText("1");
-        await expect(confirmation.detailsRowTotal).toContainText(
-          products.STARTER_HOSTING.gbpPrice
-        );
-      }
-    );
-  }
-);
+registeredUser.describe("Confirmation Page Display - Existing Users", () => {
+  registeredUser(
+    "Successful Paid Order (Existing Card)",
+    async ({ page, context, checkout, confirmation, loginAs }) => {
+      const session = await loginAs(
+        Logins.stripeCard.username,
+        Logins.stripeCard.password
+      );
+      const token = session.access_token;
+      await goToCheckout(
+        page,
+        context,
+        products.STARTER_HOSTING,
+        null,
+        null,
+        false
+      );
+      let order = await getCurrentOrder(token);
+      let orderId = order?.id as string;
+      await checkout.selectPaymentMethod("Saved Card 1");
+      await checkout.clickPlaceOrderAndPay();
+      await page.waitForURL(`/order/**/?payment_success=true`);
+      let invoice = await getInvoice(token, orderId);
+      let invoiceNumber = invoice?.number;
+      let date = getFormattedDate();
+      await expect(confirmation.invoiceNumberHeading).toContainText("Order #");
+      await expect(confirmation.invoiceNumber).toContainText(
+        `${invoiceNumber}`
+      );
+      await expect(confirmation.orderDateHeading).toContainText(
+        "Purchase date"
+      );
+      await expect(confirmation.orderDate).toContainText(`${date}`);
+      await expect(confirmation.orderPaymentMethodHeading).toContainText(
+        "Payment method"
+      );
+      await expect(confirmation.orderPaymentMethod).toContainText(
+        "Visa ending 4242"
+      );
+      await expect(confirmation.orderDetails).toBeVisible();
+      await expect(
+        confirmation.productNameVisible(products.STARTER_HOSTING.name)
+      ).toBeTruthy();
+      await expect(confirmation.detailsRowPrice).toContainText(
+        products.STARTER_HOSTING.gbpPrice
+      );
+      await expect(confirmation.detailsRowQty).toContainText("1");
+      await expect(confirmation.detailsRowTotal).toContainText(
+        products.STARTER_HOSTING.gbpPrice
+      );
+    }
+  );
+});

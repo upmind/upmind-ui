@@ -17,7 +17,7 @@ import {
 import { URLs } from "../constants/urls";
 export { expect } from "@playwright/test";
 
-export const newUserSession = base.extend<{
+export const newUser = base.extend<{
   checkout: Checkout;
   confirmation: Confirmation;
   session: any;
@@ -62,12 +62,11 @@ export const newUserSession = base.extend<{
   }
 });
 
-export const existingUserSession = base.extend<{
+export const registeredUser = base.extend<{
   checkout: Checkout;
   confirmation: Confirmation;
   session: any;
   token: string;
-  orderId: string;
   userLogin: string;
   userPassword: string;
   loginAs: (username: string, password: string) => Promise<any>;
@@ -118,13 +117,6 @@ export const existingUserSession = base.extend<{
     use: (r: string) => Promise<void>
   ) => {
     await use(session?.access_token);
-  },
-  orderId: async (
-    { token }: { token: string },
-    use: (r: string) => Promise<void>
-  ) => {
-    const order = await getCurrentOrder(token);
-    await use(order?.id as string);
   },
   loginAs: async (
     { page, context }: { page: Page; context: BrowserContext },
