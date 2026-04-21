@@ -23,7 +23,7 @@ import {
   useContext
 } from "../../utils";
 import { awaitResolved } from "./utils";
-import { isString } from "lodash-es";
+import { forEach, isString } from "lodash-es";
 export { useRouteRequiresAction } from "./utils";
 
 // --- types
@@ -48,6 +48,20 @@ let navigating = ref(false);
  * rendered" (Vue lifecycle). Equivalent to nuxt's `page:finish` hook.
  */
 const mountedRoute = ref<string | undefined>(undefined);
+/** Lifecycle callbacks for routing events (mirrors Vue Router naming). */
+const lifecycleCallbacks = {
+  afterEnter: new Set<() => void>(),
+  beforeEnter: new Set<() => void>(),
+  beforeLeave: new Set<() => void>()
+};
+
+/** Tracks which shell components have been configured during current navigation. */
+const shellConfigState = {
+  navigationId: 0,
+  configured: new Set<string>()
+};
+
+export { shellConfigState };
 
 export { router };
 
@@ -212,6 +226,7 @@ export const useRoutingEngine = () => {
   async function navigate(target: string | FunnelTarget, data?: any) {
     if (navigating.value) return;
     navigating.value = true;
+    forEach([...lifecycleCallbacks.beforeLeave], cb => cb());
 
     // Pre-lock: set resolved:false BEFORE sending RESOLVE to close the race
     // window between programmatic navigation and reactive watchers (FE-2587)
@@ -239,6 +254,7 @@ export const useRoutingEngine = () => {
   async function navigateNext(event?: any) {
     if (navigating.value) return;
     navigating.value = true;
+    forEach([...lifecycleCallbacks.beforeLeave], cb => cb());
 
     // Pre-lock (FE-2587)
     send({ type: "PRE_RESOLVE" });
@@ -261,6 +277,7 @@ export const useRoutingEngine = () => {
   async function navigateBack(event?: any) {
     if (navigating.value) return;
     navigating.value = true;
+    forEach([...lifecycleCallbacks.beforeLeave], cb => cb());
 
     // Pre-lock (FE-2587)
     send({ type: "PRE_RESOLVE" });
@@ -352,11 +369,26 @@ export const useRoutingEngine = () => {
   /** Notify the routing engine that a route's page component has mounted. */
   function mount(name?: string): void {
     mountedRoute.value = name;
+    forEach([...lifecycleCallbacks.afterEnter], cb => cb());
+  }
+
+  /** Register a callback to run after a route's page has mounted. Returns unsubscribe function. */
+  function onAfterEnter(callback: () => void): () => void {
+    lifecycleCallbacks.afterEnter.add(callback);
+    return () => lifecycleCallbacks.afterEnter.delete(callback);
+  }
+
+  /** Register a callback to run when navigation starts. Returns unsubscribe function. */
+  function onBeforeLeave(callback: () => void): () => void {
+    lifecycleCallbacks.beforeLeave.add(callback);
+    return () => lifecycleCallbacks.beforeLeave.delete(callback);
   }
 
   // ---------------------------------------------------------------------------
   return {
     // --- state
+    /** True while a programmatic navigation is in progress. */
+    isNavigating: navigating,
     isReady,
     isResolved,
     isMounted,
@@ -369,6 +401,8 @@ export const useRoutingEngine = () => {
     //  --- methods
     init: (instance: Router) => (router ??= instance),
     mount,
+    onAfterEnter,
+    onBeforeLeave,
     register,
     switchFunnel,
     guard,

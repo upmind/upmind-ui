@@ -231,9 +231,6 @@ import {
 import { useConfig, validateTemplate } from "@upmind-automation/headless";
 import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./product.config";
-import { useHeader } from "../../components/header/useHeader";
-import { useFooter } from "../../components/footer/useFooter";
-import { useLayout } from "../../components/layout/useLayout";
 import { useBreadcrumbs } from "../../composables/useBreadcrumbs";
 import { useThemes } from "@upmind-automation/upmind-ui";
 
@@ -418,10 +415,6 @@ const handleShare = () => {
 
 onUnmounted(() => {
   remove(productId);
-
-  useHeader({});
-  useLayout({});
-  useFooter({});
 });
 
 // Emit productDetails when it loads/changes for parent components (e.g., SEO, schema)

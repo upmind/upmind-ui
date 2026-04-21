@@ -65,7 +65,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { computed, onUnmounted, defineAsyncComponent } from "vue";
+import { computed, defineAsyncComponent } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -74,8 +74,6 @@ import {
   useRoutingEngine,
   validateTemplate
 } from "@upmind-automation/headless";
-import { useHeader } from "../../components/header/useHeader";
-import { useFooter } from "../../components/footer/useFooter";
 import { useThemes, Markdown } from "@upmind-automation/upmind-ui";
 
 // --- components
@@ -134,11 +132,4 @@ const template = computed(() =>
 );
 
 const templateVariant = computed(() => get(supportedTemplates, template.value));
-
-// -----------------------------------------------------------------------------
-
-onUnmounted(() => {
-  useFooter({});
-  useHeader({});
-});
 </script>

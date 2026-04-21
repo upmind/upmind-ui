@@ -90,9 +90,6 @@ import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useDac, DomainTypes } from "@upmind-automation/headless";
-import { useHeader } from "../../components/header/useHeader";
-import { useFooter } from "../../components/footer/useFooter";
-import { useLayout } from "../../components/layout/useLayout";
 import { isMobile } from "@upmind-automation/upmind-ui";
 import {
   useBasket,
@@ -252,10 +249,5 @@ watch(currencyCode, (newCode, oldCode) => {
 
 onUnmounted(() => {
   stop();
-  if (props.template === DOMAIN_TEMPLATE.FULL) {
-    useLayout({});
-    useFooter({});
-    useHeader({});
-  }
 });
 </script>

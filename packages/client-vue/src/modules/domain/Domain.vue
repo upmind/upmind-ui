@@ -113,9 +113,6 @@ import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useDomain, DomainTypes } from "@upmind-automation/headless";
-import { useHeader } from "../../components/header/useHeader";
-import { useFooter } from "../../components/footer/useFooter";
-import { useLayout } from "../../components/layout/useLayout";
 import { isMobile } from "@upmind-automation/upmind-ui";
 
 // --- components
@@ -280,10 +277,5 @@ function onError(error: string) {
 
 onUnmounted(() => {
   stop();
-  if (props.template === DOMAIN_TEMPLATE.FULL) {
-    useLayout({});
-    useFooter({});
-    useHeader({});
-  }
 });
 </script>

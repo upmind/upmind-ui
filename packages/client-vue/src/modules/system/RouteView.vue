@@ -7,6 +7,7 @@
             <Suspense>
               <component
                 :is="routerViewProps.Component"
+                @vue:beforeMount="doReset"
                 @vue:mounted="doResolve($event, routerViewProps.route)"
               />
 
@@ -32,8 +33,11 @@
 
 // --- internal
 import { useRoutingEngine } from "@upmind-automation/headless";
-import { useRoute, type RouteLocation } from "vue-router";
+import type { RouteLocation } from "vue-router";
 import { useRouteTransition } from "./useRouteTransition";
+import { useHeader } from "../../components/header/useHeader";
+import { useFooter } from "../../components/footer/useFooter";
+import { useLayout } from "../../components/layout/useLayout";
 
 // --- components
 import Root from "../../components/layout/components/root/Root.vue";
@@ -51,8 +55,13 @@ const emit = defineEmits<{
 }>();
 
 const { meta, mount } = useRoutingEngine();
-const route = useRoute();
 const { shouldShow, reset } = useRouteTransition();
+
+function doReset() {
+  useHeader({});
+  useFooter({});
+  useLayout({});
+}
 
 function doResolve(el: Element, route: RouteLocation) {
   mount(route.name?.toString());

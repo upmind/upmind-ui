@@ -12,12 +12,11 @@
 
 <script lang="ts" setup>
 // --- external
-import { onBeforeMount, onUnmounted } from "vue";
+import { onBeforeMount } from "vue";
 
 // --- internal
 import { useFooter } from "../../../components/footer/useFooter";
 import { useHeader } from "../../../components/header/useHeader";
-import { useLayout } from "../../../components/layout/useLayout";
 import { useSection } from "../../../components/section/useSection";
 
 // --- components
@@ -59,11 +58,5 @@ onBeforeMount(() => {
     noCurrency: true,
     noCopyright: true
   });
-});
-
-onUnmounted(() => {
-  useHeader({});
-  useLayout({});
-  useFooter({});
 });
 </script>
