@@ -3,7 +3,7 @@
     v-if="quantifiable"
     :model-value="quantity"
     @update:model-value="doUpdateQuantity"
-    :min="effectiveMin"
+    :min="min || 1"
     :max="max"
     :step="step"
     :disabled="disabled"
@@ -38,13 +38,9 @@ const emits = defineEmits(["update:quantity", "remove"]);
 
 // --- state
 
-const effectiveMin = computed(() => (props.min === 0 ? 1 : props.min) ?? 1);
-
-const isAtMinimum = computed(() => props.quantity === effectiveMin.value);
-
 const decrementAction = computed(() => {
-  if (isAtMinimum.value) {
-    return { icon: "trash-02", handler: doRemove };
+  if (props.quantity === (props.min || 1)) {
+    return { icon: "trash-02", handler: () => emits("remove") };
   }
 });
 
@@ -54,9 +50,5 @@ function doUpdateQuantity(value: number | undefined) {
   if (value) {
     emits("update:quantity", value);
   }
-}
-
-function doRemove() {
-  emits("remove");
 }
 </script>
