@@ -115,12 +115,17 @@ const titleVariants = cva("text-md-tight font-medium", {
       sm: "text-sm",
       md: "text-md-tight"
     },
-    color: variants.color
+    color: variants.color,
+    inlineAction: {
+      true: "flex items-start justify-between gap-x-3",
+      false: ""
+    }
   },
   defaultVariants: {
     variant: "minimal",
     color: "neutral",
-    size: "md"
+    size: "md",
+    inlineAction: false
   },
   compoundVariants: [
     {
