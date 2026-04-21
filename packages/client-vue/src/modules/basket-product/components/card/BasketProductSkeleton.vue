@@ -1,39 +1,37 @@
 <template>
-  <Card as="li" class="relative flex list-none flex-col p-0 text-base lg:p-0">
-    <div
-      class="divide-border-control-default flex flex-col divide-y divide-dashed p-6 *:py-4 *:first:pt-0 *:last:pb-0 lg:px-8 lg:py-9"
-    >
-      <article class="flex flex-col gap-4">
+  <Card as="li" :class="styles.product.root.card">
+    <div :class="styles.product.root.summaries">
+      <article :class="styles.product.summary.article">
         <!-- Header: Image, Category/ExPrice, Name/CurrentPrice -->
-        <header class="flex items-start gap-3">
+        <header :class="styles.product.summary.header.root">
           <!-- Product Image -->
-          <Skeleton class="image-radius m-0 h-12 w-12 shrink-0" />
+          <Skeleton :class="styles.product.skeleton.image" />
 
-          <div class="flex w-full flex-col gap-1">
+          <div :class="styles.product.skeleton.stack">
             <!-- Top row: Category + Ex price -->
-            <div class="flex justify-between">
-              <div class="flex items-center gap-2">
-                <Skeleton class="h-5 w-24" />
+            <div :class="styles.product.summary.header.top">
+              <div :class="styles.product.summary.category.root">
+                <Skeleton :class="styles.product.skeleton.category" />
               </div>
             </div>
 
             <!-- Title row: Name + Current price -->
-            <div class="flex items-start justify-between gap-2">
-              <div class="flex items-center gap-2">
-                <Skeleton class="h-6 w-48" />
+            <div :class="styles.product.skeleton.title.row">
+              <div :class="styles.product.summary.title.group">
+                <Skeleton :class="styles.product.skeleton.title.text" />
               </div>
-              <Skeleton class="h-6 w-24 shrink-0" />
+              <Skeleton :class="styles.product.skeleton.price" />
             </div>
           </div>
         </header>
 
         <!-- Footer: Controls (quantity + term) + Renew description -->
-        <footer class="flex flex-col justify-between gap-2 lg:flex-row">
-          <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
-            <div class="flex items-center gap-2">
-              <Skeleton class="h-10 w-12" />
+        <footer :class="styles.product.summary.footer.root">
+          <div :class="styles.product.skeleton.controls">
+            <div :class="styles.product.summary.footer.terms.controls">
+              <Skeleton :class="styles.product.skeleton.quantity" />
             </div>
-            <Skeleton class="h-5 w-28" />
+            <Skeleton :class="styles.product.skeleton.renew" />
           </div>
         </footer>
       </article>
@@ -44,5 +42,22 @@
 </template>
 
 <script lang="ts" setup>
-import { Card, Skeleton } from "@upmind-automation/upmind-ui";
+import { Card, Skeleton, useStyles } from "@upmind-automation/upmind-ui";
+import config from "./basketProduct.config";
+
+const styles = useStyles(
+  [
+    "product.root",
+    "product.summary",
+    "product.summary.header",
+    "product.summary.category",
+    "product.summary.title",
+    "product.summary.footer",
+    "product.summary.footer.terms",
+    "product.skeleton",
+    "product.skeleton.title"
+  ],
+  {},
+  config
+);
 </script>
