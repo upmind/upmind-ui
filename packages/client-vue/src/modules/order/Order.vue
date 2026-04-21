@@ -1,5 +1,6 @@
 <template>
-  <component :is="templateVariant">
+  <PaymentProcessing v-if="meta.isProcessing" />
+  <component v-else :is="templateVariant">
     <template #order-summary>
       <Hero
         v-show="!meta.isProcessing"
@@ -137,9 +138,6 @@
       </OrderProducts>
     </template>
   </component>
-
-  <!-- Payment processing -->
-  <PaymentProcessing v-if="meta.isProcessing" />
 </template>
 
 <script lang="ts" setup>

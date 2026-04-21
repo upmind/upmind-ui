@@ -1,5 +1,5 @@
 <template>
-  <Layout>
+  <Layout :variant="LAYOUT_VARIANTS.CANVAS_CARD" :mode="LAYOUT_MODE.CENTERED">
     <template #content-header>
       <slot name="hero" />
       <slot name="markdown" />
@@ -36,11 +36,6 @@ const props = defineProps<SessionRoutes>();
 
 defineOptions({
   inheritAttrs: false
-});
-
-useLayout({
-  variant: LAYOUT_VARIANTS.CANVAS_CARD,
-  mode: LAYOUT_MODE.CENTERED
 });
 
 onBeforeMount(() => {

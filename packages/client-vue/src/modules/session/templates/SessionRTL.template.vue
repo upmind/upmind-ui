@@ -1,5 +1,5 @@
 <template>
-  <Layout>
+  <Layout :variant="LAYOUT_VARIANTS.TWO_COLUMN_RTL">
     <template #content-header>
       <slot name="hero" />
     </template>
@@ -43,10 +43,6 @@ const props = defineProps<SessionRoutes>();
 
 defineOptions({
   inheritAttrs: false
-});
-
-useLayout({
-  variant: LAYOUT_VARIANTS.TWO_COLUMN_RTL
 });
 
 // --- methods

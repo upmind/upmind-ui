@@ -1,5 +1,5 @@
 <template>
-  <Layout>
+  <Layout :variant="LAYOUT_VARIANTS.SPLIT_HORIZONTAL">
     <template #content-header>
       <slot name="hero" />
     </template>
@@ -34,10 +34,6 @@ const props = defineProps<SessionRoutes>();
 
 defineOptions({
   inheritAttrs: false
-});
-
-useLayout({
-  variant: LAYOUT_VARIANTS.SPLIT_HORIZONTAL
 });
 
 onBeforeMount(() => {

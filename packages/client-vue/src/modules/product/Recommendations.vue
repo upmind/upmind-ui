@@ -1,5 +1,5 @@
 <template>
-  <Layout>
+  <Layout :overflow="LAYOUT_OVERFLOW.HIDDEN">
     <template #content-header>
       <Hero
         :title="t('text.complete_online_toolkit_md')"
@@ -61,7 +61,6 @@ import {
   UIContext
 } from "@upmind-automation/headless";
 import { useConfig } from "@upmind-automation/headless";
-import { useLayout } from "../../components/layout/useLayout";
 import { useHeader } from "../../components/header/useHeader";
 import { useFooter } from "../../components/footer/useFooter";
 import { useThemes } from "@upmind-automation/upmind-ui";
@@ -112,9 +111,6 @@ const {
 } = useProductRecommendations(productId);
 
 useHeader({});
-useLayout({
-  overflow: LAYOUT_OVERFLOW.HIDDEN
-});
 useFooter({});
 
 await isReady();

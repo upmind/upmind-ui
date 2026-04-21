@@ -26,17 +26,10 @@ const router = createRouter({
   strict: true,
   routes,
   scrollBehavior(to, _from, _savedPosition) {
-    // handle scroll to anchor on same page
     if (to.hash) {
-      return {
-        el: to.hash,
-        behavior: "smooth",
-        top: 108
-      };
-    } else {
-      // always scroll to top
-      return { behavior: "smooth", top: 0 };
+      return { el: to.hash, behavior: "smooth", top: 108 };
     }
+    return { behavior: "smooth", top: 0 };
   }
 });
 

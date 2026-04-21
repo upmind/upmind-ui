@@ -1,5 +1,5 @@
 <template>
-  <Layout>
+  <Layout :variant="LAYOUT_VARIANTS.SPLIT_VERTICAL">
     <template #content-header>
       <slot name="hero" />
     </template>
@@ -35,10 +35,6 @@ import {
 
 defineOptions({
   inheritAttrs: false
-});
-
-useLayout({
-  variant: LAYOUT_VARIANTS.SPLIT_VERTICAL
 });
 
 onBeforeMount(() => {
