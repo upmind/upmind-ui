@@ -100,8 +100,27 @@ Architectural decisions for the routing module are documented in the centralized
 
 | ADR                                                                                                       | Decision                                                                    | Status   |
 | --------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- | -------- |
+| [019 — Shell State Architecture](../../../../../docs/adr/019-shell-state-architecture.md)                 | Shell component tracking to prevent cross-page layout bleed                 | Accepted |
 | [018 — Funnel Reactive Watchers](../../../../../docs/adr/018-funnel-reactive-watchers.md)                 | Watcher subscription mechanism, subscribe vs watch, state tracking patterns | Accepted |
 | [017 — Funnel Navigation via State Meta](../../../../../docs/adr/017-funnel-navigation-via-state-meta.md) | Declarative meta-driven navigation                                          | Accepted |
+
+## Lifecycle Callbacks
+
+The routing engine exposes lifecycle hooks for coordinating UI effects with navigation:
+
+| Hook            | Fires When                              | Use Case                          |
+| --------------- | --------------------------------------- | --------------------------------- |
+| `onBeforeLeave` | Navigation starts (before RESOLVE)      | Reset shell tracking, show loader |
+| `onResolving`   | Funnel transitions to unresolved        | Start loading indicator           |
+| `onResolved`    | Funnel finishes resolving               | Hide loading indicator            |
+| `onAfterEnter`  | Page component mounts (`mount()` call)  | Scroll restoration, analytics     |
+
+```typescript
+const { onBeforeLeave, onAfterEnter } = useRoutingEngine();
+
+onBeforeLeave(() => useShell().reset());
+onAfterEnter(() => scrollToTop());
+```
 
 ## Integration Points
 
@@ -111,4 +130,5 @@ Architectural decisions for the routing module are documented in the centralized
 | `useRouting`       | Router integration      | `useRouting.ts`                              |
 | `useOverlayRoute`  | Overlay close/dismiss   | `packages/client-vue/.../useOverlayRoute.ts` |
 | `useQueryParams`   | Type-safe query access  | `useQueryParams.ts`                          |
+| `useShell`         | Shell component tracking| `packages/client-vue/.../useShell.ts`        |
 | Funnel watchers    | Reactive navigation     | `apps/cart/src/router/funnels/watchers.ts`   |
