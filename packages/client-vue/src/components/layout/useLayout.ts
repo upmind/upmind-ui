@@ -18,7 +18,8 @@ const defaultLayoutProps: UseLayoutProps = {
   variant: LAYOUT_VARIANTS.FULL,
   mode: LAYOUT_MODE.GROW,
   overflow: LAYOUT_OVERFLOW.VISIBLE,
-  footer: true
+  footer: true,
+  minimal: false
 };
 
 const layoutConfig = new Store<UseLayoutProps>(defaultLayoutProps);
@@ -47,6 +48,7 @@ export const useLayout = (initial?: Partial<UseLayoutProps>) => {
     () => config.value.overflow ?? LAYOUT_OVERFLOW.VISIBLE
   );
   const footer = computed(() => config.value.footer ?? true);
+  const minimal = computed(() => config.value.minimal ?? false);
 
   // --- methods
   function update(values: Partial<UseLayoutProps>) {
@@ -80,6 +82,12 @@ export const useLayout = (initial?: Partial<UseLayoutProps>) => {
      * @type {ComputedRef<LayoutMode>}
      */
     mode,
+
+    /**
+     * The current layout mode.
+     * @type {ComputedRef<LayoutMode>}
+     */
+    minimal,
 
     /**
      * The current layout overflow.

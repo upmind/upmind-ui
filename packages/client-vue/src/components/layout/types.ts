@@ -2,6 +2,8 @@ import type { CxOptions } from "class-variance-authority";
 
 export interface LayoutProps {
   variant?: LAYOUT_VARIANTS;
+  overflow?: LAYOUT_OVERFLOW;
+  mode?: LAYOUT_MODE;
   minimal?: boolean;
   class?: string;
 }
@@ -66,4 +68,9 @@ export type UseLayoutProps = {
    * @default true
    */
   footer?: boolean;
+  /**
+   * Whether the layout should render its minimal variant (no chrome).
+   * @default false
+   */
+  minimal?: boolean;
 };

@@ -53,6 +53,21 @@ const REPLACED_ROUTE_NAMES = new Set([
 // -----------------------------------------------------------------------------
 
 export default {
+  // Defer scroll restoration until the incoming page has actually mounted
+  // (Suspense commit) — otherwise Nuxt's default fires mid-navigation and
+  // scrolls the still-visible outgoing page to the new page's position.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  scrollBehavior(to: any, _from: any, savedPosition: any) {
+    return new Promise(resolve => {
+      const nuxt = useNuxtApp();
+      nuxt.hooks.hookOnce("page:finish", () => {
+        if (savedPosition) return resolve(savedPosition);
+        if (to.hash) return resolve({ el: to.hash });
+        resolve({ top: 0, behavior: "instant" });
+      });
+    });
+  },
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   routes: (_routes: any[]) => {
     // Remove scanned routes that we are replacing (including nested children)

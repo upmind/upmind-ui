@@ -41,10 +41,6 @@ defineOptions({
   inheritAttrs: false
 });
 
-useLayout({
-  variant: LAYOUT_VARIANTS.SURFACE_BOX
-});
-
 onBeforeMount(() => {
   useHeader({
     visible: true
