@@ -48,6 +48,7 @@ Named routes like `/auth` render as modals/drawers on top of the underlying page
 
 ## Documentation
 
+- [Usage & API](./usage.md) — Complete `useRoutingEngine` API reference
 - [Architecture](./architecture.md) — State machines, data flow, design decisions
 - [Watchers](./watchers.md) — Reactive navigation watchers
 - [Overlay Routes](./overlay-routes.md) — Auth overlay and route-based modals
