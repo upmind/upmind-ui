@@ -60,6 +60,7 @@ export const useProductConfig = (service: ActorRef<any>) => {
 
   const { state, send } = useActor(service);
   const model = useContext<ProductModel>(state, "model");
+  const baseModel = useContext<ProductModel>(state, "baseModel");
   const lookups = useContext<ProductConfigContext["lookups"]>(state, "lookups");
   const raw = computed(() => ({
     product: contextValue<ProductConfigContext["rawProduct"]>(
@@ -425,6 +426,7 @@ export const useProductConfig = (service: ActorRef<any>) => {
     fields,
     // ---
     model,
+    baseModel,
     product,
     shareUrl,
     // ---
