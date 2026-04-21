@@ -4,6 +4,8 @@ import { useBreakpoints, breakpointsTailwind } from "@vueuse/core";
 
 // --- internal
 import { Store, useBrand } from "@upmind-automation/headless";
+import { useShell } from "../shell/useShell";
+import { SHELL } from "../shell/types";
 
 // --- async components
 
@@ -53,6 +55,10 @@ footerConfig.subscribe(state => (config.value = state.currentVal));
 export const useFooter = (initial?: Partial<FooterProps>) => {
   // Reset to defaults and apply initial overrides if provided
   if (initial) {
+    // Mark as configured if actual config provided (not just empty reset)
+    if (!isEmpty(initial)) {
+      useShell().mark(SHELL.FOOTER);
+    }
     footerConfig.setState(
       merge({}, defaultFooterProps, initial) as FooterProps
     );
