@@ -7,7 +7,7 @@
             <Suspense>
               <component
                 :is="routerViewProps.Component"
-                @vue:mounted="doResolve"
+                @vue:mounted="doResolve($event, routerViewProps.route)"
               />
 
               <template #fallback>
@@ -32,6 +32,7 @@
 
 // --- internal
 import { useRoutingEngine } from "@upmind-automation/headless";
+import { useRoute, type RouteLocation } from "vue-router";
 import { useRouteTransition } from "./useRouteTransition";
 
 // --- components
@@ -49,10 +50,12 @@ const emit = defineEmits<{
   (e: "resolve", el: Element): void;
 }>();
 
-const { meta } = useRoutingEngine();
+const { meta, mount } = useRoutingEngine();
+const route = useRoute();
 const { shouldShow, reset } = useRouteTransition();
 
-function doResolve(el: Element) {
+function doResolve(el: Element, route: RouteLocation) {
+  mount(route.name?.toString());
   emit("resolve", el);
   reset();
 }

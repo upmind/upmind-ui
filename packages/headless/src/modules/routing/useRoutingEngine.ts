@@ -1,5 +1,5 @@
 // --- external
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import { interpret, InterpreterStatus } from "xstate";
 import { useActor } from "@xstate/vue";
 import { waitFor } from "xstate/lib/waitFor";
@@ -23,6 +23,7 @@ import {
   useContext
 } from "../../utils";
 import { awaitResolved } from "./utils";
+import { isString } from "lodash-es";
 export { useRouteRequiresAction } from "./utils";
 
 // --- types
@@ -40,6 +41,14 @@ let router: Router;
 let initialRoute = ref(true);
 /** Mutex — prevents overlapping navigate calls from queuing duplicate RESOLVE events. */
 let navigating = ref(false);
+/**
+ * Leading-edge "page committed" signal — bumped by RouteView's `@vue:mounted`
+ * with the route name that just mounted. Used by `isResolved(target)` to
+ * distinguish "funnel state is resolved" (xstate) from "page has actually
+ * rendered" (Vue lifecycle). Equivalent to nuxt's `page:finish` hook.
+ */
+const mountedRoute = ref<string | undefined>(undefined);
+
 export { router };
 
 // -----------------------------------------------------------------------------
@@ -88,6 +97,60 @@ export const useRoutingEngine = () => {
       .catch(() => false);
   }
 
+  /**
+   * Resolves once the funnel is resolved AND (if a target is given) the page
+   * for that target has mounted. Combines the xstate resolution signal with
+   * RouteView's `@vue:mounted` signal (equivalent to nuxt's `page:finish`).
+   */
+  async function isMounted(target: RouteLocation | string): Promise<boolean> {
+    const targetName = isString(target) ? target : target?.name?.toString();
+
+    return new Promise<boolean>(resolve => {
+      const stop = watch(
+        mountedRoute,
+        route => {
+          // console.debug("isMounted", {
+          //   route,
+          //   targetName,
+          //   mountedRoute: mountedRoute.value,
+          //   resolved: contextValue<boolean>(funnel, "resolved")
+          // });
+
+          if (
+            route === targetName &&
+            contextValue<boolean>(funnel, "resolved")
+          ) {
+            stop();
+            resolve(true);
+          }
+        },
+        { immediate: true }
+      );
+    });
+  }
+
+  // await waitFor(
+  //   funnel?.value?.service ?? service,
+  //   state => {
+  //     // Stale waitFor — a newer isMounted call has been made; bail out.
+  //     if (latestTarget.value !== targetName) return true;
+
+  //     const resolved = !!contextValue<boolean>(state, "resolved");
+  //     console.log("isMounted", {
+  //       resolved,
+  //       targetName,
+  //       mountedRoute: mountedRoute.value
+  //     });
+
+  //     return resolved && (!targetName || mountedRoute.value === targetName);
+  //   },
+  //   { timeout: Infinity }
+
+  // Signal to the caller whether this is still the live nav (true) or a
+  // superseded one (false). scrollBehavior can return false to skip scroll.
+  // return latestTarget.value === targetName;
+  // }
+
   const meta = computed(() => ({
     isSubscribing: stateMatches(state, "subscribing"),
     isLoading: stateMatches(state, ["available.loading"]),
@@ -99,9 +162,9 @@ export const useRoutingEngine = () => {
     isGuiding: stateMatches(state, "available.guiding"),
     hasErrors: stateMatches(state, ["error"]),
     hasFunnels: contextMatches(state, "funnels"),
-    isResolved: !!funnel.value?.state?.value?.context?.resolved,
+    isResolved: !!contextValue<boolean>(funnel.value?.state, "resolved"),
     isInitialRoute: initialRoute.value,
-    hasTarget: !!funnel.value?.state?.value?.context?.targetRoute
+    hasTarget: !!contextValue(funnel.value?.state, "targetRoute")
   }));
 
   // --- context
@@ -286,11 +349,17 @@ export const useRoutingEngine = () => {
     }
   }
 
+  /** Notify the routing engine that a route's page component has mounted. */
+  function mount(name?: string): void {
+    mountedRoute.value = name;
+  }
+
   // ---------------------------------------------------------------------------
   return {
     // --- state
     isReady,
     isResolved,
+    isMounted,
     meta,
 
     // --- context
@@ -299,6 +368,7 @@ export const useRoutingEngine = () => {
 
     //  --- methods
     init: (instance: Router) => (router ??= instance),
+    mount,
     register,
     switchFunnel,
     guard,

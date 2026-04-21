@@ -7,6 +7,7 @@ import {
   registerOverlayRoutes,
   useAssetRecovery
 } from "@upmind-automation/client-vue";
+import { useRoutingEngine } from "@upmind-automation/headless";
 
 // ---types
 export * from "./funnels/types";
@@ -25,7 +26,11 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   strict: true,
   routes,
-  scrollBehavior(to, _from, _savedPosition) {
+  async scrollBehavior(to, _from, _savedPosition) {
+    const mounted = await useRoutingEngine().isMounted(to);
+    // Skip scroll if this call was superseded by a newer navigation.
+    if (!mounted) return false;
+
     if (to.hash) {
       return { el: to.hash, behavior: "smooth", top: 108 };
     }
