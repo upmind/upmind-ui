@@ -6,9 +6,9 @@
       </h5>
 
       <div :class="styles.product.option.title">
-        <h3 :class="styles.product.summary.title.text">
+        <strong :class="styles.product.summary.title.text">
           {{ summary.title }}
-        </h3>
+        </strong>
 
         <Promotion
           v-if="!isMobile"
@@ -20,6 +20,7 @@
 
       <p v-if="!summary.meta?.free" :class="styles.product.option.description">
         <template v-if="upsell">
+          <!-- e.g. "+$9.99 every month." or "+$9.99 one-time." -->
           +{{
             summary.cycle && summary.cycle > 0
               ? t("text.price_per_cycle", {
@@ -32,6 +33,7 @@
           }}.
         </template>
         <template v-else>
+          <!-- e.g. "Renews every month." or "One-time payment." -->
           {{
             t("term.renews_msg", {
               n: summary.cycle ?? 0,
@@ -39,6 +41,7 @@
             })
           }}.
         </template>
+        <!-- e.g. "Usually $14.99" (struck through) -->
         <span v-if="summary.meta?.discounted" class="text-muted line-through">
           {{
             t("term.renews_usually_msg", { price: summary.price.regularPrice })

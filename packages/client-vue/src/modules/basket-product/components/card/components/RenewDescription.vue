@@ -1,4 +1,5 @@
 <template>
+  <!-- e.g. "Renews every month." or "One-time payment." -->
   <p :class="styles.product.summary.renew.renews">
     {{
       t("term.renews_msg", {
@@ -8,6 +9,7 @@
     }}.
   </p>
 
+  <!-- Discounted term — e.g. "Usually $14.99." -->
   <p
     v-if="props.discounted && !props.oneoff && !props.freeTrial"
     :class="styles.product.summary.renew.usually"
@@ -15,6 +17,7 @@
     {{ t("term.renews_usually_msg", { price: props.regularPrice }) }}.
   </p>
 
+  <!-- Free trial — e.g. "Usually $9.99." (post-trial renewal price) -->
   <p
     v-else-if="props.freeTrial && !props.oneoff && props.renewalPrice"
     :class="styles.product.summary.renew.usually"
