@@ -1,61 +1,32 @@
-import { expect, test } from "@playwright/test";
-import { fakerEN_GB } from "@faker-js/faker";
-import { getCurrentAddressId } from "../../../support/api/client";
-import { Checkout } from "../../../support/page-objects/templates/checkout";
-import { Registration } from "../../../support/page-objects/templates/registration";
-import { Login } from "../../../support/page-objects/templates/login";
 import {
-  createOrder,
-  Order,
-  addProductToOrder
-} from "../../../support/api/basket";
+  newUserSession,
+  existingUserSession,
+  expect
+} from "../../../support/fixtures/auth-context";
+import { faker, fakerEN_GB } from "@faker-js/faker";
+import { getCurrentAddressId } from "../../../support/api/client";
 import { URLs } from "../../../support/constants/urls";
-import { getSessionToken, getClientToken } from "../../../support/api/auth";
 import { Logins } from "../../../support/constants/logins";
 import { products } from "../../../support/constants/products";
-let checkout: Checkout;
-let token: string;
-let register: Registration;
-let login: Login;
-let orderId: string | null;
+import { goToCheckout } from "../../../support/flows/checkout";
 
-test.describe("Billing Details at checkout", () => {
-  test.beforeEach(async ({ page, context }) => {
-    checkout = new Checkout(page);
-    login = new Login(page);
-    register = new Registration(page, context);
-    await page.goto(URLs.basket);
-    await page.waitForLoadState("networkidle");
-    token = await getSessionToken(context);
-    let order = await createOrder(token);
-    orderId = order.id;
-    await addProductToOrder(
-      `${token}`,
-      `${orderId}`,
-      products.STARTER_HOSTING.id,
-      1,
-      24,
-      [],
-      [],
-      {
-        domain: `${fakerEN_GB.string.alphanumeric({
-          length: { min: 3, max: 15 }
-        })}.com`
-      },
-      [],
-      true,
-      false
-    );
-    await page.goto(URLs.basket);
-    await expect(page.getByTestId("basket-product")).toBeVisible();
-  });
-  test.describe("Add new billing details at checkout", () => {
-    test("New User add new address at checkout via address search", async ({
-      page
-    }) => {
-      await page.goto(URLs.checkout);
-      await expect(register.registrationForm).toBeVisible();
-      await register.inputRegistration();
+existingUserSession.use({
+  userLogin: Logins.checkoutUser.username,
+  userPassword: Logins.checkoutUser.password
+});
+
+newUserSession.describe("New User - Billing Details at checkout", () => {
+  newUserSession(
+    "New User add new address at checkout via address search",
+    async ({ page, context, checkout }) => {
+      await goToCheckout(
+        page,
+        context,
+        products.STARTER_HOSTING,
+        null,
+        null,
+        false
+      );
       await checkout.addNewAddress.click();
       await expect(checkout.billingDetails).toBeVisible();
       await checkout.addressSearch.fill(
@@ -72,11 +43,19 @@ test.describe("Billing Details at checkout", () => {
       await expect(checkout.billingDetails).toHaveText(
         /10 Downing Street.*London.*SW1A 2AA.*United Kingdom/s
       );
-    });
-    test("New User add new company details at checkout", async ({ page }) => {
-      await page.goto(URLs.checkout);
-      await expect(register.registrationForm).toBeVisible();
-      await register.inputRegistration();
+    }
+  );
+  newUserSession(
+    "New User add new company details at checkout",
+    async ({ page, context, checkout }) => {
+      await goToCheckout(
+        page,
+        context,
+        products.STARTER_HOSTING,
+        null,
+        null,
+        false
+      );
       await checkout.addNewAddress.click();
       await expect(checkout.billingCards).toBeVisible();
       await page.getByText("Business Details").click();
@@ -85,15 +64,15 @@ test.describe("Billing Details at checkout", () => {
         .getByTestId("form-item-company-name")
         .locator("input");
       await companyNameInput.waitFor({ state: "visible" });
-      await companyNameInput.pressSequentially("Acme Corp");
+      await companyNameInput.fill("Acme Corp");
       await page
         .getByTestId("form-item-company-reg-number")
         .locator("input")
-        .pressSequentially("12345678");
+        .fill("12345678");
       await page
         .getByTestId("form-item-company-tax-number")
         .locator("input")
-        .pressSequentially("12345678");
+        .fill("12345678");
       await checkout.addressSearch.fill(
         "10 Downing St, Westminster, London SW1A 2AA, UK"
       );
@@ -109,119 +88,145 @@ test.describe("Billing Details at checkout", () => {
       await checkout.saveDetails.click();
       await expect(checkout.billingDetails).toContainText("Acme Corp");
       await expect(checkout.billingDetails).toContainText("12345678");
-    });
-    test("Existing User add new address at checkout", async ({
-      page,
-      context
-    }) => {
-      await getClientToken(
-        page,
-        Logins.checkoutUser.username,
-        Logins.checkoutUser.password
-      );
-      let token = await getSessionToken(context);
-      await page.goto(URLs.checkout);
-      await expect(checkout.billingDetails).toBeVisible();
-      await page.getByTestId("link-change").click();
-      await expect(checkout.billingCards).toBeVisible();
-      await page.getByText("Personal Details").click();
-      let currentAddress = await getCurrentAddressId(token);
-      await page.getByTestId("link-change").click();
-      await page.getByTestId("link-add-new").click();
-      const streetName = fakerEN_GB.location.streetAddress();
-      await checkout.manuallyInputAddress(
-        streetName,
-        "London",
-        "SW1A 2AA",
-        null
-      );
-      await expect(checkout.addressCard).toHaveText(
-        new RegExp(`${streetName}.*London.*SW1A 2AA.*United Kingdom`, "s")
-      );
-      await page.waitForTimeout(5000);
-      let newAddress = await getCurrentAddressId(token);
-      expect(newAddress).not.toBe(currentAddress);
-    });
-    test("Existing User add new company details at checkout", async ({
-      page
-    }) => {
-      await getClientToken(
-        page,
-        Logins.checkoutUser.username,
-        Logins.checkoutUser.password
-      );
-      await page.goto(URLs.checkout);
-      await expect(checkout.billingDetails).toBeVisible();
-      await page.getByTestId("link-change").click();
-      await expect(checkout.billingCards).toBeVisible();
-      await page.getByTestId("tab-business-details").click();
-      await page.getByTestId("link-change").click();
-      await page.getByTestId("link-add-new").click();
-      const companyNameInput = page.getByTestId("input-properties-name");
-      await companyNameInput.waitFor({ state: "visible" });
-      await companyNameInput.pressSequentially("Acme Corp");
-      await page
-        .getByTestId("input-properties-reg-number")
-        .pressSequentially("12345678");
-      await page
-        .getByTestId("input-properties-tax-properties-number")
-        .pressSequentially("12345678");
-      await page.waitForTimeout(1000);
-      await checkout.saveDetails.click();
-      await checkout.saveDetails.click();
-      await checkout.saveDetails.click();
-      await expect(checkout.billingDetails).toContainText("Acme Corp");
-      await expect(checkout.billingDetails).toContainText("12345678");
-    });
-  });
-  test.describe("Edit billing details at checkout", async () => {
-    test("Edit existing address at checkout", async ({ page }) => {
-      let newAddress = fakerEN_GB.location.streetAddress();
-      await getClientToken(
-        page,
-        Logins.checkoutUser.username,
-        Logins.checkoutUser.password
-      );
-      await page.goto(URLs.checkout);
-      await checkout.addNewAddress.click();
-      await expect(checkout.billingCards).toBeVisible();
-      await page.getByTestId("tab-personal-details").click();
-      await page.getByTestId("link-change").click();
-      await page.getByTestId("link-change").click();
-      await page.getByTestId("link-edit").first().click();
-      await page.getByTestId("input-properties-address-1").clear();
-      await page
-        .getByTestId("input-properties-address-1")
-        .pressSequentially(newAddress);
-      await page.waitForTimeout(1000);
-      await checkout.saveDetails.click();
-      await checkout.saveDetails.click();
-      await checkout.saveDetails.click();
-      await expect(checkout.dialogWindow).toBeHidden();
-    });
-    test("Edit existing company at checkout", async ({ page }) => {
-      let newCompany = fakerEN_GB.company.name();
-      await getClientToken(
-        page,
-        Logins.checkoutUser.username,
-        Logins.checkoutUser.password
-      );
-      await page.goto(URLs.checkout);
-      await checkout.addNewAddress.click();
-      await expect(checkout.billingCards).toBeVisible();
-      await page.getByTestId("tab-business-details").click();
-      await page.getByTestId("link-change").click();
-      await page.getByTestId("link-edit").first().click();
-      await page.getByTestId("input-properties-name").clear();
-      await page
-        .getByTestId("input-properties-name")
-        .pressSequentially(newCompany);
-      await page.waitForTimeout(1000);
-      await checkout.saveDetails.click();
-      await expect(checkout.dialogWindow).toBeHidden();
-      await expect(page.getByTestId("radio-card-change").first()).toContainText(
-        newCompany
-      );
-    });
-  });
+    }
+  );
 });
+
+/* "Existing user" tests cannot run in parallel due to shared state of Checkout User on the staging env. 
+  To run in parallel, set up individual users for each test in your test env, and use the following test
+  pattern, which can overwrite/replace the existing login details in the test.use at the top of this spec */
+
+/*
+  existingUserSession("Test name goes here", async ({ page, checkout, loginAs }) => {
+    const session = await loginAs(Logins.userA.username, Logins.userA.password);
+    const token = session.access_token;
+    ...
+  });
+  */
+
+existingUserSession.describe(
+  "Existing User - Billing Details at checkout",
+  () => {
+    existingUserSession(
+      "Existing User add new address at checkout",
+      async ({ page, context, checkout, token }) => {
+        await goToCheckout(
+          page,
+          context,
+          products.STARTER_HOSTING,
+          null,
+          null,
+          false
+        );
+        await expect(checkout.billingDetails).toBeVisible();
+        await page.getByTestId("link-change").click();
+        await expect(checkout.billingCards).toBeVisible();
+        await page.getByText("Personal Details").click();
+        let currentAddress = await getCurrentAddressId(token);
+        await page.getByTestId("link-add-new").click();
+        let streetName = fakerEN_GB.location.streetAddress();
+        await checkout.manuallyInputAddress(
+          streetName,
+          "London",
+          "SW1A 2AA",
+          null
+        );
+        await checkout.saveDetails.click();
+        await checkout.saveDetails.click();
+        await checkout.saveDetails.click();
+        await expect(checkout.addressCard).toHaveText(
+          new RegExp(`${streetName}.*London.*SW1A 2AA.*United Kingdom`, "s")
+        );
+        await page.waitForTimeout(5000);
+        let newAddress = await getCurrentAddressId(token);
+        expect(newAddress).not.toBe(currentAddress);
+      }
+    );
+    existingUserSession(
+      "Existing User add new company details at checkout",
+      async ({ page, context, checkout }) => {
+        await goToCheckout(
+          page,
+          context,
+          products.STARTER_HOSTING,
+          null,
+          null,
+          false
+        );
+        await expect(checkout.billingDetails).toBeVisible();
+        await page.getByTestId("link-change").click();
+        await expect(checkout.billingCards).toBeVisible();
+        await page.getByTestId("tab-business-details").click();
+        await page.getByTestId("link-add-new").click();
+        const companyNameInput = page.getByTestId("input-properties-name");
+        await companyNameInput.waitFor({ state: "visible" });
+        let newCompany = fakerEN_GB.company.name();
+        await companyNameInput.fill(newCompany);
+        let regNumber = fakerEN_GB.string.numeric({ length: 9 });
+        await page.getByTestId("input-properties-reg-number").fill(regNumber);
+        await page
+          .getByTestId("input-properties-tax-properties-number")
+          .fill(regNumber);
+        await page.waitForTimeout(1000);
+        await checkout.saveDetails.click();
+        await expect(checkout.billingDetails).toContainText(newCompany);
+      }
+    );
+    existingUserSession(
+      "Edit existing address at checkout",
+      async ({ page, context, checkout }) => {
+        await goToCheckout(
+          page,
+          context,
+          products.STARTER_HOSTING,
+          null,
+          null,
+          false
+        );
+        let newAddress = fakerEN_GB.location.streetAddress();
+        await expect(checkout.billingDetails).toBeVisible();
+        await page.getByTestId("link-change").click();
+        await page.getByTestId("tab-personal-details").click();
+        await page.getByTestId("link-edit").first().click();
+        await page.getByTestId("input-properties-address-1").clear();
+        await page.getByTestId("input-properties-address-1").fill(newAddress);
+        await page.waitForTimeout(1000);
+        await checkout.saveDetails.click();
+        await expect(checkout.dialogWindow).toBeHidden();
+        await expect(page.getByTestId("radio-card-item").first()).toContainText(
+          newAddress
+        );
+        await page.getByTestId("button-continue").click();
+        await expect(checkout.billingDetails).toContainText(newAddress);
+      }
+    );
+    existingUserSession(
+      "Edit existing company at checkout",
+      async ({ page, context, checkout }) => {
+        await goToCheckout(
+          page,
+          context,
+          products.STARTER_HOSTING,
+          null,
+          null,
+          false
+        );
+        await page.getByTestId("link-change").click();
+        await expect(checkout.billingCards).toBeVisible();
+        await page.getByTestId("tab-business-details").click();
+        await page.getByTestId("link-edit").first().click();
+        await page.getByTestId("input-properties-name").clear();
+        let newCompany = fakerEN_GB.company.name();
+        await page.getByTestId("input-properties-name").fill(newCompany);
+        await page.waitForTimeout(1000);
+        await checkout.saveDetails.click();
+        await expect(checkout.dialogWindow).toBeHidden();
+        await expect(page.getByTestId("radio-card-item").first()).toContainText(
+          newCompany
+        );
+        await page.getByTestId("button-continue").click();
+        await expect(checkout.billingDetails).toContainText(newCompany);
+      }
+    );
+  }
+);
