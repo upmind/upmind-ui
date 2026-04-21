@@ -41,7 +41,6 @@
     "@jsonforms/core": "^3.6.0",
     "@jsonforms/vue": "^3.6.0",
     "@lordicon/element": "^1.11.0",
-    "@panzoom/panzoom": "^4.6.2",
     "@tailwindcss/typography": "^0.5.16",
     "@tailwindcss/vite": "^4.1.11",
     "@vueuse/components": "^13.6.0",
