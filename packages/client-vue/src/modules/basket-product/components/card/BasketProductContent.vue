@@ -180,14 +180,16 @@
           />
         </div>
 
-        <RenewDescription
-          :cycle="summary.cycle"
-          :discounted="summary.meta?.discounted"
-          :free-trial="summary.meta?.freeTrial"
-          :oneoff="summary.meta?.oneoff"
-          :regular-price="summary.price?.regularPrice"
-          :renewal-price="summary.meta?.renewalPrice"
-        />
+        <div>
+          <RenewDescription
+            :cycle="summary.cycle"
+            :discounted="summary.meta?.discounted"
+            :free-trial="summary.meta?.freeTrial"
+            :oneoff="summary.meta?.oneoff"
+            :regular-price="summary.price?.regularPrice"
+            :renewal-price="summary.meta?.renewalPrice"
+          />
+        </div>
       </div>
     </footer>
   </article>
