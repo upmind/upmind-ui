@@ -15,7 +15,7 @@
     </BasketProductSummary>
 
     <Button
-      v-if="!summary.toggle?.selected"
+      v-if="!summary.toggle.selected"
       :label="t('action.add_option')"
       icon="plus"
       variant="outline"
@@ -23,7 +23,7 @@
       size="md"
       :class="styles.product.option.action"
       :disabled="error || processing"
-      @click="doToggle(true)"
+      @click="$emit('toggle', true)"
     />
 
     <Button
@@ -35,12 +35,12 @@
       size="md"
       :class="styles.product.option.action"
       :disabled="error || processing"
-      @click="doToggle(false)"
+      @click="$emit('toggle', false)"
     />
 
     <BasketQuantityField
       v-else
-      :id="`option-qty-${summary.toggle?.categoryId}-${summary.toggle?.valueId}`"
+      :id="`option-qty-${summary.toggle.categoryId}-${summary.toggle.valueId}`"
       :class="styles.product.option.action"
       quantifiable
       :quantity="summary.quantity"
@@ -48,8 +48,8 @@
       :max="summary.max"
       :step="summary.step"
       :disabled="error || processing"
-      @update:quantity="value => emits('update:quantity', value)"
-      @remove="doToggle(false)"
+      @update:quantity="value => $emit('update:quantity', value)"
+      @remove="$emit('toggle', false)"
     />
   </article>
 </template>
@@ -69,35 +69,14 @@ import { parseBillingCycle } from "@upmind-automation/headless";
 import config from "./basketProduct.config";
 
 // --- types
-import type { BasketProductUpsellProps, OptionTogglePayload } from "./types";
+import type { BasketProductUpsellProps } from "./types";
 // -----------------------------------------------------------------------------
 
-const props = defineProps<BasketProductUpsellProps>();
+defineProps<BasketProductUpsellProps>();
 
-const emits = defineEmits(["update:quantity", "toggle:option"]);
+defineEmits(["update:quantity", "toggle"]);
 
 const { t } = useI18n();
 
-const options = defineModel<OptionTogglePayload>("options");
-
 const styles = useStyles(["product.option"], {}, config);
-
-// --- methods
-
-function doToggle(enabled: boolean) {
-  const toggle = props.summary.toggle;
-  if (!toggle) return;
-
-  const option = props.configOptions?.find(o => o.id === toggle.categoryId);
-  if (option) {
-    options.value = { option, value: { id: toggle.valueId }, enabled };
-  } else {
-    emits("toggle:option", {
-      categoryId: toggle.categoryId,
-      valueId: toggle.valueId,
-      enabled,
-      cycle: toggle.cycle
-    });
-  }
-}
 </script>

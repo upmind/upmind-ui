@@ -64,6 +64,7 @@ import {
 import type {
   BasketProduct,
   BasketOptionSummary,
+  BasketUpsellSummary,
   IBasketProductModel,
   IBasketSubproductModel
 } from "./types";
@@ -380,7 +381,7 @@ export function resolveOptionToggle(
 export function parseOptionUpsells(
   selectedOptions: IBasketProduct[],
   availableOptions?: SubproductDetails[]
-): BasketOptionSummary[] {
+): BasketUpsellSummary[] {
   if (isEmpty(availableOptions)) return [];
 
   return flatMap(availableOptions, option =>
@@ -416,7 +417,7 @@ export function parseOptionUpsells(
             )
           },
           price: value.price
-        } as BasketOptionSummary;
+        } as BasketUpsellSummary;
       })
     )
   );

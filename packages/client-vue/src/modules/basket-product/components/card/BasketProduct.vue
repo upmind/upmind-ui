@@ -28,7 +28,6 @@
             v-model:open="openModel"
             v-model:quantity="quantityModel"
             v-model:term="termModel"
-            v-model:options="optionsModel"
             @remove="doRemove"
           />
           <BasketProductSubItem
@@ -41,7 +40,7 @@
 
       <!-- Upsell options -->
       <div
-        v-for="{ upsell, benefits } in filteredUpsells"
+        v-for="{ upsell, option, benefits } in filteredUpsells"
         :key="`${props.id}-upsell-${upsell.id}`"
         :class="styles.product.option.upsell"
       >
@@ -49,11 +48,15 @@
           data-testid="basket-product-upsell"
           :id="id"
           :summary="upsell"
+          :option="option"
           :error="meta.hasErrors"
           :processing="meta.isProcessing"
-          :config-options="config?.options?.value"
-          v-model:options="optionsModel"
-          @update:quantity="(value: number) => onOptionQuantity(upsell, value)"
+          @update:quantity="
+            (value: number) => onOptionQuantity(upsell, option, value)
+          "
+          @toggle="
+            (enabled: boolean) => onUpsellToggle(upsell, option, enabled)
+          "
         />
         <BasketProductBenefits :benefits="benefits" />
       </div>
@@ -83,9 +86,13 @@ import BasketProductBenefits from "./components/BasketProductBenefits.vue";
 import { isEmpty, some, compact, map, debounce } from "lodash-es";
 
 // --- types
-import type { BasketProductProps, OptionTogglePayload } from "./types";
+import type { BasketProductProps } from "./types";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
-import type { Product, BasketOptionSummary } from "@upmind-automation/headless";
+import type {
+  Product,
+  BasketUpsellSummary,
+  SubproductDetails
+} from "@upmind-automation/headless";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(
@@ -212,24 +219,24 @@ const termModel = computed({
   }
 });
 
-const optionsModel = computed({
-  get: () =>
-    config?.model?.value?.options as unknown as OptionTogglePayload | undefined,
-  set: (value: OptionTogglePayload) => {
-    if (!config || !value) return;
-    const { option, value: optValue, enabled } = value;
-    config
-      .toggleOption(option, optValue.id, enabled)
-      .then(() => config.update());
-  }
-});
+function onUpsellToggle(
+  upsell: BasketUpsellSummary,
+  option: SubproductDetails,
+  enabled: boolean
+) {
+  if (!config) return;
+  config
+    .toggleOption(option, upsell.toggle.valueId, enabled)
+    .then(() => config.update());
+}
 
-function onOptionQuantity(upsell: BasketOptionSummary, quantity: number) {
-  const toggle = upsell.toggle;
-  if (!config || !toggle) return;
-  const option = config.options?.value?.find(o => o.id === toggle.categoryId);
-  if (!option) return;
-  config.updateOptionQuantity(option, toggle.valueId, quantity);
+function onOptionQuantity(
+  upsell: BasketUpsellSummary,
+  option: SubproductDetails,
+  quantity: number
+) {
+  if (!config) return;
+  config.updateOptionQuantity(option, upsell.toggle.valueId, quantity);
   debouncedUpdate();
 }
 

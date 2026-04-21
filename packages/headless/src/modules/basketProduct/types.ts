@@ -152,3 +152,9 @@ export type BasketOptionSummary = ProductSummaryDetailWithPrice & {
   /** Quantity increment step for this option value. */
   step?: number;
 };
+
+/** A {@link BasketOptionSummary} that is guaranteed to carry toggle metadata
+ *  (used for inline upsell rendering, where toggling is always available). */
+export type BasketUpsellSummary = BasketOptionSummary & {
+  toggle: OptionToggleMeta;
+};
