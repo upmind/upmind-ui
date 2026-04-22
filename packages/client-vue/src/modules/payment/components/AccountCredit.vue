@@ -6,6 +6,7 @@
         {
           id: 'account-credit',
           value: 'account-credit',
+          'data-testid': 'account-credit',
           label: t('cart.account_credit_use', {
             amount: safeAmountFormatted
           }),
