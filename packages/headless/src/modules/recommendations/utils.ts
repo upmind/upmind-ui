@@ -18,11 +18,13 @@ import {
   forEach,
   get,
   includes,
+  isArray,
   isEmpty,
   isString,
   map,
   reduce,
   some,
+  split,
   toSafeInteger
 } from "lodash-es";
 import { useTranslateField, useTranslateName, useImageUrl } from "../../utils";
@@ -41,6 +43,16 @@ import {
 import { useConfig } from "../config/useConfig";
 
 // ---------------------------------------------------------------------------
+
+/**
+ * Normalises sub_pids which may be array, string, or CSV to a string array.
+ */
+function normaliseSubPids(input?: string | string[]): string[] {
+  if (isEmpty(input)) return [];
+  if (isArray(input)) return compact(input);
+  if (isString(input)) return compact(split(input, ","));
+  return [];
+}
 
 function parseProductsToRecommend(
   basketProduct: IBasketProduct
@@ -145,13 +157,14 @@ export function parseAddedProducts(
         const bcmMatches =
           !item?.config?.bcm || item.config.bcm == product.billing_cycle_months;
 
+        const normalisedSubPids = normaliseSubPids(item?.config?.sub_pids);
         const subproductsMatch =
-          isEmpty(item?.config?.sub_pids) ||
+          isEmpty(normalisedSubPids) ||
           some(product.options, option => {
-            return includes(item.config?.sub_pids, option.product_id);
+            return includes(normalisedSubPids, option.product_id);
           }) ||
           some(product.attributes, attribute => {
-            return includes(item.config?.sub_pids, attribute.product_id);
+            return includes(normalisedSubPids, attribute.product_id);
           });
 
         return productMatches && bcmMatches && subproductsMatch;
@@ -181,13 +194,16 @@ export function checkInBasket(
       !recommendation?.config?.bcm ||
       recommendation.config.bcm == product.billing_cycle_months;
 
+    const normalisedSubPids = normaliseSubPids(
+      recommendation?.config?.sub_pids
+    );
     const subproductsMatch =
-      isEmpty(recommendation?.config?.sub_pids) ||
+      isEmpty(normalisedSubPids) ||
       some(product.options, option => {
-        return includes(recommendation.config?.sub_pids, option.product_id);
+        return includes(normalisedSubPids, option.product_id);
       }) ||
       some(product.attributes, attribute => {
-        return includes(recommendation.config?.sub_pids, attribute.product_id);
+        return includes(normalisedSubPids, attribute.product_id);
       });
 
     return productMatches && bcmMatches && subproductsMatch;
@@ -274,7 +290,7 @@ export function parseRecommendation(
 
       term: config?.bcm ?? term?.cycle ?? 0,
       startTrial: productDetails?.trialSupported,
-      subproducts: compact(config?.sub_pids ?? []),
+      subproducts: normaliseSubPids(config?.sub_pids),
       provisionFields: config?.pfields ?? {},
       coupons: compact(config?.coupons ?? [])
     }

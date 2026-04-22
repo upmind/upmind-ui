@@ -320,8 +320,8 @@ export interface ProductRecommendConfigOptions {
   qty?: number;
   /** Billing cycle in months */
   bcm?: number;
-  /** Sub-product IDs */
-  sub_pids?: string[];
+  /** Sub-product IDs (may be array, string, or CSV) */
+  sub_pids?: string | string[];
   /** Provision field values */
   pfields?: Record<string, any> | any[];
   /** Coupon codes to apply */
