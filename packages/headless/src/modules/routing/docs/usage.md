@@ -54,26 +54,29 @@ await isMounted("basket");
 
 `ComputedRef<RoutingMeta>` — Reactive routing state flags.
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `isSubscribing` | `boolean` | Engine is initializing |
-| `isLoading` | `boolean` | Funnel is loading |
-| `isAvailable` | `boolean` | Funnel is in available state |
-| `isGuiding` | `boolean` | Funnel is actively guiding |
-| `hasErrors` | `boolean` | Error state |
-| `hasFunnels` | `boolean` | Funnels are registered |
-| `isResolved` | `boolean` | Current route is resolved |
+| Property         | Type      | Description                            |
+| ---------------- | --------- | -------------------------------------- |
+| `isSubscribing`  | `boolean` | Engine is initializing                 |
+| `isLoading`      | `boolean` | Funnel is loading                      |
+| `isAvailable`    | `boolean` | Funnel is in available state           |
+| `isGuiding`      | `boolean` | Funnel is actively guiding             |
+| `hasErrors`      | `boolean` | Error state                            |
+| `hasFunnels`     | `boolean` | Funnels are registered                 |
+| `isResolved`     | `boolean` | Current route is resolved              |
 | `isInitialRoute` | `boolean` | First navigation (no prior resolution) |
-| `hasTarget` | `boolean` | Target route is set |
+| `hasTarget`      | `boolean` | Target route is set                    |
 
 ```typescript
 const { meta } = useRoutingEngine();
 
-watch(() => meta.value.isResolved, (resolved) => {
-  if (resolved) {
-    // Route is ready
+watch(
+  () => meta.value.isResolved,
+  resolved => {
+    if (resolved) {
+      // Route is ready
+    }
   }
-});
+);
 ```
 
 ## Context
@@ -114,7 +117,7 @@ register({
 `(route: RouteLocation) => Promise<RouteLocation>` — Run the funnel guard pipeline for a route. Used in router guards.
 
 ```typescript
-router.beforeEach(async (to) => {
+router.beforeEach(async to => {
   return useRoutingEngine().guard(to);
 });
 ```
