@@ -1,6 +1,6 @@
 <template>
   <Card :class="styles.product.root.card">
-    <article class="flex flex-col gap-2 lg:gap-4">
+    <article class="flex flex-col gap-2 p-6 lg:gap-4 lg:px-8 lg:py-9">
       <!-- Header: Image, Category, Name -->
       <header class="flex gap-3">
         <!-- Product Image -->
