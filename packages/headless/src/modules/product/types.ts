@@ -274,6 +274,12 @@ export type ProductDetails = {
 
   /** Indicates whether the product is configurable. ie has terms, options, attributes or provision fields that need configuring */
   configurable?: boolean;
+  /** True when the product has multiple billing terms to choose from. */
+  configurableTerm?: boolean;
+  /** True when the product has configurable subproducts (options or attributes). */
+  configurableSubproducts?: boolean;
+  /** True when the product has provision fields that need completing. */
+  configurableProvisionFields?: boolean;
 
   /** `true` if the product has options or attributes that can be configured inline (e.g. upsells on the basket card). */
   configurableInline?: boolean;

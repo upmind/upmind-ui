@@ -106,9 +106,7 @@
                     query: {
                       ...props.configureRoute?.query,
                       [QUERY_PARAMS.BILLING_CYCLE_MONTHS]: selectedTerm,
-                      autoupdate: props.productDetails?.configurable
-                        ? undefined
-                        : 'true' // ensure we always add the product, even if it exists in the basket
+                      autoupdate: canAddDirectly.value ? 'true' : undefined
                     }
                   }
                 : undefined
@@ -254,6 +252,23 @@ const styles = useStyles(
 );
 
 const processing = ref(false);
+
+const canAddDirectly = computed(() => {
+  // Not configurable = auto-add (existing behaviour via autoupdate)
+  if (!props.productDetails?.configurable) return true;
+
+  // Configurable ONLY because of terms — and we have a selected term
+  if (
+    props.productDetails?.configurableTerm &&
+    !props.productDetails?.configurableSubproducts &&
+    !props.productDetails?.configurableProvisionFields &&
+    selectedTerm.value
+  ) {
+    return true;
+  }
+
+  return false;
+});
 
 const action = computed(() => {
   if (props.meta?.added) {

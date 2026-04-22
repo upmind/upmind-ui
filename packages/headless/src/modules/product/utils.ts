@@ -543,6 +543,11 @@ export const parseProductDetails = (
       !isEmpty(rawProduct.products_attributes) ||
       !isEmpty(rawProduct.products_options) ||
       !isEmpty(rawProduct.provision_fields),
+    configurableTerm: rawProduct.prices?.length > 1,
+    configurableSubproducts:
+      !isEmpty(rawProduct.products_options) ||
+      !isEmpty(rawProduct.products_attributes),
+    configurableProvisionFields: !isEmpty(rawProduct.provision_fields),
 
     configurableInline: (() => {
       const config = useConfig();
