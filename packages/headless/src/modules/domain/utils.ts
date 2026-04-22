@@ -340,6 +340,3 @@ export function getDomainRawBasketProducts(
     });
   });
 }
-
-// -----------------------------------------------------------------------------
-// Registrant mapping utilities (FE-2457)
