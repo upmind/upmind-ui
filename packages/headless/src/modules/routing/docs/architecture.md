@@ -108,12 +108,12 @@ Architectural decisions for the routing module are documented in the centralized
 
 The routing engine exposes lifecycle hooks for coordinating UI effects with navigation:
 
-| Hook            | Fires When                              | Use Case                          |
-| --------------- | --------------------------------------- | --------------------------------- |
-| `onBeforeLeave` | Navigation starts (before RESOLVE)      | Reset shell tracking, show loader |
-| `onResolving`   | Funnel transitions to unresolved        | Start loading indicator           |
-| `onResolved`    | Funnel finishes resolving               | Hide loading indicator            |
-| `onAfterEnter`  | Page component mounts (`mount()` call)  | Scroll restoration, analytics     |
+| Hook            | Fires When                             | Use Case                          |
+| --------------- | -------------------------------------- | --------------------------------- |
+| `onBeforeLeave` | Navigation starts (before RESOLVE)     | Reset shell tracking, show loader |
+| `onResolving`   | Funnel transitions to unresolved       | Start loading indicator           |
+| `onResolved`    | Funnel finishes resolving              | Hide loading indicator            |
+| `onAfterEnter`  | Page component mounts (`mount()` call) | Scroll restoration, analytics     |
 
 ```typescript
 const { onBeforeLeave, onAfterEnter } = useRoutingEngine();
@@ -124,11 +124,11 @@ onAfterEnter(() => scrollToTop());
 
 ## Integration Points
 
-| Component          | Role                    | File                                         |
-| ------------------ | ----------------------- | -------------------------------------------- |
-| `useRoutingEngine` | Composable API for apps | `useRoutingEngine.ts`                        |
-| `useRouting`       | Router integration      | `useRouting.ts`                              |
-| `useOverlayRoute`  | Overlay close/dismiss   | `packages/client-vue/.../useOverlayRoute.ts` |
-| `useQueryParams`   | Type-safe query access  | `useQueryParams.ts`                          |
-| `useShell`         | Shell component tracking| `packages/client-vue/.../useShell.ts`        |
-| Funnel watchers    | Reactive navigation     | `apps/cart/src/router/funnels/watchers.ts`   |
+| Component          | Role                     | File                                         |
+| ------------------ | ------------------------ | -------------------------------------------- |
+| `useRoutingEngine` | Composable API for apps  | `useRoutingEngine.ts`                        |
+| `useRouting`       | Router integration       | `useRouting.ts`                              |
+| `useOverlayRoute`  | Overlay close/dismiss    | `packages/client-vue/.../useOverlayRoute.ts` |
+| `useQueryParams`   | Type-safe query access   | `useQueryParams.ts`                          |
+| `useShell`         | Shell component tracking | `packages/client-vue/.../useShell.ts`        |
+| Funnel watchers    | Reactive navigation      | `apps/cart/src/router/funnels/watchers.ts`   |

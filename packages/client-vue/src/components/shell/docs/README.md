@@ -69,11 +69,11 @@ Returns tracking methods for shell components.
 const shell = useShell();
 ```
 
-| Method | Signature | Description |
-|--------|-----------|-------------|
-| `reset` | `() => void` | Clear all tracking for new navigation cycle |
-| `mark` | `(component: Shell) => void` | Mark a component as configured |
-| `has` | `(component: Shell) => boolean` | Check if component was configured |
+| Method  | Signature                       | Description                                 |
+| ------- | ------------------------------- | ------------------------------------------- |
+| `reset` | `() => void`                    | Clear all tracking for new navigation cycle |
+| `mark`  | `(component: Shell) => void`    | Mark a component as configured              |
+| `has`   | `(component: Shell) => boolean` | Check if component was configured           |
 
 ### `SHELL` Enum
 

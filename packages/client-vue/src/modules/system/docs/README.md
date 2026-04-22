@@ -4,12 +4,12 @@ The system module provides core UI infrastructure components for routing, page t
 
 ## Components
 
-| Component | Purpose |
-|-----------|---------|
+| Component   | Purpose                                                         |
+| ----------- | --------------------------------------------------------------- |
 | `RouteView` | Wraps RouterView with Suspense, transitions, and shell tracking |
-| `Loading` | Interstitial loading indicator |
-| `Empty` | Empty state placeholder |
-| `Error` | Error state display |
+| `Loading`   | Interstitial loading indicator                                  |
+| `Empty`     | Empty state placeholder                                         |
+| `Error`     | Error state display                                             |
 
 ## RouteView
 
@@ -31,14 +31,14 @@ function onPageReady(el: Element) {
 
 ### Props
 
-| Prop | Type | Description |
-|------|------|-------------|
+| Prop           | Type                | Description                           |
+| -------------- | ------------------- | ------------------------------------- |
 | `loadingProps` | `InterstitialProps` | Props passed to the Loading component |
 
 ### Events
 
-| Event | Payload | Description |
-|-------|---------|-------------|
+| Event     | Payload   | Description                        |
+| --------- | --------- | ---------------------------------- |
 | `resolve` | `Element` | Emitted when page component mounts |
 
 ### How It Works
@@ -69,12 +69,13 @@ function onPageReady(el: Element) {
 
 RouteView bridges Vue's component lifecycle with the routing engine:
 
-| Vue Event | RouteView Action | Routing Engine |
-|-----------|------------------|----------------|
-| `@vue:beforeMount` | `shell.reset()` | — |
-| `@vue:mounted` | Apply shell defaults | `mount(routeName)` |
+| Vue Event          | RouteView Action     | Routing Engine     |
+| ------------------ | -------------------- | ------------------ |
+| `@vue:beforeMount` | `shell.reset()`      | —                  |
+| `@vue:mounted`     | Apply shell defaults | `mount(routeName)` |
 
 This enables:
+
 - **Shell tracking reset** before each page's setup runs
 - **Default shell config** for pages that don't explicitly configure it
 - **Page mount signal** for scroll restoration and analytics
@@ -94,6 +95,7 @@ v-if="
 ```
 
 This prevents:
+
 - Loading flash on initial page load (waits for resolution)
 - Loading flash on fast transitions (debounced)
 
@@ -107,18 +109,18 @@ import { useRouteTransition } from "@upmind-automation/client-vue";
 const { shouldShow, shouldTransition, onEnter, reset } = useRouteTransition();
 ```
 
-| Return | Type | Description |
-|--------|------|-------------|
-| `shouldShow` | `Ref<boolean>` | Whether to show loading UI (debounced) |
+| Return             | Type           | Description                            |
+| ------------------ | -------------- | -------------------------------------- |
+| `shouldShow`       | `Ref<boolean>` | Whether to show loading UI (debounced) |
 | `shouldTransition` | `Ref<boolean>` | Whether transition animation is active |
-| `onEnter` | `() => void` | Call when Vue transition enter starts |
-| `reset` | `() => void` | Reset transition state |
+| `onEnter`          | `() => void`   | Call when Vue transition enter starts  |
+| `reset`            | `() => void`   | Reset transition state                 |
 
 ### Timing Constants
 
 ```typescript
-ANIMATION_DELAY  // Delay before showing loader
-DEBOUNCE_DELAY   // Delay before enabling transition
+ANIMATION_DELAY; // Delay before showing loader
+DEBOUNCE_DELAY; // Delay before enabling transition
 ```
 
 ## Related
