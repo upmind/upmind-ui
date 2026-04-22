@@ -9,6 +9,7 @@ import {
   provideConfig,
   useCachedRef
 } from "./utils";
+import { buildConditionState } from "./config.conditions";
 import { useBrand } from "../brand/useBrand";
 import type {
   UseMetaOptions,
@@ -17,6 +18,7 @@ import type {
   Viewport
 } from "./types";
 import { type BrandMeta } from "../brand/types";
+import type { IProduct } from "@upmind-automation/types";
 
 export { provideConfig, injectConfig } from "./utils";
 
@@ -33,6 +35,8 @@ export function useConfig(options?: UseMetaOptions): UseMetaResult {
     product,
     optionGroup,
     option,
+    basket,
+    basketProduct,
     provide: shouldProvide
   } = options ?? {};
 
@@ -65,18 +69,27 @@ export function useConfig(options?: UseMetaOptions): UseMetaResult {
   const ui = computed(() => items.value.meta);
   const data = computed(() => items.value.data);
 
+  const conditionState = computed(() =>
+    buildConditionState({
+      product: toValue(product)?.productDetails as IProduct | undefined,
+      basketProduct: toValue(basketProduct),
+      basket: toValue(basket)
+    })
+  );
+
   function withScopes(extendOptions: WithMetaOptions): UseMetaResult {
     return useConfig({
       context,
       category: extendOptions.category ?? category,
       product: extendOptions.product ?? product,
       optionGroup: extendOptions.optionGroup ?? optionGroup,
-      option: extendOptions.option ?? option
+      option: extendOptions.option ?? option,
+      basketProduct: extendOptions.basketProduct ?? basketProduct
     });
   }
 
   const result: UseMetaResult = {
-    ui: createUIMetaProxy(ui),
+    ui: createUIMetaProxy(ui, conditionState),
     data: createDataProxy(
       data,
       computed(() => toValue(product))

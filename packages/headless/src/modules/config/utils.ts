@@ -2,7 +2,8 @@
 import { useI18n } from "../system/localisation";
 
 // -- utils
-import { getUIProperty, getDataProperty } from "./mappers";
+import { getUIProperty, getDataProperty, normalizeValue } from "./mappers";
+import { isConditionalValue, evaluateRules } from "./config.conditions";
 import {
   camelCase,
   compact,
@@ -39,7 +40,8 @@ import type {
   MetaPrefix,
   DataItems,
   MetaItems,
-  UseMetaResult
+  UseMetaResult,
+  ConditionState
 } from "./types";
 import { CONFIG_KEY, VIEWPORT_ORDER, META_PREFIX } from "./types";
 import {
@@ -104,18 +106,32 @@ export function initializeMeta(options: MetaInput): {
  *
  * Template usage: `ui.breadcrumbs.isHidden`, `ui.productDescription.value`
  */
-export function createUIMetaProxy(metaItems: Ref<MetaItems>): UIMetaProxy {
+export function createUIMetaProxy(
+  metaItems: Ref<MetaItems>,
+  conditionState?: Ref<ConditionState>
+): UIMetaProxy {
   const results = mapValues(UI_META_DEFINITIONS, (definition, key) => {
     // Resolves value by cascading through scopes (option → product → category → brand)
-    const value = computed(() =>
+    const rawValue = computed(() =>
       getUIProperty(key as keyof UISchema, metaItems.value)
     );
 
+    // For conditional settings, evaluate rules against state then normalize
+    const isConditional = "conditional" in definition && definition.conditional;
+    const defType = "type" in definition ? definition.type : undefined;
+
+    const value = isConditional
+      ? computed(() => {
+          const evaluated = evaluateRules(
+            rawValue.value,
+            conditionState?.value ?? {}
+          );
+          return normalizeValue(evaluated, defType) ?? definition.default;
+        })
+      : rawValue;
+
     // Find helper for this type (e.g., visibility gets isVisible/isHidden)
-    const helper =
-      "type" in definition
-        ? find(HELPERS, { type: definition.type })
-        : undefined;
+    const helper = defType ? find(HELPERS, { type: defType }) : undefined;
 
     // Each property is individually wrapped in reactive() because it's an object
     // containing both the value and helper methods (e.g., { value, isVisible, isHidden })
