@@ -7,15 +7,11 @@ import registrantMachine from "./domainRegistrant.machine";
 
 // --- utils
 import { contextValue, useContext } from "../../utils";
-import { every, filter, isEmpty, size } from "lodash-es";
+import { isEmpty } from "lodash-es";
 
 // --- types
 import type { Address, Company } from "../client";
-import {
-  DOMAIN_REGISTRANT_PRODUCT_STATUS,
-  type DomainRegistrantContext,
-  type DomainRegistrantProductState
-} from "./types";
+import type { DomainRegistrantContext } from "./types";
 
 // -----------------------------------------------------------------------------
 /**
@@ -23,6 +19,11 @@ import {
  * @description Composable for managing per-domain registrant details. Wraps the
  * registrant XState machine which acts as a conduit between billing details
  * and basket product provision fields.
+ *
+ * Key concepts:
+ * - `model`: Selected product IDs (from checkboxes)
+ * - `domains`: Domain products from basket
+ * - Machine is a conduit - basketProduct is source of truth for actual data
  */
 
 // -----------------------------------------------------------------------------
@@ -35,157 +36,101 @@ const registrantService = useInterpret(registrantMachine, { devTools: true });
 /**
  * Composable for managing registrant details on domain products in the basket.
  *
- * Provides state tracking, billing pre-fill, per-domain editing, completeness
- * validation, and provision field persistence. Used by the registrant details
- * flow (FE-2457) between billing and checkout.
+ * Provides state tracking, billing pre-fill, per-domain editing, and provision
+ * field persistence. Used by the registrant details flow (FE-2457) between
+ * billing and checkout.
  */
 export function useDomainRegistrant() {
   const { state, send } = useActor(registrantService);
 
   // --- context
 
-  /** Billing source for pre-filling */
+  /** Selected product IDs (from checkboxes) */
   const model = useContext<DomainRegistrantContext["model"]>(state, "model");
 
   /** Error from last operation */
   const error = useContext<DomainRegistrantContext["error"]>(state, "error");
 
-  /** Per-domain registrant products as array (for iteration) */
-  const products = computed(() => {
-    const values = contextValue<DomainRegistrantContext["products"]>(
+  /** Domain products from basket */
+  const domains = computed(() => {
+    const lookups = contextValue<DomainRegistrantContext["lookups"]>(
       state,
-      "products"
-    )?.values();
-
-    if (!values) return [];
-    return Array.from(values);
+      "lookups"
+    );
+    return lookups?.basketProducts ?? [];
   });
 
   // --- meta
 
   const meta = computed(() => ({
-    /** True when all domains are complete or skipped. */
-    isComplete: every(
-      products.value,
-      (p: DomainRegistrantProductState) =>
-        p.status === DOMAIN_REGISTRANT_PRODUCT_STATUS.COMPLETE ||
-        p.status === DOMAIN_REGISTRANT_PRODUCT_STATUS.SKIPPED
-    ),
     /** True when the basket contains any domain products. */
-    hasDomainProducts: !isEmpty(products.value),
+    hasDomainProducts: !isEmpty(domains.value),
     /** True when the machine is processing a save. */
-    isProcessing: state.value.matches("available.processing")
+    isProcessing: state.value.matches("available.processing"),
+    /** True when machine is available and ready for interaction. */
+    isReady: state.value.matches("available"),
+    /** True when machine is unavailable (no domains). */
+    isUnavailable: state.value.matches("unavailable")
   }));
-
-  /** Number of domains still needing registrant data */
-  const pendingCount = computed(() =>
-    size(
-      filter(products.value, [
-        "status",
-        DOMAIN_REGISTRANT_PRODUCT_STATUS.INCOMPLETE
-      ])
-    )
-  );
 
   // --- methods
 
   /**
-   * Set billing source for pre-filling registrant data.
-   * Machine handles mapping to provision fields.
+   * Set selected product IDs (from checkboxes).
+   * Machine updates `model` with these IDs.
    */
-  function setBilling(source: Address | Company | null): void {
-    send({ type: "SET_BILLING", data: source });
+  function setSelected(productIds: string[]): void {
+    send({ type: "SET", productIds });
   }
 
   /**
-   * Apply billing source to selected domain products.
+   * Apply billing to selected products and save to basket.
    *
-   * @param productIds - Basket product IDs to pre-fill
+   * @param billing - Address or Company to apply
+   * @param productIds - Optional override for product IDs (uses model if not provided)
    */
-  function applyBilling(productIds: string[]): void {
-    send({ type: "APPLY_BILLING", productIds });
+  function applyBilling(
+    billing: Address | Company,
+    productIds?: string[]
+  ): void {
+    send({ type: "APPLY_BILLING", billing, productIds });
   }
 
   /**
-   * Update registrant data for a single domain product.
+   * Apply provision field data to selected products.
+   * Used after inline edit on Review page.
    *
-   * @param productId - Basket product ID
-   * @param data - Registrant data keyed by provision field name
+   * @param data - Provision field data to apply
+   * @param productIds - Optional override for product IDs (uses model if not provided)
    */
-  function set(productId: string, data: Record<string, string>): void {
-    send({ type: "SET", productId, data });
-  }
-
-  /**
-   * Save registrant details to basket product via provision fields.
-   *
-   * @param productId - Basket product ID to save
-   */
-  function save(productId: string): void {
-    send({ type: "SAVE", productId });
-  }
-
-  /**
-   * Mark a domain product as explicitly skipped (escape hatch).
-   *
-   * @param productId - Basket product ID to skip
-   */
-  function skip(productId: string): void {
-    send({ type: "SKIP", productId });
-  }
-
-  /**
-   * Un-skip a previously skipped domain product.
-   *
-   * @param productId - Basket product ID to un-skip
-   */
-  function unskip(productId: string): void {
-    send({ type: "UNSKIP", productId });
-  }
-
-  /**
-   * Get registrant state for a specific product.
-   *
-   * @param productId - Basket product ID
-   * @returns Current registrant state or undefined
-   */
-  function getProduct(
-    productId: string
-  ): DomainRegistrantProductState | undefined {
-    return state.value.context.products.get(productId);
+  function applyProvision(
+    data: Record<string, string>,
+    productIds?: string[]
+  ): void {
+    send({ type: "APPLY_PROVISION", data, productIds });
   }
 
   // ---------------------------------------------------------------------------
   return {
     // --- context
+    /** Domain products from basket. */
+    domains,
     /** Error from last operation. */
     error,
-    /** Billing source for pre-filling. */
+    /** Selected product IDs. */
     model,
-    /** Number of domains still needing registrant data. */
-    pendingCount,
-    /** Per-product registrant states from the machine. */
-    products,
 
     // --- meta
     /** Meta flags for UI state. */
     meta,
 
     // --- methods
-    /** Apply billing source to selected products. */
+    /** Apply billing source to selected products and save. */
     applyBilling,
-    /** Get registrant state for a specific product. */
-    getProduct,
-    /** Save registrant as provision fields on product actor. */
-    save,
-    /** Update registrant data for one domain. */
-    set,
-    /** Set billing source for pre-filling. */
-    setBilling,
-    /** Skip registrant for a domain (escape hatch). */
-    skip,
-    /** Un-skip a previously skipped domain product. */
-    unskip
+    /** Apply provision fields to selected products. */
+    applyProvision,
+    /** Set selected product IDs. */
+    setSelected
   };
 }
 
