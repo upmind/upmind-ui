@@ -773,11 +773,6 @@ export default <FunnelProps>{
       on: {
         NEXT: [
           {
-            target: ROUTE.REGISTRANT,
-            actions: [assign({ targetRoute: { name: ROUTE.REGISTRANT } })],
-            cond: "hasDomainProducts"
-          },
-          {
             target: ROUTE.CHECKOUT,
             actions: [assign({ targetRoute: { name: ROUTE.CHECKOUT } })]
           }

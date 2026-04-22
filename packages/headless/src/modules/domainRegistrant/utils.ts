@@ -1,88 +1,41 @@
 // --- utils
-import { every, filter, forEach, get, isEmpty } from "lodash-es";
+import { defaultsDeep, get } from "lodash-es";
 
 // --- types
 import type { Address, Company } from "../client";
-import {
-  DOMAIN_REGISTRANT_PRODUCT_STATUS,
-  PROVISION_TO_BILLING_MAP,
-  REQUIRED_REGISTRANT_FIELDS,
-  type DomainRegistrantProductStatus
-} from "./types";
+import type { ProductModel } from "../product/types";
 
 // -----------------------------------------------------------------------------
 /**
  * @module domainRegistrant/utils
- * @description Utility functions for domain registrant data mapping and validation.
+ * @description Utility functions for domain registrant data mapping.
  */
 
 // -----------------------------------------------------------------------------
 
 /**
  * Maps billing source (Address or Company) to provision fields.
- * Uses PROVISION_TO_BILLING_MAP to resolve paths from the billing model.
  *
- * @param model - Address or Company entity
+ * @param billing - Address or Company entity
+ * @param baseModel - Existing provision fields to check for nullish values
  * @returns Record of provision field key → value pairs
  */
 export function mapBillingToProvisionFields(
-  model: Address | Company | null
-): Record<string, string> {
-  const result: Record<string, string> = {};
-  if (!model) return result;
+  billing: Address | Company,
+  baseModel: ProductModel["provisionFields"]
+): ProductModel["provisionFields"] {
+  if (!billing) return {};
 
-  forEach(PROVISION_TO_BILLING_MAP, (billingPath, provisionKey) => {
-    const value = get(model, billingPath, "") as string | undefined;
-    if (!isEmpty(value)) {
-      result[provisionKey] = value ?? "";
-    }
-  });
+  const result = defaultsDeep(
+    {
+      registrant_organisation: get(billing, "name"),
+      registrant_address_1: get(billing, "address.address1"),
+      registrant_city: get(billing, "address.city"),
+      registrant_state: get(billing, "address.state"),
+      registrant_postcode: get(billing, "address.postcode")
+    },
+    baseModel
+  ) as ProductModel["provisionFields"];
 
   return result;
-}
-
-/**
- * Checks if a product's registrant data is complete based on required fields.
- *
- * @param data - Registrant data keyed by provision field name
- * @returns `true` if all required fields have values
- */
-export function isProductComplete(data: Record<string, string>): boolean {
-  return every(
-    REQUIRED_REGISTRANT_FIELDS,
-    (field: string) => !isEmpty(data[field])
-  );
-}
-
-/**
- * Determines the status of a registrant product state.
- *
- * @param data - Registrant data
- * @param currentStatus - Current status (preserves "skipped" if set)
- * @returns Updated status
- */
-export function determineStatus(
-  data: Record<string, string>,
-  currentStatus: DomainRegistrantProductStatus
-): DomainRegistrantProductStatus {
-  if (currentStatus === DOMAIN_REGISTRANT_PRODUCT_STATUS.SKIPPED) {
-    return DOMAIN_REGISTRANT_PRODUCT_STATUS.SKIPPED;
-  }
-  return isProductComplete(data)
-    ? DOMAIN_REGISTRANT_PRODUCT_STATUS.COMPLETE
-    : DOMAIN_REGISTRANT_PRODUCT_STATUS.INCOMPLETE;
-}
-
-/**
- * Returns the list of required registrant fields that are missing values.
- *
- * @param data - Registrant data keyed by provision field name
- * @returns Array of missing required field keys
- */
-export function getMissingRegistrantFields(
-  data: Record<string, string>
-): string[] {
-  return filter(REQUIRED_REGISTRANT_FIELDS, (field: string) =>
-    isEmpty(data[field])
-  );
 }
