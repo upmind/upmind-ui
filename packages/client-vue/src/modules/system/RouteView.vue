@@ -6,6 +6,7 @@
           <PageTransition>
             <Suspense>
               <component
+                v-if="meta.isResolved || !meta.isInitialRoute"
                 :is="routerViewProps.Component"
                 @vue:beforeMount="doPageStart"
                 @vue:mounted="doPageFinish($event, routerViewProps.route)"

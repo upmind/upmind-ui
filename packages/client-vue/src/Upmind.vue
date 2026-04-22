@@ -129,7 +129,7 @@ const route = useRoute();
  * - hasSettings: whether the theme settings have been loaded
  */
 const meta = computed(() => ({
-  isLoading: !routingMeta.value.isResolved && routingMeta.value.isInitialRoute,
+  isLoading: routingMeta.value.isInitialRoute,
   isAvailable: useUpmind.status.value == UpmindStatus.initialised,
   hasSettings: themeReady.value
 }));
