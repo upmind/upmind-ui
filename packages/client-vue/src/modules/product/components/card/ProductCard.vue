@@ -10,6 +10,7 @@
               pid: props.id
             },
             query: {
+              ...props.configureRoute?.query,
               [QUERY_PARAMS.BILLING_CYCLE_MONTHS]: selectedTerm
             }
           }"
@@ -103,6 +104,7 @@
                       pid: props.id
                     },
                     query: {
+                      ...props.configureRoute?.query,
                       [QUERY_PARAMS.BILLING_CYCLE_MONTHS]: selectedTerm,
                       autoupdate: props.productDetails?.configurable
                         ? undefined

@@ -300,8 +300,22 @@ export default {
           }
           return basketItem
             .update()
-            .then(() => {
+            .then(async () => {
               resolve(basketItem.service);
+
+              const returnUrl = consumeParam("returnUrl", false);
+              if (returnUrl) {
+                const { meta: recMeta, isReady: recsReady } =
+                  useProductRecommendations(productId);
+                await recsReady();
+                if (!recMeta.value.hasUnseenRecommendations) {
+                  const router = useRouter();
+                  return {
+                    target: router.resolve(returnUrl as string)
+                  } as FunnelResponse;
+                }
+              }
+
               return {
                 type: "NEXT",
                 target: {
