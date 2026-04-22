@@ -1,14 +1,15 @@
 <template>
-  <div
-    v-if="!meta.isLoading && basketMeta.isAvailable"
-    class="flex flex-col gap-4"
-  >
-    <template v-for="product in products" :key="product.id">
+  <!-- Suspense covers the async setup gap in BasketProduct -->
+  <Suspense v-if="basketMeta.isAvailable">
+    <!-- v-auto-animate mounts only after Suspense resolves, so the initial
+         skeleton → cards swap is instant; later add/remove animates. -->
+    <div v-auto-animate :class="styles.product.list">
       <BasketProduct
+        v-for="product in products"
+        :key="product.id"
         v-bind="product"
         :open="!!open[product.id]"
         :processing="meta.isProcessing(product.id)"
-        :loading="meta.isLoading"
         @update:open="trackOpen(product.id, $event)"
         @remove="remove(product.id)"
         @update:quantity="updateQuantity(product.id, $event)"
@@ -19,18 +20,25 @@
           <slot v-bind="slotProps" />
         </template>
       </BasketProduct>
-    </template>
-  </div>
+    </div>
 
-  <div v-else class="flex flex-col space-y-4" v-auto-animate>
-    <template
-      v-for="index in Math.max(1, products?.length ?? 0)"
-      :key="`skeleton-cart-item-${index}`"
-    >
-      <BasketProductSkeleton>
-        <slot name="skeleton" />
-      </BasketProductSkeleton>
+    <template #fallback>
+      <div :class="styles.product.list">
+        <BasketProductSkeleton
+          v-for="index in Math.max(1, products?.length ?? 0)"
+          :key="`skeleton-cart-item-${index}`"
+        >
+          <slot name="skeleton" />
+        </BasketProductSkeleton>
+      </div>
     </template>
+  </Suspense>
+
+  <!-- Suspense fallback can't cover this: no products = no pending state -->
+  <div v-else :class="styles.product.list">
+    <BasketProductSkeleton>
+      <slot name="skeleton" />
+    </BasketProductSkeleton>
   </div>
 </template>
 
@@ -41,6 +49,8 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
 import { useBasketProducts, useBasket } from "@upmind-automation/headless";
+import { useStyles } from "@upmind-automation/upmind-ui";
+import config from "./basketProduct.config";
 import BasketProduct from "./BasketProduct.vue";
 
 // --- components
@@ -58,6 +68,8 @@ const emits = defineEmits(["update:open"]);
 
 const { meta, products, updateQuantity, remove } = useBasketProducts();
 const { meta: basketMeta } = useBasket();
+
+const styles = useStyles(["product.list"], {}, config);
 
 const open = ref<Record<string, boolean>>(forceOpen(props.open));
 
