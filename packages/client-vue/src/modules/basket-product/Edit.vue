@@ -286,7 +286,8 @@ const {
   update,
   service: basketProduct,
   onDone,
-  isReady
+  isReady,
+  reset
 } = await configure(basketProductId, { allowMultipleEdits: true });
 
 const productConfig = useProductConfig(basketProduct);
@@ -405,7 +406,11 @@ const handleShare = () => {
 
 onUnmounted(() => {
   // Don't stop the config machine — it may be reused by the inline editor.
-  // Housekeeping (pruneConfigs) cleans up machines for removed products.
+  // Housekeeping:
+  // ditch the current state and go back to the initial state,
+  // so that we don't show a unsaved state in the inline editor
+  // or if the user comes back to it after leaving the page and then coming back without refreshing.
+  reset();
 });
 
 // Emit productDetails when it loads/changes for parent components (e.g., SEO, schema)
