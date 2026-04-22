@@ -164,10 +164,17 @@ export default createMachine(
                     target: "#complete",
                     actions: ["setActor", "pushLogin"]
                   },
-                  onError: {
-                    target: "challenging.invalid",
-                    actions: ["setError", "setFeedbackError"]
-                  }
+                  onError: [
+                    {
+                      target: "#error",
+                      actions: ["setError"],
+                      cond: "isTooManyAttempts"
+                    },
+                    {
+                      target: "challenging.invalid",
+                      actions: ["setError", "setFeedbackError"]
+                    }
+                  ]
                 }
               },
               error: {
@@ -283,10 +290,17 @@ export default createMachine(
                     target: "#complete",
                     actions: ["setActor", "pushRegister"]
                   },
-                  onError: {
-                    target: "challenging.invalid",
-                    actions: ["setError", "setFeedbackError"]
-                  }
+                  onError: [
+                    {
+                      target: "#error",
+                      actions: ["setError"],
+                      cond: "isTooManyAttempts"
+                    },
+                    {
+                      target: "challenging.invalid",
+                      actions: ["setError", "setFeedbackError"]
+                    }
+                  ]
                 }
               },
               error: {
@@ -481,6 +495,9 @@ export default createMachine(
         return (
           data.actor_type == GrantTypes.TWOFA && !!data?.second_factor_required
         );
+      },
+      isTooManyAttempts: (_context: GuestContext, { data }: AnyEventObject) => {
+        return data?.status === responseCodes.Too_Many_Requests;
       }
     },
 
