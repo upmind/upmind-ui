@@ -318,15 +318,9 @@ export const useRoutingEngine = () => {
     // When the route is already resolved (same name, same funnel state),
     // return the incoming route directly. The stale targetRoute in context may have
     // outdated query params (e.g. old category) that would cause incorrect redirects.
-    return (
-      alreadyResolved
-        ? Promise.resolve(route)
-        : awaitResolved(funnel.value?.service)
-    ).then(target => {
-      // once we have resolved at least once, we are no longer on the initial route
-      initialRoute.value = false;
-      return target;
-    });
+    return alreadyResolved
+      ? Promise.resolve(route)
+      : awaitResolved(funnel.value?.service);
   }
 
   async function switchFunnel(
@@ -364,6 +358,8 @@ export const useRoutingEngine = () => {
   /** Notify the routing engine that a route's page component has mounted. */
   function mount(name?: string): void {
     mountedRoute.value = name;
+    // First page paint completes the initial-load phase.
+    initialRoute.value = false;
     forEach([...lifecycleCallbacks.afterEnter], cb => cb());
   }
 
