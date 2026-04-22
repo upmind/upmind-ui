@@ -118,6 +118,7 @@ export type BrandMeta = {
     catalogue?: {
       disabled?: boolean;
       facet?: boolean;
+      inSitu?: boolean;
     };
     ui: UIMeta;
   };

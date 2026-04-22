@@ -41,7 +41,7 @@
           :key="product.id"
           v-bind="product"
           :preserve-promotion="preservePromotions"
-          :configure-route="props.configureRoute"
+          :configure-route="catalogueConfigureRoute"
           @resolve="processing = true"
         />
 
@@ -96,6 +96,7 @@
 import { watch, ref, computed, useTemplateRef, inject } from "vue";
 import { useI18n } from "vue-i18n";
 import { useUrlSearchParams } from "@vueuse/core";
+import { useRouter } from "vue-router";
 
 // --- internal
 import {
@@ -105,6 +106,7 @@ import {
   ProductSortableProperties,
   DEBOUNCE_DELAY,
   useBasket,
+  useBrand,
   type UseProductCategories
 } from "@upmind-automation/headless";
 import { useConfig } from "@upmind-automation/headless";
@@ -163,12 +165,24 @@ const direction = defineModel<ProductSortProps["direction"]>("direction", {
 // ---------------------------------------------------------------------------
 
 const { t } = useI18n();
+const { uiCart } = useBrand();
+const router = useRouter();
 
 const category = computed(() =>
   categoryId.value ? categoryInstance.getOne(categoryId.value) : undefined
 );
 
 const { ui } = useConfig().with({ category });
+
+const catalogueConfigureRoute = computed(() => ({
+  ...props.configureRoute,
+  query: {
+    ...props.configureRoute?.query,
+    ...(uiCart.value?.catalogue?.inSitu
+      ? { returnUrl: router.currentRoute.value.fullPath }
+      : {})
+  }
+}));
 
 // Determine limit based on layout columns (4-col = 12, 3-col = 9, 2-col = 8, 1-col = 6)
 const LAYOUT_LIMITS: Record<string, number> = {
