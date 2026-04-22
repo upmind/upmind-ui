@@ -35,6 +35,7 @@
         v-if="formFieldProps.touched && fieldErrors"
         :errors="fieldErrors"
         :formMessageId="`form-item-message-${control.id}`"
+        :data-testid="`form-item-message-password`"
         :name="control.path"
       />
     </template>
