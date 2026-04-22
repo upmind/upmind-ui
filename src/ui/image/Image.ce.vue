@@ -85,7 +85,8 @@ const meta = computed(() => {
   const isCarousel = {
     single: false,
     carousel: imageLength >= 1,
-    auto: imageLength > 1
+    auto: imageLength > 1,
+    grid: false
   }[props.mode];
 
   return {
