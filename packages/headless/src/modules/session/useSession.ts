@@ -123,7 +123,8 @@ export const useSession = () => {
         "loading",
         "available.login.loading",
         "available.register.loading",
-        "available.recover.loading"
+        "available.recover.loading",
+        "available.asGuest.registering"
       ]) ||
       stateMatches(clientActor, "loading") ||
       false,
@@ -135,9 +136,15 @@ export const useSession = () => {
         "available.register.registering",
         "available.register.authenticating",
         "available.register.verifying",
-        "available.recover.recovering"
-      ]) || stateMatches(clientActor, "processing"),
+        "available.recover.recovering",
+        "available.asGuest.registering"
+      ]) || stateMatches(clientActor, ["processing", "completingRegistration"]),
     isAuthenticated: stateMatches(state, "client"),
+    isCompletingRegistration: stateMatches(
+      clientActor,
+      "completingRegistration"
+    ),
+    isGuestClient: stateMatches(state, "client") && !!client.value?.isGuest,
     isTransferring: stateMatches(clientActor, "transferring"),
     hasExpired: stateMatches(state, "expired") || isEmpty(state.value.children),
     hasErrors:
@@ -145,7 +152,8 @@ export const useSession = () => {
       stateMatches(guestActor, [
         "available.login.error",
         "available.register.error",
-        "available.recover.error"
+        "available.recover.error",
+        "available.asGuest.error"
       ]) ||
       stateMatches(clientActor, "error"),
     showLoginForm: stateMatches(guestActor, "available.login"),
@@ -156,6 +164,7 @@ export const useSession = () => {
       "available.register.verifying"
     ]),
     canShowForms: stateMatches(guestActor, "available"),
+    showAsGuestForm: stateMatches(guestActor, "available.asGuest"),
     showRegisterForm: stateMatches(guestActor, "available.register"),
     showRecoverPasswordForm: stateMatches(guestActor, "available.recover")
   }));
@@ -407,6 +416,63 @@ export const useSession = () => {
       .catch(() => false);
   }
 
+  async function showAsGuest(): Promise<boolean> {
+    if (!guestActor.value) return true;
+
+    service.send({ type: "GUEST" });
+
+    return await waitFor(
+      guestActor.value.service,
+      state => stateMatches(state, ["available.asGuest", "done"]),
+      { timeout: 60_000 }
+    )
+      .then(() => true)
+      .catch(() => false);
+  }
+
+  async function registerAsGuest(): Promise<boolean> {
+    if (!guestActor.value) return true;
+
+    service.send({ type: "GUEST" });
+
+    return await waitFor(
+      guestActor.value.service,
+      state =>
+        stateMatches(state, ["complete", "available.asGuest.error", "done"]),
+      { timeout: 60_000 }
+    )
+      .then(state => !stateMatches(state, "available.asGuest.error"))
+      .catch(() => false);
+  }
+
+  async function completeRegistration(model: any): Promise<boolean> {
+    if (!clientActor.value) return false;
+
+    service.send({
+      type: "COMPLETE_REGISTRATION",
+      data: get(model, "value", model)
+    });
+
+    return await waitFor(
+      clientActor.value.service,
+      state => stateMatches(state, ["available", "done"]),
+      { timeout: 60_000 }
+    )
+      .then(() => true)
+      .catch(() => false);
+  }
+
+  async function updateGuestEmail(email: string): Promise<boolean> {
+    if (!clientActor.value) return false;
+
+    service.send({
+      type: "UPDATE_GUEST_EMAIL",
+      data: { email }
+    });
+
+    return true;
+  }
+
   async function transferTo(): Promise<IAuthTransfer> {
     if (!clientActor.value) {
       useFeedback().addError({
@@ -510,6 +576,7 @@ export const useSession = () => {
     if (meta.value.show2fa) return verify2fa(model);
     if (meta.value.showRegisterForm) return register(model);
     if (meta.value.showRecoverPasswordForm) return recover(model);
+    if (meta.value.showAsGuestForm) return registerAsGuest();
     return Promise.reject(
       new DetailedError(
         t("error.session_form_not_available"),
@@ -587,10 +654,13 @@ export const useSession = () => {
      * @property {boolean} isAvailable - Indicates whether the session is ready to be used.
      * @property {boolean} isProcessing - Indicates whether the session is currently processing an action.
      * @property {boolean} isAuthenticated - Indicates whether the client is authenticated within the session.
+     * @property {boolean} isCompletingRegistration - Indicates whether the client is completing guest registration.
+     * @property {boolean} isGuestClient - Indicates whether the client is a guest (checked out without full registration).
      * @property {boolean} isTransferring - Indicates whether the session is currently transferring data.
      * @property {boolean} hasExpired - Indicates whether the session has expired.
      * @property {boolean} showLoginForm - Indicates whether the login form should be displayed.
      * @property {boolean} show2fa - Indicates whether the two-factor authentication (2FA) challenge is required and should be shown (login or register).
+     * @property {boolean} showAsGuestForm - Indicates whether the guest checkout form is active.
      * @property {boolean} showRegisterForm - Indicates whether the registration form should be displayed.
      * @property {boolean} showRecoverPasswordForm - Indicates whether the Send reset form should be displayed.
      * @property {boolean} canShowForms - Indicates whether any forms (login or register) can be shown to the client.
@@ -737,6 +807,21 @@ export const useSession = () => {
     transferred,
 
     /**
+     * Completes guest → full client registration.
+     */
+    completeRegistration,
+
+    /**
+     * Registers current session as guest client for checkout.
+     */
+    registerAsGuest,
+
+    /**
+     * Displays the guest checkout state.
+     */
+    showAsGuest,
+
+    /**
      * Displays the login form for client authentication.
      */
     showLogin,
@@ -750,6 +835,11 @@ export const useSession = () => {
      * Displays the Send reset form for password recovery.
      */
     showRecoverPassword,
+
+    /**
+     * Updates the guest client's email for receipt.
+     */
+    updateGuestEmail,
 
     /**
      * Sets the model for the session, typically used to update or initialize the data model

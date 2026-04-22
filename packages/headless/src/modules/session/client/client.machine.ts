@@ -58,12 +58,50 @@ export default createMachine(
       available: {
         id: "available",
         on: {
+          COMPLETE_REGISTRATION: {
+            target: "completingRegistration"
+          },
           LOGOUT: {
             target: "complete",
             actions: "clear"
           },
+          REFRESH: {
+            target: "loading"
+          },
           TRANSFER_TO: {
             target: "transferring"
+          },
+          UPDATE_GUEST_EMAIL: {
+            target: "updatingEmail"
+          }
+        }
+      },
+
+      completingRegistration: {
+        id: "completingRegistration",
+        invoke: {
+          src: "completeRegistration",
+          onDone: {
+            target: "loading",
+            actions: ["setFeedbackSuccess"]
+          },
+          onError: {
+            target: "available",
+            actions: ["setError", "setFeedbackError"]
+          }
+        }
+      },
+
+      updatingEmail: {
+        id: "updatingEmail",
+        invoke: {
+          src: "updateGuestEmail",
+          onDone: {
+            target: "available"
+          },
+          onError: {
+            target: "available",
+            actions: ["setError"]
           }
         }
       },
@@ -160,6 +198,11 @@ export default createMachine(
           copy: error?.message,
           data: error?.data
         });
+      },
+
+      setFeedbackSuccess: (_context, _event) => {
+        const { t } = useI18n();
+        useFeedback().addSuccess(t("confirm.registration_complete"));
       },
 
       clearError: assign({ error: undefined })
