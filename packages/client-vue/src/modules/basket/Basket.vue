@@ -31,9 +31,10 @@
             meta.isLoading ||
             !meta.hasFields ||
             !meta.hasProducts ||
-            meta.hasInvalidProducts
+            meta.hasInvalidProducts ||
+            isNavigating
           "
-          :loading="meta.isProcessing"
+          :loading="meta.isProcessing || isNavigating"
           :show-checkout="
             template !== BASKET_TEMPLATE.TWO_COLUMN_RTL &&
             template !== BASKET_TEMPLATE.ENCLOSED &&
@@ -82,9 +83,10 @@
             meta.isLoading ||
             !meta.hasFields ||
             !meta.hasProducts ||
-            meta.hasInvalidProducts
+            meta.hasInvalidProducts ||
+            isNavigating
           "
-          :loading="meta.isProcessing"
+          :loading="meta.isProcessing || isNavigating"
         />
       </slot>
     </template>
@@ -178,7 +180,7 @@ const props = withDefaults(
 
 const { t } = useI18n();
 const { set } = useThemes();
-const { navigateNext } = useRoutingEngine();
+const { navigateNext, isNavigating } = useRoutingEngine();
 const { isReady, meta, basketId } = useBasket();
 const { variant } = useLayout();
 

@@ -233,7 +233,10 @@ export const useRoutingEngine = () => {
     });
 
     return awaitResolved(funnel.value?.service)
-      .then(updateRouter)
+      .then(async resolvedTarget => {
+        updateRouter(resolvedTarget);
+        if (resolvedTarget) await isMounted(resolvedTarget);
+      })
       .catch((error: any) => {
         console.warn("UseRoutingEngine", "Navigate route failed", {
           route: router.currentRoute.value,
@@ -256,7 +259,10 @@ export const useRoutingEngine = () => {
     send({ type: "NEXT", data: { route: router.currentRoute.value, event } });
 
     return awaitResolved(funnel.value?.service)
-      .then(updateRouter)
+      .then(async resolvedTarget => {
+        updateRouter(resolvedTarget);
+        if (resolvedTarget) await isMounted(resolvedTarget);
+      })
       .catch((error: any) => {
         console.warn("UseRoutingEngine", "Next route failed", {
           route: router.currentRoute.value,
@@ -279,7 +285,10 @@ export const useRoutingEngine = () => {
     send({ type: "BACK", data: { route: router.currentRoute.value, event } });
 
     return awaitResolved(funnel.value?.service)
-      .then(updateRouter)
+      .then(async resolvedTarget => {
+        updateRouter(resolvedTarget);
+        if (resolvedTarget) await isMounted(resolvedTarget);
+      })
       .catch((error: any) => {
         console.warn("UseRoutingEngine", "Back route failed", {
           route: router.currentRoute.value,
