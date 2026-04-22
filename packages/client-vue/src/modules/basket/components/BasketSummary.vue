@@ -18,7 +18,7 @@
     :loading="loading"
   >
     <template #subtitle>
-      <Skeleton v-if="loading || !meta.isAvailable" class="h-5 w-80" />
+      <Skeleton v-if="loading || !meta.isAvailable" class="h-7 w-80" />
     </template>
     <template #prepend>
       <slot name="prepend" />
