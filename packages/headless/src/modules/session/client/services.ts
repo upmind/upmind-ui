@@ -1,6 +1,7 @@
 // --- internal
 import services from "../services";
 import { useI18n, useQuery } from "../..";
+import { useRecaptcha } from "../../system";
 
 // --- utils
 import { isEmpty } from "lodash-es";
@@ -8,7 +9,8 @@ import { getTokenFromStorage } from "../utils";
 import { DetailedError, ErrorOrigin, responseCodes } from "../../../utils";
 
 // ---types
-import type { ClientContext } from "./types";
+import type { ClientContext, CompleteRegistrationModel } from "./types";
+import type { AnyEventObject } from "xstate";
 import { Contexts } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
@@ -47,9 +49,57 @@ async function load(_context: ClientContext, _event: any) {
   });
 }
 
+async function completeRegistration(
+  { client }: ClientContext,
+  { data }: AnyEventObject
+) {
+  const { post, useUrl } = useQuery();
+  const recaptcha = useRecaptcha();
+
+  const model = data as CompleteRegistrationModel;
+  const payload: any = {
+    custom_fields: model.customFields,
+    email: model.email,
+    firstname: model.firstname,
+    lastname: model.lastname,
+    password: model.password,
+    phone: model.phone?.nationalNumber,
+    phone_code: model.phone?.countryCallingCode,
+    phone_country_code: model.phone?.country,
+    username: model.email
+  };
+
+  await recaptcha
+    .generate("client_register")
+    .then(token => (payload.recaptcha_token = token))
+    .catch(() => null);
+
+  return post({
+    mutationKey: ["session", "client", "completeRegistration"],
+    url: useUrl(`clients/${client?.id}/complete_registration`),
+    data: payload,
+    withAccessToken: true
+  }).finally(() => recaptcha.clear());
+}
+
+async function updateGuestEmail(
+  { client }: ClientContext,
+  { data }: AnyEventObject
+) {
+  const { put, useUrl } = useQuery();
+  return put({
+    mutationKey: ["session", "client", "updateEmail"],
+    url: useUrl(`clients/${client?.id}`),
+    data: { email: data.email },
+    withAccessToken: true
+  });
+}
+
 // -----------------------------------------------------------------------------
 
 export default {
+  completeRegistration,
   load,
-  transferTo: services.transferTo
+  transferTo: services.transferTo,
+  updateGuestEmail
 };

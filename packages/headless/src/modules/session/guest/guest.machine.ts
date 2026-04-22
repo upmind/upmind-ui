@@ -340,9 +340,35 @@ export default createMachine(
               },
               complete: {}
             }
+          },
+
+          asGuest: {
+            id: "asGuest",
+            initial: "registering",
+            states: {
+              registering: {
+                invoke: {
+                  src: "registerAsGuest",
+                  onDone: {
+                    target: "#complete",
+                    actions: ["setActor", "pushLogin"]
+                  },
+                  onError: {
+                    target: "error",
+                    actions: ["setError", "setFeedbackError"]
+                  }
+                }
+              },
+              error: {
+                on: {
+                  GUEST: { target: "registering" }
+                }
+              }
+            }
           }
         },
         on: {
+          GUEST: { target: "available.asGuest" },
           LOGIN: { target: "available.login" },
           RECOVER: { target: "available.recover" },
           REGISTER: { target: "available.register" },
