@@ -11,7 +11,7 @@
       :readonly="appliedOptions?.readonly"
       :required="appliedOptions?.required"
       :disabled="appliedOptions?.disabled"
-      :generator="showGenerator"
+      :generator="isNewPassword"
       :generate-label="appliedOptions?.generate"
       :show-label="appliedOptions?.show"
       :hide-label="appliedOptions?.hide"
@@ -19,13 +19,13 @@
       @generate="onGenerate"
     />
 
-    <template v-if="showMeter || errorText" #messages>
+    <template v-if="showMeter || errorMessage" #messages>
       <PasswordStrength
         :show-bars="showMeter"
         :score="score"
-        :max="barCount"
-        :message="messageText"
-        :has-error="!!errorText"
+        :max="requirementsCount"
+        :message="errorMessage || (showMeter ? appliedOptions?.hint : '')"
+        :has-error="!!errorMessage"
       />
     </template>
   </FormField>
@@ -58,31 +58,22 @@ const { control, appliedOptions, formFieldProps, onInput } =
 const isNewPassword = computed(
   () => appliedOptions.value?.autocomplete === "new-password"
 );
-const showStrength = computed(
-  () => appliedOptions.value?.strength ?? isNewPassword.value
-);
-const showGenerator = computed(
-  () => appliedOptions.value?.generator ?? isNewPassword.value
-);
 
 const requirements = computed<Record<string, string> | undefined>(
   () => appliedOptions.value?.requirements
 );
-const showMeter = computed(() => showStrength.value && !!control.value?.data);
-const barCount = computed(
+const showMeter = computed(() => isNewPassword.value && !!control.value?.data);
+
+const requirementsCount = computed(
   () => Object.keys(requirements.value ?? {}).length || 4
 );
-const score = computed(() =>
-  scorePassword(control.value?.data ?? "", requirements.value)
-);
-const errorText = computed(() => {
+const score = computed(() => scorePassword(control.value?.data));
+
+const errorMessage = computed(() => {
   if (!formFieldProps.value?.touched || !requirements.value) return "";
   const key = getPasswordErrorKey(requirements.value, control.value?.data);
   return key ? (appliedOptions.value?.error?.[key] ?? "") : "";
 });
-const messageText = computed(
-  () => errorText.value || (showMeter.value ? appliedOptions.value?.hint : "")
-);
 
 function onGenerate() {
   const minLength = control.value?.schema?.minLength ?? 16;

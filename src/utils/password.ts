@@ -22,9 +22,16 @@ import {
 } from "lodash-es";
 // -----------------------------------------------------------------------------
 
+// Character pool for the generator. Excludes visually ambiguous glyphs
+// (`l`, `I`, `o`, `O`, `0`, `1`) so a user transcribing a generated password
+// off-screen can't confuse them. Symbols are limited to shell/URL-safe ones.
 const GENERATOR_POOL =
   "abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789!@#$%^&*_+-=?";
 
+// Scoring heuristic used when no explicit `requirements` are supplied.
+// Must stay in lockstep with `auth_password.requirements` in the i18n-backed
+// uischema options so the meter and error text agree on the same rule set:
+// min length 8, contains a letter, contains a digit, contains a symbol.
 const FALLBACK_PATTERNS = [/.{8,}/, /[a-zA-Z]/, /\d/, /[^a-zA-Z0-9]/];
 
 /** Cryptographically-random integer in [0, max), with rejection sampling to eliminate modulo bias. */
@@ -46,13 +53,13 @@ function randomString(length: number, pool: string): string {
  * generic 4-point heuristic (length≥8, letter, digit, symbol) when absent.
  */
 export function scorePassword(
-  value: string,
+  value?: string,
   requirements?: Record<string, string>
 ): number {
   const patterns = requirements
     ? map(values(requirements), p => new RegExp(p))
     : FALLBACK_PATTERNS;
-  return filter(patterns, p => p.test(value)).length;
+  return filter(patterns, p => p.test(value ?? "")).length;
 }
 
 /**
