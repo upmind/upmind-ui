@@ -49,6 +49,20 @@
             />
           </template>
         </Form>
+
+        <div
+          v-if="
+            meta.showRegisterForm && !meta.show2fa && isGuestCheckoutAvailable
+          "
+          :class="styles.session.auth.actions"
+        >
+          <Link
+            @click="registerAsGuest"
+            color="muted"
+            :label="t('auth.checkout_as_guest')"
+            size="lg"
+          />
+        </div>
       </div>
 
       <div
@@ -77,7 +91,8 @@ import { useI18n } from "vue-i18n";
 import TermsAndConditions from "../../brand/TermsAndConditions.vue";
 import Form from "../../../components/form/Form.vue";
 import config from "../session.config";
-import { useSession } from "@upmind-automation/headless";
+import { useSession, useBrand, useBasket } from "@upmind-automation/headless";
+import { BrandConfigKeys } from "@upmind-automation/types";
 import {
   useStyles,
   cn,
@@ -89,7 +104,7 @@ import {
 import { Alert, Button, Link } from "@upmind-automation/upmind-ui";
 
 // --- utils
-import { find, get, map } from "lodash-es";
+import { every, find, get, map } from "lodash-es";
 
 // --- types
 import type { SessionProps } from "../types";
@@ -114,6 +129,7 @@ const {
   showLogin,
   showRegister,
   showRecoverPassword,
+  registerAsGuest,
   model,
   schema,
   uischema,
@@ -123,18 +139,32 @@ const {
   setModel
 } = useSession();
 
+const { getConfigValue } = useBrand();
+const { products } = useBasket();
+
+const isGuestCheckoutAvailable = computed(() => {
+  const guestEnabled = getConfigValue<boolean>(
+    BrandConfigKeys.GUEST_CHECKOUT_ENABLED
+  );
+  if (!guestEnabled) return false;
+  const allOneTime = every(products.value, p => p.meta?.oneoff);
+  return allOneTime;
+});
+
 // await isReady();
 
 const styles = useStyles(["session.auth"], meta, config);
 
 const currentForm = computed(() => {
-  return meta.value.showLoginForm
-    ? "login"
-    : meta.value.showRegisterForm
-      ? "register"
-      : meta.value.showRecoverPasswordForm
-        ? "recover"
-        : "unknown";
+  return meta.value.showAsGuestForm
+    ? "guest"
+    : meta.value.showLoginForm
+      ? "login"
+      : meta.value.showRegisterForm
+        ? "register"
+        : meta.value.showRecoverPasswordForm
+          ? "recover"
+          : "unknown";
 });
 
 // --- 2fa

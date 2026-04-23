@@ -136,6 +136,10 @@
         </template>
       </OrderProducts>
     </template>
+
+    <template v-if="meta.isComplete" #guest-registration>
+      <GuestRegistration v-show="!meta.isProcessing" />
+    </template>
   </component>
 
   <!-- Payment processing -->
@@ -166,6 +170,7 @@ import {
 import { useConfig } from "@upmind-automation/headless";
 
 // -- components
+import GuestRegistration from "./components/GuestRegistration.vue";
 import OrderProducts from "./components/OrderProducts.vue";
 import PaymentDetails from "../payment/components/PaymentDetails.vue";
 import PaymentProcessing from "../payment/components/PaymentProcessing.vue";

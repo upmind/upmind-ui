@@ -44,6 +44,9 @@
     />
   </Section>
 
+  <!-- Guest Email -->
+  <GuestEmail v-show="showCheckout" />
+
   <!-- Billing -->
   <template v-if="showCheckout">
     <BillingSummary
@@ -82,6 +85,7 @@ import { useConfig, UIContext } from "@upmind-automation/headless";
 import Section from "../../../components/section/Section.vue";
 import BillingForm from "../../billing/components/BillingForm.vue";
 import BillingSummary from "../../billing/components/BillingSummary.vue";
+import GuestEmail from "./GuestEmail.vue";
 import PaymentDetails from "../../payment/components/PaymentDetails.vue";
 import ProductCards from "../../basket-product/components/card/BasketProductCards.vue";
 import Form from "../../../components/form/Form.vue";
