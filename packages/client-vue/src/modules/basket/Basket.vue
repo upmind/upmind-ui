@@ -16,6 +16,14 @@
       </template>
 
       <template #products>
+        <slot name="errors">
+          <BasketAlerts
+            id="basket-errors"
+            basket-fields
+            basket-products
+            :basket-products-route="props.editRoute"
+          />
+        </slot>
         <BasketProducts v-model:open="open" :edit-route="props.editRoute">
           <template #products="{ open }">
             <slot name="products" :open="open" />
@@ -41,34 +49,12 @@
               !meta.isLoading
             "
             :show-total="variant !== LAYOUT_VARIANTS.TWO_COLUMN_RTL"
-          >
-            <template v-if="hasInlineCheckout" #errors>
-              <BasketErrors
-                id="basket-errors"
-                basket-fields
-                basket-products
-                :basket-products-route="props.editRoute"
-              />
-              <BasketWarnings />
-            </template>
-          </BasketPricing>
+          />
         </slot>
       </template>
 
       <template #total>
         <BasketTotal footer />
-      </template>
-
-      <template v-if="!hasInlineCheckout" #errors>
-        <slot name="errors">
-          <BasketErrors
-            id="basket-errors"
-            basket-fields
-            basket-products
-            :basket-products-route="props.editRoute"
-          />
-          <BasketWarnings />
-        </slot>
       </template>
 
       <template #markdown>
@@ -137,8 +123,7 @@ import Back from "../../components/navigation/Back.vue";
 import BasketSummary from "./components/BasketSummary.vue";
 import BasketProducts from "./components/BasketProducts.vue";
 import BasketPricing from "./components/BasketPricing.vue";
-import BasketErrors from "./components/BasketErrors.vue";
-import BasketWarnings from "./components/BasketWarnings.vue";
+import BasketAlerts from "./components/BasketAlerts.vue";
 import BasketCheckout from "./components/BasketCheckout.vue";
 import BasketTotal from "./components/BasketTotal.vue";
 import Transitions from "../../components/layout/components/transition/Transition.vue";
@@ -212,12 +197,6 @@ const template = computed(() =>
 );
 
 const templateVariant = computed(() => get(supportedTemplates, template.value));
-
-const hasInlineCheckout = computed(() =>
-  [BASKET_TEMPLATE.TWO_COLUMN_LTR, BASKET_TEMPLATE.FULL].includes(
-    template.value
-  )
-);
 
 await isReady();
 

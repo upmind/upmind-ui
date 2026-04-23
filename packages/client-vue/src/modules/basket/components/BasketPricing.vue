@@ -14,8 +14,6 @@
         :loading="props.loading"
       />
     </footer>
-
-    <slot name="errors" />
   </Section>
 </template>
 
