@@ -638,6 +638,7 @@ export const useBasket = () => {
      * @property {boolean} hasPaid - Indicates if the basket has been paid.
      * @property {boolean} hasFailed - Indicates if the basket has failed.
      * @property {boolean} hasErrors - Indicates if the basket has an error.
+     * @property {boolean} hasWarningNotes - Indicates if the basket has non-hidden warning notes to display.
      */
     meta,
 

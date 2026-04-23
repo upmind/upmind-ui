@@ -3,7 +3,7 @@ import { createMachine, assign, spawn } from "xstate";
 
 // --- internal
 import services from "./services";
-import { dismissAllWarningNotes as dismissAllWarningNotesService } from "./services";
+import { dismissAllWarningNotes } from "./services";
 import paymentMachine from "../payment/payment.machine";
 import { useDataLayer } from "../system";
 import { authSubscription } from "../session/helper";
@@ -343,7 +343,7 @@ export default createMachine(
             actions: ["incrementAttempts"]
           },
           DISMISS_ALL_WARNINGS: {
-            actions: ["dismissAllWarningNotes"]
+            actions: ["dismissAllWarnings", "clearWarningNotes"]
           }
         },
         onDone: "checkout"
@@ -591,14 +591,14 @@ export default createMachine(
         }
       }),
 
-      dismissAllWarningNotes: assign({
-        warningNotes: (context: BasketContext) => {
-          if (!isEmpty(context.warningNotes)) {
-            const ids = map(context.warningNotes, "id");
-            dismissAllWarningNotesService(context, ids);
-          }
-          return [];
-        }
+      dismissAllWarnings: (context: BasketContext) => {
+        if (isEmpty(context.warningNotes)) return;
+        const ids = map(context.warningNotes, "id");
+        dismissAllWarningNotes(context, ids);
+      },
+
+      clearWarningNotes: assign({
+        warningNotes: () => []
       }),
 
       restartActors: assign({
