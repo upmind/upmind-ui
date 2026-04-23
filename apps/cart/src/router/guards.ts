@@ -100,6 +100,15 @@ export default {
   },
 
   /**
+   * Returns true when any domain products are invalid or missing provision fields.
+   * Used by BASKET NEXT to route through the registrant flow.
+   */
+  hasInvalidDomains: () => {
+    const { invalidDomains } = useDomainRegistrant();
+    return !isEmpty(invalidDomains.value);
+  },
+
+  /**
    * Returns true when all domain registrant details are complete or skipped.
    * Used by DOMAIN_REGISTRANT to skip when already complete.
    */

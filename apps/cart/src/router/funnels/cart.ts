@@ -252,6 +252,14 @@ export default <FunnelProps>{
             cond: "hasStandaloneBilling"
           },
           {
+            target: ROUTE.DOMAIN_REGISTRANT,
+            actions: [
+              "setResolving",
+              assign({ targetRoute: { name: ROUTE.DOMAIN_REGISTRANT } })
+            ],
+            cond: "hasInvalidDomains"
+          },
+          {
             target: ROUTE.CHECKOUT,
             actions: [assign({ targetRoute: { name: ROUTE.CHECKOUT } })]
           }
@@ -772,6 +780,14 @@ export default <FunnelProps>{
       },
       on: {
         NEXT: [
+          {
+            target: ROUTE.DOMAIN_REGISTRANT,
+            actions: [
+              "setResolving",
+              assign({ targetRoute: { name: ROUTE.DOMAIN_REGISTRANT } })
+            ],
+            cond: "hasInvalidDomains"
+          },
           {
             target: ROUTE.CHECKOUT,
             actions: [assign({ targetRoute: { name: ROUTE.CHECKOUT } })]
