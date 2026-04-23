@@ -9,7 +9,7 @@ import services from "./services";
 import { mapToHeadlessError } from "../../utils";
 import { isDomainProduct } from "../domain/utils";
 import { parseBasketProduct } from "../basketProduct/utils";
-import { has, isObject, reduce, set, some } from "lodash-es";
+import { every, has, isEmpty, isObject, reduce, set } from "lodash-es";
 
 // --- types
 import type { AnyEventObject } from "xstate";
@@ -47,7 +47,7 @@ export default createMachine(
         on: {
           REFRESH: {
             target: "loading",
-            actions: ["setBasketProducts"]
+            actions: ["setBasketProducts", "resetModel"]
           },
           ERROR: {
             target: "unavailable",
@@ -77,6 +77,9 @@ export default createMachine(
             ]
           },
           processing: {
+            entry: () => {
+              debugger;
+            },
             invoke: {
               src: "applyToBasket",
               onDone: {
@@ -93,7 +96,7 @@ export default createMachine(
           // Basket updates
           REFRESH: {
             target: ".idle",
-            actions: ["setBasketProducts"]
+            actions: ["setBasketProducts", "resetModel"]
           },
           // Selection (checkboxes)
           SET: {
@@ -102,12 +105,17 @@ export default createMachine(
           // Apply billing to selected products
           APPLY_BILLING: {
             target: ".processing",
-            actions: ["setModelOverride"]
+            actions: [
+              () => {
+                debugger;
+              },
+              "overrideModel"
+            ]
           },
           // Apply provision fields to selected products (from inline edit)
           APPLY_PROVISION: {
             target: ".processing",
-            actions: ["setModelOverride"]
+            actions: ["overrideModel"]
           }
         }
       },
@@ -123,8 +131,10 @@ export default createMachine(
       }
     },
     on: {
-      REFRESH: { target: "loading", actions: ["setBasketProducts"] },
-      SET: { actions: ["setSelectedProducts"] }
+      REFRESH: {
+        target: "loading",
+        actions: ["setBasketProducts", "resetModel"]
+      }
     }
   },
   {
@@ -180,13 +190,13 @@ export default createMachine(
       }),
 
       // --- basket sync
-      setBasketProducts: assign({
-        lookups: (
+      setBasketProducts: assign(
+        (
           { lookups, parseBasketProduct }: DomainRegistrantContext,
           { data }: AnyEventObject
         ) => {
-          if (!isObject(data) || !has(data, "products")) return lookups;
-          // 1st filter out only the domain products from the basket products
+          if (!isObject(data) || !has(data, "products")) return {};
+
           const domainProducts: BasketProduct[] = reduce(
             data?.products,
             (acc: BasketProduct[], basketProduct: IBasketProduct) => {
@@ -198,8 +208,23 @@ export default createMachine(
           );
 
           set(lookups, "basketProducts", domainProducts);
-          return lookups;
+
+          return { lookups };
         }
+      ),
+
+      resetModel: assign({
+        model: ({ lookups }: DomainRegistrantContext) =>
+          reduce(
+            lookups.basketProducts,
+            (acc: string[], p: BasketProduct) => {
+              if (p.meta?.invalid || isEmpty(p.configuration.provisionFields)) {
+                acc.push(p.id);
+              }
+              return acc;
+            },
+            []
+          )
       }),
 
       // --- selection
@@ -209,14 +234,15 @@ export default createMachine(
       }),
 
       // Override model if bpids provided in event data
-      setModelOverride: assign(
-        (_context: DomainRegistrantContext, { data }: AnyEventObject) => {
-          if (data?.bpids) {
-            return { model: data.bpids as string[] };
-          }
-          return {};
+      overrideModel: assign({
+        model: (
+          { model }: DomainRegistrantContext,
+          { data }: AnyEventObject
+        ) => {
+          debugger;
+          return data?.bpids || model;
         }
-      ),
+      }),
 
       // --- error
       setError: assign({
@@ -225,13 +251,16 @@ export default createMachine(
       })
     },
     guards: {
-      hasDomainProducts: (context: DomainRegistrantContext) =>
-        context.lookups.basketProducts.length > 0,
-      noDomainProducts: (context: DomainRegistrantContext) =>
-        context.lookups.basketProducts.length === 0,
-      allDomainsComplete: (context: DomainRegistrantContext) =>
-        context.lookups.basketProducts.length > 0 &&
-        context.lookups.basketProducts.every(p => !p.meta?.invalid)
+      hasDomainProducts: ({ lookups }: DomainRegistrantContext) =>
+        !isEmpty(lookups.basketProducts),
+      noDomainProducts: ({ lookups }: DomainRegistrantContext) =>
+        isEmpty(lookups.basketProducts),
+      allDomainsComplete: ({ lookups }: DomainRegistrantContext) =>
+        !isEmpty(lookups.basketProducts) &&
+        every(
+          lookups.basketProducts,
+          bp => !bp.meta?.invalid || isEmpty(bp.configuration.provisionFields)
+        )
     },
     services
   }

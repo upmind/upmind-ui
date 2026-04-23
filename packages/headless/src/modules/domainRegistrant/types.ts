@@ -9,6 +9,13 @@ import type { IBasketProduct } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 
+export enum DomainRegistrantEventType {
+  APPLY_BILLING = "APPLY_BILLING",
+  APPLY_PROVISION = "APPLY_PROVISION",
+  REFRESH = "REFRESH",
+  SET = "SET"
+}
+
 /**
  * Context shape for the registrant XState machine.
  */
@@ -28,23 +35,3 @@ export type DomainRegistrantContext = {
   /** Parser function for domain basket products. */
   parseBasketProduct: (raw: IBasketProduct) => BasketProduct | undefined;
 };
-
-/**
- * Events for the registrant machine.
- */
-export type DomainRegistrantEvent =
-  | { type: "REFRESH"; data?: any }
-  | { type: "STOP" }
-  | { type: "AUTHENTICATED" }
-  | { type: "UNAUTHENTICATED" }
-  | { type: "SET"; bpids: string[] }
-  | {
-      type: "APPLY_BILLING";
-      billing: Address | Company;
-      bpids?: string[];
-    }
-  | {
-      type: "APPLY_PROVISION";
-      data: Record<string, string>;
-      bpids?: string[];
-    };

@@ -58,6 +58,7 @@
     <DomainCheckboxes
       v-if="!registrantMeta.isEmpty"
       v-model="selectedDomainIds"
+      hide-valid
     />
   </Loading>
 
@@ -235,7 +236,6 @@ async function doContinue() {
       await applyBilling(billing, selectedDomainIds.value);
     }
   }
-
   navigateNext();
 }
 

@@ -9,7 +9,7 @@ import registrantMachine from "./domainRegistrant.machine";
 
 // --- utils
 import { contextValue, stateMatches, useContext } from "../../utils";
-import { isEmpty } from "lodash-es";
+import { filter, isEmpty } from "lodash-es";
 
 // --- types
 import type { Address, Company } from "../client";
@@ -31,7 +31,7 @@ import type { DomainRegistrantContext } from "./types";
 // -----------------------------------------------------------------------------
 
 // Singleton service - started lazily on first use (same pattern as useSession)
-const registrantService = interpret(registrantMachine, { devTools: true });
+const service = interpret(registrantMachine, { devTools: true });
 
 // -----------------------------------------------------------------------------
 
@@ -44,16 +44,20 @@ const registrantService = interpret(registrantMachine, { devTools: true });
  */
 export function useDomainRegistrant() {
   // Start service lazily on first use (same pattern as useSession)
-  if (registrantService.status === InterpreterStatus.NotStarted) {
-    registrantService.start();
+  if (service.status === InterpreterStatus.NotStarted) {
+    service.start();
   }
 
-  const { state, send } = useActor(registrantService);
+  const { state, send } = useActor(service);
 
   // --- context
 
   /** Selected product IDs (from checkboxes) */
-  const model = useContext<DomainRegistrantContext["model"]>(state, "model");
+  const model = useContext<NonNullable<DomainRegistrantContext["model"]>>(
+    state,
+    "model",
+    []
+  );
 
   /** Error from last operation */
   const error = useContext<DomainRegistrantContext["error"]>(state, "error");
@@ -66,6 +70,14 @@ export function useDomainRegistrant() {
     );
     return lookups?.basketProducts ?? [];
   });
+
+  /** Domain products that are invalid or missing provision fields */
+  const invalidDomains = computed(() =>
+    filter(
+      domains.value,
+      d => d.meta?.invalid || isEmpty(d.configuration.provisionFields)
+    )
+  );
 
   // --- meta
 
@@ -86,7 +98,7 @@ export function useDomainRegistrant() {
 
   async function isReady(): Promise<boolean> {
     return waitFor(
-      registrantService,
+      service,
       s => stateMatches(s, ["available", "unavailable", "complete"]),
       { timeout: Infinity }
     )
@@ -101,7 +113,7 @@ export function useDomainRegistrant() {
   async function select(bpids: string[]): Promise<void> {
     send({ type: "SET", data: bpids });
     return waitFor(
-      registrantService,
+      service,
       state =>
         stateMatches(state, ["available.idle", "unavailable", "complete"]),
       { timeout: 60_000 }
@@ -120,11 +132,17 @@ export function useDomainRegistrant() {
     billing: Address | Company,
     bpids?: string[]
   ): Promise<void> {
+    debugger;
     send({ type: "APPLY_BILLING", data: { billing, bpids } });
+    debugger;
     return waitFor(
-      registrantService,
+      service,
       state =>
-        stateMatches(state, ["available.idle", "unavailable", "complete"]),
+        stateMatches(state, [
+          "available.processing",
+          "unavailable",
+          "complete"
+        ]),
       { timeout: 60_000 }
     )
       .then(state => {
@@ -149,7 +167,7 @@ export function useDomainRegistrant() {
   ): Promise<void> {
     send({ type: "APPLY_PROVISION", data: { provision: data, bpids } });
     return waitFor(
-      registrantService,
+      service,
       state =>
         stateMatches(state, ["available.idle", "unavailable", "complete"]),
       { timeout: 60_000 }
@@ -176,6 +194,8 @@ export function useDomainRegistrant() {
     domains,
     /** Error from last operation. */
     error,
+    /** Domain products that are invalid or missing provision fields. */
+    invalidDomains,
     /** Selected product IDs. */
     model,
 

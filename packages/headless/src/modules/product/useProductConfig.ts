@@ -93,14 +93,17 @@ export const useProductConfig = (service: ActorRef<any>) => {
     "lookups.attributes"
   );
   const options = useContext<SubproductDetails[]>(state, "lookups.options");
-  const fields = useContext<Record<string, any>>(
+  const provisionFields = useContext<Record<string, any>>(
     state,
-    "schema.properties.provisionFields"
+    "lookups.provisionFields"
   );
 
   const schema = useContext<JsonSchema7>(state, "schema");
   const uischema = useContext<UISchemaElement>(state, "uischema");
-
+  const provisionFieldsSchema = useContext<Record<string, any>>(
+    state,
+    "schema.properties.provisionFields"
+  );
   // ---
   const errors = useContext<Product["errors"]>(state, "error");
 
@@ -416,13 +419,14 @@ export const useProductConfig = (service: ActorRef<any>) => {
     raw,
     schema,
     uischema,
+    provisionFieldsSchema,
     title,
     // productDetails,
     productImage,
     terms,
     options,
     attributes,
-    fields,
+    provisionFields,
     // ---
     model,
     product,

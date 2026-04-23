@@ -21,21 +21,39 @@ import type { ProductModel } from "../product/types";
  * @returns Record of provision field key → value pairs
  */
 export function mapBillingToProvisionFields(
-  billing: Address | Company,
+  model: Address | Company,
   baseModel: ProductModel["provisionFields"]
-): ProductModel["provisionFields"] {
-  if (!billing) return {};
+): NonNullable<ProductModel["provisionFields"]> {
+  if (!model) return {};
 
   const result = defaultsDeep(
     {
-      registrant_organisation: get(billing, "name"),
-      registrant_address_1: get(billing, "address.address1"),
-      registrant_city: get(billing, "address.city"),
-      registrant_state: get(billing, "address.state"),
-      registrant_postcode: get(billing, "address.postcode")
+      registrant_organisation: get(model, "name"),
+      registrant_address_1: get(model, "address.address1"),
+      registrant_city: get(model, "address.city"),
+      registrant_state: get(model, "address.state"),
+      registrant_postcode: get(model, "address.postcode")
     },
     baseModel
-  ) as ProductModel["provisionFields"];
+  ) as NonNullable<ProductModel["provisionFields"]>;
+
+  return result;
+}
+
+/**
+ * Maps billing source (Address or Company) to provision fields.
+ *
+ * @param billing - Address or Company entity
+ * @param baseModel - Existing provision fields to check for nullish values
+ * @returns Record of provision field key → value pairs
+ */
+export function mapProvisionFields(
+  model: ProductModel["provisionFields"],
+  baseModel: ProductModel["provisionFields"]
+): NonNullable<ProductModel["provisionFields"]> {
+  const result = defaultsDeep(model, baseModel) as NonNullable<
+    ProductModel["provisionFields"]
+  >;
 
   return result;
 }
