@@ -41,7 +41,17 @@
               !meta.isLoading
             "
             :show-total="variant !== LAYOUT_VARIANTS.TWO_COLUMN_RTL"
-          />
+          >
+            <template v-if="hasInlineCheckout" #errors>
+              <BasketErrors
+                id="basket-errors"
+                basket-fields
+                basket-products
+                :basket-products-route="props.editRoute"
+              />
+              <BasketWarnings />
+            </template>
+          </BasketPricing>
         </slot>
       </template>
 
@@ -49,7 +59,7 @@
         <BasketTotal footer />
       </template>
 
-      <template #errors>
+      <template v-if="!hasInlineCheckout" #errors>
         <slot name="errors">
           <BasketErrors
             id="basket-errors"
@@ -202,6 +212,12 @@ const template = computed(() =>
 );
 
 const templateVariant = computed(() => get(supportedTemplates, template.value));
+
+const hasInlineCheckout = computed(() =>
+  [BASKET_TEMPLATE.TWO_COLUMN_LTR, BASKET_TEMPLATE.FULL].includes(
+    template.value
+  )
+);
 
 await isReady();
 
