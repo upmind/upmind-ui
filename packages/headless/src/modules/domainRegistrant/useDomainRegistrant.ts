@@ -64,14 +64,16 @@ export function useDomainRegistrant() {
   // --- meta
 
   const meta = computed(() => ({
+    /** True when machine is available (has domains). */
+    isAvailable: stateMatches(state.value, "available"),
+    /** True when all domain registrant details are complete. */
+    isComplete: stateMatches(state.value, "complete"),
     /** True when there are no domain products in the basket. */
     isEmpty: isEmpty(domains.value),
     /** True when the machine is processing a save. */
-    isProcessing: state.value.matches("available.processing"),
+    isProcessing: stateMatches(state.value, "available.processing"),
     /** True when machine has finished subscribing. */
-    isReady: !state.value.matches("subscribing"),
-    /** True when machine is available (has domains). */
-    isAvailable: state.value.matches("available")
+    isReady: !stateMatches(state.value, ["subscribing", "loading"])
   }));
 
   // --- methods

@@ -636,6 +636,14 @@ export default {
       }
     }
 
+    // Redirect to registrant flow if domain products exist but registrant data is incomplete
+    const { meta: registrantMeta } = useDomainRegistrant();
+    if (!registrantMeta.value.isEmpty && !registrantMeta.value.isComplete) {
+      return Promise.reject({
+        target: { name: ROUTE.DOMAIN_REGISTRANT }
+      } as FunnelResponse);
+    }
+
     return { target: context.targetRoute ?? { name: ROUTE.CHECKOUT } };
   },
 
@@ -682,35 +690,38 @@ export default {
   },
 
   /**
-   * 🎯 Guard: REGISTRANT
+   * 🎯 Guard: DOMAIN_REGISTRANT_EDIT
    * Validates that the basket contains domain products requiring registrant details.
-   * If no domain products exist, rejects to redirect back to billing.
+   * If no domain products exist, rejects to redirect back.
    */
-  guardRegistrant: async (context: FunnelContext): Promise<FunnelResponse> => {
-    await ensureBidAuth(context, { name: ROUTE.REGISTRANT });
+  guardDomainRegistrantEdit: async (
+    context: FunnelContext
+  ): Promise<FunnelResponse> => {
+    await ensureBidAuth(context, { name: ROUTE.DOMAIN_REGISTRANT_EDIT });
 
-    const { hasDomainProducts } = useDomainRegistrant();
-    if (!hasDomainProducts.value) return Promise.reject();
+    const { meta } = useDomainRegistrant();
+    if (meta.value.isEmpty) return Promise.reject();
 
-    return { target: context.targetRoute ?? { name: ROUTE.REGISTRANT } };
+    return {
+      target: context.targetRoute ?? { name: ROUTE.DOMAIN_REGISTRANT_EDIT }
+    };
   },
 
   /**
-   * 🎯 Guard: REGISTRANT_REVIEW
-   * Validates that all domain registrant details are complete before
-   * allowing the user to proceed to checkout.
-   * If registrant data is incomplete, rejects to redirect to the registrant form.
+   * 🎯 Guard: DOMAIN_REGISTRANT
+   * Validates that the basket contains domain products.
+   * If no domain products exist, rejects to redirect.
    */
-  guardRegistrantReview: async (
+  guardDomainRegistrant: async (
     context: FunnelContext
   ): Promise<FunnelResponse> => {
-    await ensureBidAuth(context, { name: ROUTE.REGISTRANT_REVIEW });
+    await ensureBidAuth(context, { name: ROUTE.DOMAIN_REGISTRANT });
 
-    const { hasDomainProducts } = useDomainRegistrant();
-    if (!hasDomainProducts.value) return Promise.reject();
+    const { meta } = useDomainRegistrant();
+    if (meta.value.isEmpty) return Promise.reject();
 
     return {
-      target: context.targetRoute ?? { name: ROUTE.REGISTRANT_REVIEW }
+      target: context.targetRoute ?? { name: ROUTE.DOMAIN_REGISTRANT }
     };
   }
 };

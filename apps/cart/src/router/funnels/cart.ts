@@ -785,51 +785,50 @@ export default <FunnelProps>{
     },
 
     /**
-     * 🎯 ROUTE.REGISTRANT
+     * 🎯 ROUTE.DOMAIN_REGISTRANT_EDIT
      * This state manages the domain registrant details form.
      * Users fill in or edit registrant details for domain products in the basket.
      * Only accessible when the basket contains domain products.
      * On NEXT, transitions to the registrant review page.
      */
-    [ROUTE.REGISTRANT]: {
-      entry: ["setCurrency"],
+    [ROUTE.DOMAIN_REGISTRANT_EDIT]: {
       invoke: {
-        src: "guardRegistrant",
+        src: "guardDomainRegistrantEdit",
         onDone: [
           {
-            target: ROUTE.REGISTRANT_REVIEW,
+            target: ROUTE.DOMAIN_REGISTRANT,
             actions: ["setResolving"],
             cond: "isRegistrantComplete"
           },
           { actions: ["setResolved"] }
         ],
-        onError: { target: ROUTE.BILLING, actions: ["setResolving"] }
+        onError: { target: ROUTE.DOMAIN_REGISTRANT, actions: ["setResolving"] }
       },
       on: {
         NEXT: {
-          target: ROUTE.REGISTRANT_REVIEW,
-          actions: [assign({ targetRoute: { name: ROUTE.REGISTRANT_REVIEW } })]
+          target: ROUTE.DOMAIN_REGISTRANT,
+          actions: [assign({ targetRoute: { name: ROUTE.DOMAIN_REGISTRANT } })]
         },
         BACK: {
-          target: ROUTE.BILLING,
-          actions: [assign({ targetRoute: { name: ROUTE.BILLING } })]
+          target: ROUTE.DOMAIN_REGISTRANT,
+          actions: [assign({ targetRoute: { name: ROUTE.DOMAIN_REGISTRANT } })]
         }
       }
     },
 
     /**
-     * 🎯 ROUTE.REGISTRANT_REVIEW
+     * 🎯 ROUTE.DOMAIN_REGISTRANT
      * This state manages the registrant details review page.
      * Shows all domain registrant statuses with completeness tracking.
      * If all domains are complete, the user can proceed to checkout.
      * If incomplete, the user is blocked until all domains have registrant data.
      */
-    [ROUTE.REGISTRANT_REVIEW]: {
+    [ROUTE.DOMAIN_REGISTRANT]: {
       entry: ["setCurrency"],
       invoke: {
-        src: "guardRegistrantReview",
+        src: "guardDomainRegistrant",
         onDone: { actions: ["setResolved"] },
-        onError: { target: ROUTE.REGISTRANT, actions: ["setResolving"] }
+        onError: { target: ROUTE.CHECKOUT, actions: ["setResolving"] }
       },
       on: {
         NEXT: {
@@ -837,8 +836,8 @@ export default <FunnelProps>{
           actions: [assign({ targetRoute: { name: ROUTE.CHECKOUT } })]
         },
         BACK: {
-          target: ROUTE.REGISTRANT,
-          actions: [assign({ targetRoute: { name: ROUTE.REGISTRANT } })]
+          target: ROUTE.BILLING,
+          actions: [assign({ targetRoute: { name: ROUTE.BILLING } })]
         }
       }
     },
