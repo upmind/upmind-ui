@@ -51,6 +51,7 @@
 
       <template #errors>
         <slot name="errors">
+          <BasketWarnings />
           <BasketErrors
             id="basket-errors"
             basket-fields
@@ -127,6 +128,7 @@ import BasketSummary from "./components/BasketSummary.vue";
 import BasketProducts from "./components/BasketProducts.vue";
 import BasketPricing from "./components/BasketPricing.vue";
 import BasketErrors from "./components/BasketErrors.vue";
+import BasketWarnings from "./components/BasketWarnings.vue";
 import BasketCheckout from "./components/BasketCheckout.vue";
 import BasketTotal from "./components/BasketTotal.vue";
 import Transitions from "../../components/layout/components/transition/Transition.vue";

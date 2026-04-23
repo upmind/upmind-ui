@@ -47,8 +47,9 @@
       </template>
     </component>
 
-    <template v-if="meta.hasErrors" #errors>
+    <template v-if="meta.hasErrors || meta.hasWarningNotes" #errors>
       <slot name="errors">
+        <BasketWarnings v-show="showCheckout" />
         <CheckoutErrors v-show="showCheckout" />
       </slot>
     </template>
@@ -89,6 +90,7 @@ import CheckoutSummary from "./components/CheckoutSummary.vue";
 import CheckoutContent from "./components/CheckoutContent.vue";
 import CheckoutPricing from "./components/CheckoutPricing.vue";
 import CheckoutErrors from "./components/CheckoutErrors.vue";
+import BasketWarnings from "../basket/components/BasketWarnings.vue";
 
 // --- templates
 const supportedTemplates = {

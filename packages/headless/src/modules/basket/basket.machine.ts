@@ -3,22 +3,21 @@ import { createMachine, assign, spawn } from "xstate";
 
 // --- internal
 import services from "./services";
+import { dismissAllWarningNotes as dismissAllWarningNotesService } from "./services";
 import paymentMachine from "../payment/payment.machine";
-import { useDataLayer, useI18n } from "../system";
+import { useDataLayer } from "../system";
 import { authSubscription } from "../session/helper";
 import { useSession } from "../session";
 
-import { useFeedback } from "../feedback";
-
 // --- utils
 import {
+  filter,
+  forEach,
   get,
   has,
-  map,
-  reduce,
-  forEach,
   isEmpty,
   isEqual,
+  map,
   defaultsDeep
 } from "lodash-es";
 import {
@@ -41,7 +40,7 @@ import {
 import { parseBasketProduct } from "../basketProduct/utils";
 
 // --- types
-import type { Message } from "../feedback";
+import type { IWarningNote } from "@upmind-automation/types";
 import type { BasketContext } from "./types";
 import type { AnyEventObject } from "xstate";
 import type { PaymentArgs } from "../payment";
@@ -342,6 +341,9 @@ export default createMachine(
           // so we will just count the attempts here so we understand that user tried to checkout but was not ready
           CHECKOUT: {
             actions: ["incrementAttempts"]
+          },
+          DISMISS_ALL_WARNINGS: {
+            actions: ["dismissAllWarningNotes"]
           }
         },
         onDone: "checkout"
@@ -534,7 +536,8 @@ export default createMachine(
         paymentDetail: undefined,
         payment: undefined,
         invoice: undefined,
-        targetBasketId: undefined
+        targetBasketId: undefined,
+        warningNotes: undefined
       }),
 
       setPaymentDetail: assign({
@@ -575,42 +578,28 @@ export default createMachine(
         }
       }),
 
-      setWarningNotes: (context: BasketContext, { data }: AnyEventObject) => {
-        const { t } = useI18n();
-        const basket = get(data, "basket", data);
-        if (has(basket, "warning_notes") && !isEmpty(basket.warning_notes)) {
-          reduce(
-            basket.warning_notes,
-            (
-              acc,
-              note: { id: string; message: string; is_hidden: boolean }
-            ) => {
-              if (!note.is_hidden) {
-                useFeedback().addWarning({
-                  hash: note.id,
-                  copy: note.message,
-                  data: { persist: true },
-                  actions: [
-                    {
-                      icon: "close",
-                      label: t("action.dismiss"),
-                      value: "dismiss",
-                      handler: async (ctx: Message) => {
-                        services.dismissWarningNotes(context, {
-                          type: "DISMISS_WARNING",
-                          data: ctx.hash
-                        });
-                      }
-                    }
-                  ]
-                });
-              }
-              return acc;
-            },
-            null
-          );
+      setWarningNotes: assign({
+        warningNotes: (_context: BasketContext, { data }: AnyEventObject) => {
+          const basket = get(data, "basket", data);
+          if (has(basket, "warning_notes") && !isEmpty(basket.warning_notes)) {
+            return filter(
+              basket.warning_notes,
+              (note: IWarningNote) => !note.is_hidden
+            );
+          }
+          return [];
         }
-      },
+      }),
+
+      dismissAllWarningNotes: assign({
+        warningNotes: (context: BasketContext) => {
+          if (!isEmpty(context.warningNotes)) {
+            const ids = map(context.warningNotes, "id");
+            dismissAllWarningNotesService(context, ids);
+          }
+          return [];
+        }
+      }),
 
       restartActors: assign({
         actors: ({ actors, basket, error }: BasketContext) => {

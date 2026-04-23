@@ -269,7 +269,23 @@ async function getProvisioningFieldsValues(basket: IBasket) {
       };
     });
 }
+async function dismissAllWarningNotes(
+  { basket }: BasketContext,
+  ids: string[]
+) {
+  const { put, useUrl } = useQuery();
+
+  return put({
+    mutationKey: ["basket", basket?.id, "warnings", "dismiss-all"],
+    url: useUrl(`/orders/${basket?.id}/warnings/hide`),
+    data: { ids },
+    withAccessToken: true
+  });
+}
+
 // -----------------------------------------------------------------------------
+
+export { dismissAllWarningNotes };
 
 export default {
   load,
