@@ -195,22 +195,22 @@ export default [
    * Displayed after billing when basket contains domain products.
    */
   {
-    path: "/order/registrant/",
-    name: ROUTE.REGISTRANT,
-    component: () => import("../pages/Registrant.vue"),
+    path: "/order/domain-registrant/",
+    name: ROUTE.DOMAIN_REGISTRANT,
+    component: () => import("../pages/RegistrantReview.vue"),
     meta: {
       actionEmptyBasket: true
     }
   },
 
   /**
-   * Route for reviewing domain registrant details before checkout.
-   * Shows all domain registrant statuses with completeness tracking.
+   * Route for editing domain registrant details.
+   * Shows form for editing a single domain's registrant data.
    */
   {
-    path: "/order/registrant/review/",
-    name: ROUTE.REGISTRANT_REVIEW,
-    component: () => import("../pages/RegistrantReview.vue"),
+    path: "/order/domain-registrant/edit/",
+    name: ROUTE.DOMAIN_REGISTRANT_EDIT,
+    component: () => import("../pages/Registrant.vue"),
     meta: {
       actionEmptyBasket: true
     }

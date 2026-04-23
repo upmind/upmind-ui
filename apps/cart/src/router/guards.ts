@@ -95,16 +95,16 @@ export default {
    * Used by BILLING NEXT to route through the registrant flow.
    */
   hasDomainProducts: () => {
-    const { hasDomainProducts } = useDomainRegistrant();
-    return hasDomainProducts.value;
+    const { meta } = useDomainRegistrant();
+    return !meta.value.isEmpty;
   },
 
   /**
    * Returns true when all domain registrant details are complete or skipped.
-   * Used by REGISTRANT_REVIEW to skip when already complete.
+   * Used by DOMAIN_REGISTRANT to skip when already complete.
    */
   isRegistrantComplete: () => {
-    const { isComplete } = useDomainRegistrant();
-    return isComplete.value;
+    const { meta } = useDomainRegistrant();
+    return meta.value.isComplete;
   }
 };

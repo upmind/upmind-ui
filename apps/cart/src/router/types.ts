@@ -139,14 +139,14 @@ export enum ROUTE {
   BILLING = "billing",
 
   /**
-   * The route for editing domain registrant details.
-   */
-  REGISTRANT = "registrant",
-
-  /**
    * The route for reviewing domain registrant details before checkout.
    */
-  REGISTRANT_REVIEW = "registrant-review",
+  DOMAIN_REGISTRANT = "domain-registrant",
+
+  /**
+   * The route for editing domain registrant details.
+   */
+  DOMAIN_REGISTRANT_EDIT = "domain-registrant-edit",
 
   /**
    * The route for viewing a completed order.

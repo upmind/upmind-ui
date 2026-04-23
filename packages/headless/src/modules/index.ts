@@ -5,6 +5,7 @@ export * from "./client";
 export * from "./config";
 export * from "./dataManager";
 export * from "./domain";
+export * from "./domainRegistrant";
 export * from "./feedback";
 export * from "./invoices";
 export * from "./orders";
