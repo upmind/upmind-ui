@@ -1,30 +1,26 @@
 <template>
-  <aside
+  <Alert
     v-if="meta.hasWarningNotes && !meta.isLoading"
-    :class="styles.basketWarnings.root"
     v-auto-animate
+    color="warning"
+    variant="minimal"
+    icon="alert-triangle"
+    :title="t('cart.warning_notes_title', warningNotes.length)"
+    :action="{ label: t('action.dismiss_all') }"
+    @click="dismissAllWarnings"
   >
-    <Alert
-      color="warning"
-      variant="muted"
-      icon="alert-triangle"
-      :title="t('cart.warning_notes_title', warningNotes.length)"
-      :action="{ label: t('action.dismiss_all') }"
-      @click="dismissAllWarnings"
-    >
-      <template #description>
-        <ul :class="styles.basketWarnings.list" v-auto-animate>
-          <li
-            v-for="note in warningNotes"
-            :key="note.id"
-            :class="styles.basketWarnings.item"
-          >
-            {{ note.message }}
-          </li>
-        </ul>
-      </template>
-    </Alert>
-  </aside>
+    <template #description>
+      <ul :class="styles.basketWarnings.list" v-auto-animate>
+        <li
+          v-for="note in warningNotes"
+          :key="note.id"
+          :class="styles.basketWarnings.item"
+        >
+          {{ note.message }}
+        </li>
+      </ul>
+    </template>
+  </Alert>
 </template>
 
 <script lang="ts" setup>
