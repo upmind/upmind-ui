@@ -2,7 +2,7 @@
 import type { ActorRef } from "xstate";
 import type { ResponseError } from "../../utils";
 import type { BasketProduct } from "../basketProduct";
-import type { IBasket, IInvoice } from "@upmind-automation/types";
+import type { IBasket, IInvoice, IWarningNote } from "@upmind-automation/types";
 import { type PaymentDetailData } from "../paymentDetails";
 
 // -----------------------------------------------------------------------------
@@ -13,6 +13,11 @@ import { type PaymentDetailData } from "../paymentDetails";
  * to spawned child actors for managing related concerns like billing, currency, and promotions.
  */
 export interface BasketContext {
+  /**
+   * Warning notes from the API, stored in context for banner display.
+   * Only non-hidden notes are stored.
+   */
+  warningNotes?: IWarningNote[];
   /**
    * An optional target basket ID used to load a specific basket by ID via URL.
    * When set, the basket `load` service fetches `orders/{targetBasketId}` instead of `orders/current`.

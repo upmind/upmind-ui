@@ -44,6 +44,7 @@ import {
   type IInvoice,
   type ICurrency,
   type IPromotion,
+  type IWarningNote,
   type IBasketPromotion,
   BrandConfigKeys,
   CheckoutFlows
@@ -196,7 +197,8 @@ export const useBasket = () => {
       hasCustomPrice: some(
         contextValue<IBasketPromotion[]>(state, "basket.promotions", []),
         p => !!p.promotion?.adjusted_basket_id
-      )
+      ),
+      hasWarningNotes: !isEmpty(warningNotes.value)
     };
   });
 
@@ -249,6 +251,7 @@ export const useBasket = () => {
     () => parsePromotionsOrCoupons(promotions.value) as IPromotion["code"][]
   );
   const taxes = useContext<IBasket["taxes"]>(state, "basket.taxes", []);
+  const warningNotes = useContext<IWarningNote[]>(state, "warningNotes", []);
 
   const uischema = computed(() => {
     return {
@@ -357,6 +360,10 @@ export const useBasket = () => {
 
   function prefresh(data: IBasket): void {
     send({ type: "PREFRESH", data });
+  }
+
+  function dismissAllWarnings(): void {
+    send({ type: "DISMISS_ALL_WARNINGS" });
   }
 
   async function setCurrency(currency: string) {
@@ -732,6 +739,11 @@ export const useBasket = () => {
     clear,
 
     /**
+     * Dismiss all warning notes at once.
+     */
+    dismissAllWarnings,
+
+    /**
      * Resets the basket to its initial state. Typically used after checkout or when starting a new session.
      */
     reset,
@@ -828,7 +840,12 @@ export const useBasket = () => {
     /**
      * Cancels an inline payment challenge.
      */
-    cancelChallenge
+    cancelChallenge,
+
+    /**
+     * Warning notes for the current basket (non-hidden).
+     */
+    warningNotes
   };
 };
 
