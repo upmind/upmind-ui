@@ -1,12 +1,12 @@
 <template>
-  <div :class="styles.basketAlerts.root" v-auto-animate>
+  <div v-if="meta.hasAlerts" :class="styles.basketAlerts.root" v-auto-animate>
     <!-- Errors -->
     <Alert
-      v-if="count && !meta.isLoading"
+      v-if="meta.count && !meta.isLoading"
       color="danger"
       variant="muted"
       icon="alert-triangle"
-      :title="t('cart.basket_requires_attention_msg', { count })"
+      :title="t('cart.basket_requires_attention_msg', { count: meta.count })"
       :description="t('cart.basket_review_msg')"
     >
       <ol :class="styles.basketAlerts.list" v-auto-animate>
@@ -132,8 +132,6 @@ const props = withDefaults(
   }
 );
 
-const emits = defineEmits(["update:quantity"]);
-
 // -----------------------------------------------------------------------------
 const { t } = useI18n();
 const styles = useStyles(["basketAlerts"], {}, config);
@@ -145,14 +143,6 @@ const {
 } = useBasket();
 const { meta: fieldsMeta, errors: fieldsErrors } = useBasketFields();
 const { meta: billingMeta, errors: billingErrors } = useBasketBilling();
-const count = computed(() => {
-  return sum([
-    meta.value.hasBasketProducts ? productsInvalid.value?.length : 0,
-    meta.value.hasBasketBilling ? 1 : 0,
-    meta.value.hasBasketFields ? 1 : 0
-  ]);
-});
-
 const meta = computed(() => {
   const hasBasketFields =
     props.basketFields && fieldsErrors.value?.data?.length;
@@ -160,16 +150,25 @@ const meta = computed(() => {
     props.basketBilling && billingErrors.value?.data?.length;
   const hasBasketProducts =
     props.basketProducts && productsInvalid.value?.length;
+  const isLoading =
+    basketMeta.value.isLoading ||
+    fieldsMeta.value.isLoading ||
+    (props.basketBilling && billingMeta.value.isLoading);
+  const count = sum([
+    hasBasketProducts ? productsInvalid.value?.length : 0,
+    hasBasketBilling ? 1 : 0,
+    hasBasketFields ? 1 : 0
+  ]);
 
   return {
-    isLoading:
-      basketMeta.value.isLoading ||
-      fieldsMeta.value.isLoading ||
-      (props.basketBilling && billingMeta.value.isLoading),
+    isLoading,
     hasBasketFields,
     hasBasketBilling,
     hasBasketProducts,
-    hasErrors: hasBasketFields || hasBasketBilling || hasBasketProducts
+    count,
+    hasAlerts:
+      (count && !isLoading) ||
+      (basketMeta.value.hasWarningNotes && !basketMeta.value.isLoading)
   };
 });
 
