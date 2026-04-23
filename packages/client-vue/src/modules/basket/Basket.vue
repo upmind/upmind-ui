@@ -94,7 +94,7 @@
       <template #custom-price>
         <Alert
           v-if="meta.hasCustomPrice"
-          variant="minimal"
+          variant="muted"
           color="warning"
           icon="switch-horizontal-01"
           :title="t('text.custom_price_applied')"

@@ -1,32 +1,27 @@
 <template>
   <aside
     v-if="meta.hasWarningNotes && !meta.isLoading"
-    class="w-full"
+    :class="styles.basketWarnings.root"
     v-auto-animate
   >
     <Alert
       color="warning"
-      variant="minimal"
+      variant="muted"
       icon="alert-triangle"
-      :title="t('cart.warning_notes_title', { count: warningNotes.length })"
+      :title="t('cart.warning_notes_title', warningNotes.length)"
+      :action="{ label: t('action.dismiss_all') }"
+      @click="dismissAllWarnings"
     >
-      <ul class="text-sm-tight list-disc p-6 py-2 text-left" v-auto-animate>
-        <li
-          v-for="note in warningNotes"
-          :key="note.id"
-          class="text-sm marker:text-inherit"
-        >
-          {{ note.message }}
-        </li>
-      </ul>
-
-      <template #actions>
-        <Button
-          size="sm"
-          variant="ghost"
-          :label="t('action.dismiss_all')"
-          @click="dismissAllWarnings"
-        />
+      <template #description>
+        <ul :class="styles.basketWarnings.list" v-auto-animate>
+          <li
+            v-for="note in warningNotes"
+            :key="note.id"
+            :class="styles.basketWarnings.item"
+          >
+            {{ note.message }}
+          </li>
+        </ul>
       </template>
     </Alert>
   </aside>
@@ -38,13 +33,16 @@ import { useI18n } from "vue-i18n";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- components
-import { Alert, Button } from "@upmind-automation/upmind-ui";
+import { Alert, useStyles } from "@upmind-automation/upmind-ui";
 
 // --- internal
 import { useBasket } from "@upmind-automation/headless";
+import config from "./basket-warnings.config";
 
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
 const { meta, warningNotes, dismissAllWarnings } = useBasket();
+
+const styles = useStyles(["basketWarnings"], {}, config);
 </script>

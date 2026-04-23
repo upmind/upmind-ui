@@ -182,7 +182,7 @@
           class="w-full"
           v-if="externalErrors?.message"
           color="danger"
-          variant="minimal"
+          variant="muted"
           icon="alert-triangle"
           :title="externalErrors?.message"
         />

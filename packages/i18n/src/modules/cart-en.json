@@ -65,5 +65,5 @@
   "show_more_payment_options": "Show more payment options",
   "stored_payment_methods_limited_desc": "Not all payment methods are visible because they are not available for your country or currency.",
   "stored_payment_methods_limited_title": "Limited Payment Methods",
-  "warning_notes_title": "{count} warning | {count} warnings"
+  "warning_notes_title": "Basket warning | Basket warnings"
 }

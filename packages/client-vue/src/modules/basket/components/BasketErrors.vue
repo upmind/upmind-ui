@@ -3,7 +3,7 @@
     <Alert
       v-if="count && !meta.isLoading"
       color="danger"
-      variant="minimal"
+      variant="muted"
       icon="alert-triangle"
       :title="t('cart.basket_requires_attention_msg', { count })"
       :description="t('cart.basket_review_msg')"
