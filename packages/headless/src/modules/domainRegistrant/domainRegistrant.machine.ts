@@ -66,9 +66,10 @@ export default createMachine(
         }
       },
 
-      // Check if we have domain products
+      // Check if we have domain products and route accordingly
       loading: {
         always: [
+          { target: "complete", cond: "allDomainsComplete" },
           { target: "available", cond: "hasDomainProducts" },
           { target: "unavailable" }
         ]
@@ -79,7 +80,12 @@ export default createMachine(
         id: "available",
         initial: "idle",
         states: {
-          idle: {},
+          idle: {
+            always: [
+              { target: "#unavailable", cond: "noDomainProducts" },
+              { target: "#complete", cond: "allDomainsComplete" }
+            ]
+          },
           processing: {
             invoke: {
               src: "applyToBasket",
@@ -118,21 +124,16 @@ export default createMachine(
 
       // No domain products in basket
       unavailable: {
-        on: {
-          REFRESH: {
-            target: "loading",
-            actions: ["setBasketProducts"]
-          }
-        }
+        id: "unavailable"
       },
 
-      // Truly final - machine stopped
-      stopped: {
-        type: "final"
+      // All domains valid - still listening for basket changes
+      complete: {
+        id: "complete"
       }
     },
     on: {
-      STOP: { target: "stopped" },
+      REFRESH: { target: "loading", actions: ["setBasketProducts"] },
       AUTHENTICATED: { target: "subscribing", actions: ["clearLookups"] },
       UNAUTHENTICATED: { target: "subscribing", actions: ["clearLookups"] }
     }
@@ -231,7 +232,12 @@ export default createMachine(
     },
     guards: {
       hasDomainProducts: (context: DomainRegistrantContext) =>
-        context.lookups.basketProducts.length > 0
+        context.lookups.basketProducts.length > 0,
+      noDomainProducts: (context: DomainRegistrantContext) =>
+        context.lookups.basketProducts.length === 0,
+      allDomainsComplete: (context: DomainRegistrantContext) =>
+        context.lookups.basketProducts.length > 0 &&
+        context.lookups.basketProducts.every(p => !p.meta?.invalid)
     },
     services
   }
