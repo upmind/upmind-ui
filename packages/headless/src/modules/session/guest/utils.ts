@@ -54,7 +54,7 @@ export const useRegisterSchemaParser = (data: any) => {
         title: "Your password",
         format: "password",
         minLength: 8,
-        pattern: "(?=.*[a-z])(?=.*\\d)"
+        pattern: "(?=.*[a-zA-Z])(?=.*\\d)(?=.*[^a-zA-Z0-9])"
       },
       phone: {
         type: ["object", "null"],
@@ -141,8 +141,9 @@ export const useRegisterUischemaParser = (data: any) => {
           placeholder: "Use a strong password or passphrase",
           requirements: {
             min_length: ".{8,}",
-            lowercase: "(?=.*[a-z])",
-            number: "(?=.*\\d)"
+            letter: "(?=.*[a-zA-Z])",
+            number: "(?=.*\\d)",
+            symbol: "(?=.*[^a-zA-Z0-9])"
           }
         }
       },
