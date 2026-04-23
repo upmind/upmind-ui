@@ -18,11 +18,7 @@
         @update:modelValue="onInput"
       >
         <template #append>
-          <Tooltip
-            v-if="showGenerator"
-            :label="generateLabel"
-            side="top"
-          >
+          <Tooltip v-if="showGenerator" :label="generateLabel" side="top">
             <Link
               :focusable="false"
               :disabled="appliedOptions?.disabled || appliedOptions?.readonly"
@@ -32,10 +28,7 @@
             </Link>
           </Tooltip>
 
-          <Tooltip
-            :label="unmask ? hideLabel : showLabel"
-            side="top"
-          >
+          <Tooltip :label="unmask ? hideLabel : showLabel" side="top">
             <Link
               :class="unmask ? 'opacity-100' : 'opacity-50 hover:opacity-100'"
               :focusable="false"
