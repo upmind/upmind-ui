@@ -5,6 +5,7 @@ import type { ActorRef } from "xstate";
 import type { ResponseError } from "../../utils";
 import type { Address, Company } from "../client";
 import type { BasketProduct } from "../basketProduct/types";
+import type { IBasketProduct } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 
@@ -25,7 +26,7 @@ export type DomainRegistrantContext = {
   /** Basket helper actor. */
   basketHelper?: ActorRef<any>;
   /** Parser function for domain basket products. */
-  parseBasketProduct?: (raw: any) => BasketProduct | undefined;
+  parseBasketProduct: (raw: IBasketProduct) => BasketProduct | undefined;
 };
 
 /**
