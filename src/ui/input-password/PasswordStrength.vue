@@ -1,11 +1,10 @@
 <template>
   <div :class="cn(styles.passwordStrength.root, props.class)">
-    <div v-if="props.showBars && props.max > 0" :class="styles.passwordStrength.bars">
-      <div
-        v-for="i in props.max"
-        :key="i"
-        :class="barClass(i)"
-      />
+    <div
+      v-if="props.showBars && props.max > 0"
+      :class="styles.passwordStrength.bars"
+    >
+      <div v-for="i in props.max" :key="i" :class="barClass(i)" />
     </div>
     <p
       v-if="props.message"
