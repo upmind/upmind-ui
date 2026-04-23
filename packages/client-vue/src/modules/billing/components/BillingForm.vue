@@ -58,7 +58,6 @@
     <DomainCheckboxes
       v-if="!registrantMeta.isEmpty"
       v-model="selectedDomainIds"
-      hide-valid
     />
   </Loading>
 
