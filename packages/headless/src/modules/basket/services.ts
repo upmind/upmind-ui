@@ -140,20 +140,6 @@ async function load(context: BasketContext, _event: AnyEventObject) {
     });
 }
 
-async function dismissWarningNotes(
-  { basket }: BasketContext,
-  { data }: AnyEventObject
-) {
-  const { put, useUrl } = useQuery();
-
-  return put({
-    mutationKey: ["basket", basket?.id, "warnings"],
-    url: useUrl(`/orders/${basket?.id}/warnings/hide`),
-    data: { ids: [data] },
-    withAccessToken: true
-  });
-}
-
 async function convert(
   { basket, paymentDetail }: BasketContext,
   _event: AnyEventObject
@@ -289,7 +275,6 @@ export { dismissAllWarningNotes };
 
 export default {
   load,
-  dismissWarningNotes,
   refresh: load,
   convert,
   isAuthenticated: () => useSession().isAuthenticated()
