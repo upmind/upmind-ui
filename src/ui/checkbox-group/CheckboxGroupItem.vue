@@ -9,10 +9,7 @@
       )
     "
   >
-    <span
-      v-if="!props.noInput"
-      :class="cn(styles.checkbox, props.class)"
-    >
+    <span v-if="!props.noInput" :class="cn(styles.checkbox, props.class)">
       <ListboxItemIndicator>
         <Check class="text-control-checked-contrast h-3 w-3" />
       </ListboxItemIndicator>
