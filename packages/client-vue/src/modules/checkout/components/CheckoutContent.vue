@@ -11,6 +11,9 @@
     :basket-fields-route="props.fieldsRoute"
   />
 
+  <!-- Basket Warnings -->
+  <BasketWarnings v-show="showCheckout" />
+
   <!-- Basket Products -->
   <Section
     v-show="showCheckout && ui.basketItems.isVisible"
@@ -86,6 +89,7 @@ import PaymentDetails from "../../payment/components/PaymentDetails.vue";
 import ProductCards from "../../basket-product/components/card/BasketProductCards.vue";
 import Form from "../../../components/form/Form.vue";
 import BasketErrors from "../../basket/components/BasketErrors.vue";
+import BasketWarnings from "../../basket/components/BasketWarnings.vue";
 
 // --- types
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
