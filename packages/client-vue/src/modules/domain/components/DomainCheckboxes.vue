@@ -1,6 +1,6 @@
 <template>
   <section
-    v-if="hasDomainProducts"
+    v-if="!meta.isEmpty"
     class="border-border-secondary mt-4 rounded-lg border p-4"
     data-testid="domain-checkboxes"
   >
@@ -34,7 +34,7 @@
 
 <script setup lang="ts">
 // --- external
-import { ref, onMounted } from "vue";
+import { onMounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -44,25 +44,23 @@ import { useDomainRegistrant } from "@upmind-automation/headless";
 import { Checkbox } from "@upmind-automation/upmind-ui";
 
 // --- utils
-import { forEach, includes, map, pull } from "lodash-es";
+import { filter, includes, map } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
-const emit = defineEmits<{
-  (e: "apply", productIds: string[]): void;
-}>();
+/** v-model for checked domain product IDs */
+const checkedIds = defineModel<string[]>({ default: () => [] });
 
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
-const { hasDomainProducts, statuses, domainProducts } = useDomainRegistrant();
+const { meta, statuses, domainProducts } = useDomainRegistrant();
 
-/** Tracked selection of domain product IDs */
-const checkedIds = ref<string[]>([]);
-
-// --- default: all domains checked
+// --- default: all domains checked on mount
 onMounted(() => {
-  checkedIds.value = map(domainProducts.value, "id");
+  if (checkedIds.value.length === 0) {
+    checkedIds.value = map(domainProducts.value, "id");
+  }
 });
 
 // --- methods
@@ -73,19 +71,9 @@ function isChecked(productId: string): boolean {
 
 function toggleDomain(productId: string): void {
   if (isChecked(productId)) {
-    pull(checkedIds.value, productId);
+    checkedIds.value = filter(checkedIds.value, id => id !== productId);
   } else {
-    checkedIds.value.push(productId);
+    checkedIds.value = [...checkedIds.value, productId];
   }
 }
-
-/**
- * Returns the currently checked product IDs.
- * Called by the parent billing form when saving.
- */
-function getCheckedIds(): string[] {
-  return [...checkedIds.value];
-}
-
-defineExpose({ getCheckedIds });
 </script>
