@@ -7,6 +7,7 @@
     <template #content>
       <slot name="order-payment-details" />
       <slot name="order-products" />
+      <slot name="guest-registration" />
     </template>
 
     <template #aside>

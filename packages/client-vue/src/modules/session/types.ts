@@ -17,7 +17,7 @@ export type ActionProps = ButtonProps & {
 };
 
 export type SessionProps = {
-  modelValue?: "login" | "register" | "recover" | "reset" | "profile";
+  modelValue?: "login" | "register" | "recover" | "reset" | "profile" | "guest";
   noHeader?: boolean;
   noFooter?: boolean;
   noTabs?: boolean;
