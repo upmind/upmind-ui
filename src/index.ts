@@ -13,6 +13,7 @@ export * from "./ui/card";
 export * from "./ui/carousel";
 export * from "./ui/checkbox";
 export * from "./ui/checkbox-cards";
+export * from "./ui/checkbox-group";
 export * from "./ui/combobox";
 export * from "./ui/collapsible";
 export * from "./ui/dialog";
