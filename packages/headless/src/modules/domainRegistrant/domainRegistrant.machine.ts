@@ -123,7 +123,8 @@ export default createMachine(
       }
     },
     on: {
-      REFRESH: { target: "loading", actions: ["setBasketProducts"] }
+      REFRESH: { target: "loading", actions: ["setBasketProducts"] },
+      SET: { actions: ["setSelectedProducts"] }
     }
   },
   {
@@ -143,16 +144,13 @@ export default createMachine(
       // --- helpers
 
       setBasketHelper: assign(({ basketHelper }: DomainRegistrantContext) => {
-        debugger;
         // only do this once, set up the basket helper
         return {
           basketHelper: basketHelper ?? spawn(basketSubscription),
 
           parseBasketProduct: (
-            raw: IBasketProduct,
-            primaryDomain?: string
+            raw: IBasketProduct
           ): BasketProduct | undefined => {
-            debugger;
             // First check if we have the blueprint code available that identifies domain products
             // This is not always present as it requites a 'with' when fetching the basket
             // and the basket returned after an update may not have it
@@ -187,9 +185,7 @@ export default createMachine(
           { lookups, parseBasketProduct }: DomainRegistrantContext,
           { data }: AnyEventObject
         ) => {
-          debugger;
           if (!isObject(data) || !has(data, "products")) return lookups;
-          debugger;
           // 1st filter out only the domain products from the basket products
           const domainProducts: BasketProduct[] = reduce(
             data?.products,
@@ -200,7 +196,6 @@ export default createMachine(
             },
             []
           );
-          debugger;
 
           set(lookups, "basketProducts", domainProducts);
           return lookups;
@@ -209,15 +204,15 @@ export default createMachine(
 
       // --- selection
       setSelectedProducts: assign({
-        model: (_context: DomainRegistrantContext, event: AnyEventObject) =>
-          (event.productIds as string[]) ?? []
+        model: (_context: DomainRegistrantContext, { data }: AnyEventObject) =>
+          (data as string[]) ?? []
       }),
 
-      // Override model if productIds provided in event
+      // Override model if bpids provided in event data
       setModelOverride: assign(
-        (_context: DomainRegistrantContext, event: AnyEventObject) => {
-          if (event.productIds) {
-            return { model: event.productIds as string[] };
+        (_context: DomainRegistrantContext, { data }: AnyEventObject) => {
+          if (data?.bpids) {
+            return { model: data.bpids as string[] };
           }
           return {};
         }
@@ -225,8 +220,8 @@ export default createMachine(
 
       // --- error
       setError: assign({
-        error: (_context: DomainRegistrantContext, event: AnyEventObject) =>
-          mapToHeadlessError(event.data) as ResponseError
+        error: (_context: DomainRegistrantContext, { data }: AnyEventObject) =>
+          mapToHeadlessError(data) as ResponseError
       })
     },
     guards: {
