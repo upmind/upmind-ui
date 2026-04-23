@@ -1,3 +1,9 @@
+// -----------------------------------------------------------------------------
+/**
+ * @module domain/types
+ * @description Type definitions for domain module components.
+ */
+
 import type {
   DomainModel,
   DomainProduct,
@@ -5,6 +11,8 @@ import type {
   UseDac,
   UseDomain
 } from "@upmind-automation/headless";
+
+// -----------------------------------------------------------------------------
 
 export enum DOMAIN_TEMPLATE {
   FULL = "full",
@@ -38,7 +46,6 @@ export interface DomainCardsProps {
   searching?: boolean;
   valid?: boolean;
   disabled?: boolean;
-  // ---
 }
 
 export interface DomainSlotProps {
@@ -50,7 +57,6 @@ export interface DomainSlotProps {
 
 export interface DomainActionsProps {
   cancel?: boolean;
-  // ---
   empty?: boolean;
   required?: boolean;
   loading?: boolean;

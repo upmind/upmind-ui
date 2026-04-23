@@ -1,6 +1,7 @@
 // --- external
 import { computed } from "vue";
-import { useActor, useInterpret } from "@xstate/vue";
+import { interpret, InterpreterStatus } from "xstate";
+import { useActor } from "@xstate/vue";
 import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
@@ -29,8 +30,8 @@ import type { DomainRegistrantContext } from "./types";
 
 // -----------------------------------------------------------------------------
 
-// Singleton service
-const registrantService = useInterpret(registrantMachine, { devTools: true });
+// Singleton service - started lazily on first use (same pattern as useSession)
+const registrantService = interpret(registrantMachine, { devTools: true });
 
 // -----------------------------------------------------------------------------
 
@@ -42,6 +43,11 @@ const registrantService = useInterpret(registrantMachine, { devTools: true });
  * billing and checkout.
  */
 export function useDomainRegistrant() {
+  // Start service lazily on first use (same pattern as useSession)
+  if (registrantService.status === InterpreterStatus.NotStarted) {
+    registrantService.start();
+  }
+
   const { state, send } = useActor(registrantService);
 
   // --- context
@@ -93,6 +99,7 @@ export function useDomainRegistrant() {
    * Machine updates `model` with these IDs.
    */
   async function select(productIds: string[]): Promise<void> {
+    debugger;
     send({ type: "SET", productIds });
     return waitFor(
       registrantService,
@@ -114,6 +121,7 @@ export function useDomainRegistrant() {
     billing: Address | Company,
     productIds?: string[]
   ): Promise<void> {
+    debugger;
     send({ type: "APPLY_BILLING", billing, productIds });
     return waitFor(
       registrantService,
@@ -141,6 +149,7 @@ export function useDomainRegistrant() {
     data: Record<string, string>,
     productIds?: string[]
   ): Promise<void> {
+    debugger;
     send({ type: "APPLY_PROVISION", data, productIds });
     return waitFor(
       registrantService,

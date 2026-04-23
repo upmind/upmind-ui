@@ -3,7 +3,6 @@ import { createMachine, assign, pure, spawn, sendTo } from "xstate";
 
 // --- internal
 import { basketSubscription } from "../basketProduct/helper";
-import { authSubscription } from "../session/helper";
 import services from "./services";
 
 // --- utils
@@ -40,20 +39,11 @@ export default createMachine(
     id: "domainRegistrantManager",
     predictableActionArguments: true,
     initial: "subscribing",
-    context: {
-      lookups: { basketProducts: [] },
-      model: []
-    } as DomainRegistrantContext,
+    context: {} as DomainRegistrantContext,
     states: {
       // Wait for basket subscription to send REFRESH with products
       subscribing: {
-        entry: [
-          "setContext",
-          "clearLookups",
-          "setBasketHelper",
-          "setAuthHelper",
-          "loadBasket"
-        ],
+        entry: ["setContext", "clearLookups", "setBasketHelper", "loadBasket"],
         on: {
           REFRESH: {
             target: "loading",
@@ -133,9 +123,7 @@ export default createMachine(
       }
     },
     on: {
-      REFRESH: { target: "loading", actions: ["setBasketProducts"] },
-      AUTHENTICATED: { target: "subscribing", actions: ["clearLookups"] },
-      UNAUTHENTICATED: { target: "subscribing", actions: ["clearLookups"] }
+      REFRESH: { target: "loading", actions: ["setBasketProducts"] }
     }
   },
   {
@@ -153,27 +141,40 @@ export default createMachine(
       }),
 
       // --- helpers
-      setAuthHelper: assign(({ authHelper }: DomainRegistrantContext) => ({
-        authHelper: authHelper || spawn(authSubscription)
-      })),
 
-      setBasketHelper: assign(({ basketHelper }: DomainRegistrantContext) => ({
-        basketHelper: basketHelper ?? spawn(basketSubscription),
-        parseBasketProduct: (
-          raw: IBasketProduct
-        ): BasketProduct | undefined => {
-          if (
-            !isDomainProduct({
-              serviceIdentifier: raw.service_identifier,
-              blueprintCode: raw?.product?.provision_blueprint?.category?.code,
-              provisionFields: raw?.provision_fields
-            })
-          )
-            return undefined;
+      setBasketHelper: assign(({ basketHelper }: DomainRegistrantContext) => {
+        debugger;
+        // only do this once, set up the basket helper
+        return {
+          basketHelper: basketHelper ?? spawn(basketSubscription),
 
-          return parseBasketProduct(raw);
-        }
-      })),
+          parseBasketProduct: (
+            raw: IBasketProduct,
+            primaryDomain?: string
+          ): BasketProduct | undefined => {
+            debugger;
+            // First check if we have the blueprint code available that identifies domain products
+            // This is not always present as it requites a 'with' when fetching the basket
+            // and the basket returned after an update may not have it
+            // The fallback is to check if we have and SLD provision field
+            // OR we can parse the service identifier as a domain
+
+            if (
+              !isDomainProduct({
+                blueprintCode:
+                  raw?.product?.provision_blueprint?.category?.code,
+                provisionFields: raw?.provision_fields,
+                serviceIdentifier: raw?.service_identifier ?? undefined
+              })
+            )
+              return undefined;
+
+            const basketProduct = parseBasketProduct(raw);
+
+            return basketProduct;
+          }
+        };
+      }),
 
       loadBasket: pure(({ basketHelper }: DomainRegistrantContext) => {
         if (!basketHelper) return;
@@ -183,27 +184,25 @@ export default createMachine(
       // --- basket sync
       setBasketProducts: assign({
         lookups: (
-          {
-            lookups,
-            parseBasketProduct: parseProduct
-          }: DomainRegistrantContext,
+          { lookups, parseBasketProduct }: DomainRegistrantContext,
           { data }: AnyEventObject
         ) => {
+          debugger;
           if (!isObject(data) || !has(data, "products")) return lookups;
-
-          const available = reduce(
-            data.products,
-            (result: BasketProduct[], raw: IBasketProduct) => {
-              const parsed = parseProduct?.(raw);
-              if (parsed && !some(result, ["id", parsed.id])) {
-                result.push(parsed);
-              }
-              return result;
+          debugger;
+          // 1st filter out only the domain products from the basket products
+          const domainProducts: BasketProduct[] = reduce(
+            data?.products,
+            (acc: BasketProduct[], basketProduct: IBasketProduct) => {
+              const parsed = parseBasketProduct(basketProduct);
+              if (parsed) acc.push(parsed);
+              return acc;
             },
             []
           );
+          debugger;
 
-          set(lookups, "basketProducts", available);
+          set(lookups, "basketProducts", domainProducts);
           return lookups;
         }
       }),

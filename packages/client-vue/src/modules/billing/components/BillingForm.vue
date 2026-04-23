@@ -104,11 +104,10 @@ import {
 import Sections from "../../../components/section/Sections.vue";
 import TabBusiness from "./TabBusiness.vue";
 import TabPersonal from "./TabPersonal.vue";
-import { DomainCheckboxes } from "../../domain";
+import { DomainCheckboxes } from "../../domain-registrant";
 
 // --- types
 import type { TabItem } from "@upmind-automation/upmind-ui";
-import type { BillingModel } from "@upmind-automation/headless";
 import type { BillingFormProps } from "../types";
 
 // -----------------------------------------------------------------------------
@@ -134,9 +133,9 @@ const styles = useStyles(
 const isMounted = useMounted();
 
 const { client } = useSession();
-const { isReady, meta, config, set, update, wait, model } = useBasketBilling();
+const { isReady, meta, config, set, update, model } = useBasketBilling();
 const { navigateNext } = useRoutingEngine();
-const { meta: registrantMeta, applyBillingToProducts } = useDomainRegistrant();
+const { meta: registrantMeta, applyBilling } = useDomainRegistrant();
 
 /** Domain IDs selected to receive billing details as registrant */
 const selectedDomainIds = ref<string[]>([]);
@@ -183,16 +182,8 @@ const {
   meta: addressMeta,
   default: defaultAddress
 } = useClientAddresses();
-const {
-  getOne: getCompany,
-  meta: companyMeta,
-  default: defaultCompany
-} = useClientCompanies();
-const {
-  getOne: getPhone,
-  meta: phoneMeta,
-  default: defaultPhone
-} = useClientPhones();
+const { getOne: getCompany, meta: companyMeta } = useClientCompanies();
+const { getOne: getPhone, meta: phoneMeta } = useClientPhones();
 
 const selectedAddress = computed(() =>
   getAddress(model.value?.addressId ?? undefined)
@@ -231,50 +222,18 @@ const tabs = computed((): TabItem[] => {
 
 // --- methods
 
-function buildModel(): BillingModel | undefined {
-  const phoneId = meta.value.needsPhone
-    ? (modelValue.value?.phoneId ?? defaultPhone()?.id)
-    : undefined;
-
-  if (activeTab.value === UnifiedType.PERSONAL) {
-    return { ...modelValue.value, companyId: undefined, phoneId };
-  }
-
-  if (
-    activeTab.value === UnifiedType.BUSINESS &&
-    !modelValue.value?.companyId
-  ) {
-    const company = defaultCompany();
-    return {
-      ...modelValue.value,
-      companyId: company?.id,
-      addressId: company?.addressId,
-      phoneId
-    };
-  }
-
-  return { ...modelValue.value, phoneId };
-}
-
 async function doContinue() {
-  const value = buildModel();
-  await update(value!);
-  modelValue.value = value;
+  await update(model.value!);
 
   // Apply billing details to checked domains as registrant data
   if (!registrantMeta.value.isEmpty && selectedDomainIds.value.length > 0) {
-    const company = getCompany(value?.companyId ?? undefined);
-    const address = getAddress(
-      company?.addressId ?? value?.addressId ?? undefined
-    );
-    const phone = getPhone(value?.phoneId ?? undefined);
+    const billing =
+      getCompany(model.value?.companyId ?? undefined) ??
+      getAddress(model.value?.addressId ?? undefined);
 
-    applyBillingToProducts(
-      selectedDomainIds.value,
-      address,
-      phone,
-      client.value
-    );
+    if (billing) {
+      await applyBilling(billing, selectedDomainIds.value);
+    }
   }
 
   navigateNext();
@@ -282,8 +241,7 @@ async function doContinue() {
 
 async function onFormResolve() {
   if (!props.autoUpdate) {
-    await wait(true);
-    await update(buildModel()!);
+    await update(model.value!);
     navigateNext();
   }
 }
