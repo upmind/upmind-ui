@@ -9,14 +9,18 @@
       </p>
     </header>
 
-    <!-- Domain registrant cards -->
+    <!-- Domain registrant cards with inline editing -->
     <div class="flex flex-col gap-4" v-auto-animate>
-      <RegistrantCard
-        v-for="status in statuses"
-        :key="status.productId"
-        :status="status"
-        @edit="onEdit"
-      />
+      <template v-for="status in statuses" :key="status.productId">
+        <RegistrantFormInline
+          v-if="editingProductId === status.productId"
+          :product-id="status.productId"
+          :domain="status.domain"
+          @save="onInlineSave"
+          @cancel="onInlineCancel"
+        />
+        <RegistrantCard v-else :status="status" @edit="onEdit" />
+      </template>
     </div>
 
     <!-- Summary -->
@@ -34,7 +38,7 @@
         color="primary"
         size="lg"
         block
-        :disabled="!isComplete"
+        :disabled="!meta.isComplete"
         @click="onConfirm"
       />
     </div>
@@ -43,6 +47,7 @@
 
 <script setup lang="ts">
 // --- external
+import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
@@ -55,6 +60,7 @@ import {
 // --- components
 import { Button } from "@upmind-automation/upmind-ui";
 import RegistrantCard from "./RegistrantCard.vue";
+import RegistrantFormInline from "./RegistrantFormInline.vue";
 
 // -----------------------------------------------------------------------------
 
@@ -66,16 +72,27 @@ const emit = defineEmits<{
 
 const { t } = useI18n();
 const { navigateNext } = useRoutingEngine();
-const { isComplete, pendingCount, statuses } = useDomainRegistrant();
+const { meta, pendingCount, statuses } = useDomainRegistrant();
+
+/** Product ID currently being edited inline (null = none) */
+const editingProductId = ref<string | null>(null);
 
 // --- methods
 
 function onEdit(productId: string): void {
-  emit("edit", productId);
+  editingProductId.value = productId;
+}
+
+function onInlineSave(): void {
+  editingProductId.value = null;
+}
+
+function onInlineCancel(): void {
+  editingProductId.value = null;
 }
 
 function onConfirm(): void {
-  if (!isComplete.value) return;
+  if (!meta.value.isComplete) return;
   navigateNext();
 }
 </script>
