@@ -251,7 +251,9 @@ export const useBasket = () => {
     () => parsePromotionsOrCoupons(promotions.value) as IPromotion["code"][]
   );
   const taxes = useContext<IBasket["taxes"]>(state, "basket.taxes", []);
-  const warningNotes = useContext<IWarningNote[]>(state, "warningNotes", []);
+  const warningNotes = computed<IWarningNote[]>(
+    () => contextValue<IWarningNote[]>(state, "warningNotes", []) ?? []
+  );
 
   const uischema = computed(() => {
     return {

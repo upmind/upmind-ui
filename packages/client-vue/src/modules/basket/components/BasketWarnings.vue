@@ -8,7 +8,7 @@
       color="warning"
       variant="minimal"
       icon="alert-triangle"
-      :title="t('cart.warning_notes_title')"
+      :title="t('cart.warning_notes_title', { count: warningNotes.length })"
     >
       <ul class="text-sm-tight list-disc p-6 py-2 text-left" v-auto-animate>
         <li
@@ -24,7 +24,7 @@
         <Button
           size="sm"
           variant="ghost"
-          :label="t('action.dismiss')"
+          :label="t('action.dismiss_all')"
           @click="dismissAllWarnings"
         />
       </template>
