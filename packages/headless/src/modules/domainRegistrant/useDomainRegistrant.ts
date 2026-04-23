@@ -98,9 +98,8 @@ export function useDomainRegistrant() {
    * Set selected product IDs (from checkboxes).
    * Machine updates `model` with these IDs.
    */
-  async function select(productIds: string[]): Promise<void> {
-    debugger;
-    send({ type: "SET", productIds });
+  async function select(bpids: string[]): Promise<void> {
+    send({ type: "SET", data: bpids });
     return waitFor(
       registrantService,
       state =>
@@ -115,14 +114,13 @@ export function useDomainRegistrant() {
    * Apply billing to selected products and save to basket.
    *
    * @param billing - Address or Company to apply
-   * @param productIds - Optional override for product IDs (uses model if not provided)
+   * @param bpids - Optional override for product IDs (uses model if not provided)
    */
   async function applyBilling(
     billing: Address | Company,
-    productIds?: string[]
+    bpids?: string[]
   ): Promise<void> {
-    debugger;
-    send({ type: "APPLY_BILLING", billing, productIds });
+    send({ type: "APPLY_BILLING", data: { billing, bpids } });
     return waitFor(
       registrantService,
       state =>
@@ -143,14 +141,13 @@ export function useDomainRegistrant() {
    * Used after inline edit on Review page.
    *
    * @param data - Provision field data to apply
-   * @param productIds - Optional override for product IDs (uses model if not provided)
+   * @param bpids - Optional override for product IDs (uses model if not provided)
    */
   async function applyProvision(
     data: Record<string, string>,
-    productIds?: string[]
+    bpids?: string[]
   ): Promise<void> {
-    debugger;
-    send({ type: "APPLY_PROVISION", data, productIds });
+    send({ type: "APPLY_PROVISION", data: { provision: data, bpids } });
     return waitFor(
       registrantService,
       state =>

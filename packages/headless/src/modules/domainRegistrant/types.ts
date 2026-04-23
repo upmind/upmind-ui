@@ -37,14 +37,14 @@ export type DomainRegistrantEvent =
   | { type: "STOP" }
   | { type: "AUTHENTICATED" }
   | { type: "UNAUTHENTICATED" }
-  | { type: "SET"; productIds: string[] }
+  | { type: "SET"; bpids: string[] }
   | {
       type: "APPLY_BILLING";
       billing: Address | Company;
-      productIds?: string[];
+      bpids?: string[];
     }
   | {
       type: "APPLY_PROVISION";
       data: Record<string, string>;
-      productIds?: string[];
+      bpids?: string[];
     };
