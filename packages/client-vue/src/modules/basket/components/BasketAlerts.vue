@@ -1,20 +1,21 @@
 <template>
-  <aside class="w-full" v-auto-animate v-if="meta.hasErrors">
+  <div :class="styles.basketAlerts.root" v-auto-animate>
+    <!-- Errors -->
     <Alert
       v-if="count && !meta.isLoading"
       color="danger"
-      variant="minimal"
+      variant="muted"
       icon="alert-triangle"
       :title="t('cart.basket_requires_attention_msg', { count })"
       :description="t('cart.basket_review_msg')"
     >
-      <ol :class="styles.basketErrors.list" v-auto-animate>
+      <ol :class="styles.basketAlerts.list" v-auto-animate>
         <!-- Basket products -->
         <template v-if="meta.hasBasketProducts">
           <li
             v-for="basketItem in productsInvalid"
             :key="basketItem.id"
-            :class="styles.basketErrors.item"
+            :class="styles.basketAlerts.item"
           >
             <i18n-t keypath="cart.basket_product_review_msg" tag="span">
               <template #productName>
@@ -23,6 +24,7 @@
               <template #review>
                 <Link
                   size="inherit"
+                  color="inherit"
                   v-bind="getBasketProductsRoute(basketItem.id)"
                   :label="t('action.review')"
                 />
@@ -32,11 +34,12 @@
         </template>
 
         <!-- Additional details -->
-        <li v-if="meta.hasBasketFields" :class="styles.basketErrors.item">
+        <li v-if="meta.hasBasketFields" :class="styles.basketAlerts.item">
           <i18n-t keypath="cart.basket_fields_review_msg" tag="span">
             <template #review>
               <Link
                 size="inherit"
+                color="inherit"
                 v-bind="safeBasketFieldsRoute"
                 :label="t('action.review')"
               />
@@ -45,11 +48,12 @@
         </li>
 
         <!-- Billing details -->
-        <li v-if="meta.hasBasketBilling" :class="styles.basketErrors.item">
+        <li v-if="meta.hasBasketBilling" :class="styles.basketAlerts.item">
           <i18n-t keypath="cart.basket_billing_review_msg" tag="span">
             <template #review>
               <Link
                 size="inherit"
+                color="inherit"
                 v-bind="safeBasketBillingRoute"
                 :label="t('action.review')"
               />
@@ -60,7 +64,30 @@
 
       <input autofocus class="sr-only" id="prevent-autoscroll" />
     </Alert>
-  </aside>
+
+    <!-- Warnings -->
+    <Alert
+      v-if="basketMeta.hasWarningNotes && !basketMeta.isLoading"
+      color="warning"
+      variant="muted"
+      icon="alert-triangle"
+      :title="t('cart.warning_notes_title', warningNotes.length)"
+      :action="{ label: t('action.dismiss_all') }"
+      @click="dismissAllWarnings"
+    >
+      <template #description>
+        <ul :class="styles.basketAlerts.list" v-auto-animate>
+          <li
+            v-for="note in warningNotes"
+            :key="note.id"
+            :class="styles.basketAlerts.item"
+          >
+            {{ note.message }}
+          </li>
+        </ul>
+      </template>
+    </Alert>
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -78,7 +105,7 @@ import {
   useBasketBilling,
   useBasketFields
 } from "@upmind-automation/headless";
-import config from "./basket-errors.config";
+import config from "./basket-alerts.config";
 
 // --- utils
 import { sum } from "lodash-es";
@@ -109,8 +136,13 @@ const emits = defineEmits(["update:quantity"]);
 
 // -----------------------------------------------------------------------------
 const { t } = useI18n();
-const styles = useStyles(["basketErrors"], {}, config);
-const { meta: basketMeta, productsInvalid } = useBasket();
+const styles = useStyles(["basketAlerts"], {}, config);
+const {
+  meta: basketMeta,
+  productsInvalid,
+  warningNotes,
+  dismissAllWarnings
+} = useBasket();
 const { meta: fieldsMeta, errors: fieldsErrors } = useBasketFields();
 const { meta: billingMeta, errors: billingErrors } = useBasketBilling();
 const count = computed(() => {
@@ -148,8 +180,6 @@ const safeBasketBillingRoute = computed(() => {
       hash: "#basket-billing"
     }
   };
-
-  return { hash: "#basket-billing" };
 });
 
 const safeBasketFieldsRoute = computed(() => {
