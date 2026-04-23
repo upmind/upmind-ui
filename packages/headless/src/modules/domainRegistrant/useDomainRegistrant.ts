@@ -1,12 +1,13 @@
 // --- external
 import { computed } from "vue";
 import { useActor, useInterpret } from "@xstate/vue";
+import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import registrantMachine from "./domainRegistrant.machine";
 
 // --- utils
-import { contextValue, useContext } from "../../utils";
+import { contextValue, stateMatches, useContext } from "../../utils";
 import { isEmpty } from "lodash-es";
 
 // --- types
@@ -63,24 +64,42 @@ export function useDomainRegistrant() {
   // --- meta
 
   const meta = computed(() => ({
-    /** True when the basket contains any domain products. */
-    hasDomainProducts: !isEmpty(domains.value),
+    /** True when there are no domain products in the basket. */
+    isEmpty: isEmpty(domains.value),
     /** True when the machine is processing a save. */
     isProcessing: state.value.matches("available.processing"),
-    /** True when machine is available and ready for interaction. */
-    isReady: state.value.matches("available"),
-    /** True when machine is unavailable (no domains). */
-    isUnavailable: state.value.matches("unavailable")
+    /** True when machine has finished subscribing. */
+    isReady: !state.value.matches("subscribing"),
+    /** True when machine is available (has domains). */
+    isAvailable: state.value.matches("available")
   }));
 
   // --- methods
+
+  async function isReady(): Promise<boolean> {
+    return waitFor(
+      registrantService,
+      s => stateMatches(s, ["available", "unavailable", "complete"]),
+      { timeout: Infinity }
+    )
+      .then(() => true)
+      .catch(() => false);
+  }
 
   /**
    * Set selected product IDs (from checkboxes).
    * Machine updates `model` with these IDs.
    */
-  function setSelected(productIds: string[]): void {
+  async function select(productIds: string[]): Promise<void> {
     send({ type: "SET", productIds });
+    return waitFor(
+      registrantService,
+      state =>
+        stateMatches(state, ["available.idle", "unavailable", "complete"]),
+      { timeout: 60_000 }
+    )
+      .then(() => Promise.resolve())
+      .catch(err => Promise.reject(err));
   }
 
   /**
@@ -89,11 +108,24 @@ export function useDomainRegistrant() {
    * @param billing - Address or Company to apply
    * @param productIds - Optional override for product IDs (uses model if not provided)
    */
-  function applyBilling(
+  async function applyBilling(
     billing: Address | Company,
     productIds?: string[]
-  ): void {
+  ): Promise<void> {
     send({ type: "APPLY_BILLING", billing, productIds });
+    return waitFor(
+      registrantService,
+      state =>
+        stateMatches(state, ["available.idle", "unavailable", "complete"]),
+      { timeout: 60_000 }
+    )
+      .then(state => {
+        if (state.context.error) {
+          throw state.context.error;
+        }
+        return Promise.resolve();
+      })
+      .catch(err => Promise.reject(err));
   }
 
   /**
@@ -103,15 +135,34 @@ export function useDomainRegistrant() {
    * @param data - Provision field data to apply
    * @param productIds - Optional override for product IDs (uses model if not provided)
    */
-  function applyProvision(
+  async function applyProvision(
     data: Record<string, string>,
     productIds?: string[]
-  ): void {
+  ): Promise<void> {
     send({ type: "APPLY_PROVISION", data, productIds });
+    return waitFor(
+      registrantService,
+      state =>
+        stateMatches(state, ["available.idle", "unavailable", "complete"]),
+      { timeout: 60_000 }
+    )
+      .then(state => {
+        if (state.context.error) {
+          throw state.context.error;
+        }
+        return Promise.resolve();
+      })
+      .catch(err => Promise.reject(err));
   }
 
   // ---------------------------------------------------------------------------
   return {
+    // --- state
+    /** Wait for the machine to be ready. */
+    isReady,
+    /** Meta flags for UI state. */
+    meta,
+
     // --- context
     /** Domain products from basket. */
     domains,
@@ -120,17 +171,13 @@ export function useDomainRegistrant() {
     /** Selected product IDs. */
     model,
 
-    // --- meta
-    /** Meta flags for UI state. */
-    meta,
-
     // --- methods
     /** Apply billing source to selected products and save. */
     applyBilling,
     /** Apply provision fields to selected products. */
     applyProvision,
     /** Set selected product IDs. */
-    setSelected
+    select
   };
 }
 
