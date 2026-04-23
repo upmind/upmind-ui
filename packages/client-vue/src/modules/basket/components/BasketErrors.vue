@@ -3,18 +3,18 @@
     <Alert
       v-if="count && !meta.isLoading"
       color="danger"
-      variant="muted"
+      variant="minimal"
       icon="alert-triangle"
       :title="t('cart.basket_requires_attention_msg', { count })"
       :description="t('cart.basket_review_msg')"
     >
-      <ol class="text-sm-tight list-disc p-6 py-2 text-left" v-auto-animate>
+      <ol :class="styles.basketErrors.list" v-auto-animate>
         <!-- Basket products -->
         <template v-if="meta.hasBasketProducts">
           <li
             v-for="basketItem in productsInvalid"
             :key="basketItem.id"
-            class="text-sm marker:text-inherit"
+            :class="styles.basketErrors.item"
           >
             <i18n-t keypath="cart.basket_product_review_msg" tag="span">
               <template #productName>
@@ -32,7 +32,7 @@
         </template>
 
         <!-- Additional details -->
-        <li v-if="meta.hasBasketFields">
+        <li v-if="meta.hasBasketFields" :class="styles.basketErrors.item">
           <i18n-t keypath="cart.basket_fields_review_msg" tag="span">
             <template #review>
               <Link
@@ -45,7 +45,7 @@
         </li>
 
         <!-- Billing details -->
-        <li v-if="meta.hasBasketBilling">
+        <li v-if="meta.hasBasketBilling" :class="styles.basketErrors.item">
           <i18n-t keypath="cart.basket_billing_review_msg" tag="span">
             <template #review>
               <Link
@@ -70,7 +70,7 @@ import { useI18n } from "vue-i18n";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- components
-import { Alert, Link } from "@upmind-automation/upmind-ui";
+import { Alert, Link, useStyles } from "@upmind-automation/upmind-ui";
 
 // --- internal
 import {
@@ -78,6 +78,7 @@ import {
   useBasketBilling,
   useBasketFields
 } from "@upmind-automation/headless";
+import config from "./basket-errors.config";
 
 // --- utils
 import { sum } from "lodash-es";
@@ -108,6 +109,7 @@ const emits = defineEmits(["update:quantity"]);
 
 // -----------------------------------------------------------------------------
 const { t } = useI18n();
+const styles = useStyles(["basketErrors"], {}, config);
 const { meta: basketMeta, productsInvalid } = useBasket();
 const { meta: fieldsMeta, errors: fieldsErrors } = useBasketFields();
 const { meta: billingMeta, errors: billingErrors } = useBasketBilling();
