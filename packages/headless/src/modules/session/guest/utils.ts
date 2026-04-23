@@ -54,6 +54,9 @@ export const useRegisterSchemaParser = (data: any) => {
         title: "Your password",
         format: "password",
         minLength: 8,
+        // Lookaheads require: at least one letter, at least one digit, at least
+        // one non-alphanumeric. Mirrors the rule set used by the strength meter
+        // and the `auth_password.error.*` i18n keys — keep these in lockstep.
         pattern: "(?=.*[a-zA-Z])(?=.*\\d)(?=.*[^a-zA-Z0-9])"
       },
       phone: {
@@ -139,6 +142,11 @@ export const useRegisterUischemaParser = (data: any) => {
           type: "password",
           autocomplete: "new-password",
           placeholder: "Use a strong password or passphrase",
+          // Per-rule regexes the password renderer tests against to resolve
+          // which rule failed — unmet keys map to `auth_password.error.*`
+          // (e.g. `letter` unmet → `missing_letter`, `min_length` unmet →
+          // `min_length_<other-unmet>`). Keep these rules, the schema
+          // `pattern` above, and the `error` i18n keys in lockstep.
           requirements: {
             min_length: ".{8,}",
             letter: "(?=.*[a-zA-Z])",
