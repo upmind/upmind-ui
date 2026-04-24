@@ -29,7 +29,7 @@
           color="primary"
           size="lg"
           block
-          :disabled="meta.isProcessing"
+          :loading="meta.isProcessing || isNavigating"
           @click="doContinue"
         />
       </template>
@@ -48,7 +48,7 @@
           color="primary"
           size="lg"
           block
-          :disabled="meta.isProcessing"
+          :loading="meta.isProcessing || isNavigating"
           @click="doContinue"
         />
       </template>
@@ -63,7 +63,7 @@
       color="primary"
       size="lg"
       block
-      :disabled="meta.isProcessing"
+      :loading="meta.isProcessing || isNavigating"
       @click="doContinue"
     />
   </Teleport>
@@ -127,7 +127,7 @@ const isMounted = useMounted();
 
 const { client } = useSession();
 const { isReady, meta, config, set, update, wait, model } = useBasketBilling();
-const { navigateNext } = useRoutingEngine();
+const { navigateNext, isNavigating } = useRoutingEngine();
 
 // ensure we preload our data for speed between the tab
 

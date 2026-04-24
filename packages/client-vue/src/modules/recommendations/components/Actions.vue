@@ -15,6 +15,7 @@
       size="lg"
       :class="styles.recommendation.actions.button"
       iconAppend="arrow-right"
+      :loading="isNavigating"
     />
   </component>
 </template>
@@ -31,7 +32,7 @@ import {
 
 // --- internal
 import config from "../recommendations.config";
-import { useBasket } from "@upmind-automation/headless";
+import { useBasket, useRoutingEngine } from "@upmind-automation/headless";
 
 defineEmits<{
   skip: [];
@@ -39,5 +40,6 @@ defineEmits<{
 
 const { t } = useI18n();
 const { count } = useBasket();
+const { isNavigating } = useRoutingEngine();
 const styles = useStyles(["recommendation.actions"], {}, config);
 </script>

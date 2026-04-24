@@ -19,7 +19,7 @@
       block
       type="submit"
       color="primary"
-      :loading="meta.isProcessing"
+      :loading="meta.isProcessing || isNavigating"
       :disabled="meta.isLoading || meta.isUnavailable"
       :label="t('action.confirm')"
       size="lg"
@@ -33,6 +33,7 @@
 // --- external
 import { computed } from "vue";
 import {
+  useRoutingEngine,
   type Product,
   type UseProductConfigMeta
 } from "@upmind-automation/headless";
@@ -57,6 +58,7 @@ const props = defineProps<{
 const emits = defineEmits(["resolve", "update:quantity"]);
 
 const { t } = useI18n();
+const { isNavigating } = useRoutingEngine();
 
 const layout = computed(() => {
   return props?.template;
