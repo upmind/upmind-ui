@@ -50,7 +50,7 @@
       </div>
 
       <DialogFooter
-        v-if="$slots.footer || dismissable || $slots.actions"
+        v-if="$slots.footer || $slots.actions || meta.hasDefaultClose"
         :class="[styles.dialog.footer, props.classFooter]"
       >
         <slot name="footer">
@@ -147,7 +147,8 @@ const forwardedContent = useForwardPropsEmits(
 const meta = computed(() => ({
   size: props.size,
   overflow: props.overflow,
-  fit: props.fit
+  fit: props.fit,
+  hasDefaultClose: props.dismissable && !props.noFooter
 }));
 
 const styles = useStyles(["dialog"], meta, config, props.uiConfig ?? {});
