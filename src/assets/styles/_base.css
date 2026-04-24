@@ -14,4 +14,16 @@
   ::file-selector-button {
     border-color: var(--border-control-default, currentcolor);
   }
+
+  /*
+    Radix-vue sets `pointer-events: none` on <body> while a modal Dialog is
+    open, which blocks higher-z UI we don't control (cookie consent, chat
+    widgets, feedback toasts). The Dialog's overlay already traps clicks on
+    page content, so the body-level block is redundant. Override via
+    `!important` because radix writes the block as an inline style via
+    nextTick, making JS interception unreliable.
+  */
+  body {
+    pointer-events: auto !important;
+  }
 }
