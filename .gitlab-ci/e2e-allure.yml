@@ -1,0 +1,86 @@
+# Playwright e2e tests with Allure reporting published to Google Cloud Storage.
+#
+# Required GitLab CI variables (Settings → CI/CD → Variables):
+#   GCP_SERVICE_ACCOUNT_JSON_ALLURE   masked, protected — service-account key JSON
+#   ALLURE_GCS_BUCKET                 e.g. upmind-playwright-reports
+#
+# Service account needs: roles/storage.objectAdmin (or objectCreator + objectViewer)
+# on the target bucket.
+#
+# If ALLURE_GCS_BUCKET is unset the test job still runs and exposes the report
+# as a build artifact, but the publish step is skipped.
+
+e2e:allure:
+  stage: test
+  image: mcr.microsoft.com/playwright:v1.54.2-noble
+  needs: [dependencies]
+  interruptible: true
+  cache:
+    # Preserves the Allure 3 history JSONL per-branch so the trend graph
+    # accumulates across consecutive CI runs on the same branch.
+    key: allure-history-$CI_COMMIT_REF_SLUG
+    paths:
+      - tests/Playwright/e2e/reports/.allure-history/
+    policy: pull-push
+  before_script:
+    - corepack enable
+    - corepack prepare pnpm@10.33.0 --activate
+    # Allure 3 CLI is installed as a project devDependency (no Java needed).
+  script:
+    # globalTeardown in playwright.config.ts calls allure-generate.sh,
+    # which uses the cached history JSONL via allurerc.mjs.
+    - pnpm test:chrome || TESTS_FAILED=1
+    # Archive raw results so a future tool (e.g. ReportPortal) can replay them.
+    - |
+      if [ -d tests/Playwright/e2e/reports/allure-results ]; then
+        tar -czf tests/Playwright/e2e/reports/allure-results.tar.gz \
+          -C tests/Playwright/e2e/reports/allure-results .
+      fi
+    - exit ${TESTS_FAILED:-0}
+  artifacts:
+    when: always
+    expire_in: 30 days
+    paths:
+      - tests/Playwright/e2e/reports/allure-report
+      - tests/Playwright/e2e/reports/allure-results.tar.gz
+
+e2e:allure:publish:
+  stage: deploy
+  image: google/cloud-sdk:alpine
+  needs:
+    - job: e2e:allure
+      artifacts: true
+  variables:
+    ALLURE_GCS_PREFIX: allure
+  before_script:
+    # Reuse the same auth pattern as .deploy gcs in cart.yml.
+    - apk add --no-cache nodejs
+    - echo "${GCP_SERVICE_ACCOUNT_JSON_ALLURE}" > "${GOOGLE_APPLICATION_CREDENTIALS}"
+    - gcloud auth activate-service-account --key-file="${GOOGLE_APPLICATION_CREDENTIALS}" --quiet
+  script:
+    - |
+      if [ -z "${ALLURE_GCS_BUCKET:-}" ]; then
+        echo "ALLURE_GCS_BUCKET not set — skipping GCS publish."
+        exit 0
+      fi
+    - |
+      BASE="gs://${ALLURE_GCS_BUCKET}/${ALLURE_GCS_PREFIX}/ci/${CI_COMMIT_REF_SLUG}"
+      # Versioned per-pipeline copy
+      gcloud storage rsync tests/Playwright/e2e/reports/allure-report \
+        "${BASE}/${CI_PIPELINE_ID}/report" \
+        --recursive --delete-unmatched-destination-objects --quiet
+      gcloud storage cp tests/Playwright/e2e/reports/allure-results.tar.gz \
+        "${BASE}/${CI_PIPELINE_ID}/results.tar.gz" --quiet
+      # Stable "latest" pointer for this branch (used by the landing index)
+      gcloud storage rsync tests/Playwright/e2e/reports/allure-report \
+        "${BASE}/latest/report" \
+        --recursive --delete-unmatched-destination-objects --quiet
+      gcloud storage cp tests/Playwright/e2e/reports/allure-results.tar.gz \
+        "${BASE}/latest/results.tar.gz" --quiet
+    # Rebuild the landing page
+    - node tests/Playwright/scripts/allure-index.mjs
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      when: always
+    - if: $CI_COMMIT_BRANCH == "develop"
+      when: always
