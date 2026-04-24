@@ -34,7 +34,7 @@ export const GLOBAL_OVERLAYS: OverlayDefinition[] = [
   {
     path: "auth",
     id: "auth",
-    defaultType: OverlayType.DRAWER,
+    defaultType: OverlayType.MODAL,
     guard: "guardSession"
   },
   {
