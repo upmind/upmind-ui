@@ -182,6 +182,13 @@ export const OPTION_GROUP_SPACING = {
 export type OptionGroupSpacing =
   (typeof OPTION_GROUP_SPACING)[keyof typeof OPTION_GROUP_SPACING];
 
+export const PRODUCT_SETUP_MODE = {
+  REQUIRED: "required",
+  DEFERRED: "deferred"
+} as const;
+export type ProductSetupMode =
+  (typeof PRODUCT_SETUP_MODE)[keyof typeof PRODUCT_SETUP_MODE];
+
 export interface BadgeObject {
   label: string;
   icon?: string;
@@ -243,7 +250,8 @@ export type ValueType =
   | typeof BREADCRUMBS
   | typeof ICON_VARIANT
   | typeof DIVIDER_STYLE
-  | typeof OPTION_GROUP_SPACING;
+  | typeof OPTION_GROUP_SPACING
+  | typeof PRODUCT_SETUP_MODE;
 
 export interface UIPropertyDefinition {
   type?: ValueType;
