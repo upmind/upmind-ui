@@ -5,7 +5,7 @@ import {
   useBrand,
   useQueryParams,
   useRoutingEngine,
-  useRouteRequiresAction,
+  useProductSetup,
   useProductRecommendations,
   useRecommendations,
   useSession,
@@ -21,7 +21,6 @@ import {
   useConfig,
   UIContext,
   FunnelActions,
-  useDomainRegistrant,
   type FunnelTarget
 } from "@upmind-automation/client-vue";
 import {
@@ -352,29 +351,27 @@ export default {
       name: ROUTE.BASKET_PRODUCT_REQUIRES_ACTION
     });
 
-    const { isReady } = useBasket();
+    const { isReady, getProduct } = useBasket();
 
     return isReady().then(async () => {
-      const { hasProducts, getNextRelated, getNextInvalid } =
-        useRouteRequiresAction();
+      const { meta, products, getNextRelated, getNextInvalid } =
+        useProductSetup();
 
-      const { getProduct } = useBasket();
-
-      if (!hasProducts()) return Promise.reject();
+      if (meta.value.isComplete) return Promise.reject();
 
       const route = context.targetRoute ?? context.currentRoute;
-      let { basketProductId } =
+      const { basketProductId } =
         useQueryParams(route as RouteLocationGeneric) ?? data?.id;
       const basketProduct =
         data ?? (await getProduct(basketProductId).catch(() => undefined));
 
-      // If we have a basketProduct Id, try fetch any related product that needs action
+      // If we have a basketProduct, try fetch any related product that needs action
       const relatedBasketProduct = basketProduct
         ? getNextRelated(basketProduct)
         : undefined;
       const nextInvalidProduct = getNextInvalid();
 
-      // if we have a related product that needs action, navigate to edit that product
+      // If we have a related product that needs action, navigate to edit that product
       if (relatedBasketProduct) {
         return {
           target: {
@@ -384,10 +381,14 @@ export default {
         };
       }
 
+      // Navigate to the next invalid product, or first in queue
+      const targetProduct = nextInvalidProduct ?? first(products.value);
+      if (!targetProduct) return Promise.reject();
+
       return {
         target: {
           name: ROUTE.BASKET_PRODUCT_REQUIRES_ACTION,
-          params: { bpid: nextInvalidProduct!.id }
+          params: { bpid: targetProduct.id }
         }
       };
     });
@@ -636,11 +637,11 @@ export default {
       }
     }
 
-    // Redirect to registrant flow if domain products exist but registrant data is incomplete
-    const { meta: registrantMeta } = useDomainRegistrant();
-    if (!registrantMeta.value.isEmpty && !registrantMeta.value.isComplete) {
+    // Redirect to product setup if any products need attention
+    const { meta: productSetupMeta } = useProductSetup();
+    if (!productSetupMeta.value.isComplete) {
       return Promise.reject({
-        target: { name: ROUTE.DOMAIN_REGISTRANT }
+        target: { name: ROUTE.BASKET_PRODUCT_REQUIRES_ACTION }
       } as FunnelResponse);
     }
 
@@ -690,38 +691,24 @@ export default {
   },
 
   /**
-   * 🎯 Guard: DOMAIN_REGISTRANT_EDIT
-   * Validates that the basket contains domain products requiring registrant details.
-   * If no domain products exist, rejects to redirect back.
+   * 🎯 Guard: BASKET_PRODUCT_SETUP
+   * Validates that products requiring setup exist.
+   * If all products are complete, rejects to redirect to checkout.
    */
-  guardDomainRegistrantEdit: async (
+  guardProductSetup: async (
     context: FunnelContext
   ): Promise<FunnelResponse> => {
-    await ensureBidAuth(context, { name: ROUTE.DOMAIN_REGISTRANT_EDIT });
+    await ensureBidAuth(context, {
+      name: ROUTE.BASKET_PRODUCT_REQUIRES_ACTION
+    });
 
-    const { meta } = useDomainRegistrant();
-    if (meta.value.isEmpty) return Promise.reject();
-
-    return {
-      target: context.targetRoute ?? { name: ROUTE.DOMAIN_REGISTRANT_EDIT }
-    };
-  },
-
-  /**
-   * 🎯 Guard: DOMAIN_REGISTRANT
-   * Validates that the basket contains domain products.
-   * If no domain products exist, rejects to redirect.
-   */
-  guardDomainRegistrant: async (
-    context: FunnelContext
-  ): Promise<FunnelResponse> => {
-    await ensureBidAuth(context, { name: ROUTE.DOMAIN_REGISTRANT });
-
-    const { meta } = useDomainRegistrant();
-    if (meta.value.isEmpty) return Promise.reject();
+    const { meta } = useProductSetup();
+    if (meta.value.isComplete) return Promise.reject();
 
     return {
-      target: context.targetRoute ?? { name: ROUTE.DOMAIN_REGISTRANT }
+      target: context.targetRoute ?? {
+        name: ROUTE.BASKET_PRODUCT_REQUIRES_ACTION
+      }
     };
   }
 };

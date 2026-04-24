@@ -252,12 +252,14 @@ export default <FunnelProps>{
             cond: "hasStandaloneBilling"
           },
           {
-            target: ROUTE.DOMAIN_REGISTRANT,
+            target: ROUTE.BASKET_PRODUCT_REQUIRES_ACTION,
             actions: [
               "setResolving",
-              assign({ targetRoute: { name: ROUTE.DOMAIN_REGISTRANT } })
+              assign({
+                targetRoute: { name: ROUTE.BASKET_PRODUCT_REQUIRES_ACTION }
+              })
             ],
-            cond: "hasInvalidDomains"
+            cond: "hasInvalidProducts"
           },
           {
             target: ROUTE.CHECKOUT,
@@ -348,36 +350,34 @@ export default <FunnelProps>{
 
     /**
      * 🎯 ROUTE.BASKET_PRODUCT_REQUIRES_ACTION
-     * This state handles scenarios where a product in the basket requires additional user action.
-     * It invokes a 'guard' to determine if any action is needed for the product.
-     * If a related product (connected by serviceIdentifier) requires further action, it transitions to the BASKET_PRODUCT_EDIT route for that product.
-     * eg: a Hosting product has a related Domain product that needs configuration
-     * In case of an error, it redirects back to the BASKET route.
+     * This state handles the product setup flow where products require additional configuration.
+     * Shows ONE product at a time with only the fields that have errors or need input.
+     * It invokes a 'guard' to check if products need setup.
+     * On NEXT, checks if more products need setup - loops or proceeds to checkout.
+     * In case of an error (no products need setup), it redirects to checkout.
      */
     [ROUTE.BASKET_PRODUCT_REQUIRES_ACTION]: {
       entry: ["setCurrency", "setBasket"],
       invoke: {
-        src: "guardProductRequiresAction",
+        src: "guardProductSetup",
         onDone: { actions: ["setResolved"] },
-        onError: [
-          {
-            target: ROUTE.BASKET_PRODUCT_EDIT,
-            actions: ["setResolving", "setTargetRoute"],
-            cond: "isBasketProductEdit"
-          },
-          { target: ROUTE.CHECKOUT_FLOW, actions: ["setResolving"] }
-        ]
+        onError: { target: ROUTE.CHECKOUT, actions: ["setResolving"] }
       },
       on: {
-        NEXT: {
-          target: ROUTE.BASKET_PRODUCT_EDIT,
-          actions: [
-            assign({ targetRoute: { name: ROUTE.BASKET_PRODUCT_EDIT } })
-          ]
-        },
+        NEXT: [
+          {
+            target: ROUTE.BASKET_PRODUCT_REQUIRES_ACTION,
+            actions: ["setResolving"],
+            cond: "hasInvalidProducts"
+          },
+          {
+            target: ROUTE.CHECKOUT,
+            actions: [assign({ targetRoute: { name: ROUTE.CHECKOUT } })]
+          }
+        ],
         BACK: {
-          target: ROUTE.BASKET,
-          actions: [assign({ targetRoute: { name: ROUTE.BASKET } })]
+          target: ROUTE.BILLING,
+          actions: [assign({ targetRoute: { name: ROUTE.BILLING } })]
         }
       }
     },
@@ -781,12 +781,14 @@ export default <FunnelProps>{
       on: {
         NEXT: [
           {
-            target: ROUTE.DOMAIN_REGISTRANT,
+            target: ROUTE.BASKET_PRODUCT_REQUIRES_ACTION,
             actions: [
               "setResolving",
-              assign({ targetRoute: { name: ROUTE.DOMAIN_REGISTRANT } })
+              assign({
+                targetRoute: { name: ROUTE.BASKET_PRODUCT_REQUIRES_ACTION }
+              })
             ],
-            cond: "hasInvalidDomains"
+            cond: "hasInvalidProducts"
           },
           {
             target: ROUTE.CHECKOUT,
@@ -796,64 +798,6 @@ export default <FunnelProps>{
         BACK: {
           target: ROUTE.BASKET,
           actions: [assign({ targetRoute: { name: ROUTE.BASKET } })]
-        }
-      }
-    },
-
-    /**
-     * 🎯 ROUTE.DOMAIN_REGISTRANT_EDIT
-     * This state manages the domain registrant details form.
-     * Users fill in or edit registrant details for domain products in the basket.
-     * Only accessible when the basket contains domain products.
-     * On NEXT, transitions to the registrant review page.
-     */
-    [ROUTE.DOMAIN_REGISTRANT_EDIT]: {
-      invoke: {
-        src: "guardDomainRegistrantEdit",
-        onDone: [
-          {
-            target: ROUTE.DOMAIN_REGISTRANT,
-            actions: ["setResolving"],
-            cond: "isRegistrantComplete"
-          },
-          { actions: ["setResolved"] }
-        ],
-        onError: { target: ROUTE.DOMAIN_REGISTRANT, actions: ["setResolving"] }
-      },
-      on: {
-        NEXT: {
-          target: ROUTE.DOMAIN_REGISTRANT,
-          actions: [assign({ targetRoute: { name: ROUTE.DOMAIN_REGISTRANT } })]
-        },
-        BACK: {
-          target: ROUTE.DOMAIN_REGISTRANT,
-          actions: [assign({ targetRoute: { name: ROUTE.DOMAIN_REGISTRANT } })]
-        }
-      }
-    },
-
-    /**
-     * 🎯 ROUTE.DOMAIN_REGISTRANT
-     * This state manages the registrant details review page.
-     * Shows all domain registrant statuses with completeness tracking.
-     * If all domains are complete, the user can proceed to checkout.
-     * If incomplete, the user is blocked until all domains have registrant data.
-     */
-    [ROUTE.DOMAIN_REGISTRANT]: {
-      entry: ["setCurrency"],
-      invoke: {
-        src: "guardDomainRegistrant",
-        onDone: { actions: ["setResolved"] },
-        onError: { target: ROUTE.CHECKOUT, actions: ["setResolving"] }
-      },
-      on: {
-        NEXT: {
-          target: ROUTE.CHECKOUT,
-          actions: [assign({ targetRoute: { name: ROUTE.CHECKOUT } })]
-        },
-        BACK: {
-          target: ROUTE.BILLING,
-          actions: [assign({ targetRoute: { name: ROUTE.BILLING } })]
         }
       }
     },

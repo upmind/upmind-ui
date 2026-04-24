@@ -5,7 +5,7 @@ import {
   UIContext,
   useBasket,
   useConfig,
-  useDomainRegistrant,
+  useProductSetup,
   useQueryParams
 } from "@upmind-automation/client-vue";
 import { isEmpty } from "lodash-es";
@@ -72,8 +72,8 @@ export default {
     return meta.value?.hasProducts;
   },
   hasInvalidProducts: () => {
-    const { meta } = useBasket();
-    return meta.value?.hasInvalidProducts;
+    const { meta } = useProductSetup();
+    return !meta.value?.isComplete;
   },
   hasFields: () => {
     const { meta } = useBasket();
@@ -91,29 +91,11 @@ export default {
   },
 
   /**
-   * Returns true when the basket contains domain products that need registrant details.
-   * Used by BILLING NEXT to route through the registrant flow.
+   * Returns true when all products requiring setup are complete.
+   * Used by BASKET_PRODUCT_REQUIRES_ACTION to skip when already complete.
    */
-  hasDomainProducts: () => {
-    const { meta } = useDomainRegistrant();
-    return !meta.value.isEmpty;
-  },
-
-  /**
-   * Returns true when any domain products are invalid or missing provision fields.
-   * Used by BASKET NEXT to route through the registrant flow.
-   */
-  hasInvalidDomains: () => {
-    const { invalidDomains } = useDomainRegistrant();
-    return !isEmpty(invalidDomains.value);
-  },
-
-  /**
-   * Returns true when all domain registrant details are complete or skipped.
-   * Used by DOMAIN_REGISTRANT to skip when already complete.
-   */
-  isRegistrantComplete: () => {
-    const { meta } = useDomainRegistrant();
-    return meta.value.isComplete;
+  isProductSetupComplete: () => {
+    const { meta } = useProductSetup();
+    return meta.value?.isComplete;
   }
 };
