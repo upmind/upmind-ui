@@ -8,7 +8,7 @@ import {
   useForwardPropsEmits
 } from "radix-vue";
 import { type HTMLAttributes, computed } from "vue";
-import { cn } from "../../utils";
+import { cn, usePortalTarget } from "../../utils";
 
 defineOptions({
   inheritAttrs: false
@@ -33,10 +33,12 @@ const delegatedProps = computed(() => {
 });
 
 const forwarded = useForwardPropsEmits(delegatedProps, emits);
+
+const portalTo = usePortalTarget(() => props.to);
 </script>
 
 <template>
-  <PopoverPortal :disabled="props?.disabled" :to="props?.to">
+  <PopoverPortal :disabled="props?.disabled" :to="portalTo">
     <PopoverContent
       v-bind="{ ...forwarded, ...$attrs }"
       :class="
