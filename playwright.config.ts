@@ -22,7 +22,7 @@ export default defineConfig({
   //captureGitInfo: { commit: true, diff: true },
 
   /*Set number of retries on a failed test*/
-  retries: 0,
+  retries: 1,
 
   /* Run tests in files in parallel */
   //fullyParallel: true,
@@ -86,7 +86,7 @@ export default defineConfig({
       name: "firefox",
       use: {
         ...devices["Desktop Firefox"],
-        browserName: "chromium",
+        browserName: "firefox",
         headless: true,
         viewport: { width: 1920, height: 1080 },
         launchOptions: {
@@ -98,7 +98,7 @@ export default defineConfig({
       name: "safari",
       use: {
         ...devices["Desktop Safari"],
-        browserName: "chromium",
+        browserName: "webkit",
         headless: true,
         viewport: { width: 1920, height: 1080 },
         launchOptions: {
