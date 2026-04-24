@@ -8,11 +8,14 @@ import {
 } from "radix-vue";
 import { type HTMLAttributes, computed } from "vue";
 import { persistentRing } from "../../assets/styles";
-import { cn } from "../../utils";
+import { cn, usePortalTarget, type PortalTarget } from "../../utils";
 
 const props = withDefaults(
   defineProps<
-    DropdownMenuContentProps & { class?: HTMLAttributes["class"]; to?: string }
+    DropdownMenuContentProps & {
+      class?: HTMLAttributes["class"];
+      to?: PortalTarget;
+    }
   >(),
   {
     sideOffset: 4
@@ -27,10 +30,12 @@ const delegatedProps = computed(() => {
 });
 
 const forwarded = useForwardPropsEmits(delegatedProps, emits);
+
+const portalTo = usePortalTarget(() => props.to);
 </script>
 
 <template>
-  <DropdownMenuPortal :to="props?.to">
+  <DropdownMenuPortal :to="portalTo">
     <DropdownMenuContent
       v-bind="forwarded"
       :class="
