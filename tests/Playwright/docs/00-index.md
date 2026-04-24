@@ -37,3 +37,4 @@ When you just need to run the tests right now:
 5. [Support Library Reference](05-support-library.md) — every file under `support/` explained.
 6. [Visual Regression Testing](06-visual-regression.md) — screenshots, locales, and snapshot management.
 7. [Special Test Setups & Gotchas](07-special-setups.md) — 2FA/OTP, PayPal sandbox, Stripe cards, session cookies, and other tribal knowledge.
+8. [Allure Dashboard](08-allure-dashboard.md) — shared test-results dashboard on GCS, trends, publishing local runs, comparing branches.
