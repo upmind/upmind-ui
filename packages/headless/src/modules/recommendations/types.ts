@@ -3,6 +3,7 @@ import type { ActorRef } from "xstate";
 import type {
   IRelatedObject,
   IProduct,
+  IBasket,
   IBasketProduct,
   ICurrency,
   IPromotion
@@ -17,6 +18,12 @@ import type {
 import type { ResponseError } from "../../utils";
 import type { Benefit } from "../product";
 import type { Badge } from "../config/schema";
+import type { ConditionalValue } from "../config/types";
+
+/**
+ * Visibility state for conditional recommendations.
+ */
+export type RecommendationVisibility = "visible" | "hidden";
 
 /**
  * Interface representing a promotion applied to a recommendation.
@@ -183,6 +190,10 @@ export interface RecommendationsEngineContext {
    */
   basketId?: string;
   /**
+   * The current basket state for condition evaluation.
+   */
+  basket?: IBasket;
+  /**
    * An `ActorRef` to the basket helper service, facilitating integration with the main basket.
    */
   basketHelper?: ActorRef<any>;
@@ -239,4 +250,8 @@ export interface RelatedProduct extends IRelatedObject {
    * An array of benefits associated with the related product.
    */
   benefits?: Benefit[];
+  /**
+   * Conditional visibility rules evaluated against basket state.
+   */
+  conditions?: ConditionalValue<RecommendationVisibility>;
 }
