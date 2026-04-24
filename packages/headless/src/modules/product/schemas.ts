@@ -1,7 +1,9 @@
 // --- external
 import { find, first, forEach, isEmpty, keys, map, size } from "lodash-es";
+import { DeferModes } from "@upmind-automation/types";
 
 // --- internal
+import { useConfig } from "../config";
 import { useI18n } from "../system";
 import {
   calculateBillingTerm,
@@ -17,6 +19,7 @@ import type {
   SubproductDetails,
   TermDetails
 } from "./types";
+import { PRODUCT_SETUP_MODE, UIContext } from "../config/schema/types";
 
 // -----------------------------------------------------------------------------
 /**
@@ -393,6 +396,165 @@ export function useProductConfigUischema(
         elements.push({
           type: "Control",
           scope: `#/properties/provisionFields/properties/${key}`,
+          i18n: `form.provision_field.${key}`
+        });
+      });
+    }
+  }
+
+  return {
+    type: "VerticalLayout",
+    elements
+  } as UISchemaElement;
+}
+
+// -----------------------------------------------------------------------------
+
+/**
+ * Builds a UISchema containing only elements that need attention.
+ *
+ * This mirrors `useProductConfigUischema` but only includes elements where the
+ * corresponding field has an error, or (when mode is 'deferred') where deferred
+ * provision fields have empty values.
+ *
+ * @param context - The product config context with lookups and errors
+ * @param mode - 'required' (errors only) or 'deferred' (errors + empty deferred fields)
+ * @returns A new UISchema containing only elements needing attention
+ */
+export function useInvalidProductConfigUischema(
+  context: ProductConfigContext
+): UISchemaElement {
+  const { ui } = useConfig({ context: UIContext.CHECKOUT });
+  const mode = ui.productSetup.value;
+  const elements: any[] = [];
+  const { t } = useI18n();
+  const errorPaths = new Set(
+    map(context.errorExternal as any[], "instancePath")
+  );
+
+  // --- Helper to check if a scope has an error
+  const hasError = (scope: string): boolean => {
+    const instancePath = scope
+      .replace("#/properties/", "/")
+      .replace(/\/properties\//g, "/");
+    return errorPaths.has(instancePath);
+  };
+
+  // --- trial opt-in
+  if (
+    context?.lookups?.product?.trialSupported &&
+    hasError("#/properties/startTrial")
+  ) {
+    elements.push({
+      type: "Control",
+      scope: "#/properties/startTrial",
+      i18n: "product_trial",
+      options: {
+        format: "card",
+        items: [
+          {
+            value: "true",
+            label: t("text.try_before_you_buy"),
+            secondaryDescription: t("text.free_trial_desc", {
+              days: context.lookups!.product!.trialDuration
+            }),
+            badge: {
+              label: t("text.free_trial"),
+              color: "promo",
+              variant: "minimal"
+            }
+          }
+        ],
+        trialDuration: context.lookups!.product!.trialDuration,
+        disabled: !!context.lookups!.product!.trialForce
+      }
+    });
+  }
+
+  // --- term selector
+  if (!isEmpty(context?.lookups?.terms) && hasError("#/properties/term")) {
+    elements.push({
+      type: "Terms",
+      scope: "#/properties/term",
+      i18n: "product.term"
+    });
+  }
+
+  // --- options (one element per category with errors)
+  if (!isEmpty(context?.lookups?.options)) {
+    forEach(context?.lookups!.options!, option => {
+      if (isEmpty(option.values)) return;
+
+      const scope = `#/properties/options/properties/${option.id}`;
+      if (!hasError(scope)) return;
+
+      elements.push({
+        type: "SubProducts",
+        scope,
+        i18n: "product.option",
+        options: {
+          meta: option.meta,
+          uiMeta: option.uiMeta,
+          uiCategoryMeta: option.uiCategoryMeta
+        }
+      });
+    });
+  }
+
+  // --- attributes (one element per category with errors)
+  if (!isEmpty(context?.lookups?.attributes)) {
+    forEach(context?.lookups!.attributes!, attr => {
+      if (isEmpty(attr.values)) return;
+
+      const scope = `#/properties/attributes/properties/${attr.id}`;
+      if (!hasError(scope)) return;
+
+      elements.push({
+        type: "SubProducts",
+        scope,
+        i18n: "product.attribute",
+        options: {
+          meta: attr.meta,
+          uiMeta: attr.uiMeta,
+          uiCategoryMeta: attr.uiCategoryMeta
+        }
+      });
+    });
+  }
+
+  // --- provision fields (errors + empty deferred fields when mode is 'deferred')
+  if (!isEmpty(context?.lookups?.provisionFields) && context?.rawProduct) {
+    const provisionSchema = parseProvisioningSchema(
+      context.lookups!.provisionFields,
+      context.rawProduct
+    );
+    if (!isEmpty(provisionSchema?.properties)) {
+      // Track which fields we've added (to avoid duplicates)
+      const addedFields = new Set<string>();
+
+      forEach(keys(provisionSchema.properties), key => {
+        const scope = `#/properties/provisionFields/properties/${key}`;
+        const fieldHasError = hasError(scope);
+
+        // In deferred mode, also include deferred fields with empty values
+        // Use baseModel (set on load/update) so fields don't disappear as user types
+        const field = find(context.lookups!.provisionFields, { name: key });
+        const isDeferred =
+          field?.defer_mode === DeferModes.OPTIONAL ||
+          field?.defer_mode === DeferModes.HIDDEN;
+        const baseValue = context.baseModel?.provisionFields?.[key];
+        const isEmptyAtLoad =
+          baseValue === null || baseValue === undefined || baseValue === "";
+        const needsAttention =
+          fieldHasError ||
+          (mode === PRODUCT_SETUP_MODE.DEFERRED && isDeferred && isEmptyAtLoad);
+
+        if (!needsAttention || addedFields.has(key)) return;
+        addedFields.add(key);
+
+        elements.push({
+          type: "Control",
+          scope,
           i18n: `form.provision_field.${key}`
         });
       });

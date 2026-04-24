@@ -459,6 +459,8 @@ export type ProductSummaryMeta = {
   default?: boolean;
   /** `true` if the product offers a free trial. */
   freeTrial?: boolean;
+  /** `true` if the product has provision fields with deferred mode (optional/hidden). */
+  deferred?: boolean;
   /** The formatted renewal price for the current billing cycle (e.g. "$9.99"). */
   renewalPrice?: string;
   /** `true` if monthly pricing should be derived from the product's price. */

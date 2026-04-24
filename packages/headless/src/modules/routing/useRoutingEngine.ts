@@ -21,7 +21,6 @@ import {
   useContext
 } from "../../utils";
 import { awaitResolved } from "./utils";
-export { useRouteRequiresAction } from "./utils";
 
 // --- types
 import type { RouteLocation, Router } from "vue-router";

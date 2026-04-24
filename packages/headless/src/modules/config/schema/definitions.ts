@@ -24,7 +24,8 @@ import {
   TERM_SELECTOR,
   ICON_VARIANT,
   DIVIDER_STYLE,
-  OPTION_GROUP_SPACING
+  OPTION_GROUP_SPACING,
+  PRODUCT_SETUP_MODE
 } from "./types";
 
 export const UI_META_DEFINITIONS = {
@@ -509,6 +510,12 @@ export const UI_META_DEFINITIONS = {
   },
   seoTwitterImage: {
     default: undefined,
+    contexts: ALL_CONTEXTS,
+    scopes: [UIScope.BRAND, UIScope.PRODUCT_CATEGORY, UIScope.PRODUCT]
+  },
+  productSetup: {
+    type: PRODUCT_SETUP_MODE,
+    default: PRODUCT_SETUP_MODE.REQUIRED,
     contexts: ALL_CONTEXTS,
     scopes: [UIScope.BRAND, UIScope.PRODUCT_CATEGORY, UIScope.PRODUCT]
   }
