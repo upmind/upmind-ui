@@ -31,8 +31,7 @@
               meta.isProcessing ||
               meta.isLoading ||
               !meta.hasFields ||
-              !meta.hasProducts ||
-              meta.hasInvalidProducts
+              !meta.hasProducts
             "
             :loading="meta.isProcessing"
             :show-checkout="
@@ -82,8 +81,7 @@
               meta.isProcessing ||
               meta.isLoading ||
               !meta.hasFields ||
-              !meta.hasProducts ||
-              meta.hasInvalidProducts
+              !meta.hasProducts
             "
             :loading="meta.isProcessing"
           />
