@@ -346,13 +346,14 @@ export const useRoutingEngine = () => {
     stopService(service);
   }
 
-  function updateRouter(route: RouteLocation) {
+  async function updateRouter(route: RouteLocation) {
     if (!router || !route) return;
     if (route?.meta?.replace) {
-      router.replace(route);
+      await router.replace(route);
     } else {
-      router.push(route);
+      await router.push(route);
     }
+    await isMounted(router.currentRoute.value);
   }
 
   /** Notify the routing engine that a route's page component has mounted. */
