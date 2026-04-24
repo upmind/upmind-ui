@@ -30,7 +30,11 @@ import { useTranslateField, useTranslateName, useImageUrl } from "../../utils";
 // --- types
 import { ProductTypes } from "@upmind-automation/types";
 import type { IBasket, IBasketProduct } from "@upmind-automation/types";
-import type { Recommendation, RelatedProduct } from "./types";
+import type {
+  Recommendation,
+  RelatedProduct,
+  RecommendationVisibility
+} from "./types";
 import { UIContext, type Badge, type Benefit } from "../config/schema";
 import { calculateBillingTerm } from "../product/utils";
 import {
@@ -39,6 +43,10 @@ import {
   type IProductConfig
 } from "../product";
 import { useConfig } from "../config/useConfig";
+import {
+  evaluateRules,
+  buildConditionState
+} from "../config/config.conditions";
 
 // ---------------------------------------------------------------------------
 
@@ -162,6 +170,29 @@ export function parseAddedProducts(
     },
     []
   );
+}
+
+/**
+ * Evaluates conditional visibility rules for a recommendation.
+ * Returns true if the recommendation should be visible based on basket state.
+ *
+ * @param recommendation - The recommendation to evaluate
+ * @param basket - The basket state for condition evaluation
+ * @returns true if visible, false if hidden
+ */
+export function checkConditionVisibility(
+  recommendation: RelatedProduct,
+  basket: IBasket
+): boolean {
+  if (!recommendation.conditions) return true;
+
+  const state = buildConditionState({ basket });
+  const result = evaluateRules<RecommendationVisibility>(
+    recommendation.conditions,
+    state
+  );
+
+  return result === "visible";
 }
 
 export function checkInBasket(
