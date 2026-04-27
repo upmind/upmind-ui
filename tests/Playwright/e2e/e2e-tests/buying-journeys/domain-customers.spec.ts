@@ -54,7 +54,7 @@ test.describe("Domain customers", () => {
       await basket.proceedToCheckout.click();
       await checkout.selectPaymentMethod("Direct Bank Transfer");
       await checkout.clickPlaceOrder();
-      await expect(page.getByText("Order Complete!")).toBeVisible();
+      await expect(page.getByText("Order confirmed")).toBeVisible();
     });
     test("Log in at checkout", async ({ page }) => {
       await enterDomainDetails();
@@ -64,7 +64,7 @@ test.describe("Domain customers", () => {
       await login.inputLogin(Logins.domain2.username, Logins.domain2.password);
       await checkout.selectPaymentMethod("Direct Bank Transfer");
       await checkout.clickPlaceOrder();
-      await expect(page.getByText("Order Complete!")).toBeVisible();
+      await expect(page.getByText("Order confirmed")).toBeVisible();
     });
   });
   test.describe("New Customer", () => {
@@ -73,15 +73,9 @@ test.describe("Domain customers", () => {
       await productConfig.addToBasket.click();
       await basket.proceedToCheckout.click();
       await registration.inputRegistration();
-      await checkout.manuallyInputAddress(
-        `${fakerEN_GB.location.streetAddress()}`,
-        `${fakerEN_GB.location.city()}`,
-        "HU15 1EG",
-        null
-      );
       await checkout.selectPaymentMethod("Direct Bank Transfer");
       await checkout.clickPlaceOrder();
-      await expect(page.getByText("Order Complete!")).toBeVisible();
+      await expect(page.getByText("Order confirmed")).toBeVisible();
     });
   });
 });

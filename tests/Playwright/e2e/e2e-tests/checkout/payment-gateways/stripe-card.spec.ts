@@ -13,6 +13,7 @@ import {
   getSessionToken,
   registerClient
 } from "../../../support/api/index";
+import { waitForSessionCookie } from "../../../support/helpers/session";
 
 newUser.describe("Checkout with Stripe", () => {
   newUser.describe("Stripe Cards", () => {
@@ -42,19 +43,7 @@ newUser.describe("Checkout with Stripe", () => {
     newUser.describe("Declined Cards", async () => {
       newUser.beforeEach(async ({ page, context }) => {
         await page.goto("/");
-        await expect
-          .poll(
-            async () => {
-              const cookies = await context.cookies();
-              return cookies.some(
-                c =>
-                  c.name === "upm_guest_session" ||
-                  c.name === "upm_client_session"
-              );
-            },
-            { timeout: 30000 }
-          )
-          .toBeTruthy();
+        await waitForSessionCookie(context);
         let guestToken = await getSessionToken(context);
         let user = await registerClient(guestToken);
         let username = user.email;

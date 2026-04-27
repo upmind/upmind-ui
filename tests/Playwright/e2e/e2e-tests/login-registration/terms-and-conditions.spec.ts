@@ -4,6 +4,7 @@ import { Registration } from "../../support/page-objects/templates/registration"
 import { Markdown } from "../../support/page-objects/components/markdown";
 import { interceptTermsAndConditions } from "../../support/mocks/brand";
 import { getSessionToken } from "../../support/api/auth";
+import { waitForSessionCookie } from "../../support/helpers/session";
 
 let registration: Registration;
 let markdown: Markdown;
@@ -14,13 +15,13 @@ test.describe("Terms and Conditions on Registration", () => {
     registration = new Registration(page, context);
     markdown = new Markdown(page);
     await page.goto(URLs.basket);
-    await page.waitForLoadState("networkidle");
+    await waitForSessionCookie(context);
     token = await getSessionToken(context);
   });
   test("No terms and conditions set", async ({ page }) => {
     await interceptTermsAndConditions(page, token, null, null, null, null);
     await page.goto(URLs.register);
-    await page.waitForLoadState("networkidle");
+    await waitForSessionCookie(page.context());
     await expect(page.getByTestId("terms-and-conditions")).toBeVisible();
     await expect(page.getByTestId("terms-link")).toHaveCount(0);
   });
@@ -34,7 +35,7 @@ test.describe("Terms and Conditions on Registration", () => {
       'By clicking "Place order and pay" you agreed to pay pay for this order.'
     );
     await page.goto(URLs.register);
-    await page.waitForLoadState("networkidle");
+    await waitForSessionCookie(page.context());
     await expect(page.getByTestId("terms-and-conditions")).toBeVisible();
     await expect(page.getByTestId("terms-link")).toBeVisible;
     await page.getByTestId("terms-link").click();
@@ -50,7 +51,7 @@ test.describe("Terms and Conditions on Registration", () => {
       null
     );
     await page.goto(URLs.register);
-    await page.waitForLoadState("networkidle");
+    await waitForSessionCookie(page.context());
     await expect(page.getByTestId("terms-and-conditions")).toBeVisible();
     const termsLink = page.getByTestId("terms-and-conditions").locator("a");
     await expect(termsLink).toHaveAttribute("href", "https://upmind.com/");
