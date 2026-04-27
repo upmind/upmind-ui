@@ -4,16 +4,7 @@
       <div v-if="!configMeta.hideImage" :class="styles.product.image.container">
         <Link
           v-if="navigate"
-          :to="{
-            ...props.configureRoute,
-            params: {
-              pid: props.id
-            },
-            query: {
-              ...props.configureRoute?.query,
-              [QUERY_PARAMS.BILLING_CYCLE_MONTHS]: selectedTerm
-            }
-          }"
+          :to="productRoute"
           :disabled="processing || disabled"
           @click="doResolve"
           :tabindex="images.length === 1 ? '0' : '-1'"
@@ -96,21 +87,6 @@
             :color="color"
             size="lg"
             block
-            :to="
-              navigate
-                ? {
-                    ...props.configureRoute,
-                    params: {
-                      pid: props.id
-                    },
-                    query: {
-                      ...props.configureRoute?.query,
-                      [QUERY_PARAMS.BILLING_CYCLE_MONTHS]: selectedTerm,
-                      autoupdate: canAddDirectly ? 'true' : undefined
-                    }
-                  }
-                : undefined
-            "
             :disabled="processing || disabled"
             @click="doResolve"
           />
@@ -148,7 +124,7 @@ import ProductPrice from "./ProductPrice.vue";
 import ProductTerm from "./ProductTerm.vue";
 
 // --- utils
-import { isEmpty, toString, isString } from "lodash-es";
+import { isEmpty, merge, toString, isString } from "lodash-es";
 
 // --- types
 import type { ImageItem, ImageMode } from "@upmind-automation/upmind-ui";
@@ -270,7 +246,19 @@ const canAddDirectly = computed(() => {
   return false;
 });
 
-const action = computed(() => {
+const productRoute = computed(() =>
+  merge({}, props.configureRoute, {
+    params: { pid: props.id },
+    query: { [QUERY_PARAMS.BILLING_CYCLE_MONTHS]: selectedTerm.value }
+  })
+);
+
+const actionRoute = computed(() => {
+  if (!canAddDirectly.value) return productRoute.value;
+  return merge({}, productRoute.value, { query: { autoupdate: "true" } });
+});
+
+const actionContent = computed(() => {
   if (props.meta?.added) {
     return { icon: "check-circle-broken", label: t("confirm.in_basket") };
   }
@@ -283,6 +271,11 @@ const action = computed(() => {
     };
   }
   return { icon: "shopping-bag-02", label: t("action.add_to_basket") };
+});
+
+const action = computed(() => {
+  if (!props.navigate) return actionContent.value;
+  return merge({}, actionContent.value, { to: actionRoute.value });
 });
 
 function doResolve() {

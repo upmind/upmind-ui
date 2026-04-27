@@ -126,7 +126,7 @@ import {
 import ProductSort from "./components/ProductSort.vue";
 
 // --- utils
-import { debounce, isArray, isEmpty, some } from "lodash-es";
+import { debounce, isArray, isEmpty, merge, some } from "lodash-es";
 
 // --- types
 import type { Product } from "@upmind-automation/headless";
@@ -174,15 +174,12 @@ const category = computed(() =>
 
 const { ui } = useConfig().with({ category });
 
-const catalogueConfigureRoute = computed(() => ({
-  ...props.configureRoute,
-  query: {
-    ...props.configureRoute?.query,
-    ...(uiCart.value?.catalogue?.inSitu
-      ? { returnUrl: router.currentRoute.value.fullPath }
-      : {})
-  }
-}));
+const catalogueConfigureRoute = computed(() => {
+  if (!uiCart.value?.catalogue?.inSitu) return props.configureRoute;
+  return merge({}, props.configureRoute, {
+    query: { returnUrl: router.currentRoute.value.fullPath }
+  });
+});
 
 // Determine limit based on layout columns (4-col = 12, 3-col = 9, 2-col = 8, 1-col = 6)
 const LAYOUT_LIMITS: Record<string, number> = {
