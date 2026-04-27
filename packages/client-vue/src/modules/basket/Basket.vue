@@ -27,12 +27,10 @@
         <BasketPricing
           @resolve="navigateNext"
           :disabled="
-            meta.isProcessing ||
             meta.isLoading ||
             !meta.hasFields ||
             !meta.hasProducts ||
-            meta.hasInvalidProducts ||
-            isNavigating
+            meta.hasInvalidProducts
           "
           :loading="meta.isProcessing || isNavigating"
           :show-checkout="
@@ -79,12 +77,10 @@
         <BasketCheckout
           @resolve="navigateNext"
           :disabled="
-            meta.isProcessing ||
             meta.isLoading ||
             !meta.hasFields ||
             !meta.hasProducts ||
-            meta.hasInvalidProducts ||
-            isNavigating
+            meta.hasInvalidProducts
           "
           :loading="meta.isProcessing || isNavigating"
         />
