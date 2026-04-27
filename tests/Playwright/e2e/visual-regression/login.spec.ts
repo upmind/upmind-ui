@@ -4,6 +4,7 @@ import { Logins } from "../support/constants/logins";
 import { URLs } from "../support/constants/urls";
 import { setLocale } from "../support/helpers/locale";
 import { Languages as languages } from "../support/constants/languages";
+import { waitForSessionCookie } from "../support/helpers";
 
 let login: Login;
 
@@ -27,24 +28,24 @@ for (const { language, locale } of languages) {
     test("Login Page", async ({ page }) => {
       await page.goto(URLs.login);
       await setLocale(page, locale);
-      await page.waitForLoadState("networkidle");
+      await waitForSessionCookie(page.context());
       await expect(page).toHaveScreenshot(`${language}/login`);
     });
     test("2FA Entry", async ({ page }) => {
       await page.goto(URLs.login);
       await setLocale(page, locale);
-      await page.waitForLoadState("networkidle");
+      await waitForSessionCookie(page.context());
       await login.inputLogin(
         Logins.twoFactor.username,
         Logins.twoFactor.password
       );
-      await page.waitForLoadState("networkidle");
+      await waitForSessionCookie(page.context());
       await expect(page).toHaveScreenshot(`${language}/2fa-entry`);
     });
     test("Forgotten Password", async ({ page }) => {
       await page.goto(URLs.forgottenPassword);
       await setLocale(page, locale);
-      await page.waitForLoadState("networkidle");
+      await waitForSessionCookie(page.context());
       await expect(page).toHaveScreenshot(`${language}/forgotten-password`);
     });
   });
