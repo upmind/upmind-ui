@@ -557,6 +557,27 @@ export default <FunnelProps>{
     },
 
     /**
+     * 🎯 ROUTE.SESSION_VERIFY_EMAIL
+     * Lands on `/auth/verify-email`. Invokes `guardVerifyEmail` which either
+     * auto-verifies a link (if hash+client_id+email_id present) or gates the
+     * code-input form on the client being in `unverified` state. Redirects to
+     * `returnUrl` (or basket) when verification is no longer needed.
+     */
+    [ROUTE.SESSION_VERIFY_EMAIL]: {
+      meta: {
+        next: [{ target: ROUTE.CHECKOUT }, { target: ROUTE.BASKET }],
+        prev: ROUTE.BASKET
+      },
+      invoke: {
+        src: "guardVerifyEmail",
+        onDone: { actions: ["setResolved"] },
+        onError: [
+          { target: ROUTE.BASKET, actions: ["setUnresolved", "clearTarget"] }
+        ]
+      }
+    },
+
+    /**
      * 🎯 CHECKOUT_FLOW CHECK ** TRANSITIONAL STATE **
      *  It is called BEFORE we go to the "checkout" state and is governed by a BOS ( Brand Setting )
      * This state determines whether we should go to a one-page checkout or a stepped checkout process.
@@ -606,6 +627,11 @@ export default <FunnelProps>{
               })
             ],
             cond: "isSession"
+          },
+          {
+            target: ROUTE.SESSION_VERIFY_EMAIL,
+            actions: ["setUnresolved", "setTargetRoute"],
+            cond: "isSessionVerifyEmail"
           },
           {
             target: ROUTE.BASKET_PRODUCT_REQUIRES_ACTION,
@@ -676,6 +702,11 @@ export default <FunnelProps>{
             target: ROUTE.CHECKOUT,
             actions: ["setUnresolved", "clearTarget"],
             cond: "isSession"
+          },
+          {
+            target: ROUTE.SESSION_VERIFY_EMAIL,
+            actions: ["setUnresolved", "setTargetRoute"],
+            cond: "isSessionVerifyEmail"
           },
           { target: ROUTE.CHECKOUT, actions: ["setUnresolved", "clearTarget"] }
         ]

@@ -193,6 +193,24 @@ export interface Client {
   customFields?: IClient["custom_fields"];
 
   /**
+   * The client's primary email address with verification status.
+   */
+  primaryEmail?: {
+    /**
+     * The unique identifier of the email record.
+     */
+    id: string;
+    /**
+     * The email address.
+     */
+    email: string;
+    /**
+     * `true` if the email has been verified by the client.
+     */
+    isVerified: boolean;
+  };
+
+  /**
    * The client's parsed accounts.
    */
   accounts?: Account[];

@@ -198,6 +198,13 @@ export function mapClient(
     language: raw.interface_language_id,
     lastName: raw.lastname,
     locale: raw.interface_language_code,
+    primaryEmail: raw?.default_email
+      ? {
+          id: raw.default_email.id,
+          email: raw.default_email.email,
+          isVerified: !!raw.default_email.verified
+        }
+      : undefined,
     publicName: raw.public_name,
     username: raw.username
   } as Client;

@@ -13,112 +13,97 @@ import { stateMatches } from "../../utils";
 import { Contexts } from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
 // We have a valid AUTH session when we are logged in as a client (TODO: admin + actor)
-// this will fire every time we transition to a new state
-const authCallback = (
-  state: State<any, any, any, any, any>,
-  hasSession: boolean,
-  callback: any
-) => {
-  // Valid session
+// `unverified` is treated as a valid client session — the client is
+// authenticated, just required to verify their email before checkout.
+type AuthSnapshot = { hasSession: boolean; isAuthenticated: boolean };
+
+const computeAuth = (state: State<any, any, any, any, any>): AuthSnapshot => {
   const clientMachine = state?.children?.clientMachine;
   const guestMachine = state?.children?.guestMachine;
-  const currentMachine =
-    state?.children?.clientMachine || state?.children?.guestMachine;
 
-  // If session expired, unauthenticate immediately
-  if (stateMatches(state, ["expired"])) {
-    callback({ type: "UNAUTHENTICATED" });
-    return false;
+  // Hard-drop on session-level errors / expiry.
+  if (stateMatches(state, ["expired", "checking", "error"])) {
+    return { hasSession: false, isAuthenticated: false };
   }
-
-  // If we have an error and we have a session, unauthenticate
-  if (stateMatches(state, ["checking", "error"])) {
-    if (hasSession) {
-      callback({ type: "UNAUTHENTICATED" });
-    }
-    return false;
-  }
-
-  // If  we were logged in, ie a client, but now complete or done, unauthenticate
+  // Hard-drop on client logout (machine reached its final state).
   if (
     state.matches(Contexts.CLIENT) &&
-    stateMatches(currentMachine, ["complete", "done"])
+    stateMatches(clientMachine, ["complete", "done"])
   ) {
-    if (hasSession) {
-      callback({ type: "UNAUTHENTICATED" });
-    }
-    return false;
+    return { hasSession: false, isAuthenticated: false };
+  }
+  // Guest loading after a previous session = unauthenticated transition.
+  if (state.matches(Contexts.GUEST) && stateMatches(guestMachine, "loading")) {
+    return { hasSession: false, isAuthenticated: false };
   }
 
-  // We have a session IF we have an access token regardless of being in guest or client mode
-  if (stateMatches(currentMachine, ["available"]) && !hasSession) {
-    hasSession = !isEmpty(getTokenFromStorage());
-    if (hasSession) callback({ type: "SESSION" });
-  } else {
-    return false;
-  }
+  // In client context: `loading` is a transient refresh (e.g. REFRESH event),
+  // NOT a logout. Treat it as still session-bearing so consumers (basket,
+  // payment) don't churn through UNAUTHENTICATED → SESSION on every reload.
+  const sessionStates = state.matches(Contexts.CLIENT)
+    ? ["available", "unverified", "loading"]
+    : ["available", "unverified"];
 
-  // Authenticated if client is available
-  // > indicates we are logged in and have a valid access token
   if (
+    !stateMatches(
+      state.matches(Contexts.CLIENT) ? clientMachine : guestMachine,
+      sessionStates
+    )
+  ) {
+    return { hasSession: false, isAuthenticated: false };
+  }
+
+  const hasSession = !isEmpty(getTokenFromStorage());
+  const isAuthenticated =
     hasSession &&
     state.matches(Contexts.CLIENT) &&
-    stateMatches(clientMachine, "available")
-  ) {
-    callback({ type: "AUTHENTICATED" });
-  }
+    stateMatches(clientMachine, sessionStates);
 
-  // Unauthenticated if guest loading
-  // > indicates we are not logged in and are generating a guest token
-  else if (
-    hasSession &&
-    state.matches(Contexts.GUEST) &&
-    stateMatches(guestMachine, "loading")
-  ) {
-    hasSession = false;
-    callback({ type: "UNAUTHENTICATED" });
-  }
-
-  return hasSession;
+  return { hasSession, isAuthenticated };
 };
 
 export const authSubscription = async (callback: any, onReceive: any) => {
   const { subscribe } = useSession();
-  // firstly, send service's current state upon subscription
-  let hasSession = false;
 
-  // authCallback(callback);
+  // Latch the last-emitted snapshot so we only fire SESSION / AUTHENTICATED /
+  // UNAUTHENTICATED on actual transitions, not on every child-machine tick.
+  let last: AuthSnapshot = { hasSession: false, isAuthenticated: false };
 
-  onReceive((event: any) => {
+  onReceive((_event: any) => {
     // do nothing for now
-    // console.debug("authSubscription", "receivedEvent", { event });
   });
 
-  // then listen for any changes to the client service
-  // if we get a change to either authenticated or unauthenticated
-  // then we need to send the callback to the subscriber
+  const dispatch = (state: State<any, any, any, any, any>) => {
+    const next = computeAuth(state);
+
+    if (next.hasSession && !last.hasSession) {
+      callback({ type: "SESSION" });
+    }
+    if (next.isAuthenticated && !last.isAuthenticated) {
+      callback({ type: "AUTHENTICATED" });
+    }
+    if (!next.hasSession && last.hasSession) {
+      callback({ type: "UNAUTHENTICATED" });
+    }
+
+    last = next;
+  };
+
   const subcscription = subscribe(state => {
     if (state.done) return; // service has stopped so exit
 
     const currentMachine =
       state?.children?.clientMachine || state?.children?.guestMachine;
 
-    // watch for our child machines to transition to a non-loading state
-    // and then send the callback to the subscriber
     if (currentMachine) {
-      // @ts-ignore -- this definitely works, despite typescriptm oanind onTrannsition doesnt exist
-      currentMachine?.onTransition(() => {
-        hasSession = authCallback(state, hasSession, callback);
-      });
+      // @ts-ignore -- onTransition exists at runtime even if not in types
+      currentMachine?.onTransition(() => dispatch(state));
     }
 
-    // state = newState; // do we need this as we already have a state that we are updating? maybe there will be a race condition?
-    hasSession = authCallback(state, hasSession, callback);
+    dispatch(state);
   });
 
   return () => {
-    // The subscriber has unsubscribed from this service
-    // typically when the transitioning out of the state node
     subcscription.unsubscribe();
   };
 };

@@ -176,6 +176,15 @@ export const useBrand = () => {
       ) as DefaultPaymentPeriod
   );
 
+  const enforceEmailVerification = computed(
+    (): boolean =>
+      !!get(
+        brandConfig.value,
+        BrandConfigKeys.SECURITY_ORDERS_REQUIRE_VERIFIED_EMAIL,
+        false
+      )
+  );
+
   const errors = computed(() =>
     reduce(
       queries,
@@ -385,6 +394,9 @@ export const useBrand = () => {
 
     /** The default payment period configured for the brand. */
     defaultPaymentPeriod,
+
+    /** `true` if the brand enforces email verification before placing orders. */
+    enforceEmailVerification,
 
     /** An array of errors encountered during brand data fetching. */
     errors,

@@ -7,5 +7,9 @@
   "forgot_password_qn": "Forgotten your password?",
   "logged_out": "You're **logged** out",
   "logged_out_md": "@.markdown:{'auth.logged_out'}",
-  "recaptcha_terms_desc": "This form is protected by reCAPTCHA and Google's {privacyPolicy} and {termsOfService} apply."
+  "recaptcha_terms_desc": "This form is protected by reCAPTCHA and Google's {privacyPolicy} and {termsOfService} apply.",
+  "verify_email_title": "Verify email",
+  "verify_email_msg": "Please verify your email address to proceed to checkout. We've sent a verification code to your registered email.",
+  "verify_email_still_required": "Your email address still needs to be verified before you can proceed.",
+  "didnt_receive_code": "Didn't receive a code?"
 }

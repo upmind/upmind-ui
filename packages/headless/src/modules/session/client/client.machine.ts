@@ -40,11 +40,50 @@ export default createMachine(
         entry: "clearError",
         invoke: {
           src: "load",
-          onDone: {
-            target: "available",
-            actions: ["setActor", "setClient", "setLocale"]
-          },
+          onDone: [
+            {
+              cond: "requiresEmailVerification",
+              target: "unverified",
+              actions: ["setActor", "setClient", "setLocale"]
+            },
+            {
+              target: "available",
+              actions: ["setActor", "setClient", "setLocale"]
+            }
+          ],
           onError: { target: "complete", actions: ["setError"] }
+        }
+      },
+
+      unverified: {
+        id: "unverified",
+        initial: "idle",
+        states: {
+          idle: {
+            on: {
+              VERIFY: {
+                target: "verifying",
+                actions: ["clearError"]
+              },
+              CANCEL: { target: "#loading" }
+            }
+          },
+          verifying: {
+            invoke: {
+              src: "verifyEmailCode",
+              onDone: {
+                // POST success is authoritative — flip the local flag and
+                // transition straight to `available`. Avoids a race where a
+                // fresh `/self` call could return stale `verified: 0`.
+                target: "#available",
+                actions: ["markEmailVerified", "notifyVerificationSuccess"]
+              },
+              onError: {
+                target: "idle",
+                actions: ["setError", "notifyVerificationFailure"]
+              }
+            }
+          }
         }
       },
 
@@ -58,10 +97,6 @@ export default createMachine(
       available: {
         id: "available",
         on: {
-          LOGOUT: {
-            target: "complete",
-            actions: "clear"
-          },
           TRANSFER_TO: {
             target: "transferring"
           }
@@ -105,6 +140,10 @@ export default createMachine(
         id: "complete",
         type: "final"
       }
+    },
+    on: {
+      LOGOUT: { target: "#complete", actions: "clear" },
+      REFRESH: { target: "#loading" }
     }
   },
   {
@@ -162,9 +201,42 @@ export default createMachine(
         });
       },
 
+      markEmailVerified: assign({
+        client: ({ client }) =>
+          client?.primaryEmail
+            ? {
+                ...client,
+                primaryEmail: { ...client.primaryEmail, isVerified: true }
+              }
+            : client
+      }),
+
+      notifyVerificationSuccess: (_context, _event) => {
+        const { t } = useI18n();
+        useFeedback().addSuccess(t("confirm.email_verified"));
+      },
+
+      notifyVerificationFailure: ({ error }, _event) => {
+        const { t } = useI18n();
+        useFeedback().addError({
+          title: error?.message || t("error.client_email_verify_failed"),
+          copy: error?.data ? undefined : error?.message,
+          data: error?.data
+        });
+      },
+
       clearError: assign({ error: undefined })
     },
-    guards: {},
+    guards: {
+      requiresEmailVerification: (_context, { data }: AnyEventObject) => {
+        // `data` is the resolved `load` payload:
+        // { actor: IClient, accounts: IAccount[], enforceEmailVerification }
+        // Reading from event data (not via useBrand()) avoids a top-level
+        // circular import between client.machine and the brand module.
+        if (!data?.enforceEmailVerification) return false;
+        return !data?.actor?.default_email?.verified;
+      }
+    },
 
     delays: {
       error: () => useTime().ERROR,
