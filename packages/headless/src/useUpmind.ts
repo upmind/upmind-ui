@@ -18,6 +18,7 @@ import {
 import type { Funnels, FunnelWatcher, GlobbedFiles } from "./modules";
 import { get, isFunction } from "lodash-es";
 import { useRouting } from "./modules/routing/useRouting";
+import { registerOverlayRoutes } from "./modules/routing/overlays";
 import { useTheming } from "./modules/theming/useTheming";
 import { useQuery } from "./modules";
 
@@ -412,11 +413,16 @@ export class Upmind {
     // initialise the router engine with the router instance
     init(this.router.instance);
 
-    // then register any funnels
+    // then register any funnels and overlays
     const config = isFunction(this.router?.registerFunnels)
       ? this.router.registerFunnels()
       : {};
     register(config);
+
+    // inject overlay routes onto eligible parent routes
+    if (config.overlays) {
+      registerOverlayRoutes(this.router.instance, config.overlays);
+    }
 
     // finally, conditionally set up the router guards
     if (this.router.guardRoutes) useRouting(this.router.instance);
