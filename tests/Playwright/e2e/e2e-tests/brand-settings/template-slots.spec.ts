@@ -7,6 +7,7 @@ import { createOrder, addProductToOrder } from "../../support/api/basket";
 import { products } from "../../support/constants/products";
 import { interceptUISchema, interceptSlots } from "../../support/mocks/brand";
 import { slotTemplates } from "../../support/constants/brand";
+import { waitForSessionCookie } from "../../support/helpers/session";
 
 let login: Login;
 let register: Registration;
@@ -90,15 +91,7 @@ test.describe("Template Slots", () => {
         });
         interceptSlots(page, "basket_summary_footer");
         await page.goto("/");
-        await expect
-          .poll(
-            async () => {
-              const cookies = await context.cookies();
-              return cookies.some(c => c.name === "upm_guest_session");
-            },
-            { timeout: 30000 }
-          )
-          .toBeTruthy();
+        await waitForSessionCookie(context, { guestOnly: true });
         let token = await getSessionToken(context);
         let order = await createOrder(token);
         let orderId = order?.id;

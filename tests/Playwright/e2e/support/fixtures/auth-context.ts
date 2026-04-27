@@ -1,11 +1,5 @@
 // e2e/support/fixtures/auth-context.ts
-import {
-  test as base,
-  request,
-  expect,
-  type Page,
-  type BrowserContext
-} from "@playwright/test";
+import { test as base, type Page, type BrowserContext } from "@playwright/test";
 import { Checkout } from "../../support/page-objects/templates/checkout";
 import { Confirmation } from "../page-objects/templates/confirmation";
 import {
@@ -14,6 +8,7 @@ import {
   registerClient,
   getCurrentOrder
 } from "../../support/api/index";
+import { waitForSessionCookie } from "../helpers/session";
 import { URLs } from "../constants/urls";
 export { expect } from "@playwright/test";
 
@@ -37,18 +32,7 @@ export const newUser = base.extend<{
     use: (r: any) => Promise<void>
   ) => {
     await page.goto(URLs.baseUrl);
-    await expect
-      .poll(
-        async () => {
-          const cookies = await context.cookies();
-          return cookies.some(
-            c =>
-              c.name === "upm_guest_session" || c.name === "upm_client_session"
-          );
-        },
-        { timeout: 30000 }
-      )
-      .toBeTruthy();
+    await waitForSessionCookie(context);
     const guestToken = await getSessionToken(context);
     const user = await registerClient(guestToken);
     const session = await getClientToken(page, user.email, user.password);
@@ -97,18 +81,7 @@ export const registeredUser = base.extend<{
     use: (r: any) => Promise<void>
   ) => {
     await page.goto(URLs.baseUrl);
-    await expect
-      .poll(
-        async () => {
-          const cookies = await context.cookies();
-          return cookies.some(
-            c =>
-              c.name === "upm_guest_session" || c.name === "upm_client_session"
-          );
-        },
-        { timeout: 30000 }
-      )
-      .toBeTruthy();
+    await waitForSessionCookie(context);
     const session = await getClientToken(page, userLogin, userPassword);
     await use(session);
   },
@@ -126,19 +99,7 @@ export const registeredUser = base.extend<{
   ) => {
     await use(async (username: string, password: string) => {
       await page.goto(URLs.baseUrl);
-      await expect
-        .poll(
-          async () => {
-            const cookies = await context.cookies();
-            return cookies.some(
-              c =>
-                c.name === "upm_guest_session" ||
-                c.name === "upm_client_session"
-            );
-          },
-          { timeout: 30000 }
-        )
-        .toBeTruthy();
+      await waitForSessionCookie(context);
       return await getClientToken(page, username, password);
     });
   }

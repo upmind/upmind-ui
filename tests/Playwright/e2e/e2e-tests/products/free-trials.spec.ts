@@ -15,6 +15,7 @@ import {
   addPromotionToOrder,
   getCurrentOrder
 } from "../../support/api/index";
+import { waitForSessionCookie } from "../../support/helpers/session";
 
 let productConfig: ProductConfig;
 let basket: Basket;
@@ -28,7 +29,7 @@ test.describe("Free Trials @free-trials", () => {
     test.beforeEach(async ({ page }) => {
       productConfig = new ProductConfig(page);
       await page.goto(URLs.optionalTrialProduct);
-      await page.waitForLoadState("networkidle");
+      await waitForSessionCookie(page.context());
     });
     test("1.1 Trial checkbox visible & pre-selected for trial-supported product", async () => {
       await expect(productConfig.trialCheckbox).toBeVisible();
@@ -79,7 +80,7 @@ test.describe("Free Trials @free-trials", () => {
     test.beforeEach(async ({ page }) => {
       productConfig = new ProductConfig(page);
       await page.goto(URLs.forcedTrialProduct);
-      await page.waitForLoadState("networkidle");
+      await waitForSessionCookie(page.context());
     });
     test("2.1 Trial checkbox visible but disabled", async () => {
       await expect(productConfig.trialCheckbox).toBeVisible();
@@ -100,21 +101,21 @@ test.describe("Free Trials @free-trials", () => {
     test("3.1 No trial checkbox for non-trial product", async ({ page }) => {
       productConfig = new ProductConfig(page);
       await page.goto(URLs.starterHosting);
-      await page.waitForLoadState("networkidle");
+      await waitForSessionCookie(page.context());
       await expect(productConfig.trialCheckbox).toBeHidden();
     });
   });
   test.describe("Product Card — Catalogue & Recommendations", () => {
     test("4.1 'Free Trial' badge on product card", async ({ page }) => {
       await page.goto(URLs.freeTrialsCategory);
-      await page.waitForLoadState("networkidle");
+      await waitForSessionCookie(page.context());
       await expect(
         page.getByTestId("badge").filter({ hasText: "Free Trial" }).first()
       ).toBeVisible();
     });
     test("4.2 CTA button shows 'Try free for X days'", async ({ page }) => {
       await page.goto(URLs.freeTrialsCategory);
-      await page.waitForLoadState("networkidle");
+      await waitForSessionCookie(page.context());
       await expect(page.getByTestId(trialButtonId).first()).toBeVisible();
     });
     test("4.3 No trial badge on non-trial product", async ({ page }) => {
@@ -123,7 +124,7 @@ test.describe("Free Trials @free-trials", () => {
         trialDuration: 7
       });
       await page.goto(URLs.catalogueRoot1);
-      await page.waitForLoadState("networkidle");
+      await waitForSessionCookie(page.context());
       await expect(
         page.getByTestId("badge").filter({ hasText: "Free Trial" })
       ).toHaveCount(0);
@@ -162,7 +163,7 @@ test.describe("Free Trials @free-trials", () => {
         trialDuration: 7
       });
       await page.goto("/");
-      await page.waitForLoadState("networkidle");
+      await waitForSessionCookie(context);
       const token = await getSessionToken(context);
       const order = await createOrder(token);
       const orderId = order.id;
@@ -180,7 +181,7 @@ test.describe("Free Trials @free-trials", () => {
         true
       );
       await page.goto(URLs.basket);
-      await page.waitForLoadState("networkidle");
+      await waitForSessionCookie(page.context());
     });
     test("6.1 'Free Trial' shown instead of price", async () => {
       await expect(basket.trialPriceLabel).toBeVisible();
@@ -206,19 +207,7 @@ test.describe("Free Trials @free-trials", () => {
     test.beforeEach(async ({ page, context }) => {
       checkout = new Checkout(page);
       await page.goto("/");
-      await expect
-        .poll(
-          async () => {
-            const cookies = await context.cookies();
-            return cookies.some(
-              c =>
-                c.name === "upm_guest_session" ||
-                c.name === "upm_client_session"
-            );
-          },
-          { timeout: 30000 }
-        )
-        .toBeTruthy();
+      await waitForSessionCookie(context);
       let guestToken = await getSessionToken(context);
       let user = await registerClient(guestToken);
       let username = user.email;
