@@ -167,6 +167,12 @@ export async function addProductToOrder(
       }
     );
 
+    if (!response.ok()) {
+      throw new Error(
+        `Failed to add product to order: ${response.status()} ${response.statusText()}`
+      );
+    }
+
     const body = await response.json();
     return body;
   } finally {
