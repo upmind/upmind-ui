@@ -97,7 +97,11 @@
             type="submit"
             :label="t('action.continue_label')"
             :loading="productMeta?.isProcessing"
-            :disabled="productMeta?.isLoading"
+            :disabled="
+              productMeta?.isLoading ||
+              productMeta?.isInvalid ||
+              productMeta?.isUnavailable
+            "
             color="primary"
             size="lg"
             class="w-full"
@@ -175,7 +179,7 @@ const { navigateBack, navigateNext } = useRoutingEngine();
 const { basketProductId } = useQueryParams();
 
 // --- Product Setup composable for configure, meta, and navigation
-const { apply, configure, similarProducts, selectedProducts, total } =
+const { apply, configure, selectedProducts, similarProducts, total } =
   useProductSetup();
 
 const {
@@ -184,7 +188,7 @@ const {
   service: basketProduct,
   onDone,
   isReady
-} = await configure(basketProductId, { allowMultipleEdits: true });
+} = await configure(basketProductId);
 
 const productConfig = useProductConfig(basketProduct);
 

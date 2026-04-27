@@ -1,7 +1,6 @@
 // --- external
 import { computed, ref, watch } from "vue";
 import {
-  castArray,
   filter,
   find,
   first,
@@ -23,13 +22,13 @@ import {
   type BasketProduct
 } from "../basketProduct";
 import { useConfig } from "../config";
-import { useQueryParams } from "../routing";
-import { contextValue, useModelParser } from "../../utils";
+import { contextValue, useModelParser, type ErrorObject } from "../../utils";
 import { basketProductRequiresSetup } from "./utils";
 
 // --- types
 import type { ActorRef } from "xstate";
 import { UIContext } from "../config/schema/types";
+import type { ProductModel } from "../product/types";
 
 // -----------------------------------------------------------------------------
 /**
@@ -50,18 +49,9 @@ import { UIContext } from "../config/schema/types";
  * - `deferred`: products with errors OR deferred fields with empty values
  */
 export function useProductSetup() {
-  const {
-    products: basketProducts,
-    isReady: isBasketReady,
-    meta: basketMeta
-  } = useBasket();
+  const { products: basketProducts, isReady, meta: basketMeta } = useBasket();
   const { configure } = useBasketProducts();
   const { ui } = useConfig({ context: UIContext.CHECKOUT });
-
-  async function isReady(): Promise<boolean> {
-    await isBasketReady();
-    return true;
-  }
 
   // --- context
   const products = computed((): BasketProduct[] => {
@@ -71,16 +61,18 @@ export function useProductSetup() {
     );
   });
 
-  const currentProduct = computed(() => first(products.value));
+  const currentProduct = computed(() =>
+    find(basketProducts.value, { id: currentBpId.value })
+  );
 
   const total = computed(() => size(products.value));
 
-  const { basketProductId } = useQueryParams();
-
   // Products with overlapping error paths (for "apply to similar")
   const similarProducts = computed((): BasketProduct[] => {
+    if (!currentBpId.value) return [];
+
     const mode = ui.productSetup.value;
-    const current = find(basketProducts.value, { id: basketProductId });
+    const current = find(basketProducts.value, { id: currentBpId.value });
     if (!current) return [];
 
     // Get all error paths from current product
@@ -101,20 +93,12 @@ export function useProductSetup() {
     });
   });
 
+  // --- state
+  // Current basket product ID being configured
+  const currentBpId = ref<string>();
+
   // Selected product IDs for "apply to similar" - user can toggle via checkboxes
-  const selectedProducts = ref<string[]>(map(similarProducts.value, "id"));
-
-  // Prune stale IDs when basket refreshes
-  watch(basketProducts, () => {
-    selectedProducts.value = filter(selectedProducts.value, (id: string) =>
-      some(similarProducts.value, ["id", id])
-    );
-  });
-
-  // Reset selection to all similar products (call on cancel/apply)
-  function resetSelectedProducts(): void {
-    selectedProducts.value = map(similarProducts.value, "id");
-  }
+  const selectedProducts = ref<string[]>([]);
 
   // --- meta
   const meta = computed(() => ({
@@ -128,16 +112,11 @@ export function useProductSetup() {
 
   // --- methods
   /**
-   * Apply model data to similar products.
+   * Apply model data to selected similar products.
    * Uses target product's invalidSchema to strip model to only overlapping invalid fields.
    */
-  async function apply(
-    model: Record<string, any>,
-    productIds: string | string[]
-  ): Promise<void> {
-    const ids = castArray(productIds);
-
-    const updates = map(ids, async id => {
+  async function apply(model: Partial<ProductModel>): Promise<void> {
+    const updates = map(selectedProducts.value, async id => {
       const bp = useBasketProduct(id);
       const targetInvalidSchema = bp.invalidSchema?.value;
 
@@ -158,7 +137,7 @@ export function useProductSetup() {
     });
 
     await Promise.allSettled(updates);
-    resetSelectedProducts();
+    selectedProducts.value = [];
   }
 
   function getNextInvalid(actor?: ActorRef<any>): BasketProduct | undefined {
@@ -189,10 +168,31 @@ export function useProductSetup() {
     return getNextRelated(actor!) || getNextInvalid(actor);
   }
 
+  function resetSelectedProducts(): void {
+    selectedProducts.value = map(similarProducts.value, "id");
+  }
+
+  // --- side effects
+
+  // Clean up stale selections when basket products change
+  watch(basketProducts, () => {
+    const validIds = map(similarProducts.value, "id");
+    selectedProducts.value = filter(selectedProducts.value, id =>
+      includes(validIds, id)
+    );
+  });
+
+  // -----------------------------------------------------------------------------
+
   return {
     // --- context
     /** Configure a specific basket product for setup. Pass the bpid from route params. */
-    configure,
+    configure: (bpid: BasketProduct["id"]) => {
+      return configure(bpid, { allowMultipleEdits: true }).finally(() => {
+        currentBpId.value = bpid;
+        selectedProducts.value = map(similarProducts.value, "id");
+      });
+    },
     /** The first product requiring setup. Use this to display the current product to fix. */
     currentProduct,
     /** All products requiring setup (invalid or deferred based on config mode). */
