@@ -58,11 +58,12 @@ import type {
 import {
   BrandConfigKeys,
   DefaultPaymentPeriod,
+  PriceDisplayTypes,
+  PriceType,
   ProductTypes,
   PromotionDisplayTypes,
   ProvisionCategoryCodes,
   PaymentTermDesignations,
-  PriceDisplayTypes,
   QUERY_PARAMS
 } from "@upmind-automation/types";
 
@@ -385,32 +386,84 @@ export function parseTerm(
 }
 
 // -----------------------------------------------------------------------------
-// GOTCHA: Build trusted subproduct IDs from rawBasketProduct
+// GOTCHA: Merge and enrich basket product subproducts into lookups
 // -----------------------------------------------------------------------------
-// Hidden-in-catalog options won't appear in product lookup data, but if
-// they're already in the basket, we trust them. Only store IDs that are
-// NOT in the product's options/attributes.
-// @see parseSubproducts for full explanation of how this is used.
+// 1. Hidden-in-catalog options (hide_catalog: true) won't appear in product
+//    lookup data but exist in rawBasketProduct - we add them.
+// 2. Options with empty prices in API but present in basket - we enrich them
+//    with pricing from basket data.
 // -----------------------------------------------------------------------------
-export function parseTrustedSubproductValues(
-  rawBasketProduct: IBasketProduct | undefined,
-  product: IProduct
-): string[] {
-  return reduce(
-    [
-      ...(rawBasketProduct?.options ?? []),
-      ...(rawBasketProduct?.attributes ?? [])
-    ],
-    (result: string[], item: { product_id: string }) => {
-      if (
-        !some(product.products_options, ["id", item.product_id]) &&
-        !some(product.products_attributes, ["id", item.product_id])
-      )
-        result.push(item.product_id);
+/**
+ * Maps a basket item to an IProductPrice-compatible object.
+ * This allows hidden/restricted items to flow through the normal pricing pipeline.
+ *
+ * @see parsePrice() for how these fields are consumed
+ */
+function mapHiddenSubproductPrice(basketItem: IBasketProduct): IProductPrice {
+  const { includesTax } = useBrand();
+  const isOverridden = basketItem.price_type === PriceType.MANUAL;
+
+  return {
+    billing_cycle_months: basketItem.billing_cycle_months,
+    currency_id: basketItem.base_price_currency_id,
+    // Regular price
+    price: includesTax.value
+      ? basketItem.configuration_total_amount_converted
+      : basketItem.configuration_net_amount_converted,
+    price_formatted: includesTax.value
+      ? basketItem.configuration_total_amount_formatted
+      : basketItem.configuration_net_amount_formatted,
+    // Discounted price
+    price_discounted: includesTax.value
+      ? basketItem.configuration_total_discounted_amount_converted
+      : basketItem.configuration_net_amount_discounted_converted,
+    price_discounted_formatted: includesTax.value
+      ? basketItem.configuration_total_discounted_amount_formatted
+      : basketItem.configuration_net_amount_discounted_formatted,
+    // Original catalog price (before manual override)
+    original_price: basketItem.base_price,
+    original_price_formatted: basketItem.base_price_formatted,
+    // Override flag
+    overridden_price: isOverridden
+  } as IProductPrice;
+}
+
+/**
+ * Merges hidden basket subproducts into product lookups.
+ *
+ * Hidden items (hide_catalog: true) aren't returned by the product API but exist
+ * in the basket. This adds them with proper pricing so they appear in the config UI.
+ */
+/**
+ * Merges hidden basket subproducts into product lookups.
+ *
+ * Hidden items (hide_catalog: true) aren't returned by the product API but exist
+ * in the basket. This adds them so they appear in the configuration UI.
+ */
+export function mergeBasketSubproducts(
+  productSubproducts: (IProductOption | IProductAttribute)[] | undefined,
+  basketSubproducts: IBasketProduct[] | undefined
+): (IProductOption | IProductAttribute)[] {
+  if (!basketSubproducts?.length) return productSubproducts ?? [];
+
+  // Add hidden items not in product lookups
+  const productIds = new Set(map(productSubproducts, "id"));
+  const hidden = reduce(
+    basketSubproducts,
+    (result: (IProductOption | IProductAttribute)[], basketProduct) => {
+      if (!productIds.has(basketProduct.product_id) && basketProduct.product) {
+        result.push({
+          ...basketProduct.product,
+          pivot: { order: get(basketProduct.product, "order", 0) },
+          prices: [mapHiddenSubproductPrice(basketProduct)]
+        } as unknown as IProductOption | IProductAttribute);
+      }
       return result;
     },
-    [] as string[]
+    []
   );
+
+  return [...(productSubproducts ?? []), ...hidden];
 }
 
 export function parseSubproducts(
@@ -422,22 +475,6 @@ export function parseSubproducts(
   subproducts?: ProductModel["attributes"] | ProductModel["options"];
   price: PriceCalculations["attributes"] | PriceCalculations["options"];
 } {
-  // -------------------------------------------------------------------------
-  // GOTCHA: Hidden-in-catalog options that are already in a basket product
-  // -------------------------------------------------------------------------
-  // When a product option has `hide_catalog: true`, the API does NOT return it
-  // in the product lookup data (products_options/products_attributes). However,
-  // if the option was previously added to a basket (before being hidden, or via
-  // admin), it's still valid and exists in `rawBasketProduct`.
-  //
-  // Without this check, we would strip out these "missing" options during
-  // parsing, causing validation to fail on required option categories.
-  //
-  // Solution: `lookups.trustedSubproductValues` is computed once at load time
-  // from rawBasketProduct. If a selected option isn't in lookups but IS in
-  // this set, trust the backend and preserve it.
-  // -------------------------------------------------------------------------
-  const { trustedSubproductValues } = lookups ?? {};
   let subproducts: SubproductModel = {};
   const price: any[] = [];
   // ---
@@ -481,20 +518,8 @@ export function parseSubproducts(
           ) => {
             const product = find(subproduct.values, ["id", value.productId]);
 
-            // ---------------------------------------------------------------
-            // GOTCHA: Trust hidden-in-catalog options from rawBasketProduct
-            // ---------------------------------------------------------------
-            // If product is not in lookup data BUT exists in rawBasketProduct,
-            // the backend already validated it - preserve the selection.
-            // See comment at top of parseSubproducts for full explanation.
-            // ---------------------------------------------------------------
-            if (isEmpty(product)) {
-              if (trustedSubproductValues?.includes(value.productId)) {
-                // Preserve the selection as-is - backend has validated it
-                set(result, id, value);
-              }
-              return result;
-            }
+            // safety check, ensure we have a valid product otherwise bail
+            if (isEmpty(product)) return result;
 
             // Check if the product has pricing for the selected term
             // Do not filter out products with cycle 0 (one-time purchases)
@@ -778,7 +803,7 @@ export const parseSubproductDetails = (
       const values: SubproductValue[] = get(option, "values", []);
 
       // ---
-      const pricing: ProductSummaryDetailWithPrice[] = map(prices, rawPrice =>
+      let pricing: ProductSummaryDetailWithPrice[] = map(prices, rawPrice =>
         parseSummaryDetailWithPrice(
           rawPrice,
           rawSubproduct,
@@ -806,7 +831,7 @@ export const parseSubproductDetails = (
           overridden: price?.meta.overridden,
           default: !!rawSubproduct?.pivot?.default
         },
-        order: rawSubproduct.pivot.order
+        order: rawSubproduct?.pivot?.order ?? 0
       };
       // ---
       values.push(value as SubproductValue);

@@ -15,7 +15,7 @@ import {
   parseBasketProductModel,
   parseProduct,
   parseBundledProducts,
-  parseTrustedSubproductValues
+  mergeBasketSubproducts
 } from "./utils";
 
 import { useProductConfigSchema, useProductConfigUischema } from "./schemas";
@@ -494,16 +494,21 @@ export default createMachine(
             rawBasketProduct?.price_option_override
           ),
           options: parseSubproductDetails(
-            data.product.products_options,
-            model?.term
+            mergeBasketSubproducts(
+              data.product.products_options,
+              rawBasketProduct?.options
+            ),
+            model?.term,
+            data?.currency?.id
           ),
-          attributes: parseSubproductDetails(data.product.products_attributes),
+          attributes: parseSubproductDetails(
+            mergeBasketSubproducts(
+              data.product.products_attributes,
+              rawBasketProduct?.attributes
+            )
+          ),
           provisionFields: data.rawProvisionFields,
-          bundled: parseBundledProducts(data.product, bundle),
-          trustedSubproductValues: parseTrustedSubproductValues(
-            rawBasketProduct,
-            data.product
-          )
+          bundled: parseBundledProducts(data.product, bundle)
         })
       }),
 
