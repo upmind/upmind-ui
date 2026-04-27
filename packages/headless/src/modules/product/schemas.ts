@@ -1,15 +1,5 @@
 // --- external
-import {
-  find,
-  first,
-  forEach,
-  isEmpty,
-  isString,
-  keys,
-  map,
-  reduce,
-  size
-} from "lodash-es";
+import { find, first, forEach, isEmpty, keys, map, size } from "lodash-es";
 
 // --- internal
 import { useI18n } from "../system";
@@ -25,7 +15,6 @@ import type {
   ProductConfigContext,
   ProductDetails,
   SubproductDetails,
-  SubproductValue,
   TermDetails
 } from "./types";
 
@@ -72,17 +61,13 @@ export function useProductConfigSchema(
 
   // --- options
   if (!isEmpty(context.lookups?.options)) {
-    properties.options = buildSubproductGroupSchema(
-      context.lookups!.options!,
-      context.lookups?.trustedSubproductValues
-    );
+    properties.options = buildSubproductGroupSchema(context.lookups!.options!);
   }
 
   // --- attributes
   if (!isEmpty(context.lookups?.attributes)) {
     properties.attributes = buildSubproductGroupSchema(
-      context.lookups!.attributes!,
-      context.lookups?.trustedSubproductValues
+      context.lookups!.attributes!
     );
   }
 
@@ -196,87 +181,49 @@ function buildTrialSchema(product: ProductDetails): Record<string, any> {
  * - `options` array carries display data for the renderer
  */
 function buildSubproductGroupSchema(
-  subproducts: SubproductDetails[],
-  trustedSubproductValues?: string[]
+  subproducts: SubproductDetails[]
 ): Record<string, any> {
   const properties: Record<string, any> = {};
   const required: string[] = [];
 
   forEach(subproducts, subproduct => {
     const isRequired = !!subproduct.meta.required;
-    // Account for trusted hidden values when determining single-value constraint
-    const totalValues =
-      size(subproduct.values) + size(trustedSubproductValues ?? []);
-    const hasSingleValue = totalValues === 1;
+    const hasSingleValue = size(subproduct.values) === 1;
 
-    // -----------------------------------------------------------------------
-    // Build value schemas and IDs in one pass
-    // -----------------------------------------------------------------------
-    // Includes both lookup values (with full constraints) and trusted hidden
-    // values (permissive schema - backend already validated them).
-    // @see parseTrustedSubproductValues in utils.ts for full explanation.
-    // -----------------------------------------------------------------------
-    const { ids, schemas } = reduce(
-      [...(subproduct.values ?? []), ...(trustedSubproductValues ?? [])],
-      (
-        acc: { ids: string[]; schemas: Record<string, any>[] },
-        value: SubproductValue | string
-      ) => {
-        const isHidden = isString(value);
-        const id = isHidden ? value : value.id;
+    // --- per-value entry schemas for oneOf discriminator
+    const valueSchemas = map(subproduct.values, value => {
+      const entrySchema: Record<string, any> = {
+        type: "object",
+        properties: {
+          productId: { type: "string", const: value.id },
+          cycle: { type: "number" }
+        },
+        required: ["productId"] as string[]
+      };
 
-        acc.ids.push(id);
+      if (value.quantifiable) {
+        const quantitySchema: Record<string, any> = {
+          type: "number",
+          minimum: value.min,
+          default: value.quantity
+        };
+        if (value.max !== Infinity) quantitySchema.maximum = value.max;
+        if (value.step > 1) quantitySchema.multipleOf = value.step;
+        entrySchema.properties.quantity = quantitySchema;
+        entrySchema.required.push("quantity");
+      } else {
+        entrySchema.properties.quantity = { type: "number" };
+      }
 
-        if (isHidden) {
-          // Trusted hidden value - permissive schema
-          acc.schemas.push({
-            type: "object",
-            properties: {
-              productId: { type: "string", const: id },
-              cycle: { type: "number" },
-              quantity: { type: "number" }
-            },
-            required: ["productId"]
-          });
-        } else {
-          // Lookup value - full constraints
-          const entrySchema: Record<string, any> = {
-            type: "object",
-            properties: {
-              productId: { type: "string", const: id },
-              cycle: { type: "number" }
-            },
-            required: ["productId"] as string[]
-          };
-
-          if (value.quantifiable) {
-            const quantitySchema: Record<string, any> = {
-              type: "number",
-              minimum: value.min,
-              default: value.quantity
-            };
-            if (value.max !== Infinity) quantitySchema.maximum = value.max;
-            if (value.step > 1) quantitySchema.multipleOf = value.step;
-            entrySchema.properties.quantity = quantitySchema;
-            entrySchema.required.push("quantity");
-          } else {
-            entrySchema.properties.quantity = { type: "number" };
-          }
-
-          acc.schemas.push(entrySchema);
-        }
-
-        return acc;
-      },
-      { ids: [] as string[], schemas: [] as Record<string, any>[] }
-    );
+      return entrySchema;
+    });
 
     const schema: Record<string, any> = {
       type: isRequired ? "object" : ["object", "null"],
       title: subproduct.title,
       description: subproduct.description ?? "",
-      propertyNames: { enum: ids },
-      additionalProperties: { oneOf: schemas },
+      propertyNames: { enum: map(subproduct.values, "id") },
+      additionalProperties: { oneOf: valueSchemas },
       options: map(subproduct.values, value => ({
         ...value,
         label: value.title,
