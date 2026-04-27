@@ -61,8 +61,14 @@ export default {
   }),
 
   cleanupSdk: ({ sdk }: BraintreeContext) => {
-    if (sdk?.braintree?.teardown) {
-      sdk.braintree.teardown();
+    if (sdk?.braintree) {
+      try {
+        sdk.braintree.teardown?.();
+      } catch {
+        // SDK may have already cleaned up internally; cleanup must not throw,
+        // as that would abort the surrounding xstate transition mid-flight.
+      }
+      sdk.braintree = undefined;
     }
   }
 };
