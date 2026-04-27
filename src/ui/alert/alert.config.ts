@@ -115,12 +115,17 @@ const titleVariants = cva("text-md-tight font-medium", {
       sm: "text-sm",
       md: "text-md-tight"
     },
-    color: variants.color
+    color: variants.color,
+    action: {
+      true: "flex items-start justify-between gap-x-3",
+      false: ""
+    }
   },
   defaultVariants: {
     variant: "minimal",
     color: "neutral",
-    size: "md"
+    size: "md",
+    action: false
   },
   compoundVariants: [
     {
@@ -286,7 +291,15 @@ export default {
   alert: {
     root: rootVariants,
     actionIcon: cva("p-1.5 [&>svg]:size-3"),
-    content: cva("text-md-tight w-full gap-2"),
+    content: cva("text-md-tight flex w-full flex-col", {
+      variants: {
+        size: {
+          sm: "",
+          md: "gap-y-1"
+        }
+      },
+      defaultVariants: { size: "md" }
+    }),
     description: descriptionVariants,
     icon: iconVariants,
     title: titleVariants

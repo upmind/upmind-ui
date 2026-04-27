@@ -9,11 +9,26 @@ import type {
   NumberFieldDecrementProps,
   NumberFieldIncrementProps
 } from "radix-vue";
-import type { HTMLAttributes } from "vue";
+import type { Component, HTMLAttributes } from "vue";
 // --- types
 
 type NumberFieldRootVariants = VariantProps<typeof numberFieldRootVariants>;
 type NumberFieldVariants = VariantProps<typeof numberFieldVariants>;
+
+export type NumberFieldAction = {
+  icon: string;
+  handler: () => void;
+};
+
+export type NumberFieldActionButtonProps = {
+  /** The underlying component to render when no override is provided. */
+  is: Component;
+  /** Custom action — renders a plain button with the action handler. */
+  action?: NumberFieldAction;
+  /** Size variant passed to the underlying component. */
+  size?: string | null;
+  class?: HTMLAttributes["class"];
+};
 
 export type NumberFieldProps = NumberFieldRootProps &
   NumberFieldDecrementProps &
@@ -24,6 +39,11 @@ export type NumberFieldProps = NumberFieldRootProps &
     variant?: NumberFieldVariants["variant"];
     // --- behavior
     singleStep?: boolean;
+    // --- action overrides
+    /** Override the decrement button with a custom action. */
+    decrementAction?: NumberFieldAction;
+    /** Override the increment button with a custom action. */
+    incrementAction?: NumberFieldAction;
     // --- styles
     uiConfig?: { numberField: CxOptions };
     class?: HTMLAttributes["class"];
