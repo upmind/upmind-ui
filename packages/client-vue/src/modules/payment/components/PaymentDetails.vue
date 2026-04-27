@@ -83,7 +83,7 @@
 
         <PaymentActions
           v-if="meta.showPaymentActions"
-          :disabled="!meta.isValid && !meta.isUnavailable"
+          :disabled="meta.hasSelectedGateway && !meta.isValid"
           :free="!meta.isPayContext || meta.isFree"
           :offline="meta.isPayOffline"
           :processing="meta.isProcessing || processing"
