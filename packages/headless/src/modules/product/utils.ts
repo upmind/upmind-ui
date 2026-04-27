@@ -384,6 +384,35 @@ export function parseTerm(
   return { term: get(term, "cycle") as number, price };
 }
 
+// -----------------------------------------------------------------------------
+// GOTCHA: Build trusted subproduct IDs from rawBasketProduct
+// -----------------------------------------------------------------------------
+// Hidden-in-catalog options won't appear in product lookup data, but if
+// they're already in the basket, we trust them. Only store IDs that are
+// NOT in the product's options/attributes.
+// @see parseSubproducts for full explanation of how this is used.
+// -----------------------------------------------------------------------------
+export function parseTrustedSubproductValues(
+  rawBasketProduct: IBasketProduct | undefined,
+  product: IProduct
+): string[] {
+  return reduce(
+    [
+      ...(rawBasketProduct?.options ?? []),
+      ...(rawBasketProduct?.attributes ?? [])
+    ],
+    (result: string[], item: { product_id: string }) => {
+      if (
+        !some(product.products_options, ["id", item.product_id]) &&
+        !some(product.products_attributes, ["id", item.product_id])
+      )
+        result.push(item.product_id);
+      return result;
+    },
+    [] as string[]
+  );
+}
+
 export function parseSubproducts(
   type: "attributes" | "options",
   { lookups, model, subproducts: subproductIds }: Partial<ProductConfigContext>,
@@ -393,6 +422,22 @@ export function parseSubproducts(
   subproducts?: ProductModel["attributes"] | ProductModel["options"];
   price: PriceCalculations["attributes"] | PriceCalculations["options"];
 } {
+  // -------------------------------------------------------------------------
+  // GOTCHA: Hidden-in-catalog options that are already in a basket product
+  // -------------------------------------------------------------------------
+  // When a product option has `hide_catalog: true`, the API does NOT return it
+  // in the product lookup data (products_options/products_attributes). However,
+  // if the option was previously added to a basket (before being hidden, or via
+  // admin), it's still valid and exists in `rawBasketProduct`.
+  //
+  // Without this check, we would strip out these "missing" options during
+  // parsing, causing validation to fail on required option categories.
+  //
+  // Solution: `lookups.trustedSubproductValues` is computed once at load time
+  // from rawBasketProduct. If a selected option isn't in lookups but IS in
+  // this set, trust the backend and preserve it.
+  // -------------------------------------------------------------------------
+  const { trustedSubproductValues } = lookups ?? {};
   let subproducts: SubproductModel = {};
   const price: any[] = [];
   // ---
@@ -436,8 +481,20 @@ export function parseSubproducts(
           ) => {
             const product = find(subproduct.values, ["id", value.productId]);
 
-            // safety check, ensure we have a valid product otherwise bail
-            if (isEmpty(product)) return result;
+            // ---------------------------------------------------------------
+            // GOTCHA: Trust hidden-in-catalog options from rawBasketProduct
+            // ---------------------------------------------------------------
+            // If product is not in lookup data BUT exists in rawBasketProduct,
+            // the backend already validated it - preserve the selection.
+            // See comment at top of parseSubproducts for full explanation.
+            // ---------------------------------------------------------------
+            if (isEmpty(product)) {
+              if (trustedSubproductValues?.includes(value.productId)) {
+                // Preserve the selection as-is - backend has validated it
+                set(result, id, value);
+              }
+              return result;
+            }
 
             // Check if the product has pricing for the selected term
             // Do not filter out products with cycle 0 (one-time purchases)
