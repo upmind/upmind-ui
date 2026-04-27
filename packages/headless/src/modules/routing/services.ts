@@ -2,7 +2,7 @@
 
 // --- internal
 import { useFunnelMachine } from "./funnel.machine";
-import { GLOBAL_OVERLAYS, createEndpointNodes } from "./overlays";
+import { createEndpointNodes } from "./overlays";
 import { useI18n } from "../system";
 
 // --- utils
@@ -18,13 +18,14 @@ import type { RoutingEngineContext } from "./types";
  * Service to execute the factory function and prepare the active machine instance.
  * Runs in the 'selectingFunnel' state.
  *
- * Merges endpoint states from GLOBAL_OVERLAYS so overlay routes (e.g. basket--auth)
+ * Merges endpoint states from the overlay registry so overlay routes (e.g. basket--auth)
  * go through the funnel guard pipeline.
  */
 async function prepare({
   funnels,
   currentFunnel,
   defaultFunnel,
+  overlays,
   targetRoute,
   watchers
 }: RoutingEngineContext) {
@@ -37,12 +38,12 @@ async function prepare({
     watchers
   };
 
-  // Generate endpoint state nodes from overlay definitions.
+  // Generate endpoint state nodes from overlay registry.
   // ⚠️ MERGE ORDER MATTERS: Endpoint states MUST be spread AFTER regular funnel
   // states so that RESOLVE evaluates app guards first, endpoint guards second,
   // and the idle fallback last. Changing the spread order below will break
   // guard evaluation priority.
-  const endpoints = createEndpointNodes(GLOBAL_OVERLAYS);
+  const endpoints = createEndpointNodes(overlays ?? {});
 
   if (!funnelConfig) {
     if (!defaultFunnel) {

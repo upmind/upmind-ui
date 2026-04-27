@@ -7,8 +7,7 @@ import { get } from "lodash-es";
 // --- types
 import type { Router, RouteLocation } from "vue-router";
 import { type UIRouteOptions } from "../brand/types";
-import { decorateRoutes, ensureTrailingSlash, hasRouteChanged } from "./utils";
-import { registerOverlayRoutes } from "./overlays";
+import { decorateRoutes, hasRouteChanged } from "./utils";
 
 // -----------------------------------------------------------------------------
 
@@ -53,9 +52,8 @@ export const useRouting = (router: Router): void => {
    */
   router.isReady().then(async () => {
     await decorateRoutes(router.getRoutes());
-    // NB: Apps may also call registerOverlayRoutes() eagerly at router creation
-    // for deep-link support. This call is idempotent and acts as a fallback.
-    registerOverlayRoutes(router);
+    // NB: Apps call registerOverlayRoutes(router, overlays) in their router setup
+    // before this point. No fallback call needed here.
     const target = await guardRoute(router.currentRoute.value);
     if (target) {
       await router.replace(target);

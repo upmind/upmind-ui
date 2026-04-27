@@ -150,6 +150,28 @@ export enum ROUTE {
    */
   ORDER = "order",
 
+  // --- OVERLAY ROUTES --------------------------------------------------------
+
+  /**
+   * Parent route for overlay components (not navigated directly).
+   */
+  OVERLAYS = "overlays",
+
+  /**
+   * Auth overlay — login/register/recover in a modal or drawer.
+   */
+  OVERLAY_AUTH = "overlay-auth",
+
+  /**
+   * 2FA overlay — two-factor authentication challenge.
+   */
+  OVERLAY_2FA = "overlay-2fa",
+
+  /**
+   * Verify email overlay — email verification flow.
+   */
+  OVERLAY_VERIFY_EMAIL = "overlay-verify-email",
+
   // --- SYSTEM ROUTES ---------------------------------------------------------
 
   /**

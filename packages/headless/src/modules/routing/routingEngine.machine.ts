@@ -178,6 +178,7 @@ export default createMachine(
             funnels: funnelDictionary,
             defaultFunnel: newDefaultId,
             currentFunnel: newDefaultId, // Start with the default funnel active
+            overlays: data?.overlays,
             watchers: newWatchers
           };
         }

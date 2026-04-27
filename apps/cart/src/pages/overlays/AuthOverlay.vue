@@ -14,13 +14,13 @@ import { computed } from "vue";
 import { useRoute } from "vue-router";
 
 // --- internal
-import Auth from "../../modules/session/components/Auth.vue";
+import { Auth } from "@upmind-automation/client-vue";
 
 // --- utils
 import { get } from "lodash-es";
 
 // --- types
-import type { SessionProps } from "../../modules/session/types";
+import type { SessionProps } from "@upmind-automation/client-vue";
 
 // -----------------------------------------------------------------------------
 
