@@ -241,10 +241,12 @@ const currentProductTitle = computed(
 // --- Actions
 async function doResolve() {
   // Update current product and apply to selected others
-  await update();
-  await apply(model.value ?? {});
-
-  navigateNext(basketProduct);
+  await update()
+    .then(() => apply(model.value ?? {}))
+    .then(() => navigateNext())
+    .catch(() => {
+      // noop, errors are handled by headless and exposed via `externalErrors` and `validationErrors`
+    });
 }
 
 function doReject() {
