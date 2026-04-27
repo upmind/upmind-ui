@@ -146,15 +146,23 @@ export default [
   },
 
   /**
-   * Route for handling products in the basket that require additional user action.
-   * The :bpid parameter captures the unique basket product identifier (UUID format).
-   * This route typically leads to a page where users can resolve issues
-   * such as selecting options or configurations for the product.
+   * Route for product setup - fixing invalid/deferred product configuration.
+   * Parent route renders router-view, child with :bpid renders Setup.vue.
    */
   {
-    path: `/order/basket/:bid(${RegexMatch.UUID})?/requires-action/:bpid(${RegexMatch.UUID})?/`,
-    name: ROUTE.BASKET_PRODUCT_REQUIRES_ACTION,
-    component: () => import("../pages/product/RequiresAction.vue")
+    path: `/order/basket/:bid(${RegexMatch.UUID})?/setup/`,
+    name: ROUTE.BASKET_PRODUCTS_SETUP,
+    component: () => import("../pages/product/Index.vue"),
+    meta: {
+      actionEmptyBasket: true
+    },
+    children: [
+      {
+        path: `:bpid(${RegexMatch.UUID})/`,
+        name: ROUTE.BASKET_PRODUCT_SETUP,
+        component: () => import("../pages/product/Setup.vue")
+      }
+    ]
   },
 
   /**
