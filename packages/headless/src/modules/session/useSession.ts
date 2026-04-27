@@ -89,7 +89,7 @@ export const useSession = () => {
 
         return waitFor(
           clientActor.value.service,
-          state => stateMatches(state, ["available", "done"]),
+          state => stateMatches(state, ["available", "unverified", "done"]),
           {
             timeout: 60_000
           }
@@ -138,6 +138,7 @@ export const useSession = () => {
         "available.recover.recovering"
       ]) || stateMatches(clientActor, "processing"),
     isAuthenticated: stateMatches(state, "client"),
+    isUnverified: stateMatches(clientActor, "unverified"),
     isTransferring: stateMatches(clientActor, "transferring"),
     hasExpired: stateMatches(state, "expired") || isEmpty(state.value.children),
     hasErrors:
@@ -347,6 +348,23 @@ export const useSession = () => {
       .catch(() => false);
   }
 
+  async function verifyEmail({ code }: { code: string }): Promise<boolean> {
+    if (!clientActor.value) return false;
+
+    service.send({
+      type: "VERIFY",
+      data: { code }
+    });
+
+    return await waitFor(
+      clientActor.value.service,
+      state => stateMatches(state, ["available", "unverified.idle"]),
+      { timeout: 60000 }
+    )
+      .then(state => stateMatches(state, "available"))
+      .catch(() => false);
+  }
+
   async function register(model: any): Promise<boolean> {
     if (!guestActor.value) return true; // already logged in
 
@@ -550,7 +568,7 @@ export const useSession = () => {
 
     return await waitFor(
       clientActor.value.service,
-      state => stateMatches(state, ["available", "done"]),
+      state => stateMatches(state, ["available", "unverified.idle", "done"]),
       {
         timeout: 60000
       }
@@ -587,6 +605,7 @@ export const useSession = () => {
      * @property {boolean} isAvailable - Indicates whether the session is ready to be used.
      * @property {boolean} isProcessing - Indicates whether the session is currently processing an action.
      * @property {boolean} isAuthenticated - Indicates whether the client is authenticated within the session.
+     * @property {boolean} isUnverified - Indicates whether the authenticated client must verify their email before proceeding.
      * @property {boolean} isTransferring - Indicates whether the session is currently transferring data.
      * @property {boolean} hasExpired - Indicates whether the session has expired.
      * @property {boolean} showLoginForm - Indicates whether the login form should be displayed.
@@ -707,6 +726,14 @@ export const useSession = () => {
      * @returns {Promise<void>} A promise that resolves when the verification is successful.
      */
     verify2fa,
+
+    /**
+     * Submits the email verification code entered by an unverified client.
+     * @param {Object} payload The verification payload.
+     * @param {string} payload.code The verification code entered by the client.
+     * @returns {Promise<boolean>} Resolves `true` if verification succeeded and the client transitioned to `available`, `false` otherwise.
+     */
+    verifyEmail,
 
     /**
      * Transfer session data between different parts of the application, such as from guest to client.

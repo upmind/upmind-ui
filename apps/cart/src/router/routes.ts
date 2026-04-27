@@ -295,6 +295,12 @@ export default [
         path: "recover/",
         name: ROUTE.SESSION_RECOVER_PASSWORD,
         component: () => import("../pages/session/Recover.vue")
+      },
+      {
+        path: "verify-email/",
+        name: ROUTE.SESSION_VERIFY_EMAIL,
+        component: () => import("../pages/session/VerifyEmail.vue"),
+        meta: { allowOverlays: false }
       }
     ]
   },

@@ -1,9 +1,12 @@
 import { ROUTE } from "../types";
 import {
   type FunnelContext,
+  checkVerifyEmail,
   useBasket,
   useBasketProductsPending,
   useBrand,
+  useFeedback,
+  useI18n,
   useQueryParams,
   useRoutingEngine,
   useRouteRequiresAction,
@@ -585,6 +588,25 @@ export default {
       } as FunnelResponse);
     }
 
+    // Unverified clients must verify their email before checkout.
+    const { meta: sessionMeta } = useSession();
+    if (sessionMeta.value.isUnverified) {
+      const { router } = useRoutingEngine();
+      const { targetBasketId } = useBasket();
+      const bid = targetBasketId.value;
+      const returnUrl = router.resolve({
+        name: ROUTE.CHECKOUT,
+        params: bid ? { segment: "basket", bid } : {}
+      }).fullPath;
+
+      return Promise.reject({
+        target: {
+          name: ROUTE.SESSION_VERIFY_EMAIL,
+          query: { [QUERY_PARAMS.RETURN_URL]: returnUrl }
+        }
+      } as FunnelResponse);
+    }
+
     // We always need products in the basket to proceed to checkout
     if (!meta.value.hasProducts) {
       return Promise.reject({ target: { name: ROUTE.BASKET } });
@@ -663,6 +685,23 @@ export default {
       };
     }
 
+    // Unverified clients must verify their email before billing/checkout.
+    if (authMeta.value.isUnverified) {
+      const { router } = useRoutingEngine();
+      const { targetBasketId } = useBasket();
+      const bid = targetBasketId.value;
+      const returnUrl = router.resolve({
+        name: ROUTE.CHECKOUT,
+        params: bid ? { segment: "basket", bid } : {}
+      }).fullPath;
+      return Promise.reject({
+        target: {
+          name: ROUTE.SESSION_VERIFY_EMAIL,
+          query: { [QUERY_PARAMS.RETURN_URL]: returnUrl }
+        }
+      } as FunnelResponse);
+    }
+
     // Load billing and check if it still needs input
     const { isReady: isBillingReady, meta: billingMeta } = useBasketBilling();
     await isBillingReady();
@@ -684,5 +723,60 @@ export default {
     }
     // Show billing page
     return { target: context.targetRoute ?? { name: ROUTE.BILLING } };
+  },
+
+  /**
+   * 🎯 Guard: VERIFY_EMAIL
+   *
+   * Lands on `/auth/verify-email`. Two paths:
+   *
+   * **With `hash` + `client_id` + `email_id` (link from email):**
+   * Auto-verifies via `checkVerifyEmail`. On success, toasts and rejects so
+   * the funnel redirects to `returnUrl` (or basket fallback). On failure,
+   * toasts and resolves so the user falls through to the code input form.
+   *
+   * **Without hash:**
+   * Resolves the route if the client is unverified (show form); rejects if
+   * the client is already verified so the funnel redirects away.
+   */
+  guardVerifyEmail: async ({
+    targetRoute
+  }: FunnelContext): Promise<FunnelResponse> => {
+    const { t } = useI18n();
+    const { addError, addSuccess } = useFeedback();
+    const session = useSession();
+
+    const route = targetRoute as RouteLocationGeneric;
+    const { getParam } = useQueryParams(route);
+
+    const hash = getParam(QUERY_PARAMS.HASH)?.toString();
+    const clientId = getParam(QUERY_PARAMS.CLIENT_ID)?.toString();
+    const emailId = getParam(QUERY_PARAMS.EMAIL_ID)?.toString();
+
+    // --- Link-based path: auto-verify via `check_verify`.
+    if (hash && clientId && emailId) {
+      try {
+        await checkVerifyEmail(clientId, emailId, hash);
+        addSuccess(t("confirm.email_verified"));
+        // Re-load the client so `isUnverified` flips and downstream guards pass.
+        await session.refresh().catch(() => false);
+        return Promise.reject();
+      } catch (error: any) {
+        addError({
+          title: error?.message || t("error.client_email_verify_failed"),
+          data: error?.data
+        });
+        // Fall through to the code input form.
+        return { target: targetRoute ?? { name: ROUTE.SESSION_VERIFY_EMAIL } };
+      }
+    }
+
+    // --- Code-based path: only show the form if the client is unverified.
+    await session.isReady();
+    if (session.meta.value.isUnverified) {
+      return { target: targetRoute ?? { name: ROUTE.SESSION_VERIFY_EMAIL } };
+    }
+
+    return Promise.reject();
   }
 };
