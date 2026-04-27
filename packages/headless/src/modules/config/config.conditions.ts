@@ -6,22 +6,23 @@
 
 // --- utils
 import {
+  concat,
   every,
   forEach,
   get,
   has,
   includes,
   isArray,
+  isBoolean,
   isEmpty,
   isNil,
   isNumber,
   isPlainObject,
-  isString,
   keys,
   map,
-  reduce,
   size,
-  startsWith
+  some,
+  values
 } from "lodash-es";
 
 // --- types
@@ -160,7 +161,7 @@ export function evaluateOperator(
 
     case ArrayOperator.CONTAINS_ANY:
       if (!isArray(stateValue) || !isArray(operand)) return false;
-      return operand.some((item: unknown) => includes(stateValue, item));
+      return some(operand, (item: unknown) => includes(stateValue, item));
 
     case ArrayOperator.EXCLUDES:
       if (!isArray(stateValue)) return false;
@@ -170,6 +171,7 @@ export function evaluateOperator(
       if (!isArray(stateValue)) return false;
       return operand === true ? isEmpty(stateValue) : !isEmpty(stateValue);
 
+    // Unknown operators silently skip — `validateMeta` flags them at save time.
     default:
       return false;
   }
@@ -185,11 +187,11 @@ export function buildConditionState(
   const { product, basketProduct, basket } = inputs;
   const state: ConditionState = {};
 
-  const allKeys = [
-    ...Object.values(ProductStateKey),
-    ...Object.values(BasketProductStateKey),
-    ...Object.values(BasketStateKey)
-  ];
+  const allKeys = concat<ConditionStateKey>(
+    values(ProductStateKey),
+    values(BasketProductStateKey),
+    values(BasketStateKey)
+  );
 
   forEach(allKeys, (key: ConditionStateKey) => {
     const value = resolveStateKey(key, product, basketProduct, basket);
@@ -278,16 +280,16 @@ export const ValidationCode = {
   CATCH_ALL_NOT_LAST: "CATCH_ALL_NOT_LAST"
 } as const;
 
-const ALL_STATE_KEYS = [
-  ...Object.values(ProductStateKey),
-  ...Object.values(BasketProductStateKey),
-  ...Object.values(BasketStateKey)
-];
+const ALL_STATE_KEYS = concat<ConditionStateKey>(
+  values(ProductStateKey),
+  values(BasketProductStateKey),
+  values(BasketStateKey)
+);
 
-const ALL_OPERATORS = [
-  ...Object.values(ScalarOperator),
-  ...Object.values(ArrayOperator)
-];
+const ALL_OPERATORS = concat<ComparisonOperator>(
+  values(ScalarOperator),
+  values(ArrayOperator)
+);
 
 const ARRAY_STATE_KEYS: ConditionStateKey[] = [
   BasketProductStateKey.SUB_PIDS,
@@ -422,7 +424,7 @@ export function validateMeta(params: {
 
       if (!rule.when || isEmpty(rule.when)) {
         foundCatchAll = true;
-        if (index < value.rules.length - 1) {
+        if (index < size(value.rules) - 1) {
           issues.push(
             createIssue(
               "info",
@@ -555,7 +557,7 @@ function validateOperandType(
   issues: ValidationIssue[]
 ): void {
   const isArrayKey = includes(ARRAY_STATE_KEYS, stateKey);
-  const isArrayOperator = includes(Object.values(ArrayOperator), operator);
+  const isArrayOperator = includes(values(ArrayOperator), operator);
 
   if (isArrayOperator && !isArrayKey) {
     issues.push(
@@ -609,7 +611,7 @@ function validateOperandType(
     );
   }
 
-  if (operator === ArrayOperator.EMPTY && typeof operand !== "boolean") {
+  if (operator === ArrayOperator.EMPTY && !isBoolean(operand)) {
     issues.push(
       createIssue(
         "error",
