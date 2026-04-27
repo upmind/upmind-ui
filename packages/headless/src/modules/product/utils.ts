@@ -432,12 +432,6 @@ function mapHiddenSubproductPrice(basketItem: IBasketProduct): IProductPrice {
  * Merges hidden basket subproducts into product lookups.
  *
  * Hidden items (hide_catalog: true) aren't returned by the product API but exist
- * in the basket. This adds them with proper pricing so they appear in the config UI.
- */
-/**
- * Merges hidden basket subproducts into product lookups.
- *
- * Hidden items (hide_catalog: true) aren't returned by the product API but exist
  * in the basket. This adds them so they appear in the configuration UI.
  */
 export function mergeBasketSubproducts(
