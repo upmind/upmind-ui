@@ -64,5 +64,12 @@
   "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}",
   "show_more_payment_options": "Show more payment options",
   "stored_payment_methods_limited_desc": "Not all payment methods are visible because they are not available for your country or currency.",
-  "stored_payment_methods_limited_title": "Limited Payment Methods"
+  "stored_payment_methods_limited_title": "Limited Payment Methods",
+  "product_setup": {
+    "configuration": "Configuration",
+    "title": "Complete product setup",
+    "description": "Some products require additional information before checkout. Please review and provide any missing details.",
+    "products_remaining": "No products remaining | {count} product remaining | {count} products remaining",
+    "use_details_for": "Use these details for {name}"
+  }
 }

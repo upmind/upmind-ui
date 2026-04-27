@@ -45,6 +45,10 @@ import type {
   ProductConfigContext
 } from "./";
 import { generateShareUrlConfig } from "./utils";
+import {
+  useInvalidProductConfigSchema,
+  useInvalidProductConfigUischema
+} from "./schemas";
 
 // -----------------------------------------------------------------------------
 
@@ -100,6 +104,14 @@ export const useProductConfig = (service: ActorRef<any>) => {
 
   const schema = useContext<JsonSchema7>(state, "schema");
   const uischema = useContext<UISchemaElement>(state, "uischema");
+  const invalidUischema = computed(() => {
+    const ctx = contextValue<ProductConfigContext>(service);
+    return ctx ? useInvalidProductConfigUischema(ctx) : undefined;
+  });
+  const invalidSchema = computed(() => {
+    const ctx = contextValue<ProductConfigContext>(service);
+    return ctx ? useInvalidProductConfigSchema(ctx) : undefined;
+  });
   const provisionFieldsSchema = useContext<Record<string, any>>(
     state,
     "schema.properties.provisionFields"
@@ -419,6 +431,8 @@ export const useProductConfig = (service: ActorRef<any>) => {
     raw,
     schema,
     uischema,
+    invalidSchema,
+    invalidUischema,
     provisionFieldsSchema,
     title,
     // productDetails,

@@ -5,7 +5,6 @@ import type { Component } from "vue";
 // --- Export Views
 export { default as UpmProductConfigure } from "./Configure.vue";
 export { default as UpmProductNotFound } from "./NotFound.vue";
-export { default as UpmProductRequiresAction } from "./RequiresAction.vue";
 export { default as UpmProductRecommendations } from "./Recommendations.vue";
 
 // --- Export Components

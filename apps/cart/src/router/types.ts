@@ -119,9 +119,11 @@ export enum ROUTE {
   BASKET_PRODUCT_EDIT = "basket-product-edit",
 
   /**
-   * The route to display products that require specific actions from the user.
+   * The route for product setup - fixing invalid/deferred product configuration.
    */
-  BASKET_PRODUCT_REQUIRES_ACTION = "basket-product-requires-action",
+  BASKET_PRODUCT_SETUP = "basket-product-setup",
+
+  BASKET_PRODUCTS_SETUP = "basket-products-setup",
 
   /**
    * The route displayed when a basket is unavailable or invalid.

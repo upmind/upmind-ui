@@ -252,11 +252,19 @@ export default <FunnelProps>{
             cond: "hasStandaloneBilling"
           },
           {
-            target: ROUTE.BASKET_PRODUCT_REQUIRES_ACTION,
+            target: ROUTE.BILLING,
+            actions: [
+              "setResolving",
+              assign({ targetRoute: { name: ROUTE.BILLING } })
+            ],
+            cond: "hasDomainProducts"
+          },
+          {
+            target: ROUTE.BASKET_PRODUCT_SETUP,
             actions: [
               "setResolving",
               assign({
-                targetRoute: { name: ROUTE.BASKET_PRODUCT_REQUIRES_ACTION }
+                targetRoute: { name: ROUTE.BASKET_PRODUCT_SETUP }
               })
             ],
             cond: "hasInvalidProducts"
@@ -349,24 +357,40 @@ export default <FunnelProps>{
     },
 
     /**
-     * 🎯 ROUTE.BASKET_PRODUCT_REQUIRES_ACTION
+     * 🎯 ROUTE.BASKET_PRODUCTs_SETUP ** TRANSITIONAL STATE **
+     * This state serves as a routing hub for basket product-related setup.
+     * It checks for the presence of basket products requiring setup in the route.
+     * If configurations are found, it transitions to the BASKET_PRODUCT_SETUP route to handle product setup.
+     * If no configurations are present, it redirects to the CHECKOUT route.
+     */
+    [ROUTE.BASKET_PRODUCTS_SETUP]: {
+      entry: ["setResolving"],
+      invoke: {
+        src: "guardBasketProductSetup",
+        onDone: { target: ROUTE.BASKET_PRODUCT_SETUP },
+        onError: { target: ROUTE.CHECKOUT }
+      }
+    },
+
+    /**
+     * 🎯 ROUTE.BASKET_PRODUCT_SETUP
      * This state handles the product setup flow where products require additional configuration.
      * Shows ONE product at a time with only the fields that have errors or need input.
      * It invokes a 'guard' to check if products need setup.
      * On NEXT, checks if more products need setup - loops or proceeds to checkout.
      * In case of an error (no products need setup), it redirects to checkout.
      */
-    [ROUTE.BASKET_PRODUCT_REQUIRES_ACTION]: {
+    [ROUTE.BASKET_PRODUCT_SETUP]: {
       entry: ["setCurrency", "setBasket"],
       invoke: {
-        src: "guardProductSetup",
+        src: "guardBasketProductSetup",
         onDone: { actions: ["setResolved"] },
         onError: { target: ROUTE.CHECKOUT, actions: ["setResolving"] }
       },
       on: {
         NEXT: [
           {
-            target: ROUTE.BASKET_PRODUCT_REQUIRES_ACTION,
+            target: ROUTE.BASKET_PRODUCT_SETUP,
             actions: ["setResolving"],
             cond: "hasInvalidProducts"
           },
@@ -376,8 +400,8 @@ export default <FunnelProps>{
           }
         ],
         BACK: {
-          target: ROUTE.BILLING,
-          actions: [assign({ targetRoute: { name: ROUTE.BILLING } })]
+          target: ROUTE.BASKET,
+          actions: [assign({ targetRoute: { name: ROUTE.BASKET } })]
         }
       }
     },
@@ -703,7 +727,7 @@ export default <FunnelProps>{
             cond: "isSession"
           },
           {
-            target: ROUTE.BASKET_PRODUCT_REQUIRES_ACTION,
+            target: ROUTE.BASKET_PRODUCT_SETUP,
             actions: ["setResolving"],
             cond: "hasInvalidProducts"
           },
@@ -781,11 +805,11 @@ export default <FunnelProps>{
       on: {
         NEXT: [
           {
-            target: ROUTE.BASKET_PRODUCT_REQUIRES_ACTION,
+            target: ROUTE.BASKET_PRODUCT_SETUP,
             actions: [
               "setResolving",
               assign({
-                targetRoute: { name: ROUTE.BASKET_PRODUCT_REQUIRES_ACTION }
+                targetRoute: { name: ROUTE.BASKET_PRODUCT_SETUP }
               })
             ],
             cond: "hasInvalidProducts"

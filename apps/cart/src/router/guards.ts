@@ -1,6 +1,7 @@
 import {
   type AnyEventObject,
   type FunnelContext,
+  getDomainBasketProducts,
   QUERY_PARAMS,
   UIContext,
   useBasket,
@@ -91,8 +92,17 @@ export default {
   },
 
   /**
+   * Returns true when basket contains domain products.
+   * Used to force billing page for domain registrant auto-population.
+   */
+  hasDomainProducts: () => {
+    const { products } = useBasket();
+    return !isEmpty(getDomainBasketProducts(products.value));
+  },
+
+  /**
    * Returns true when all products requiring setup are complete.
-   * Used by BASKET_PRODUCT_REQUIRES_ACTION to skip when already complete.
+   * Used by BASKET_PRODUCT_SETUP to skip when already complete.
    */
   isProductSetupComplete: () => {
     const { meta } = useProductSetup();

@@ -343,57 +343,6 @@ export default {
     }));
   },
 
-  guardProductRequiresAction: async (
-    context: FunnelContext,
-    { data }: AnyEventObject
-  ): Promise<FunnelResponse> => {
-    await ensureBidAuth(context, {
-      name: ROUTE.BASKET_PRODUCT_REQUIRES_ACTION
-    });
-
-    const { isReady, getProduct } = useBasket();
-
-    return isReady().then(async () => {
-      const { meta, products, getNextRelated, getNextInvalid } =
-        useProductSetup();
-
-      if (meta.value.isComplete) return Promise.reject();
-
-      const route = context.targetRoute ?? context.currentRoute;
-      const { basketProductId } =
-        useQueryParams(route as RouteLocationGeneric) ?? data?.id;
-      const basketProduct =
-        data ?? (await getProduct(basketProductId).catch(() => undefined));
-
-      // If we have a basketProduct, try fetch any related product that needs action
-      const relatedBasketProduct = basketProduct
-        ? getNextRelated(basketProduct)
-        : undefined;
-      const nextInvalidProduct = getNextInvalid();
-
-      // If we have a related product that needs action, navigate to edit that product
-      if (relatedBasketProduct) {
-        return {
-          target: {
-            name: ROUTE.BASKET_PRODUCT_EDIT,
-            params: { bpid: relatedBasketProduct?.id }
-          }
-        };
-      }
-
-      // Navigate to the next invalid product, or first in queue
-      const targetProduct = nextInvalidProduct ?? first(products.value);
-      if (!targetProduct) return Promise.reject();
-
-      return {
-        target: {
-          name: ROUTE.BASKET_PRODUCT_REQUIRES_ACTION,
-          params: { bpid: targetProduct.id }
-        }
-      };
-    });
-  },
-
   guardProductRecommendations: async (
     context: FunnelContext
   ): Promise<FunnelResponse> => {
@@ -604,7 +553,7 @@ export default {
     ) {
       if (meta.value.hasInvalidProducts) {
         return Promise.reject({
-          target: { name: ROUTE.BASKET_PRODUCT_REQUIRES_ACTION }
+          target: { name: ROUTE.BASKET_PRODUCTS_SETUP }
         });
       }
 
@@ -641,7 +590,7 @@ export default {
     const { meta: productSetupMeta } = useProductSetup();
     if (!productSetupMeta.value.isComplete) {
       return Promise.reject({
-        target: { name: ROUTE.BASKET_PRODUCT_REQUIRES_ACTION }
+        target: { name: ROUTE.BASKET_PRODUCTS_SETUP }
       } as FunnelResponse);
     }
 
@@ -694,20 +643,24 @@ export default {
    * 🎯 Guard: BASKET_PRODUCT_SETUP
    * Validates that products requiring setup exist.
    * If all products are complete, rejects to redirect to checkout.
+   * Sets the bpid param to the first product requiring setup.
    */
-  guardProductSetup: async (
+  guardBasketProductSetup: async (
     context: FunnelContext
   ): Promise<FunnelResponse> => {
     await ensureBidAuth(context, {
-      name: ROUTE.BASKET_PRODUCT_REQUIRES_ACTION
+      name: ROUTE.BASKET_PRODUCT_SETUP
     });
 
-    const { meta } = useProductSetup();
-    if (meta.value.isComplete) return Promise.reject();
+    const { isReady, meta, currentProduct } = useProductSetup();
+    await isReady();
+
+    if (!meta.value.isAvailable) return Promise.reject();
 
     return {
       target: context.targetRoute ?? {
-        name: ROUTE.BASKET_PRODUCT_REQUIRES_ACTION
+        name: ROUTE.BASKET_PRODUCT_SETUP,
+        params: { bpid: currentProduct.value?.id ?? "" }
       }
     };
   }

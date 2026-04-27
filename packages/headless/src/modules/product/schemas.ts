@@ -1,6 +1,14 @@
 // --- external
-import { find, first, forEach, isEmpty, keys, map, size } from "lodash-es";
-import { DeferModes } from "@upmind-automation/types";
+import {
+  find,
+  first,
+  forEach,
+  isEmpty,
+  keys,
+  map,
+  size,
+  some
+} from "lodash-es";
 
 // --- internal
 import { useConfig } from "../config";
@@ -10,6 +18,7 @@ import {
   parseProvisioningSchema,
   parseQuantity
 } from "./utils";
+import { fieldRequiresSetup } from "../productSetup/utils";
 
 // --- types
 import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
@@ -19,7 +28,7 @@ import type {
   SubproductDetails,
   TermDetails
 } from "./types";
-import { PRODUCT_SETUP_MODE, UIContext } from "../config/schema/types";
+import { UIContext } from "../config/schema/types";
 
 // -----------------------------------------------------------------------------
 /**
@@ -536,20 +545,17 @@ export function useInvalidProductConfigUischema(
         const scope = `#/properties/provisionFields/properties/${key}`;
         const fieldHasError = hasError(scope);
 
-        // In deferred mode, also include deferred fields with empty values
         // Use baseModel (set on load/update) so fields don't disappear as user types
         const field = find(context.lookups!.provisionFields, { name: key });
-        const isDeferred =
-          field?.defer_mode === DeferModes.OPTIONAL ||
-          field?.defer_mode === DeferModes.HIDDEN;
         const baseValue = context.baseModel?.provisionFields?.[key];
-        const isEmptyAtLoad =
-          baseValue === null || baseValue === undefined || baseValue === "";
-        const needsAttention =
-          fieldHasError ||
-          (mode === PRODUCT_SETUP_MODE.DEFERRED && isDeferred && isEmptyAtLoad);
+        const needsSetup = fieldRequiresSetup(
+          field,
+          fieldHasError,
+          baseValue,
+          mode
+        );
 
-        if (!needsAttention || addedFields.has(key)) return;
+        if (!needsSetup || addedFields.has(key)) return;
         addedFields.add(key);
 
         elements.push({
@@ -565,4 +571,48 @@ export function useInvalidProductConfigUischema(
     type: "VerticalLayout",
     elements
   } as UISchemaElement;
+}
+
+/**
+ * Generates a JSON Schema containing only properties with validation errors.
+ * Used to strip a model down to only the invalid fields via useModelParser.
+ *
+ * @param context - The product config context with schema and errors
+ * @returns A JSON Schema with only invalid property definitions, or undefined if none
+ */
+export function useInvalidProductConfigSchema(
+  context: ProductConfigContext
+): JsonSchema7 | undefined {
+  if (!context?.schema?.properties) return undefined;
+
+  const errorPaths = new Set(
+    map(context.errorExternal as any[], "instancePath")
+  );
+
+  if (isEmpty(errorPaths)) return undefined;
+
+  // Check if a property has an error (direct or nested)
+  const hasError = (propKey: string): boolean => {
+    const instancePath = `/${propKey}`;
+    return (
+      errorPaths.has(instancePath) ||
+      some([...errorPaths], (p: string) => p.startsWith(`${instancePath}/`))
+    );
+  };
+
+  // Build schema with only invalid properties
+  const invalidProperties: Record<string, any> = {};
+
+  forEach(context.schema.properties, (propSchema, propKey) => {
+    if (hasError(propKey)) {
+      invalidProperties[propKey] = propSchema;
+    }
+  });
+
+  if (isEmpty(invalidProperties)) return undefined;
+
+  return {
+    type: "object",
+    properties: invalidProperties
+  };
 }
