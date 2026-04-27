@@ -10,6 +10,7 @@ import { interceptConfigValues } from "../../../support/mocks/brand";
 import { URLs } from "../../../support/constants/urls";
 import { getSessionToken, getClientToken } from "../../../support/api/auth";
 import { Logins } from "../../../support/constants/logins";
+import { waitForSessionCookie } from "../../../support/helpers/session";
 let checkout: Checkout;
 let token: string;
 let orderId: string | null;
@@ -22,7 +23,7 @@ test.describe("Verify checkout billing detail requirements", () => {
       Logins.brandUser.password
     );
     await page.goto(URLs.basket);
-    await page.waitForLoadState("networkidle");
+    await waitForSessionCookie(context);
     token = await getSessionToken(context);
     let order = await createOrder(token);
     orderId = order.id;
@@ -44,7 +45,7 @@ test.describe("Verify checkout billing detail requirements", () => {
       false
     );
     await page.goto(URLs.basket);
-    await page.waitForLoadState("networkidle");
+    await waitForSessionCookie(page.context());
   });
   test("Address required at checkout", async ({ page, context }) => {
     interceptConfigValues(page, token, {
