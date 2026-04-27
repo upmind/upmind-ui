@@ -12,7 +12,7 @@ import { persistentRing } from "../../assets/styles";
 import { Icon } from "../icon";
 import SelectScrollDownButton from "./SelectScrollDownButton.vue";
 import SelectScrollUpButton from "./SelectScrollUpButton.vue";
-import { cn } from "../../utils";
+import { cn, usePortalTarget, type PortalTarget } from "../../utils";
 
 defineOptions({
   inheritAttrs: false
@@ -20,7 +20,10 @@ defineOptions({
 
 const props = withDefaults(
   defineProps<
-    SelectContentProps & { class?: HTMLAttributes["class"]; to?: string }
+    SelectContentProps & {
+      class?: HTMLAttributes["class"];
+      to?: PortalTarget;
+    }
   >(),
   {
     position: "popper"
@@ -35,10 +38,12 @@ const delegatedProps = computed(() => {
 });
 
 const forwarded = useForwardPropsEmits(delegatedProps, emits);
+
+const portalTo = usePortalTarget(() => props.to);
 </script>
 
 <template>
-  <SelectPortal :to="to">
+  <SelectPortal :to="portalTo">
     <SelectContent
       v-bind="{ ...forwarded, ...$attrs }"
       :class="

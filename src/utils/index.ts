@@ -3,7 +3,7 @@ export * from "./useThemes";
 export * from "./twMerge";
 export * from "./isDeepEmpty";
 export * from "./useValidation";
-export * from "./usePointerEvents";
+export * from "./portalTarget";
 export * from "./parseVariants";
 export * from "./isEmptySlot";
 export * from "./isMobile";
