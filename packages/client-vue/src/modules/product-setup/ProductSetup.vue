@@ -242,7 +242,7 @@ const currentProductTitle = computed(
 async function doResolve() {
   // Update current product and apply to selected others
   await update();
-  await apply(model.value ?? {}, selectedProducts.value);
+  await apply(model.value ?? {});
 
   navigateNext(basketProduct);
 }
