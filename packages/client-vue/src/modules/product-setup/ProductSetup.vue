@@ -1,16 +1,6 @@
 <template>
   <Transitions>
     <component :is="templateVariant" :key="props.template">
-      <template #progress>
-        <slot name="progress">
-          <SetupProgress
-            v-if="product"
-            :total="total"
-            :title="product?.productDetails?.title"
-          />
-        </slot>
-      </template>
-
       <template #configuration>
         <slot
           name="configuration"
@@ -18,10 +8,7 @@
           :basket-product="basketProduct"
           :product-meta="productMeta"
         >
-          <Section
-            :label="t('cart.product_setup.configuration')"
-            icon="settings-04"
-          >
+          <Section :label="currentProductTitle" icon="settings-04">
             <form @submit.prevent @reset.prevent>
               <Form
                 v-if="basketProduct && productMeta?.isAvailable"
@@ -91,6 +78,14 @@
         </slot>
       </template>
 
+      <template #progress>
+        <slot name="progress">
+          <span v-if="total > 1" class="shrink-0 text-base font-semibold">
+            {{ t("cart.product_setup.products_remaining", { count: total }) }}
+          </span>
+        </slot>
+      </template>
+
       <template #actions>
         <slot
           name="actions"
@@ -98,18 +93,16 @@
           :do-reject="doReject"
           :is-processing="productMeta?.isProcessing"
         >
-          <div class="flex items-center gap-4">
-            <Button
-              type="submit"
-              :label="t('action.continue_label')"
-              :loading="productMeta?.isProcessing"
-              :disabled="productMeta?.isLoading"
-              color="primary"
-              size="lg"
-              class="w-full"
-              @click="doResolve"
-            />
-          </div>
+          <Button
+            type="submit"
+            :label="t('action.continue_label')"
+            :loading="productMeta?.isProcessing"
+            :disabled="productMeta?.isLoading"
+            color="primary"
+            size="lg"
+            class="w-full"
+            @click="doResolve"
+          />
         </slot>
       </template>
     </component>
@@ -142,7 +135,6 @@ import ConfigErrors from "../product/components/ConfigErrors.vue";
 import ConfigSkeleton from "../product/components/ConfigSkeleton.vue";
 import Form from "../../components/form/Form.vue";
 import Section from "../../components/section/Section.vue";
-import SetupProgress from "./components/SetupProgress.vue";
 import ApplyToOthers from "./components/ApplyToOthers.vue";
 import Transitions from "../../components/layout/components/transition/Transition.vue";
 
@@ -234,6 +226,13 @@ const template = computed(() =>
 );
 
 const templateVariant = computed(() => get(supportedTemplates, template.value));
+
+const currentProductTitle = computed(
+  () =>
+    get(model.value, "provisionFields.domain") ||
+    get(product.value, "serviceIdentifier") ||
+    get(product.value, "productDetails.title")
+);
 
 // --- Actions
 async function doResolve() {

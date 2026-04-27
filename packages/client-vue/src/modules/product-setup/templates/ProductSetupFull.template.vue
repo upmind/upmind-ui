@@ -1,9 +1,5 @@
 <template>
   <Layout :variant="LAYOUT_VARIANTS.FULL">
-    <template #content-header>
-      <slot name="progress" />
-    </template>
-
     <template #content>
       <slot name="errors" />
       <slot name="configuration" />
@@ -11,7 +7,10 @@
     </template>
 
     <template #content-footer>
-      <slot name="actions" />
+      <div class="flex w-full items-center gap-4">
+        <slot name="progress" />
+        <slot name="actions" />
+      </div>
     </template>
   </Layout>
 </template>

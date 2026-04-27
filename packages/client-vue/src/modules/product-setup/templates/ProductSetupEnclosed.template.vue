@@ -1,9 +1,5 @@
 <template>
   <Layout>
-    <template #content-header>
-      <slot name="progress" />
-    </template>
-
     <template #content>
       <slot name="configuration" />
       <slot name="apply-to-others" />
@@ -11,6 +7,10 @@
 
     <template #aside>
       <slot name="aside" />
+    </template>
+
+    <template #aside-footer>
+      <slot name="progress" />
       <slot name="actions" />
     </template>
   </Layout>
