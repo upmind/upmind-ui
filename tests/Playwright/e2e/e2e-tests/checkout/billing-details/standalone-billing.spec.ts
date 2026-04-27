@@ -14,6 +14,7 @@ import { Logins } from "../../../support/constants/logins";
 import { Registration } from "../../../support/page-objects/templates/registration";
 import { getCurrentOrder, setOrderAddress } from "../../../support/api/basket";
 import { registerClient } from "../../../support/api/client";
+import { waitForSessionCookie } from "../../../support/helpers/session";
 
 let checkout: Checkout;
 let billingPage: BillingPage;
@@ -25,19 +26,7 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       checkout = new Checkout(page);
       registration = new Registration(page, context);
       await page.goto("/");
-      await expect
-        .poll(
-          async () => {
-            const cookies = await context.cookies();
-            return cookies.some(
-              c =>
-                c.name === "upm_guest_session" ||
-                c.name === "upm_client_session"
-            );
-          },
-          { timeout: 30000 }
-        )
-        .toBeTruthy();
+      await waitForSessionCookie(context);
       let guestToken = await getSessionToken(context);
       let user = await registerClient(guestToken);
       let username = user.email;
@@ -125,19 +114,7 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       checkout = new Checkout(page);
       registration = new Registration(page, context);
       await page.goto("/");
-      await expect
-        .poll(
-          async () => {
-            const cookies = await context.cookies();
-            return cookies.some(
-              c =>
-                c.name === "upm_guest_session" ||
-                c.name === "upm_client_session"
-            );
-          },
-          { timeout: 30000 }
-        )
-        .toBeTruthy();
+      await waitForSessionCookie(context);
       let guestToken = await getSessionToken(context);
       let user = await registerClient(guestToken);
       let username = user.email;
@@ -161,19 +138,7 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       checkout = new Checkout(page);
       registration = new Registration(page, context);
       await page.goto("/");
-      await expect
-        .poll(
-          async () => {
-            const cookies = await context.cookies();
-            return cookies.some(
-              c =>
-                c.name === "upm_guest_session" ||
-                c.name === "upm_client_session"
-            );
-          },
-          { timeout: 30000 }
-        )
-        .toBeTruthy();
+      await waitForSessionCookie(context);
       let guestToken = await getSessionToken(context);
       let user = await registerClient(guestToken);
       let username = user.email;
@@ -236,19 +201,7 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       billingPage = new BillingPage(page);
       registration = new Registration(page, context);
       await page.goto("/");
-      await expect
-        .poll(
-          async () => {
-            const cookies = await context.cookies();
-            return cookies.some(
-              c =>
-                c.name === "upm_guest_session" ||
-                c.name === "upm_client_session"
-            );
-          },
-          { timeout: 30000 }
-        )
-        .toBeTruthy();
+      await waitForSessionCookie(context);
       let guestToken = await getSessionToken(context);
       let user = await registerClient(guestToken);
       let username = user.email;
@@ -324,19 +277,7 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       checkout = new Checkout(page);
       registration = new Registration(page, context);
       await page.goto("/");
-      await expect
-        .poll(
-          async () => {
-            const cookies = await context.cookies();
-            return cookies.some(
-              c =>
-                c.name === "upm_guest_session" ||
-                c.name === "upm_client_session"
-            );
-          },
-          { timeout: 30000 }
-        )
-        .toBeTruthy();
+      await waitForSessionCookie(context);
       let guestToken = await getSessionToken(context);
       let user = await registerClient(guestToken);
       let username = user.email;
@@ -363,19 +304,7 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       checkout = new Checkout(page);
       registration = new Registration(page, context);
       await page.goto("/");
-      await expect
-        .poll(
-          async () => {
-            const cookies = await context.cookies();
-            return cookies.some(
-              c =>
-                c.name === "upm_guest_session" ||
-                c.name === "upm_client_session"
-            );
-          },
-          { timeout: 30000 }
-        )
-        .toBeTruthy();
+      await waitForSessionCookie(context);
       let guestToken = await getSessionToken(context);
       let user = await registerClient(guestToken);
       let username = user.email;
@@ -405,19 +334,7 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       checkout = new Checkout(page);
       registration = new Registration(page, context);
       await page.goto("/");
-      await expect
-        .poll(
-          async () => {
-            const cookies = await context.cookies();
-            return cookies.some(
-              c =>
-                c.name === "upm_guest_session" ||
-                c.name === "upm_client_session"
-            );
-          },
-          { timeout: 30000 }
-        )
-        .toBeTruthy();
+      await waitForSessionCookie(context);
       let guestToken = await getSessionToken(context);
       let user = await registerClient(guestToken);
       let username = user.email;
@@ -444,7 +361,7 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
   test.describe("Access Control", () => {
     test("6.1 Billing page requires authentication", async ({ page }) => {
       await page.goto(URLs.billing);
-      await page.waitForLoadState("networkidle");
+      await waitForSessionCookie(page.context());
       await expect(page).not.toHaveURL("order/billing/");
     });
 
@@ -455,19 +372,7 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       checkout = new Checkout(page);
       registration = new Registration(page, context);
       await page.goto("/");
-      await expect
-        .poll(
-          async () => {
-            const cookies = await context.cookies();
-            return cookies.some(
-              c =>
-                c.name === "upm_guest_session" ||
-                c.name === "upm_client_session"
-            );
-          },
-          { timeout: 30000 }
-        )
-        .toBeTruthy();
+      await waitForSessionCookie(context);
       let guestToken = await getSessionToken(context);
       let user = await registerClient(guestToken);
       let username = user.email;
@@ -477,7 +382,7 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
         "@data.billing_details.billingDetailsDisabled": false
       });
       await page.goto(URLs.billing);
-      await page.waitForLoadState("networkidle");
+      await waitForSessionCookie(page.context());
       await expect(page).not.toHaveURL("order/billing/");
     });
   });

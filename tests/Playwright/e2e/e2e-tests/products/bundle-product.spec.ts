@@ -2,6 +2,7 @@ import { test, expect } from "@playwright/test";
 import { URLs } from "../../support/constants/urls";
 import { Basket } from "../../support/page-objects/templates/basket";
 import { ProductConfig } from "../../support/page-objects/templates/product-config";
+import { waitForSessionCookie } from "../../support/helpers";
 let basket: Basket;
 let productConfig: ProductConfig;
 
@@ -14,6 +15,7 @@ test.describe("Bundled Products", () => {
     test("Bundle product added automatically after product config", async ({
       page
     }) => {
+      await waitForSessionCookie(page.context());
       await productConfig.addProductToBasket(URLs.startupPlanning);
       await expect(basket.basketProduct.nth(0)).toContainText(
         "Startup Planning"
@@ -26,7 +28,7 @@ test.describe("Bundled Products", () => {
   test.describe("Bundle added via URL param", () => {
     test("Valid Bundle", async ({ page }) => {
       await page.goto(`${URLs.managementTraining}?bundle=coaching`);
-      await page.waitForLoadState("networkidle");
+      await waitForSessionCookie(page.context());
       await productConfig.addToBasket.click();
       await expect(basket.basketProductSummary.nth(0)).toContainText(
         "Management Training"
@@ -37,7 +39,7 @@ test.describe("Bundled Products", () => {
     });
     test("Invalid Bundle", async ({ page }) => {
       await page.goto(`${URLs.managementTraining}?bundle=invalidstring`);
-      await page.waitForLoadState("networkidle");
+      await waitForSessionCookie(page.context());
       await productConfig.addToBasket.click();
       await expect(basket.basketProduct.nth(0)).toContainText(
         "Management Training"
