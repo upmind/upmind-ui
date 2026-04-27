@@ -15,8 +15,8 @@ test.describe("Bundled Products", () => {
     test("Bundle product added automatically after product config", async ({
       page
     }) => {
-      await page.goto(URLs.startupPlanning);
-      await productConfig.addToBasket.click();
+      await waitForSessionCookie(page.context());
+      await productConfig.addProductToBasket(URLs.startupPlanning);
       await expect(basket.basketProduct.nth(0)).toContainText(
         "Startup Planning"
       );

@@ -148,7 +148,7 @@ test.describe("Promotions", () => {
     test.beforeEach(async ({ page, context }) => {
       const domain = `${fakerEN_GB.string.alphanumeric({ length: 15 })}.com`;
       await page.goto("/");
-      await waitForSessionCookie(context);
+      await expect(basket.basketProductSummary).toBeVisible();
       let token = await getSessionToken(context);
       let order = await createOrder(token);
       let orderId = order.id;
