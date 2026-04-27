@@ -14,7 +14,8 @@
             icon: 'flip-backward',
             color: 'primary',
             variant: 'subtle',
-            size: 'lg'
+            size: 'lg',
+            loading: isNavigating
           }"
           size="3xl"
           @action="navigateBack"
@@ -112,7 +113,7 @@ const props = withDefaults(defineProps<BillingProps>(), {
 
 const { t } = useI18n();
 const { set } = useThemes();
-const { navigateBack } = useRoutingEngine();
+const { navigateBack, isNavigating } = useRoutingEngine();
 
 const { ui, data } = useConfig({
   context: UIContext.BILLING_DETAILS,

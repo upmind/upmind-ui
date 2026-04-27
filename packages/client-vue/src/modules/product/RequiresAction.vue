@@ -28,6 +28,7 @@
             color="primary"
             iconAppend="arrow-right"
             :label="t('action.review_next_product')"
+            :loading="isNavigating"
             @click.stop="navigateNext"
           />
           <Link :label="t('action.do_this_later')" @click.stop="navigateBack" />
@@ -55,7 +56,7 @@ import { Interstitial, Button, Link } from "@upmind-automation/upmind-ui";
 // -----------------------------------------------------------------------------
 const { t } = useI18n();
 
-const { navigateNext, navigateBack } = useRoutingEngine();
+const { navigateNext, navigateBack, isNavigating } = useRoutingEngine();
 const { products, isReady, meta } = useProductsRequiringAction();
 
 await isReady();
