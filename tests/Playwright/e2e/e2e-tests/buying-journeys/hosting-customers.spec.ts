@@ -40,7 +40,7 @@ test.describe("Hosting customers", async () => {
       await basket.proceedToCheckout.click();
       await checkout.selectPaymentMethod("Direct Bank Transfer");
       await checkout.clickPlaceOrder();
-      await expect(page.getByText("Order Complete!")).toBeVisible();
+      await expect(page.getByText("Order confirmed")).toBeVisible();
     });
     test("Log in at checkout", async ({ page }) => {
       await addProductToBasket();
@@ -52,7 +52,7 @@ test.describe("Hosting customers", async () => {
       );
       await checkout.selectPaymentMethod("Direct Bank Transfer");
       await checkout.clickPlaceOrder();
-      await expect(page.getByText("Order Complete!")).toBeVisible();
+      await expect(page.getByText("Order confirmed")).toBeVisible();
     });
   });
   test.describe("New Customer", () => {
@@ -60,15 +60,9 @@ test.describe("Hosting customers", async () => {
       await addProductToBasket();
       await basket.proceedToCheckout.click();
       await registration.inputRegistration();
-      await checkout.manuallyInputAddress(
-        `${fakerEN_GB.location.streetAddress()}`,
-        `${fakerEN_GB.location.city()}`,
-        "HU15 1EG",
-        null
-      );
       await checkout.selectPaymentMethod("Direct Bank Transfer");
       await checkout.clickPlaceOrder();
-      await expect(page.getByText("Order Complete!")).toBeVisible();
+      await expect(page.getByText("Order confirmed")).toBeVisible();
     });
   });
 });

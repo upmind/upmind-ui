@@ -9,6 +9,7 @@ import {
   getSessionToken,
   registerClient
 } from "../../../support/api/index";
+import { waitForSessionCookie } from "../../../support/helpers/session";
 
 let checkout: Checkout;
 let register: Registration;
@@ -18,18 +19,7 @@ test.describe("Partial payment at Checkout", () => {
     checkout = new Checkout(page);
     register = new Registration(page, context);
     await page.goto("/");
-    await expect
-      .poll(
-        async () => {
-          const cookies = await context.cookies();
-          return cookies.some(
-            c =>
-              c.name === "upm_guest_session" || c.name === "upm_client_session"
-          );
-        },
-        { timeout: 30000 }
-      )
-      .toBeTruthy();
+    await waitForSessionCookie(context);
     let guestToken = await getSessionToken(context);
     let user = await registerClient(guestToken);
     let username = user.email;
@@ -42,7 +32,7 @@ test.describe("Partial payment at Checkout", () => {
       context
     }) => {
       await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
-      await page.waitForLoadState("networkidle");
+      await waitForSessionCookie(page.context());
       await page.waitForLoadState("load");
       await checkout.changeAmountButton.click();
       await checkout.changeAmountInput.fill("20");
@@ -59,8 +49,7 @@ test.describe("Partial payment at Checkout", () => {
       context
     }) => {
       await goToCheckout(page, context, products.STARTER_HOSTING, null, "AUD");
-      await page.waitForLoadState("networkidle");
-      await page.waitForLoadState("load");
+      await waitForSessionCookie(page.context());
       await checkout.changeAmountButton.click();
       await checkout.changeAmountInput.fill("100");
       await checkout.clickConfirmAmount();
@@ -79,8 +68,7 @@ test.describe("Partial payment at Checkout", () => {
         "genericpromo",
         null
       );
-      await page.waitForLoadState("networkidle");
-      await page.waitForLoadState("load");
+      await waitForSessionCookie(page.context());
       await expect(checkout.payAmount).toHaveText("Pay £57.60");
       await checkout.changeAmountButton.click();
       await checkout.changeAmountInput.fill("20");
@@ -100,8 +88,7 @@ test.describe("Partial payment at Checkout", () => {
         "genericpromo",
         "AUD"
       );
-      await page.waitForLoadState("networkidle");
-      await page.waitForLoadState("load");
+      await waitForSessionCookie(page.context());
       await expect(checkout.payAmount).toHaveText("Pay A$131.71");
       await checkout.changeAmountButton.click();
       await checkout.changeAmountInput.fill("100");
@@ -120,8 +107,7 @@ test.describe("Partial payment at Checkout", () => {
       context
     }) => {
       await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
-      await page.waitForLoadState("networkidle");
-      await page.waitForLoadState("load");
+      await waitForSessionCookie(page.context());
       await expect(checkout.payAmount).toHaveText("Pay £72.00");
       await checkout.changeAmountButton.click();
       await checkout.changeAmountInput.fill("20");
@@ -146,8 +132,7 @@ test.describe("Partial payment at Checkout", () => {
       context
     }) => {
       await goToCheckout(page, context, products.STARTER_HOSTING, null, "AUD");
-      await page.waitForLoadState("networkidle");
-      await page.waitForLoadState("load");
+      await waitForSessionCookie(page.context());
       await expect(checkout.payAmount).toHaveText("Pay A$164.64");
       await checkout.changeAmountButton.click();
       await checkout.changeAmountInput.fill("20");
@@ -175,7 +160,7 @@ test.describe("Partial payment at Checkout", () => {
         "genericpromo",
         null
       );
-      await page.waitForLoadState("load");
+      await waitForSessionCookie(page.context());
       await expect(checkout.payAmount).toHaveText("Pay £57.60");
       await checkout.changeAmountButton.click();
       await checkout.changeAmountInput.fill("20");
