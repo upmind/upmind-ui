@@ -14,7 +14,8 @@ import {
   parseModel,
   parseBasketProductModel,
   parseProduct,
-  parseBundledProducts
+  parseBundledProducts,
+  parseTrustedSubproductValues
 } from "./utils";
 
 import { useProductConfigSchema, useProductConfigUischema } from "./schemas";
@@ -498,7 +499,11 @@ export default createMachine(
           ),
           attributes: parseSubproductDetails(data.product.products_attributes),
           provisionFields: data.rawProvisionFields,
-          bundled: parseBundledProducts(data.product, bundle)
+          bundled: parseBundledProducts(data.product, bundle),
+          trustedSubproductValues: parseTrustedSubproductValues(
+            rawBasketProduct,
+            data.product
+          )
         })
       }),
 

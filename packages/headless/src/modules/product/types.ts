@@ -918,6 +918,12 @@ export interface ProductConfigContext {
     prices?: PriceCalculations;
     /** An array of {@link ProductModel} for bundled products. */
     bundled?: ProductModel[];
+    /**
+     * Subproduct IDs from rawBasketProduct that should bypass lookup validation.
+     * Used for hidden-in-catalog options that are already in the basket.
+     * @see parseSubproducts in utils.ts for full explanation.
+     */
+    trustedSubproductValues?: string[];
   };
   // ---
   /** The fully configured {@link Product} object. */
