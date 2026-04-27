@@ -106,7 +106,7 @@
                     query: {
                       ...props.configureRoute?.query,
                       [QUERY_PARAMS.BILLING_CYCLE_MONTHS]: selectedTerm,
-                      autoupdate: canAddDirectly.value ? 'true' : undefined
+                      autoupdate: canAddDirectly ? 'true' : undefined
                     }
                   }
                 : undefined
