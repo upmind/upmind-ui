@@ -31,7 +31,7 @@
   "basket_product_not_found": "ٹوکری پروڈکٹ نہیں ملی",
   "basket_product_pending_update_failed": "UseBasketProduct میں اپ ڈیٹ درست حالت میں نہیں ہے۔",
   "basket_product_pending_validation_failed": "زیر التواء پروڈکٹس کی توثیق کرنے میں ناکام",
-  "basket_product_readonly": "یہ ایک کسٹم/خصوصی طور پر کنفیگر کیا گیا سیٹ اَپ ہے اور اس میں ترمیم نہیں کی جا سکتی۔ تبدیلیوں کے لیے براہِ کرم سپورٹ سے رابطہ کریں۔",
+  "basket_product_readonly": "یہ آئٹم اس وقت خریداری کے لیے دستیاب نہیں ہے۔ مدد کے لیے براہِ کرم سپورٹ ٹیم سے رابطہ کریں۔",
   "basket_product_update_failed": "ٹوکری میں متعدد مصنوعات کو اپ ڈیٹ کرنے میں خرابی۔",
   "basket_unavailable": "معذرت، ہم یہ **شاپنگ کارٹ** لوڈ نہیں کر سکے",
   "basket_unavailable_md": "@.markdown:{'error.basket_unavailable'}",

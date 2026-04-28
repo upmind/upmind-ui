@@ -31,7 +31,7 @@
   "basket_product_not_found": "Kurvprodukt ikke fundet",
   "basket_product_pending_update_failed": "Opdatering i brug. BasketProductPending er ikke i en gyldig tilstand.",
   "basket_product_pending_validation_failed": "Kunne ikke validere ventende produkter",
-  "basket_product_readonly": "Dette er en specialtilpasset konfiguration og kan ikke redigeres. Kontakt venligst kundeservice for at få den ændret.",
+  "basket_product_readonly": "Denne vare er i øjeblikket ikke tilgængelig til køb. Kontakt venligst kundeservice for hjælp.",
   "basket_product_update_failed": "Der opstod en fejl ved opdatering af flere produkter i kurven",
   "basket_unavailable": "Beklager, vi kunne ikke hente denne **basket**",
   "basket_unavailable_md": "@.markdown:{'error.basket_unavailable'}",

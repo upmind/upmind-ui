@@ -31,7 +31,7 @@
   "basket_product_not_found": "Produk keranjang tidak ditemukan",
   "basket_product_pending_update_failed": "Pembaruan dalam useBasketProductPending tidak dalam status valid.",
   "basket_product_pending_validation_failed": "Gagal memvalidasi produk yang tertunda",
-  "basket_product_readonly": "Ini adalah konfigurasi yang disesuaikan dan tidak dapat diubah. Silakan hubungi tim dukungan untuk meminta perubahan.",
+  "basket_product_readonly": "Produk ini saat ini tidak dapat dibeli. Silakan hubungi tim dukungan untuk bantuan.",
   "basket_product_update_failed": "Terjadi kesalahan saat memperbarui beberapa produk di keranjang",
   "basket_unavailable": "Maaf, kami tidak dapat memuat **basket** ini",
   "basket_unavailable_md": "@.markdown:{'error.basket_unavailable'}",
