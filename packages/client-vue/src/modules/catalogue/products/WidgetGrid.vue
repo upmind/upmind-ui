@@ -165,7 +165,7 @@ const direction = defineModel<ProductSortProps["direction"]>("direction", {
 // ---------------------------------------------------------------------------
 
 const { t } = useI18n();
-const { uiCart } = useBrand();
+const { keepsUserInSitu } = useBrand();
 const router = useRouter();
 
 const category = computed(() =>
@@ -175,7 +175,7 @@ const category = computed(() =>
 const { ui } = useConfig().with({ category });
 
 const catalogueConfigureRoute = computed(() => {
-  if (!uiCart.value?.catalogue?.inSitu) return props.configureRoute;
+  if (!keepsUserInSitu.value) return props.configureRoute;
   return merge({}, props.configureRoute, {
     query: { returnUrl: router.currentRoute.value.fullPath }
   });
