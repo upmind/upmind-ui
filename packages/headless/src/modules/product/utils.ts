@@ -587,6 +587,7 @@ export const parseProductDetails = (
   rawProduct: IProduct,
   rawBasketProduct?: IBasketProduct
 ): ProductDetails => {
+  const readonly = hasNonOrderableSubproducts(rawBasketProduct);
   return {
     id: rawProduct?.id,
     name: rawProduct.name,
@@ -631,33 +632,36 @@ export const parseProductDetails = (
     images: parseProductImages(rawProduct?.images),
     // ---
     configurable:
-      rawProduct.prices?.length > 1 ||
-      !isEmpty(rawProduct.products_attributes) ||
-      !isEmpty(rawProduct.products_options) ||
-      !isEmpty(rawProduct.provision_fields),
+      !readonly &&
+      (rawProduct.prices?.length > 1 ||
+        !isEmpty(rawProduct.products_attributes) ||
+        !isEmpty(rawProduct.products_options) ||
+        !isEmpty(rawProduct.provision_fields)),
 
-    configurableInline: (() => {
-      const config = useConfig();
-      return (
-        some(rawProduct.products_options, option => {
-          const { data } = config.with({
-            product: () => ({ productDetails: { uiMeta: rawProduct.meta } }),
-            option: () => ({ uiMeta: option.meta })
-          });
-          return !!data.optionUpsellEnabled;
-        }) ||
-        some(rawProduct.products_attributes, attr => {
-          const { data } = config.with({
-            product: () => ({ productDetails: { uiMeta: rawProduct.meta } }),
-            option: () => ({ uiMeta: attr.meta })
-          });
-          return !!data.optionUpsellEnabled;
-        })
-      );
-    })(),
+    configurableInline:
+      !readonly &&
+      (() => {
+        const config = useConfig();
+        return (
+          some(rawProduct.products_options, option => {
+            const { data } = config.with({
+              product: () => ({ productDetails: { uiMeta: rawProduct.meta } }),
+              option: () => ({ uiMeta: option.meta })
+            });
+            return !!data.optionUpsellEnabled;
+          }) ||
+          some(rawProduct.products_attributes, attr => {
+            const { data } = config.with({
+              product: () => ({ productDetails: { uiMeta: rawProduct.meta } }),
+              option: () => ({ uiMeta: attr.meta })
+            });
+            return !!data.optionUpsellEnabled;
+          })
+        );
+      })(),
 
     quantity: rawProduct?.min_order_quantity || rawProduct?.unit_quantity || 1,
-    quantifiable: rawProduct?.order_type == 2,
+    quantifiable: !readonly && rawProduct?.order_type == 2,
     step: rawProduct?.unit_quantity || 1,
     min: rawProduct?.min_order_quantity || rawProduct?.unit_quantity || 1,
     max:
@@ -675,7 +679,9 @@ export const parseProductDetails = (
     trialSupported: !!rawProduct?.trial_supported,
     trialDuration: rawProduct?.trial_duration,
     trialForce: !!rawProduct?.trial_force,
-    trialEndAction: rawProduct?.trial_end_action
+    trialEndAction: rawProduct?.trial_end_action,
+    // --- locked
+    readonly
   };
 };
 
@@ -1039,7 +1045,11 @@ export const parsePromotionDetails = (
   }
 };
 
-export const parseProvisioningSchema = (data: any, product: IProduct) => {
+export const parseProvisioningSchema = (
+  data: any,
+  product: IProduct,
+  readonly?: boolean
+) => {
   const { getCountry } = useSystem();
 
   const defaultCountry = getCountry();
@@ -1057,6 +1067,13 @@ export const parseProvisioningSchema = (data: any, product: IProduct) => {
   //   field.description = product?.name;
   // "The sld may only contain letters, numbers, and dashes"
   // }
+
+  // Set readOnly on each property when product is locked
+  if (readonly && schema.properties) {
+    forEach(schema.properties, (prop: any) => {
+      prop.readOnly = true;
+    });
+  }
 
   return schema;
 };

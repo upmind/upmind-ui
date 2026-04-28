@@ -305,6 +305,9 @@ export type ProductDetails = {
   trialForce?: boolean;
   /** The action taken when the trial ends. See `TrialEndActionTypes`. */
   trialEndAction?: number;
+  // --- locked
+  /** `true` if the product contains non-orderable subproducts and cannot be modified. */
+  readonly?: boolean;
 };
 
 /**
