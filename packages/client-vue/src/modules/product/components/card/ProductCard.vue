@@ -154,6 +154,37 @@ const selectedTerm = ref<string | undefined>(
   toString(props.configuration.term)
 );
 
+// Auto-add when no configuration is needed. For term-only products auto-add
+// only when the consumer says we're in-situ (streamlined). When funnelling,
+// route to configure so the term step is part of the flow.
+const canAddDirectly = computed(() => {
+  if (!props.productDetails?.configurable) return true;
+
+  if (
+    props.productDetails?.configurableTerm &&
+    !props.productDetails?.configurableSubproducts &&
+    !props.productDetails?.configurableProvisionFields &&
+    selectedTerm.value &&
+    (props.inSitu ?? true)
+  ) {
+    return true;
+  }
+
+  return false;
+});
+
+const productRoute = computed(() =>
+  merge({}, props.configureRoute, {
+    params: { pid: props.id },
+    query: { [QUERY_PARAMS.BILLING_CYCLE_MONTHS]: selectedTerm.value }
+  })
+);
+
+const actionRoute = computed(() => {
+  if (!canAddDirectly.value) return productRoute.value;
+  return merge({}, productRoute.value, { query: { autoupdate: "true" } });
+});
+
 const images = computed(() => {
   return props.productDetails?.images?.map(image => ({
     url: image.url,
@@ -226,35 +257,6 @@ const styles = useStyles(
   configMeta,
   config
 );
-
-const canAddDirectly = computed(() => {
-  // Not configurable = auto-add (existing behaviour via autoupdate)
-  if (!props.productDetails?.configurable) return true;
-
-  // Configurable ONLY because of terms — and we have a selected term
-  if (
-    props.productDetails?.configurableTerm &&
-    !props.productDetails?.configurableSubproducts &&
-    !props.productDetails?.configurableProvisionFields &&
-    selectedTerm.value
-  ) {
-    return true;
-  }
-
-  return false;
-});
-
-const productRoute = computed(() =>
-  merge({}, props.configureRoute, {
-    params: { pid: props.id },
-    query: { [QUERY_PARAMS.BILLING_CYCLE_MONTHS]: selectedTerm.value }
-  })
-);
-
-const actionRoute = computed(() => {
-  if (!canAddDirectly.value) return productRoute.value;
-  return merge({}, productRoute.value, { query: { autoupdate: "true" } });
-});
 
 const actionContent = computed(() => {
   if (props.meta?.added) {

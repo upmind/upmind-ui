@@ -45,6 +45,7 @@
           :disabled="pendingMeta.isProcessing()"
           :key="product.id"
           v-bind="product"
+          :in-situ="keepsUserInSitu"
           :preserve-promotion="preservePromotions"
           :configure-route="catalogueConfigureRoute"
         />
