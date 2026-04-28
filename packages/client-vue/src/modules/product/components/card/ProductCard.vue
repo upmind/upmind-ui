@@ -87,7 +87,7 @@
             :color="color"
             size="lg"
             block
-            :disabled="loading || disabled"
+            :disabled="loading || disabled || recentlyAdded"
             @click="doResolve"
           />
         </footer>
@@ -259,6 +259,9 @@ const styles = useStyles(
 );
 
 const actionContent = computed(() => {
+  if (props.recentlyAdded) {
+    return { icon: "check-circle-broken", label: t("action.added_to_basket") };
+  }
   if (props.meta?.added) {
     return { icon: "check-circle-broken", label: t("confirm.in_basket") };
   }

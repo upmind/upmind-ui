@@ -60,6 +60,12 @@ let subscriptions: Record<ProductProps["productId"], Subscription> = {}; // stor
 // pattern in `useBasketProducts` so consumers can derive per-card UI state.
 const processing = ref<Record<ProductProps["productId"], boolean>>({});
 
+// Per-product transient flag: true for `RECENTLY_ADDED_MS` after the product
+// is resolved (added to basket). Lets cards surface a brief "Added"
+// confirmation when the user stays in-situ on the catalogue.
+const RECENTLY_ADDED_MS = 3000;
+const recentlyAdded = ref<Record<ProductProps["productId"], boolean>>({});
+
 // -----------------------------------------------------------------------------
 
 /**
@@ -358,6 +364,9 @@ export const useBasketProductsPending = () => {
       // as we have successfully added our config we can remove it from storage
       unset(productConfigs, pid);
       storage.set("pendingProducts", productConfigs);
+      // mark transiently added so cards can surface an "Added" confirmation
+      set(recentlyAdded.value, pid, true);
+      setTimeout(() => unset(recentlyAdded.value, pid), RECENTLY_ADDED_MS);
     }
 
     // NB ensure any complete products are removed from the pending products
@@ -403,11 +412,16 @@ export const useBasketProductsPending = () => {
      * Meta-information about the pending products state.
      * @property {boolean} hasProducts - `true` if there are any pending products.
      * @property {function(pid?: string): boolean} isProcessing - A function that returns `true` if any pending product (or a specific `pid`) is currently being added/updated to the basket.
+     * @property {function(pid?: string): boolean} isRecentlyAdded - A function that returns `true` if a pending product (or a specific `pid`) was added to the basket within the last few seconds.
      */
     meta: computed(() => ({
       hasProducts: !isEmpty(products.value),
       isProcessing: (pid?: ProductProps["productId"]) =>
-        pid ? get(processing.value, pid, false) : !isEmpty(processing.value)
+        pid ? get(processing.value, pid, false) : !isEmpty(processing.value),
+      isRecentlyAdded: (pid?: ProductProps["productId"]) =>
+        pid
+          ? get(recentlyAdded.value, pid, false)
+          : !isEmpty(recentlyAdded.value)
     })),
 
     /**

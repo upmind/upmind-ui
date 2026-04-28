@@ -26,6 +26,12 @@ export interface ProductCardProps extends Omit<Product, "price" | "pricing"> {
    * between the two flows.
    */
   inSitu?: boolean;
+  /**
+   * Transient flag set for a few seconds after the product is added. When
+   * true, the action button surfaces an "Added" confirmation and is
+   * disabled. Sourced from `useBasketProductsPending().meta.isRecentlyAdded`.
+   */
+  recentlyAdded?: boolean;
   disabled?: boolean;
   loading?: boolean;
   variant?: RootVariants["variant"];
