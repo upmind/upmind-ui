@@ -287,7 +287,13 @@ export default {
       (consumeParam("autoupdate", false) || consumeParam("express", false)) ==
       true;
 
-    return getPendingProduct(productId, { sync: true, silent: autoupdate })
+    // Only sync (set processing flag + subscribe) on the autoupdate path —
+    // the configure flow has no in-flight operation to track here, and a
+    // user who abandons configuration would otherwise leak `processing[pid]`.
+    return getPendingProduct(productId, {
+      sync: autoupdate,
+      silent: autoupdate
+    })
       .then(basketItem => {
         return basketItem.isReady().then(() => {
           if (!autoupdate) {
