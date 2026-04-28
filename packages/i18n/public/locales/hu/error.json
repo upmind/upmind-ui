@@ -31,6 +31,7 @@
   "basket_product_not_found": "A kosárban található termék nem található",
   "basket_product_pending_update_failed": "A useBasketProductPending frissítése érvénytelen állapotban van.",
   "basket_product_pending_validation_failed": "Nem sikerült érvényesíteni a függőben lévő termékeket",
+  "basket_product_readonly": "Ez egy egyedi konfiguráció, és nem szerkeszthető. Módosítási kérelem esetén kérjük, vegye fel a kapcsolatot az ügyfélszolgálattal.",
   "basket_product_update_failed": "Hiba történt a kosárban lévő több termék frissítésekor",
   "basket_unavailable": "Sajnáljuk, nem sikerült betöltenünk a **kosarat**.",
   "basket_unavailable_md": "@.markdown:{'error.basket_unavailable'}",

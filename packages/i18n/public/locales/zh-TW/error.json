@@ -31,6 +31,7 @@
   "basket_product_not_found": "未找到購物籃產品",
   "basket_product_pending_update_failed": "useBasketProductPending 中的更新不處於有效狀態。",
   "basket_product_pending_validation_failed": "無法驗證待處理產品",
+  "basket_product_readonly": "此為客製化設定，無法編輯。如需變更，請聯絡客服協助。",
   "basket_product_update_failed": "更新購物籃中的多個產品時出錯",
   "basket_unavailable": "抱歉，我們無法取得此**購物車**",
   "basket_unavailable_md": "@.markdown:{'error.basket_unavailable'}",

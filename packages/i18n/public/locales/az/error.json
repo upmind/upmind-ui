@@ -31,6 +31,7 @@
   "basket_product_not_found": "Səbət məhsulu tapılmadı",
   "basket_product_pending_update_failed": "UseBasketProduct-da güncəlləmə düzgün vəziyyətdə deyil.",
   "basket_product_pending_validation_failed": "Gözləyən məhsulları doğrulamaq alınmadı",
+  "basket_product_readonly": "Bu konfiqurasiya bu hal üçün xüsusi hazırlanıb və redaktə edilmir. Dəyişiklik tələb etmək üçün zəhmət olmasa texniki dəstək xidməti ilə əlaqə saxlayın.",
   "basket_product_update_failed": "Səbətdəki birdən çox məhsulu yeniləyərkən xəta baş verdi",
   "basket_unavailable": "Üzr istəyirik, bu **səbəti** əldə edə bilmədik",
   "basket_unavailable_md": "@.markdown:{'error.basket_unavailable'}",

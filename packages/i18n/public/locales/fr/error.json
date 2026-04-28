@@ -31,6 +31,7 @@
   "basket_product_not_found": "Produit du panier introuvable",
   "basket_product_pending_update_failed": "La mise à jour dans UseBasketProductPending n'est pas dans un état valide.",
   "basket_product_pending_validation_failed": "Échec de la validation des produits en attente",
+  "basket_product_readonly": "Cette configuration sur mesure ne peut pas être modifiée. Veuillez contacter le support pour toute modification.",
   "basket_product_update_failed": "Erreur lors de la mise à jour de plusieurs produits dans le panier",
   "basket_unavailable": "Désolé, nous n’avons pas pu récupérer ce **panier**",
   "basket_unavailable_md": "@.markdown:{'error.basket_unavailable'}",

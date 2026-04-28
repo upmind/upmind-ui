@@ -31,6 +31,7 @@
   "basket_product_not_found": "Sepet ürünü bulunamadı",
   "basket_product_pending_update_failed": "useBasketProductPending'deki güncelleme geçerli bir durumda değil.",
   "basket_product_pending_validation_failed": "Bekleyen ürünler doğrulanamadı",
+  "basket_product_readonly": "Bu yapılandırma özel olarak tanımlanmıştır ve düzenlenemez. Bu yapılandırmada değişiklik talep etmek için lütfen destek ekibiyle iletişime geçin.",
   "basket_product_update_failed": "Sepetteki birden fazla ürünü güncellerken hata oluştu",
   "basket_unavailable": "Üzgünüz, bu **sepeti** yükleyemedik.",
   "basket_unavailable_md": "@.markdown:{'error.basket_unavailable'}",

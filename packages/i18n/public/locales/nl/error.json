@@ -31,6 +31,7 @@
   "basket_product_not_found": "Winkelwagenproduct niet gevonden",
   "basket_product_pending_update_failed": "Update in useBasketProductPending is niet in een geldige status.",
   "basket_product_pending_validation_failed": "Validatie van in behandeling zijnde producten is mislukt",
+  "basket_product_readonly": "Dit is een maatwerkconfiguratie voor deze bestelling en kan niet door u worden gewijzigd. Neem voor wijzigingen contact op met support.",
   "basket_product_update_failed": "Fout bij het bijwerken van meerdere producten in het winkelmandje",
   "basket_unavailable": "Sorry, we konden deze **winkelwagen** niet ophalen",
   "basket_unavailable_md": "@.markdown:{'error.basket_unavailable'}",
