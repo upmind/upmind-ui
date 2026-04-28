@@ -1,7 +1,7 @@
 // --- external
 import { isActor } from "xstate/lib/Actor";
 import { waitFor } from "xstate/lib/waitFor";
-import { computed } from "vue";
+import { computed, ref } from "vue";
 
 // --- internal
 import basketProductServices from "../basketProduct/services";
@@ -55,6 +55,10 @@ let productsPending: Record<
   UseBasketProductPending
 > = {}; // store the product productsPending
 let subscriptions: Record<ProductProps["productId"], Subscription> = {}; // store subscriptions to changes on the product
+
+// reactive per-product processing flags, keyed by productId, mirroring the
+// pattern in `useBasketProducts` so consumers can derive per-card UI state.
+const processing = ref<Record<ProductProps["productId"], boolean>>({});
 
 // -----------------------------------------------------------------------------
 
@@ -274,12 +278,15 @@ export const useBasketProductsPending = () => {
     // pass through silent option to the product model
     model.silent = silent;
 
+    if (sync) set(processing.value, productId, true);
+
     return ensure(productId, model, force)
       .then(instance => {
         if (sync) subscribe(productId, instance.service);
         return instance;
       })
       .catch(error => {
+        unset(processing.value, productId);
         throw new DetailedError(
           t("error.product_pending_ensure_failed"),
           responseCodes.No_Content,
@@ -329,6 +336,7 @@ export const useBasketProductsPending = () => {
       stopService(product.service);
       unset(productsPending, product.id);
     }
+    unset(processing.value, pid);
   }
 
   /**
@@ -392,9 +400,12 @@ export const useBasketProductsPending = () => {
     /**
      * Meta-information about the pending products state.
      * @property {boolean} hasProducts - `true` if there are any pending products.
+     * @property {function(pid?: string): boolean} isProcessing - A function that returns `true` if any pending product (or a specific `pid`) is currently being added/updated to the basket.
      */
     meta: computed(() => ({
-      hasProducts: !isEmpty(products.value)
+      hasProducts: !isEmpty(products.value),
+      isProcessing: (pid?: ProductProps["productId"]) =>
+        pid ? get(processing.value, pid, false) : !isEmpty(processing.value)
     })),
 
     /**

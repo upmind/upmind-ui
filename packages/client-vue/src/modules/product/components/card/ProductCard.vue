@@ -5,7 +5,7 @@
         <Link
           v-if="navigate"
           :to="productRoute"
-          :disabled="processing || disabled"
+          :disabled="loading || disabled"
           @click="doResolve"
           :tabindex="images.length === 1 ? '0' : '-1'"
           :ring="images.length === 1 ? 'focus' : 'focus-visible'"
@@ -47,7 +47,7 @@
             v-bind="props"
             :selected-term="selectedTerm"
             @resolve="doResolve"
-            :processing="processing"
+            :processing="loading"
             :title="productMeta.data.productName || props.productDetails.title"
             :navigate="navigate"
             :hide-description="configMeta.hideDescription"
@@ -82,12 +82,12 @@
         <footer :class="styles.product.footer">
           <Button
             v-bind="action"
-            :loading="processing"
+            :loading="loading"
             variant="solid"
             :color="color"
             size="lg"
             block
-            :disabled="processing || disabled"
+            :disabled="loading || disabled"
             @click="doResolve"
           />
         </footer>
@@ -211,7 +211,7 @@ const configMeta = computed(() => ({
   hideAnchorPrice: productMeta.ui.productAnchorPrice.isHidden,
   hideTermBadge:
     productMeta.ui.productListLayout.value === GRID_LAYOUT.FOUR_COL,
-  isLoading: processing,
+  isLoading: props.loading,
   isImageEmpty: isImageEmpty.value
 }));
 
@@ -226,8 +226,6 @@ const styles = useStyles(
   configMeta,
   config
 );
-
-const processing = ref(false);
 
 const canAddDirectly = computed(() => {
   // Not configurable = auto-add (existing behaviour via autoupdate)
@@ -280,7 +278,6 @@ const action = computed(() => {
 
 function doResolve() {
   if (!props.id) return;
-  processing.value = true;
   emit("resolve", props.id);
 }
 </script>
