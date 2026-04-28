@@ -32,7 +32,7 @@ import {
 } from "@upmind-automation/types";
 import { ROUTE } from ".";
 import { filter, first, includes, reduce } from "lodash-es";
-import { useRouter, type RouteLocationGeneric } from "vue-router";
+import type { RouteLocationGeneric } from "vue-router";
 
 // -----------------------------------------------------------------------------
 
@@ -309,7 +309,7 @@ export default {
                   useProductRecommendations(productId);
                 await recsReady();
                 if (!recMeta.value.hasUnseenRecommendations) {
-                  const router = useRouter();
+                  const { router } = useRoutingEngine();
                   return {
                     target: router.resolve(returnUrl as string)
                   } as FunnelResponse;
