@@ -507,6 +507,7 @@ export type UseProductConfigMeta = {
   isProcessing: boolean;
   isCalculating: boolean;
   isAvailable: boolean;
+  /** `true` if the product contains non-orderable subproducts and cannot be modified. */
   isLocked: boolean;
   isUnavailable: boolean;
   isComplete: boolean;
