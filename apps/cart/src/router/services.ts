@@ -276,7 +276,7 @@ export default {
   ): Promise<FunnelResponse> => {
     await ensureBidAuth(context, { name: ROUTE.PRODUCT_CONFIGURE });
 
-    const { get: getPendingProduct, resolve } = useBasketProductsPending();
+    const { get: getPendingProduct } = useBasketProductsPending();
     const route = context.targetRoute ?? context.currentRoute;
     const { productId, consumeParam } = useQueryParams(
       route as RouteLocationGeneric
@@ -301,8 +301,6 @@ export default {
           return basketItem
             .update()
             .then(async () => {
-              resolve(basketItem.service);
-
               const returnUrl = consumeParam("returnUrl", false);
               if (returnUrl) {
                 const { meta: recMeta, isReady: recsReady } =

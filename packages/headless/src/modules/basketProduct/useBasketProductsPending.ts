@@ -207,6 +207,7 @@ export const useBasketProductsPending = () => {
 
         const subscription = actor.subscribe((state: State<any>) => {
           if (stateMatches(state, ["error"])) {
+            unset(processing.value, pid);
             unsetProduct(pid);
           } else if (stateMatches(state, "available")) {
             setProduct(pid, get(state, "context.model"));
@@ -315,8 +316,9 @@ export const useBasketProductsPending = () => {
   }
 
   /**
-   * Removes a pending product configuration from the cache, storage, and any active subscriptions.
-   * Also stops the product's XState service if it's running.
+   * Tears down the pending product's actor: unsubscribes, stops the service,
+   * and removes it from `productsPending`. Does NOT clear the processing flag —
+   * that's a separate concern (operation lifecycle, not actor lifecycle).
    *
    * @param pid - The product ID to unset.
    */
@@ -336,7 +338,6 @@ export const useBasketProductsPending = () => {
       stopService(product.service);
       unset(productsPending, product.id);
     }
-    unset(processing.value, pid);
   }
 
   /**
@@ -352,6 +353,7 @@ export const useBasketProductsPending = () => {
       : get(productsPending, target!.id)?.model?.value?.productId;
 
     if (pid) {
+      unset(processing.value, pid);
       unsetProduct(pid);
       // as we have successfully added our config we can remove it from storage
       unset(productConfigs, pid);

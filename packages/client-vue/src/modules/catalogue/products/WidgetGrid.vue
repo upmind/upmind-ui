@@ -34,10 +34,15 @@
         :class="styles.products.main.grid.container"
         data-testid="products-grid"
       >
+        <!-- TODO: OR `loading` and `disabled` with the global `isNavigating`
+             signal (sibling branch) to cover the click-to-route gap —
+             basket-RPC settles before navigation lands, leaving a momentary
+             spinner-off blip. -->
         <ProductCard
           v-if="!meta.isLoading"
           v-for="product in data"
           :loading="pendingMeta.isProcessing(product.id)"
+          :disabled="pendingMeta.isProcessing()"
           :key="product.id"
           v-bind="product"
           :preserve-promotion="preservePromotions"
