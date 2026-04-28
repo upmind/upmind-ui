@@ -15,7 +15,8 @@ import {
   parseBasketProductModel,
   parseProduct,
   parseBundledProducts,
-  mergeBasketSubproducts
+  mergeBasketSubproducts,
+  hasNonOrderableSubproducts
 } from "./utils";
 
 import { useProductConfigSchema, useProductConfigUischema } from "./schemas";
@@ -106,6 +107,16 @@ export default createMachine(
               src: "parse",
               onDone: [
                 {
+                  target: "#locked",
+                  cond: "isReadonly",
+                  actions: [
+                    "setProduct",
+                    "setModel",
+                    "setSchemas",
+                    "persistModel"
+                  ]
+                },
+                {
                   target: "#available",
                   actions: [
                     "setProduct",
@@ -137,6 +148,11 @@ export default createMachine(
           src: "refresh",
           onDone: [
             {
+              target: "#locked",
+              cond: "isReadonly",
+              actions: ["setLookups", "setSchemas"]
+            },
+            {
               target: "available",
               actions: ["setLookups", "setSchemas"]
             }
@@ -151,10 +167,16 @@ export default createMachine(
       available: {
         id: "available",
         initial: "checking",
+
         states: {
           checking: {
             entry: ["clearError"],
             initial: "parsing",
+            // Bail to locked if readonly - prevents re-entry via events
+            always: {
+              target: "#locked",
+              cond: "isReadonly"
+            },
             states: {
               parsing: {
                 invoke: {
@@ -193,7 +215,25 @@ export default createMachine(
             id: "invalid"
           },
 
-          error: {}
+          error: {},
+
+          // Product contains non-orderable subproducts (clients_can_order: 0).
+          // Configuration cannot be modified.
+          locked: {
+            id: "locked",
+            // Redefine edit events with empty handlers to swallow them.
+            // Prevents parent `available.on` handlers from processing.
+            on: {
+              UPDATE: {},
+              SET: {},
+              "SET.QUANTITY": {},
+              "SET.TERM": {},
+              "SET.ATTRIBUTES": {},
+              "SET.OPTIONS": {},
+              "SET.PROVISIONING": {},
+              "SET.TRIAL": {}
+            }
+          }
         },
         on: {
           REFRESH: [
@@ -257,6 +297,11 @@ export default createMachine(
       processing: {
         id: "processing",
         initial: "validating",
+        // Bail immediately if readonly - should never reach here, but safety check
+        always: {
+          target: "#locked",
+          cond: "isReadonly"
+        },
         states: {
           validating: {
             invoke: {
@@ -316,6 +361,7 @@ export default createMachine(
       processed: {
         id: "processed",
         always: [
+          { target: "#locked", cond: "isReadonly" },
           { target: "#available", cond: "continueEditing" },
           { target: "#complete" }
         ]
@@ -386,6 +432,7 @@ export default createMachine(
             subproducts: subproducts ?? [],
             silent: silent ?? false,
             bundle: bundle ?? undefined,
+            readonly: hasNonOrderableSubproducts(rawBasketProduct),
             // ---
             baseModel: !isEmpty(rawBasketProduct)
               ? parseBasketProductModel(rawBasketProduct)
@@ -449,6 +496,7 @@ export default createMachine(
             promotions: promotions ?? [],
             coupons: coupons ?? [],
             rawBasketProduct: rawBasketProduct ?? basket_product, // ensure we honoure any given basket product
+            readonly: hasNonOrderableSubproducts(rawBasketProduct),
             baseModel: basket_product
               ? parseBasketProductModel(basket_product)
               : cloneDeep(model),
@@ -714,6 +762,8 @@ export default createMachine(
     },
     services,
     guards: {
+      isReadonly: ({ readonly }: ProductConfigContext) => !!readonly,
+
       hasError: ({ error }: ProductConfigContext) => !isEmpty(error),
 
       hasBasketChanged: (
