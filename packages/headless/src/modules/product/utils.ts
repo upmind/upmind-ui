@@ -460,6 +460,22 @@ export function mergeBasketSubproducts(
   return [...(productSubproducts ?? []), ...hidden];
 }
 
+/**
+ * Checks if a basket product contains any options/attributes that can no longer
+ * be ordered (clients_can_order: 0). When true, the product should be readonly.
+ */
+export function hasNonOrderableSubproducts(
+  rawBasketProduct: IBasketProduct | undefined
+): boolean {
+  if (!rawBasketProduct) return false;
+
+  const subproducts = concat(
+    rawBasketProduct.options ?? [],
+    rawBasketProduct.attributes ?? []
+  );
+  return some(subproducts, ["product.clients_can_order", 0]);
+}
+
 export function parseSubproducts(
   type: "attributes" | "options",
   { lookups, model, subproducts: subproductIds }: Partial<ProductConfigContext>,

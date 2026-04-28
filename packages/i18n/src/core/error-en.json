@@ -28,6 +28,7 @@
   "basket_not_available": "Basket not available",
   "basket_product_add_failed": "Updating the product in your basket took too long and timed out",
   "basket_product_already_processing": "Already processing",
+  "basket_product_locked": "This is a bespoke configuration. Please contact support for changes.",
   "basket_product_not_found": "Basket product not found",
   "basket_product_pending_update_failed": "Update in useBasketProductPending not in a valid state.",
   "basket_product_pending_validation_failed": "Failed to validate pending products",

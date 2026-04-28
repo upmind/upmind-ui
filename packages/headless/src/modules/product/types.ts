@@ -952,6 +952,8 @@ export interface ProductConfigContext {
   basketId?: string;
   /** When `true`, the machine returns to `available` after update instead of `complete`. */
   allowMultipleEdits?: boolean;
+  /** When `true`, the product cannot be edited (e.g. contains options with `clients_can_order: 0`). */
+  readonly?: boolean;
   /** An `ActorRef` to the basket helper service. */
   basketHelper?: ActorRef<any>;
   /** A function to parse a {@link ProductModel} for the basket. */
