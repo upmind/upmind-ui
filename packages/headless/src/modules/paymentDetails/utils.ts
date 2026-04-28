@@ -13,7 +13,16 @@ import razorpayConfig from "./gateways/razorpay";
 import mercadoPagoConfig from "./gateways/mercadoPago";
 
 // --- utils
-import { filter, get, includes, isEqual, some, sortBy, unset } from "lodash-es";
+import {
+  filter,
+  get,
+  gt,
+  includes,
+  isEqual,
+  some,
+  sortBy,
+  unset
+} from "lodash-es";
 import { useSessionStorage } from "../../utils";
 
 // --- types
@@ -385,30 +394,75 @@ export function isFullyCoveredByWallet(
 }
 
 /**
- * Returns all payment state flags derived from the machine context.
+ * Returns all payment state flags derived from model + context data.
  * Single entry point — composables destructure the result.
  *
- * Uses `amount` as a stable fallback for `isFree` when
- * `model` is not yet populated (e.g. during a currency-change refresh).
+ * These flags answer: "what does the payment DATA say?" — independent
+ * of the machine's processing state (loading, checking, etc.).
+ *
+ * ## Key scenarios
+ *
+ * | Scenario                       | isFree | needsPayment | hasAccountCredit |
+ * |--------------------------------|--------|--------------|------------------|
+ * | Normal order (amount > 0)      | false  | true         | if credit > 0    |
+ * | Free order, no capture needed  | true   | false        | false            |
+ * | Free order, capture needed     | true*  | true         | false            |
+ * | ADD context (save card)        | false  | true         | false            |
+ * | Wallet fully covers amount     | false  | false        | if credit > 0    |
+ *
+ * *isFree returns true for model-level, but needsPayment overrides via
+ *  requirePaymentForFreeOrders — user must still select a payment method.
+ *
+ * ## Backfill note
+ * During transient states (currency refresh, initial load) the model
+ * may be cleared while context-level amounts persist. Callers should
+ * backfill `amount` and `wallet_amount` via `defaultsDeep` before
+ * passing the model here.
  */
 export function usePaymentState(
   model?: Partial<PaymentDetailModel>,
   ctx?: GatewayCtx,
   requirePaymentForFreeOrders?: boolean,
-  isRefreshing?: boolean
+  isRefreshing?: boolean,
+  creditAmount?: number
 ) {
+  const free = isFree(model, ctx);
+
   return {
+    /** TRUE when user has spendable account credit AND order is not free. */
+    hasAccountCredit: ctx === GatewayCtx.PAY && gt(creditAmount, 0) && !free,
+
+    /** TRUE when the model has a non-zero amount (and ctx ≠ ADD). */
     hasAmount: hasAmount(model, ctx),
+
+    /** TRUE when a stored payment method is already selected on the model. */
     hasSelectedPaymentMethod:
       ctx !== GatewayCtx.ADD && !!model?.payment_details_id,
-    isFree: isFree(model, ctx),
+
+    /** TRUE when order amount is zero (and ctx ≠ ADD). */
+    isFree: free,
+
+    /** TRUE when wallet allocation equals the full order amount. */
     isFullyCoveredByWallet: isFullyCoveredByWallet(model),
+
+    /** TRUE when payment type is PAY_IN_FULL or PARTIAL, or free+capture. */
     isPayable: isPayable(model, requirePaymentForFreeOrders, ctx),
+
+    /** TRUE when payment type is PAY_LATER (deferred). Always false in ADD. */
     isPayLater: isPayLater(model, ctx),
+
+    /**
+     * TRUE when the user must select a payment method / gateway.
+     * Accounts for:
+     * - payable amount not fully covered by wallet
+     * - free order with requirePaymentForFreeOrders (card capture)
+     * - refreshing state with non-free amount (keep UI stable)
+     * - ADD context (always needs payment method selection)
+     */
     needsPayment:
       needsPayment(model, requirePaymentForFreeOrders) ||
-      (!!isRefreshing && !isFree(model, ctx)) ||
-      (!isFree(model, ctx) && !hasAmount(model, ctx)) ||
+      (!!isRefreshing && !free) ||
+      (!free && !hasAmount(model, ctx)) ||
       ctx === GatewayCtx.ADD
   };
 }
