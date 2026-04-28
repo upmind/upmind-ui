@@ -5,11 +5,12 @@ import { useQuery } from "../..";
 import { useBasket, useBasketCurrency, useBasketPromotions } from "../basket";
 
 // --- utils
-import { map } from "lodash-es";
+import { isEqual, last, map, pick } from "lodash-es";
 import { parseProduct } from "./mappers";
 import { useTime } from "../../utils";
 
 // --- types
+import type { Ref } from "vue";
 import type { Product } from "../product";
 import {
   ProvisionCategoryCodes,
@@ -19,12 +20,17 @@ import type { QueryParams } from "../..";
 import type { InfiniteData, QueryKey } from "@tanstack/vue-query";
 import { parsePromotionsOrCoupons } from "../basketProduct/utils";
 
+interface ContentKeys {
+  filters: Ref<unknown>;
+  sort: Ref<unknown>;
+}
+
 // -----------------------------------------------------------------------------
 // QUERIES
 
 const queryKey: QueryKey = ["product", "catalogue"];
 
-function loadList(params?: Partial<QueryParams>) {
+function loadList(params?: Partial<QueryParams>, content?: ContentKeys) {
   const { list, useUrl } = useQuery();
   const { currencyCode } = useBasketCurrency();
   const { promocodes } = useBasketPromotions();
@@ -52,7 +58,27 @@ function loadList(params?: Partial<QueryParams>) {
     // --- options
     select: data => map(data ?? [], parseProduct),
     staleTime: useTime().HOUR,
-    enabled: () => !!currencyCode.value
+    enabled: () => !!currencyCode.value,
+    // Keep previous products visible across scope-only key changes
+    // (e.g. basketId on basket creation). Content changes (filters,
+    // sort) fall through to the loading state and show skeletons.
+    placeholderData: (
+      previousData: unknown,
+      previousQuery: { queryKey: unknown[] } | undefined
+    ) => {
+      if (!previousData || !previousQuery || !content) return;
+      const previousContent = pick(last(previousQuery.queryKey), [
+        "filters",
+        "sort"
+      ]);
+      const currentContent = {
+        filters: content.filters.value,
+        sort: content.sort.value
+      };
+      return isEqual(previousContent, currentContent)
+        ? previousData
+        : undefined;
+    }
   });
 
   return query;
