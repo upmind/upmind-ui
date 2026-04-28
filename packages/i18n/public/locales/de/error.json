@@ -31,7 +31,7 @@
   "basket_product_not_found": "Warenkorbprodukt nicht gefunden",
   "basket_product_pending_update_failed": "Update in useBasketProductPending nicht in einem gültigen Status.",
   "basket_product_pending_validation_failed": "Ausstehende Produkte konnten nicht validiert werden",
-  "basket_product_readonly": "Dies ist eine individuelle Konfiguration und schreibgeschützt. Bitte wenden Sie sich für Anpassungen an den Support.",
+  "basket_product_readonly": "Dieser Artikel kann derzeit nicht bearbeitet werden. Bitte wenden Sie sich an den Support, um Änderungen anzufordern.",
   "basket_product_update_failed": "Fehler beim Aktualisieren mehrerer Produkte im Warenkorb",
   "basket_unavailable": "Entschuldigung, wir konnten diesen **basket** nicht laden",
   "basket_unavailable_md": "@.markdown:{'error.basket_unavailable'}",

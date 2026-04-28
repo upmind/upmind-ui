@@ -31,7 +31,7 @@
   "basket_product_not_found": "Handlekurvproduktet ble ikke funnet",
   "basket_product_pending_update_failed": "Oppdatering i bruk. KurvProduktVenter er ikke i gyldig tilstand.",
   "basket_product_pending_validation_failed": "Kunne ikke validere ventende produkter",
-  "basket_product_readonly": "Denne konfigurasjonen er skreddersydd og kan ikke redigeres. Kontakt kundestøtte for å be om endringer i konfigurasjonen.",
+  "basket_product_readonly": "Denne varen kan for øyeblikket ikke kjøpes, og den tilpassede konfigurasjonen kan ikke redigeres av deg. Kontakt kundestøtte for å be om endringer i konfigurasjonen.",
   "basket_product_update_failed": "Feil ved oppdatering av flere produkter i handlekurven",
   "basket_unavailable": "Beklager, vi kunne ikke hente denne **handlekurven**",
   "basket_unavailable_md": "@.markdown:{'error.basket_unavailable'}",

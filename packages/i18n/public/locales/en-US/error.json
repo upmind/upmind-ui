@@ -31,7 +31,7 @@
   "basket_product_not_found": "Basket product not found",
   "basket_product_pending_update_failed": "Update in useBasketProductPending not in a valid state.",
   "basket_product_pending_validation_failed": "Failed to validate pending products",
-  "basket_product_readonly": "This is a bespoke configuration and is not editable. Please contact support for changes.",
+  "basket_product_readonly": "This configuration is customized for your account and can’t be edited. Please contact support for assistance.",
   "basket_product_update_failed": "Error updating multiple products in basket",
   "basket_unavailable": "Sorry, we couldn’t load your **cart**.",
   "basket_unavailable_md": "@.markdown:{'error.basket_unavailable'}",

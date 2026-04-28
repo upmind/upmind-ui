@@ -31,7 +31,7 @@
   "basket_product_not_found": "Produkt v košíku nenalezen",
   "basket_product_pending_update_failed": "Aktualizace v useBasketProductPending není v platném stavu.",
   "basket_product_pending_validation_failed": "Nepodařilo se ověřit čekající produkty",
-  "basket_product_readonly": "Tato konfigurace je vytvořená na míru a v rozhraní ji nelze upravit. Pro změny kontaktujte zákaznickou podporu.",
+  "basket_product_readonly": "Tuto položku nyní nelze zakoupit, protože její individuálně přizpůsobená konfigurace je jen pro čtení a nelze ji v košíku měnit. Pro pomoc kontaktujte zákaznickou podporu.",
   "basket_product_update_failed": "Chyba při aktualizaci více produktů v košíku",
   "basket_unavailable": "Omlouváme se, nepodařilo se nám načíst tento **košík**",
   "basket_unavailable_md": "@.markdown:{'error.basket_unavailable'}",

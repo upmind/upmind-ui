@@ -118,7 +118,7 @@
       :title="t('error.basket_product_readonly')"
       icon="lock-01"
       size="sm"
-      color="neutral"
+      color="danger"
     />
 
     <RequiredAlert

@@ -31,7 +31,7 @@
   "basket_product_not_found": "Producto de la cesta no encontrado",
   "basket_product_pending_update_failed": "Actualización en useBasketProductPending no en un estado válido.",
   "basket_product_pending_validation_failed": "No se pudieron validar los productos pendientes",
-  "basket_product_readonly": "Esta configuración es personalizada y de solo lectura; no se puede editar. Para realizar cambios, póngase en contacto con el soporte.",
+  "basket_product_readonly": "Este artículo no está disponible para su compra en este momento. Póngase en contacto con el servicio de soporte para recibir asistencia.",
   "basket_product_update_failed": "Error al actualizar varios productos en la cesta",
   "basket_unavailable": "Lo sentimos, no pudimos recuperar este **carrito**",
   "basket_unavailable_md": "@.markdown:{'error.basket_unavailable'}",
