@@ -31,6 +31,7 @@
   "basket_product_not_found": "Товар в корзине не найден",
   "basket_product_pending_update_failed": "Обновление в useBasketProductPending не находится в допустимом состоянии.",
   "basket_product_pending_validation_failed": "Не удалось проверить ожидающие продукты",
+  "basket_product_readonly": "Это конфигурация, выполненная по индивидуальному заказу, и её нельзя редактировать. Чтобы запросить изменения, обратитесь в службу поддержки.",
   "basket_product_update_failed": "Ошибка обновления нескольких товаров в корзине",
   "basket_unavailable": "Извините, мы не смогли загрузить эту **корзину**",
   "basket_unavailable_md": "@.markdown:{'error.basket_unavailable'}",

@@ -31,6 +31,7 @@
   "basket_product_not_found": "Produsul din coș nu a fost găsit",
   "basket_product_pending_update_failed": "Actualizarea în starea useBasketProductPending nu este validă.",
   "basket_product_pending_validation_failed": "Nu s-au putut valida produsele în așteptare",
+  "basket_product_readonly": "Aceasta este o configurație personalizată și nu poate fi modificată. Vă rugăm să contactați Suportul pentru a solicita modificări.",
   "basket_product_update_failed": "Eroare la actualizarea mai multor produse din coș",
   "basket_unavailable": "Ne pare rău, nu am putut accesa acest **coș**",
   "basket_unavailable_md": "@.markdown:{'error.basket_unavailable'}",

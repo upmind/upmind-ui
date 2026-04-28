@@ -31,6 +31,7 @@
   "basket_product_not_found": "Producto de la cesta no encontrado",
   "basket_product_pending_update_failed": "Actualización en useBasketProductPending no en un estado válido.",
   "basket_product_pending_validation_failed": "No se pudieron validar los productos pendientes",
+  "basket_product_readonly": "Esta es una configuración personalizada y no se puede modificar. Por favor, contacte a soporte para solicitar cambios.",
   "basket_product_update_failed": "Error al actualizar varios productos en la cesta",
   "basket_unavailable": "Lo sentimos, no pudimos cargar este **carrito**",
   "basket_unavailable_md": "@.markdown:{'error.basket_unavailable'}",

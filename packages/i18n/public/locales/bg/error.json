@@ -31,6 +31,7 @@
   "basket_product_not_found": "Продуктът в кошницата не е намерен",
   "basket_product_pending_update_failed": "Актуализацията в useBasketProductPending не е във валидно състояние.",
   "basket_product_pending_validation_failed": "Неуспешно валидиране на чакащи продукти",
+  "basket_product_readonly": "Това е конфигурация по поръчка и не подлежи на редактиране. Моля, свържете се с поддръжката, за да заявите промени.",
   "basket_product_update_failed": "Грешка при актуализиране на няколко продукта в кошницата",
   "basket_unavailable": "Съжаляваме, не успяхме да заредим тази **кошница**",
   "basket_unavailable_md": "@.markdown:{'error.basket_unavailable'}",

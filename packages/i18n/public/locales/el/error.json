@@ -31,6 +31,7 @@
   "basket_product_not_found": "Δεν βρέθηκε το προϊόν στο καλάθι",
   "basket_product_pending_update_failed": "Η ενημέρωση σε useBasketProductPending δεν είναι σε έγκυρη κατάσταση.",
   "basket_product_pending_validation_failed": "Αποτυχία επικύρωσης προϊόντων σε εκκρεμότητα",
+  "basket_product_readonly": "Πρόκειται για εξατομικευμένη διαμόρφωση και δεν είναι δυνατή η επεξεργασία της. Παρακαλούμε επικοινωνήστε με την Υποστήριξη για να ζητήσετε τροποποιήσεις.",
   "basket_product_update_failed": "Σφάλμα κατά την ενημέρωση πολλαπλών προϊόντων στο καλάθι.",
   "basket_unavailable": "Λυπούμαστε, δεν μπορέσαμε να φορτώσουμε αυτό το **καλάθι**",
   "basket_unavailable_md": "@.markdown:{'error.basket_unavailable'}",
