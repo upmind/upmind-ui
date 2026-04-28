@@ -19,6 +19,13 @@ export type RootVariants = VariantProps<typeof rootVariant>;
 
 export interface ProductCardProps extends Omit<Product, "price" | "pricing"> {
   configureRoute: RouteLocationAsRelativeGeneric;
+  /**
+   * When true (default), term-only products auto-add with the selected term.
+   * When false, they route to the configure step instead so the term step
+   * is part of the funnel. Catalogue passes `keepsUserInSitu` to switch
+   * between the two flows.
+   */
+  inSitu?: boolean;
   disabled?: boolean;
   loading?: boolean;
   variant?: RootVariants["variant"];
