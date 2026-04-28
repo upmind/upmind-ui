@@ -1,5 +1,5 @@
 <template>
-  <UpmAuth :model-value="initialMode" @resolve="onAuthComplete" />
+  <UpmAuth :model-value="mode" @resolve="onAuthComplete" />
 </template>
 
 <script lang="ts" setup>
@@ -31,7 +31,7 @@ const emit = defineEmits<{
 }>();
 
 /** Read initial mode from ?mode=login|register query param */
-const initialMode = computed(
+const mode = computed(
   () => get(route, "query.mode", "login") as SessionProps["modelValue"]
 );
 
