@@ -137,8 +137,11 @@ export const useProductConfig = (service: ActorRef<any>) => {
       (contextMatches(state, ["error"]) && contextMatches(state, ["attempts"])),
 
     hasErrors:
-      stateMatches(state, ["error", "available.invalid", "available.error"]) ||
-      contextMatches(state, ["error"]),
+      stateMatches(state, [
+        "unavailable",
+        "available.invalid",
+        "available.error"
+      ]) || contextMatches(state, ["error"]),
 
     isConfigurable:
       (terms.value?.length ?? 0) > 1 ||
@@ -151,8 +154,9 @@ export const useProductConfig = (service: ActorRef<any>) => {
     isCalculating: contextMatches(state, ["lookups.prices.calculating"]),
     isProcessing: stateMatches(state, ["refreshing", "processing"]),
     isAvailable: stateMatches(state, ["available", "refreshing", "processing"]),
-    isLocked: stateMatches(state, ["available.locked"]),
-    isUnavailable: stateMatches(state, ["error", "available.error"]),
+    isLocked:
+      stateMatches(state, ["unavailable"]) && !!contextValue(state, "readonly"),
+    isUnavailable: stateMatches(state, ["unavailable", "available.error"]),
     isComplete: stateMatches(state, ["complete"]),
     isDone: !state.value || state.value?.done,
 
@@ -184,7 +188,7 @@ export const useProductConfig = (service: ActorRef<any>) => {
     if (meta.value.isLocked) {
       const { t } = useI18n();
       throw new DetailedError(
-        t("error.basket_product_locked"),
+        t("error.basket_product_readonly"),
         responseCodes.Forbidden,
         ErrorOrigin.Headless
       );

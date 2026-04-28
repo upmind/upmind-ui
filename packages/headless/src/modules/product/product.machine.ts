@@ -96,7 +96,7 @@ export default createMachine(
                   cond: "isUnauthorized"
                 },
                 {
-                  target: "#error",
+                  target: "#unavailable",
                   actions: "setError"
                 }
               ]
@@ -106,16 +106,6 @@ export default createMachine(
             invoke: {
               src: "parse",
               onDone: [
-                {
-                  target: "#locked",
-                  cond: "isReadonly",
-                  actions: [
-                    "setProduct",
-                    "setModel",
-                    "setSchemas",
-                    "persistModel"
-                  ]
-                },
                 {
                   target: "#available",
                   actions: [
@@ -132,7 +122,7 @@ export default createMachine(
                   cond: "isUnauthorized"
                 },
                 {
-                  target: "#error",
+                  target: "#unavailable",
                   actions: "setError"
                 }
               ]
@@ -148,17 +138,12 @@ export default createMachine(
           src: "refresh",
           onDone: [
             {
-              target: "#locked",
-              cond: "isReadonly",
-              actions: ["setLookups", "setSchemas"]
-            },
-            {
               target: "available",
               actions: ["setLookups", "setSchemas"]
             }
           ],
           onError: {
-            target: "error",
+            target: "unavailable",
             actions: "setError"
           }
         }
@@ -172,11 +157,6 @@ export default createMachine(
           checking: {
             entry: ["clearError"],
             initial: "parsing",
-            // Bail to locked if readonly - prevents re-entry via events
-            always: {
-              target: "#locked",
-              cond: "isReadonly"
-            },
             states: {
               parsing: {
                 invoke: {
@@ -215,25 +195,7 @@ export default createMachine(
             id: "invalid"
           },
 
-          error: {},
-
-          // Product contains non-orderable subproducts (clients_can_order: 0).
-          // Configuration cannot be modified.
-          locked: {
-            id: "locked",
-            // Redefine edit events with empty handlers to swallow them.
-            // Prevents parent `available.on` handlers from processing.
-            on: {
-              UPDATE: {},
-              SET: {},
-              "SET.QUANTITY": {},
-              "SET.TERM": {},
-              "SET.ATTRIBUTES": {},
-              "SET.OPTIONS": {},
-              "SET.PROVISIONING": {},
-              "SET.TRIAL": {}
-            }
-          }
+          error: {}
         },
         on: {
           REFRESH: [
@@ -297,11 +259,6 @@ export default createMachine(
       processing: {
         id: "processing",
         initial: "validating",
-        // Bail immediately if readonly - should never reach here, but safety check
-        always: {
-          target: "#locked",
-          cond: "isReadonly"
-        },
         states: {
           validating: {
             invoke: {
@@ -353,15 +310,14 @@ export default createMachine(
         }
       },
 
-      error: {
-        id: "error"
+      unavailable: {
+        id: "unavailable"
       },
 
       // Decide whether to continue editing or stop
       processed: {
         id: "processed",
         always: [
-          { target: "#locked", cond: "isReadonly" },
           { target: "#available", cond: "continueEditing" },
           { target: "#complete" }
         ]
@@ -762,8 +718,6 @@ export default createMachine(
     },
     services,
     guards: {
-      isReadonly: ({ readonly }: ProductConfigContext) => !!readonly,
-
       hasError: ({ error }: ProductConfigContext) => !isEmpty(error),
 
       hasBasketChanged: (

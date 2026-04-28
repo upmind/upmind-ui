@@ -3,7 +3,7 @@
     <header :class="styles.product.summary.header.root">
       <Link
         v-if="props.image && productDetails.imgUrl"
-        v-bind="props.editRoute"
+        v-bind="props.productDetails.readonly ? null : props.editRoute"
       >
         <Image
           :image="productDetails.imgUrl"
@@ -47,7 +47,7 @@
 
         <hgroup :class="styles.product.summary.title.root">
           <Link
-            v-bind="props.editRoute"
+            v-bind="props.productDetails.readonly ? null : props.editRoute"
             offset="2"
             :class="styles.product.summary.title.link"
           >
@@ -113,8 +113,16 @@
       color="promo"
     />
 
+    <Alert
+      v-if="!!props.productDetails?.readonly"
+      :title="t('error.basket_product_readonly')"
+      icon="lock-01"
+      size="sm"
+      color="neutral"
+    />
+
     <RequiredAlert
-      v-if="error || !isEmpty(props.configErrors)"
+      v-else-if="error || !isEmpty(props.configErrors)"
       :id="id"
       size="sm"
       :edit-route="props.editRoute"
@@ -123,7 +131,11 @@
     <footer :class="styles.product.summary.footer.root">
       <div :class="styles.product.summary.footer.terms.root">
         <BasketProductTermSelector
-          v-if="props.inlineMeta?.showTermSelector && props.terms"
+          v-if="
+            props.inlineMeta?.showTermSelector &&
+            props.terms &&
+            !props.productDetails.readonly
+          "
           :terms="props.terms"
           v-model="term"
           :disabled="error || !isEmpty(props.configErrors)"
@@ -135,6 +147,7 @@
 
       <div :class="styles.product.summary.footer.price.root">
         <QuantityField
+          v-if="!props.productDetails.readonly"
           v-bind="productDetails"
           :id="id"
           v-model:quantity="quantity"
