@@ -1,5 +1,5 @@
 <template>
-  <Auth :model-value="initialMode" @resolve="onAuthComplete" />
+  <UpmAuth :model-value="initialMode" @resolve="onAuthComplete" />
 </template>
 
 <script lang="ts" setup>
@@ -14,7 +14,7 @@ import { computed } from "vue";
 import { useRoute } from "vue-router";
 
 // --- internal
-import { Auth } from "@upmind-automation/client-vue";
+import { UpmAuth } from "@upmind-automation/client-vue";
 
 // --- utils
 import { get } from "lodash-es";
