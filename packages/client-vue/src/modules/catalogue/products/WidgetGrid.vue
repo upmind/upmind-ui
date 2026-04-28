@@ -37,12 +37,11 @@
         <ProductCard
           v-if="!meta.isLoading"
           v-for="product in data"
-          :disabled="processing"
+          :loading="pendingMeta.isProcessing(product.id)"
           :key="product.id"
           v-bind="product"
           :preserve-promotion="preservePromotions"
           :configure-route="catalogueConfigureRoute"
-          @resolve="processing = true"
         />
 
         <ProductCardSkeleton
@@ -105,7 +104,7 @@ import {
   RequestSortDirection,
   ProductSortableProperties,
   DEBOUNCE_DELAY,
-  useBasket,
+  useBasketProductsPending,
   useBrand,
   type UseProductCategories
 } from "@upmind-automation/headless";
@@ -139,8 +138,7 @@ const props = defineProps<{
   configureRoute: RouteLocationAsRelativeGeneric;
 }>();
 
-const processing = ref(false);
-const { meta: basketMeta } = useBasket();
+const { meta: pendingMeta } = useBasketProductsPending();
 
 const categoryInstance =
   inject<UseProductCategories>("useProductCategories") ??
@@ -241,9 +239,6 @@ const preservePromotions = computed(() =>
 );
 
 //  --- side effects
-watch(basketMeta, newMeta => {
-  processing.value = newMeta.isProcessing ? processing.value : false;
-});
 watch(
   data,
   newData => {
