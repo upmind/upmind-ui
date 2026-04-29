@@ -11,6 +11,7 @@ import UpmindClient, {
 } from "@upmind-automation/client-vue";
 import { plugins as uiPlugins } from "@upmind-automation/upmind-ui";
 import { registerFunnels } from "~/funnels";
+import { CART_OVERLAYS } from "~/router.options";
 import { forEach } from "lodash-es";
 import type { Router } from "vue-router";
 import type { I18n } from "vue-i18n";
@@ -69,15 +70,15 @@ export default defineNuxtPlugin(async nuxtApp => {
     nuxtApp.vueApp.use(plugin, options);
   });
 
-  // 3. Wait for Upmind and theme to be ready before continuing
+  // 3. Register overlay routes synchronously so deep-linked URLs resolve correctly
+  registerOverlayRoutes(router, CART_OVERLAYS);
+
+  // 4. Wait for Upmind and theme to be ready before continuing
   await UpmindClient.isReady();
 
-  // 4. Decorate all routes with brand-specific UI schemas
+  // 5. Decorate all routes with brand-specific UI schemas
   // This is done once at initialization to avoid Vue Router meta mutation warnings
   decorateRoutes(router.getRoutes());
-
-  // 5. Register overlay routes (auth, 2fa, verify-email) on eligible routes
-  registerOverlayRoutes(router);
 
   // 6. Wait for theme to be ready so we dont have any flash of unstyled content
   const theme = runtimeConfig.public.THEME as string;
