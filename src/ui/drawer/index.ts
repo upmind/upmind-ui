@@ -8,4 +8,4 @@ import DrawerCE from "./Drawer.ce.vue";
 export const UpmDrawer = defineCustomElement(DrawerCE);
 
 // --- types
-export * from "./types";
+export { type DrawerProps } from "./types";
