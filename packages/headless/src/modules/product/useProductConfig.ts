@@ -12,7 +12,10 @@ import {
   contextValue,
   useImageUrl,
   useContext,
-  type ResponseError
+  type ResponseError,
+  responseCodes,
+  DetailedError,
+  ErrorOrigin
 } from "../../utils";
 
 // --- utils
@@ -49,6 +52,7 @@ import {
   useInvalidProductConfigSchema,
   useInvalidProductConfigUischema
 } from "./schemas";
+import { useI18n } from "../system";
 
 // -----------------------------------------------------------------------------
 
@@ -148,8 +152,11 @@ export const useProductConfig = (service: ActorRef<any>) => {
       (contextMatches(state, ["error"]) && contextMatches(state, ["attempts"])),
 
     hasErrors:
-      stateMatches(state, ["error", "available.invalid", "available.error"]) ||
-      contextMatches(state, ["error"]),
+      stateMatches(state, [
+        "unavailable",
+        "available.invalid",
+        "available.error"
+      ]) || contextMatches(state, ["error"]),
 
     isConfigurable:
       (terms.value?.length ?? 0) > 1 ||
@@ -162,7 +169,9 @@ export const useProductConfig = (service: ActorRef<any>) => {
     isCalculating: contextMatches(state, ["lookups.prices.calculating"]),
     isProcessing: stateMatches(state, ["refreshing", "processing"]),
     isAvailable: stateMatches(state, ["available", "refreshing", "processing"]),
-    isUnavailable: stateMatches(state, ["error", "available.error"]),
+    isLocked:
+      stateMatches(state, ["unavailable"]) && !!contextValue(state, "readonly"),
+    isUnavailable: stateMatches(state, ["unavailable", "available.error"]),
     isComplete: stateMatches(state, ["complete"]),
     isDone: !state.value || state.value?.done,
 
@@ -190,6 +199,15 @@ export const useProductConfig = (service: ActorRef<any>) => {
       | "SET",
     data: Partial<ProductModel>
   ) {
+    // Bail if locked - product contains non-orderable subproducts
+    if (meta.value.isLocked) {
+      const { t } = useI18n();
+      throw new DetailedError(
+        t("error.basket_product_readonly"),
+        responseCodes.Forbidden,
+        ErrorOrigin.Headless
+      );
+    }
     touched.value = true;
     send({ type, data });
 
@@ -507,6 +525,8 @@ export type UseProductConfigMeta = {
   isProcessing: boolean;
   isCalculating: boolean;
   isAvailable: boolean;
+  /** `true` if the product contains non-orderable subproducts and cannot be modified. */
+  isLocked: boolean;
   isUnavailable: boolean;
   isComplete: boolean;
   isDone: boolean;
