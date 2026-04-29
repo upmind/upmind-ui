@@ -2,8 +2,9 @@
 import { createRouter, createWebHistory } from "vue-router";
 
 // --- internal
-import routes from "./routes";
+import routes, { CART_OVERLAYS } from "./routes";
 import {
+  registerOverlayRoutes,
   useAssetRecovery,
   useRoutingEngine
 } from "@upmind-automation/client-vue";
@@ -37,8 +38,9 @@ const router = createRouter({
   }
 });
 
-// Overlay routes are registered via useUpmind.initRouter() using the
-// overlays returned from registerFunnels(). No manual call needed here.
+// Register overlay routes synchronously so deep-linked URLs resolve correctly.
+// Must happen before the app mounts (initial navigation).
+registerOverlayRoutes(router, CART_OVERLAYS);
 
 // --- clear retry flag on successful navigation
 router.afterEach(() => {

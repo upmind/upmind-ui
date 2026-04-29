@@ -111,12 +111,6 @@ export type RoutingEngineContext = {
    */
   watchers?: FunnelWatcher[];
 
-  /**
-   * Overlay registry mapping path suffixes to route names.
-   * Used by registerOverlayRoutes() and createEndpointNodes().
-   */
-  overlays?: Record<string, string>;
-
   // ---
   /**
    * An error object encountered by the routing engine.
