@@ -6,7 +6,7 @@ import type { ImgHTMLAttributes } from "vue";
 export type RootVariants = VariantProps<typeof rootVariant>;
 export type ImageVariants = VariantProps<typeof containerVariant>;
 
-export type ImageMode = "auto" | "single" | "carousel";
+export type ImageMode = "auto" | "single" | "carousel" | "grid";
 
 export type ImageProps = {
   mode?: ImageMode;
@@ -24,6 +24,7 @@ export type ImageProps = {
 export type ImageItem = {
   url: string;
   alt: string;
+  previewUrl?: string;
 };
 
 export type CarouselImageProps = {
