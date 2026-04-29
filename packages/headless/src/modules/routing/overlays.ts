@@ -16,7 +16,8 @@ import { pascalCase } from "./utils";
 // --- types
 import type { Router, RouteRecordRaw } from "vue-router";
 import type { AnyEventObject } from "xstate";
-import type { FunnelContext } from "./types";
+import { OverlayType } from "./types";
+import type { FunnelContext, FunnelProps } from "./types";
 
 // -----------------------------------------------------------------------------
 
@@ -36,7 +37,9 @@ const overlayRouteCache = new Map<string, RouteRecordRaw>();
  * @param registry - Map of path suffix to route name (e.g. { "auth/": "overlay-auth" })
  * @returns `{ states, guards, actions }` to merge into funnel config
  */
-export function createEndpointNodes(registry: OverlayRegistry = {}) {
+export function createEndpointNodes(
+  registry: OverlayRegistry = {}
+): NonNullable<FunnelProps["endpoints"]> {
   const overlayIds = keys(registry).map((path: string) =>
     path.replace(/\/$/, "")
   );
@@ -57,7 +60,7 @@ export function createEndpointNodes(registry: OverlayRegistry = {}) {
   // --- guards: endsWith matching (e.g. "basket--auth" matches endpoint:auth)
   const guards = reduce(
     overlayIds,
-    (acc: Record<string, unknown>, id: string) => {
+    (acc: NonNullable<FunnelProps["guards"]>, id: string) => {
       acc[`isEndpoint${pascalCase(id)}`] = (
         { targetRoute }: FunnelContext,
         { data }: AnyEventObject
@@ -69,11 +72,11 @@ export function createEndpointNodes(registry: OverlayRegistry = {}) {
       };
       return acc;
     },
-    {} as Record<string, unknown>
+    {} as NonNullable<FunnelProps["guards"]>
   );
 
   // --- actions: resolveToParent strips the overlay suffix and redirects
-  const actions = {
+  const actions: FunnelProps["actions"] = {
     resolveToParent: assign({
       resolved: true,
       targetRoute: ({ currentRoute, targetRoute }: FunnelContext) => {
@@ -142,13 +145,16 @@ export function registerOverlayRoutes(
       const overlayRoute = overlayRouteCache.get(routeName);
       if (!overlayRoute) return;
 
+      const component = overlayRoute.components?.default;
+      if (!component) return;
+
       router.addRoute(parent.name!, {
         path,
         name: childName,
-        component: overlayRoute.components?.default,
+        component,
         meta: {
           ...overlayRoute.meta,
-          overlay: overlayRoute.meta?.overlay ?? "modal",
+          overlay: overlayRoute.meta?.overlay ?? OverlayType.MODAL,
           overlayId
         }
       });

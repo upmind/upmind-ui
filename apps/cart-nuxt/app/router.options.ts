@@ -39,7 +39,7 @@ const OVERLAY_ROUTES: RouteRecordRaw[] = [
     path: "/auth/",
     name: ROUTE.OVERLAY_AUTH,
     component: () => import("~/pages/overlays/AuthOverlay.vue"),
-    meta: { overlay: OverlayType.DRAWER }
+    meta: { overlay: OverlayType.MODAL }
   },
   {
     path: "/2fa/",
