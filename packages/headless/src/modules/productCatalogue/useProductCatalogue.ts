@@ -49,30 +49,8 @@ export const useProductCatalogue = (
   // --- state
   const { isReady: isBasketReady } = useBasket();
   const { infinite, ...params } = initial || {};
-
-  // Reactive content keys passed to `loadList` so its placeholderData can
-  // keep previous products visible across scope-only key changes (e.g.
-  // basketId on basket creation) and drop them on content changes.
-  const filters = ref<
-    RequestFilters & {
-      "filter[products_category_id]": string;
-      id: string[];
-      promotions: string[];
-      query: string;
-    }
-  >({
-    "filter[products_category_id]": "",
-    id: [],
-    promotions: [],
-    query: ""
-  });
-  const sortKey = ref<QueryProps["sort"]>(params?.sort);
-
   const query = !infinite
-    ? service.loadList(
-        { ...params, withCurrency: true },
-        { filters, sort: sortKey }
-      )
+    ? service.loadList({ ...params, withCurrency: true })
     : service.loadInfinite({ ...params, withCurrency: true });
 
   const meta = computed(() => ({
@@ -130,14 +108,28 @@ export const useProductCatalogue = (
     property?: ProductSortableProperties,
     direction?: RequestSortDirection
   ) => {
-    sortKey.value =
-      !property || isEmpty(property)
-        ? undefined
-        : [direction ?? RequestSortDirection.ASC, property];
-    query.sort(sortKey.value);
+    if (!property || isEmpty(property)) {
+      query.sort();
+    } else {
+      query.sort([direction ?? RequestSortDirection.ASC, property]);
+    }
   };
 
   // --- filters
+
+  const filters = ref<
+    RequestFilters & {
+      "filter[products_category_id]": string;
+      id: string[];
+      promotions: string[];
+      query: string;
+    }
+  >({
+    "filter[products_category_id]": "",
+    id: [],
+    promotions: [],
+    query: ""
+  });
 
   const filterQuery = debounce((value?: string) => {
     set(filters.value, "query", value || "");
