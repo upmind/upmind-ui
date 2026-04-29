@@ -54,9 +54,8 @@
       :style="{ '--details-h': `${height}px` }"
     >
       <ProductImage
-        :class="styles.header.image"
+        :class="styles.header.image.root"
         :product-details="props.productDetails"
-        :images="props.productDetails?.images"
         :fallback="meta.ui.productImageFallback.isVisible"
       />
     </aside>
@@ -79,12 +78,11 @@ import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./product-hero.config";
 
 // --- utils
-import { isEmpty, toNumber } from "lodash-es";
+import { toNumber } from "lodash-es";
 
 // --- types
 import type { ProductHeaderProps } from "./types";
 import type { HeroProps } from "../../../../components/hero/types";
-import type { ImageItem } from "@upmind-automation/upmind-ui";
 
 const props = withDefaults(defineProps<ProductHeaderProps>(), {
   direction: "horizontal",
@@ -94,17 +92,11 @@ const props = withDefaults(defineProps<ProductHeaderProps>(), {
 const stylesMeta = computed(() => ({
   direction: props.direction,
   hasImage:
-    !!(props.productDetails?.imgUrl || !isEmpty(images.value)) && props.image
+    !!(props.productDetails?.imgUrl || props.productDetails?.images?.length) &&
+    props.image
 }));
 
-const styles = useStyles(["header"], stylesMeta, config);
-
-const images = computed(() => {
-  return props.productDetails?.images?.map(image => ({
-    url: image.url,
-    alt: props.productDetails?.title
-  })) as ImageItem[];
-});
+const styles = useStyles(["header", "header.image"], stylesMeta, config);
 
 const detailsRef = ref<HTMLElement | null>(null);
 const { height } = useElementSize(detailsRef);
