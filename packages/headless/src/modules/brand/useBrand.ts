@@ -224,6 +224,7 @@ export const useBrand = () => {
   const hasStorefront = computed(() => {
     // No storefront URL means they need a storefront
     // With a storefront URL, they can enable/disable via catalogueDisabled
+    // NB you can only disable the catalogue if you have given us a storefront URL to redirect to, otherwise you would brick your store
     return !storefrontUrl.value || !config.data.catalogueDisabled;
   });
 
