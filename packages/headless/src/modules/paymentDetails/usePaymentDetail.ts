@@ -89,20 +89,48 @@ export const usePaymentDetail = (
     );
   }
 
+  /**
+   * Derived payment metadata.
+   *
+   * Combines payment DATA flags (from usePaymentState) with machine
+   * PROCESSING state (loading, available, etc.) and VISIBILITY logic.
+   *
+   * ## Visibility scenarios
+   *
+   * | Scenario                       | showSection | showGateways | showStored | showActions | isComplete |
+   * |--------------------------------|-------------|--------------|------------|-------------|------------|
+   * | Normal order, no selection     | ✅          | ✅           | ✅*        | ❌          | ❌         |
+   * | Normal order, gateway selected | ✅          | ❌           | ❌         | ✅          | ❌         |
+   * | Free, no capture needed        | ❌          | ❌           | ❌         | ✅          | ✅         |
+   * | Free, capture needed           | ✅          | ✅           | ✅*        | ❌          | ❌         |
+   * | ADD context (save card)        | ✅          | ✅           | ❌         | ❌          | ❌         |
+   * | Wallet fully covers            | ✅          | ❌           | ❌         | ✅          | ❌         |
+   *
+   * *showStored only when stored methods exist.
+   */
   const meta = computed(() => {
-    // --- gateway
+    // =========================================================================
+    // SECTION 1: Context values (from machine context, not machine state)
+    // =========================================================================
+
+    // --- gateway context
     const hasSelectedGateway = contextMatches(actor, ["gatewayHelper"]);
     const hasGateways = !isEmpty(gateways.value);
 
-    // --- payment
+    // --- payment context
     const ctx = contextValue<GatewayContext>(actor, "ctx");
     const isPayContext = ctx == GatewayContext.PAY;
-    const requirePaymentForFreeOrders = contextMatches(
+    const requirePaymentForFreeOrders = !!contextValue(
       actor,
       "requirePaymentForFreeOrders"
     );
 
-    // --- state (isRefreshing computed first — usePaymentState needs it)
+    // =========================================================================
+    // SECTION 2: Machine processing state (stateMatches / stateValue)
+    // =========================================================================
+
+    // --- refreshing: gateways exist but machine is re-loading or re-checking
+    // Must be computed before usePaymentState because it's a parameter.
     const isRefreshing =
       hasGateways &&
       (stateMatches(actor, ["loading"]) ||
@@ -110,25 +138,37 @@ export const usePaymentDetail = (
           (!isPayable(model.value, requirePaymentForFreeOrders, ctx) ||
             !hasAmount(model.value, ctx))));
 
-    // Backfill amount & wallet_amount from context when model is empty.
-    // During transient states (currency refresh, initial load) the model
-    // is cleared while context-level amounts persist. Without this,
-    // usePaymentState would see undefined amounts and incorrectly report
-    // isFree / needsPayment, causing the payment section to flash.
-    const { hasSelectedPaymentMethod, isFree, isPayLater, needsPayment } =
-      usePaymentState(
-        defaultsDeep(model.value, {
-          amount: amount.value,
-          wallet_amount: amountWallet.value
-        } as Partial<PaymentDetailModel>),
-        ctx,
-        requirePaymentForFreeOrders,
-        isRefreshing
-      );
+    // =========================================================================
+    // SECTION 3: Payment data flags (from usePaymentState)
+    // All flags here are derived from model + context DATA, not machine state.
+    // See usePaymentState JSDoc for the full scenario table.
+    // =========================================================================
+    const {
+      hasAccountCredit,
+      hasSelectedPaymentMethod,
+      isFree,
+      isPayLater,
+      needsPayment
+    } = usePaymentState(
+      defaultsDeep(model.value, {
+        amount: amount.value,
+        wallet_amount: amountWallet.value
+      } as Partial<PaymentDetailModel>),
+      ctx,
+      requirePaymentForFreeOrders,
+      isRefreshing,
+      accountCredit.value?.total?.value
+    );
 
-    // --- payment methods
+    // =========================================================================
+    // SECTION 4: Context-derived flags (need actor context, not machine state)
+    // These can't move to usePaymentState without widening its interface.
+    // =========================================================================
+
+    // --- payment methods (from actor context lookups)
     const hasStoredPaymentMethods = !isEmpty(storedPaymentMethods.value);
 
+    // --- machine state flags
     const isAvailable =
       !!actor.value &&
       (stateMatches(actor, ["available", "processing"]) || isRefreshing);
@@ -138,100 +178,131 @@ export const usePaymentDetail = (
       stateMatches(actor, ["loading", "restoring", "finalising"]) ||
       isRefreshing;
 
-    return {
-      // --- state
-      hasErrors: !isEmpty(errors.value),
-      isAvailable,
-      isDirty: !isEmpty(
-        contextValue<PaymentDetailsContext["model"]>(actor, "model")
-      ),
-      isLoading,
-      isProcessing:
-        stateMatches(actor, [
-          "checking",
-          "processing",
-          "finalising",
-          "restoring"
-        ]) || isRefreshing,
-      isRefreshing,
-      isValid: gateway.value
-        ? stateMatches(gateway.value, ["available.valid"])
-        : stateMatches(actor, ["available.valid"]),
+    const isProcessing =
+      stateMatches(actor, [
+        "checking",
+        "processing",
+        "finalising",
+        "restoring"
+      ]) || isRefreshing;
 
-      // --- gateway
+    const isValid = gateway.value
+      ? stateMatches(gateway.value, ["available.valid"])
+      : stateMatches(actor, ["available.valid"]);
+
+    // --- payment flags (need actor context values)
+    const canMakePartialPayment =
+      isPayContext &&
+      some(
+        contextValue<PaymentType[]>(actor, "lookups.paymentTypes", []),
+        value => value === PaymentType.PARTIAL_PAYMENT
+      );
+
+    // Complete when: order is free (no capture needed), OR machine reached done/processed.
+    const isComplete =
+      isFree ||
+      stateValue(actor, "done", false) ||
+      stateMatches(actor, ["processed", "complete"]);
+
+    // Offline when: pay later, gateway unsupported, or gateway type is offline.
+    const isPayOffline =
+      isPayLater ||
+      contextMatches(gateway, "supported", false) ||
+      stateMatches(gateway, ["unavailable"]) ||
+      includes(
+        [GatewayTypes.OFFLINE, GatewayTypes.BANK_TRANSFER],
+        contextValue(gateway, "gateway.type")
+      );
+
+    // Settlement: PAY context with an existing paid amount (top-up / renewal).
+    const isSettlement = isPayContext && contextMatches(actor, ["paidAmount"]);
+
+    // Some stored methods were filtered out (unsupported by current gateway).
+    const hasUnsupportedPaymentMethods =
+      (contextValue<PaymentDetail[]>(actor, ["raw.storedPaymentMethods"])
+        ?.length ?? 0) < (storedPaymentMethods.value?.length ?? 0);
+
+    // =========================================================================
+    // SECTION 5: Visibility flags
+    // These combine payment data + machine state to drive UI display.
+    // =========================================================================
+
+    // SHOW gateway list when payment is needed and user hasn't picked one yet.
+    // HIDE gateways when free + stored methods exist — user picks existing card.
+    const showGatewaySelection =
+      needsPayment &&
+      hasGateways &&
+      !hasSelectedGateway &&
+      !(isFree && hasStoredPaymentMethods);
+
+    // SHOW action buttons when no payment needed (free/wallet-covered),
+    // or when user has selected a gateway or stored method to proceed with.
+    const showPaymentActions =
+      !needsPayment ||
+      hasSelectedGateway ||
+      hasSelectedPaymentMethod ||
+      (isRefreshing && hasStoredPaymentMethods);
+
+    // SHOW the whole payment section unless order is truly free (nothing to do).
+    // Free + requirePaymentForFreeOrders → section shows for card capture.
+    const showPaymentSection =
+      isAvailable && (!isFree || !isPayContext || requirePaymentForFreeOrders);
+
+    // SHOW stored methods when user needs to pick, methods exist, and no
+    // gateway is already selected.
+    const showStoredPaymentMethods =
+      needsPayment &&
+      hasStoredPaymentMethods &&
+      !hasSelectedGateway &&
+      isAvailable;
+
+    // =========================================================================
+    // SECTION 6: Misc flags
+    // =========================================================================
+
+    const hasErrors = !isEmpty(errors.value);
+
+    // Single gateway: auto-select it (unless pay later is also an option).
+    const hasSingleGateway =
+      size(gateways.value) === 1 &&
+      !includes(paymentTypes.value, PaymentType.PAY_LATER);
+
+    const isDirty = !isEmpty(
+      contextValue<PaymentDetailsContext["model"]>(actor, "model")
+    );
+
+    const isUnavailable =
+      !gateway.value || stateMatches(gateway.value, ["unavailable"]);
+
+    // --- return (references only — no logic here)
+    return {
+      canMakePartialPayment,
+      hasAccountCredit,
+      hasErrors,
       hasGateways,
       hasSelectedGateway,
-      hasSingleGateway:
-        size(gateways.value) === 1 &&
-        !includes(paymentTypes.value, PaymentType.PAY_LATER),
-      isUnavailable:
-        !gateway.value || stateMatches(gateway.value, ["unavailable"]),
-
-      // --- payment
-      canMakePartialPayment:
-        isPayContext &&
-        some(
-          contextValue<PaymentType[]>(actor, "lookups.paymentTypes", []),
-          value => value === PaymentType.PARTIAL_PAYMENT
-        ),
-      hasAccountCredit: isPayContext && gt(accountCredit.value?.total.value, 0),
-      isComplete:
-        isFree ||
-        stateValue(actor, "done", false) ||
-        stateMatches(actor, ["processed", "complete"]),
-      isFree,
-      isPayLater,
-      isPayOffline:
-        isPayLater ||
-        contextMatches(gateway, "supported", false) ||
-        stateMatches(gateway, ["unavailable"]) ||
-        includes(
-          [GatewayTypes.OFFLINE, GatewayTypes.BANK_TRANSFER],
-          contextValue(gateway, "gateway.type")
-        ),
-      isSettlement: isPayContext && contextMatches(actor, ["paidAmount"]),
-      needsPayment,
-
-      // --- payment methods
       hasSelectedPaymentMethod,
+      hasSingleGateway,
       hasStoredPaymentMethods,
-      hasUnsupportedPaymentMethods:
-        (contextValue<PaymentDetail[]>(actor, ["raw.storedPaymentMethods"])
-          ?.length ?? 0) < (storedPaymentMethods.value?.length ?? 0),
-
-      // --- visibility
-      showGatewaySelection:
-        needsPayment &&
-        hasGateways &&
-        !hasSelectedGateway &&
-        !(isFree && hasStoredPaymentMethods),
-
-      // SHOW if payment is NOT needed (free) to allow checkout without gateway or payment method
-      // OR if a gateway is selected
-      // OR if a existing payment method is selected
-      // OR if refreshing AND there are stored payment methods (so user can still act)
-      showPaymentActions:
-        !needsPayment ||
-        hasSelectedGateway ||
-        hasSelectedPaymentMethod ||
-        (isRefreshing && hasStoredPaymentMethods),
-
-      // SHOW if payment details are available AND NOT free (or in ADD context)
-      showPaymentSection:
-        isAvailable &&
-        (!isFree || !isPayContext || requirePaymentForFreeOrders),
-
-      // SHOW if payment is needed
-      // AND stored methods exist
-      // AND gateway is NOT selected
-      // AND payment details are available
-      showStoredPaymentMethods:
-        needsPayment &&
-        hasStoredPaymentMethods &&
-        !hasSelectedGateway &&
-        isAvailable,
-
-      isPayContext
+      hasUnsupportedPaymentMethods,
+      isAvailable,
+      isComplete,
+      isDirty,
+      isFree,
+      isLoading,
+      isPayContext,
+      isPayLater,
+      isPayOffline,
+      isProcessing,
+      isRefreshing,
+      isSettlement,
+      isUnavailable,
+      isValid,
+      needsPayment,
+      showGatewaySelection,
+      showPaymentActions,
+      showPaymentSection,
+      showStoredPaymentMethods
     };
   });
 
