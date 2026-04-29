@@ -421,6 +421,7 @@ export const useRoutingEngine = () => {
     // --- context
     router,
     errors,
+    currentRoute: computed(() => router?.currentRoute.value),
 
     //  --- methods
     init: (instance: Router) => (router ??= instance),
