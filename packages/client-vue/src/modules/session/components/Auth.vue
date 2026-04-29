@@ -232,24 +232,28 @@ const twoFactorActions = computed(() => {
 });
 
 function toggleForm(type: SessionProps["modelValue"]) {
-  // if (meta.value.isAuthenticated) return;
-
   if (!meta.value.canShowForms) return;
 
   switch (type) {
     case "login":
       if (!meta.value.showLoginForm) {
-        showLogin().then(() => (modelValue.value = "login"));
+        showLogin().then(() => {
+          if (modelValue.value !== "login") modelValue.value = "login";
+        });
       }
       break;
     case "register":
       if (!meta.value.showRegisterForm) {
-        showRegister().then(() => (modelValue.value = "register"));
+        showRegister().then(() => {
+          if (modelValue.value !== "register") modelValue.value = "register";
+        });
       }
       break;
     case "recover":
       if (!meta.value.showRecoverPasswordForm) {
-        showRecoverPassword().then(() => (modelValue.value = "recover"));
+        showRecoverPassword().then(() => {
+          if (modelValue.value !== "recover") modelValue.value = "recover";
+        });
       }
       break;
   }
@@ -294,9 +298,10 @@ watch(
   meta,
   (
     { canShowForms, isAuthenticated },
-    { isAuthenticated: wasAuthenticated }
+    { isAuthenticated: wasAuthenticated, canShowForms: couldShowForms }
   ) => {
-    if (canShowForms) toggleForm(modelValue.value);
+    // Only toggle on initial canShowForms becoming true, not on every meta change
+    if (canShowForms && !couldShowForms) toggleForm(modelValue.value);
     // NB ensure we only emit resolve when the user has just logged in
     if (isAuthenticated && !wasAuthenticated) {
       emit("resolve", model.value);
