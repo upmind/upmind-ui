@@ -132,9 +132,7 @@ export function useDomainRegistrant() {
     billing: Address | Company,
     bpids?: string[]
   ): Promise<void> {
-    debugger;
     send({ type: "APPLY_BILLING", data: { billing, bpids } });
-    debugger;
     return waitFor(
       service,
       state =>
