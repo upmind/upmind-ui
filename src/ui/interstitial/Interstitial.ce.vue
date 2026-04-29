@@ -7,7 +7,7 @@
     :fit="fit"
     :to="to"
     no-header
-    :dismissible="props.dismissible"
+    :dismissable="props.dismissable"
     no-footer
     @update:open="onDialogClose"
   >
@@ -85,7 +85,7 @@ const props = withDefaults(defineProps<InterstitialProps>(), {
     secondaryColor: "secondary",
     size: "4xl"
   }),
-  dismissible: false
+  dismissable: false
 });
 
 const emit = defineEmits(["reject"]);
