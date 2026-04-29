@@ -23,7 +23,7 @@
       >
         <slot name="header">
           <DialogClose
-            v-if="dismissable"
+            v-if="dismissible"
             iconOnly
             @click="forceClose"
             class="absolute top-0 right-0 m-4"
@@ -99,7 +99,7 @@ import type { DialogRootEmits, DialogContentEmits } from "radix-vue";
 const props = withDefaults(defineProps<DialogProps>(), {
   // --- props
   open: false,
-  dismissable: true,
+  dismissible: true,
   noFooter: false,
   title: "",
   description: "",
@@ -138,7 +138,7 @@ const forwardedContent = useForwardPropsEmits(
     "asChild",
     "as",
     "to",
-    "dismissable"
+    "dismissible"
   ]),
   emits
 );
@@ -148,7 +148,7 @@ const meta = computed(() => ({
   size: props.size,
   overflow: props.overflow,
   fit: props.fit,
-  hasDefaultClose: props.dismissable && !props.noFooter
+  hasDefaultClose: props.dismissible && !props.noFooter
 }));
 
 const styles = useStyles(["dialog"], meta, config, props.uiConfig ?? {});
@@ -163,7 +163,7 @@ const { handlePointerEvents } = usePointerEvents(value, props.to);
 
 const onOpen = (open: boolean, force: boolean = false) => {
   // Allow opening freely. Only guard closing.
-  if (!open && !props.dismissable && !force) return;
+  if (!open && !props.dismissible && !force) return;
   value.value = open;
   emits("update:open", open);
   nextTick(() => handlePointerEvents(open));

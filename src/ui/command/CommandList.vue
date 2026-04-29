@@ -20,7 +20,7 @@ const props = withDefaults(
     }
   >(),
   {
-    dismissable: false
+    dismissible: false
   }
 );
 const emits = defineEmits<ComboboxContentEmits>();

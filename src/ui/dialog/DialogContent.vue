@@ -15,7 +15,7 @@ import { cn } from "../../utils";
 const props = defineProps<
   DialogContentProps &
     DialogPortalProps & {
-      dismissable?: boolean;
+      dismissible?: boolean;
       class?: HTMLAttributes["class"];
       classOverlay?: HTMLAttributes["class"];
     }
@@ -52,7 +52,7 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits);
       <slot />
 
       <DialogClose
-        v-if="props.dismissable"
+        v-if="props.dismissible"
         class="ring-offset-core-canvas focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground absolute top-4 right-4 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:pointer-events-none"
       />
     </DialogContent>

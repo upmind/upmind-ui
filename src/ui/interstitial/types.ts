@@ -27,7 +27,7 @@ export type InterstitialProps = {
   // ---
   actions?: InterstitialActionProps[];
   /** Whether the modal can be dismissed via Esc key. Defaults to false. */
-  dismissable?: boolean;
+  dismissible?: boolean;
   // ---
   size?: DialogProps["size"];
   fit?: DialogProps["fit"];
