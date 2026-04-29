@@ -6,3 +6,6 @@ export { default as Drawer } from "./Drawer.ce.vue";
 import DrawerCE from "./Drawer.ce.vue";
 
 export const UpmDrawer = defineCustomElement(DrawerCE);
+
+// --- types
+export * from "./types";
