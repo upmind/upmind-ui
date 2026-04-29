@@ -37,7 +37,6 @@ const mode = ref(
 
 /** Emit close on auth success — OverlayController handles drawer close + navigation */
 function onAuthComplete(): void {
-  debugger;
   emit("close");
 }
 </script>
