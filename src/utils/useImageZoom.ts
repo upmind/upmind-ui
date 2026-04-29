@@ -19,9 +19,7 @@ export function useImageZoom(imageRef: Ref<HTMLImageElement | null>) {
     transform: `translate(${translate.value.x}px, ${translate.value.y}px) scale(${scale.value})`,
     transformOrigin: "center center",
     transition:
-      isPinching.value || isDragging.value
-        ? "none"
-        : "transform 0.2s ease-out",
+      isPinching.value || isDragging.value ? "none" : "transform 0.2s ease-out",
     cursor: isZoomed.value
       ? isDragging.value
         ? "grabbing"
