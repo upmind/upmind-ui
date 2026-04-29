@@ -261,7 +261,7 @@ export default <FunnelProps>{
      */
     [ROUTE.BASKET_UNAVAILABLE]: {
       meta: { next: ROUTE.CATALOGUE, prev: ROUTE.CATALOGUE },
-      entry: ["clearBasket", "setResolved"]
+      entry: ["setResolved"]
     },
 
     /**
