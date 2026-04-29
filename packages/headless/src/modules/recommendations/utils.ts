@@ -11,6 +11,7 @@ import {
 // --- utils
 import {
   compact,
+  concat,
   defaultsDeep,
   filter,
   find,
@@ -30,10 +31,11 @@ import { useTranslateField, useTranslateName, useImageUrl } from "../../utils";
 // --- types
 import { ProductTypes } from "@upmind-automation/types";
 import type { IBasket, IBasketProduct } from "@upmind-automation/types";
-import type {
-  Recommendation,
-  RelatedProduct,
-  RecommendationVisibility
+import {
+  RECOMMENDATION_MATCH_LEVEL,
+  type Recommendation,
+  type RelatedProduct,
+  type RecommendationVisibility
 } from "./types";
 import { UIContext, type Badge, type Benefit } from "../config/schema";
 import { calculateBillingTerm } from "../product/utils";
@@ -51,7 +53,9 @@ import {
 // ---------------------------------------------------------------------------
 
 function parseProductsToRecommend(
-  basketProduct: IBasketProduct
+  basketProduct: IBasketProduct,
+  basketProducts: IBasketProduct[],
+  basket: IBasket
 ): RelatedProduct[] {
   // safe check : dont include recommendations for products that are not single products
   if (basketProduct?.product?.product_type !== ProductTypes.SINGLE_PRODUCT) {
@@ -80,9 +84,12 @@ function parseProductsToRecommend(
     : [];
 
   // Combine and process all recommendations
-  const allRecommendations = [...dataRecommendations, ...nativeRecommendations];
+  const allRecommendations = concat<Record<string, any>>(
+    dataRecommendations,
+    nativeRecommendations
+  );
 
-  return map(allRecommendations, recommendation => {
+  const mapped = map(allRecommendations, recommendation => {
     const related = {
       ...recommendation,
       product_id: get(recommendation, "product_id", basketProduct.product_id)
@@ -90,6 +97,16 @@ function parseProductsToRecommend(
     related.id = ensureId(related);
     return related;
   });
+
+  // Filter at source so hidden recommendations don't leak into raw.related
+  // (and therefore don't reach pushViewRecommendations or setSeen).
+  // Order matches the design doc: checkInBasket → checkConditionVisibility.
+  return filter(
+    mapped,
+    rec =>
+      !checkInBasket(rec, basketProducts) &&
+      checkConditionVisibility(rec, basket)
+  );
 }
 
 /**
@@ -107,7 +124,7 @@ export function parseRelatedProducts(raw: IBasket): RelatedProduct[] {
     if (basketProduct?.product?.product_type !== ProductTypes.SINGLE_PRODUCT) {
       return [];
     }
-    return parseProductsToRecommend(basketProduct);
+    return parseProductsToRecommend(basketProduct, products, raw);
   });
 }
 
@@ -120,11 +137,12 @@ export function parseRelatedProducts(raw: IBasket): RelatedProduct[] {
  */
 export function parseRelationships(raw: IBasket): Record<string, string[]> {
   const relationships: Record<string, string[]> = {};
+  const products = get(raw, "products", []) as IBasketProduct[];
 
-  forEach(raw?.products, product => {
+  forEach(products, product => {
     if (product.product.product_type !== ProductTypes.SINGLE_PRODUCT) return;
 
-    forEach(parseProductsToRecommend(product), related => {
+    forEach(parseProductsToRecommend(product, products, raw), related => {
       relationships[related.id] ??= [];
       if (!includes(relationships[related.id], product.id)) {
         relationships[related.id].push(product.id);
@@ -142,30 +160,7 @@ export function parseAddedProducts(
   return reduce(
     related,
     (result: string[], item: RelatedProduct) => {
-      // We considdr a product to be in the basket if it matches
-      // the product_id
-      // the billing_cycle_months (if specified)
-      // the sub_pids (if specified
-      const inBasket = some(products, product => {
-        const productMatches =
-          product.product_id == item.object_id && item.object_type == "product";
-
-        const bcmMatches =
-          !item?.config?.bcm || item.config.bcm == product.billing_cycle_months;
-
-        const subproductsMatch =
-          isEmpty(item?.config?.sub_pids) ||
-          some(product.options, option => {
-            return includes(item.config?.sub_pids, option.product_id);
-          }) ||
-          some(product.attributes, attribute => {
-            return includes(item.config?.sub_pids, attribute.product_id);
-          });
-
-        return productMatches && bcmMatches && subproductsMatch;
-      });
-
-      if (inBasket) result.push(item.id);
+      if (checkInBasket(item, products)) result.push(item.id);
       return result;
     },
     []
@@ -199,32 +194,35 @@ export function checkInBasket(
   recommendation: RelatedProduct,
   products: IBasketProduct[]
 ): boolean {
-  // We considdr a product to be in the basket if it matches
-  // the product_id
-  // the billing_cycle_months (if specified)
-  // the sub_pids (if specified
-  const inBasket = some(products, product => {
+  const matchLevel =
+    recommendation.matchLevel ?? RECOMMENDATION_MATCH_LEVEL.PRODUCT_ID;
+
+  return some(products, product => {
     const productMatches =
       product.product_id == recommendation.object_id &&
       recommendation.object_type == "product";
 
+    if (!productMatches) return false;
+
+    // product_id mode: any variant of the product counts as a match.
+    if (matchLevel === RECOMMENDATION_MATCH_LEVEL.PRODUCT_ID) return true;
+
+    // product_config mode: also require bcm + sub_pids alignment.
     const bcmMatches =
       !recommendation?.config?.bcm ||
       recommendation.config.bcm == product.billing_cycle_months;
 
     const subproductsMatch =
       isEmpty(recommendation?.config?.sub_pids) ||
-      some(product.options, option => {
-        return includes(recommendation.config?.sub_pids, option.product_id);
-      }) ||
-      some(product.attributes, attribute => {
-        return includes(recommendation.config?.sub_pids, attribute.product_id);
-      });
+      some(product.options, option =>
+        includes(recommendation.config?.sub_pids, option.product_id)
+      ) ||
+      some(product.attributes, attribute =>
+        includes(recommendation.config?.sub_pids, attribute.product_id)
+      );
 
-    return productMatches && bcmMatches && subproductsMatch;
+    return bcmMatches && subproductsMatch;
   });
-
-  return inBasket;
 }
 
 /*
