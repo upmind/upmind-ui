@@ -141,6 +141,20 @@ export const useBasketProductsPending = () => {
   }
 
   /**
+   * Surface a transient "Added" confirmation for `RECENTLY_ADDED_MS` so
+   * observers reading `meta.isRecentlyAdded(pid)` can show a brief badge.
+   * Called from the actor-subscription `complete`/`done` branch — the point
+   * at which the basket has accepted the add. Configure-flow's explicit
+   * `resolve(pendingProduct)` call doesn't go through subscribe, so this
+   * fires only for the synced/auto-update lifecycle (preventing the badge
+   * from leaking onto catalogue cards after a configure-step submission).
+   */
+  function markRecentlyAdded(pid: ProductProps["productId"]) {
+    set(recentlyAdded.value, pid, true);
+    setTimeout(() => unset(recentlyAdded.value, pid), RECENTLY_ADDED_MS);
+  }
+
+  /**
    * Ensures a product configuration exists and is ready. If it doesn't exist or `force` is true,
    * it adds the product. It then waits for the product's service to become available or error.
    *
@@ -220,6 +234,7 @@ export const useBasketProductsPending = () => {
             setProduct(pid, get(state, "context.model"));
           } else if (stateMatches(state, ["complete", "done"])) {
             resolve(pid);
+            markRecentlyAdded(pid);
           }
         });
         set(subscriptions, pid, subscription);
@@ -365,9 +380,6 @@ export const useBasketProductsPending = () => {
       // as we have successfully added our config we can remove it from storage
       unset(productConfigs, pid);
       storage.set("pendingProducts", productConfigs);
-      // mark transiently added so cards can surface an "Added" confirmation
-      set(recentlyAdded.value, pid, true);
-      setTimeout(() => unset(recentlyAdded.value, pid), RECENTLY_ADDED_MS);
     }
 
     // NB ensure any complete products are removed from the pending products
