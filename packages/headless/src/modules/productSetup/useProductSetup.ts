@@ -1,6 +1,7 @@
 // --- external
 import { computed, ref, watch } from "vue";
 import {
+  defaultsDeep,
   filter,
   find,
   first,
@@ -19,16 +20,29 @@ import { useBasket } from "../basket";
 import {
   useBasketProduct,
   useBasketProducts,
-  type BasketProduct
+  type BasketProduct,
+  type UseBasketProduct
 } from "../basketProduct";
+import basketProductServices from "../basketProduct/services";
+
 import { useConfig } from "../config";
-import { contextValue, useModelParser, type ErrorObject } from "../../utils";
+import {
+  compactDeep,
+  contextValue,
+  DetailedError,
+  ErrorOrigin,
+  isDeepEmpty,
+  responseCodes,
+  useModelParser,
+  type ErrorObject
+} from "../../utils";
 import { basketProductRequiresSetup } from "./utils";
 
 // --- types
 import type { ActorRef } from "xstate";
 import { UIContext } from "../config/schema/types";
 import type { ProductModel } from "../product/types";
+import { useI18n } from "../system";
 
 // -----------------------------------------------------------------------------
 /**
@@ -53,6 +67,16 @@ export function useProductSetup() {
   const { configure } = useBasketProducts();
   const { ui } = useConfig({ context: UIContext.CHECKOUT });
 
+  // --- state
+  // Current basket product ID being configured
+  const currentBpId = ref<string>();
+
+  // Snapshot of invalidSchema at configure time (before user fills form)
+  const initialInvalidSchema = ref<object>();
+
+  // Selected product IDs for "apply to similar" - user can toggle via checkboxes
+  const selectedProducts = ref<string[]>([]);
+
   // --- context
   const products = computed((): BasketProduct[] => {
     const mode = ui.productSetup.value;
@@ -60,10 +84,6 @@ export function useProductSetup() {
       basketProductRequiresSetup(bp, mode)
     );
   });
-
-  const currentProduct = computed(() =>
-    find(basketProducts.value, { id: currentBpId.value })
-  );
 
   const total = computed(() => size(products.value));
 
@@ -83,7 +103,8 @@ export function useProductSetup() {
 
     // Find other products requiring setup with any overlapping error paths
     return filter(basketProducts.value, bp => {
-      if (bp.id === current.id) return false;
+      if (bp.id === currentBpId.value) return false;
+      if (bp.serviceIdentifier === current.serviceIdentifier) return false;
       if (!basketProductRequiresSetup(bp, mode)) return false;
 
       const bpErrors = get(bp, "errors", []) as ErrorObject[];
@@ -92,13 +113,6 @@ export function useProductSetup() {
       );
     });
   });
-
-  // --- state
-  // Current basket product ID being configured
-  const currentBpId = ref<string>();
-
-  // Selected product IDs for "apply to similar" - user can toggle via checkboxes
-  const selectedProducts = ref<string[]>([]);
 
   // --- meta
   const meta = computed(() => ({
@@ -115,29 +129,57 @@ export function useProductSetup() {
    * Apply model data to selected similar products.
    * Uses target product's invalidSchema to strip model to only overlapping invalid fields.
    */
-  async function apply(model: Partial<ProductModel>): Promise<void> {
-    const updates = map(selectedProducts.value, async id => {
-      const bp = useBasketProduct(id);
-      const targetInvalidSchema = bp.invalidSchema?.value;
 
-      if (!targetInvalidSchema) return;
+  function apply(model: Partial<ProductModel>): Promise<unknown> {
+    const { t } = useI18n();
 
-      // Strip model to only fields TARGET product needs
-      const overlappingModel = useModelParser(
-        targetInvalidSchema,
-        model,
-        {},
-        { allowExtraProps: false }
+    const { basketId } = useBasket();
+
+    // Get basket products for all selected + current IDs
+    const productsToUpdate = filter(basketProducts.value, bp =>
+      includes([currentBpId.value, ...selectedProducts.value], bp.id)
+    );
+
+    if (isEmpty(productsToUpdate))
+      throw new DetailedError(
+        t("error.basket_product_not_found"),
+        responseCodes.Not_Found,
+        ErrorOrigin.Headless
       );
 
-      if (isEmpty(overlappingModel)) return;
+    // Build models array - use initialInvalidSchema captured at configure time
+    const delta = initialInvalidSchema.value
+      ? useModelParser(
+          initialInvalidSchema.value,
+          model,
+          {},
+          { allowExtraProps: false }
+        )
+      : model;
 
-      await bp.setConfig(overlappingModel);
-      return bp.update();
+    const models = map(productsToUpdate, bp => {
+      // const bpInstance = useBasketProduct(bp.id);
+      // const targetInvalidSchema = bpInstance.invalidSchema?.value;
+
+      // Strip model to only fields this product needs
+      // const overlappingModel = targetInvalidSchema
+      //   ? useModelParser(
+      //       targetInvalidSchema,
+      //       delta,
+      //       {},
+      //       { allowExtraProps: false }
+      //     )
+      //   : {};
+      // debugger;
+      return defaultsDeep(compactDeep(bp.configuration), delta);
     });
 
-    await Promise.allSettled(updates);
-    selectedProducts.value = [];
+    debugger;
+    return basketProductServices
+      .updateMany(basketId.value, productsToUpdate, models)
+      .finally(() => {
+        selectedProducts.value = [];
+      });
   }
 
   function getNextInvalid(actor?: ActorRef<any>): BasketProduct | undefined {
@@ -188,13 +230,18 @@ export function useProductSetup() {
     // --- context
     /** Configure a specific basket product for setup. Pass the bpid from route params. */
     configure: (bpid: BasketProduct["id"]) => {
-      return configure(bpid, { allowMultipleEdits: true }).finally(() => {
-        currentBpId.value = bpid;
-        selectedProducts.value = map(similarProducts.value, "id");
+      return configure(bpid, {
+        allowMultipleEdits: true
+      }).then(config => {
+        // Capture invalidSchema now, before user fills the form
+        config.isReady().then(() => {
+          currentBpId.value = bpid;
+          initialInvalidSchema.value = config.invalidSchema?.value;
+          selectedProducts.value = map(similarProducts.value, "id");
+        });
+        return config;
       });
     },
-    /** The first product requiring setup. Use this to display the current product to fix. */
-    currentProduct,
     /** All products requiring setup (invalid or deferred based on config mode). */
     products,
     /** Selected product IDs for "apply to others" - defaults to all products. */

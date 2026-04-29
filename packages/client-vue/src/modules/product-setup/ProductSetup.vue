@@ -182,13 +182,7 @@ const { basketProductId } = useQueryParams();
 const { apply, configure, selectedProducts, similarProducts, total } =
   useProductSetup();
 
-const {
-  stop,
-  update,
-  service: basketProduct,
-  onDone,
-  isReady
-} = await configure(basketProductId);
+const { service: basketProduct, isReady } = await configure(basketProductId);
 
 const productConfig = useProductConfig(basketProduct);
 
@@ -205,6 +199,7 @@ const {
   model,
   product,
   schema,
+  invalidSchema,
   invalidUischema,
   externalErrors,
   validationErrors,
@@ -241,10 +236,16 @@ const currentProductTitle = computed(
 // --- Actions
 async function doResolve() {
   // Update current product and apply to selected others
-  await update()
-    .then(() => apply(model.value ?? {}))
-    .then(() => navigateNext())
+
+  if (productMeta.value.isInvalid) return;
+
+  return apply(model.value ?? {})
+    .then(() => {
+      debugger;
+      navigateNext();
+    })
     .catch(() => {
+      debugger;
       // noop, errors are handled by headless and exposed via `externalErrors` and `validationErrors`
     });
 }

@@ -33,7 +33,6 @@ async function applyToBasket(
 
   const isProvision = type === DomainRegistrantEventType.APPLY_PROVISION;
 
-  debugger;
   const updates = map(selectedProducts, product => {
     const basketProduct = useBasketProduct(product.id);
     const existing = basketProduct.model.value?.provisionFields;
@@ -46,9 +45,7 @@ async function applyToBasket(
       .setProvisioningFields(dataToApply)
       .then(() => basketProduct.update());
   });
-  debugger;
   return Promise.allSettled(updates).then(results => {
-    debugger;
     return results;
   });
 }

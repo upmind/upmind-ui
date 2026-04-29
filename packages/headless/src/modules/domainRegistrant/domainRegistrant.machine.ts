@@ -77,9 +77,6 @@ export default createMachine(
             ]
           },
           processing: {
-            entry: () => {
-              debugger;
-            },
             invoke: {
               src: "applyToBasket",
               onDone: {
