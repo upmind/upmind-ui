@@ -59,10 +59,15 @@ function injectBid(route: any): any {
   // Skip routes that don't support bid params
   if (SKIP_BID_ROUTES.includes(route.name)) return route;
 
+  const { currentRoute } = useRoutingEngine();
   const { targetBasketId, setTargetBasket, meta } = useBasket();
-
-  // If the basket is unavailable, don't inject bid — let user navigate freely
-  if (meta.value.isUnavailable) {
+  // If navigating FROM unavailable, don't inject bid — let user navigate freely
+  // NB: Clear targetBasketId to prevent subsequent navigations from re-injecting it
+  if (
+    currentRoute.value.name === ROUTE.BASKET_UNAVAILABLE ||
+    meta.value.isUnavailable
+  ) {
+    setTargetBasket(undefined);
     return route;
   }
 

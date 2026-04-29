@@ -59,8 +59,20 @@ function injectBid(route: any): any {
   // Skip routes that don't support bid params
   if (SKIP_BID_ROUTES.includes(route.name)) return route;
 
+  const { currentRoute } = useRoutingEngine();
   const { targetBasketId, setTargetBasket, meta } = useBasket();
   const { getParam } = useQueryParams(route);
+
+  // If navigating FROM unavailable, don't inject bid — let user navigate freely
+  // (isUnavailable may already be false due to reset() being called before navigation)
+  // Clear targetBasketId to prevent subsequent navigations from re-injecting it
+  if (
+    currentRoute.value.name === ROUTE.BASKET_UNAVAILABLE ||
+    meta.value.isUnavailable
+  ) {
+    setTargetBasket(undefined);
+    return route;
+  }
 
   // Read bid: getParam first (via query), then basket machine state
   const bid: string | undefined = getParam(
@@ -72,13 +84,8 @@ function injectBid(route: any): any {
 
   // Prime the basket machine to load orders/{bid}.
   // SET_TARGET_BASKET has an isAuthenticated guard — no-op when not logged in.
-  if (targetBasketId.value !== bid && !meta.value.isUnavailable) {
+  if (targetBasketId.value !== bid) {
     setTargetBasket(bid);
-  }
-
-  // If the basket is unavailable, redirect to the unavailable route
-  if (meta.value.isUnavailable) {
-    return { name: ROUTE.BASKET_UNAVAILABLE };
   }
 
   // Basket routes use `:bid` directly — no `:segment` param.
@@ -153,6 +160,15 @@ export default {
    */
   setBillingDefaults: () => {
     applyBillingDefaults();
+  },
+
+  /**
+   * Clears the target basket ID so subsequent navigations don't try to load a stale/unavailable basket.
+   * Called on entry to basket-unavailable state.
+   */
+  clearBasket: () => {
+    const { setTargetBasket } = useBasket();
+    setTargetBasket(undefined);
   },
 
   /**
