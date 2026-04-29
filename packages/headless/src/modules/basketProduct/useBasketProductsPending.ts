@@ -168,10 +168,10 @@ export const useBasketProductsPending = () => {
       return waitFor(
         instance.service,
         state =>
-          stateMatches(state, ["available", "error", "complete", "done"]),
+          stateMatches(state, ["available", "unavailable", "complete", "done"]),
         { timeout: Infinity }
       ).then(state => {
-        if (stateMatches(state, ["error", "complete", "done"])) {
+        if (stateMatches(state, ["unavailable", "complete", "done"])) {
           throw new DetailedError(
             t("error.product_pending_add_failed"),
             responseCodes.Unprocessable_Entity,
@@ -204,15 +204,16 @@ export const useBasketProductsPending = () => {
 
     waitFor(
       actor,
-      state => stateMatches(state, ["available", "error", "complete", "done"]),
+      state =>
+        stateMatches(state, ["available", "unavailable", "complete", "done"]),
       { timeout: Infinity }
     )
       .then(state => {
         // NB dont subscribeif we are already in a terminal state
-        if (stateMatches(state, ["error", "done", "complete"])) return;
+        if (stateMatches(state, ["unavailable", "done", "complete"])) return;
 
         const subscription = actor.subscribe((state: State<any>) => {
-          if (stateMatches(state, ["error"])) {
+          if (stateMatches(state, ["unavailable"])) {
             unset(processing.value, pid);
             unsetProduct(pid);
           } else if (stateMatches(state, "available")) {

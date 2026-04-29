@@ -178,7 +178,7 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
       service,
       state =>
         stateMatches(state, [
-          "error",
+          "unavailable",
           "available.invalid",
           "available.error",
           "complete",
@@ -188,7 +188,11 @@ export const useBasketProductPending = (data: ProductProps | ActorRef<any>) => {
     )
       .then(state => {
         if (
-          stateMatches(state, ["error", "available.invalid", "available.error"])
+          stateMatches(state, [
+            "unavailable",
+            "available.invalid",
+            "available.error"
+          ])
         ) {
           throw state.context.error;
         }

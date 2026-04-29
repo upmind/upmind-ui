@@ -31,6 +31,7 @@
   "basket_product_not_found": "Produkt v košíku sa nenašiel",
   "basket_product_pending_update_failed": "Aktualizácia v používanomBasketProductPending nie je v platnom stave.",
   "basket_product_pending_validation_failed": "Nepodarilo sa overiť čakajúce produkty",
+  "basket_product_readonly": "Túto položku momentálne nie je možné zakúpiť, pretože jej prispôsobenú konfiguráciu nie je možné upravovať. Prosím, kontaktujte technickú podporu a požiadajte o pomoc.",
   "basket_product_update_failed": "Chyba pri aktualizácii viacerých produktov v košíku",
   "basket_unavailable": "Prepáčte, nepodarilo sa nám načítať tento **basket**",
   "basket_unavailable_md": "@.markdown:{'error.basket_unavailable'}",
