@@ -1,5 +1,5 @@
 <template>
-  <UpmAuth :model-value="mode" @resolve="onAuthComplete" />
+  <UpmAuth v-model="mode" @resolve="onAuthComplete" />
 </template>
 
 <script lang="ts" setup>
@@ -10,7 +10,7 @@
  */
 
 // --- external
-import { computed } from "vue";
+import { ref } from "vue";
 import { useRoute } from "vue-router";
 
 // --- internal
@@ -30,13 +30,14 @@ const emit = defineEmits<{
   close: [];
 }>();
 
-/** Read initial mode from ?mode=login|register query param */
-const mode = computed(
-  () => get(route, "query.mode", "login") as SessionProps["modelValue"]
+/** Initialize mode from ?mode=login|register query param */
+const mode = ref(
+  get(route, "query.mode", "login") as SessionProps["modelValue"]
 );
 
 /** Emit close on auth success — OverlayController handles drawer close + navigation */
 function onAuthComplete(): void {
+  debugger;
   emit("close");
 }
 </script>

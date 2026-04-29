@@ -5,7 +5,7 @@
     v-model:open="internalOpen"
     :dismissible="!props.loading"
     fit="cover"
-    :dismissable="false"
+    :dismissible="false"
     height="fixed"
     :title="t('domain.search')"
     :description="t('domain.domain_description')"
