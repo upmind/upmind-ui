@@ -28,7 +28,7 @@ export type DialogProps = DialogRootProps &
     noFooter?: boolean;
     // ---
     open?: boolean;
-    dismissable?: boolean;
+    dismissible?: boolean;
     // --- variants
     size?: DialogContentVariantProps["size"] | string;
     overflow?: DialogContentVariantProps["overflow"] | string;
