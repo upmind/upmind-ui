@@ -101,7 +101,7 @@ const meta = computed(() => ({
   align: props.align,
   isIconOnly: props.iconOnly,
   isBlock: props.block,
-  isDisabled: props.disabled,
+  isDisabled: props.disabled || props.loading,
   isLoading: props.loading,
   isFocusable: props.focusable,
   hasRing: props.ring && !props.disabled && props.focusable
