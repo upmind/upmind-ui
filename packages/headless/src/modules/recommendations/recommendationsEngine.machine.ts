@@ -13,8 +13,7 @@ import {
   parseRelatedProducts,
   parseRecommendation,
   parseRelationships,
-  checkInBasket,
-  checkConditionVisibility
+  checkInBasket
 } from "./utils";
 import {
   concat,
@@ -218,9 +217,6 @@ export default createMachine(
       ),
 
       setBasket: assign({
-        basket: (_context, { data }: AnyEventObject) => {
-          return get(data, "basket", data) as IBasket;
-        },
         basketId: (_context, { data }: AnyEventObject) => {
           const basket = get(data, "basket", data);
           return basket?.id;
@@ -472,7 +468,7 @@ export default createMachine(
 
       setRecommendations: assign({
         recommendations: (
-          { raw, basket }: RecommendationsEngineContext,
+          { raw }: RecommendationsEngineContext,
           _event: AnyEventObject
         ) => {
           const parsed = reduce(
@@ -481,11 +477,6 @@ export default createMachine(
               // because we may have the same raw recommendation multiple times ( due to multiple products having the same related )
               // we need to check if we have already added it so the parsed recommendations are deduped
               if (some(result, ["id", rawRelated.id])) return result;
-
-              // Check conditional visibility rules against basket state
-              if (basket && !checkConditionVisibility(rawRelated, basket)) {
-                return result;
-              }
 
               const product = find(raw.products, ["id", rawRelated.object_id]);
               rawRelated.product = product;
@@ -517,7 +508,7 @@ export default createMachine(
           return raw;
         },
         recommendations: (
-          { raw, basket }: RecommendationsEngineContext,
+          { raw }: RecommendationsEngineContext,
           { data, sourceContext }: AnyEventObject
         ) => {
           const augmentedRecommendations = reduce(
@@ -526,11 +517,6 @@ export default createMachine(
               // because we may have the same raw recommendation multiple times ( due to multiple products having the same related )
               // we need to check if we have already added it so the parsed recommendations are deduped
               if (some(result, ["id", rawRelated.id])) return result;
-
-              // Check conditional visibility rules against basket state
-              if (basket && !checkConditionVisibility(rawRelated, basket)) {
-                return result;
-              }
 
               if (isArray(data)) {
                 // FETCH_SELECTED: data is array of products, sourceContext is full RecommendationsEnginesourceContext

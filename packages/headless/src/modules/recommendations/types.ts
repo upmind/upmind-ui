@@ -3,7 +3,6 @@ import type { ActorRef } from "xstate";
 import type {
   IRelatedObject,
   IProduct,
-  IBasket,
   IBasketProduct,
   ICurrency,
   IPromotion
@@ -24,6 +23,13 @@ import type { ConditionalValue } from "../config/types";
  * Visibility state for conditional recommendations.
  */
 export type RecommendationVisibility = "visible" | "hidden";
+
+export const RECOMMENDATION_MATCH_LEVEL = {
+  PRODUCT_ID: "product_id",
+  PRODUCT_CONFIG: "product_config"
+} as const;
+export type RecommendationMatchLevel =
+  (typeof RECOMMENDATION_MATCH_LEVEL)[keyof typeof RECOMMENDATION_MATCH_LEVEL];
 
 /**
  * Interface representing a promotion applied to a recommendation.
@@ -190,10 +196,6 @@ export interface RecommendationsEngineContext {
    */
   basketId?: string;
   /**
-   * The current basket state for condition evaluation.
-   */
-  basket?: IBasket;
-  /**
    * An `ActorRef` to the basket helper service, facilitating integration with the main basket.
    */
   basketHelper?: ActorRef<any>;
@@ -250,6 +252,12 @@ export interface RelatedProduct extends IRelatedObject {
    * An array of benefits associated with the related product.
    */
   benefits?: Benefit[];
+  /**
+   * Strategy for matching the recommendation against basket products.
+   * - `"product_id"` (default): hide when any variant of the product is in the basket.
+   * - `"product_config"`: hide only when the basket has an exact `bcm` + `sub_pids` match.
+   */
+  matchLevel?: RecommendationMatchLevel;
   /**
    * Conditional visibility rules evaluated against basket state.
    */
