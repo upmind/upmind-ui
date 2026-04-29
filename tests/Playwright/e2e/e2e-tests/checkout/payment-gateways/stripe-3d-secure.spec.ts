@@ -54,7 +54,7 @@ test.describe("3D Secure Authentication", async () => {
       await page.goto(URLs.checkout);
       await checkout.selectPaymentMethod("Stripe");
       await checkout.inputStripeDetails(cardNumber, expiryDate, cvcCode);
-      await checkout.clickPlaceOrderAndPay();
+      await checkout.clickCompleteCheckout();
       page.on("framenavigated", async frame => {
         const url = frame.url();
         if (url.startsWith("https://hooks.stripe.com/3d_secure_2/hosted")) {

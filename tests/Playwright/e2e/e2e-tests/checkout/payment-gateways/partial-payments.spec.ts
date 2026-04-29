@@ -40,7 +40,7 @@ test.describe("Partial payment at Checkout", () => {
       await expect(checkout.payAmount).toHaveText("Pay £20.00");
       await checkout.selectPaymentMethod("Stripe");
       await checkout.inputStripeDetails("4242424242424242", "12/34", "123");
-      await checkout.clickPlaceOrderAndPay();
+      await checkout.clickCompleteCheckout();
       await page.waitForURL(`order/**`);
       await expect(page.getByText("Thank you for your order!")).toBeVisible();
     });
@@ -56,7 +56,7 @@ test.describe("Partial payment at Checkout", () => {
       await expect(checkout.payAmount).toHaveText("Pay A$100.00");
       await checkout.selectPaymentMethod("Stripe");
       await checkout.inputStripeDetails("4242424242424242", "12/34", "123");
-      await checkout.clickPlaceOrderAndPay();
+      await checkout.clickCompleteCheckout();
       await page.waitForURL(`order/**`);
       await expect(page.getByText("Thank you for your order!")).toBeVisible();
     });
@@ -76,7 +76,7 @@ test.describe("Partial payment at Checkout", () => {
       await expect(checkout.payAmount).toHaveText("Pay £20.00");
       await checkout.selectPaymentMethod("Stripe");
       await checkout.inputStripeDetails("4242424242424242", "12/34", "123");
-      await checkout.clickPlaceOrderAndPay();
+      await checkout.clickCompleteCheckout();
       await page.waitForURL(`order/**`);
       await expect(page.getByText("Thank you for your order!")).toBeVisible();
     });
@@ -96,7 +96,7 @@ test.describe("Partial payment at Checkout", () => {
       await expect(checkout.payAmount).toHaveText("Pay A$100.00");
       await checkout.selectPaymentMethod("Stripe");
       await checkout.inputStripeDetails("4242424242424242", "12/34", "123");
-      await checkout.clickPlaceOrderAndPay();
+      await checkout.clickCompleteCheckout();
       await page.waitForURL(`order/**`);
       await expect(page.getByText("Thank you for your order!")).toBeVisible();
     });
@@ -114,7 +114,7 @@ test.describe("Partial payment at Checkout", () => {
       await checkout.clickConfirmAmount();
       await expect(checkout.payAmount).toHaveText("Pay £20.00");
       await checkout.selectPaymentMethod("Pay-Pal Express");
-      await checkout.clickPlaceOrderAndPay();
+      await checkout.clickCompleteCheckout();
       await page.waitForURL(
         "https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_express-checkout&useraction=commit**"
       );
@@ -139,7 +139,7 @@ test.describe("Partial payment at Checkout", () => {
       await checkout.clickConfirmAmount();
       await expect(checkout.payAmount).toHaveText("Pay A$20.00");
       await checkout.selectPaymentMethod("Pay-Pal Express");
-      await checkout.clickPlaceOrderAndPay();
+      await checkout.clickCompleteCheckout();
       await page.waitForURL(
         "https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_express-checkout&useraction=commit**"
       );
@@ -167,7 +167,7 @@ test.describe("Partial payment at Checkout", () => {
       await checkout.clickConfirmAmount();
       await expect(checkout.payAmount).toHaveText("Pay £20.00");
       await checkout.selectPaymentMethod("Pay-Pal Express");
-      await checkout.clickPlaceOrderAndPay();
+      await checkout.clickCompleteCheckout();
       await page.waitForURL(
         "https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_express-checkout&useraction=commit**"
       );

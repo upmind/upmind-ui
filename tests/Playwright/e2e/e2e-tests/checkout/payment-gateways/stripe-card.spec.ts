@@ -15,6 +15,7 @@ import {
 } from "../../../support/api/index";
 import { waitForSessionCookie } from "../../../support/helpers/session";
 
+newUser.describe.configure({ mode: "parallel" });
 newUser.describe("Checkout with Stripe", () => {
   newUser.describe("Stripe Cards", () => {
     newUser.describe("Valid Cards", async () => {
@@ -31,7 +32,7 @@ newUser.describe("Checkout with Stripe", () => {
             );
             await checkout.selectPaymentMethod("Stripe");
             await checkout.inputStripeDetails(cardNumber, expiryDate, cvcCode);
-            await checkout.clickPlaceOrderAndPay();
+            await checkout.clickCompleteCheckout();
             await page.waitForURL(`order/**`);
             await expect(
               page.getByText("Thank you for your order.")
@@ -63,7 +64,7 @@ newUser.describe("Checkout with Stripe", () => {
             );
             await checkout.selectPaymentMethod("Stripe");
             await checkout.inputStripeDetails(cardNumber, expiryDate, cvcCode);
-            await checkout.clickPlaceOrderAndPay();
+            await checkout.clickCompleteCheckout();
             await page.waitForURL(`order/**`);
             await expect(
               page.getByText(
@@ -88,7 +89,7 @@ newUser.describe("Checkout with Stripe", () => {
             );
             await checkout.selectPaymentMethod("Stripe");
             await checkout.inputStripeDetails(cardNumber, expiryDate, cvcCode);
-            await checkout.clickPlaceOrderAndPay();
+            await checkout.clickCompleteCheckout();
             await page.waitForURL(`order/**`);
             await expect(
               page.getByText(
@@ -142,8 +143,7 @@ newUser.describe("Checkout with Stripe", () => {
         "London",
         "SW1A 2AA"
       );
-      await checkout.clickPlaceOrderAndPay();
-      await checkout.clickPlaceOrderAndPay();
+      await checkout.clickCompleteCheckout();
       await page.waitForURL(`order/**`);
       await expect(page.getByText("Order confirmed")).toBeVisible();
     });
@@ -156,8 +156,7 @@ newUser.describe("Checkout with Stripe", () => {
         "nathan.robinson+ideal@upmind.com",
         "Test User"
       );
-      await checkout.clickPlaceOrderAndPay();
-      await checkout.clickPlaceOrderAndPay();
+      await checkout.completeCheckout.click();
       await page.getByTestId("authorize-test-payment-button").click();
       await page.waitForURL(`order/**`);
       await expect(page.getByText("Order complete!")).toBeVisible();
@@ -169,8 +168,7 @@ newUser.describe("Checkout with Stripe", () => {
         "nathan.robinson+ideal@upmind.com",
         "Test User"
       );
-      await checkout.clickPlaceOrderAndPay();
-      await checkout.clickPlaceOrderAndPay();
+      await checkout.completeCheckout.click();
       await page.getByTestId("fail-test-payment-button").click();
       await page.waitForURL(`order/**`);
       await expect(
@@ -186,7 +184,8 @@ newUser.describe("Checkout with Stripe", () => {
       await checkout.selectPaymentMethod("Stripe");
       await mockStripeCardDecline(page);
       await checkout.inputStripeDetails("4242424242424242", "12/34", "123");
-      await checkout.clickPlaceOrderAndPay();
+      await checkout.completeCheckout.click();
+      await checkout.completeCheckout.click(); //repeated to trigger the button even that doesn't trigger on first click
       await page.waitForLoadState("load");
       await expect(page.getByRole("alert")).toContainText(
         /Payment failed*Payment details validation failed/s

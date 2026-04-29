@@ -27,7 +27,7 @@ test.describe("Checkout with Offline Payment", () => {
     await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
     await page.waitForLoadState("domcontentloaded");
     await checkout.selectPaymentMethod("Offline Payment");
-    await checkout.clickPlaceOrder();
-    await expect(page.getByText("Order complete!")).toBeVisible();
+    await checkout.clickCompleteCheckout();
+    await expect(page.getByText("Thank you for your order.")).toBeVisible();
   });
 });
