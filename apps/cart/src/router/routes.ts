@@ -18,19 +18,13 @@ const OVERLAY_ROUTES: RouteRecordRaw[] = [
     path: "auth/",
     name: ROUTE.OVERLAY_AUTH,
     component: () => import("../pages/overlays/AuthOverlay.vue"),
-    meta: { overlay: OverlayType.MODAL, dismissable: false }
-  },
-  {
-    path: "2fa/",
-    name: ROUTE.OVERLAY_2FA,
-    component: () => import("../pages/overlays/AuthOverlay.vue"),
     meta: { overlay: OverlayType.MODAL }
   },
   {
     path: "verify-email/",
     name: ROUTE.OVERLAY_VERIFY_EMAIL,
     component: () => import("../pages/overlays/AuthOverlay.vue"),
-    meta: { overlay: OverlayType.MODAL }
+    meta: { overlay: OverlayType.MODAL, dismissable: false }
   }
 ];
 
