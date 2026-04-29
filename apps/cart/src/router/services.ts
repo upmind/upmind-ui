@@ -652,15 +652,20 @@ export default {
       name: ROUTE.BASKET_PRODUCT_SETUP
     });
 
-    const { isReady, meta, currentProduct } = useProductSetup();
+    const { isReady, meta, getNextRequiringSetup } = useProductSetup();
     await isReady();
 
     if (!meta.value.isAvailable) return Promise.reject();
-
+    const bpid = getNextRequiringSetup()?.id;
+    if (!bpid) {
+      return Promise.reject({
+        target: context.targetRoute ?? { name: ROUTE.CHECKOUT }
+      });
+    }
     return {
       target: context.targetRoute ?? {
         name: ROUTE.BASKET_PRODUCT_SETUP,
-        params: { bpid: currentProduct.value?.id ?? "" }
+        params: { bpid }
       }
     };
   }

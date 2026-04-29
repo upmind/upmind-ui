@@ -367,7 +367,10 @@ export default <FunnelProps>{
       entry: ["setResolving"],
       invoke: {
         src: "guardBasketProductSetup",
-        onDone: { target: ROUTE.BASKET_PRODUCT_SETUP },
+        onDone: {
+          target: ROUTE.BASKET_PRODUCT_SETUP,
+          actions: ["setResolved"]
+        },
         onError: { target: ROUTE.CHECKOUT }
       }
     },
