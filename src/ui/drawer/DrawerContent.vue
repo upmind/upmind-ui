@@ -37,7 +37,7 @@ function onOverlayClick() {
 <!--
  **** BREAKING CHANGES ON UPDATE ****
  • DrawerPortal doesn't receive the prop 'to' by default, this is a manually change by us
- • DrawerContent emits 'close' as set the dialog to not be dismissible so that we can handle this ourselves (they use outside click which doesn't work with toasts)
+ • DrawerContent emits 'close' as set the dialog to not be dismissable so that we can handle this ourselves (they use outside click which doesn't work with toasts)
 -->
 
 <template>
