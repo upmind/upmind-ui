@@ -49,7 +49,7 @@ export const useBasketProductInline = (bpid: string) => {
     );
 
   const { ui } = parentConfig.with({
-    product: () => basketProduct
+    basketProduct: () => basketProduct
   });
 
   // --- private
@@ -74,7 +74,7 @@ export const useBasketProductInline = (bpid: string) => {
     option: SubproductValue
   ): boolean {
     const { data, ui } = parentConfig.with({
-      product: () => basketProduct,
+      basketProduct: () => basketProduct,
       optionGroup: () => optionGroup,
       option: () => option
     });

@@ -6,6 +6,7 @@
 
 // --- utils
 import {
+  compact,
   concat,
   every,
   find,
@@ -27,11 +28,7 @@ import {
 } from "lodash-es";
 
 // --- types
-import type {
-  IProduct,
-  IBasketProduct,
-  IBasket
-} from "@upmind-automation/types";
+import type { IProduct, IBasket } from "@upmind-automation/types";
 import {
   ProductStateKey,
   BasketProductStateKey,
@@ -49,7 +46,8 @@ import {
   type ValidationIssue,
   type ValidationResult,
   type ValidationSeverity,
-  type OperatorExpression
+  type OperatorExpression,
+  type BasketProductInput
 } from "./types";
 import { UIContext, UIScope, UI_META_DEFINITIONS } from "./schema";
 import { PRE_BASKET_CONTEXTS, POST_BASKET_CONTEXTS } from "./schema/types";
@@ -233,7 +231,7 @@ export function buildConditionState(
 function resolveStateKey(
   key: ConditionStateKey,
   product?: IProduct,
-  basketProduct?: IBasketProduct,
+  basketProduct?: BasketProductInput,
   basket?: IBasket
 ): string | number | boolean | string[] | undefined {
   switch (key) {
@@ -252,7 +250,7 @@ function resolveStateKey(
 
     // --- BasketProduct state keys
     case BasketProductStateKey.SUB_PIDS:
-      return map(get(basketProduct, "options", []), "product_id");
+      return compact(map(get(basketProduct, "options", []), "product_id"));
 
     case BasketProductStateKey.BCM:
       return get(basketProduct, "billing_cycle_months");
