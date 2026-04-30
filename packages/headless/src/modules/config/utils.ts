@@ -3,13 +3,19 @@ import { useI18n } from "../system/localisation";
 
 // -- utils
 import { getUIProperty, getDataProperty, normalizeValue } from "./mappers";
-import { isConditionalValue, evaluateRules } from "./config.conditions";
+import {
+  isConditionalValue,
+  evaluateRules,
+  validateMeta
+} from "./config.conditions";
 import {
   camelCase,
   compact,
   find,
+  forEach,
   get,
   indexOf,
+  isEmpty,
   isPlainObject,
   isString,
   keyBy,
@@ -30,7 +36,12 @@ import {
   type Ref
 } from "vue";
 import type { UIMetaSchema as UISchema, DataSchema } from "./schema";
-import { UIContext, UI_META_DEFINITIONS, DATA_DEFINITIONS } from "./schema";
+import {
+  UIContext,
+  UIScope,
+  UI_META_DEFINITIONS,
+  DATA_DEFINITIONS
+} from "./schema";
 import type {
   Viewport,
   RawMeta,
@@ -85,10 +96,48 @@ export function initializeMeta(options: MetaInput): {
     option: parse(option?.uiMeta, prefix)
   });
 
-  return {
+  const result = {
     meta: build(META_PREFIX.CONTEXT) as MetaItems,
     data: build(META_PREFIX.DATA) as DataItems
   };
+
+  if (import.meta.env.DEV) {
+    validateInDev(result.meta, context);
+  }
+
+  return result;
+}
+
+/**
+ * Validates each scope's parsed meta blob and routes findings to the console.
+ * Dev-only — Vite tree-shakes the entire call site in production builds.
+ *
+ * Per docs/sdd/FE-2655/design.md:291: "Validator consumed by dev tooling
+ * (console warnings) and future admin UI."
+ */
+function validateInDev(meta: MetaItems, context: UIContext | undefined): void {
+  const scopes: Array<{
+    scope: UIScope;
+    items: Record<string, unknown> | undefined;
+  }> = [
+    { scope: UIScope.BRAND, items: meta.brand },
+    { scope: UIScope.PRODUCT_CATEGORY, items: meta.category },
+    { scope: UIScope.PRODUCT, items: meta.product },
+    { scope: UIScope.OPTION_CATEGORY, items: meta.optionGroup },
+    { scope: UIScope.OPTION, items: meta.option }
+  ];
+
+  forEach(scopes, ({ scope, items }) => {
+    if (!items || isEmpty(items)) return;
+
+    const { issues } = validateMeta({ meta: items, context, scope });
+    forEach(issues, issue => {
+      const line = `[config:${scope}] ${issue.code} (${issue.path}): ${issue.message}`;
+      if (issue.severity === "error") console.error(line);
+      else if (issue.severity === "warning") console.warn(line);
+      else console.info(line);
+    });
+  });
 }
 
 // --- Proxy Creation ---
