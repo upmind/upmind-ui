@@ -70,7 +70,9 @@ export function useConfig(options?: UseMetaOptions): UseMetaResult {
       viewport: toValue(viewport),
       brand: brand.value,
       category: toValue(category),
-      product: toValue(product),
+      // basketProduct overrides product for the cascade product-tier when
+      // present — line-item rendering uses the line item's productDetails.uiMeta.
+      product: toValue(basketProduct) ?? toValue(product),
       optionGroup: toValue(optionGroup),
       option: toValue(option)
     })
@@ -79,13 +81,19 @@ export function useConfig(options?: UseMetaOptions): UseMetaResult {
   const ui = computed(() => items.value.meta);
   const data = computed(() => items.value.data);
 
-  const conditionState = computed(() =>
-    buildConditionState({
-      product: toValue(product)?.productDetails as IProduct | undefined,
-      basketProduct: toValue(basketProduct),
+  const conditionState = computed(() => {
+    const bp = toValue(basketProduct);
+    // Derive product.* state source from basketProduct.product when no
+    // explicit product is passed — caller rendering a line item only needs
+    // to pass the line item itself.
+    const productForState =
+      (toValue(product)?.productDetails as IProduct | undefined) ?? bp?.product;
+    return buildConditionState({
+      product: productForState,
+      basketProduct: bp,
       basket: basket.value
-    })
-  );
+    });
+  });
 
   function withScopes(extendOptions: WithMetaOptions): UseMetaResult {
     return useConfig({
@@ -102,7 +110,10 @@ export function useConfig(options?: UseMetaOptions): UseMetaResult {
     ui: createUIMetaProxy(ui, conditionState),
     data: createDataProxy(
       data,
-      computed(() => toValue(product))
+      // basketProduct overrides product as the variable interpolation source
+      // for data settings (e.g. {{ name }} in productName) — same coalesce as
+      // the cascade above; both feed off the rendering subject.
+      computed(() => toValue(basketProduct) ?? toValue(product))
     ),
     with: withScopes
   };

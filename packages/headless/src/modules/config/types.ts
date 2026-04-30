@@ -4,11 +4,8 @@ import type {
   UI_META_DEFINITIONS,
   DataSchema
 } from "./schema";
-import type {
-  IProduct,
-  IBasketProduct,
-  IBasket
-} from "@upmind-automation/types";
+import type { IProduct, IBasket } from "@upmind-automation/types";
+import type { BasketProduct } from "../basketProduct/types";
 import { UIContext, UIScope } from "./schema";
 import { type BrandMeta } from "../brand/types";
 import { HELPERS } from "./utils";
@@ -102,7 +99,7 @@ export type ValidationResult = {
 
 export type ConditionStateInputs = {
   product?: IProduct;
-  basketProduct?: IBasketProduct;
+  basketProduct?: BasketProductInput;
   basket?: IBasket;
 };
 
@@ -122,6 +119,13 @@ export type CategoryInput = {
 
 export type ProductInput = {
   productDetails?: { uiMeta?: Record<string, any> };
+  [key: string]: any;
+};
+
+/** Basket product input — parsed `BasketProduct` shape; index signature tolerates raw `IBasketProduct` extras. */
+export type BasketProductInput = Partial<BasketProduct> & {
+  /** Source product; used to derive product.* state when no explicit product is passed. */
+  product?: IProduct;
   [key: string]: any;
 };
 
@@ -245,7 +249,7 @@ export interface UseMetaOptions {
   optionGroup?: MaybeRefOrGetter<any>;
   option?: MaybeRefOrGetter<any>;
   basket?: MaybeRefOrGetter<IBasket | undefined>;
-  basketProduct?: MaybeRefOrGetter<IBasketProduct | undefined>;
+  basketProduct?: MaybeRefOrGetter<BasketProductInput | undefined>;
   provide?: boolean;
 }
 
@@ -261,7 +265,7 @@ export interface WithMetaOptions {
   product?: MaybeRefOrGetter<ProductInput | undefined>;
   optionGroup?: MaybeRefOrGetter<any>;
   option?: MaybeRefOrGetter<any>;
-  basketProduct?: MaybeRefOrGetter<IBasketProduct | undefined>;
+  basketProduct?: MaybeRefOrGetter<BasketProductInput | undefined>;
 }
 
 /** Return type for useConfig composable */
