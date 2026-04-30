@@ -6,7 +6,6 @@ import {
   useBrand,
   useQueryParams,
   useRoutingEngine,
-  useRouteRequiresAction,
   useProductRecommendations,
   useRecommendations,
   useSession,
@@ -289,55 +288,6 @@ export default {
         params: { bpid: basketProductId }
       }
     }));
-  },
-
-  guardProductRequiresAction: async (
-    context: FunnelContext,
-    { data }: AnyEventObject
-  ): Promise<FunnelResponse> => {
-    await ensureBidAuth(context, {
-      name: ROUTE.BASKET_PRODUCT_REQUIRES_ACTION
-    });
-
-    const { isReady } = useBasket();
-
-    return isReady().then(async () => {
-      const { hasProducts, getNextRelated, getNextInvalid } =
-        useRouteRequiresAction();
-
-      const { getProduct } = useBasket();
-
-      if (!hasProducts()) return Promise.reject();
-
-      const route = context.targetRoute ?? context.currentRoute;
-      let { basketProductId } =
-        useQueryParams(route as RouteLocationGeneric) ?? data?.id;
-      const basketProduct =
-        data ?? (await getProduct(basketProductId).catch(() => undefined));
-
-      // If we have a basketProduct Id, try fetch any related product that needs action
-      const relatedBasketProduct = basketProduct
-        ? getNextRelated(basketProduct)
-        : undefined;
-      const nextInvalidProduct = getNextInvalid();
-
-      // if we have a related product that needs action, navigate to edit that product
-      if (relatedBasketProduct) {
-        return {
-          target: {
-            name: ROUTE.BASKET_PRODUCT_EDIT,
-            params: { bpid: relatedBasketProduct?.id }
-          }
-        };
-      }
-
-      return {
-        target: {
-          name: ROUTE.BASKET_PRODUCT_REQUIRES_ACTION,
-          params: { bpid: nextInvalidProduct!.id }
-        }
-      };
-    });
   },
 
   guardProductRecommendations: async (

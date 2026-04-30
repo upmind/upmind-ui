@@ -126,11 +126,6 @@ export enum ROUTE {
   BASKET_PRODUCT_EDIT = "basket-product-edit",
 
   /**
-   * The route to display products that require specific actions from the user.
-   */
-  BASKET_PRODUCT_REQUIRES_ACTION = "basket-product-requires-action",
-
-  /**
    * The route for the checkout process.
    */
   CHECKOUT = "checkout",

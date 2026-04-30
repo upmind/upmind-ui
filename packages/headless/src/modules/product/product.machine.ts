@@ -424,7 +424,6 @@ export default createMachine(
             context;
 
           let {
-            basket_product,
             client_id,
             currency_id,
             promotions,
@@ -434,14 +433,14 @@ export default createMachine(
 
           // Basket refresh sends full basket, not individual products - find ours by ID
           // this ensure any changes to our basketProduct are not stale
-          const basketProduct = (basket_product ??= rawBasketProduct?.id
+          const basketProduct = rawBasketProduct?.id
             ? find(products, { id: rawBasketProduct.id })
-            : rawBasketProduct);
+            : undefined;
 
           lookups ??= {};
 
           if (rawProduct) {
-            lookups.product = parseProductDetails(rawProduct, basket_product);
+            lookups.product = parseProductDetails(rawProduct, basketProduct);
           }
 
           // Update baseModel from new basket data, merge into model preserving user edits
