@@ -7,7 +7,7 @@ const baseURL = "http://qa-automation.local:5173/";
  */
 export default defineConfig({
   /* Timeouts */
-  timeout: 30000,
+  timeout: 60000,
   expect: {
     timeout: 30000,
     toHaveScreenshot: { maxDiffPixels: 2000 }
@@ -86,7 +86,7 @@ export default defineConfig({
       name: "firefox",
       use: {
         ...devices["Desktop Firefox"],
-        browserName: "chromium",
+        browserName: "firefox",
         headless: true,
         viewport: { width: 1920, height: 1080 },
         launchOptions: {
@@ -98,7 +98,7 @@ export default defineConfig({
       name: "safari",
       use: {
         ...devices["Desktop Safari"],
-        browserName: "chromium",
+        browserName: "webkit",
         headless: true,
         viewport: { width: 1920, height: 1080 },
         launchOptions: {

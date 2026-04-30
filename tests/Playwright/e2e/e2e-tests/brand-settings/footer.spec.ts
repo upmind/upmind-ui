@@ -1,5 +1,6 @@
 import { test, expect, Page } from "@playwright/test";
 import { URLs } from "../../support/constants/urls";
+import { waitForSessionCookie } from "../../support/helpers";
 
 const singleLanguage = [
   {
@@ -102,14 +103,14 @@ test.describe("Footer - Language and Currency controls", () => {
   }) => {
     await interceptLanguageAndCurrency(page, singleLanguage, singleCurrency);
     await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    await waitForSessionCookie(page.context());
     await expect(page.getByTestId("locale-selector")).not.toBeVisible();
     await expect(page.getByTestId("currency-selector")).not.toBeVisible();
   });
   test("Single currency, multiple languages", async ({ page }) => {
     await interceptLanguageAndCurrency(page, multipleLanguages, singleCurrency);
     await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    await waitForSessionCookie(page.context());
     await expect(page.getByTestId("locale-selector")).toBeVisible();
     await expect(page.getByTestId("currency-selector")).not.toBeVisible();
   });
@@ -120,7 +121,7 @@ test.describe("Footer - Language and Currency controls", () => {
       multipleCurrencies
     );
     await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    await waitForSessionCookie(page.context());
     await expect(page.getByTestId("locale-selector")).not.toBeVisible();
     await expect(page.getByTestId("currency-selector")).toBeVisible();
   });
@@ -131,7 +132,7 @@ test.describe("Footer - Language and Currency controls", () => {
       multipleCurrencies
     );
     await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    await waitForSessionCookie(page.context());
     await expect(page.getByTestId("locale-selector")).toBeVisible();
     await expect(page.getByTestId("currency-selector")).toBeVisible();
   });
