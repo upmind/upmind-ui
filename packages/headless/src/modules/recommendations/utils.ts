@@ -21,9 +21,11 @@ import {
   includes,
   isEmpty,
   isString,
+  keys,
   map,
   reduce,
   some,
+  startsWith,
   toSafeInteger
 } from "lodash-es";
 import { useTranslateField, useTranslateName, useImageUrl } from "../../utils";
@@ -49,6 +51,7 @@ import {
   evaluateRules,
   buildConditionState
 } from "../config/config.conditions";
+import type { ConditionalValue } from "../config/types";
 
 // ---------------------------------------------------------------------------
 
@@ -105,7 +108,7 @@ function parseProductsToRecommend(
     mapped,
     rec =>
       !checkInBasket(rec, basketProducts) &&
-      checkConditionVisibility(rec, basket)
+      checkConditionVisibility(rec, basket, basketProducts)
   );
 }
 
@@ -168,26 +171,74 @@ export function parseAddedProducts(
 }
 
 /**
+ * Returns true if any rule references a basketProduct.* state key.
+ * When false, conditions can be evaluated once against basket state.
+ * When true, conditions must be evaluated per matching basket product.
+ */
+function hasBasketProductKeys(
+  conditions: ConditionalValue<RecommendationVisibility>
+): boolean {
+  return some(conditions.rules, rule => {
+    if (!rule.when) return false;
+    return some(keys(rule.when), key => startsWith(key, "basketProduct."));
+  });
+}
+
+/**
  * Evaluates conditional visibility rules for a recommendation.
  * Returns true if the recommendation should be visible based on basket state.
  *
+ * Conditions referencing only basket.* keys evaluate once against basket state.
+ * Conditions referencing basketProduct.* keys walk each basket product whose
+ * product_id matches the recommendation; if any of those evaluations resolves
+ * to "hidden", the recommendation is hidden.
+ *
  * @param recommendation - The recommendation to evaluate
  * @param basket - The basket state for condition evaluation
+ * @param basketProducts - Basket products for per-product evaluation
  * @returns true if visible, false if hidden
  */
 export function checkConditionVisibility(
   recommendation: RelatedProduct,
-  basket: IBasket
+  basket: IBasket,
+  basketProducts: IBasketProduct[]
 ): boolean {
   if (!recommendation.conditions) return true;
 
-  const state = buildConditionState({ basket });
-  const result = evaluateRules<RecommendationVisibility>(
-    recommendation.conditions,
-    state
+  if (!hasBasketProductKeys(recommendation.conditions)) {
+    const state = buildConditionState({ basket });
+    return (
+      evaluateRules<RecommendationVisibility>(
+        recommendation.conditions,
+        state
+      ) === "visible"
+    );
+  }
+
+  const matchingProducts = filter(
+    basketProducts,
+    bp => bp.product_id === recommendation.object_id
   );
 
-  return result === "visible";
+  if (isEmpty(matchingProducts)) {
+    const state = buildConditionState({ basket });
+    return (
+      evaluateRules<RecommendationVisibility>(
+        recommendation.conditions,
+        state
+      ) === "visible"
+    );
+  }
+
+  return !some(matchingProducts, basketProduct => {
+    const state = buildConditionState({ basket, basketProduct });
+    return (
+      evaluateRules<RecommendationVisibility>(
+        recommendation.conditions!,
+        state
+      ) === "hidden"
+    );
+  });
 }
 
 export function checkInBasket(
