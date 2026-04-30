@@ -9,6 +9,7 @@
         icon-append="arrow-right"
         size="lg"
         block
+        data-testid="button-complete-checkout"
         @click.prevent="onResolve"
       />
     </div>
