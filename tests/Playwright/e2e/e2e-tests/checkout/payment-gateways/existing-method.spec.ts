@@ -22,7 +22,7 @@ test.describe("Checkout with Existing Payment Method", () => {
     );
     await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
     await checkout.selectPaymentMethod("Visa Ending 4242");
-    await checkout.clickPlaceOrderAndPay();
+    await checkout.clickCompleteCheckout();
     await checkout.dialogWindow.waitFor();
     await expect(page.getByText("Thank you for your order.")).toBeVisible();
   });
