@@ -250,17 +250,31 @@ export interface UseMetaOptions {
 }
 
 /**
- * Options for .with() - extends meta with additional scopes.
+ * Options for .with() — narrows scope by extending the cascade input.
  *
- * Useful when a parent component has brand/category context,
- * and a child needs to add product/optionGroup/option without prop drilling.
- * Returns a new UseMetaResult that inherits parent scopes.
+ * Scopes are the levels at which uiMeta is authored: category, product,
+ * optionGroup, option. They feed the resolution cascade in mappers.ts.
+ *
+ * For runtime state injection (basket, basketProduct), use .bind().
  */
 export interface WithMetaOptions {
   category?: MaybeRefOrGetter<CategoryInput | undefined>;
   product?: MaybeRefOrGetter<ProductInput | undefined>;
   optionGroup?: MaybeRefOrGetter<any>;
   option?: MaybeRefOrGetter<any>;
+}
+
+/**
+ * Options for .bind() — injects runtime state for conditional rule evaluation.
+ *
+ * State namespaces are the data conditional rules read from at evaluation
+ * time: basket.* (whole-basket state) and basketProduct.* (per-line state).
+ * They feed resolveStateKey in config.conditions.ts.
+ *
+ * For scope narrowing (category, product, optionGroup, option), use .with().
+ */
+export interface BindStateOptions {
+  basket?: MaybeRefOrGetter<IBasket | undefined>;
   basketProduct?: MaybeRefOrGetter<IBasketProduct | undefined>;
 }
 
@@ -269,11 +283,21 @@ export interface UseMetaResult {
   ui: UIMetaProxy;
   data: DataProxy;
   /**
-   * Extend this meta with additional scopes.
-   * Returns a new UseMetaResult inheriting all parent scopes plus the new ones.
-   * Useful for adding optionGroup/option scopes without prop drilling.
+   * Narrow scope by extending the cascade input. Returns a new UseMetaResult
+   * inheriting all parent options plus the new scopes. Useful for adding
+   * product/optionGroup/option scopes without prop drilling.
+   *
+   * For runtime state injection, see `.bind()`.
    */
   with: (options: WithMetaOptions) => UseMetaResult;
+  /**
+   * Inject runtime state for conditional rule evaluation. Returns a new
+   * UseMetaResult inheriting all parent options plus the new state. Useful
+   * for line-item components rendering against a specific basketProduct.
+   *
+   * For scope narrowing, see `.with()`.
+   */
+  bind: (options: BindStateOptions) => UseMetaResult;
 }
 
 /**
