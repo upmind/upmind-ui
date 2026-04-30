@@ -1,5 +1,5 @@
 // --- external
-import { computed, ref, shallowRef, watch } from "vue";
+import { computed, ref, shallowRef, watch, type WatchHandle } from "vue";
 import {
   defaultsDeep,
   filter,
@@ -7,6 +7,7 @@ import {
   first,
   get,
   includes,
+  intersection,
   isEmpty,
   map,
   reduce,
@@ -38,8 +39,8 @@ import {
   ErrorOrigin,
   isDeepEmpty,
   responseCodes,
+  stateMatches,
   stateValue,
-  useContext,
   useModelParser,
   type ErrorObject,
   type ResponseError
@@ -144,7 +145,10 @@ export function useProductSetup() {
   // --- meta
   const meta = computed(() => ({
     /** True when basket is loading. */
-    isLoading: basketMeta.value.isLoading || isEmpty(schema.value),
+    isLoading:
+      basketMeta.value.isLoading ||
+      basketMeta.value.isProcessing ||
+      isEmpty(schema.value),
     /** True when all products are complete (no products need setup). */
     isComplete: basketMeta.value.hasProducts && isEmpty(products.value),
     /** True when basket is available and there are products that need setup. */
@@ -327,25 +331,29 @@ export function useProductSetup() {
           .then(config => {
             bpid.value = id;
             selected.value = map(similarProducts.value, "id");
-            // captureSchemas(config.service);
+            // Capture schemas when transitioning from loading/refreshing states
+            let prevStates: string[] = [];
 
-            // lets ensure we can recover if we dont have schema at this point
-            if (isEmpty(schema.value)) {
-              let stop: (() => void) | undefined;
-              stop = watch(
-                config.meta,
-                ({ isAvailable }) => {
-                  if (isAvailable) {
-                    stop?.(); // Optional chain: immediate:true runs before watch() returns
-                    config.isReady().then(() => captureSchemas(config.service));
-                  }
-                },
-                {
-                  immediate: true,
-                  deep: true
-                }
+            const subscription = config.service.subscribe(state => {
+              if (state.done) subscription.unsubscribe();
+
+              const newStates = state.toStrings();
+              const wasLoading = !isEmpty(
+                intersection(["loading", "refreshing"], prevStates)
               );
-            }
+
+              // engage loading state
+              if (wasLoading) {
+                schema.value = undefined;
+                uischema.value = undefined;
+              }
+
+              if (wasLoading && stateMatches(state, "available")) {
+                captureSchemas(config.service);
+              }
+
+              prevStates = newStates;
+            });
 
             return config;
           })
