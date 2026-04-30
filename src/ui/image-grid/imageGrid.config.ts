@@ -78,7 +78,7 @@ export const thumbnailVariant = cva(
 
 export default {
   imageGrid: {
-    container: cva("flex flex-col gap-2"),
+    container: cva("flex flex-col gap-2 overflow-hidden"),
     preview: previewVariant,
     previewImage: previewImageVariant,
     overlay: cva(
