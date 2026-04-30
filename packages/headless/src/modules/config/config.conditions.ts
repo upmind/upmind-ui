@@ -250,16 +250,28 @@ function resolveStateKey(
 
     // --- BasketProduct state keys
     case BasketProductStateKey.SUB_PIDS:
-      return compact(map(get(basketProduct, "options", []), "product_id"));
+      return (
+        get(basketProduct, "configuration.subproducts") ??
+        compact(map(get(basketProduct, "options", []), "product_id"))
+      );
 
     case BasketProductStateKey.BCM:
-      return get(basketProduct, "billing_cycle_months");
+      return (
+        get(basketProduct, "configuration.term") ??
+        get(basketProduct, "billing_cycle_months")
+      );
 
     case BasketProductStateKey.QTY:
-      return get(basketProduct, "quantity");
+      return (
+        get(basketProduct, "configuration.quantity") ??
+        get(basketProduct, "quantity")
+      );
 
     case BasketProductStateKey.TOTAL:
-      return get(basketProduct, "net_amount");
+      return (
+        get(basketProduct, "price.currentAmount") ??
+        get(basketProduct, "net_amount")
+      );
 
     // --- Basket state keys
     case BasketStateKey.COUPONS:
