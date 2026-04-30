@@ -108,6 +108,19 @@ export default [
   },
 
   /**
+   * Route for managing billing details on a standalone page.
+   * Accessed from the checkout billing summary "Change" link.
+   */
+  {
+    path: `/order/basket/:bid(${RegexMatch.UUID})?/billing/`,
+    name: ROUTE.BILLING,
+    component: () => import("../pages/Billing.vue"),
+    meta: {
+      actionEmptyBasket: true
+    }
+  },
+
+  /**
    * Route displayed when a basket is unavailable or invalid.
    */
   {
@@ -150,7 +163,7 @@ export default [
    * Parent route renders router-view, child with :bpid renders Setup.vue.
    */
   {
-    path: `/order/basket/:bid(${RegexMatch.UUID})?/setup/`,
+    path: `/order/basket/:bid(${RegexMatch.UUID})?/products/setup/`,
     name: ROUTE.BASKET_PRODUCTS_SETUP,
     component: () => import("../pages/product/Index.vue"),
     meta: {
@@ -180,45 +193,6 @@ export default [
     path: `/order/${BID_PREFIX}/checkout/`,
     name: ROUTE.CHECKOUT,
     component: () => import("../pages/Checkout.vue"),
-    meta: {
-      actionEmptyBasket: true
-    }
-  },
-
-  /**
-   * Route for managing billing details on a standalone page.
-   * Accessed from the checkout billing summary "Change" link.
-   */
-  {
-    path: "/order/billing/",
-    name: ROUTE.BILLING,
-    component: () => import("../pages/Billing.vue"),
-    meta: {
-      actionEmptyBasket: true
-    }
-  },
-
-  /**
-   * Route for editing domain registrant details.
-   * Displayed after billing when basket contains domain products.
-   */
-  {
-    path: "/order/domain-registrant/",
-    name: ROUTE.DOMAIN_REGISTRANT,
-    component: () => import("../pages/RegistrantReview.vue"),
-    meta: {
-      actionEmptyBasket: true
-    }
-  },
-
-  /**
-   * Route for editing domain registrant details.
-   * Shows form for editing a single domain's registrant data.
-   */
-  {
-    path: "/order/domain-registrant/edit/",
-    name: ROUTE.DOMAIN_REGISTRANT_EDIT,
-    component: () => import("../pages/Registrant.vue"),
     meta: {
       actionEmptyBasket: true
     }

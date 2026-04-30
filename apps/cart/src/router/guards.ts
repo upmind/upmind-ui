@@ -93,7 +93,6 @@ export default {
 
   /**
    * Returns true when basket contains domain products.
-   * Used to force billing page for domain registrant auto-population.
    */
   hasDomainProducts: () => {
     const { products } = useBasket();
