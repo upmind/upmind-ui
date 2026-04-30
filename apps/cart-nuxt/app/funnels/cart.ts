@@ -315,42 +315,6 @@ export default <FunnelProps>{
     },
 
     /**
-     * 🎯 ROUTE.BASKET_PRODUCT_REQUIRES_ACTION
-     * This state handles scenarios where a product in the basket requires additional user action.
-     * It invokes a 'guard' to determine if any action is needed for the product.
-     * If a related product (connected by serviceIdentifier) requires further action, it transitions to the BASKET_PRODUCT_EDIT route for that product.
-     * eg: a Hosting product has a related Domain product that needs configuration
-     * In case of an error, it redirects back to the BASKET route.
-     */
-    [ROUTE.BASKET_PRODUCT_REQUIRES_ACTION]: {
-      entry: ["setCurrency"],
-      invoke: {
-        src: "guardProductRequiresAction",
-        onDone: { actions: ["setResolved"] },
-        onError: [
-          {
-            target: ROUTE.BASKET_PRODUCT_EDIT,
-            actions: ["setResolving", "setTargetRoute"],
-            cond: "isBasketProductEdit"
-          },
-          { target: ROUTE.CHECKOUT_FLOW, actions: ["setResolving"] }
-        ]
-      },
-      on: {
-        NEXT: {
-          target: ROUTE.BASKET_PRODUCT_EDIT,
-          actions: [
-            assign({ targetRoute: { name: ROUTE.BASKET_PRODUCT_EDIT } })
-          ]
-        },
-        BACK: {
-          target: ROUTE.BASKET,
-          actions: [assign({ targetRoute: { name: ROUTE.BASKET } })]
-        }
-      }
-    },
-
-    /**
      * 🎯 ROUTE.RECOMMENDATIONS
      * This state manages general product recommendations view.
      * It invokes a 'guard' to fetch and display recommendations.
@@ -674,11 +638,6 @@ export default <FunnelProps>{
               })
             ],
             cond: "isSession"
-          },
-          {
-            target: ROUTE.BASKET_PRODUCT_REQUIRES_ACTION,
-            actions: ["setResolving"],
-            cond: "hasInvalidProducts"
           },
           { target: ROUTE.BASKET, actions: ["setResolving"] }
         ]
