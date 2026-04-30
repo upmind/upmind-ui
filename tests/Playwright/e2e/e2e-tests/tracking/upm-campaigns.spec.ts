@@ -122,7 +122,7 @@ test.describe("UPM Campaign Tracking", () => {
     await registration.inputRegistration();
     await checkout.selectPaymentMethod("Stripe");
     await checkout.inputStripeDetails("4242424242424242", "01/50", "123");
-    await checkout.clickPlaceOrderAndPay();
+    await checkout.clickCompleteCheckout();
     const tracking = await getTrackingData(
       page,
       `/api/orders/${orderId}/convert`

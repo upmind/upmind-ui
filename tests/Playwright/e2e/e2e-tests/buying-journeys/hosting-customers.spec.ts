@@ -39,7 +39,7 @@ test.describe("Hosting customers", async () => {
       await addProductToBasket();
       await basket.proceedToCheckout.click();
       await checkout.selectPaymentMethod("Direct Bank Transfer");
-      await checkout.clickPlaceOrder();
+      await checkout.clickCompleteCheckout();
       await expect(page.getByText("Order confirmed")).toBeVisible();
     });
     test("Log in at checkout", async ({ page }) => {
@@ -51,7 +51,7 @@ test.describe("Hosting customers", async () => {
         Logins.hosting2.password
       );
       await checkout.selectPaymentMethod("Direct Bank Transfer");
-      await checkout.clickPlaceOrder();
+      await checkout.clickCompleteCheckout();
       await expect(page.getByText("Order confirmed")).toBeVisible();
     });
   });
@@ -61,7 +61,7 @@ test.describe("Hosting customers", async () => {
       await basket.proceedToCheckout.click();
       await registration.inputRegistration();
       await checkout.selectPaymentMethod("Direct Bank Transfer");
-      await checkout.clickPlaceOrder();
+      await checkout.clickCompleteCheckout();
       await expect(page.getByText("Order confirmed")).toBeVisible();
     });
   });

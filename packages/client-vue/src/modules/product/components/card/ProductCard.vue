@@ -193,10 +193,8 @@ const images = computed(() => {
 });
 
 const mode = computed<ImageMode>(() => {
-  const style = productMeta.ui.productImagesStyle.value;
-  // TODO: Implement image grid
-  if (style === IMAGES_STYLE.GRID) return IMAGES_STYLE.AUTO;
-  return style;
+  if (productMeta.ui.productImagesStyle.isGrid) return IMAGES_STYLE.CAROUSEL;
+  return productMeta.ui.productImagesStyle.value;
 });
 
 // Compute the image prop value - wrap single imgUrl in array when carousel mode
