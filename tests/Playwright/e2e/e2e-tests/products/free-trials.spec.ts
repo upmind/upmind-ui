@@ -238,9 +238,8 @@ test.describe("Free Trials @free-trials", () => {
       await expect(
         page.getByText("Great news – there's nothing to pay!")
       ).toBeVisible();
-      // For a zero-amount order (free trial), the button should say
-      // "Place Order" instead of "Place Order and Pay"
-      await expect(checkout.placeOrder).toBeVisible();
+      await expect(checkout.completeCheckout).toBeVisible();
+      await expect(checkout.completeCheckout).toBeEnabled();
     });
   });
 });

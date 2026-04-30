@@ -44,7 +44,7 @@ test.describe("Error Code Handling", () => {
 
       if (errorType === "dialog") {
         // Use .first() to handle potential duplicate dialogs from multiple API calls
-        const dialog = page.getByRole("dialog").first();
+        const dialog = page.getByTestId("dialog-window").first();
         await expect(dialog).toBeVisible();
         await expect(dialog).toContainText(responseError.message);
         // Scope button assertion to the dialog to avoid strict mode violations
