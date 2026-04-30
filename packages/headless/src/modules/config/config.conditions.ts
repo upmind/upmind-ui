@@ -50,7 +50,7 @@ import {
   type ValidationSeverity,
   type OperatorExpression
 } from "./types";
-import { UIContext, UI_META_DEFINITIONS } from "./schema";
+import { UIContext, UIScope, UI_META_DEFINITIONS } from "./schema";
 import { PRE_BASKET_CONTEXTS, POST_BASKET_CONTEXTS } from "./schema/types";
 
 // -----------------------------------------------------------------------------
@@ -334,8 +334,9 @@ const ARRAY_STATE_KEYS: ConditionStateKey[] = [
 export function validateMeta(params: {
   meta: Record<string, unknown>;
   context?: UIContext;
+  scope?: UIScope;
 }): ValidationResult {
-  const { meta, context } = params;
+  const { meta, context, scope } = params;
   const issues: ValidationIssue[] = [];
 
   forEach(meta, (value, key) => {
@@ -349,6 +350,34 @@ export function validateMeta(params: {
           ValidationCode.UNKNOWN_SETTING,
           path,
           `Unknown setting: "${key}"`
+        )
+      );
+      return;
+    }
+
+    if (
+      context &&
+      context !== UIContext.ALL &&
+      !includes(definition.contexts, context)
+    ) {
+      issues.push(
+        createIssue(
+          "error",
+          ValidationCode.INVALID_SCREEN,
+          path,
+          `Setting "${key}" does not apply to "${context}" screen`
+        )
+      );
+      return;
+    }
+
+    if (scope && !includes(definition.scopes, scope)) {
+      issues.push(
+        createIssue(
+          "error",
+          ValidationCode.INVALID_SCOPE,
+          path,
+          `Setting "${key}" does not apply at "${scope}" scope`
         )
       );
       return;
