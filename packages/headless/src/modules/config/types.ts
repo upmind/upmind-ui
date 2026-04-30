@@ -28,7 +28,6 @@ export enum BasketProductStateKey {
   SUB_PIDS = "basketProduct.sub_pids",
   BCM = "basketProduct.bcm",
   QTY = "basketProduct.qty",
-  COUPONS = "basketProduct.coupons",
   TOTAL = "basketProduct.total"
 }
 
@@ -85,7 +84,7 @@ export type ConditionalValue<T> = {
 export type SettingValue<T> = T | ConditionalValue<T>;
 
 export type ConditionState = Partial<
-  Record<ConditionStateKey, string | number | boolean | string[] | undefined>
+  Record<ConditionStateKey, string | number | boolean | string[]>
 >;
 
 export type ValidationSeverity = "error" | "warning" | "info";
