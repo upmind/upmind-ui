@@ -5,6 +5,7 @@ import type {
   DataSchema
 } from "./schema";
 import type { IProduct, IBasket } from "@upmind-automation/types";
+import type { BasketProduct } from "../basketProduct/types";
 import { UIContext, UIScope } from "./schema";
 import { type BrandMeta } from "../brand/types";
 import { HELPERS } from "./utils";
@@ -121,33 +122,10 @@ export type ProductInput = {
   [key: string]: any;
 };
 
-/**
- * Minimum runtime contract for a basket product passed to `useConfig`.
- *
- * Both the parsed domain `BasketProduct` (which carries `productDetails`
- * for cascade input) and the raw `IBasketProduct` (which carries the API
- * fields the conditional rule evaluator reads) satisfy this structurally.
- *
- * The evaluator reads via lodash `get`, so missing fields silently resolve
- * to undefined — wrong shapes fail gracefully, not catastrophically.
- */
-export type BasketProductInput = {
-  /** Feeds the cascade product-tier (uiMeta inheritance from underlying product). */
-  productDetails?: { uiMeta?: Record<string, any> };
-  /**
-   * The underlying source product. When present and no explicit `product`
-   * input is passed, config derives `product.*` state from this — so callers
-   * rendering a line item only need to pass the line item, not both.
-   */
+/** Basket product input — parsed `BasketProduct` shape; index signature tolerates raw `IBasketProduct` extras. */
+export type BasketProductInput = Partial<BasketProduct> & {
+  /** Source product; used to derive product.* state when no explicit product is passed. */
   product?: IProduct;
-  /** Feeds basketProduct.sub_pids state evaluation. */
-  options?: { product_id?: string | null }[];
-  /** Feeds basketProduct.bcm state evaluation. */
-  billing_cycle_months?: number;
-  /** Feeds basketProduct.qty state evaluation. */
-  quantity?: number;
-  /** Feeds basketProduct.total state evaluation. */
-  net_amount?: number;
   [key: string]: any;
 };
 
