@@ -16,6 +16,7 @@ import type {
   UseMetaOptions,
   UseMetaResult,
   WithMetaOptions,
+  BindStateOptions,
   Viewport
 } from "./types";
 import { type BrandMeta } from "../brand/types";
@@ -94,7 +95,23 @@ export function useConfig(options?: UseMetaOptions): UseMetaResult {
       product: extendOptions.product ?? product,
       optionGroup: extendOptions.optionGroup ?? optionGroup,
       option: extendOptions.option ?? option,
-      basketProduct: extendOptions.basketProduct ?? basketProduct
+      // State passes through unchanged — .with() narrows scope, not state.
+      basket: basketOption,
+      basketProduct
+    });
+  }
+
+  function bindState(stateOptions: BindStateOptions): UseMetaResult {
+    return useConfig({
+      context,
+      brand: brandOption,
+      // Scopes pass through unchanged — .bind() injects state, not scope.
+      category,
+      product,
+      optionGroup,
+      option,
+      basket: stateOptions.basket ?? basketOption,
+      basketProduct: stateOptions.basketProduct ?? basketProduct
     });
   }
 
@@ -104,7 +121,8 @@ export function useConfig(options?: UseMetaOptions): UseMetaResult {
       data,
       computed(() => toValue(product))
     ),
-    with: withScopes
+    with: withScopes,
+    bind: bindState
   };
 
   if (shouldProvide) {
