@@ -521,10 +521,13 @@ export default {
     const { isReady: isFieldsReady, meta: fieldsMeta } = useBasketFields();
     const { getConfigValue } = useBrand();
 
-    // first wait for the basket to be ready
     await isReady();
 
-    // We always need to be authenticated to proceed to checkout
+    // -------------------------------------------------------------------------
+    // Guard order: 1. Auth → 2. Billing → 3. Basket issues (products/fields)
+    // -------------------------------------------------------------------------
+
+    // --- 1. Auth: Must be authenticated to proceed
     if (meta.value.needsAuth) {
       const { router } = useRoutingEngine();
       const { targetBasketId } = useBasket();
@@ -542,29 +545,12 @@ export default {
       } as FunnelResponse);
     }
 
-    // We always need products ( that are not locked) in the basket to proceed to checkout
+    // Must have products (that are not locked) to proceed
     if (!meta.value.hasProducts || meta.value.hasLockedProducts) {
       return Promise.reject({ target: { name: ROUTE.BASKET } });
     }
 
-    // NB: In Stepped flow, we need to ALSO validate products and fields, so we ensure everything is valid before proceeding to checkout
-    if (
-      getConfigValue(BrandConfigKeys.CHECKOUT_FLOW) === CheckoutFlows.STEPPED
-    ) {
-      if (meta.value.hasInvalidProducts) {
-        return Promise.reject({
-          target: { name: ROUTE.BASKET_PRODUCTS_SETUP }
-        });
-      }
-
-      await isFieldsReady();
-      const validFields = fieldsMeta.value.isComplete;
-      if (!validFields) {
-        return Promise.reject({ target: { name: ROUTE.BASKET } });
-      }
-    }
-
-    // Redirect to standalone billing if it needs input and user can't edit inline.
+    // --- 2. Billing: Redirect to standalone billing if it needs input
     const { isReady: isBillingReady, meta: billingMeta } = useBasketBilling();
     await isBillingReady();
 
@@ -586,12 +572,21 @@ export default {
       }
     }
 
-    // Redirect to product setup if any products need attention
-    const { meta: productSetupMeta } = useProductSetup();
-    if (!productSetupMeta.value.isComplete) {
+    // --- 3. Basket issues: Validate products and fields
+    if (meta.value.hasInvalidProducts) {
       return Promise.reject({
         target: { name: ROUTE.BASKET_PRODUCTS_SETUP }
-      } as FunnelResponse);
+      });
+    }
+
+    // Fields validation only in stepped flow
+    if (
+      getConfigValue(BrandConfigKeys.CHECKOUT_FLOW) === CheckoutFlows.STEPPED
+    ) {
+      await isFieldsReady();
+      const validFields = fieldsMeta.value.isComplete;
+      if (!validFields)
+        return Promise.reject({ target: { name: ROUTE.BASKET } });
     }
 
     return { target: context.targetRoute ?? { name: ROUTE.CHECKOUT } };
@@ -605,6 +600,7 @@ export default {
     // If standalone billing isn't enabled, skip to checkout
     const { ui } = useConfig({ context: UIContext.CHECKOUT });
     const { data } = useConfig({ context: UIContext.BILLING_DETAILS });
+
     if (data.billingDetailsDisabled || !ui.billingDetails.isReadonly) {
       return { target: context.targetRoute ?? { name: ROUTE.CHECKOUT } };
     }
