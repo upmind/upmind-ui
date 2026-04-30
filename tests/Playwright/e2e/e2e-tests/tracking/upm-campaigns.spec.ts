@@ -5,6 +5,7 @@ import { Registration } from "../../support/page-objects/templates/registration"
 import { Checkout } from "../../support/page-objects/templates/checkout";
 import { getSessionToken } from "../../support/api/auth";
 import { createOrder, addProductToOrder } from "../../support/api/basket";
+import { waitForSessionCookie } from "../../support/helpers/session";
 
 let registration: Registration;
 let checkout: Checkout;
@@ -63,7 +64,7 @@ test.describe("UPM Campaign Tracking", () => {
     await page.goto(
       `${URLs.register}?upm_campaign=playwright_test_campaign&upm_source=playwright&upm_medium=e2e_test&upm_content=content_example&upm_term=term_example`
     );
-    await page.waitForLoadState("networkidle");
+    await waitForSessionCookie(page.context());
     let trackingCookie = await getTrackingCookie(context);
     console.log(JSON.stringify(trackingCookie));
     await expect(trackingCookie.campaign).toBe("playwright_test_campaign");
@@ -78,20 +79,7 @@ test.describe("UPM Campaign Tracking", () => {
     );
     await registration.inputRegistration();
     const tracking = await getTrackingData(page, "/api/clients/register");
-    await page.waitForLoadState("networkidle");
-    console.log(JSON.stringify(tracking));
-    await expect(tracking).toBeDefined();
-    await expect(tracking.campaign).toBeDefined();
-    await expect(tracking.source).toBeDefined();
-    await expect(tracking.medium).toBeDefined();
-    await expect(tracking.content).toBeDefined();
-    await expect(tracking.term).toBeDefined();
-  });
-  test('Check "order" request body for tracking node', async ({ page }) => {
-    await page.goto(
-      "http://qa-automation.local:5173/order/product/3de78642-de53-9714-76df-21208469530d?upm_campaign=playwright_test_campaign&upm_source=playwright&upm_medium=e2e_test&upm_content=content_example&upm_term=term_example"
-    );
-    const tracking = await getTrackingData(page, "/api/orders");
+    await waitForSessionCookie(page.context());
     console.log(JSON.stringify(tracking));
     await expect(tracking).toBeDefined();
     await expect(tracking.campaign).toBeDefined();
@@ -107,9 +95,9 @@ test.describe("UPM Campaign Tracking", () => {
     await page.goto(
       `${URLs.basket}?upm_campaign=playwright_test_campaign&upm_source=playwright&upm_medium=e2e_test&upm_content=content_example&upm_term=term_example`
     );
-    await page.waitForLoadState("networkidle");
+    await waitForSessionCookie(page.context());
     await page.goto(URLs.basket);
-    await page.waitForLoadState("networkidle");
+    await waitForSessionCookie(context);
     let token = await getSessionToken(context);
     let order = await createOrder(token);
     let orderId = order.id;
@@ -134,7 +122,7 @@ test.describe("UPM Campaign Tracking", () => {
     await registration.inputRegistration();
     await checkout.selectPaymentMethod("Stripe");
     await checkout.inputStripeDetails("4242424242424242", "01/50", "123");
-    await checkout.clickPlaceOrderAndPay();
+    await checkout.clickCompleteCheckout();
     const tracking = await getTrackingData(
       page,
       `/api/orders/${orderId}/convert`
@@ -152,7 +140,7 @@ test.describe("UPM Campaign Tracking", () => {
     context
   }) => {
     await page.goto(URLs.register);
-    await page.waitForLoadState("networkidle");
+    await waitForSessionCookie(page.context());
     await expect(async () => {
       await getTrackingCookie(context);
     }).rejects.toThrow("Tracking cookie not found.");

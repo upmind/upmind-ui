@@ -3,7 +3,11 @@ export {
   interceptTermsAndConditions,
   interceptUISchema
 } from "./brand";
-export { mockStripeCardDecline, mockCorsPreflightRequests } from "./checkout";
+export {
+  mockStripeCardDecline,
+  mockCorsPreflightRequests,
+  mockPaymentSuccess
+} from "./checkout";
 export { mockClientAddresses } from "./client";
 export { returnError } from "./errors";
 export { orderUpdated, overrideWarningNotes } from "./orders";

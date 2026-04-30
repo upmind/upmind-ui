@@ -20,7 +20,8 @@ import {
   parseSubproducts,
   checkPriceOverride,
   parseSubproductDetails,
-  parseProductProps
+  parseProductProps,
+  hasNonOrderableSubproducts
 } from "./utils";
 
 import { useProductConfigSchema } from "./schemas";
@@ -85,6 +86,13 @@ async function load(
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless
       )
+    );
+
+  if (hasNonOrderableSubproducts(rawBasketProduct))
+    throw new DetailedError(
+      t("error.basket_product_readonly"),
+      responseCodes.Forbidden,
+      ErrorOrigin.Headless
     );
 
   // lets ensure we have a valid currency > fallback to default
