@@ -405,14 +405,21 @@ export function validateMeta(params: {
     }
 
     if (context && definition.locked && has(definition.locked, context)) {
-      issues.push(
-        createIssue(
-          "warning",
-          ValidationCode.LOCKED_SCREEN_OVERRIDE,
-          path,
-          `Setting is locked on "${context}" screen; conditional rules will be bypassed`
-        )
-      );
+      const lockedValue = get(definition.locked, context);
+      const wouldDiffer =
+        value.default !== lockedValue ||
+        some(value.rules, (rule: Rule<unknown>) => rule.then !== lockedValue);
+
+      if (wouldDiffer) {
+        issues.push(
+          createIssue(
+            "warning",
+            ValidationCode.LOCKED_SCREEN_OVERRIDE,
+            path,
+            `Setting is locked on "${context}" screen; conditional rules will be bypassed`
+          )
+        );
+      }
     }
 
     let foundCatchAll = false;
