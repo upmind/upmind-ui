@@ -8,6 +8,7 @@
 import {
   concat,
   every,
+  find,
   forEach,
   get,
   has,
@@ -383,6 +384,42 @@ export function validateMeta(params: {
       return;
     }
 
+    if (context && definition.locked && has(definition.locked, context)) {
+      const lockedValue = get(definition.locked, context);
+      let hasDiffering = false;
+      let differing: unknown;
+
+      if (isConditionalValue(value)) {
+        if (value.default !== lockedValue) {
+          differing = value.default;
+          hasDiffering = true;
+        } else {
+          const rule = find(
+            value.rules,
+            (r: Rule<unknown>) => r.then !== lockedValue
+          );
+          if (rule) {
+            differing = rule.then;
+            hasDiffering = true;
+          }
+        }
+      } else if (value !== lockedValue) {
+        differing = value;
+        hasDiffering = true;
+      }
+
+      if (hasDiffering) {
+        issues.push(
+          createIssue(
+            "warning",
+            ValidationCode.LOCKED_SCREEN_OVERRIDE,
+            path,
+            `Setting is locked to "${lockedValue}" on "${context}" screen; authored "${differing}" will be ignored`
+          )
+        );
+      }
+    }
+
     if (!isConditionalValue(value)) {
       return;
     }
@@ -431,24 +468,6 @@ export function validateMeta(params: {
           "Rules array is empty; default will always be used"
         )
       );
-    }
-
-    if (context && definition.locked && has(definition.locked, context)) {
-      const lockedValue = get(definition.locked, context);
-      const wouldDiffer =
-        value.default !== lockedValue ||
-        some(value.rules, (rule: Rule<unknown>) => rule.then !== lockedValue);
-
-      if (wouldDiffer) {
-        issues.push(
-          createIssue(
-            "warning",
-            ValidationCode.LOCKED_SCREEN_OVERRIDE,
-            path,
-            `Setting is locked on "${context}" screen; conditional rules will be bypassed`
-          )
-        );
-      }
     }
 
     let foundCatchAll = false;
