@@ -70,9 +70,8 @@ export function useConfig(options?: UseMetaOptions): UseMetaResult {
       viewport: toValue(viewport),
       brand: brand.value,
       category: toValue(category),
-      // basketProduct contributes to the product cascade tier when present —
-      // line-item rendering uses the line item's productDetails.uiMeta as the
-      // product-scope input. Falls back to explicit product otherwise.
+      // basketProduct overrides product for the cascade product-tier when
+      // present — line-item rendering uses the line item's productDetails.uiMeta.
       product: toValue(basketProduct) ?? toValue(product),
       optionGroup: toValue(optionGroup),
       option: toValue(option)
@@ -111,7 +110,10 @@ export function useConfig(options?: UseMetaOptions): UseMetaResult {
     ui: createUIMetaProxy(ui, conditionState),
     data: createDataProxy(
       data,
-      computed(() => toValue(product))
+      // basketProduct overrides product as the variable interpolation source
+      // for data settings (e.g. {{ name }} in productName) — same coalesce as
+      // the cascade above; both feed off the rendering subject.
+      computed(() => toValue(basketProduct) ?? toValue(product))
     ),
     with: withScopes
   };
