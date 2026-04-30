@@ -58,11 +58,12 @@ import type {
 import {
   BrandConfigKeys,
   DefaultPaymentPeriod,
+  PriceDisplayTypes,
+  PriceType,
   ProductTypes,
   PromotionDisplayTypes,
   ProvisionCategoryCodes,
   PaymentTermDesignations,
-  PriceDisplayTypes,
   QUERY_PARAMS
 } from "@upmind-automation/types";
 
@@ -384,6 +385,97 @@ export function parseTerm(
   return { term: get(term, "cycle") as number, price };
 }
 
+// -----------------------------------------------------------------------------
+// GOTCHA: Merge and enrich basket product subproducts into lookups
+// -----------------------------------------------------------------------------
+// 1. Hidden-in-catalog options (hide_catalog: true) won't appear in product
+//    lookup data but exist in rawBasketProduct - we add them.
+// 2. Options with empty prices in API but present in basket - we enrich them
+//    with pricing from basket data.
+// -----------------------------------------------------------------------------
+/**
+ * Maps a basket item to an IProductPrice-compatible object.
+ * This allows hidden/restricted items to flow through the normal pricing pipeline.
+ *
+ * @see parsePrice() for how these fields are consumed
+ */
+function mapHiddenSubproductPrice(basketItem: IBasketProduct): IProductPrice {
+  const { includesTax } = useBrand();
+  const isOverridden = basketItem.price_type === PriceType.MANUAL;
+
+  return {
+    billing_cycle_months: basketItem.billing_cycle_months,
+    currency_id: basketItem.base_price_currency_id,
+    // Regular price
+    price: includesTax.value
+      ? basketItem.configuration_total_amount_converted
+      : basketItem.configuration_net_amount_converted,
+    price_formatted: includesTax.value
+      ? basketItem.configuration_total_amount_formatted
+      : basketItem.configuration_net_amount_formatted,
+    // Discounted price
+    price_discounted: includesTax.value
+      ? basketItem.configuration_total_discounted_amount_converted
+      : basketItem.configuration_net_amount_discounted_converted,
+    price_discounted_formatted: includesTax.value
+      ? basketItem.configuration_total_discounted_amount_formatted
+      : basketItem.configuration_net_amount_discounted_formatted,
+    // Original catalog price (before manual override)
+    original_price: basketItem.base_price,
+    original_price_formatted: basketItem.base_price_formatted,
+    // Override flag
+    overridden_price: isOverridden
+  } as IProductPrice;
+}
+
+/**
+ * Merges hidden basket subproducts into product lookups.
+ *
+ * Hidden items (hide_catalog: true) aren't returned by the product API but exist
+ * in the basket. This adds them so they appear in the configuration UI.
+ */
+export function mergeBasketSubproducts(
+  productSubproducts: (IProductOption | IProductAttribute)[] | undefined,
+  basketSubproducts: IBasketProduct[] | undefined
+): (IProductOption | IProductAttribute)[] {
+  if (!basketSubproducts?.length) return productSubproducts ?? [];
+
+  // Add hidden items not in product lookups
+  const productIds = new Set(map(productSubproducts, "id"));
+  const hidden = reduce(
+    basketSubproducts,
+    (result: (IProductOption | IProductAttribute)[], basketProduct) => {
+      if (!productIds.has(basketProduct.product_id) && basketProduct.product) {
+        result.push({
+          ...basketProduct.product,
+          pivot: { order: get(basketProduct.product, "order", 0) },
+          prices: [mapHiddenSubproductPrice(basketProduct)]
+        } as unknown as IProductOption | IProductAttribute);
+      }
+      return result;
+    },
+    []
+  );
+
+  return [...(productSubproducts ?? []), ...hidden];
+}
+
+/**
+ * Checks if a basket product contains any options/attributes that can no longer
+ * be ordered (clients_can_order: 0). When true, the product should be readonly.
+ */
+export function hasNonOrderableSubproducts(
+  rawBasketProduct: IBasketProduct | undefined
+): boolean {
+  if (!rawBasketProduct) return false;
+
+  const subproducts = concat(
+    rawBasketProduct.options ?? [],
+    rawBasketProduct.attributes ?? []
+  );
+  return some(subproducts, ["product.clients_can_order", 0]);
+}
+
 export function parseSubproducts(
   type: "attributes" | "options",
   { lookups, model, subproducts: subproductIds }: Partial<ProductConfigContext>,
@@ -495,6 +587,7 @@ export const parseProductDetails = (
   rawProduct: IProduct,
   rawBasketProduct?: IBasketProduct
 ): ProductDetails => {
+  const readonly = hasNonOrderableSubproducts(rawBasketProduct);
   return {
     id: rawProduct?.id,
     name: rawProduct.name,
@@ -539,33 +632,36 @@ export const parseProductDetails = (
     images: parseProductImages(rawProduct?.images),
     // ---
     configurable:
-      rawProduct.prices?.length > 1 ||
-      !isEmpty(rawProduct.products_attributes) ||
-      !isEmpty(rawProduct.products_options) ||
-      !isEmpty(rawProduct.provision_fields),
+      !readonly &&
+      (rawProduct.prices?.length > 1 ||
+        !isEmpty(rawProduct.products_attributes) ||
+        !isEmpty(rawProduct.products_options) ||
+        !isEmpty(rawProduct.provision_fields)),
 
-    configurableInline: (() => {
-      const config = useConfig();
-      return (
-        some(rawProduct.products_options, option => {
-          const { data } = config.with({
-            product: () => ({ productDetails: { uiMeta: rawProduct.meta } }),
-            option: () => ({ uiMeta: option.meta })
-          });
-          return !!data.optionUpsellEnabled;
-        }) ||
-        some(rawProduct.products_attributes, attr => {
-          const { data } = config.with({
-            product: () => ({ productDetails: { uiMeta: rawProduct.meta } }),
-            option: () => ({ uiMeta: attr.meta })
-          });
-          return !!data.optionUpsellEnabled;
-        })
-      );
-    })(),
+    configurableInline:
+      !readonly &&
+      (() => {
+        const config = useConfig();
+        return (
+          some(rawProduct.products_options, option => {
+            const { data } = config.with({
+              product: () => ({ productDetails: { uiMeta: rawProduct.meta } }),
+              option: () => ({ uiMeta: option.meta })
+            });
+            return !!data.optionUpsellEnabled;
+          }) ||
+          some(rawProduct.products_attributes, attr => {
+            const { data } = config.with({
+              product: () => ({ productDetails: { uiMeta: rawProduct.meta } }),
+              option: () => ({ uiMeta: attr.meta })
+            });
+            return !!data.optionUpsellEnabled;
+          })
+        );
+      })(),
 
     quantity: rawProduct?.min_order_quantity || rawProduct?.unit_quantity || 1,
-    quantifiable: rawProduct?.order_type == 2,
+    quantifiable: !readonly && rawProduct?.order_type == 2,
     step: rawProduct?.unit_quantity || 1,
     min: rawProduct?.min_order_quantity || rawProduct?.unit_quantity || 1,
     max:
@@ -583,7 +679,9 @@ export const parseProductDetails = (
     trialSupported: !!rawProduct?.trial_supported,
     trialDuration: rawProduct?.trial_duration,
     trialForce: !!rawProduct?.trial_force,
-    trialEndAction: rawProduct?.trial_end_action
+    trialEndAction: rawProduct?.trial_end_action,
+    // --- locked
+    readonly
   };
 };
 
@@ -721,7 +819,7 @@ export const parseSubproductDetails = (
       const values: SubproductValue[] = get(option, "values", []);
 
       // ---
-      const pricing: ProductSummaryDetailWithPrice[] = map(prices, rawPrice =>
+      let pricing: ProductSummaryDetailWithPrice[] = map(prices, rawPrice =>
         parseSummaryDetailWithPrice(
           rawPrice,
           rawSubproduct,
@@ -749,7 +847,7 @@ export const parseSubproductDetails = (
           overridden: price?.meta.overridden,
           default: !!rawSubproduct?.pivot?.default
         },
-        order: rawSubproduct.pivot.order
+        order: rawSubproduct?.pivot?.order ?? 0
       };
       // ---
       values.push(value as SubproductValue);
@@ -947,7 +1045,11 @@ export const parsePromotionDetails = (
   }
 };
 
-export const parseProvisioningSchema = (data: any, product: IProduct) => {
+export const parseProvisioningSchema = (
+  data: any,
+  product: IProduct,
+  readonly?: boolean
+) => {
   const { getCountry } = useSystem();
 
   const defaultCountry = getCountry();
@@ -965,6 +1067,13 @@ export const parseProvisioningSchema = (data: any, product: IProduct) => {
   //   field.description = product?.name;
   // "The sld may only contain letters, numbers, and dashes"
   // }
+
+  // Set readOnly on each property when product is locked
+  if (readonly && schema.properties) {
+    forEach(schema.properties, (prop: any) => {
+      prop.readOnly = true;
+    });
+  }
 
   return schema;
 };
