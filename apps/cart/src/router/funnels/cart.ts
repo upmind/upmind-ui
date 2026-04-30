@@ -260,12 +260,10 @@ export default <FunnelProps>{
             cond: "hasDomainProducts"
           },
           {
-            target: ROUTE.BASKET_PRODUCT_SETUP,
+            target: ROUTE.BASKET_PRODUCTS_SETUP,
             actions: [
               "setResolving",
-              assign({
-                targetRoute: { name: ROUTE.BASKET_PRODUCT_SETUP }
-              })
+              assign({ targetRoute: { name: ROUTE.BASKET_PRODUCTS_SETUP } })
             ],
             cond: "hasInvalidProducts"
           },
@@ -730,14 +728,14 @@ export default <FunnelProps>{
             cond: "isSession"
           },
           {
-            target: ROUTE.BASKET_PRODUCT_SETUP,
-            actions: ["setResolving"],
-            cond: "hasInvalidProducts"
-          },
-          {
             target: ROUTE.BILLING,
             actions: ["setResolving"],
             cond: "isBilling"
+          },
+          {
+            target: ROUTE.BASKET_PRODUCTS_SETUP,
+            actions: ["setResolving"],
+            cond: "hasInvalidProducts"
           },
           { target: ROUTE.BASKET, actions: ["setResolving"] }
         ]
@@ -808,11 +806,11 @@ export default <FunnelProps>{
       on: {
         NEXT: [
           {
-            target: ROUTE.BASKET_PRODUCT_SETUP,
+            target: ROUTE.BASKET_PRODUCTS_SETUP,
             actions: [
               "setResolving",
               assign({
-                targetRoute: { name: ROUTE.BASKET_PRODUCT_SETUP }
+                targetRoute: { name: ROUTE.BASKET_PRODUCTS_SETUP }
               })
             ],
             cond: "hasInvalidProducts"
