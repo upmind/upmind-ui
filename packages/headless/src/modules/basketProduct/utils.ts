@@ -99,7 +99,7 @@ export const parseBasketProduct = (
     configuration: parseBasketProductModel(raw),
 
     // --- product details
-    productDetails: parseProductDetails(raw.product),
+    productDetails: parseProductDetails(raw.product, raw),
 
     // --- meta details
     meta: pricing.meta,

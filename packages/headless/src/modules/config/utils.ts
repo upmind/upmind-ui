@@ -56,7 +56,8 @@ import {
   GRID_LAYOUT,
   CATEGORY_GRID_LAYOUT,
   GATEWAY_CAP,
-  CLAMP_LINES
+  CLAMP_LINES,
+  IMAGES_STYLE
 } from "./schema";
 
 // --- Initialization ---
@@ -481,6 +482,16 @@ const clampLines = {
   })
 };
 
+const imagesStyle = {
+  type: IMAGES_STYLE,
+  create: (v: Ref<string | undefined>) => ({
+    isAuto: computed(() => v.value === IMAGES_STYLE.AUTO),
+    isSingle: computed(() => v.value === IMAGES_STYLE.SINGLE),
+    isCarousel: computed(() => v.value === IMAGES_STYLE.CAROUSEL),
+    isGrid: computed(() => v.value === IMAGES_STYLE.GRID)
+  })
+};
+
 export const HELPERS = [
   visibility,
   clampable,
@@ -493,7 +504,8 @@ export const HELPERS = [
   gridLayout,
   categoryGridLayout,
   gatewayCap,
-  clampLines
+  clampLines,
+  imagesStyle
 ] as const;
 
 export function provideConfig(config: UseMetaResult): void {

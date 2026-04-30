@@ -2,6 +2,7 @@ import { test, expect } from "@playwright/test";
 import { ErrorCodes } from "../../support/constants/error-codes";
 import { returnError } from "../../support/mocks/errors";
 import { URLs } from "../../support/constants/urls";
+import { waitForSessionCookie } from "../../support/helpers/session";
 
 /**
  * Error Code Handling Tests
@@ -39,7 +40,7 @@ test.describe("Error Code Handling", () => {
       await page.goto(url);
 
       // Wait for page to be ready
-      await page.waitForLoadState("networkidle");
+      await waitForSessionCookie(page.context());
 
       if (errorType === "dialog") {
         // Use .first() to handle potential duplicate dialogs from multiple API calls
