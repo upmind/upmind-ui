@@ -226,9 +226,9 @@ If you need to understand or modify how this works:
 
 ## Future options
 
-Allure Report 3 covers most of what we need (trends, history, environments, quality gates). If the team eventually wants cross-branch / per-release dashboards beyond the two-tab workflow:
+Allure Report (the OSS tool we use) is per-run by design. If cross-branch / per-release analytics become a recurring need:
 
-- **ReportPortal** (free, self-hosted) — ingests the raw `allure-results/` archives we already publish.
+- **ReportPortal** (free, self-hosted) — ingests the raw `allure-results/` archives we already publish. Migration path exists.
 - **Allure TestOps** (paid) — same capability, vendor-managed.
 
 Raw `allure-results/` are archived as `results.tar.gz` alongside every CI and local publish, so switching tools later doesn't lose historical data.
