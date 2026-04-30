@@ -11,6 +11,7 @@ import {
 } from "./utils";
 import { buildConditionState } from "./config.conditions";
 import { useBrand } from "../brand/useBrand";
+import { useBasket } from "../basket/useBasket";
 import type {
   UseMetaOptions,
   UseMetaResult,
@@ -35,7 +36,7 @@ export function useConfig(options?: UseMetaOptions): UseMetaResult {
     product,
     optionGroup,
     option,
-    basket,
+    basket: basketOption,
     basketProduct,
     provide: shouldProvide
   } = options ?? {};
@@ -53,6 +54,15 @@ export function useConfig(options?: UseMetaOptions): UseMetaResult {
   const brand = useCachedRef(
     computed(() => toValue(brandOption) ?? uiCart?.value)
   ) as Ref<BrandMeta["cart"]>;
+
+  // Only call useBasket() when basket option is not provided.
+  // Mirrors the brand pattern; explicit `basket: undefined` opts out (used by
+  // useBrand to break the useBasket → useBrand → useConfig → useBasket cycle).
+  const { basket: basketFromHook } = has(options, "basket")
+    ? { basket: undefined }
+    : useBasket();
+
+  const basket = computed(() => toValue(basketOption) ?? basketFromHook?.value);
 
   const items = computed(() =>
     initializeMeta({
@@ -73,7 +83,7 @@ export function useConfig(options?: UseMetaOptions): UseMetaResult {
     buildConditionState({
       product: toValue(product)?.productDetails as IProduct | undefined,
       basketProduct: toValue(basketProduct),
-      basket: toValue(basket)
+      basket: basket.value
     })
   );
 
