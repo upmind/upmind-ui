@@ -1,5 +1,5 @@
 // --- external
-import { computed, ref, watch } from "vue";
+import { computed, ref, shallowRef, watch } from "vue";
 import {
   defaultsDeep,
   filter,
@@ -9,6 +9,7 @@ import {
   includes,
   isEmpty,
   map,
+  reduce,
   reject,
   size,
   some,
@@ -24,6 +25,10 @@ import {
   type UseBasketProduct
 } from "../basketProduct";
 import basketProductServices from "../basketProduct/services";
+import {
+  useInvalidProductConfigSchema,
+  useInvalidProductConfigUischema
+} from "../product/schemas";
 
 import { useConfig } from "../config";
 import {
@@ -33,15 +38,19 @@ import {
   ErrorOrigin,
   isDeepEmpty,
   responseCodes,
+  stateValue,
+  useContext,
   useModelParser,
-  type ErrorObject
+  type ErrorObject,
+  type ResponseError
 } from "../../utils";
 import { basketProductRequiresSetup } from "./utils";
 
 // --- types
 import type { ActorRef } from "xstate";
+import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
 import { UIContext } from "../config/schema/types";
-import type { ProductModel } from "../product/types";
+import type { ProductConfigContext, ProductModel } from "../product/types";
 import { useI18n } from "../system";
 
 // -----------------------------------------------------------------------------
@@ -69,13 +78,31 @@ export function useProductSetup() {
 
   // --- state
   // Current basket product ID being configured
-  const currentBpId = ref<string>();
-
-  // Snapshot of invalidSchema at configure time (before user fills form)
-  const initialInvalidSchema = ref<object>();
+  const bpid = ref<string>();
+  const schema = ref<JsonSchema7>();
+  const uischema = ref<UISchemaElement>();
 
   // Selected product IDs for "apply to similar" - user can toggle via checkboxes
-  const selectedProducts = ref<string[]>([]);
+  const selected = ref<string[]>([]);
+
+  // True while an `apply()` call is in flight (used to drive the spinner / disable UI)
+  const processing = ref(false);
+
+  // Raw error captured from `apply()` — may be a single ResponseError or an array
+  const rawError = ref<ResponseError | ResponseError[] | undefined>();
+
+  // Normalised single ResponseError for UI consumption (mirrors basket/checkout pattern).
+  // If the raw error is an array, join all messages so the UI can render `error?.message`
+  // without having to know about the array shape.
+  const error = computed<ResponseError | undefined>(() => {
+    const e = rawError.value;
+    if (!e) return undefined;
+    if (!Array.isArray(e)) return e;
+    return {
+      ...(first(e) as ResponseError),
+      message: map(e, "message").filter(Boolean).join("\n")
+    };
+  });
 
   // --- context
   const products = computed((): BasketProduct[] => {
@@ -89,10 +116,10 @@ export function useProductSetup() {
 
   // Products with overlapping error paths (for "apply to similar")
   const similarProducts = computed((): BasketProduct[] => {
-    if (!currentBpId.value) return [];
+    if (!bpid.value) return [];
 
     const mode = ui.productSetup.value;
-    const current = find(basketProducts.value, { id: currentBpId.value });
+    const current = find(basketProducts.value, { id: bpid.value });
     if (!current) return [];
 
     // Get all error paths from current product
@@ -103,7 +130,7 @@ export function useProductSetup() {
 
     // Find other products requiring setup with any overlapping error paths
     return filter(basketProducts.value, bp => {
-      if (bp.id === currentBpId.value) return false;
+      if (bp.id === bpid.value) return false;
       if (bp.serviceIdentifier === current.serviceIdentifier) return false;
       if (!basketProductRequiresSetup(bp, mode)) return false;
 
@@ -117,68 +144,110 @@ export function useProductSetup() {
   // --- meta
   const meta = computed(() => ({
     /** True when basket is loading. */
-    isLoading: basketMeta.value.isLoading,
+    isLoading: basketMeta.value.isLoading || isEmpty(schema.value),
     /** True when all products are complete (no products need setup). */
     isComplete: basketMeta.value.hasProducts && isEmpty(products.value),
     /** True when basket is available and there are products that need setup. */
-    isAvailable: basketMeta.value.hasProducts && !isEmpty(products.value)
+    isAvailable: basketMeta.value.hasProducts && !isEmpty(products.value),
+    /** True while an apply() call is in flight. */
+    isProcessing: processing.value,
+    /** True when the last apply() call errored. */
+    hasError: !!error.value
   }));
 
   // --- methods
   /**
-   * Apply model data to selected similar products.
-   * Uses target product's invalidSchema to strip model to only overlapping invalid fields.
+   * Apply the user's input from the current product's setup form to the
+   * current product and any other selected "similar" products in one batch
+   * call to `updateMany`.
+   *
+   * ## Why this is more nuanced than it looks
+   *
+   * `updateMany` is a REPLACE operation on the basket: whatever array of
+   * basket products we send becomes the new basket. So we must:
+   *
+   * 1. **Include EVERY basket product** in the payload — even ones we
+   *    aren't editing. Omitting a product would remove it from the basket.
+   * 2. **Only mutate the configuration of target products** (the current
+   *    one + any "apply to similar" selections). Other products pass
+   *    through verbatim.
+   * 3. **Limit non-current products to `provisionFields` only.** The
+   *    current product receives the full delta (term, options, attributes,
+   *    provisionFields, etc.), but propagating term/qty/options/attributes
+   *    to other products would clobber their own settings — we only want
+   *    to share the registrant-style fields the user just filled in.
+   *
+   * ## Why we use `schema`
+   *
+   * The schema we parse `model` against is captured at `configure()` time,
+   * BEFORE the user fills the form. By the time `apply()` runs, errors
+   * are gone and the live `invalidSchema` is empty — which would let
+   * unrelated fields leak through. The snapshot keeps the parser scoped
+   * to "the fields that were actually broken when the user started".
+   *
+   * ## Merge semantics
+   *
+   * We use `defaultsDeep(compactDeep(existing), patch)` so existing values
+   * win over the patch — `compactDeep` strips nullish/empty fields from
+   * the existing config first, so the patch only fills holes rather than
+   * overwriting good data.
    */
-
   function apply(model: Partial<ProductModel>): Promise<unknown> {
-    const { t } = useI18n();
-
     const { basketId } = useBasket();
 
-    // Get basket products for all selected + current IDs
-    const productsToUpdate = filter(basketProducts.value, bp =>
-      includes([currentBpId.value, ...selectedProducts.value], bp.id)
+    // Parse user input against the schema snapshot taken at configure time.
+    // This scopes the delta to only the fields that were originally invalid,
+    // preventing accidental writes to unrelated configuration.
+    const delta = schema.value
+      ? useModelParser(schema.value, model, {}, { allowExtraProps: false })
+      : {};
+
+    // Bail ifdelta is empty (e.g., user hit "apply" without changing anything, or all errors were in fields they didn't touch)
+    if (isDeepEmpty(delta)) {
+      return Promise.resolve();
+    }
+
+    // Build the FULL basket products array. Non-target products are passed
+    // through unchanged so updateMany doesn't drop them from the basket.
+    const updatedProducts = reduce<BasketProduct, BasketProduct[]>(
+      basketProducts.value,
+      (acc, bp) => {
+        // Pass through untouched — must still be in the payload.
+        if (!includes([bpid.value, ...selected.value], bp.id)) {
+          acc.push(bp);
+          return acc;
+        }
+
+        // Current product: apply the entire delta (term, options, attrs, etc.)
+        // Similar products: only share provisionFields — never term/qty/subproducts
+        // which are product-specific and could/would be overwritten.
+        const data =
+          bp.id === bpid.value
+            ? delta
+            : { provisionFields: get(delta, "provisionFields", {}) };
+
+        acc.push({
+          ...bp,
+          configuration: defaultsDeep(compactDeep(bp.configuration), data)
+        });
+
+        return acc;
+      },
+      []
     );
 
-    if (isEmpty(productsToUpdate))
-      throw new DetailedError(
-        t("error.basket_product_not_found"),
-        responseCodes.Not_Found,
-        ErrorOrigin.Headless
-      );
+    processing.value = true;
+    rawError.value = undefined;
 
-    // Build models array - use initialInvalidSchema captured at configure time
-    const delta = initialInvalidSchema.value
-      ? useModelParser(
-          initialInvalidSchema.value,
-          model,
-          {},
-          { allowExtraProps: false }
-        )
-      : model;
-
-    const models = map(productsToUpdate, bp => {
-      // const bpInstance = useBasketProduct(bp.id);
-      // const targetInvalidSchema = bpInstance.invalidSchema?.value;
-
-      // Strip model to only fields this product needs
-      // const overlappingModel = targetInvalidSchema
-      //   ? useModelParser(
-      //       targetInvalidSchema,
-      //       delta,
-      //       {},
-      //       { allowExtraProps: false }
-      //     )
-      //   : {};
-      // debugger;
-      return defaultsDeep(compactDeep(bp.configuration), delta);
-    });
-
-    debugger;
     return basketProductServices
-      .updateMany(basketId.value, productsToUpdate, models)
+      .updateMany(basketId.value, updatedProducts, [])
+      .catch(e => {
+        rawError.value = e;
+        throw e;
+      })
       .finally(() => {
-        selectedProducts.value = [];
+        processing.value = false;
+        selected.value = [];
       });
   }
 
@@ -210,8 +279,30 @@ export function useProductSetup() {
     return getNextRelated(actor!) || getNextInvalid(actor);
   }
 
-  function resetSelectedProducts(): void {
-    selectedProducts.value = map(similarProducts.value, "id");
+  function resetselected(): void {
+    selected.value = map(similarProducts.value, "id");
+  }
+
+  // Reads the live invalid schema/uischema off the config's service context
+  // and stores the snapshots. Called at configure time AND whenever the
+  // basket refreshes — e.g. after auth swaps the guest token, validation
+  // re-runs and produces a fresh basketErrors we want to capture.
+  function captureSchemas(service: ActorRef<any>): void {
+    const ctx = contextValue<ProductConfigContext>(service)!;
+    const basketErrors = contextValue<ProductConfigContext["basketErrors"]>(
+      service,
+      "basketErrors"
+    );
+    const state = service.getSnapshot()?.value;
+    schema.value = useInvalidProductConfigSchema(ctx);
+    uischema.value = useInvalidProductConfigUischema(ctx);
+    console.log("captureSchemas", {
+      state,
+      ctx,
+      basketErrors,
+      schema: schema.value,
+      uischema: uischema.value
+    });
   }
 
   // --- side effects
@@ -219,9 +310,7 @@ export function useProductSetup() {
   // Clean up stale selections when basket products change
   watch(basketProducts, () => {
     const validIds = map(similarProducts.value, "id");
-    selectedProducts.value = filter(selectedProducts.value, id =>
-      includes(validIds, id)
-    );
+    selected.value = filter(selected.value, id => includes(validIds, id));
   });
 
   // -----------------------------------------------------------------------------
@@ -229,35 +318,60 @@ export function useProductSetup() {
   return {
     // --- context
     /** Configure a specific basket product for setup. Pass the bpid from route params. */
-    configure: (bpid: BasketProduct["id"]) => {
-      return configure(bpid, {
-        allowMultipleEdits: true
-      }).then(config => {
-        // Capture invalidSchema now, before user fills the form
-        config.isReady().then(() => {
-          currentBpId.value = bpid;
-          initialInvalidSchema.value = config.invalidSchema?.value;
-          selectedProducts.value = map(similarProducts.value, "id");
-        });
-        return config;
-      });
+    configure: (id: BasketProduct["id"]) => {
+      return isReady().then(() =>
+        configure(id, {
+          allowMultipleEdits: true
+        })
+          // .then(config => config.isReady().then(() => config))
+          .then(config => {
+            bpid.value = id;
+            selected.value = map(similarProducts.value, "id");
+            // captureSchemas(config.service);
+
+            // lets ensure we can recover if we dont have schema at this point
+            if (isEmpty(schema.value)) {
+              const stop = watch(
+                config.meta,
+                ({ isAvailable }) => {
+                  if (isAvailable) {
+                    stop();
+                    config.isReady().then(() => captureSchemas(config.service));
+                  }
+                },
+                {
+                  immediate: true,
+                  deep: true
+                }
+              );
+            }
+
+            return config;
+          })
+      );
     },
+    /** Subset schema containing only fields that need attention. Captured at configure time. */
+    schema,
+    /** Subset uischema containing only fields that need attention. Captured at configure time. */
+    uischema,
+    /** Last error from apply() — null until something fails. */
+    error,
     /** All products requiring setup (invalid or deferred based on config mode). */
     products,
     /** Selected product IDs for "apply to others" - defaults to all products. */
-    selectedProducts,
+    selected,
     /** Total count of products requiring setup. */
     total,
     // --- meta
-    /** Meta flags: isComplete (no products left), isAvailable (basket has products). */
+    /** Meta flags: isLoading, isComplete, isAvailable, isProcessing, hasError. */
     meta,
     // --- methods
     /** Apply provision data to one or more products with merge semantics. */
     apply,
     /** Wait for the basket to be ready before checking product setup status. */
     isReady,
-    /** Reset selectedProducts to all similar products (call on cancel/apply). */
-    resetSelectedProducts,
+    /** Reset selected to all similar products (call on cancel/apply). */
+    resetselected,
     /**
      * Get the next invalid product relative to a given basket product actor.
      * Excludes the actor's own product from results.

@@ -942,7 +942,7 @@ export interface ProductConfigContext {
    */
   error?: ResponseError | ErrorObject[];
   /** External errors object. */
-  errorExternal?: ResponseError | ErrorObject[];
+  basketErrors?: ResponseError | ErrorObject[];
   /** Number of attempts made for an operation. */
   attempts?: number;
   // ---

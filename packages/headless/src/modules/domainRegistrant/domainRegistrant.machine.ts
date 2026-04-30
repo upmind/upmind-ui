@@ -102,12 +102,7 @@ export default createMachine(
           // Apply billing to selected products
           APPLY_BILLING: {
             target: ".processing",
-            actions: [
-              () => {
-                debugger;
-              },
-              "overrideModel"
-            ]
+            actions: ["overrideModel"]
           },
           // Apply provision fields to selected products (from inline edit)
           APPLY_PROVISION: {
@@ -236,7 +231,6 @@ export default createMachine(
           { model }: DomainRegistrantContext,
           { data }: AnyEventObject
         ) => {
-          debugger;
           return data?.bpids || model;
         }
       }),

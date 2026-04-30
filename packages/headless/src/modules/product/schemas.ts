@@ -1,19 +1,20 @@
 // --- external
 import {
+  filter,
   find,
   first,
   forEach,
   isEmpty,
   keys,
   map,
-  size,
-  some
+  size
 } from "lodash-es";
 
 // --- internal
 import { useConfig } from "../config";
 import { useI18n } from "../system";
 import {
+  hasScopeError,
   calculateBillingTerm,
   parseProvisioningSchema,
   parseQuantity
@@ -425,17 +426,7 @@ export function useInvalidProductConfigUischema(
   const mode = ui.productSetup.value;
   const elements: any[] = [];
   const { t } = useI18n();
-  const errorPaths = new Set(
-    map(context.errorExternal as any[], "instancePath")
-  );
-
-  // --- Helper to check if a scope has an error
-  const hasError = (scope: string): boolean => {
-    const instancePath = scope
-      .replace("#/properties/", "/")
-      .replace(/\/properties\//g, "/");
-    return errorPaths.has(instancePath);
-  };
+  const hasError = hasScopeError(context.basketErrors);
 
   // --- trial opt-in
   if (
@@ -571,36 +562,72 @@ export function useInvalidProductConfigUischema(
 export function useInvalidProductConfigSchema(
   context: ProductConfigContext
 ): JsonSchema7 | undefined {
-  if (!context?.schema?.properties) return undefined;
+  const properties: Record<string, any> = {};
+  const required: string[] = [];
 
-  const errorPaths = new Set(
-    map(context.errorExternal as any[], "instancePath")
-  );
+  const hasError = hasScopeError(context.basketErrors);
 
-  if (isEmpty(errorPaths)) return undefined;
-
-  // Check if a property has an error (direct or nested)
-  const hasError = (propKey: string): boolean => {
-    const instancePath = `/${propKey}`;
-    return (
-      errorPaths.has(instancePath) ||
-      some([...errorPaths], (p: string) => p.startsWith(`${instancePath}/`))
+  // --- term
+  if (!isEmpty(context.lookups?.terms) && hasError("#/properties/term")) {
+    properties.term = buildTermSchema(
+      context.lookups!.terms!,
+      context.product?.productDetails.defaultPaymentPeriod
     );
-  };
+    required.push("term");
+  }
 
-  // Build schema with only invalid properties
-  const invalidProperties: Record<string, any> = {};
-
-  forEach(context.schema.properties, (propSchema, propKey) => {
-    if (hasError(propKey)) {
-      invalidProperties[propKey] = propSchema;
+  // --- options
+  if (!isEmpty(context.lookups?.options)) {
+    const invalidOptions = filter(
+      context.lookups!.options!,
+      (opt: SubproductDetails) =>
+        hasError(`#/properties/options/properties/${opt.id}`)
+    );
+    if (!isEmpty(invalidOptions)) {
+      properties.options = buildSubproductGroupSchema(invalidOptions);
     }
-  });
+  }
 
-  if (isEmpty(invalidProperties)) return undefined;
+  // --- attributes
+  if (!isEmpty(context.lookups?.attributes)) {
+    const invalidAttributes = filter(
+      context.lookups!.attributes!,
+      (attr: SubproductDetails) =>
+        hasError(`#/properties/attributes/properties/${attr.id}`)
+    );
+    if (!isEmpty(invalidAttributes)) {
+      properties.attributes = buildSubproductGroupSchema(invalidAttributes);
+    }
+  }
+
+  // --- provision fields (parse raw fields into JSON schema)
+  if (!isEmpty(context.lookups?.provisionFields) && context.rawProduct) {
+    const invalidProvisionFields = filter(
+      context.lookups!.provisionFields,
+      (field: any) =>
+        hasError(`#/properties/provisionFields/properties/${field.name}`)
+    );
+    if (!isEmpty(invalidProvisionFields)) {
+      properties.provisionFields = parseProvisioningSchema(
+        invalidProvisionFields,
+        context.rawProduct
+      );
+    }
+  }
+
+  // --- trial opt-in
+  if (
+    context.lookups?.product?.trialSupported &&
+    hasError("#/properties/startTrial")
+  ) {
+    properties.startTrial = buildTrialSchema(context.lookups.product);
+  }
+
+  if (isEmpty(properties)) return undefined;
 
   return {
     type: "object",
-    properties: invalidProperties
-  };
+    required,
+    properties
+  } as JsonSchema7;
 }

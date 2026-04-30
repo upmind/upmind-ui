@@ -311,7 +311,13 @@ export default createMachine(
       },
 
       unavailable: {
-        id: "unavailable"
+        id: "unavailable",
+        on: {
+          REFRESH: {
+            target: "loading",
+            actions: ["refreshContext"]
+          }
+        }
       },
 
       // Decide whether to continue editing or stop
@@ -330,7 +336,7 @@ export default createMachine(
       }
     },
     on: {
-      STOP: "complete",
+      // STOP: "complete",
       RESET: {
         target: "refreshing",
         actions: ["resetModel"]
@@ -368,7 +374,7 @@ export default createMachine(
             promotions,
             coupons,
             subproducts,
-            errorExternal,
+            basketErrors,
             error,
             silent,
             bundle
@@ -376,7 +382,7 @@ export default createMachine(
           _event: AnyEventObject
         ) => {
           return {
-            errorExternal,
+            basketErrors: get(basketErrors, rawBasketProduct?.id ?? ""),
             error: merge({}, error),
 
             // ---
@@ -408,23 +414,16 @@ export default createMachine(
         }
       ),
       refreshContext: assign(
-        (
-          {
-            model,
-            lookups,
-            rawProduct,
-            error,
-            coupons,
-            rawBasketProduct
-          }: ProductConfigContext,
-          { data }: AnyEventObject
-        ) => {
+        (context: ProductConfigContext, { data }: AnyEventObject) => {
+          let { model, lookups, rawProduct, error, coupons, rawBasketProduct } =
+            context;
+
           const {
             basket_product,
             client_id,
             currency_id,
             promotions,
-            error: errorExternal
+            error: basketErrors
           } = data ?? {};
 
           lookups ??= {};
@@ -459,7 +458,7 @@ export default createMachine(
             model: basket_product
               ? parseBasketProductModel(basket_product)
               : cloneDeep(model),
-            errorExternal,
+            basketErrors: get(basketErrors, rawBasketProduct?.id ?? ""),
             error: merge({}, error),
             lookups
           };
@@ -540,16 +539,16 @@ export default createMachine(
           { rawProvisionFields },
           { data }: AnyEventObject
         ) => data?.rawProvisionFields ?? rawProvisionFields ?? {},
-        errorExternal: (
-          { errorExternal, baseModel }: ProductConfigContext,
+        basketErrors: (
+          { basketErrors, baseModel }: ProductConfigContext,
           { data }: AnyEventObject
         ) => {
           // Change in Logic...if we have interacted with the product,
           // we can clear any external errors for fields that have changed.
-          if (!isArray(errorExternal)) return errorExternal;
+          if (!isArray(basketErrors)) return basketErrors;
 
           const newModel = data?.model ?? data;
-          const remaining = filter(errorExternal, error => {
+          const remaining = filter(basketErrors, error => {
             const field = compact(
               split(trimStart(error.instancePath, "/"), "/")
             );
@@ -572,8 +571,8 @@ export default createMachine(
       resetModel: assign({
         model: ({ baseModel }: ProductConfigContext, _event) =>
           cloneDeep(baseModel),
-        error: ({ error, errorExternal }, _event) =>
-          merge({}, error, errorExternal)
+        error: ({ error, basketErrors }, _event) =>
+          merge({}, error, basketErrors)
       }),
 
       // ---
@@ -701,7 +700,7 @@ export default createMachine(
       // ---
 
       setExternalError: assign({
-        errorExternal: (
+        basketErrors: (
           _context: ProductConfigContext,
           { data }: AnyEventObject
         ) => mapToHeadlessError(data) // NB we only need the exact errors from the api
