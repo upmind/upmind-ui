@@ -92,6 +92,14 @@ export default {
   },
 
   /**
+   * Returns true when the error target is BILLING.
+   * Used by CHECKOUT onError to route to billing before product setup.
+   */
+  isBilling: (_context: FunnelContext, { data }: AnyEventObject) => {
+    return data?.target?.name === "billing";
+  },
+
+  /**
    * Returns true when basket contains domain products.
    */
   hasDomainProducts: () => {

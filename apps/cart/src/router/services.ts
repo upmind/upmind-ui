@@ -14,6 +14,7 @@ import {
   type FunnelResponse,
   useBasketProducts,
   isDomainProduct,
+  getDomainBasketProducts,
   useBasketBilling,
   useClientAddresses,
   useClientCompanies,
@@ -31,7 +32,7 @@ import {
   UpmindModuleCodes
 } from "@upmind-automation/types";
 import { ROUTE } from ".";
-import { filter, first, includes, reduce } from "lodash-es";
+import { filter, first, includes, isEmpty, reduce } from "lodash-es";
 import { useRouter, type RouteLocationGeneric } from "vue-router";
 
 // -----------------------------------------------------------------------------
@@ -517,7 +518,7 @@ export default {
   guardCheckout: async (context: FunnelContext): Promise<FunnelResponse> => {
     await ensureBidAuth(context, { name: ROUTE.CHECKOUT });
 
-    const { meta, isReady } = useBasket();
+    const { meta, isReady, products } = useBasket();
     const { isReady: isFieldsReady, meta: fieldsMeta } = useBasketFields();
     const { getConfigValue } = useBrand();
 
@@ -550,25 +551,46 @@ export default {
       return Promise.reject({ target: { name: ROUTE.BASKET } });
     }
 
-    // --- 2. Billing: Redirect to standalone billing if it needs input
-    const { isReady: isBillingReady, meta: billingMeta } = useBasketBilling();
+    // --- 2. Billing: Redirect to standalone billing page when required
+    // Standalone billing is used when billing is readonly on checkout (separate page).
+    // We redirect to billing if:
+    //   - Billing details are incomplete (address/company/phone missing), OR
+    //   - Basket contains domains AND no address set (registrant needs address)
+    // Note: billingMeta.isComplete = true when billing is not required OR all fields are valid.
+    const {
+      isReady: isBillingReady,
+      meta: billingMeta,
+      model: billingModel
+    } = useBasketBilling();
     await isBillingReady();
 
-    if (!billingMeta.value.isComplete) {
-      const { ui } = useConfig({ context: UIContext.CHECKOUT });
-      const { data } = useConfig({ context: UIContext.BILLING_DETAILS });
-      if (!data.billingDetailsDisabled && ui.billingDetails.isReadonly) {
-        const { router } = useRoutingEngine();
-        if (
-          !includes(
-            [ROUTE.BILLING, ROUTE.CHECKOUT],
-            router.currentRoute.value?.name
-          )
-        ) {
-          return Promise.reject({
-            target: { name: ROUTE.BILLING }
-          } as FunnelResponse);
-        }
+    const { ui } = useConfig({ context: UIContext.CHECKOUT });
+    const { data } = useConfig({ context: UIContext.BILLING_DETAILS });
+
+    // Domains require an address for registrant details
+    const hasDomains = !isEmpty(getDomainBasketProducts(products.value));
+
+    // Need address if: domains need address for registrant
+    const needsAddress = hasDomains && !billingModel.value?.addressId;
+
+    // Standalone billing page is enabled when billing is readonly on checkout and we dont have one
+    const needsBillingPage =
+      !data.billingDetailsDisabled &&
+      ui.billingDetails.isReadonly &&
+      !billingMeta.value.isComplete;
+
+    if (needsBillingPage || needsAddress) {
+      const { router } = useRoutingEngine();
+      // Skip redirect if already on billing or checkout (avoid redirect loops)
+      if (
+        !includes(
+          [ROUTE.BILLING, ROUTE.CHECKOUT],
+          router.currentRoute.value?.name
+        )
+      ) {
+        return Promise.reject({
+          target: { name: ROUTE.BILLING }
+        } as FunnelResponse);
       }
     }
 
@@ -585,25 +607,16 @@ export default {
     ) {
       await isFieldsReady();
       const validFields = fieldsMeta.value.isComplete;
-      if (!validFields)
+      if (!validFields) {
         return Promise.reject({ target: { name: ROUTE.BASKET } });
+      }
     }
 
     return { target: context.targetRoute ?? { name: ROUTE.CHECKOUT } };
   },
 
-  guardBilling: async (
-    context: FunnelContext,
-    event: AnyEventObject
-  ): Promise<FunnelResponse> => {
+  guardBilling: async (context: FunnelContext): Promise<FunnelResponse> => {
     await ensureBidAuth(context, { name: ROUTE.BILLING });
-    // If standalone billing isn't enabled, skip to checkout
-    const { ui } = useConfig({ context: UIContext.CHECKOUT });
-    const { data } = useConfig({ context: UIContext.BILLING_DETAILS });
-
-    if (data.billingDetailsDisabled || !ui.billingDetails.isReadonly) {
-      return { target: context.targetRoute ?? { name: ROUTE.CHECKOUT } };
-    }
 
     // Skip billing when not authenticated — billing requires a client_id
     // to load. Checkout handles the auth redirect.
@@ -613,7 +626,12 @@ export default {
     }
 
     // Load billing and check if it still needs input
-    const { isReady: isBillingReady, meta: billingMeta } = useBasketBilling();
+    const { products } = useBasket();
+    const {
+      isReady: isBillingReady,
+      meta: billingMeta,
+      model: billingModel
+    } = useBasketBilling();
     await isBillingReady();
 
     // If billing is not yet complete, try applying client defaults (address,
@@ -624,15 +642,28 @@ export default {
       await applyBillingDefaults().catch(() => {});
     }
 
-    // Skip billing when input isn't needed, unless the user explicitly
-    // navigated here (e.g. the "Change" button on BillingSummary sends a
-    // RESOLVE event via navigate()).  Auto-redirects from guardCheckout
-    // arrive as error events and should be skipped when billing is complete.
-    if (billingMeta.value.isComplete && event.type !== "RESOLVE") {
-      return { target: { name: ROUTE.CHECKOUT } };
+    const { ui } = useConfig({ context: UIContext.CHECKOUT });
+    const { data } = useConfig({ context: UIContext.BILLING_DETAILS });
+
+    // Domains require an address for registrant details
+    const hasDomains = !isEmpty(getDomainBasketProducts(products.value));
+
+    // Need address if: domains need address for registrant
+    const needsAddress = hasDomains && !billingModel.value?.addressId;
+
+    // Standalone billing page is enabled when billing is readonly on checkout and we dont have one
+    const needsBillingPage =
+      !data.billingDetailsDisabled &&
+      ui.billingDetails.isReadonly &&
+      !billingMeta.value.isComplete;
+
+    // Show billing page if standalone billing is enabled and address is needed
+    if (needsBillingPage || needsAddress) {
+      return { target: context.targetRoute ?? { name: ROUTE.BILLING } };
     }
-    // Show billing page
-    return { target: context.targetRoute ?? { name: ROUTE.BILLING } };
+
+    // Skip to checkout - billing not needed
+    return Promise.reject({ target: { name: ROUTE.CHECKOUT } });
   },
 
   /**

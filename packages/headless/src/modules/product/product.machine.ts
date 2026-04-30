@@ -7,6 +7,7 @@ import { basketSubscription } from "../basketProduct/helper";
 
 // --utils
 import {
+  compactDeep,
   mapToHeadlessError,
   responseCodes,
   useModelParser,
@@ -37,7 +38,6 @@ import {
   isEqual,
   map,
   merge,
-  pick,
   split,
   trimStart,
   xorBy
@@ -206,12 +206,12 @@ export default createMachine(
           REFRESH: [
             {
               target: "loading",
-              actions: ["refreshContext"],
+              actions: ["clearError", "refreshContext"],
               cond: "hasCurrencyChanged"
             },
             {
               target: "refreshing",
-              actions: ["refreshContext"],
+              actions: ["clearError", "refreshContext"],
               cond: "hasBasketChanged"
             },
             {
@@ -220,6 +220,8 @@ export default createMachine(
               cond: "hasError"
             },
             {
+              // Default: refresh context and re-validate (model may have changed)
+              target: "available.checking",
               actions: ["refreshContext"]
             }
           ],
@@ -341,7 +343,7 @@ export default createMachine(
       }
     },
     on: {
-      // STOP: "complete",
+      STOP: "complete",
       RESET: {
         target: "refreshing",
         actions: ["resetModel"]
@@ -420,7 +422,7 @@ export default createMachine(
       ),
       refreshContext: assign(
         (context: ProductConfigContext, { data }: AnyEventObject) => {
-          let { model, lookups, rawProduct, error, coupons, rawBasketProduct } =
+          let { model, lookups, rawProduct, coupons, rawBasketProduct } =
             context;
 
           let {
@@ -443,11 +445,17 @@ export default createMachine(
             lookups.product = parseProductDetails(rawProduct, basketProduct);
           }
 
-          // Update baseModel from new basket data, merge into model preserving user edits
+          // Update baseModel from new basket data, merge into model preserving user edits.
+          // compactDeep strips nulls from model so basket values fill in, but actual user edits win.
           const newBaseModel = basketProduct
             ? parseBasketProductModel(basketProduct)
             : cloneDeep(model);
-          const newModel = useModelParser(context.schema, model, newBaseModel);
+
+          const newModel = useModelParser(
+            context.schema,
+            compactDeep(model),
+            newBaseModel
+          );
 
           const newContext = {
             clientId: client_id,
@@ -459,8 +467,8 @@ export default createMachine(
             readonly: hasNonOrderableSubproducts(basketProduct),
             baseModel: newBaseModel,
             model: newModel,
+            // Fresh basket errors for this product - keyed by product ID in the full basket errors object
             basketErrors: get(basketErrors, basketProduct?.id ?? ""),
-            error: merge({}, error),
             lookups
           };
 
@@ -737,18 +745,13 @@ export default createMachine(
           xorBy(promotions, data?.promotions, "promotion_id")
         );
 
-        // lets see if any important value have changed within the basketProduct
-        // dont compare the entire object, just the keys that are important to this machine
-        // todo: check if bbasketProduct exists on data
-        const keys = ["id", "product_id", "service_identifier"];
-        const dataBasketProduct = find(data?.products, [
-          "id",
-          rawBasketProduct?.id
-        ]);
-        const basketProductChanged = !isEqual(
-          pick(dataBasketProduct, keys),
-          pick(rawBasketProduct, keys)
-        );
+        // NB check if our underlying basketProduct has changed as well ( if we have one )
+        const basketProductChanged =
+          !!rawBasketProduct &&
+          !isEqual(
+            find(data?.products, ["id", rawBasketProduct?.id]),
+            rawBasketProduct
+          );
 
         const value =
           basketChanged ||

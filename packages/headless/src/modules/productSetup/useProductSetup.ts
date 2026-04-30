@@ -331,11 +331,12 @@ export function useProductSetup() {
 
             // lets ensure we can recover if we dont have schema at this point
             if (isEmpty(schema.value)) {
-              const stop = watch(
+              let stop: (() => void) | undefined;
+              stop = watch(
                 config.meta,
                 ({ isAvailable }) => {
                   if (isAvailable) {
-                    stop();
+                    stop?.(); // Optional chain: immediate:true runs before watch() returns
                     config.isReady().then(() => captureSchemas(config.service));
                   }
                 },
