@@ -36,7 +36,7 @@ export function basketSubscription(callback: any, onReceiveEvent: any) {
     if (!basket.basketId.value) return;
     callback({
       type: "REFRESH",
-      data: basket.basket.value
+      data: { ...basket.basket.value, error: basket.errors.value }
     });
   });
 
@@ -55,25 +55,28 @@ export function basketSubscription(callback: any, onReceiveEvent: any) {
     ) {
       isRefreshing = false;
       isLoading = false;
-      callback({ type: "REFRESH", data: state.context?.basket });
+      callback({
+        type: "REFRESH",
+        data: { ...state.context?.basket, error: state.context?.error }
+      });
     }
   });
 
   //-- initialise our basket
-  const onReceive = (event: any) => {
+  const onReceive = (event: any, meta: any) => {
     if (event.type === "INIT") {
       basket
         .isReady()
         .then(() => {
           callback({
             type: "REFRESH",
-            data: basket.basket.value
+            data: { ...basket.basket.value, error: basket.errors.value }
           });
         })
         .catch(() => {
           callback({
             type: "REFRESH",
-            data: basket.basket.value
+            data: { ...basket.basket.value, error: basket.errors.value }
           });
         });
       return;

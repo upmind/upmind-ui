@@ -16,7 +16,7 @@
                 :processing="productMeta.isProcessing"
                 :disabled="productMeta.isProcessing"
                 :schema="schema"
-                :uischema="invalidUischema"
+                :uischema="uischema"
                 :model-value="model"
                 :additional-errors="additionalErrors"
                 :touched="productMeta.showErrors"
@@ -24,7 +24,7 @@
                 no-actions
                 as="fieldset"
               />
-              <ConfigSkeleton v-else-if="!productMeta?.isUnavailable" />
+              <ConfigSkeleton v-else />
             </form>
           </Section>
         </slot>
@@ -34,7 +34,7 @@
         <slot name="apply-to-others" :other-products="similarProducts">
           <ApplyToOthers
             v-if="similarProducts?.length"
-            v-model="selectedProducts"
+            v-model="selected"
             :products="similarProducts"
           />
         </slot>
@@ -62,14 +62,16 @@
             />
             <slot name="errors">
               <Alert
+                v-if="externalErrors?.message || setupMeta?.hasError"
                 class="w-full"
-                v-if="externalErrors?.message"
                 color="danger"
                 variant="minimal"
                 icon="alert-triangle"
-                :title="externalErrors?.message"
+                :title="t('error.product_setup')"
+                :description="externalErrors?.message || setupError?.message"
               />
               <ConfigErrors
+                v-if="!setupMeta.isLoading"
                 :visible="productMeta?.showErrors"
                 :errors="validationErrors"
               />
@@ -91,16 +93,17 @@
           name="actions"
           :do-resolve="doResolve"
           :do-reject="doReject"
-          :is-processing="productMeta?.isProcessing"
+          :is-processing="productMeta?.isProcessing || setupMeta?.isProcessing"
         >
           <Button
             type="submit"
             :label="t('action.continue_label')"
-            :loading="productMeta?.isProcessing"
+            :loading="productMeta?.isProcessing || setupMeta?.isProcessing"
             :disabled="
               productMeta?.isLoading ||
               productMeta?.isInvalid ||
-              productMeta?.isUnavailable
+              productMeta?.isUnavailable ||
+              setupMeta?.isProcessing
             "
             color="primary"
             size="lg"
@@ -179,33 +182,39 @@ const { navigateBack, navigateNext } = useRoutingEngine();
 const { basketProductId } = useQueryParams();
 
 // --- Product Setup composable for configure, meta, and navigation
-const { apply, configure, selectedProducts, similarProducts, total } =
-  useProductSetup();
+const {
+  apply,
+  configure,
+  error: setupError,
+  meta: setupMeta,
+  schema,
+  uischema,
+  selected,
+  similarProducts,
+  total
+} = useProductSetup();
 
 const { service: basketProduct, isReady } = await configure(basketProductId);
 
-const productConfig = useProductConfig(basketProduct);
+const basketProductConfig = useProductConfig(basketProduct);
 
-if (!productConfig)
+if (!basketProductConfig)
   throw new DetailedError(
     t("error.product_not_available"),
     responseCodes.Service_Unavailable,
     ErrorOrigin.Headless
   );
-provide("useProductConfig", productConfig);
+provide("useProductConfig", basketProductConfig);
 
 const {
   meta: productMeta,
   model,
   product,
-  schema,
-  invalidSchema,
-  invalidUischema,
   externalErrors,
   validationErrors,
   additionalErrors,
   setConfig
-} = productConfig;
+} = basketProductConfig;
 
 // --- Config context
 const configMeta = useConfig({
@@ -226,11 +235,12 @@ const template = computed(() =>
 
 const templateVariant = computed(() => get(supportedTemplates, template.value));
 
-const currentProductTitle = computed(
-  () =>
-    get(model.value, "provisionFields.domain") ||
-    get(product.value, "serviceIdentifier") ||
-    get(product.value, "productDetails.title")
+const currentProductTitle = computed(() =>
+  get(
+    product.value,
+    "serviceIdentifier",
+    get(product.value, "productDetails.title", "")
+  )
 );
 
 // --- Actions
@@ -241,11 +251,9 @@ async function doResolve() {
 
   return apply(model.value ?? {})
     .then(() => {
-      debugger;
       navigateNext();
     })
     .catch(() => {
-      debugger;
       // noop, errors are handled by headless and exposed via `externalErrors` and `validationErrors`
     });
 }

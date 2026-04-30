@@ -48,10 +48,6 @@ import type {
   ProductConfigContext
 } from "./";
 import { generateShareUrlConfig } from "./utils";
-import {
-  useInvalidProductConfigSchema,
-  useInvalidProductConfigUischema
-} from "./schemas";
 import { useI18n } from "../system";
 
 // -----------------------------------------------------------------------------
@@ -108,14 +104,7 @@ export const useProductConfig = (service: ActorRef<any>) => {
 
   const schema = useContext<JsonSchema7>(state, "schema");
   const uischema = useContext<UISchemaElement>(state, "uischema");
-  const invalidUischema = computed(() => {
-    const ctx = contextValue<ProductConfigContext>(service);
-    return ctx ? useInvalidProductConfigUischema(ctx) : undefined;
-  });
-  const invalidSchema = computed(() => {
-    const ctx = contextValue<ProductConfigContext>(service);
-    return ctx ? useInvalidProductConfigSchema(ctx) : undefined;
-  });
+
   const provisionFieldsSchema = useContext<Record<string, any>>(
     state,
     "schema.properties.provisionFields"
@@ -126,9 +115,9 @@ export const useProductConfig = (service: ActorRef<any>) => {
   const validationErrors = useContext<Product["errors"]>(state, "error.data");
   const additionalErrors = useContext<Product["errors"]>(
     state,
-    "errorExternal.data"
+    "basketErrors.data"
   );
-  const externalErrors = useContext<ResponseError>(state, "errorExternal");
+  const externalErrors = useContext<ResponseError>(state, "basketErrors");
 
   const shareUrl = computed(() => {
     const baseUrl = `${window.location.origin}/order/product/${productDetails.value?.id}`;
@@ -148,7 +137,7 @@ export const useProductConfig = (service: ActorRef<any>) => {
     ),
     isTouched: touched.value,
     showErrors:
-      isArray(contextValue(state, "errorExternal")) ||
+      isArray(contextValue(state, "basketErrors")) ||
       (contextMatches(state, ["error"]) && contextMatches(state, ["attempts"])),
 
     hasErrors:
@@ -449,8 +438,6 @@ export const useProductConfig = (service: ActorRef<any>) => {
     raw,
     schema,
     uischema,
-    invalidSchema,
-    invalidUischema,
     provisionFieldsSchema,
     title,
     // productDetails,
