@@ -57,6 +57,10 @@ import { PRE_BASKET_CONTEXTS, POST_BASKET_CONTEXTS } from "./schema/types";
 // Type Guards
 // -----------------------------------------------------------------------------
 
+/**
+ * Narrows a setting value to a `ConditionalValue<T>` shape (`{ default, rules }`).
+ * Returns false for plain values (strings, numbers, etc.).
+ */
 export function isConditionalValue<T>(
   value: unknown
 ): value is ConditionalValue<T> {
@@ -72,6 +76,13 @@ export function isConditionalValue<T>(
 // Evaluator
 // -----------------------------------------------------------------------------
 
+/**
+ * Resolves a `SettingValue` against a `ConditionState`.
+ *
+ * Returns the first rule's `then` whose `when` matches state; falls back to
+ * `default` if no rule matches. A rule with no `when` is a catch-all and
+ * always matches. Plain (non-conditional) values are returned as-is.
+ */
 export function evaluateRules<T>(
   value: SettingValue<T>,
   state: ConditionState
@@ -92,6 +103,11 @@ export function evaluateRules<T>(
   return result;
 }
 
+/**
+ * Tests whether all keys in a condition match the given state.
+ * Each key in `condition` is AND-ed; missing state values cause the rule to
+ * silently skip (return false) so partial state never produces false positives.
+ */
 export function matchesCondition(
   condition: RuleCondition,
   state: ConditionState
@@ -117,6 +133,11 @@ export function matchesCondition(
   });
 }
 
+/**
+ * Applies a single comparison operator to a state value and operand.
+ * Returns false (skip) on type mismatches and unknown operators —
+ * `validateMeta` is responsible for surfacing those at save time.
+ */
 export function evaluateOperator(
   stateValue: unknown,
   operator: ComparisonOperator,
@@ -181,6 +202,11 @@ export function evaluateOperator(
 // State Builder
 // -----------------------------------------------------------------------------
 
+/**
+ * Projects domain inputs (product, basketProduct, basket) into the flat
+ * `ConditionState` shape used by `evaluateRules`. Keys with no resolvable
+ * value are omitted so the evaluator can distinguish "missing" from "false".
+ */
 export function buildConditionState(
   inputs: ConditionStateInputs
 ): ConditionState {
@@ -212,13 +238,13 @@ function resolveStateKey(
   switch (key) {
     // --- Product state keys
     case ProductStateKey.TRIAL_DAYS:
-      return get(product, "trial_days");
+      return get(product, "trial_duration");
 
     case ProductStateKey.TERM_COUNT:
-      return size(get(product, "billing_terms", []));
+      return size(get(product, "prices", []));
 
     case ProductStateKey.OPTION_COUNT:
-      return size(get(product, "product_options", []));
+      return size(get(product, "products_options", []));
 
     case ProductStateKey.BCM:
       return get(product, "billing_cycle_months");
@@ -233,18 +259,15 @@ function resolveStateKey(
     case BasketProductStateKey.QTY:
       return get(basketProduct, "quantity");
 
-    case BasketProductStateKey.COUPONS:
-      return map(get(basketProduct, "coupons", []), "code");
-
     case BasketProductStateKey.TOTAL:
-      return get(basketProduct, "totals.sub_total");
+      return get(basketProduct, "net_amount");
 
     // --- Basket state keys
     case BasketStateKey.COUPONS:
-      return map(get(basket, "coupons", []), "code");
+      return map(get(basket, "promotions", []), "promotion.code");
 
     case BasketStateKey.TOTAL:
-      return get(basket, "totals.sub_total");
+      return get(basket, "net_amount");
 
     case BasketStateKey.ITEM_COUNT:
       return size(get(basket, "products", []));
@@ -261,6 +284,10 @@ function resolveStateKey(
 // Validator
 // -----------------------------------------------------------------------------
 
+/**
+ * Stable identifiers for validator findings. Surfaced on each
+ * `ValidationIssue.code` so callers can group/filter without parsing messages.
+ */
 export const ValidationCode = {
   UNKNOWN_SETTING: "UNKNOWN_SETTING",
   NOT_CONDITIONAL: "NOT_CONDITIONAL",
@@ -293,11 +320,17 @@ const ALL_OPERATORS = concat<ComparisonOperator>(
 
 const ARRAY_STATE_KEYS: ConditionStateKey[] = [
   BasketProductStateKey.SUB_PIDS,
-  BasketProductStateKey.COUPONS,
   BasketStateKey.COUPONS,
   BasketStateKey.PIDS
 ];
 
+/**
+ * Validates a meta object's conditional rules without throwing.
+ *
+ * Walks each setting and checks rule shape, state key/operator/operand types,
+ * and per-context availability. Returns a list of issues at error/warning/info
+ * severity for callers to surface in editors or logs.
+ */
 export function validateMeta(params: {
   meta: Record<string, unknown>;
   context?: UIContext;
