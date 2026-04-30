@@ -175,7 +175,7 @@ export function useProductSetup() {
    *    current product receives the full delta (term, options, attributes,
    *    provisionFields, etc.), but propagating term/qty/options/attributes
    *    to other products would clobber their own settings — we only want
-   *    to share the registrant-style fields the user just filled in.
+   *    to share the provision fields the user just filled in.
    *
    * ## Why we use `schema`
    *

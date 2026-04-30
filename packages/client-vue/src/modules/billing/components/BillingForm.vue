@@ -53,12 +53,6 @@
         />
       </template>
     </Sections>
-
-    <!-- Domain checkboxes for applying billing as registrant -->
-    <DomainCheckboxes
-      v-if="!registrantMeta.isEmpty"
-      v-model="selectedDomainIds"
-    />
   </Loading>
 
   <Teleport v-if="isMounted && !inline && !isMobile" to="#billing-actions">
@@ -89,8 +83,7 @@ import {
   useClientAddresses,
   useClientCompanies,
   useClientPhones,
-  useRoutingEngine,
-  useDomainRegistrant
+  useRoutingEngine
 } from "@upmind-automation/headless";
 import billingConfig from "../billing.config";
 
@@ -104,7 +97,6 @@ import {
 import Sections from "../../../components/section/Sections.vue";
 import TabBusiness from "./TabBusiness.vue";
 import TabPersonal from "./TabPersonal.vue";
-import { DomainCheckboxes } from "../../domain-registrant";
 
 // --- types
 import type { TabItem } from "@upmind-automation/upmind-ui";
@@ -135,10 +127,6 @@ const isMounted = useMounted();
 const { client } = useSession();
 const { isReady, meta, config, set, update, model } = useBasketBilling();
 const { navigateNext } = useRoutingEngine();
-const { meta: registrantMeta, applyBilling } = useDomainRegistrant();
-
-/** Domain IDs selected to receive billing details as registrant */
-const selectedDomainIds = ref<string[]>([]);
 
 // ensure we preload our data for speed between the tab
 
@@ -224,17 +212,6 @@ const tabs = computed((): TabItem[] => {
 
 async function doContinue() {
   await update(model.value!);
-
-  // Apply billing details to checked domains as registrant data
-  if (!registrantMeta.value.isEmpty && selectedDomainIds.value.length > 0) {
-    const billing =
-      getCompany(model.value?.companyId ?? undefined) ??
-      getAddress(model.value?.addressId ?? undefined);
-
-    if (billing) {
-      await applyBilling(billing, selectedDomainIds.value);
-    }
-  }
   navigateNext();
 }
 
