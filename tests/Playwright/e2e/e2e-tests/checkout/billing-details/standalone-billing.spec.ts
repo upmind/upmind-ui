@@ -12,8 +12,9 @@ import {
 import { getSessionToken, getClientToken } from "../../../support/api/auth";
 import { Logins } from "../../../support/constants/logins";
 import { Registration } from "../../../support/page-objects/templates/registration";
-import { getCurrentOrder } from "../../../support/api/basket";
+import { getCurrentOrder, setOrderAddress } from "../../../support/api/basket";
 import { registerClient } from "../../../support/api/client";
+import { waitForSessionCookie } from "../../../support/helpers/session";
 
 let checkout: Checkout;
 let billingPage: BillingPage;
@@ -25,26 +26,14 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       checkout = new Checkout(page);
       registration = new Registration(page, context);
       await page.goto("/");
-      await expect
-        .poll(
-          async () => {
-            const cookies = await context.cookies();
-            return cookies.some(
-              c =>
-                c.name === "upm_guest_session" ||
-                c.name === "upm_client_session"
-            );
-          },
-          { timeout: 30000 }
-        )
-        .toBeTruthy();
+      await waitForSessionCookie(context);
       let guestToken = await getSessionToken(context);
       let user = await registerClient(guestToken);
       let username = user.email;
       let password = user.password;
       await getClientToken(page, username, password);
       interceptUISchema(context, {
-        "@data.billingdetails.billingDetailsDisabled": false
+        "@data.billing_details.billingDetailsDisabled": false
       });
     });
 
@@ -55,7 +44,7 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       await goToCheckout(
         page,
         context,
-        products.OPTIONAL_TRIAL_PRODUCT,
+        products.STARTER_HOSTING,
         null,
         null,
         false
@@ -68,7 +57,7 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       await goToCheckout(
         page,
         context,
-        products.OPTIONAL_TRIAL_PRODUCT,
+        products.STARTER_HOSTING,
         null,
         null,
         false
@@ -76,13 +65,16 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       await checkout.billingDetails.waitFor();
       let token = await getSessionToken(context);
       let order = await getCurrentOrder(token);
-      let client = order?.client_id;
-      await addAddressToClient(token, client);
+      let orderId = order?.id as string;
+      let client = order?.client_id as string;
+      let address = await addAddressToClient(token, client);
+      let addressId = address?.id as string;
+      await setOrderAddress(token, orderId, addressId);
       await page.reload();
       await page.waitForURL("**/order/checkout**");
       await expect(checkout.billingDetails).toBeVisible({ timeout: 15000 });
       await expect(checkout.billingDetails).toHaveText(
-        /10 Downing Street.*London.*SW1A 2AA.*United Kingdom/s
+        /10 Downing Street*London*Greater London*SW1A 2AB*United Kingdom/s
       );
     });
 
@@ -93,7 +85,7 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       await goToCheckout(
         page,
         context,
-        products.OPTIONAL_TRIAL_PRODUCT,
+        products.STARTER_HOSTING,
         null,
         null,
         false
@@ -101,8 +93,11 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       await checkout.billingDetails.waitFor();
       let token = await getSessionToken(context);
       let order = await getCurrentOrder(token);
-      let client = order?.client_id;
-      await addAddressToClient(token, client);
+      let orderId = order?.id as string;
+      let client = order?.client_id as string;
+      let address = await addAddressToClient(token, client);
+      let addressId = address?.id as string;
+      await setOrderAddress(token, orderId, addressId);
       await page.reload();
       await page.waitForURL("**/order/checkout**");
       await expect(checkout.billingSummaryChangeLink).toBeVisible({
@@ -118,8 +113,15 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
     test.beforeEach(async ({ page, context }) => {
       checkout = new Checkout(page);
       registration = new Registration(page, context);
+      await page.goto("/");
+      await waitForSessionCookie(context);
+      let guestToken = await getSessionToken(context);
+      let user = await registerClient(guestToken);
+      let username = user.email;
+      let password = user.password;
+      await getClientToken(page, username, password);
       interceptUISchema(context, {
-        "@data.billingdetails.billingDetailsDisabled": true
+        "@data.billing_details.billingDetailsDisabled": true
       });
       await goToCheckout(page, context, products.STARTER_HOSTING);
     });
@@ -133,8 +135,17 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
   test.describe("Standalone Billing Page", () => {
     test.beforeEach(async ({ page, context }) => {
       billingPage = new BillingPage(page);
+      checkout = new Checkout(page);
+      registration = new Registration(page, context);
+      await page.goto("/");
+      await waitForSessionCookie(context);
+      let guestToken = await getSessionToken(context);
+      let user = await registerClient(guestToken);
+      let username = user.email;
+      let password = user.password;
+      await getClientToken(page, username, password);
       interceptUISchema(context, {
-        "@data.billingdetails.billingDetailsDisabled": true
+        "@data.billing_details.billingDetailsDisabled": false
       });
       await goToCheckout(page, context, products.STARTER_HOSTING);
     });
@@ -144,12 +155,12 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       await expect(billingPage.billingSection).toBeVisible({ timeout: 15000 });
     });
 
-    test("3.2 'Back to checkout' link navigates back", async ({ page }) => {
+    test("3.2 'Back to basket' link navigates back", async ({ page }) => {
       await page.goto(URLs.billing);
-      await expect(billingPage.backToCheckout).toBeVisible({ timeout: 15000 });
-      await billingPage.backToCheckout.click();
-      await page.waitForURL("**/order/checkout/**");
-      await expect(page).toHaveURL("/order/checkout/");
+      await expect(billingPage.backToBasket).toBeVisible({ timeout: 15000 });
+      await billingPage.backToBasket.click();
+      await page.waitForURL("**/order/basket**");
+      await expect(page).toHaveURL("/order/basket/");
     });
 
     test("3.3 Can add new address on billing page", async ({ page }) => {
@@ -187,10 +198,17 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
   test.describe("Navigation: Checkout → Billing → Checkout", () => {
     test.beforeEach(async ({ page, context }) => {
       checkout = new Checkout(page);
-      registration = new Registration(page, context);
       billingPage = new BillingPage(page);
+      registration = new Registration(page, context);
+      await page.goto("/");
+      await waitForSessionCookie(context);
+      let guestToken = await getSessionToken(context);
+      let user = await registerClient(guestToken);
+      let username = user.email;
+      let password = user.password;
+      await getClientToken(page, username, password);
       interceptUISchema(context, {
-        "@context.*.billingDetailsDisabled": false
+        "@data.billing_details.billingDetailsDisabled": false
       });
       await goToCheckout(page, context, products.STARTER_HOSTING);
       let token = await getSessionToken(context);
@@ -214,22 +232,15 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       if (await billingPage.personalTab.isVisible()) {
         await billingPage.personalTab.click();
       }
-      const changeLink = page.getByTestId("link-change");
-      const addNew = page.getByTestId("link-add-new");
-      if (await changeLink.isVisible()) {
-        await changeLink.click();
-        if (await addNew.isVisible()) {
-          await addNew.click();
-        }
-      }
-      await billingPage.manuallyInputAddress(
-        "15 White Hart Lane",
-        "Manchester",
-        "M1 1AA"
-      );
-
-      await billingPage.backToCheckout.click();
-      await page.waitForURL("**/order/checkout/**");
+      const changeLink = page.getByTestId("link-edit");
+      await changeLink.isVisible();
+      await changeLink.click();
+      await billingPage.addressLine1.fill("15 White Hart Lane");
+      await billingPage.city.fill("Manchester");
+      await billingPage.postCode.fill("M1 1AA");
+      await page.waitForTimeout(1000);
+      await checkout.clickSaveDetails();
+      await billingPage.continue.click();
       await expect(checkout.billingDetails).toBeVisible({ timeout: 15000 });
       await expect(checkout.billingDetails).toContainText("15 White Hart Lane");
       await expect(checkout.billingDetails).toContainText("Manchester");
@@ -249,9 +260,11 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       if (await billingPage.companyName.isVisible()) {
         await billingPage.companyName.fill("E2E Test Company Ltd");
       }
-      await checkout.saveDetails.click();
-      await billingPage.backToCheckout.click();
-      await page.waitForURL("**/order/checkout/**");
+      await page.waitForTimeout(1000);
+      await checkout.clickSaveDetails();
+      await billingPage.backToBasket.click();
+      await page.waitForURL("**/order/basket/**");
+      await page.goto(URLs.checkout);
       await expect(checkout.billingDetails).toBeVisible({ timeout: 15000 });
     });
   });
@@ -263,6 +276,13 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
     }) => {
       checkout = new Checkout(page);
       registration = new Registration(page, context);
+      await page.goto("/");
+      await waitForSessionCookie(context);
+      let guestToken = await getSessionToken(context);
+      let user = await registerClient(guestToken);
+      let username = user.email;
+      let password = user.password;
+      await getClientToken(page, username, password);
       await goToCheckout(page, context, products.STARTER_HOSTING);
       await page.waitForURL("**/order/checkout/**");
       const token = await getSessionToken(context);
@@ -283,9 +303,19 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
     }) => {
       checkout = new Checkout(page);
       registration = new Registration(page, context);
+      await page.goto("/");
+      await waitForSessionCookie(context);
+      let guestToken = await getSessionToken(context);
+      let user = await registerClient(guestToken);
+      let username = user.email;
+      let password = user.password;
+      let session = await getClientToken(page, username, password);
+      interceptUISchema(context, {
+        "@data.billing_details.billingDetailsDisabled": false
+      });
       await goToCheckout(page, context, products.STARTER_HOSTING);
       await page.waitForURL("**/order/checkout/**");
-      const token = await getSessionToken(context);
+      let token = session?.access_token;
       interceptConfigValues(page, token, {
         requireAddressForOrders: false,
         requireCompanyForOrders: true,
@@ -303,9 +333,19 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
     }) => {
       checkout = new Checkout(page);
       registration = new Registration(page, context);
+      await page.goto("/");
+      await waitForSessionCookie(context);
+      let guestToken = await getSessionToken(context);
+      let user = await registerClient(guestToken);
+      let username = user.email;
+      let password = user.password;
+      let session = await getClientToken(page, username, password);
+      interceptUISchema(context, {
+        "@data.billing_details.billingDetailsDisabled": false
+      });
       await goToCheckout(page, context, products.STARTER_HOSTING);
       await page.waitForURL("**/order/checkout/**");
-      const token = await getSessionToken(context);
+      let token = session?.access_token;
       interceptConfigValues(page, token, {
         requireAddressForOrders: false,
         requireCompanyForOrders: false,
@@ -321,7 +361,7 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
   test.describe("Access Control", () => {
     test("6.1 Billing page requires authentication", async ({ page }) => {
       await page.goto(URLs.billing);
-      await page.waitForLoadState("networkidle");
+      await waitForSessionCookie(page.context());
       await expect(page).not.toHaveURL("order/billing/");
     });
 
@@ -329,13 +369,20 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       page,
       context
     }) => {
-      await getClientToken(
-        page,
-        Logins.checkoutUser.username,
-        Logins.checkoutUser.password
-      );
+      checkout = new Checkout(page);
+      registration = new Registration(page, context);
+      await page.goto("/");
+      await waitForSessionCookie(context);
+      let guestToken = await getSessionToken(context);
+      let user = await registerClient(guestToken);
+      let username = user.email;
+      let password = user.password;
+      await getClientToken(page, username, password);
+      interceptUISchema(context, {
+        "@data.billing_details.billingDetailsDisabled": false
+      });
       await page.goto(URLs.billing);
-      await page.waitForLoadState("networkidle");
+      await waitForSessionCookie(page.context());
       await expect(page).not.toHaveURL("order/billing/");
     });
   });

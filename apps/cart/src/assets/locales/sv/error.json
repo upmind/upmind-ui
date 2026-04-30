@@ -31,6 +31,7 @@
   "basket_product_not_found": "Varukorgsprodukten hittades inte",
   "basket_product_pending_update_failed": "Uppdatering i brukKorgProduktVäntar är inte i ett giltigt tillstånd.",
   "basket_product_pending_validation_failed": "Misslyckades med att validera väntande produkter",
+  "basket_product_readonly": "Den här artikeln kan för närvarande inte köpas. Kontakta supporten för hjälp.",
   "basket_product_update_failed": "Fel vid uppdatering av flera produkter i varukorgen",
   "basket_unavailable": "Förlåt, vi kunde inte hämta **varukorgen**.",
   "basket_unavailable_md": "@.markdown:{'error.basket_unavailable'}",
