@@ -26,7 +26,7 @@ test.describe("Checkout with Pay Later", () => {
     await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
     await page.waitForLoadState("domcontentloaded");
     await checkout.selectPaymentMethod("Pay Later");
-    await checkout.clickPlaceOrder();
+    await checkout.clickCompleteCheckout();
     await expect(page.getByRole("dialog")).toContainText(
       "Converting your order"
     );
