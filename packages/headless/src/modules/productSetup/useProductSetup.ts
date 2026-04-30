@@ -338,17 +338,17 @@ export function useProductSetup() {
               if (state.done) subscription.unsubscribe();
 
               const newStates = state.toStrings();
-              const wasLoading = !isEmpty(
+              const isRefreshing = !isEmpty(
                 intersection(["loading", "refreshing"], prevStates)
               );
 
               // engage loading state
-              if (wasLoading) {
+              if (isRefreshing) {
                 schema.value = undefined;
                 uischema.value = undefined;
               }
 
-              if (wasLoading && stateMatches(state, "available")) {
+              if (isRefreshing && stateMatches(state, "available")) {
                 captureSchemas(config.service);
               }
 
