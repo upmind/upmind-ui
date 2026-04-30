@@ -56,7 +56,7 @@ test.describe("Verify checkout billing detail requirements", () => {
     });
     await page.goto(URLs.checkout);
     await checkout.selectPaymentMethod("Offline Payment");
-    await checkout.clickPlaceOrder();
+    await checkout.clickCompleteCheckout();
     await expect(page.getByRole("alert")).toContainText(
       "Please provide the details below in order to proceed."
     );
@@ -71,7 +71,7 @@ test.describe("Verify checkout billing detail requirements", () => {
     });
     await page.goto(URLs.checkout);
     await checkout.selectPaymentMethod("Offline Payment");
-    await checkout.clickPlaceOrder();
+    await checkout.clickCompleteCheckout();
     await expect(page.getByRole("alert")).toContainText(
       "Please provide the details below in order to proceed."
     );

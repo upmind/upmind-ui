@@ -27,7 +27,7 @@ test.describe("Checkout with PayPal", () => {
   test("Pay with PayPal Express", async ({ page, context }) => {
     await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
     await checkout.selectPaymentMethod("Pay-Pal Express");
-    await checkout.clickPlaceOrderAndPay();
+    await checkout.clickCompleteCheckout();
     await page.waitForURL(
       "https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_express-checkout&useraction=commit**"
     );
