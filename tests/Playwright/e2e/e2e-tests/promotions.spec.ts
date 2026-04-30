@@ -148,7 +148,7 @@ test.describe("Promotions", () => {
     test.beforeEach(async ({ page, context }) => {
       const domain = `${fakerEN_GB.string.alphanumeric({ length: 15 })}.com`;
       await page.goto("/");
-      await expect(basket.basketProductSummary).toBeVisible();
+      await waitForSessionCookie(context);
       let token = await getSessionToken(context);
       let order = await createOrder(token);
       let orderId = order.id;
@@ -268,7 +268,7 @@ test.describe("Promotions", () => {
       );
       await expect(page.getByText("Secure checkout")).toBeVisible();
       await checkout.selectPaymentMethod("Direct Bank Transfer");
-      await checkout.clickPlaceOrder();
+      await checkout.clickCompleteCheckout();
       await expect(page.getByText("Order confirmed")).toBeVisible();
       await expect(page.getByText("Discount")).toBeVisible();
     });
