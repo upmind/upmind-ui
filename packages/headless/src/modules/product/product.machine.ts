@@ -6,7 +6,12 @@ import services from "./services";
 import { basketSubscription } from "../basketProduct/helper";
 
 // --utils
-import { mapToHeadlessError, responseCodes, useTime } from "../../utils";
+import {
+  mapToHeadlessError,
+  responseCodes,
+  useModelParser,
+  useTime
+} from "../../utils";
 import {
   parseSubproductDetails,
   parseProductDetails,
@@ -418,31 +423,32 @@ export default createMachine(
           let { model, lookups, rawProduct, error, coupons, rawBasketProduct } =
             context;
 
-          const {
+          let {
             basket_product,
             client_id,
             currency_id,
             promotions,
+            products,
             error: basketErrors
           } = data ?? {};
+
+          // Basket refresh sends full basket, not individual products - find ours by ID
+          // this ensure any changes to our basketProduct are not stale
+          const basketProduct = (basket_product ??= rawBasketProduct?.id
+            ? find(products, { id: rawBasketProduct.id })
+            : rawBasketProduct);
 
           lookups ??= {};
 
           if (rawProduct) {
-            lookups.product = parseProductDetails(rawProduct, rawBasketProduct);
+            lookups.product = parseProductDetails(rawProduct, basket_product);
           }
 
-          if (rawBasketProduct && rawBasketProduct != basket_product) {
-            console.warn(
-              "Product Machine",
-              "refresh",
-              "basketProduct mismatch",
-              {
-                rawBasketProduct,
-                basket_product
-              }
-            );
-          }
+          // Update baseModel from new basket data, merge into model preserving user edits
+          const newBaseModel = basketProduct
+            ? parseBasketProductModel(basketProduct)
+            : cloneDeep(model);
+          const newModel = useModelParser(context.schema, model, newBaseModel);
 
           const newContext = {
             clientId: client_id,
@@ -450,15 +456,11 @@ export default createMachine(
             currencyCode: undefined, // we reset any given currency code after refresh to prevent going out of sync
             promotions: promotions ?? [],
             coupons: coupons ?? [],
-            rawBasketProduct: rawBasketProduct ?? basket_product, // ensure we honoure any given basket product
-            readonly: hasNonOrderableSubproducts(rawBasketProduct),
-            baseModel: basket_product
-              ? parseBasketProductModel(basket_product)
-              : cloneDeep(model),
-            model: basket_product
-              ? parseBasketProductModel(basket_product)
-              : cloneDeep(model),
-            basketErrors: get(basketErrors, rawBasketProduct?.id ?? ""),
+            rawBasketProduct: basketProduct, // ensure we honoure any given basket product
+            readonly: hasNonOrderableSubproducts(basketProduct),
+            baseModel: newBaseModel,
+            model: newModel,
+            basketErrors: get(basketErrors, basketProduct?.id ?? ""),
             error: merge({}, error),
             lookups
           };
