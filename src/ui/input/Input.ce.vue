@@ -41,7 +41,7 @@ const props = withDefaults(defineProps<InputProps>(), {
   width: "full",
   ring: true,
   // ---
-  uiConfig: () => ({ input: [] }),
+  uiConfig: () => ({ input: {} }),
   class: ""
 });
 
