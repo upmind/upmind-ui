@@ -281,7 +281,7 @@ export function useProductSetup() {
     // Find other products requiring setup with any overlapping error paths
     similarProducts.value = filter(basketProducts.value, bp => {
       if (bp.id === bpid.value) return false;
-      if (bp.serviceIdentifier === current.serviceIdentifier) return false;
+      if (bp.serviceIdentifier === current?.serviceIdentifier) return false;
       if (!basketProductRequiresSetup(bp, mode)) return false;
 
       const bpErrors = get(bp, "errors", []) as ErrorObject[];
