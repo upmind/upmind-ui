@@ -12,7 +12,8 @@ import {
   ErrorOrigin,
   isDirty,
   responseCodes,
-  useContext
+  useContext,
+  useValidationErrorsTranslator
 } from "../../utils";
 import {
   contextMatches,
@@ -86,6 +87,12 @@ export const useBasketFields = () => {
   const model = useContext<FieldsContext["model"]>(actor, "model");
   const schema = useContext<FieldsContext["schema"]>(actor, "schema");
   const uischema = useContext<FieldsContext["uischema"]>(actor, "uischema");
+
+  const translatedErrors = computed(() =>
+    errors.value?.data && schema.value
+      ? useValidationErrorsTranslator(errors.value.data, schema.value)
+      : []
+  );
 
   // --- methods
 
@@ -162,6 +169,9 @@ export const useBasketFields = () => {
 
     /** Any error returned by the fields actor. */
     errors,
+
+    /** Errors translated to friendly, localised messages using the field schema. */
+    translatedErrors,
 
     /** The current fields model. */
     model,

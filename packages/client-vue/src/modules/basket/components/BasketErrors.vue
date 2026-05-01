@@ -5,25 +5,32 @@
       color="danger"
       variant="minimal"
       icon="alert-triangle"
-      :title="t('cart.basket_requires_attention_msg')"
+      :title="
+        t(
+          meta.hasBasketBillingErrors
+            ? 'cart.details_incomplete_title'
+            : 'cart.basket_incomplete_title'
+        )
+      "
       :description="t('cart.basket_review_msg')"
     >
-      <pre>{{ meta }}</pre>
-      <ol class="text-sm-tight list-disc p-6 py-2 text-left" v-auto-animate>
-        <!-- Additional details -->
-        <li v-if="meta.hasBasketFieldErrors">
-          <i18n-t keypath="cart.basket_fields_review_msg" tag="span">
+      <ol
+        class="text-sm-tight list-disc p-6 py-2 pl-4 text-left"
+        v-auto-animate
+      >
+        <li v-for="item in fieldItems" :key="item.id">
+          <i18n-t keypath="cart.basket_review_item_msg" tag="span">
+            <template #message>{{ item.message }}</template>
             <template #review>
               <Link
                 size="inherit"
-                v-bind="safeBasketFieldsRoute"
+                v-bind="item.route"
                 :label="t('action.review')"
               />
             </template>
           </i18n-t>
         </li>
 
-        <!-- Billing details -->
         <li v-if="meta.hasBasketBillingErrors">
           <i18n-t keypath="cart.basket_billing_review_msg" tag="span">
             <template #review>
@@ -88,8 +95,22 @@ const emits = defineEmits(["update:quantity"]);
 // -----------------------------------------------------------------------------
 const { t } = useI18n();
 const { meta: basketMeta, productsInvalid } = useBasket();
-const { meta: fieldsMeta, errors: fieldsErrors } = useBasketFields();
+const {
+  meta: fieldsMeta,
+  errors: fieldsErrors,
+  translatedErrors: fieldsTranslatedErrors
+} = useBasketFields();
 const { meta: billingMeta, errors: billingErrors } = useBasketBilling();
+
+const fieldItems = computed(() =>
+  props.basketFields
+    ? fieldsTranslatedErrors.value.map((err, i) => ({
+        id: `fields-${i}`,
+        message: err.message ?? "",
+        route: safeBasketFieldsRoute.value
+      }))
+    : []
+);
 const count = computed(() => {
   return sum([
     meta.value.hasBasketProductsErrors ? productsInvalid.value?.length : 0,
