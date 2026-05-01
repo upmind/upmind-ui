@@ -27,6 +27,7 @@
         :placeholder="exampleNumber || ''"
         @update:modelValue="onPhoneInput"
         type="tel"
+        autocomplete="tel-national"
       />
     </InputGroup>
 
@@ -180,7 +181,8 @@ function parsePhone(
     ? value
     : value?.nationalNumber || value?.number || "";
 
-  const code = countryCode ?? defaultCountryCode;
+  const code =
+    (value as PhoneNumber)?.country ?? countryCode ?? defaultCountryCode;
 
   let parsed;
   try {
@@ -194,7 +196,7 @@ function parsePhone(
       number: parsed.number,
       nationalNumber: parsed.nationalNumber,
       countryCallingCode: parsed.countryCallingCode,
-      country: code!
+      country: parsed?.country || code!
     };
   }
 
