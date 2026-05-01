@@ -5,7 +5,7 @@ import { Login } from "../../support/page-objects/templates/login";
 import { Logins } from "../../support/constants/logins";
 let login: Login;
 
-test.describe("Login Drawer", async () => {
+test.describe("Login Modal", async () => {
   test.beforeEach(async ({ page }) => {
     login = new Login(page);
     await page.goto(`${URLs.starterHosting}auth`);
