@@ -14,11 +14,12 @@
         :checked-icon="false"
         :ring="false"
         :search="onSearch"
-        tabindex="-1"
+        :tabindex="-1"
       />
       <Input
         class="group-hover:shadow-control-hover z-10 rounded-l-none!"
         :ring="false"
+        :auto-focus="appliedOptions?.autoFocus"
         :disabled="!control.enabled"
         :model-value="
           phone?.nationalNumber ||
@@ -89,7 +90,7 @@ import type { PhoneNumber, CountryCode, ParseError } from "libphonenumber-js";
 // -----------------------------------------------------------------------------
 const props = defineProps<RendererProps<ControlElement>>();
 
-const { control, formFieldProps, onInput } = useUpmindUIRenderer(
+const { control, formFieldProps, appliedOptions, onInput } = useUpmindUIRenderer(
   useJsonFormsControl(props)
 );
 // --- utils
