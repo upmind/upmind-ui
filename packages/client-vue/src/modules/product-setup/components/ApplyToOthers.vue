@@ -11,7 +11,7 @@
         :value="product.id"
         :disabled="disabled"
       >
-        <i18n-t keypath="cart.product_setup.use_details_for" tag="span">
+        <i18n-t keypath="cart.product_setup_msg" tag="span">
           <template #name>
             <strong>{{
               product.serviceIdentifier || product.productDetails?.title

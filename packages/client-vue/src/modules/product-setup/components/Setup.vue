@@ -72,7 +72,7 @@
                 {{ t("text.fully_encrypted_title") }}
               </Badge>
               <Hero
-                :title="t('cart.product_setup.title')"
+                :title="t('cart.product_setup_title')"
                 :ui-config="{
                   hero: {
                     title: [styles.header.heroTitle],
@@ -82,7 +82,7 @@
               >
                 <template #subtitle>
                   <p :class="styles.header.price">
-                    {{ t("cart.product_setup.description") }}
+                    {{ t("cart.product_setup_desc") }}
                   </p>
                 </template>
               </Hero>
@@ -104,7 +104,7 @@
       <template #progress>
         <slot name="progress">
           <span v-if="total > 1" class="shrink-0 text-base font-semibold">
-            {{ t("cart.product_setup.products_remaining", { count: total }) }}
+            {{ t("cart.product_setup_count", { count: total }) }}
           </span>
         </slot>
       </template>
