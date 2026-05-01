@@ -258,13 +258,17 @@ export function checkInBasket(
     // product_id mode: any variant of the product counts as a match.
     if (matchLevel === RECOMMENDATION_MATCH_LEVEL.PRODUCT_ID) return true;
 
-    // product_config mode: also require bcm + sub_pids alignment.
+    // product_config mode: an absent `config` expresses no targeting, so the
+    // recommendation cannot match any specific basket variant. Defined fields
+    // must match; undefined fields are "don't care".
+    if (!recommendation.config) return false;
+
     const bcmMatches =
-      !recommendation?.config?.bcm ||
+      !recommendation.config.bcm ||
       recommendation.config.bcm == product.billing_cycle_months;
 
     const subproductsMatch =
-      isEmpty(recommendation?.config?.sub_pids) ||
+      isEmpty(recommendation.config.sub_pids) ||
       some(product.options, option =>
         includes(recommendation.config?.sub_pids, option.product_id)
       ) ||
