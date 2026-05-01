@@ -26,6 +26,7 @@ import { isNil, debounce, isEqual, isEmpty } from "lodash-es";
 
 // --- types
 import type { ActorRef } from "xstate";
+import type { JsonSchema7 } from "@jsonforms/core";
 import { type FieldsContext, type FieldsModel } from "./fields/types";
 
 // -----------------------------------------------------------------------------
@@ -90,7 +91,10 @@ export const useBasketFields = () => {
 
   const translatedErrors = computed(() =>
     errors.value?.data && schema.value
-      ? useValidationErrorsTranslator(errors.value.data, schema.value)
+      ? useValidationErrorsTranslator(
+          errors.value.data,
+          schema.value as JsonSchema7
+        )
       : []
   );
 
