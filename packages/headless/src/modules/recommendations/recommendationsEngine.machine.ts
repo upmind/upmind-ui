@@ -85,7 +85,37 @@ export default createMachine(
         }
       },
 
+      // Briefly held while the basket is mid-refresh. Entered via the
+      // PROCESSING event forwarded by basketSubscription as soon as the
+      // basket enters its own refreshing.processing state, and exited when
+      // the eventual REFRESH event arrives. Blocks `isReady` so callers
+      // don't read derived state from a stale basket snapshot.
+      syncing: {
+        on: {
+          REFRESH: [
+            {
+              target: "refreshing",
+              actions: [
+                "setBasket",
+                "clearProducts",
+                "setLookups",
+                "setRecommendations",
+                "refreshProducts"
+              ],
+              cond: "hasBasketChanged"
+            },
+            {
+              target: "available",
+              actions: ["setBasket", "setLookups", "setRecommendations"]
+            }
+          ]
+        }
+      },
+
       available: {
+        on: {
+          PROCESSING: { target: "syncing" }
+        },
         always: {
           target: "unavailable",
           cond: "hasNoRecommendations"
@@ -93,6 +123,9 @@ export default createMachine(
       },
 
       unavailable: {
+        on: {
+          PROCESSING: { target: "syncing" }
+        },
         always: {
           target: "available",
           cond: "hasRecommendations"
@@ -183,9 +216,6 @@ export default createMachine(
         actions: ["addToBasket", "setProcessing"],
         cond: "exists"
       },
-      // PROCESSING: {
-      //   target: "processing",
-      // },
       STOP: {
         target: "complete"
       }
