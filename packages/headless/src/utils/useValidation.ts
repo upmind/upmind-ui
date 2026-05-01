@@ -32,6 +32,7 @@ import {
   trimStart
 } from "lodash-es";
 import { parseError, type ResponseError } from "./useError";
+import { compactDeep } from "./isDeepEmpty";
 import Ajv, { type ErrorObject } from "ajv";
 
 // --- types
@@ -486,13 +487,13 @@ export const useModelParser = <
     },
     {} as Record<string, any>
   );
-  if (!allowExtraProps) return omitBy(model, isNil) as TModel;
+  if (!allowExtraProps) return compactDeep(model) as TModel;
 
   const parsed = (
     !allowExtraProps ? model : defaultsDeep(model, values)
   ) as TModel;
 
-  return omitBy(parsed, isNil) as TModel;
+  return compactDeep(parsed) as TModel;
 };
 
 // -----------------------------------------------------------------------------
