@@ -642,28 +642,12 @@ export default {
       await applyBillingDefaults().catch(() => {});
     }
 
-    const { ui } = useConfig({ context: UIContext.CHECKOUT });
     const { data } = useConfig({ context: UIContext.BILLING_DETAILS });
 
-    // Domains require an address for registrant details
-    const hasDomains = !isEmpty(getDomainBasketProducts(products.value));
+    // DONT Show billing page if standalone billing is disabled
+    if (data.billingDetailsDisabled) return Promise.reject();
 
-    // Need address if: domains need address for registrant
-    const needsAddress = hasDomains && !billingModel.value?.addressId;
-
-    // Standalone billing page is enabled when billing is readonly on checkout and we dont have one
-    const needsBillingPage =
-      !data.billingDetailsDisabled &&
-      ui.billingDetails.isReadonly &&
-      !billingMeta.value.isComplete;
-
-    // Show billing page if standalone billing is enabled and address is needed
-    if (needsBillingPage || needsAddress) {
-      return { target: context.targetRoute ?? { name: ROUTE.BILLING } };
-    }
-
-    // Skip to checkout - billing not needed
-    return Promise.reject({ target: { name: ROUTE.CHECKOUT } });
+    return { target: context.targetRoute ?? { name: ROUTE.BILLING } };
   },
 
   /**
