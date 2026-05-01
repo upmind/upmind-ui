@@ -212,16 +212,10 @@ function doReset() {
   reset();
 }
 
-const hasActiveItems = computed(() =>
-  available.value?.some(
-    item => model.value?.includes(item.domain) && item.meta?.added // must be in current session's model // successfully in basket
-  )
-);
-
 const showActions = computed(
   () =>
     !basketMeta.value.isLoading &&
-    (props.template !== DOMAIN_TEMPLATE.WIDGET || hasActiveItems.value)
+    (props.template !== DOMAIN_TEMPLATE.WIDGET || meta.value.hasAdded)
 );
 
 // --- side effects
