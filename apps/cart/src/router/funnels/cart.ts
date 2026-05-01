@@ -355,33 +355,14 @@ export default <FunnelProps>{
     },
 
     /**
-     * 🎯 ROUTE.BASKET_PRODUCTs_SETUP ** TRANSITIONAL STATE **
-     * This state serves as a routing hub for basket product-related setup.
-     * It checks for the presence of basket products requiring setup in the route.
-     * If configurations are found, it transitions to the BASKET_PRODUCT_SETUP route to handle product setup.
-     * If no configurations are present, it redirects to the CHECKOUT route.
-     */
-    [ROUTE.BASKET_PRODUCTS_SETUP]: {
-      entry: ["setResolving"],
-      invoke: {
-        src: "guardBasketProductSetup",
-        onDone: {
-          target: ROUTE.BASKET_PRODUCT_SETUP,
-          actions: ["setResolved"]
-        },
-        onError: { target: ROUTE.CHECKOUT }
-      }
-    },
-
-    /**
-     * 🎯 ROUTE.BASKET_PRODUCT_SETUP
+     * 🎯 ROUTE.BASKET_PRODUCTS_SETUP
      * This state handles the product setup flow where products require additional configuration.
      * Shows ONE product at a time with only the fields that have errors or need input.
-     * It invokes a 'guard' to check if products need setup.
-     * On NEXT, checks if more products need setup - loops or proceeds to checkout.
+     * The page internally determines which product to configure via getNextRequiringSetup().
+     * On NEXT (after all products configured), proceeds to checkout.
      * In case of an error (no products need setup), it redirects to checkout.
      */
-    [ROUTE.BASKET_PRODUCT_SETUP]: {
+    [ROUTE.BASKET_PRODUCTS_SETUP]: {
       entry: ["setCurrency", "setBasket"],
       invoke: {
         src: "guardBasketProductSetup",
@@ -389,17 +370,10 @@ export default <FunnelProps>{
         onError: { target: ROUTE.CHECKOUT, actions: ["setResolving"] }
       },
       on: {
-        NEXT: [
-          {
-            target: ROUTE.BASKET_PRODUCT_SETUP,
-            actions: ["setResolving"],
-            cond: "hasInvalidProducts"
-          },
-          {
-            target: ROUTE.CHECKOUT,
-            actions: [assign({ targetRoute: { name: ROUTE.CHECKOUT } })]
-          }
-        ],
+        NEXT: {
+          target: ROUTE.CHECKOUT,
+          actions: [assign({ targetRoute: { name: ROUTE.CHECKOUT } })]
+        },
         BACK: {
           target: ROUTE.BASKET,
           actions: [assign({ targetRoute: { name: ROUTE.BASKET } })]

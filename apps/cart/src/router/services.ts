@@ -667,33 +667,33 @@ export default {
   },
 
   /**
-   * 🎯 Guard: BASKET_PRODUCT_SETUP
+   * 🎯 Guard: BASKET_PRODUCTS_SETUP
    * Validates that products requiring setup exist.
    * If all products are complete, rejects to redirect to checkout.
-   * Sets the bpid param to the first product requiring setup.
+   * The page internally determines which product to configure.
    */
   guardBasketProductSetup: async (
     context: FunnelContext
   ): Promise<FunnelResponse> => {
     await ensureBidAuth(context, {
-      name: ROUTE.BASKET_PRODUCT_SETUP
+      name: ROUTE.BASKET_PRODUCTS_SETUP
     });
 
-    const { isReady, meta, getNextRequiringSetup } = useProductSetup();
+    const { isReady, meta } = useProductSetup();
     await isReady();
 
     if (!meta.value.isAvailable) return Promise.reject();
-    const bpid = getNextRequiringSetup()?.id;
 
-    if (!bpid)
+    // If setup is complete, redirect to checkout
+    if (meta.value.isComplete) {
       return Promise.reject({
         target: context.targetRoute ?? { name: ROUTE.CHECKOUT }
       });
+    }
 
     return {
       target: context.targetRoute ?? {
-        name: ROUTE.BASKET_PRODUCT_SETUP,
-        params: { bpid }
+        name: ROUTE.BASKET_PRODUCTS_SETUP
       }
     };
   }

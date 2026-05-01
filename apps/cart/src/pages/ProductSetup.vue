@@ -7,5 +7,5 @@
 import { UpmProductSetup } from "@upmind-automation/client-vue";
 
 // --- types
-import { ROUTE } from "../../router";
+import { ROUTE } from "../router";
 </script>
