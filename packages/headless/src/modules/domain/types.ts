@@ -135,17 +135,6 @@ export type DomainModel = {
 };
 
 /**
- * Type alias for options that configure the behaviour of the `useDomain` composable,
- * specifically the {@link DomainTypes} to manage.
- */
-export type DomainProps = {
-  /**
-   * The specific {@link DomainTypes} to manage (e.g., 'register', 'transfer').
-   */
-  type?: DomainTypes;
-};
-
-/**
  * Interface representing the context for the domain management XState machine.
  * It holds the state for domain availability checks, existing domains, basket integration,
  * search queries, and related lookups.
@@ -250,7 +239,7 @@ export interface DomainContext extends BasketHelperContext<DomainProduct> {
   /**
    * The currently active {@link DomainTypes} being managed.
    */
-  type?: DomainProps["type"];
+  type?: DomainTypes;
   // ---
   /**
    * The current {@link DomainModel} representing the selected domain.

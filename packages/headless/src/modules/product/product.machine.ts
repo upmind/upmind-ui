@@ -451,7 +451,7 @@ export default createMachine(
             ? parseBasketProductModel(basketProduct)
             : cloneDeep(model);
 
-          const newModel = useModelParser(
+          const newModel = useModelParser<ProductModel>(
             context.schema,
             compactDeep(model),
             newBaseModel

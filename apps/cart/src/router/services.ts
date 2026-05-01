@@ -34,6 +34,7 @@ import {
 import { ROUTE } from ".";
 import { filter, first, includes, isEmpty, reduce } from "lodash-es";
 import { useRouter, type RouteLocationGeneric } from "vue-router";
+import guards from "./guards";
 
 // -----------------------------------------------------------------------------
 
@@ -510,7 +511,7 @@ export default {
 
     // Standard basket guard — check current basket has products
     await isReady();
-    if (!meta.value.hasProducts) return Promise.reject();
+    if (!guards.hasProducts()) return Promise.reject();
 
     return { target: targetRoute ?? { name: ROUTE.BASKET } };
   },
@@ -518,7 +519,7 @@ export default {
   guardCheckout: async (context: FunnelContext): Promise<FunnelResponse> => {
     await ensureBidAuth(context, { name: ROUTE.CHECKOUT });
 
-    const { meta, isReady, products } = useBasket();
+    const { isReady } = useBasket();
     const { isReady: isFieldsReady, meta: fieldsMeta } = useBasketFields();
     const { getConfigValue } = useBrand();
 
@@ -529,7 +530,7 @@ export default {
     // -------------------------------------------------------------------------
 
     // --- 1. Auth: Must be authenticated to proceed
-    if (meta.value.needsAuth) {
+    if (guards.needsAuth()) {
       const { router } = useRoutingEngine();
       const { targetBasketId } = useBasket();
       const bid = targetBasketId.value;
@@ -547,39 +548,15 @@ export default {
     }
 
     // Must have products (that are not locked) to proceed
-    if (!meta.value.hasProducts || meta.value.hasLockedProducts) {
+    if (!guards.hasProducts() || guards.hasLockedProducts()) {
       return Promise.reject({ target: { name: ROUTE.BASKET } });
     }
 
     // --- 2. Billing: Redirect to standalone billing page when required
-    // Standalone billing is used when billing is readonly on checkout (separate page).
-    // We redirect to billing if:
-    //   - Billing details are incomplete (address/company/phone missing), OR
-    //   - Basket contains domains AND no address set (registrant needs address)
-    // Note: billingMeta.isComplete = true when billing is not required OR all fields are valid.
-    const {
-      isReady: isBillingReady,
-      meta: billingMeta,
-      model: billingModel
-    } = useBasketBilling();
+    const { isReady: isBillingReady } = useBasketBilling();
     await isBillingReady();
 
-    const { ui } = useConfig({ context: UIContext.CHECKOUT });
-    const { data } = useConfig({ context: UIContext.BILLING_DETAILS });
-
-    // Domains require an address for registrant details
-    const hasDomains = !isEmpty(getDomainBasketProducts(products.value));
-
-    // Need address if: domains need address for registrant
-    const needsAddress = hasDomains && !billingModel.value?.addressId;
-
-    // Standalone billing page is enabled when billing is readonly on checkout and we dont have one
-    const needsBillingPage =
-      !data.billingDetailsDisabled &&
-      ui.billingDetails.isReadonly &&
-      !billingMeta.value.isComplete;
-
-    if (needsBillingPage || needsAddress) {
+    if (guards.needsAddress()) {
       const { router } = useRoutingEngine();
       // Skip redirect if already on billing or checkout (avoid redirect loops)
       if (
@@ -595,7 +572,7 @@ export default {
     }
 
     // --- 3. Basket issues: Validate products and fields
-    if (meta.value.hasInvalidProducts) {
+    if (guards.hasInvalidProducts()) {
       return Promise.reject({
         target: { name: ROUTE.BASKET_PRODUCTS_SETUP }
       });

@@ -5,6 +5,7 @@ import {
   QUERY_PARAMS,
   UIContext,
   useBasket,
+  useBasketBilling,
   useConfig,
   useProductSetup,
   useQueryParams
@@ -72,6 +73,10 @@ export default {
     const { meta } = useBasket();
     return meta.value?.hasProducts;
   },
+  hasLockedProducts: () => {
+    const { meta } = useBasket();
+    return meta.value?.hasLockedProducts;
+  },
   hasInvalidProducts: () => {
     const { meta } = useProductSetup();
     return !meta.value?.isComplete;
@@ -105,6 +110,28 @@ export default {
   hasDomainProducts: () => {
     const { products } = useBasket();
     return !isEmpty(getDomainBasketProducts(products.value));
+  },
+
+  /**
+   * Returns true when billing page is needed (standalone billing incomplete or domains need address).
+   */
+  needsAddress: () => {
+    const { ui } = useConfig({ context: UIContext.CHECKOUT });
+    const { data } = useConfig({ context: UIContext.BILLING_DETAILS });
+    const { products } = useBasket();
+    const { meta: billingMeta, model: billingModel } = useBasketBilling();
+
+    // Domains require an address for registrant details
+    const hasDomains = !isEmpty(getDomainBasketProducts(products.value));
+    const needsAddressForDomains = hasDomains && !billingModel.value?.addressId;
+
+    // Standalone billing page is enabled when billing is readonly on checkout and incomplete
+    const needsBillingPage =
+      !data.billingDetailsDisabled &&
+      ui.billingDetails.isReadonly &&
+      !billingMeta.value.isComplete;
+
+    return needsBillingPage || needsAddressForDomains;
   },
 
   /**
