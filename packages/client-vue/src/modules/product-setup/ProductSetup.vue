@@ -9,12 +9,17 @@
           :product-meta="productMeta"
         >
           <Section :label="currentProductTitle" icon="settings-04">
+            <pre>{{ setupMeta }}</pre>
             <form @submit.prevent @reset.prevent>
               <Form
-                v-if="basketProduct && productMeta?.isAvailable"
+                v-if="
+                  basketProduct &&
+                  productMeta?.isAvailable &&
+                  !setupMeta.isLoading
+                "
                 :loading="productMeta.isLoading"
-                :processing="productMeta.isProcessing"
-                :disabled="productMeta.isProcessing"
+                :processing="productMeta.isProcessing || setupMeta.isProcessing"
+                :disabled="productMeta.isProcessing || setupMeta.isProcessing"
                 :schema="schema"
                 :uischema="uischema"
                 :model-value="model"
@@ -33,9 +38,11 @@
       <template #apply-to-others>
         <slot name="apply-to-others" :other-products="similarProducts">
           <ApplyToOthers
-            v-if="similarProducts?.length"
+            v-if="setupMeta.hasSimilar"
             v-model="selected"
             :products="similarProducts"
+            :loading="setupMeta.isLoading"
+            :disabled="productMeta.isProcessing || setupMeta.isProcessing"
           />
         </slot>
       </template>

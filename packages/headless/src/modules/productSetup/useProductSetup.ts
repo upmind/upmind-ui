@@ -73,7 +73,12 @@ import { useI18n } from "../system";
  * - `deferred`: products with errors OR deferred fields with empty values
  */
 export function useProductSetup() {
-  const { products: basketProducts, isReady, meta: basketMeta } = useBasket();
+  const {
+    products: basketProducts,
+    isReady,
+    meta: basketMeta,
+    subscribe
+  } = useBasket();
   const { configure } = useBasketProducts();
   const { ui } = useConfig({ context: UIContext.CHECKOUT });
 
@@ -82,6 +87,9 @@ export function useProductSetup() {
   const bpid = ref<string>();
   const schema = ref<JsonSchema7>();
   const uischema = ref<UISchemaElement>();
+
+  // Cached similar products - captured at configure time so they don't disappear during refresh
+  const cachedSimilarProducts = ref<BasketProduct[]>([]);
 
   // Selected product IDs for "apply to similar" - user can toggle via checkboxes
   const selected = ref<string[]>([]);
@@ -156,7 +164,9 @@ export function useProductSetup() {
     /** True while an apply() call is in flight. */
     isProcessing: processing.value,
     /** True when the last apply() call errored. */
-    hasError: !!error.value
+    hasError: !!error.value,
+    /** True when there are similar products to apply config to. */
+    hasSimilar: !isEmpty(cachedSimilarProducts.value)
   }));
 
   // --- methods
@@ -243,8 +253,21 @@ export function useProductSetup() {
     processing.value = true;
     rawError.value = undefined;
 
+    // Wait for basket to finish refreshing after updateMany
+    const waitForRefresh = (): Promise<void> =>
+      new Promise(resolve => {
+        const subscription = subscribe(state => {
+          // Wait until basket is not in refreshing.processing state
+          if (!stateMatches(state, "shopping.refreshing.processing")) {
+            subscription.unsubscribe();
+            resolve();
+          }
+        });
+      });
+
     return basketProductServices
       .updateMany(basketId.value, updatedProducts, [])
+      .then(() => waitForRefresh())
       .catch(e => {
         rawError.value = e;
         throw e;
@@ -330,6 +353,8 @@ export function useProductSetup() {
           // .then(config => config.isReady().then(() => config))
           .then(config => {
             bpid.value = id;
+            // Capture similar products and pre-select all
+            cachedSimilarProducts.value = similarProducts.value;
             selected.value = map(similarProducts.value, "id");
             // Capture schemas when transitioning from loading/refreshing states
             let prevStates: string[] = [];
@@ -350,6 +375,9 @@ export function useProductSetup() {
 
               if (isRefreshing && stateMatches(state, "available")) {
                 captureSchemas(config.service);
+                // Re-capture similar products after refresh
+                cachedSimilarProducts.value = similarProducts.value;
+                selected.value = map(similarProducts.value, "id");
               }
 
               prevStates = newStates;
@@ -399,8 +427,8 @@ export function useProductSetup() {
      * Use as the primary navigation method for seamless related-product resolution.
      */
     getNextRequiringSetup,
-    /** Products with overlapping missing provision fields (for "apply to similar"). */
-    similarProducts
+    /** Cached similar products (captured at configure time, stable during refresh). */
+    similarProducts: cachedSimilarProducts
   };
 }
 
