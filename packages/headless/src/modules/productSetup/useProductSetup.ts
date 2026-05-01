@@ -92,7 +92,7 @@ export function useProductSetup() {
     if (!Array.isArray(e)) return e;
     return {
       ...(first(e) as ResponseError),
-      message: map(e, "message").filter(Boolean).join("\n")
+      message: filter(map(e, "message"), Boolean).join("\n")
     };
   });
 
