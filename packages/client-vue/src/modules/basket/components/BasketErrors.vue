@@ -5,34 +5,13 @@
       color="danger"
       variant="minimal"
       icon="alert-triangle"
-      :title="t('cart.basket_requires_attention_msg', { count })"
+      :title="t('cart.basket_requires_attention_msg')"
       :description="t('cart.basket_review_msg')"
     >
+      <pre>{{ meta }}</pre>
       <ol class="text-sm-tight list-disc p-6 py-2 text-left" v-auto-animate>
-        <!-- Basket products:Deprecated in favour of ProductSetup -->
-        <!-- <template v-if="meta.hasBasketProducts">
-          <li
-            v-for="basketItem in productsInvalid"
-            :key="basketItem.id"
-            class="text-sm marker:text-inherit"
-          >
-            <i18n-t keypath="cart.basket_product_review_msg" tag="span">
-              <template #productName>
-                <span>{{ basketItem?.productDetails?.title }}</span>
-              </template>
-              <template #review>
-                <Link
-                  size="inherit"
-                  v-bind="getBasketProductsRoute(basketItem.id)"
-                  :label="t('action.review')"
-                />
-              </template>
-            </i18n-t>
-          </li>
-        </template> -->
-
         <!-- Additional details -->
-        <li v-if="meta.hasBasketFields">
+        <li v-if="meta.hasBasketFieldErrors">
           <i18n-t keypath="cart.basket_fields_review_msg" tag="span">
             <template #review>
               <Link
@@ -45,7 +24,7 @@
         </li>
 
         <!-- Billing details -->
-        <li v-if="meta.hasBasketBilling">
+        <li v-if="meta.hasBasketBillingErrors">
           <i18n-t keypath="cart.basket_billing_review_msg" tag="span">
             <template #review>
               <Link
@@ -113,18 +92,18 @@ const { meta: fieldsMeta, errors: fieldsErrors } = useBasketFields();
 const { meta: billingMeta, errors: billingErrors } = useBasketBilling();
 const count = computed(() => {
   return sum([
-    meta.value.hasBasketProducts ? productsInvalid.value?.length : 0,
-    meta.value.hasBasketBilling ? 1 : 0,
-    meta.value.hasBasketFields ? 1 : 0
+    meta.value.hasBasketProductsErrors ? productsInvalid.value?.length : 0,
+    meta.value.hasBasketBillingErrors ? 1 : 0,
+    meta.value.hasBasketFieldErrors ? 1 : 0
   ]);
 });
 
 const meta = computed(() => {
-  const hasBasketFields =
+  const hasBasketFieldErrors =
     props.basketFields && fieldsErrors.value?.data?.length;
-  const hasBasketBilling =
+  const hasBasketBillingErrors =
     props.basketBilling && billingErrors.value?.data?.length;
-  const hasBasketProducts =
+  const hasBasketProductsErrors =
     props.basketProducts && productsInvalid.value?.length;
 
   return {
@@ -132,10 +111,10 @@ const meta = computed(() => {
       basketMeta.value.isLoading ||
       fieldsMeta.value.isLoading ||
       (props.basketBilling && billingMeta.value.isLoading),
-    hasBasketFields,
-    hasBasketBilling,
-    hasBasketProducts,
-    hasErrors: hasBasketFields || hasBasketBilling //|| hasBasketProducts
+    hasBasketFieldErrors,
+    hasBasketBillingErrors,
+    hasBasketProductsErrors,
+    hasErrors: hasBasketFieldErrors || hasBasketBillingErrors // || hasBasketProductsErrors
   };
 });
 
