@@ -9,6 +9,7 @@
       icon="search-refraction"
       :disabled="processing"
       :class="styles.domain.search.root"
+      :ui-config="{ input: { field: [styles.domain.search.field] } }"
       :mask="/^.{0,63}$/"
     >
       <template #append>
