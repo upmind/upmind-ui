@@ -672,7 +672,7 @@ export default {
    * If all products are complete, rejects to redirect to checkout.
    * The page internally determines which product to configure.
    */
-  guardBasketProductSetup: async (
+  guardProductSetup: async (
     context: FunnelContext
   ): Promise<FunnelResponse> => {
     await ensureBidAuth(context, {
@@ -682,10 +682,8 @@ export default {
     const { isReady, meta } = useProductSetup();
     await isReady();
 
-    if (!meta.value.isAvailable) return Promise.reject();
-
-    // If setup is complete, redirect to checkout
-    if (meta.value.isComplete) {
+    // If setup is complete or we dont have any, redirect to checkout
+    if (!meta.value.isAvailable || meta.value.isComplete) {
       return Promise.reject({
         target: context.targetRoute ?? { name: ROUTE.CHECKOUT }
       });

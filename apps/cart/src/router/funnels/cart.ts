@@ -363,9 +363,8 @@ export default <FunnelProps>{
      * In case of an error (no products need setup), it redirects to checkout.
      */
     [ROUTE.BASKET_PRODUCTS_SETUP]: {
-      entry: ["setCurrency", "setBasket"],
       invoke: {
-        src: "guardBasketProductSetup",
+        src: "guardProductSetup",
         onDone: { actions: ["setResolved"] },
         onError: { target: ROUTE.CHECKOUT, actions: ["setResolving"] }
       },

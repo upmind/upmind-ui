@@ -100,6 +100,7 @@ import TabPersonal from "./TabPersonal.vue";
 
 // --- types
 import type { TabItem } from "@upmind-automation/upmind-ui";
+import type { BillingModel } from "@upmind-automation/headless";
 import type { BillingFormProps } from "../types";
 
 // -----------------------------------------------------------------------------
@@ -125,7 +126,7 @@ const styles = useStyles(
 const isMounted = useMounted();
 
 const { client } = useSession();
-const { isReady, meta, config, set, update, model } = useBasketBilling();
+const { isReady, meta, config, set, update, wait, model } = useBasketBilling();
 const { navigateNext } = useRoutingEngine();
 
 // ensure we preload our data for speed between the tab
@@ -170,8 +171,16 @@ const {
   meta: addressMeta,
   default: defaultAddress
 } = useClientAddresses();
-const { getOne: getCompany, meta: companyMeta } = useClientCompanies();
-const { getOne: getPhone, meta: phoneMeta } = useClientPhones();
+const {
+  getOne: getCompany,
+  meta: companyMeta,
+  default: defaultCompany
+} = useClientCompanies();
+const {
+  getOne: getPhone,
+  meta: phoneMeta,
+  default: defaultPhone
+} = useClientPhones();
 
 const selectedAddress = computed(() =>
   getAddress(model.value?.addressId ?? undefined)
@@ -210,14 +219,42 @@ const tabs = computed((): TabItem[] => {
 
 // --- methods
 
+function buildModel(): BillingModel | undefined {
+  const phoneId = meta.value.needsPhone
+    ? (modelValue.value?.phoneId ?? defaultPhone()?.id)
+    : undefined;
+
+  if (activeTab.value === UnifiedType.PERSONAL) {
+    return { ...modelValue.value, companyId: undefined, phoneId };
+  }
+
+  if (
+    activeTab.value === UnifiedType.BUSINESS &&
+    !modelValue.value?.companyId
+  ) {
+    const company = defaultCompany();
+    return {
+      ...modelValue.value,
+      companyId: company?.id,
+      addressId: company?.addressId,
+      phoneId
+    };
+  }
+
+  return { ...modelValue.value, phoneId };
+}
+
 async function doContinue() {
-  await update(model.value!);
+  const value = buildModel();
+  await update(value!);
+  modelValue.value = value;
   navigateNext();
 }
 
 async function onFormResolve() {
   if (!props.autoUpdate) {
-    await update(model.value!);
+    await wait(true);
+    await update(buildModel()!);
     navigateNext();
   }
 }
