@@ -121,6 +121,14 @@ export default [
   },
 
   /**
+   * Redirect legacy billing route
+   */
+  {
+    path: "/order/billing/",
+    redirect: { name: ROUTE.BILLING }
+  },
+
+  /**
    * Route displayed when a basket is unavailable or invalid.
    */
   {
