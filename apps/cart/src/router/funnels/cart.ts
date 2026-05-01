@@ -249,15 +249,7 @@ export default <FunnelProps>{
               "setResolving",
               assign({ targetRoute: { name: ROUTE.BILLING } })
             ],
-            cond: "hasStandaloneBilling"
-          },
-          {
-            target: ROUTE.BILLING,
-            actions: [
-              "setResolving",
-              assign({ targetRoute: { name: ROUTE.BILLING } })
-            ],
-            cond: "hasDomainProducts"
+            cond: "needsAddress"
           },
           {
             target: ROUTE.BASKET_PRODUCTS_SETUP,

@@ -8,39 +8,43 @@
           :basket-product="basketProduct"
           :product-meta="productMeta"
         >
-          <Section
-            :label="setupMeta.isLoading ? '' : currentProductTitle"
-            icon="settings-04"
-          >
-            <form @submit.prevent @reset.prevent>
-              <Form
-                v-if="
-                  basketProduct &&
-                  productMeta?.isAvailable &&
-                  !setupMeta.isLoading
-                "
-                :loading="productMeta.isLoading"
-                :processing="setupMeta.isProcessing"
-                :disabled="setupMeta.isProcessing"
-                :schema="schema"
-                :uischema="uischema"
-                :model-value="model"
-                :additional-errors="additionalErrors"
-                :touched="productMeta.showErrors"
-                @update:modelValue="setConfig"
-                no-actions
-                as="fieldset"
-              />
-              <ConfigSkeleton v-else />
-            </form>
-          </Section>
+          <Loading :active="setupMeta.isLoading" class="min-h-44">
+            <Section
+              v-if="!setupMeta.isLoading"
+              :label="currentProductTitle"
+              icon="settings-04"
+            >
+              <form
+                id="setup-form"
+                @submit.prevent="doResolve"
+                @reset.prevent
+                autocomplete="on"
+              >
+                <Form
+                  v-if="basketProduct && productMeta?.isAvailable"
+                  :loading="productMeta.isLoading"
+                  :processing="setupMeta.isProcessing"
+                  :disabled="setupMeta.isProcessing"
+                  :schema="schema"
+                  :uischema="uischema"
+                  :model-value="model"
+                  :additional-errors="additionalErrors"
+                  :touched="productMeta.showErrors"
+                  @update:modelValue="setConfig"
+                  no-actions
+                  as="fieldset"
+                />
+                <!-- <ConfigSkeleton v-else /> -->
+              </form>
+            </Section>
+          </Loading>
         </slot>
       </template>
 
       <template #apply-to-others>
         <slot name="apply-to-others" :other-products="similarProducts">
           <ApplyToOthers
-            v-if="setupMeta.hasSimilar"
+            v-if="setupMeta.hasSimilar && !setupMeta.isLoading"
             v-model="selected"
             :products="similarProducts"
             :loading="setupMeta.isLoading"
@@ -69,23 +73,35 @@
               :label="t('action.back_to_basket')"
               @click="doReject"
             />
-            <slot name="errors">
-              <Alert
-                v-if="externalErrors?.message || setupMeta?.hasError"
-                class="w-full"
-                color="danger"
-                variant="minimal"
-                icon="alert-triangle"
-                :title="t('error.product_setup')"
-                :description="externalErrors?.message || setupError?.message"
-              />
-              <ConfigErrors
-                v-if="!setupMeta.isLoading"
-                :visible="productMeta?.showErrors"
-                :errors="validationErrors"
-              />
-            </slot>
           </div>
+        </slot>
+      </template>
+
+      <template #errors>
+        <slot name="errors">
+          <Alert
+            v-if="externalErrors?.message || setupMeta?.hasError"
+            class="w-full"
+            color="danger"
+            variant="minimal"
+            icon="alert-triangle"
+            :title="t('error.product_setup')"
+            :description="externalErrors?.message || setupError?.message"
+          />
+
+          <Alert
+            class="w-full"
+            v-if="!setupMeta.isLoading && productMeta?.showErrors"
+            color="danger"
+            variant="minimal"
+            icon="alert-triangle"
+            :title="
+              t('error.product_not_valid', {
+                errorCount: size(validationErrors)
+              })
+            "
+            :description="t('text.check_required_fields_desc')"
+          />
         </slot>
       </template>
 
@@ -107,6 +123,7 @@
           <Button
             v-if="!setupMeta?.isLoading"
             type="submit"
+            form="setup-form"
             :label="t('action.continue_label')"
             :loading="setupMeta?.isProcessing"
             :disabled="
@@ -118,7 +135,6 @@
             color="primary"
             size="lg"
             class="w-full"
-            @click="doResolve"
           />
         </slot>
       </template>
@@ -143,9 +159,7 @@ import {
 } from "@upmind-automation/headless";
 
 // --- components
-import { Alert, Badge, Button } from "@upmind-automation/upmind-ui";
-import ConfigSkeleton from "../../product/components/ConfigSkeleton.vue";
-import ConfigErrors from "../../product/components/ConfigErrors.vue";
+import { Alert, Badge, Button, Loading } from "@upmind-automation/upmind-ui";
 import Section from "../../../components/section/Section.vue";
 import Form from "../../../components/form/Form.vue";
 import ApplyToOthers from "./ApplyToOthers.vue";
@@ -168,10 +182,17 @@ const supportedTemplates = {
 };
 
 // --- utils
-import { get } from "lodash-es";
+import { get, size } from "lodash-es";
 
 // --- types
-import { UIContext, type ProductModel } from "@upmind-automation/headless";
+import {
+  UIContext,
+  type ProductModel,
+  type Product,
+  type BasketProduct,
+  type UseProductConfigMeta
+} from "@upmind-automation/headless";
+import type { ActorRef } from "xstate";
 import { PRODUCT_SETUP_TEMPLATE, type ProductSetupProps } from "../types";
 
 // -----------------------------------------------------------------------------
@@ -192,6 +213,23 @@ const emit = defineEmits<{
   reject: [];
 }>();
 
+defineSlots<{
+  configuration(props: {
+    product: Product | undefined;
+    basketProduct: ActorRef<any, any> | undefined;
+    productMeta: UseProductConfigMeta;
+  }): void;
+  "apply-to-others"(props: { otherProducts: BasketProduct[] }): void;
+  aside(): void;
+  progress(): void;
+  actions(props: {
+    doResolve: () => void;
+    doReject: () => void;
+    isProcessing: boolean;
+  }): void;
+  errors(): void;
+}>();
+
 const { t } = useI18n();
 
 // --- Product Setup composable (singleton - shared with parent)
@@ -199,12 +237,17 @@ const {
   configure,
   error: setupError,
   meta: setupMeta,
+  reset: resetSetup,
   schema,
   uischema,
   selected,
   similarProducts,
   total
 } = useProductSetup();
+
+onUnmounted(() => {
+  resetSetup();
+});
 
 const { service: basketProduct, isReady } = await configure(props.bpid);
 

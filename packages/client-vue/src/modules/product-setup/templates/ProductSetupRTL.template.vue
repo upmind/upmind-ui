@@ -1,6 +1,7 @@
 <template>
   <Layout :variant="LAYOUT_VARIANTS.TWO_COLUMN_RTL">
     <template #content>
+      <slot name="errors" />
       <slot name="configuration" />
       <slot name="apply-to-others" />
     </template>

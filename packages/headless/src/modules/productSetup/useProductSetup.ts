@@ -295,6 +295,15 @@ export function useProductSetup() {
     selected.value = map(similarProducts.value, "id");
   }
 
+  function reset(): void {
+    bpid.value = undefined;
+    schema.value = undefined;
+    uischema.value = undefined;
+    similarProducts.value = [];
+    selected.value = [];
+    rawError.value = undefined;
+  }
+
   // Reads the live invalid schema/uischema off the config's service context
   // and stores the snapshots. Called at configure time AND whenever the
   // basket refreshes — e.g. after auth swaps the guest token, validation
@@ -384,6 +393,8 @@ export function useProductSetup() {
     apply,
     /** Wait for the basket to be ready before checking product setup status. */
     isReady,
+    /** Reset all state (call on unmount to ensure fresh state on re-entry). */
+    reset,
     /** Reset selected to all similar products (call on cancel/apply). */
     resetselected,
     /**
