@@ -24,20 +24,6 @@
                   :title="t('error.product_setup')"
                   :description="externalErrors?.message || setupError?.message"
                 />
-
-                <Alert
-                  class="w-full"
-                  v-if="!setupMeta.isLoading && productMeta?.showErrors"
-                  color="danger"
-                  variant="minimal"
-                  icon="alert-triangle"
-                  :title="
-                    t('error.product_not_valid', {
-                      errorCount: size(validationErrors)
-                    })
-                  "
-                  :description="t('text.check_required_fields_desc')"
-                />
               </slot>
 
               <form
@@ -55,7 +41,6 @@
                   :uischema="uischema"
                   :model-value="model"
                   :additional-errors="additionalErrors"
-                  :touched="productMeta.showErrors"
                   @update:modelValue="setConfig"
                   no-actions
                   as="fieldset"
@@ -87,7 +72,7 @@
                 {{ t("text.fully_encrypted_title") }}
               </Badge>
               <Hero
-                :title="t('cart.product_setup.title')"
+                :title="t('cart.product_setup_title')"
                 :ui-config="{
                   hero: {
                     title: [styles.header.heroTitle],
@@ -97,7 +82,7 @@
               >
                 <template #subtitle>
                   <p :class="styles.header.price">
-                    {{ t("cart.product_setup.description") }}
+                    {{ t("cart.product_setup_desc") }}
                   </p>
                 </template>
               </Hero>
@@ -119,7 +104,7 @@
       <template #progress>
         <slot name="progress">
           <span v-if="total > 1" class="shrink-0 text-base font-semibold">
-            {{ t("cart.product_setup.products_remaining", { count: total }) }}
+            {{ t("cart.product_setup_count", { count: total }) }}
           </span>
         </slot>
       </template>

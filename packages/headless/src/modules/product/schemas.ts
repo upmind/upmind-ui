@@ -546,6 +546,12 @@ export function useInvalidProductConfigUischema(
     }
   }
 
+  // --- autofocus the first Control element
+  const firstControl = find(elements, { type: "Control" });
+  if (firstControl) {
+    firstControl.options = { ...firstControl.options, autoFocus: true };
+  }
+
   return {
     type: "VerticalLayout",
     elements

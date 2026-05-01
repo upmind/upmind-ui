@@ -34,34 +34,45 @@ function isMeaningful(value: unknown): boolean {
  * Recursively strips all non-meaningful values from a structure.
  * Strips: null, undefined, empty strings, empty objects, empty arrays.
  * Keeps: non-empty strings, all numbers (including 0), all booleans (including false).
- * Returns undefined if the entire value is empty.
+ *
+ * @param value - The value to compact
+ * @param options.preserveContainers - Keep empty objects/arrays instead of stripping them
  */
-export function compactDeep(value?: any): any {
-  const raw = toRaw(unref(value));
+export function compactDeep(
+  value?: any,
+  options?: { preserveContainers?: boolean }
+): any {
+  const { preserveContainers = false } = options ?? {};
 
-  // --- primitives
-  if (!isObjectLike(raw)) {
-    return isMeaningful(raw) ? raw : undefined;
+  function compact(val: any): any {
+    const raw = toRaw(unref(val));
+
+    // --- primitives
+    if (!isObjectLike(raw)) {
+      return isMeaningful(raw) ? raw : undefined;
+    }
+
+    // --- arrays
+    if (isArray(raw)) {
+      const cleaned = reject(map(raw, compact), isNil);
+      return size(cleaned) ? cleaned : preserveContainers ? [] : undefined;
+    }
+
+    // --- objects
+    const cleaned = reduce(
+      raw,
+      (acc: Record<string, any>, v, key: string) => {
+        const stripped = compact(v);
+        if (!isNil(stripped)) acc[key] = stripped;
+        return acc;
+      },
+      {}
+    );
+
+    return size(cleaned) ? cleaned : preserveContainers ? {} : undefined;
   }
 
-  // --- arrays
-  if (isArray(raw)) {
-    const cleaned = reject(map(raw, compactDeep), isNil);
-    return size(cleaned) ? cleaned : undefined;
-  }
-
-  // --- objects
-  const cleaned = reduce(
-    raw,
-    (acc: Record<string, any>, val, key: string) => {
-      const stripped = compactDeep(val);
-      if (!isNil(stripped)) acc[key] = stripped;
-      return acc;
-    },
-    {}
-  );
-
-  return size(cleaned) ? cleaned : undefined;
+  return compact(value);
 }
 
 /**
