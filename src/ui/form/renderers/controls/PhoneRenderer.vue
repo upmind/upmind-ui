@@ -1,6 +1,6 @@
 <template>
   <FormField v-bind="formFieldProps" no-errors>
-    <InputGroup class="group flex control-radius" :ring="true">
+    <InputGroup class="group control-radius flex" :ring="true">
       <Combobox
         :model-value="
           phone?.country || control.data?.country || defaultCountryCode
