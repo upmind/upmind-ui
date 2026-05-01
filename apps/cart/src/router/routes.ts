@@ -163,7 +163,7 @@ export default [
    * Single route that internally determines which product to configure.
    */
   {
-    path: `/order/basket/:bid(${RegexMatch.UUID})?/products/setup/`,
+    path: `/order/basket/:bid(${RegexMatch.UUID})?/products-setup/`,
     name: ROUTE.BASKET_PRODUCTS_SETUP,
     component: () => import("../pages/ProductSetup.vue"),
     meta: {

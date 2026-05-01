@@ -499,13 +499,7 @@ export default createMachine(
 
       UNAUTHENTICATED: {
         target: "subscribing",
-        actions: [
-          () => {
-            debugger;
-          },
-          "clearBasket",
-          "clearActors"
-        ]
+        actions: ["clearBasket", "clearActors"]
       }
     }
   },

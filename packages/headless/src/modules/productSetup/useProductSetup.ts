@@ -265,21 +265,21 @@ export function useProductSetup() {
   }
 
   // Capture products with overlapping error paths (for "apply to similar")
-  function captureSimilarProducts(): BasketProduct[] {
-    if (!bpid.value) return [];
+  function captureSimilarProducts(): void {
+    if (!bpid.value) similarProducts.value = [];
 
     const mode = ui.productSetup.value;
     const current = find(basketProducts.value, { id: bpid.value });
-    if (!current) return [];
+    if (!current) similarProducts.value = [];
 
     // Get all error paths from current product
     const currentErrors = get(current, "errors", []) as ErrorObject[];
     const currentErrorPaths = map(currentErrors, "instancePath");
 
-    if (isEmpty(currentErrorPaths)) return [];
+    if (isEmpty(currentErrorPaths)) similarProducts.value = [];
 
     // Find other products requiring setup with any overlapping error paths
-    return filter(basketProducts.value, bp => {
+    similarProducts.value = filter(basketProducts.value, bp => {
       if (bp.id === bpid.value) return false;
       if (bp.serviceIdentifier === current.serviceIdentifier) return false;
       if (!basketProductRequiresSetup(bp, mode)) return false;
@@ -308,13 +308,6 @@ export function useProductSetup() {
     const state = service.getSnapshot()?.value;
     schema.value = useInvalidProductConfigSchema(ctx);
     uischema.value = useInvalidProductConfigUischema(ctx);
-    console.log("captureSchemas", {
-      state,
-      ctx,
-      basketErrors,
-      schema: schema.value,
-      uischema: uischema.value
-    });
   }
 
   // --- side effects
@@ -338,9 +331,7 @@ export function useProductSetup() {
           // .then(config => config.isReady().then(() => config))
           .then(config => {
             bpid.value = id;
-            // Capture similar products and pre-select all
-            similarProducts.value = captureSimilarProducts();
-            selected.value = map(similarProducts.value, "id");
+
             // Capture schemas when transitioning from loading/refreshing states
             let prevStates: string[] = [];
 
@@ -360,8 +351,7 @@ export function useProductSetup() {
 
               if (isRefreshing && stateMatches(state, "available")) {
                 captureSchemas(config.service);
-                // Re-capture similar products after refresh
-                similarProducts.value = captureSimilarProducts();
+                captureSimilarProducts();
                 selected.value = map(similarProducts.value, "id");
               }
 
