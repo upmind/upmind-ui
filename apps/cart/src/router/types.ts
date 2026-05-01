@@ -121,8 +121,6 @@ export enum ROUTE {
   /**
    * The route for product setup - fixing invalid/deferred product configuration.
    */
-  BASKET_PRODUCT_SETUP = "basket-product-setup",
-
   BASKET_PRODUCTS_SETUP = "basket-products-setup",
 
   /**

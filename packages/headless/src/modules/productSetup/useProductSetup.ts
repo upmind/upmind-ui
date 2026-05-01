@@ -19,12 +19,7 @@ import {
 
 // --- internal
 import { useBasket } from "../basket";
-import {
-  useBasketProduct,
-  useBasketProducts,
-  type BasketProduct,
-  type UseBasketProduct
-} from "../basketProduct";
+import { useBasketProducts, type BasketProduct } from "../basketProduct";
 import basketProductServices from "../basketProduct/services";
 import {
   useInvalidProductConfigSchema,
@@ -35,12 +30,8 @@ import { useConfig } from "../config";
 import {
   compactDeep,
   contextValue,
-  DetailedError,
-  ErrorOrigin,
   isDeepEmpty,
-  responseCodes,
   stateMatches,
-  stateValue,
   useModelParser,
   type ErrorObject,
   type ResponseError
@@ -52,7 +43,6 @@ import type { ActorRef } from "xstate";
 import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
 import { UIContext } from "../config/schema/types";
 import type { ProductConfigContext, ProductModel } from "../product/types";
-import { useI18n } from "../system";
 
 // -----------------------------------------------------------------------------
 /**
@@ -72,6 +62,17 @@ import { useI18n } from "../system";
  * - `required` (default): only products with validation errors
  * - `deferred`: products with errors OR deferred fields with empty values
  */
+// --- module-level state (singleton)
+const bpid = ref<string>();
+const schema = ref<JsonSchema7>();
+const uischema = ref<UISchemaElement>();
+const similarProducts = ref<BasketProduct[]>([]);
+const selected = ref<string[]>([]);
+const processing = ref(false);
+const rawError = ref<ResponseError | ResponseError[] | undefined>();
+
+// -----------------------------------------------------------------------------
+
 export function useProductSetup() {
   const {
     products: basketProducts,
@@ -81,24 +82,6 @@ export function useProductSetup() {
   } = useBasket();
   const { configure } = useBasketProducts();
   const { ui } = useConfig({ context: UIContext.CHECKOUT });
-
-  // --- state
-  // Current basket product ID being configured
-  const bpid = ref<string>();
-  const schema = ref<JsonSchema7>();
-  const uischema = ref<UISchemaElement>();
-
-  // Cached similar products - captured at configure time so they don't disappear during refresh
-  const cachedSimilarProducts = ref<BasketProduct[]>([]);
-
-  // Selected product IDs for "apply to similar" - user can toggle via checkboxes
-  const selected = ref<string[]>([]);
-
-  // True while an `apply()` call is in flight (used to drive the spinner / disable UI)
-  const processing = ref(false);
-
-  // Raw error captured from `apply()` — may be a single ResponseError or an array
-  const rawError = ref<ResponseError | ResponseError[] | undefined>();
 
   // Normalised single ResponseError for UI consumption (mirrors basket/checkout pattern).
   // If the raw error is an array, join all messages so the UI can render `error?.message`
@@ -123,33 +106,6 @@ export function useProductSetup() {
 
   const total = computed(() => size(products.value));
 
-  // Products with overlapping error paths (for "apply to similar")
-  const similarProducts = computed((): BasketProduct[] => {
-    if (!bpid.value) return [];
-
-    const mode = ui.productSetup.value;
-    const current = find(basketProducts.value, { id: bpid.value });
-    if (!current) return [];
-
-    // Get all error paths from current product
-    const currentErrors = get(current, "errors", []) as ErrorObject[];
-    const currentErrorPaths = map(currentErrors, "instancePath");
-
-    if (isEmpty(currentErrorPaths)) return [];
-
-    // Find other products requiring setup with any overlapping error paths
-    return filter(basketProducts.value, bp => {
-      if (bp.id === bpid.value) return false;
-      if (bp.serviceIdentifier === current.serviceIdentifier) return false;
-      if (!basketProductRequiresSetup(bp, mode)) return false;
-
-      const bpErrors = get(bp, "errors", []) as ErrorObject[];
-      return some(bpErrors, (e: ErrorObject) =>
-        includes(currentErrorPaths, e.instancePath)
-      );
-    });
-  });
-
   // --- meta
   const meta = computed(() => ({
     /** True when basket is loading. */
@@ -166,7 +122,7 @@ export function useProductSetup() {
     /** True when the last apply() call errored. */
     hasError: !!error.value,
     /** True when there are similar products to apply config to. */
-    hasSimilar: !isEmpty(cachedSimilarProducts.value)
+    hasSimilar: !isEmpty(similarProducts.value)
   }));
 
   // --- methods
@@ -216,7 +172,7 @@ export function useProductSetup() {
       ? useModelParser(schema.value, model, {}, { allowExtraProps: false })
       : {};
 
-    // Bail ifdelta is empty (e.g., user hit "apply" without changing anything, or all errors were in fields they didn't touch)
+    // Bail if delta is empty (e.g., user hit "apply" without changing anything, or all errors were in fields they didn't touch)
     if (isDeepEmpty(delta)) {
       return Promise.resolve();
     }
@@ -273,8 +229,10 @@ export function useProductSetup() {
         throw e;
       })
       .finally(() => {
-        processing.value = false;
         selected.value = [];
+        schema.value = undefined;
+        uischema.value = undefined;
+        processing.value = false;
       });
   }
 
@@ -304,6 +262,33 @@ export function useProductSetup() {
     actor?: ActorRef<any>
   ): BasketProduct | undefined {
     return getNextRelated(actor!) || getNextInvalid(actor);
+  }
+
+  // Capture products with overlapping error paths (for "apply to similar")
+  function captureSimilarProducts(): BasketProduct[] {
+    if (!bpid.value) return [];
+
+    const mode = ui.productSetup.value;
+    const current = find(basketProducts.value, { id: bpid.value });
+    if (!current) return [];
+
+    // Get all error paths from current product
+    const currentErrors = get(current, "errors", []) as ErrorObject[];
+    const currentErrorPaths = map(currentErrors, "instancePath");
+
+    if (isEmpty(currentErrorPaths)) return [];
+
+    // Find other products requiring setup with any overlapping error paths
+    return filter(basketProducts.value, bp => {
+      if (bp.id === bpid.value) return false;
+      if (bp.serviceIdentifier === current.serviceIdentifier) return false;
+      if (!basketProductRequiresSetup(bp, mode)) return false;
+
+      const bpErrors = get(bp, "errors", []) as ErrorObject[];
+      return some(bpErrors, (e: ErrorObject) =>
+        includes(currentErrorPaths, e.instancePath)
+      );
+    });
   }
 
   function resetselected(): void {
@@ -354,7 +339,7 @@ export function useProductSetup() {
           .then(config => {
             bpid.value = id;
             // Capture similar products and pre-select all
-            cachedSimilarProducts.value = similarProducts.value;
+            similarProducts.value = captureSimilarProducts();
             selected.value = map(similarProducts.value, "id");
             // Capture schemas when transitioning from loading/refreshing states
             let prevStates: string[] = [];
@@ -376,7 +361,7 @@ export function useProductSetup() {
               if (isRefreshing && stateMatches(state, "available")) {
                 captureSchemas(config.service);
                 // Re-capture similar products after refresh
-                cachedSimilarProducts.value = similarProducts.value;
+                similarProducts.value = captureSimilarProducts();
                 selected.value = map(similarProducts.value, "id");
               }
 
@@ -387,6 +372,8 @@ export function useProductSetup() {
           })
       );
     },
+    /** Similar products with overlapping errors (captured at configure time, stable during refresh). */
+    similarProducts: computed(() => similarProducts.value),
     /** Subset schema containing only fields that need attention. Captured at configure time. */
     schema,
     /** Subset uischema containing only fields that need attention. Captured at configure time. */
@@ -426,9 +413,7 @@ export function useProductSetup() {
      * Prioritizes related products (getNextRelated) over invalid ones (getNextInvalid).
      * Use as the primary navigation method for seamless related-product resolution.
      */
-    getNextRequiringSetup,
-    /** Cached similar products (captured at configure time, stable during refresh). */
-    similarProducts: cachedSimilarProducts
+    getNextRequiringSetup
   };
 }
 

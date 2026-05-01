@@ -160,22 +160,15 @@ export default [
 
   /**
    * Route for product setup - fixing invalid/deferred product configuration.
-   * Parent route renders router-view, child with :bpid renders Setup.vue.
+   * Single route that internally determines which product to configure.
    */
   {
     path: `/order/basket/:bid(${RegexMatch.UUID})?/products/setup/`,
     name: ROUTE.BASKET_PRODUCTS_SETUP,
-    component: () => import("../pages/product/Index.vue"),
+    component: () => import("../pages/ProductSetup.vue"),
     meta: {
       actionEmptyBasket: true
-    },
-    children: [
-      {
-        path: `:bpid(${RegexMatch.UUID})/`,
-        name: ROUTE.BASKET_PRODUCT_SETUP,
-        component: () => import("../pages/product/Setup.vue")
-      }
-    ]
+    }
   },
 
   /**
