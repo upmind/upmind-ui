@@ -487,13 +487,14 @@ export const useModelParser = <
     },
     {} as Record<string, any>
   );
-  if (!allowExtraProps) return compactDeep(model) as TModel;
+  if (!allowExtraProps)
+    return compactDeep(model, { preserveContainers: true }) as TModel;
 
   const parsed = (
     !allowExtraProps ? model : defaultsDeep(model, values)
   ) as TModel;
 
-  return compactDeep(parsed) as TModel;
+  return compactDeep(parsed, { preserveContainers: true }) as TModel;
 };
 
 // -----------------------------------------------------------------------------
