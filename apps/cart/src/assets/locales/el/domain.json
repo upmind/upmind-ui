@@ -26,6 +26,7 @@
   "own_domain_qn": "Είστε ο κάτοχος αυτού του domain;",
   "owned_domains_title": "Domains που σας ανήκουν αυτήν τη στιγμή",
   "price_renewal_desc": "Εφάπαξ τιμή {regularPrice}. | Ανανεώνεται κάθε χρόνο για {regularPrice}. | Ανανεώνεται κάθε {count} χρόνια για {regularPrice}.",
+  "registrant_use_billing_msg": "Τα στοιχεία χρέωσής σας θα χρησιμοποιηθούν ως στοιχεία επικοινωνίας του κατόχου domain.",
   "search": "Αναζήτηση domain",
   "starts_with_domain": "Όλα ξεκινούν με ένα **όνομα τομέα**",
   "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
@@ -36,5 +37,6 @@
   "transfer_extension_info": "Οι μεταγραφές περιλαμβάνουν παράταση ενός έτους.",
   "transfer_owner_question": "Είστε ο ιδιοκτήτης αυτού του domain;",
   "transfer_price_info": "Μπορείτε να το μεταφέρετε σε εμάς με μόνο {currentPrice}",
-  "transfer_promotion": "Μεταφορά μόνο για {currentPrice}, συνήθως {regularPrice}."
+  "transfer_promotion": "Μεταφορά μόνο για {currentPrice}, συνήθως {regularPrice}.",
+  "use_details_for": "Χρησιμοποιήστε αυτές τις λεπτομέρειες για{domain}"
 }
