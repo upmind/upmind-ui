@@ -240,8 +240,12 @@ export interface RelatedProduct extends IRelatedObject {
   product: IProduct;
   // --- config to be used in adding the recommendation
   /**
-   * Optional product configuration (`IProductConfig`) that can be applied
-   * when adding this related product as a recommendation.
+   * Product configuration (`IProductConfig`) applied when adding this product
+   * as a recommendation, and used as the targeting key when
+   * `matchLevel === "product_config"`. Defined fields are required to match
+   * a basket product; undefined fields are "don't care". When `config` itself
+   * is absent under `product_config`, the recommendation expresses no
+   * targeting and is never treated as in-basket.
    */
   config?: IProductConfig;
   /**
@@ -255,7 +259,9 @@ export interface RelatedProduct extends IRelatedObject {
   /**
    * Strategy for matching the recommendation against basket products.
    * - `"product_id"` (default): hide when any variant of the product is in the basket.
-   * - `"product_config"`: hide only when the basket has an exact `bcm` + `sub_pids` match.
+   * - `"product_config"`: hide only when basket has a product whose `bcm` and
+   *   `sub_pids` match every field defined on `config`. If `config` is absent,
+   *   the recommendation is never treated as in-basket (no targeting expressed).
    */
   matchLevel?: RecommendationMatchLevel;
   /**
