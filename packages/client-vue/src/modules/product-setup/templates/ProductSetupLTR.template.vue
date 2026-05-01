@@ -1,5 +1,9 @@
 <template>
   <Layout :variant="LAYOUT_VARIANTS.TWO_COLUMN_LTR">
+    <template #content-header>
+      <slot name="content-header" />
+    </template>
+
     <template #content>
       <slot name="errors" />
       <slot name="configuration" />
