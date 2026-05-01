@@ -14,6 +14,32 @@
               :label="currentProductTitle"
               icon="settings-04"
             >
+              <slot name="errors">
+                <Alert
+                  v-if="externalErrors?.message || setupMeta?.hasError"
+                  class="w-full"
+                  color="danger"
+                  variant="minimal"
+                  icon="alert-triangle"
+                  :title="t('error.product_setup')"
+                  :description="externalErrors?.message || setupError?.message"
+                />
+
+                <Alert
+                  class="w-full"
+                  v-if="!setupMeta.isLoading && productMeta?.showErrors"
+                  color="danger"
+                  variant="minimal"
+                  icon="alert-triangle"
+                  :title="
+                    t('error.product_not_valid', {
+                      errorCount: size(validationErrors)
+                    })
+                  "
+                  :description="t('text.check_required_fields_desc')"
+                />
+              </slot>
+
               <form
                 id="setup-form"
                 @submit.prevent="doResolve"
@@ -53,56 +79,41 @@
         </slot>
       </template>
 
-      <template #aside>
-        <slot name="aside">
-          <div class="flex flex-col gap-6">
-            <Badge variant="muted" icon="lock-01">
-              {{ t("text.fully_encrypted_title") }}
-            </Badge>
-            <div class="flex flex-col gap-2">
-              <h1 class="text-3xl font-semibold">
-                {{ t("cart.product_setup.title") }}
-              </h1>
-              <p class="text-muted-foreground">
-                {{ t("cart.product_setup.description") }}
-              </p>
+      <template #content-header>
+        <slot name="content-header">
+          <section :class="styles.header.root">
+            <div class="flex flex-col items-start gap-6">
+              <Badge variant="muted" icon="lock-01">
+                {{ t("text.fully_encrypted_title") }}
+              </Badge>
+              <Hero
+                :title="t('cart.product_setup.title')"
+                :ui-config="{
+                  hero: {
+                    title: [styles.header.heroTitle],
+                    description: [styles.header.heroDescription]
+                  }
+                }"
+              >
+                <template #subtitle>
+                  <p :class="styles.header.price">
+                    {{ t("cart.product_setup.description") }}
+                  </p>
+                </template>
+              </Hero>
+              <Button
+                variant="outline"
+                icon="arrow-left"
+                :label="t('action.back_to_basket')"
+                @click="doReject"
+              />
             </div>
-            <Button
-              variant="outline"
-              icon="arrow-left"
-              :label="t('action.back_to_basket')"
-              @click="doReject"
-            />
-          </div>
+          </section>
         </slot>
       </template>
 
-      <template #errors>
-        <slot name="errors">
-          <Alert
-            v-if="externalErrors?.message || setupMeta?.hasError"
-            class="w-full"
-            color="danger"
-            variant="minimal"
-            icon="alert-triangle"
-            :title="t('error.product_setup')"
-            :description="externalErrors?.message || setupError?.message"
-          />
-
-          <Alert
-            class="w-full"
-            v-if="!setupMeta.isLoading && productMeta?.showErrors"
-            color="danger"
-            variant="minimal"
-            icon="alert-triangle"
-            :title="
-              t('error.product_not_valid', {
-                errorCount: size(validationErrors)
-              })
-            "
-            :description="t('text.check_required_fields_desc')"
-          />
-        </slot>
+      <template #aside>
+        <slot name="aside" />
       </template>
 
       <template #progress>
@@ -159,11 +170,19 @@ import {
 } from "@upmind-automation/headless";
 
 // --- components
-import { Alert, Badge, Button, Loading } from "@upmind-automation/upmind-ui";
+import {
+  Alert,
+  Badge,
+  Button,
+  Loading,
+  useStyles
+} from "@upmind-automation/upmind-ui";
+import Hero from "../../../components/hero/Hero.vue";
 import Section from "../../../components/section/Section.vue";
 import Form from "../../../components/form/Form.vue";
 import ApplyToOthers from "./ApplyToOthers.vue";
 import Transitions from "../../../components/layout/components/transition/Transition.vue";
+import productHeroConfig from "../../product/components/hero/product-hero.config";
 
 // --- templates
 const supportedTemplates = {
@@ -219,6 +238,7 @@ defineSlots<{
     basketProduct: ActorRef<any, any> | undefined;
     productMeta: UseProductConfigMeta;
   }): void;
+  "content-header"(): void;
   "apply-to-others"(props: { otherProducts: BasketProduct[] }): void;
   aside(): void;
   progress(): void;
@@ -231,6 +251,18 @@ defineSlots<{
 }>();
 
 const { t } = useI18n();
+
+// --- Styles (match ProductHero vertical direction like Edit page)
+const stylesMeta = computed(() => ({
+  direction: "vertical" as const,
+  hasImage: false
+}));
+
+const styles = useStyles(
+  ["header", "header.image"],
+  stylesMeta,
+  productHeroConfig
+);
 
 // --- Product Setup composable (singleton - shared with parent)
 const {
