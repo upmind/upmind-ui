@@ -26,6 +26,7 @@
   "own_domain_qn": "Вие притежавате ли този домейн?",
   "owned_domains_title": "Домейни, които притежавате в момента",
   "price_renewal_desc": "Еднократна цена от {regularPrice}. | Подновява се всяка година за {regularPrice}. | Подновява се на всеки {count} години за {regularPrice}.",
+  "registrant_use_billing_msg": "Вашите данни за фактуриране ще бъдат използвани като информация за контакт с регистранта на домейна.",
   "search": "Търсене на домейни",
   "starts_with_domain": "Всичко започва с **име на домейн**",
   "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
@@ -36,5 +37,6 @@
   "transfer_extension_info": "Трансферите включват удължаване с една година.",
   "transfer_owner_question": "Вие ли сте собственикът на този домейн?",
   "transfer_price_info": "Можете да ни го прехвърлите само за {currentPrice}",
-  "transfer_promotion": "Трансфер само за {currentPrice}, обикновено {regularPrice}."
+  "transfer_promotion": "Трансфер само за {currentPrice}, обикновено {regularPrice}.",
+  "use_details_for": "Използвайте тези подробности за{domain}"
 }

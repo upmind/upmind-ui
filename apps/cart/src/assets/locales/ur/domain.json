@@ -26,6 +26,7 @@
   "own_domain_qn": "کیا آپ اس ڈومین کے مالک ہیں؟",
   "owned_domains_title": "ڈومینز جن کے آپ فی الحال مالک ہیں۔",
   "price_renewal_desc": "{regularPrice} کی ایک بار قیمت۔ | ہر سال {regularPrice} کے لئے تجدید ہوتی ہے۔ | ہر {count} سال بعد {regularPrice} کے لئے تجدید ہوتی ہے۔",
+  "registrant_use_billing_msg": "آپ کی بلنگ کی تفصیلات ڈومین رجسٹری رابطہ کی معلومات کے طور پر استعمال کی جائیں گی۔",
   "search": "ڈومینز تلاش کریں۔",
   "starts_with_domain": "یہ سب ایک **ڈومین نام** سے شروع ہوتا ہے",
   "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
@@ -36,5 +37,6 @@
   "transfer_extension_info": "منتقلی میں ایک سال کی توسیع شامل ہے۔",
   "transfer_owner_question": "کیا آپ اس ڈومین کے مالک ہیں؟",
   "transfer_price_info": "آپ اسے صرف ہمارے پاس منتقل کر سکتے ہیں۔ {currentPrice}",
-  "transfer_promotion": "صرف کے لیے ٹرانسفر {currentPrice}، عام طور پر {regularPrice}."
+  "transfer_promotion": "صرف کے لیے ٹرانسفر {currentPrice}، عام طور پر {regularPrice}.",
+  "use_details_for": "ان تفصیلات کے لیے استعمال کریں۔{domain}"
 }
