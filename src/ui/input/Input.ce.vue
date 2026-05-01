@@ -23,7 +23,8 @@
 <script lang="ts" setup>
 // --- external
 import IMask, { type InputElement } from "imask";
-import { useTemplateRef, computed, onMounted } from "vue";
+import { useTemplateRef, computed, onMounted, watch, ref } from "vue";
+import type { InputMask } from "imask";
 // --- internal
 import config from "./input.config";
 // --- components
@@ -89,22 +90,33 @@ const styles = useStyles(
   props.uiConfig ?? {}
 );
 
+const maskedInstance = ref<InputMask<any> | null>(null);
+
 onMounted(() => {
   applyMask();
 });
 
+watch(
+  () => props.mask,
+  () => {
+    if (maskedInstance.value) {
+      maskedInstance.value.destroy();
+      maskedInstance.value = null;
+    }
+    applyMask();
+  }
+);
+
 function applyMask() {
   if (props.mask && input.value) {
-    // if we have a mask then we use the IMask library to apply it and then keep our model and maskedValue in sync
     const maskOptions = {
-      mask: props.mask as any // Cast to 'any' to accommodate both string and RegExp types
-      // lazy: false // Don't hide the mask when empty
+      mask: props.mask as any
     };
 
-    const masked = IMask(input.value, maskOptions);
+    maskedInstance.value = IMask(input.value, maskOptions);
 
-    masked.on("accept", () => {
-      modelValue.value = masked.value;
+    maskedInstance.value.on("accept", () => {
+      modelValue.value = maskedInstance.value?.value;
     });
   }
 }

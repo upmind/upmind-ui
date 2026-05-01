@@ -20,6 +20,7 @@
         class="group-hover:shadow-control-hover z-10 rounded-l-none!"
         :ring="false"
         :auto-focus="appliedOptions?.autoFocus"
+        :mask="phoneMask"
         :disabled="!control.enabled"
         :model-value="
           phone?.nationalNumber ||
@@ -90,9 +91,8 @@ import type { PhoneNumber, CountryCode, ParseError } from "libphonenumber-js";
 // -----------------------------------------------------------------------------
 const props = defineProps<RendererProps<ControlElement>>();
 
-const { control, formFieldProps, appliedOptions, onInput } = useUpmindUIRenderer(
-  useJsonFormsControl(props)
-);
+const { control, formFieldProps, appliedOptions, onInput } =
+  useUpmindUIRenderer(useJsonFormsControl(props));
 // --- utils
 
 const initialPhoneData = () => {
@@ -120,7 +120,33 @@ const phone = ref(initialPhoneData());
 
 const exampleNumber = computed(() => {
   const countryCode = phone.value?.country || defaultCountryCode;
-  return getExampleNumber(countryCode, examples)?.formatNational();
+  const example = getExampleNumber(countryCode, examples);
+  if (!example) return undefined;
+  // Format national number without trunk prefix (leading 0)
+  // e.g., SA: 073 771 1420 -> 73 771 1420
+  const formatted = example.formatNational();
+  const national = example.nationalNumber;
+  // Find where nationalNumber starts in formatted string and slice from there
+  const digitsOnly = formatted.replace(/\D/g, "");
+  const trunkDigits = digitsOnly.length - national.length;
+  if (trunkDigits <= 0) return formatted;
+  // Count characters to skip (trunk digits + any leading formatting)
+  let digitCount = 0;
+  let skipIndex = 0;
+  for (let i = 0; i < formatted.length; i++) {
+    if (/\d/.test(formatted[i])) digitCount++;
+    if (digitCount > trunkDigits) {
+      skipIndex = i;
+      break;
+    }
+  }
+  return formatted.slice(skipIndex);
+});
+
+const phoneMask = computed(() => {
+  if (!exampleNumber.value) return undefined;
+  // Convert example number to IMask pattern: digits -> 0, keep spaces/dashes
+  return exampleNumber.value.replace(/\d/g, "0");
 });
 
 const errors = computed(() => {
