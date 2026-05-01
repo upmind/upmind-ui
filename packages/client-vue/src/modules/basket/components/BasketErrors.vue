@@ -9,8 +9,8 @@
       :description="t('cart.basket_review_msg')"
     >
       <ol class="text-sm-tight list-disc p-6 py-2 text-left" v-auto-animate>
-        <!-- Basket products -->
-        <template v-if="meta.hasBasketProducts">
+        <!-- Basket products:Deprecated in favour of ProductSetup -->
+        <!-- <template v-if="meta.hasBasketProducts">
           <li
             v-for="basketItem in productsInvalid"
             :key="basketItem.id"
@@ -29,7 +29,7 @@
               </template>
             </i18n-t>
           </li>
-        </template>
+        </template> -->
 
         <!-- Additional details -->
         <li v-if="meta.hasBasketFields">
@@ -135,7 +135,7 @@ const meta = computed(() => {
     hasBasketFields,
     hasBasketBilling,
     hasBasketProducts,
-    hasErrors: hasBasketFields || hasBasketBilling || hasBasketProducts
+    hasErrors: hasBasketFields || hasBasketBilling //|| hasBasketProducts
   };
 });
 
