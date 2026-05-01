@@ -6,7 +6,6 @@ import { waitFor } from "xstate/lib/waitFor";
 
 // --- internal
 import recommendationsEngine from "./recommendationsEngine.machine";
-import { useBasket } from "../basket";
 
 // --- utils
 import {
@@ -47,22 +46,9 @@ export const useRecommendations = () => {
   // --- state
 
   async function isReady(): Promise<boolean> {
-    // The recs engine subscribes to the basket asynchronously, so its state
-    // can lag behind a recent basket update by a microtask or two. Block
-    // readiness until the engine's `raw.added` matches the current basket's
-    // products — that's the signal that setLookups has consumed the latest
-    // basket REFRESH and any callers reading derived state (recommendations,
-    // hasUnseenRecommendations) will get an up-to-date answer.
-    const { basket } = useBasket();
     return waitFor(
       service,
-      state => {
-        if (!stateMatches(state, ["available", "unavailable", "error"]))
-          return false;
-        const engineProducts = state.context?.raw?.added?.length ?? 0;
-        const basketProducts = basket.value?.products?.length ?? 0;
-        return engineProducts === basketProducts;
-      },
+      state => stateMatches(state, ["available", "unavailable", "error"]),
       { timeout: Infinity }
     ).then(state => {
       if (stateMatches(state, ["error"])) return false;

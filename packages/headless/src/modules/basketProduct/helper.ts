@@ -45,8 +45,14 @@ export function basketSubscription(callback: any, onReceiveEvent: any) {
     // mark the basket as refreshing
 
     if (stateMatches(state, ["loading", "subscribing"])) isLoading = true;
-    if (stateMatches(state, ["shopping.refreshing.processing"]))
+    if (stateMatches(state, ["shopping.refreshing.processing"])) {
+      const wasRefreshing = isRefreshing;
       isRefreshing = true;
+      // Notify subscribers as soon as the basket starts processing so they
+      // can stage their own state ahead of the eventual REFRESH. Unhandled
+      // events are ignored by xstate, so existing consumers are unaffected.
+      if (!wasRefreshing) callback({ type: "PROCESSING" });
+    }
 
     // when the basket has been refreshed, then we can forward the refresh event
     if (
