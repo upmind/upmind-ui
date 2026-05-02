@@ -123,6 +123,8 @@ export const useBasketProductInline = (bpid: string) => {
     machineOptions?: SubproductDetails[],
     modelOptions?: ProductModel["options"]
   ): BasketOptionSummary[] {
+    if (!!basketProduct.productDetails?.readonly) return []; // No toggles should be shown if the product is read-only
+
     const catalogUpsells = (basketProduct.upsells ??
       []) as BasketOptionSummary[];
     if (isEmpty(machineOptions)) return catalogUpsells;
@@ -152,7 +154,9 @@ export const useBasketProductInline = (bpid: string) => {
     const showQuantity = !!basketProduct.productDetails.quantifiable;
 
     return {
-      hasInlineControls: showOptionUpsells || showTermSelector || showQuantity,
+      hasInlineControls:
+        !basketProduct.productDetails.readonly &&
+        (showOptionUpsells || showTermSelector || showQuantity),
       hasUpsellOptions,
       showOptionUpsells,
       showQuantity,
