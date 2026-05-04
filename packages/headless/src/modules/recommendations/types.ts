@@ -200,7 +200,8 @@ export interface RecommendationsEngineContext {
    */
   parseProductModel?: (
     recommendation: Recommendation,
-    products: IBasketProduct[]
+    products: IBasketProduct[],
+    rawProduct?: IProduct
   ) => ProductProps;
   // ---
 }
