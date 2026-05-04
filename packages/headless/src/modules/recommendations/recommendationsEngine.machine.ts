@@ -8,6 +8,7 @@ import { basketSubscription } from "../basketProduct/helper";
 import { useDataLayer } from "../system";
 
 // --- utils
+import { parseProductProps } from "../product/utils";
 import { mapToHeadlessError, useTime } from "../../utils";
 import {
   parseRelatedProducts,
@@ -40,9 +41,13 @@ import {
 
 // --- types
 import type { AnyEventObject } from "xstate";
-import type { IBasket, IBasketProduct } from "@upmind-automation/types";
+import type {
+  IBasket,
+  IBasketProduct,
+  IProduct
+} from "@upmind-automation/types";
 import type { BasketProduct } from "../basketProduct";
-import type { ProductModel } from "../product";
+import type { ProductModel, ProductProps } from "../product";
 import type { RecommendationsEngineContext, Recommendation } from "./types";
 import { transformProductDynamicValues } from "../basketProduct/utils";
 
@@ -232,18 +237,26 @@ export default createMachine(
       }),
       // ---
 
-      setBasketHelper: assign(({ basketHelper, raw }: any) => {
+      setBasketHelper: assign(({ basketHelper }: any) => {
         return {
           basketHelper: basketHelper || spawn(basketSubscription),
 
           parseProductModel: (
             recommendation: Recommendation,
-            products: IBasketProduct[]
-          ): ProductModel | undefined =>
-            transformProductDynamicValues(
+            products: IBasketProduct[],
+            rawProduct?: IProduct
+          ): ProductModel | undefined => {
+            let model = transformProductDynamicValues(
               recommendation.configuration,
               products
-            ),
+            );
+            // Resolve subproduct IDs (sub_pids) into the structured
+            // attributes/options shape that the basket API expects.
+            if (model && rawProduct) {
+              model = parseProductProps(model as ProductProps, rawProduct);
+            }
+            return model;
+          },
 
           parseBasketProductComparison: (item: BasketProduct) => ({
             productId: item.configuration.productId
@@ -337,9 +350,16 @@ export default createMachine(
             return includes(relationships, product.id);
           });
 
+          // The raw IProduct lives on the matching `raw.related[].product`.
+          const rawRelated = find(context.raw.related, [
+            "id",
+            recommendation.id
+          ]);
+
           const model = context.parseProductModel(
             recommendation,
-            relatedProducts
+            relatedProducts,
+            rawRelated?.product
           );
 
           model.silent = true; // NB: we dont want to be blocked by the machine but rather let he backend handle this

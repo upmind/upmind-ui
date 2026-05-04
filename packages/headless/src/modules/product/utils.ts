@@ -1348,25 +1348,31 @@ export const parseProductProps = (
     terms
   );
 
+  const term = data?.term ?? defaultTerm.cycle;
+
   // We need to find the  subbproducts id from the product option OR attributes, and then map it to that CategoryID
   const matchedOptions = filter(raw.products_options ?? raw.options, option =>
     data?.subproducts?.includes(option.id)
   ) as IProductOption[];
-  const options: SubproductModel =
-    parseSubproductDetailsChoices(matchedOptions);
+  const options: SubproductModel = parseSubproductDetailsChoices(
+    matchedOptions,
+    term
+  );
 
   const matchedAttributes = filter(raw.products_attributes, attribute =>
     data?.subproducts?.includes(attribute.id)
   ) as IProductAttribute[];
 
-  const attributes: SubproductModel =
-    parseSubproductDetailsChoices(matchedAttributes);
+  const attributes: SubproductModel = parseSubproductDetailsChoices(
+    matchedAttributes,
+    term
+  );
 
   return {
     // id: raw.id,
     quantity: parseQuantity(data.quantity, productDetails),
     productId: data.productId,
-    term: data?.term ?? defaultTerm.cycle,
+    term,
     options: merge({}, options, data?.options),
     attributes: merge({}, attributes, data?.attributes),
     provisionFields: data.provisionFields || {},
@@ -1389,7 +1395,8 @@ export const parseBasketProductModel = (raw: IBasketProduct): ProductModel => {
 };
 
 const parseSubproductDetailsChoices = (
-  values: IProductAttribute[] | IProductOption[]
+  values: IProductAttribute[] | IProductOption[],
+  parentTerm?: number
 ): SubproductModel => {
   return reduce(
     values,
@@ -1399,13 +1406,20 @@ const parseSubproductDetailsChoices = (
         return result;
       }
 
+      // Recurring options inherit the parent product's term; one-time options
+      // (cycle 0) stay at 0. Mirrors the rule used in parseSubproducts.
+      const cycle =
+        value.billing_cycle_months == 0
+          ? 0
+          : (parentTerm ?? value.billing_cycle_months);
+
       set(result, [value.category_id, value.id], {
         productId: value.id,
         quantity: parseQuantity(
           value.unit_quantity,
           parseProductDetails(value)
         ),
-        cycle: value.billing_cycle_months
+        cycle
       });
       return result;
     },
