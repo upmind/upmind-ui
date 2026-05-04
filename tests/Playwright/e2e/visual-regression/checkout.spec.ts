@@ -8,6 +8,7 @@ import { getClientToken } from "../support/api/auth";
 import { Logins } from "../support/constants/logins";
 import { goToCheckout } from "../support/flows/checkout";
 import { products } from "../support/constants/products";
+import { waitForSessionCookie } from "../support/helpers/session";
 
 let basket: Basket;
 let checkout: Checkout;
@@ -72,8 +73,7 @@ for (const { language, username, password } of localeLogins) {
     });
     test.skip("Checkout - Guest", async ({ page, context }) => {
       await page.goto(URLs.basket);
-      await page.waitForLoadState("load");
-      await page.waitForLoadState("networkidle");
+      await waitForSessionCookie(context);
       token = await getSessionToken(context);
       order = await getCurrentOrder(token);
       orderId = order?.id;
@@ -91,9 +91,9 @@ for (const { language, username, password } of localeLogins) {
         false
       );
       await page.reload();
-      await page.waitForLoadState("networkidle");
+      await waitForSessionCookie(page.context());
       await basket.proceedToCheckout.click();
-      await page.waitForLoadState("networkidle");
+      await waitForSessionCookie(page.context());
       await expect(page).toHaveScreenshot(`${language}/checkout-guest)`, {
         fullPage: true
       });
@@ -108,8 +108,7 @@ for (const { language, username, password } of localeLogins) {
         null,
         false
       );
-      await page.waitForLoadState("load");
-      await page.waitForLoadState("networkidle");
+      await waitForSessionCookie(page.context());
       await expect(page).toHaveScreenshot(
         `${language}/checkout-account-user)`,
         { fullPage: true }

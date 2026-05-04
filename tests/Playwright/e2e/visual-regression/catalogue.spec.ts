@@ -2,6 +2,7 @@ import { test, expect } from "@playwright/test";
 import { URLs } from "../support/constants/urls";
 import { setLocale } from "../support/helpers/locale";
 import { Languages as languages } from "../support/constants/languages";
+import { waitForSessionCookie } from "../support/helpers";
 
 for (const { language, locale } of languages) {
   test.describe(`Catalogue Visual Regression Tests - ${language}`, () => {
@@ -22,7 +23,7 @@ for (const { language, locale } of languages) {
     test("Catalogue Root - Page 1", async ({ page }) => {
       await page.goto(URLs.catalogueRoot1);
       await setLocale(page, locale);
-      await page.waitForLoadState("networkidle");
+      await waitForSessionCookie(page.context());
       await expect(page.getByTestId("product-search")).toBeVisible();
       await expect(page).toHaveScreenshot(`${language}/catalogue-page-1`, {
         mask: [page.locator("img")],
@@ -35,7 +36,7 @@ for (const { language, locale } of languages) {
     test("Category Page", async ({ page }) => {
       await page.goto(URLs.categoryPage);
       await setLocale(page, locale);
-      await page.waitForLoadState("networkidle");
+      await waitForSessionCookie(page.context());
       await expect(page.getByTestId("product-search")).toBeVisible();
       await expect(page).toHaveScreenshot(`${language}/category-page`, {
         mask: [page.locator("img")],
@@ -45,7 +46,7 @@ for (const { language, locale } of languages) {
     test("Nested Category page", async ({ page }) => {
       await page.goto(URLs.nestedCategoryPage);
       await setLocale(page, locale);
-      await page.waitForLoadState("networkidle");
+      await waitForSessionCookie(page.context());
       await expect(page.getByTestId("product-search")).toBeVisible();
       await expect(page).toHaveScreenshot(`${language}/nested-category-page`, {
         mask: [page.locator("img")],
@@ -55,7 +56,7 @@ for (const { language, locale } of languages) {
     test("Domain Search", async ({ page }) => {
       await page.goto(URLs.catalogueDomainSearch);
       await setLocale(page, locale);
-      await page.waitForLoadState("networkidle");
+      await waitForSessionCookie(page.context());
       await expect(page).toHaveScreenshot(
         `${language}/catalogue-domain-search`,
         {

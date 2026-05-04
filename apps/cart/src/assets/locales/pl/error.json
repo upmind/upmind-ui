@@ -31,6 +31,7 @@
   "basket_product_not_found": "Nie znaleziono produktu w koszyku",
   "basket_product_pending_update_failed": "Aktualizacja w useBasketProductPending nie jest w prawidłowym stanie.",
   "basket_product_pending_validation_failed": "Nie udało się zweryfikować oczekujących produktów",
+  "basket_product_readonly": "Jest to konfiguracja niestandardowa i nie można jej edytować ani modyfikować. Aby wprowadzić zmiany, skontaktuj się z działem obsługi klienta.",
   "basket_product_update_failed": "Błąd podczas aktualizacji wielu produktów w koszyku",
   "basket_unavailable": "Przepraszamy, nie udało nam się pobrać **koszyka**",
   "basket_unavailable_md": "@.markdown:{'error.basket_unavailable'}",
