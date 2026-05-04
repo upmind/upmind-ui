@@ -48,7 +48,10 @@ export default {
         direction: "horizontal"
       }
     }),
-    image: cva("inline-block h-full max-w-full"),
+    image: {
+      root: cva("inline-block h-full max-w-full"),
+      product: cva("h-full")
+    },
     heroTitle: cva("", {
       variants: {
         direction: {
