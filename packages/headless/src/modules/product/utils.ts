@@ -101,7 +101,7 @@ import { UIContext } from "../config";
 /**
  * Normalises sub_pids which may be array, string, or CSV to a string array.
  */
-function normaliseSubPids(input?: string | string[]): string[] {
+export function normaliseSubPids(input?: string | string[]): string[] {
   if (isEmpty(input)) return [];
   if (isArray(input)) return compact(input);
   if (isString(input)) return compact(split(input, ","));
