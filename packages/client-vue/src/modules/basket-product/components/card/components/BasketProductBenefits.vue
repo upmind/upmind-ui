@@ -1,5 +1,9 @@
 <template>
-  <ul v-if="!isEmpty(benefits)" :class="styles.product.option.benefits.list">
+  <ul
+    v-if="!isEmpty(benefits)"
+    :class="styles.product.option.benefits.list"
+    data-testid="product-benefits"
+  >
     <li
       v-for="benefit in normalizedBenefits"
       :key="benefit.label"
