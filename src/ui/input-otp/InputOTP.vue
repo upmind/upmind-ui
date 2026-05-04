@@ -302,12 +302,10 @@ onMounted(() => {
 watch(
   () => modelValue.value,
   newVal => {
-    if (
-      newVal &&
-      newVal.length === props.maxlength &&
-      newVal !== currentValue.value
-    ) {
+    if ((newVal ?? "") !== currentValue.value) {
       init();
+      // Reset focus to first slot on external clear
+      if (!newVal) setFocusedIndex(0);
     }
   }
 );
