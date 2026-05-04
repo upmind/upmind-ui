@@ -42,7 +42,7 @@ test.describe("Partial payment at Checkout", () => {
       await checkout.inputStripeDetails("4242424242424242", "12/34", "123");
       await checkout.clickCompleteCheckout();
       await page.waitForURL(`order/**`);
-      await expect(page.getByText("Thank you for your order!")).toBeVisible();
+      await expect(page.getByText("Thank you for your order.")).toBeVisible();
     });
     test("Partial Payment in foreign currency (AUD)", async ({
       page,
@@ -58,7 +58,7 @@ test.describe("Partial payment at Checkout", () => {
       await checkout.inputStripeDetails("4242424242424242", "12/34", "123");
       await checkout.clickCompleteCheckout();
       await page.waitForURL(`order/**`);
-      await expect(page.getByText("Thank you for your order!")).toBeVisible();
+      await expect(page.getByText("Thank you for your order.")).toBeVisible();
     });
     test("Partial payment with promo (GBP)", async ({ page, context }) => {
       await goToCheckout(
@@ -78,7 +78,7 @@ test.describe("Partial payment at Checkout", () => {
       await checkout.inputStripeDetails("4242424242424242", "12/34", "123");
       await checkout.clickCompleteCheckout();
       await page.waitForURL(`order/**`);
-      await expect(page.getByText("Thank you for your order!")).toBeVisible();
+      await expect(page.getByText("Thank you for your order.")).toBeVisible();
     });
     test("Partial payment with promo (AUD)", async ({ page, context }) => {
       await goToCheckout(
@@ -98,7 +98,7 @@ test.describe("Partial payment at Checkout", () => {
       await checkout.inputStripeDetails("4242424242424242", "12/34", "123");
       await checkout.clickCompleteCheckout();
       await page.waitForURL(`order/**`);
-      await expect(page.getByText("Thank you for your order!")).toBeVisible();
+      await expect(page.getByText("Thank you for your order.")).toBeVisible();
     });
   });
   test.describe("Partial Payments with PayPal", () => {
@@ -125,7 +125,7 @@ test.describe("Partial payment at Checkout", () => {
       await page.click("#btnLogin");
       await page.getByTestId("submit-button-initial").click();
       await page.waitForURL(`order/**`);
-      await expect(page.getByText("Thank you for your order!")).toBeVisible();
+      await expect(page.getByText("Thank you for your order.")).toBeVisible();
     });
     test("Partial Payment in foreign currency (AUD)", async ({
       page,
@@ -150,7 +150,7 @@ test.describe("Partial payment at Checkout", () => {
       await page.click("#btnLogin");
       await page.getByTestId("submit-button-initial").click();
       await page.waitForURL(`order/**`);
-      await expect(page.getByText("Thank you for your order!")).toBeVisible();
+      await expect(page.getByText("Thank you for your order.")).toBeVisible();
     });
     test("Partial payment with promo (GBP)", async ({ page, context }) => {
       await goToCheckout(
@@ -178,7 +178,7 @@ test.describe("Partial payment at Checkout", () => {
       await page.click("#btnLogin");
       await page.getByTestId("submit-button-initial").click();
       await page.waitForURL(`order/**`);
-      await expect(page.getByText("Thank you for your order!")).toBeVisible();
+      await expect(page.getByText("Thank you for your order.")).toBeVisible();
     });
   });
   test.describe.skip("Partial payment using Account Credit", () => {

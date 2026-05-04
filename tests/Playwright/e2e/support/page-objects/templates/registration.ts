@@ -13,7 +13,7 @@ export class Registration {
 
   constructor(page: Page, context: BrowserContext) {
     this.page = page;
-    this.registrationForm = page.getByTestId("form");
+    this.registrationForm = page.getByTestId("section-register");
     this.context = context;
     this.firstName = page.getByTestId("input-properties-firstname");
     this.lastName = page.getByTestId("input-properties-lastname");
