@@ -101,37 +101,33 @@ test.describe("Footer - Language and Currency controls", () => {
   test("Locale/Currency selectors not present when there is only 1 currency and 1 language", async ({
     page
   }) => {
-    await interceptLanguageAndCurrency(page, singleLanguage, singleCurrency);
+    interceptLanguageAndCurrency(page, singleLanguage, singleCurrency);
     await page.goto("/");
+    await page.waitForURL("/order/shop/");
     await waitForSessionCookie(page.context());
     await expect(page.getByTestId("locale-selector")).not.toBeVisible();
     await expect(page.getByTestId("currency-selector")).not.toBeVisible();
   });
   test("Single currency, multiple languages", async ({ page }) => {
-    await interceptLanguageAndCurrency(page, multipleLanguages, singleCurrency);
+    interceptLanguageAndCurrency(page, multipleLanguages, singleCurrency);
     await page.goto("/");
+    await page.waitForURL("/order/shop/");
     await waitForSessionCookie(page.context());
     await expect(page.getByTestId("locale-selector")).toBeVisible();
     await expect(page.getByTestId("currency-selector")).not.toBeVisible();
   });
   test("Multiple currency, single language", async ({ page }) => {
-    await interceptLanguageAndCurrency(
-      page,
-      singleLanguage,
-      multipleCurrencies
-    );
+    interceptLanguageAndCurrency(page, singleLanguage, multipleCurrencies);
     await page.goto("/");
+    await page.waitForURL("/order/shop/");
     await waitForSessionCookie(page.context());
     await expect(page.getByTestId("locale-selector")).not.toBeVisible();
     await expect(page.getByTestId("currency-selector")).toBeVisible();
   });
   test("Multiple currency, multiple languages", async ({ page }) => {
-    await interceptLanguageAndCurrency(
-      page,
-      multipleLanguages,
-      multipleCurrencies
-    );
+    interceptLanguageAndCurrency(page, multipleLanguages, multipleCurrencies);
     await page.goto("/");
+    await page.waitForURL("/order/shop/");
     await waitForSessionCookie(page.context());
     await expect(page.getByTestId("locale-selector")).toBeVisible();
     await expect(page.getByTestId("currency-selector")).toBeVisible();

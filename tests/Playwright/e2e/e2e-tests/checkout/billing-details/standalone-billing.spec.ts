@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { newUser } from "../../../support/fixtures";
 import { Checkout } from "../../../support/page-objects/templates/checkout";
 import { BillingPage } from "../../../support/page-objects/templates/billing-page";
 import { URLs } from "../../../support/constants/urls";
@@ -10,7 +11,6 @@ import {
   interceptConfigValues
 } from "../../../support/mocks/brand";
 import { getSessionToken, getClientToken } from "../../../support/api/auth";
-import { Logins } from "../../../support/constants/logins";
 import { Registration } from "../../../support/page-objects/templates/registration";
 import { getCurrentOrder, setOrderAddress } from "../../../support/api/basket";
 import { registerClient } from "../../../support/api/client";
@@ -174,6 +174,7 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
         "London",
         "SW1A 2AB"
       );
+      await billingPage.saveDetails.click();
       await page.waitForURL("**/order/checkout**");
       await expect(checkout.billingDetails).toBeVisible({ timeout: 15000 });
       await expect(checkout.billingDetails).toHaveText(
@@ -365,25 +366,18 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       await expect(page).not.toHaveURL("order/billing/");
     });
 
-    test("6.2 Billing page requires basket with products", async ({
-      page,
-      context
-    }) => {
-      checkout = new Checkout(page);
-      registration = new Registration(page, context);
-      await page.goto("/");
-      await waitForSessionCookie(context);
-      let guestToken = await getSessionToken(context);
-      let user = await registerClient(guestToken);
-      let username = user.email;
-      let password = user.password;
-      await getClientToken(page, username, password);
-      interceptUISchema(context, {
-        "@data.billing_details.billingDetailsDisabled": false
-      });
-      await page.goto(URLs.billing);
-      await waitForSessionCookie(page.context());
-      await expect(page).not.toHaveURL("order/billing/");
-    });
+    newUser(
+      "6.2 Billing page requires basket with products",
+      async ({ page, context }) => {
+        await page.goto("/");
+        await waitForSessionCookie(context);
+        interceptUISchema(context, {
+          "@data.billing_details.billingDetailsDisabled": false
+        });
+        await page.goto(URLs.billing);
+        await waitForSessionCookie(page.context());
+        await expect(page).not.toHaveURL("order/billing/");
+      }
+    );
   });
 });

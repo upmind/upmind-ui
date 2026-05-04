@@ -19,6 +19,9 @@ export class Basket {
   readonly trialAlert: Locator;
   readonly trialPriceLabel: Locator;
 
+  /* Upsells */
+  readonly basketProductUpsell: Locator;
+
   constructor(page: Page) {
     this.page = page;
     this.basketProduct = page.getByTestId("basket-product");
@@ -43,6 +46,35 @@ export class Basket {
     this.trialPriceLabel = this.basketProductSummary
       .locator("footer")
       .getByText("Free Trial");
+
+    /* Upsells */
+    this.basketProductUpsell = page.getByTestId("basket-product-upsell");
+  }
+
+  upsellTitle(upsell: Locator): Locator {
+    return upsell.getByTestId("link-default");
+  }
+
+  upsellByTitle(title: string): Locator {
+    return this.basketProductUpsell.filter({
+      has: this.page.getByTestId("link-default").filter({ hasText: title })
+    });
+  }
+
+  upsellSwitch(title: string): Locator {
+    return this.upsellByTitle(title).getByRole("switch");
+  }
+
+  upsellBenefits(title: string): Locator {
+    // Benefits live in a sibling `<ul>` of the upsell `<article>`, so step up
+    // to the shared wrapper before scoping by testid.
+    return this.upsellByTitle(title)
+      .locator("xpath=..")
+      .getByTestId("product-benefits");
+  }
+
+  upsellBenefitItems(title: string): Locator {
+    return this.upsellBenefits(title).getByRole("listitem");
   }
 
   async enterPromoCode(promoCode: string | null) {

@@ -26,7 +26,7 @@ test.describe("Checkout with Bank Transfer", () => {
   test("Pay with Bank Transfer", async ({ page, context }) => {
     await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
     await checkout.selectPaymentMethod("Direct Bank Transfer");
-    await checkout.clickPlaceOrder();
-    await expect(page.getByText("Thank you for your order.")).toBeVisible();
+    await checkout.clickCompleteCheckout();
+    await expect(page.getByText("Order confirmed")).toBeVisible();
   });
 });
