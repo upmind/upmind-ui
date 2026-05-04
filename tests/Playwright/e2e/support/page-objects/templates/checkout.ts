@@ -34,8 +34,7 @@ export class Checkout {
   readonly applyVoucherButton: Locator;
   readonly dialogWindow: Locator;
   readonly accountCredit: Locator;
-  readonly placeOrderAndPay: Locator;
-  readonly placeOrder: Locator;
+  readonly completeCheckout: Locator;
   readonly payAmount: Locator;
   readonly changeAmountButton: Locator;
   readonly changeAmountForm: Locator;
@@ -96,8 +95,7 @@ export class Checkout {
     this.applyVoucherButton = this.page.getByTestId("button-apply");
     this.dialogWindow = this.page.getByTestId("dialog-window");
     this.accountCredit = this.page.getByTestId("account-credit");
-    this.placeOrderAndPay = this.page.getByTestId("button-place-order-and-pay");
-    this.placeOrder = this.page.getByTestId("button-place-order");
+    this.completeCheckout = this.page.getByTestId("button-complete-checkout");
     this.payAmount = this.page
       .getByTestId("payment-details")
       .getByRole("heading", { level: 4 });
@@ -165,16 +163,32 @@ export class Checkout {
     await this.page.getByTestId(`radio-card-${kebabCase(gatewayName)}`).click();
   }
 
-  async clickPlaceOrderAndPay() {
-    const placeOrderButton = this.placeOrderAndPay;
-    await expect(placeOrderButton).toBeEnabled();
-    await placeOrderButton.click();
-  }
-
-  async clickPlaceOrder() {
-    const placeOrderButton = this.placeOrder;
-    await expect(placeOrderButton).toBeEnabled();
-    await placeOrderButton.click();
+  async clickCompleteCheckout() {
+    const checkoutUrlPattern = /\/order\/checkout/;
+    const confirmationUrlPattern = /\/order\/.+\/\?payment_/;
+    const modal = this.page.getByTestId("dialog-window");
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const currentUrl = this.page.url();
+      if (confirmationUrlPattern.test(currentUrl)) return;
+      if (!checkoutUrlPattern.test(currentUrl)) continue;
+      try {
+        if (await modal.isVisible()) return;
+      } catch {
+        continue;
+      }
+      try {
+        await this.completeCheckout.click({ timeout: 2000 });
+      } catch {
+        continue;
+      }
+      try {
+        await this.page.waitForURL(confirmationUrlPattern, { timeout: 5000 });
+        return;
+      } catch {
+        continue;
+      }
+    }
+    throw new Error("Clicking 'Place Order' didn't work");
   }
 
   async clickConfirmAmount() {
@@ -223,11 +237,12 @@ export class Checkout {
     const stripeFrame = this.page.frameLocator(
       'iframe[title="Secure payment input frame"]'
     );
-    await stripeFrame.getByRole("button").getByText("iDEAL").click();
+    await stripeFrame.getByRole("button").getByText("iDEAL | Wero").click();
     await stripeFrame.getByRole("textbox", { name: "email" }).fill(email);
     await stripeFrame
       .getByRole("textbox", { name: "full name" })
       .fill(fullName);
+    await this.page.keyboard.press("Tab"); // clicking complete while focus is in the iframe causes a failure for unknown reasons
   }
 
   async interceptPaymentResponse() {
