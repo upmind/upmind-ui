@@ -22,7 +22,7 @@
             :pricing="pricingProductIds"
             :edit-route="editRoute"
             :image="ui.productImages.isVisible"
-            :inline-meta="inlineMeta"
+            :inline-meta="enrichedInlineMeta"
             :upsell-options="upsellOptions"
             :terms="config?.terms?.value"
             v-model:open="openModel"
@@ -61,6 +61,7 @@
           :processing="meta.isProcessing"
           :edit-route="editRoute"
           :config-options="config?.options?.value"
+          :inline-meta="enrichedInlineMeta"
           upsell
           v-model:options="optionsModel"
         />
@@ -140,8 +141,14 @@ const upsellOptions = computed(() =>
   filterUpsellOptions(config?.options?.value ?? [])
 );
 
+// Merge inline meta with locked state from the config machine
+const enrichedInlineMeta = computed(() => ({
+  ...inlineMeta.value,
+  isLocked: !!config?.meta?.value?.isLocked
+}));
+
 const filteredUpsells = computed(() => {
-  if (!ui.optionUpsells.isVisible) return [];
+  if (!ui.optionUpsells.isVisible || props.productDetails.readonly) return [];
 
   return compact(
     map(
