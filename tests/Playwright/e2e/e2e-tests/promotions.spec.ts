@@ -89,11 +89,11 @@ test.describe("Promotions", () => {
         .getByTestId("accordion-content")
         .locator("input")
         .fill("promospromospromos");
-      await expect(
-        page
-          .getByTestId("checkbox-item-promospromospromos-com")
-          .getByTestId("badge")
-      ).toBeVisible();
+      const dacCards = page.getByTestId("dac-card");
+      await expect(dacCards.first()).toBeVisible();
+      for (const card of await dacCards.all()) {
+        await expect(card.getByTestId("badge")).toBeVisible();
+      }
     });
     test("Promotions DAC Widget", async ({ page }) => {
       mockPromos(
@@ -104,11 +104,11 @@ test.describe("Promotions", () => {
         "prices"
       );
       await page.goto(`${URLs.domainWidget}&search=promospromospromos`);
-      await expect(
-        page
-          .getByTestId("checkbox-item-promospromospromos-com")
-          .getByTestId("badge")
-      ).toBeVisible();
+      const dacCards = page.getByTestId("dac-card");
+      await expect(dacCards.first()).toBeVisible();
+      for (const card of await dacCards.all()) {
+        await expect(card.getByTestId("badge")).toBeVisible();
+      }
     });
     test("Promotions DAC Page", async ({ page }) => {
       mockPromos(
@@ -148,7 +148,7 @@ test.describe("Promotions", () => {
     test.beforeEach(async ({ page, context }) => {
       const domain = `${fakerEN_GB.string.alphanumeric({ length: 15 })}.com`;
       await page.goto("/");
-      await expect(basket.basketProductSummary).toBeVisible();
+      await waitForSessionCookie(context);
       let token = await getSessionToken(context);
       let order = await createOrder(token);
       let orderId = order.id;

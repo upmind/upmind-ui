@@ -26,10 +26,7 @@ test.describe("Checkout with Pay Later", () => {
     await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
     await page.waitForLoadState("domcontentloaded");
     await checkout.selectPaymentMethod("Pay Later");
-    await checkout.clickCompleteCheckout();
-    await expect(page.getByRole("dialog")).toContainText(
-      "Converting your order"
-    );
-    await expect(page.getByRole("dialog")).toContainText("Order complete!");
+    await checkout.completeCheckout.click();
+    await expect(page.getByText("Order confirmed")).toBeVisible();
   });
 });

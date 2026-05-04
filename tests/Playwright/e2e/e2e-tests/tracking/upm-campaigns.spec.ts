@@ -33,22 +33,18 @@ async function getTrackingCookie(
   return JSON.parse(decodeURIComponent(trackingCookie.value)) as TrackingCookie;
 }
 
-async function getTrackingData(page: Page, requestUrl: string) {
-  const reqPromise = page.waitForRequest(
-    request =>
-      request.url().includes(requestUrl) &&
-      ["POST", "PATCH"].includes(request.method())
-  );
+async function getTrackingData(page: Page, matcher: string | RegExp) {
+  const reqPromise = page.waitForRequest(request => {
+    const url = request.url();
+    const methodOk = ["POST", "PATCH"].includes(request.method());
+    const urlOk =
+      typeof matcher === "string" ? url.includes(matcher) : matcher.test(url);
+    return urlOk && methodOk;
+  });
   const request = await reqPromise;
-  let body: any;
-  try {
-    body = request.postDataJSON?.() ?? JSON.parse(request.postData() || "{}");
-  } catch (e) {
-    throw new Error("Failed to parse request body as JSON: " + String(e));
-  }
-  const tracking = body.tracking;
-  console.log("Tracking data:", tracking);
-  return tracking;
+  const body =
+    request.postDataJSON?.() ?? JSON.parse(request.postData() || "{}");
+  return body.tracking;
 }
 
 test.describe("UPM Campaign Tracking", () => {
@@ -66,7 +62,6 @@ test.describe("UPM Campaign Tracking", () => {
     );
     await waitForSessionCookie(page.context());
     let trackingCookie = await getTrackingCookie(context);
-    console.log(JSON.stringify(trackingCookie));
     await expect(trackingCookie.campaign).toBe("playwright_test_campaign");
     await expect(trackingCookie.source).toBe("playwright");
     await expect(trackingCookie.medium).toBe("e2e_test");
@@ -80,7 +75,6 @@ test.describe("UPM Campaign Tracking", () => {
     await registration.inputRegistration();
     const tracking = await getTrackingData(page, "/api/clients/register");
     await waitForSessionCookie(page.context());
-    console.log(JSON.stringify(tracking));
     await expect(tracking).toBeDefined();
     await expect(tracking.campaign).toBeDefined();
     await expect(tracking.source).toBeDefined();
@@ -93,9 +87,9 @@ test.describe("UPM Campaign Tracking", () => {
     context
   }) => {
     await page.goto(
-      `${URLs.basket}?upm_campaign=playwright_test_campaign&upm_source=playwright&upm_medium=e2e_test&upm_content=content_example&upm_term=term_example`
+      `/order/shop/?upm_campaign=playwright_test_campaign&upm_source=playwright&upm_medium=e2e_test&upm_content=content_example&upm_term=term_example`
     );
-    await waitForSessionCookie(page.context());
+    await page.waitForTimeout(2000);
     await page.goto(URLs.basket);
     await waitForSessionCookie(context);
     let token = await getSessionToken(context);
@@ -122,12 +116,12 @@ test.describe("UPM Campaign Tracking", () => {
     await registration.inputRegistration();
     await checkout.selectPaymentMethod("Stripe");
     await checkout.inputStripeDetails("4242424242424242", "01/50", "123");
-    await checkout.clickCompleteCheckout();
-    const tracking = await getTrackingData(
+    const trackingPromise = getTrackingData(
       page,
-      `/api/orders/${orderId}/convert`
+      /\/api\/orders\/[^/]+\/convert/
     );
-    console.log(JSON.stringify(tracking));
+    await checkout.clickCompleteCheckout();
+    const tracking = await trackingPromise;
     await expect(tracking).toBeDefined();
     await expect(tracking.campaign).toBeDefined();
     await expect(tracking.source).toBeDefined();

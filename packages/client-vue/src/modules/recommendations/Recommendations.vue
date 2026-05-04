@@ -1,56 +1,65 @@
 <template>
-  <Layout :overflow="LAYOUT_OVERFLOW.HIDDEN">
-    <template #content-header>
-      <Hero
-        :title="t('text.complete_online_toolkit_md')"
-        :subtitle="t('text.popular_offers')"
-      />
-    </template>
+  <Transitions>
+    <component :is="templateVariant" :key="props.template">
+      <template #hero>
+        <slot name="hero">
+          <Hero
+            :title="t('text.complete_online_toolkit_md')"
+            :subtitle="t('text.popular_offers')"
+          />
+        </slot>
+      </template>
 
-    <template #default>
-      <Interstitial
-        v-if="!meta.hasRecommendations"
-        open
-        modal
-        :title="t('cart.recommendations_unavailable_title_md')"
-        :text="t('cart.recommendations_unavailable_text')"
-        :actions="[
-          {
-            handler: navigateNext,
-            variant: 'solid',
-            color: 'primary',
-            iconAppend: 'arrow-right',
-            label: t('action.continue_label')
-          }
-        ]"
-      >
-      </Interstitial>
+      <template #cards>
+        <Interstitial
+          v-if="!meta.hasRecommendations"
+          open
+          modal
+          :title="t('cart.recommendations_unavailable_title_md')"
+          :text="t('cart.recommendations_unavailable_text')"
+          :actions="[
+            {
+              handler: navigateNext,
+              variant: 'solid',
+              color: 'primary',
+              iconAppend: 'arrow-right',
+              label: t('action.continue_label')
+            }
+          ]"
+        >
+        </Interstitial>
 
-      <template v-else>
-        <CardsCarousel
-          :loading="meta?.isLoading"
-          :processing="meta?.isProcessing"
-          :refreshing="meta?.isRefreshing"
-          :items="recommendations"
-          @resolve="doAdd"
-          @fetch="fetchRecommendation"
-          :configure-route="props.configureRoute"
-        />
+        <template v-else>
+          <CardsCarousel
+            :loading="meta?.isLoading"
+            :processing="meta?.isProcessing"
+            :refreshing="meta?.isRefreshing"
+            :items="recommendations"
+            @resolve="doAdd"
+            @fetch="fetchRecommendation"
+            :configure-route="props.configureRoute"
+          />
+        </template>
+      </template>
 
+      <template #configure>
         <Configure
           v-if="meta.isConfiguring && failedProduct"
           :modelValue="failedProduct"
           @resolve="doClose"
         />
-
-        <Actions @skip="doClose" />
       </template>
-    </template>
-  </Layout>
+
+      <template v-if="meta.hasRecommendations" #footer>
+        <Footer @skip="doClose" />
+      </template>
+    </component>
+  </Transitions>
 </template>
 
 <script lang="ts" setup>
 // --- external
+import { computed, defineAsyncComponent, onUnmounted } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -59,28 +68,36 @@ import {
   useRoutingEngine,
   UIContext
 } from "@upmind-automation/headless";
+import { useConfig, validateTemplate } from "@upmind-automation/headless";
+import { useLayout } from "../../components/layout/useLayout";
 import { useHeader } from "../../components/header/useHeader";
 import { useFooter } from "../../components/footer/useFooter";
 import { useThemes } from "@upmind-automation/upmind-ui";
-import { useConfig } from "@upmind-automation/headless";
 
 // --- components
 import { Interstitial } from "@upmind-automation/upmind-ui";
-import Layout from "../../components/layout/Layout.vue";
 import Configure from "./components/Configure.vue";
 import CardsCarousel from "./components/CardsCarousel.vue";
-import Actions from "./components/Actions.vue";
+import Footer from "./components/Footer.vue";
 import Hero from "../../components/hero/Hero.vue";
-import type { LAYOUT_VARIANTS } from "../../";
-import { LAYOUT_OVERFLOW } from "../../components/layout/types";
-import type { RouteLocationAsRelativeGeneric } from "vue-router";
+import Transitions from "../../components/layout/components/transition/Transition.vue";
 
+// --- templates
+const supportedTemplates = {
+  [RECOMMENDATIONS_TEMPLATE.FULL]: defineAsyncComponent(
+    () => import("./templates/RecommendationsFull.template.vue")
+  )
+};
+
+// --- utils
+import { get } from "lodash-es";
+
+// --- types
+import { RECOMMENDATIONS_TEMPLATE } from "./types";
+import type { RecommendationsPageProps } from "./types";
 // -----------------------------------------------------------------------------
 
-const props = defineProps<{
-  configureRoute: RouteLocationAsRelativeGeneric;
-  layout?: LAYOUT_VARIANTS;
-}>();
+const props = defineProps<RecommendationsPageProps>();
 
 // -----------------------------------------------------------------------------
 
@@ -94,7 +111,7 @@ const { ui } = useConfig({
 
 set(ui.theme.value);
 
-// --- basket setup
+// --- recommendations setup
 const { navigateNext } = useRoutingEngine();
 
 const {
@@ -107,8 +124,15 @@ const {
   fetchRecommendation
 } = useRecommendations();
 
-useHeader({});
-useFooter({});
+const template = computed(() =>
+  validateTemplate(
+    ui.template.value || props.template,
+    RECOMMENDATIONS_TEMPLATE,
+    RECOMMENDATIONS_TEMPLATE.FULL
+  )
+);
+
+const templateVariant = computed(() => get(supportedTemplates, template.value));
 
 await isReady();
 
@@ -121,4 +145,10 @@ function doClose() {
   seen();
   navigateNext();
 }
+
+onUnmounted(() => {
+  useHeader({});
+  useLayout({});
+  useFooter({});
+});
 </script>

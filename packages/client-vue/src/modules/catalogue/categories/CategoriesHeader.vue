@@ -9,7 +9,7 @@
     :title="title"
     :description="description"
     :badge="props.badge as HeroProps['badge']"
-    class="max-w-2xl"
+    size="3xl"
     v-auto-animate
   >
     <template #prepend>
