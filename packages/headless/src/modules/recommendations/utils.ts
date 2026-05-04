@@ -18,13 +18,11 @@ import {
   forEach,
   get,
   includes,
-  isArray,
   isEmpty,
   isString,
   map,
   reduce,
   some,
-  split,
   toSafeInteger
 } from "lodash-es";
 import { useTranslateField, useTranslateName, useImageUrl } from "../../utils";
@@ -40,19 +38,10 @@ import {
   type TermDetails,
   type IProductConfig
 } from "../product";
+import { normaliseSubPids } from "../product/utils";
 import { useConfig } from "../config/useConfig";
 
 // ---------------------------------------------------------------------------
-
-/**
- * Normalises sub_pids which may be array, string, or CSV to a string array.
- */
-function normaliseSubPids(input?: string | string[]): string[] {
-  if (isEmpty(input)) return [];
-  if (isArray(input)) return compact(input);
-  if (isString(input)) return compact(split(input, ","));
-  return [];
-}
 
 function parseProductsToRecommend(
   basketProduct: IBasketProduct
