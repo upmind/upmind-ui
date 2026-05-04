@@ -304,7 +304,6 @@ watch(
   newVal => {
     if ((newVal ?? "") !== currentValue.value) {
       init();
-      // Reset focus to first slot on external clear
       if (!newVal) setFocusedIndex(0);
     }
   }
