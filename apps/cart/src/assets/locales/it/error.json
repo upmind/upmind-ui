@@ -31,6 +31,7 @@
   "basket_product_not_found": "Prodotto nel carrello non trovato",
   "basket_product_pending_update_failed": "Aggiornamento in useBasketProductPending non in uno stato valido.",
   "basket_product_pending_validation_failed": "Impossibile convalidare i prodotti in sospeso",
+  "basket_product_readonly": "Questo articolo non è attualmente disponibile per l’acquisto. Contatta l’assistenza clienti per ricevere supporto.",
   "basket_product_update_failed": "Errore durante l'aggiornamento di più prodotti nel carrello",
   "basket_unavailable": "Spiacenti, non siamo riusciti a caricare questo **basket**",
   "basket_unavailable_md": "@.markdown:{'error.basket_unavailable'}",
