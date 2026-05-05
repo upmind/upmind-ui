@@ -1,42 +1,31 @@
 <template>
   <FormField v-bind="formFieldProps">
-    <InputGroup class="relative w-full">
-      <Input
-        :max="safeMax"
-        :min="safeMin"
-        :placeholder="appliedOptions?.placeholder"
-        :type="unmask ? 'text' : 'password'"
-        :autocomplete="appliedOptions?.autocomplete || 'current-password'"
-        :auto-focus="appliedOptions?.autoFocus"
-        :maxlength="appliedOptions?.maxLength"
-        :minlength="appliedOptions?.minLength"
-        :pattern="appliedOptions?.pattern"
-        :readonly="appliedOptions?.readonly"
-        :required="appliedOptions?.required"
-        :disabled="appliedOptions?.disabled"
-        :model-value="control.data"
-        @update:modelValue="onInput"
-      >
-        <template #append>
-          <Link
-            :class="unmask ? 'opacity-100' : 'opacity-50 hover:opacity-100'"
-            @click.prevent="unmask = !unmask"
-            :focusable="false"
-          >
-            <Icon v-if="unmask" icon="eye-off" size="2xs" />
-            <Icon v-else icon="eye" size="2xs" />
-          </Link>
-        </template>
-      </Input>
-    </InputGroup>
+    <InputPassword
+      :model-value="control.data"
+      :placeholder="appliedOptions?.placeholder"
+      :autocomplete="appliedOptions?.autocomplete"
+      :auto-focus="appliedOptions?.autoFocus"
+      :maxlength="appliedOptions?.maxLength"
+      :minlength="appliedOptions?.minLength"
+      :pattern="appliedOptions?.pattern"
+      :readonly="appliedOptions?.readonly"
+      :required="appliedOptions?.required"
+      :disabled="appliedOptions?.disabled"
+      :generator="isNewPassword"
+      :generate-label="appliedOptions?.generate"
+      :show-label="appliedOptions?.show"
+      :hide-label="appliedOptions?.hide"
+      @update:modelValue="onInput"
+      @generate="onGenerate"
+    />
 
-    <template v-if="!isEmpty(appliedOptions?.requirements)" #messages>
-      <FormMessage
-        v-if="formFieldProps.touched && fieldErrors"
-        :errors="fieldErrors"
-        :formMessageId="`form-item-message-${control.id}`"
-        :data-testid="`form-item-message-password`"
-        :name="control.path"
+    <template v-if="showMessages" #messages>
+      <PasswordStrength
+        :show-bars="showMeter"
+        :score="score"
+        :max="requirementsCount"
+        :message="message"
+        :has-error="!!errorMessage"
       />
     </template>
   </FormField>
@@ -46,74 +35,82 @@
 // --- external
 import { isStringControl, and, or, optionIs, formatIs } from "@jsonforms/core";
 import { useJsonFormsControl } from "@jsonforms/vue";
-import { computed, ref } from "vue";
+import { computed } from "vue";
 // --- components
-import InputGroup from "../../../groups/InputGroup.vue";
-import { Icon } from "../../../icon";
-import { Input } from "../../../input";
-import { Link } from "../../../link";
+import { InputPassword, PasswordStrength } from "../../../input-password";
 import FormField from "../../FormField.vue";
-import FormMessage from "../../FormMessage.vue";
 // --- utils
 import { useUpmindUIRenderer } from "../utils";
-import { get, includes, isEmpty, isNil, keys, omitBy } from "lodash-es";
+import {
+  FALLBACK_REQUIREMENT_COUNT,
+  generateStrongPassword,
+  getPasswordErrorKey,
+  scorePassword
+} from "../../../../utils/password";
+import { keys, size } from "lodash-es";
 // --- types
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
-import type { ComputedRef } from "vue";
 // -----------------------------------------------------------------------------
 const props = defineProps<RendererProps<ControlElement>>();
 
 const { control, appliedOptions, formFieldProps, onInput } =
   useUpmindUIRenderer(useJsonFormsControl(props));
 
-const unmask = ref(false);
+const isNewPassword = computed(
+  () => appliedOptions.value?.autocomplete === "new-password"
+);
 
-const fieldErrors = computed(() => {
-  const { requirements, error: messages } = appliedOptions.value ?? {};
-  return get(
-    messages,
-    getPasswordErrorKey(requirements, control.value?.data),
-    ""
-  );
+const requirements = computed<Record<string, string> | undefined>(
+  () => appliedOptions.value?.requirements
+);
+// Show the meter once the user starts typing — keeps the resting state quiet
+// while still surfacing live feedback during input.
+const showMeter = computed(() => isNewPassword.value && !!control.value?.data);
+
+const requirementsCount = computed(
+  () => size(keys(requirements.value)) || FALLBACK_REQUIREMENT_COUNT
+);
+const score = computed(() =>
+  scorePassword(control.value?.data, requirements.value)
+);
+
+// True when every configured requirement is satisfied (or when there are no
+// requirements to check). Used to suppress the hint once the user has
+// successfully met all rules — the filled meter is feedback enough.
+const isValid = computed(
+  () =>
+    !requirements.value ||
+    !getPasswordErrorKey(requirements.value, control.value?.data)
+);
+
+const errorMessage = computed(() => {
+  if (!formFieldProps.value?.touched || !requirements.value) return "";
+  const key = getPasswordErrorKey(requirements.value, control.value?.data);
+  return key ? (appliedOptions.value?.error?.[key] ?? "") : "";
 });
 
-/** Returns the i18n error key for the current combination of failing password requirements. */
-function getPasswordErrorKey(
-  requirements?: Record<string, string>,
-  value?: string
-): string {
-  // Omit requirements that the current value satisfies
-  const unmet = keys(
-    omitBy(requirements, (pattern: string) =>
-      new RegExp(pattern).test(value ?? "")
-    )
-  );
+// Resolve the message shown beneath the field:
+// 1. Validation error wins when the user has touched the input and a rule is unmet.
+// 2. Otherwise the configured `hint` is shown for new-password fields *until*
+//    the password is valid — informs the user upfront, then gets out of the way.
+const message = computed(() => {
+  if (errorMessage.value) return errorMessage.value;
+  if (isNewPassword.value && !isValid.value)
+    return appliedOptions.value?.hint ?? "";
+  return "";
+});
 
-  // Prefix with "missing" when length is met but character rules aren't
-  if (!includes(unmet, "min_length")) unmet.unshift("missing");
-  return unmet.join("_");
+// Render the messages slot whenever there's something to show (meter, hint,
+// or error) — avoids reserving space when the field is irrelevant (e.g. login).
+const showMessages = computed(
+  () => showMeter.value || !!message.value
+);
+
+function onGenerate() {
+  const minLength = control.value?.schema?.minLength ?? 16;
+  onInput(generateStrongPassword(Math.max(minLength, 16), requirements.value));
 }
-
-const safeMin: ComputedRef<number | undefined> = computed(() => {
-  const applied = appliedOptions.value?.min;
-  if (!isNil(applied)) return applied;
-
-  const minimum = control.value?.schema?.minimum;
-  if (!isNil(minimum)) return minimum;
-
-  return undefined;
-});
-
-const safeMax: ComputedRef<number | undefined> = computed(() => {
-  const applied = appliedOptions.value?.max;
-  if (!isNil(applied)) return applied;
-
-  const maximum = control.value?.schema?.maximum;
-  if (!isNil(maximum)) return maximum;
-
-  return undefined;
-});
 </script>
 
 <script lang="ts">
