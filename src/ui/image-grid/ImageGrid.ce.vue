@@ -136,7 +136,8 @@ function setThumbnailsActive() {
 function selectImage(index: number) {
   // Thumbnail click — set the active image without scrolling the grid
   activeIndex.value = index;
-  startAutoplay();
+  // Give the user time to look at their pick before autoplay advances again
+  startAutoplay(props.autoplay * 3);
 }
 
 function moveTo(index: number) {
@@ -174,19 +175,20 @@ watch(
 );
 
 // --- autoplay
-let autoplayTimer: ReturnType<typeof setInterval> | undefined;
+let autoplayTimer: ReturnType<typeof setTimeout> | undefined;
 
-function startAutoplay() {
+function startAutoplay(firstDelay = props.autoplay) {
   stopAutoplay();
   if (!props.autoplay || images.value.length <= 1) return;
-  autoplayTimer = setInterval(() => {
+  autoplayTimer = setTimeout(() => {
     moveTo((activeIndex.value + 1) % images.value.length);
-  }, props.autoplay * 1000);
+    startAutoplay();
+  }, firstDelay * 1000);
 }
 
 function stopAutoplay() {
   if (autoplayTimer) {
-    clearInterval(autoplayTimer);
+    clearTimeout(autoplayTimer);
     autoplayTimer = undefined;
   }
 }
