@@ -5,6 +5,7 @@ export * from "./isDeepEmpty";
 export * from "./useValidation";
 export * from "./usePointerEvents";
 export * from "./useImageZoom";
+export * from "./useArrowNavigation";
 export * from "./parseVariants";
 export * from "./isEmptySlot";
 export * from "./isMobile";

@@ -1,8 +1,9 @@
 import { cva } from "class-variance-authority";
+import { focusRing } from "../../assets/styles";
 // -----------------------------------------------------------------------------
 
 export const thumbnailVariant = cva(
-  "image-radius cursor-pointer overflow-hidden transition-opacity duration-200",
+  `image-radius cursor-pointer overflow-hidden transition-opacity duration-200 ${focusRing}`,
   {
     variants: {
       isActive: {
@@ -22,7 +23,7 @@ export default {
     preview: {
       wrapper: cva("group relative"),
       expand: cva(
-        "bg-core-overlay/50! hover:bg-core-overlay/70! absolute top-2 right-2 z-10 rounded-full text-white opacity-0 group-hover:opacity-100"
+        "bg-core-overlay/50! hover:bg-core-overlay/70! absolute top-2 right-2 z-10 rounded-full text-white opacity-0 group-hover:opacity-100 group-focus-within:opacity-100"
       )
     },
     thumbnails: {

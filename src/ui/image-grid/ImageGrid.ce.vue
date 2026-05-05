@@ -34,6 +34,7 @@
       v-resize-observer="setThumbnailsActive"
       :key="`thumbnails-${thumbnailsActive}`"
       :class="styles.imageGrid.thumbnails.root"
+      tabindex="-1"
       @init-api="setThumbnailApi"
       :opts="{
         loop: false,
@@ -49,8 +50,11 @@
           :class="styles.imageGrid.thumbnails.item"
         >
           <button
+            ref="thumbnailRefs"
             :class="thumbnailClass(index === activeIndex)"
+            :tabindex="index === activeIndex ? 0 : -1"
             @click="selectImage(index)"
+            @keydown="onThumbnailKey($event, index)"
             type="button"
           >
             <img
@@ -85,7 +89,7 @@ import { Carousel, CarouselContent, CarouselItem } from "../carousel";
 import { Image } from "../image";
 import ImagePreview from "./ImagePreview.vue";
 // --- utils
-import { useStyles } from "../../utils";
+import { useStyles, useArrowNavigation } from "../../utils";
 import { isArray, includes } from "lodash-es";
 // --- types
 import type { ImageGridProps } from "./types";
@@ -121,10 +125,17 @@ const styles = useStyles(
 // --- thumbnail carousel overflow detection
 const thumbnailsActive = ref(false);
 const thumbnailApi = ref<CarouselApi>();
+const thumbnailRefs = ref<HTMLButtonElement[]>([]);
 
 function setThumbnailApi(api: CarouselApi) {
   thumbnailApi.value = api;
 }
+
+const { onKey: onThumbnailKey } = useArrowNavigation({
+  refs: thumbnailRefs,
+  count: () => images.value.length,
+  onSelect: moveTo
+});
 
 function setThumbnailsActive() {
   thumbnailsActive.value =
