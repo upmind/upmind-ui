@@ -1,9 +1,8 @@
 import { cva } from "class-variance-authority";
-import { focusRing } from "../../assets/styles";
 // -----------------------------------------------------------------------------
 
 export const thumbnailVariant = cva(
-  `image-radius cursor-pointer overflow-hidden transition-opacity duration-200 ${focusRing} -outline-offset-2`,
+  "image-radius cursor-pointer overflow-hidden transition-opacity duration-200 border-2 border-transparent outline-none [&:focus,&:focus-visible,&[data-focus=true]]:border-(--color-control-ring)",
   {
     variants: {
       isActive: {
