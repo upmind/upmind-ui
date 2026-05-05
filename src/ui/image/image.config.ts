@@ -1,5 +1,5 @@
 import { cva } from "class-variance-authority";
-import { ringClasses } from "../../assets/styles";
+import { focusRing } from "../../assets/styles";
 // -----------------------------------------------------------------------------
 export const rootVariant = cva("h-full w-full", {
   variants: {
@@ -54,7 +54,7 @@ export const containerVariant = cva(
         true: "opacity-20"
       },
       isCarousel: {
-        true: `${ringClasses} transition-all duration-200`,
+        true: `${focusRing} transition-all duration-200`,
         false: ""
       }
     },
