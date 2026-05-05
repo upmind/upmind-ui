@@ -1,5 +1,6 @@
 import { test, expect, Page } from "@playwright/test";
 import { URLs } from "../../support/constants/urls";
+import { waitForSessionCookie } from "../../support/helpers";
 
 const gtmContainerId = "G-9QKJBFZHN2";
 const testUrl = [
@@ -29,9 +30,12 @@ test.describe("Google Tag Manager", () => {
   });
   test.describe("Verify event data in DataLayer", () => {
     test("Check for GTM start event", async ({ page }) => {
-      await page.goto(URLs.basket);
       await page.goto(URLs.starterHosting);
-      await page.waitForLoadState("networkidle");
+      await page.waitForFunction(() =>
+        (
+          window as Window & { dataLayer?: Array<{ event?: string }> }
+        ).dataLayer?.some(e => e.event === "gtm.js")
+      );
       const dataLayer = await getDataLayer(page);
       expect(dataLayer).toBeDefined();
       const gtmStart = dataLayer?.find(
