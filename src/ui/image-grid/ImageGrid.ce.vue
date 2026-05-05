@@ -3,7 +3,8 @@
     <!-- Preview carousel -->
     <div :class="styles.imageGrid.preview.wrapper">
       <Image
-        v-model:index="activeIndex"
+        :index="activeIndex"
+        @update:index="moveTo"
         mode="carousel"
         :image="images"
         :ratio="props.ratio"
@@ -37,7 +38,8 @@
       :opts="{
         loop: false,
         dragFree: true,
-        watchDrag: thumbnailsActive
+        watchDrag: thumbnailsActive,
+        inViewThreshold: 1
       }"
     >
       <CarouselContent :class="styles.imageGrid.thumbnails.content" overflow>
@@ -84,7 +86,7 @@ import { Image } from "../image";
 import ImagePreview from "./ImagePreview.vue";
 // --- utils
 import { useStyles } from "../../utils";
-import { isArray } from "lodash-es";
+import { isArray, includes } from "lodash-es";
 // --- types
 import type { ImageGridProps } from "./types";
 import type { ImageItem } from "../image/types";
@@ -132,8 +134,25 @@ function setThumbnailsActive() {
 
 // --- actions
 function selectImage(index: number) {
+  // Thumbnail click — set the active image without scrolling the grid
   activeIndex.value = index;
   startAutoplay();
+}
+
+function moveTo(index: number) {
+  // Preview swipe / autoplay — set the active image and follow it in the grid
+  const prev = activeIndex.value;
+  if (index === prev) return;
+  activeIndex.value = index;
+
+  const api = thumbnailApi.value;
+  // Skip when the new active is already fully in view (inViewThreshold: 1)
+  if (!api || includes(api.slidesInView(), index)) return;
+  // Multi-step jump (e.g. autoplay wrapping back to 0) — center the target
+  const step = index - prev;
+  if (Math.abs(step) > 1) return api.scrollTo(index);
+  // Single step — shift by one slot so the new slide enters at the edge
+  step > 0 ? api.scrollNext() : api.scrollPrev();
 }
 
 function openLightbox() {
@@ -161,7 +180,7 @@ function startAutoplay() {
   stopAutoplay();
   if (!props.autoplay || images.value.length <= 1) return;
   autoplayTimer = setInterval(() => {
-    activeIndex.value = (activeIndex.value + 1) % images.value.length;
+    moveTo((activeIndex.value + 1) % images.value.length);
   }, props.autoplay * 1000);
 }
 
