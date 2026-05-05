@@ -19,12 +19,12 @@
       @generate="onGenerate"
     />
 
-    <template v-if="showMeter || errorMessage" #messages>
+    <template v-if="showMessages" #messages>
       <PasswordStrength
         :show-bars="showMeter"
         :score="score"
         :max="requirementsCount"
-        :message="errorMessage || (showMeter ? appliedOptions?.hint : '')"
+        :message="message"
         :has-error="!!errorMessage"
       />
     </template>
@@ -42,10 +42,12 @@ import FormField from "../../FormField.vue";
 // --- utils
 import { useUpmindUIRenderer } from "../utils";
 import {
+  FALLBACK_REQUIREMENT_COUNT,
   generateStrongPassword,
   getPasswordErrorKey,
   scorePassword
 } from "../../../../utils/password";
+import { keys, size } from "lodash-es";
 // --- types
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
@@ -62,18 +64,48 @@ const isNewPassword = computed(
 const requirements = computed<Record<string, string> | undefined>(
   () => appliedOptions.value?.requirements
 );
+// Show the meter once the user starts typing — keeps the resting state quiet
+// while still surfacing live feedback during input.
 const showMeter = computed(() => isNewPassword.value && !!control.value?.data);
 
 const requirementsCount = computed(
-  () => Object.keys(requirements.value ?? {}).length || 4
+  () => size(keys(requirements.value)) || FALLBACK_REQUIREMENT_COUNT
 );
-const score = computed(() => scorePassword(control.value?.data));
+const score = computed(() =>
+  scorePassword(control.value?.data, requirements.value)
+);
+
+// True when every configured requirement is satisfied (or when there are no
+// requirements to check). Used to suppress the hint once the user has
+// successfully met all rules — the filled meter is feedback enough.
+const isValid = computed(
+  () =>
+    !requirements.value ||
+    !getPasswordErrorKey(requirements.value, control.value?.data)
+);
 
 const errorMessage = computed(() => {
   if (!formFieldProps.value?.touched || !requirements.value) return "";
   const key = getPasswordErrorKey(requirements.value, control.value?.data);
   return key ? (appliedOptions.value?.error?.[key] ?? "") : "";
 });
+
+// Resolve the message shown beneath the field:
+// 1. Validation error wins when the user has touched the input and a rule is unmet.
+// 2. Otherwise the configured `hint` is shown for new-password fields *until*
+//    the password is valid — informs the user upfront, then gets out of the way.
+const message = computed(() => {
+  if (errorMessage.value) return errorMessage.value;
+  if (isNewPassword.value && !isValid.value)
+    return appliedOptions.value?.hint ?? "";
+  return "";
+});
+
+// Render the messages slot whenever there's something to show (meter, hint,
+// or error) — avoids reserving space when the field is irrelevant (e.g. login).
+const showMessages = computed(
+  () => showMeter.value || !!message.value
+);
 
 function onGenerate() {
   const minLength = control.value?.schema?.minLength ?? 16;

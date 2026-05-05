@@ -34,6 +34,10 @@ const GENERATOR_POOL =
 // min length 8, contains a letter, contains a digit, contains a symbol.
 const FALLBACK_PATTERNS = [/.{8,}/, /[a-zA-Z]/, /\d/, /[^a-zA-Z0-9]/];
 
+/** Number of rules the fallback heuristic checks. Renderers should use this
+ * as the `max` for the strength meter when no `requirements` are configured. */
+export const FALLBACK_REQUIREMENT_COUNT = FALLBACK_PATTERNS.length;
+
 /** Cryptographically-random integer in [0, max), with rejection sampling to eliminate modulo bias. */
 export function secureRandom(max: number): number {
   const limit = Math.floor(2 ** 32 / max) * max;
