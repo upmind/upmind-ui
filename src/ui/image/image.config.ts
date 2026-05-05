@@ -1,5 +1,5 @@
 import { cva } from "class-variance-authority";
-import { ringClasses } from "../../assets/styles";
+import { focusRing } from "../../assets/styles";
 // -----------------------------------------------------------------------------
 export const rootVariant = cva("h-full w-full", {
   variants: {
@@ -39,7 +39,7 @@ export const rootVariant = cva("h-full w-full", {
 });
 
 export const containerVariant = cva(
-  `image-radius relative block w-full overflow-hidden`,
+  `group image-radius relative block w-full overflow-hidden`,
   {
     variants: {
       ratio: {
@@ -54,7 +54,7 @@ export const containerVariant = cva(
         true: "opacity-20"
       },
       isCarousel: {
-        true: `${ringClasses} transition-all duration-200`,
+        true: `${focusRing} transition-all duration-200`,
         false: ""
       }
     },
@@ -92,6 +92,9 @@ export default {
     root: rootVariant,
     picture: cva("contents w-full"),
     icon: cva("bg-surface p-2"),
+    expand: cva(
+      "bg-overlay [&:hover:not(:disabled),&:focus-within:not(:disabled),&[data-hover=true]:not([data-disabled=true]),&[data-focus=true]:not([data-disabled=true])]:bg-overlay absolute top-4 right-4 z-10 rounded-full text-white opacity-0 group-hover:opacity-70 group-focus-within:opacity-100 hover:opacity-100"
+    ),
     carousel: {
       content: cva("ml-0 h-full"),
       list: cva("m-0 flex p-0"),
@@ -102,5 +105,25 @@ export default {
       item: cva("grid size-3 place-items-center text-white"),
       dot: indicatorVariant
     }
+  },
+  preview: {
+    dialog: cva(
+      "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fill-mode-both animation-duration-200 bg-overlay fixed inset-0 z-50 flex touch-none items-center justify-center overflow-hidden p-4 outline-none"
+    ),
+    image: cva(
+      "image-radius max-h-[90vh] max-w-[90vw] object-contain select-none",
+      {
+        variants: {
+          isZoomed: {
+            true: "cursor-zoom-out",
+            false: "cursor-zoom-in"
+          }
+        },
+        defaultVariants: {
+          isZoomed: false
+        }
+      }
+    ),
+    close: cva("text-tooltip absolute top-4 right-4 z-10")
   }
 };

@@ -16,8 +16,3 @@ export type ImageGridProps = {
   // ---
   class?: ImgHTMLAttributes["class"];
 };
-
-export type ImagePreviewProps = {
-  image: ImageItem;
-  open: boolean;
-};
