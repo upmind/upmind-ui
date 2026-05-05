@@ -29,6 +29,17 @@
         />
       </span>
     </nav>
+
+    <Button
+      v-if="meta.canExpand"
+      icon="expand-01"
+      icon-only
+      size="sm"
+      variant="ghost"
+      color="neutral"
+      :class="styles.image.expand"
+      @click.stop="expanded = true"
+    />
   </Carousel>
 
   <figure
@@ -50,16 +61,35 @@
     <div v-if="meta.hasFallback" :class="cn(styles.image.root)">
       <Icon :icon="props.icon" size="lg" :class="styles.image.icon" />
     </div>
+
+    <Button
+      v-if="meta.canExpand"
+      icon="expand-01"
+      icon-only
+      size="sm"
+      variant="ghost"
+      color="neutral"
+      :class="styles.image.expand"
+      @click.stop="expanded = true"
+    />
   </figure>
+
+  <ImagePreview
+    v-if="meta.canExpand && currentImage && !isString(currentImage)"
+    :image="currentImage"
+    v-model:open="expanded"
+  />
 </template>
 
 <script setup lang="ts">
 // --- external
 import { ref, computed, watch } from "vue";
 // --- components
+import { Button } from "../button";
 import { Carousel, CarouselContent } from "../carousel";
 import { Icon } from "../icon";
 import CarouselImage from "./CarouselImage.vue";
+import ImagePreview from "./ImagePreview.vue";
 // --- internal
 import config, { indicatorVariant } from "./image.config";
 // --- utils
@@ -75,12 +105,27 @@ const props = withDefaults(defineProps<ImageProps>(), {
   position: "center",
   mode: "auto",
   icon: "camera-01",
-  fallback: true
+  fallback: true,
+  expandable: true
+});
+
+const imageIndex = defineModel<number>("index", { default: 0 });
+const expanded = defineModel<boolean>("expanded", { default: false });
+const carouselApi = ref<CarouselApi>();
+const error = ref(false);
+
+const currentImage = computed(() => {
+  if (isArray(props?.image)) {
+    return props?.image?.[imageIndex.value];
+  }
+
+  return props?.image;
 });
 
 const meta = computed(() => {
   const imageList = isArray(props.image) ? props.image : [];
   const imageLength = imageList.length;
+  const empty = isEmpty(props.image) || error.value;
 
   const isCarousel = {
     single: false,
@@ -93,10 +138,15 @@ const meta = computed(() => {
     ratio: props.ratio,
     fit: props.fit,
     position: props.position,
-    isEmpty: isEmpty(props.image) || error.value,
-    hasFallback: props.fallback && (isEmpty(props.image) || error.value),
+    isEmpty: empty,
+    hasFallback: props.fallback && empty,
     isCarousel,
-    imageLength
+    imageLength,
+    canExpand:
+      props.expandable &&
+      !!currentImage.value &&
+      !isString(currentImage.value) &&
+      !empty
   };
 });
 
@@ -105,10 +155,6 @@ const styles = useStyles(
   meta,
   config
 );
-
-const imageIndex = defineModel<number>("index", { default: 0 });
-const carouselApi = ref<CarouselApi>();
-const error = ref(false);
 
 function onCarouselInit(api: CarouselApi) {
   carouselApi.value = api;
@@ -128,14 +174,6 @@ watch(imageIndex, value => {
   if (api && api.selectedScrollSnap() !== value) {
     api.scrollTo(value);
   }
-});
-
-const currentImage = computed(() => {
-  if (isArray(props?.image)) {
-    return props?.image?.[imageIndex.value];
-  }
-
-  return props?.image;
 });
 
 function selectImage(index: number) {

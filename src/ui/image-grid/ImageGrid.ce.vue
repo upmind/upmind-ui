@@ -1,32 +1,19 @@
 <template>
   <div :class="styles.imageGrid.container">
-    <!-- Preview carousel -->
-    <div :class="styles.imageGrid.preview.wrapper">
-      <Image
-        :index="activeIndex"
-        @update:index="moveTo"
-        mode="carousel"
-        :image="images"
-        :ratio="props.ratio"
-        :fit="props.fit"
-        :position="props.position"
-        :icon="props.icon"
-        :fallback="props.fallback"
-        :class="props.class"
-      />
-
-      <!-- Expand button (top right) -->
-      <Button
-        v-if="activeImage"
-        icon="expand-01"
-        iconOnly
-        size="sm"
-        variant="ghost"
-        color="neutral"
-        :class="styles.imageGrid.preview.expand"
-        @click.prevent.stop="openLightbox"
-      />
-    </div>
+    <Image
+      :index="activeIndex"
+      @update:index="moveTo"
+      v-model:expanded="previewOpen"
+      expandable
+      mode="carousel"
+      :image="images"
+      :ratio="props.ratio"
+      :fit="props.fit"
+      :position="props.position"
+      :icon="props.icon"
+      :fallback="props.fallback"
+      :class="props.class"
+    />
 
     <!-- Thumbnail carousel -->
     <Carousel
@@ -66,14 +53,6 @@
         </CarouselItem>
       </CarouselContent>
     </Carousel>
-
-    <!-- Lightbox -->
-    <ImagePreview
-      v-if="activeImage"
-      :image="activeImage"
-      :open="lightboxOpen"
-      @update:open="lightboxOpen = $event"
-    />
   </div>
 </template>
 
@@ -84,10 +63,8 @@ import { vResizeObserver } from "@vueuse/components";
 // --- internal
 import config, { thumbnailVariant } from "./imageGrid.config";
 // --- components
-import { Button } from "../button";
 import { Carousel, CarouselContent, CarouselItem } from "../carousel";
 import { Image } from "../image";
-import ImagePreview from "./ImagePreview.vue";
 // --- utils
 import { useStyles, useArrowNavigation } from "../../utils";
 import { isArray, includes } from "lodash-es";
@@ -108,16 +85,14 @@ const props = withDefaults(defineProps<ImageGridProps>(), {
 
 // --- state
 const activeIndex = ref(0);
-const lightboxOpen = ref(false);
+const previewOpen = ref(false);
 
 const images = computed<ImageItem[]>(() =>
   isArray(props.image) ? props.image : []
 );
 
-const activeImage = computed(() => images.value[activeIndex.value]);
-
 const styles = useStyles(
-  ["imageGrid", "imageGrid.preview", "imageGrid.thumbnails"],
+  ["imageGrid", "imageGrid.thumbnails"],
   computed(() => ({})),
   config
 );
@@ -167,12 +142,6 @@ function moveTo(index: number) {
   step > 0 ? api.scrollNext() : api.scrollPrev();
 }
 
-function openLightbox() {
-  if (activeImage.value) {
-    lightboxOpen.value = true;
-  }
-}
-
 function thumbnailClass(isActive: boolean) {
   return thumbnailVariant({ isActive });
 }
@@ -205,9 +174,9 @@ function stopAutoplay() {
 }
 
 watch(
-  [() => props.autoplay, images, lightboxOpen],
+  [() => props.autoplay, images, previewOpen],
   () => {
-    if (lightboxOpen.value) {
+    if (previewOpen.value) {
       stopAutoplay();
     } else {
       startAutoplay();
