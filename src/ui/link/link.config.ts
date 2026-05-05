@@ -31,7 +31,7 @@ export const variants = {
     info: "text-accent-info [&:not([aria-disabled=true]):hover,&:not([aria-disabled=true])[data-hover=true]]:opacity-75"
   },
   isDisabled: {
-    true: "cursor-not-allowed opacity-50",
+    true: "cursor-not-allowed opacity-50 pointer-events-none",
     false: "cursor-pointer"
   },
   hasRing: {
