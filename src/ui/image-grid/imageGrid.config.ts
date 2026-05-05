@@ -3,7 +3,7 @@ import { focusRing } from "../../assets/styles";
 // -----------------------------------------------------------------------------
 
 export const thumbnailVariant = cva(
-  `image-radius cursor-pointer overflow-hidden transition-opacity duration-200 ${focusRing}`,
+  `image-radius cursor-pointer overflow-hidden transition-opacity duration-200 ${focusRing} -outline-offset-2`,
   {
     variants: {
       isActive: {
