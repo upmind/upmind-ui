@@ -93,7 +93,7 @@ export default {
     picture: cva("contents w-full"),
     icon: cva("bg-surface p-2"),
     expand: cva(
-      "bg-overlay [&:hover:not(:disabled),&[data-hover=true]:not([data-disabled=true])]:bg-overlay absolute top-4 right-4 z-10 rounded-full text-white opacity-0 group-hover:opacity-70 group-focus-within:opacity-100 hover:opacity-100"
+      "bg-overlay [&:hover:not(:disabled),&:focus-within:not(:disabled),&[data-hover=true]:not([data-disabled=true]),&[data-focus=true]:not([data-disabled=true])]:bg-overlay absolute top-4 right-4 z-10 rounded-full text-white opacity-0 group-hover:opacity-70 group-focus-within:opacity-100 hover:opacity-100"
     ),
     carousel: {
       content: cva("ml-0 h-full"),
