@@ -38,7 +38,7 @@
       variant="ghost"
       color="neutral"
       :class="styles.image.expand"
-      @click.stop="expanded = true"
+      @click.stop.prevent="expanded = true"
     />
   </Carousel>
 
@@ -70,7 +70,7 @@
       variant="ghost"
       color="neutral"
       :class="styles.image.expand"
-      @click.stop="expanded = true"
+      @click.stop.prevent="expanded = true"
     />
   </figure>
 
