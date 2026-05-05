@@ -1,39 +1,38 @@
 <template>
   <div :class="styles.imageGrid.container">
-    <!-- Preview image -->
-    <figure
-      :class="cn(styles.imageGrid.preview, props.class)"
-      :style="meta.hasFallback ? fallbackStyle : ''"
-      @click="openLightbox"
-    >
-      <img
-        v-if="!meta.isEmpty"
-        :src="activeImage?.url"
-        :alt="activeImage?.alt"
-        :class="styles.imageGrid.previewImage"
-        @error="error = true"
+    <!-- Preview carousel -->
+    <div :class="styles.imageGrid.preview.wrapper">
+      <Image
+        v-model:index="activeIndex"
+        mode="carousel"
+        :image="images"
+        :ratio="props.ratio"
+        :fit="props.fit"
+        :position="props.position"
+        :icon="props.icon"
+        :fallback="props.fallback"
+        :class="props.class"
       />
 
-      <!-- Hover overlay with expand icon -->
-      <div v-if="!meta.isEmpty" :class="styles.imageGrid.overlay">
-        <Icon
-          icon="expand-01"
-          size="lg"
-          :class="styles.imageGrid.overlayIcon"
-        />
-      </div>
-
-      <!-- Fallback icon -->
-      <div v-if="meta.hasFallback" :class="cn(styles.imageGrid.previewImage)">
-        <Icon :icon="props.icon" size="lg" :class="styles.imageGrid.icon" />
-      </div>
-    </figure>
+      <!-- Expand button (top right) -->
+      <Button
+        v-if="activeImage"
+        icon="expand-01"
+        iconOnly
+        size="sm"
+        variant="ghost"
+        color="neutral"
+        :class="styles.imageGrid.preview.expand"
+        @click.prevent.stop="openLightbox"
+      />
+    </div>
 
     <!-- Thumbnail carousel -->
     <Carousel
       v-if="images.length > 1"
       v-resize-observer="setThumbnailsActive"
       :key="`thumbnails-${thumbnailsActive}`"
+      :class="styles.imageGrid.thumbnails.root"
       @init-api="setThumbnailApi"
       :opts="{
         loop: false,
@@ -41,11 +40,11 @@
         watchDrag: thumbnailsActive
       }"
     >
-      <CarouselContent :class="styles.imageGrid.thumbnails" overflow>
+      <CarouselContent :class="styles.imageGrid.thumbnails.content" overflow>
         <CarouselItem
           v-for="(img, index) in images"
           :key="img.url || index"
-          :class="styles.imageGrid.thumbnailItem"
+          :class="styles.imageGrid.thumbnails.item"
         >
           <button
             :class="thumbnailClass(index === activeIndex)"
@@ -55,7 +54,7 @@
             <img
               :src="img.url"
               :alt="img.alt"
-              :class="styles.imageGrid.thumbnailImage"
+              :class="styles.imageGrid.thumbnails.image"
             />
           </button>
         </CarouselItem>
@@ -79,12 +78,13 @@ import { vResizeObserver } from "@vueuse/components";
 // --- internal
 import config, { thumbnailVariant } from "./imageGrid.config";
 // --- components
+import { Button } from "../button";
 import { Carousel, CarouselContent, CarouselItem } from "../carousel";
-import { Icon } from "../icon";
+import { Image } from "../image";
 import ImagePreview from "./ImagePreview.vue";
 // --- utils
-import { useStyles, cn, getComputedColor } from "../../utils";
-import { isEmpty, isArray } from "lodash-es";
+import { useStyles } from "../../utils";
+import { isArray } from "lodash-es";
 // --- types
 import type { ImageGridProps } from "./types";
 import type { ImageItem } from "../image/types";
@@ -103,7 +103,6 @@ const props = withDefaults(defineProps<ImageGridProps>(), {
 // --- state
 const activeIndex = ref(0);
 const lightboxOpen = ref(false);
-const error = ref(false);
 
 const images = computed<ImageItem[]>(() =>
   isArray(props.image) ? props.image : []
@@ -111,20 +110,11 @@ const images = computed<ImageItem[]>(() =>
 
 const activeImage = computed(() => images.value[activeIndex.value]);
 
-const meta = computed(() => ({
-  ratio: props.ratio,
-  fit: props.fit,
-  position: props.position,
-  isEmpty: isEmpty(props.image) || error.value,
-  hasFallback: props.fallback && (isEmpty(props.image) || error.value)
-}));
-
-const styles = useStyles(["imageGrid"], meta, config);
-
-const fallbackStyle = computed(() => {
-  const color = getComputedColor("accent-neutral");
-  return `background: radial-gradient(${color} 2px, transparent 2px) 50% 50% / 20px 20px repeat;`;
-});
+const styles = useStyles(
+  ["imageGrid", "imageGrid.preview", "imageGrid.thumbnails"],
+  computed(() => ({})),
+  config
+);
 
 // --- thumbnail carousel overflow detection
 const thumbnailsActive = ref(false);
@@ -147,7 +137,7 @@ function selectImage(index: number) {
 }
 
 function openLightbox() {
-  if (!meta.value.isEmpty) {
+  if (activeImage.value) {
     lightboxOpen.value = true;
   }
 }
@@ -161,7 +151,6 @@ watch(
   () => props.image,
   () => {
     activeIndex.value = 0;
-    error.value = false;
   }
 );
 

@@ -55,7 +55,7 @@
 
 <script setup lang="ts">
 // --- external
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 // --- components
 import { Carousel, CarouselContent } from "../carousel";
 import { Icon } from "../icon";
@@ -106,7 +106,7 @@ const styles = useStyles(
   config
 );
 
-const imageIndex = ref(0);
+const imageIndex = defineModel<number>("index", { default: 0 });
 const carouselApi = ref<CarouselApi>();
 const error = ref(false);
 
@@ -117,8 +117,18 @@ function onCarouselInit(api: CarouselApi) {
     api.on("select", () => {
       imageIndex.value = api.selectedScrollSnap() || 0;
     });
+    if (imageIndex.value !== api.selectedScrollSnap()) {
+      api.scrollTo(imageIndex.value);
+    }
   }
 }
+
+watch(imageIndex, value => {
+  const api = carouselApi.value;
+  if (api && api.selectedScrollSnap() !== value) {
+    api.scrollTo(value);
+  }
+});
 
 const currentImage = computed(() => {
   if (isArray(props?.image)) {
