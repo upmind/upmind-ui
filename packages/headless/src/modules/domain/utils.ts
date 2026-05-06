@@ -290,7 +290,9 @@ export function parseSuggestions(
       }
     }
 
-    // Fallback when product is missing or parsing failed
+    // Fallback when product is missing or parsing failed.
+    // The product may simply not have arrived yet (split suggestions/tlds flow):
+    // mark the row as priceLoading so the card renders a price skeleton.
     const { price, billingCycleMonths } = buildFallbackPricing(
       product?.prices ?? [],
       preferredCycle
@@ -309,7 +311,8 @@ export function parseSuggestions(
       price,
       meta: {
         available: can_register,
-        canTransfer: can_transfer
+        canTransfer: can_transfer,
+        priceLoading: !product
       },
       productDetails: {
         id: product_id,
