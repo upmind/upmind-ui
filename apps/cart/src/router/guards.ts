@@ -9,7 +9,6 @@ import {
 } from "@upmind-automation/client-vue";
 import { isEmpty } from "lodash-es";
 import type { RouteLocationGeneric } from "vue-router";
-import { ROUTE } from "./types";
 
 // -----------------------------------------------------------------------------
 
@@ -54,9 +53,6 @@ export default {
    */
   isSameRoute: ({ currentRoute }: FunnelContext, { data }: AnyEventObject) =>
     data?.target?.name === currentRoute?.name,
-
-  isCatalogue: (_context: FunnelContext, { data }: AnyEventObject) =>
-    data?.target?.name === ROUTE.CATALOGUE,
 
   hasProductConfigs: ({ currentRoute }: FunnelContext) => {
     const { productConfigs } = useQueryParams(currentRoute);
