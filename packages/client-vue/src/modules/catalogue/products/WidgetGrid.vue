@@ -43,7 +43,7 @@
           v-for="product in data"
           :loading="pendingMeta.isProcessing(product.id)"
           :disabled="pendingMeta.isProcessing()"
-          :recently-added="pendingMeta.isRecentlyAdded(product.id)"
+          :in-basket="pendingMeta.isInBasket(product.id)"
           :key="product.id"
           v-bind="product"
           :in-situ="keepsUserInSitu"

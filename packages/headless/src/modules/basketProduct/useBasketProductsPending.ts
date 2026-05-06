@@ -1,7 +1,7 @@
 // --- external
 import { isActor } from "xstate/lib/Actor";
 import { waitFor } from "xstate/lib/waitFor";
-import { computed, ref } from "vue";
+import { computed, shallowRef } from "vue";
 
 // --- internal
 import basketProductServices from "../basketProduct/services";
@@ -50,21 +50,13 @@ export type UseBasketProductPending = ReturnType<
 // --- Singletons
 
 let productConfigs: Record<ProductProps["productId"], ProductModel> = {};
-let productsPending: Record<
-  ProductProps["productId"],
-  UseBasketProductPending
-> = {}; // store the product productsPending
+// Reactive registry of pending product machines, keyed by the model-hash id.
+// Presence of a machine for a given productId is the source of truth for
+// `meta.isProcessing(pid)` — no separate processing flag needed.
+const productsPending = shallowRef<
+  Record<ProductProps["productId"], UseBasketProductPending>
+>({});
 let subscriptions: Record<ProductProps["productId"], Subscription> = {}; // store subscriptions to changes on the product
-
-// reactive per-product processing flags, keyed by productId, mirroring the
-// pattern in `useBasketProducts` so consumers can derive per-card UI state.
-const processing = ref<Record<ProductProps["productId"], boolean>>({});
-
-// Per-product transient flag: true for `RECENTLY_ADDED_MS` after the product
-// is resolved (added to basket). Lets cards surface a brief "Added"
-// confirmation when the user stays in-situ on the catalogue.
-const RECENTLY_ADDED_MS = 3000;
-const recentlyAdded = ref<Record<ProductProps["productId"], boolean>>({});
 
 // -----------------------------------------------------------------------------
 
@@ -104,12 +96,15 @@ export const useBasketProductsPending = () => {
     const id = btoa(JSON.stringify(model)); // use the model as the basis for the id
 
     // if we have an item with the exact same configuration, then we can skip adding it
-    const productPending = find(productsPending, ["id", id]);
+    const productPending = find(productsPending.value, ["id", id]);
 
     if (productPending) return productPending; // its allready added, so we can skip it
 
     const instance = useBasketProductPending(model);
-    set(productsPending, instance.id, instance);
+    productsPending.value = {
+      ...productsPending.value,
+      [instance.id]: instance
+    };
     return instance;
   }
 
@@ -141,20 +136,6 @@ export const useBasketProductsPending = () => {
   }
 
   /**
-   * Surface a transient "Added" confirmation for `RECENTLY_ADDED_MS` so
-   * observers reading `meta.isRecentlyAdded(pid)` can show a brief badge.
-   * Called from the actor-subscription `complete`/`done` branch — the point
-   * at which the basket has accepted the add. Configure-flow's explicit
-   * `resolve(pendingProduct)` call doesn't go through subscribe, so this
-   * fires only for the synced/auto-update lifecycle (preventing the badge
-   * from leaking onto catalogue cards after a configure-step submission).
-   */
-  function markRecentlyAdded(pid: ProductProps["productId"]) {
-    set(recentlyAdded.value, pid, true);
-    setTimeout(() => unset(recentlyAdded.value, pid), RECENTLY_ADDED_MS);
-  }
-
-  /**
    * Ensures a product configuration exists and is ready. If it doesn't exist or `force` is true,
    * it adds the product. It then waits for the product's service to become available or error.
    *
@@ -173,7 +154,7 @@ export const useBasketProductsPending = () => {
     await isReady();
 
     const product = find(
-      productsPending,
+      productsPending.value,
       ({ model, meta }) =>
         model.value?.productId === pid && !meta.value?.isComplete
     );
@@ -228,13 +209,11 @@ export const useBasketProductsPending = () => {
 
         const subscription = actor.subscribe((state: State<any>) => {
           if (stateMatches(state, ["unavailable"])) {
-            unset(processing.value, pid);
             unsetProduct(pid);
           } else if (stateMatches(state, "available")) {
             setProduct(pid, get(state, "context.model"));
           } else if (stateMatches(state, ["complete", "done"])) {
             resolve(pid);
-            markRecentlyAdded(pid);
           }
         });
         set(subscriptions, pid, subscription);
@@ -301,15 +280,12 @@ export const useBasketProductsPending = () => {
     // pass through silent option to the product model
     model.silent = silent;
 
-    if (sync) set(processing.value, productId, true);
-
     return ensure(productId, model, force)
       .then(instance => {
         if (sync) subscribe(productId, instance.service);
         return instance;
       })
       .catch(error => {
-        unset(processing.value, productId);
         throw new DetailedError(
           t("error.product_pending_ensure_failed"),
           responseCodes.No_Content,
@@ -339,14 +315,13 @@ export const useBasketProductsPending = () => {
 
   /**
    * Tears down the pending product's actor: unsubscribes, stops the service,
-   * and removes it from `productsPending`. Does NOT clear the processing flag —
-   * that's a separate concern (operation lifecycle, not actor lifecycle).
+   * and removes it from `productsPending`.
    *
    * @param pid - The product ID to unset.
    */
   function unsetProduct(pid: ProductProps["productId"]) {
     const product = find(
-      productsPending,
+      productsPending.value,
       ({ model }) => model.value?.productId === pid
     ) as UseBasketProductPending;
     // ensure we unsubscribe from the item if it exists
@@ -358,7 +333,7 @@ export const useBasketProductsPending = () => {
     // stop the product if it exists and remove it from the pending products
     if (product?.service) {
       stopService(product.service);
-      unset(productsPending, product.id);
+      productsPending.value = omit(productsPending.value, product.id);
     }
   }
 
@@ -372,10 +347,9 @@ export const useBasketProductsPending = () => {
   function resolve(target?: ProductProps["productId"] | ActorRef<any>) {
     const pid = isString(target)
       ? target
-      : get(productsPending, target!.id)?.model?.value?.productId;
+      : get(productsPending.value, target!.id)?.model?.value?.productId;
 
     if (pid) {
-      unset(processing.value, pid);
       unsetProduct(pid);
       // as we have successfully added our config we can remove it from storage
       unset(productConfigs, pid);
@@ -383,8 +357,8 @@ export const useBasketProductsPending = () => {
     }
 
     // NB ensure any complete products are removed from the pending products
-    productsPending = omitBy(
-      productsPending,
+    productsPending.value = omitBy(
+      productsPending.value,
       ({ meta }) => meta.value?.isComplete
     );
   }
@@ -425,16 +399,19 @@ export const useBasketProductsPending = () => {
      * Meta-information about the pending products state.
      * @property {boolean} hasProducts - `true` if there are any pending products.
      * @property {function(pid?: string): boolean} isProcessing - A function that returns `true` if any pending product (or a specific `pid`) is currently being added/updated to the basket.
-     * @property {function(pid?: string): boolean} isRecentlyAdded - A function that returns `true` if a pending product (or a specific `pid`) was added to the basket within the last few seconds.
+     * @property {function(pid?: string): boolean} isInBasket - A function that returns `true` if the given `pid` is currently in the basket (or, with no `pid`, if the basket has any products).
      */
     meta: computed(() => ({
       hasProducts: !isEmpty(products.value),
       isProcessing: (pid?: ProductProps["productId"]) =>
-        pid ? get(processing.value, pid, false) : !isEmpty(processing.value),
-      isRecentlyAdded: (pid?: ProductProps["productId"]) =>
         pid
-          ? get(recentlyAdded.value, pid, false)
-          : !isEmpty(recentlyAdded.value)
+          ? !!find(
+              productsPending.value,
+              ({ model }) => model.value?.productId === pid
+            )
+          : !isEmpty(productsPending.value),
+      isInBasket: (pid?: ProductProps["productId"]) =>
+        pid ? !!productExists({ productId: pid }) : !isEmpty(products.value)
     })),
 
     /**
@@ -489,7 +466,7 @@ export const useBasketProductsPending = () => {
     products,
 
     /**
-     * The reactive record of all pending product configurations, keyed by product ID.
+     * Reactive record of all pending product machines, keyed by model-hash id.
      */
     productsPending,
 
