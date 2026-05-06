@@ -29,7 +29,7 @@ import {
 import {
   type ILanguage,
   type ICurrency,
-  BasketAddToBasketFunnelling,
+  BasketFunnelling,
   BrandTaxTypes,
   BrandConfigKeys,
   DefaultPaymentPeriod,
@@ -230,9 +230,8 @@ export const useBrand = () => {
 
   const keepsUserInSitu = computed(
     () =>
-      getConfigValue<BasketAddToBasketFunnelling>(
-        BrandConfigKeys.BASKET_ADD_TO_BASKET_FUNNELLING
-      ) === BasketAddToBasketFunnelling.NONE
+      getConfigValue<BasketFunnelling>(BrandConfigKeys.BASKET_FUNNELLING) ===
+      BasketFunnelling.NONE
   );
 
   const storefrontRoute = computed(() => {
