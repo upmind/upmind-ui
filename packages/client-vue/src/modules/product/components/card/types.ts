@@ -27,11 +27,17 @@ export interface ProductCardProps extends Omit<Product, "price" | "pricing"> {
    */
   inSitu?: boolean;
   /**
-   * Transient flag set for a few seconds after the product is added. When
-   * true, the action button surfaces an "Added" confirmation and is
-   * disabled. Sourced from `useBasketProductsPending().meta.isRecentlyAdded`.
+   * `true` while this product is in the basket. Sourced from
+   * `useBasketProductsPending().meta.isInBasket`. The card uses this both for
+   * the persistent "In basket" affordance and for a transient "Added!" flash
+   * on the false → true transition.
    */
-  recentlyAdded?: boolean;
+  inBasket?: boolean;
+  /**
+   * Duration in ms of the transient "Added!" flash + button-disable after a
+   * product enters the basket. Defaults to 3000.
+   */
+  resetTimeout?: number;
   disabled?: boolean;
   loading?: boolean;
   variant?: RootVariants["variant"];
