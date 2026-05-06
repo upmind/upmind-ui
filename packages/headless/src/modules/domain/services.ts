@@ -15,6 +15,7 @@ import {
   find,
   isEmpty,
   isFunction,
+  keyBy,
   map,
   omitBy,
   reject
@@ -31,6 +32,7 @@ import { PAGINATION } from "../query";
 import productServices from "../basketProduct/services";
 import {
   calculateBillingTerm,
+  fillRequiredOptionDefaults,
   parseProductDetails,
   parseProductProps,
   parseTermDetails
@@ -49,6 +51,17 @@ import { DetailedError, ErrorOrigin, responseCodes } from "../../utils";
 
 // Shared `with` parameter for API calls to include full product/price data
 const DOMAIN_WITH_RELATIONS = "prices,options,options.prices,attributes";
+
+/**
+ * `omitBy` predicate for URL query params.
+ *
+ * Drops `null`/`undefined`/empty-string/empty-array values, but **preserves
+ * numbers and booleans**. Lodash's `isEmpty` would treat any number (including
+ * `1`) as empty, which silently strips pagination params (`page`, `tlds_page`,
+ * `limit`) from the URL.
+ */
+const isEmptyParam = (value: unknown): boolean =>
+  value == null || value === "" || (Array.isArray(value) && value.length === 0);
 
 // -----------------------------------------------------------------------------
 
@@ -175,8 +188,13 @@ function search(context: DacContext) {
     }
 
     const { sld, tld } = parseDomainParts(search.query);
+    const page = search.page ?? 1;
+    // Both /suggestions and /suggestions/tlds always paginate at limit=20
+    // (regardless of PAGINATION.limit, which defaults to 10).
+    const limit = 20;
 
     cancel(["domains", "suggestions"]);
+    cancel(["domains", "suggestions", "tlds"]);
 
     // --- TRANSFER mode: only checkAvailability, no suggestions
     if (mode === DomainTypes.transfer) {
@@ -196,6 +214,7 @@ function search(context: DacContext) {
             data: {
               data: [product],
               total: 1,
+              totalPages: 1,
               availability,
               exactDomain: domain
             }
@@ -218,6 +237,7 @@ function search(context: DacContext) {
             data: {
               data: [unavailableProduct],
               total: 1,
+              totalPages: 1,
               availability: null,
               exactDomain: domain
             }
@@ -227,7 +247,19 @@ function search(context: DacContext) {
       return;
     }
 
-    // --- REGISTER mode: fire both calls independently
+    // --- REGISTER mode: fire suggestions + tlds (and availability when
+    //     a TLD is in the query) in parallel via a single callback service.
+    //
+    // The state stays in `searching` until ALL calls have resolved — this
+    // is required because XState cancels the callback service (and drops
+    // any pending sendBack events) the moment we transition out. Each
+    // call's resolution emits SEARCH_RESULTS with the merged-so-far rows
+    // (using parseSuggestions, which produces priceLoading rows when the
+    // products map is still empty). The list becomes visible as soon as
+    // /suggestions emits — the UI renders cards based on `hasAvailable`,
+    // not on the searching state itself, so price skeletons stay in place
+    // until /suggestions/tlds arrives and SEARCH_RESULTS re-emits with
+    // full pricing.
 
     const rawExactDomain = tld ? `${sld}${tld}` : undefined;
     const parsedExact = rawExactDomain
@@ -235,20 +267,32 @@ function search(context: DacContext) {
       : undefined;
     const exactDomain = parsedExact?.domain ?? rawExactDomain;
 
-    let suggestionsData: DomainProduct[] | null = null;
+    let suggestionsList: IDomainSuggestionResult[] | null = null;
+    // Seed from the cumulative map carried in context — page-N suggestions
+    // often reference TLDs that were returned on an earlier /tlds page, so
+    // the prior page's products must remain available when parsing this page.
+    let productsMap: Record<string, IProduct> = {
+      ...(context.productsMap ?? {})
+    };
     let availabilityData: IDomainAvailabilityResponse | null = null;
-    let pending = tld ? 2 : 1; // suggestions always, availability only with TLD
+    let suggestionsTotalPages = 0;
+    let pending = tld ? 3 : 2; // suggestions + tlds (+ availability if tld)
 
-    // Helper: build the merged result from whatever data is available
+    const promocodes = parsePromotionsOrCoupons(coupons).join();
+    const { get: getData, useUrl } = useQuery();
+
     const buildResult = () => {
-      // Clone suggestion data to avoid mutating TanStack cache
-      let data: DomainProduct[] = map(
-        suggestionsData ?? [],
-        (item: DomainProduct) => ({
-          ...item,
-          meta: { ...item.meta, exactMatch: false as boolean }
-        })
+      let data: DomainProduct[] = parseSuggestions(
+        suggestionsList ?? [],
+        productsMap,
+        preferredCycle,
+        "register"
       );
+
+      data = map(data, item => ({
+        ...item,
+        meta: { ...item.meta, exactMatch: false as boolean }
+      }));
 
       if (exactDomain && availabilityData) {
         data = reject(data, ["domain", exactDomain]) as DomainProduct[];
@@ -263,63 +307,113 @@ function search(context: DacContext) {
       return {
         data,
         total: data.length,
+        totalPages: suggestionsTotalPages,
+        page,
         availability: availabilityData,
-        exactDomain
+        exactDomain,
+        // Pass the cumulative products map back so the machine can persist
+        // it on context for the next paginated fetch.
+        productsMap
       };
     };
 
-    // Helper: send partial results + SEARCH_COMPLETE when all pending calls done
+    // Emits SEARCH_RESULTS with the latest merged state, and SEARCH_COMPLETE
+    // once every parallel call has settled. We skip the SEARCH_RESULTS emit
+    // until /suggestions has returned — otherwise there are no rows to render.
     const sendResult = () => {
       pending--;
-      sendBack({ type: "SEARCH_RESULTS", data: buildResult() });
+      if (suggestionsList !== null) {
+        sendBack({ type: "SEARCH_RESULTS", data: buildResult() });
+      }
       if (pending <= 0) {
         sendBack({ type: "SEARCH_COMPLETE" });
       }
     };
 
-    const promocodes = parsePromotionsOrCoupons(coupons).join();
-
-    // --- Suggestions call
-    const { get: getData, useUrl } = useQuery();
+    // --- /suggestions call (lightweight rows: domain, sld, tld, product_id)
     getData<any, any>({
       url: useUrl(
         `modules/web_hosting/domains/suggestions`,
         omitBy(
           {
             query: sld,
-            with: DOMAIN_WITH_RELATIONS,
+            tlds_page: page,
+            limit,
             basket_id: basketId,
             brand_id: brandId,
             promotions: promocodes
           },
-          isEmpty
+          isEmptyParam
         )
       ),
-      queryKey: ["domains", "suggestions", sld],
+      queryKey: ["domains", "suggestions", sld, page],
       withAccessToken: true,
       withCurrency: true,
-      select: ((results: unknown, related?: Record<string, any>) => {
-        const productsMap = (related?.products ?? {}) as Record<
-          string,
-          IProduct
-        >;
-        const data = parseSuggestions(
-          (results ?? []) as IDomainSuggestionResult[],
-          productsMap,
-          preferredCycle,
-          "register"
-        );
-        return { data, total: data.length };
-      }) as (data: unknown) => { data: DomainProduct[]; total: number }
+      select: ((
+        results: unknown,
+        _related?: Record<string, any>,
+        meta?: Record<string, any>
+      ) => ({
+        data: (results ?? []) as IDomainSuggestionResult[],
+        totalPages: (meta?.total_pages as number) ?? 1
+      })) as (data: unknown) => {
+        data: IDomainSuggestionResult[];
+        totalPages: number;
+      }
     })
-      .then(suggestions => {
-        suggestionsData = suggestions.data;
+      .then(({ data, totalPages }) => {
+        suggestionsList = data;
+        suggestionsTotalPages = totalPages;
         sendResult();
       })
       .catch(error => {
         if (error?.name !== "AbortError") {
           sendBack({ type: "SEARCH_ERROR", data: error });
         }
+      });
+
+    // --- /suggestions/tlds call (full IProduct entries — used to fill prices)
+    //
+    // Returns full IProduct entries in `data` plus extras in `related`.
+    // We merge both into a single product_id → IProduct lookup map.
+    getData<any, any>({
+      url: useUrl(
+        `modules/web_hosting/domains/suggestions/tlds`,
+        omitBy(
+          {
+            query: sld,
+            with: DOMAIN_WITH_RELATIONS,
+            tlds_page: page,
+            limit,
+            basket_id: basketId,
+            brand_id: brandId,
+            promotions: promocodes
+          },
+          isEmptyParam
+        )
+      ),
+      queryKey: ["domains", "suggestions", "tlds", sld, page],
+      withAccessToken: true,
+      withCurrency: true,
+      select: ((results: unknown, related?: Record<string, any>) => {
+        const fromData = keyBy((results ?? []) as IProduct[], "id") as Record<
+          string,
+          IProduct
+        >;
+        const fromRelated = (related ?? {}) as Record<string, IProduct>;
+        return { ...fromRelated, ...fromData };
+      }) as (data: unknown) => Record<string, IProduct>
+    })
+      .then(newProducts => {
+        // Merge the new page's products into the cumulative map (don't
+        // overwrite — earlier pages' products must remain available).
+        productsMap = { ...productsMap, ...newProducts };
+        sendResult();
+      })
+      .catch(error => {
+        if (error?.name === "AbortError") return;
+        // Tlds failed — keep priceLoading rows as-is and unblock SEARCH_COMPLETE.
+        sendResult();
       });
 
     // --- Availability call (only when query has a TLD)
@@ -333,8 +427,6 @@ function search(context: DacContext) {
           sendResult();
         })
         .catch(() => {
-          // Availability check failed — show the exact match as unavailable
-          // so the user can still see the domain they searched for
           availabilityData = {
             can_register: false,
             can_transfer: false
@@ -423,11 +515,11 @@ async function addDomainToBasket(context: DacContext) {
     | DomainProduct
     | undefined;
 
-  const model = isFunction(parseProductModel)
+  const baseModel = isFunction(parseProductModel)
     ? parseProductModel(product!)
     : product?.configuration;
 
-  if (!model)
+  if (!baseModel)
     return Promise.reject(
       new DetailedError(
         "Product model not found for domain",
@@ -435,6 +527,11 @@ async function addDomainToBasket(context: DacContext) {
         ErrorOrigin.Headless
       )
     );
+
+  // Auto-pick the first option for any required category that the model
+  // hasn't filled in (e.g. ID protection / nameservers groups marked as
+  // required). Without this the basket API rejects the add request.
+  const model = fillRequiredOptionDefaults(baseModel, product?.rawProduct);
 
   model.coupons = coupons ?? model.coupons ?? [];
   model.silent = true;
