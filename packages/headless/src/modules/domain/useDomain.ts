@@ -6,6 +6,7 @@ import { useActor } from "@xstate/vue";
 
 // --- internal
 import { useI18n } from "../system";
+import { useBrand } from "../brand";
 import { QUERY_PARAMS, useQueryParams } from "../routing";
 import domainMachine from "./domain.machine";
 
@@ -34,6 +35,7 @@ import { parseDomain } from "./utils";
 // --- types
 import { DomainTypes, type DomainContext, type DomainProduct } from "./types";
 import { PAGINATION } from "../query";
+import { BrandConfigKeys, DomainSearchMethod } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 
@@ -57,10 +59,20 @@ export const useDomain = (
 ) => {
   const { t } = useI18n();
   const { getParam, setParam, unsetParam } = useQueryParams();
+  const { getConfigValue } = useBrand();
 
   // safety check to ensure forcedType is valid
   const safeType =
     options?.type && has(DomainTypes, options.type) ? options.type : undefined;
+
+  // Determine search flow from brand setting, fallback to legacy lookup.
+  // Threaded into the parent context so `domain.machine` can pass it down
+  // to the dac child actor — without this, the child defaults to legacy
+  // and the new /suggestions + /suggestions/tlds flow never fires.
+  const searchMethod =
+    getConfigValue<DomainSearchMethod>(BrandConfigKeys.DOMAIN_SEARCH_METHOD) ??
+    DomainSearchMethod.LEGACY_LOOKUP;
+  const useSuggestions = searchMethod === DomainSearchMethod.SMART_SUGGEST;
 
   const service = interpret(
     domainMachine.withContext({
@@ -69,6 +81,7 @@ export const useDomain = (
       model: parseDomain(value),
       preferredCycle: getParam(QUERY_PARAMS.BILLING_CYCLE_MONTHS),
       coupons: getParam(QUERY_PARAMS.COUPONS),
+      useSuggestions,
       search: {
         query: getParam(QUERY_PARAMS.SEARCH, ""), // Get any initial search query from URL
         limit: PAGINATION.limit,

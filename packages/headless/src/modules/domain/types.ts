@@ -297,4 +297,12 @@ export interface DomainContext extends BasketHelperContext<DomainProduct> {
    * An `ActorRef` to a basket helper service.
    */
   basketHelper?: ActorRef<any>;
+
+  /**
+   * When `true`, the dac child actor uses the new `/suggestions` +
+   * `/suggestions/tlds` parallel flow. When `false` (default), falls back
+   * to the legacy `/search` endpoint. Driven by the brand setting
+   * `provisioning.domain_names.search_method` in `useDomain`/`useDac`.
+   */
+  useSuggestions?: boolean;
 }
