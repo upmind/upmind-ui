@@ -3,6 +3,7 @@ import { fakerEN_GB } from "@faker-js/faker";
 import { URLs } from "../../support/constants/urls";
 import { getSessionToken } from "../../support/api/auth";
 import { createOrder, addProductToOrder } from "../../support/api/basket";
+import { waitForSessionCookie } from "../../support/helpers/session";
 import { Basket } from "../../support/page-objects/templates/basket";
 
 let basket: Basket;
@@ -16,7 +17,7 @@ test.describe("Basket Tests", () => {
   test("Basket with 1 item", async ({ page, context }) => {
     const domain = `${fakerEN_GB.string.alphanumeric({ length: { min: 3, max: 15 } })}.com`;
     await page.goto(URLs.basket);
-    await page.waitForLoadState("networkidle");
+    await waitForSessionCookie(context);
     token = await getSessionToken(context);
     let order = await createOrder(token);
     orderId = order.id;

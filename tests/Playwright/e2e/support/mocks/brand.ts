@@ -166,3 +166,25 @@ export function interceptUISchema(
     });
   });
 }
+
+export async function interceptSlots(page: Page, slot: string) {
+  page.route(`**/api/templates/client_area/slots/${slot}/render**`, route =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        status: "ok",
+        data: {
+          type: "template",
+          title: "",
+          body: `<div style="padding: 16px; background: #f0f9ff; border: 2px solid #0284c7; border-radius: 8px;">\n  <h3>🧪 Template: ${slot}<\/h3>\n  <p>This content is injected via the <strong>Playwright Test Runner<\/strong><\/p>\n<\/div>`,
+          meta: null
+        },
+        related: null,
+        total: null,
+        error: null,
+        messages: []
+      })
+    })
+  );
+}

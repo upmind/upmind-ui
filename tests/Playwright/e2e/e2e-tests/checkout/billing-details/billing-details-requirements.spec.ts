@@ -10,10 +10,14 @@ import { interceptConfigValues } from "../../../support/mocks/brand";
 import { URLs } from "../../../support/constants/urls";
 import { getSessionToken, getClientToken } from "../../../support/api/auth";
 import { Logins } from "../../../support/constants/logins";
+import { waitForSessionCookie } from "../../../support/helpers/session";
 let checkout: Checkout;
 let token: string;
 let orderId: string | null;
 test.describe("Verify checkout billing detail requirements", () => {
+  // All tests below log in as Logins.brandUser via beforeEach. Serial mode
+  // prevents them from racing against each other on the same staging account.
+  test.describe.configure({ mode: "serial" });
   test.beforeEach(async ({ page, context }) => {
     checkout = new Checkout(page);
     await getClientToken(
@@ -22,7 +26,7 @@ test.describe("Verify checkout billing detail requirements", () => {
       Logins.brandUser.password
     );
     await page.goto(URLs.basket);
-    await page.waitForLoadState("networkidle");
+    await waitForSessionCookie(context);
     token = await getSessionToken(context);
     let order = await createOrder(token);
     orderId = order.id;
@@ -44,7 +48,7 @@ test.describe("Verify checkout billing detail requirements", () => {
       false
     );
     await page.goto(URLs.basket);
-    await page.waitForLoadState("networkidle");
+    await waitForSessionCookie(page.context());
   });
   test("Address required at checkout", async ({ page, context }) => {
     interceptConfigValues(page, token, {
@@ -55,7 +59,8 @@ test.describe("Verify checkout billing detail requirements", () => {
     });
     await page.goto(URLs.checkout);
     await checkout.selectPaymentMethod("Offline Payment");
-    await checkout.clickPlaceOrder();
+    await checkout.completeCheckout.click();
+    await checkout.completeCheckout.click();
     await expect(page.getByRole("alert")).toContainText(
       "Please provide the details below in order to proceed."
     );
@@ -70,7 +75,8 @@ test.describe("Verify checkout billing detail requirements", () => {
     });
     await page.goto(URLs.checkout);
     await checkout.selectPaymentMethod("Offline Payment");
-    await checkout.clickPlaceOrder();
+    await checkout.completeCheckout.click();
+    await checkout.completeCheckout.click();
     await expect(page.getByRole("alert")).toContainText(
       "Please provide the details below in order to proceed."
     );

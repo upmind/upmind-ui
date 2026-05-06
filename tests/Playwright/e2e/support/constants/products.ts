@@ -26,5 +26,26 @@ export const products = {
     billingCycle: 12,
     gbpPrice: "£10.00",
     type: "hosting"
+  },
+  TAX_FREE_PRODUCT: {
+    id: "825d96e7-63ed-0913-52eb-417482528340",
+    name: "Tax Free Product",
+    billingCycle: 24,
+    gbpPrice: "£60.00",
+    type: "hosting"
+  },
+  FREE_PRODUCT: {
+    id: "4d036794-24d0-e710-746a-3153698d582e",
+    name: "Free Product",
+    billingCycle: 1,
+    gbpPrice: "£0.00",
+    type: "hosting"
+  },
+  DOMAIN: {
+    id: "825d96e7-63ed-0913-792c-417482528340",
+    name: ".com Domain Registration",
+    billingCycle: 12,
+    gbpPrice: "£12.00",
+    type: "domain"
   }
 };

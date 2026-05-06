@@ -5,6 +5,7 @@ export default {
     variants: {
       overflow: {
         hidden: "overflow-hidden",
+        clip: "overflow-clip",
         visible: "overflow-visible"
       }
     }
