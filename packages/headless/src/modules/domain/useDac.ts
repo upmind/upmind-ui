@@ -48,8 +48,8 @@ export const useDac = (options?: { mode?: DomainTypes }) => {
   // Determine search flow from brand setting, fallback to dac-search (legacy)
   const searchMethod =
     getConfigValue<DomainSearchMethod>(BrandConfigKeys.DOMAIN_SEARCH_METHOD) ??
-    DomainSearchMethod.DAC_SEARCH;
-  const useSuggestions = searchMethod === DomainSearchMethod.DOMAIN_SPINNER;
+    DomainSearchMethod.LEGACY_LOOKUP;
+  const useSuggestions = searchMethod === DomainSearchMethod.SMART_SUGGEST;
 
   const service = interpret(
     dacMachine.withContext({
