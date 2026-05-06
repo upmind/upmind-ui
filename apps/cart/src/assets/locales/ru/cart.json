@@ -23,7 +23,7 @@
   "basket_summary_desc_free": "У вас есть {count} товар в вашей корзине. | У вас есть {count} товары в вашей корзине.",
   "basket_summary_taxes_desc": "У вас есть{count} товар в вашей корзине, итого{total} ({tax} ) | У вас есть{count} товары в вашей корзине, итого{total} ({tax} )",
   "basket_tax_excl": "без учета налогов",
-  "basket_tax_incl": "incl. taxes",
+  "basket_tax_incl": "вкл. налоги",
   "basket_title": "Ваша корзина",
   "change_amount": "Изменить сумму",
   "empty": "Ваша **корзина** пуста",
