@@ -6,6 +6,11 @@ import { waitForSessionCookie } from "../../support/helpers";
 let login: Login;
 
 test.describe("Login", async () => {
+  // The Successful Login tests in both inner describes authenticate as
+  // Logins.checkoutUser, which is also used in
+  // checkout/billing-details/update-billing-details.spec.ts. Serial mode
+  // prevents them from racing against each other on the same staging account.
+  test.describe.configure({ mode: "serial" });
   test.describe("Login via /auth/login", () => {
     test.beforeEach(async ({ page }) => {
       login = new Login(page);
