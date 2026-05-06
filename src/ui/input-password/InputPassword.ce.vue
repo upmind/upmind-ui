@@ -8,25 +8,29 @@
   >
     <template #append>
       <Tooltip v-if="props.generator" :label="props.generateLabel" side="top">
-        <Link
-          :class="styles.inputPassword.action"
-          :focusable="false"
-          :disabled="props.disabled || props.readonly"
-          @click.prevent="onGenerate"
-        >
-          <Icon icon="magic-wand-02" size="2xs" />
-        </Link>
+        <span data-testid="password-generate" class="contents">
+          <Link
+            :class="styles.inputPassword.action"
+            :focusable="false"
+            :disabled="props.disabled || props.readonly"
+            @click.prevent="onGenerate"
+          >
+            <Icon icon="magic-wand-02" size="2xs" />
+          </Link>
+        </span>
       </Tooltip>
 
       <Tooltip :label="unmask ? props.hideLabel : props.showLabel" side="top">
-        <Link
-          :class="styles.inputPassword.toggle"
-          :focusable="false"
-          @click.prevent="unmask = !unmask"
-        >
-          <Icon v-if="unmask" icon="eye-off" size="2xs" />
-          <Icon v-else icon="eye" size="2xs" />
-        </Link>
+        <span data-testid="password-toggle" class="contents">
+          <Link
+            :class="styles.inputPassword.toggle"
+            :focusable="false"
+            @click.prevent="unmask = !unmask"
+          >
+            <Icon v-if="unmask" icon="eye-off" size="2xs" />
+            <Icon v-else icon="eye" size="2xs" />
+          </Link>
+        </span>
       </Tooltip>
     </template>
   </Input>

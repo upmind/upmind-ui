@@ -103,9 +103,7 @@ const message = computed(() => {
 
 // Render the messages slot whenever there's something to show (meter, hint,
 // or error) — avoids reserving space when the field is irrelevant (e.g. login).
-const showMessages = computed(
-  () => showMeter.value || !!message.value
-);
+const showMessages = computed(() => showMeter.value || !!message.value);
 
 function onGenerate() {
   const minLength = control.value?.schema?.minLength ?? 16;
