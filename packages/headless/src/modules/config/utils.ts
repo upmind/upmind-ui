@@ -14,6 +14,7 @@ import {
   find,
   forEach,
   get,
+  includes,
   indexOf,
   isEmpty,
   isPlainObject,
@@ -246,9 +247,21 @@ function parseMeta(
 ): Record<string, unknown> {
   if (!raw || !isPlainObject(raw)) return {};
 
+  const definitions =
+    prefix === META_PREFIX.CONTEXT ? UI_META_DEFINITIONS : DATA_DEFINITIONS;
+
   const mapped = map(raw, (value, key) => {
     const parsed = parseMetaKey(key, prefix, context, viewport);
     if (!parsed) return null;
+
+    // Wildcards (`@context.foo`) mean "apply where applicable" — drop them
+    // when the schema says the setting doesn't apply to the current screen.
+    // Explicit context-targeted keys are already filtered by parseMetaKey.
+    if (parsed.fromWildcard && context && context !== UIContext.ALL) {
+      const definition = get(definitions, parsed.property);
+      if (definition && !includes(definition.contexts, context)) return null;
+    }
+
     return { property: parsed.property, priority: parsed.priority, value };
   });
   const compacted = compact(mapped);
@@ -272,7 +285,7 @@ function parseMetaKey(
   prefix: MetaPrefix,
   context: UIContext | undefined,
   currentViewport?: Viewport
-): { property: string; priority: number } | null {
+): { property: string; priority: number; fromWildcard: boolean } | null {
   // Match: @prefix.[scope.]property[/viewport]
   const pattern = new RegExp(
     `^${prefix}\\.(?:(\\*|[^.]+)\\.)?([^/]+)(?:\\/(\\w+))?$`
@@ -303,7 +316,11 @@ function parseMetaKey(
   const scopeKey = scope === "*" ? "*" : "context";
   const viewportKey = (viewport as Viewport) ?? "all";
 
-  return { property, priority: PRIORITY[scopeKey][viewportKey] };
+  return {
+    property,
+    priority: PRIORITY[scopeKey][viewportKey],
+    fromWildcard: scope === "*"
+  };
 }
 
 /**
