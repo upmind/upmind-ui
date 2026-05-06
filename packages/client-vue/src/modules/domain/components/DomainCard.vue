@@ -47,7 +47,7 @@
         >
           <Skeleton
             v-if="meta.isPriceLoading"
-            class="h-4 w-32"
+            :class="styles.card.skeleton.description"
             data-testid="dac-card-description-loading"
           />
           <DomainDescription
@@ -63,7 +63,10 @@
     <footer :class="styles.card.footer.root">
       <template v-if="meta.isPriceLoading">
         <section :class="styles.card.footer.price.root">
-          <Skeleton class="h-6 w-24" data-testid="dac-card-price-loading" />
+          <Skeleton
+            :class="styles.card.skeleton.price"
+            data-testid="dac-card-price-loading"
+          />
         </section>
       </template>
       <template v-else-if="meta.isUnavailable">
@@ -143,8 +146,10 @@
 
       <Skeleton
         v-if="meta.isPriceLoading"
-        :class="styles.card.footer.button.root"
-        class="button-radius h-11"
+        :class="[
+          styles.card.footer.button.root,
+          styles.card.skeleton.priceButton
+        ]"
         data-testid="dac-card-button-loading"
       />
 
@@ -236,7 +241,8 @@ const styles = useStyles(
     "card.header.details.title",
     "card.footer",
     "card.footer.price",
-    "card.footer.button"
+    "card.footer.button",
+    "card.skeleton"
   ],
   meta,
   config
