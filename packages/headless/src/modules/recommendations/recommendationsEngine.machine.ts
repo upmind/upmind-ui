@@ -86,10 +86,10 @@ export default createMachine(
       },
 
       // Briefly held while the basket is mid-refresh. Entered via the
-      // PROCESSING event forwarded by basketSubscription as soon as the
-      // basket enters its own refreshing.processing state, and exited when
-      // the eventual REFRESH event arrives. Blocks `isReady` so callers
-      // don't read derived state from a stale basket snapshot.
+      // BASKET_PROCESSING event forwarded by basketSubscription as soon as
+      // the basket enters its own refreshing.processing state, and exited
+      // when the eventual REFRESH event arrives. Blocks `isReady` so
+      // callers don't read derived state from a stale basket snapshot.
       syncing: {
         on: {
           REFRESH: [
@@ -114,7 +114,7 @@ export default createMachine(
 
       available: {
         on: {
-          PROCESSING: { target: "syncing" }
+          BASKET_PROCESSING: { target: "syncing" }
         },
         always: {
           target: "unavailable",
@@ -124,7 +124,7 @@ export default createMachine(
 
       unavailable: {
         on: {
-          PROCESSING: { target: "syncing" }
+          BASKET_PROCESSING: { target: "syncing" }
         },
         always: {
           target: "available",
