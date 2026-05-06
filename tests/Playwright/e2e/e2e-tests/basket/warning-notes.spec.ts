@@ -1,12 +1,12 @@
 import { test, expect } from "@playwright/test";
 import { Basket } from "../../support/page-objects/templates/basket";
 import { URLs } from "../../support/constants/urls";
-import { getSessionToken } from "../../support/api/auth";
 import {
+  getSessionToken,
   createOrder,
-  addProductToOrder,
-  overrideWarningNotes
-} from "../../support/api/basket";
+  addProductToOrder
+} from "../../support/api/index";
+import { overrideWarningNotes } from "../../support/mocks/orders";
 import { waitForSessionCookie } from "../../support/helpers/session";
 let basket: Basket;
 
