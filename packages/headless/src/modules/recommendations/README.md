@@ -83,6 +83,88 @@ const { state } = useRecommendationsEngine();
 
 The **Recommendations Engine** module seamlessly integrates into your project with minimal configuration. It handles recommendation-related tasks, ensuring a smooth user experience.
 
+### Authoring Recommendations
+
+A recommendation is a `RelatedProduct` config — sourced either from the `productsToRecommend` data setting or from a product's API-driven `related` array. Two optional properties control its behaviour:
+
+| Property | Controls | If omitted (default) |
+|---|---|---|
+| `conditions` | Whether the recommendation is shown or hidden | Always shown |
+| `inBasketConditions` | Whether `meta.added` is set | `true` when any variant of the rec's product is in the basket |
+
+Both properties use the FE-2655 `ConditionalValue<T>` shape (`default` + `rules` + `when` + `then`). They're evaluated independently — `conditions` decides visibility (hidden recs are filtered out before the consumer sees them), `inBasketConditions` decides the `meta.added` flag for those that survive.
+
+#### `conditions` — show / hide
+
+`ConditionalValue<"visible" | "hidden">`. Author writes rules that produce one of those two values.
+
+```json
+{
+  "object_id": "prod-123",
+  "conditions": {
+    "default": "visible",
+    "rules": [
+      { "when": { "basket.pids": { "$contains": "prod-456" } }, "then": "hidden" }
+    ]
+  }
+}
+```
+
+When omitted the recommendation is shown unconditionally.
+
+#### `inBasketConditions` — drive `meta.added`
+
+`ConditionalValue<boolean>`. Evaluation is **auto-scoped** to basket products whose `product_id` matches the recommendation's `object_id` — authors do not write a "self" reference. Rules that target `basketProduct.*` keys (e.g. `basketProduct.bcm`, `basketProduct.sub_pids`) refine the match against each scoped basket product.
+
+```json
+{
+  "object_id": "prod-123",
+  "inBasketConditions": {
+    "default": false,
+    "rules": [
+      { "when": { "basketProduct.bcm": { "$eq": 12 } }, "then": true }
+    ]
+  }
+}
+```
+
+Resolution rules:
+
+- **Property omitted** — loose product_id match: any variant of the rec's product in the basket sets `meta.added = true`.
+- **Property present, no matching basket products** — `meta.added` falls back to `default`.
+- **Property present, matching basket products exist** — engine evaluates per match; `meta.added = true` if any evaluation resolves to `true`, otherwise `default`.
+
+To disable in-basket detection entirely (e.g. for an addon you can buy multiple of), set `default: false` with empty rules:
+
+```json
+{
+  "object_id": "addon-extra-storage",
+  "inBasketConditions": { "default": false, "rules": [] }
+}
+```
+
+#### Combining both
+
+```json
+{
+  "object_id": "prod-123",
+  "conditions": {
+    "default": "visible",
+    "rules": [
+      { "when": { "basket.pids": { "$contains": "prod-456" } }, "then": "hidden" }
+    ]
+  },
+  "inBasketConditions": {
+    "default": false,
+    "rules": [
+      { "when": { "basketProduct.bcm": { "$eq": 12 } }, "then": true }
+    ]
+  }
+}
+```
+
+Hidden when `prod-456` is in the basket; otherwise shown, with `meta.added` set only when the customer has the annual variant of `prod-123`.
+
 ## API Documentation
 
 There is no specific API documentation available for this module.

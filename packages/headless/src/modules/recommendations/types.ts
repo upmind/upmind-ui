@@ -24,13 +24,6 @@ import type { ConditionalValue } from "../config/types";
  */
 export type RecommendationVisibility = "visible" | "hidden";
 
-export const RECOMMENDATION_MATCH_LEVEL = {
-  PRODUCT_ID: "product_id",
-  PRODUCT_CONFIG: "product_config"
-} as const;
-export type RecommendationMatchLevel =
-  (typeof RECOMMENDATION_MATCH_LEVEL)[keyof typeof RECOMMENDATION_MATCH_LEVEL];
-
 /**
  * Interface representing a promotion applied to a recommendation.
  * This is an internal interface primarily used within the {@link Recommendation} structure.
@@ -241,9 +234,7 @@ export interface RelatedProduct extends IRelatedObject {
   // --- config to be used in adding the recommendation
   /**
    * Optional product configuration (`IProductConfig`) applied when adding
-   * this related product as a recommendation. When `matchLevel` is
-   * `"product_config"`, defined fields here also drive in-basket detection;
-   * undefined fields are unconstrained.
+   * this related product as a recommendation.
    */
   config?: IProductConfig;
   /**
@@ -255,16 +246,18 @@ export interface RelatedProduct extends IRelatedObject {
    */
   benefits?: Benefit[];
   /**
-   * Strategy for matching the recommendation against basket products.
-   * - `"product_id"` (default): hide when any variant of the product is in the basket.
-   * - `"product_config"`: hide when the basket has a product whose `bcm` and
-   *   `sub_pids` match every field defined on `config`. Undefined fields are
-   *   unconstrained, so a recommendation with no `config` reduces to
-   *   `product_id`-equivalent behaviour (hide on any variant).
-   */
-  matchLevel?: RecommendationMatchLevel;
-  /**
    * Conditional visibility rules evaluated against basket state.
+   * Omit for the default behaviour: recommendation is always shown.
    */
   conditions?: ConditionalValue<RecommendationVisibility>;
+  /**
+   * Conditional in-basket detection rules. Drives `meta.added`.
+   *
+   * Evaluation is auto-scoped to basket products whose `product_id` matches
+   * this recommendation's `object_id` — authors don't reference "self".
+   *
+   * Omit for the default loose product_id match: any variant of the
+   * recommendation's product in the basket sets `meta.added = true`.
+   */
+  inBasketConditions?: ConditionalValue<boolean>;
 }
