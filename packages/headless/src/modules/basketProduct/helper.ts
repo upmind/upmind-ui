@@ -49,9 +49,11 @@ export function basketSubscription(callback: any, onReceiveEvent: any) {
       const wasRefreshing = isRefreshing;
       isRefreshing = true;
       // Notify subscribers as soon as the basket starts processing so they
-      // can stage their own state ahead of the eventual REFRESH. Unhandled
-      // events are ignored by xstate, so existing consumers are unaffected.
-      if (!wasRefreshing) callback({ type: "PROCESSING" });
+      // can stage their own state ahead of the eventual REFRESH. Distinct
+      // from `PROCESSING` (which the product machine treats as "I'm being
+      // updated") so we don't accidentally lock unrelated product cards
+      // into processing.updating during a basket-wide refresh.
+      if (!wasRefreshing) callback({ type: "BASKET_PROCESSING" });
     }
 
     // when the basket has been refreshed, then we can forward the refresh event
