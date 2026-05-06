@@ -105,16 +105,23 @@ export const useDomain = (
         stateMatches(dac, "searching") &&
         (query.value?.length ?? 0) > 2,
 
+      // True for the *entire* Load more cycle — covers both the brief
+      // dac.loading sub-state and dac.searching. The page>1 / offset>0 guard
+      // means this never fires for an initial search.
       isSearchingMore:
         stateMatches(state, ["dac"]) &&
-        stateMatches(dac, "searching") &&
+        stateMatches(dac, ["loading", "searching"]) &&
         (query.value?.length ?? 0) > 2 &&
-        pagination.value.offset > 0,
+        (pagination.value.totalPages > 0
+          ? pagination.value.page > 1
+          : pagination.value.offset > 0),
 
       hasMoreSearchResults:
         stateMatches(state, ["dac"]) &&
-        pagination.value.offset + pagination.value.limit <
-          pagination.value.total,
+        (pagination.value.totalPages > 0
+          ? pagination.value.page < pagination.value.totalPages
+          : pagination.value.offset + pagination.value.limit <
+            pagination.value.total),
 
       hasErrors:
         stateMatches(state, ["error", "existing.error", "basket.error"]) ||
@@ -178,14 +185,19 @@ export const useDomain = (
     map(contextValue<DomainProduct[]>(dac, "model"), "domain")
   );
 
-  const search = useContext<DomainContext["search"]>(state, "search");
+  // Pagination state lives on the dac child actor — `setSearchResults`
+  // mutates dac.search, not the parent context. Reading from the parent
+  // would give a stale snapshot (totalPages never updates → no Load more).
+  const search = useContext<DomainContext["search"]>(dac, "search");
 
   const query = useContext<string>(dac, "search.query");
 
   const pagination = computed(() => ({
     offset: search.value?.offset ?? PAGINATION.offset,
     limit: search.value?.limit ?? PAGINATION.limit,
-    total: search.value?.total ?? 0
+    total: search.value?.total ?? 0,
+    page: search.value?.page ?? 1,
+    totalPages: search.value?.totalPages ?? 0
   }));
 
   // --- methods
