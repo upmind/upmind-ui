@@ -13,7 +13,7 @@ import {
   parseRelatedProducts,
   parseRecommendation,
   parseRelationships,
-  checkInBasket
+  isRecommendationInBasket
 } from "./utils";
 import {
   concat,
@@ -439,14 +439,12 @@ export default createMachine(
           const products = basket?.products;
           const related = parseRelatedProducts(basket as IBasket);
           const relationships = parseRelationships(basket as IBasket);
-          const added = products; //parseAddedProducts(related, products);
           return {
             products: raw?.products ?? [],
             related,
             relationships,
             seen: raw?.seen ?? [], // TODO: retrieve from local storage
-            added
-            // added: uniq(concat(raw.added, added)),
+            added: products
           };
         }
       }),
@@ -510,7 +508,7 @@ export default createMachine(
 
               const product = find(raw.products, ["id", rawRelated.object_id]);
               rawRelated.product = product;
-              const added = checkInBasket(rawRelated, raw.added);
+              const added = isRecommendationInBasket(rawRelated, raw.added);
               const seen = includes(raw.seen, rawRelated.id);
               const processing = false;
               const loading = isEmpty(rawRelated.product);
@@ -556,7 +554,7 @@ export default createMachine(
                 rawRelated.product = data;
               }
 
-              const added = checkInBasket(rawRelated, raw.added);
+              const added = isRecommendationInBasket(rawRelated, raw.added);
               const seen = includes(raw.seen, rawRelated.id);
               const processing = false;
               const loading = isEmpty(rawRelated.product);
@@ -592,13 +590,19 @@ export default createMachine(
         { data }: AnyEventObject
       ) => {
         const product = data; //TODO: check / parse the data is a basket item
+        // Scope analytics to addable recommendations — in-basket items are
+        // acknowledgements, not impressions of an offer the customer can act on.
+        const addable = filter(
+          raw.related,
+          rec => !isRecommendationInBasket(rec, raw.added)
+        );
         useDataLayer()
           .dataLayer({
             event: "view_item_list",
             currency: currency?.code,
             item_list_id: "recommendations",
             // item_list_name: "Recommendations",
-            items: raw.related
+            items: addable
           })
           .push();
       },

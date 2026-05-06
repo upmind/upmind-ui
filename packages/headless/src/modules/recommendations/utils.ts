@@ -23,7 +23,6 @@ import {
   isString,
   keys,
   map,
-  reduce,
   some,
   startsWith,
   toSafeInteger
@@ -34,7 +33,6 @@ import { useTranslateField, useTranslateName, useImageUrl } from "../../utils";
 import { ProductTypes } from "@upmind-automation/types";
 import type { IBasket, IBasketProduct } from "@upmind-automation/types";
 import {
-  RECOMMENDATION_MATCH_LEVEL,
   type Recommendation,
   type RelatedProduct,
   type RecommendationVisibility
@@ -103,12 +101,10 @@ function parseProductsToRecommend(
 
   // Filter at source so hidden recommendations don't leak into raw.related
   // (and therefore don't reach pushViewRecommendations or setSeen).
-  // Order matches the design doc: checkInBasket → checkConditionVisibility.
-  return filter(
-    mapped,
-    rec =>
-      !checkInBasket(rec, basketProducts) &&
-      checkConditionVisibility(rec, basket, basketProducts)
+  // In-basket detection is no longer a filter — meta.added is populated
+  // separately by the engine via isRecommendationInBasket.
+  return filter(mapped, rec =>
+    checkConditionVisibility(rec, basket, basketProducts)
   );
 }
 
@@ -154,20 +150,6 @@ export function parseRelationships(raw: IBasket): Record<string, string[]> {
   });
 
   return relationships;
-}
-
-export function parseAddedProducts(
-  related: RelatedProduct[],
-  products: IBasketProduct[]
-): string[] {
-  return reduce(
-    related,
-    (result: string[], item: RelatedProduct) => {
-      if (checkInBasket(item, products)) result.push(item.id);
-      return result;
-    },
-    []
-  );
 }
 
 /**
@@ -241,38 +223,56 @@ export function checkConditionVisibility(
   });
 }
 
-export function checkInBasket(
+/**
+ * Resolves whether a recommendation should be marked as already in the basket.
+ * Drives `meta.added` on the parsed recommendation.
+ *
+ * Auto-scopes evaluation to basket products whose `product_id` matches the
+ * recommendation's `object_id` — authors don't reference "self" in rules.
+ *
+ * - When `inBasketConditions` is omitted, falls back to a loose product_id
+ *   match: true when any variant of the recommendation's product is in the
+ *   basket.
+ * - When present with no matching basket products, returns the rule's
+ *   `default`.
+ * - When present with matching basket products, evaluates per-match; returns
+ *   true if any evaluation resolves to true, otherwise the rule's `default`.
+ *
+ * @param recommendation - The recommendation to evaluate
+ * @param basketProducts - Basket products to check against
+ * @param basket - Optional basket state (only needed if rules reference basket.* keys)
+ * @returns true when the recommendation should be marked as in basket
+ */
+export function isRecommendationInBasket(
   recommendation: RelatedProduct,
-  products: IBasketProduct[]
+  basketProducts: IBasketProduct[],
+  basket?: IBasket
 ): boolean {
-  const matchLevel =
-    recommendation.matchLevel ?? RECOMMENDATION_MATCH_LEVEL.PRODUCT_ID;
+  if (recommendation.object_type !== "product") return false;
 
-  return some(products, product => {
-    const productMatches =
-      product.product_id == recommendation.object_id &&
-      recommendation.object_type == "product";
+  const matchingProducts = filter(
+    basketProducts,
+    bp => bp.product_id === recommendation.object_id
+  );
 
-    if (!productMatches) return false;
+  // Default: loose product_id match.
+  if (!recommendation.inBasketConditions) {
+    return !isEmpty(matchingProducts);
+  }
 
-    // product_id mode: any variant of the product counts as a match.
-    if (matchLevel === RECOMMENDATION_MATCH_LEVEL.PRODUCT_ID) return true;
+  // No matching basket products → fall back to default.
+  if (isEmpty(matchingProducts)) {
+    return recommendation.inBasketConditions.default;
+  }
 
-    // product_config mode: also require bcm + sub_pids alignment.
-    const bcmMatches =
-      !recommendation?.config?.bcm ||
-      recommendation.config.bcm == product.billing_cycle_months;
-
-    const subproductsMatch =
-      isEmpty(recommendation?.config?.sub_pids) ||
-      some(product.options, option =>
-        includes(recommendation.config?.sub_pids, option.product_id)
-      ) ||
-      some(product.attributes, attribute =>
-        includes(recommendation.config?.sub_pids, attribute.product_id)
-      );
-
-    return bcmMatches && subproductsMatch;
+  // Evaluate per matching basket product. true if any resolve to true,
+  // otherwise the default (carried by evaluateRules when no rule fires).
+  return some(matchingProducts, basketProduct => {
+    const state = buildConditionState({
+      basket: basket ?? ({} as IBasket),
+      basketProduct
+    });
+    return evaluateRules<boolean>(recommendation.inBasketConditions!, state);
   });
 }
 
