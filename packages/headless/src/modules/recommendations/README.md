@@ -87,10 +87,10 @@ The **Recommendations Engine** module seamlessly integrates into your project wi
 
 A recommendation is a `RelatedProduct` config — sourced either from the `productsToRecommend` data setting or from a product's API-driven `related` array. Two optional properties control its behaviour:
 
-| Property | Controls | If omitted (default) |
-|---|---|---|
-| `conditions` | Whether the recommendation is shown or hidden | Always shown |
-| `inBasketConditions` | Whether `meta.added` is set | `true` when any variant of the rec's product is in the basket |
+| Property             | Controls                                      | If omitted (default)                                          |
+| -------------------- | --------------------------------------------- | ------------------------------------------------------------- |
+| `conditions`         | Whether the recommendation is shown or hidden | Always shown                                                  |
+| `inBasketConditions` | Whether `meta.added` is set                   | `true` when any variant of the rec's product is in the basket |
 
 Both properties use the FE-2655 `ConditionalValue<T>` shape (`default` + `rules` + `when` + `then`). They're evaluated independently — `conditions` decides visibility (hidden recs are filtered out before the consumer sees them), `inBasketConditions` decides the `meta.added` flag for those that survive.
 
@@ -104,7 +104,10 @@ Both properties use the FE-2655 `ConditionalValue<T>` shape (`default` + `rules`
   "conditions": {
     "default": "visible",
     "rules": [
-      { "when": { "basket.pids": { "$contains": "prod-456" } }, "then": "hidden" }
+      {
+        "when": { "basket.pids": { "$contains": "prod-456" } },
+        "then": "hidden"
+      }
     ]
   }
 }
@@ -121,9 +124,7 @@ When omitted the recommendation is shown unconditionally.
   "object_id": "prod-123",
   "inBasketConditions": {
     "default": false,
-    "rules": [
-      { "when": { "basketProduct.bcm": { "$eq": 12 } }, "then": true }
-    ]
+    "rules": [{ "when": { "basketProduct.bcm": { "$eq": 12 } }, "then": true }]
   }
 }
 ```
@@ -151,14 +152,15 @@ To disable in-basket detection entirely (e.g. for an addon you can buy multiple 
   "conditions": {
     "default": "visible",
     "rules": [
-      { "when": { "basket.pids": { "$contains": "prod-456" } }, "then": "hidden" }
+      {
+        "when": { "basket.pids": { "$contains": "prod-456" } },
+        "then": "hidden"
+      }
     ]
   },
   "inBasketConditions": {
     "default": false,
-    "rules": [
-      { "when": { "basketProduct.bcm": { "$eq": 12 } }, "then": true }
-    ]
+    "rules": [{ "when": { "basketProduct.bcm": { "$eq": 12 } }, "then": true }]
   }
 }
 ```
