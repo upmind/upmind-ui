@@ -72,7 +72,7 @@
   "domain_register_unavailable": "Αυτός ο τομέας δεν είναι διαθέσιμος για εγγραφή",
   "domain_transfer_unavailable": "Αυτός ο τομέας δεν είναι διαθέσιμος για μεταφορά",
   "domain_unavailable": "Αυτός ο τομέας δεν είναι διαθέσιμος",
-  "feedback_action_not_available": "Η ενέργεια με τιμή ‘ {data}’ δεν είναι διαθέσιμη.",
+  "feedback_action_not_available": "Η ενέργεια με τιμή ‘{data}’ δεν είναι διαθέσιμη.",
   "funnel_not_available": "Η διοχέτευση δεν είναι διαθέσιμη",
   "funnels_not_available": "Οι διοχετεύσεις δεν είναι διαθέσιμες",
   "generic_error": "σφάλμα",
