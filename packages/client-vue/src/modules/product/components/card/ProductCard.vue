@@ -82,7 +82,7 @@
         <footer :class="styles.product.footer">
           <Button
             v-bind="action"
-            :loading="loading"
+            :loading="loading || isClicking"
             variant="solid"
             :color="color"
             size="lg"
@@ -98,7 +98,7 @@
 
 <script setup lang="ts">
 // --- external
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -152,6 +152,19 @@ const { t } = useI18n();
 
 const selectedTerm = ref<string | undefined>(
   toString(props.configuration.term)
+);
+
+// Local click intent — set immediately when the user clicks the action button
+// and reset once the parent's `loading`/`recentlyAdded` state takes over.
+// Bridges the click → route-transition gap so the spinner shows instantly,
+// instead of waiting for the funnel guard to flip `pendingMeta.isProcessing`.
+const isClicking = ref(false);
+
+watch(
+  [() => props.loading, () => props.recentlyAdded],
+  ([loading, recentlyAdded]) => {
+    if (loading || recentlyAdded) isClicking.value = false;
+  }
 );
 
 // Auto-add when no configuration is needed. For term-only products auto-add
@@ -281,6 +294,7 @@ const action = computed(() => {
 
 function doResolve() {
   if (!props.id) return;
+  isClicking.value = true;
   emit("resolve", props.id);
 }
 </script>
