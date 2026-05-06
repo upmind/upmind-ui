@@ -19,14 +19,14 @@ test.describe("Terms and Conditions on Registration", () => {
     token = await getSessionToken(context);
   });
   test("No terms and conditions set", async ({ page }) => {
-    await interceptTermsAndConditions(page, token, null, null, null, null);
+    interceptTermsAndConditions(page, token, null, null, null, null);
     await page.goto(URLs.register);
     await waitForSessionCookie(page.context());
     await expect(page.getByTestId("terms-and-conditions")).toBeVisible();
     await expect(page.getByTestId("terms-link")).toHaveCount(0);
   });
   test("Terms and conditions set - Markdown", async ({ page }) => {
-    await interceptTermsAndConditions(
+    interceptTermsAndConditions(
       page,
       token,
       "8d632507-9806-5d1e-36b8-174e234e98d2",
@@ -42,7 +42,7 @@ test.describe("Terms and Conditions on Registration", () => {
     await expect(markdown.markdown).toBeVisible();
   });
   test("Terms and conditions set - URL", async ({ page }) => {
-    await interceptTermsAndConditions(
+    interceptTermsAndConditions(
       page,
       token,
       "47d73824-8507-9315-36f8-1e642d59e063",
