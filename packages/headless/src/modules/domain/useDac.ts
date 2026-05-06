@@ -48,8 +48,8 @@ export const useDac = (options?: { mode?: DomainTypes }) => {
   // Determine search flow from brand setting, fallback to dac-search (legacy)
   const searchMethod =
     getConfigValue<DomainSearchMethod>(BrandConfigKeys.DOMAIN_SEARCH_METHOD) ??
-    DomainSearchMethod.DAC_SEARCH;
-  const useSuggestions = searchMethod === DomainSearchMethod.DOMAIN_SPINNER;
+    DomainSearchMethod.LEGACY_LOOKUP;
+  const useSuggestions = searchMethod === DomainSearchMethod.SMART_SUGGEST;
 
   const service = interpret(
     dacMachine.withContext({
@@ -81,6 +81,12 @@ export const useDac = (options?: { mode?: DomainTypes }) => {
   }
 
   const meta = computed(() => {
+    const usingSuggestions = pagination.value.totalPages > 0;
+    const hasMoreSearchResults = usingSuggestions
+      ? pagination.value.page < pagination.value.totalPages
+      : pagination.value.offset + pagination.value.limit <
+        pagination.value.total;
+
     return {
       isLoading: stateMatches(state, ["subscribing", "loading"]),
       isChecking: stateMatches(state, ["checking"]),
@@ -89,13 +95,16 @@ export const useDac = (options?: { mode?: DomainTypes }) => {
         some(available.value, "meta.processing"),
       isSearching:
         stateMatches(state, "searching") && (query.value?.length ?? 0) > 2,
+      // True for the *entire* Load more cycle — covers both the brief
+      // `loading` sub-state and the `searching` state. The page>1 / offset>0
+      // guard means this never fires for an initial search.
       isSearchingMore:
-        stateMatches(state, "searching") &&
+        stateMatches(state, ["loading", "searching"]) &&
         (query.value?.length ?? 0) > 2 &&
-        pagination.value.offset > 0,
-      hasMoreSearchResults:
-        pagination.value.offset + pagination.value.limit <
-        pagination.value.total,
+        (usingSuggestions
+          ? pagination.value.page > 1
+          : pagination.value.offset > 0),
+      hasMoreSearchResults,
       hasErrors: stateMatches(state, ["error"]),
       isEmpty: isEmpty(model.value),
       hasAdded: !isEmpty(added.value),
@@ -129,7 +138,9 @@ export const useDac = (options?: { mode?: DomainTypes }) => {
   const pagination = computed(() => ({
     offset: search.value?.offset ?? PAGINATION.offset,
     limit: search.value?.limit ?? PAGINATION.limit,
-    total: search.value?.total ?? 0
+    total: search.value?.total ?? 0,
+    page: search.value?.page ?? 1,
+    totalPages: search.value?.totalPages ?? 0
   }));
 
   // --- methods
