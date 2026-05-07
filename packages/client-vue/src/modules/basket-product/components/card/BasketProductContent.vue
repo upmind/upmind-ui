@@ -226,7 +226,7 @@ import { useConfig, type ProductModel } from "@upmind-automation/headless";
 
 // --- utils
 import { isMobile } from "@upmind-automation/upmind-ui";
-import { isEmpty, includes } from "lodash-es";
+import { filter, isEmpty, includes } from "lodash-es";
 
 // --- types
 import type { BasketProductContentProps } from "./types";
@@ -265,33 +265,36 @@ const { ui, data } = useConfig().with({
 const filteredDetails = computed(() => {
   const showOptions = ui.productConfigOptionsSummary.isVisible;
 
-  return props.details.filter((detail, index) => {
-    const { name, cycle, meta } = detail;
-    const isPrimary = index === 0;
-    const isField = name?.includes("provision_field");
-    const isTerm = name === "term";
-    const isProduct = name === "product";
+  return filter<BasketProductContentProps["details"][number]>(
+    props.details,
+    (detail, index) => {
+      const { name, cycle, meta } = detail;
+      const isPrimary = index === 0;
+      const isField = name?.includes("provision_field");
+      const isTerm = name === "term";
+      const isProduct = name === "product";
 
-    // Terms: show only if cycle > 0
-    if (isTerm) return cycle && cycle > 0;
+      // Terms: show only if cycle > 0
+      if (isTerm) return (cycle ?? 0) > 0;
 
-    // Exclude invalid items
-    if (meta?.invalid) return false;
+      // Exclude invalid items
+      if (meta?.invalid) return false;
 
-    // Exclude one-off primary items with no cycle
-    if (isPrimary && !cycle) return false;
+      // Exclude one-off primary items with no cycle
+      if (isPrimary && !cycle) return false;
 
-    // Filter product options
-    if (!showOptions && !isProduct && !isField) return false;
+      // Filter product options
+      if (!showOptions && !isProduct && !isField) return false;
 
-    // For primary or single item lists
-    if (isPrimary || props.details.length === 1) {
-      return !isField;
+      // For primary or single item lists
+      if (isPrimary || props.details.length === 1) {
+        return !isField;
+      }
+
+      // For other items: exclude if in pricing array
+      return !includes(props.pricing, detail.id) && !isField;
     }
-
-    // For other items: exclude if in pricing array
-    return !includes(props.pricing, detail.id) && !isField;
-  });
+  );
 });
 
 function doRemove() {
