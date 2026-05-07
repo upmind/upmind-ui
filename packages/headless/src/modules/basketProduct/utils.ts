@@ -379,7 +379,7 @@ export function resolveOptionToggle(
 }
 
 export function parseOptionUpsells(
-  selectedOptions: IBasketProduct[],
+  selectedOptions: Pick<IBasketProduct, "product_id" | "unit_quantity">[],
   availableOptions?: SubproductDetails[]
 ): BasketUpsellSummary[] {
   if (isEmpty(availableOptions)) return [];

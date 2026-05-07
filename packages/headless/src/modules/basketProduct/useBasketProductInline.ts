@@ -136,7 +136,7 @@ export const useBasketProductInline = (bpid: string) => {
         unit_quantity: choice.quantity
       }))
     );
-    const summaries = parseOptionUpsells(selected as any, availableOptions);
+    const summaries = parseOptionUpsells(selected, availableOptions);
 
     return filter(
       summaries,
