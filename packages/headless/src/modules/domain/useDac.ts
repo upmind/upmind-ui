@@ -9,6 +9,7 @@ import { useI18n } from "../system";
 import { useBrand } from "../brand";
 import { QUERY_PARAMS, useQueryParams } from "../routing";
 import dacMachine from "./dac.machine";
+import { sanitizeDomainInput } from "./utils";
 
 // --- utils
 import { map, isArray, some, isEmpty } from "lodash-es";
@@ -58,7 +59,9 @@ export const useDac = (options?: { mode?: DomainTypes }) => {
       preferredCycle: getParam(QUERY_PARAMS.BILLING_CYCLE_MONTHS),
       coupons: getParams(QUERY_PARAMS.COUPONS),
       search: {
-        query: getParam(QUERY_PARAMS.SEARCH, ""), // Get any initial search query from URL
+        // Sanitize the URL-seeded query so the dac machine + search service
+        // see the same shape they would for a runtime SEARCH event.
+        query: sanitizeDomainInput(getParam(QUERY_PARAMS.SEARCH, "") ?? ""),
         limit: PAGINATION.limit,
         offset: PAGINATION.offset
       }

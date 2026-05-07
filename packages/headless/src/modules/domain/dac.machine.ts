@@ -1097,24 +1097,35 @@ export default createMachine(
     guards: {
       // hasData: (_context, { data }:AnyEventObject) => isObject(data) && !isEmpty(data),
 
+      // Guards sanitize the raw input before validating so that user input
+      // like `.upmind.com` (leading dot) or `https://upmind.com/page` is
+      // treated the same way `setSearchQuery` / `setCheckingDomain` will
+      // store it. Without this, the guard rejects but the assign action
+      // still sanitizes — the query ends up in context with no transition,
+      // and the search call never fires.
       isValidDomain: (_context, { data }: AnyEventObject) =>
-        !isEmpty(parseDomain(data)),
+        !isEmpty(parseDomain(sanitizeDomainInput(data ?? ""))),
 
       hasSearchQuery: (
         { search, mode }: DacContext,
         _event: AnyEventObject
       ) => {
+        // Initial `search.query` comes from the URL param and may not be
+        // sanitized yet (e.g. `?search=.fggg.com`). Sanitize before
+        // validating so the load → searching transition fires on refresh.
+        const query = sanitizeDomainInput(search?.query ?? "");
         if (mode === DomainTypes.transfer) {
-          return !isEmpty(parseDomain(search?.query ?? ""));
+          return !isEmpty(parseDomain(query));
         }
-        const sld = parseSld(search?.query ?? "");
+        const sld = parseSld(query);
         return sld?.length > 2;
       },
       validSearchQuery: ({ mode }: DacContext, { data }: AnyEventObject) => {
+        const sanitized = sanitizeDomainInput(data ?? "");
         if (mode === DomainTypes.transfer) {
-          return !isEmpty(parseDomain(data ?? ""));
+          return !isEmpty(parseDomain(sanitized));
         }
-        const sld = parseSld(data ?? "");
+        const sld = parseSld(sanitized);
         return sld?.length > 2 && sld.length <= 63;
       },
       validSearchOffset: ({ search }: DacContext, _event: AnyEventObject) => {
