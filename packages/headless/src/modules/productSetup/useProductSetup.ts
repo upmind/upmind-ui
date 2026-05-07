@@ -70,6 +70,7 @@ const similarProducts = ref<BasketProduct[]>([]);
 const selected = ref<string[]>([]);
 const processing = ref(false);
 const rawError = ref<ResponseError | ResponseError[] | undefined>();
+let activeSubscription: { unsubscribe: () => void } | undefined;
 
 // -----------------------------------------------------------------------------
 
@@ -78,7 +79,7 @@ export function useProductSetup() {
     products: basketProducts,
     isReady,
     meta: basketMeta,
-    subscribe
+    waitForRefresh
   } = useBasket();
   const { configure } = useBasketProducts();
   const { ui } = useConfig({ context: UIContext.CHECKOUT });
@@ -209,18 +210,6 @@ export function useProductSetup() {
     processing.value = true;
     rawError.value = undefined;
 
-    // Wait for basket to finish refreshing after updateMany
-    const waitForRefresh = (): Promise<void> =>
-      new Promise(resolve => {
-        const subscription = subscribe(state => {
-          // Wait until basket is not in refreshing.processing state
-          if (!stateMatches(state, "shopping.refreshing.processing")) {
-            subscription.unsubscribe();
-            resolve();
-          }
-        });
-      });
-
     return basketProductServices
       .updateMany(basketId.value, updatedProducts, [])
       .then(() => waitForRefresh())
@@ -266,22 +255,31 @@ export function useProductSetup() {
 
   // Capture products with overlapping error paths (for "apply to similar")
   function captureSimilarProducts(): void {
-    if (!bpid.value) similarProducts.value = [];
+    if (!bpid.value) {
+      similarProducts.value = [];
+      return;
+    }
 
     const mode = ui.productSetup.value;
     const current = find(basketProducts.value, { id: bpid.value });
-    if (!current) similarProducts.value = [];
+    if (!current) {
+      similarProducts.value = [];
+      return;
+    }
 
     // Get all error paths from current product
     const currentErrors = get(current, "errors", []) as ErrorObject[];
     const currentErrorPaths = map(currentErrors, "instancePath");
 
-    if (isEmpty(currentErrorPaths)) similarProducts.value = [];
+    if (isEmpty(currentErrorPaths)) {
+      similarProducts.value = [];
+      return;
+    }
 
     // Find other products requiring setup with any overlapping error paths
     similarProducts.value = filter(basketProducts.value, bp => {
       if (bp.id === bpid.value) return false;
-      if (bp.serviceIdentifier === current?.serviceIdentifier) return false;
+      if (bp.serviceIdentifier === current.serviceIdentifier) return false;
       if (!basketProductRequiresSetup(bp, mode)) return false;
 
       const bpErrors = get(bp, "errors", []) as ErrorObject[];
@@ -296,6 +294,8 @@ export function useProductSetup() {
   }
 
   function reset(): void {
+    activeSubscription?.unsubscribe();
+    activeSubscription = undefined;
     bpid.value = undefined;
     schema.value = undefined;
     uischema.value = undefined;
@@ -341,11 +341,18 @@ export function useProductSetup() {
           .then(config => {
             bpid.value = id;
 
+            // Stop any prior subscription so we don't stack listeners across
+            // back-and-forth navigation between basket and setup.
+            activeSubscription?.unsubscribe();
+
             // Capture schemas when transitioning from loading/refreshing states
             let prevStates: string[] = [];
 
-            const subscription = config.service.subscribe(state => {
-              if (state.done) subscription.unsubscribe();
+            activeSubscription = config.service.subscribe(state => {
+              if (state.done) {
+                activeSubscription?.unsubscribe();
+                activeSubscription = undefined;
+              }
 
               const newStates = state.toStrings();
               const isRefreshing = !isEmpty(
@@ -358,7 +365,7 @@ export function useProductSetup() {
                 uischema.value = undefined;
               }
 
-              if (isRefreshing && stateMatches(state, "available")) {
+              if (isEmpty(schema.value) && stateMatches(state, "available")) {
                 captureSchemas(config.service);
                 captureSimilarProducts();
                 selected.value = map(similarProducts.value, "id");

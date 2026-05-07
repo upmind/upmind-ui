@@ -79,7 +79,7 @@ export default {
   },
   hasInvalidProducts: () => {
     const { meta } = useProductSetup();
-    return !meta.value?.isComplete;
+    return meta.value?.isAvailable;
   },
   hasFields: () => {
     const { meta } = useBasket();
