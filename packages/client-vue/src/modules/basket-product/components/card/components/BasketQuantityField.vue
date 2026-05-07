@@ -27,6 +27,9 @@ import { computed } from "vue";
 // --- components
 import { NumberField } from "@upmind-automation/upmind-ui";
 
+// --- utils
+import { isNil } from "lodash-es";
+
 // --- types
 import type { QuantityFieldProps } from "./types";
 
@@ -47,7 +50,7 @@ const decrementAction = computed(() => {
 // --- methods
 
 function doUpdateQuantity(value: number | undefined) {
-  if (value) {
+  if (!isNil(value)) {
     emits("update:quantity", value);
   }
 }
