@@ -124,8 +124,10 @@ async function load(
       "images",
       "prices",
       "products_attributes",
+      "products_attributes.images",
       "products_options",
       "products_options.prices",
+      "products_options.images",
       `category${".top_category".repeat(4)}`,
       "provision_blueprint.category"
     ].join()
