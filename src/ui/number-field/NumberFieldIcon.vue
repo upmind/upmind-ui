@@ -2,7 +2,7 @@
   <Icon
     :icon="icon"
     :size="variant === 'flat' ? '2xs' : 'xs'"
-    :class="variant === 'flat' ? '' : '[&>svg]:p-[1px]'"
+    :class="variant === 'flat' ? '' : '[&>svg]:p-px'"
   />
 </template>
 

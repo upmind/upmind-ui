@@ -12,6 +12,7 @@
         :label="props.label"
         :loading="props.loading"
         :placeholder="props.placeholder"
+        :size="props.size"
         :data-hover="props.dataHover"
         :data-focus="props.dataFocus"
         focusable

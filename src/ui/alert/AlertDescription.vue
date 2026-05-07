@@ -11,7 +11,7 @@ const props = defineProps<{
   <p
     :class="
       cn(
-        'flex flex-wrap items-baseline justify-between gap-2 text-sm [&_p]:leading-relaxed',
+        'flex flex-wrap items-end justify-between gap-2 text-sm [&_p]:leading-relaxed',
         props.class
       )
     "
