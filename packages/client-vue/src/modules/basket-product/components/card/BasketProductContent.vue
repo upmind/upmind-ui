@@ -49,7 +49,7 @@
         <hgroup :class="styles.product.summary.title.root">
           <div :class="styles.product.summary.title.group">
             <Link
-              v-bind="props.editRoute"
+              v-bind="productDetails.readonly ? null : props.editRoute"
               offset="2"
               :class="styles.product.summary.title.link"
             >
@@ -150,7 +150,7 @@
       <div :class="styles.product.summary.footer.terms.root">
         <div :class="styles.product.summary.footer.terms.controls">
           <BasketQuantityField
-            v-if="productDetails.quantifiable"
+            v-if="productDetails.quantifiable && !productDetails.readonly"
             v-bind="productDetails"
             :id="id"
             v-model:quantity="quantity"
@@ -159,7 +159,7 @@
           />
 
           <Button
-            v-else
+            v-else-if="!productDetails.readonly"
             icon="trash-02"
             variant="control"
             color="neutral"
@@ -172,7 +172,11 @@
           />
 
           <BasketProductTermSelector
-            v-if="props.inlineMeta?.showTermSelector && props.terms"
+            v-if="
+              props.inlineMeta?.showTermSelector &&
+              props.terms &&
+              !productDetails.readonly
+            "
             :terms="props.terms"
             v-model="term"
             :disabled="error || !isEmpty(props.configErrors)"
