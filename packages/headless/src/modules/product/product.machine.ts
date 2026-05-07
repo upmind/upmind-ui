@@ -547,33 +547,7 @@ export default createMachine(
         rawProvisionFields: (
           { rawProvisionFields },
           { data }: AnyEventObject
-        ) => data?.rawProvisionFields ?? rawProvisionFields ?? {},
-        basketErrors: (
-          { basketErrors, baseModel }: ProductConfigContext,
-          { data }: AnyEventObject
-        ) => {
-          // Change in Logic...if we have interacted with the product,
-          // we can clear any external errors for fields that have changed.
-          if (!isArray(basketErrors)) return basketErrors;
-
-          const newModel = data?.model ?? data;
-          const remaining = filter(basketErrors, error => {
-            const field = compact(
-              split(trimStart(error.instancePath, "/"), "/")
-            );
-            const baseValue = get(baseModel, field);
-            const newValue = get(newModel, field);
-
-            // Treat all nilish/empty values as equivalent — the user
-            // hasn't meaningfully changed a field that went from
-            // undefined → null → "" etc.
-            if (!baseValue && !newValue) return true;
-
-            return isEqual(baseValue, newValue);
-          });
-
-          return isEmpty(remaining) ? undefined : remaining;
-        }
+        ) => data?.rawProvisionFields ?? rawProvisionFields ?? {}
       }),
 
       // restroring the model + errors to its prev state
