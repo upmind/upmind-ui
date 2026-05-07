@@ -25,6 +25,7 @@ export class Checkout {
   readonly phoneInput: Locator;
   readonly phoneRegion: Locator;
   readonly paymentDetails: Locator;
+  readonly expandPaymentDetails: Locator;
   readonly saveDetails: Locator;
   readonly addVoucherForm: Locator;
   readonly addVoucherButton: Locator;
@@ -32,9 +33,8 @@ export class Checkout {
   readonly addVoucherMessage: Locator;
   readonly applyVoucherButton: Locator;
   readonly dialogWindow: Locator;
-  readonly accountCreditCheckbox: Locator;
-  readonly placeOrderAndPay: Locator;
-  readonly placeOrder: Locator;
+  readonly accountCredit: Locator;
+  readonly completeCheckout: Locator;
   readonly payAmount: Locator;
   readonly changeAmountButton: Locator;
   readonly changeAmountForm: Locator;
@@ -53,7 +53,6 @@ export class Checkout {
   constructor(page: Page) {
     this.page = page;
     this.textInputComponent = new TextInput(page);
-
     this.checkoutContent = this.page.getByTestId("checkout-content");
     this.basketSummary = this.page.getByTestId("section-summary");
     this.billingDetails = this.page.getByTestId("section-billing-details");
@@ -62,7 +61,7 @@ export class Checkout {
     this.addNewAddress = this.page.getByTestId("link-add-address");
     this.addNewCompany = this.page.getByTestId("link-add-company");
     this.addNewPhone = this.page.getByTestId("link-add-number");
-    this.addressSearch = this.page.getByTestId("input-address-search-search");
+    this.addressSearch = this.page.getByTestId("input-search");
     this.addressFormMessage = this.page.getByTestId(
       "form-item-message-address"
     );
@@ -83,6 +82,7 @@ export class Checkout {
     this.phoneRegion = this.phone.getByTestId("popover-trigger");
     this.phoneInput = this.textInputComponent.getTextInputField(this.phone);
     this.paymentDetails = this.page.getByTestId("payment-details");
+    this.expandPaymentDetails = this.page.getByTestId("link-show-more-options");
     this.saveDetails = this.page.getByTestId("button-save-details");
     this.addVoucherForm = this.page.getByTestId("form-item-promocode");
     this.addVoucherButton = this.page.getByTestId("link-add-a-voucher-code");
@@ -94,11 +94,8 @@ export class Checkout {
     );
     this.applyVoucherButton = this.page.getByTestId("button-apply");
     this.dialogWindow = this.page.getByTestId("dialog-window");
-    this.accountCreditCheckbox = this.page.getByTestId(
-      "checkbox-item-account-credit"
-    );
-    this.placeOrderAndPay = this.page.getByTestId("button-place-order-and-pay");
-    this.placeOrder = this.page.getByTestId("button-place-order");
+    this.accountCredit = this.page.getByTestId("account-credit");
+    this.completeCheckout = this.page.getByTestId("button-complete-checkout");
     this.payAmount = this.page
       .getByTestId("payment-details")
       .getByRole("heading", { level: 4 });
@@ -135,7 +132,20 @@ export class Checkout {
     if (phoneInput != null) {
       await this.phoneInput.fill(phoneInput);
     }
-    await this.saveDetails.click();
+    await this.clickSaveDetails();
+  }
+  async clickSaveDetails() {
+    for (let attempt = 0; attempt < 5; attempt++) {
+      if (!(await this.billingDetails.isHidden())) return;
+      await this.saveDetails.click();
+      try {
+        await this.billingDetails.waitFor({ state: "hidden", timeout: 2000 });
+        return;
+      } catch {
+        // modal still open, try again
+      }
+    }
+    throw new Error("Billing details modal did not close after 5 clicks");
   }
 
   async getPaymentMethod(gatewayName: string) {
@@ -146,34 +156,39 @@ export class Checkout {
 
   async selectPaymentMethod(gatewayName: string) {
     await expect(this.paymentDetails).toBeVisible({ timeout: 30000 });
+    if (await this.expandPaymentDetails.isVisible()) {
+      await this.expandPaymentDetails.click();
+    }
     await this.page.waitForLoadState("domcontentloaded");
     await this.page.getByTestId(`radio-card-${kebabCase(gatewayName)}`).click();
   }
 
-  async clickPlaceOrderAndPay() {
-    const placeOrderButton = this.placeOrderAndPay;
-    await expect(placeOrderButton).toBeEnabled();
-    const currentUrl = this.page.url();
-    const pollForDisabled = expect
-      .poll(
-        async () => {
-          await placeOrderButton.click();
-          return await placeOrderButton.isDisabled();
-        },
-        { timeout: 10000, intervals: [500, 1000, 2000] }
-      )
-      .toBe(true);
-    const waitForNavigation = this.page.waitForURL(
-      url => url.toString() !== currentUrl,
-      { timeout: 10000 }
-    );
-    await Promise.race([pollForDisabled, waitForNavigation]);
-  }
-
-  async clickPlaceOrder() {
-    const placeOrderButton = this.placeOrder;
-    await expect(placeOrderButton).toBeEnabled();
-    await placeOrderButton.click();
+  async clickCompleteCheckout() {
+    const checkoutUrlPattern = /\/order\/checkout/;
+    const confirmationUrlPattern = /\/order\/.+\/\?payment_/;
+    const modal = this.page.getByTestId("dialog-window");
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const currentUrl = this.page.url();
+      if (confirmationUrlPattern.test(currentUrl)) return;
+      if (!checkoutUrlPattern.test(currentUrl)) continue;
+      try {
+        if (await modal.isVisible()) return;
+      } catch {
+        continue;
+      }
+      try {
+        await this.completeCheckout.click({ timeout: 2000 });
+      } catch {
+        continue;
+      }
+      try {
+        await this.page.waitForURL(confirmationUrlPattern, { timeout: 5000 });
+        return;
+      } catch {
+        continue;
+      }
+    }
+    throw new Error("Clicking 'Place Order' didn't work");
   }
 
   async clickConfirmAmount() {
@@ -222,11 +237,12 @@ export class Checkout {
     const stripeFrame = this.page.frameLocator(
       'iframe[title="Secure payment input frame"]'
     );
-    await stripeFrame.getByRole("button").getByText("iDEAL").click();
+    await stripeFrame.getByRole("button").getByText("iDEAL | Wero").click();
     await stripeFrame.getByRole("textbox", { name: "email" }).fill(email);
     await stripeFrame
       .getByRole("textbox", { name: "full name" })
       .fill(fullName);
+    await this.page.keyboard.press("Tab"); // clicking complete while focus is in the iframe causes a failure for unknown reasons
   }
 
   async interceptPaymentResponse() {

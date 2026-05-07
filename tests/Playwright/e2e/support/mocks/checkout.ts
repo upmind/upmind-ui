@@ -55,3 +55,41 @@ export async function mockCorsPreflightRequests(page: Page) {
     }
   });
 }
+
+export async function mockPaymentSuccess(page: Page) {
+  await page.route("**/api/payments**", async route => {
+    const request = route.request();
+
+    if (route.request().method() === "OPTIONS") {
+      await route.fallback();
+      return;
+    }
+
+    if (request.method() === "POST") {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        headers: {
+          "Access-Control-Allow-Origin": request.headers()["origin"] || "*",
+          "Access-Control-Allow-Credentials": "true"
+        },
+        body: JSON.stringify({
+          data: {
+            transaction_status: "OK",
+            transaction_type: 1,
+            approval_url: null,
+            transaction_id: "ch_MOCKED"
+          },
+          related: null,
+          total: null,
+          error: null,
+          messages: [],
+          meta: null
+        })
+      });
+      return;
+    }
+
+    await route.continue();
+  });
+}

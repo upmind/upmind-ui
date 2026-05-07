@@ -25,15 +25,27 @@
   "auth_password": {
     "error": {
       "min_length": "Password must be at least 8 characters",
-      "min_length_lowercase": "Password must be at least 8 characters and contain a lowercase letter",
-      "min_length_lowercase_number": "Password must be at least 8 characters, contain a lowercase letter, and a number",
+      "min_length_letter": "Password must be at least 8 characters and contain a letter",
+      "min_length_letter_number": "Password must be at least 8 characters, contain a letter, and a number",
+      "min_length_letter_number_symbol": "Password must be at least 8 characters, contain a letter, a number, and a symbol",
+      "min_length_letter_symbol": "Password must be at least 8 characters, contain a letter, and a symbol",
       "min_length_number": "Password must be at least 8 characters and contain a number",
-      "missing_lowercase": "Password must contain a lowercase letter",
-      "missing_lowercase_number": "Password must contain a lowercase letter and a number",
-      "missing_number": "Password must contain a number"
+      "min_length_number_symbol": "Password must be at least 8 characters, contain a number, and a symbol",
+      "min_length_symbol": "Password must be at least 8 characters and contain a symbol",
+      "missing_letter": "Password must contain a letter",
+      "missing_letter_number": "Password must contain a letter and a number",
+      "missing_letter_number_symbol": "Password must contain a letter, a number, and a symbol",
+      "missing_letter_symbol": "Password must contain a letter and a symbol",
+      "missing_number": "Password must contain a number",
+      "missing_number_symbol": "Password must contain a number and a symbol",
+      "missing_symbol": "Password must contain a symbol"
     },
+    "generate": "Generate a strong password",
+    "hide": "Hide password",
+    "hint": "Password must be at least 8 characters and include a letter, a number, and a symbol.",
     "label": "Password",
-    "placeholder": "Password or passphrase"
+    "placeholder": "Password or passphrase",
+    "show": "Show password"
   },
   "card_cvv": {
     "error": "A valid CVV is required",

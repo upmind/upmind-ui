@@ -2,6 +2,7 @@ import { test, expect } from "@playwright/test";
 import { URLs } from "../support/constants/urls";
 import { setLocale } from "../support/helpers/locale";
 import { Languages as languages } from "../support/constants/languages";
+import { waitForSessionCookie } from "../support/helpers";
 
 for (const { language, locale } of languages) {
   test.describe(`Registration Page Visual Regression Tests - ${language}`, () => {
@@ -22,7 +23,7 @@ for (const { language, locale } of languages) {
     test("Registration Page", async ({ page }) => {
       await page.goto(URLs.register);
       await setLocale(page, locale);
-      await page.waitForLoadState("networkidle");
+      await waitForSessionCookie(page.context());
       await expect(page).toHaveScreenshot(`${language}/registration`);
     });
   });
