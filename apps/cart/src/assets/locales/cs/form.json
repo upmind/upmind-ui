@@ -25,15 +25,27 @@
   "auth_password": {
     "error": {
       "min_length": "Heslo musí mít alespoň 8 znaků.",
-      "min_length_lowercase": "Heslo musí mít alespoň 8 znaků a obsahovat malé písmeno.",
-      "min_length_lowercase_number": "Heslo musí mít alespoň 8 znaků, obsahovat malé písmeno a číslici",
+      "min_length_letter": "Heslo musí mít alespoň 8 znaků a obsahovat písmeno",
+      "min_length_letter_number": "Heslo musí mít alespoň 8 znaků a musí obsahovat jedno písmeno a jednu číslici",
+      "min_length_letter_number_symbol": "Heslo musí mít alespoň 8 znaků a musí obsahovat písmeno, číslici a znak",
+      "min_length_letter_symbol": "Heslo musí mít alespoň 8 znaků a musí obsahovat jedno písmeno a jeden symbol",
       "min_length_number": "Heslo musí mít alespoň 8 znaků a obsahovat číslo.",
-      "missing_lowercase": "Heslo musí obsahovat malé písmeno",
-      "missing_lowercase_number": "Heslo musí obsahovat malé písmeno a číslo.",
-      "missing_number": "Heslo musí obsahovat číslo"
+      "min_length_number_symbol": "Heslo musí mít alespoň 8 znaků a musí obsahovat číslici a speciální znak",
+      "min_length_symbol": "Heslo musí mít alespoň 8 znaků a obsahovat speciální znak",
+      "missing_letter": "Heslo musí obsahovat písmeno",
+      "missing_letter_number": "Heslo musí obsahovat jedno písmeno a jednu číslici",
+      "missing_letter_number_symbol": "Heslo musí obsahovat písmeno, číslici a znak",
+      "missing_letter_symbol": "Heslo musí obsahovat jedno písmeno a jeden znak",
+      "missing_number": "Heslo musí obsahovat číslo",
+      "missing_number_symbol": "Heslo musí obsahovat číslici a znak",
+      "missing_symbol": "Heslo musí obsahovat speciální znak"
     },
+    "generate": "Vytvořte silné heslo",
+    "hide": "Skrýt heslo",
+    "hint": "Heslo musí mít alespoň 8 znaků a musí obsahovat písmeno, číslici a znak.",
     "label": "Heslo",
-    "placeholder": "Heslo nebo přístupová fráze"
+    "placeholder": "Heslo nebo přístupová fráze",
+    "show": "Zobrazit heslo"
   },
   "card_cvv": {
     "error": "Je vyžadován platný CVV",

@@ -16,11 +16,11 @@ import {
   getSessionToken,
   registerClient
 } from "../support/api/index";
+import { waitForSessionCookie } from "../support/helpers/session";
 
 let context: BrowserContext;
 let productConfig: ProductConfig;
 let basket: Basket;
-
 let checkout: Checkout;
 let confirmation: Confirmation;
 
@@ -60,7 +60,7 @@ test.describe("Promotions", () => {
     test("Promotion on all billing terms", async ({ page }) => {
       mockPromos(page.context(), "/api/basket/products/", {}, "all", "prices");
       await page.goto(URLs.starterHosting);
-      await page.waitForLoadState("networkidle");
+      await expect(page.getByText("Billing Term ")).toBeVisible();
       await productConfig.promoBadgeExists("Monthly");
       await productConfig.promoBadgeExists("Annually");
       await productConfig.promoBadgeExists("Biennially");
@@ -68,7 +68,7 @@ test.describe("Promotions", () => {
     test("Promotion on a single billing term", async ({ page }) => {
       mockPromos(page.context(), "/api/basket/products/", {}, 12, "prices");
       await page.goto(URLs.starterHosting);
-      await page.waitForLoadState("networkidle");
+      await expect(page.getByText("Billing Term ")).toBeVisible();
       await productConfig.promoBadgeDoesNotExist("Monthly");
       await productConfig.promoBadgeExists("Annually");
       await productConfig.promoBadgeDoesNotExist("Biennially");
@@ -89,11 +89,11 @@ test.describe("Promotions", () => {
         .getByTestId("accordion-content")
         .locator("input")
         .fill("promospromospromos");
-      await expect(
-        page
-          .getByTestId("checkbox-item-promospromospromos-com")
-          .getByTestId("badge")
-      ).toBeVisible();
+      const dacCards = page.getByTestId("dac-card");
+      await expect(dacCards.first()).toBeVisible();
+      for (const card of await dacCards.all()) {
+        await expect(card.getByTestId("badge")).toBeVisible();
+      }
     });
     test("Promotions DAC Widget", async ({ page }) => {
       mockPromos(
@@ -104,11 +104,11 @@ test.describe("Promotions", () => {
         "prices"
       );
       await page.goto(`${URLs.domainWidget}&search=promospromospromos`);
-      await expect(
-        page
-          .getByTestId("checkbox-item-promospromospromos-com")
-          .getByTestId("badge")
-      ).toBeVisible();
+      const dacCards = page.getByTestId("dac-card");
+      await expect(dacCards.first()).toBeVisible();
+      for (const card of await dacCards.all()) {
+        await expect(card.getByTestId("badge")).toBeVisible();
+      }
     });
     test("Promotions DAC Page", async ({ page }) => {
       mockPromos(
@@ -119,12 +119,12 @@ test.describe("Promotions", () => {
         "prices"
       );
       await page.goto(`${URLs.domainSearch}?search=promospromospromos`);
-      await page.waitForLoadState("networkidle");
-      await expect(
-        page
-          .getByTestId("checkbox-item-promospromospromos-com")
-          .getByTestId("badge")
-      ).toBeVisible();
+      await expect(page.getByTestId("dac-results")).toBeVisible();
+      const dacCards = page.getByTestId("dac-card");
+      await expect(dacCards.first()).toBeVisible();
+      for (const card of await dacCards.all()) {
+        await expect(card.getByTestId("badge")).toBeVisible();
+      }
     });
   });
   test.describe("Promotion displayed on Catalogue", () => {
@@ -148,14 +148,14 @@ test.describe("Promotions", () => {
     test.beforeEach(async ({ page, context }) => {
       const domain = `${fakerEN_GB.string.alphanumeric({ length: 15 })}.com`;
       await page.goto("/");
-      await page.waitForLoadState("networkidle");
+      await waitForSessionCookie(context);
       let token = await getSessionToken(context);
       let order = await createOrder(token);
       let orderId = order.id;
       await addProductToOrder(
         token,
         orderId,
-        products.OPTIONAL_TRIAL_PRODUCT.id,
+        products.STARTER_HOSTING.id,
         1,
         24,
         [],
@@ -213,19 +213,7 @@ test.describe("Promotions", () => {
     test.beforeEach(async ({ page, context }) => {
       checkout = new Checkout(page);
       await page.goto("/");
-      await expect
-        .poll(
-          async () => {
-            const cookies = await context.cookies();
-            return cookies.some(
-              c =>
-                c.name === "upm_guest_session" ||
-                c.name === "upm_client_session"
-            );
-          },
-          { timeout: 30000 }
-        )
-        .toBeTruthy();
+      await waitForSessionCookie(context);
       let guestToken = await getSessionToken(context);
       let user = await registerClient(guestToken);
       let username = user.email;
@@ -266,15 +254,7 @@ test.describe("Promotions", () => {
       checkout = new Checkout(page);
       confirmation = new Confirmation(page);
       await page.goto(URLs.catalogueRoot1);
-      await expect
-        .poll(
-          async () => {
-            const cookies = await context.cookies();
-            return cookies.some(c => c.name === "upm_guest_session");
-          },
-          { timeout: 30000 }
-        )
-        .toBeTruthy();
+      await waitForSessionCookie(context, { guestOnly: true });
       let guestToken = await getSessionToken(context);
       let user = await registerClient(guestToken);
       let username = user.email;
@@ -288,8 +268,8 @@ test.describe("Promotions", () => {
       );
       await expect(page.getByText("Secure checkout")).toBeVisible();
       await checkout.selectPaymentMethod("Direct Bank Transfer");
-      await checkout.clickPlaceOrder();
-      await expect(page.getByText("Order complete!")).toBeVisible();
+      await checkout.clickCompleteCheckout();
+      await expect(page.getByText("Order confirmed")).toBeVisible();
       await expect(page.getByText("Discount")).toBeVisible();
     });
   });
