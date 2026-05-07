@@ -66,6 +66,53 @@ const isEmptyParam = (value: unknown): boolean =>
 // -----------------------------------------------------------------------------
 
 /**
+ * Builds a `priceLoading` placeholder row for the exact-match domain while
+ * `/availability` is in flight. Reserves the top of the list so the suggestion
+ * data never leaks through with conflicting flags (e.g. transfer-able from
+ * suggestions but actually unavailable per availability). The merge in
+ * `setSearchResults` upgrades this row in place once the authoritative
+ * availability-derived version arrives (`checkedAvailability=true`).
+ */
+function buildExactMatchPlaceholder(
+  rawDomain: string,
+  sld: string,
+  tld?: string
+): DomainProduct {
+  const parsed = parseDomain(rawDomain);
+  return {
+    domain: parsed?.domain ?? rawDomain,
+    sld: parsed?.sld ?? sld,
+    tld: parsed?.tld ?? tld ?? "",
+    configuration: {
+      productId: "",
+      term: 12,
+      quantity: 1,
+      provisionFields: { sld }
+    },
+    price: {
+      currentPrice: "",
+      currentAmount: 0,
+      regularPrice: "",
+      regularAmount: 0,
+      savingAmount: 0,
+      savingPrice: "",
+      savingPercent: ""
+    },
+    meta: {
+      exactMatch: true,
+      priceLoading: true
+    },
+    productDetails: {
+      id: "",
+      title: rawDomain,
+      name: tld ?? ""
+    },
+    pricing: [],
+    details: []
+  } as unknown as DomainProduct;
+}
+
+/**
  * Builds a DomainProduct from an availability response.
  * Used in transfer mode where there are no suggestions — only a single
  * availability check that returns product data.
@@ -130,7 +177,11 @@ function buildDomainProductFromAvailability(
     } as unknown as DomainProduct;
   }
 
-  // Fallback when product is missing (unavailable domains)
+  // Fallback when product is missing (no `product_id` in /availability).
+  // Without a product we have no sub_pids, no real price, and the basket
+  // call would fail — so the row is treated as **fully unavailable**
+  // regardless of the API's `can_register` / `can_transfer` flags. The
+  // user can't act on it from this surface.
   // Use availability.product to avoid TS narrowing (product is `never` after the early return)
   const { price, billingCycleMonths } = buildFallbackPricing(
     (availability.product as any)?.prices ?? [],
@@ -149,11 +200,11 @@ function buildDomainProductFromAvailability(
     },
     price,
     meta: {
-      available: availability.can_register,
-      canTransfer: !availability.can_register && availability.can_transfer,
-      unavailable: !availability.can_register && !availability.can_transfer,
+      available: false,
+      canTransfer: false,
+      unavailable: true,
       checkedAvailability: true,
-      disabled: !availability.can_register && !availability.can_transfer,
+      disabled: true,
       exactMatch: true
     },
     productDetails: {
@@ -285,8 +336,7 @@ function search(context: DacContext) {
       let data: DomainProduct[] = parseSuggestions(
         suggestionsList ?? [],
         productsMap,
-        preferredCycle,
-        "register"
+        preferredCycle
       );
 
       data = map(data, item => ({
@@ -294,14 +344,25 @@ function search(context: DacContext) {
         meta: { ...item.meta, exactMatch: false as boolean }
       }));
 
-      if (exactDomain && availabilityData) {
+      if (exactDomain) {
+        // The exact-match row is always reserved for /availability — even
+        // if /suggestions happens to return it, drop the suggestion-derived
+        // version. We render a priceLoading placeholder until /availability
+        // resolves, then replace it with the authoritative version.
         data = reject(data, ["domain", exactDomain]) as DomainProduct[];
-        const exactProduct = buildDomainProductFromAvailability(
-          rawExactDomain!,
-          availabilityData,
-          preferredCycle
-        );
-        data.unshift(exactProduct as any);
+
+        if (availabilityData) {
+          const exactProduct = buildDomainProductFromAvailability(
+            rawExactDomain!,
+            availabilityData,
+            preferredCycle
+          );
+          data.unshift(exactProduct as any);
+        } else {
+          data.unshift(
+            buildExactMatchPlaceholder(rawExactDomain!, sld, tld) as any
+          );
+        }
       }
 
       return {
@@ -546,10 +607,12 @@ async function addDomainToBasket(context: DacContext) {
     const status = error?.code ?? error?.status ?? error?.response?.status;
     const errorData = error?.data ?? error?.response?.data;
 
-    // Try to extract the domain-specific error code from every possible location.
-    // The raw API response has: { error: { code: "web_hosting::..." } }
-    // After processing through handleError, the code may survive in nested paths.
+    // Try to extract the domain-specific error code. Prefer `apiCode` —
+    // `handleError` preserves the API's structured `error.code` there
+    // (e.g. `"web_hosting::domain_register_only"`). The other paths cover
+    // edge cases where the error didn't go through the standard pipeline.
     const errorCode =
+      error?.apiCode ??
       errorData?.error?.code ??
       error?.error?.code ??
       error?.response?.data?.error?.code ??
