@@ -12,6 +12,14 @@ interface ConfigOverrides {
   requireRegionInAddress?: boolean;
   requirePhoneForOrders?: boolean;
   displayPriceType?: string;
+  /**
+   * Selects which domain search flow `useDac` uses.
+   *   - `"legacy-lookup"` → single `/modules/web_hosting/domains/search` call
+   *   - `"smart-suggest"` → split `/suggestions` + `/suggestions/tlds` (+ `/availability` for exact match)
+   *
+   * Maps to brand config key `provisioning.domain_names.search_method`.
+   */
+  domainSearchMethod?: "legacy-lookup" | "smart-suggest";
 }
 
 /**
@@ -68,6 +76,11 @@ export async function interceptConfigValues(
         overrides.requirePhoneForOrders;
       json.data["invoices.common.display_price_type"] =
         overrides.displayPriceType;
+      // Conditional — leave the existing brand value alone unless caller overrides
+      if (overrides.domainSearchMethod !== undefined) {
+        json.data["provisioning.domain_names.search_method"] =
+          overrides.domainSearchMethod;
+      }
       const updatedResponseBody = {
         ...json
       };
