@@ -78,7 +78,7 @@ export const rootVariants = cva(
         variant: "control",
         color: ["primary", "secondary", "neutral", "danger"],
         class:
-          "control-radius shadow-control-default hover:not(:disabled):border-control-hover ring-control-ring!"
+          "control-radius bg-control-surface shadow-control-default [&:hover:not(:disabled),&:focus-within:not(:disabled),&[data-hover=true]:not([data-disabled=true]),&[data-focus=true]:not([data-disabled=true])]:shadow-control-hover ring-control-ring! [&_i]:text-muted [&_i]:transition-colors [&_i]:duration-200 [&:hover:not(:disabled)_i,&:focus-within:not(:disabled)_i,&[data-hover=true]:not([data-disabled=true])_i,&[data-focus=true]:not([data-disabled=true])_i]:text-base"
       },
       {
         variant: "solid",
