@@ -57,6 +57,7 @@ const { isReady: isBasketReady } = useBasket();
 
 const {
   apply,
+  reset,
   getNextRequiringSetup,
   isReady: isSetupReady
 } = useProductSetup();
@@ -90,7 +91,7 @@ function onReject() {
 
 // --- side Effects
 onUnmounted(() => {
-  useHeader({});
+  (reset(), useHeader({}));
   useLayout({});
   useFooter({});
 });
