@@ -18,7 +18,7 @@ export const toggleVariants = cva("", {
   }
 });
 
-export const strengthRootVariants = cva("mt-3 space-y-2");
+export const strengthRootVariants = cva("mt-1 space-y-2");
 
 export const barsVariants = cva("flex gap-1");
 
