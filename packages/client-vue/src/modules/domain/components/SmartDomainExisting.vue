@@ -141,7 +141,11 @@ const debouncedEmit = debounce(
 );
 
 function onSearch(value: string | number) {
-  if (!value) return debouncedEmit.cancel();
+  if (!value) {
+    debouncedEmit.cancel();
+    emit("update:modelValue", "");
+    return;
+  }
   debouncedEmit(value.toString());
 }
 
