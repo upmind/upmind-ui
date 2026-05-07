@@ -48,12 +48,14 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 // --- internal
 import { useBasketProducts, useBrand } from "@upmind-automation/headless";
 import { useStyles } from "@upmind-automation/upmind-ui";
-import BasketProduct from "./BasketProduct.vue";
 import config from "./basketProduct.config";
 
 // --- components
-import { every, reduce, set } from "lodash-es";
+import BasketProduct from "./BasketProduct.vue";
 import BasketProductSkeleton from "./BasketProductSkeleton.vue";
+
+// --- utils
+import { every, reduce, set } from "lodash-es";
 
 // --- types
 import { type BasketProductCardsProps } from "./types";

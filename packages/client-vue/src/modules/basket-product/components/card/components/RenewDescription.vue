@@ -1,10 +1,10 @@
 <template>
   <!-- e.g. "Renews every month." or "One-time payment." -->
-  <p :class="styles.product.summary.renew.renews">
+  <p v-if="!isNil(props.cycle)" :class="styles.product.summary.renew.renews">
     {{
       t("term.renews_msg", {
         n: props.cycle,
-        cycle: parseBillingCycle(props.cycle!).descriptive
+        cycle: parseBillingCycle(props.cycle).descriptive
       })
     }}.
   </p>
@@ -37,6 +37,7 @@ import config from "../basketProduct.config";
 
 // --- types
 import type { RenewDescriptionProps } from "./types";
+import { isNil } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
