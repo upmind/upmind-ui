@@ -36,10 +36,12 @@
         :model-value="model"
         :items="available || []"
         :offset="pagination.offset"
+        :has-more="meta.hasMoreSearchResults"
         :query="query"
         :processing="meta.isProcessing"
         :loading="meta.isLoading"
         :searching="meta.isSearching"
+        :searching-more="meta.isSearchingMore"
         :valid="meta.isValid"
         :template="template"
         :result-count="resultCount"
@@ -106,7 +108,7 @@ import { Button } from "@upmind-automation/upmind-ui";
 
 // --- utils
 import { DEBOUNCE_DELAY } from "@upmind-automation/headless";
-import { debounce } from "lodash-es";
+import { debounce, includes, some } from "lodash-es";
 
 //  --- templates
 const supportedTemplates = {
@@ -210,8 +212,9 @@ function doReset() {
 }
 
 const hasActiveItems = computed(() =>
-  available.value?.some(
-    item => model.value?.includes(item.domain) && item.meta?.added // must be in current session's model // successfully in basket
+  some(
+    available.value,
+    item => includes(model.value, item.domain) && item.meta?.added // must be in current session's model // successfully in basket
   )
 );
 
