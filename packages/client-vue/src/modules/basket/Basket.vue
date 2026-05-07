@@ -32,7 +32,8 @@
               meta.isLoading ||
               !meta.hasFields ||
               !meta.hasProducts ||
-              meta.hasInvalidProducts
+              meta.hasInvalidProducts ||
+              meta.hasLockedProducts
             "
             :loading="meta.isProcessing"
             :show-checkout="
@@ -83,7 +84,8 @@
               meta.isLoading ||
               !meta.hasFields ||
               !meta.hasProducts ||
-              meta.hasInvalidProducts
+              meta.hasInvalidProducts ||
+              meta.hasLockedProducts
             "
             :loading="meta.isProcessing"
           />

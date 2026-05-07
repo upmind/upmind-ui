@@ -132,7 +132,7 @@ export class ProductConfig {
       .getByTestId("form-item-provision-fields-update-registrant-organisation")
       .locator("input");
     this.registrantEmailInput = page
-      .getByTestId("form-item-provision-fields-update-registrant-organisation")
+      .getByTestId("form-item-provision-fields-update-registrant-email")
       .locator("input");
     this.registrantPhoneForm = page.getByTestId(
       "form-item-provision-fields-update-registrant-phone"
@@ -266,9 +266,9 @@ export class ProductConfig {
   }
 
   async enterSld(sld: string) {
-    const sldFormField = this.page
-      .getByTestId("form-item-sld")
-      .getByTestId("input-properties-sld");
+    const sldFormField = this.page.getByTestId(
+      "input-properties-provision-fields-properties-sld"
+    );
     await sldFormField.fill(sld);
   }
 

@@ -2,6 +2,7 @@ import { Page } from "@playwright/test";
 import { URLs } from "../constants/urls";
 import { Logins } from "../constants/logins";
 import { faker } from "@faker-js/faker";
+import { waitForSessionCookie } from "../helpers";
 
 /**
  * Logs in as checkout test user via UI form fill.
@@ -35,5 +36,5 @@ export async function inputRegistration(page: Page) {
     .getByTestId("text-input")
     .fill(`${faker.string.alphanumeric({ length: 10 })}`);
   await page.getByTestId("button-continue").click();
-  await page.waitForLoadState("networkidle");
+  await waitForSessionCookie(page.context());
 }

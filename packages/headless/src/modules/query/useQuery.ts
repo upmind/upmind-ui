@@ -1003,7 +1003,8 @@ export const useQuery = () => {
           if (isFunction(select))
             return (select as Function)(
               response.data!,
-              response.related
+              response.related,
+              response.meta
             ) as TData;
 
           return response.data as TQueryFnData;

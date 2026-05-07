@@ -90,9 +90,7 @@ export async function getCurrentOrder(
   });
 
   try {
-    const response = await context.get(
-      `/api/orders/current?with=address%2Caddress.country%2Ccurrency%2Ccustom_fields.field%2Cpromotions%2Ctaxes%2Ctaxes.tax_tag_data%2Cproducts.product.image%2Cproducts.product.images%2Cproducts.product.prices%2Cproducts.product.products_attributes%2Cproducts.product.products_attributes.category%2Cproducts.product.products_options%2Cproducts.product.products_options.category%2Cproducts.product.products_options.prices%2Cproducts.product.provision_field_values%2Cproducts.tags%2Cproducts.product.related%2Cproducts.product.category%2Cproducts.product.category.top_category.top_category.top_category.top_category&lang=en`
-    );
+    const response = await context.get("/api/orders/current");
 
     if (!response.ok()) {
       console.log(
@@ -166,6 +164,12 @@ export async function addProductToOrder(
         }
       }
     );
+
+    if (!response.ok()) {
+      throw new Error(
+        `Failed to add product to order: ${response.status()} ${response.statusText()}`
+      );
+    }
 
     const body = await response.json();
     return body;
@@ -273,6 +277,50 @@ export async function setOrderCurrency(
     await response.json();
   } finally {
     await apiContext.dispose();
+  }
+}
+
+export async function setOrderAddress(
+  token: string,
+  orderId: string,
+  addressId: string,
+  companyId: string | null = null,
+  phoneId: string | null = null
+): Promise<Record<string, any>> {
+  const context: APIRequestContext = await request.newContext({
+    baseURL: `${URLs.apiUrl}`,
+    extraHTTPHeaders: {
+      accept: "*/*",
+      "accept-language": "en-GB;q=0.9,en;q=0.8",
+      authorization: `Bearer ${token}`,
+      "content-type": "application/json",
+      origin: `${URLs.apiOrigin}`,
+      referer: `${URLs.apiUrl}`,
+      "user-agent":
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36"
+    }
+  });
+
+  try {
+    const response = await context.put(`/api/orders/${orderId}?lang=en`, {
+      data: {
+        address_id: addressId,
+        company_id: companyId,
+        phone_id: phoneId
+      }
+    });
+
+    if (!response.ok()) {
+      const errorText = await response.text();
+      throw new Error(
+        `Failed to set order address: ${response.status()} ${response.statusText()} - ${errorText}`
+      );
+    }
+
+    const body = await response.json();
+    return body.data;
+  } finally {
+    await context.dispose();
   }
 }
 

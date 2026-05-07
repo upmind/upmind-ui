@@ -96,6 +96,10 @@ export interface QueryResponse<TData = unknown> {
    * Optional related resources included alongside the main data, e.g. `products`.
    */
   related?: Record<string, any> | null;
+  /**
+   * Optional metadata included alongside the main data, e.g. `total_pages`, `tlds`.
+   */
+  meta?: Record<string, any> | null;
 }
 
 /**

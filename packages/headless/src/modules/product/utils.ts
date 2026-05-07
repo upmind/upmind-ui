@@ -59,11 +59,12 @@ import type {
 import {
   BrandConfigKeys,
   DefaultPaymentPeriod,
+  PriceDisplayTypes,
+  PriceType,
   ProductTypes,
   PromotionDisplayTypes,
   ProvisionCategoryCodes,
   PaymentTermDesignations,
-  PriceDisplayTypes,
   QUERY_PARAMS
 } from "@upmind-automation/types";
 
@@ -385,6 +386,97 @@ export function parseTerm(
   return { term: get(term, "cycle") as number, price };
 }
 
+// -----------------------------------------------------------------------------
+// GOTCHA: Merge and enrich basket product subproducts into lookups
+// -----------------------------------------------------------------------------
+// 1. Hidden-in-catalog options (hide_catalog: true) won't appear in product
+//    lookup data but exist in rawBasketProduct - we add them.
+// 2. Options with empty prices in API but present in basket - we enrich them
+//    with pricing from basket data.
+// -----------------------------------------------------------------------------
+/**
+ * Maps a basket item to an IProductPrice-compatible object.
+ * This allows hidden/restricted items to flow through the normal pricing pipeline.
+ *
+ * @see parsePrice() for how these fields are consumed
+ */
+function mapHiddenSubproductPrice(basketItem: IBasketProduct): IProductPrice {
+  const { includesTax } = useBrand();
+  const isOverridden = basketItem.price_type === PriceType.MANUAL;
+
+  return {
+    billing_cycle_months: basketItem.billing_cycle_months,
+    currency_id: basketItem.base_price_currency_id,
+    // Regular price
+    price: includesTax.value
+      ? basketItem.configuration_total_amount_converted
+      : basketItem.configuration_net_amount_converted,
+    price_formatted: includesTax.value
+      ? basketItem.configuration_total_amount_formatted
+      : basketItem.configuration_net_amount_formatted,
+    // Discounted price
+    price_discounted: includesTax.value
+      ? basketItem.configuration_total_discounted_amount_converted
+      : basketItem.configuration_net_amount_discounted_converted,
+    price_discounted_formatted: includesTax.value
+      ? basketItem.configuration_total_discounted_amount_formatted
+      : basketItem.configuration_net_amount_discounted_formatted,
+    // Original catalog price (before manual override)
+    original_price: basketItem.base_price,
+    original_price_formatted: basketItem.base_price_formatted,
+    // Override flag
+    overridden_price: isOverridden
+  } as IProductPrice;
+}
+
+/**
+ * Merges hidden basket subproducts into product lookups.
+ *
+ * Hidden items (hide_catalog: true) aren't returned by the product API but exist
+ * in the basket. This adds them so they appear in the configuration UI.
+ */
+export function mergeBasketSubproducts(
+  productSubproducts: (IProductOption | IProductAttribute)[] | undefined,
+  basketSubproducts: IBasketProduct[] | undefined
+): (IProductOption | IProductAttribute)[] {
+  if (!basketSubproducts?.length) return productSubproducts ?? [];
+
+  // Add hidden items not in product lookups
+  const productIds = new Set(map(productSubproducts, "id"));
+  const hidden = reduce(
+    basketSubproducts,
+    (result: (IProductOption | IProductAttribute)[], basketProduct) => {
+      if (!productIds.has(basketProduct.product_id) && basketProduct.product) {
+        result.push({
+          ...basketProduct.product,
+          pivot: { order: get(basketProduct.product, "order", 0) },
+          prices: [mapHiddenSubproductPrice(basketProduct)]
+        } as unknown as IProductOption | IProductAttribute);
+      }
+      return result;
+    },
+    []
+  );
+
+  return [...(productSubproducts ?? []), ...hidden];
+}
+
+/**
+ * Checks if a basket product contains any options/attributes that can no longer
+ * be ordered (clients_can_order: 0). When true, the product should be readonly.
+ */
+export function hasNonOrderableSubproducts(
+  rawBasketProduct: IBasketProduct | undefined
+): boolean {
+  if (!rawBasketProduct) return false;
+
+  const subproducts = concat(
+    rawBasketProduct.options ?? [],
+    rawBasketProduct.attributes ?? []
+  );
+  return some(subproducts, ["product.clients_can_order", 0]);
+}
+
 export function parseSubproducts(
   type: "attributes" | "options",
   { lookups, model, subproducts: subproductIds }: Partial<ProductConfigContext>,
@@ -496,6 +588,7 @@ export const parseProductDetails = (
   rawProduct: IProduct,
   rawBasketProduct?: IBasketProduct
 ): ProductDetails => {
+  const readonly = hasNonOrderableSubproducts(rawBasketProduct);
   return {
     id: rawProduct?.id,
     name: rawProduct.name,
@@ -540,33 +633,36 @@ export const parseProductDetails = (
     images: parseProductImages(rawProduct?.images),
     // ---
     configurable:
-      rawProduct.prices?.length > 1 ||
-      !isEmpty(rawProduct.products_attributes) ||
-      !isEmpty(rawProduct.products_options) ||
-      !isEmpty(rawProduct.provision_fields),
+      !readonly &&
+      (rawProduct.prices?.length > 1 ||
+        !isEmpty(rawProduct.products_attributes) ||
+        !isEmpty(rawProduct.products_options) ||
+        !isEmpty(rawProduct.provision_fields)),
 
-    configurableInline: (() => {
-      const config = useConfig();
-      return (
-        some(rawProduct.products_options, option => {
-          const { data } = config.with({
-            product: () => ({ productDetails: { uiMeta: rawProduct.meta } }),
-            option: () => ({ uiMeta: option.meta })
-          });
-          return !!data.optionUpsellEnabled;
-        }) ||
-        some(rawProduct.products_attributes, attr => {
-          const { data } = config.with({
-            product: () => ({ productDetails: { uiMeta: rawProduct.meta } }),
-            option: () => ({ uiMeta: attr.meta })
-          });
-          return !!data.optionUpsellEnabled;
-        })
-      );
-    })(),
+    configurableInline:
+      !readonly &&
+      (() => {
+        const config = useConfig();
+        return (
+          some(rawProduct.products_options, option => {
+            const { data } = config.with({
+              product: () => ({ productDetails: { uiMeta: rawProduct.meta } }),
+              option: () => ({ uiMeta: option.meta })
+            });
+            return !!data.optionUpsellEnabled;
+          }) ||
+          some(rawProduct.products_attributes, attr => {
+            const { data } = config.with({
+              product: () => ({ productDetails: { uiMeta: rawProduct.meta } }),
+              option: () => ({ uiMeta: attr.meta })
+            });
+            return !!data.optionUpsellEnabled;
+          })
+        );
+      })(),
 
     quantity: rawProduct?.min_order_quantity || rawProduct?.unit_quantity || 1,
-    quantifiable: rawProduct?.order_type == 2,
+    quantifiable: !readonly && rawProduct?.order_type == 2,
     step: rawProduct?.unit_quantity || 1,
     min: rawProduct?.min_order_quantity || rawProduct?.unit_quantity || 1,
     max:
@@ -584,7 +680,9 @@ export const parseProductDetails = (
     trialSupported: !!rawProduct?.trial_supported,
     trialDuration: rawProduct?.trial_duration,
     trialForce: !!rawProduct?.trial_force,
-    trialEndAction: rawProduct?.trial_end_action
+    trialEndAction: rawProduct?.trial_end_action,
+    // --- locked
+    readonly
   };
 };
 
@@ -722,7 +820,7 @@ export const parseSubproductDetails = (
       const values: SubproductValue[] = get(option, "values", []);
 
       // ---
-      const pricing: ProductSummaryDetailWithPrice[] = map(prices, rawPrice =>
+      let pricing: ProductSummaryDetailWithPrice[] = map(prices, rawPrice =>
         parseSummaryDetailWithPrice(
           rawPrice,
           rawSubproduct,
@@ -750,7 +848,7 @@ export const parseSubproductDetails = (
           overridden: price?.meta.overridden,
           default: !!rawSubproduct?.pivot?.default
         },
-        order: rawSubproduct.pivot.order
+        order: rawSubproduct?.pivot?.order ?? 0
       };
       // ---
       values.push(value as SubproductValue);
@@ -948,7 +1046,11 @@ export const parsePromotionDetails = (
   }
 };
 
-export const parseProvisioningSchema = (data: any, product: IProduct) => {
+export const parseProvisioningSchema = (
+  data: any,
+  product: IProduct,
+  readonly?: boolean
+) => {
   const { getCountry } = useSystem();
 
   const defaultCountry = getCountry();
@@ -966,6 +1068,13 @@ export const parseProvisioningSchema = (data: any, product: IProduct) => {
   //   field.description = product?.name;
   // "The sld may only contain letters, numbers, and dashes"
   // }
+
+  // Set readOnly on each property when product is locked
+  if (readonly && schema.properties) {
+    forEach(schema.properties, (prop: any) => {
+      prop.readOnly = true;
+    });
+  }
 
   return schema;
 };
@@ -1228,29 +1337,117 @@ export const parseProductProps = (
     terms
   );
 
+  // Subproduct cycles need to map to a real price entry — the option's own
+  // `billing_cycle_months` is just a storage default (often 1) and not a
+  // price key. Pass the resolved parent term so subproduct cycles can be
+  // picked from each option's `prices` array.
+  const term = data?.term ?? defaultTerm.cycle;
+
   // We need to find the  subbproducts id from the product option OR attributes, and then map it to that CategoryID
   const matchedOptions = filter(raw.products_options ?? raw.options, option =>
     data?.subproducts?.includes(option.id)
   ) as IProductOption[];
-  const options: SubproductModel =
-    parseSubproductDetailsChoices(matchedOptions);
+  const options: SubproductModel = parseSubproductDetailsChoices(
+    matchedOptions,
+    term
+  );
 
-  const matchedAttributes = filter(raw.products_attributes, attribute =>
+  // The API often returns attributes under `raw.attributes` (mirroring
+  // `raw.options`); fall back so we don't silently miss preselections.
+  const rawAttributes =
+    raw.products_attributes ?? (raw as any).attributes ?? [];
+  const matchedAttributes = filter(rawAttributes, attribute =>
     data?.subproducts?.includes(attribute.id)
   ) as IProductAttribute[];
 
-  const attributes: SubproductModel =
-    parseSubproductDetailsChoices(matchedAttributes);
+  const attributes: SubproductModel = parseSubproductDetailsChoices(
+    matchedAttributes,
+    term
+  );
 
   return {
     // id: raw.id,
     quantity: parseQuantity(data.quantity, productDetails),
     productId: data.productId,
-    term: data?.term ?? defaultTerm.cycle,
+    term,
     options: merge({}, options, data?.options),
     attributes: merge({}, attributes, data?.attributes),
     provisionFields: data.provisionFields || {},
     startTrial: data?.startTrial
+  };
+};
+
+/**
+ * For each *required* option/attribute category on `raw` where the model
+ * has no selection, fills in the first choice (lowest `pivot.order`) so
+ * the basket API doesn't reject the request for missing required groups.
+ *
+ * No-op for non-required categories or categories that already have an
+ * entry in the model. Returns a new model — `model` is not mutated.
+ */
+export const fillRequiredOptionDefaults = <T extends ProductModel>(
+  model: T,
+  raw?: IProduct
+): T => {
+  if (!raw) return model;
+
+  const filledOptions: SubproductModel = { ...(model.options ?? {}) };
+  const filledAttributes: SubproductModel = { ...(model.attributes ?? {}) };
+
+  const fillFrom = (
+    items: (IProductOption | IProductAttribute)[] | undefined,
+    bucket: SubproductModel
+  ) => {
+    if (isEmpty(items)) return;
+
+    // Group required-category items by their category_id
+    const byCategory = reduce(
+      items,
+      (acc: Record<string, (IProductOption | IProductAttribute)[]>, item) => {
+        const categoryId = item?.category_id;
+        if (!categoryId || !item?.category?.required) return acc;
+        (acc[categoryId] ??= []).push(item);
+        return acc;
+      },
+      {}
+    );
+
+    forEach(byCategory, (entries, categoryId) => {
+      // Skip categories that already have a selection in the model
+      if (!isEmpty(bucket[categoryId])) return;
+
+      const firstChoice = orderBy(entries, ["pivot.order"], ["asc"])[0];
+      if (!firstChoice?.id) return;
+
+      bucket[categoryId] = {
+        [firstChoice.id]: {
+          productId: firstChoice.id,
+          quantity: parseQuantity(
+            firstChoice.unit_quantity,
+            parseProductDetails(firstChoice)
+          ),
+          cycle: resolveSubproductCycle(firstChoice, model.term)
+        }
+      };
+    });
+  };
+
+  fillFrom(
+    (raw.products_options ?? raw.options) as IProductOption[] | undefined,
+    filledOptions
+  );
+  // Same fallback as parseProductProps — API can return either field name.
+  fillFrom(
+    (raw.products_attributes ?? (raw as any).attributes) as
+      | IProductAttribute[]
+      | undefined,
+    filledAttributes
+  );
+
+  return {
+    ...model,
+    options: filledOptions,
+    attributes: filledAttributes
   };
 };
 
@@ -1269,7 +1466,8 @@ export const parseBasketProductModel = (raw: IBasketProduct): ProductModel => {
 };
 
 const parseSubproductDetailsChoices = (
-  values: IProductAttribute[] | IProductOption[]
+  values: IProductAttribute[] | IProductOption[],
+  parentTerm?: number
 ): SubproductModel => {
   return reduce(
     values,
@@ -1285,12 +1483,47 @@ const parseSubproductDetailsChoices = (
           value.unit_quantity,
           parseProductDetails(value)
         ),
-        cycle: value.billing_cycle_months
+        cycle: resolveSubproductCycle(value, parentTerm)
       });
       return result;
     },
     {}
   );
+};
+
+/**
+ * Resolves the billing cycle to send to the basket for a subproduct.
+ *
+ * The subproduct entity's own `billing_cycle_months` is just a storage
+ * default (often `1` for setup-style options) and rarely matches a real
+ * price entry. The basket needs a cycle that maps to a `prices[*]` row,
+ * preferably one that aligns with the parent product's selected term.
+ *
+ * Resolution order:
+ *   1. Price entry matching the parent term
+ *   2. One-off price (cycle 0)
+ *   3. First available price entry
+ *   4. Parent term fallback
+ *   5. The subproduct's own `billing_cycle_months` (legacy fallback)
+ */
+const resolveSubproductCycle = (
+  value: IProductAttribute | IProductOption,
+  parentTerm?: number
+): number => {
+  const prices = value?.prices ?? [];
+
+  if (parentTerm != null) {
+    const match = find(prices, ["billing_cycle_months", parentTerm]);
+    if (match?.billing_cycle_months != null) return match.billing_cycle_months;
+  }
+
+  const oneoff = find(prices, ["billing_cycle_months", 0]);
+  if (oneoff?.billing_cycle_months != null) return oneoff.billing_cycle_months;
+
+  const firstPriceCycle = prices[0]?.billing_cycle_months;
+  if (firstPriceCycle != null) return firstPriceCycle;
+
+  return parentTerm ?? value.billing_cycle_months;
 };
 
 const parseBasketSubproductDetailsChoices = (values: IBasketProduct[]) => {
