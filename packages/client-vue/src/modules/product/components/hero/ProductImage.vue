@@ -1,11 +1,19 @@
 <template>
-  <Image
+  <ImageGrid
+    v-if="ui.productImagesStyle.isGrid && isArray(mappedImage)"
     :image="mappedImage"
     fit="cover"
     :ratio="ui.productImageRatio.value"
-    :mode="mode"
-    :class="props.class"
-    class="h-full"
+    :class="cn(styles.header.image.product, props.class)"
+    :fallback="props.fallback"
+  />
+  <Image
+    v-else
+    :image="mappedImage"
+    fit="cover"
+    :ratio="ui.productImageRatio.value"
+    :mode="ui.productImagesStyle.isGrid ? 'auto' : ui.productImagesStyle.value"
+    :class="cn(styles.header.image.product, props.class)"
     :fallback="props.fallback"
   />
 </template>
@@ -15,37 +23,35 @@
 import { computed } from "vue";
 
 // --- components
-import { Image } from "@upmind-automation/upmind-ui";
+import { Image, ImageGrid, useStyles, cn } from "@upmind-automation/upmind-ui";
 
 // --- internal
-import { useConfig } from "@upmind-automation/headless";
+import { useConfig, useImageUrl } from "@upmind-automation/headless";
+import config from "./product-hero.config";
 
 // --- utils
-import { isEmpty } from "lodash-es";
+import { isArray, isEmpty } from "lodash-es";
 
 // --- types
 import type { ProductImageProps } from "./types";
-import type { ImageItem, ImageMode } from "@upmind-automation/upmind-ui";
-import { IMAGES_STYLE } from "@upmind-automation/headless";
+import type { ImageItem } from "@upmind-automation/upmind-ui";
 
-const props = defineProps<ProductImageProps>();
+const props = withDefaults(defineProps<ProductImageProps>(), {
+  previewSize: "original"
+});
 
 const { ui } = useConfig().with({
   product: () => props
 });
 
+const styles = useStyles(["header"], {}, config);
+
 const images = computed(() => {
   return props.productDetails?.images?.map(image => ({
     url: image.url,
-    alt: props.productDetails?.title
+    alt: props.productDetails?.title,
+    previewUrl: useImageUrl(image.url, props.previewSize)
   })) as ImageItem[];
-});
-
-const mode = computed<ImageMode>(() => {
-  const style = ui.productImagesStyle.value;
-  // TODO: Implement image grid
-  if (style === IMAGES_STYLE.GRID) return IMAGES_STYLE.AUTO;
-  return style;
 });
 
 // Compute the image prop value - wrap single imgUrl in array when carousel mode
@@ -55,12 +61,16 @@ const mappedImage = computed(() => {
     return images.value;
   }
 
-  // When carousel mode is explicitly set, wrap single imgUrl in array
-  if (mode.value === IMAGES_STYLE.CAROUSEL && props.productDetails?.imgUrl) {
+  // When carousel or grid mode is explicitly set, wrap single imgUrl in array
+  if (
+    (ui.productImagesStyle.isCarousel || ui.productImagesStyle.isGrid) &&
+    props.productDetails?.imgUrl
+  ) {
     return [
       {
         url: props.productDetails.imgUrl,
-        alt: props.productDetails?.title
+        alt: props.productDetails?.title,
+        previewUrl: useImageUrl(props.productDetails.imgUrl, props.previewSize)
       }
     ] as ImageItem[];
   }

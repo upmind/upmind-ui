@@ -533,7 +533,10 @@ export default {
     }
 
     // We always need products in the basket to proceed to checkout
-    if (!meta.value.hasProducts) {
+
+    debugger;
+    if (!meta.value.hasProducts || meta.value.hasLockedProducts) {
+      debugger;
       return Promise.reject({ target: { name: ROUTE.BASKET } });
     }
 

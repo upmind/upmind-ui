@@ -6,6 +6,7 @@ import { useActor } from "@xstate/vue";
 
 // --- internal
 import { useI18n } from "../system";
+import { useBrand } from "../brand";
 import { QUERY_PARAMS, useQueryParams } from "../routing";
 import dacMachine from "./dac.machine";
 
@@ -19,8 +20,14 @@ import {
 } from "../../utils";
 
 // --- types
-import { type DomainContext, type DomainProduct, DomainTypes } from "./types";
+import {
+  type DacContext,
+  type DomainContext,
+  type DomainProduct,
+  DomainTypes
+} from "./types";
 import { PAGINATION } from "../query";
+import { BrandConfigKeys, DomainSearchMethod } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 
@@ -30,21 +37,24 @@ import { PAGINATION } from "../query";
  *
  * @param value - Initial domain(s) to use as the model.
  * @param options - required configuration for the domain type.
- * @param options.type - The type of domain to manage (e.g., "dac", "existing", "basket").
- *                     If not provided, defaults to all available domain types.
+ * @param options.mode - The domain operation mode (register or transfer). Defaults to register.
  * @returns Domain management API (state, computed, and methods)
  */
-export const useDac = (options?: { useSuggestions?: boolean }) => {
+export const useDac = (options?: { mode?: DomainTypes }) => {
   const { t } = useI18n();
   const { getParam, getParams, setParam, unsetParam } = useQueryParams();
+  const { getConfigValue } = useBrand();
 
-  // safety check to ensure forcedType is valid
+  // Determine search flow from brand setting, fallback to dac-search (legacy)
+  const searchMethod =
+    getConfigValue<DomainSearchMethod>(BrandConfigKeys.DOMAIN_SEARCH_METHOD) ??
+    DomainSearchMethod.LEGACY_LOOKUP;
+  const useSuggestions = searchMethod === DomainSearchMethod.SMART_SUGGEST;
 
   const service = interpret(
     dacMachine.withContext({
-      mode: DomainTypes.register, // set by domain.machine.ts when invoked as child
-      // mode: DomainTypes.transfer,
-      useSuggestions: options?.useSuggestions ?? false,
+      mode: options?.mode ?? DomainTypes.register,
+      useSuggestions,
       preferredCycle: getParam(QUERY_PARAMS.BILLING_CYCLE_MONTHS),
       coupons: getParams(QUERY_PARAMS.COUPONS),
       search: {
@@ -52,7 +62,7 @@ export const useDac = (options?: { useSuggestions?: boolean }) => {
         limit: PAGINATION.limit,
         offset: PAGINATION.offset
       }
-    } as any),
+    } as unknown as DacContext),
     { devTools: true }
   );
 
@@ -71,6 +81,12 @@ export const useDac = (options?: { useSuggestions?: boolean }) => {
   }
 
   const meta = computed(() => {
+    const usingSuggestions = pagination.value.totalPages > 0;
+    const hasMoreSearchResults = usingSuggestions
+      ? pagination.value.page < pagination.value.totalPages
+      : pagination.value.offset + pagination.value.limit <
+        pagination.value.total;
+
     return {
       isLoading: stateMatches(state, ["subscribing", "loading"]),
       isChecking: stateMatches(state, ["checking"]),
@@ -79,13 +95,16 @@ export const useDac = (options?: { useSuggestions?: boolean }) => {
         some(available.value, "meta.processing"),
       isSearching:
         stateMatches(state, "searching") && (query.value?.length ?? 0) > 2,
+      // True for the *entire* Load more cycle — covers both the brief
+      // `loading` sub-state and the `searching` state. The page>1 / offset>0
+      // guard means this never fires for an initial search.
       isSearchingMore:
-        stateMatches(state, "searching") &&
+        stateMatches(state, ["loading", "searching"]) &&
         (query.value?.length ?? 0) > 2 &&
-        pagination.value.offset > 0,
-      hasMoreSearchResults:
-        pagination.value.offset + pagination.value.limit <
-        pagination.value.total,
+        (usingSuggestions
+          ? pagination.value.page > 1
+          : pagination.value.offset > 0),
+      hasMoreSearchResults,
       hasErrors: stateMatches(state, ["error"]),
       isEmpty: isEmpty(model.value),
       hasAdded: !isEmpty(added.value),
@@ -119,7 +138,9 @@ export const useDac = (options?: { useSuggestions?: boolean }) => {
   const pagination = computed(() => ({
     offset: search.value?.offset ?? PAGINATION.offset,
     limit: search.value?.limit ?? PAGINATION.limit,
-    total: search.value?.total ?? 0
+    total: search.value?.total ?? 0,
+    page: search.value?.page ?? 1,
+    totalPages: search.value?.totalPages ?? 0
   }));
 
   // --- methods
@@ -183,6 +204,7 @@ export const useDac = (options?: { useSuggestions?: boolean }) => {
      * Meta information about the domain state.
      * @typedef {Object} DomainMeta
      * @property {boolean} isEmpty - Indicates if no domains are selected.
+     * @property {boolean} isChecking - Indicates if a domain availability check is in progress.
      * @property {boolean} isLoading - Indicates if the domain state is loading.
      * @property {boolean} isLoadingMore - Indicates if more search results are being loaded.
      * @property {boolean} isProcessing - Indicates if the domain state is syncing.
@@ -195,7 +217,6 @@ export const useDac = (options?: { useSuggestions?: boolean }) => {
      * @property {boolean} showDac - Indicates if DAC view is active.
      * @property {boolean} showExisting - Indicates if existing view is active.
      * @property {boolean} showBasket - Indicates if basket view is active.
-     * @property {boolean} showSelected - Indicates if a selection is shown.
      * @property {boolean} showSelected - Indicates if a selection is shown.
      */
     meta,

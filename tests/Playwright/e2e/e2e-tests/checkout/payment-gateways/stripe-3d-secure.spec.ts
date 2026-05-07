@@ -10,6 +10,7 @@ import {
   registerClient
 } from "../../../support/api/index";
 import { createOrder, addProductToOrder } from "../../../support/api/basket";
+import { waitForSessionCookie } from "../../../support/helpers/session";
 
 let checkout: Checkout;
 let registration: Registration;
@@ -19,18 +20,7 @@ test.describe("3D Secure Authentication", async () => {
     checkout = new Checkout(page);
     registration = new Registration(page, context);
     await page.goto("/");
-    await expect
-      .poll(
-        async () => {
-          const cookies = await context.cookies();
-          return cookies.some(
-            c =>
-              c.name === "upm_guest_session" || c.name === "upm_client_session"
-          );
-        },
-        { timeout: 30000 }
-      )
-      .toBeTruthy();
+    await waitForSessionCookie(context);
     let guestToken = await getSessionToken(context);
     let user = await registerClient(guestToken);
     let username = user.email;
@@ -40,7 +30,7 @@ test.describe("3D Secure Authentication", async () => {
   for (const { name, cardNumber, expiryDate, cvcCode } of ThreeDSecureCards) {
     test(`Stripe Cards - ${name}`, async ({ page, context }) => {
       await page.goto(URLs.basket);
-      await page.waitForLoadState("networkidle");
+      await waitForSessionCookie(context);
       let token = await getSessionToken(context);
       let order = await createOrder(token);
       let orderId = order.id;
@@ -64,7 +54,7 @@ test.describe("3D Secure Authentication", async () => {
       await page.goto(URLs.checkout);
       await checkout.selectPaymentMethod("Stripe");
       await checkout.inputStripeDetails(cardNumber, expiryDate, cvcCode);
-      await checkout.clickPlaceOrderAndPay();
+      await checkout.clickCompleteCheckout();
       page.on("framenavigated", async frame => {
         const url = frame.url();
         if (url.startsWith("https://hooks.stripe.com/3d_secure_2/hosted")) {
