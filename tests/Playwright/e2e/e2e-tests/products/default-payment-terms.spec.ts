@@ -4,6 +4,7 @@ import {
   DefaultPaymentTerms,
   DefaultPaymentTermsWithPromo
 } from "../../support/constants/default-payment-terms";
+import { waitForSessionCookie } from "../../support/helpers";
 
 let terms = DefaultPaymentTerms;
 let termsWithPromo = DefaultPaymentTermsWithPromo;
@@ -41,7 +42,7 @@ test.describe("Assert correct billing term is selected based on default_payment_
         "20403869-6e54-721d-2d7c-518d9305e7d2"
       );
       await page.goto(url);
-      await page.waitForLoadState("networkidle");
+      await waitForSessionCookie(page.context());
       await expect(productConfig.radioButtons.radioGroup.first()).toBeVisible();
       const radioCardItem =
         productConfig.radioButtons.getRadioButton(radioOption);
@@ -61,7 +62,7 @@ test.describe("Assert that billing term functionality accounts for promotional d
         "3de78642-de53-9714-745c-21208469530d"
       );
       await page.goto(url);
-      await page.waitForLoadState("networkidle");
+      await waitForSessionCookie(page.context());
       await expect(productConfig.radioButtons.radioGroup.first()).toBeVisible();
       const radioCardItem =
         productConfig.radioButtons.getRadioButton(radioOption);

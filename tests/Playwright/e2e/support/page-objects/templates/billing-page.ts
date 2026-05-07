@@ -40,6 +40,5 @@ export class BillingPage {
     await this.addressLine1.fill(addressLine1);
     await this.city.fill(city);
     await this.postCode.fill(postCode);
-    await this.saveDetails.click();
   }
 }

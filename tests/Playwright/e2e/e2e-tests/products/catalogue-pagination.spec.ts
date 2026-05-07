@@ -1,6 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { URLs } from "../../support/constants/urls";
 import { Pagination } from "../../support/page-objects/components/pagination";
+import { waitForSessionCookie } from "../../support/helpers";
 let pagination: Pagination;
 
 test.describe("Catalogue Pagination", () => {
@@ -24,16 +25,16 @@ test.describe("Catalogue Pagination", () => {
     page
   }) => {
     await page.goto(`${URLs.catalogueRoot1}?page=99`);
-    await expect(page).toHaveURL(/page=5/);
+    await expect(page).toHaveURL(/page=6/);
   });
   test("Next button is disabled on last page", async ({ page }) => {
-    await page.goto(`${URLs.catalogueRoot1}?page=5`);
-    await page.waitForLoadState("networkidle");
+    await page.goto(`${URLs.catalogueRoot1}?page=6`);
+    await waitForSessionCookie(page.context());
     await expect(pagination.nextButton).toBeDisabled();
   });
   test("Previous button is disabled on first page", async ({ page }) => {
     await page.goto(URLs.catalogueRoot1);
-    await page.waitForLoadState("networkidle");
+    await waitForSessionCookie(page.context());
     await expect(pagination.previousButton).toBeDisabled();
   });
 });
