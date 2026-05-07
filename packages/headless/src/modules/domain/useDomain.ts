@@ -30,7 +30,7 @@ import {
   DEBOUNCE_DELAY,
   useChildActor
 } from "../../utils";
-import { parseDomain } from "./utils";
+import { parseDomain, sanitizeDomainInput } from "./utils";
 
 // --- types
 import { DomainTypes, type DomainContext, type DomainProduct } from "./types";
@@ -83,7 +83,9 @@ export const useDomain = (
       coupons: getParam(QUERY_PARAMS.COUPONS),
       useSuggestions,
       search: {
-        query: getParam(QUERY_PARAMS.SEARCH, ""), // Get any initial search query from URL
+        // Sanitize the URL-seeded query so the dac machine + search service
+        // see the same shape they would for a runtime SEARCH event.
+        query: sanitizeDomainInput(getParam(QUERY_PARAMS.SEARCH, "") ?? ""),
         limit: PAGINATION.limit,
         offset: PAGINATION.offset
       }
