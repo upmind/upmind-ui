@@ -1,27 +1,28 @@
 // --- external
-import { computed, ref, shallowRef, watch, type WatchHandle } from "vue";
+import { computed, ref, watch } from "vue";
 import {
   defaultsDeep,
   filter,
   find,
   first,
-  forEach,
   get,
   includes,
-  intersection,
   isEmpty,
   map,
   reduce,
   reject,
   size,
   some,
-  unset,
   values
 } from "lodash-es";
 
 // --- internal
 import { useBasket } from "../basket";
-import { useBasketProducts, type BasketProduct } from "../basketProduct";
+import {
+  useBasketProducts,
+  type BasketProduct,
+  type UseBasketProduct
+} from "../basketProduct";
 import basketProductServices from "../basketProduct/services";
 import {
   useInvalidProductConfigSchema,
@@ -33,7 +34,6 @@ import {
   compactDeep,
   contextValue,
   isDeepEmpty,
-  stateMatches,
   useModelParser,
   type ErrorObject,
   type ResponseError
@@ -72,12 +72,7 @@ const similarProducts = ref<BasketProduct[]>([]);
 const selected = ref<string[]>([]);
 const processing = ref(false);
 const rawError = ref<ResponseError | ResponseError[] | undefined>();
-// Subscriptions tracked per-bpid so we don't stack listeners on the same
-// service across remounts. The BP machine persists in configRegistry until
-// the product leaves the basket, so its subscription should mirror that
-// lifetime — we never tear them down on Setup unmount.
-const subscriptions: Record<string, { unsubscribe: () => void }> = {};
-
+const currentConfig = ref<UseBasketProduct | undefined>();
 // -----------------------------------------------------------------------------
 
 export function useProductSetup() {
@@ -129,7 +124,8 @@ export function useProductSetup() {
     /** True when the last apply() call errored. */
     hasError: !!error.value,
     /** True when there are similar products to apply config to. */
-    hasSimilar: !isEmpty(similarProducts.value)
+    hasSimilar: !isEmpty(similarProducts.value),
+    hasSchema: !isEmpty(schema.value)
   }));
 
   // --- methods
@@ -224,9 +220,6 @@ export function useProductSetup() {
         throw e;
       })
       .finally(() => {
-        selected.value = [];
-        schema.value = undefined;
-        uischema.value = undefined;
         processing.value = false;
       });
   }
@@ -261,26 +254,18 @@ export function useProductSetup() {
 
   // Capture products with overlapping error paths (for "apply to similar")
   function captureSimilarProducts(): void {
-    if (!bpid.value) {
-      similarProducts.value = [];
-      return;
-    }
+    similarProducts.value = [];
+    if (!bpid.value) return;
 
     const mode = ui.productSetup.value;
     const current = find(basketProducts.value, { id: bpid.value });
-    if (!current) {
-      similarProducts.value = [];
-      return;
-    }
+    if (!current) return;
 
     // Get all error paths from current product
     const currentErrors = get(current, "errors", []) as ErrorObject[];
     const currentErrorPaths = map(currentErrors, "instancePath");
 
-    if (isEmpty(currentErrorPaths)) {
-      similarProducts.value = [];
-      return;
-    }
+    if (isEmpty(currentErrorPaths)) return;
 
     // Find other products requiring setup with any overlapping error paths
     similarProducts.value = filter(basketProducts.value, bp => {
@@ -295,56 +280,48 @@ export function useProductSetup() {
     });
   }
 
-  function resetselected(): void {
-    selected.value = map(similarProducts.value, "id");
+  // Reads the live invalid schema/uischema off the config's service context
+  // and stores the snapshots. Called at configure time AND whenever the
+  // basket refreshes — e.g. after auth swaps the guest token, validation
+  // re-runs and produces a fresh basketErrors we want to capture.
+  function captureSchemas(): void {
+    const ctx = contextValue<ProductConfigContext>(
+      currentConfig.value?.service
+    )!;
+    const basketErrors = contextValue<ProductConfigContext["basketErrors"]>(
+      currentConfig.value?.service,
+      "basketErrors"
+    );
+    schema.value = useInvalidProductConfigSchema(ctx);
+    uischema.value = useInvalidProductConfigUischema(ctx);
   }
 
-  function removeSubscription(id: string): void {
-    subscriptions[id]?.unsubscribe();
-    unset(subscriptions, id);
-  }
-
+  //
   function reset(): void {
-    // We deliberately do NOT unsubscribe here. The BP machines persist in
-    // configRegistry until their products leave the basket — our
-    // subscriptions mirror that lifetime and are pruned by the watcher
-    // below.
     bpid.value = undefined;
+    currentConfig.value = undefined;
     schema.value = undefined;
     uischema.value = undefined;
     similarProducts.value = [];
     selected.value = [];
     rawError.value = undefined;
   }
-
-  // Reads the live invalid schema/uischema off the config's service context
-  // and stores the snapshots. Called at configure time AND whenever the
-  // basket refreshes — e.g. after auth swaps the guest token, validation
-  // re-runs and produces a fresh basketErrors we want to capture.
-  function captureSchemas(service: ActorRef<any>): void {
-    const ctx = contextValue<ProductConfigContext>(service)!;
-    const basketErrors = contextValue<ProductConfigContext["basketErrors"]>(
-      service,
-      "basketErrors"
-    );
-    const state = service.getSnapshot()?.value;
-    schema.value = useInvalidProductConfigSchema(ctx);
-    uischema.value = useInvalidProductConfigUischema(ctx);
-  }
-
   // --- side effects
 
-  // React to basket changes:
-  // - Clean up stale selections (from "apply to others") when products change.
-  // - Prune subscriptions for products that have left the basket. Mirrors
-  //   the housekeeping in useBasketProducts' configRegistry.
-  watch(basketProducts, current => {
-    const validIds = map(similarProducts.value, "id");
-    selected.value = filter(selected.value, id => includes(validIds, id));
+  // React to basket-driven changes (refresh, BE applies fields, etc.).
+  // basketProducts only updates from basket-level events — user typing in the
+  // local form doesn't trigger this watcher, so we won't re-capture on every
+  // keystroke. Re-capturing here keeps schema/similarProducts in sync when
+  // the BE auto-fills fields after billing or similar.
+  watch(basketProducts, async () => {
+    if (!bpid.value) return;
 
-    forEach(subscriptions, (_sub, id) => {
-      if (!some(current, ["id", id])) removeSubscription(id);
-    });
+    captureSchemas();
+    captureSimilarProducts();
+    // Preserve user's checkbox toggles — just drop ids that no longer apply.
+    selected.value = filter(selected.value, id =>
+      some(similarProducts.value, ["id", id])
+    );
   });
 
   // -----------------------------------------------------------------------------
@@ -352,63 +329,20 @@ export function useProductSetup() {
   return {
     // --- context
     /** Configure a specific basket product for setup. Pass the bpid from route params. */
-    configure: (id: BasketProduct["id"]) => {
-      return isReady().then(() =>
-        configure(id, {
-          allowMultipleEdits: true
-        })
-          // .then(config => config.isReady().then(() => config))
-          .then(config => {
-            bpid.value = id;
+    configure: async (id: BasketProduct["id"]) => {
+      await isReady();
+      currentConfig.value = await configure(id, { allowMultipleEdits: true });
+      bpid.value = id;
+      // Wait for the BP service to settle in available.valid/invalid/error
+      // before capturing — otherwise ctx.basketErrors may be empty
+      // mid-validation and we'd capture an undefined schema, leaving
+      // meta.isLoading stuck on `isEmpty(schema.value)`.
+      await currentConfig.value.isReady();
+      captureSchemas();
+      captureSimilarProducts();
+      selected.value = map(similarProducts.value, "id");
 
-            // Re-entry case: subscription already exists for this BP service.
-            // The service is settled and won't emit again on its own — but
-            // reset() cleared schema, so we manually re-capture from the
-            // current ctx (which is up-to-date since the service has been
-            // alive throughout).
-            if (get(subscriptions, id)) {
-              if (isEmpty(schema.value)) {
-                captureSchemas(config.service);
-                captureSimilarProducts();
-                selected.value = map(similarProducts.value, "id");
-              }
-              return config;
-            }
-
-            // First-time configure for this BP. Subscribe to capture schemas
-            // as the service transitions through its validation cycle.
-            let prevStates: string[] = [];
-
-            subscriptions[id] = config.service.subscribe(state => {
-              // Machine reached its done state — tear down and forget.
-              if (state.done) {
-                removeSubscription(id);
-                return;
-              }
-
-              const newStates = state.toStrings();
-              const isRefreshing = !isEmpty(
-                intersection(["loading", "refreshing"], prevStates)
-              );
-
-              // engage loading state
-              if (isRefreshing) {
-                schema.value = undefined;
-                uischema.value = undefined;
-              }
-
-              if (isEmpty(schema.value) && stateMatches(state, "available")) {
-                captureSchemas(config.service);
-                captureSimilarProducts();
-                selected.value = map(similarProducts.value, "id");
-              }
-
-              prevStates = newStates;
-            });
-
-            return config;
-          })
-      );
+      return currentConfig.value;
     },
     /** Similar products with overlapping errors (captured at configure time, stable during refresh). */
     similarProducts: computed(() => similarProducts.value),
@@ -434,8 +368,7 @@ export function useProductSetup() {
     isReady,
     /** Reset all state (call on unmount to ensure fresh state on re-entry). */
     reset,
-    /** Reset selected to all similar products (call on cancel/apply). */
-    resetselected,
+
     /**
      * Get the next invalid product relative to a given basket product actor.
      * Excludes the actor's own product from results.

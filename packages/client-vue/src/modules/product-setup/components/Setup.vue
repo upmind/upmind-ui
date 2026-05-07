@@ -254,7 +254,6 @@ const {
   configure,
   error: setupError,
   meta: setupMeta,
-  reset: resetSetup,
   schema,
   uischema,
   selected,
@@ -262,11 +261,7 @@ const {
   total
 } = useProductSetup();
 
-onUnmounted(() => {
-  resetSetup();
-});
-
-const { service: basketProduct, isReady } = await configure(props.bpid);
+const { service: basketProduct } = await configure(props.bpid);
 
 const basketProductConfig = useProductConfig(basketProduct);
 
@@ -296,8 +291,6 @@ const configMeta = useConfig({
   product: () => product.value,
   provide: true
 });
-
-await isReady();
 
 const template = computed(() =>
   validateTemplate(
