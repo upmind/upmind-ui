@@ -53,6 +53,8 @@ export type PageRoute = {
   from?: RouteLocationNormalizedLoaded;
 };
 
+type FunnelMachineOptions = MachineOptions<FunnelContext, AnyEventObject>;
+
 export type FunnelProps = {
   id: string;
   states: StateNodesConfig<
@@ -61,16 +63,9 @@ export type FunnelProps = {
     any
   >;
   context?: FunnelContext;
-  guards?: MachineOptions<FunnelContext, AnyEventObject>["guards"];
-  services?: MachineOptions<FunnelContext, AnyEventObject>["services"];
-  actions?: MachineOptions<FunnelContext, AnyEventObject>["actions"];
   /** Endpoint state nodes generated from overlay definitions (merged in services.ts). */
-  endpoints?: {
-    states: Record<string, unknown>;
-    guards: Record<string, unknown>;
-    actions: Record<string, unknown>;
-  };
-};
+  endpoints?: Pick<FunnelProps, "states" | "guards" | "actions">;
+} & Pick<FunnelMachineOptions, "guards" | "services" | "actions">;
 
 export type Funnels = Record<string, FunnelProps>;
 /**
@@ -110,6 +105,12 @@ export type RoutingEngineContext = {
    * Passed through to the funnel context during prepare().
    */
   watchers?: FunnelWatcher[];
+
+  /**
+   * Overlay registry mapping path suffixes to route names.
+   * Used to generate endpoint state nodes for overlay routing.
+   */
+  overlays?: Record<string, string>;
 
   // ---
   /**
@@ -241,7 +242,8 @@ export type FunnelStateMeta = {
  */
 export enum OverlayType {
   MODAL = "modal",
-  DRAWER = "drawer"
+  DRAWER = "drawer",
+  CUSTOM = "custom"
 }
 
 /**

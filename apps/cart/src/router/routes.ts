@@ -1,11 +1,43 @@
 // --- internal
 import { ROUTE, RegexMatch } from "./funnels/types";
+import { OverlayType } from "@upmind-automation/headless";
 // --- utils
-import { trimStart } from "lodash-es";
+import { reduce, trimStart } from "lodash-es";
 // --- types
 import type { RouteLocationGeneric, RouteRecordRaw } from "vue-router";
 
 import { BID_PREFIX } from "./funnels/types";
+// -----------------------------------------------------------------------------
+
+/**
+ * Overlay route definitions.
+ * Each route here can be injected as a child on eligible parent routes.
+ */
+const OVERLAY_ROUTES: RouteRecordRaw[] = [
+  {
+    path: "auth/",
+    name: ROUTE.OVERLAY_AUTH,
+    component: () => import("../pages/overlays/AuthOverlay.vue"),
+    meta: { overlay: OverlayType.MODAL }
+  },
+  {
+    path: "verify-email/",
+    name: ROUTE.OVERLAY_VERIFY_EMAIL,
+    component: () => import("../pages/overlays/AuthOverlay.vue"),
+    meta: { overlay: OverlayType.MODAL, dismissable: false }
+  }
+];
+
+/**
+ * Overlay registry — derived from OVERLAY_ROUTES.
+ * Maps path suffix to route name for registerOverlayRoutes().
+ */
+export const CART_OVERLAYS: Record<string, string> = reduce(
+  OVERLAY_ROUTES,
+  (acc, route) => ({ ...acc, [route.path]: route.name as string }),
+  {}
+);
+
 // -----------------------------------------------------------------------------
 
 export default [
@@ -344,5 +376,19 @@ export default [
         query: to.query // Persist all original query parameters
       };
     }
+  },
+
+  // ---------------------------------------------------------------------------
+  // OVERLAY ROUTES
+  // These routes define overlay components that can be injected as children
+  // on other routes via registerOverlayRoutes(). The /overlays path itself
+  // is not navigated to directly — it's a container for overlay definitions.
+  // ---------------------------------------------------------------------------
+
+  {
+    path: "/overlays/",
+    name: ROUTE.OVERLAYS,
+    redirect: "/",
+    children: OVERLAY_ROUTES
   }
 ] as RouteRecordRaw[];

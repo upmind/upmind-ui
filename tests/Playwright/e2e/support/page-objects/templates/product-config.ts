@@ -132,7 +132,7 @@ export class ProductConfig {
       .getByTestId("form-item-provision-fields-update-registrant-organisation")
       .locator("input");
     this.registrantEmailInput = page
-      .getByTestId("form-item-provision-fields-update-registrant-organisation")
+      .getByTestId("form-item-provision-fields-update-registrant-email")
       .locator("input");
     this.registrantPhoneForm = page.getByTestId(
       "form-item-provision-fields-update-registrant-phone"

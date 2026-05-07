@@ -192,7 +192,10 @@ export const useRoutingEngine = () => {
     funnels?: RoutingEngineContext["funnels"];
     watchers?: RoutingEngineContext["watchers"];
   }) {
-    send({ type: "REGISTER", data: { defaultFunnel, funnels, watchers } });
+    send({
+      type: "REGISTER",
+      data: { defaultFunnel, funnels, watchers }
+    });
   }
 
   async function guard(route: RouteLocation): Promise<RouteLocation> {
@@ -418,6 +421,7 @@ export const useRoutingEngine = () => {
     // --- context
     router,
     errors,
+    currentRoute: computed(() => router?.currentRoute.value),
 
     //  --- methods
     init: (instance: Router) => (router ??= instance),

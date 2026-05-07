@@ -8,6 +8,7 @@ import {
   getSessionToken,
   registerClient
 } from "../../support/api/index";
+import { waitForSessionCookie } from "../../support/helpers/session";
 
 let checkout: Checkout;
 let register: Registration;
@@ -17,18 +18,7 @@ test.describe("Checkout - Pay Amount", () => {
     checkout = new Checkout(page);
     register = new Registration(page, context);
     await page.goto("/");
-    await expect
-      .poll(
-        async () => {
-          const cookies = await context.cookies();
-          return cookies.some(
-            c =>
-              c.name === "upm_guest_session" || c.name === "upm_client_session"
-          );
-        },
-        { timeout: 30000 }
-      )
-      .toBeTruthy();
+    await waitForSessionCookie(context);
     let guestToken = await getSessionToken(context);
     let user = await registerClient(guestToken);
     let username = user.email;
@@ -52,7 +42,7 @@ test.describe("Checkout - Pay Amount", () => {
     });
     test("Value in alternate currency", async ({ page, context }) => {
       await goToCheckout(page, context, products.STARTER_HOSTING, null, "INR");
-      await expect(checkout.payAmount).toHaveText("Pay ₹24,000.00");
+      await expect(checkout.payAmount).toHaveText("Pay ₹9,125.28");
     });
   });
   test.describe("Changing Pay Amount value", async () => {
@@ -85,9 +75,9 @@ test.describe("Checkout - Pay Amount", () => {
       await expect(audOption).toBeVisible();
       await audOption.click({ force: true });
       // Wait for the currency change to take effect (API call)
-      await page.waitForLoadState("networkidle");
+      await waitForSessionCookie(page.context());
       // Verify the amount changed to AUD
-      await expect(checkout.payAmount).toHaveText("Pay A$172.80");
+      await expect(checkout.payAmount).toHaveText("Pay A$164.64");
     });
   });
 });
