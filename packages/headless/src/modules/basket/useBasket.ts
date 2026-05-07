@@ -364,6 +364,23 @@ export const useBasket = () => {
     send({ type: "PREFRESH", data });
   }
 
+  /**
+   * Waits for an in-flight basket refresh to settle. Use this after operations
+   * that trigger a refresh out-of-band (e.g. basketProduct.updateMany) to
+   * ensure the basket has re-validated before reading its state.
+   */
+  async function waitForRefresh(): Promise<boolean> {
+    return waitFor(
+      service,
+      state => stateMatches(state, ["shopping.refreshing.processed", "error"]),
+      { timeout: 60_000 }
+    )
+      .then(() => {
+        return !stateMatches(state, "error");
+      })
+      .catch(() => false);
+  }
+
   async function setCurrency(currency: string) {
     return waitFor(service, state => stateMatches(state, ["shopping"]), {
       timeout: 60_000
@@ -761,6 +778,14 @@ export const useBasket = () => {
      * @param {IBasket} data The basket data to pre-refresh with.
      */
     prefresh,
+
+    /**
+     * Waits for an in-flight basket refresh to settle. Use this after
+     * operations that trigger a refresh out-of-band (e.g. basketProduct
+     * updateMany) to ensure the basket has re-validated before reading state.
+     * @returns {Promise<void>} Resolves when settled or on timeout (60s).
+     */
+    waitForRefresh,
 
     /**
      * Sets the basket currency.
