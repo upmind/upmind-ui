@@ -14,7 +14,7 @@ import {
   parseValue,
   parseSld,
   isDomainProduct,
-  sanitizeDomainInput
+  sanitiseDomainInput
 } from "./utils";
 import {
   fillRequiredOptionDefaults,
@@ -644,7 +644,7 @@ export default createMachine(
       setSearchQuery: assign({
         search: ({ search }: DacContext, { data }: AnyEventObject) => {
           return {
-            query: sanitizeDomainInput(data ?? "").slice(0, 63), // sanitise + max domain length is 63 characters as per BE
+            query: sanitiseDomainInput(data ?? "").slice(0, 63), // sanitise + max domain length is 63 characters as per BE
             offset: PAGINATION.offset,
             limit: search?.limit ?? PAGINATION.limit,
             total: 0,
@@ -1097,23 +1097,23 @@ export default createMachine(
     guards: {
       // hasData: (_context, { data }:AnyEventObject) => isObject(data) && !isEmpty(data),
 
-      // Guards sanitize the raw input before validating so that user input
+      // Guards sanitise the raw input before validating so that user input
       // like `.upmind.com` (leading dot) or `https://upmind.com/page` is
       // treated the same way `setSearchQuery` / `setCheckingDomain` will
       // store it. Without this, the guard rejects but the assign action
-      // still sanitizes — the query ends up in context with no transition,
+      // still sanitises — the query ends up in context with no transition,
       // and the search call never fires.
       isValidDomain: (_context, { data }: AnyEventObject) =>
-        !isEmpty(parseDomain(sanitizeDomainInput(data ?? ""))),
+        !isEmpty(parseDomain(sanitiseDomainInput(data ?? ""))),
 
       hasSearchQuery: (
         { search, mode }: DacContext,
         _event: AnyEventObject
       ) => {
         // Initial `search.query` comes from the URL param and may not be
-        // sanitized yet (e.g. `?search=.fggg.com`). Sanitize before
+        // sanitised yet (e.g. `?search=.fggg.com`). Sanitise before
         // validating so the load → searching transition fires on refresh.
-        const query = sanitizeDomainInput(search?.query ?? "");
+        const query = sanitiseDomainInput(search?.query ?? "");
         if (mode === DomainTypes.transfer) {
           return !isEmpty(parseDomain(query));
         }
@@ -1121,11 +1121,11 @@ export default createMachine(
         return sld?.length > 2;
       },
       validSearchQuery: ({ mode }: DacContext, { data }: AnyEventObject) => {
-        const sanitized = sanitizeDomainInput(data ?? "");
+        const sanitised = sanitiseDomainInput(data ?? "");
         if (mode === DomainTypes.transfer) {
-          return !isEmpty(parseDomain(sanitized));
+          return !isEmpty(parseDomain(sanitised));
         }
-        const sld = parseSld(sanitized);
+        const sld = parseSld(sanitised);
         return sld?.length > 2 && sld.length <= 63;
       },
       validSearchOffset: ({ search }: DacContext, _event: AnyEventObject) => {

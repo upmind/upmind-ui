@@ -81,7 +81,7 @@ export function buildFallbackPricing(
  * Sanitises a raw domain input string — strips protocols, www, ports,
  * paths, query strings, fragments, and invalid characters.
  */
-export function sanitizeDomainInput(value: string): string {
+export function sanitiseDomainInput(value: string): string {
   return value
     .replace(/^https?:\/\//i, "") // remove protocol
     .replace(/^w{3}\./i, "") // remove www.
@@ -100,7 +100,7 @@ export function sanitizeDomainInput(value: string): string {
  * parts (full domain, SLD, TLD).
  */
 export function useDomainParser(domain: Ref<string>) {
-  const sanitisedDomain = computed(() => sanitizeDomainInput(domain.value));
+  const sanitisedDomain = computed(() => sanitiseDomainInput(domain.value));
 
   const sanitisedSld = computed(
     () => sanitisedDomain.value.split(".")[0] ?? ""
