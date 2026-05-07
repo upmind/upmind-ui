@@ -5,6 +5,7 @@ import {
   filter,
   find,
   first,
+  forEach,
   get,
   includes,
   intersection,
@@ -14,6 +15,7 @@ import {
   reject,
   size,
   some,
+  unset,
   values
 } from "lodash-es";
 
@@ -70,7 +72,11 @@ const similarProducts = ref<BasketProduct[]>([]);
 const selected = ref<string[]>([]);
 const processing = ref(false);
 const rawError = ref<ResponseError | ResponseError[] | undefined>();
-let activeSubscription: { unsubscribe: () => void } | undefined;
+// Subscriptions tracked per-bpid so we don't stack listeners on the same
+// service across remounts. The BP machine persists in configRegistry until
+// the product leaves the basket, so its subscription should mirror that
+// lifetime — we never tear them down on Setup unmount.
+const subscriptions: Record<string, { unsubscribe: () => void }> = {};
 
 // -----------------------------------------------------------------------------
 
@@ -293,9 +299,16 @@ export function useProductSetup() {
     selected.value = map(similarProducts.value, "id");
   }
 
+  function removeSubscription(id: string): void {
+    subscriptions[id]?.unsubscribe();
+    unset(subscriptions, id);
+  }
+
   function reset(): void {
-    activeSubscription?.unsubscribe();
-    activeSubscription = undefined;
+    // We deliberately do NOT unsubscribe here. The BP machines persist in
+    // configRegistry until their products leave the basket — our
+    // subscriptions mirror that lifetime and are pruned by the watcher
+    // below.
     bpid.value = undefined;
     schema.value = undefined;
     uischema.value = undefined;
@@ -321,10 +334,17 @@ export function useProductSetup() {
 
   // --- side effects
 
-  // Clean up stale selections when basket products change
-  watch(basketProducts, () => {
+  // React to basket changes:
+  // - Clean up stale selections (from "apply to others") when products change.
+  // - Prune subscriptions for products that have left the basket. Mirrors
+  //   the housekeeping in useBasketProducts' configRegistry.
+  watch(basketProducts, current => {
     const validIds = map(similarProducts.value, "id");
     selected.value = filter(selected.value, id => includes(validIds, id));
+
+    forEach(subscriptions, (_sub, id) => {
+      if (!some(current, ["id", id])) removeSubscription(id);
+    });
   });
 
   // -----------------------------------------------------------------------------
@@ -341,17 +361,29 @@ export function useProductSetup() {
           .then(config => {
             bpid.value = id;
 
-            // Stop any prior subscription so we don't stack listeners across
-            // back-and-forth navigation between basket and setup.
-            activeSubscription?.unsubscribe();
+            // Re-entry case: subscription already exists for this BP service.
+            // The service is settled and won't emit again on its own — but
+            // reset() cleared schema, so we manually re-capture from the
+            // current ctx (which is up-to-date since the service has been
+            // alive throughout).
+            if (get(subscriptions, id)) {
+              if (isEmpty(schema.value)) {
+                captureSchemas(config.service);
+                captureSimilarProducts();
+                selected.value = map(similarProducts.value, "id");
+              }
+              return config;
+            }
 
-            // Capture schemas when transitioning from loading/refreshing states
+            // First-time configure for this BP. Subscribe to capture schemas
+            // as the service transitions through its validation cycle.
             let prevStates: string[] = [];
 
-            activeSubscription = config.service.subscribe(state => {
+            subscriptions[id] = config.service.subscribe(state => {
+              // Machine reached its done state — tear down and forget.
               if (state.done) {
-                activeSubscription?.unsubscribe();
-                activeSubscription = undefined;
+                removeSubscription(id);
+                return;
               }
 
               const newStates = state.toStrings();
