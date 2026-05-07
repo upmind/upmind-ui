@@ -26,6 +26,7 @@ import {
   has,
   isArray,
   isEmpty,
+  isEqual,
   isFunction,
   isNil,
   map,
@@ -37,6 +38,7 @@ import {
   reverse,
   set,
   some,
+  split,
   subtract,
   toNumber,
   trim,
@@ -1750,6 +1752,36 @@ export function hasScopeError(
       .replace(/\/properties\//g, "/");
     return errorPaths.has(instancePath);
   };
+}
+
+/**
+ * Filters basketErrors down to those still outstanding given a live model.
+ *
+ * basketErrors is a snapshot from the BE — we never mutate it. As the user
+ * edits fields the local `model` diverges from `baseModel`; an error is
+ * considered "fixed" when its field's value has changed from base. This lets
+ * the UI react to local edits without losing the source-of-truth snapshot.
+ *
+ * Both nilish/empty values are treated as equivalent — the user hasn't
+ * meaningfully changed a field that went from undefined → null → "".
+ */
+export function getOutstandingBasketErrors(
+  basketErrors: ProductConfigContext["basketErrors"],
+  baseModel: Partial<ProductModel> | undefined,
+  model: Partial<ProductModel> | undefined
+): ErrorObject[] {
+  if (!isArray(basketErrors)) return [];
+
+  return filter(basketErrors, error => {
+    const field = compact(split(trimStart(error.instancePath, "/"), "/"));
+    const baseValue = get(baseModel, field);
+    const newValue = get(model, field);
+
+    // Both nilish/empty → still missing.
+    if (!baseValue && !newValue) return true;
+    // Unchanged from base → still outstanding.
+    return isEqual(baseValue, newValue);
+  });
 }
 
 export function generateShareUrlConfig(model: ProductModel) {

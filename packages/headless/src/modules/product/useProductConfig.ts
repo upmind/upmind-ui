@@ -47,7 +47,7 @@ import type {
   SubproductDetails,
   ProductConfigContext
 } from "./";
-import { generateShareUrlConfig } from "./utils";
+import { generateShareUrlConfig, getOutstandingBasketErrors } from "./utils";
 import { useI18n } from "../system";
 
 // -----------------------------------------------------------------------------
@@ -113,11 +113,27 @@ export const useProductConfig = (service: ActorRef<any>) => {
   const errors = useContext<Product["errors"]>(state, "error");
 
   const validationErrors = useContext<Product["errors"]>(state, "error.data");
-  const additionalErrors = useContext<Product["errors"]>(
-    state,
-    "basketErrors.data"
-  );
-  const externalErrors = useContext<ResponseError>(state, "basketErrors");
+
+  // Request-level error from the basket (ResponseError shape) — the array
+  // shape (per-field validation) is surfaced separately via `additionalErrors`.
+  const externalErrors = computed<ResponseError | undefined>(() => {
+    const v = contextValue<ProductConfigContext["basketErrors"]>(
+      state,
+      "basketErrors"
+    );
+    return isArray(v) ? undefined : v;
+  });
+
+  // Reactively derived "still outstanding" errors — basketErrors filtered
+  // against the live model. As the user fills/changes fields, those errors
+  // drop off without us mutating the snapshot.
+  const additionalErrors = computed(() => {
+    return getOutstandingBasketErrors(
+      contextValue<ProductConfigContext["basketErrors"]>(state, "basketErrors"),
+      contextValue<ProductConfigContext["baseModel"]>(state, "baseModel"),
+      model.value
+    );
+  });
 
   const shareUrl = computed(() => {
     const baseUrl = `${window.location.origin}/order/product/${productDetails.value?.id}`;
@@ -137,7 +153,7 @@ export const useProductConfig = (service: ActorRef<any>) => {
     ),
     isTouched: touched.value,
     showErrors:
-      isArray(contextValue(state, "basketErrors")) ||
+      !isEmpty(additionalErrors.value) ||
       (contextMatches(state, ["error"]) && contextMatches(state, ["attempts"])),
 
     hasErrors:
