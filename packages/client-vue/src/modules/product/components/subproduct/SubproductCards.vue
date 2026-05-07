@@ -176,7 +176,7 @@ const optionsWithConfig = computed(() =>
       ...option,
       groupLabel: data.optionGroupLabel,
       groupIcon: data.optionGroupIcon,
-      groupImg: data.optionImgUrl
+      groupImg: data.optionImgUrl ?? first(option.images)?.url
     };
   })
 );
