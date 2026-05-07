@@ -14,7 +14,9 @@ import {
   parseModel,
   parseBasketProductModel,
   parseProduct,
-  parseBundledProducts
+  parseBundledProducts,
+  mergeBasketSubproducts,
+  hasNonOrderableSubproducts
 } from "./utils";
 
 import { useProductConfigSchema, useProductConfigUischema } from "./schemas";
@@ -94,7 +96,7 @@ export default createMachine(
                   cond: "isUnauthorized"
                 },
                 {
-                  target: "#error",
+                  target: "#unavailable",
                   actions: "setError"
                 }
               ]
@@ -120,7 +122,7 @@ export default createMachine(
                   cond: "isUnauthorized"
                 },
                 {
-                  target: "#error",
+                  target: "#unavailable",
                   actions: "setError"
                 }
               ]
@@ -141,7 +143,7 @@ export default createMachine(
             }
           ],
           onError: {
-            target: "error",
+            target: "unavailable",
             actions: "setError"
           }
         }
@@ -150,6 +152,7 @@ export default createMachine(
       available: {
         id: "available",
         initial: "checking",
+
         states: {
           checking: {
             entry: ["clearError"],
@@ -307,8 +310,8 @@ export default createMachine(
         }
       },
 
-      error: {
-        id: "error"
+      unavailable: {
+        id: "unavailable"
       },
 
       // Decide whether to continue editing or stop
@@ -385,6 +388,7 @@ export default createMachine(
             subproducts: subproducts ?? [],
             silent: silent ?? false,
             bundle: bundle ?? undefined,
+            readonly: hasNonOrderableSubproducts(rawBasketProduct),
             // ---
             baseModel: !isEmpty(rawBasketProduct)
               ? parseBasketProductModel(rawBasketProduct)
@@ -449,6 +453,7 @@ export default createMachine(
             promotions: promotions ?? [],
             coupons: coupons ?? [],
             rawBasketProduct: rawBasketProduct ?? basket_product, // ensure we honoure any given basket product
+            readonly: hasNonOrderableSubproducts(rawBasketProduct),
             baseModel: basket_product
               ? parseBasketProductModel(basket_product)
               : baseModel,
@@ -494,10 +499,19 @@ export default createMachine(
             rawBasketProduct?.price_option_override
           ),
           options: parseSubproductDetails(
-            data.product.products_options,
-            model?.term
+            mergeBasketSubproducts(
+              data.product.products_options,
+              rawBasketProduct?.options
+            ),
+            model?.term,
+            data?.currency?.id
           ),
-          attributes: parseSubproductDetails(data.product.products_attributes),
+          attributes: parseSubproductDetails(
+            mergeBasketSubproducts(
+              data.product.products_attributes,
+              rawBasketProduct?.attributes
+            )
+          ),
           provisionFields: data.rawProvisionFields,
           bundled: parseBundledProducts(data.product, bundle)
         })

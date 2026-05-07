@@ -1,16 +1,19 @@
 // --- externals
 import { parse } from "psl";
+import { computed } from "vue";
+
+import type { Ref } from "vue";
 
 // --- internals
 import { useBrand } from "../brand";
 import {
   calculateBillingTerm,
+  parseProductDetails,
   parseProductProps,
-  parsePrice
+  parseTermDetails
 } from "../product/utils";
 
 // --- utils
-import { parseProductDetails, parseTermDetails } from "../product/utils";
 import {
   compact,
   filter,
@@ -32,8 +35,9 @@ import {
 import {
   type IBasketProduct,
   type IBlueprint,
+  type IDomainSuggestionResult,
+  type IDomainSuggestionResultProduct,
   type IProduct,
-  type IProductPrice,
   ProvisionCategoryCodes
 } from "@upmind-automation/types";
 import type { BasketProduct } from "../basketProduct";
@@ -41,11 +45,87 @@ import type {
   DomainProduct,
   DomainModel,
   RegistrantDetails,
-  RegistrantFieldMapEntry,
-  IDomainSuggestionResult
+  RegistrantFieldMapEntry
 } from "./types";
 import { REGISTRANT_FIELD_MAP, REQUIRED_REGISTRANT_FIELDS } from "./types";
 import { type ProductProps } from "../product";
+
+// ----------------------------------------------------------------------------
+
+/**
+ * Selects the best price entry from a list of prices and builds a
+ * zeroed-savings price object. Used as a fallback when full product
+ * term/promotion parsing is unavailable or fails.
+ *
+ * Priority: 12-month → preferred cycle → lowest term.
+ */
+export function buildFallbackPricing(
+  prices: any[],
+  preferredCycle?: number
+): { price: DomainProduct["price"]; billingCycleMonths: number } {
+  const sortedPrices = sortBy(prices, "billing_cycle_months");
+  const priceEntry =
+    find(prices, ["billing_cycle_months", 12]) ??
+    find(prices, ["billing_cycle_months", preferredCycle]) ??
+    sortedPrices[0];
+
+  const priceFormatted = priceEntry?.price_formatted ?? "";
+  const priceDiscountedFormatted =
+    priceEntry?.price_discounted_formatted ?? null;
+  const billingCycleMonths = priceEntry?.billing_cycle_months ?? 12;
+
+  return {
+    price: {
+      currentPrice: priceDiscountedFormatted ?? priceFormatted,
+      currentAmount: 0,
+      regularPrice: priceFormatted,
+      regularAmount: 0,
+      savingAmount: 0,
+      savingPrice: "",
+      savingPercent: ""
+    },
+    billingCycleMonths
+  };
+}
+
+// ----------------------------------------------------------------------------
+
+/**
+ * Sanitises a raw domain input string — strips protocols, www, ports,
+ * paths, query strings, fragments, and invalid characters.
+ */
+export function sanitizeDomainInput(value: string): string {
+  return value
+    .replace(/^https?:\/\//i, "") // remove protocol
+    .replace(/^w{3}\./i, "") // remove www.
+    .replace(/[:\/?#].*$/, "") // remove port, path, query, fragment
+    .replace(/[^a-z0-9\-\.]/gi, "") // remove invalid chars
+    .replace(/^[\.\-]+/, "") // remove leading dots and hyphens
+    .replace(/[\.\-]+$/, "") // remove trailing dots and hyphens
+    .replace(/-+\./g, ".") // strip trailing hyphens before dots (SLD)
+    .replace(/\.-+/g, ".") // strip leading hyphens after dots (TLD)
+    .replace(/\.{2,}/g, ".") // collapse consecutive dots
+    .toLowerCase();
+}
+
+/**
+ * Reactive domain parser — sanitises a raw domain input into its component
+ * parts (full domain, SLD, TLD).
+ */
+export function useDomainParser(domain: Ref<string>) {
+  const sanitisedDomain = computed(() => sanitizeDomainInput(domain.value));
+
+  const sanitisedSld = computed(
+    () => sanitisedDomain.value.split(".")[0] ?? ""
+  );
+
+  const sanitisedTld = computed(() => {
+    const matches = sanitisedDomain.value.match(/(?:^[^\.]+)(\..{2,})/i);
+    return matches?.[1] || "";
+  });
+
+  return { sanitisedDomain, sanitisedSld, sanitisedTld };
+}
 
 // ----------------------------------------------------------------------------
 const DOMAIN_PATTERN =
@@ -181,7 +261,8 @@ export function parseSuggestions(
         );
 
         // Extract sub_pids from setup_function_sub_ids based on mode
-        const setupSubIds = product.setup_function_sub_ids;
+        const setupSubIds = (product as IDomainSuggestionResultProduct)
+          .setup_function_sub_ids;
         const subproducts: string[] = compact(
           setupSubIds?.[mode] ?? [product.sub_product_id]
         );
@@ -222,18 +303,13 @@ export function parseSuggestions(
       }
     }
 
-    const prices = product?.prices ?? [];
-    // Prefer 12-month price, then preferred cycle, then lowest term
-    const sortedPrices = sortBy(prices, "billing_cycle_months");
-    const priceEntry =
-      find(prices, (p: IProductPrice) => p.billing_cycle_months === 12) ??
-      find(
-        prices,
-        (p: IProductPrice) => p.billing_cycle_months === preferredCycle
-      ) ??
-      first(sortedPrices);
-
-    const billingCycleMonths = priceEntry?.billing_cycle_months ?? 12;
+    // Fallback when product is missing or parsing failed.
+    // The product may simply not have arrived yet (split suggestions/tlds flow):
+    // mark the row as priceLoading so the card renders a price skeleton.
+    const { price, billingCycleMonths } = buildFallbackPricing(
+      product?.prices ?? [],
+      preferredCycle
+    );
 
     return {
       domain: parsedDomain?.domain ?? fullDomain,
@@ -245,10 +321,11 @@ export function parseSuggestions(
         quantity: 1,
         provisionFields: { sld }
       },
-      price: parsePrice(priceEntry as IProductPrice),
+      price,
       meta: {
         available: can_register,
-        canTransfer: can_transfer
+        canTransfer: can_transfer,
+        priceLoading: !product
       },
       productDetails: {
         id: product_id,
@@ -374,7 +451,9 @@ export function hasTransferIndicator(product: any): boolean {
  * @returns `true` if the basket product is a domain transfer.
  */
 export function isBasketTransfer(raw: IBasketProduct): boolean {
-  const transferSubIds = raw.product?.setup_function_sub_ids?.transfer ?? [];
+  const transferSubIds =
+    (raw.product as IDomainSuggestionResultProduct | undefined)
+      ?.setup_function_sub_ids?.transfer ?? [];
 
   if (
     transferSubIds.length > 0 &&

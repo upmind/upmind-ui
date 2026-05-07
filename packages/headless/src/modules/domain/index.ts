@@ -1,12 +1,13 @@
 export * from "./useDomain";
 export * from "./useDac";
-export * from "./useDomainRegistrant";
 export * from "./types";
 export {
   parseDomain,
   parseDomainParts,
   isDomainProduct,
   getDomainBasketProducts,
+  sanitizeDomainInput,
+  useDomainParser,
   emptyRegistrant,
   mapBillingToRegistrant,
   mapRegistrantToProvisionFields,
