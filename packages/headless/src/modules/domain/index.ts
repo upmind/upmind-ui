@@ -2,8 +2,9 @@ export * from "./useDomain";
 export * from "./useDac";
 export * from "./types";
 export {
-  getDomainBasketProducts,
-  getDomainRawBasketProducts,
+  parseDomain,
   isDomainProduct,
-  parseDomain
+  getDomainBasketProducts,
+  sanitizeDomainInput,
+  useDomainParser
 } from "./utils";

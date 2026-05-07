@@ -44,8 +44,17 @@ export interface DomainCardsProps {
   loading?: boolean;
   processing?: boolean;
   searching?: boolean;
+  /**
+   * `true` while a "Load more" page is being fetched. Used to show the
+   * Load more button in a loading state and to disable the per-card
+   * Add to basket buttons until the new page arrives.
+   */
+  searchingMore?: boolean;
   valid?: boolean;
   disabled?: boolean;
+  /** Whether the "Load more" button should render (page < totalPages, etc.). */
+  hasMore?: boolean;
+  // ---
 }
 
 export interface DomainSlotProps {
@@ -79,6 +88,8 @@ export type DomainCardProps = {
   free?: DomainProduct["meta"]["free"];
   canTransfer?: DomainProduct["meta"]["canTransfer"];
   unavailable?: DomainProduct["meta"]["unavailable"];
+  /** `true` while pricing/product data is being fetched from /suggestions/tlds. */
+  priceLoading?: boolean;
   exactMatch?: boolean;
 };
 
@@ -98,6 +109,7 @@ export interface DomainCardMeta {
   isDiscounted: boolean;
   isUnavailable: boolean;
   isTransferable: boolean;
+  isPriceLoading: boolean;
 }
 
 export interface DomainCardSkeletonProps {
