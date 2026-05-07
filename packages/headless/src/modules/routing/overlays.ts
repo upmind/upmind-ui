@@ -3,81 +3,54 @@
  * @module routing/overlays
  * @description Overlay route system for deep-linkable UI overlays (modals/drawers).
  * Dynamically injects child routes onto eligible parent routes so that navigating
- * to e.g. `/basket/auth` opens an auth overlay on the basket page.
+ * to e.g. `/basket/auth/` opens an auth overlay on the basket page.
  */
 
 // --- external
-import { defineComponent } from "vue";
 import { assign } from "xstate";
-import { filter, reduce, isString } from "lodash-es";
+import { filter, forEach, isString, keys, reduce } from "lodash-es";
 
 // --- utils
 import { pascalCase } from "./utils";
 
 // --- types
-import type { Router } from "vue-router";
+import type { Router, RouteRecordRaw } from "vue-router";
 import type { AnyEventObject } from "xstate";
-import type { FunnelContext, OverlayDefinition } from "./types";
 import { OverlayType } from "./types";
+import type { FunnelContext, FunnelProps } from "./types";
+
+// -----------------------------------------------------------------------------
+
+/** Overlay registry type — maps path suffix to route name */
+export type OverlayRegistry = Record<string, string>;
+
+/** Cached route records for overlay components, keyed by route name */
+const overlayRouteCache = new Map<string, RouteRecordRaw>();
 
 // -----------------------------------------------------------------------------
 
 /**
- * Global overlays — injected as children on every eligible route.
- * Each overlay is a single route. Internal step progression (login → 2FA → verify)
- * is driven by composable state, not by sub-routes.
+ * Generate funnel endpoint state nodes from overlay registry.
+ * Each overlay gets a state node for funnel guard evaluation.
+ * Guards are handled by the funnel itself via route meta.
  *
- * `defaultType` is a sensible fallback. Brands override via UI meta:
- *   `@context.cart.overlay.auth.type: "modal" | "drawer"`
- */
-export const GLOBAL_OVERLAYS: OverlayDefinition[] = [
-  {
-    path: "auth",
-    id: "auth",
-    defaultType: OverlayType.MODAL,
-    guard: "guardSession"
-  },
-  {
-    path: "2fa",
-    id: "2fa",
-    defaultType: OverlayType.MODAL,
-    guard: "guardSession"
-  },
-  {
-    path: "verify-email",
-    id: "verify-email",
-    defaultType: OverlayType.MODAL,
-    guard: "guardSession"
-  }
-];
-
-// -----------------------------------------------------------------------------
-
-/**
- * Generate funnel endpoint state nodes from overlay definitions.
- * Each guarded overlay gets a state node that invokes its guard service:
- * - **onDone** (guard passes, e.g. user IS authenticated) → redirect to parent route
- * - **onError** (guard fails, e.g. user NOT authenticated) → resolve normally, overlay renders
- *
+ * @param registry - Map of path suffix to route name (e.g. { "auth/": "overlay-auth" })
  * @returns `{ states, guards, actions }` to merge into funnel config
  */
-export function createEndpointNodes(overlays: OverlayDefinition[]) {
-  const guarded = filter(
-    overlays,
-    (ep): ep is OverlayDefinition & { guard: string } => !!ep.guard
+export function createEndpointNodes(
+  registry: OverlayRegistry = {}
+): NonNullable<FunnelProps["endpoints"]> {
+  const overlayIds = keys(registry).map((path: string) =>
+    path.replace(/\/$/, "")
   );
 
-  // --- states: endpoint state nodes with guard invocations
+  // --- states: endpoint state nodes
   const states = reduce(
-    guarded,
-    (acc: Record<string, unknown>, ep) => {
-      acc[`endpoint:${ep.id}`] = {
-        meta: { isEndpoint: true, overlayId: ep.id },
-        invoke: {
-          src: ep.guard,
-          onDone: { actions: ["resolveToParent"] },
-          onError: { actions: ["setResolved"] }
-        }
+    overlayIds,
+    (acc: Record<string, unknown>, id: string) => {
+      acc[`endpoint:${id}`] = {
+        meta: { isEndpoint: true, overlayId: id },
+        entry: ["setResolved"]
       };
       return acc;
     },
@@ -86,77 +59,132 @@ export function createEndpointNodes(overlays: OverlayDefinition[]) {
 
   // --- guards: endsWith matching (e.g. "basket--auth" matches endpoint:auth)
   const guards = reduce(
-    guarded,
-    (acc: Record<string, any>, ep) => {
-      acc[`isEndpoint${pascalCase(ep.id)}`] = (
+    overlayIds,
+    (acc: NonNullable<FunnelProps["guards"]>, id: string) => {
+      acc[`isEndpoint${pascalCase(id)}`] = (
         { targetRoute }: FunnelContext,
         { data }: AnyEventObject
       ) => {
         const target =
           (isString(data?.target) ? { name: data.target } : data?.target) ??
           targetRoute;
-        return !!target?.name?.toString().endsWith(`--${ep.id}`);
+        return !!target?.name?.toString().endsWith(`--${id}`);
       };
       return acc;
     },
-    {} as Record<string, any>
+    {} as NonNullable<FunnelProps["guards"]>
   );
 
   // --- actions: resolveToParent strips the overlay suffix and redirects
-  const actions = {
+  const actions: FunnelProps["actions"] = {
     resolveToParent: assign({
       resolved: true,
       targetRoute: ({ currentRoute, targetRoute }: FunnelContext) => {
         const route = targetRoute ?? currentRoute;
         const name = route?.name?.toString() ?? "";
-        // NB: Strips the last `--{id}` suffix. Safe because overlay route names
-        // use `parentName--overlayId` convention. Standard routes use single hyphens.
         const parentName = name.replace(/--[^-]+$/, "");
         return { ...route, name: parentName || route?.name || undefined };
       }
     })
   };
 
-  return { states, guards, actions };
+  return { actions, guards, states };
 }
 
 // -----------------------------------------------------------------------------
 
-/** Stub — overlays are rendered by the layout, not by <router-view> */
-const OverlayStub = defineComponent({ render: () => null });
-
 /**
- * Inject global overlay child routes into all eligible parent routes.
- * Call at app startup, after all routes are registered.
- * Safe to call multiple times — skips routes already registered.
+ * Inject overlay child routes onto all eligible parent routes.
+ * Looks up each overlay by route name in vue-router and injects it
+ * as a child on eligible parent routes.
  *
- * Routes opt out via `meta: { allowOverlays: false }`.
+ * @param router - Vue Router instance
+ * @param registry - Map of path suffix to route name (e.g. { "auth/": "overlay-auth" })
+ *
+ * @example
+ * // With this registry:
+ * registerOverlayRoutes(router, { "auth/": "overlay-auth" });
+ *
+ * // These routes become available:
+ * // /basket/auth/ → renders overlay-auth component
+ * // /checkout/auth/ → renders overlay-auth component
  */
 export function registerOverlayRoutes(
   router: Router,
-  overlays: OverlayDefinition[] = GLOBAL_OVERLAYS
+  registry: OverlayRegistry = {}
 ): void {
-  const routes = filter(
+  // Build cache of overlay route records
+  forEach(registry, (routeName: string, _path: string) => {
+    if (overlayRouteCache.has(routeName)) return;
+    const route = router
+      .getRoutes()
+      .find((r: RouteRecordRaw) => r.name === routeName);
+    if (route) {
+      overlayRouteCache.set(routeName, route);
+    }
+  });
+
+  // Get eligible parent routes
+  const parentRoutes = filter(
     router.getRoutes(),
     r =>
-      !!r.name && // must be a named route
-      r.meta?.allowOverlays !== false && // opt-out mechanism
-      !r.meta?.overlay // don't nest overlays on overlays
+      !!r.name &&
+      r.meta?.allowOverlays !== false &&
+      !r.meta?.overlay &&
+      !String(r.name).startsWith("overlay")
   );
 
-  for (const route of routes) {
-    for (const overlay of overlays) {
-      const routeName = `${String(route.name)}--${overlay.id}`;
-      if (router.hasRoute(routeName)) continue; // idempotent — skip if already registered
-      router.addRoute(route.name!, {
-        path: overlay.path,
-        name: routeName,
-        component: OverlayStub,
+  // Inject overlays as children on each eligible parent
+  for (const parent of parentRoutes) {
+    forEach(registry, (routeName: string, path: string) => {
+      const overlayId = path.replace(/\/$/, "");
+      const childName = `${String(parent.name)}--${overlayId}`;
+
+      if (router.hasRoute(childName)) return;
+
+      const overlayRoute = overlayRouteCache.get(routeName);
+      if (!overlayRoute) return;
+
+      const component = overlayRoute.components?.default;
+      if (!component) return;
+
+      router.addRoute(parent.name!, {
+        path,
+        name: childName,
+        component,
         meta: {
-          overlay: overlay.defaultType,
-          overlayId: overlay.id
+          ...overlayRoute.meta,
+          overlay: overlayRoute.meta?.overlay ?? OverlayType.MODAL,
+          overlayId
         }
       });
-    }
+    });
   }
+}
+
+// -----------------------------------------------------------------------------
+
+/**
+ * Get the cached overlay route record by route name.
+ * Used by OverlayController to resolve components.
+ *
+ * @param routeName - The overlay route name (e.g. "overlay-auth")
+ * @returns The route record, or undefined if not cached
+ */
+export function getOverlayRoute(routeName: string): RouteRecordRaw | undefined {
+  return overlayRouteCache.get(routeName);
+}
+
+/**
+ * Get the overlay route name from the registry by path suffix.
+ *
+ * @param registry - The overlay registry
+ * @param path - The path suffix (e.g. "auth/")
+ * @returns The route name, or undefined if not found
+ */
+export function getOverlayRouteName(
+  registry: OverlayRegistry,
+  path: string
+): string | undefined {
+  return registry[path] ?? registry[`${path}/`];
 }

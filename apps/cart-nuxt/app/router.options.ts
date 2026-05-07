@@ -11,7 +11,11 @@
  * @see apps/cart/src/router/routes.ts — source of truth for route paths
  */
 import { BID_PREFIX, RegexMatch, ROUTE } from "./funnels/types";
-import { useAssetRecovery } from "@upmind-automation/client-vue";
+import { useAssetRecovery, OverlayType } from "@upmind-automation/client-vue";
+import { reduce } from "lodash-es";
+
+// --- types
+import type { RouteRecordRaw } from "vue-router";
 
 // -----------------------------------------------------------------------------
 
@@ -26,6 +30,43 @@ if (import.meta.client) {
 // -----------------------------------------------------------------------------
 
 const UUID = RegexMatch.UUID;
+
+/**
+ * Overlay route definitions — components rendered inside OverlayController.
+ */
+const OVERLAY_ROUTES: RouteRecordRaw[] = [
+  {
+    path: "/auth/",
+    name: ROUTE.OVERLAY_AUTH,
+    component: () => import("~/pages/overlays/AuthOverlay.vue"),
+    meta: { overlay: OverlayType.MODAL }
+  },
+  {
+    path: "/2fa/",
+    name: ROUTE.OVERLAY_2FA,
+    component: () => import("~/pages/overlays/AuthOverlay.vue"),
+    meta: { overlay: OverlayType.MODAL }
+  },
+  {
+    path: "/verify-email/",
+    name: ROUTE.OVERLAY_VERIFY_EMAIL,
+    component: () => import("~/pages/overlays/AuthOverlay.vue"),
+    meta: { overlay: OverlayType.MODAL }
+  }
+];
+
+/**
+ * Overlay registry — maps relative path suffix to route name.
+ * Used by registerOverlayRoutes() to inject child routes.
+ */
+const CART_OVERLAYS: Record<string, string> = reduce(
+  OVERLAY_ROUTES,
+  (acc, route) => ({
+    ...acc,
+    [route.path.replace(/^\//, "")]: route.name as string
+  }),
+  {}
+);
 
 /**
  * Set of route names that we are replacing with BID-aware versions.
@@ -179,6 +220,12 @@ export default {
       }
     );
 
+    // Add overlay routes (components for OverlayController to resolve)
+    filtered.push(...OVERLAY_ROUTES);
+
     return filtered;
   }
 };
+
+// Export overlay registry for use in plugins
+export { CART_OVERLAYS };

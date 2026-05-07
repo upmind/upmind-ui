@@ -2,12 +2,10 @@
   <!-- Overlay — rendered when route has meta.overlay -->
   <component
     :is="overlayContainer"
-    v-if="isOpen && overlayComponent"
+    v-bind="safeProps"
     :open="open"
-    size="lg"
-    no-footer
     @close="handleDismiss"
-    @update:open="value => !value && handleDismiss()"
+    @update:open="handleDismiss"
   >
     <component :is="overlayComponent" @close="handleClose" />
   </component>
@@ -17,43 +15,81 @@
 /**
  * Overlay Controller
  * Watches the current route for overlay meta and renders the appropriate
- * container (Drawer or Modal) with the registered overlay content component.
+ * container (Drawer or Modal) with the overlay component from the matched route.
  * Place this in the app shell / layout — it handles all overlay routes.
  *
- * Uses a local `open` ref so the overlay can begin its close animation
- * immediately when content emits close, without waiting for async route guards.
+ * Components are resolved from the vue-router route record, not a separate registry.
  */
 
 // --- external
 import { computed, ref, watch } from "vue";
+import { useRoute } from "vue-router";
 
 // --- internal
 import { OverlayType } from "@upmind-automation/headless";
 import { useOverlayRoute } from "./useOverlayRoute";
-import { Drawer, Dialog } from "@upmind-automation/upmind-ui";
+import { Drawer, Dialog, Slot } from "@upmind-automation/upmind-ui";
 
 // --- utils
-import { get } from "lodash-es";
+import { defaults, find } from "lodash-es";
 
-// --- registry
-import { OVERLAY_REGISTRY } from "./overlayRegistry";
+// --- types
+import type { RouteRecordNormalized } from "vue-router";
+import type { DrawerProps } from "@upmind-automation/upmind-ui";
+import type { DialogProps } from "@upmind-automation/upmind-ui";
 
 // -----------------------------------------------------------------------------
 
-const { isOpen, overlayId, overlayType, close, dismiss } = useOverlayRoute();
+const props = withDefaults(defineProps<DrawerProps | DialogProps>(), {
+  modal: undefined,
+  noFooter: true
+});
+
+const route = useRoute();
+const { isOpen, overlayType, close, dismiss } = useOverlayRoute();
+
+/** Matched route with overlay meta */
+const overlayRoute = computed(() => find(route.matched, "meta.overlay"));
 
 /** Resolve container (Dialog or Drawer) from overlay type */
-const overlayContainer = computed(() =>
-  overlayType.value === OverlayType.MODAL ? Dialog : Drawer
+const overlayContainer = computed(() => {
+  switch (overlayType.value) {
+    case OverlayType.MODAL:
+      return Dialog;
+
+    case OverlayType.DRAWER:
+      return Drawer;
+
+    default:
+    case OverlayType.CUSTOM:
+      return Slot;
+  }
+});
+
+/** Resolve content component from matched overlay route */
+const overlayComponent = computed(
+  () => overlayRoute.value?.components?.default
 );
 
-/** Resolve content component from registry by overlayId */
-const overlayComponent = computed(() =>
-  overlayId.value ? get(OVERLAY_REGISTRY, overlayId.value) : undefined
-);
+/** Props with sensible defaults based on overlay type, merged with route meta */
+const safeProps = computed(() => {
+  const metaProps = overlayRoute.value?.meta ?? {};
+
+  switch (overlayType.value) {
+    case OverlayType.MODAL:
+      return defaults({}, metaProps, props) as DialogProps;
+
+    case OverlayType.DRAWER:
+      return defaults({}, metaProps, props) as DrawerProps;
+
+    default:
+    case OverlayType.CUSTOM:
+      return props;
+  }
+});
 
 /** Local open state — synced with route, but can be closed independently */
-const open = ref(false);
+const open = ref(props.open ?? false);
 
 watch(
   isOpen,
@@ -71,8 +107,8 @@ function handleClose(): void {
 }
 
 /** Dismissed via backdrop click, X, or ESC → go back, fallback to "/" */
-function handleDismiss(): void {
-  if (!open.value) return;
+function handleDismiss(value: boolean): void {
+  if (value || !open.value) return;
   open.value = false;
   dismiss();
 }

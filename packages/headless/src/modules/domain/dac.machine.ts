@@ -9,8 +9,17 @@ import { useFeedback } from "../feedback";
 
 // --- utils
 import { mapToHeadlessError, useTime } from "../../utils";
-import { parseDomain, parseValue, parseSld, isDomainProduct } from "./utils";
-import { parseProductProps } from "../product/utils";
+import {
+  parseDomain,
+  parseValue,
+  parseSld,
+  isDomainProduct,
+  sanitizeDomainInput
+} from "./utils";
+import {
+  fillRequiredOptionDefaults,
+  parseProductProps
+} from "../product/utils";
 import {
   compact,
   concat,
@@ -98,12 +107,13 @@ export default createMachine(
               : services.search(context)
         },
         on: {
-          // Each resolved call sends SEARCH_RESULTS — stays in searching
-          // to keep the callback service alive for the other call
+          // /suggestions (lightweight rows) — stays in searching until COMPLETE
           SEARCH_RESULTS: {
             actions: ["setSearchResults"]
           },
-          // All pending calls done — transition out
+          // Suggestions finished — transition out so the list renders.
+          // /suggestions/tlds and the exact-match availability call may
+          // still be in-flight; their results come in below as SEARCH_*.
           SEARCH_COMPLETE: {
             target: "invalid"
           },
@@ -376,8 +386,12 @@ export default createMachine(
               query: undefined,
               limit: PAGINATION.limit,
               offset: PAGINATION.offset,
-              total: 0
+              total: 0,
+              page: 1,
+              totalPages: 0
             },
+            // ---
+            productsMap: {},
             // ---
             useSuggestions: false,
             // ---
@@ -509,11 +523,20 @@ export default createMachine(
           data
         ]) as DomainProduct;
 
-        const model = isFunction(context?.parseProductModel)
+        const baseModel = isFunction(context?.parseProductModel)
           ? context.parseProductModel(product)
           : product?.configuration;
 
-        if (model) {
+        if (baseModel) {
+          // Auto-pick the first option for any required option/attribute
+          // category the model hasn't already filled (e.g. domain "Register"
+          // group, ID protection, nameservers). Mirrors the same step in
+          // addDomainToBasket so this fast-path (already-availability-checked
+          // domains going straight through the basket helper) doesn't 422.
+          const model = fillRequiredOptionDefaults(
+            baseModel,
+            product?.rawProduct
+          );
           model.coupons = context.coupons ?? model.coupons ?? []; // NB ensure we pass any coupons from the context to the product being added
           model.silent = true; // NB ensure we add silently so we don't trigger provision field validation at this stage
 
@@ -615,12 +638,17 @@ export default createMachine(
       setSearchQuery: assign({
         search: ({ search }: DacContext, { data }: AnyEventObject) => {
           return {
-            query: data?.slice(0, 63), // max domain length is 63 characters as per BE
+            query: sanitizeDomainInput(data ?? "").slice(0, 63), // sanitise + max domain length is 63 characters as per BE
             offset: PAGINATION.offset,
             limit: search?.limit ?? PAGINATION.limit,
-            total: 0
+            total: 0,
+            page: 1,
+            totalPages: 0
           };
-        }
+        },
+        // Reset the cumulative products map — a fresh query starts paginating
+        // from page 1 with its own set of TLDs.
+        productsMap: () => ({})
       }),
 
       setSearchOffset: assign({
@@ -628,14 +656,18 @@ export default createMachine(
           const current = search ?? {
             offset: PAGINATION.offset,
             limit: PAGINATION.limit,
-            total: 0
+            total: 0,
+            page: 1,
+            totalPages: 0
           };
 
           return {
             query: current.query,
             limit: current.limit,
             offset: current.offset + (current.limit ?? PAGINATION.limit),
-            total: current.total
+            total: current.total,
+            page: (current.page ?? 1) + 1,
+            totalPages: current.totalPages ?? 0
           };
         }
       }),
@@ -645,7 +677,9 @@ export default createMachine(
           query: undefined,
           offset: PAGINATION.offset,
           limit: search?.limit ?? PAGINATION.limit,
-          total: 0
+          total: 0,
+          page: 1,
+          totalPages: 0
         }),
         lookups: ({ lookups }) => {
           // lookups.history = [];
@@ -655,11 +689,25 @@ export default createMachine(
       }),
 
       setSearchResults: assign({
+        // Persist the cumulative product_id → IProduct map back into context
+        // so the next paginated search service invocation seeds from it
+        // (page-N suggestions can reference TLDs returned on earlier pages).
+        productsMap: (
+          { productsMap }: DacContext,
+          { data: response }: AnyEventObject
+        ) => ({
+          ...(productsMap ?? {}),
+          ...(response?.productsMap ?? {})
+        }),
         lookups: (
           { lookups, model, search }: DacContext,
           { data: response }: AnyEventObject
         ) => {
-          const previous = (search?.offset ?? 0 > 0) ? lookups.searched : [];
+          // Keep prior rows when paginating: page > 1 (suggestions flow)
+          // or offset > 0 (legacy flow).
+          const isPaginated =
+            (search?.page ?? 1) > 1 || (search?.offset ?? 0) > 0;
+          const previous = isPaginated ? lookups.searched : [];
 
           const available: DomainProduct[] = map(
             response?.data,
@@ -695,11 +743,31 @@ export default createMachine(
             }
           );
 
-          set(
-            lookups,
-            "searched",
-            uniqBy(compact(concat(previous, available)), "domain")
-          );
+          // Merge by domain. Two scenarios drive this:
+          //   1. Within one search round, /suggestions emits priceLoading rows
+          //      and /suggestions/tlds re-emits the same rows priced — we
+          //      need to upgrade the row in-place.
+          //   2. Pagination (Load more) emits the next page; existing rows
+          //      must NOT change. If the API happens to return overlapping
+          //      domains in a later page, keep the already-loaded version.
+          //
+          // Rule: only replace an existing row when the incoming row is a
+          // strict upgrade (existing.priceLoading=true → incoming priced).
+          // Otherwise leave the existing row alone. Truly new domains are
+          // appended at the bottom.
+          const updatedPrevious = map(previous, (prev: DomainProduct) => {
+            const fresher = find(available, ["domain", prev.domain]);
+            if (!fresher) return prev;
+            const isUpgrade =
+              !!prev.meta?.priceLoading && !fresher.meta?.priceLoading;
+            return (isUpgrade ? fresher : prev) as DomainProduct;
+          });
+          const newOnly = filter(
+            available,
+            (item: DomainProduct) => !find(previous, ["domain", item.domain])
+          ) as DomainProduct[];
+
+          set(lookups, "searched", compact(concat(updatedPrevious, newOnly)));
 
           // store all previous searches
           set(
@@ -718,7 +786,9 @@ export default createMachine(
             query: search?.query ?? undefined,
             offset: search?.offset ?? 0,
             limit: search?.limit ?? PAGINATION.limit,
-            total: response?.total || 0
+            total: response?.total || 0,
+            page: response?.page ?? search?.page ?? 1,
+            totalPages: response?.totalPages ?? search?.totalPages ?? 0
           };
         }
       }),
@@ -866,8 +936,7 @@ export default createMachine(
 
             // Rebuild configuration with register sub_pids from setup_function_sub_ids
             if (product.rawProduct) {
-              const setupSubIds = (product.rawProduct as any)
-                .setup_function_sub_ids;
+              const setupSubIds = product.rawProduct.setup_function_sub_ids;
               const subproducts: string[] = compact(
                 setupSubIds?.register ?? [product.rawProduct.sub_product_id]
               );
@@ -908,8 +977,7 @@ export default createMachine(
 
             // Rebuild configuration with transfer sub_pids from setup_function_sub_ids
             if (product.rawProduct) {
-              const setupSubIds = (product.rawProduct as any)
-                .setup_function_sub_ids;
+              const setupSubIds = product.rawProduct.setup_function_sub_ids;
               const subproducts: string[] = compact(
                 setupSubIds?.transfer ?? [product.rawProduct.sub_product_id]
               );
@@ -1021,6 +1089,11 @@ export default createMachine(
         return sld?.length > 2 && sld.length <= 63;
       },
       validSearchOffset: ({ search }: DacContext, _event: AnyEventObject) => {
+        // Page-based (suggestions/tlds) flow: advance while page < totalPages
+        if ((search?.totalPages ?? 0) > 0) {
+          return (search?.page ?? 1) < (search?.totalPages ?? 0);
+        }
+        // Legacy offset-based flow
         const offset = (search?.offset ?? 0) + (search?.limit ?? 0);
         return offset < (search?.total || 0);
       },

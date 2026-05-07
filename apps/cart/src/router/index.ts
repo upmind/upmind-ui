@@ -2,12 +2,12 @@
 import { createRouter, createWebHistory } from "vue-router";
 
 // --- internal
-import routes from "./routes";
+import routes, { CART_OVERLAYS } from "./routes";
 import {
   registerOverlayRoutes,
-  useAssetRecovery
+  useAssetRecovery,
+  useRoutingEngine
 } from "@upmind-automation/client-vue";
-import { useRoutingEngine } from "@upmind-automation/client-vue";
 
 // ---types
 export * from "./funnels/types";
@@ -38,8 +38,9 @@ const router = createRouter({
   }
 });
 
-// Register overlay routes before initial navigation so deep-linked URLs resolve
-registerOverlayRoutes(router);
+// Register overlay routes synchronously so deep-linked URLs resolve correctly.
+// Must happen before the app mounts (initial navigation).
+registerOverlayRoutes(router, CART_OVERLAYS);
 
 // --- clear retry flag on successful navigation
 router.afterEach(() => {

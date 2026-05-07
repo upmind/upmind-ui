@@ -33,6 +33,7 @@ export enum LAYOUT_MODE {
 
 export enum LAYOUT_OVERFLOW {
   HIDDEN = "hidden",
+  CLIP = "clip",
   VISIBLE = "visible"
 }
 
@@ -58,7 +59,8 @@ export type UseLayoutProps = {
   mode?: LAYOUT_MODE;
   /**
    * The current layout overflow.
-   * - HIDDEN: The main element overflow is hidden.
+   * - HIDDEN: The main element overflow is hidden (creates a scroll container — breaks descendant `position: sticky` against window scroll).
+   * - CLIP: The main element overflow is clipped (no scroll container — descendant `position: sticky` continues to resolve against window scroll).
    * - VISIBLE: The main element overflow is visible.
    * @default LAYOUT_OVERFLOW.VISIBLE
    */

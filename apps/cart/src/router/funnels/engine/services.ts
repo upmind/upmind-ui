@@ -607,8 +607,8 @@ export default {
       } as FunnelResponse);
     }
 
-    // We always need products in the basket to proceed to checkout
-    if (!meta.value.hasProducts) {
+    // We always need products ( that are not locked) in the basket to proceed to checkout
+    if (!meta.value.hasProducts || meta.value.hasLockedProducts) {
       return Promise.reject({ target: { name: ROUTE.BASKET } });
     }
 
