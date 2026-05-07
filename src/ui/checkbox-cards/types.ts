@@ -27,6 +27,8 @@ export type CheckboxCardsItemProps = ToggleGroupItemProps & {
   secondaryBadge?: BadgeProps;
   action?: CheckboxCardsItemActionProps;
   id?: string;
+  /** Override the auto-generated data-testid for this item */
+  "data-testid"?: string;
   /** When `true`, prevents the user from interacting with the radio item. */
   disabled?: boolean;
   /** When `true`, indicates that the user must check the radio item before the owning form can be submitted. */

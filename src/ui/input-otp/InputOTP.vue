@@ -302,12 +302,9 @@ onMounted(() => {
 watch(
   () => modelValue.value,
   newVal => {
-    if (
-      newVal &&
-      newVal.length === props.maxlength &&
-      newVal !== currentValue.value
-    ) {
+    if ((newVal ?? "") !== currentValue.value) {
       init();
+      if (!newVal) setFocusedIndex(0);
     }
   }
 );

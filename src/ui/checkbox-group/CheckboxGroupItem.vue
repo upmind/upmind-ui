@@ -4,23 +4,14 @@
     :key="index"
     :class="
       cn(
-        'group m-0! flex w-full items-start rounded-sm pl-10 text-start leading-none outline-none select-none',
-        props.noInput ? 'pl-6' : '',
+        'group m-0! flex w-full cursor-pointer items-center gap-2 text-start outline-none select-none',
         props.itemClass
       )
     "
   >
-    <span
-      :class="
-        cn(
-          'group-data-[state=checked]:text-control-active-foreground focus-visible:ring-ring shadow-control-default-default bg-control-surface text-control-foreground ring-offset-core-canvas group-data-[state=checked]:bg-control-active absolute top-0 left-0 flex aspect-square h-4 w-4 shrink-0 items-center justify-center rounded-sm border group-disabled:cursor-not-allowed group-disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none data-[state=checked]:shadow-none',
-          props.class,
-          props.noInput ? 'sr-only' : ''
-        )
-      "
-    >
+    <span v-if="!props.noInput" :class="cn(styles.checkbox, props.class)">
       <ListboxItemIndicator>
-        <Check class="h-3 w-3" />
+        <Check class="text-control-checked-contrast h-3 w-3" />
       </ListboxItemIndicator>
     </span>
 
@@ -37,7 +28,8 @@ import {
   useForwardProps
 } from "radix-vue";
 import { computed, type HTMLAttributes } from "vue";
-import { cn } from "../../utils";
+import { cn, useStyles } from "../../utils";
+import config from "./checkboxGroup.config";
 
 const props = defineProps<
   ListboxItemProps & {
@@ -45,8 +37,15 @@ const props = defineProps<
     class?: HTMLAttributes["class"];
     itemClass?: HTMLAttributes["class"];
     noInput?: boolean;
+    size?: "sm" | "md";
   }
 >();
+
+const meta = computed(() => ({
+  size: props.size ?? "md"
+}));
+
+const styles = useStyles(["checkbox"], meta, config);
 
 const delegatedProps = computed(() => {
   const { class: _, ...delegated } = props;
