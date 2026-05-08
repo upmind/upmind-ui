@@ -47,12 +47,11 @@ import type { DropdownMenuItemProps } from "@upmind-automation/upmind-ui";
 
 import { useI18n } from "vue-i18n";
 
-const { t } = useI18n();
-
 const emit = defineEmits<{
   register: [];
 }>();
 
+const { t } = useI18n();
 const { client, logout, meta } = useSession();
 
 const items = computed<DropdownMenuItemProps[]>(() => {
