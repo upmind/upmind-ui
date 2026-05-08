@@ -9,8 +9,17 @@ import { useFeedback } from "../feedback";
 
 // --- utils
 import { mapToHeadlessError, useTime } from "../../utils";
-import { parseDomain, parseValue, parseSld, isDomainProduct } from "./utils";
-import { parseProductProps } from "../product/utils";
+import {
+  parseDomain,
+  parseValue,
+  parseSld,
+  isDomainProduct,
+  sanitiseDomainInput
+} from "./utils";
+import {
+  fillRequiredOptionDefaults,
+  parseProductProps
+} from "../product/utils";
 import {
   compact,
   concat,
@@ -98,12 +107,13 @@ export default createMachine(
               : services.search(context)
         },
         on: {
-          // Each resolved call sends SEARCH_RESULTS — stays in searching
-          // to keep the callback service alive for the other call
+          // /suggestions (lightweight rows) — stays in searching until COMPLETE
           SEARCH_RESULTS: {
             actions: ["setSearchResults"]
           },
-          // All pending calls done — transition out
+          // Suggestions finished — transition out so the list renders.
+          // /suggestions/tlds and the exact-match availability call may
+          // still be in-flight; their results come in below as SEARCH_*.
           SEARCH_COMPLETE: {
             target: "invalid"
           },
@@ -177,14 +187,13 @@ export default createMachine(
         entry: ["clearError"],
         invoke: {
           src: "addDomainToBasket",
+          // Order matters: error-code conditions are checked BEFORE the
+          // generic `isDomainAvailable`. The error-only register/transfer
+          // returns share the same `can_register`/`can_transfer` shape as
+          // the success case (with an extra `error_code`), so without this
+          // ordering `isDomainAvailable` would short-circuit and the row
+          // would never flip.
           onDone: [
-            {
-              // addDomainToBasket already added the product to the basket
-              // via the API — keep processing=true until the basket subscription
-              // confirms the add (setBasketProducts will clear processing)
-              target: "valid",
-              cond: "isDomainAvailable"
-            },
             {
               // 409 conflict — flip domain type (register↔transfer)
               // Keep checkedAvailability=false so next click retries addDomainToBasket
@@ -223,6 +232,13 @@ export default createMachine(
                 "setFullyUnavailable"
               ],
               cond: "isDomainNotForSale"
+            },
+            {
+              // addDomainToBasket already added the product to the basket
+              // via the API — keep processing=true until the basket subscription
+              // confirms the add (setBasketProducts will clear processing)
+              target: "valid",
+              cond: "isDomainAvailable"
             },
             {
               // can_register=false BUT can_transfer=true → convert row to transfer
@@ -376,8 +392,12 @@ export default createMachine(
               query: undefined,
               limit: PAGINATION.limit,
               offset: PAGINATION.offset,
-              total: 0
+              total: 0,
+              page: 1,
+              totalPages: 0
             },
+            // ---
+            productsMap: {},
             // ---
             useSuggestions: false,
             // ---
@@ -509,11 +529,20 @@ export default createMachine(
           data
         ]) as DomainProduct;
 
-        const model = isFunction(context?.parseProductModel)
+        const baseModel = isFunction(context?.parseProductModel)
           ? context.parseProductModel(product)
           : product?.configuration;
 
-        if (model) {
+        if (baseModel) {
+          // Auto-pick the first option for any required option/attribute
+          // category the model hasn't already filled (e.g. domain "Register"
+          // group, ID protection, nameservers). Mirrors the same step in
+          // addDomainToBasket so this fast-path (already-availability-checked
+          // domains going straight through the basket helper) doesn't 422.
+          const model = fillRequiredOptionDefaults(
+            baseModel,
+            product?.rawProduct
+          );
           model.coupons = context.coupons ?? model.coupons ?? []; // NB ensure we pass any coupons from the context to the product being added
           model.silent = true; // NB ensure we add silently so we don't trigger provision field validation at this stage
 
@@ -615,12 +644,17 @@ export default createMachine(
       setSearchQuery: assign({
         search: ({ search }: DacContext, { data }: AnyEventObject) => {
           return {
-            query: data?.slice(0, 63), // max domain length is 63 characters as per BE
+            query: sanitiseDomainInput(data ?? "").slice(0, 63), // sanitise + max domain length is 63 characters as per BE
             offset: PAGINATION.offset,
             limit: search?.limit ?? PAGINATION.limit,
-            total: 0
+            total: 0,
+            page: 1,
+            totalPages: 0
           };
-        }
+        },
+        // Reset the cumulative products map — a fresh query starts paginating
+        // from page 1 with its own set of TLDs.
+        productsMap: () => ({})
       }),
 
       setSearchOffset: assign({
@@ -628,14 +662,18 @@ export default createMachine(
           const current = search ?? {
             offset: PAGINATION.offset,
             limit: PAGINATION.limit,
-            total: 0
+            total: 0,
+            page: 1,
+            totalPages: 0
           };
 
           return {
             query: current.query,
             limit: current.limit,
             offset: current.offset + (current.limit ?? PAGINATION.limit),
-            total: current.total
+            total: current.total,
+            page: (current.page ?? 1) + 1,
+            totalPages: current.totalPages ?? 0
           };
         }
       }),
@@ -645,7 +683,9 @@ export default createMachine(
           query: undefined,
           offset: PAGINATION.offset,
           limit: search?.limit ?? PAGINATION.limit,
-          total: 0
+          total: 0,
+          page: 1,
+          totalPages: 0
         }),
         lookups: ({ lookups }) => {
           // lookups.history = [];
@@ -655,51 +695,85 @@ export default createMachine(
       }),
 
       setSearchResults: assign({
+        // Persist the cumulative product_id → IProduct map back into context
+        // so the next paginated search service invocation seeds from it
+        // (page-N suggestions can reference TLDs returned on earlier pages).
+        productsMap: (
+          { productsMap }: DacContext,
+          { data: response }: AnyEventObject
+        ) => ({
+          ...(productsMap ?? {}),
+          ...(response?.productsMap ?? {})
+        }),
         lookups: (
           { lookups, model, search }: DacContext,
           { data: response }: AnyEventObject
         ) => {
-          const previous = (search?.offset ?? 0 > 0) ? lookups.searched : [];
+          // Keep prior rows when paginating: page > 1 (suggestions flow)
+          // or offset > 0 (legacy flow).
+          const isPaginated =
+            (search?.page ?? 1) > 1 || (search?.offset ?? 0) > 0;
+          const previous = isPaginated ? lookups.searched : [];
 
           const available: DomainProduct[] = map(
             response?.data,
             (item: DomainProduct) => {
               item.meta.owned = some(lookups.owned, ["domain", item.domain]);
               item.meta.added = some(lookups.basket, ["domain", item.domain]);
-              item.meta.disabled = item.meta.owned;
+              // Only OR `owned` into disabled — don't overwrite. The row's
+              // source (parseSuggestions / buildDomainProductFromAvailability /
+              // placeholder) already set `disabled` correctly for unavailable
+              // rows; clobbering it would re-enable the button.
+              item.meta.disabled = item.meta.disabled || item.meta.owned;
 
               if (search?.query && search.query === item.domain) {
                 item.meta.exactMatch = true;
               }
 
-              // If this is the exact match domain and we have availability data,
-              // merge the availability flags into the product
-              if (
-                response?.exactDomain &&
-                item.domain === response.exactDomain &&
-                response.availability
-              ) {
-                const avail = response.availability;
-                item.meta.exactMatch = true;
-                item.meta.checkedAvailability = true;
-                item.meta.available = avail.can_register;
-                item.meta.canTransfer =
-                  !avail.can_register && avail.can_transfer;
-                item.meta.unavailable =
-                  !avail.can_register && !avail.can_transfer;
-                item.meta.disabled =
-                  item.meta.owned || item.meta.unavailable || false;
-              }
+              // The exact-match row is built by buildDomainProductFromAvailability
+              // (or buildExactMatchPlaceholder while /availability is in flight)
+              // and its meta flags are authoritative — including the
+              // `product_id: null → unavailable` rule. Re-applying raw
+              // `can_register`/`can_transfer` flags here would bypass that.
 
               return item as DomainProduct;
             }
           );
 
-          set(
-            lookups,
-            "searched",
-            uniqBy(compact(concat(previous, available)), "domain")
-          );
+          // Merge by domain. Three scenarios drive this:
+          //   1. Within one search round, /suggestions emits priceLoading rows
+          //      and /suggestions/tlds re-emits the same rows priced — we
+          //      need to upgrade the row in-place.
+          //   2. /availability resolves after /suggestions and produces an
+          //      authoritative version of the exact-match row (with
+          //      `checkedAvailability=true`) — it must replace the suggestion-
+          //      derived version even when both are "priced".
+          //   3. Pagination (Load more) emits the next page; existing rows
+          //      must NOT change. If the API happens to return overlapping
+          //      domains in a later page, keep the already-loaded version.
+          //
+          // Rule: replace an existing row when the incoming row is **fresher**
+          // (priceLoading-priced upgrade, or freshly availability-checked).
+          // Otherwise leave the existing row alone. Truly new domains are
+          // appended at the bottom.
+          const updatedPrevious = map(previous, (prev: DomainProduct) => {
+            const fresher = find(available, ["domain", prev.domain]);
+            if (!fresher) return prev;
+            const isPriceUpgrade =
+              !!prev.meta?.priceLoading && !fresher.meta?.priceLoading;
+            const isAvailabilityUpgrade =
+              !prev.meta?.checkedAvailability &&
+              !!fresher.meta?.checkedAvailability;
+            return (
+              isPriceUpgrade || isAvailabilityUpgrade ? fresher : prev
+            ) as DomainProduct;
+          });
+          const newOnly = filter(
+            available,
+            (item: DomainProduct) => !find(previous, ["domain", item.domain])
+          ) as DomainProduct[];
+
+          set(lookups, "searched", compact(concat(updatedPrevious, newOnly)));
 
           // store all previous searches
           set(
@@ -718,7 +792,9 @@ export default createMachine(
             query: search?.query ?? undefined,
             offset: search?.offset ?? 0,
             limit: search?.limit ?? PAGINATION.limit,
-            total: response?.total || 0
+            total: response?.total || 0,
+            page: response?.page ?? search?.page ?? 1,
+            totalPages: response?.totalPages ?? search?.totalPages ?? 0
           };
         }
       }),
@@ -866,8 +942,7 @@ export default createMachine(
 
             // Rebuild configuration with register sub_pids from setup_function_sub_ids
             if (product.rawProduct) {
-              const setupSubIds = (product.rawProduct as any)
-                .setup_function_sub_ids;
+              const setupSubIds = product.rawProduct.setup_function_sub_ids;
               const subproducts: string[] = compact(
                 setupSubIds?.register ?? [product.rawProduct.sub_product_id]
               );
@@ -908,8 +983,7 @@ export default createMachine(
 
             // Rebuild configuration with transfer sub_pids from setup_function_sub_ids
             if (product.rawProduct) {
-              const setupSubIds = (product.rawProduct as any)
-                .setup_function_sub_ids;
+              const setupSubIds = product.rawProduct.setup_function_sub_ids;
               const subproducts: string[] = compact(
                 setupSubIds?.transfer ?? [product.rawProduct.sub_product_id]
               );
@@ -961,7 +1035,10 @@ export default createMachine(
 
       // 409 conflict: flip the domain type (register↔transfer)
       // Does NOT set checkedAvailability so the next click goes through
-      // addDomainToBasket again instead of skipping to addToBasket
+      // addDomainToBasket again instead of skipping to addToBasket.
+      // Rebuilds the configuration with the new mode's sub_pids — without
+      // this, the next click would still send the OLD mode's sub_pids and
+      // hit the same 409 forever.
       flipDomainType: assign({
         lookups: (
           { lookups, checkingDomain }: DacContext,
@@ -980,6 +1057,26 @@ export default createMachine(
             product.meta.disabled = false;
             product.meta.checkedAvailability = false;
             product.meta.processing = false;
+
+            // Rebuild configuration with the new mode's sub_pids.
+            if (product.rawProduct) {
+              const setupSubIds = product.rawProduct.setup_function_sub_ids;
+              const mode: "register" | "transfer" = data?.can_register
+                ? "register"
+                : "transfer";
+              const subproducts: string[] = compact(
+                setupSubIds?.[mode] ?? [product.rawProduct.sub_product_id]
+              );
+              product.configuration = parseProductProps(
+                {
+                  productId: product.rawProduct.id,
+                  quantity: product.rawProduct.unit_quantity,
+                  subproducts,
+                  provisionFields: product.configuration?.provisionFields ?? {}
+                },
+                product.rawProduct
+              );
+            }
           }
 
           // Notify user: domain type was flipped (e.g. register → transfer)
@@ -1000,27 +1097,43 @@ export default createMachine(
     guards: {
       // hasData: (_context, { data }:AnyEventObject) => isObject(data) && !isEmpty(data),
 
+      // Guards sanitise the raw input before validating so that user input
+      // like `.upmind.com` (leading dot) or `https://upmind.com/page` is
+      // treated the same way `setSearchQuery` / `setCheckingDomain` will
+      // store it. Without this, the guard rejects but the assign action
+      // still sanitises — the query ends up in context with no transition,
+      // and the search call never fires.
       isValidDomain: (_context, { data }: AnyEventObject) =>
-        !isEmpty(parseDomain(data)),
+        !isEmpty(parseDomain(sanitiseDomainInput(data ?? ""))),
 
       hasSearchQuery: (
         { search, mode }: DacContext,
         _event: AnyEventObject
       ) => {
+        // Initial `search.query` comes from the URL param and may not be
+        // sanitised yet (e.g. `?search=.fggg.com`). Sanitise before
+        // validating so the load → searching transition fires on refresh.
+        const query = sanitiseDomainInput(search?.query ?? "");
         if (mode === DomainTypes.transfer) {
-          return !isEmpty(parseDomain(search?.query ?? ""));
+          return !isEmpty(parseDomain(query));
         }
-        const sld = parseSld(search?.query ?? "");
+        const sld = parseSld(query);
         return sld?.length > 2;
       },
       validSearchQuery: ({ mode }: DacContext, { data }: AnyEventObject) => {
+        const sanitised = sanitiseDomainInput(data ?? "");
         if (mode === DomainTypes.transfer) {
-          return !isEmpty(parseDomain(data ?? ""));
+          return !isEmpty(parseDomain(sanitised));
         }
-        const sld = parseSld(data ?? "");
+        const sld = parseSld(sanitised);
         return sld?.length > 2 && sld.length <= 63;
       },
       validSearchOffset: ({ search }: DacContext, _event: AnyEventObject) => {
+        // Page-based (suggestions/tlds) flow: advance while page < totalPages
+        if ((search?.totalPages ?? 0) > 0) {
+          return (search?.page ?? 1) < (search?.totalPages ?? 0);
+        }
+        // Legacy offset-based flow
         const offset = (search?.offset ?? 0) + (search?.limit ?? 0);
         return offset < (search?.total || 0);
       },

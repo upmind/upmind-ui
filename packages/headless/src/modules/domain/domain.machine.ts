@@ -150,7 +150,8 @@ export default createMachine(
             brandId,
             coupons,
             preferredCycle,
-            tlds
+            tlds,
+            useSuggestions
           }: DomainContext) => ({
             mode: type,
             search,
@@ -159,7 +160,8 @@ export default createMachine(
             brandId,
             coupons,
             preferredCycle,
-            tlds
+            tlds,
+            useSuggestions
           }),
           autoForward: true,
           onError: {
