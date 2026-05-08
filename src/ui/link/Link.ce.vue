@@ -2,7 +2,7 @@
   <component
     :is="component"
     v-bind="isRouterLink ? { to } : { href }"
-    :disabled="meta.isDisabled"
+    :aria-disabled="meta.isDisabled || undefined"
     :tabindex="meta.isFocusable ? '0' : '-1'"
     :class="cn(styles.link.root, props.class)"
     :data-testid="`link-${kebabCase(label ?? 'default')}`"
@@ -67,8 +67,8 @@ defineEmits<{
 }>();
 
 const component = computed(() => {
-  if (props.to && !props.disabled) return RouterLink;
-  if (props.href && !props.disabled) return "a";
+  if (props.to) return RouterLink;
+  if (props.href) return "a";
   return "span";
 });
 
@@ -78,7 +78,7 @@ const meta = computed(() => ({
   color: props.color,
   size: props.size,
   isDisabled: props.disabled,
-  isFocusable: props.focusable,
+  isFocusable: props.focusable && !props.disabled,
   hasRing: props.ring === "focus-visible" && !props.disabled && props.focusable,
   hasFocusRing: props.ring === "focus" && !props.disabled && props.focusable,
   hasIcon:

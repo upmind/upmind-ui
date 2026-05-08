@@ -125,7 +125,7 @@ const props = withDefaults(defineProps<DialogProps>(), {
 const emits = defineEmits<DialogRootEmits & DialogContentEmits>();
 
 const forwardedRoot = useForwardPropsEmits(
-  pick(props, ["open", "defaultOpen", "modal"]),
+  pick(props, ["open", "defaultOpen", "modal", "dismissable"]),
   emits
 );
 

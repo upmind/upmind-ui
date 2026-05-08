@@ -49,7 +49,7 @@ export type ComboboxProps = PopoverRootProps &
     disabled?: boolean;
     // --- Search
     search?: boolean | ComboboxSearchFunction;
-    placeholder?: string;
+    placeholder?: HTMLAttributes["placeholder"];
     searchPlaceholder?: string;
     emptyMessage?: string;
     checkedIcon?: boolean;
@@ -64,4 +64,5 @@ export type ComboboxProps = PopoverRootProps &
     popoverClass?: HTMLAttributes["class"];
     dataHover?: boolean;
     dataFocus?: boolean;
+    tabindex?: HTMLAttributes["tabindex"];
   };
