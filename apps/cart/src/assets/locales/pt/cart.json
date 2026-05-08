@@ -23,7 +23,7 @@
   "basket_summary_desc_free": "Você tem {count} item em seu carrinho. | Você tem {count} itens em seu carrinho.",
   "basket_summary_taxes_desc": "Você tem{count} item em seu carrinho, totalizando{total} ({tax} ) | Você tem{count} itens em seu carrinho, totalizando{total} ({tax} )",
   "basket_tax_excl": "sem impostos",
-  "basket_tax_incl": "incl. taxes",
+  "basket_tax_incl": "incl. impostos",
   "basket_title": "O seu carrinho",
   "change_amount": "Alterar quantia",
   "empty": "O seu **carrinho** está vazio",

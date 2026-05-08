@@ -15,6 +15,9 @@ let checkout: Checkout;
 let token: string;
 let orderId: string | null;
 test.describe("Verify checkout billing detail requirements", () => {
+  // All tests below log in as Logins.brandUser via beforeEach. Serial mode
+  // prevents them from racing against each other on the same staging account.
+  test.describe.configure({ mode: "serial" });
   test.beforeEach(async ({ page, context }) => {
     checkout = new Checkout(page);
     await getClientToken(

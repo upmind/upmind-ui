@@ -25,15 +25,27 @@
   "auth_password": {
     "error": {
       "min_length": "Het wachtwoord moet minimaal 8 tekens bevatten.",
-      "min_length_lowercase": "Het wachtwoord moet minimaal 8 tekens lang zijn en een kleine letter bevatten.",
-      "min_length_lowercase_number": "Wachtwoord moet minimaal 8 tekens bevatten, inclusief een kleine letter en een cijfer",
+      "min_length_letter": "Het wachtwoord moet uit minimaal 8 tekens bestaan en een letter bevatten",
+      "min_length_letter_number": "Het wachtwoord moet uit minimaal 8 tekens bestaan en zowel een letter als een cijfer bevatten",
+      "min_length_letter_number_symbol": "Het wachtwoord moet uit minimaal 8 tekens bestaan en een letter, een cijfer en een teken bevatten",
+      "min_length_letter_symbol": "Het wachtwoord moet uit minimaal 8 tekens bestaan en een letter en een teken bevatten",
       "min_length_number": "Het wachtwoord moet minimaal 8 tekens lang zijn en een cijfer bevatten.",
-      "missing_lowercase": "Het wachtwoord moet een kleine letter bevatten.",
-      "missing_lowercase_number": "Het wachtwoord moet een kleine letter en een cijfer bevatten.",
-      "missing_number": "Het wachtwoord moet een cijfer bevatten."
+      "min_length_number_symbol": "Het wachtwoord moet uit minimaal 8 tekens bestaan en een cijfer en een speciaal teken bevatten",
+      "min_length_symbol": "Het wachtwoord moet uit minimaal 8 tekens bestaan en een speciaal teken bevatten",
+      "missing_letter": "Het wachtwoord moet een letter bevatten",
+      "missing_letter_number": "Het wachtwoord moet een letter en een cijfer bevatten",
+      "missing_letter_number_symbol": "Het wachtwoord moet een letter, een cijfer en een teken bevatten",
+      "missing_letter_symbol": "Het wachtwoord moet een letter en een teken bevatten",
+      "missing_number": "Het wachtwoord moet een cijfer bevatten.",
+      "missing_number_symbol": "Het wachtwoord moet een cijfer en een teken bevatten",
+      "missing_symbol": "Het wachtwoord moet een speciaal teken bevatten"
     },
+    "generate": "Maak een sterk wachtwoord aan",
+    "hide": "Wachtwoord verbergen",
+    "hint": "Het wachtwoord moet uit minimaal 8 tekens bestaan en een letter, een cijfer en een teken bevatten.",
     "label": "Wachtwoord",
-    "placeholder": "Wachtwoord of wachtwoordzin"
+    "placeholder": "Wachtwoord of wachtwoordzin",
+    "show": "Wachtwoord weergeven"
   },
   "card_cvv": {
     "error": "Een geldige CVV is vereist",

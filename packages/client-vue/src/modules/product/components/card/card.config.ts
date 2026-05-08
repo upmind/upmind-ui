@@ -84,7 +84,7 @@ export default {
       link: cva("block w-full"),
       container: imageContainerVariant,
       root: imageRootVariant,
-      badge: cva("absolute top-4 right-4")
+      badge: cva("absolute top-4 left-4")
     },
     content: contentVariant,
     details: detailsVariant,
