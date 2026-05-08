@@ -241,6 +241,10 @@ async function registerAsGuest(_context: GuestContext, _event: AnyEventObject) {
     withAccessToken: true
   });
 
+  // Override actor_type from GUEST_CUSTOMER to CLIENT so the session machine
+  // routes the user through the client state machine. The `is_guest: true` flag
+  // on the /self response remains the discriminator that distinguishes a guest
+  // customer from a fully-registered client (see client.machine `available.checking`).
   persistTokenToStorage({ ...token, actor_type: Contexts.CLIENT });
 
   return loadUser();
