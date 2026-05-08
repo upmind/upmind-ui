@@ -78,11 +78,13 @@ function buildExactMatchPlaceholder(
   sld: string,
   tld?: string
 ): DomainProduct {
-  const parsed = parseDomain(rawDomain);
+  // Display the exact string the user typed — don't run it through
+  // `parseDomain` (psl), which strips subdomains
+  // (e.g. "ddd.ominik.com" → "ominik.com").
   return {
-    domain: parsed?.domain ?? rawDomain,
-    sld: parsed?.sld ?? sld,
-    tld: parsed?.tld ?? tld ?? "",
+    domain: rawDomain,
+    sld,
+    tld: tld ?? "",
     configuration: {
       productId: "",
       term: 12,
@@ -122,8 +124,11 @@ function buildDomainProductFromAvailability(
   availability: IDomainAvailabilityResponse,
   preferredCycle?: number
 ): DomainProduct {
+  // Display the exact string the user typed for the row — don't run it
+  // through `parseDomain` (psl), which strips subdomains
+  // (e.g. "ddd.ominik.com" → "ominik.com"). `parseDomainParts` keeps the
+  // full TLD chain (".ominik.com") which matches what the user sees.
   const { sld, tld } = parseDomainParts(domain);
-  const parsed = parseDomain(domain);
   const product = availability.product;
   const { defaultPaymentPeriod } = useBrand();
   const paymentPeriod = preferredCycle ?? defaultPaymentPeriod.value;
@@ -153,9 +158,9 @@ function buildDomainProductFromAvailability(
     );
 
     return {
-      domain: parsed?.domain ?? domain,
-      sld: parsed?.sld ?? sld,
-      tld: parsed?.tld ?? tld ?? "",
+      domain,
+      sld,
+      tld: tld ?? "",
       configuration,
       price: termDetails.price,
       meta: {
@@ -189,9 +194,9 @@ function buildDomainProductFromAvailability(
   );
 
   return {
-    domain: parsed?.domain ?? domain,
-    sld: parsed?.sld ?? sld,
-    tld: parsed?.tld ?? tld ?? "",
+    domain,
+    sld,
+    tld: tld ?? "",
     configuration: {
       productId: "",
       term: billingCycleMonths,
