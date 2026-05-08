@@ -59,7 +59,7 @@
           <Link
             @click="registerAsGuest"
             color="muted"
-            :label="t('auth.checkout_as_guest')"
+            :label="t('auth.guest_checkout_qn')"
             size="lg"
           />
         </div>

@@ -19,7 +19,7 @@
     />
   </SessionLoginPopover>
 
-  <SessionDetailsDropdown v-else-if="client">
+  <SessionDetailsDropdown v-else-if="client" @register="goToRegister">
     <Avatar
       v-bind="client.avatar"
       :shape="shape"
@@ -33,6 +33,7 @@
 <script lang="ts" setup>
 // --- external
 import { useI18n } from "vue-i18n";
+import { useRouter } from "vue-router";
 
 // --- internal
 import { useSession } from "@upmind-automation/headless";
@@ -50,4 +51,9 @@ const props = defineProps<AuthActionProps>();
 
 const { t } = useI18n();
 const { meta, client } = useSession();
+const router = useRouter();
+
+function goToRegister() {
+  if (props.registerRoute) router.push(props.registerRoute);
+}
 </script>

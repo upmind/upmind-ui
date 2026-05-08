@@ -572,6 +572,7 @@ export const useSession = () => {
    * @returns {Promise<any>}
    */
   async function resolve(model: any): Promise<any> {
+    if (meta.value.isGuestClient) return completeRegistration(model);
     if (meta.value.showLoginForm && !meta.value.show2fa) return login(model);
     if (meta.value.show2fa) return verify2fa(model);
     if (meta.value.showRegisterForm) return register(model);
