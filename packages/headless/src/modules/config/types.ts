@@ -124,8 +124,6 @@ export type ProductInput = {
 
 /** Basket product input — parsed `BasketProduct` shape; index signature tolerates raw `IBasketProduct` extras. */
 export type BasketProductInput = Partial<BasketProduct> & {
-  /** Source product; used to derive product.* state when no explicit product is passed. */
-  product?: IProduct;
   [key: string]: any;
 };
 

@@ -108,6 +108,11 @@ export function evaluateRules<T>(
  * Tests whether all keys in a condition match the given state.
  * Each key in `condition` is AND-ed; missing state values cause the rule to
  * silently skip (return false) so partial state never produces false positives.
+ *
+ * Silent-skip applies uniformly across operators, including `$ne`/`$nin` —
+ * "value is missing" is treated as "no data, no match", not as "not equal".
+ * To express "missing OR not equal", author it as two rules with explicit
+ * catch-alls.
  */
 export function matchesCondition(
   condition: RuleCondition,
@@ -729,6 +734,28 @@ function validateOperandType(
         ValidationCode.OPERAND_TYPE_MISMATCH,
         path,
         `Operator "${operator}" requires an array operand`
+      )
+    );
+  }
+
+  if (operator === ArrayOperator.CONTAINS && isArray(operand)) {
+    issues.push(
+      createIssue(
+        "warning",
+        ValidationCode.OPERAND_TYPE_MISMATCH,
+        path,
+        `Operator "${operator}" with an array operand checks for the array as a single element; did you mean "${ArrayOperator.CONTAINS_ANY}"?`
+      )
+    );
+  }
+
+  if (operator === ArrayOperator.EXCLUDES && isArray(operand)) {
+    issues.push(
+      createIssue(
+        "warning",
+        ValidationCode.OPERAND_TYPE_MISMATCH,
+        path,
+        `Operator "${operator}" with an array operand checks for the array as a single element; there is no built-in "excludes any" operator — author one rule per value.`
       )
     );
   }
