@@ -81,7 +81,7 @@ export function buildFallbackPricing(
  * Sanitises a raw domain input string — strips protocols, www, ports,
  * paths, query strings, fragments, and invalid characters.
  */
-export function sanitizeDomainInput(value: string): string {
+export function sanitiseDomainInput(value: string): string {
   return value
     .replace(/^https?:\/\//i, "") // remove protocol
     .replace(/^w{3}\./i, "") // remove www.
@@ -100,7 +100,7 @@ export function sanitizeDomainInput(value: string): string {
  * parts (full domain, SLD, TLD).
  */
 export function useDomainParser(domain: Ref<string>) {
-  const sanitisedDomain = computed(() => sanitizeDomainInput(domain.value));
+  const sanitisedDomain = computed(() => sanitiseDomainInput(domain.value));
 
   const sanitisedSld = computed(
     () => sanitisedDomain.value.split(".")[0] ?? ""
@@ -221,12 +221,17 @@ export function parseAvailable(
  * Maps the /suggestions API results into DomainProduct[].
  * Joins results to products via product_id, and uses the full
  * IProduct parsing utilities for proper billing cycle / pricing support.
+ *
+ * Mode selection is **per row**, not global: a `can_register: true` row gets
+ * `setup_function_sub_ids.register`, while a transfer-only row
+ * (`can_register: false, can_transfer: true`) gets `setup_function_sub_ids.transfer`.
+ * Without this, transfer-only suggestions would be added to the basket with
+ * register sub_pids and the basket API would 422 / charge for the wrong action.
  */
 export function parseSuggestions(
   results: IDomainSuggestionResult[],
   productsMap: Record<string, IProduct>,
-  preferredCycle?: number,
-  mode: "register" | "transfer" = "register"
+  preferredCycle?: number
 ): DomainProduct[] {
   const { defaultPaymentPeriod } = useBrand();
   const paymentPeriod = preferredCycle ?? defaultPaymentPeriod.value;
@@ -247,11 +252,14 @@ export function parseSuggestions(
           terms
         );
 
-        // Extract sub_pids from setup_function_sub_ids based on mode
+        // Pick the per-row mode: a row that can register uses register
+        // sub_pids; a row that's transfer-only uses transfer sub_pids.
+        const rowMode: "register" | "transfer" =
+          can_register || !can_transfer ? "register" : "transfer";
         const setupSubIds = (product as IDomainSuggestionResultProduct)
           .setup_function_sub_ids;
         const subproducts: string[] = compact(
-          setupSubIds?.[mode] ?? [product.sub_product_id]
+          setupSubIds?.[rowMode] ?? [product.sub_product_id]
         );
 
         return {
