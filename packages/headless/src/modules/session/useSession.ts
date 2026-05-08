@@ -8,10 +8,12 @@ import { useActor } from "@xstate/vue";
 import { useI18n } from "../system";
 import sessionMachine from "./session.machine";
 import { useFeedback } from "../feedback";
+import { useBrand } from "../brand";
 export * from "./useTransfer";
 
 // --- utils
 import { get, isEmpty } from "lodash-es";
+import { BrandConfigKeys } from "@upmind-automation/types";
 import { getTokenFromStorage } from "./utils";
 import {
   DetailedError,
@@ -116,6 +118,11 @@ export const useSession = () => {
       );
   }
 
+  // Guest checkout is available when the brand allows it AND the user isn't
+  // already authenticated as a guest customer. Basket-composition checks (e.g.
+  // recurring products) live on `useBasket().meta` to keep session decoupled.
+  const { getConfigValue } = useBrand();
+
   const meta = computed(() => ({
     isLoading:
       stateMatches(state, "checking") ||
@@ -145,6 +152,9 @@ export const useSession = () => {
       "processing.registering"
     ),
     isGuestClient: stateMatches(state, "client") && !!client.value?.isGuest,
+    canRegisterAsGuest:
+      !(stateMatches(state, "client") && !!client.value?.isGuest) &&
+      !!getConfigValue<boolean>(BrandConfigKeys.GUEST_CHECKOUT_ENABLED),
     isTransferring: stateMatches(clientActor, "transferring"),
     hasExpired: stateMatches(state, "expired") || isEmpty(state.value.children),
     hasErrors:
