@@ -76,11 +76,11 @@ export default createMachine(
                 target: "#processing.updating"
               },
               LOGOUT: {
-                target: "complete",
+                target: "#complete",
                 actions: "clear"
               },
               REFRESH: {
-                target: "loading"
+                target: "#loading"
               }
             }
           },
@@ -92,11 +92,11 @@ export default createMachine(
                 target: "#transferring"
               },
               LOGOUT: {
-                target: "complete",
+                target: "#complete",
                 actions: "clear"
               },
               REFRESH: {
-                target: "loading"
+                target: "#loading"
               }
             }
           }
