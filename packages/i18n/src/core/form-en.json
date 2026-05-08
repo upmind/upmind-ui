@@ -234,6 +234,11 @@
     "label": "",
     "placeholder": null
   },
+  "guest_email": {
+    "description": "We'll send your order confirmation to this email",
+    "label": "Email for order confirmation",
+    "placeholder": "name@email.com"
+  },
   "twofa": {
     "description": "This account is secured using two-factor authentication. Please enter your verification code.",
     "label": "Verification code",

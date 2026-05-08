@@ -2,13 +2,13 @@
   <Section
     v-if="sessionMeta.isGuestClient && !isComplete"
     id="guest-registration"
-    :label="t('auth.create_account_prompt')"
+    :label="t('auth.guest_register_title')"
     icon="user-plus-01"
   >
     <Alert
       v-if="!showForm"
-      :title="t('auth.create_account_prompt')"
-      :description="t('auth.create_account_description')"
+      :title="t('auth.guest_register_title')"
+      :description="t('auth.guest_register_description')"
       icon="user-plus-01"
       color="primary"
       :action="{ label: t('action.register') }"
@@ -47,6 +47,17 @@ import { Alert } from "@upmind-automation/upmind-ui";
 
 // -----------------------------------------------------------------------------
 
+const props = withDefaults(
+  defineProps<{
+    /**
+     * When true, skip the intermediate "Register" prompt and show the form immediately.
+     * Useful when consumed from a dedicated register page (the user has already opted in).
+     */
+    autoShow?: boolean;
+  }>(),
+  { autoShow: false }
+);
+
 const { t } = useI18n();
 
 const {
@@ -60,8 +71,10 @@ const {
   showRegister
 } = useSession();
 
-const showForm = ref(false);
+const showForm = ref(props.autoShow);
 const isComplete = ref(false);
+
+if (props.autoShow) showRegister();
 
 const formActions = computed(() => ({
   submit: {

@@ -15,6 +15,7 @@ import { useQueryParams } from "../routing";
 // --- utils
 import {
   get,
+  filter,
   find,
   map,
   pick,
@@ -66,6 +67,7 @@ import {
   PaymentType,
   BrandConfigKeys,
   GatewayContext as GatewayCtx,
+  GatewayStoreType,
   QUERY_PARAMS,
   type IBrandGateway,
   type IPaymentDetail,
@@ -244,7 +246,17 @@ async function loadLookups(
       }
     ],
     withAccessToken: true
-  });
+  }).then(list =>
+    // Guest customers can't use gateways that require a stored payment method
+    // — exclude `ALWAYS` store_type. Mirrors vue-app's checkoutProvider.
+    client.is_guest
+      ? filter(
+          list,
+          g =>
+            g.gateway?.gateway_provider?.store_type !== GatewayStoreType.ALWAYS
+        )
+      : list
+  );
 
   // ----
 

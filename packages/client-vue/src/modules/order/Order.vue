@@ -170,7 +170,7 @@ import {
 import { useConfig } from "@upmind-automation/headless";
 
 // -- components
-import GuestRegistration from "./components/GuestRegistration.vue";
+import GuestRegistration from "../session/components/GuestRegistration.vue";
 import OrderProducts from "./components/OrderProducts.vue";
 import PaymentDetails from "../payment/components/PaymentDetails.vue";
 import PaymentProcessing from "../payment/components/PaymentProcessing.vue";

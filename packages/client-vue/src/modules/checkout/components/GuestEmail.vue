@@ -34,9 +34,9 @@ import { debounce } from "lodash-es";
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
-const { meta, updateGuestEmail } = useSession();
+const { client, meta, updateGuestEmail } = useSession();
 
-const model = ref<{ email: string }>({ email: "" });
+const model = ref<{ email: string }>({ email: client.value?.email ?? "" });
 
 const schema = {
   type: "object",

@@ -29,7 +29,11 @@
 
     <template #form>
       <slot name="form">
+        <!-- Authenticated guest customer — complete registration to upgrade to a full account -->
+        <GuestRegistration v-if="meta.isGuestClient" auto-show />
+
         <Section
+          v-else
           :label="t('action.register')"
           icon="user-03"
           v-show="!meta.isAuthenticated"
@@ -152,6 +156,7 @@ import { useSessionTemplates } from "./session.utils";
 // --- components
 import { Link, Markdown, Skeleton } from "@upmind-automation/upmind-ui";
 import Auth from "./components/Auth.vue";
+import GuestRegistration from "./components/GuestRegistration.vue";
 import Hero from "../../components/hero/Hero.vue";
 import Back from "./components/Back.vue";
 import Loading from "../system/Loading.vue";
