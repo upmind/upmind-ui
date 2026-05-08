@@ -63,6 +63,8 @@ function parseProductsToRecommend(
     return [];
   }
 
+  // Per-product: productsToRecommend and the native flag can be conditional
+  // on product.* state, so the call must be scoped to each basket product.
   const { ui, data } = useConfig({
     context: UIContext.RECOMMENDATIONS,
     product: {
@@ -235,8 +237,10 @@ export function checkConditionVisibility(
  *   basket.
  * - When present with no matching basket products, returns the rule's
  *   `default`.
- * - When present with matching basket products, evaluates per-match; returns
- *   true if any evaluation resolves to true, otherwise the rule's `default`.
+ * - When present with matching basket products, evaluates per-match and
+ *   OR-folds the results: returns true if any evaluation resolves to true,
+ *   otherwise the rule's `default`. Author rules in the canonical form
+ *   `{ default: false, rules: [{ then: true }] }`; see README for why.
  *
  * @param recommendation - The recommendation to evaluate
  * @param basketProducts - Basket products to check against

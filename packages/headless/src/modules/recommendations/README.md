@@ -1,8 +1,6 @@
 # Recommendations Engine Module
 
-The **Recommendations Engine** module within the **Upmind Headless** framework is designed to handle product recommendations based on existing products within the baskets This module is responsible for ensuring that the business can offer users UpSells and CrossSells base don products already in their basket when interacting with the Upmind platform.
-
-<!-- TODO: describe the basket role in more detail -->
+The **Recommendations Engine** module within the **Upmind Headless** framework handles product recommendations driven by the contents of a basket. It surfaces upsell and cross-sell opportunities based on the products a user has already added.
 
 ## Table of Contents
 
@@ -29,25 +27,25 @@ To use the **Recommendations Engine** module, you can import it from the `@upmin
 
 ## State Machine Overview
 
-The module operates as a state machine with built-in context to manage user baskets. It goes through different states to check and manage baskets. Below are the key states:
+The module operates as a state machine that observes the basket and produces recommendations. Its key states are:
 
-- **Subscribing**: In this initial state, the module checks waits for valid basket to exist and be in a state that actually has products . Once subscribed, it proceeds to the **Loading** state.
+- **Subscribing**: Waits for a valid basket that contains products. Once subscribed, transitions to **Loading**.
 
-- **Loading**/**Refreshing** \*/: In this state, the module checks for any recommendations for the products in the basket. Once fetched, it proceeds to the **Processed** state.
+- **Loading** / **Refreshing**: Resolves the recommendations for the products currently in the basket. On completion, transitions to **Processed**.
 
-- **Available**: This state indicates that a valid basket is available. It has sub-states, base don interaction with the user
+- **Available**: A valid set of recommendations is available. Has sub-states based on user interaction.
 
-- **Seen**: This state indicates that the user has seen the recommendations.
+- **Seen**: The user has seen the recommendations.
 
-- **Unavailable**/**Empty**: This state indicates that there are no recommendations available for the products in the basket.
+- **Unavailable** / **Empty**: No recommendations are available for the products in the basket.
 
-- **Processing**: This state indicates that the module is processing the basket to add the recommended products.
+- **Processing**: A recommendation is being added to the basket.
 
-- **Processed**: This state indicates that the module has successfully processed the basket and added the recommended products. At this point there may be new recommendations available, and the module will transition to the **Refreshing** state to fetch them.
+- **Processed**: A recommendation has been added successfully. New recommendations may now apply, so the engine transitions back to **Refreshing**.
 
-- **Error**: If an error occurs during basket management, the module transitions to this state. You can retry the operation or cancel it.
+- **Error**: An error occurred during processing. The operation can be retried or cancelled.
 
-- **Complete**: This is the final state, indicating that the basket management process is complete.
+- **Complete**: Terminal state; the engine is finished.
 
 ## Usage
 
@@ -94,6 +92,11 @@ A recommendation is a `RelatedProduct` config — sourced either from the `produ
 
 Both properties use the FE-2655 `ConditionalValue<T>` shape (`default` + `rules` + `when` + `then`). They're evaluated independently — `conditions` decides visibility (hidden recs are filtered out before the consumer sees them), `inBasketConditions` decides the `meta.added` flag for those that survive.
 
+**Cart 2.0 / legacy compatibility.** Both properties are additive and optional on `RelatedProduct`:
+
+- The Linear AC for FE-2263 scopes the authoring UI to Cart 2.0; legacy admin surfaces don't expose the inputs, so existing baskets never produce them. When omitted, `checkConditionVisibility` returns `true` and `isRecommendationInBasket` falls back to the loose product_id match — legacy consumers see identical behaviour to before.
+- No runtime gate is added: if authored values reach the engine from a non-Cart 2.0 surface, they're applied rather than failing closed. Add a consumer-level guard keyed on your app's Cart 2.0 capability flag if you need stronger isolation.
+
 #### `conditions` — show / hide
 
 `ConditionalValue<"visible" | "hidden">`. Author writes rules that produce one of those two values.
@@ -134,6 +137,8 @@ Resolution rules:
 - **Property omitted** — loose product_id match: any variant of the rec's product in the basket sets `meta.added = true`.
 - **Property present, no matching basket products** — `meta.added` falls back to `default`.
 - **Property present, matching basket products exist** — engine evaluates per match; `meta.added = true` if any evaluation resolves to `true`, otherwise `default`.
+
+> **Author rules in the canonical form** `{ default: false, rules: [{ then: true }] }`. Per-match results are OR-folded, so `{ default: true, rules: [{ then: false }] }` does not mean "true unless this rule fires" — when multiple basket products match, any product that fails the rule's `when` falls back to `default: true` and wins the OR-fold.
 
 To disable in-basket detection entirely (e.g. for an addon you can buy multiple of), set `default: false` with empty rules:
 
