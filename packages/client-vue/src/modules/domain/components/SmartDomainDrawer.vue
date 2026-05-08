@@ -13,7 +13,7 @@
         :searching="props.searching"
         :processing="props.processing"
         :type="props.type"
-        @update:model-value="emit('update:query', $event)"
+        @update:model-value="emit('update:query', $event ?? '')"
         @search="emit('search', $event)"
         @reset="emit('reset')"
       />

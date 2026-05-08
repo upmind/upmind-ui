@@ -34,11 +34,22 @@
     "basket": {
       "label": "Use a domain from my basket",
       "tooltip": "These domains are already in your basket"
+    },
+    "skip": {
+      "label": "I'll decide later",
+      "tooltip": ""
     }
   },
   "search": "Enter a domain to search",
   "basket_placeholder": "Select a domain",
   "existing": {
+    "placeholder": "Tell us the domain you want to use.",
+    "transfer_info": "If you own this domain you can transfer it to us for only {price}, which includes a {period} renewal. Alternatively, you will need to update the domain's nameserver (NS) records.",
+    "add_transfer": "Add transfer",
+    "register_info": "Good news — this domain is available to register for only {price}, which includes a {period} registration.",
+    "add_registration": "Add to basket",
+    "dns_info": "To use this domain, you will need to update the domain's DNS with the existing registrar.",
+    "unavailable": "This domain cannot be registered or transferred.",
     "remove_transfer": "Remove transfer",
     "transfer_added": "Transfer added"
   },
