@@ -31,6 +31,7 @@
   "basket_product_not_found": "Basket product not found",
   "basket_product_pending_update_failed": "Update in useBasketProductPending not in a valid state.",
   "basket_product_pending_validation_failed": "Failed to validate pending products",
+  "basket_product_readonly": "This item is currently unavailable for purchase. Please contact support for assistance.",
   "basket_product_update_failed": "Error updating multiple products in basket",
   "basket_unavailable": "Sorry, we couldn't retrieve this **basket**",
   "basket_unavailable_md": "@.markdown:{'error.basket_unavailable'}",

@@ -25,15 +25,27 @@
   "auth_password": {
     "error": {
       "min_length": "A jelszónak legalább 8 karakterből kell állnia.",
-      "min_length_lowercase": "A jelszónak legalább 8 karakterből kell állnia, és kisbetűket kell tartalmaznia.",
-      "min_length_lowercase_number": "A jelszónak legalább 8 karakterből kell állnia, és tartalmaznia kell egy kisbetűt és egy számjegyet.",
+      "min_length_letter": "A jelszónak legalább 8 karakterből kell állnia, és tartalmaznia kell egy betűt",
+      "min_length_letter_number": "A jelszónak legalább 8 karakterből kell állnia, és tartalmaznia kell egy betűt és egy számot",
+      "min_length_letter_number_symbol": "A jelszónak legalább 8 karakterből kell állnia, és tartalmaznia kell egy betűt, egy számot és egy szimbólumot",
+      "min_length_letter_symbol": "A jelszónak legalább 8 karakterből kell állnia, és tartalmaznia kell egy betűt és egy szimbólumot",
       "min_length_number": "A jelszónak legalább 8 karakterből kell állnia és számot kell tartalmaznia.",
-      "missing_lowercase": "A jelszónak kisbetűket kell tartalmaznia",
-      "missing_lowercase_number": "A jelszónak kisbetűt és számot kell tartalmaznia.",
-      "missing_number": "A jelszónak számot kell tartalmaznia"
+      "min_length_number_symbol": "A jelszónak legalább 8 karakterből kell állnia, és tartalmaznia kell egy számot és egy szimbólumot",
+      "min_length_symbol": "A jelszónak legalább 8 karakterből kell állnia, és tartalmaznia kell egy speciális karaktert",
+      "missing_letter": "A jelszónak tartalmaznia kell egy betűt",
+      "missing_letter_number": "A jelszónak tartalmaznia kell egy betűt és egy számot",
+      "missing_letter_number_symbol": "A jelszónak tartalmaznia kell egy betűt, egy számot és egy szimbólumot",
+      "missing_letter_symbol": "A jelszónak tartalmaznia kell egy betűt és egy szimbólumot",
+      "missing_number": "A jelszónak számot kell tartalmaznia",
+      "missing_number_symbol": "A jelszónak tartalmaznia kell egy számot és egy szimbólumot",
+      "missing_symbol": "A jelszónak tartalmaznia kell egy speciális karaktert"
     },
+    "generate": "Erős jelszó létrehozása",
+    "hide": "Jelszó elrejtése",
+    "hint": "A jelszónak legalább 8 karakterből kell állnia, és tartalmaznia kell egy betűt, egy számot és egy szimbólumot.",
     "label": "Jelszó",
-    "placeholder": "Jelszó vagy jelszó"
+    "placeholder": "Jelszó vagy jelszó",
+    "show": "Jelszó megjelenítése"
   },
   "card_cvv": {
     "error": "Érvényes CVV szükséges",
