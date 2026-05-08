@@ -27,23 +27,34 @@ export const variants = {
 };
 
 export const contentVariant = cva(
-  "bg-surface border-surface sm:card-radius mx-auto grid max-h-[90dvh] w-full border p-0 text-base shadow-none focus:outline-hidden",
+  "bg-surface border-surface sm:card-radius mx-auto flex max-h-[90dvh] w-full flex-col border p-0 text-base shadow-none focus:outline-hidden",
   {
-    variants,
+    variants: {
+      size: variants.size,
+      fit: variants.fit
+    },
     defaultVariants: {
       size: "app",
-      overflow: "auto",
       fit: "contain"
     }
   }
 );
+
+export const containerVariant = cva("flex min-h-0 flex-1 flex-col justify-start", {
+  variants: {
+    overflow: variants.overflow
+  },
+  defaultVariants: {
+    overflow: "auto"
+  }
+});
 
 export const overlayVariant = cva("bg-overlay");
 
 export default {
   dialog: {
     content: contentVariant,
-    container: cva("flex flex-col justify-start"),
+    container: containerVariant,
     overlay: overlayVariant,
     header: cva(""),
     footer: cva("")
