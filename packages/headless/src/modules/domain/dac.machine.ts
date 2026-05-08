@@ -273,6 +273,14 @@ export default createMachine(
               ]
             }
           ]
+        },
+        on: {
+          ADD: [
+            {
+              actions: ["add", "setProcessing", "addToBasket"],
+              cond: "isValidDomain"
+            }
+          ]
         }
       },
 
