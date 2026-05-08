@@ -7,6 +7,7 @@ import type { Icon } from "../icon/types";
 import type { CxOptions, VariantProps } from "class-variance-authority";
 import type { PopoverContentProps } from "radix-vue";
 import type { HTMLAttributes, Component } from "vue";
+import type { PortalTarget } from "../../utils";
 // --- internal
 
 type TriggerVariantProps = VariantProps<typeof triggerVariants>;
@@ -58,7 +59,7 @@ export type SelectCardsProps = PrimitiveBaseProps & {
   align?: "start" | "center" | "end";
   width?: TriggerVariantProps["width"];
   focusable?: boolean;
-  to?: string;
+  to?: PortalTarget;
 
   uiConfig?: {
     select?: {

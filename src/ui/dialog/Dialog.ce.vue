@@ -74,9 +74,8 @@
 // --- external
 import { useVModel } from "@vueuse/core";
 import { useForwardPropsEmits } from "radix-vue";
-import { computed, nextTick } from "vue";
+import { computed } from "vue";
 // --- internal
-import { usePointerEvents } from "../../utils/usePointerEvents";
 import { Link } from "../link";
 import config from "./dialog.config";
 // --- components
@@ -155,18 +154,11 @@ const styles = useStyles(["dialog"], meta, config, props.uiConfig ?? {});
 // --- state
 const value = useVModel(props, "open", emits);
 
-// By default, Dialog will set the Body element to pointer-events: none;
-// This prevents the whole body from being clickable.
-// As this is a result of an external library that we can't override, we need to handle this manually.
-// With handlePointerEvents, pointer-events: none; is moved to props.to..
-const { handlePointerEvents } = usePointerEvents(value, props.to);
-
 const onOpen = (open: boolean, force: boolean = false) => {
   // Allow opening freely. Only guard closing.
   if (!open && !props.dismissable && !force) return;
   value.value = open;
   emits("update:open", open);
-  nextTick(() => handlePointerEvents(open));
 };
 
 const forceClose = () => {
