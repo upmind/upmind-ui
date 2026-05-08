@@ -144,7 +144,7 @@ export default createMachine(
             initial: "complete",
             states: {
               processing: {
-                entry: ["cancelExistingQuery"],
+                entry: ["cancelExistingQuery", "notifyActorsRefreshing"],
                 invoke: {
                   src: "refresh",
                   onDone: {
@@ -648,6 +648,16 @@ export default createMachine(
           return activeActors;
         }
       }),
+
+      notifyActorsRefreshing: ({ actors }: BasketContext) => {
+        // Notify spawned children that a basket refresh has started so
+        // they can stage their own state ahead of the eventual REFRESH.
+        // Distinct from PROCESSING (which signals "this product is being
+        // updated") to avoid locking unrelated children mid-flight.
+        forEach(actors, actor => {
+          if (actor?.send) actor.send({ type: "REFRESHING" });
+        });
+      },
 
       refreshActors: assign({
         actors: ({ actors, basket, error }: BasketContext) => {
