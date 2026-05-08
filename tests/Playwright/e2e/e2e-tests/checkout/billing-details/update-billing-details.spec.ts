@@ -102,6 +102,10 @@ newUser.describe("New User - Billing Details at checkout", () => {
   */
 
 registeredUser.describe("Existing User - Billing Details at checkout", () => {
+  // All tests below log in as Logins.checkoutUser, which is also used in
+  // login-registration/login.spec.ts. Serial mode prevents these tests from
+  // racing against each other on the same staging account.
+  registeredUser.describe.configure({ mode: "serial" });
   registeredUser(
     "Existing User add new address at checkout",
     async ({ page, context, checkout, loginAs }) => {

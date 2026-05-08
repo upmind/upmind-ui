@@ -18,7 +18,8 @@ import {
   isEmpty,
   isEqual,
   map,
-  defaultsDeep
+  defaultsDeep,
+  some
 } from "lodash-es";
 import {
   parseBasket,
@@ -357,10 +358,16 @@ export default createMachine(
       // This will trigger the Convert service, which will then process the order
       checkout: {
         id: "checkout",
-        always: {
-          target: "converting",
-          cond: "paymentDetailComplete"
-        }
+        always: [
+          {
+            target: "#shopping",
+            cond: "hasLockedProducts"
+          },
+          {
+            target: "converting",
+            cond: "paymentDetailComplete"
+          }
+        ]
       },
 
       // We are now ready to convert the basket into an invoice and effectively end the basket AND the shopping process
@@ -824,6 +831,9 @@ export default createMachine(
 
         return hasBilling && hasFields && hasProducts;
       },
+
+      hasLockedProducts: ({ products }: BasketContext) =>
+        some(products, p => !!p?.productDetails?.readonly),
 
       needsPayment: ({ paymentDetail }: BasketContext) =>
         !isEmpty(paymentDetail),

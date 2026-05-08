@@ -123,6 +123,11 @@ export const useBasket = () => {
 
       hasInvalidProducts: !isEmpty(productsInvalid.value),
 
+      hasLockedProducts: some(
+        products.value,
+        p => !!p?.productDetails?.readonly
+      ),
+
       hasTaxes: contextMatches(state, ["basket.taxes"]),
 
       hasPromotions: machineMatches(actors.promotions, ["complete"]),
@@ -620,6 +625,7 @@ export const useBasket = () => {
      * @property {boolean} needsAuth - Indicates if authentication is required for the basket.
      * @property {boolean} hasProducts - Indicates if the basket has products.
      * @property {boolean} hasInvalidProducts - Indicates if the basket has invalid products.
+     * @property {boolean} hasLockedProducts - Indicates if the basket has locked products (readonly, bespoke configurations).
      * @property {boolean} hasTaxes - Indicates if the basket has taxes.
      * @property {boolean} hasPromotions - Indicates if the basket has promotions applied.
      * @property {boolean} hasBilling - Indicates if the basket has billing details.
