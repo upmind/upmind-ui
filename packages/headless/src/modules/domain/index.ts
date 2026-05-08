@@ -6,7 +6,7 @@ export {
   parseDomainParts,
   isDomainProduct,
   getDomainBasketProducts,
-  sanitizeDomainInput,
+  sanitiseDomainInput,
   useDomainParser,
   emptyRegistrant,
   mapBillingToRegistrant,
