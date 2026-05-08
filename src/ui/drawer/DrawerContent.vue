@@ -8,7 +8,7 @@ import type {
   DialogContentProps,
   DialogPortalProps
 } from "radix-vue";
-import { type HTMLAttributes, computed, useTemplateRef } from "vue";
+import { type HTMLAttributes, useTemplateRef } from "vue";
 
 const props = withDefaults(
   defineProps<

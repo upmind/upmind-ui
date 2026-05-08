@@ -30,22 +30,22 @@ export const contentVariant = cva(
   "bg-surface border-surface sm:card-radius mx-auto flex max-h-[90dvh] w-full flex-col border p-0 text-base shadow-none focus:outline-hidden",
   {
     variants: {
-      size: variants.size,
-      fit: variants.fit
+      size: variants.size
     },
     defaultVariants: {
-      size: "app",
-      fit: "contain"
+      size: "app"
     }
   }
 );
 
-export const containerVariant = cva("flex min-h-0 flex-1 flex-col justify-start", {
+export const scrollableVariant = cva("flex min-h-0 flex-1 flex-col gap-4", {
   variants: {
-    overflow: variants.overflow
+    overflow: variants.overflow,
+    fit: variants.fit
   },
   defaultVariants: {
-    overflow: "auto"
+    overflow: "auto",
+    fit: "contain"
   }
 });
 
@@ -54,7 +54,8 @@ export const overlayVariant = cva("bg-overlay");
 export default {
   dialog: {
     content: contentVariant,
-    container: containerVariant,
+    scrollable: scrollableVariant,
+    container: cva("flex flex-col justify-start"),
     overlay: overlayVariant,
     header: cva(""),
     footer: cva("")
