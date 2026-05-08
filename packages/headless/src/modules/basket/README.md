@@ -51,11 +51,11 @@ The basket broadcasts two lifecycle events across every refresh cycle. Spawned c
 
 Fired the moment the basket enters `refreshing.processing` — i.e. an API call is about to start. Signals **"the basket is mid-update; defer reads of derived state until REFRESH arrives."** Non-locking.
 
-| | |
-| --- | --- |
-| **When** | Entry to `refreshing.processing`, before the API call resolves |
-| **Source** | `notifyActorsRefreshing` action in `basket.machine.ts` (children) + `basketSubscription` helper (external subscribers) |
-| **Carries** | No payload |
+|             |                                                                                                                        |
+| ----------- | ---------------------------------------------------------------------------------------------------------------------- |
+| **When**    | Entry to `refreshing.processing`, before the API call resolves                                                         |
+| **Source**  | `notifyActorsRefreshing` action in `basket.machine.ts` (children) + `basketSubscription` helper (external subscribers) |
+| **Carries** | No payload                                                                                                             |
 
 **Canonical consumer:** the recommendations engine moves to a `syncing` state on `REFRESHING` and blocks `isReady()` until the eventual `REFRESH` arrives. Route gates (e.g. `apps/cart/src/router/services.ts`) call `isReady()` to decide whether to redirect users to the recommendations screen — without this gate they would race the basket and silently skip recs whose conditions only resolve true against the new basket state.
 
@@ -65,11 +65,11 @@ Fired the moment the basket enters `refreshing.processing` — i.e. an API call 
 
 Fired when `refreshing.processed` resolves — the API call has completed and the basket context now reflects the new state.
 
-| | |
-| --- | --- |
-| **When** | Transition into `refreshing.processed`, after `updateBasket` and `refreshActors` actions |
-| **Source** | `refreshActors` action in `basket.machine.ts` (children) + `basketSubscription` helper (external subscribers) |
-| **Carries** | The updated basket as `data` |
+|             |                                                                                                               |
+| ----------- | ------------------------------------------------------------------------------------------------------------- |
+| **When**    | Transition into `refreshing.processed`, after `updateBasket` and `refreshActors` actions                      |
+| **Source**  | `refreshActors` action in `basket.machine.ts` (children) + `basketSubscription` helper (external subscribers) |
+| **Carries** | The updated basket as `data`                                                                                  |
 
 **Canonical consumers:** any subscriber that needs to react to the new basket state — recommendations re-evaluates conditional visibility, product machines refresh their derived state, etc.
 
@@ -94,7 +94,7 @@ Subscribers that don't handle either event silently ignore it (XState's default)
 import { basketSubscription } from "@upmind-automation/headless";
 
 // In your machine's spawnActors action:
-basketHelper: spawn(basketSubscription)
+basketHelper: spawn(basketSubscription);
 
 // On entry, send INIT to subscribe:
 sendTo("basketHelper", { type: "INIT" });
