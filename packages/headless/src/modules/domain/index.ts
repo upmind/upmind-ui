@@ -7,10 +7,5 @@ export {
   isDomainProduct,
   getDomainBasketProducts,
   sanitiseDomainInput,
-  useDomainParser,
-  emptyRegistrant,
-  mapBillingToRegistrant,
-  mapRegistrantToProvisionFields,
-  getMissingRegistrantFields,
-  hasAllRequiredRegistrantFields
+  useDomainParser
 } from "./utils";
