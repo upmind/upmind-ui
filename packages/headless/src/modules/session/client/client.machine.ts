@@ -59,6 +59,10 @@ export default createMachine(
         id: "available",
         initial: "checking",
         states: {
+          // Routes the loaded client into either `unregistered` (guest customer)
+          // or `registered` (full client) based on context.client.isGuest. The
+          // sub-states gate which events are valid (e.g. only guests can
+          // COMPLETE_REGISTRATION; only full clients can TRANSFER_TO).
           checking: {
             always: [
               { target: "unregistered", cond: "isGuestClient" },
