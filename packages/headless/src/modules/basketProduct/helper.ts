@@ -48,11 +48,23 @@ export function basketSubscription(callback: any, onReceiveEvent: any) {
     if (stateMatches(state, ["shopping.refreshing.processing"])) {
       const wasRefreshing = isRefreshing;
       isRefreshing = true;
-      // Notify subscribers as soon as the basket starts refreshing so they
-      // can stage their own state ahead of the eventual REFRESH. Distinct
-      // from `PROCESSING` (which the product machine treats as "I'm being
-      // updated") so we don't accidentally lock unrelated product cards
-      // into processing.updating during a basket-wide refresh.
+      // Forward `REFRESHING` to external subscribers as soon as the basket
+      // starts refreshing — mirrors the broadcast performed by
+      // `notifyActorsRefreshing` in basket.machine.ts (which sends to
+      // spawned children directly).
+      //
+      // Distinct from `PROCESSING` (which the product machine treats as
+      // "I'm being updated") so we don't accidentally lock unrelated
+      // product cards into processing.updating during a basket-wide refresh.
+      //
+      // Canonical consumer: the recommendations engine moves to a `syncing`
+      // state on REFRESHING and blocks `isReady()` until the eventual
+      // REFRESH arrives — so route gates don't redirect based on stale
+      // conditions during the basket's in-flight window.
+      //
+      // The `wasRefreshing` guard dedupes within a single refresh cycle:
+      // basket may transition through internal sub-states while staying in
+      // refreshing.processing, and we only want to fire once on entry.
       if (!wasRefreshing) callback({ type: "REFRESHING" });
     }
 

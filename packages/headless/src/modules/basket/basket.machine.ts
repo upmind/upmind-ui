@@ -649,11 +649,26 @@ export default createMachine(
         }
       }),
 
+      /**
+       * Broadcasts `REFRESHING` to all spawned children (currency,
+       * customFields, promotions, billing, paymentDetail) at the start of
+       * every basket refresh cycle, before the API call resolves.
+       *
+       * Purpose: subscribers stage their own state ahead of the eventual
+       * `REFRESH` — e.g. the recommendations engine moves to a `syncing`
+       * state and blocks `isReady()` so route gates don't redirect based
+       * on stale conditions during the basket's in-flight window.
+       *
+       * Distinct from `PROCESSING` (which signals "this specific product
+       * is being updated" and locks the product card UI). `REFRESHING` is
+       * basket-wide and non-locking.
+       *
+       * Lifecycle: REFRESHING → (basket API call) → REFRESH (via
+       * `refreshActors`). External subscribers receive the same signal
+       * through the `basketSubscription` helper. Children/subscribers
+       * that don't handle `REFRESHING` silently ignore it.
+       */
       notifyActorsRefreshing: ({ actors }: BasketContext) => {
-        // Notify spawned children that a basket refresh has started so
-        // they can stage their own state ahead of the eventual REFRESH.
-        // Distinct from PROCESSING (which signals "this product is being
-        // updated") to avoid locking unrelated children mid-flight.
         forEach(actors, actor => {
           if (actor?.send) actor.send({ type: "REFRESHING" });
         });

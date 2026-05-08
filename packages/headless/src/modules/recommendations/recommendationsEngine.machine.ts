@@ -86,10 +86,21 @@ export default createMachine(
       },
 
       // Briefly held while the basket is mid-refresh. Entered via the
-      // REFRESHING event forwarded by basketSubscription as soon as the
-      // basket enters its own refreshing.processing state, and exited
-      // when the eventual REFRESH event arrives. Blocks `isReady` so
-      // callers don't read derived state from a stale basket snapshot.
+      // REFRESHING event (forwarded by basketSubscription as soon as the
+      // basket enters its own refreshing.processing state), and exited
+      // when the eventual REFRESH event arrives.
+      //
+      // Why this is load-bearing: route gates (e.g.
+      // apps/cart/src/router/services.ts) call `isReady()` on this engine
+      // to decide whether to redirect users to the recommendations screen.
+      // Without the syncing gate, `isReady()` would resolve based on the
+      // OLD basket snapshot — conditions evaluated against stale state
+      // could mark recommendations as "not visible" when the new basket
+      // would actually surface them. The router would race the basket
+      // and silently skip relevant recs.
+      //
+      // The syncing state pauses `isReady()` until REFRESH lands and
+      // conditions are re-evaluated against the fresh basket.
       syncing: {
         on: {
           REFRESH: [
