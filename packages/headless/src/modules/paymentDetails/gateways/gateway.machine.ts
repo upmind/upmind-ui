@@ -229,7 +229,19 @@ export default <T = unknown>(name: string) =>
 
         unavailable: {
           id: "unavailable",
-          entry: ["cleanupSdk"]
+          entry: ["cleanupSdk"],
+          // NB: allow recovery when the parent supplies a changed payload
+          // (e.g. user lifts the payment amount above Stripe's minimum after
+          // an `amount_too_small` loaderror). `clearSdk` is required so
+          // `hasRendered` evaluates false on the next `load.onDone` and the
+          // machine routes through `rendering` to mount a fresh element.
+          on: {
+            REFRESH: {
+              target: "loading",
+              actions: ["clearSdk", "setContext", "clearError"],
+              cond: "hasChanged"
+            }
+          }
         },
 
         complete: {
@@ -265,6 +277,19 @@ export default <T = unknown>(name: string) =>
         clearSchemas: assign({
           schema: undefined,
           uischema: undefined
+        }),
+
+        // NB: Reset SDK-related context so `hasRendered` evaluates false on the
+        // next `load.onDone`, forcing the machine through `rendering` and
+        // triggering a fresh `mount()`. Without this, the wrapper `sdk` from
+        // a previous load survives `cleanupSdk` (which only mutates
+        // `sdk.element = undefined`), `hasRendered` sees a truthy `sdk`, and
+        // the machine skips rendering — the new element is never mounted.
+        clearSdk: assign({
+          sdk: undefined,
+          container: undefined,
+          validationHelper: undefined,
+          validationObserver: undefined
         }),
 
         setModel: assign({
