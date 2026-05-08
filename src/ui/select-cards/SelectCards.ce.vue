@@ -28,7 +28,7 @@
       </TriggerButton>
     </DropdownMenuTrigger>
 
-    <DropdownMenuPortal :to="props.to">
+    <DropdownMenuPortal :to="portalTo">
       <DropdownMenuContent
         :class="cn(styles.select.content, props.contentClass)"
         :align="props.align"
@@ -93,7 +93,7 @@ import { ref, computed } from "vue";
 import Item from "./components/Item.vue";
 import TriggerButton from "./components/TriggerButton.vue";
 import config from "./selectCards.config";
-import { cn, useStyles } from "../../utils";
+import { cn, useStyles, usePortalTarget } from "../../utils";
 // --- components
 // --- types
 import { first, find } from "lodash-es";
@@ -107,6 +107,8 @@ const props = withDefaults(defineProps<SelectCardsProps>(), {
 });
 
 const emits = defineEmits(["update:modelValue"]);
+
+const portalTo = usePortalTarget(() => props.to);
 
 const open = ref(false);
 const isKeyboardNav = ref(false);

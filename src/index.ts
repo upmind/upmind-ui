@@ -65,7 +65,6 @@ export {
   useThemes,
   useThemeIcons,
   useStyleSheet,
-  usePointerEvents,
   parseVariants,
   useForwardPropsEmits,
   type VariantValues,
