@@ -4,6 +4,7 @@ export * from "./twMerge";
 export * from "./isDeepEmpty";
 export * from "./useValidation";
 export * from "./portalTarget";
+export * from "./useImageZoom";
 export * from "./parseVariants";
 export * from "./isEmptySlot";
 export * from "./isMobile";

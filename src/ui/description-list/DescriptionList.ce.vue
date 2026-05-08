@@ -11,10 +11,14 @@
       :data-testid="`description-list-item-${kebabCase(item.term)}`"
     >
       <dt :class="cn(styles.list.term)">
-        {{ item.term }}
+        <slot name="term" :item="item" :index="index">
+          {{ item.term }}
+        </slot>
       </dt>
       <dd :class="cn(styles.list.description)">
-        {{ item.description }}
+        <slot name="description" :item="item" :index="index">
+          {{ item.description }}
+        </slot>
       </dd>
     </div>
 

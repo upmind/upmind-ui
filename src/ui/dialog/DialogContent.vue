@@ -53,6 +53,8 @@ providePortalTarget(useTemplateRef("content"));
         )
       "
       data-testid="dialog-window"
+      @interactOutside="e => !props.dismissable && e.preventDefault()"
+      @escapeKeyDown="e => !props.dismissable && e.preventDefault()"
     >
       <slot />
 

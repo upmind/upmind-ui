@@ -39,7 +39,7 @@ export type InputProps = {
   // --- variants
   width?: ContainerVariantProps["width"] | string | undefined;
   // ---
-  uiConfig?: { input?: CxOptions };
+  uiConfig?: { input?: { container?: CxOptions; field?: CxOptions } };
   class?: HTMLAttributes["class"];
 };
 
