@@ -62,6 +62,7 @@
         </li>
       </ol>
 
+      <!-- Captures initial autofocus so the page doesn't auto-scroll to the first focusable Link inside the alert when it mounts. -->
       <input autofocus class="sr-only" id="prevent-autoscroll" />
     </Alert>
 
@@ -109,9 +110,9 @@ import config from "./basket-alerts.config";
 
 // --- utils
 import { sum } from "lodash-es";
-import type { RouteLocationAsRelativeGeneric } from "vue-router";
 
 // --- types
+import type { RouteLocationAsRelativeGeneric } from "vue-router";
 
 // -----------------------------------------------------------------------------
 

@@ -3,7 +3,6 @@ import { createMachine, assign, spawn } from "xstate";
 
 // --- internal
 import services from "./services";
-import { dismissAllWarningNotes } from "./services";
 import paymentMachine from "../payment/payment.machine";
 import { useDataLayer } from "../system";
 import { authSubscription } from "../session/helper";
@@ -11,6 +10,7 @@ import { useSession } from "../session";
 
 // --- utils
 import {
+  defaultsDeep,
   filter,
   forEach,
   get,
@@ -18,7 +18,6 @@ import {
   isEmpty,
   isEqual,
   map,
-  defaultsDeep,
   some
 } from "lodash-es";
 import {
@@ -601,7 +600,7 @@ export default createMachine(
       dismissAllWarnings: (context: BasketContext) => {
         if (isEmpty(context.warningNotes)) return;
         const ids = map(context.warningNotes, "id");
-        dismissAllWarningNotes(context, ids);
+        services.dismissAllWarningNotes(context, ids);
       },
 
       clearWarningNotes: assign({
