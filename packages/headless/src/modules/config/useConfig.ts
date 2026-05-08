@@ -96,14 +96,20 @@ export function useConfig(options?: UseMetaOptions): UseMetaResult {
   });
 
   function withScopes(extendOptions: WithMetaOptions): UseMetaResult {
-    return useConfig({
+    // Inherit basket/brand presence so children of a cycle-broken parent
+    // (e.g. useBrand's `basket: undefined`) don't re-trigger useBasket()/
+    // useBrand() inside the child useConfig.
+    const inherited: UseMetaOptions = {
       context,
       category: extendOptions.category ?? category,
       product: extendOptions.product ?? product,
       optionGroup: extendOptions.optionGroup ?? optionGroup,
       option: extendOptions.option ?? option,
       basketProduct: extendOptions.basketProduct ?? basketProduct
-    });
+    };
+    if (has(options, "basket")) inherited.basket = basketOption;
+    if (has(options, "brand")) inherited.brand = brandOption;
+    return useConfig(inherited);
   }
 
   const result: UseMetaResult = {

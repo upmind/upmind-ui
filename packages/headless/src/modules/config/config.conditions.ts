@@ -212,18 +212,19 @@ export function buildConditionState(
   const { product, basketProduct, basket } = inputs;
   const state: ConditionState = {};
 
-  const allKeys = concat<ConditionStateKey>(
-    values(ProductStateKey),
-    values(BasketProductStateKey),
-    values(BasketStateKey)
-  );
+  // Skip an entire namespace when its source is missing so rules
+  // silent-skip rather than match a derived-empty value (e.g. size([]) → 0).
+  const populate = (source: unknown, namespace: object) => {
+    if (isNil(source)) return;
+    forEach(values(namespace) as ConditionStateKey[], key => {
+      const value = resolveStateKey(key, product, basketProduct, basket);
+      if (!isNil(value)) state[key] = value;
+    });
+  };
 
-  forEach(allKeys, (key: ConditionStateKey) => {
-    const value = resolveStateKey(key, product, basketProduct, basket);
-    if (!isNil(value)) {
-      state[key] = value;
-    }
-  });
+  populate(product, ProductStateKey);
+  populate(basketProduct, BasketProductStateKey);
+  populate(basket, BasketStateKey);
 
   return state;
 }
