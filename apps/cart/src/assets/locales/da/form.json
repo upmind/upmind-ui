@@ -25,15 +25,27 @@
   "auth_password": {
     "error": {
       "min_length": "Adgangskoden skal bestå af mindst 8 tegn",
-      "min_length_lowercase": "Adgangskoden skal bestå af mindst 8 tegn og indeholde et lille bogstav.",
-      "min_length_lowercase_number": "Adgangskoden skal være mindst 8 tegn, indeholde mindst ét lille bogstav og mindst ét ciffer",
+      "min_length_letter": "Adgangskoden skal bestå af mindst 8 tegn og indeholde et bogstav",
+      "min_length_letter_number": "Adgangskoden skal bestå af mindst 8 tegn og indeholde både et bogstav og et tal",
+      "min_length_letter_number_symbol": "Adgangskoden skal bestå af mindst 8 tegn og indeholde et bogstav, et tal og et tegn",
+      "min_length_letter_symbol": "Adgangskoden skal bestå af mindst 8 tegn og indeholde et bogstav og et tegn",
       "min_length_number": "Adgangskoden skal bestå af mindst 8 tegn og indeholde et tal.",
-      "missing_lowercase": "Adgangskoden skal indeholde et lille bogstav",
-      "missing_lowercase_number": "Adgangskoden skal indeholde et lille bogstav og et tal.",
-      "missing_number": "Adgangskoden skal indeholde et tal"
+      "min_length_number_symbol": "Adgangskoden skal bestå af mindst 8 tegn og indeholde et tal og et tegn",
+      "min_length_symbol": "Adgangskoden skal bestå af mindst 8 tegn og indeholde et tegn",
+      "missing_letter": "Adgangskoden skal indeholde et bogstav",
+      "missing_letter_number": "Adgangskoden skal indeholde et bogstav og et tal",
+      "missing_letter_number_symbol": "Adgangskoden skal indeholde et bogstav, et tal og et tegn",
+      "missing_letter_symbol": "Adgangskoden skal indeholde et bogstav og et tegn",
+      "missing_number": "Adgangskoden skal indeholde et tal",
+      "missing_number_symbol": "Adgangskoden skal indeholde et tal og et tegn",
+      "missing_symbol": "Adgangskoden skal indeholde et tegn"
     },
+    "generate": "Opret en stærk adgangskode",
+    "hide": "Skjul adgangskode",
+    "hint": "Adgangskoden skal bestå af mindst 8 tegn og indeholde et bogstav, et tal og et tegn.",
     "label": "Adgangskode",
-    "placeholder": "Adgangskode eller adgangsfrase"
+    "placeholder": "Adgangskode eller adgangsfrase",
+    "show": "Vis adgangskode"
   },
   "card_cvv": {
     "error": "Et gyldigt CVV er påkrævet",

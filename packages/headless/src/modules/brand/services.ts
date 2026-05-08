@@ -34,6 +34,7 @@ const defaultBrandConfigKeys = [
   BrandConfigKeys.DEFAULT_PAYMENT_PERIOD,
   BrandConfigKeys.DISABLE_CLIENT_REGISTRATION,
   BrandConfigKeys.GUEST_CHECKOUT_ENABLED,
+  BrandConfigKeys.DOMAIN_SEARCH_METHOD,
   BrandConfigKeys.PARTIAL_PAYMENTS_ENABLED,
   BrandConfigKeys.PAY_LATER_ENABLED,
   BrandConfigKeys.PREVENT_CARD_REMOVAL_IF_LAST,
