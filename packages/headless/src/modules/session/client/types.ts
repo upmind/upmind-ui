@@ -2,7 +2,7 @@
 
 import type { Client, IAuthTransfer } from "../types";
 import type { ResponseError } from "../../../utils";
-import type { PhoneModel } from "../guest/types";
+import type { IPhoneData } from "../../client/phone/types";
 
 // -----------------------------------------------------------------------------
 
@@ -18,5 +18,5 @@ export type CompleteRegistrationModel = {
   firstname: string;
   lastname: string;
   password: string;
-  phone?: PhoneModel;
+  phone?: IPhoneData;
 };

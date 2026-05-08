@@ -25,6 +25,7 @@ import type {
   GuestContext,
   LoginModel,
   RecoverModel,
+  RegisterGuestResponse,
   RegisterModel,
   TWOFAModel
 } from "./types";
@@ -222,7 +223,7 @@ async function registerAsGuest(_context: GuestContext, _event: AnyEventObject) {
     .then(values => (registerData.tracking = values))
     .catch(() => null);
 
-  const clientResponse = await post({
+  const clientResponse = await post<RegisterGuestResponse>({
     mutationKey: ["session", "guest", "register"],
     url: useUrl("clients/register/guest"),
     data: registerData,
