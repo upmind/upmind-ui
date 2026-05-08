@@ -51,6 +51,8 @@ import {
 } from "./types";
 import { UIContext, UIScope, UI_META_DEFINITIONS } from "./schema";
 import { PRE_BASKET_CONTEXTS, POST_BASKET_CONTEXTS } from "./schema/types";
+import type { UIPropertyDefinition } from "./schema/types";
+import { normalizeValue } from "./mappers";
 
 // -----------------------------------------------------------------------------
 // Type Guards
@@ -316,7 +318,8 @@ export const ValidationCode = {
   SILENT_SKIP: "SILENT_SKIP",
   EMPTY_RULES: "EMPTY_RULES",
   NAMESPACE_SUGGESTION: "NAMESPACE_SUGGESTION",
-  CATCH_ALL_NOT_LAST: "CATCH_ALL_NOT_LAST"
+  CATCH_ALL_NOT_LAST: "CATCH_ALL_NOT_LAST",
+  INVALID_VALUE: "INVALID_VALUE"
 } as const;
 
 const ALL_STATE_KEYS = concat<ConditionStateKey>(
@@ -350,6 +353,9 @@ export function validateMeta(params: {
 }): ValidationResult {
   const { meta, context, scope } = params;
   const issues: ValidationIssue[] = [];
+  // Snap warnings (e.g. "9-col" → "4-col") need a concrete screen to be
+  // actionable; suppress them in cross-screen / abstract validation runs.
+  const contextExplicit = !isNil(context) && context !== UIContext.ALL;
 
   forEach(meta, (value, key) => {
     const path = key;
@@ -432,6 +438,7 @@ export function validateMeta(params: {
     }
 
     if (!isConditionalValue(value)) {
+      validateLegalValue(value, definition, path, contextExplicit, issues);
       return;
     }
 
@@ -455,6 +462,14 @@ export function validateMeta(params: {
           path,
           "Missing 'default' in conditional value"
         )
+      );
+    } else {
+      validateLegalValue(
+        value.default,
+        definition,
+        `${path}.default`,
+        contextExplicit,
+        issues
       );
     }
 
@@ -509,6 +524,14 @@ export function validateMeta(params: {
         );
         return;
       }
+
+      validateLegalValue(
+        rule.then,
+        definition,
+        `${rulePath}.then`,
+        contextExplicit,
+        issues
+      );
 
       if (foundCatchAll) {
         issues.push(
@@ -766,4 +789,48 @@ function createIssue(
   message: string
 ): ValidationIssue {
   return { code, severity, path, message };
+}
+
+function validateLegalValue(
+  value: unknown,
+  definition: UIPropertyDefinition,
+  path: string,
+  contextExplicit: boolean,
+  issues: ValidationIssue[]
+): void {
+  // Free-form setting (no enum constraint) — nothing to check.
+  if (!definition.type) return;
+
+  const legal = values(definition.type);
+  if (includes(legal, value)) return;
+
+  // Out of set: ask the runtime normalizer whether this would snap to a
+  // legal value (e.g. "9-col" → "4-col" for GRID_LAYOUT) or fall through
+  // to `definition.default` (typo case).
+  const normalized = normalizeValue(value, definition.type);
+
+  if (isNil(normalized)) {
+    issues.push(
+      createIssue(
+        "error",
+        ValidationCode.INVALID_VALUE,
+        path,
+        `Value ${JSON.stringify(value)} is not valid; expected one of: ${legal.join(", ")}`
+      )
+    );
+    return;
+  }
+
+  // Snap is graceful at runtime but worth surfacing so authors see the cap.
+  // Only meaningful with a concrete screen — suppress in abstract runs.
+  if (contextExplicit) {
+    issues.push(
+      createIssue(
+        "warning",
+        ValidationCode.INVALID_VALUE,
+        path,
+        `Value ${JSON.stringify(value)} will be normalized to "${normalized}"`
+      )
+    );
+  }
 }
