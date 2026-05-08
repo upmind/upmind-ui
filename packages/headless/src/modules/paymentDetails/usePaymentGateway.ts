@@ -180,7 +180,6 @@ export const usePaymentGateway = (
       return;
     }
 
-    console.log("PaymentGateway", "render");
     return isReady().then(() => {
       waitFor(
         actor.value!.service,

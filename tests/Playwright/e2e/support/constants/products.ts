@@ -40,5 +40,12 @@ export const products = {
     billingCycle: 1,
     gbpPrice: "£0.00",
     type: "hosting"
+  },
+  DOMAIN: {
+    id: "825d96e7-63ed-0913-792c-417482528340",
+    name: ".com Domain Registration",
+    billingCycle: 12,
+    gbpPrice: "£12.00",
+    type: "domain"
   }
 };

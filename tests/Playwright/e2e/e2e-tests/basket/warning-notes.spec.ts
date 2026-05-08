@@ -1,19 +1,20 @@
 import { test, expect } from "@playwright/test";
 import { Basket } from "../../support/page-objects/templates/basket";
 import { URLs } from "../../support/constants/urls";
-import { getSessionToken } from "../../support/api/auth";
 import {
+  getSessionToken,
   createOrder,
-  addProductToOrder,
-  overrideWarningNotes
-} from "../../support/api/basket";
+  addProductToOrder
+} from "../../support/api/index";
+import { overrideWarningNotes } from "../../support/mocks/orders";
+import { waitForSessionCookie } from "../../support/helpers/session";
 let basket: Basket;
 
 test.describe("Basket - Displaying Warning Notes", () => {
   test.beforeEach(async ({ page, context }) => {
     basket = new Basket(page);
     await page.goto(URLs.basket);
-    await page.waitForLoadState("networkidle");
+    await waitForSessionCookie(context);
     const token = await getSessionToken(context);
     const order = await createOrder(token);
     const orderId = order.id;
@@ -34,7 +35,7 @@ test.describe("Basket - Displaying Warning Notes", () => {
   test("Warning Notes Displayed", async ({ page }) => {
     await overrideWarningNotes(page, "This is a warning note");
     await page.goto(URLs.basket);
-    await page.waitForLoadState("networkidle");
+    await expect(basket.basketProductSummary).toBeVisible();
     const toast = page.getByRole("status");
     await toast.waitFor();
     await expect(toast).toBeVisible();

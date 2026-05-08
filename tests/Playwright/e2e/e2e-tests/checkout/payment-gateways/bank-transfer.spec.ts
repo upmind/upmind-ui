@@ -8,6 +8,7 @@ import {
   getSessionToken,
   registerClient
 } from "../../../support/api/index";
+import { waitForSessionCookie } from "../../../support/helpers/session";
 
 let checkout: Checkout;
 
@@ -15,18 +16,7 @@ test.describe("Checkout with Bank Transfer", () => {
   test.beforeEach(async ({ page, context }) => {
     checkout = new Checkout(page);
     await page.goto("/");
-    await expect
-      .poll(
-        async () => {
-          const cookies = await context.cookies();
-          return cookies.some(
-            c =>
-              c.name === "upm_guest_session" || c.name === "upm_client_session"
-          );
-        },
-        { timeout: 30000 }
-      )
-      .toBeTruthy();
+    await waitForSessionCookie(context);
     let guestToken = await getSessionToken(context);
     let user = await registerClient(guestToken);
     let username = user.email;
@@ -36,7 +26,7 @@ test.describe("Checkout with Bank Transfer", () => {
   test("Pay with Bank Transfer", async ({ page, context }) => {
     await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
     await checkout.selectPaymentMethod("Direct Bank Transfer");
-    await checkout.clickPlaceOrder();
-    await expect(page.getByText("Thank you for your order.")).toBeVisible();
+    await checkout.clickCompleteCheckout();
+    await expect(page.getByText("Order confirmed")).toBeVisible();
   });
 });
