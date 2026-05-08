@@ -57,56 +57,87 @@ export default createMachine(
 
       available: {
         id: "available",
-        on: {
-          COMPLETE_REGISTRATION: {
-            target: "completingRegistration"
+        initial: "checking",
+        states: {
+          checking: {
+            always: [
+              { target: "unregistered", cond: "isGuestClient" },
+              { target: "registered" }
+            ]
           },
-          LOGOUT: {
-            target: "complete",
-            actions: "clear"
+
+          unregistered: {
+            id: "unregistered",
+            on: {
+              COMPLETE_REGISTRATION: {
+                target: "#processing.registering"
+              },
+              UPDATE_GUEST_EMAIL: {
+                target: "#processing.updating"
+              },
+              LOGOUT: {
+                target: "complete",
+                actions: "clear"
+              },
+              REFRESH: {
+                target: "loading"
+              }
+            }
           },
-          REFRESH: {
-            target: "loading"
-          },
-          TRANSFER_TO: {
-            target: "transferring"
-          },
-          UPDATE_GUEST_EMAIL: {
-            target: "updatingEmail"
+
+          registered: {
+            id: "registered",
+            on: {
+              TRANSFER_TO: {
+                target: "#transferring"
+              },
+              LOGOUT: {
+                target: "complete",
+                actions: "clear"
+              },
+              REFRESH: {
+                target: "loading"
+              }
+            }
           }
         }
       },
 
-      completingRegistration: {
-        id: "completingRegistration",
-        invoke: {
-          src: "completeRegistration",
-          onDone: {
-            target: "loading",
-            actions: ["setFeedbackSuccess"]
+      processing: {
+        id: "processing",
+        initial: "registering",
+        states: {
+          registering: {
+            invoke: {
+              src: "completeRegistration",
+              onDone: {
+                target: "#loading",
+                actions: ["setFeedbackSuccess"]
+              },
+              onError: {
+                target: "#available",
+                actions: ["setError", "setFeedbackError"]
+              }
+            }
           },
-          onError: {
-            target: "available",
-            actions: ["setError", "setFeedbackError"]
-          }
-        }
-      },
 
-      updatingEmail: {
-        id: "updatingEmail",
-        invoke: {
-          src: "updateGuestEmail",
-          onDone: {
-            target: "available"
-          },
-          onError: {
-            target: "available",
-            actions: ["setError"]
+          updating: {
+            invoke: {
+              src: "updateGuestEmail",
+              onDone: {
+                target: "#available"
+              },
+              onError: {
+                target: "#available",
+                actions: ["setError"]
+              }
+            }
           }
         }
       },
 
       transferring: {
+        id: "transferring",
         initial: "processing",
         states: {
           processing: {
@@ -207,7 +238,9 @@ export default createMachine(
 
       clearError: assign({ error: undefined })
     },
-    guards: {},
+    guards: {
+      isGuestClient: ({ client }: ClientContext) => !!client?.isGuest
+    },
 
     delays: {
       error: () => useTime().ERROR,

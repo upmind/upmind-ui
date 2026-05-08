@@ -138,11 +138,11 @@ export const useSession = () => {
         "available.register.verifying",
         "available.recover.recovering",
         "available.asGuest.registering"
-      ]) || stateMatches(clientActor, ["processing", "completingRegistration"]),
+      ]) || stateMatches(clientActor, "processing"),
     isAuthenticated: stateMatches(state, "client"),
     isCompletingRegistration: stateMatches(
       clientActor,
-      "completingRegistration"
+      "processing.registering"
     ),
     isGuestClient: stateMatches(state, "client") && !!client.value?.isGuest,
     isTransferring: stateMatches(clientActor, "transferring"),
