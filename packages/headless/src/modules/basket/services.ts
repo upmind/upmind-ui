@@ -271,11 +271,10 @@ async function dismissAllWarningNotes(
 
 // -----------------------------------------------------------------------------
 
-export { dismissAllWarningNotes };
-
 export default {
   load,
   refresh: load,
   convert,
+  dismissAllWarningNotes,
   isAuthenticated: () => useSession().isAuthenticated()
 };
