@@ -36,6 +36,10 @@ export default {
       actions: cva("mt-3 flex items-center justify-start space-x-2")
     },
 
+    guestCheckout: {
+      root: cva("mt-2 flex items-center gap-1 font-normal")
+    },
+
     profile: {
       trigger: cva("rounded-full p-0"),
       loading: cva(""),

@@ -22,6 +22,20 @@
               :label="t('action.log_in_here')"
               class="font-normal"
             />
+
+            <div
+              v-if="meta.canRegisterAsGuest"
+              :class="styles.session.guestCheckout.root"
+            >
+              <Icon icon="zap" size="sm" />
+              <span>{{ t("auth.guest_checkout_qn") }}&nbsp;</span>
+              <Link
+                @click="registerAsGuest"
+                size="inherit"
+                color="inherit"
+                :label="t('auth.guest_checkout_label')"
+              />
+            </div>
           </template>
         </Hero>
       </slot>
@@ -154,7 +168,7 @@ import sessionConfig from "./session.config";
 import { useSessionTemplates } from "./session.utils";
 
 // --- components
-import { Link, Markdown, Skeleton } from "@upmind-automation/upmind-ui";
+import { Icon, Link, Markdown, Skeleton } from "@upmind-automation/upmind-ui";
 import Auth from "./components/Auth.vue";
 import GuestRegistration from "./components/GuestRegistration.vue";
 import Hero from "../../components/hero/Hero.vue";
@@ -214,9 +228,10 @@ const props = defineProps<
 const { t } = useI18n();
 const { set } = useThemes();
 
-const { meta, isReady } = useSession();
+const { meta, isReady, registerAsGuest } = useSession();
 const { meta: basketMeta } = useBasket();
 const { navigateNext, navigateBack, navigate } = useRoutingEngine();
+const { brandId } = useBrand();
 
 const styles = useStyles(["session"], {}, sessionConfig);
 
@@ -224,7 +239,6 @@ const { ui } = useConfig({
   context: UIContext.AUTH,
   provide: true
 });
-const { brandId } = useBrand();
 const { data: registerTemplate } = useClientTemplate({
   code: ClientTemplateSlotCodes.REGISTER_PAGE,
   objectId: brandId.value
