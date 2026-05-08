@@ -23,7 +23,7 @@
   "basket_summary_desc_free": "آپ کے پاس ہے۔ {count} آپ کی ٹوکری میں آئٹم. | آپ کے پاس ہے۔ {count} آپ کی ٹوکری میں اشیاء.",
   "basket_summary_taxes_desc": "آپ کے پاس ہے۔{count} آپ کی ٹوکری میں شے، کل{total} ({tax} ) | آپ کے پاس ہے۔{count} آپ کی ٹوکری میں اشیاء، کل{total} ({tax} )",
   "basket_tax_excl": "excl ٹیکس",
-  "basket_tax_incl": "incl. taxes",
+  "basket_tax_incl": "بشمول ٹیکس",
   "basket_title": "آپ کی ٹوکری",
   "change_amount": "رقم تبدیل کریں",
   "empty": "آپ کی **ٹوکری** خالی ہے۔",

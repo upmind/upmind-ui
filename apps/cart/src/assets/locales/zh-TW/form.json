@@ -25,15 +25,27 @@
   "auth_password": {
     "error": {
       "min_length": "密碼必須至少包含8個字元",
-      "min_length_lowercase": "密碼必須至少包含8個字元，並包含一個小寫字母",
-      "min_length_lowercase_number": "密碼須至少 8 個字元，且包含 1 個小寫英文字母與 1 個數字",
+      "min_length_letter": "密碼必須至少包含 8 個字元，且必須包含一個字母",
+      "min_length_letter_number": "密碼必須至少包含 8 個字元，並包含一個字母和一個數字",
+      "min_length_letter_number_symbol": "密碼必須至少包含 8 個字元，並包含一個字母、一個數字和一個符號",
+      "min_length_letter_symbol": "密碼必須至少包含 8 個字元，並包含一個字母和一個符號",
       "min_length_number": "密碼必須至少包含8個字元，並包含一個數字。",
-      "missing_lowercase": "密碼必須包含小寫字母",
-      "missing_lowercase_number": "密碼必須包含一個小寫字母和一個數字",
-      "missing_number": "密碼必須包含一個數字"
+      "min_length_number_symbol": "密碼必須至少包含 8 個字元，並包含一個數字和一個符號",
+      "min_length_symbol": "密碼必須至少包含 8 個字元，並包含一個符號",
+      "missing_letter": "密碼必須包含一個字母",
+      "missing_letter_number": "密碼必須包含一個字母和一個數字",
+      "missing_letter_number_symbol": "密碼必須包含一個字母、一個數字和一個符號",
+      "missing_letter_symbol": "密碼必須包含一個字母和一個符號",
+      "missing_number": "密碼必須包含一個數字",
+      "missing_number_symbol": "密碼必須包含一個數字和一個符號",
+      "missing_symbol": "密碼必須包含一個符號"
     },
+    "generate": "產生一個強密碼",
+    "hide": "隱藏密碼",
+    "hint": "密碼必須至少包含 8 個字元，並包含一個字母、一個數字和一個符號。",
     "label": "密碼",
-    "placeholder": "密碼或口令"
+    "placeholder": "密碼或口令",
+    "show": "顯示密碼"
   },
   "card_cvv": {
     "error": "需要有效的CVV",

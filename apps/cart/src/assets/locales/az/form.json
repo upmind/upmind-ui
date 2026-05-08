@@ -25,15 +25,27 @@
   "auth_password": {
     "error": {
       "min_length": "Şifrə ən azı 8 simvoldan ibarət olmalıdır",
-      "min_length_lowercase": "Şifrə ən azı 8 simvoldan ibarət olmalı və kiçik hərflərdən ibarət olmalıdır",
-      "min_length_lowercase_number": "Şifrə ən azı 8 simvoldan ibarət olmalı, bir kiçik latın hərfi və bir rəqəm daxil etməlidir",
+      "min_length_letter": "Şifrə ən azı 8 simvoldan ibarət olmalı və hərfdən ibarət olmalıdır",
+      "min_length_letter_number": "Şifrə ən azı 8 simvoldan ibarət olmalı, hərf və rəqəmdən ibarət olmalıdır",
+      "min_length_letter_number_symbol": "Şifrə ən azı 8 simvoldan ibarət olmalı, hərf, rəqəm və simvoldan ibarət olmalıdır",
+      "min_length_letter_symbol": "Şifrə ən azı 8 simvoldan ibarət olmalı, bir hərf və bir simvoldan ibarət olmalıdır",
       "min_length_number": "Şifrə ən azı 8 simvoldan ibarət olmalı və rəqəmdən ibarət olmalıdır",
-      "missing_lowercase": "Şifrə kiçik hərflərdən ibarət olmalıdır",
-      "missing_lowercase_number": "Şifrə kiçik hərf və rəqəmdən ibarət olmalıdır",
-      "missing_number": "Şifrə rəqəmdən ibarət olmalıdır"
+      "min_length_number_symbol": "Şifrə ən azı 8 simvoldan ibarət olmalı, rəqəm və simvoldan ibarət olmalıdır",
+      "min_length_symbol": "Şifrə ən azı 8 simvoldan ibarət olmalı və simvol ehtiva etməlidir",
+      "missing_letter": "Şifrə hərfdən ibarət olmalıdır",
+      "missing_letter_number": "Şifrə hərf və rəqəmdən ibarət olmalıdır",
+      "missing_letter_number_symbol": "Şifrə hərf, rəqəm və simvoldan ibarət olmalıdır",
+      "missing_letter_symbol": "Şifrə hərf və simvoldan ibarət olmalıdır",
+      "missing_number": "Şifrə rəqəmdən ibarət olmalıdır",
+      "missing_number_symbol": "Şifrə rəqəm və simvoldan ibarət olmalıdır",
+      "missing_symbol": "Şifrə simvoldan ibarət olmalıdır"
     },
+    "generate": "Güclü parol yaradın",
+    "hide": "Şifrəni gizlət",
+    "hint": "Şifrə ən azı 8 simvoldan ibarət olmalı və hərf, rəqəm və simvoldan ibarət olmalıdır.",
     "label": "parol",
-    "placeholder": "Parol və ya parol"
+    "placeholder": "Parol və ya parol",
+    "show": "Şifrəni göstər"
   },
   "card_cvv": {
     "error": "Etibarlı CVV tələb olunur",
