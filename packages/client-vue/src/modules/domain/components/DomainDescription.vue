@@ -57,8 +57,6 @@ import type { DomainSummaryProps } from "../types";
 
 const props = defineProps<DomainSummaryProps>();
 
-const emit = defineEmits(["update"]);
-
 const { t } = useI18n();
 
 const renewalDescription = computed(() => {
