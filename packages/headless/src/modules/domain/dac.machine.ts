@@ -326,9 +326,20 @@ export default createMachine(
         actions: ["clearProcessing", "remove"]
       },
 
-      ERROR: {
-        actions: ["setError", "setFeedbackError"]
-      },
+      // When `addToBasket` (basketHelper path, used for parallel domain
+      // adds while another is in `checking`) fails with a domain-specific
+      // API error code, flip the row in place — same behaviour as the
+      // `checking → addDomainToBasket → onDone` flow. Otherwise fall back
+      // to the generic error/feedback handling.
+      ERROR: [
+        {
+          actions: ["flipDomainOnAddError"],
+          cond: "isDomainAddError"
+        },
+        {
+          actions: ["setError", "setFeedbackError"]
+        }
+      ],
 
       REMOVE: {
         actions: ["setProcessing", "removeFromBasket", "remove"]
@@ -598,10 +609,20 @@ export default createMachine(
 
       clearProcessing: assign({
         lookups: ({ lookups }: DacContext, { data }: AnyEventObject) => {
-          const product = find(lookups.searched, [
-            "productDetails.id",
-            (data as ProductProps)?.productId
-          ]) as DomainProduct;
+          // Match by both `productDetails.id` AND `provisionFields.sld`.
+          // All domains sharing the same TLD product (e.g. dominik.com and
+          // mark.com both have the .com product id) would otherwise collide
+          // — `find` would return the first matching row every time, and
+          // subsequent CANCELs would clear processing on the wrong row,
+          // leaving siblings stuck in an infinite loading state.
+          const product = find(lookups.searched, (item: DomainProduct) => {
+            const sameProductId =
+              item.productDetails?.id === (data as ProductProps)?.productId;
+            const sameSld =
+              item.configuration?.provisionFields?.sld ===
+              (data as ProductProps)?.provisionFields?.sld;
+            return sameProductId && sameSld;
+          }) as DomainProduct | undefined;
 
           if (product) product.meta.processing = false;
 
@@ -614,11 +635,18 @@ export default createMachine(
           const domainProduct = find(
             lookups.searched,
             (product: DomainProduct) => {
-              return isObject(data)
-                ? product.productDetails.id == (data as ProductProps)?.productId
-                : product.domain == data;
+              if (!isObject(data)) return product.domain == data;
+              // Match on productId + sld (see clearProcessing for why).
+              const sameProductId =
+                product.productDetails?.id ===
+                (data as ProductProps)?.productId;
+              const sameSld =
+                product.configuration?.provisionFields?.sld ===
+                (data as ProductProps)?.provisionFields?.sld;
+              return sameProductId && sameSld;
             }
-          ) as DomainProduct;
+          ) as DomainProduct | undefined;
+          if (!domainProduct) return model;
           return reject(model, ["domain", domainProduct.domain]);
         }
       }),
@@ -848,11 +876,18 @@ export default createMachine(
       ) => {
         const { t } = useI18n();
 
-        // Try to find domain by productId from basket helper's sourceContext
-        let domainProduct = find(lookups.searched, [
-          "productDetails.id",
-          (sourceContext as ProductProps)?.productId
-        ]) as DomainProduct | undefined;
+        // Try to find domain by productId + sld from basket helper's
+        // sourceContext. Sibling .com domains share the same productId so
+        // we must also match the SLD to identify the right row.
+        let domainProduct = find(lookups.searched, (item: DomainProduct) => {
+          const sameProductId =
+            item.productDetails?.id ===
+            (sourceContext as ProductProps)?.productId;
+          const sameSld =
+            item.configuration?.provisionFields?.sld ===
+            (sourceContext as ProductProps)?.provisionFields?.sld;
+          return sameProductId && sameSld;
+        }) as DomainProduct | undefined;
 
         // Fallback: when called from the checking state's onError,
         // sourceContext is undefined — use checkingDomain from context instead
@@ -1091,11 +1126,102 @@ export default createMachine(
 
           return lookups;
         }
+      }),
+
+      // Fired when a basketHelper-routed Add (used for parallel domain adds
+      // while another is still in `checking`) returns a domain-specific API
+      // error code. Finds the row by `sourceContext.productId` +
+      // `provisionFields.sld` (NOT by `checkingDomain` — that one belongs
+      // to the row currently in the `checking` invocation, not this one)
+      // and flips it in place. Mirrors the inline flips
+      // setRegisterable / setTransferable / setFullyUnavailable but works
+      // for any row, not just `checkingDomain`.
+      flipDomainOnAddError: assign({
+        lookups: (
+          { lookups }: DacContext,
+          { data, sourceContext }: AnyEventObject
+        ) => {
+          const apiCode = (data as { apiCode?: string })?.apiCode;
+          if (!apiCode || !sourceContext) return lookups;
+
+          const ctx = sourceContext as ProductProps;
+          const product = find(lookups.searched, (item: DomainProduct) => {
+            const sameProductId = item.productDetails?.id === ctx?.productId;
+            const sameSld =
+              item.configuration?.provisionFields?.sld ===
+              ctx?.provisionFields?.sld;
+            return sameProductId && sameSld;
+          }) as DomainProduct | undefined;
+
+          if (!product) return lookups;
+
+          const { t } = useI18n();
+
+          const rebuildConfigForMode = (mode: "register" | "transfer") => {
+            if (!product.rawProduct) return;
+            const setupSubIds = product.rawProduct.setup_function_sub_ids;
+            const subproducts: string[] = compact(
+              setupSubIds?.[mode] ?? [product.rawProduct.sub_product_id]
+            );
+            product.configuration = parseProductProps(
+              {
+                productId: product.rawProduct.id,
+                quantity: product.rawProduct.unit_quantity,
+                subproducts,
+                provisionFields: product.configuration?.provisionFields ?? {}
+              },
+              product.rawProduct
+            );
+          };
+
+          if (apiCode === "web_hosting::domain_register_only") {
+            product.meta.available = true;
+            product.meta.canTransfer = false;
+            product.meta.checkedAvailability = true;
+            product.meta.processing = false;
+            rebuildConfigForMode("register");
+            useFeedback().addError({
+              title: t("error.domain_transfer_unavailable"),
+              copy: product.domain ?? ""
+            });
+          } else if (apiCode === "web_hosting::domain_transfer_only") {
+            product.meta.available = false;
+            product.meta.canTransfer = true;
+            product.meta.checkedAvailability = true;
+            product.meta.processing = false;
+            rebuildConfigForMode("transfer");
+            useFeedback().addError({
+              title: t("error.domain_register_unavailable"),
+              copy: product.domain ?? ""
+            });
+          } else if (apiCode === "web_hosting::domain_not_for_sale") {
+            product.meta.available = false;
+            product.meta.unavailable = true;
+            product.meta.disabled = true;
+            product.meta.checkedAvailability = true;
+            product.meta.processing = false;
+            useFeedback().addError({
+              title: t("error.domain_unavailable"),
+              copy: product.domain ?? ""
+            });
+          }
+
+          return lookups;
+        }
       })
     },
 
     guards: {
       // hasData: (_context, { data }:AnyEventObject) => isObject(data) && !isEmpty(data),
+
+      isDomainAddError: (_context, { data }: AnyEventObject) => {
+        const apiCode = (data as { apiCode?: string })?.apiCode;
+        return (
+          apiCode === "web_hosting::domain_register_only" ||
+          apiCode === "web_hosting::domain_transfer_only" ||
+          apiCode === "web_hosting::domain_not_for_sale"
+        );
+      },
 
       // Guards sanitise the raw input before validating so that user input
       // like `.upmind.com` (leading dot) or `https://upmind.com/page` is
