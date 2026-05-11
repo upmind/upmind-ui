@@ -176,7 +176,9 @@ const optionsWithConfig = computed(() =>
       ...option,
       groupLabel: data.optionGroupLabel,
       groupIcon: data.optionGroupIcon,
-      groupImg: data.optionImgUrl ?? option.iconUrl
+      groupImg: ui.optionSelectorIcons.isVisible
+        ? (data.optionImgUrl ?? option.iconUrl)
+        : ""
     };
   })
 );
