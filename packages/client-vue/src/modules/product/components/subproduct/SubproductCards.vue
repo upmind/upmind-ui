@@ -179,7 +179,7 @@ const optionsWithConfig = computed(() =>
       ...option,
       groupLabel: data.optionGroupLabel,
       groupIcon: data.optionGroupIcon,
-      groupImg: optionUi.optionSelectorIcons.isVisible
+      image: optionUi.optionSelectorIcons.isVisible
         ? (data.optionImgUrl ?? option.iconUrl)
         : ""
     };
@@ -234,7 +234,7 @@ const groups = computed(() => {
     const hasGroupLabel = !!firstItem?.groupLabel;
     return {
       name: firstItem?.groupLabel || firstItem?.name,
-      icon: firstItem?.groupImg,
+      icon: firstItem?.image,
       iconName: firstItem?.groupIcon,
       dropdown: hasGroupLabel,
       items: map(items, item => ({
@@ -266,7 +266,7 @@ function getItemId(item: any): string {
 
 function getOptionImage(value: string): string | undefined {
   const option = find(optionsWithConfig.value, ["id", value]);
-  return option?.groupImg;
+  return option?.image;
 }
 
 function getDropdownItemImage(value: string): string | undefined {
