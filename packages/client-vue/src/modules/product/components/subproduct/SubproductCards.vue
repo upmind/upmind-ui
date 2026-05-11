@@ -51,7 +51,7 @@
     <template #dropdown-item="{ item }: any">
       <CardSubproduct
         v-bind="getSubproductValue(getItemId(item))"
-        :image="getOptionImage(getItemId(item))"
+        :image="getDropdownItemImage(getItemId(item))"
         :term="props.term"
         :meta="meta"
         :product-meta="getSubproductValue(getItemId(item)).meta"
@@ -262,6 +262,11 @@ function getItemId(item: any): string {
 function getOptionImage(value: string): string | undefined {
   const option = find(optionsWithConfig.value, ["id", value]);
   return option?.groupImg;
+}
+
+function getDropdownItemImage(value: string): string | undefined {
+  if (hasGroups.value) return;
+  return getOptionImage(value);
 }
 
 const gridColumns = computed(() => {
