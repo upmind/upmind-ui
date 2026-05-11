@@ -10,62 +10,64 @@
       :classOverlay="styles.dialog.overlay"
       @update:open="onOpen"
     >
-      <DialogHeader
-        :class="[styles.dialog.header, props.classHeader]"
-        v-if="
-          !props.noHeader &&
-          ($slots.header ||
-            title ||
-            $slots.title ||
-            description ||
-            $slots.description)
-        "
-      >
-        <slot name="header">
-          <DialogClose
-            v-if="dismissable"
-            iconOnly
-            @click="forceClose"
-            class="absolute top-0 right-0 m-4"
-          />
-
-          <DialogTitle
-            v-if="title || $slots.title"
-            class="mb-2 text-2xl font-normal"
-          >
-            <slot name="title">{{ title }}</slot>
-          </DialogTitle>
-
-          <DialogDescription
-            v-if="description || $slots.description"
-            class="text-muted-foreground text-sm"
-          >
-            <slot name="description">{{ description }}</slot>
-          </DialogDescription>
-        </slot>
-      </DialogHeader>
-
-      <div :class="styles.dialog.container">
-        <slot />
-      </div>
-
-      <DialogFooter
-        v-if="$slots.footer || $slots.actions || meta.hasDefaultClose"
-        :class="[styles.dialog.footer, props.classFooter]"
-      >
-        <slot name="footer">
-          <slot name="close">
-            <Link
+      <div :class="styles.dialog.scrollable">
+        <DialogHeader
+          :class="[styles.dialog.header, props.classHeader]"
+          v-if="
+            !props.noHeader &&
+            ($slots.header ||
+              title ||
+              $slots.title ||
+              description ||
+              $slots.description)
+          "
+        >
+          <slot name="header">
+            <DialogClose
+              v-if="dismissable"
+              iconOnly
               @click="forceClose"
-              v-if="!noFooter"
-              color="muted"
-              label="Close"
+              class="absolute top-0 right-0 m-4"
             />
-          </slot>
-        </slot>
 
-        <slot name="actions" />
-      </DialogFooter>
+            <DialogTitle
+              v-if="title || $slots.title"
+              class="mb-2 text-2xl font-normal"
+            >
+              <slot name="title">{{ title }}</slot>
+            </DialogTitle>
+
+            <DialogDescription
+              v-if="description || $slots.description"
+              class="text-muted-foreground text-sm"
+            >
+              <slot name="description">{{ description }}</slot>
+            </DialogDescription>
+          </slot>
+        </DialogHeader>
+
+        <div :class="styles.dialog.container">
+          <slot />
+        </div>
+
+        <DialogFooter
+          v-if="$slots.footer || $slots.actions || meta.hasDefaultClose"
+          :class="[styles.dialog.footer, props.classFooter]"
+        >
+          <slot name="footer">
+            <slot name="close">
+              <Link
+                @click="forceClose"
+                v-if="!noFooter"
+                color="muted"
+                label="Close"
+              />
+            </slot>
+          </slot>
+
+          <slot name="actions" />
+        </DialogFooter>
+      </div>
     </DialogContent>
   </Dialog>
 </template>
