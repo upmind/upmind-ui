@@ -3,7 +3,8 @@ import { Page, Locator } from "@playwright/test";
 export class BillingPage {
   readonly page: Page;
   readonly billingSection: Locator;
-  readonly backToCheckout: Locator;
+  readonly backToBasket: Locator;
+  readonly continue: Locator;
   readonly personalTab: Locator;
   readonly businessTab: Locator;
   readonly addressManualEntry: Locator;
@@ -16,7 +17,8 @@ export class BillingPage {
   constructor(page: Page) {
     this.page = page;
     this.billingSection = this.page.getByTestId("billing");
-    this.backToCheckout = this.page.getByText("Back to checkout");
+    this.backToBasket = this.page.getByText("Back to basket");
+    this.continue = this.page.getByText("Continue");
     this.personalTab = this.page.getByText("Personal details");
     this.businessTab = this.page.getByText("Business details");
     this.addressManualEntry = this.page.getByTestId(
@@ -38,6 +40,5 @@ export class BillingPage {
     await this.addressLine1.fill(addressLine1);
     await this.city.fill(city);
     await this.postCode.fill(postCode);
-    await this.saveDetails.click();
   }
 }

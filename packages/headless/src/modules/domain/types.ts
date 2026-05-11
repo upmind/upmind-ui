@@ -58,6 +58,12 @@ export type DomainProduct = Product &
       available?: boolean;
       /** `true` if the domain can be transferred (set after availability check). */
       canTransfer?: boolean;
+      /**
+       * Brand-supplied label for the transfer button when transfer is blocked
+       * via `meta.overrides.dac.i18n.transfer` on the product or category.
+       * UI renders this on the disabled transfer action (e.g. "Unavailable").
+       */
+      transferLabel?: string;
       /** `true` if the domain is fully unavailable (cannot register or transfer). */
       unavailable?: boolean;
       /** `true` once /availability has been called for this domain. */
@@ -206,6 +212,12 @@ export interface DacContext extends BasketHelperContext<DomainProduct> {
    * An `ActorRef` to a basket helper service.
    */
   basketHelper?: ActorRef<any>;
+  /**
+   * An `ActorRef` to the domain availability pre-flight helper. Each ADD
+   * click sends a `VERIFY` event to this actor so multiple checks can
+   * run in parallel without contending for the machine's single invoke slot.
+   */
+  availabilityHelper?: ActorRef<any>;
 
   /**
    * The domain currently being availability-checked (set when ADD event fires).

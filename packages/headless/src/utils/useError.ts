@@ -67,14 +67,29 @@ export class DetailedError extends Error {
   code: number;
   data?: any;
   origin: ErrorOrigin;
+  /**
+   * Optional structured error code from the API response (e.g.
+   * `"web_hosting::domain_register_only"`). Distinct from `code`, which is
+   * the numeric HTTP status. Preserved here because `data` is later
+   * mutated by error parsers — clients that need to branch on the API's
+   * domain-specific code should read this field.
+   */
+  apiCode?: string;
 
-  constructor(message: string, code: number, origin: ErrorOrigin, data?: any) {
+  constructor(
+    message: string,
+    code: number,
+    origin: ErrorOrigin,
+    data?: any,
+    apiCode?: string
+  ) {
     super(message);
     this.code = code;
     this.data = data;
     this.origin = origin;
+    this.apiCode = apiCode;
 
-    Sentry.logger.error(message, { code, data, origin });
+    Sentry.logger.error(message, { code, data, origin, apiCode });
   }
 }
 
