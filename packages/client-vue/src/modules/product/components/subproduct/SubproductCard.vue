@@ -4,11 +4,7 @@
       <div :class="styles.card.header.content">
         <div :class="styles.card.header.titleWrapper">
           <div :class="styles.card.header.titleInner">
-            <SubproductImage
-              v-if="image && !meta.isDropdown"
-              :src="image"
-              :alt="title"
-            />
+            <SubproductImage v-if="image" :src="image" :alt="title" />
             <strong :class="styles.card.header.title">
               {{ title }}
               <Tooltip
