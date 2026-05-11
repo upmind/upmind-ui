@@ -66,11 +66,11 @@ export default {
       footer: cva("flex-row items-center justify-between gap-x-4")
     },
 
-    actions: {
-      root: cva("flex flex-col items-center justify-between lg:flex-row"),
-      label: cva(
-        "text-md order-last mt-4 text-center font-medium lg:order-first lg:mt-0 lg:text-left"
+    footer: {
+      root: cva(
+        "flex w-full flex-col-reverse items-center gap-4 lg:flex-row lg:justify-between"
       ),
+      label: cva("text-md m-0 text-center font-medium lg:text-left"),
       button: cva("w-full lg:w-auto")
     },
 

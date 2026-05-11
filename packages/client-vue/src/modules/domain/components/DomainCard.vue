@@ -154,7 +154,7 @@
       />
 
       <Tooltip
-        v-else-if="!meta.isUnavailable"
+        v-else-if="!meta.isUnavailable || meta.hasTransferLabel"
         :active="!meta.isExactMatch && !isMobile"
         :label="getTooltip"
       >
@@ -229,7 +229,11 @@ const meta = computed(() => ({
   isDiscounted: !!props.discounted,
   isUnavailable: !!props.unavailable,
   isTransferable: !!props.canTransfer,
-  isPriceLoading: !!props.priceLoading
+  isPriceLoading: !!props.priceLoading,
+  // Brand has supplied a custom label for the transfer button via
+  // `meta.overrides.dac.i18n.transfer` — surface it as a disabled button
+  // even when the row is otherwise "unavailable".
+  hasTransferLabel: !!props.transferLabel
 }));
 
 const styles = useStyles(
@@ -275,6 +279,12 @@ const getIcon = computed(() => {
 });
 
 const getLabel = computed(() => {
+  // Brand-supplied override (e.g. ".com transfer = Unavailable") wins
+  // over the default unavailable label so the disabled button reflects
+  // the merchant's intent rather than the generic copy.
+  if (meta.value.hasTransferLabel && !meta.value.isAdded) {
+    return props.transferLabel!;
+  }
   if (meta.value.isUnavailable) {
     return t("text.unavailable");
   } else if (meta.value.isAdded) {
@@ -286,6 +296,9 @@ const getLabel = computed(() => {
 });
 
 const getTooltip = computed(() => {
+  if (meta.value.hasTransferLabel && !meta.value.isAdded) {
+    return props.transferLabel!;
+  }
   if (meta.value.isUnavailable) {
     return t("text.unavailable");
   } else if (meta.value.isProcessing && !meta.value.isAdded) {

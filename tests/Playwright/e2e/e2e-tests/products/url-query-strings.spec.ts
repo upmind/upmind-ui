@@ -56,7 +56,7 @@ test.describe("Manipulating elements/behaviour with URL query strings @url-param
         productConfig.radioButtons.getRadioButton("Monthly")
       ).toHaveAttribute("data-state", "checked");
     });
-    test("Invalid billing term", async ({ page }) => {
+    test("Invalid billing term @FE-2676", async ({ page }) => {
       await page.goto(
         `${URLs.baseUrl}?pid=${ProductIds.starterHosting}&bcm=32`
       );

@@ -78,10 +78,55 @@ export function buildFallbackPricing(
 // ----------------------------------------------------------------------------
 
 /**
+ * Brand/product owners can disable transfer for a specific TLD (or an entire
+ * category) by setting `meta.overrides.dac.canTransfer: false` on the product
+ * or its category. When that flag is present and false, ignore whatever the
+ * `/availability` API returns for `can_transfer` and treat the domain as
+ * non-transferable.
+ *
+ * Only a literal `false` blocks — `undefined` / missing means "no override,
+ * use the API value as-is".
+ */
+export function applyDacTransferOverride(
+  canTransfer: boolean | undefined,
+  product?: { meta?: any; category?: { meta?: any } } | null
+): boolean {
+  if (!product) return !!canTransfer;
+  const productOverride = product.meta?.overrides?.dac?.canTransfer;
+  const categoryOverride = product.category?.meta?.overrides?.dac?.canTransfer;
+  if (productOverride === false || categoryOverride === false) return false;
+  return !!canTransfer;
+}
+
+/**
+ * Returns the brand-supplied transfer label (e.g. "Unavailable") from
+ * `meta.overrides.dac.i18n.transfer`, falling back to the category-level
+ * override. The UI can render this on the disabled transfer button when
+ * `canTransfer` has been blocked by an override.
+ *
+ * Product-level wins over category-level so brands can override the
+ * category default for individual TLDs.
+ */
+export function getDacTransferLabel(
+  product?: { meta?: any; category?: { meta?: any } } | null
+): string | undefined {
+  if (!product) return undefined;
+  const productLabel = product.meta?.overrides?.dac?.i18n?.transfer;
+  if (typeof productLabel === "string" && productLabel.length > 0)
+    return productLabel;
+  const categoryLabel = product.category?.meta?.overrides?.dac?.i18n?.transfer;
+  if (typeof categoryLabel === "string" && categoryLabel.length > 0)
+    return categoryLabel;
+  return undefined;
+}
+
+// ----------------------------------------------------------------------------
+
+/**
  * Sanitises a raw domain input string — strips protocols, www, ports,
  * paths, query strings, fragments, and invalid characters.
  */
-export function sanitizeDomainInput(value: string): string {
+export function sanitiseDomainInput(value: string): string {
   return value
     .replace(/^https?:\/\//i, "") // remove protocol
     .replace(/^w{3}\./i, "") // remove www.
@@ -100,7 +145,7 @@ export function sanitizeDomainInput(value: string): string {
  * parts (full domain, SLD, TLD).
  */
 export function useDomainParser(domain: Ref<string>) {
-  const sanitisedDomain = computed(() => sanitizeDomainInput(domain.value));
+  const sanitisedDomain = computed(() => sanitiseDomainInput(domain.value));
 
   const sanitisedSld = computed(
     () => sanitisedDomain.value.split(".")[0] ?? ""
@@ -221,12 +266,17 @@ export function parseAvailable(
  * Maps the /suggestions API results into DomainProduct[].
  * Joins results to products via product_id, and uses the full
  * IProduct parsing utilities for proper billing cycle / pricing support.
+ *
+ * Mode selection is **per row**, not global: a `can_register: true` row gets
+ * `setup_function_sub_ids.register`, while a transfer-only row
+ * (`can_register: false, can_transfer: true`) gets `setup_function_sub_ids.transfer`.
+ * Without this, transfer-only suggestions would be added to the basket with
+ * register sub_pids and the basket API would 422 / charge for the wrong action.
  */
 export function parseSuggestions(
   results: IDomainSuggestionResult[],
   productsMap: Record<string, IProduct>,
-  preferredCycle?: number,
-  mode: "register" | "transfer" = "register"
+  preferredCycle?: number
 ): DomainProduct[] {
   const { defaultPaymentPeriod } = useBrand();
   const paymentPeriod = preferredCycle ?? defaultPaymentPeriod.value;
@@ -236,6 +286,12 @@ export function parseSuggestions(
     const fullDomain = `${sld}.${tld}`;
     const parsedDomain = parseDomain(fullDomain);
     const product = productsMap[product_id];
+    // Honour any brand-level DAC transfer block on the product or category
+    const canTransferEffective = applyDacTransferOverride(
+      can_transfer,
+      product
+    );
+    const transferLabel = getDacTransferLabel(product);
 
     if (product) {
       try {
@@ -247,11 +303,14 @@ export function parseSuggestions(
           terms
         );
 
-        // Extract sub_pids from setup_function_sub_ids based on mode
+        // Pick the per-row mode: a row that can register uses register
+        // sub_pids; a row that's transfer-only uses transfer sub_pids.
+        const rowMode: "register" | "transfer" =
+          can_register || !canTransferEffective ? "register" : "transfer";
         const setupSubIds = (product as IDomainSuggestionResultProduct)
           .setup_function_sub_ids;
         const subproducts: string[] = compact(
-          setupSubIds?.[mode] ?? [product.sub_product_id]
+          setupSubIds?.[rowMode] ?? [product.sub_product_id]
         );
 
         return {
@@ -271,7 +330,8 @@ export function parseSuggestions(
           meta: {
             ...(termDetails.meta ?? {}),
             available: can_register,
-            canTransfer: can_transfer
+            canTransfer: canTransferEffective,
+            transferLabel
           },
           productDetails: {
             ...productDetails,
@@ -311,7 +371,8 @@ export function parseSuggestions(
       price,
       meta: {
         available: can_register,
-        canTransfer: can_transfer,
+        canTransfer: canTransferEffective,
+        transferLabel,
         priceLoading: !product
       },
       productDetails: {

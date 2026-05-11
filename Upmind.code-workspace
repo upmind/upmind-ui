@@ -21,6 +21,9 @@
     },
     {
       "path": "../vue-app"
+    },
+    {
+      "path": "../widgets"
     }
   ],
   "settings": {

@@ -12,6 +12,14 @@ interface ConfigOverrides {
   requireRegionInAddress?: boolean;
   requirePhoneForOrders?: boolean;
   displayPriceType?: string;
+  /**
+   * Selects which domain search flow `useDac` uses.
+   *   - `"legacy-lookup"` → single `/modules/web_hosting/domains/search` call
+   *   - `"smart-suggest"` → split `/suggestions` + `/suggestions/tlds` (+ `/availability` for exact match)
+   *
+   * Maps to brand config key `provisioning.domain_names.search_method`.
+   */
+  domainSearchMethod?: "legacy-lookup" | "smart-suggest";
 }
 
 /**
@@ -68,6 +76,11 @@ export async function interceptConfigValues(
         overrides.requirePhoneForOrders;
       json.data["invoices.common.display_price_type"] =
         overrides.displayPriceType;
+      // Conditional — leave the existing brand value alone unless caller overrides
+      if (overrides.domainSearchMethod !== undefined) {
+        json.data["provisioning.domain_names.search_method"] =
+          overrides.domainSearchMethod;
+      }
       const updatedResponseBody = {
         ...json
       };
@@ -165,4 +178,26 @@ export function interceptUISchema(
       body: JSON.stringify(json)
     });
   });
+}
+
+export async function interceptSlots(page: Page, slot: string) {
+  page.route(`**/api/templates/client_area/slots/${slot}/render**`, route =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        status: "ok",
+        data: {
+          type: "template",
+          title: "",
+          body: `<div style="padding: 16px; background: #f0f9ff; border: 2px solid #0284c7; border-radius: 8px;">\n  <h3>🧪 Template: ${slot}<\/h3>\n  <p>This content is injected via the <strong>Playwright Test Runner<\/strong><\/p>\n<\/div>`,
+          meta: null
+        },
+        related: null,
+        total: null,
+        error: null,
+        messages: []
+      })
+    })
+  );
 }
