@@ -1,9 +1,10 @@
 <template>
   <div
     v-if="ui.productImagesStyle.isGrid && isArray(mappedImage)"
-    :class="cn(props.class, styles.header.image.grid)"
+    :class="cn(styles.header.image.grid, props.class)"
   >
     <ImageGrid
+      v-if="isArray(mappedImage)"
       :image="mappedImage"
       fit="cover"
       :ratio="ui.productImageRatio.value"
