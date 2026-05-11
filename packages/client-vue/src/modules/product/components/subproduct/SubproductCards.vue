@@ -19,6 +19,7 @@
         v-if="group?.icon"
         :src="group.icon"
         :alt="group?.name"
+        dropdown
       />
     </template>
     <template v-if="hasGroups" #header-label="{ selectedItem }">
