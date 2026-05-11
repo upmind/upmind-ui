@@ -98,6 +98,28 @@ export function applyDacTransferOverride(
   return !!canTransfer;
 }
 
+/**
+ * Returns the brand-supplied transfer label (e.g. "Unavailable") from
+ * `meta.overrides.dac.i18n.transfer`, falling back to the category-level
+ * override. The UI can render this on the disabled transfer button when
+ * `canTransfer` has been blocked by an override.
+ *
+ * Product-level wins over category-level so brands can override the
+ * category default for individual TLDs.
+ */
+export function getDacTransferLabel(
+  product?: { meta?: any; category?: { meta?: any } } | null
+): string | undefined {
+  if (!product) return undefined;
+  const productLabel = product.meta?.overrides?.dac?.i18n?.transfer;
+  if (typeof productLabel === "string" && productLabel.length > 0)
+    return productLabel;
+  const categoryLabel = product.category?.meta?.overrides?.dac?.i18n?.transfer;
+  if (typeof categoryLabel === "string" && categoryLabel.length > 0)
+    return categoryLabel;
+  return undefined;
+}
+
 // ----------------------------------------------------------------------------
 
 /**
@@ -269,6 +291,7 @@ export function parseSuggestions(
       can_transfer,
       product
     );
+    const transferLabel = getDacTransferLabel(product);
 
     if (product) {
       try {
@@ -307,7 +330,8 @@ export function parseSuggestions(
           meta: {
             ...(termDetails.meta ?? {}),
             available: can_register,
-            canTransfer: canTransferEffective
+            canTransfer: canTransferEffective,
+            transferLabel
           },
           productDetails: {
             ...productDetails,
@@ -348,6 +372,7 @@ export function parseSuggestions(
       meta: {
         available: can_register,
         canTransfer: canTransferEffective,
+        transferLabel,
         priceLoading: !product
       },
       productDetails: {

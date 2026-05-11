@@ -58,6 +58,12 @@ export type DomainProduct = Product &
       available?: boolean;
       /** `true` if the domain can be transferred (set after availability check). */
       canTransfer?: boolean;
+      /**
+       * Brand-supplied label for the transfer button when transfer is blocked
+       * via `meta.overrides.dac.i18n.transfer` on the product or category.
+       * UI renders this on the disabled transfer action (e.g. "Unavailable").
+       */
+      transferLabel?: string;
       /** `true` if the domain is fully unavailable (cannot register or transfer). */
       unavailable?: boolean;
       /** `true` once /availability has been called for this domain. */

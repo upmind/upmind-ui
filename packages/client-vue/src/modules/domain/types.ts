@@ -80,6 +80,7 @@ export type DomainCardProps = {
   discounted?: DomainProduct["meta"]["discounted"];
   free?: DomainProduct["meta"]["free"];
   canTransfer?: DomainProduct["meta"]["canTransfer"];
+  transferLabel?: DomainProduct["meta"]["transferLabel"];
   unavailable?: DomainProduct["meta"]["unavailable"];
   /** `true` while pricing/product data is being fetched from /suggestions/tlds. */
   priceLoading?: boolean;
