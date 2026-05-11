@@ -629,6 +629,7 @@ export const parseProductDetails = (
     description: useTranslateField(rawProduct, "description"),
     excerpt: useTranslateField(rawProduct, "short_description"),
     imgUrl: useImageUrl(rawProduct?.image?.full_url, "400x400"),
+    iconUrl: useImageUrl(rawProduct?.icon?.full_url),
     images: parseProductImages(rawProduct?.images),
     // ---
     configurable:
