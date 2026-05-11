@@ -171,12 +171,15 @@ const mapComponent = (name: string) => {
 
 const optionsWithConfig = computed(() =>
   map(props.subproduct?.values, option => {
-    const { data } = props.meta.with({ option: () => option });
+    const { ui: optionUi, data } = props.meta.with({
+      optionGroup: () => props.subproduct,
+      option: () => option
+    });
     return {
       ...option,
       groupLabel: data.optionGroupLabel,
       groupIcon: data.optionGroupIcon,
-      groupImg: ui.optionSelectorIcons.isVisible
+      groupImg: optionUi.optionSelectorIcons.isVisible
         ? (data.optionImgUrl ?? option.iconUrl)
         : ""
     };

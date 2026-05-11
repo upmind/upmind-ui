@@ -786,7 +786,7 @@ export const parseSubproductDetails = (
         excerpt: useTranslateField(rawSubproduct.category, "short_description"),
         uiCategorymeta: rawSubproduct?.category.meta,
         uiMeta: parseMeta(
-          rawSubproduct?.meta ?? {},
+          {},
           rawSubproduct?.category as IProductCategory,
           (rawSubproduct?.brand?.meta as BrandMeta)?.cart?.ui
         ),
