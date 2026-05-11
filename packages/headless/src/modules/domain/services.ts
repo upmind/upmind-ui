@@ -21,6 +21,7 @@ import {
   reject
 } from "lodash-es";
 import {
+  applyDacTransferOverride,
   buildFallbackPricing,
   parseAvailable,
   parseDomain,
@@ -544,6 +545,14 @@ async function checkAvailability({
       if (!data.product && data.product_id && related?.products) {
         data.product = related.products[data.product_id];
       }
+      // Apply brand-level transfer override (product or category meta).
+      // Mutating here means every downstream consumer — VERIFY_RESULT
+      // guards, buildDomainProductFromAvailability, etc. — sees the
+      // adjusted flag without each having to know about the override.
+      data.can_transfer = applyDacTransferOverride(
+        data.can_transfer,
+        data.product
+      );
       return data;
     }) as (data: unknown) => IDomainAvailabilityResponse
   });

@@ -206,6 +206,12 @@ export interface DacContext extends BasketHelperContext<DomainProduct> {
    * An `ActorRef` to a basket helper service.
    */
   basketHelper?: ActorRef<any>;
+  /**
+   * An `ActorRef` to the domain availability pre-flight helper. Each ADD
+   * click sends a `VERIFY` event to this actor so multiple checks can
+   * run in parallel without contending for the machine's single invoke slot.
+   */
+  availabilityHelper?: ActorRef<any>;
 
   /**
    * The domain currently being availability-checked (set when ADD event fires).
