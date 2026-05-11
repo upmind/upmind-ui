@@ -78,6 +78,29 @@ export function buildFallbackPricing(
 // ----------------------------------------------------------------------------
 
 /**
+ * Brand/product owners can disable transfer for a specific TLD (or an entire
+ * category) by setting `meta.overrides.dac.canTransfer: false` on the product
+ * or its category. When that flag is present and false, ignore whatever the
+ * `/availability` API returns for `can_transfer` and treat the domain as
+ * non-transferable.
+ *
+ * Only a literal `false` blocks — `undefined` / missing means "no override,
+ * use the API value as-is".
+ */
+export function applyDacTransferOverride(
+  canTransfer: boolean | undefined,
+  product?: { meta?: any; category?: { meta?: any } } | null
+): boolean {
+  if (!product) return !!canTransfer;
+  const productOverride = product.meta?.overrides?.dac?.canTransfer;
+  const categoryOverride = product.category?.meta?.overrides?.dac?.canTransfer;
+  if (productOverride === false || categoryOverride === false) return false;
+  return !!canTransfer;
+}
+
+// ----------------------------------------------------------------------------
+
+/**
  * Sanitises a raw domain input string — strips protocols, www, ports,
  * paths, query strings, fragments, and invalid characters.
  */
@@ -241,6 +264,11 @@ export function parseSuggestions(
     const fullDomain = `${sld}.${tld}`;
     const parsedDomain = parseDomain(fullDomain);
     const product = productsMap[product_id];
+    // Honour any brand-level DAC transfer block on the product or category
+    const canTransferEffective = applyDacTransferOverride(
+      can_transfer,
+      product
+    );
 
     if (product) {
       try {
@@ -255,7 +283,7 @@ export function parseSuggestions(
         // Pick the per-row mode: a row that can register uses register
         // sub_pids; a row that's transfer-only uses transfer sub_pids.
         const rowMode: "register" | "transfer" =
-          can_register || !can_transfer ? "register" : "transfer";
+          can_register || !canTransferEffective ? "register" : "transfer";
         const setupSubIds = (product as IDomainSuggestionResultProduct)
           .setup_function_sub_ids;
         const subproducts: string[] = compact(
@@ -279,7 +307,7 @@ export function parseSuggestions(
           meta: {
             ...(termDetails.meta ?? {}),
             available: can_register,
-            canTransfer: can_transfer
+            canTransfer: canTransferEffective
           },
           productDetails: {
             ...productDetails,
@@ -319,7 +347,7 @@ export function parseSuggestions(
       price,
       meta: {
         available: can_register,
-        canTransfer: can_transfer,
+        canTransfer: canTransferEffective,
         priceLoading: !product
       },
       productDetails: {

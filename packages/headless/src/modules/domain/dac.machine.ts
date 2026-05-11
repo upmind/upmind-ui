@@ -5,6 +5,7 @@ import { createMachine, assign, spawn, sendTo, pure } from "xstate";
 import services from "./services";
 import { basketSubscription } from "../basketProduct/helper";
 import { authSubscription } from "../session/helper";
+import { domainAvailabilityHelper } from "./helper";
 import { useFeedback } from "../feedback";
 
 // --- utils
@@ -69,6 +70,7 @@ export default createMachine(
           "clearLookups",
           "setBasketHelper",
           "setAuthHelper",
+          "setAvailabilityHelper",
           "loadBasket"
         ],
         on: {
@@ -130,8 +132,14 @@ export default createMachine(
           // Allow adding domains while second call is still loading
           ADD: [
             {
-              target: "checking",
-              actions: ["add", "setProcessing", "setCheckingDomain"],
+              // Already availability-checked — skip pre-check
+              actions: ["add", "setProcessing", "addToBasket"],
+              cond: "isAlreadyChecked"
+            },
+            {
+              // Fire pre-check via spawned helper so multiple parallel
+              // clicks each get their own /availability call.
+              actions: ["add", "setProcessing", "verifyDomain"],
               cond: "isValidDomain"
             }
           ]
@@ -148,14 +156,15 @@ export default createMachine(
         on: {
           ADD: [
             {
-              // Already availability-checked & transferable — skip re-check
+              // Already availability-checked — skip pre-check
               target: "valid",
               actions: ["add", "setProcessing", "addToBasket"],
               cond: "isAlreadyChecked"
             },
             {
-              target: "checking",
-              actions: ["add", "setProcessing", "setCheckingDomain"],
+              // Fire pre-check via spawned helper so multiple parallel
+              // clicks each get their own /availability call.
+              actions: ["add", "setProcessing", "verifyDomain"],
               cond: "isValidDomain"
             }
           ]
@@ -167,14 +176,15 @@ export default createMachine(
         on: {
           ADD: [
             {
-              // Already availability-checked & transferable — skip re-check
+              // Already availability-checked — skip pre-check
               target: "valid",
               actions: ["add", "setProcessing", "addToBasket"],
               cond: "isAlreadyChecked"
             },
             {
-              target: "checking",
-              actions: ["add", "setProcessing", "setCheckingDomain"],
+              // Fire pre-check via spawned helper so multiple parallel
+              // clicks each get their own /availability call.
+              actions: ["add", "setProcessing", "verifyDomain"],
               cond: "isValidDomain"
             }
           ]
@@ -341,6 +351,35 @@ export default createMachine(
         }
       ],
 
+      // Result of a pre-flight `/availability` check fired by the
+      // `verifyDomain` action. The `data` field holds the domain string
+      // and `availability` holds the API response. Branches mirror the
+      // legacy `verifying.onDone` flow but operate on the per-event
+      // domain rather than `checkingDomain` so multiple parallel results
+      // can be processed independently.
+      VERIFY_RESULT: [
+        {
+          actions: ["markRowUnavailable"],
+          cond: "isAvailabilityFullyUnavailable"
+        },
+        {
+          actions: ["flipRowToTransfer"],
+          cond: "shouldFlipRowToTransfer"
+        },
+        {
+          actions: ["flipRowToRegister"],
+          cond: "shouldFlipRowToRegister"
+        },
+        {
+          // Availability matches the row mode → proceed with add to basket
+          actions: ["addToBasket"]
+        }
+      ],
+
+      VERIFY_ERROR: {
+        actions: ["clearRowProcessing", "setError", "setVerifyFeedbackError"]
+      },
+
       REMOVE: {
         actions: ["setProcessing", "removeFromBasket", "remove"]
       },
@@ -436,6 +475,30 @@ export default createMachine(
       setAuthHelper: assign(({ authHelper }: DacContext) => ({
         authHelper: authHelper || spawn(authSubscription)
       })),
+
+      setAvailabilityHelper: assign(({ availabilityHelper }: DacContext) => ({
+        availabilityHelper:
+          availabilityHelper ?? spawn(domainAvailabilityHelper)
+      })),
+
+      verifyDomain: pure((context: DacContext, { data }: AnyEventObject) => {
+        if (!context.availabilityHelper) return;
+        const parsed = parseDomain(data);
+        const domain = parsed?.domain ?? data;
+        if (!domain) return;
+        return sendTo(context.availabilityHelper, {
+          type: "VERIFY",
+          data: domain,
+          // Pass the bits checkAvailability needs (basketId / brandId /
+          // coupons) without the actor refs so the helper has everything
+          // it requires without copying state machine internals.
+          context: {
+            basketId: context.basketId,
+            brandId: context.brandId,
+            coupons: context.coupons
+          }
+        });
+      }),
 
       loadBasket: pure(({ basketHelper }: DacContext, _event) => {
         if (!basketHelper) return;
@@ -1208,7 +1271,149 @@ export default createMachine(
 
           return lookups;
         }
-      })
+      }),
+
+      // --- VERIFY_RESULT actions (per-domain, sourced from event.data) ---
+
+      // Flip a row to transfer-only mode after the /availability pre-check
+      // shows it can't be registered. Uses the domain from event.data so it
+      // works for parallel verifies (multiple rows being checked at once).
+      flipRowToTransfer: assign({
+        lookups: (
+          { lookups }: DacContext,
+          { data: domain }: AnyEventObject
+        ) => {
+          const { t } = useI18n();
+          const product = find(lookups.searched, ["domain", domain]) as
+            | DomainProduct
+            | undefined;
+
+          if (product) {
+            product.meta.available = false;
+            product.meta.canTransfer = true;
+            product.meta.checkedAvailability = true;
+            product.meta.processing = false;
+
+            if (product.rawProduct) {
+              const setupSubIds = product.rawProduct.setup_function_sub_ids;
+              const subproducts: string[] = compact(
+                setupSubIds?.transfer ?? [product.rawProduct.sub_product_id]
+              );
+              product.configuration = parseProductProps(
+                {
+                  productId: product.rawProduct.id,
+                  quantity: product.rawProduct.unit_quantity,
+                  subproducts,
+                  provisionFields: product.configuration?.provisionFields ?? {}
+                },
+                product.rawProduct
+              );
+            }
+          }
+
+          useFeedback().addError({
+            title: t("error.domain_register_unavailable"),
+            copy: domain ?? ""
+          });
+
+          return lookups;
+        }
+      }),
+
+      flipRowToRegister: assign({
+        lookups: (
+          { lookups }: DacContext,
+          { data: domain }: AnyEventObject
+        ) => {
+          const { t } = useI18n();
+          const product = find(lookups.searched, ["domain", domain]) as
+            | DomainProduct
+            | undefined;
+
+          if (product) {
+            product.meta.available = true;
+            product.meta.canTransfer = false;
+            product.meta.checkedAvailability = true;
+            product.meta.processing = false;
+
+            if (product.rawProduct) {
+              const setupSubIds = product.rawProduct.setup_function_sub_ids;
+              const subproducts: string[] = compact(
+                setupSubIds?.register ?? [product.rawProduct.sub_product_id]
+              );
+              product.configuration = parseProductProps(
+                {
+                  productId: product.rawProduct.id,
+                  quantity: product.rawProduct.unit_quantity,
+                  subproducts,
+                  provisionFields: product.configuration?.provisionFields ?? {}
+                },
+                product.rawProduct
+              );
+            }
+          }
+
+          useFeedback().addError({
+            title: t("error.domain_transfer_unavailable"),
+            copy: domain ?? ""
+          });
+
+          return lookups;
+        }
+      }),
+
+      markRowUnavailable: assign({
+        lookups: (
+          { lookups }: DacContext,
+          { data: domain }: AnyEventObject
+        ) => {
+          const { t } = useI18n();
+          const product = find(lookups.searched, ["domain", domain]) as
+            | DomainProduct
+            | undefined;
+
+          if (product) {
+            product.meta.available = false;
+            product.meta.unavailable = true;
+            product.meta.disabled = true;
+            product.meta.checkedAvailability = true;
+            product.meta.processing = false;
+          }
+
+          useFeedback().addError({
+            title: t("error.domain_unavailable"),
+            copy: domain ?? ""
+          });
+
+          return lookups;
+        }
+      }),
+
+      clearRowProcessing: assign({
+        lookups: (
+          { lookups }: DacContext,
+          { data: domain }: AnyEventObject
+        ) => {
+          const product = find(lookups.searched, ["domain", domain]) as
+            | DomainProduct
+            | undefined;
+          if (product) product.meta.processing = false;
+          return lookups;
+        }
+      }),
+
+      setVerifyFeedbackError: (
+        _context: DacContext,
+        { data: domain, error }: AnyEventObject
+      ) => {
+        const { t } = useI18n();
+        useFeedback().addError({
+          title: t("error.domain_add_failed"),
+          copy: domain ?? ""
+        });
+        // Surface the error reason via the standard error pipeline too
+        if (error) mapToHeadlessError(error);
+      }
     },
 
     guards: {
@@ -1301,7 +1506,54 @@ export default createMachine(
         data?.error_code === "web_hosting::domain_transfer_only",
 
       isDomainNotForSale: (_context: DacContext, { data }: AnyEventObject) =>
-        data?.error_code === "web_hosting::domain_not_for_sale"
+        data?.error_code === "web_hosting::domain_not_for_sale",
+
+      // --- VERIFY_RESULT guards (pre-flight availability check)
+      //
+      // `data` is the domain string; `availability` is the API response.
+
+      isAvailabilityFullyUnavailable: (
+        _context: DacContext,
+        { availability }: AnyEventObject
+      ) =>
+        availability?.can_register === false &&
+        availability?.can_transfer === false,
+
+      // Row is in register mode (meta.available === true) but the fresh
+      // availability check says only transfer is possible.
+      shouldFlipRowToTransfer: (
+        { lookups }: DacContext,
+        { data: domain, availability }: AnyEventObject
+      ) => {
+        const product = find(lookups.searched, ["domain", domain]) as
+          | DomainProduct
+          | undefined;
+        const rowIsRegister = product?.meta?.available === true;
+        return (
+          rowIsRegister &&
+          availability?.can_register === false &&
+          availability?.can_transfer === true
+        );
+      },
+
+      // Row is in transfer mode (meta.canTransfer === true && !meta.available)
+      // but the fresh availability check says only register is possible.
+      shouldFlipRowToRegister: (
+        { lookups }: DacContext,
+        { data: domain, availability }: AnyEventObject
+      ) => {
+        const product = find(lookups.searched, ["domain", domain]) as
+          | DomainProduct
+          | undefined;
+        const rowIsTransfer =
+          product?.meta?.available === false &&
+          product?.meta?.canTransfer === true;
+        return (
+          rowIsTransfer &&
+          availability?.can_register === true &&
+          availability?.can_transfer === false
+        );
+      }
     },
 
     delays: {
