@@ -40,6 +40,7 @@
           :discounted="item.meta.discounted"
           :free="item.meta.free"
           :canTransfer="item.meta.canTransfer"
+          :transferLabel="item.meta.transferLabel"
           :unavailable="item.meta.unavailable"
           :priceLoading="item.meta.priceLoading"
           :exactMatch="isExactMatch(value.toString())"

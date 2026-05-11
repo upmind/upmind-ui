@@ -23,6 +23,7 @@ import {
 import {
   applyDacTransferOverride,
   buildFallbackPricing,
+  getDacTransferLabel,
   parseAvailable,
   parseDomain,
   parseDomainParts,
@@ -171,7 +172,8 @@ function buildDomainProductFromAvailability(
         unavailable: !availability.can_register && !availability.can_transfer,
         checkedAvailability: true,
         disabled: !availability.can_register && !availability.can_transfer,
-        exactMatch: true
+        exactMatch: true,
+        transferLabel: getDacTransferLabel(product)
       },
       productDetails: {
         ...productDetails,
@@ -211,7 +213,8 @@ function buildDomainProductFromAvailability(
       unavailable: true,
       checkedAvailability: true,
       disabled: true,
-      exactMatch: true
+      exactMatch: true,
+      transferLabel: getDacTransferLabel(availability.product as any)
     },
     productDetails: {
       id: "",
