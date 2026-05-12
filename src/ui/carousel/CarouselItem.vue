@@ -19,6 +19,7 @@ const { orientation } = useCarousel();
         props.class
       )
     "
+    data-testid="carousel-card"
   >
     <slot />
   </div>
