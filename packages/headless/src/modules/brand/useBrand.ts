@@ -29,6 +29,7 @@ import {
 import {
   type ILanguage,
   type ICurrency,
+  BasketFunnelling,
   BrandTaxTypes,
   BrandConfigKeys,
   DefaultPaymentPeriod,
@@ -229,6 +230,12 @@ export const useBrand = () => {
     // NB you can only disable the catalogue if you have given us a storefront URL to redirect to, otherwise you would brick your store
     return !storefrontUrl.value || !config.data.catalogueDisabled;
   });
+
+  const keepsUserInSitu = computed(
+    () =>
+      getConfigValue<BasketFunnelling>(BrandConfigKeys.BASKET_FUNNELLING) ===
+      BasketFunnelling.NONE
+  );
 
   const storefrontRoute = computed(() => {
     if (!storefrontUrl.value) {
@@ -455,6 +462,12 @@ export const useBrand = () => {
      * A flag indicating whether the brand has a storefront available.
      */
     hasStorefront,
+
+    /**
+     * `true` when the brand's "Add to Basket Funneling" setting is configured
+     * to keep the user in situ on the catalogue after auto-adding a product.
+     */
+    keepsUserInSitu,
 
     /** The storefront URL for the brand, if configured. */
     storefrontUrl,
