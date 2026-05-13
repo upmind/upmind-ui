@@ -115,7 +115,7 @@ const emits = defineEmits(["update:open", "remove"]);
 const open = useVModel(props, "open", emits);
 
 const productConfig = useConfig().with({
-  product: () => props
+  basketProduct: () => props
 });
 
 const { ui } = productConfig;

@@ -213,8 +213,11 @@ export const useBrand = () => {
       )
   );
 
-  // Singleton to avoid creating multiple useConfig instances across useBrand calls
-  config ??= useConfig({ brand: () => uiCart.value });
+  // Singleton to avoid creating multiple useConfig instances across useBrand calls.
+  // basket: undefined breaks the useBasket → useBrand → useConfig → useBasket cycle —
+  // useBrand only consumes data settings (storeUrl, catalogueDisabled), it doesn't
+  // evaluate conditional rules, so it has no need for basket plumbing.
+  config ??= useConfig({ brand: () => uiCart.value, basket: undefined });
 
   const storefrontUrl = computed((): string | undefined => {
     return useUpmind.storefrontUrl ?? config.data.storeUrl;

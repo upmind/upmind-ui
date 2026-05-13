@@ -263,7 +263,7 @@ const quantity = defineModel<ProductModel["quantity"]>("quantity");
 const term = defineModel<ProductModel["term"]>("term");
 
 const { ui, data } = useConfig().with({
-  product: () => props
+  basketProduct: () => props
 });
 
 const filteredDetails = computed(() => {

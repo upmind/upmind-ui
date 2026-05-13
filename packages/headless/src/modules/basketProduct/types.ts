@@ -1,6 +1,7 @@
 import type {
   IBasketProduct,
-  IBasketPromotion
+  IBasketPromotion,
+  IProduct
 } from "@upmind-automation/types";
 import type {
   ProductProps,
@@ -64,6 +65,13 @@ export interface BasketProduct extends Product {
    * - A Hosting product often has a service identifier of the associated domain name.
    */
   serviceIdentifier?: string;
+  /**
+   * The source `IProduct` carried over from the raw API response. Used by
+   * conditional rules to resolve `product.*` state keys (term_count,
+   * option_count, bcm, trial_days) on basket screens, where only a
+   * basketProduct is in scope.
+   */
+  product?: IProduct;
 }
 
 /**
