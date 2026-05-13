@@ -25,6 +25,7 @@ export interface ProductHeaderProps {
 export interface ProductImageProps {
   class?: HTMLAttributes["class"];
   productDetails: Product["productDetails"];
+  direction?: PRODUCT_HERO_DIRECTION;
   fallback?: boolean;
   previewSize?: string;
 }
