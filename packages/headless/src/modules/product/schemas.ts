@@ -5,6 +5,7 @@ import { find, first, forEach, isEmpty, keys, map, size } from "lodash-es";
 import { useI18n } from "../system";
 import {
   calculateBillingTerm,
+  checkPriceOverride,
   parseProvisioningSchema,
   parseQuantity
 } from "./utils";
@@ -327,10 +328,21 @@ export function useProductConfigUischema(
 
   // --- term selector
   if (!isEmpty(context?.lookups?.terms)) {
+    const overridden =
+      checkPriceOverride(
+        context.model?.options ?? {},
+        context.lookups?.options ?? []
+      ) ||
+      checkPriceOverride(
+        context.model?.attributes ?? {},
+        context.lookups?.attributes ?? []
+      );
+
     elements.push({
       type: "Terms",
       scope: "#/properties/term",
-      i18n: "product.term"
+      i18n: "product.term",
+      options: { overridden }
     });
   }
 

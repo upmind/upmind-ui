@@ -41,7 +41,7 @@
               summary.price.monthlyFromRegularPrice ?? ''
             "
             :discounted="summary.meta.discounted ?? false"
-            :overridden="summary.meta.overridden"
+            :custom="summary.meta.custom"
             :loading="props.pricesUpdating"
             :ui-config="{ pricing: { ex: [styles.product.pricing.ex] } }"
           />
@@ -86,7 +86,7 @@
                 />
 
                 <Tooltip
-                  v-if="summary.meta?.overridden"
+                  v-if="summary.meta?.custom"
                   :label="t('text.price_manually_adjusted_msg')"
                 >
                   <Badge

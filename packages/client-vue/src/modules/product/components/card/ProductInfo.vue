@@ -23,7 +23,7 @@
       />
 
       <Tooltip
-        v-else-if="meta?.overridden"
+        v-else-if="meta?.custom"
         :label="t('text.price_manually_adjusted_msg')"
       >
         <Badge
