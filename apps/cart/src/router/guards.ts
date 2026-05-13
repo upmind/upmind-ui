@@ -113,6 +113,18 @@ export default {
   },
 
   /**
+   * Returns true when basket has domain products and no billing address is set.
+   * Domain registrant details are a hard requirement, so this overrides
+   * `billingDetailsDisabled` — the billing page must remain reachable.
+   */
+  needsAddressForDomains: () => {
+    const { products } = useBasket();
+    const { model: billingModel } = useBasketBilling();
+    const hasDomains = !isEmpty(getDomainBasketProducts(products.value));
+    return hasDomains && !billingModel.value?.addressId;
+  },
+
+  /**
    * Returns true when billing page is needed (standalone billing incomplete or domains need address).
    */
   needsAddress: () => {
