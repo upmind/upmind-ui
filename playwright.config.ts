@@ -77,6 +77,7 @@ export default defineConfig({
         browserName: "chromium",
         headless: true,
         viewport: { width: 1920, height: 1080 },
+        //locale: "en", ** Turning this on for a project will default to en locale (instead of en_US) and bypass any localazy sync issues
         launchOptions: {
           args: ["--no-sandbox", "--headless", "--disable-gpu"]
         }
