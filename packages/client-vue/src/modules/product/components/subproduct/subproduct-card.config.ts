@@ -107,7 +107,7 @@ export default {
         ]
       }),
       img: cva(
-        "inline-block h-5 min-h-5 w-5 min-w-5 object-cover object-center"
+        "inline-block h-5 min-h-5 w-5 min-w-5 object-contain object-center"
       )
     }
   }
