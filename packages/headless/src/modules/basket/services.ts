@@ -245,10 +245,22 @@ async function getProvisioningFieldsValues(basket: IBasket) {
       };
     });
 }
-async function dismissAllWarningNotes(
+
+async function dismissWarningNote(
   { basket }: BasketContext,
-  ids: string[]
+  { data }: AnyEventObject
 ) {
+  const { put, useUrl } = useQuery();
+
+  return put({
+    mutationKey: ["basket", basket?.id, "warnings"],
+    url: useUrl(`/orders/${basket?.id}/warnings/hide`),
+    data: { ids: [data] },
+    withAccessToken: true
+  });
+}
+
+async function dismissWarningNotes({ basket }: BasketContext, ids: string[]) {
   const { put, useUrl } = useQuery();
 
   return put({
@@ -282,6 +294,7 @@ export default {
   load,
   refresh,
   convert,
-  dismissAllWarningNotes,
+  dismissWarningNote,
+  dismissWarningNotes,
   isAuthenticated: () => useSession().isAuthenticated()
 };
