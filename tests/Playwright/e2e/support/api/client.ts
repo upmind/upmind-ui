@@ -16,7 +16,7 @@ export type RegisterClientOptions = {
   firstname?: string;
   /** Override the last name (default: faker-generated). */
   lastname?: string;
-  /** Override the password (default: "Password1"). */
+  /** Override the password (default: "Password1!"). */
   password?: string;
   /** Override the currency ID (default: GBP). */
   currencyId?: string;
@@ -49,7 +49,7 @@ export async function registerClient(
   const email =
     options.email ??
     `nathan.robinson+${faker.string.alpha({ length: 10 })}@upmind.com`;
-  const password = options.password ?? "Password1";
+  const password = options.password ?? "Password1!";
   const firstname = options.firstname ?? faker.person.firstName();
   const lastname = options.lastname ?? faker.person.lastName();
   const currencyId = options.currencyId ?? DEFAULT_CURRENCY_ID;
