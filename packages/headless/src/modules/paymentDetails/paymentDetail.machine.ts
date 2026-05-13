@@ -137,7 +137,14 @@ export default createMachine(
                       "setLookups",
                       "setGateway",
                       "setSchemas",
-                      "calculate"
+                      "calculate",
+                      // NB: sync the gateway helper with the freshly parsed
+                      // model.amount. Without this, SET_PARTIAL_PAYMENT and
+                      // SET_WALLET_AMOUNT updates never reach the gateway,
+                      // leaving Stripe configured with a stale amount (and
+                      // stuck in `unavailable` if the previous amount was
+                      // below its minimum).
+                      "refreshActors"
                     ]
                   }
                 }

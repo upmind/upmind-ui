@@ -89,8 +89,14 @@ export default {
   }),
 
   cleanupSdk: ({ sdk }: StripeContext) => {
-    if (sdk?.element?.destroy) {
-      sdk.element.destroy();
+    if (sdk?.element) {
+      try {
+        sdk.element.destroy();
+      } catch {
+        // SDK may have already cleaned up internally; cleanup must not throw,
+        // as that would abort the surrounding xstate transition mid-flight.
+      }
+      sdk.element = undefined;
     }
   }
 };
