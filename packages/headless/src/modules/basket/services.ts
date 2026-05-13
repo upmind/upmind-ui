@@ -260,13 +260,16 @@ async function dismissWarningNote(
   });
 }
 
-async function dismissWarningNotes({ basket }: BasketContext, ids: string[]) {
+async function dismissWarningNotes(
+  { basket }: BasketContext,
+  { data }: AnyEventObject
+) {
   const { put, useUrl } = useQuery();
 
   return put({
     mutationKey: ["basket", basket?.id, "warnings", "dismiss-all"],
     url: useUrl(`/orders/${basket?.id}/warnings/hide`),
-    data: { ids },
+    data: { ids: data },
     withAccessToken: true
   });
 }

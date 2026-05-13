@@ -279,12 +279,11 @@ export default <T = unknown>(name: string) =>
           uischema: undefined
         }),
 
-        // NB: Reset SDK-related context so `hasRendered` evaluates false on the
-        // next `load.onDone`, forcing the machine through `rendering` and
-        // triggering a fresh `mount()`. Without this, the wrapper `sdk` from
-        // a previous load survives `cleanupSdk` (which only mutates
-        // `sdk.element = undefined`), `hasRendered` sees a truthy `sdk`, and
-        // the machine skips rendering — the new element is never mounted.
+        // NB: `cleanupSdk` already drops the entire `sdk` wrapper, but the
+        // render-time scaffolding (`container`, `validationHelper`,
+        // `validationObserver`) lives outside `sdk` and must be cleared
+        // separately so the next `load.onDone` routes through `rendering` with
+        // a clean slate and triggers a fresh `mount()`.
         clearSdk: assign({
           sdk: undefined,
           container: undefined,
@@ -391,9 +390,9 @@ export default <T = unknown>(name: string) =>
             error // do nothing by default.... individual sdk gateways can override
         }),
 
-        cleanupSdk: () => {
-          // no-op — override in SDK-specific gateway configs
-        },
+        cleanupSdk: assign({
+          sdk: undefined
+        }),
 
         clearError: assign({
           error: undefined
