@@ -18,4 +18,6 @@ export type SubproductCardProps = Omit<SubproductValue, "meta" | "brand"> & {
 export interface SubproductCardImage {
   src?: ImgHTMLAttributes["src"];
   alt?: ImgHTMLAttributes["alt"];
+  minimal?: boolean;
+  dropdown?: boolean;
 }
