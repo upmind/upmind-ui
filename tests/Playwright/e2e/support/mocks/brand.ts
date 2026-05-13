@@ -20,6 +20,7 @@ interface ConfigOverrides {
    * Maps to brand config key `provisioning.domain_names.search_method`.
    */
   domainSearchMethod?: "legacy-lookup" | "smart-suggest";
+  basketFunnelling?: "none" | "next_step";
 }
 
 /**
@@ -76,10 +77,16 @@ export async function interceptConfigValues(
         overrides.requirePhoneForOrders;
       json.data["invoices.common.display_price_type"] =
         overrides.displayPriceType;
+<<<<<<< HEAD
       // Conditional — leave the existing brand value alone unless caller overrides
       if (overrides.domainSearchMethod !== undefined) {
         json.data["provisioning.domain_names.search_method"] =
           overrides.domainSearchMethod;
+=======
+      if (overrides.basketFunnelling !== undefined) {
+        json.data["ui.basket.add_to_basket_funnelling"] =
+          overrides.basketFunnelling;
+>>>>>>> e0ef78e8c (qa: tests for catalogue-in-situ changes)
       }
       const updatedResponseBody = {
         ...json
