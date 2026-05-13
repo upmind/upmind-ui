@@ -14,7 +14,7 @@ import {
   parseRelatedProducts,
   parseRecommendation,
   parseRelationships,
-  checkInBasket
+  isRecommendationInBasket
 } from "./utils";
 import {
   concat,
@@ -90,7 +90,48 @@ export default createMachine(
         }
       },
 
+      // Briefly held while the basket is mid-refresh. Entered via the
+      // REFRESHING event (forwarded by basketSubscription as soon as the
+      // basket enters its own refreshing.processing state), and exited
+      // when the eventual REFRESH event arrives.
+      //
+      // Why this is load-bearing: route gates (e.g.
+      // apps/cart/src/router/services.ts) call `isReady()` on this engine
+      // to decide whether to redirect users to the recommendations screen.
+      // Without the syncing gate, `isReady()` would resolve based on the
+      // OLD basket snapshot — conditions evaluated against stale state
+      // could mark recommendations as "not visible" when the new basket
+      // would actually surface them. The router would race the basket
+      // and silently skip relevant recs.
+      //
+      // The syncing state pauses `isReady()` until REFRESH lands and
+      // conditions are re-evaluated against the fresh basket.
+      syncing: {
+        on: {
+          REFRESH: [
+            {
+              target: "refreshing",
+              actions: [
+                "setBasket",
+                "clearProducts",
+                "setLookups",
+                "setRecommendations",
+                "refreshProducts"
+              ],
+              cond: "hasBasketChanged"
+            },
+            {
+              target: "available",
+              actions: ["setBasket", "setLookups", "setRecommendations"]
+            }
+          ]
+        }
+      },
+
       available: {
+        on: {
+          REFRESHING: { target: "syncing" }
+        },
         always: {
           target: "unavailable",
           cond: "hasNoRecommendations"
@@ -98,6 +139,9 @@ export default createMachine(
       },
 
       unavailable: {
+        on: {
+          REFRESHING: { target: "syncing" }
+        },
         always: {
           target: "available",
           cond: "hasRecommendations"
@@ -188,9 +232,6 @@ export default createMachine(
         actions: ["addToBasket", "setProcessing"],
         cond: "exists"
       },
-      // PROCESSING: {
-      //   target: "processing",
-      // },
       STOP: {
         target: "complete"
       }
@@ -429,14 +470,12 @@ export default createMachine(
           const products = basket?.products;
           const related = parseRelatedProducts(basket as IBasket);
           const relationships = parseRelationships(basket as IBasket);
-          const added = products; //parseAddedProducts(related, products);
           return {
             products: raw?.products ?? [],
             related,
             relationships,
             seen: raw?.seen ?? [], // TODO: retrieve from local storage
-            added
-            // added: uniq(concat(raw.added, added)),
+            added: products
           };
         }
       }),
@@ -500,7 +539,7 @@ export default createMachine(
 
               const product = find(raw.products, ["id", rawRelated.object_id]);
               rawRelated.product = product;
-              const added = checkInBasket(rawRelated, raw.added);
+              const added = isRecommendationInBasket(rawRelated, raw.added);
               const seen = includes(raw.seen, rawRelated.id);
               const processing = false;
               const loading = isEmpty(rawRelated.product);
@@ -546,7 +585,7 @@ export default createMachine(
                 rawRelated.product = data;
               }
 
-              const added = checkInBasket(rawRelated, raw.added);
+              const added = isRecommendationInBasket(rawRelated, raw.added);
               const seen = includes(raw.seen, rawRelated.id);
               const processing = false;
               const loading = isEmpty(rawRelated.product);
@@ -582,13 +621,19 @@ export default createMachine(
         { data }: AnyEventObject
       ) => {
         const product = data; //TODO: check / parse the data is a basket item
+        // Scope analytics to addable recommendations — in-basket items are
+        // acknowledgements, not impressions of an offer the customer can act on.
+        const addable = filter(
+          raw.related,
+          rec => !isRecommendationInBasket(rec, raw.added)
+        );
         useDataLayer()
           .dataLayer({
             event: "view_item_list",
             currency: currency?.code,
             item_list_id: "recommendations",
             // item_list_name: "Recommendations",
-            items: raw.related
+            items: addable
           })
           .push();
       },
