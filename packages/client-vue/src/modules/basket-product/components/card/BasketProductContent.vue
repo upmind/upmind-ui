@@ -42,6 +42,7 @@
             "
             :discounted="summary.meta.discounted ?? false"
             :overridden="summary.meta.overridden"
+            :loading="props.pricesUpdating"
             :ui-config="{ pricing: { ex: [styles.product.pricing.ex] } }"
           />
         </div>
@@ -113,6 +114,7 @@
               summary.price.monthlyFromCurrentPrice ?? ''
             "
             :free="summary.meta.free ?? false"
+            :loading="props.pricesUpdating"
             :ui-config="{
               pricing: { current: [styles.product.pricing.current] }
             }"
