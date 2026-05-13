@@ -1,7 +1,7 @@
 <template>
   <section :class="styles.domain.listings.root" v-auto-animate>
     <CheckboxCards
-      v-if="!meta.isLoading && !meta.isSearching && meta.hasAvailable"
+      v-if="meta.hasAvailable"
       no-input
       id="dac"
       name="dac"
@@ -30,7 +30,9 @@
           :tld="item.tld"
           :price="item.price"
           :cycle="item.configuration.term"
-          :disabled="item.meta.disabled || props.disabled"
+          :disabled="
+            item.meta.disabled || props.disabled || meta.isSearchingMore
+          "
           :processing="item.meta.processing"
           :available="item.meta.available"
           :added="item.meta.added"
@@ -39,6 +41,7 @@
           :free="item.meta.free"
           :canTransfer="item.meta.canTransfer"
           :unavailable="item.meta.unavailable"
+          :priceLoading="item.meta.priceLoading"
           :exactMatch="isExactMatch(value.toString())"
           @add="onAdd"
           @remove="onRemove"
@@ -67,16 +70,17 @@
       <DomainCardSkeleton v-for="i in skeletonCount" :key="i" :active="false" />
     </template>
 
-    <template v-else-if="meta.isSearching">
+    <template v-else-if="meta.isSearching && !meta.hasAvailable">
       <DomainCardSkeleton v-if="meta.hasTLD" is-exact-match />
 
       <DomainCardSkeleton v-for="i in resultsSkeletonCount" :key="i" />
     </template>
 
     <Button
-      v-if="meta.hasMoreSearchResults"
+      v-if="meta.hasMoreSearchResults || meta.isSearchingMore"
       variant="outline"
-      :loading="meta.isLoading"
+      :loading="meta.isLoading || meta.isSearchingMore"
+      :disabled="meta.isSearchingMore"
       @click="$emit('search-more')"
       block
       class="mt-6"
@@ -138,9 +142,13 @@ const meta = computed(() => ({
   isLoading: props.loading ?? false,
   isProcessing: props.processing ?? false,
   isSearching: props.searching ?? false,
+  isSearchingMore: props.searchingMore ?? false,
   isValid: props.valid ?? false,
   hasAvailable: !isEmpty(props.items),
+  // Prefer the explicit hasMore flag (page < totalPages) when supplied —
+  // falls back to legacy offset/resultCount math.
   hasMoreSearchResults:
+    props.hasMore ??
     (props.resultCount ?? 0) > (props.offset ?? 0) + (props.items?.length ?? 0),
   hasTLD: !!props.query?.includes("."),
   hasExactMatch: some(props.items, item => !!item.meta.exactMatch)

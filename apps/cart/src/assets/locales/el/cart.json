@@ -23,7 +23,7 @@
   "basket_summary_desc_free": "Έχετε {count} είδος στο καλάθι σας. | Έχετε {count} είδη στο καλάθι σας.",
   "basket_summary_taxes_desc": "Έχετε{count} είδος στο καλάθι σας, συνολικά{total} ({tax} ) | Έχετε{count} είδη στο καλάθι σας, συνολικά{total} ({tax} )",
   "basket_tax_excl": "χωρίς φόρους",
-  "basket_tax_incl": "incl. taxes",
+  "basket_tax_incl": "συμπεριλαμβανομένων των φόρων",
   "basket_title": "Το καλάθι σας",
   "change_amount": "Αλλαγή ποσού",
   "empty": "Το **καλάθι** σας είναι άδειο",
