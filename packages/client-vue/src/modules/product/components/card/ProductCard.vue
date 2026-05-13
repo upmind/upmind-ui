@@ -1,5 +1,5 @@
 <template>
-  <li :class="styles.product.root">
+  <li :class="styles.product.root" :data-testid="`product-card-${props.id}`">
     <div :class="styles.product.content">
       <div v-if="!configMeta.hideImage" :class="styles.product.image.container">
         <Link
