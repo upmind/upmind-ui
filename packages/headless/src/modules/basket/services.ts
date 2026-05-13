@@ -96,33 +96,42 @@ async function fetchBasket(context: BasketContext): Promise<IBasket> {
 
 // -----------------------------------------------------------------------------
 
-async function load(context: BasketContext, _event: AnyEventObject) {
+// Transfers a guest's basket ownership to a freshly-authenticated client.
+// Called from both `load` and `refresh` — refresh is invoked after the
+// session emits AUTHENTICATED, so the claim must run there too, otherwise
+// `orders/current` returns a client-scoped basket with no `client_id` set
+// against the guest's products and downstream actors (billing, paymentDetail)
+// never spawn.
+async function claimBasket(): Promise<void> {
+  const client_token = getTokenFromStorage(Contexts.CLIENT);
+  const guest_token = getTokenFromStorage(Contexts.GUEST);
+
+  if (!client_token || !guest_token) return;
+
   const { patch, useUrl } = useQuery();
+
+  return patch({
+    mutationKey: ["basket", "claim"],
+    url: useUrl("orders/claim"),
+    withAccessToken: true,
+    data: {
+      guest_token: guest_token.access_token
+    }
+  }).then(() => {
+    // Only dump the guest token on success so we can retry the claim if it fails.
+    dumpTokenFromStorage(Contexts.GUEST);
+  });
+}
+
+// -----------------------------------------------------------------------------
+
+async function load(context: BasketContext, _event: AnyEventObject) {
   const { ensureConfig } = useBrand();
 
   // NB ensure we get this in order to be able to use in basket machine actions
   ensureConfig([BrandConfigKeys.REQUIRE_PAYMENT_METHOD_FOR_FREE_ORDERS]);
 
-  // check if we are logged in as a client
-  // then try to get any previous guest token a
-  const client_token = getTokenFromStorage(Contexts.CLIENT);
-  const guest_token = getTokenFromStorage(Contexts.GUEST);
-
-  // if we are a client AND we have a guest token, we need to claim the basket
-  if (client_token && guest_token) {
-    await patch({
-      mutationKey: ["basket", "claim"],
-      url: useUrl("orders/claim"),
-      withAccessToken: true,
-      data: {
-        guest_token: guest_token.access_token
-      }
-    }).then(() => {
-      // because we have successfully claimed the basket, we can dump the guest token
-      // we only do it here, as we may need to claim the basket again if something went wrong
-      dumpTokenFromStorage(Contexts.GUEST);
-    });
-  }
+  await claimBasket();
 
   return fetchBasket(context).then((basket: IBasket) => {
     if (isEmpty(basket)) return { basket: context.basket as IBasket };
@@ -277,6 +286,8 @@ async function dismissWarningNotes(
 // -----------------------------------------------------------------------------
 
 async function refresh(context: BasketContext, _event: AnyEventObject) {
+  await claimBasket();
+
   return fetchBasket(context).then((newBasket: IBasket) => {
     if (isEmpty(newBasket)) return { basket: context.basket as IBasket };
 
