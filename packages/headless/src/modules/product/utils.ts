@@ -631,6 +631,7 @@ export const parseProductDetails = (
     description: useTranslateField(rawProduct, "description"),
     excerpt: useTranslateField(rawProduct, "short_description"),
     imgUrl: useImageUrl(rawProduct?.image?.full_url, "400x400"),
+    iconUrl: useImageUrl(rawProduct?.icon?.full_url),
     images: parseProductImages(rawProduct?.images),
     // ---
     configurable:
@@ -787,7 +788,7 @@ export const parseSubproductDetails = (
         excerpt: useTranslateField(rawSubproduct.category, "short_description"),
         uiCategorymeta: rawSubproduct?.category.meta,
         uiMeta: parseMeta(
-          rawSubproduct?.meta ?? {},
+          {},
           rawSubproduct?.category as IProductCategory,
           (rawSubproduct?.brand?.meta as BrandMeta)?.cart?.ui
         ),
