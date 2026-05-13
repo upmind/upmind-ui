@@ -638,6 +638,13 @@ export const parseProductDetails = (
         !isEmpty(rawProduct.products_attributes) ||
         !isEmpty(rawProduct.products_options) ||
         !isEmpty(rawProduct.provision_fields)),
+    configurableTerm: !readonly && rawProduct.prices?.length > 1,
+    configurableSubproducts:
+      !readonly &&
+      (!isEmpty(rawProduct.products_options) ||
+        !isEmpty(rawProduct.products_attributes)),
+    configurableProvisionFields:
+      !readonly && !isEmpty(rawProduct.provision_fields),
 
     configurableInline:
       !readonly &&
