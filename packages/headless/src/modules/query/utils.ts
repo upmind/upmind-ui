@@ -349,10 +349,14 @@ export function handleError(
   // get the mapped the error and status to a feedback message and display it if it exists
   const feedback = get(mapFeedback(error), status);
   if (!isNil(feedback)) useFeedback().add(feedback);
+  // Preserve the API's structured error code (e.g. `web_hosting::domain_register_only`)
+  // on the DetailedError. Clients that need to branch on it (e.g. domain
+  // register/transfer flip) read `apiCode` — message text is locale-dependent.
   throw new DetailedError(
     error?.message ?? t("error.503_title_md"),
     status || responseCodes.Service_Unavailable,
     ErrorOrigin.Upmind,
-    error?.data
+    error?.data,
+    (error as any)?.code
   );
 }

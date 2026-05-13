@@ -83,9 +83,29 @@ export default {
       }
     }),
     image: {
-      root: cva(
-        "flex h-6 min-h-6 w-6 min-w-6 shrink-0 items-center justify-start"
-      ),
+      root: cva("size-lh flex shrink-0 items-center justify-start", {
+        variants: {
+          isMinimal: {
+            true: ""
+          },
+          isDropdown: {
+            true: "text-base",
+            false: ""
+          }
+        },
+        compoundVariants: [
+          {
+            isMinimal: true,
+            isDropdown: false,
+            class: "text-md-tight"
+          },
+          {
+            isMinimal: false,
+            isDropdown: false,
+            class: "text-md"
+          }
+        ]
+      }),
       img: cva(
         "inline-block h-5 min-h-5 w-5 min-w-5 object-cover object-center"
       )

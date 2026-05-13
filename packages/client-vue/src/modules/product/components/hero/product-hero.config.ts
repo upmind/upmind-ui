@@ -50,7 +50,18 @@ export default {
     }),
     image: {
       root: cva("inline-block h-full max-w-full"),
-      product: cva("h-full")
+      product: cva("h-full"),
+      grid: cva("ml-auto", {
+        variants: {
+          direction: {
+            horizontal: "lg:max-w-64",
+            vertical: ""
+          }
+        },
+        defaultVariants: {
+          direction: "vertical"
+        }
+      })
     },
     heroTitle: cva("", {
       variants: {
