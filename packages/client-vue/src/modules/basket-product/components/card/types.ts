@@ -35,6 +35,7 @@ export interface BasketProductSummaryProps {
   error: boolean;
   processing: boolean;
   loading: boolean;
+  pricesUpdating?: boolean;
   editRoute: RouteLocationAsRelativeGeneric;
   // --- inline errors
   configErrors?: BasketProduct["errors"];
