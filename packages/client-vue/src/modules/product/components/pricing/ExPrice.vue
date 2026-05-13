@@ -3,16 +3,19 @@
     v-if="priceMeta.isDiscounted || priceMeta.isOverridden"
     :class="styles.pricing.ex"
   >
-    <slot name="prefix" />{{
-      formatPrice(
-        priceMeta.useMonthlyFromPrice
-          ? props.monthlyFromRegularPrice
-          : props.regularPrice,
-        {
-          trimTrailingZeroes: data.trimTrailingZeroes
-        }
-      )
-    }}
+    <Skeleton v-if="props.loading" :class="styles.pricing.exSkeleton" />
+    <template v-else>
+      <slot name="prefix" />{{
+        formatPrice(
+          priceMeta.useMonthlyFromPrice
+            ? props.monthlyFromRegularPrice
+            : props.regularPrice,
+          {
+            trimTrailingZeroes: data.trimTrailingZeroes
+          }
+        )
+      }}
+    </template>
   </del>
 </template>
 
@@ -22,7 +25,7 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useStyles } from "@upmind-automation/upmind-ui";
+import { useStyles, Skeleton } from "@upmind-automation/upmind-ui";
 import { useMoney, useConfig } from "@upmind-automation/headless";
 import config from "./pricing.config";
 

@@ -19,6 +19,7 @@
             :config-errors="configErrors"
             :loading="meta.isLoading"
             :processing="meta.isProcessing"
+            :prices-updating="basketMeta.isPricesUpdating"
             :pricing="pricingProductIds"
             :edit-route="editRoute"
             :image="ui.productImages.isVisible"
@@ -59,6 +60,7 @@
           :error="meta.hasErrors"
           :loading="meta.isLoading"
           :processing="meta.isProcessing"
+          :prices-updating="basketMeta.isPricesUpdating"
           :edit-route="editRoute"
           :config-options="config?.options?.value"
           :inline-meta="enrichedInlineMeta"
@@ -80,7 +82,11 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 // --- internal
 import { useStyles } from "@upmind-automation/upmind-ui";
 import stylesConfig from "./basketProduct.config";
-import { useConfig, useBasketProductInline } from "@upmind-automation/headless";
+import {
+  useBasket,
+  useConfig,
+  useBasketProductInline
+} from "@upmind-automation/headless";
 
 // --- components
 import { Card, Loading } from "@upmind-automation/upmind-ui";
@@ -121,6 +127,8 @@ const productConfig = useConfig().with({
 });
 
 const { ui } = productConfig;
+
+const { meta: basketMeta } = useBasket();
 
 // --- inline config
 
