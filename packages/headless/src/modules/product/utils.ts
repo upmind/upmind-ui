@@ -629,6 +629,7 @@ export const parseProductDetails = (
     description: useTranslateField(rawProduct, "description"),
     excerpt: useTranslateField(rawProduct, "short_description"),
     imgUrl: useImageUrl(rawProduct?.image?.full_url, "400x400"),
+    iconUrl: useImageUrl(rawProduct?.icon?.full_url),
     images: parseProductImages(rawProduct?.images),
     // ---
     configurable:
@@ -792,7 +793,7 @@ export const parseSubproductDetails = (
         excerpt: useTranslateField(rawSubproduct.category, "short_description"),
         uiCategorymeta: rawSubproduct?.category.meta,
         uiMeta: parseMeta(
-          rawSubproduct?.meta ?? {},
+          {},
           rawSubproduct?.category as IProductCategory,
           (rawSubproduct?.brand?.meta as BrandMeta)?.cart?.ui
         ),
@@ -1343,29 +1344,117 @@ export const parseProductProps = (
     terms
   );
 
+  // Subproduct cycles need to map to a real price entry — the option's own
+  // `billing_cycle_months` is just a storage default (often 1) and not a
+  // price key. Pass the resolved parent term so subproduct cycles can be
+  // picked from each option's `prices` array.
+  const term = data?.term ?? defaultTerm.cycle;
+
   // We need to find the  subbproducts id from the product option OR attributes, and then map it to that CategoryID
   const matchedOptions = filter(raw.products_options ?? raw.options, option =>
     data?.subproducts?.includes(option.id)
   ) as IProductOption[];
-  const options: SubproductModel =
-    parseSubproductDetailsChoices(matchedOptions);
+  const options: SubproductModel = parseSubproductDetailsChoices(
+    matchedOptions,
+    term
+  );
 
-  const matchedAttributes = filter(raw.products_attributes, attribute =>
+  // The API often returns attributes under `raw.attributes` (mirroring
+  // `raw.options`); fall back so we don't silently miss preselections.
+  const rawAttributes =
+    raw.products_attributes ?? (raw as any).attributes ?? [];
+  const matchedAttributes = filter(rawAttributes, attribute =>
     data?.subproducts?.includes(attribute.id)
   ) as IProductAttribute[];
 
-  const attributes: SubproductModel =
-    parseSubproductDetailsChoices(matchedAttributes);
+  const attributes: SubproductModel = parseSubproductDetailsChoices(
+    matchedAttributes,
+    term
+  );
 
   return {
     // id: raw.id,
     quantity: parseQuantity(data.quantity, productDetails),
     productId: data.productId,
-    term: data?.term ?? defaultTerm.cycle,
+    term,
     options: merge({}, options, data?.options),
     attributes: merge({}, attributes, data?.attributes),
     provisionFields: data.provisionFields || {},
     startTrial: data?.startTrial
+  };
+};
+
+/**
+ * For each *required* option/attribute category on `raw` where the model
+ * has no selection, fills in the first choice (lowest `pivot.order`) so
+ * the basket API doesn't reject the request for missing required groups.
+ *
+ * No-op for non-required categories or categories that already have an
+ * entry in the model. Returns a new model — `model` is not mutated.
+ */
+export const fillRequiredOptionDefaults = <T extends ProductModel>(
+  model: T,
+  raw?: IProduct
+): T => {
+  if (!raw) return model;
+
+  const filledOptions: SubproductModel = { ...(model.options ?? {}) };
+  const filledAttributes: SubproductModel = { ...(model.attributes ?? {}) };
+
+  const fillFrom = (
+    items: (IProductOption | IProductAttribute)[] | undefined,
+    bucket: SubproductModel
+  ) => {
+    if (isEmpty(items)) return;
+
+    // Group required-category items by their category_id
+    const byCategory = reduce(
+      items,
+      (acc: Record<string, (IProductOption | IProductAttribute)[]>, item) => {
+        const categoryId = item?.category_id;
+        if (!categoryId || !item?.category?.required) return acc;
+        (acc[categoryId] ??= []).push(item);
+        return acc;
+      },
+      {}
+    );
+
+    forEach(byCategory, (entries, categoryId) => {
+      // Skip categories that already have a selection in the model
+      if (!isEmpty(bucket[categoryId])) return;
+
+      const firstChoice = orderBy(entries, ["pivot.order"], ["asc"])[0];
+      if (!firstChoice?.id) return;
+
+      bucket[categoryId] = {
+        [firstChoice.id]: {
+          productId: firstChoice.id,
+          quantity: parseQuantity(
+            firstChoice.unit_quantity,
+            parseProductDetails(firstChoice)
+          ),
+          cycle: resolveSubproductCycle(firstChoice, model.term)
+        }
+      };
+    });
+  };
+
+  fillFrom(
+    (raw.products_options ?? raw.options) as IProductOption[] | undefined,
+    filledOptions
+  );
+  // Same fallback as parseProductProps — API can return either field name.
+  fillFrom(
+    (raw.products_attributes ?? (raw as any).attributes) as
+      | IProductAttribute[]
+      | undefined,
+    filledAttributes
+  );
+
+  return {
+    ...model,
+    options: filledOptions,
+    attributes: filledAttributes
   };
 };
 
@@ -1384,7 +1473,8 @@ export const parseBasketProductModel = (raw: IBasketProduct): ProductModel => {
 };
 
 const parseSubproductDetailsChoices = (
-  values: IProductAttribute[] | IProductOption[]
+  values: IProductAttribute[] | IProductOption[],
+  parentTerm?: number
 ): SubproductModel => {
   return reduce(
     values,
@@ -1400,12 +1490,47 @@ const parseSubproductDetailsChoices = (
           value.unit_quantity,
           parseProductDetails(value)
         ),
-        cycle: value.billing_cycle_months
+        cycle: resolveSubproductCycle(value, parentTerm)
       });
       return result;
     },
     {}
   );
+};
+
+/**
+ * Resolves the billing cycle to send to the basket for a subproduct.
+ *
+ * The subproduct entity's own `billing_cycle_months` is just a storage
+ * default (often `1` for setup-style options) and rarely matches a real
+ * price entry. The basket needs a cycle that maps to a `prices[*]` row,
+ * preferably one that aligns with the parent product's selected term.
+ *
+ * Resolution order:
+ *   1. Price entry matching the parent term
+ *   2. One-off price (cycle 0)
+ *   3. First available price entry
+ *   4. Parent term fallback
+ *   5. The subproduct's own `billing_cycle_months` (legacy fallback)
+ */
+const resolveSubproductCycle = (
+  value: IProductAttribute | IProductOption,
+  parentTerm?: number
+): number => {
+  const prices = value?.prices ?? [];
+
+  if (parentTerm != null) {
+    const match = find(prices, ["billing_cycle_months", parentTerm]);
+    if (match?.billing_cycle_months != null) return match.billing_cycle_months;
+  }
+
+  const oneoff = find(prices, ["billing_cycle_months", 0]);
+  if (oneoff?.billing_cycle_months != null) return oneoff.billing_cycle_months;
+
+  const firstPriceCycle = prices[0]?.billing_cycle_months;
+  if (firstPriceCycle != null) return firstPriceCycle;
+
+  return parentTerm ?? value.billing_cycle_months;
 };
 
 const parseBasketSubproductDetailsChoices = (values: IBasketProduct[]) => {

@@ -23,7 +23,7 @@
   "basket_summary_desc_free": "Máte {count} položka vo vašom košíku. | Máte {count} položky vo vašom košíku.",
   "basket_summary_taxes_desc": "Máte{count} položka vo vašom košíku, celková suma{total} ({tax} ) | Máte{count} položky vo vašom košíku, spolu{total} ({tax} )",
   "basket_tax_excl": "bez daní",
-  "basket_tax_incl": "incl. taxes",
+  "basket_tax_incl": "vrátane daní",
   "basket_title": "Váš košík",
   "change_amount": "Zmeniť sumu",
   "empty": "Váš **košík** je prázdny",

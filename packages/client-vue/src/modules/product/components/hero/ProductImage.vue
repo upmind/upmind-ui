@@ -1,12 +1,16 @@
 <template>
-  <ImageGrid
+  <div
     v-if="ui.productImagesStyle.isGrid && isArray(mappedImage)"
-    :image="mappedImage"
-    fit="cover"
-    :ratio="ui.productImageRatio.value"
-    :class="cn(styles.header.image.product, props.class)"
-    :fallback="props.fallback"
-  />
+    :class="cn(styles.header.image.grid, props.class)"
+  >
+    <ImageGrid
+      v-if="isArray(mappedImage)"
+      :image="mappedImage"
+      fit="cover"
+      :ratio="ui.productImageRatio.value"
+      :fallback="props.fallback"
+    />
+  </div>
   <Image
     v-else
     :image="mappedImage"
@@ -44,7 +48,11 @@ const { ui } = useConfig().with({
   product: () => props
 });
 
-const styles = useStyles(["header"], {}, config);
+const stylesMeta = computed(() => ({
+  direction: props.direction
+}));
+
+const styles = useStyles(["header", "header.image"], stylesMeta, config);
 
 const images = computed(() => {
   return props.productDetails?.images?.map(image => ({
