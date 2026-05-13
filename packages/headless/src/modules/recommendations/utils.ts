@@ -11,6 +11,7 @@ import {
 // --- utils
 import {
   compact,
+  concat,
   defaultsDeep,
   filter,
   find,
@@ -20,9 +21,10 @@ import {
   includes,
   isEmpty,
   isString,
+  keys,
   map,
-  reduce,
   some,
+  startsWith,
   toSafeInteger
 } from "lodash-es";
 import { useTranslateField, useTranslateName, useImageUrl } from "../../utils";
@@ -30,7 +32,11 @@ import { useTranslateField, useTranslateName, useImageUrl } from "../../utils";
 // --- types
 import { ProductTypes } from "@upmind-automation/types";
 import type { IBasket, IBasketProduct } from "@upmind-automation/types";
-import type { Recommendation, RelatedProduct } from "./types";
+import {
+  type Recommendation,
+  type RelatedProduct,
+  type RecommendationVisibility
+} from "./types";
 import { UIContext, type Badge, type Benefit } from "../config/schema";
 import { calculateBillingTerm } from "../product/utils";
 import {
@@ -40,17 +46,26 @@ import {
 } from "../product";
 import { normaliseSubPids } from "../product/utils";
 import { useConfig } from "../config/useConfig";
+import {
+  evaluateRules,
+  buildConditionState
+} from "../config/config.conditions";
+import type { ConditionalValue } from "../config/types";
 
 // ---------------------------------------------------------------------------
 
 function parseProductsToRecommend(
-  basketProduct: IBasketProduct
+  basketProduct: IBasketProduct,
+  basketProducts: IBasketProduct[],
+  basket: IBasket
 ): RelatedProduct[] {
   // safe check : dont include recommendations for products that are not single products
   if (basketProduct?.product?.product_type !== ProductTypes.SINGLE_PRODUCT) {
     return [];
   }
 
+  // Per-product: productsToRecommend and the native flag can be conditional
+  // on product.* state, so the call must be scoped to each basket product.
   const { ui, data } = useConfig({
     context: UIContext.RECOMMENDATIONS,
     product: {
@@ -73,9 +88,12 @@ function parseProductsToRecommend(
     : [];
 
   // Combine and process all recommendations
-  const allRecommendations = [...dataRecommendations, ...nativeRecommendations];
+  const allRecommendations = concat<Record<string, any>>(
+    dataRecommendations,
+    nativeRecommendations
+  );
 
-  return map(allRecommendations, recommendation => {
+  const mapped = map(allRecommendations, recommendation => {
     const related = {
       ...recommendation,
       product_id: get(recommendation, "product_id", basketProduct.product_id)
@@ -83,6 +101,14 @@ function parseProductsToRecommend(
     related.id = ensureId(related);
     return related;
   });
+
+  // Filter at source so hidden recommendations don't leak into raw.related
+  // (and therefore don't reach pushViewRecommendations or setSeen).
+  // In-basket detection is no longer a filter — meta.added is populated
+  // separately by the engine via isRecommendationInBasket.
+  return filter(mapped, rec =>
+    checkConditionVisibility(rec, basket, basketProducts)
+  );
 }
 
 /**
@@ -100,7 +126,7 @@ export function parseRelatedProducts(raw: IBasket): RelatedProduct[] {
     if (basketProduct?.product?.product_type !== ProductTypes.SINGLE_PRODUCT) {
       return [];
     }
-    return parseProductsToRecommend(basketProduct);
+    return parseProductsToRecommend(basketProduct, products, raw);
   });
 }
 
@@ -113,11 +139,12 @@ export function parseRelatedProducts(raw: IBasket): RelatedProduct[] {
  */
 export function parseRelationships(raw: IBasket): Record<string, string[]> {
   const relationships: Record<string, string[]> = {};
+  const products = get(raw, "products", []) as IBasketProduct[];
 
-  forEach(raw?.products, product => {
+  forEach(products, product => {
     if (product.product.product_type !== ProductTypes.SINGLE_PRODUCT) return;
 
-    forEach(parseProductsToRecommend(product), related => {
+    forEach(parseProductsToRecommend(product, products, raw), related => {
       relationships[related.id] ??= [];
       if (!includes(relationships[related.id], product.id)) {
         relationships[related.id].push(product.id);
@@ -128,77 +155,130 @@ export function parseRelationships(raw: IBasket): Record<string, string[]> {
   return relationships;
 }
 
-export function parseAddedProducts(
-  related: RelatedProduct[],
-  products: IBasketProduct[]
-): string[] {
-  return reduce(
-    related,
-    (result: string[], item: RelatedProduct) => {
-      // We considdr a product to be in the basket if it matches
-      // the product_id
-      // the billing_cycle_months (if specified)
-      // the sub_pids (if specified
-      const inBasket = some(products, product => {
-        const productMatches =
-          product.product_id == item.object_id && item.object_type == "product";
-
-        const bcmMatches =
-          !item?.config?.bcm || item.config.bcm == product.billing_cycle_months;
-
-        const normalisedSubPids = normaliseSubPids(item?.config?.sub_pids);
-        const subproductsMatch =
-          isEmpty(normalisedSubPids) ||
-          some(product.options, option => {
-            return includes(normalisedSubPids, option.product_id);
-          }) ||
-          some(product.attributes, attribute => {
-            return includes(normalisedSubPids, attribute.product_id);
-          });
-
-        return productMatches && bcmMatches && subproductsMatch;
-      });
-
-      if (inBasket) result.push(item.id);
-      return result;
-    },
-    []
-  );
+/**
+ * Returns true if any rule references a basketProduct.* state key.
+ * When false, conditions can be evaluated once against basket state.
+ * When true, conditions must be evaluated per matching basket product.
+ */
+function hasBasketProductKeys(
+  conditions: ConditionalValue<RecommendationVisibility>
+): boolean {
+  return some(conditions.rules, rule => {
+    if (!rule.when) return false;
+    return some(keys(rule.when), key => startsWith(key, "basketProduct."));
+  });
 }
 
-export function checkInBasket(
+/**
+ * Evaluates conditional visibility rules for a recommendation.
+ * Returns true if the recommendation should be visible based on basket state.
+ *
+ * Conditions referencing only basket.* keys evaluate once against basket state.
+ * Conditions referencing basketProduct.* keys walk each basket product whose
+ * product_id matches the recommendation; if any of those evaluations resolves
+ * to "hidden", the recommendation is hidden.
+ *
+ * @param recommendation - The recommendation to evaluate
+ * @param basket - The basket state for condition evaluation
+ * @param basketProducts - Basket products for per-product evaluation
+ * @returns true if visible, false if hidden
+ */
+export function checkConditionVisibility(
   recommendation: RelatedProduct,
-  products: IBasketProduct[]
+  basket: IBasket,
+  basketProducts: IBasketProduct[]
 ): boolean {
-  // We considdr a product to be in the basket if it matches
-  // the product_id
-  // the billing_cycle_months (if specified)
-  // the sub_pids (if specified
-  const inBasket = some(products, product => {
-    const productMatches =
-      product.product_id == recommendation.object_id &&
-      recommendation.object_type == "product";
+  if (!recommendation.conditions) return true;
 
-    const bcmMatches =
-      !recommendation?.config?.bcm ||
-      recommendation.config.bcm == product.billing_cycle_months;
-
-    const normalisedSubPids = normaliseSubPids(
-      recommendation?.config?.sub_pids
+  if (!hasBasketProductKeys(recommendation.conditions)) {
+    const state = buildConditionState({ basket });
+    return (
+      evaluateRules<RecommendationVisibility>(
+        recommendation.conditions,
+        state
+      ) === "visible"
     );
-    const subproductsMatch =
-      isEmpty(normalisedSubPids) ||
-      some(product.options, option => {
-        return includes(normalisedSubPids, option.product_id);
-      }) ||
-      some(product.attributes, attribute => {
-        return includes(normalisedSubPids, attribute.product_id);
-      });
+  }
 
-    return productMatches && bcmMatches && subproductsMatch;
+  const matchingProducts = filter(
+    basketProducts,
+    bp => bp.product_id === recommendation.object_id
+  );
+
+  if (isEmpty(matchingProducts)) {
+    const state = buildConditionState({ basket });
+    return (
+      evaluateRules<RecommendationVisibility>(
+        recommendation.conditions,
+        state
+      ) === "visible"
+    );
+  }
+
+  return !some(matchingProducts, basketProduct => {
+    const state = buildConditionState({ basket, basketProduct });
+    return (
+      evaluateRules<RecommendationVisibility>(
+        recommendation.conditions!,
+        state
+      ) === "hidden"
+    );
   });
+}
 
-  return inBasket;
+/**
+ * Resolves whether a recommendation should be marked as already in the basket.
+ * Drives `meta.added` on the parsed recommendation.
+ *
+ * Auto-scopes evaluation to basket products whose `product_id` matches the
+ * recommendation's `object_id` — authors don't reference "self" in rules.
+ *
+ * - When `inBasketConditions` is omitted, falls back to a loose product_id
+ *   match: true when any variant of the recommendation's product is in the
+ *   basket.
+ * - When present with no matching basket products, returns the rule's
+ *   `default`.
+ * - When present with matching basket products, evaluates per-match and
+ *   OR-folds the results: returns true if any evaluation resolves to true,
+ *   otherwise the rule's `default`. Author rules in the canonical form
+ *   `{ default: false, rules: [{ then: true }] }`; see README for why.
+ *
+ * @param recommendation - The recommendation to evaluate
+ * @param basketProducts - Basket products to check against
+ * @param basket - Optional basket state (only needed if rules reference basket.* keys)
+ * @returns true when the recommendation should be marked as in basket
+ */
+export function isRecommendationInBasket(
+  recommendation: RelatedProduct,
+  basketProducts: IBasketProduct[],
+  basket?: IBasket
+): boolean {
+  if (recommendation.object_type !== "product") return false;
+
+  const matchingProducts = filter(
+    basketProducts,
+    bp => bp.product_id === recommendation.object_id
+  );
+
+  // Default: loose product_id match.
+  if (!recommendation.inBasketConditions) {
+    return !isEmpty(matchingProducts);
+  }
+
+  // No matching basket products → fall back to default.
+  if (isEmpty(matchingProducts)) {
+    return recommendation.inBasketConditions.default;
+  }
+
+  // Evaluate per matching basket product. true if any resolve to true,
+  // otherwise the default (carried by evaluateRules when no rule fires).
+  return some(matchingProducts, basketProduct => {
+    const state = buildConditionState({
+      basket: basket ?? ({} as IBasket),
+      basketProduct
+    });
+    return evaluateRules<boolean>(recommendation.inBasketConditions!, state);
+  });
 }
 
 /*

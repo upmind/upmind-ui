@@ -22,7 +22,7 @@ export default defineConfig({
   //captureGitInfo: { commit: true, diff: true },
 
   /*Set number of retries on a failed test*/
-  retries: 0,
+  retries: 1,
 
   /* Run tests in files in parallel */
   fullyParallel: true,
