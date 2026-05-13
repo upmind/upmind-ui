@@ -41,6 +41,22 @@ test.describe("Login", async () => {
         "The user credentials were incorrect."
       );
     });
+    test("Password field is the quiet variant (no meter, no generator)", async ({
+      page
+    }) => {
+      const passwordItem = page.getByTestId("form-item-password");
+      await expect(login.passwordField).toBeVisible();
+      await expect(passwordItem.getByTestId("password-generate")).toHaveCount(
+        0
+      );
+      await expect(passwordItem.getByTestId("password-toggle")).toBeVisible();
+
+      await login.passwordField.fill("anything-goes");
+      await expect(passwordItem.getByTestId("password-strength")).toHaveCount(
+        0
+      );
+      await expect(passwordItem.getByTestId("password-message")).toHaveCount(0);
+    });
   });
   test.describe("Login via login popover", () => {
     test.beforeEach(async ({ page }) => {
