@@ -4,6 +4,19 @@ export {
   interceptUISchema
 } from "./brand";
 export {
+  mockDomainSuggestions,
+  mockDomainSuggestionsTlds,
+  mockDomainAvailability
+} from "./domain";
+export type {
+  DomainSuggestionRow,
+  DomainSuggestionProduct,
+  DomainAvailabilityResponse,
+  MockDomainSuggestionsOptions,
+  MockDomainSuggestionsTldsOptions,
+  MockDomainAvailabilityOptions
+} from "./domain";
+export {
   mockStripeCardDecline,
   mockCorsPreflightRequests,
   mockPaymentSuccess

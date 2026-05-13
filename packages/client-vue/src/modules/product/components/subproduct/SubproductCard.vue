@@ -39,7 +39,7 @@
           </div>
 
           <Promotion
-            v-if="!props.productMeta?.overridden"
+            v-if="!props.productMeta?.custom"
             v-for="promotion in props.promotions"
             :key="promotion.code.toString()"
             v-bind="promotion"
@@ -47,7 +47,7 @@
           />
 
           <Tooltip
-            v-if="props.productMeta?.overridden"
+            v-if="props.productMeta?.custom"
             :label="t('text.price_manually_adjusted_msg')"
           >
             <Badge
