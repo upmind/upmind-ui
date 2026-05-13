@@ -600,7 +600,7 @@ export default createMachine(
       dismissAllWarnings: (context: BasketContext) => {
         if (isEmpty(context.warningNotes)) return;
         const ids = map(context.warningNotes, "id");
-        services.dismissAllWarningNotes(context, ids);
+        services.dismissWarningNotes(context, ids);
       },
 
       clearWarningNotes: assign({
