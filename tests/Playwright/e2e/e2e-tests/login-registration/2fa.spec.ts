@@ -8,6 +8,10 @@ let login: Login;
 let oneTimeCode: string;
 
 test.describe("Two-Factor Login", async () => {
+  // Both tests below log in as Logins.twoFactor via beforeEach, which is also
+  // used in visual-regression/login.spec.ts. Serial mode prevents them from
+  // racing against each other on the same staging account.
+  test.describe.configure({ mode: "serial" });
   test.beforeEach(async ({ page }) => {
     login = new Login(page);
 

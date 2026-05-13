@@ -1,6 +1,9 @@
 // --- external
 import type { ActorRef } from "xstate";
-import type { IProduct } from "@upmind-automation/types";
+import type {
+  IDomainSuggestionResultProduct,
+  IProduct
+} from "@upmind-automation/types";
 
 // --- internal
 import type { Product, ProductSummaryDetail } from "../product";
@@ -8,41 +11,6 @@ import type { BasketHelperContext } from "../basketProduct";
 import type { ResponseError } from "../../utils";
 
 // -----------------------------------------------------------------------------
-
-/**
- * A single domain result from the /suggestions endpoint.
- */
-export interface IDomainSuggestionResult {
-  domain: string;
-  sld: string;
-  tld: string;
-  can_register: boolean;
-  can_transfer: boolean;
-  product_id: string;
-}
-
-/**
- * The full response shape from /suggestions.
- * `data` contains the suggestion results, and `related.products` is a map
- * of product_id → full IProduct objects.
- */
-export interface IDomainSuggestionsResponse {
-  data: IDomainSuggestionResult[];
-  related: {
-    products: Record<string, IProduct>;
-  };
-  total: number;
-}
-
-/**
- * The response shape from /availability/{domain}.
- */
-export interface IDomainAvailabilityResponse {
-  can_register: boolean;
-  can_transfer: boolean;
-  is_premium: boolean;
-  product?: IProduct;
-}
 
 /**
  * Enumeration defining the different types of domain management flows.
@@ -108,13 +76,18 @@ export type DomainProduct = Product &
       exactMatch?: boolean;
       /** `true` if the domain is currently being processed (e.g. during 'add to basket'). */
       processing?: boolean;
+      /**
+       * `true` while the price/product details are still being fetched from the
+       * `/suggestions/tlds` call. Rendered as a price skeleton in the card.
+       */
+      priceLoading?: boolean;
     };
     /**
      * Optional reference to the raw IProduct data from the API.
      * Stored so we can re-run parseProductProps when the domain mode changes
      * (e.g. register → transfer after a domain_transfer_only error).
      */
-    rawProduct?: IProduct;
+    rawProduct?: IDomainSuggestionResultProduct;
   };
 
 /**
@@ -187,10 +160,14 @@ export interface DacContext extends BasketHelperContext<DomainProduct> {
   search?: {
     /** The number of results to fetch per page. */
     limit: number;
-    /** The number of results to skip (for pagination). */
+    /** The number of results to skip (for legacy offset pagination). */
     offset: number;
-    /** The total number of available results for the current search. */
+    /** The total number of available results for the current search (legacy). */
     total: number;
+    /** The current page number for the suggestions/tlds endpoints (1-based). */
+    page: number;
+    /** The total number of pages reported by the suggestions/tlds endpoints. */
+    totalPages: number;
     /** The current search query string. */
     query?: string;
   };
@@ -234,6 +211,15 @@ export interface DacContext extends BasketHelperContext<DomainProduct> {
    * The domain currently being availability-checked (set when ADD event fires).
    */
   checkingDomain?: string;
+
+  /**
+   * Cumulative `product_id` → `IProduct` map built up across paginated
+   * `/suggestions/tlds` calls. Required because each `tlds` page returns a
+   * different subset of TLD products — page-N suggestions often reference
+   * page-(N-1) TLDs, so the parser needs every page's products available
+   * to fully price each row.
+   */
+  productsMap?: Record<string, IProduct>;
 
   /**
    * When `true` (default), uses the new `/suggestions` + `/availability` parallel flow.
@@ -311,4 +297,12 @@ export interface DomainContext extends BasketHelperContext<DomainProduct> {
    * An `ActorRef` to a basket helper service.
    */
   basketHelper?: ActorRef<any>;
+
+  /**
+   * When `true`, the dac child actor uses the new `/suggestions` +
+   * `/suggestions/tlds` parallel flow. When `false` (default), falls back
+   * to the legacy `/search` endpoint. Driven by the brand setting
+   * `provisioning.domain_names.search_method` in `useDomain`/`useDac`.
+   */
+  useSuggestions?: boolean;
 }

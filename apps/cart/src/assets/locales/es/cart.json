@@ -23,7 +23,7 @@
   "basket_summary_desc_free": "Tienes {count} artículo en tu cesta. | Tienes {count} artículos en su cesta.",
   "basket_summary_taxes_desc": "Tienes{count} artículo en su cesta, totalizando{total} ({tax} ) | Tienes{count} artículos en su cesta, totalizando{total} ({tax} )",
   "basket_tax_excl": "sin impuestos",
-  "basket_tax_incl": "incl. taxes",
+  "basket_tax_incl": "impuestos incluidos",
   "basket_title": "Su cesta",
   "change_amount": "Cambiar cantidad",
   "empty": "Tu **cesta** está vacía",
