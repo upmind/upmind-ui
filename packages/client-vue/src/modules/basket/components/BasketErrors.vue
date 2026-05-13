@@ -1,5 +1,10 @@
 <template>
-  <aside class="w-full" v-auto-animate v-if="meta.hasErrors">
+  <aside
+    class="w-full"
+    v-auto-animate
+    v-if="meta.hasErrors"
+    data-testid="basket-alert"
+  >
     <Alert
       v-if="count && !meta.isLoading"
       color="danger"
