@@ -266,6 +266,8 @@ export type ProductDetails = {
   excerpt?: string;
   /** The URL of the main image for the product. */
   imgUrl?: string;
+  /** The URL of the icon for the product (typically used for option icons). */
+  iconUrl?: string;
   /** An array of {@link ProductImage} objects for the product. */
   images?: ProductImage[];
 
