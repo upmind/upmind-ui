@@ -130,20 +130,6 @@ async function load(context: BasketContext, _event: AnyEventObject) {
   });
 }
 
-async function dismissWarningNotes(
-  { basket }: BasketContext,
-  { data }: AnyEventObject
-) {
-  const { put, useUrl } = useQuery();
-
-  return put({
-    mutationKey: ["basket", basket?.id, "warnings"],
-    url: useUrl(`/orders/${basket?.id}/warnings/hide`),
-    data: { ids: [data] },
-    withAccessToken: true
-  });
-}
-
 async function convert(
   { basket, paymentDetail }: BasketContext,
   _event: AnyEventObject
@@ -259,6 +245,20 @@ async function getProvisioningFieldsValues(basket: IBasket) {
       };
     });
 }
+async function dismissAllWarningNotes(
+  { basket }: BasketContext,
+  ids: string[]
+) {
+  const { put, useUrl } = useQuery();
+
+  return put({
+    mutationKey: ["basket", basket?.id, "warnings", "dismiss-all"],
+    url: useUrl(`/orders/${basket?.id}/warnings/hide`),
+    data: { ids },
+    withAccessToken: true
+  });
+}
+
 // -----------------------------------------------------------------------------
 
 async function refresh(context: BasketContext, _event: AnyEventObject) {
@@ -280,8 +280,8 @@ async function refresh(context: BasketContext, _event: AnyEventObject) {
 
 export default {
   load,
-  dismissWarningNotes,
   refresh,
   convert,
+  dismissAllWarningNotes,
   isAuthenticated: () => useSession().isAuthenticated()
 };
