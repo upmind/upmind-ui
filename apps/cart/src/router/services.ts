@@ -621,8 +621,11 @@ export default {
 
     const { data } = useConfig({ context: UIContext.BILLING_DETAILS });
 
-    // DONT Show billing page if standalone billing is disabled
-    if (data.billingDetailsDisabled) return Promise.reject();
+    // Don't show billing page if standalone billing is disabled — unless
+    // domains in the basket need an address (registrant details are required).
+    if (data.billingDetailsDisabled && !guards.needsAddressForDomains()) {
+      return Promise.reject();
+    }
 
     return { target: context.targetRoute ?? { name: ROUTE.BILLING } };
   },
