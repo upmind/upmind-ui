@@ -5,9 +5,11 @@
         <div :class="styles.card.header.titleWrapper">
           <div :class="styles.card.header.titleInner">
             <SubproductImage
-              v-if="image && !meta.isDropdown"
+              v-if="image"
               :src="image"
               :alt="title"
+              :minimal="props.minimal"
+              :dropdown="props.dropdown"
             />
             <strong :class="styles.card.header.title">
               {{ title }}

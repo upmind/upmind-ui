@@ -362,7 +362,8 @@ export const UI_META_DEFINITIONS = {
       UIScope.BRAND,
       UIScope.PRODUCT_CATEGORY,
       UIScope.PRODUCT,
-      UIScope.OPTION_CATEGORY
+      UIScope.OPTION_CATEGORY,
+      UIScope.OPTION
     ]
   },
   optionUpsells: {
