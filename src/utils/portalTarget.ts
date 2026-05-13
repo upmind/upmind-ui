@@ -25,7 +25,10 @@ const PORTAL_TARGET_KEY: InjectionKey<Ref<PortalTarget>> = Symbol(
 export function providePortalTarget(source: MaybeComputedElementRef): void {
   provide(
     PORTAL_TARGET_KEY,
-    computed(() => unrefElement(source) ?? undefined)
+    computed(() => {
+      const el = unrefElement(source);
+      return el instanceof HTMLElement ? el : undefined;
+    })
   );
 }
 
