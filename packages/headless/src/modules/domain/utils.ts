@@ -188,7 +188,8 @@ export function parseAvailable(
           productId: raw.id,
           quantity: raw.unit_quantity,
           subproducts: compact([raw.sub_product_id]),
-          provisionFields: { sld }
+          provisionFields: { sld },
+          term: termDetails.cycle
         },
         raw,
         preferredCycle
@@ -268,7 +269,8 @@ export function parseSuggestions(
               productId: product.id,
               quantity: product.unit_quantity,
               subproducts,
-              provisionFields: { sld }
+              provisionFields: { sld },
+              term: termDetails.cycle
             },
             product,
             preferredCycle
