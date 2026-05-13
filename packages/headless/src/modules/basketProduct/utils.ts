@@ -102,6 +102,9 @@ export const parseBasketProduct = (
     // --- product details
     productDetails: parseProductDetails(raw.product, raw),
 
+    // --- source IProduct for product.* conditional state on basket screens
+    product: raw.product,
+
     // --- meta details
     meta: pricing.meta,
     // --- summary details
