@@ -99,6 +99,15 @@ export const useBasket = () => {
         machineMatches(actors.billing, ["processing"]) ||
         machineMatches(actors.promotions, ["processing"]),
 
+      isPricesCalculating:
+        machineMatches(actors.currency, ["processing"]) ||
+        machineMatches(actors.promotions, ["processing"]),
+
+      isPricesUpdating:
+        machineMatches(actors.currency, ["processing"]) ||
+        machineMatches(actors.promotions, ["processing"]) ||
+        stateMatches(state, ["shopping.refreshing.processing"]),
+
       isDirty:
         machineMatches(actors.currency, ["valid"]) ||
         machineMatches(actors.customFields, ["valid"]) ||

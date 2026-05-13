@@ -27,6 +27,7 @@ import {
   reduce,
   set
 } from "lodash-es";
+import { hasProductChanges, preserveProvisionFields } from "./utils";
 
 // --- types
 import {
@@ -41,8 +42,62 @@ import type { AnyEventObject } from "xstate";
 
 // -----------------------------------------------------------------------------
 
+const withRelations = [
+  "address",
+  "address.country",
+  "currency",
+  "custom_fields.field",
+  "promotions",
+  "taxes",
+  "taxes.tax_tag_data",
+  "client",
+  "products.product.image",
+  "products.product.images",
+  "products.product.prices",
+  "products.product.products_attributes",
+  "products.product.products_attributes.category",
+  "products.product.products_options",
+  "products.product.products_options.category",
+  "products.product.products_options.prices",
+  "products.product.provision_blueprint.category",
+  "products.product.provision_field_values",
+  "products.product.related",
+  "products.product.category",
+  `products.product.category${".".concat("top_category").repeat(4)}`
+];
+
+// -----------------------------------------------------------------------------
+
+async function fetchBasket(context: BasketContext): Promise<IBasket> {
+  const { get: httpGet, useUrl } = useQuery();
+  const { isReady } = useBrand();
+  await isReady();
+
+  const endpoint = context.targetBasketId
+    ? `orders/${context.targetBasketId}`
+    : "orders/current";
+
+  return httpGet<IBasket>({
+    url: useUrl(endpoint, { with: withRelations.join() }),
+    queryKey: ["basket", context.targetBasketId ?? "current"],
+    staleTime: 0,
+    gcTime: 0,
+    withAccessToken: true
+  }).catch(async (error: any) => {
+    if (context.targetBasketId) {
+      return Promise.reject({
+        targetBasketInvalid: true,
+        originalError: error
+      });
+    }
+    return Promise.reject(error);
+  });
+}
+
+// -----------------------------------------------------------------------------
+
 async function load(context: BasketContext, _event: AnyEventObject) {
-  const { get, patch, useUrl } = useQuery();
+  const { patch, useUrl } = useQuery();
   const { ensureConfig } = useBrand();
 
   // NB ensure we get this in order to be able to use in basket machine actions
@@ -69,75 +124,10 @@ async function load(context: BasketContext, _event: AnyEventObject) {
     });
   }
 
-  // We depend on the brand being ready, so we need to wait for it
-  const { isReady } = useBrand();
-  await isReady();
-
-  // Determine the basket endpoint:
-  // - If a targetBasketId is provided, load that specific basket via `orders/{id}`
-  // - Otherwise, fall back to `orders/current`
-  const basketEndpoint = context.targetBasketId
-    ? `orders/${context.targetBasketId}`
-    : "orders/current";
-
-  const withRelations = [
-    "address",
-    "address.country",
-    "currency",
-    "custom_fields.field",
-    "promotions",
-    "taxes",
-    "taxes.tax_tag_data",
-    "client",
-    // "account.brand.image",
-    // "account.pricelist",
-    // "brand.image",
-    // "client.image",
-    // "contract",
-    // "payments",
-    "products.product.image",
-    "products.product.images",
-    "products.product.prices",
-    "products.product.products_attributes",
-    "products.product.products_attributes.category",
-    "products.product.products_options",
-    "products.product.products_options.category",
-    "products.product.products_options.prices",
-    "products.product.provision_blueprint.category",
-    "products.product.provision_field_values",
-    // "products.tags",
-    "products.product.related",
-    // "status",
-    "products.product.category",
-    `products.product.category${".top_category".repeat(4)}`
-  ];
-
-  // finally return a basket with all the relevant data, include the provisioning fields
-  // NB  we DON'T cache the current basket as it can change frequently, and it is the source of truth
-  // for the current state of the basket
-  return get<IBasket>({
-    url: useUrl(basketEndpoint, { with: withRelations.join() }),
-    queryKey: ["basket", context.targetBasketId ?? "current"],
-    staleTime: 0, // disable cache, this may still return stale data while the request is in flight
-    gcTime: 0, // force cache to be cleared immediately, to prevent stale data
-    withAccessToken: true
-    //revalidateIfStale: true,
-  })
-    .then((basket: IBasket) => {
-      if (isEmpty(basket)) return { basket: context.basket }; // NB ensure we persist any prev basket
-      return getProvisioningFieldsValues(basket);
-    })
-    .catch(async (error: any) => {
-      // If loading a specific basket fails (404, expired, or completed basket),
-      // reject with a flag so the machine can clear targetBasketId and retry with orders/current
-      if (context.targetBasketId) {
-        return Promise.reject({
-          targetBasketInvalid: true,
-          originalError: error
-        });
-      }
-      return Promise.reject(error);
-    });
+  return fetchBasket(context).then((basket: IBasket) => {
+    if (isEmpty(basket)) return { basket: context.basket as IBasket };
+    return getProvisioningFieldsValues(basket);
+  });
 }
 
 async function dismissWarningNotes(
@@ -271,10 +261,27 @@ async function getProvisioningFieldsValues(basket: IBasket) {
 }
 // -----------------------------------------------------------------------------
 
+async function refresh(context: BasketContext, _event: AnyEventObject) {
+  return fetchBasket(context).then((newBasket: IBasket) => {
+    if (isEmpty(newBasket)) return { basket: context.basket as IBasket };
+
+    // Only re-fetch provision fields if products have changed
+    if (hasProductChanges(context.basket, newBasket)) {
+      return getProvisioningFieldsValues(newBasket);
+    }
+
+    // Preserve existing provision field data and errors from old basket
+    preserveProvisionFields(context.basket, newBasket);
+    return { basket: newBasket, errors: context.error };
+  });
+}
+
+// -----------------------------------------------------------------------------
+
 export default {
   load,
   dismissWarningNotes,
-  refresh: load,
+  refresh,
   convert,
   isAuthenticated: () => useSession().isAuthenticated()
 };
