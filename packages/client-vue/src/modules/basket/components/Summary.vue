@@ -3,9 +3,24 @@
     v-if="(!meta.isLoading && meta.hasProducts) || meta.isCheckout"
     :class="styles.summary.root"
   >
-    <DescriptionList v-if="!isEmpty(productItems)" :items="productItems" />
+    <DescriptionList v-if="!isEmpty(productItems)" :items="productItems">
+      <template #description="{ item }">
+        <Skeleton
+          v-if="meta.isPricesCalculating"
+          :class="styles.summary.skeleton"
+        />
+        <template v-else>{{ item.description }}</template>
+      </template>
+    </DescriptionList>
 
     <DescriptionList v-if="!isEmpty(subtotalItems)" :items="subtotalItems">
+      <template #description="{ item }">
+        <Skeleton
+          v-if="meta.isPricesCalculating"
+          :class="styles.summary.skeleton"
+        />
+        <template v-else>{{ item.description }}</template>
+      </template>
       <BasketTotal class="mt-2" v-if="props.showTotal" />
     </DescriptionList>
 
@@ -26,6 +41,7 @@ import { toPairs, forEach, isEmpty, map, concat } from "lodash-es";
 // --- components
 import {
   DescriptionList,
+  Skeleton,
   type DescriptionItem
 } from "@upmind-automation/upmind-ui";
 import BasketPromotions from "./Promotions.vue";
