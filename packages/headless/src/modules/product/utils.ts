@@ -28,6 +28,7 @@ import {
   isEmpty,
   isFunction,
   isNil,
+  isString,
   map,
   maxBy,
   merge,
@@ -37,6 +38,7 @@ import {
   reverse,
   set,
   some,
+  split,
   subtract,
   toNumber,
   trim,
@@ -95,6 +97,16 @@ import { type ProductBundleConfig } from "../config";
 import { UIContext } from "../config";
 
 // -----------------------------------------------------------------------------
+
+/**
+ * Normalises sub_pids which may be array, string, or CSV to a string array.
+ */
+export function normaliseSubPids(input?: string | string[]): string[] {
+  if (isEmpty(input)) return [];
+  if (isArray(input)) return compact(input);
+  if (isString(input)) return compact(split(input, ","));
+  return [];
+}
 
 /**
  * Computes the title for a product based on a template string derived from the product's UiMeta > uischema
@@ -1484,6 +1496,13 @@ const parseSubproductDetailsChoices = (
         return result;
       }
 
+      // Recurring options inherit the parent product's term; one-time options
+      // (cycle 0) stay at 0. Mirrors the rule used in parseSubproducts.
+      const cycle =
+        value.billing_cycle_months == 0
+          ? 0
+          : (parentTerm ?? value.billing_cycle_months);
+
       set(result, [value.category_id, value.id], {
         productId: value.id,
         quantity: parseQuantity(
@@ -1608,7 +1627,7 @@ export function parseBundledProducts(
     productId: bundle.object_id,
     quantity: bundle.config?.qty || 1,
     term: bundle.config?.bcm ?? 0,
-    subproducts: compact(bundle.config?.sub_pids ?? []),
+    subproducts: normaliseSubPids(bundle.config?.sub_pids),
     provisionFields: bundle.config?.pfields ?? {},
     coupons: compact(bundle.config?.coupons ?? []),
     silent: true // always silent for bundled products

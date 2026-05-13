@@ -38,6 +38,7 @@ import {
   type TermDetails,
   type IProductConfig
 } from "../product";
+import { normaliseSubPids } from "../product/utils";
 import { useConfig } from "../config/useConfig";
 
 // ---------------------------------------------------------------------------
@@ -145,13 +146,14 @@ export function parseAddedProducts(
         const bcmMatches =
           !item?.config?.bcm || item.config.bcm == product.billing_cycle_months;
 
+        const normalisedSubPids = normaliseSubPids(item?.config?.sub_pids);
         const subproductsMatch =
-          isEmpty(item?.config?.sub_pids) ||
+          isEmpty(normalisedSubPids) ||
           some(product.options, option => {
-            return includes(item.config?.sub_pids, option.product_id);
+            return includes(normalisedSubPids, option.product_id);
           }) ||
           some(product.attributes, attribute => {
-            return includes(item.config?.sub_pids, attribute.product_id);
+            return includes(normalisedSubPids, attribute.product_id);
           });
 
         return productMatches && bcmMatches && subproductsMatch;
@@ -181,13 +183,16 @@ export function checkInBasket(
       !recommendation?.config?.bcm ||
       recommendation.config.bcm == product.billing_cycle_months;
 
+    const normalisedSubPids = normaliseSubPids(
+      recommendation?.config?.sub_pids
+    );
     const subproductsMatch =
-      isEmpty(recommendation?.config?.sub_pids) ||
+      isEmpty(normalisedSubPids) ||
       some(product.options, option => {
-        return includes(recommendation.config?.sub_pids, option.product_id);
+        return includes(normalisedSubPids, option.product_id);
       }) ||
       some(product.attributes, attribute => {
-        return includes(recommendation.config?.sub_pids, attribute.product_id);
+        return includes(normalisedSubPids, attribute.product_id);
       });
 
     return productMatches && bcmMatches && subproductsMatch;
@@ -274,7 +279,7 @@ export function parseRecommendation(
 
       term: config?.bcm ?? term?.cycle ?? 0,
       startTrial: productDetails?.trialSupported,
-      subproducts: compact(config?.sub_pids ?? []),
+      subproducts: normaliseSubPids(config?.sub_pids),
       provisionFields: config?.pfields ?? {},
       coupons: compact(config?.coupons ?? [])
     }

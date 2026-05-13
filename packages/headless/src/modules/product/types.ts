@@ -418,8 +418,8 @@ export interface IProductConfig {
   qty?: number;
   /** Billing cycle in months. */
   bcm?: number;
-  /** Sub-product IDs. */
-  sub_pids?: string[];
+  /** Sub-product IDs (may be array, string, or CSV). */
+  sub_pids?: string | string[];
   /** Provision field key-value pairs. */
   pfields?: Record<string, any>;
   /** Coupon codes. */
