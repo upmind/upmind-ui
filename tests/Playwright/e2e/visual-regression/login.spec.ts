@@ -8,6 +8,12 @@ import { waitForSessionCookie } from "../support/helpers";
 
 let login: Login;
 
+// The "2FA Entry" test in every per-language describe authenticates as
+// Logins.twoFactor (also used in login-registration/2fa.spec.ts). The for
+// loop generates sibling describes which would otherwise run in parallel, so
+// configure serial mode at file scope to prevent staging-account contention.
+test.describe.configure({ mode: "serial" });
+
 for (const { language, locale } of languages) {
   test.describe(`Login Page Visual Regression Tests - ${language}`, () => {
     test.beforeEach(async ({ page }) => {

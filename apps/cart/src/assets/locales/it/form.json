@@ -25,15 +25,27 @@
   "auth_password": {
     "error": {
       "min_length": "La password deve contenere almeno 8 caratteri",
-      "min_length_lowercase": "La password deve contenere almeno 8 caratteri e una lettera minuscola.",
-      "min_length_lowercase_number": "La password deve avere almeno 8 caratteri, contenere una lettera minuscola e una cifra",
+      "min_length_letter": "La password deve essere composta da almeno 8 caratteri e contenere una lettera",
+      "min_length_letter_number": "La password deve essere composta da almeno 8 caratteri e contenere una lettera e un numero",
+      "min_length_letter_number_symbol": "La password deve contenere almeno 8 caratteri, tra cui una lettera, un numero e un simbolo",
+      "min_length_letter_symbol": "La password deve essere composta da almeno 8 caratteri e contenere una lettera e un simbolo",
       "min_length_number": "La password deve contenere almeno 8 caratteri e un numero.",
-      "missing_lowercase": "La password deve contenere una lettera minuscola",
-      "missing_lowercase_number": "La password deve contenere una lettera minuscola e un numero",
-      "missing_number": "La password deve contenere un numero"
+      "min_length_number_symbol": "La password deve contenere almeno 8 caratteri, un numero e un simbolo",
+      "min_length_symbol": "La password deve contenere almeno 8 caratteri e un simbolo",
+      "missing_letter": "La password deve contenere una lettera",
+      "missing_letter_number": "La password deve contenere una lettera e un numero",
+      "missing_letter_number_symbol": "La password deve contenere una lettera, un numero e un carattere speciale",
+      "missing_letter_symbol": "La password deve contenere una lettera e un carattere speciale",
+      "missing_number": "La password deve contenere un numero",
+      "missing_number_symbol": "La password deve contenere un numero e un carattere speciale",
+      "missing_symbol": "La password deve contenere un carattere speciale"
     },
+    "generate": "Crea una password sicura",
+    "hide": "Nascondi password",
+    "hint": "La password deve contenere almeno 8 caratteri e includere una lettera, un numero e un simbolo.",
     "label": "Password",
-    "placeholder": "Password o frase segreta"
+    "placeholder": "Password o frase segreta",
+    "show": "Mostra password"
   },
   "card_cvv": {
     "error": "È richiesto un CVV valido",
