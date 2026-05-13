@@ -6,7 +6,12 @@ import type { MercadoPagoContext } from "./types";
 export default {
   cleanupSdk: ({ sdk }: MercadoPagoContext) => {
     if (sdk?.mercadoPagoController) {
-      sdk.mercadoPagoController.unmount();
+      try {
+        sdk.mercadoPagoController.unmount();
+      } catch {
+        // SDK may have already cleaned up internally; cleanup must not throw,
+        // as that would abort the surrounding xstate transition mid-flight.
+      }
       sdk.mercadoPagoController = undefined;
     }
   }

@@ -58,8 +58,15 @@ export default {
   cleanupSdk: ({ sdk }: DLocalContext) => {
     if (sdk?.fields) {
       forEach(sdk.fields, field => {
-        if (field?.unmount) field.unmount();
+        try {
+          field?.unmount?.();
+        } catch {
+          // SDK may have already cleaned up internally; cleanup must not
+          // throw, as that would abort the surrounding xstate transition
+          // mid-flight.
+        }
       });
+      sdk.fields = undefined;
     }
   }
 };
