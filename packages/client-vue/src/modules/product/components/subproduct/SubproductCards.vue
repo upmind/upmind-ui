@@ -19,6 +19,7 @@
         v-if="group?.icon"
         :src="group.icon"
         :alt="group?.name"
+        dropdown
       />
     </template>
     <template v-if="hasGroups" #header-label="{ selectedItem }">
@@ -51,7 +52,7 @@
     <template #dropdown-item="{ item }: any">
       <CardSubproduct
         v-bind="getSubproductValue(getItemId(item))"
-        :image="getOptionImage(getItemId(item))"
+        :image="getDropdownItemImage(getItemId(item))"
         :term="props.term"
         :meta="meta"
         :product-meta="getSubproductValue(getItemId(item)).meta"
@@ -171,12 +172,17 @@ const mapComponent = (name: string) => {
 
 const optionsWithConfig = computed(() =>
   map(props.subproduct?.values, option => {
-    const { data } = props.meta.with({ option: () => option });
+    const { ui: optionUi, data } = props.meta.with({
+      optionGroup: () => props.subproduct,
+      option: () => option
+    });
     return {
       ...option,
       groupLabel: data.optionGroupLabel,
       groupIcon: data.optionGroupIcon,
-      groupImg: data.optionImgUrl
+      image: optionUi.optionSelectorIcons.isVisible
+        ? (data.optionImgUrl ?? option.iconUrl)
+        : ""
     };
   })
 );
@@ -229,7 +235,7 @@ const groups = computed(() => {
     const hasGroupLabel = !!firstItem?.groupLabel;
     return {
       name: firstItem?.groupLabel || firstItem?.name,
-      icon: firstItem?.groupImg,
+      icon: firstItem?.image,
       iconName: firstItem?.groupIcon,
       dropdown: hasGroupLabel,
       items: map(items, item => ({
@@ -261,7 +267,12 @@ function getItemId(item: any): string {
 
 function getOptionImage(value: string): string | undefined {
   const option = find(optionsWithConfig.value, ["id", value]);
-  return option?.groupImg;
+  return option?.image;
+}
+
+function getDropdownItemImage(value: string): string | undefined {
+  if (hasGroups.value) return;
+  return getOptionImage(value);
 }
 
 const gridColumns = computed(() => {
