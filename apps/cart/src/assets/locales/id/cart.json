@@ -67,5 +67,6 @@
   "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}",
   "show_more_payment_options": "Tampilkan lebih banyak opsi pembayaran",
   "stored_payment_methods_limited_desc": "Tidak semua metode pembayaran terlihat karena tidak tersedia untuk negara atau mata uang Anda.",
-  "stored_payment_methods_limited_title": "Metode Pembayaran Terbatas"
+  "stored_payment_methods_limited_title": "Metode Pembayaran Terbatas",
+  "warning_notes_title": "Peringatan keranjang belanja | Peringatan keranjang belanja"
 }
