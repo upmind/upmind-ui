@@ -10,7 +10,7 @@
 
       <Tooltip
         v-if="
-          props.meta?.overridden && !(props.meta?.free && props.meta?.freeTrial)
+          props.meta?.custom && !(props.meta?.free && props.meta?.freeTrial)
         "
         :label="t('text.price_manually_adjusted_msg')"
       >
@@ -23,7 +23,7 @@
       </Tooltip>
 
       <Promotion
-        v-if="!props.meta?.overridden"
+        v-if="!props.overridden && !props.meta?.custom"
         v-for="promotion in props.promotions"
         :key="promotion.code.toString()"
         v-bind="promotion"
@@ -31,7 +31,11 @@
       />
     </header>
 
-    <footer :class="styles.terms.radio.item.footer" class="pricing">
+    <footer
+      v-if="!props.overridden"
+      :class="styles.terms.radio.item.footer"
+      class="pricing"
+    >
       <Pricing
         class="pricing"
         :regular-price="props.price.regularPrice"
@@ -39,7 +43,7 @@
         :current-price="props.price.currentPrice"
         :monthly-from-current-price="props.price.monthlyFromCurrentPrice ?? ''"
         :discounted="props.meta?.discounted ?? false"
-        :overridden="props.meta?.overridden"
+        :custom="props.meta?.custom"
         :free="props.meta?.free ?? false"
         :use-monthly-from-price="useMonthlyFromPrice"
         :ui-config="{
