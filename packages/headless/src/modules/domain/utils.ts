@@ -162,8 +162,6 @@ export function parseAvailable(
   results: IProduct[] = [],
   preferredCycle?: number // If we have chosen a term then we need to try use that term
 ) {
-  const { defaultPaymentPeriod } = useBrand();
-  const paymentPeriod = preferredCycle ?? defaultPaymentPeriod.value;
   const available = map(results, (raw: IProduct) => {
     // This is where we map our domain search result raw to a format that we can use in our basket
     // The mapping is pretty simple, except for the term, which we need to calculate the billing cycle years
@@ -177,7 +175,7 @@ export function parseAvailable(
     const productDetails = parseProductDetails(raw);
     const terms = parseTermDetails(raw);
     const termDetails = calculateBillingTerm(
-      paymentPeriod || raw.default_payment_period,
+      preferredCycle ?? raw.default_payment_period,
       terms
     );
 
@@ -235,8 +233,6 @@ export function parseSuggestions(
   preferredCycle?: number
 ): DomainProduct[] {
   const { defaultPaymentPeriod } = useBrand();
-  const paymentPeriod = preferredCycle ?? defaultPaymentPeriod.value;
-
   const available = map(results, result => {
     const { domain, sld, tld, can_register, can_transfer, product_id } = result;
     const fullDomain = `${sld}.${tld}`;
@@ -249,7 +245,7 @@ export function parseSuggestions(
         const productDetails = parseProductDetails(product);
         const terms = parseTermDetails(product);
         const termDetails = calculateBillingTerm(
-          paymentPeriod || product.default_payment_period,
+          preferredCycle ?? product.default_payment_period,
           terms
         );
 

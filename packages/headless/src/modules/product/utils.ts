@@ -309,17 +309,18 @@ export const calculateBillingTerm = (
     case DefaultPaymentPeriod.HIGHEST_PRICE:
       term = maxBy(available, "price.currentAmount");
       break;
+
     case DefaultPaymentPeriod.LOWEST_PRICE:
       term = minBy(available, "price.currentAmount");
       break;
+
     case DefaultPaymentPeriod.LOWEST_MONTHLY_PRICE:
       term = minBy(available, "price.monthlyFromCurrentAmount");
       break;
-    case DefaultPaymentPeriod.INHERIT_FROM_BRAND:
-      term = calculateBillingTerm(defaultPaymentPeriod.value, available);
-      break;
 
+    case DefaultPaymentPeriod.INHERIT_FROM_BRAND:
     default:
+      term = calculateBillingTerm(defaultPaymentPeriod.value, available);
       break;
   }
   term ??= first(available);
