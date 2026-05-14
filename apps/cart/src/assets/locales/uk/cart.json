@@ -67,5 +67,6 @@
   "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}",
   "show_more_payment_options": "Показати більше варіантів оплати",
   "stored_payment_methods_limited_desc": "Не всі способи оплати відображаються, оскільки вони недоступні для вашої країни або валюти.",
-  "stored_payment_methods_limited_title": "Обмежені способи оплати"
+  "stored_payment_methods_limited_title": "Обмежені способи оплати",
+  "warning_notes_title": "Попередження про кошик | Попередження про кошик"
 }

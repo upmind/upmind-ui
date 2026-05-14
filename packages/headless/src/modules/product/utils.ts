@@ -760,7 +760,7 @@ export const parseTermDetails = (
   return map(orderBy(prices, "billing_cycle_months"), rawTerm => {
     const details: TermDetails = parseSummaryDetailWithPrice(rawTerm, raw);
 
-    details.meta.overridden = details.meta.overridden && !priceOptionOverride;
+    details.meta.custom = details.meta.custom && !priceOptionOverride;
 
     details.price.monthlyFromCurrentAmount =
       rawTerm.monthly_price_from_discounted ?? rawTerm.monthly_price_from;
@@ -865,7 +865,7 @@ export const parseSubproductDetails = (
           includesTax: includesTax.value,
           free: price?.price?.currentAmount == 0,
           overrides: !!price?.meta.overrides,
-          overridden: price?.meta.overridden,
+          custom: price?.meta.custom,
           default: !!rawSubproduct?.pivot?.default
         },
         order: rawSubproduct?.pivot?.order ?? 0
@@ -931,7 +931,7 @@ export const parseSummaryDetail = (
       free: (raw.price_discounted ?? raw.price) == 0,
       freeTrial: !!rawProduct?.trial_supported,
       overrides: !!overrides,
-      overridden: !!raw.overridden_price,
+      custom: !!raw.overridden_price,
       useMonthlyFromPrice
     }
   } as ProductSummaryDetailWithPrice;

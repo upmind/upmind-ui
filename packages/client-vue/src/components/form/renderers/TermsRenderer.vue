@@ -12,6 +12,7 @@
       :type="configMeta.ui.termSelector.value"
       :columns="configMeta.ui.termSelectorGrid.asNumber"
       :summary="configMeta.ui.termSelectorSummary.isVisible"
+      :overridden="appliedOptions?.overridden"
       @update:modelValue="handleTermChange"
     />
   </FormField>
