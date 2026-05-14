@@ -1,6 +1,7 @@
 import type {
   IBasketProduct,
-  IBasketPromotion
+  IBasketPromotion,
+  IProduct
 } from "@upmind-automation/types";
 import type {
   ProductProps,
@@ -64,6 +65,13 @@ export interface BasketProduct extends Product {
    * - A Hosting product often has a service identifier of the associated domain name.
    */
   serviceIdentifier?: string;
+  /**
+   * The source `IProduct` carried over from the raw API response. Used by
+   * conditional rules to resolve `product.*` state keys (term_count,
+   * option_count, bcm, trial_days) on basket screens, where only a
+   * basketProduct is in scope.
+   */
+  product?: IProduct;
 }
 
 /**
@@ -143,5 +151,18 @@ export type OptionToggleMeta = {
 
 /** A product summary detail with basket-specific toggle metadata. */
 export type BasketOptionSummary = ProductSummaryDetailWithPrice & {
-  meta: ProductSummaryMeta & { toggle?: OptionToggleMeta };
+  /** Toggle state for this option (selection, category/value IDs, benefits). */
+  toggle?: OptionToggleMeta;
+  /** Minimum order quantity for this option value. */
+  min?: number;
+  /** Maximum order quantity for this option value. */
+  max?: number;
+  /** Quantity increment step for this option value. */
+  step?: number;
+};
+
+/** A {@link BasketOptionSummary} that is guaranteed to carry toggle metadata
+ *  (used for inline upsell rendering, where toggling is always available). */
+export type BasketUpsellSummary = BasketOptionSummary & {
+  toggle: OptionToggleMeta;
 };

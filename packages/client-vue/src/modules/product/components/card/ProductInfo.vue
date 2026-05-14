@@ -23,7 +23,7 @@
       />
 
       <Tooltip
-        v-else-if="meta?.overridden"
+        v-else-if="meta?.custom"
         :label="t('text.price_manually_adjusted_msg')"
       >
         <Badge
@@ -58,20 +58,7 @@
       />
 
       <div>
-        <Link
-          v-if="navigate"
-          :to="{
-            ...props.configureRoute,
-            params: {
-              pid: props.id
-            },
-            query: {
-              [QUERY_PARAMS.BILLING_CYCLE_MONTHS]: selectedTerm
-            }
-          }"
-          tabindex="-1"
-          @click="doResolve"
-        >
+        <Link v-if="navigate" :to="titleRoute" tabindex="-1" @click="doResolve">
           <h3 :class="styles.product.header.info.title">
             {{ title }}
           </h3>
@@ -110,7 +97,7 @@
 // --- external
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { isString } from "lodash-es";
+import { isString, merge } from "lodash-es";
 
 // --- internal
 import { QUERY_PARAMS } from "@upmind-automation/headless";
@@ -149,6 +136,13 @@ const styles = useStyles(
   ["product.header", "product.header.info"],
   metaConfig,
   config
+);
+
+const titleRoute = computed(() =>
+  merge({}, props.configureRoute, {
+    params: { pid: props.id },
+    query: { [QUERY_PARAMS.BILLING_CYCLE_MONTHS]: props.selectedTerm }
+  })
 );
 
 function doResolve() {

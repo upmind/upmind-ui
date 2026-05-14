@@ -4,11 +4,11 @@
       <!-- Basket product summary -->
       <div :class="styles.product.root.summaries">
         <template
-          v-for="(summary, index) in props.pricing"
+          v-for="(summary, index) in visiblePricing"
           :key="`${props.id}-${index}`"
         >
-          <component
-            :is="getSummaryComponent(index)"
+          <BasketProductContent
+            v-if="index === 0"
             data-testid="basket-product-summary"
             :id="id"
             :productDetails="props.productDetails"
@@ -19,51 +19,45 @@
             :config-errors="configErrors"
             :loading="meta.isLoading"
             :processing="meta.isProcessing"
+            :prices-updating="basketMeta.isPricesUpdating"
             :pricing="pricingProductIds"
             :edit-route="editRoute"
             :image="ui.productImages.isVisible"
-            :inline-meta="enrichedInlineMeta"
+            :inline-meta="inlineMeta"
             :upsell-options="upsellOptions"
             :terms="config?.terms?.value"
             v-model:open="openModel"
             v-model:quantity="quantityModel"
             v-model:term="termModel"
-            v-model:options="optionsModel"
             @remove="doRemove"
-          >
-            <slot
-              :productDetails="props.productDetails"
-              :price="price"
-              :quantity="props.configuration.quantity"
-            ></slot>
-          </component>
+          />
+          <BasketProductSubItem
+            v-else
+            data-testid="basket-product-summary"
+            :summary="summary"
+          />
         </template>
       </div>
 
       <!-- Upsell options -->
       <div
-        v-for="{ upsell, benefits } in filteredUpsells"
+        v-for="{ upsell, option, benefits } in filteredUpsells"
         :key="`${props.id}-upsell-${upsell.id}`"
         :class="styles.product.option.upsell"
       >
-        <BasketProductOptionContent
+        <BasketProductUpsell
           data-testid="basket-product-upsell"
           :id="id"
-          :productDetails="props.productDetails"
           :summary="upsell"
-          :details="details"
-          :quantity="props.configuration.quantity"
-          :pricing="pricingProductIds"
-          :open="open"
-          :image="false"
+          :option="option"
           :error="meta.hasErrors"
-          :loading="meta.isLoading"
           :processing="meta.isProcessing"
-          :edit-route="editRoute"
-          :config-options="config?.options?.value"
-          :inline-meta="enrichedInlineMeta"
-          upsell
-          v-model:options="optionsModel"
+          @update:quantity="
+            (value: number) => onOptionQuantity(upsell, option, value)
+          "
+          @toggle="
+            (enabled: boolean) => onUpsellToggle(upsell, option, enabled)
+          "
         />
         <BasketProductBenefits :benefits="benefits" />
       </div>
@@ -80,21 +74,30 @@ import { vAutoAnimate } from "@formkit/auto-animate";
 // --- internal
 import { useStyles } from "@upmind-automation/upmind-ui";
 import stylesConfig from "./basketProduct.config";
-import { useConfig, useBasketProductInline } from "@upmind-automation/headless";
+import {
+  useBasket,
+  useConfig,
+  useBasketProductInline
+} from "@upmind-automation/headless";
 
 // --- components
 import { Card, Loading } from "@upmind-automation/upmind-ui";
 import BasketProductContent from "./BasketProductContent.vue";
-import BasketProductOptionContent from "./BasketProductOptionContent.vue";
+import BasketProductSubItem from "./BasketProductSubItem.vue";
+import BasketProductUpsell from "./BasketProductUpsell.vue";
 import BasketProductBenefits from "./components/BasketProductBenefits.vue";
 
 // --- utils
-import { isEmpty, some, compact, map, debounce, find } from "lodash-es";
+import { isEmpty, some, compact, map, debounce } from "lodash-es";
 
 // --- types
-import type { BasketProductProps, OptionTogglePayload } from "./types";
+import type { BasketProductProps } from "./types";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
-import type { Product, BasketOptionSummary } from "@upmind-automation/headless";
+import type {
+  Product,
+  BasketUpsellSummary,
+  SubproductDetails
+} from "@upmind-automation/headless";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(
@@ -117,10 +120,12 @@ const emits = defineEmits(["update:open", "remove"]);
 const open = useVModel(props, "open", emits);
 
 const productConfig = useConfig().with({
-  product: () => props
+  basketProduct: () => props
 });
 
 const { ui } = productConfig;
+
+const { meta: basketMeta } = useBasket();
 
 // --- inline config
 
@@ -128,7 +133,8 @@ const {
   meta: inlineMeta,
   configure,
   filterUpsellOptions,
-  resolveUpsells
+  resolveUpsells,
+  filterPricing
 } = useBasketProductInline(props.id);
 
 const config = inlineMeta.value?.hasInlineControls
@@ -141,33 +147,16 @@ const upsellOptions = computed(() =>
   filterUpsellOptions(config?.options?.value ?? [])
 );
 
-// Merge inline meta with locked state from the config machine
-const enrichedInlineMeta = computed(() => ({
-  ...inlineMeta.value,
-  isLocked: !!config?.meta?.value?.isLocked
-}));
+// Resolves static catalog upsells against the live per-card config (pricing,
+// pre-selected filtering, benefits). Lives here because config is spawned
+// per-card; shared with visiblePricing below so both read the same list.
+const filteredUpsells = computed(() => resolveUpsells(config));
 
-const filteredUpsells = computed(() => {
-  if (!ui.optionUpsells.isVisible || props.productDetails.readonly) return [];
-
-  return compact(
-    map(
-      resolveUpsells(
-        config?.options?.value,
-        config?.model?.value?.options
-      ) as BasketOptionSummary[],
-      upsell => {
-        const { data } = productConfig.with({
-          optionGroup: () => resolveOptionGroup(upsell),
-          option: () => upsell
-        });
-        if (!data.optionUpsellEnabled) return undefined;
-
-        return { upsell, benefits: data.optionBenefits };
-      }
-    )
-  );
-});
+// Strip pricing rows already rendered as upsells, otherwise selected upsells
+// would appear twice (once in pricing, once in the upsell section).
+const visiblePricing = computed(() =>
+  filterPricing(props.pricing, filteredUpsells.value)
+);
 
 // --- meta
 
@@ -209,14 +198,6 @@ const configErrors = computed(
   () => config?.validationErrors?.value || config?.errors?.value
 );
 
-function getSummaryComponent(index: number) {
-  return index === 0 ? BasketProductContent : BasketProductOptionContent;
-}
-
-function resolveOptionGroup(upsell: BasketOptionSummary) {
-  return find(config?.options?.value, { id: upsell.meta.toggle?.categoryId });
-}
-
 // --- writable models for v-model bindings
 
 const debouncedUpdate = debounce(() => config?.update(), 500);
@@ -229,7 +210,7 @@ const openModel = computed({
 });
 
 const quantityModel = computed({
-  get: () => props.configuration.quantity,
+  get: () => config?.model?.value?.quantity ?? props.configuration.quantity,
   set: (value: number) => {
     if (!config) return;
     config.updateQuantity(value);
@@ -245,17 +226,26 @@ const termModel = computed({
   }
 });
 
-const optionsModel = computed({
-  get: () =>
-    config?.model?.value?.options as unknown as OptionTogglePayload | undefined,
-  set: (value: OptionTogglePayload) => {
-    if (!config || !value) return;
-    const { option, value: optValue, enabled } = value;
-    config
-      .toggleOption(option, optValue.id, enabled)
-      .then(() => config.update());
-  }
-});
+function onUpsellToggle(
+  upsell: BasketUpsellSummary,
+  option: SubproductDetails,
+  enabled: boolean
+) {
+  if (!config) return;
+  config
+    .toggleOption(option, upsell.toggle.valueId, enabled)
+    .then(() => config.update());
+}
+
+function onOptionQuantity(
+  upsell: BasketUpsellSummary,
+  option: SubproductDetails,
+  quantity: number
+) {
+  if (!config) return;
+  config.updateOptionQuantity(option, upsell.toggle.valueId, quantity);
+  debouncedUpdate();
+}
 
 function doRemove() {
   emits("remove");
