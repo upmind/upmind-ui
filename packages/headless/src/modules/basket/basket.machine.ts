@@ -4,22 +4,20 @@ import { createMachine, assign, spawn } from "xstate";
 // --- internal
 import services from "./services";
 import paymentMachine from "../payment/payment.machine";
-import { useDataLayer, useI18n } from "../system";
+import { useDataLayer } from "../system";
 import { authSubscription } from "../session/helper";
 import { useSession } from "../session";
-
-import { useFeedback } from "../feedback";
 
 // --- utils
 import {
   defaultsDeep,
+  filter,
   forEach,
   get,
   has,
   isEmpty,
   isEqual,
   map,
-  reduce,
   some
 } from "lodash-es";
 import {
@@ -42,7 +40,7 @@ import {
 import { parseBasketProduct } from "../basketProduct/utils";
 
 // --- types
-import type { Message } from "../feedback";
+import type { IWarningNote } from "@upmind-automation/types";
 import type { BasketContext } from "./types";
 import type { AnyEventObject } from "xstate";
 import type { PaymentArgs } from "../payment";
@@ -144,7 +142,7 @@ export default createMachine(
             initial: "complete",
             states: {
               processing: {
-                entry: ["cancelExistingQuery"],
+                entry: ["cancelExistingQuery", "notifyActorsRefreshing"],
                 invoke: {
                   src: "refresh",
                   onDone: {
@@ -343,6 +341,9 @@ export default createMachine(
           // so we will just count the attempts here so we understand that user tried to checkout but was not ready
           CHECKOUT: {
             actions: ["incrementAttempts"]
+          },
+          DISMISS_ALL_WARNINGS: {
+            actions: ["dismissAllWarnings", "clearWarningNotes"]
           }
         },
         onDone: "checkout"
@@ -541,7 +542,8 @@ export default createMachine(
         paymentDetail: undefined,
         payment: undefined,
         invoice: undefined,
-        targetBasketId: undefined
+        targetBasketId: undefined,
+        warningNotes: undefined
       }),
 
       setPaymentDetail: assign({
@@ -582,42 +584,31 @@ export default createMachine(
         }
       }),
 
-      setWarningNotes: (context: BasketContext, { data }: AnyEventObject) => {
-        const { t } = useI18n();
-        const basket = get(data, "basket", data);
-        if (has(basket, "warning_notes") && !isEmpty(basket.warning_notes)) {
-          reduce(
-            basket.warning_notes,
-            (
-              acc,
-              note: { id: string; message: string; is_hidden: boolean }
-            ) => {
-              if (!note.is_hidden) {
-                useFeedback().addWarning({
-                  hash: note.id,
-                  copy: note.message,
-                  data: { persist: true },
-                  actions: [
-                    {
-                      icon: "close",
-                      label: t("action.dismiss"),
-                      value: "dismiss",
-                      handler: async (ctx: Message) => {
-                        services.dismissWarningNotes(context, {
-                          type: "DISMISS_WARNING",
-                          data: ctx.hash
-                        });
-                      }
-                    }
-                  ]
-                });
-              }
-              return acc;
-            },
-            null
-          );
+      setWarningNotes: assign({
+        warningNotes: (_context: BasketContext, { data }: AnyEventObject) => {
+          const basket = get(data, "basket", data);
+          if (has(basket, "warning_notes") && !isEmpty(basket.warning_notes)) {
+            return filter(
+              basket.warning_notes,
+              (note: IWarningNote) => !note.is_hidden
+            );
+          }
+          return [];
         }
+      }),
+
+      dismissAllWarnings: (context: BasketContext) => {
+        if (isEmpty(context.warningNotes)) return;
+        const ids = map(context.warningNotes, "id");
+        services.dismissWarningNotes(context, {
+          type: "DISMISS_ALL_WARNINGS",
+          data: ids
+        });
       },
+
+      clearWarningNotes: assign({
+        warningNotes: () => []
+      }),
 
       restartActors: assign({
         actors: ({ actors, basket, error }: BasketContext) => {
@@ -648,6 +639,31 @@ export default createMachine(
           return activeActors;
         }
       }),
+
+      /**
+       * Broadcasts `REFRESHING` to all spawned children (currency,
+       * customFields, promotions, billing, paymentDetail) at the start of
+       * every basket refresh cycle, before the API call resolves.
+       *
+       * Purpose: subscribers stage their own state ahead of the eventual
+       * `REFRESH` — e.g. the recommendations engine moves to a `syncing`
+       * state and blocks `isReady()` so route gates don't redirect based
+       * on stale conditions during the basket's in-flight window.
+       *
+       * Distinct from `PROCESSING` (which signals "this specific product
+       * is being updated" and locks the product card UI). `REFRESHING` is
+       * basket-wide and non-locking.
+       *
+       * Lifecycle: REFRESHING → (basket API call) → REFRESH (via
+       * `refreshActors`). External subscribers receive the same signal
+       * through the `basketSubscription` helper. Children/subscribers
+       * that don't handle `REFRESHING` silently ignore it.
+       */
+      notifyActorsRefreshing: ({ actors }: BasketContext) => {
+        forEach(actors, actor => {
+          if (actor?.send) actor.send({ type: "REFRESHING" });
+        });
+      },
 
       refreshActors: assign({
         actors: ({ actors, basket, error }: BasketContext) => {

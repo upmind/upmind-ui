@@ -32,6 +32,7 @@
             :class="props.class"
             layout="inline"
             :summary="false"
+            :overridden="overridden"
           />
         </slot>
       </template>
@@ -42,6 +43,7 @@
             :class="props.class"
             layout="inline"
             :summary="false"
+            :overridden="overridden"
           />
         </slot>
       </template>
@@ -83,6 +85,8 @@ const props = withDefaults(
     // ---
     label?: string;
     description?: string;
+    /** `true` when an active option/category overrides product price — hides price/promo in term cards. */
+    overridden?: boolean;
     // --- state
     required?: boolean;
     disabled?: boolean;
