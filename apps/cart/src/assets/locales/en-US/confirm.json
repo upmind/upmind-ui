@@ -10,6 +10,7 @@
   "email_set_default": "Email successfully set as default",
   "email_verification_sent": "Email verification sent successfully",
   "in_basket": "In basket",
+  "in_basket_msg": "Already in your basket — click to add another",
   "in_use": "In use",
   "phone_removed": "Phone removed successfully",
   "phone_set_default": "Phone successfully set as default",

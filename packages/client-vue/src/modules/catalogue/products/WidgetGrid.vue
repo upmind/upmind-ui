@@ -34,15 +34,21 @@
         :class="styles.products.main.grid.container"
         data-testid="products-grid"
       >
+        <!-- TODO: OR `loading` and `disabled` with the global `isNavigating`
+             signal (sibling branch) to cover the click-to-route gap —
+             basket-RPC settles before navigation lands, leaving a momentary
+             spinner-off blip. -->
         <ProductCard
           v-if="!meta.isLoading"
           v-for="product in data"
-          :disabled="processing"
+          :loading="pendingMeta.isProcessing(product.id)"
+          :disabled="pendingMeta.isProcessing()"
+          :in-basket="pendingMeta.isInBasket(product.id)"
           :key="product.id"
           v-bind="product"
+          :in-situ="keepsUserInSitu"
           :preserve-promotion="preservePromotions"
-          :configure-route="props.configureRoute"
-          @resolve="processing = true"
+          :configure-route="catalogueConfigureRoute"
         />
 
         <ProductCardSkeleton
@@ -96,6 +102,7 @@
 import { watch, ref, computed, useTemplateRef, inject } from "vue";
 import { useI18n } from "vue-i18n";
 import { useUrlSearchParams } from "@vueuse/core";
+import { useRouter } from "vue-router";
 
 // --- internal
 import {
@@ -104,7 +111,8 @@ import {
   RequestSortDirection,
   ProductSortableProperties,
   DEBOUNCE_DELAY,
-  useBasket,
+  useBasketProductsPending,
+  useBrand,
   type UseProductCategories
 } from "@upmind-automation/headless";
 import { useConfig } from "@upmind-automation/headless";
@@ -124,7 +132,7 @@ import {
 import ProductSort from "./components/ProductSort.vue";
 
 // --- utils
-import { debounce, isArray, isEmpty, some } from "lodash-es";
+import { debounce, isArray, isEmpty, merge, some } from "lodash-es";
 
 // --- types
 import type { Product } from "@upmind-automation/headless";
@@ -137,8 +145,7 @@ const props = defineProps<{
   configureRoute: RouteLocationAsRelativeGeneric;
 }>();
 
-const processing = ref(false);
-const { meta: basketMeta } = useBasket();
+const { meta: pendingMeta } = useBasketProductsPending();
 
 const categoryInstance =
   inject<UseProductCategories>("useProductCategories") ??
@@ -163,12 +170,21 @@ const direction = defineModel<ProductSortProps["direction"]>("direction", {
 // ---------------------------------------------------------------------------
 
 const { t } = useI18n();
+const { keepsUserInSitu } = useBrand();
+const router = useRouter();
 
 const category = computed(() =>
   categoryId.value ? categoryInstance.getOne(categoryId.value) : undefined
 );
 
 const { ui } = useConfig().with({ category });
+
+const catalogueConfigureRoute = computed(() => {
+  if (!keepsUserInSitu.value) return props.configureRoute;
+  return merge({}, props.configureRoute, {
+    query: { returnUrl: router.currentRoute.value.fullPath }
+  });
+});
 
 // Determine limit based on layout columns (4-col = 12, 3-col = 9, 2-col = 8, 1-col = 6)
 const LAYOUT_LIMITS: Record<string, number> = {
@@ -230,9 +246,6 @@ const preservePromotions = computed(() =>
 );
 
 //  --- side effects
-watch(basketMeta, newMeta => {
-  processing.value = newMeta.isProcessing ? processing.value : false;
-});
 watch(
   data,
   newData => {
