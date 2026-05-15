@@ -1137,18 +1137,24 @@ export const parseProduct = (
   //   discountFormatted: values.discounted_formatted,
   // },
 
+  const { data } = useConfig({
+    context: UIContext.CONFIGURE,
+    product: { productDetails: lookups.product }
+  });
+
   const summaryDetailWithPrice: ProductSummaryDetailWithPrice = {
     name: "totals",
     title: lookups.product?.title ?? "",
     category: lookups.product?.category ?? "",
     cycle: model.term,
     quantity: model.quantity,
-    meta: {
-      ...(term?.meta ?? {}),
+    meta: merge({}, term?.meta, {
       free: price.currentAmount == 0,
       discounted:
-        price.currentAmount != price.regularAmount && price.regularAmount > 0
-    },
+        price.currentAmount != price.regularAmount && price.regularAmount > 0,
+      available: !data.productUnavailable,
+      availableReason: data.productUnavailableReason
+    }),
     promotions: term?.promotions,
     // ---
     price

@@ -47,7 +47,7 @@
       />
 
       <Badge
-        v-if="hideImage && productMeta?.data.productBadge"
+        v-if="hideImage && productMeta?.data.productBadge && meta?.available"
         v-bind="
           isString(productMeta.data.productBadge)
             ? { label: productMeta.data.productBadge }
@@ -147,6 +147,7 @@ const titleRoute = computed(() =>
 
 function doResolve() {
   if (!props.id) return;
+  if (!props.meta?.available) return;
   emit("resolve", props.id);
 }
 </script>

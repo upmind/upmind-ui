@@ -237,6 +237,12 @@ export interface DataSchema {
   /** Array of cross-sell product configs used for the recommendations step */
   productsToRecommend?: ProductRecommendConfig[];
 
+  /** Mark a product as unavailable (sold out). Disables the CTA and shows an "unavailable" badge in catalogue/configure/recommendations. */
+  productUnavailable?: boolean;
+
+  /** Optional label paired with `productUnavailable`. Used as the CTA/badge text in place of the generic "Unavailable" label. */
+  productUnavailableReason?: string;
+
   /** Optional store badge, shown on primary (no category) catalogue screen */
   storeBadge?: Badge;
 

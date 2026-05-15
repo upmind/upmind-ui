@@ -3,7 +3,7 @@
     <div :class="styles.product.content">
       <div v-if="!configMeta.hideImage" :class="styles.product.image.container">
         <Link
-          v-if="navigate"
+          v-if="navigate && meta?.available"
           :to="productRoute"
           :disabled="loading || disabled"
           @click="doResolve"
@@ -29,7 +29,14 @@
         />
 
         <Badge
-          v-if="productMeta.data.productBadge"
+          v-if="!meta?.available"
+          :class="styles.product.image.badge"
+          :label="meta?.availableReason ?? t('text.unavailable')"
+          variant="solid"
+          color="neutral"
+        />
+        <Badge
+          v-else-if="productMeta.data.productBadge"
           :class="styles.product.image.badge"
           v-bind="
             isString(productMeta.data.productBadge)
@@ -49,7 +56,7 @@
             @resolve="doResolve"
             :processing="loading"
             :title="productMeta.data.productName || props.productDetails.title"
-            :navigate="navigate"
+            :navigate="navigate && meta?.available"
             :hide-description="configMeta.hideDescription"
             :hide-image="configMeta.hideImage"
             :productMeta="productMeta"
@@ -91,7 +98,7 @@
               :color="color"
               size="lg"
               block
-              :disabled="loading || disabled || justAdded"
+              :disabled="loading || disabled || justAdded || !meta?.available"
               @click="doResolve"
             />
           </Tooltip>
@@ -295,6 +302,9 @@ const styles = useStyles(
 );
 
 const actionContent = computed(() => {
+  if (!props.meta?.available) {
+    return { label: props.meta?.availableReason ?? t("text.unavailable") };
+  }
   if (justAdded.value) {
     return { icon: "check-circle-broken", label: t("action.added_to_basket") };
   }
@@ -313,12 +323,13 @@ const actionContent = computed(() => {
 });
 
 const action = computed(() => {
-  if (!props.navigate) return actionContent.value;
+  if (!props.navigate || !props.meta?.available) return actionContent.value;
   return merge({}, actionContent.value, { to: actionRoute.value });
 });
 
 function doResolve() {
   if (!props.id) return;
+  if (!props.meta?.available) return;
   clicked.value = true;
   emit("resolve", props.id);
 }
