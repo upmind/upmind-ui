@@ -47,7 +47,7 @@
       />
 
       <Badge
-        v-if="hideImage && productMeta?.data.productBadge && meta?.available"
+        v-if="hideImage && productMeta?.data.productBadge && !isUnavailable"
         v-bind="
           isString(productMeta.data.productBadge)
             ? { label: productMeta.data.productBadge }
@@ -145,9 +145,12 @@ const titleRoute = computed(() =>
   })
 );
 
+// `=== false` so undefined `meta.available` stays the safe "available" default
+const isUnavailable = computed(() => props.meta?.available === false);
+
 function doResolve() {
   if (!props.id) return;
-  if (!props.meta?.available) return;
+  if (isUnavailable.value) return;
   emit("resolve", props.id);
 }
 </script>
