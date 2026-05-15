@@ -20,15 +20,13 @@
       type="submit"
       color="primary"
       :loading="meta.isProcessing"
-      :disabled="
-        meta.isLoading || meta.isUnavailable || !product?.meta?.available
-      "
+      :disabled="meta.isLoading || meta.isUnavailable || isUnavailable"
       :label="
-        product?.meta?.available
-          ? t('action.add_to_basket')
-          : (product?.meta?.availableReason ?? t('text.unavailable'))
+        isUnavailable
+          ? (product?.meta?.availableReason ?? t('text.unavailable'))
+          : t('action.add_to_basket')
       "
-      :icon="product?.meta?.available ? 'shopping-bag-02' : ''"
+      :icon="isUnavailable ? '' : 'shopping-bag-02'"
       size="lg"
       @click="doResolve"
     />
@@ -67,6 +65,9 @@ const { t } = useI18n();
 const layout = computed(() => {
   return props?.template;
 });
+
+// `=== false` so undefined `meta.available` stays the safe "available" default
+const isUnavailable = computed(() => props.product?.meta?.available === false);
 
 const styles = useStyles(["product"], { layout }, config);
 

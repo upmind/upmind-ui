@@ -3,7 +3,7 @@
     <div :class="styles.product.content">
       <div v-if="!configMeta.hideImage" :class="styles.product.image.container">
         <Link
-          v-if="navigate && meta?.available"
+          v-if="navigate && !isUnavailable"
           :to="productRoute"
           :disabled="loading || disabled"
           @click="doResolve"
@@ -29,7 +29,7 @@
         />
 
         <Badge
-          v-if="!meta?.available"
+          v-if="isUnavailable"
           :class="styles.product.image.badge"
           :label="meta?.availableReason ?? t('text.unavailable')"
           variant="solid"
@@ -56,7 +56,7 @@
             @resolve="doResolve"
             :processing="loading"
             :title="productMeta.data.productName || props.productDetails.title"
-            :navigate="navigate && meta?.available"
+            :navigate="navigate && !isUnavailable"
             :hide-description="configMeta.hideDescription"
             :hide-image="configMeta.hideImage"
             :productMeta="productMeta"
@@ -98,7 +98,7 @@
               :color="color"
               size="lg"
               block
-              :disabled="loading || disabled || justAdded || !meta?.available"
+              :disabled="loading || disabled || justAdded || isUnavailable"
               @click="doResolve"
             />
           </Tooltip>
@@ -301,8 +301,11 @@ const styles = useStyles(
   config
 );
 
+// `=== false` so undefined `meta.available` stays the safe "available" default
+const isUnavailable = computed(() => props.meta?.available === false);
+
 const actionContent = computed(() => {
-  if (!props.meta?.available) {
+  if (isUnavailable.value) {
     return { label: props.meta?.availableReason ?? t("text.unavailable") };
   }
   if (justAdded.value) {
@@ -323,13 +326,13 @@ const actionContent = computed(() => {
 });
 
 const action = computed(() => {
-  if (!props.navigate || !props.meta?.available) return actionContent.value;
+  if (!props.navigate || isUnavailable.value) return actionContent.value;
   return merge({}, actionContent.value, { to: actionRoute.value });
 });
 
 function doResolve() {
   if (!props.id) return;
-  if (!props.meta?.available) return;
+  if (isUnavailable.value) return;
   clicked.value = true;
   emit("resolve", props.id);
 }
