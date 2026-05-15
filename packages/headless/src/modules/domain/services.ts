@@ -11,10 +11,9 @@ import {
 } from "../..";
 
 // --- utils
-import { compact, find, isEmpty, keyBy, map, omitBy, reject } from "lodash-es";
+import { compact, isEmpty, keyBy, map, omitBy, reject } from "lodash-es";
 import {
   applyDacTransferOverride,
-  buildAddToBasketModel,
   buildFallbackPricing,
   getDacTransferLabel,
   makePlaceholderProductDetails,
@@ -26,7 +25,6 @@ import {
 import { buildCommonMeta, pushDacEvent } from "./gtm";
 import { parsePromotionsOrCoupons } from "../basketProduct/utils";
 import { PAGINATION, SUGGESTIONS_PAGE_SIZE } from "../query";
-import productServices from "../basketProduct/services";
 import {
   calculateBillingTerm,
   parseProductDetails,
@@ -676,144 +674,6 @@ async function checkAvailability({
     });
 }
 
-/**
- * Adds a domain product to the basket via the real basket API.
- * On success → resolves with { can_register: true } so the machine knows it worked.
- * On error → checks for domain-specific error codes/messages from the API response.
- *
- * Error code detection:
- * The standard error pipeline (doFetch → handleError → DetailedError) strips the
- * string `error.code` from the API response, but preserves the `error.message`.
- * We check both the structured code (where available) and the message text to
- * detect domain-specific constraints:
- *   - "cannot be registered"  → web_hosting::domain_transfer_only
- *   - "cannot be transferred" → web_hosting::domain_register_only
- *   - "not for sale"          → web_hosting::domain_not_for_sale
- */
-async function addDomainToBasket(context: DacContext) {
-  const { checkingDomain, basketId, lookups, coupons, parseProductModel } =
-    context;
-
-  if (!checkingDomain)
-    return Promise.reject(
-      new DetailedError(
-        "No domain specified",
-        responseCodes.Unprocessable_Entity,
-        ErrorOrigin.Headless
-      )
-    );
-
-  // Find the product from search results and build the basket model
-  const product = find(lookups?.searched ?? [], ["domain", checkingDomain]) as
-    | DomainProduct
-    | undefined;
-
-  const model = buildAddToBasketModel(product, parseProductModel, coupons);
-
-  if (!model)
-    return Promise.reject(
-      new DetailedError(
-        "Product model not found for domain",
-        responseCodes.Unprocessable_Entity,
-        ErrorOrigin.Headless
-      )
-    );
-
-  try {
-    // productServices.update handles missing basketId by generating a new basket
-    await productServices.update(basketId, model);
-
-    // Basket add succeeded → domain is available and now in basket
-    return { can_register: true, can_transfer: false };
-  } catch (error: any) {
-    const status = error?.code ?? error?.status ?? error?.response?.status;
-    const errorData = error?.data ?? error?.response?.data;
-
-    // Try to extract the domain-specific error code. Prefer `apiCode` —
-    // `handleError` preserves the API's structured `error.code` there
-    // (e.g. `"web_hosting::domain_register_only"`). The other paths cover
-    // edge cases where the error didn't go through the standard pipeline.
-    const errorCode =
-      error?.apiCode ??
-      errorData?.error?.code ??
-      error?.error?.code ??
-      error?.response?.data?.error?.code ??
-      "";
-
-    // 1. Check structured error code if available
-    if (
-      errorCode === "web_hosting::domain_register_only" ||
-      errorCode === "web_hosting::domain_transfer_only" ||
-      errorCode === "web_hosting::domain_not_for_sale"
-    ) {
-      return {
-        can_register: errorCode === "web_hosting::domain_register_only",
-        can_transfer: errorCode === "web_hosting::domain_transfer_only",
-        error_code: errorCode
-      };
-    }
-
-    // 2. Fallback: check the error message for known domain error patterns.
-    //    handleError preserves the API's error.message in DetailedError.message,
-    //    so this is a reliable way to detect domain-specific errors even when
-    //    the error code string has been stripped from the error object.
-    const errorMessage = (error?.message ?? "").toLowerCase();
-
-    if (errorMessage.includes("cannot be registered")) {
-      return {
-        can_register: false,
-        can_transfer: true,
-        error_code: "web_hosting::domain_transfer_only"
-      };
-    }
-    if (errorMessage.includes("cannot be transferred")) {
-      return {
-        can_register: true,
-        can_transfer: false,
-        error_code: "web_hosting::domain_register_only"
-      };
-    }
-    if (
-      errorMessage.includes("not for sale") ||
-      errorMessage.includes("not available")
-    ) {
-      return {
-        can_register: false,
-        can_transfer: false,
-        error_code: "web_hosting::domain_not_for_sale"
-      };
-    }
-
-    // 409 = conflict — only treat as a register/transfer flip if the API
-    // actually returned can_register / can_transfer in the response data.
-    // If errorData is empty/null the 409 is likely a domain-specific error
-    // whose error code was stripped by the error pipeline.
-    if (
-      status === 409 &&
-      errorData &&
-      ("can_register" in errorData || "can_transfer" in errorData)
-    ) {
-      return {
-        can_register: errorData.can_register ?? false,
-        can_transfer: errorData.can_transfer ?? false,
-        conflict: true
-      };
-    }
-
-    // 409 without can_register/can_transfer → treat as not-for-sale
-    if (status === 409) {
-      return {
-        can_register: false,
-        can_transfer: false,
-        error_code: "web_hosting::domain_not_for_sale"
-      };
-    }
-
-    // Other errors → reject so the machine goes to error state
-    throw error;
-  }
-}
-
 async function getClientDomains(_context: DomainContext | DacContext) {
   const { get, useUrl } = useQuery();
   const { meta } = useSession();
@@ -931,6 +791,5 @@ export default {
   search,
   legacySearch,
   checkAvailability,
-  addDomainToBasket,
   getClientDomains
 };

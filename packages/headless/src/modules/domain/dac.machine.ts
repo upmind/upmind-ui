@@ -192,115 +192,6 @@ export default createMachine(
 
       error: {},
 
-      checking: {
-        entry: ["clearError"],
-        invoke: {
-          src: "addDomainToBasket",
-          // Order matters: error-code conditions are checked BEFORE the
-          // generic `isDomainAvailable`. The error-only register/transfer
-          // returns share the same `can_register`/`can_transfer` shape as
-          // the success case (with an extra `error_code`), so without this
-          // ordering `isDomainAvailable` would short-circuit and the row
-          // would never flip.
-          onDone: [
-            {
-              // 409 conflict — flip domain type (register↔transfer)
-              // Keep checkedAvailability=false so next click retries addDomainToBasket
-              target: "invalid",
-              actions: ["clearCheckingProcessing", "flipDomainType"],
-              cond: "isConflict"
-            },
-            {
-              // web_hosting::domain_register_only — tried to transfer but domain
-              // can only be registered → convert row to register so user can click and register
-              target: "invalid",
-              actions: [
-                "clearCheckingProcessing",
-                "removeCheckingDomain",
-                "setRegisterable"
-              ],
-              cond: "isDomainRegisterOnly"
-            },
-            {
-              // web_hosting::domain_transfer_only — tried to register but domain
-              // can only be transferred → convert row to transfer so user can click and transfer
-              target: "invalid",
-              actions: [
-                "clearCheckingProcessing",
-                "removeCheckingDomain",
-                "setTransferable"
-              ],
-              cond: "isDomainTransferOnly"
-            },
-            {
-              // web_hosting::domain_not_for_sale — domain is not available at all
-              target: "invalid",
-              actions: [
-                "clearCheckingProcessing",
-                "removeCheckingDomain",
-                "setFullyUnavailable"
-              ],
-              cond: "isDomainNotForSale"
-            },
-            {
-              // addDomainToBasket already added the product to the basket
-              // via the API — keep processing=true until the basket subscription
-              // confirms the add (setBasketProducts will clear processing)
-              target: "valid",
-              cond: "isDomainAvailable"
-            },
-            {
-              // can_register=false BUT can_transfer=true → convert row to transfer
-              target: "invalid",
-              actions: [
-                "clearCheckingProcessing",
-                "removeCheckingDomain",
-                "setTransferable"
-              ],
-              cond: "isDomainTransferable"
-            },
-            {
-              // can_register=false AND can_transfer=false → fully unavailable
-              target: "invalid",
-              actions: [
-                "clearCheckingProcessing",
-                "removeCheckingDomain",
-                "setFullyUnavailable"
-              ]
-            }
-          ],
-          onError: [
-            {
-              target: "invalid",
-              actions: [
-                "clearCheckingProcessing",
-                "removeCheckingDomain",
-                "setError",
-                "setFeedbackError"
-              ],
-              cond: "isNotCancelled"
-            },
-            {
-              actions: [
-                "clearCheckingProcessing",
-                "removeCheckingDomain",
-                "setError"
-              ]
-            }
-          ]
-        },
-        on: {
-          // Allow adding other domains while one is being checked —
-          // fire-and-forget via basket helper so requests run in parallel
-          ADD: [
-            {
-              actions: ["add", "setProcessing", "addToBasket"],
-              cond: "isValidDomain"
-            }
-          ]
-        }
-      },
-
       complete: {
         type: "final",
         data: ({ model, lookups }: DacContext) => {
@@ -335,11 +226,9 @@ export default createMachine(
         actions: ["clearProcessing", "remove"]
       },
 
-      // When `addToBasket` (basketHelper path, used for parallel domain
-      // adds while another is in `checking`) fails with a domain-specific
-      // API error code, flip the row in place — same behaviour as the
-      // `checking → addDomainToBasket → onDone` flow. Otherwise fall back
-      // to the generic error/feedback handling.
+      // When `addToBasket` (basketHelper path) fails with a domain-specific
+      // API error code, flip the row in place. Otherwise fall back to the
+      // generic error/feedback handling.
       ERROR: [
         {
           actions: ["flipDomainOnAddError"],
@@ -969,16 +858,13 @@ export default createMachine(
         }
       }),
 
-      setFeedbackError: (
-        { error, lookups, checkingDomain }: DacContext,
-        { data, sourceContext }
-      ) => {
+      setFeedbackError: ({ lookups }: DacContext, { data, sourceContext }) => {
         const { t } = useI18n();
 
-        // Try to find domain by productId + sld from basket helper's
-        // sourceContext. Sibling .com domains share the same productId so
-        // we must also match the SLD to identify the right row.
-        let domainProduct = find(lookups.searched, (item: DomainProduct) => {
+        // Find domain by productId + sld from basket helper's sourceContext.
+        // Sibling .com domains share the same productId so we also match the
+        // SLD to identify the right row.
+        const domainProduct = find(lookups.searched, (item: DomainProduct) => {
           const sameProductId =
             item.productDetails?.id ===
             (sourceContext as ProductProps)?.productId;
@@ -988,19 +874,11 @@ export default createMachine(
           return sameProductId && sameSld;
         }) as DomainProduct | undefined;
 
-        // Fallback: when called from the checking state's onError,
-        // sourceContext is undefined — use checkingDomain from context instead
-        if (!domainProduct && checkingDomain) {
-          domainProduct = find(lookups.searched, ["domain", checkingDomain]) as
-            | DomainProduct
-            | undefined;
-        }
-
         if (!data) return;
 
         useFeedback().addError({
           title: t("error.domain_add_failed"),
-          copy: domainProduct?.domain ?? checkingDomain ?? ""
+          copy: domainProduct?.domain ?? ""
         });
       },
 
@@ -1035,206 +913,11 @@ export default createMachine(
 
       clearError: assign({ error: undefined }),
 
-      setCheckingDomain: assign({
-        checkingDomain: (_context: DacContext, { data }: AnyEventObject) => {
-          const parsed = parseDomain(data);
-          return parsed?.domain ?? data;
-        }
-      }),
-
-      clearCheckingProcessing: assign({
-        lookups: ({ lookups, checkingDomain }: DacContext) => {
-          const product = find(lookups.searched, [
-            "domain",
-            checkingDomain
-          ]) as DomainProduct;
-          if (product) product.meta.processing = false;
-          return lookups;
-        }
-      }),
-
-      removeCheckingDomain: assign({
-        model: ({ model, checkingDomain }: DacContext) =>
-          reject(model, ["domain", checkingDomain])
-      }),
-
-      // --- Availability fallback actions ---
-
-      setRegisterable: assign({
-        lookups: ({ lookups, checkingDomain }: DacContext) => {
-          const { t } = useI18n();
-          const product = find(lookups.searched, [
-            "domain",
-            checkingDomain
-          ]) as DomainProduct;
-
-          if (product) {
-            product.meta.available = true;
-            product.meta.canTransfer = false;
-            product.meta.checkedAvailability = true;
-            product.meta.processing = false;
-
-            // Rebuild configuration with register sub_pids from setup_function_sub_ids
-            if (product.rawProduct) {
-              const setupSubIds = product.rawProduct.setup_function_sub_ids;
-              const subproducts: string[] = compact(
-                setupSubIds?.register ?? [product.rawProduct.sub_product_id]
-              );
-              product.configuration = parseProductProps(
-                {
-                  productId: product.rawProduct.id,
-                  quantity: product.rawProduct.unit_quantity,
-                  subproducts,
-                  provisionFields: product.configuration?.provisionFields ?? {}
-                },
-                product.rawProduct
-              );
-            }
-          }
-
-          useFeedback().addError({
-            title: t("error.domain_transfer_unavailable"),
-            copy: checkingDomain ?? ""
-          });
-
-          return lookups;
-        }
-      }),
-
-      setTransferable: assign({
-        lookups: ({ lookups, checkingDomain }: DacContext) => {
-          const { t } = useI18n();
-          const product = find(lookups.searched, [
-            "domain",
-            checkingDomain
-          ]) as DomainProduct;
-
-          if (product) {
-            product.meta.available = false;
-            product.meta.canTransfer = true;
-            product.meta.checkedAvailability = true;
-            product.meta.processing = false;
-
-            // Rebuild configuration with transfer sub_pids from setup_function_sub_ids
-            if (product.rawProduct) {
-              const setupSubIds = product.rawProduct.setup_function_sub_ids;
-              const subproducts: string[] = compact(
-                setupSubIds?.transfer ?? [product.rawProduct.sub_product_id]
-              );
-              product.configuration = parseProductProps(
-                {
-                  productId: product.rawProduct.id,
-                  quantity: product.rawProduct.unit_quantity,
-                  subproducts,
-                  provisionFields: product.configuration?.provisionFields ?? {}
-                },
-                product.rawProduct
-              );
-            }
-          }
-
-          useFeedback().addError({
-            title: t("error.domain_register_unavailable"),
-            copy: checkingDomain ?? ""
-          });
-
-          return lookups;
-        }
-      }),
-
-      setFullyUnavailable: assign({
-        lookups: ({ lookups, checkingDomain }: DacContext) => {
-          const { t } = useI18n();
-          const product = find(lookups.searched, [
-            "domain",
-            checkingDomain
-          ]) as DomainProduct;
-
-          if (product) {
-            product.meta.available = false;
-            product.meta.unavailable = true;
-            product.meta.disabled = true;
-            product.meta.checkedAvailability = true;
-            product.meta.processing = false;
-          }
-
-          useFeedback().addError({
-            title: t("error.domain_unavailable"),
-            copy: checkingDomain ?? ""
-          });
-
-          return lookups;
-        }
-      }),
-
-      // 409 conflict: flip the domain type (register↔transfer)
-      // Does NOT set checkedAvailability so the next click goes through
-      // addDomainToBasket again instead of skipping to addToBasket.
-      // Rebuilds the configuration with the new mode's sub_pids — without
-      // this, the next click would still send the OLD mode's sub_pids and
-      // hit the same 409 forever.
-      flipDomainType: assign({
-        lookups: (
-          { lookups, checkingDomain }: DacContext,
-          { data }: AnyEventObject
-        ) => {
-          const { t } = useI18n();
-          const product = find(lookups.searched, [
-            "domain",
-            checkingDomain
-          ]) as DomainProduct;
-
-          if (product) {
-            product.meta.available = data?.can_register ?? false;
-            product.meta.canTransfer = data?.can_transfer ?? false;
-            product.meta.unavailable = false;
-            product.meta.disabled = false;
-            product.meta.checkedAvailability = false;
-            product.meta.processing = false;
-
-            // Rebuild configuration with the new mode's sub_pids.
-            if (product.rawProduct) {
-              const setupSubIds = product.rawProduct.setup_function_sub_ids;
-              const mode: "register" | "transfer" = data?.can_register
-                ? "register"
-                : "transfer";
-              const subproducts: string[] = compact(
-                setupSubIds?.[mode] ?? [product.rawProduct.sub_product_id]
-              );
-              product.configuration = parseProductProps(
-                {
-                  productId: product.rawProduct.id,
-                  quantity: product.rawProduct.unit_quantity,
-                  subproducts,
-                  provisionFields: product.configuration?.provisionFields ?? {}
-                },
-                product.rawProduct
-              );
-            }
-          }
-
-          // Notify user: domain type was flipped (e.g. register → transfer)
-          const errorKey = data?.can_transfer
-            ? "error.domain_register_unavailable"
-            : "error.domain_transfer_unavailable";
-
-          useFeedback().addError({
-            title: t(errorKey),
-            copy: checkingDomain ?? ""
-          });
-
-          return lookups;
-        }
-      }),
-
-      // Fired when a basketHelper-routed Add (used for parallel domain adds
-      // while another is still in `checking`) returns a domain-specific API
+      // Fired when a basketHelper-routed Add returns a domain-specific API
       // error code. Finds the row by `sourceContext.productId` +
-      // `provisionFields.sld` (NOT by `checkingDomain` — that one belongs
-      // to the row currently in the `checking` invocation, not this one)
-      // and flips it in place. Mirrors the inline flips
-      // setRegisterable / setTransferable / setFullyUnavailable but works
-      // for any row, not just `checkingDomain`.
+      // `provisionFields.sld` (sibling .com domains share the same productId
+      // so we also match the SLD to identify the right row) and flips it in
+      // place to match what the API reports.
       flipDomainOnAddError: assign({
         lookups: (
           { lookups }: DacContext,
@@ -1466,10 +1149,10 @@ export default createMachine(
 
       // Guards sanitise the raw input before validating so that user input
       // like `.upmind.com` (leading dot) or `https://upmind.com/page` is
-      // treated the same way `setSearchQuery` / `setCheckingDomain` will
-      // store it. Without this, the guard rejects but the assign action
-      // still sanitises — the query ends up in context with no transition,
-      // and the search call never fires.
+      // treated the same way `setSearchQuery` will store it. Without this,
+      // the guard rejects but the assign action still sanitises — the query
+      // ends up in context with no transition, and the search call never
+      // fires.
       isValidDomain: (_context, { data }: AnyEventObject) =>
         !isEmpty(parseDomain(sanitiseDomainInput(data ?? ""))),
 
@@ -1516,12 +1199,6 @@ export default createMachine(
       isNotCancelled: (_context, { data }: AnyEventObject) =>
         data?.name !== "AbortError",
 
-      isDomainAvailable: (_context, { data }: AnyEventObject) =>
-        data?.can_register === true,
-
-      isDomainTransferable: (_context, { data }: AnyEventObject) =>
-        data?.can_register === false && data?.can_transfer === true,
-
       isAlreadyChecked: ({ lookups }: DacContext, { data }: AnyEventObject) => {
         const domain = parseDomain(data);
         if (!domain) return false;
@@ -1531,18 +1208,6 @@ export default createMachine(
         ]) as DomainProduct;
         return !!product?.meta?.checkedAvailability;
       },
-
-      isConflict: (_context: DacContext, { data }: AnyEventObject) =>
-        data?.conflict === true,
-
-      isDomainRegisterOnly: (_context: DacContext, { data }: AnyEventObject) =>
-        data?.error_code === "web_hosting::domain_register_only",
-
-      isDomainTransferOnly: (_context: DacContext, { data }: AnyEventObject) =>
-        data?.error_code === "web_hosting::domain_transfer_only",
-
-      isDomainNotForSale: (_context: DacContext, { data }: AnyEventObject) =>
-        data?.error_code === "web_hosting::domain_not_for_sale",
 
       // --- VERIFY_RESULT guards (pre-flight availability check)
       //
