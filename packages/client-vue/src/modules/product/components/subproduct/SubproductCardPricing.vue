@@ -4,7 +4,7 @@
       :regular-price="props.price?.regularPrice ?? ''"
       :monthly-from-regular-price="props.price?.monthlyFromRegularPrice ?? ''"
       :discounted="props.meta?.discounted ?? false"
-      :overridden="props.meta?.overridden"
+      :custom="props.meta?.custom"
       :ui-config="{
         pricing: { ex: [styles.card.pricing.ex] }
       }"

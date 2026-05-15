@@ -27,6 +27,7 @@ import {
   reduce,
   set
 } from "lodash-es";
+import { hasProductChanges, preserveProvisionFields } from "./utils";
 
 // --- types
 import {
@@ -41,116 +42,100 @@ import type { AnyEventObject } from "xstate";
 
 // -----------------------------------------------------------------------------
 
+const withRelations = [
+  "address",
+  "address.country",
+  "currency",
+  "custom_fields.field",
+  "promotions",
+  "taxes",
+  "taxes.tax_tag_data",
+  "client",
+  "products.product.image",
+  "products.product.images",
+  "products.product.prices",
+  "products.product.products_attributes",
+  "products.product.products_attributes.category",
+  "products.product.products_options",
+  "products.product.products_options.category",
+  "products.product.products_options.prices",
+  "products.product.provision_blueprint.category",
+  "products.product.provision_field_values",
+  "products.product.related",
+  "products.product.category",
+  `products.product.category${".".concat("top_category").repeat(4)}`
+];
+
+// -----------------------------------------------------------------------------
+
+async function fetchBasket(context: BasketContext): Promise<IBasket> {
+  const { get: httpGet, useUrl } = useQuery();
+  const { isReady } = useBrand();
+  await isReady();
+
+  const endpoint = context.targetBasketId
+    ? `orders/${context.targetBasketId}`
+    : "orders/current";
+
+  return httpGet<IBasket>({
+    url: useUrl(endpoint, { with: withRelations.join() }),
+    queryKey: ["basket", context.targetBasketId ?? "current"],
+    staleTime: 0,
+    gcTime: 0,
+    withAccessToken: true
+  }).catch(async (error: any) => {
+    if (context.targetBasketId) {
+      return Promise.reject({
+        targetBasketInvalid: true,
+        originalError: error
+      });
+    }
+    return Promise.reject(error);
+  });
+}
+
+// -----------------------------------------------------------------------------
+
+// Transfers a guest's basket ownership to a freshly-authenticated client.
+// Called from both `load` and `refresh` — refresh is invoked after the
+// session emits AUTHENTICATED, so the claim must run there too, otherwise
+// `orders/current` returns a client-scoped basket with no `client_id` set
+// against the guest's products and downstream actors (billing, paymentDetail)
+// never spawn.
+async function claimBasket(): Promise<void> {
+  const client_token = getTokenFromStorage(Contexts.CLIENT);
+  const guest_token = getTokenFromStorage(Contexts.GUEST);
+
+  if (!client_token || !guest_token) return;
+
+  const { patch, useUrl } = useQuery();
+
+  return patch({
+    mutationKey: ["basket", "claim"],
+    url: useUrl("orders/claim"),
+    withAccessToken: true,
+    data: {
+      guest_token: guest_token.access_token
+    }
+  }).then(() => {
+    // Only dump the guest token on success so we can retry the claim if it fails.
+    dumpTokenFromStorage(Contexts.GUEST);
+  });
+}
+
+// -----------------------------------------------------------------------------
+
 async function load(context: BasketContext, _event: AnyEventObject) {
-  const { get, patch, useUrl } = useQuery();
   const { ensureConfig } = useBrand();
 
   // NB ensure we get this in order to be able to use in basket machine actions
   ensureConfig([BrandConfigKeys.REQUIRE_PAYMENT_METHOD_FOR_FREE_ORDERS]);
 
-  // check if we are logged in as a client
-  // then try to get any previous guest token a
-  const client_token = getTokenFromStorage(Contexts.CLIENT);
-  const guest_token = getTokenFromStorage(Contexts.GUEST);
+  await claimBasket();
 
-  // if we are a client AND we have a guest token, we need to claim the basket
-  if (client_token && guest_token) {
-    await patch({
-      mutationKey: ["basket", "claim"],
-      url: useUrl("orders/claim"),
-      withAccessToken: true,
-      data: {
-        guest_token: guest_token.access_token
-      }
-    }).then(() => {
-      // because we have successfully claimed the basket, we can dump the guest token
-      // we only do it here, as we may need to claim the basket again if something went wrong
-      dumpTokenFromStorage(Contexts.GUEST);
-    });
-  }
-
-  // We depend on the brand being ready, so we need to wait for it
-  const { isReady } = useBrand();
-  await isReady();
-
-  // Determine the basket endpoint:
-  // - If a targetBasketId is provided, load that specific basket via `orders/{id}`
-  // - Otherwise, fall back to `orders/current`
-  const basketEndpoint = context.targetBasketId
-    ? `orders/${context.targetBasketId}`
-    : "orders/current";
-
-  const withRelations = [
-    "address",
-    "address.country",
-    "currency",
-    "custom_fields.field",
-    "promotions",
-    "taxes",
-    "taxes.tax_tag_data",
-    "client",
-    // "account.brand.image",
-    // "account.pricelist",
-    // "brand.image",
-    // "client.image",
-    // "contract",
-    // "payments",
-    "products.product.image",
-    "products.product.images",
-    "products.product.prices",
-    "products.product.products_attributes",
-    "products.product.products_attributes.category",
-    "products.product.products_options",
-    "products.product.products_options.category",
-    "products.product.products_options.prices",
-    "products.product.provision_blueprint.category",
-    "products.product.provision_field_values",
-    // "products.tags",
-    "products.product.related",
-    // "status",
-    "products.product.category",
-    `products.product.category${".top_category".repeat(4)}`
-  ];
-
-  // finally return a basket with all the relevant data, include the provisioning fields
-  // NB  we DON'T cache the current basket as it can change frequently, and it is the source of truth
-  // for the current state of the basket
-  return get<IBasket>({
-    url: useUrl(basketEndpoint, { with: withRelations.join() }),
-    queryKey: ["basket", context.targetBasketId ?? "current"],
-    staleTime: 0, // disable cache, this may still return stale data while the request is in flight
-    gcTime: 0, // force cache to be cleared immediately, to prevent stale data
-    withAccessToken: true
-    //revalidateIfStale: true,
-  })
-    .then((basket: IBasket) => {
-      if (isEmpty(basket)) return { basket: context.basket }; // NB ensure we persist any prev basket
-      return getProvisioningFieldsValues(basket);
-    })
-    .catch(async (error: any) => {
-      // If loading a specific basket fails (404, expired, or completed basket),
-      // reject with a flag so the machine can clear targetBasketId and retry with orders/current
-      if (context.targetBasketId) {
-        return Promise.reject({
-          targetBasketInvalid: true,
-          originalError: error
-        });
-      }
-      return Promise.reject(error);
-    });
-}
-
-async function dismissWarningNotes(
-  { basket }: BasketContext,
-  { data }: AnyEventObject
-) {
-  const { put, useUrl } = useQuery();
-
-  return put({
-    mutationKey: ["basket", basket?.id, "warnings"],
-    url: useUrl(`/orders/${basket?.id}/warnings/hide`),
-    data: { ids: [data] },
-    withAccessToken: true
+  return fetchBasket(context).then((basket: IBasket) => {
+    if (isEmpty(basket)) return { basket: context.basket as IBasket };
+    return getProvisioningFieldsValues(basket);
   });
 }
 
@@ -269,12 +254,61 @@ async function getProvisioningFieldsValues(basket: IBasket) {
       };
     });
 }
+
+async function dismissWarningNote(
+  { basket }: BasketContext,
+  { data }: AnyEventObject
+) {
+  const { put, useUrl } = useQuery();
+
+  return put({
+    mutationKey: ["basket", basket?.id, "warnings"],
+    url: useUrl(`/orders/${basket?.id}/warnings/hide`),
+    data: { ids: [data] },
+    withAccessToken: true
+  });
+}
+
+async function dismissWarningNotes(
+  { basket }: BasketContext,
+  { data }: AnyEventObject
+) {
+  const { put, useUrl } = useQuery();
+
+  return put({
+    mutationKey: ["basket", basket?.id, "warnings", "dismiss-all"],
+    url: useUrl(`/orders/${basket?.id}/warnings/hide`),
+    data: { ids: data },
+    withAccessToken: true
+  });
+}
+
+// -----------------------------------------------------------------------------
+
+async function refresh(context: BasketContext, _event: AnyEventObject) {
+  await claimBasket();
+
+  return fetchBasket(context).then((newBasket: IBasket) => {
+    if (isEmpty(newBasket)) return { basket: context.basket as IBasket };
+
+    // Only re-fetch provision fields if products have changed
+    if (hasProductChanges(context.basket, newBasket)) {
+      return getProvisioningFieldsValues(newBasket);
+    }
+
+    // Preserve existing provision field data and errors from old basket
+    preserveProvisionFields(context.basket, newBasket);
+    return { basket: newBasket, errors: context.error };
+  });
+}
+
 // -----------------------------------------------------------------------------
 
 export default {
   load,
-  dismissWarningNotes,
-  refresh: load,
+  refresh,
   convert,
+  dismissWarningNote,
+  dismissWarningNotes,
   isAuthenticated: () => useSession().isAuthenticated()
 };

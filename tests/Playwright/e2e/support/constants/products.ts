@@ -47,5 +47,21 @@ export const products = {
     billingCycle: 12,
     gbpPrice: "£12.00",
     type: "domain"
+  },
+  HAT: {
+    /** Single price, no terms, no options/attributes, no provision fields. */
+    id: "47d73824-8507-9315-9e0b-81e642d59e06",
+    name: "Hat (Non-Configurable Product)",
+    billingCycle: 1,
+    gbpPrice: "£10.00",
+    type: "apparel"
+  },
+  TSHIRT: {
+    /** Has options or attributes — must navigate to configure regardless. */
+    id: "5952098d-3de4-0917-250b-31578626e347",
+    name: "T-Shirt",
+    billingCycle: 1,
+    gbpPrice: "£10.00",
+    type: "apparel"
   }
 };

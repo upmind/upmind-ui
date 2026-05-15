@@ -4,12 +4,18 @@
       {{ t("text.basket_total") }}
     </dt>
     <dd :class="styles.summary.item.description">
-      {{
-        formatPrice(summary?.total, {
-          zeroPriceDisplayIsLabel: ui.zeroPriceDisplay.isLabel,
-          trimTrailingZeroes: data.trimTrailingZeroes
-        })
-      }}
+      <Skeleton
+        v-if="meta.isPricesCalculating"
+        :class="styles.summary.item.skeleton"
+      />
+      <template v-else>
+        {{
+          formatPrice(summary?.total, {
+            zeroPriceDisplayIsLabel: ui.zeroPriceDisplay.isLabel,
+            trimTrailingZeroes: data.trimTrailingZeroes
+          })
+        }}
+      </template>
     </dd>
   </div>
 </template>
@@ -21,7 +27,7 @@ import { useI18n } from "vue-i18n";
 // --- internal
 import { useBasket, useConfig } from "@upmind-automation/headless";
 import { useMoney } from "@upmind-automation/headless";
-import { useStyles } from "@upmind-automation/upmind-ui";
+import { Skeleton, useStyles } from "@upmind-automation/upmind-ui";
 import config from "./summary.config";
 
 // --- types
@@ -36,7 +42,7 @@ const props = withDefaults(
 );
 
 const { t } = useI18n();
-const { summary } = useBasket();
+const { summary, meta } = useBasket();
 const { ui, data } = useConfig();
 const { formatPrice } = useMoney();
 

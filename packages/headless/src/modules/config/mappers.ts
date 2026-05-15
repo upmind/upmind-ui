@@ -22,6 +22,7 @@ import {
   type ScopeItems,
   type PropertyDefinition
 } from "./types";
+import { isConditionalValue } from "./config.conditions";
 
 /** Get value for a scope from input items */
 export function getScopeValue(
@@ -63,6 +64,10 @@ function getPropertyValue(
     const value = getScopeValue(scope, property, input);
     // Value validation - ensure value matches type definition, fallback to default if invalid
     if (!isNil(value) && value !== "") {
+      // If value is conditional, return raw - let proxy layer evaluate and normalize
+      if (isConditionalValue(value)) {
+        return value;
+      }
       return normalizeValue(value, definition.type) ?? definition.default;
     }
   }
@@ -118,7 +123,7 @@ export function isApplicable(
  *
  * e.g., "9-col" with valid ["2-col", "3-col", "4-col"] → "4-col"
  */
-function normalizeValue(
+export function normalizeValue(
   value: unknown,
   type?: Record<string, string>
 ): string | undefined {

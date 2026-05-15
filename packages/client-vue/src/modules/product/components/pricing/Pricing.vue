@@ -3,7 +3,7 @@
     :regular-price="props.regularPrice"
     :monthly-from-regular-price="props.monthlyFromRegularPrice"
     :discounted="props.discounted"
-    :overridden="props.overridden"
+    :custom="props.custom"
     :use-monthly-from-price="props.useMonthlyFromPrice"
     :ui-config="props.uiConfig"
   />
