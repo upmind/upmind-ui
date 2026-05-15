@@ -9,7 +9,11 @@ import { useBrand } from "../brand";
 import { calculateBillingTerm, parseProductProps } from "../product/utils";
 
 // --- utils
-import { parseProductDetails, parseTermDetails } from "../product/utils";
+import {
+  fillRequiredOptionDefaults,
+  parseProductDetails,
+  parseTermDetails
+} from "../product/utils";
 import {
   compact,
   filter,
@@ -18,6 +22,7 @@ import {
   get,
   has,
   isEmpty,
+  isFunction,
   isObject,
   map,
   sortBy,
@@ -35,7 +40,76 @@ import {
 } from "@upmind-automation/types";
 import type { BasketProduct } from "../basketProduct";
 import type { DomainProduct, DomainModel } from "./types";
-import { type ProductProps } from "../product";
+import { type ProductDetails, type ProductProps } from "../product";
+
+// ----------------------------------------------------------------------------
+
+/**
+ * Defaults for the required `ProductDetails` fields that placeholder /
+ * fallback domain rows don't carry (no full `IProduct` to parse from).
+ * Keeping the defaults in one place stops every literal from drifting on
+ * what counts as "minimum viable product details" for a placeholder row.
+ */
+export function makePlaceholderProductDetails(overrides: {
+  domain: string;
+  name?: string;
+  id?: string;
+}): ProductDetails {
+  return {
+    id: overrides.id ?? "",
+    title: overrides.domain,
+    name: overrides.name ?? "",
+    brand: "",
+    categoryId: "",
+    category: "",
+    cycle: 12,
+    quantifiable: false,
+    quantity: 1,
+    step: 1,
+    min: 1,
+    max: 1
+  };
+}
+
+// ----------------------------------------------------------------------------
+
+/**
+ * Builds the basket model used to add a domain product to the basket.
+ *
+ * Resolves the base model (from a custom parser or the product's stored
+ * `configuration`), auto-fills any *required* option/attribute categories
+ * the model hasn't already specified, then applies `coupons` and the
+ * `silent` flag so the basket API accepts the add request.
+ *
+ * Both `addDomainToBasket` (services.ts) and the dac machine's
+ * `addToBasket` fast-path action route through this so the required-options
+ * fix stays in one place — a new add-to-basket path won't silently
+ * regress 422s from missing required groups.
+ *
+ * Returns `null` if no base model can be resolved.
+ */
+export function buildAddToBasketModel(
+  product: DomainProduct | undefined,
+  parseProductModel:
+    | ((item: DomainProduct) => ProductProps | undefined)
+    | undefined,
+  coupons: string[] | undefined
+): ProductProps | null {
+  const baseModel = isFunction(parseProductModel)
+    ? parseProductModel(product!)
+    : product?.configuration;
+
+  if (!baseModel) return null;
+
+  const model = fillRequiredOptionDefaults(baseModel, product?.rawProduct);
+  model.coupons = coupons ?? model.coupons ?? [];
+  model.silent = true;
+  return model;
+}
+
+// ----------------------------------------------------------------------------
+
+export { mergeDomainSearchResults } from "./mergeDomainSearchResults";
 
 // ----------------------------------------------------------------------------
 
@@ -132,8 +206,7 @@ export function sanitiseDomainInput(value: string): string {
     .replace(/^w{3}\./i, "") // remove www.
     .replace(/[:\/?#].*$/, "") // remove port, path, query, fragment
     .replace(/[^a-z0-9\-\.]/gi, "") // remove invalid chars
-    .replace(/^[\.\-]+/, "") // remove leading dots and hyphens
-    .replace(/[\.\-]+$/, "") // remove trailing dots and hyphens
+    .replace(/^[\.\-]+|[\.\-]+$/g, "") // strip leading + trailing dots/hyphens
     .replace(/-+\./g, ".") // strip trailing hyphens before dots (SLD)
     .replace(/\.-+/g, ".") // strip leading hyphens after dots (TLD)
     .replace(/\.{2,}/g, ".") // collapse consecutive dots
@@ -375,14 +448,14 @@ export function parseSuggestions(
         transferLabel,
         priceLoading: !product
       },
-      productDetails: {
+      productDetails: makePlaceholderProductDetails({
         id: product_id,
-        title: fullDomain,
+        domain: fullDomain,
         name: product?.name ?? `.${tld}`
-      },
+      }),
       pricing: [],
       details: []
-    } as unknown as DomainProduct;
+    };
   });
 
   return compact(uniqBy(available, "domain"));

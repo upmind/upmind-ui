@@ -6,9 +6,9 @@ import { useActor } from "@xstate/vue";
 
 // --- internal
 import { useI18n } from "../system";
-import { useBrand } from "../brand";
 import { QUERY_PARAMS, useQueryParams } from "../routing";
 import domainMachine from "./domain.machine";
+import { useDomainSearchMethod } from "./useDomainSearchMethod";
 
 // --- utils
 import {
@@ -35,7 +35,6 @@ import { parseDomain, sanitiseDomainInput } from "./utils";
 // --- types
 import { DomainTypes, type DomainContext, type DomainProduct } from "./types";
 import { PAGINATION } from "../query";
-import { BrandConfigKeys, DomainSearchMethod } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 
@@ -59,29 +58,34 @@ export const useDomain = (
 ) => {
   const { t } = useI18n();
   const { getParam, setParam, unsetParam } = useQueryParams();
-  const { getConfigValue } = useBrand();
 
   // safety check to ensure forcedType is valid
   const safeType =
     options?.type && has(DomainTypes, options.type) ? options.type : undefined;
 
-  // Determine search flow from brand setting, fallback to legacy lookup.
-  // Threaded into the parent context so `domain.machine` can pass it down
-  // to the dac child actor — without this, the child defaults to legacy
-  // and the new /suggestions + /suggestions/tlds flow never fires.
-  const searchMethod =
-    getConfigValue<DomainSearchMethod>(BrandConfigKeys.DOMAIN_SEARCH_METHOD) ??
-    DomainSearchMethod.LEGACY_LOOKUP;
-  const useSuggestions = searchMethod === DomainSearchMethod.SMART_SUGGEST;
+  // Determine search flow from brand setting. Threaded into the parent
+  // context so `domain.machine` can pass it down to the dac child actor —
+  // without this, the child defaults to legacy and the new /suggestions
+  // + /suggestions/tlds flow never fires.
+  const { useSuggestions } = useDomainSearchMethod();
 
   const service = interpret(
     domainMachine.withContext({
       type: safeType,
-      choices: safeType,
+      // `choices` is the *array* of available {@link DomainTypes} the user
+      // can pick between — when the parent forces a single type, narrow to
+      // that one; otherwise let `setContext` fill all types as the default.
+      choices: safeType ? [safeType] : [],
       model: parseDomain(value),
       preferredCycle: getParam(QUERY_PARAMS.BILLING_CYCLE_MONTHS),
       coupons: getParam(QUERY_PARAMS.COUPONS),
       useSuggestions,
+      // `setContext` + `setBasketHelper` overwrite these on entry, but
+      // `withContext` requires the full `DomainContext` shape — keeping
+      // the placeholders explicit avoids an `as any` cast.
+      lookups: { owned: [], basket: [] },
+      parseBasketProduct: () => undefined,
+      parseProductModel: () => undefined,
       search: {
         // Sanitise the URL-seeded query so the dac machine + search service
         // see the same shape they would for a runtime SEARCH event.
@@ -89,7 +93,7 @@ export const useDomain = (
         limit: PAGINATION.limit,
         offset: PAGINATION.offset
       }
-    } as any),
+    }),
     { devTools: true }
   );
 

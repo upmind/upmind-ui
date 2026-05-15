@@ -6,21 +6,21 @@ import services from "./services";
 import { basketSubscription } from "../basketProduct/helper";
 import { authSubscription } from "../session/helper";
 import { domainAvailabilityHelper } from "./helper";
+import { buildCommonMeta, pushDacEvent } from "./gtm";
 import { useFeedback } from "../feedback";
 
 // --- utils
 import { mapToHeadlessError, useTime } from "../../utils";
 import {
+  buildAddToBasketModel,
+  mergeDomainSearchResults,
   parseDomain,
   parseValue,
   parseSld,
   isDomainProduct,
   sanitiseDomainInput
 } from "./utils";
-import {
-  fillRequiredOptionDefaults,
-  parseProductProps
-} from "../product/utils";
+import { parseProductProps } from "../product/utils";
 import {
   compact,
   concat,
@@ -31,7 +31,6 @@ import {
   first,
   has,
   isEmpty,
-  isFunction,
   isObject,
   map,
   reduce,
@@ -359,25 +358,30 @@ export default createMachine(
       // can be processed independently.
       VERIFY_RESULT: [
         {
-          actions: ["markRowUnavailable"],
+          actions: ["pushVerifyResultEvent", "markRowUnavailable"],
           cond: "isAvailabilityFullyUnavailable"
         },
         {
-          actions: ["flipRowToTransfer"],
+          actions: ["pushVerifyResultEvent", "flipRowToTransfer"],
           cond: "shouldFlipRowToTransfer"
         },
         {
-          actions: ["flipRowToRegister"],
+          actions: ["pushVerifyResultEvent", "flipRowToRegister"],
           cond: "shouldFlipRowToRegister"
         },
         {
           // Availability matches the row mode → proceed with add to basket
-          actions: ["addToBasket"]
+          actions: ["pushVerifyResultEvent", "addToBasket"]
         }
       ],
 
       VERIFY_ERROR: {
-        actions: ["clearRowProcessing", "setError", "setVerifyFeedbackError"]
+        actions: [
+          "pushVerifyResultEvent",
+          "clearRowProcessing",
+          "setError",
+          "setVerifyFeedbackError"
+        ]
       },
 
       REMOVE: {
@@ -486,6 +490,24 @@ export default createMachine(
         const parsed = parseDomain(data);
         const domain = parsed?.domain ?? data;
         if (!domain) return;
+
+        // Push the pre-flight check event. The row's current meta tells us
+        // whether the user intended to register or transfer (the row may
+        // get flipped by the result handler — we capture intent here).
+        const product = find(context.lookups.searched, ["domain", domain]) as
+          | DomainProduct
+          | undefined;
+        const action: "register" | "transfer" =
+          product?.meta?.available === false && product?.meta?.canTransfer
+            ? "transfer"
+            : "register";
+        pushDacEvent("dac_availability_check", {
+          ...buildCommonMeta(context),
+          domain,
+          pid: product?.productDetails?.id ?? null,
+          action
+        });
+
         return sendTo(context.availabilityHelper, {
           type: "VERIFY",
           data: domain,
@@ -499,6 +521,31 @@ export default createMachine(
           }
         });
       }),
+
+      // Push `dac_availability_result` for any verify outcome (success or
+      // error). Reads the row's pre-flip meta so the `action` field
+      // reflects the user's original intent rather than the post-flip mode.
+      pushVerifyResultEvent: (
+        context: DacContext,
+        { data: domain, availability, error }: AnyEventObject
+      ) => {
+        const product = find(context.lookups.searched, ["domain", domain]) as
+          | DomainProduct
+          | undefined;
+        const action: "register" | "transfer" =
+          product?.meta?.available === false && product?.meta?.canTransfer
+            ? "transfer"
+            : "register";
+        pushDacEvent("dac_availability_result", {
+          ...buildCommonMeta(context),
+          domain,
+          pid: product?.productDetails?.id ?? null,
+          is_available: !!availability?.can_register,
+          can_transfer: !!availability?.can_transfer,
+          has_error: !!error,
+          action
+        });
+      },
 
       loadBasket: pure(({ basketHelper }: DacContext, _event) => {
         if (!basketHelper) return;
@@ -603,22 +650,38 @@ export default createMachine(
           data
         ]) as DomainProduct;
 
-        const baseModel = isFunction(context?.parseProductModel)
-          ? context.parseProductModel(product)
-          : product?.configuration;
+        const model = buildAddToBasketModel(
+          product,
+          context?.parseProductModel,
+          context.coupons
+        );
 
-        if (baseModel) {
-          // Auto-pick the first option for any required option/attribute
-          // category the model hasn't already filled (e.g. domain "Register"
-          // group, ID protection, nameservers). Mirrors the same step in
-          // addDomainToBasket so this fast-path (already-availability-checked
-          // domains going straight through the basket helper) doesn't 422.
-          const model = fillRequiredOptionDefaults(
-            baseModel,
-            product?.rawProduct
-          );
-          model.coupons = context.coupons ?? model.coupons ?? []; // NB ensure we pass any coupons from the context to the product being added
-          model.silent = true; // NB ensure we add silently so we don't trigger provision field validation at this stage
+        if (model) {
+          // Push `dac_add_to_basket` at the moment we commit to the basket
+          // call — i.e. *after* a successful verify (VERIFY_RESULT branch)
+          // or directly for already-checked exact-match rows that skip the
+          // verify. Mirrors the widget doc's sequence where this event
+          // follows `dac_availability_result` rather than the click itself.
+          const price = product?.price;
+          const action: "register" | "transfer" =
+            product?.meta?.available === false && product?.meta?.canTransfer
+              ? "transfer"
+              : "register";
+          pushDacEvent("dac_add_to_basket", {
+            ...buildCommonMeta(context),
+            domain: data,
+            pid: product?.productDetails?.id ?? null,
+            price_formatted: price?.regularPrice ?? null,
+            price_discounted_formatted: price?.currentPrice ?? null,
+            is_discounted:
+              !!price?.savingAmount && (price?.savingAmount as number) > 0,
+            percentage_saving: price?.savingPercent ?? null,
+            is_exact_match: !!product?.meta?.exactMatch,
+            billing_cycle_months: product?.configuration?.term ?? null,
+            currency_code: context.currency ?? null,
+            coupons: context.coupons ?? [],
+            action
+          });
 
           return sendTo(context.basketHelper, {
             type: "ADD_UPDATE",
@@ -831,40 +894,13 @@ export default createMachine(
             }
           );
 
-          // Merge by domain. Three scenarios drive this:
-          //   1. Within one search round, /suggestions emits priceLoading rows
-          //      and /suggestions/tlds re-emits the same rows priced — we
-          //      need to upgrade the row in-place.
-          //   2. /availability resolves after /suggestions and produces an
-          //      authoritative version of the exact-match row (with
-          //      `checkedAvailability=true`) — it must replace the suggestion-
-          //      derived version even when both are "priced".
-          //   3. Pagination (Load more) emits the next page; existing rows
-          //      must NOT change. If the API happens to return overlapping
-          //      domains in a later page, keep the already-loaded version.
-          //
-          // Rule: replace an existing row when the incoming row is **fresher**
-          // (priceLoading-priced upgrade, or freshly availability-checked).
-          // Otherwise leave the existing row alone. Truly new domains are
-          // appended at the bottom.
-          const updatedPrevious = map(previous, (prev: DomainProduct) => {
-            const fresher = find(available, ["domain", prev.domain]);
-            if (!fresher) return prev;
-            const isPriceUpgrade =
-              !!prev.meta?.priceLoading && !fresher.meta?.priceLoading;
-            const isAvailabilityUpgrade =
-              !prev.meta?.checkedAvailability &&
-              !!fresher.meta?.checkedAvailability;
-            return (
-              isPriceUpgrade || isAvailabilityUpgrade ? fresher : prev
-            ) as DomainProduct;
-          });
-          const newOnly = filter(
-            available,
-            (item: DomainProduct) => !find(previous, ["domain", item.domain])
-          ) as DomainProduct[];
-
-          set(lookups, "searched", compact(concat(updatedPrevious, newOnly)));
+          // Merge by domain. See `mergeDomainSearchResults` for the rules
+          // and the three upstream scenarios that drive them.
+          set(
+            lookups,
+            "searched",
+            mergeDomainSearchResults(previous, available)
+          );
 
           // store all previous searches
           set(

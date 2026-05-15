@@ -6,10 +6,11 @@ import { useActor } from "@xstate/vue";
 
 // --- internal
 import { useI18n } from "../system";
-import { useBrand } from "../brand";
 import { QUERY_PARAMS, useQueryParams } from "../routing";
 import dacMachine from "./dac.machine";
 import { sanitiseDomainInput } from "./utils";
+import { useDomainSearchMethod } from "./useDomainSearchMethod";
+import { buildCommonMeta, pushDacEvent } from "./gtm";
 
 // --- utils
 import { map, isArray, some, isEmpty } from "lodash-es";
@@ -21,14 +22,8 @@ import {
 } from "../../utils";
 
 // --- types
-import {
-  type DacContext,
-  type DomainContext,
-  type DomainProduct,
-  DomainTypes
-} from "./types";
+import { type DomainContext, type DomainProduct, DomainTypes } from "./types";
 import { PAGINATION } from "../query";
-import { BrandConfigKeys, DomainSearchMethod } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 
@@ -44,13 +39,9 @@ import { BrandConfigKeys, DomainSearchMethod } from "@upmind-automation/types";
 export const useDac = (options?: { mode?: DomainTypes }) => {
   const { t } = useI18n();
   const { getParam, getParams, setParam, unsetParam } = useQueryParams();
-  const { getConfigValue } = useBrand();
 
   // Determine search flow from brand setting, fallback to dac-search (legacy)
-  const searchMethod =
-    getConfigValue<DomainSearchMethod>(BrandConfigKeys.DOMAIN_SEARCH_METHOD) ??
-    DomainSearchMethod.LEGACY_LOOKUP;
-  const useSuggestions = searchMethod === DomainSearchMethod.SMART_SUGGEST;
+  const { useSuggestions } = useDomainSearchMethod();
 
   const service = interpret(
     dacMachine.withContext({
@@ -58,14 +49,23 @@ export const useDac = (options?: { mode?: DomainTypes }) => {
       useSuggestions,
       preferredCycle: getParam(QUERY_PARAMS.BILLING_CYCLE_MONTHS),
       coupons: getParams(QUERY_PARAMS.COUPONS),
+      // `setContext` + `setBasketHelper` overwrite these on entry, but
+      // `withContext` requires the full `DacContext` shape — keeping the
+      // placeholders explicit avoids an `as unknown as DacContext`.
+      lookups: { searched: [], history: [], owned: [], basket: [] },
+      parseBasketProduct: () => undefined,
+      parseProductModel: () => undefined,
       search: {
         // Sanitise the URL-seeded query so the dac machine + search service
         // see the same shape they would for a runtime SEARCH event.
         query: sanitiseDomainInput(getParam(QUERY_PARAMS.SEARCH, "") ?? ""),
         limit: PAGINATION.limit,
-        offset: PAGINATION.offset
+        offset: PAGINATION.offset,
+        total: 0,
+        page: 1,
+        totalPages: 0
       }
-    } as unknown as DacContext),
+    }),
     { devTools: true }
   );
 
@@ -156,6 +156,14 @@ export const useDac = (options?: { mode?: DomainTypes }) => {
   }
 
   function searchMore(): void {
+    // Page-based (suggestions) pagination uses `page + 1`; legacy offset
+    // pagination has no page concept so the doc requires null.
+    const usingSuggestions = pagination.value.totalPages > 0;
+    pushDacEvent("dac_load_more", {
+      ...buildCommonMeta(context.value ?? {}),
+      results_count_before: available.value?.length ?? 0,
+      next_page: usingSuggestions ? pagination.value.page + 1 : null
+    });
     send({ type: "SEARCH.OFFSET" });
   }
 

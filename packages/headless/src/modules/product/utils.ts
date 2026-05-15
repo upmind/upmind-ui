@@ -1353,8 +1353,16 @@ export const parseProductProps = (
 
   // The API often returns attributes under `raw.attributes` (mirroring
   // `raw.options`); fall back so we don't silently miss preselections.
+  // `attributes` isn't on `IProduct` but the BE sometimes echoes it
+  // back as a duplicate of `products_attributes` — a local intersection
+  // type narrows the read site without polluting `IProduct`.
+  const rawWithAttributeEcho = raw as IProduct & {
+    attributes?: IProductAttribute[];
+  };
   const rawAttributes =
-    raw.products_attributes ?? (raw as any).attributes ?? [];
+    rawWithAttributeEcho.products_attributes ??
+    rawWithAttributeEcho.attributes ??
+    [];
   const matchedAttributes = filter(rawAttributes, attribute =>
     data?.subproducts?.includes(attribute.id)
   ) as IProductAttribute[];
@@ -1436,10 +1444,11 @@ export const fillRequiredOptionDefaults = <T extends ProductModel>(
     filledOptions
   );
   // Same fallback as parseProductProps — API can return either field name.
+  const rawWithAttributeEcho = raw as IProduct & {
+    attributes?: IProductAttribute[];
+  };
   fillFrom(
-    (raw.products_attributes ?? (raw as any).attributes) as
-      | IProductAttribute[]
-      | undefined,
+    rawWithAttributeEcho.products_attributes ?? rawWithAttributeEcho.attributes,
     filledAttributes
   );
 

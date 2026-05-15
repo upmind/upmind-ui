@@ -2,13 +2,33 @@
 import type { ActorRef } from "xstate";
 import type {
   IDomainSuggestionResultProduct,
-  IProduct
+  IProduct,
+  TldsSortTypes
 } from "@upmind-automation/types";
 
 // --- internal
 import type { Product, ProductSummaryDetail } from "../product";
 import type { BasketHelperContext } from "../basketProduct";
+import type { QueryResponse } from "../query";
 import type { ResponseError } from "../../utils";
+
+// -----------------------------------------------------------------------------
+
+/**
+ * Domain-specific envelope returned by `/suggestions/tlds` and
+ * `/availability/{domain}`. Extends the generic `QueryResponse` with the
+ * sideloaded `related.products` map (product_id → `IProduct`) that those
+ * endpoints surface alongside the primary payload.
+ *
+ * `QueryResponse` no longer carries `related` — it's not a universal field,
+ * so domain callers extend it locally and read it off the raw envelope via
+ * `useQuery().request(...)`.
+ */
+export interface DomainEnvelopeResponse<T> extends QueryResponse<T> {
+  related?: {
+    products?: Record<string, IProduct>;
+  } | null;
+}
 
 // -----------------------------------------------------------------------------
 
@@ -198,6 +218,12 @@ export interface DacContext extends BasketHelperContext<DomainProduct> {
    * An array of available Top-Level Domains (TLDs).
    */
   tlds?: string[];
+  /**
+   * Sort order for `/suggestions` results. When set, the value is forwarded
+   * as the `tlds_sort_by` query param on both `/suggestions` and
+   * `/suggestions/tlds`. When omitted the API uses its default ordering.
+   */
+  tldsSort?: TldsSortTypes;
   // ---
   /**
    * An error object if any issue occurred during domain operations.
@@ -295,6 +321,12 @@ export interface DomainContext extends BasketHelperContext<DomainProduct> {
    * An array of available Top-Level Domains (TLDs).
    */
   tlds?: string[];
+  /**
+   * Sort order for `/suggestions` results. When set, the value is forwarded
+   * as the `tlds_sort_by` query param on both `/suggestions` and
+   * `/suggestions/tlds`. When omitted the API uses its default ordering.
+   */
+  tldsSort?: TldsSortTypes;
   // ---
   /**
    * An error object if any issue occurred during domain operations.
