@@ -154,6 +154,15 @@ function buildDomainProductFromAvailability(
       preferredCycle
     );
 
+    // Route can_transfer through the override so brand-config blocks AND
+    // products with no `setup_function_sub_ids.transfer` collapse to false.
+    const canTransferEffective = applyDacTransferOverride(
+      availability.can_transfer,
+      product
+    );
+    const isAvailable = !!availability.can_register;
+    const isFullyUnavailable = !isAvailable && !canTransferEffective;
+
     return {
       domain,
       sld,
@@ -162,11 +171,11 @@ function buildDomainProductFromAvailability(
       price: termDetails.price,
       meta: {
         ...(termDetails.meta ?? {}),
-        available: availability.can_register,
-        canTransfer: !availability.can_register && availability.can_transfer,
-        unavailable: !availability.can_register && !availability.can_transfer,
+        available: isAvailable,
+        canTransfer: !isAvailable && canTransferEffective,
+        unavailable: isFullyUnavailable,
         checkedAvailability: true,
-        disabled: !availability.can_register && !availability.can_transfer,
+        disabled: isFullyUnavailable,
         exactMatch: true,
         transferLabel: getDacTransferLabel(product)
       },

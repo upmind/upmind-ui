@@ -152,6 +152,20 @@ export function buildFallbackPricing(
 // ----------------------------------------------------------------------------
 
 /**
+ * Returns true if the product is actually configured for transfer — i.e.
+ * `setup_function_sub_ids.transfer` is a non-empty array. When this is
+ * missing or empty the basket POST would have no `sub_pids` to send for the
+ * transfer flow, so the row must be treated as non-transferable regardless
+ * of what `/availability` reported.
+ */
+export function hasTransferSetup(
+  product?: { setup_function_sub_ids?: { transfer?: string[] } } | null
+): boolean {
+  const transferIds = product?.setup_function_sub_ids?.transfer;
+  return Array.isArray(transferIds) && transferIds.length > 0;
+}
+
+/**
  * Brand/product owners can disable transfer for a specific TLD (or an entire
  * category) by setting `meta.overrides.dac.canTransfer: false` on the product
  * or its category. When that flag is present and false, ignore whatever the
@@ -160,15 +174,24 @@ export function buildFallbackPricing(
  *
  * Only a literal `false` blocks — `undefined` / missing means "no override,
  * use the API value as-is".
+ *
+ * Also gates on `hasTransferSetup`: a product whose `setup_function_sub_ids`
+ * has no `transfer` entry can't actually be transferred (no sub_pids to send),
+ * so any `can_transfer: true` from the API is treated as `false`.
  */
 export function applyDacTransferOverride(
   canTransfer: boolean | undefined,
-  product?: { meta?: any; category?: { meta?: any } } | null
+  product?: {
+    meta?: any;
+    category?: { meta?: any };
+    setup_function_sub_ids?: { transfer?: string[] };
+  } | null
 ): boolean {
   if (!product) return !!canTransfer;
   const productOverride = product.meta?.overrides?.dac?.canTransfer;
   const categoryOverride = product.category?.meta?.overrides?.dac?.canTransfer;
   if (productOverride === false || categoryOverride === false) return false;
+  if (!hasTransferSetup(product)) return false;
   return !!canTransfer;
 }
 

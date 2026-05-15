@@ -13,6 +13,7 @@ import { useFeedback } from "../feedback";
 import { mapToHeadlessError, useTime } from "../../utils";
 import {
   buildAddToBasketModel,
+  hasTransferSetup,
   mergeDomainSearchResults,
   parseDomain,
   parseValue,
@@ -967,15 +968,32 @@ export default createMachine(
               copy: product.domain ?? ""
             });
           } else if (apiCode === "web_hosting::domain_transfer_only") {
-            product.meta.available = false;
-            product.meta.canTransfer = true;
-            product.meta.checkedAvailability = true;
-            product.meta.processing = false;
-            rebuildConfigForMode("transfer");
-            useFeedback().addError({
-              title: t("error.domain_register_unavailable"),
-              copy: product.domain ?? ""
-            });
+            // API says transfer-only — but if the product has no
+            // `setup_function_sub_ids.transfer`, retrying the basket POST as
+            // a transfer would fail the same way. Mark the row as fully
+            // unavailable instead.
+            if (hasTransferSetup(product.rawProduct)) {
+              product.meta.available = false;
+              product.meta.canTransfer = true;
+              product.meta.checkedAvailability = true;
+              product.meta.processing = false;
+              rebuildConfigForMode("transfer");
+              useFeedback().addError({
+                title: t("error.domain_register_unavailable"),
+                copy: product.domain ?? ""
+              });
+            } else {
+              product.meta.available = false;
+              product.meta.canTransfer = false;
+              product.meta.unavailable = true;
+              product.meta.disabled = true;
+              product.meta.checkedAvailability = true;
+              product.meta.processing = false;
+              useFeedback().addError({
+                title: t("error.domain_unavailable"),
+                copy: product.domain ?? ""
+              });
+            }
           } else if (apiCode === "web_hosting::domain_not_for_sale") {
             product.meta.available = false;
             product.meta.unavailable = true;
@@ -1213,15 +1231,27 @@ export default createMachine(
       //
       // `data` is the domain string; `availability` is the API response.
 
+      // Fully unavailable when neither register nor transfer is possible.
+      // Also covers the case where the API says transfer-only but the
+      // product isn't actually configured for transfer (no
+      // `setup_function_sub_ids.transfer`) — we can't construct a valid
+      // basket POST so the row must be treated as unavailable.
       isAvailabilityFullyUnavailable: (
-        _context: DacContext,
-        { availability }: AnyEventObject
-      ) =>
-        availability?.can_register === false &&
-        availability?.can_transfer === false,
+        { lookups }: DacContext,
+        { data: domain, availability }: AnyEventObject
+      ) => {
+        if (availability?.can_register !== false) return false;
+        if (availability?.can_transfer === false) return true;
+        // can_register=false && can_transfer=true → check product config
+        const product = find(lookups.searched, ["domain", domain]) as
+          | DomainProduct
+          | undefined;
+        return !hasTransferSetup(product?.rawProduct);
+      },
 
       // Row is in register mode (meta.available === true) but the fresh
-      // availability check says only transfer is possible.
+      // availability check says only transfer is possible — and the product
+      // is actually configured for transfer.
       shouldFlipRowToTransfer: (
         { lookups }: DacContext,
         { data: domain, availability }: AnyEventObject
@@ -1233,7 +1263,8 @@ export default createMachine(
         return (
           rowIsRegister &&
           availability?.can_register === false &&
-          availability?.can_transfer === true
+          availability?.can_transfer === true &&
+          hasTransferSetup(product?.rawProduct)
         );
       },
 
