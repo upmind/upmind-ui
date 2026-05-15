@@ -280,9 +280,15 @@ const getIcon = computed(() => {
 
 const getLabel = computed(() => {
   // Brand-supplied override (e.g. ".com transfer = Unavailable") wins
-  // over the default unavailable label so the disabled button reflects
-  // the merchant's intent rather than the generic copy.
-  if (meta.value.hasTransferLabel && !meta.value.isAdded) {
+  // over the default unavailable copy — but only when the row really IS
+  // unavailable. The transferLabel is set per-TLD/category, so registrable
+  // rows on the same TLD would otherwise inherit it and incorrectly say
+  // "Unavailable" instead of "Add to basket".
+  if (
+    meta.value.hasTransferLabel &&
+    meta.value.isUnavailable &&
+    !meta.value.isAdded
+  ) {
     return props.transferLabel!;
   }
   if (meta.value.isUnavailable) {
@@ -296,7 +302,11 @@ const getLabel = computed(() => {
 });
 
 const getTooltip = computed(() => {
-  if (meta.value.hasTransferLabel && !meta.value.isAdded) {
+  if (
+    meta.value.hasTransferLabel &&
+    meta.value.isUnavailable &&
+    !meta.value.isAdded
+  ) {
     return props.transferLabel!;
   }
   if (meta.value.isUnavailable) {

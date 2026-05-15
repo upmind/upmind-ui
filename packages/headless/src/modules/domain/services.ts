@@ -4,37 +4,31 @@
 import {
   type DomainModel,
   type DomainProduct,
+  useFeedback,
   useI18n,
   useQuery,
   useSession
 } from "../..";
 
 // --- utils
-import {
-  compact,
-  find,
-  isEmpty,
-  isFunction,
-  keyBy,
-  map,
-  omitBy,
-  reject
-} from "lodash-es";
+import { compact, find, isEmpty, keyBy, map, omitBy, reject } from "lodash-es";
 import {
   applyDacTransferOverride,
+  buildAddToBasketModel,
   buildFallbackPricing,
   getDacTransferLabel,
+  makePlaceholderProductDetails,
   parseAvailable,
   parseDomain,
   parseDomainParts,
   parseSuggestions
 } from "./utils";
+import { buildCommonMeta, pushDacEvent } from "./gtm";
 import { parsePromotionsOrCoupons } from "../basketProduct/utils";
-import { PAGINATION } from "../query";
+import { PAGINATION, SUGGESTIONS_PAGE_SIZE } from "../query";
 import productServices from "../basketProduct/services";
 import {
   calculateBillingTerm,
-  fillRequiredOptionDefaults,
   parseProductDetails,
   parseProductProps,
   parseTermDetails
@@ -42,7 +36,11 @@ import {
 import { useBrand } from "../brand";
 
 // --- types
-import type { DomainContext, DacContext } from "./types";
+import type {
+  DacContext,
+  DomainContext,
+  DomainEnvelopeResponse
+} from "./types";
 import { DomainTypes } from "./types";
 import type {
   IDomainAvailabilityResponse,
@@ -106,14 +104,13 @@ function buildExactMatchPlaceholder(
       exactMatch: true,
       priceLoading: true
     },
-    productDetails: {
-      id: "",
-      title: rawDomain,
+    productDetails: makePlaceholderProductDetails({
+      domain: rawDomain,
       name: tld ?? ""
-    },
+    }),
     pricing: [],
     details: []
-  } as unknown as DomainProduct;
+  };
 }
 
 /**
@@ -182,7 +179,7 @@ function buildDomainProductFromAvailability(
       pricing: [],
       details: [],
       rawProduct: product
-    } as unknown as DomainProduct;
+    };
   }
 
   // Fallback when product is missing (no `product_id` in /availability).
@@ -192,7 +189,7 @@ function buildDomainProductFromAvailability(
   // user can't act on it from this surface.
   // Use availability.product to avoid TS narrowing (product is `never` after the early return)
   const { price, billingCycleMonths } = buildFallbackPricing(
-    (availability.product as any)?.prices ?? [],
+    availability.product?.prices ?? [],
     preferredCycle
   );
 
@@ -214,22 +211,30 @@ function buildDomainProductFromAvailability(
       checkedAvailability: true,
       disabled: true,
       exactMatch: true,
-      transferLabel: getDacTransferLabel(availability.product as any)
+      transferLabel: getDacTransferLabel(availability.product)
     },
-    productDetails: {
-      id: "",
-      title: domain,
+    productDetails: makePlaceholderProductDetails({
+      domain,
       name: tld ?? ""
-    },
+    }),
     pricing: [],
     details: []
-  } as unknown as DomainProduct;
+  };
 }
 
 // -----------------------------------------------------------------------------
 
 function search(context: DacContext) {
-  const { search, preferredCycle, mode, basketId, brandId, coupons } = context;
+  const {
+    search,
+    preferredCycle,
+    mode,
+    basketId,
+    brandId,
+    coupons,
+    tlds,
+    tldsSort
+  } = context;
   const { t } = useI18n();
   const { cancel } = useQuery();
 
@@ -249,21 +254,35 @@ function search(context: DacContext) {
 
     const { sld, tld } = parseDomainParts(search.query);
     const page = search.page ?? 1;
-    // Both /suggestions and /suggestions/tlds always paginate at limit=20
-    // (regardless of PAGINATION.limit, which defaults to 10).
-    const limit = 20;
+    // Both /suggestions and /suggestions/tlds always paginate at the BE's
+    // fixed page size (regardless of PAGINATION.limit, which defaults to 10).
+    const limit = SUGGESTIONS_PAGE_SIZE;
 
     cancel(["domains", "suggestions"]);
     cancel(["domains", "suggestions", "tlds"]);
 
+    const commonMeta = buildCommonMeta(context);
+
     // --- TRANSFER mode: only checkAvailability, no suggestions
     if (mode === DomainTypes.transfer) {
       const domain = search.query;
+      // `dac_exact_match_check` fires inside the resolution callbacks below
+      // (success + non-abort error) so aborted searches don't leave a
+      // dangling check without a matching result event.
       checkAvailability({
         ...context,
         checkingDomain: domain
       } as DacContext)
         .then(availability => {
+          pushDacEvent("dac_exact_match_check", { ...commonMeta, domain });
+          pushDacEvent("dac_exact_match_result", {
+            ...commonMeta,
+            domain,
+            pid: availability?.product?.id ?? null,
+            is_available: !!availability?.can_register,
+            can_transfer: !!availability?.can_transfer,
+            has_error: false
+          });
           const product = buildDomainProductFromAvailability(
             domain,
             availability,
@@ -283,6 +302,15 @@ function search(context: DacContext) {
         })
         .catch(error => {
           if (error?.name === "AbortError") return;
+          pushDacEvent("dac_exact_match_check", { ...commonMeta, domain });
+          pushDacEvent("dac_exact_match_result", {
+            ...commonMeta,
+            domain,
+            pid: null,
+            is_available: false,
+            can_transfer: false,
+            has_error: true
+          });
           // Show the exact match row as unavailable instead of erroring
           const unavailableProduct = buildDomainProductFromAvailability(
             domain,
@@ -306,6 +334,16 @@ function search(context: DacContext) {
         });
       return;
     }
+
+    // dac_search fires for register-mode searches (transfer mode does an
+    // exact-match check rather than a search and is intentionally excluded
+    // per the widget contract).
+    pushDacEvent("dac_search", {
+      ...commonMeta,
+      tlds: tlds ?? [],
+      coupons: coupons ?? [],
+      currency_code: context.currency ?? null
+    });
 
     // --- REGISTER mode: fire suggestions + tlds (and availability when
     //     a TLD is in the query) in parallel via a single callback service.
@@ -339,7 +377,7 @@ function search(context: DacContext) {
     let pending = tld ? 3 : 2; // suggestions + tlds (+ availability if tld)
 
     const promocodes = parsePromotionsOrCoupons(coupons).join();
-    const { get: getData, useUrl } = useQuery();
+    const { get: getData, queryClient, request, useUrl } = useQuery();
 
     const buildResult = () => {
       let data: DomainProduct[] = parseSuggestions(
@@ -366,11 +404,9 @@ function search(context: DacContext) {
             availabilityData,
             preferredCycle
           );
-          data.unshift(exactProduct as any);
+          data.unshift(exactProduct);
         } else {
-          data.unshift(
-            buildExactMatchPlaceholder(rawExactDomain!, sld, tld) as any
-          );
+          data.unshift(buildExactMatchPlaceholder(rawExactDomain!, sld, tld));
         }
       }
 
@@ -387,6 +423,8 @@ function search(context: DacContext) {
       };
     };
 
+    let suggestionsErrored = false;
+
     // Emits SEARCH_RESULTS with the latest merged state, and SEARCH_COMPLETE
     // once every parallel call has settled. We skip the SEARCH_RESULTS emit
     // until /suggestions has returned — otherwise there are no rows to render.
@@ -396,6 +434,22 @@ function search(context: DacContext) {
         sendBack({ type: "SEARCH_RESULTS", data: buildResult() });
       }
       if (pending <= 0) {
+        // Snapshot the first-batch result list for the GTM event. Per the
+        // widget doc `has_exact_match` reflects this initial snapshot — the
+        // exact-match price/availability resolves separately via the
+        // `dac_exact_match_result` event.
+        const merged = buildResult();
+        const resultsCount = merged.data.length;
+        if (resultsCount === 0) {
+          pushDacEvent("dac_no_results", commonMeta);
+        } else {
+          pushDacEvent("dac_search_results", {
+            ...commonMeta,
+            results_count: resultsCount,
+            has_exact_match: !!merged.exactDomain,
+            has_error: suggestionsErrored
+          });
+        }
         sendBack({ type: "SEARCH_COMPLETE" });
       }
     };
@@ -407,7 +461,11 @@ function search(context: DacContext) {
         omitBy(
           {
             query: sld,
+            // `useUrl` bracket-serialises arrays (tlds[]=com&tlds[]=net),
+            // so pass the array directly rather than joining ourselves.
+            tlds,
             tlds_page: page,
+            tlds_sort_by: tldsSort,
             limit,
             basket_id: basketId,
             brand_id: brandId,
@@ -419,17 +477,10 @@ function search(context: DacContext) {
       queryKey: ["domains", "suggestions", sld, page],
       withAccessToken: true,
       withCurrency: true,
-      select: ((
-        results: unknown,
-        _related?: Record<string, any>,
-        meta?: Record<string, any>
-      ) => ({
+      select: (results, meta) => ({
         data: (results ?? []) as IDomainSuggestionResult[],
         totalPages: (meta?.total_pages as number) ?? 1
-      })) as (data: unknown) => {
-        data: IDomainSuggestionResult[];
-        totalPages: number;
-      }
+      })
     })
       .then(({ data, totalPages }) => {
         suggestionsList = data;
@@ -437,43 +488,72 @@ function search(context: DacContext) {
         sendResult();
       })
       .catch(error => {
-        if (error?.name !== "AbortError") {
-          sendBack({ type: "SEARCH_ERROR", data: error });
+        if (error?.name === "AbortError") return;
+
+        // 409 from /suggestions means the brand has no domains available
+        // for sale — surface the API's own message as a single toast
+        // (the parallel /suggestions/tlds 409 is intentionally swallowed
+        // so the user doesn't see the same error twice). Then settle the
+        // search with an empty list rather than transitioning to the
+        // machine's `error` state, so the UI renders the "no results"
+        // empty state instead of an error screen.
+        if (error?.status === 409 || error?.code === 409) {
+          useFeedback().addError({
+            title: error?.message ?? t("error.domain_unavailable")
+          });
+          suggestionsList = [];
+          suggestionsTotalPages = 0;
+          suggestionsErrored = true;
+          sendResult();
+          return;
         }
+
+        sendBack({ type: "SEARCH_ERROR", data: error });
       });
 
     // --- /suggestions/tlds call (full IProduct entries — used to fill prices)
     //
     // Returns full IProduct entries in `data` plus extras in `related`.
     // We merge both into a single product_id → IProduct lookup map.
-    getData<any, any>({
-      url: useUrl(
-        `modules/web_hosting/domains/suggestions/tlds`,
-        omitBy(
-          {
-            query: sld,
-            with: DOMAIN_WITH_RELATIONS,
-            tlds_page: page,
-            limit,
-            basket_id: basketId,
-            brand_id: brandId,
-            promotions: promocodes
-          },
-          isEmptyParam
-        )
-      ),
-      queryKey: ["domains", "suggestions", "tlds", sld, page],
-      withAccessToken: true,
-      withCurrency: true,
-      select: ((results: unknown, related?: Record<string, any>) => {
-        const fromData = keyBy((results ?? []) as IProduct[], "id") as Record<
+    //
+    // Uses `request` directly (rather than `get`) so the raw envelope —
+    // including the sideloaded `related.products` map — is available.
+    // `QueryResponse` deliberately no longer types `related`; the domain
+    // envelope extension (`DomainEnvelopeResponse`) covers it locally.
+    queryClient
+      .fetchQuery<DomainEnvelopeResponse<IProduct[]>>({
+        queryKey: ["domains", "suggestions", "tlds", sld, page],
+        queryFn: () =>
+          request<IProduct[]>({
+            url: useUrl(
+              `modules/web_hosting/domains/suggestions/tlds`,
+              omitBy(
+                {
+                  query: sld,
+                  with: DOMAIN_WITH_RELATIONS,
+                  tlds,
+                  tlds_page: page,
+                  tlds_sort_by: tldsSort,
+                  limit,
+                  basket_id: basketId,
+                  brand_id: brandId,
+                  promotions: promocodes
+                },
+                isEmptyParam
+              )
+            ),
+            withAccessToken: true,
+            withCurrency: true
+          }) as Promise<DomainEnvelopeResponse<IProduct[]>>
+      })
+      .then(envelope => {
+        const fromData = keyBy(envelope.data ?? [], "id") as Record<
           string,
           IProduct
         >;
-        const fromRelated = (related ?? {}) as Record<string, IProduct>;
+        const fromRelated = envelope.related?.products ?? {};
         return { ...fromRelated, ...fromData };
-      }) as (data: unknown) => Record<string, IProduct>
-    })
+      })
       .then(newProducts => {
         // Merge the new page's products into the cumulative map (don't
         // overwrite — earlier pages' products must remain available).
@@ -488,19 +568,48 @@ function search(context: DacContext) {
 
     // --- Availability call (only when query has a TLD)
     if (tld) {
+      const exactDomainForCheck = `${sld}${tld}`;
+      // `dac_exact_match_check` fires inside the resolution callbacks below
+      // (success + non-abort error) so aborted searches don't leave a
+      // dangling check without a matching result event.
       checkAvailability({
         ...context,
-        checkingDomain: `${sld}${tld}`
+        checkingDomain: exactDomainForCheck
       } as DacContext)
         .then(availability => {
           availabilityData = availability;
+          pushDacEvent("dac_exact_match_check", {
+            ...commonMeta,
+            domain: exactDomainForCheck
+          });
+          pushDacEvent("dac_exact_match_result", {
+            ...commonMeta,
+            domain: exactDomainForCheck,
+            pid: availability?.product?.id ?? null,
+            is_available: !!availability?.can_register,
+            can_transfer: !!availability?.can_transfer,
+            has_error: false
+          });
           sendResult();
         })
-        .catch(() => {
+        .catch(error => {
+          if (error?.name === "AbortError") return;
           availabilityData = {
             can_register: false,
             can_transfer: false
           } as IDomainAvailabilityResponse;
+          pushDacEvent("dac_exact_match_check", {
+            ...commonMeta,
+            domain: exactDomainForCheck
+          });
+          pushDacEvent("dac_exact_match_result", {
+            ...commonMeta,
+            domain: exactDomainForCheck,
+            pid: null,
+            is_available: false,
+            can_transfer: false,
+            has_error: true
+          });
           sendResult();
         });
     }
@@ -513,7 +622,7 @@ async function checkAvailability({
   brandId,
   coupons
 }: DacContext) {
-  const { get, useUrl } = useQuery();
+  const { queryClient, request, useUrl } = useQuery();
 
   if (!checkingDomain)
     return Promise.reject(
@@ -526,39 +635,45 @@ async function checkAvailability({
 
   const promocodes = parsePromotionsOrCoupons(coupons).join();
 
-  return get<any, IDomainAvailabilityResponse>({
-    url: useUrl(
-      `modules/web_hosting/domains/availability/${checkingDomain}`,
-      omitBy(
-        {
-          with: DOMAIN_WITH_RELATIONS,
-          basket_id: basketId,
-          brand_id: brandId,
-          promotions: promocodes
-        },
-        isEmpty
-      )
-    ),
-    queryKey: ["domains", "availability", checkingDomain],
-    withAccessToken: true,
-    withCurrency: true,
-    select: ((data: Record<string, any>, related?: Record<string, any>) => {
-      // The product may be in related.products (keyed by product_id)
-      // rather than directly on the data object
-      if (!data.product && data.product_id && related?.products) {
-        data.product = related.products[data.product_id];
+  // Bypasses `get` so the raw envelope — specifically `related.products` —
+  // is reachable: when the product isn't on `data.product` directly, it's
+  // sideloaded into `related.products[product_id]` and we splice it back.
+  return queryClient
+    .fetchQuery<DomainEnvelopeResponse<Record<string, any>>>({
+      queryKey: ["domains", "availability", checkingDomain],
+      queryFn: () =>
+        request<Record<string, any>>({
+          url: useUrl(
+            `modules/web_hosting/domains/availability/${checkingDomain}`,
+            omitBy(
+              {
+                with: DOMAIN_WITH_RELATIONS,
+                basket_id: basketId,
+                brand_id: brandId,
+                promotions: promocodes
+              },
+              isEmpty
+            )
+          ),
+          withAccessToken: true,
+          withCurrency: true
+        }) as Promise<DomainEnvelopeResponse<Record<string, any>>>
+    })
+    .then(envelope => {
+      const record = (envelope.data ?? {}) as Record<string, any>;
+      if (!record.product && record.product_id && envelope.related?.products) {
+        record.product = envelope.related.products[record.product_id];
       }
       // Apply brand-level transfer override (product or category meta).
       // Mutating here means every downstream consumer — VERIFY_RESULT
       // guards, buildDomainProductFromAvailability, etc. — sees the
       // adjusted flag without each having to know about the override.
-      data.can_transfer = applyDacTransferOverride(
-        data.can_transfer,
-        data.product
+      record.can_transfer = applyDacTransferOverride(
+        record.can_transfer,
+        record.product
       );
-      return data;
-    }) as (data: unknown) => IDomainAvailabilityResponse
-  });
+      return record as IDomainAvailabilityResponse;
+    });
 }
 
 /**
@@ -593,11 +708,9 @@ async function addDomainToBasket(context: DacContext) {
     | DomainProduct
     | undefined;
 
-  const baseModel = isFunction(parseProductModel)
-    ? parseProductModel(product!)
-    : product?.configuration;
+  const model = buildAddToBasketModel(product, parseProductModel, coupons);
 
-  if (!baseModel)
+  if (!model)
     return Promise.reject(
       new DetailedError(
         "Product model not found for domain",
@@ -605,14 +718,6 @@ async function addDomainToBasket(context: DacContext) {
         ErrorOrigin.Headless
       )
     );
-
-  // Auto-pick the first option for any required category that the model
-  // hasn't filled in (e.g. ID protection / nameservers groups marked as
-  // required). Without this the basket API rejects the add request.
-  const model = fillRequiredOptionDefaults(baseModel, product?.rawProduct);
-
-  model.coupons = coupons ?? model.coupons ?? [];
-  model.silent = true;
 
   try {
     // productServices.update handles missing basketId by generating a new basket
@@ -768,6 +873,14 @@ function legacySearch(context: DacContext) {
 
     cancel(["domains", "search"]);
 
+    const commonMeta = buildCommonMeta(context);
+    pushDacEvent("dac_search", {
+      ...commonMeta,
+      tlds: context.tlds ?? [],
+      coupons: coupons ?? [],
+      currency_code: context.currency ?? null
+    });
+
     getList<IProduct[], DomainProduct[]>({
       url: useUrl("modules/web_hosting/domains/search", params),
       queryKey: ["domains", "search", { ...params }],
@@ -780,10 +893,25 @@ function legacySearch(context: DacContext) {
       select: data => parseAvailable(sld, data ?? [], preferredCycle)
     })
       .then(response => {
+        const rows = response.data ?? [];
+        if (rows.length === 0) {
+          pushDacEvent("dac_no_results", commonMeta);
+        } else {
+          pushDacEvent("dac_search_results", {
+            ...commonMeta,
+            results_count: rows.length,
+            // Legacy /search doesn't surface a separate exact-match row —
+            // it's already inline in the result list, so we can't reliably
+            // detect it without re-parsing. Report false to match the doc's
+            // "first-batch snapshot" semantics.
+            has_exact_match: false,
+            has_error: false
+          });
+        }
         sendBack({
           type: "SEARCH_RESULTS",
           data: {
-            data: response.data ?? [],
+            data: rows,
             total: response.total ?? 0
           }
         });

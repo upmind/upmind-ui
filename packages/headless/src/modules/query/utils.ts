@@ -54,6 +54,16 @@ export const PAGINATION = {
   limit: 10
 };
 
+/**
+ * Page size used by the domain `/suggestions` and `/suggestions/tlds` endpoints.
+ *
+ * The BE always paginates these at 20 regardless of any `limit` query param
+ * we pass, so we hardcode the same here when computing `totalPages` etc.
+ * If the BE ever exposes a configurable limit (or changes the default), this
+ * is the single place to update.
+ */
+export const SUGGESTIONS_PAGE_SIZE = 20;
+
 // -----------------------------------------------------------------------------
 
 /**
