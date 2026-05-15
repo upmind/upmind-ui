@@ -222,9 +222,9 @@ newUser.describe("Free Trials @free-trials", () => {
       await expect(basket.basketProductSummary.locator("footer")).toContainText(
         "Usually £10.00."
       );
-      await expect(basket.basketProductSummary.locator("footer")).toContainText(
-        "Free Trial"
-      );
+      // Since FE-2654 "Free Trial" lives in the header hgroup, not the footer,
+      // so scope this assertion to the whole product summary instead.
+      await expect(basket.basketProductSummary).toContainText("Free Trial");
     });
   });
   newUser.describe("Checkout with Trial Product", () => {

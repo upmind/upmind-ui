@@ -951,7 +951,8 @@ export default createMachine(
                 productId: product.rawProduct.id,
                 quantity: product.rawProduct.unit_quantity,
                 subproducts,
-                provisionFields: product.configuration?.provisionFields ?? {}
+                provisionFields: product.configuration?.provisionFields ?? {},
+                term: product.configuration?.term
               },
               product.rawProduct
             );
@@ -1041,7 +1042,8 @@ export default createMachine(
                   productId: product.rawProduct.id,
                   quantity: product.rawProduct.unit_quantity,
                   subproducts,
-                  provisionFields: product.configuration?.provisionFields ?? {}
+                  provisionFields: product.configuration?.provisionFields ?? {},
+                  term: product.configuration?.term
                 },
                 product.rawProduct
               );
@@ -1083,7 +1085,8 @@ export default createMachine(
                   productId: product.rawProduct.id,
                   quantity: product.rawProduct.unit_quantity,
                   subproducts,
-                  provisionFields: product.configuration?.provisionFields ?? {}
+                  provisionFields: product.configuration?.provisionFields ?? {},
+                  term: product.configuration?.term
                 },
                 product.rawProduct
               );

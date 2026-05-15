@@ -121,7 +121,7 @@
           />
         </div>
 
-        <p class="text-muted mt-1 text-sm/tight md:mt-0 md:text-right">
+        <p class="text-muted text-sm-tight mt-1 md:mt-0 md:text-right">
           {{ $t("domain.transfer_owner_question")
           }}<br class="hidden md:block" />
           {{

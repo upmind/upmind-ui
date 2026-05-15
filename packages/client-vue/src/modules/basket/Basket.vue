@@ -16,6 +16,14 @@
       </template>
 
       <template #products>
+        <slot name="errors">
+          <BasketAlerts
+            id="basket-errors"
+            basket-fields
+            basket-products
+            :basket-products-route="props.editRoute"
+          />
+        </slot>
         <BasketProducts v-model:open="open" :edit-route="props.editRoute">
           <template #products="{ open }">
             <slot name="products" :open="open" />
@@ -48,17 +56,6 @@
 
       <template #total>
         <BasketTotal footer />
-      </template>
-
-      <template #errors>
-        <slot name="errors">
-          <BasketErrors
-            id="basket-errors"
-            basket-fields
-            basket-products
-            :basket-products-route="props.editRoute"
-          />
-        </slot>
       </template>
 
       <template #markdown>
@@ -95,7 +92,7 @@
       <template #custom-price>
         <Alert
           v-if="meta.hasCustomPrice"
-          variant="minimal"
+          variant="muted"
           color="warning"
           icon="switch-horizontal-01"
           :title="t('text.custom_price_applied')"
@@ -128,7 +125,7 @@ import Back from "../../components/navigation/Back.vue";
 import BasketSummary from "./components/BasketSummary.vue";
 import BasketProducts from "./components/BasketProducts.vue";
 import BasketPricing from "./components/BasketPricing.vue";
-import BasketErrors from "./components/BasketErrors.vue";
+import BasketAlerts from "./components/BasketAlerts.vue";
 import BasketCheckout from "./components/BasketCheckout.vue";
 import BasketTotal from "./components/BasketTotal.vue";
 import Transitions from "../../components/layout/components/transition/Transition.vue";
