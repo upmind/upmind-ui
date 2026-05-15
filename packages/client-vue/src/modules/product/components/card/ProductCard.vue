@@ -32,7 +32,7 @@
           v-if="isUnavailable"
           :class="styles.product.image.badge"
           :label="meta?.availableReason ?? t('text.unavailable')"
-          variant="solid"
+          variant="muted"
           color="neutral"
         />
         <Badge
@@ -305,7 +305,9 @@ const styles = useStyles(
 const isUnavailable = computed(() => props.meta?.available === false);
 
 const actionContent = computed(() => {
-  if (isUnavailable.value) {
+  // Only swap the CTA label when the image-overlay badge isn't rendering the
+  // reason — avoids the label echoing the badge text in the default layout.
+  if (isUnavailable.value && configMeta.value.hideImage) {
     return { label: props.meta?.availableReason ?? t("text.unavailable") };
   }
   if (justAdded.value) {
