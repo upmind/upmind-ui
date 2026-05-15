@@ -20,11 +20,17 @@
       type="submit"
       color="primary"
       :loading="meta.isProcessing"
-      :disabled="meta.isLoading || meta.isUnavailable"
-      :label="t('action.add_to_basket')"
+      :disabled="
+        meta.isLoading || meta.isUnavailable || !product?.meta?.available
+      "
+      :label="
+        product?.meta?.available
+          ? t('action.add_to_basket')
+          : (product?.meta?.availableReason ?? t('text.unavailable'))
+      "
+      :icon="product?.meta?.available ? 'shopping-bag-02' : ''"
       size="lg"
       @click="doResolve"
-      icon="shopping-bag-02"
     />
   </div>
 </template>

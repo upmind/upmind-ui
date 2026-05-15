@@ -1,13 +1,17 @@
+// --- internal
+import { useConfig } from "../config";
+
 // --- utils
 import { parseQuantity, parseMeta } from "../product/utils";
 import { calculateBillingTerm } from "../product/utils";
-import { isEmpty, omit, toSafeInteger } from "lodash-es";
+import { isEmpty, merge, omit, toSafeInteger } from "lodash-es";
 import { parseProductDetails, parseTermDetails } from "../product/utils";
 
 // --- types
 import type { Product } from "../product";
 import type { IProduct } from "@upmind-automation/types";
 import type { ProductDetails, TermDetails } from "../product";
+import { UIContext } from "../config";
 
 // ---------------------------------------------------------------------------
 
@@ -30,11 +34,19 @@ export function parseProduct(raw: IProduct): Product {
     ? calculateBillingTerm(raw?.default_payment_period, terms)
     : ({} as TermDetails);
 
+  const { data } = useConfig({
+    context: UIContext.CATALOGUE,
+    product: { productDetails }
+  });
+
   // ---------------------------------------------------------------------------
   return {
     id: raw.id, // this is the internal id of the recommendation, with a fallback to a random uuid for the meta-generated recommendations; they don't have an id
     productDetails: productDetails,
-    meta: term?.meta,
+    meta: merge({}, term?.meta, {
+      available: !data.productUnavailable,
+      availableReason: data.productUnavailableReason
+    }),
     promotions: term?.promotions,
     price: term?.price,
     pricing: terms,

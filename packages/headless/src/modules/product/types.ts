@@ -464,6 +464,8 @@ export type ProductSummaryMeta = {
   added?: boolean;
   /** `true` if the product is available. */
   available?: boolean;
+  /** Optional label paired with `available: false` (e.g. "Sold out"). Falls back to a generic "Unavailable" label at the consumer when unset. */
+  availableReason?: string;
   /** `true` if the price includes tax. */
   includesTax?: boolean;
   /** `true` if the product is the default selection. */
