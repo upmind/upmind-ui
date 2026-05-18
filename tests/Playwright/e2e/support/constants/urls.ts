@@ -30,6 +30,14 @@ export const URLs = {
   uiTestProduct: `${baseUrl}order/product/3de78642-de53-9714-725b-21208469530d/`,
   recommendations1: `${baseUrl}order/product/78985742-6489-7012-852f-21e325d0ed36/`,
   recommendations2: `${baseUrl}order/product/320e4357-95e7-8d18-090c-31643202d986/`,
+  rec1: `${baseUrl}order/product/5d085e69-d562-3719-6d5b-218e940d4237`,
+  rec2: `${baseUrl}order/product/4d036794-24d0-e710-766a-3153698d582e`,
+  rec3: `${baseUrl}order/product/8d632507-9806-5d1e-649c-8174e234e98d`,
+  rec4: `${baseUrl}order/product/47d73824-8507-9315-940f-81e642d59e06`,
+  rec5: `${baseUrl}order/product/5952098d-3de4-0917-230c-31578626e347`,
+  rec6: `${baseUrl}order/product/20403869-6e54-721d-835f-518d9305e7d2`,
+  rec7: `${baseUrl}order/product/3de78642-de53-9714-926b-21208469530d`,
+  rec8: `${baseUrl}order/product/320e4357-95e7-8d18-d9db-31643202d986`,
 
   /* CATALOGUE URLS */
   catalogueRoot1: `${baseUrl}order/shop`,
