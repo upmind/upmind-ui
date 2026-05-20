@@ -37,7 +37,7 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       });
     });
 
-    test("1.1 BillingSummary card is visible at checkout", async ({
+    test("BillingSummary card is visible at checkout", async ({
       page,
       context
     }) => {
@@ -53,7 +53,7 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       await expect(checkout.addNewAddress).toBeVisible();
     });
 
-    test("1.2 Summary displays selected address", async ({ page, context }) => {
+    test("Summary displays selected address", async ({ page, context }) => {
       await goToCheckout(
         page,
         context,
@@ -78,7 +78,7 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       );
     });
 
-    test("1.3 'Change' link navigates to billing page", async ({
+    test("'Change' link navigates to billing page", async ({
       page,
       context
     }) => {
@@ -126,7 +126,7 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       await goToCheckout(page, context, products.STARTER_HOSTING);
     });
 
-    test("2.1 Inline billing form shown when standalone is disabled", async () => {
+    test("Inline billing form shown when standalone is disabled", async () => {
       await expect(checkout.billingCards).toBeVisible({ timeout: 15000 });
       await expect(checkout.billingDetails).toBeHidden();
     });
@@ -150,12 +150,12 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       await goToCheckout(page, context, products.STARTER_HOSTING);
     });
 
-    test("3.1 Billing page loads at /order/billing", async ({ page }) => {
+    test("Billing page loads at /order/billing", async ({ page }) => {
       await page.goto(URLs.billing);
       await expect(billingPage.billingSection).toBeVisible({ timeout: 15000 });
     });
 
-    test("3.2 'Back to basket' link navigates back", async ({ page }) => {
+    test("'Back to basket' link navigates back", async ({ page }) => {
       await page.goto(URLs.billing);
       await expect(billingPage.backToBasket).toBeVisible({ timeout: 15000 });
       await billingPage.backToBasket.click();
@@ -163,7 +163,7 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       await expect(page).toHaveURL("/order/basket/");
     });
 
-    test("3.3 Can add new address on billing page", async ({ page }) => {
+    test("Can add new address on billing page", async ({ page }) => {
       await page.goto(URLs.billing);
       await expect(billingPage.billingSection).toBeVisible({ timeout: 15000 });
       if (await billingPage.personalTab.isVisible()) {
@@ -182,7 +182,7 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       );
     });
 
-    test("3.4 Personal/Business tab switching", async ({ page, context }) => {
+    test("Personal/Business tab switching", async ({ page, context }) => {
       await page.goto(URLs.billing);
       await expect(billingPage.billingSection).toBeVisible({ timeout: 15000 });
       if (
@@ -220,7 +220,7 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       await page.waitForURL("**/order/checkout**");
     });
 
-    test("4.1 Round-trip: update address on billing page", async ({
+    test("Round-trip: update address on billing page", async ({
       page,
       context
     }) => {
@@ -248,7 +248,7 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       await expect(checkout.billingDetails).toContainText("M1 1AA");
     });
 
-    test("4.2 Round-trip: add company on billing page", async ({ page }) => {
+    test("Round-trip: add company on billing page", async ({ page }) => {
       await expect(checkout.billingSummaryChangeLink).toBeVisible({
         timeout: 15000
       });
@@ -271,7 +271,7 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
   });
 
   test.describe("Missing Billing Data", () => {
-    test("5.1 'Add address' link when address required but missing", async ({
+    test("'Add address' link when address required but missing", async ({
       page,
       context
     }) => {
@@ -298,7 +298,7 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       await expect(checkout.billingAddAddress).toBeVisible();
     });
 
-    test("5.2 'Add company' link when company required but missing", async ({
+    test("'Add company' link when company required but missing", async ({
       page,
       context
     }) => {
@@ -328,7 +328,7 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       await expect(checkout.billingAddCompany).toBeVisible();
     });
 
-    test("5.3 'Add number' link when phone required but missing", async ({
+    test("'Add number' link when phone required but missing", async ({
       page,
       context
     }) => {
@@ -360,14 +360,14 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
   });
 
   test.describe("Access Control", () => {
-    test("6.1 Billing page requires authentication", async ({ page }) => {
+    test("Billing page requires authentication", async ({ page }) => {
       await page.goto(URLs.billing);
       await waitForSessionCookie(page.context());
       await expect(page).not.toHaveURL("order/billing/");
     });
 
     newUser(
-      "6.2 Billing page requires basket with products",
+      "Billing page requires basket with products",
       async ({ page, context }) => {
         await page.goto("/");
         await waitForSessionCookie(context);
