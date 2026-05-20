@@ -565,13 +565,30 @@ export default <FunnelProps>{
      */
     [ROUTE.SESSION_VERIFY_EMAIL]: {
       meta: {
-        next: [{ target: ROUTE.CHECKOUT }, { target: ROUTE.BASKET }],
+        next: [
+          { target: ROUTE.REDIRECT, cond: "hasReturnUrl" },
+          { target: ROUTE.CHECKOUT },
+          { target: ROUTE.BASKET }
+        ],
         prev: ROUTE.BASKET
       },
       invoke: {
         src: "guardVerifyEmail",
         onDone: { actions: ["setResolved"] },
         onError: [
+          // Honor the guard's explicit target (e.g. resolved returnUrl after
+          // a successful link-based verification). Falls through to BASKET
+          // when the guard rejects without a target.
+          {
+            target: ROUTE.CHECKOUT,
+            actions: ["setUnresolved", "setTargetRoute"],
+            cond: "isCheckout"
+          },
+          {
+            target: ROUTE.BILLING,
+            actions: ["setUnresolved", "setTargetRoute"],
+            cond: "isBilling"
+          },
           { target: ROUTE.BASKET, actions: ["setUnresolved", "clearTarget"] }
         ]
       }
