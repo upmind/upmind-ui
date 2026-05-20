@@ -1,5 +1,4 @@
 import { test, expect, Page } from "@playwright/test";
-import { URLs } from "../../support/constants/urls";
 import { waitForSessionCookie } from "../../support/helpers";
 
 const singleLanguage = [
