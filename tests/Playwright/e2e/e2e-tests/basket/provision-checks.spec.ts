@@ -11,10 +11,6 @@ import { products } from "../../support/constants/products";
 import { Basket } from "../../support/page-objects/templates/basket";
 import { Footer } from "../../support/page-objects/templates/footer";
 
-// FE-1269 — basket refresh only fires the N+1 provision-field requests when
-// products actually change. Watches the per-product basket call:
-//   GET /api/basket/products/{product-id}/provision_fields
-
 const PROVISION_REQUEST = /\/basket\/products\/[^/]+\/provision_fields(\?|$)/;
 const HOSTING_PRODUCT_NAME = "Shared Hosting";
 let basket: Basket;
