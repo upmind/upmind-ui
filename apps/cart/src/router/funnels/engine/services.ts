@@ -90,6 +90,29 @@ async function ensureBidAuth(
 // -----------------------------------------------------------------------------
 
 /**
+ * Builds a FunnelResponse that redirects to the verify-email route with a
+ * bid-aware `returnUrl` pointing back to checkout. Shared between
+ * `guardCheckout` and `guardBilling` so both flows redirect identically.
+ */
+function buildVerifyEmailRedirect(): FunnelResponse {
+  const { router } = useRoutingEngine();
+  const { targetBasketId } = useBasket();
+  const bid = targetBasketId.value;
+  const returnUrl = router.resolve({
+    name: ROUTE.CHECKOUT,
+    params: bid ? { segment: "basket", bid } : {}
+  }).fullPath;
+  return {
+    target: {
+      name: ROUTE.SESSION_VERIFY_EMAIL,
+      query: { [QUERY_PARAMS.RETURN_URL]: returnUrl }
+    }
+  } as FunnelResponse;
+}
+
+// -----------------------------------------------------------------------------
+
+/**
  * Applies the client's default address, company and phone to the basket
  * billing details.  Returns a promise that resolves once the update settles
  * (or immediately if billing is already complete).
@@ -591,20 +614,7 @@ export default {
     // Unverified clients must verify their email before checkout.
     const { meta: sessionMeta } = useSession();
     if (sessionMeta.value.isUnverified) {
-      const { router } = useRoutingEngine();
-      const { targetBasketId } = useBasket();
-      const bid = targetBasketId.value;
-      const returnUrl = router.resolve({
-        name: ROUTE.CHECKOUT,
-        params: bid ? { segment: "basket", bid } : {}
-      }).fullPath;
-
-      return Promise.reject({
-        target: {
-          name: ROUTE.SESSION_VERIFY_EMAIL,
-          query: { [QUERY_PARAMS.RETURN_URL]: returnUrl }
-        }
-      } as FunnelResponse);
+      return Promise.reject(buildVerifyEmailRedirect());
     }
 
     // We always need products ( that are not locked) in the basket to proceed to checkout
@@ -687,19 +697,7 @@ export default {
 
     // Unverified clients must verify their email before billing/checkout.
     if (authMeta.value.isUnverified) {
-      const { router } = useRoutingEngine();
-      const { targetBasketId } = useBasket();
-      const bid = targetBasketId.value;
-      const returnUrl = router.resolve({
-        name: ROUTE.CHECKOUT,
-        params: bid ? { segment: "basket", bid } : {}
-      }).fullPath;
-      return Promise.reject({
-        target: {
-          name: ROUTE.SESSION_VERIFY_EMAIL,
-          query: { [QUERY_PARAMS.RETURN_URL]: returnUrl }
-        }
-      } as FunnelResponse);
+      return Promise.reject(buildVerifyEmailRedirect());
     }
 
     // Load billing and check if it still needs input
@@ -760,6 +758,22 @@ export default {
         addSuccess(t("confirm.email_verified"));
         // Re-load the client so `isUnverified` flips and downstream guards pass.
         await session.refresh().catch(() => false);
+
+        // If a `returnUrl` was preserved through to the verify-email route,
+        // resolve and redirect there. Otherwise fall through to the funnel's
+        // default onError target (basket).
+        const returnUrl = getParam(QUERY_PARAMS.RETURN_URL)?.toString();
+        if (returnUrl) {
+          const { router } = useRoutingEngine();
+          const resolved = router.resolve(returnUrl);
+          return Promise.reject({
+            target: {
+              name: resolved.name as string,
+              params: resolved.params,
+              query: resolved.query
+            }
+          } as FunnelResponse);
+        }
         return Promise.reject();
       } catch (error: any) {
         addError({
