@@ -35,8 +35,7 @@ newUser.describe("Free Trials @free-trials", () => {
       "Trial checkbox visible & pre-selected for trial-supported product",
       async () => {
         await expect(productConfig.trialCheckbox).toBeVisible();
-        const checked = await productConfig.isTrialSelected();
-        await expect(checked).toBe(true);
+        await productConfig.expectTrialSelected();
       }
     );
     newUser("Trial description shows badge, duration and term", async () => {
@@ -49,22 +48,18 @@ newUser.describe("Free Trials @free-trials", () => {
     });
     newUser("User can deselect trial (opt out)", async () => {
       // Start selected
-      let checked = await productConfig.isTrialSelected();
-      await expect(checked).toBe(true);
+      await productConfig.expectTrialSelected();
       // Deselect
       await productConfig.toggleTrial();
-      checked = await productConfig.isTrialSelected();
-      await expect(checked).toBe(false);
+      await productConfig.expectTrialNotSelected();
     });
     newUser("User can re-select trial (opt back in)", async () => {
       // Deselect first
       await productConfig.toggleTrial();
-      let checked = await productConfig.isTrialSelected();
-      await expect(checked).toBe(false);
+      await productConfig.expectTrialNotSelected();
       // Re-select
       await productConfig.toggleTrial();
-      checked = await productConfig.isTrialSelected();
-      await expect(checked).toBe(true);
+      await productConfig.expectTrialSelected();
     });
     newUser(
       "Promo details display on trial product",
@@ -100,8 +95,7 @@ newUser.describe("Free Trials @free-trials", () => {
     newUser("Trial checkbox visible but disabled", async () => {
       await expect(productConfig.trialCheckbox).toBeVisible();
       await expect(productConfig.trialCheckbox).toBeDisabled();
-      let checked = await productConfig.isTrialSelected();
-      await expect(checked).toBe(true);
+      await productConfig.expectTrialSelected();
     });
     newUser("Trial description shows badge, duration and term", async () => {
       await expect(productConfig.trialBadge).toBeVisible();
@@ -154,19 +148,11 @@ newUser.describe("Free Trials @free-trials", () => {
         await trialButton.click();
         await expect(productConfig.productConfigSection).toBeVisible();
         await expect(productConfig.trialCheckbox).toBeVisible();
-        let checked = await productConfig.isTrialSelected();
-        await expect(checked).toBe(true);
+        await productConfig.expectTrialSelected();
       }
     );
   });
-  newUser.describe("Recommendations", () => {
-    newUser("Free Trials display on Recommendations page", async ({ page }) => {
-      //TODO
-    });
-    newUser("Free Trials display on Recommendations page", async ({ page }) => {
-      //TODO
-    });
-  });
+  // TODO: add coverage for Free Trials display on the Recommendations page.
   newUser.describe("Basket Display with Trial", () => {
     newUser.beforeEach(async ({ page, context }) => {
       basket = new Basket(page);

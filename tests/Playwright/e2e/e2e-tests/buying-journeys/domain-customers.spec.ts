@@ -1,6 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { fakerEN_GB } from "@faker-js/faker";
 import { Logins } from "../../support/constants/logins";
+import { TEST_EMAILS } from "../../support/constants/test-data";
 import { ProductConfig } from "../../support/page-objects/templates/product-config";
 import { Checkout } from "../../support/page-objects/templates/checkout";
 import { Basket } from "../../support/page-objects/templates/basket";
@@ -23,7 +24,7 @@ async function enterDomainDetails() {
   await productConfig.enterRegistrantDetails(
     `${fakerEN_GB.person.fullName()}`,
     `${fakerEN_GB.person.zodiacSign()}`,
-    `nathan.robinson+${fakerEN_GB.string.alphanumeric({ length: { min: 5, max: 10 } })}@upmind.com`,
+    `${TEST_EMAILS.registrantPrefix}+${fakerEN_GB.string.alphanumeric({ length: { min: 5, max: 10 } })}@upmind.com`,
     "07111111111",
     `${fakerEN_GB.location.streetAddress()}`,
     `${fakerEN_GB.location.city()}`,
