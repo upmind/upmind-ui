@@ -63,11 +63,19 @@ test.describe("Hosting customers", async () => {
       await interceptConfigValues(page, token, { basketFunnelling: "none" });
       await page.goto(URLs.catalogueRoot1);
       await expect(page.getByTestId("products-grid")).toBeVisible();
+      const basketAddResponse = page.waitForResponse(
+        response =>
+          /\/api\/clients\/[^/]+\/orders\/[^/]+\/products/.test(
+            response.url()
+          ) &&
+          response.request().method() === "POST" &&
+          response.ok()
+      );
       await page
         .getByTestId(`product-card-${id}`)
         .getByTestId("button-add-to-basket")
         .click();
-      await page.waitForTimeout(1000);
+      await basketAddResponse;
       await page.goto(URLs.basket);
       await basket.proceedToCheckout.click();
       await checkout.selectPaymentMethod("Direct Bank Transfer");
