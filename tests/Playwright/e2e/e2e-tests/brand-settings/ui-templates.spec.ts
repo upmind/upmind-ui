@@ -21,6 +21,7 @@ let register: Registration;
 let token: string | null;
 let orderId: string | null;
 
+// TODO: re-enable once UI template changes stabilise
 test.describe.skip("Brand Settings - UI Templates", () => {
   test.describe("Login UI Templates", () => {
     test.beforeEach(async ({ page }) => {

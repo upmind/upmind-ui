@@ -175,7 +175,6 @@ test.describe("Recommendations", () => {
         const token = await getSessionToken(context);
         const order = await getCurrentOrder(token);
         const orderProducts = order?.products;
-        console.log(orderProducts);
         const subProdIds = collectSubproductIds(orderProducts[1]);
         expect(subProdIds).toEqual(expect.arrayContaining([SUB_PIDS.MAILBOX]));
       });
@@ -194,7 +193,6 @@ test.describe("Recommendations", () => {
         const token = await getSessionToken(context);
         const order = await getCurrentOrder(token);
         const orderProducts = order?.products;
-        console.log(orderProducts);
         const subProdIds = collectSubproductIds(orderProducts[1]);
         expect(subProdIds).toEqual(
           expect.arrayContaining([SUB_PIDS.TOKYO, SUB_PIDS.MAILBOX])
@@ -218,7 +216,6 @@ test.describe("Recommendations", () => {
         const token = await getSessionToken(context);
         const order = await getCurrentOrder(token);
         const orderProducts = order?.products;
-        console.log(orderProducts);
         const subProdIds = collectSubproductIds(orderProducts[1]);
         expect(subProdIds).toEqual(
           expect.arrayContaining([SUB_PIDS.TOKYO, SUB_PIDS.MAILBOX])
@@ -240,7 +237,6 @@ test.describe("Recommendations", () => {
         const token = await getSessionToken(context);
         const order = await getCurrentOrder(token);
         const orderProducts = order?.products;
-        console.log(orderProducts);
         const subProdIds = collectSubproductIds(orderProducts[1]);
         expect(subProdIds).not.toContain(SUB_PIDS.TOKYO);
         expect(subProdIds).not.toContain(SUB_PIDS.MAILBOX);
