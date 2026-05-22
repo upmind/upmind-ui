@@ -105,7 +105,7 @@ tests/Playwright/e2e/snapshots/visual-regression/login.spec.ts/chrome/English/lo
 ## Reports & traces
 
 - **HTML report:** opens with `pnpm playwright show-report tests/Playwright/e2e/reports/html` — or just open `index.html` directly.
-- **Traces:** configured as `trace: 'on-first-retry'`. Since retries are 0 by default, traces are not collected by default. To force a trace for a single run, pass `--trace=on` or set retires to > 0 in the playwright config file. :
+- **Traces:** configured as `trace: 'on-first-retry'`. Since `retries: 1` is the default, a trace is automatically collected on the first retry of any failing test — open the HTML report and click into the test to view it. To force a trace on the initial run as well, pass `--trace=on`:
 
   ```bash
   pnpm playwright test path/to/test.spec.ts --project=chrome --trace=on
