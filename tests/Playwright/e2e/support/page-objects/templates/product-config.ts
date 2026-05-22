@@ -371,9 +371,12 @@ export class ProductConfig {
   }
 
   /* Trial Helper Methods */
-  async isTrialSelected(): Promise<boolean> {
-    const state = await this.trialCheckbox.getAttribute("data-state");
-    return state === "on";
+  async expectTrialSelected() {
+    await expect(this.trialCheckbox).toHaveAttribute("data-state", "on");
+  }
+
+  async expectTrialNotSelected() {
+    await expect(this.trialCheckbox).toHaveAttribute("data-state", "off");
   }
 
   async toggleTrial() {

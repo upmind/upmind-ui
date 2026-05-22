@@ -166,9 +166,8 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
     test("Can add new address on billing page", async ({ page }) => {
       await page.goto(URLs.billing);
       await expect(billingPage.billingSection).toBeVisible({ timeout: 15000 });
-      if (await billingPage.personalTab.isVisible()) {
-        await billingPage.personalTab.click();
-      }
+      await expect(billingPage.personalTab).toBeVisible();
+      await billingPage.personalTab.click();
       await billingPage.manuallyInputAddress(
         "10 Downing Street",
         "London",
@@ -185,14 +184,11 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
     test("Personal/Business tab switching", async ({ page, context }) => {
       await page.goto(URLs.billing);
       await expect(billingPage.billingSection).toBeVisible({ timeout: 15000 });
-      if (
-        (await billingPage.personalTab.isVisible()) &&
-        (await billingPage.businessTab.isVisible())
-      ) {
-        await billingPage.businessTab.click();
-        await expect(billingPage.companyName).toBeVisible({ timeout: 5000 });
-        await billingPage.personalTab.click();
-      }
+      await expect(billingPage.personalTab).toBeVisible();
+      await expect(billingPage.businessTab).toBeVisible();
+      await billingPage.businessTab.click();
+      await expect(billingPage.companyName).toBeVisible({ timeout: 5000 });
+      await billingPage.personalTab.click();
     });
   });
 
@@ -230,16 +226,14 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       await checkout.billingSummaryChangeLink.click();
       await page.waitForURL("**/order/billing**");
       await expect(billingPage.billingSection).toBeVisible({ timeout: 15000 });
-      if (await billingPage.personalTab.isVisible()) {
-        await billingPage.personalTab.click();
-      }
+      await expect(billingPage.personalTab).toBeVisible();
+      await billingPage.personalTab.click();
       const changeLink = page.getByTestId("link-edit");
-      await changeLink.isVisible();
+      await expect(changeLink).toBeVisible();
       await changeLink.click();
       await billingPage.addressLine1.fill("15 White Hart Lane");
       await billingPage.city.fill("Manchester");
       await billingPage.postCode.fill("M1 1AA");
-      await page.waitForTimeout(1000);
       await checkout.clickSaveDetails();
       await billingPage.continue.click();
       await expect(checkout.billingDetails).toBeVisible({ timeout: 15000 });
@@ -255,13 +249,10 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       await checkout.billingSummaryChangeLink.click();
       await page.waitForURL("**/order/billing**");
       await expect(billingPage.billingSection).toBeVisible({ timeout: 15000 });
-      if (await billingPage.businessTab.isVisible()) {
-        await billingPage.businessTab.click();
-      }
-      if (await billingPage.companyName.isVisible()) {
-        await billingPage.companyName.fill("E2E Test Company Ltd");
-      }
-      await page.waitForTimeout(1000);
+      await expect(billingPage.businessTab).toBeVisible();
+      await billingPage.businessTab.click();
+      await expect(billingPage.companyName).toBeVisible();
+      await billingPage.companyName.fill("E2E Test Company Ltd");
       await checkout.clickSaveDetails();
       await billingPage.backToBasket.click();
       await page.waitForURL("**/order/basket/**");

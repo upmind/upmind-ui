@@ -33,7 +33,6 @@ test.describe("Partial payment at Checkout", () => {
     }) => {
       await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
       await waitForSessionCookie(page.context());
-      await page.waitForLoadState("load");
       await checkout.changeAmountButton.click();
       await checkout.changeAmountInput.fill("20");
       await checkout.clickConfirmAmount();
@@ -181,12 +180,9 @@ test.describe("Partial payment at Checkout", () => {
       await expect(page.getByText("Thank you for your order.")).toBeVisible();
     });
   });
-  test.describe.skip("Partial payment using Account Credit", () => {
-    // TODO: Need a way to mock the credit limit and successfully check out (real credit data would be useless after one test)
-    test.skip("Partial Payment in base Currency (GBP)", async ({ page }) => {});
-    test.skip("Partial Payment in foreign currency (INR)", async ({
-      page
-    }) => {});
-    test.skip("Partial payment with promo (GBP)", async ({ page }) => {});
-  });
+  // TODO: when credit-limit mocking is available, add coverage for:
+  //   - Partial payment in base currency (GBP)
+  //   - Partial payment in foreign currency (INR)
+  //   - Partial payment with promo (GBP)
+  // Real credit data is unusable in tests — it's consumed after one checkout.
 });

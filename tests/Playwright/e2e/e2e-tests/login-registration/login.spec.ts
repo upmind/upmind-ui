@@ -21,7 +21,6 @@ test.describe("Login", async () => {
         Logins.checkoutUser.username,
         Logins.checkoutUser.password
       );
-      await page.waitForLoadState("domcontentloaded");
       await page.waitForURL(URLs.emptyBasket);
     });
     test("Invalid Username", async ({ page }) => {
