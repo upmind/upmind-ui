@@ -16,7 +16,7 @@ corepack prepare pnpm@10.33.0 --activate
 
 ### The testing env hosts entry
 
-The test suite currently talks to `http://qa-automation.local:5173/` instead of `localhost`. This is deliberate — the app sets session cookies scoped to the `qa-automation.local` domain and several test helpers read those cookies directly (e.g. [auth-context.ts:39-51](../e2e/support/fixtures/auth-context.ts#L39-L51)).
+The test suite currently talks to `http://qa-automation.local:5173/` instead of `localhost`. This is deliberate — the app sets session cookies scoped to the `qa-automation.local` domain and several test helpers read those cookies directly (e.g. `waitForSessionCookie` in [helpers/session.ts](../e2e/support/helpers/session.ts)).
 
 Verify these lines exist in `/etc/hosts`:
 
