@@ -328,8 +328,8 @@ test.describe.skip("Brand Settings - UI Templates", () => {
       await page.goto(URLs.login);
       await getClientToken(
         page,
-        Logins.UiTesting.username,
-        Logins.UiTesting.password
+        Logins.uiTesting.username,
+        Logins.uiTesting.password
       );
       await page.reload();
       token = await getSessionToken(page.context());
@@ -418,8 +418,8 @@ test.describe.skip("Brand Settings - UI Templates", () => {
       await page.goto(URLs.login);
       await getClientToken(
         page,
-        Logins.UiTesting.username,
-        Logins.UiTesting.password
+        Logins.uiTesting.username,
+        Logins.uiTesting.password
       );
       await page.reload();
       token = await getSessionToken(page.context());
@@ -503,8 +503,8 @@ test.describe.skip("Brand Settings - UI Templates", () => {
       await page.goto(URLs.login);
       await getClientToken(
         page,
-        Logins.UiTesting.username,
-        Logins.UiTesting.password
+        Logins.uiTesting.username,
+        Logins.uiTesting.password
       );
       await page.reload();
       token = await getSessionToken(page.context());

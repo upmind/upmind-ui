@@ -41,4 +41,8 @@ export class BillingPage {
     await this.city.fill(city);
     await this.postCode.fill(postCode);
   }
+
+  async continueIsHidden(): Promise<boolean> {
+    return (await this.continue.count()) === 0;
+  }
 }

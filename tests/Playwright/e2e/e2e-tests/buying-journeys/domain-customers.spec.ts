@@ -21,17 +21,17 @@ async function enterDomainDetails() {
   await productConfig.enterSld(
     `${fakerEN_GB.string.alpha({ length: { min: 5, max: 10 } })}${fakerEN_GB.string.numeric({ length: { min: 2, max: 5 } })}`
   );
-  await productConfig.enterRegistrantDetails(
-    `${fakerEN_GB.person.fullName()}`,
-    `${fakerEN_GB.person.zodiacSign()}`,
-    `${TEST_EMAILS.registrantPrefix}+${fakerEN_GB.string.alphanumeric({ length: { min: 5, max: 10 } })}@upmind.com`,
-    "07111111111",
-    `${fakerEN_GB.location.streetAddress()}`,
-    `${fakerEN_GB.location.city()}`,
-    `${fakerEN_GB.location.state()}`,
-    `${fakerEN_GB.location.zipCode()}`,
-    "GB"
-  );
+  await productConfig.enterRegistrantDetails({
+    registrantName: `${fakerEN_GB.person.fullName()}`,
+    registrantOrg: `${fakerEN_GB.person.zodiacSign()}`,
+    registrantEmail: `nathan.robinson+${fakerEN_GB.string.alphanumeric({ length: { min: 5, max: 10 } })}@upmind.com`,
+    registrantPhone: "07111111111",
+    registrantAddr1: `${fakerEN_GB.location.streetAddress()}`,
+    registrantCity: `${fakerEN_GB.location.city()}`,
+    registrantState: `${fakerEN_GB.location.state()}`,
+    registrantPostcode: `${fakerEN_GB.location.zipCode()}`,
+    registrantCountryCode: "GB"
+  });
 }
 
 test.describe("Domain customers", () => {
