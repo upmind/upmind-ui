@@ -2,8 +2,16 @@ import { expect, test } from "@playwright/test";
 import { newUser } from "../../../support/fixtures";
 import { Checkout } from "../../../support/page-objects/templates/checkout";
 import { BillingPage } from "../../../support/page-objects/templates/billing-page";
+import { ProductConfig } from "../../../support/page-objects/templates/product-config";
+import { ProductSetup } from "../../../support/page-objects/templates/product-setup";
+import { Basket } from "../../../support/page-objects/templates/basket";
 import { URLs } from "../../../support/constants/urls";
-import { goToCheckout } from "../../../support/flows/checkout";
+import {
+  fillRegistrantDetails,
+  goToCheckout,
+  loginAsIncompleteCustomer,
+  seedInvalidProduct
+} from "../../../support/flows";
 import { addAddressToClient } from "../../../support/api/client";
 import { products } from "../../../support/constants/products";
 import {
@@ -347,6 +355,70 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       await page.reload();
       await expect(checkout.billingDetails).toBeVisible({ timeout: 15000 });
       await expect(checkout.billingAddNumber).toBeVisible();
+    });
+  });
+
+  test.describe("FE-2457: Initial billing UX", () => {
+    test.beforeEach(async ({ page, context }) => {
+      billingPage = new BillingPage(page);
+      registration = new Registration(page, context);
+      await page.goto("/");
+      await waitForSessionCookie(context);
+      const guestToken = await getSessionToken(context);
+      const user = await registerClient(guestToken);
+      await getClientToken(page, user.email, user.password);
+      interceptUISchema(context, {
+        "@data.billing_details.billingDetailsDisabled": false
+      });
+      await goToCheckout(page, context, products.STARTER_HOSTING);
+    });
+
+    test("Continue button is hidden for first-time clients with no saved address or company", async ({
+      page
+    }) => {
+      await page.goto(URLs.billing);
+      await expect(billingPage.billingSection).toBeVisible({ timeout: 15000 });
+      expect(await billingPage.continueIsHidden()).toBe(true);
+    });
+
+    test("Continue button is rendered once the client has at least one saved address", async ({
+      page,
+      context
+    }) => {
+      const token = await getSessionToken(context);
+      const order = await getCurrentOrder(token);
+      await addAddressToClient(token, order?.client_id as string);
+
+      await page.goto(URLs.billing);
+      await expect(billingPage.billingSection).toBeVisible({ timeout: 15000 });
+      await expect(billingPage.continue).toBeVisible({ timeout: 5000 });
+    });
+  });
+
+  test.describe("FE-2457: Navigation Billing → Product Setup → Checkout", () => {
+    test("billing → product-setup → checkout chain works end-to-end", async ({
+      page,
+      context
+    }) => {
+      const basket = new Basket(page);
+      const productConfig = new ProductConfig(page);
+      const productSetup = new ProductSetup(page);
+      checkout = new Checkout(page);
+
+      await loginAsIncompleteCustomer(page, context);
+      await seedInvalidProduct(context, products.DOMAIN_2);
+
+      await page.goto(URLs.basket);
+      await basket.proceedToCheckout.click();
+      await page.waitForURL(/products-setup/, { timeout: 15000 });
+      await fillRegistrantDetails(productConfig);
+      await productSetup.submit();
+      await page.waitForURL(/checkout/);
+      await checkout.selectPaymentMethod("Direct Bank Transfer");
+      await checkout.clickCompleteCheckout();
+      await expect(page.getByText("Order confirmed")).toBeVisible({
+        timeout: 30000
+      });
     });
   });
 

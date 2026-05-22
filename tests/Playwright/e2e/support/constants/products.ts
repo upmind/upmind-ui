@@ -42,8 +42,8 @@ export const products = {
     type: "hosting"
   },
   DOMAIN: {
-    id: "825d96e7-63ed-0913-792c-417482528340",
-    name: ".com Domain Registration",
+    id: "5d085e69-d562-3719-459a-218e940d4237",
+    name: ".org Domain Registration",
     billingCycle: 12,
     gbpPrice: "£12.00",
     type: "domain"
@@ -63,5 +63,33 @@ export const products = {
     billingCycle: 1,
     gbpPrice: "£10.00",
     type: "apparel"
+  },
+  DOMAIN_2: {
+    id: "4d036794-24d0-e710-488b-3153698d582e",
+    name: ".au Domain",
+    billingCycle: 12,
+    gbpPrice: "£20.00",
+    type: "domain"
+  },
+  DOMAIN_3: {
+    id: "5d085e69-d562-3719-459a-218e940d4237",
+    name: ".org Domain",
+    billingCycle: 12,
+    gbpPrice: "£12.00",
+    type: "domain"
+  },
+  SERVER_A: {
+    id: "8d632507-9806-5d1e-629b-8174e234e98d",
+    name: "Server A",
+    billingCycle: 1,
+    gbpPrice: "£150.00",
+    type: "server"
+  },
+  SERVER_B: {
+    id: "47d73824-8507-9315-920b-81e642d59e06",
+    name: "Server B",
+    billingCycle: 1,
+    gbpPrice: "£150.00",
+    type: "server"
   }
 };
