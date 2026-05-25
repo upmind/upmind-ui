@@ -26,6 +26,7 @@
   "own_domain_qn": "Possiedi questo dominio?",
   "owned_domains_title": "Domini di cui sei attualmente proprietario",
   "price_renewal_desc": "Prezzo una tantum di {regularPrice}. | Si rinnova ogni anno per {regularPrice}. | Si rinnova ogni {count} anni per {regularPrice}.",
+  "registrant_use_billing_msg": "I tuoi dati di fatturazione verranno utilizzati come informazioni di contatto del registrante del dominio.",
   "search": "Cerca domini",
   "starts_with_domain": "Tutto inizia con un **nome di dominio**",
   "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
@@ -36,5 +37,6 @@
   "transfer_extension_info": "I trasferimenti includono una proroga di un anno.",
   "transfer_owner_question": "Sei il proprietario di questo dominio?",
   "transfer_price_info": "Puoi trasferirlo a noi per soli {currentPrice}",
-  "transfer_promotion": "Trasferimento solo per {currentPrice}, solitamente {regularPrice}."
+  "transfer_promotion": "Trasferimento solo per {currentPrice}, solitamente {regularPrice}.",
+  "use_details_for": "Utilizzare questi dettagli per{domain}"
 }

@@ -347,7 +347,7 @@ const template = computed(() =>
   validateTemplate(
     configMeta.ui.template.value || props.template,
     BASKET_PRODUCT_TEMPLATE,
-    BASKET_PRODUCT_TEMPLATE.TWO_COLUMN_LTR
+    BASKET_PRODUCT_TEMPLATE.TWO_COLUMN_RTL
   )
 );
 

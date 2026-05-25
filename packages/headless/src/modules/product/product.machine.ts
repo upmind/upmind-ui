@@ -6,7 +6,13 @@ import services from "./services";
 import { basketSubscription } from "../basketProduct/helper";
 
 // --utils
-import { mapToHeadlessError, responseCodes, useTime } from "../../utils";
+import {
+  compactDeep,
+  mapToHeadlessError,
+  responseCodes,
+  useModelParser,
+  useTime
+} from "../../utils";
 import {
   parseSubproductDetails,
   parseProductDetails,
@@ -32,7 +38,6 @@ import {
   isEqual,
   map,
   merge,
-  pick,
   split,
   trimStart,
   xorBy
@@ -202,12 +207,12 @@ export default createMachine(
           REFRESH: [
             {
               target: "loading",
-              actions: ["refreshContext"],
+              actions: ["clearError", "refreshContext"],
               cond: "hasCurrencyChanged"
             },
             {
               target: "refreshing",
-              actions: ["refreshContext"],
+              actions: ["clearError", "refreshContext"],
               cond: "hasBasketChanged"
             },
             {
@@ -216,6 +221,8 @@ export default createMachine(
               cond: "hasError"
             },
             {
+              // Default: refresh context and re-validate (model may have changed)
+              target: "available.checking",
               actions: ["refreshContext"]
             }
           ],
@@ -312,7 +319,13 @@ export default createMachine(
       },
 
       unavailable: {
-        id: "unavailable"
+        id: "unavailable",
+        on: {
+          REFRESH: {
+            target: "loading",
+            actions: ["refreshContext"]
+          }
+        }
       },
 
       // Decide whether to continue editing or stop
@@ -369,7 +382,7 @@ export default createMachine(
             promotions,
             coupons,
             subproducts,
-            errorExternal,
+            basketErrors,
             error,
             silent,
             bundle
@@ -377,7 +390,7 @@ export default createMachine(
           _event: AnyEventObject
         ) => {
           return {
-            errorExternal,
+            basketErrors: get(basketErrors, rawBasketProduct?.id ?? ""),
             error: merge({}, error),
 
             // ---
@@ -409,42 +422,41 @@ export default createMachine(
         }
       ),
       refreshContext: assign(
-        (
-          {
-            model,
-            lookups,
-            rawProduct,
-            error,
-            coupons,
-            rawBasketProduct
-          }: ProductConfigContext,
-          { data }: AnyEventObject
-        ) => {
-          const {
-            basket_product,
+        (context: ProductConfigContext, { data }: AnyEventObject) => {
+          let { model, lookups, rawProduct, coupons, rawBasketProduct } =
+            context;
+
+          let {
             client_id,
             currency_id,
             promotions,
-            error: errorExternal
+            products,
+            error: basketErrors
           } = data ?? {};
+
+          // Basket refresh sends full basket, not individual products - find ours by ID
+          // this ensure any changes to our basketProduct are not stale
+          const basketProduct = rawBasketProduct?.id
+            ? find(products, { id: rawBasketProduct.id })
+            : undefined;
 
           lookups ??= {};
 
           if (rawProduct) {
-            lookups.product = parseProductDetails(rawProduct, rawBasketProduct);
+            lookups.product = parseProductDetails(rawProduct, basketProduct);
           }
 
-          if (rawBasketProduct && rawBasketProduct != basket_product) {
-            console.warn(
-              "Product Machine",
-              "refresh",
-              "basketProduct mismatch",
-              {
-                rawBasketProduct,
-                basket_product
-              }
-            );
-          }
+          // Update baseModel from new basket data, merge into model preserving user edits.
+          // compactDeep strips nulls from model so basket values fill in, but actual user edits win.
+          const newBaseModel = basketProduct
+            ? parseBasketProductModel(basketProduct)
+            : cloneDeep(model);
+
+          const newModel = useModelParser<ProductModel>(
+            context.schema,
+            compactDeep(model),
+            newBaseModel
+          );
 
           const newContext = {
             clientId: client_id,
@@ -452,16 +464,12 @@ export default createMachine(
             currencyCode: undefined, // we reset any given currency code after refresh to prevent going out of sync
             promotions: promotions ?? [],
             coupons: coupons ?? [],
-            rawBasketProduct: rawBasketProduct ?? basket_product, // ensure we honoure any given basket product
-            readonly: hasNonOrderableSubproducts(rawBasketProduct),
-            baseModel: basket_product
-              ? parseBasketProductModel(basket_product)
-              : cloneDeep(model),
-            model: basket_product
-              ? parseBasketProductModel(basket_product)
-              : cloneDeep(model),
-            errorExternal,
-            error: merge({}, error),
+            rawBasketProduct: basketProduct, // ensure we honoure any given basket product
+            readonly: hasNonOrderableSubproducts(basketProduct),
+            baseModel: newBaseModel,
+            model: newModel,
+            // Fresh basket errors for this product - keyed by product ID in the full basket errors object
+            basketErrors: get(basketErrors, basketProduct?.id ?? ""),
             lookups
           };
 
@@ -540,41 +548,15 @@ export default createMachine(
         rawProvisionFields: (
           { rawProvisionFields },
           { data }: AnyEventObject
-        ) => data?.rawProvisionFields ?? rawProvisionFields ?? {},
-        errorExternal: (
-          { errorExternal, baseModel }: ProductConfigContext,
-          { data }: AnyEventObject
-        ) => {
-          // Change in Logic...if we have interacted with the product,
-          // we can clear any external errors for fields that have changed.
-          if (!isArray(errorExternal)) return errorExternal;
-
-          const newModel = data?.model ?? data;
-          const remaining = filter(errorExternal, error => {
-            const field = compact(
-              split(trimStart(error.instancePath, "/"), "/")
-            );
-            const baseValue = get(baseModel, field);
-            const newValue = get(newModel, field);
-
-            // Treat all nilish/empty values as equivalent — the user
-            // hasn't meaningfully changed a field that went from
-            // undefined → null → "" etc.
-            if (!baseValue && !newValue) return true;
-
-            return isEqual(baseValue, newValue);
-          });
-
-          return isEmpty(remaining) ? undefined : remaining;
-        }
+        ) => data?.rawProvisionFields ?? rawProvisionFields ?? {}
       }),
 
       // restroring the model + errors to its prev state
       resetModel: assign({
         model: ({ baseModel }: ProductConfigContext, _event) =>
           cloneDeep(baseModel),
-        error: ({ error, errorExternal }, _event) =>
-          merge({}, error, errorExternal)
+        error: ({ error, basketErrors }, _event) =>
+          merge({}, error, basketErrors)
       }),
 
       // ---
@@ -707,7 +689,7 @@ export default createMachine(
       // ---
 
       setExternalError: assign({
-        errorExternal: (
+        basketErrors: (
           _context: ProductConfigContext,
           { data }: AnyEventObject
         ) => mapToHeadlessError(data) // NB we only need the exact errors from the api
@@ -743,18 +725,13 @@ export default createMachine(
           xorBy(promotions, data?.promotions, "promotion_id")
         );
 
-        // lets see if any important value have changed within the basketProduct
-        // dont compare the entire object, just the keys that are important to this machine
-        // todo: check if bbasketProduct exists on data
-        const keys = ["id", "product_id", "service_identifier"];
-        const dataBasketProduct = find(data?.products, [
-          "id",
-          rawBasketProduct?.id
-        ]);
-        const basketProductChanged = !isEqual(
-          pick(dataBasketProduct, keys),
-          pick(rawBasketProduct, keys)
-        );
+        // NB check if our underlying basketProduct has changed as well ( if we have one )
+        const basketProductChanged =
+          !!rawBasketProduct &&
+          !isEqual(
+            find(data?.products, ["id", rawBasketProduct?.id]),
+            rawBasketProduct
+          );
 
         const value =
           basketChanged ||

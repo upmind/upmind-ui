@@ -1,10 +1,13 @@
 import {
   type AnyEventObject,
   type FunnelContext,
+  getDomainBasketProducts,
   QUERY_PARAMS,
   UIContext,
   useBasket,
+  useBasketBilling,
   useConfig,
+  useProductSetup,
   useQueryParams
 } from "@upmind-automation/client-vue";
 import { isEmpty } from "lodash-es";
@@ -70,9 +73,13 @@ export default {
     const { meta } = useBasket();
     return meta.value?.hasProducts;
   },
-  hasInvalidProducts: () => {
+  hasLockedProducts: () => {
     const { meta } = useBasket();
-    return meta.value?.hasInvalidProducts;
+    return meta.value?.hasLockedProducts;
+  },
+  hasInvalidProducts: () => {
+    const { meta } = useProductSetup();
+    return meta.value?.isAvailable;
   },
   hasFields: () => {
     const { meta } = useBasket();
@@ -87,5 +94,64 @@ export default {
     const { ui } = useConfig({ context: UIContext.CHECKOUT });
     const { data } = useConfig({ context: UIContext.BILLING_DETAILS });
     return !data.billingDetailsDisabled && ui.billingDetails.isReadonly;
+  },
+
+  /**
+   * Returns true when the error target is BILLING.
+   * Used by CHECKOUT onError to route to billing before product setup.
+   */
+  isBilling: (_context: FunnelContext, { data }: AnyEventObject) => {
+    return data?.target?.name === "billing";
+  },
+
+  /**
+   * Returns true when basket contains domain products.
+   */
+  hasDomainProducts: () => {
+    const { products } = useBasket();
+    return !isEmpty(getDomainBasketProducts(products.value));
+  },
+
+  /**
+   * Returns true when basket has domain products and no billing address is set.
+   * Domain registrant details are a hard requirement, so this overrides
+   * `billingDetailsDisabled` — the billing page must remain reachable.
+   */
+  needsAddressForDomains: () => {
+    const { products } = useBasket();
+    const { model: billingModel } = useBasketBilling();
+    const hasDomains = !isEmpty(getDomainBasketProducts(products.value));
+    return hasDomains && !billingModel.value?.addressId;
+  },
+
+  /**
+   * Returns true when billing page is needed (standalone billing incomplete or domains need address).
+   */
+  needsAddress: () => {
+    const { ui } = useConfig({ context: UIContext.CHECKOUT });
+    const { data } = useConfig({ context: UIContext.BILLING_DETAILS });
+    const { products } = useBasket();
+    const { meta: billingMeta, model: billingModel } = useBasketBilling();
+
+    // Domains require an address for registrant details
+    const hasDomains = !isEmpty(getDomainBasketProducts(products.value));
+    const needsAddressForDomains = hasDomains && !billingModel.value?.addressId;
+
+    // Standalone billing page is enabled when billing is readonly on checkout and incomplete
+    const needsBillingPage =
+      !data.billingDetailsDisabled &&
+      ui.billingDetails.isReadonly &&
+      !billingMeta.value.isComplete;
+
+    return needsBillingPage || needsAddressForDomains;
+  },
+
+  /**
+   * Returns true when all products requiring setup are complete.
+   * Used by BASKET_PRODUCTS_SETUP to skip when already complete.
+   */
+  isProductSetupComplete: () => {
+    const { meta } = useProductSetup();
+    return meta.value?.isComplete;
   }
 };
