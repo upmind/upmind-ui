@@ -691,13 +691,14 @@ export default createMachine(
         actors: ({ actors, basket, error }: BasketContext) => {
           //Refresh any existing actors with the new basket data
           forEach(actors, actor => {
-            if (actor?.send)
+            const data = {
+              ...basket,
+              error
+            };
+            if (actor?.send && !actor.getSnapshot()?.done)
               actor.send({
                 type: "REFRESH",
-                data: {
-                  ...basket,
-                  error
-                }
+                data
               });
           });
 
@@ -714,13 +715,17 @@ export default createMachine(
 
       prefreshActors: assign({
         actors: (
-          { actors, basket }: BasketContext,
+          { actors, basket, error }: BasketContext,
           { data }: AnyEventObject
         ) => {
           //Refresh any existing actors with the new basket data
+          data = defaultsDeep(data, basket, { error });
           forEach(actors, actor => {
-            if (actor?.send)
-              actor.send({ type: "REFRESH", data: defaultsDeep(data, basket) });
+            if (actor?.send && !actor.getSnapshot().done)
+              actor.send({
+                type: "REFRESH",
+                data
+              });
           });
 
           return actors;

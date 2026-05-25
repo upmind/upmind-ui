@@ -26,6 +26,7 @@
   "own_domain_qn": "É o dono deste domínio?",
   "owned_domains_title": "Domínios que possui atualmente",
   "price_renewal_desc": "Preço único de {regularPrice}. | Renova-se todos os anos por {regularPrice}. | Renova-se a cada {count} anos por {regularPrice}.",
+  "registrant_use_billing_msg": "Os seus dados de faturação serão utilizados como informações de contacto do registante do domínio.",
   "search": "Domínios de pesquisa",
   "starts_with_domain": "Tudo começa com um **domínio**",
   "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
@@ -36,5 +37,6 @@
   "transfer_extension_info": "As transferências incluem uma prorrogação de um ano.",
   "transfer_owner_question": "É o proprietário deste domínio?",
   "transfer_price_info": "Pode transferi-lo para nós por apenas {currentPrice}",
-  "transfer_promotion": "Transferência por apenas {currentPrice}, normalmente {regularPrice}."
+  "transfer_promotion": "Transferência por apenas {currentPrice}, normalmente {regularPrice}.",
+  "use_details_for": "Utilize esses detalhes para{domain}"
 }

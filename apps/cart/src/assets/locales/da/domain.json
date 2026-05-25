@@ -26,6 +26,7 @@
   "own_domain_qn": "Ejer du dette domæne?",
   "owned_domains_title": "Domæner, du ejer i øjeblikket",
   "price_renewal_desc": "Engangspris på {regularPrice}. | Fornyes hvert år for {regularPrice}. | Fornyes hver {count} år for {regularPrice}.",
+  "registrant_use_billing_msg": "Dine faktureringsoplysninger vil blive brugt som kontaktoplysninger for domæneregistranten.",
   "search": "Søg domæner",
   "starts_with_domain": "Det hele starter med et **domænenavn**",
   "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
@@ -36,5 +37,6 @@
   "transfer_extension_info": "Overførsler inkluderer en forlængelse på et år.",
   "transfer_owner_question": "Er du ejeren af dette domæne?",
   "transfer_price_info": "Du kan overføre det til os for kun {currentPrice}",
-  "transfer_promotion": "Overførsel for kun {currentPrice}, normalt {regularPrice}."
+  "transfer_promotion": "Overførsel for kun {currentPrice}, normalt {regularPrice}.",
+  "use_details_for": "Brug disse oplysninger til{domain}"
 }
