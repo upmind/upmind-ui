@@ -37,6 +37,24 @@
   "engines": {
     "node": "^20.19.0 || >=22.12.0"
   },
+  "pnpm": {
+    "supportedArchitectures": {
+      "os": [
+        "current",
+        "linux",
+        "darwin"
+      ],
+      "cpu": [
+        "current",
+        "x64",
+        "arm64"
+      ],
+      "libc": [
+        "current",
+        "glibc"
+      ]
+    }
+  },
   "scripts": {
     "clean": "pnpm -r clean && rm -rf node_modules && pnpm install",
     "start": "pnpm -r start",
