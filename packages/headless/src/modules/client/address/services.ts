@@ -70,7 +70,7 @@ async function loadLookups({
   schema
 }: AddressContext): Promise<AddressContext> {
   const { t } = useI18n();
-  const { isReady, fetchCountries, fetchRegions, getCountry } = useSystem();
+  const { isReady, ensureCountries, fetchRegions, getCountry } = useSystem();
 
   // we have to do this synchronously as we need the values to be available for the model
   // these could/should be cached in the system machine, so there's no worry about performance
@@ -84,7 +84,7 @@ async function loadLookups({
       )
     )
   );
-  const countries = await fetchCountries();
+  const countries = await ensureCountries();
   const country = getCountry(model?.address?.countryId);
   const regions = await fetchRegions(model?.address?.countryId || country?.id);
 

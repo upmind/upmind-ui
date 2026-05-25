@@ -1,0 +1,24 @@
+{
+  "request": {
+    "method": "GET",
+    "path": "/api/basket/52098d3d-e409-1765-757f-31578626e347/products/5d96e763-ed09-1327-4e7a-417482528340?currency_id=e47d7382-4850-7931-56c8-1e642d59e063&promotions=&with=image%2Cimages%2Cprices%2Cproducts_attributes%2Cproducts_attributes.icon%2Cproducts_options%2Cproducts_options.icon%2Cproducts_options.prices%2Ccategory.top_category.top_category.top_category.top_category%2Cprovision_blueprint.category&basket_id=52098d3d-e409-1765-757f-31578626e347&basket_product_id=5d96e763-ed09-1327-4e7a-417482528340&lang=en-US&currency_code=USD"
+  },
+  "response": {
+    "status": 403,
+    "body": {
+      "status": "error",
+      "data": null,
+      "related": null,
+      "total": null,
+      "error": {
+        "id": "eec667755c9cda375fdb10732d8e92b9779a23c7",
+        "type": 0,
+        "code": 403,
+        "message": "Unauthorized access to cart",
+        "data": null
+      },
+      "messages": null,
+      "meta": null
+    }
+  }
+}

@@ -7,6 +7,7 @@
   "basket_billing_review_msg": "Niektoré fakturačné údaje chýbajú alebo sú nesprávne – {review}.",
   "basket_count": "prázdny | {count} položka | {count} položky",
   "basket_fields_review_msg": "Niektoré polia košíka chýbajú alebo sú nesprávne – {review}.",
+  "basket_incomplete_title": "Údaje o košíku sú neúplné",
   "basket_items": "žiadne položky v košíku | {count} položka v košíku | {count} položky v košíku",
   "basket_product_missing_data": "Chýbajúce údaje v položke",
   "basket_product_missing_data_help": "Tejto položke chýbajú údaje a vyžaduje si pozornosť.",
@@ -17,6 +18,7 @@
   "basket_products_require_attention_msg": "{count} výrobky vyžadujúce pozornosť | {count} produkt vyžaduje pozornosť | {count} výrobky si vyžadujú pozornosť",
   "basket_products_review_desc": "Pred pokračovaním si prosím skontrolujte nasledujúce položky, prípadne sa vráťte do košíka.",
   "basket_requires_attention_msg": "{count} položka potrebuje vašu pozornosť | {count} položky potrebujú vašu pozornosť",
+  "basket_review_item_msg": "{message} – {review}.",
   "basket_review_msg": "Skontrolujte nasledujúce položky pred pokračovaním",
   "basket_section": "Súhrn košíka",
   "basket_summary_desc": "Máte {count} položka vo vašom košíku, celková suma {total} | Máte {count} položky vo vašom košíku, spolu {total}.",
@@ -26,6 +28,7 @@
   "basket_tax_incl": "vrátane daní",
   "basket_title": "Váš košík",
   "change_amount": "Zmeniť sumu",
+  "details_incomplete_title": "Podrobnosti sú neúplné",
   "empty": "Váš **košík** je prázdny",
   "empty_md": "@.markdown:{'cart.empty'}",
   "empty_msg": "Zdá sa, že ste si ešte nič nepridali do košíka.",
@@ -60,6 +63,10 @@
   "place_order_desc": "Pre dokončenie nákupu stačí kliknúť na tlačidlo „Objednať“.",
   "product_not_found": "**Produkt** sa nenašiel",
   "product_not_found_md": "@.markdown:{'cart.product_not_found'}",
+  "product_setup_count": "Žiadne zostávajúce produkty |{count} zostávajúci produkt |{count} zostávajúce produkty",
+  "product_setup_desc": "Niektoré produkty vyžadujú pred dokončením objednávky ďalšie informácie. Skontrolujte ich a poskytnite všetky chýbajúce údaje.",
+  "product_setup_msg": "Použite aj tieto údaje na{name}",
+  "product_setup_title": "Dokončite nastavenie produktu",
   "promotion_help": "{code} poskytuje {amount} zľava {description}",
   "promotions_active": "Aktívne zľavy",
   "recommendations_unavailable_text": "Momentálne sme pre vás nenašli žiadne odporúčania. Kliknite nižšie, aby ste pokračovali.",
@@ -67,5 +74,6 @@
   "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}",
   "show_more_payment_options": "Zobraziť viac možností platby",
   "stored_payment_methods_limited_desc": "Nie všetky spôsoby platby sú viditeľné, pretože nie sú dostupné pre vašu krajinu alebo menu.",
-  "stored_payment_methods_limited_title": "Obmedzené spôsoby platby"
+  "stored_payment_methods_limited_title": "Obmedzené spôsoby platby",
+  "warning_notes_title": "Upozornenie na košík | Upozornenia na košík"
 }

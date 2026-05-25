@@ -2,7 +2,7 @@ import { Page } from "@playwright/test";
 
 export async function returnError(
   page: Page,
-  route: string,
+  route: string | RegExp,
   errorCode: number,
   responseError: {
     id: string | null;

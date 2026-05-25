@@ -132,6 +132,27 @@ export default [
   },
 
   /**
+   * Route for managing billing details on a standalone page.
+   * Accessed from the checkout billing summary "Change" link.
+   */
+  {
+    path: `/order/basket/:bid(${RegexMatch.UUID})?/billing/`,
+    name: ROUTE.BILLING,
+    component: () => import("../pages/Billing.vue"),
+    meta: {
+      actionEmptyBasket: true
+    }
+  },
+
+  /**
+   * Redirect legacy billing route
+   */
+  {
+    path: "/order/billing/",
+    redirect: { name: ROUTE.BILLING }
+  },
+
+  /**
    * Route displayed when a basket is unavailable or invalid.
    */
   {
@@ -170,15 +191,16 @@ export default [
   },
 
   /**
-   * Route for handling products in the basket that require additional user action.
-   * The :bpid parameter captures the unique basket product identifier (UUID format).
-   * This route typically leads to a page where users can resolve issues
-   * such as selecting options or configurations for the product.
+   * Route for product setup - fixing invalid/deferred product configuration.
+   * Single route that internally determines which product to configure.
    */
   {
-    path: `/order/basket/:bid(${RegexMatch.UUID})?/requires-action/:bpid(${RegexMatch.UUID})?/`,
-    name: ROUTE.BASKET_PRODUCT_REQUIRES_ACTION,
-    component: () => import("../pages/product/RequiresAction.vue")
+    path: `/order/basket/:bid(${RegexMatch.UUID})?/products-setup/`,
+    name: ROUTE.BASKET_PRODUCTS_SETUP,
+    component: () => import("../pages/ProductSetup.vue"),
+    meta: {
+      actionEmptyBasket: true
+    }
   },
 
   /**
@@ -196,19 +218,6 @@ export default [
     path: `/order/${BID_PREFIX}/checkout/`,
     name: ROUTE.CHECKOUT,
     component: () => import("../pages/Checkout.vue"),
-    meta: {
-      actionEmptyBasket: true
-    }
-  },
-
-  /**
-   * Route for managing billing details on a standalone page.
-   * Accessed from the checkout billing summary "Change" link.
-   */
-  {
-    path: "/order/billing/",
-    name: ROUTE.BILLING,
-    component: () => import("../pages/Billing.vue"),
     meta: {
       actionEmptyBasket: true
     }

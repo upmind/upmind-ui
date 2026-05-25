@@ -98,12 +98,15 @@ export default {
   // (Suspense commit) — otherwise Nuxt's default fires mid-navigation and
   // scrolls the still-visible outgoing page to the new page's position.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  scrollBehavior(to: any, _from: any, savedPosition: any) {
+  scrollBehavior(to: any, from: any, savedPosition: any) {
     return new Promise(resolve => {
       const nuxt = useNuxtApp();
       nuxt.hooks.hookOnce("page:finish", () => {
         if (savedPosition) return resolve(savedPosition);
         if (to.hash) return resolve({ el: to.hash });
+        // preserve scroll on same-page transitions (e.g. in-situ basket adds,
+        // filter/category changes) — only scroll to top on actual page changes
+        if (to.name === from?.name) return resolve(false);
         resolve({ top: 0, behavior: "instant" });
       });
     });

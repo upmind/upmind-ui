@@ -1,0 +1,79 @@
+{
+  "request": {
+    "method": "GET",
+    "path": "/api/wallet/balance?lang=en-US&currency_code=USD"
+  },
+  "response": {
+    "status": 200,
+    "body": {
+      "status": "ok",
+      "data": {
+        "online": {
+          "USD": {
+            "amount": 0,
+            "amount_formatted": "$0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "$0.00",
+            "currency": {
+              "id": "e47d7382-4850-7931-56c8-1e642d59e063",
+              "name": "US Dollar",
+              "prefix": "$",
+              "suffix": "",
+              "code": "USD",
+              "created_at": "2017-10-18 14:16:22",
+              "updated_at": "2026-04-20 16:15:25",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          }
+        },
+        "offline": {
+          "USD": {
+            "amount": 0,
+            "amount_formatted": "$0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "$0.00",
+            "currency": {
+              "id": "e47d7382-4850-7931-56c8-1e642d59e063",
+              "name": "US Dollar",
+              "prefix": "$",
+              "suffix": "",
+              "code": "USD",
+              "created_at": "2017-10-18 14:16:22",
+              "updated_at": "2026-04-20 16:15:25",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          }
+        },
+        "total": {
+          "USD": {
+            "amount": 0,
+            "amount_formatted": "$0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "$0.00",
+            "currency": {
+              "id": "e47d7382-4850-7931-56c8-1e642d59e063",
+              "name": "US Dollar",
+              "prefix": "$",
+              "suffix": "",
+              "code": "USD",
+              "created_at": "2017-10-18 14:16:22",
+              "updated_at": "2026-04-20 16:15:25",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          }
+        }
+      },
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  }
+}

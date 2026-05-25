@@ -8,6 +8,7 @@ import {
   DetailedError,
   ErrorOrigin,
   responseCodes,
+  useCalculate,
   useLaravalSchemaParser,
   useTranslateField,
   useTranslateName,
@@ -26,8 +27,10 @@ import {
   has,
   isArray,
   isEmpty,
+  isEqual,
   isFunction,
   isNil,
+  isString,
   map,
   maxBy,
   merge,
@@ -37,6 +40,7 @@ import {
   reverse,
   set,
   some,
+  split,
   subtract,
   toNumber,
   trim,
@@ -71,6 +75,7 @@ import type {
   PriceCalculations,
   PriceDetail,
   PriceDisplay,
+  PriceEntry,
   Product,
   ProductConfigContext,
   ProductDetails,
@@ -95,6 +100,16 @@ import { type ProductBundleConfig } from "../config";
 import { UIContext } from "../config";
 
 // -----------------------------------------------------------------------------
+
+/**
+ * Normalises sub_pids which may be array, string, or CSV to a string array.
+ */
+export function normaliseSubPids(input?: string | string[]): string[] {
+  if (isEmpty(input)) return [];
+  if (isArray(input)) return compact(input);
+  if (isString(input)) return compact(split(input, ","));
+  return [];
+}
 
 /**
  * Computes the title for a product based on a template string derived from the product's UiMeta > uischema
@@ -272,6 +287,25 @@ export function checkPriceOverride(
     return !isEmpty(value) && !!item?.meta?.overrides;
   });
 }
+
+/**
+ * Build a flat PriceEntry[] from the lookups.prices breakdown for sending to
+ * cart/calculate. When `overrides` is true the term price is excluded (the
+ * options have already taken its place).
+ *
+ * Arrays always route to sum-mode in useCalculate (DD-4), so a bare list of
+ * numbers is the correct shape — no quantity-1 wrapping needed.
+ */
+export function buildPriceEntries(
+  prices: PriceCalculations,
+  overrides: boolean
+): PriceEntry[] {
+  return filter(
+    concat(overrides ? [] : prices?.term, prices?.attributes, prices?.options),
+    value => !isNil(value)
+  ) as PriceEntry[];
+}
+
 // -----------------------------------------------------------------------------
 
 export const calculateBillingTerm = (
@@ -297,17 +331,18 @@ export const calculateBillingTerm = (
     case DefaultPaymentPeriod.HIGHEST_PRICE:
       term = maxBy(available, "price.currentAmount");
       break;
+
     case DefaultPaymentPeriod.LOWEST_PRICE:
       term = minBy(available, "price.currentAmount");
       break;
+
     case DefaultPaymentPeriod.LOWEST_MONTHLY_PRICE:
       term = minBy(available, "price.monthlyFromCurrentAmount");
       break;
-    case DefaultPaymentPeriod.INHERIT_FROM_BRAND:
-      term = calculateBillingTerm(defaultPaymentPeriod.value, available);
-      break;
 
+    case DefaultPaymentPeriod.INHERIT_FROM_BRAND:
     default:
+      term = calculateBillingTerm(defaultPaymentPeriod.value, available);
       break;
   }
   term ??= first(available);
@@ -368,20 +403,14 @@ export function parseTerm(
   value?: ProductModel["term"],
   quantity?: ProductModel["quantity"]
 ): { term: ProductModel["term"]; price: PriceCalculations["term"] } {
+  const { pushPrice } = useCalculate();
   const price: PriceCalculations["term"] = [];
   // --- resolve the term from lookups (default is handled by schema)
   const term = find(lookups?.terms, ["cycle", value]);
 
   // set price values, taking into account the quantity and unit quantity
   // NB: we NEVER add, we always push into an array for the backend to handle
-  if (quantity) {
-    if (quantity == 1) price.push(term?.price?.currentAmount ?? 0);
-    else
-      price.push({
-        price: term?.price?.currentAmount ?? 0,
-        quantity
-      });
-  }
+  pushPrice(price, term?.price?.currentAmount ?? 0, quantity ?? 0);
   return { term: get(term, "cycle") as number, price };
 }
 
@@ -485,6 +514,7 @@ export function parseSubproducts(
   subproducts?: ProductModel["attributes"] | ProductModel["options"];
   price: PriceCalculations["attributes"] | PriceCalculations["options"];
 } {
+  const { pushPrice } = useCalculate();
   let subproducts: SubproductModel = {};
   const price: any[] = [];
   // ---
@@ -556,13 +586,11 @@ export function parseSubproducts(
             // if we have a price, set price values, taking into account the quantity and unit quantity
             // NB: we NEVER add, we always push into an array for the backend to handle
             if (!isEmpty(product?.price)) {
-              if (quantity == 1 && value.quantity == 1)
-                price.push(product?.price?.currentAmount);
-              else
-                price.push({
-                  price: product?.price?.currentAmount,
-                  quantity: value.quantity * (quantity ?? 1)
-                });
+              pushPrice(
+                price,
+                product?.price?.currentAmount ?? 0,
+                value.quantity * (quantity ?? 1)
+              );
             }
 
             // ---
@@ -629,6 +657,7 @@ export const parseProductDetails = (
     description: useTranslateField(rawProduct, "description"),
     excerpt: useTranslateField(rawProduct, "short_description"),
     imgUrl: useImageUrl(rawProduct?.image?.full_url, "400x400"),
+    iconUrl: useImageUrl(rawProduct?.icon?.full_url),
     images: parseProductImages(rawProduct?.images),
     // ---
     configurable:
@@ -637,6 +666,13 @@ export const parseProductDetails = (
         !isEmpty(rawProduct.products_attributes) ||
         !isEmpty(rawProduct.products_options) ||
         !isEmpty(rawProduct.provision_fields)),
+    configurableTerm: !readonly && rawProduct.prices?.length > 1,
+    configurableSubproducts:
+      !readonly &&
+      (!isEmpty(rawProduct.products_options) ||
+        !isEmpty(rawProduct.products_attributes)),
+    configurableProvisionFields:
+      !readonly && !isEmpty(rawProduct.provision_fields),
 
     configurableInline:
       !readonly &&
@@ -739,7 +775,7 @@ export const parseTermDetails = (
   return map(orderBy(prices, "billing_cycle_months"), rawTerm => {
     const details: TermDetails = parseSummaryDetailWithPrice(rawTerm, raw);
 
-    details.meta.overridden = details.meta.overridden && !priceOptionOverride;
+    details.meta.custom = details.meta.custom && !priceOptionOverride;
 
     details.price.monthlyFromCurrentAmount =
       rawTerm.monthly_price_from_discounted ?? rawTerm.monthly_price_from;
@@ -785,7 +821,7 @@ export const parseSubproductDetails = (
         excerpt: useTranslateField(rawSubproduct.category, "short_description"),
         uiCategorymeta: rawSubproduct?.category.meta,
         uiMeta: parseMeta(
-          rawSubproduct?.meta ?? {},
+          {},
           rawSubproduct?.category as IProductCategory,
           (rawSubproduct?.brand?.meta as BrandMeta)?.cart?.ui
         ),
@@ -844,7 +880,7 @@ export const parseSubproductDetails = (
           includesTax: includesTax.value,
           free: price?.price?.currentAmount == 0,
           overrides: !!price?.meta.overrides,
-          overridden: price?.meta.overridden,
+          custom: price?.meta.custom,
           default: !!rawSubproduct?.pivot?.default
         },
         order: rawSubproduct?.pivot?.order ?? 0
@@ -910,7 +946,7 @@ export const parseSummaryDetail = (
       free: (raw.price_discounted ?? raw.price) == 0,
       freeTrial: !!rawProduct?.trial_supported,
       overrides: !!overrides,
-      overridden: !!raw.overridden_price,
+      custom: !!raw.overridden_price,
       useMonthlyFromPrice
     }
   } as ProductSummaryDetailWithPrice;
@@ -952,6 +988,15 @@ export const parsePrice = (raw: IProductPrice): PriceDetail => {
   };
 };
 
+/**
+ * Parses a raw product price into a ProductSummaryDetailWithPrice.
+ *
+ * **⚠️ FE-1698 lazy `useSystem`:** This function calls `getBillingCycle()`
+ * synchronously. The caller's machine `load` service (or upstream composable
+ * like `useBasket`) MUST `await ensureBillingCycles()` before this runs,
+ * otherwise the cycle label will be `undefined`. See
+ * `system/docs/gotchas.md#1` for the pattern.
+ */
 export const parseSummaryDetailWithPrice = (
   raw: IProductPrice,
   rawProduct: IProduct,
@@ -1045,6 +1090,14 @@ export const parsePromotionDetails = (
   }
 };
 
+/**
+ * Parses a raw provisioning schema, applying defaults like the user's country.
+ *
+ * **⚠️ FE-1698 lazy `useSystem`:** This function calls `getCountry()`
+ * synchronously. The caller's machine `load` service MUST
+ * `await ensureCountries()` before this runs, otherwise the default country
+ * will be `undefined`. See `system/docs/gotchas.md#1` for the pattern.
+ */
 export const parseProvisioningSchema = (
   data: any,
   product: IProduct,
@@ -1211,7 +1264,7 @@ const parseSummaryTerm = (
     term.category = t("text.billing_cycle");
     term.meta = {
       ...term.meta,
-      invalid: some(errors, e => e.instancePath?.startsWith("/term"))
+      invalid: some(errors, e => e?.instancePath?.startsWith("/term"))
     };
     return term;
   }
@@ -1253,7 +1306,9 @@ const parseSummarySubproduct = (
                 meta: {
                   ...subproduct.meta,
                   ...subproduct?.uiMeta,
-                  invalid: some(errors, e => e.instancePath?.includes(`/${id}`))
+                  invalid: some(errors, e =>
+                    e?.instancePath?.includes(`/${id}`)
+                  )
                 },
                 // ---
                 ...(subproduct.price ?? {})
@@ -1298,7 +1353,7 @@ const parseSummaryProvisionFields = (
         regularPrice: undefined,
         meta: {
           invalid: some(errors, e =>
-            e.instancePath?.includes(`/provisionFields/${key}`)
+            e?.instancePath?.includes(`/provisionFields/${key}`)
           )
         }
       });
@@ -1476,6 +1531,13 @@ const parseSubproductDetailsChoices = (
         return result;
       }
 
+      // Recurring options inherit the parent product's term; one-time options
+      // (cycle 0) stay at 0. Mirrors the rule used in parseSubproducts.
+      const cycle =
+        value.billing_cycle_months == 0
+          ? 0
+          : (parentTerm ?? value.billing_cycle_months);
+
       set(result, [value.category_id, value.id], {
         productId: value.id,
         quantity: parseQuantity(
@@ -1600,7 +1662,7 @@ export function parseBundledProducts(
     productId: bundle.object_id,
     quantity: bundle.config?.qty || 1,
     term: bundle.config?.bcm ?? 0,
-    subproducts: compact(bundle.config?.sub_pids ?? []),
+    subproducts: normaliseSubPids(bundle.config?.sub_pids),
     provisionFields: bundle.config?.pfields ?? {},
     coupons: compact(bundle.config?.coupons ?? []),
     silent: true // always silent for bundled products
@@ -1727,6 +1789,57 @@ export function parseBillingCycle(months: number) {
         numeric: t("term.n_month", { n: months.toString() }) // {n}-month
       };
   }
+}
+
+/**
+ * Returns a `hasError(scope)` checker for the given context. The scope uses
+ * UISchema notation (e.g. `#/properties/term`) and is normalised to the
+ * basket-error instance path format (e.g. `/term`) before lookup.
+ *
+ * Shared by the invalid schema/uischema builders so both stay in lock-step on
+ * how errors are matched.
+ */
+export function hasScopeError(
+  basketErrors: ProductConfigContext["basketErrors"]
+): (scope: string) => boolean {
+  const errorPaths = new Set(map(basketErrors, "instancePath"));
+
+  return (scope: string): boolean => {
+    const instancePath = scope
+      .replace("#/properties/", "/")
+      .replace(/\/properties\//g, "/");
+    return errorPaths.has(instancePath);
+  };
+}
+
+/**
+ * Filters basketErrors down to those still outstanding given a live model.
+ *
+ * basketErrors is a snapshot from the BE — we never mutate it. As the user
+ * edits fields the local `model` diverges from `baseModel`; an error is
+ * considered "fixed" when its field's value has changed from base. This lets
+ * the UI react to local edits without losing the source-of-truth snapshot.
+ *
+ * Both nilish/empty values are treated as equivalent — the user hasn't
+ * meaningfully changed a field that went from undefined → null → "".
+ */
+export function getOutstandingBasketErrors(
+  basketErrors: ProductConfigContext["basketErrors"],
+  baseModel: Partial<ProductModel> | undefined,
+  model: Partial<ProductModel> | undefined
+): ErrorObject[] {
+  if (!isArray(basketErrors)) return [];
+
+  return filter(basketErrors, error => {
+    const field = compact(split(trimStart(error.instancePath, "/"), "/"));
+    const baseValue = get(baseModel, field);
+    const newValue = get(model, field);
+
+    // Both nilish/empty → still missing.
+    if (!baseValue && !newValue) return true;
+    // Unchanged from base → still outstanding.
+    return isEqual(baseValue, newValue);
+  });
 }
 
 export function generateShareUrlConfig(model: ProductModel) {

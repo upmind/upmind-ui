@@ -1,15 +1,11 @@
 <template>
-  <!-- Suspense covers the async setup gap in BasketProduct -->
-  <Suspense v-if="basketMeta.isAvailable">
-    <!-- v-auto-animate mounts only after Suspense resolves, so the initial
-         skeleton → cards swap is instant; later add/remove animates. -->
-    <div v-auto-animate :class="styles.product.list">
+  <div v-if="!meta.isLoading" class="flex flex-col gap-4">
+    <template v-for="product in products" :key="product.id">
       <BasketProduct
-        v-for="product in products"
-        :key="product.id"
         v-bind="product"
         :open="!!open[product.id]"
         :processing="meta.isProcessing(product.id)"
+        :loading="meta.isLoading"
         @update:open="trackOpen(product.id, $event)"
         @remove="remove(product.id)"
         @update:quantity="updateQuantity(product.id, $event)"
@@ -20,42 +16,46 @@
           <slot v-bind="slotProps" />
         </template>
       </BasketProduct>
-    </div>
-
-    <template #fallback>
-      <div :class="styles.product.list">
-        <BasketProductSkeleton
-          v-for="index in Math.max(1, products?.length ?? 0)"
-          :key="`skeleton-cart-item-${index}`"
-        >
-          <slot name="skeleton" />
-        </BasketProductSkeleton>
-      </div>
     </template>
-  </Suspense>
 
-  <!-- Suspense fallback can't cover this: no products = no pending state -->
-  <div v-else :class="styles.product.list">
-    <BasketProductSkeleton>
-      <slot name="skeleton" />
-    </BasketProductSkeleton>
+    <p v-if="meta.hasProducts" :class="styles.product.root.tax">
+      {{
+        includesTax
+          ? t("text.prices_shown_include_taxes")
+          : t("text.prices_shown_exclude_taxes")
+      }}
+    </p>
+  </div>
+
+  <div v-else class="flex flex-col space-y-4" v-auto-animate>
+    <template
+      v-for="index in Math.max(1, products?.length ?? 0)"
+      :key="`skeleton-cart-item-${index}`"
+    >
+      <BasketProductSkeleton>
+        <slot name="skeleton" />
+      </BasketProductSkeleton>
+    </template>
   </div>
 </template>
 
 <script lang="ts" setup>
 // --- external
 import { ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import { vAutoAnimate } from "@formkit/auto-animate";
 
 // --- internal
-import { useBasketProducts, useBasket } from "@upmind-automation/headless";
+import { useBasketProducts, useBrand } from "@upmind-automation/headless";
 import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./basketProduct.config";
-import BasketProduct from "./BasketProduct.vue";
 
 // --- components
-import { every, reduce, set } from "lodash-es";
+import BasketProduct from "./BasketProduct.vue";
 import BasketProductSkeleton from "./BasketProductSkeleton.vue";
+
+// --- utils
+import { every, reduce, set } from "lodash-es";
 
 // --- types
 import { type BasketProductCardsProps } from "./types";
@@ -66,10 +66,10 @@ const props = withDefaults(defineProps<BasketProductCardsProps>(), {
 
 const emits = defineEmits(["update:open"]);
 
+const { t } = useI18n();
 const { meta, products, updateQuantity, remove } = useBasketProducts();
-const { meta: basketMeta } = useBasket();
-
-const styles = useStyles(["product.list"], {}, config);
+const { includesTax } = useBrand();
+const styles = useStyles(["product.root"], {}, config);
 
 const open = ref<Record<string, boolean>>(forceOpen(props.open));
 

@@ -1,0 +1,26 @@
+{
+  "request": {
+    "method": "POST",
+    "path": "/oauth/access_token?lang=en-US"
+  },
+  "response": {
+    "status": 401,
+    "body": {
+      "status": "error",
+      "data": null,
+      "related": null,
+      "total": null,
+      "error": {
+        "id": "d2f2a1fa3e0baba11ef5b0f4efba69e9d652d950",
+        "type": 8,
+        "code": 401,
+        "message": "The refresh token is invalid.",
+        "data": null
+      },
+      "messages": {
+        "hint": "Cannot decrypt the refresh token"
+      },
+      "meta": null
+    }
+  }
+}

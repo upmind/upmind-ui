@@ -26,6 +26,7 @@
   "own_domain_qn": "Öné ez a domain?",
   "owned_domains_title": "Jelenlegi tulajdonodban lévő domainek",
   "price_renewal_desc": "Egyszeri ár {regularPrice}. | Megújul minden évben {regularPrice}. | Megújul minden {count} évben {regularPrice}.",
+  "registrant_use_billing_msg": "A számlázási adatait a domain regisztrálójának elérhetőségeként fogjuk használni.",
   "search": "Domainek keresése",
   "starts_with_domain": "Minden egy **domain névvel** kezdődik",
   "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
@@ -36,5 +37,6 @@
   "transfer_extension_info": "Az átigazolások egyéves hosszabbítást is magukban foglalnak.",
   "transfer_owner_question": "Ön a domain tulajdonosa?",
   "transfer_price_info": "Csak {currentPrice}",
-  "transfer_promotion": "Átutalás csak {currentPrice}, általában {regularPrice}."
+  "transfer_promotion": "Átutalás csak {currentPrice}, általában {regularPrice}.",
+  "use_details_for": "Használja ezeket az adatokat a következőhöz:{domain}"
 }

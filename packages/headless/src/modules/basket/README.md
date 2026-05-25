@@ -11,6 +11,7 @@ The **Basket Manager** module within the **Upmind Headless** framework is design
   - [Getting Started](#getting-started)
     - [Installation](#installation)
   - [State Machine Overview](#state-machine-overview)
+  - [Lifecycle Events](#lifecycle-events)
   - [Usage](#usage)
   - [Configuration](#configuration)
   - [API Documentation](#api-documentation)
@@ -41,6 +42,65 @@ The module operates as a state machine with built-in context to manage user bask
 - **Error**: If an error occurs during basket management, the module transitions to this state. You can retry the operation or cancel it.
 
 - **Complete**: This is the final state, indicating that the basket management process is complete.
+
+## Lifecycle Events
+
+The basket broadcasts two lifecycle events across every refresh cycle. Spawned children (currency, customFields, promotions, billing, paymentDetail) receive them directly via XState `sendTo`. External subscribers (recommendations engine, product machine, domain machine, dac machine) receive the same events through the `basketSubscription` helper, which translates basket state transitions into events.
+
+### `REFRESHING`
+
+Fired the moment the basket enters `refreshing.processing` — i.e. an API call is about to start. Signals **"the basket is mid-update; defer reads of derived state until REFRESH arrives."** Non-locking.
+
+|             |                                                                                                                        |
+| ----------- | ---------------------------------------------------------------------------------------------------------------------- |
+| **When**    | Entry to `refreshing.processing`, before the API call resolves                                                         |
+| **Source**  | `notifyActorsRefreshing` action in `basket.machine.ts` (children) + `basketSubscription` helper (external subscribers) |
+| **Carries** | No payload                                                                                                             |
+
+**Canonical consumer:** the recommendations engine moves to a `syncing` state on `REFRESHING` and blocks `isReady()` until the eventual `REFRESH` arrives. Route gates (e.g. `apps/cart/src/router/services.ts`) call `isReady()` to decide whether to redirect users to the recommendations screen — without this gate they would race the basket and silently skip recs whose conditions only resolve true against the new basket state.
+
+**Distinct from `PROCESSING`:** the existing `PROCESSING` event signals "this specific product is being updated" and is consumed by the product machine to lock individual product cards (`processing.updating` substate). `REFRESHING` is broader and non-locking — locking every product card during a basket-wide refresh would be wrong.
+
+### `REFRESH`
+
+Fired when `refreshing.processed` resolves — the API call has completed and the basket context now reflects the new state.
+
+|             |                                                                                                               |
+| ----------- | ------------------------------------------------------------------------------------------------------------- |
+| **When**    | Transition into `refreshing.processed`, after `updateBasket` and `refreshActors` actions                      |
+| **Source**  | `refreshActors` action in `basket.machine.ts` (children) + `basketSubscription` helper (external subscribers) |
+| **Carries** | The updated basket as `data`                                                                                  |
+
+**Canonical consumers:** any subscriber that needs to react to the new basket state — recommendations re-evaluates conditional visibility, product machines refresh their derived state, etc.
+
+### Lifecycle order
+
+```text
+REFRESHING ─────► (basket API call) ─────► REFRESH
+   │                                           │
+   ▼                                           ▼
+syncing/staging                          act on new state
+```
+
+Subscribers that don't handle either event silently ignore it (XState's default).
+
+### Authoring a new subscriber
+
+**As a child of the basket machine:** add `on: { REFRESHING: { ... }, REFRESH: { actions: [...] } }` to your machine. Both events arrive via `sendTo` from `notifyActorsRefreshing` / `refreshActors`.
+
+**As an external subscriber:** spawn the helper.
+
+```typescript
+import { basketSubscription } from "@upmind-automation/headless";
+
+// In your machine's spawnActors action:
+basketHelper: spawn(basketSubscription);
+
+// On entry, send INIT to subscribe:
+sendTo("basketHelper", { type: "INIT" });
+```
+
+The helper forwards both `REFRESHING` and `REFRESH` to your machine.
 
 ## Usage
 

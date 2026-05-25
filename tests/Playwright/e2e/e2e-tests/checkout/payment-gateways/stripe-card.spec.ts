@@ -8,6 +8,7 @@ import { DeclinedCards } from "../../../support/constants/checkout/payment-cards
 import { FraudCheckCards } from "../../../support/constants/checkout/payment-cards/FraudChecks";
 import { ErrorCards } from "../../../support/constants/checkout/payment-cards/InvalidData";
 import { products } from "../../../support/constants/products";
+import { TEST_EMAILS } from "../../../support/constants/test-data";
 import {
   getClientToken,
   getSessionToken,
@@ -137,7 +138,7 @@ newUser.describe("Checkout with Stripe", () => {
       await checkout.selectPaymentMethod("Stripe");
       await checkout.inputSepaDetails(
         "GB82WEST12345698765432",
-        "nathan.robinson+sepa@upmind.com",
+        TEST_EMAILS.sepa,
         "Test User",
         "10 Downing Street",
         "London",
@@ -152,10 +153,7 @@ newUser.describe("Checkout with Stripe", () => {
     newUser("Successful iDEAL payment", async ({ page, context, checkout }) => {
       await goToCheckout(page, context, products.STARTER_HOSTING, null, "EUR");
       await checkout.selectPaymentMethod("Stripe");
-      await checkout.inputIdealDetails(
-        "nathan.robinson+ideal@upmind.com",
-        "Test User"
-      );
+      await checkout.inputIdealDetails(TEST_EMAILS.ideal, "Test User");
       await checkout.completeCheckout.click();
       await page.getByTestId("authorize-test-payment-button").click();
       await page.waitForURL(`order/**`);
@@ -164,10 +162,7 @@ newUser.describe("Checkout with Stripe", () => {
     newUser("Failed iDEAL payment", async ({ page, context, checkout }) => {
       await goToCheckout(page, context, products.STARTER_HOSTING, null, "EUR");
       await checkout.selectPaymentMethod("Stripe");
-      await checkout.inputIdealDetails(
-        "nathan.robinson+ideal@upmind.com",
-        "Test User"
-      );
+      await checkout.inputIdealDetails(TEST_EMAILS.ideal, "Test User");
       await checkout.completeCheckout.click();
       await page.getByTestId("fail-test-payment-button").click();
       await page.waitForURL(`order/**`);
@@ -186,7 +181,6 @@ newUser.describe("Checkout with Stripe", () => {
       await checkout.inputStripeDetails("4242424242424242", "12/34", "123");
       await checkout.completeCheckout.click();
       await checkout.completeCheckout.click(); //repeated to trigger the button even that doesn't trigger on first click
-      await page.waitForLoadState("load");
       await expect(page.getByRole("alert")).toContainText(
         /Payment failed*Payment details validation failed/s
       );
@@ -195,7 +189,6 @@ newUser.describe("Checkout with Stripe", () => {
       "Insufficient Payment Amount",
       async ({ page, context, checkout }) => {
         await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
-        await page.waitForLoadState("load");
         await checkout.changeAmountButton.click();
         await checkout.changeAmountInput.fill("0.20");
         await checkout.confirmAmountButton.click();

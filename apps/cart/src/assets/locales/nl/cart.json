@@ -7,6 +7,7 @@
   "basket_billing_review_msg": "Sommige factureringsgegevens ontbreken of zijn onjuist – {review}.",
   "basket_count": "leeg | {count} artikel | {count} artikelen",
   "basket_fields_review_msg": "Sommige velden in de mand ontbreken of zijn onjuist – {review}.",
+  "basket_incomplete_title": "De winkelmandgegevens zijn onvolledig.",
   "basket_items": "geen artikelen in winkelwagen | {count} artikel in winkelwagen | {count} artikelen in winkelwagen",
   "basket_product_missing_data": "Ontbrekende gegevens van item",
   "basket_product_missing_data_help": "Er ontbreken gegevens voor dit item en er is aandacht nodig",
@@ -17,6 +18,7 @@
   "basket_products_require_attention_msg": "{count} producten vereisen aandacht | {count} product vereist aandacht | {count} producten vereisen aandacht",
   "basket_products_review_desc": "Controleer de volgende items voordat u verdergaat. U kunt ze ook terugzetten in uw winkelmandje.",
   "basket_requires_attention_msg": "{count} item heeft uw aandacht nodig | {count} items hebben uw aandacht nodig",
+  "basket_review_item_msg": "{message} – {review}.",
   "basket_review_msg": "Controleer de volgende items voordat u doorgaat",
   "basket_section": "Overzicht winkelwagen",
   "basket_summary_desc": "Je hebt {count} artikel in uw winkelwagen, totaal {total}. | Je hebt {count} artikelen in uw winkelwagen, met een totaalbedrag {total}.",
@@ -26,6 +28,7 @@
   "basket_tax_incl": "inclusief belastingen",
   "basket_title": "Uw winkelmandje",
   "change_amount": "Bedrag wijzigen",
+  "details_incomplete_title": "De gegevens zijn onvolledig.",
   "empty": "Je **winkelwagentje** is leeg",
   "empty_md": "@.markdown:{'cart.empty'}",
   "empty_msg": "Het lijkt erop dat u nog niets aan uw winkelmandje hebt toegevoegd.",
@@ -60,6 +63,10 @@
   "place_order_desc": "Klik op de knop 'Bestelling plaatsen'om uw aankoop te voltooien.",
   "product_not_found": "**Product** niet gevonden",
   "product_not_found_md": "@.markdown:{'cart.product_not_found'}",
+  "product_setup_count": "Geen producten meer beschikbaar |{count} resterend product |{count} resterende producten",
+  "product_setup_desc": "Voor sommige producten is aanvullende informatie nodig voordat u kunt afrekenen. Controleer deze informatie en vul eventuele ontbrekende gegevens aan.",
+  "product_setup_msg": "Gebruik deze gegevens ook voor{name}",
+  "product_setup_title": "Volledige productinstallatie",
   "promotion_help": "{code} biedt {amount} korting {description}",
   "promotions_active": "Actieve kortingen",
   "recommendations_unavailable_text": "We konden op dit moment geen aanbevelingen voor u vinden. Klik hieronder om verder te gaan.",
@@ -67,5 +74,6 @@
   "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}",
   "show_more_payment_options": "Meer betalingsopties weergeven",
   "stored_payment_methods_limited_desc": "Niet alle betaalmethoden zijn zichtbaar omdat ze niet beschikbaar zijn voor uw land of valuta.",
-  "stored_payment_methods_limited_title": "Beperkte Betaalmethoden"
+  "stored_payment_methods_limited_title": "Beperkte Betaalmethoden",
+  "warning_notes_title": "Winkelmandje waarschuwing | Winkelmandje waarschuwingen"
 }
