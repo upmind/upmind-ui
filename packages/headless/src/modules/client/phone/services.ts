@@ -72,7 +72,7 @@ async function loadLookups({
   schema
 }: PhoneContext): Promise<PhoneContext> {
   const { t } = useI18n();
-  const { isReady, fetchCountries, getCountry } = useSystem();
+  const { isReady, ensureCountries, getCountry } = useSystem();
   // we have to do this synchronously as we need the values to be available for the model
   // these could/should be cached in the system machine, so there's no worry about performance
   await isReady().catch(error =>
@@ -85,7 +85,7 @@ async function loadLookups({
       )
     )
   );
-  const countries = await fetchCountries();
+  const countries = await ensureCountries();
   const country = getCountry(model?.phone?.country);
   if (!countries) {
     return Promise.reject(

@@ -69,7 +69,7 @@ async function loadLookups({
     data: companies
   } = useClientCompanies();
 
-  const { isReady, fetchCountries, fetchRegions, getCountry } = useSystem();
+  const { isReady, ensureCountries, fetchRegions, getCountry } = useSystem();
 
   const { ensureConfig } = useBrand();
 
@@ -78,7 +78,7 @@ async function loadLookups({
   // we have to do this synchronously as we need the values to be available for the model
   // these could/should be cached in the system machine, so there's no worry about performance
   const [countries, config] = await Promise.all([
-    fetchCountries(),
+    ensureCountries(),
     ensureConfig([
       BrandConfigKeys.CHECKOUT_REQUIRE_PHONE,
       BrandConfigKeys.REQUIRE_COMPANY_FOR_ORDERS,
