@@ -114,16 +114,14 @@ export const useRoutingEngine = () => {
     const targetName = isString(target) ? target : target?.name?.toString();
 
     return new Promise<boolean>(resolve => {
-      const stop = watch(
+      // `immediate: true` fires the callback synchronously during `watch()`,
+      // before a `const stop = watch(...)` assignment would complete — so
+      // calling `stop()` from that first run hits the TDZ. Declare with `let`
+      // and a noop seed so the synchronous fire is safe.
+      let stop: () => void = () => {};
+      stop = watch(
         mountedRoute,
         route => {
-          // console.debug("isMounted", {
-          //   route,
-          //   targetName,
-          //   mountedRoute: mountedRoute.value,
-          //   resolved: contextValue<boolean>(funnel, "resolved")
-          // });
-
           if (
             route === targetName &&
             contextValue<boolean>(funnel, "resolved")
