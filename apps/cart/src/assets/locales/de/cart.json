@@ -74,5 +74,6 @@
   "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}",
   "show_more_payment_options": "Mehr Zahlungsoptionen anzeigen",
   "stored_payment_methods_limited_desc": "Nicht alle Zahlungsmethoden sind sichtbar, da sie für Ihr Land oder Ihre Währung nicht verfügbar sind.",
-  "stored_payment_methods_limited_title": "Begrenzte Zahlungsmethoden"
+  "stored_payment_methods_limited_title": "Begrenzte Zahlungsmethoden",
+  "warning_notes_title": "Warenkorbwarnung | Warenkorbwarnungen"
 }

@@ -74,5 +74,6 @@
   "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}",
   "show_more_payment_options": "Показать больше вариантов оплаты",
   "stored_payment_methods_limited_desc": "Не все способы оплаты видны, потому что они недоступны в вашей стране или для вашей валюты.",
-  "stored_payment_methods_limited_title": "Ограниченные методы оплаты"
+  "stored_payment_methods_limited_title": "Ограниченные методы оплаты",
+  "warning_notes_title": "Предупреждение о корзине | Предупреждения о корзине"
 }

@@ -9,7 +9,9 @@ import {
   provideConfig,
   useCachedRef
 } from "./utils";
+import { buildConditionState } from "./config.conditions";
 import { useBrand } from "../brand/useBrand";
+import { useBasket } from "../basket/useBasket";
 import type {
   UseMetaOptions,
   UseMetaResult,
@@ -17,6 +19,7 @@ import type {
   Viewport
 } from "./types";
 import { type BrandMeta } from "../brand/types";
+import type { IProduct } from "@upmind-automation/types";
 
 export { provideConfig, injectConfig } from "./utils";
 
@@ -33,6 +36,8 @@ export function useConfig(options?: UseMetaOptions): UseMetaResult {
     product,
     optionGroup,
     option,
+    basket: basketOption,
+    basketProduct,
     provide: shouldProvide
   } = options ?? {};
 
@@ -50,13 +55,24 @@ export function useConfig(options?: UseMetaOptions): UseMetaResult {
     computed(() => toValue(brandOption) ?? uiCart?.value)
   ) as Ref<BrandMeta["cart"]>;
 
+  // Only call useBasket() when basket option is not provided.
+  // Mirrors the brand pattern; explicit `basket: undefined` opts out (used by
+  // useBrand to break the useBasket → useBrand → useConfig → useBasket cycle).
+  const { basket: basketFromHook } = has(options, "basket")
+    ? { basket: undefined }
+    : useBasket();
+
+  const basket = computed(() => toValue(basketOption) ?? basketFromHook?.value);
+
   const items = computed(() =>
     initializeMeta({
       context: toValue(context),
       viewport: toValue(viewport),
       brand: brand.value,
       category: toValue(category),
-      product: toValue(product),
+      // basketProduct overrides product for the cascade product-tier when
+      // present — line-item rendering uses the line item's productDetails.uiMeta.
+      product: toValue(basketProduct) ?? toValue(product),
       optionGroup: toValue(optionGroup),
       option: toValue(option)
     })
@@ -65,21 +81,45 @@ export function useConfig(options?: UseMetaOptions): UseMetaResult {
   const ui = computed(() => items.value.meta);
   const data = computed(() => items.value.data);
 
+  const conditionState = computed(() => {
+    const bp = toValue(basketProduct);
+    // Derive product.* state source from basketProduct.product when no
+    // explicit product is passed — caller rendering a line item only needs
+    // to pass the line item itself.
+    const productForState =
+      (toValue(product)?.productDetails as IProduct | undefined) ?? bp?.product;
+    return buildConditionState({
+      product: productForState,
+      basketProduct: bp,
+      basket: basket.value
+    });
+  });
+
   function withScopes(extendOptions: WithMetaOptions): UseMetaResult {
-    return useConfig({
+    // Inherit basket/brand presence so children of a cycle-broken parent
+    // (e.g. useBrand's `basket: undefined`) don't re-trigger useBasket()/
+    // useBrand() inside the child useConfig.
+    const inherited: UseMetaOptions = {
       context,
       category: extendOptions.category ?? category,
       product: extendOptions.product ?? product,
       optionGroup: extendOptions.optionGroup ?? optionGroup,
-      option: extendOptions.option ?? option
-    });
+      option: extendOptions.option ?? option,
+      basketProduct: extendOptions.basketProduct ?? basketProduct
+    };
+    if (has(options, "basket")) inherited.basket = basketOption;
+    if (has(options, "brand")) inherited.brand = brandOption;
+    return useConfig(inherited);
   }
 
   const result: UseMetaResult = {
-    ui: createUIMetaProxy(ui),
+    ui: createUIMetaProxy(ui, conditionState),
     data: createDataProxy(
       data,
-      computed(() => toValue(product))
+      // basketProduct overrides product as the variable interpolation source
+      // for data settings (e.g. {{ name }} in productName) — same coalesce as
+      // the cascade above; both feed off the rendering subject.
+      computed(() => toValue(basketProduct) ?? toValue(product))
     ),
     with: withScopes
   };

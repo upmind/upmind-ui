@@ -1,11 +1,9 @@
-import {
-  newUser,
-  registeredUser,
-  expect
-} from "../../../support/fixtures/auth-context";
+import { newUser, expect } from "../../../support/fixtures/auth-context";
 import { fakerEN_GB } from "@faker-js/faker";
-import { getCurrentAddressId } from "../../../support/api/client";
-import { Logins } from "../../../support/constants/logins";
+import {
+  addAddressToClient,
+  getCurrentAddressId
+} from "../../../support/api/client";
 import { products } from "../../../support/constants/products";
 import { goToCheckout } from "../../../support/flows/checkout";
 
@@ -25,16 +23,10 @@ newUser.describe("New User - Billing Details at checkout", () => {
       await checkout.addNewAddress.click();
       await expect(checkout.billingDetails).toBeVisible();
       await page.getByTestId("link-change").click();
-      await checkout.addressSearch.fill(
-        "10 Downing St, Westminster, London SW1A 2AA, UK"
+      await checkout.selectAddressFromSearch(
+        "10 Downing St, Westminster, London SW1A 2AA, UK",
+        "10 Downing Street, Downing Street, London SW1A 2AA, UK"
       );
-      const dropdown = page.locator('[role="dialog"][data-state="open"]');
-      await dropdown
-        .locator("li", {
-          hasText: "10 Downing Street, Downing Street, London SW1A 2AA, UK"
-        })
-        .click();
-      await page.waitForTimeout(1000);
       await checkout.clickSaveDetails();
       await expect(checkout.billingDetails).toHaveText(
         /10 Downing Street.*London.*SW1A 2AA.*United Kingdom/s
@@ -70,16 +62,10 @@ newUser.describe("New User - Billing Details at checkout", () => {
         .getByTestId("form-item-company-tax-number")
         .locator("input")
         .fill(fakerEN_GB.string.numeric({ length: 9 }));
-      await checkout.addressSearch.fill(
-        "10 Downing St, Westminster, London SW1A 2AA, UK"
+      await checkout.selectAddressFromSearch(
+        "10 Downing St, Westminster, London SW1A 2AA, UK",
+        "10 Downing Street, Downing Street, London SW1A 2AA, UK"
       );
-      const dropdown = page.locator('[role="dialog"][data-state="open"]');
-      await dropdown
-        .locator("li", {
-          hasText: "10 Downing Street, Downing Street, London SW1A 2AA, UK"
-        })
-        .click();
-      await page.waitForTimeout(1000);
       await checkout.clickSaveDetails();
       await expect(checkout.billingDetails).toContainText(newCompany);
       await expect(checkout.billingDetails).toContainText(
@@ -101,19 +87,15 @@ newUser.describe("New User - Billing Details at checkout", () => {
   });
   */
 
-registeredUser.describe("Existing User - Billing Details at checkout", () => {
+newUser.describe("Existing Address - Billing Details at checkout", () => {
   // All tests below log in as Logins.checkoutUser, which is also used in
   // login-registration/login.spec.ts. Serial mode prevents these tests from
   // racing against each other on the same staging account.
-  registeredUser.describe.configure({ mode: "serial" });
-  registeredUser(
-    "Existing User add new address at checkout",
-    async ({ page, context, checkout, loginAs }) => {
-      const session = await loginAs(
-        Logins.checkoutUser.username,
-        Logins.checkoutUser.password
-      );
-      const token = session.access_token;
+  newUser.describe.configure({ mode: "serial" });
+  newUser(
+    "Existing Address - add new address at checkout",
+    async ({ page, context, checkout, token, clientId }) => {
+      await addAddressToClient(token, clientId);
       await goToCheckout(
         page,
         context,
@@ -135,35 +117,18 @@ registeredUser.describe("Existing User - Billing Details at checkout", () => {
         "SW1A 2AA",
         null
       );
-      for (let attempt = 0; attempt < 5; attempt++) {
-        if (!(await checkout.billingDetails.isHidden())) return;
-        await checkout.saveDetails.click();
-        try {
-          await checkout.billingDetails.waitFor({
-            state: "hidden",
-            timeout: 2000
-          });
-          return;
-        } catch {
-          // modal still open, try again
-        }
-      }
+      await checkout.clickSaveDetails();
       await expect(checkout.addressCard).toHaveText(
         new RegExp(`${streetName}.*London.*SW1A 2AA.*United Kingdom`, "s")
       );
-      await page.waitForTimeout(5000);
       let newAddress = await getCurrentAddressId(token);
       expect(newAddress).not.toBe(currentAddress);
     }
   );
-  registeredUser(
+  newUser(
     "Existing User add new company details at checkout",
-    async ({ page, context, checkout, loginAs }) => {
-      const session = await loginAs(
-        Logins.checkoutUser.username,
-        Logins.checkoutUser.password
-      );
-      const token = session.access_token;
+    async ({ page, context, checkout, token, clientId }) => {
+      await addAddressToClient(token, clientId);
       await goToCheckout(
         page,
         context,
@@ -186,19 +151,14 @@ registeredUser.describe("Existing User - Billing Details at checkout", () => {
       await page
         .getByTestId("input-properties-tax-properties-number")
         .fill(regNumber);
-      await page.waitForTimeout(1000);
-      await checkout.clickSaveDetails();
+      await checkout.clickSaveDetails("companies");
       await expect(checkout.billingDetails).toContainText(newCompany);
     }
   );
-  registeredUser(
+  newUser(
     "Edit existing address at checkout",
-    async ({ page, context, checkout, loginAs }) => {
-      const session = await loginAs(
-        Logins.checkoutUser.username,
-        Logins.checkoutUser.password
-      );
-      const token = session.access_token;
+    async ({ page, context, checkout, token, clientId }) => {
+      await addAddressToClient(token, clientId);
       await goToCheckout(
         page,
         context,
@@ -214,7 +174,6 @@ registeredUser.describe("Existing User - Billing Details at checkout", () => {
       await page.getByTestId("link-edit").first().click();
       await page.getByTestId("input-properties-address-1").clear();
       await page.getByTestId("input-properties-address-1").fill(newAddress);
-      await page.waitForTimeout(1000);
       await checkout.clickSaveDetails();
       await expect(checkout.dialogWindow).toBeHidden();
       await expect(page.getByTestId("radio-card-item").first()).toContainText(
@@ -224,14 +183,10 @@ registeredUser.describe("Existing User - Billing Details at checkout", () => {
       await expect(checkout.billingDetails).toContainText(newAddress);
     }
   );
-  registeredUser(
+  newUser(
     "Edit existing company at checkout",
-    async ({ page, context, checkout, loginAs }) => {
-      const session = await loginAs(
-        Logins.checkoutUser.username,
-        Logins.checkoutUser.password
-      );
-      const token = session.access_token;
+    async ({ page, context, checkout, token, clientId }) => {
+      await addAddressToClient(token, clientId);
       await goToCheckout(
         page,
         context,
@@ -247,8 +202,7 @@ registeredUser.describe("Existing User - Billing Details at checkout", () => {
       await page.getByTestId("input-properties-name").clear();
       let newCompany = fakerEN_GB.company.name();
       await page.getByTestId("input-properties-name").fill(newCompany);
-      await page.waitForTimeout(1000);
-      await checkout.clickSaveDetails();
+      await checkout.clickSaveDetails("companies");
       await expect(checkout.dialogWindow).toBeHidden();
       await expect(page.getByTestId("radio-card-item").first()).toContainText(
         newCompany

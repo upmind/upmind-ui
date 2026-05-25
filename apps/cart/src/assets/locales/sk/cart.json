@@ -74,5 +74,6 @@
   "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}",
   "show_more_payment_options": "Zobraziť viac možností platby",
   "stored_payment_methods_limited_desc": "Nie všetky spôsoby platby sú viditeľné, pretože nie sú dostupné pre vašu krajinu alebo menu.",
-  "stored_payment_methods_limited_title": "Obmedzené spôsoby platby"
+  "stored_payment_methods_limited_title": "Obmedzené spôsoby platby",
+  "warning_notes_title": "Upozornenie na košík | Upozornenia na košík"
 }

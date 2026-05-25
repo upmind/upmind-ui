@@ -136,7 +136,7 @@ export default createMachine(
 
       processed: {
         id: "processed",
-        entry: "refreshBasket",
+        entry: ["prefreshBasket", "refreshBasket"],
         after: { wait: { target: "complete" } }
       },
 
@@ -189,15 +189,17 @@ export default createMachine(
         }
       ),
 
-      // NB: send the data (basket) to the parent so theres no lag in showing/removing the tags
-      refreshBasket: sendParent(
+      // NB: send PREFRESH with data first for immediate UI update, then REFRESH for full refresh
+      prefreshBasket: sendParent(
         (_context: PromotionsContext, { data }: AnyEventObject) => {
           return {
-            type: "REFRESH",
+            type: "PREFRESH",
             data
           };
         }
       ),
+
+      refreshBasket: sendParent({ type: "REFRESH" }),
 
       setContext: assign(
         (_context: PromotionsContext, { data }: AnyEventObject) => data

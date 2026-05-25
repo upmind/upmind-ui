@@ -43,14 +43,14 @@ export async function goToCheckout(
   if (currency !== null) {
     await setOrderCurrency(token, orderId, currency);
   }
-  const provisionFields =
-    product.type === "domain" || product.type === "hosting"
-      ? {
-          domain: `${fakerEN_GB.string.alphanumeric({
-            length: { min: 3, max: 15 }
-          })}.com`
-        }
-      : {};
+  // const provisionFields =
+  //   product.type === "domain"// || product.type === "hosting"
+  //     ? {
+  //         domain: `${fakerEN_GB.string.alphanumeric({
+  //           length: { min: 3, max: 15 }
+  //         })}.com`
+  //       }
+  //     : {};
 
   await addProductToOrder(
     `${token}`,
@@ -60,7 +60,7 @@ export async function goToCheckout(
     product.billingCycle,
     [],
     [],
-    provisionFields,
+    {}, //provisionFields,
     [],
     true,
     trialValue

@@ -2,7 +2,7 @@
 import type { ActorRef } from "xstate";
 import type { ResponseError } from "../../utils";
 import type { BasketProduct } from "../basketProduct";
-import type { IBasket, IInvoice } from "@upmind-automation/types";
+import type { IBasket, IInvoice, IWarningNote } from "@upmind-automation/types";
 import { type PaymentDetailData } from "../paymentDetails";
 
 // -----------------------------------------------------------------------------
@@ -14,6 +14,11 @@ import { type PaymentDetailData } from "../paymentDetails";
  */
 export interface BasketContext {
   /**
+   * Warning notes from the API, stored in context for banner display.
+   * Only non-hidden notes are stored.
+   */
+  warningNotes?: IWarningNote[];
+  /**
    * An optional target basket ID used to load a specific basket by ID via URL.
    * When set, the basket `load` service fetches `orders/{targetBasketId}` instead of `orders/current`.
    * Falls back to `orders/current` on 404 or completion errors.
@@ -23,6 +28,12 @@ export interface BasketContext {
    * The raw `IBasket` object representing the current state of the shopping basket.
    */
   basket?: IBasket;
+  /**
+   * Sticky flag raised when an incoming basket introduces product changes,
+   * before `updateBasket` poisons the comparison. Read by `refresh` to decide
+   * whether to refetch provision-field values; cleared in `refresh.onDone`.
+   */
+  provisioningStale?: boolean;
   /**
    * The `IInvoice` object associated with the basket, if the basket has progressed to an invoice stage.
    */

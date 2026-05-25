@@ -74,5 +74,6 @@
   "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}",
   "show_more_payment_options": "Εμφάνιση περισσότερων επιλογών πληρωμής",
   "stored_payment_methods_limited_desc": "Δεν είναι ορατές όλες οι μέθοδοι πληρωμής επειδή δεν είναι διαθέσιμες για τη χώρα ή το νόμισμά σας.",
-  "stored_payment_methods_limited_title": "Περιορισμένες Μέθοδοι Πληρωμής"
+  "stored_payment_methods_limited_title": "Περιορισμένες Μέθοδοι Πληρωμής",
+  "warning_notes_title": "Προειδοποίηση καλαθιού | Προειδοποιήσεις καλαθιού"
 }

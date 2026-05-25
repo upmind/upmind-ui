@@ -32,8 +32,8 @@ import {
   UpmindModuleCodes
 } from "@upmind-automation/types";
 import { ROUTE } from ".";
-import { filter, first, includes, isEmpty, reduce } from "lodash-es";
-import { useRouter, type RouteLocationGeneric } from "vue-router";
+import { filter, first, includes, reduce } from "lodash-es";
+import type { RouteLocationGeneric } from "vue-router";
 import guards from "./guards";
 
 // -----------------------------------------------------------------------------
@@ -278,7 +278,7 @@ export default {
   ): Promise<FunnelResponse> => {
     await ensureBidAuth(context, { name: ROUTE.PRODUCT_CONFIGURE });
 
-    const { get: getPendingProduct, resolve } = useBasketProductsPending();
+    const { get: getPendingProduct } = useBasketProductsPending();
     const route = context.targetRoute ?? context.currentRoute;
     const { productId, consumeParam } = useQueryParams(
       route as RouteLocationGeneric
@@ -289,7 +289,13 @@ export default {
       (consumeParam("autoupdate", false) || consumeParam("express", false)) ==
       true;
 
-    return getPendingProduct(productId, { sync: true, silent: autoupdate })
+    // Only sync (set processing flag + subscribe) on the autoupdate path —
+    // the configure flow has no in-flight operation to track here, and a
+    // user who abandons configuration would otherwise leak `processing[pid]`.
+    return getPendingProduct(productId, {
+      sync: autoupdate,
+      silent: autoupdate
+    })
       .then(basketItem => {
         return basketItem.isReady().then(() => {
           if (!autoupdate) {
@@ -302,8 +308,20 @@ export default {
           }
           return basketItem
             .update()
-            .then(() => {
-              resolve(basketItem.service);
+            .then(async () => {
+              const returnUrl = consumeParam("returnUrl", false);
+              if (returnUrl) {
+                const { meta: recMeta, isReady: recsReady } =
+                  useProductRecommendations(productId);
+                await recsReady();
+                if (!recMeta.value.hasUnseenRecommendations) {
+                  const { router } = useRoutingEngine();
+                  return {
+                    target: router.resolve(returnUrl as string)
+                  } as FunnelResponse;
+                }
+              }
+
               return {
                 type: "NEXT",
                 target: {

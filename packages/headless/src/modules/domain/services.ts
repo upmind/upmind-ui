@@ -6,7 +6,8 @@ import {
   type DomainProduct,
   useI18n,
   useQuery,
-  useSession
+  useSession,
+  useSystem
 } from "../..";
 
 // --- utils
@@ -130,8 +131,6 @@ function buildDomainProductFromAvailability(
   // full TLD chain (".ominik.com") which matches what the user sees.
   const { sld, tld } = parseDomainParts(domain);
   const product = availability.product;
-  const { defaultPaymentPeriod } = useBrand();
-  const paymentPeriod = preferredCycle ?? defaultPaymentPeriod.value;
 
   // For availability rows, use product.sub_product_id
   const subproducts: string[] = compact([product?.sub_product_id]);
@@ -142,7 +141,7 @@ function buildDomainProductFromAvailability(
     const productDetails = parseProductDetails(product);
     const terms = parseTermDetails(product);
     const termDetails = calculateBillingTerm(
-      paymentPeriod || product.default_payment_period,
+      preferredCycle ?? product.default_payment_period,
       terms
     );
 
@@ -700,6 +699,13 @@ async function addDomainToBasket(context: DacContext) {
 async function getClientDomains(_context: DomainContext | DacContext) {
   const { get, useUrl } = useQuery();
   const { meta } = useSession();
+  const { ensureBillingCycles } = useSystem();
+
+  // FE-1698: domain/dac flows downstream call parseProductProps, which
+  // depends on sync getBillingCycle(). The DAC machine's `loading` state
+  // gates `searching` on this service, so ensuring here covers all DAC
+  // entry paths. See system/docs/gotchas.md#1.
+  await ensureBillingCycles();
 
   // bail early if not authenticated: no point fetching
   if (!meta.value?.isAuthenticated) return [];

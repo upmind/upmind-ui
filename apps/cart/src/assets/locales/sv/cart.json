@@ -74,5 +74,6 @@
   "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}",
   "show_more_payment_options": "Visa fler betalningsalternativ",
   "stored_payment_methods_limited_desc": "Alla betalningsmetoder är inte synliga eftersom de inte är tillgängliga för ditt land eller din valuta.",
-  "stored_payment_methods_limited_title": "Begränsade betalningsmetoder"
+  "stored_payment_methods_limited_title": "Begränsade betalningsmetoder",
+  "warning_notes_title": "Varning för varukorg | Varningar för varukorg"
 }

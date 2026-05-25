@@ -74,5 +74,6 @@
   "product_setup_title": "Complete product setup",
   "product_setup_desc": "Some products require additional information before checkout. Please review and provide any missing details.",
   "product_setup_count": "No products remaining | {count} product remaining | {count} products remaining",
-  "product_setup_msg": "Also use these details for {name}"
+  "product_setup_msg": "Also use these details for {name}",
+  "warning_notes_title": "Basket warning | Basket warnings"
 }

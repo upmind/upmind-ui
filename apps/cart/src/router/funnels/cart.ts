@@ -118,6 +118,11 @@ export default <FunnelProps>{
         src: "guardProductConfigure",
         onDone: [
           {
+            target: ROUTE.CATALOGUE,
+            actions: ["setResolving", "setTargetRoute"],
+            cond: "isCatalogue"
+          },
+          {
             target: ROUTE.PRODUCT_RECOMMENDATIONS,
             actions: ["setResolving", "setTargetRoute"],
             cond: "isNext"

@@ -19,7 +19,27 @@ export type RootVariants = VariantProps<typeof rootVariant>;
 
 export interface ProductCardProps extends Omit<Product, "price" | "pricing"> {
   configureRoute: RouteLocationAsRelativeGeneric;
+  /**
+   * When true (default), term-only products auto-add with the selected term.
+   * When false, they route to the configure step instead so the term step
+   * is part of the funnel. Catalogue passes `keepsUserInSitu` to switch
+   * between the two flows.
+   */
+  inSitu?: boolean;
+  /**
+   * `true` while this product is in the basket. Sourced from
+   * `useBasketProductsPending().meta.isInBasket`. The card uses this both for
+   * the persistent "In basket" affordance and for a transient "Added!" flash
+   * on the false → true transition.
+   */
+  inBasket?: boolean;
+  /**
+   * Duration in ms of the transient "Added!" flash + button-disable after a
+   * product enters the basket. Defaults to 3000.
+   */
+  resetTimeout?: number;
   disabled?: boolean;
+  loading?: boolean;
   variant?: RootVariants["variant"];
   price?: PriceDetail;
   pricing?: ProductSummaryDetailWithPrice[];

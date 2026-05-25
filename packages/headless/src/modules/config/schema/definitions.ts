@@ -254,7 +254,8 @@ export const UI_META_DEFINITIONS = {
       UIContext.RECOMMENDATIONS,
       UIContext.BASKET
     ],
-    scopes: [UIScope.BRAND, UIScope.PRODUCT_CATEGORY, UIScope.PRODUCT]
+    scopes: [UIScope.BRAND, UIScope.PRODUCT_CATEGORY, UIScope.PRODUCT],
+    conditional: true
   },
   zeroPriceDisplay: {
     type: ZERO_PRICE_DISPLAY,
@@ -316,7 +317,8 @@ export const UI_META_DEFINITIONS = {
       UIScope.PRODUCT,
       UIScope.OPTION_CATEGORY,
       UIScope.OPTION
-    ]
+    ],
+    conditional: true
   },
   optionItemDescription: {
     type: DESCRIPTION_DISPLAY,
@@ -339,7 +341,8 @@ export const UI_META_DEFINITIONS = {
       UIScope.PRODUCT_CATEGORY,
       UIScope.PRODUCT,
       UIScope.OPTION_CATEGORY
-    ]
+    ],
+    conditional: true
   },
   optionSelectorGrid: {
     type: GRID_LAYOUT,
@@ -373,7 +376,8 @@ export const UI_META_DEFINITIONS = {
       UIScope.PRODUCT_CATEGORY,
       UIScope.PRODUCT,
       UIScope.OPTION_CATEGORY
-    ]
+    ],
+    conditional: true
   },
 
   termSelector: {
@@ -400,7 +404,8 @@ export const UI_META_DEFINITIONS = {
     default: VISIBILITY.HIDDEN,
     contexts: [UIContext.BASKET, UIContext.CHECKOUT],
     scopes: [UIScope.BRAND],
-    locked: { [UIContext.BASKET]: VISIBILITY.VISIBLE }
+    locked: { [UIContext.BASKET]: VISIBILITY.VISIBLE },
+    conditional: true
   },
   basketItems: {
     type: VISIBILITY,
@@ -443,7 +448,8 @@ export const UI_META_DEFINITIONS = {
     type: VISIBILITY,
     default: VISIBILITY.VISIBLE,
     contexts: [UIContext.CONFIGURE, UIContext.BASKET, UIContext.CHECKOUT],
-    scopes: [UIScope.BRAND, UIScope.PRODUCT_CATEGORY, UIScope.PRODUCT]
+    scopes: [UIScope.BRAND, UIScope.PRODUCT_CATEGORY, UIScope.PRODUCT],
+    conditional: true
   },
   breadcrumbs: {
     type: BREADCRUMBS,
