@@ -38,7 +38,8 @@ import {
   xorBy
 } from "lodash-es";
 
-import { calculateSubscription } from "./services";
+import { calculateActor } from "../../utils";
+import { buildPriceEntries, checkPriceOverride } from "./utils";
 
 // ---types
 import type { AnyEventObject } from "xstate";
@@ -403,7 +404,7 @@ export default createMachine(
                 : undefined,
 
             // ---
-            calculateCallback: spawn(calculateSubscription)
+            calculateCallback: spawn(calculateActor())
           };
         }
       ),
@@ -640,10 +641,15 @@ export default createMachine(
           }: ProductConfigContext,
           _event
         ) => {
-          if (!calculateCallback || silent) return;
+          if (!calculateCallback || silent || !currencyId) return;
+          const overrides =
+            !!model?.options &&
+            !!lookups?.options &&
+            checkPriceOverride(model.options, lookups.options);
+          const input = buildPriceEntries(lookups?.prices ?? {}, overrides);
           return sendTo(calculateCallback, {
             type: "CALCULATE",
-            data: { currencyId, model, lookups }
+            data: { currencyId, input }
           });
         }
       ),

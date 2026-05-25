@@ -8,6 +8,7 @@ import {
   DetailedError,
   ErrorOrigin,
   responseCodes,
+  useCalculate,
   useLaravalSchemaParser,
   useTranslateField,
   useTranslateName,
@@ -73,6 +74,7 @@ import type {
   PriceCalculations,
   PriceDetail,
   PriceDisplay,
+  PriceEntry,
   Product,
   ProductConfigContext,
   ProductDetails,
@@ -284,6 +286,25 @@ export function checkPriceOverride(
     return !isEmpty(value) && !!item?.meta?.overrides;
   });
 }
+
+/**
+ * Build a flat PriceEntry[] from the lookups.prices breakdown for sending to
+ * cart/calculate. When `overrides` is true the term price is excluded (the
+ * options have already taken its place).
+ *
+ * Arrays always route to sum-mode in useCalculate (DD-4), so a bare list of
+ * numbers is the correct shape — no quantity-1 wrapping needed.
+ */
+export function buildPriceEntries(
+  prices: PriceCalculations,
+  overrides: boolean
+): PriceEntry[] {
+  return filter(
+    concat(overrides ? [] : prices?.term, prices?.attributes, prices?.options),
+    value => !isNil(value)
+  ) as PriceEntry[];
+}
+
 // -----------------------------------------------------------------------------
 
 export const calculateBillingTerm = (
@@ -381,20 +402,14 @@ export function parseTerm(
   value?: ProductModel["term"],
   quantity?: ProductModel["quantity"]
 ): { term: ProductModel["term"]; price: PriceCalculations["term"] } {
+  const { pushPrice } = useCalculate();
   const price: PriceCalculations["term"] = [];
   // --- resolve the term from lookups (default is handled by schema)
   const term = find(lookups?.terms, ["cycle", value]);
 
   // set price values, taking into account the quantity and unit quantity
   // NB: we NEVER add, we always push into an array for the backend to handle
-  if (quantity) {
-    if (quantity == 1) price.push(term?.price?.currentAmount ?? 0);
-    else
-      price.push({
-        price: term?.price?.currentAmount ?? 0,
-        quantity
-      });
-  }
+  pushPrice(price, term?.price?.currentAmount ?? 0, quantity ?? 0);
   return { term: get(term, "cycle") as number, price };
 }
 
@@ -498,6 +513,7 @@ export function parseSubproducts(
   subproducts?: ProductModel["attributes"] | ProductModel["options"];
   price: PriceCalculations["attributes"] | PriceCalculations["options"];
 } {
+  const { pushPrice } = useCalculate();
   let subproducts: SubproductModel = {};
   const price: any[] = [];
   // ---
@@ -569,13 +585,11 @@ export function parseSubproducts(
             // if we have a price, set price values, taking into account the quantity and unit quantity
             // NB: we NEVER add, we always push into an array for the backend to handle
             if (!isEmpty(product?.price)) {
-              if (quantity == 1 && value.quantity == 1)
-                price.push(product?.price?.currentAmount);
-              else
-                price.push({
-                  price: product?.price?.currentAmount,
-                  quantity: value.quantity * (quantity ?? 1)
-                });
+              pushPrice(
+                price,
+                product?.price?.currentAmount ?? 0,
+                value.quantity * (quantity ?? 1)
+              );
             }
 
             // ---
