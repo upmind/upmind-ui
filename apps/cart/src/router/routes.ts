@@ -1,6 +1,6 @@
 // --- internal
 import { ROUTE, RegexMatch } from "./funnels/types";
-import { OverlayType } from "@upmind-automation/headless";
+import { OverlayType } from "@upmind-automation/client-vue";
 // --- utils
 import { reduce, trimStart } from "lodash-es";
 // --- types
