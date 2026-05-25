@@ -153,7 +153,7 @@ async function add(type: UnifiedType, data: UnifiedModel) {
   const promises: Promise<any>[] = [];
 
   promises.push(
-    data?.phone && UnifiedType.PERSONAL
+    data?.phone && type == UnifiedType.PERSONAL
       ? ensurePhone({ model: data.phone })
       : Promise.resolve(undefined)
   );
