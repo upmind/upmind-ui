@@ -132,20 +132,34 @@ export class Checkout {
     if (phoneInput != null) {
       await this.phoneInput.fill(phoneInput);
     }
-    await this.clickSaveDetails();
   }
-  async clickSaveDetails() {
+
+  async selectAddressFromSearch(searchQuery: string, expectedOption: string) {
+    await this.addressSearch.fill(searchQuery);
+    await this.page
+      .locator('[role="dialog"][data-state="open"]')
+      .locator("li", { hasText: expectedOption })
+      .click();
+  }
+  async clickSaveDetails(endpoint: "addresses" | "companies" = "addresses") {
+    const endpointPattern = new RegExp(`/api/clients/[^/]+/${endpoint}(\\?|$)`);
     for (let attempt = 0; attempt < 5; attempt++) {
-      if (!(await this.billingDetails.isHidden())) return;
+      const responsePromise = this.page.waitForResponse(
+        response =>
+          endpointPattern.test(response.url()) &&
+          response.request().method() === "POST" &&
+          response.ok(),
+        { timeout: 2000 }
+      );
       await this.saveDetails.click();
       try {
-        await this.billingDetails.waitFor({ state: "hidden", timeout: 2000 });
+        await responsePromise;
         return;
       } catch {
-        // modal still open, try again
+        // save request not detected, click again
       }
     }
-    throw new Error("Billing details modal did not close after 5 clicks");
+    throw new Error(`${endpoint} save request not detected after 5 clicks`);
   }
 
   async getPaymentMethod(gatewayName: string) {

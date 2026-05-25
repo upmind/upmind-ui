@@ -24,7 +24,6 @@ import {
 } from "../../utils";
 import { awaitResolved } from "./utils";
 import { forEach, isString } from "lodash-es";
-export { useRouteRequiresAction } from "./utils";
 
 // --- types
 import type { RouteLocation, Router } from "vue-router";

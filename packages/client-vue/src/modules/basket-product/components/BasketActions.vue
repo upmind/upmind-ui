@@ -12,7 +12,7 @@
       @update:modelValue="updateQuantity"
       :disabled="meta.isLoading || meta.isProcessing"
       size="lg"
-      :width="layout === 'enclosed' ? 'lg' : 'sm'"
+      width="lg"
     />
 
     <Button

@@ -7,6 +7,7 @@
   "basket_billing_review_msg": "Certaines informations de facturation sont manquantes ou incorrectes – {review}.",
   "basket_count": "vide | {count} article | {count} articles",
   "basket_fields_review_msg": "Certains champs du panier sont manquants ou incorrects – {review}.",
+  "basket_incomplete_title": "Les détails du panier sont incomplets.",
   "basket_items": "aucun article dans le panier | {count} article dans le panier | {count} articles dans le panier",
   "basket_product_missing_data": "Données manquantes sur l'article",
   "basket_product_missing_data_help": "Cet élément manque de données et nécessite une attention particulière",
@@ -17,6 +18,7 @@
   "basket_products_require_attention_msg": "{count} les produits nécessitent une attention particulière | {count} le produit nécessite une attention particulière | {count} les produits nécessitent une attention particulière",
   "basket_products_review_desc": "Veuillez vérifier les éléments suivants avant de continuer, ou retournez-les au panier.",
   "basket_requires_attention_msg": "{count} élément nécessite votre attention | {count} éléments nécessitent votre attention",
+  "basket_review_item_msg": "{message} – {review}.",
   "basket_review_msg": "Veuillez examiner les éléments suivants avant de continuer",
   "basket_section": "Résumé du panier",
   "basket_summary_desc": "Tu as {count} article dans votre panier, totalisant {total}. | Vous avez {count} articles dans votre panier, totalisant {total}.",
@@ -26,6 +28,7 @@
   "basket_tax_incl": "taxes comprises",
   "basket_title": "Votre panier",
   "change_amount": "Modifier le montant",
+  "details_incomplete_title": "Les détails sont incomplets.",
   "empty": "Votre **panier** est vide",
   "empty_md": "@.markdown:{'cart.empty'}",
   "empty_msg": "Il semblerait que vous n'ayez encore rien ajouté à votre panier.",
@@ -60,6 +63,10 @@
   "place_order_desc": "Cliquez simplement sur le bouton « Passer la commande » pour finaliser votre achat.",
   "product_not_found": "**Produit** introuvable",
   "product_not_found_md": "@.markdown:{'cart.product_not_found'}",
+  "product_setup_count": "Plus aucun produit en stock |{count} produit restant |{count} produits restants",
+  "product_setup_desc": "Certains produits nécessitent des informations complémentaires avant le paiement. Veuillez vérifier et fournir les informations manquantes.",
+  "product_setup_msg": "Utilisez également ces informations pour{name}",
+  "product_setup_title": "Configuration complète du produit",
   "promotion_help": "{code} fournit {amount} rabais {description}",
   "promotions_active": "Rabais actives",
   "recommendations_unavailable_text": "Nous n'avons trouvé aucune recommandation pour vous pour le moment. Veuillez cliquer ci-dessous pour continuer.",
@@ -67,5 +74,6 @@
   "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}",
   "show_more_payment_options": "Afficher plus d'options de paiement",
   "stored_payment_methods_limited_desc": "Tous les modes de paiement ne sont pas visibles car ils ne sont pas disponibles pour votre pays ou votre devise.",
-  "stored_payment_methods_limited_title": "Méthodes de paiement limitées"
+  "stored_payment_methods_limited_title": "Méthodes de paiement limitées",
+  "warning_notes_title": "Avertissement concernant le panier | Avertissements concernant le panier"
 }

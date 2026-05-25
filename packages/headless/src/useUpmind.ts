@@ -159,6 +159,12 @@ export interface UpmindProps {
    * @default false
    */
   admin?: boolean;
+  /**
+   * The Upmind platform URL. Used as the redirect destination when
+   * the brand is unavailable (no tenant for this domain).
+   * No redirect occurs if not provided.
+   */
+  platformUrl?: string;
 }
 
 // -----------------------------------------------------------------------------
@@ -220,6 +226,10 @@ export class Upmind {
    * Theme configurations.
    */
   themes?: UpmindProps["themes"];
+  /**
+   * The Upmind platform URL for redirect when brand is unavailable.
+   */
+  platformUrl?: UpmindProps["platformUrl"];
 
   /**
    * Constructs a new Upmind instance.
@@ -242,6 +252,7 @@ export class Upmind {
     debug,
     i18n,
     mode,
+    platformUrl,
     pop,
     recaptcha,
     router,
@@ -266,6 +277,7 @@ export class Upmind {
     this.storefrontUrl = storefrontUrl;
     this.themes = themes;
     this.admin = admin ?? false;
+    this.platformUrl = platformUrl;
 
     this.initPlugins();
     this.initDebugging();
@@ -286,6 +298,14 @@ export class Upmind {
             useSystem().isReady(),
             useSession().isReady()
           ])
+            // Brand unavailable — redirect to platform if configured
+            .then(() => {
+              const { meta } = useBrand();
+              if (!meta.value.isAvailable && this.platformUrl) {
+                window.location.href = this.platformUrl;
+                return Promise.reject();
+              }
+            })
             // then initialise our localisation to ensure i18n is available to our app/composables/machines
             .then(() => this.initLocalisation())
             // and then we start with our render blocking initialisations

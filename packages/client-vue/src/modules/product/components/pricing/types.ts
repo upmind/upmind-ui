@@ -9,6 +9,7 @@ interface BasePrice {
   cycle?: ProductSummaryDetailWithPrice["cycle"];
   // meta?: ProductSummaryDetailWithPrice["meta"];
   useMonthlyFromPrice?: boolean;
+  loading?: boolean;
   uiConfig?: {
     pricing: {
       ex?: CxOptions;
@@ -21,8 +22,8 @@ export interface ExPriceProps extends BasePrice {
   regularPrice: string;
   monthlyFromRegularPrice: string;
   discounted: boolean;
-  /** True when a price has been manually overridden (may be higher or lower than the pricelist price). */
-  overridden?: boolean;
+  /** True when the BE has returned a custom (manually overridden) price (may be higher or lower than the pricelist price). */
+  custom?: boolean;
 }
 
 export interface CurrentPriceProps extends BasePrice {

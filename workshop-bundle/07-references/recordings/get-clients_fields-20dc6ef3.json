@@ -1,0 +1,80 @@
+{
+  "request": {
+    "method": "GET",
+    "path": "/api/clients_fields?filter%5Bshow_on_order_form%5D=true&lang=en-US"
+  },
+  "response": {
+    "status": 200,
+    "body": {
+      "status": "ok",
+      "data": [
+        {
+          "id": "78985742-6489-7012-25b2-1e325d0ed369",
+          "import_id": null,
+          "staged_import": false,
+          "external_id": null,
+          "object_type": "client",
+          "name": "Age",
+          "short_description": null,
+          "description": null,
+          "type": 7,
+          "group": 0,
+          "hidden": false,
+          "client_readonly": false,
+          "required": false,
+          "user_id": "3de78642-de53-9714-552b-21208469530d",
+          "order": 3,
+          "values": {
+            "min": {
+              "label": "",
+              "value": ""
+            },
+            "max": {
+              "label": "",
+              "value": ""
+            },
+            "step": {
+              "label": "",
+              "value": ""
+            }
+          },
+          "created_at": "2025-08-22 15:14:08",
+          "updated_at": "2026-05-15 13:51:45",
+          "code": "age",
+          "user_only": false,
+          "show_on_order_form": true,
+          "show_on_invoice": false,
+          "deleted_at": null,
+          "validation_rules": [],
+          "org_id": "5952098d-3de4-0917-e38a-31578626e347",
+          "brand_id": "47d73824-8507-9315-e54f-81e642d59e06",
+          "name_translated": "Age",
+          "short_description_translated": null,
+          "description_translated": null,
+          "values_translated": {
+            "min": {
+              "label": "",
+              "value": ""
+            },
+            "max": {
+              "label": "",
+              "value": ""
+            },
+            "step": {
+              "label": "",
+              "value": ""
+            }
+          },
+          "type_code": "number",
+          "display_type": "Number",
+          "translations": []
+        }
+      ],
+      "related": null,
+      "total": 1,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  }
+}

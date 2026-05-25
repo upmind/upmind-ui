@@ -44,6 +44,7 @@ import {
   type IInvoice,
   type ICurrency,
   type IPromotion,
+  type IWarningNote,
   type IBasketPromotion,
   BrandConfigKeys,
   CheckoutFlows
@@ -98,6 +99,15 @@ export const useBasket = () => {
         machineMatches(actors.customFields, ["processing"]) ||
         machineMatches(actors.billing, ["processing"]) ||
         machineMatches(actors.promotions, ["processing"]),
+
+      isPricesCalculating:
+        machineMatches(actors.currency, ["processing"]) ||
+        machineMatches(actors.promotions, ["processing"]),
+
+      isPricesUpdating:
+        machineMatches(actors.currency, ["processing"]) ||
+        machineMatches(actors.promotions, ["processing"]) ||
+        stateMatches(state, ["shopping.refreshing.processing"]),
 
       isDirty:
         machineMatches(actors.currency, ["valid"]) ||
@@ -201,7 +211,8 @@ export const useBasket = () => {
       hasCustomPrice: some(
         contextValue<IBasketPromotion[]>(state, "basket.promotions", []),
         p => !!p.promotion?.adjusted_basket_id
-      )
+      ),
+      hasWarningNotes: !isEmpty(warningNotes.value)
     };
   });
 
@@ -254,6 +265,9 @@ export const useBasket = () => {
     () => parsePromotionsOrCoupons(promotions.value) as IPromotion["code"][]
   );
   const taxes = useContext<IBasket["taxes"]>(state, "basket.taxes", []);
+  const warningNotes = computed<IWarningNote[]>(
+    () => contextValue<IWarningNote[]>(state, "warningNotes", []) ?? []
+  );
 
   const uischema = computed(() => {
     return {
@@ -362,6 +376,27 @@ export const useBasket = () => {
 
   function prefresh(data: IBasket): void {
     send({ type: "PREFRESH", data });
+  }
+
+  /**
+   * Waits for an in-flight basket refresh to settle. Use this after operations
+   * that trigger a refresh out-of-band (e.g. basketProduct.updateMany) to
+   * ensure the basket has re-validated before reading its state.
+   */
+  async function waitForRefresh(): Promise<boolean> {
+    return waitFor(
+      service,
+      state => stateMatches(state, ["shopping.refreshing.processed", "error"]),
+      { timeout: 60_000 }
+    )
+      .then(() => {
+        return !stateMatches(state, "error");
+      })
+      .catch(() => false);
+  }
+
+  function dismissAllWarnings(): void {
+    send({ type: "DISMISS_ALL_WARNINGS" });
   }
 
   async function setCurrency(currency: string) {
@@ -637,6 +672,7 @@ export const useBasket = () => {
      * @property {boolean} hasPaid - Indicates if the basket has been paid.
      * @property {boolean} hasFailed - Indicates if the basket has failed.
      * @property {boolean} hasErrors - Indicates if the basket has an error.
+     * @property {boolean} hasWarningNotes - Indicates if the basket has non-hidden warning notes to display.
      */
     meta,
 
@@ -738,6 +774,11 @@ export const useBasket = () => {
     clear,
 
     /**
+     * Dismiss all warning notes at once.
+     */
+    dismissAllWarnings,
+
+    /**
      * Resets the basket to its initial state. Typically used after checkout or when starting a new session.
      */
     reset,
@@ -761,6 +802,14 @@ export const useBasket = () => {
      * @param {IBasket} data The basket data to pre-refresh with.
      */
     prefresh,
+
+    /**
+     * Waits for an in-flight basket refresh to settle. Use this after
+     * operations that trigger a refresh out-of-band (e.g. basketProduct
+     * updateMany) to ensure the basket has re-validated before reading state.
+     * @returns {Promise<void>} Resolves when settled or on timeout (60s).
+     */
+    waitForRefresh,
 
     /**
      * Sets the basket currency.
@@ -834,7 +883,12 @@ export const useBasket = () => {
     /**
      * Cancels an inline payment challenge.
      */
-    cancelChallenge
+    cancelChallenge,
+
+    /**
+     * Warning notes for the current basket (non-hidden).
+     */
+    warningNotes
   };
 };
 

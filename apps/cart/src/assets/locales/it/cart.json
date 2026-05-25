@@ -7,6 +7,7 @@
   "basket_billing_review_msg": "Alcuni dettagli di fatturazione sono mancanti o errati – {review}.",
   "basket_count": "vuoto | {count} articolo | {count} elementi",
   "basket_fields_review_msg": "Alcuni campi del carrello sono mancanti o errati – {review}.",
+  "basket_incomplete_title": "I dettagli del carrello sono incompleti",
   "basket_items": "nessun articolo nel carrello | {count} articolo nel carrello | {count} articoli nel carrello",
   "basket_product_missing_data": "Dati mancanti nell'articolo",
   "basket_product_missing_data_help": "A questo elemento mancano dati e richiede attenzione",
@@ -17,6 +18,7 @@
   "basket_products_require_attention_msg": "{count} i prodotti richiedono attenzione | {count} il prodotto richiede attenzione | {count} i prodotti richiedono attenzione",
   "basket_products_review_desc": "Si prega di rivedere i seguenti elementi prima di procedere, in alternativa tornare al carrello.",
   "basket_requires_attention_msg": "{count} elemento richiede la tua attenzione | {count} elementi richiedono la tua attenzione",
+  "basket_review_item_msg": "{message} – {review}.",
   "basket_review_msg": "Si prega di esaminare i seguenti elementi prima di continuare",
   "basket_section": "Riepilogo del carrello",
   "basket_summary_desc": "Hai {count} articolo nel tuo carrello, per un totale di {total}. | Tu hai {count} articoli nel tuo carrello, per un totale di {total}.",
@@ -26,6 +28,7 @@
   "basket_tax_incl": "inclusi gli animali",
   "basket_title": "Il tuo carrello",
   "change_amount": "Modifica importo",
+  "details_incomplete_title": "I dettagli sono incompleti",
   "empty": "Il tuo **carrello** è vuoto",
   "empty_md": "@.markdown:{'cart.empty'}",
   "empty_msg": "Sembra che tu non abbia ancora aggiunto nulla al tuo carrello.",
@@ -60,6 +63,10 @@
   "place_order_desc": "Basta cliccare sul pulsante 'Effettua ordine' per completare l'acquisto.",
   "product_not_found": "**Prodotto** non trovato",
   "product_not_found_md": "@.markdown:{'cart.product_not_found'}",
+  "product_setup_count": "Non ci sono più prodotti disponibili |{count} prodotto rimanente |{count} prodotti rimanenti",
+  "product_setup_desc": "Alcuni prodotti richiedono informazioni aggiuntive prima del pagamento. Si prega di verificare e fornire eventuali dettagli mancanti.",
+  "product_setup_msg": "Utilizzare anche questi dettagli per{name}",
+  "product_setup_title": "Configurazione completa del prodotto",
   "promotion_help": "{code} fornisce {amount} sconto {description}",
   "promotions_active": "Sconti attivi",
   "recommendations_unavailable_text": "Non siamo riusciti a trovare alcun suggerimento per te in questo momento. Clicca qui sotto per continuare.",
@@ -67,5 +74,6 @@
   "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}",
   "show_more_payment_options": "Mostra più opzioni di pagamento",
   "stored_payment_methods_limited_desc": "Non tutti i metodi di pagamento sono visibili perché non sono disponibili per il tuo paese o la tua valuta.",
-  "stored_payment_methods_limited_title": "Metodi di pagamento limitati"
+  "stored_payment_methods_limited_title": "Metodi di pagamento limitati",
+  "warning_notes_title": "Avviso carrello | Avvisi carrello"
 }

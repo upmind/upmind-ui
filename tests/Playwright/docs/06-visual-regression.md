@@ -81,7 +81,7 @@ Commit the regenerated PNGs together with the UI change. The review diff on GitL
 
 ## Tolerances
 
-Globally set in [playwright.config.ts:11-14](../../playwright.config.ts#L11-L14):
+Globally set in [playwright.config.ts:10-13](../../playwright.config.ts#L10-L13):
 
 ```ts
 expect: {

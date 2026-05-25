@@ -31,12 +31,12 @@ const { meta, configure, filterUpsellOptions, resolveUpsells } =
   useBasketProductInline(basketProduct.id);
 ```
 
-| Return                | Type                                                        | Description                                          |
-| --------------------- | ----------------------------------------------------------- | ---------------------------------------------------- |
-| `meta`                | `ComputedRef<InlineMeta>`                                   | Inline control visibility flags                      |
-| `configure`           | `() => ConfigureAPI`                                        | Spawns the product machine with `allowMultipleEdits` |
-| `filterUpsellOptions` | `(options) => SubproductDetails[]`                          | Filters to upsell-eligible option groups             |
-| `resolveUpsells`      | `(machineOptions?, modelOptions?) => BasketOptionSummary[]` | Resolves upsell summaries with adjusted pricing      |
+| Return                | Type                                 | Description                                                             |
+| --------------------- | ------------------------------------ | ----------------------------------------------------------------------- |
+| `meta`                | `ComputedRef<InlineMeta>`            | Inline control visibility flags                                         |
+| `configure`           | `() => ConfigureAPI`                 | Spawns the product machine with `allowMultipleEdits`                    |
+| `filterUpsellOptions` | `(options) => SubproductDetails[]`   | Filters to upsell-eligible option groups                                |
+| `resolveUpsells`      | `(config?) => BasketOptionSummary[]` | Resolves upsell summaries from the config's persisted (baseModel) state |
 
 ---
 
@@ -62,7 +62,10 @@ A product summary detail enriched with basket-specific toggle metadata.
 
 ```typescript
 type BasketOptionSummary = ProductSummaryDetailWithPrice & {
-  meta: ProductSummaryMeta & { toggle?: OptionToggleMeta };
+  toggle?: OptionToggleMeta;
+  min?: number;
+  max?: number;
+  step?: number;
 };
 ```
 

@@ -47,7 +47,11 @@ import type {
   SubproductDetails,
   ProductConfigContext
 } from "./";
-import { generateShareUrlConfig } from "./utils";
+import {
+  checkPriceOverride,
+  generateShareUrlConfig,
+  getOutstandingBasketErrors
+} from "./utils";
 import { useI18n } from "../system";
 
 // -----------------------------------------------------------------------------
@@ -64,6 +68,7 @@ export const useProductConfig = (service: ActorRef<any>) => {
 
   const { state, send } = useActor(service);
   const model = useContext<ProductModel>(state, "model");
+  const baseModel = useContext<ProductModel>(state, "baseModel");
   const lookups = useContext<ProductConfigContext["lookups"]>(state, "lookups");
   const raw = computed(() => ({
     product: contextValue<ProductConfigContext["rawProduct"]>(
@@ -97,23 +102,43 @@ export const useProductConfig = (service: ActorRef<any>) => {
     "lookups.attributes"
   );
   const options = useContext<SubproductDetails[]>(state, "lookups.options");
-  const fields = useContext<Record<string, any>>(
+  const provisionFields = useContext<Record<string, any>>(
     state,
-    "schema.properties.provisionFields"
+    "lookups.provisionFields"
   );
 
   const schema = useContext<JsonSchema7>(state, "schema");
   const uischema = useContext<UISchemaElement>(state, "uischema");
 
+  const provisionFieldsSchema = useContext<Record<string, any>>(
+    state,
+    "schema.properties.provisionFields"
+  );
   // ---
   const errors = useContext<Product["errors"]>(state, "error");
 
   const validationErrors = useContext<Product["errors"]>(state, "error.data");
-  const additionalErrors = useContext<Product["errors"]>(
-    state,
-    "errorExternal.data"
-  );
-  const externalErrors = useContext<ResponseError>(state, "errorExternal");
+
+  // Request-level error from the basket (ResponseError shape) — the array
+  // shape (per-field validation) is surfaced separately via `additionalErrors`.
+  const externalErrors = computed<ResponseError | undefined>(() => {
+    const v = contextValue<ProductConfigContext["basketErrors"]>(
+      state,
+      "basketErrors"
+    );
+    return isArray(v) ? undefined : v;
+  });
+
+  // Reactively derived "still outstanding" errors — basketErrors filtered
+  // against the live model. As the user fills/changes fields, those errors
+  // drop off without us mutating the snapshot.
+  const additionalErrors = computed(() => {
+    return getOutstandingBasketErrors(
+      contextValue<ProductConfigContext["basketErrors"]>(state, "basketErrors"),
+      contextValue<ProductConfigContext["baseModel"]>(state, "baseModel"),
+      model.value
+    );
+  });
 
   const shareUrl = computed(() => {
     const baseUrl = `${window.location.origin}/order/product/${productDetails.value?.id}`;
@@ -124,6 +149,12 @@ export const useProductConfig = (service: ActorRef<any>) => {
     return `${baseUrl}?${config}`;
   });
 
+  const isOverridden = computed<boolean>(
+    () =>
+      checkPriceOverride(model.value?.options ?? {}, options.value ?? []) ||
+      checkPriceOverride(model.value?.attributes ?? {}, attributes.value ?? [])
+  );
+
   const meta = computed<UseProductConfigMeta>(() => ({
     isLoading: stateMatches(state, ["subscribing", "loading"]),
     isNew: !contextMatches(state, ["basketProduct"]),
@@ -133,7 +164,7 @@ export const useProductConfig = (service: ActorRef<any>) => {
     ),
     isTouched: touched.value,
     showErrors:
-      isArray(contextValue(state, "errorExternal")) ||
+      !isEmpty(additionalErrors.value) ||
       (contextMatches(state, ["error"]) && contextMatches(state, ["attempts"])),
 
     hasErrors:
@@ -159,6 +190,7 @@ export const useProductConfig = (service: ActorRef<any>) => {
     isUnavailable: stateMatches(state, ["unavailable", "available.error"]),
     isComplete: stateMatches(state, ["complete"]),
     isDone: !state.value || state.value?.done,
+    isOverridden: isOverridden.value,
 
     // ---
     hasProvisioning: !isEmpty(state.value.context?.lookups?.provisionFields),
@@ -434,15 +466,17 @@ export const useProductConfig = (service: ActorRef<any>) => {
     raw,
     schema,
     uischema,
+    provisionFieldsSchema,
     title,
     // productDetails,
     productImage,
     terms,
     options,
     attributes,
-    fields,
+    provisionFields,
     // ---
     model,
+    baseModel,
     product,
     shareUrl,
     // ---
@@ -512,6 +546,8 @@ export type UseProductConfigMeta = {
   isUnavailable: boolean;
   isComplete: boolean;
   isDone: boolean;
+  /** `true` if an active option/attribute category in the model overrides the product price. */
+  isOverridden: boolean;
   // ---
   hasProvisioning: boolean;
   hasAttributes: boolean;

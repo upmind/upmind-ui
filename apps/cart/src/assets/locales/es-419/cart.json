@@ -7,6 +7,7 @@
   "basket_billing_review_msg": "Faltan algunos detalles de facturación o son incorrectos – {review}.",
   "basket_count": "vacío | {count} artículo | {count} elementos",
   "basket_fields_review_msg": "Faltan algunos campos de la cesta o son incorrectos – {review}.",
+  "basket_incomplete_title": "Los detalles de la cesta están incompletos.",
   "basket_items": "No hay artículos en la cesta | {count} artículo en la cesta | {count} artículos en la cesta",
   "basket_product_missing_data": "Datos faltantes del artículo",
   "basket_product_missing_data_help": "A este elemento le faltan datos y requiere atención.",
@@ -17,6 +18,7 @@
   "basket_products_require_attention_msg": "{count} los productos requieren atención | {count} el producto requiere atención | {count} los productos requieren atención",
   "basket_products_review_desc": "Por favor revise los siguientes elementos antes de continuar, o bien regrese al carrito.",
   "basket_requires_attention_msg": "{count} elemento necesita su atención | {count} elementos necesitan su atención",
+  "basket_review_item_msg": "{message} – {review}.",
   "basket_review_msg": "Por favor, revise los siguientes elementos antes de continuar",
   "basket_section": "Resumen de la cesta",
   "basket_summary_desc": "Tienes {count} artículo en su cesta, por un total de {total}. | Tienes {count} artículos en su cesta, por un total de {total}.",
@@ -26,6 +28,7 @@
   "basket_tax_incl": "impuestos incluidos",
   "basket_title": "Su cesta",
   "change_amount": "Cambiar monto",
+  "details_incomplete_title": "Los detalles están incompletos.",
   "empty": "Tu **cesta** está vacía",
   "empty_md": "@.markdown:{'cart.empty'}",
   "empty_msg": "Parece que aún no has añadido nada a tu cesta.",
@@ -60,6 +63,10 @@
   "place_order_desc": "Simplemente haga clic en el botón “Realizar pedido” para completar su compra.",
   "product_not_found": "**Producto** no encontrado",
   "product_not_found_md": "@.markdown:{'cart.product_not_found'}",
+  "product_setup_count": "No quedan productos |{count} producto restante |{count} productos restantes",
+  "product_setup_desc": "Algunos productos requieren información adicional antes de finalizar la compra. Por favor, revise y proporcione los datos que falten.",
+  "product_setup_msg": "Utilice también estos detalles para{name}",
+  "product_setup_title": "Configuración completa del producto",
   "promotion_help": "{code} proporciona {amount} descuento {description}",
   "promotions_active": "Descuentos activos",
   "recommendations_unavailable_text": "No pudimos encontrar recomendaciones para ti en este momento. Por favor, haz clic abajo para continuar.",
@@ -67,5 +74,6 @@
   "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}",
   "show_more_payment_options": "Mostrar más opciones de pago",
   "stored_payment_methods_limited_desc": "No todos los métodos de pago son visibles porque no están disponibles para tu país o moneda.",
-  "stored_payment_methods_limited_title": "Métodos de Pago Limitados"
+  "stored_payment_methods_limited_title": "Métodos de Pago Limitados",
+  "warning_notes_title": "Advertencia sobre la cesta | Advertencias sobre la cesta"
 }
