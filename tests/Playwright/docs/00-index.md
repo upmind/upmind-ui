@@ -42,3 +42,4 @@ When you just need to run the tests right now:
 9. [Cucumber/Gherkin Evaluation](09-cucumber-evaluation.md) — research artefact backing the decision on whether to adopt Gherkin as a planning/spec language for tests.
 10. [Writing `.feature` Files — Style Guide](10-feature-style.md) — the declarative-style rules for Gherkin specs. The load-bearing convention behind our Option-B adoption.
 11. [Authoring Tests for a Story](11-authoring-tests.md) — end-to-end guide for devs: Linear AC → `.feature` spec → Playwright test → PR. The new workflow shape.
+12. [Allure Dashboard](08-allure-dashboard.md) — shared test-results dashboard on GCS, trends, publishing local runs, comparing branches.
