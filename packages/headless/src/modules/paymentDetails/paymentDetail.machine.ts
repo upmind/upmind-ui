@@ -3,7 +3,7 @@ import { createMachine, assign, spawn, sendParent, sendTo, pure } from "xstate";
 
 // --- internal
 import services from "./services";
-import { calculateSubscription } from "./services";
+import { calculateActor } from "../../utils";
 import { authSubscription } from "../session/helper";
 import { useQueryParams } from "../routing";
 
@@ -137,7 +137,14 @@ export default createMachine(
                       "setLookups",
                       "setGateway",
                       "setSchemas",
-                      "calculate"
+                      "calculate",
+                      // NB: sync the gateway helper with the freshly parsed
+                      // model.amount. Without this, SET_PARTIAL_PAYMENT and
+                      // SET_WALLET_AMOUNT updates never reach the gateway,
+                      // leaving Stripe configured with a stale amount (and
+                      // stuck in `unavailable` if the previous amount was
+                      // below its minimum).
+                      "refreshActors"
                     ]
                   }
                 }
@@ -333,7 +340,7 @@ export default createMachine(
         raw: (_context: PaymentDetailsContext, { data }: AnyEventObject) =>
           data,
         calculateCallback: ({ calculateCallback }: PaymentDetailsContext) =>
-          calculateCallback ?? spawn(calculateSubscription)
+          calculateCallback ?? spawn(calculateActor())
       }),
 
       setLookups: assign({
@@ -675,9 +682,11 @@ export default createMachine(
             type: "CALCULATE",
             data: {
               currencyId: currency?.id,
-              amount: model?.amount ?? 0,
-              outstandingAmount: amount ?? 0,
-              walletAmount: model?.wallet_amount ?? 0
+              input: {
+                amount: model?.amount ?? 0,
+                outstanding: amount ?? 0,
+                wallet: model?.wallet_amount ?? 0
+              }
             }
           });
         }

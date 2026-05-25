@@ -74,5 +74,6 @@
   "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}",
   "show_more_payment_options": "Afișează mai multe opțiuni de plată",
   "stored_payment_methods_limited_desc": "Nu toate metodele de plată sunt vizibile deoarece nu sunt disponibile pentru țara sau moneda dumneavoastră.",
-  "stored_payment_methods_limited_title": "Metode de plată limitate"
+  "stored_payment_methods_limited_title": "Metode de plată limitate",
+  "warning_notes_title": "Avertisment coș | Avertismente coș"
 }

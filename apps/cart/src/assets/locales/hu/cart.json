@@ -74,5 +74,6 @@
   "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}",
   "show_more_payment_options": "További fizetési lehetőségek megjelenítése",
   "stored_payment_methods_limited_desc": "Nem minden fizetési mód látható, mert nem érhetők el az Ön országában vagy pénznemében.",
-  "stored_payment_methods_limited_title": "Korlátozott fizetési módok"
+  "stored_payment_methods_limited_title": "Korlátozott fizetési módok",
+  "warning_notes_title": "Kosár figyelmeztetés | Kosár figyelmeztetések"
 }

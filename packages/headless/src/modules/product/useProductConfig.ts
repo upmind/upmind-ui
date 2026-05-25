@@ -47,7 +47,11 @@ import type {
   SubproductDetails,
   ProductConfigContext
 } from "./";
-import { generateShareUrlConfig, getOutstandingBasketErrors } from "./utils";
+import {
+  checkPriceOverride,
+  generateShareUrlConfig,
+  getOutstandingBasketErrors
+} from "./utils";
 import { useI18n } from "../system";
 
 // -----------------------------------------------------------------------------
@@ -64,6 +68,7 @@ export const useProductConfig = (service: ActorRef<any>) => {
 
   const { state, send } = useActor(service);
   const model = useContext<ProductModel>(state, "model");
+  const baseModel = useContext<ProductModel>(state, "baseModel");
   const lookups = useContext<ProductConfigContext["lookups"]>(state, "lookups");
   const raw = computed(() => ({
     product: contextValue<ProductConfigContext["rawProduct"]>(
@@ -144,6 +149,12 @@ export const useProductConfig = (service: ActorRef<any>) => {
     return `${baseUrl}?${config}`;
   });
 
+  const isOverridden = computed<boolean>(
+    () =>
+      checkPriceOverride(model.value?.options ?? {}, options.value ?? []) ||
+      checkPriceOverride(model.value?.attributes ?? {}, attributes.value ?? [])
+  );
+
   const meta = computed<UseProductConfigMeta>(() => ({
     isLoading: stateMatches(state, ["subscribing", "loading"]),
     isNew: !contextMatches(state, ["basketProduct"]),
@@ -179,6 +190,7 @@ export const useProductConfig = (service: ActorRef<any>) => {
     isUnavailable: stateMatches(state, ["unavailable", "available.error"]),
     isComplete: stateMatches(state, ["complete"]),
     isDone: !state.value || state.value?.done,
+    isOverridden: isOverridden.value,
 
     // ---
     hasProvisioning: !isEmpty(state.value.context?.lookups?.provisionFields),
@@ -464,6 +476,7 @@ export const useProductConfig = (service: ActorRef<any>) => {
     provisionFields,
     // ---
     model,
+    baseModel,
     product,
     shareUrl,
     // ---
@@ -533,6 +546,8 @@ export type UseProductConfigMeta = {
   isUnavailable: boolean;
   isComplete: boolean;
   isDone: boolean;
+  /** `true` if an active option/attribute category in the model overrides the product price. */
+  isOverridden: boolean;
   // ---
   hasProvisioning: boolean;
   hasAttributes: boolean;

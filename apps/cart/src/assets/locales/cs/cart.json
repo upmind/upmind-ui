@@ -74,5 +74,6 @@
   "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}",
   "show_more_payment_options": "Zobrazit více platebních možností",
   "stored_payment_methods_limited_desc": "Ne všechny platební metody jsou viditelné, protože nejsou dostupné pro vaši zemi nebo měnu.",
-  "stored_payment_methods_limited_title": "Omezené platební metody"
+  "stored_payment_methods_limited_title": "Omezené platební metody",
+  "warning_notes_title": "Varování před košem | Varování před košem"
 }

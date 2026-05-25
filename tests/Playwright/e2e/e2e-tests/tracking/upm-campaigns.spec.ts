@@ -25,9 +25,7 @@ async function getTrackingCookie(
   const trackingCookie = cookies.find(cookie => cookie.name === "upm_track");
 
   if (!trackingCookie) {
-    const message = "Tracking cookie not found.";
-    console.error(message);
-    throw new Error(message);
+    throw new Error("Tracking cookie not found.");
   }
 
   return JSON.parse(decodeURIComponent(trackingCookie.value)) as TrackingCookie;
@@ -89,7 +87,13 @@ test.describe("UPM Campaign Tracking", () => {
     await page.goto(
       `/order/shop/?upm_campaign=playwright_test_campaign&upm_source=playwright&upm_medium=e2e_test&upm_content=content_example&upm_term=term_example`
     );
-    await page.waitForTimeout(2000);
+    await expect
+      .poll(
+        async () =>
+          (await context.cookies()).some(cookie => cookie.name === "upm_track"),
+        { timeout: 10000 }
+      )
+      .toBe(true);
     await page.goto(URLs.basket);
     await waitForSessionCookie(context);
     let token = await getSessionToken(context);

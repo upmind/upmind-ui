@@ -74,5 +74,6 @@
   "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}",
   "show_more_payment_options": "Daha çox ödəniş seçimi göstər",
   "stored_payment_methods_limited_desc": "Bütün ödəniş üsulları görünmür, çünki onlar sizin ölkəniz və ya valyutanız üçün mövcud deyil.",
-  "stored_payment_methods_limited_title": "Məhdud Ödəniş Metodları"
+  "stored_payment_methods_limited_title": "Məhdud Ödəniş Metodları",
+  "warning_notes_title": "Səbət xəbərdarlığı | Səbət xəbərdarlıqları"
 }

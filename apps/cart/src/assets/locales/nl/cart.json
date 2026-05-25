@@ -74,5 +74,6 @@
   "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}",
   "show_more_payment_options": "Meer betalingsopties weergeven",
   "stored_payment_methods_limited_desc": "Niet alle betaalmethoden zijn zichtbaar omdat ze niet beschikbaar zijn voor uw land of valuta.",
-  "stored_payment_methods_limited_title": "Beperkte Betaalmethoden"
+  "stored_payment_methods_limited_title": "Beperkte Betaalmethoden",
+  "warning_notes_title": "Winkelmandje waarschuwing | Winkelmandje waarschuwingen"
 }

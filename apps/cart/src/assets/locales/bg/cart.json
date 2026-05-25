@@ -74,5 +74,6 @@
   "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}",
   "show_more_payment_options": "Показване на повече опции за плащане",
   "stored_payment_methods_limited_desc": "Не всички методи за плащане са видими, защото не са налични за вашата страна или валута.",
-  "stored_payment_methods_limited_title": "Ограничени методи на плащане"
+  "stored_payment_methods_limited_title": "Ограничени методи на плащане",
+  "warning_notes_title": "Предупреждение за кошницата | Предупреждения за кошницата"
 }

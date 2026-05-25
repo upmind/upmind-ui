@@ -229,7 +229,19 @@ export default <T = unknown>(name: string) =>
 
         unavailable: {
           id: "unavailable",
-          entry: ["cleanupSdk"]
+          entry: ["cleanupSdk"],
+          // NB: allow recovery when the parent supplies a changed payload
+          // (e.g. user lifts the payment amount above Stripe's minimum after
+          // an `amount_too_small` loaderror). `clearSdk` is required so
+          // `hasRendered` evaluates false on the next `load.onDone` and the
+          // machine routes through `rendering` to mount a fresh element.
+          on: {
+            REFRESH: {
+              target: "loading",
+              actions: ["clearSdk", "setContext", "clearError"],
+              cond: "hasChanged"
+            }
+          }
         },
 
         complete: {
@@ -265,6 +277,18 @@ export default <T = unknown>(name: string) =>
         clearSchemas: assign({
           schema: undefined,
           uischema: undefined
+        }),
+
+        // NB: `cleanupSdk` already drops the entire `sdk` wrapper, but the
+        // render-time scaffolding (`container`, `validationHelper`,
+        // `validationObserver`) lives outside `sdk` and must be cleared
+        // separately so the next `load.onDone` routes through `rendering` with
+        // a clean slate and triggers a fresh `mount()`.
+        clearSdk: assign({
+          sdk: undefined,
+          container: undefined,
+          validationHelper: undefined,
+          validationObserver: undefined
         }),
 
         setModel: assign({
@@ -366,9 +390,9 @@ export default <T = unknown>(name: string) =>
             error // do nothing by default.... individual sdk gateways can override
         }),
 
-        cleanupSdk: () => {
-          // no-op — override in SDK-specific gateway configs
-        },
+        cleanupSdk: assign({
+          sdk: undefined
+        }),
 
         clearError: assign({
           error: undefined

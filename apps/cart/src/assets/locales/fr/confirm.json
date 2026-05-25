@@ -10,6 +10,7 @@
   "email_set_default": "E-mail configuré avec succès comme valeur par défaut",
   "email_verification_sent": "Vérification de l'e-mail envoyée avec succès",
   "in_basket": "Dans le panier",
+  "in_basket_msg": "Déjà dans votre panier ? Cliquez pour ajouter un autre article.",
   "in_use": "Utilisé",
   "phone_removed": "Le téléphone a été enlevé avec succès",
   "phone_set_default": "Le téléphone a été correctement défini comme téléphone par défaut",

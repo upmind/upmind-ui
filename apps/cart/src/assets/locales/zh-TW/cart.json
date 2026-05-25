@@ -74,5 +74,6 @@
   "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}",
   "show_more_payment_options": "顯示更多付款選項",
   "stored_payment_methods_limited_desc": "並非所有付款方式都可見，因為它們不適用於您的國家或貨幣。",
-  "stored_payment_methods_limited_title": "付款方式有限"
+  "stored_payment_methods_limited_title": "付款方式有限",
+  "warning_notes_title": "購物籃警告 | 購物籃警告"
 }
