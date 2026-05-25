@@ -5,15 +5,11 @@ import guards from "./engine/guards";
 
 // --- types
 import {
-  type AnyEventObject,
   assign,
   type FunnelContext,
-  type FunnelProps,
-  QUERY_PARAMS,
-  useBasket
+  type FunnelProps
 } from "@upmind-automation/client-vue";
 import { ROUTE } from "./types";
-// Note: useBasket and QUERY_PARAMS are still used by the CHECKOUT NEXT handler.
 
 // -----------------------------------------------------------------------------
 
