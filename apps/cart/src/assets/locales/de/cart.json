@@ -21,6 +21,9 @@
   "basket_section": "Warenkorb-Zusammenfassung",
   "basket_summary_desc": "Du hast {count} Artikel in Ihrem Warenkorb, insgesamt {total}. | Sie haben {count} Artikel in Ihrem Warenkorb, insgesamt {total}.",
   "basket_summary_desc_free": "Du hast {count} Artikel in Ihrem Warenkorb. | Sie haben {count} Artikel in Ihrem Warenkorb.",
+  "basket_summary_taxes_desc": "Sie haben {count} Artikel in Ihrem Warenkorb im Gesamtwert von {total} ({tax}) | Sie haben {count} Artikel in Ihrem Warenkorb im Gesamtwert von {total} ({tax})",
+  "basket_tax_excl": "exkl. Steuern",
+  "basket_tax_incl": "inkl. Steuern",
   "basket_title": "Ihr Warenkorb",
   "change_amount": "Betrag ändern",
   "empty": "Ihr **Warenkorb** ist leer",
@@ -64,5 +67,6 @@
   "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}",
   "show_more_payment_options": "Mehr Zahlungsoptionen anzeigen",
   "stored_payment_methods_limited_desc": "Nicht alle Zahlungsmethoden sind sichtbar, da sie für Ihr Land oder Ihre Währung nicht verfügbar sind.",
-  "stored_payment_methods_limited_title": "Begrenzte Zahlungsmethoden"
+  "stored_payment_methods_limited_title": "Begrenzte Zahlungsmethoden",
+  "warning_notes_title": "Warenkorbwarnung | Warenkorbwarnungen"
 }

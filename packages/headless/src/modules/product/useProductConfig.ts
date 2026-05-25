@@ -12,7 +12,10 @@ import {
   contextValue,
   useImageUrl,
   useContext,
-  type ResponseError
+  type ResponseError,
+  responseCodes,
+  DetailedError,
+  ErrorOrigin
 } from "../../utils";
 
 // --- utils
@@ -44,7 +47,8 @@ import type {
   SubproductDetails,
   ProductConfigContext
 } from "./";
-import { generateShareUrlConfig } from "./utils";
+import { checkPriceOverride, generateShareUrlConfig } from "./utils";
+import { useI18n } from "../system";
 
 // -----------------------------------------------------------------------------
 
@@ -60,6 +64,7 @@ export const useProductConfig = (service: ActorRef<any>) => {
 
   const { state, send } = useActor(service);
   const model = useContext<ProductModel>(state, "model");
+  const baseModel = useContext<ProductModel>(state, "baseModel");
   const lookups = useContext<ProductConfigContext["lookups"]>(state, "lookups");
   const raw = computed(() => ({
     product: contextValue<ProductConfigContext["rawProduct"]>(
@@ -120,6 +125,12 @@ export const useProductConfig = (service: ActorRef<any>) => {
     return `${baseUrl}?${config}`;
   });
 
+  const isOverridden = computed<boolean>(
+    () =>
+      checkPriceOverride(model.value?.options ?? {}, options.value ?? []) ||
+      checkPriceOverride(model.value?.attributes ?? {}, attributes.value ?? [])
+  );
+
   const meta = computed<UseProductConfigMeta>(() => ({
     isLoading: stateMatches(state, ["subscribing", "loading"]),
     isNew: !contextMatches(state, ["basketProduct"]),
@@ -133,8 +144,11 @@ export const useProductConfig = (service: ActorRef<any>) => {
       (contextMatches(state, ["error"]) && contextMatches(state, ["attempts"])),
 
     hasErrors:
-      stateMatches(state, ["error", "available.invalid", "available.error"]) ||
-      contextMatches(state, ["error"]),
+      stateMatches(state, [
+        "unavailable",
+        "available.invalid",
+        "available.error"
+      ]) || contextMatches(state, ["error"]),
 
     isConfigurable:
       (terms.value?.length ?? 0) > 1 ||
@@ -147,9 +161,12 @@ export const useProductConfig = (service: ActorRef<any>) => {
     isCalculating: contextMatches(state, ["lookups.prices.calculating"]),
     isProcessing: stateMatches(state, ["refreshing", "processing"]),
     isAvailable: stateMatches(state, ["available", "refreshing", "processing"]),
-    isUnavailable: stateMatches(state, ["error", "available.error"]),
+    isLocked:
+      stateMatches(state, ["unavailable"]) && !!contextValue(state, "readonly"),
+    isUnavailable: stateMatches(state, ["unavailable", "available.error"]),
     isComplete: stateMatches(state, ["complete"]),
     isDone: !state.value || state.value?.done,
+    isOverridden: isOverridden.value,
 
     // ---
     hasProvisioning: !isEmpty(state.value.context?.lookups?.provisionFields),
@@ -175,6 +192,15 @@ export const useProductConfig = (service: ActorRef<any>) => {
       | "SET",
     data: Partial<ProductModel>
   ) {
+    // Bail if locked - product contains non-orderable subproducts
+    if (meta.value.isLocked) {
+      const { t } = useI18n();
+      throw new DetailedError(
+        t("error.basket_product_readonly"),
+        responseCodes.Forbidden,
+        ErrorOrigin.Headless
+      );
+    }
     touched.value = true;
     send({ type, data });
 
@@ -425,6 +451,7 @@ export const useProductConfig = (service: ActorRef<any>) => {
     fields,
     // ---
     model,
+    baseModel,
     product,
     shareUrl,
     // ---
@@ -489,9 +516,13 @@ export type UseProductConfigMeta = {
   isProcessing: boolean;
   isCalculating: boolean;
   isAvailable: boolean;
+  /** `true` if the product contains non-orderable subproducts and cannot be modified. */
+  isLocked: boolean;
   isUnavailable: boolean;
   isComplete: boolean;
   isDone: boolean;
+  /** `true` if an active option/attribute category in the model overrides the product price. */
+  isOverridden: boolean;
   // ---
   hasProvisioning: boolean;
   hasAttributes: boolean;

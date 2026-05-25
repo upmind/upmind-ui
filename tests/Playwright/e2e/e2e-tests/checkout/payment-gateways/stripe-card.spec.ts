@@ -8,12 +8,15 @@ import { DeclinedCards } from "../../../support/constants/checkout/payment-cards
 import { FraudCheckCards } from "../../../support/constants/checkout/payment-cards/FraudChecks";
 import { ErrorCards } from "../../../support/constants/checkout/payment-cards/InvalidData";
 import { products } from "../../../support/constants/products";
+import { TEST_EMAILS } from "../../../support/constants/test-data";
 import {
   getClientToken,
   getSessionToken,
   registerClient
 } from "../../../support/api/index";
+import { waitForSessionCookie } from "../../../support/helpers/session";
 
+newUser.describe.configure({ mode: "parallel" });
 newUser.describe("Checkout with Stripe", () => {
   newUser.describe("Stripe Cards", () => {
     newUser.describe("Valid Cards", async () => {
@@ -30,7 +33,7 @@ newUser.describe("Checkout with Stripe", () => {
             );
             await checkout.selectPaymentMethod("Stripe");
             await checkout.inputStripeDetails(cardNumber, expiryDate, cvcCode);
-            await checkout.clickPlaceOrderAndPay();
+            await checkout.clickCompleteCheckout();
             await page.waitForURL(`order/**`);
             await expect(
               page.getByText("Thank you for your order.")
@@ -42,19 +45,7 @@ newUser.describe("Checkout with Stripe", () => {
     newUser.describe("Declined Cards", async () => {
       newUser.beforeEach(async ({ page, context }) => {
         await page.goto("/");
-        await expect
-          .poll(
-            async () => {
-              const cookies = await context.cookies();
-              return cookies.some(
-                c =>
-                  c.name === "upm_guest_session" ||
-                  c.name === "upm_client_session"
-              );
-            },
-            { timeout: 30000 }
-          )
-          .toBeTruthy();
+        await waitForSessionCookie(context);
         let guestToken = await getSessionToken(context);
         let user = await registerClient(guestToken);
         let username = user.email;
@@ -74,7 +65,7 @@ newUser.describe("Checkout with Stripe", () => {
             );
             await checkout.selectPaymentMethod("Stripe");
             await checkout.inputStripeDetails(cardNumber, expiryDate, cvcCode);
-            await checkout.clickPlaceOrderAndPay();
+            await checkout.clickCompleteCheckout();
             await page.waitForURL(`order/**`);
             await expect(
               page.getByText(
@@ -99,7 +90,7 @@ newUser.describe("Checkout with Stripe", () => {
             );
             await checkout.selectPaymentMethod("Stripe");
             await checkout.inputStripeDetails(cardNumber, expiryDate, cvcCode);
-            await checkout.clickPlaceOrderAndPay();
+            await checkout.clickCompleteCheckout();
             await page.waitForURL(`order/**`);
             await expect(
               page.getByText(
@@ -147,14 +138,13 @@ newUser.describe("Checkout with Stripe", () => {
       await checkout.selectPaymentMethod("Stripe");
       await checkout.inputSepaDetails(
         "GB82WEST12345698765432",
-        "nathan.robinson+sepa@upmind.com",
+        TEST_EMAILS.sepa,
         "Test User",
         "10 Downing Street",
         "London",
         "SW1A 2AA"
       );
-      await checkout.clickPlaceOrderAndPay();
-      await checkout.clickPlaceOrderAndPay();
+      await checkout.clickCompleteCheckout();
       await page.waitForURL(`order/**`);
       await expect(page.getByText("Order confirmed")).toBeVisible();
     });
@@ -163,12 +153,8 @@ newUser.describe("Checkout with Stripe", () => {
     newUser("Successful iDEAL payment", async ({ page, context, checkout }) => {
       await goToCheckout(page, context, products.STARTER_HOSTING, null, "EUR");
       await checkout.selectPaymentMethod("Stripe");
-      await checkout.inputIdealDetails(
-        "nathan.robinson+ideal@upmind.com",
-        "Test User"
-      );
-      await checkout.clickPlaceOrderAndPay();
-      await checkout.clickPlaceOrderAndPay();
+      await checkout.inputIdealDetails(TEST_EMAILS.ideal, "Test User");
+      await checkout.completeCheckout.click();
       await page.getByTestId("authorize-test-payment-button").click();
       await page.waitForURL(`order/**`);
       await expect(page.getByText("Thank you for your order.")).toBeVisible();
@@ -176,12 +162,8 @@ newUser.describe("Checkout with Stripe", () => {
     newUser("Failed iDEAL payment", async ({ page, context, checkout }) => {
       await goToCheckout(page, context, products.STARTER_HOSTING, null, "EUR");
       await checkout.selectPaymentMethod("Stripe");
-      await checkout.inputIdealDetails(
-        "nathan.robinson+ideal@upmind.com",
-        "Test User"
-      );
-      await checkout.clickPlaceOrderAndPay();
-      await checkout.clickPlaceOrderAndPay();
+      await checkout.inputIdealDetails(TEST_EMAILS.ideal, "Test User");
+      await checkout.completeCheckout.click();
       await page.getByTestId("fail-test-payment-button").click();
       await page.waitForURL(`order/**`);
       await expect(
@@ -197,8 +179,8 @@ newUser.describe("Checkout with Stripe", () => {
       await checkout.selectPaymentMethod("Stripe");
       await mockStripeCardDecline(page);
       await checkout.inputStripeDetails("4242424242424242", "12/34", "123");
-      await checkout.clickPlaceOrderAndPay();
-      await page.waitForLoadState("load");
+      await checkout.completeCheckout.click();
+      await checkout.completeCheckout.click(); //repeated to trigger the button even that doesn't trigger on first click
       await expect(page.getByRole("alert")).toContainText(
         /Payment failed*Payment details validation failed/s
       );
@@ -207,7 +189,6 @@ newUser.describe("Checkout with Stripe", () => {
       "Insufficient Payment Amount",
       async ({ page, context, checkout }) => {
         await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
-        await page.waitForLoadState("load");
         await checkout.changeAmountButton.click();
         await checkout.changeAmountInput.fill("0.20");
         await checkout.confirmAmountButton.click();

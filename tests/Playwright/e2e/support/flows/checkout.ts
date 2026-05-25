@@ -1,4 +1,4 @@
-import { BrowserContext, Page, expect } from "@playwright/test";
+import { BrowserContext, Page } from "@playwright/test";
 import { URLs } from "../constants/urls";
 import { getSessionToken } from "../api/auth";
 import {
@@ -8,6 +8,7 @@ import {
   addPromotionToOrder,
   setOrderCurrency
 } from "../api/basket";
+import { waitForSessionCookie } from "../helpers/session";
 import { fakerEN_GB } from "@faker-js/faker";
 
 /**
@@ -35,31 +36,21 @@ export async function goToCheckout(
   trialValue: boolean = false
 ) {
   await page.goto(URLs.basket);
-  await expect
-    .poll(
-      async () => {
-        const cookies = await context.cookies();
-        return cookies.some(
-          c => c.name === "upm_guest_session" || c.name === "upm_client_session"
-        );
-      },
-      { timeout: 30000 }
-    )
-    .toBeTruthy();
+  await waitForSessionCookie(context);
   let token = await getSessionToken(context);
   let order: Order = await createOrder(token);
   let orderId = order.id;
   if (currency !== null) {
     await setOrderCurrency(token, orderId, currency);
   }
-  const provisionFields =
-    product.type === "domain" || product.type === "hosting"
-      ? {
-          domain: `${fakerEN_GB.string.alphanumeric({
-            length: { min: 3, max: 15 }
-          })}.com`
-        }
-      : {};
+  // const provisionFields =
+  //   product.type === "domain"// || product.type === "hosting"
+  //     ? {
+  //         domain: `${fakerEN_GB.string.alphanumeric({
+  //           length: { min: 3, max: 15 }
+  //         })}.com`
+  //       }
+  //     : {};
 
   await addProductToOrder(
     `${token}`,
@@ -69,7 +60,7 @@ export async function goToCheckout(
     product.billingCycle,
     [],
     [],
-    provisionFields,
+    {}, //provisionFields,
     [],
     true,
     trialValue

@@ -20,7 +20,8 @@ import {
   parseSubproducts,
   checkPriceOverride,
   parseSubproductDetails,
-  parseProductProps
+  parseProductProps,
+  hasNonOrderableSubproducts
 } from "./utils";
 
 import { useProductConfigSchema } from "./schemas";
@@ -87,6 +88,13 @@ async function load(
       )
     );
 
+  if (hasNonOrderableSubproducts(rawBasketProduct))
+    throw new DetailedError(
+      t("error.basket_product_readonly"),
+      responseCodes.Forbidden,
+      ErrorOrigin.Headless
+    );
+
   // lets ensure we have a valid currency > fallback to default
   // as well as ensuring our promo display type is available
   const { validateCurrency, ensureConfig } = useBrand();
@@ -116,7 +124,9 @@ async function load(
       "images",
       "prices",
       "products_attributes",
+      "products_attributes.icon",
       "products_options",
+      "products_options.icon",
       "products_options.prices",
       `category${".top_category".repeat(4)}`,
       "provision_blueprint.category"

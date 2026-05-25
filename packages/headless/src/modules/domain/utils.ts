@@ -1,5 +1,8 @@
 // --- externals
 import { parse } from "psl";
+import { computed } from "vue";
+
+import type { Ref } from "vue";
 
 // --- internals
 import { useBrand } from "../brand";
@@ -17,6 +20,7 @@ import {
   isEmpty,
   isObject,
   map,
+  sortBy,
   uniqBy
 } from "lodash-es";
 
@@ -24,16 +28,91 @@ import {
 import {
   type IBasketProduct,
   type IBlueprint,
+  type IDomainSuggestionResult,
+  type IDomainSuggestionResultProduct,
   type IProduct,
   ProvisionCategoryCodes
 } from "@upmind-automation/types";
 import type { BasketProduct } from "../basketProduct";
-import type {
-  DomainProduct,
-  DomainModel,
-  IDomainSuggestionResult
-} from "./types";
+import type { DomainProduct, DomainModel } from "./types";
 import { type ProductProps } from "../product";
+
+// ----------------------------------------------------------------------------
+
+/**
+ * Selects the best price entry from a list of prices and builds a
+ * zeroed-savings price object. Used as a fallback when full product
+ * term/promotion parsing is unavailable or fails.
+ *
+ * Priority: 12-month → preferred cycle → lowest term.
+ */
+export function buildFallbackPricing(
+  prices: any[],
+  preferredCycle?: number
+): { price: DomainProduct["price"]; billingCycleMonths: number } {
+  const sortedPrices = sortBy(prices, "billing_cycle_months");
+  const priceEntry =
+    find(prices, ["billing_cycle_months", 12]) ??
+    find(prices, ["billing_cycle_months", preferredCycle]) ??
+    sortedPrices[0];
+
+  const priceFormatted = priceEntry?.price_formatted ?? "";
+  const priceDiscountedFormatted =
+    priceEntry?.price_discounted_formatted ?? null;
+  const billingCycleMonths = priceEntry?.billing_cycle_months ?? 12;
+
+  return {
+    price: {
+      currentPrice: priceDiscountedFormatted ?? priceFormatted,
+      currentAmount: 0,
+      regularPrice: priceFormatted,
+      regularAmount: 0,
+      savingAmount: 0,
+      savingPrice: "",
+      savingPercent: ""
+    },
+    billingCycleMonths
+  };
+}
+
+// ----------------------------------------------------------------------------
+
+/**
+ * Sanitises a raw domain input string — strips protocols, www, ports,
+ * paths, query strings, fragments, and invalid characters.
+ */
+export function sanitiseDomainInput(value: string): string {
+  return value
+    .replace(/^https?:\/\//i, "") // remove protocol
+    .replace(/^w{3}\./i, "") // remove www.
+    .replace(/[:\/?#].*$/, "") // remove port, path, query, fragment
+    .replace(/[^a-z0-9\-\.]/gi, "") // remove invalid chars
+    .replace(/^[\.\-]+/, "") // remove leading dots and hyphens
+    .replace(/[\.\-]+$/, "") // remove trailing dots and hyphens
+    .replace(/-+\./g, ".") // strip trailing hyphens before dots (SLD)
+    .replace(/\.-+/g, ".") // strip leading hyphens after dots (TLD)
+    .replace(/\.{2,}/g, ".") // collapse consecutive dots
+    .toLowerCase();
+}
+
+/**
+ * Reactive domain parser — sanitises a raw domain input into its component
+ * parts (full domain, SLD, TLD).
+ */
+export function useDomainParser(domain: Ref<string>) {
+  const sanitisedDomain = computed(() => sanitiseDomainInput(domain.value));
+
+  const sanitisedSld = computed(
+    () => sanitisedDomain.value.split(".")[0] ?? ""
+  );
+
+  const sanitisedTld = computed(() => {
+    const matches = sanitisedDomain.value.match(/(?:^[^\.]+)(\..{2,})/i);
+    return matches?.[1] || "";
+  });
+
+  return { sanitisedDomain, sanitisedSld, sanitisedTld };
+}
 
 // ----------------------------------------------------------------------------
 const DOMAIN_PATTERN =
@@ -83,8 +162,6 @@ export function parseAvailable(
   results: IProduct[] = [],
   preferredCycle?: number // If we have chosen a term then we need to try use that term
 ) {
-  const { defaultPaymentPeriod } = useBrand();
-  const paymentPeriod = preferredCycle ?? defaultPaymentPeriod.value;
   const available = map(results, (raw: IProduct) => {
     // This is where we map our domain search result raw to a format that we can use in our basket
     // The mapping is pretty simple, except for the term, which we need to calculate the billing cycle years
@@ -98,7 +175,7 @@ export function parseAvailable(
     const productDetails = parseProductDetails(raw);
     const terms = parseTermDetails(raw);
     const termDetails = calculateBillingTerm(
-      paymentPeriod || raw.default_payment_period,
+      preferredCycle ?? raw.default_payment_period,
       terms
     );
 
@@ -109,7 +186,8 @@ export function parseAvailable(
           productId: raw.id,
           quantity: raw.unit_quantity,
           subproducts: compact([raw.sub_product_id]),
-          provisionFields: { sld }
+          provisionFields: { sld },
+          term: termDetails.cycle
         },
         raw,
         preferredCycle
@@ -142,16 +220,19 @@ export function parseAvailable(
  * Maps the /suggestions API results into DomainProduct[].
  * Joins results to products via product_id, and uses the full
  * IProduct parsing utilities for proper billing cycle / pricing support.
+ *
+ * Mode selection is **per row**, not global: a `can_register: true` row gets
+ * `setup_function_sub_ids.register`, while a transfer-only row
+ * (`can_register: false, can_transfer: true`) gets `setup_function_sub_ids.transfer`.
+ * Without this, transfer-only suggestions would be added to the basket with
+ * register sub_pids and the basket API would 422 / charge for the wrong action.
  */
 export function parseSuggestions(
   results: IDomainSuggestionResult[],
   productsMap: Record<string, IProduct>,
-  preferredCycle?: number,
-  mode: "register" | "transfer" = "register"
+  preferredCycle?: number
 ): DomainProduct[] {
   const { defaultPaymentPeriod } = useBrand();
-  const paymentPeriod = preferredCycle ?? defaultPaymentPeriod.value;
-
   const available = map(results, result => {
     const { domain, sld, tld, can_register, can_transfer, product_id } = result;
     const fullDomain = `${sld}.${tld}`;
@@ -164,14 +245,18 @@ export function parseSuggestions(
         const productDetails = parseProductDetails(product);
         const terms = parseTermDetails(product);
         const termDetails = calculateBillingTerm(
-          paymentPeriod || product.default_payment_period,
+          preferredCycle ?? product.default_payment_period,
           terms
         );
 
-        // Extract sub_pids from setup_function_sub_ids based on mode
-        const setupSubIds = (product as any).setup_function_sub_ids;
+        // Pick the per-row mode: a row that can register uses register
+        // sub_pids; a row that's transfer-only uses transfer sub_pids.
+        const rowMode: "register" | "transfer" =
+          can_register || !can_transfer ? "register" : "transfer";
+        const setupSubIds = (product as IDomainSuggestionResultProduct)
+          .setup_function_sub_ids;
         const subproducts: string[] = compact(
-          setupSubIds?.[mode] ?? [product.sub_product_id]
+          setupSubIds?.[rowMode] ?? [product.sub_product_id]
         );
 
         return {
@@ -180,7 +265,8 @@ export function parseSuggestions(
               productId: product.id,
               quantity: product.unit_quantity,
               subproducts,
-              provisionFields: { sld }
+              provisionFields: { sld },
+              term: termDetails.cycle
             },
             product,
             preferredCycle
@@ -210,20 +296,13 @@ export function parseSuggestions(
       }
     }
 
-    // Fallback when product is missing or parsing failed
-    const prices = product?.prices ?? [];
-    // Prefer 12-month price, then preferred cycle, then lowest term
-    const sortedPrices = [...prices].sort(
-      (a: any, b: any) => a.billing_cycle_months - b.billing_cycle_months
+    // Fallback when product is missing or parsing failed.
+    // The product may simply not have arrived yet (split suggestions/tlds flow):
+    // mark the row as priceLoading so the card renders a price skeleton.
+    const { price, billingCycleMonths } = buildFallbackPricing(
+      product?.prices ?? [],
+      preferredCycle
     );
-    const priceEntry =
-      prices.find((p: any) => p.billing_cycle_months === 12) ??
-      prices.find((p: any) => p.billing_cycle_months === preferredCycle) ??
-      sortedPrices[0];
-    const priceFormatted = priceEntry?.price_formatted ?? "";
-    const priceDiscountedFormatted =
-      priceEntry?.price_discounted_formatted ?? null;
-    const billingCycleMonths = priceEntry?.billing_cycle_months ?? 12;
 
     return {
       domain: parsedDomain?.domain ?? fullDomain,
@@ -235,18 +314,11 @@ export function parseSuggestions(
         quantity: 1,
         provisionFields: { sld }
       },
-      price: {
-        currentPrice: priceDiscountedFormatted ?? priceFormatted,
-        currentAmount: 0,
-        regularPrice: priceFormatted,
-        regularAmount: 0,
-        savingAmount: 0,
-        savingPrice: "",
-        savingPercent: ""
-      },
+      price,
       meta: {
         available: can_register,
-        canTransfer: can_transfer
+        canTransfer: can_transfer,
+        priceLoading: !product
       },
       productDetails: {
         id: product_id,

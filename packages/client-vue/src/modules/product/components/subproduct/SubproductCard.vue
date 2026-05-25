@@ -5,9 +5,11 @@
         <div :class="styles.card.header.titleWrapper">
           <div :class="styles.card.header.titleInner">
             <SubproductImage
-              v-if="image && !meta.isDropdown"
+              v-if="image"
               :src="image"
               :alt="title"
+              :minimal="props.minimal"
+              :dropdown="props.dropdown"
             />
             <strong :class="styles.card.header.title">
               {{ title }}
@@ -37,7 +39,7 @@
           </div>
 
           <Promotion
-            v-if="!props.productMeta?.overridden"
+            v-if="!props.productMeta?.custom"
             v-for="promotion in props.promotions"
             :key="promotion.code.toString()"
             v-bind="promotion"
@@ -45,7 +47,7 @@
           />
 
           <Tooltip
-            v-if="props.productMeta?.overridden"
+            v-if="props.productMeta?.custom"
             :label="t('text.price_manually_adjusted_msg')"
           >
             <Badge

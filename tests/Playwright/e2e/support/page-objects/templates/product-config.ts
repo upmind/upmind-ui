@@ -132,7 +132,7 @@ export class ProductConfig {
       .getByTestId("form-item-provision-fields-update-registrant-organisation")
       .locator("input");
     this.registrantEmailInput = page
-      .getByTestId("form-item-provision-fields-update-registrant-organisation")
+      .getByTestId("form-item-provision-fields-update-registrant-email")
       .locator("input");
     this.registrantPhoneForm = page.getByTestId(
       "form-item-provision-fields-update-registrant-phone"
@@ -313,32 +313,56 @@ export class ProductConfig {
     await expect(this.getPromoBadge(term)).toBeVisible();
   }
 
-  async enterRegistrantDetails(
-    registrantName: string,
-    registrantOrg: string,
-    registrantEmail: string,
-    registrantPhone: string,
-    registrantAddr1: string,
-    registrantCity: string,
-    registrantState: string,
-    registrantPostcode: string,
-    registrantCountryCode: string
-  ) {
-    await this.registrantNameInput.fill(registrantName);
-    await this.registrantOrgInput.fill(registrantOrg);
-    await this.registrantEmailInput.fill(registrantEmail);
-    await this.registrantPhoneCountrySelectButton.click();
-    await this.registrantPhoneCountrySelectInput.fill(registrantCountryCode);
-    await this.registrantPhoneCountrySelectItem
-      .getByText("United Kingdom")
-      .click();
-    await this.registrantPhoneInput.fill(registrantPhone);
-    await this.registrantAddr1Input.fill(registrantAddr1);
-    await this.registrantCityInput.fill(registrantCity);
-    await this.registrantStateInput.fill(registrantState);
-    await this.registrantPostcodeInput.fill(registrantPostcode);
-    await this.registrantCountryInput.click();
-    await this.page.getByTestId(`select-item-${registrantCountryCode}`).click();
+  async enterRegistrantDetails(details: {
+    registrantName?: string;
+    registrantOrg?: string;
+    registrantEmail?: string;
+    registrantPhone?: string;
+    registrantAddr1?: string;
+    registrantCity?: string;
+    registrantState?: string;
+    registrantPostcode?: string;
+    registrantCountryCode?: string;
+  }) {
+    if (details.registrantName) {
+      await this.registrantNameInput.fill(details.registrantName);
+    }
+    if (details.registrantOrg) {
+      await this.registrantOrgInput.fill(details.registrantOrg);
+    }
+    if (details.registrantEmail) {
+      await this.registrantEmailInput.fill(details.registrantEmail);
+    }
+    if (details.registrantCountryCode) {
+      await this.registrantPhoneCountrySelectButton.click();
+      await this.registrantPhoneCountrySelectInput.fill(
+        details.registrantCountryCode
+      );
+      await this.registrantPhoneCountrySelectItem
+        .getByText("United Kingdom")
+        .click();
+    }
+    if (details.registrantPhone) {
+      await this.registrantPhoneInput.fill(details.registrantPhone);
+    }
+    if (details.registrantAddr1) {
+      await this.registrantAddr1Input.fill(details.registrantAddr1);
+    }
+    if (details.registrantCity) {
+      await this.registrantCityInput.fill(details.registrantCity);
+    }
+    if (details.registrantState) {
+      await this.registrantStateInput.fill(details.registrantState);
+    }
+    if (details.registrantPostcode) {
+      await this.registrantPostcodeInput.fill(details.registrantPostcode);
+    }
+    if (details.registrantCountryCode) {
+      await this.registrantCountryInput.click();
+      await this.page
+        .getByTestId(`select-item-${details.registrantCountryCode}`)
+        .click();
+    }
   }
 
   async selectRadioOption(option: string) {
@@ -371,9 +395,12 @@ export class ProductConfig {
   }
 
   /* Trial Helper Methods */
-  async isTrialSelected(): Promise<boolean> {
-    const state = await this.trialCheckbox.getAttribute("data-state");
-    return state === "on";
+  async expectTrialSelected() {
+    await expect(this.trialCheckbox).toHaveAttribute("data-state", "on");
+  }
+
+  async expectTrialNotSelected() {
+    await expect(this.trialCheckbox).toHaveAttribute("data-state", "off");
   }
 
   async toggleTrial() {

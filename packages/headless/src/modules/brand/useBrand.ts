@@ -29,6 +29,7 @@ import {
 import {
   type ILanguage,
   type ICurrency,
+  BasketFunnelling,
   BrandTaxTypes,
   BrandConfigKeys,
   DefaultPaymentPeriod,
@@ -213,8 +214,11 @@ export const useBrand = () => {
       )
   );
 
-  // Singleton to avoid creating multiple useConfig instances across useBrand calls
-  config ??= useConfig({ brand: () => uiCart.value });
+  // Singleton to avoid creating multiple useConfig instances across useBrand calls.
+  // basket: undefined breaks the useBasket → useBrand → useConfig → useBasket cycle —
+  // useBrand only consumes data settings (storeUrl, catalogueDisabled), it doesn't
+  // evaluate conditional rules, so it has no need for basket plumbing.
+  config ??= useConfig({ brand: () => uiCart.value, basket: undefined });
 
   const storefrontUrl = computed((): string | undefined => {
     return useUpmind.storefrontUrl ?? config.data.storeUrl;
@@ -223,8 +227,15 @@ export const useBrand = () => {
   const hasStorefront = computed(() => {
     // No storefront URL means they need a storefront
     // With a storefront URL, they can enable/disable via catalogueDisabled
+    // NB you can only disable the catalogue if you have given us a storefront URL to redirect to, otherwise you would brick your store
     return !storefrontUrl.value || !config.data.catalogueDisabled;
   });
+
+  const keepsUserInSitu = computed(
+    () =>
+      getConfigValue<BasketFunnelling>(BrandConfigKeys.BASKET_FUNNELLING) ===
+      BasketFunnelling.NONE
+  );
 
   const storefrontRoute = computed(() => {
     if (!storefrontUrl.value) {
@@ -451,6 +462,12 @@ export const useBrand = () => {
      * A flag indicating whether the brand has a storefront available.
      */
     hasStorefront,
+
+    /**
+     * `true` when the brand's "Add to Basket Funneling" setting is configured
+     * to keep the user in situ on the catalogue after auto-adding a product.
+     */
+    keepsUserInSitu,
 
     /** The storefront URL for the brand, if configured. */
     storefrontUrl,

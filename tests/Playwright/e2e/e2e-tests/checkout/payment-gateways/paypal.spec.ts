@@ -9,6 +9,7 @@ import {
   getSessionToken,
   registerClient
 } from "../../../support/api/index";
+import { waitForSessionCookie } from "../../../support/helpers/session";
 
 let checkout: Checkout;
 
@@ -16,18 +17,7 @@ test.describe("Checkout with PayPal", () => {
   test.beforeEach(async ({ page, context }) => {
     checkout = new Checkout(page);
     await page.goto("/");
-    await expect
-      .poll(
-        async () => {
-          const cookies = await context.cookies();
-          return cookies.some(
-            c =>
-              c.name === "upm_guest_session" || c.name === "upm_client_session"
-          );
-        },
-        { timeout: 30000 }
-      )
-      .toBeTruthy();
+    await waitForSessionCookie(context);
     let guestToken = await getSessionToken(context);
     let user = await registerClient(guestToken);
     let username = user.email;
@@ -37,7 +27,7 @@ test.describe("Checkout with PayPal", () => {
   test("Pay with PayPal Express", async ({ page, context }) => {
     await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
     await checkout.selectPaymentMethod("Pay-Pal Express");
-    await checkout.clickPlaceOrderAndPay();
+    await checkout.clickCompleteCheckout();
     await page.waitForURL(
       "https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_express-checkout&useraction=commit**"
     );

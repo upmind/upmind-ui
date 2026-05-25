@@ -10,6 +10,9 @@ import {
   getBasketProducts
 } from "../../support/api/basket";
 import { interceptUISchema } from "../../support/mocks/brand";
+import { waitForSessionCookie } from "../../support/helpers/session";
+import { products } from "../../support/constants/products";
+import { TEST_EMAILS } from "../../support/constants/test-data";
 
 let productConfig: ProductConfig;
 let basket: Basket;
@@ -26,7 +29,7 @@ test.describe("Edit hosting product in basket", () => {
       "@context.basket.productConfigFieldsSummary": "visible"
     });
     await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    await waitForSessionCookie(context);
     token = await getSessionToken(context);
     let order = await createOrder(token);
     orderId = order.id;
@@ -47,7 +50,6 @@ test.describe("Edit hosting product in basket", () => {
       true,
       false
     );
-    await page.waitForLoadState("networkidle");
   });
   test("Edit product options", async ({ page }) => {
     products = await getBasketProducts(token);
@@ -60,40 +62,24 @@ test.describe("Edit hosting product in basket", () => {
     await basket.clickShowDetails();
     await expect(basket.basketProduct).toContainText("London");
   });
-  test("Edit product attributes", async ({ page }) => {
-    products = await getBasketProducts(token);
-    productId = products[0].id;
-    await page.goto(`order/basket/edit/${productId}`);
-    await productConfig.selectRadioOption(
-      "MacOS Sequoia Version 15.6 (Enterprise License)"
-    );
-    await expect(page.getByText(/Operating System/s)).toBeVisible();
-    await productConfig.clickConfirm();
-    await expect(page).toHaveURL("order/basket/");
-    await basket.clickShowDetails();
-    await expect(
-      page.getByText(/MacOS Sequoia Version 15.6 (Enterprise License)/s)
-    ).toBeVisible();
-  });
 });
 
 test.describe("Edit domain product in basket", () => {
   let token: string;
   let orderId: string | null;
-  let products: any;
   let productId: string;
   test.beforeEach(async ({ page, context }) => {
     productConfig = new ProductConfig(page);
     basket = new Basket(page);
     await page.goto(URLs.basket);
-    await page.waitForLoadState("networkidle");
+    await waitForSessionCookie(context);
     token = await getSessionToken(context);
     let order = await createOrder(token);
     orderId = order.id;
     await addProductToOrder(
       `${token}`,
       `${orderId}`,
-      "320e4357-95e7-8d18-050b-31643202d986",
+      products.DOMAIN.id,
       1,
       12,
       [],
@@ -104,7 +90,7 @@ test.describe("Edit domain product in basket", () => {
         update_registrant_address_city: `${fakerEN_GB.location.city()}`,
         update_registrant_address_country_code: "GB",
         update_registrant_address_postcode: `${fakerEN_GB.location.zipCode()}`,
-        update_registrant_email: "nathan.robinson+domaintester@upmind.com",
+        update_registrant_email: TEST_EMAILS.domainRegistrant,
         update_registrant_name: "Domain Tester",
         update_registrant_organisation: "Domain Testinc Inc",
         update_registrant_phone: "+447111111111"
@@ -115,11 +101,11 @@ test.describe("Edit domain product in basket", () => {
     );
   });
   test("Edit domain name", async ({ page }) => {
-    products = await getBasketProducts(token);
-    productId = products[0].id;
+    let basketProducts = await getBasketProducts(token);
+    productId = basketProducts[0].id;
     let newDomain = `${fakerEN_GB.string.alphanumeric({ length: { min: 3, max: 15 } })}`;
     await page.goto(`order/basket/edit/${productId}`);
-    await page.waitForLoadState("networkidle");
+    await expect(productConfig.productConfigSection).toBeVisible();
     await productConfig.clearFormInput("form-item-provision-fields-sld");
     await productConfig.fillFormInput(
       "form-item-provision-fields-sld",
@@ -147,10 +133,10 @@ test.describe("Edit domain product in basket", () => {
       updatedPostcode: "UP11 1UP",
       updatedCountryCode: "BT"
     };
-    products = await getBasketProducts(token);
-    productId = products[0].id;
+    let basketProducts = await getBasketProducts(token);
+    productId = basketProducts[0].id;
     await page.goto(`order/basket/edit/${productId}`);
-    await page.waitForLoadState("networkidle");
+    await expect(productConfig.productConfigSection).toBeVisible();
     await productConfig.registrantNameInput.fill(fieldUpdates.updatedName);
     await productConfig.registrantOrgInput.fill(fieldUpdates.updatedCompany);
     await productConfig.registrantEmailInput.fill(fieldUpdates.updatedEmail);

@@ -25,15 +25,27 @@
   "auth_password": {
     "error": {
       "min_length": "La contraseña debe tener al menos 8 caracteres.",
-      "min_length_lowercase": "La contraseña debe tener al menos 8 caracteres y contener una letra minúscula.",
-      "min_length_lowercase_number": "La contraseña debe tener al menos 8 caracteres, incluir al menos una letra minúscula y al menos un dígito",
+      "min_length_letter": "La contraseña debe tener al menos 8 caracteres y contener una letra",
+      "min_length_letter_number": "La contraseña debe tener al menos 8 caracteres y contener una letra y un número",
+      "min_length_letter_number_symbol": "La contraseña debe tener al menos 8 caracteres y contener una letra, un número y un símbolo",
+      "min_length_letter_symbol": "La contraseña debe tener al menos 8 caracteres, contener una letra y un símbolo",
       "min_length_number": "La contraseña debe tener al menos 8 caracteres y contener un número.",
-      "missing_lowercase": "La contraseña debe contener una letra minúscula.",
-      "missing_lowercase_number": "La contraseña debe contener una letra minúscula y un número.",
-      "missing_number": "La contraseña debe contener un número."
+      "min_length_number_symbol": "La contraseña debe tener al menos 8 caracteres, incluir un número y un símbolo",
+      "min_length_symbol": "La contraseña debe tener al menos 8 caracteres y contener un símbolo",
+      "missing_letter": "La contraseña debe contener una letra",
+      "missing_letter_number": "La contraseña debe contener una letra y un número",
+      "missing_letter_number_symbol": "La contraseña debe contener una letra, un número y un símbolo",
+      "missing_letter_symbol": "La contraseña debe contener una letra y un símbolo",
+      "missing_number": "La contraseña debe contener un número.",
+      "missing_number_symbol": "La contraseña debe contener un número y un símbolo",
+      "missing_symbol": "La contraseña debe contener un símbolo"
     },
+    "generate": "Genera una contraseña segura",
+    "hide": "Ocultar contraseña",
+    "hint": "La contraseña debe tener al menos 8 caracteres e incluir una letra, un número y un símbolo.",
     "label": "Contraseña",
-    "placeholder": "Contraseña o frase de contraseña"
+    "placeholder": "Contraseña o frase de contraseña",
+    "show": "Mostrar contraseña"
   },
   "card_cvv": {
     "error": "Se requiere un CVV válido",

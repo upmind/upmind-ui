@@ -21,6 +21,9 @@
   "basket_section": "Səbətin xülasəsi",
   "basket_summary_desc": "Sizdə var {count} səbətinizdəki əşya, cəmi {total}. | Sizdə var {count} səbətinizdəki əşyalar, cəmi {total}.",
   "basket_summary_desc_free": "Səndə var {count} Səbətinizdəki məhsul. | Sizdə var {count} səbətinizdəki əşyalar.",
+  "basket_summary_taxes_desc": "Səndə var{count} Səbətinizdəki məhsul, cəmi{total} ({tax} ) | Səndə var{count} Səbətinizdəki əşyalar, cəmi{total} ({tax} )",
+  "basket_tax_excl": "vergilər xaric",
+  "basket_tax_incl": "vergilər daxil olmaqla",
   "basket_title": "Səbətiniz",
   "change_amount": "Məbləği dəyişdirin",
   "empty": "Sizin **səbətiniz** boşdur",
@@ -64,5 +67,6 @@
   "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}",
   "show_more_payment_options": "Daha çox ödəniş seçimi göstər",
   "stored_payment_methods_limited_desc": "Bütün ödəniş üsulları görünmür, çünki onlar sizin ölkəniz və ya valyutanız üçün mövcud deyil.",
-  "stored_payment_methods_limited_title": "Məhdud Ödəniş Metodları"
+  "stored_payment_methods_limited_title": "Məhdud Ödəniş Metodları",
+  "warning_notes_title": "Səbət xəbərdarlığı | Səbət xəbərdarlıqları"
 }

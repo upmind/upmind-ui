@@ -2,13 +2,21 @@
 import { useI18n } from "../system/localisation";
 
 // -- utils
-import { getUIProperty, getDataProperty } from "./mappers";
+import { getUIProperty, getDataProperty, normalizeValue } from "./mappers";
+import {
+  isConditionalValue,
+  evaluateRules,
+  validateMeta
+} from "./config.conditions";
 import {
   camelCase,
   compact,
   find,
+  forEach,
   get,
+  includes,
   indexOf,
+  isEmpty,
   isPlainObject,
   isString,
   keyBy,
@@ -29,7 +37,12 @@ import {
   type Ref
 } from "vue";
 import type { UIMetaSchema as UISchema, DataSchema } from "./schema";
-import { UIContext, UI_META_DEFINITIONS, DATA_DEFINITIONS } from "./schema";
+import {
+  UIContext,
+  UIScope,
+  UI_META_DEFINITIONS,
+  DATA_DEFINITIONS
+} from "./schema";
 import type {
   Viewport,
   RawMeta,
@@ -39,7 +52,8 @@ import type {
   MetaPrefix,
   DataItems,
   MetaItems,
-  UseMetaResult
+  UseMetaResult,
+  ConditionState
 } from "./types";
 import { CONFIG_KEY, VIEWPORT_ORDER, META_PREFIX } from "./types";
 import {
@@ -54,7 +68,8 @@ import {
   GRID_LAYOUT,
   CATEGORY_GRID_LAYOUT,
   GATEWAY_CAP,
-  CLAMP_LINES
+  CLAMP_LINES,
+  IMAGES_STYLE
 } from "./schema";
 
 // --- Initialization ---
@@ -82,10 +97,48 @@ export function initializeMeta(options: MetaInput): {
     option: parse(option?.uiMeta, prefix)
   });
 
-  return {
+  const result = {
     meta: build(META_PREFIX.CONTEXT) as MetaItems,
     data: build(META_PREFIX.DATA) as DataItems
   };
+
+  if (import.meta.env.DEV) {
+    validateInDev(result.meta, context);
+  }
+
+  return result;
+}
+
+/**
+ * Validates each scope's parsed meta blob and routes findings to the console.
+ * Dev-only — Vite tree-shakes the entire call site in production builds.
+ *
+ * Per docs/sdd/FE-2655/design.md:291: "Validator consumed by dev tooling
+ * (console warnings) and future admin UI."
+ */
+function validateInDev(meta: MetaItems, context: UIContext | undefined): void {
+  const scopes: Array<{
+    scope: UIScope;
+    items: Record<string, unknown> | undefined;
+  }> = [
+    { scope: UIScope.BRAND, items: meta.brand },
+    { scope: UIScope.PRODUCT_CATEGORY, items: meta.category },
+    { scope: UIScope.PRODUCT, items: meta.product },
+    { scope: UIScope.OPTION_CATEGORY, items: meta.optionGroup },
+    { scope: UIScope.OPTION, items: meta.option }
+  ];
+
+  forEach(scopes, ({ scope, items }) => {
+    if (!items || isEmpty(items)) return;
+
+    const { issues } = validateMeta({ meta: items, context, scope });
+    forEach(issues, issue => {
+      const line = `[config:${scope}] ${issue.code} (${issue.path}): ${issue.message}`;
+      if (issue.severity === "error") console.error(line);
+      else if (issue.severity === "warning") console.warn(line);
+      else console.info(line);
+    });
+  });
 }
 
 // --- Proxy Creation ---
@@ -104,18 +157,32 @@ export function initializeMeta(options: MetaInput): {
  *
  * Template usage: `ui.breadcrumbs.isHidden`, `ui.productDescription.value`
  */
-export function createUIMetaProxy(metaItems: Ref<MetaItems>): UIMetaProxy {
+export function createUIMetaProxy(
+  metaItems: Ref<MetaItems>,
+  conditionState?: Ref<ConditionState>
+): UIMetaProxy {
   const results = mapValues(UI_META_DEFINITIONS, (definition, key) => {
     // Resolves value by cascading through scopes (option → product → category → brand)
-    const value = computed(() =>
+    const rawValue = computed(() =>
       getUIProperty(key as keyof UISchema, metaItems.value)
     );
 
+    // For conditional settings, evaluate rules against state then normalize
+    const isConditional = "conditional" in definition && definition.conditional;
+    const defType = "type" in definition ? definition.type : undefined;
+
+    const value = isConditional
+      ? computed(() => {
+          const evaluated = evaluateRules(
+            rawValue.value,
+            conditionState?.value ?? {}
+          );
+          return normalizeValue(evaluated, defType) ?? definition.default;
+        })
+      : rawValue;
+
     // Find helper for this type (e.g., visibility gets isVisible/isHidden)
-    const helper =
-      "type" in definition
-        ? find(HELPERS, { type: definition.type })
-        : undefined;
+    const helper = defType ? find(HELPERS, { type: defType }) : undefined;
 
     // Each property is individually wrapped in reactive() because it's an object
     // containing both the value and helper methods (e.g., { value, isVisible, isHidden })
@@ -180,9 +247,21 @@ function parseMeta(
 ): Record<string, unknown> {
   if (!raw || !isPlainObject(raw)) return {};
 
+  const definitions =
+    prefix === META_PREFIX.CONTEXT ? UI_META_DEFINITIONS : DATA_DEFINITIONS;
+
   const mapped = map(raw, (value, key) => {
     const parsed = parseMetaKey(key, prefix, context, viewport);
     if (!parsed) return null;
+
+    // Wildcards (`@context.foo`) mean "apply where applicable" — drop them
+    // when the schema says the setting doesn't apply to the current screen.
+    // Explicit context-targeted keys are already filtered by parseMetaKey.
+    if (parsed.fromWildcard && context && context !== UIContext.ALL) {
+      const definition = get(definitions, parsed.property);
+      if (definition && !includes(definition.contexts, context)) return null;
+    }
+
     return { property: parsed.property, priority: parsed.priority, value };
   });
   const compacted = compact(mapped);
@@ -206,7 +285,7 @@ function parseMetaKey(
   prefix: MetaPrefix,
   context: UIContext | undefined,
   currentViewport?: Viewport
-): { property: string; priority: number } | null {
+): { property: string; priority: number; fromWildcard: boolean } | null {
   // Match: @prefix.[scope.]property[/viewport]
   const pattern = new RegExp(
     `^${prefix}\\.(?:(\\*|[^.]+)\\.)?([^/]+)(?:\\/(\\w+))?$`
@@ -237,7 +316,11 @@ function parseMetaKey(
   const scopeKey = scope === "*" ? "*" : "context";
   const viewportKey = (viewport as Viewport) ?? "all";
 
-  return { property, priority: PRIORITY[scopeKey][viewportKey] };
+  return {
+    property,
+    priority: PRIORITY[scopeKey][viewportKey],
+    fromWildcard: scope === "*"
+  };
 }
 
 /**
@@ -465,6 +548,16 @@ const clampLines = {
   })
 };
 
+const imagesStyle = {
+  type: IMAGES_STYLE,
+  create: (v: Ref<string | undefined>) => ({
+    isAuto: computed(() => v.value === IMAGES_STYLE.AUTO),
+    isSingle: computed(() => v.value === IMAGES_STYLE.SINGLE),
+    isCarousel: computed(() => v.value === IMAGES_STYLE.CAROUSEL),
+    isGrid: computed(() => v.value === IMAGES_STYLE.GRID)
+  })
+};
+
 export const HELPERS = [
   visibility,
   clampable,
@@ -477,7 +570,8 @@ export const HELPERS = [
   gridLayout,
   categoryGridLayout,
   gatewayCap,
-  clampLines
+  clampLines,
+  imagesStyle
 ] as const;
 
 export function provideConfig(config: UseMetaResult): void {

@@ -1,21 +1,26 @@
 <template>
   <component :is="props.is" :class="styles.pricing.current">
-    <slot name="prefix" />{{
-      formatPrice(
-        priceMeta.useMonthlyFromPrice
-          ? props.monthlyFromCurrentPrice
-          : props.currentPrice,
-        {
-          zeroPriceDisplayIsLabel: ui.zeroPriceDisplay.isLabel,
-          trimTrailingZeroes: data.trimTrailingZeroes
-        }
-      )
-    }}<slot name="suffix" />
-    <small
-      v-if="priceMeta.useMonthlyFromPrice && !priceMeta.isFree"
-      :class="styles.pricing.term"
-      >{{ t("text.product_cycle_per_month") }}</small
-    >
+    <template v-if="props.loading">
+      <Skeleton :class="styles.pricing.currentSkeleton" />
+    </template>
+    <template v-else>
+      <slot name="prefix" />{{
+        formatPrice(
+          priceMeta.useMonthlyFromPrice
+            ? props.monthlyFromCurrentPrice
+            : props.currentPrice,
+          {
+            zeroPriceDisplayIsLabel: ui.zeroPriceDisplay.isLabel,
+            trimTrailingZeroes: data.trimTrailingZeroes
+          }
+        )
+      }}<slot name="suffix" />
+      <small
+        v-if="priceMeta.useMonthlyFromPrice && !priceMeta.isFree"
+        :class="styles.pricing.term"
+        >{{ t("text.product_cycle_per_month") }}</small
+      >
+    </template>
   </component>
 </template>
 
@@ -25,7 +30,7 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useStyles } from "@upmind-automation/upmind-ui";
+import { useStyles, Skeleton } from "@upmind-automation/upmind-ui";
 import config from "./pricing.config";
 import { useMoney, useConfig } from "@upmind-automation/headless";
 

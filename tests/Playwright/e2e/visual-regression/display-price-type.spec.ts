@@ -2,13 +2,14 @@ import { test, expect, Page } from "@playwright/test";
 import { getSessionToken } from "../support/api/auth";
 import { interceptConfigValues } from "../support/mocks/brand";
 import { URLs } from "../support/constants/urls";
+import { waitForSessionCookie } from "../support/helpers/session";
 
 test.describe("Display Price Types", () => {
   let token: string;
   test.describe("Catalogue", () => {
     test("Price Type = Lowest Billing Cycle", async ({ page, context }) => {
       await page.goto(URLs.catalogueRoot1);
-      await page.waitForLoadState("networkidle");
+      await waitForSessionCookie(context);
       token = await getSessionToken(context);
       await interceptConfigValues(page, token, {
         displayPriceType: "min"
@@ -27,7 +28,7 @@ test.describe("Display Price Types", () => {
       context
     }) => {
       await page.goto(URLs.catalogueRoot1);
-      await page.waitForLoadState("networkidle");
+      await waitForSessionCookie(context);
       token = await getSessionToken(context);
       await interceptConfigValues(page, token, {
         displayPriceType: "abs_min"
@@ -43,7 +44,7 @@ test.describe("Display Price Types", () => {
     });
     test("Price Type = Lowest Monthly Price", async ({ page, context }) => {
       await page.goto(URLs.catalogueRoot1);
-      await page.waitForLoadState("networkidle");
+      await waitForSessionCookie(context);
       token = await getSessionToken(context);
       await interceptConfigValues(page, token, {
         displayPriceType: "lowest_monthly_price"
@@ -61,7 +62,7 @@ test.describe("Display Price Types", () => {
   test.describe("Product Config", () => {
     test("Price Type = Lowest Billing Cycle", async ({ page, context }) => {
       await page.goto(URLs.starterHosting);
-      await page.waitForLoadState("networkidle");
+      await waitForSessionCookie(context);
       token = await getSessionToken(context);
       await interceptConfigValues(page, token, {
         displayPriceType: "min"
@@ -76,7 +77,7 @@ test.describe("Display Price Types", () => {
       context
     }) => {
       await page.goto(URLs.starterHosting);
-      await page.waitForLoadState("networkidle");
+      await waitForSessionCookie(context);
       token = await getSessionToken(context);
       await interceptConfigValues(page, token, {
         displayPriceType: "abs_min"
@@ -90,7 +91,7 @@ test.describe("Display Price Types", () => {
     });
     test("Price Type = Lowest Monthly Price", async ({ page, context }) => {
       await page.goto(URLs.starterHosting);
-      await page.waitForLoadState("networkidle");
+      await waitForSessionCookie(context);
       token = await getSessionToken(context);
       await interceptConfigValues(page, token, {
         displayPriceType: "lowest_monthly_price"

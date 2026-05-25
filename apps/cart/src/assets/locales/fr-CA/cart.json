@@ -21,6 +21,9 @@
   "basket_section": "Résumé du panier",
   "basket_summary_desc": "Tu as {count} article dans votre panier, totalisant {total}. | Vous avez {count} articles dans votre panier, totalisant {total}.",
   "basket_summary_desc_free": "Tu as {count} article dans votre panier. | Vous avez {count} articles dans votre panier.",
+  "basket_summary_taxes_desc": "Vous avez un article {count} dans votre panier, pour un montant total de {total} ({tax}) | Vous avez {count} articles dans votre panier, pour un montant total de {total} ({tax})",
+  "basket_tax_excl": "hors taxes",
+  "basket_tax_incl": "taxes comprises",
   "basket_title": "Votre panier",
   "change_amount": "Modifier le montant",
   "empty": "Votre **panier** est vide",
@@ -64,5 +67,6 @@
   "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}",
   "show_more_payment_options": "Afficher plus d'options de paiement",
   "stored_payment_methods_limited_desc": "Tous les modes de paiement ne sont pas visibles parce qu'ils ne sont pas disponibles pour votre pays ou votre devise.",
-  "stored_payment_methods_limited_title": "Méthodes de paiement limitées"
+  "stored_payment_methods_limited_title": "Méthodes de paiement limitées",
+  "warning_notes_title": "Avertissement concernant le panier | Avertissements concernant le panier"
 }

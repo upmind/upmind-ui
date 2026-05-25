@@ -21,6 +21,9 @@
   "basket_section": "Overzicht winkelwagen",
   "basket_summary_desc": "Je hebt {count} artikel in uw winkelwagen, totaal {total}. | Je hebt {count} artikelen in uw winkelwagen, met een totaalbedrag {total}.",
   "basket_summary_desc_free": "Je hebt {count} Artikel in je winkelmandje. | Je hebt {count} artikelen in je winkelmandje.",
+  "basket_summary_taxes_desc": "Je hebt {count} artikel in je winkelmandje, voor een totaalbedrag van {total} ({tax}) | Je hebt {count} artikelen in je winkelmandje, voor een totaalbedrag van {total} ({tax})",
+  "basket_tax_excl": "excl. belastingen",
+  "basket_tax_incl": "inclusief belastingen",
   "basket_title": "Uw winkelmandje",
   "change_amount": "Bedrag wijzigen",
   "empty": "Je **winkelwagentje** is leeg",
@@ -64,5 +67,6 @@
   "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}",
   "show_more_payment_options": "Meer betalingsopties weergeven",
   "stored_payment_methods_limited_desc": "Niet alle betaalmethoden zijn zichtbaar omdat ze niet beschikbaar zijn voor uw land of valuta.",
-  "stored_payment_methods_limited_title": "Beperkte Betaalmethoden"
+  "stored_payment_methods_limited_title": "Beperkte Betaalmethoden",
+  "warning_notes_title": "Winkelmandje waarschuwing | Winkelmandje waarschuwingen"
 }

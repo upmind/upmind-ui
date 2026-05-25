@@ -56,7 +56,7 @@ test.describe("Manipulating elements/behaviour with URL query strings @url-param
         productConfig.radioButtons.getRadioButton("Monthly")
       ).toHaveAttribute("data-state", "checked");
     });
-    test("Invalid billing term", async ({ page }) => {
+    test("Invalid billing term @FE-2676", async ({ page }) => {
       await page.goto(
         `${URLs.baseUrl}?pid=${ProductIds.starterHosting}&bcm=32`
       );
@@ -150,7 +150,6 @@ test.describe("Manipulating elements/behaviour with URL query strings @url-param
       await page.goto(
         `${URLs.baseUrl}?pid=${ProductIds.starterHosting}&sub_pids=invalid,invalid,invalid&subproduct_qty[${ProductIds.subproductMailbox}]=1&subproduct_qty[invalid]=1`
       );
-      await page.waitForLoadState("load");
       await page.waitForURL(productAddUrl(ProductIds.starterHosting));
       await expect(
         productConfig.radioButtons.getRadioButton("Tokyo")
