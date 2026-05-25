@@ -38,3 +38,7 @@ When you just need to run the tests right now:
 5. [Support Library Reference](05-support-library.md) — every file under `support/` explained.
 6. [Visual Regression Testing](06-visual-regression.md) — screenshots, locales, and snapshot management.
 7. [Special Test Setups & Gotchas](07-special-setups.md) — 2FA/OTP, PayPal sandbox, Stripe cards, session cookies, and other tribal knowledge.
+8. [QA Handover — Nathan → Dom](08-qa-handover.md) — captured principles, mocking philosophy, AI-assisted generation flow, and open follow-ups from Nathan's pre-departure handover (2026-05-21).
+9. [Cucumber/Gherkin Evaluation](09-cucumber-evaluation.md) — research artefact backing the decision on whether to adopt Gherkin as a planning/spec language for tests.
+10. [Writing `.feature` Files — Style Guide](10-feature-style.md) — the declarative-style rules for Gherkin specs. The load-bearing convention behind our Option-B adoption.
+11. [Authoring Tests for a Story](11-authoring-tests.md) — end-to-end guide for devs: Linear AC → `.feature` spec → Playwright test → PR. The new workflow shape.

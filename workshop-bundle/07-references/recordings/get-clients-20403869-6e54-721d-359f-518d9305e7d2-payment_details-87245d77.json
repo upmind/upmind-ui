@@ -1,0 +1,24 @@
+{
+  "request": {
+    "method": "GET",
+    "path": "/api/clients/20403869-6e54-721d-359f-518d9305e7d2/payment_details?limit=0&brand_id=47d73824-8507-9315-e54f-81e642d59e06&country_id=8d632507-9806-5d1e-302f-8174e234e98d&currency_code=USD&active=true&with=gateway%2Cclient&order=-default%2Cid&lang=en-US"
+  },
+  "response": {
+    "status": 403,
+    "body": {
+      "status": "error",
+      "data": null,
+      "related": null,
+      "total": null,
+      "error": {
+        "id": "25ad462adad63a59ca885c28dcb6001f7a7af125",
+        "type": 0,
+        "code": 403,
+        "message": "Unauthorized access to client!",
+        "data": null
+      },
+      "messages": null,
+      "meta": null
+    }
+  }
+}

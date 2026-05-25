@@ -1,0 +1,105 @@
+{
+  "request": {
+    "method": "GET",
+    "path": "/api/clients/03679424-d0e7-1099-7e4f-3153698d582e/addresses?with=region%2Ccountry&limit=0&offset=0&lang=en-US"
+  },
+  "response": {
+    "status": 200,
+    "body": {
+      "status": "ok",
+      "data": [
+        {
+          "id": "25d96e76-3ed0-9136-945f-417482528340",
+          "import_id": null,
+          "staged_import": false,
+          "external_id": null,
+          "client_id": "03679424-d0e7-1099-7e4f-3153698d582e",
+          "user_id": "sys",
+          "default": true,
+          "type": 1,
+          "name": "10 Downing Street",
+          "address_1": "100 Downing Street",
+          "address_2": "582 Yost Branch",
+          "region_id": "de78642d-e539-7146-295f-21208469530d",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "city": "London",
+          "county": null,
+          "postcode": "SW1A 2AA",
+          "created_at": "2026-05-16 10:04:56",
+          "updated_at": "2026-05-16 10:05:41",
+          "deleted_at": null,
+          "verified": 0,
+          "can_delete": false,
+          "region": {
+            "id": "de78642d-e539-7146-295f-21208469530d",
+            "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+            "code": "LND",
+            "name": "Greater London",
+            "created_at": "2019-10-31 17:51:32",
+            "updated_at": "2019-10-31 17:51:32"
+          },
+          "country": {
+            "id": "320e4357-95e7-8d18-484f-31643202d986",
+            "name": "United Kingdom",
+            "code": "GB",
+            "code3": "",
+            "created_at": "2017-10-18 14:16:22",
+            "updated_at": "2026-04-20 16:16:01",
+            "vat": "20.00",
+            "eea": 1,
+            "phone_code": "+44",
+            "post_code_regex": "/^[a-zA-Z]{1,2}[0-9][a-zA-Z0-9]? ?[0-9][a-zA-Z]{2}$/"
+          }
+        },
+        {
+          "id": "d085e69d-5623-719e-508a-218e940d4237",
+          "import_id": null,
+          "staged_import": false,
+          "external_id": null,
+          "client_id": "03679424-d0e7-1099-7e4f-3153698d582e",
+          "user_id": "sys",
+          "default": false,
+          "type": 1,
+          "name": "South Park Road",
+          "address_1": "South Park Road",
+          "address_2": "",
+          "region_id": "de78642d-e539-7146-295f-21208469530d",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "city": "London",
+          "county": null,
+          "postcode": "SW19 8TD",
+          "created_at": "2026-05-16 10:08:53",
+          "updated_at": "2026-05-16 10:08:53",
+          "deleted_at": null,
+          "verified": 0,
+          "can_delete": true,
+          "region": {
+            "id": "de78642d-e539-7146-295f-21208469530d",
+            "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+            "code": "LND",
+            "name": "Greater London",
+            "created_at": "2019-10-31 17:51:32",
+            "updated_at": "2019-10-31 17:51:32"
+          },
+          "country": {
+            "id": "320e4357-95e7-8d18-484f-31643202d986",
+            "name": "United Kingdom",
+            "code": "GB",
+            "code3": "",
+            "created_at": "2017-10-18 14:16:22",
+            "updated_at": "2026-04-20 16:16:01",
+            "vat": "20.00",
+            "eea": 1,
+            "phone_code": "+44",
+            "post_code_regex": "/^[a-zA-Z]{1,2}[0-9][a-zA-Z0-9]? ?[0-9][a-zA-Z]{2}$/"
+          }
+        }
+      ],
+      "related": null,
+      "total": 2,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  }
+}
