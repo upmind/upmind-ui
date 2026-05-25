@@ -1,8 +1,8 @@
 <template>
-  <!-- Basket Errors -->
-  <BasketErrors
-    id="basket-errors"
+  <!-- Basket alerts -->
+  <BasketAlerts
     v-show="showCheckout"
+    id="basket-errors"
     :basket-billing="!uischema.showBillingOnCheckout"
     :basket-fields="!uischema.showFieldsOnCheckout"
     :basket-products="!uischema.showProductsOnCheckout"
@@ -89,7 +89,7 @@ import GuestEmail from "./GuestEmail.vue";
 import PaymentDetails from "../../payment/components/PaymentDetails.vue";
 import ProductCards from "../../basket-product/components/card/BasketProductCards.vue";
 import Form from "../../../components/form/Form.vue";
-import BasketErrors from "../../basket/components/BasketErrors.vue";
+import BasketAlerts from "../../basket/components/BasketAlerts.vue";
 
 // --- types
 import type { RouteLocationAsRelativeGeneric } from "vue-router";

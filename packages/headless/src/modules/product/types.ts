@@ -266,6 +266,8 @@ export type ProductDetails = {
   excerpt?: string;
   /** The URL of the main image for the product. */
   imgUrl?: string;
+  /** The URL of the icon for the product (typically used for option icons). */
+  iconUrl?: string;
   /** An array of {@link ProductImage} objects for the product. */
   images?: ProductImage[];
 
@@ -274,6 +276,12 @@ export type ProductDetails = {
 
   /** Indicates whether the product is configurable. ie has terms, options, attributes or provision fields that need configuring */
   configurable?: boolean;
+  /** True when the product has multiple billing terms to choose from. */
+  configurableTerm?: boolean;
+  /** True when the product has configurable subproducts (options or attributes). */
+  configurableSubproducts?: boolean;
+  /** True when the product has provision fields that need completing. */
+  configurableProvisionFields?: boolean;
 
   /** `true` if the product has options or attributes that can be configured inline (e.g. upsells on the basket card). */
   configurableInline?: boolean;
@@ -410,8 +418,8 @@ export interface IProductConfig {
   qty?: number;
   /** Billing cycle in months. */
   bcm?: number;
-  /** Sub-product IDs. */
-  sub_pids?: string[];
+  /** Sub-product IDs (may be array, string, or CSV). */
+  sub_pids?: string | string[];
   /** Provision field key-value pairs. */
   pfields?: Record<string, any>;
   /** Coupon codes. */
@@ -446,8 +454,8 @@ export type ProductSummaryMeta = {
   invalid?: boolean;
   /** `true` if the product's configuration overrides a default. */
   overrides?: boolean;
-  /** `true` if the product has an overridden custom price*/
-  overridden?: boolean;
+  /** `true` if the BE has returned a custom (manually overridden) price for this product. */
+  custom?: boolean;
   /** `true` if the product has mixed configuration options. */
   mixed?: boolean;
   /** `true` if the product includes other items. */
@@ -555,8 +563,8 @@ export type SubproductDetails = {
     required: boolean;
     /** `true` if this subproduct selection overrides a default. */
     overrides: boolean;
-    /** `true` if the product has an overridden custom price*/
-    overridden?: boolean;
+    /** `true` if the BE has returned a custom (manually overridden) price for this subproduct. */
+    custom?: boolean;
   };
   // ---
   /** An array of {@link SubproductValue} objects representing the available choices for this subproduct. */

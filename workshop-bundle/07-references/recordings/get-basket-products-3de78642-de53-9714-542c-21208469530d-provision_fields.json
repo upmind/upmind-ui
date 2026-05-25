@@ -1,0 +1,18 @@
+{
+  "request": {
+    "method": "GET",
+    "path": "/api/basket/products/3de78642-de53-9714-542c-21208469530d/provision_fields?lang=en-US"
+  },
+  "response": {
+    "status": 200,
+    "body": {
+      "status": "ok",
+      "data": [],
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  }
+}

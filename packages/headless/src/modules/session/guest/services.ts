@@ -109,7 +109,6 @@ async function authenticate({ model }: GuestContext<LoginModel>) {
 }
 
 async function verify2fa({ token }: GuestContext, { data }: AnyEventObject) {
-  const { t } = useI18n();
   const { post, useUrl } = useQuery();
   return post<IToken>({
     mutationKey: ["session"],
@@ -123,18 +122,6 @@ async function verify2fa({ token }: GuestContext, { data }: AnyEventObject) {
     .then(data => {
       persistTokenToStorage(data);
       return data;
-    })
-    .catch(error => {
-      return Promise.reject(
-        new DetailedError(
-          error.message || t("error.twofa_not_valid"),
-          responseCodes.Unprocessable_Entity,
-          ErrorOrigin.Upmind,
-          {
-            token: error.message || t("error.token_not_available")
-          }
-        )
-      );
     })
     .then(loadUser);
 }
