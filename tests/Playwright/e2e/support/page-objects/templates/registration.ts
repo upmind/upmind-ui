@@ -2,6 +2,10 @@ import { Page, Locator, BrowserContext } from "@playwright/test";
 import { faker } from "@faker-js/faker";
 import { kebabCase } from "../../helpers";
 
+// Default password for tests that just need a value satisfying the registration
+// schema (≥8 chars, letter, digit, symbol — see FE-2661).
+export const STRONG_PASSWORD = "Password1!";
+
 export class Registration {
   readonly page: Page;
   readonly registrationForm: Locator;
@@ -10,6 +14,11 @@ export class Registration {
   readonly lastName: Locator;
   readonly email: Locator;
   readonly password: Locator;
+  readonly passwordItem: Locator;
+  readonly passwordMessage: Locator;
+  readonly passwordStrengthBars: Locator;
+  readonly passwordGenerator: Locator;
+  readonly passwordToggle: Locator;
 
   constructor(page: Page, context: BrowserContext) {
     this.page = page;
@@ -18,10 +27,18 @@ export class Registration {
     this.firstName = page.getByTestId("input-properties-firstname");
     this.lastName = page.getByTestId("input-properties-lastname");
     this.email = page.getByTestId("input-properties-username");
-    this.password = page.getByTestId("input-password");
+    this.passwordItem = page.getByTestId("form-item-password");
+    this.password = this.passwordItem.getByRole("textbox");
+    this.passwordMessage = this.passwordItem.getByTestId("password-message");
+    this.passwordStrengthBars = this.passwordItem
+      .getByTestId("password-strength")
+      .locator("> div");
+    this.passwordGenerator = this.passwordItem.getByTestId("password-generate");
+    this.passwordToggle = this.passwordItem.getByTestId("password-toggle");
   }
 
   getValidationError(field: string) {
+    if (field === "password") return this.passwordMessage;
     return this.page.getByTestId(`form-item-message-${kebabCase(field)}`);
   }
 
@@ -31,7 +48,7 @@ export class Registration {
     await this.email.fill(
       `nathan.robinson+${faker.string.alpha({ length: 10 })}@upmind.com`
     );
-    await this.password.fill("Password1");
+    await this.password.fill(STRONG_PASSWORD);
     await this.page.getByTestId("button-continue").click();
     await this.page.waitForLoadState("networkidle");
   }

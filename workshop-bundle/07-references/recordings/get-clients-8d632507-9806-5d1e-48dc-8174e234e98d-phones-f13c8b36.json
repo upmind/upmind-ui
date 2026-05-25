@@ -1,0 +1,103 @@
+{
+  "request": {
+    "method": "GET",
+    "path": "/api/clients/8d632507-9806-5d1e-48dc-8174e234e98d/phones?limit=0&offset=0&lang=en-US"
+  },
+  "response": {
+    "status": 200,
+    "body": {
+      "status": "ok",
+      "data": [
+        {
+          "id": "825d96e7-63ed-0913-043b-417482528340",
+          "import_id": null,
+          "staged_import": false,
+          "external_id": null,
+          "client_id": "8d632507-9806-5d1e-48dc-8174e234e98d",
+          "user_id": "sys",
+          "type": 1,
+          "default": true,
+          "verified": 0,
+          "syntax_valid": true,
+          "phone": "800030303",
+          "phone_code": "+27",
+          "international_phone": "+27800030303",
+          "phone_country_code": "ZA",
+          "created_at": "2024-01-29 14:16:34",
+          "updated_at": "2024-05-09 11:04:16",
+          "deleted_at": null,
+          "full_phone": "+27800030303",
+          "can_delete": true
+        },
+        {
+          "id": "8d632507-9806-5d1e-49da-8174e234e98d",
+          "import_id": null,
+          "staged_import": false,
+          "external_id": null,
+          "client_id": "8d632507-9806-5d1e-48dc-8174e234e98d",
+          "user_id": "sys",
+          "type": 3,
+          "default": false,
+          "verified": 0,
+          "syntax_valid": true,
+          "phone": "8004444443",
+          "phone_code": "+1",
+          "international_phone": "+18004444443",
+          "phone_country_code": "US",
+          "created_at": "2024-01-30 14:13:15",
+          "updated_at": "2024-05-09 13:45:36",
+          "deleted_at": null,
+          "full_phone": "+18004444443",
+          "can_delete": true
+        },
+        {
+          "id": "5952098d-3de4-0917-83df-31578626e347",
+          "import_id": null,
+          "staged_import": false,
+          "external_id": null,
+          "client_id": "8d632507-9806-5d1e-48dc-8174e234e98d",
+          "user_id": "sys",
+          "type": 2,
+          "default": false,
+          "verified": 0,
+          "syntax_valid": true,
+          "phone": "2087599036",
+          "phone_code": "+44",
+          "international_phone": "+442087599036",
+          "phone_country_code": "GB",
+          "created_at": "2024-01-30 14:37:29",
+          "updated_at": "2025-04-28 11:11:39",
+          "deleted_at": null,
+          "full_phone": "+442087599036",
+          "can_delete": true
+        },
+        {
+          "id": "47d73824-8507-9315-8d9c-81e642d59e06",
+          "import_id": null,
+          "staged_import": false,
+          "external_id": null,
+          "client_id": "8d632507-9806-5d1e-48dc-8174e234e98d",
+          "user_id": "sys",
+          "type": 4,
+          "default": false,
+          "verified": 0,
+          "syntax_valid": true,
+          "phone": "6198132000",
+          "phone_code": "+1",
+          "international_phone": "+16198132000",
+          "phone_country_code": "US",
+          "created_at": "2024-05-09 10:23:25",
+          "updated_at": "2024-05-09 11:04:16",
+          "deleted_at": null,
+          "full_phone": "+16198132000",
+          "can_delete": true
+        }
+      ],
+      "related": null,
+      "total": 4,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  }
+}

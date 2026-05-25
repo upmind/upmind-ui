@@ -28,6 +28,7 @@ import {
   isEmpty,
   isFunction,
   isNil,
+  isString,
   map,
   maxBy,
   merge,
@@ -37,6 +38,7 @@ import {
   reverse,
   set,
   some,
+  split,
   subtract,
   toNumber,
   toString,
@@ -96,6 +98,16 @@ import { type ProductBundleConfig } from "../config";
 import { UIContext } from "../config";
 
 // -----------------------------------------------------------------------------
+
+/**
+ * Normalises sub_pids which may be array, string, or CSV to a string array.
+ */
+export function normaliseSubPids(input?: string | string[]): string[] {
+  if (isEmpty(input)) return [];
+  if (isArray(input)) return compact(input);
+  if (isString(input)) return compact(split(input, ","));
+  return [];
+}
 
 /**
  * Computes the title for a product based on a template string derived from the product's UiMeta > uischema
@@ -298,17 +310,18 @@ export const calculateBillingTerm = (
     case DefaultPaymentPeriod.HIGHEST_PRICE:
       term = maxBy(available, "price.currentAmount");
       break;
+
     case DefaultPaymentPeriod.LOWEST_PRICE:
       term = minBy(available, "price.currentAmount");
       break;
+
     case DefaultPaymentPeriod.LOWEST_MONTHLY_PRICE:
       term = minBy(available, "price.monthlyFromCurrentAmount");
       break;
-    case DefaultPaymentPeriod.INHERIT_FROM_BRAND:
-      term = calculateBillingTerm(defaultPaymentPeriod.value, available);
-      break;
 
+    case DefaultPaymentPeriod.INHERIT_FROM_BRAND:
     default:
+      term = calculateBillingTerm(defaultPaymentPeriod.value, available);
       break;
   }
   term ??= first(available);
@@ -630,6 +643,7 @@ export const parseProductDetails = (
     description: useTranslateField(rawProduct, "description"),
     excerpt: useTranslateField(rawProduct, "short_description"),
     imgUrl: useImageUrl(rawProduct?.image?.full_url, "400x400"),
+    iconUrl: useImageUrl(rawProduct?.icon?.full_url),
     images: parseProductImages(rawProduct?.images),
     // ---
     configurable:
@@ -638,6 +652,13 @@ export const parseProductDetails = (
         !isEmpty(rawProduct.products_attributes) ||
         !isEmpty(rawProduct.products_options) ||
         !isEmpty(rawProduct.provision_fields)),
+    configurableTerm: !readonly && rawProduct.prices?.length > 1,
+    configurableSubproducts:
+      !readonly &&
+      (!isEmpty(rawProduct.products_options) ||
+        !isEmpty(rawProduct.products_attributes)),
+    configurableProvisionFields:
+      !readonly && !isEmpty(rawProduct.provision_fields),
 
     configurableInline:
       !readonly &&
@@ -740,7 +761,7 @@ export const parseTermDetails = (
   return map(orderBy(prices, "billing_cycle_months"), rawTerm => {
     const details: TermDetails = parseSummaryDetailWithPrice(rawTerm, raw);
 
-    details.meta.overridden = details.meta.overridden && !priceOptionOverride;
+    details.meta.custom = details.meta.custom && !priceOptionOverride;
 
     details.price.monthlyFromCurrentAmount =
       rawTerm.monthly_price_from_discounted ?? rawTerm.monthly_price_from;
@@ -786,7 +807,7 @@ export const parseSubproductDetails = (
         excerpt: useTranslateField(rawSubproduct.category, "short_description"),
         uiCategorymeta: rawSubproduct?.category.meta,
         uiMeta: parseMeta(
-          rawSubproduct?.meta ?? {},
+          {},
           rawSubproduct?.category as IProductCategory,
           (rawSubproduct?.brand?.meta as BrandMeta)?.cart?.ui
         ),
@@ -845,7 +866,7 @@ export const parseSubproductDetails = (
           includesTax: includesTax.value,
           free: price?.price?.currentAmount == 0,
           overrides: !!price?.meta.overrides,
-          overridden: price?.meta.overridden,
+          custom: price?.meta.custom,
           default: !!rawSubproduct?.pivot?.default
         },
         order: rawSubproduct?.pivot?.order ?? 0
@@ -911,7 +932,7 @@ export const parseSummaryDetail = (
       free: (raw.price_discounted ?? raw.price) == 0,
       freeTrial: !!rawProduct?.trial_supported,
       overrides: !!overrides,
-      overridden: !!raw.overridden_price,
+      custom: !!raw.overridden_price,
       useMonthlyFromPrice
     }
   } as ProductSummaryDetailWithPrice;
@@ -1477,6 +1498,13 @@ const parseSubproductDetailsChoices = (
         return result;
       }
 
+      // Recurring options inherit the parent product's term; one-time options
+      // (cycle 0) stay at 0. Mirrors the rule used in parseSubproducts.
+      const cycle =
+        value.billing_cycle_months == 0
+          ? 0
+          : (parentTerm ?? value.billing_cycle_months);
+
       set(result, [value.category_id, value.id], {
         productId: value.id,
         quantity: parseQuantity(
@@ -1601,7 +1629,7 @@ export function parseBundledProducts(
     productId: bundle.object_id,
     quantity: bundle.config?.qty || 1,
     term: bundle.config?.bcm ?? 0,
-    subproducts: compact(bundle.config?.sub_pids ?? []),
+    subproducts: normaliseSubPids(bundle.config?.sub_pids),
     provisionFields: bundle.config?.pfields ?? {},
     coupons: compact(bundle.config?.coupons ?? []),
     silent: true // always silent for bundled products
