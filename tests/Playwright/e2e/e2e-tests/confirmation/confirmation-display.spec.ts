@@ -88,7 +88,6 @@ newUser.describe("Confirmation Page Display - New Users", () => {
       await checkout.clickCompleteCheckout();
       await page.waitForURL(`/order/**/?payment_success=true`);
       let invoice = await getInvoice(token, orderId);
-      console.log(invoice);
       let invoiceNumber = invoice?.number;
       let date = getFormattedDate();
       await expect(confirmation.invoiceNumberHeading).toContainText("Order #");
@@ -112,12 +111,8 @@ newUser.describe("Confirmation Page Display - New Users", () => {
       );
     }
   );
-  newUser.skip(
-    "Successful Order with Multiple Taxes",
-    async ({ page, context }) => {
-      //TODO: Need a new tax setup for this, potentially a specific user with the right address already set up
-    }
-  );
+  // TODO: add coverage for "Successful Order with Multiple Taxes" once a
+  // dedicated test user with multi-tax address is provisioned.
   newUser(
     "Unsuccessful Payment on Order",
     async ({ page, context, checkout, confirmation, token }) => {

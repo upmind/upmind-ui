@@ -1,0 +1,24 @@
+{
+  "request": {
+    "method": "GET",
+    "path": "/admin/self?with=actor,actor.image,brands,brands.image,brands.icon,functionalities,user_flow_secrets,upmind_contract_product"
+  },
+  "response": {
+    "status": 401,
+    "body": {
+      "status": "error",
+      "data": null,
+      "total": null,
+      "error": {
+        "id": "4adeb88ac7d036daa703d275a33e1f2ba8556076",
+        "type": 9,
+        "code": 401,
+        "message": "The resource owner or authorization server denied the request.",
+        "data": null
+      },
+      "messages": {
+        "hint": "The JWT string must have two dots"
+      }
+    }
+  }
+}

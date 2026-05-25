@@ -1,6 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { faker } from "@faker-js/faker";
 import { URLs } from "../../support/constants/urls";
+import { TEST_EMAILS } from "../../support/constants/test-data";
 import {
   Registration,
   STRONG_PASSWORD
@@ -74,7 +75,7 @@ test.describe("User Registration", () => {
     await registration.firstName.fill(faker.person.firstName());
     await registration.lastName.fill(faker.person.lastName());
     await registration.email.fill(
-      `nathan.robinson+${faker.string.alpha({ length: 10 })}`
+      `${TEST_EMAILS.registrantPrefix}+${faker.string.alpha({ length: 10 })}`
     );
     await registration.password.fill(STRONG_PASSWORD);
     await expect(registration.getValidationError("username")).toContainText(

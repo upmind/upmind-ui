@@ -1,0 +1,22 @@
+{
+  "request": {
+    "method": "GET",
+    "path": "/org/clients_fields"
+  },
+  "response": {
+    "status": 404,
+    "body": {
+      "status": "error",
+      "data": null,
+      "total": null,
+      "error": {
+        "id": null,
+        "type": 0,
+        "code": 404,
+        "message": "",
+        "data": null
+      },
+      "messages": null
+    }
+  }
+}

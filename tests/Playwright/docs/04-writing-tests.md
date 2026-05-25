@@ -187,18 +187,19 @@ You should **not** create a page object for one-off locators or assertions. Inli
 
 ## A note on test isolation
 
-Tests in the same file are **not** parallelised by default (`fullyParallel` is commented out in the config). Within a file, Playwright runs tests sequentially. Across files, Playwright parallelises at the worker level. Parallel testing is turned off to avoid conflicts between tests which use the same user login (e.g. Checkout Test). It can be turned on again if you find a way to avoid this, whether by creating specific users for each test, or finding a way to isolate the user sessoions so that things like user basket are not shared between tests. 
+Playwright runs **`fullyParallel: true`** — tests parallelise across files AND within a single file at the worker level. This is the default; you don't need to opt in.
 
-If your tests need to run serially because of shared state (e.g. a route mock that spans several tests), use:
+That's only safe because tests that need a fresh customer use the `newUser` fixture, which registers a brand-new account per test via the API. Each `newUser` test gets its own user, basket, and session, so two `newUser` tests can't trample each other even if they run on the same worker.
 
-```ts
-test.describe.configure({ mode: "serial" });
-```
-
-If your tests are independent AND you want within-file parallelism:
+**The exception** — tests that log in as one of the shared staging users from [logins.ts](../e2e/support/constants/logins.ts) (e.g. `checkoutUser`, `twoFactor`, `priceListUser`) share a single account's basket / payment methods / wallet. Those specs must opt into serial mode at the describe level:
 
 ```ts
-test.describe.configure({ mode: "parallel" });
+test.describe("Login Page", () => {
+  test.describe.configure({ mode: "serial" });
+  // ...
+});
 ```
 
-See [checkout-paths.spec.ts:7](../e2e/e2e-tests/checkout/checkout-paths.spec.ts#L7) for an example.
+Canonical examples: [login.spec.ts:13](../e2e/e2e-tests/login-registration/login.spec.ts#L13) and [2fa.spec.ts:14](../e2e/e2e-tests/login-registration/2fa.spec.ts#L14). If you're writing a new spec that uses any `Logins.*` credential, opt into serial. If you're using `newUser`, don't — let the default carry it.
+
+You may also see `test.describe.configure({ mode: "parallel" })` sprinkled around (e.g. [checkout-paths.spec.ts:10](../e2e/e2e-tests/checkout/checkout-paths.spec.ts#L10)). Those calls are now redundant — parallel is the global default — but harmless. Don't add new ones; they only make the intent ambiguous.

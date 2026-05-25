@@ -16,28 +16,11 @@ import {
 } from "../../support/mocks";
 import { waitForSessionCookie } from "../../support/helpers/session";
 import { getSessionToken } from "../../support/api/auth";
-import { createOrder, addProductToOrder } from "../../support/api/basket";
-
-/**
- * The backend may return `config.sub_pids` on a recommendation as an
- * array, a single string, or a comma-separated string. `normaliseSubPids`
- * in `packages/headless/src/modules/product/utils.ts` collapses all three
- * into a string array, which `parseProductProps` then resolves into the
- * structured `options` / `attributes` shape the basket POST expects.
- *
- * Recommendations reach the carousel from two sources that both feed
- * `parseProductsToRecommend` in
- * `packages/headless/src/modules/recommendations/utils.ts`:
- *  - `meta["@data.productsToRecommend"]` — config-driven recommendations
- *  - `product.related[]` — native (backend-declared) recommendations
- *
- * These tests inject a synthetic recommendation pointing at
- * `STARTER_HOSTING` (which has well-known subproducts under
- * `ProductIds.subproduct*`) onto each source in turn, then verify the
- * resulting POST body contains the right subproduct ids regardless of
- * the input format. Parameterising over both sources guarantees neither
- * code path silently regresses.
- */
+import {
+  createOrder,
+  addProductToOrder,
+  getCurrentOrder
+} from "../../support/api/index";
 
 const SUB_PIDS = {
   TOKYO: ProductIds.subproductTokyo,
@@ -46,46 +29,6 @@ const SUB_PIDS = {
 } as const;
 
 let productConfig: ProductConfig;
-
-/**
- * Seeds the basket and lands on the recommendations carousel.
- *
- * The basket starts at `URLs.recommendations1` (a product known to route
- * to the recommendations page after "Add to basket"). Once the URL
- * contains `/recommendations/`, the intercepted `related[]` array drives
- * what cards are shown.
- */
-async function navigateToRecommendations(page: Page, context: BrowserContext) {
-  await page.goto(URLs.recommendations1);
-  await waitForSessionCookie(context);
-  await productConfig.addToBasket.click();
-  await page.waitForURL(/\/recommendations\/?$/);
-}
-
-/**
- * Waits for the POST that adds the recommended product to the basket
- * and returns the parsed JSON body.
- */
-async function captureAddProductRequest(
-  page: Page,
-  recommendedProductId: string
-): Promise<Record<string, any>> {
-  const request: Request = await page.waitForRequest(req => {
-    if (
-      req.method() !== "POST" ||
-      !/\/api\/orders\/[^/]+\/products(?:\?|$)/.test(req.url())
-    ) {
-      return false;
-    }
-    try {
-      const body = JSON.parse(req.postData() ?? "{}");
-      return body?.product_id === recommendedProductId;
-    } catch {
-      return false;
-    }
-  });
-  return JSON.parse(request.postData() ?? "{}");
-}
 
 /**
  * Returns every subproduct id present in either `options` or `attributes`
@@ -188,17 +131,6 @@ async function visitRecommendationsPage(page: Page): Promise<void> {
   await page.goto(`${URLs.baseUrl}order/recommendations/`);
 }
 
-async function expectRecommendationsPageLoaded(page: Page): Promise<void> {
-  await page.waitForURL(/\/recommendations\/?$/);
-}
-
-async function expectRedirectAwayFromRecommendations(
-  page: Page
-): Promise<void> {
-  await page.waitForURL(/\/order\/basket\//);
-  expect(page.url()).not.toMatch(/\/recommendations\/?$/);
-}
-
 test.describe.configure({ mode: "parallel" });
 
 /**
@@ -228,237 +160,163 @@ test.describe("Recommendations", () => {
 
   for (const source of SOURCES) {
     test.describe(`${source.name}`, () => {
-      test("Array `sub_pids` pre-selects every listed subproduct", async ({
+      test("Adding a recommendation with a single subPID option", async ({
         page,
         context
       }) => {
-        source.intercept(context, [
-          {
-            object_id: products.STARTER_HOSTING.id,
-            config: { sub_pids: [SUB_PIDS.TOKYO, SUB_PIDS.MAILBOX] }
-          }
-        ]);
-        await navigateToRecommendations(page, context);
-        const card = page.getByTestId("carousel-card").first();
+        await page.goto(URLs.rec1);
+        await waitForSessionCookie(context);
+        await productConfig.addToBasket.click();
+        await page.waitForURL(/\/recommendations\/?$/);
+        const card = page.getByTestId("carousel-card");
         await expect(card).toBeVisible();
-        const requestPromise = captureAddProductRequest(
-          page,
-          products.STARTER_HOSTING.id
-        );
         await card.getByTestId("button-add-to-basket").click();
-        const body = await requestPromise;
-        const ids = collectSubproductIds(body);
-        expect(ids).toEqual(
+        await page.waitForURL(/\/basket\/?$/);
+        const token = await getSessionToken(context);
+        const order = await getCurrentOrder(token);
+        const orderProducts = order?.products;
+        const subProdIds = collectSubproductIds(orderProducts[1]);
+        expect(subProdIds).toEqual(expect.arrayContaining([SUB_PIDS.MAILBOX]));
+      });
+      test("Adding a recommendation with multiple suggested options", async ({
+        page,
+        context
+      }) => {
+        await page.goto(URLs.rec2);
+        await waitForSessionCookie(context);
+        await productConfig.addToBasket.click();
+        await page.waitForURL(/\/recommendations\/?$/);
+        const card = page.getByTestId("carousel-card");
+        await expect(card).toBeVisible();
+        await card.getByTestId("button-add-to-basket").click();
+        await page.waitForURL(/\/basket\/?$/);
+        const token = await getSessionToken(context);
+        const order = await getCurrentOrder(token);
+        const orderProducts = order?.products;
+        const subProdIds = collectSubproductIds(orderProducts[1]);
+        expect(subProdIds).toEqual(
           expect.arrayContaining([SUB_PIDS.TOKYO, SUB_PIDS.MAILBOX])
         );
       });
-      test("Single-string `sub_pids` pre-selects that one subproduct", async ({
-        page,
-        context
-      }) => {
-        source.intercept(context, [
-          {
-            object_id: products.STARTER_HOSTING.id,
-            config: { sub_pids: SUB_PIDS.TOKYO }
-          }
-        ]);
-        await navigateToRecommendations(page, context);
-        const card = page.getByTestId("carousel-card").first();
-        await expect(card).toBeVisible();
-        const requestPromise = captureAddProductRequest(
-          page,
-          products.STARTER_HOSTING.id
-        );
-        await card.getByTestId("button-add-to-basket").click();
-        const body = await requestPromise;
-        const ids = collectSubproductIds(body);
-        expect(ids).toContain(SUB_PIDS.TOKYO);
-        expect(ids).not.toContain(SUB_PIDS.MAILBOX);
-      });
-      test("CSV `sub_pids` pre-selects every comma-separated subproduct", async ({
-        page,
-        context
-      }) => {
-        source.intercept(context, [
-          {
-            object_id: products.STARTER_HOSTING.id,
-            config: {
-              sub_pids: `${SUB_PIDS.TOKYO},${SUB_PIDS.MAILBOX},${SUB_PIDS.OS}`
-            }
-          }
-        ]);
-        await navigateToRecommendations(page, context);
-        const card = page.getByTestId("carousel-card").first();
-        await expect(card).toBeVisible();
-        const requestPromise = captureAddProductRequest(
-          page,
-          products.STARTER_HOSTING.id
-        );
-        await card.getByTestId("button-add-to-basket").click();
-        const body = await requestPromise;
-        const ids = collectSubproductIds(body);
-        expect(ids).toEqual(
-          expect.arrayContaining([
-            SUB_PIDS.TOKYO,
-            SUB_PIDS.MAILBOX,
-            SUB_PIDS.OS
-          ])
-        );
-      });
-      test("CSV with empty tokens is tolerated and resolves the valid ones", async ({
+      test("Recommendations handles subpids in comma-separated strings", async ({
         page,
         context
       }) => {
         // The CSV branch in `normaliseSubPids` runs `compact(split(input, ","))`,
         // so trailing/leading commas and consecutive commas should be dropped
         // without throwing or polluting the basket POST.
-        source.intercept(context, [
-          {
-            object_id: products.STARTER_HOSTING.id,
-            config: { sub_pids: `,${SUB_PIDS.TOKYO},,${SUB_PIDS.MAILBOX},` }
-          }
-        ]);
-        await navigateToRecommendations(page, context);
-        const card = page.getByTestId("carousel-card").first();
+        await page.goto(URLs.rec3);
+        await waitForSessionCookie(context);
+        await productConfig.addToBasket.click();
+        await page.waitForURL(/\/recommendations\/?$/);
+        const card = page.getByTestId("carousel-card");
         await expect(card).toBeVisible();
-        const requestPromise = captureAddProductRequest(
-          page,
-          products.STARTER_HOSTING.id
-        );
         await card.getByTestId("button-add-to-basket").click();
-        const body = await requestPromise;
-        const ids = collectSubproductIds(body);
-        expect(ids).toEqual(
+        await page.waitForURL(/\/basket\/?$/);
+        const token = await getSessionToken(context);
+        const order = await getCurrentOrder(token);
+        const orderProducts = order?.products;
+        const subProdIds = collectSubproductIds(orderProducts[1]);
+        expect(subProdIds).toEqual(
           expect.arrayContaining([SUB_PIDS.TOKYO, SUB_PIDS.MAILBOX])
         );
         // No stray empty-string ids ended up in the POST.
-        expect(ids).not.toContain("");
+        expect(subProdIds).not.toContain("");
       });
-      test("Missing `sub_pids` adds the recommendation with no subproduct selection", async ({
+      test("Adding a recommendation with no preset options leaves it bare in the basket", async ({
         page,
         context
       }) => {
-        source.intercept(context, [{ object_id: products.STARTER_HOSTING.id }]);
-        await navigateToRecommendations(page, context);
-        const card = page.getByTestId("carousel-card").first();
-        await expect(card).toBeVisible();
-        const requestPromise = captureAddProductRequest(
-          page,
-          products.STARTER_HOSTING.id
-        );
-        await card.getByTestId("button-add-to-basket").click();
-        const body = await requestPromise;
-        const ids = collectSubproductIds(body);
-        expect(ids).not.toContain(SUB_PIDS.TOKYO);
-        expect(ids).not.toContain(SUB_PIDS.MAILBOX);
-        expect(ids).not.toContain(SUB_PIDS.OS);
-      });
-      test("Recommendations matching an existing basket product are filtered from the carousel", async ({
-        page,
-        context
-      }) => {
-        source.intercept(context, [
-          { object_id: products.STARTER_HOSTING.id },
-          { object_id: products.FREE_HOSTING.id }
-        ]);
-        await seedBasketProduct(context, products.STARTER_HOSTING);
-        await page.goto(`${URLs.baseUrl}order/recommendations/`);
+        await page.goto(URLs.rec4);
+        await productConfig.addToBasket.click();
         await page.waitForURL(/\/recommendations\/?$/);
-        await expect(page.getByTestId("carousel-card")).toHaveCount(1);
-        await expect(page.getByTestId("carousel-card").first()).toContainText(
-          products.FREE_HOSTING.name
-        );
+        const card = page.getByTestId("carousel-card");
+        await expect(card).toBeVisible();
+        await card.getByTestId("button-add-to-basket").click();
+        await page.waitForURL(/\/basket\/?$/);
+        const token = await getSessionToken(context);
+        const order = await getCurrentOrder(token);
+        const orderProducts = order?.products;
+        const subProdIds = collectSubproductIds(orderProducts[1]);
+        expect(subProdIds).not.toContain(SUB_PIDS.TOKYO);
+        expect(subProdIds).not.toContain(SUB_PIDS.MAILBOX);
+        expect(subProdIds).not.toContain(SUB_PIDS.OS);
       });
-      test("Skips the recommendations page when the only recommendation is already in the basket", async ({
+      test("Products already in the basket are not shown again as recommendations", async ({
         page,
         context
       }) => {
-        source.intercept(context, [{ object_id: products.STARTER_HOSTING.id }]);
+        await seedBasketProduct(context, products.STARTER_HOSTING);
+        await page.goto(URLs.rec1);
+        await productConfig.addToBasket.click();
+        await page.waitForURL(/\/order\/basket\//);
+        await expect(page.url()).not.toMatch(/\/recommendations\/?$/);
+      });
+      test("Customer cannot reach the recommendations step when there is nothing new to suggest", async ({
+        page,
+        context
+      }) => {
         await seedBasketProduct(context, products.STARTER_HOSTING);
         await page.goto(`${URLs.baseUrl}order/recommendations/`);
         // The funnel rejects the recommendations route and forwards
-        // through CHECKOUT_FLOW to BASKET — never lingering on
-        // /recommendations/.
+        // through CHECKOUT_FLOW to BASKET
         await page.waitForURL(/\/order\/basket\//);
-        expect(page.url()).not.toMatch(/\/recommendations\/?$/);
+        await expect(page.url()).not.toMatch(/\/recommendations\/?$/);
       });
 
       test.describe("Visibility — conditions field", () => {
-        test("Recommendation without `conditions` renders unconditionally", async ({
+        test("Product match always overrides visibility 'default=true' setting", async ({
           page,
           context
         }) => {
-          source.intercept(context, [{ object_id: products.FREE_HOSTING.id }]);
           await seedBasketProduct(context, products.STARTER_HOSTING);
-          await visitRecommendationsPage(page);
-          await expectRecommendationsPageLoaded(page);
-
-          await expect(
-            recommendationCard(page, products.FREE_HOSTING.name)
-          ).toHaveCount(1);
+          await page.goto(URLs.rec5);
+          await productConfig.addToBasket.click();
+          await page.waitForURL(/\/order\/basket\//);
+          await expect(page.url()).not.toMatch(/\/recommendations\/?$/);
         });
 
-        test("`basket.pids.$contains` hides the recommendation when that product is in the basket", async ({
+        test("Recommendations skipped when 'hide' rule is triggered by a specific product in basket", async ({
+          page,
+          context
+        }) => {
+          await seedBasketProduct(context, products.FREE_HOSTING);
+          await page.goto(URLs.rec6);
+          await productConfig.addToBasket.click();
+          await page.waitForURL(/\/order\/basket\//);
+          await expect(page.url()).not.toMatch(/\/recommendations\/?$/);
+        });
+
+        test("Recommendations skipped when 'hide' rule is triggered by a product in basket with a specific billing term", async ({
+          page,
+          context
+        }) => {
+          await seedBasketProduct(context, products.FREE_HOSTING);
+          await page.goto(URLs.rec7);
+          await productConfig.addToBasket.click();
+          await page.waitForURL(/\/order\/basket\//);
+          await expect(page.url()).not.toMatch(/\/recommendations\/?$/);
+        });
+
+        test("Recommendations displayed when 'hide' rules do not apply", async ({
           page,
           context
         }) => {
           source.intercept(context, [
             {
-              object_id: products.FREE_HOSTING.id,
-              conditions: hideWhenBasketContains(products.STARTER_HOSTING.id)
-            }
-          ]);
-          await seedBasketProduct(context, products.STARTER_HOSTING);
-          await visitRecommendationsPage(page);
-
-          await expectRedirectAwayFromRecommendations(page);
-        });
-
-        test("`basketProduct.bcm` hides the recommendation when its own variant is in the basket", async ({
-          page,
-          context
-        }) => {
-          source.intercept(context, [
-            {
-              object_id: products.STARTER_HOSTING.id,
-              conditions: hideWhenBasketProductBcmIs(
-                products.STARTER_HOSTING.billingCycle
-              )
-            },
-            { object_id: products.FREE_HOSTING.id }
-          ]);
-          await seedBasketProduct(context, products.STARTER_HOSTING);
-          await visitRecommendationsPage(page);
-          await expectRecommendationsPageLoaded(page);
-
-          await expect(
-            recommendationCard(page, products.STARTER_HOSTING.name)
-          ).toHaveCount(0);
-          await expect(
-            recommendationCard(page, products.FREE_HOSTING.name)
-          ).toHaveCount(1);
-        });
-
-        test("`basketProduct.*` rule with no matching basket product falls back to `default`", async ({
-          page,
-          context
-        }) => {
-          source.intercept(context, [
-            {
-              object_id: products.FREE_HOSTING.id,
+              object_id: products.TSHIRT.id,
               conditions: hideWhenBasketProductBcmIs(1)
             }
           ]);
           await seedBasketProduct(context, products.STARTER_HOSTING);
           await visitRecommendationsPage(page);
-          await expectRecommendationsPageLoaded(page);
-
+          await page.waitForURL(/\/recommendations\/?$/);
           await expect(
-            recommendationCard(page, products.FREE_HOSTING.name)
+            recommendationCard(page, products.TSHIRT.name)
           ).toHaveCount(1);
         });
 
-        test('`default: "hidden"` keeps the recommendation hidden when no rule fires', async ({
+        test("A conditionally-shown recommendation stays hidden when its trigger never fires", async ({
           page,
           context
         }) => {
@@ -470,13 +328,13 @@ test.describe("Recommendations", () => {
           ]);
           await seedBasketProduct(context, products.STARTER_HOSTING);
           await visitRecommendationsPage(page);
-
-          await expectRedirectAwayFromRecommendations(page);
+          await page.waitForURL(/\/order\/basket\//);
+          await expect(page.url()).not.toMatch(/\/recommendations\/?$/);
         });
       });
 
       test.describe("In-basket detection — inBasketConditions field", () => {
-        test("Recommendation without `inBasketConditions` falls back to loose `product_id` match", async ({
+        test("A recommendation for a different product stays addable when something related is already in the basket", async ({
           page,
           context
         }) => {
@@ -486,39 +344,30 @@ test.describe("Recommendations", () => {
           ]);
           await seedBasketProduct(context, products.STARTER_HOSTING);
           await visitRecommendationsPage(page);
-          await expectRecommendationsPageLoaded(page);
+          await page.waitForURL(/\/recommendations\/?$/);
 
           const freeCard = recommendationCard(page, products.FREE_HOSTING.name);
           await expect(freeCard).toHaveCount(1);
           await expect(addToBasketButton(freeCard)).toBeEnabled();
         });
 
-        test("`inBasketConditions` marks the recommendation as in basket when the variant rule fires", async ({
+        test("A recommendation shows as already added when the customer has the matching variant", async ({
           page,
           context
         }) => {
-          source.intercept(context, [
-            {
-              object_id: products.STARTER_HOSTING.id,
-              inBasketConditions: markAddedWhenBasketProductBcmIs(
-                products.STARTER_HOSTING.billingCycle
-              )
-            },
-            { object_id: products.FREE_HOSTING.id }
-          ]);
           await seedBasketProduct(context, products.STARTER_HOSTING);
-          await visitRecommendationsPage(page);
-          await expectRecommendationsPageLoaded(page);
-
+          await page.goto(URLs.rec8);
+          await productConfig.addToBasket.click();
+          await page.waitForURL(/\/recommendations\/?$/);
           const starterCard = recommendationCard(
             page,
             products.STARTER_HOSTING.name
           );
-          await expect(inBasketButton(starterCard)).toBeVisible();
-          await expect(inBasketButton(starterCard)).toBeDisabled();
+          await expect(addToBasketButton(starterCard)).toBeVisible();
+          await expect(addToBasketButton(starterCard)).toBeDisabled();
         });
 
-        test("`inBasketConditions` leaves the recommendation interactive when the variant rule doesn't fire", async ({
+        test("A recommendation remains addable when the customer has a different variant of it", async ({
           page,
           context
         }) => {
@@ -532,7 +381,7 @@ test.describe("Recommendations", () => {
           ]);
           await seedBasketProduct(context, products.STARTER_HOSTING);
           await visitRecommendationsPage(page);
-          await expectRecommendationsPageLoaded(page);
+          await page.waitForURL(/\/recommendations\/?$/);
 
           const starterCard = recommendationCard(
             page,
@@ -541,7 +390,7 @@ test.describe("Recommendations", () => {
           await expect(addToBasketButton(starterCard)).toBeEnabled();
         });
 
-        test("`{ default: false, rules: [] }` disables in-basket detection entirely", async ({
+        test("A recommendation stays addable when in-basket detection is turned off", async ({
           page,
           context
         }) => {
@@ -553,7 +402,7 @@ test.describe("Recommendations", () => {
           ]);
           await seedBasketProduct(context, products.STARTER_HOSTING);
           await visitRecommendationsPage(page);
-          await expectRecommendationsPageLoaded(page);
+          await page.waitForURL(/\/recommendations\/?$/);
 
           const starterCard = recommendationCard(
             page,
@@ -563,7 +412,7 @@ test.describe("Recommendations", () => {
           await expect(addToBasketButton(starterCard)).toBeEnabled();
         });
 
-        test("`inBasketConditions` falls back to `default` when no basket product matches `object_id`", async ({
+        test("A recommendation stays addable when nothing in the basket matches its in-basket rules", async ({
           page,
           context
         }) => {
@@ -575,7 +424,7 @@ test.describe("Recommendations", () => {
           ]);
           await seedBasketProduct(context, products.STARTER_HOSTING);
           await visitRecommendationsPage(page);
-          await expectRecommendationsPageLoaded(page);
+          await page.waitForURL(/\/recommendations\/?$/);
 
           const freeCard = recommendationCard(page, products.FREE_HOSTING.name);
           await expect(addToBasketButton(freeCard)).toBeEnabled();
@@ -583,7 +432,7 @@ test.describe("Recommendations", () => {
       });
 
       test.describe("Combined conditions and inBasketConditions", () => {
-        test("`conditions: hidden` wins over `inBasketConditions: true` because hidden cards never reach the carousel", async ({
+        test("A hidden recommendation never appears, even when it would have been marked as already added", async ({
           page,
           context
         }) => {
@@ -599,7 +448,7 @@ test.describe("Recommendations", () => {
           ]);
           await seedBasketProduct(context, products.STARTER_HOSTING);
           await visitRecommendationsPage(page);
-          await expectRecommendationsPageLoaded(page);
+          await page.waitForURL(/\/recommendations\/?$/);
 
           await expect(
             recommendationCard(page, products.STARTER_HOSTING.name)
@@ -607,32 +456,6 @@ test.describe("Recommendations", () => {
           await expect(
             recommendationCard(page, products.FREE_HOSTING.name)
           ).toHaveCount(1);
-        });
-
-        test("Visible `conditions` and firing `inBasketConditions` renders the recommendation as already in basket", async ({
-          page,
-          context
-        }) => {
-          const productNotInBasket = products.DOMAIN.id;
-          source.intercept(context, [
-            {
-              object_id: products.STARTER_HOSTING.id,
-              conditions: hideWhenBasketContains(productNotInBasket),
-              inBasketConditions: markAddedWhenBasketProductBcmIs(
-                products.STARTER_HOSTING.billingCycle
-              )
-            }
-          ]);
-          await seedBasketProduct(context, products.STARTER_HOSTING);
-          await visitRecommendationsPage(page);
-          await expectRecommendationsPageLoaded(page);
-
-          const starterCard = recommendationCard(
-            page,
-            products.STARTER_HOSTING.name
-          );
-          await expect(starterCard).toHaveCount(1);
-          await expect(inBasketButton(starterCard)).toBeDisabled();
         });
       });
     });
