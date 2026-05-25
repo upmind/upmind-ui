@@ -23,7 +23,12 @@
           @form-resolve="onFormResolve"
         />
         <Button
-          v-if="(isMobile || inline) && !autoUpdate && formMeta.allowContinue"
+          v-if="
+            (isMobile || inline) &&
+            !autoUpdate &&
+            formMeta.allowContinue &&
+            !isInitialBilling
+          "
           :label="t('action.continue_label')"
           icon-append="arrow-right"
           color="primary"
@@ -42,7 +47,12 @@
           @form-resolve="onFormResolve"
         />
         <Button
-          v-if="(isMobile || inline) && !autoUpdate && formMeta.allowContinue"
+          v-if="
+            (isMobile || inline) &&
+            !autoUpdate &&
+            formMeta.allowContinue &&
+            !isInitialBilling
+          "
           :label="t('action.continue_label')"
           icon-append="arrow-right"
           color="primary"
@@ -57,7 +67,7 @@
 
   <Teleport v-if="isMounted && !inline && !isMobile" to="#billing-actions">
     <Button
-      v-if="!autoUpdate && formMeta.allowContinue"
+      v-if="!autoUpdate && formMeta.allowContinue && !isInitialBilling"
       :label="t('action.continue_label')"
       icon-append="arrow-right"
       color="primary"
@@ -126,12 +136,29 @@ const styles = useStyles(
 const isMounted = useMounted();
 
 const { client } = useSession();
-const { isReady, meta, config, set, update, wait, model } = useBasketBilling();
+const {
+  isReady,
+  meta,
+  config,
+  set,
+  update,
+  wait,
+  model,
+  captureInitialBilling
+} = useBasketBilling();
 const { navigateNext } = useRoutingEngine();
 
 // ensure we preload our data for speed between the tab
 
 const activeTab = ref<UnifiedType>();
+
+// Snapshot: did the user land without committed billing? Captured per-mount
+// after the billing actor's data is ready and held for the form's lifetime,
+// so the create-and-auto-navigate flow doesn't briefly reveal the Continue
+// button when baseModel updates after persistModel runs. Mirrors the
+// captureSchemas pattern in useProductSetup, scoped to the consumer's
+// lifecycle (because the billing actor is global and persistent).
+const isInitialBilling = ref(true);
 
 const formMeta = computed(() => {
   const phoneReady = !meta.value.needsPhone || !phoneMeta.value.isEmpty;
@@ -153,6 +180,8 @@ await Promise.allSettled([
   const { default: defaultCompany } = useClientCompanies();
   // set initial value from the basket billing model
   modelValue.value ??= model.value;
+  const { addressId, companyId } = captureInitialBilling() ?? {};
+  isInitialBilling.value = !addressId && !companyId;
   if (
     config.value?.requiresCompany ||
     model.value?.companyId ||

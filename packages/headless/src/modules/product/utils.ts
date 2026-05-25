@@ -27,6 +27,7 @@ import {
   has,
   isArray,
   isEmpty,
+  isEqual,
   isFunction,
   isNil,
   isString,
@@ -1263,7 +1264,7 @@ const parseSummaryTerm = (
     term.category = t("text.billing_cycle");
     term.meta = {
       ...term.meta,
-      invalid: some(errors, e => e.instancePath?.startsWith("/term"))
+      invalid: some(errors, e => e?.instancePath?.startsWith("/term"))
     };
     return term;
   }
@@ -1305,7 +1306,9 @@ const parseSummarySubproduct = (
                 meta: {
                   ...subproduct.meta,
                   ...subproduct?.uiMeta,
-                  invalid: some(errors, e => e.instancePath?.includes(`/${id}`))
+                  invalid: some(errors, e =>
+                    e?.instancePath?.includes(`/${id}`)
+                  )
                 },
                 // ---
                 ...(subproduct.price ?? {})
@@ -1350,7 +1353,7 @@ const parseSummaryProvisionFields = (
         regularPrice: undefined,
         meta: {
           invalid: some(errors, e =>
-            e.instancePath?.includes(`/provisionFields/${key}`)
+            e?.instancePath?.includes(`/provisionFields/${key}`)
           )
         }
       });
@@ -1786,6 +1789,57 @@ export function parseBillingCycle(months: number) {
         numeric: t("term.n_month", { n: months.toString() }) // {n}-month
       };
   }
+}
+
+/**
+ * Returns a `hasError(scope)` checker for the given context. The scope uses
+ * UISchema notation (e.g. `#/properties/term`) and is normalised to the
+ * basket-error instance path format (e.g. `/term`) before lookup.
+ *
+ * Shared by the invalid schema/uischema builders so both stay in lock-step on
+ * how errors are matched.
+ */
+export function hasScopeError(
+  basketErrors: ProductConfigContext["basketErrors"]
+): (scope: string) => boolean {
+  const errorPaths = new Set(map(basketErrors, "instancePath"));
+
+  return (scope: string): boolean => {
+    const instancePath = scope
+      .replace("#/properties/", "/")
+      .replace(/\/properties\//g, "/");
+    return errorPaths.has(instancePath);
+  };
+}
+
+/**
+ * Filters basketErrors down to those still outstanding given a live model.
+ *
+ * basketErrors is a snapshot from the BE — we never mutate it. As the user
+ * edits fields the local `model` diverges from `baseModel`; an error is
+ * considered "fixed" when its field's value has changed from base. This lets
+ * the UI react to local edits without losing the source-of-truth snapshot.
+ *
+ * Both nilish/empty values are treated as equivalent — the user hasn't
+ * meaningfully changed a field that went from undefined → null → "".
+ */
+export function getOutstandingBasketErrors(
+  basketErrors: ProductConfigContext["basketErrors"],
+  baseModel: Partial<ProductModel> | undefined,
+  model: Partial<ProductModel> | undefined
+): ErrorObject[] {
+  if (!isArray(basketErrors)) return [];
+
+  return filter(basketErrors, error => {
+    const field = compact(split(trimStart(error.instancePath, "/"), "/"));
+    const baseValue = get(baseModel, field);
+    const newValue = get(model, field);
+
+    // Both nilish/empty → still missing.
+    if (!baseValue && !newValue) return true;
+    // Unchanged from base → still outstanding.
+    return isEqual(baseValue, newValue);
+  });
 }
 
 export function generateShareUrlConfig(model: ProductModel) {
