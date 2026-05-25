@@ -1,0 +1,38 @@
+{
+  "request": {
+    "method": "POST",
+    "path": "/api/clients/03679424-d0e7-1099-7e4f-3153698d582e/phones?lang=en-US"
+  },
+  "response": {
+    "status": 200,
+    "body": {
+      "status": "ok",
+      "data": {
+        "id": "89857426-4897-0120-887b-21e325d0ed36",
+        "import_id": null,
+        "staged_import": false,
+        "external_id": null,
+        "client_id": "03679424-d0e7-1099-7e4f-3153698d582e",
+        "user_id": "sys",
+        "type": 1,
+        "default": false,
+        "verified": 0,
+        "syntax_valid": true,
+        "phone": "800030301",
+        "phone_code": "+44",
+        "international_phone": "+44800030301",
+        "phone_country_code": "GB",
+        "created_at": "2026-05-16 10:09:03",
+        "updated_at": "2026-05-16 10:09:03",
+        "deleted_at": null,
+        "full_phone": "+44800030301",
+        "can_delete": true
+      },
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  }
+}

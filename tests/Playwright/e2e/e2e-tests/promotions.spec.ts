@@ -16,7 +16,12 @@ import {
   getSessionToken,
   registerClient
 } from "../support/api/index";
+import { waitForSessionCookie } from "../support/helpers/session";
 
+// TODO: migrate to the fixture-based pattern used by newer specs
+// (see support/fixtures/auth-context). Module-scope `let` declarations
+// reassigned in beforeEach are fragile if this file ever runs in
+// parallel mode and should be replaced with per-test fixtures.
 let context: BrowserContext;
 let productConfig: ProductConfig;
 let basket: Basket;
@@ -59,7 +64,7 @@ test.describe("Promotions", () => {
     test("Promotion on all billing terms", async ({ page }) => {
       mockPromos(page.context(), "/api/basket/products/", {}, "all", "prices");
       await page.goto(URLs.starterHosting);
-      await page.waitForLoadState("networkidle");
+      await expect(page.getByText("Billing Term ")).toBeVisible();
       await productConfig.promoBadgeExists("Monthly");
       await productConfig.promoBadgeExists("Annually");
       await productConfig.promoBadgeExists("Biennially");
@@ -67,7 +72,7 @@ test.describe("Promotions", () => {
     test("Promotion on a single billing term", async ({ page }) => {
       mockPromos(page.context(), "/api/basket/products/", {}, 12, "prices");
       await page.goto(URLs.starterHosting);
-      await page.waitForLoadState("networkidle");
+      await expect(page.getByText("Billing Term ")).toBeVisible();
       await productConfig.promoBadgeDoesNotExist("Monthly");
       await productConfig.promoBadgeExists("Annually");
       await productConfig.promoBadgeDoesNotExist("Biennially");
@@ -118,7 +123,7 @@ test.describe("Promotions", () => {
         "prices"
       );
       await page.goto(`${URLs.domainSearch}?search=promospromospromos`);
-      await page.waitForLoadState("networkidle");
+      await expect(page.getByTestId("dac-results")).toBeVisible();
       const dacCards = page.getByTestId("dac-card");
       await expect(dacCards.first()).toBeVisible();
       for (const card of await dacCards.all()) {
@@ -147,7 +152,7 @@ test.describe("Promotions", () => {
     test.beforeEach(async ({ page, context }) => {
       const domain = `${fakerEN_GB.string.alphanumeric({ length: 15 })}.com`;
       await page.goto("/");
-      await page.waitForLoadState("networkidle");
+      await waitForSessionCookie(context);
       let token = await getSessionToken(context);
       let order = await createOrder(token);
       let orderId = order.id;
@@ -212,19 +217,7 @@ test.describe("Promotions", () => {
     test.beforeEach(async ({ page, context }) => {
       checkout = new Checkout(page);
       await page.goto("/");
-      await expect
-        .poll(
-          async () => {
-            const cookies = await context.cookies();
-            return cookies.some(
-              c =>
-                c.name === "upm_guest_session" ||
-                c.name === "upm_client_session"
-            );
-          },
-          { timeout: 30000 }
-        )
-        .toBeTruthy();
+      await waitForSessionCookie(context);
       let guestToken = await getSessionToken(context);
       let user = await registerClient(guestToken);
       let username = user.email;
@@ -265,15 +258,7 @@ test.describe("Promotions", () => {
       checkout = new Checkout(page);
       confirmation = new Confirmation(page);
       await page.goto(URLs.catalogueRoot1);
-      await expect
-        .poll(
-          async () => {
-            const cookies = await context.cookies();
-            return cookies.some(c => c.name === "upm_guest_session");
-          },
-          { timeout: 30000 }
-        )
-        .toBeTruthy();
+      await waitForSessionCookie(context, { guestOnly: true });
       let guestToken = await getSessionToken(context);
       let user = await registerClient(guestToken);
       let username = user.email;
@@ -287,7 +272,7 @@ test.describe("Promotions", () => {
       );
       await expect(page.getByText("Secure checkout")).toBeVisible();
       await checkout.selectPaymentMethod("Direct Bank Transfer");
-      await checkout.clickPlaceOrder();
+      await checkout.clickCompleteCheckout();
       await expect(page.getByText("Order confirmed")).toBeVisible();
       await expect(page.getByText("Discount")).toBeVisible();
     });

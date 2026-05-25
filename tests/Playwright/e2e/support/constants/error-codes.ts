@@ -69,7 +69,8 @@ export const ErrorCodes = {
       id: "generic_error",
       type: 0,
       code: 500,
-      message: "An unexpected error occurred"
+      message:
+        "We are currently experiencing technical issues. Please try again later."
     },
     button: "reload-page",
     errorType: "toast"

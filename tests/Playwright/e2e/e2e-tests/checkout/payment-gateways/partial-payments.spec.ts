@@ -9,6 +9,7 @@ import {
   getSessionToken,
   registerClient
 } from "../../../support/api/index";
+import { waitForSessionCookie } from "../../../support/helpers/session";
 
 let checkout: Checkout;
 let register: Registration;
@@ -18,18 +19,7 @@ test.describe("Partial payment at Checkout", () => {
     checkout = new Checkout(page);
     register = new Registration(page, context);
     await page.goto("/");
-    await expect
-      .poll(
-        async () => {
-          const cookies = await context.cookies();
-          return cookies.some(
-            c =>
-              c.name === "upm_guest_session" || c.name === "upm_client_session"
-          );
-        },
-        { timeout: 30000 }
-      )
-      .toBeTruthy();
+    await waitForSessionCookie(context);
     let guestToken = await getSessionToken(context);
     let user = await registerClient(guestToken);
     let username = user.email;
@@ -42,15 +32,14 @@ test.describe("Partial payment at Checkout", () => {
       context
     }) => {
       await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
-      await page.waitForLoadState("networkidle");
-      await page.waitForLoadState("load");
+      await waitForSessionCookie(page.context());
       await checkout.changeAmountButton.click();
       await checkout.changeAmountInput.fill("20");
       await checkout.clickConfirmAmount();
       await expect(checkout.payAmount).toHaveText("Pay £20.00");
       await checkout.selectPaymentMethod("Stripe");
       await checkout.inputStripeDetails("4242424242424242", "12/34", "123");
-      await checkout.clickPlaceOrderAndPay();
+      await checkout.clickCompleteCheckout();
       await page.waitForURL(`order/**`);
       await expect(page.getByText("Thank you for your order.")).toBeVisible();
     });
@@ -59,15 +48,14 @@ test.describe("Partial payment at Checkout", () => {
       context
     }) => {
       await goToCheckout(page, context, products.STARTER_HOSTING, null, "AUD");
-      await page.waitForLoadState("networkidle");
-      await page.waitForLoadState("load");
+      await waitForSessionCookie(page.context());
       await checkout.changeAmountButton.click();
       await checkout.changeAmountInput.fill("100");
       await checkout.clickConfirmAmount();
       await expect(checkout.payAmount).toHaveText("Pay A$100.00");
       await checkout.selectPaymentMethod("Stripe");
       await checkout.inputStripeDetails("4242424242424242", "12/34", "123");
-      await checkout.clickPlaceOrderAndPay();
+      await checkout.clickCompleteCheckout();
       await page.waitForURL(`order/**`);
       await expect(page.getByText("Thank you for your order.")).toBeVisible();
     });
@@ -79,8 +67,7 @@ test.describe("Partial payment at Checkout", () => {
         "genericpromo",
         null
       );
-      await page.waitForLoadState("networkidle");
-      await page.waitForLoadState("load");
+      await waitForSessionCookie(page.context());
       await expect(checkout.payAmount).toHaveText("Pay £57.60");
       await checkout.changeAmountButton.click();
       await checkout.changeAmountInput.fill("20");
@@ -88,7 +75,7 @@ test.describe("Partial payment at Checkout", () => {
       await expect(checkout.payAmount).toHaveText("Pay £20.00");
       await checkout.selectPaymentMethod("Stripe");
       await checkout.inputStripeDetails("4242424242424242", "12/34", "123");
-      await checkout.clickPlaceOrderAndPay();
+      await checkout.clickCompleteCheckout();
       await page.waitForURL(`order/**`);
       await expect(page.getByText("Thank you for your order.")).toBeVisible();
     });
@@ -100,8 +87,7 @@ test.describe("Partial payment at Checkout", () => {
         "genericpromo",
         "AUD"
       );
-      await page.waitForLoadState("networkidle");
-      await page.waitForLoadState("load");
+      await waitForSessionCookie(page.context());
       await expect(checkout.payAmount).toHaveText("Pay A$131.71");
       await checkout.changeAmountButton.click();
       await checkout.changeAmountInput.fill("100");
@@ -109,7 +95,7 @@ test.describe("Partial payment at Checkout", () => {
       await expect(checkout.payAmount).toHaveText("Pay A$100.00");
       await checkout.selectPaymentMethod("Stripe");
       await checkout.inputStripeDetails("4242424242424242", "12/34", "123");
-      await checkout.clickPlaceOrderAndPay();
+      await checkout.clickCompleteCheckout();
       await page.waitForURL(`order/**`);
       await expect(page.getByText("Thank you for your order.")).toBeVisible();
     });
@@ -120,15 +106,14 @@ test.describe("Partial payment at Checkout", () => {
       context
     }) => {
       await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
-      await page.waitForLoadState("networkidle");
-      await page.waitForLoadState("load");
+      await waitForSessionCookie(page.context());
       await expect(checkout.payAmount).toHaveText("Pay £72.00");
       await checkout.changeAmountButton.click();
       await checkout.changeAmountInput.fill("20");
       await checkout.clickConfirmAmount();
       await expect(checkout.payAmount).toHaveText("Pay £20.00");
       await checkout.selectPaymentMethod("Pay-Pal Express");
-      await checkout.clickPlaceOrderAndPay();
+      await checkout.clickCompleteCheckout();
       await page.waitForURL(
         "https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_express-checkout&useraction=commit**"
       );
@@ -146,15 +131,14 @@ test.describe("Partial payment at Checkout", () => {
       context
     }) => {
       await goToCheckout(page, context, products.STARTER_HOSTING, null, "AUD");
-      await page.waitForLoadState("networkidle");
-      await page.waitForLoadState("load");
+      await waitForSessionCookie(page.context());
       await expect(checkout.payAmount).toHaveText("Pay A$164.64");
       await checkout.changeAmountButton.click();
       await checkout.changeAmountInput.fill("20");
       await checkout.clickConfirmAmount();
       await expect(checkout.payAmount).toHaveText("Pay A$20.00");
       await checkout.selectPaymentMethod("Pay-Pal Express");
-      await checkout.clickPlaceOrderAndPay();
+      await checkout.clickCompleteCheckout();
       await page.waitForURL(
         "https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_express-checkout&useraction=commit**"
       );
@@ -175,14 +159,14 @@ test.describe("Partial payment at Checkout", () => {
         "genericpromo",
         null
       );
-      await page.waitForLoadState("load");
+      await waitForSessionCookie(page.context());
       await expect(checkout.payAmount).toHaveText("Pay £57.60");
       await checkout.changeAmountButton.click();
       await checkout.changeAmountInput.fill("20");
       await checkout.clickConfirmAmount();
       await expect(checkout.payAmount).toHaveText("Pay £20.00");
       await checkout.selectPaymentMethod("Pay-Pal Express");
-      await checkout.clickPlaceOrderAndPay();
+      await checkout.clickCompleteCheckout();
       await page.waitForURL(
         "https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_express-checkout&useraction=commit**"
       );
@@ -196,12 +180,9 @@ test.describe("Partial payment at Checkout", () => {
       await expect(page.getByText("Thank you for your order.")).toBeVisible();
     });
   });
-  test.describe.skip("Partial payment using Account Credit", () => {
-    // TODO: Need a way to mock the credit limit and successfully check out (real credit data would be useless after one test)
-    test.skip("Partial Payment in base Currency (GBP)", async ({ page }) => {});
-    test.skip("Partial Payment in foreign currency (INR)", async ({
-      page
-    }) => {});
-    test.skip("Partial payment with promo (GBP)", async ({ page }) => {});
-  });
+  // TODO: when credit-limit mocking is available, add coverage for:
+  //   - Partial payment in base currency (GBP)
+  //   - Partial payment in foreign currency (INR)
+  //   - Partial payment with promo (GBP)
+  // Real credit data is unusable in tests — it's consumed after one checkout.
 });

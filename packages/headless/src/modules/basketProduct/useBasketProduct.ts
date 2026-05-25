@@ -81,7 +81,7 @@ export const useBasketProduct = (
   async function isReady(): Promise<boolean> {
     return waitFor(
       service,
-      state => stateMatches(state, ["available", "error", "done"]),
+      state => stateMatches(state, ["available", "unavailable", "done"]),
       { timeout: Infinity }
     ).then(state => {
       return stateMatches(state, ["available"]);
@@ -110,7 +110,11 @@ export const useBasketProduct = (
     })
       .then(state => {
         if (
-          stateMatches(state, ["error", "available.invalid", "available.error"])
+          stateMatches(state, [
+            "unavailable",
+            "available.invalid",
+            "available.error"
+          ])
         ) {
           return Promise.reject(
             new DetailedError(

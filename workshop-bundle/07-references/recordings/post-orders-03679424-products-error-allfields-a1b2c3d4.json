@@ -1,0 +1,22 @@
+{
+  "status": "error",
+  "data": null,
+  "total": null,
+  "error": {
+    "id": "5ce14aee4784e18f9dc0812e24950884ce58dfde",
+    "type": 0,
+    "code": 422,
+    "message": "API request invalid!",
+    "data": {
+      "quantity": ["The value must be at least 1."],
+      "options.0.product_id": [
+        "The identifier (options.0.product_id) is invalid!"
+      ],
+      "options.0.unit_quantity": ["The value must be at least 1."],
+      "attributes.0.product_id": [
+        "The identifier (attributes.0.product_id) is invalid!"
+      ]
+    }
+  },
+  "messages": null
+}

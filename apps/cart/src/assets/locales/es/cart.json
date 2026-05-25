@@ -21,6 +21,9 @@
   "basket_section": "Resumen de la cesta",
   "basket_summary_desc": "Tienes {count} artículo en su cesta, por un total de {total}. | Tienes {count} artículos en su cesta, por un total de {total}.",
   "basket_summary_desc_free": "Tienes {count} artículo en tu cesta. | Tienes {count} artículos en su cesta.",
+  "basket_summary_taxes_desc": "Tienes{count} artículo en su cesta, totalizando{total} ({tax} ) | Tienes{count} artículos en su cesta, totalizando{total} ({tax} )",
+  "basket_tax_excl": "sin impuestos",
+  "basket_tax_incl": "impuestos incluidos",
   "basket_title": "Su cesta",
   "change_amount": "Cambiar cantidad",
   "empty": "Tu **cesta** está vacía",
@@ -64,5 +67,6 @@
   "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}",
   "show_more_payment_options": "Mostrar más opciones de pago",
   "stored_payment_methods_limited_desc": "No todos los métodos de pago son visibles porque no están disponibles para tu país o moneda.",
-  "stored_payment_methods_limited_title": "Métodos de Pago Limitados"
+  "stored_payment_methods_limited_title": "Métodos de Pago Limitados",
+  "warning_notes_title": "Advertencia sobre la cesta | Advertencias sobre la cesta"
 }

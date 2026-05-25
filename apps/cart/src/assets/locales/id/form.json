@@ -25,15 +25,27 @@
   "auth_password": {
     "error": {
       "min_length": "Kata sandi harus terdiri dari minimal 8 karakter.",
-      "min_length_lowercase": "Kata sandi harus terdiri dari minimal 8 karakter dan mengandung huruf kecil.",
-      "min_length_lowercase_number": "Kata sandi harus minimal 8 karakter, mengandung setidaknya satu huruf Latin kecil (a–z), dan setidaknya satu digit (0–9).",
+      "min_length_letter": "Kata sandi harus terdiri dari minimal 8 karakter dan mengandung satu huruf",
+      "min_length_letter_number": "Kata sandi harus terdiri dari minimal 8 karakter, serta mengandung satu huruf dan satu angka",
+      "min_length_letter_number_symbol": "Kata sandi harus terdiri dari minimal 8 karakter, serta mengandung satu huruf, satu angka, dan satu simbol",
+      "min_length_letter_symbol": "Kata sandi harus terdiri dari minimal 8 karakter, serta mengandung satu huruf dan satu simbol",
       "min_length_number": "Kata sandi harus terdiri dari minimal 8 karakter dan mengandung angka.",
-      "missing_lowercase": "Kata sandi harus mengandung huruf kecil.",
-      "missing_lowercase_number": "Kata sandi harus mengandung huruf kecil dan angka.",
-      "missing_number": "Kata sandi harus mengandung angka."
+      "min_length_number_symbol": "Kata sandi harus terdiri dari minimal 8 karakter, serta mengandung satu angka dan satu simbol",
+      "min_length_symbol": "Kata sandi harus terdiri dari minimal 8 karakter dan mengandung satu simbol",
+      "missing_letter": "Kata sandi harus berisi satu huruf",
+      "missing_letter_number": "Kata sandi harus terdiri dari satu huruf dan satu angka",
+      "missing_letter_number_symbol": "Kata sandi harus terdiri dari satu huruf, satu angka, dan satu simbol",
+      "missing_letter_symbol": "Kata sandi harus berisi satu huruf dan satu simbol",
+      "missing_number": "Kata sandi harus mengandung angka.",
+      "missing_number_symbol": "Kata sandi harus berisi angka dan simbol",
+      "missing_symbol": "Kata sandi harus mengandung satu karakter khusus"
     },
+    "generate": "Buat kata sandi yang kuat",
+    "hide": "Sembunyikan kata sandi",
+    "hint": "Kata sandi harus terdiri dari minimal 8 karakter dan harus mengandung satu huruf, satu angka, dan satu simbol.",
     "label": "Kata sandi",
-    "placeholder": "Kata sandi atau frasa sandi"
+    "placeholder": "Kata sandi atau frasa sandi",
+    "show": "Tampilkan kata sandi"
   },
   "card_cvv": {
     "error": "Diperlukan CVV yang valid",

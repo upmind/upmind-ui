@@ -180,9 +180,17 @@
       <template #errors>
         <Alert
           class="w-full"
+          v-if="productMeta?.isLocked"
+          color="neutral"
+          variant="minimal"
+          icon="lock-01"
+          :title="t('error.basket_product_readonly')"
+        />
+        <Alert
+          class="w-full"
           v-if="externalErrors?.message"
           color="danger"
-          variant="minimal"
+          variant="muted"
           icon="alert-triangle"
           :title="externalErrors?.message"
         />

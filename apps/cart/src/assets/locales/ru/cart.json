@@ -21,6 +21,9 @@
   "basket_section": "Сводка корзины",
   "basket_summary_desc": "У вас есть {count} товар в вашей корзине на общую сумму {total}. | У тебя есть {count} товаров в вашей корзине на общую сумму {total}.",
   "basket_summary_desc_free": "У вас есть {count} товар в вашей корзине. | У вас есть {count} товары в вашей корзине.",
+  "basket_summary_taxes_desc": "У вас есть{count} товар в вашей корзине, итого{total} ({tax} ) | У вас есть{count} товары в вашей корзине, итого{total} ({tax} )",
+  "basket_tax_excl": "без учета налогов",
+  "basket_tax_incl": "вкл. налоги",
   "basket_title": "Ваша корзина",
   "change_amount": "Изменить сумму",
   "empty": "Ваша **корзина** пуста",
@@ -64,5 +67,6 @@
   "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}",
   "show_more_payment_options": "Показать больше вариантов оплаты",
   "stored_payment_methods_limited_desc": "Не все способы оплаты видны, потому что они недоступны в вашей стране или для вашей валюты.",
-  "stored_payment_methods_limited_title": "Ограниченные методы оплаты"
+  "stored_payment_methods_limited_title": "Ограниченные методы оплаты",
+  "warning_notes_title": "Предупреждение о корзине | Предупреждения о корзине"
 }

@@ -21,6 +21,9 @@
   "basket_section": "Sepet özeti",
   "basket_summary_desc": "Var {count} sepetinizdeki ürün, toplam {total}. | Sende var {count} sepetinizdeki toplam ürün sayısı {total}.",
   "basket_summary_desc_free": "Var {count} Sepetinizde ürün var. | Sizde {count} Sepetinizdeki ürünler.",
+  "basket_summary_taxes_desc": "Sepetinizde {count} adet ürün bulunmaktadır; toplam tutar {total} ({tax}) | Sepetinizde {count} adet ürün bulunmaktadır; toplam tutar {total} ({tax})",
+  "basket_tax_excl": "vergiler hariç",
+  "basket_tax_incl": "vergiler dahil",
   "basket_title": "Sepetiniz",
   "change_amount": "Miktarı değiştir",
   "empty": "**Sepetiniz** boş",
@@ -64,5 +67,6 @@
   "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}",
   "show_more_payment_options": "Daha fazla ödeme seçeneği göster",
   "stored_payment_methods_limited_desc": "Tüm ödeme yöntemleri görünmüyor çünkü ülkeniz veya para biriminiz için mevcut değiller.",
-  "stored_payment_methods_limited_title": "Sınırlı Ödeme Yöntemleri"
+  "stored_payment_methods_limited_title": "Sınırlı Ödeme Yöntemleri",
+  "warning_notes_title": "Sepet uyarısı | Sepet uyarıları"
 }

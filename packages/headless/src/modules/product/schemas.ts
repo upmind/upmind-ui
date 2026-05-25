@@ -5,6 +5,7 @@ import { find, first, forEach, isEmpty, keys, map, size } from "lodash-es";
 import { useI18n } from "../system";
 import {
   calculateBillingTerm,
+  checkPriceOverride,
   parseProvisioningSchema,
   parseQuantity
 } from "./utils";
@@ -201,22 +202,14 @@ function buildSubproductGroupSchema(
         required: ["productId"] as string[]
       };
 
-      // --- quantity constraints per value
       if (value.quantifiable) {
         const quantitySchema: Record<string, any> = {
           type: "number",
           minimum: value.min,
           default: value.quantity
         };
-
-        if (value.max !== Infinity) {
-          quantitySchema.maximum = value.max;
-        }
-
-        if (value.step > 1) {
-          quantitySchema.multipleOf = value.step;
-        }
-
+        if (value.max !== Infinity) quantitySchema.maximum = value.max;
+        if (value.step > 1) quantitySchema.multipleOf = value.step;
         entrySchema.properties.quantity = quantitySchema;
         entrySchema.required.push("quantity");
       } else {
@@ -230,12 +223,8 @@ function buildSubproductGroupSchema(
       type: isRequired ? "object" : ["object", "null"],
       title: subproduct.title,
       description: subproduct.description ?? "",
-      propertyNames: {
-        enum: map(subproduct.values, "id")
-      },
-      additionalProperties: {
-        oneOf: valueSchemas
-      },
+      propertyNames: { enum: map(subproduct.values, "id") },
+      additionalProperties: { oneOf: valueSchemas },
       options: map(subproduct.values, value => ({
         ...value,
         label: value.title,
@@ -339,10 +328,21 @@ export function useProductConfigUischema(
 
   // --- term selector
   if (!isEmpty(context?.lookups?.terms)) {
+    const overridden =
+      checkPriceOverride(
+        context.model?.options ?? {},
+        context.lookups?.options ?? []
+      ) ||
+      checkPriceOverride(
+        context.model?.attributes ?? {},
+        context.lookups?.attributes ?? []
+      );
+
     elements.push({
       type: "Terms",
       scope: "#/properties/term",
-      i18n: "product.term"
+      i18n: "product.term",
+      options: { overridden }
     });
   }
 

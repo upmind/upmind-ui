@@ -13,6 +13,7 @@ import {
   Order,
   addProductToOrder
 } from "../../support/api/basket";
+import { waitForSessionCookie } from "../../support/helpers/session";
 
 let checkout: Checkout;
 let login: Login;
@@ -20,6 +21,7 @@ let register: Registration;
 let token: string | null;
 let orderId: string | null;
 
+// TODO: re-enable once UI template changes stabilise
 test.describe.skip("Brand Settings - UI Templates", () => {
   test.describe("Login UI Templates", () => {
     test.beforeEach(async ({ page }) => {
@@ -96,7 +98,7 @@ test.describe.skip("Brand Settings - UI Templates", () => {
     });
     test("Login with item in basket", async ({ page, context, request }) => {
       await page.goto(URLs.login);
-      await page.waitForLoadState("networkidle");
+      await waitForSessionCookie(context);
       token = await getSessionToken(page.context());
       let order = await createOrder(token);
       orderId = order.id;
@@ -226,7 +228,7 @@ test.describe.skip("Brand Settings - UI Templates", () => {
       request
     }) => {
       await page.goto(URLs.login);
-      await page.waitForLoadState("networkidle");
+      await waitForSessionCookie(context);
       token = await getSessionToken(page.context());
       let order = await createOrder(token);
       orderId = order.id;
@@ -263,7 +265,7 @@ test.describe.skip("Brand Settings - UI Templates", () => {
   test.describe("Product Config UI Templates", () => {
     test("Fallback to default (Two Column (RTL))", async ({ page }) => {
       await page.goto(URLs.starterHosting);
-      await page.waitForLoadState("networkidle");
+      await waitForSessionCookie(page.context());
       await expect(page.locator("body")).toHaveScreenshot(
         "product-config-fallback.png"
       );
@@ -273,7 +275,7 @@ test.describe.skip("Brand Settings - UI Templates", () => {
         "@context.configure.template": "full"
       });
       await page.goto(URLs.starterHosting);
-      await page.waitForLoadState("networkidle");
+      await waitForSessionCookie(page.context());
       await expect(page.locator("body")).toHaveScreenshot(
         "product-config-full.png"
       );
@@ -287,7 +289,7 @@ test.describe.skip("Brand Settings - UI Templates", () => {
         "@context.configure.template": "two-column-ltr"
       });
       await page.goto(URLs.starterHosting);
-      await page.waitForLoadState("networkidle");
+      await waitForSessionCookie(page.context());
       await expect(page.locator("body")).toHaveScreenshot(
         "product-config-two-column-ltr.png"
       );
@@ -301,7 +303,7 @@ test.describe.skip("Brand Settings - UI Templates", () => {
         "@context.configure.template": "two-column-rtl"
       });
       await page.goto(URLs.starterHosting);
-      await page.waitForLoadState("networkidle");
+      await waitForSessionCookie(page.context());
       await expect(page.locator("body")).toHaveScreenshot(
         "product-config-two-column-rtl.png"
       );
@@ -315,7 +317,7 @@ test.describe.skip("Brand Settings - UI Templates", () => {
         "@context.configure.template": "enclosed"
       });
       await page.goto(URLs.starterHosting);
-      await page.waitForLoadState("networkidle");
+      await waitForSessionCookie(page.context());
       await expect(page.locator("body")).toHaveScreenshot(
         "product-config-enclosed.png"
       );
@@ -326,8 +328,8 @@ test.describe.skip("Brand Settings - UI Templates", () => {
       await page.goto(URLs.login);
       await getClientToken(
         page,
-        Logins.UiTesting.username,
-        Logins.UiTesting.password
+        Logins.uiTesting.username,
+        Logins.uiTesting.password
       );
       await page.reload();
       token = await getSessionToken(page.context());
@@ -353,7 +355,7 @@ test.describe.skip("Brand Settings - UI Templates", () => {
     });
     test("Fallback to default (Two Column (LTR))", async ({ page }) => {
       await page.goto(URLs.basket);
-      await page.waitForLoadState("networkidle");
+      await waitForSessionCookie(page.context());
       await expect(page.locator("body")).toHaveScreenshot(
         "basket-product-fallback.png"
       );
@@ -363,7 +365,7 @@ test.describe.skip("Brand Settings - UI Templates", () => {
         "@context.basket.template": "full"
       });
       await page.goto(URLs.basket);
-      await page.waitForLoadState("networkidle");
+      await waitForSessionCookie(page.context());
       await expect(page.locator("body")).toHaveScreenshot(
         "basket-product-full.png"
       );
@@ -377,7 +379,7 @@ test.describe.skip("Brand Settings - UI Templates", () => {
         "@context.basket.template": "two-column-ltr"
       });
       await page.goto(URLs.basket);
-      await page.waitForLoadState("networkidle");
+      await waitForSessionCookie(page.context());
       await expect(page.locator("body")).toHaveScreenshot(
         "basket-product-two-column-ltr.png"
       );
@@ -391,7 +393,7 @@ test.describe.skip("Brand Settings - UI Templates", () => {
         "@context.basket.template": "two-column-rtl"
       });
       await page.goto(URLs.basket);
-      await page.waitForLoadState("networkidle");
+      await waitForSessionCookie(page.context());
       await expect(page.locator("body")).toHaveScreenshot(
         "basket-product-two-column-rtl.png"
       );
@@ -405,7 +407,7 @@ test.describe.skip("Brand Settings - UI Templates", () => {
         "@context.basket.template": "enclosed"
       });
       await page.goto(URLs.basket);
-      await page.waitForLoadState("networkidle");
+      await waitForSessionCookie(page.context());
       await expect(page.locator("body")).toHaveScreenshot(
         "basket-product-enclosed.png"
       );
@@ -416,8 +418,8 @@ test.describe.skip("Brand Settings - UI Templates", () => {
       await page.goto(URLs.login);
       await getClientToken(
         page,
-        Logins.UiTesting.username,
-        Logins.UiTesting.password
+        Logins.uiTesting.username,
+        Logins.uiTesting.password
       );
       await page.reload();
       token = await getSessionToken(page.context());
@@ -443,7 +445,7 @@ test.describe.skip("Brand Settings - UI Templates", () => {
     });
     test("Fallback to default (Two Column (LTR))", async ({ page }) => {
       await page.goto(URLs.basket);
-      await page.waitForLoadState("networkidle");
+      await waitForSessionCookie(page.context());
       await expect(page.locator("body")).toHaveScreenshot(
         "basket-fallback.png"
       );
@@ -453,7 +455,7 @@ test.describe.skip("Brand Settings - UI Templates", () => {
         "@context.basket.template": "full"
       });
       await page.goto(URLs.basket);
-      await page.waitForLoadState("networkidle");
+      await waitForSessionCookie(page.context());
       await expect(page.locator("body")).toHaveScreenshot("basket-full.png");
     });
     test("Two Column (LTR) Basket Template", async ({
@@ -465,7 +467,7 @@ test.describe.skip("Brand Settings - UI Templates", () => {
         "@context.basket.template": "two-column-ltr"
       });
       await page.goto(URLs.basket);
-      await page.waitForLoadState("networkidle");
+      await waitForSessionCookie(page.context());
       await expect(page.locator("body")).toHaveScreenshot(
         "basket-two-column-ltr.png"
       );
@@ -479,7 +481,7 @@ test.describe.skip("Brand Settings - UI Templates", () => {
         "@context.basket.template": "two-column-rtl"
       });
       await page.goto(URLs.basket);
-      await page.waitForLoadState("networkidle");
+      await waitForSessionCookie(page.context());
       await expect(page.locator("body")).toHaveScreenshot(
         "basket-two-column-rtl.png"
       );
@@ -489,7 +491,7 @@ test.describe.skip("Brand Settings - UI Templates", () => {
         "@context.basket.template": "enclosed"
       });
       await page.goto(URLs.basket);
-      await page.waitForLoadState("networkidle");
+      await waitForSessionCookie(page.context());
       await expect(page.locator("body")).toHaveScreenshot(
         "basket-enclosed.png"
       );
@@ -501,8 +503,8 @@ test.describe.skip("Brand Settings - UI Templates", () => {
       await page.goto(URLs.login);
       await getClientToken(
         page,
-        Logins.UiTesting.username,
-        Logins.UiTesting.password
+        Logins.uiTesting.username,
+        Logins.uiTesting.password
       );
       await page.reload();
       token = await getSessionToken(page.context());
@@ -526,7 +528,7 @@ test.describe.skip("Brand Settings - UI Templates", () => {
     });
     test("Fallback to Default (Two Column LTR)", async ({ page }) => {
       await page.goto(URLs.checkout);
-      await page.waitForLoadState("load");
+      await waitForSessionCookie(page.context());
       await expect(checkout.paymentDetails).toBeVisible();
       await expect(page.locator("body")).toHaveScreenshot(
         "checkout-fallback-default.png",
@@ -538,7 +540,7 @@ test.describe.skip("Brand Settings - UI Templates", () => {
         "@context.checkout.template": "full"
       });
       await page.goto(URLs.checkout);
-      await page.waitForLoadState("load");
+      await waitForSessionCookie(page.context());
       await expect(checkout.paymentDetails).toBeVisible();
       await expect(page.locator("body")).toHaveScreenshot("checkout-full.png", {
         mask: [page.locator("dt")]
@@ -553,6 +555,7 @@ test.describe.skip("Brand Settings - UI Templates", () => {
         "@context.checkout.template": "two-column-ltr"
       });
       await page.goto(URLs.checkout);
+      await waitForSessionCookie(page.context());
       await expect(checkout.paymentDetails).toBeVisible();
       (await expect(page.locator("body")).toHaveScreenshot(
         "checkout-two-column-ltr.png"
@@ -568,7 +571,7 @@ test.describe.skip("Brand Settings - UI Templates", () => {
         "@context.checkout.template": "two-column-rtl"
       });
       await page.goto(URLs.checkout);
-      await page.waitForLoadState("load");
+      await waitForSessionCookie(page.context());
       await expect(checkout.paymentDetails).toBeVisible();
       await expect(page.locator("body")).toHaveScreenshot(
         "checkout-two-column-rtl.png",
