@@ -423,23 +423,6 @@ export const useBasket = () => {
     send({ type: "PREFRESH", data });
   }
 
-  /**
-   * Waits for an in-flight basket refresh to settle. Use this after operations
-   * that trigger a refresh out-of-band (e.g. basketProduct.updateMany) to
-   * ensure the basket has re-validated before reading its state.
-   */
-  async function waitForRefresh(): Promise<boolean> {
-    return waitFor(
-      service,
-      state => stateMatches(state, ["shopping.refreshing.processed", "error"]),
-      { timeout: 60_000 }
-    )
-      .then(() => {
-        return !stateMatches(state, "error");
-      })
-      .catch(() => false);
-  }
-
   function dismissAllWarnings(): void {
     send({ type: "DISMISS_ALL_WARNINGS" });
   }
