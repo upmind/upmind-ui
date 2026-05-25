@@ -17,7 +17,7 @@ Exports two auth-enabled fixtures:
 - **`newUser`** — registers a brand-new client via the API on every test, and gives you `checkout`, `confirmation`, `session`, and `token` fixtures alongside `page`/`context`. This is the default for anything that exercises the checkout pipeline from a fresh-account perspective.
 - **`registeredUser`** — logs in as a caller-provided username/password. Set via `registeredUser.use({ userLogin: ..., userPassword: ... })` at the describe level. Less common than `newUser`.
 
-Both fixtures poll for the `upm_guest_session` / `upm_client_session` cookie with `expect.poll(...).toBeTruthy()` before calling the API — this is critical; without it, the OAuth call often races the cookie write.
+Both fixtures call `waitForSessionCookie` from [helpers/session.ts](../e2e/support/helpers/session.ts) before calling the API — this is critical; without it, the OAuth call often races the cookie write.
 
 ### [index.ts](../e2e/support/fixtures/index.ts)
 
@@ -79,10 +79,12 @@ These are raw functional helpers — no state, no class, just a function that pe
 
 ## `support/helpers/` — tiny shared utilities
 
+- [catalogue.ts](../e2e/support/helpers/catalogue.ts) — `overrideBasketProductsLimit(page, limit)` intercepts `GET /api/basket/products?...` and rewrites the `limit` query param so an in-situ catalogue spec can render many products on a single page without paginating.
 - [dates.ts](../e2e/support/helpers/dates.ts) — `getFormattedDate()` (e.g. `Apr 23rd, 2026`) and `getTimestamp()` (`YYYY-MM-DD HH:MM:SS`). Used by tests that assert on visible order dates.
 - [gtm.ts](../e2e/support/helpers/gtm.ts) — `getDataLayer(page)` pulls the current `window.dataLayer`; `waitForEvent(page, eventName)` polls the data layer until a specific event appears.
 - [locale.ts](../e2e/support/helpers/locale.ts) — `setLocale(page, value)` writes `i18n/locale` into localStorage and reloads. Used extensively in visual regression.
 - [navigation.ts](../e2e/support/helpers/navigation.ts) — `waitForUrlChange(page, expectedUrl)` thin wrapper around `page.waitForURL`.
+- [session.ts](../e2e/support/helpers/session.ts) — `waitForSessionCookie(context, { timeout, guestOnly })` polls `context.cookies()` until either `upm_guest_session` or `upm_client_session` is present (or just the guest cookie when `guestOnly: true`). Used by the auth fixtures and anywhere a test needs to read a session token shortly after navigation.
 - [strings.ts](../e2e/support/helpers/strings.ts) — `kebabCase(input)` used anywhere we template a testid off a user-visible label.
 
 ## `support/constants/` — shared test data
@@ -93,7 +95,9 @@ These are raw functional helpers — no state, no class, just a function that pe
 - [languages.ts](../e2e/support/constants/languages.ts) — 28 supported locales as `{ language, locale }`. Used by all visual-regression locale loops.
 - [brand.ts](../e2e/support/constants/brand.ts) — `slotTemplates` map: per-surface list of template slot names for the brand-settings tests.
 - [default-payment-terms.ts](../e2e/support/constants/default-payment-terms.ts) — the four `termSetting` → `radioOption` mappings for the default-payment-terms tests.
+- [domain-suggestions.ts](../e2e/support/constants/domain-suggestions.ts) — canned suggestion rows + matching `DomainSuggestionProduct` payloads (with stable `domainProductIds`) for the DAC smart-suggest split-endpoint specs. Pairs with [mocks/domain.ts](../e2e/support/mocks/domain.ts).
 - [error-codes.ts](../e2e/support/constants/error-codes.ts) — catalogue of error scenarios: route, URL, HTTP status, response body, expected button testid, expected error UI (`dialog`, `redirect`, or `toast`). Consumed by [error-handling.spec.ts](../e2e/e2e-tests/errors/error-handling.spec.ts).
+- [test-data.ts](../e2e/support/constants/test-data.ts) — `TEST_EMAILS`: non-login emails typed into UI forms (domain registrant, SEPA, iDEAL). These are **not** login accounts — for credentials use `Logins`.
 - [checkout/payment-cards/](../e2e/support/constants/checkout/payment-cards/) — catalogues of Stripe test cards, grouped by outcome: `AcceptedCards`, `DeclinedCards`, `FraudChecks`, `3dSecureCards`, `InvalidData` (the last with expected error text per card).
 - [checkout/test-cases/](../e2e/support/constants/checkout/test-cases/) — domain-specific test matrices (`DevBlocks`, `StarterHosting`, domains `Com`/`Uk`) used for parametric product-config tests.
 
@@ -106,6 +110,7 @@ All functions register a `context.route` (or `page.route`) handler. They are ide
 | [brand.ts](../e2e/support/mocks/brand.ts) | `interceptConfigValues` (brand config: require address, company, phone, price-display type); `interceptTermsAndConditions` (override T&Cs); `interceptUISchema` (set `@context.*.template` and other cart meta keys); `interceptSlots` (inject HTML into a named template slot). |
 | [checkout.ts](../e2e/support/mocks/checkout.ts) | `mockStripeCardDecline` (force a 402 from Stripe's `/v1/payment_methods`); `mockCorsPreflightRequests` (blanket CORS OPTIONS passthrough — useful when debugging flaky cross-origin preflights). |
 | [client.ts](../e2e/support/mocks/client.ts) | `mockClientAddresses` — intercepts `GET /api/clients/{id}/addresses` and rewrites the first address to 10 Downing Street with a realistic country relation. |
+| [domain.ts](../e2e/support/mocks/domain.ts) | DAC smart-suggest split-endpoint mocks: `mockDomainSuggestions` (`/modules/web_hosting/domains/suggestions`), `mockDomainSuggestionsTlds` (`.../suggestions/tlds`), `mockDomainAvailability` (`.../availability/{domain}`). Each is fully synthetic so tests can control row content, paging and resolution order; `latencyMs` lets a spec slow one call down to assert the progressive-render contract (suggestions → price skeletons → tlds → prices). |
 | [errors.ts](../e2e/support/mocks/errors.ts) | `returnError(page, route, errorCode, responseError)` — fulfil any route with an error response in the Upmind standard shape. |
 | [orders.ts](../e2e/support/mocks/orders.ts) | `orderUpdated(page, orderId, timeout)` (waits for a PUT to `/api/orders/{id}`); `overrideWarningNotes(page, message)` (injects a warning note into `GET /api/orders/current`). |
 | [patch-response.ts](../e2e/support/mocks/patch-response.ts) | `interceptAndPatchResponse(context, urlPattern, path, newValue)` — surgical deep-key set via a dotted path (`data.products.0.price`). |
@@ -143,6 +148,7 @@ One class per major surface. These hold all the locators for that surface and ex
 | [billing-page.ts](../e2e/support/page-objects/templates/billing-page.ts) | `BillingPage` — the standalone `/order/billing` page (less common). |
 | [checkout.ts](../e2e/support/page-objects/templates/checkout.ts) | `Checkout` — the big one. Payment method selection, Stripe iframe input (cards, SEPA, iDEAL), change-amount modal, billing card edit, place-order buttons, payment response interception. |
 | [confirmation.ts](../e2e/support/page-objects/templates/confirmation.ts) | `Confirmation` — order summary, invoice number, order date, payment method. |
+| [dac.ts](../e2e/support/page-objects/templates/dac.ts) | `Dac` — Domain Availability Checker. Used on both the standalone `/domains/` page and inside the Register / Transfer accordions on a product config page (testids are shared across the two surfaces). Holds locators for result cards, price/button loading skeletons, pagination, and the transfer-mode input. |
 | [footer.ts](../e2e/support/page-objects/templates/footer.ts) | `Footer` — currency and language selectors. |
 | [login.ts](../e2e/support/page-objects/templates/login.ts) | `Login` — both the standalone `/auth/login/` page and the login popover opened from other pages. Includes `twoFactorInput` for 2FA tests. |
 | [product-config.ts](../e2e/support/page-objects/templates/product-config.ts) | `ProductConfig` — the most complex. Holds locators for options, billing terms, domain registration/transfer/existing/basket accordions, registrant fields, order summary, trial opt-in, plus composed actions like `addDomain` and `enterRegistrantDetails`. Aggregates many of the component classes. |
@@ -151,7 +157,3 @@ One class per major surface. These hold all the locators for that surface and ex
 ## `support/secrets/` — external-account credentials
 
 - [paypal.ts](../e2e/support/secrets/paypal.ts) — PayPal **sandbox** buyer credentials used by [paypal.spec.ts](../e2e/e2e-tests/checkout/payment-gateways/paypal.spec.ts). Not real money; still, don't check this file's credentials into any public repo. See section 7 for more on how credentials like this are handled.
-
-## `support/utils/` — reserved
-
-Currently empty. Reserved for future cross-cutting utilities that don't fit any of the other buckets.

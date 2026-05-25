@@ -31,7 +31,6 @@ async function setupCatalogue(page: Page, funnelling: "none" | "next_step") {
   const token = await getSessionToken(page.context());
   await interceptConfigValues(page, token, { basketFunnelling: funnelling });
   await page.goto(URLs.catalogueRoot1);
-  await page.waitForLoadState("load");
   await expect(page.getByTestId("products-grid")).toBeVisible();
 }
 test.describe("In-Situ Catalogue Adds @in-situ-catalogue", () => {
@@ -113,12 +112,10 @@ test.describe("In-Situ Catalogue Adds @in-situ-catalogue", () => {
       const { id } = products.HAT;
       const card = productCard(page, id);
       await card.getByTestId("button-add-to-basket").click();
-      await page.waitForTimeout(2000);
       await expect(card.getByTestId("button-in-basket")).toBeVisible({
         timeout: 10000
       });
       await card.getByTestId("button-in-basket").click();
-      await page.waitForTimeout(2000);
       await page.goto(URLs.basket);
       const basket = new Basket(page);
       await expect(

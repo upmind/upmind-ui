@@ -21,6 +21,7 @@ import {
   some
 } from "lodash-es";
 import {
+  hasProductChanges,
   parseBasket,
   parseSummary,
   spawnBilling,
@@ -150,6 +151,7 @@ export default createMachine(
                     actions: [
                       "setError",
                       "updateBasket",
+                      "clearProvisioningStale",
                       "refreshActors",
                       "setWarningNotes"
                     ]
@@ -476,7 +478,12 @@ export default createMachine(
       REFRESH: [
         {
           target: "#refreshing.processing", // ideally we dont need to refresh cause the response has the updated basket WITH relations
-          actions: ["updateBasket", "refreshActors", "setWarningNotes"],
+          actions: [
+            "markProvisioningStale",
+            "updateBasket",
+            "refreshActors",
+            "setWarningNotes"
+          ],
           cond: "hasNewBasket"
         },
 
@@ -493,7 +500,7 @@ export default createMachine(
        */
       PREFRESH: [
         {
-          actions: ["updateBasket", "prefreshActors"],
+          actions: ["markProvisioningStale", "updateBasket", "prefreshActors"],
           cond: "hasNewBasket"
         }
       ],
@@ -534,8 +541,23 @@ export default createMachine(
         }
       }),
 
+      // Must run before `updateBasket` so the comparison sees the pre-merge basket.
+      markProvisioningStale: assign({
+        provisioningStale: (
+          { basket, provisioningStale }: BasketContext,
+          { data }: AnyEventObject
+        ) =>
+          provisioningStale ||
+          hasProductChanges(basket, get(data, "basket", data))
+      }),
+
+      clearProvisioningStale: assign({
+        provisioningStale: false
+      }),
+
       clearBasket: assign({
         basket: undefined,
+        provisioningStale: false,
         products: undefined,
         summary: undefined,
         error: undefined,
