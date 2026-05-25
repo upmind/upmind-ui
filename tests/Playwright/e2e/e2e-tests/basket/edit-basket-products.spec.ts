@@ -12,6 +12,7 @@ import {
 import { interceptUISchema } from "../../support/mocks/brand";
 import { waitForSessionCookie } from "../../support/helpers/session";
 import { products } from "../../support/constants/products";
+import { TEST_EMAILS } from "../../support/constants/test-data";
 
 let productConfig: ProductConfig;
 let basket: Basket;
@@ -89,7 +90,7 @@ test.describe("Edit domain product in basket", () => {
         update_registrant_address_city: `${fakerEN_GB.location.city()}`,
         update_registrant_address_country_code: "GB",
         update_registrant_address_postcode: `${fakerEN_GB.location.zipCode()}`,
-        update_registrant_email: "nathan.robinson+domaintester@upmind.com",
+        update_registrant_email: TEST_EMAILS.domainRegistrant,
         update_registrant_name: "Domain Tester",
         update_registrant_organisation: "Domain Testinc Inc",
         update_registrant_phone: "+447111111111"

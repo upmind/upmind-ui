@@ -54,7 +54,10 @@ export const useRegisterSchemaParser = (data: any) => {
         title: "Your password",
         format: "password",
         minLength: 8,
-        pattern: "(?=.*[a-z])(?=.*\\d)"
+        // Lookaheads require: at least one letter, at least one digit, at least
+        // one non-alphanumeric. Mirrors the rule set used by the strength meter
+        // and the `auth_password.error.*` i18n keys — keep these in lockstep.
+        pattern: "(?=.*[a-zA-Z])(?=.*\\d)(?=.*[^a-zA-Z0-9])"
       },
       phone: {
         type: ["object", "null"],
@@ -139,10 +142,16 @@ export const useRegisterUischemaParser = (data: any) => {
           type: "password",
           autocomplete: "new-password",
           placeholder: "Use a strong password or passphrase",
+          // Per-rule regexes the password renderer tests against to resolve
+          // which rule failed — unmet keys map to `auth_password.error.*`
+          // (e.g. `letter` unmet → `missing_letter`, `min_length` unmet →
+          // `min_length_<other-unmet>`). Keep these rules, the schema
+          // `pattern` above, and the `error` i18n keys in lockstep.
           requirements: {
             min_length: ".{8,}",
-            lowercase: "(?=.*[a-z])",
-            number: "(?=.*\\d)"
+            letter: "(?=.*[a-zA-Z])",
+            number: "(?=.*\\d)",
+            symbol: "(?=.*[^a-zA-Z0-9])"
           }
         }
       },
@@ -258,20 +267,26 @@ export const use2faSchemaParser = () => {
   };
 };
 
-export const use2faUischemaParser = (provider?: TwofaProviders) => {
-  let i18nKey: string;
-
-  switch (provider) {
-    case TwofaProviders.EMAIL:
-      i18nKey = "form.twofa_email";
-      break;
-    case TwofaProviders.TOTP:
-      i18nKey = "form.twofa_totp";
-      break;
-    default:
-      i18nKey = "form.twofa";
-      break;
+// Per-provider 2FA UI defaults.
+const TWOFA_PROVIDER_OPTIONS = {
+  [TwofaProviders.EMAIL]: {
+    i18n: "form.twofa_email",
+    autocomplete: "off"
+  },
+  [TwofaProviders.TOTP]: {
+    i18n: "form.twofa_totp",
+    autocomplete: "one-time-code"
   }
+} as const;
+
+const TWOFA_DEFAULT_OPTIONS = {
+  i18n: "form.twofa",
+  autocomplete: "off"
+} as const;
+
+export const use2faUischemaParser = (provider?: TwofaProviders) => {
+  const { i18n, ...controlOptions } =
+    (provider && TWOFA_PROVIDER_OPTIONS[provider]) ?? TWOFA_DEFAULT_OPTIONS;
 
   return {
     type: "VerticalLayout",
@@ -279,11 +294,11 @@ export const use2faUischemaParser = (provider?: TwofaProviders) => {
       {
         type: "Control",
         scope: "#/properties/token",
-        i18n: i18nKey,
+        i18n,
         options: {
           format: "otp",
           autoFocus: true,
-          autocomplete: "off"
+          ...controlOptions
         }
       }
     ]

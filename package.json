@@ -58,7 +58,11 @@
     "allure:open": "npx --no-install allure open tests/Playwright/e2e/reports/allure-report",
     "allure:serve": "pnpm allure:generate && npx --no-install allure open tests/Playwright/e2e/reports/allure-report",
     "allure:publish:local": "bash tests/Playwright/scripts/allure-publish-local.sh",
-    "allure:index": "node tests/Playwright/scripts/allure-index.mjs"
+    "allure:index": "node tests/Playwright/scripts/allure-index.mjs",
+    "graph": "bash .agent/scripts/graphify/refresh.sh",
+    "graph:check": "bash .agent/scripts/graphify/refresh.sh --check",
+    "graph:open": "open graphify-out/graph.html",
+    "graph:open:modules": "open graphify-out/graph-modules.html"
   },
   "devDependencies": {
     "@faker-js/faker": "^9.9.0",

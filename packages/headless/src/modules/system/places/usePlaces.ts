@@ -54,7 +54,12 @@ export const usePlaces = () => {
       .then(service => (places = service));
   }
 
-  const { getRegions, getCountry, isReady: isSystemReady } = useSystem();
+  const {
+    getRegions,
+    getCountry,
+    ensureCountries,
+    isReady: isSystemReady
+  } = useSystem();
   // --- state
 
   async function isReady(): Promise<boolean> {
@@ -80,6 +85,9 @@ export const usePlaces = () => {
   ): Promise<PlacePredictions> {
     // Return early if the query is empty or places is not ready
     if (!places || isEmpty(query)) return [];
+
+    // Ensure countries are loaded before accessing getCountry
+    await ensureCountries();
 
     // get our country and ensure we have regions for it
     const countryCode = getCountry(countryId)?.code;

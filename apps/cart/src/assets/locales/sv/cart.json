@@ -23,7 +23,7 @@
   "basket_summary_desc_free": "Du har {count} vara i din varukorg. | Du har {count} varor i din varukorg.",
   "basket_summary_taxes_desc": "Du har{count} vara i din varukorg, totalt{total} ({tax} ) | Du har{count} varor i din varukorg, totalt{total} ({tax} )",
   "basket_tax_excl": "exkl. skatter",
-  "basket_tax_incl": "incl. taxes",
+  "basket_tax_incl": "inkl. skatter",
   "basket_title": "Din varukorg",
   "change_amount": "Ändra belopp",
   "empty": "Din **korg** är tom",
@@ -67,5 +67,6 @@
   "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}",
   "show_more_payment_options": "Visa fler betalningsalternativ",
   "stored_payment_methods_limited_desc": "Alla betalningsmetoder är inte synliga eftersom de inte är tillgängliga för ditt land eller din valuta.",
-  "stored_payment_methods_limited_title": "Begränsade betalningsmetoder"
+  "stored_payment_methods_limited_title": "Begränsade betalningsmetoder",
+  "warning_notes_title": "Varning för varukorg | Varningar för varukorg"
 }

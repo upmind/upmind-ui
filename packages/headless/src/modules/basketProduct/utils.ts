@@ -64,6 +64,7 @@ import {
 import type {
   BasketProduct,
   BasketOptionSummary,
+  BasketUpsellSummary,
   IBasketProductModel,
   IBasketSubproductModel
 } from "./types";
@@ -100,6 +101,9 @@ export const parseBasketProduct = (
 
     // --- product details
     productDetails: parseProductDetails(raw.product, raw),
+
+    // --- source IProduct for product.* conditional state on basket screens
+    product: raw.product,
 
     // --- meta details
     meta: pricing.meta,
@@ -142,15 +146,6 @@ export const parseBasketProduct = (
         basketProduct.pricing.push(subproduct);
 
       subproduct.name = "option";
-
-      // Enrich with toggle metadata from available options
-      const toggle = resolveOptionToggle(
-        subproduct.id,
-        basketProduct.availableOptions
-      );
-      if (toggle) {
-        set(subproduct, "meta.toggle", toggle);
-      }
 
       basketProduct.details.push(subproduct as ProductSummaryDetailWithPrice);
     }
@@ -214,7 +209,7 @@ export function parsSummaryWithPrice(
     discounted: raw.configuration_net_amount_discount_converted > 0,
     free: raw.configuration_net_amount_discounted_converted == 0,
     freeTrial: !!raw?.in_trial,
-    overridden: raw.price_type === "manual",
+    custom: raw.price_type === "manual",
     renewalPrice: find(raw.product?.prices, {
       billing_cycle_months: raw.billing_cycle_months,
       currency_id: raw.base_price_currency_id
@@ -288,11 +283,11 @@ export function parsePrice(raw: IBasketProduct): PriceDetail {
       ? raw.total_amount_formatted
       : raw.net_selling_price_formatted,
     discount: includesTax.value
-      ? raw.total_discount_amount
-      : raw.net_product_discount_amount,
+      ? raw.configuration_total_discount_amount_converted
+      : raw.configuration_net_amount_discount_converted,
     discountFormatted: includesTax.value
-      ? raw.total_discount_amount_formatted
-      : raw.net_product_discount_amount_formatted
+      ? raw.configuration_total_discount_amount_formatted
+      : raw.configuration_net_amount_discount_formatted
   };
 
   return {
@@ -387,17 +382,16 @@ export function resolveOptionToggle(
 }
 
 export function parseOptionUpsells(
-  selectedOptions: IBasketProduct[],
+  selectedOptions: Pick<IBasketProduct, "product_id" | "unit_quantity">[],
   availableOptions?: SubproductDetails[]
-): BasketOptionSummary[] {
+): BasketUpsellSummary[] {
   if (isEmpty(availableOptions)) return [];
-
-  const selectedIds = map(selectedOptions, "product_id");
 
   return flatMap(availableOptions, option =>
     compact(
       map(option.values, (value: SubproductValue) => {
-        const selected = includes(selectedIds, value.id);
+        const selectedOption = find(selectedOptions, { product_id: value.id });
+        const selected = !!selectedOption;
         if (!selected && !value.price) return undefined;
 
         return {
@@ -406,23 +400,27 @@ export function parseOptionUpsells(
           title: value.title,
           category: option.title,
           cycle: value.cycle,
-          quantity: value.quantity,
+          quantity: selectedOption?.unit_quantity ?? value.quantity,
+          min: value.min,
+          max: value.max,
+          step: value.step,
           promotions: value.promotions,
           uiMeta: value.uiMeta,
           meta: {
             ...value.meta,
-            toggle: {
-              categoryId: option.id,
-              valueId: value.id,
-              cycle: value.cycle ?? 0,
-              selected,
-              benefits: map(value.benefits, (b: Benefit) =>
-                isString(b) ? { label: b } : b
-              )
-            }
+            quantifiable: value.quantifiable
+          },
+          toggle: {
+            categoryId: option.id,
+            valueId: value.id,
+            cycle: value.cycle ?? 0,
+            selected,
+            benefits: map(value.benefits, (b: Benefit) =>
+              isString(b) ? { label: b } : b
+            )
           },
           price: value.price
-        } as BasketOptionSummary;
+        } as BasketUpsellSummary;
       })
     )
   );

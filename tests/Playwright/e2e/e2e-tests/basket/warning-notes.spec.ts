@@ -1,12 +1,12 @@
 import { test, expect } from "@playwright/test";
 import { Basket } from "../../support/page-objects/templates/basket";
 import { URLs } from "../../support/constants/urls";
-import { getSessionToken } from "../../support/api/auth";
 import {
+  getSessionToken,
   createOrder,
-  addProductToOrder,
-  overrideWarningNotes
-} from "../../support/api/basket";
+  addProductToOrder
+} from "../../support/api/index";
+import { overrideWarningNotes } from "../../support/mocks/orders";
 import { waitForSessionCookie } from "../../support/helpers/session";
 let basket: Basket;
 
@@ -36,11 +36,11 @@ test.describe("Basket - Displaying Warning Notes", () => {
     await overrideWarningNotes(page, "This is a warning note");
     await page.goto(URLs.basket);
     await expect(basket.basketProductSummary).toBeVisible();
-    const toast = page.getByRole("status");
-    await toast.waitFor();
-    await expect(toast).toBeVisible();
-    await expect(toast).toContainText("This is a warning note");
-    await toast.getByRole("button").click();
-    await expect(toast).not.toBeVisible();
+    const alert = page.getByTestId("basket-alert");
+    await alert.waitFor();
+    await expect(alert).toBeVisible();
+    await expect(alert).toContainText("This is a warning note");
+    await alert.getByTestId("link-dismiss-all").click();
+    await expect(alert).not.toBeVisible();
   });
 });

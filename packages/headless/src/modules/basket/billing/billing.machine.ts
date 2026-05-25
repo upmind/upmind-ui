@@ -168,7 +168,13 @@ export default createMachine(
 
       processed: {
         id: "processed",
-        entry: sendParent({ type: "REFRESH" }),
+        entry: [
+          sendParent((_ctx: BillingContext, { data }: AnyEventObject) => ({
+            type: "PREFRESH",
+            data
+          })),
+          sendParent({ type: "REFRESH" })
+        ],
         after: {
           wait: {
             target: "#complete"

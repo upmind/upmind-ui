@@ -15,7 +15,8 @@ There is also a small `tests/Playwright/specs/` directory used only as a seed ar
 - **Base URL:** `http://qa-automation.local:5173/` — resolves to the local Vite dev server that Playwright boots automatically via the `webServer` config.
 - **API target:** `https://api.staging.upmind.io` — tests **hit real staging**, they are not sandboxed. Be mindful that API calls create and update actual records on staging, so you will need to think about this when designing tests unless you want to implement a local test env.
 - **Browser projects:** `chrome`, `firefox`, `safari` - See [playwright.config.ts:72-108](../../playwright.config.ts#L72-L108).
-- **Retries:** `0` by default. Tests are expected to be deterministic; flaky tests should be fixed, not retried.
+- **Retries:** `1` by default. The single retry exists to absorb the occasional staging API hiccup — flaky tests should still be fixed at the root rather than masked by it.
+- **Parallelism:** `fullyParallel: true` is the global default — Playwright parallelises across files AND within a single file. Tests that depend on a shared staging login (any user from `Logins`) must opt into serial mode; see [04 — A note on test isolation](04-writing-tests.md#a-note-on-test-isolation).
 - **Viewport:** 1920×1080 everywhere, animations disabled via a launch arg (`--disable-animations`) and explicit CSS injection in visual regression tests.
 
 ## Quick orientation cheatsheet
@@ -37,4 +38,8 @@ When you just need to run the tests right now:
 5. [Support Library Reference](05-support-library.md) — every file under `support/` explained.
 6. [Visual Regression Testing](06-visual-regression.md) — screenshots, locales, and snapshot management.
 7. [Special Test Setups & Gotchas](07-special-setups.md) — 2FA/OTP, PayPal sandbox, Stripe cards, session cookies, and other tribal knowledge.
-8. [Allure Dashboard](08-allure-dashboard.md) — shared test-results dashboard on GCS, trends, publishing local runs, comparing branches.
+8. [QA Handover — Nathan → Dom](08-qa-handover.md) — captured principles, mocking philosophy, AI-assisted generation flow, and open follow-ups from Nathan's pre-departure handover (2026-05-21).
+9. [Cucumber/Gherkin Evaluation](09-cucumber-evaluation.md) — research artefact backing the decision on whether to adopt Gherkin as a planning/spec language for tests.
+10. [Writing `.feature` Files — Style Guide](10-feature-style.md) — the declarative-style rules for Gherkin specs. The load-bearing convention behind our Option-B adoption.
+11. [Authoring Tests for a Story](11-authoring-tests.md) — end-to-end guide for devs: Linear AC → `.feature` spec → Playwright test → PR. The new workflow shape.
+12. [Allure Dashboard](08-allure-dashboard.md) — shared test-results dashboard on GCS, trends, publishing local runs, comparing branches.

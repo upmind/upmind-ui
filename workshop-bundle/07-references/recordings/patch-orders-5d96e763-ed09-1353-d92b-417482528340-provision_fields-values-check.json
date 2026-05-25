@@ -1,0 +1,16 @@
+{
+  "request": {
+    "method": "PATCH",
+    "path": "/api/orders/5d96e763-ed09-1353-d92b-417482528340/provision_fields/values/check?lang=en"
+  },
+  "response": {
+    "status": 200,
+    "body": {
+      "status": "ok",
+      "data": null,
+      "total": null,
+      "error": null,
+      "messages": []
+    }
+  }
+}
