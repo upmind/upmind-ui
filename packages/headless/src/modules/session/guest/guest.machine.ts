@@ -43,7 +43,7 @@ import { cloneDeep, omit } from "lodash-es";
 
 // --- types
 import { responseCodes } from "../../../utils";
-import { GrantTypes } from "@upmind-automation/types";
+import { GrantTypes, TwofaProviders } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 export default createMachine(
@@ -170,6 +170,15 @@ export default createMachine(
                       target: "#error",
                       actions: ["setError"],
                       cond: "isTooManyAttempts"
+                    },
+                    {
+                      target: "challenging.invalid",
+                      actions: [
+                        "setError",
+                        "setFeedbackError",
+                        "clear2faToken"
+                      ],
+                      cond: "isEmailTwofa"
                     },
                     {
                       target: "challenging.invalid",
@@ -320,6 +329,15 @@ export default createMachine(
                     },
                     {
                       target: "challenging.invalid",
+                      actions: [
+                        "setError",
+                        "setFeedbackError",
+                        "clear2faToken"
+                      ],
+                      cond: "isEmailTwofa"
+                    },
+                    {
+                      target: "challenging.invalid",
                       actions: ["setError", "setFeedbackError"]
                     }
                   ]
@@ -461,6 +479,10 @@ export default createMachine(
         token: (_context: GuestContext, { data }: AnyEventObject) => data
       }),
 
+      clear2faToken: assign({
+        model: ({ model }: GuestContext) => ({ ...model, token: "" })
+      }),
+
       persistModel: assign({
         baseModel: ({ model }: GuestContext) => cloneDeep(model)
       }),
@@ -532,7 +554,9 @@ export default createMachine(
       isTooManyAttempts: (_context: GuestContext, { data }: AnyEventObject) => {
         const error = mapToHeadlessError(data);
         return error?.status === responseCodes.Too_Many_Requests;
-      }
+      },
+      isEmailTwofa: ({ token }: GuestContext) =>
+        token?.twofa_provider === TwofaProviders.EMAIL
     },
 
     delays: {
