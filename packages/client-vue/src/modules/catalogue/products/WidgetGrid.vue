@@ -39,7 +39,7 @@
              basket-RPC settles before navigation lands, leaving a momentary
              spinner-off blip. -->
         <ProductCard
-          v-if="!meta.isLoading || processing"
+          v-if="!meta.isLoading"
           v-for="product in data"
           :loading="pendingMeta.isProcessing(product.id)"
           :disabled="pendingMeta.isProcessing()"
