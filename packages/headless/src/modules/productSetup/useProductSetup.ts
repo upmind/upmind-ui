@@ -78,9 +78,8 @@ const currentConfig = ref<UseBasketProduct | undefined>();
 export function useProductSetup() {
   const {
     products: basketProducts,
-    isReady,
     meta: basketMeta,
-    waitForRefresh
+    isRefreshed
   } = useBasket();
   const { configure } = useBasketProducts();
   const { ui } = useConfig({ context: UIContext.CHECKOUT });
@@ -214,7 +213,7 @@ export function useProductSetup() {
 
     return basketProductServices
       .updateMany(basketId.value, updatedProducts, [])
-      .then(() => waitForRefresh())
+      .then(() => isRefreshed())
       .catch(e => {
         rawError.value = e;
         throw e;
@@ -330,7 +329,7 @@ export function useProductSetup() {
     // --- context
     /** Configure a specific basket product for setup. Pass the bpid from route params. */
     configure: async (id: BasketProduct["id"]) => {
-      await isReady();
+      await isRefreshed();
       currentConfig.value = await configure(id, { allowMultipleEdits: true });
       bpid.value = id;
       // Wait for the BP service to settle in available.valid/invalid/error
@@ -365,7 +364,7 @@ export function useProductSetup() {
     /** Apply provision data to one or more products with merge semantics. */
     apply,
     /** Wait for the basket to be ready before checking product setup status. */
-    isReady,
+    isReady: isRefreshed,
     /** Reset all state (call on unmount to ensure fresh state on re-entry). */
     reset,
 

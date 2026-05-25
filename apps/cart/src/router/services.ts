@@ -537,11 +537,11 @@ export default {
   guardCheckout: async (context: FunnelContext): Promise<FunnelResponse> => {
     await ensureBidAuth(context, { name: ROUTE.CHECKOUT });
 
-    const { isReady } = useBasket();
+    const { isRefreshed } = useBasket();
     const { isReady: isFieldsReady, meta: fieldsMeta } = useBasketFields();
     const { getConfigValue } = useBrand();
 
-    await isReady();
+    await isRefreshed();
 
     // -------------------------------------------------------------------------
     // Guard order: 1. Auth → 2. Billing → 3. Basket issues (products/fields)
