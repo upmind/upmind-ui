@@ -53,7 +53,8 @@
       "uischema",
       "upmind"
     ],
-    "workbench.colorTheme": "Catppuccin Frappé"
+    "workbench.colorTheme": "Catppuccin Frappé",
+    "liveServer.settings.multiRootWorkspaceName": "monorepo"
   },
   "extensions": {
     "recommendations": [

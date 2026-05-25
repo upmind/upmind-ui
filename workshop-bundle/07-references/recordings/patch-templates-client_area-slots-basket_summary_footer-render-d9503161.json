@@ -1,0 +1,24 @@
+{
+  "request": {
+    "method": "PATCH",
+    "path": "/api/templates/client_area/slots/basket_summary_footer/render?object_id=52098d3d-e409-1765-757f-31578626e347"
+  },
+  "response": {
+    "status": 403,
+    "body": {
+      "status": "error",
+      "data": null,
+      "related": null,
+      "total": null,
+      "error": {
+        "id": "eec667755c9cda375fdb10732d8e92b9779a23c7",
+        "type": 0,
+        "code": 403,
+        "message": "Unauthorized access to cart",
+        "data": null
+      },
+      "messages": null,
+      "meta": null
+    }
+  }
+}
