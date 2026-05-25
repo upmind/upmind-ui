@@ -283,11 +283,11 @@ export function parsePrice(raw: IBasketProduct): PriceDetail {
       ? raw.total_amount_formatted
       : raw.net_selling_price_formatted,
     discount: includesTax.value
-      ? raw.total_discount_amount
-      : raw.net_product_discount_amount,
+      ? raw.configuration_total_discount_amount_converted
+      : raw.configuration_net_amount_discount_converted,
     discountFormatted: includesTax.value
-      ? raw.total_discount_amount_formatted
-      : raw.net_product_discount_amount_formatted
+      ? raw.configuration_total_discount_amount_formatted
+      : raw.configuration_net_amount_discount_formatted
   };
 
   return {
