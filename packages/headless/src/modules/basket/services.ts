@@ -291,12 +291,18 @@ async function refresh(context: BasketContext, _event: AnyEventObject) {
   return fetchBasket(context).then((newBasket: IBasket) => {
     if (isEmpty(newBasket)) return { basket: context.basket as IBasket };
 
-    // Only re-fetch provision fields if products have changed
-    if (hasProductChanges(context.basket, newBasket)) {
+    // The flag covers prefresh-merge flows where `context.basket` is no
+    // longer a reliable comparison reference. For standalone refreshes
+    // (e.g. AUTHENTICATED, periodic) no prefresh has fired, the flag is
+    // unset, and `context.basket` is still clean — so fall back to the
+    // direct comparison to catch server-side changes.
+    if (
+      context.provisioningStale ||
+      hasProductChanges(context.basket, newBasket)
+    ) {
       return getProvisioningFieldsValues(newBasket);
     }
 
-    // Preserve existing provision field data and errors from old basket
     preserveProvisionFields(context.basket, newBasket);
     return { basket: newBasket, errors: context.error };
   });
