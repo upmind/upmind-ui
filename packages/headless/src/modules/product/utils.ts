@@ -973,6 +973,15 @@ export const parsePrice = (raw: IProductPrice): PriceDetail => {
   };
 };
 
+/**
+ * Parses a raw product price into a ProductSummaryDetailWithPrice.
+ *
+ * **⚠️ FE-1698 lazy `useSystem`:** This function calls `getBillingCycle()`
+ * synchronously. The caller's machine `load` service (or upstream composable
+ * like `useBasket`) MUST `await ensureBillingCycles()` before this runs,
+ * otherwise the cycle label will be `undefined`. See
+ * `system/docs/gotchas.md#1` for the pattern.
+ */
 export const parseSummaryDetailWithPrice = (
   raw: IProductPrice,
   rawProduct: IProduct,
@@ -1066,6 +1075,14 @@ export const parsePromotionDetails = (
   }
 };
 
+/**
+ * Parses a raw provisioning schema, applying defaults like the user's country.
+ *
+ * **⚠️ FE-1698 lazy `useSystem`:** This function calls `getCountry()`
+ * synchronously. The caller's machine `load` service MUST
+ * `await ensureCountries()` before this runs, otherwise the default country
+ * will be `undefined`. See `system/docs/gotchas.md#1` for the pattern.
+ */
 export const parseProvisioningSchema = (
   data: any,
   product: IProduct,
