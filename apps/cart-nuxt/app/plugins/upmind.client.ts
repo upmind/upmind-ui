@@ -17,6 +17,7 @@ export default defineNuxtPlugin(async nuxtApp => {
   // 1. Initialize Upmind
   UpmindClient.init({
     debug: import.meta.dev,
+    platformUrl: "https://upmind.com",
     pop: {
       name: runtimeConfig.public.API_NAME,
       apiUrl: runtimeConfig.public.API_URL,
