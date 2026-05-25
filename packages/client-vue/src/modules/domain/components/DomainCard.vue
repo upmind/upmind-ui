@@ -45,7 +45,13 @@
           :class="styles.card.header.details.pricing"
           aria-label="Pricing information"
         >
+          <Skeleton
+            v-if="meta.isPriceLoading"
+            class="h-4 w-32"
+            data-testid="dac-card-description-loading"
+          />
           <DomainDescription
+            v-else
             :price="props.price"
             :meta="meta"
             :cycle="props.cycle"
@@ -55,7 +61,12 @@
     </header>
 
     <footer :class="styles.card.footer.root">
-      <template v-if="meta.isUnavailable">
+      <template v-if="meta.isPriceLoading">
+        <section :class="styles.card.footer.price.root">
+          <Skeleton class="h-6 w-24" data-testid="dac-card-price-loading" />
+        </section>
+      </template>
+      <template v-else-if="meta.isUnavailable">
         <!-- No extra text for unavailable state -->
       </template>
       <template v-else-if="meta.isAvailable">
@@ -107,7 +118,7 @@
           />
         </div>
 
-        <p class="text-muted mt-1 text-sm/tight md:mt-0 md:text-right">
+        <p class="text-muted text-sm-tight mt-1 md:mt-0 md:text-right">
           {{ $t("domain.transfer_owner_question")
           }}<br class="hidden md:block" />
           {{
@@ -130,8 +141,15 @@
         </div>
       </template>
 
+      <Skeleton
+        v-if="meta.isPriceLoading"
+        :class="styles.card.footer.button.root"
+        class="button-radius h-11"
+        data-testid="dac-card-button-loading"
+      />
+
       <Tooltip
-        v-if="!meta.isUnavailable"
+        v-else-if="!meta.isUnavailable"
         :active="!meta.isExactMatch && !isMobile"
         :label="getTooltip"
       >
@@ -171,6 +189,7 @@ import {
   isMobile,
   Badge,
   Button,
+  Skeleton,
   Tooltip
 } from "@upmind-automation/upmind-ui";
 import config from "../domain.config";
@@ -204,7 +223,8 @@ const meta = computed(() => ({
   isOwned: !!props.owned,
   isDiscounted: !!props.discounted,
   isUnavailable: !!props.unavailable,
-  isTransferable: !!props.canTransfer
+  isTransferable: !!props.canTransfer,
+  isPriceLoading: !!props.priceLoading
 }));
 
 const styles = useStyles(

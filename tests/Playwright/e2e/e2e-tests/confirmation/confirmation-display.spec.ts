@@ -16,7 +16,8 @@ newUser.describe("Confirmation Page Display - New Users", () => {
       let orderId = order?.id as string;
       await checkout.selectPaymentMethod("Stripe");
       await checkout.inputStripeDetails("4242424242424242", "12/50", "123");
-      await checkout.clickCompleteCheckout();
+      await checkout.completeCheckout.click();
+      await checkout.completeCheckout.click();
       await page.waitForURL(`/order/**/?payment_success=true`);
       let invoice = await getInvoice(token, orderId);
       let invoiceNumber = invoice?.number;
@@ -48,7 +49,7 @@ newUser.describe("Confirmation Page Display - New Users", () => {
       await goToCheckout(page, context, products.FREE_HOSTING, null, null);
       let order = await getCurrentOrder(token);
       let orderId = order?.id as string;
-      await checkout.placeOrder.click();
+      await checkout.completeCheckout.click();
       await page.waitForURL(`/order/**/?payment_success=true`);
       let invoice = await getInvoice(token, orderId);
       let invoiceNumber = invoice?.number;
@@ -87,7 +88,6 @@ newUser.describe("Confirmation Page Display - New Users", () => {
       await checkout.clickCompleteCheckout();
       await page.waitForURL(`/order/**/?payment_success=true`);
       let invoice = await getInvoice(token, orderId);
-      console.log(invoice);
       let invoiceNumber = invoice?.number;
       let date = getFormattedDate();
       await expect(confirmation.invoiceNumberHeading).toContainText("Order #");
@@ -111,12 +111,8 @@ newUser.describe("Confirmation Page Display - New Users", () => {
       );
     }
   );
-  newUser.skip(
-    "Successful Order with Multiple Taxes",
-    async ({ page, context }) => {
-      //TODO: Need a new tax setup for this, potentially a specific user with the right address already set up
-    }
-  );
+  // TODO: add coverage for "Successful Order with Multiple Taxes" once a
+  // dedicated test user with multi-tax address is provisioned.
   newUser(
     "Unsuccessful Payment on Order",
     async ({ page, context, checkout, confirmation, token }) => {
@@ -170,7 +166,7 @@ newUser.describe("Confirmation Page Display - New Users", () => {
       let order = await getCurrentOrder(token);
       let orderId = order?.id as string;
       await checkout.selectPaymentMethod("Pay Later");
-      await checkout.placeOrder.click();
+      await checkout.completeCheckout.click();
       await page.waitForURL(`/order/**/?payment_success=true`);
       let invoice = await getInvoice(token, orderId);
       let invoiceNumber = invoice?.number;

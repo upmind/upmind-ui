@@ -27,6 +27,7 @@ Tests are grouped by feature area. Each subdirectory roughly corresponds to a su
 | `buying-journeys/` | full customer journeys for domain and hosting products |
 | `checkout/` | billing details, payment gateways (Stripe, PayPal, bank transfer, offline, account credit), partial payments, 3DS |
 | `confirmation/` | order confirmation page |
+| `domain-availability-checker/` | Domain Availability Checker (DAC) — search, suggestions, pagination, transfer mode, add-to-basket flow; covers both the legacy and smart-suggest split-endpoint flows |
 | `errors/` | error handling (dialog, redirect, toast) + form validation |
 | `login-registration/` | login, registration, 2FA, terms and conditions |
 | `products/` | product config, bundles, trials, payment terms, UI metadata, URL query strings |
@@ -49,8 +50,7 @@ support/
 ├── page-objects/
 │   ├── components/   # reusable UI primitives (buttons, forms, popovers, etc.)
 │   └── templates/    # per-page/per-surface page objects
-├── secrets/          # external account credentials (e.g. PayPal sandbox. This folder is gitignored, so you will have to create your own)
-└── utils/            # currently empty, reserved for cross-cutting utilities
+└── secrets/          # external account credentials (e.g. PayPal sandbox. This folder is gitignored, so you will have to create your own)
 ```
 
 ## Naming conventions
@@ -111,6 +111,5 @@ Unless you're specifically using the Playwright AI generator, you can ignore thi
 
 ## Things that look like gaps but aren't
 
-- `e2e/support/utils/` is currently empty — reserved for future cross-cutting utilities. Don't add random things here; prefer a purpose-named directory.
 - `e2e/reports/` only contains `html/` — that's where the HTML reporter writes. If you add other reporters in the config, they'll land here too.
 - Some tests use Playwright's built-in `test` (from `@playwright/test`) rather than our custom fixtures. That's not a mistake — the custom fixtures are opt-in for tests that need specific auth statuses (see section 5).

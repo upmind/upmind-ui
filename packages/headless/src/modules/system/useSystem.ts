@@ -51,19 +51,21 @@ let billingCyclesQuery: ReturnType<typeof services.fetchBillingCycles>;
  * and includes utility methods for fetching data.
  */
 export const useSystem = () => {
-  // --- queries (auto-loading essential data)
-  countriesQuery ??= services.fetchCountries();
-  billingCyclesQuery ??= services.fetchBillingCycles();
+  // --- queries are lazy-loaded via ensure* methods (no eager fetching)
 
   // --- state
-
-  const queries = [billingCyclesQuery, countriesQuery];
+  const activeQueries = computed(() =>
+    [countriesQuery, billingCyclesQuery].filter(Boolean)
+  );
 
   // --- meta information
   const meta = computed(() => {
+    const queries = activeQueries.value;
     const hasError = computed(() => some(queries, "isError.value"));
     const isLoading = computed(() => some(queries, "isLoading.value"));
-    const isComplete = computed(() => every(queries, "isFetched.value"));
+    const isComplete = computed(() =>
+      isEmpty(queries) ? true : every(queries, "isFetched.value")
+    );
 
     return {
       isEmpty: queries.some(q => isEmpty(q?.data?.value)),
@@ -77,6 +79,9 @@ export const useSystem = () => {
 
   // --- readiness check
   async function isReady(): Promise<boolean> {
+    // If no queries have been requested yet, resolve immediately
+    if (isEmpty(activeQueries.value)) return true;
+
     return new Promise(resolve => {
       const interval = setInterval(() => {
         if (meta.value.isComplete.value) {
@@ -166,15 +171,38 @@ export const useSystem = () => {
     return await query!.promise.value;
   }
 
-  async function fetchCountries(): Promise<ICountry[]> {
-    if (!countriesQuery?.isFetched?.value) await countriesQuery?.refetch();
+  // Wait for brand (and therefore locale) to be ready before firing reference
+  // queries. Without this, the first caller fires under the default locale
+  // (e.g. "en") and a second caller post-locale-resolution refires under the
+  // brand locale (e.g. "en-GB") because TanStack keys reference data per locale.
+  async function ensureBrandReady(): Promise<void> {
+    const { isReady: brandReady } = useBrand();
+    await brandReady();
+  }
+
+  async function ensureCountries(): Promise<ICountry[]> {
+    await ensureBrandReady();
+    countriesQuery ??= services.fetchCountries();
+    if (!countriesQuery?.isFetched?.value) await countriesQuery?.promise.value;
     return countries.value;
+  }
+
+  async function ensureBillingCycles(): Promise<IBillingCycle[]> {
+    await ensureBrandReady();
+    billingCyclesQuery ??= services.fetchBillingCycles();
+    if (!billingCyclesQuery?.isFetched?.value)
+      await billingCyclesQuery?.promise.value;
+    return billingCycles.value;
+  }
+
+  async function fetchCountries(): Promise<ICountry[]> {
+    return ensureCountries();
   }
 
   // --- Utility methods for cache management and re-fetching
   const refresh = async () => {
-    // Invalidate all related queries that feed into state via services.ts
-    forEach(queries, q => q?.refetch());
+    // Only refetch queries that have been activated
+    forEach(activeQueries.value, q => q?.refetch());
   };
 
   const invalidate = () => {
@@ -185,12 +213,15 @@ export const useSystem = () => {
   // --- side effects
 
   // after the first load, ensure we refetch our data in the background if we have previously fetched/persisted
-  isReady().then(() => {
-    if (needsRefresh) {
-      refresh();
-      needsRefresh = false;
-    }
-  });
+  // Only trigger if queries have been activated
+  if (needsRefresh && !isEmpty(activeQueries.value)) {
+    isReady().then(() => {
+      if (needsRefresh) {
+        refresh();
+        needsRefresh = false;
+      }
+    });
+  }
 
   // ---------------------------------------------------------------------------
 
@@ -260,17 +291,30 @@ export const useSystem = () => {
     getBillingCycle,
     // --- fetch methods
     /**
+     * Ensures billing cycles are loaded, fetching if not already cached.
+     * @returns A promise resolving to the list of billing cycles.
+     */
+    ensureBillingCycles,
+
+    /**
+     * Ensures countries are loaded, fetching if not already cached.
+     * @returns A promise resolving to the list of countries.
+     */
+    ensureCountries,
+
+    /**
+     * Fetches the list of countries from the API or returns cached countries if available.
+     * @deprecated Use ensureCountries() instead.
+     * @returns A promise resolving to the list of countries.
+     */
+    fetchCountries,
+
+    /**
      * Fetches the regions for a given country from the API or returns cached regions if available.
      * @param country - The country object or code to fetch regions for.
      * @returns A promise resolving to the list of regions for the country.
      */
     fetchRegions,
-
-    /**
-     * Fetches the list of countries from the API or returns cached countries if available.
-     * @returns A promise resolving to the list of countries.
-     */
-    fetchCountries,
 
     // --- utility methods
     /**
