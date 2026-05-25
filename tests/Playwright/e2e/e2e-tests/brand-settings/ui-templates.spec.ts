@@ -21,6 +21,7 @@ let register: Registration;
 let token: string | null;
 let orderId: string | null;
 
+// TODO: re-enable once UI template changes stabilise
 test.describe.skip("Brand Settings - UI Templates", () => {
   test.describe("Login UI Templates", () => {
     test.beforeEach(async ({ page }) => {
@@ -327,8 +328,8 @@ test.describe.skip("Brand Settings - UI Templates", () => {
       await page.goto(URLs.login);
       await getClientToken(
         page,
-        Logins.UiTesting.username,
-        Logins.UiTesting.password
+        Logins.uiTesting.username,
+        Logins.uiTesting.password
       );
       await page.reload();
       token = await getSessionToken(page.context());
@@ -417,8 +418,8 @@ test.describe.skip("Brand Settings - UI Templates", () => {
       await page.goto(URLs.login);
       await getClientToken(
         page,
-        Logins.UiTesting.username,
-        Logins.UiTesting.password
+        Logins.uiTesting.username,
+        Logins.uiTesting.password
       );
       await page.reload();
       token = await getSessionToken(page.context());
@@ -502,8 +503,8 @@ test.describe.skip("Brand Settings - UI Templates", () => {
       await page.goto(URLs.login);
       await getClientToken(
         page,
-        Logins.UiTesting.username,
-        Logins.UiTesting.password
+        Logins.uiTesting.username,
+        Logins.uiTesting.password
       );
       await page.reload();
       token = await getSessionToken(page.context());

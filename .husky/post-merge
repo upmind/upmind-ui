@@ -1,0 +1,6 @@
+# Refresh the cross-package knowledge graph only when changes land on develop.
+# Skips feature-branch pulls/merges. --check fast-exits if no source code changed.
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+if [ "$BRANCH" = "develop" ]; then
+  bash .agent/scripts/graphify/refresh.sh --check
+fi

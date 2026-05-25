@@ -67,5 +67,6 @@
   "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}",
   "show_more_payment_options": "مزید ادائیگی کے اختیارات دکھائیں",
   "stored_payment_methods_limited_desc": "تمام ادائیگی کے طریقے نظر نہیں آ رہے کیونکہ وہ آپ کے ملک یا کرنسی کے لیے دستیاب نہیں ہیں۔",
-  "stored_payment_methods_limited_title": "محدود ادائیگی کے طریقے"
+  "stored_payment_methods_limited_title": "محدود ادائیگی کے طریقے",
+  "warning_notes_title": "ٹوکری وارننگ | ٹوکری کے انتباہات"
 }

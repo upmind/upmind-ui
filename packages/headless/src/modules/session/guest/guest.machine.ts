@@ -21,7 +21,8 @@ import { useFeedback } from "../../feedback";
 import {
   useValidationParser,
   useCookies,
-  mapToHeadlessError
+  mapToHeadlessError,
+  useTime
 } from "../../../utils";
 const { setTopLevel: setCookie } = useCookies();
 import {
@@ -83,14 +84,7 @@ export default createMachine(
                   target: "available",
                   actions: ["clearError", "setLoginSchemas"]
                 }
-                // after: {
-                //   wait: {
-                //     target: "available",
-                //     actions: ["clearError", "setLoginSchemas"]
-                //   }
-                // }
               },
-              // loading: {} // loading state not required?
               available: {
                 initial: "checking",
                 states: {
@@ -126,10 +120,17 @@ export default createMachine(
                       actions: ["setActor", "pushLogin"]
                     }
                   ],
-                  onError: {
-                    target: "error",
-                    actions: ["setError", "setFeedbackError"]
-                  }
+                  onError: [
+                    {
+                      target: "#error",
+                      actions: ["setError"],
+                      cond: "isTooManyAttempts"
+                    },
+                    {
+                      target: "error",
+                      actions: ["setError", "setFeedbackError"]
+                    }
+                  ]
                 }
               },
               challenging: {
@@ -164,10 +165,17 @@ export default createMachine(
                     target: "#complete",
                     actions: ["setActor", "pushLogin"]
                   },
-                  onError: {
-                    target: "challenging.invalid",
-                    actions: ["setError", "setFeedbackError"]
-                  }
+                  onError: [
+                    {
+                      target: "#error",
+                      actions: ["setError"],
+                      cond: "isTooManyAttempts"
+                    },
+                    {
+                      target: "challenging.invalid",
+                      actions: ["setError", "setFeedbackError"]
+                    }
+                  ]
                 }
               },
               error: {
@@ -195,10 +203,17 @@ export default createMachine(
                     target: "available",
                     actions: ["setCustomFields", "setRegisterSchemas"]
                   },
-                  onError: {
-                    target: "error",
-                    actions: ["setError", "setFeedbackError"]
-                  }
+                  onError: [
+                    {
+                      target: "#error",
+                      actions: ["setError"],
+                      cond: "isTooManyAttempts"
+                    },
+                    {
+                      target: "error",
+                      actions: ["setError", "setFeedbackError"]
+                    }
+                  ]
                 }
               },
               available: {
@@ -225,10 +240,17 @@ export default createMachine(
                   onDone: {
                     target: "authenticating"
                   },
-                  onError: {
-                    target: "error",
-                    actions: ["setError", "setFeedbackError"]
-                  }
+                  onError: [
+                    {
+                      target: "#error",
+                      actions: ["setError"],
+                      cond: "isTooManyAttempts"
+                    },
+                    {
+                      target: "error",
+                      actions: ["setError", "setFeedbackError"]
+                    }
+                  ]
                 }
               },
               authenticating: {
@@ -245,10 +267,17 @@ export default createMachine(
                       actions: ["setActor", "pushRegister"]
                     }
                   ],
-                  onError: {
-                    target: "error",
-                    actions: ["setError", "setFeedbackError"]
-                  }
+                  onError: [
+                    {
+                      target: "#error",
+                      actions: ["setError"],
+                      cond: "isTooManyAttempts"
+                    },
+                    {
+                      target: "error",
+                      actions: ["setError", "setFeedbackError"]
+                    }
+                  ]
                 }
               },
               challenging: {
@@ -283,10 +312,17 @@ export default createMachine(
                     target: "#complete",
                     actions: ["setActor", "pushRegister"]
                   },
-                  onError: {
-                    target: "challenging.invalid",
-                    actions: ["setError", "setFeedbackError"]
-                  }
+                  onError: [
+                    {
+                      target: "#error",
+                      actions: ["setError"],
+                      cond: "isTooManyAttempts"
+                    },
+                    {
+                      target: "challenging.invalid",
+                      actions: ["setError", "setFeedbackError"]
+                    }
+                  ]
                 }
               },
               error: {
@@ -326,10 +362,17 @@ export default createMachine(
                     target: "complete",
                     actions: ["setFeedbackSuccess"]
                   },
-                  onError: {
-                    target: "error",
-                    actions: ["setError", "setFeedbackError"]
-                  }
+                  onError: [
+                    {
+                      target: "#error",
+                      actions: ["setError"],
+                      cond: "isTooManyAttempts"
+                    },
+                    {
+                      target: "error",
+                      actions: ["setError", "setFeedbackError"]
+                    }
+                  ]
                 }
               },
               error: {
@@ -379,7 +422,11 @@ export default createMachine(
       // Handle errors
       error: {
         id: "error",
-        type: "final"
+        after: {
+          wait: {
+            target: "loading"
+          }
+        }
       },
 
       // Handle completion, stop the machine and prevent further requests
@@ -507,10 +554,16 @@ export default createMachine(
         return (
           data.actor_type == GrantTypes.TWOFA && !!data?.second_factor_required
         );
+      },
+      isTooManyAttempts: (_context: GuestContext, { data }: AnyEventObject) => {
+        const error = mapToHeadlessError(data);
+        return error?.status === responseCodes.Too_Many_Requests;
       }
     },
 
-    delays: {},
+    delays: {
+      wait: () => useTime().WAIT
+    },
     services
   }
 );

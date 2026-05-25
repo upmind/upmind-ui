@@ -22,7 +22,7 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   strict: true,
   routes,
-  scrollBehavior(to, _from, _savedPosition) {
+  scrollBehavior(to, from, _savedPosition) {
     // handle scroll to anchor on same page
     if (to.hash) {
       return {
@@ -30,10 +30,11 @@ const router = createRouter({
         behavior: "smooth",
         top: 108
       };
-    } else {
-      // always scroll to top
-      return { behavior: "smooth", top: 0 };
     }
+    // preserve scroll on same-page transitions (e.g. in-situ basket adds,
+    // filter/category changes) — only scroll to top on actual page changes
+    if (to.name === from?.name) return false;
+    return { behavior: "smooth", top: 0 };
   }
 });
 
