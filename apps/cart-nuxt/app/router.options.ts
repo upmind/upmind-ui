@@ -127,6 +127,7 @@ export default {
     });
 
     // Push BID-aware routes with the SAME names (so router.resolve works)
+    // All paths include trailing slashes to match redirect middleware behavior
     filtered.push(
       // --- shop / catalogue
       {
