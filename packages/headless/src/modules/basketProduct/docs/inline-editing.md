@@ -152,19 +152,13 @@ Options that were already selected before the inline editor opened (i.e., config
 // Capture IDs of options already selected at editor open time
 const preConfiguredIds = compact(
   map(
-    filter(
-      basketProduct.upsells as BasketOptionSummary[],
-      "meta.toggle.selected"
-    ),
-    "meta.toggle.valueId"
+    filter(basketProduct.upsells as BasketOptionSummary[], "toggle.selected"),
+    "toggle.valueId"
   )
 );
 
 // Later, in resolveUpsells():
-return filter(
-  summaries,
-  s => !includes(preConfiguredIds, s.meta.toggle?.valueId)
-);
+return filter(summaries, s => !includes(preConfiguredIds, s.toggle?.valueId));
 ```
 
 > **🧪 For Testers:** Configure a product with options on the product page. In the basket, verify those options appear in the summary but NOT as toggleable upsell switches. Only options that weren't pre-selected should show as inline toggles.
@@ -233,7 +227,7 @@ This flag is set during `parseSummaryDetail()` in the headless layer and passed 
 
 ## Quantity Editing
 
-Appears when `showQuantity` is `true` — the product's `order_type` is `QUANTIFIABLE`.
+Appears when `showQuantity` is `true` — the product's `order_type` is `QUANTIFIABLE`. When `false`, the same slot renders a trash button so the item can still be removed inline.
 
 Quantity changes are **debounced** (500ms) before auto-saving to prevent API spam while the user clicks +/-.
 

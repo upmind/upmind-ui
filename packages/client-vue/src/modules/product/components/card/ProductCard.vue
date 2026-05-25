@@ -1,19 +1,11 @@
 <template>
-  <li :class="styles.product.root">
+  <li :class="styles.product.root" :data-testid="`product-card-${props.id}`">
     <div :class="styles.product.content">
       <div v-if="!configMeta.hideImage" :class="styles.product.image.container">
         <Link
           v-if="navigate"
-          :to="{
-            ...props.configureRoute,
-            params: {
-              pid: props.id
-            },
-            query: {
-              [QUERY_PARAMS.BILLING_CYCLE_MONTHS]: selectedTerm
-            }
-          }"
-          :disabled="processing || disabled"
+          :to="productRoute"
+          :disabled="loading || disabled"
           @click="doResolve"
           :tabindex="images.length === 1 ? '0' : '-1'"
           :ring="images.length === 1 ? 'focus' : 'focus-visible'"
@@ -55,7 +47,7 @@
             v-bind="props"
             :selected-term="selectedTerm"
             @resolve="doResolve"
-            :processing="processing"
+            :processing="loading"
             :title="productMeta.data.productName || props.productDetails.title"
             :navigate="navigate"
             :hide-description="configMeta.hideDescription"
@@ -88,32 +80,21 @@
         </header>
 
         <footer :class="styles.product.footer">
-          <Button
-            v-bind="action"
-            :loading="processing"
-            variant="solid"
-            :color="color"
-            size="lg"
-            block
-            :to="
-              navigate
-                ? {
-                    ...props.configureRoute,
-                    params: {
-                      pid: props.id
-                    },
-                    query: {
-                      [QUERY_PARAMS.BILLING_CYCLE_MONTHS]: selectedTerm,
-                      autoupdate: props.productDetails?.configurable
-                        ? undefined
-                        : 'true' // ensure we always add the product, even if it exists in the basket
-                    }
-                  }
-                : undefined
-            "
-            :disabled="processing || disabled"
-            @click="doResolve"
-          />
+          <Tooltip
+            :active="inBasket && !justAdded"
+            :label="t('confirm.in_basket_msg')"
+          >
+            <Button
+              v-bind="action"
+              :loading="loading || clicked"
+              variant="solid"
+              :color="color"
+              size="lg"
+              block
+              :disabled="loading || disabled || justAdded"
+              @click="doResolve"
+            />
+          </Tooltip>
         </footer>
       </section>
     </div>
@@ -122,7 +103,7 @@
 
 <script setup lang="ts">
 // --- external
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -138,6 +119,7 @@ import {
   Button,
   Image,
   Link,
+  Tooltip,
   useStyles,
   Badge
 } from "@upmind-automation/upmind-ui";
@@ -148,7 +130,7 @@ import ProductPrice from "./ProductPrice.vue";
 import ProductTerm from "./ProductTerm.vue";
 
 // --- utils
-import { isEmpty, toString, isString } from "lodash-es";
+import { delay, isEmpty, merge, toString, isString } from "lodash-es";
 
 // --- types
 import type { ImageItem, ImageMode } from "@upmind-automation/upmind-ui";
@@ -159,7 +141,8 @@ const props = withDefaults(defineProps<ProductCardProps>(), {
   buttonColor: "primary",
   buttonVariant: "solid",
   navigate: true,
-  hideTerms: undefined
+  hideTerms: undefined,
+  resetTimeout: 3000
 });
 
 const emit = defineEmits<{
@@ -177,6 +160,68 @@ const { t } = useI18n();
 const selectedTerm = ref<string | undefined>(
   toString(props.configuration.term)
 );
+
+// Local click intent — set immediately when the user clicks the action button
+// to bridge the click → route-transition gap so the spinner shows instantly,
+// instead of waiting for the funnel guard to flip `pendingMeta.isProcessing`.
+// Cleared when the parent's `loading` flag takes over, or when `inBasket`
+// confirms the add succeeded (see reset watch below).
+const clicked = ref(false);
+
+watch(
+  () => props.loading,
+  loading => {
+    if (loading) clicked.value = false;
+  }
+);
+
+// `inBasket` flipping true is the canonical "add confirmed" signal. On that
+// rising edge we reset transient local state (clear click intent) and kick
+// off the "Added!" flash for `resetTimeout` before settling into the steady
+// "In basket" affordance.
+const justAdded = ref(false);
+
+watch(
+  () => props.inBasket,
+  (next, prev) => {
+    if (next && !prev) {
+      clicked.value = false;
+      justAdded.value = true;
+      delay(() => (justAdded.value = false), props.resetTimeout);
+    }
+  }
+);
+
+// Auto-add when no configuration is needed. For term-only products auto-add
+// only when the consumer says we're in-situ (streamlined). When funnelling,
+// route to configure so the term step is part of the flow.
+const canAddDirectly = computed(() => {
+  if (!props.productDetails?.configurable) return true;
+
+  if (
+    props.productDetails?.configurableTerm &&
+    !props.productDetails?.configurableSubproducts &&
+    !props.productDetails?.configurableProvisionFields &&
+    selectedTerm.value &&
+    (props.inSitu ?? true)
+  ) {
+    return true;
+  }
+
+  return false;
+});
+
+const productRoute = computed(() =>
+  merge({}, props.configureRoute, {
+    params: { pid: props.id },
+    query: { [QUERY_PARAMS.BILLING_CYCLE_MONTHS]: selectedTerm.value }
+  })
+);
+
+const actionRoute = computed(() => {
+  if (!canAddDirectly.value) return productRoute.value;
+  return merge({}, productRoute.value, { query: { autoupdate: "true" } });
+});
 
 const images = computed(() => {
   return props.productDetails?.images?.map(image => ({
@@ -233,7 +278,7 @@ const configMeta = computed(() => ({
   hideAnchorPrice: productMeta.ui.productAnchorPrice.isHidden,
   hideTermBadge:
     productMeta.ui.productListLayout.value === GRID_LAYOUT.FOUR_COL,
-  isLoading: processing,
+  isLoading: props.loading,
   isImageEmpty: isImageEmpty.value
 }));
 
@@ -249,10 +294,11 @@ const styles = useStyles(
   config
 );
 
-const processing = ref(false);
-
-const action = computed(() => {
-  if (props.meta?.added) {
+const actionContent = computed(() => {
+  if (justAdded.value) {
+    return { icon: "check-circle-broken", label: t("action.added_to_basket") };
+  }
+  if (props.inBasket) {
     return { icon: "check-circle-broken", label: t("confirm.in_basket") };
   }
   if (props.productDetails?.trialSupported) {
@@ -266,9 +312,14 @@ const action = computed(() => {
   return { icon: "shopping-bag-02", label: t("action.add_to_basket") };
 });
 
+const action = computed(() => {
+  if (!props.navigate) return actionContent.value;
+  return merge({}, actionContent.value, { to: actionRoute.value });
+});
+
 function doResolve() {
   if (!props.id) return;
-  processing.value = true;
+  clicked.value = true;
   emit("resolve", props.id);
 }
 </script>

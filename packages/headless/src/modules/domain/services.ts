@@ -133,8 +133,6 @@ function buildDomainProductFromAvailability(
   // full TLD chain (".ominik.com") which matches what the user sees.
   const { sld, tld } = parseDomainParts(domain);
   const product = availability.product;
-  const { defaultPaymentPeriod } = useBrand();
-  const paymentPeriod = preferredCycle ?? defaultPaymentPeriod.value;
 
   // For availability rows, use product.sub_product_id
   const subproducts: string[] = compact([product?.sub_product_id]);
@@ -145,7 +143,7 @@ function buildDomainProductFromAvailability(
     const productDetails = parseProductDetails(product);
     const terms = parseTermDetails(product);
     const termDetails = calculateBillingTerm(
-      paymentPeriod || product.default_payment_period,
+      preferredCycle ?? product.default_payment_period,
       terms
     );
 

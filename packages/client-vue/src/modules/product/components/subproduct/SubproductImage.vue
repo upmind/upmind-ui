@@ -5,6 +5,9 @@
 </template>
 
 <script lang="ts" setup>
+// --- external
+import { computed } from "vue";
+
 // --- internal
 import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./subproduct-card.config";
@@ -12,7 +15,12 @@ import config from "./subproduct-card.config";
 // --- types
 import type { SubproductCardImage } from "./types";
 
-defineProps<SubproductCardImage>();
+const props = defineProps<SubproductCardImage>();
 
-const styles = useStyles(["card.image"], {}, config);
+const meta = computed(() => ({
+  isMinimal: props.minimal,
+  isDropdown: props.dropdown
+}));
+
+const styles = useStyles(["card.image"], meta, config);
 </script>

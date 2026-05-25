@@ -32,9 +32,11 @@ export async function inputRegistration(page: Page) {
   await email
     .getByTestId("text-input")
     .fill(`nathan.robinson+${faker.string.alpha({ length: 10 })}@upmind.com`);
+  // FE-2661: registration requires letter + digit + symbol; alphanumeric alone
+  // no longer satisfies the schema, so append a fixed symbol.
   await password
     .getByTestId("text-input")
-    .fill(`${faker.string.alphanumeric({ length: 10 })}`);
+    .fill(`${faker.string.alphanumeric({ length: 10 })}!`);
   await page.getByTestId("button-continue").click();
   await waitForSessionCookie(page.context());
 }

@@ -17,6 +17,12 @@ import type {
 import type { ResponseError } from "../../utils";
 import type { Benefit } from "../product";
 import type { Badge } from "../config/schema";
+import type { ConditionalValue } from "../config/types";
+
+/**
+ * Visibility state for conditional recommendations.
+ */
+export type RecommendationVisibility = "visible" | "hidden";
 
 /**
  * Interface representing a promotion applied to a recommendation.
@@ -200,7 +206,8 @@ export interface RecommendationsEngineContext {
    */
   parseProductModel?: (
     recommendation: Recommendation,
-    products: IBasketProduct[]
+    products: IBasketProduct[],
+    rawProduct?: IProduct
   ) => ProductProps;
   // ---
 }
@@ -227,8 +234,8 @@ export interface RelatedProduct extends IRelatedObject {
   product: IProduct;
   // --- config to be used in adding the recommendation
   /**
-   * Optional product configuration (`IProductConfig`) that can be applied
-   * when adding this related product as a recommendation.
+   * Optional product configuration (`IProductConfig`) applied when adding
+   * this related product as a recommendation.
    */
   config?: IProductConfig;
   /**
@@ -239,4 +246,19 @@ export interface RelatedProduct extends IRelatedObject {
    * An array of benefits associated with the related product.
    */
   benefits?: Benefit[];
+  /**
+   * Conditional visibility rules evaluated against basket state.
+   * Omit for the default behaviour: recommendation is always shown.
+   */
+  conditions?: ConditionalValue<RecommendationVisibility>;
+  /**
+   * Conditional in-basket detection rules. Drives `meta.added`.
+   *
+   * Evaluation is auto-scoped to basket products whose `product_id` matches
+   * this recommendation's `object_id` — authors don't reference "self".
+   *
+   * Omit for the default loose product_id match: any variant of the
+   * recommendation's product in the basket sets `meta.added = true`.
+   */
+  inBasketConditions?: ConditionalValue<boolean>;
 }

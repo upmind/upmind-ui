@@ -27,7 +27,7 @@
       :columns="type === TERM_SELECTOR.RADIO_ROWS ? 1 : 0"
     >
       <template #item="{ item }">
-        <CardTerm v-bind="item" :summary="summary" />
+        <CardTerm v-bind="item" :summary="summary" :overridden="overridden" />
       </template>
     </RadioCards>
   </component>
@@ -77,6 +77,8 @@ const props = withDefaults(
     label?: string;
     description?: string;
     summary: boolean;
+    /** `true` when an active option/category overrides product price — hides price/promo in term cards. */
+    overridden?: boolean;
     // --- state
     required?: boolean;
     disabled?: boolean;

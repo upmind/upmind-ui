@@ -1,0 +1,16 @@
+{
+  "request": {
+    "method": "GET",
+    "path": "/api/orders/5d96e763-ed09-1353-d92b-417482528340/products/5d96e763-ed09-1372-4eda-417482528340/provision_fields/values?lang=en"
+  },
+  "response": {
+    "status": 200,
+    "body": {
+      "status": "ok",
+      "data": [],
+      "total": null,
+      "error": null,
+      "messages": []
+    }
+  }
+}
