@@ -26,6 +26,7 @@
   "own_domain_qn": "Bent u de eigenaar van dit domein?",
   "owned_domains_title": "Domeinen die u momenteel bezit",
   "price_renewal_desc": "Eenmalige prijs van {regularPrice}. | Wordt elk jaar verlengd voor {regularPrice}. | Wordt elke {count} jaar verlengd voor {regularPrice}.",
+  "registrant_use_billing_msg": "Uw factuurgegevens worden gebruikt als contactgegevens voor de domeinregistratie.",
   "search": "Zoekdomeinen",
   "starts_with_domain": "Het begint allemaal met een **domeinnaam**",
   "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
@@ -36,5 +37,6 @@
   "transfer_extension_info": "Overdrachten omvatten een verlenging van één jaar.",
   "transfer_owner_question": "Bent u de eigenaar van dit domein?",
   "transfer_price_info": "U kunt het voor slechts {currentPrice}",
-  "transfer_promotion": "Overdracht voor slechts {currentPrice}, gewoonlijk {regularPrice}."
+  "transfer_promotion": "Overdracht voor slechts {currentPrice}, gewoonlijk {regularPrice}.",
+  "use_details_for": "Gebruik deze gegevens voor{domain}"
 }

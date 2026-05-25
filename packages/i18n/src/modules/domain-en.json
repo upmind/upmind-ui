@@ -36,5 +36,7 @@
       "tooltip": "These domains are already in your basket"
     }
   },
-  "search": "Search domains"
+  "search": "Search domains",
+  "use_details_for": "Use these details for {domain}",
+  "registrant_use_billing_msg": "Your billing details will be used as the domain registrant contact information."
 }
