@@ -17,10 +17,15 @@ type ProductFixture = {
 export async function loginAsIncompleteCustomer(
   page: Page,
   context: BrowserContext
-) {
+): Promise<string> {
   await page.goto(URLs.basket);
   await waitForSessionCookie(context);
-  await getClientToken(page, Logins.domain1.username, Logins.domain1.password);
+  const session = await getClientToken(
+    page,
+    Logins.domain1.username,
+    Logins.domain1.password
+  );
+  return session.access_token;
 }
 
 export async function seedInvalidProduct(
