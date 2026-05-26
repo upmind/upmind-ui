@@ -312,15 +312,9 @@ const unavailableReason = computed(() => {
 });
 
 const actionContent = computed(() => {
-  if (
-    isUnavailable.value &&
-    configMeta.value.hideImage &&
-    unavailableReason.value
-  ) {
-    return {
-      label: unavailableReason.value.label,
-      icon: unavailableReason.value.icon
-    };
+  const reason = unavailableReason.value;
+  if (reason && configMeta.value.hideImage) {
+    return { label: reason.label, icon: reason.icon };
   }
   if (justAdded.value) {
     return { icon: "check-circle-broken", label: t("action.added_to_basket") };
