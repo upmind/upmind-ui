@@ -1,0 +1,36 @@
+{
+  "request": {
+    "method": "POST",
+    "path": "/api/clients/03679424-d0e7-1099-7e4f-3153698d582e/addresses?lang=en-US"
+  },
+  "response": {
+    "status": 200,
+    "body": {
+      "status": "ok",
+      "data": {
+        "client_id": "03679424-d0e7-1099-7e4f-3153698d582e",
+        "address_1": "South Park Road",
+        "address_2": "",
+        "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+        "region_id": "de78642d-e539-7146-295f-21208469530d",
+        "city": "London",
+        "county": null,
+        "postcode": "SW19 8TD",
+        "name": "South Park Road",
+        "type": 1,
+        "default": false,
+        "verified": 0,
+        "user_id": "sys",
+        "updated_at": "2026-05-16 10:08:53",
+        "created_at": "2026-05-16 10:08:53",
+        "id": "d085e69d-5623-719e-508a-218e940d4237",
+        "can_delete": true
+      },
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  }
+}

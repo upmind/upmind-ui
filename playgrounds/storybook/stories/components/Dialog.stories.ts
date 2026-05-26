@@ -124,7 +124,7 @@ const meta: Meta<typeof Dialog> = {
   },
   args: {
     open: false,
-    dismissable: true,
+    dismissible: true,
     title: "Proident id magna in velit",
     description:
       "Proident id proident ullamco veniam. Dolor duis anim sunt cillum exercitation occaecat aliqua consectetur proident incididunt amet. Laboris velit nostrud irure pariatur Lorem ad tempor aute laboris cillum ad sint.",

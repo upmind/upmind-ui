@@ -1,5 +1,6 @@
 <template>
-  <component :is="templateVariant">
+  <PaymentProcessing v-if="meta.isProcessing" />
+  <component v-else :is="templateVariant">
     <template #order-summary>
       <Hero
         v-show="!meta.isProcessing"
@@ -137,9 +138,6 @@
       </OrderProducts>
     </template>
   </component>
-
-  <!-- Payment processing -->
-  <PaymentProcessing v-if="meta.isProcessing" />
 </template>
 
 <script lang="ts" setup>
@@ -186,9 +184,6 @@ import {
 // --- internal
 import config from "./order.config";
 import { useAnnouncement } from "../../components/announcement/useAnnouncement";
-import { useHeader } from "../../components/header/useHeader";
-import { useLayout } from "../../components/layout/useLayout";
-import { useFooter } from "../../components/footer/useFooter";
 
 // --- utils
 import { capitalize, first, get } from "lodash-es";
@@ -527,9 +522,6 @@ watch(
 );
 
 onUnmounted(() => {
-  useHeader({});
-  useLayout({});
-  useFooter({});
   dismissAnnouncement();
 });
 </script>

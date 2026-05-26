@@ -29,6 +29,12 @@ export interface BasketContext {
    */
   basket?: IBasket;
   /**
+   * Sticky flag raised when an incoming basket introduces product changes,
+   * before `updateBasket` poisons the comparison. Read by `refresh` to decide
+   * whether to refetch provision-field values; cleared in `refresh.onDone`.
+   */
+  provisioningStale?: boolean;
+  /**
    * The `IInvoice` object associated with the basket, if the basket has progressed to an invoice stage.
    */
   invoice?: IInvoice;

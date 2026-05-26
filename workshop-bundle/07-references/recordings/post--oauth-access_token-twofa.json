@@ -1,0 +1,19 @@
+{
+  "request": {
+    "method": "POST",
+    "path": "/oauth/access_token?lang=en"
+  },
+  "response": {
+    "status": 200,
+    "body": {
+      "second_factor_required": true,
+      "refresh_expires_in": null,
+      "actor_id": "20403869-6e54-721d-359f-518d9305e7d2",
+      "actor_type": "twofa",
+      "twofa_provider": "Email",
+      "token_type": "mock-token_type",
+      "expires_in": 299,
+      "access_token": "mock-access_token"
+    }
+  }
+}

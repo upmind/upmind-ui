@@ -9,10 +9,12 @@ import type { Place, PlaceService } from "./types";
 
 // -----------------------------------------------------------------------------
 
-function parseCountry(
+async function parseCountry(
   addressComponents: google.maps.places.AddressComponent[]
 ) {
-  const { getCountry } = useSystem();
+  const { getCountry, ensureCountries } = useSystem();
+
+  await ensureCountries();
 
   const country = find(addressComponents, entry =>
     includes(entry.types, "country")
@@ -68,7 +70,7 @@ export async function usePlaceParser(
     "administrative_area_level_2"
   ]);
 
-  const country = parseCountry(address);
+  const country = await parseCountry(address);
 
   const region = await parseRegion(
     parseValue(address, ["administrative_area_level_1"]),

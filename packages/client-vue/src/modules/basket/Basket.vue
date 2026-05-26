@@ -40,7 +40,6 @@
               meta.isLoading ||
               !meta.hasFields ||
               !meta.hasProducts ||
-              meta.hasInvalidProducts ||
               meta.hasLockedProducts
             "
             :loading="meta.isProcessing"
@@ -81,7 +80,6 @@
               meta.isLoading ||
               !meta.hasFields ||
               !meta.hasProducts ||
-              meta.hasInvalidProducts ||
               meta.hasLockedProducts
             "
             :loading="meta.isProcessing"

@@ -27,7 +27,7 @@ export class Basket {
     this.basketProduct = page.getByTestId("basket-product");
     this.basketProductSummary = page.getByTestId("basket-product-summary");
     this.addMissingDataLink = page.getByTestId("link-add-missing-data");
-    this.subtotalSummary = page.getByTestId("card-container-summary");
+    this.subtotalSummary = page.getByTestId("section-basket-summary");
     this.summaryFooter = page.getByTestId("summary-footer");
     this.promotionForm = page.getByTestId("promotions-form");
     this.addPromo = page.getByTestId("link-add-a-voucher-code");

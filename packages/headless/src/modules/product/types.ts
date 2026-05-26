@@ -472,6 +472,8 @@ export type ProductSummaryMeta = {
   default?: boolean;
   /** `true` if the product offers a free trial. */
   freeTrial?: boolean;
+  /** `true` if the product has provision fields with deferred mode (optional/hidden). */
+  deferred?: boolean;
   /** The formatted renewal price for the current billing cycle (e.g. "$9.99"). */
   renewalPrice?: string;
   /** `true` if monthly pricing should be derived from the product's price. */
@@ -950,7 +952,7 @@ export interface ProductConfigContext {
    */
   error?: ResponseError | ErrorObject[];
   /** External errors object. */
-  errorExternal?: ResponseError | ErrorObject[];
+  basketErrors?: ResponseError | ErrorObject[];
   /** Number of attempts made for an operation. */
   attempts?: number;
   // ---

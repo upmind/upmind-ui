@@ -1,63 +1,58 @@
 <template>
-  <Transitions>
-    <component :is="templateVariant">
-      <template #back>
-        <slot name="back">
-          <Back v-show="showCheckout" @click.prevent="navigateBack" />
-        </slot>
-      </template>
+  <slot v-if="meta.isCheckout" name="processing">
+    <CheckoutProcessing />
+  </slot>
+  <component v-else :is="templateVariant">
+    <template #back>
+      <slot name="back">
+        <Back v-show="showCheckout" @click.prevent="navigateBack" />
+      </slot>
+    </template>
 
-      <template v-if="!isSlotHidden('summary')" #summary>
-        <slot name="summary">
-          <CheckoutSummary v-show="showCheckout" :template="props.template" />
-        </slot>
-      </template>
+    <template v-if="!isSlotHidden('summary')" #summary>
+      <slot name="summary">
+        <CheckoutSummary v-show="showCheckout" :template="props.template" />
+      </slot>
+    </template>
 
-      <template #content>
-        <slot name="content">
-          <CheckoutContent
-            :show-checkout="showCheckout"
-            :edit-route="props.editRoute"
-            :billing-route="props.billingRoute"
-            :fields-route="props.fieldsRoute"
-          />
-        </slot>
-      </template>
+    <template #content>
+      <slot name="content">
+        <CheckoutContent
+          :show-checkout="showCheckout"
+          :edit-route="props.editRoute"
+          :billing-route="props.billingRoute"
+          :fields-route="props.fieldsRoute"
+        />
+      </slot>
+    </template>
 
-      <template #pricing>
-        <slot name="pricing">
-          <CheckoutPricing v-show="showCheckout" />
-        </slot>
-      </template>
+    <template #pricing>
+      <slot name="pricing">
+        <CheckoutPricing v-show="showCheckout" />
+      </slot>
+    </template>
 
-      <template
-        v-if="
-          ui.trustMessaging.isVisible &&
-          showCheckout &&
-          data.trustMessagingMarkdown
-        "
-        #markdown
-      >
-        <slot name="markdown">
-          <Markdown
-            data-testid="slots:summary-append"
-            :model-value="data.trustMessagingMarkdown"
-          />
-        </slot>
-      </template>
-    </component>
-
+    <template
+      v-if="
+        ui.trustMessaging.isVisible &&
+        showCheckout &&
+        data.trustMessagingMarkdown
+      "
+      #markdown
+    >
+      <slot name="markdown">
+        <Markdown
+          data-testid="slots:summary-append"
+          :model-value="data.trustMessagingMarkdown"
+        />
+      </slot>
+    </template>
     <template v-if="meta.hasErrors" #errors>
       <slot name="errors">
         <CheckoutErrors v-show="showCheckout" />
       </slot>
     </template>
-  </Transitions>
-
-  <!-- Basket processing -->
-  <slot name="processing" v-if="meta.isCheckout">
-    <CheckoutProcessing />
-  </slot>
+  </component>
 </template>
 
 <script lang="ts" setup>
@@ -67,7 +62,8 @@ import {
   computed,
   provide,
   onUnmounted,
-  defineAsyncComponent
+  defineAsyncComponent,
+  onMounted
 } from "vue";
 
 // --- internal
@@ -76,14 +72,11 @@ import {
   useRoutingEngine,
   useDataLayer
 } from "@upmind-automation/headless";
-import { useHeader } from "../../components/header/useHeader";
-import { useFooter } from "../../components/footer/useFooter";
 import { useConfig, validateTemplate } from "@upmind-automation/headless";
 import { useThemes, Markdown } from "@upmind-automation/upmind-ui";
 
 // --- components
 import Back from "../../components/navigation/Back.vue";
-import Transitions from "../../components/layout/components/transition/Transition.vue";
 import CheckoutProcessing from "./components/CheckoutProcessing.vue";
 import CheckoutSummary from "./components/CheckoutSummary.vue";
 import CheckoutContent from "./components/CheckoutContent.vue";
@@ -167,14 +160,7 @@ const template = computed(() =>
 
 const templateVariant = computed(() => get(supportedTemplates, template.value));
 
-// -----------------------------------------------------------------------------
-
-await isReady().then(() => {
-  const { dataLayer } = useDataLayer();
-  dataLayer({ event: "begin_checkout" }).withEcommerce().push();
-});
-
-// -----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 // --- side effects
 
@@ -215,9 +201,12 @@ watch(meta, ({ isComplete }, { isComplete: wasComplete }) => {
   }
 });
 
+onMounted(() => {
+  const { dataLayer } = useDataLayer();
+  dataLayer({ event: "begin_checkout" }).withEcommerce().push();
+});
+
 onUnmounted(() => {
   if (meta.value.isComplete) reset();
-  useFooter({});
-  useHeader({});
 });
 </script>
