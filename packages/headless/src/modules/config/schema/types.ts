@@ -197,6 +197,12 @@ export interface BadgeObject {
 }
 export type Badge = string | BadgeObject;
 
+/** Minimal labelled-content shape: a label, optionally annotated with an icon. */
+export interface LabelContent {
+  label: string;
+  icon?: string;
+}
+
 export enum UIContext {
   ALL = "all",
   CATALOGUE = "catalogue",

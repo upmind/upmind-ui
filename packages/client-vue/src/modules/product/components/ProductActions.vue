@@ -21,12 +21,8 @@
       color="primary"
       :loading="meta.isProcessing || isNavigating"
       :disabled="meta.isLoading || meta.isUnavailable || isUnavailable"
-      :label="
-        isUnavailable
-          ? (product?.meta?.availableReason ?? t('text.unavailable'))
-          : t('action.add_to_basket')
-      "
-      :icon="isUnavailable ? '' : 'shopping-bag-02'"
+      :label="isUnavailable ? unavailable.label : t('action.add_to_basket')"
+      :icon="isUnavailable ? unavailable.icon : 'shopping-bag-02'"
       size="lg"
       @click="doResolve"
     />
@@ -70,6 +66,11 @@ const layout = computed(() => {
 
 // `=== false` so undefined `meta.available` stays the safe "available" default
 const isUnavailable = computed(() => props.product?.meta?.available === false);
+
+const unavailable = computed(() => ({
+  label: props.product?.meta?.availableReason?.label ?? t("text.unavailable"),
+  icon: props.product?.meta?.availableReason?.icon
+}));
 
 const styles = useStyles(["product"], { layout }, config);
 
