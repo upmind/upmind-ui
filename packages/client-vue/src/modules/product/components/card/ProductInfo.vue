@@ -145,7 +145,6 @@ const titleRoute = computed(() =>
   })
 );
 
-// `=== false` so undefined `meta.available` stays the safe "available" default
 const isUnavailable = computed(() => props.meta?.available === false);
 
 function doResolve() {

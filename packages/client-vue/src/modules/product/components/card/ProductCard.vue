@@ -29,15 +29,15 @@
         />
 
         <Badge
-          v-if="isUnavailable"
+          v-if="isUnavailable && meta?.availableReason"
           :class="styles.product.image.badge"
-          :label="meta?.availableReason?.label ?? t('text.unavailable')"
-          :icon="meta?.availableReason?.icon"
+          :label="meta.availableReason.label"
+          :icon="meta.availableReason.icon"
           variant="muted"
           color="neutral"
         />
         <Badge
-          v-else-if="productMeta.data.productBadge"
+          v-else-if="!isUnavailable && productMeta.data.productBadge"
           :class="styles.product.image.badge"
           v-bind="
             isString(productMeta.data.productBadge)
@@ -302,17 +302,12 @@ const styles = useStyles(
   config
 );
 
-// `=== false` so undefined `meta.available` stays the safe "available" default
 const isUnavailable = computed(() => props.meta?.available === false);
 
 const actionContent = computed(() => {
-  // Only swap the CTA when the image-overlay badge isn't rendering the
-  // reason — avoids the label echoing the badge text in the default layout.
-  if (isUnavailable.value && configMeta.value.hideImage) {
-    return {
-      label: props.meta?.availableReason?.label ?? t("text.unavailable"),
-      icon: props.meta?.availableReason?.icon
-    };
+  const reason = props.meta?.availableReason;
+  if (isUnavailable.value && configMeta.value.hideImage && reason) {
+    return { label: reason.label, icon: reason.icon };
   }
   if (justAdded.value) {
     return { icon: "check-circle-broken", label: t("action.added_to_basket") };
