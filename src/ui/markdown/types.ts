@@ -4,4 +4,5 @@ export type MarkdownProps = {
   tag?: string;
   modelValue?: string;
   keys?: Record<string, string>;
+  inline?: boolean;
 };

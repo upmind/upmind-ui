@@ -56,6 +56,10 @@ const compiledMarkdown = computed((): string => {
     });
   }
 
-  return markedInstance.value.parse(modelValue) as string;
+  if (props.inline) {
+    return markedInstance.value.parseInline(modelValue, { async: false });
+  }
+
+  return markedInstance.value.parse(modelValue, { async: false });
 });
 </script>
