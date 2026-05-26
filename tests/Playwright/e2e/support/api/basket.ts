@@ -97,8 +97,9 @@ export async function getCurrentOrder(
   });
 
   try {
+    const withRelations = ["products"];
     const response = await context.get(
-      "/api/orders/current?with=products&products_options"
+      `/api/orders/current?with=${withRelations}`
     );
 
     if (!response.ok()) {

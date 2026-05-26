@@ -33,8 +33,8 @@ test.describe("Tracking — Product Setup step", () => {
     page,
     context
   }) => {
-    await loginAsIncompleteCustomer(page, context);
-    await seedInvalidProduct(context, products.DOMAIN_2);
+    const token = await loginAsIncompleteCustomer(page, context);
+    await seedInvalidProduct(products.DOMAIN_2, token);
 
     await page.goto(`${URLs.baseUrl}order/basket/products-setup/`);
     await expect(productSetup.setupForm).toBeVisible({ timeout: 15000 });
@@ -50,8 +50,8 @@ test.describe("Tracking — Product Setup step", () => {
     page,
     context
   }) => {
-    await loginAsIncompleteCustomer(page, context);
-    await seedInvalidProduct(context, products.DOMAIN_2);
+    const token = await loginAsIncompleteCustomer(page, context);
+    await seedInvalidProduct(products.DOMAIN_2, token);
     await page.goto(`${URLs.baseUrl}order/basket/products-setup/`);
     await expect(productSetup.setupForm).toBeVisible({ timeout: 15000 });
 
@@ -70,8 +70,8 @@ test.describe("Tracking — Product Setup step", () => {
     page,
     context
   }) => {
-    await loginAsIncompleteCustomer(page, context);
-    await seedInvalidProduct(context, products.DOMAIN_2);
+    const token = await loginAsIncompleteCustomer(page, context);
+    await seedInvalidProduct(products.DOMAIN_2, token);
 
     await page.goto(URLs.basket);
     await basket.proceedToCheckout.click();
@@ -97,9 +97,9 @@ test.describe("Tracking — Product Setup step", () => {
     page,
     context
   }) => {
-    await loginAsIncompleteCustomer(page, context);
-    await seedInvalidProduct(context, products.DOMAIN_2);
-    await seedInvalidProduct(context, products.DOMAIN_3);
+    const token = await loginAsIncompleteCustomer(page, context);
+    await seedInvalidProduct(products.DOMAIN_2, token);
+    await seedInvalidProduct(products.DOMAIN_3, token);
 
     await page.goto(URLs.basket);
     await basket.proceedToCheckout.click();
