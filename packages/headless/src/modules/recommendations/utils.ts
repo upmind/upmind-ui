@@ -3,6 +3,7 @@ import { sha1 } from "object-hash";
 
 // --- internal
 import {
+  parseAvailableReason,
   parseProductDetails,
   parseQuantity,
   parseTermDetails
@@ -323,7 +324,7 @@ export function parseRecommendation(
     processing: meta?.processing ?? false,
     loading: meta?.loading ?? false,
     available: !data.productUnavailable,
-    availableReason: data.productUnavailableReason
+    availableReason: parseAvailableReason(data.productUnavailableReason)
   });
 
   // ---------------------------------------------------------------------------

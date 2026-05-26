@@ -96,7 +96,7 @@ import type {
 import { UI_SCHEMA_DEFAULTS } from "./types";
 import { type ErrorObject } from "ajv";
 import { type BrandMeta } from "../brand/types";
-import { type ProductBundleConfig } from "../config";
+import { type ProductBundleConfig, type LabelContent } from "../config";
 import { UIContext } from "../config";
 
 // -----------------------------------------------------------------------------
@@ -757,6 +757,13 @@ export const parseMeta = (
   return result;
 };
 
+// Lift the schema's `string | LabelContent` admin form to `LabelContent` once
+// at the mapper boundary, so every consumer reads `.label` / `.icon` directly
+// without re-branching on the string case.
+export const parseAvailableReason = (
+  reason?: string | LabelContent
+): LabelContent | undefined => (isString(reason) ? { label: reason } : reason);
+
 export const parseTermDetails = (
   raw: IProduct,
   currencyIdOrOverride?: string | boolean
@@ -1185,7 +1192,7 @@ export const parseProduct = (
       discounted:
         price.currentAmount != price.regularAmount && price.regularAmount > 0,
       available: !data.productUnavailable,
-      availableReason: data.productUnavailableReason
+      availableReason: parseAvailableReason(data.productUnavailableReason)
     }),
     promotions: term?.promotions,
     // ---

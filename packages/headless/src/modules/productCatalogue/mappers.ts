@@ -3,7 +3,7 @@ import { useConfig } from "../config";
 
 // --- utils
 import { parseQuantity, parseMeta } from "../product/utils";
-import { calculateBillingTerm } from "../product/utils";
+import { calculateBillingTerm, parseAvailableReason } from "../product/utils";
 import { isEmpty, merge, omit, toSafeInteger } from "lodash-es";
 import { parseProductDetails, parseTermDetails } from "../product/utils";
 
@@ -45,7 +45,7 @@ export function parseProduct(raw: IProduct): Product {
     productDetails: productDetails,
     meta: merge({}, term?.meta, {
       available: !data.productUnavailable,
-      availableReason: data.productUnavailableReason
+      availableReason: parseAvailableReason(data.productUnavailableReason)
     }),
     promotions: term?.promotions,
     price: term?.price,

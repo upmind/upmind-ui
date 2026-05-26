@@ -15,7 +15,7 @@ import type {
 } from "@upmind-automation/types";
 import { PromotionDisplayTypes } from "@upmind-automation/types";
 import type { Recommendation } from "../recommendations";
-import type { Badge } from "../config/schema";
+import type { Badge, LabelContent } from "../config/schema";
 import type { BasketProduct } from "../basketProduct";
 import { type ResponseError } from "../../utils";
 
@@ -464,8 +464,8 @@ export type ProductSummaryMeta = {
   added?: boolean;
   /** `true` if the product is available. */
   available?: boolean;
-  /** Optional label paired with `available: false` (e.g. "Sold out"). Falls back to a generic "Unavailable" label at the consumer when unset. */
-  availableReason?: string;
+  /** Optional reason paired with `available: false`. Mappers normalize the schema's `string | LabelContent` admin form to {@link LabelContent}; consumers fall back to a generic "Unavailable" label when unset. */
+  availableReason?: LabelContent;
   /** `true` if the price includes tax. */
   includesTax?: boolean;
   /** `true` if the product is the default selection. */
