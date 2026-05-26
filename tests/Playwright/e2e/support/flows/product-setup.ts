@@ -31,6 +31,13 @@ export async function seedInvalidProduct(
   }
 ): Promise<string> {
   const order = (await getCurrentOrder(token)) ?? (await createOrder(token));
+  if (!order?.id) {
+    throw new Error(
+      `seedInvalidProduct: failed to obtain an order id from getCurrentOrder/createOrder ` +
+        `(token prefix=${token?.slice(0, 8) ?? "<empty>"}...). ` +
+        `Check staging auth/session establishment and POST /api/orders.`
+    );
+  }
   await addProductToOrder(
     token,
     order.id,

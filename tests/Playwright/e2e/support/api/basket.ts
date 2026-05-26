@@ -41,6 +41,13 @@ export async function createOrder(token: string): Promise<Order> {
       data: { category_slug: "new_contract", currency_code: "GBP" }
     });
 
+    if (!response.ok()) {
+      const errorText = await response.text();
+      throw new Error(
+        `createOrder failed: ${response.status()} ${response.statusText()} - ${errorText}`
+      );
+    }
+
     const body = await response.json();
     return body.data;
   } finally {
