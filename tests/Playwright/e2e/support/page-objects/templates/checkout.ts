@@ -216,13 +216,28 @@ export class Checkout {
     expiryDate: string,
     cvcCode: string
   ) {
+    // Locate Stripe Elements inputs by `autocomplete` rather than `placeholder`
+    // or label text. Placeholders/labels are locale-driven (e.g. "WS11 1DB" vs
+    // "12345", "Postal code" vs "ZIP code") and shift with Stripe SDK updates.
+    // The autocomplete attribute is the W3C-standard semantic anchor and
+    // stable across countries.
     const stripeFrame = this.page.frameLocator(
       'iframe[title="Secure payment input frame"]'
     );
-    await stripeFrame.getByPlaceholder("1234 1234 1234 1234").fill(cardNumber);
-    await stripeFrame.getByPlaceholder("MM / YY").fill(expiryDate);
-    await stripeFrame.getByPlaceholder("CVC").fill(cvcCode);
-    await stripeFrame.getByPlaceholder("WS11 1DB").fill("SW1A 2AB");
+    await stripeFrame
+      .locator('input[autocomplete="cc-number"]')
+      .fill(cardNumber);
+    await stripeFrame.locator('input[autocomplete="cc-exp"]').fill(expiryDate);
+    await stripeFrame.locator('input[autocomplete="cc-csc"]').fill(cvcCode);
+
+    // Postcode is country-driven by Stripe Elements. Some countries (e.g. ZA)
+    // omit the field entirely. The card suites verify card → success, not
+    // billing capture (covered by the billing-details specs). So: tolerate
+    // the field being absent.
+    const postcode = stripeFrame.locator(
+      'input[autocomplete*="postal-code" i]'
+    );
+    if ((await postcode.count()) > 0) await postcode.first().fill("SW1A 2AB");
   }
 
   async inputSepaDetails(
