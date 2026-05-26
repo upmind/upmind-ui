@@ -28,6 +28,7 @@ export * from "./ui/image";
 export * from "./ui/image-grid";
 export * from "./ui/input";
 export * from "./ui/input-otp";
+export * from "./ui/input-password";
 export * from "./ui/interstitial";
 export * from "./ui/label";
 export * from "./ui/lineclamp";
@@ -64,7 +65,6 @@ export {
   useThemes,
   useThemeIcons,
   useStyleSheet,
-  usePointerEvents,
   parseVariants,
   useForwardPropsEmits,
   type VariantValues,

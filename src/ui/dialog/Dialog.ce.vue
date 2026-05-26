@@ -10,62 +10,64 @@
       :classOverlay="styles.dialog.overlay"
       @update:open="onOpen"
     >
-      <DialogHeader
-        :class="[styles.dialog.header, props.classHeader]"
-        v-if="
-          !props.noHeader &&
-          ($slots.header ||
-            title ||
-            $slots.title ||
-            description ||
-            $slots.description)
-        "
-      >
-        <slot name="header">
-          <DialogClose
-            v-if="dismissable"
-            iconOnly
-            @click="forceClose"
-            class="absolute top-0 right-0 m-4"
-          />
-
-          <DialogTitle
-            v-if="title || $slots.title"
-            class="mb-2 text-2xl font-normal"
-          >
-            <slot name="title">{{ title }}</slot>
-          </DialogTitle>
-
-          <DialogDescription
-            v-if="description || $slots.description"
-            class="text-muted-foreground text-sm"
-          >
-            <slot name="description">{{ description }}</slot>
-          </DialogDescription>
-        </slot>
-      </DialogHeader>
-
-      <div :class="styles.dialog.container">
-        <slot />
-      </div>
-
-      <DialogFooter
-        v-if="$slots.footer || $slots.actions || meta.hasDefaultClose"
-        :class="[styles.dialog.footer, props.classFooter]"
-      >
-        <slot name="footer">
-          <slot name="close">
-            <Link
+      <div :class="styles.dialog.scrollable">
+        <DialogHeader
+          :class="[styles.dialog.header, props.classHeader]"
+          v-if="
+            !props.noHeader &&
+            ($slots.header ||
+              title ||
+              $slots.title ||
+              description ||
+              $slots.description)
+          "
+        >
+          <slot name="header">
+            <DialogClose
+              v-if="dismissable"
+              iconOnly
               @click="forceClose"
-              v-if="!noFooter"
-              color="muted"
-              label="Close"
+              class="absolute top-0 right-0 m-4"
             />
-          </slot>
-        </slot>
 
-        <slot name="actions" />
-      </DialogFooter>
+            <DialogTitle
+              v-if="title || $slots.title"
+              class="mb-2 text-2xl font-normal"
+            >
+              <slot name="title">{{ title }}</slot>
+            </DialogTitle>
+
+            <DialogDescription
+              v-if="description || $slots.description"
+              class="text-muted-foreground text-sm"
+            >
+              <slot name="description">{{ description }}</slot>
+            </DialogDescription>
+          </slot>
+        </DialogHeader>
+
+        <div :class="styles.dialog.container">
+          <slot />
+        </div>
+
+        <DialogFooter
+          v-if="$slots.footer || $slots.actions || meta.hasDefaultClose"
+          :class="[styles.dialog.footer, props.classFooter]"
+        >
+          <slot name="footer">
+            <slot name="close">
+              <Link
+                @click="forceClose"
+                v-if="!noFooter"
+                color="muted"
+                label="Close"
+              />
+            </slot>
+          </slot>
+
+          <slot name="actions" />
+        </DialogFooter>
+      </div>
     </DialogContent>
   </Dialog>
 </template>
@@ -74,9 +76,8 @@
 // --- external
 import { useVModel } from "@vueuse/core";
 import { useForwardPropsEmits } from "radix-vue";
-import { computed, nextTick } from "vue";
+import { computed } from "vue";
 // --- internal
-import { usePointerEvents } from "../../utils/usePointerEvents";
 import { Link } from "../link";
 import config from "./dialog.config";
 // --- components
@@ -155,18 +156,11 @@ const styles = useStyles(["dialog"], meta, config, props.uiConfig ?? {});
 // --- state
 const value = useVModel(props, "open", emits);
 
-// By default, Dialog will set the Body element to pointer-events: none;
-// This prevents the whole body from being clickable.
-// As this is a result of an external library that we can't override, we need to handle this manually.
-// With handlePointerEvents, pointer-events: none; is moved to props.to..
-const { handlePointerEvents } = usePointerEvents(value, props.to);
-
 const onOpen = (open: boolean, force: boolean = false) => {
   // Allow opening freely. Only guard closing.
   if (!open && !props.dismissable && !force) return;
   value.value = open;
   emits("update:open", open);
-  nextTick(() => handlePointerEvents(open));
 };
 
 const forceClose = () => {

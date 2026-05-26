@@ -6,16 +6,20 @@
         <slot name="title">
           {{ title }}
         </slot>
+        <slot v-if="!hasDescription && hasAction" name="action">
+          <Link size="sm" color="inherit" v-bind="action" @click="onClick">
+            <template #append>
+              <Icon icon="arrow-right" :class="styles.alert.actionIcon" />
+            </template>
+          </Link>
+        </slot>
       </AlertTitle>
 
-      <AlertDescription
-        v-if="description || $slots['description']"
-        :class="styles.alert.description"
-      >
+      <AlertDescription v-if="hasDescription" :class="styles.alert.description">
         <slot name="description">
           {{ description }}
         </slot>
-        <slot v-if="action || $slots['action']" name="action">
+        <slot v-if="hasAction" name="action">
           <Link size="sm" color="inherit" v-bind="action" @click="onClick">
             <template #append>
               <Icon icon="arrow-right" :class="styles.alert.actionIcon" />
@@ -59,7 +63,7 @@ const props = withDefaults(defineProps<AlertProps>(), {
   class: ""
 });
 
-defineSlots<{
+const slots = defineSlots<{
   /** Append additional content */
   default(props: {}): any;
   /** Provide a title */
@@ -78,10 +82,16 @@ function onClick() {
   emit("click");
 }
 
+const hasDescription = computed(
+  () => !!props.description || !!slots.description
+);
+const hasAction = computed(() => !!props.action || !!slots.action);
+
 const meta = computed(() => ({
   variant: props.variant,
   color: props.color,
-  size: props.size
+  size: props.size,
+  action: !hasDescription.value && hasAction.value
 }));
 
 const styles = useStyles("alert", meta, config, props.uiConfig ?? {});

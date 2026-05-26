@@ -1,5 +1,9 @@
 // --- external
-import type { contentVariant, overlayVariant } from "./dialog.config";
+import type {
+  contentVariant,
+  overlayVariant,
+  scrollableVariant
+} from "./dialog.config";
 import type { VariantProps, CxOptions } from "class-variance-authority";
 import type {
   DialogRootProps,
@@ -13,6 +17,7 @@ import type { HTMLAttributes } from "vue";
 // --- internal
 
 type DialogContentVariantProps = VariantProps<typeof contentVariant>;
+type DialogScrollableVariantProps = VariantProps<typeof scrollableVariant>;
 type _DialogOverlayVariantProps = VariantProps<typeof overlayVariant>;
 
 export type DialogProps = DialogRootProps &
@@ -31,8 +36,8 @@ export type DialogProps = DialogRootProps &
     dismissable?: boolean;
     // --- variants
     size?: DialogContentVariantProps["size"] | string;
-    overflow?: DialogContentVariantProps["overflow"] | string;
-    fit?: DialogContentVariantProps["fit"] | string;
+    overflow?: DialogScrollableVariantProps["overflow"] | string;
+    fit?: DialogScrollableVariantProps["fit"] | string;
 
     // ---
     uiConfig?: {

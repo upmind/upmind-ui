@@ -7,6 +7,7 @@ export const baseRing =
   "outline outline-2 outline-transparent outline-offset-2";
 
 export const focusWithinRing = `${baseRing} [&:focus-within,&[data-focus=true]]:outline-[var(--tw-ring-color,var(--color-control-ring))]`;
+export const focusVisibleRing = `${baseRing} [&:focus-visible,&:has(:focus-visible),&[data-focus=true]]:outline-[var(--tw-ring-color,var(--color-control-ring))]`;
 export const focusRing = `${baseRing} [&:focus,&:focus-visible,&[data-focus=true]]:outline-[var(--tw-ring-color,var(--color-control-ring))]`;
 export const activeRing = `${baseRing} active:outline-[var(--tw-ring-color,var(--color-control-ring))]`;
 export const groupFocusRing = `${baseRing} group-focus-within:outline-[var(--tw-ring-color,var(--color-control-ring))]`;

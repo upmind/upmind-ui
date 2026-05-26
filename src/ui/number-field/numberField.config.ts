@@ -2,19 +2,21 @@ import { cva } from "class-variance-authority";
 import { ringClasses } from "../../assets/styles";
 // -----------------------------------------------------------------------------
 
+const widthVariants = {
+  auto: "",
+  xs: "",
+  sm: "",
+  md: "",
+  lg: "",
+  xl: "",
+  "2xl": "",
+  full: "",
+  app: ""
+};
+
 export const numberFieldRootVariants = cva("group inline-block", {
   variants: {
-    width: {
-      auto: "",
-      xs: "",
-      sm: "",
-      md: "",
-      lg: "",
-      xl: "",
-      "2xl": "",
-      full: "",
-      app: ""
-    },
+    width: widthVariants,
     size: {
       sm: "",
       md: "",
@@ -77,7 +79,7 @@ export const numberFieldRootVariants = cva("group inline-block", {
     {
       variant: "flat",
       width: "sm",
-      class: "lg:w-80"
+      class: "w-21"
     },
     {
       variant: "flat",
@@ -121,7 +123,7 @@ export const numberFieldVariants = cva(
   {
     variants: {
       variant: {
-        flat: `shadow-control-default bg-control-surface hover:shadow-control-hover control-radius`,
+        flat: `shadow-control-default bg-control-surface group-hover:shadow-control-hover control-radius`,
         minimal: "rounded-full py-3 font-medium shadow-none!"
       },
       size: {
@@ -157,32 +159,69 @@ export const numberFieldVariants = cva(
   }
 );
 
-const inputVariant = (radius: "control-radius-r" | "control-radius-l") =>
-  cva("", {
+export const numberFieldInputLeftVariants = cva(
+  "absolute top-1/2 left-0 flex -translate-y-1/2 cursor-pointer items-center justify-center p-3 disabled:cursor-not-allowed disabled:opacity-20",
+  {
     variants: {
       variant: {
-        flat: `bg-control-surface shadow-control-default hover:shadow-control-hover [&>i]:disabled:text-muted [&>i]:size-lh font-normal ${radius} cursor-pointer transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-20 [&>i]:flex [&>i]:items-center [&>i]:justify-center`,
+        flat: "[&>i]:text-muted [&>i]:disabled:text-muted [&>i]:size-lh cursor-pointer font-normal transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-20 [&>i]:flex [&>i]:items-center [&>i]:justify-center hover:[&>i]:text-base [&>i>svg]:p-px",
         minimal: "flex h-5 w-5 items-center justify-center p-0"
       },
       size: {
         sm: "",
         md: "",
         lg: ""
-      }
+      },
+      width: widthVariants
     },
     compoundVariants: [
       { variant: "flat", size: "sm", class: "w-1/3 py-2 text-sm" },
       { variant: "flat", size: "md", class: "w-1/3 py-2 text-sm" },
-      { variant: "flat", size: "lg", class: "text-md w-1/3 py-2" }
+      { variant: "flat", size: "lg", class: "text-md w-1/3 py-2" },
+      {
+        variant: "flat",
+        width: "sm",
+        class: "left-2 w-6 [&>i]:p-0.5 [&>i>svg]:size-4.5"
+      }
     ],
     defaultVariants: {
       variant: "flat",
       size: "md"
     }
-  });
+  }
+);
 
-export const numberFieldInputLeftVariants = inputVariant("control-radius-l");
-export const numberFieldInputRightVariants = inputVariant("control-radius-r");
+export const numberFieldInputRightVariants = cva(
+  "absolute top-1/2 right-0 flex -translate-y-1/2 cursor-pointer items-center justify-center p-3 disabled:cursor-not-allowed disabled:opacity-20",
+  {
+    variants: {
+      variant: {
+        flat: "[&>i]:text-muted [&>i]:disabled:text-muted [&>i]:size-lh cursor-pointer font-normal transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-20 [&>i]:flex [&>i]:items-center [&>i]:justify-center hover:[&>i]:text-base [&>i>svg]:p-px",
+        minimal: "flex h-5 w-5 items-center justify-center p-0"
+      },
+      size: {
+        sm: "",
+        md: "",
+        lg: ""
+      },
+      width: widthVariants
+    },
+    compoundVariants: [
+      { variant: "flat", size: "sm", class: "w-1/3 py-2 text-sm" },
+      { variant: "flat", size: "md", class: "w-1/3 py-2 text-sm" },
+      { variant: "flat", size: "lg", class: "text-md w-1/3 py-2" },
+      {
+        variant: "flat",
+        width: "sm",
+        class: "right-2 w-6 [&>i]:p-0.5 [&>i>svg]:size-4.5"
+      }
+    ],
+    defaultVariants: {
+      variant: "flat",
+      size: "md"
+    }
+  }
+);
 // -----------------------------------------------------------------------------
 export default {
   numberField: {

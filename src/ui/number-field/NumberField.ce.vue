@@ -7,38 +7,29 @@
     :class="cn(styles.numberField.root, props.class)"
   >
     <NumberFieldContent>
-      <NumberFieldDecrement
+      <NumberFieldActionButton
+        :is="NumberFieldDecrement"
         :size="props.size"
         :class="styles.numberField.inputLeft"
+        :action="props.decrementAction"
       >
-        <NumberFieldIcon
-          :icon="
-            props.variant === NUMBER_FIELD_VARIANTS.FLAT
-              ? 'minus'
-              : 'minus-circle'
-          "
-          :variant="props.variant"
-        />
-      </NumberFieldDecrement>
+        <NumberFieldIcon :icon="decrementIcon" :variant="props.variant" />
+      </NumberFieldActionButton>
 
       <NumberFieldInput
         @resize="handleResize"
         :class="cn(styles.numberField.field, props.classField)"
         data-testid="quantity-input"
       />
-      <NumberFieldIncrement
+
+      <NumberFieldActionButton
+        :is="NumberFieldIncrement"
         :size="props.size"
         :class="styles.numberField.inputRight"
+        :action="props.incrementAction"
       >
-        <NumberFieldIcon
-          :icon="
-            props.variant === NUMBER_FIELD_VARIANTS.FLAT
-              ? 'plus'
-              : 'plus-circle'
-          "
-          :variant="props.variant"
-        />
-      </NumberFieldIncrement>
+        <NumberFieldIcon :icon="incrementIcon" :variant="props.variant" />
+      </NumberFieldActionButton>
     </NumberFieldContent>
   </NumberField>
 </template>
@@ -51,6 +42,7 @@ import config from "./numberField.config";
 // --- components
 import NumberField from "./NumberField.vue";
 import NumberFieldContent from "./NumberFieldContent.vue";
+import NumberFieldActionButton from "./NumberFieldActionButton.vue";
 import NumberFieldDecrement from "./NumberFieldDecrement.vue";
 import NumberFieldIcon from "./NumberFieldIcon.vue";
 import NumberFieldIncrement from "./NumberFieldIncrement.vue";
@@ -96,9 +88,23 @@ const delegatedProps = computed(() =>
     "size",
     "width",
     "variant",
-    "singleStep"
+    "singleStep",
+    "decrementAction",
+    "incrementAction"
   ])
 );
+
+const decrementIcon = computed(() => {
+  if (props.decrementAction?.icon) return props.decrementAction.icon;
+  if (props.variant === NUMBER_FIELD_VARIANTS.FLAT) return "minus";
+  return "minus-circle";
+});
+
+const incrementIcon = computed(() => {
+  if (props.incrementAction?.icon) return props.incrementAction.icon;
+  if (props.variant === NUMBER_FIELD_VARIANTS.FLAT) return "plus";
+  return "plus-circle";
+});
 
 // Track value ONLY for instant width calculation - not used for modelValue updates
 const internalValue = ref(modelValue.value);

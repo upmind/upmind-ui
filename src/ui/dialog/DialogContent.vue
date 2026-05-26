@@ -7,10 +7,10 @@ import {
   type DialogContentEmits,
   type DialogContentProps
 } from "radix-vue";
-import { type HTMLAttributes, computed } from "vue";
+import { type HTMLAttributes, computed, useTemplateRef } from "vue";
 import DialogClose from "./DialogClose.vue";
 import DialogOverlay from "./DialogOverlay.vue";
-import { cn } from "../../utils";
+import { cn, providePortalTarget } from "../../utils";
 
 const props = defineProps<
   DialogContentProps &
@@ -29,6 +29,10 @@ const delegatedProps = computed(() => {
 });
 
 const forwarded = useForwardPropsEmits(delegatedProps, emits);
+
+// Expose the content element to descendant overlays so their portals teleport
+// into this dialog's stacking context instead of competing at body level.
+providePortalTarget(useTemplateRef("content"));
 </script>
 
 <!--
@@ -40,10 +44,11 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits);
   <DialogPortal :to="props.to">
     <DialogOverlay :class="props.classOverlay" />
     <DialogContent
+      ref="content"
       v-bind="forwarded"
       :class="
         cn(
-          'bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-1/2 left-1/2 z-50 grid w-full max-w-lg -translate-x-1/2 -translate-y-1/2 gap-4 border p-6 shadow-lg duration-200',
+          'bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-1/2 left-1/2 z-50 flex w-full max-w-lg -translate-x-1/2 -translate-y-1/2 flex-col border shadow-lg duration-200',
           props.class
         )
       "
