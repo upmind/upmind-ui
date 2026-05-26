@@ -30,6 +30,10 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
   // Run route guard - may redirect to a different route
   const target = await guard(to);
 
+  // After first navigation resolves, disable the modal loader for in-app nav
+  const isInitialLoad = useState("isInitialLoad");
+  if (isInitialLoad.value) isInitialLoad.value = false;
+
   // Only redirect if target exists and route has meaningfully changed
   if (target && hasRouteChanged(to, target)) {
     return navigateTo(target);

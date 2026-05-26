@@ -1,14 +1,26 @@
 // --- external
-import { find, first, forEach, isEmpty, keys, map, size } from "lodash-es";
+import {
+  filter,
+  find,
+  first,
+  forEach,
+  isEmpty,
+  keys,
+  map,
+  size
+} from "lodash-es";
 
 // --- internal
+import { useConfig } from "../config";
 import { useI18n } from "../system";
 import {
+  hasScopeError,
   calculateBillingTerm,
   checkPriceOverride,
   parseProvisioningSchema,
   parseQuantity
 } from "./utils";
+import { fieldRequiresSetup } from "../productSetup/utils";
 
 // --- types
 import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
@@ -18,6 +30,7 @@ import type {
   SubproductDetails,
   TermDetails
 } from "./types";
+import { UIContext } from "../config/schema/types";
 
 // -----------------------------------------------------------------------------
 /**
@@ -403,4 +416,236 @@ export function useProductConfigUischema(
     type: "VerticalLayout",
     elements
   } as UISchemaElement;
+}
+
+// -----------------------------------------------------------------------------
+
+/**
+ * Builds a UISchema containing only elements that need attention.
+ *
+ * This mirrors `useProductConfigUischema` but only includes elements where the
+ * corresponding field has an error, or (when mode is 'deferred') where deferred
+ * provision fields have empty values.
+ *
+ * @param context - The product config context with lookups and errors
+ * @param mode - 'required' (errors only) or 'deferred' (errors + empty deferred fields)
+ * @returns A new UISchema containing only elements needing attention
+ */
+export function useInvalidProductConfigUischema(
+  context: ProductConfigContext
+): UISchemaElement {
+  const { ui } = useConfig({ context: UIContext.CHECKOUT });
+  const mode = ui.productSetup.value;
+  const elements: any[] = [];
+  const { t } = useI18n();
+  const hasError = hasScopeError(context.basketErrors);
+
+  // --- trial opt-in
+  if (
+    context?.lookups?.product?.trialSupported &&
+    hasError("#/properties/startTrial")
+  ) {
+    elements.push({
+      type: "Control",
+      scope: "#/properties/startTrial",
+      i18n: "product_trial",
+      options: {
+        format: "card",
+        items: [
+          {
+            value: "true",
+            label: t("text.try_before_you_buy"),
+            secondaryDescription: t("text.free_trial_desc", {
+              days: context.lookups!.product!.trialDuration
+            }),
+            badge: {
+              label: t("text.free_trial"),
+              color: "promo",
+              variant: "minimal"
+            }
+          }
+        ],
+        trialDuration: context.lookups!.product!.trialDuration,
+        disabled: !!context.lookups!.product!.trialForce
+      }
+    });
+  }
+
+  // --- term selector
+  if (!isEmpty(context?.lookups?.terms) && hasError("#/properties/term")) {
+    elements.push({
+      type: "Terms",
+      scope: "#/properties/term",
+      i18n: "product.term"
+    });
+  }
+
+  // --- options (one element per category with errors)
+  if (!isEmpty(context?.lookups?.options)) {
+    forEach(context?.lookups!.options!, option => {
+      if (isEmpty(option.values)) return;
+
+      const scope = `#/properties/options/properties/${option.id}`;
+      if (!hasError(scope)) return;
+
+      elements.push({
+        type: "SubProducts",
+        scope,
+        i18n: "product.option",
+        options: {
+          meta: option.meta,
+          uiMeta: option.uiMeta,
+          uiCategoryMeta: option.uiCategoryMeta
+        }
+      });
+    });
+  }
+
+  // --- attributes (one element per category with errors)
+  if (!isEmpty(context?.lookups?.attributes)) {
+    forEach(context?.lookups!.attributes!, attr => {
+      if (isEmpty(attr.values)) return;
+
+      const scope = `#/properties/attributes/properties/${attr.id}`;
+      if (!hasError(scope)) return;
+
+      elements.push({
+        type: "SubProducts",
+        scope,
+        i18n: "product.attribute",
+        options: {
+          meta: attr.meta,
+          uiMeta: attr.uiMeta,
+          uiCategoryMeta: attr.uiCategoryMeta
+        }
+      });
+    });
+  }
+
+  // --- provision fields (errors + empty deferred fields when mode is 'deferred')
+  if (!isEmpty(context?.lookups?.provisionFields) && context?.rawProduct) {
+    const provisionSchema = parseProvisioningSchema(
+      context.lookups!.provisionFields,
+      context.rawProduct
+    );
+    if (!isEmpty(provisionSchema?.properties)) {
+      // Track which fields we've added (to avoid duplicates)
+      const addedFields = new Set<string>();
+
+      forEach(keys(provisionSchema.properties), key => {
+        const scope = `#/properties/provisionFields/properties/${key}`;
+        const fieldHasError = hasError(scope);
+
+        // Use baseModel (set on load/update) so fields don't disappear as user types
+        const field = find(context.lookups!.provisionFields, { name: key });
+        const baseValue = context.baseModel?.provisionFields?.[key];
+        const needsSetup = fieldRequiresSetup(
+          field,
+          fieldHasError,
+          baseValue,
+          mode
+        );
+
+        if (!needsSetup || addedFields.has(key)) return;
+        addedFields.add(key);
+
+        elements.push({
+          type: "Control",
+          scope,
+          i18n: `form.provision_field.${key}`
+        });
+      });
+    }
+  }
+
+  // --- autofocus the first Control element
+  const firstControl = find(elements, { type: "Control" });
+  if (firstControl) {
+    firstControl.options = { ...firstControl.options, autoFocus: true };
+  }
+
+  return {
+    type: "VerticalLayout",
+    elements
+  } as UISchemaElement;
+}
+
+/**
+ * Generates a JSON Schema containing only properties with validation errors.
+ * Used to strip a model down to only the invalid fields via useModelParser.
+ *
+ * @param context - The product config context with schema and errors
+ * @returns A JSON Schema with only invalid property definitions, or undefined if none
+ */
+export function useInvalidProductConfigSchema(
+  context: ProductConfigContext
+): JsonSchema7 | undefined {
+  const properties: Record<string, any> = {};
+  const required: string[] = [];
+
+  const hasError = hasScopeError(context.basketErrors);
+
+  // --- term
+  if (!isEmpty(context.lookups?.terms) && hasError("#/properties/term")) {
+    properties.term = buildTermSchema(
+      context.lookups!.terms!,
+      context.product?.productDetails.defaultPaymentPeriod
+    );
+    required.push("term");
+  }
+
+  // --- options
+  if (!isEmpty(context.lookups?.options)) {
+    const invalidOptions = filter(
+      context.lookups!.options!,
+      (opt: SubproductDetails) =>
+        hasError(`#/properties/options/properties/${opt.id}`)
+    );
+    if (!isEmpty(invalidOptions)) {
+      properties.options = buildSubproductGroupSchema(invalidOptions);
+    }
+  }
+
+  // --- attributes
+  if (!isEmpty(context.lookups?.attributes)) {
+    const invalidAttributes = filter(
+      context.lookups!.attributes!,
+      (attr: SubproductDetails) =>
+        hasError(`#/properties/attributes/properties/${attr.id}`)
+    );
+    if (!isEmpty(invalidAttributes)) {
+      properties.attributes = buildSubproductGroupSchema(invalidAttributes);
+    }
+  }
+
+  // --- provision fields (parse raw fields into JSON schema)
+  if (!isEmpty(context.lookups?.provisionFields) && context.rawProduct) {
+    const invalidProvisionFields = filter(
+      context.lookups!.provisionFields,
+      (field: any) =>
+        hasError(`#/properties/provisionFields/properties/${field.name}`)
+    );
+    if (!isEmpty(invalidProvisionFields)) {
+      properties.provisionFields = parseProvisioningSchema(
+        invalidProvisionFields,
+        context.rawProduct
+      );
+    }
+  }
+
+  // --- trial opt-in
+  if (
+    context.lookups?.product?.trialSupported &&
+    hasError("#/properties/startTrial")
+  ) {
+    properties.startTrial = buildTrialSchema(context.lookups.product);
+  }
+
+  if (isEmpty(properties)) return undefined;
+
+  return {
+    type: "object",
+    required,
+    properties
+  } as JsonSchema7;
 }

@@ -5,3 +5,4 @@ export { setLocale } from "./locale";
 export { waitForUrlChange } from "./navigation";
 export { waitForSessionCookie } from "./session";
 export { kebabCase } from "./strings";
+export { low, normal, high, blocker } from "./allure";

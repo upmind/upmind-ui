@@ -1,0 +1,883 @@
+{
+  "request": {
+    "method": "GET",
+    "path": "/api/countries/320e4357-95e7-8d18-484f-31643202d986/regions?limit=0&lang=en-US"
+  },
+  "response": {
+    "status": 200,
+    "body": {
+      "status": "ok",
+      "data": [
+        {
+          "id": "de78642d-e539-7146-2e6b-21208469530d",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "ABD",
+          "name": "Aberdeenshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "20e43579-5e78-d187-96df-31643202d986",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "AGB",
+          "name": "Argyll",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "04038696-e547-21d6-3e5a-518d9305e7d2",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "AN",
+          "name": "Aberdeen, City of",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "89857426-4897-0122-598a-21e325d0ed36",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "ANS",
+          "name": "Angus (Forfarshire)",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "20e43579-5e78-d187-95dc-31643202d986",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "ANT",
+          "name": "Antrim",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "785d26e9-6783-d16e-623a-314502e70439",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "ARG",
+          "name": "Ayrshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "785d26e9-6783-d16e-6d3f-314502e70439",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "ARM",
+          "name": "Armagh",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "d085e69d-5623-719e-0e9a-218e940d4237",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "AVN",
+          "name": "Avon",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "25d96e76-3ed0-9136-40eb-417482528340",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "BAN",
+          "name": "Banffshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "d0367942-4d0e-7102-d28a-3153698d582e",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "BDF",
+          "name": "Bedfordshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "d085e69d-5623-719e-0d5f-218e940d4237",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "BEW",
+          "name": "Berwickshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "952098d3-de40-9179-394c-31578626e347",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "BKM",
+          "name": "Buckinghamshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "25d96e76-3ed0-9136-49ef-417482528340",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "BLF",
+          "name": "Belfast, City of",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "d6325079-8065-d1e5-954a-8174e234e98d",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "BRK",
+          "name": "Berkshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "d0367942-4d0e-7102-d66b-3153698d582e",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "BUT",
+          "name": "Bute",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "d6325079-8065-d1e5-949f-8174e234e98d",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "CAI",
+          "name": "Caithness",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "04038696-e547-21d6-327f-518d9305e7d2",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "CAM",
+          "name": "Cambridgeshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "de78642d-e539-7146-275c-21208469530d",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "CHS",
+          "name": "Cheshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "7d738248-5079-315e-840b-81e642d59e06",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "CLK",
+          "name": "Clackmannanshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "89857426-4897-0122-582f-21e325d0ed36",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "CLV",
+          "name": "Cleveland",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "785d26e9-6783-d16e-694b-314502e70439",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "CMA",
+          "name": "Cumbria",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "7d738248-5079-315e-8e8c-81e642d59e06",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "COB",
+          "name": "Bristol, City of",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "952098d3-de40-9179-330b-31578626e347",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "COC",
+          "name": "Cromartyshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "20e43579-5e78-d187-900b-31643202d986",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "CON",
+          "name": "Cornwall",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "d085e69d-5623-719e-325c-218e940d4237",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "CWD",
+          "name": "Clwyd",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "25d96e76-3ed0-9136-472c-417482528340",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "DBY",
+          "name": "Derbyshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "89857426-4897-0122-558b-21e325d0ed36",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "DD",
+          "name": "Dundee, City of",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "d085e69d-5623-719e-049c-218e940d4237",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "DEV",
+          "name": "Devon",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "d0367942-4d0e-7102-036a-3153698d582e",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "DFD",
+          "name": "Dyfed",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "04038696-e547-21d6-335c-518d9305e7d2",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "DFS",
+          "name": "Dumfriesshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "de78642d-e539-7146-226a-21208469530d",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "DNB",
+          "name": "Dunbartonshire (Dumbarton)",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "d0367942-4d0e-7102-d48c-3153698d582e",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "DOR",
+          "name": "Dorset",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "d085e69d-5623-719e-055a-218e940d4237",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "DOW",
+          "name": "Down",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "7d738248-5079-315e-850f-81e642d59e06",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "DRY",
+          "name": "Derry, City of",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "d6325079-8065-d1e5-9d4c-8174e234e98d",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "DUR",
+          "name": "Durham",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "785d26e9-6783-d16e-663c-314502e70439",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "EB",
+          "name": "Edinburgh, City of",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "20e43579-5e78-d187-99df-31643202d986",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "ELN",
+          "name": "East Lothian (Haddingtonshire)",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "952098d3-de40-9179-374f-31578626e347",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "ESS",
+          "name": "Essex",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "d0367942-4d0e-7102-d86f-3153698d582e",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "FER",
+          "name": "Fermanagh",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "25d96e76-3ed0-9136-44ea-417482528340",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "FIF",
+          "name": "Fife",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "d085e69d-5623-719e-005b-218e940d4237",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "GLA",
+          "name": "Glasgow, City of",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "04038696-e547-21d6-387b-518d9305e7d2",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "GLS",
+          "name": "Gloucestershire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "d6325079-8065-d1e5-879f-8174e234e98d",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "GNT",
+          "name": "Gwent",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "89857426-4897-0122-572b-21e325d0ed36",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "GTM",
+          "name": "Greater Manchester",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "7d738248-5079-315e-0d0f-81e642d59e06",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "GWN",
+          "name": "Gwynedd",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "20e43579-5e78-d187-9d0b-31643202d986",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "HAM",
+          "name": "Hampshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "785d26e9-6783-d16e-643b-314502e70439",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "HEF",
+          "name": "Herefordshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "25d96e76-3ed0-9136-45ec-417482528340",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "HRT",
+          "name": "Hertfordshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "785d26e9-6783-d16e-644a-314502e70439",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "HWR",
+          "name": "Hereford and Worcester",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "d0367942-4d0e-7102-dd6f-3153698d582e",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "INV",
+          "name": "Inverness-shire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "d085e69d-5623-719e-065c-218e940d4237",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "IOW",
+          "name": "Isle of Wight",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "d6325079-8065-d1e5-999b-8174e234e98d",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "KCD",
+          "name": "Kincardineshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "d0367942-4d0e-7102-d76b-3153698d582e",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "KEN",
+          "name": "Kent",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "952098d3-de40-9179-340a-31578626e347",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "KKD",
+          "name": "Kirkcudbrightshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "7d738248-5079-315e-880a-81e642d59e06",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "KRS",
+          "name": "Kinross-shire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "d6325079-8065-d1e5-969c-8174e234e98d",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "LAN",
+          "name": "Lancashire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "04038696-e547-21d6-305b-518d9305e7d2",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "LDN",
+          "name": "London",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "d6325079-8065-d1e5-909c-8174e234e98d",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "LDY",
+          "name": "Londonderry",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "7d738248-5079-315e-890f-81e642d59e06",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "LEI",
+          "name": "Leicestershire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "952098d3-de40-9179-3d0f-31578626e347",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "LIN",
+          "name": "Lincolnshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "04038696-e547-21d6-345f-518d9305e7d2",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "LKS",
+          "name": "Lanarkshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "de78642d-e539-7146-295f-21208469530d",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "LND",
+          "name": "Greater London",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "89857426-4897-0122-5d8c-21e325d0ed36",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "MDX",
+          "name": "Middlesex",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "952098d3-de40-9179-4e0b-31578626e347",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "MGM",
+          "name": "Mid Glamorgan",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "de78642d-e539-7146-236c-21208469530d",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "MLN",
+          "name": "Midlothian (County of Edinburgh)",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "89857426-4897-0122-548a-21e325d0ed36",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "MOR",
+          "name": "Moray (Elginshire)",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "de78642d-e539-7146-286f-21208469530d",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "MSY",
+          "name": "Merseyside",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "20e43579-5e78-d187-98db-31643202d986",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "NAI",
+          "name": "Nairnshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "25d96e76-3ed0-9136-42ef-417482528340",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "NBL",
+          "name": "Northumberland",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "20e43579-5e78-d187-92db-31643202d986",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "NFK",
+          "name": "Norfolk",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "d085e69d-5623-719e-085f-218e940d4237",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "NHM",
+          "name": "North Humberside",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "785d26e9-6783-d16e-633a-314502e70439",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "NTH",
+          "name": "Northamptonshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "d6325079-8065-d1e5-9e9f-8174e234e98d",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "NTT",
+          "name": "Nottinghamshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "d0367942-4d0e-7102-d56a-3153698d582e",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "NYK",
+          "name": "North Yorkshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "785d26e9-6783-d16e-653f-314502e70439",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "OKI",
+          "name": "Orkney",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "7d738248-5079-315e-860b-81e642d59e06",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "OXF",
+          "name": "Oxfordshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "25d96e76-3ed0-9136-48ec-417482528340",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "PEE",
+          "name": "Peeblesshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "d085e69d-5623-719e-035a-218e940d4237",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "PER",
+          "name": "Perthshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "04038696-e547-21d6-455a-518d9305e7d2",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "POW",
+          "name": "Powys",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "d0367942-4d0e-7102-d06b-3153698d582e",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "RFW",
+          "name": "Renfrewshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "d6325079-8065-d1e5-989c-8174e234e98d",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "ROC",
+          "name": "Ross and Cromarty",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "7d738248-5079-315e-800c-81e642d59e06",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "ROS",
+          "name": "Ross-shire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "952098d3-de40-9179-400c-31578626e347",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "ROX",
+          "name": "Roxburghshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "952098d3-de40-9179-360b-31578626e347",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "RUT",
+          "name": "Rutland",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "04038696-e547-21d6-3d5a-518d9305e7d2",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "SAL",
+          "name": "Shropshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "04038696-e547-21d6-475b-518d9305e7d2",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "SEL",
+          "name": "Selkirkshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "25d96e76-3ed0-9136-4eeb-417482528340",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "SFK",
+          "name": "Suffolk",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "de78642d-e539-7146-356b-21208469530d",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "SGM",
+          "name": "South Glamorgan",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "de78642d-e539-7146-3d6f-21208469530d",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "SHI",
+          "name": "Shetland (Zetland)",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "89857426-4897-0122-5e8f-21e325d0ed36",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "SHM",
+          "name": "South Humberside",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "de78642d-e539-7146-246b-21208469530d",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "SOM",
+          "name": "Somerset",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "d085e69d-5623-719e-095b-218e940d4237",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "SRY",
+          "name": "Surrey",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "89857426-4897-0122-468c-21e325d0ed36",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "STI",
+          "name": "Stirlingshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "785d26e9-6783-d16e-683c-314502e70439",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "STS",
+          "name": "Staffordshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "20e43579-5e78-d187-8eda-31643202d986",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "SUT",
+          "name": "Sutherland",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "7d738248-5079-315e-878f-81e642d59e06",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "SXE",
+          "name": "East Sussex",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "952098d3-de40-9179-350c-31578626e347",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "SXW",
+          "name": "West Sussex",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "20e43579-5e78-d187-93da-31643202d986",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "SYK",
+          "name": "South Yorkshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "d0367942-4d0e-7102-de6c-3153698d582e",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "TWR",
+          "name": "Tyne and Wear",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "952098d3-de40-9179-380f-31578626e347",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "TYR",
+          "name": "Tyrone",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "d6325079-8065-d1e5-929a-8174e234e98d",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "WAR",
+          "name": "Warwickshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "89857426-4897-0122-408f-21e325d0ed36",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "WGM",
+          "name": "West Glamorgan",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "25d96e76-3ed0-9136-83ef-417482528340",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "WIG",
+          "name": "Wigtownshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "de78642d-e539-7146-206a-21208469530d",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "WIL",
+          "name": "Wiltshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "785d26e9-6783-d16e-503b-314502e70439",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "WLN",
+          "name": "West Lothian (Linlithgowshire)",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "7d738248-5079-315e-820a-81e642d59e06",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "WMD",
+          "name": "West Midlands",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "89857426-4897-0122-538b-21e325d0ed36",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "WOR",
+          "name": "Worcestershire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        },
+        {
+          "id": "04038696-e547-21d6-395c-518d9305e7d2",
+          "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+          "code": "WYK",
+          "name": "West Yorkshire",
+          "created_at": "2019-10-31 17:51:32",
+          "updated_at": "2019-10-31 17:51:32"
+        }
+      ],
+      "related": null,
+      "total": 108,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  }
+}

@@ -1,5 +1,5 @@
 <template>
-  <Layout>
+  <Layout :variant="LAYOUT_VARIANTS.TWO_COLUMN_LTR">
     <template #content-header>
       <slot name="summary" />
     </template>
@@ -21,7 +21,6 @@
 import { onMounted } from "vue";
 
 // --- internal
-import { useLayout } from "../../../components/layout/useLayout";
 import { useHeader } from "../../../components/header/useHeader";
 import { useFooter } from "../../../components/footer/useFooter";
 
@@ -41,10 +40,6 @@ import { LAYOUT_VARIANTS } from "../../../components/layout/types";
 
 defineOptions({
   inheritAttrs: false
-});
-
-useLayout({
-  variant: LAYOUT_VARIANTS.TWO_COLUMN_LTR
 });
 
 onMounted(() => {

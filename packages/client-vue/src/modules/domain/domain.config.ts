@@ -65,7 +65,8 @@ export default {
     },
 
     search: {
-      root: cva("gap-4 py-4 pl-6 text-xl font-medium"),
+      root: cva("gap-4 py-0 pl-6 text-xl font-medium"),
+      field: cva("min-h-19"),
       icon: cva(
         "text-muted hidden items-center justify-center pr-4 pl-1 md:flex"
       ),

@@ -132,13 +132,8 @@
 
 <script lang="ts" setup>
 // --- external
-import { computed, defineAsyncComponent, onUnmounted, ref } from "vue";
+import { computed, defineAsyncComponent, ref } from "vue";
 import { useI18n } from "vue-i18n";
-
-// --- internal
-import { useHeader } from "../../components/header/useHeader";
-import { useFooter } from "../../components/footer/useFooter";
-import { useLayout } from "../../components/layout/useLayout";
 import {
   useConfig,
   validateTemplate,
@@ -268,10 +263,4 @@ function doResolve() {
     isResolving.value = false;
   });
 }
-
-onUnmounted(() => {
-  useLayout({});
-  useFooter({});
-  useHeader({});
-});
 </script>

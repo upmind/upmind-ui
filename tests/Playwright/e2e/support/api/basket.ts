@@ -90,7 +90,9 @@ export async function getCurrentOrder(
   });
 
   try {
-    const response = await context.get("/api/orders/current");
+    const response = await context.get(
+      "/api/orders/current?with=products&products_options"
+    );
 
     if (!response.ok()) {
       console.log(

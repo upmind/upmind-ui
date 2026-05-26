@@ -24,9 +24,6 @@ export type RegisterClientOptions = {
 
 /** Shape of the data returned by a successful registration API call. */
 export type RegisterClientResponse = {
-  access_token: string;
-  token_type: string;
-  expires_in: number;
   email: string;
   password: string;
 };
@@ -89,9 +86,9 @@ export async function registerClient(
     }
 
     const json = await response.json();
-
+    console.log(json);
     return {
-      ...json,
+      ...json.data,
       email,
       password
     };

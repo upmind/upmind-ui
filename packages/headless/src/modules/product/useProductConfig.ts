@@ -47,7 +47,11 @@ import type {
   SubproductDetails,
   ProductConfigContext
 } from "./";
-import { checkPriceOverride, generateShareUrlConfig } from "./utils";
+import {
+  checkPriceOverride,
+  generateShareUrlConfig,
+  getOutstandingBasketErrors
+} from "./utils";
 import { useI18n } from "../system";
 
 // -----------------------------------------------------------------------------
@@ -98,23 +102,43 @@ export const useProductConfig = (service: ActorRef<any>) => {
     "lookups.attributes"
   );
   const options = useContext<SubproductDetails[]>(state, "lookups.options");
-  const fields = useContext<Record<string, any>>(
+  const provisionFields = useContext<Record<string, any>>(
     state,
-    "schema.properties.provisionFields"
+    "lookups.provisionFields"
   );
 
   const schema = useContext<JsonSchema7>(state, "schema");
   const uischema = useContext<UISchemaElement>(state, "uischema");
 
+  const provisionFieldsSchema = useContext<Record<string, any>>(
+    state,
+    "schema.properties.provisionFields"
+  );
   // ---
   const errors = useContext<Product["errors"]>(state, "error");
 
   const validationErrors = useContext<Product["errors"]>(state, "error.data");
-  const additionalErrors = useContext<Product["errors"]>(
-    state,
-    "errorExternal.data"
-  );
-  const externalErrors = useContext<ResponseError>(state, "errorExternal");
+
+  // Request-level error from the basket (ResponseError shape) — the array
+  // shape (per-field validation) is surfaced separately via `additionalErrors`.
+  const externalErrors = computed<ResponseError | undefined>(() => {
+    const v = contextValue<ProductConfigContext["basketErrors"]>(
+      state,
+      "basketErrors"
+    );
+    return isArray(v) ? undefined : v;
+  });
+
+  // Reactively derived "still outstanding" errors — basketErrors filtered
+  // against the live model. As the user fills/changes fields, those errors
+  // drop off without us mutating the snapshot.
+  const additionalErrors = computed(() => {
+    return getOutstandingBasketErrors(
+      contextValue<ProductConfigContext["basketErrors"]>(state, "basketErrors"),
+      contextValue<ProductConfigContext["baseModel"]>(state, "baseModel"),
+      model.value
+    );
+  });
 
   const shareUrl = computed(() => {
     const baseUrl = `${window.location.origin}/order/product/${productDetails.value?.id}`;
@@ -140,7 +164,7 @@ export const useProductConfig = (service: ActorRef<any>) => {
     ),
     isTouched: touched.value,
     showErrors:
-      isArray(contextValue(state, "errorExternal")) ||
+      !isEmpty(additionalErrors.value) ||
       (contextMatches(state, ["error"]) && contextMatches(state, ["attempts"])),
 
     hasErrors:
@@ -442,13 +466,14 @@ export const useProductConfig = (service: ActorRef<any>) => {
     raw,
     schema,
     uischema,
+    provisionFieldsSchema,
     title,
     // productDetails,
     productImage,
     terms,
     options,
     attributes,
-    fields,
+    provisionFields,
     // ---
     model,
     baseModel,
