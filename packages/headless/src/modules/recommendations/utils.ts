@@ -3,7 +3,6 @@ import { sha1 } from "object-hash";
 
 // --- internal
 import {
-  parseAvailableReason,
   parseProductDetails,
   parseQuantity,
   parseTermDetails
@@ -313,18 +312,11 @@ export function parseRecommendation(
     ? find(terms, ["cycle", config?.bcm]) ||
       calculateBillingTerm(raw.product.default_payment_period, terms)
     : ({} as TermDetails);
-  const { data } = useConfig({
-    context: UIContext.RECOMMENDATIONS,
-    product: { productDetails }
-  });
-
   term.meta = defaultsDeep(term.meta, {
     added: meta?.added ?? false,
     seen: meta?.seen ?? false,
     processing: meta?.processing ?? false,
-    loading: meta?.loading ?? false,
-    available: !data.productUnavailable,
-    availableReason: parseAvailableReason(data.productUnavailableReason)
+    loading: meta?.loading ?? false
   });
 
   // ---------------------------------------------------------------------------

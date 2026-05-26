@@ -96,7 +96,7 @@ import type {
 import { UI_SCHEMA_DEFAULTS } from "./types";
 import { type ErrorObject } from "ajv";
 import { type BrandMeta } from "../brand/types";
-import { type ProductBundleConfig, type LabelContent } from "../config";
+import { type ProductBundleConfig } from "../config";
 import { UIContext } from "../config";
 
 // -----------------------------------------------------------------------------
@@ -757,13 +757,6 @@ export const parseMeta = (
   return result;
 };
 
-// Lift the schema's `string | LabelContent` admin form to `LabelContent` once
-// at the mapper boundary, so every consumer reads `.label` / `.icon` directly
-// without re-branching on the string case.
-export const parseAvailableReason = (
-  reason?: string | LabelContent
-): LabelContent | undefined => (isString(reason) ? { label: reason } : reason);
-
 export const parseTermDetails = (
   raw: IProduct,
   currencyIdOrOverride?: string | boolean
@@ -1176,24 +1169,18 @@ export const parseProduct = (
   //   discountFormatted: values.discounted_formatted,
   // },
 
-  const { data } = useConfig({
-    context: UIContext.CONFIGURE,
-    product: { productDetails: lookups.product }
-  });
-
   const summaryDetailWithPrice: ProductSummaryDetailWithPrice = {
     name: "totals",
     title: lookups.product?.title ?? "",
     category: lookups.product?.category ?? "",
     cycle: model.term,
     quantity: model.quantity,
-    meta: merge({}, term?.meta, {
+    meta: {
+      ...(term?.meta ?? {}),
       free: price.currentAmount == 0,
       discounted:
-        price.currentAmount != price.regularAmount && price.regularAmount > 0,
-      available: !data.productUnavailable,
-      availableReason: parseAvailableReason(data.productUnavailableReason)
-    }),
+        price.currentAmount != price.regularAmount && price.regularAmount > 0
+    },
     promotions: term?.promotions,
     // ---
     price
