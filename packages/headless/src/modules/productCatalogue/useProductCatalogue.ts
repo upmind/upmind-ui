@@ -60,7 +60,6 @@ export const useProductCatalogue = (
       !query.isPlaceholderData?.value,
     hasError: !isEmpty(query.error.value),
     isEmpty: isEmpty(query.data?.value) || query.pagination.value.total == 0,
-    isAvailable: true,
     ...query?.meta.value
   }));
 

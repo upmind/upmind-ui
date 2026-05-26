@@ -29,10 +29,10 @@
         />
 
         <Badge
-          v-if="isUnavailable && meta?.availableReason"
+          v-if="unavailableReason"
           :class="styles.product.image.badge"
-          :label="meta.availableReason.label"
-          :icon="meta.availableReason.icon"
+          :label="unavailableReason.label"
+          :icon="unavailableReason.icon"
           variant="muted"
           color="neutral"
         />
@@ -302,12 +302,25 @@ const styles = useStyles(
   config
 );
 
-const isUnavailable = computed(() => props.meta?.available === false);
+const isUnavailable = computed(() => !!productMeta.data.productUnavailable);
+
+const unavailableReason = computed(() => {
+  if (!isUnavailable.value) return undefined;
+  const reason = productMeta.data.productUnavailableReason;
+  if (!reason) return { label: t("text.unavailable") };
+  return isString(reason) ? { label: reason } : reason;
+});
 
 const actionContent = computed(() => {
-  const reason = props.meta?.availableReason;
-  if (isUnavailable.value && configMeta.value.hideImage && reason) {
-    return { label: reason.label, icon: reason.icon };
+  if (
+    isUnavailable.value &&
+    configMeta.value.hideImage &&
+    unavailableReason.value
+  ) {
+    return {
+      label: unavailableReason.value.label,
+      icon: unavailableReason.value.icon
+    };
   }
   if (justAdded.value) {
     return { icon: "check-circle-broken", label: t("action.added_to_basket") };

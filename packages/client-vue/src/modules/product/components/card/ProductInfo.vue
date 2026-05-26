@@ -145,7 +145,9 @@ const titleRoute = computed(() =>
   })
 );
 
-const isUnavailable = computed(() => props.meta?.available === false);
+const isUnavailable = computed(
+  () => !!props.productMeta?.data.productUnavailable
+);
 
 function doResolve() {
   if (!props.id) return;
