@@ -36,7 +36,7 @@ export const variants = {
   },
   hasRing: {
     true: "outline outline-2 outline-transparent outline-offset-2 duration-200 focus-visible:outline-[var(--color-control-ring)]",
-    false: "outline-none focus:ring-0 focus:outline-none"
+    false: "outline outline-2 outline-transparent outline-offset-2 focus:ring-0"
   },
   hasFocusRing: {
     true: "outline outline-2 outline-transparent outline-offset-2 duration-200 focus:outline-[var(--color-control-ring)]",

@@ -40,7 +40,7 @@ export const variants = {
   },
   hasRing: {
     true: `${ringClasses} ${invalidRingClasses}`,
-    false: "outline-none focus:ring-0 focus:outline-none"
+    false: "outline outline-2 outline-transparent outline-offset-2 focus:ring-0"
   }
 };
 
