@@ -1,5 +1,6 @@
 import { fakerEN_GB } from "@faker-js/faker";
 import type { BrowserContext, Page } from "@playwright/test";
+import type { IProduct, IProductOption } from "@upmind-automation/types";
 
 import { getClientToken, getSessionToken } from "../api/auth";
 import { addProductToOrder, createOrder, getCurrentOrder } from "../api/basket";
@@ -70,4 +71,42 @@ export async function fillRegistrantDetails(
     registrantPostcode: fakerEN_GB.location.zipCode(),
     registrantCountryCode: "GB"
   });
+}
+
+/**
+ * For each `required + multiple` option category on the raw product where the
+ * machine cannot auto-select a default (single-select defaults are handled by
+ * `fillRequiredOptionDefaults` in headless; multi-select requires a user
+ * choice), click the first option (by `pivot.default desc`, `pivot.order asc`)
+ * so form validation passes on submit.
+ *
+ * No-op for products without any `required + multiple` categories. Idempotent.
+ * See FE-2781 for the wider schema-driven approach this is a tactical patch of.
+ */
+export async function selectRequiredMultiDefaults(
+  page: Page,
+  rawProduct: IProduct
+): Promise<void> {
+  const options = rawProduct.products_options ?? [];
+
+  const byCategory = new Map<string, IProductOption[]>();
+  for (const option of options) {
+    const cat = option.category;
+    if (!cat?.required || !cat?.multiple) continue;
+    const arr = byCategory.get(option.category_id) ?? [];
+    arr.push(option);
+    byCategory.set(option.category_id, arr);
+  }
+
+  for (const opts of byCategory.values()) {
+    const sorted = [...opts].sort((a, b) => {
+      const defA = a.pivot?.default ?? 0;
+      const defB = b.pivot?.default ?? 0;
+      if (defA !== defB) return defB - defA;
+      return (a.pivot?.order ?? 0) - (b.pivot?.order ?? 0);
+    });
+    const choice = sorted[0];
+    if (!choice) continue;
+    await page.getByRole("button", { name: choice.name }).first().click();
+  }
 }
