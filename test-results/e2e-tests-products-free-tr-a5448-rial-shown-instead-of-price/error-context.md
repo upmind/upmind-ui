@@ -1,0 +1,433 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e4]:
+    - generic [ref=e5]:
+      - generic [ref=e6]:
+        - banner [ref=e7]:
+          - generic [ref=e8]:
+            - link "logo header.title" [ref=e11] [cursor=pointer]:
+              - /url: /order/shop/
+              - generic [ref=e12]:
+                - img "logo" [ref=e13]
+                - generic [ref=e14]: header.title
+            - generic [ref=e16]:
+              - link [ref=e17] [cursor=pointer]:
+                - /url: /order/basket/
+                - img [ref=e19]:
+                  - img [ref=e20]
+              - button "Log in" [ref=e22] [cursor=pointer]:
+                - img [ref=e24]:
+                  - img [ref=e25]
+                - generic [ref=e27]: Log in
+        - main [ref=e28]:
+          - generic [ref=e30]:
+            - region "Product categories" [ref=e36]:
+              - link "Select Shared Hosting category" [ref=e37] [cursor=pointer]:
+                - /url: /order/shop/?catid=5d085e69-d562-3719-794c-218e940d4237
+                - generic [ref=e38]:
+                  - generic [ref=e39]:
+                    - link "Shared Hosting" [ref=e40]:
+                      - /url: /order/shop/?catid=5d085e69-d562-3719-794c-218e940d4237
+                    - img "arrow-right icon" [ref=e41]:
+                      - img [ref=e42]
+                  - paragraph [ref=e44]: This is the excerpt
+              - link "Select Consulting category" [ref=e45] [cursor=pointer]:
+                - /url: /order/shop/?catid=5952098d-3de4-0917-e65c-31578626e347
+                - generic [ref=e47]:
+                  - link "Consulting" [ref=e48]:
+                    - /url: /order/shop/?catid=5952098d-3de4-0917-e65c-31578626e347
+                  - img "arrow-right icon" [ref=e49]:
+                    - img [ref=e50]
+              - link "Select Promo Products category" [ref=e52] [cursor=pointer]:
+                - /url: /order/shop/?catid=78985742-6489-7012-0e4c-21e325d0ed36
+                - generic [ref=e54]:
+                  - link "Promo Products" [ref=e55]:
+                    - /url: /order/shop/?catid=78985742-6489-7012-0e4c-21e325d0ed36
+                  - img "arrow-right icon" [ref=e56]:
+                    - img [ref=e57]
+              - link "Select Bundled Products category" [ref=e59] [cursor=pointer]:
+                - /url: /order/shop/?catid=320e4357-95e7-8d18-45ea-31643202d986
+                - generic [ref=e61]:
+                  - link "Bundled Products" [ref=e62]:
+                    - /url: /order/shop/?catid=320e4357-95e7-8d18-45ea-31643202d986
+                  - img "arrow-right icon" [ref=e63]:
+                    - img [ref=e64]
+              - link "Select Dev Work category" [ref=e66] [cursor=pointer]:
+                - /url: /order/shop/?catid=2785d26e-9678-3d16-7d7a-314502e70439
+                - generic [ref=e68]:
+                  - link "Dev Work" [ref=e69]:
+                    - /url: /order/shop/?catid=2785d26e-9678-3d16-7d7a-314502e70439
+                  - img "arrow-right icon" [ref=e70]:
+                    - img [ref=e71]
+              - link "Select Domain Names category" [ref=e73] [cursor=pointer]:
+                - /url: /order/shop/?catid=8d632507-9806-5d1e-302f-8174e234e98d
+                - generic [ref=e75]:
+                  - link "Domain Names" [ref=e76]:
+                    - /url: /order/shop/?catid=8d632507-9806-5d1e-302f-8174e234e98d
+                  - img "arrow-right icon" [ref=e77]:
+                    - img [ref=e78]
+              - link "Select Payment Gateways category" [ref=e80] [cursor=pointer]:
+                - /url: /order/shop/?catid=47d73824-8507-9315-345f-81e642d59e06
+                - generic [ref=e82]:
+                  - link "Payment Gateways" [ref=e83]:
+                    - /url: /order/shop/?catid=47d73824-8507-9315-345f-81e642d59e06
+                  - img "arrow-right icon" [ref=e84]:
+                    - img [ref=e85]
+              - link "Select Design Work category" [ref=e87] [cursor=pointer]:
+                - /url: /order/shop/?catid=20403869-6e54-721d-533c-518d9305e7d2
+                - generic [ref=e89]:
+                  - link "Design Work" [ref=e90]:
+                    - /url: /order/shop/?catid=20403869-6e54-721d-533c-518d9305e7d2
+                  - img "arrow-right icon" [ref=e91]:
+                    - img [ref=e92]
+              - link "Select Apparel category" [ref=e94] [cursor=pointer]:
+                - /url: /order/shop/?catid=78985742-6489-7012-046b-21e325d0ed36
+                - generic [ref=e96]:
+                  - link "Apparel" [ref=e97]:
+                    - /url: /order/shop/?catid=78985742-6489-7012-046b-21e325d0ed36
+                  - img "arrow-right icon" [ref=e98]:
+                    - img [ref=e99]
+              - link "Select Hardware category" [ref=e101] [cursor=pointer]:
+                - /url: /order/shop/?catid=320e4357-95e7-8d18-484f-31643202d986
+                - generic [ref=e103]:
+                  - link "Hardware" [ref=e104]:
+                    - /url: /order/shop/?catid=320e4357-95e7-8d18-484f-31643202d986
+                  - img "arrow-right icon" [ref=e105]:
+                    - img [ref=e106]
+              - link "Select Food Items category" [ref=e108] [cursor=pointer]:
+                - /url: /order/shop/?catid=2785d26e-9678-3d16-75ec-314502e70439
+                - generic [ref=e110]:
+                  - link "Food Items" [ref=e111]:
+                    - /url: /order/shop/?catid=2785d26e-9678-3d16-75ec-314502e70439
+                  - img "arrow-right icon" [ref=e112]:
+                    - img [ref=e113]
+              - link "Select Recommendations category" [ref=e115] [cursor=pointer]:
+                - /url: /order/shop/?catid=8d632507-9806-5d1e-572f-8174e234e98d
+                - generic [ref=e117]:
+                  - link "Recommendations" [ref=e118]:
+                    - /url: /order/shop/?catid=8d632507-9806-5d1e-572f-8174e234e98d
+                  - img "arrow-right icon" [ref=e119]:
+                    - img [ref=e120]
+            - main "Product listing" [ref=e127]:
+              - generic [ref=e128]:
+                - generic "Search products" [ref=e129]:
+                  - img "search-md icon" [ref=e130]:
+                    - img [ref=e131]
+                  - textbox "Search by product name..." [ref=e133]
+                - group [ref=e135]:
+                  - button [ref=e137] [cursor=pointer]:
+                    - img [ref=e139]:
+                      - img [ref=e140]
+                  - generic [ref=e142]:
+                    - combobox [ref=e143] [cursor=pointer]:
+                      - generic:
+                        - generic:
+                          - generic: Sort by default
+                      - img "chevron-down icon" [ref=e144]:
+                        - img [ref=e145]
+                    - combobox [ref=e147]
+              - generic [ref=e148]:
+                - generic [ref=e149]:
+                  - listitem [ref=e150]:
+                    - generic [ref=e151]:
+                      - link [ref=e153] [cursor=pointer]:
+                        - /url: /order/product/3de78642-de53-9714-76df-21208469530d/?returnUrl=/order/shop/&bcm=1
+                        - region [ref=e154]:
+                          - generic [ref=e156]:
+                            - group [ref=e157]:
+                              - img "Starter Hosting" [ref=e158]
+                            - group [ref=e159]:
+                              - img "Starter Hosting" [ref=e160]
+                            - group [ref=e161]:
+                              - img "Starter Hosting" [ref=e162]
+                            - group [ref=e163]:
+                              - img "Starter Hosting" [ref=e164]
+                            - group [ref=e165]:
+                              - img "Starter Hosting" [ref=e166]
+                          - navigation [ref=e167]
+                      - generic [ref=e178]:
+                        - generic [ref=e179]:
+                          - generic [ref=e180]:
+                            - generic [ref=e182]:
+                              - link "Starter Hosting" [ref=e183] [cursor=pointer]:
+                                - /url: /order/product/3de78642-de53-9714-76df-21208469530d/?returnUrl=/order/shop/&bcm=1
+                                - heading "Starter Hosting" [level=3] [ref=e184]
+                              - paragraph [ref=e185]: From £2.50 a month
+                            - paragraph [ref=e186]: This is a product excerpt
+                          - list [ref=e187]:
+                            - listitem [ref=e188]:
+                              - img "check-circle icon" [ref=e189]:
+                                - img [ref=e190]
+                              - text: 24/7 Customer Support
+                            - listitem [ref=e192]:
+                              - img "check-circle icon" [ref=e193]:
+                                - img [ref=e194]
+                              - text: 99.9% Uptime Guarantee
+                            - listitem [ref=e196]:
+                              - img "check-circle icon" [ref=e197]:
+                                - img [ref=e198]
+                              - text: Free SSL Certificate
+                          - generic [ref=e200]:
+                            - paragraph [ref=e201]:
+                              - strong [ref=e202]: £2.50
+                              - generic [ref=e203]: / month
+                            - generic [ref=e204]: For a 2-year term. Pay £60.00 today.
+                        - link "Add to basket" [ref=e206] [cursor=pointer]:
+                          - /url: /order/product/3de78642-de53-9714-76df-21208469530d/?returnUrl=/order/shop/&bcm=1
+                          - img [ref=e208]:
+                            - img [ref=e209]
+                          - generic [ref=e211]: Add to basket
+                  - listitem [ref=e212]:
+                    - generic [ref=e213]:
+                      - link [ref=e215] [cursor=pointer]:
+                        - /url: /order/product/20403869-6e54-721d-2d7c-518d9305e7d2/?returnUrl=/order/shop/&bcm=24
+                        - region [ref=e216]:
+                          - group [ref=e219]:
+                            - img "Default Payments Test" [ref=e220]
+                          - navigation [ref=e221]
+                      - generic [ref=e224]:
+                        - generic [ref=e225]:
+                          - generic [ref=e226]:
+                            - generic [ref=e228]:
+                              - link "Default Payments Test" [ref=e229] [cursor=pointer]:
+                                - /url: /order/product/20403869-6e54-721d-2d7c-518d9305e7d2/?returnUrl=/order/shop/&bcm=24
+                                - heading "Default Payments Test" [level=3] [ref=e230]
+                              - paragraph [ref=e231]: From £2.50 a month
+                            - paragraph [ref=e232]:
+                              - paragraph [ref=e233]: Our Starter Plan is perfect for small businesses, blogs and simple websites looking for fast and reliable web hosting.
+                          - generic [ref=e234]:
+                            - paragraph [ref=e235]:
+                              - strong [ref=e236]: £2.50
+                              - generic [ref=e237]: / month
+                            - generic [ref=e238]: For a 2-year term. Pay £60.00 today.
+                        - link "Add to basket" [ref=e240] [cursor=pointer]:
+                          - /url: /order/product/20403869-6e54-721d-2d7c-518d9305e7d2/?returnUrl=/order/shop/&bcm=24
+                          - img [ref=e242]:
+                            - img [ref=e243]
+                          - generic [ref=e245]: Add to basket
+                  - listitem [ref=e246]:
+                    - generic [ref=e247]:
+                      - generic [ref=e248]:
+                        - link [ref=e249] [cursor=pointer]:
+                          - /url: /order/product/3de78642-de53-9714-966f-21208469530d/?returnUrl=/order/shop/&bcm=0
+                          - figure [ref=e250]:
+                            - img "camera-01 icon" [ref=e252]:
+                              - img [ref=e253]
+                        - generic [ref=e257]: Product Badge
+                      - generic [ref=e258]:
+                        - generic [ref=e259]:
+                          - generic [ref=e260]:
+                            - generic [ref=e262]:
+                              - link "Website Design" [ref=e263] [cursor=pointer]:
+                                - /url: /order/product/3de78642-de53-9714-966f-21208469530d/?returnUrl=/order/shop/&bcm=0
+                                - heading "Website Design" [level=3] [ref=e264]
+                              - paragraph [ref=e265]: Only £150.00
+                            - paragraph
+                          - paragraph [ref=e267]:
+                            - strong [ref=e268]: £150.00
+                        - link "Add to basket" [ref=e270] [cursor=pointer]:
+                          - /url: /order/product/3de78642-de53-9714-966f-21208469530d/?returnUrl=/order/shop/&bcm=0&autoupdate=true
+                          - img [ref=e272]:
+                            - img [ref=e273]
+                          - generic [ref=e275]: Add to basket
+                  - listitem [ref=e276]:
+                    - generic [ref=e277]:
+                      - link [ref=e279] [cursor=pointer]:
+                        - /url: /order/product/47d73824-8507-9315-9e0b-81e642d59e06/?returnUrl=/order/shop/&bcm=0
+                        - figure [ref=e280]:
+                          - img "camera-01 icon" [ref=e282]:
+                            - img [ref=e283]
+                      - generic [ref=e286]:
+                        - generic [ref=e287]:
+                          - generic [ref=e288]:
+                            - generic [ref=e290]:
+                              - link "Hat" [ref=e291] [cursor=pointer]:
+                                - /url: /order/product/47d73824-8507-9315-9e0b-81e642d59e06/?returnUrl=/order/shop/&bcm=0
+                                - heading "Hat" [level=3] [ref=e292]
+                              - paragraph [ref=e293]: Only £10.00
+                            - paragraph
+                          - paragraph [ref=e295]:
+                            - strong [ref=e296]: £10.00
+                        - link "Add to basket" [ref=e298] [cursor=pointer]:
+                          - /url: /order/product/47d73824-8507-9315-9e0b-81e642d59e06/?returnUrl=/order/shop/&bcm=0&autoupdate=true
+                          - img [ref=e300]:
+                            - img [ref=e301]
+                          - generic [ref=e303]: Add to basket
+                  - listitem [ref=e304]:
+                    - generic [ref=e305]:
+                      - link [ref=e307] [cursor=pointer]:
+                        - /url: /order/product/5952098d-3de4-0917-270c-31578626e347/?returnUrl=/order/shop/&bcm=0
+                        - figure [ref=e308]:
+                          - img "camera-01 icon" [ref=e310]:
+                            - img [ref=e311]
+                      - generic [ref=e314]:
+                        - generic [ref=e315]:
+                          - generic [ref=e316]:
+                            - generic [ref=e318]:
+                              - link "Hardwood Plank (2x4 - Oak)" [ref=e319] [cursor=pointer]:
+                                - /url: /order/product/5952098d-3de4-0917-270c-31578626e347/?returnUrl=/order/shop/&bcm=0
+                                - heading "Hardwood Plank (2x4 - Oak)" [level=3] [ref=e320]
+                              - paragraph [ref=e321]: Only £20.00
+                            - paragraph
+                          - paragraph [ref=e323]:
+                            - strong [ref=e324]: £20.00
+                        - link "Add to basket" [ref=e326] [cursor=pointer]:
+                          - /url: /order/product/5952098d-3de4-0917-270c-31578626e347/?returnUrl=/order/shop/&bcm=0&autoupdate=true
+                          - img [ref=e328]:
+                            - img [ref=e329]
+                          - generic [ref=e331]: Add to basket
+                  - listitem [ref=e332]:
+                    - generic [ref=e333]:
+                      - link [ref=e335] [cursor=pointer]:
+                        - /url: /order/product/3de78642-de53-9714-986f-21208469530d/?returnUrl=/order/shop/&bcm=12
+                        - figure [ref=e336]:
+                          - img "camera-01 icon" [ref=e338]:
+                            - img [ref=e339]
+                      - generic [ref=e342]:
+                        - generic [ref=e343]:
+                          - generic [ref=e344]:
+                            - generic [ref=e345]:
+                              - generic [ref=e346]:
+                                - img "clock-stopwatch icon" [ref=e347]:
+                                  - img [ref=e348]
+                                - generic [ref=e350]: Free Trial
+                              - generic [ref=e351]:
+                                - link "Trial Product (Optional)" [ref=e352] [cursor=pointer]:
+                                  - /url: /order/product/3de78642-de53-9714-986f-21208469530d/?returnUrl=/order/shop/&bcm=12
+                                  - heading "Trial Product (Optional)" [level=3] [ref=e353]
+                                - paragraph [ref=e354]: From £0.83 a month
+                            - paragraph
+                          - generic [ref=e355]:
+                            - paragraph [ref=e356]:
+                              - strong [ref=e357]: £0.83
+                              - generic [ref=e358]: / month
+                            - generic [ref=e359]: For a 1-year term. Pay £10.00 today.
+                        - link "Try free for 7 days" [ref=e361] [cursor=pointer]:
+                          - /url: /order/product/3de78642-de53-9714-986f-21208469530d/?returnUrl=/order/shop/&bcm=12&autoupdate=true
+                          - img [ref=e363]:
+                            - img [ref=e364]
+                          - generic [ref=e366]: Try free for 7 days
+                  - listitem [ref=e367]:
+                    - generic [ref=e368]:
+                      - link [ref=e370] [cursor=pointer]:
+                        - /url: /order/product/5d085e69-d562-3719-6d5b-218e940d4237/?returnUrl=/order/shop/&bcm=0
+                        - figure [ref=e371]:
+                          - img "camera-01 icon" [ref=e373]:
+                            - img [ref=e374]
+                      - generic [ref=e377]:
+                        - generic [ref=e378]:
+                          - generic [ref=e379]:
+                            - generic [ref=e381]:
+                              - link "Rec1" [ref=e382] [cursor=pointer]:
+                                - /url: /order/product/5d085e69-d562-3719-6d5b-218e940d4237/?returnUrl=/order/shop/&bcm=0
+                                - heading "Rec1" [level=3] [ref=e383]
+                              - paragraph [ref=e384]: Only £100.00
+                            - paragraph [ref=e385]:
+                              - paragraph [ref=e386]: Recommendation with sub-product
+                          - paragraph [ref=e388]:
+                            - strong [ref=e389]: £100.00
+                        - link "Add to basket" [ref=e391] [cursor=pointer]:
+                          - /url: /order/product/5d085e69-d562-3719-6d5b-218e940d4237/?returnUrl=/order/shop/&bcm=0&autoupdate=true
+                          - img [ref=e393]:
+                            - img [ref=e394]
+                          - generic [ref=e396]: Add to basket
+                  - listitem [ref=e397]:
+                    - generic [ref=e398]:
+                      - link [ref=e400] [cursor=pointer]:
+                        - /url: /order/product/3de78642-de53-9714-745c-21208469530d/?returnUrl=/order/shop/&bcm=1
+                        - region [ref=e401]:
+                          - group [ref=e404]:
+                            - img "Default Payments Test 2" [ref=e405]
+                          - navigation [ref=e406]
+                      - generic [ref=e409]:
+                        - generic [ref=e410]:
+                          - generic [ref=e411]:
+                            - generic [ref=e413]:
+                              - link "Default Payments Test 2" [ref=e414] [cursor=pointer]:
+                                - /url: /order/product/3de78642-de53-9714-745c-21208469530d/?returnUrl=/order/shop/&bcm=1
+                                - heading "Default Payments Test 2" [level=3] [ref=e415]
+                              - paragraph [ref=e416]:
+                                - text: From £0.25 a month
+                                - deletion [ref=e417]: Was £2.50
+                            - paragraph [ref=e418]:
+                              - paragraph [ref=e419]: Our Starter Plan is perfect for small businesses, blogs and simple websites looking for fast and reliable web hosting.
+                          - generic [ref=e420]:
+                            - generic [ref=e421]:
+                              - deletion [ref=e422]: Was £2.50
+                              - generic [ref=e424]: Save 90%
+                            - paragraph [ref=e425]:
+                              - strong [ref=e426]: £0.25
+                              - generic [ref=e427]: / month
+                            - generic [ref=e428]: For a 2-year term. Pay £6.00 today.
+                        - link "Add to basket" [ref=e430] [cursor=pointer]:
+                          - /url: /order/product/3de78642-de53-9714-745c-21208469530d/?returnUrl=/order/shop/&bcm=1
+                          - img [ref=e432]:
+                            - img [ref=e433]
+                          - generic [ref=e435]: Add to basket
+                  - listitem [ref=e436]:
+                    - generic [ref=e437]:
+                      - link [ref=e439] [cursor=pointer]:
+                        - /url: /order/product/78985742-6489-7012-728a-21e325d0ed36/?returnUrl=/order/shop/&bcm=0
+                        - figure [ref=e440]:
+                          - img "camera-01 icon" [ref=e442]:
+                            - img [ref=e443]
+                      - generic [ref=e446]:
+                        - generic [ref=e447]:
+                          - generic [ref=e448]:
+                            - generic [ref=e450]:
+                              - link "Logo Design" [ref=e451] [cursor=pointer]:
+                                - /url: /order/product/78985742-6489-7012-728a-21e325d0ed36/?returnUrl=/order/shop/&bcm=0
+                                - heading "Logo Design" [level=3] [ref=e452]
+                              - paragraph [ref=e453]: Only £150.00
+                            - paragraph
+                          - paragraph [ref=e455]:
+                            - strong [ref=e456]: £150.00
+                        - link "Add to basket" [ref=e458] [cursor=pointer]:
+                          - /url: /order/product/78985742-6489-7012-728a-21e325d0ed36/?returnUrl=/order/shop/&bcm=0&autoupdate=true
+                          - img [ref=e460]:
+                            - img [ref=e461]
+                          - generic [ref=e463]: Add to basket
+                - navigation [ref=e464]:
+                  - generic [ref=e465]:
+                    - button "Previous Page" [disabled] [ref=e466]:
+                      - img "arrow-left icon" [ref=e467]:
+                        - img [ref=e468]
+                    - paragraph [ref=e470]: Page 1 of 7
+                    - button "Next Page" [ref=e471] [cursor=pointer]:
+                      - img "arrow-right icon" [ref=e472]:
+                        - img [ref=e473]
+      - contentinfo [ref=e475]:
+        - generic [ref=e478]:
+          - region "Language and currency preferences" [ref=e479]:
+            - button "English (US) chevron-down icon" [ref=e481] [cursor=pointer]:
+              - img [ref=e482]:
+                - img [ref=e483]
+              - generic [ref=e485]: English (US)
+              - img "chevron-down icon" [ref=e486]:
+                - img [ref=e487]
+            - button "GBP chevron-down icon" [ref=e490] [cursor=pointer]:
+              - img [ref=e492]:
+                - img [ref=e493]
+              - generic [ref=e510]: GBP
+              - img "chevron-down icon" [ref=e511]:
+                - img [ref=e512]
+          - generic [ref=e514]:
+            - generic [ref=e515]:
+              - img "Upmind logo" [ref=e516]
+              - generic [ref=e519]:
+                - text: Powered by
+                - link "Upmind" [ref=e520] [cursor=pointer]:
+                  - /url: https://upmind.com
+            - paragraph [ref=e521]: © 2026 QA Automation Testing. All rights reserved.
+    - generic:
+      - complementary
+      - region "Notifications alt+T":
+        - list
+  - generic [ref=e522]:
+    - generic "Toggle devtools panel" [ref=e523] [cursor=pointer]:
+      - img [ref=e524]
+    - generic "Toggle Component Inspector" [ref=e529] [cursor=pointer]:
+      - img [ref=e530]
+```
