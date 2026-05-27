@@ -43,3 +43,4 @@ When you just need to run the tests right now:
 10. [Writing `.feature` Files — Style Guide](10-feature-style.md) — the declarative-style rules for Gherkin specs. The load-bearing convention behind our Option-B adoption.
 11. [Authoring Tests for a Story](11-authoring-tests.md) — end-to-end guide for devs: Linear AC → `.feature` spec → Playwright test → PR. The new workflow shape.
 12. [Allure Dashboard](08-allure-dashboard.md) — shared test-results dashboard on GCS, trends, publishing local runs, comparing branches.
+13. [pseudo-Nathan Field Guide](12-pseudo-nathan.md) — reverse-engineered field guide to Nathan's tacit knowledge of the suite: principles (P1–P8), conventions (C1–C20), anti-patterns, and ADR tensions. Cited by the pseudo-Nathan subagent and the `code-tests-e2e` rule.
