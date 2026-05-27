@@ -70,7 +70,15 @@ export default {
       icon: cva(
         "text-muted hidden items-center justify-center pr-4 pl-1 md:flex"
       ),
-      actions: cva("flex items-center justify-center gap-4")
+      actions: cva("flex items-center justify-center gap-4"),
+      clear: cva("hidden transition-opacity duration-200 md:block", {
+        variants: {
+          isEmpty: {
+            true: "pointer-events-none opacity-0",
+            false: "opacity-100"
+          }
+        }
+      })
     },
 
     card: {
