@@ -1,0 +1,61 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e4]:
+    - generic [ref=e5]:
+      - generic [ref=e6]:
+        - banner [ref=e7]:
+          - generic [ref=e8]:
+            - link "logo header.title" [ref=e11] [cursor=pointer]:
+              - /url: /order/shop/
+              - generic [ref=e12]:
+                - img "logo" [ref=e13]
+                - generic [ref=e14]: header.title
+            - generic [ref=e16]:
+              - link [ref=e17] [cursor=pointer]:
+                - /url: /order/basket/
+                - img [ref=e19]:
+                  - img [ref=e20]
+              - generic [ref=e22] [cursor=pointer]:
+                - img "avatar" [ref=e23]
+                - generic [ref=e25]: L
+        - generic [ref=e28]:
+          - generic [ref=e30]:
+            - generic:
+              - img
+          - generic [ref=e32]:
+            - heading "Something exciting is around the corner" [level=3] [ref=e33]:
+              - generic [ref=e34]:
+                - text: Something
+                - strong [ref=e35]: exciting
+                - text: is around the corner
+            - paragraph [ref=e36]: Almost there! Getting things ready for you.
+        - main [ref=e37]
+      - contentinfo [ref=e39]:
+        - generic [ref=e42]:
+          - region "Language and currency preferences" [ref=e43]:
+            - button "GBP chevron-down icon" [ref=e45] [cursor=pointer]:
+              - img [ref=e47]:
+                - img [ref=e48]
+              - generic [ref=e65]: GBP
+              - img "chevron-down icon" [ref=e66]:
+                - img [ref=e67]
+          - generic [ref=e69]:
+            - generic [ref=e70]:
+              - img "Upmind logo" [ref=e71]
+              - generic [ref=e74]:
+                - text: Powered by
+                - link "Upmind" [ref=e75] [cursor=pointer]:
+                  - /url: https://upmind.com
+            - paragraph [ref=e76]: © 2026 QA Automation Testing. All rights reserved.
+    - generic:
+      - complementary
+      - region "Notifications alt+T":
+        - list
+  - generic [ref=e77]:
+    - generic "Toggle devtools panel" [ref=e78] [cursor=pointer]:
+      - img [ref=e79]
+    - generic "Toggle Component Inspector" [ref=e84] [cursor=pointer]:
+      - img [ref=e85]
+```

@@ -1,0 +1,64 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e4]:
+    - generic [ref=e5]:
+      - generic [ref=e6]:
+        - banner [ref=e7]:
+          - generic [ref=e8]:
+            - link "logo header.title" [ref=e11] [cursor=pointer]:
+              - /url: /order/shop/
+              - generic [ref=e12]:
+                - img "logo" [ref=e13]
+                - generic [ref=e14]: header.title
+            - generic [ref=e16]:
+              - link "1 item" [ref=e17] [cursor=pointer]:
+                - /url: /order/basket/
+                - img [ref=e19]:
+                  - img [ref=e20]
+                - generic [ref=e22]:
+                  - generic [ref=e23]: "1"
+                  - text: item
+              - generic [ref=e24] [cursor=pointer]:
+                - img "avatar" [ref=e25]
+                - generic [ref=e27]: B
+        - generic [ref=e30]:
+          - generic [ref=e32]:
+            - generic:
+              - img
+          - generic [ref=e34]:
+            - heading "Something exciting is around the corner" [level=3] [ref=e35]:
+              - generic [ref=e36]:
+                - text: Something
+                - strong [ref=e37]: exciting
+                - text: is around the corner
+            - paragraph [ref=e38]: Almost there! Getting things ready for you.
+        - main [ref=e39]
+      - contentinfo [ref=e41]:
+        - generic [ref=e44]:
+          - region "Language and currency preferences" [ref=e45]:
+            - button "GBP chevron-down icon" [ref=e47] [cursor=pointer]:
+              - img [ref=e49]:
+                - img [ref=e50]
+              - generic [ref=e67]: GBP
+              - img "chevron-down icon" [ref=e68]:
+                - img [ref=e69]
+          - generic [ref=e71]:
+            - generic [ref=e72]:
+              - img "Upmind logo" [ref=e73]
+              - generic [ref=e76]:
+                - text: Powered by
+                - link "Upmind" [ref=e77] [cursor=pointer]:
+                  - /url: https://upmind.com
+            - paragraph [ref=e78]: © 2026 QA Automation Testing. All rights reserved.
+    - generic:
+      - complementary
+      - region "Notifications alt+T":
+        - list
+  - generic [ref=e79]:
+    - generic "Toggle devtools panel" [ref=e80] [cursor=pointer]:
+      - img [ref=e81]
+    - generic "Toggle Component Inspector" [ref=e86] [cursor=pointer]:
+      - img [ref=e87]
+```
