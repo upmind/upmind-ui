@@ -312,6 +312,19 @@ watch(
 watch(modelValue, newValue => {
   toggleForm(newValue);
 });
+
+// Auth's loading state hides the form before the parent renders the
+// post-auth view — all within the same route, so the router's scrollBehavior
+// doesn't fire. Scroll while the section is off-screen so the next page
+// lands at the top.
+watch(
+  () => meta.value.isLoading,
+  (isLoading, wasLoading) => {
+    if (isLoading && !wasLoading) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }
+);
 </script>
 
 <style>
