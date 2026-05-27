@@ -235,6 +235,7 @@ newUser.describe("Free Trials @free-trials", () => {
         trialSupported: true,
         trialDuration: 7
       });
+
       await page.goto("/");
       await waitForSessionCookie(context);
       const token = await getSessionToken(context);
