@@ -5,7 +5,11 @@ import { ProductConfig } from "../../support/page-objects/templates/product-conf
 import { Basket } from "../../support/page-objects/templates/basket";
 import { Checkout } from "../../support/page-objects/templates/checkout";
 import { goToCheckout } from "../../support/flows/checkout";
-import { mockTrialProduct } from "../../support/mocks/products";
+import {
+  captureProduct,
+  captureProducts,
+  mockTrialProduct
+} from "../../support/mocks/products";
 import {
   getSessionToken,
   registerClient,
@@ -21,34 +25,13 @@ let productConfig: ProductConfig;
 let basket: Basket;
 let checkout: Checkout;
 
-const trialButtonId = "button-try-free-for-7-days";
-
-const captureTrialDurationFromApi = (page: import("@playwright/test").Page) =>
-  page
-    .waitForResponse(
-      r =>
-        r.url().includes("/api/basket/products/") &&
-        r.request().method() === "GET" &&
-        r.ok()
-    )
-    .then(async r => {
-      const body = await r.json();
-      const duration = body?.data?.trial_duration;
-      if (typeof duration !== "number") {
-        throw new Error(
-          `trial_duration missing or non-numeric on product response: ${JSON.stringify(body?.data?.trial_duration)}`
-        );
-      }
-      return duration;
-    });
-
 newUser.describe.configure({ mode: "parallel" });
 newUser.describe("Free Trials @free-trials", () => {
   newUser.describe("Product Config — Optional Trial", () => {
-    let durationPromise: Promise<number>;
+    let productPromise: Promise<{ trial_duration: number }>;
     newUser.beforeEach(async ({ page }) => {
       productConfig = new ProductConfig(page);
-      durationPromise = captureTrialDurationFromApi(page);
+      productPromise = captureProduct(page);
       await page.goto(URLs.optionalTrialProduct);
       await waitForSessionCookie(page.context());
     });
@@ -60,12 +43,12 @@ newUser.describe("Free Trials @free-trials", () => {
       }
     );
     newUser("Trial description shows badge, duration and term", async () => {
-      const duration = await durationPromise;
+      const { trial_duration } = await productPromise;
       await expect(productConfig.trialBadge).toBeVisible();
       await expect(productConfig.trialBadge).toContainText("Free Trial");
       await expect(productConfig.trialDescription).toBeVisible();
       await expect(productConfig.trialDescription).toContainText(
-        `${duration} day`
+        `${trial_duration} day`
       );
     });
     newUser("User can deselect trial (opt out)", async () => {
@@ -109,10 +92,10 @@ newUser.describe("Free Trials @free-trials", () => {
     );
   });
   newUser.describe("Product Config — Forced Trial", () => {
-    let durationPromise: Promise<number>;
+    let productPromise: Promise<{ trial_duration: number }>;
     newUser.beforeEach(async ({ page }) => {
       productConfig = new ProductConfig(page);
-      durationPromise = captureTrialDurationFromApi(page);
+      productPromise = captureProduct(page);
       await page.goto(URLs.forcedTrialProduct);
       await waitForSessionCookie(page.context());
     });
@@ -122,12 +105,12 @@ newUser.describe("Free Trials @free-trials", () => {
       await productConfig.expectTrialSelected();
     });
     newUser("Trial description shows badge, duration and term", async () => {
-      const duration = await durationPromise;
+      const { trial_duration } = await productPromise;
       await expect(productConfig.trialBadge).toBeVisible();
       await expect(productConfig.trialBadge).toContainText("Free Trial");
       await expect(productConfig.trialDescription).toBeVisible();
       await expect(productConfig.trialDescription).toContainText(
-        `${duration} day`
+        `${trial_duration} day`
       );
     });
   });
@@ -139,7 +122,14 @@ newUser.describe("Free Trials @free-trials", () => {
       await expect(productConfig.trialCheckbox).toBeHidden();
     });
   });
+  // ---------------------------------------------------------------------------
   newUser.describe("Product Card — Catalogue & Recommendations", () => {
+    let productsPromise: Promise<
+      Array<{ id?: string; trial_duration?: number }>
+    >;
+    newUser.beforeEach(async ({ page }) => {
+      productsPromise = captureProducts(page);
+    });
     newUser("'Free Trial' badge on product card", async ({ page }) => {
       await page.goto(URLs.freeTrialsCategory);
       await waitForSessionCookie(page.context());
@@ -148,14 +138,22 @@ newUser.describe("Free Trials @free-trials", () => {
       ).toBeVisible();
     });
     newUser("CTA button shows 'Try free for X days'", async ({ page }) => {
-      const durationPromise = captureTrialDurationFromApi(page);
       await page.goto(URLs.freeTrialsCategory);
       await waitForSessionCookie(page.context());
-      await expect(page.getByTestId(trialButtonId).first()).toBeVisible();
-      const duration = await durationPromise;
-      await expect(page.getByTestId(trialButtonId).first()).toHaveAttribute(
+      const products = await productsPromise;
+      const trialProduct = products.find(
+        (p: { id?: string; trial_duration?: number }) =>
+          typeof p.trial_duration === "number"
+      );
+      if (!trialProduct)
+        throw new Error("No trial product in catalogue response");
+      const cta = page
+        .getByTestId(`product-card-${trialProduct!.id}`)
+        .getByTestId("product-card-cta");
+      await expect(cta).toBeVisible();
+      await expect(cta).toHaveAttribute(
         "data-trial",
-        String(duration)
+        String(trialProduct.trial_duration)
       );
     });
     newUser("No trial badge on non-trial product", async ({ page }) => {
@@ -235,6 +233,7 @@ newUser.describe("Free Trials @free-trials", () => {
         trialSupported: true,
         trialDuration: 7
       });
+
       await page.goto("/");
       await waitForSessionCookie(context);
       const token = await getSessionToken(context);
