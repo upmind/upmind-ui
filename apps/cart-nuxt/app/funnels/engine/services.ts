@@ -32,6 +32,7 @@ import {
 } from "@upmind-automation/types";
 import { filter, first, includes, reduce } from "lodash-es";
 import { useRouter, type RouteLocationGeneric } from "vue-router";
+import guards from "./guards";
 
 // -----------------------------------------------------------------------------
 
@@ -559,24 +560,21 @@ export default {
     }
 
     // Redirect to standalone billing if it needs input and user can't edit inline.
-    const { isReady: isBillingReady, meta: billingMeta } = useBasketBilling();
+    const { isReady: isBillingReady } = useBasketBilling();
     await isBillingReady();
 
-    if (!billingMeta.value.isComplete) {
-      const { ui } = useConfig({ context: UIContext.CHECKOUT });
-      const { data } = useConfig({ context: UIContext.BILLING_DETAILS });
-      if (!data.billingDetailsDisabled && ui.billingDetails.isReadonly) {
-        const { router } = useRoutingEngine();
-        if (
-          !includes(
-            [ROUTE.BILLING, ROUTE.CHECKOUT],
-            router.currentRoute.value?.name
-          )
-        ) {
-          return Promise.reject({
-            target: { name: ROUTE.BILLING }
-          } as FunnelResponse);
-        }
+    if (guards.needsAddress()) {
+      const { router } = useRoutingEngine();
+      // Skip redirect if already on billing or checkout (avoid redirect loops)
+      if (
+        !includes(
+          [ROUTE.BILLING, ROUTE.CHECKOUT],
+          router.currentRoute.value?.name
+        )
+      ) {
+        return Promise.reject({
+          target: { name: ROUTE.BILLING }
+        } as FunnelResponse);
       }
     }
 
@@ -588,10 +586,15 @@ export default {
     event: AnyEventObject
   ): Promise<FunnelResponse> => {
     await ensureBidAuth(context, { name: ROUTE.BILLING });
-    // If standalone billing isn't enabled, skip to checkout
+    // If standalone billing isn't enabled, skip to checkout — unless domain
+    // products require a registrant address, in which case billing remains
+    // reachable as the address-capture surface.
     const { ui } = useConfig({ context: UIContext.CHECKOUT });
     const { data } = useConfig({ context: UIContext.BILLING_DETAILS });
-    if (data.billingDetailsDisabled || !ui.billingDetails.isReadonly) {
+    if (
+      (data.billingDetailsDisabled || !ui.billingDetails.isReadonly) &&
+      !guards.needsAddressForDomains()
+    ) {
       return { target: context.targetRoute ?? { name: ROUTE.CHECKOUT } };
     }
 
