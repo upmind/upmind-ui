@@ -112,7 +112,7 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
         timeout: 15000
       });
       await checkout.billingSummaryChangeLink.click();
-      await page.waitForURL("**/order/billing**");
+      await page.waitForURL("**/order/basket/**/billing/**");
       await expect(checkout.billingCards).toBeVisible({ timeout: 15000 });
     });
   });
@@ -158,7 +158,7 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       await goToCheckout(page, context, products.STARTER_HOSTING);
     });
 
-    test("Billing page loads at /order/billing", async ({ page }) => {
+    test("Billing page loads at /order/basket/billing/", async ({ page }) => {
       await page.goto(URLs.billing);
       await expect(billingPage.billingSection).toBeVisible({ timeout: 15000 });
     });
@@ -232,7 +232,7 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
         timeout: 15000
       });
       await checkout.billingSummaryChangeLink.click();
-      await page.waitForURL("**/order/billing**");
+      await page.waitForURL("**/order/basket/**/billing/**");
       await expect(billingPage.billingSection).toBeVisible({ timeout: 15000 });
       await expect(billingPage.personalTab).toBeVisible();
       await billingPage.personalTab.click();
@@ -255,7 +255,7 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
         timeout: 15000
       });
       await checkout.billingSummaryChangeLink.click();
-      await page.waitForURL("**/order/billing**");
+      await page.waitForURL("**/order/basket/**/billing/**");
       await expect(billingPage.billingSection).toBeVisible({ timeout: 15000 });
       await expect(billingPage.businessTab).toBeVisible();
       await billingPage.businessTab.click();
@@ -426,7 +426,9 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
     test("Billing page requires authentication", async ({ page }) => {
       await page.goto(URLs.billing);
       await waitForSessionCookie(page.context());
-      await expect(page).not.toHaveURL("order/billing/");
+      await expect(page).not.toHaveURL(
+        /\/order\/basket\/(?:[^/]+\/)?billing\//
+      );
     });
 
     newUser(
@@ -439,7 +441,9 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
         });
         await page.goto(URLs.billing);
         await waitForSessionCookie(page.context());
-        await expect(page).not.toHaveURL("order/billing/");
+        await expect(page).not.toHaveURL(
+          /\/order\/basket\/(?:[^/]+\/)?billing\//
+        );
       }
     );
   });
