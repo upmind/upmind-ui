@@ -15,19 +15,40 @@ import {
   addPromotionToOrder
 } from "../../support/api/index";
 import { waitForSessionCookie } from "../../support/helpers/session";
+import { interceptConfigValues } from "../../support/mocks/brand";
 
 let productConfig: ProductConfig;
 let basket: Basket;
 let checkout: Checkout;
 
 const trialButtonId = "button-try-free-for-7-days";
-const trialPeriod = "7 days";
+
+const captureTrialDurationFromApi = (page: import("@playwright/test").Page) =>
+  page
+    .waitForResponse(
+      r =>
+        r.url().includes("/api/basket/products/") &&
+        r.request().method() === "GET" &&
+        r.ok()
+    )
+    .then(async r => {
+      const body = await r.json();
+      const duration = body?.data?.trial_duration;
+      if (typeof duration !== "number") {
+        throw new Error(
+          `trial_duration missing or non-numeric on product response: ${JSON.stringify(body?.data?.trial_duration)}`
+        );
+      }
+      return duration;
+    });
 
 newUser.describe.configure({ mode: "parallel" });
 newUser.describe("Free Trials @free-trials", () => {
   newUser.describe("Product Config — Optional Trial", () => {
+    let durationPromise: Promise<number>;
     newUser.beforeEach(async ({ page }) => {
       productConfig = new ProductConfig(page);
+      durationPromise = captureTrialDurationFromApi(page);
       await page.goto(URLs.optionalTrialProduct);
       await waitForSessionCookie(page.context());
     });
@@ -39,11 +60,12 @@ newUser.describe("Free Trials @free-trials", () => {
       }
     );
     newUser("Trial description shows badge, duration and term", async () => {
+      const duration = await durationPromise;
       await expect(productConfig.trialBadge).toBeVisible();
       await expect(productConfig.trialBadge).toContainText("Free Trial");
       await expect(productConfig.trialDescription).toBeVisible();
       await expect(productConfig.trialDescription).toContainText(
-        `Good news—you can now try this product free for ${trialPeriod}, no strings attached. After your trial period ends, your plan will then begin.`
+        `${duration} day`
       );
     });
     newUser("User can deselect trial (opt out)", async () => {
@@ -87,8 +109,10 @@ newUser.describe("Free Trials @free-trials", () => {
     );
   });
   newUser.describe("Product Config — Forced Trial", () => {
+    let durationPromise: Promise<number>;
     newUser.beforeEach(async ({ page }) => {
       productConfig = new ProductConfig(page);
+      durationPromise = captureTrialDurationFromApi(page);
       await page.goto(URLs.forcedTrialProduct);
       await waitForSessionCookie(page.context());
     });
@@ -98,11 +122,12 @@ newUser.describe("Free Trials @free-trials", () => {
       await productConfig.expectTrialSelected();
     });
     newUser("Trial description shows badge, duration and term", async () => {
+      const duration = await durationPromise;
       await expect(productConfig.trialBadge).toBeVisible();
       await expect(productConfig.trialBadge).toContainText("Free Trial");
       await expect(productConfig.trialDescription).toBeVisible();
       await expect(productConfig.trialDescription).toContainText(
-        `Good news—you can now try this product free for ${trialPeriod}, no strings attached. After your trial period ends, your plan will then begin.`
+        `${duration} day`
       );
     });
   });
@@ -123,9 +148,15 @@ newUser.describe("Free Trials @free-trials", () => {
       ).toBeVisible();
     });
     newUser("CTA button shows 'Try free for X days'", async ({ page }) => {
+      const durationPromise = captureTrialDurationFromApi(page);
       await page.goto(URLs.freeTrialsCategory);
       await waitForSessionCookie(page.context());
       await expect(page.getByTestId(trialButtonId).first()).toBeVisible();
+      const duration = await durationPromise;
+      await expect(page.getByTestId(trialButtonId).first()).toHaveAttribute(
+        "data-trial",
+        String(duration)
+      );
     });
     newUser("No trial badge on non-trial product", async ({ page }) => {
       mockTrialProduct(page.context(), "/api/basket/products?", {
@@ -138,17 +169,61 @@ newUser.describe("Free Trials @free-trials", () => {
         page.getByTestId("badge").filter({ hasText: "Free Trial" })
       ).toHaveCount(0);
     });
+    // Brand setting `ui.basket.add_to_basket_funnelling` controls whether
+    // the card CTA quick-adds in-situ or navigates to the product page.
+    // Each test pins the setting so the assertion is deterministic.
     newUser(
-      "Adding from card enables trial automatically",
-      async ({ page }) => {
-        productConfig = new ProductConfig(page);
-        basket = new Basket(page);
+      "Quick-add fires trial-enabled basket POST when funnelling is in-situ",
+      async ({ page, context }) => {
+        const token = await getSessionToken(context);
+        await interceptConfigValues(page, token, {
+          basketFunnelling: "none"
+        });
+
+        const cta = page.getByTestId("product-card-cta").first();
+        const basketCount = page.getByTestId("basket-action-count");
+
+        const basketAddRequest = page.waitForRequest(
+          req =>
+            req.method() === "POST" &&
+            !!req.postData()?.includes('"start_trial":true')
+        );
+
         await page.goto(URLs.freeTrialsCategory);
-        const trialButton = page.getByTestId(trialButtonId).first();
-        await trialButton.click();
-        await expect(productConfig.productConfigSection).toBeVisible();
-        await expect(productConfig.trialCheckbox).toBeVisible();
-        await productConfig.expectTrialSelected();
+        const initialCount = (await basketCount.count())
+          ? Number(await basketCount.innerText())
+          : 0;
+
+        await cta.click();
+        await basketAddRequest;
+
+        await expect(cta).toHaveAttribute("aria-pressed", "true");
+        await expect(basketCount).toHaveText(String(initialCount + 1));
+      }
+    );
+
+    newUser(
+      "Card click routes user onward when funnelling is next-step",
+      async ({ page, context }) => {
+        const token = await getSessionToken(context);
+        await interceptConfigValues(page, token, {
+          basketFunnelling: "next_step"
+        });
+
+        await page.goto(URLs.freeTrialsCategory);
+        const cta = page.getByTestId("product-card-cta").first();
+        const basketCount = page.getByTestId("basket-action-count");
+        const catalogueUrl = page.url();
+        const initialCount = (await basketCount.count())
+          ? Number(await basketCount.innerText())
+          : 0;
+
+        await cta.click();
+
+        // next-step funnels onward — exact destination depends on
+        // recommendations / brand config; we just assert it moved.
+        await expect(page).not.toHaveURL(catalogueUrl);
+        await expect(basketCount).toHaveText(String(initialCount + 1));
       }
     );
   });

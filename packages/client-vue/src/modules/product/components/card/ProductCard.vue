@@ -91,6 +91,13 @@
               size="lg"
               block
               :disabled="loading || disabled || justAdded"
+              data-testid="product-card-cta"
+              :aria-pressed="inBasket || justAdded"
+              :data-trial="
+                productDetails.trialDuration
+                  ? productDetails.trialDuration
+                  : undefined
+              "
               @click="doResolve"
             />
           </Tooltip>

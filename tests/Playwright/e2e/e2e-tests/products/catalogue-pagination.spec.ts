@@ -2,6 +2,7 @@ import { test, expect } from "@playwright/test";
 import { URLs } from "../../support/constants/urls";
 import { Pagination } from "../../support/page-objects/components/pagination";
 import { waitForSessionCookie } from "../../support/helpers";
+
 let pagination: Pagination;
 
 test.describe("Catalogue Pagination", () => {
@@ -24,11 +25,18 @@ test.describe("Catalogue Pagination", () => {
   test("Navigating to non-existant page returns user to last page", async ({
     page
   }) => {
-    await page.goto(`${URLs.catalogueRoot1}?page=99`);
-    await expect(page).toHaveURL(/page=6/);
+    await page.goto(`${URLs.catalogueRoot1}?page=999`);
+    // App must redirect away from the OOB page number, and the landed page
+    // must be a valid one — proven by the next button being disabled
+    // (definition of "last page"). No magic numbers; behaviour-only.
+    await expect(page).not.toHaveURL(/page=999\b/);
+    await expect(page).toHaveURL(/[?&]page=\d+/);
+    await expect(pagination.nextButton).toBeDisabled();
   });
   test("Next button is disabled on last page", async ({ page }) => {
-    await page.goto(`${URLs.catalogueRoot1}?page=6`);
+    // Use the app's own out-of-bounds redirect as the canonical
+    // "navigate to last page" mechanism (avoids staging-data coupling).
+    await page.goto(`${URLs.catalogueRoot1}?page=999`);
     await waitForSessionCookie(page.context());
     await expect(pagination.nextButton).toBeDisabled();
   });
