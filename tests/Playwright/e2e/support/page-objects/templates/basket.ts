@@ -39,7 +39,7 @@ export class Basket {
       "form-item-message-promocode"
     );
     this.promoBadge = this.summaryFooter.getByTestId("badge");
-    this.proceedToCheckout = page.getByTestId("button-proceed-to-checkout");
+    this.proceedToCheckout = page.getByTestId("basket-checkout-button");
 
     /* Trial */
     this.trialAlert = this.basketProductSummary.getByRole("alert");

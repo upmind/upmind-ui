@@ -9,6 +9,8 @@ import { URLs } from "../../support/constants/urls";
 import { getClientToken } from "../../support/api/auth";
 import { Login } from "../../support/page-objects/templates/login";
 import { Registration } from "../../support/page-objects/templates/registration";
+import { captureProduct } from "../../support/mocks/products";
+import { selectRequiredMultiDefaults } from "../../support/flows";
 
 let productConfig: ProductConfig;
 let checkout: Checkout;
@@ -17,10 +19,16 @@ let login: Login;
 let registration: Registration;
 
 async function enterDomainDetails() {
+  // Capture the raw product BEFORE navigation so we can introspect its schema
+  // for any `required + multiple` option categories the machine cannot auto-default.
+  const rawProductPromise = captureProduct(productConfig.page);
   await productConfig.page.goto(URLs.comDomain);
+  const rawProduct = await rawProductPromise;
+
   await productConfig.enterSld(
     `${fakerEN_GB.string.alpha({ length: { min: 5, max: 10 } })}${fakerEN_GB.string.numeric({ length: { min: 2, max: 5 } })}`
   );
+  await selectRequiredMultiDefaults(productConfig.page, rawProduct);
   await productConfig.enterRegistrantDetails({
     registrantName: `${fakerEN_GB.person.fullName()}`,
     registrantOrg: `${fakerEN_GB.person.zodiacSign()}`,
