@@ -45,7 +45,9 @@ export class Basket {
     this.trialAlert = this.basketProductSummary.getByRole("alert");
     // Since FE-2654 the "Free Trial" label is rendered inside the header
     // hgroup (next to the title), not the footer alongside the price.
-    this.trialPriceLabel = this.basketProductSummary.getByText("Free Trial");
+    this.trialPriceLabel = this.basketProductSummary.getByText("Free Trial", {
+      exact: true
+    });
 
     /* Upsells */
     this.basketProductUpsell = page.getByTestId("basket-product-upsell");
