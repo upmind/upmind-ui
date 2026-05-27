@@ -19,7 +19,7 @@
                   - img [ref=e20]
               - generic [ref=e22] [cursor=pointer]:
                 - img "avatar" [ref=e23]
-                - generic [ref=e25]: H
+                - generic [ref=e25]: M
         - main [ref=e26]:
           - generic [ref=e28]:
             - generic [ref=e35]:

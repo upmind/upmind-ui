@@ -22,7 +22,7 @@
                   - text: item
               - generic [ref=e24] [cursor=pointer]:
                 - img "avatar" [ref=e25]
-                - generic [ref=e27]: B
+                - generic [ref=e27]: A
         - generic [ref=e30]:
           - generic [ref=e32]:
             - generic:
