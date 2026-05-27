@@ -121,7 +121,7 @@
             type="submit"
             form="setup-form"
             :label="t('action.continue_label')"
-            :loading="setupMeta?.isProcessing"
+            :loading="setupMeta?.isProcessing || isNavigating"
             :disabled="
               productMeta?.isLoading ||
               productMeta?.isInvalid ||
@@ -148,6 +148,7 @@ import {
   useProductConfig,
   useProductSetup,
   useConfig,
+  useRoutingEngine,
   validateTemplate,
   DetailedError,
   responseCodes,
@@ -260,6 +261,8 @@ const {
   similarProducts,
   total
 } = useProductSetup();
+
+const { isNavigating } = useRoutingEngine();
 
 const { service: basketProduct } = await configure(props.bpid);
 
