@@ -18,10 +18,9 @@
             size="lg"
             color="muted"
             @click="emit('reset')"
-            :class="{ hidden: isEmpty(inputValue) }"
+            :class="styles.domain.search.clear"
             icon="delete"
             :disabled="processing"
-            class="hidden md:block"
           />
           <Button
             :disabled="isEmpty(inputValue) || processing"
@@ -75,5 +74,9 @@ const meta = computed(() => ({
 
 const inputValue = defineModel<string>("modelValue");
 
-const styles = useStyles(["domain.search"], {}, config);
+const stylesMeta = computed(() => ({
+  isEmpty: isEmpty(inputValue.value)
+}));
+
+const styles = useStyles(["domain.search"], stylesMeta, config);
 </script>
