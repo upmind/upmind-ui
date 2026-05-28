@@ -103,10 +103,11 @@ import { UIContext } from "../config";
 
 /**
  * Normalises sub_pids which may be array, string, or CSV to a string array.
+ * Handles arrays that contain CSV strings (e.g. ["id1,id2"]).
  */
 export function normaliseSubPids(input?: string | string[]): string[] {
   if (isEmpty(input)) return [];
-  if (isArray(input)) return compact(input);
+  if (isArray(input)) return compact(flatMap(input, item => split(item, ",")));
   if (isString(input)) return compact(split(input, ","));
   return [];
 }
