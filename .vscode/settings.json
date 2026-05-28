@@ -5,7 +5,6 @@
     ["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
     ["cx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
   ],
-  "cSpell.words": ["Upmind"],
   "files.watcherExclude": {
     "**/node_modules/**": true,
     "**/dist/**": true,

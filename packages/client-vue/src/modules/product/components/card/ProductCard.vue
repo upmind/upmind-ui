@@ -8,7 +8,6 @@
           :disabled="loading || disabled"
           @click="doResolve"
           :tabindex="images.length === 1 ? '0' : '-1'"
-          :ring="images.length === 1 ? 'focus' : 'focus-visible'"
           :class="styles.product.image.link"
         >
           <Image
@@ -92,6 +91,13 @@
               size="lg"
               block
               :disabled="loading || disabled || justAdded"
+              data-testid="product-card-cta"
+              :aria-pressed="inBasket || justAdded"
+              :data-trial="
+                productDetails.trialDuration
+                  ? productDetails.trialDuration
+                  : undefined
+              "
               @click="doResolve"
             />
           </Tooltip>

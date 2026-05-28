@@ -26,6 +26,7 @@
   "own_domain_qn": "Dețineți acest domeniu?",
   "owned_domains_title": "Domenii pe care le dețineți în prezent",
   "price_renewal_desc": "Preț unic de {regularPrice}. | Se reînnoiește în fiecare an pentru {regularPrice}. | Se reînnoiește la fiecare {count} ani pentru {regularPrice}.",
+  "registrant_use_billing_msg": "Detaliile dumneavoastră de facturare vor fi utilizate ca informații de contact ale registratorului domeniului.",
   "search": "Căutați domenii",
   "starts_with_domain": "Totul începe cu un **nume de domeniu**",
   "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
@@ -36,5 +37,6 @@
   "transfer_extension_info": "Transferurile includ o prelungire de un an.",
   "transfer_owner_question": "Sunteți proprietarul acestui domeniu?",
   "transfer_price_info": "Ne-l puteți transfera pentru doar {currentPrice}",
-  "transfer_promotion": "Transfer pentru doar {currentPrice}, de obicei {regularPrice}."
+  "transfer_promotion": "Transfer pentru doar {currentPrice}, de obicei {regularPrice}.",
+  "use_details_for": "Folosește aceste detalii pentru{domain}"
 }

@@ -1,5 +1,6 @@
 // --- external
 import { ref, watch } from "vue";
+import { useTimeoutFn } from "@vueuse/core";
 import {
   useRoutingEngine,
   ANIMATION_DELAY,
@@ -10,63 +11,42 @@ import {
 
 const shouldShow = ref(false);
 const shouldTransition = ref(false);
-const transitionCallbacks = new Set<(shouldTransition: boolean) => void>();
-
-let transitionTimer: ReturnType<typeof setTimeout> | null = null;
-let showTimer: ReturnType<typeof setTimeout> | null = null;
+const transitionCallbacks = new Set<(value: boolean) => void>();
 let initialised: boolean | undefined = undefined;
-// -----------------------------------------------------------------------------
 
+// -----------------------------------------------------------------------------
 /**
- * Provides reactive state and utility functions to manage route transition animations.
- *
- * This composable is designed to coordinate UI transitions when route resolution state changes,
- * such as showing loading indicators or animating page transitions in a Vue application.
- *
- * - Watches the `isResolved` property from the routing engine's meta object.
- * - Controls two reactive flags:
- *   - `shouldShow`: Indicates whether the transition UI (e.g., a loading spinner) should be visible.
- *   - `shouldTransition`: Indicates whether the transition animation should be active.
- * - Uses debounced timers to delay the activation of transitions and visibility, preventing flicker
- *   and ensuring smooth animations.
- * - Provides a subscription mechanism (`onTransition`) for external callbacks to react to transition state changes.
- * - Exposes an `onEnter` method to be called when the transition animation starts, triggering registered callbacks.
- *
- * @returns An object containing:
- *   - `shouldShow`: `Ref<boolean>` — Whether the transition UI should be shown.
- *   - `shouldTransition`: `Ref<boolean>` — Whether the transition animation should be active.
- *   - `onTransition`: Function to subscribe to transition state changes.
- *   - `onEnter`: Function to be called when the transition animation starts.
+ * Manages route transition animations by watching routing resolution state.
  */
 export const useRouteTransition = () => {
-  const { meta: routingMeta } = useRoutingEngine();
+  const { meta } = useRoutingEngine();
 
-  /**
-   * Watch for changes in the route's resolved state to manage transition visibility and animation.
-   * We intially indicate we need to show on our initial unresolved state, then debounce the transition and show states
-   * on subsequent changes.
-   * We only show when we are moving from a resolved to an unresolved state, and only after a delay to prevent unnecessary flicker/showing of loading states.
-   */
+  const { start: startShow, stop: stopShow } = useTimeoutFn(
+    () => {
+      shouldShow.value = true;
+    },
+    ANIMATION_DELAY,
+    { immediate: false }
+  );
+
+  const { start: startTransition, stop: stopTransition } = useTimeoutFn(
+    () => {
+      shouldTransition.value = true;
+    },
+    DEBOUNCE_DELAY,
+    { immediate: false }
+  );
+
   watch(
-    () => routingMeta.value.isResolved,
+    () => meta.value.isResolved,
     (isResolved, wasResolved) => {
       initialised = wasResolved ? true : initialised;
 
       if (!isResolved && initialised) {
-        if (showTimer) clearTimeout(showTimer);
-
         shouldShow.value = false;
-        // shouldShow.value = !initialised ? true : false;
-        showTimer = setTimeout(() => {
-          shouldShow.value = true;
-        }, ANIMATION_DELAY);
-
-        // ---
-        if (transitionTimer) clearTimeout(transitionTimer);
+        startShow();
         shouldTransition.value = false;
-        transitionTimer = setTimeout(() => {
-          shouldTransition.value = true;
-        }, DEBOUNCE_DELAY);
+        startTransition();
       } else if (!initialised) {
         shouldShow.value = true;
         shouldTransition.value = false;
@@ -76,31 +56,35 @@ export const useRouteTransition = () => {
   );
 
   function reset() {
-    if (transitionTimer) clearTimeout(transitionTimer);
-    if (showTimer) clearTimeout(showTimer);
+    stopShow();
+    stopTransition();
     shouldShow.value = false;
     shouldTransition.value = false;
   }
 
-  function onTransition(callback: (shouldTransition: boolean) => void) {
-    transitionCallbacks.add(callback);
-    return () => transitionCallbacks.delete(callback);
-  }
-
   function onEnter() {
-    if (transitionTimer) clearTimeout(transitionTimer);
-    if (showTimer) clearTimeout(showTimer);
-
+    stopShow();
+    stopTransition();
     if (shouldTransition.value) {
       transitionCallbacks.forEach(cb => cb(shouldTransition.value));
     }
   }
 
+  function onTransition(callback: (value: boolean) => void) {
+    transitionCallbacks.add(callback);
+    return () => transitionCallbacks.delete(callback);
+  }
+
   return {
+    /** Whether to show loading UI. */
     shouldShow,
+    /** Whether transition animation should be active. */
     shouldTransition,
-    onTransition,
+    /** Called when Vue Transition enter phase starts. */
     onEnter,
+    /** Subscribe to transition state changes. */
+    onTransition,
+    /** Reset transition state. */
     reset
   };
 };

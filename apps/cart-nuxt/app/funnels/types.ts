@@ -126,9 +126,14 @@ export enum ROUTE {
   BASKET_PRODUCT_EDIT = "basket-product-edit",
 
   /**
-   * The route to display products that require specific actions from the user.
+   * The route for product setup — fixing invalid/deferred product configuration.
    */
-  BASKET_PRODUCT_REQUIRES_ACTION = "basket-product-requires-action",
+  BASKET_PRODUCTS_SETUP = "basket-products-setup",
+
+  /**
+   * The route displayed when a basket is unavailable or invalid.
+   */
+  BASKET_UNAVAILABLE = "basket-unavailable",
 
   /**
    * The route for the checkout process.
@@ -136,9 +141,36 @@ export enum ROUTE {
   CHECKOUT = "checkout",
 
   /**
+   * The route for managing billing details on a standalone page.
+   */
+  BILLING = "billing",
+
+  /**
    * The route for viewing a completed order.
    */
   ORDER = "order",
+
+  // --- OVERLAY ROUTES --------------------------------------------------------
+
+  /**
+   * Parent route for overlay components (not navigable directly).
+   */
+  OVERLAYS = "overlays",
+
+  /**
+   * Overlay route for authentication (login/register).
+   */
+  OVERLAY_AUTH = "overlay-auth",
+
+  /**
+   * Overlay route for 2FA verification.
+   */
+  OVERLAY_2FA = "overlay-2fa",
+
+  /**
+   * Overlay route for email verification.
+   */
+  OVERLAY_VERIFY_EMAIL = "overlay-verify-email",
 
   // --- SYSTEM ROUTES ---------------------------------------------------------
 

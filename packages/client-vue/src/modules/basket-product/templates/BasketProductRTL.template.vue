@@ -35,7 +35,6 @@ import { onMounted } from "vue";
 // --- internal
 import { useHeader } from "../../../components/header/useHeader";
 import { useFooter } from "../../../components/footer/useFooter";
-import { useLayout } from "../../../components/layout/useLayout";
 
 // --- components
 import Layout from "../../../components/layout/Layout.vue";
@@ -46,10 +45,6 @@ import { HEADER_BACKGROUND } from "../../../components/header/types";
 
 defineOptions({
   inheritAttrs: false
-});
-
-useLayout({
-  variant: LAYOUT_VARIANTS.TWO_COLUMN_RTL
 });
 
 onMounted(() => {

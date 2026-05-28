@@ -405,8 +405,8 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       const productSetup = new ProductSetup(page);
       checkout = new Checkout(page);
 
-      await loginAsIncompleteCustomer(page, context);
-      await seedInvalidProduct(context, products.DOMAIN_2);
+      const token = await loginAsIncompleteCustomer(page, context);
+      await seedInvalidProduct(products.DOMAIN_2, token);
 
       await page.goto(URLs.basket);
       await basket.proceedToCheckout.click();
