@@ -5,12 +5,14 @@ import { interpret } from "xstate";
 import { useActor } from "@xstate/vue";
 
 // --- internal
-import { useI18n } from "../system";
+import { useDataLayer, useI18n } from "../system";
 import { QUERY_PARAMS, useQueryParams } from "../routing";
 import dacMachine from "./dac.machine";
-import { sanitiseDomainInput } from "./utils";
-import { useDomainSearchMethod } from "./useDomainSearchMethod";
-import { buildCommonMeta, pushDacEvent } from "./gtm";
+import {
+  buildCommonMeta,
+  sanitiseDomainInput,
+  useDomainSearchMethod
+} from "./utils";
 
 // --- utils
 import { map, isArray, some, isEmpty } from "lodash-es";
@@ -36,7 +38,7 @@ import { PAGINATION } from "../query";
  * @param options.mode - The domain operation mode (register or transfer). Defaults to register.
  * @returns Domain management API (state, computed, and methods)
  */
-export const useDac = (options?: { mode?: DomainTypes }) => {
+export const useDac = (options?: { mode?: DomainTypes; limit?: number }) => {
   const { t } = useI18n();
   const { getParam, getParams, setParam, unsetParam } = useQueryParams();
 
@@ -59,7 +61,7 @@ export const useDac = (options?: { mode?: DomainTypes }) => {
         // Sanitise the URL-seeded query so the dac machine + search service
         // see the same shape they would for a runtime SEARCH event.
         query: sanitiseDomainInput(getParam(QUERY_PARAMS.SEARCH, "") ?? ""),
-        limit: PAGINATION.limit,
+        limit: options?.limit ?? 20,
         offset: PAGINATION.offset,
         total: 0,
         page: 1,
@@ -159,11 +161,16 @@ export const useDac = (options?: { mode?: DomainTypes }) => {
     // Page-based (suggestions) pagination uses `page + 1`; legacy offset
     // pagination has no page concept so the doc requires null.
     const usingSuggestions = pagination.value.totalPages > 0;
-    pushDacEvent("dac_load_more", {
-      ...buildCommonMeta(context.value ?? {}),
-      results_count_before: available.value?.length ?? 0,
-      next_page: usingSuggestions ? pagination.value.page + 1 : null
-    });
+    useDataLayer()
+      .dataLayer({
+        event: "upm.dac_load_more",
+        meta: {
+          ...buildCommonMeta(context.value ?? {}),
+          results_count_before: available.value?.length ?? 0,
+          next_page: usingSuggestions ? pagination.value.page + 1 : null
+        }
+      })
+      .push();
     send({ type: "SEARCH.OFFSET" });
   }
 

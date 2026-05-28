@@ -5,14 +5,15 @@ import { createMachine, assign, spawn, sendTo, pure } from "xstate";
 import services from "./services";
 import { basketSubscription } from "../basketProduct/helper";
 import { authSubscription } from "../session/helper";
-import { domainAvailabilityHelper } from "./helper";
-import { buildCommonMeta, pushDacEvent } from "./gtm";
+import { useDataLayer } from "../system";
 import { useFeedback } from "../feedback";
 
 // --- utils
 import { mapToHeadlessError, useTime } from "../../utils";
 import {
   buildAddToBasketModel,
+  buildCommonMeta,
+  domainAvailabilityHelper,
   hasTransferSetup,
   mergeDomainSearchResults,
   parseDomain,
@@ -391,12 +392,17 @@ export default createMachine(
           product?.meta?.available === false && product?.meta?.canTransfer
             ? "transfer"
             : "register";
-        pushDacEvent("dac_availability_check", {
-          ...buildCommonMeta(context),
-          domain,
-          pid: product?.productDetails?.id ?? null,
-          action
-        });
+        useDataLayer()
+          .dataLayer({
+            event: "upm.dac_availability_check",
+            meta: {
+              ...buildCommonMeta(context),
+              domain,
+              pid: product?.productDetails?.id ?? null,
+              action
+            }
+          })
+          .push();
 
         return sendTo(context.availabilityHelper, {
           type: "VERIFY",
@@ -426,15 +432,20 @@ export default createMachine(
           product?.meta?.available === false && product?.meta?.canTransfer
             ? "transfer"
             : "register";
-        pushDacEvent("dac_availability_result", {
-          ...buildCommonMeta(context),
-          domain,
-          pid: product?.productDetails?.id ?? null,
-          is_available: !!availability?.can_register,
-          can_transfer: !!availability?.can_transfer,
-          has_error: !!error,
-          action
-        });
+        useDataLayer()
+          .dataLayer({
+            event: "upm.dac_availability_result",
+            meta: {
+              ...buildCommonMeta(context),
+              domain,
+              pid: product?.productDetails?.id ?? null,
+              is_available: !!availability?.can_register,
+              can_transfer: !!availability?.can_transfer,
+              has_error: !!error,
+              action
+            }
+          })
+          .push();
       },
 
       loadBasket: pure(({ basketHelper }: DacContext, _event) => {
@@ -557,21 +568,26 @@ export default createMachine(
             product?.meta?.available === false && product?.meta?.canTransfer
               ? "transfer"
               : "register";
-          pushDacEvent("dac_add_to_basket", {
-            ...buildCommonMeta(context),
-            domain: data,
-            pid: product?.productDetails?.id ?? null,
-            price_formatted: price?.regularPrice ?? null,
-            price_discounted_formatted: price?.currentPrice ?? null,
-            is_discounted:
-              !!price?.savingAmount && (price?.savingAmount as number) > 0,
-            percentage_saving: price?.savingPercent ?? null,
-            is_exact_match: !!product?.meta?.exactMatch,
-            billing_cycle_months: product?.configuration?.term ?? null,
-            currency_code: context.currency ?? null,
-            coupons: context.coupons ?? [],
-            action
-          });
+          useDataLayer()
+            .dataLayer({
+              event: "upm.dac_add_to_basket",
+              meta: {
+                ...buildCommonMeta(context),
+                domain: data,
+                pid: product?.productDetails?.id ?? null,
+                price_formatted: price?.regularPrice ?? null,
+                price_discounted_formatted: price?.currentPrice ?? null,
+                is_discounted:
+                  !!price?.savingAmount && (price?.savingAmount as number) > 0,
+                percentage_saving: price?.savingPercent ?? null,
+                is_exact_match: !!product?.meta?.exactMatch,
+                billing_cycle_months: product?.configuration?.term ?? null,
+                currency_code: context.currency ?? null,
+                coupons: context.coupons ?? [],
+                action
+              }
+            })
+            .push();
 
           return sendTo(context.basketHelper, {
             type: "ADD_UPDATE",

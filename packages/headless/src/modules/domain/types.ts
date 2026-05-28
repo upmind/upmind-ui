@@ -64,6 +64,17 @@ export enum DomainTypes {
 }
 
 /**
+ * Minimal context shape needed to derive DAC tracking meta. Both
+ * `DacContext` (child machine) and `DomainContext` (parent machine) satisfy
+ * this, so the helper can be called from either.
+ */
+export type DacEventContext = {
+  mode?: DomainTypes;
+  useSuggestions?: boolean;
+  search?: { query?: string };
+};
+
+/**
  * Represents a {@link Product} specifically for domain management, augmented with domain-specific
  * meta-information like availability, ownership, and selection status.
  * It extends {@link Product} and omits `selected` from `DomainModel` to merge `meta`.

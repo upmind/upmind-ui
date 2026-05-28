@@ -6,7 +6,9 @@ import type { Ref } from "vue";
 
 // --- internals
 import { useBrand } from "../brand";
+import { useLocale } from "../system";
 import { calculateBillingTerm, parseProductProps } from "../product/utils";
+import services from "./services";
 
 // --- utils
 import {
@@ -31,6 +33,8 @@ import {
 
 // --- types
 import {
+  BrandConfigKeys,
+  DomainSearchMethod,
   type IBasketProduct,
   type IBlueprint,
   type IDomainSuggestionResult,
@@ -39,8 +43,15 @@ import {
   ProvisionCategoryCodes
 } from "@upmind-automation/types";
 import type { BasketProduct } from "../basketProduct";
-import type { DomainProduct, DomainModel } from "./types";
+import {
+  DomainTypes,
+  type DacContext,
+  type DacEventContext,
+  type DomainProduct,
+  type DomainModel
+} from "./types";
 import { type ProductDetails, type ProductProps } from "../product";
+import { responseCodes } from "../../utils";
 
 // ----------------------------------------------------------------------------
 
@@ -109,7 +120,76 @@ export function buildAddToBasketModel(
 
 // ----------------------------------------------------------------------------
 
-export { mergeDomainSearchResults } from "./mergeDomainSearchResults";
+/**
+ * Merges a freshly-emitted batch of search results into the previously-rendered
+ * list, by `domain`. Three upstream emit scenarios drive the rules:
+ *
+ *  1. Within one search round, `/suggestions` emits `priceLoading` rows and
+ *     `/suggestions/tlds` re-emits the same rows priced — the row must
+ *     upgrade in-place so the UI re-renders skeletons → real prices.
+ *  2. `/availability` resolves after `/suggestions` and produces an
+ *     authoritative version of the exact-match row (with
+ *     `checkedAvailability=true`). It must replace the suggestion-derived
+ *     version even when both are "priced".
+ *  3. Pagination (Load more) emits the next page; existing rows must NOT
+ *     change. If the API happens to return overlapping domains in a later
+ *     page, keep the already-loaded version.
+ *
+ * Rule: replace an existing row when the incoming row is **strictly fresher**:
+ *   - `priceLoading` → not `priceLoading` (price upgrade), OR
+ *   - `!checkedAvailability` → `checkedAvailability` (availability upgrade).
+ *
+ * Otherwise leave the existing row alone. Truly new domains are appended.
+ *
+ * Pure — both inputs must be pre-flagged (owned/added/disabled etc.) by
+ * the caller; this function only resolves the merge ordering.
+ */
+export function mergeDomainSearchResults(
+  previous: DomainProduct[],
+  available: DomainProduct[]
+): DomainProduct[] {
+  const updatedPrevious = map(previous, (prev: DomainProduct) => {
+    const fresher = find(available, ["domain", prev.domain]);
+    if (!fresher) return prev;
+    const isPriceUpgrade =
+      !!prev.meta?.priceLoading && !fresher.meta?.priceLoading;
+    const isAvailabilityUpgrade =
+      !prev.meta?.checkedAvailability && !!fresher.meta?.checkedAvailability;
+    return (
+      isPriceUpgrade || isAvailabilityUpgrade ? fresher : prev
+    ) as DomainProduct;
+  });
+
+  const newOnly = filter(
+    available,
+    (item: DomainProduct) => !find(previous, ["domain", item.domain])
+  ) as DomainProduct[];
+
+  return compact([...updatedPrevious, ...newOnly]);
+}
+
+// ----------------------------------------------------------------------------
+
+/**
+ * Resolves the brand's domain-search flow from `DOMAIN_SEARCH_METHOD`.
+ *
+ * Falls back to `LEGACY_LOOKUP` so the legacy `/domains/search` path
+ * runs by default — the new `/suggestions` + `/suggestions/tlds` flow
+ * only kicks in when the brand explicitly opts into `SMART_SUGGEST`.
+ *
+ * Single source of truth for both `useDomain` (parent) and `useDac`
+ * (child), so the flag derivation can't drift between entry points.
+ */
+export function useDomainSearchMethod() {
+  const { getConfigValue } = useBrand();
+
+  const searchMethod =
+    getConfigValue<DomainSearchMethod>(BrandConfigKeys.DOMAIN_SEARCH_METHOD) ??
+    DomainSearchMethod.LEGACY_LOOKUP;
+  const useSuggestions = searchMethod === DomainSearchMethod.SMART_SUGGEST;
+
+  return { searchMethod, useSuggestions };
+}
 
 // ----------------------------------------------------------------------------
 
@@ -560,4 +640,99 @@ export function getDomainRawBasketProducts(
       serviceIdentifier: raw?.service_identifier ?? undefined
     });
   });
+}
+
+// ----------------------------------------------------------------------------
+
+/**
+ * Resolves the widget-style search mode from a headless context. The
+ * headless `mode` is an operation flow (register/transfer) and
+ * `useSuggestions` is a boolean — surface them as a single label for
+ * tracking.
+ */
+export function resolveWidgetMode(
+  context: DacEventContext
+): "suggest" | "search" | "transfer" | null {
+  if (context.mode === DomainTypes.transfer) return "transfer";
+  if (context.useSuggestions === true) return "suggest";
+  if (context.useSuggestions === false) return "search";
+  return null;
+}
+
+/**
+ * Common DAC tracking fields spread into every DAC event's `meta` payload
+ * (widget id, current route, locale, the sanitised search query, its parsed
+ * parts, and the resolved widget mode). Caller adds event-specific fields
+ * on top.
+ */
+export function buildCommonMeta(
+  context: DacEventContext
+): Record<string, unknown> {
+  const query = sanitiseDomainInput(context.search?.query ?? "");
+  const { sld, tld } = parseDomainParts(query);
+  let locale: string | undefined;
+  try {
+    locale = useLocale().locale.value;
+  } catch {
+    locale = undefined;
+  }
+  return {
+    widget: "dac",
+    route:
+      typeof window !== "undefined" ? (window.location?.pathname ?? "") : "",
+    locale,
+    query,
+    sld,
+    tld: tld ?? null,
+    mode: resolveWidgetMode(context)
+  };
+}
+
+// ----------------------------------------------------------------------------
+
+/**
+ * Spawned actor that runs `/availability` pre-flight checks in parallel.
+ *
+ * XState's `invoke` runs one service at a time per state, so when the user
+ * clicks several suggestion rows in quick succession only the first click
+ * could fire a pre-check. Routing every click through this helper instead
+ * sidesteps that restriction — each `VERIFY` event triggers an independent
+ * fire-and-forget `checkAvailability` call, and the result is dispatched
+ * back to the parent machine as `VERIFY_RESULT` (or `VERIFY_ERROR`) keyed
+ * by domain so rows can be correlated reliably even when results return
+ * out of order.
+ *
+ * NB: Must be a plain function (NOT async). XState v4 treats an async
+ * function passed to `spawn()` as a promise actor — `onReceiveEvent` would
+ * never be registered and incoming `VERIFY` events would silently vanish.
+ */
+export function domainAvailabilityHelper(callback: any, onReceiveEvent: any) {
+  const onReceive = (event: any) => {
+    if (event.type !== "VERIFY") return;
+    const { data: domain, context } = event;
+    if (!domain) return;
+
+    services
+      .checkAvailability({
+        ...(context ?? {}),
+        checkingDomain: domain
+      } as DacContext)
+      .then(availability => {
+        callback({
+          type: "VERIFY_RESULT",
+          data: domain,
+          availability
+        });
+      })
+      .catch(error => {
+        if (error?.code === responseCodes.Aborted) return;
+        callback({
+          type: "VERIFY_ERROR",
+          data: domain,
+          error
+        });
+      });
+  };
+
+  onReceiveEvent(onReceive);
 }

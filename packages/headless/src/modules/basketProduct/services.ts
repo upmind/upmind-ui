@@ -55,29 +55,9 @@ import type { BasketProduct, IBasketProductModel } from "./types";
 // -----------------------------------------------------------------------------
 
 /**
- * Tracks an in-flight basket creation so concurrent `update` callers (when
- * no `basketId` exists yet) coordinate to a single `POST /orders` instead
- * of each creating their own basket. The first caller starts the creation
- * with its product as the seed; later callers await this promise and then
- * POST their product to the resolved basket id.
- *
- * Reset to `null` once the creation settles so a subsequent fresh session
- * (after RESET, etc.) can start a new basket.
- */
-let basketCreationInFlight: Promise<IBasket> | null = null;
-
-/**
- * A queue to manage basket product operations.
- * Each task can be of type "UPDATE_MANY", "UPDATE", "UPDATE_QUANTITY", or "REMOVE".
- * Concurrency is unbounded so that rapid `Add` clicks (e.g. user adding
- * multiple distinct domains in succession) fire the basket POSTs in parallel
- * — each is for a unique product, so there's no race risk and the UI
- * doesn't have to wait for prior calls to settle before the next can start.
- *
- * The exception is initial basket creation: when no basket exists yet, we
- * coordinate via `basketCreationInFlight` (above) so only one
- * `POST /orders` fires; subsequent products `POST /orders/{id}/products`
- * once the basket is ready. See `update()`.
+ * A queue to manage basket product operations sequentially.
+ * This ensures that basket updates are processed one at a time to prevent conflicts and overwhelming the server.
+ * Each task in the queue can be of type "UPDATE_MANY", "UPDATE", "UPDATE_QUANTITY", or "REMOVE".
  */
 const queue = new AsyncQueuer<{
   type: string;
@@ -109,7 +89,7 @@ const queue = new AsyncQueuer<{
   },
   {
     // wait: 3000, // Wait 3 seconds between starting new items
-    concurrency: Infinity, // Process tasks in parallel
+    concurrency: 1, // Process 1 item at once
     started: true, // Start processing immediately
     key: "basketProducts", // Identify this queuer in devtools
 
@@ -576,28 +556,9 @@ async function update({
 
   const product = parseBasketProductData(model, isNew);
 
-  // No basket exists yet. With parallel queue concurrency, multiple Add
-  // clicks would each independently call `generateBasket` here and create
-  // duplicate baskets. To prevent that we coordinate via a module-level
-  // promise: the first caller creates the basket (seeded with its own
-  // product); concurrent callers await that creation, then add their
-  // product to the freshly-created basket via the normal POST flow.
-  if (!basketId) {
-    if (basketCreationInFlight) {
-      // Another caller is already creating the basket — wait for it,
-      // then continue with `basketId` set so we POST to /orders/{id}/products.
-      const created = await basketCreationInFlight;
-      basketId = created.id;
-    } else {
-      // We're first — create the basket with our product as the seed.
-      basketCreationInFlight = generateBasket([product]);
-      try {
-        return await basketCreationInFlight;
-      } finally {
-        basketCreationInFlight = null;
-      }
-    }
-  }
+  // ---
+
+  if (!basketId) return generateBasket([product]);
 
   // ---
 
