@@ -4,7 +4,6 @@
 import {
   type DomainModel,
   type DomainProduct,
-  useDataLayer,
   useFeedback,
   useI18n,
   useQuery,
@@ -16,7 +15,6 @@ import {
 import { compact, isEmpty, keyBy, map, omitBy, reject } from "lodash-es";
 import {
   applyDacTransferOverride,
-  buildCommonMeta,
   buildFallbackPricing,
   getDacTransferLabel,
   makePlaceholderProductDetails,
@@ -266,38 +264,30 @@ function search(context: DacContext) {
     cancel(["domains", "suggestions"]);
     cancel(["domains", "suggestions", "tlds"]);
 
-    const commonMeta = buildCommonMeta(context);
-
     // --- TRANSFER mode: only checkAvailability, no suggestions
     if (mode === DomainTypes.transfer) {
       const domain = search.query;
-      // `dac_exact_match_check` fires inside the resolution callbacks below
-      // (success + non-abort error) so aborted searches don't leave a
-      // dangling check without a matching result event.
+      // `EXACT_MATCH_CHECK` / `EXACT_MATCH_RESULT` are tracking-only events
+      // — the machine catches them and fires `upm.dac_exact_match_*`. We
+      // emit from inside the resolution callbacks (success + non-abort
+      // error) so aborted searches don't leave a dangling check event
+      // without a matching result event.
       checkAvailability({
         ...context,
         checkingDomain: domain
       } as DacContext)
         .then(availability => {
-          useDataLayer()
-            .dataLayer({
-              event: "upm.dac_exact_match_check",
-              meta: { ...commonMeta, domain }
-            })
-            .push();
-          useDataLayer()
-            .dataLayer({
-              event: "upm.dac_exact_match_result",
-              meta: {
-                ...commonMeta,
-                domain,
-                pid: availability?.product?.id ?? null,
-                is_available: !!availability?.can_register,
-                can_transfer: !!availability?.can_transfer,
-                has_error: false
-              }
-            })
-            .push();
+          sendBack({ type: "EXACT_MATCH_CHECK", data: { domain } });
+          sendBack({
+            type: "EXACT_MATCH_RESULT",
+            data: {
+              domain,
+              pid: availability?.product?.id ?? null,
+              is_available: !!availability?.can_register,
+              can_transfer: !!availability?.can_transfer,
+              has_error: false
+            }
+          });
           const product = buildDomainProductFromAvailability(
             domain,
             availability,
@@ -313,29 +303,24 @@ function search(context: DacContext) {
               exactDomain: domain
             }
           });
-          sendBack({ type: "SEARCH_COMPLETE" });
+          sendBack({
+            type: "SEARCH_COMPLETE",
+            data: { resultsCount: 1, hasExactMatch: true, hasError: false }
+          });
         })
         .catch(error => {
           if (error?.code === responseCodes.Aborted) return;
-          useDataLayer()
-            .dataLayer({
-              event: "upm.dac_exact_match_check",
-              meta: { ...commonMeta, domain }
-            })
-            .push();
-          useDataLayer()
-            .dataLayer({
-              event: "upm.dac_exact_match_result",
-              meta: {
-                ...commonMeta,
-                domain,
-                pid: null,
-                is_available: false,
-                can_transfer: false,
-                has_error: true
-              }
-            })
-            .push();
+          sendBack({ type: "EXACT_MATCH_CHECK", data: { domain } });
+          sendBack({
+            type: "EXACT_MATCH_RESULT",
+            data: {
+              domain,
+              pid: null,
+              is_available: false,
+              can_transfer: false,
+              has_error: true
+            }
+          });
           // Show the exact match row as unavailable instead of erroring
           const unavailableProduct = buildDomainProductFromAvailability(
             domain,
@@ -360,23 +345,12 @@ function search(context: DacContext) {
       return;
     }
 
-    // dac_search fires for register-mode searches (transfer mode does an
-    // exact-match check rather than a search and is intentionally excluded
-    // per the widget contract).
-    useDataLayer()
-      .dataLayer({
-        event: "upm.dac_search",
-        meta: {
-          ...commonMeta,
-          tlds: tlds ?? [],
-          coupons: coupons ?? [],
-          currency_code: context.currency ?? null
-        }
-      })
-      .push();
-
     // --- REGISTER mode: fire suggestions + tlds (and availability when
     //     a TLD is in the query) in parallel via a single callback service.
+    //
+    // `upm.dac_search` itself is pushed by the machine on `searching` entry
+    // — see `pushDacSearch` in dac.machine.ts. The service only emits the
+    // search-completion event with the row counts.
     //
     // The state stays in `searching` until ALL calls have resolved — this
     // is required because XState cancels the callback service (and drops
@@ -467,27 +441,19 @@ function search(context: DacContext) {
         // Snapshot the first-batch result list for the GTM event. Per the
         // widget doc `has_exact_match` reflects this initial snapshot — the
         // exact-match price/availability resolves separately via the
-        // `dac_exact_match_result` event.
+        // `dac_exact_match_result` event. Result counts ride on the
+        // `SEARCH_COMPLETE` event data so the machine can pick between
+        // `dac_search_results` and `dac_no_results` via guard.
         const merged = buildResult();
         const resultsCount = merged.data.length;
-        if (resultsCount === 0) {
-          useDataLayer()
-            .dataLayer({ event: "upm.dac_no_results", meta: commonMeta })
-            .push();
-        } else {
-          useDataLayer()
-            .dataLayer({
-              event: "upm.dac_search_results",
-              meta: {
-                ...commonMeta,
-                results_count: resultsCount,
-                has_exact_match: !!merged.exactDomain,
-                has_error: suggestionsErrored
-              }
-            })
-            .push();
-        }
-        sendBack({ type: "SEARCH_COMPLETE" });
+        sendBack({
+          type: "SEARCH_COMPLETE",
+          data: {
+            resultsCount,
+            hasExactMatch: !!merged.exactDomain,
+            hasError: suggestionsErrored
+          }
+        });
       }
     };
 
@@ -615,25 +581,20 @@ function search(context: DacContext) {
       } as DacContext)
         .then(availability => {
           availabilityData = availability;
-          useDataLayer()
-            .dataLayer({
-              event: "upm.dac_exact_match_check",
-              meta: { ...commonMeta, domain: exactDomainForCheck }
-            })
-            .push();
-          useDataLayer()
-            .dataLayer({
-              event: "upm.dac_exact_match_result",
-              meta: {
-                ...commonMeta,
-                domain: exactDomainForCheck,
-                pid: availability?.product?.id ?? null,
-                is_available: !!availability?.can_register,
-                can_transfer: !!availability?.can_transfer,
-                has_error: false
-              }
-            })
-            .push();
+          sendBack({
+            type: "EXACT_MATCH_CHECK",
+            data: { domain: exactDomainForCheck }
+          });
+          sendBack({
+            type: "EXACT_MATCH_RESULT",
+            data: {
+              domain: exactDomainForCheck,
+              pid: availability?.product?.id ?? null,
+              is_available: !!availability?.can_register,
+              can_transfer: !!availability?.can_transfer,
+              has_error: false
+            }
+          });
           sendResult();
         })
         .catch(error => {
@@ -642,25 +603,20 @@ function search(context: DacContext) {
             can_register: false,
             can_transfer: false
           } as IDomainAvailabilityResponse;
-          useDataLayer()
-            .dataLayer({
-              event: "upm.dac_exact_match_check",
-              meta: { ...commonMeta, domain: exactDomainForCheck }
-            })
-            .push();
-          useDataLayer()
-            .dataLayer({
-              event: "upm.dac_exact_match_result",
-              meta: {
-                ...commonMeta,
-                domain: exactDomainForCheck,
-                pid: null,
-                is_available: false,
-                can_transfer: false,
-                has_error: true
-              }
-            })
-            .push();
+          sendBack({
+            type: "EXACT_MATCH_CHECK",
+            data: { domain: exactDomainForCheck }
+          });
+          sendBack({
+            type: "EXACT_MATCH_RESULT",
+            data: {
+              domain: exactDomainForCheck,
+              pid: null,
+              is_available: false,
+              can_transfer: false,
+              has_error: true
+            }
+          });
           sendResult();
         });
     }
@@ -793,18 +749,8 @@ function legacySearch(context: DacContext) {
 
     cancel(["domains", "search"]);
 
-    const commonMeta = buildCommonMeta(context);
-    useDataLayer()
-      .dataLayer({
-        event: "upm.dac_search",
-        meta: {
-          ...commonMeta,
-          tlds: context.tlds ?? [],
-          coupons: coupons ?? [],
-          currency_code: context.currency ?? null
-        }
-      })
-      .push();
+    // `upm.dac_search` is pushed by the machine on `searching` entry —
+    // see `pushDacSearch` in dac.machine.ts.
 
     getList<IProduct[], DomainProduct[]>({
       url: useUrl("modules/web_hosting/domains/search", params),
@@ -819,27 +765,6 @@ function legacySearch(context: DacContext) {
     })
       .then(response => {
         const rows = response.data ?? [];
-        if (rows.length === 0) {
-          useDataLayer()
-            .dataLayer({ event: "upm.dac_no_results", meta: commonMeta })
-            .push();
-        } else {
-          useDataLayer()
-            .dataLayer({
-              event: "upm.dac_search_results",
-              meta: {
-                ...commonMeta,
-                results_count: rows.length,
-                // Legacy /search doesn't surface a separate exact-match row —
-                // it's already inline in the result list, so we can't reliably
-                // detect it without re-parsing. Report false to match the doc's
-                // "first-batch snapshot" semantics.
-                has_exact_match: false,
-                has_error: false
-              }
-            })
-            .push();
-        }
         sendBack({
           type: "SEARCH_RESULTS",
           data: {
@@ -847,7 +772,20 @@ function legacySearch(context: DacContext) {
             total: response.total ?? 0
           }
         });
-        sendBack({ type: "SEARCH_COMPLETE" });
+        // Legacy /search doesn't surface a separate exact-match row — it's
+        // inline in the result list, so we can't reliably detect it without
+        // re-parsing. Report `hasExactMatch: false` to match the doc's
+        // "first-batch snapshot" semantics. Result counts ride on the event
+        // data so the machine can split `dac_search_results` vs
+        // `dac_no_results` via guard.
+        sendBack({
+          type: "SEARCH_COMPLETE",
+          data: {
+            resultsCount: rows.length,
+            hasExactMatch: false,
+            hasError: false
+          }
+        });
       })
       .catch(error => {
         if (error?.code !== responseCodes.Aborted) {

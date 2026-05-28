@@ -5,14 +5,10 @@ import { interpret } from "xstate";
 import { useActor } from "@xstate/vue";
 
 // --- internal
-import { useDataLayer, useI18n } from "../system";
+import { useI18n } from "../system";
 import { QUERY_PARAMS, useQueryParams } from "../routing";
 import dacMachine from "./dac.machine";
-import {
-  buildCommonMeta,
-  sanitiseDomainInput,
-  useDomainSearchMethod
-} from "./utils";
+import { sanitiseDomainInput, useDomainSearchMethod } from "./utils";
 
 // --- utils
 import { map, isArray, some, isEmpty } from "lodash-es";
@@ -159,19 +155,17 @@ export const useDac = (options?: { mode?: DomainTypes; limit?: number }) => {
 
   function searchMore(): void {
     // Page-based (suggestions) pagination uses `page + 1`; legacy offset
-    // pagination has no page concept so the doc requires null.
+    // pagination has no page concept so the doc requires null. The pre-load
+    // count + resolved next-page ride on the event so `pushDacLoadMore` in
+    // dac.machine stays pure tracking.
     const usingSuggestions = pagination.value.totalPages > 0;
-    useDataLayer()
-      .dataLayer({
-        event: "upm.dac_load_more",
-        meta: {
-          ...buildCommonMeta(context.value ?? {}),
-          results_count_before: available.value?.length ?? 0,
-          next_page: usingSuggestions ? pagination.value.page + 1 : null
-        }
-      })
-      .push();
-    send({ type: "SEARCH.OFFSET" });
+    send({
+      type: "SEARCH.OFFSET",
+      data: {
+        results_count_before: available.value?.length ?? 0,
+        next_page: usingSuggestions ? pagination.value.page + 1 : null
+      }
+    });
   }
 
   function toggle(value: string): void {

@@ -102,7 +102,7 @@ export default createMachine(
 
       searching: {
         id: "searching",
-        entry: ["clearError"],
+        entry: ["clearError", "pushDacSearch"],
         invoke: {
           src: (context: DacContext) =>
             context.useSuggestions === false
@@ -117,9 +117,19 @@ export default createMachine(
           // Suggestions finished — transition out so the list renders.
           // /suggestions/tlds and the exact-match availability call may
           // still be in-flight; their results come in below as SEARCH_*.
-          SEARCH_COMPLETE: {
-            target: "invalid"
-          },
+          // Split tracking between `dac_search_results` (≥1 row) and
+          // `dac_no_results` (0 rows) via the `hasSearchResults` guard.
+          SEARCH_COMPLETE: [
+            {
+              target: "invalid",
+              actions: ["pushDacSearchResults"],
+              cond: "hasSearchResults"
+            },
+            {
+              target: "invalid",
+              actions: ["pushDacNoResults"]
+            }
+          ],
           SEARCH_ERROR: [
             {
               target: "error",
@@ -134,13 +144,23 @@ export default createMachine(
           ADD: [
             {
               // Already availability-checked — skip pre-check
-              actions: ["add", "setProcessing", "addToBasket"],
+              actions: [
+                "add",
+                "setProcessing",
+                "pushDacAddToBasket",
+                "addToBasket"
+              ],
               cond: "isAlreadyChecked"
             },
             {
               // Fire pre-check via spawned helper so multiple parallel
               // clicks each get their own /availability call.
-              actions: ["add", "setProcessing", "verifyDomain"],
+              actions: [
+                "add",
+                "setProcessing",
+                "pushDacAvailabilityCheck",
+                "verifyDomain"
+              ],
               cond: "isValidDomain"
             }
           ]
@@ -159,13 +179,23 @@ export default createMachine(
             {
               // Already availability-checked — skip pre-check
               target: "valid",
-              actions: ["add", "setProcessing", "addToBasket"],
+              actions: [
+                "add",
+                "setProcessing",
+                "pushDacAddToBasket",
+                "addToBasket"
+              ],
               cond: "isAlreadyChecked"
             },
             {
               // Fire pre-check via spawned helper so multiple parallel
               // clicks each get their own /availability call.
-              actions: ["add", "setProcessing", "verifyDomain"],
+              actions: [
+                "add",
+                "setProcessing",
+                "pushDacAvailabilityCheck",
+                "verifyDomain"
+              ],
               cond: "isValidDomain"
             }
           ]
@@ -179,13 +209,23 @@ export default createMachine(
             {
               // Already availability-checked — skip pre-check
               target: "valid",
-              actions: ["add", "setProcessing", "addToBasket"],
+              actions: [
+                "add",
+                "setProcessing",
+                "pushDacAddToBasket",
+                "addToBasket"
+              ],
               cond: "isAlreadyChecked"
             },
             {
               // Fire pre-check via spawned helper so multiple parallel
               // clicks each get their own /availability call.
-              actions: ["add", "setProcessing", "verifyDomain"],
+              actions: [
+                "add",
+                "setProcessing",
+                "pushDacAvailabilityCheck",
+                "verifyDomain"
+              ],
               cond: "isValidDomain"
             }
           ]
@@ -249,26 +289,30 @@ export default createMachine(
       // can be processed independently.
       VERIFY_RESULT: [
         {
-          actions: ["pushVerifyResultEvent", "markRowUnavailable"],
+          actions: ["pushDacAvailabilityResult", "markRowUnavailable"],
           cond: "isAvailabilityFullyUnavailable"
         },
         {
-          actions: ["pushVerifyResultEvent", "flipRowToTransfer"],
+          actions: ["pushDacAvailabilityResult", "flipRowToTransfer"],
           cond: "shouldFlipRowToTransfer"
         },
         {
-          actions: ["pushVerifyResultEvent", "flipRowToRegister"],
+          actions: ["pushDacAvailabilityResult", "flipRowToRegister"],
           cond: "shouldFlipRowToRegister"
         },
         {
           // Availability matches the row mode → proceed with add to basket
-          actions: ["pushVerifyResultEvent", "addToBasket"]
+          actions: [
+            "pushDacAvailabilityResult",
+            "pushDacAddToBasket",
+            "addToBasket"
+          ]
         }
       ],
 
       VERIFY_ERROR: {
         actions: [
-          "pushVerifyResultEvent",
+          "pushDacAvailabilityResult",
           "clearRowProcessing",
           "setError",
           "setVerifyFeedbackError"
@@ -295,8 +339,19 @@ export default createMachine(
 
       "SEARCH.OFFSET": {
         target: "loading",
-        actions: ["setSearchOffset"],
+        actions: ["pushDacLoadMore", "setSearchOffset"],
         cond: "validSearchOffset"
+      },
+
+      // Pure-tracking events emitted from the search service's exact-match
+      // `/availability` call. Carry no machine-state effect — they exist
+      // only so the tracking action stays in this file.
+      EXACT_MATCH_CHECK: {
+        actions: ["pushDacExactMatchCheck"]
+      },
+
+      EXACT_MATCH_RESULT: {
+        actions: ["pushDacExactMatchResult"]
       },
 
       RESET: {
@@ -382,9 +437,30 @@ export default createMachine(
         const domain = parsed?.domain ?? data;
         if (!domain) return;
 
-        // Push the pre-flight check event. The row's current meta tells us
-        // whether the user intended to register or transfer (the row may
-        // get flipped by the result handler — we capture intent here).
+        return sendTo(context.availabilityHelper, {
+          type: "VERIFY",
+          data: domain,
+          // Pass the bits checkAvailability needs (basketId / brandId /
+          // coupons) without the actor refs so the helper has everything
+          // it requires without copying state machine internals.
+          context: {
+            basketId: context.basketId,
+            brandId: context.brandId,
+            coupons: context.coupons
+          }
+        });
+      }),
+
+      // Push `upm.dac_availability_check` at the moment we kick off the
+      // pre-flight `/availability` call. Reads `event.data` (the domain string)
+      // so multiple parallel ADD clicks each emit their own tracking event.
+      pushDacAvailabilityCheck: (
+        context: DacContext,
+        { data }: AnyEventObject
+      ) => {
+        const parsed = parseDomain(data);
+        const domain = parsed?.domain ?? data;
+        if (!domain) return;
         const product = find(context.lookups.searched, ["domain", domain]) as
           | DomainProduct
           | undefined;
@@ -403,25 +479,12 @@ export default createMachine(
             }
           })
           .push();
-
-        return sendTo(context.availabilityHelper, {
-          type: "VERIFY",
-          data: domain,
-          // Pass the bits checkAvailability needs (basketId / brandId /
-          // coupons) without the actor refs so the helper has everything
-          // it requires without copying state machine internals.
-          context: {
-            basketId: context.basketId,
-            brandId: context.brandId,
-            coupons: context.coupons
-          }
-        });
-      }),
+      },
 
       // Push `dac_availability_result` for any verify outcome (success or
       // error). Reads the row's pre-flip meta so the `action` field
       // reflects the user's original intent rather than the post-flip mode.
-      pushVerifyResultEvent: (
+      pushDacAvailabilityResult: (
         context: DacContext,
         { data: domain, availability, error }: AnyEventObject
       ) => {
@@ -558,37 +621,6 @@ export default createMachine(
         );
 
         if (model) {
-          // Push `dac_add_to_basket` at the moment we commit to the basket
-          // call — i.e. *after* a successful verify (VERIFY_RESULT branch)
-          // or directly for already-checked exact-match rows that skip the
-          // verify. Mirrors the widget doc's sequence where this event
-          // follows `dac_availability_result` rather than the click itself.
-          const price = product?.price;
-          const action: "register" | "transfer" =
-            product?.meta?.available === false && product?.meta?.canTransfer
-              ? "transfer"
-              : "register";
-          useDataLayer()
-            .dataLayer({
-              event: "upm.dac_add_to_basket",
-              meta: {
-                ...buildCommonMeta(context),
-                domain: data,
-                pid: product?.productDetails?.id ?? null,
-                price_formatted: price?.regularPrice ?? null,
-                price_discounted_formatted: price?.currentPrice ?? null,
-                is_discounted:
-                  !!price?.savingAmount && (price?.savingAmount as number) > 0,
-                percentage_saving: price?.savingPercent ?? null,
-                is_exact_match: !!product?.meta?.exactMatch,
-                billing_cycle_months: product?.configuration?.term ?? null,
-                currency_code: context.currency ?? null,
-                coupons: context.coupons ?? [],
-                action
-              }
-            })
-            .push();
-
           return sendTo(context.basketHelper, {
             type: "ADD_UPDATE",
             target: model,
@@ -596,6 +628,141 @@ export default createMachine(
           });
         }
       }),
+
+      // Push `upm.dac_add_to_basket` at the moment we commit to the basket
+      // call — i.e. *after* a successful verify (VERIFY_RESULT branch) or
+      // directly for already-checked rows that skip the verify. Mirrors the
+      // widget doc's sequence where this event follows `dac_availability_result`
+      // rather than the click itself.
+      pushDacAddToBasket: (context: DacContext, { data }: AnyEventObject) => {
+        const product = find(context.lookups.searched, ["domain", data]) as
+          | DomainProduct
+          | undefined;
+        if (!product) return;
+        const price = product?.price;
+        const action: "register" | "transfer" =
+          product?.meta?.available === false && product?.meta?.canTransfer
+            ? "transfer"
+            : "register";
+        useDataLayer()
+          .dataLayer({
+            event: "upm.dac_add_to_basket",
+            meta: {
+              ...buildCommonMeta(context),
+              domain: data,
+              pid: product?.productDetails?.id ?? null,
+              price_formatted: price?.regularPrice ?? null,
+              price_discounted_formatted: price?.currentPrice ?? null,
+              is_discounted:
+                !!price?.savingAmount && (price?.savingAmount as number) > 0,
+              percentage_saving: price?.savingPercent ?? null,
+              is_exact_match: !!product?.meta?.exactMatch,
+              billing_cycle_months: product?.configuration?.term ?? null,
+              currency_code: context.currency ?? null,
+              coupons: context.coupons ?? [],
+              action
+            }
+          })
+          .push();
+      },
+
+      // Push `upm.dac_search` when a search round starts (entry to the
+      // `searching` state). Includes the active tld filter, coupons and
+      // currency so analytics can tell why a specific result set came back.
+      pushDacSearch: (context: DacContext) => {
+        useDataLayer()
+          .dataLayer({
+            event: "upm.dac_search",
+            meta: {
+              ...buildCommonMeta(context),
+              tlds: context.tlds ?? [],
+              coupons: context.coupons ?? [],
+              currency_code: context.currency ?? null
+            }
+          })
+          .push();
+      },
+
+      // Push `upm.dac_search_results` once the search settles with rows.
+      // Reads `event.data` (set by the search service on `SEARCH_COMPLETE`)
+      // so the analytics payload mirrors the rendered first-batch snapshot.
+      pushDacSearchResults: (context: DacContext, { data }: AnyEventObject) => {
+        useDataLayer()
+          .dataLayer({
+            event: "upm.dac_search_results",
+            meta: {
+              ...buildCommonMeta(context),
+              results_count: data?.resultsCount ?? 0,
+              has_exact_match: !!data?.hasExactMatch,
+              has_error: !!data?.hasError
+            }
+          })
+          .push();
+      },
+
+      // Push `upm.dac_no_results` when the search settles with zero rows.
+      pushDacNoResults: (context: DacContext) => {
+        useDataLayer()
+          .dataLayer({
+            event: "upm.dac_no_results",
+            meta: buildCommonMeta(context)
+          })
+          .push();
+      },
+
+      // Push `upm.dac_load_more` when the user paginates. The caller
+      // (useDac.searchMore) sends the pre-load count and the resolved next
+      // page index via `event.data` so the action stays pure tracking.
+      pushDacLoadMore: (context: DacContext, { data }: AnyEventObject) => {
+        useDataLayer()
+          .dataLayer({
+            event: "upm.dac_load_more",
+            meta: {
+              ...buildCommonMeta(context),
+              results_count_before: data?.results_count_before ?? 0,
+              next_page: data?.next_page ?? null
+            }
+          })
+          .push();
+      },
+
+      // Push `upm.dac_exact_match_check` when the search service fires the
+      // exact-match `/availability` call. The service emits an
+      // `EXACT_MATCH_CHECK` event with the domain so this action stays
+      // decoupled from the callback's internals.
+      pushDacExactMatchCheck: (
+        context: DacContext,
+        { data }: AnyEventObject
+      ) => {
+        useDataLayer()
+          .dataLayer({
+            event: "upm.dac_exact_match_check",
+            meta: { ...buildCommonMeta(context), domain: data?.domain }
+          })
+          .push();
+      },
+
+      // Push `upm.dac_exact_match_result` once the exact-match call resolves
+      // (success or non-abort error). Mirrors `pushDacExactMatchCheck` —
+      // the service emits `EXACT_MATCH_RESULT` with the resolved fields.
+      pushDacExactMatchResult: (
+        context: DacContext,
+        { data }: AnyEventObject
+      ) => {
+        useDataLayer()
+          .dataLayer({
+            event: "upm.dac_exact_match_result",
+            meta: {
+              ...buildCommonMeta(context),
+              domain: data?.domain,
+              pid: data?.pid ?? null,
+              is_available: !!data?.is_available,
+              can_transfer: !!data?.can_transfer,
+              has_error: !!data?.has_error
+            }
+          })
+          .push();
+      },
 
       removeFromBasket: pure(
         (context: DacContext, { data }: AnyEventObject) => {
@@ -1174,6 +1341,12 @@ export default createMachine(
 
     guards: {
       // hasData: (_context, { data }:AnyEventObject) => isObject(data) && !isEmpty(data),
+
+      // Splits SEARCH_COMPLETE tracking between `dac_search_results` and
+      // `dac_no_results`. The search service includes `resultsCount` in the
+      // event data so we don't have to derive it from machine context.
+      hasSearchResults: (_context, { data }: AnyEventObject) =>
+        (data?.resultsCount ?? 0) > 0,
 
       isDomainAddError: (_context, { data }: AnyEventObject) => {
         const apiCode = (data as { apiCode?: string })?.apiCode;
