@@ -1,4 +1,5 @@
 export { overrideBasketProductsLimit } from "./catalogue";
+export { expectedPayAmountText } from "./checkout";
 export { getFormattedDate, getTimestamp } from "./dates";
 export { getDataLayer, waitForEvent } from "./gtm";
 export { setLocale } from "./locale";
