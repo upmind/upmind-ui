@@ -25,11 +25,9 @@ import {
   values,
   first,
   has,
-  compact,
   size,
   isNil,
   set,
-  reject,
   omitBy
 } from "lodash-es";
 import {
@@ -42,6 +40,7 @@ import {
   stateMatches,
   useTime,
   useSessionStorage,
+  useCalculate,
   DEBOUNCE_DELAY
 } from "../../utils";
 import { invalidateQueryByKey } from "../query/utils";
@@ -61,7 +60,6 @@ import type {
   PaymentDetailModel,
   PaymentDetailsContext
 } from "./types";
-import { AmountKey } from "./types";
 import {
   PaymentType,
   BrandConfigKeys,
@@ -127,6 +125,7 @@ async function loadLookups(
 
   const { brandId, currencyId: defaultCurrencyId, ensureConfig } = useBrand();
   const { get: getRequest, post, useUrl } = useQuery();
+  const { calculate } = useCalculate();
 
   // ---
   const currencyId = currency?.id || defaultCurrencyId.value; // fallback to default currency
@@ -152,24 +151,15 @@ async function loadLookups(
     withAccessToken: true,
     withCurrency: true
   }).then(account => {
-    // bail if there is no account credit
-    if (isEmpty(compact([account.owned.value, account.credit.value])))
-      return account;
-
-    // we need to calculate the total account credit including negative allowance
-    // and get a formatted version based on the currency
-    return post({
-      mutationKey: ["wallet", "calculate"],
-      url: useUrl("cart/calculate", {}),
-      withAccessToken: true,
-      data: {
-        currency_id: currencyId,
-        prices: compact([account.owned.value, account.credit.value])
-      }
-    })
-      .then(data => {
-        account.total.amount = get(data, "total_formatted", "");
-        account.total.value = get(data, "total", 0);
+    // calculate the total account credit including negative allowance and
+    // get a formatted version based on the currency. useCalculate handles
+    // nil filtering, empty short-circuit, and caching internally (DD-5).
+    // Arrays are always sum-mode (DD-4), so a bare PriceEntry[] returns
+    // { total, totalFormatted } for direct mutation.
+    return calculate(currencyId, [account.owned.value, account.credit.value])
+      .then(({ total, totalFormatted }) => {
+        account.total.value = total;
+        account.total.amount = totalFormatted;
         return account;
       })
       .catch(() => {
@@ -541,96 +531,6 @@ async function validate(
       });
 
   // ---
-}
-
-// --- SUBSCRIPTIONS
-
-/**
- * Spawned callback actor that formats payment amounts asynchronously.
- * Receives CALCULATE events, calls cart/calculate for each changed value,
- * and sends CALCULATED back to the machine.
- * Caches previous values to skip API calls when amounts haven't changed.
- */
-export function calculateSubscription(callback: Function, onReceive: Function) {
-  const { cancel } = useQuery();
-
-  // --- cache: keyed by numeric value, not by field type
-  // 10 is 10, 500 is 500 — no need to re-format the same number
-  const cache = new Map<number, string>();
-
-  onReceive((event: any) => {
-    if (event.type === "CALCULATE") {
-      const { currencyId, amount, outstandingAmount, walletAmount } =
-        event.data ?? {};
-
-      const result = { amount: "", outstanding: "", wallet: "" };
-
-      if (!currencyId) {
-        callback({ type: "CALCULATED", data: result });
-        return;
-      }
-
-      const entries: Array<{ key: AmountKey; value: number }> = [
-        { key: AmountKey.AMOUNT, value: amount ?? 0 },
-        { key: AmountKey.OUTSTANDING, value: outstandingAmount ?? 0 },
-        { key: AmountKey.WALLET, value: walletAmount ?? 0 }
-      ];
-
-      const { post, useUrl } = useQuery();
-
-      const promises = map(
-        entries,
-        (entry: { key: AmountKey; value: number }) => {
-          // Return cached formatted string if we've already formatted this value
-          if (cache.has(entry.value)) {
-            return Promise.resolve(cache.get(entry.value)!);
-          }
-
-          const prices = reject([entry.value], isNil);
-          if (isEmpty(prices)) {
-            return Promise.resolve("");
-          }
-
-          return post({
-            mutationKey: ["wallet", "calculate", entry.key],
-            url: useUrl("cart/calculate", {}),
-            withAccessToken: true,
-            data: {
-              currency_id: currencyId,
-              prices
-            }
-          })
-            .then((res: any) => {
-              const formatted = get(res, "total_formatted", "") as string;
-              cache.set(entry.value, formatted);
-              return formatted;
-            })
-            .catch(() => cache.get(entry.value) || "");
-        }
-      );
-
-      Promise.all(promises).then(
-        ([amountFormatted, outstandingFormatted, walletFormatted]) => {
-          callback({
-            type: "CALCULATED",
-            data: {
-              amount: amountFormatted as string,
-              outstanding: outstandingFormatted as string,
-              wallet: walletFormatted as string
-            }
-          });
-        }
-      );
-    }
-
-    if (event.type === "CANCEL") {
-      cancel(["wallet", "calculate"]);
-    }
-  });
-
-  return () => {
-    cancel(["wallet", "calculate"]);
-  };
 }
 
 // -----------------------------------------------------------------------------

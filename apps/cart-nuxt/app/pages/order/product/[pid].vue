@@ -14,7 +14,7 @@ import { useStorefrontRoute } from "~/composables/useStorefrontRoute";
 import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
-const { storefrontRoute, name: brandName, currency } = useBrand();
+const { name: brandName, currency } = useBrand();
 
 // Handle productDetails emitted from UpmProductConfigure
 function handleProductDetails(details: ProductDetails) {

@@ -26,6 +26,7 @@
   "own_domain_qn": "Vlastníte tuto doménu?",
   "owned_domains_title": "Domény, které aktuálně vlastníte",
   "price_renewal_desc": "Jednorázová cena {regularPrice}. | Obnovuje se každý rok za {regularPrice}. | Obnovuje se každých {count} let za {regularPrice}.",
+  "registrant_use_billing_msg": "Vaše fakturační údaje budou použity jako kontaktní informace registrátora domény.",
   "search": "Vyhledávání domén",
   "starts_with_domain": "Všechno to začíná **doménovým názvem**",
   "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
@@ -36,5 +37,6 @@
   "transfer_extension_info": "Přestupy zahrnují prodloužení smlouvy o jeden rok.",
   "transfer_owner_question": "Jste vlastníkem této domény?",
   "transfer_price_info": "Můžete nám jej převést za pouhých {currentPrice}",
-  "transfer_promotion": "Převod pouze za {currentPrice}, obvykle {regularPrice}."
+  "transfer_promotion": "Převod pouze za {currentPrice}, obvykle {regularPrice}.",
+  "use_details_for": "Použijte tyto údaje pro{domain}"
 }

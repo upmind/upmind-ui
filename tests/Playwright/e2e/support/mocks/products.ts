@@ -66,6 +66,51 @@ export function mockTrialProduct(
   });
 }
 
+const PRODUCT_ROUTES = {
+  single: /^\/api\/basket\/products\/[^/]+$/,
+  catalogue: "/api/basket/products"
+};
+
+/**
+ * Waits for the next single-product GET on `/api/basket/products/{id}` and
+ * resolves with the parsed `data` payload. Caller picks whichever field
+ * (e.g. `trial_duration`) they want to assert against.
+ *
+ * Attach BEFORE the navigation that triggers the request.
+ */
+export const captureProduct = (page: Page) =>
+  page
+    .waitForResponse(
+      r =>
+        PRODUCT_ROUTES.single.test(new URL(r.url()).pathname) &&
+        r.request().method() === "GET" &&
+        r.ok()
+    )
+    .then(async r => {
+      const body = await r.json();
+      return body?.data;
+    });
+
+/**
+ * Waits for the next catalogue GET on `/api/basket/products` and resolves
+ * with the parsed `data` array. Caller picks an item (e.g. by id or position)
+ * and reads whichever field they want to assert against.
+ *
+ * Attach BEFORE the navigation that triggers the request.
+ */
+export const captureProducts = (page: Page) =>
+  page
+    .waitForResponse(
+      r =>
+        new URL(r.url()).pathname === PRODUCT_ROUTES.catalogue &&
+        r.request().method() === "GET" &&
+        r.ok()
+    )
+    .then(async r => {
+      const body = await r.json();
+      return Array.isArray(body?.data) ? body.data : [];
+    });
+
 /**
  * Intercepts product API responses and overrides the meta field.
  */

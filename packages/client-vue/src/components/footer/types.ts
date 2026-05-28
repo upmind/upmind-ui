@@ -9,7 +9,7 @@ import { COLUMN_ITEMS, COLUMN_JUSTIFY } from "../layout/components/column";
 export const FOOTER_POSITION = parseVariants(variants.position);
 export const FOOTER_BACKGROUND = RIBBON_BACKGROUND;
 export const FOOTER_ITEMS = COLUMN_ITEMS;
-export const HEADER_JUSTIFY = COLUMN_JUSTIFY;
+export const FOOTER_JUSTIFY = COLUMN_JUSTIFY;
 
 export type FOOTER_BACKGROUND = VariantValues<typeof FOOTER_BACKGROUND>;
 export type FOOTER_POSITION = VariantValues<typeof FOOTER_POSITION>;

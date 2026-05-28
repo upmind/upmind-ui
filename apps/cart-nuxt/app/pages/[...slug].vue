@@ -1,5 +1,5 @@
 <template>
-  <UpmError :storefront-route="storefrontRoute" />
+  <UpmError :status="404" :storefront-route="storefrontRoute" />
 </template>
 
 <script lang="ts" setup>
@@ -21,7 +21,8 @@ useSeoMeta({
 });
 
 definePageMeta({
-  name: ROUTE.ERROR
+  name: ROUTE.ERROR,
+  allowOverlays: false
 });
 const { storefrontRoute } = useStorefrontRoute();
 </script>

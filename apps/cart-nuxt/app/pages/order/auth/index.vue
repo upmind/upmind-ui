@@ -15,6 +15,9 @@ useSeoMeta({
 });
 
 definePageMeta({
-  name: ROUTE.SESSION
+  name: ROUTE.SESSION,
+  // Inherited by all child auth routes (SESSION_LOGIN, SESSION_REGISTER, etc.)
+  // via Vue Router meta inheritance. No need to set it on each child page.
+  allowOverlays: false
 });
 </script>

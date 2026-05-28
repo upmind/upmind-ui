@@ -267,20 +267,26 @@ export const use2faSchemaParser = () => {
   };
 };
 
-export const use2faUischemaParser = (provider?: TwofaProviders) => {
-  let i18nKey: string;
-
-  switch (provider) {
-    case TwofaProviders.EMAIL:
-      i18nKey = "form.twofa_email";
-      break;
-    case TwofaProviders.TOTP:
-      i18nKey = "form.twofa_totp";
-      break;
-    default:
-      i18nKey = "form.twofa";
-      break;
+// Per-provider 2FA UI defaults.
+const TWOFA_PROVIDER_OPTIONS = {
+  [TwofaProviders.EMAIL]: {
+    i18n: "form.twofa_email",
+    autocomplete: "off"
+  },
+  [TwofaProviders.TOTP]: {
+    i18n: "form.twofa_totp",
+    autocomplete: "one-time-code"
   }
+} as const;
+
+const TWOFA_DEFAULT_OPTIONS = {
+  i18n: "form.twofa",
+  autocomplete: "off"
+} as const;
+
+export const use2faUischemaParser = (provider?: TwofaProviders) => {
+  const { i18n, ...controlOptions } =
+    (provider && TWOFA_PROVIDER_OPTIONS[provider]) ?? TWOFA_DEFAULT_OPTIONS;
 
   return {
     type: "VerticalLayout",
@@ -288,11 +294,11 @@ export const use2faUischemaParser = (provider?: TwofaProviders) => {
       {
         type: "Control",
         scope: "#/properties/token",
-        i18n: i18nKey,
+        i18n,
         options: {
           format: "otp",
           autoFocus: true,
-          autocomplete: "off"
+          ...controlOptions
         }
       }
     ]

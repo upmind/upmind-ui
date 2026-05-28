@@ -103,6 +103,18 @@ export const useBasketBilling = () => {
   const uischema = useContext<BillingContext["uischema"]>(actor, "uischema");
   const config = useContext<BillingContext["config"]>(actor, "config");
 
+  // Reads the actor's persisted billing snapshot at this moment. Consumers
+  // call this at a transition point (typically component mount, after
+  // `isReady()` resolves) and store the result in their own ref so the
+  // snapshot stays stable through any subsequent commit-and-navigate flow.
+  // Mirrors the captureSchemas pattern in useProductSetup, but the snapshot
+  // lives in the consumer rather than module-level — the billing actor is
+  // global and persistent, so per-instance scope must come from the
+  // consumer's lifecycle.
+  function captureInitialBilling(): BillingModel | undefined {
+    return contextValue<BillingContext["baseModel"]>(actor, "baseModel");
+  }
+
   // --- methods
 
   function set(value: BillingModel): void {
@@ -224,6 +236,14 @@ export const useBasketBilling = () => {
      */
     config,
     // --- methods
+
+    /**
+     * Reads the actor's persisted billing snapshot at this moment.
+     * Consumers call this at a transition (typically component mount) and
+     * store the result in their own ref so the snapshot stays stable through
+     * the subsequent commit-and-navigate flow. Mirrors captureSchemas.
+     */
+    captureInitialBilling,
 
     /** Clears the billing state. */
     clear,

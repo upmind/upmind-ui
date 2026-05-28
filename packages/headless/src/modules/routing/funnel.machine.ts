@@ -3,14 +3,43 @@ import { type AnyEventObject, assign, createMachine, sendParent } from "xstate";
 
 // --- internal
 import { useI18n } from "../system";
+import { useRoutingEngine } from "./useRoutingEngine";
 
 // --- utils
 import { DetailedError, responseCodes, ErrorOrigin } from "../../utils";
-import { isEmpty, keys, reduce, isString, includes, some } from "lodash-es";
+import {
+  forEach,
+  get,
+  isEmpty,
+  includes,
+  isString,
+  keys,
+  map,
+  mapValues,
+  reduce,
+  some
+} from "lodash-es";
 import { pascalCase } from "./utils";
 
-// -- -types
-import { type FunnelContext, type FunnelProps } from "./types";
+// --- types
+import type { Router } from "vue-router";
+import {
+  QUERY_PARAMS,
+  type FunnelContext,
+  type FunnelProps,
+  type FunnelStateMeta,
+  type FunnelTarget
+} from "./types";
+
+/**
+ * Minimal shape of a state node config used by the meta enrichment.
+ * Avoids `any` while keeping compatibility with XState's StateNodeConfig.
+ */
+type StateNodeShape = {
+  meta?: FunnelStateMeta;
+  on?: Record<string, unknown>;
+  [key: string]: unknown;
+};
 
 // -----------------------------------------------------------------------------
 
@@ -34,6 +63,84 @@ export const useFunnelMachine = ({
   services = {},
   actions = {}
 }: FunnelProps) => {
+  // Auto-generate NEXT/BACK handlers from state meta
+  // States declaring meta.next / meta.prev get auto-wired handlers.
+  // Explicit `on.NEXT` / `on.BACK` in the state config take precedence.
+  //
+  // Supports two formats:
+  //   meta: { next: "route" }                          — unconditional
+  //   meta: { next: [{ target: "a", cond: "guard" }, { target: "b" }] } — conditional
+  const enrichedStates = mapValues(states, (config: StateNodeShape) => {
+    const meta = config.meta as FunnelStateMeta | undefined;
+    if (!meta) return config;
+
+    const metaHandlers: Record<string, unknown> = {};
+
+    if (meta.next) {
+      const nextTarget = meta.next;
+      metaHandlers.NEXT = isString(nextTarget)
+        ? {
+            target: nextTarget,
+            actions: [
+              assign({
+                targetRoute: ({ targetRoute }: FunnelContext) => ({
+                  ...targetRoute,
+                  name: nextTarget
+                })
+              })
+            ]
+          }
+        : map(nextTarget, entry => ({
+            target: entry.target,
+            actions: [
+              assign({
+                targetRoute: ({ targetRoute }: FunnelContext) => ({
+                  ...targetRoute,
+                  name: entry.target
+                })
+              })
+            ],
+            ...(entry.cond ? { cond: entry.cond } : {})
+          }));
+    }
+    if (meta.prev) {
+      const prevTarget = meta.prev;
+      metaHandlers.BACK = isString(prevTarget)
+        ? {
+            target: prevTarget,
+            actions: [
+              assign({
+                targetRoute: ({ targetRoute }: FunnelContext) => ({
+                  ...targetRoute,
+                  name: prevTarget
+                })
+              })
+            ]
+          }
+        : map(prevTarget, entry => ({
+            target: entry.target,
+            actions: [
+              assign({
+                targetRoute: ({ targetRoute }: FunnelContext) => ({
+                  ...targetRoute,
+                  name: entry.target
+                })
+              })
+            ],
+            ...(entry.cond ? { cond: entry.cond } : {})
+          }));
+    }
+
+    if (isEmpty(metaHandlers)) return config;
+
+    return {
+      ...config,
+      on: {
+        ...metaHandlers, // Meta-derived handlers (defaults)
+        ...config.on // Explicit handlers override meta
+      }
+    };
+  });
   return createMachine(
     {
       id: `${id}Funnel`,
@@ -58,7 +165,7 @@ export const useFunnelMachine = ({
               ...keys(states).map(state => {
                 return {
                   target: `available.${state}`,
-                  actions: ["setResolving"],
+                  actions: ["setUnresolved", "clearTarget"],
                   cond: `is${pascalCase(state)}`
                 };
               }),
@@ -76,20 +183,43 @@ export const useFunnelMachine = ({
         available: {
           initial: "idle",
 
+          // FE-2546: Invoke watcher subscriptions as an invoked callback.
+          // Watchers subscribe to reactive sources (session, basket) and trigger
+          // navigation through the funnel pipeline. Cleanup runs on state exit.
+          invoke: {
+            id: "watcherSubscription",
+            src: "watcherSubscription"
+          },
+
           // 🎯 INJECTION POINT: The dynamic nodes are spread into the AVAILABLE states
           states: {
             // --- A fallback UNKNOWN state to catch any undefined routes
             idle: {},
-            ...states
+
+            // --- Generic redirect state for returnUrl resolution
+            // Any funnel state can target "#calculating" to resolve a returnUrl.
+            // Consumers can override the "resolveReturnUrl" action for custom logic.
+            // Entry runs resolveReturnUrl which sets targetRoute + resolved: true.
+            // The routing engine's awaitResolved() then picks up targetRoute.
+            "#calculating": {
+              id: "calculating",
+              entry: ["resolveReturnUrl"]
+            },
+
+            ...enrichedStates
           },
           // 3. Global Event Handlers for the entire funnel (Optional, usually handled by nodes)
           on: {
             // These events are forwarded from the Parent Routing Engine
             NEXT: {
-              actions: ["setResolving"]
+              actions: ["setUnresolved", "clearTarget"]
             },
             BACK: {
-              actions: ["setResolving"]
+              actions: ["setUnresolved", "clearTarget"]
+            },
+            // Pre-lock: immediately mark as unresolved to prevent watcher races (FE-2587)
+            PRE_RESOLVE: {
+              actions: ["setUnresolved"]
             },
             // Generic RESOLVE event to transition to a specific state within the Available funnel
             RESOLVE: [
@@ -97,16 +227,23 @@ export const useFunnelMachine = ({
                 return {
                   target: `available.${state}`,
                   actions: [
-                    "setResolving",
-                    "setCurrentRoute",
-                    "setTargetRoute"
+                    // Use setUnresolved instead of setResolving to preserve
+                    // targetRoute.query across in-funnel transitions (e.g. login ↔ register).
+                    // setResolving clears targetRoute before setTargetRoute can read it.
+                    "setUnresolved",
+                    "setTargetRoute",
+                    "setCurrentRoute"
                   ],
                   cond: `is${pascalCase(state)}`
                 };
               }),
               {
                 target: "available.idle",
-                actions: ["setResolved", "setCurrentRoute", "setTargetRoute"]
+                actions: [
+                  "setFallbackResolved",
+                  "setTargetRoute",
+                  "setCurrentRoute"
+                ]
               }
             ]
           }
@@ -136,7 +273,6 @@ export const useFunnelMachine = ({
       // 4. Options Injection: Wiring up the logic implementations
       // These options map string names used in states
       guards: {
-        ...guards,
         ...reduce(
           states,
           (acc, _value, state) => {
@@ -183,9 +319,51 @@ export const useFunnelMachine = ({
           data?.type === "NEXT" && !resolved,
 
         isBack: ({ resolved }: FunnelContext, { data }: AnyEventObject) =>
-          data?.type === "BACK" && !resolved
+          data?.type === "BACK" && !resolved,
+
+        // Consumer guards spread last so they can override auto-generated
+        // `is{State}` guards. If a consumer defines a guard with the same name
+        // as an auto-generated one, the consumer's version takes precedence.
+        ...guards
       },
-      services,
+      services: {
+        /**
+         * FE-2546: Invoked callback that subscribes to all registered watchers.
+         * Each watcher is self-contained — it sets up its own reactive subscription
+         * and handles navigation internally.
+         * The funnel machine just starts/stops them when entering/exiting available.
+         */
+        watcherSubscription:
+          ({ watchers }: FunnelContext) =>
+          () => {
+            if (!watchers || isEmpty(watchers)) return () => {};
+
+            // Start all watchers — each returns its own cleanup function
+            const cleanups = map(watchers, watcher => {
+              try {
+                return watcher.handler();
+              } catch (error) {
+                console.error(
+                  `[funnel] Watcher "${watcher.id}" failed to initialize:`,
+                  error
+                );
+                return () => {};
+              }
+            });
+
+            // Return cleanup function — called when funnel exits available
+            return () => {
+              forEach(cleanups, (cleanup: () => void) => {
+                try {
+                  cleanup();
+                } catch (error) {
+                  console.error("[funnel] Watcher cleanup failed:", error);
+                }
+              });
+            };
+          },
+        ...services
+      },
       actions: {
         setCurrentRoute: assign({
           currentRoute: (
@@ -203,7 +381,22 @@ export const useFunnelMachine = ({
               ? { name: data.target }
               : data?.target;
 
-            return target ?? targetRoute;
+            const resolved = target ?? targetRoute;
+
+            // FE-2651: Carry forward targetRoute.query when the incoming
+            // target has no/empty query. Since RESOLVE now uses setUnresolved
+            // (not setResolving), targetRoute still holds the PREVIOUS page's
+            // query. This preserves params (e.g. returnUrl) across unlimited
+            // in-funnel transitions like login ↔ register ↔ recover-password.
+            if (
+              resolved &&
+              isEmpty(resolved?.query) &&
+              !isEmpty(targetRoute?.query)
+            ) {
+              return { ...resolved, query: targetRoute.query };
+            }
+
+            return resolved;
           }
         }),
 
@@ -238,9 +431,68 @@ export const useFunnelMachine = ({
           resolved: true
         }),
 
+        /**
+         * @deprecated Use setUnresolved + clearTarget separately.
+         * Sets resolved: false AND clears targetRoute.
+         */
         setResolving: assign({
           resolved: false,
-          targetRoute: undefined
+          targetRoute: undefined,
+          fallbackResolved: false
+        }),
+
+        /** Only sets resolved: false — preserves targetRoute. */
+        setUnresolved: assign({
+          resolved: false
+        }),
+
+        /** Only clears targetRoute — preserves resolved state. */
+        clearTarget: assign({
+          targetRoute: () => undefined
+        }),
+
+        /** Sets resolved + marks as fallback (no state matched). Logs dev warning. */
+        setFallbackResolved: assign({
+          targetRoute: (
+            { targetRoute }: FunnelContext,
+            { data }: AnyEventObject
+          ) => {
+            const target = isString(data?.target)
+              ? { name: data.target }
+              : data?.target;
+
+            if (import.meta.env.DEV) {
+              const routeName = (target ?? targetRoute)?.name ?? "unknown";
+              console.warn(
+                `[funnel] Route "${String(routeName)}" fell through to idle — no state matched. Check your funnel config.`
+              );
+            }
+
+            return target ?? targetRoute;
+          },
+          resolved: true,
+          fallbackResolved: true
+        }),
+
+        /**
+         * Resolves returnUrl query param and navigates to that route.
+         * Consumers can override this action for custom logic (e.g. injectBid).
+         */
+        resolveReturnUrl: assign({
+          targetRoute: ({
+            targetRoute
+          }: FunnelContext): FunnelTarget | undefined => {
+            const returnUrl = get(targetRoute, [
+              "query",
+              QUERY_PARAMS.RETURN_URL
+            ])?.toString();
+            if (!returnUrl) return targetRoute;
+
+            const { router } = useRoutingEngine() as { router: Router };
+            const resolved = router.resolve(returnUrl);
+            return { ...resolved, name: resolved.name ?? undefined };
+          },
+          resolved: true
         }),
 
         // Consumer actions spread last so they can override defaults

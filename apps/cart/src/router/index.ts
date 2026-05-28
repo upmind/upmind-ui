@@ -2,11 +2,15 @@
 import { createRouter, createWebHistory } from "vue-router";
 
 // --- internal
-import routes from "./routes";
-import { useAssetRecovery } from "@upmind-automation/client-vue";
+import routes, { CART_OVERLAYS } from "./routes";
+import {
+  registerOverlayRoutes,
+  useAssetRecovery,
+  useRoutingEngine
+} from "@upmind-automation/client-vue";
 
 // ---types
-export * from "./types";
+export * from "./funnels/types";
 
 // -----------------------------------------------------------------------------
 
@@ -22,14 +26,13 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   strict: true,
   routes,
-  scrollBehavior(to, from, _savedPosition) {
-    // handle scroll to anchor on same page
+  async scrollBehavior(to, from, _savedPosition) {
+    const mounted = await useRoutingEngine().isMounted(to);
+    // Skip scroll if this call was superseded by a newer navigation.
+    if (!mounted) return false;
+
     if (to.hash) {
-      return {
-        el: to.hash,
-        behavior: "smooth",
-        top: 108
-      };
+      return { el: to.hash, behavior: "smooth", top: 108 };
     }
     // preserve scroll on same-page transitions (e.g. in-situ basket adds,
     // filter/category changes) — only scroll to top on actual page changes
@@ -37,6 +40,10 @@ const router = createRouter({
     return { behavior: "smooth", top: 0 };
   }
 });
+
+// Register overlay routes synchronously so deep-linked URLs resolve correctly.
+// Must happen before the app mounts (initial navigation).
+registerOverlayRoutes(router, CART_OVERLAYS);
 
 // --- clear retry flag on successful navigation
 router.afterEach(() => {

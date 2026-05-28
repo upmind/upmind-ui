@@ -41,6 +41,13 @@ export async function createOrder(token: string): Promise<Order> {
       data: { category_slug: "new_contract", currency_code: "GBP" }
     });
 
+    if (!response.ok()) {
+      const errorText = await response.text();
+      throw new Error(
+        `createOrder failed: ${response.status()} ${response.statusText()} - ${errorText}`
+      );
+    }
+
     const body = await response.json();
     return body.data;
   } finally {
@@ -90,8 +97,9 @@ export async function getCurrentOrder(
   });
 
   try {
+    const withRelations = ["products"];
     const response = await context.get(
-      "/api/orders/current?with=products&products_options"
+      `/api/orders/current?with=${withRelations}`
     );
 
     if (!response.ok()) {

@@ -10,7 +10,7 @@
     no-close
     no-header
     no-footer
-    :dismissable="false"
+    :dismissible="false"
   >
     <template #header>
       <div />

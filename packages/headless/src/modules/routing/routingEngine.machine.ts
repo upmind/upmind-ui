@@ -150,6 +150,7 @@ export default createMachine(
           //  extract data
           const newFunnelsArray = data?.funnels || [];
           const newDefaultFunnel = data?.defaultFunnel;
+          const newWatchers = data?.watchers;
 
           // Convert newFunnelsArray to a dictionary, merging with existing if id matches
           const funnelDictionary = reduce(
@@ -176,7 +177,8 @@ export default createMachine(
           return {
             funnels: funnelDictionary,
             defaultFunnel: newDefaultId,
-            currentFunnel: newDefaultId // Start with the default funnel active
+            currentFunnel: newDefaultId, // Start with the default funnel active
+            watchers: newWatchers
           };
         }
       ),
