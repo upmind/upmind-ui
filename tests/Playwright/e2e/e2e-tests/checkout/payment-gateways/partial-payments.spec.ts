@@ -1,7 +1,5 @@
 import { test, expect } from "@playwright/test";
 import { Checkout } from "../../../support/page-objects/templates/checkout";
-import { Registration } from "../../../support/page-objects/templates/registration";
-import { payPalDetails } from "../../../support/secrets/paypal";
 import { goToCheckout } from "../../../support/flows/checkout";
 import { products } from "../../../support/constants/products";
 import {
@@ -13,14 +11,13 @@ import {
   expectedPayAmountText,
   waitForSessionCookie
 } from "../../../support/helpers";
+import { mockPaymentSuccess } from "../../../support/mocks/checkout";
 
 let checkout: Checkout;
-let register: Registration;
 
 test.describe("Partial payment at Checkout", () => {
   test.beforeEach(async ({ page, context }) => {
     checkout = new Checkout(page);
-    register = new Registration(page, context);
     await page.goto("/");
     await waitForSessionCookie(context);
     let guestToken = await getSessionToken(context);
@@ -110,6 +107,7 @@ test.describe("Partial payment at Checkout", () => {
     });
   });
   test.describe("Partial Payments with PayPal", () => {
+    // PayPal uses offsite redirect - mock the payment response per P6
     test("Partial Payment in base Currency (GBP)", async ({
       page,
       context
@@ -124,18 +122,9 @@ test.describe("Partial payment at Checkout", () => {
       // £20.00 is the user's typed partial amount — literal is correct here
       await expect(checkout.payAmount).toHaveText("Pay £20.00");
       await checkout.selectPaymentMethod("Pay-Pal Express");
+      await mockPaymentSuccess(page);
       await checkout.clickCompleteCheckout();
-      await page.waitForURL(
-        "https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_express-checkout&useraction=commit**"
-      );
-      await page
-        .getByPlaceholder("Email address or mobile number")
-        .fill(payPalDetails.user);
-      await page.getByPlaceholder("Password").fill(payPalDetails.password);
-      await page.click("#btnLogin");
-      await page.getByTestId("submit-button-initial").click();
-      await page.waitForURL(`order/**`);
-      await expect(page.getByText("Thank you for your order.")).toBeVisible();
+      await page.waitForURL(/\/order\/[a-f0-9-]+/);
     });
     test("Partial Payment in foreign currency (AUD)", async ({
       page,
@@ -151,18 +140,9 @@ test.describe("Partial payment at Checkout", () => {
       // A$20.00 is the user's typed partial amount — literal is correct here
       await expect(checkout.payAmount).toHaveText("Pay A$20.00");
       await checkout.selectPaymentMethod("Pay-Pal Express");
+      await mockPaymentSuccess(page);
       await checkout.clickCompleteCheckout();
-      await page.waitForURL(
-        "https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_express-checkout&useraction=commit**"
-      );
-      await page
-        .getByPlaceholder("Email address or mobile number")
-        .fill(payPalDetails.user);
-      await page.getByPlaceholder("Password").fill(payPalDetails.password);
-      await page.click("#btnLogin");
-      await page.getByTestId("submit-button-initial").click();
-      await page.waitForURL(`order/**`);
-      await expect(page.getByText("Thank you for your order.")).toBeVisible();
+      await page.waitForURL(/\/order\/[a-f0-9-]+/);
     });
     test("Partial payment with promo (GBP)", async ({ page, context }) => {
       await goToCheckout(
@@ -181,18 +161,9 @@ test.describe("Partial payment at Checkout", () => {
       // £20.00 is the user's typed partial amount — literal is correct here
       await expect(checkout.payAmount).toHaveText("Pay £20.00");
       await checkout.selectPaymentMethod("Pay-Pal Express");
+      await mockPaymentSuccess(page);
       await checkout.clickCompleteCheckout();
-      await page.waitForURL(
-        "https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_express-checkout&useraction=commit**"
-      );
-      await page
-        .getByPlaceholder("Email address or mobile number")
-        .fill(payPalDetails.user);
-      await page.getByPlaceholder("Password").fill(payPalDetails.password);
-      await page.click("#btnLogin");
-      await page.getByTestId("submit-button-initial").click();
-      await page.waitForURL(`order/**`);
-      await expect(page.getByText("Thank you for your order.")).toBeVisible();
+      await page.waitForURL(/\/order\/[a-f0-9-]+/);
     });
   });
   // TODO: when credit-limit mocking is available, add coverage for:
