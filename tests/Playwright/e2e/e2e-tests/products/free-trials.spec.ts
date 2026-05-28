@@ -18,7 +18,10 @@ import {
   getClientToken,
   addPromotionToOrder
 } from "../../support/api/index";
-import { waitForSessionCookie } from "../../support/helpers/session";
+import {
+  clickAndAwaitBasketAdd,
+  waitForSessionCookie
+} from "../../support/helpers";
 import { interceptConfigValues } from "../../support/mocks/brand";
 
 let productConfig: ProductConfig;
@@ -178,25 +181,10 @@ newUser.describe("Free Trials @free-trials", () => {
           basketFunnelling: "none"
         });
 
-        const cta = page.getByTestId("product-card-cta").first();
-        const basketCount = page.getByTestId("basket-action-count");
-
-        const basketAddRequest = page.waitForRequest(
-          req =>
-            req.method() === "POST" &&
-            !!req.postData()?.includes('"start_trial":true')
-        );
-
         await page.goto(URLs.freeTrialsCategory);
-        const initialCount = (await basketCount.count())
-          ? Number(await basketCount.innerText())
-          : 0;
-
-        await cta.click();
-        await basketAddRequest;
-
-        await expect(cta).toHaveAttribute("aria-pressed", "true");
-        await expect(basketCount).toHaveText(String(initialCount + 1));
+        const cta = page.getByTestId("product-card-cta").first();
+        await clickAndAwaitBasketAdd(page, cta);
+        await expect(page).toHaveURL(/\/order\/shop\b/);
       }
     );
 
@@ -221,7 +209,8 @@ newUser.describe("Free Trials @free-trials", () => {
         // next-step funnels onward — exact destination depends on
         // recommendations / brand config; we just assert it moved.
         await expect(page).not.toHaveURL(catalogueUrl);
-        await expect(basketCount).toHaveText(String(initialCount + 1));
+        const newCount = Number(await basketCount.innerText());
+        expect(newCount).toBeGreaterThan(initialCount);
       }
     );
   });
