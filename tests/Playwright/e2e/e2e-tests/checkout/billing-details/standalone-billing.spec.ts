@@ -426,8 +426,11 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
     test("Billing page requires authentication", async ({ page }) => {
       await page.goto(URLs.billing);
       await waitForSessionCookie(page.context());
-      await expect(page).not.toHaveURL(
-        /\/order\/basket\/(?:[^/]+\/)?billing\//
+      // Match pathname only — the previous regex also matched the
+      // `?returnUrl=/order/basket/billing/` querystring tail on the
+      // redirect-to-register flow.
+      await expect(page).not.toHaveURL(url =>
+        /\/order\/basket\/(?:[^/]+\/)?billing\/?$/.test(url.pathname)
       );
     });
 
