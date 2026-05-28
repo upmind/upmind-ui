@@ -202,7 +202,7 @@ export type QueryParams<
 > = RequestParams &
   Omit<
     QueryObserverOptions<TQueryFnData, DefaultError, TData>,
-    "queryFn" | "initialData" | "select"
+    "queryFn" | "initialData"
   > & {
     select?: SelectFn<TQueryFnData, TData>;
   };
