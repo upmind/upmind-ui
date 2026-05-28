@@ -4,7 +4,7 @@ import { ringClasses, invalidRingClasses } from "../../assets/styles";
 // -----------------------------------------------------------------------------
 
 export const containerVariants = cva(
-  "group flex max-w-full items-center gap-2 transition-opacity duration-200 has-disabled:opacity-50",
+  "group flex max-w-full items-center gap-2 transition-opacity duration-200 has-[input[readonly]]:cursor-not-allowed has-[input[readonly]]:opacity-50",
   {
     variants: {
       width: {
