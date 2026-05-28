@@ -76,9 +76,11 @@ export async function fillRegistrantDetails(
 /**
  * For each `required + multiple` option category on the raw product where the
  * machine cannot auto-select a default (single-select defaults are handled by
- * `fillRequiredOptionDefaults` in headless; multi-select requires a user
- * choice), click the first option (by `pivot.default desc`, `pivot.order asc`)
- * so form validation passes on submit.
+ * the product schema/parse pipeline — `buildSubproductGroupSchema` emits a
+ * `default` / `const` and `useModelParser` writes it into the model; see
+ * `product/schemas.ts` + `product/services.ts:284-286`. Multi-select requires
+ * a user choice), click the first option (by `pivot.default desc`,
+ * `pivot.order asc`) so form validation passes on submit.
  *
  * No-op for products without any `required + multiple` categories. Idempotent.
  * See FE-2781 for the wider schema-driven approach this is a tactical patch of.
