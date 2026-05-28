@@ -195,8 +195,10 @@ export default <FunnelProps>{
      */
     [ROUTE.BASKET]: {
       meta: {
+        // BILLING redirect is handled by guardCheckout after isBillingReady(),
+        // so the basket model is hydrated before needsAddress() is evaluated.
+        // Synchronous transitions here would race the billing actor.
         next: [
-          { target: ROUTE.BILLING, cond: "needsAddress" },
           { target: ROUTE.BASKET_PRODUCTS_SETUP, cond: "hasInvalidProducts" },
           { target: ROUTE.CHECKOUT }
         ],
