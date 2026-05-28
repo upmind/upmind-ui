@@ -7,11 +7,11 @@ import { basketSubscription } from "../basketProduct/helper";
 import { authSubscription } from "../session/helper";
 import { useDataLayer } from "../system";
 import { useFeedback } from "../feedback";
+import { useProductConfigSchema } from "../product";
 
 // --- utils
-import { mapToHeadlessError, useTime } from "../../utils";
+import { mapToHeadlessError, useModelParser, useTime } from "../../utils";
 import {
-  buildAddToBasketModel,
   buildCommonMeta,
   domainAvailabilityHelper,
   hasTransferSetup,
@@ -22,7 +22,11 @@ import {
   isDomainProduct,
   sanitiseDomainInput
 } from "./utils";
-import { parseProductProps } from "../product/utils";
+import {
+  parseProductDetails,
+  parseProductProps,
+  parseSubproductDetails
+} from "../product/utils";
 import {
   compact,
   concat,
@@ -33,6 +37,7 @@ import {
   first,
   has,
   isEmpty,
+  isFunction,
   isObject,
   map,
   reduce,
@@ -44,14 +49,18 @@ import {
 
 // --- types
 import type { AnyEventObject } from "xstate";
-import { type IBasketProduct } from "@upmind-automation/types";
+import type {
+  IBasketProduct,
+  IProduct,
+  IProductAttribute
+} from "@upmind-automation/types";
 import {
   type DomainModel,
   type DacContext,
   type DomainProduct,
   DomainTypes
 } from "./types";
-import type { ProductProps } from "../product";
+import type { ProductConfigContext, ProductProps } from "../product";
 import { parseBasketProduct } from "../basketProduct/utils";
 import { PAGINATION } from "../query";
 import { useI18n } from "../system";
@@ -614,19 +623,45 @@ export default createMachine(
           data
         ]) as DomainProduct;
 
-        const model = buildAddToBasketModel(
-          product,
-          context?.parseProductModel,
-          context.coupons
-        );
+        // Resolve baseModel via the context-provided parser (set up by
+        // `setBasketHelper`) or fall back to the stored configuration.
+        const baseModel = isFunction(context.parseProductModel)
+          ? context.parseProductModel(product)
+          : product?.configuration;
 
-        if (model) {
-          return sendTo(context.basketHelper, {
-            type: "ADD_UPDATE",
-            target: model,
-            context
-          });
-        }
+        if (!baseModel) return;
+
+        // Run baseModel through the canonical product schema/parse pipeline
+        // so required option/attribute categories get default values filled
+        // in — same machinery the configurator uses on every refresh
+        // (`product/services.ts:284-286`). For TLDs this is typically a
+        // no-op (no required categories) but the path is consistent with
+        // every other add-to-basket flow.
+        const raw = product?.rawProduct;
+        const rawAttributes =
+          (raw as (IProduct & { attributes?: IProductAttribute[] }) | undefined)
+            ?.products_attributes ??
+          (raw as (IProduct & { attributes?: IProductAttribute[] }) | undefined)
+            ?.attributes;
+        const schema = useProductConfigSchema({
+          baseModel,
+          rawProduct: raw,
+          lookups: {
+            product: raw ? parseProductDetails(raw) : undefined,
+            options: parseSubproductDetails(raw?.products_options),
+            attributes: parseSubproductDetails(rawAttributes)
+          }
+        } as ProductConfigContext);
+
+        const model = useModelParser<ProductProps>(schema, baseModel, {});
+        model.coupons = context.coupons ?? model.coupons ?? [];
+        model.silent = true;
+
+        return sendTo(context.basketHelper, {
+          type: "ADD_UPDATE",
+          target: model,
+          context
+        });
       }),
 
       // Push `upm.dac_add_to_basket` at the moment we commit to the basket
