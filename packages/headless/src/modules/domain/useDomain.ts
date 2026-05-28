@@ -8,7 +8,6 @@ import { useActor } from "@xstate/vue";
 import { useI18n } from "../system";
 import { QUERY_PARAMS, useQueryParams } from "../routing";
 import domainMachine from "./domain.machine";
-import { useDomainSearchMethod } from "./useDomainSearchMethod";
 
 // --- utils
 import {
@@ -30,7 +29,11 @@ import {
   DEBOUNCE_DELAY,
   useChildActor
 } from "../../utils";
-import { parseDomain, sanitiseDomainInput } from "./utils";
+import {
+  parseDomain,
+  sanitiseDomainInput,
+  useDomainSearchMethod
+} from "./utils";
 
 // --- types
 import { DomainTypes, type DomainContext, type DomainProduct } from "./types";
