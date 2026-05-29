@@ -7,6 +7,7 @@ import { Checkout } from "../../support/page-objects/templates/checkout";
 import { Basket } from "../../support/page-objects/templates/basket";
 import { URLs } from "../../support/constants/urls";
 import { getClientToken } from "../../support/api/auth";
+import { clearBasket, getCurrentOrder } from "../../support/api/basket";
 import { Login } from "../../support/page-objects/templates/login";
 import { Registration } from "../../support/page-objects/templates/registration";
 import { captureProduct } from "../../support/mocks/products";
@@ -53,11 +54,16 @@ test.describe("Domain customers", () => {
   });
   test.describe("Existing Customer", async () => {
     test("Logged in customer", async ({ page }) => {
-      await getClientToken(
+      const session = await getClientToken(
         page,
         Logins.domain1.username,
         Logins.domain1.password
       );
+      // Shared staging account: clear any stale/invalid items left in the
+      // persisted basket by prior runs before adding the test domain.
+      const token = session.access_token;
+      const order = await getCurrentOrder(token);
+      if (order?.id) await clearBasket(token, order.id);
       await enterDomainDetails();
       await productConfig.addToBasket.click();
       await basket.proceedToCheckout.click();
