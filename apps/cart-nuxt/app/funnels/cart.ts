@@ -677,6 +677,11 @@ export default <FunnelProps>{
         ],
         onError: [
           {
+            target: ROUTE.BASKET,
+            actions: ["setUnresolved", "clearTarget"],
+            cond: "isBasket"
+          },
+          {
             target: ROUTE.CHECKOUT,
             actions: ["setUnresolved", "clearTarget"],
             cond: "isSession"
