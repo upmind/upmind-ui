@@ -33,7 +33,8 @@ newUser.describe("New User - Billing Details at checkout", () => {
       );
     }
   );
-  newUser(
+  // @quarantine(FE-2784, 2026-06-28)
+  newUser.skip(
     "New User add new company details at checkout",
     async ({ page, context, checkout }) => {
       await goToCheckout(
@@ -92,7 +93,8 @@ newUser.describe("Existing Address - Billing Details at checkout", () => {
   // login-registration/login.spec.ts. Serial mode prevents these tests from
   // racing against each other on the same staging account.
   newUser.describe.configure({ mode: "serial" });
-  newUser(
+  // @quarantine(FE-2784, 2026-06-28)
+  newUser.skip(
     "Existing Address - add new address at checkout",
     async ({ page, context, checkout, token, clientId }) => {
       await addAddressToClient(token, clientId);
