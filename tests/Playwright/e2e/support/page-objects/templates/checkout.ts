@@ -83,7 +83,7 @@ export class Checkout {
     this.phoneInput = this.textInputComponent.getTextInputField(this.phone);
     this.paymentDetails = this.page.getByTestId("payment-details");
     this.expandPaymentDetails = this.page.getByTestId("link-show-more-options");
-    this.saveDetails = this.page.getByTestId("button-save-details");
+    this.saveDetails = this.page.getByTestId("button-manage-save");
     this.addVoucherForm = this.page.getByTestId("form-item-promocode");
     this.addVoucherButton = this.page.getByTestId("link-add-a-voucher-code");
     this.addVoucherInput = this.textInputComponent.getTextInputField(

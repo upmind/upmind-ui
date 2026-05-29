@@ -33,7 +33,7 @@ export class BillingPage {
       .getByTestId("form-item-address-region-id")
       .getByRole("combobox")
       .first();
-    this.saveDetails = this.page.getByTestId("button-save-details");
+    this.saveDetails = this.page.getByTestId("button-manage-save");
   }
 
   async manuallyInputAddress(
