@@ -1,4 +1,5 @@
 <template>
+  <pre>{{ meta }}</pre>
   <PaymentProcessing v-if="meta.isProcessing" />
   <component v-else :is="templateVariant">
     <template #order-summary>
