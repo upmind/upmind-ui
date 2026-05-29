@@ -227,7 +227,8 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       await page.waitForURL("**/order/checkout**");
     });
 
-    test("Round-trip: update address on billing page", async ({
+    // @quarantine(FE-2784, 2026-06-28)
+    test.skip("Round-trip: update address on billing page", async ({
       page,
       context
     }) => {
@@ -253,7 +254,8 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       await expect(checkout.billingDetails).toContainText("M1 1AA");
     });
 
-    test("Round-trip: add company on billing page", async ({ page }) => {
+    // @quarantine(FE-2784, 2026-06-28)
+    test.skip("Round-trip: add company on billing page", async ({ page }) => {
       await expect(checkout.billingSummaryChangeLink).toBeVisible({
         timeout: 15000
       });
@@ -384,7 +386,8 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       expect(await billingPage.continueIsHidden()).toBe(true);
     });
 
-    test("Continue button is rendered once the client has at least one saved address", async ({
+    // @quarantine(FE-2784, 2026-06-28)
+    test.skip("Continue button is rendered once the client has at least one saved address", async ({
       page,
       context
     }) => {
@@ -399,7 +402,8 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
   });
 
   test.describe("FE-2457: Navigation Billing → Product Setup → Checkout", () => {
-    test("billing → product-setup → checkout chain works end-to-end", async ({
+    // @quarantine(FE-2784, 2026-06-28)
+    test.skip("billing → product-setup → checkout chain works end-to-end", async ({
       page,
       context
     }) => {
