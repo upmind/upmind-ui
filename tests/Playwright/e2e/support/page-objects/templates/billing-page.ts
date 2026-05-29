@@ -19,7 +19,7 @@ export class BillingPage {
     this.page = page;
     this.billingSection = this.page.getByTestId("billing");
     this.backToBasket = this.page.getByText("Back to basket");
-    this.continue = this.page.getByText("Continue");
+    this.continue = this.page.getByTestId("button-continue");
     this.personalTab = this.page.getByText("Personal details");
     this.businessTab = this.page.getByText("Business details");
     this.addressManualEntry = this.page.getByTestId(
