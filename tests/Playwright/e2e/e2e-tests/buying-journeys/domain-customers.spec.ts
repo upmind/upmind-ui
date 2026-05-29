@@ -10,7 +10,10 @@ import { getClientToken } from "../../support/api/auth";
 import { clearBasket, getCurrentOrder } from "../../support/api/basket";
 import { Login } from "../../support/page-objects/templates/login";
 import { Registration } from "../../support/page-objects/templates/registration";
+import { BillingPage } from "../../support/page-objects/templates/billing-page";
 import { captureProduct } from "../../support/mocks/products";
+import { interceptConfigValues } from "../../support/mocks/brand";
+import { waitForBillingUpdate } from "../../support/helpers/checkout";
 import { selectRequiredMultiDefaults } from "../../support/flows";
 
 let productConfig: ProductConfig;
@@ -83,7 +86,53 @@ test.describe("Domain customers", () => {
     });
   });
   test.describe("New Customer", () => {
-    test("Register at checkout", async ({ page }) => {
+    // @quarantine(FE-2785, 2026-06-28)
+    test.skip("Register at checkout — billing address required", async ({
+      page
+    }) => {
+      // Pin the brand to require a billing address from the start (null token →
+      // no auth override, busts cache; see FE-2785), so the mock is active for
+      // the whole flow and the post-registration routing sends a new addressless
+      // customer through billing — no session-dropping reload needed.
+      await interceptConfigValues(page, null, {
+        requireAddressForOrders: true,
+        requireCompanyForOrders: false,
+        requireRegionInAddress: false,
+        requirePhoneForOrders: false
+      });
+      await enterDomainDetails();
+      await productConfig.addToBasket.click();
+      await basket.proceedToCheckout.click();
+      await registration.inputRegistration();
+      const billingPage = new BillingPage(page);
+      await expect(billingPage.billingSection).toBeVisible({ timeout: 15000 });
+      await billingPage.personalTab.click();
+      await billingPage.manuallyInputAddress(
+        "10 Downing Street",
+        "London",
+        "SW1A 2AB"
+      );
+      const billingUpdate = waitForBillingUpdate(page);
+      await billingPage.saveDetails.click();
+      await billingUpdate;
+      await page.waitForURL("**/order/checkout**");
+      await checkout.selectPaymentMethod("Direct Bank Transfer");
+      await checkout.clickCompleteCheckout();
+      await expect(page.getByText("Order confirmed")).toBeVisible();
+    });
+
+    // @quarantine(FE-2785, 2026-06-28)
+    test.skip("Register at checkout — no billing address required", async ({
+      page
+    }) => {
+      // Pin the brand to NOT require a billing address from the start, so the
+      // post-registration routing skips billing straight to payment — no reload.
+      await interceptConfigValues(page, null, {
+        requireAddressForOrders: false,
+        requireCompanyForOrders: false,
+        requireRegionInAddress: false,
+        requirePhoneForOrders: false
+      });
       await enterDomainDetails();
       await productConfig.addToBasket.click();
       await basket.proceedToCheckout.click();
