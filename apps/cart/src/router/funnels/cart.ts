@@ -45,6 +45,7 @@ export default <FunnelProps>{
      * or the CATALOGUE route (if no configurations are found).
      */
     [ROUTE.LOADING]: {
+      meta: { transitional: true },
       entry: ["setUnresolved", "clearTarget", "setBasket"],
       always: [
         {
@@ -88,6 +89,7 @@ export default <FunnelProps>{
      * If no configurations are present, it redirects to the BASKET route.
      */
     [ROUTE.PRODUCT]: {
+      meta: { transitional: true },
       entry: ["setUnresolved", "clearTarget"],
       always: [
         {
@@ -107,14 +109,14 @@ export default <FunnelProps>{
      * (if a product ID is present) or back to the BASKET route.
      */
     [ROUTE.PRODUCT_CONFIGURE]: {
-      meta: { prev: ROUTE.CATALOGUE },
+      meta: { transitional: true, prev: ROUTE.CATALOGUE },
       entry: ["setCurrency", "setBasket", "setProductConfigs"],
       invoke: {
         src: "guardProductConfigure",
         onDone: [
           {
             target: ROUTE.CATALOGUE,
-            actions: ["setResolving", "setTargetRoute"],
+            actions: ["setUnresolved", "setTargetRoute"],
             cond: "isCatalogue"
           },
           {
@@ -202,6 +204,7 @@ export default <FunnelProps>{
         // so the basket model is hydrated before needsAddress() is evaluated.
         // Synchronous transitions here would race the billing actor.
         next: [
+          { target: ROUTE.BILLING, cond: "needsAddress" },
           { target: ROUTE.BASKET_PRODUCTS_SETUP, cond: "hasInvalidProducts" },
           { target: ROUTE.CHECKOUT }
         ],
@@ -305,14 +308,10 @@ export default <FunnelProps>{
       invoke: {
         src: "guardProductSetup",
         onDone: { actions: ["setResolved"] },
-        onError: [
-          {
-            target: ROUTE.SESSION,
-            actions: ["setUnresolved", "clearTarget"],
-            cond: "isSession"
-          },
-          { target: ROUTE.CHECKOUT, actions: ["setResolving"] }
-        ]
+        onError: {
+          target: ROUTE.CHECKOUT,
+          actions: ["setUnresolved", "clearTarget"]
+        }
       }
     },
 
@@ -435,7 +434,7 @@ export default <FunnelProps>{
           target: ROUTE.SESSION_REGISTER,
           // NB: Preserve targetRoute query (returnUrl) but update route name
           // to SESSION_LOGIN so Vue Router navigates to /auth/login, not /auth.
-          // Using inline assign instead of "setResolving" which clears targetRoute.
+          // Using inline assign instead of "setUnresolved", "clearTarget" which clears targetRoute.
           actions: [
             assign({
               resolved: false,
@@ -567,6 +566,7 @@ export default <FunnelProps>{
      * This state determines whether we should go to a one-page checkout or a stepped checkout process.
      */
     [ROUTE.CHECKOUT_FLOW]: {
+      meta: { transitional: true },
       entry: ["setUnresolved", "clearTarget"],
       invoke: {
         src: "guardCheckoutFlow",
@@ -619,10 +619,10 @@ export default <FunnelProps>{
           },
           {
             target: ROUTE.BASKET_PRODUCTS_SETUP,
-            actions: ["setResolving"],
+            actions: ["setUnresolved", "clearTarget"],
             cond: "hasInvalidProducts"
           },
-          { target: ROUTE.BASKET, actions: ["setResolving"] }
+          { target: ROUTE.BASKET, actions: ["setUnresolved", "clearTarget"] }
         ]
       },
       on: {

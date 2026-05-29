@@ -6,7 +6,8 @@
     appear
     @enter="onEnter"
   >
-    <slot />
+    <!-- added a wrapping div to ensure a single transition node -->
+    <div><slot /></div>
   </Transition>
 </template>
 
