@@ -586,6 +586,16 @@ export default {
     event: AnyEventObject
   ): Promise<FunnelResponse> => {
     await ensureBidAuth(context, { name: ROUTE.BILLING });
+
+    // Load basket first — billing relies on basket products
+    const { isReady: isBasketReady } = useBasket();
+    await isBasketReady();
+
+    // Billing requires a basket with products
+    if (!guards.hasProducts()) {
+      return Promise.reject({ target: { name: ROUTE.BASKET } });
+    }
+
     // If standalone billing isn't enabled, skip to checkout — unless domain
     // products require a registrant address, in which case billing remains
     // reachable as the address-capture surface.
@@ -617,7 +627,6 @@ export default {
       };
     }
 
-    // Load billing and check if it still needs input
     const { isReady: isBillingReady, meta: billingMeta } = useBasketBilling();
     await isBillingReady();
 

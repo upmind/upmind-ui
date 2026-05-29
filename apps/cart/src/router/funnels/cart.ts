@@ -305,7 +305,14 @@ export default <FunnelProps>{
       invoke: {
         src: "guardProductSetup",
         onDone: { actions: ["setResolved"] },
-        onError: { target: ROUTE.CHECKOUT, actions: ["setResolving"] }
+        onError: [
+          {
+            target: ROUTE.SESSION,
+            actions: ["setUnresolved", "clearTarget"],
+            cond: "isSession"
+          },
+          { target: ROUTE.CHECKOUT, actions: ["setResolving"] }
+        ]
       }
     },
 
@@ -676,6 +683,11 @@ export default <FunnelProps>{
           { actions: ["setResolved"] }
         ],
         onError: [
+          {
+            target: ROUTE.BASKET,
+            actions: ["setUnresolved", "clearTarget"],
+            cond: "isBasket"
+          },
           {
             target: ROUTE.CHECKOUT,
             actions: ["setUnresolved", "clearTarget"],
