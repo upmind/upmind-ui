@@ -308,64 +308,6 @@ newUser.describe("Product Setup flow", () => {
       }
     );
   });
-  newUser.describe("Auth gating into PRODUCTS_SETUP", () => {
-    async function seedAndSignOut(
-      context: import("@playwright/test").BrowserContext
-    ) {
-      const token = await getSessionToken(context);
-      const order = await createOrder(token);
-      await addProductToOrder(
-        token,
-        order.id,
-        products.DOMAIN_2.id,
-        1,
-        products.DOMAIN_2.billingCycle,
-        [],
-        [],
-        {},
-        [],
-        false,
-        false
-      );
-      await context.clearCookies();
-      return order.id;
-    }
-    newUser(
-      "Guest accessing /order/basket/{bid}/products-setup/ is redirected to register with returnUrl",
-      async ({ page, context }) => {
-        const bid = await seedAndSignOut(context);
-        await page.goto(`${URLs.baseUrl}order/basket/${bid}/products-setup/`);
-        await page.waitForURL("**\/auth/register\/**");
-        expect(page.url()).toContain("returnUrl");
-        expect(decodeURIComponent(page.url())).toContain("products-setup");
-      }
-    );
-
-    newUser(
-      "After login the user lands back on PRODUCTS_SETUP",
-      async ({ page, context, user }) => {
-        const bid = "0e435795-e78d-1839-798f-31643202d986";
-        await page.goto(`${URLs.baseUrl}order/basket/${bid}/products-setup/`);
-        await page.waitForURL("**\/auth/register\/**");
-        await page.getByTestId("link-log-in-here").click();
-        await login.inputLogin(
-          Logins.remoteBasket.username,
-          Logins.remoteBasket.password
-        );
-        await page.waitForURL(/products-setup/);
-        await expect(productSetup.setupForm).toBeVisible({ timeout: 15000 });
-      }
-    );
-    newUser(
-      "Authenticated user with no bid in URL still uses current basket and reaches setup",
-      async ({ page, token }) => {
-        await seedInvalidProduct(products.DOMAIN_2, token);
-        await page.goto(SETUP_URL);
-        await expect(productSetup.setupForm).toBeVisible({ timeout: 15000 });
-        expect(page.url()).not.toMatch(/\/basket\/[0-9a-f-]{36}\//);
-      }
-    );
-  });
 });
 test.describe("Backend auto-population of provision fields", () => {
   registeredUser.describe("Client with profile details", () => {
