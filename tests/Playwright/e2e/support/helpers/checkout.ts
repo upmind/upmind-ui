@@ -1,6 +1,21 @@
-import { BrowserContext } from "@playwright/test";
+import { BrowserContext, Page } from "@playwright/test";
 import { getSessionToken } from "../api/auth";
 import { getCurrentOrder } from "../api/basket";
+
+/**
+ * Returns a promise that resolves when the basket billing update PUT completes.
+ * This is the call that sets address_id on the order — the slow call with route guards.
+ * Call BEFORE clicking save, then await AFTER clicking.
+ *
+ * @param page - Playwright Page
+ */
+export function waitForBillingUpdate(page: Page) {
+  return page.waitForResponse(
+    resp =>
+      resp.request().method() === "PUT" &&
+      /\/api\/orders\/[^/]+(\?|$)/.test(resp.url())
+  );
+}
 
 /**
  * Reads the current basket's formatted total from the API and returns the

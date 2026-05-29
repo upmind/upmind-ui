@@ -23,6 +23,7 @@ import { Registration } from "../../../support/page-objects/templates/registrati
 import { getCurrentOrder, setOrderAddress } from "../../../support/api/basket";
 import { registerClient } from "../../../support/api/client";
 import { waitForSessionCookie } from "../../../support/helpers/session";
+import { waitForBillingUpdate } from "../../../support/helpers/checkout";
 
 let checkout: Checkout;
 let billingPage: BillingPage;
@@ -181,11 +182,13 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
         "London",
         "SW1A 2AB"
       );
+      const billingUpdateRequest = waitForBillingUpdate(page);
       await billingPage.saveDetails.click();
+      await billingUpdateRequest;
       await page.waitForURL("**/order/checkout**");
       await expect(checkout.billingDetails).toBeVisible({ timeout: 15000 });
       await expect(checkout.billingDetails).toHaveText(
-        /10 Downing Street.*London.*SW1A 2AA.*United Kingdom/s
+        /10 Downing Street.*London.*SW1A 2AB.*United Kingdom/s
       );
     });
 
