@@ -6,6 +6,7 @@ import {
   useBrand,
   useQueryParams,
   useRoutingEngine,
+  useProductSetup,
   useProductRecommendations,
   useRecommendations,
   useSession,
@@ -14,6 +15,7 @@ import {
   type FunnelResponse,
   useBasketProducts,
   isDomainProduct,
+  getDomainBasketProducts,
   useBasketBilling,
   useClientAddresses,
   useClientCompanies,
@@ -31,7 +33,7 @@ import {
   UpmindModuleCodes
 } from "@upmind-automation/types";
 import { filter, first, includes, reduce } from "lodash-es";
-import { useRouter, type RouteLocationGeneric } from "vue-router";
+import type { RouteLocationGeneric } from "vue-router";
 import guards from "./guards";
 
 // -----------------------------------------------------------------------------
@@ -276,7 +278,7 @@ export default {
   ): Promise<FunnelResponse> => {
     await ensureBidAuth(context, { name: ROUTE.PRODUCT_CONFIGURE });
 
-    const { get: getPendingProduct, resolve } = useBasketProductsPending();
+    const { get: getPendingProduct } = useBasketProductsPending();
     const route = context.targetRoute ?? context.currentRoute;
     const { productId, consumeParam } = useQueryParams(
       route as RouteLocationGeneric
@@ -287,7 +289,13 @@ export default {
       (consumeParam("autoupdate", false) || consumeParam("express", false)) ==
       true;
 
-    return getPendingProduct(productId, { sync: true, silent: autoupdate })
+    // Only sync (set processing flag + subscribe) on the autoupdate path —
+    // the configure flow has no in-flight operation to track here, and a
+    // user who abandons configuration would otherwise leak `processing[pid]`.
+    return getPendingProduct(productId, {
+      sync: autoupdate,
+      silent: autoupdate
+    })
       .then(basketItem => {
         return basketItem.isReady().then(() => {
           if (!autoupdate) {
@@ -300,8 +308,20 @@ export default {
           }
           return basketItem
             .update()
-            .then(() => {
-              resolve(basketItem.service);
+            .then(async () => {
+              const returnUrl = consumeParam("returnUrl", false);
+              if (returnUrl) {
+                const { meta: recMeta, isReady: recsReady } =
+                  useProductRecommendations(productId);
+                await recsReady();
+                if (!recMeta.value.hasUnseenRecommendations) {
+                  const { router } = useRoutingEngine();
+                  return {
+                    target: router.resolve(returnUrl as string)
+                  } as FunnelResponse;
+                }
+              }
+
               return {
                 type: "NEXT",
                 target: {
@@ -504,22 +524,26 @@ export default {
 
     // Standard basket guard — check current basket has products
     await isReady();
-    if (!meta.value.hasProducts) return Promise.reject();
+    if (!guards.hasProducts()) return Promise.reject();
+
     return { target: targetRoute ?? { name: ROUTE.BASKET } };
   },
 
   guardCheckout: async (context: FunnelContext): Promise<FunnelResponse> => {
     await ensureBidAuth(context, { name: ROUTE.CHECKOUT });
 
-    const { meta, isReady } = useBasket();
+    const { isRefreshed } = useBasket();
     const { isReady: isFieldsReady, meta: fieldsMeta } = useBasketFields();
     const { getConfigValue } = useBrand();
 
-    // first wait for the basket to be ready
-    await isReady();
+    await isRefreshed();
 
-    // We always need to be authenticated to proceed to checkout
-    if (meta.value.needsAuth) {
+    // -------------------------------------------------------------------------
+    // Guard order: 1. Auth → 2. Billing → 3. Basket issues (products/fields)
+    // -------------------------------------------------------------------------
+
+    // --- 1. Auth: Must be authenticated to proceed
+    if (guards.needsAuth()) {
       const { router } = useRoutingEngine();
       const { targetBasketId } = useBasket();
       const bid = targetBasketId.value;
@@ -536,30 +560,12 @@ export default {
       } as FunnelResponse);
     }
 
-    // We always need products in the basket to proceed to checkout
-
-    if (!meta.value.hasProducts || meta.value.hasLockedProducts) {
+    // Must have products (that are not locked) to proceed
+    if (!guards.hasProducts() || guards.hasLockedProducts()) {
       return Promise.reject({ target: { name: ROUTE.BASKET } });
     }
 
-    // NB: In Stepped flow, we need to ALSO validate products and fields, so we ensure everything is valid before proceeding to checkout
-    if (
-      getConfigValue(BrandConfigKeys.CHECKOUT_FLOW) === CheckoutFlows.STEPPED
-    ) {
-      if (meta.value.hasInvalidProducts) {
-        return Promise.reject({
-          target: { name: ROUTE.BASKET_PRODUCTS_SETUP }
-        });
-      }
-
-      await isFieldsReady();
-      const validFields = fieldsMeta.value.isComplete;
-      if (!validFields) {
-        return Promise.reject({ target: { name: ROUTE.BASKET } });
-      }
-    }
-
-    // Redirect to standalone billing if it needs input and user can't edit inline.
+    // --- 2. Billing: Redirect to standalone billing page when required
     const { isReady: isBillingReady } = useBasketBilling();
     await isBillingReady();
 
@@ -578,34 +584,35 @@ export default {
       }
     }
 
+    // --- 3. Basket issues: Validate products and fields
+    if (guards.hasInvalidProducts()) {
+      return Promise.reject({
+        target: { name: ROUTE.BASKET_PRODUCTS_SETUP }
+      });
+    }
+
+    // Fields validation only in stepped flow
+    if (
+      getConfigValue(BrandConfigKeys.CHECKOUT_FLOW) === CheckoutFlows.STEPPED
+    ) {
+      await isFieldsReady();
+      const validFields = fieldsMeta.value.isComplete;
+      if (!validFields) {
+        return Promise.reject({ target: { name: ROUTE.BASKET } });
+      }
+    }
+
     return { target: context.targetRoute ?? { name: ROUTE.CHECKOUT } };
   },
 
-  guardBilling: async (
-    context: FunnelContext,
-    event: AnyEventObject
-  ): Promise<FunnelResponse> => {
+  guardBilling: async (context: FunnelContext): Promise<FunnelResponse> => {
     await ensureBidAuth(context, { name: ROUTE.BILLING });
 
-    // Load basket first — billing relies on basket products
-    const { isReady: isBasketReady } = useBasket();
-    await isBasketReady();
-
+    // NB ensure basket is loaded before billing — billing relies on basket products to determine
+    await useBasket().isReady();
     // Billing requires a basket with products
     if (!guards.hasProducts()) {
       return Promise.reject({ target: { name: ROUTE.BASKET } });
-    }
-
-    // If standalone billing isn't enabled, skip to checkout — unless domain
-    // products require a registrant address, in which case billing remains
-    // reachable as the address-capture surface.
-    const { ui } = useConfig({ context: UIContext.CHECKOUT });
-    const { data } = useConfig({ context: UIContext.BILLING_DETAILS });
-    if (
-      (data.billingDetailsDisabled || !ui.billingDetails.isReadonly) &&
-      !guards.needsAddressForDomains()
-    ) {
-      return { target: context.targetRoute ?? { name: ROUTE.CHECKOUT } };
     }
 
     // Skip billing when not authenticated — billing requires a client_id
@@ -638,14 +645,44 @@ export default {
       await applyBillingDefaults().catch(() => {});
     }
 
-    // Skip billing when input isn't needed, unless the user explicitly
-    // navigated here (e.g. the "Change" button on BillingSummary sends a
-    // RESOLVE event via navigate()).  Auto-redirects from guardCheckout
-    // arrive as error events and should be skipped when billing is complete.
-    if (billingMeta.value.isComplete && event.type !== "RESOLVE") {
-      return { target: { name: ROUTE.CHECKOUT } };
+    const { data } = useConfig({ context: UIContext.BILLING_DETAILS });
+
+    // Don't show billing page if standalone billing is disabled — unless
+    // domains in the basket need an address (registrant details are required).
+    if (data.billingDetailsDisabled && !guards.needsAddressForDomains()) {
+      return Promise.reject();
     }
-    // Show billing page
+
     return { target: context.targetRoute ?? { name: ROUTE.BILLING } };
+  },
+
+  /**
+   * 🎯 Guard: BASKET_PRODUCTS_SETUP
+   * Validates that products requiring setup exist.
+   * If all products are complete, rejects to redirect to checkout.
+   * The page internally determines which product to configure.
+   */
+  guardProductSetup: async (
+    context: FunnelContext
+  ): Promise<FunnelResponse> => {
+    await ensureBidAuth(context, {
+      name: ROUTE.BASKET_PRODUCTS_SETUP
+    });
+
+    const { isReady, meta } = useProductSetup();
+    await isReady();
+
+    // If setup is complete or we dont have any, redirect to checkout
+    if (!meta.value.isAvailable || meta.value.isComplete) {
+      return Promise.reject({
+        target: context.targetRoute ?? { name: ROUTE.CHECKOUT }
+      });
+    }
+
+    return {
+      target: context.targetRoute ?? {
+        name: ROUTE.BASKET_PRODUCTS_SETUP
+      }
+    };
   }
 };
