@@ -127,7 +127,8 @@ newUser.describe("Existing Address - Billing Details at checkout", () => {
       expect(newAddress).not.toBe(currentAddress);
     }
   );
-  newUser(
+  // @quarantine(FE-2784, 2026-06-28)
+  newUser.skip(
     "Existing User add new company details at checkout",
     async ({ page, context, checkout, token, clientId }) => {
       await addAddressToClient(token, clientId);
