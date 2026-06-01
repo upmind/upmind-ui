@@ -326,6 +326,11 @@ export const calculateBillingTerm = (
 
   const { defaultPaymentPeriod } = useBrand();
 
+  // Shortest billing cycle wins when prices tie: pre-sort ascending by cycle so
+  // the min/max-By selectors (which return the first match in array order) and
+  // the brand-inherit recursion all break ties toward the shortest period.
+  available = orderBy(available, "cycle", "asc");
+
   let term;
 
   switch (period) {
