@@ -13,7 +13,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { onBeforeMount } from "vue";
+import { onMounted } from "vue";
 
 // --- components
 import Layout from "../../../components/layout/Layout.vue";
@@ -37,7 +37,7 @@ defineOptions({
   inheritAttrs: false
 });
 
-onBeforeMount(() => {
+onMounted(() => {
   useHeader({
     visible: false
   });
