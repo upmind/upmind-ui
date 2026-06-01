@@ -23,6 +23,11 @@ let productConfig: ProductConfig;
 let productSetup: ProductSetup;
 
 test.describe("Tracking — Product Setup step", () => {
+  // serial because every test logs into the shared Logins.domain1 account
+  // (loginAsIncompleteCustomer); a logged-in account must not be exercised by
+  // concurrent tests or they pollute each other's basket.
+  test.describe.configure({ mode: "serial" });
+
   test.beforeEach(({ page }) => {
     basket = new Basket(page);
     productConfig = new ProductConfig(page);
