@@ -3,7 +3,12 @@ import type { BrowserContext, Page } from "@playwright/test";
 import type { IProduct, IProductOption } from "@upmind-automation/types";
 
 import { getClientToken, getSessionToken } from "../api/auth";
-import { addProductToOrder, createOrder, getCurrentOrder } from "../api/basket";
+import {
+  addProductToOrder,
+  clearBasket,
+  createOrder,
+  getCurrentOrder
+} from "../api/basket";
 import { Logins } from "../constants/logins";
 import { URLs } from "../constants/urls";
 import type { ProductConfig } from "../page-objects/templates/product-config";
@@ -26,7 +31,13 @@ export async function loginAsIncompleteCustomer(
     Logins.domain1.username,
     Logins.domain1.password
   );
-  return session.access_token;
+  const token = session.access_token;
+  // Shared logged-in account: start every (serial) test from a clean basket so
+  // seeded products are the only items. Deterministic because callers run
+  // serially — no concurrent test can re-pollute between this clear and the seed.
+  const order = await getCurrentOrder(token);
+  if (order?.id) await clearBasket(token, order.id);
+  return token;
 }
 
 export async function seedInvalidProduct(
