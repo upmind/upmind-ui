@@ -7,7 +7,7 @@ import { get } from "lodash-es";
 // --- types
 import type { Router, RouteLocation } from "vue-router";
 import { type UIRouteOptions } from "../brand/types";
-import { decorateRoutes, ensureTrailingSlash, hasRouteChanged } from "./utils";
+import { decorateRoutes, hasRouteChanged } from "./utils";
 
 // -----------------------------------------------------------------------------
 
@@ -30,13 +30,6 @@ export const useRouting = (router: Router): void => {
    * @param route
    */
   async function guardRoute(route: RouteLocation) {
-    // console.debug("Guarding route:", route);
-
-    // NB: Trailing slash enforcement is now handled by the NOT_FOUND catch-all
-    // route's beforeEnter guard in each app's routes.ts.
-    // const trailingSlashRedirect = ensureTrailingSlash(route);
-    // if (trailingSlashRedirect) return trailingSlashRedirect;
-
     if (route?.query?.funnel) {
       await switchFunnel(route.query.funnel.toString(), route);
     }
@@ -59,6 +52,8 @@ export const useRouting = (router: Router): void => {
    */
   router.isReady().then(async () => {
     await decorateRoutes(router.getRoutes());
+    // NB: Apps call registerOverlayRoutes(router, overlays) in their router setup
+    // before this point. No fallback call needed here.
     const target = await guardRoute(router.currentRoute.value);
     if (target) {
       await router.replace(target);

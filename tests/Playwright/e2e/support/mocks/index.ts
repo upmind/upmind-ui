@@ -28,8 +28,14 @@ export { interceptAndPatchResponse } from "./patch-response";
 export {
   mockTrialProduct,
   interceptProductMeta,
-  interceptBasketUpsells
+  interceptBasketUpsells,
+  interceptProductsToRecommend,
+  interceptRelatedProducts
 } from "./products";
-export type { UpsellMetaOverride, UpsellMetaFilter } from "./products";
+export type {
+  UpsellMetaOverride,
+  UpsellMetaFilter,
+  RecommendationConfig
+} from "./products";
 export { mockPromos } from "./promotions";
 export { mockWalletBalance } from "./wallet";

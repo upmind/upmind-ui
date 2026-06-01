@@ -1,5 +1,5 @@
 <template>
-  <Root>
+  <Root class="layout-fit">
     <Ribbon
       :background="isMobile ? RIBBON_BACKGROUND.CANVAS : RIBBON_BACKGROUND.RTL"
       :height="RIBBON_HEIGHT.GROW"

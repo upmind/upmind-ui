@@ -83,7 +83,7 @@ export class Checkout {
     this.phoneInput = this.textInputComponent.getTextInputField(this.phone);
     this.paymentDetails = this.page.getByTestId("payment-details");
     this.expandPaymentDetails = this.page.getByTestId("link-show-more-options");
-    this.saveDetails = this.page.getByTestId("button-save-details");
+    this.saveDetails = this.page.getByTestId("button-manage-save");
     this.addVoucherForm = this.page.getByTestId("form-item-promocode");
     this.addVoucherButton = this.page.getByTestId("link-add-a-voucher-code");
     this.addVoucherInput = this.textInputComponent.getTextInputField(
@@ -132,20 +132,38 @@ export class Checkout {
     if (phoneInput != null) {
       await this.phoneInput.fill(phoneInput);
     }
-    await this.clickSaveDetails();
   }
-  async clickSaveDetails() {
+
+  async selectAddressFromSearch(searchQuery: string, expectedOption: string) {
+    await this.addressSearch.fill(searchQuery);
+    await this.page
+      .locator('[role="dialog"][data-state="open"]')
+      .locator("li", { hasText: expectedOption })
+      .click();
+  }
+  async clickSaveDetails(endpoint: "addresses" | "companies" = "addresses") {
+    // Allow an optional /{id} segment so edits (PUT/PATCH to /addresses/{id})
+    // are detected alongside creates (POST to /addresses).
+    const endpointPattern = new RegExp(
+      `/api/clients/[^/]+/${endpoint}(/[^/?]+)?(\\?|$)`
+    );
     for (let attempt = 0; attempt < 5; attempt++) {
-      if (!(await this.billingDetails.isHidden())) return;
+      const responsePromise = this.page.waitForResponse(
+        response =>
+          endpointPattern.test(response.url()) &&
+          ["POST", "PUT", "PATCH"].includes(response.request().method()) &&
+          response.ok(),
+        { timeout: 2000 }
+      );
       await this.saveDetails.click();
       try {
-        await this.billingDetails.waitFor({ state: "hidden", timeout: 2000 });
+        await responsePromise;
         return;
       } catch {
-        // modal still open, try again
+        // save request not detected, click again
       }
     }
-    throw new Error("Billing details modal did not close after 5 clicks");
+    throw new Error(`${endpoint} save request not detected after 5 clicks`);
   }
 
   async getPaymentMethod(gatewayName: string) {
@@ -202,13 +220,28 @@ export class Checkout {
     expiryDate: string,
     cvcCode: string
   ) {
+    // Locate Stripe Elements inputs by `autocomplete` rather than `placeholder`
+    // or label text. Placeholders/labels are locale-driven (e.g. "WS11 1DB" vs
+    // "12345", "Postal code" vs "ZIP code") and shift with Stripe SDK updates.
+    // The autocomplete attribute is the W3C-standard semantic anchor and
+    // stable across countries.
     const stripeFrame = this.page.frameLocator(
       'iframe[title="Secure payment input frame"]'
     );
-    await stripeFrame.getByPlaceholder("1234 1234 1234 1234").fill(cardNumber);
-    await stripeFrame.getByPlaceholder("MM / YY").fill(expiryDate);
-    await stripeFrame.getByPlaceholder("CVC").fill(cvcCode);
-    await stripeFrame.getByPlaceholder("WS11 1DB").fill("SW1A 2AB");
+    await stripeFrame
+      .locator('input[autocomplete="cc-number"]')
+      .fill(cardNumber);
+    await stripeFrame.locator('input[autocomplete="cc-exp"]').fill(expiryDate);
+    await stripeFrame.locator('input[autocomplete="cc-csc"]').fill(cvcCode);
+
+    // Postcode is country-driven by Stripe Elements. Some countries (e.g. ZA)
+    // omit the field entirely. The card suites verify card → success, not
+    // billing capture (covered by the billing-details specs). So: tolerate
+    // the field being absent.
+    const postcode = stripeFrame.locator(
+      'input[autocomplete*="postal-code" i]'
+    );
+    if ((await postcode.count()) > 0) await postcode.first().fill("SW1A 2AB");
   }
 
   async inputSepaDetails(

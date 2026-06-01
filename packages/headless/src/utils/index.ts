@@ -6,6 +6,8 @@ export * from "./useCollections";
 export * from "./useError";
 export * from "./useFields";
 export * from "./useMoney";
+export * from "./useCalculate";
+export * from "./useCalculate.types";
 export * from "./usePOP";
 export * from "./useStorage";
 export * from "./useTime";

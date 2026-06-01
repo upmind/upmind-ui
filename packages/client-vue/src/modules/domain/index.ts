@@ -1,10 +1,12 @@
 // -----------------------------------------------------------------------------
+/**
+ * @module domain
+ * @description Domain module - domain search, selection, and DAC components.
+ */
 
 // --- Export Views
 export { default as UpmDomain } from "./Domain.vue";
 export { default as UpmDac } from "./Dac.vue";
 
-// --- Export Components
-
 // --- Export Types
-export { DOMAIN_TEMPLATE } from "./types";
+export * from "./types";

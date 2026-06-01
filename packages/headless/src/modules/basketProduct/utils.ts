@@ -57,6 +57,7 @@ import type {
   IPromotion
 } from "@upmind-automation/types";
 import {
+  DeferModes,
   ProductOrderTypes,
   PromotionDisplayTypes
 } from "@upmind-automation/types";
@@ -209,6 +210,12 @@ export function parsSummaryWithPrice(
     discounted: raw.configuration_net_amount_discount_converted > 0,
     free: raw.configuration_net_amount_discounted_converted == 0,
     freeTrial: !!raw?.in_trial,
+    deferred: some(
+      raw.product?.provision_fields,
+      f =>
+        f.defer_mode === DeferModes.OPTIONAL ||
+        f.defer_mode === DeferModes.HIDDEN
+    ),
     custom: raw.price_type === "manual",
     renewalPrice: find(raw.product?.prices, {
       billing_cycle_months: raw.billing_cycle_months,
@@ -283,11 +290,11 @@ export function parsePrice(raw: IBasketProduct): PriceDetail {
       ? raw.total_amount_formatted
       : raw.net_selling_price_formatted,
     discount: includesTax.value
-      ? raw.total_discount_amount
-      : raw.net_product_discount_amount,
+      ? raw.configuration_total_discount_amount_converted
+      : raw.configuration_net_amount_discount_converted,
     discountFormatted: includesTax.value
-      ? raw.total_discount_amount_formatted
-      : raw.net_product_discount_amount_formatted
+      ? raw.configuration_total_discount_amount_formatted
+      : raw.configuration_net_amount_discount_formatted
   };
 
   return {

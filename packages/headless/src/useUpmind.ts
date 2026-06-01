@@ -5,8 +5,6 @@ import { type QueryClient, VueQueryPlugin } from "@tanstack/vue-query";
 
 // --- internal
 import {
-  type Funnels,
-  type GlobbedFiles,
   useBrand,
   useDataLayer,
   useLocale,
@@ -17,6 +15,7 @@ import {
   useSystem,
   useTracking
 } from "./modules";
+import type { Funnels, FunnelWatcher, GlobbedFiles } from "./modules";
 import { get, isFunction } from "lodash-es";
 import { useRouting } from "./modules/routing/useRouting";
 import { useTheming } from "./modules/theming/useTheming";
@@ -133,7 +132,11 @@ export interface UpmindProps {
     /** Whether to guard routes or not */
     guardRoutes?: boolean;
     /** A function to Register routing flows with the routing engine. */
-    registerFunnels?: () => { defaultFunnel?: string; funnels?: Funnels };
+    registerFunnels?: () => {
+      defaultFunnel?: string;
+      funnels?: Funnels;
+      watchers?: FunnelWatcher[];
+    };
   };
   /**
    * Configuration for Vue I18n internationalization.
@@ -156,6 +159,12 @@ export interface UpmindProps {
    * @default false
    */
   admin?: boolean;
+  /**
+   * The Upmind platform URL. Used as the redirect destination when
+   * the brand is unavailable (no tenant for this domain).
+   * No redirect occurs if not provided.
+   */
+  platformUrl?: string;
 }
 
 // -----------------------------------------------------------------------------
@@ -217,6 +226,10 @@ export class Upmind {
    * Theme configurations.
    */
   themes?: UpmindProps["themes"];
+  /**
+   * The Upmind platform URL for redirect when brand is unavailable.
+   */
+  platformUrl?: UpmindProps["platformUrl"];
 
   /**
    * Constructs a new Upmind instance.
@@ -239,6 +252,7 @@ export class Upmind {
     debug,
     i18n,
     mode,
+    platformUrl,
     pop,
     recaptcha,
     router,
@@ -263,6 +277,7 @@ export class Upmind {
     this.storefrontUrl = storefrontUrl;
     this.themes = themes;
     this.admin = admin ?? false;
+    this.platformUrl = platformUrl;
 
     this.initPlugins();
     this.initDebugging();
@@ -283,6 +298,14 @@ export class Upmind {
             useSystem().isReady(),
             useSession().isReady()
           ])
+            // Brand unavailable — redirect to platform if configured
+            .then(() => {
+              const { meta } = useBrand();
+              if (!meta.value.isAvailable && this.platformUrl) {
+                window.location.href = this.platformUrl;
+                return Promise.reject();
+              }
+            })
             // then initialise our localisation to ensure i18n is available to our app/composables/machines
             .then(() => this.initLocalisation())
             // and then we start with our render blocking initialisations

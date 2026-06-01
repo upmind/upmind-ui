@@ -1,5 +1,5 @@
 <template>
-  <UpmLoading v-if="meta.isResolved" />
+  <UpmLoading :open="meta.isResolved" />
 </template>
 <script lang="ts" setup>
 // --- components

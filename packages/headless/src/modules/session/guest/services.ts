@@ -35,12 +35,12 @@ import { mapCustomField } from "../../client/customFields/mappers";
 
 async function load(_context: GuestContext, _event: AnyEventObject) {
   const { ensureConfig } = useBrand();
-  const { fetchCountries } = useSystem();
 
-  await Promise.allSettled([
-    fetchCountries(),
-    ensureConfig([BrandConfigKeys.REQUIRE_PHONE_ON_REGISTRATION])
-  ]);
+  // NB: countries are only needed by the register schema (default country
+  // for address/phone). They're ensured in `getCustomFields` instead so
+  // labs/login-only flows don't pay for the fetch on init. See
+  // system/docs/gotchas.md#1.
+  await ensureConfig([BrandConfigKeys.REQUIRE_PHONE_ON_REGISTRATION]);
 
   const token = getTokenFromStorage(Contexts.GUEST);
   if (!isEmpty(token)) return Promise.resolve(token);
@@ -127,6 +127,10 @@ async function verify2fa({ token }: GuestContext, { data }: AnyEventObject) {
 
 async function getCustomFields(_context: GuestContext, _event: AnyEventObject) {
   const { get, useUrl } = useQuery();
+  const { ensureCountries } = useSystem();
+
+  // Ensire we have countries for the register schema getCountry()
+  ensureCountries();
 
   return get({
     url: useUrl("clients_fields", {

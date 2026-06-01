@@ -5,8 +5,8 @@
         ? t('cart.basket_product_missing_data')
         : t('cart.basket_product_missing_data_help')
     "
-    color="danger"
-    icon="alert-octagon"
+    color="warning"
+    icon="alert-triangle"
     size="sm"
     :action="{
       label: isMobile ? t('action.fix') : t('action.add_missing_data'),

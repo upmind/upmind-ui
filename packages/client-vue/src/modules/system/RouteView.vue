@@ -1,26 +1,28 @@
 <template>
   <Root>
     <slot>
-      <RouterView v-slot="routerViewProps" :key="$route.path">
+      <RouterView v-slot="routerViewProps">
         <slot v-bind="routerViewProps">
-          <Suspense>
-            <KeepAlive>
+          <PageTransition>
+            <Suspense>
               <component
+                v-if="meta.isResolved || !meta.isInitialRoute"
                 :is="routerViewProps.Component"
-                @vue:mounted="doResolve"
+                @vue:beforeMount="doPageStart"
+                @vue:mounted="doPageFinish($event, routerViewProps.route)"
               />
-            </KeepAlive>
 
-            <template #fallback>
-              <Loading
-                v-if="
-                  (meta.isInitialRoute && meta.isResolved && shouldShow) ||
-                  (!meta.isInitialRoute && shouldShow)
-                "
-                v-bind="props.loadingProps"
-              />
-            </template>
-          </Suspense>
+              <template #fallback>
+                <Loading
+                  v-if="
+                    (meta.isInitialRoute && meta.isResolved && shouldShow) ||
+                    (!meta.isInitialRoute && shouldShow)
+                  "
+                  v-bind="props.loadingProps"
+                />
+              </template>
+            </Suspense>
+          </PageTransition>
         </slot>
       </RouterView>
     </slot>
@@ -28,13 +30,22 @@
 </template>
 
 <script lang="ts" setup>
+// --- external
+
 // --- internal
 import { useRoutingEngine } from "@upmind-automation/headless";
+import type { RouteLocation } from "vue-router";
 import { useRouteTransition } from "./useRouteTransition";
+import { useHeader } from "../../components/header/useHeader";
+import { useFooter } from "../../components/footer/useFooter";
+import { useLayout } from "../../components/layout/useLayout";
+import { useShell } from "../../components/shell/useShell";
+import { SHELL } from "../../components/shell/types";
 
 // --- components
 import Root from "../../components/layout/components/root/Root.vue";
 import Loading from "./Loading.vue";
+import PageTransition from "../../components/layout/components/transition/Transition.vue";
 import type { InterstitialProps } from "@upmind-automation/upmind-ui";
 
 // -----------------------------------------------------------------------------
@@ -46,11 +57,21 @@ const emit = defineEmits<{
   (e: "resolve", el: Element): void;
 }>();
 
-const { meta } = useRoutingEngine();
-const { shouldShow, reset } = useRouteTransition();
+const { meta, mount } = useRoutingEngine();
+const { shouldShow } = useRouteTransition();
 
-function doResolve(el: Element) {
+const shell = useShell();
+
+function doPageStart() {
+  shell.reset();
+}
+
+function doPageFinish(el: Element, route: RouteLocation) {
+  if (!shell.has(SHELL.HEADER)) useHeader({});
+  if (!shell.has(SHELL.FOOTER)) useFooter({});
+  if (!shell.has(SHELL.LAYOUT)) useLayout({});
+
+  mount(route.name?.toString());
   emit("resolve", el);
-  reset();
 }
 </script>

@@ -9,6 +9,7 @@
     <!-- Search and controls -->
     <div :class="styles.products.main.controls">
       <Input
+        id="product-search"
         :model-value="query"
         :class="[styles.products.main.searchInput, 'flex-1']"
         :placeholder="t('form.product_name_search.placeholder')"

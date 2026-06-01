@@ -6,7 +6,7 @@
 import { UpmError } from "@upmind-automation/client-vue";
 
 // --- internal
-import { useStorefrontRoute } from "../composables/useStorefrontRoute";
+import { useStorefrontRoute } from "../router/useStorefrontRoute";
 // -----------------------------------------------------------------------------
 const { storefrontRoute } = useStorefrontRoute();
 </script>
