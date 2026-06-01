@@ -158,7 +158,11 @@ newUser.describe("Existing Address - Billing Details at checkout", () => {
       await expect(checkout.billingDetails).toContainText(newCompany);
     }
   );
-  newUser(
+  // @quarantine(FE-2784, 2026-06-28)
+  // Setup uses raw-HTTP addAddressToClient, bypassing the headless layer, so
+  // TanStack never refetches — the edited address isn't reflected after save
+  // (stale cache). Same cluster/root cause as the FE-2784 quarantines above.
+  newUser.skip(
     "Edit existing address at checkout",
     async ({ page, context, checkout, token, clientId }) => {
       await addAddressToClient(token, clientId);
