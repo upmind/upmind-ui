@@ -97,6 +97,7 @@ test.describe("Verify checkout billing detail requirements", () => {
       "HU15 1EG",
       null
     );
+    await checkout.saveDetails.click();
     await expect(checkout.addressRegionMessage).toContainText(
       "Region is required"
     );

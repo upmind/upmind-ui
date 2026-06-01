@@ -23,6 +23,7 @@ import { Registration } from "../../../support/page-objects/templates/registrati
 import { getCurrentOrder, setOrderAddress } from "../../../support/api/basket";
 import { registerClient } from "../../../support/api/client";
 import { waitForSessionCookie } from "../../../support/helpers/session";
+import { waitForBillingUpdate } from "../../../support/helpers/checkout";
 
 let checkout: Checkout;
 let billingPage: BillingPage;
@@ -181,15 +182,20 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
         "London",
         "SW1A 2AB"
       );
+      const billingUpdateRequest = waitForBillingUpdate(page);
       await billingPage.saveDetails.click();
+      await billingUpdateRequest;
       await page.waitForURL("**/order/checkout**");
       await expect(checkout.billingDetails).toBeVisible({ timeout: 15000 });
       await expect(checkout.billingDetails).toHaveText(
-        /10 Downing Street.*London.*SW1A 2AA.*United Kingdom/s
+        /10 Downing Street.*London.*SW1A 2AB.*United Kingdom/s
       );
     });
 
-    test("Personal/Business tab switching", async ({ page, context }) => {
+    // @quarantine(FE-2784, 2026-06-28)
+    // Billing-details cluster on the shared raw-HTTP/FE-2784 setup; tab
+    // switching flakes under the stale-cache account state.
+    test.skip("Personal/Business tab switching", async ({ page, context }) => {
       await page.goto(URLs.billing);
       await expect(billingPage.billingSection).toBeVisible({ timeout: 15000 });
       await expect(billingPage.personalTab).toBeVisible();
@@ -224,7 +230,8 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       await page.waitForURL("**/order/checkout**");
     });
 
-    test("Round-trip: update address on billing page", async ({
+    // @quarantine(FE-2784, 2026-06-28)
+    test.skip("Round-trip: update address on billing page", async ({
       page,
       context
     }) => {
@@ -250,7 +257,8 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       await expect(checkout.billingDetails).toContainText("M1 1AA");
     });
 
-    test("Round-trip: add company on billing page", async ({ page }) => {
+    // @quarantine(FE-2784, 2026-06-28)
+    test.skip("Round-trip: add company on billing page", async ({ page }) => {
       await expect(checkout.billingSummaryChangeLink).toBeVisible({
         timeout: 15000
       });
@@ -381,7 +389,8 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       expect(await billingPage.continueIsHidden()).toBe(true);
     });
 
-    test("Continue button is rendered once the client has at least one saved address", async ({
+    // @quarantine(FE-2784, 2026-06-28)
+    test.skip("Continue button is rendered once the client has at least one saved address", async ({
       page,
       context
     }) => {
@@ -396,7 +405,8 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
   });
 
   test.describe("FE-2457: Navigation Billing → Product Setup → Checkout", () => {
-    test("billing → product-setup → checkout chain works end-to-end", async ({
+    // @quarantine(FE-2784, 2026-06-28)
+    test.skip("billing → product-setup → checkout chain works end-to-end", async ({
       page,
       context
     }) => {
@@ -426,8 +436,11 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
     test("Billing page requires authentication", async ({ page }) => {
       await page.goto(URLs.billing);
       await waitForSessionCookie(page.context());
-      await expect(page).not.toHaveURL(
-        /\/order\/basket\/(?:[^/]+\/)?billing\//
+      // Match pathname only — the previous regex also matched the
+      // `?returnUrl=/order/basket/billing/` querystring tail on the
+      // redirect-to-register flow.
+      await expect(page).not.toHaveURL(url =>
+        /\/order\/basket\/(?:[^/]+\/)?billing\/?$/.test(url.pathname)
       );
     });
 

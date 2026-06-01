@@ -167,6 +167,13 @@ export const useBasketProductsPending = () => {
         { timeout: Infinity }
       ).then(state => {
         if (stateMatches(state, ["unavailable", "complete", "done"])) {
+          // Clean up the pending entry so a terminal-on-arrival state doesn't
+          // leak into `productsPending` and keep `meta.isProcessing()` true.
+          if (stateMatches(state, ["complete", "done"])) {
+            resolve(pid);
+          } else {
+            unsetProduct(pid);
+          }
           throw new DetailedError(
             t("error.product_pending_add_failed"),
             responseCodes.Unprocessable_Entity,

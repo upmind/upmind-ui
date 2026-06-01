@@ -12,7 +12,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { onBeforeMount } from "vue";
+import { onMounted } from "vue";
 
 // --- internal
 import { useFooter } from "../../../components/footer/useFooter";
@@ -36,7 +36,7 @@ defineOptions({
   inheritAttrs: false
 });
 
-onBeforeMount(() => {
+onMounted(() => {
   useHeader({
     background: HEADER_BACKGROUND.SURFACE,
     border: "none",
