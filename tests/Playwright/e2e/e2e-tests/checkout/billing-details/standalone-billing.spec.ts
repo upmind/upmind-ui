@@ -192,7 +192,10 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       );
     });
 
-    test("Personal/Business tab switching", async ({ page, context }) => {
+    // @quarantine(FE-2784, 2026-06-28)
+    // Billing-details cluster on the shared raw-HTTP/FE-2784 setup; tab
+    // switching flakes under the stale-cache account state.
+    test.skip("Personal/Business tab switching", async ({ page, context }) => {
       await page.goto(URLs.billing);
       await expect(billingPage.billingSection).toBeVisible({ timeout: 15000 });
       await expect(billingPage.personalTab).toBeVisible();

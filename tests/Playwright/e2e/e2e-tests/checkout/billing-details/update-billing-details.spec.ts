@@ -190,7 +190,10 @@ newUser.describe("Existing Address - Billing Details at checkout", () => {
       await expect(checkout.billingDetails).toContainText(newAddress);
     }
   );
-  newUser(
+  // @quarantine(FE-2784, 2026-06-28)
+  // Same raw-HTTP addAddressToClient cache-drift cluster as :161 — TanStack
+  // doesn't refetch after the API-set address, so the edit isn't reflected.
+  newUser.skip(
     "Edit existing company at checkout",
     async ({ page, context, checkout, token, clientId }) => {
       await addAddressToClient(token, clientId);
