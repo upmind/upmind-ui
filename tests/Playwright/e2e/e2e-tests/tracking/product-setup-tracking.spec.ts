@@ -11,7 +11,7 @@ import {
   loginAsIncompleteCustomer,
   seedInvalidProduct
 } from "../../support/flows";
-import { getDataLayer } from "../../support/helpers/gtm";
+import { getDataLayer, waitForEvent } from "../../support/helpers/gtm";
 
 // The exact dataLayer event names need to be confirmed against the running app.
 // `useDataLayer().withEcommerce().push()` in Checkout.vue:174 fires
@@ -64,10 +64,9 @@ test.describe("Tracking — Product Setup step", () => {
     await productSetup.submit();
     await page.waitForURL(/checkout/);
 
-    const dataLayer = await getDataLayer(page);
-    const beginCheckout = (dataLayer ?? []).find(
-      entry => entry.event === "begin_checkout"
-    );
+    // GTM fires begin_checkout on checkout mount, just after navigation settles —
+    // poll for it rather than reading the dataLayer once (timing race).
+    const beginCheckout = await waitForEvent(page, "begin_checkout");
     expect(beginCheckout).toBeDefined();
   });
 
@@ -114,6 +113,8 @@ test.describe("Tracking — Product Setup step", () => {
     await productSetup.submit();
     await page.waitForURL(/checkout/);
 
+    // Wait for the event to fire (timing race), then assert it fired exactly once.
+    await waitForEvent(page, "begin_checkout");
     const dataLayer = await getDataLayer(page);
     const beginCheckoutEvents = (dataLayer ?? []).filter(
       entry => entry.event === "begin_checkout"

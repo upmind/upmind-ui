@@ -313,27 +313,44 @@ export class ProductConfig {
     await expect(this.getPromoBadge(term)).toBeVisible();
   }
 
-  async enterRegistrantDetails(details: {
-    registrantName?: string;
-    registrantOrg?: string;
-    registrantEmail?: string;
-    registrantPhone?: string;
-    registrantAddr1?: string;
-    registrantCity?: string;
-    registrantState?: string;
-    registrantPostcode?: string;
-    registrantCountryCode?: string;
-  }) {
-    if (details.registrantName) {
+  async enterRegistrantDetails(
+    details: {
+      registrantName?: string;
+      registrantOrg?: string;
+      registrantEmail?: string;
+      registrantPhone?: string;
+      registrantAddr1?: string;
+      registrantCity?: string;
+      registrantState?: string;
+      registrantPostcode?: string;
+      registrantCountryCode?: string;
+    },
+    // When `ignoreNotVisible` is set, fill a field only if it's actually
+    // rendered. The product-setup form shows just the fields still missing for
+    // the account (which varies by saved profile — an address-on-file account
+    // only needs the phone), so callers there set this to fill whatever is shown
+    // and skip the rest instead of timing out on fields the form never renders.
+    // Default (false) fills directly with Playwright's auto-wait, as the full
+    // registrant form (e.g. domain configuration) expects.
+    options: { ignoreNotVisible?: boolean } = {}
+  ) {
+    const { ignoreNotVisible = false } = options;
+    const present = async (locator: Locator) =>
+      !ignoreNotVisible || (await locator.isVisible().catch(() => false));
+
+    if (details.registrantName && (await present(this.registrantNameInput))) {
       await this.registrantNameInput.fill(details.registrantName);
     }
-    if (details.registrantOrg) {
+    if (details.registrantOrg && (await present(this.registrantOrgInput))) {
       await this.registrantOrgInput.fill(details.registrantOrg);
     }
-    if (details.registrantEmail) {
+    if (details.registrantEmail && (await present(this.registrantEmailInput))) {
       await this.registrantEmailInput.fill(details.registrantEmail);
     }
-    if (details.registrantCountryCode) {
+    if (
+      details.registrantCountryCode &&
+      (await present(this.registrantPhoneInput))
+    ) {
       await this.registrantPhoneCountrySelectButton.click();
       await this.registrantPhoneCountrySelectInput.fill(
         details.registrantCountryCode
@@ -342,22 +359,28 @@ export class ProductConfig {
         .getByText("United Kingdom")
         .click();
     }
-    if (details.registrantPhone) {
+    if (details.registrantPhone && (await present(this.registrantPhoneInput))) {
       await this.registrantPhoneInput.fill(details.registrantPhone);
     }
-    if (details.registrantAddr1) {
+    if (details.registrantAddr1 && (await present(this.registrantAddr1Input))) {
       await this.registrantAddr1Input.fill(details.registrantAddr1);
     }
-    if (details.registrantCity) {
+    if (details.registrantCity && (await present(this.registrantCityInput))) {
       await this.registrantCityInput.fill(details.registrantCity);
     }
-    if (details.registrantState) {
+    if (details.registrantState && (await present(this.registrantStateInput))) {
       await this.registrantStateInput.fill(details.registrantState);
     }
-    if (details.registrantPostcode) {
+    if (
+      details.registrantPostcode &&
+      (await present(this.registrantPostcodeInput))
+    ) {
       await this.registrantPostcodeInput.fill(details.registrantPostcode);
     }
-    if (details.registrantCountryCode) {
+    if (
+      details.registrantCountryCode &&
+      (await present(this.registrantCountryInput))
+    ) {
       await this.registrantCountryInput.click();
       await this.page
         .getByTestId(`select-item-${details.registrantCountryCode}`)
