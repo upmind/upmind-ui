@@ -19,7 +19,7 @@ export const itemSizeVariants = cva("", {
 });
 
 export const itemVariants = cva(
-  `bg-control-surface text-control-foreground group control-radius shadow-control-default [&:hover,&[data-hover=true]]:shadow-control-hover radius-control flex cursor-pointer list-none gap-2 py-4 pr-4 pl-3 font-normal transition-shadow duration-200 md:my-0 has-disabled:cursor-not-allowed has-disabled:opacity-50 has-disabled:pointer-events-none ${ringClasses}`
+  `bg-control-surface text-control-foreground group control-radius shadow-control-default [&:hover,&[data-hover=true]]:shadow-control-hover radius-control flex cursor-pointer list-none gap-2 py-4 pr-4 pl-3 font-normal transition-shadow duration-200 data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50 data-[disabled]:pointer-events-none md:my-0 ${ringClasses}`
 );
 
 export const rootVariants = cva(`grid w-full grid-cols-12 gap-2`);
