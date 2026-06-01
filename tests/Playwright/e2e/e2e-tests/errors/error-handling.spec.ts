@@ -32,12 +32,12 @@ test.describe("Error Code Handling", () => {
     errorType
   } of Object.values(ErrorCodes)) {
     // Two cases were masked by serial-skip behind the original 503 failure and
-    // are unmasked now that 503 passes — quarantined pending focused fixes:
-    //  - 401: the "not authorized" modal is raised by a 401 on the client
-    //    address/phone/company load on an authed billing page; a 401 on
-    //    orders/current here just segues to re-auth (transient, no action btn).
-    //  - 504: the expected error toast no longer renders for this flow (500,
-    //    same route/type, still does) — needs investigation.
+    // surfaced once 503 passes — quarantined pending focused fixes:
+    //  @quarantine(FE-2798, 2026-07-01) 401: the "not authorized" modal needs a
+    //    client address/phone/company-load 401 on an authed billing page; a 401
+    //    on orders/current here just segues to re-auth (transient, no action btn).
+    //  @quarantine(FE-2799, 2026-07-01) 504: the error toast no longer renders
+    //    for this flow (500, same route/type, still does) — needs investigation.
     const declare = errorCode === 401 || errorCode === 504 ? test.skip : test;
     declare(
       `Display ${errorCode} error message (${errorType})`,
