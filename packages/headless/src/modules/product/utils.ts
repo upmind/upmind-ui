@@ -411,8 +411,18 @@ export function parseTerm(
 ): { term: ProductModel["term"]; price: PriceCalculations["term"] } {
   const { pushPrice } = useCalculate();
   const price: PriceCalculations["term"] = [];
-  // --- resolve the term from lookups (default is handled by schema)
-  const term = find(lookups?.terms, ["cycle", value]);
+  const terms = lookups?.terms ?? [];
+
+  // Resolve the requested term, enforcing the default when the requested cycle
+  // isn't available — e.g. an out-of-range `?bcm=` URL param. Mirrors the
+  // schema's default (calculateBillingTerm) so an invalid value falls back to
+  // the default instead of leaving no term selected (FE-2676).
+  const fallback = isEmpty(terms)
+    ? undefined
+    : terms.length === 1
+      ? first(terms)
+      : calculateBillingTerm(lookups?.product?.defaultPaymentPeriod, terms);
+  const term = find(terms, ["cycle", value]) ?? fallback;
 
   // set price values, taking into account the quantity and unit quantity
   // NB: we NEVER add, we always push into an array for the backend to handle
