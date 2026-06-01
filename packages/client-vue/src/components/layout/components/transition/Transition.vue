@@ -6,8 +6,8 @@
     appear
     @enter="onEnter"
   >
-    <!-- added a wrapping div to ensure a single transition node -->
-    <div><slot /></div>
+    <!-- wrapper ensures a single transition root; matches the outer Root flex chain so `grow` propagates -->
+    <div class="flex w-full grow flex-col"><slot /></div>
   </Transition>
 </template>
 
