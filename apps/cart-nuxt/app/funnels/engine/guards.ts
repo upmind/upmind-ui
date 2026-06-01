@@ -129,8 +129,15 @@ const guards = {
    * registrant details exist the domain no longer forces the billing page.
    */
   needsAddressForDomains: () => {
+    const { model: billingModel } = useBasketBilling();
     const { meta } = useProductSetup();
-    return meta.value.hasProductsRequiringAddress;
+    // Force billing only when the order has no billing address yet AND a domain
+    // still needs its address provision fields. With an address already set, or
+    // once the registrant details are complete, the domain no longer forces
+    // billing — an incomplete domain then falls through to product setup.
+    return (
+      !billingModel.value?.addressId && meta.value.hasProductsRequiringAddress
+    );
   },
 
   /**
