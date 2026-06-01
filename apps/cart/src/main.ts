@@ -39,7 +39,9 @@ UpmindClient.init({
   },
   recaptcha: {
     siteKey: import.meta.env.VITE_APP_GOOGLE_RECAPTCHA_V3_SITE_KEY,
-    enabled: true
+    // reCAPTCHA v3 scores automated browsers too low to clear registration, so
+    // disable it in dev/test via env. Defaults on (var unset) for staging/prod.
+    enabled: import.meta.env.VITE_APP_GOOGLE_RECAPTCHA_V3_ENABLED !== "false"
   },
   analytics: {
     enabled: true

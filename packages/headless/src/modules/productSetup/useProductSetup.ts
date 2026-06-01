@@ -24,6 +24,7 @@ import {
   type UseBasketProduct
 } from "../basketProduct";
 import basketProductServices from "../basketProduct/services";
+import { getDomainBasketProducts } from "../domain";
 import {
   useInvalidProductConfigSchema,
   useInvalidProductConfigUischema
@@ -118,6 +119,16 @@ export function useProductSetup() {
     isComplete: basketMeta.value.hasProducts && isEmpty(products.value),
     /** True when basket is available and there are products that need setup. */
     isAvailable: basketMeta.value.hasProducts && !isEmpty(products.value),
+    /**
+     * True when a product that requires an address (currently domains, via
+     * their registrant details) still needs setup — i.e. its required
+     * provision/address fields are missing. Once those are filled, this is
+     * false. Drives the funnel's `needsAddressForDomains` guard so a
+     * completed-registrant domain no longer forces the billing page.
+     */
+    hasProductsRequiringAddress: !isEmpty(
+      getDomainBasketProducts(products.value)
+    ),
     /** True while an apply() call is in flight. */
     isProcessing: processing.value,
     /** True when the last apply() call errored. */

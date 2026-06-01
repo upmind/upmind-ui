@@ -36,7 +36,7 @@ test.describe("Basket - Displaying Warning Notes", () => {
     await overrideWarningNotes(page, "This is a warning note");
     await page.goto(URLs.basket);
     await expect(basket.basketProductSummary).toBeVisible();
-    const alert = page.getByTestId("basket-alert");
+    const alert = page.getByTestId("basket-warnings");
     await alert.waitFor();
     await expect(alert).toBeVisible();
     await expect(alert).toContainText("This is a warning note");

@@ -59,7 +59,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { computed, defineAsyncComponent, onUnmounted } from "vue";
+import { computed, defineAsyncComponent } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -70,9 +70,6 @@ import {
   UIContext
 } from "@upmind-automation/headless";
 import { useConfig, validateTemplate } from "@upmind-automation/headless";
-import { useLayout } from "../../components/layout/useLayout";
-import { useHeader } from "../../components/header/useHeader";
-import { useFooter } from "../../components/footer/useFooter";
 import { useThemes } from "@upmind-automation/upmind-ui";
 
 // --- components
@@ -148,10 +145,4 @@ function doClose() {
   seen();
   navigateNext();
 }
-
-onUnmounted(() => {
-  useHeader({});
-  useLayout({});
-  useFooter({});
-});
 </script>

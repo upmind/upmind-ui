@@ -1,7 +1,7 @@
 <template>
   <Badge
     v-if="meta?.discounted && price"
-    :color="disabled ? 'danger' : 'promo'"
+    :color="disabled ? 'warning' : 'promo'"
     variant="muted"
     :label="
       t('action.save_value', {

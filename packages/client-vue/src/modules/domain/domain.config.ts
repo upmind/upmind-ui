@@ -49,7 +49,16 @@ export default {
         radio: cva("relative flex w-11 justify-center pl-1.5")
       },
       item: cva(
-        "bg-control-surface shadow-control-default hover:shadow-control-hover control-radius border-none transition-all duration-200"
+        "bg-control-surface shadow-control-default hover:shadow-control-hover control-radius border-none transition-all duration-200",
+        {
+          variants: {
+            isDisabled: {
+              true: "cursor-not-allowed opacity-50",
+              false: ""
+            }
+          },
+          defaultVariants: { isDisabled: false }
+        }
       ),
       card: cva("bg-base"),
       loading: cva("text-secondary"),

@@ -83,7 +83,7 @@ export class Checkout {
     this.phoneInput = this.textInputComponent.getTextInputField(this.phone);
     this.paymentDetails = this.page.getByTestId("payment-details");
     this.expandPaymentDetails = this.page.getByTestId("link-show-more-options");
-    this.saveDetails = this.page.getByTestId("button-save-details");
+    this.saveDetails = this.page.getByTestId("button-manage-save");
     this.addVoucherForm = this.page.getByTestId("form-item-promocode");
     this.addVoucherButton = this.page.getByTestId("link-add-a-voucher-code");
     this.addVoucherInput = this.textInputComponent.getTextInputField(
@@ -142,12 +142,16 @@ export class Checkout {
       .click();
   }
   async clickSaveDetails(endpoint: "addresses" | "companies" = "addresses") {
-    const endpointPattern = new RegExp(`/api/clients/[^/]+/${endpoint}(\\?|$)`);
+    // Allow an optional /{id} segment so edits (PUT/PATCH to /addresses/{id})
+    // are detected alongside creates (POST to /addresses).
+    const endpointPattern = new RegExp(
+      `/api/clients/[^/]+/${endpoint}(/[^/?]+)?(\\?|$)`
+    );
     for (let attempt = 0; attempt < 5; attempt++) {
       const responsePromise = this.page.waitForResponse(
         response =>
           endpointPattern.test(response.url()) &&
-          response.request().method() === "POST" &&
+          ["POST", "PUT", "PATCH"].includes(response.request().method()) &&
           response.ok(),
         { timeout: 2000 }
       );
