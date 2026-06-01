@@ -22,7 +22,7 @@ import type { RouteLocationGeneric } from "vue-router";
  * @param context
  * @returns  boolean
  */
-export default {
+const guards = {
   /**
    * Returns true when the service response target matches the current route.
    * Used by SESSION states to detect when guardSession resolves back to the
@@ -124,15 +124,15 @@ export default {
   },
 
   /**
-   * Returns true when basket has domain products and no billing address is set.
-   * Domain registrant details are a hard requirement, so this overrides
-   * `billingDetailsDisabled` — the billing page must remain reachable.
+   * Returns true when a domain in the basket still needs its required
+   * provision/registrant fields (including address) filled in. The registrant
+   * address is collected during product setup — NOT the billing page — so this
+   * keys off product-setup completeness, not `billingModel.addressId`. Once the
+   * registrant details exist the domain no longer forces the billing page.
    */
   needsAddressForDomains: () => {
-    const { products } = useBasket();
-    const { model: billingModel } = useBasketBilling();
-    const hasDomains = !isEmpty(getDomainBasketProducts(products.value));
-    return hasDomains && !billingModel.value?.addressId;
+    const { meta } = useProductSetup();
+    return meta.value.hasProductsRequiringAddress;
   },
 
   /**
@@ -141,12 +141,7 @@ export default {
   needsAddress: () => {
     const { ui } = useConfig({ context: UIContext.CHECKOUT });
     const { data } = useConfig({ context: UIContext.BILLING_DETAILS });
-    const { products } = useBasket();
-    const { meta: billingMeta, model: billingModel } = useBasketBilling();
-
-    // Domains require an address for registrant details
-    const hasDomains = !isEmpty(getDomainBasketProducts(products.value));
-    const needsAddressForDomains = hasDomains && !billingModel.value?.addressId;
+    const { meta: billingMeta } = useBasketBilling();
 
     // Standalone billing page is enabled when billing is readonly on checkout and incomplete
     const needsBillingPage =
@@ -154,6 +149,8 @@ export default {
       ui.billingDetails.isReadonly &&
       !billingMeta.value.isComplete;
 
-    return needsBillingPage || needsAddressForDomains;
+    return needsBillingPage || guards.needsAddressForDomains();
   }
 };
+
+export default guards;

@@ -12,15 +12,24 @@ import { Login } from "../../support/page-objects/templates/login";
 import { Registration } from "../../support/page-objects/templates/registration";
 import { BillingPage } from "../../support/page-objects/templates/billing-page";
 import { captureProduct } from "../../support/mocks/products";
-import { interceptConfigValues } from "../../support/mocks/brand";
+import { captureBrandSettings } from "../../support/mocks/brand";
 import { waitForBillingUpdate } from "../../support/helpers/checkout";
 import { selectRequiredMultiDefaults } from "../../support/flows";
+
+// Brand-config key deciding whether checkout demands a billing address. Same
+// literal key the brand mock uses (mocks/brand.ts) — mirrors
+// `BrandConfigKeys.REQUIRE_ADDRESS_FOR_ORDERS` from @upmind-automation/types.
+const REQUIRE_ADDRESS_FOR_ORDERS = "invoices.common.require_address_for_orders";
 
 let productConfig: ProductConfig;
 let checkout: Checkout;
 let basket: Basket;
 let login: Login;
 let registration: Registration;
+// Real brand settings, captured from the app's own config GET on first load.
+// Used to gate the register-at-checkout flows on whether the brand demands a
+// billing address — instead of mocking the config (which drifts via cache).
+let brandSettings: Record<string, unknown> = {};
 
 async function enterDomainDetails() {
   // Capture the raw product BEFORE navigation so we can introspect its schema
@@ -53,7 +62,11 @@ test.describe("Domain customers", () => {
     basket = new Basket(page);
     login = new Login(page);
     registration = new Registration(page, context);
+    // Capture the real brand settings from the app's own config GET on first
+    // load (REQUIRE_ADDRESS_FOR_ORDERS is in the default key set, so it's here).
+    const settings = captureBrandSettings(page);
     await page.goto(URLs.basket);
+    brandSettings = await settings;
   });
   test.describe("Existing Customer", async () => {
     test("Logged in customer", async ({ page }) => {
@@ -86,20 +99,16 @@ test.describe("Domain customers", () => {
     });
   });
   test.describe("New Customer", () => {
-    // @quarantine(FE-2785, 2026-06-28)
-    test.skip("Register at checkout — billing address required", async ({
+    test("Register at checkout — billing address required", async ({
       page
     }) => {
-      // Pin the brand to require a billing address from the start (null token →
-      // no auth override, busts cache; see FE-2785), so the mock is active for
-      // the whole flow and the post-registration routing sends a new addressless
-      // customer through billing — no session-dropping reload needed.
-      await interceptConfigValues(page, null, {
-        requireAddressForOrders: true,
-        requireCompanyForOrders: false,
-        requireRegionInAddress: false,
-        requirePhoneForOrders: false
-      });
+      // Only valid when the brand actually demands a billing address — then a
+      // new (addressless) customer is routed through billing after registering.
+      // Read the real setting; don't mock it (mocking drifts via TanStack cache).
+      test.skip(
+        !brandSettings[REQUIRE_ADDRESS_FOR_ORDERS],
+        "Brand does not require a billing address at checkout"
+      );
       await enterDomainDetails();
       await productConfig.addToBasket.click();
       await basket.proceedToCheckout.click();
@@ -121,18 +130,17 @@ test.describe("Domain customers", () => {
       await expect(page.getByText("Order confirmed")).toBeVisible();
     });
 
-    // @quarantine(FE-2785, 2026-06-28)
-    test.skip("Register at checkout — no billing address required", async ({
+    test("Register at checkout — no billing address required", async ({
       page
     }) => {
-      // Pin the brand to NOT require a billing address from the start, so the
-      // post-registration routing skips billing straight to payment — no reload.
-      await interceptConfigValues(page, null, {
-        requireAddressForOrders: false,
-        requireCompanyForOrders: false,
-        requireRegionInAddress: false,
-        requirePhoneForOrders: false
-      });
+      // Only valid when the brand does NOT demand a billing address — then the
+      // domain's registrant details satisfy the address need and the funnel
+      // skips billing straight to payment after registering. Read the real
+      // setting; don't mock it (mocking drifts via TanStack cache).
+      test.skip(
+        !!brandSettings[REQUIRE_ADDRESS_FOR_ORDERS],
+        "Brand requires a billing address at checkout"
+      );
       await enterDomainDetails();
       await productConfig.addToBasket.click();
       await basket.proceedToCheckout.click();

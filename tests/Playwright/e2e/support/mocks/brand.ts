@@ -50,6 +50,34 @@ interface ConfigOverrides {
  */
 type CartOverrides = Record<string, string | boolean | number | undefined>;
 
+const BRAND_CONFIG_VALUES = /\/api\/config\/brand\/values$/;
+
+/**
+ * Waits for the app's own GET on `config/brand/values` and resolves with the
+ * parsed `data` map (flat brand-config key → value). Lets a test read the REAL
+ * brand settings — e.g. `BrandConfigKeys.REQUIRE_ADDRESS_FOR_ORDERS` — and gate
+ * its flow on them with `test.skip(...)` instead of mocking. A read, so it
+ * sidesteps the TanStack cache-drift that mocking the config introduces.
+ *
+ * `REQUIRE_ADDRESS_FOR_ORDERS` is in the default brand-config key set, so the
+ * first (page-load) response already carries it.
+ *
+ * Attach BEFORE the navigation that triggers the request (mirrors
+ * `captureProduct`).
+ */
+export const captureBrandSettings = (page: Page) =>
+  page
+    .waitForResponse(
+      r =>
+        BRAND_CONFIG_VALUES.test(new URL(r.url()).pathname) &&
+        r.request().method() === "GET" &&
+        r.ok()
+    )
+    .then(async r => {
+      const body = await r.json();
+      return (body?.data ?? {}) as Record<string, unknown>;
+    });
+
 export async function interceptConfigValues(
   page: Page,
   bearerToken: string | null,
