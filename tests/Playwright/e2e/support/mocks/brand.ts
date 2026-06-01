@@ -20,6 +20,7 @@ interface ConfigOverrides {
    * Maps to brand config key `provisioning.domain_names.search_method`.
    */
   domainSearchMethod?: "legacy-lookup" | "smart-suggest";
+  basketFunnelling?: "none" | "next_step";
 }
 
 /**
@@ -49,37 +50,90 @@ interface ConfigOverrides {
  */
 type CartOverrides = Record<string, string | boolean | number | undefined>;
 
+const BRAND_CONFIG_VALUES = /\/api\/config\/brand\/values$/;
+
+/**
+ * Waits for the app's own GET on `config/brand/values` and resolves with the
+ * parsed `data` map (flat brand-config key → value). Lets a test read the REAL
+ * brand settings — e.g. `BrandConfigKeys.REQUIRE_ADDRESS_FOR_ORDERS` — and gate
+ * its flow on them with `test.skip(...)` instead of mocking. A read, so it
+ * sidesteps the TanStack cache-drift that mocking the config introduces.
+ *
+ * `REQUIRE_ADDRESS_FOR_ORDERS` is in the default brand-config key set, so the
+ * first (page-load) response already carries it.
+ *
+ * Attach BEFORE the navigation that triggers the request (mirrors
+ * `captureProduct`).
+ */
+export const captureBrandSettings = (page: Page) =>
+  page
+    .waitForResponse(
+      r =>
+        BRAND_CONFIG_VALUES.test(new URL(r.url()).pathname) &&
+        r.request().method() === "GET" &&
+        r.ok()
+    )
+    .then(async r => {
+      const body = await r.json();
+      return (body?.data ?? {}) as Record<string, unknown>;
+    });
+
 export async function interceptConfigValues(
   page: Page,
-  bearerToken: string,
+  bearerToken: string | null,
   overrides: ConfigOverrides
 ) {
   await page.route(
     "**/api/config/brand/values?**",
     async (route: Route, request: Request) => {
-      const originalHeaders = request.headers();
-      const modifiedHeaders = {
-        ...originalHeaders,
-        authorization: `Bearer ${bearerToken}`
-      };
-      const response = await page.request.fetch(request, {
-        headers: modifiedHeaders
-      });
+      // When a bearerToken is provided, force it (legacy behaviour). When it's
+      // null/false, replay with the request's own auth and strip cache-validation
+      // headers, so cached (TanStack) reloads return a full 200 body instead of a
+      // 304 with null data. See FE-2785.
+      let headers = request.headers();
+      if (bearerToken) {
+        headers = { ...headers, authorization: `Bearer ${bearerToken}` };
+      } else {
+        const {
+          "if-none-match": _ifNoneMatch,
+          "if-modified-since": _ifModifiedSince,
+          ...rest
+        } = headers;
+        headers = rest;
+      }
+      const response = await page.request.fetch(request, { headers });
       const json = await response.json();
-      json.data["invoices.common.require_address_for_orders"] =
-        overrides.requireAddressForOrders;
-      json.data["invoices.common.require_company_for_orders"] =
-        overrides.requireCompanyForOrders;
-      json.data["invoices.common.required_region_in_address"] =
-        overrides.requireRegionInAddress;
-      json.data["invoices.common.require_phone_for_orders"] =
-        overrides.requirePhoneForOrders;
-      json.data["invoices.common.display_price_type"] =
-        overrides.displayPriceType;
-      // Conditional — leave the existing brand value alone unless caller overrides
+      // Only override keys the caller actually passed — leave the rest at their
+      // real brand values. Unconditionally writing `undefined` (e.g. for
+      // display_price_type when not overridden) corrupts the config and breaks
+      // flows that depend on it, like registration. Mirrors interceptUISchema.
+      if (overrides.requireAddressForOrders !== undefined) {
+        json.data["invoices.common.require_address_for_orders"] =
+          overrides.requireAddressForOrders;
+      }
+      if (overrides.requireCompanyForOrders !== undefined) {
+        json.data["invoices.common.require_company_for_orders"] =
+          overrides.requireCompanyForOrders;
+      }
+      if (overrides.requireRegionInAddress !== undefined) {
+        json.data["invoices.common.required_region_in_address"] =
+          overrides.requireRegionInAddress;
+      }
+      if (overrides.requirePhoneForOrders !== undefined) {
+        json.data["invoices.common.require_phone_for_orders"] =
+          overrides.requirePhoneForOrders;
+      }
+      if (overrides.displayPriceType !== undefined) {
+        json.data["invoices.common.display_price_type"] =
+          overrides.displayPriceType;
+      }
       if (overrides.domainSearchMethod !== undefined) {
         json.data["provisioning.domain_names.search_method"] =
           overrides.domainSearchMethod;
+      }
+      if (overrides.basketFunnelling !== undefined) {
+        json.data["ui.basket.add_to_basket_funnelling"] =
+          overrides.basketFunnelling;
       }
       const updatedResponseBody = {
         ...json

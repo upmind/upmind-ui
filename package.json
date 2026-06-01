@@ -33,9 +33,27 @@
     "type": "git",
     "url": "git@git.upmind.io:upmind/upmind-monorepo.git"
   },
-  "packageManager": "pnpm@10.33.0",
+  "packageManager": "pnpm@10.33.2",
   "engines": {
     "node": "^20.19.0 || >=22.12.0"
+  },
+  "pnpm": {
+    "supportedArchitectures": {
+      "os": [
+        "current",
+        "linux",
+        "darwin"
+      ],
+      "cpu": [
+        "current",
+        "x64",
+        "arm64"
+      ],
+      "libc": [
+        "current",
+        "glibc"
+      ]
+    }
   },
   "scripts": {
     "clean": "pnpm -r clean && rm -rf node_modules && pnpm install",
@@ -47,13 +65,22 @@
     "test": "pnpm -r test",
     "prepare": "husky",
     "lint-staged": "lint-staged",
-    "test:chrome": "pnpm playwright test /e2e-tests --project=chrome",
-    "test:firefox": "pnpm playwright test /e2e-tests --project=firefox",
-    "test:safari": "pnpm playwright test /e2e-tests --project=safari",
-    "test:all-browsers": "pnpm playwright test /e2e-tests",
+    "test:chrome": "rm -rf tests/Playwright/e2e/reports/allure-results/* 2>/dev/null; pnpm playwright test /e2e-tests --project=chrome",
+    "test:firefox": "rm -rf tests/Playwright/e2e/reports/allure-results/* 2>/dev/null; pnpm playwright test /e2e-tests --project=firefox",
+    "test:safari": "rm -rf tests/Playwright/e2e/reports/allure-results/* 2>/dev/null; pnpm playwright test /e2e-tests --project=safari",
+    "test:all-browsers": "rm -rf tests/Playwright/e2e/reports/allure-results/* 2>/dev/null; pnpm playwright test /e2e-tests",
     "test:ui": "pnpm playwright test --ui",
     "visreg:chrome": "pnpm playwright test /visual-regression --project=chrome",
-    "outdated": "pnpm outdated -r"
+    "outdated": "pnpm outdated -r",
+    "allure:generate": "bash tests/Playwright/scripts/allure-generate.sh",
+    "allure:open": "npx --no-install allure open tests/Playwright/e2e/reports/allure-report",
+    "allure:serve": "pnpm allure:generate && npx --no-install allure open tests/Playwright/e2e/reports/allure-report",
+    "allure:publish:local": "bash tests/Playwright/scripts/allure-publish-local.sh",
+    "allure:index": "node tests/Playwright/scripts/allure-index.mjs",
+    "graph": "bash .agent/scripts/graphify/refresh.sh",
+    "graph:check": "bash .agent/scripts/graphify/refresh.sh --check",
+    "graph:open": "open graphify-out/graph.html",
+    "graph:open:modules": "open graphify-out/graph-modules.html"
   },
   "devDependencies": {
     "@faker-js/faker": "^9.9.0",
@@ -68,6 +95,9 @@
     "@vitest/coverage-istanbul": "^3.2.4",
     "@vitest/eslint-plugin": "^1.3.4",
     "@vue/tsconfig": "^0.7.0",
+    "allure": "^3.6.2",
+    "allure-js-commons": "^3.7.1",
+    "allure-playwright": "^3.7.1",
     "concurrently": "^9.2.0",
     "eslint": "^9.33.0",
     "eslint-config-prettier": "^10.1.8",

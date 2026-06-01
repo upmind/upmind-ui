@@ -1,0 +1,517 @@
+{
+  "request": {
+    "method": "GET",
+    "path": "/api/brand/settings?lang=en-US"
+  },
+  "response": {
+    "status": 200,
+    "body": {
+      "status": "ok",
+      "data": {
+        "id": "47d73824-8507-9315-e54f-81e642d59e06",
+        "code": "q5emenbm0y1p",
+        "name": "Collab Studio",
+        "style": {
+          "brand_color": "#CC0033",
+          "brand_font": {
+            "family": "Bricolage Grotesque",
+            "version": "v9"
+          },
+          "tokens": "mock-tokens"
+        },
+        "prefix": "q5emenbm0y1p",
+        "currency_id": "e47d7382-4850-7931-56c8-1e642d59e063",
+        "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+        "language_id": "45952098-d3de-4091-76a3-1578626e347e",
+        "pricelist_id": "5952098d-3de4-0917-86a3-1578626e347e",
+        "tax_type": 2,
+        "vat_exempt": 0,
+        "vat_number": "GB 000 0000",
+        "wipe_data": false,
+        "demo_data_import_id": "320e4357-95e7-8d18-d8a3-1643202d9860",
+        "region_id": null,
+        "meta": {
+          "cart": {
+            "@data.billing_details.billingDetailsDisabled": false,
+            "@data.clickwrapDisclaimer": "By clicking '{{ action }}', you confirm that you've read and agree to Webcentral's [Terms of Service](https://webcentral.au/terms-conditions), [Privacy Policy](https://webcentral.au/privacy-policy), and other applicable policies listed [here](https://webcentral.au/service-terms). You also confirm that you are placing an order with an obligation to pay.",
+            "@data.trimTrailingZeroes": false,
+            "@context.termSelector": "select",
+            "@context.optionUpsells": "visible",
+            "@context.basket.basketFields": {
+              "default": "hidden",
+              "rules": [
+                {
+                  "when": {
+                    "basket.item_count": {
+                      "$gte": 1
+                    }
+                  },
+                  "then": "hidden"
+                }
+              ]
+            }
+          },
+          "cart-previous": {
+            "@data.catalogueDisabled": true,
+            "@data.storeUrl": "https://www.velia.net",
+            "@context.theme": "default2",
+            "@context.*.productTermSelector": "visible",
+            "@context.termSelector": "select",
+            "@context.productTermSelector": "visible",
+            "@context.productListLayout": "4-col",
+            "@context.productImageRatio": "16:9",
+            "@context.recommendations.productImageRatio": "3:2",
+            "@context.activeCategoryDescription": "hidden",
+            "@context.productConfigFieldsSummary": "visible",
+            "@context.paymentGatewaysCap/lg": 8,
+            "@context.paymentGatewaysCap": 4,
+            "@context.catalogue.productImagesStyle": "carousel",
+            "@context.configure.productImagesStyle": "carousel",
+            "@data.storeHeading": "This is a heading",
+            "@data.storeBadge/lg": {
+              "label": "Price Guarantee",
+              "icon": "percent-01"
+            },
+            "@data.*.categoryBadge": "Test Badge",
+            "@data.trustMessagingMarkdown": "<ul style=\"list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.5rem;\"><li><strong style=\"color: var(--color-success, #22c55e);\">✓</strong> Money-back guarantee</li><li><strong style=\"color: var(--color-success, #22c55e);\">✓</strong> Secure payment</li><li><strong style=\"color: var(--color-success, #22c55e);\">✓</strong> 24/7 support</li></ul>"
+          },
+          "i18n-previous": {
+            "cart.store_heading": {
+              "*": "This is global",
+              "en": "This is english",
+              "fr": "This is french"
+            },
+            "cart.basket_title": {
+              "*": "Your <mark class='mask-primary'>basket</mark>"
+            },
+            "text.loading_title": {
+              "*": "Something <mark>exciting</mark> is around the corner"
+            },
+            "action.create_account": {
+              "*": "Create an <mark>account</mark>"
+            },
+            "auth.welcome_back": {
+              "*": "Log in to your <mark>account</mark>"
+            },
+            "text.secure_checkout": {
+              "*": "Secure <mark class='mask-secondary'>checkout</mark>",
+              "es": "This is spanish"
+            }
+          }
+        },
+        "domain": "q5emenbm0y1p.staging.upmind.dev",
+        "has_demo_data": true,
+        "currencies": [
+          {
+            "id": "78985742-6489-7012-25b2-1e325d0ed369",
+            "name": "South African Rand",
+            "prefix": "",
+            "suffix": "R",
+            "code": "ZAR",
+            "created_at": "2022-05-27 08:59:52",
+            "updated_at": "2026-04-20 16:15:26",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "e47d7382-4850-7931-56c8-1e642d59e063",
+            "name": "US Dollar",
+            "prefix": "$",
+            "suffix": "",
+            "code": "USD",
+            "created_at": "2017-10-18 14:16:22",
+            "updated_at": "2026-04-20 16:15:25",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "3825d96e-763e-d091-3dc4-174825283406",
+            "name": "British Pound",
+            "prefix": "£",
+            "suffix": "",
+            "code": "GBP",
+            "created_at": "2017-10-18 14:16:22",
+            "updated_at": "2026-04-20 16:15:25",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "47d73824-8507-9315-e6b8-1e642d59e063",
+            "name": "Bangladeshi Taka",
+            "prefix": "",
+            "suffix": "৳",
+            "code": "BDT",
+            "created_at": "2022-05-25 09:25:07",
+            "updated_at": "2026-04-20 16:15:26",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "85d085e6-9d56-2371-9ea2-18e940d42370",
+            "name": "Euro",
+            "prefix": "",
+            "suffix": "€",
+            "code": "EUR",
+            "created_at": "2017-10-18 14:16:22",
+            "updated_at": "2026-04-20 16:15:25",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "73de7864-2de5-3971-4ef2-1208469530d0",
+            "name": "Canadian Dollar",
+            "prefix": "$",
+            "suffix": "",
+            "code": "CAD",
+            "created_at": "2020-02-12 09:02:29",
+            "updated_at": "2026-04-20 16:15:25",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "3de78642-de53-9714-7ec2-1208469530d0",
+            "name": "Ugandan Shilling",
+            "prefix": "USh.",
+            "suffix": "/=",
+            "code": "UGX",
+            "created_at": "2022-08-05 08:29:50",
+            "updated_at": "2026-04-20 16:15:26",
+            "base": true,
+            "decimals": false,
+            "manual": 0
+          },
+          {
+            "id": "8d632507-9806-5d1e-36b8-174e234e98d2",
+            "name": "Malaysian Ringgit",
+            "prefix": "RM",
+            "suffix": "",
+            "code": "MYR",
+            "created_at": "2020-02-12 09:02:29",
+            "updated_at": "2026-04-20 16:15:26",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "45952098-d3de-4091-76a3-1578626e347e",
+            "name": "Australian Dollar",
+            "prefix": "AU $",
+            "suffix": "",
+            "code": "AUD",
+            "created_at": "2020-02-12 09:02:29",
+            "updated_at": "2026-04-20 16:15:25",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "2785d26e-9678-3d16-90c3-14502e70439d",
+            "name": "Nigerian Naira",
+            "prefix": "",
+            "suffix": "",
+            "code": "NGN",
+            "created_at": "2022-06-01 07:35:15",
+            "updated_at": "2026-04-20 16:15:26",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "47d73824-8507-9315-36f8-1e642d59e063",
+            "name": "Mexican Peso",
+            "prefix": "Mex$",
+            "suffix": "",
+            "code": "MXN",
+            "created_at": "2020-02-12 09:02:29",
+            "updated_at": "2026-04-20 16:15:25",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "825d96e7-63ed-0913-ddf4-174825283406",
+            "name": "Indian Rupee",
+            "prefix": "₹",
+            "suffix": "",
+            "code": "INR",
+            "created_at": "2020-02-12 09:02:29",
+            "updated_at": "2026-04-20 16:15:25",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "4d036794-24d0-e710-44f3-153698d582e8",
+            "name": "Colombian Peso",
+            "prefix": "COL$",
+            "suffix": "",
+            "code": "COP",
+            "created_at": "2022-08-05 08:29:49",
+            "updated_at": "2026-04-20 16:15:26",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          },
+          {
+            "id": "72040386-96e5-4721-d9b5-18d9305e7d23",
+            "name": "Brazilian Real",
+            "prefix": "R$",
+            "suffix": "",
+            "code": "BRL",
+            "created_at": "2020-02-12 09:02:29",
+            "updated_at": "2026-04-20 16:15:25",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          }
+        ],
+        "oauth_clients": [
+          {
+            "id": "2785d26e-9678-3d16-88db-314502e70439",
+            "user_id": "sys",
+            "name": "Collab Studio Portal",
+            "origin": "q5emenbm0y1p.staging.upmind.dev",
+            "org_id": "5952098d-3de4-0917-e38a-31578626e347",
+            "brand_id": "47d73824-8507-9315-e54f-81e642d59e06",
+            "default": true,
+            "custom": false,
+            "staff_enabled": true,
+            "customer_enabled": true,
+            "provider": null,
+            "revoked": false,
+            "created_at": "2023-09-11 11:25:31",
+            "updated_at": "2025-07-08 11:38:16",
+            "origin_healthy": true
+          },
+          {
+            "id": "8d632507-9806-5d1e-e58b-8174e234e98d",
+            "user_id": "sys",
+            "name": "Collab Studio Portal",
+            "origin": "q5emenbm0y1p.upmind.dev",
+            "org_id": "5952098d-3de4-0917-e38a-31578626e347",
+            "brand_id": "47d73824-8507-9315-e54f-81e642d59e06",
+            "default": false,
+            "custom": false,
+            "staff_enabled": true,
+            "customer_enabled": true,
+            "provider": null,
+            "revoked": false,
+            "created_at": "2023-09-11 11:25:31",
+            "updated_at": "2025-07-08 11:38:16",
+            "origin_healthy": true
+          },
+          {
+            "id": "47d73824-8507-9315-67df-81e642d59e06",
+            "user_id": "sys",
+            "name": "Collab Studio Portal",
+            "origin": "q5emenbm0y1p.upmind.com",
+            "org_id": "5952098d-3de4-0917-e38a-31578626e347",
+            "brand_id": "47d73824-8507-9315-e54f-81e642d59e06",
+            "default": false,
+            "custom": false,
+            "staff_enabled": true,
+            "customer_enabled": true,
+            "provider": null,
+            "revoked": false,
+            "created_at": "2023-09-11 11:25:31",
+            "updated_at": "2025-07-08 11:38:16",
+            "origin_healthy": true
+          },
+          {
+            "id": "5952098d-3de4-0917-d7eb-31578626e347",
+            "user_id": "320e4357-95e7-8d18-68f3-1643202d9860",
+            "name": "Collab Studio Portal",
+            "origin": "collabstudio.local",
+            "org_id": "5952098d-3de4-0917-e38a-31578626e347",
+            "brand_id": "47d73824-8507-9315-e54f-81e642d59e06",
+            "default": false,
+            "custom": true,
+            "staff_enabled": true,
+            "customer_enabled": true,
+            "provider": null,
+            "revoked": false,
+            "created_at": "2023-09-11 14:05:02",
+            "updated_at": "2025-07-08 11:38:16",
+            "origin_healthy": false
+          },
+          {
+            "id": "4d036794-24d0-e710-6d2b-3153698d582e",
+            "user_id": "320e4357-95e7-8d18-68f3-1643202d9860",
+            "name": "Collab Studio Portal",
+            "origin": "collabstudio.localhost",
+            "org_id": "5952098d-3de4-0917-e38a-31578626e347",
+            "brand_id": "47d73824-8507-9315-e54f-81e642d59e06",
+            "default": false,
+            "custom": true,
+            "staff_enabled": true,
+            "customer_enabled": true,
+            "provider": null,
+            "revoked": false,
+            "created_at": "2025-12-17 06:58:00",
+            "updated_at": "2025-12-17 06:58:00",
+            "origin_healthy": false
+          }
+        ],
+        "languages": [
+          {
+            "id": "3825d96e-763e-d091-3dc4-174825283406",
+            "language": "English",
+            "code": "en",
+            "created_at": "2017-10-18 14:16:22",
+            "updated_at": "2017-10-18 14:16:22",
+            "pivot": {
+              "brand_id": "47d73824-8507-9315-e54f-81e642d59e06",
+              "language_id": "3825d96e-763e-d091-3dc4-174825283406"
+            }
+          },
+          {
+            "id": "45952098-d3de-4091-76a3-1578626e347e",
+            "language": "Portuguese",
+            "code": "pt",
+            "created_at": "2017-10-18 14:16:22",
+            "updated_at": "2017-10-18 14:16:22",
+            "pivot": {
+              "brand_id": "47d73824-8507-9315-e54f-81e642d59e06",
+              "language_id": "45952098-d3de-4091-76a3-1578626e347e"
+            }
+          },
+          {
+            "id": "e47d7382-4850-7931-56c8-1e642d59e063",
+            "language": "Spanish",
+            "code": "es",
+            "created_at": "2017-10-18 14:16:22",
+            "updated_at": "2017-10-18 14:16:22",
+            "pivot": {
+              "brand_id": "47d73824-8507-9315-e54f-81e642d59e06",
+              "language_id": "e47d7382-4850-7931-56c8-1e642d59e063"
+            }
+          },
+          {
+            "id": "73de7864-2de5-3971-4ef2-1208469530d0",
+            "language": "German",
+            "code": "de",
+            "created_at": "2021-02-24 10:22:06",
+            "updated_at": "2021-02-24 10:22:06",
+            "pivot": {
+              "brand_id": "47d73824-8507-9315-e54f-81e642d59e06",
+              "language_id": "73de7864-2de5-3971-4ef2-1208469530d0"
+            }
+          },
+          {
+            "id": "5d085e69-d562-3719-4eb2-18e940d42370",
+            "language": "English (US)",
+            "code": "en-US",
+            "created_at": "2022-11-04 11:48:45",
+            "updated_at": "2022-11-04 11:48:45",
+            "pivot": {
+              "brand_id": "47d73824-8507-9315-e54f-81e642d59e06",
+              "language_id": "5d085e69-d562-3719-4eb2-18e940d42370"
+            }
+          },
+          {
+            "id": "68d63250-7980-65d1-e6f8-174e234e98d2",
+            "language": "French",
+            "code": "fr",
+            "created_at": "2017-10-18 14:16:22",
+            "updated_at": "2017-10-18 14:16:22",
+            "pivot": {
+              "brand_id": "47d73824-8507-9315-e54f-81e642d59e06",
+              "language_id": "68d63250-7980-65d1-e6f8-174e234e98d2"
+            }
+          }
+        ],
+        "image": {
+          "id": "4d036794-24d0-e710-245a-3153698d582e",
+          "object_id": "47d73824-8507-9315-e54f-81e642d59e06",
+          "image_category_id": "3825d96e-763e-d091-3dc4-174825283406",
+          "type": "image",
+          "object_type": "brand",
+          "default": true,
+          "created_at": "2025-07-07 08:13:54",
+          "updated_at": "2025-07-07 08:14:16",
+          "origin_name": "327_1_280.svg",
+          "resized": true,
+          "order": 3,
+          "hash": "09bnXtr8cZOYM5VqjM3pMSfY36QVVORz",
+          "image_url": "api/images/4d036794-24d0-e710-245a-3153698d582e/download",
+          "full_url": "https://api.staging.upmind.io/api/images/4d036794-24d0-e710-245a-3153698d582e/download",
+          "size_category": {
+            "id": "3825d96e-763e-d091-3dc4-174825283406",
+            "name": "brand_image"
+          }
+        },
+        "icon": {
+          "id": "8d632507-9806-5d1e-5d2f-8174e234e98d",
+          "object_id": "47d73824-8507-9315-e54f-81e642d59e06",
+          "image_category_id": "3825d96e-763e-d091-3dc4-174825283406",
+          "type": "icon",
+          "object_type": "brand",
+          "default": true,
+          "created_at": "2025-07-07 08:13:54",
+          "updated_at": "2025-07-07 08:13:58",
+          "origin_name": "327_1_281.svg",
+          "resized": true,
+          "order": 3,
+          "hash": "YiSVPAPZyKhDC7LYslN93VUx4DJgGze9",
+          "image_url": "api/images/8d632507-9806-5d1e-5d2f-8174e234e98d/download",
+          "full_url": "https://api.staging.upmind.io/api/images/8d632507-9806-5d1e-5d2f-8174e234e98d/download",
+          "size_category": {
+            "id": "3825d96e-763e-d091-3dc4-174825283406",
+            "name": "brand_image"
+          }
+        },
+        "favicon": {
+          "id": "47d73824-8507-9315-e75f-81e642d59e06",
+          "object_id": "47d73824-8507-9315-e54f-81e642d59e06",
+          "image_category_id": "9320e435-795e-78d1-88a3-1643202d9860",
+          "type": "image",
+          "object_type": "brand",
+          "default": true,
+          "created_at": "2025-07-07 08:13:54",
+          "updated_at": "2025-07-07 08:13:54",
+          "origin_name": "327_10_282.svg",
+          "resized": true,
+          "order": 0,
+          "hash": "MShwz3oC3Lku50uv7k8fCa8KBFjVh1te",
+          "image_url": "api/images/47d73824-8507-9315-e75f-81e642d59e06/download",
+          "full_url": "https://api.staging.upmind.io/api/images/47d73824-8507-9315-e75f-81e642d59e06/download",
+          "size_category": {
+            "id": "9320e435-795e-78d1-88a3-1643202d9860",
+            "name": "brand_favicon"
+          }
+        },
+        "email_logo": {
+          "id": "5d085e69-d562-3719-e46c-218e940d4237",
+          "object_id": "47d73824-8507-9315-e54f-81e642d59e06",
+          "image_category_id": "3825d96e-763e-d091-3dc4-174825283406",
+          "type": "email_logo",
+          "object_type": "brand",
+          "default": true,
+          "created_at": "2025-07-07 08:13:52",
+          "updated_at": "2025-07-07 08:13:52",
+          "origin_name": "327_1_279.svg",
+          "resized": true,
+          "order": 0,
+          "hash": "HlXgXiBoMD5NJIINobMR1w5ZdGnCR4Iq",
+          "image_url": "api/images/5d085e69-d562-3719-e46c-218e940d4237/download",
+          "full_url": "https://api.staging.upmind.io/api/images/5d085e69-d562-3719-e46c-218e940d4237/download",
+          "size_category": {
+            "id": "3825d96e-763e-d091-3dc4-174825283406",
+            "name": "brand_image"
+          }
+        }
+      },
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  }
+}

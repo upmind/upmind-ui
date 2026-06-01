@@ -1,0 +1,18 @@
+{
+  "request": {
+    "method": "PATCH",
+    "path": "/api/orders/claim?lang=en"
+  },
+  "response": {
+    "status": 200,
+    "body": {
+      "status": "ok",
+      "data": [],
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  }
+}

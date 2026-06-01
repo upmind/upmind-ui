@@ -1,5 +1,5 @@
 <template>
-  <Layout>
+  <Layout :variant="LAYOUT_VARIANTS.SPLIT_VERTICAL">
     <template #content-header>
       <slot name="summary" />
     </template>
@@ -25,7 +25,6 @@ import { onMounted } from "vue";
 // --- internal
 import { useFooter } from "../../../components/footer/useFooter";
 import { useHeader } from "../../../components/header/useHeader";
-import { useLayout } from "../../../components/layout/useLayout";
 import { useSection } from "../../../components/section/useSection";
 
 // --- components
@@ -37,10 +36,6 @@ import { LAYOUT_VARIANTS } from "../../../components/layout/types";
 
 defineOptions({
   inheritAttrs: false
-});
-
-useLayout({
-  variant: LAYOUT_VARIANTS.SPLIT_VERTICAL
 });
 
 onMounted(() => {

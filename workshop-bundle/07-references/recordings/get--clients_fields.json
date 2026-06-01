@@ -1,0 +1,22 @@
+{
+  "request": {
+    "method": "GET",
+    "path": "/clients_fields"
+  },
+  "response": {
+    "status": 404,
+    "body": {
+      "status": "error",
+      "data": null,
+      "total": null,
+      "error": {
+        "id": "ffb8767fe2c35eed57eda865b0ed0f81a4a83755",
+        "type": 0,
+        "code": 404,
+        "message": "Domain not found!",
+        "data": null
+      },
+      "messages": null
+    }
+  }
+}

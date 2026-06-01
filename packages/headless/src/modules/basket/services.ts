@@ -4,7 +4,7 @@
 import { useBrand } from "../brand";
 import { useI18n, useQuery } from "../..";
 import { useSession } from "../session";
-import { useTracking } from "../system";
+import { useSystem, useTracking } from "../system";
 
 // --- utils
 import {
@@ -127,9 +127,15 @@ async function claimBasket(): Promise<void> {
 
 async function load(context: BasketContext, _event: AnyEventObject) {
   const { ensureConfig } = useBrand();
+  const { ensureBillingCycles, ensureCountries } = useSystem();
 
   // NB ensure we get this in order to be able to use in basket machine actions
   ensureConfig([BrandConfigKeys.REQUIRE_PAYMENT_METHOD_FOR_FREE_ORDERS]);
+
+  // FE-1698: ensure lazy system data is loaded before any downstream consumer
+  // (basketProduct, recommendations, productCatalogue) parses prices/terms via
+  // sync getBillingCycle() / getCountry(). See system/docs/gotchas.md#1.
+  await Promise.all([ensureBillingCycles(), ensureCountries()]);
 
   await claimBasket();
 
@@ -291,12 +297,18 @@ async function refresh(context: BasketContext, _event: AnyEventObject) {
   return fetchBasket(context).then((newBasket: IBasket) => {
     if (isEmpty(newBasket)) return { basket: context.basket as IBasket };
 
-    // Only re-fetch provision fields if products have changed
-    if (hasProductChanges(context.basket, newBasket)) {
+    // The flag covers prefresh-merge flows where `context.basket` is no
+    // longer a reliable comparison reference. For standalone refreshes
+    // (e.g. AUTHENTICATED, periodic) no prefresh has fired, the flag is
+    // unset, and `context.basket` is still clean — so fall back to the
+    // direct comparison to catch server-side changes.
+    if (
+      context.provisioningStale ||
+      hasProductChanges(context.basket, newBasket)
+    ) {
       return getProvisioningFieldsValues(newBasket);
     }
 
-    // Preserve existing provision field data and errors from old basket
     preserveProvisionFields(context.basket, newBasket);
     return { basket: newBasket, errors: context.error };
   });

@@ -1,5 +1,4 @@
 import { test, expect, Page } from "@playwright/test";
-import { fakerEN_GB } from "@faker-js/faker";
 import { Logins } from "../../support/constants/logins";
 import { ProductConfig } from "../../support/page-objects/templates/product-config";
 import { Checkout } from "../../support/page-objects/templates/checkout";
@@ -8,6 +7,13 @@ import { URLs } from "../../support/constants/urls";
 import { getClientToken } from "../../support/api/auth";
 import { Login } from "../../support/page-objects/templates/login";
 import { Registration } from "../../support/page-objects/templates/registration";
+import { interceptConfigValues } from "../../support/mocks/brand";
+import { products } from "../../support/constants/products";
+import {
+  clickAndAwaitBasketAdd,
+  waitForSessionCookie,
+  overrideBasketProductsLimit
+} from "../../support/helpers/index";
 let page: Page;
 let productConfig: ProductConfig;
 let checkout: Checkout;
@@ -29,6 +35,7 @@ test.describe("Hosting customers", async () => {
     registration = new Registration(page, context);
     await page.goto(URLs.basket);
   });
+  test.describe.configure({ mode: "serial" });
   test.describe("Existing Customer", () => {
     test("Logged in customer", async ({ page }) => {
       await getClientToken(
@@ -37,6 +44,37 @@ test.describe("Hosting customers", async () => {
         Logins.hosting1.password
       );
       await addProductToBasket();
+      await basket.proceedToCheckout.click();
+      await checkout.selectPaymentMethod("Direct Bank Transfer");
+      await checkout.clickCompleteCheckout();
+      await expect(page.getByText("Order confirmed")).toBeVisible();
+    });
+    test("Logged in customer adds in-situ from catalogue", async ({ page }) => {
+      // HAT is non-configurable, so with funnelling=none it adds in-situ from
+      // the catalogue card (a configurable product would navigate to configure).
+      const { id } = products.HAT;
+      await getClientToken(
+        page,
+        Logins.hosting1.username,
+        Logins.hosting1.password
+      );
+      await page.goto(URLs.basket);
+      overrideBasketProductsLimit(page);
+      await waitForSessionCookie(page.context());
+      // null token: replay the request's own auth and strip cache-validation
+      // headers so the catalogue's config fetch isn't lost to a 304.
+      await interceptConfigValues(page, null, { basketFunnelling: "none" });
+      await page.goto(URLs.catalogueRoot1);
+      // Search for the product so it's in the grid regardless of how the
+      // catalogue is categorised or paginated — don't assume it's on page 1.
+      // (The catalogue product is named "Hat"; the constant name is annotated.)
+      await page.getByTestId("input-product-search").fill("Hat");
+      const cta = page
+        .getByTestId(`product-card-${id}`)
+        .getByTestId("product-card-cta");
+      await expect(cta).toBeVisible();
+      await clickAndAwaitBasketAdd(page, cta);
+      await page.goto(URLs.basket);
       await basket.proceedToCheckout.click();
       await checkout.selectPaymentMethod("Direct Bank Transfer");
       await checkout.clickCompleteCheckout();

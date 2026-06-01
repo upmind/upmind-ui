@@ -5,7 +5,10 @@ import { Registration } from "../../support/page-objects/templates/registration"
 import { Checkout } from "../../support/page-objects/templates/checkout";
 import { getSessionToken } from "../../support/api/auth";
 import { createOrder, addProductToOrder } from "../../support/api/basket";
-import { waitForSessionCookie } from "../../support/helpers/session";
+import {
+  waitForCookie,
+  waitForSessionCookie
+} from "../../support/helpers/session";
 
 let registration: Registration;
 let checkout: Checkout;
@@ -25,9 +28,7 @@ async function getTrackingCookie(
   const trackingCookie = cookies.find(cookie => cookie.name === "upm_track");
 
   if (!trackingCookie) {
-    const message = "Tracking cookie not found.";
-    console.error(message);
-    throw new Error(message);
+    throw new Error("Tracking cookie not found.");
   }
 
   return JSON.parse(decodeURIComponent(trackingCookie.value)) as TrackingCookie;
@@ -51,7 +52,7 @@ test.describe("UPM Campaign Tracking", () => {
   test.beforeEach(async ({ page, context, browser }) => {
     registration = new Registration(page, context);
     checkout = new Checkout(page);
-    context.clearCookies();
+    await context.clearCookies();
   });
   test("Check that UPM cookie is created successfully", async ({
     page,
@@ -61,6 +62,9 @@ test.describe("UPM Campaign Tracking", () => {
       `${URLs.register}?upm_campaign=playwright_test_campaign&upm_source=playwright&upm_medium=e2e_test&upm_content=content_example&upm_term=term_example`
     );
     await waitForSessionCookie(page.context());
+    // upm_track is written by the tracking composable's async init() — poll for
+    // it rather than reading immediately after the session cookie appears.
+    await waitForCookie(context, "upm_track");
     let trackingCookie = await getTrackingCookie(context);
     await expect(trackingCookie.campaign).toBe("playwright_test_campaign");
     await expect(trackingCookie.source).toBe("playwright");
@@ -89,7 +93,13 @@ test.describe("UPM Campaign Tracking", () => {
     await page.goto(
       `/order/shop/?upm_campaign=playwright_test_campaign&upm_source=playwright&upm_medium=e2e_test&upm_content=content_example&upm_term=term_example`
     );
-    await page.waitForTimeout(2000);
+    await expect
+      .poll(
+        async () =>
+          (await context.cookies()).some(cookie => cookie.name === "upm_track"),
+        { timeout: 10000 }
+      )
+      .toBe(true);
     await page.goto(URLs.basket);
     await waitForSessionCookie(context);
     let token = await getSessionToken(context);

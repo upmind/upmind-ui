@@ -1,0 +1,26 @@
+{
+  "request": {
+    "method": "PATCH",
+    "path": "/api/templates/client_area/slots/footer/render?object_id=47d73824-8507-9315-e54f-81e642d59e06"
+  },
+  "response": {
+    "status": 401,
+    "body": {
+      "status": "error",
+      "data": null,
+      "related": null,
+      "total": null,
+      "error": {
+        "id": "5e88a291c30890f75159806e9deba6e58b770f24",
+        "type": 9,
+        "code": 401,
+        "message": "The resource owner or authorization server denied the request.",
+        "data": null
+      },
+      "messages": {
+        "hint": "Access token could not be verified"
+      },
+      "meta": null
+    }
+  }
+}
