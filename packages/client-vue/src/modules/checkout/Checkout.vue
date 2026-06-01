@@ -1,8 +1,5 @@
 <template>
-  <slot v-if="meta.isCheckout" name="processing">
-    <CheckoutProcessing />
-  </slot>
-  <component v-else :is="templateVariant">
+  <component :is="templateVariant">
     <template #back>
       <slot name="back">
         <Back v-show="showCheckout" @click.prevent="navigateBack" />
@@ -53,6 +50,10 @@
       </slot>
     </template>
   </component>
+
+  <slot name="processing" v-if="meta.isCheckout">
+    <CheckoutProcessing />
+  </slot>
 </template>
 
 <script lang="ts" setup>
