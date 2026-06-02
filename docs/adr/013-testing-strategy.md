@@ -1,7 +1,9 @@
 # ADR 013: Testing Strategy
 
+> **Superseded by [ADR 021: Testing Pyramid, Agentic Workflow & Coverage Policy](./021-testing-pyramid-and-agentic-workflow.md)** (May 2026). This ADR is retained for historical context only.
+
 **Date:** January 2024 (Retroactive)
-**Status:** Accepted
+**Status:** Superseded by ADR 021
 **Authors:** Upmind Engineering Team
 
 ---

@@ -1,5 +1,5 @@
 // --- external
-import { computed, defineAsyncComponent, ref } from "vue";
+import { computed, ref } from "vue";
 import { useBreakpoints, breakpointsTailwind } from "@vueuse/core";
 
 // --- internal
@@ -7,15 +7,9 @@ import { Store, useBrand } from "@upmind-automation/headless";
 import { useShell } from "../shell/useShell";
 import { SHELL } from "../shell/types";
 
-// --- async components
-
-const FooterFlat = defineAsyncComponent(
-  () => import("./layouts/FooterFlat.layout.vue")
-);
-
-const FooterStacked = defineAsyncComponent(
-  () => import("./layouts/FooterStacked.layout.vue")
-);
+// --- components
+import FooterFlat from "./layouts/FooterFlat.layout.vue";
+import FooterStacked from "./layouts/FooterStacked.layout.vue";
 // --- utils
 import { get, isEmpty, isObject, merge } from "lodash-es";
 

@@ -21,3 +21,6 @@ npx --no-install allure generate \
   --config ./allurerc.mjs \
   --output "$REPORT_DIR" \
   "$RESULTS_DIR"
+
+# Results cleared BEFORE test runs (in package.json scripts), not here.
+# Keeping results after generate allows re-generation without re-running.

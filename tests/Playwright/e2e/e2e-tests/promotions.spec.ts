@@ -82,7 +82,7 @@ test.describe("Promotions", () => {
     test("Promotions DAC Drawer", async ({ page }) => {
       mockPromos(
         page.context(),
-        "/api/modules/web_hosting/domains/search",
+        "/api/modules/web_hosting/domains/",
         {},
         "all",
         "prices"
@@ -102,7 +102,7 @@ test.describe("Promotions", () => {
     test("Promotions DAC Widget", async ({ page }) => {
       mockPromos(
         page.context(),
-        "/api/modules/web_hosting/domains/search",
+        "/api/modules/web_hosting/domains/",
         {},
         "all",
         "prices"
@@ -117,7 +117,7 @@ test.describe("Promotions", () => {
     test("Promotions DAC Page", async ({ page }) => {
       mockPromos(
         page.context(),
-        "/api/modules/web_hosting/domains/search",
+        "/api/modules/web_hosting/domains/",
         {},
         "all",
         "prices"

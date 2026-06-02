@@ -19,6 +19,7 @@ tsconfig.tsbuildinfo
 # Playwright
 tests/Playwright/e2e/test-output/
 tests/Playwright/e2e/reports/
+test-results/
 tests/Playwright/blob-report/
 tests/Playwright/playwright/.cache/
 tests/Playwright/e2e/support/secrets

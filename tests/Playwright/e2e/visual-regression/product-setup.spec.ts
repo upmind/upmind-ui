@@ -54,8 +54,8 @@ for (const { language, locale } of languages) {
         context
       }) => {
         interceptUISchema(context, { "@context.checkout.template": template });
-        await loginAsIncompleteCustomer(page, context);
-        await seedInvalidProduct(context, products.DOMAIN_2);
+        const token = await loginAsIncompleteCustomer(page, context);
+        await seedInvalidProduct(products.DOMAIN_2, token);
         await page.goto(SETUP_URL);
         await setLocale(page, locale);
         await expect(productSetup.setupForm).toBeVisible({ timeout: 15000 });
@@ -70,9 +70,9 @@ for (const { language, locale } of languages) {
         context
       }) => {
         interceptUISchema(context, { "@context.checkout.template": template });
-        await loginAsIncompleteCustomer(page, context);
-        await seedInvalidProduct(context, products.DOMAIN_2);
-        await seedInvalidProduct(context, products.DOMAIN_3);
+        const token = await loginAsIncompleteCustomer(page, context);
+        await seedInvalidProduct(products.DOMAIN_2, token);
+        await seedInvalidProduct(products.DOMAIN_3, token);
         await page.goto(SETUP_URL);
         await setLocale(page, locale);
         await expect(productSetup.setupForm).toBeVisible({ timeout: 15000 });
@@ -88,8 +88,8 @@ for (const { language, locale } of languages) {
           "@context.checkout.template": template,
           "@context.checkout.productSetup": "deferred"
         });
-        await loginAsIncompleteCustomer(page, context);
-        await seedInvalidProduct(context, products.SERVER_B);
+        const token = await loginAsIncompleteCustomer(page, context);
+        await seedInvalidProduct(products.SERVER_B, token);
         await page.goto(SETUP_URL);
         await setLocale(page, locale);
         await expect(productSetup.setupForm).toBeVisible({ timeout: 15000 });
@@ -101,8 +101,8 @@ for (const { language, locale } of languages) {
 
       test(`Error state — ${template}`, async ({ page, context }) => {
         interceptUISchema(context, { "@context.checkout.template": template });
-        await loginAsIncompleteCustomer(page, context);
-        await seedInvalidProduct(context, products.DOMAIN_2);
+        const token = await loginAsIncompleteCustomer(page, context);
+        await seedInvalidProduct(products.DOMAIN_2, token);
         await context.route(/\/api\/orders\/.*\/products/, failApply);
 
         await page.goto(SETUP_URL);
