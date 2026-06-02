@@ -3,16 +3,18 @@
  * @fileoverview Basket Utils Tests — hasProductChanges & preserveProvisionFields
  *
  * ## Job To Be Done
- * Verify that `hasProductChanges` correctly detects product additions, removals,
- * and option/attribute changes between basket states — controlling when the
- * expensive N+1 provision field fetch is triggered during refreshes.
+ * Verify that `hasProductChanges` correctly detects product identity, config,
+ * and provision-value changes between basket states — controlling when the
+ * expensive N+1 provision field fetch / re-validation is triggered during
+ * refreshes.
  *
  * Verify that `preserveProvisionFields` correctly copies existing provision field
  * data from old products to new products by ID match.
  *
  * ## What Breaks If These Fail
- * - False negative (misses real change): provision fields not re-fetched when
- *   products changed → stale/missing provision requirements in checkout.
+ * - False negative (misses real change): provision data not re-fetched/
+ *   re-validated → stale errors, e.g. product setup loop short-circuits to
+ *   checkout after fixing one of several invalid products.
  * - False positive (detects non-change): provision fields re-fetched unnecessarily
  *   → defeating the optimisation, N+1 API calls on every refresh.
  * - Provision fields lost: user sees empty provision fields after a non-product
@@ -34,18 +36,36 @@ import type { IBasket } from "@upmind-automation/types";
 const makeBasket = (products: any[]): IBasket =>
   ({ products }) as unknown as IBasket;
 
+const makeOption = (
+  id: string,
+  categoryId: string,
+  quantity = 1,
+  term = 12
+) => ({
+  product_id: id,
+  unit_quantity: quantity,
+  billing_cycle_months: term,
+  product: { id, category_id: categoryId }
+});
+
 const baseProducts = [
   {
     id: "prod-1",
-    options: [{ product_id: "opt-a" }, { product_id: "opt-b" }],
-    attributes: [{ product_id: "attr-x" }],
-    provision_fields: [{ key: "hostname", value: "server1.example.com" }]
+    product_id: "pid-1",
+    quantity: 1,
+    billing_cycle_months: 12,
+    options: [makeOption("opt-a", "cat-opts"), makeOption("opt-b", "cat-opts")],
+    attributes: [makeOption("attr-x", "cat-attrs")],
+    provision_fields: { hostname: "server1.example.com" }
   },
   {
     id: "prod-2",
+    product_id: "pid-2",
+    quantity: 1,
+    billing_cycle_months: 1,
     options: [],
-    attributes: [{ product_id: "attr-y" }],
-    provision_fields: [{ key: "domain", value: "example.com" }]
+    attributes: [makeOption("attr-y", "cat-attrs")],
+    provision_fields: { domain: "example.com" }
   }
 ];
 
@@ -79,8 +99,8 @@ describe("hasProductChanges", () => {
     const oldBasket = makeBasket(baseProducts);
     const newProducts = cloneDeep(baseProducts);
     newProducts[0].options = [
-      { product_id: "opt-a" },
-      { product_id: "opt-c" } // changed from opt-b
+      makeOption("opt-a", "cat-opts"),
+      makeOption("opt-c", "cat-opts") // changed from opt-b
     ];
     const newBasket = makeBasket(newProducts);
     expect(hasProductChanges(oldBasket, newBasket)).toBe(true);
@@ -89,7 +109,39 @@ describe("hasProductChanges", () => {
   it("returns true when product attributes change", () => {
     const oldBasket = makeBasket(baseProducts);
     const newProducts = cloneDeep(baseProducts);
-    newProducts[1].attributes = [{ product_id: "attr-z" }]; // changed from attr-y
+    newProducts[1].attributes = [makeOption("attr-z", "cat-attrs")]; // changed from attr-y
+    const newBasket = makeBasket(newProducts);
+    expect(hasProductChanges(oldBasket, newBasket)).toBe(true);
+  });
+
+  it("returns true when provision_fields values change (FE-2457 regression)", () => {
+    const oldBasket = makeBasket(baseProducts);
+    const newProducts = cloneDeep(baseProducts);
+    newProducts[0].provision_fields = { hostname: "server2.example.com" };
+    const newBasket = makeBasket(newProducts);
+    expect(hasProductChanges(oldBasket, newBasket)).toBe(true);
+  });
+
+  it("returns true when product quantity changes", () => {
+    const oldBasket = makeBasket(baseProducts);
+    const newProducts = cloneDeep(baseProducts);
+    newProducts[0].quantity = 3;
+    const newBasket = makeBasket(newProducts);
+    expect(hasProductChanges(oldBasket, newBasket)).toBe(true);
+  });
+
+  it("returns true when product term changes", () => {
+    const oldBasket = makeBasket(baseProducts);
+    const newProducts = cloneDeep(baseProducts);
+    newProducts[0].billing_cycle_months = 24;
+    const newBasket = makeBasket(newProducts);
+    expect(hasProductChanges(oldBasket, newBasket)).toBe(true);
+  });
+
+  it("returns true when option quantity changes", () => {
+    const oldBasket = makeBasket(baseProducts);
+    const newProducts = cloneDeep(baseProducts);
+    newProducts[0].options[0].unit_quantity = 5;
     const newBasket = makeBasket(newProducts);
     expect(hasProductChanges(oldBasket, newBasket)).toBe(true);
   });
@@ -120,9 +172,9 @@ describe("hasProductChanges", () => {
     const oldBasket = makeBasket(baseProducts);
     const newProducts = cloneDeep(baseProducts);
     newProducts[0].options = [
-      { product_id: "opt-a" },
-      { product_id: "opt-b" },
-      { product_id: "opt-new" } // added option
+      makeOption("opt-a", "cat-opts"),
+      makeOption("opt-b", "cat-opts"),
+      makeOption("opt-new", "cat-opts") // added option
     ];
     const newBasket = makeBasket(newProducts);
     expect(hasProductChanges(oldBasket, newBasket)).toBe(true);
@@ -131,7 +183,7 @@ describe("hasProductChanges", () => {
   it("returns true when option is removed from a product", () => {
     const oldBasket = makeBasket(baseProducts);
     const newProducts = cloneDeep(baseProducts);
-    newProducts[0].options = [{ product_id: "opt-a" }]; // removed opt-b
+    newProducts[0].options = [makeOption("opt-a", "cat-opts")]; // removed opt-b
     const newBasket = makeBasket(newProducts);
     expect(hasProductChanges(oldBasket, newBasket)).toBe(true);
   });

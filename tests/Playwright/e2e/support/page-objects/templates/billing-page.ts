@@ -12,13 +12,14 @@ export class BillingPage {
   readonly city: Locator;
   readonly postCode: Locator;
   readonly companyName: Locator;
+  readonly regionSelect: Locator;
   readonly saveDetails: Locator;
 
   constructor(page: Page) {
     this.page = page;
     this.billingSection = this.page.getByTestId("billing");
     this.backToBasket = this.page.getByText("Back to basket");
-    this.continue = this.page.getByText("Continue");
+    this.continue = this.page.getByTestId("button-continue");
     this.personalTab = this.page.getByText("Personal details");
     this.businessTab = this.page.getByText("Business details");
     this.addressManualEntry = this.page.getByTestId(
@@ -28,7 +29,11 @@ export class BillingPage {
     this.city = this.page.getByTestId("input-properties-city");
     this.postCode = this.page.getByTestId("input-properties-postcode");
     this.companyName = this.page.getByTestId("input-properties-name");
-    this.saveDetails = this.page.getByTestId("button-save-details");
+    this.regionSelect = this.page
+      .getByTestId("form-item-address-region-id")
+      .getByRole("combobox")
+      .first();
+    this.saveDetails = this.page.getByTestId("button-manage-save");
   }
 
   async manuallyInputAddress(
@@ -40,6 +45,14 @@ export class BillingPage {
     await this.addressLine1.fill(addressLine1);
     await this.city.fill(city);
     await this.postCode.fill(postCode);
+    // Region might be required by the backend brand config; selecting a valid one
+    // keeps the address POST truthful so the basket billing PUT can fire.
+    await this.selectRegion();
+  }
+
+  async selectRegion() {
+    await this.regionSelect.click();
+    await this.page.getByRole("option").first().click();
   }
 
   async continueIsHidden(): Promise<boolean> {

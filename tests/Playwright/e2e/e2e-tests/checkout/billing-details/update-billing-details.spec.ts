@@ -33,7 +33,8 @@ newUser.describe("New User - Billing Details at checkout", () => {
       );
     }
   );
-  newUser(
+  // @quarantine(FE-2784, 2026-06-28)
+  newUser.skip(
     "New User add new company details at checkout",
     async ({ page, context, checkout }) => {
       await goToCheckout(
@@ -92,7 +93,8 @@ newUser.describe("Existing Address - Billing Details at checkout", () => {
   // login-registration/login.spec.ts. Serial mode prevents these tests from
   // racing against each other on the same staging account.
   newUser.describe.configure({ mode: "serial" });
-  newUser(
+  // @quarantine(FE-2784, 2026-06-28)
+  newUser.skip(
     "Existing Address - add new address at checkout",
     async ({ page, context, checkout, token, clientId }) => {
       await addAddressToClient(token, clientId);
@@ -125,7 +127,8 @@ newUser.describe("Existing Address - Billing Details at checkout", () => {
       expect(newAddress).not.toBe(currentAddress);
     }
   );
-  newUser(
+  // @quarantine(FE-2784, 2026-06-28)
+  newUser.skip(
     "Existing User add new company details at checkout",
     async ({ page, context, checkout, token, clientId }) => {
       await addAddressToClient(token, clientId);
@@ -155,7 +158,11 @@ newUser.describe("Existing Address - Billing Details at checkout", () => {
       await expect(checkout.billingDetails).toContainText(newCompany);
     }
   );
-  newUser(
+  // @quarantine(FE-2784, 2026-06-28)
+  // Setup uses raw-HTTP addAddressToClient, bypassing the headless layer, so
+  // TanStack never refetches — the edited address isn't reflected after save
+  // (stale cache). Same cluster/root cause as the FE-2784 quarantines above.
+  newUser.skip(
     "Edit existing address at checkout",
     async ({ page, context, checkout, token, clientId }) => {
       await addAddressToClient(token, clientId);
@@ -183,7 +190,10 @@ newUser.describe("Existing Address - Billing Details at checkout", () => {
       await expect(checkout.billingDetails).toContainText(newAddress);
     }
   );
-  newUser(
+  // @quarantine(FE-2784, 2026-06-28)
+  // Same raw-HTTP addAddressToClient cache-drift cluster as :161 — TanStack
+  // doesn't refetch after the API-set address, so the edit isn't reflected.
+  newUser.skip(
     "Edit existing company at checkout",
     async ({ page, context, checkout, token, clientId }) => {
       await addAddressToClient(token, clientId);

@@ -26,6 +26,7 @@
   "own_domain_qn": "Ви володієте цим доменом?",
   "owned_domains_title": "Домени, якими ви зараз володієте",
   "price_renewal_desc": "Одноразова ціна {regularPrice}. | Оновлюється щороку за {regularPrice}. | Оновлюється кожні {count} роки за {regularPrice}.",
+  "registrant_use_billing_msg": "Ваші платіжні дані будуть використані як контактна інформація реєстранта домену.",
   "search": "Пошук доменів",
   "starts_with_domain": "Все починається з **доменного імені**",
   "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
@@ -36,5 +37,6 @@
   "transfer_extension_info": "Трансфери включають продовження терміну дії на один рік.",
   "transfer_owner_question": "Ви є власником цього домену?",
   "transfer_price_info": "Ви можете переказати його нам лише за {currentPrice}",
-  "transfer_promotion": "Переказ лише за {currentPrice}, зазвичай {regularPrice}."
+  "transfer_promotion": "Переказ лише за {currentPrice}, зазвичай {regularPrice}.",
+  "use_details_for": "Використовуйте ці дані для{domain}"
 }

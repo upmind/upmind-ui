@@ -67,7 +67,7 @@ export const useBasketProduct = (
       coupons: [],
       // ---
       rawBasketProduct,
-      errorExternal: get(errors.value, bpid),
+      basketErrors: errors.value,
       allowMultipleEdits: options?.allowMultipleEdits
     }),
     {
@@ -79,9 +79,21 @@ export const useBasketProduct = (
   // ---------------------------------------------------------------------------
 
   async function isReady(): Promise<boolean> {
+    // Wait for a post-validation leaf state. Resolving on the parent
+    // `available` is too early — validation only runs inside
+    // `available.checking.validating`, so `basketErrors` (and therefore
+    // `invalidSchema`) is empty until we land on `available.valid` or
+    // `available.invalid`. Callers depending on those would race the machine.
     return waitFor(
       service,
-      state => stateMatches(state, ["available", "unavailable", "done"]),
+      state =>
+        stateMatches(state, [
+          "available.valid",
+          "available.invalid",
+          "available.error",
+          "unavailable",
+          "done"
+        ]),
       { timeout: Infinity }
     ).then(state => {
       return stateMatches(state, ["available"]);

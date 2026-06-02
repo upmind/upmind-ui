@@ -17,7 +17,10 @@
   "basket_products_require_attention_msg": "{count} products require attention | {count} product requires attention | {count} products require attention",
   "basket_products_review_desc": "Please review the following items before proceeding, alternatively return to the basket.",
   "basket_requires_attention_msg": "{count} item needs your attention | {count} items need your attention",
+  "basket_incomplete_title": "Basket details are incomplete",
+  "basket_review_item_msg": "{message} – {review}.",
   "basket_review_msg": "Please review the following items before continuing",
+  "details_incomplete_title": "Details are incomplete",
   "basket_summary_desc": "You have {count} item in your basket, totalling {total}. | You have {count} items in your basket, totalling {total}.",
   "basket_summary_desc_free": "You have {count} item in your basket. | You have {count} items in your basket.",
   "basket_summary_taxes_desc": "You have {count} item in your basket, totalling {total} ({tax}) | You have {count} items in your basket, totalling {total} ({tax})",
@@ -68,5 +71,9 @@
   "show_more_payment_options": "Show more payment options",
   "stored_payment_methods_limited_desc": "Not all payment methods are visible because they are not available for your country or currency.",
   "stored_payment_methods_limited_title": "Limited Payment Methods",
+  "product_setup_title": "Complete product setup",
+  "product_setup_desc": "Some products require additional information before checkout. Please review and provide any missing details.",
+  "product_setup_count": "No products remaining | {count} product remaining | {count} products remaining",
+  "product_setup_msg": "Also use these details for {name}",
   "warning_notes_title": "Basket warning | Basket warnings"
 }

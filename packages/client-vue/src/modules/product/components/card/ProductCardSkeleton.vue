@@ -1,11 +1,10 @@
 <template>
   <div :class="styles.product.root">
     <div :class="styles.product.content">
-      <Skeleton class="rounded-lg">
+      <Skeleton v-if="!stylesMeta.hideImage" class="rounded-lg">
         <Image
-          v-if="!stylesMeta.hideImage"
           :ratio="stylesMeta.imageRatio as ImageProps['ratio']"
-          :class="styles.product.image"
+          :class="styles.product.image.root"
         />
       </Skeleton>
 

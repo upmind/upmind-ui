@@ -238,7 +238,7 @@ build base:
     - echo "${GCP_SERVICE_ACCOUNT_JSON}" > ${GOOGLE_APPLICATION_CREDENTIALS}
     - |
       cd apps/cart
-      bash scripts/deploy-gcs.sh --bucket "${GCS_BUCKET}"
+      bash scripts/deploy-gcs.sh --bucket "${GCS_BUCKET}" --prefix "${GCS_PREFIX}"
 
 (apps/cart) deploy gcs - staging:
   extends: .deploy gcs
@@ -255,6 +255,7 @@ build base:
     url: https://assets.upmind-cart-staging.upmind.io/
   variables:
     GCS_BUCKET: ${GCS_BUCKET_STAGING}
+    GCS_PREFIX: staging
 
 (apps/cart) deploy gcs - production:
   extends: .deploy gcs
@@ -273,6 +274,7 @@ build base:
     url: https://assets.upmind-cart.upmind.io/
   variables:
     GCS_BUCKET: ${GCS_BUCKET_PRODUCTION}
+    GCS_PREFIX: production
 
 #-------------------------------------------------------------------------------
 # 🔥 Firebase deployments — All flavours

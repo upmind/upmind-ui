@@ -2,5 +2,6 @@ export { goToCheckout } from "./checkout";
 export {
   loginAsIncompleteCustomer,
   seedInvalidProduct,
-  fillRegistrantDetails
+  fillRegistrantDetails,
+  selectRequiredMultiDefaults
 } from "./product-setup";

@@ -10,7 +10,7 @@ import { UpmProductConfigure } from "@upmind-automation/client-vue";
 
 // --- internal
 import { ROUTE } from "../../router";
-import { useStorefrontRoute } from "../../composables/useStorefrontRoute";
+import { useStorefrontRoute } from "../../router/useStorefrontRoute";
 
 // -----------------------------------------------------------------------------
 const { storefrontRoute } = useStorefrontRoute();

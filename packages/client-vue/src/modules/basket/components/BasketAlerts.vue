@@ -10,29 +10,6 @@
       :description="t('cart.basket_review_msg')"
     >
       <ol :class="styles.basketAlerts.list" v-auto-animate>
-        <!-- Basket products -->
-        <template v-if="meta.hasBasketProducts">
-          <li
-            v-for="basketItem in productsInvalid"
-            :key="basketItem.id"
-            :class="styles.basketAlerts.item"
-          >
-            <i18n-t keypath="cart.basket_product_review_msg" tag="span">
-              <template #productName>
-                <span>{{ basketItem?.productDetails?.title }}</span>
-              </template>
-              <template #review>
-                <Link
-                  size="inherit"
-                  color="inherit"
-                  v-bind="getBasketProductsRoute(basketItem.id)"
-                  :label="t('action.review')"
-                />
-              </template>
-            </i18n-t>
-          </li>
-        </template>
-
         <!-- Additional details -->
         <li v-if="meta.hasBasketFields" :class="styles.basketAlerts.item">
           <i18n-t keypath="cart.basket_fields_review_msg" tag="span">
@@ -74,6 +51,7 @@
       icon="alert-triangle"
       :title="t('cart.warning_notes_title', warningNotes.length)"
       :action="{ label: t('action.dismiss_all') }"
+      data-testid="basket-warnings"
       @click="dismissAllWarnings"
     >
       <template #description>
@@ -120,28 +98,20 @@ const props = withDefaults(
   defineProps<{
     basketBilling?: boolean;
     basketFields?: boolean;
-    basketProducts?: boolean;
     // ---
     basketBillingRoute?: RouteLocationAsRelativeGeneric;
     basketFieldsRoute?: RouteLocationAsRelativeGeneric;
-    basketProductsRoute?: RouteLocationAsRelativeGeneric;
   }>(),
   {
     basketBilling: false,
-    basketFields: true,
-    basketProducts: true
+    basketFields: true
   }
 );
 
 // -----------------------------------------------------------------------------
 const { t } = useI18n();
 const styles = useStyles(["basketAlerts"], {}, config);
-const {
-  meta: basketMeta,
-  productsInvalid,
-  warningNotes,
-  dismissAllWarnings
-} = useBasket();
+const { meta: basketMeta, warningNotes, dismissAllWarnings } = useBasket();
 const { meta: fieldsMeta, errors: fieldsErrors } = useBasketFields();
 const { meta: billingMeta, errors: billingErrors } = useBasketBilling();
 const meta = computed(() => {
@@ -149,23 +119,16 @@ const meta = computed(() => {
     props.basketFields && fieldsErrors.value?.data?.length;
   const hasBasketBilling =
     props.basketBilling && billingErrors.value?.data?.length;
-  const hasBasketProducts =
-    props.basketProducts && productsInvalid.value?.length;
   const isLoading =
     basketMeta.value.isLoading ||
     fieldsMeta.value.isLoading ||
     (props.basketBilling && billingMeta.value.isLoading);
-  const count = sum([
-    hasBasketProducts ? productsInvalid.value?.length : 0,
-    hasBasketBilling ? 1 : 0,
-    hasBasketFields ? 1 : 0
-  ]);
+  const count = sum([hasBasketBilling ? 1 : 0, hasBasketFields ? 1 : 0]);
 
   return {
     isLoading,
     hasBasketFields,
     hasBasketBilling,
-    hasBasketProducts,
     count,
     hasAlerts:
       (count && !isLoading) ||
@@ -190,13 +153,4 @@ const safeBasketFieldsRoute = computed(() => {
     }
   };
 });
-
-function getBasketProductsRoute(bpid: string) {
-  return {
-    to: {
-      ...(props.basketProductsRoute ?? {}),
-      params: { bpid }
-    }
-  };
-}
 </script>
