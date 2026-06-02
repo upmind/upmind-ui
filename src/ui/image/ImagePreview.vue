@@ -34,7 +34,7 @@
 import { computed, ref, watch } from "vue";
 import { DialogContent, DialogPortal, DialogRoot } from "radix-vue";
 import { Link } from "../link";
-import config from "./imageGrid.config";
+import config from "./image.config";
 import { useImageZoom, useStyles } from "../../utils";
 
 import type { ImagePreviewProps } from "./types";
