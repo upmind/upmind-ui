@@ -1,9 +1,11 @@
 import { test, expect, Page, Locator } from "@playwright/test";
-import { URLs, productAddUrl } from "../../support/constants/urls";
+import { URLs } from "../../support/constants/urls";
 import { products } from "../../support/constants/products";
 import { interceptConfigValues } from "../../support/mocks/brand";
 import { getSessionToken } from "../../support/api/auth";
 import {
+  clickAndAwaitBasketAdd,
+  waitForBasketAddRequest,
   waitForSessionCookie,
   overrideBasketProductsLimit
 } from "../../support/helpers/index";
@@ -19,10 +21,17 @@ import { Basket } from "../../support/page-objects/templates/basket";
  *
  * Products with options/attributes/provision fields always navigate to
  * configure regardless of the setting.
+ *
+ * The catalogue
+ * CTA is a single `product-card-cta` button; the "in basket" state is signalled
+ * by `aria-pressed="true"` on that same element.
  */
 
 const productCard = (page: Page, id: string): Locator =>
   page.getByTestId(`product-card-${id}`);
+
+const cardCta = (page: Page, id: string): Locator =>
+  productCard(page, id).getByTestId("product-card-cta");
 
 async function setupCatalogue(page: Page, funnelling: "none" | "next_step") {
   overrideBasketProductsLimit(page);
@@ -42,23 +51,19 @@ test.describe("In-Situ Catalogue Adds @in-situ-catalogue", () => {
       page
     }) => {
       const { id } = products.HAT;
-      const card = productCard(page, id);
-      await expect(card).toBeVisible();
-      await card.getByTestId("button-add-to-basket").click();
+      const cta = cardCta(page, id);
+      await expect(cta).toBeVisible();
+      await clickAndAwaitBasketAdd(page, cta);
       await expect(page).toHaveURL(/\/order\/shop\b/);
-      await expect(card.getByTestId("button-in-basket")).toBeVisible();
     });
     test("Term-only product auto-adds with the default term", async ({
       page
     }) => {
       const { id, billingCycle } = products.SERVER_A;
-      const card = productCard(page, id);
-      await expect(card).toBeVisible();
-      await card.getByTestId("button-add-to-basket").click();
+      const cta = cardCta(page, id);
+      await expect(cta).toBeVisible();
+      await clickAndAwaitBasketAdd(page, cta);
       await expect(page).toHaveURL(/\/order\/shop\b/);
-      await expect(card.getByTestId("button-in-basket")).toBeVisible({
-        timeout: 10000
-      });
       await page.goto(URLs.basket);
       const basket = new Basket(page);
       await expect(basket.basketProduct).toContainText(
@@ -70,7 +75,7 @@ test.describe("In-Situ Catalogue Adds @in-situ-catalogue", () => {
     }) => {
       const { id } = products.TSHIRT;
       const productConfig = new ProductConfig(page);
-      await productCard(page, id).getByTestId("button-add-to-basket").click();
+      await cardCta(page, id).click();
       await expect(productConfig.productConfigSection).toBeVisible();
     });
     test("Sibling cards disabled while one product is being added", async ({
@@ -78,29 +83,35 @@ test.describe("In-Situ Catalogue Adds @in-situ-catalogue", () => {
     }) => {
       const targetId = products.HAT.id;
       const siblingId = products.SERVER_A.id;
-      const siblingButton = productCard(page, siblingId).getByTestId(
-        "button-add-to-basket"
-      );
+      const targetCta = cardCta(page, targetId);
+      const siblingCta = cardCta(page, siblingId);
+      const basketCount = page.getByTestId("basket-action-count");
+      const initialCount = (await basketCount.count())
+        ? Number(await basketCount.innerText())
+        : 0;
+
       await page.route("**/api/clients/*/orders/*/products**", async route => {
         await new Promise(resolve => setTimeout(resolve, 1500));
         await route.continue();
       });
-      await productCard(page, targetId)
-        .getByTestId("button-add-to-basket")
-        .click();
-      await expect(siblingButton).toBeDisabled();
-      await expect(siblingButton).toBeEnabled({ timeout: 10000 });
+      const basketAddRequest = waitForBasketAddRequest(page);
+      await targetCta.click();
+      await expect(siblingCta).toBeDisabled();
+      await basketAddRequest;
+      await expect(siblingCta).toBeEnabled();
+      await expect(page).toHaveURL(/\/order\/shop\b/);
+      await expect(targetCta).toHaveAttribute("aria-pressed", "true");
+      const newCount = Number(await basketCount.innerText());
+      expect(newCount).toBeGreaterThan(initialCount);
     });
     test("Scroll position preserved across in-situ add", async ({ page }) => {
       const { id } = products.HAT;
-      const card = productCard(page, id);
+      const cta = cardCta(page, id);
       await page.evaluate(() => window.scrollTo(0, 1200));
       const before = await page.evaluate(() => window.scrollY);
       expect(before).toBeGreaterThan(0);
-      await card.getByTestId("button-add-to-basket").click();
-      await expect(card.getByTestId("button-in-basket")).toBeVisible({
-        timeout: 10000
-      });
+      await clickAndAwaitBasketAdd(page, cta);
+      await expect(page).toHaveURL(/\/order\/shop\b/);
       const after = await page.evaluate(() => window.scrollY);
       // Allow a small drift (browser-driven layout shifts) but reject a
       // scroll-to-top, which is what the legacy router did.
@@ -110,12 +121,11 @@ test.describe("In-Situ Catalogue Adds @in-situ-catalogue", () => {
       page
     }) => {
       const { id } = products.HAT;
-      const card = productCard(page, id);
-      await card.getByTestId("button-add-to-basket").click();
-      await expect(card.getByTestId("button-in-basket")).toBeVisible({
-        timeout: 10000
-      });
-      await card.getByTestId("button-in-basket").click();
+      const cta = cardCta(page, id);
+      await clickAndAwaitBasketAdd(page, cta);
+      await expect(page).toHaveURL(/\/order\/shop\b/);
+      await expect(cta).toBeEnabled();
+      await clickAndAwaitBasketAdd(page, cta);
       await page.goto(URLs.basket);
       const basket = new Basket(page);
       await expect(

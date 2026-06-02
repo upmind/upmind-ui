@@ -39,13 +39,15 @@ export class Basket {
       "form-item-message-promocode"
     );
     this.promoBadge = this.summaryFooter.getByTestId("badge");
-    this.proceedToCheckout = page.getByTestId("button-proceed-to-checkout");
+    this.proceedToCheckout = page.getByTestId("basket-checkout-button");
 
     /* Trial */
     this.trialAlert = this.basketProductSummary.getByRole("alert");
     // Since FE-2654 the "Free Trial" label is rendered inside the header
     // hgroup (next to the title), not the footer alongside the price.
-    this.trialPriceLabel = this.basketProductSummary.getByText("Free Trial");
+    this.trialPriceLabel = this.basketProductSummary.getByText("Free Trial", {
+      exact: true
+    });
 
     /* Upsells */
     this.basketProductUpsell = page.getByTestId("basket-product-upsell");

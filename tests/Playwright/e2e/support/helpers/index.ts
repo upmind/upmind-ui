@@ -1,4 +1,9 @@
-export { overrideBasketProductsLimit } from "./catalogue";
+export {
+  clickAndAwaitBasketAdd,
+  overrideBasketProductsLimit,
+  waitForBasketAddRequest
+} from "./catalogue";
+export { expectedPayAmountText, waitForBillingUpdate } from "./checkout";
 export { getFormattedDate, getTimestamp } from "./dates";
 export { getDataLayer, waitForEvent } from "./gtm";
 export { setLocale } from "./locale";

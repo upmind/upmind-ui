@@ -2,7 +2,11 @@ import { URLs } from "./urls";
 
 export const ErrorCodes = {
   plannedMaintenance: {
-    route: "**/api/**",
+    // A 503 on a (non-brand) service call surfaces the "service unavailable"
+    // modal. Scope to the product fetch so brand settings still load — a 503 on
+    // brand settings means "brand doesn't exist" and redirects to the upmind
+    // homepage instead (see brandUnavailable below).
+    route: "**/api/basket/products/**",
     url: `${URLs.starterHosting}`,
     errorCode: 503,
     status: "error",
@@ -15,9 +19,30 @@ export const ErrorCodes = {
     button: "reload-page",
     errorType: "dialog"
   },
+  brandUnavailable: {
+    // A 503 on brand settings means the brand doesn't exist, so the app
+    // redirects to the upmind platform homepage (platformUrl) rather than
+    // showing the in-app "service unavailable" modal.
+    route: "**/api/brand/settings**",
+    url: `${URLs.starterHosting}`,
+    errorCode: 503,
+    status: "error",
+    responseError: {
+      id: "brand_unavailable",
+      type: 503,
+      code: "brand_unavailable",
+      message: "Service temporarily unavailable"
+    },
+    button: "",
+    errorType: "homepage"
+  },
 
   incorrectCredentials: {
-    route: "**/api/**",
+    // Scope to the basket (orders/current) fetch, not all of /api: a 401 on
+    // brand settings is treated as "no such brand" and redirects to the upmind
+    // homepage. A 401 on this service call surfaces the in-app "not authorized"
+    // modal.
+    route: "**/api/orders/current**",
     url: `${URLs.starterHosting}`,
     errorCode: 401,
     status: "error",

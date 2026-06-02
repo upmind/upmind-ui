@@ -1,16 +1,16 @@
 import { test, expect, Page } from "@playwright/test";
-import { fakerEN_GB } from "@faker-js/faker";
 import { Logins } from "../../support/constants/logins";
 import { ProductConfig } from "../../support/page-objects/templates/product-config";
 import { Checkout } from "../../support/page-objects/templates/checkout";
 import { Basket } from "../../support/page-objects/templates/basket";
-import { URLs, productAddUrl } from "../../support/constants/urls";
-import { getClientToken, getSessionToken } from "../../support/api/auth";
+import { URLs } from "../../support/constants/urls";
+import { getClientToken } from "../../support/api/auth";
 import { Login } from "../../support/page-objects/templates/login";
 import { Registration } from "../../support/page-objects/templates/registration";
 import { interceptConfigValues } from "../../support/mocks/brand";
 import { products } from "../../support/constants/products";
 import {
+  clickAndAwaitBasketAdd,
   waitForSessionCookie,
   overrideBasketProductsLimit
 } from "../../support/helpers/index";
@@ -50,7 +50,9 @@ test.describe("Hosting customers", async () => {
       await expect(page.getByText("Order confirmed")).toBeVisible();
     });
     test("Logged in customer adds in-situ from catalogue", async ({ page }) => {
-      const { id } = products.TSHIRT;
+      // HAT is non-configurable, so with funnelling=none it adds in-situ from
+      // the catalogue card (a configurable product would navigate to configure).
+      const { id } = products.HAT;
       await getClientToken(
         page,
         Logins.hosting1.username,
@@ -59,23 +61,19 @@ test.describe("Hosting customers", async () => {
       await page.goto(URLs.basket);
       overrideBasketProductsLimit(page);
       await waitForSessionCookie(page.context());
-      const token = await getSessionToken(page.context());
-      await interceptConfigValues(page, token, { basketFunnelling: "none" });
+      // null token: replay the request's own auth and strip cache-validation
+      // headers so the catalogue's config fetch isn't lost to a 304.
+      await interceptConfigValues(page, null, { basketFunnelling: "none" });
       await page.goto(URLs.catalogueRoot1);
-      await expect(page.getByTestId("products-grid")).toBeVisible();
-      const basketAddResponse = page.waitForResponse(
-        response =>
-          /\/api\/clients\/[^/]+\/orders\/[^/]+\/products/.test(
-            response.url()
-          ) &&
-          response.request().method() === "POST" &&
-          response.ok()
-      );
-      await page
+      // Search for the product so it's in the grid regardless of how the
+      // catalogue is categorised or paginated — don't assume it's on page 1.
+      // (The catalogue product is named "Hat"; the constant name is annotated.)
+      await page.getByTestId("input-product-search").fill("Hat");
+      const cta = page
         .getByTestId(`product-card-${id}`)
-        .getByTestId("button-add-to-basket")
-        .click();
-      await basketAddResponse;
+        .getByTestId("product-card-cta");
+      await expect(cta).toBeVisible();
+      await clickAndAwaitBasketAdd(page, cta);
       await page.goto(URLs.basket);
       await basket.proceedToCheckout.click();
       await checkout.selectPaymentMethod("Direct Bank Transfer");
