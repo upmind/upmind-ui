@@ -26,6 +26,7 @@
   "own_domain_qn": "Do you own this domain?",
   "owned_domains_title": "Domains that you currently own",
   "price_renewal_desc": "One-time price of {regularPrice}. | Renews every year for {regularPrice}. | Renews every {count} years for {regularPrice}.",
+  "registrant_use_billing_msg": "Your billing details will be used as the domain registrant contact information.",
   "search": "Search domains",
   "starts_with_domain": "It all starts with a **domain name**",
   "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
@@ -36,5 +37,6 @@
   "transfer_extension_info": "Transfers include a one year extension.",
   "transfer_owner_question": "Are you the owner of this domain?",
   "transfer_price_info": "You can transfer it to us for only {currentPrice}",
-  "transfer_promotion": "Transfer for only {currentPrice}, usually {regularPrice}."
+  "transfer_promotion": "Transfer for only {currentPrice}, usually {regularPrice}.",
+  "use_details_for": "Use these details for {domain}"
 }

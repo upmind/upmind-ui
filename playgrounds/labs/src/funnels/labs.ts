@@ -5,15 +5,11 @@ import guards from "./engine/guards";
 
 // --- types
 import {
-  type AnyEventObject,
   assign,
   type FunnelContext,
-  type FunnelProps,
-  QUERY_PARAMS,
-  useBasket
+  type FunnelProps
 } from "@upmind-automation/client-vue";
 import { ROUTE } from "./types";
-// Note: useBasket and QUERY_PARAMS are still used by the CHECKOUT NEXT handler.
 
 // -----------------------------------------------------------------------------
 
@@ -33,7 +29,7 @@ export default <FunnelProps>{
           target: ROUTE.SESSION_REGISTER,
           // NB: Preserve targetRoute query (returnUrl) but update route name
           // to SESSION_LOGIN so Vue Router navigates to /auth/login, not /auth.
-          // Using inline assign instead of "setResolving" which clears targetRoute.
+          // Using inline assign instead of "setUnresolved", "clearTarget" which clears targetRoute.
           actions: [
             assign({
               resolved: false,
@@ -63,7 +59,7 @@ export default <FunnelProps>{
         onDone: [
           {
             target: ROUTE.CHECKOUT,
-            actions: ["setResolving"],
+            actions: ["setUnresolved", "clearTarget"],
             cond: "isSameRoute"
           },
           { actions: ["setResolved"] }
@@ -97,7 +93,7 @@ export default <FunnelProps>{
         onDone: [
           {
             target: ROUTE.CHECKOUT,
-            actions: ["setResolving"],
+            actions: ["setUnresolved", "clearTarget"],
             cond: "isSameRoute"
           },
           { actions: ["setResolved"] }

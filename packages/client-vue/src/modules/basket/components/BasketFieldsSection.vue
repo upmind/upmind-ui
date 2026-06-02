@@ -1,5 +1,6 @@
 <template>
   <Section
+    v-if="!fieldsMeta.isLoading"
     id="basket-fields"
     :label="t('text.additional_details')"
     icon="file-attachment-01"
@@ -12,7 +13,6 @@
     }"
   >
     <Form
-      v-if="!fieldsMeta.isLoading"
       :additional-errors="fieldsErrors?.data"
       :model-value="fieldsModel"
       :touched="route?.hash === '#basket-fields'"

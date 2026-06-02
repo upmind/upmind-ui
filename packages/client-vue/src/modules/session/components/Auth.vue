@@ -41,6 +41,7 @@
           @update:model-value="setModel"
           :class="cn(styles.session.auth.form, meta.show2fa && 'mt-4')"
           :actions="meta.show2fa ? twoFactorActions : authActions"
+          :data-testid="`${currentForm}-form`"
         >
           <template v-if="currentForm === 'register'" #footer>
             <TermsAndConditions
@@ -61,6 +62,7 @@
             color="muted"
             :label="t('auth.forgot_password_qn')"
             size="lg"
+            data-testid="forgot-password-link"
           />
         </slot>
       </div>
@@ -234,24 +236,28 @@ const twoFactorActions = computed(() => {
 });
 
 function toggleForm(type: SessionProps["modelValue"]) {
-  // if (meta.value.isAuthenticated) return;
-
   if (!meta.value.canShowForms) return;
 
   switch (type) {
     case "login":
       if (!meta.value.showLoginForm) {
-        showLogin().then(() => (modelValue.value = "login"));
+        showLogin().then(() => {
+          if (modelValue.value !== "login") modelValue.value = "login";
+        });
       }
       break;
     case "register":
       if (!meta.value.showRegisterForm) {
-        showRegister().then(() => (modelValue.value = "register"));
+        showRegister().then(() => {
+          if (modelValue.value !== "register") modelValue.value = "register";
+        });
       }
       break;
     case "recover":
       if (!meta.value.showRecoverPasswordForm) {
-        showRecoverPassword().then(() => (modelValue.value = "recover"));
+        showRecoverPassword().then(() => {
+          if (modelValue.value !== "recover") modelValue.value = "recover";
+        });
       }
       break;
   }
@@ -296,9 +302,10 @@ watch(
   meta,
   (
     { canShowForms, isAuthenticated },
-    { isAuthenticated: wasAuthenticated }
+    { isAuthenticated: wasAuthenticated, canShowForms: couldShowForms }
   ) => {
-    if (canShowForms) toggleForm(modelValue.value);
+    // Only toggle on initial canShowForms becoming true, not on every meta change
+    if (canShowForms && !couldShowForms) toggleForm(modelValue.value);
     // NB ensure we only emit resolve when the user has just logged in
     if (isAuthenticated && !wasAuthenticated) {
       emit("resolve", model.value);
@@ -309,6 +316,19 @@ watch(
 watch(modelValue, newValue => {
   toggleForm(newValue);
 });
+
+// Auth's loading state hides the form before the parent renders the
+// post-auth view — all within the same route, so the router's scrollBehavior
+// doesn't fire. Scroll while the section is off-screen so the next page
+// lands at the top.
+watch(
+  () => meta.value.isLoading,
+  (isLoading, wasLoading) => {
+    if (isLoading && !wasLoading) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }
+);
 </script>
 
 <style>

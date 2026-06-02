@@ -1,5 +1,5 @@
 <template>
-  <Layout>
+  <Layout :variant="LAYOUT_VARIANTS.SPLIT_HORIZONTAL">
     <template #content-header>
       <slot name="hero" />
     </template>
@@ -13,7 +13,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { onBeforeMount, onUnmounted } from "vue";
+import { onMounted } from "vue";
 
 // --- components
 import Layout from "../../../components/layout/Layout.vue";
@@ -21,7 +21,6 @@ import Layout from "../../../components/layout/Layout.vue";
 // --- internal
 import { useHeader } from "../../../components/header/useHeader";
 import { useFooter } from "../../../components/footer/useFooter";
-import { useLayout } from "../../../components/layout/useLayout";
 // --- types
 import { LAYOUT_VARIANTS } from "../../../components/layout/types";
 import type { SessionRoutes } from "../types";
@@ -36,11 +35,7 @@ defineOptions({
   inheritAttrs: false
 });
 
-useLayout({
-  variant: LAYOUT_VARIANTS.SPLIT_HORIZONTAL
-});
-
-onBeforeMount(() => {
+onMounted(() => {
   useHeader({
     visible: false
   });
@@ -48,11 +43,5 @@ onBeforeMount(() => {
   useFooter({
     visible: false
   });
-});
-
-onUnmounted(() => {
-  useHeader({});
-  useLayout({});
-  useFooter({});
 });
 </script>

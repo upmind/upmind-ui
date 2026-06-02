@@ -20,10 +20,10 @@ import {
   parseBasketProduct,
   parseBasketProductError
 } from "../basketProduct/utils";
+import { parseBasketProductModel } from "../product/utils";
 
 import {
   compact,
-  concat,
   defaultsDeep,
   find,
   forEach,
@@ -272,32 +272,26 @@ export const parseBasketFieldsModel = (basket: any, data = {}) => {
 
 /**
  * Detects whether products have changed between old and new basket states.
- * Compares product IDs (additions/removals) and sub-product IDs from
- * options and attributes (option/attribute changes).
- * Returns `true` when provision fields should be re-fetched.
+ * Two-stage check:
+ *   1. Cheap: compare sorted basket product IDs — bail if differ.
+ *   2. Deep: same IDs, compare canonical `ProductModel`s per product
+ *      (identity + config + provision values) and bail on the first diff.
+ * Returns `true` when provision data should be re-fetched/re-validated.
  */
 export function hasProductChanges(
   oldBasket: IBasket | undefined,
   newBasket: IBasket
 ): boolean {
-  const oldProductIds = map(oldBasket?.products, "id");
-  const newProductIds = map(newBasket?.products, "id");
+  const oldIds = sortBy(map(oldBasket?.products, "id"));
+  const newIds = sortBy(map(newBasket?.products, "id"));
+  if (!isEqual(oldIds, newIds)) return true;
 
-  // Product added or removed
-  if (!isEqual(sortBy(oldProductIds), sortBy(newProductIds))) return true;
-
-  // Check each product's options and attributes for changes
-  return some(newBasket.products, newProduct => {
+  return some(newBasket?.products, newProduct => {
     const oldProduct = find(oldBasket?.products, { id: newProduct.id });
-    if (!oldProduct) return true;
-
-    const oldSubProducts = compact(
-      map(concat(oldProduct.options, oldProduct.attributes), "product_id")
+    return !isEqual(
+      parseBasketProductModel(oldProduct!),
+      parseBasketProductModel(newProduct)
     );
-    const newSubProducts = compact(
-      map(concat(newProduct.options, newProduct.attributes), "product_id")
-    );
-    return !isEqual(sortBy(oldSubProducts), sortBy(newSubProducts));
   });
 }
 
