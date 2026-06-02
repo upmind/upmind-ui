@@ -103,14 +103,12 @@
 
 <script lang="ts" setup>
 // --- external
-import { ref, computed, defineAsyncComponent, onUnmounted } from "vue";
+import { ref, computed, defineAsyncComponent } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useBasket, useRoutingEngine } from "@upmind-automation/headless";
 import { useLayout } from "../../components/layout/useLayout";
-import { useHeader } from "../../components/header/useHeader";
-import { useFooter } from "../../components/footer/useFooter";
 import {
   useConfig,
   validateTemplate,
@@ -206,12 +204,6 @@ const { data: basketSummaryTemplate } = useClientTemplate({
 });
 
 set(ui.theme.value);
-
-onUnmounted(() => {
-  useHeader({});
-  useLayout({});
-  useFooter({});
-});
 
 // -----------------------------------------------------------------------------
 

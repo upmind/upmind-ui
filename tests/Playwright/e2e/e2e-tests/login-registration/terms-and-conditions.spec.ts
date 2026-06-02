@@ -18,6 +18,12 @@ test.describe("Terms and Conditions on Registration", () => {
     await waitForSessionCookie(context);
     token = await getSessionToken(context);
   });
+  // interceptTermsAndConditions registers a page.route whose handler does an
+  // async page.request.fetch(); without cleanup a short test can end while that
+  // fetch is in-flight, erroring as the context closes. Drain routes on teardown.
+  test.afterEach(async ({ page }) => {
+    await page.unrouteAll({ behavior: "ignoreErrors" });
+  });
   test("No terms and conditions set", async ({ page }) => {
     interceptTermsAndConditions(page, token, null, null, null, null);
     await page.goto(URLs.register);

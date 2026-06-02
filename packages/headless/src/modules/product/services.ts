@@ -235,6 +235,10 @@ async function parse(context: ProductConfigContext, { data }: AnyEventObject) {
   }
 
   const term = parseTerm(context, values?.term, values.quantity);
+  // Enforce the resolved term back onto the model: parseTerm falls an invalid /
+  // out-of-range cycle (e.g. a bad `?bcm=` param) back to the default, so the
+  // model can't keep a cycle the product doesn't offer (FE-2676).
+  values.term = term.term;
   lookups.prices.term = term.price;
 
   // NB:if terms have changed.....

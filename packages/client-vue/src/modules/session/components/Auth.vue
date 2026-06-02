@@ -41,6 +41,7 @@
           @update:model-value="setModel"
           :class="cn(styles.session.auth.form, meta.show2fa && 'mt-4')"
           :actions="meta.show2fa ? twoFactorActions : authActions"
+          :data-testid="`${currentForm}-form`"
         >
           <template v-if="currentForm === 'register'" #footer>
             <TermsAndConditions
@@ -61,6 +62,7 @@
             color="muted"
             :label="t('auth.forgot_password_qn')"
             size="lg"
+            data-testid="forgot-password-link"
           />
         </slot>
       </div>
