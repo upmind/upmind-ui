@@ -608,6 +608,13 @@ export default {
   guardBilling: async (context: FunnelContext): Promise<FunnelResponse> => {
     await ensureBidAuth(context, { name: ROUTE.BILLING });
 
+    // NB ensure basket is loaded before billing — billing relies on basket products to determine
+    await useBasket().isReady();
+    // Billing requires a basket with products
+    if (!guards.hasProducts()) {
+      return Promise.reject({ target: { name: ROUTE.BASKET } });
+    }
+
     // Skip billing when not authenticated — billing requires a client_id
     // to load. Checkout handles the auth redirect.
     const { meta: authMeta } = useSession();
@@ -627,13 +634,7 @@ export default {
       };
     }
 
-    // Load billing and check if it still needs input
-    const { products } = useBasket();
-    const {
-      isReady: isBillingReady,
-      meta: billingMeta,
-      model: billingModel
-    } = useBasketBilling();
+    const { isReady: isBillingReady, meta: billingMeta } = useBasketBilling();
     await isBillingReady();
 
     // If billing is not yet complete, try applying client defaults (address,

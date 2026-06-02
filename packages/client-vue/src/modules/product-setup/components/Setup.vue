@@ -66,34 +66,24 @@
 
       <template #content-header>
         <slot name="content-header">
-          <section :class="styles.header.root">
-            <div class="flex flex-col items-start gap-6">
-              <Badge variant="muted" icon="lock-01">
-                {{ t("text.fully_encrypted_title") }}
-              </Badge>
-              <Hero
-                :title="t('cart.product_setup_title')"
-                :ui-config="{
-                  hero: {
-                    title: [styles.header.heroTitle],
-                    description: [styles.header.heroDescription]
-                  }
-                }"
-              >
-                <template #subtitle>
-                  <p :class="styles.header.price">
-                    {{ t("cart.product_setup_desc") }}
-                  </p>
-                </template>
-              </Hero>
-              <Button
-                variant="outline"
-                icon="arrow-left"
-                :label="t('action.back_to_basket')"
-                @click="doReject"
-              />
-            </div>
-          </section>
+          <Hero
+            :title="t('cart.product_setup_title')"
+            :description="t('cart.product_setup_desc')"
+            :badge="{
+              label: t('text.fully_encrypted_title'),
+              icon: 'lock-04'
+            }"
+            :action="{
+              label: t('action.back_to_basket'),
+              icon: 'flip-backward',
+              color: 'primary',
+              variant: 'subtle',
+              size: 'lg',
+              disabled: isNavigating
+            }"
+            size="3xl"
+            @action="doReject"
+          />
         </slot>
       </template>
 
@@ -121,7 +111,7 @@
             type="submit"
             form="setup-form"
             :label="t('action.continue_label')"
-            :loading="setupMeta?.isProcessing"
+            :loading="setupMeta?.isProcessing || isNavigating"
             :disabled="
               productMeta?.isLoading ||
               productMeta?.isInvalid ||
@@ -148,6 +138,7 @@ import {
   useProductConfig,
   useProductSetup,
   useConfig,
+  useRoutingEngine,
   validateTemplate,
   DetailedError,
   responseCodes,
@@ -155,19 +146,12 @@ import {
 } from "@upmind-automation/headless";
 
 // --- components
-import {
-  Alert,
-  Badge,
-  Button,
-  Loading,
-  useStyles
-} from "@upmind-automation/upmind-ui";
+import { Alert, Button, Loading } from "@upmind-automation/upmind-ui";
 import Hero from "../../../components/hero/Hero.vue";
 import Section from "../../../components/section/Section.vue";
 import Form from "../../../components/form/Form.vue";
 import ApplyToOthers from "./ApplyToOthers.vue";
 import Transitions from "../../../components/layout/components/transition/Transition.vue";
-import productHeroConfig from "../../product/components/hero/product-hero.config";
 
 // --- templates
 const supportedTemplates = {
@@ -237,18 +221,6 @@ defineSlots<{
 
 const { t } = useI18n();
 
-// --- Styles (match ProductHero vertical direction like Edit page)
-const stylesMeta = computed(() => ({
-  direction: "vertical" as const,
-  hasImage: false
-}));
-
-const styles = useStyles(
-  ["header", "header.image"],
-  stylesMeta,
-  productHeroConfig
-);
-
 // --- Product Setup composable (singleton - shared with parent)
 const {
   configure,
@@ -260,6 +232,8 @@ const {
   similarProducts,
   total
 } = useProductSetup();
+
+const { isNavigating } = useRoutingEngine();
 
 const { service: basketProduct } = await configure(props.bpid);
 

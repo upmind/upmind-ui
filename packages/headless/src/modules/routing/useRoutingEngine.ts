@@ -1,5 +1,5 @@
 // --- external
-import { computed, ref, watch } from "vue";
+import { computed, effectScope, ref, watch } from "vue";
 import { interpret, InterpreterStatus } from "xstate";
 import { useActor } from "@xstate/vue";
 import { waitFor } from "xstate/lib/waitFor";
@@ -114,24 +114,28 @@ export const useRoutingEngine = () => {
     const targetName = isString(target) ? target : target?.name?.toString();
 
     return new Promise<boolean>(resolve => {
-      // `immediate: true` fires the callback synchronously during `watch()`,
-      // before a `const stop = watch(...)` assignment would complete — so
-      // calling `stop()` from that first run hits the TDZ. Declare with `let`
-      // and a noop seed so the synchronous fire is safe.
-      let stop: () => void = () => {};
-      stop = watch(
-        mountedRoute,
-        route => {
-          if (
-            route === targetName &&
-            contextValue<boolean>(funnel, "resolved")
-          ) {
-            stop();
-            resolve(true);
-          }
-        },
-        { immediate: true }
-      );
+      // A *detached* effectScope isolates this watcher from the caller's
+      // effectScope. Without `true`, the watcher inherits the active scope
+      // from whatever component synchronously triggered the navigation —
+      // and is disposed when that component unmounts (e.g. during the
+      // page transition this watcher is meant to detect), causing it to
+      // silently miss the mount notification.
+      const scope = effectScope(true);
+      scope.run(() => {
+        watch(
+          mountedRoute,
+          route => {
+            if (
+              route === targetName &&
+              contextValue<boolean>(funnel, "resolved")
+            ) {
+              scope.stop();
+              resolve(true);
+            }
+          },
+          { immediate: true }
+        );
+      });
     });
   }
 

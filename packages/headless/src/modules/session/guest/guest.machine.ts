@@ -22,6 +22,7 @@ import {
   useValidationParser,
   useCookies,
   mapToHeadlessError,
+  parseError,
   useTime
 } from "../../../utils";
 const { setTopLevel: setCookie } = useCookies();
@@ -128,7 +129,7 @@ export default createMachine(
                     },
                     {
                       target: "error",
-                      actions: ["setError", "setFeedbackError"]
+                      actions: ["setError"]
                     }
                   ]
                 }
@@ -173,16 +174,12 @@ export default createMachine(
                     },
                     {
                       target: "challenging.invalid",
-                      actions: [
-                        "setError",
-                        "setFeedbackError",
-                        "clear2faToken"
-                      ],
+                      actions: ["setError", "set2faError", "clear2faToken"],
                       cond: "isEmailTwofa"
                     },
                     {
                       target: "challenging.invalid",
-                      actions: ["setError", "setFeedbackError"]
+                      actions: ["setError", "set2faError"]
                     }
                   ]
                 }
@@ -220,7 +217,7 @@ export default createMachine(
                     },
                     {
                       target: "error",
-                      actions: ["setError", "setFeedbackError"]
+                      actions: ["setError"]
                     }
                   ]
                 }
@@ -257,7 +254,7 @@ export default createMachine(
                     },
                     {
                       target: "error",
-                      actions: ["setError", "setFeedbackError"]
+                      actions: ["setError"]
                     }
                   ]
                 }
@@ -284,7 +281,7 @@ export default createMachine(
                     },
                     {
                       target: "error",
-                      actions: ["setError", "setFeedbackError"]
+                      actions: ["setError"]
                     }
                   ]
                 }
@@ -329,16 +326,12 @@ export default createMachine(
                     },
                     {
                       target: "challenging.invalid",
-                      actions: [
-                        "setError",
-                        "setFeedbackError",
-                        "clear2faToken"
-                      ],
+                      actions: ["setError", "set2faError", "clear2faToken"],
                       cond: "isEmailTwofa"
                     },
                     {
                       target: "challenging.invalid",
-                      actions: ["setError", "setFeedbackError"]
+                      actions: ["setError", "set2faError"]
                     }
                   ]
                 }
@@ -388,7 +381,7 @@ export default createMachine(
                     },
                     {
                       target: "error",
-                      actions: ["setError", "setFeedbackError"]
+                      actions: ["setError"]
                     }
                   ]
                 }
@@ -495,7 +488,6 @@ export default createMachine(
         const { t } = useI18n();
         useFeedback().addSuccess(t("confirm.reset_instructions_sent_msg"));
       },
-
       setFeedbackError: ({ error }: GuestContext, _event: AnyEventObject) => {
         return;
         // DC: We have deprecated sending feedback for now...
@@ -507,6 +499,16 @@ export default createMachine(
         //   data: error?.data,
         // });
       },
+      // 2fa errors stay in `challenging.invalid`, so show the `token` field for inline form feedback.
+      set2faError: assign({
+        error: ({ error }: GuestContext) => {
+          if (!error?.message) return error;
+          return {
+            ...error,
+            data: parseError(error.message, "token")
+          };
+        }
+      }),
 
       pushRegister: (_context: GuestContext, _event: AnyEventObject) => {
         useDataLayer().dataLayer({ event: "sign_up" }).withUser().push(false);

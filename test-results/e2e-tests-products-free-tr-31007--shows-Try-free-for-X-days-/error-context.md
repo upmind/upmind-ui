@@ -1,0 +1,140 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e4]:
+    - generic [ref=e5]:
+      - generic [ref=e6]:
+        - banner [ref=e7]:
+          - generic [ref=e8]:
+            - link "logo header.title" [ref=e11] [cursor=pointer]:
+              - /url: /order/shop/
+              - generic [ref=e12]:
+                - img "logo" [ref=e13]
+                - generic [ref=e14]: header.title
+            - generic [ref=e16]:
+              - link [ref=e17] [cursor=pointer]:
+                - /url: /order/basket/
+                - img [ref=e19]:
+                  - img [ref=e20]
+              - generic [ref=e22] [cursor=pointer]:
+                - img "avatar" [ref=e23]
+                - generic [ref=e25]: M
+        - main [ref=e26]:
+          - generic [ref=e28]:
+            - generic [ref=e35]:
+              - navigation "breadcrumb" [ref=e36]:
+                - list [ref=e37]:
+                  - listitem [ref=e38]:
+                    - link "Shared Hosting" [ref=e39] [cursor=pointer]:
+                      - /url: /order/shop/?catid=5d085e69-d562-3719-794c-218e940d4237
+              - heading "Free Trials" [level=1] [ref=e40]:
+                - generic [ref=e41]: Free Trials
+            - main "Product listing" [ref=e47]:
+              - generic [ref=e48]:
+                - generic "Search products" [ref=e49]:
+                  - img "search-md icon" [ref=e50]:
+                    - img [ref=e51]
+                  - textbox "Search by product name..." [ref=e53]
+                - group [ref=e55]:
+                  - button [ref=e57] [cursor=pointer]:
+                    - img [ref=e59]:
+                      - img [ref=e60]
+                  - generic [ref=e62]:
+                    - combobox [ref=e63] [cursor=pointer]:
+                      - generic:
+                        - generic:
+                          - generic: Sort by default
+                      - img "chevron-down icon" [ref=e64]:
+                        - img [ref=e65]
+                    - combobox [ref=e67]
+              - generic [ref=e69]:
+                - listitem [ref=e70]:
+                  - generic [ref=e71]:
+                    - link [ref=e73] [cursor=pointer]:
+                      - /url: /order/product/3de78642-de53-9714-986f-21208469530d/?returnUrl=/order/shop/?catid=78985742-6489-7012-266a-21e325d0ed36&bcm=12
+                      - figure [ref=e74]:
+                        - img "camera-01 icon" [ref=e76]:
+                          - img [ref=e77]
+                    - generic [ref=e80]:
+                      - generic [ref=e81]:
+                        - generic [ref=e82]:
+                          - generic [ref=e83]:
+                            - generic [ref=e84]:
+                              - img "clock-stopwatch icon" [ref=e85]:
+                                - img [ref=e86]
+                              - generic [ref=e88]: Free Trial
+                            - generic [ref=e89]:
+                              - link "Trial Product (Optional)" [ref=e90] [cursor=pointer]:
+                                - /url: /order/product/3de78642-de53-9714-986f-21208469530d/?returnUrl=/order/shop/?catid=78985742-6489-7012-266a-21e325d0ed36&bcm=12
+                                - heading "Trial Product (Optional)" [level=3] [ref=e91]
+                              - paragraph [ref=e92]: From £0.83 a month
+                          - paragraph
+                        - generic [ref=e93]:
+                          - paragraph [ref=e94]:
+                            - strong [ref=e95]: £0.83
+                            - generic [ref=e96]: / month
+                          - generic [ref=e97]: For a 1-year term. Pay £10.00 today.
+                      - link "Try free for 7 days" [ref=e99] [cursor=pointer]:
+                        - /url: /order/product/3de78642-de53-9714-986f-21208469530d/?returnUrl=/order/shop/?catid=78985742-6489-7012-266a-21e325d0ed36&bcm=12&autoupdate=true
+                        - img [ref=e101]:
+                          - img [ref=e102]
+                        - generic [ref=e104]: Try free for 7 days
+                - listitem [ref=e105]:
+                  - generic [ref=e106]:
+                    - link [ref=e108] [cursor=pointer]:
+                      - /url: /order/product/78985742-6489-7012-7d8b-21e325d0ed36/?returnUrl=/order/shop/?catid=78985742-6489-7012-266a-21e325d0ed36&bcm=12
+                      - figure [ref=e109]:
+                        - img "camera-01 icon" [ref=e111]:
+                          - img [ref=e112]
+                    - generic [ref=e115]:
+                      - generic [ref=e116]:
+                        - generic [ref=e117]:
+                          - generic [ref=e118]:
+                            - generic [ref=e119]:
+                              - img "clock-stopwatch icon" [ref=e120]:
+                                - img [ref=e121]
+                              - generic [ref=e123]: Free Trial
+                            - generic [ref=e124]:
+                              - link "Trial Product (Forced)" [ref=e125] [cursor=pointer]:
+                                - /url: /order/product/78985742-6489-7012-7d8b-21e325d0ed36/?returnUrl=/order/shop/?catid=78985742-6489-7012-266a-21e325d0ed36&bcm=12
+                                - heading "Trial Product (Forced)" [level=3] [ref=e126]
+                              - paragraph [ref=e127]: From £0.83 a month
+                          - paragraph
+                        - generic [ref=e128]:
+                          - paragraph [ref=e129]:
+                            - strong [ref=e130]: £0.83
+                            - generic [ref=e131]: / month
+                          - generic [ref=e132]: For a 1-year term. Pay £10.00 today.
+                      - link "Try free for 7 days" [ref=e134] [cursor=pointer]:
+                        - /url: /order/product/78985742-6489-7012-7d8b-21e325d0ed36/?returnUrl=/order/shop/?catid=78985742-6489-7012-266a-21e325d0ed36&bcm=12
+                        - img [ref=e136]:
+                          - img [ref=e137]
+                        - generic [ref=e139]: Try free for 7 days
+      - contentinfo [ref=e140]:
+        - generic [ref=e143]:
+          - region "Language and currency preferences" [ref=e144]:
+            - button "GBP chevron-down icon" [ref=e146] [cursor=pointer]:
+              - img [ref=e148]:
+                - img [ref=e149]
+              - generic [ref=e166]: GBP
+              - img "chevron-down icon" [ref=e167]:
+                - img [ref=e168]
+          - generic [ref=e170]:
+            - generic [ref=e171]:
+              - img "Upmind logo" [ref=e172]
+              - generic [ref=e175]:
+                - text: Powered by
+                - link "Upmind" [ref=e176] [cursor=pointer]:
+                  - /url: https://upmind.com
+            - paragraph [ref=e177]: © 2026 QA Automation Testing. All rights reserved.
+    - generic:
+      - complementary
+      - region "Notifications alt+T":
+        - list
+  - generic [ref=e178]:
+    - generic "Toggle devtools panel" [ref=e179] [cursor=pointer]:
+      - img [ref=e180]
+    - generic "Toggle Component Inspector" [ref=e185] [cursor=pointer]:
+      - img [ref=e186]
+```
