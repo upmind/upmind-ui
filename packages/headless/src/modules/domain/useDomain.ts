@@ -18,7 +18,10 @@ import {
   get,
   isEmpty,
   filter,
-  includes
+  find,
+  first,
+  includes,
+  reject
 } from "lodash-es";
 import {
   stopService,
@@ -27,6 +30,7 @@ import {
   contextMatches,
   contextValue,
   DEBOUNCE_DELAY,
+  DOMAIN_LIKE_VALIDATION,
   useChildActor
 } from "../../utils";
 import {
@@ -34,10 +38,14 @@ import {
   sanitiseDomainInput,
   useDomainSearchMethod
 } from "./utils";
+import { parsePrice } from "../product/utils";
 
 // --- types
 import { DomainTypes, type DomainContext, type DomainProduct } from "./types";
 import { PAGINATION } from "../query";
+import type { IDomainAvailabilityResponse } from "@upmind-automation/types";
+
+export type DomainChoice = { value: DomainTypes; label: string };
 
 // -----------------------------------------------------------------------------
 
@@ -55,6 +63,7 @@ export const useDomain = (
   value: string,
   options: {
     type?: DomainTypes;
+    required?: boolean;
   } = {
     type: undefined
   }
@@ -79,6 +88,7 @@ export const useDomain = (
       // can pick between — when the parent forces a single type, narrow to
       // that one; otherwise let `setContext` fill all types as the default.
       choices: safeType ? [safeType] : [],
+      required: options?.required ?? true,
       model: parseDomain(value),
       preferredCycle: getParam(QUERY_PARAMS.BILLING_CYCLE_MONTHS),
       coupons: getParam(QUERY_PARAMS.COUPONS),
@@ -115,6 +125,20 @@ export const useDomain = (
   }
 
   const meta = computed(() => {
+    const domain = contextValue<DomainContext["model"]>(state, "model")?.domain;
+    const isInBasket =
+      !!domain &&
+      some(contextValue<DomainProduct[]>(state, "lookups.basket"), [
+        "domain",
+        domain
+      ]);
+    const isOwned =
+      !!domain &&
+      some(contextValue<DomainProduct[]>(state, "lookups.owned"), [
+        "domain",
+        domain
+      ]);
+
     return {
       isLoading: stateMatches(state, ["subscribing", "loading"]),
 
@@ -159,6 +183,10 @@ export const useDomain = (
         !!query.value,
       showExisting: stateMatches(state, ["existing"]),
       showBasket: stateMatches(state, ["basket"]),
+      showSummary:
+        (stateMatches(state, ["basket.valid"]) &&
+          contextMatches(state, "model")) ||
+        stateMatches(state, ["existing.valid", "existing.transferred"]),
       isValid:
         (stateMatches(dac, ["valid"]) && contextMatches(dac, "model")) ||
         (stateMatches(state, ["existing.valid", "basket.valid"]) &&
@@ -168,7 +196,37 @@ export const useDomain = (
           "dac.complete",
           "existing.complete",
           "basket.complete"
-        ]) && contextMatches(state, "model")
+        ]) && contextMatches(state, "model"),
+
+      // --- SmartDomainField canonical flags
+      isSkip: stateMatches(state, "skip"),
+      isExistingValidating: stateMatches(state, "existing.validating"),
+      isExistingChecked: stateMatches(state, "existing.checked"),
+      isExistingRegisterable: stateMatches(state, "existing.registerable"),
+      // True while registration is in-flight OR completed but not yet reflected in basket
+      isExistingPendingRegistration:
+        stateMatches(state, "existing.registering") ||
+        (stateMatches(state, "existing.valid") && !isInBasket && !isOwned),
+      // True while transfer is in-flight OR completed but not yet reflected in basket
+      isExistingPendingTransfer:
+        stateMatches(state, "existing.transferring") ||
+        (stateMatches(state, "existing.transferred") && !isInBasket),
+      isExistingTransferred:
+        stateMatches(state, "existing.transferred") && isInBasket,
+      isExistingRemoving: stateMatches(state, "existing.removing"),
+      isExistingUnavailable: stateMatches(state, "existing.unavailable"),
+      isExistingValid: stateMatches(state, "existing.valid") && isInBasket,
+      isExistingOwned: stateMatches(state, "existing.valid") && isOwned,
+      isExistingError: stateMatches(state, "existing.error"),
+      hasInfo:
+        stateMatches(state, "existing.checked") ||
+        stateMatches(state, "existing.registerable") ||
+        stateMatches(state, "existing.registering") ||
+        stateMatches(state, "existing.transferred") ||
+        stateMatches(state, "existing.transferring") ||
+        stateMatches(state, "existing.removing") ||
+        stateMatches(state, "existing.valid") ||
+        stateMatches(state, "existing.error")
     };
   });
 
@@ -176,11 +234,11 @@ export const useDomain = (
 
   const context = useContext<DomainContext>(state);
 
-  const choices = computed(() =>
-    map(
-      contextValue<DomainContext["choices"]>(state, "choices"),
-      (value, key) => ({ value: key, label: value })
-    )
+  const choices = computed((): DomainChoice[] =>
+    map(contextValue<DomainContext["choices"]>(state, "choices"), type => ({
+      value: type,
+      label: type
+    }))
   );
 
   const model = computed(
@@ -190,6 +248,16 @@ export const useDomain = (
   const type = useContext<DomainContext["type"]>(state, "type");
 
   const owned = useContext<DomainProduct[]>(state, "lookups.owned", []);
+
+  const filteredOwned = computed(() => {
+    const domain = model.value;
+    if (!domain || DOMAIN_LIKE_VALIDATION.test(domain)) return null;
+    const matches = reject(
+      filter(owned.value, item => includes(item.domain, domain)),
+      ["domain", domain]
+    );
+    return matches.length ? matches : null;
+  });
 
   const basket = useContext<DomainProduct[]>(state, "lookups.basket", []);
 
@@ -226,6 +294,12 @@ export const useDomain = (
 
   function choose(value?: string | DomainTypes): void {
     if (!value) return;
+
+    if (import.meta.env.DEV && typeof value === "number") {
+      console.error(
+        `[useDomain] choose() received a number (${value}) — expected a DomainTypes string. This likely means a consumer is passing choice.value from the old numeric-index format. Update to use the new DomainChoice shape.`
+      );
+    }
 
     send({
       type: "CHOOSE",
@@ -295,6 +369,68 @@ export const useDomain = (
     return model.value == value;
   }
 
+  // --- existing flow methods
+
+  const availability = useContext<IDomainAvailabilityResponse | undefined>(
+    state,
+    "availability"
+  );
+
+  const pricing = computed(() => {
+    const product = availability.value?.product;
+    if (product) {
+      const prices = product.prices ?? [];
+      const annual = find(prices, { billing_cycle_months: 12 });
+      const priceEntry = annual ?? first(prices);
+      if (priceEntry) {
+        return {
+          price: parsePrice(priceEntry).currentPrice,
+          cycle: priceEntry.billing_cycle_months
+        };
+      }
+    }
+    // Fallback: basket product pricing (on remount, availability
+    // is lost but the basket product has its own price data)
+    const domain = selected.value;
+    if (domain) {
+      const matched = find(basket.value, ["domain", domain]);
+      if (matched) {
+        return {
+          price: matched.price?.currentAmount
+            ? matched.price.currentPrice
+            : (matched.price?.regularPrice ?? ""),
+          cycle: matched.configuration?.term ?? matched.productDetails?.cycle
+        };
+      }
+    }
+    return null;
+  });
+
+  function addTransfer(): void {
+    send({ type: "ADD_TRANSFER" });
+  }
+
+  function addRegistration(): void {
+    send({ type: "ADD_REGISTRATION" });
+  }
+
+  function removeTransfer(): void {
+    send({ type: "REMOVE_TRANSFER" });
+  }
+
+  function clearExisting(): void {
+    send({ type: "UPDATE", data: [""] });
+  }
+
+  /** Re-enter editing from summary, auto-selecting basket or existing type. */
+  function change(): void {
+    if (some(basket.value, ["domain", model.value])) {
+      choose(DomainTypes.basket);
+    } else {
+      choose(DomainTypes.existing);
+    }
+  }
+
   // -----------------------------------------------------------------------------
   return {
     // --- state
@@ -357,6 +493,12 @@ export const useDomain = (
      * List of owned domains.
      */
     owned,
+
+    /**
+     * Owned domains filtered by the current model value.
+     * Excludes exact matches and returns null when domain-like.
+     */
+    filteredOwned,
 
     /**
      * List of domains in the basket.
@@ -452,6 +594,36 @@ export const useDomain = (
      * @returns {boolean} True if the value is selected, false otherwise.
      */
     isSelected,
+
+    // --- existing flow
+
+    /** Availability response for the current domain (transfer price, renewal info). */
+    availability,
+
+    /** Pricing derived from the availability result with basket fallback ({ price, cycle }). */
+    pricing,
+
+    /** Add a transfer product to the basket for the current domain. */
+    addTransfer,
+
+    /** Add a registration product to the basket for the current domain. */
+    addRegistration,
+
+    /** Remove the transfer product from the basket. */
+    removeTransfer,
+
+    /** Clear the existing domain input and reset to invalid state. */
+    clearExisting,
+
+    /** Re-enter editing from summary, auto-selecting basket type if the domain is in the basket. */
+    change,
+
+    /** Check if a string looks like a valid domain name. */
+    isDomainLike: computed(() =>
+      DOMAIN_LIKE_VALIDATION.test(
+        get(contextValue(state, "model"), "domain") ?? ""
+      )
+    ),
 
     /** Stop the domain service.
      * @returns {void}

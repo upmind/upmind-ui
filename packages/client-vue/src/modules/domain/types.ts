@@ -4,12 +4,12 @@
  * @description Type definitions for domain module components.
  */
 
-import type {
-  DomainModel,
-  DomainProduct,
+import {
   DomainTypes,
-  UseDac,
-  UseDomain
+  type DomainModel,
+  type DomainProduct,
+  type UseDac,
+  type UseDomain
 } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
@@ -116,4 +116,60 @@ export interface DomainCardMeta {
 export interface DomainCardSkeletonProps {
   active?: boolean;
   exactMatch?: boolean;
+}
+
+export interface SmartDomainFieldProps {
+  modelValue?: string | null;
+  disabled?: boolean;
+  required?: boolean;
+  errors?: string[];
+  touched?: boolean;
+}
+
+export interface SmartDomainSummaryProps {
+  domain: string;
+  disabled?: boolean;
+}
+
+export type SmartDomainExistingProps = {
+  modelValue: string | null;
+  owned?: DomainProduct[];
+  filteredOwned?: DomainProduct[] | null;
+  isDomainLike?: boolean;
+  disabled?: boolean;
+  validating?: boolean;
+  checked?: boolean;
+  registerable?: boolean;
+  registering?: boolean;
+  transferred?: boolean;
+  transferring?: boolean;
+  removing?: boolean;
+  unavailable?: boolean;
+  dnsOnly?: boolean;
+  transferPrice?: string;
+  registerPrice?: string;
+  cycle?: number;
+};
+
+export const SMART_DOMAIN_CHOICES_ORDER = [
+  DomainTypes.skip,
+  DomainTypes.register,
+  DomainTypes.existing,
+  DomainTypes.basket
+];
+
+export interface SmartDomainDrawerProps {
+  open: boolean;
+  query: string;
+  searchQuery?: string;
+  type?: DomainTypes;
+  added: UseDac["model"]["value"];
+  available: DomainProduct[];
+  offset: number;
+  resultCount: number;
+  searching: boolean;
+  processing: boolean;
+  loading: boolean;
+  valid: boolean;
+  empty: boolean;
 }

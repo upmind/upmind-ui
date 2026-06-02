@@ -1,6 +1,7 @@
 // --- external
 import type { ActorRef } from "xstate";
 import type {
+  IDomainAvailabilityResponse,
   IDomainSuggestionResultProduct,
   IProduct,
   TldsSortTypes
@@ -42,15 +43,16 @@ export interface DomainEnvelopeResponse<T> extends QueryResponse<T> {
  */
 export enum DomainTypes {
   /**
+   * Represents the flow where the user explicitly defers domain selection ("I'll decide later").
+   * Only available when the field is optional (`required === false`).
+   * Produces a `null` model value.
+   */
+  skip = "skip",
+  /**
    * Represents the flow for **registering a new domain name**.
    * Used when a customer wants to acquire an available domain.
    */
   register = "register",
-  /**
-   * Represents the flow for **transferring an existing domain name** from another registrar.
-   * Used when a customer wants to consolidate domain management under Upmind.
-   */
-  transfer = "transfer",
   /**
    * Represents the flow where a customer chooses to **use an existing domain name** they already own,
    * without transferring it. They will typically update nameservers manually.
@@ -64,12 +66,26 @@ export enum DomainTypes {
 }
 
 /**
+ * Enumeration defining the internal operation mode for the Domain Availability Checker (DAC).
+ * This is distinct from {@link DomainTypes} which represents user-facing choices.
+ *
+ * - `register`: runs suggestions + availability check (default search behaviour)
+ * - `transfer`: skips suggestions, runs availability check + owned domain lookup only
+ *
+ * @enum {string}
+ */
+export enum DomainMode {
+  register = "register",
+  transfer = "transfer"
+}
+
+/**
  * Minimal context shape needed to derive DAC tracking meta. Both
  * `DacContext` (child machine) and `DomainContext` (parent machine) satisfy
  * this, so the helper can be called from either.
  */
 export type DacEventContext = {
-  mode?: DomainTypes;
+  mode?: DomainMode;
   useSuggestions?: boolean;
   search?: { query?: string };
 };
@@ -95,6 +111,8 @@ export type DomainProduct = Product &
        * UI renders this on the disabled transfer action (e.g. "Unavailable").
        */
       transferLabel?: string;
+      /** `true` if this basket product was added as a domain transfer (vs registration). */
+      isTransfer?: boolean;
       /** `true` if the domain is fully unavailable (cannot register or transfer). */
       unavailable?: boolean;
       /** `true` once /availability has been called for this domain. */
@@ -154,7 +172,7 @@ export interface DacContext extends BasketHelperContext<DomainProduct> {
    * The domain flow mode: 'register' (default) runs suggestions + availability,
    * 'transfer' runs only checkAvailability.
    */
-  mode?: DomainTypes;
+  mode?: DomainMode;
   /**
    * The current {@link DomainModel} or array of models representing the selected domains.
    */
@@ -275,15 +293,21 @@ export interface DomainContext extends BasketHelperContext<DomainProduct> {
    * The currently active {@link DomainTypes} being managed.
    */
   type?: DomainTypes;
+  /**
+   * Whether the domain field is required. Defaults to `true`.
+   * When `false`, skip is available and selected by default.
+   */
+  required: boolean;
   // ---
   /**
    * The current {@link DomainModel} representing the selected domain.
+   * `null` when skip is selected (distinct from `undefined` = no value set).
    */
-  model?: DomainModel;
+  model?: DomainModel | null;
   /**
    * The base {@link DomainModel}, representing the initial state before user modifications.
    */
-  baseModel?: DomainModel;
+  baseModel?: DomainModel | null;
   // ---
   /**
    * Lookups for domain data, including searched, history, owned, and basket domains.
@@ -341,6 +365,31 @@ export interface DomainContext extends BasketHelperContext<DomainProduct> {
    * An `ActorRef` to a basket helper service.
    */
   basketHelper?: ActorRef<any>;
+
+  // --- existing flow (availability check + transfer)
+
+  /**
+   * The domain currently being availability-checked in the existing flow.
+   */
+  checkingDomain?: string;
+  /**
+   * Stored availability response for transfer price/renewal display
+   * and for building the basket product model in addExistingTransfer.
+   */
+  availability?: IDomainAvailabilityResponse;
+  /**
+   * The basket line item ID (bpid) of the added transfer product.
+   * Used by removeExistingTransfer for exact-ID removal.
+   */
+  transferProductId?: string;
+  /**
+   * Stores the new domain input while the `removing` state processes basket removal.
+   */
+  pendingUpdate?: string;
+  /**
+   * Stores the target type for a blocked type-switch while `removing` processes basket removal.
+   */
+  pendingChoose?: DomainTypes;
 
   /**
    * When `true`, the dac child actor uses the new `/suggestions` +

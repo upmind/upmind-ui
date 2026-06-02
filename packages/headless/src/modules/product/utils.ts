@@ -43,6 +43,7 @@ import {
   split,
   subtract,
   toNumber,
+  toString,
   trim,
   trimStart,
   uniq,
@@ -1733,7 +1734,7 @@ export function parseBillingCycle(months: number) {
         descriptive: t("term.n_months", months), // month
         monthly: t("term.n_months", months), // month
         suffix: t("term.n_mo", months), // mo
-        numeric: t("term.n_month", { n: months.toString() }) // 1-month
+        numeric: t("term.n_month", { n: toString(months) }) // 1-month
       };
     case 3:
       return {
@@ -1741,7 +1742,7 @@ export function parseBillingCycle(months: number) {
         descriptive: t("term.n_months", months), // 3 months
         monthly: t("term.n_months", months), // 3 months
         suffix: t("term.n_mo", months), // 3mo
-        numeric: t("term.n_month", { n: months.toString() }) // 3-month
+        numeric: t("term.n_month", { n: toString(months) }) // 3-month
       };
     case 6:
       return {
@@ -1749,7 +1750,7 @@ export function parseBillingCycle(months: number) {
         descriptive: t("term.n_months", months), // 6 months
         monthly: t("term.n_months", months), // 6 months
         suffix: t("term.n_mo", months), // 6mo
-        numeric: t("term.n_month", { n: months.toString() }) // 6-month
+        numeric: t("term.n_month", { n: toString(months) }) // 6-month
       };
     case 12:
       return {
@@ -1811,7 +1812,7 @@ export function parseBillingCycle(months: number) {
         descriptive: t("term.n_months", months), // {n} months
         monthly: t("term.n_months", months), // {n} months
         suffix: t("term.n_mo", months), // {n}mo
-        numeric: t("term.n_month", { n: months.toString() }) // {n}-month
+        numeric: t("term.n_month", { n: toString(months) }) // {n}-month
       };
   }
 }

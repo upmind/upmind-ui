@@ -12,11 +12,21 @@ import {
 } from "../..";
 
 // --- utils
-import { compact, isEmpty, keyBy, map, omitBy, reject } from "lodash-es";
+import {
+  compact,
+  filter,
+  first,
+  isEmpty,
+  keyBy,
+  map,
+  omitBy,
+  reject
+} from "lodash-es";
 import {
   applyDacTransferOverride,
   buildFallbackPricing,
   getDacTransferLabel,
+  getDomainRawBasketProducts,
   makePlaceholderProductDetails,
   parseAvailable,
   parseDomain,
@@ -25,6 +35,7 @@ import {
 } from "./utils";
 import { parsePromotionsOrCoupons } from "../basketProduct/utils";
 import { PAGINATION } from "../query";
+import productServices from "../basketProduct/services";
 import {
   calculateBillingTerm,
   parseProductDetails,
@@ -39,7 +50,7 @@ import type {
   DomainContext,
   DomainEnvelopeResponse
 } from "./types";
-import { DomainTypes } from "./types";
+import { DomainMode } from "./types";
 import type {
   IDomainAvailabilityResponse,
   IDomainSuggestionResult,
@@ -265,7 +276,7 @@ function search(context: DacContext) {
     cancel(["domains", "suggestions", "tlds"]);
 
     // --- TRANSFER mode: only checkAvailability, no suggestions
-    if (mode === DomainTypes.transfer) {
+    if (mode === DomainMode.transfer) {
       const domain = search.query;
       // `EXACT_MATCH_CHECK` / `EXACT_MATCH_RESULT` are tracking-only events
       // — the machine catches them and fires `upm.dac_exact_match_*`. We
@@ -628,7 +639,7 @@ async function checkAvailability({
   basketId,
   brandId,
   coupons
-}: DacContext) {
+}: Pick<DacContext, "checkingDomain" | "basketId" | "brandId" | "coupons">) {
   const { queryClient, request, useUrl } = useQuery();
 
   if (!checkingDomain)
@@ -681,30 +692,6 @@ async function checkAvailability({
       );
       return record as IDomainAvailabilityResponse;
     });
-}
-
-async function getClientDomains(_context: DomainContext | DacContext) {
-  const { get, useUrl } = useQuery();
-  const { meta } = useSession();
-  const { ensureBillingCycles } = useSystem();
-
-  // FE-1698: domain/dac flows downstream call parseProductProps, which
-  // depends on sync getBillingCycle(). The DAC machine's `loading` state
-  // gates `searching` on this service, so ensuring here covers all DAC
-  // entry paths. See system/docs/gotchas.md#1.
-  await ensureBillingCycles();
-
-  // bail early if not authenticated: no point fetching
-  if (!meta.value?.isAuthenticated) return [];
-
-  return get<any, (DomainModel | undefined)[]>({
-    url: useUrl("modules/web_hosting/domains/client_domains"),
-    queryKey: ["domains", "owned"],
-    select: data => map(data, ({ domain_name }) => parseDomain(domain_name)),
-    withAccessToken: true,
-    staleTime: 0,
-    gcTime: 0
-  });
 }
 
 // -----------------------------------------------------------------------------
@@ -797,9 +784,201 @@ function legacySearch(context: DacContext) {
 
 // -----------------------------------------------------------------------------
 
+async function getClientDomains(_context: DomainContext | DacContext) {
+  const { get, useUrl } = useQuery();
+  const { meta } = useSession();
+  const { ensureBillingCycles } = useSystem();
+
+  // FE-1698: domain/dac flows downstream call parseProductProps, which
+  // depends on sync getBillingCycle(). The DAC machine's `loading` state
+  // gates `searching` on this service, so ensuring here covers all DAC
+  // entry paths. See system/docs/gotchas.md#1.
+  await ensureBillingCycles();
+
+  // bail early if not authenticated: no point fetching
+  if (!meta.value?.isAuthenticated) return [];
+
+  return get<any, (DomainModel | undefined)[]>({
+    url: useUrl("modules/web_hosting/domains/client_domains"),
+    queryKey: ["domains", "owned"],
+    select: data => map(data, ({ domain_name }) => parseDomain(domain_name)),
+    withAccessToken: true,
+    staleTime: 0,
+    gcTime: 0
+  });
+}
+
+/**
+ * Adds a transfer product to the basket for the existing domain flow.
+ * Builds the product model from the availability result, then diffs
+ * pre/post basket state to extract the new basket product ID.
+ */
+async function addExistingTransfer(
+  context: DomainContext
+): Promise<{ bpid?: string }> {
+  const {
+    checkingDomain,
+    basketId,
+    availability,
+    coupons,
+    preferredCycle,
+    lookups
+  } = context;
+
+  if (!checkingDomain || !availability?.product)
+    return Promise.reject(
+      new DetailedError(
+        "No domain or availability data for transfer",
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless
+      )
+    );
+
+  const domainProduct = buildDomainProductFromAvailability(
+    checkingDomain,
+    availability,
+    preferredCycle
+  );
+
+  const model = domainProduct.configuration;
+
+  if (!model)
+    return Promise.reject(
+      new DetailedError(
+        "Product model not found for transfer domain",
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless
+      )
+    );
+
+  model.coupons ??= coupons ?? [];
+  model.silent = true;
+
+  // Read the current basket state from context without triggering a refresh
+  // to avoid a reactive cascade that could remount SmartDomainField.
+  const existingBpids = new Set(
+    map(
+      filter(lookups?.basket, p => p.domain === checkingDomain),
+      "id"
+    )
+  );
+
+  const updatedBasket = await productServices.update(basketId, model);
+
+  // Find domain products matching our domain that are NEW (not in the pre-existing set).
+  const updatedDomainProducts = getDomainRawBasketProducts(
+    updatedBasket.products
+  );
+  const candidates = filter(
+    updatedDomainProducts,
+    p => p.service_identifier === checkingDomain && !existingBpids.has(p.id)
+  );
+
+  if (candidates.length === 1) {
+    return { bpid: first(candidates)?.id };
+  }
+  if (candidates.length > 1) {
+    console.warn(
+      "[domain] addExistingTransfer: multiple new products found, cannot determine which was just added",
+      {
+        count: candidates.length,
+        domain: checkingDomain,
+        candidateIds: map(candidates, "id")
+      }
+    );
+    return Promise.reject(
+      new DetailedError(
+        "Multiple matching products found — cannot determine which was just added. Please try again.",
+        responseCodes.Conflict,
+        ErrorOrigin.Headless
+      )
+    );
+  }
+
+  // No new products found — extraction failed.
+  console.warn(
+    "[domain] addExistingTransfer: added product not found in basket response",
+    {
+      checkingDomain,
+      productCount: updatedBasket.products?.length,
+      existingBpidCount: existingBpids.size
+    }
+  );
+  return {};
+}
+
+/**
+ * Removes a transfer product from the basket.
+ * Requires an exact transferProductId — does NOT fall back to domain-name lookup.
+ */
+async function removeExistingTransfer(context: DomainContext): Promise<void> {
+  const { basketId, transferProductId } = context;
+
+  if (!transferProductId)
+    return Promise.reject(
+      new DetailedError(
+        "Transfer product ID missing — cannot identify which basket item to remove. Please refresh and try again.",
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless
+      )
+    );
+
+  await productServices.remove(basketId!, transferProductId!);
+}
+
+/**
+ * Adds a registration product to the basket for the existing domain flow.
+ * Used when a domain typed in the "existing" input turns out to be available
+ * for registration (can_register=true).
+ */
+async function addExistingRegistration(
+  context: DomainContext
+): Promise<{ domain: string }> {
+  const { checkingDomain, basketId, availability, coupons, preferredCycle } =
+    context;
+
+  if (!checkingDomain || !availability?.product)
+    return Promise.reject(
+      new DetailedError(
+        "No domain or availability data for registration",
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless
+      )
+    );
+
+  const domainProduct = buildDomainProductFromAvailability(
+    checkingDomain,
+    availability,
+    preferredCycle
+  );
+
+  const model = domainProduct.configuration;
+
+  if (!model)
+    return Promise.reject(
+      new DetailedError(
+        "Product model not found for registration domain",
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless
+      )
+    );
+
+  model.coupons ??= coupons ?? [];
+  model.silent = true;
+
+  await productServices.update(basketId, model);
+
+  return { domain: checkingDomain };
+}
+
+// -----------------------------------------------------------------------------
+
 export default {
   search,
   legacySearch,
   checkAvailability,
+  addExistingTransfer,
+  addExistingRegistration,
+  removeExistingTransfer,
   getClientDomains
 };
