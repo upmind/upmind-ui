@@ -23,6 +23,10 @@ e2e:allure:
       - tests/Playwright/e2e/reports/.allure-history/
     policy: pull-push
   before_script:
+    # The cart dev server (Playwright webServer) is served at qa-automation.local,
+    # the mapped tenant domain the API expects. Map it to loopback in-container so
+    # Playwright's readiness poll can reach vite (which binds localhost).
+    - echo "127.0.0.1 qa-automation.local" >> /etc/hosts
     - corepack enable
     - corepack prepare pnpm@10.33.0 --activate
     # Allure 3 CLI is installed as a project devDependency (no Java needed).
