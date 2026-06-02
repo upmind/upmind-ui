@@ -23,9 +23,9 @@
               @click="!props.disabled && onChoose(choice.value)"
             >
               <div :class="styles.field.indicator">
-                <RadioGroupItem :value="choice.value" />
+                <RadioGroupItem :id="choice.value" :value="choice.value" />
               </div>
-              <label :class="styles.field.label">
+              <label :for="choice.value" :class="styles.field.label">
                 {{ rt(tm(`domain.choices.${choice.value}`).label) }}
               </label>
             </div>
