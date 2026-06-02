@@ -193,7 +193,7 @@ const mappedChoices = computed(() => {
       `domain.choices.${choice.label}`
     );
     return {
-      value: choice.label,
+      value: choice.value,
       label: rt(translations?.label) || choice.label,
       item: choice,
       index,
