@@ -1,7 +1,7 @@
 // --- external
 import { isActor } from "xstate/lib/Actor";
 import { waitFor } from "xstate/lib/waitFor";
-import { computed } from "vue";
+import { computed, shallowRef } from "vue";
 
 // --- internal
 import basketProductServices from "../basketProduct/services";
@@ -50,10 +50,12 @@ export type UseBasketProductPending = ReturnType<
 // --- Singletons
 
 let productConfigs: Record<ProductProps["productId"], ProductModel> = {};
-let productsPending: Record<
-  ProductProps["productId"],
-  UseBasketProductPending
-> = {}; // store the product productsPending
+// Reactive registry of pending product machines, keyed by the model-hash id.
+// Presence of a machine for a given productId is the source of truth for
+// `meta.isProcessing(pid)` — no separate processing flag needed.
+const productsPending = shallowRef<
+  Record<ProductProps["productId"], UseBasketProductPending>
+>({});
 let subscriptions: Record<ProductProps["productId"], Subscription> = {}; // store subscriptions to changes on the product
 
 // -----------------------------------------------------------------------------
@@ -94,12 +96,15 @@ export const useBasketProductsPending = () => {
     const id = btoa(JSON.stringify(model)); // use the model as the basis for the id
 
     // if we have an item with the exact same configuration, then we can skip adding it
-    const productPending = find(productsPending, ["id", id]);
+    const productPending = find(productsPending.value, ["id", id]);
 
     if (productPending) return productPending; // its allready added, so we can skip it
 
     const instance = useBasketProductPending(model);
-    set(productsPending, instance.id, instance);
+    productsPending.value = {
+      ...productsPending.value,
+      [instance.id]: instance
+    };
     return instance;
   }
 
@@ -149,7 +154,7 @@ export const useBasketProductsPending = () => {
     await isReady();
 
     const product = find(
-      productsPending,
+      productsPending.value,
       ({ model, meta }) =>
         model.value?.productId === pid && !meta.value?.isComplete
     );
@@ -309,14 +314,14 @@ export const useBasketProductsPending = () => {
   }
 
   /**
-   * Removes a pending product configuration from the cache, storage, and any active subscriptions.
-   * Also stops the product's XState service if it's running.
+   * Tears down the pending product's actor: unsubscribes, stops the service,
+   * and removes it from `productsPending`.
    *
    * @param pid - The product ID to unset.
    */
   function unsetProduct(pid: ProductProps["productId"]) {
     const product = find(
-      productsPending,
+      productsPending.value,
       ({ model }) => model.value?.productId === pid
     ) as UseBasketProductPending;
     // ensure we unsubscribe from the item if it exists
@@ -328,7 +333,7 @@ export const useBasketProductsPending = () => {
     // stop the product if it exists and remove it from the pending products
     if (product?.service) {
       stopService(product.service);
-      unset(productsPending, product.id);
+      productsPending.value = omit(productsPending.value, product.id);
     }
   }
 
@@ -342,7 +347,7 @@ export const useBasketProductsPending = () => {
   function resolve(target?: ProductProps["productId"] | ActorRef<any>) {
     const pid = isString(target)
       ? target
-      : get(productsPending, target!.id)?.model?.value?.productId;
+      : get(productsPending.value, target!.id)?.model?.value?.productId;
 
     if (pid) {
       unsetProduct(pid);
@@ -352,8 +357,8 @@ export const useBasketProductsPending = () => {
     }
 
     // NB ensure any complete products are removed from the pending products
-    productsPending = omitBy(
-      productsPending,
+    productsPending.value = omitBy(
+      productsPending.value,
       ({ meta }) => meta.value?.isComplete
     );
   }
@@ -393,9 +398,20 @@ export const useBasketProductsPending = () => {
     /**
      * Meta-information about the pending products state.
      * @property {boolean} hasProducts - `true` if there are any pending products.
+     * @property {function(pid?: string): boolean} isProcessing - A function that returns `true` if any pending product (or a specific `pid`) is currently being added/updated to the basket.
+     * @property {function(pid?: string): boolean} isInBasket - A function that returns `true` if the given `pid` is currently in the basket (or, with no `pid`, if the basket has any products).
      */
     meta: computed(() => ({
-      hasProducts: !isEmpty(products.value)
+      hasProducts: !isEmpty(products.value),
+      isProcessing: (pid?: ProductProps["productId"]) =>
+        pid
+          ? !!find(
+              productsPending.value,
+              ({ model }) => model.value?.productId === pid
+            )
+          : !isEmpty(productsPending.value),
+      isInBasket: (pid?: ProductProps["productId"]) =>
+        pid ? !!productExists({ productId: pid }) : !isEmpty(products.value)
     })),
 
     /**
@@ -450,7 +466,7 @@ export const useBasketProductsPending = () => {
     products,
 
     /**
-     * The reactive record of all pending product configurations, keyed by product ID.
+     * Reactive record of all pending product machines, keyed by model-hash id.
      */
     productsPending,
 

@@ -53,7 +53,11 @@
     "test:all-browsers": "pnpm playwright test /e2e-tests",
     "test:ui": "pnpm playwright test --ui",
     "visreg:chrome": "pnpm playwright test /visual-regression --project=chrome",
-    "outdated": "pnpm outdated -r"
+    "outdated": "pnpm outdated -r",
+    "graph": "bash .agent/scripts/graphify/refresh.sh",
+    "graph:check": "bash .agent/scripts/graphify/refresh.sh --check",
+    "graph:open": "open graphify-out/graph.html",
+    "graph:open:modules": "open graphify-out/graph-modules.html"
   },
   "devDependencies": {
     "@faker-js/faker": "^9.9.0",

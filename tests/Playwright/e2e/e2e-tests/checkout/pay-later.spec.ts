@@ -24,7 +24,6 @@ test.describe("Checkout with Pay Later", () => {
   });
   test("Pay with Offline payment", async ({ page, context }) => {
     await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
-    await page.waitForLoadState("domcontentloaded");
     await checkout.selectPaymentMethod("Pay Later");
     await checkout.completeCheckout.click();
     await expect(page.getByText("Order confirmed")).toBeVisible();

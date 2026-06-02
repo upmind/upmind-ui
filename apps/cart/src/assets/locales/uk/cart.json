@@ -23,7 +23,7 @@
   "basket_summary_desc_free": "У вас є {count} товар у вашому кошику. | У вас є {count} товари у вашому кошику.",
   "basket_summary_taxes_desc": "У вас є{count} товар у вашому кошику, на загальну суму{total} ({tax} ) | У вас є{count} товари у вашому кошику, на загальну суму{total} ({tax} )",
   "basket_tax_excl": "без податків",
-  "basket_tax_incl": "incl. taxes",
+  "basket_tax_incl": "вкл. податки",
   "basket_title": "Ваш кошик",
   "change_amount": "Змінити суму",
   "empty": "Ваш **кошик** порожній",
@@ -67,5 +67,6 @@
   "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}",
   "show_more_payment_options": "Показати більше варіантів оплати",
   "stored_payment_methods_limited_desc": "Не всі способи оплати відображаються, оскільки вони недоступні для вашої країни або валюти.",
-  "stored_payment_methods_limited_title": "Обмежені способи оплати"
+  "stored_payment_methods_limited_title": "Обмежені способи оплати",
+  "warning_notes_title": "Попередження про кошик | Попередження про кошик"
 }

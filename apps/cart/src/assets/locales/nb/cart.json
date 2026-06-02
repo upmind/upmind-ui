@@ -23,7 +23,7 @@
   "basket_summary_desc_free": "Du har {count} vare i handlekurven din. | Du har {count} varer i handlekurven din.",
   "basket_summary_taxes_desc": "Du har{count} vare i handlekurven din, totalt{total} ({tax} ) | Du har{count} varer i handlekurven din, totalt{total} ({tax} )",
   "basket_tax_excl": "ekskl. avgifter",
-  "basket_tax_incl": "incl. taxes",
+  "basket_tax_incl": "inkl. avgifter",
   "basket_title": "Handlekurven din",
   "change_amount": "Endre beløp",
   "empty": "**Handlekurven** din er tom",
@@ -67,5 +67,6 @@
   "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}",
   "show_more_payment_options": "Vis flere betalingsalternativer",
   "stored_payment_methods_limited_desc": "Ikke alle betalingsmetoder er synlige fordi de ikke er tilgjengelige for ditt land eller din valuta.",
-  "stored_payment_methods_limited_title": "Begrensede betalingsmetoder"
+  "stored_payment_methods_limited_title": "Begrensede betalingsmetoder",
+  "warning_notes_title": "Handlekurvadvarsel | Handlekurvadvarsler"
 }

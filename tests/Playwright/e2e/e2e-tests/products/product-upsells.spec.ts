@@ -38,55 +38,45 @@ test.describe("Product Upsells in Basket @upsells", () => {
     await waitForSessionCookie(context);
   });
 
-  test.describe("Display — per-option gate (Layer 3)", () => {
-    test("1.1 Upsell toggles render when optionUpsellEnabled=true", async ({
+  test.describe("Display — per-option gate", () => {
+    test("Upsell options render when optionUpsellEnabled=true", async ({
       page,
       context
     }) => {
       interceptBasketUpsells(context, { optionUpsellEnabled: true });
       await seedStarterHosting(context);
       await page.goto(URLs.basket);
-
       await expect(basket.basketProductSummary).toBeVisible();
       const firstUpsell = basket.basketProductUpsell.first();
       await expect(firstUpsell).toBeVisible();
-      await expect(firstUpsell.getByRole("switch")).toBeVisible();
+      await expect(basket.upsellAddButton(firstUpsell)).toBeVisible();
     });
-
-    test("1.2 No upsell toggles render when optionUpsellEnabled=false (default)", async ({
+    test("No upsell options render when optionUpsellEnabled=false (default)", async ({
       page,
       context
     }) => {
-      // Forces Layer 3 false on every option so the assertion does not depend
-      // on whichever options the live catalog already enables.
       interceptBasketUpsells(context, { optionUpsellEnabled: false });
       await seedStarterHosting(context);
       await page.goto(URLs.basket);
-
       await expect(basket.basketProductSummary).toBeVisible();
       await expect(basket.basketProductUpsell).toHaveCount(0);
     });
   });
-
-  test.describe("Display — container-level gate (Layer 2)", () => {
-    test("2.1 Entire upsell section hidden when ui.optionUpsells is hidden", async ({
+  test.describe("Display — container-level gate", () => {
+    test("Entire upsell section hidden when ui.optionUpsells is hidden", async ({
       page,
       context
     }) => {
-      // Layer 3 is open here — Layer 2 alone should still suppress the
-      // section, proving the container gate sits above the per-option gate.
       interceptUISchema(context, {
         "@context.basket.optionUpsells": "hidden"
       });
       interceptBasketUpsells(context, { optionUpsellEnabled: true });
       await seedStarterHosting(context);
       await page.goto(URLs.basket);
-
       await expect(basket.basketProductSummary).toBeVisible();
       await expect(basket.basketProductUpsell).toHaveCount(0);
     });
-
-    test("2.2 Upsell section visible when ui.optionUpsells is explicitly visible", async ({
+    test("Upsell section visible when ui.optionUpsells is explicitly visible", async ({
       page,
       context
     }) => {
@@ -96,14 +86,12 @@ test.describe("Product Upsells in Basket @upsells", () => {
       interceptBasketUpsells(context, { optionUpsellEnabled: true });
       await seedStarterHosting(context);
       await page.goto(URLs.basket);
-
       await expect(basket.basketProductSummary).toBeVisible();
       await expect(basket.basketProductUpsell.first()).toBeVisible();
     });
   });
-
   test.describe("Benefits", () => {
-    test("3.1 Benefits list renders below the upsell toggle", async ({
+    test("Benefits list renders below the upsell", async ({
       page,
       context
     }) => {
@@ -118,21 +106,17 @@ test.describe("Product Upsells in Basket @upsells", () => {
       });
       await seedStarterHosting(context);
       await page.goto(URLs.basket);
-
       const firstUpsell = basket.basketProductUpsell.first();
       await expect(firstUpsell).toBeVisible();
-
       const title = await basket.upsellTitle(firstUpsell).innerText();
       await expect(basket.upsellBenefits(title)).toBeVisible();
-
       const benefitItems = basket.upsellBenefitItems(title);
       await expect(benefitItems).toHaveCount(benefits.length);
       for (const benefit of benefits) {
         await expect(benefitItems.filter({ hasText: benefit })).toBeVisible();
       }
     });
-
-    test("3.2 Benefits list is absent when optionBenefits is empty", async ({
+    test("Benefits list is absent when optionBenefits is empty", async ({
       page,
       context
     }) => {
@@ -142,15 +126,12 @@ test.describe("Product Upsells in Basket @upsells", () => {
       });
       await seedStarterHosting(context);
       await page.goto(URLs.basket);
-
       const firstUpsell = basket.basketProductUpsell.first();
       await expect(firstUpsell).toBeVisible();
-
       const title = await basket.upsellTitle(firstUpsell).innerText();
       await expect(basket.upsellBenefits(title)).toHaveCount(0);
     });
-
-    test("3.3 Benefits accept structured entries with custom icons", async ({
+    test("Benefits accept structured entries with custom icons", async ({
       page,
       context
     }) => {
@@ -164,10 +145,8 @@ test.describe("Product Upsells in Basket @upsells", () => {
       });
       await seedStarterHosting(context);
       await page.goto(URLs.basket);
-
       const firstUpsell = basket.basketProductUpsell.first();
       await expect(firstUpsell).toBeVisible();
-
       const title = await basket.upsellTitle(firstUpsell).innerText();
       const benefitItems = basket.upsellBenefitItems(title);
       await expect(benefitItems).toHaveCount(benefits.length);
@@ -178,69 +157,57 @@ test.describe("Product Upsells in Basket @upsells", () => {
       }
     });
   });
-
   test.describe("Multiple upsells", () => {
-    test("4.1 Multiple eligible options render as separate upsell rows", async ({
+    test("Multiple eligible options render as separate upsell rows", async ({
       page,
       context
     }) => {
       interceptBasketUpsells(context, { optionUpsellEnabled: true });
       await seedStarterHosting(context);
       await page.goto(URLs.basket);
-
       await expect(basket.basketProductUpsell.first()).toBeVisible();
       const count = await basket.basketProductUpsell.count();
       expect(count).toBeGreaterThanOrEqual(2);
-      await expect(basket.basketProductUpsell.getByRole("switch")).toHaveCount(
-        count
-      );
+      // Each upsell renders an "Add option" button by default (none are
+      // pre-selected), so the action-button count must match the row count.
+      await expect(
+        basket.basketProductUpsell.getByTestId("button-add-option")
+      ).toHaveCount(count);
     });
   });
-
-  test.describe("Interaction — toggling", () => {
+  test.describe("Interaction", () => {
     test.beforeEach(async ({ page, context }) => {
       interceptBasketUpsells(context, { optionUpsellEnabled: true });
       await seedStarterHosting(context);
       await page.goto(URLs.basket);
     });
-
-    test("5.1 Toggling an upsell on flips the switch state and patches the basket", async ({
+    test("Adding an upsell swaps the action button and patches the basket", async ({
       page
     }) => {
-      const toggle = basket.basketProductUpsell.first().getByRole("switch");
-
-      await expect(toggle).toBeVisible();
-      await expect(toggle).toHaveAttribute("aria-checked", "false");
-
+      const firstUpsell = basket.basketProductUpsell.first();
+      const addButton = basket.upsellAddButton(firstUpsell);
+      const addedButton = basket.upsellAddedButton(firstUpsell);
+      await expect(addButton).toBeVisible();
+      await expect(addedButton).toHaveCount(0);
       const updateRequest = page.waitForRequest(
         req =>
           /\/api\/(orders|basket)\/[^/]+\/products\/[^/?]+/.test(req.url()) &&
           ["PATCH", "PUT", "POST"].includes(req.method())
       );
-
-      await toggle.click();
-
+      await addButton.click();
       await updateRequest;
-      await expect(toggle).toHaveAttribute("aria-checked", "true");
+      await expect(addedButton).toBeVisible();
+      await expect(addButton).toHaveCount(0);
     });
-
-    test("5.2 Toggling a selected upsell off flips the switch back to unchecked", async () => {
-      const toggle = basket.basketProductUpsell.first().getByRole("switch");
-
-      await expect(toggle).toHaveAttribute("aria-checked", "false");
-      await toggle.click();
-      await expect(toggle).toHaveAttribute("aria-checked", "true");
-      await toggle.click();
-      await expect(toggle).toHaveAttribute("aria-checked", "false");
-    });
-
-    test("5.3 Clicking the upsell title is equivalent to clicking the switch", async () => {
+    test("Removing a selected upsell swaps the action button back to Add option", async () => {
       const firstUpsell = basket.basketProductUpsell.first();
-      const toggle = firstUpsell.getByRole("switch");
-
-      await expect(toggle).toHaveAttribute("aria-checked", "false");
-      await basket.upsellTitle(firstUpsell).click();
-      await expect(toggle).toHaveAttribute("aria-checked", "true");
+      const addButton = basket.upsellAddButton(firstUpsell);
+      const addedButton = basket.upsellAddedButton(firstUpsell);
+      await expect(addButton).toBeVisible();
+      await addButton.click();
+      await expect(addedButton).toBeVisible();
+      await addedButton.click();
+      await expect(addButton).toBeVisible();
     });
   });
 });

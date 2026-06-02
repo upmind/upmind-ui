@@ -23,7 +23,7 @@
   "basket_summary_desc_free": "Você tem {count} item em seu carrinho. | Você tem {count} itens em seu carrinho.",
   "basket_summary_taxes_desc": "Você tem{count} item em seu carrinho, totalizando{total} ({tax} ) | Você tem{count} itens em seu carrinho, totalizando{total} ({tax} )",
   "basket_tax_excl": "sem impostos",
-  "basket_tax_incl": "incl. taxes",
+  "basket_tax_incl": "incl. impostos",
   "basket_title": "O seu carrinho",
   "change_amount": "Alterar quantia",
   "empty": "O seu **carrinho** está vazio",
@@ -67,5 +67,6 @@
   "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}",
   "show_more_payment_options": "Mostrar mais opções de pagamento",
   "stored_payment_methods_limited_desc": "Nem todos os métodos de pagamento estão visíveis porque não estão disponíveis para o seu país ou moeda.",
-  "stored_payment_methods_limited_title": "Métodos de Pagamento Limitados"
+  "stored_payment_methods_limited_title": "Métodos de Pagamento Limitados",
+  "warning_notes_title": "Aviso sobre o carrinho | Avisos sobre o carrinho"
 }

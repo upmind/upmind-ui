@@ -10,6 +10,7 @@
   "email_set_default": "E-Mail erfolgreich als Standard festgelegt",
   "email_verification_sent": "E-Mail-Bestätigung erfolgreich versendet",
   "in_basket": "Im Warenkorb",
+  "in_basket_msg": "Befindet sich bereits in Ihrem Warenkorb – klicken Sie hier, um einen weiteren Artikel hinzuzufügen.",
   "in_use": "Im Einsatz",
   "phone_removed": "Telefon erfolgreich entfernt",
   "phone_set_default": "Telefon erfolgreich als Standard festgelegt",
