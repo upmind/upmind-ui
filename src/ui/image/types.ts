@@ -17,8 +17,15 @@ export type ImageProps = {
   icon?: IconProps["icon"];
   alt?: ImgHTMLAttributes["alt"];
   fallback?: boolean;
+  /** When true, render an expand button that opens a lightbox preview. */
+  expandable?: boolean;
   // ---
   class?: ImgHTMLAttributes["class"];
+};
+
+export type ImagePreviewProps = {
+  image: ImageItem;
+  open: boolean;
 };
 
 export type ImageItem = {

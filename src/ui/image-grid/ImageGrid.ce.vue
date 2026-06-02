@@ -1,74 +1,58 @@
 <template>
   <div :class="styles.imageGrid.container">
-    <!-- Preview image -->
-    <figure
-      :class="cn(styles.imageGrid.preview, props.class)"
-      :style="meta.hasFallback ? fallbackStyle : ''"
-      @click="openLightbox"
-    >
-      <img
-        v-if="!meta.isEmpty"
-        :src="activeImage?.url"
-        :alt="activeImage?.alt"
-        :class="styles.imageGrid.previewImage"
-        @error="error = true"
-      />
-
-      <!-- Hover overlay with expand icon -->
-      <div v-if="!meta.isEmpty" :class="styles.imageGrid.overlay">
-        <Icon
-          icon="expand-01"
-          size="lg"
-          :class="styles.imageGrid.overlayIcon"
-        />
-      </div>
-
-      <!-- Fallback icon -->
-      <div v-if="meta.hasFallback" :class="cn(styles.imageGrid.previewImage)">
-        <Icon :icon="props.icon" size="lg" :class="styles.imageGrid.icon" />
-      </div>
-    </figure>
+    <Image
+      :index="activeIndex"
+      @update:index="moveTo"
+      v-model:expanded="previewOpen"
+      expandable
+      mode="carousel"
+      :image="images"
+      :ratio="props.ratio"
+      :fit="props.fit"
+      :position="props.position"
+      :icon="props.icon"
+      :fallback="props.fallback"
+      :class="props.class"
+    />
 
     <!-- Thumbnail carousel -->
     <Carousel
       v-if="images.length > 1"
       v-resize-observer="setThumbnailsActive"
       :key="`thumbnails-${thumbnailsActive}`"
+      :class="styles.imageGrid.thumbnails.root"
+      tabindex="-1"
       @init-api="setThumbnailApi"
       :opts="{
         loop: false,
         dragFree: true,
-        watchDrag: thumbnailsActive
+        watchDrag: thumbnailsActive,
+        inViewThreshold: 1
       }"
     >
-      <CarouselContent :class="styles.imageGrid.thumbnails" overflow>
+      <CarouselContent :class="styles.imageGrid.thumbnails.content" overflow>
         <CarouselItem
           v-for="(img, index) in images"
           :key="img.url || index"
-          :class="styles.imageGrid.thumbnailItem"
+          :class="styles.imageGrid.thumbnails.item"
         >
           <button
+            ref="thumbnailRefs"
             :class="thumbnailClass(index === activeIndex)"
+            :tabindex="index === activeIndex ? 0 : -1"
             @click="selectImage(index)"
+            @keydown="onThumbnailKey($event, index)"
             type="button"
           >
             <img
               :src="img.url"
               :alt="img.alt"
-              :class="styles.imageGrid.thumbnailImage"
+              :class="styles.imageGrid.thumbnails.image"
             />
           </button>
         </CarouselItem>
       </CarouselContent>
     </Carousel>
-
-    <!-- Lightbox -->
-    <ImagePreview
-      v-if="activeImage"
-      :image="activeImage"
-      :open="lightboxOpen"
-      @update:open="lightboxOpen = $event"
-    />
   </div>
 </template>
 
@@ -80,11 +64,10 @@ import { vResizeObserver } from "@vueuse/components";
 import config, { thumbnailVariant } from "./imageGrid.config";
 // --- components
 import { Carousel, CarouselContent, CarouselItem } from "../carousel";
-import { Icon } from "../icon";
-import ImagePreview from "./ImagePreview.vue";
+import { Image } from "../image";
 // --- utils
-import { useStyles, cn, getComputedColor } from "../../utils";
-import { isEmpty, isArray } from "lodash-es";
+import { useStyles, useArrowNavigation } from "../../utils";
+import { isArray, includes } from "lodash-es";
 // --- types
 import type { ImageGridProps } from "./types";
 import type { ImageItem } from "../image/types";
@@ -102,37 +85,32 @@ const props = withDefaults(defineProps<ImageGridProps>(), {
 
 // --- state
 const activeIndex = ref(0);
-const lightboxOpen = ref(false);
-const error = ref(false);
+const previewOpen = ref(false);
 
 const images = computed<ImageItem[]>(() =>
   isArray(props.image) ? props.image : []
 );
 
-const activeImage = computed(() => images.value[activeIndex.value]);
-
-const meta = computed(() => ({
-  ratio: props.ratio,
-  fit: props.fit,
-  position: props.position,
-  isEmpty: isEmpty(props.image) || error.value,
-  hasFallback: props.fallback && (isEmpty(props.image) || error.value)
-}));
-
-const styles = useStyles(["imageGrid"], meta, config);
-
-const fallbackStyle = computed(() => {
-  const color = getComputedColor("accent-neutral");
-  return `background: radial-gradient(${color} 2px, transparent 2px) 50% 50% / 20px 20px repeat;`;
-});
+const styles = useStyles(
+  ["imageGrid", "imageGrid.thumbnails"],
+  computed(() => ({})),
+  config
+);
 
 // --- thumbnail carousel overflow detection
 const thumbnailsActive = ref(false);
 const thumbnailApi = ref<CarouselApi>();
+const thumbnailRefs = ref<HTMLButtonElement[]>([]);
 
 function setThumbnailApi(api: CarouselApi) {
   thumbnailApi.value = api;
 }
+
+const { onKey: onThumbnailKey } = useArrowNavigation({
+  refs: thumbnailRefs,
+  count: () => images.value.length,
+  onSelect: moveTo
+});
 
 function setThumbnailsActive() {
   thumbnailsActive.value =
@@ -142,14 +120,26 @@ function setThumbnailsActive() {
 
 // --- actions
 function selectImage(index: number) {
+  // Thumbnail click — set the active image without scrolling the grid
   activeIndex.value = index;
-  startAutoplay();
+  // Give the user time to look at their pick before autoplay advances again
+  startAutoplay(props.autoplay * 3);
 }
 
-function openLightbox() {
-  if (!meta.value.isEmpty) {
-    lightboxOpen.value = true;
-  }
+function moveTo(index: number) {
+  // Preview swipe / autoplay — set the active image and follow it in the grid
+  const prev = activeIndex.value;
+  if (index === prev) return;
+  activeIndex.value = index;
+
+  const api = thumbnailApi.value;
+  // Skip when the new active is already fully in view (inViewThreshold: 1)
+  if (!api || includes(api.slidesInView(), index)) return;
+  // Multi-step jump (e.g. autoplay wrapping back to 0) — center the target
+  const step = index - prev;
+  if (Math.abs(step) > 1) return api.scrollTo(index);
+  // Single step — shift by one slot so the new slide enters at the edge
+  step > 0 ? api.scrollNext() : api.scrollPrev();
 }
 
 function thumbnailClass(isActive: boolean) {
@@ -161,32 +151,32 @@ watch(
   () => props.image,
   () => {
     activeIndex.value = 0;
-    error.value = false;
   }
 );
 
 // --- autoplay
-let autoplayTimer: ReturnType<typeof setInterval> | undefined;
+let autoplayTimer: ReturnType<typeof setTimeout> | undefined;
 
-function startAutoplay() {
+function startAutoplay(firstDelay = props.autoplay) {
   stopAutoplay();
   if (!props.autoplay || images.value.length <= 1) return;
-  autoplayTimer = setInterval(() => {
-    activeIndex.value = (activeIndex.value + 1) % images.value.length;
-  }, props.autoplay * 1000);
+  autoplayTimer = setTimeout(() => {
+    moveTo((activeIndex.value + 1) % images.value.length);
+    startAutoplay();
+  }, firstDelay * 1000);
 }
 
 function stopAutoplay() {
   if (autoplayTimer) {
-    clearInterval(autoplayTimer);
+    clearTimeout(autoplayTimer);
     autoplayTimer = undefined;
   }
 }
 
 watch(
-  [() => props.autoplay, images, lightboxOpen],
+  [() => props.autoplay, images, previewOpen],
   () => {
-    if (lightboxOpen.value) {
+    if (previewOpen.value) {
       stopAutoplay();
     } else {
       startAutoplay();
