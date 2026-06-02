@@ -16,18 +16,19 @@ import type { ResponseError } from "../../utils";
 // -----------------------------------------------------------------------------
 
 /**
- * Domain-specific envelope returned by `/suggestions/tlds` and
- * `/availability/{domain}`. Extends the generic `QueryResponse` with the
- * sideloaded `related.products` map (product_id → `IProduct`) that those
- * endpoints surface alongside the primary payload.
- *
- * `QueryResponse` no longer carries `related` — it's not a universal field,
- * so domain callers extend it locally and read it off the raw envelope via
- * `useQuery().request(...)`.
+ * Domain-specific envelope returned by `/suggestions`, `/suggestions/tlds`
+ * and `/availability/{domain}`. Narrows the loosely-typed `related` and
+ * `meta` on the generic `QueryResponse` to the concrete shapes those
+ * endpoints surface — `related.products` (product_id → `IProduct`) and
+ * `meta.total_pages` — so domain callers read them off the raw envelope
+ * via `useQuery().request(...)` without `as` casts.
  */
 export interface DomainEnvelopeResponse<T> extends QueryResponse<T> {
   related?: {
     products?: Record<string, IProduct>;
+  } | null;
+  meta?: {
+    total_pages?: number;
   } | null;
 }
 

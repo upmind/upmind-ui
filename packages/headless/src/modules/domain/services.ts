@@ -392,7 +392,7 @@ function search(context: DacContext) {
     let pending = tld ? 3 : 2; // suggestions + tlds (+ availability if tld)
 
     const promocodes = parsePromotionsOrCoupons(coupons).join();
-    const { get: getData, queryClient, request, useUrl } = useQuery();
+    const { queryClient, request, useUrl } = useQuery();
 
     const buildResult = () => {
       let data: DomainProduct[] = parseSuggestions(
@@ -469,33 +469,42 @@ function search(context: DacContext) {
     };
 
     // --- /suggestions call (lightweight rows: domain, sld, tld, product_id)
-    getData<any, any>({
-      url: useUrl(
-        `modules/web_hosting/domains/suggestions`,
-        omitBy(
-          {
-            query: sld,
-            // `useUrl` bracket-serialises arrays (tlds[]=com&tlds[]=net),
-            // so pass the array directly rather than joining ourselves.
-            tlds,
-            tlds_page: page,
-            tlds_sort_by: tldsSort,
-            limit,
-            basket_id: basketId,
-            brand_id: brandId,
-            promotions: promocodes
-          },
-          isEmptyParam
-        )
-      ),
-      queryKey: ["domains", "suggestions", sld, page],
-      withAccessToken: true,
-      withCurrency: true,
-      select: (results, meta) => ({
-        data: (results ?? []) as IDomainSuggestionResult[],
-        totalPages: (meta?.total_pages as number) ?? 1
+    //
+    // Uses `request` directly (rather than `get`) so the raw envelope —
+    // including the domain-shaped `meta.total_pages` — is reachable
+    // locally. `QueryResponse.meta` is loosely typed (`Record<string, any>`);
+    // the domain envelope extension (`DomainEnvelopeResponse`) narrows it.
+    queryClient
+      .fetchQuery<DomainEnvelopeResponse<IDomainSuggestionResult[]>>({
+        queryKey: ["domains", "suggestions", sld, page],
+        queryFn: () =>
+          request<IDomainSuggestionResult[]>({
+            url: useUrl(
+              `modules/web_hosting/domains/suggestions`,
+              omitBy(
+                {
+                  query: sld,
+                  // `useUrl` bracket-serialises arrays (tlds[]=com&tlds[]=net),
+                  // so pass the array directly rather than joining ourselves.
+                  tlds,
+                  tlds_page: page,
+                  tlds_sort_by: tldsSort,
+                  limit,
+                  basket_id: basketId,
+                  brand_id: brandId,
+                  promotions: promocodes
+                },
+                isEmptyParam
+              )
+            ),
+            withAccessToken: true,
+            withCurrency: true
+          }) as Promise<DomainEnvelopeResponse<IDomainSuggestionResult[]>>
       })
-    })
+      .then(envelope => ({
+        data: envelope.data ?? [],
+        totalPages: envelope.meta?.total_pages ?? 1
+      }))
       .then(({ data, totalPages }) => {
         suggestionsList = data;
         suggestionsTotalPages = totalPages;
@@ -532,8 +541,8 @@ function search(context: DacContext) {
     //
     // Uses `request` directly (rather than `get`) so the raw envelope —
     // including the sideloaded `related.products` map — is available.
-    // `QueryResponse` deliberately no longer types `related`; the domain
-    // envelope extension (`DomainEnvelopeResponse`) covers it locally.
+    // `QueryResponse.related` is loosely typed (`Record<string, any>`); the
+    // domain envelope extension (`DomainEnvelopeResponse`) narrows it.
     queryClient
       .fetchQuery<DomainEnvelopeResponse<IProduct[]>>({
         queryKey: ["domains", "suggestions", "tlds", sld, page],
