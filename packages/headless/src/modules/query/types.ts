@@ -93,6 +93,11 @@ export interface QueryResponse<TData = unknown> {
    */
   messages: string[] | null;
   /**
+   * Optional sideloaded resources included alongside the main data, e.g.
+   * `related.products` keyed by product_id on the domain-suggestions endpoint.
+   */
+  related?: Record<string, any> | null;
+  /**
    * Optional metadata included alongside the main data, e.g. `total_pages`, `tlds`.
    */
   meta?: Record<string, any> | null;
@@ -168,20 +173,19 @@ export type RequestParams = QueryProps & {
 /**
  * `select` transform invoked by `useQuery` after a successful request.
  *
- * Widens TanStack Query's single-arg `select` so callers can read `meta`
- * (pagination totals, page count, etc.) off the envelope alongside the
- * primary `data` payload — `useQuery` forwards both from
- * {@link QueryResponse} on each call.
- *
- * Sideloaded resources (e.g. `related`) are intentionally NOT exposed here
- * — those are endpoint-specific. Callers that need them should bypass
- * `select` and read the raw {@link QueryResponse} via `request` directly.
+ * Widens TanStack Query's single-arg `select` so callers can read both
+ * sideloaded `related` resources (e.g. the `related.products` map keyed by
+ * product_id on the domain-suggestions endpoint) and `meta` (pagination
+ * totals, page count, etc.) off the envelope alongside the primary `data`
+ * payload — `useQuery` forwards all three from {@link QueryResponse} on
+ * each call.
  *
  * @template TQueryFnData - The raw payload type returned by the request.
  * @template TData - The shape returned by the transform.
  */
 export type SelectFn<TQueryFnData = unknown, TData = TQueryFnData> = (
   data: TQueryFnData,
+  related?: QueryResponse["related"],
   meta?: Record<string, any> | null
 ) => TData;
 
@@ -202,8 +206,13 @@ export type QueryParams<
 > = RequestParams &
   Omit<
     QueryObserverOptions<TQueryFnData, DefaultError, TData>,
-    "queryFn" | "initialData"
+    "queryFn" | "initialData" | "select"
   > & {
+    /**
+     * Optional transform applied to the raw API data before it reaches
+     * consumers. See {@link SelectFn} — receives the main data payload,
+     * optional `related` sideloaded resources, and optional response meta.
+     */
     select?: SelectFn<TQueryFnData, TData>;
   };
 

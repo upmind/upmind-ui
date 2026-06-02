@@ -49,7 +49,7 @@ import {
   type DomainModel,
   type DacContext,
   type DomainProduct,
-  DomainTypes
+  DomainMode
 } from "./types";
 import type { ProductProps } from "../product";
 import { parseBasketProduct } from "../basketProduct/utils";
@@ -967,12 +967,27 @@ export default createMachine(
             }
           );
 
+          // Persisted rows: any history entry that matches a domain still in
+          // the model (selected) — keeps a selected domain visible across a
+          // fresh search even if /suggestions doesn't return it.
+          const persisted = filter(lookups.history, ({ domain }) =>
+            some(model, ["domain", domain])
+          );
+
           // Merge by domain. See `mergeDomainSearchResults` for the rules
-          // and the three upstream scenarios that drive them.
+          // and the three upstream scenarios that drive them. Prepend
+          // `persisted` so the merged result keeps any selected-but-not-in-
+          // search domains visible; `uniqBy` drops duplicates if the same
+          // domain also appears in the fresh merge.
           set(
             lookups,
             "searched",
-            mergeDomainSearchResults(previous, available)
+            uniqBy(
+              compact(
+                concat(persisted, mergeDomainSearchResults(previous, available))
+              ),
+              "domain"
+            )
           );
 
           // store all previous searches
@@ -1374,7 +1389,7 @@ export default createMachine(
         // sanitised yet (e.g. `?search=.fggg.com`). Sanitise before
         // validating so the load → searching transition fires on refresh.
         const query = sanitiseDomainInput(search?.query ?? "");
-        if (mode === DomainTypes.transfer) {
+        if (mode === DomainMode.transfer) {
           return !isEmpty(parseDomain(query));
         }
         const sld = parseSld(query);
@@ -1382,7 +1397,7 @@ export default createMachine(
       },
       validSearchQuery: ({ mode }: DacContext, { data }: AnyEventObject) => {
         const sanitised = sanitiseDomainInput(data ?? "");
-        if (mode === DomainTypes.transfer) {
+        if (mode === DomainMode.transfer) {
           return !isEmpty(parseDomain(sanitised));
         }
         const sld = parseSld(sanitised);
@@ -1485,6 +1500,9 @@ export default createMachine(
       wait: () => useTime().WAIT
     },
 
-    services
+    services: {
+      search: services.search,
+      getClientDomains: services.getClientDomains
+    }
   }
 );

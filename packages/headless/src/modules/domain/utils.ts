@@ -7,15 +7,16 @@ import type { Ref } from "vue";
 // --- internals
 import { useBrand } from "../brand";
 import { useLocale } from "../system";
-import { calculateBillingTerm, parseProductProps } from "../product/utils";
+import {
+  calculateBillingTerm,
+  fillRequiredOptionDefaults,
+  parseProductDetails,
+  parseProductProps,
+  parseTermDetails
+} from "../product/utils";
 import services from "./services";
 
 // --- utils
-import {
-  fillRequiredOptionDefaults,
-  parseProductDetails,
-  parseTermDetails
-} from "../product/utils";
 import {
   compact,
   filter,
@@ -23,10 +24,12 @@ import {
   first,
   get,
   has,
+  includes,
   isEmpty,
   isFunction,
   isObject,
   map,
+  some,
   sortBy,
   uniqBy
 } from "lodash-es";
@@ -44,6 +47,7 @@ import {
 } from "@upmind-automation/types";
 import type { BasketProduct } from "../basketProduct";
 import {
+  DomainMode,
   DomainTypes,
   type DacContext,
   type DacEventContext,
@@ -653,7 +657,7 @@ export function getDomainRawBasketProducts(
 export function resolveWidgetMode(
   context: DacEventContext
 ): "suggest" | "search" | "transfer" | null {
-  if (context.mode === DomainTypes.transfer) return "transfer";
+  if (context.mode === DomainMode.transfer) return "transfer";
   if (context.useSuggestions === true) return "suggest";
   if (context.useSuggestions === false) return "search";
   return null;
@@ -735,4 +739,61 @@ export function domainAvailabilityHelper(callback: any, onReceiveEvent: any) {
   };
 
   onReceiveEvent(onReceive);
+}
+
+// ----------------------------------------------------------------------------
+
+/**
+ * Checks whether a product object indicates a domain transfer
+ * by inspecting its name, code, or domain_operation_code fields.
+ *
+ * @param product - A raw product or catalog option object.
+ * @returns `true` if the product is identified as a transfer product.
+ */
+export function hasTransferIndicator(product: any): boolean {
+  if (!product) return false;
+  const name = (product.name ?? "").toLowerCase();
+  const code = (product.code ?? "").toLowerCase();
+  const opCode = (product.domain_operation_code ?? "").toLowerCase();
+  return (
+    name.includes("transfer") ||
+    code.includes("transfer") ||
+    opCode === "transfer"
+  );
+}
+
+/**
+ * Determines whether a raw basket product represents a domain transfer.
+ *
+ * Uses a tiered approach:
+ * 1. Match option product IDs against typed `setup_function_sub_ids.transfer`.
+ * 2. Check option sideloaded products for transfer indicators.
+ * 3. Match against catalog `products_options` for transfer indicators.
+ *
+ * @param raw - A raw basket product from the API.
+ * @returns `true` if the basket product is a domain transfer.
+ */
+export function isBasketTransfer(raw: IBasketProduct): boolean {
+  const transferSubIds =
+    (raw.product as IDomainSuggestionResultProduct | undefined)
+      ?.setup_function_sub_ids?.transfer ?? [];
+
+  if (
+    transferSubIds.length > 0 &&
+    some(raw.options, (opt: any) => includes(transferSubIds, opt.product_id))
+  ) {
+    return true;
+  }
+
+  if (some(raw.options, (opt: any) => hasTransferIndicator(opt.product))) {
+    return true;
+  }
+
+  const catalogOptions = raw.product?.products_options ?? [];
+  return some(
+    catalogOptions,
+    (catOpt: any) =>
+      some(raw.options, (opt: any) => opt.product_id === catOpt.id) &&
+      hasTransferIndicator(catOpt)
+  );
 }

@@ -20,7 +20,7 @@ import {
 } from "../../utils";
 
 // --- types
-import { type DomainContext, type DomainProduct, DomainTypes } from "./types";
+import { type DomainContext, type DomainProduct, DomainMode } from "./types";
 import { PAGINATION } from "../query";
 
 // -----------------------------------------------------------------------------
@@ -34,7 +34,7 @@ import { PAGINATION } from "../query";
  * @param options.mode - The domain operation mode (register or transfer). Defaults to register.
  * @returns Domain management API (state, computed, and methods)
  */
-export const useDac = (options?: { mode?: DomainTypes; limit?: number }) => {
+export const useDac = (options?: { mode?: DomainMode; limit?: number }) => {
   const { t } = useI18n();
   const { getParam, getParams, setParam, unsetParam } = useQueryParams();
 
@@ -43,7 +43,7 @@ export const useDac = (options?: { mode?: DomainTypes; limit?: number }) => {
 
   const service = interpret(
     dacMachine.withContext({
-      mode: options?.mode ?? DomainTypes.register,
+      mode: options?.mode ?? DomainMode.register,
       useSuggestions,
       preferredCycle: getParam(QUERY_PARAMS.BILLING_CYCLE_MONTHS),
       coupons: getParams(QUERY_PARAMS.COUPONS),
