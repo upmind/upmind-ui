@@ -38,9 +38,6 @@ import {
 
 // --- components
 import Setup from "./components/Setup.vue";
-import { useHeader } from "../../components/header/useHeader";
-import { useFooter } from "../../components/footer/useFooter";
-import { useLayout } from "../../components/layout/useLayout";
 
 // --- types
 import type { ProductSetupProps } from "./types";
@@ -91,8 +88,6 @@ function onReject() {
 
 // --- side Effects
 onUnmounted(() => {
-  (reset(), useHeader({}));
-  useLayout({});
-  useFooter({});
+  reset();
 });
 </script>

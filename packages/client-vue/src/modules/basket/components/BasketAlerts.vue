@@ -51,6 +51,7 @@
       icon="alert-triangle"
       :title="t('cart.warning_notes_title', warningNotes.length)"
       :action="{ label: t('action.dismiss_all') }"
+      data-testid="basket-warnings"
       @click="dismissAllWarnings"
     >
       <template #description>
