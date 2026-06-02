@@ -13,6 +13,7 @@ export * from "./paymentDetails";
 export * from "./product";
 export * from "./productCatalogue";
 export * from "./productCategories";
+export * from "./productSetup";
 export * from "./query";
 export * from "./recommendations";
 export * from "./routing";

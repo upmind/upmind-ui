@@ -11,11 +11,11 @@ import {
   compact,
   concat,
   first,
+  forEach,
   get,
   includes,
   isArray,
   isEmpty,
-  isEqual,
   isFunction,
   reduce,
   set,
@@ -27,6 +27,43 @@ import {
 import { QUERY_PARAMS } from "@upmind-automation/types";
 import type { ProductProps } from "../product";
 import type { RouteLocation } from "vue-router";
+
+// -----------------------------------------------------------------------------
+
+/**
+ * Module-level batch queue for `unsetParam` deletions.
+ * Multiple `consumeParam`/`unsetParam` calls within the same synchronous tick
+ * (e.g. inside XState's scheduler loop) are coalesced into a single
+ * `history.replaceState` via `queueMicrotask`, preventing Safari's
+ * 100-calls-per-10-seconds SecurityError.
+ */
+const pendingDeletions = new Set<string>();
+let flushScheduled = false;
+
+function flushParamDeletions(): void {
+  flushScheduled = false;
+  if (pendingDeletions.size === 0) return;
+
+  const url = new URL(window.location.href);
+  const original = url.toString();
+
+  forEach([...pendingDeletions], type => {
+    url.searchParams.delete(type);
+  });
+  pendingDeletions.clear();
+
+  if (url.toString() !== original) {
+    history.replaceState(history.state, "", url);
+  }
+}
+
+function scheduleParamDeletion(type: string): void {
+  pendingDeletions.add(type);
+  if (!flushScheduled) {
+    flushScheduled = true;
+    queueMicrotask(flushParamDeletions);
+  }
+}
 
 // -----------------------------------------------------------------------------
 
@@ -102,11 +139,8 @@ export const useQueryParams = (route?: RouteLocation) => {
 
   function unsetParam(type: string) {
     const url = new URL(window.location.toString());
-    const cleanedUrl = new URL(window.location?.href);
-    cleanedUrl.searchParams.delete(type);
-
-    if (!isEqual(cleanedUrl.searchParams, url.searchParams)) {
-      history.replaceState(history.state, "", cleanedUrl);
+    if (url.searchParams.has(type)) {
+      scheduleParamDeletion(type);
     }
   }
 

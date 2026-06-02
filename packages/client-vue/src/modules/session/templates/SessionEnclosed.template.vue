@@ -1,5 +1,5 @@
 <template>
-  <Layout>
+  <Layout :variant="LAYOUT_VARIANTS.SPLIT_VERTICAL">
     <template #content-header>
       <slot name="hero" />
     </template>
@@ -12,12 +12,11 @@
 
 <script lang="ts" setup>
 // --- external
-import { onBeforeMount, onUnmounted } from "vue";
+import { onMounted } from "vue";
 
 // --- internal
 import { useFooter } from "../../../components/footer/useFooter";
 import { useHeader } from "../../../components/header/useHeader";
-import { useLayout } from "../../../components/layout/useLayout";
 import { useSection } from "../../../components/section/useSection";
 
 // --- components
@@ -37,11 +36,7 @@ defineOptions({
   inheritAttrs: false
 });
 
-useLayout({
-  variant: LAYOUT_VARIANTS.SPLIT_VERTICAL
-});
-
-onBeforeMount(() => {
+onMounted(() => {
   useHeader({
     background: HEADER_BACKGROUND.SURFACE,
     border: "none",
@@ -63,11 +58,5 @@ onBeforeMount(() => {
     noCurrency: true,
     noCopyright: true
   });
-});
-
-onUnmounted(() => {
-  useHeader({});
-  useLayout({});
-  useFooter({});
 });
 </script>

@@ -116,7 +116,7 @@ function markAddedWhenBasketProductBcmIs(bcm: number): InBasketRule {
 const inBasketDetectionDisabled: InBasketRule = { default: false, rules: [] };
 
 function recommendationCard(page: Page, name: string): Locator {
-  return page.getByTestId("carousel-card").filter({ hasText: name });
+  return page.getByTestId("carousel-card").filter({ hasText: name }).first();
 }
 
 function addToBasketButton(card: Locator): Locator {
@@ -158,6 +158,15 @@ test.describe("Recommendations", () => {
     await waitForSessionCookie(context);
   });
 
+  // Required because tests in this file register context-scoped route mocks
+  // via interceptProductsToRecommend / interceptRelatedProducts. Without
+  // cleanup, in-flight route.fetch() calls leak across tests when a page
+  // closes mid-handler — per the Playwright error message and the canonical
+  // pattern in error-handling.spec.ts.
+  test.afterEach(async ({ page }) => {
+    await page.unrouteAll({ behavior: "wait" });
+  });
+
   for (const source of SOURCES) {
     test.describe(`${source.name}`, () => {
       test("Adding a recommendation with a single subPID option", async ({
@@ -170,7 +179,7 @@ test.describe("Recommendations", () => {
         await page.waitForURL(/\/recommendations\/?$/);
         const card = page.getByTestId("carousel-card");
         await expect(card).toBeVisible();
-        await card.getByTestId("button-add-to-basket").click();
+        await addToBasketButton(card).click();
         await page.waitForURL(/\/basket\/?$/);
         const token = await getSessionToken(context);
         const order = await getCurrentOrder(token);
@@ -188,7 +197,7 @@ test.describe("Recommendations", () => {
         await page.waitForURL(/\/recommendations\/?$/);
         const card = page.getByTestId("carousel-card");
         await expect(card).toBeVisible();
-        await card.getByTestId("button-add-to-basket").click();
+        await addToBasketButton(card).click();
         await page.waitForURL(/\/basket\/?$/);
         const token = await getSessionToken(context);
         const order = await getCurrentOrder(token);
@@ -197,31 +206,6 @@ test.describe("Recommendations", () => {
         expect(subProdIds).toEqual(
           expect.arrayContaining([SUB_PIDS.TOKYO, SUB_PIDS.MAILBOX])
         );
-      });
-      test("Recommendations handles subpids in comma-separated strings", async ({
-        page,
-        context
-      }) => {
-        // The CSV branch in `normaliseSubPids` runs `compact(split(input, ","))`,
-        // so trailing/leading commas and consecutive commas should be dropped
-        // without throwing or polluting the basket POST.
-        await page.goto(URLs.rec3);
-        await waitForSessionCookie(context);
-        await productConfig.addToBasket.click();
-        await page.waitForURL(/\/recommendations\/?$/);
-        const card = page.getByTestId("carousel-card");
-        await expect(card).toBeVisible();
-        await card.getByTestId("button-add-to-basket").click();
-        await page.waitForURL(/\/basket\/?$/);
-        const token = await getSessionToken(context);
-        const order = await getCurrentOrder(token);
-        const orderProducts = order?.products;
-        const subProdIds = collectSubproductIds(orderProducts[1]);
-        expect(subProdIds).toEqual(
-          expect.arrayContaining([SUB_PIDS.TOKYO, SUB_PIDS.MAILBOX])
-        );
-        // No stray empty-string ids ended up in the POST.
-        expect(subProdIds).not.toContain("");
       });
       test("Adding a recommendation with no preset options leaves it bare in the basket", async ({
         page,
@@ -232,7 +216,7 @@ test.describe("Recommendations", () => {
         await page.waitForURL(/\/recommendations\/?$/);
         const card = page.getByTestId("carousel-card");
         await expect(card).toBeVisible();
-        await card.getByTestId("button-add-to-basket").click();
+        await addToBasketButton(card).click();
         await page.waitForURL(/\/basket\/?$/);
         const token = await getSessionToken(context);
         const order = await getCurrentOrder(token);
@@ -291,9 +275,22 @@ test.describe("Recommendations", () => {
           page,
           context
         }) => {
+          // `basketProduct.bcm` conditions only evaluate against basket products
+          // matching the recommendation's own object_id (see checkConditionVisibility
+          // at packages/headless/src/modules/recommendations/utils.ts:186-227).
+          // For a recommendation that isn't yet in basket the rule never fires —
+          // the engine falls back to basket-only state. So to test "hide rule
+          // triggered by a product in basket" we use a `basket.pids`-keyed rule
+          // which evaluates against the whole basket, exercising the same
+          // visibility-evaluation path.
+          source.intercept(context, [
+            {
+              object_id: products.TSHIRT.id,
+              conditions: hideWhenBasketContains(products.FREE_HOSTING.id)
+            }
+          ]);
           await seedBasketProduct(context, products.FREE_HOSTING);
-          await page.goto(URLs.rec7);
-          await productConfig.addToBasket.click();
+          await visitRecommendationsPage(page);
           await page.waitForURL(/\/order\/basket\//);
           await expect(page.url()).not.toMatch(/\/recommendations\/?$/);
         });

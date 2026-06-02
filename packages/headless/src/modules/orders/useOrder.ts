@@ -87,10 +87,9 @@ export const useOrder = (invoiceId: string) => {
         paidAmount === 0 &&
         unpaidAmount > 0,
       isPending: isAvailable && hasPendingPayment,
-      isProcessing: stateMatches(state, [
-        "available.paying",
-        "available.refreshing"
-      ]),
+      isProcessing:
+        stateMatches(state, ["available.paying", "available.refreshing"]) ||
+        machineMatches(paymentDetailActor, ["processing", "finalising"]),
       needsApproval: machineMatches(payment, ["challenging"]),
       isRenderingChallenge: machineMatches(payment, ["challenging.render"]),
       isUnavailable: stateMatches(state, ["unavailable"])

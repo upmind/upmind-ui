@@ -1,5 +1,5 @@
 <template>
-  <Layout>
+  <Layout :variant="LAYOUT_VARIANTS.TWO_COLUMN_RTL">
     <template #content-header>
       <slot name="hero" />
     </template>
@@ -16,7 +16,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { onUnmounted, onBeforeMount } from "vue";
+import { onMounted } from "vue";
 
 // --- components
 import Layout from "../../../components/layout/Layout.vue";
@@ -24,7 +24,6 @@ import Layout from "../../../components/layout/Layout.vue";
 // --- internal
 import { useFooter } from "../../../components/footer/useFooter";
 import { useHeader } from "../../../components/header/useHeader";
-import { useLayout } from "../../../components/layout/useLayout";
 
 // --- types
 import { HEADER_BACKGROUND } from "../../../components/header/types";
@@ -45,12 +44,8 @@ defineOptions({
   inheritAttrs: false
 });
 
-useLayout({
-  variant: LAYOUT_VARIANTS.TWO_COLUMN_RTL
-});
-
 // --- methods
-onBeforeMount(() => {
+onMounted(() => {
   useHeader({
     background: HEADER_BACKGROUND.RTL,
     border: "none",
@@ -66,11 +61,5 @@ onBeforeMount(() => {
     reverse: true,
     noCurrency: true
   });
-});
-
-onUnmounted(() => {
-  useHeader({});
-  useLayout({});
-  useFooter({});
 });
 </script>

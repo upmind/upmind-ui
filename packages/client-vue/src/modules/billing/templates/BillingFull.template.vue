@@ -1,5 +1,5 @@
 <template>
-  <Layout>
+  <Layout :variant="LAYOUT_VARIANTS.FULL">
     <template #content-header>
       <slot name="hero" />
     </template>
@@ -19,7 +19,6 @@
 import { onMounted } from "vue";
 
 // --- internal
-import { useLayout } from "../../../components/layout/useLayout";
 import { useFooter } from "../../../components/footer/useFooter";
 import { useHeader } from "../../../components/header/useHeader";
 
@@ -31,10 +30,6 @@ import { LAYOUT_VARIANTS } from "../../../components/layout/types";
 
 defineOptions({
   inheritAttrs: false
-});
-
-useLayout({
-  variant: LAYOUT_VARIANTS.FULL
 });
 
 onMounted(() => {
