@@ -192,11 +192,8 @@ export const useDomain = (
         (stateMatches(state, ["existing.valid", "basket.valid"]) &&
           contextMatches(state, "model")),
       showSelected:
-        stateMatches(state, [
-          "dac.complete",
-          "existing.complete",
-          "basket.complete"
-        ]) && contextMatches(state, "model"),
+        stateMatches(state, "basket.complete") &&
+        contextMatches(state, "model"),
 
       // --- SmartDomainField canonical flags
       isSkip: stateMatches(state, "skip"),
