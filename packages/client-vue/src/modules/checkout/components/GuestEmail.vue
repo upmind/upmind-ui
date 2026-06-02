@@ -43,19 +43,22 @@ const schema = {
   properties: {
     email: {
       type: "string",
-      format: "email",
-      title: t("form.guest_email.label")
+      format: "email"
     }
   }
 };
 
+// The Section header already labels this field ("Email for order
+// confirmation"), so the Control suppresses its own label and i18n-driven
+// hint (label: "" + no i18n) — only the placeholder remains. Mirrors the
+// 2FA token field pattern in Auth.vue.
 const uischema = {
   type: "VerticalLayout",
   elements: [
     {
       type: "Control",
       scope: "#/properties/email",
-      i18n: "form.guest_email",
+      label: "",
       options: {
         autocomplete: "email",
         placeholder: "name@email.com"

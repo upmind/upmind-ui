@@ -27,7 +27,6 @@
               v-if="meta.canRegisterAsGuest"
               :class="styles.session.guestCheckout.root"
             >
-              <Icon icon="zap" size="sm" />
               <span>{{ t("auth.guest_checkout_qn") }}&nbsp;</span>
               <Link
                 @click="registerAsGuest"
@@ -163,7 +162,7 @@ import sessionConfig from "./session.config";
 import { useSessionTemplates } from "./session.utils";
 
 // --- components
-import { Icon, Link, Markdown, Skeleton } from "@upmind-automation/upmind-ui";
+import { Link, Markdown, Skeleton } from "@upmind-automation/upmind-ui";
 import Auth from "./components/Auth.vue";
 import GuestRegistration from "./components/GuestRegistration.vue";
 import Hero from "../../components/hero/Hero.vue";
