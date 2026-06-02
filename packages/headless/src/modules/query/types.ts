@@ -93,8 +93,7 @@ export interface QueryResponse<TData = unknown> {
    */
   messages: string[] | null;
   /**
-   * Optional sideloaded resources included alongside the main data, e.g.
-   * `related.products` keyed by product_id on the domain-suggestions endpoint.
+   * Optional related resources included alongside the main data, e.g. `products`.
    */
   related?: Record<string, any> | null;
   /**
@@ -171,31 +170,9 @@ export type RequestParams = QueryProps & {
 };
 
 /**
- * `select` transform invoked by `useQuery` after a successful request.
- *
- * Widens TanStack Query's single-arg `select` so callers can read both
- * sideloaded `related` resources (e.g. the `related.products` map keyed by
- * product_id on the domain-suggestions endpoint) and `meta` (pagination
- * totals, page count, etc.) off the envelope alongside the primary `data`
- * payload — `useQuery` forwards all three from {@link QueryResponse} on
- * each call.
- *
- * @template TQueryFnData - The raw payload type returned by the request.
- * @template TData - The shape returned by the transform.
- */
-export type SelectFn<TQueryFnData = unknown, TData = TQueryFnData> = (
-  data: TQueryFnData,
-  related?: QueryResponse["related"],
-  meta?: Record<string, any> | null
-) => TData;
-
-/**
  * Type alias defining parameters for TanStack Query's `useQuery` hook,
  * extending {@link RequestParams} with `QueryObserverOptions` and omitting
  * `queryFn` and `initialData`, which are handled internally.
- *
- * Overrides TanStack's `select` with {@link SelectFn} so the 2-arg form
- * used by `useQuery` (data, meta) typechecks without casting.
  *
  * @template TQueryFnData - The type of data returned by the `queryFn`.
  * @template TData - The type of data after the `select` transformation.
@@ -206,15 +183,8 @@ export type QueryParams<
 > = RequestParams &
   Omit<
     QueryObserverOptions<TQueryFnData, DefaultError, TData>,
-    "queryFn" | "initialData" | "select"
-  > & {
-    /**
-     * Optional transform applied to the raw API data before it reaches
-     * consumers. See {@link SelectFn} — receives the main data payload,
-     * optional `related` sideloaded resources, and optional response meta.
-     */
-    select?: SelectFn<TQueryFnData, TData>;
-  };
+    "queryFn" | "initialData"
+  >;
 
 /**
  * Type alias for reactive query keys used to create dynamic query keys for TanStack Query.
