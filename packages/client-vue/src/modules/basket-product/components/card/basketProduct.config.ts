@@ -3,6 +3,7 @@ import { cva } from "class-variance-authority";
 
 export default {
   product: {
+    list: cva("flex flex-col gap-4"),
     root: {
       card: cva("relative flex list-none flex-col p-0 text-base lg:p-0", {
         variants: {

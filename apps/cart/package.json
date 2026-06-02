@@ -1,7 +1,7 @@
 {
   "name": "@upmind-automation/cart",
   "private": true,
-  "version": "0.17.6",
+  "version": "0.18.0",
   "description": "Bespoke Vue.js, e-commerce platform built on the Upmind platform",
   "keywords": [
     "Upmind",
@@ -45,6 +45,9 @@
     "deploy:gcs:staging:dry-run": "bash scripts/deploy-gcs.sh --bucket upmind-cart-staging --prefix staging --dry-run",
     "deploy:gcs:sprighost": "bash scripts/deploy-gcs.sh --bucket upmind-cart --prefix sprighost",
     "deploy:gcs:sprighost:dry-run": "bash scripts/deploy-gcs.sh --bucket upmind-cart --prefix sprighost --dry-run",
+    "verify:gcs:production": "bash scripts/verify-gcs.sh --bucket upmind-cart --prefix production",
+    "verify:gcs:staging": "bash scripts/verify-gcs.sh --bucket upmind-cart-staging --prefix staging",
+    "verify:gcs:sprighost": "bash scripts/verify-gcs.sh --bucket upmind-cart --prefix sprighost",
     "deploy:firebase:production": "firebase deploy --project upmind-cart --only hosting:upmind-cart",
     "deploy:firebase:staging": "firebase deploy --project upmind-cart --only hosting:upmind-cart-staging",
     "deploy:firebase:sprighost": "firebase deploy --only hosting:staging"

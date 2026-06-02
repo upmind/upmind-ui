@@ -76,12 +76,16 @@ test.describe("Domain split-endpoint DAC flow", () => {
       page,
       context
     }) => {
-      await page.goto(URLs.baseUrl);
-      await waitForSessionCookie(context, { guestOnly: true });
-      const token = await getSessionToken(context);
-      await interceptConfigValues(page, token, {
+      // Register the override BEFORE the first load: domain_search_method is
+      // fetched and cached on initial load, so the intercept must be active for
+      // that fetch (registering it after goto misses it and staging's default
+      // smart-suggest wins). null token replays the request's own guest auth and
+      // strips cache-validation headers so the override isn't lost to a 304.
+      await interceptConfigValues(page, null, {
         domainSearchMethod: "legacy-lookup"
       });
+      await page.goto(URLs.baseUrl);
+      await waitForSessionCookie(context, { guestOnly: true });
       const searchResponse = page.waitForResponse(res =>
         res.url().includes("/modules/web_hosting/domains/search")
       );

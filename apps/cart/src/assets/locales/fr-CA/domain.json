@@ -26,6 +26,7 @@
   "own_domain_qn": "Êtes-vous propriétaire de ce domaine ?",
   "owned_domains_title": "Domaines que vous possédez présentement",
   "price_renewal_desc": "Prix unique de {regularPrice}. | Renouvelle chaque année pour {regularPrice}. | Renouvelle tous les {count} ans pour {regularPrice}.",
+  "registrant_use_billing_msg": "Vos renseignements de facturation seront utilisés comme coordonnées du titulaire du nom de domaine.",
   "search": "Domaines de recherche",
   "starts_with_domain": "Tout commence par un **nom de domaine**",
   "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
@@ -36,5 +37,6 @@
   "transfer_extension_info": "Les transferts comprennent une prolongation d'un an.",
   "transfer_owner_question": "Êtes-vous le propriétaire de ce domaine ?",
   "transfer_price_info": "Vous pouvez nous le transférer pour seulement {currentPrice}",
-  "transfer_promotion": "Transfert pour seulement {currentPrice}, habituellement {regularPrice}."
+  "transfer_promotion": "Transfert pour seulement {currentPrice}, habituellement {regularPrice}.",
+  "use_details_for": "Utilisez ces renseignements pour{domain}"
 }

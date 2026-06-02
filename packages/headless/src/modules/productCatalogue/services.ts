@@ -16,7 +16,11 @@ import {
   type IProduct
 } from "@upmind-automation/types";
 import type { QueryParams } from "../..";
-import type { InfiniteData, QueryKey } from "@tanstack/vue-query";
+import {
+  keepPreviousData,
+  type InfiniteData,
+  type QueryKey
+} from "@tanstack/vue-query";
 import { parsePromotionsOrCoupons } from "../basketProduct/utils";
 
 // -----------------------------------------------------------------------------
@@ -52,7 +56,8 @@ function loadList(params?: Partial<QueryParams>) {
     // --- options
     select: data => map(data ?? [], parseProduct),
     staleTime: useTime().HOUR,
-    enabled: () => !!currencyCode.value
+    enabled: () => !!currencyCode.value,
+    placeholderData: keepPreviousData
   });
 
   return query;
@@ -86,7 +91,8 @@ function loadInfinite(params?: Partial<QueryParams>) {
     // --- options
     select: data => map(data ?? [], parseProduct),
     staleTime: useTime().HOUR,
-    enabled: () => !!currencyCode.value
+    enabled: () => !!currencyCode.value,
+    placeholderData: keepPreviousData
   });
 }
 

@@ -3,8 +3,8 @@ import { computed, ref } from "vue";
 
 // --- internal
 import { Store } from "@upmind-automation/headless";
-
-// --- async components
+import { useShell } from "../shell/useShell";
+import { SHELL } from "../shell/types";
 
 // --- utils
 import { isEmpty, isObject, merge } from "lodash-es";
@@ -52,6 +52,10 @@ headerConfig.subscribe(state => (config.value = state.currentVal));
 export const useHeader = (initial?: Partial<UseHeaderProps>) => {
   // Reset to defaults and apply initial overrides if provided
   if (initial) {
+    // Mark as configured if actual config provided (not just empty reset)
+    if (!isEmpty(initial)) {
+      useShell().mark(SHELL.HEADER);
+    }
     headerConfig.setState(
       merge({}, defaultHeaderProps, initial) as UseHeaderProps
     );

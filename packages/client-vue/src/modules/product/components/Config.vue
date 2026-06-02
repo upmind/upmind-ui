@@ -18,7 +18,7 @@
           :model-value="model"
           :additional-errors="additionalErrors"
           :touched="meta.showErrors"
-          @update:modelValue="setConfig"
+          @update:modelValue="onConfigChange"
           no-actions
           as="fieldset"
         />
@@ -123,6 +123,15 @@ const {
   setConfig,
   reset
 } = productConfig;
+
+// Under `hide-terms` the term control is removed from the form, so the form's
+// internal `term` is never updated when the term changes via the external
+// selector — it emits a stale value, leapfrogging the model and looping. Pin
+// the term to the model's current value (the selector owns it) so the form
+// can't clobber it.
+function onConfigChange(data: Parameters<typeof setConfig>[0]) {
+  setConfig(props.hideTerms ? { ...data, term: model.value?.term } : data);
+}
 
 const { ui } = props.meta;
 

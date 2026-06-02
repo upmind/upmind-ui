@@ -1,5 +1,5 @@
 <template>
-  <component :is="layoutComponent" v-bind="props">
+  <component :is="layoutComponent" v-bind="config">
     <template #controls>
       <slot name="controls" />
     </template>
@@ -61,14 +61,22 @@ import SurfaceBoxLayout from "./layouts/SurfaceBox.layout.vue";
 
 // --- types
 import type { LayoutProps } from "./types";
-import { LAYOUT_VARIANTS } from "./types";
+import { LAYOUT_VARIANTS, LAYOUT_OVERFLOW, LAYOUT_MODE } from "./types";
 
 const props = defineProps<LayoutProps>();
 
-const { variant } = useLayout();
+const layoutConfig = useLayout();
+
+const config = computed(() => ({
+  overflow:
+    props.overflow ?? layoutConfig.overflow.value ?? LAYOUT_OVERFLOW.VISIBLE,
+  mode: props.mode ?? layoutConfig.mode.value,
+  minimal: props.minimal ?? layoutConfig.minimal.value ?? false,
+  class: props.class
+}));
 
 const layoutComponent = computed(() => {
-  const layout = props.variant ?? variant.value;
+  const layout = props.variant ?? layoutConfig.variant.value;
 
   switch (layout) {
     case LAYOUT_VARIANTS.TWO_COLUMN_LTR:

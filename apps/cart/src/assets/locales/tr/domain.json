@@ -26,6 +26,7 @@
   "own_domain_qn": "Bu alan adı size mi ait?",
   "owned_domains_title": "Şu anda sahip olduğunuz alan adları",
   "price_renewal_desc": "Tek seferlik fiyat {regularPrice}. | Her yıl {regularPrice} için yenilenir. | Her {count} yılda bir {regularPrice} için yenilenir.",
+  "registrant_use_billing_msg": "Fatura bilgileriniz, alan adı kayıt sahibinin iletişim bilgileri olarak kullanılacaktır.",
   "search": "Alan adlarını arayın",
   "starts_with_domain": "Her şey bir **alan adı** ile başlar",
   "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
@@ -36,5 +37,6 @@
   "transfer_extension_info": "Transferler bir yıllık uzatma içerir.",
   "transfer_owner_question": "Bu alan adının sahibi siz misiniz?",
   "transfer_price_info": "Sadece {currentPrice}",
-  "transfer_promotion": "{currentPrice}, genellikle {regularPrice} için transfer."
+  "transfer_promotion": "{currentPrice}, genellikle {regularPrice} için transfer.",
+  "use_details_for": "Bu bilgileri aşağıdaki amaçlarla kullanın:{domain}"
 }
