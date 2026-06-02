@@ -1,0 +1,23 @@
+{
+  "request": {
+    "method": "PATCH",
+    "path": "/api/templates/client_area/slots/basket_summary_footer/render?object_id=63250798-065d-1e20-388f-8174e234e98d"
+  },
+  "response": {
+    "status": 200,
+    "body": {
+      "status": "ok",
+      "data": {
+        "type": "template",
+        "title": "",
+        "body": "Basket summary",
+        "meta": null
+      },
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  }
+}

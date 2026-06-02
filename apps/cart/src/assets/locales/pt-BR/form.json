@@ -25,15 +25,27 @@
   "auth_password": {
     "error": {
       "min_length": "A senha deve ter pelo menos 8 caracteres",
-      "min_length_lowercase": "A senha deve ter pelo menos 8 caracteres e conter uma letra minúscula.",
-      "min_length_lowercase_number": "A senha deve ter no mínimo 8 caracteres, incluir uma letra minúscula e um dígito numérico",
+      "min_length_letter": "A senha deve ter pelo menos 8 caracteres e conter uma letra",
+      "min_length_letter_number": "A senha deve ter pelo menos 8 caracteres e conter uma letra e um número",
+      "min_length_letter_number_symbol": "A senha deve ter pelo menos 8 caracteres e conter uma letra, um número e um símbolo",
+      "min_length_letter_symbol": "A senha deve ter pelo menos 8 caracteres, conter uma letra e um símbolo",
       "min_length_number": "A senha deve ter pelo menos 8 caracteres e conter um número.",
-      "missing_lowercase": "A senha deve conter uma letra minúscula",
-      "missing_lowercase_number": "A senha deve conter uma letra minúscula e um número",
-      "missing_number": "A senha deve conter um número"
+      "min_length_number_symbol": "A senha deve ter pelo menos 8 caracteres, conter um número e um símbolo",
+      "min_length_symbol": "A senha deve ter pelo menos 8 caracteres e conter um símbolo",
+      "missing_letter": "A senha deve conter uma letra",
+      "missing_letter_number": "A senha deve conter uma letra e um número",
+      "missing_letter_number_symbol": "A senha deve conter uma letra, um número e um símbolo",
+      "missing_letter_symbol": "A senha deve conter uma letra e um símbolo",
+      "missing_number": "A senha deve conter um número",
+      "missing_number_symbol": "A senha deve conter um número e um símbolo",
+      "missing_symbol": "A senha deve conter um símbolo"
     },
+    "generate": "Crie uma senha segura",
+    "hide": "Ocultar senha",
+    "hint": "A senha deve ter pelo menos 8 caracteres e incluir uma letra, um número e um símbolo.",
     "label": "Senha",
-    "placeholder": "Senha ou frase-senha"
+    "placeholder": "Senha ou frase-senha",
+    "show": "Mostrar senha"
   },
   "card_cvv": {
     "error": "É necessário um CVV válido",

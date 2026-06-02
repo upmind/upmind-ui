@@ -23,7 +23,7 @@
   "basket_summary_desc_free": "Hai {count} articolo nel tuo carrello. | Hai {count} articoli nel tuo carrello.",
   "basket_summary_taxes_desc": "Hai{count} articolo nel tuo carrello, per un totale di{total} {tax}) | Tu hai{count} articoli nel tuo carrello, per un totale di{total} {tax})",
   "basket_tax_excl": "tasse escluse",
-  "basket_tax_incl": "incl. taxes",
+  "basket_tax_incl": "inclusi gli animali",
   "basket_title": "Il tuo carrello",
   "change_amount": "Modifica importo",
   "empty": "Il tuo **carrello** è vuoto",
@@ -67,5 +67,6 @@
   "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}",
   "show_more_payment_options": "Mostra più opzioni di pagamento",
   "stored_payment_methods_limited_desc": "Non tutti i metodi di pagamento sono visibili perché non sono disponibili per il tuo paese o la tua valuta.",
-  "stored_payment_methods_limited_title": "Metodi di pagamento limitati"
+  "stored_payment_methods_limited_title": "Metodi di pagamento limitati",
+  "warning_notes_title": "Avviso carrello | Avvisi carrello"
 }

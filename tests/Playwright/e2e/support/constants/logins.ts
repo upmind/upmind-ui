@@ -70,10 +70,20 @@ export const Logins = {
     username: "nathan.robinson+hostingcustomer2@upmind.com",
     password: "HostingCustomer2"
   },
-  UiTesting: {
+  autopopulate: {
+    grant_type: "password",
+    username: "nathan.robinson+autopopulate@upmind.com",
+    password: "Password1"
+  },
+  uiTesting: {
     grant_type: "password",
     username: "nathan.robinson+uitemplates@upmind.com",
     password: "UiPassword1"
+  },
+  remoteBasket: {
+    grant_type: "password",
+    username: "nathan.robinson+remotebasket@upmind.com",
+    password: "Password1"
   },
 
   /* Locale Testing */

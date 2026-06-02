@@ -6,6 +6,11 @@ import { waitForSessionCookie } from "../../support/helpers";
 let login: Login;
 
 test.describe("Login", async () => {
+  // The Successful Login tests in both inner describes authenticate as
+  // Logins.checkoutUser, which is also used in
+  // checkout/billing-details/update-billing-details.spec.ts. Serial mode
+  // prevents them from racing against each other on the same staging account.
+  test.describe.configure({ mode: "serial" });
   test.describe("Login via /auth/login", () => {
     test.beforeEach(async ({ page }) => {
       login = new Login(page);
@@ -16,7 +21,6 @@ test.describe("Login", async () => {
         Logins.checkoutUser.username,
         Logins.checkoutUser.password
       );
-      await page.waitForLoadState("domcontentloaded");
       await page.waitForURL(URLs.emptyBasket);
     });
     test("Invalid Username", async ({ page }) => {
@@ -35,6 +39,22 @@ test.describe("Login", async () => {
       await expect(login.alert).toContainText(
         "The user credentials were incorrect."
       );
+    });
+    test("Password field is the quiet variant (no meter, no generator)", async ({
+      page
+    }) => {
+      const passwordItem = page.getByTestId("form-item-password");
+      await expect(login.passwordField).toBeVisible();
+      await expect(passwordItem.getByTestId("password-generate")).toHaveCount(
+        0
+      );
+      await expect(passwordItem.getByTestId("password-toggle")).toBeVisible();
+
+      await login.passwordField.fill("anything-goes");
+      await expect(passwordItem.getByTestId("password-strength")).toHaveCount(
+        0
+      );
+      await expect(passwordItem.getByTestId("password-message")).toHaveCount(0);
     });
   });
   test.describe("Login via login popover", () => {
