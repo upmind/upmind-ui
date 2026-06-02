@@ -8,6 +8,7 @@ import {
   DetailedError,
   ErrorOrigin,
   responseCodes,
+  useCalculate,
   useLaravalSchemaParser,
   useTranslateField,
   useTranslateName,
@@ -26,6 +27,7 @@ import {
   has,
   isArray,
   isEmpty,
+  isEqual,
   isFunction,
   isNil,
   isString,
@@ -74,6 +76,7 @@ import type {
   PriceCalculations,
   PriceDetail,
   PriceDisplay,
+  PriceEntry,
   Product,
   ProductConfigContext,
   ProductDetails,
@@ -101,10 +104,11 @@ import { UIContext } from "../config";
 
 /**
  * Normalises sub_pids which may be array, string, or CSV to a string array.
+ * Handles arrays that contain CSV strings (e.g. ["id1,id2"]).
  */
 export function normaliseSubPids(input?: string | string[]): string[] {
   if (isEmpty(input)) return [];
-  if (isArray(input)) return compact(input);
+  if (isArray(input)) return compact(flatMap(input, item => split(item, ",")));
   if (isString(input)) return compact(split(input, ","));
   return [];
 }
@@ -285,6 +289,25 @@ export function checkPriceOverride(
     return !isEmpty(value) && !!item?.meta?.overrides;
   });
 }
+
+/**
+ * Build a flat PriceEntry[] from the lookups.prices breakdown for sending to
+ * cart/calculate. When `overrides` is true the term price is excluded (the
+ * options have already taken its place).
+ *
+ * Arrays always route to sum-mode in useCalculate (DD-4), so a bare list of
+ * numbers is the correct shape — no quantity-1 wrapping needed.
+ */
+export function buildPriceEntries(
+  prices: PriceCalculations,
+  overrides: boolean
+): PriceEntry[] {
+  return filter(
+    concat(overrides ? [] : prices?.term, prices?.attributes, prices?.options),
+    value => !isNil(value)
+  ) as PriceEntry[];
+}
+
 // -----------------------------------------------------------------------------
 
 export const calculateBillingTerm = (
@@ -303,6 +326,11 @@ export const calculateBillingTerm = (
     );
 
   const { defaultPaymentPeriod } = useBrand();
+
+  // Shortest billing cycle wins when prices tie: pre-sort ascending by cycle so
+  // the min/max-By selectors (which return the first match in array order) and
+  // the brand-inherit recursion all break ties toward the shortest period.
+  available = orderBy(available, "cycle", "asc");
 
   let term;
 
@@ -382,20 +410,24 @@ export function parseTerm(
   value?: ProductModel["term"],
   quantity?: ProductModel["quantity"]
 ): { term: ProductModel["term"]; price: PriceCalculations["term"] } {
+  const { pushPrice } = useCalculate();
   const price: PriceCalculations["term"] = [];
-  // --- resolve the term from lookups (default is handled by schema)
-  const term = find(lookups?.terms, ["cycle", value]);
+  const terms = lookups?.terms ?? [];
+
+  // Resolve the requested term, enforcing the default when the requested cycle
+  // isn't available — e.g. an out-of-range `?bcm=` URL param. Mirrors the
+  // schema's default (calculateBillingTerm) so an invalid value falls back to
+  // the default instead of leaving no term selected (FE-2676).
+  const fallback = isEmpty(terms)
+    ? undefined
+    : terms.length === 1
+      ? first(terms)
+      : calculateBillingTerm(lookups?.product?.defaultPaymentPeriod, terms);
+  const term = find(terms, ["cycle", value]) ?? fallback;
 
   // set price values, taking into account the quantity and unit quantity
   // NB: we NEVER add, we always push into an array for the backend to handle
-  if (quantity) {
-    if (quantity == 1) price.push(term?.price?.currentAmount ?? 0);
-    else
-      price.push({
-        price: term?.price?.currentAmount ?? 0,
-        quantity
-      });
-  }
+  pushPrice(price, term?.price?.currentAmount ?? 0, quantity ?? 0);
   return { term: get(term, "cycle") as number, price };
 }
 
@@ -499,6 +531,7 @@ export function parseSubproducts(
   subproducts?: ProductModel["attributes"] | ProductModel["options"];
   price: PriceCalculations["attributes"] | PriceCalculations["options"];
 } {
+  const { pushPrice } = useCalculate();
   let subproducts: SubproductModel = {};
   const price: any[] = [];
   // ---
@@ -570,13 +603,11 @@ export function parseSubproducts(
             // if we have a price, set price values, taking into account the quantity and unit quantity
             // NB: we NEVER add, we always push into an array for the backend to handle
             if (!isEmpty(product?.price)) {
-              if (quantity == 1 && value.quantity == 1)
-                price.push(product?.price?.currentAmount);
-              else
-                price.push({
-                  price: product?.price?.currentAmount,
-                  quantity: value.quantity * (quantity ?? 1)
-                });
+              pushPrice(
+                price,
+                product?.price?.currentAmount ?? 0,
+                value.quantity * (quantity ?? 1)
+              );
             }
 
             // ---
@@ -974,6 +1005,15 @@ export const parsePrice = (raw: IProductPrice): PriceDetail => {
   };
 };
 
+/**
+ * Parses a raw product price into a ProductSummaryDetailWithPrice.
+ *
+ * **⚠️ FE-1698 lazy `useSystem`:** This function calls `getBillingCycle()`
+ * synchronously. The caller's machine `load` service (or upstream composable
+ * like `useBasket`) MUST `await ensureBillingCycles()` before this runs,
+ * otherwise the cycle label will be `undefined`. See
+ * `system/docs/gotchas.md#1` for the pattern.
+ */
 export const parseSummaryDetailWithPrice = (
   raw: IProductPrice,
   rawProduct: IProduct,
@@ -1067,6 +1107,14 @@ export const parsePromotionDetails = (
   }
 };
 
+/**
+ * Parses a raw provisioning schema, applying defaults like the user's country.
+ *
+ * **⚠️ FE-1698 lazy `useSystem`:** This function calls `getCountry()`
+ * synchronously. The caller's machine `load` service MUST
+ * `await ensureCountries()` before this runs, otherwise the default country
+ * will be `undefined`. See `system/docs/gotchas.md#1` for the pattern.
+ */
 export const parseProvisioningSchema = (
   data: any,
   product: IProduct,
@@ -1233,7 +1281,7 @@ const parseSummaryTerm = (
     term.category = t("text.billing_cycle");
     term.meta = {
       ...term.meta,
-      invalid: some(errors, e => e.instancePath?.startsWith("/term"))
+      invalid: some(errors, e => e?.instancePath?.startsWith("/term"))
     };
     return term;
   }
@@ -1275,7 +1323,9 @@ const parseSummarySubproduct = (
                 meta: {
                   ...subproduct.meta,
                   ...subproduct?.uiMeta,
-                  invalid: some(errors, e => e.instancePath?.includes(`/${id}`))
+                  invalid: some(errors, e =>
+                    e?.instancePath?.includes(`/${id}`)
+                  )
                 },
                 // ---
                 ...(subproduct.price ?? {})
@@ -1320,7 +1370,7 @@ const parseSummaryProvisionFields = (
         regularPrice: undefined,
         meta: {
           invalid: some(errors, e =>
-            e.instancePath?.includes(`/provisionFields/${key}`)
+            e?.instancePath?.includes(`/provisionFields/${key}`)
           )
         }
       });
@@ -1756,6 +1806,57 @@ export function parseBillingCycle(months: number) {
         numeric: t("term.n_month", { n: toString(months) }) // {n}-month
       };
   }
+}
+
+/**
+ * Returns a `hasError(scope)` checker for the given context. The scope uses
+ * UISchema notation (e.g. `#/properties/term`) and is normalised to the
+ * basket-error instance path format (e.g. `/term`) before lookup.
+ *
+ * Shared by the invalid schema/uischema builders so both stay in lock-step on
+ * how errors are matched.
+ */
+export function hasScopeError(
+  basketErrors: ProductConfigContext["basketErrors"]
+): (scope: string) => boolean {
+  const errorPaths = new Set(map(basketErrors, "instancePath"));
+
+  return (scope: string): boolean => {
+    const instancePath = scope
+      .replace("#/properties/", "/")
+      .replace(/\/properties\//g, "/");
+    return errorPaths.has(instancePath);
+  };
+}
+
+/**
+ * Filters basketErrors down to those still outstanding given a live model.
+ *
+ * basketErrors is a snapshot from the BE — we never mutate it. As the user
+ * edits fields the local `model` diverges from `baseModel`; an error is
+ * considered "fixed" when its field's value has changed from base. This lets
+ * the UI react to local edits without losing the source-of-truth snapshot.
+ *
+ * Both nilish/empty values are treated as equivalent — the user hasn't
+ * meaningfully changed a field that went from undefined → null → "".
+ */
+export function getOutstandingBasketErrors(
+  basketErrors: ProductConfigContext["basketErrors"],
+  baseModel: Partial<ProductModel> | undefined,
+  model: Partial<ProductModel> | undefined
+): ErrorObject[] {
+  if (!isArray(basketErrors)) return [];
+
+  return filter(basketErrors, error => {
+    const field = compact(split(trimStart(error.instancePath, "/"), "/"));
+    const baseValue = get(baseModel, field);
+    const newValue = get(model, field);
+
+    // Both nilish/empty → still missing.
+    if (!baseValue && !newValue) return true;
+    // Unchanged from base → still outstanding.
+    return isEqual(baseValue, newValue);
+  });
 }
 
 export function generateShareUrlConfig(model: ProductModel) {

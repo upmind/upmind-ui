@@ -40,6 +40,10 @@
       "tooltip": ""
     }
   },
+  "search": "Enter a domain to search",
+  "basket_placeholder": "Select a domain",
+  "use_details_for": "Use these details for {domain}",
+  "registrant_use_billing_msg": "Your billing details will be used as the domain registrant contact information.",
   "existing": {
     "placeholder": "Tell us the domain you want to use.",
     "transfer_info": "If you own this domain you can transfer it to us for only {price}, which includes a {period} renewal. Alternatively, you will need to update the domain's nameserver (NS) records.",
@@ -47,13 +51,14 @@
     "register_info": "Good news — this domain is available to register for only {price}, which includes a {period} registration.",
     "add_registration": "Add to basket",
     "dns_info": "To use this domain, you will need to update the domain's DNS with the existing registrar.",
-    "unavailable": "This domain cannot be registered or transferred."
+    "unavailable": "This domain cannot be registered or transferred.",
+    "remove_transfer": "Remove transfer",
+    "transfer_added": "Transfer added"
   },
   "error": {
     "transfer_add_failed": "Failed to add transfer to basket",
     "transfer_remove_failed": "Failed to remove transfer from basket",
     "registration_add_failed": "Failed to add domain to basket",
     "availability_check_failed": "Failed to check domain availability"
-  },
-  "search": "Enter a domain to search"
+  }
 }

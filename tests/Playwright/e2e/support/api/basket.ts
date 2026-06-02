@@ -41,6 +41,13 @@ export async function createOrder(token: string): Promise<Order> {
       data: { category_slug: "new_contract", currency_code: "GBP" }
     });
 
+    if (!response.ok()) {
+      const errorText = await response.text();
+      throw new Error(
+        `createOrder failed: ${response.status()} ${response.statusText()} - ${errorText}`
+      );
+    }
+
     const body = await response.json();
     return body.data;
   } finally {
@@ -90,8 +97,9 @@ export async function getCurrentOrder(
   });
 
   try {
+    const withRelations = ["products"];
     const response = await context.get(
-      "/api/orders/current?with=products&products_options"
+      `/api/orders/current?with=${withRelations}`
     );
 
     if (!response.ok()) {
@@ -209,6 +217,41 @@ export async function removeProductFromOrder(
   } finally {
     await context.dispose();
   }
+}
+
+/**
+ * Clears all items from a basket by PUTting the order with an empty products
+ * array. The order PUT replaces the full product set, so an empty array removes
+ * everything (mirrors headless `basketProduct.updateMany`, which PUTs
+ * `/orders/{id}` with the complete products list). Use to start journeys from a
+ * clean basket on shared staging accounts whose persisted basket may carry
+ * stale/invalid items from prior runs.
+ */
+export async function clearBasket(
+  token: string,
+  orderId: string
+): Promise<any> {
+  const context: APIRequestContext = await request.newContext({
+    baseURL: `${URLs.apiUrl}`,
+    extraHTTPHeaders: {
+      accept: "*/*",
+      "accept-language": "en-GB;q=0.9,en;q=0.8",
+      authorization: `Bearer ${token}`,
+      "content-type": "application/json",
+      origin: `${URLs.apiOrigin}`,
+      referer: `${URLs.apiUrl}`,
+      "user-agent":
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36"
+    }
+  });
+
+  return context
+    .put(`/api/orders/${orderId}?lang=en`, { data: { products: [] } })
+    .then(response => response.json())
+    .catch(error => {
+      throw new Error(`Failed to clear basket ${orderId}: ${error}`);
+    })
+    .finally(() => context.dispose());
 }
 
 export async function addPromotionToOrder(

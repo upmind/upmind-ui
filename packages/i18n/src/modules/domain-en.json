@@ -42,6 +42,8 @@
   },
   "search": "Enter a domain to search",
   "basket_placeholder": "Select a domain",
+  "use_details_for": "Use these details for {domain}",
+  "registrant_use_billing_msg": "Your billing details will be used as the domain registrant contact information.",
   "existing": {
     "placeholder": "Tell us the domain you want to use.",
     "transfer_info": "If you own this domain you can transfer it to us for only {price}, which includes a {period} renewal. Alternatively, you will need to update the domain's nameserver (NS) records.",

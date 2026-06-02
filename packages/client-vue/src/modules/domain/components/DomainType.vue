@@ -166,7 +166,7 @@ const type = defineModel<UseDomain["type"]["value"]>("type");
 const { t, tm, rt } = useI18n();
 
 const stylesMeta = computed(() => ({
-  isDisabled: props.disabled
+  isDisabled: props.disabled || props.processing
 }));
 
 const styles = useStyles(

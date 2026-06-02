@@ -1,5 +1,5 @@
 <template>
-  <Layout>
+  <Layout :variant="LAYOUT_VARIANTS.CANVAS_CARD" :mode="LAYOUT_MODE.CENTERED">
     <template #content-header>
       <slot name="hero" />
       <slot name="markdown" />
@@ -13,7 +13,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { onBeforeMount, onUnmounted } from "vue";
+import { onMounted } from "vue";
 
 // --- components
 import Layout from "../../../components/layout/Layout.vue";
@@ -21,7 +21,6 @@ import Layout from "../../../components/layout/Layout.vue";
 // --- internal
 import { useFooter } from "../../../components/footer/useFooter";
 import { useHeader } from "../../../components/header/useHeader";
-import { useLayout } from "../../../components/layout/useLayout";
 
 // --- types
 import { LAYOUT_VARIANTS } from "../../../components/layout/types";
@@ -38,12 +37,7 @@ defineOptions({
   inheritAttrs: false
 });
 
-useLayout({
-  variant: LAYOUT_VARIANTS.CANVAS_CARD,
-  mode: LAYOUT_MODE.CENTERED
-});
-
-onBeforeMount(() => {
+onMounted(() => {
   useHeader({
     visible: false
   });
@@ -51,11 +45,5 @@ onBeforeMount(() => {
   useFooter({
     visible: false
   });
-});
-
-onUnmounted(() => {
-  useHeader({});
-  useLayout({});
-  useFooter({});
 });
 </script>

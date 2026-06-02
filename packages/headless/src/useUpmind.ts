@@ -5,8 +5,6 @@ import { type QueryClient, VueQueryPlugin } from "@tanstack/vue-query";
 
 // --- internal
 import {
-  type Funnels,
-  type GlobbedFiles,
   useBrand,
   useDataLayer,
   useLocale,
@@ -17,6 +15,7 @@ import {
   useSystem,
   useTracking
 } from "./modules";
+import type { Funnels, FunnelWatcher, GlobbedFiles } from "./modules";
 import { get, isFunction } from "lodash-es";
 import { useRouting } from "./modules/routing/useRouting";
 import { useTheming } from "./modules/theming/useTheming";
@@ -133,7 +132,11 @@ export interface UpmindProps {
     /** Whether to guard routes or not */
     guardRoutes?: boolean;
     /** A function to Register routing flows with the routing engine. */
-    registerFunnels?: () => { defaultFunnel?: string; funnels?: Funnels };
+    registerFunnels?: () => {
+      defaultFunnel?: string;
+      funnels?: Funnels;
+      watchers?: FunnelWatcher[];
+    };
   };
   /**
    * Configuration for Vue I18n internationalization.

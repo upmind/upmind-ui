@@ -25,6 +25,7 @@
       size="lg"
       :class="styles.recommendation.footer.button"
       iconAppend="arrow-right"
+      :loading="isNavigating"
     />
   </div>
 </template>
@@ -34,7 +35,12 @@
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useBasket, useConfig, useMoney } from "@upmind-automation/headless";
+import {
+  useBasket,
+  useConfig,
+  useMoney,
+  useRoutingEngine
+} from "@upmind-automation/headless";
 import config from "../recommendations.config";
 
 // --- components
@@ -49,6 +55,7 @@ const { t } = useI18n();
 const { count, summary, meta: basketMeta } = useBasket();
 const { formatPrice } = useMoney();
 const { ui, data } = useConfig();
+const { isNavigating } = useRoutingEngine();
 
 const styles = useStyles(["recommendation.footer"], {}, config);
 </script>

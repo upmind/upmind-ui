@@ -6,7 +6,8 @@ import {
   type DomainProduct,
   useI18n,
   useQuery,
-  useSession
+  useSession,
+  useSystem
 } from "../..";
 
 // --- utils
@@ -774,6 +775,13 @@ function legacySearch(context: DacContext) {
 async function getClientDomains(_context: DomainContext | DacContext) {
   const { get, useUrl } = useQuery();
   const { meta } = useSession();
+  const { ensureBillingCycles } = useSystem();
+
+  // FE-1698: domain/dac flows downstream call parseProductProps, which
+  // depends on sync getBillingCycle(). The DAC machine's `loading` state
+  // gates `searching` on this service, so ensuring here covers all DAC
+  // entry paths. See system/docs/gotchas.md#1.
+  await ensureBillingCycles();
 
   // bail early if not authenticated: no point fetching
   if (!meta.value?.isAuthenticated) return [];

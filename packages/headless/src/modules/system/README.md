@@ -11,7 +11,8 @@ The **System Manager** Module is a critical component of the **Upmind Headless**
   - [State Machine Overview](#state-machine-overview)
   - [Usage](#usage)
   - [Configuration](#configuration)
-  - [API Documentation](#api-documentation)
+  - [Documentation](#documentation)
+  - [Gotchas](#gotchas)
   - [Examples](#examples)
   - [Contributing](#contributing)
   - [License](#license)
@@ -77,13 +78,21 @@ const { state, isAvailable, values } = useSystem();
 
 The **System Manager** module seamlessly integrates into your project with minimal configuration. It handles system-related tasks, ensuring a smooth user experience.
 
-## API Documentation
+## Documentation
 
-There is no specific API documentation available for this module.
+- [Overview & Quick Start](./docs/README.md)
+- [Architecture](./docs/architecture.md)
+- [Usage & API Reference](./docs/usage.md)
+- [Gotchas](./docs/gotchas.md)
+- [Changelog](./docs/CHANGELOG.md)
+
+## Gotchas
+
+- [Lazy loading — `ensureCountries()` / `ensureBillingCycles()` must be called by upstream machine `load` services before sync `getCountry()` / `getBillingCycle()` use](./docs/gotchas.md)
 
 ## Examples
 
-(Examples or use cases for this module will be provided later.)
+See [docs/usage.md](./docs/usage.md#recipes) for recipes covering machine `load` services, sync schema parsers, region lookups, and reactive component usage.
 
 ## Contributing
 
