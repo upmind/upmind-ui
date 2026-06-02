@@ -90,10 +90,7 @@ export const useDac = (options?: { mode?: DomainMode; limit?: number }) => {
 
     return {
       isLoading: stateMatches(state, ["subscribing", "loading"]),
-      isChecking: stateMatches(state, ["checking"]),
-      isProcessing:
-        stateMatches(state, ["checking"]) ||
-        some(available.value, "meta.processing"),
+      isProcessing: some(available.value, "meta.processing"),
       isSearching:
         stateMatches(state, "searching") && (query.value?.length ?? 0) > 2,
       // True for the *entire* Load more cycle — covers both the brief
@@ -216,7 +213,6 @@ export const useDac = (options?: { mode?: DomainMode; limit?: number }) => {
      * Meta information about the domain state.
      * @typedef {Object} DomainMeta
      * @property {boolean} isEmpty - Indicates if no domains are selected.
-     * @property {boolean} isChecking - Indicates if a domain availability check is in progress.
      * @property {boolean} isLoading - Indicates if the domain state is loading.
      * @property {boolean} isLoadingMore - Indicates if more search results are being loaded.
      * @property {boolean} isProcessing - Indicates if the domain state is syncing.
