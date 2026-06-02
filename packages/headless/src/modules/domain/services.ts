@@ -640,12 +640,13 @@ async function checkAvailability({
   brandId,
   coupons
 }: Pick<DacContext, "checkingDomain" | "basketId" | "brandId" | "coupons">) {
+  const { t } = useI18n();
   const { queryClient, request, useUrl } = useQuery();
 
   if (!checkingDomain)
     return Promise.reject(
       new DetailedError(
-        "No domain specified for availability check",
+        t("error.domain_availability_required"),
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless
       )
@@ -816,6 +817,7 @@ async function getClientDomains(_context: DomainContext | DacContext) {
 async function addExistingTransfer(
   context: DomainContext
 ): Promise<{ bpid?: string }> {
+  const { t } = useI18n();
   const {
     checkingDomain,
     basketId,
@@ -828,7 +830,7 @@ async function addExistingTransfer(
   if (!checkingDomain || !availability?.product)
     return Promise.reject(
       new DetailedError(
-        "No domain or availability data for transfer",
+        t("error.domain_transfer_data_missing"),
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless
       )
@@ -845,7 +847,7 @@ async function addExistingTransfer(
   if (!model)
     return Promise.reject(
       new DetailedError(
-        "Product model not found for transfer domain",
+        t("error.domain_transfer_product_model_missing"),
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless
       )
@@ -888,7 +890,7 @@ async function addExistingTransfer(
     );
     return Promise.reject(
       new DetailedError(
-        "Multiple matching products found — cannot determine which was just added. Please try again.",
+        t("error.domain_transfer_ambiguous"),
         responseCodes.Conflict,
         ErrorOrigin.Headless
       )
@@ -912,12 +914,13 @@ async function addExistingTransfer(
  * Requires an exact transferProductId — does NOT fall back to domain-name lookup.
  */
 async function removeExistingTransfer(context: DomainContext): Promise<void> {
+  const { t } = useI18n();
   const { basketId, transferProductId } = context;
 
   if (!transferProductId)
     return Promise.reject(
       new DetailedError(
-        "Transfer product ID missing — cannot identify which basket item to remove. Please refresh and try again.",
+        t("error.domain_transfer_product_id_missing"),
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless
       )
@@ -934,13 +937,14 @@ async function removeExistingTransfer(context: DomainContext): Promise<void> {
 async function addExistingRegistration(
   context: DomainContext
 ): Promise<{ domain: string }> {
+  const { t } = useI18n();
   const { checkingDomain, basketId, availability, coupons, preferredCycle } =
     context;
 
   if (!checkingDomain || !availability?.product)
     return Promise.reject(
       new DetailedError(
-        "No domain or availability data for registration",
+        t("error.domain_register_data_missing"),
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless
       )
@@ -957,7 +961,7 @@ async function addExistingRegistration(
   if (!model)
     return Promise.reject(
       new DetailedError(
-        "Product model not found for registration domain",
+        t("error.domain_register_product_model_missing"),
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless
       )
