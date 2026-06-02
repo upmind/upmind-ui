@@ -103,10 +103,11 @@ import { UIContext } from "../config";
 
 /**
  * Normalises sub_pids which may be array, string, or CSV to a string array.
+ * Handles arrays that contain CSV strings (e.g. ["id1,id2"]).
  */
 export function normaliseSubPids(input?: string | string[]): string[] {
   if (isEmpty(input)) return [];
-  if (isArray(input)) return compact(input);
+  if (isArray(input)) return compact(flatMap(input, item => split(item, ",")));
   if (isString(input)) return compact(split(input, ","));
   return [];
 }
@@ -325,6 +326,11 @@ export const calculateBillingTerm = (
 
   const { defaultPaymentPeriod } = useBrand();
 
+  // Shortest billing cycle wins when prices tie: pre-sort ascending by cycle so
+  // the min/max-By selectors (which return the first match in array order) and
+  // the brand-inherit recursion all break ties toward the shortest period.
+  available = orderBy(available, "cycle", "asc");
+
   let term;
 
   switch (period) {
@@ -405,8 +411,18 @@ export function parseTerm(
 ): { term: ProductModel["term"]; price: PriceCalculations["term"] } {
   const { pushPrice } = useCalculate();
   const price: PriceCalculations["term"] = [];
-  // --- resolve the term from lookups (default is handled by schema)
-  const term = find(lookups?.terms, ["cycle", value]);
+  const terms = lookups?.terms ?? [];
+
+  // Resolve the requested term, enforcing the default when the requested cycle
+  // isn't available — e.g. an out-of-range `?bcm=` URL param. Mirrors the
+  // schema's default (calculateBillingTerm) so an invalid value falls back to
+  // the default instead of leaving no term selected (FE-2676).
+  const fallback = isEmpty(terms)
+    ? undefined
+    : terms.length === 1
+      ? first(terms)
+      : calculateBillingTerm(lookups?.product?.defaultPaymentPeriod, terms);
+  const term = find(terms, ["cycle", value]) ?? fallback;
 
   // set price values, taking into account the quantity and unit quantity
   // NB: we NEVER add, we always push into an array for the backend to handle
