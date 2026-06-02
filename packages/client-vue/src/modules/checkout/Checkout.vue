@@ -58,14 +58,7 @@
 
 <script lang="ts" setup>
 // --- external
-import {
-  watch,
-  computed,
-  provide,
-  onUnmounted,
-  defineAsyncComponent,
-  onMounted
-} from "vue";
+import { watch, computed, provide, onUnmounted, onMounted } from "vue";
 
 // --- internal
 import {
@@ -85,19 +78,16 @@ import CheckoutPricing from "./components/CheckoutPricing.vue";
 import CheckoutErrors from "./components/CheckoutErrors.vue";
 
 // --- templates
+import CheckoutFullTemplate from "./templates/CheckoutFull.template.vue";
+import CheckoutLTRTemplate from "./templates/CheckoutLTR.template.vue";
+import CheckoutRTLTemplate from "./templates/CheckoutRTL.template.vue";
+import CheckoutEnclosedTemplate from "./templates/CheckoutEnclosed.template.vue";
+
 const supportedTemplates = {
-  [CHECKOUT_TEMPLATE.FULL]: defineAsyncComponent(
-    () => import("./templates/CheckoutFull.template.vue")
-  ),
-  [CHECKOUT_TEMPLATE.TWO_COLUMN_LTR]: defineAsyncComponent(
-    () => import("./templates/CheckoutLTR.template.vue")
-  ),
-  [CHECKOUT_TEMPLATE.TWO_COLUMN_RTL]: defineAsyncComponent(
-    () => import("./templates/CheckoutRTL.template.vue")
-  ),
-  [CHECKOUT_TEMPLATE.ENCLOSED]: defineAsyncComponent(
-    () => import("./templates/CheckoutEnclosed.template.vue")
-  )
+  [CHECKOUT_TEMPLATE.FULL]: CheckoutFullTemplate,
+  [CHECKOUT_TEMPLATE.TWO_COLUMN_LTR]: CheckoutLTRTemplate,
+  [CHECKOUT_TEMPLATE.TWO_COLUMN_RTL]: CheckoutRTLTemplate,
+  [CHECKOUT_TEMPLATE.ENCLOSED]: CheckoutEnclosedTemplate
 };
 
 // --- types
