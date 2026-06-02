@@ -38,7 +38,9 @@ export default {
     },
 
     guestCheckout: {
-      root: cva("mt-2 flex items-center gap-1 font-normal")
+      root: cva("mt-2 flex items-center gap-1 font-normal"),
+      sidebar: cva("flex flex-col items-start gap-3"),
+      sidebarText: cva("text-base-700 m-0 text-sm leading-5 font-light")
     },
 
     profile: {

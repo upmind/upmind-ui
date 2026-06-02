@@ -122,14 +122,40 @@
       </slot>
     </template>
 
-    <template v-if="ui.basketSummary.isVisible" #summary>
+    <template
+      v-if="ui.basketSummary.isVisible || meta.canRegisterAsGuest"
+      #summary
+    >
       <slot name="summary">
         <Section
-          v-if="basketMeta.hasProducts || basketMeta.isLoading"
+          v-if="
+            ui.basketSummary.isVisible &&
+            (basketMeta.hasProducts || basketMeta.isLoading)
+          "
           :label="t('cart.basket_section')"
           icon="shopping-bag-02"
         >
           <Summary :showPromotions="false" show-products />
+        </Section>
+
+        <!-- Alternative guest-checkout CTA placement: sidebar card.
+             Mirrors the inline hero CTA — kept in parallel so both
+             placements can be evaluated. -->
+        <Section
+          v-if="meta.canRegisterAsGuest"
+          :label="t('auth.guest_checkout_qn')"
+          icon="zap"
+        >
+          <div :class="styles.session.guestCheckout.sidebar">
+            <p :class="styles.session.guestCheckout.sidebarText">
+              {{ t("auth.guest_checkout_description") }}
+            </p>
+            <Button
+              variant="outline"
+              :label="t('auth.guest_checkout_label')"
+              @click="registerAsGuest"
+            />
+          </div>
         </Section>
       </slot>
     </template>
@@ -162,7 +188,7 @@ import sessionConfig from "./session.config";
 import { useSessionTemplates } from "./session.utils";
 
 // --- components
-import { Link, Markdown, Skeleton } from "@upmind-automation/upmind-ui";
+import { Button, Link, Markdown, Skeleton } from "@upmind-automation/upmind-ui";
 import Auth from "./components/Auth.vue";
 import GuestRegistration from "./components/GuestRegistration.vue";
 import Hero from "../../components/hero/Hero.vue";
