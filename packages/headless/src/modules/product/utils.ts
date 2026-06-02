@@ -821,8 +821,10 @@ export const parseSubproductDetails = (
   // And with each category having a list of attributes
   // so to do this we have to do the following:
 
-  // 0. sort the data by attached_order for further lookups
-  const sorted = orderBy(data, "attached_order");
+  // 0. sort the data by `pivot.order` (the canonical sort field on
+  // IProductOption / IProductAttribute) so downstream `first(values)`
+  // picks the same default the configurator and add-to-basket flows would.
+  const sorted = orderBy(data, "pivot.order");
 
   // then reduce the sorted data, creating a new object keyed by the category id
   // with the parsed data as the values
@@ -1453,81 +1455,6 @@ export const parseProductProps = (
     attributes: merge({}, attributes, data?.attributes),
     provisionFields: data.provisionFields || {},
     startTrial: data?.startTrial
-  };
-};
-
-/**
- * For each *required* option/attribute category on `raw` where the model
- * has no selection, fills in the first choice (lowest `pivot.order`) so
- * the basket API doesn't reject the request for missing required groups.
- *
- * No-op for non-required categories or categories that already have an
- * entry in the model. Returns a new model — `model` is not mutated.
- */
-export const fillRequiredOptionDefaults = <T extends ProductModel>(
-  model: T,
-  raw?: IProduct
-): T => {
-  if (!raw) return model;
-
-  const filledOptions: SubproductModel = { ...(model.options ?? {}) };
-  const filledAttributes: SubproductModel = { ...(model.attributes ?? {}) };
-
-  const fillFrom = (
-    items: (IProductOption | IProductAttribute)[] | undefined,
-    bucket: SubproductModel
-  ) => {
-    if (isEmpty(items)) return;
-
-    // Group required-category items by their category_id
-    const byCategory = reduce(
-      items,
-      (acc: Record<string, (IProductOption | IProductAttribute)[]>, item) => {
-        const categoryId = item?.category_id;
-        if (!categoryId || !item?.category?.required) return acc;
-        (acc[categoryId] ??= []).push(item);
-        return acc;
-      },
-      {}
-    );
-
-    forEach(byCategory, (entries, categoryId) => {
-      // Skip categories that already have a selection in the model
-      if (!isEmpty(bucket[categoryId])) return;
-
-      const firstChoice = orderBy(entries, ["pivot.order"], ["asc"])[0];
-      if (!firstChoice?.id) return;
-
-      bucket[categoryId] = {
-        [firstChoice.id]: {
-          productId: firstChoice.id,
-          quantity: parseQuantity(
-            firstChoice.unit_quantity,
-            parseProductDetails(firstChoice)
-          ),
-          cycle: resolveSubproductCycle(firstChoice, model.term)
-        }
-      };
-    });
-  };
-
-  fillFrom(
-    (raw.products_options ?? raw.options) as IProductOption[] | undefined,
-    filledOptions
-  );
-  // Same fallback as parseProductProps — API can return either field name.
-  const rawWithAttributeEcho = raw as IProduct & {
-    attributes?: IProductAttribute[];
-  };
-  fillFrom(
-    rawWithAttributeEcho.products_attributes ?? rawWithAttributeEcho.attributes,
-    filledAttributes
-  );
-
-  return {
-    ...model,
-    options: filledOptions,
-    attributes: filledAttributes
   };
 };
 
