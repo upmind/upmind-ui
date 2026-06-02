@@ -54,10 +54,7 @@ export const useProductCatalogue = (
     : service.loadInfinite({ ...params, withCurrency: true });
 
   const meta = computed(() => ({
-    // Don't show loading state if we have placeholder data (previous results)
-    isLoading:
-      (query?.isLoading.value || !query.isFetched.value) &&
-      !query.isPlaceholderData?.value,
+    isLoading: query.isFetching.value,
     hasError: !isEmpty(query.error.value),
     isEmpty: isEmpty(query.data?.value) || query.pagination.value.total == 0,
     ...query?.meta.value
