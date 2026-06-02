@@ -11,7 +11,7 @@ import {
   loginAsIncompleteCustomer,
   seedInvalidProduct
 } from "../../support/flows";
-import { getDataLayer } from "../../support/helpers/gtm";
+import { getDataLayer, waitForEvent } from "../../support/helpers/gtm";
 
 // The exact dataLayer event names need to be confirmed against the running app.
 // `useDataLayer().withEcommerce().push()` in Checkout.vue:174 fires
@@ -23,6 +23,11 @@ let productConfig: ProductConfig;
 let productSetup: ProductSetup;
 
 test.describe("Tracking — Product Setup step", () => {
+  // serial because every test logs into the shared Logins.domain1 account
+  // (loginAsIncompleteCustomer); a logged-in account must not be exercised by
+  // concurrent tests or they pollute each other's basket.
+  test.describe.configure({ mode: "serial" });
+
   test.beforeEach(({ page }) => {
     basket = new Basket(page);
     productConfig = new ProductConfig(page);
@@ -33,8 +38,8 @@ test.describe("Tracking — Product Setup step", () => {
     page,
     context
   }) => {
-    await loginAsIncompleteCustomer(page, context);
-    await seedInvalidProduct(context, products.DOMAIN_2);
+    const token = await loginAsIncompleteCustomer(page, context);
+    await seedInvalidProduct(products.DOMAIN_2, token);
 
     await page.goto(`${URLs.baseUrl}order/basket/products-setup/`);
     await expect(productSetup.setupForm).toBeVisible({ timeout: 15000 });
@@ -50,8 +55,8 @@ test.describe("Tracking — Product Setup step", () => {
     page,
     context
   }) => {
-    await loginAsIncompleteCustomer(page, context);
-    await seedInvalidProduct(context, products.DOMAIN_2);
+    const token = await loginAsIncompleteCustomer(page, context);
+    await seedInvalidProduct(products.DOMAIN_2, token);
     await page.goto(`${URLs.baseUrl}order/basket/products-setup/`);
     await expect(productSetup.setupForm).toBeVisible({ timeout: 15000 });
 
@@ -59,10 +64,9 @@ test.describe("Tracking — Product Setup step", () => {
     await productSetup.submit();
     await page.waitForURL(/checkout/);
 
-    const dataLayer = await getDataLayer(page);
-    const beginCheckout = (dataLayer ?? []).find(
-      entry => entry.event === "begin_checkout"
-    );
+    // GTM fires begin_checkout on checkout mount, just after navigation settles —
+    // poll for it rather than reading the dataLayer once (timing race).
+    const beginCheckout = await waitForEvent(page, "begin_checkout");
     expect(beginCheckout).toBeDefined();
   });
 
@@ -70,8 +74,8 @@ test.describe("Tracking — Product Setup step", () => {
     page,
     context
   }) => {
-    await loginAsIncompleteCustomer(page, context);
-    await seedInvalidProduct(context, products.DOMAIN_2);
+    const token = await loginAsIncompleteCustomer(page, context);
+    await seedInvalidProduct(products.DOMAIN_2, token);
 
     await page.goto(URLs.basket);
     await basket.proceedToCheckout.click();
@@ -97,9 +101,9 @@ test.describe("Tracking — Product Setup step", () => {
     page,
     context
   }) => {
-    await loginAsIncompleteCustomer(page, context);
-    await seedInvalidProduct(context, products.DOMAIN_2);
-    await seedInvalidProduct(context, products.DOMAIN_3);
+    const token = await loginAsIncompleteCustomer(page, context);
+    await seedInvalidProduct(products.DOMAIN_2, token);
+    await seedInvalidProduct(products.DOMAIN_3, token);
 
     await page.goto(URLs.basket);
     await basket.proceedToCheckout.click();
@@ -109,6 +113,8 @@ test.describe("Tracking — Product Setup step", () => {
     await productSetup.submit();
     await page.waitForURL(/checkout/);
 
+    // Wait for the event to fire (timing race), then assert it fired exactly once.
+    await waitForEvent(page, "begin_checkout");
     const dataLayer = await getDataLayer(page);
     const beginCheckoutEvents = (dataLayer ?? []).filter(
       entry => entry.event === "begin_checkout"

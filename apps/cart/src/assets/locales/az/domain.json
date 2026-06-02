@@ -26,6 +26,7 @@
   "own_domain_qn": "Bu domenin sahibi sizsiniz?",
   "owned_domains_title": "Hazırda sahib olduğunuz domenlər",
   "price_renewal_desc": "{regularPrice} üçün bir dəfəlik qiymət. | Hər il {regularPrice} üçün yenilənir. | Hər {count} ildən bir {regularPrice} üçün yenilənir.",
+  "registrant_use_billing_msg": "Faktura məlumatlarınız domen qeydiyyatçısının əlaqə məlumatları kimi istifadə olunacaq.",
   "search": "Domenləri axtarın",
   "starts_with_domain": "Hamısı **domen adı** ilə başlayır",
   "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
@@ -36,5 +37,6 @@
   "transfer_extension_info": "Köçürmələrə bir il uzadılması daxildir.",
   "transfer_owner_question": "Siz bu domenin sahibisiniz?",
   "transfer_price_info": "Yalnız bizə köçürə bilərsiniz {currentPrice}",
-  "transfer_promotion": "Yalnız köçürmə {currentPrice}, adətən {regularPrice}."
+  "transfer_promotion": "Yalnız köçürmə {currentPrice}, adətən {regularPrice}.",
+  "use_details_for": "Bu detallardan istifadə edin{domain}"
 }

@@ -53,6 +53,8 @@ export type PageRoute = {
   from?: RouteLocationNormalizedLoaded;
 };
 
+type FunnelMachineOptions = MachineOptions<FunnelContext, AnyEventObject>;
+
 export type FunnelProps = {
   id: string;
   states: StateNodesConfig<
@@ -61,10 +63,9 @@ export type FunnelProps = {
     any
   >;
   context?: FunnelContext;
-  guards?: MachineOptions<FunnelContext, AnyEventObject>["guards"];
-  services?: MachineOptions<FunnelContext, AnyEventObject>["services"];
-  actions?: MachineOptions<FunnelContext, AnyEventObject>["actions"];
-};
+  /** Endpoint state nodes generated from overlay definitions (merged in services.ts). */
+  endpoints?: Pick<FunnelProps, "states" | "guards" | "actions">;
+} & Pick<FunnelMachineOptions, "guards" | "services" | "actions">;
 
 export type Funnels = Record<string, FunnelProps>;
 /**
@@ -99,6 +100,18 @@ export type RoutingEngineContext = {
    */
   currentFunnel: string;
 
+  /**
+   * Reactive watchers registered alongside funnels.
+   * Passed through to the funnel context during prepare().
+   */
+  watchers?: FunnelWatcher[];
+
+  /**
+   * Overlay registry mapping path suffixes to route names.
+   * Used to generate endpoint state nodes for overlay routing.
+   */
+  overlays?: Record<string, string>;
+
   // ---
   /**
    * An error object encountered by the routing engine.
@@ -127,6 +140,18 @@ export type FunnelContext = {
    */
   resolved?: boolean;
 
+  /**
+   * True if the last RESOLVE fell through to idle (no state matched the route).
+   * Useful for diagnostics — check in dev-mode to catch misconfigured funnels.
+   */
+  fallbackResolved?: boolean;
+
+  /**
+   * Reactive watchers to invoke as callbacks when the funnel is in the `available` state.
+   * Each watcher subscribes to a reactive source and triggers navigation through the pipeline.
+   */
+  watchers?: FunnelWatcher[];
+
   // ---
   /**
    * An error object encountered by the funnel.
@@ -152,4 +177,108 @@ export enum FunnelActions {
   NEXT = "NEXT",
   BACK = "BACK",
   REDIRECT = "REDIRECT"
+}
+
+// --- watcher types
+
+/**
+ * A reactive watcher that subscribes to state changes and triggers
+ * navigation through the funnel pipeline.
+ *
+ * Must return a cleanup function (unsubscribe).
+ * The watcher receives the funnel context for `resolved` mutex checking.
+ */
+export type FunnelWatcher = {
+  /** Unique identifier for this watcher (e.g. 'session-logout') */
+  id: string;
+  /** The invoked callback function. Receives `sendBack` (unused) and `onReceive` (unused). */
+  handler: FunnelWatcherHandler;
+};
+
+/**
+ * Signature for the watcher handler function.
+ * Sets up a reactive subscription and returns a cleanup function.
+ * Must be self-contained — the handler manages its own lifecycle.
+ */
+export type FunnelWatcherHandler = () => () => void;
+
+/**
+ * A single conditional navigation target.
+ * Used in meta.next / meta.prev arrays for guard-based routing.
+ */
+export type FunnelMetaTarget = {
+  /** Route name to navigate to. */
+  target: string;
+  /** Guard name — when omitted this entry acts as the default fallback. */
+  cond?: string;
+};
+
+/**
+ * Meta properties for funnel state nodes.
+ * Used by the factory to auto-generate NEXT/BACK handlers (FE-2583).
+ *
+ * `next` / `prev` accept either:
+ * - A **string** — unconditional target (simple case).
+ * - An **array of FunnelMetaTarget** — evaluated in order; first matching
+ *   `cond` wins. Omit `cond` on the last entry for a default fallback.
+ */
+export type FunnelStateMeta = {
+  /** Route name (or conditional targets) for NEXT navigation. */
+  next?: string | FunnelMetaTarget[];
+  /** Route name (or conditional targets) for BACK navigation. */
+  prev?: string | FunnelMetaTarget[];
+  /** Step position for progress tracking (1-indexed). */
+  step?: number;
+  /** Human-readable label for breadcrumbs / progress indicators. */
+  label?: string;
+  /** Whether this state is a decision node (no UI). */
+  decision?: boolean;
+};
+
+// --- overlay types
+
+/**
+ * Enumeration representing the UI container type for overlay routes.
+ */
+export enum OverlayType {
+  MODAL = "modal",
+  DRAWER = "drawer",
+  CUSTOM = "custom"
+}
+
+/**
+ * Definition for an overlay route that can be injected as a child on eligible routes.
+ */
+export type OverlayDefinition = {
+  /** Path segment appended to parent route */
+  path: string;
+  /** Unique identifier for this overlay type */
+  id: string;
+  /** Default render type — brands can override via UI meta */
+  defaultType: OverlayType;
+  /** Guard service name to invoke when this overlay route is matched by the funnel */
+  guard?: string;
+};
+
+// --- Vue Router meta extension
+
+declare module "vue-router" {
+  interface RouteMeta {
+    /** When set, indicates this route renders as an overlay (modal or drawer) */
+    overlay?: OverlayType;
+    /** The overlay identifier: 'auth', '2fa', 'verify-email', etc. */
+    overlayId?: string;
+    /** Set to false to prevent overlay child routes from being injected */
+    allowOverlays?: boolean;
+    /**
+     * When true, the funnel redirects to the basket-empty route if the basket
+     * has no products. Routes that render basket contents should set this.
+     */
+    actionEmptyBasket?: boolean;
+    /**
+     * When true, this route replaces the current history entry rather than
+     * pushing a new one. Used on transitional routes like loading.
+     */
+    replace?: boolean;
+  }
 }

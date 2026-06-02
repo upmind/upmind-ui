@@ -31,7 +31,8 @@ export default {
     },
 
     auth: {
-      root: cva("flex flex-col gap-8"),
+      container: cva("max-w-3xl"),
+      root: cva("flex max-w-3xl flex-col gap-8"),
       form: cva("place-items-start"),
       actions: cva("mt-3 flex items-center justify-start space-x-2")
     },

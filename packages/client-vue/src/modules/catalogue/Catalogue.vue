@@ -58,7 +58,7 @@
 
 <script setup lang="ts">
 // --- external
-import { computed, provide } from "vue";
+import { computed, onMounted, provide } from "vue";
 import { useRouteQuery } from "@vueuse/router";
 import { useUrlSearchParams } from "@vueuse/core";
 import { useI18n } from "vue-i18n";
@@ -125,11 +125,6 @@ const { ui, data } = useConfig({
 
 set(ui.theme.value);
 
-// TODO: Reset the layout until we implement the templates for catalogue
-useLayout({});
-useHeader({});
-useFooter({});
-
 const params = useUrlSearchParams<{
   sort?: ProductSortableProperties;
   direction?: RequestSortDirection;
@@ -183,5 +178,13 @@ const styles = useStyles(["products", "products.facets"], {}, config);
 
 const isFaceted = computed(() => {
   return ui.categoryList.value === LIST_STYLE.GRID_FACET;
+});
+
+// --- side effects
+onMounted(() => {
+  // TODO: Reset the layout until we implement the templates for catalogue
+  useLayout({});
+  useHeader({});
+  useFooter({});
 });
 </script>

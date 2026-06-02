@@ -17,9 +17,10 @@ dayjs.extend(advancedFormat);
 export function useTime() {
   return {
     IMMEDIATE: 0,
-    WAIT: 10, // this allows us to wait for an imperceptible amount of time before continuing
-    ERROR: 1000, // this allows us to read the error before continuing,
-    POLL: 500, // this allows us to poll every 0.5 seconds
+    WAIT: 10, // imperceptible pause before continuing
+    INTERACTIVE: 80, // coalesce rapid input from interactive controls (qty steppers, sliders) before reacting
+    POLL: 500, // poll every 0.5 seconds
+    ERROR: 1000, // give the user time to read an error before continuing
     // ---
     MILLISECOND: 1,
     get SECOND() {

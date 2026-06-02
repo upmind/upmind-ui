@@ -19,6 +19,8 @@ useSeoMeta({
 });
 
 definePageMeta({
-  name: ROUTE.LOADING
+  name: ROUTE.LOADING,
+  allowOverlays: false,
+  replace: true
 });
 </script>

@@ -40,10 +40,9 @@
               meta.isLoading ||
               !meta.hasFields ||
               !meta.hasProducts ||
-              meta.hasInvalidProducts ||
               meta.hasLockedProducts
             "
-            :loading="meta.isProcessing"
+            :loading="meta.isProcessing || isNavigating"
             :show-checkout="
               template !== BASKET_TEMPLATE.TWO_COLUMN_RTL &&
               template !== BASKET_TEMPLATE.ENCLOSED &&
@@ -81,10 +80,9 @@
               meta.isLoading ||
               !meta.hasFields ||
               !meta.hasProducts ||
-              meta.hasInvalidProducts ||
               meta.hasLockedProducts
             "
-            :loading="meta.isProcessing"
+            :loading="meta.isProcessing || isNavigating"
           />
         </slot>
       </template>
@@ -105,14 +103,12 @@
 
 <script lang="ts" setup>
 // --- external
-import { ref, computed, defineAsyncComponent, onUnmounted } from "vue";
+import { ref, computed, defineAsyncComponent } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useBasket, useRoutingEngine } from "@upmind-automation/headless";
 import { useLayout } from "../../components/layout/useLayout";
-import { useHeader } from "../../components/header/useHeader";
-import { useFooter } from "../../components/footer/useFooter";
 import {
   useConfig,
   validateTemplate,
@@ -178,7 +174,7 @@ const props = withDefaults(
 
 const { t } = useI18n();
 const { set } = useThemes();
-const { navigateNext } = useRoutingEngine();
+const { navigateNext, isNavigating } = useRoutingEngine();
 const { isReady, meta, basketId } = useBasket();
 const { variant } = useLayout();
 
@@ -208,12 +204,6 @@ const { data: basketSummaryTemplate } = useClientTemplate({
 });
 
 set(ui.theme.value);
-
-onUnmounted(() => {
-  useHeader({});
-  useLayout({});
-  useFooter({});
-});
 
 // -----------------------------------------------------------------------------
 

@@ -18,11 +18,17 @@ import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
 import { computed } from "vue";
 
+// --- internal
+import { useHeader } from "../../components/header/useHeader";
+import { useFooter } from "../../components/footer/useFooter";
+import { useLayout } from "../../components/layout/useLayout";
+
 // -- components
 import { Interstitial } from "@upmind-automation/upmind-ui";
 
 // -- types
-import { type InterstitialProps } from "@upmind-automation/upmind-ui";
+import type { InterstitialProps } from "@upmind-automation/upmind-ui";
+
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<InterstitialProps>(), {
@@ -36,6 +42,13 @@ const props = withDefaults(defineProps<InterstitialProps>(), {
     size: "4xl"
   })
 });
+
+// Reset shell to defaults when loading state shows (skip for modals)
+if (!props.modal) {
+  useHeader({});
+  useFooter({});
+  useLayout({});
+}
 // -----------------------------------------------------------------------------
 const { t } = useI18n();
 const route = useRoute();

@@ -1,20 +1,44 @@
 // --- internal
-import { useBrand } from "@upmind-automation/client-vue";
-import { ROUTE, RegexMatch } from "./types";
+import { ROUTE, RegexMatch } from "./funnels/types";
+import { OverlayType } from "@upmind-automation/client-vue";
 // --- utils
-import { trimStart } from "lodash-es";
+import { reduce, trimStart } from "lodash-es";
 // --- types
 import type { RouteLocationGeneric, RouteRecordRaw } from "vue-router";
 
+import { BID_PREFIX } from "./funnels/types";
 // -----------------------------------------------------------------------------
 
 /**
- * Optional basket ID path prefix used by most routes.
- * When both params are provided (`segment: 'basket'`, `bid: '<uuid>'`),
- * routes render as `/order/basket/{bid}/...`.
- * When omitted, routes render as `/order/...` (current basket).
+ * Overlay route definitions.
+ * Each route here can be injected as a child on eligible parent routes.
  */
-const BID_PREFIX = `:segment(basket)?/:bid(${RegexMatch.UUID})?`;
+const OVERLAY_ROUTES: RouteRecordRaw[] = [
+  {
+    path: "auth/",
+    name: ROUTE.OVERLAY_AUTH,
+    component: () => import("../pages/overlays/AuthOverlay.vue"),
+    meta: { overlay: OverlayType.MODAL }
+  },
+  {
+    path: "verify-email/",
+    name: ROUTE.OVERLAY_VERIFY_EMAIL,
+    component: () => import("../pages/overlays/AuthOverlay.vue"),
+    meta: { overlay: OverlayType.MODAL, dismissable: false }
+  }
+];
+
+/**
+ * Overlay registry — derived from OVERLAY_ROUTES.
+ * Maps path suffix to route name for registerOverlayRoutes().
+ */
+export const CART_OVERLAYS: Record<string, string> = reduce(
+  OVERLAY_ROUTES,
+  (acc, route) => ({ ...acc, [route.path]: route.name as string }),
+  {}
+);
+
+// -----------------------------------------------------------------------------
 
 export default [
   /**
@@ -27,7 +51,7 @@ export default [
     path: "/order/:pathMatch(.*)*",
     name: ROUTE.NOT_FOUND,
     component: () => import("../pages/Error.vue"),
-    meta: {},
+    meta: { allowOverlays: false },
     beforeEnter: to => {
       if (!to.path.endsWith("/")) {
         return { path: `${to.path}/`, query: to.query, hash: to.hash };
@@ -65,7 +89,7 @@ export default [
     name: ROUTE.LOADING,
     alias: ["/order/", "/loading/"],
     component: () => import("../pages/Index.vue"),
-    meta: { replace: true }
+    meta: { replace: true, allowOverlays: false }
   },
 
   /**
@@ -108,6 +132,27 @@ export default [
   },
 
   /**
+   * Route for managing billing details on a standalone page.
+   * Accessed from the checkout billing summary "Change" link.
+   */
+  {
+    path: `/order/basket/:bid(${RegexMatch.UUID})?/billing/`,
+    name: ROUTE.BILLING,
+    component: () => import("../pages/Billing.vue"),
+    meta: {
+      actionEmptyBasket: true
+    }
+  },
+
+  /**
+   * Redirect legacy billing route
+   */
+  {
+    path: "/order/billing/",
+    redirect: { name: ROUTE.BILLING }
+  },
+
+  /**
    * Route displayed when a basket is unavailable or invalid.
    */
   {
@@ -146,15 +191,16 @@ export default [
   },
 
   /**
-   * Route for handling products in the basket that require additional user action.
-   * The :bpid parameter captures the unique basket product identifier (UUID format).
-   * This route typically leads to a page where users can resolve issues
-   * such as selecting options or configurations for the product.
+   * Route for product setup - fixing invalid/deferred product configuration.
+   * Single route that internally determines which product to configure.
    */
   {
-    path: `/order/basket/:bid(${RegexMatch.UUID})?/requires-action/:bpid(${RegexMatch.UUID})?/`,
-    name: ROUTE.BASKET_PRODUCT_REQUIRES_ACTION,
-    component: () => import("../pages/product/RequiresAction.vue")
+    path: `/order/basket/:bid(${RegexMatch.UUID})?/products-setup/`,
+    name: ROUTE.BASKET_PRODUCTS_SETUP,
+    component: () => import("../pages/ProductSetup.vue"),
+    meta: {
+      actionEmptyBasket: true
+    }
   },
 
   /**
@@ -172,19 +218,6 @@ export default [
     path: `/order/${BID_PREFIX}/checkout/`,
     name: ROUTE.CHECKOUT,
     component: () => import("../pages/Checkout.vue"),
-    meta: {
-      actionEmptyBasket: true
-    }
-  },
-
-  /**
-   * Route for managing billing details on a standalone page.
-   * Accessed from the checkout billing summary "Change" link.
-   */
-  {
-    path: "/order/billing/",
-    name: ROUTE.BILLING,
-    component: () => import("../pages/Billing.vue"),
     meta: {
       actionEmptyBasket: true
     }
@@ -280,6 +313,7 @@ export default [
     path: `/order/${BID_PREFIX}/auth/`,
     name: ROUTE.SESSION,
     component: () => import("../pages/session/Index.vue"),
+    meta: { allowOverlays: false },
     children: [
       {
         path: "login/",
@@ -345,5 +379,19 @@ export default [
         query: to.query // Persist all original query parameters
       };
     }
+  },
+
+  // ---------------------------------------------------------------------------
+  // OVERLAY ROUTES
+  // These routes define overlay components that can be injected as children
+  // on other routes via registerOverlayRoutes(). The /overlays path itself
+  // is not navigated to directly — it's a container for overlay definitions.
+  // ---------------------------------------------------------------------------
+
+  {
+    path: "/overlays/",
+    name: ROUTE.OVERLAYS,
+    redirect: "/",
+    children: OVERLAY_ROUTES
   }
 ] as RouteRecordRaw[];

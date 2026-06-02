@@ -21,6 +21,7 @@ import type {
   IconVariant,
   DividerStyle,
   OptionGroupSpacing,
+  ProductSetupMode,
   Benefit,
   ProductBundleConfig,
   ProductRecommendConfig,
@@ -137,6 +138,10 @@ export interface UISchema {
   billingDetails?: Editability;
   /** Cap the number of gateways to initially show */
   paymentGatewaysCap?: GatewayCap;
+
+  // --- Product Setup
+  /** Controls which products require setup before checkout. 'required' = only invalid, 'deferred' = invalid + deferred with empty fields */
+  productSetup?: ProductSetupMode;
 
   // --- SEO
   /** Page title for <title> tag */

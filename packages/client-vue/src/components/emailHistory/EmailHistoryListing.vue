@@ -3,11 +3,11 @@
     <div class="mb-8 flex gap-4">
       <div class="flex-1">
         <Input
+          id="email-search"
           :model-value="query"
           :placeholder="t('text.email_search_placeholder')"
           :auto-focus="false"
           aria-label="Search products"
-          data-testid="product-search"
           @update:model-value="doQuery"
           icon="search-md"
           class="max-w-full flex-1 lg:max-w-xl"

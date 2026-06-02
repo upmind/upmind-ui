@@ -183,8 +183,10 @@ export const useBasketCurrency = () => {
      */
     currencyCode,
 
+    /** The current currency ID. */
     currencyId,
 
+    /** The full currency model (code, id, symbol, etc.). */
     currency,
 
     // --- context

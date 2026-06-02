@@ -1,5 +1,5 @@
 // --- external
-import { computed, type ComputedRef, h } from "vue";
+import { computed, type ComputedRef, ref } from "vue";
 import { waitFor } from "xstate/lib/waitFor";
 import { interpret, InterpreterStatus } from "xstate";
 import { useActor } from "@xstate/vue";
@@ -64,6 +64,28 @@ import { parsePromotionsOrCoupons } from "../basketProduct/utils";
 
 const service = interpret(basketMachine, { devTools: true });
 
+/**
+ * Reactive mirror of the machine's `shopping.refreshing.processing` substate.
+ *
+ * Held at module scope so the subscription registers once for the lifetime of
+ * the basket service, rather than re-binding inside `useBasket()` on every
+ * call (which would accumulate listeners on the singleton service).
+ *
+ * Consumed by `isRefreshed()` for a synchronous early-out when no refresh is
+ * in flight, avoiding a needless `waitFor` poll cycle.
+ */
+const refreshing = ref<boolean>(false);
+
+/**
+ * Keeps the `refreshing` ref in sync with the basket machine's current state.
+ * Fires synchronously on every transition so callers chained immediately
+ * after an action see the up-to-date flag.
+ */
+service.onTransition(state => {
+  refreshing.value = stateMatches(state, ["shopping.refreshing.processing"]);
+});
+
+// -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
 
 /**
@@ -86,6 +108,29 @@ export const useBasket = () => {
       service,
       state => stateMatches(state, ["shopping", "unavailable", "error"]),
       { timeout: Infinity }
+    ).then(state => !stateMatches(state, ["error", "unavailable"]));
+  }
+
+  /**
+   * Resolves once the current refresh cycle has settled. If no refresh is in
+   * flight (module-scope `refreshing` ref is false), resolves immediately.
+   * Use after operations that trigger a refresh out-of-band to ensure the
+   * basket has re-validated before reading its state.
+   */
+  async function isRefreshed(): Promise<boolean> {
+    await isReady();
+
+    if (!refreshing.value) return true;
+
+    return waitFor(
+      service,
+      state =>
+        stateMatches(state, [
+          "shopping.refreshing.processed",
+          "unavailable",
+          "error"
+        ]),
+      { timeout: 60_000 }
     ).then(state => !stateMatches(state, ["error", "unavailable"]));
   }
 
@@ -785,6 +830,14 @@ export const useBasket = () => {
      * @param {IBasket} data The basket data to pre-refresh with.
      */
     prefresh,
+
+    /**
+     * Waits for an in-flight basket refresh to settle. Use this after
+     * operations that trigger a refresh out-of-band (e.g. basketProduct
+     * updateMany) to ensure the basket has re-validated before reading state.
+     * @returns {Promise<void>} Resolves when settled or on timeout (60s).
+     */
+    isRefreshed,
 
     /**
      * Sets the basket currency.
