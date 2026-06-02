@@ -9,7 +9,6 @@ import { useBrand } from "../brand";
 import { useLocale } from "../system";
 import {
   calculateBillingTerm,
-  fillRequiredOptionDefaults,
   parseProductDetails,
   parseProductProps,
   parseTermDetails
@@ -26,7 +25,6 @@ import {
   has,
   includes,
   isEmpty,
-  isFunction,
   isObject,
   map,
   some,
@@ -54,7 +52,7 @@ import {
   type DomainProduct,
   type DomainModel
 } from "./types";
-import { type ProductDetails, type ProductProps } from "../product";
+import { type ProductDetails } from "../product";
 import { responseCodes } from "../../utils";
 
 // ----------------------------------------------------------------------------
@@ -84,42 +82,6 @@ export function makePlaceholderProductDetails(overrides: {
     min: 1,
     max: 1
   };
-}
-
-// ----------------------------------------------------------------------------
-
-/**
- * Builds the basket model used to add a domain product to the basket.
- *
- * Resolves the base model (from a custom parser or the product's stored
- * `configuration`), auto-fills any *required* option/attribute categories
- * the model hasn't already specified, then applies `coupons` and the
- * `silent` flag so the basket API accepts the add request.
- *
- * Both `addDomainToBasket` (services.ts) and the dac machine's
- * `addToBasket` fast-path action route through this so the required-options
- * fix stays in one place — a new add-to-basket path won't silently
- * regress 422s from missing required groups.
- *
- * Returns `null` if no base model can be resolved.
- */
-export function buildAddToBasketModel(
-  product: DomainProduct | undefined,
-  parseProductModel:
-    | ((item: DomainProduct) => ProductProps | undefined)
-    | undefined,
-  coupons: string[] | undefined
-): ProductProps | null {
-  const baseModel = isFunction(parseProductModel)
-    ? parseProductModel(product!)
-    : product?.configuration;
-
-  if (!baseModel) return null;
-
-  const model = fillRequiredOptionDefaults(baseModel, product?.rawProduct);
-  model.coupons = coupons ?? model.coupons ?? [];
-  model.silent = true;
-  return model;
 }
 
 // ----------------------------------------------------------------------------
