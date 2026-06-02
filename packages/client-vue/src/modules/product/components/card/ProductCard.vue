@@ -3,7 +3,7 @@
     <div :class="styles.product.content">
       <div v-if="!configMeta.hideImage" :class="styles.product.image.container">
         <Link
-          v-if="navigate"
+          v-if="navigate && !isUnavailable"
           :to="productRoute"
           :disabled="loading || disabled"
           @click="doResolve"
@@ -28,7 +28,15 @@
         />
 
         <Badge
-          v-if="productMeta.data.productBadge"
+          v-if="unavailableReason"
+          :class="styles.product.image.badge"
+          :label="unavailableReason.label"
+          :icon="unavailableReason.icon"
+          variant="muted"
+          color="neutral"
+        />
+        <Badge
+          v-else-if="!isUnavailable && productMeta.data.productBadge"
           :class="styles.product.image.badge"
           v-bind="
             isString(productMeta.data.productBadge)
@@ -48,7 +56,7 @@
             @resolve="doResolve"
             :processing="loading"
             :title="productMeta.data.productName || props.productDetails.title"
-            :navigate="navigate"
+            :navigate="navigate && !isUnavailable"
             :hide-description="configMeta.hideDescription"
             :hide-image="configMeta.hideImage"
             :productMeta="productMeta"
@@ -90,7 +98,7 @@
               :color="color"
               size="lg"
               block
-              :disabled="loading || disabled || justAdded"
+              :disabled="loading || disabled || justAdded || isUnavailable"
               data-testid="product-card-cta"
               :aria-pressed="inBasket || justAdded"
               :data-trial="
@@ -300,7 +308,20 @@ const styles = useStyles(
   config
 );
 
+const isUnavailable = computed(() => !!productMeta.data.productUnavailable);
+
+const unavailableReason = computed(() => {
+  if (!isUnavailable.value) return undefined;
+  const reason = productMeta.data.productUnavailableReason;
+  if (!reason) return { label: t("text.unavailable") };
+  return isString(reason) ? { label: reason } : reason;
+});
+
 const actionContent = computed(() => {
+  const reason = unavailableReason.value;
+  if (reason && configMeta.value.hideImage) {
+    return { label: reason.label, icon: reason.icon };
+  }
   if (justAdded.value) {
     return { icon: "check-circle-broken", label: t("action.added_to_basket") };
   }
@@ -319,12 +340,13 @@ const actionContent = computed(() => {
 });
 
 const action = computed(() => {
-  if (!props.navigate) return actionContent.value;
+  if (!props.navigate || isUnavailable.value) return actionContent.value;
   return merge({}, actionContent.value, { to: actionRoute.value });
 });
 
 function doResolve() {
   if (!props.id) return;
+  if (isUnavailable.value) return;
   clicked.value = true;
   emit("resolve", props.id);
 }
