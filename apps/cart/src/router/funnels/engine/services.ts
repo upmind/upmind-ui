@@ -403,6 +403,7 @@ export default {
   },
 
   guardSession: async ({
+    currentRoute,
     targetRoute
   }: FunnelContext): Promise<FunnelResponse> => {
     const { router } = useRoutingEngine();
@@ -428,6 +429,19 @@ export default {
     ) {
       // We are authenticated and profile is loaded
     } else {
+      return Promise.reject();
+    }
+
+    // Guest customers are authenticated but not yet fully registered. Unlike
+    // full clients — who get redirected away from auth pages — a guest must be
+    // allowed onto the register route so they can complete their registration.
+    // Rejecting here lets the SESSION_REGISTER state resolve and render the
+    // page (Register.vue shows <GuestRegistration auto-show /> when isGuestClient).
+    if (
+      session.meta.value.isGuestClient &&
+      (currentRoute?.name === ROUTE.SESSION_REGISTER ||
+        targetRoute?.name === ROUTE.SESSION_REGISTER)
+    ) {
       return Promise.reject();
     }
 
