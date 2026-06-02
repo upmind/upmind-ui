@@ -22,6 +22,7 @@
   <SessionDetailsDropdown v-else-if="client" @register="goToRegister">
     <Avatar
       v-bind="client.avatar"
+      :icon="meta.isGuestClient ? 'user-01' : undefined"
       :shape="shape"
       size="lg"
       class="cursor-pointer"
