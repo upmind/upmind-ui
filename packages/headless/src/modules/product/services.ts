@@ -97,14 +97,26 @@ export function applyConfigDefaults(
     ? rawWithEcho?.products_attributes
     : rawWithEcho?.attributes;
 
+  // Pass the parent's billing cycle through so each subproduct's price can
+  // be resolved against it. Without this, `parseSubproductDetails`'s price
+  // match collapses to `cycle: 0` only, and any required-default option
+  // whose `prices` lacks a cycle-0 row falls back to the option's own
+  // `billing_cycle_months` — a *storage default* (often `1`), not a real
+  // price key. That stale default then rides into `schema.default` →
+  // baseline model → basket POST as `billing_cycle_months: 1`.
+  // The cycle order: explicit `baseModel.term` (user choice / configurator
+  // selection) wins; otherwise fall back to the product's
+  // `default_payment_period`.
+  const parentCycle = baseModel?.term ?? raw?.default_payment_period;
+
   const schema = useProductConfigSchema({
     baseModel,
     rawProduct: raw,
     lookups: {
       product: raw ? parseProductDetails(raw) : undefined,
       terms: raw ? parseTermDetails(raw) : undefined,
-      options: parseSubproductDetails(rawOptions),
-      attributes: parseSubproductDetails(rawAttributes)
+      options: parseSubproductDetails(rawOptions, parentCycle),
+      attributes: parseSubproductDetails(rawAttributes, parentCycle)
     }
   } as ProductConfigContext);
 
