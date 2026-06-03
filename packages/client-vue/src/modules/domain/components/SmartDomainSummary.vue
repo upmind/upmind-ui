@@ -1,5 +1,8 @@
 <template>
-  <section :class="styles.field.summary.root">
+  <section
+    :class="styles.field.summary.root"
+    :data-disabled="disabled || undefined"
+  >
     <RadioGroup model-value="selected">
       <div :class="styles.field.summary.row">
         <div :class="styles.field.summary.indicator">
@@ -7,7 +10,7 @@
         </div>
         <span :class="styles.field.summary.domain">{{ domain }}</span>
         <Link
-          v-if="!disabled"
+          :disabled="disabled"
           :class="styles.field.summary.change"
           @click="emit('change')"
         >

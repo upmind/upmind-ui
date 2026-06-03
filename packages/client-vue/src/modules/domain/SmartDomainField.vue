@@ -14,7 +14,10 @@
       :disabled="props.disabled"
       @update:model-value="onChoose"
     >
-      <div :class="styles.field.container">
+      <div
+        :class="styles.field.container"
+        :data-disabled="props.disabled || undefined"
+      >
         <div :class="styles.field.content">
           <template v-for="choice in sortedChoices" :key="choice.value">
             <!-- Radio option row -->
