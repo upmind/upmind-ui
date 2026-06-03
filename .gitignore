@@ -42,3 +42,10 @@ graphify-out/
 **/graphify-out/
 repos/monorepo
 repos/vue-app
+
+# Transient agent-generated docs
+docs/analysis/
+docs/plans/
+docs/audit/
+docs/reviews/
+docs/decisions/
