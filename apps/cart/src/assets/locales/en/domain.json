@@ -1,64 +1,64 @@
 {
-  "domain_title": "Include a domain name.",
-  "domain_description": "Secure your online identity today – it only takes a minute.",
+  "basket_placeholder": "Select a domain",
   "begin_search_above_desc": "Begin your search using the box above.",
-  "finding_perfect_domain": "Finding your **perfect** domain",
-  "finding_perfect_domain_md": "@.markdown:{'domain.finding_perfect_domain'}",
-  "own_domain_qn": "Do you own this domain?",
-  "owned_domains_title": "Domains that you currently own",
-  "transfer_domain": "Transfer domain",
-  "price_renewal_desc": "One-time price of {regularPrice}. | Renews every year for {regularPrice}. | Renews every {count} years for {regularPrice}.",
-  "transfer_promotion": "Transfer for only {currentPrice}, usually {regularPrice}.",
-  "transfer": "Transfer for only {currentPrice}.",
-  "starts_with_domain": "It all starts with a **domain name**",
-  "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
-  "tld_renewal_price_desc": "Our {tld} renewal prices start from only {currentPrice} (was {regularPrice}).",
-  "tld_renewal_price_from_desc": "Our {tld} renewal prices start from only {regularPrice}.",
-  "transfer_owner_question": "Are you the owner of this domain?",
-  "transfer_price_info": "You can transfer it to us for only {currentPrice}",
-  "transfer_extension_info": "Transfers include a one year extension.",
-  "domain_not_required_label": "Continue without domain",
   "choices": {
-    "register": {
-      "label": "Register a new domain",
-      "tooltip": "Don't already have a domain? Register a new one with us"
-    },
-    "transfer": {
-      "label": "Transfer domain",
-      "tooltip": "Already own a domain? You can transfer it to us"
+    "basket": {
+      "label": "Use a domain from my basket",
+      "tooltip": "These domains are already in your basket"
     },
     "existing": {
       "label": "Use a domain I already own",
       "tooltip": "You can use an existing domain by updating the nameservers"
     },
-    "basket": {
-      "label": "Use a domain from my basket",
-      "tooltip": "These domains are already in your basket"
+    "register": {
+      "label": "Register a new domain",
+      "tooltip": "Don't already have a domain? Register a new one with us"
     },
     "skip": {
       "label": "I'll decide later",
       "tooltip": ""
+    },
+    "transfer": {
+      "label": "Transfer domain",
+      "tooltip": "Already own a domain? You can transfer it to us"
     }
   },
-  "search": "Enter a domain to search",
-  "basket_placeholder": "Select a domain",
-  "use_details_for": "Use these details for {domain}",
-  "registrant_use_billing_msg": "Your billing details will be used as the domain registrant contact information.",
-  "existing": {
-    "placeholder": "Tell us the domain you want to use.",
-    "transfer_info": "If you own this domain you can transfer it to us for only {price}, which includes a {period} renewal. Alternatively, you will need to update the domain's nameserver (NS) records.",
-    "add_transfer": "Add transfer",
-    "register_info": "Good news — this domain is available to register for only {price}, which includes a {period} registration.",
-    "add_registration": "Add to basket",
-    "dns_info": "To use this domain, you will need to update the domain's DNS with the existing registrar.",
-    "unavailable": "This domain cannot be registered or transferred.",
-    "remove_transfer": "Remove transfer",
-    "transfer_added": "Transfer added"
-  },
+  "domain_description": "Secure your online identity today – it only takes a minute.",
+  "domain_not_required_label": "Continue without domain",
+  "domain_title": "Include a domain name.",
   "error": {
-    "transfer_add_failed": "Failed to add transfer to basket",
-    "transfer_remove_failed": "Failed to remove transfer from basket",
+    "availability_check_failed": "Failed to check domain availability",
     "registration_add_failed": "Failed to add domain to basket",
-    "availability_check_failed": "Failed to check domain availability"
-  }
+    "transfer_add_failed": "Failed to add transfer to basket",
+    "transfer_remove_failed": "Failed to remove transfer from basket"
+  },
+  "existing": {
+    "add_registration": "Add to basket",
+    "add_transfer": "Add transfer",
+    "dns_info": "To use this domain, you will need to update the domain's DNS with the existing registrar.",
+    "placeholder": "Tell us the domain you want to use.",
+    "register_info": "Good news — this domain is available to register for only {price}, which includes a {period} registration.",
+    "remove_transfer": "Remove transfer",
+    "transfer_added": "Transfer added",
+    "transfer_info": "If you own this domain you can transfer it to us for only {price}, which includes a {period} renewal. Alternatively, you will need to update the domain's nameserver (NS) records.",
+    "unavailable": "This domain cannot be registered or transferred."
+  },
+  "finding_perfect_domain": "Finding your **perfect** domain",
+  "finding_perfect_domain_md": "@.markdown:{'domain.finding_perfect_domain'}",
+  "own_domain_qn": "Do you own this domain?",
+  "owned_domains_title": "Domains that you currently own",
+  "price_renewal_desc": "One-time price of {regularPrice}. | Renews every year for {regularPrice}. | Renews every {count} years for {regularPrice}.",
+  "registrant_use_billing_msg": "Your billing details will be used as the domain registrant contact information.",
+  "search": "Enter a domain to search",
+  "starts_with_domain": "It all starts with a **domain name**",
+  "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
+  "tld_renewal_price_desc": "Our {tld} renewal prices start from only {currentPrice} (was {regularPrice}).",
+  "tld_renewal_price_from_desc": "Our {tld} renewal prices start from only {regularPrice}.",
+  "transfer": "Transfer for only {currentPrice}.",
+  "transfer_domain": "Transfer domain",
+  "transfer_extension_info": "Transfers include a one year extension.",
+  "transfer_owner_question": "Are you the owner of this domain?",
+  "transfer_price_info": "You can transfer it to us for only {currentPrice}",
+  "transfer_promotion": "Transfer for only {currentPrice}, usually {regularPrice}.",
+  "use_details_for": "Use these details for {domain}"
 }

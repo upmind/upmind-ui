@@ -1,17 +1,22 @@
 {
+  "basket_placeholder": "Wählen Sie eine Domain aus",
   "begin_search_above_desc": "Beginnen Sie Ihre Suche mit dem Feld oben.",
   "choices": {
     "basket": {
-      "label": "Domain im Warenkorb verwenden",
+      "label": "Eine Domain aus meinem Warenkorb verwenden",
       "tooltip": "Diese Domains sind bereits in Ihrem Warenkorb"
     },
     "existing": {
-      "label": "Vorhandene Domäne verwenden",
+      "label": "Eine Domain verwenden, die ich bereits besitze",
       "tooltip": "Sie können eine bestehende Domain verwenden, indem Sie die Nameserver aktualisieren."
     },
     "register": {
-      "label": "Neue Domain registrieren",
+      "label": "Eine neue Domain registrieren",
       "tooltip": "Sie haben noch keine Domain? Registrieren Sie eine neue bei uns"
+    },
+    "skip": {
+      "label": "Das entscheide ich später",
+      "tooltip": ""
     },
     "transfer": {
       "label": "Domain übertragen",
@@ -21,13 +26,30 @@
   "domain_description": "Sichern Sie noch heute Ihre Online-Identität – es dauert nur eine Minute.",
   "domain_not_required_label": "Ohne Domäne fortfahren",
   "domain_title": "Fügen Sie einen Domainnamen hinzu.",
+  "error": {
+    "availability_check_failed": "Die Überprüfung der Verfügbarkeit der Domain ist fehlgeschlagen",
+    "registration_add_failed": "Domain konnte nicht zum Warenkorb hinzugefügt werden",
+    "transfer_add_failed": "Der Transfer konnte nicht in den Warenkorb gelegt werden",
+    "transfer_remove_failed": "Das Entfernen des Artikels aus dem Warenkorb ist fehlgeschlagen"
+  },
+  "existing": {
+    "add_registration": "In den Warenkorb",
+    "add_transfer": "Überweisung hinzufügen",
+    "dns_info": "Um diese Domain zu nutzen, müssen Sie die DNS-Einstellungen der Domain bei Ihrem derzeitigen Registrar aktualisieren.",
+    "placeholder": "Teilen Sie uns bitte mit, welche Domain Sie verwenden möchten.",
+    "register_info": "Gute Nachrichten – diese Domain kann für nur {price} registriert werden, inklusive einer {period} Registrierung.",
+    "remove_transfer": "Übertragung entfernen",
+    "transfer_added": "Transfer hinzugefügt",
+    "transfer_info": "Wenn Sie Eigentümer dieser Domain sind, können Sie sie für nur {price} zu uns übertragen, wobei die Verlängerung {period} bereits enthalten ist. Alternativ müssen Sie die Nameserver-Einträge (NS) der Domain aktualisieren.",
+    "unavailable": "Diese Domain kann weder registriert noch übertragen werden."
+  },
   "finding_perfect_domain": "Finden Sie Ihre **perfekte** Domain",
   "finding_perfect_domain_md": "@.markdown:{'domain.finding_perfect_domain'}",
   "own_domain_qn": "Sind Sie Eigentümer dieser Domain?",
   "owned_domains_title": "Domänen, die Sie derzeit besitzen",
   "price_renewal_desc": "Einmaliger Preis von {regularPrice}. | Verlängert sich jedes Jahr für {regularPrice}. | Verlängert sich alle {count} Jahre für {regularPrice}.",
   "registrant_use_billing_msg": "Ihre Rechnungsdaten werden als Kontaktdaten des Domaininhabers verwendet.",
-  "search": "Suchdomänen",
+  "search": "Geben Sie eine Domain ein, nach der Sie suchen möchten",
   "starts_with_domain": "Alles beginnt mit einem **Domänennamen**",
   "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
   "tld_renewal_price_desc": "Unser {tld} Die Preise für die Verlängerung beginnen bei nur {currentPrice} (War {regularPrice}).",

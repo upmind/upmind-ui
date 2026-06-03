@@ -1,17 +1,22 @@
 {
+  "basket_placeholder": "Vælg et domæne",
   "begin_search_above_desc": "Start din søgning ved hjælp af feltet ovenfor.",
   "choices": {
     "basket": {
-      "label": "Brug domæne i kurv",
+      "label": "Brug et domæne fra min kurv",
       "tooltip": "Disse domæner er allerede i din kurv"
     },
     "existing": {
-      "label": "Brug eksisterende domæne",
+      "label": "Brug et domæne, jeg allerede ejer",
       "tooltip": "Du kan bruge et eksisterende domæne ved at opdatere navneserverne"
     },
     "register": {
-      "label": "Registrer nyt domæne",
+      "label": "Registrer et nyt domæne",
       "tooltip": "Har du ikke allerede et domæne? Registrer et nyt hos os"
+    },
+    "skip": {
+      "label": "Det beslutter jeg senere",
+      "tooltip": ""
     },
     "transfer": {
       "label": "Overfør domæne",
@@ -21,13 +26,30 @@
   "domain_description": "Sikr din online identitet i dag – det tager kun et minut.",
   "domain_not_required_label": "Fortsæt uden domæne",
   "domain_title": "Inkluder et domænenavn.",
+  "error": {
+    "availability_check_failed": "Det lykkedes ikke at kontrollere, om domænet er ledigt",
+    "registration_add_failed": "Det lykkedes ikke at føje domænet til kurven",
+    "transfer_add_failed": "Det lykkedes ikke at lægge overførslen i kurven",
+    "transfer_remove_failed": "Det lykkedes ikke at fjerne varen fra kurven"
+  },
+  "existing": {
+    "add_registration": "Læg i kurven",
+    "add_transfer": "Tilføj overførsel",
+    "dns_info": "For at kunne bruge dette domæne skal du opdatere domænets DNS-indstillinger hos den nuværende registrator.",
+    "placeholder": "Fortæl os, hvilket domæne du vil bruge.",
+    "register_info": "Gode nyheder — dette domæne kan registreres for kun {price}, hvilket inkluderer en registrering {period}.",
+    "remove_transfer": "Fjern overførsel",
+    "transfer_added": "Overførsel tilføjet",
+    "transfer_info": "Hvis du ejer dette domæne, kan du overføre det til os for kun {price}, hvilket inkluderer en fornyelse {period}. Alternativt skal du opdatere domænets navneserveroplysninger (NS).",
+    "unavailable": "Dette domæne kan hverken registreres eller overføres."
+  },
   "finding_perfect_domain": "At finde dit **perfekte** domæne",
   "finding_perfect_domain_md": "@.markdown:{'domain.finding_perfect_domain'}",
   "own_domain_qn": "Ejer du dette domæne?",
   "owned_domains_title": "Domæner, du ejer i øjeblikket",
   "price_renewal_desc": "Engangspris på {regularPrice}. | Fornyes hvert år for {regularPrice}. | Fornyes hver {count} år for {regularPrice}.",
   "registrant_use_billing_msg": "Dine faktureringsoplysninger vil blive brugt som kontaktoplysninger for domæneregistranten.",
-  "search": "Søg domæner",
+  "search": "Indtast et domæne, du vil søge efter",
   "starts_with_domain": "Det hele starter med et **domænenavn**",
   "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
   "tld_renewal_price_desc": "Vores {tld} fornyelsespriser starter fra kun {currentPrice} (var {regularPrice}).",
