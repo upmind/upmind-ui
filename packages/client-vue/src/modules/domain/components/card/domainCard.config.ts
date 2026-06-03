@@ -86,12 +86,7 @@ export default {
             false: "w-full lg:w-14"
           }
         }
-      }),
-      // Priced rows in priceLoading state — shown while /suggestions/tlds
-      // is in flight after /suggestions has already returned domain rows.
-      description: cva("h-4 w-32"),
-      price: cva("h-6 w-24"),
-      priceButton: cva("button-radius h-11")
+      })
     }
   }
 };
