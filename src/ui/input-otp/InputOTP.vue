@@ -185,8 +185,7 @@ function onSlotFocus(index: number) {
 function emitValue() {
   const value = currentValue.value;
   const isComplete = chars.value.every(c => c !== "");
-  modelValue.value = isComplete ? value : value;
-  emit("update:modelValue", isComplete ? value : "");
+  modelValue.value = value;
   if (isComplete) {
     emit("complete", value);
   }
