@@ -41,6 +41,7 @@ import {
   type IDomainSuggestionResult,
   type IDomainSuggestionResultProduct,
   type IProduct,
+  type IProductPrice,
   ProvisionCategoryCodes
 } from "@upmind-automation/types";
 import type { BasketProduct } from "../basketProduct";
@@ -167,7 +168,7 @@ export function useDomainSearchMethod() {
  * Priority: 12-month → preferred cycle → lowest term.
  */
 export function buildFallbackPricing(
-  prices: any[],
+  prices: IProductPrice[],
   preferredCycle?: number
 ): { price: DomainProduct["price"]; billingCycleMonths: number } {
   const sortedPrices = sortBy(prices, "billing_cycle_months");
@@ -228,8 +229,8 @@ export function hasTransferSetup(
 export function applyDacTransferOverride(
   canTransfer: boolean | undefined,
   product?: {
-    meta?: any;
-    category?: { meta?: any };
+    meta?: IProduct["meta"];
+    category?: IProduct["category"] | null;
     setup_function_sub_ids?: { transfer?: string[] };
   } | null
 ): boolean {
@@ -251,7 +252,10 @@ export function applyDacTransferOverride(
  * category default for individual TLDs.
  */
 export function getDacTransferLabel(
-  product?: { meta?: any; category?: { meta?: any } } | null
+  product?: {
+    meta?: IProduct["meta"];
+    category?: IProduct["category"] | null;
+  } | null
 ): string | undefined {
   if (!product) return undefined;
   const productLabel = product.meta?.overrides?.dac?.i18n?.transfer;
@@ -712,7 +716,9 @@ export function domainAvailabilityHelper(callback: any, onReceiveEvent: any) {
  * @param product - A raw product or catalog option object.
  * @returns `true` if the product is identified as a transfer product.
  */
-export function hasTransferIndicator(product: any): boolean {
+export function hasTransferIndicator(
+  product?: Pick<IProduct, "name" | "code" | "domain_operation_code"> | null
+): boolean {
   if (!product) return false;
   const name = (product.name ?? "").toLowerCase();
   const code = (product.code ?? "").toLowerCase();
