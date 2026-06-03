@@ -3,14 +3,14 @@ import { createMachine, assign, spawn, sendTo, pure } from "xstate";
 
 // --- internal
 import services from "./services";
+import { applyConfigDefaults } from "../product";
 import { basketSubscription } from "../basketProduct/helper";
 import { authSubscription } from "../session/helper";
 import { useDataLayer } from "../system";
 import { useFeedback } from "../feedback";
-import { useProductConfigSchema } from "../product";
 
 // --- utils
-import { mapToHeadlessError, useModelParser, useTime } from "../../utils";
+import { mapToHeadlessError, useTime } from "../../utils";
 import {
   buildCommonMeta,
   domainAvailabilityHelper,
@@ -22,18 +22,16 @@ import {
   isDomainProduct,
   sanitiseDomainInput
 } from "./utils";
+import { parseProductProps } from "../product/utils";
 import {
-  parseProductDetails,
-  parseProductProps,
-  parseSubproductDetails
-} from "../product/utils";
-import {
+  cloneDeep,
   compact,
   concat,
   defaultsDeep,
   every,
   filter,
   find,
+  findIndex,
   first,
   has,
   isEmpty,
@@ -49,21 +47,48 @@ import {
 
 // --- types
 import type { AnyEventObject } from "xstate";
-import type {
-  IBasketProduct,
-  IProduct,
-  IProductAttribute
-} from "@upmind-automation/types";
+import type { IBasketProduct } from "@upmind-automation/types";
 import {
   type DomainModel,
   type DacContext,
   type DomainProduct,
   DomainMode
 } from "./types";
-import type { ProductConfigContext, ProductProps } from "../product";
+import type { ProductProps } from "../product";
 import { parseBasketProduct } from "../basketProduct/utils";
-import { PAGINATION } from "../query";
+import { isAbortError, PAGINATION } from "../query";
 import { useI18n } from "../system";
+
+// -----------------------------------------------------------------------------
+
+/**
+ * API-side domain-availability error codes that the basket POST can return.
+ * Single source of truth so the `isDomainAddError` guard and
+ * `flipDomainOnAddError` action don't drift on the spelling.
+ *
+ * `DomainAddErrorCode` preserves the literal union so adding a new entry
+ * here surfaces as an unhandled case in `flipDomainOnAddError` rather
+ * than passing the guard and silently hanging the row in `processing`.
+ */
+const DOMAIN_ADD_ERROR_CODES = {
+  registerOnly: "web_hosting::domain_register_only",
+  transferOnly: "web_hosting::domain_transfer_only",
+  notForSale: "web_hosting::domain_not_for_sale"
+} as const;
+
+type DomainAddErrorCode =
+  (typeof DOMAIN_ADD_ERROR_CODES)[keyof typeof DOMAIN_ADD_ERROR_CODES];
+
+// Typed as `ReadonlySet<string>` so `.has(value)` accepts the narrowed
+// `string` without a cast — `Set.prototype.has` does strict equality at
+// runtime regardless of the type slot.
+const DOMAIN_ADD_ERROR_CODE_SET: ReadonlySet<string> = new Set(
+  Object.values(DOMAIN_ADD_ERROR_CODES)
+);
+
+function isDomainAddErrorCode(value: unknown): value is DomainAddErrorCode {
+  return typeof value === "string" && DOMAIN_ADD_ERROR_CODE_SET.has(value);
+}
 
 // -----------------------------------------------------------------------------
 export default createMachine(
@@ -631,29 +656,28 @@ export default createMachine(
 
         if (!baseModel) return;
 
-        // Run baseModel through the canonical product schema/parse pipeline
-        // so required option/attribute categories get default values filled
-        // in — same machinery the configurator uses on every refresh
-        // (`product/services.ts:284-286`). For TLDs this is typically a
-        // no-op (no required categories) but the path is consistent with
-        // every other add-to-basket flow.
-        const raw = product?.rawProduct;
-        const rawAttributes =
-          (raw as (IProduct & { attributes?: IProductAttribute[] }) | undefined)
-            ?.products_attributes ??
-          (raw as (IProduct & { attributes?: IProductAttribute[] }) | undefined)
-            ?.attributes;
-        const schema = useProductConfigSchema({
-          baseModel,
-          rawProduct: raw,
-          lookups: {
-            product: raw ? parseProductDetails(raw) : undefined,
-            options: parseSubproductDetails(raw?.products_options),
-            attributes: parseSubproductDetails(rawAttributes)
-          }
-        } as ProductConfigContext);
-
-        const model = useModelParser<ProductProps>(schema, baseModel, {});
+        // Run baseModel through the shared schema/parse pipeline so
+        // required option/attribute categories get default values filled
+        // in — same helper the existing-domain add paths use. Wrapped in
+        // try/catch because this action body is `pure` (synchronous) — an
+        // unhandled throw from a malformed `rawProduct` would propagate
+        // through XState as an interpreter-level error and leave the row
+        // stuck in `processing`. Fall back to a CLONE of baseModel (not
+        // the reference) so the basket POST still happens AND the
+        // subsequent `model.coupons` / `model.silent` mutations don't
+        // corrupt the live `product.configuration` in `lookups.searched`
+        // (parseProductModel at line 593 returns `item.configuration`
+        // by reference).
+        let model: ProductProps;
+        try {
+          model = applyConfigDefaults(baseModel, product?.rawProduct);
+        } catch (err) {
+          console.warn(
+            "[dac] addToBasket: applyConfigDefaults threw — falling back to baseModel",
+            err
+          );
+          model = cloneDeep(baseModel);
+        }
         model.coupons = context.coupons ?? model.coupons ?? [];
         model.silent = true;
 
@@ -1014,16 +1038,27 @@ export default createMachine(
           // `persisted` so the merged result keeps any selected-but-not-in-
           // search domains visible; `uniqBy` drops duplicates if the same
           // domain also appears in the fresh merge.
-          set(
-            lookups,
-            "searched",
-            uniqBy(
-              compact(
-                concat(persisted, mergeDomainSearchResults(previous, available))
-              ),
-              "domain"
-            )
+          const mergedRows = uniqBy(
+            compact(
+              concat(persisted, mergeDomainSearchResults(previous, available))
+            ),
+            "domain"
+          ) as DomainProduct[];
+
+          // Exact-match invariant: when the user's query is a full domain
+          // (sld + tld), the matching row MUST sit at index 0 regardless
+          // of the merge order. `concat(persisted, ...)` above can prepend
+          // selected/owned rows ahead of the exact match — hoist it back.
+          const exactIdx = findIndex(
+            mergedRows,
+            (item: DomainProduct) => !!item.meta?.exactMatch
           );
+          if (exactIdx > 0) {
+            const [exactRow] = mergedRows.splice(exactIdx, 1);
+            mergedRows.unshift(exactRow);
+          }
+
+          set(lookups, "searched", mergedRows);
 
           // store all previous searches
           set(
@@ -1157,8 +1192,13 @@ export default createMachine(
           { lookups }: DacContext,
           { data, sourceContext }: AnyEventObject
         ) => {
-          const apiCode = (data as { apiCode?: string })?.apiCode;
-          if (!apiCode || !sourceContext) return lookups;
+          const rawApiCode = (data as { apiCode?: unknown })?.apiCode;
+          if (!isDomainAddErrorCode(rawApiCode) || !sourceContext)
+            return lookups;
+          // `apiCode` now narrowed to `DomainAddErrorCode` — the
+          // exhaustive switch below produces a compile-time error if
+          // `DOMAIN_ADD_ERROR_CODES` gains a new entry without a branch.
+          const apiCode: DomainAddErrorCode = rawApiCode;
 
           const ctx = sourceContext as ProductProps;
           const product = find(lookups.searched, (item: DomainProduct) => {
@@ -1191,34 +1231,48 @@ export default createMachine(
             );
           };
 
-          if (apiCode === "web_hosting::domain_register_only") {
-            product.meta.available = true;
-            product.meta.canTransfer = false;
-            product.meta.checkedAvailability = true;
-            product.meta.processing = false;
-            rebuildConfigForMode("register");
-            useFeedback().addError({
-              title: t("error.domain_transfer_unavailable"),
-              copy: product.domain ?? ""
-            });
-          } else if (apiCode === "web_hosting::domain_transfer_only") {
-            // API says transfer-only — but if the product has no
-            // `setup_function_sub_ids.transfer`, retrying the basket POST as
-            // a transfer would fail the same way. Mark the row as fully
-            // unavailable instead.
-            if (hasTransferSetup(product.rawProduct)) {
-              product.meta.available = false;
-              product.meta.canTransfer = true;
+          switch (apiCode) {
+            case DOMAIN_ADD_ERROR_CODES.registerOnly:
+              product.meta.available = true;
+              product.meta.canTransfer = false;
               product.meta.checkedAvailability = true;
               product.meta.processing = false;
-              rebuildConfigForMode("transfer");
+              rebuildConfigForMode("register");
               useFeedback().addError({
-                title: t("error.domain_register_unavailable"),
+                title: t("error.domain_transfer_unavailable"),
                 copy: product.domain ?? ""
               });
-            } else {
+              break;
+            case DOMAIN_ADD_ERROR_CODES.transferOnly:
+              // API says transfer-only — but if the product has no
+              // `setup_function_sub_ids.transfer`, retrying the basket POST
+              // as a transfer would fail the same way. Mark the row as fully
+              // unavailable instead.
+              if (hasTransferSetup(product.rawProduct)) {
+                product.meta.available = false;
+                product.meta.canTransfer = true;
+                product.meta.checkedAvailability = true;
+                product.meta.processing = false;
+                rebuildConfigForMode("transfer");
+                useFeedback().addError({
+                  title: t("error.domain_register_unavailable"),
+                  copy: product.domain ?? ""
+                });
+              } else {
+                product.meta.available = false;
+                product.meta.canTransfer = false;
+                product.meta.unavailable = true;
+                product.meta.disabled = true;
+                product.meta.checkedAvailability = true;
+                product.meta.processing = false;
+                useFeedback().addError({
+                  title: t("error.domain_unavailable"),
+                  copy: product.domain ?? ""
+                });
+              }
+              break;
+            case DOMAIN_ADD_ERROR_CODES.notForSale:
               product.meta.available = false;
-              product.meta.canTransfer = false;
               product.meta.unavailable = true;
               product.meta.disabled = true;
               product.meta.checkedAvailability = true;
@@ -1227,17 +1281,14 @@ export default createMachine(
                 title: t("error.domain_unavailable"),
                 copy: product.domain ?? ""
               });
+              break;
+            default: {
+              // Exhaustiveness check — adding a new entry to
+              // `DOMAIN_ADD_ERROR_CODES` without a switch arm here is a
+              // compile error.
+              const _exhaustive: never = apiCode;
+              return _exhaustive;
             }
-          } else if (apiCode === "web_hosting::domain_not_for_sale") {
-            product.meta.available = false;
-            product.meta.unavailable = true;
-            product.meta.disabled = true;
-            product.meta.checkedAvailability = true;
-            product.meta.processing = false;
-            useFeedback().addError({
-              title: t("error.domain_unavailable"),
-              copy: product.domain ?? ""
-            });
           }
 
           return lookups;
@@ -1398,14 +1449,8 @@ export default createMachine(
       hasSearchResults: (_context, { data }: AnyEventObject) =>
         (data?.resultsCount ?? 0) > 0,
 
-      isDomainAddError: (_context, { data }: AnyEventObject) => {
-        const apiCode = (data as { apiCode?: string })?.apiCode;
-        return (
-          apiCode === "web_hosting::domain_register_only" ||
-          apiCode === "web_hosting::domain_transfer_only" ||
-          apiCode === "web_hosting::domain_not_for_sale"
-        );
-      },
+      isDomainAddError: (_context, { data }: AnyEventObject) =>
+        isDomainAddErrorCode((data as { apiCode?: unknown })?.apiCode),
 
       // Guards sanitise the raw input before validating so that user input
       // like `.upmind.com` (leading dot) or `https://upmind.com/page` is
@@ -1456,8 +1501,13 @@ export default createMachine(
       isInvalid: ({ model }: DacContext) =>
         isEmpty(model) || !every(model, parseDomain),
 
+      // Use the shared `isAbortError` helper so the guard covers all three
+      // abort shapes (bare-undefined doFetch reject, AbortError name,
+      // structured Aborted code) — a narrower `name !== "AbortError"`
+      // check would let bare-undefined aborts fall through and fire
+      // SEARCH_ERROR on cancellations that should be silent.
       isNotCancelled: (_context, { data }: AnyEventObject) =>
-        data?.name !== "AbortError",
+        !isAbortError(data),
 
       isAlreadyChecked: ({ lookups }: DacContext, { data }: AnyEventObject) => {
         const domain = parseDomain(data);

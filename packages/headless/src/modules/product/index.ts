@@ -10,3 +10,4 @@ export {
   useProductConfigUischema,
   useInvalidProductConfigUischema
 } from "./schemas";
+export { applyConfigDefaults } from "./services";

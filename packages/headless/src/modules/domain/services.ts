@@ -13,6 +13,7 @@ import {
 
 // --- utils
 import {
+  cloneDeep,
   compact,
   filter,
   first,
@@ -27,6 +28,7 @@ import {
   buildFallbackPricing,
   getDacTransferLabel,
   getDomainRawBasketProducts,
+  isBasketTransfer,
   makePlaceholderProductDetails,
   parseAvailable,
   parseDomain,
@@ -34,7 +36,7 @@ import {
   parseSuggestions
 } from "./utils";
 import { parsePromotionsOrCoupons } from "../basketProduct/utils";
-import { PAGINATION } from "../query";
+import { isAbortError, PAGINATION } from "../query";
 import productServices from "../basketProduct/services";
 import {
   calculateBillingTerm,
@@ -42,6 +44,7 @@ import {
   parseProductProps,
   parseTermDetails
 } from "../product/utils";
+import { applyConfigDefaults } from "../product";
 import { useBrand } from "../brand";
 
 // --- types
@@ -320,7 +323,7 @@ function search(context: DacContext) {
           });
         })
         .catch(error => {
-          if (error?.code === responseCodes.Aborted) return;
+          if (isAbortError(error)) return;
           sendBack({ type: "EXACT_MATCH_CHECK", data: { domain } });
           sendBack({
             type: "EXACT_MATCH_RESULT",
@@ -390,6 +393,11 @@ function search(context: DacContext) {
     let availabilityData: IDomainAvailabilityResponse | null = null;
     let suggestionsTotalPages = 0;
     let pending = tld ? 3 : 2; // suggestions + tlds (+ availability if tld)
+    // Tracks whether /tlds (the product-pricing side of the split flow) has
+    // settled — once it has, any suggestion row whose `product_id` still
+    // isn't in `productsMap` will never get a price, so it must NOT keep
+    // rendering as `priceLoading` forever. See `buildResult` below.
+    let tldsResolved = false;
 
     const promocodes = parsePromotionsOrCoupons(coupons).join();
     const { get: getData, queryClient, request, useUrl } = useQuery();
@@ -400,6 +408,16 @@ function search(context: DacContext) {
         productsMap,
         preferredCycle
       );
+
+      // Once /tlds has settled, any row still flagged `priceLoading` is
+      // a row whose `product_id` will never resolve to a product (the
+      // /suggestions endpoint can include rows that /tlds doesn't price).
+      // Drop them — leaving them in the list renders an unactionable
+      // skeleton forever ("infinity loading"). Before /tlds resolves we
+      // intentionally keep them so the user sees progress.
+      if (tldsResolved) {
+        data = filter(data, item => !item.meta?.priceLoading);
+      }
 
       data = map(data, item => ({
         ...item,
@@ -491,7 +509,10 @@ function search(context: DacContext) {
       queryKey: ["domains", "suggestions", sld, page],
       withAccessToken: true,
       withCurrency: true,
-      select: (results, meta) => ({
+      // `SelectFn` shape is `(data, related?, meta?)` — bind the third
+      // arg, not the second, otherwise `meta?.total_pages` is undefined
+      // and pagination silently stays on page 1.
+      select: (results, _related, meta) => ({
         data: (results ?? []) as IDomainSuggestionResult[],
         totalPages: (meta?.total_pages as number) ?? 1
       })
@@ -502,7 +523,7 @@ function search(context: DacContext) {
         sendResult();
       })
       .catch(error => {
-        if (error?.code === responseCodes.Aborted) return;
+        if (isAbortError(error)) return;
 
         // 409 from /suggestions means the brand has no domains available
         // for sale — surface the API's own message as a single toast
@@ -572,11 +593,15 @@ function search(context: DacContext) {
         // Merge the new page's products into the cumulative map (don't
         // overwrite — earlier pages' products must remain available).
         productsMap = { ...productsMap, ...newProducts };
+        tldsResolved = true;
         sendResult();
       })
       .catch(error => {
-        if (error?.code === responseCodes.Aborted) return;
-        // Tlds failed — keep priceLoading rows as-is and unblock SEARCH_COMPLETE.
+        if (isAbortError(error)) return;
+        // Tlds failed — treat it as resolved so suggestion rows whose
+        // product never arrived collapse out of `priceLoading` instead of
+        // spinning forever. Then unblock SEARCH_COMPLETE.
+        tldsResolved = true;
         sendResult();
       });
 
@@ -609,7 +634,7 @@ function search(context: DacContext) {
           sendResult();
         })
         .catch(error => {
-          if (error?.code === responseCodes.Aborted) return;
+          if (isAbortError(error)) return;
           availabilityData = {
             can_register: false,
             can_transfer: false
@@ -776,7 +801,7 @@ function legacySearch(context: DacContext) {
         });
       })
       .catch(error => {
-        if (error?.code !== responseCodes.Aborted) {
+        if (!isAbortError(error)) {
           sendBack({ type: "SEARCH_ERROR", data: error });
         }
       });
@@ -811,12 +836,27 @@ async function getClientDomains(_context: DomainContext | DacContext) {
 
 /**
  * Adds a transfer product to the basket for the existing domain flow.
- * Builds the product model from the availability result, then diffs
- * pre/post basket state to extract the new basket product ID.
+ *
+ * Identifies the just-added basket product by:
+ *   1. Diffing pre/post basket — the new bpid is one that wasn't in
+ *      `lookups.basket` snapshotted as a transfer for this domain before
+ *      the POST. This is the primary signal.
+ *   2. If the diff fails to identify a new row (e.g. the API was
+ *      idempotent and returned an unchanged basket), the function REJECTS
+ *      rather than returning a pre-existing bpid — adopting a pre-existing
+ *      transfer would let a later REMOVE_TRANSFER delete the user's prior
+ *      legitimate transfer.
+ *   3. If multiple new rows match the diff (concurrent adds), the
+ *      function REJECTS with a Conflict — picking arbitrarily would
+ *      cross-wire the bpid to another caller's product.
+ *
+ * Always resolves with a defined `bpid`; rejects with a typed
+ * `DetailedError` on any disambiguation failure so the caller never
+ * enters the `transferred` state with an undefined `transferProductId`.
  */
 async function addExistingTransfer(
   context: DomainContext
-): Promise<{ bpid?: string }> {
+): Promise<{ bpid: string }> {
   const { t } = useI18n();
   const {
     checkingDomain,
@@ -842,9 +882,9 @@ async function addExistingTransfer(
     preferredCycle
   );
 
-  const model = domainProduct.configuration;
+  const baseModel = domainProduct.configuration;
 
-  if (!model)
+  if (!baseModel)
     return Promise.reject(
       new DetailedError(
         t("error.domain_transfer_product_model_missing"),
@@ -853,41 +893,71 @@ async function addExistingTransfer(
       )
     );
 
-  model.coupons ??= coupons ?? [];
+  // Apply the canonical schema/parse defaulting so required option/
+  // attribute categories get pre-filled — same pipeline dac.machine's
+  // addToBasket uses. No-op for typical TLDs (no required categories).
+  // Wrap in try/catch because a malformed `availability.product` would
+  // bubble a raw TypeError from `parseProductDetails`/`parseTermDetails`
+  // out as an untyped rejection — fall back to a CLONE of baseModel so
+  // the basket POST still happens AND the subsequent `model.coupons` /
+  // `model.silent` mutations don't corrupt baseModel by reference.
+  let model: typeof baseModel;
+  try {
+    model = applyConfigDefaults(baseModel, availability.product);
+  } catch (err) {
+    console.warn(
+      "[domain] addExistingTransfer: applyConfigDefaults threw — falling back to baseModel",
+      err
+    );
+    model = cloneDeep(baseModel);
+  }
+  // Context coupons override the model's coupons — same precedence as
+  // dac.machine's `addToBasket` action. Using `??=` would skip the
+  // assignment when `model.coupons` is a non-nullish empty array carried
+  // in from baseModel (the schema doesn't inject coupons, but the parser
+  // preserves them via `defaultsDeep + compactDeep`'s `preserveContainers`).
+  model.coupons = coupons ?? model.coupons ?? [];
   model.silent = true;
 
-  // Read the current basket state from context without triggering a refresh
-  // to avoid a reactive cascade that could remount SmartDomainField.
-  const existingBpids = new Set(
+  // Snapshot the pre-existing transfer bpids for this domain so we can
+  // disambiguate when more than one transfer product ends up in the post-
+  // update basket (rare but possible under concurrent flows).
+  const existingTransferBpids = new Set(
     map(
-      filter(lookups?.basket, p => p.domain === checkingDomain),
+      filter(
+        lookups?.basket,
+        p => p.domain === checkingDomain && p.meta?.isTransfer === true
+      ),
       "id"
     )
   );
 
   const updatedBasket = await productServices.update(basketId, model);
 
-  // Find domain products matching our domain that are NEW (not in the pre-existing set).
+  // Identify the just-added transfer by domain + isTransfer flag. The
+  // invariant is one transfer per domain, so a single match is the
+  // expected case.
   const updatedDomainProducts = getDomainRawBasketProducts(
     updatedBasket.products
   );
-  const candidates = filter(
+  const transferProducts = filter(
     updatedDomainProducts,
-    p => p.service_identifier === checkingDomain && !existingBpids.has(p.id)
+    p => p.service_identifier === checkingDomain && isBasketTransfer(p)
   );
 
-  if (candidates.length === 1) {
-    return { bpid: first(candidates)?.id };
-  }
-  if (candidates.length > 1) {
-    console.warn(
-      "[domain] addExistingTransfer: multiple new products found, cannot determine which was just added",
-      {
-        count: candidates.length,
-        domain: checkingDomain,
-        candidateIds: map(candidates, "id")
-      }
-    );
+  // Only rows that weren't in the pre-existing transfer set are candidate
+  // "just added" products. Pre-existing transfers must NEVER be adopted as
+  // the new one — they were owned by an earlier add and have their own
+  // bpid wired into another row's `transferProductId`.
+  const newTransfers = filter(
+    transferProducts,
+    p => !existingTransferBpids.has(p.id)
+  );
+
+  // Concurrent flows produced multiple new transfers for the same domain
+  // — picking arbitrarily would cross-wire this caller's bpid to another
+  // caller's product.
+  if (newTransfers.length > 1) {
     return Promise.reject(
       new DetailedError(
         t("error.domain_transfer_ambiguous"),
@@ -897,16 +967,54 @@ async function addExistingTransfer(
     );
   }
 
-  // No new products found — extraction failed.
-  console.warn(
-    "[domain] addExistingTransfer: added product not found in basket response",
-    {
+  // No fresh row — either the POST was idempotent (the basket already
+  // had the transfer, e.g. a retry after a previous success that
+  // basketHelper already REFRESHed into `lookups.basket`) or the API
+  // silently swallowed the add. We do NOT adopt a pre-existing bpid
+  // here: in a multi-tab / concurrent flow the existing transfer may
+  // belong to another caller, and wiring its bpid into THIS machine's
+  // `transferProductId` would let a later REMOVE_TRANSFER delete that
+  // other flow's legitimate transfer. Reject — the basketHelper REFRESH
+  // will re-route the UI based on what the basket actually shows.
+  if (newTransfers.length === 0) {
+    const alreadyTransferred = transferProducts.length > 0;
+    console.warn("[domain] addExistingTransfer: no new transfer identified", {
       checkingDomain,
-      productCount: updatedBasket.products?.length,
-      existingBpidCount: existingBpids.size
-    }
-  );
-  return {};
+      alreadyTransferred,
+      transferProductCount: transferProducts.length,
+      existingTransferBpidCount: existingTransferBpids.size
+    });
+    return Promise.reject(
+      new DetailedError(
+        alreadyTransferred
+          ? t("error.domain_transfer_ambiguous")
+          : t("error.domain_transfer_add_failed"),
+        alreadyTransferred
+          ? responseCodes.Conflict
+          : responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless
+      )
+    );
+  }
+
+  // Single fresh transfer — the expected case. Defensive bpid check:
+  // a malformed API row with no id is a real error worth distinguishing
+  // from the "no fresh row" path above.
+  const bpid = first(newTransfers)?.id;
+  if (!bpid) {
+    console.warn(
+      "[domain] addExistingTransfer: new transfer row has no usable id",
+      { checkingDomain, transferProductCount: transferProducts.length }
+    );
+    return Promise.reject(
+      new DetailedError(
+        t("error.domain_transfer_add_failed"),
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless
+      )
+    );
+  }
+  return { bpid };
 }
 
 /**
@@ -956,9 +1064,9 @@ async function addExistingRegistration(
     preferredCycle
   );
 
-  const model = domainProduct.configuration;
+  const baseModel = domainProduct.configuration;
 
-  if (!model)
+  if (!baseModel)
     return Promise.reject(
       new DetailedError(
         t("error.domain_register_product_model_missing"),
@@ -967,7 +1075,30 @@ async function addExistingRegistration(
       )
     );
 
-  model.coupons ??= coupons ?? [];
+  // Apply the canonical schema/parse defaulting so required option/
+  // attribute categories get pre-filled — same pipeline dac.machine's
+  // addToBasket uses. No-op for typical TLDs (no required categories).
+  // Wrap in try/catch because a malformed `availability.product` would
+  // bubble a raw TypeError from `parseProductDetails`/`parseTermDetails`
+  // out as an untyped rejection — fall back to a CLONE of baseModel so
+  // the basket POST still happens AND the subsequent `model.coupons` /
+  // `model.silent` mutations don't corrupt baseModel by reference.
+  let model: typeof baseModel;
+  try {
+    model = applyConfigDefaults(baseModel, availability.product);
+  } catch (err) {
+    console.warn(
+      "[domain] addExistingRegistration: applyConfigDefaults threw — falling back to baseModel",
+      err
+    );
+    model = cloneDeep(baseModel);
+  }
+  // Context coupons override the model's coupons — same precedence as
+  // dac.machine's `addToBasket` action. Using `??=` would skip the
+  // assignment when `model.coupons` is a non-nullish empty array carried
+  // in from baseModel (the schema doesn't inject coupons, but the parser
+  // preserves them via `defaultsDeep + compactDeep`'s `preserveContainers`).
+  model.coupons = coupons ?? model.coupons ?? [];
   model.silent = true;
 
   await productServices.update(basketId, model);
