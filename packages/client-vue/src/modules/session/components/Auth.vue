@@ -43,7 +43,13 @@
           :actions="meta.show2fa ? twoFactorActions : authActions"
           :data-testid="`${currentForm}-form`"
         >
-          <template v-if="currentForm === 'register'" #footer>
+          <template
+            v-if="
+              currentForm === AUTH_FORM.REGISTER ||
+              currentForm === AUTH_FORM.GUEST_REGISTER
+            "
+            #footer
+          >
             <TermsAndConditions
               class="text-muted text-sm"
               :label="t('action.continue_label')"
@@ -94,6 +100,7 @@ import { Alert, Button, Link } from "@upmind-automation/upmind-ui";
 import { find, get, map } from "lodash-es";
 
 // --- types
+import { AUTH_FORM } from "../types";
 import type { SessionProps } from "../types";
 // -----------------------------------------------------------------------------
 
@@ -129,16 +136,14 @@ const {
 
 const styles = useStyles(["session.auth"], meta, config);
 
-const currentForm = computed(() => {
-  return meta.value.showAsGuestForm
-    ? "guest"
-    : meta.value.showLoginForm
-      ? "login"
-      : meta.value.showRegisterForm
-        ? "register"
-        : meta.value.showRecoverPasswordForm
-          ? "recover"
-          : "unknown";
+const currentForm = computed<AUTH_FORM>(() => {
+  // A guest client upgrading is its own form (sourced from the client machine);
+  // it shares the register fields but has a distinct submit label/flow.
+  if (meta.value.showGuestUpgradeForm) return AUTH_FORM.GUEST_REGISTER;
+  if (meta.value.showLoginForm) return AUTH_FORM.LOGIN;
+  if (meta.value.showRegisterForm) return AUTH_FORM.REGISTER;
+  if (meta.value.showRecoverPasswordForm) return AUTH_FORM.RECOVER;
+  return AUTH_FORM.UNKNOWN;
 });
 
 // --- 2fa
@@ -179,31 +184,37 @@ const modal2faUischema = computed(() => {
 
 const alertTitle = computed(() => {
   switch (currentForm.value) {
-    case "register": {
+    case AUTH_FORM.REGISTER:
+    case AUTH_FORM.GUEST_REGISTER:
       return t("form.register.error");
-    }
-    case "recover": {
+    case AUTH_FORM.RECOVER:
       return t("form.recover.error");
-    }
-    case "login": {
+    case AUTH_FORM.LOGIN:
       return t("form.login.error");
-    }
   }
 });
 
 // ---
 
+const submitLabel = computed(() => {
+  switch (currentForm.value) {
+    case AUTH_FORM.LOGIN:
+      return t("action.log_in_to_your_account");
+    case AUTH_FORM.GUEST_REGISTER:
+      return t("action.register");
+    case AUTH_FORM.RECOVER:
+      return t("action.send_reset");
+    case AUTH_FORM.REGISTER:
+    default:
+      return t("action.continue_label");
+  }
+});
+
 const authActions = computed(() => {
   return {
     submit: {
       type: "submit" as const,
-      label: meta.value.showLoginForm
-        ? t("action.log_in_to_your_account")
-        : meta.value.showRegisterForm
-          ? t("action.continue_label")
-          : meta.value.showRecoverPasswordForm
-            ? t("action.send_reset")
-            : t("action.continue_label"),
+      label: submitLabel.value,
       block: true,
       needsValid: true,
       size: "lg" as const
@@ -214,13 +225,7 @@ const twoFactorActions = computed(() => {
   return {
     submit: {
       type: "submit" as const,
-      label: meta.value.showLoginForm
-        ? t("action.log_in_to_your_account")
-        : meta.value.showRegisterForm
-          ? t("action.continue_label")
-          : meta.value.showRecoverPasswordForm
-            ? t("action.send_reset")
-            : t("action.continue_label"),
+      label: submitLabel.value,
       block: true,
       needsValid: true,
       size: "lg" as const
@@ -247,7 +252,7 @@ function toggleForm(type: SessionProps["modelValue"]) {
       }
       break;
     case "register":
-      if (!meta.value.showRegisterForm) {
+      if (!meta.value.showRegisterForm && !meta.value.showGuestUpgradeForm) {
         showRegister().then(() => {
           if (modelValue.value !== "register") modelValue.value = "register";
         });

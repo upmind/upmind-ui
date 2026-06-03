@@ -2,6 +2,7 @@
   <Layout :variant="LAYOUT_VARIANTS.SURFACE_BOX">
     <template #content-header>
       <slot name="hero" />
+      <slot name="guest" />
     </template>
 
     <template #content>

@@ -425,7 +425,7 @@ export default {
     // we wait for the profile load to complete.
     if (
       session.meta.value.isAuthenticated ||
-      (await session.isAuthenticated().catch(() => false))
+      (await session.isAuthenticated().catch(() => false)) == true
     ) {
       // We are authenticated and profile is loaded
     } else {

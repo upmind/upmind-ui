@@ -38,9 +38,19 @@ export default {
     },
 
     guestCheckout: {
-      root: cva("mt-2 flex items-center gap-1 font-normal"),
-      sidebar: cva("flex flex-col items-start gap-3"),
-      sidebarText: cva("text-base-700 m-0 text-sm leading-5 font-light")
+      root: cva("font-normal", {
+        variants: {
+          template: {
+            "two-column-ltr": "mt-0 mb-0",
+            "two-column-rtl": "mt-0 mb-0",
+            enclosed: "mt-0 mb-0",
+            split: "mt-10 mb-10",
+            "canvas-card": "mt-10 mb-0",
+            "surface-box": "mt-10 mb-10"
+          }
+        }
+      }),
+      sidebarText: cva("m-0 text-sm leading-5 font-light")
     },
 
     profile: {

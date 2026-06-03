@@ -138,8 +138,36 @@
       </OrderProducts>
     </template>
 
-    <template v-if="meta.isComplete" #guest-registration>
-      <GuestRegistration v-show="!meta.isProcessing" />
+    <!-- Guest → full-account upgrade after checkout. Prompt first, then the
+         shared Auth register form (which the client machine drives for a guest
+         client). Hidden once the upgrade promotes them to a full client. -->
+    <template
+      v-if="meta.isComplete && sessionMeta.isGuestClient"
+      #guest-registration
+    >
+      <Section
+        v-show="!meta.isProcessing"
+        id="guest-registration"
+        :label="t('auth.guest_register_title')"
+        icon="user-plus-01"
+      >
+        <Alert
+          v-if="!showGuestUpgrade"
+          :title="t('auth.guest_register_title')"
+          :description="t('auth.guest_register_description')"
+          icon="user-plus-01"
+          color="neutral"
+          :action="{ label: t('action.register') }"
+          @click="showGuestUpgrade = true"
+        />
+        <Auth
+          v-else
+          no-tabs
+          no-header
+          model-value="register"
+          @resolve="showGuestUpgrade = false"
+        />
+      </Section>
     </template>
   </component>
 
@@ -170,7 +198,7 @@ import {
 import { useConfig } from "@upmind-automation/headless";
 
 // -- components
-import GuestRegistration from "../session/components/GuestRegistration.vue";
+import Auth from "../session/components/Auth.vue";
 import OrderProducts from "./components/OrderProducts.vue";
 import PaymentDetails from "../payment/components/PaymentDetails.vue";
 import PaymentProcessing from "../payment/components/PaymentProcessing.vue";
@@ -234,7 +262,8 @@ set(ui.theme.value);
 
 // -----------------------------------------------------------------------------
 
-const { transferTo } = useSession();
+const { transferTo, meta: sessionMeta } = useSession();
+const showGuestUpgrade = ref(false);
 const {
   cancelChallenge,
   errors,

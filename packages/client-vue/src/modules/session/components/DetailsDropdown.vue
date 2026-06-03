@@ -19,6 +19,7 @@
       <label
         class="text-md-tight flex flex-col items-start break-all not-italic"
         v-if="client"
+        data-testid="dropdown-account-label"
       >
         <strong class="font-medium">
           {{ meta.isGuestClient ? t("auth.guest") : client.fullName }}

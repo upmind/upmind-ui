@@ -26,6 +26,7 @@
       :shape="shape"
       size="lg"
       class="cursor-pointer"
+      data-testid="auth-avatar"
       focusable
     />
   </SessionDetailsDropdown>
