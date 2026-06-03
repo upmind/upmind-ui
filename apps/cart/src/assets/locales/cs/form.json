@@ -84,7 +84,7 @@
   },
   "companyNumber": {
     "label": "IČO",
-    "placeholder": "Registrovaná daň nebo DPH"
+    "placeholder": "Identifikační číslo společnosti"
   },
   "country": {
     "label": "Země",
@@ -167,6 +167,10 @@
   },
   "stored_payment_method": {
     "label": ""
+  },
+  "taxNumber": {
+    "label": "IČO",
+    "placeholder": "Daňové identifikační číslo / Číslo pro účely DPH / Číslo pro účely GST"
   },
   "twofa": {
     "description": "Tento účet je zabezpečen dvoufaktorovým ověřováním. Zadejte prosím svůj ověřovací kód.",

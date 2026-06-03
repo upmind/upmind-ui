@@ -16,7 +16,7 @@
   "order_placed": "Zamówienie potwierdzone",
   "order_placed_msg": "Twoje zamówienie zostało potwierdzone. Proszę kontynuować płatność, aby sfinalizować zakup.",
   "payment_due": "Termin płatności",
-  "payment_due_msg": "Twoje zamówienie zostało potwierdzone. Płatność {amount} jest należny do {due_date} .",
+  "payment_due_msg": "Twoje zamówienie zostało potwierdzone. Płatność {amount} jest należny do {due_date}.",
   "payment_failed_banner": "Próba dokonania płatności nie powiodła się – proszę spróbować ponownie.",
   "payment_partial": "Należności z tytułu płatności",
   "payment_partial_msg": "Masz {remaining_amount} pozostało. Dokonaj płatności, aby dokończyć zamówienie.",

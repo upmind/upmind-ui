@@ -72,7 +72,7 @@
   "tax_valid": "Ověřeno {relative}",
   "term": "období",
   "terms_and_conditions": "Obchodní podmínky",
-  "terms_and_conditions_desc": "Kliknutím na '{label}', souhlasím s {action} z {brand} .",
+  "terms_and_conditions_desc": "Kliknutím na '{label}', souhlasím s {action} z {brand}.",
   "terms_of_service": "Podmínky služby",
   "total": "Celkový",
   "welcome_back_msg": "Vítej zpět, {name}"

@@ -1,17 +1,22 @@
 {
+  "basket_placeholder": "Wybierz domenę",
   "begin_search_above_desc": "Rozpocznij wyszukiwanie korzystając z pola powyżej.",
   "choices": {
     "basket": {
-      "label": "Użyj domeny w koszyku",
+      "label": "Wybierz domenę z mojego koszyka",
       "tooltip": "Te domeny są już w Twoim koszyku"
     },
     "existing": {
-      "label": "Użyj istniejącej domeny",
+      "label": "Skorzystaj z domeny, którą już posiadam",
       "tooltip": "Możesz użyć istniejącej domeny, aktualizując serwery nazw"
     },
     "register": {
       "label": "Zarejestruj nową domenę",
       "tooltip": "Nie masz jeszcze domeny? Zarejestruj nową u nas"
+    },
+    "skip": {
+      "label": "Zdecyduję później",
+      "tooltip": ""
     },
     "transfer": {
       "label": "Przenieś domenę",
@@ -21,13 +26,30 @@
   "domain_description": "Zabezpiecz swoją tożsamość online już dziś – zajmie Ci to tylko chwilę.",
   "domain_not_required_label": "Kontynuuj bez domeny",
   "domain_title": "Dodaj nazwę domeny.",
+  "error": {
+    "availability_check_failed": "Nie udało się sprawdzić dostępności domeny",
+    "registration_add_failed": "Nie udało się dodać domeny do koszyka",
+    "transfer_add_failed": "Nie udało się dodać przelewu do koszyka",
+    "transfer_remove_failed": "Nie udało się usunąć przesyłki z koszyka"
+  },
+  "existing": {
+    "add_registration": "Dodaj do koszyka",
+    "add_transfer": "Dodaj przelew",
+    "dns_info": "Aby korzystać z tej domeny, należy zaktualizować ustawienia DNS domeny u obecnego rejestratora.",
+    "placeholder": "Podaj nam nazwę domeny, której chcesz używać.",
+    "register_info": "Dobra wiadomość — tę domenę można zarejestrować za jedyne {price}, w cenie zawarta jest opłata rejestracyjna {period}.",
+    "remove_transfer": "Usuń przelew",
+    "transfer_added": "Dodano transfer",
+    "transfer_info": "Jeśli jesteś właścicielem tej domeny, możesz ją przenieść do nas za jedyne {price}, co obejmuje również opłatę za przedłużenie {period}. W przeciwnym razie konieczne będzie zaktualizowanie rekordów serwerów nazw (NS) domeny.",
+    "unavailable": "Tej domeny nie można zarejestrować ani przenieść."
+  },
   "finding_perfect_domain": "Znalezienie idealnej domeny dla siebie",
   "finding_perfect_domain_md": "@.markdown:{'domain.finding_perfect_domain'}",
   "own_domain_qn": "Czy jesteś właścicielem tej domeny?",
   "owned_domains_title": "Domeny, które obecnie posiadasz",
   "price_renewal_desc": "Jednorazowa cena {regularPrice}. | Odnawia się co roku za {regularPrice}. | Odnawia się co {count} lat za {regularPrice}.",
   "registrant_use_billing_msg": "Twoje dane rozliczeniowe będą wykorzystane jako dane kontaktowe rejestrującego domenę.",
-  "search": "Wyszukaj domeny",
+  "search": "Wpisz domenę do wyszukiwania",
   "starts_with_domain": "Wszystko zaczyna się od **nazwy domeny**",
   "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
   "tld_renewal_price_desc": "Nasz {tld} ceny odnowienia zaczynają się już od {currentPrice} (był {regularPrice}).",

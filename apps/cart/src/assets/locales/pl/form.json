@@ -84,7 +84,7 @@
   },
   "companyNumber": {
     "label": "Numer firmy",
-    "placeholder": "Zarejestrowany podatek lub GST"
+    "placeholder": "Numer identyfikacyjny przedsiębiorstwa"
   },
   "country": {
     "label": "Kraj",
@@ -167,6 +167,10 @@
   },
   "stored_payment_method": {
     "label": ""
+  },
+  "taxNumber": {
+    "label": "Numer identyfikacji podatkowej",
+    "placeholder": "Numer identyfikacji podatkowej/NIP/GST"
   },
   "twofa": {
     "description": "To konto jest zabezpieczone uwierzytelnianiem dwuskładnikowym. Wprowadź kod weryfikacyjny.",
