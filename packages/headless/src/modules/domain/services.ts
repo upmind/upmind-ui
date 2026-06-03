@@ -28,6 +28,7 @@ import {
   buildFallbackPricing,
   getDacTransferLabel,
   getDomainRawBasketProducts,
+  hasTransferSetup,
   isBasketTransfer,
   makePlaceholderProductDetails,
   parseAvailable,
@@ -883,13 +884,63 @@ async function addExistingTransfer(
       )
     );
 
+  // A product without `setup_function_sub_ids.transfer` can't actually be
+  // transferred (no sub_pids to send). Reject upfront with the same shape
+  // dac.machine's `flipDomainOnAddError` uses for `transferOnly` — without
+  // this the basket POST would silently go out with register sub_pids and
+  // the BE would either 422 or, worse, process it as a fresh registration.
+  // `setup_function_sub_ids` is sideloaded onto IProduct by the
+  // /availability endpoint but isn't part of the canonical IProduct type
+  // — cast via unknown to access it (same pattern as `parseSuggestions`).
+  if (
+    !hasTransferSetup(
+      availability.product as unknown as {
+        setup_function_sub_ids?: { transfer?: string[] };
+      }
+    )
+  ) {
+    return Promise.reject(
+      new DetailedError(
+        t("error.domain_transfer_unavailable"),
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless
+      )
+    );
+  }
+
   const domainProduct = buildDomainProductFromAvailability(
     checkingDomain,
     availability,
     preferredCycle
   );
 
-  const baseModel = domainProduct.configuration;
+  // Override the baseModel sub_pids with the transfer-specific ones.
+  // `buildDomainProductFromAvailability` defaults to `product.sub_product_id`
+  // unconditionally — fine when the product is a bundle (register sub_pid),
+  // wrong when we're firing a transfer. Two product shapes need handling:
+  //   - Bundle: `setup_function_sub_ids.transfer` carries the transfer sub_pids
+  //   - Single-mode transfer product (`setup_function_name === "transfer"`):
+  //     `sub_product_id` IS the transfer sub_pid, no `setup_function_sub_ids`
+  //     field is sent at all (e.g. `.com` transfer product from /availability)
+  // Mirrors dac.machine's `flipRowToTransfer` rebuild but with the
+  // single-mode fallback added — same case `hasTransferSetup` accepts.
+  const transferProduct = availability.product as unknown as {
+    setup_function_sub_ids?: { transfer?: string[] };
+    setup_function_name?: string;
+    sub_product_id?: string;
+  };
+  const transferSubIds = compact(
+    transferProduct.setup_function_sub_ids?.transfer ??
+      (transferProduct.setup_function_name === "transfer"
+        ? [transferProduct.sub_product_id]
+        : [])
+  );
+  const baseModel = domainProduct.configuration
+    ? ({
+        ...domainProduct.configuration,
+        subproducts: transferSubIds
+      } as typeof domainProduct.configuration)
+    : undefined;
 
   if (!baseModel)
     return Promise.reject(
@@ -1071,7 +1122,30 @@ async function addExistingRegistration(
     preferredCycle
   );
 
-  const baseModel = domainProduct.configuration;
+  // Resolve register sub_pids explicitly. `buildDomainProductFromAvailability`
+  // defaults to `product.sub_product_id` which is the canonical register
+  // sub_pid for most TLDs, but when `setup_function_sub_ids.register` is
+  // present it's the authoritative source — mirror dac.machine's
+  // `flipRowToRegister` rebuild so both add paths derive sub_pids the
+  // same way.
+  const setupSubIds = (
+    availability.product as unknown as {
+      setup_function_sub_ids?: { register?: string[] };
+      sub_product_id?: string;
+    }
+  ).setup_function_sub_ids;
+  const registerSubIds = compact(
+    setupSubIds?.register ?? [
+      (availability.product as unknown as { sub_product_id?: string })
+        .sub_product_id
+    ]
+  );
+  const baseModel = domainProduct.configuration
+    ? ({
+        ...domainProduct.configuration,
+        subproducts: registerSubIds
+      } as typeof domainProduct.configuration)
+    : undefined;
 
   if (!baseModel)
     return Promise.reject(

@@ -199,16 +199,38 @@ export function buildFallbackPricing(
 
 /**
  * Returns true if the product is actually configured for transfer — i.e.
- * `setup_function_sub_ids.transfer` is a non-empty array. When this is
- * missing or empty the basket POST would have no `sub_pids` to send for the
- * transfer flow, so the row must be treated as non-transferable regardless
- * of what `/availability` reported.
+ * the basket POST will have at least one `sub_pid` to send. Two product
+ * shapes are supported:
+ *
+ *   1. **Bundle product** — one product carries both modes via
+ *      `setup_function_sub_ids: { register: [...], transfer: [...] }`. The
+ *      transfer key must be a non-empty array.
+ *   2. **Single-mode transfer product** — `setup_function_name === "transfer"`
+ *      and `sub_product_id` IS the transfer sub_pid. Some BE configurations
+ *      return this shape from `/availability` (no `setup_function_sub_ids`
+ *      at all) — e.g. a `.com` product with `setup_function_name: "transfer"`
+ *      and a populated `sub_product_id`. Treating these as non-transferable
+ *      would block legitimate transfers.
+ *
+ * When neither holds, the basket POST has nothing to send for transfer →
+ * the caller must treat the row as non-transferable.
  */
 export function hasTransferSetup(
-  product?: { setup_function_sub_ids?: { transfer?: string[] } } | null
+  product?: {
+    setup_function_sub_ids?: { transfer?: string[] };
+    setup_function_name?: string;
+    sub_product_id?: string;
+  } | null
 ): boolean {
   const transferIds = product?.setup_function_sub_ids?.transfer;
-  return Array.isArray(transferIds) && transferIds.length > 0;
+  if (Array.isArray(transferIds) && transferIds.length > 0) return true;
+  if (
+    product?.setup_function_name === "transfer" &&
+    !!product?.sub_product_id
+  ) {
+    return true;
+  }
+  return false;
 }
 
 /**
@@ -231,6 +253,8 @@ export function applyDacTransferOverride(
     meta?: IProduct["meta"];
     category?: IProduct["category"] | null;
     setup_function_sub_ids?: { transfer?: string[] };
+    setup_function_name?: string;
+    sub_product_id?: string;
   } | null
 ): boolean {
   if (!product) return !!canTransfer;
