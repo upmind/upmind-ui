@@ -23,9 +23,12 @@
   </Search>
 
   <!-- Unavailable message -->
-  <p v-if="unavailable" :class="styles.field.unavailable">
-    {{ t("domain.existing.unavailable") }}
-  </p>
+  <FormMessage
+    v-if="unavailable"
+    form-message-id="domain-existing-unavailable"
+    name="domain"
+    :errors="t('domain.existing.unavailable')"
+  />
 
   <!-- Register info section (domain is available for registration) -->
   <div v-if="registerable || registering" :class="styles.field.transfer.root">
@@ -103,6 +106,7 @@ import {
   Button,
   Icon,
   Link,
+  FormMessage,
   useStyles,
   isMobile
 } from "@upmind-automation/upmind-ui";
@@ -123,7 +127,7 @@ const emit = defineEmits<{
 }>();
 
 const { t } = useI18n();
-const styles = useStyles(["field.transfer", "field.unavailable"], {}, config);
+const styles = useStyles(["field.transfer"], {}, config);
 
 const searchValue = ref(props.modelValue ?? "");
 
