@@ -68,7 +68,14 @@ export function useProductConfigSchema(
   if (!isEmpty(context.lookups?.terms)) {
     properties.term = buildTermSchema(
       context.lookups!.terms!,
-      context.product?.productDetails.defaultPaymentPeriod
+      // Read from `lookups.product` (ProductDetails — already plumbed by
+      // callers for `buildQuantitySchema` above) rather than the top-level
+      // `context.product`. The two carry the same field, but the lookups
+      // path is the one every caller populates; the top-level `Product`
+      // is only set when the machine spawned via `useProductConfig`. This
+      // lets `applyConfigDefaults` and other one-shot helpers reach the
+      // default cycle without having to synthesise a fake `Product`.
+      context.lookups?.product?.defaultPaymentPeriod
     );
     required.push("term");
   }
@@ -589,7 +596,14 @@ export function useInvalidProductConfigSchema(
   if (!isEmpty(context.lookups?.terms) && hasError("#/properties/term")) {
     properties.term = buildTermSchema(
       context.lookups!.terms!,
-      context.product?.productDetails.defaultPaymentPeriod
+      // Read from `lookups.product` (ProductDetails — already plumbed by
+      // callers for `buildQuantitySchema` above) rather than the top-level
+      // `context.product`. The two carry the same field, but the lookups
+      // path is the one every caller populates; the top-level `Product`
+      // is only set when the machine spawned via `useProductConfig`. This
+      // lets `applyConfigDefaults` and other one-shot helpers reach the
+      // default cycle without having to synthesise a fake `Product`.
+      context.lookups?.product?.defaultPaymentPeriod
     );
     required.push("term");
   }
