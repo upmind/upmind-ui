@@ -990,7 +990,15 @@ export default createMachine(
         }: DomainContext) => {
           const domain = get(model, "domain");
           if (!domain) return transferProductId;
-          const matched = find(lookups.basket, ["domain", domain]);
+          // `lookups.basket` holds registration products too. Filter on
+          // `meta.isTransfer === true` so a registered domain doesn't get
+          // misrouted as a transfer (existing → transferred flip + a
+          // REMOVE_TRANSFER that hits the wrong basket product id).
+          const matched = find(
+            lookups.basket,
+            (item: DomainProduct) =>
+              item.domain === domain && item.meta?.isTransfer === true
+          );
           return matched?.id ?? transferProductId;
         }
       }),

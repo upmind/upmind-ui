@@ -14,6 +14,7 @@ import {
   parseTermDetails
 } from "../product/utils";
 import services from "./services";
+import { isAbortError } from "../query";
 
 // --- utils
 import {
@@ -23,7 +24,6 @@ import {
   first,
   get,
   has,
-  includes,
   isEmpty,
   isObject,
   map,
@@ -53,7 +53,6 @@ import {
   type DomainModel
 } from "./types";
 import { type ProductDetails } from "../product";
-import { responseCodes } from "../../utils";
 
 // ----------------------------------------------------------------------------
 
@@ -452,6 +451,15 @@ export function parseSuggestions(
           setupSubIds?.[rowMode] ?? [product.sub_product_id]
         );
 
+        // Mirror `buildDomainProductFromAvailability`: a row whose API
+        // flags collapse to register=false AND transfer=false (e.g.
+        // `can_transfer: true` from /suggestions but the mapped product
+        // has no `setup_function_sub_ids.transfer`) must be flagged
+        // `unavailable`/`disabled` explicitly — otherwise the card
+        // ignores the missing canTransfer and renders as a normal
+        // available row (DomainCards.vue binds these flags directly).
+        const isFullyUnavailable = !can_register && !canTransferEffective;
+
         return {
           configuration: parseProductProps(
             {
@@ -471,6 +479,8 @@ export function parseSuggestions(
             ...(termDetails.meta ?? {}),
             available: can_register,
             canTransfer: canTransferEffective,
+            unavailable: isFullyUnavailable,
+            disabled: isFullyUnavailable,
             transferLabel
           },
           productDetails: {
@@ -691,7 +701,7 @@ export function domainAvailabilityHelper(callback: any, onReceiveEvent: any) {
         });
       })
       .catch(error => {
-        if (error?.code === responseCodes.Aborted) return;
+        if (isAbortError(error)) return;
         callback({
           type: "VERIFY_ERROR",
           data: domain,
@@ -740,9 +750,16 @@ export function isBasketTransfer(raw: IBasketProduct): boolean {
     (raw.product as IDomainSuggestionResultProduct | undefined)
       ?.setup_function_sub_ids?.transfer ?? [];
 
+  // Build a Set of basket option product_ids up front — the catalog-options
+  // pass below was O(catalog × options) per REFRESH; one Set turns the
+  // inner `some(raw.options, ...)` lookup into O(1).
+  const optionProductIds = new Set(
+    map(raw.options, (opt: any) => opt.product_id)
+  );
+
   if (
     transferSubIds.length > 0 &&
-    some(raw.options, (opt: any) => includes(transferSubIds, opt.product_id))
+    some(transferSubIds, (id: string) => optionProductIds.has(id))
   ) {
     return true;
   }
@@ -755,7 +772,6 @@ export function isBasketTransfer(raw: IBasketProduct): boolean {
   return some(
     catalogOptions,
     (catOpt: any) =>
-      some(raw.options, (opt: any) => opt.product_id === catOpt.id) &&
-      hasTransferIndicator(catOpt)
+      optionProductIds.has(catOpt.id) && hasTransferIndicator(catOpt)
   );
 }

@@ -218,15 +218,18 @@ export const useDomain = (
       isExistingValid: stateMatches(state, "existing.valid") && isInBasket,
       isExistingOwned: stateMatches(state, "existing.valid") && isOwned,
       isExistingError: stateMatches(state, "existing.error"),
+      // Denylist over allowlist: any new `existing.X` sub-state
+      // inherits `hasInfo: true` by default — opt OUT here only if the
+      // info panel should stay hidden (e.g. validating spinner,
+      // unavailable terminal state, or the initial `invalid` state
+      // reached while the user is still typing a non-domain string).
       hasInfo:
-        stateMatches(state, "existing.checked") ||
-        stateMatches(state, "existing.registerable") ||
-        stateMatches(state, "existing.registering") ||
-        stateMatches(state, "existing.transferred") ||
-        stateMatches(state, "existing.transferring") ||
-        stateMatches(state, "existing.removing") ||
-        stateMatches(state, "existing.valid") ||
-        stateMatches(state, "existing.error")
+        stateMatches(state, "existing") &&
+        !stateMatches(state, [
+          "existing.invalid",
+          "existing.validating",
+          "existing.unavailable"
+        ])
     };
   });
 

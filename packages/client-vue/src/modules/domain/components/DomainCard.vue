@@ -154,7 +154,7 @@
       />
 
       <Tooltip
-        v-else-if="!meta.isUnavailable || meta.hasTransferLabel"
+        v-else
         :active="!meta.isExactMatch && !isMobile"
         :label="getTooltip"
       >
