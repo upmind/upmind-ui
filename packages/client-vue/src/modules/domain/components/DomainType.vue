@@ -39,28 +39,12 @@
               :class="styles.domain.form.content.root"
               :content-class="styles.domain.form.content.container"
             >
-              <!-- register/transfer -->
+              <!-- register -->
               <FormControl
                 v-if="meta.showDac && type === 'register'"
                 :invalid="false"
                 :formItemId="`dac-${type}`"
                 key="dac-register"
-                :auto-focus="shouldAutoFocus"
-              >
-                <Input
-                  v-model="query"
-                  :prependIcon="meta.showSelected ? null : 'search'"
-                  :placeholder="t('form.domain_search.placeholder')"
-                  autocomplete="url"
-                  :disabled="disabled"
-                />
-              </FormControl>
-
-              <FormControl
-                v-if="meta.showDac && type === 'transfer'"
-                :invalid="false"
-                :formItemId="`dac-${type}`"
-                key="dac-transfer"
                 :auto-focus="shouldAutoFocus"
               >
                 <Input
@@ -209,7 +193,7 @@ const mappedChoices = computed(() => {
       `domain.choices.${choice.label}`
     );
     return {
-      value: choice.label,
+      value: choice.value,
       label: rt(translations?.label) || choice.label,
       item: choice,
       index,
