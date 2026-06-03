@@ -22,19 +22,6 @@
               :label="t('action.log_in_here')"
               class="font-normal"
             />
-
-            <div
-              v-if="meta.canRegisterAsGuest"
-              :class="styles.session.guestCheckout.root"
-            >
-              <span>{{ t("auth.guest_checkout_qn") }}&nbsp;</span>
-              <Link
-                @click="registerAsGuest"
-                size="inherit"
-                color="inherit"
-                :label="t('auth.guest_checkout_label')"
-              />
-            </div>
           </template>
         </Hero>
       </slot>
@@ -42,14 +29,14 @@
 
     <template #form>
       <slot name="form">
-        <!-- Authenticated guest customer — complete registration to upgrade to a full account -->
-        <GuestRegistration v-if="meta.isGuestClient" auto-show />
-
+        <!-- One register form for new sign-ups AND guest-client upgrades; Auth
+             picks the right form from the session machine (a guest client's
+             upgrade form is owned by the client machine). Shown unless the user
+             is a fully-registered client. -->
         <Section
-          v-else
           :label="t('action.register')"
           icon="user-03"
-          v-show="!meta.isAuthenticated"
+          v-show="!meta.isAuthenticated || meta.isGuestClient"
           class="max-w-3xl"
           :active="templateMeta.hasActiveSection"
         >
@@ -122,40 +109,52 @@
       </slot>
     </template>
 
-    <template
-      v-if="ui.basketSummary.isVisible || meta.canRegisterAsGuest"
-      #summary
-    >
+    <!-- Guest-checkout CTA — defined once; each template renders the `guest`
+         slot in the right place (after the hero for single-column layouts,
+         above the summary for two-column). -->
+    <template v-if="meta.canRegisterAsGuest" #guest>
+      <slot name="guest">
+        <!-- Spacing lives on this wrapper: `Section` doesn't forward a passed
+             class to a margin-bearing element, so the per-template `root`
+             spacing must sit on a plain element. -->
+        <div :class="styles.session.guestCheckout.root">
+          <Section
+            :label="t('auth.guest_checkout_qn')"
+            icon="clock-fast-forward"
+          >
+            <i18n-t
+              keypath="auth.guest_checkout_description"
+              tag="p"
+              :class="styles.session.guestCheckout.sidebarText"
+            >
+              <template #action>
+                <Link
+                  @click="registerAsGuest"
+                  color="inherit"
+                  size="inherit"
+                  :label="t('auth.guest_checkout_action')"
+                  :disabled="meta.isRegisteringAsGuest"
+                  data-testid="guest-checkout-cta"
+                >
+                  <template v-if="meta.isRegisteringAsGuest" #append>
+                    <Spinner size="square" class="ms-1" />
+                  </template>
+                </Link>
+              </template>
+            </i18n-t>
+          </Section>
+        </div>
+      </slot>
+    </template>
+
+    <template v-if="ui.basketSummary.isVisible" #summary>
       <slot name="summary">
         <Section
-          v-if="
-            ui.basketSummary.isVisible &&
-            (basketMeta.hasProducts || basketMeta.isLoading)
-          "
+          v-if="basketMeta.hasProducts || basketMeta.isLoading"
           :label="t('cart.basket_section')"
           icon="shopping-bag-02"
         >
           <Summary :showPromotions="false" show-products />
-        </Section>
-
-        <!-- Alternative guest-checkout CTA placement: sidebar card.
-             Mirrors the inline hero CTA — kept in parallel so both
-             placements can be evaluated. -->
-        <Section
-          v-if="meta.canRegisterAsGuest"
-          :label="t('auth.guest_checkout_qn')"
-          icon="zap"
-        >
-          <div :class="styles.session.guestCheckout.sidebar">
-            <p :class="styles.session.guestCheckout.sidebarText">
-              {{ t("auth.guest_checkout_description") }}
-            </p>
-            <Button
-              variant="outline"
-              :label="t('auth.guest_checkout_label')"
-              @click="registerAsGuest"
-            />
-          </div>
         </Section>
       </slot>
     </template>
@@ -188,9 +187,13 @@ import sessionConfig from "./session.config";
 import { useSessionTemplates } from "./session.utils";
 
 // --- components
-import { Button, Link, Markdown, Skeleton } from "@upmind-automation/upmind-ui";
+import {
+  Link,
+  Markdown,
+  Skeleton,
+  Spinner
+} from "@upmind-automation/upmind-ui";
 import Auth from "./components/Auth.vue";
-import GuestRegistration from "./components/GuestRegistration.vue";
 import Hero from "../../components/hero/Hero.vue";
 import Back from "./components/Back.vue";
 import Loading from "../system/Loading.vue";
@@ -253,7 +256,13 @@ const { meta: basketMeta } = useBasket();
 const { navigateNext, navigateBack, navigate } = useRoutingEngine();
 const { brandId } = useBrand();
 
-const styles = useStyles(["session"], {}, sessionConfig);
+const styles = useStyles(
+  ["session", "session.guestCheckout"],
+  computed(() => ({
+    template: template.value
+  })),
+  sessionConfig
+);
 
 const { ui } = useConfig({
   context: UIContext.AUTH,

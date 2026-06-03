@@ -61,3 +61,16 @@ export enum SESSION_TEMPLATE {
   TWO_COLUMN_LTR = "two-column-ltr",
   TWO_COLUMN_RTL = "two-column-rtl"
 }
+
+/**
+ * The session form Auth is currently presenting. `GUEST_REGISTER` (a guest
+ * client upgrading to a full account) is distinct from `REGISTER` (a new
+ * sign-up) — same fields, different submit label/flow.
+ */
+export enum AUTH_FORM {
+  LOGIN = "login",
+  REGISTER = "register",
+  GUEST_REGISTER = "guest-register",
+  RECOVER = "recover",
+  UNKNOWN = "unknown"
+}

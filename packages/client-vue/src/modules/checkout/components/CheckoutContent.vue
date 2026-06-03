@@ -44,9 +44,6 @@
     />
   </Section>
 
-  <!-- Guest Email -->
-  <GuestEmail v-show="showCheckout" />
-
   <!-- Billing -->
   <template v-if="showCheckout">
     <BillingSummary
@@ -66,6 +63,9 @@
     data-testid="payment-details"
     @resolve="checkout"
   />
+
+  <!-- Guest Email — demoted below payment; a low-priority confirmation field -->
+  <GuestEmail v-show="showCheckout" />
 </template>
 
 <script lang="ts" setup>

@@ -7,7 +7,7 @@ import { useSession } from "./";
 import { isEmpty } from "lodash-es";
 
 // --- types
-import type { State } from "xstate";
+import type { State, Subscription } from "xstate";
 import { getTokenFromStorage } from "./utils";
 import { stateMatches } from "../../utils";
 import { Contexts } from "@upmind-automation/types";
@@ -50,16 +50,27 @@ const authCallback = (
     return false;
   }
 
-  // We have a session IF we have an access token regardless of being in guest or client mode
-  if (stateMatches(currentMachine, ["available"]) && !hasSession) {
-    hasSession = !isEmpty(getTokenFromStorage());
-    if (hasSession) callback({ type: "SESSION" });
+  // We have a session IF we have an access token regardless of being in guest
+  // or client mode. Only (re)establish + announce SESSION when we don't already
+  // hold one — keeping `hasSession` stable once set stops the status flip-flop
+  // that re-announced SESSION on every transition.
+  if (stateMatches(currentMachine, ["available"])) {
+    if (!hasSession) {
+      hasSession = !isEmpty(getTokenFromStorage());
+      if (hasSession) callback({ type: "SESSION" });
+    }
   } else {
     return false;
   }
 
   // Authenticated if client is available
   // > indicates we are logged in and have a valid access token
+  //
+  // NOTE: this deliberately covers a *guest client* (`is_guest: true`) too — a
+  // guest client lives in the client machine, so it is "authenticated" here in
+  // the same way a full client is. The guest-vs-full distinction is an identity
+  // detail (read `isGuestClient` from `useSession`), not an auth-status concern.
+  // A plain guest (guest machine) only ever gets `SESSION`, never this.
   if (
     hasSession &&
     state.matches(Contexts.CLIENT) &&
@@ -87,7 +98,28 @@ export const authSubscription = async (callback: any, onReceive: any) => {
   // firstly, send service's current state upon subscription
   let hasSession = false;
 
-  // authCallback(callback);
+  // Edge-trigger: authCallback is level-triggered (it runs on every transition),
+  // so forward a status event only when it actually changes. Without this it
+  // re-emits SESSION/AUTHENTICATED on unrelated child-machine transitions — e.g.
+  // a guest editing the checkout email drives the client machine
+  // (SET → checking → valid) and the basket needlessly re-syncs on every change.
+  let lastStatus: string | undefined;
+  const emit = (event: { type: string }) => {
+    if (event.type === lastStatus) return;
+    lastStatus = event.type;
+    callback(event);
+  };
+
+  // Latest parent (session) state, kept fresh by the outer subscribe below. The
+  // parent's context (which child machine is active) only changes on a parent
+  // transition, so this stays accurate for authCallback; the child actor refs
+  // on it are live, so a child-internal transition still reads correctly.
+  let latest: State<any, any, any, any, any> | undefined;
+
+  // One child subscription at a time — disposed and re-armed on the
+  // guest→client actor swap, so we attach exactly one listener per instance.
+  let watched: any;
+  let watchedSub: Subscription | undefined;
 
   onReceive((event: any) => {
     // do nothing for now
@@ -100,25 +132,30 @@ export const authSubscription = async (callback: any, onReceive: any) => {
   const subcscription = subscribe(state => {
     if (state.done) return; // service has stopped so exit
 
+    latest = state;
+
     const currentMachine =
       state?.children?.clientMachine || state?.children?.guestMachine;
 
-    // watch for our child machines to transition to a non-loading state
-    // and then send the callback to the subscriber
-    if (currentMachine) {
-      // @ts-ignore -- this definitely works, despite typescriptm oanind onTrannsition doesnt exist
-      currentMachine?.onTransition(() => {
-        hasSession = authCallback(state, hasSession, callback);
+    // The parent subscribe doesn't fire on a child's internal async transitions
+    // (e.g. loading → available once its invoke resolves), so watch the child
+    // directly — exactly one subscription per instance, reading the latest
+    // parent state rather than a stale closed-over one.
+    if (currentMachine && currentMachine !== watched) {
+      watchedSub?.unsubscribe();
+      watched = currentMachine;
+      watchedSub = currentMachine.subscribe(() => {
+        if (latest) hasSession = authCallback(latest, hasSession, emit);
       });
     }
 
-    // state = newState; // do we need this as we already have a state that we are updating? maybe there will be a race condition?
-    hasSession = authCallback(state, hasSession, callback);
+    hasSession = authCallback(state, hasSession, emit);
   });
 
   return () => {
     // The subscriber has unsubscribed from this service
     // typically when the transitioning out of the state node
+    watchedSub?.unsubscribe();
     subcscription.unsubscribe();
   };
 };

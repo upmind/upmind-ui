@@ -9,6 +9,7 @@
     </template>
 
     <template #aside>
+      <slot name="guest" />
       <slot name="summary" />
     </template>
   </Layout>

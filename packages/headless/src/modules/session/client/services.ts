@@ -1,12 +1,18 @@
 // --- internal
 import services from "../services";
-import { useI18n, useQuery } from "../..";
+import { useI18n, useQuery, useSystem } from "../..";
 import { useRecaptcha } from "../../system";
 
 // --- utils
-import { isEmpty } from "lodash-es";
+import { isEmpty, map } from "lodash-es";
 import { getTokenFromStorage } from "../utils";
-import { DetailedError, ErrorOrigin, responseCodes } from "../../../utils";
+import {
+  DetailedError,
+  ErrorOrigin,
+  responseCodes,
+  useValidation
+} from "../../../utils";
+import { mapCustomField } from "../../client/customFields/mappers";
 
 // ---types
 import type { ClientContext, CompleteRegistrationModel } from "./types";
@@ -64,17 +70,20 @@ async function completeRegistration(
   const { post, useUrl } = useQuery();
   const recaptcha = useRecaptcha();
 
-  const model = data as CompleteRegistrationModel;
+  const model = data as CompleteRegistrationModel & { username?: string };
+  // The reused register form supplies the email via its `username` field;
+  // fall back to it so the upgrade payload always carries an email.
+  const email = model.email ?? model.username;
   const payload: any = {
     custom_fields: model.customFields,
-    email: model.email,
+    email,
     firstname: model.firstname,
     lastname: model.lastname,
     password: model.password,
     phone: model.phone?.nationalNumber,
     phone_code: model.phone?.countryCallingCode,
     phone_country_code: model.phone?.country,
-    username: model.email
+    username: email
   };
 
   await recaptcha
@@ -103,11 +112,67 @@ async function updateGuestEmail(
   });
 }
 
+/**
+ * Fetches the order-form custom fields for the guest → full registration form.
+ * Mirrors the guest machine's `getCustomFields` (generic — no guest coupling).
+ */
+async function getCustomFields(
+  _context: ClientContext,
+  _event: AnyEventObject
+) {
+  const { get, useUrl } = useQuery();
+  const { ensureCountries } = useSystem();
+
+  // Countries are needed by the register schema's default country (phone).
+  ensureCountries();
+
+  return get({
+    url: useUrl("clients_fields", {
+      "filter[show_on_order_form]": true
+    }),
+    queryKey: ["session", "client", "custom-fields"],
+    select: data => map(data ?? [], mapCustomField)
+  });
+}
+
+/**
+ * Validates `context.model` against `context.schema` (AJV). Same generic shape
+ * as the guest machine's `validate` — drives the form `checking → valid/invalid`
+ * cycle. Rejects with the AJV errors so they surface as `error.data`.
+ */
+async function validate(
+  { schema, model }: ClientContext,
+  _event: AnyEventObject
+) {
+  const { t } = useI18n();
+  const { validate } = useValidation();
+
+  return new Promise((resolve, reject) => {
+    if (!schema) return resolve(model);
+
+    const errors = validate(schema, model);
+    if (errors?.length) {
+      reject(
+        new DetailedError(
+          t("error.auth_not_valid"),
+          responseCodes.Unprocessable_Entity,
+          ErrorOrigin.Headless,
+          errors
+        )
+      );
+    } else {
+      resolve(model);
+    }
+  });
+}
+
 // -----------------------------------------------------------------------------
 
 export default {
   completeRegistration,
+  getCustomFields,
   load,
   transferTo: services.transferTo,
-  updateGuestEmail
+  updateGuestEmail,
+  validate
 };

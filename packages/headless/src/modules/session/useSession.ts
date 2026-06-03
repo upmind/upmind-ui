@@ -34,7 +34,6 @@ import type {
   Client
 } from "./types";
 import type { ErrorObject } from "ajv";
-import type { GuestContext } from "./guest/types";
 import type { ClientContext } from "./client/types";
 export type { Client, SessionTransfer, IAuthTransfer } from "./types";
 // -----------------------------------------------------------------------------
@@ -151,6 +150,10 @@ export const useSession = () => {
       clientActor,
       "processing.registering"
     ),
+    isRegisteringAsGuest: stateMatches(
+      guestActor,
+      "available.asGuest.registering"
+    ),
     isGuestClient: stateMatches(state, "client") && !!client.value?.isGuest,
     canRegisterAsGuest:
       !(stateMatches(state, "client") && !!client.value?.isGuest) &&
@@ -165,7 +168,9 @@ export const useSession = () => {
         "available.recover.error",
         "available.asGuest.error"
       ]) ||
-      stateMatches(clientActor, "error"),
+      // The client machine has no error state; failures are read from
+      // `context.error` (set by the machine's `setError` action).
+      !!contextValue(clientActor, "error"),
     showLoginForm: stateMatches(guestActor, "available.login"),
     show2fa: stateMatches(guestActor, [
       "available.login.challenging",
@@ -173,10 +178,21 @@ export const useSession = () => {
       "available.register.challenging",
       "available.register.verifying"
     ]),
-    canShowForms: stateMatches(guestActor, "available"),
+    canShowForms:
+      stateMatches(guestActor, "available") ||
+      stateMatches(clientActor, "available.unregistered"),
     showAsGuestForm: stateMatches(guestActor, "available.asGuest"),
     showRegisterForm: stateMatches(guestActor, "available.register"),
-    showRecoverPasswordForm: stateMatches(guestActor, "available.recover")
+    showRecoverPasswordForm: stateMatches(guestActor, "available.recover"),
+    // Guest-client forms owned by the client machine.
+    showGuestUpgradeForm: stateMatches(
+      clientActor,
+      "available.unregistered.register"
+    ),
+    showGuestEmailForm: stateMatches(
+      clientActor,
+      "available.unregistered.email"
+    )
   }));
 
   // --- context
@@ -202,32 +218,38 @@ export const useSession = () => {
    */
   const client = useContext<ClientContext["client"]>(clientActor, "client");
 
+  // Form data (model/schema/uischema/errors) lives on the GUEST machine for
+  // login/register/recover/2fa, but a guest *client* is in the CLIENT machine
+  // (the guest actor is gone), so its upgrade + email forms read from there.
+  // Pick the active form actor once; every form value reads off it and stays
+  // reactive because `useContext` unwraps the actor inside its own computed.
+  const formActor = computed(() =>
+    meta.value.isGuestClient ? clientActor.value : guestActor.value
+  );
+
   /**
    * The underlying data model used in session-related forms such as login or registration.
    */
-  const model = useContext<GuestContext["model"]>(guestActor, "model");
+  const model = useContext<ClientContext["model"]>(formActor, "model");
 
   /**
    * JSON Schema used to define the structure of session-related forms, like login and registration.
    */
-  const schema = useContext<GuestContext["schema"]>(
-    guestActor.value?.state,
-    "schema"
-  );
+  const schema = useContext<ClientContext["schema"]>(formActor, "schema");
 
   /**
    * UI Schema used to configure the presentation and layout of session-related forms.
    */
-  const uischema = useContext<GuestContext["uischema"]>(guestActor, "uischema");
+  const uischema = useContext<ClientContext["uischema"]>(formActor, "uischema");
 
   /**
    * Any errors encountered during session management operations, such as login or registration failures.
    */
   const errors = useContext<ResponseError["message"]>(
-    guestActor,
+    formActor,
     "error.message"
   );
-  const validationErrors = useContext<ErrorObject[]>(guestActor, "error.data");
+  const validationErrors = useContext<ErrorObject[]>(formActor, "error.data");
 
   // --- methods
 
@@ -293,6 +315,21 @@ export const useSession = () => {
   }
 
   async function showRegister(): Promise<boolean> {
+    // Guest client → drive the CLIENT machine's upgrade form (the guest actor
+    // is gone once a guest client exists).
+    if (meta.value.isGuestClient && clientActor.value) {
+      service.send({ type: "REGISTER" });
+
+      return await waitFor(
+        clientActor.value.service,
+        state =>
+          stateMatches(state, ["available.unregistered.register", "done"]),
+        { timeout: 60000 }
+      )
+        .then(() => true)
+        .catch(() => false);
+    }
+
     if (!guestActor.value) return true; // already logged in
 
     service.send({
@@ -302,6 +339,20 @@ export const useSession = () => {
     return await waitFor(
       guestActor.value.service,
       state => stateMatches(state, ["available.register", "done"]),
+      { timeout: 60000 }
+    )
+      .then(() => true)
+      .catch(() => false);
+  }
+
+  async function showGuestEmail(): Promise<boolean> {
+    if (!clientActor.value) return false;
+
+    service.send({ type: "EMAIL" });
+
+    return await waitFor(
+      clientActor.value.service,
+      state => stateMatches(state, ["available.unregistered.email", "done"]),
       { timeout: 60000 }
     )
       .then(() => true)
@@ -468,7 +519,10 @@ export const useSession = () => {
       state => stateMatches(state, ["available", "done"]),
       { timeout: 60_000 }
     )
-      .then(() => true)
+      // Success routes through `loading` (clears the error); a failure returns
+      // straight to `available` with `context.error` set — read that to tell
+      // them apart, since the client machine has no error state.
+      .then(() => !contextValue(clientActor, "error"))
       .catch(() => false);
   }
 
@@ -480,7 +534,13 @@ export const useSession = () => {
       data: { email }
     });
 
-    return true;
+    return await waitFor(
+      clientActor.value.service,
+      state => stateMatches(state, ["available", "done"]),
+      { timeout: 60_000 }
+    )
+      .then(() => !contextValue(clientActor, "error"))
+      .catch(() => false);
   }
 
   async function transferTo(): Promise<IAuthTransfer> {
@@ -841,6 +901,11 @@ export const useSession = () => {
      * Displays the registration form for client sign-up.
      */
     showRegister,
+
+    /**
+     * Drives the client machine's guest-email form (checkout email capture).
+     */
+    showGuestEmail,
 
     /**
      * Displays the Send reset form for password recovery.
