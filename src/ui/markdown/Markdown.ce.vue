@@ -20,13 +20,14 @@ import { onMounted, computed, useSlots, shallowRef } from "vue";
 import Sanitized from "../sanitized/Sanitized.vue";
 
 // --- utils
+import dompurify from "dompurify";
 import { first, lowerCase } from "lodash-es";
 import { cn } from "../../utils";
 // --- types
 import type { MarkdownProps } from "./types";
+import { INLINE_TAGS, INLINE_ATTRS } from "./types";
 import type { Marked } from "marked";
 import type { VNode } from "vue";
-// -----------------------------------------------------------------------------
 
 const emits = defineEmits(["mounted"]);
 
@@ -56,6 +57,17 @@ const compiledMarkdown = computed((): string => {
     });
   }
 
-  return markedInstance.value.parse(modelValue) as string;
+  if (props.inline) {
+    const html = markedInstance.value.parse(modelValue, {
+      async: false,
+      breaks: false
+    });
+    return dompurify.sanitize(html, {
+      ALLOWED_TAGS: INLINE_TAGS,
+      ALLOWED_ATTR: INLINE_ATTRS
+    });
+  }
+
+  return markedInstance.value.parse(modelValue, { async: false });
 });
 </script>
