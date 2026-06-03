@@ -28,8 +28,6 @@ export default {
       text: cva("text-muted flex-1 text-sm leading-6")
     },
 
-    unavailable: cva("text-destructive text-sm"),
-
     summary: {
       root: cva("bg-control-surface shadow-control-default control-radius"),
       row: cva("flex items-start gap-2 p-4 pl-3"),
