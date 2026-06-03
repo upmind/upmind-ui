@@ -1001,7 +1001,7 @@ export const useQuery = () => {
           withAccessToken
         }).then(response => {
           if (isFunction(select))
-            return select(
+            return (select as Function)(
               response.data!,
               response.related,
               response.meta
