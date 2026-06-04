@@ -18,7 +18,7 @@ export const variants = {
     lg: "text-md"
   },
   hasRing: {
-    true: `${ringClasses} ${invalidRingClasses}`,
+    true: `${ringClasses} ${invalidRingClasses} data-[state=open]:outline-transparent!`,
     false:
       "ring-0 ring-transparent outline-none focus:ring-0 focus:ring-transparent focus:outline-none"
   }
