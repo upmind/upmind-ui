@@ -66,7 +66,12 @@
     <p :class="styles.field.transfer.text">
       {{
         t("domain.existing.transfer_info", {
-          price: transferPrice ?? "",
+          // Brand-supplied override wins (e.g. "FREE" or a flat amount) —
+          // falls back to the parent product's price when no override is
+          // configured. Mirrors the upmind-widgets `transferOptionPrice`
+          // behaviour: `getTransferOptionPrice` only returns a value when
+          // the transfer sub-product's category has `price_override: true`.
+          price: transferOptionPrice ?? transferPrice ?? "",
           period: parseBillingCycle(props.cycle ?? 0).numeric
         })
       }}

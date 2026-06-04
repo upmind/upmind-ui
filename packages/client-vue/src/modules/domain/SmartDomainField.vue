@@ -81,6 +81,7 @@
                   meta.isExistingOwned
                 "
                 :transfer-price="pricing?.price ?? ''"
+                :transfer-option-price="pricing?.transferOptionPrice"
                 :register-price="pricing?.price ?? ''"
                 :cycle="pricing?.cycle"
                 @update:model-value="onExistingUpdate"

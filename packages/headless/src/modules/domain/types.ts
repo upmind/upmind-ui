@@ -112,6 +112,14 @@ export type DomainProduct = Product &
        * UI renders this on the disabled transfer action (e.g. "Unavailable").
        */
       transferLabel?: string;
+      /**
+       * Brand-supplied transfer **price override**, formatted for display.
+       * Resolved from the transfer sub-product's category (`price_override`)
+       * by `getTransferOptionPrice`. Either a formatted price like `"£10"` or
+       * the localised free label (e.g. `"FREE"`). `undefined` means no override
+       * is configured — UI should fall back to the parent product's price.
+       */
+      transferOptionPrice?: string;
       /** `true` if this basket product was added as a domain transfer (vs registration). */
       isTransfer?: boolean;
       /** `true` if the domain is fully unavailable (cannot register or transfer). */

@@ -28,6 +28,7 @@ import {
   buildFallbackPricing,
   getDacTransferLabel,
   getDomainRawBasketProducts,
+  getTransferOptionPrice,
   hasTransferSetup,
   isBasketTransfer,
   makePlaceholderProductDetails,
@@ -58,6 +59,7 @@ import { DomainMode } from "./types";
 import type {
   IDomainAvailabilityResponse,
   IDomainSuggestionResult,
+  IDomainSuggestionResultProduct,
   IProduct
 } from "@upmind-automation/types";
 import { DetailedError, ErrorOrigin, responseCodes } from "../../utils";
@@ -190,7 +192,14 @@ function buildDomainProductFromAvailability(
         checkedAvailability: true,
         disabled: isFullyUnavailable,
         exactMatch: true,
-        transferLabel: getDacTransferLabel(product)
+        transferLabel: getDacTransferLabel(product),
+        // Same brand-override resolution as `parseSuggestions` — read the
+        // /availability product's transfer sub-product `category.price_override`
+        // to surface "FREE"/concrete amount; UI falls back when undefined.
+        transferOptionPrice: getTransferOptionPrice(
+          product as IDomainSuggestionResultProduct,
+          product.prices?.[0]?.currency_code
+        )
       },
       productDetails: {
         ...productDetails,

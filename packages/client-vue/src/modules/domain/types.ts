@@ -88,6 +88,13 @@ export type DomainCardProps = {
   free?: DomainProduct["meta"]["free"];
   canTransfer?: DomainProduct["meta"]["canTransfer"];
   transferLabel?: DomainProduct["meta"]["transferLabel"];
+  /**
+   * Brand-supplied transfer-price override (e.g. "FREE" or "£10"). When
+   * present, replaces the parent product's price in the transfer copy.
+   * Resolved by `getTransferOptionPrice` from the transfer sub-product's
+   * `category.price_override`.
+   */
+  transferOptionPrice?: DomainProduct["meta"]["transferOptionPrice"];
   unavailable?: DomainProduct["meta"]["unavailable"];
   /** `true` while pricing/product data is being fetched from /suggestions/tlds. */
   priceLoading?: boolean;
@@ -147,6 +154,13 @@ export type SmartDomainExistingProps = {
   unavailable?: boolean;
   dnsOnly?: boolean;
   transferPrice?: string;
+  /**
+   * Brand-supplied transfer-price override (e.g. "FREE" or "£10").
+   * When present, the transfer-info copy uses this in place of the parent
+   * product's `transferPrice`. Resolved from the transfer sub-product's
+   * `category.price_override` flag — see `getTransferOptionPrice`.
+   */
+  transferOptionPrice?: string;
   registerPrice?: string;
   cycle?: number;
 };

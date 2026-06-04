@@ -6,7 +6,7 @@ import type { Ref } from "vue";
 
 // --- internals
 import { useBrand } from "../brand";
-import { useLocale } from "../system";
+import { useI18n, useLocale } from "../system";
 import {
   calculateBillingTerm,
   parseProductDetails,
@@ -290,6 +290,106 @@ export function getDacTransferLabel(
   return undefined;
 }
 
+/**
+ * Resolves the brand-supplied transfer **price override** for a product.
+ *
+ * Ports the widget logic from `upmind-widgets`
+ * (`src/widgets/UpmDac/composables/domainMapper.ts:getTransferOptionPriceFormatted`).
+ * When a brand wires up a transfer sub-product whose category has
+ * `price_override: true`, the sub-product's own one-off (`billing_cycle_months
+ * === 0`) price row defines the merchant-facing transfer cost — independent
+ * of whatever the parent TLD product charges for registration.
+ *
+ * Returns:
+ *   - `t("text.free")` when the override price is `0`
+ *   - `removeTrailingZeroes(price_formatted)` for any non-zero amount
+ *   - `undefined` when there's no override (caller falls back to its own
+ *     price logic)
+ *
+ * Two product shapes are supported, mirroring the widget:
+ *   - **Bundle (tlds flow):** `setup_function_sub_ids.transfer` is an array
+ *     of sub-product ids; the candidate sub-product is inlined in `options[]`
+ *   - **Single-mode (availability flow):** `sub_product_id` IS the transfer
+ *     sub-product; same `options[]` lookup
+ */
+export function getTransferOptionPrice(
+  product?: {
+    options?: Array<{
+      id?: string;
+      category?: { price_override?: boolean | null };
+      prices?: Array<{
+        billing_cycle_months?: number;
+        currency_code?: string;
+        price?: number;
+        price_formatted?: string | null;
+      }>;
+    } | null>;
+    setup_function_sub_ids?: { transfer?: string[] };
+    sub_product_id?: string;
+  } | null,
+  currencyCode?: string
+): string | undefined {
+  if (!product) return undefined;
+  // Use the headless `useI18n` (module-level Composer, no `inject()`) — this
+  // function runs inside the XState callback service, not a Vue setup, so
+  // anything that touches Vue's injection layer (e.g. `useMoney` → vue-i18n)
+  // would crash with "inject() can only be used inside setup()".
+  const { t } = useI18n();
+  // Trailing-zero strip inlined (regex from `useMoney.removeTrailingZeroes`)
+  // to keep this helper Vue-setup-free.
+  const removeTrailingZeroes = (val?: string | null): string =>
+    val?.replace(/[,.]00\b/, "") ?? "";
+
+  const pickPrice = (
+    candidate?: {
+      category?: { price_override?: boolean | null };
+      prices?: Array<{
+        billing_cycle_months?: number;
+        currency_code?: string;
+        price?: number;
+        price_formatted?: string | null;
+      }>;
+    } | null
+  ): string | undefined => {
+    if (!candidate?.category?.price_override) return undefined;
+    const match = find(
+      candidate.prices,
+      p =>
+        p.billing_cycle_months === 0 &&
+        (!currencyCode || p.currency_code === currencyCode)
+    );
+    if (!match) return undefined;
+    return match.price === 0
+      ? t("text.free")
+      : removeTrailingZeroes(match.price_formatted);
+  };
+
+  const options = product.options ?? [];
+
+  // Strategy A — `setup_function_sub_ids.transfer` is an array of sub-product
+  // ids that live in `options[]`.
+  const transferIds = product.setup_function_sub_ids?.transfer;
+  if (Array.isArray(transferIds) && transferIds.length > 0) {
+    for (const subId of transferIds) {
+      const candidate = find(options, o => o?.id === subId);
+      const result = pickPrice(candidate);
+      if (result !== undefined) return result;
+    }
+  }
+
+  // Strategy B — single-mode transfer product: `sub_product_id` matches an
+  // inlined option (used by the /availability flow when the BE returns a
+  // dedicated transfer product with `setup_function_name === "transfer"`).
+  const singleSubId = product.sub_product_id;
+  if (typeof singleSubId === "string" && singleSubId) {
+    const candidate = find(options, o => o?.id === singleSubId);
+    const result = pickPrice(candidate);
+    if (result !== undefined) return result;
+  }
+
+  return undefined;
+}
+
 // ----------------------------------------------------------------------------
 
 /**
@@ -479,6 +579,18 @@ export function parseSuggestions(
           setupSubIds?.[rowMode] ?? [product.sub_product_id]
         );
 
+        // Brand-supplied transfer-price override resolved from the transfer
+        // sub-product's `category.price_override`. Surfaces "FREE" or a
+        // concrete amount when configured; UI falls back to the parent
+        // product's price when this is undefined. Currency comes from any
+        // price row on the parent product (the API returns prices in the
+        // active currency, so they're all in sync).
+        const parentCurrencyCode = product.prices?.[0]?.currency_code;
+        const transferOptionPrice = getTransferOptionPrice(
+          product as IDomainSuggestionResultProduct,
+          parentCurrencyCode
+        );
+
         // Mirror `buildDomainProductFromAvailability`: a row whose API
         // flags collapse to register=false AND transfer=false (e.g.
         // `can_transfer: true` from /suggestions but the mapped product
@@ -509,7 +621,8 @@ export function parseSuggestions(
             canTransfer: canTransferEffective,
             unavailable: isFullyUnavailable,
             disabled: isFullyUnavailable,
-            transferLabel
+            transferLabel,
+            transferOptionPrice
           },
           productDetails: {
             ...productDetails,
