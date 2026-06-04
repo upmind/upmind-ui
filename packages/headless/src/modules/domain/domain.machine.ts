@@ -35,6 +35,7 @@ import {
   isArray,
   isEmpty,
   isString,
+  last,
   map,
   reduce,
   remove,
@@ -831,7 +832,11 @@ export default createMachine(
           const mapped = map(data.domains, (item: DomainProduct) =>
             parseDomain(item.domain)
           );
-          return find(mapped, "selected") || first(mapped);
+          // Most-recent wins: the user expects the domain they just added to
+          // be the one linked to the product. DAC's `complete.data` marks
+          // `last(model)` as `selected`; `parseDomain` strips the marker so
+          // we also fall back to `last` here, keeping both sides aligned.
+          return find(mapped, "selected") || last(mapped);
         },
         lookups: ({ lookups }: DomainContext, { data }: AnyEventObject) => {
           if (isEmpty(data?.basket)) return lookups;

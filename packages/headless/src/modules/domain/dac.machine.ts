@@ -37,6 +37,7 @@ import {
   isEmpty,
   isFunction,
   isObject,
+  last,
   map,
   reduce,
   reject,
@@ -272,7 +273,11 @@ export default createMachine(
         type: "final",
         data: ({ model, lookups }: DacContext) => {
           const domains = lookups.basket;
-          const primary = first(model);
+          // Most-recent wins: the user expects the domain they just added to
+          // be the primary one linked to the parent product. Parent's
+          // `setModelFromDac` reads the same end and falls back to `last`
+          // when the marker is stripped — keep both sides aligned.
+          const primary = last(model);
 
           return {
             basket: lookups.basket,
