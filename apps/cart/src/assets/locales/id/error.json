@@ -69,6 +69,7 @@
   "currency_update_failed": "Kami mengalami kesalahan saat memperbarui mata uang",
   "currency_validation_failed": "Validasi mata uang gagal",
   "domain_add_failed": "Gagal menambahkan domain ke keranjang",
+  "domain_availability_aborted": "Pemeriksaan ketersediaan domain telah dibatalkan",
   "domain_availability_required": "Tidak ada domain yang ditentukan untuk pemeriksaan ketersediaan",
   "domain_not_valid": "Harus berupa domain atau subdomain yang valid",
   "domain_register_data_missing": "Tidak ada data domain atau ketersediaan untuk pendaftaran",

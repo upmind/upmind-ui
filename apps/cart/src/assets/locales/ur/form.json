@@ -84,7 +84,7 @@
   },
   "companyNumber": {
     "label": "کمپنی نمبر",
-    "placeholder": "رجسٹرڈ ٹیکس یا جی ایس ٹی"
+    "placeholder": "کمپنی کا شناختی نمبر"
   },
   "country": {
     "label": "ملک",
@@ -169,8 +169,8 @@
     "label": ""
   },
   "taxNumber": {
-    "label": "ٹیکس نمبر",
-    "placeholder": "ٹیکس کی شناخت"
+    "label": "رجسٹرڈ ٹیکس ID",
+    "placeholder": "ٹیکس ID/VAT/GST نمبر"
   },
   "twofa": {
     "description": "یہ اکاؤنٹ دو عنصر کی توثیق کے ذریعے محفوظ کیا گیا ہے۔ براہ کرم اپنا تصدیقی کوڈ درج کریں۔",

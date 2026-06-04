@@ -40,7 +40,8 @@
     "register_info": "Buenas noticias: este dominio está disponible para registrarse por solo {price}, lo que incluye un {period} registro.",
     "remove_transfer": "Eliminar transferencia",
     "transfer_added": "Se ha añadido la transferencia",
-    "transfer_info": "Si eres el propietario de este dominio, puedes transferírnoslo por solo {price}, lo que incluye una renovación {period} €. Si no, tendrás que actualizar los registros de los servidores de nombres (NS) del dominio.",
+    "transfer_info": "Si eres el propietario de este dominio, puedes transferírnoslo por solo {transferPrice} €. Las renovaciones posteriores tendrán un coste de {term} Si no, tendrás que actualizar los registros de los servidores de nombres (NS) del dominio.",
+    "transfer_info_free": "Si eres el propietario de este dominio, puedes transferírnoslo GRATIS. Las renovaciones posteriores tendrán un coste de {term}. Si no, tendrás que actualizar los registros de los servidores de nombres (NS) del dominio.",
     "unavailable": "Este dominio no se puede registrar ni transferir."
   },
   "finding_perfect_domain": "Encontrar tu dominio **perfecto**",
@@ -52,13 +53,16 @@
   "search": "Introduce un dominio para realizar la búsqueda",
   "starts_with_domain": "Todo comienza con un **nombre de dominio**",
   "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
+  "tld_renewal_info": "Nuestros {tld} precios de renovación empiezan desde solo {term}.",
   "tld_renewal_price_desc": "Nuestro {tld} Los precios de renovación comienzan desde solo {currentPrice} (era {regularPrice}).",
   "tld_renewal_price_from_desc": "Nuestro {tld} Los precios de renovación comienzan desde solo {regularPrice}.",
   "transfer": "Transferencia por solo {currentPrice}.",
   "transfer_domain": "Transferir dominio",
   "transfer_extension_info": "Las transferencias incluyen una prórroga de un año.",
+  "transfer_free_info": "Puedes hacérnoslo llegar GRATIS.",
   "transfer_owner_question": "¿Es usted el propietario de este dominio?",
   "transfer_price_info": "Puede transferírnoslo por solo {currentPrice}",
   "transfer_promotion": "Transferencia por solo {currentPrice}, normalmente {regularPrice}.",
-  "use_details_for": "Utilice estos detalles para{domain}"
+  "transfer_today_info": "Puede hacérnoslo llegar hoy mismo.",
+  "use_details_for": "Utilice estos detalles para {domain}"
 }

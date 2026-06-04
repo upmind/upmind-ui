@@ -69,6 +69,7 @@
   "currency_update_failed": "Vi oppsto en feil under oppdatering av valutaen",
   "currency_validation_failed": "Valutavalidering mislyktes",
   "domain_add_failed": "Kunne ikke legge domenet til i handlekurven",
+  "domain_availability_aborted": "Sjekken av domenets tilgjengelighet ble avbrutt",
   "domain_availability_required": "Det er ikke angitt noe domene for tilgjengelighetskontrollen",
   "domain_not_valid": "Må være et gyldig domene eller et underdomene",
   "domain_register_data_missing": "Ingen opplysninger om domener eller ledige domener for registrering",

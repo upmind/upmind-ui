@@ -40,7 +40,8 @@
     "register_info": "Vești bune — acest domeniu poate fi înregistrat la doar {price}, preț care include și înregistrarea {period} de ani.",
     "remove_transfer": "Anulează transferul",
     "transfer_added": "S-a adăugat transferul",
-    "transfer_info": "Dacă dețineți acest domeniu, îl puteți transfera la noi pentru doar {price}, sumă care include și reînnoirea în valoare de {period}. În caz contrar, va trebui să actualizați înregistrările serverelor de nume (NS) ale domeniului.",
+    "transfer_info": "Dacă dețineți acest domeniu, îl puteți transfera la noi pentru doar {transferPrice}. Reînnoirile ulterioare se taxează cu {term}. În caz contrar, va trebui să actualizați înregistrările serverelor de nume (NS) ale domeniului.",
+    "transfer_info_free": "Dacă dețineți acest domeniu, îl puteți transfera la noi GRATUIT. Reînnoirile ulterioare se taxează cu {term}. Alternativ, va trebui să actualizați înregistrările serverelor de nume (NS) ale domeniului.",
     "unavailable": "Acest domeniu nu poate fi înregistrat sau transferat."
   },
   "finding_perfect_domain": "Găsirea domeniului tău **perfect**",
@@ -52,13 +53,16 @@
   "search": "Introduceți un domeniu pentru a efectua căutarea",
   "starts_with_domain": "Totul începe cu un **nume de domeniu**",
   "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
+  "tld_renewal_info": "Prețurile noastre pentru reînnoirea abonamentului {tld} încep de la doar {term}.",
   "tld_renewal_price_desc": "Noastre {tld} prețurile de reînnoire încep de la doar {currentPrice} (a fost {regularPrice}).",
   "tld_renewal_price_from_desc": "Noastre {tld} prețurile de reînnoire încep de la doar {regularPrice}.",
   "transfer": "Transfer pentru doar {currentPrice}.",
   "transfer_domain": "Transfer domeniu",
   "transfer_extension_info": "Transferurile includ o prelungire de un an.",
+  "transfer_free_info": "Ne-l puteți transfera GRATUIT.",
   "transfer_owner_question": "Sunteți proprietarul acestui domeniu?",
   "transfer_price_info": "Ne-l puteți transfera pentru doar {currentPrice}",
   "transfer_promotion": "Transfer pentru doar {currentPrice}, de obicei {regularPrice}.",
-  "use_details_for": "Folosește aceste detalii pentru{domain}"
+  "transfer_today_info": "Ne puteți transfera suma chiar astăzi.",
+  "use_details_for": "Folosește aceste detalii pentru {domain}"
 }

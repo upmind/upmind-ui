@@ -69,6 +69,7 @@
   "currency_update_failed": "Para birimini güncellerken bir hatayla karşılaştık",
   "currency_validation_failed": "Para birimi doğrulaması başarısız oldu",
   "domain_add_failed": "Alan adı sepete eklenemedi",
+  "domain_availability_aborted": "Alan adı kullanılabilirlik kontrolü iptal edildi",
   "domain_availability_required": "Kullanılabilirlik kontrolü için herhangi bir alan adı belirtilmedi",
   "domain_not_valid": "Geçerli bir alan adı veya alt alan adı olmalıdır",
   "domain_register_data_missing": "Kayıt için alan adı veya uygunluk bilgisi bulunmamaktadır",

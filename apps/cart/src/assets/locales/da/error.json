@@ -69,6 +69,7 @@
   "currency_update_failed": "Der opstod en fejl under opdatering af valutaen",
   "currency_validation_failed": "Valutavalidering mislykkedes",
   "domain_add_failed": "Domænet kunne ikke tilføjes til kurven",
+  "domain_availability_aborted": "Kontrol af domænets tilgængelighed blev afbrudt",
   "domain_availability_required": "Der er ikke angivet noget domæne til tilgængelighedskontrol",
   "domain_not_valid": "Skal være et gyldigt domæne eller subdomæne",
   "domain_register_data_missing": "Der findes ingen oplysninger om domæner eller ledige domæner til registrering",
