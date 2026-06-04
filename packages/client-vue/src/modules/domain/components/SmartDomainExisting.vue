@@ -77,7 +77,7 @@
       v-if="!transferred && !removing"
       variant="outline"
       size="lg"
-      icon="refresh-cw-05"
+      icon="plus-circle"
       :label="t('domain.existing.add_transfer')"
       :disabled="disabled || transferring"
       :loading="transferring"
