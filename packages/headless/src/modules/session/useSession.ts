@@ -806,6 +806,10 @@ export const useSession = () => {
       return client.value?.id;
     }),
 
+    actorKey: computed(
+      () => `${client.value?.id ?? "anonymous"}:${meta.value.isGuestClient}`
+    ),
+
     // --- methods
 
     // /**
