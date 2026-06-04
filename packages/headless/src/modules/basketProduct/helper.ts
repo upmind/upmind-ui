@@ -195,7 +195,7 @@ export function basketSubscription(callback: any, onReceiveEvent: any) {
           callback({ type: "CANCEL", data: event.target });
 
         return productServices
-          .update(rawBasket?.id, event.target)
+          .update(rawBasket?.id, event.target, event.context?.baseModel)
           .then((rawBasket: IBasket) =>
             callback({ type: "UPDATED", data: rawBasket })
           )
