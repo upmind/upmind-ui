@@ -125,16 +125,24 @@
           {{ $t("domain.transfer_owner_question")
           }}<br class="hidden md:block" />
           {{
-            $t("domain.transfer_price_info", {
-              // Brand-supplied transfer-price override wins (FREE / flat
-              // amount). Falls back to the parent product's price when no
-              // override is configured — same precedence as
-              // SmartDomainExisting and the upmind-widgets DAC widget.
-              currentPrice:
-                props.transferOptionPrice ?? props.price.currentPrice
-            })
+            // Two variants:
+            //   - `transfer_free_info`  — brand-override transfer price is 0
+            //   - `transfer_today_info` — everything else (no override, or
+            //                              override > 0)
+            // Driven off `meta.isTransferFree` (boolean from the helper)
+            // rather than string-matching the formatted "FREE" label, so
+            // any locale's free translation works without code changes.
+            meta.isTransferFree
+              ? $t("domain.transfer_free_info")
+              : $t("domain.transfer_today_info")
           }}<br class="hidden md:block" />
-          {{ $t("domain.transfer_extension_info") }}
+          {{
+            $t("domain.tld_renewal_info", {
+              tld: props.tld,
+              renewalPrice: props.price.currentPrice,
+              term: parseBillingCycle(props.cycle ?? 0).suffix
+            })
+          }}
         </p>
 
         <div class="ml-auto" v-if="isMobile && props.price.savingPercent">
@@ -238,7 +246,11 @@ const meta = computed(() => ({
   // Brand has supplied a custom label for the transfer button via
   // `meta.overrides.dac.i18n.transfer` — surface it as a disabled button
   // even when the row is otherwise "unavailable".
-  hasTransferLabel: !!props.transferLabel
+  hasTransferLabel: !!props.transferLabel,
+  // `true` only when the transfer sub-product's `category.price_override`
+  // is set AND its one-off price row is `0`. Drives the "transfer FREE"
+  // vs "transfer today" copy below.
+  isTransferFree: !!props.transferOptionIsFree
 }));
 
 const styles = useStyles(

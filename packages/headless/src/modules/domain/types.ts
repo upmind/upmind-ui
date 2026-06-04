@@ -120,6 +120,13 @@ export type DomainProduct = Product &
        * is configured — UI should fall back to the parent product's price.
        */
       transferOptionPrice?: string;
+      /**
+       * `true` when the transfer-price override resolved to `0` — i.e. the
+       * brand has configured a free transfer. UI uses this to swap copy
+       * between "transfer for free" and "transfer for only {price}" without
+       * locale-sniffing the formatted price label.
+       */
+      transferOptionIsFree?: boolean;
       /** `true` if this basket product was added as a domain transfer (vs registration). */
       isTransfer?: boolean;
       /** `true` if the domain is fully unavailable (cannot register or transfer). */
