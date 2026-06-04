@@ -60,7 +60,7 @@ async function load(_context: ClientContext, _event: any) {
  *
  * The endpoint returns no auth payload — the existing `guest_customer` token
  * keeps working post-upgrade. The machine re-fetches `/self` afterwards via
- * `processing.registering → onDone → loading` to reconcile `is_guest: false`.
+ * `register.registering → onDone → loading` to reconcile `is_guest: false`.
  * Do NOT add token-handling here.
  */
 async function completeRegistration(

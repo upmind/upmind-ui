@@ -6,6 +6,7 @@ import { useI18n, useLocale } from "../../system";
 import services from "./services";
 
 import type { ClientContext, GuestEmailModel } from "./types";
+import { ClientFormType } from "./types";
 import type { RegisterModel } from "../guest/types";
 
 import { useDataLayer } from "../../system";
@@ -98,117 +99,98 @@ export default createMachine(
             states: {
               idle: {},
 
-              register: {
-                id: "guestUpgrade",
-                initial: "loading",
-                states: {
-                  loading: {
-                    invoke: {
-                      src: "getCustomFields",
-                      onDone: {
-                        target: "available",
-                        actions: ["setCustomFields", "setRegisterSchemas"]
-                      },
-                      onError: {
-                        target: "available",
-                        actions: ["setRegisterSchemas"]
-                      }
-                    }
+              // Register-form schema fetch (custom fields). Email form needs no
+              // load — EMAIL sets its schema synchronously on the transition.
+              loading: {
+                invoke: {
+                  src: "getCustomFields",
+                  onDone: {
+                    target: "available",
+                    actions: ["setCustomFields", "setRegisterSchemas"]
                   },
-                  available: {
-                    initial: "checking",
-                    states: {
-                      checking: {
-                        // Model is set here (from the SET event), not on the SET
-                        // transition — mirrors the dataManager/billing form shape.
-                        entry: ["setModel"],
-                        invoke: {
-                          src: "validate",
-                          onDone: { target: "valid", actions: ["clearError"] },
-                          onError: { target: "invalid", actions: ["setError"] }
-                        }
-                      },
-                      // Commit only from `valid` — an invalid/partial form can't
-                      // submit.
-                      valid: {
-                        on: {
-                          COMPLETE_REGISTRATION: {
-                            target: "#processing.registering"
-                          }
-                        }
-                      },
-                      invalid: {}
-                    },
-                    on: {
-                      SET: { target: ".checking" }
-                    }
-                  },
-                  error: {
-                    on: {
-                      SET: { target: "available" }
-                    }
+                  onError: {
+                    target: "available",
+                    actions: ["setRegisterSchemas"]
                   }
                 }
               },
 
-              email: {
-                id: "guestEmail",
-                initial: "loading",
+              // The shared form surface. `formType` (set by REGISTER/EMAIL) says
+              // whether it's hosting the upgrade or the checkout-email form.
+              available: {
+                initial: "checking",
                 states: {
-                  loading: {
-                    always: {
-                      target: "available",
-                      actions: ["setEmailSchemas"]
+                  checking: {
+                    // Set model on entry (no `parse` service); guarded to SET.
+                    entry: ["setModel"],
+                    invoke: {
+                      src: "validate",
+                      onDone: { target: "valid", actions: ["clearError"] },
+                      onError: { target: "invalid", actions: ["setError"] }
                     }
                   },
-                  available: {
-                    initial: "checking",
-                    states: {
-                      checking: {
-                        // Model is set here (from the SET event), not on the SET
-                        // transition — mirrors the dataManager/billing form shape.
-                        entry: ["setModel"],
-                        invoke: {
-                          src: "validate",
-                          onDone: { target: "valid", actions: ["clearError"] },
-                          onError: { target: "invalid", actions: ["setError"] }
-                        }
-                      },
-                      // Save only from `valid` — a partial/invalid email can't
-                      // autosave.
-                      valid: {
-                        on: {
-                          UPDATE_GUEST_EMAIL: { target: "updating" }
-                        }
-                      },
-                      invalid: {},
-                      // The background save lives *inside* `available`, so the form
-                      // stays mounted/usable while saving AND the client never
-                      // leaves top-level `available`. Leaving it would drop
-                      // `hasSession` in the auth subscription, making a background
-                      // email save look like a re-auth and needlessly re-sync the
-                      // basket and the other auth consumers.
-                      updating: {
-                        invoke: {
-                          src: "updateGuestEmail",
-                          onDone: {
-                            target: "valid",
-                            actions: ["clearError", "setClientEmail"]
-                          },
-                          onError: { target: "invalid", actions: ["setError"] }
-                        }
-                      }
-                    },
+                  valid: {
                     on: {
-                      SET: { target: ".checking" }
+                      COMPLETE_REGISTRATION: {
+                        target: "#unregistered.registering",
+                        cond: "isRegisterForm"
+                      },
+                      UPDATE_GUEST_EMAIL: {
+                        target: "#unregistered.updating",
+                        cond: "isEmailForm"
+                      }
                     }
+                  },
+                  invalid: {}
+                },
+                on: {
+                  SET: { target: ".checking" }
+                }
+              },
+
+              // Upgrade submit. `registering`/`updating`/`error` are siblings of
+              // the form, so they don't inherit `available`'s SET handler — the
+              // form can't be re-edited while a request is in flight.
+              registering: {
+                invoke: {
+                  src: "completeRegistration",
+                  onDone: {
+                    target: "#loading",
+                    actions: ["setFeedbackSuccess"]
+                  },
+                  onError: {
+                    target: "error",
+                    actions: ["setError", "setFeedbackError"]
                   }
+                }
+              },
+
+              // Email autosave.
+              updating: {
+                invoke: {
+                  src: "updateGuestEmail",
+                  onDone: {
+                    target: "available.valid",
+                    actions: ["clearError", "setClientEmail"]
+                  },
+                  onError: { target: "error", actions: ["setError"] }
+                }
+              },
+
+              // Submit failure (drives the alert); distinct from `invalid`
+              // (client validation).
+              error: {
+                on: {
+                  SET: { target: "available" }
                 }
               }
             },
             on: {
-              REGISTER: { target: ".register" },
-              EMAIL: { target: ".email" },
+              REGISTER: { target: ".loading" },
+              EMAIL: {
+                target: ".available",
+                actions: ["setEmailSchemas"]
+              },
               LOGOUT: {
                 target: "#complete",
                 actions: "clear"
@@ -234,34 +216,6 @@ export default createMachine(
               }
             }
           }
-        }
-      },
-
-      processing: {
-        id: "processing",
-        initial: "registering",
-        states: {
-          registering: {
-            invoke: {
-              src: "completeRegistration",
-              // Success re-fetches `/self` (is_guest:false) → full client.
-              onDone: {
-                target: "#loading",
-                actions: ["setFeedbackSuccess"]
-              },
-              // Failure returns to the upgrade form's error state so the form
-              // and the server error stay visible for retry.
-              onError: {
-                target: "#guestUpgrade.error",
-                actions: ["setError", "setFeedbackError"]
-              }
-            }
-          }
-          // NOTE: the guest-email autosave does NOT live here. It's a background
-          // field update handled within `#guestEmail.available.updating`, so the
-          // client never leaves top-level `available` for it (see auth helper).
-          // Top-level `processing` is reserved for the upgrade (identity change),
-          // which *should* re-auth and re-sync downstream consumers.
         }
       },
 
@@ -367,6 +321,7 @@ export default createMachine(
         customFields: (_context, { data }: AnyEventObject) => data
       }),
       setRegisterSchemas: assign({
+        formType: () => ClientFormType.REGISTER,
         schema: ({ customFields }: ClientContext) =>
           useRegisterSchemaParser(customFields),
         uischema: ({ customFields }: ClientContext) =>
@@ -388,6 +343,7 @@ export default createMachine(
           )
       }),
       setEmailSchemas: assign({
+        formType: () => ClientFormType.EMAIL,
         schema: () => useGuestEmailSchemaParser(),
         uischema: () => useGuestEmailUischemaParser(),
         // Pre-fill from the saved value. The BE stores a guest client's email in
@@ -436,7 +392,11 @@ export default createMachine(
       clearError: assign({ error: undefined })
     },
     guards: {
-      isGuestClient: ({ client }: ClientContext) => !!client?.isGuest
+      isGuestClient: ({ client }: ClientContext) => !!client?.isGuest,
+      isRegisterForm: ({ formType }: ClientContext) =>
+        formType === ClientFormType.REGISTER,
+      isEmailForm: ({ formType }: ClientContext) =>
+        formType === ClientFormType.EMAIL
     },
 
     delays: {

@@ -7,14 +7,21 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // -----------------------------------------------------------------------------
 
+// Which guest-client form occupies the shared `unregistered.available` node.
+export enum ClientFormType {
+  REGISTER = "register",
+  EMAIL = "email"
+}
+
 export interface ClientContext {
   client?: Client;
   error?: ResponseError;
   transfer?: IAuthTransfer;
-  // --- guest-client form state (upgrade + email). Mirrors GuestContext so the
-  // client machine can own these forms once the guest machine is gone.
-  // `model` is `any` like GuestContext (it holds register- or email-shaped data).
+  // --- guest-client form state (upgrade + email). One shared form surface; the
+  // active form's schema/model live here and `formType` says which it is.
+  // `model` is `any` (it holds register- or email-shaped data).
   customFields?: any[];
+  formType?: ClientFormType;
   model?: any;
   schema?: JsonSchema;
   uischema?: UISchemaElement;

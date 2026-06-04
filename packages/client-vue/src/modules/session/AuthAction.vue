@@ -35,10 +35,10 @@
 <script lang="ts" setup>
 // --- external
 import { useI18n } from "vue-i18n";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 
 // --- internal
-import { useSession } from "@upmind-automation/headless";
+import { useSession, QUERY_PARAMS } from "@upmind-automation/headless";
 
 // --- components
 import { Button, Avatar } from "@upmind-automation/upmind-ui";
@@ -54,8 +54,16 @@ const props = defineProps<AuthActionProps>();
 const { t } = useI18n();
 const { meta, client } = useSession();
 const router = useRouter();
+const route = useRoute();
 
 function goToRegister() {
-  if (props.registerRoute) router.push(props.registerRoute);
+  if (!props.registerRoute) return;
+  router.push({
+    ...props.registerRoute,
+    query: {
+      ...props.registerRoute.query,
+      [QUERY_PARAMS.RETURN_URL]: route.fullPath
+    }
+  });
 }
 </script>

@@ -1,8 +1,8 @@
 <template>
-  <section v-if="!meta.isAuthenticated && !meta.isLoading">
+  <section v-if="meta.canShowForms && !meta.isLoading">
     <component
       :is="meta.show2fa ? Interstitial : Slot"
-      v-if="!meta.isAuthenticated && !meta.isLoading"
+      v-if="meta.canShowForms && !meta.isLoading"
       :open="meta.show2fa"
       modal
       :title="twofaTitle"
@@ -27,7 +27,7 @@
         />
 
         <Form
-          :disabled="meta.isAuthenticated"
+          :disabled="meta.isAuthenticated && !meta.showGuestUpgradeForm"
           :key="currentForm"
           :loading="meta.isLoading"
           :processing="meta.isProcessing"

@@ -9,19 +9,33 @@
 
     <template #hero>
       <slot name="hero">
-        <Hero :title="t('action.create_account')">
+        <Hero
+          :title="
+            meta.isGuestClient
+              ? t('auth.guest_register_title')
+              : t('action.create_account')
+          "
+        >
           <template #subtitle>
-            <span class="font-normal"
-              >{{ t("auth.register_description") }}&nbsp;</span
-            >
+            <!-- A guest client is upgrading, not choosing login vs register —
+                 show the save-your-details prompt, not the log-in link. -->
+            <span v-if="meta.isGuestClient" class="font-normal">{{
+              t("auth.guest_register_description")
+            }}</span>
 
-            <Link
-              :to="props.loginRoute"
-              size="inherit"
-              color="inherit"
-              :label="t('action.log_in_here')"
-              class="font-normal"
-            />
+            <template v-else>
+              <span class="font-normal"
+                >{{ t("auth.register_description") }}&nbsp;</span
+              >
+
+              <Link
+                :to="props.loginRoute"
+                size="inherit"
+                color="inherit"
+                :label="t('action.log_in_here')"
+                class="font-normal"
+              />
+            </template>
           </template>
         </Hero>
       </slot>
