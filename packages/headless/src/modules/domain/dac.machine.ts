@@ -304,7 +304,9 @@ export default createMachine(
 
       // When `addToBasket` (basketHelper path) fails with a domain-specific
       // API error code, flip the row in place. Otherwise fall back to the
-      // generic error/feedback handling.
+      // generic error/feedback handling. (The failed domain is removed from
+      // `model` by the `CANCEL` event that the basket helper fires alongside
+      // every `ERROR`, so no `remove` is needed here.)
       ERROR: [
         {
           actions: ["flipDomainOnAddError"],
@@ -320,18 +322,25 @@ export default createMachine(
       // and `availability` holds the API response. Branches mirror the
       // legacy `verifying.onDone` flow but operate on the per-event
       // domain rather than `checkingDomain` so multiple parallel results
-      // can be processed independently.
+      // can be processed independently. `remove` undoes the optimistic push
+      // in `add` so the user must explicitly re-click in the corrected mode
+      // (or accept that an unavailable row is genuinely unavailable) to
+      // commit — failed adds don't ghost-leak into the parent's model.
       VERIFY_RESULT: [
         {
-          actions: ["pushDacAvailabilityResult", "markRowUnavailable"],
+          actions: [
+            "pushDacAvailabilityResult",
+            "markRowUnavailable",
+            "remove"
+          ],
           cond: "isAvailabilityFullyUnavailable"
         },
         {
-          actions: ["pushDacAvailabilityResult", "flipRowToTransfer"],
+          actions: ["pushDacAvailabilityResult", "flipRowToTransfer", "remove"],
           cond: "shouldFlipRowToTransfer"
         },
         {
-          actions: ["pushDacAvailabilityResult", "flipRowToRegister"],
+          actions: ["pushDacAvailabilityResult", "flipRowToRegister", "remove"],
           cond: "shouldFlipRowToRegister"
         },
         {
