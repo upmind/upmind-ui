@@ -40,7 +40,8 @@
     "register_info": "Goda nyheter – den här domänen kan registreras för endast {price}, vilket inkluderar en registreringsavgift {period}.",
     "remove_transfer": "Ta bort överföringen",
     "transfer_added": "Överföring tillagd",
-    "transfer_info": "Om du äger den här domänen kan du överföra den till oss för endast {price}, vilket inkluderar en förnyelseavgift {period}. Annars måste du uppdatera domänens namnserverposter (NS).",
+    "transfer_info": "Om du äger den här domänen kan du överföra den till oss för endast {transferPrice}. Efterföljande förnyelser kostar {term}. Annars måste du uppdatera domänens namnserveruppgifter (NS).",
+    "transfer_info_free": "Om du äger den här domänen kan du överföra den till oss helt GRATIS. Efterföljande förnyelser kostar {term}. Annars måste du uppdatera domänens namnserveruppgifter (NS).",
     "unavailable": "Denna domän kan varken registreras eller överföras."
   },
   "finding_perfect_domain": "Att hitta din **perfekta** domän",
@@ -52,13 +53,16 @@
   "search": "Ange en domän att söka efter",
   "starts_with_domain": "Allt börjar med ett **domännamn**",
   "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
+  "tld_renewal_info": "Våra priser för {tld} förnyelser börjar på endast {term}.",
   "tld_renewal_price_desc": "Vår {tld} förnyelsepriserna börjar från endast {currentPrice} (var {regularPrice}).",
   "tld_renewal_price_from_desc": "Vår {tld} förnyelsepriserna börjar från endast {regularPrice}.",
   "transfer": "Överföring för endast {currentPrice}.",
   "transfer_domain": "Överför domän",
   "transfer_extension_info": "Överföringarna inkluderar en förlängning på ett år.",
+  "transfer_free_info": "Du kan överföra det till oss helt GRATIS.",
   "transfer_owner_question": "Är du ägare till denna domän?",
   "transfer_price_info": "Du kan överföra det till oss för endast {currentPrice}",
   "transfer_promotion": "Överföring för endast {currentPrice}, vanligtvis {regularPrice}.",
-  "use_details_for": "Använd dessa uppgifter för{domain}"
+  "transfer_today_info": "Du kan överföra beloppet till oss redan idag.",
+  "use_details_for": "Använd dessa uppgifter för {domain}"
 }

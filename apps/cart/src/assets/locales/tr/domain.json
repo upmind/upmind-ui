@@ -40,7 +40,8 @@
     "register_info": "İyi haber — bu alan adı sadece {price} dolara kayıt edilebilir; bu fiyata {period} kayıt ücreti de dahildir.",
     "remove_transfer": "Aktarımı kaldır",
     "transfer_added": "Transfer eklendi",
-    "transfer_info": "Bu alan adının sahibiyseniz, onu bize sadece {price} karşılığında devredebilirsiniz; bu fiyata {period} yenileme ücreti de dahildir. Alternatif olarak, alan adının ad sunucusu (NS) kayıtlarını güncellemeniz gerekecektir.",
+    "transfer_info": "Bu alan adının sahibiyseniz, sadece {transferPrice} karşılığında bize devredebilirsiniz. Sonraki yenilemeler {term} olarak ücretlendirilir. Alternatif olarak, alan adının ad sunucusu (NS) kayıtlarını güncellemeniz gerekecektir.",
+    "transfer_info_free": "Bu alan adının sahibiyseniz, bize ÜCRETSİZ olarak devredebilirsiniz. Sonraki yenilemeler {term} olarak ücretlendirilir. Alternatif olarak, alan adının ad sunucusu (NS) kayıtlarını güncellemeniz gerekecektir.",
     "unavailable": "Bu alan adı kaydedilemez veya devredilemez."
   },
   "finding_perfect_domain": "**Mükemmel** alan adınızı bulun",
@@ -52,13 +53,16 @@
   "search": "Arama yapmak için bir alan adı girin",
   "starts_with_domain": "Her şey bir **alan adı** ile başlar",
   "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
+  "tld_renewal_info": "{tld} yenileme fiyatlarımız sadece {term}'tan başlıyor.",
   "tld_renewal_price_desc": "Bizim {tld} yenileme fiyatları yalnızca şu fiyattan başlıyor: {currentPrice} (idi {regularPrice}).",
   "tld_renewal_price_from_desc": "Bizim {tld} yenileme fiyatları yalnızca şu fiyattan başlıyor: {regularPrice}.",
   "transfer": "{currentPrice}'a transfer.",
   "transfer_domain": "Etki alanını aktar",
   "transfer_extension_info": "Transferler bir yıllık uzatma içerir.",
+  "transfer_free_info": "Bunu bize ÜCRETSİZ olarak aktarabilirsiniz.",
   "transfer_owner_question": "Bu alan adının sahibi siz misiniz?",
   "transfer_price_info": "Sadece {currentPrice}",
   "transfer_promotion": "{currentPrice}, genellikle {regularPrice} için transfer.",
+  "transfer_today_info": "Bunu bize bugün aktarabilirsiniz.",
   "use_details_for": "Bu bilgileri aşağıdaki amaçlarla kullanın:{domain}"
 }

@@ -40,7 +40,8 @@
     "register_info": "Dobra wiadomość — tę domenę można zarejestrować za jedyne {price}, w cenie zawarta jest opłata rejestracyjna {period}.",
     "remove_transfer": "Usuń przelew",
     "transfer_added": "Dodano transfer",
-    "transfer_info": "Jeśli jesteś właścicielem tej domeny, możesz ją przenieść do nas za jedyne {price}, co obejmuje również opłatę za przedłużenie {period}. W przeciwnym razie konieczne będzie zaktualizowanie rekordów serwerów nazw (NS) domeny.",
+    "transfer_info": "Jeśli jesteś właścicielem tej domeny, możesz ją przenieść do nas za jedyne {transferPrice}. Kolejne przedłużenia kosztują{term}. W przeciwnym razie konieczne będzie zaktualizowanie rekordów serwerów nazw (NS) domeny.",
+    "transfer_info_free": "Jeśli jesteś właścicielem tej domeny, możesz ją bezpłatnie przenieść do nas. Kolejne przedłużenia będą kosztować{term}. W przeciwnym razie konieczne będzie zaktualizowanie rekordów serwerów nazw (NS) domeny.",
     "unavailable": "Tej domeny nie można zarejestrować ani przenieść."
   },
   "finding_perfect_domain": "Znalezienie idealnej domeny dla siebie",
@@ -52,13 +53,16 @@
   "search": "Wpisz domenę do wyszukiwania",
   "starts_with_domain": "Wszystko zaczyna się od **nazwy domeny**",
   "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
+  "tld_renewal_info": "Ceny naszych {tld} pakietów odnowienia zaczynają się już od {term}.",
   "tld_renewal_price_desc": "Nasz {tld} ceny odnowienia zaczynają się już od {currentPrice} (był {regularPrice}).",
   "tld_renewal_price_from_desc": "Nasz {tld} ceny odnowienia zaczynają się już od {regularPrice}.",
   "transfer": "Transfer za jedyne {currentPrice}.",
   "transfer_domain": "Przeniesienie domeny",
   "transfer_extension_info": "Transfery obejmują przedłużenie o jeden rok.",
+  "transfer_free_info": "Możesz nam to przesłać ZA DARMO.",
   "transfer_owner_question": "Czy jesteś właścicielem tej domeny?",
   "transfer_price_info": "Możesz nam to przekazać za jedyne {currentPrice}",
   "transfer_promotion": "Przelew za jedyne {currentPrice}, zazwyczaj {regularPrice}.",
-  "use_details_for": "Użyj tych danych do{domain}"
+  "transfer_today_info": "Możesz nam to przelać już dzisiaj.",
+  "use_details_for": "Użyj tych danych do {domain}"
 }

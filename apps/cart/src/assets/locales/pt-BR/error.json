@@ -69,6 +69,7 @@
   "currency_update_failed": "Ocorreu um erro ao atualizar a moeda",
   "currency_validation_failed": "Falha na validação da moeda",
   "domain_add_failed": "Falha ao adicionar o domínio ao carrinho",
+  "domain_availability_aborted": "A verificação da disponibilidade do domínio foi cancelada",
   "domain_availability_required": "Não foi especificado nenhum domínio para a verificação de disponibilidade",
   "domain_not_valid": "Deve ser um domínio ou subdomínio válido",
   "domain_register_data_missing": "Não há dados sobre domínios ou disponibilidade para registro",

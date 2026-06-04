@@ -40,7 +40,8 @@
     "register_info": "Gute Nachrichten – diese Domain kann für nur {price} registriert werden, inklusive einer {period} Registrierung.",
     "remove_transfer": "Übertragung entfernen",
     "transfer_added": "Transfer hinzugefügt",
-    "transfer_info": "Wenn Sie Eigentümer dieser Domain sind, können Sie sie für nur {price} zu uns übertragen, wobei die Verlängerung {period} bereits enthalten ist. Alternativ müssen Sie die Nameserver-Einträge (NS) der Domain aktualisieren.",
+    "transfer_info": "Wenn Sie Eigentümer dieser Domain sind, können Sie sie für nur {transferPrice} zu uns übertragen. Nachfolgende Verlängerungen kosten {term} €. Alternativ müssen Sie die Nameserver-Einträge (NS) der Domain aktualisieren.",
+    "transfer_info_free": "Wenn Sie Eigentümer dieser Domain sind, können Sie sie KOSTENLOS zu uns übertragen. Nachfolgende Verlängerungen kosten {term}. Alternativ müssen Sie die Nameserver-Einträge (NS) der Domain aktualisieren.",
     "unavailable": "Diese Domain kann weder registriert noch übertragen werden."
   },
   "finding_perfect_domain": "Finden Sie Ihre **perfekte** Domain",
@@ -52,13 +53,16 @@
   "search": "Geben Sie eine Domain ein, nach der Sie suchen möchten",
   "starts_with_domain": "Alles beginnt mit einem **Domänennamen**",
   "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
+  "tld_renewal_info": "Unsere Preise {tld} die Verlängerung beginnen bei nur {term}.",
   "tld_renewal_price_desc": "Unser {tld} Die Preise für die Verlängerung beginnen bei nur {currentPrice} (War {regularPrice}).",
   "tld_renewal_price_from_desc": "Unser {tld} Die Preise für die Verlängerung beginnen bei nur {regularPrice}.",
   "transfer": "Transfer für nur {currentPrice}.",
   "transfer_domain": "Domain übertragen",
   "transfer_extension_info": "Die Transfers beinhalten eine Verlängerung um ein Jahr.",
+  "transfer_free_info": "Sie können es uns KOSTENLOS überweisen.",
   "transfer_owner_question": "Sind Sie der Eigentümer dieser Domain?",
   "transfer_price_info": "Sie können es für nur {currentPrice}",
   "transfer_promotion": "Überweisung für nur {currentPrice}, normalerweise {regularPrice}.",
-  "use_details_for": "Verwenden Sie diese Angaben für{domain}"
+  "transfer_today_info": "Sie können es uns noch heute überweisen.",
+  "use_details_for": "Verwenden Sie diese Angaben für {domain}"
 }

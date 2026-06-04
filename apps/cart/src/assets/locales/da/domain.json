@@ -40,7 +40,8 @@
     "register_info": "Gode nyheder — dette domæne kan registreres for kun {price}, hvilket inkluderer en registrering {period}.",
     "remove_transfer": "Fjern overførsel",
     "transfer_added": "Overførsel tilføjet",
-    "transfer_info": "Hvis du ejer dette domæne, kan du overføre det til os for kun {price}, hvilket inkluderer en fornyelse {period}. Alternativt skal du opdatere domænets navneserveroplysninger (NS).",
+    "transfer_info": "Hvis du ejer dette domæne, kan du overføre det til os for kun {transferPrice}. Efterfølgende fornyelser koster {term}. Alternativt skal du opdatere domænets navneserveroplysninger (NS).",
+    "transfer_info_free": "Hvis du ejer dette domæne, kan du overføre det til os GRATIS. Efterfølgende fornyelser koster {term}. Alternativt skal du opdatere domænets navneserveroplysninger (NS).",
     "unavailable": "Dette domæne kan hverken registreres eller overføres."
   },
   "finding_perfect_domain": "At finde dit **perfekte** domæne",
@@ -52,13 +53,16 @@
   "search": "Indtast et domæne, du vil søge efter",
   "starts_with_domain": "Det hele starter med et **domænenavn**",
   "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
+  "tld_renewal_info": "Vores {tld} fornyelsespriser starter fra kun {term}.",
   "tld_renewal_price_desc": "Vores {tld} fornyelsespriser starter fra kun {currentPrice} (var {regularPrice}).",
   "tld_renewal_price_from_desc": "Vores {tld} fornyelsespriser starter fra kun {regularPrice}.",
   "transfer": "Overførsel for kun {currentPrice}.",
   "transfer_domain": "Overfør domæne",
   "transfer_extension_info": "Overførsler inkluderer en forlængelse på et år.",
+  "transfer_free_info": "Du kan overføre det til os helt GRATIS.",
   "transfer_owner_question": "Er du ejeren af dette domæne?",
   "transfer_price_info": "Du kan overføre det til os for kun {currentPrice}",
   "transfer_promotion": "Overførsel for kun {currentPrice}, normalt {regularPrice}.",
-  "use_details_for": "Brug disse oplysninger til{domain}"
+  "transfer_today_info": "Du kan overføre beløbet til os i dag.",
+  "use_details_for": "Brug disse oplysninger til {domain}"
 }

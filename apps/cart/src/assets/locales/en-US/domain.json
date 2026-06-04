@@ -40,7 +40,8 @@
     "register_info": "Good news — this domain is available to register for only {price}, which includes a {period} registration.",
     "remove_transfer": "Remove transfer",
     "transfer_added": "Transfer added",
-    "transfer_info": "If you own this domain you can transfer it to us for only {price}, which includes a {period} renewal. Alternatively, you will need to update the domain's nameserver (NS) records.",
+    "transfer_info": "If you own this domain you can transfer it to us for only {transferPrice}. Subsequent renewals charged at {term}. Alternatively, you will need to update the domain's nameserver (NS) records.",
+    "transfer_info_free": "If you own this domain you can transfer it to us FREE. Subsequent renewals charged at {term}. Alternatively, you will need to update the domain's nameserver (NS) records.",
     "unavailable": "This domain cannot be registered or transferred."
   },
   "finding_perfect_domain": "Finding your **perfect** domain",
@@ -52,13 +53,16 @@
   "search": "Enter a domain to search",
   "starts_with_domain": "It all starts with a **domain name**",
   "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
+  "tld_renewal_info": "Our {tld} renewal prices start from only {term}.",
   "tld_renewal_price_desc": "Our {tld} renewal prices start from only {currentPrice} (was {regularPrice}).",
   "tld_renewal_price_from_desc": "Our {tld} renewal prices start from only {regularPrice}.",
   "transfer": "Transfer for only {currentPrice}.",
   "transfer_domain": "Transfer domain",
   "transfer_extension_info": "Transfers include a one year extension.",
+  "transfer_free_info": "You can transfer it to us for FREE.",
   "transfer_owner_question": "Are you the owner of this domain?",
   "transfer_price_info": "You can transfer it to us for only {currentPrice}",
   "transfer_promotion": "Transfer for only {currentPrice}, usually {regularPrice}.",
+  "transfer_today_info": "You can transfer it to us today.",
   "use_details_for": "Use these details for {domain}"
 }

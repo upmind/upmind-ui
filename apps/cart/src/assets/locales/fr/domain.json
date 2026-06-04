@@ -40,7 +40,8 @@
     "register_info": "Bonne nouvelle : ce nom de domaine est disponible à l'enregistrement pour seulement {price}, ce qui comprend les frais d'enregistrement {period} €.",
     "remove_transfer": "Supprimer le transfert",
     "transfer_added": "Transfert ajouté",
-    "transfer_info": "Si vous êtes propriétaire de ce domaine, vous pouvez nous le transférer pour seulement {price}, ce qui inclut un renouvellement {period} €. Sinon, vous devrez mettre à jour les enregistrements des serveurs de noms (NS) du domaine.",
+    "transfer_info": "Si vous êtes propriétaire de ce domaine, vous pouvez nous le transférer pour seulement {transferPrice} €. Les renouvellements ultérieurs seront facturés {term} €. Sinon, vous devrez mettre à jour les enregistrements des serveurs de noms (NS) du domaine.",
+    "transfer_info_free": "Si vous êtes propriétaire de ce domaine, vous pouvez nous le transférer GRATUITEMENT. Les renouvellements ultérieurs seront facturés {term}. Sinon, vous devrez mettre à jour les enregistrements des serveurs de noms (NS) du domaine.",
     "unavailable": "Ce nom de domaine ne peut être ni enregistré ni transféré."
   },
   "finding_perfect_domain": "Trouver votre domaine **parfait**",
@@ -52,13 +53,16 @@
   "search": "Saisissez un nom de domaine à rechercher",
   "starts_with_domain": "Tout commence par un **nom de domaine**",
   "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
+  "tld_renewal_info": "Nos {tld} formules de renouvellement sont disponibles à partir de seulement {term}.",
   "tld_renewal_price_desc": "Notre {tld} les prix de renouvellement commencent à partir de seulement {currentPrice} (était {regularPrice}).",
   "tld_renewal_price_from_desc": "Notre {tld} les prix de renouvellement commencent à partir de seulement {regularPrice}.",
   "transfer": "Transfert pour seulement {currentPrice}.",
   "transfer_domain": "Transférer un domaine",
   "transfer_extension_info": "Les transferts comprennent une prolongation d'un an.",
+  "transfer_free_info": "Vous pouvez nous le transférer GRATUITEMENT.",
   "transfer_owner_question": "Êtes-vous le propriétaire de ce domaine ?",
   "transfer_price_info": "Vous pouvez nous le transférer pour seulement {currentPrice}",
   "transfer_promotion": "Transfert pour seulement {currentPrice}, habituellement {regularPrice}.",
-  "use_details_for": "Utilisez ces informations pour{domain}"
+  "transfer_today_info": "Vous pouvez nous le transférer dès aujourd'hui.",
+  "use_details_for": "Utilisez ces informations pour {domain}"
 }

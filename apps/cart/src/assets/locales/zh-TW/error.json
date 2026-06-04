@@ -69,6 +69,7 @@
   "currency_update_failed": "我們在更新貨幣時遇到了錯誤",
   "currency_validation_failed": "貨幣驗證失敗",
   "domain_add_failed": "無法將網域加入購物籃",
+  "domain_availability_aborted": "網域名稱可用性檢查已取消",
   "domain_availability_required": "未指定用於檢查可用性的網域",
   "domain_not_valid": "必須是符合格式的網域或子網域",
   "domain_register_data_missing": "沒有可供註冊的網域名稱或可用性資料",

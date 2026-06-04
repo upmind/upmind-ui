@@ -69,6 +69,7 @@
   "currency_update_failed": "Під час оновлення валюти сталася помилка",
   "currency_validation_failed": "Не вдалося перевірити валюту",
   "domain_add_failed": "Не вдалося додати домен до кошика",
+  "domain_availability_aborted": "Перевірка доступності домену була скасована",
   "domain_availability_required": "Для перевірки доступності не вказано домен",
   "domain_not_valid": "Має бути коректним доменним ім’ям або піддоменом",
   "domain_register_data_missing": "Немає даних про домен або його доступність для реєстрації",

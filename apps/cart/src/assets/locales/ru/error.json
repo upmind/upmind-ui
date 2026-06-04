@@ -69,6 +69,7 @@
   "currency_update_failed": "Произошла ошибка при обновлении валюты.",
   "currency_validation_failed": "Проверка валюты не прошла",
   "domain_add_failed": "Не удалось добавить домен в корзину",
+  "domain_availability_aborted": "Проверка доступности домена была отменена",
   "domain_availability_required": "Для проверки доступности не указан домен",
   "domain_not_valid": "Должно быть действительным доменом или поддоменом",
   "domain_register_data_missing": "Данных о домене или его доступности для регистрации нет",

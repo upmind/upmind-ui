@@ -69,6 +69,7 @@
   "currency_update_failed": "Nous avons rencontré une erreur lors de la mise à jour de la devise",
   "currency_validation_failed": "La validation de la devise a échoué",
   "domain_add_failed": "Impossible d'ajouter le domaine au panier",
+  "domain_availability_aborted": "La vérification de la disponibilité du nom de domaine a été annulée",
   "domain_availability_required": "Aucun domaine n'a été spécifié pour la vérification de la disponibilité",
   "domain_not_valid": "Doit être un nom de domaine ou un sous-domaine valide",
   "domain_register_data_missing": "Aucune donnée relative au domaine ou à sa disponibilité pour l'enregistrement",

@@ -69,6 +69,7 @@
   "currency_update_failed": "Am întâmpinat o eroare la actualizarea monedei",
   "currency_validation_failed": "Validarea monedei a eșuat",
   "domain_add_failed": "Nu s-a putut adăuga domeniul în coș",
+  "domain_availability_aborted": "Verificarea disponibilității domeniului a fost anulată",
   "domain_availability_required": "Nu s-a specificat niciun domeniu pentru verificarea disponibilității",
   "domain_not_valid": "Trebuie să fie un domeniu sau un subdomeniu valid",
   "domain_register_data_missing": "Nu există date privind domeniile sau disponibilitatea pentru înregistrare",

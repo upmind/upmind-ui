@@ -69,6 +69,7 @@
   "currency_update_failed": "Beim Aktualisieren der Währung ist ein Fehler aufgetreten",
   "currency_validation_failed": "Währungsvalidierung fehlgeschlagen",
   "domain_add_failed": "Das Hinzufügen der Domain zum Warenkorb ist fehlgeschlagen",
+  "domain_availability_aborted": "Die Überprüfung der Domainverfügbarkeit wurde abgebrochen",
   "domain_availability_required": "Für die Verfügbarkeitsprüfung wurde keine Domain angegeben",
   "domain_not_valid": "Muss eine gültige Domain oder Subdomain sein",
   "domain_register_data_missing": "Keine Daten zur Domain oder Verfügbarkeit für die Registrierung",
