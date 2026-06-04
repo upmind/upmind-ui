@@ -19,7 +19,6 @@ import {
   isEmpty,
   filter,
   find,
-  first,
   includes,
   reject
 } from "lodash-es";
@@ -39,7 +38,7 @@ import {
   sanitiseDomainInput,
   useDomainSearchMethod
 } from "./utils";
-import { parsePrice } from "../product/utils";
+import { calculateBillingTerm, parseTermDetails } from "../product/utils";
 
 // --- types
 import { DomainTypes, type DomainContext, type DomainProduct } from "./types";
@@ -380,21 +379,35 @@ export const useDomain = (
   const pricing = computed(() => {
     const product = availability.value?.product;
     if (product) {
-      const prices = product.prices ?? [];
-      const annual = find(prices, { billing_cycle_months: 12 });
-      const priceEntry = annual ?? first(prices);
-      if (priceEntry) {
-        // Brand-supplied transfer-price override (e.g. "FREE" or "£10") —
-        // resolved from the transfer sub-product's `category.price_override`.
-        // Undefined when the brand hasn't configured an override; UI then
-        // falls back to the parent product's price (`price` above).
+      // Use the same term-selection pipeline as the DAC's `parseSuggestions`
+      // (`parseTermDetails` + `calculateBillingTerm`). Without this we were
+      // hard-coding `billing_cycle_months: 12` here while the DAC respected
+      // the brand's `default_payment_period` / `INHERIT_FROM_BRAND` /
+      // `LOWEST_PRICE` etc., so a `.com` whose brand default is 36mo would
+      // render as "£22.50/3yr" in the DAC card but "£8.98/yr" in the
+      // SmartDomainField transfer copy. Match the DAC source of truth.
+      const preferredCycle = contextValue<number | undefined>(
+        state,
+        "preferredCycle"
+      );
+      const terms = parseTermDetails(product);
+      const termDetails = !isEmpty(terms)
+        ? calculateBillingTerm(
+            preferredCycle ?? product.default_payment_period,
+            terms
+          )
+        : undefined;
+      if (termDetails) {
+        const matchingPrice = find(product.prices, {
+          billing_cycle_months: termDetails.cycle
+        });
         const transferOption = getTransferOptionPrice(
           product,
-          priceEntry.currency_code
+          matchingPrice?.currency_code
         );
         return {
-          price: parsePrice(priceEntry).currentPrice,
-          cycle: priceEntry.billing_cycle_months,
+          price: termDetails.price?.currentPrice ?? "",
+          cycle: termDetails.cycle,
           transferOptionPrice: transferOption?.price,
           transferOptionIsFree: transferOption?.isFree
         };
