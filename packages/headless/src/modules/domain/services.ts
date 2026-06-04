@@ -178,6 +178,15 @@ function buildDomainProductFromAvailability(
     const isAvailable = !!availability.can_register;
     const isFullyUnavailable = !isAvailable && !canTransferEffective;
 
+    // Brand-supplied transfer-price override (see `parseSuggestions` for the
+    // matching DAC-side path). Returns `{ price, isFree }` or undefined; the
+    // two fields land separately on `meta` so the UI can swap free/paid copy
+    // without locale-sniffing the formatted label.
+    const transferOption = getTransferOptionPrice(
+      product as IDomainSuggestionResultProduct,
+      product.prices?.[0]?.currency_code
+    );
+
     return {
       domain,
       sld,
@@ -193,13 +202,8 @@ function buildDomainProductFromAvailability(
         disabled: isFullyUnavailable,
         exactMatch: true,
         transferLabel: getDacTransferLabel(product),
-        // Same brand-override resolution as `parseSuggestions` — read the
-        // /availability product's transfer sub-product `category.price_override`
-        // to surface "FREE"/concrete amount; UI falls back when undefined.
-        transferOptionPrice: getTransferOptionPrice(
-          product as IDomainSuggestionResultProduct,
-          product.prices?.[0]?.currency_code
-        )
+        transferOptionPrice: transferOption?.price,
+        transferOptionIsFree: transferOption?.isFree
       },
       productDetails: {
         ...productDetails,

@@ -95,6 +95,12 @@ export type DomainCardProps = {
    * `category.price_override`.
    */
   transferOptionPrice?: DomainProduct["meta"]["transferOptionPrice"];
+  /**
+   * `true` when the transfer-price override resolved to `0` — drives the
+   * footer copy between "transfer today" and "transfer FREE" without
+   * locale-sniffing the formatted label.
+   */
+  transferOptionIsFree?: DomainProduct["meta"]["transferOptionIsFree"];
   unavailable?: DomainProduct["meta"]["unavailable"];
   /** `true` while pricing/product data is being fetched from /suggestions/tlds. */
   priceLoading?: boolean;
@@ -161,6 +167,12 @@ export type SmartDomainExistingProps = {
    * `category.price_override` flag — see `getTransferOptionPrice`.
    */
   transferOptionPrice?: string;
+  /**
+   * `true` when the transfer-price override resolved to `0`. Drives the
+   * choice between `transfer_info` ("for only {price}") and
+   * `transfer_info_free` ("for free") — see SmartDomainExisting template.
+   */
+  transferOptionIsFree?: boolean;
   registerPrice?: string;
   cycle?: number;
 };

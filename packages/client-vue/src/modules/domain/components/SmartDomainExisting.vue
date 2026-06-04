@@ -59,21 +59,35 @@
   </p>
 
   <!-- Transfer info section (checked or transferred) -->
+  <!--
+    Two i18n variants:
+      - `transfer_info_free` — brand has configured a price override of 0
+        (e.g. ".com transfer for free"). Drives off `transferOptionIsFree`
+        rather than string-matching the formatted label so any locale's
+        "FREE" translation works without code changes.
+      - `transfer_info` — paid transfer. `transferPrice` is the value
+        rendered for the transfer cost; we prefer the brand override
+        (`transferOptionPrice`) and fall back to the parent product's
+        annual price. The renewal line always uses the parent product's
+        price (`props.transferPrice`) since the brand override only
+        applies to the one-off transfer fee.
+  -->
   <div
     v-if="checked || transferred || transferring || removing"
     :class="styles.field.transfer.root"
   >
     <p :class="styles.field.transfer.text">
       {{
-        t("domain.existing.transfer_info", {
-          // Brand-supplied override wins (e.g. "FREE" or a flat amount) —
-          // falls back to the parent product's price when no override is
-          // configured. Mirrors the upmind-widgets `transferOptionPrice`
-          // behaviour: `getTransferOptionPrice` only returns a value when
-          // the transfer sub-product's category has `price_override: true`.
-          price: transferOptionPrice ?? transferPrice ?? "",
-          period: parseBillingCycle(props.cycle ?? 0).numeric
-        })
+        transferOptionIsFree
+          ? t("domain.existing.transfer_info_free", {
+              renewalPrice: transferPrice ?? "",
+              term: parseBillingCycle(props.cycle ?? 0).suffix
+            })
+          : t("domain.existing.transfer_info", {
+              transferPrice: transferOptionPrice ?? transferPrice ?? "",
+              renewalPrice: transferPrice ?? "",
+              term: parseBillingCycle(props.cycle ?? 0).suffix
+            })
       }}
     </p>
 

@@ -384,18 +384,19 @@ export const useDomain = (
       const annual = find(prices, { billing_cycle_months: 12 });
       const priceEntry = annual ?? first(prices);
       if (priceEntry) {
+        // Brand-supplied transfer-price override (e.g. "FREE" or "£10") —
+        // resolved from the transfer sub-product's `category.price_override`.
+        // Undefined when the brand hasn't configured an override; UI then
+        // falls back to the parent product's price (`price` above).
+        const transferOption = getTransferOptionPrice(
+          product,
+          priceEntry.currency_code
+        );
         return {
           price: parsePrice(priceEntry).currentPrice,
           cycle: priceEntry.billing_cycle_months,
-          // Brand-supplied transfer-price override (e.g. "FREE" or "£10")
-          // — resolved from the transfer sub-product's
-          // `category.price_override`. Undefined when the brand hasn't
-          // configured an override; UI then falls back to the parent
-          // product's price (`price` above).
-          transferOptionPrice: getTransferOptionPrice(
-            product,
-            priceEntry.currency_code
-          )
+          transferOptionPrice: transferOption?.price,
+          transferOptionIsFree: transferOption?.isFree
         };
       }
     }
@@ -410,7 +411,8 @@ export const useDomain = (
             ? matched.price.currentPrice
             : (matched.price?.regularPrice ?? ""),
           cycle: matched.configuration?.term ?? matched.productDetails?.cycle,
-          transferOptionPrice: matched.meta?.transferOptionPrice
+          transferOptionPrice: matched.meta?.transferOptionPrice,
+          transferOptionIsFree: matched.meta?.transferOptionIsFree
         };
       }
     }

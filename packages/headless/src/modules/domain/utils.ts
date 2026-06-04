@@ -301,10 +301,15 @@ export function getDacTransferLabel(
  * of whatever the parent TLD product charges for registration.
  *
  * Returns:
- *   - `t("text.free")` when the override price is `0`
- *   - `removeTrailingZeroes(price_formatted)` for any non-zero amount
+ *   - `{ price: t("text.free"), isFree: true }` when override price is `0`
+ *   - `{ price: removeTrailingZeroes(price_formatted), isFree: false }` for
+ *     any non-zero amount
  *   - `undefined` when there's no override (caller falls back to its own
  *     price logic)
+ *
+ * The separate `isFree` flag lets callers swap copy between "transfer for
+ * free" and "transfer for only £X" without locale-sniffing the label
+ * (matching `t("text.free")` would break in any non-en locale).
  *
  * Two product shapes are supported, mirroring the widget:
  *   - **Bundle (tlds flow):** `setup_function_sub_ids.transfer` is an array
@@ -328,7 +333,7 @@ export function getTransferOptionPrice(
     sub_product_id?: string;
   } | null,
   currencyCode?: string
-): string | undefined {
+): { price: string; isFree: boolean } | undefined {
   if (!product) return undefined;
   // Use the headless `useI18n` (module-level Composer, no `inject()`) — this
   // function runs inside the XState callback service, not a Vue setup, so
@@ -350,7 +355,7 @@ export function getTransferOptionPrice(
         price_formatted?: string | null;
       }>;
     } | null
-  ): string | undefined => {
+  ): { price: string; isFree: boolean } | undefined => {
     if (!candidate?.category?.price_override) return undefined;
     const match = find(
       candidate.prices,
@@ -360,8 +365,8 @@ export function getTransferOptionPrice(
     );
     if (!match) return undefined;
     return match.price === 0
-      ? t("text.free")
-      : removeTrailingZeroes(match.price_formatted);
+      ? { price: t("text.free"), isFree: true }
+      : { price: removeTrailingZeroes(match.price_formatted), isFree: false };
   };
 
   const options = product.options ?? [];
@@ -586,7 +591,7 @@ export function parseSuggestions(
         // price row on the parent product (the API returns prices in the
         // active currency, so they're all in sync).
         const parentCurrencyCode = product.prices?.[0]?.currency_code;
-        const transferOptionPrice = getTransferOptionPrice(
+        const transferOption = getTransferOptionPrice(
           product as IDomainSuggestionResultProduct,
           parentCurrencyCode
         );
@@ -622,7 +627,8 @@ export function parseSuggestions(
             unavailable: isFullyUnavailable,
             disabled: isFullyUnavailable,
             transferLabel,
-            transferOptionPrice
+            transferOptionPrice: transferOption?.price,
+            transferOptionIsFree: transferOption?.isFree
           },
           productDetails: {
             ...productDetails,

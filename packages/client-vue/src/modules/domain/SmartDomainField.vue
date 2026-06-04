@@ -82,6 +82,7 @@
                 "
                 :transfer-price="pricing?.price ?? ''"
                 :transfer-option-price="pricing?.transferOptionPrice"
+                :transfer-option-is-free="pricing?.transferOptionIsFree"
                 :register-price="pricing?.price ?? ''"
                 :cycle="pricing?.cycle"
                 @update:model-value="onExistingUpdate"
