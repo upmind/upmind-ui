@@ -276,8 +276,15 @@ function search(context: DacContext) {
     const page = search.page ?? 1;
     const limit = search.limit ?? 20;
 
+    // Cancel any in-flight calls from a previous search round so they
+    // can't `sendResult()` with stale data after the user has typed more
+    // characters. `cancelQueries` signals TanStack to abort the active
+    // `queryFn` — propagation to `fetch` relies on each `queryFn` below
+    // accepting `({ signal })` and forwarding it via `init.signal`. Don't
+    // remove the signal-forwarding without re-checking this contract.
     cancel(["domains", "suggestions"]);
     cancel(["domains", "suggestions", "tlds"]);
+    cancel(["domains", "availability"]);
 
     // --- TRANSFER mode: only checkAvailability, no suggestions
     if (mode === DomainMode.transfer) {
@@ -497,7 +504,12 @@ function search(context: DacContext) {
     queryClient
       .fetchQuery<DomainEnvelopeResponse<IDomainSuggestionResult[]>>({
         queryKey: ["domains", "suggestions", sld, page],
-        queryFn: () =>
+        // Accept TanStack's `signal` and forward it to `fetch` via `init`,
+        // so the `cancel(["domains", "suggestions"])` call above actually
+        // aborts the HTTP request when the user types another character.
+        // Without this, the stale fetch completes silently and its `.then`
+        // can clobber the newer search's results.
+        queryFn: ({ signal }) =>
           request<IDomainSuggestionResult[]>({
             url: useUrl(
               `modules/web_hosting/domains/suggestions`,
@@ -517,6 +529,7 @@ function search(context: DacContext) {
                 isEmptyParam
               )
             ),
+            init: { signal },
             withAccessToken: true,
             withCurrency: true
           }) as Promise<DomainEnvelopeResponse<IDomainSuggestionResult[]>>
@@ -566,7 +579,10 @@ function search(context: DacContext) {
     queryClient
       .fetchQuery<DomainEnvelopeResponse<IProduct[]>>({
         queryKey: ["domains", "suggestions", "tlds", sld, page],
-        queryFn: () =>
+        // See the `/suggestions` queryFn above — same contract: accept
+        // TanStack's `signal` and forward it to `fetch` so the previous
+        // round's request can actually abort when search restarts.
+        queryFn: ({ signal }) =>
           request<IProduct[]>({
             url: useUrl(
               `modules/web_hosting/domains/suggestions/tlds`,
@@ -585,6 +601,7 @@ function search(context: DacContext) {
                 isEmptyParam
               )
             ),
+            init: { signal },
             withAccessToken: true,
             withCurrency: true
           }) as Promise<DomainEnvelopeResponse<IProduct[]>>
@@ -667,12 +684,55 @@ function search(context: DacContext) {
   };
 }
 
+/**
+ * Performs a `/availability` lookup for `checkingDomain`.
+ *
+ * Cancellation
+ * ------------
+ * Pass `signal` to make the in-flight fetch cancellable. Aborted calls
+ * reject with a standard `AbortError` (`err.name === "AbortError"`) AND
+ * are recognised by the codebase's canonical `isAbortError` helper —
+ * either detection pattern is supported.
+ *
+ * `signal` lives on the first arg (the same context-shaped object every
+ * existing caller already passes) rather than a second parameter, so the
+ * function stays compatible with XState's `invoke` call shape
+ * (`(context, event) => ...`) — see `domain.machine.ts`.
+ *
+ * Recommended caller pattern (e.g. cancel-on-keystroke when the user is
+ * typing a domain fast enough to overlap requests, so the last-keystroke
+ * result wins instead of whichever response happens to land first):
+ *
+ * ```ts
+ * const controllerRef = ref<AbortController | undefined>();
+ * function check(domain: string) {
+ *   controllerRef.value?.abort();
+ *   controllerRef.value = new AbortController();
+ *   checkAvailability({
+ *     checkingDomain: domain,
+ *     ...,
+ *     signal: controllerRef.value.signal
+ *   }).catch(err => {
+ *     if (isAbortError(err)) return;     // expected when superseded
+ *     throw err;                          // real failure
+ *   });
+ * }
+ * ```
+ *
+ * Note: the function deliberately uses `queryClient.fetchQuery` rather than
+ * `useQuery().get` so the raw envelope (`related.products`) is reachable
+ * for the sideloaded-product splice below. Do NOT switch to `useQuery` —
+ * see FE-2804 / `useDac` notes.
+ */
 async function checkAvailability({
   checkingDomain,
   basketId,
   brandId,
-  coupons
-}: Pick<DacContext, "checkingDomain" | "basketId" | "brandId" | "coupons">) {
+  coupons,
+  signal
+}: Pick<DacContext, "checkingDomain" | "basketId" | "brandId" | "coupons"> & {
+  signal?: AbortSignal;
+}) {
   const { t } = useI18n();
   const { queryClient, request, useUrl } = useQuery();
 
@@ -693,8 +753,17 @@ async function checkAvailability({
   return queryClient
     .fetchQuery<DomainEnvelopeResponse<Record<string, any>>>({
       queryKey: ["domains", "availability", checkingDomain],
-      queryFn: () =>
-        request<Record<string, any>>({
+      // TanStack passes its own `signal` here (aborted by `cancelQueries`,
+      // used by `search()` to drop the previous round's /availability when
+      // the user types again). The function also accepts a caller-provided
+      // `signal` (FE-2804) for explicit cancel-on-keystroke. Combine the
+      // two with `AbortSignal.any` so EITHER source aborts the fetch — if
+      // only one is supplied, that one is used directly.
+      queryFn: ({ signal: tanstackSignal }) => {
+        const composedSignal = signal
+          ? AbortSignal.any([signal, tanstackSignal])
+          : tanstackSignal;
+        return request<Record<string, any>>({
           url: useUrl(
             `modules/web_hosting/domains/availability/${checkingDomain}`,
             omitBy(
@@ -707,9 +776,11 @@ async function checkAvailability({
               isEmpty
             )
           ),
+          init: { signal: composedSignal },
           withAccessToken: true,
           withCurrency: true
-        }) as Promise<DomainEnvelopeResponse<Record<string, any>>>
+        }) as Promise<DomainEnvelopeResponse<Record<string, any>>>;
+      }
     })
     .then(envelope => {
       const record = (envelope.data ?? {}) as Record<string, any>;
@@ -725,6 +796,26 @@ async function checkAvailability({
         record.product
       );
       return record as IDomainAvailabilityResponse;
+    })
+    .catch(err => {
+      // `doFetch` flattens fetch's native `AbortError` into a bare
+      // `Promise.reject()` (see `query/services.ts`) — that shape is fine
+      // for the codebase's `isAbortError` helper but doesn't expose
+      // `err.name === "AbortError"`. When the caller's signal was the
+      // cause, re-throw a `DetailedError` with `code: Aborted` AND
+      // `name: "AbortError"` so BOTH detection patterns work and the
+      // error is localized like every other DetailedError raised here.
+      // Falls through with the original error for any other failure.
+      if (signal?.aborted) {
+        const abortErr = new DetailedError(
+          t("error.domain_availability_aborted"),
+          responseCodes.Aborted,
+          ErrorOrigin.Headless
+        );
+        abortErr.name = "AbortError";
+        throw abortErr;
+      }
+      throw err;
     });
 }
 
