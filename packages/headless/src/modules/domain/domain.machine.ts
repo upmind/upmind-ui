@@ -402,10 +402,20 @@ export default createMachine(
             {
               target: ".validating",
               cond: "isDomainLike",
+              // XState v4 quirk: relative targets (`.foo`) default to
+              // `internal: true`, which means a self-transition from
+              // `validating → .validating` wouldn't exit and re-enter
+              // — entry actions (`cancelAvailability`, `setCheckingDomain`)
+              // and `invoke` wouldn't fire on the new keystroke, leaving
+              // the domain stuck on the previous value. Force external so
+              // every UPDATE genuinely re-enters validating and the new
+              // `/availability` call gets issued.
+              internal: false,
               actions: ["clearError", "setExisting", "persistModel"]
             },
             {
               target: ".invalid",
+              internal: false,
               actions: ["setErrorInvalidDomain", "setExisting", "persistModel"]
             }
           ]
