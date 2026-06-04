@@ -82,10 +82,12 @@ _NB: This may need to be run several times to catch all instances._
 
 ```regex
 Find:
-([a-zA-Z0-9\)\]\}])\{
+([a-zA-Z0-9)}])\{
 Replace:
 $1 {
 ```
+
+> **BSD sed gotcha (macOS):** the more "complete" class `[a-zA-Z0-9\)\]\}]` silently no-ops under BSD sed — `\]` is parsed as closing the character class, so the pattern matches nothing. Stick to `[a-zA-Z0-9)}]` (drop `]` and the backslash escapes). If you ever need `]` in the class, put it first: `[]a-zA-Z0-9)}]`.
 
 **Add space after `}` inside JSON string values**
 
