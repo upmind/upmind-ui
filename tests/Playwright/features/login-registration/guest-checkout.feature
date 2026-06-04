@@ -17,6 +17,13 @@ Feature: Guest checkout
     When the visitor opens the register page
     Then no guest checkout option is offered
 
+  Scenario: Entering guest checkout signs the visitor in as a guest client
+    Given the brand allows guest checkout
+    And the visitor is on the register page
+    When they choose to check out as a guest
+    Then their account menu identifies them as a guest
+    And the account menu offers a full-account upgrade
+
   Scenario: A guest upgrades to a full account from the register page
     Given the brand allows guest checkout
     And the visitor has entered guest checkout

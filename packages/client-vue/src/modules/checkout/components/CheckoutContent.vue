@@ -57,15 +57,15 @@
     <BillingForm v-else inline />
   </template>
 
+  <!-- Guest Email — demoted below payment; a low-priority confirmation field -->
+  <GuestEmail v-show="showCheckout" />
+
   <!-- Payment Details -->
   <PaymentDetails
     v-show="showCheckout"
     data-testid="payment-details"
     @resolve="checkout"
   />
-
-  <!-- Guest Email — demoted below payment; a low-priority confirmation field -->
-  <GuestEmail v-show="showCheckout" />
 </template>
 
 <script lang="ts" setup>

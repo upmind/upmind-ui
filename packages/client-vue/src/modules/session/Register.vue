@@ -59,6 +59,41 @@
             tag="div"
             :model-value="registerTemplate.body"
           />
+
+          <Alert
+            v-if="meta.canRegisterAsGuest"
+            :title="t('auth.guest_checkout_qn')"
+            icon="clock-fast-forward"
+            variant="muted"
+            size="sm"
+            :class="styles.session.guestCheckout"
+          >
+            <template #action>
+              <Link
+                size="sm"
+                @click="registerAsGuest"
+                color="inherit"
+                :label="t('auth.guest_checkout_action')"
+                :disabled="meta.isRegisteringAsGuest"
+                data-testid="guest-checkout-cta"
+              >
+                <template #append>
+                  <Spinner
+                    v-if="meta.isRegisteringAsGuest"
+                    size="badge"
+                    class="m-1.5"
+                  />
+                  <Icon
+                    v-else
+                    icon="arrow-right"
+                    size="2xs"
+                    class="p-1.5 [&>svg]:size-3"
+                  />
+                </template>
+              </Link>
+            </template>
+          </Alert>
+
           <Auth
             v-show="!meta.isLoading"
             class="rounded-box w-full max-w-5xl items-start"
@@ -123,44 +158,6 @@
       </slot>
     </template>
 
-    <!-- Guest-checkout CTA — defined once; each template renders the `guest`
-         slot in the right place (after the hero for single-column layouts,
-         above the summary for two-column). -->
-    <template v-if="meta.canRegisterAsGuest" #guest>
-      <slot name="guest">
-        <!-- Spacing lives on this wrapper: `Section` doesn't forward a passed
-             class to a margin-bearing element, so the per-template `root`
-             spacing must sit on a plain element. -->
-        <div :class="styles.session.guestCheckout.root">
-          <Section
-            :label="t('auth.guest_checkout_qn')"
-            icon="clock-fast-forward"
-          >
-            <i18n-t
-              keypath="auth.guest_checkout_description"
-              tag="p"
-              :class="styles.session.guestCheckout.sidebarText"
-            >
-              <template #action>
-                <Link
-                  @click="registerAsGuest"
-                  color="inherit"
-                  size="inherit"
-                  :label="t('auth.guest_checkout_action')"
-                  :disabled="meta.isRegisteringAsGuest"
-                  data-testid="guest-checkout-cta"
-                >
-                  <template v-if="meta.isRegisteringAsGuest" #append>
-                    <Spinner size="square" class="ms-1" />
-                  </template>
-                </Link>
-              </template>
-            </i18n-t>
-          </Section>
-        </div>
-      </slot>
-    </template>
-
     <template v-if="ui.basketSummary.isVisible" #summary>
       <slot name="summary">
         <Section
@@ -205,6 +202,8 @@ import {
   Link,
   Markdown,
   Skeleton,
+  Icon,
+  Alert,
   Spinner
 } from "@upmind-automation/upmind-ui";
 import Auth from "./components/Auth.vue";

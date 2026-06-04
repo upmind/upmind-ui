@@ -24,12 +24,18 @@ export class GuestCheckout {
   /**
    * The guest upgrade form. Rendered by the shared `Auth` session-form; for a
    * guest client `Auth`'s `currentForm` is `AUTH_FORM.GUEST_REGISTER`, so the
-   * form's `data-testid` is `guest-register-form` (enum-derived, so it's
-   * label-independent — unlike `section-register`/`button-register`). There is
-   * no `#guest-registration` on the register page anymore (only the order page).
+   * form's `data-testid` is `guest-register-form` (enum-derived from the
+   * `AUTH_FORM` value). There is no `#guest-registration` on the register page
+   * anymore (only the order page).
    */
   readonly upgradeForm: Locator;
-  /** Submit button of the upgrade form, scoped INSIDE the upgrade form. */
+  /**
+   * Submit button of the upgrade form, scoped INSIDE the upgrade form. Form
+   * action buttons are testid'd `button-<kebab(label)>`; the guest upgrade
+   * submit label is `action.register` → `button-register` (label-derived, so it
+   * tracks the i18n label). Shares the testid with the dropdown's register
+   * menu item, hence the scoping to `upgradeForm` / `accountMenu` respectively.
+   */
   readonly upgradeFormSubmit: Locator;
 
   constructor(page: Page) {

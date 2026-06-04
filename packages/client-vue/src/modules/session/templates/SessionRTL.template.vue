@@ -2,7 +2,6 @@
   <Layout :variant="LAYOUT_VARIANTS.TWO_COLUMN_RTL">
     <template #content-header>
       <slot name="hero" />
-      <slot name="guest" />
     </template>
 
     <template #content>
