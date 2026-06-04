@@ -2,7 +2,6 @@
   <Layout :variant="LAYOUT_VARIANTS.CANVAS_CARD" :mode="LAYOUT_MODE.CENTERED">
     <template #content-header>
       <slot name="hero" />
-      <slot name="guest" />
       <slot name="markdown" />
     </template>
 

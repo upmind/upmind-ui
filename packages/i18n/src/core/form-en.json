@@ -241,7 +241,7 @@
   },
   "guest_email": {
     "description": "We'll send your order confirmation to this email",
-    "label": "Email for order confirmation",
+    "label": "Email for order receipt",
     "placeholder": "name@email.com"
   },
   "twofa": {

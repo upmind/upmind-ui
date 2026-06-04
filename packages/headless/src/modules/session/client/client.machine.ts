@@ -155,8 +155,7 @@ export default createMachine(
                 invoke: {
                   src: "completeRegistration",
                   onDone: {
-                    target: "#loading",
-                    actions: ["setFeedbackSuccess"]
+                    target: "#loading"
                   },
                   onError: {
                     target: "error",
@@ -382,11 +381,6 @@ export default createMachine(
           copy: error?.message,
           data: error?.data
         });
-      },
-
-      setFeedbackSuccess: (_context, _event) => {
-        const { t } = useI18n();
-        useFeedback().addSuccess(t("confirm.registration_complete"));
       },
 
       clearError: assign({ error: undefined })

@@ -2,7 +2,6 @@
   <Layout :variant="LAYOUT_VARIANTS.SPLIT_HORIZONTAL">
     <template #content-header>
       <slot name="hero" />
-      <slot name="guest" />
     </template>
 
     <template #content>

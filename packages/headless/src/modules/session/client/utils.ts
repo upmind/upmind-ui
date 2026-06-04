@@ -16,12 +16,11 @@ export const useGuestEmailSchemaParser = () => {
   return {
     type: "object",
     title: "Email",
-    required: ["email"],
     properties: {
       email: {
         type: "string",
         format: "email",
-        title: "Email for order confirmation"
+        title: "Email for order receipt"
       }
     }
   };
@@ -35,9 +34,10 @@ export const useGuestEmailUischemaParser = () => {
         type: "Control",
         scope: "#/properties/email",
         // Simple field label ("Email") — the Section header carries the longer
-        // "Email for order confirmation" context.
+        // "Email for order receipt" context.
         i18n: "form.email",
         options: {
+          noLabel: true,
           type: "email",
           format: "email",
           autocomplete: "email",

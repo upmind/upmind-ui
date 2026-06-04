@@ -37,21 +37,18 @@ export default {
       actions: cva("mt-3 flex items-center justify-start space-x-2")
     },
 
-    guestCheckout: {
-      root: cva("font-normal", {
-        variants: {
-          template: {
-            "two-column-ltr": "mt-0 mb-0",
-            "two-column-rtl": "mt-0 mb-0",
-            enclosed: "mt-0 mb-0",
-            split: "mt-10 mb-10",
-            "canvas-card": "mt-10 mb-0",
-            "surface-box": "mt-10 mb-10"
-          }
+    guestCheckout: cva("", {
+      variants: {
+        template: {
+          "two-column-ltr": "mt-0 mb-0",
+          "two-column-rtl": "mt-0 mb-0",
+          enclosed: "mt-0 mb-0",
+          split: "mt-0 mb-6",
+          "canvas-card": "mt-0 mb-6",
+          "surface-box": "mt-6 mb-6"
         }
-      }),
-      sidebarText: cva("m-0 text-sm leading-5 font-light")
-    },
+      }
+    }),
 
     profile: {
       trigger: cva("rounded-full p-0"),
