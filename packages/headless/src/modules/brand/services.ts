@@ -78,6 +78,9 @@ function fetchBrandSettings() {
     queryKey: ["brand", "settings"],
     // --- options
     staleTime: "static",
+    // A 5xx here means the brand doesn't exist — a deterministic answer, not a
+    // transient fault. Retrying it blocks the unavailable-tenant redirect in init.
+    retry: false,
     persister: localStoragePersister.persisterFn,
     select: mapBrandSettings
   });
