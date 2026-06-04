@@ -5,6 +5,7 @@ import { createMachine, assign, spawn, sendTo, pure } from "xstate";
 import DACmachine from "./dac.machine";
 
 import services from "./services";
+import { useQuery } from "../query";
 import { basketSubscription } from "../basketProduct/helper";
 import { authSubscription } from "../session/helper";
 
@@ -221,7 +222,7 @@ export default createMachine(
           },
 
           validating: {
-            entry: ["setCheckingDomain"],
+            entry: ["cancelAvailability", "setCheckingDomain"],
             always: [
               {
                 target: "transferred",
@@ -965,6 +966,18 @@ export default createMachine(
       clearCheckingDomain: assign({
         checkingDomain: () => undefined
       }),
+
+      // Aborts any in-flight `/availability` fetch from a prior keystroke.
+      // The user types -> UPDATE -> re-enters `validating` -> a new invoke
+      // fires. Without this, the previous fetch keeps running (XState v4
+      // can't cancel a Promise actor; it just ignores its result), wasting
+      // bandwidth and risking out-of-order responses. `cancelQueries`
+      // signals TanStack to abort the active queryFn — propagation to
+      // `fetch` relies on `checkAvailability`'s queryFn forwarding the
+      // signal via `init.signal` (see `services.ts`).
+      cancelAvailability: () => {
+        useQuery().cancel(["domains", "availability"]);
+      },
 
       setAvailabilityResult: assign({
         availability: (_context: DomainContext, { data }: AnyEventObject) =>
