@@ -35,6 +35,7 @@ import type {
 } from "./types";
 import type { ErrorObject } from "ajv";
 import type { ClientContext } from "./client/types";
+import { ClientFormType } from "./client/types";
 export type { Client, SessionTransfer, IAuthTransfer } from "./types";
 // -----------------------------------------------------------------------------
 
@@ -132,7 +133,13 @@ export const useSession = () => {
         "available.recover.loading",
         "available.asGuest.registering"
       ]) ||
-      stateMatches(clientActor, "loading") ||
+      stateMatches(clientActor, [
+        "loading",
+        // The upgrade form's schema fetch (getCustomFields) — no form yet, so
+        // show the skeleton. The submit itself is `isProcessing`, not loading
+        // (the form stays mounted with a processing indicator).
+        "available.unregistered.loading"
+      ]) ||
       false,
     isAvailable: !stateMatches(state, ["error", "checking"]),
     isProcessing:
@@ -144,11 +151,15 @@ export const useSession = () => {
         "available.register.verifying",
         "available.recover.recovering",
         "available.asGuest.registering"
-      ]) || stateMatches(clientActor, "processing"),
+      ]) ||
+      stateMatches(clientActor, [
+        "available.unregistered.registering",
+        "available.unregistered.updating"
+      ]),
     isAuthenticated: stateMatches(state, "client"),
     isCompletingRegistration: stateMatches(
       clientActor,
-      "processing.registering"
+      "available.unregistered.registering"
     ),
     isRegisteringAsGuest: stateMatches(
       guestActor,
@@ -168,9 +179,7 @@ export const useSession = () => {
         "available.recover.error",
         "available.asGuest.error"
       ]) ||
-      // The client machine has no error state; failures are read from
-      // `context.error` (set by the machine's `setError` action).
-      !!contextValue(clientActor, "error"),
+      stateMatches(clientActor, "available.unregistered.error"),
     showLoginForm: stateMatches(guestActor, "available.login"),
     show2fa: stateMatches(guestActor, [
       "available.login.challenging",
@@ -184,15 +193,13 @@ export const useSession = () => {
     showAsGuestForm: stateMatches(guestActor, "available.asGuest"),
     showRegisterForm: stateMatches(guestActor, "available.register"),
     showRecoverPasswordForm: stateMatches(guestActor, "available.recover"),
-    // Guest-client forms owned by the client machine.
-    showGuestUpgradeForm: stateMatches(
-      clientActor,
-      "available.unregistered.register"
-    ),
-    showGuestEmailForm: stateMatches(
-      clientActor,
-      "available.unregistered.email"
-    )
+    // Guest-client forms share one node; `formType` says which is active.
+    showGuestUpgradeForm:
+      stateMatches(clientActor, "available.unregistered") &&
+      formType.value === ClientFormType.REGISTER,
+    showGuestEmailForm:
+      stateMatches(clientActor, "available.unregistered") &&
+      formType.value === ClientFormType.EMAIL
   }));
 
   // --- context
@@ -217,6 +224,12 @@ export const useSession = () => {
    * Client-specific information for the currently authenticated client, including profile and account data.
    */
   const client = useContext<ClientContext["client"]>(clientActor, "client");
+
+  /**
+   * Which guest-client form (`register` upgrade or `email`) is active in the
+   * shared `unregistered.available` node — distinguishes the two for the UI.
+   */
+  const formType = useContext<ClientFormType>(clientActor, "formType");
 
   // Form data (model/schema/uischema/errors) lives on the GUEST machine for
   // login/register/recover/2fa, but a guest *client* is in the CLIENT machine
@@ -323,7 +336,7 @@ export const useSession = () => {
       return await waitFor(
         clientActor.value.service,
         state =>
-          stateMatches(state, ["available.unregistered.register", "done"]),
+          stateMatches(state, ["available.unregistered.available", "done"]),
         { timeout: 60000 }
       )
         .then(() => true)
@@ -352,7 +365,8 @@ export const useSession = () => {
 
     return await waitFor(
       clientActor.value.service,
-      state => stateMatches(state, ["available.unregistered.email", "done"]),
+      state =>
+        stateMatches(state, ["available.unregistered.available", "done"]),
       { timeout: 60000 }
     )
       .then(() => true)
@@ -516,13 +530,16 @@ export const useSession = () => {
 
     return await waitFor(
       clientActor.value.service,
-      state => stateMatches(state, ["available", "done"]),
+      state =>
+        stateMatches(state, [
+          "available.registered",
+          "available.unregistered.error",
+          "complete",
+          "done"
+        ]),
       { timeout: 60_000 }
     )
-      // Success routes through `loading` (clears the error); a failure returns
-      // straight to `available` with `context.error` set — read that to tell
-      // them apart, since the client machine has no error state.
-      .then(() => !contextValue(clientActor, "error"))
+      .then(state => !stateMatches(state, "available.unregistered.error"))
       .catch(() => false);
   }
 

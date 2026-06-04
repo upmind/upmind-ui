@@ -421,14 +421,18 @@ export default {
     // Wait for session to be fully ready and authenticated if a transition is in progress
     await session.isReady();
 
-    // Check if we are authenticated. We use the check method to ensure
-    // we wait for the profile load to complete.
-    if (
-      session.meta.value.isAuthenticated ||
-      (await session.isAuthenticated().catch(() => false)) == true
-    ) {
-      // We are authenticated and profile is loaded
-    } else {
+    // Always await the profile load — do NOT short-circuit on
+    // `meta.isAuthenticated`. That flag flips true as soon as we enter the
+    // client context, but the client `/self` may still be loading, so a
+    // downstream synchronous guard like `isGuestClient` (reads
+    // `client.value?.isGuest`) would see an empty client on refresh and return
+    // false. `isAuthenticated()` waits for the client actor to be available.
+    const isAuthed = await session
+      .isAuthenticated()
+      .then(() => true)
+      .catch(() => false);
+
+    if (!isAuthed) {
       return Promise.reject();
     }
 
