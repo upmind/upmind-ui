@@ -1321,6 +1321,10 @@ export const useQuery = () => {
     post: postRequest,
     head: headRequest,
     patch: patchRequest,
+    // --- raw envelope-returning request (for callers that need the full
+    //     `QueryResponse` — e.g. to read sideloaded resources like `related`
+    //     that `select`/`get`/`getList` strip away)
+    request,
     // --- cancel method
     cancel: async (
       queryKey: QueryKey,

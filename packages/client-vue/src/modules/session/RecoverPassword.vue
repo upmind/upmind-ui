@@ -72,7 +72,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { computed, defineAsyncComponent, ref } from "vue";
+import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useConfig, validateTemplate } from "@upmind-automation/headless";
 import { useThemes } from "@upmind-automation/upmind-ui";
@@ -85,25 +85,20 @@ import Section from "../../components/section/Section.vue";
 import Summary from "../basket/components/Summary.vue";
 
 // --- templates
+import SessionSplitTemplate from "./templates/SessionSplit.template.vue";
+import SessionCanvasCardTemplate from "./templates/SessionCanvasCard.template.vue";
+import SessionSurfaceBoxTemplate from "./templates/SessionSurfaceBox.template.vue";
+import SessionLTRTemplate from "./templates/SessionLTR.template.vue";
+import SessionRTLTemplate from "./templates/SessionRTL.template.vue";
+import SessionEnclosedTemplate from "./templates/SessionEnclosed.template.vue";
+
 const supportedTemplates = {
-  [SESSION_TEMPLATE.SPLIT]: defineAsyncComponent(
-    () => import("./templates/SessionSplit.template.vue")
-  ),
-  [SESSION_TEMPLATE.CANVAS_CARD]: defineAsyncComponent(
-    () => import("./templates/SessionCanvasCard.template.vue")
-  ),
-  [SESSION_TEMPLATE.SURFACE_BOX]: defineAsyncComponent(
-    () => import("./templates/SessionSurfaceBox.template.vue")
-  ),
-  [SESSION_TEMPLATE.TWO_COLUMN_LTR]: defineAsyncComponent(
-    () => import("./templates/SessionLTR.template.vue")
-  ),
-  [SESSION_TEMPLATE.TWO_COLUMN_RTL]: defineAsyncComponent(
-    () => import("./templates/SessionRTL.template.vue")
-  ),
-  [SESSION_TEMPLATE.ENCLOSED]: defineAsyncComponent(
-    () => import("./templates/SessionEnclosed.template.vue")
-  )
+  [SESSION_TEMPLATE.SPLIT]: SessionSplitTemplate,
+  [SESSION_TEMPLATE.CANVAS_CARD]: SessionCanvasCardTemplate,
+  [SESSION_TEMPLATE.SURFACE_BOX]: SessionSurfaceBoxTemplate,
+  [SESSION_TEMPLATE.TWO_COLUMN_LTR]: SessionLTRTemplate,
+  [SESSION_TEMPLATE.TWO_COLUMN_RTL]: SessionRTLTemplate,
+  [SESSION_TEMPLATE.ENCLOSED]: SessionEnclosedTemplate
 };
 
 // --- utils

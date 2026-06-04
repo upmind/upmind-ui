@@ -1,4 +1,5 @@
 {
+  "basket_placeholder": "Select a domain",
   "begin_search_above_desc": "Yuxarıdakı qutudan istifadə edərək axtarışa başlayın.",
   "choices": {
     "basket": {
@@ -13,6 +14,10 @@
       "label": "Yeni domeni qeydiyyatdan keçirin",
       "tooltip": "Artıq domeniniz yoxdur? Bizimlə yenisini qeydiyyatdan keçirin"
     },
+    "skip": {
+      "label": "I'll decide later",
+      "tooltip": ""
+    },
     "transfer": {
       "label": "Domeni köçürün",
       "tooltip": "Artıq domen sahibisiniz? Bizə köçürə bilərsiniz"
@@ -21,6 +26,23 @@
   "domain_description": "Bu gün onlayn şəxsiyyətinizi qoruyun - bu, yalnız bir dəqiqə çəkir.",
   "domain_not_required_label": "Domen olmadan davam edin",
   "domain_title": "Mükəmməl domen adınızı alın.",
+  "error": {
+    "availability_check_failed": "Failed to check domain availability",
+    "registration_add_failed": "Failed to add domain to basket",
+    "transfer_add_failed": "Failed to add transfer to basket",
+    "transfer_remove_failed": "Failed to remove transfer from basket"
+  },
+  "existing": {
+    "add_registration": "Add to basket",
+    "add_transfer": "Add transfer",
+    "dns_info": "To use this domain, you will need to update the domain's DNS with the existing registrar.",
+    "placeholder": "Tell us the domain you want to use.",
+    "register_info": "Good news — this domain is available to register for only {price}, which includes a {period} registration.",
+    "remove_transfer": "Remove transfer",
+    "transfer_added": "Transfer added",
+    "transfer_info": "If you own this domain you can transfer it to us for only {price}, which includes a {period} renewal. Alternatively, you will need to update the domain's nameserver (NS) records.",
+    "unavailable": "This domain cannot be registered or transferred."
+  },
   "finding_perfect_domain": "**mükəmməl** domeninizi tapırsınız",
   "finding_perfect_domain_md": "@.markdown:{'domain.finding_perfect_domain'}",
   "own_domain_qn": "Bu domenin sahibi sizsiniz?",

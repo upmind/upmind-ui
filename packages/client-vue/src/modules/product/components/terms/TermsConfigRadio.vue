@@ -71,7 +71,7 @@ const props = withDefaults(
     gridLayout?: GridLayout;
     items: TermDetails[];
     modelValue?: string | number;
-    errors?: string;
+    errors?: string | string[];
     columns?: number;
     // ---
     label?: string;

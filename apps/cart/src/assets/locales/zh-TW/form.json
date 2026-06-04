@@ -84,7 +84,7 @@
   },
   "companyNumber": {
     "label": "公司編號",
-    "placeholder": "註冊稅務或商品及服務稅"
+    "placeholder": "公司識別號碼"
   },
   "country": {
     "label": "國家",
@@ -167,6 +167,10 @@
   },
   "stored_payment_method": {
     "label": ""
+  },
+  "taxNumber": {
+    "label": "註冊稅務編號",
+    "placeholder": "稅務編號／增值稅號／商品及服務稅號"
   },
   "twofa": {
     "description": "此帳戶已啟用雙重驗證，請輸入驗證碼。",

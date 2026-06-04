@@ -16,7 +16,7 @@
   "order_placed": "Sifariş Təsdiqləndi!",
   "order_placed_msg": "Sifarişiniz təsdiqləndi. Alış-verişinizi tamamlamaq üçün ödənişə davam edin.",
   "payment_due": "Ödəniş ediləcək",
-  "payment_due_msg": "Sifarişiniz təsdiqləndi. Ödəniş {amount} ödənilməlidir {due_date} .",
+  "payment_due_msg": "Sifarişiniz təsdiqləndi. Ödəniş {amount} ödənilməlidir {due_date}.",
   "payment_failed_banner": "Ödəniş cəhdiniz uğursuz oldu - zəhmət olmasa, yenidən cəhd edin.",
   "payment_partial": "Ödəniş ödənilməyib",
   "payment_partial_msg": "Səndə var {remaining_amount} qalan. Sifarişinizi tamamlamaq üçün ödənişinizi tamamlayın.",

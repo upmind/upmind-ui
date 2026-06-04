@@ -17,7 +17,7 @@
     "node": "^20.19.0 || >=22.12.0"
   },
   "scripts": {
-    "clean": "rm -rf node_modules",
+    "reset": "rm -rf node_modules",
     "format": "prettier --write src/",
     "localazy": "localazy upload",
     "localazy:download": "localazy download --config localazy.sync.json && pnpm format",

@@ -16,7 +16,7 @@
   "order_placed": "Objednávka potvrdená",
   "order_placed_msg": "Vaša objednávka bola potvrdená. Pokračujte v platbe, aby ste dokončili nákup.",
   "payment_due": "Splatnosť platby",
-  "payment_due_msg": "Vaša objednávka je potvrdená. Platba {amount} je splatný do {due_date} .",
+  "payment_due_msg": "Vaša objednávka je potvrdená. Platba {amount} je splatný do {due_date}.",
   "payment_failed_banner": "Vaša platba nebola úspešná – skúste to prosím znovu.",
   "payment_partial": "Neuhradená platba",
   "payment_partial_msg": "Máte {remaining_amount} Zostáva. Pre dokončenie objednávky dokončite platbu.",

@@ -72,7 +72,7 @@
   "tax_valid": "Επικυρωμένο {relative}",
   "term": "όρος",
   "terms_and_conditions": "Όροι και Προϋποθέσεις",
-  "terms_and_conditions_desc": "Κάνοντας κλικ στο '{label}', συμφωνώ με την {action} του {brand} .",
+  "terms_and_conditions_desc": "Κάνοντας κλικ στο '{label}', συμφωνώ με την {action} του {brand}.",
   "terms_of_service": "Όροι Παροχής Υπηρεσιών",
   "total": "Σύνολο",
   "welcome_back_msg": "Καλώς ήρθες πίσω, {name}"

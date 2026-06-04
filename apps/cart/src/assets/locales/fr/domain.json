@@ -1,17 +1,22 @@
 {
+  "basket_placeholder": "Sélectionnez un domaine",
   "begin_search_above_desc": "Commencez votre recherche en utilisant le champ ci-dessus.",
   "choices": {
     "basket": {
-      "label": "Utiliser le domaine dans le panier",
+      "label": "Utiliser un nom de domaine de mon panier",
       "tooltip": "Ces domaines sont déjà dans votre panier"
     },
     "existing": {
-      "label": "Utiliser le domaine existant",
+      "label": "Utiliser un nom de domaine que je possède déjà",
       "tooltip": "Vous pouvez utiliser un domaine existant en mettant à jour les serveurs de noms"
     },
     "register": {
       "label": "Enregistrer un nouveau domaine",
       "tooltip": "Vous n'avez pas encore de domaine ? Enregistrez-en un nouveau auprès de nous"
+    },
+    "skip": {
+      "label": "Je verrai plus tard",
+      "tooltip": ""
     },
     "transfer": {
       "label": "Transférer un domaine",
@@ -21,13 +26,30 @@
   "domain_description": "Sécurisez votre identité en ligne dès aujourd'hui – cela ne prend qu'une minute.",
   "domain_not_required_label": "Continuer sans domaine",
   "domain_title": "Inclure un nom de domaine.",
+  "error": {
+    "availability_check_failed": "Impossible de vérifier la disponibilité du nom de domaine",
+    "registration_add_failed": "Impossible d'ajouter le domaine au panier",
+    "transfer_add_failed": "Impossible d'ajouter le transfert au panier",
+    "transfer_remove_failed": "Impossible de supprimer le transfert du panier"
+  },
+  "existing": {
+    "add_registration": "Ajouter au panier",
+    "add_transfer": "Ajouter un transfert",
+    "dns_info": "Pour utiliser ce domaine, vous devrez mettre à jour les paramètres DNS du domaine auprès de votre registraire actuel.",
+    "placeholder": "Indiquez-nous le nom de domaine que vous souhaitez utiliser.",
+    "register_info": "Bonne nouvelle : ce nom de domaine est disponible à l'enregistrement pour seulement {price}, ce qui comprend les frais d'enregistrement {period} €.",
+    "remove_transfer": "Supprimer le transfert",
+    "transfer_added": "Transfert ajouté",
+    "transfer_info": "Si vous êtes propriétaire de ce domaine, vous pouvez nous le transférer pour seulement {price}, ce qui inclut un renouvellement {period} €. Sinon, vous devrez mettre à jour les enregistrements des serveurs de noms (NS) du domaine.",
+    "unavailable": "Ce nom de domaine ne peut être ni enregistré ni transféré."
+  },
   "finding_perfect_domain": "Trouver votre domaine **parfait**",
   "finding_perfect_domain_md": "@.markdown:{'domain.finding_perfect_domain'}",
   "own_domain_qn": "Êtes-vous propriétaire de ce domaine ?",
   "owned_domains_title": "Domaines que vous possédez présentement",
   "price_renewal_desc": "Prix unique de {regularPrice}. | Renouvelle chaque année pour {regularPrice}. | Renouvelle tous les {count} ans pour {regularPrice}.",
   "registrant_use_billing_msg": "Vos informations de facturation seront utilisées comme coordonnées du titulaire du nom de domaine.",
-  "search": "Domaines de recherche",
+  "search": "Saisissez un nom de domaine à rechercher",
   "starts_with_domain": "Tout commence par un **nom de domaine**",
   "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
   "tld_renewal_price_desc": "Notre {tld} les prix de renouvellement commencent à partir de seulement {currentPrice} (était {regularPrice}).",

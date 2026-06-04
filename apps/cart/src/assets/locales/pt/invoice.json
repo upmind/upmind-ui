@@ -16,7 +16,7 @@
   "order_placed": "Encomenda confirmada",
   "order_placed_msg": "A sua encomenda foi confirmada. Por favor, continue com o pagamento para concluir a sua compra.",
   "payment_due": "Pagamento a efetuar",
-  "payment_due_msg": "Seu pedido foi confirmado. Pagamento de {amount} deve ser entregue até {due_date} .",
+  "payment_due_msg": "Seu pedido foi confirmado. Pagamento de {amount} deve ser entregue até {due_date}.",
   "payment_failed_banner": "A sua tentativa de pagamento não foi bem-sucedida. Por favor, tente novamente.",
   "payment_partial": "Pagamento pendente",
   "payment_partial_msg": "Você tem {remaining_amount} Restante. Por favor, conclua o pagamento para finalizar seu pedido.",

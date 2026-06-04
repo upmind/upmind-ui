@@ -84,7 +84,7 @@
   },
   "companyNumber": {
     "label": "Numărul companiei",
-    "placeholder": "Taxă înregistrată sau GST"
+    "placeholder": "Numărul de identificare al societății"
   },
   "country": {
     "label": "Țara",
@@ -167,6 +167,10 @@
   },
   "stored_payment_method": {
     "label": ""
+  },
+  "taxNumber": {
+    "label": "Cod fiscal",
+    "placeholder": "Cod fiscal/Număr de înregistrare TVA/GST"
   },
   "twofa": {
     "description": "Acest cont este securizat folosind autentificarea cu doi factori. Vă rugăm să introduceți codul de verificare.",

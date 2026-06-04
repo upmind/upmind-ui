@@ -84,7 +84,7 @@
   },
   "companyNumber": {
     "label": "Şirket Numarası",
-    "placeholder": "Kayıtlı vergi veya GST"
+    "placeholder": "Şirket Kimlik Numarası"
   },
   "country": {
     "label": "Ülke",
@@ -167,6 +167,10 @@
   },
   "stored_payment_method": {
     "label": ""
+  },
+  "taxNumber": {
+    "label": "Vergi Kimlik Numarası",
+    "placeholder": "Vergi Kimlik Numarası/KDV/GST Numarası"
   },
   "twofa": {
     "description": "Bu hesap iki faktörlü kimlik doğrulama ile güvence altına alınmıştır. Lütfen doğrulama kodunuzu girin.",
