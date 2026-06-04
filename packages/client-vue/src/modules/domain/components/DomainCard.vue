@@ -126,7 +126,12 @@
           }}<br class="hidden md:block" />
           {{
             $t("domain.transfer_price_info", {
-              currentPrice: props.price.currentPrice
+              // Brand-supplied transfer-price override wins (FREE / flat
+              // amount). Falls back to the parent product's price when no
+              // override is configured — same precedence as
+              // SmartDomainExisting and the upmind-widgets DAC widget.
+              currentPrice:
+                props.transferOptionPrice ?? props.price.currentPrice
             })
           }}<br class="hidden md:block" />
           {{ $t("domain.transfer_extension_info") }}

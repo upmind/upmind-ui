@@ -34,6 +34,7 @@ import {
   useChildActor
 } from "../../utils";
 import {
+  getTransferOptionPrice,
   parseDomain,
   sanitiseDomainInput,
   useDomainSearchMethod
@@ -385,7 +386,16 @@ export const useDomain = (
       if (priceEntry) {
         return {
           price: parsePrice(priceEntry).currentPrice,
-          cycle: priceEntry.billing_cycle_months
+          cycle: priceEntry.billing_cycle_months,
+          // Brand-supplied transfer-price override (e.g. "FREE" or "£10")
+          // — resolved from the transfer sub-product's
+          // `category.price_override`. Undefined when the brand hasn't
+          // configured an override; UI then falls back to the parent
+          // product's price (`price` above).
+          transferOptionPrice: getTransferOptionPrice(
+            product,
+            priceEntry.currency_code
+          )
         };
       }
     }
@@ -399,7 +409,8 @@ export const useDomain = (
           price: matched.price?.currentAmount
             ? matched.price.currentPrice
             : (matched.price?.regularPrice ?? ""),
-          cycle: matched.configuration?.term ?? matched.productDetails?.cycle
+          cycle: matched.configuration?.term ?? matched.productDetails?.cycle,
+          transferOptionPrice: matched.meta?.transferOptionPrice
         };
       }
     }
