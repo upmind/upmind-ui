@@ -38,15 +38,20 @@
               v-if="choice.value === type && type === DomainTypes.register"
               :class="styles.field.expanded"
             >
-              <Input
+              <FormControl
                 v-if="!open"
-                :model-value="queryValue"
-                :placeholder="t('domain.search')"
-                :disabled="props.disabled"
-                icon-append="arrow-right"
-                @update:model-value="onRegisterInput"
-                @focus="openDrawer"
-              />
+                form-item-id="domain-register-search"
+                auto-focus
+              >
+                <Input
+                  :model-value="queryValue"
+                  :placeholder="t('domain.search')"
+                  :disabled="props.disabled"
+                  icon-append="arrow-right"
+                  @update:model-value="onRegisterInput"
+                  @focus="openDrawer"
+                />
+              </FormControl>
               <FormMessage
                 v-if="!!(props.touched && props.errors?.length)"
                 form-message-id="domain-register-error"
@@ -164,6 +169,7 @@ import {
   RadioGroupItem,
   Input,
   Select,
+  FormControl,
   FormMessage,
   useStyles
 } from "@upmind-automation/upmind-ui";

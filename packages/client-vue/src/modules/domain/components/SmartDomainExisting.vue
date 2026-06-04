@@ -2,6 +2,7 @@
   <!-- Domain search -->
   <Search
     v-model="searchValue"
+    auto-focus
     :results="ownedItems"
     :placeholder="t('domain.existing.placeholder')"
     :disabled="disabled || removing || registering"
