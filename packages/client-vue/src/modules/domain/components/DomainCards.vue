@@ -41,6 +41,8 @@
           :free="item.meta.free"
           :canTransfer="item.meta.canTransfer"
           :transferLabel="item.meta.transferLabel"
+          :transferOptionPrice="item.meta.transferOptionPrice"
+          :transferOptionIsFree="item.meta.transferOptionIsFree"
           :unavailable="item.meta.unavailable"
           :priceLoading="item.meta.priceLoading"
           :exactMatch="isExactMatch(value.toString())"
