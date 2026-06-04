@@ -84,7 +84,7 @@
   },
   "companyNumber": {
     "label": "Firmanummer",
-    "placeholder": "Registrert skatt eller GST"
+    "placeholder": "Organisasjonsnummer"
   },
   "country": {
     "label": "Land",
@@ -167,6 +167,10 @@
   },
   "stored_payment_method": {
     "label": ""
+  },
+  "taxNumber": {
+    "label": "Registrert organisasjonsnummer",
+    "placeholder": "Skatteregistreringsnummer/MVA-nummer"
   },
   "twofa": {
     "description": "Denne kontoen er sikret med tofaktorautentisering. Vennligst skriv inn bekreftelseskoden din.",

@@ -7,6 +7,7 @@
 // --- Export Views
 export { default as UpmDomain } from "./Domain.vue";
 export { default as UpmDac } from "./Dac.vue";
+export { default as UpmSmartDomainField } from "./SmartDomainField.vue";
 
 // --- Export Types
 export * from "./types";

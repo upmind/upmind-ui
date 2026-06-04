@@ -188,4 +188,100 @@ test.describe("DAC existing-domain mode (transfer checks)", () => {
     await expect(transferButton).not.toBeVisible();
     await expect(registerButton).not.toBeVisible();
   });
+
+  /**
+   * FE-2806: Transfer price display
+   *
+   * Tests for correct transfer pricing copy:
+   * - Free transfer should show "free" not "only £0.00"
+   * - Paid transfer should show "only £X"
+   *
+   * NOTE: The renewal copy test is pending - currently the copy always shows
+   * "includes 1-year renewal" unconditionally. A product field needs to be
+   * identified/added to control this display.
+   */
+  test("Free transfer shows 'free' in the pricing copy", async ({
+    page,
+    context
+  }) => {
+    // Product with £0 transfer price
+    const freeTransferProduct = {
+      ...domainProducts[domainProductIds.com],
+      prices: [
+        {
+          billing_cycle_months: 12,
+          price_formatted: "£0.00",
+          price_discounted_formatted: null,
+          price: 0,
+          price_discounted: null,
+          promotions: []
+        }
+      ]
+    };
+
+    mockDomainAvailability(context, {
+      byDomain: {
+        [TRANSFER_DOMAIN]: {
+          can_register: false,
+          can_transfer: true,
+          is_premium: false,
+          product_id: domainProductIds.com,
+          product: freeTransferProduct
+        }
+      }
+    });
+
+    await page.goto(URLs.starterHosting);
+    await selectExistingAndFill(page, TRANSFER_DOMAIN);
+
+    // Wait for the transfer info to appear
+    const transferInfo = page.locator("text=/transfer.*free/i");
+    await expect(transferInfo).toBeVisible({ timeout: 15000 });
+
+    // Should NOT show "£0.00" - should show "free" instead
+    await expect(page.locator("text=£0.00")).not.toBeVisible();
+  });
+
+  test("Paid transfer shows correct price in the pricing copy", async ({
+    page,
+    context
+  }) => {
+    // Product with £2.50 transfer price
+    const paidTransferProduct = {
+      ...domainProducts[domainProductIds.com],
+      prices: [
+        {
+          billing_cycle_months: 12,
+          price_formatted: "£2.50",
+          price_discounted_formatted: null,
+          price: 2.5,
+          price_discounted: null,
+          promotions: []
+        }
+      ]
+    };
+
+    mockDomainAvailability(context, {
+      byDomain: {
+        [TRANSFER_DOMAIN]: {
+          can_register: false,
+          can_transfer: true,
+          is_premium: false,
+          product_id: domainProductIds.com,
+          product: paidTransferProduct
+        }
+      }
+    });
+
+    await page.goto(URLs.starterHosting);
+    await selectExistingAndFill(page, TRANSFER_DOMAIN);
+
+    // Should show the transfer price
+    const priceText = page.locator("text=£2.50");
+    await expect(priceText).toBeVisible({ timeout: 15000 });
+  });
+
+  // TODO FE-2806: Add test for conditional renewal copy once product field is identified
+  // test("Transfer without renewal extension omits renewal copy", ...)
+  // test("Transfer with renewal extension shows renewal copy", ...)
 });

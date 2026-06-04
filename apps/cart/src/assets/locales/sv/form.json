@@ -84,7 +84,7 @@
   },
   "companyNumber": {
     "label": "Företagsnummer",
-    "placeholder": "Registrerad skatt eller moms"
+    "placeholder": "Organisationsnummer"
   },
   "country": {
     "label": "Land",
@@ -167,6 +167,10 @@
   },
   "stored_payment_method": {
     "label": ""
+  },
+  "taxNumber": {
+    "label": "Registrerat organisationsnummer",
+    "placeholder": "Organisationsnummer/momsnummer"
   },
   "twofa": {
     "description": "Det här kontot är skyddat med tvåfaktorsautentisering. Ange din verifieringskod.",

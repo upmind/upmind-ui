@@ -66,7 +66,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { computed, defineAsyncComponent } from "vue";
+import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -82,19 +82,16 @@ import Hero from "../../components/hero/Hero.vue";
 import BillingForm from "./components/BillingForm.vue";
 
 // --- templates
+import BillingFullTemplate from "./templates/BillingFull.template.vue";
+import BillingLTRTemplate from "./templates/BillingLTR.template.vue";
+import BillingRTLTemplate from "./templates/BillingRTL.template.vue";
+import BillingEnclosedTemplate from "./templates/BillingEnclosed.template.vue";
+
 const supportedTemplates = {
-  [BILLING_TEMPLATE.FULL]: defineAsyncComponent(
-    () => import("./templates/BillingFull.template.vue")
-  ),
-  [BILLING_TEMPLATE.TWO_COLUMN_LTR]: defineAsyncComponent(
-    () => import("./templates/BillingLTR.template.vue")
-  ),
-  [BILLING_TEMPLATE.TWO_COLUMN_RTL]: defineAsyncComponent(
-    () => import("./templates/BillingRTL.template.vue")
-  ),
-  [BILLING_TEMPLATE.ENCLOSED]: defineAsyncComponent(
-    () => import("./templates/BillingEnclosed.template.vue")
-  )
+  [BILLING_TEMPLATE.FULL]: BillingFullTemplate,
+  [BILLING_TEMPLATE.TWO_COLUMN_LTR]: BillingLTRTemplate,
+  [BILLING_TEMPLATE.TWO_COLUMN_RTL]: BillingRTLTemplate,
+  [BILLING_TEMPLATE.ENCLOSED]: BillingEnclosedTemplate
 };
 
 // --- utils

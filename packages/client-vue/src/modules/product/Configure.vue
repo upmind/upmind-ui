@@ -206,13 +206,7 @@
 
 <script lang="ts" setup>
 // --- external
-import {
-  computed,
-  defineAsyncComponent,
-  onUnmounted,
-  provide,
-  watch
-} from "vue";
+import { computed, onUnmounted, provide, watch } from "vue";
 import { useClipboard } from "@vueuse/core";
 import { useI18n } from "vue-i18n";
 
@@ -250,19 +244,16 @@ import ProductNotFound from "./NotFound.vue";
 import Section from "../../components/section/Section.vue";
 
 //  --- templates
+import ProductFullTemplate from "./templates/ProductFull.template.vue";
+import ProductLTRTemplate from "./templates/ProductLTR.template.vue";
+import ProductRTLTemplate from "./templates/ProductRTL.template.vue";
+import ProductEnclosedTemplate from "./templates/ProductEnclosed.template.vue";
+
 const supportedTemplates = {
-  [PRODUCT_TEMPLATE.FULL]: defineAsyncComponent(
-    () => import("./templates/ProductFull.template.vue")
-  ),
-  [PRODUCT_TEMPLATE.TWO_COLUMN_LTR]: defineAsyncComponent(
-    () => import("./templates/ProductLTR.template.vue")
-  ),
-  [PRODUCT_TEMPLATE.TWO_COLUMN_RTL]: defineAsyncComponent(
-    () => import("./templates/ProductRTL.template.vue")
-  ),
-  [PRODUCT_TEMPLATE.ENCLOSED]: defineAsyncComponent(
-    () => import("./templates/ProductEnclosed.template.vue")
-  )
+  [PRODUCT_TEMPLATE.FULL]: ProductFullTemplate,
+  [PRODUCT_TEMPLATE.TWO_COLUMN_LTR]: ProductLTRTemplate,
+  [PRODUCT_TEMPLATE.TWO_COLUMN_RTL]: ProductRTLTemplate,
+  [PRODUCT_TEMPLATE.ENCLOSED]: ProductEnclosedTemplate
 };
 // --- utils
 import { get, includes, take, isEmpty } from "lodash-es";

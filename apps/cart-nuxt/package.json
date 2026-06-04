@@ -23,7 +23,7 @@
     "node": "^20.19.0 || >=22.12.0"
   },
   "scripts": {
-    "clean": "rm -rf node_modules dist .nuxt .output node_modules/.cache node_modules/.vite *.tsbuildinfo",
+    "reset": "rm -rf node_modules dist .nuxt .output node_modules/.cache node_modules/.vite *.tsbuildinfo",
     "start": "pnpm dev",
     "start:test": "vite --mode test --dotenv .env.test",
     "dev": "nuxt dev --host collabstudio.localhost --dotenv .env.development",

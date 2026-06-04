@@ -1,17 +1,22 @@
 {
+  "basket_placeholder": "Bir alan adı seçin",
   "begin_search_above_desc": "Aramanızı yukarıdaki kutuyu kullanarak başlatın.",
   "choices": {
     "basket": {
-      "label": "Sepetteki alanı kullan",
+      "label": "Sepetimdeki bir alan adını kullan",
       "tooltip": "Bu alan adları zaten sepetinizde"
     },
     "existing": {
-      "label": "Mevcut etki alanını kullan",
+      "label": "Zaten sahip olduğum bir alan adını kullan",
       "tooltip": "Ad sunucularını güncelleyerek mevcut bir alan adını kullanabilirsiniz"
     },
     "register": {
-      "label": "Yeni alan adı kaydedin",
+      "label": "Yeni bir alan adı kaydedin",
       "tooltip": "Henüz bir alan adınız yok mu? Bizimle yeni bir alan adı kaydedin"
+    },
+    "skip": {
+      "label": "Bunu daha sonra karar veririm",
+      "tooltip": ""
     },
     "transfer": {
       "label": "Alan adını aktar",
@@ -21,13 +26,30 @@
   "domain_description": "Çevrimiçi kimliğinizi bugün güvence altına alın; sadece bir dakika sürer.",
   "domain_not_required_label": "Alan adı olmadan devam et",
   "domain_title": "Bir alan adı ekleyin.",
+  "error": {
+    "availability_check_failed": "Etki alanı kullanılabilirliği kontrol edilemedi",
+    "registration_add_failed": "Etki alanı sepete eklenemedi",
+    "transfer_add_failed": "Ürün sepetine eklenemedi",
+    "transfer_remove_failed": "Sepetten aktarım silinemedi"
+  },
+  "existing": {
+    "add_registration": "Sepete ekle",
+    "add_transfer": "Transfer ekle",
+    "dns_info": "Bu alan adını kullanmak için, mevcut kayıt kuruluşunda alan adının DNS ayarlarını güncellemeniz gerekecektir.",
+    "placeholder": "Kullanmak istediğiniz alan adını bize bildirin.",
+    "register_info": "İyi haber — bu alan adı sadece {price} dolara kayıt edilebilir; bu fiyata {period} kayıt ücreti de dahildir.",
+    "remove_transfer": "Aktarımı kaldır",
+    "transfer_added": "Transfer eklendi",
+    "transfer_info": "Bu alan adının sahibiyseniz, onu bize sadece {price} karşılığında devredebilirsiniz; bu fiyata {period} yenileme ücreti de dahildir. Alternatif olarak, alan adının ad sunucusu (NS) kayıtlarını güncellemeniz gerekecektir.",
+    "unavailable": "Bu alan adı kaydedilemez veya devredilemez."
+  },
   "finding_perfect_domain": "**Mükemmel** alan adınızı bulun",
   "finding_perfect_domain_md": "@.markdown:{'domain.finding_perfect_domain'}",
   "own_domain_qn": "Bu alan adı size mi ait?",
   "owned_domains_title": "Şu anda sahip olduğunuz alan adları",
   "price_renewal_desc": "Tek seferlik fiyat {regularPrice}. | Her yıl {regularPrice} için yenilenir. | Her {count} yılda bir {regularPrice} için yenilenir.",
   "registrant_use_billing_msg": "Fatura bilgileriniz, alan adı kayıt sahibinin iletişim bilgileri olarak kullanılacaktır.",
-  "search": "Alan adlarını arayın",
+  "search": "Arama yapmak için bir alan adı girin",
   "starts_with_domain": "Her şey bir **alan adı** ile başlar",
   "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
   "tld_renewal_price_desc": "Bizim {tld} yenileme fiyatları yalnızca şu fiyattan başlıyor: {currentPrice} (idi {regularPrice}).",

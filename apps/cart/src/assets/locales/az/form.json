@@ -168,6 +168,10 @@
   "stored_payment_method": {
     "label": ""
   },
+  "taxNumber": {
+    "label": "Vergi nömrəsi",
+    "placeholder": "Vergi İD"
+  },
   "twofa": {
     "description": "Bu hesab iki faktorlu identifikasiya ilə qorunur. Zəhmət olmasa, doğrulama kodunuzu daxil edin.",
     "label": "Təsdiqləmə kodu",
