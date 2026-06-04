@@ -589,10 +589,17 @@ export default createMachine(
       }),
 
       ensureBasketModel: assign({
-        model: ({ model, lookups }: DomainContext) => {
-          const domain = get(model, "domain");
+        model: ({ model, baseModel, lookups }: DomainContext) => {
+          // The source state's exit actions run BEFORE this transition action
+          // (XState v4 order: exit → transition → entry), so `existing.exit`'s
+          // `clearModel` will have wiped `model` when changing from existing.
+          // Fall back to `baseModel` — the last persisted user choice — so
+          // we don't lose the user's domain and silently jump to the first
+          // basket item.
+          const effectiveModel = model ?? baseModel;
+          const domain = get(effectiveModel, "domain");
           if (domain && some(lookups.basket, ["domain", domain])) {
-            return model;
+            return effectiveModel;
           }
           const fallback = first(lookups.basket);
           if (fallback) {
