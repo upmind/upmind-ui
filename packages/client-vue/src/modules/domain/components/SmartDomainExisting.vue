@@ -81,12 +81,12 @@
       {{
         transferOptionIsFree
           ? t("domain.existing.transfer_info_free", {
-              renewalPrice: transferPrice ?? "",
+              renewalPrice: renewalPrice ?? transferPrice ?? "",
               term: parseBillingCycle(props.cycle ?? 0).suffix
             })
           : t("domain.existing.transfer_info", {
               transferPrice: transferOptionPrice ?? transferPrice ?? "",
-              renewalPrice: transferPrice ?? "",
+              renewalPrice: renewalPrice ?? transferPrice ?? "",
               term: parseBillingCycle(props.cycle ?? 0).suffix
             })
       }}

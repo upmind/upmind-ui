@@ -19,7 +19,7 @@
   "transfer_extension_info": "Transfers include a one year extension.",
   "transfer_today_info": "You can transfer it to us today.",
   "transfer_free_info": "You can transfer it to us for FREE.",
-  "tld_renewal_info": "Our {tld} renewal prices start from only {renewalPrice}/{term}.",
+  "tld_renewal_info": "Renewals start from {regularPrice}/{term}.",
   "domain_not_required_label": "Continue without domain",
   "choices": {
     "register": {
