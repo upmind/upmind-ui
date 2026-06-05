@@ -84,7 +84,7 @@
   },
   "companyNumber": {
     "label": "Bedrijfsnummer",
-    "placeholder": "Geregistreerde belasting of GST"
+    "placeholder": "Bedrijfsregistratienummer"
   },
   "country": {
     "label": "Land",
@@ -167,6 +167,10 @@
   },
   "stored_payment_method": {
     "label": ""
+  },
+  "taxNumber": {
+    "label": "Geregistreerd belastingnummer",
+    "placeholder": "Fiscaal identificatienummer/btw-nummer"
   },
   "twofa": {
     "description": "Dit account is beveiligd met tweefactorauthenticatie. Voer uw verificatiecode in.",

@@ -16,7 +16,7 @@
   "order_placed": "Ordine confermato",
   "order_placed_msg": "Il tuo ordine è stato confermato. Procedi con il pagamento per completare l'acquisto.",
   "payment_due": "Scadenza del pagamento",
-  "payment_due_msg": "Il tuo ordine è confermato. Pagamento di {amount} è dovuto entro {due_date} .",
+  "payment_due_msg": "Il tuo ordine è confermato. Pagamento di {amount} è dovuto entro {due_date}.",
   "payment_failed_banner": "Il tuo tentativo di pagamento non è andato a buon fine: riprova.",
   "payment_partial": "Pagamento in sospeso",
   "payment_partial_msg": "Ti rimane ancora un {remaining_amount}. Completa il pagamento per finalizzare l'ordine.",

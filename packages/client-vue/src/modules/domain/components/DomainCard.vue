@@ -1,11 +1,17 @@
 <template>
-  <article :class="styles.card.root">
+  <article :class="styles.card.root" :data-exact-match="meta.isExactMatch">
     <header :class="styles.card.header.root">
       <!-- TODO: Add favourite action -->
 
       <div :class="styles.card.header.details.root">
         <section :class="styles.card.header.details.status.root">
+          <Skeleton
+            v-if="meta.isPriceLoading"
+            :class="styles.card.skeleton.status"
+            data-testid="dac-card-status-loading"
+          />
           <small
+            v-else
             :class="styles.card.header.details.status.label"
             role="status"
             aria-label="Domain availability status"
@@ -47,7 +53,7 @@
         >
           <Skeleton
             v-if="meta.isPriceLoading"
-            class="h-4 w-32"
+            :class="styles.card.skeleton.description"
             data-testid="dac-card-description-loading"
           />
           <DomainDescription
@@ -63,7 +69,10 @@
     <footer :class="styles.card.footer.root">
       <template v-if="meta.isPriceLoading">
         <section :class="styles.card.footer.price.root">
-          <Skeleton class="h-6 w-24" data-testid="dac-card-price-loading" />
+          <Skeleton
+            :class="styles.card.skeleton.price"
+            data-testid="dac-card-price-loading"
+          />
         </section>
       </template>
       <template v-else-if="meta.isUnavailable">
@@ -122,11 +131,23 @@
           {{ $t("domain.transfer_owner_question")
           }}<br class="hidden md:block" />
           {{
-            $t("domain.transfer_price_info", {
-              currentPrice: props.price.currentPrice
-            })
+            // Two variants:
+            //   - `transfer_free_info`  — brand-override transfer price is 0
+            //   - `transfer_today_info` — everything else (no override, or
+            //                              override > 0)
+            // Driven off `meta.isTransferFree` (boolean from the helper)
+            // rather than string-matching the formatted "FREE" label, so
+            // any locale's free translation works without code changes.
+            meta.isTransferFree
+              ? $t("domain.transfer_free_info")
+              : $t("domain.transfer_today_info")
           }}<br class="hidden md:block" />
-          {{ $t("domain.transfer_extension_info") }}
+          {{
+            $t("domain.tld_renewal_info", {
+              regularPrice: props.price.regularPrice,
+              term: parseBillingCycle(props.cycle ?? 0).suffix
+            })
+          }}
         </p>
 
         <div class="ml-auto" v-if="isMobile && props.price.savingPercent">
@@ -143,13 +164,15 @@
 
       <Skeleton
         v-if="meta.isPriceLoading"
-        :class="styles.card.footer.button.root"
-        class="button-radius h-11"
+        :class="[
+          styles.card.footer.button.root,
+          styles.card.skeleton.priceButton
+        ]"
         data-testid="dac-card-button-loading"
       />
 
       <Tooltip
-        v-else-if="!meta.isUnavailable"
+        v-else
         :active="!meta.isExactMatch && !isMobile"
         :label="getTooltip"
       >
@@ -224,7 +247,15 @@ const meta = computed(() => ({
   isDiscounted: !!props.discounted,
   isUnavailable: !!props.unavailable,
   isTransferable: !!props.canTransfer,
-  isPriceLoading: !!props.priceLoading
+  isPriceLoading: !!props.priceLoading,
+  // Brand has supplied a custom label for the transfer button via
+  // `meta.overrides.dac.i18n.transfer` — surface it as a disabled button
+  // even when the row is otherwise "unavailable".
+  hasTransferLabel: !!props.transferLabel,
+  // `true` only when the transfer sub-product's `category.price_override`
+  // is set AND its one-off price row is `0`. Drives the "transfer FREE"
+  // vs "transfer today" copy below.
+  isTransferFree: !!props.transferOptionIsFree
 }));
 
 const styles = useStyles(
@@ -236,7 +267,8 @@ const styles = useStyles(
     "card.header.details.title",
     "card.footer",
     "card.footer.price",
-    "card.footer.button"
+    "card.footer.button",
+    "card.skeleton"
   ],
   meta,
   config
@@ -269,6 +301,18 @@ const getIcon = computed(() => {
 });
 
 const getLabel = computed(() => {
+  // Brand-supplied override (e.g. ".com transfer = Unavailable") wins
+  // over the default unavailable copy — but only when the row really IS
+  // unavailable. The transferLabel is set per-TLD/category, so registrable
+  // rows on the same TLD would otherwise inherit it and incorrectly say
+  // "Unavailable" instead of "Add to basket".
+  if (
+    meta.value.hasTransferLabel &&
+    meta.value.isUnavailable &&
+    !meta.value.isAdded
+  ) {
+    return props.transferLabel!;
+  }
   if (meta.value.isUnavailable) {
     return t("text.unavailable");
   } else if (meta.value.isAdded) {
@@ -280,6 +324,13 @@ const getLabel = computed(() => {
 });
 
 const getTooltip = computed(() => {
+  if (
+    meta.value.hasTransferLabel &&
+    meta.value.isUnavailable &&
+    !meta.value.isAdded
+  ) {
+    return props.transferLabel!;
+  }
   if (meta.value.isUnavailable) {
     return t("text.unavailable");
   } else if (meta.value.isProcessing && !meta.value.isAdded) {

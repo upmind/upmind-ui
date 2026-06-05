@@ -1,17 +1,22 @@
 {
+  "basket_placeholder": "Välj en domän",
   "begin_search_above_desc": "Börja din sökning med hjälp av rutan ovan.",
   "choices": {
     "basket": {
-      "label": "Använd domän i varukorgen",
+      "label": "Använd en domän från min varukorg",
       "tooltip": "Dessa domäner finns redan i din varukorg"
     },
     "existing": {
-      "label": "Använd befintlig domän",
+      "label": "Använd en domän som jag redan äger",
       "tooltip": "Du kan använda en befintlig domän genom att uppdatera namnservrarna"
     },
     "register": {
-      "label": "Registrera ny domän",
+      "label": "Registrera en ny domän",
       "tooltip": "Har du inte redan en domän? Registrera en ny hos oss"
+    },
+    "skip": {
+      "label": "Jag bestämmer mig senare",
+      "tooltip": ""
     },
     "transfer": {
       "label": "Överför domän",
@@ -21,22 +26,43 @@
   "domain_description": "Säkra din onlineidentitet idag – det tar bara en minut.",
   "domain_not_required_label": "Fortsätt utan domän",
   "domain_title": "Inkludera ett domännamn.",
+  "error": {
+    "availability_check_failed": "Det gick inte att kontrollera om domänen är ledig",
+    "registration_add_failed": "Det gick inte att lägga till domänen i varukorgen",
+    "transfer_add_failed": "Det gick inte att lägga till överföringen i varukorgen",
+    "transfer_remove_failed": "Det gick inte att ta bort överföringen från varukorgen"
+  },
+  "existing": {
+    "add_registration": "Lägg i varukorgen",
+    "add_transfer": "Lägg till överföring",
+    "dns_info": "För att kunna använda den här domänen måste du uppdatera domänens DNS-inställningar hos din nuvarande webbhotellleverantör.",
+    "placeholder": "Ange vilken domän du vill använda.",
+    "register_info": "Goda nyheter – den här domänen kan registreras för endast {price}, vilket inkluderar en registreringsavgift {period}.",
+    "remove_transfer": "Ta bort överföringen",
+    "transfer_added": "Överföring tillagd",
+    "transfer_info": "Om du äger den här domänen kan du överföra den till oss för endast {transferPrice}. Efterföljande förnyelser kostar {term}. Annars måste du uppdatera domänens namnserveruppgifter (NS).",
+    "transfer_info_free": "Om du äger den här domänen kan du överföra den till oss helt GRATIS. Efterföljande förnyelser kostar {term}. Annars måste du uppdatera domänens namnserveruppgifter (NS).",
+    "unavailable": "Denna domän kan varken registreras eller överföras."
+  },
   "finding_perfect_domain": "Att hitta din **perfekta** domän",
   "finding_perfect_domain_md": "@.markdown:{'domain.finding_perfect_domain'}",
   "own_domain_qn": "Äger du den här domänen?",
   "owned_domains_title": "Domäner som du för närvarande äger",
   "price_renewal_desc": "Engångspris på {regularPrice}. | Förnyas varje år för {regularPrice}. | Förnyas var {count} år för {regularPrice}.",
   "registrant_use_billing_msg": "Dina faktureringsuppgifter kommer att användas som kontaktinformation för domänregistratorn.",
-  "search": "Sök domäner",
+  "search": "Ange en domän att söka efter",
   "starts_with_domain": "Allt börjar med ett **domännamn**",
   "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
+  "tld_renewal_info": "Förnyelserna börjar från {term}.",
   "tld_renewal_price_desc": "Vår {tld} förnyelsepriserna börjar från endast {currentPrice} (var {regularPrice}).",
   "tld_renewal_price_from_desc": "Vår {tld} förnyelsepriserna börjar från endast {regularPrice}.",
   "transfer": "Överföring för endast {currentPrice}.",
   "transfer_domain": "Överför domän",
   "transfer_extension_info": "Överföringarna inkluderar en förlängning på ett år.",
+  "transfer_free_info": "Du kan överföra det till oss helt GRATIS.",
   "transfer_owner_question": "Är du ägare till denna domän?",
   "transfer_price_info": "Du kan överföra det till oss för endast {currentPrice}",
   "transfer_promotion": "Överföring för endast {currentPrice}, vanligtvis {regularPrice}.",
-  "use_details_for": "Använd dessa uppgifter för{domain}"
+  "transfer_today_info": "Du kan överföra beloppet till oss redan idag.",
+  "use_details_for": "Använd dessa uppgifter för {domain}"
 }

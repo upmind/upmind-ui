@@ -1,17 +1,22 @@
 {
+  "basket_placeholder": "Kies een domein",
   "begin_search_above_desc": "Begin uw zoekopdracht met behulp van het vak hierboven.",
   "choices": {
     "basket": {
-      "label": "Gebruik domein in winkelwagen",
+      "label": "Een domein uit mijn winkelmandje gebruiken",
       "tooltip": "Deze domeinen zitten al in uw winkelmandje"
     },
     "existing": {
-      "label": "Gebruik bestaand domein",
+      "label": "Een domein gebruiken dat ik al heb",
       "tooltip": "U kunt een bestaand domein gebruiken door de naamservers bij te werken"
     },
     "register": {
-      "label": "Registreer een nieuw domein",
+      "label": "Een nieuw domein registreren",
       "tooltip": "Heeft u nog geen domein? Registreer er dan een bij ons."
+    },
+    "skip": {
+      "label": "Dat beslis ik later wel",
+      "tooltip": ""
     },
     "transfer": {
       "label": "Domein overdragen",
@@ -21,22 +26,43 @@
   "domain_description": "Beveilig vandaag nog uw online identiteit – het kost maar een minuut.",
   "domain_not_required_label": "Doorgaan zonder domein",
   "domain_title": "Voeg een domeinnaam toe.",
+  "error": {
+    "availability_check_failed": "Het is niet gelukt om de beschikbaarheid van het domein te controleren",
+    "registration_add_failed": "Het is niet gelukt om het domein aan het winkelmandje toe te voegen",
+    "transfer_add_failed": "Het toevoegen van de overboeking aan het winkelmandje is mislukt",
+    "transfer_remove_failed": "Het verwijderen van de overboeking uit het winkelmandje is mislukt"
+  },
+  "existing": {
+    "add_registration": "In winkelwagen",
+    "add_transfer": "Overboeking toevoegen",
+    "dns_info": "Om dit domein te kunnen gebruiken, moet u de DNS-instellingen van het domein bij de huidige registrar aanpassen.",
+    "placeholder": "Geef aan welk domein u wilt gebruiken.",
+    "register_info": "Goed nieuws: dit domein is te registreren voor slechts {price}, inclusief een registratie {period}.",
+    "remove_transfer": "Overdracht verwijderen",
+    "transfer_added": "Overdracht toegevoegd",
+    "transfer_info": "Als u eigenaar bent van dit domein, kunt u het voor slechts {transferPrice} naar ons overdragen. Volgende verlengingen kosten {term}. Als alternatief moet u de nameserver-records (NS) van het domein aanpassen.",
+    "transfer_info_free": "Als u de eigenaar bent van dit domein, kunt u het GRATIS naar ons overdragen. Voor latere verlengingen wordt {term} in rekening gebracht. Als alternatief moet u de nameserver-records (NS) van het domein aanpassen.",
+    "unavailable": "Dit domein kan niet worden geregistreerd of overgedragen."
+  },
   "finding_perfect_domain": "Het vinden van uw **perfecte** domein",
   "finding_perfect_domain_md": "@.markdown:{'domain.finding_perfect_domain'}",
   "own_domain_qn": "Bent u de eigenaar van dit domein?",
   "owned_domains_title": "Domeinen die u momenteel bezit",
   "price_renewal_desc": "Eenmalige prijs van {regularPrice}. | Wordt elk jaar verlengd voor {regularPrice}. | Wordt elke {count} jaar verlengd voor {regularPrice}.",
   "registrant_use_billing_msg": "Uw factuurgegevens worden gebruikt als contactgegevens voor de domeinregistratie.",
-  "search": "Zoekdomeinen",
+  "search": "Voer een domeinnaam in om te zoeken",
   "starts_with_domain": "Het begint allemaal met een **domeinnaam**",
   "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
+  "tld_renewal_info": "Verlengingen zijn al verkrijgbaar vanaf {term}.",
   "tld_renewal_price_desc": "Ons {tld} verlengingsprijzen beginnen vanaf slechts {currentPrice} (was {regularPrice}).",
   "tld_renewal_price_from_desc": "Ons {tld} verlengingsprijzen beginnen vanaf slechts {regularPrice}.",
   "transfer": "Overdracht voor slechts {currentPrice}.",
   "transfer_domain": "Domein overdragen",
   "transfer_extension_info": "Overdrachten omvatten een verlenging van één jaar.",
+  "transfer_free_info": "Je kunt het GRATIS naar ons overmaken.",
   "transfer_owner_question": "Bent u de eigenaar van dit domein?",
   "transfer_price_info": "U kunt het voor slechts {currentPrice}",
   "transfer_promotion": "Overdracht voor slechts {currentPrice}, gewoonlijk {regularPrice}.",
-  "use_details_for": "Gebruik deze gegevens voor{domain}"
+  "transfer_today_info": "U kunt het vandaag nog naar ons overmaken.",
+  "use_details_for": "Gebruik deze gegevens voor {domain}"
 }

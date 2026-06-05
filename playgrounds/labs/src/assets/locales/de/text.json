@@ -72,7 +72,7 @@
   "tax_valid": "Validiert {relative}",
   "term": "Begriff",
   "terms_and_conditions": "Geschäftsbedingungen",
-  "terms_and_conditions_desc": "Durch Klicken auf „{label}„, stimme ich zu, {action} von {brand} .",
+  "terms_and_conditions_desc": "Durch Klicken auf „{label}„, stimme ich zu, {action} von {brand}.",
   "terms_of_service": "Servicebedingungen",
   "total": "Gesamt",
   "welcome_back_msg": "Willkommen zurück, {name}"

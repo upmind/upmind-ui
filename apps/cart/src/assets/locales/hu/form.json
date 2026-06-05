@@ -84,7 +84,7 @@
   },
   "companyNumber": {
     "label": "Cégjegyzékszám",
-    "placeholder": "Regisztrált adó vagy GST"
+    "placeholder": "Cégazonosító szám"
   },
   "country": {
     "label": "Ország",
@@ -167,6 +167,10 @@
   },
   "stored_payment_method": {
     "label": ""
+  },
+  "taxNumber": {
+    "label": "Adószám",
+    "placeholder": "Adószám/ÁFA-szám/GST-szám"
   },
   "twofa": {
     "description": "Ez a fiók kétfaktoros hitelesítéssel van védve. Kérjük, adja meg az ellenőrző kódját.",

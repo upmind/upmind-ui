@@ -9,7 +9,7 @@
     "node": "^20.19.0 || >=22.12.0"
   },
   "scripts": {
-    "clean": "rm -rf node_modules dist storybook-static *.tsbuildinfo",
+    "reset": "rm -rf node_modules dist storybook-static *.tsbuildinfo",
     "start": "pnpm run storybook",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"

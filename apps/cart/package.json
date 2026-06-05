@@ -1,7 +1,7 @@
 {
   "name": "@upmind-automation/cart",
   "private": true,
-  "version": "0.18.0",
+  "version": "0.18.1",
   "description": "Bespoke Vue.js, e-commerce platform built on the Upmind platform",
   "keywords": [
     "Upmind",
@@ -23,7 +23,7 @@
     "node": "^20.19.0 || >=22.12.0"
   },
   "scripts": {
-    "clean": "rm -rf {node_modules,dist,*.tsbuildinfo}",
+    "reset": "rm -rf {node_modules,dist,*.tsbuildinfo}",
     "start": "pnpm dev",
     "start:test": "vite --mode test",
     "dev": "vite",

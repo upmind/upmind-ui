@@ -16,7 +16,7 @@
   "order_placed": "Pedido confirmado",
   "order_placed_msg": "Tu pedido ha sido confirmado. Continúa con el pago para completar tu compra.",
   "payment_due": "Vencimiento del pago",
-  "payment_due_msg": "Su pedido está confirmado. Pago de {amount} vence el {due_date} .",
+  "payment_due_msg": "Su pedido está confirmado. Pago de {amount} vence el {due_date}.",
   "payment_failed_banner": "Tu intento de pago no se ha realizado correctamente. Inténtalo de nuevo.",
   "payment_partial": "Pago pendiente",
   "payment_partial_msg": "Tienes {remaining_amount} restante. Por favor, complete su pago para finalizar su pedido.",

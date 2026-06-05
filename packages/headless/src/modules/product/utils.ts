@@ -43,6 +43,7 @@ import {
   split,
   subtract,
   toNumber,
+  toString,
   trim,
   trimStart,
   uniq,
@@ -820,8 +821,10 @@ export const parseSubproductDetails = (
   // And with each category having a list of attributes
   // so to do this we have to do the following:
 
-  // 0. sort the data by attached_order for further lookups
-  const sorted = orderBy(data, "attached_order");
+  // 0. sort the data by `pivot.order` (the canonical sort field on
+  // IProductOption / IProductAttribute) so downstream `first(values)`
+  // picks the same default the configurator and add-to-basket flows would.
+  const sorted = orderBy(data, "pivot.order");
 
   // then reduce the sorted data, creating a new object keyed by the category id
   // with the parsed data as the values
@@ -1424,8 +1427,16 @@ export const parseProductProps = (
 
   // The API often returns attributes under `raw.attributes` (mirroring
   // `raw.options`); fall back so we don't silently miss preselections.
+  // `attributes` isn't on `IProduct` but the BE sometimes echoes it
+  // back as a duplicate of `products_attributes` — a local intersection
+  // type narrows the read site without polluting `IProduct`.
+  const rawWithAttributeEcho = raw as IProduct & {
+    attributes?: IProductAttribute[];
+  };
   const rawAttributes =
-    raw.products_attributes ?? (raw as any).attributes ?? [];
+    rawWithAttributeEcho.products_attributes ??
+    rawWithAttributeEcho.attributes ??
+    [];
   const matchedAttributes = filter(rawAttributes, attribute =>
     data?.subproducts?.includes(attribute.id)
   ) as IProductAttribute[];
@@ -1444,80 +1455,6 @@ export const parseProductProps = (
     attributes: merge({}, attributes, data?.attributes),
     provisionFields: data.provisionFields || {},
     startTrial: data?.startTrial
-  };
-};
-
-/**
- * For each *required* option/attribute category on `raw` where the model
- * has no selection, fills in the first choice (lowest `pivot.order`) so
- * the basket API doesn't reject the request for missing required groups.
- *
- * No-op for non-required categories or categories that already have an
- * entry in the model. Returns a new model — `model` is not mutated.
- */
-export const fillRequiredOptionDefaults = <T extends ProductModel>(
-  model: T,
-  raw?: IProduct
-): T => {
-  if (!raw) return model;
-
-  const filledOptions: SubproductModel = { ...(model.options ?? {}) };
-  const filledAttributes: SubproductModel = { ...(model.attributes ?? {}) };
-
-  const fillFrom = (
-    items: (IProductOption | IProductAttribute)[] | undefined,
-    bucket: SubproductModel
-  ) => {
-    if (isEmpty(items)) return;
-
-    // Group required-category items by their category_id
-    const byCategory = reduce(
-      items,
-      (acc: Record<string, (IProductOption | IProductAttribute)[]>, item) => {
-        const categoryId = item?.category_id;
-        if (!categoryId || !item?.category?.required) return acc;
-        (acc[categoryId] ??= []).push(item);
-        return acc;
-      },
-      {}
-    );
-
-    forEach(byCategory, (entries, categoryId) => {
-      // Skip categories that already have a selection in the model
-      if (!isEmpty(bucket[categoryId])) return;
-
-      const firstChoice = orderBy(entries, ["pivot.order"], ["asc"])[0];
-      if (!firstChoice?.id) return;
-
-      bucket[categoryId] = {
-        [firstChoice.id]: {
-          productId: firstChoice.id,
-          quantity: parseQuantity(
-            firstChoice.unit_quantity,
-            parseProductDetails(firstChoice)
-          ),
-          cycle: resolveSubproductCycle(firstChoice, model.term)
-        }
-      };
-    });
-  };
-
-  fillFrom(
-    (raw.products_options ?? raw.options) as IProductOption[] | undefined,
-    filledOptions
-  );
-  // Same fallback as parseProductProps — API can return either field name.
-  fillFrom(
-    (raw.products_attributes ?? (raw as any).attributes) as
-      | IProductAttribute[]
-      | undefined,
-    filledAttributes
-  );
-
-  return {
-    ...model,
-    options: filledOptions,
-    attributes: filledAttributes
   };
 };
 
@@ -1724,7 +1661,7 @@ export function parseBillingCycle(months: number) {
         descriptive: t("term.n_months", months), // month
         monthly: t("term.n_months", months), // month
         suffix: t("term.n_mo", months), // mo
-        numeric: t("term.n_month", { n: months.toString() }) // 1-month
+        numeric: t("term.n_month", { n: toString(months) }) // 1-month
       };
     case 3:
       return {
@@ -1732,7 +1669,7 @@ export function parseBillingCycle(months: number) {
         descriptive: t("term.n_months", months), // 3 months
         monthly: t("term.n_months", months), // 3 months
         suffix: t("term.n_mo", months), // 3mo
-        numeric: t("term.n_month", { n: months.toString() }) // 3-month
+        numeric: t("term.n_month", { n: toString(months) }) // 3-month
       };
     case 6:
       return {
@@ -1740,7 +1677,7 @@ export function parseBillingCycle(months: number) {
         descriptive: t("term.n_months", months), // 6 months
         monthly: t("term.n_months", months), // 6 months
         suffix: t("term.n_mo", months), // 6mo
-        numeric: t("term.n_month", { n: months.toString() }) // 6-month
+        numeric: t("term.n_month", { n: toString(months) }) // 6-month
       };
     case 12:
       return {
@@ -1802,7 +1739,7 @@ export function parseBillingCycle(months: number) {
         descriptive: t("term.n_months", months), // {n} months
         monthly: t("term.n_months", months), // {n} months
         suffix: t("term.n_mo", months), // {n}mo
-        numeric: t("term.n_month", { n: months.toString() }) // {n}-month
+        numeric: t("term.n_month", { n: toString(months) }) // {n}-month
       };
   }
 }

@@ -110,7 +110,6 @@
 <script lang="ts" setup>
 // --- external
 import { computed, onUnmounted, ref, watch } from "vue";
-import { defineAsyncComponent } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -130,10 +129,10 @@ import { DEBOUNCE_DELAY } from "@upmind-automation/headless";
 import { debounce } from "lodash-es";
 
 //  --- templates
+import DomainDrawerTemplate from "./templates/DomainDrawer.template.vue";
+
 const supportedTemplates = {
-  [DOMAIN_TEMPLATE.DRAWER]: defineAsyncComponent(
-    () => import("./templates/DomainDrawer.template.vue")
-  )
+  [DOMAIN_TEMPLATE.DRAWER]: DomainDrawerTemplate
 };
 
 // --- types

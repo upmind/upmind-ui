@@ -1,17 +1,22 @@
 {
+  "basket_placeholder": "Pilih domain",
   "begin_search_above_desc": "Mulailah pencarian Anda menggunakan kotak di atas.",
   "choices": {
     "basket": {
-      "label": "Gunakan domain di keranjang",
+      "label": "Gunakan domain dari keranjang belanja saya",
       "tooltip": "Domain ini sudah ada di keranjang Anda"
     },
     "existing": {
-      "label": "Gunakan domain yang ada",
+      "label": "Gunakan domain yang sudah saya miliki",
       "tooltip": "Anda dapat menggunakan domain yang sudah ada dengan memperbarui nameserver"
     },
     "register": {
       "label": "Daftarkan domain baru",
       "tooltip": "Belum punya domain? Daftarkan domain baru bersama kami."
+    },
+    "skip": {
+      "label": "Aku akan memutuskan nanti",
+      "tooltip": ""
     },
     "transfer": {
       "label": "Transfer domain",
@@ -21,22 +26,43 @@
   "domain_description": "Amankan identitas online Anda hari ini – hanya butuh satu menit.",
   "domain_not_required_label": "Lanjutkan tanpa domain",
   "domain_title": "Sertakan nama domain.",
+  "error": {
+    "availability_check_failed": "Gagal memeriksa ketersediaan domain",
+    "registration_add_failed": "Gagal menambahkan domain ke keranjang",
+    "transfer_add_failed": "Gagal menambahkan transfer ke keranjang",
+    "transfer_remove_failed": "Gagal menghapus transfer dari keranjang"
+  },
+  "existing": {
+    "add_registration": "Tambahkan ke keranjang",
+    "add_transfer": "Tambahkan transfer",
+    "dns_info": "Untuk menggunakan domain ini, Anda perlu memperbarui pengaturan DNS domain tersebut melalui penyedia layanan pendaftaran domain yang bersangkutan.",
+    "placeholder": "Beritahu kami domain yang ingin Anda gunakan.",
+    "register_info": "Kabar baik — domain ini bisa didaftarkan hanya dengan {price}, yang sudah termasuk biaya pendaftaran {period}.",
+    "remove_transfer": "Hapus transfer",
+    "transfer_added": "Transfer telah ditambahkan",
+    "transfer_info": "Jika Anda memiliki domain ini, Anda dapat mentransfernya kepada kami hanya dengan {transferPrice}. Biaya perpanjangan selanjutnya sebesar {term}. Atau, Anda perlu memperbarui catatan nameserver (NS) domain tersebut.",
+    "transfer_info_free": "Jika Anda pemilik domain ini, Anda dapat mentransfernya ke kami secara GRATIS. Biaya perpanjangan selanjutnya sebesar {term}. Atau, Anda perlu memperbarui catatan nameserver (NS) domain tersebut.",
+    "unavailable": "Domain ini tidak dapat didaftarkan atau dipindahkan."
+  },
   "finding_perfect_domain": "Menemukan domain **sempurna** Anda",
   "finding_perfect_domain_md": "@.markdown:{'domain.finding_perfect_domain'}",
   "own_domain_qn": "Apakah Anda pemilik domain ini?",
   "owned_domains_title": "Domain yang saat ini Anda miliki",
   "price_renewal_desc": "Harga satu kali sebesar {regularPrice}. | Diperbarui setiap tahun sebesar {regularPrice}. | Diperbarui setiap {count} tahun sebesar {regularPrice}.",
   "registrant_use_billing_msg": "Rincian penagihan Anda akan digunakan sebagai informasi kontak pendaftar domain.",
-  "search": "Cari domain",
+  "search": "Masukkan nama domain untuk mencari",
   "starts_with_domain": "Semuanya dimulai dengan **nama domain**",
   "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
+  "tld_renewal_info": "Perpanjangan dimulai dari {term}.",
   "tld_renewal_price_desc": "Kita {tld} harga perpanjangan mulai dari hanya {currentPrice} (adalah {regularPrice}).",
   "tld_renewal_price_from_desc": "Kita {tld} harga perpanjangan mulai dari hanya {regularPrice}.",
   "transfer": "Transfer hanya untuk {currentPrice}.",
   "transfer_domain": "Pindah domain",
   "transfer_extension_info": "Transfer termasuk perpanjangan selama satu tahun.",
+  "transfer_free_info": "Anda dapat mentransfernya kepada kami secara GRATIS.",
   "transfer_owner_question": "Apakah Anda pemilik domain ini?",
   "transfer_price_info": "Anda dapat mentransfernya kepada kami dengan biaya hanya {currentPrice}",
   "transfer_promotion": "Transfer hanya untuk {currentPrice}, biasanya {regularPrice}.",
-  "use_details_for": "Gunakan detail ini untuk{domain}"
+  "transfer_today_info": "Anda bisa mentransfernya kepada kami hari ini.",
+  "use_details_for": "Gunakan detail ini untuk {domain}"
 }

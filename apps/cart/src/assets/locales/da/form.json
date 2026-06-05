@@ -84,7 +84,7 @@
   },
   "companyNumber": {
     "label": "Firmanummer",
-    "placeholder": "Registreret skat eller moms"
+    "placeholder": "Virksomhedsidentifikationsnummer"
   },
   "country": {
     "label": "Land",
@@ -167,6 +167,10 @@
   },
   "stored_payment_method": {
     "label": ""
+  },
+  "taxNumber": {
+    "label": "Registreret skatteidentifikationsnummer",
+    "placeholder": "Skatteregistreringsnummer/Momsnummer/GST-nummer"
   },
   "twofa": {
     "description": "Denne konto er sikret med tofaktorgodkendelse. Indtast venligst din bekræftelseskode.",
