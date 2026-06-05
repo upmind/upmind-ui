@@ -144,14 +144,7 @@
 
 <script lang="ts" setup>
 // --- external
-import {
-  computed,
-  defineAsyncComponent,
-  onUnmounted,
-  provide,
-  ref,
-  watch
-} from "vue";
+import { computed, onUnmounted, provide, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
 
@@ -195,19 +188,16 @@ import { ORDER_TEMPLATE } from "./types";
 import type { OrderProps } from "./types";
 
 //  --- templates
+import OrderFullTemplate from "./templates/OrderFull.template.vue";
+import OrderLTRTemplate from "./templates/OrderLTR.template.vue";
+import OrderRTLTemplate from "./templates/OrderRTL.template.vue";
+import OrderEnclosedTemplate from "./templates/OrderEnclosed.template.vue";
+
 const supportedTemplates = {
-  [ORDER_TEMPLATE.FULL]: defineAsyncComponent(
-    () => import("./templates/OrderFull.template.vue")
-  ),
-  [ORDER_TEMPLATE.TWO_COLUMN_LTR]: defineAsyncComponent(
-    () => import("./templates/OrderLTR.template.vue")
-  ),
-  [ORDER_TEMPLATE.TWO_COLUMN_RTL]: defineAsyncComponent(
-    () => import("./templates/OrderRTL.template.vue")
-  ),
-  [ORDER_TEMPLATE.ENCLOSED]: defineAsyncComponent(
-    () => import("./templates/OrderEnclosed.template.vue")
-  )
+  [ORDER_TEMPLATE.FULL]: OrderFullTemplate,
+  [ORDER_TEMPLATE.TWO_COLUMN_LTR]: OrderLTRTemplate,
+  [ORDER_TEMPLATE.TWO_COLUMN_RTL]: OrderRTLTemplate,
+  [ORDER_TEMPLATE.ENCLOSED]: OrderEnclosedTemplate
 };
 
 const props = defineProps<OrderProps>();

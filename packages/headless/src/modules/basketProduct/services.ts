@@ -27,7 +27,8 @@ import {
 import {
   parseBasketProductData,
   parseBasketProductError,
-  parsePromotionsOrCoupons
+  parsePromotionsOrCoupons,
+  reconcileProvisionFields
 } from "./utils";
 
 import {
@@ -537,10 +538,12 @@ async function generateBasket(products: IBasketProductModel[] = []) {
  */
 async function update({
   basketId,
-  model
+  model,
+  baseModel
 }: {
   basketId: string;
   model: ProductProps;
+  baseModel?: ProductProps;
 }): Promise<IBasket> {
   const { t } = useI18n();
   const { put, post, useUrl } = useQuery();
@@ -554,7 +557,10 @@ async function update({
 
   const isNew = !model?.id;
 
-  const product = parseBasketProductData(model, isNew);
+  const product = parseBasketProductData(
+    reconcileProvisionFields(model, baseModel),
+    isNew
+  );
 
   // ---
 
@@ -923,12 +929,13 @@ export default {
   // ---
   update: async (
     basketId: IBasket["id"] | undefined | null,
-    model: ProductProps
+    model: ProductProps,
+    baseModel?: ProductProps
   ): Promise<IBasket> => {
     return new Promise((resolve, reject) =>
       queue.addItem({
         type: "UPDATE",
-        data: { basketId, model },
+        data: { basketId, model, baseModel },
         resolve: (rawBasket: IBasket) => resolve(onUpdateResolved(rawBasket)),
         reject
       })

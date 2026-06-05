@@ -31,6 +31,16 @@ export class ProductConfig {
   readonly optionsContainer: Locator;
   readonly billingTerms: Locator;
   readonly options: Locator;
+
+  /* Domain Radio Options (new radio-based UI) */
+  readonly domainRadioSkip: Locator;
+  readonly domainRadioRegister: Locator;
+  readonly domainRadioExisting: Locator;
+  readonly domainRadioBasket: Locator;
+  readonly domainRadioInput: Locator;
+  readonly domainExistingInput: Locator;
+
+  /* Domain Accordion Options (legacy - deprecated) */
   readonly domainRegister: Locator;
   readonly domainRegisterInput: Locator;
   readonly domainTransfer: Locator;
@@ -118,6 +128,26 @@ export class ProductConfig {
     );
     this.billingTerms = page.getByTestId("form-item-term");
     this.options = page.getByTestId("options-container-options");
+
+    /* Domain Radio Options (new radio-based UI) */
+    this.domainRadioSkip = page.getByRole("radio", {
+      name: /I'll decide later/i
+    });
+    this.domainRadioRegister = page.getByRole("radio", {
+      name: /Register a new domain/i
+    });
+    this.domainRadioExisting = page.getByRole("radio", {
+      name: /Use a domain I already own/i
+    });
+    this.domainRadioBasket = page.getByRole("radio", {
+      name: /Use a domain from my basket/i
+    });
+    this.domainRadioInput = page.getByPlaceholder(/Enter a domain to search/i);
+    this.domainExistingInput = page.getByPlaceholder(
+      /Tell us the domain you want to use/i
+    );
+
+    /* Domain Accordion Options (legacy - deprecated) */
     this.domainRegister = page.getByTestId("accordion-item-register");
     this.domainRegisterInput = page
       .getByTestId("form-item-dac-register")
@@ -256,6 +286,39 @@ export class ProductConfig {
     await this.lineclamp.clickLineclamp();
   }
 
+  /**
+   * Enter a domain using the new radio-based domain field UI.
+   * Clicks the appropriate radio option and fills the domain input.
+   *
+   * @param option - The domain option: "register" | "existing" | "skip" | "basket"
+   * @param domainName - The domain name to enter (required for "register" and "existing")
+   */
+  async enterDomainRadio(
+    option: "register" | "existing" | "skip" | "basket",
+    domainName?: string
+  ) {
+    const radioLocators: Record<string, Locator> = {
+      register: this.domainRadioRegister,
+      existing: this.domainRadioExisting,
+      skip: this.domainRadioSkip,
+      basket: this.domainRadioBasket
+    };
+
+    const radio = radioLocators[option];
+    await radio.click();
+
+    if (option === "register" && domainName) {
+      // For register: fill the inline input that appears after selecting the radio
+      await this.domainRadioInput.fill(domainName);
+    } else if (option === "existing" && domainName) {
+      // For existing: fill the SmartDomainExisting input
+      await this.domainExistingInput.fill(domainName);
+    }
+  }
+
+  /**
+   * @deprecated Use enterDomainRadio() instead - the accordion-based UI has been replaced with radio buttons.
+   */
   async enterDomain(option: string, domainName: string) {
     const radioOption = this.accordion.getAccordion(option);
     await radioOption.click();

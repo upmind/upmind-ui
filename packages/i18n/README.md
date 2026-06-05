@@ -82,10 +82,12 @@ _NB: This may need to be run several times to catch all instances._
 
 ```regex
 Find:
-([a-zA-Z0-9\)\]\}])\{
+([a-zA-Z0-9)}])\{
 Replace:
 $1 {
 ```
+
+> **BSD sed gotcha (macOS):** the more "complete" class `[a-zA-Z0-9\)\]\}]` silently no-ops under BSD sed — `\]` is parsed as closing the character class, so the pattern matches nothing. Stick to `[a-zA-Z0-9)}]` (drop `]` and the backslash escapes). If you ever need `]` in the class, put it first: `[]a-zA-Z0-9)}]`.
 
 **Add space after `}` inside JSON string values**
 
@@ -122,7 +124,24 @@ $1'
 
 ### Spaces before periods and commas
 
-Ensure there are no spaces before periods `.` and commas `,` in your translations.
+Ensure there are no spaces before periods `.` and commas `,` in your translations. **Pay particular attention to `} .` and `) .` patterns** — Localazy frequently introduces a stray space after a closing brace or paren (e.g. `Payment of {amount} is due {due_date} .`). A `\w`-based regex misses these; use `\S` instead.
+
+**Find (catches all cases, including after `}` and `)`):**
+
+```regex
+": "[^"]*\S +[.,]
+```
+
+**Targeted fix for the common Localazy bug:**
+
+```regex
+Find:
+\} +([.,])
+Replace:
+}$1
+```
+
+**Broader fix (any space-before-punctuation):**
 
 ```regex
 Find:
@@ -131,9 +150,11 @@ Replace:
 $1
 ```
 
-Description:
+**Expected false positives** (leave them alone):
 
-This matches one or more spaces immediately before a period or comma and removes them.
+* `.{tld}` — leading dot of a TLD placeholder in domain pricing copy.
+* ` ...` ellipsis after a word — typographic spacing in some locales.
+
 How to use:
 
 Open Find/Replace in VS Code.

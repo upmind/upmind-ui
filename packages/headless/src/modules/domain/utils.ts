@@ -6,10 +6,17 @@ import type { Ref } from "vue";
 
 // --- internals
 import { useBrand } from "../brand";
-import { calculateBillingTerm, parseProductProps } from "../product/utils";
+import { useI18n, useLocale } from "../system";
+import {
+  calculateBillingTerm,
+  parseProductDetails,
+  parseProductProps,
+  parseTermDetails
+} from "../product/utils";
+import services from "./services";
+import { isAbortError } from "../query";
 
 // --- utils
-import { parseProductDetails, parseTermDetails } from "../product/utils";
 import {
   compact,
   filter,
@@ -20,22 +27,135 @@ import {
   isEmpty,
   isObject,
   map,
+  some,
   sortBy,
   uniqBy
 } from "lodash-es";
 
 // --- types
 import {
+  BrandConfigKeys,
+  DomainSearchMethod,
   type IBasketProduct,
   type IBlueprint,
   type IDomainSuggestionResult,
   type IDomainSuggestionResultProduct,
   type IProduct,
+  type IProductPrice,
   ProvisionCategoryCodes
 } from "@upmind-automation/types";
 import type { BasketProduct } from "../basketProduct";
-import type { DomainProduct, DomainModel } from "./types";
-import { type ProductProps } from "../product";
+import {
+  DomainMode,
+  DomainTypes,
+  type DacContext,
+  type DacEventContext,
+  type DomainProduct,
+  type DomainModel
+} from "./types";
+import { type ProductDetails } from "../product";
+
+// ----------------------------------------------------------------------------
+
+/**
+ * Defaults for the required `ProductDetails` fields that placeholder /
+ * fallback domain rows don't carry (no full `IProduct` to parse from).
+ * Keeping the defaults in one place stops every literal from drifting on
+ * what counts as "minimum viable product details" for a placeholder row.
+ */
+export function makePlaceholderProductDetails(overrides: {
+  domain: string;
+  name?: string;
+  id?: string;
+}): ProductDetails {
+  return {
+    id: overrides.id ?? "",
+    title: overrides.domain,
+    name: overrides.name ?? "",
+    brand: "",
+    categoryId: "",
+    category: "",
+    cycle: 12,
+    quantifiable: false,
+    quantity: 1,
+    step: 1,
+    min: 1,
+    max: 1
+  };
+}
+
+// ----------------------------------------------------------------------------
+
+/**
+ * Merges a freshly-emitted batch of search results into the previously-rendered
+ * list, by `domain`. Three upstream emit scenarios drive the rules:
+ *
+ *  1. Within one search round, `/suggestions` emits `priceLoading` rows and
+ *     `/suggestions/tlds` re-emits the same rows priced — the row must
+ *     upgrade in-place so the UI re-renders skeletons → real prices.
+ *  2. `/availability` resolves after `/suggestions` and produces an
+ *     authoritative version of the exact-match row (with
+ *     `checkedAvailability=true`). It must replace the suggestion-derived
+ *     version even when both are "priced".
+ *  3. Pagination (Load more) emits the next page; existing rows must NOT
+ *     change. If the API happens to return overlapping domains in a later
+ *     page, keep the already-loaded version.
+ *
+ * Rule: replace an existing row when the incoming row is **strictly fresher**:
+ *   - `priceLoading` → not `priceLoading` (price upgrade), OR
+ *   - `!checkedAvailability` → `checkedAvailability` (availability upgrade).
+ *
+ * Otherwise leave the existing row alone. Truly new domains are appended.
+ *
+ * Pure — both inputs must be pre-flagged (owned/added/disabled etc.) by
+ * the caller; this function only resolves the merge ordering.
+ */
+export function mergeDomainSearchResults(
+  previous: DomainProduct[],
+  available: DomainProduct[]
+): DomainProduct[] {
+  const updatedPrevious = map(previous, (prev: DomainProduct) => {
+    const fresher = find(available, ["domain", prev.domain]);
+    if (!fresher) return prev;
+    const isPriceUpgrade =
+      !!prev.meta?.priceLoading && !fresher.meta?.priceLoading;
+    const isAvailabilityUpgrade =
+      !prev.meta?.checkedAvailability && !!fresher.meta?.checkedAvailability;
+    return (
+      isPriceUpgrade || isAvailabilityUpgrade ? fresher : prev
+    ) as DomainProduct;
+  });
+
+  const newOnly = filter(
+    available,
+    (item: DomainProduct) => !find(previous, ["domain", item.domain])
+  ) as DomainProduct[];
+
+  return compact([...updatedPrevious, ...newOnly]);
+}
+
+// ----------------------------------------------------------------------------
+
+/**
+ * Resolves the brand's domain-search flow from `DOMAIN_SEARCH_METHOD`.
+ *
+ * Falls back to `LEGACY_LOOKUP` so the legacy `/domains/search` path
+ * runs by default — the new `/suggestions` + `/suggestions/tlds` flow
+ * only kicks in when the brand explicitly opts into `SMART_SUGGEST`.
+ *
+ * Single source of truth for both `useDomain` (parent) and `useDac`
+ * (child), so the flag derivation can't drift between entry points.
+ */
+export function useDomainSearchMethod() {
+  const { getConfigValue } = useBrand();
+
+  const searchMethod =
+    getConfigValue<DomainSearchMethod>(BrandConfigKeys.DOMAIN_SEARCH_METHOD) ??
+    DomainSearchMethod.LEGACY_LOOKUP;
+  const useSuggestions = searchMethod === DomainSearchMethod.SMART_SUGGEST;
+
+  return { searchMethod, useSuggestions };
+}
 
 // ----------------------------------------------------------------------------
 
@@ -47,7 +167,7 @@ import { type ProductProps } from "../product";
  * Priority: 12-month → preferred cycle → lowest term.
  */
 export function buildFallbackPricing(
-  prices: any[],
+  prices: IProductPrice[],
   preferredCycle?: number
 ): { price: DomainProduct["price"]; billingCycleMonths: number } {
   const sortedPrices = sortBy(prices, "billing_cycle_months");
@@ -78,6 +198,206 @@ export function buildFallbackPricing(
 // ----------------------------------------------------------------------------
 
 /**
+ * Returns true if the product is actually configured for transfer — i.e.
+ * the basket POST will have at least one `sub_pid` to send. Two product
+ * shapes are supported:
+ *
+ *   1. **Bundle product** — one product carries both modes via
+ *      `setup_function_sub_ids: { register: [...], transfer: [...] }`. The
+ *      transfer key must be a non-empty array.
+ *   2. **Single-mode transfer product** — `setup_function_name === "transfer"`
+ *      and `sub_product_id` IS the transfer sub_pid. Some BE configurations
+ *      return this shape from `/availability` (no `setup_function_sub_ids`
+ *      at all) — e.g. a `.com` product with `setup_function_name: "transfer"`
+ *      and a populated `sub_product_id`. Treating these as non-transferable
+ *      would block legitimate transfers.
+ *
+ * When neither holds, the basket POST has nothing to send for transfer →
+ * the caller must treat the row as non-transferable.
+ */
+export function hasTransferSetup(
+  product?: {
+    setup_function_sub_ids?: { transfer?: string[] };
+    setup_function_name?: string;
+    sub_product_id?: string;
+  } | null
+): boolean {
+  const transferIds = product?.setup_function_sub_ids?.transfer;
+  if (Array.isArray(transferIds) && transferIds.length > 0) return true;
+  if (
+    product?.setup_function_name === "transfer" &&
+    !!product?.sub_product_id
+  ) {
+    return true;
+  }
+  return false;
+}
+
+/**
+ * Brand/product owners can disable transfer for a specific TLD (or an entire
+ * category) by setting `meta.overrides.dac.canTransfer: false` on the product
+ * or its category. When that flag is present and false, ignore whatever the
+ * `/availability` API returns for `can_transfer` and treat the domain as
+ * non-transferable.
+ *
+ * Only a literal `false` blocks — `undefined` / missing means "no override,
+ * use the API value as-is".
+ *
+ * Also gates on `hasTransferSetup`: a product whose `setup_function_sub_ids`
+ * has no `transfer` entry can't actually be transferred (no sub_pids to send),
+ * so any `can_transfer: true` from the API is treated as `false`.
+ */
+export function applyDacTransferOverride(
+  canTransfer: boolean | undefined,
+  product?: {
+    meta?: IProduct["meta"];
+    category?: IProduct["category"] | null;
+    setup_function_sub_ids?: { transfer?: string[] };
+    setup_function_name?: string;
+    sub_product_id?: string;
+  } | null
+): boolean {
+  if (!product) return !!canTransfer;
+  const productOverride = product.meta?.overrides?.dac?.canTransfer;
+  const categoryOverride = product.category?.meta?.overrides?.dac?.canTransfer;
+  if (productOverride === false || categoryOverride === false) return false;
+  if (!hasTransferSetup(product)) return false;
+  return !!canTransfer;
+}
+
+/**
+ * Returns the brand-supplied transfer label (e.g. "Unavailable") from
+ * `meta.overrides.dac.i18n.transfer`, falling back to the category-level
+ * override. The UI can render this on the disabled transfer button when
+ * `canTransfer` has been blocked by an override.
+ *
+ * Product-level wins over category-level so brands can override the
+ * category default for individual TLDs.
+ */
+export function getDacTransferLabel(
+  product?: {
+    meta?: IProduct["meta"];
+    category?: IProduct["category"] | null;
+  } | null
+): string | undefined {
+  if (!product) return undefined;
+  const productLabel = product.meta?.overrides?.dac?.i18n?.transfer;
+  if (typeof productLabel === "string" && productLabel.length > 0)
+    return productLabel;
+  const categoryLabel = product.category?.meta?.overrides?.dac?.i18n?.transfer;
+  if (typeof categoryLabel === "string" && categoryLabel.length > 0)
+    return categoryLabel;
+  return undefined;
+}
+
+/**
+ * Resolves the brand-supplied transfer **price override** for a product.
+ *
+ * Ports the widget logic from `upmind-widgets`
+ * (`src/widgets/UpmDac/composables/domainMapper.ts:getTransferOptionPriceFormatted`).
+ * When a brand wires up a transfer sub-product whose category has
+ * `price_override: true`, the sub-product's own one-off (`billing_cycle_months
+ * === 0`) price row defines the merchant-facing transfer cost — independent
+ * of whatever the parent TLD product charges for registration.
+ *
+ * Returns:
+ *   - `{ price: t("text.free"), isFree: true }` when override price is `0`
+ *   - `{ price: removeTrailingZeroes(price_formatted), isFree: false }` for
+ *     any non-zero amount
+ *   - `undefined` when there's no override (caller falls back to its own
+ *     price logic)
+ *
+ * The separate `isFree` flag lets callers swap copy between "transfer for
+ * free" and "transfer for only £X" without locale-sniffing the label
+ * (matching `t("text.free")` would break in any non-en locale).
+ *
+ * Two product shapes are supported, mirroring the widget:
+ *   - **Bundle (tlds flow):** `setup_function_sub_ids.transfer` is an array
+ *     of sub-product ids; the candidate sub-product is inlined in `options[]`
+ *   - **Single-mode (availability flow):** `sub_product_id` IS the transfer
+ *     sub-product; same `options[]` lookup
+ */
+export function getTransferOptionPrice(
+  product?: {
+    options?: Array<{
+      id?: string;
+      category?: { price_override?: boolean | null };
+      prices?: Array<{
+        billing_cycle_months?: number;
+        currency_code?: string;
+        price?: number;
+        price_formatted?: string | null;
+      }>;
+    } | null>;
+    setup_function_sub_ids?: { transfer?: string[] };
+    sub_product_id?: string;
+  } | null,
+  currencyCode?: string
+): { price: string; isFree: boolean } | undefined {
+  if (!product) return undefined;
+  // Use the headless `useI18n` (module-level Composer, no `inject()`) — this
+  // function runs inside the XState callback service, not a Vue setup, so
+  // anything that touches Vue's injection layer (e.g. `useMoney` → vue-i18n)
+  // would crash with "inject() can only be used inside setup()".
+  const { t } = useI18n();
+  // Trailing-zero strip inlined (regex from `useMoney.removeTrailingZeroes`)
+  // to keep this helper Vue-setup-free.
+  const removeTrailingZeroes = (val?: string | null): string =>
+    val?.replace(/[,.]00\b/, "") ?? "";
+
+  const pickPrice = (
+    candidate?: {
+      category?: { price_override?: boolean | null };
+      prices?: Array<{
+        billing_cycle_months?: number;
+        currency_code?: string;
+        price?: number;
+        price_formatted?: string | null;
+      }>;
+    } | null
+  ): { price: string; isFree: boolean } | undefined => {
+    if (!candidate?.category?.price_override) return undefined;
+    const match = find(
+      candidate.prices,
+      p =>
+        p.billing_cycle_months === 0 &&
+        (!currencyCode || p.currency_code === currencyCode)
+    );
+    if (!match) return undefined;
+    return match.price === 0
+      ? { price: t("text.free"), isFree: true }
+      : { price: removeTrailingZeroes(match.price_formatted), isFree: false };
+  };
+
+  const options = product.options ?? [];
+
+  // Strategy A — `setup_function_sub_ids.transfer` is an array of sub-product
+  // ids that live in `options[]`.
+  const transferIds = product.setup_function_sub_ids?.transfer;
+  if (Array.isArray(transferIds) && transferIds.length > 0) {
+    for (const subId of transferIds) {
+      const candidate = find(options, o => o?.id === subId);
+      const result = pickPrice(candidate);
+      if (result !== undefined) return result;
+    }
+  }
+
+  // Strategy B — single-mode transfer product: `sub_product_id` matches an
+  // inlined option (used by the /availability flow when the BE returns a
+  // dedicated transfer product with `setup_function_name === "transfer"`).
+  const singleSubId = product.sub_product_id;
+  if (typeof singleSubId === "string" && singleSubId) {
+    const candidate = find(options, o => o?.id === singleSubId);
+    const result = pickPrice(candidate);
+    if (result !== undefined) return result;
+  }
+
+  return undefined;
+}
+
+// ----------------------------------------------------------------------------
+
+/**
  * Sanitises a raw domain input string — strips protocols, www, ports,
  * paths, query strings, fragments, and invalid characters.
  */
@@ -87,8 +407,7 @@ export function sanitiseDomainInput(value: string): string {
     .replace(/^w{3}\./i, "") // remove www.
     .replace(/[:\/?#].*$/, "") // remove port, path, query, fragment
     .replace(/[^a-z0-9\-\.]/gi, "") // remove invalid chars
-    .replace(/^[\.\-]+/, "") // remove leading dots and hyphens
-    .replace(/[\.\-]+$/, "") // remove trailing dots and hyphens
+    .replace(/^[\.\-]+|[\.\-]+$/g, "") // strip leading + trailing dots/hyphens
     .replace(/-+\./g, ".") // strip trailing hyphens before dots (SLD)
     .replace(/\.-+/g, ".") // strip leading hyphens after dots (TLD)
     .replace(/\.{2,}/g, ".") // collapse consecutive dots
@@ -238,6 +557,12 @@ export function parseSuggestions(
     const fullDomain = `${sld}.${tld}`;
     const parsedDomain = parseDomain(fullDomain);
     const product = productsMap[product_id];
+    // Honour any brand-level DAC transfer block on the product or category
+    const canTransferEffective = applyDacTransferOverride(
+      can_transfer,
+      product
+    );
+    const transferLabel = getDacTransferLabel(product);
 
     if (product) {
       try {
@@ -252,12 +577,33 @@ export function parseSuggestions(
         // Pick the per-row mode: a row that can register uses register
         // sub_pids; a row that's transfer-only uses transfer sub_pids.
         const rowMode: "register" | "transfer" =
-          can_register || !can_transfer ? "register" : "transfer";
+          can_register || !canTransferEffective ? "register" : "transfer";
         const setupSubIds = (product as IDomainSuggestionResultProduct)
           .setup_function_sub_ids;
         const subproducts: string[] = compact(
           setupSubIds?.[rowMode] ?? [product.sub_product_id]
         );
+
+        // Brand-supplied transfer-price override resolved from the transfer
+        // sub-product's `category.price_override`. Surfaces "FREE" or a
+        // concrete amount when configured; UI falls back to the parent
+        // product's price when this is undefined. Currency comes from any
+        // price row on the parent product (the API returns prices in the
+        // active currency, so they're all in sync).
+        const parentCurrencyCode = product.prices?.[0]?.currency_code;
+        const transferOption = getTransferOptionPrice(
+          product as IDomainSuggestionResultProduct,
+          parentCurrencyCode
+        );
+
+        // Mirror `buildDomainProductFromAvailability`: a row whose API
+        // flags collapse to register=false AND transfer=false (e.g.
+        // `can_transfer: true` from /suggestions but the mapped product
+        // has no `setup_function_sub_ids.transfer`) must be flagged
+        // `unavailable`/`disabled` explicitly — otherwise the card
+        // ignores the missing canTransfer and renders as a normal
+        // available row (DomainCards.vue binds these flags directly).
+        const isFullyUnavailable = !can_register && !canTransferEffective;
 
         return {
           configuration: parseProductProps(
@@ -277,7 +623,12 @@ export function parseSuggestions(
           meta: {
             ...(termDetails.meta ?? {}),
             available: can_register,
-            canTransfer: can_transfer
+            canTransfer: canTransferEffective,
+            unavailable: isFullyUnavailable,
+            disabled: isFullyUnavailable,
+            transferLabel,
+            transferOptionPrice: transferOption?.price,
+            transferOptionIsFree: transferOption?.isFree
           },
           productDetails: {
             ...productDetails,
@@ -317,17 +668,18 @@ export function parseSuggestions(
       price,
       meta: {
         available: can_register,
-        canTransfer: can_transfer,
+        canTransfer: canTransferEffective,
+        transferLabel,
         priceLoading: !product
       },
-      productDetails: {
+      productDetails: makePlaceholderProductDetails({
         id: product_id,
-        title: fullDomain,
+        domain: fullDomain,
         name: product?.name ?? `.${tld}`
-      },
+      }),
       pricing: [],
       details: []
-    } as unknown as DomainProduct;
+    };
   });
 
   return compact(uniqBy(available, "domain"));
@@ -411,4 +763,164 @@ export function getDomainRawBasketProducts(
       serviceIdentifier: raw?.service_identifier ?? undefined
     });
   });
+}
+
+// ----------------------------------------------------------------------------
+
+/**
+ * Resolves the widget-style search mode from a headless context. The
+ * headless `mode` is an operation flow (register/transfer) and
+ * `useSuggestions` is a boolean — surface them as a single label for
+ * tracking.
+ */
+export function resolveWidgetMode(
+  context: DacEventContext
+): "suggest" | "search" | "transfer" | null {
+  if (context.mode === DomainMode.transfer) return "transfer";
+  if (context.useSuggestions === true) return "suggest";
+  if (context.useSuggestions === false) return "search";
+  return null;
+}
+
+/**
+ * Common DAC tracking fields spread into every DAC event's `meta` payload
+ * (widget id, current route, locale, the sanitised search query, its parsed
+ * parts, and the resolved widget mode). Caller adds event-specific fields
+ * on top.
+ */
+export function buildCommonMeta(
+  context: DacEventContext
+): Record<string, unknown> {
+  const query = sanitiseDomainInput(context.search?.query ?? "");
+  const { sld, tld } = parseDomainParts(query);
+  let locale: string | undefined;
+  try {
+    locale = useLocale().locale.value;
+  } catch {
+    locale = undefined;
+  }
+  return {
+    widget: "dac",
+    route:
+      typeof window !== "undefined" ? (window.location?.pathname ?? "") : "",
+    locale,
+    query,
+    sld,
+    tld: tld ?? null,
+    mode: resolveWidgetMode(context)
+  };
+}
+
+// ----------------------------------------------------------------------------
+
+/**
+ * Spawned actor that runs `/availability` pre-flight checks in parallel.
+ *
+ * XState's `invoke` runs one service at a time per state, so when the user
+ * clicks several suggestion rows in quick succession only the first click
+ * could fire a pre-check. Routing every click through this helper instead
+ * sidesteps that restriction — each `VERIFY` event triggers an independent
+ * fire-and-forget `checkAvailability` call, and the result is dispatched
+ * back to the parent machine as `VERIFY_RESULT` (or `VERIFY_ERROR`) keyed
+ * by domain so rows can be correlated reliably even when results return
+ * out of order.
+ *
+ * NB: Must be a plain function (NOT async). XState v4 treats an async
+ * function passed to `spawn()` as a promise actor — `onReceiveEvent` would
+ * never be registered and incoming `VERIFY` events would silently vanish.
+ */
+export function domainAvailabilityHelper(callback: any, onReceiveEvent: any) {
+  const onReceive = (event: any) => {
+    if (event.type !== "VERIFY") return;
+    const { data: domain, context } = event;
+    if (!domain) return;
+
+    services
+      .checkAvailability({
+        ...(context ?? {}),
+        checkingDomain: domain
+      } as DacContext)
+      .then(availability => {
+        callback({
+          type: "VERIFY_RESULT",
+          data: domain,
+          availability
+        });
+      })
+      .catch(error => {
+        if (isAbortError(error)) return;
+        callback({
+          type: "VERIFY_ERROR",
+          data: domain,
+          error
+        });
+      });
+  };
+
+  onReceiveEvent(onReceive);
+}
+
+// ----------------------------------------------------------------------------
+
+/**
+ * Checks whether a product object indicates a domain transfer
+ * by inspecting its name, code, or domain_operation_code fields.
+ *
+ * @param product - A raw product or catalog option object.
+ * @returns `true` if the product is identified as a transfer product.
+ */
+export function hasTransferIndicator(
+  product?: Pick<IProduct, "name" | "code" | "domain_operation_code"> | null
+): boolean {
+  if (!product) return false;
+  const name = (product.name ?? "").toLowerCase();
+  const code = (product.code ?? "").toLowerCase();
+  const opCode = (product.domain_operation_code ?? "").toLowerCase();
+  return (
+    name.includes("transfer") ||
+    code.includes("transfer") ||
+    opCode === "transfer"
+  );
+}
+
+/**
+ * Determines whether a raw basket product represents a domain transfer.
+ *
+ * Uses a tiered approach:
+ * 1. Match option product IDs against typed `setup_function_sub_ids.transfer`.
+ * 2. Check option sideloaded products for transfer indicators.
+ * 3. Match against catalog `products_options` for transfer indicators.
+ *
+ * @param raw - A raw basket product from the API.
+ * @returns `true` if the basket product is a domain transfer.
+ */
+export function isBasketTransfer(raw: IBasketProduct): boolean {
+  const transferSubIds =
+    (raw.product as IDomainSuggestionResultProduct | undefined)
+      ?.setup_function_sub_ids?.transfer ?? [];
+
+  // Build a Set of basket option product_ids up front — the catalog-options
+  // pass below was O(catalog × options) per REFRESH; one Set turns the
+  // inner `some(raw.options, ...)` lookup into O(1).
+  const optionProductIds = new Set(
+    map(raw.options, (opt: any) => opt.product_id)
+  );
+
+  if (
+    transferSubIds.length > 0 &&
+    some(transferSubIds, (id: string) => optionProductIds.has(id))
+  ) {
+    return true;
+  }
+
+  if (some(raw.options, (opt: any) => hasTransferIndicator(opt.product))) {
+    return true;
+  }
+
+  const catalogOptions = raw.product?.products_options ?? [];
+  return some(
+    catalogOptions,
+    (catOpt: any) =>
+      optionProductIds.has(catOpt.id) && hasTransferIndicator(catOpt)
+  );
 }

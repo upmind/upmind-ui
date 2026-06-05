@@ -130,7 +130,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { computed, defineAsyncComponent, onUnmounted, provide } from "vue";
+import { computed, onUnmounted, provide } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -154,19 +154,16 @@ import ApplyToOthers from "./ApplyToOthers.vue";
 import Transitions from "../../../components/layout/components/transition/Transition.vue";
 
 // --- templates
+import ProductSetupFullTemplate from "../templates/ProductSetupFull.template.vue";
+import ProductSetupLTRTemplate from "../templates/ProductSetupLTR.template.vue";
+import ProductSetupRTLTemplate from "../templates/ProductSetupRTL.template.vue";
+import ProductSetupEnclosedTemplate from "../templates/ProductSetupEnclosed.template.vue";
+
 const supportedTemplates = {
-  [PRODUCT_SETUP_TEMPLATE.FULL]: defineAsyncComponent(
-    () => import("../templates/ProductSetupFull.template.vue")
-  ),
-  [PRODUCT_SETUP_TEMPLATE.TWO_COLUMN_LTR]: defineAsyncComponent(
-    () => import("../templates/ProductSetupLTR.template.vue")
-  ),
-  [PRODUCT_SETUP_TEMPLATE.TWO_COLUMN_RTL]: defineAsyncComponent(
-    () => import("../templates/ProductSetupRTL.template.vue")
-  ),
-  [PRODUCT_SETUP_TEMPLATE.ENCLOSED]: defineAsyncComponent(
-    () => import("../templates/ProductSetupEnclosed.template.vue")
-  )
+  [PRODUCT_SETUP_TEMPLATE.FULL]: ProductSetupFullTemplate,
+  [PRODUCT_SETUP_TEMPLATE.TWO_COLUMN_LTR]: ProductSetupLTRTemplate,
+  [PRODUCT_SETUP_TEMPLATE.TWO_COLUMN_RTL]: ProductSetupRTLTemplate,
+  [PRODUCT_SETUP_TEMPLATE.ENCLOSED]: ProductSetupEnclosedTemplate
 };
 
 // --- utils
