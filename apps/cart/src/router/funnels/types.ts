@@ -87,11 +87,6 @@ export enum ROUTE {
    */
   SESSION_TRANSFER = "session-transfer",
 
-  /**
-   * The route for verifying a client's email address (code-based form and link landing).
-   */
-  SESSION_VERIFY_EMAIL = "session-verify-email",
-
   // --- BASKET ROUTES ---------------------------------------------------------
 
   /**

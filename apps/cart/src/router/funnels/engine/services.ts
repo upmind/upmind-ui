@@ -1,12 +1,9 @@
 import { ROUTE } from "../types";
 import {
   type FunnelContext,
-  checkVerifyEmail,
   useBasket,
   useBasketProductsPending,
   useBrand,
-  useFeedback,
-  useI18n,
   useQueryParams,
   useRoutingEngine,
   useProductSetup,
@@ -26,7 +23,8 @@ import {
   useConfig,
   UIContext,
   FunnelActions,
-  type FunnelTarget
+  type FunnelTarget,
+  type OverlayResponse
 } from "@upmind-automation/client-vue";
 import {
   BrandConfigKeys,
@@ -92,24 +90,18 @@ async function ensureBidAuth(
 // -----------------------------------------------------------------------------
 
 /**
- * Builds a FunnelResponse that redirects to the verify-email route with a
- * bid-aware `returnUrl` pointing back to checkout. Shared between
- * `guardCheckout` and `guardBilling` so both flows redirect identically.
+ * Resolves a bid-aware `returnUrl` to the given funnel route — includes the
+ * basket segment + bid when a target basket is active, so post-auth/verify
+ * redirects land back on the correct basket-scoped URL.
  */
-function buildVerifyEmailRedirect(): FunnelResponse {
+function bidReturnUrl(name: ROUTE): string {
   const { router } = useRoutingEngine();
   const { targetBasketId } = useBasket();
   const bid = targetBasketId.value;
-  const returnUrl = router.resolve({
-    name: ROUTE.CHECKOUT,
+  return router.resolve({
+    name,
     params: bid ? { segment: "basket", bid } : {}
   }).fullPath;
-  return {
-    target: {
-      name: ROUTE.SESSION_VERIFY_EMAIL,
-      query: { [QUERY_PARAMS.RETURN_URL]: returnUrl }
-    }
-  } as FunnelResponse;
 }
 
 // -----------------------------------------------------------------------------
@@ -570,18 +562,10 @@ export default {
 
     // --- 1. Auth: Must be authenticated to proceed
     if (guards.needsAuth()) {
-      const { router } = useRoutingEngine();
-      const { targetBasketId } = useBasket();
-      const bid = targetBasketId.value;
-      const returnUrl = router.resolve({
-        name: ROUTE.CHECKOUT,
-        params: bid ? { segment: "basket", bid } : {}
-      }).fullPath;
-
       return Promise.reject({
         target: {
           name: ROUTE.SESSION,
-          query: { [QUERY_PARAMS.RETURN_URL]: returnUrl }
+          query: { [QUERY_PARAMS.RETURN_URL]: bidReturnUrl(ROUTE.CHECKOUT) }
         }
       } as FunnelResponse);
     }
@@ -589,7 +573,14 @@ export default {
     // Unverified clients must verify their email before checkout.
     const { meta: sessionMeta } = useSession();
     if (sessionMeta.value.isUnverified) {
-      return Promise.reject(buildVerifyEmailRedirect());
+      return Promise.reject({
+        type: FunnelActions.OVERLAY,
+        target: {
+          name: ROUTE.CHECKOUT,
+          query: { [QUERY_PARAMS.RETURN_URL]: bidReturnUrl(ROUTE.CHECKOUT) }
+        },
+        overlay: ROUTE.OVERLAY_VERIFY_EMAIL
+      } as OverlayResponse);
     }
 
     // Must have products (that are not locked) to proceed
@@ -651,24 +642,12 @@ export default {
     // to load. Checkout handles the auth redirect.
     const { meta: authMeta } = useSession();
     if (!authMeta.value.isAuthenticated) {
-      const { router } = useRoutingEngine();
-      const { targetBasketId } = useBasket();
-      const bid = targetBasketId.value;
-      const returnUrl = router.resolve({
-        name: ROUTE.BILLING,
-        params: bid ? { segment: "basket", bid } : {}
-      }).fullPath;
       return {
         target: {
           name: ROUTE.SESSION,
-          query: { [QUERY_PARAMS.RETURN_URL]: returnUrl }
+          query: { [QUERY_PARAMS.RETURN_URL]: bidReturnUrl(ROUTE.BILLING) }
         }
       };
-    }
-
-    // Unverified clients must verify their email before billing/checkout.
-    if (authMeta.value.isUnverified) {
-      return Promise.reject(buildVerifyEmailRedirect());
     }
 
     // Load billing and check if it still needs input
@@ -697,69 +676,21 @@ export default {
   /**
    * 🎯 Guard: VERIFY_EMAIL
    *
-   * Lands on `/auth/verify-email`. Two paths:
-   *
-   * **With `hash` + `client_id` + `email_id` (link from email):**
-   * Auto-verifies via `checkVerifyEmail`. On success, toasts and rejects so
-   * the funnel redirects to `returnUrl` (or basket fallback). On failure,
-   * toasts and resolves so the user falls through to the code input form.
-   *
-   * **Without hash:**
-   * Resolves the route if the client is unverified (show form); rejects if
-   * the client is already verified so the funnel redirects away.
+   * Gating only. Shows the code-entry form when the logged-in client is
+   * unverified; otherwise rejects so the funnel redirects away. Link-based
+   * verification is a session-agnostic concern owned by the session machine
+   * (see `useVerifyEmail`) and is not handled here.
    */
   guardVerifyEmail: async ({
     targetRoute
   }: FunnelContext): Promise<FunnelResponse> => {
-    const { t } = useI18n();
-    const { addError, addSuccess } = useFeedback();
     const session = useSession();
-
-    const route = targetRoute as RouteLocationGeneric;
-    const { getParam } = useQueryParams(route);
-
-    const hash = getParam(QUERY_PARAMS.HASH)?.toString();
-    const clientId = getParam(QUERY_PARAMS.CLIENT_ID)?.toString();
-    const emailId = getParam(QUERY_PARAMS.EMAIL_ID)?.toString();
-
-    // --- Link-based path: auto-verify via `check_verify`.
-    if (hash && clientId && emailId) {
-      try {
-        await checkVerifyEmail(clientId, emailId, hash);
-        addSuccess(t("confirm.email_verified"));
-        // Re-load the client so `isUnverified` flips and downstream guards pass.
-        await session.refresh().catch(() => false);
-
-        // If a `returnUrl` was preserved through to the verify-email route,
-        // resolve and redirect there. Otherwise fall through to the funnel's
-        // default onError target (basket).
-        const returnUrl = getParam(QUERY_PARAMS.RETURN_URL)?.toString();
-        if (returnUrl) {
-          const { router } = useRoutingEngine();
-          const resolved = router.resolve(returnUrl);
-          return Promise.reject({
-            target: {
-              name: resolved.name as string,
-              params: resolved.params,
-              query: resolved.query
-            }
-          } as FunnelResponse);
-        }
-        return Promise.reject();
-      } catch (error: any) {
-        addError({
-          title: error?.message || t("error.client_email_verify_failed"),
-          data: error?.data
-        });
-        // Fall through to the code input form.
-        return { target: targetRoute ?? { name: ROUTE.SESSION_VERIFY_EMAIL } };
-      }
-    }
-
-    // --- Code-based path: only show the form if the client is unverified.
     await session.isReady();
+
+    // Show the code form only for a logged-in unverified client; otherwise the
+    // route is irrelevant — reject and let the funnel redirect away.
     if (session.meta.value.isUnverified) {
-      return { target: targetRoute ?? { name: ROUTE.SESSION_VERIFY_EMAIL } };
+      return { target: targetRoute ?? { name: ROUTE.OVERLAY_VERIFY_EMAIL } };
     }
 
     return Promise.reject();
