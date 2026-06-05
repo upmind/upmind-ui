@@ -53,7 +53,7 @@
   "search": "Indtast et domæne, du vil søge efter",
   "starts_with_domain": "Det hele starter med et **domænenavn**",
   "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
-  "tld_renewal_info": "Vores {tld} fornyelsespriser starter fra kun {term}.",
+  "tld_renewal_info": "Fornyelser starter fra {term}.",
   "tld_renewal_price_desc": "Vores {tld} fornyelsespriser starter fra kun {currentPrice} (var {regularPrice}).",
   "tld_renewal_price_from_desc": "Vores {tld} fornyelsespriser starter fra kun {regularPrice}.",
   "transfer": "Overførsel for kun {currentPrice}.",

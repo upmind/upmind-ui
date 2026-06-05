@@ -18,7 +18,7 @@
   "basket_products_require_attention_msg": "{count} məhsullar diqqət tələb edir | {count} məhsul diqqət tələb edir | {count} məhsulları diqqət tələb edir",
   "basket_products_review_desc": "Davam etməzdən əvvəl aşağıdakı elementləri nəzərdən keçirin, alternativ olaraq səbətə qayıdın.",
   "basket_requires_attention_msg": "{count} maddə diqqətinizi tələb edir | {count} maddələr diqqətinizi tələb edir",
-  "basket_review_item_msg": "{message} – {review}.",
+  "basket_review_item_msg": "{message}–{review}.",
   "basket_review_msg": "Davam etməzdən əvvəl aşağıdakı maddələri nəzərdən keçirin",
   "basket_section": "Səbətin xülasəsi",
   "basket_summary_desc": "Sizdə var {count} səbətinizdəki əşya, cəmi {total}. | Sizdə var {count} səbətinizdəki əşyalar, cəmi {total}.",
