@@ -8,7 +8,7 @@
 
 // --- external
 import { assign } from "xstate";
-import { filter, forEach, isString, keys, reduce } from "lodash-es";
+import { filter, findKey, forEach, isString, keys, reduce } from "lodash-es";
 
 // --- utils
 import { pascalCase } from "./utils";
@@ -16,8 +16,13 @@ import { pascalCase } from "./utils";
 // --- types
 import type { Router, RouteRecordRaw } from "vue-router";
 import type { AnyEventObject } from "xstate";
-import { OverlayType } from "./types";
-import type { FunnelContext, FunnelProps } from "./types";
+import { FunnelActions, OverlayType } from "./types";
+import type {
+  FunnelContext,
+  FunnelProps,
+  FunnelTarget,
+  OverlayResponse
+} from "./types";
 
 // -----------------------------------------------------------------------------
 
@@ -75,6 +80,10 @@ export function createEndpointNodes(
     {} as NonNullable<FunnelProps["guards"]>
   );
 
+  // --- isOverlay guard: true when a guard resolved/rejected with an overlay payload
+  guards.isOverlay = (_context: FunnelContext, { data }: AnyEventObject) =>
+    data?.type === FunnelActions.OVERLAY;
+
   // --- actions: resolveToParent strips the overlay suffix and redirects
   const actions: FunnelProps["actions"] = {
     resolveToParent: assign({
@@ -84,6 +93,29 @@ export function createEndpointNodes(
         const name = route?.name?.toString() ?? "";
         const parentName = name.replace(/--[^-]+$/, "");
         return { ...route, name: parentName || route?.name || undefined };
+      }
+    }),
+
+    // setOverlay turns an OverlayResponse into a `{base}--{overlayId}` target so
+    // the overlay renders over the given base route. The overlay id is looked up
+    // in the registry (path keyed by route name), stripped of its trailing slash,
+    // matching the `--{id}` suffix createEndpointNodes/registerOverlayRoutes derive.
+    setOverlay: assign({
+      targetRoute: (
+        { currentRoute }: FunnelContext,
+        { data }: AnyEventObject
+      ): FunnelTarget => {
+        const { target, overlay } = data as OverlayResponse;
+        const overlayId = findKey(
+          registry,
+          (routeName: string) => routeName === overlay
+        )?.replace(/\/$/, "");
+        return {
+          ...target,
+          name: overlayId
+            ? `${String(target?.name)}--${overlayId}`
+            : (overlay ?? target?.name ?? currentRoute?.name ?? undefined)
+        } as FunnelTarget;
       }
     })
   };

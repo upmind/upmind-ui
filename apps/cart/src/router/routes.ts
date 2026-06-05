@@ -13,7 +13,7 @@ import { BID_PREFIX } from "./funnels/types";
  * Overlay route definitions.
  * Each route here can be injected as a child on eligible parent routes.
  */
-const OVERLAY_ROUTES: RouteRecordRaw[] = [
+export const OVERLAY_ROUTES: RouteRecordRaw[] = [
   {
     path: "auth/",
     name: ROUTE.OVERLAY_AUTH,
@@ -23,7 +23,7 @@ const OVERLAY_ROUTES: RouteRecordRaw[] = [
   {
     path: "verify-email/",
     name: ROUTE.OVERLAY_VERIFY_EMAIL,
-    component: () => import("../pages/overlays/AuthOverlay.vue"),
+    component: () => import("../pages/overlays/VerifyEmail.vue"),
     meta: { overlay: OverlayType.MODAL, dismissable: false }
   }
 ];
@@ -336,13 +336,13 @@ export default [
         path: "recover/",
         name: ROUTE.SESSION_RECOVER_PASSWORD,
         component: () => import("../pages/session/Recover.vue")
-      },
-      {
-        path: "verify-email/",
-        name: ROUTE.SESSION_VERIFY_EMAIL,
-        component: () => import("../pages/session/VerifyEmail.vue"),
-        meta: { allowOverlays: false }
       }
+      // {
+      //   path: "verify-email/",
+      //   name: ROUTE.SESSION_VERIFY_EMAIL,
+      //   component: () => import("../pages/session/VerifyEmail.vue"),
+      //   meta: { allowOverlays: false }
+      // }
     ]
   },
 

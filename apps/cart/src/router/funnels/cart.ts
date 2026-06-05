@@ -554,18 +554,17 @@ export default <FunnelProps>{
     },
 
     /**
-     * 🎯 ROUTE.SESSION_VERIFY_EMAIL
+     * 🎯 ROUTE.OVERLAY_VERIFY_EMAIL
      * Lands on `/auth/verify-email`. Invokes `guardVerifyEmail` which either
      * auto-verifies a link (if hash+client_id+email_id present) or gates the
      * code-input form on the client being in `unverified` state. Redirects to
      * `returnUrl` (or basket) when verification is no longer needed.
      */
-    [ROUTE.SESSION_VERIFY_EMAIL]: {
+    [ROUTE.OVERLAY_VERIFY_EMAIL]: {
       meta: {
         next: [
           { target: ROUTE.REDIRECT, cond: "hasReturnUrl" },
-          { target: ROUTE.CHECKOUT },
-          { target: ROUTE.BASKET }
+          { target: ROUTE.CHECKOUT }
         ],
         prev: ROUTE.BASKET
       },
@@ -573,18 +572,10 @@ export default <FunnelProps>{
         src: "guardVerifyEmail",
         onDone: { actions: ["setResolved"] },
         onError: [
-          // Honor the guard's explicit target (e.g. resolved returnUrl after
-          // a successful link-based verification). Falls through to BASKET
-          // when the guard rejects without a target.
           {
-            target: ROUTE.CHECKOUT,
+            target: ROUTE.REDIRECT,
             actions: ["setUnresolved", "setTargetRoute"],
-            cond: "isCheckout"
-          },
-          {
-            target: ROUTE.BILLING,
-            actions: ["setUnresolved", "setTargetRoute"],
-            cond: "isBilling"
+            cond: "hasReturnUrl"
           },
           { target: ROUTE.BASKET, actions: ["setUnresolved", "clearTarget"] }
         ]
@@ -644,9 +635,9 @@ export default <FunnelProps>{
             cond: "isSession"
           },
           {
-            target: ROUTE.SESSION_VERIFY_EMAIL,
-            actions: ["setUnresolved", "setTargetRoute"],
-            cond: "isSessionVerifyEmail"
+            target: ROUTE.OVERLAY_VERIFY_EMAIL,
+            actions: ["setUnresolved", "setOverlay"],
+            cond: "isOverlay"
           },
           {
             target: ROUTE.BILLING,
@@ -725,14 +716,9 @@ export default <FunnelProps>{
             cond: "isBasket"
           },
           {
-            target: ROUTE.CHECKOUT,
+            target: ROUTE.SESSION,
             actions: ["setUnresolved", "clearTarget"],
             cond: "isSession"
-          },
-          {
-            target: ROUTE.SESSION_VERIFY_EMAIL,
-            actions: ["setUnresolved", "setTargetRoute"],
-            cond: "isSessionVerifyEmail"
           },
           { target: ROUTE.CHECKOUT, actions: ["setUnresolved", "clearTarget"] }
         ]
