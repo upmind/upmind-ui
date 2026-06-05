@@ -1,5 +1,5 @@
 <template>
-  <article :class="styles.card.root">
+  <article :class="styles.card.root" :data-exact-match="meta.isExactMatch">
     <header :class="styles.card.header.root">
       <!-- TODO: Add favourite action -->
 
