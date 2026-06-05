@@ -56,7 +56,7 @@ const authCallback = (
   // payment) don't churn UNAUTHENTICATED → SESSION on every reload. A guest only
   // holds a session in `available` (guest `loading` is treated as unauthenticated).
   const sessionStates = state.matches(Contexts.CLIENT)
-    ? ["available", "unverified", "loading"]
+    ? ["available", "loading"]
     : ["available"];
 
   // We have a session IF we have an access token regardless of being in guest

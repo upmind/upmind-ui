@@ -1,6 +1,6 @@
 // --- internal
 import services from "../services";
-import { useI18n, useBrand, useQuery, useSystem } from "../..";
+import { useI18n, useQuery, useSystem } from "../..";
 import { useRecaptcha } from "../../system";
 
 // --- utils
@@ -60,12 +60,7 @@ async function load(_context: ClientContext, _event: any) {
     withAccessToken: true
   });
 
-  // Resolve brand-level email verification enforcement at load time so the
-  // machine guard can read it from event data (avoids a circular import
-  // between `client.machine.ts` and `useBrand`).
-  const enforceEmailVerification = !!useBrand().enforceEmailVerification.value;
-
-  return { ...selfData, enforceEmailVerification };
+  return selfData;
 }
 
 // -----------------------------------------------------------------------------
