@@ -156,8 +156,7 @@ const meta = computed(() => ({
 }));
 
 const stylesMeta = computed(() => ({
-  padding: props.template === DOMAIN_TEMPLATE.DRAWER ? "lg" : "none",
-  hasExactMatch: meta.value.hasExactMatch
+  padding: props.template === DOMAIN_TEMPLATE.DRAWER ? "lg" : "none"
 }));
 
 const styles = useStyles(["domain.listings"], stylesMeta, config);
