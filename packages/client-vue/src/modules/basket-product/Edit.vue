@@ -190,7 +190,7 @@
           class="w-full"
           v-if="externalErrors?.message"
           color="danger"
-          variant="minimal"
+          variant="muted"
           icon="alert-triangle"
           :title="externalErrors?.message"
         />
@@ -220,7 +220,6 @@
 import {
   computed,
   defineAsyncComponent,
-  onUnmounted,
   provide,
   watch,
   type ComputedRef
@@ -238,9 +237,6 @@ import {
   responseCodes,
   ErrorOrigin
 } from "@upmind-automation/headless";
-import { useHeader } from "../../components/header/useHeader";
-import { useFooter } from "../../components/footer/useFooter";
-import { useLayout } from "../../components/layout/useLayout";
 import { useBreadcrumbs } from "../../composables/useBreadcrumbs";
 import { useConfig, validateTemplate } from "@upmind-automation/headless";
 
@@ -347,7 +343,7 @@ const template = computed(() =>
   validateTemplate(
     configMeta.ui.template.value || props.template,
     BASKET_PRODUCT_TEMPLATE,
-    BASKET_PRODUCT_TEMPLATE.TWO_COLUMN_LTR
+    BASKET_PRODUCT_TEMPLATE.TWO_COLUMN_RTL
   )
 );
 
@@ -421,15 +417,6 @@ const configurationActions = computed(() => {
 const handleShare = () => {
   copy(shareUrl.value || window.location.href);
 };
-
-onUnmounted(() => {
-  // Don't stop the config machine — it may be reused by the inline editor.
-  // Housekeeping (pruneConfigs) cleans up machines for removed products.
-
-  useHeader({});
-  useLayout({});
-  useFooter({});
-});
 
 // Emit productDetails when it loads/changes for parent components (e.g., SEO, schema)
 const emit = defineEmits<{

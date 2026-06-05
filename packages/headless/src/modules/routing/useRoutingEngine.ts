@@ -1,5 +1,5 @@
 // --- external
-import { computed, ref, watch } from "vue";
+import { computed, effectScope, ref, watch } from "vue";
 import { interpret, InterpreterStatus } from "xstate";
 import { useActor } from "@xstate/vue";
 import { waitFor } from "xstate/lib/waitFor";
@@ -24,7 +24,6 @@ import {
 } from "../../utils";
 import { awaitResolved } from "./utils";
 import { forEach, isString } from "lodash-es";
-export { useRouteRequiresAction } from "./utils";
 
 // --- types
 import type { RouteLocation, Router } from "vue-router";
@@ -115,26 +114,28 @@ export const useRoutingEngine = () => {
     const targetName = isString(target) ? target : target?.name?.toString();
 
     return new Promise<boolean>(resolve => {
-      const stop = watch(
-        mountedRoute,
-        route => {
-          // console.debug("isMounted", {
-          //   route,
-          //   targetName,
-          //   mountedRoute: mountedRoute.value,
-          //   resolved: contextValue<boolean>(funnel, "resolved")
-          // });
-
-          if (
-            route === targetName &&
-            contextValue<boolean>(funnel, "resolved")
-          ) {
-            stop();
-            resolve(true);
-          }
-        },
-        { immediate: true }
-      );
+      // A *detached* effectScope isolates this watcher from the caller's
+      // effectScope. Without `true`, the watcher inherits the active scope
+      // from whatever component synchronously triggered the navigation —
+      // and is disposed when that component unmounts (e.g. during the
+      // page transition this watcher is meant to detect), causing it to
+      // silently miss the mount notification.
+      const scope = effectScope(true);
+      scope.run(() => {
+        watch(
+          mountedRoute,
+          route => {
+            if (
+              route === targetName &&
+              contextValue<boolean>(funnel, "resolved")
+            ) {
+              scope.stop();
+              resolve(true);
+            }
+          },
+          { immediate: true }
+        );
+      });
     });
   }
 

@@ -11,6 +11,7 @@
   "email_verification_sent": "Email verification sent successfully",
   "email_verified": "Email verified successfully",
   "in_basket": "In basket",
+  "in_basket_msg": "Already in your basket — click to add another",
   "in_use": "In use",
   "phone_removed": "Phone removed successfully",
   "phone_set_default": "Phone successfully set as default",

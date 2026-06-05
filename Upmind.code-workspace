@@ -27,6 +27,9 @@
     {
       "name": "vue-app",
       "path": "../vue-app"
+    },
+    {
+      "path": "../widgets"
     }
   ],
   "settings": {
@@ -37,8 +40,27 @@
       "ngClass",
       ".*upwConfig"
     ],
+    "cSpell.words": [
+      "clickwrap",
+      "Ecommerce",
+      "initialisations",
+      "initialise",
+      "Initialised",
+      "initialising",
+      "jsonform",
+      "Localazy",
+      "Localisation",
+      "organisation",
+      "promocode",
+      "promocodes",
+      "recaptcha",
+      "Subproduct",
+      "twofa",
+      "uischema",
+      "upmind"
+    ],
     "workbench.colorTheme": "Catppuccin Frappé",
-
+    "liveServer.settings.multiRootWorkspaceName": "monorepo",
     "terminal.integrated.env.osx": {
       "CLAUDE_CONFIG_DIR": "/Users/domdacosta/.claude-upmind"
     }

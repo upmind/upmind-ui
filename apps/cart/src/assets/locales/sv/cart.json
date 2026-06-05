@@ -7,6 +7,7 @@
   "basket_billing_review_msg": "Vissa faktureringsuppgifter saknas eller är felaktiga – {review}.",
   "basket_count": "tom | {count} föremål | {count} föremål",
   "basket_fields_review_msg": "Vissa fält i korgen saknas eller är felaktiga – {review}.",
+  "basket_incomplete_title": "Varukorgsuppgifterna är ofullständiga",
   "basket_items": "inga varor i varukorgen | {count} vara i varukorgen | {count} varor i varukorgen",
   "basket_product_missing_data": "Saknade data för objektet",
   "basket_product_missing_data_help": "Det här objektet saknar data och kräver åtgärd",
@@ -17,6 +18,7 @@
   "basket_products_require_attention_msg": "{count} produkter kräver uppmärksamhet | {count} produkten kräver uppmärksamhet | {count} produkter kräver uppmärksamhet",
   "basket_products_review_desc": "Vänligen granska följande artiklar innan du fortsätter, alternativt lägg dem tillbaka i varukorgen.",
   "basket_requires_attention_msg": "{count} objekt behöver din uppmärksamhet | {count} objekt behöver din uppmärksamhet",
+  "basket_review_item_msg": "{message} – {review}.",
   "basket_review_msg": "Vänligen granska följande punkter innan du fortsätter",
   "basket_section": "Sammanfattning av varukorgen",
   "basket_summary_desc": "Du har {count} vara i din varukorg, totalt {total} | Du har {count} varor i din varukorg, totalt {total}.",
@@ -26,6 +28,7 @@
   "basket_tax_incl": "inkl. skatter",
   "basket_title": "Din varukorg",
   "change_amount": "Ändra belopp",
+  "details_incomplete_title": "Detaljerna är ofullständiga",
   "empty": "Din **korg** är tom",
   "empty_md": "@.markdown:{'cart.empty'}",
   "empty_msg": "Det verkar som att du inte har lagt till något i din varukorg än.",
@@ -60,6 +63,10 @@
   "place_order_desc": "Klicka bara på knappen 'Lägg beställning' för att slutföra ditt köp.",
   "product_not_found": "**Produkt** hittades inte",
   "product_not_found_md": "@.markdown:{'cart.product_not_found'}",
+  "product_setup_count": "Inga produkter kvar |{count} återstående produkt |{count} återstående produkter",
+  "product_setup_desc": "Vissa produkter kräver ytterligare information innan utcheckningen. Vänligen granska och ange eventuella saknade uppgifter.",
+  "product_setup_msg": "Använd även dessa uppgifter för{name}",
+  "product_setup_title": "Slutför produktinstallationen",
   "promotion_help": "{code} ger {amount} rabatt {description}",
   "promotions_active": "Aktiva rabatter",
   "recommendations_unavailable_text": "Vi kunde inte hitta några rekommendationer för dig just nu. Vänligen klicka nedan för att fortsätta.",
@@ -67,5 +74,6 @@
   "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}",
   "show_more_payment_options": "Visa fler betalningsalternativ",
   "stored_payment_methods_limited_desc": "Alla betalningsmetoder är inte synliga eftersom de inte är tillgängliga för ditt land eller din valuta.",
-  "stored_payment_methods_limited_title": "Begränsade betalningsmetoder"
+  "stored_payment_methods_limited_title": "Begränsade betalningsmetoder",
+  "warning_notes_title": "Varning för varukorg | Varningar för varukorg"
 }

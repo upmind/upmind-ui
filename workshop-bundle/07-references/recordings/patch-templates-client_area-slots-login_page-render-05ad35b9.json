@@ -1,0 +1,23 @@
+{
+  "request": {
+    "method": "PATCH",
+    "path": "/api/templates/client_area/slots/login_page/render?object_id=47d73824-8507-9315-e54f-81e642d59e06"
+  },
+  "response": {
+    "status": 200,
+    "body": {
+      "status": "ok",
+      "data": {
+        "type": "template",
+        "title": "",
+        "body": "I am a login template",
+        "meta": null
+      },
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  }
+}

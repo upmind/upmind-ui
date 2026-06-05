@@ -36,7 +36,7 @@ export function basketSubscription(callback: any, onReceiveEvent: any) {
     if (!basket.basketId.value) return;
     callback({
       type: "REFRESH",
-      data: basket.basket.value
+      data: { ...basket.basket.value, error: basket.errors.value }
     });
   });
 
@@ -45,8 +45,28 @@ export function basketSubscription(callback: any, onReceiveEvent: any) {
     // mark the basket as refreshing
 
     if (stateMatches(state, ["loading", "subscribing"])) isLoading = true;
-    if (stateMatches(state, ["shopping.refreshing.processing"]))
+    if (stateMatches(state, ["shopping.refreshing.processing"])) {
+      const wasRefreshing = isRefreshing;
       isRefreshing = true;
+      // Forward `REFRESHING` to external subscribers as soon as the basket
+      // starts refreshing — mirrors the broadcast performed by
+      // `notifyActorsRefreshing` in basket.machine.ts (which sends to
+      // spawned children directly).
+      //
+      // Distinct from `PROCESSING` (which the product machine treats as
+      // "I'm being updated") so we don't accidentally lock unrelated
+      // product cards into processing.updating during a basket-wide refresh.
+      //
+      // Canonical consumer: the recommendations engine moves to a `syncing`
+      // state on REFRESHING and blocks `isReady()` until the eventual
+      // REFRESH arrives — so route gates don't redirect based on stale
+      // conditions during the basket's in-flight window.
+      //
+      // The `wasRefreshing` guard dedupes within a single refresh cycle:
+      // basket may transition through internal sub-states while staying in
+      // refreshing.processing, and we only want to fire once on entry.
+      if (!wasRefreshing) callback({ type: "REFRESHING" });
+    }
 
     // when the basket has been refreshed, then we can forward the refresh event
     if (
@@ -55,25 +75,28 @@ export function basketSubscription(callback: any, onReceiveEvent: any) {
     ) {
       isRefreshing = false;
       isLoading = false;
-      callback({ type: "REFRESH", data: state.context?.basket });
+      callback({
+        type: "REFRESH",
+        data: { ...state.context?.basket, error: state.context?.error }
+      });
     }
   });
 
   //-- initialise our basket
-  const onReceive = (event: any) => {
+  const onReceive = (event: any, meta: any) => {
     if (event.type === "INIT") {
       basket
         .isReady()
         .then(() => {
           callback({
             type: "REFRESH",
-            data: basket.basket.value
+            data: { ...basket.basket.value, error: basket.errors.value }
           });
         })
         .catch(() => {
           callback({
             type: "REFRESH",
-            data: basket.basket.value
+            data: { ...basket.basket.value, error: basket.errors.value }
           });
         });
       return;

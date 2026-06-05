@@ -14,4 +14,6 @@ export type TermCardProps = TermDetails & {
   layout?: "stacked" | "inline";
   /** Override the price display format. When set, takes precedence over `meta.useMonthlyFromPrice`. */
   type?: PriceDisplayTypes;
+  /** `true` when the product config has an active option/category overriding price — hides price/promo. */
+  overridden?: boolean;
 };

@@ -29,7 +29,7 @@
       </header>
 
       <header
-        v-else-if="meta?.overridden"
+        v-else-if="meta?.custom"
         :class="styles.product.header.price.regularPrice"
       >
         <del>

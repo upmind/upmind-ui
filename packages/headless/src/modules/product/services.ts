@@ -2,7 +2,7 @@
 
 // --- internal
 import { useBrand } from "../brand";
-import { useBasketCurrency, useI18n, useQuery } from "../..";
+import { useBasketCurrency, useI18n, useQuery, useSystem } from "../..";
 
 // --- utils
 import {
@@ -18,7 +18,6 @@ import {
 import {
   parseTerm,
   parseSubproducts,
-  checkPriceOverride,
   parseSubproductDetails,
   parseProductProps,
   hasNonOrderableSubproducts
@@ -35,11 +34,8 @@ import {
   isEmpty,
   isEqual,
   isNil,
-  isNumber,
   map,
-  reject,
-  set,
-  sum
+  set
 } from "lodash-es";
 
 // --- types
@@ -49,14 +45,7 @@ import {
   type IProduct
 } from "@upmind-automation/types";
 
-import type {
-  Price,
-  PriceCalculations,
-  PriceEntry,
-  ProductModel,
-  ProductConfigContext,
-  ProductProps
-} from "./types";
+import type { ProductModel, ProductConfigContext, ProductProps } from "./types";
 
 import { type AnyEventObject } from "xstate";
 import { type ErrorObject } from "ajv";
@@ -98,6 +87,7 @@ async function load(
   // lets ensure we have a valid currency > fallback to default
   // as well as ensuring our promo display type is available
   const { validateCurrency, ensureConfig } = useBrand();
+  const { ensureCountries, ensureBillingCycles } = useSystem();
   const { currency: basketCurrency, isReady: isCurrencyReady } =
     useBasketCurrency();
 
@@ -108,7 +98,9 @@ async function load(
       : validateCurrency(
           currencyCode ? { code: currencyCode } : { id: currencyId }
         ),
-    ensureConfig(BrandConfigKeys.SHOW_PROMOTION_AS)
+    ensureConfig(BrandConfigKeys.SHOW_PROMOTION_AS),
+    ensureCountries(),
+    ensureBillingCycles()
   ]);
 
   // lets ensure we parse our promotions correctly
@@ -124,7 +116,9 @@ async function load(
       "images",
       "prices",
       "products_attributes",
+      "products_attributes.icon",
       "products_options",
+      "products_options.icon",
       "products_options.prices",
       `category${".top_category".repeat(4)}`,
       "provision_blueprint.category"
@@ -241,6 +235,10 @@ async function parse(context: ProductConfigContext, { data }: AnyEventObject) {
   }
 
   const term = parseTerm(context, values?.term, values.quantity);
+  // Enforce the resolved term back onto the model: parseTerm falls an invalid /
+  // out-of-range cycle (e.g. a bad `?bcm=` param) back to the default, so the
+  // model can't keep a cycle the product doesn't offer (FE-2676).
+  values.term = term.term;
   lookups.prices.term = term.price;
 
   // NB:if terms have changed.....
@@ -339,116 +337,6 @@ async function validate(context: ProductConfigContext, _event: AnyEventObject) {
 // If we do have price overrides, we then just reset the term price to 0
 // thats WHY we have an object of prices, so we can easily remove the term price
 // and then just sum the rest of the prices values
-
-// We have a valid AUTH session when we are logged in as a client (TODO: admin + actor)
-// this will fire every time we transition to a new state
-function calculate(
-  prices: PriceCalculations,
-  overrides: boolean
-): PriceEntry[] {
-  const values = concat(
-    overrides ? [] : prices?.term,
-    prices?.attributes,
-    prices?.options
-  );
-
-  return filter(values, value => !isNil(value)) as PriceEntry[];
-}
-
-async function formatCalculation(
-  currencyId: string,
-  values: PriceEntry[]
-): Promise<Price> {
-  const { post, useUrl } = useQuery();
-
-  const prices = reject(values, isNil);
-  if (isEmpty(prices)) return Promise.reject();
-
-  return post({
-    mutationKey: ["cart", "calculate"],
-    url: useUrl("cart/calculate", {}),
-    withAccessToken: true,
-    data: {
-      currency_id: currencyId,
-      prices
-    }
-  }).then(data => {
-    return {
-      total: get(data, "total", 0),
-      totalFormatted: get(data, "total_formatted", "")
-      // TODO: get the API to return these values
-      // subtotal: get(data, "subtotal", 0),
-      // subtotalFormatted: get(data, "subtotal_formatted", ""),
-      // discount: get(data, "discount", 0),
-      // discountFormatted: get(data, "discount_formatted", ""),
-    } as Price;
-  });
-}
-
-// ---  SUBSCRIPTIONS
-
-export function calculateSubscription(callback: Function, onReceive: Function) {
-  // firstly, send service's current state upon subscription
-
-  let price: Price | undefined;
-  const { cancel } = useQuery();
-
-  onReceive((event: any) => {
-    if (event.type === "CALCULATE") {
-      // safety check, ensure we have a valid event
-      if (
-        !event.data?.currencyId ||
-        !event.data?.lookups ||
-        !event.data?.model
-      ) {
-        callback({ type: "CALCULATE_CANCELLED" });
-        return;
-      }
-
-      const { currencyId, lookups, model } = event.data;
-      const overrides =
-        !!model?.options &&
-        !!lookups?.options &&
-        checkPriceOverride(model.options, lookups.options);
-      const values = calculate(lookups.prices, overrides);
-      // Check if we actually need to calculate the price
-      // Compute a numeric total for cache comparison (handles both number and {price, quantity} entries)
-      const total = sum(
-        map(values, v => (isNumber(v) ? v : (v.price ?? 0) * (v.quantity ?? 1)))
-      );
-      if (price?.total == total || !values?.length) {
-        // no need to recalculate, just return the current price
-        callback({ type: "CALCULATED", data: price });
-        return;
-      }
-
-      callback({ type: "CALCULATING" });
-
-      formatCalculation(currencyId, values)
-        .then((result: Price) => {
-          // send the price back to the machine
-          price = result;
-          callback({ type: "CALCULATED", data: price });
-        })
-        // this catch will also trigger when a request is aborted, but it wont have any error message
-        .catch(error => {
-          // notify the machine if we have an anctual error, so we can move out of the calculating state
-          if (!isEmpty(error)) callback({ type: "CALCULATE_CANCELLED" });
-        });
-    }
-
-    if (event.type === "CANCEL") {
-      cancel(["cart", "calculate"]);
-    }
-  });
-
-  return () => {
-    // The subscriber has unsubscribed from this service
-    // typically when the transitioning out of the state node
-    //  so cancel any pending requests
-    cancel(["cart", "calculate"]);
-  };
-}
 
 // -----------------------------------------------------------------------------
 

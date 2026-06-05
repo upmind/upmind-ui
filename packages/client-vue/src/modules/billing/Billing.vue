@@ -15,7 +15,7 @@
             color: 'primary',
             variant: 'subtle',
             size: 'lg',
-            loading: isNavigating
+            disabled: isNavigating
           }"
           size="3xl"
           @action="navigateBack"

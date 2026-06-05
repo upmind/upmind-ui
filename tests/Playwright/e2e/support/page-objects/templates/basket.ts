@@ -27,7 +27,7 @@ export class Basket {
     this.basketProduct = page.getByTestId("basket-product");
     this.basketProductSummary = page.getByTestId("basket-product-summary");
     this.addMissingDataLink = page.getByTestId("link-add-missing-data");
-    this.subtotalSummary = page.getByTestId("card-container-summary");
+    this.subtotalSummary = page.getByTestId("section-basket-summary");
     this.summaryFooter = page.getByTestId("summary-footer");
     this.promotionForm = page.getByTestId("promotions-form");
     this.addPromo = page.getByTestId("link-add-a-voucher-code");
@@ -39,35 +39,39 @@ export class Basket {
       "form-item-message-promocode"
     );
     this.promoBadge = this.summaryFooter.getByTestId("badge");
-    this.proceedToCheckout = page.getByTestId("button-proceed-to-checkout");
+    this.proceedToCheckout = page.getByTestId("basket-checkout-button");
 
     /* Trial */
     this.trialAlert = this.basketProductSummary.getByRole("alert");
-    this.trialPriceLabel = this.basketProductSummary
-      .locator("footer")
-      .getByText("Free Trial");
+    // Since FE-2654 the "Free Trial" label is rendered inside the header
+    // hgroup (next to the title), not the footer alongside the price.
+    this.trialPriceLabel = this.basketProductSummary.getByText("Free Trial", {
+      exact: true
+    });
 
     /* Upsells */
     this.basketProductUpsell = page.getByTestId("basket-product-upsell");
   }
 
   upsellTitle(upsell: Locator): Locator {
-    return upsell.getByTestId("link-default");
+    return upsell.locator("strong").first();
   }
 
   upsellByTitle(title: string): Locator {
     return this.basketProductUpsell.filter({
-      has: this.page.getByTestId("link-default").filter({ hasText: title })
+      has: this.page.locator("strong").filter({ hasText: title })
     });
   }
 
-  upsellSwitch(title: string): Locator {
-    return this.upsellByTitle(title).getByRole("switch");
+  upsellAddButton(upsell: Locator): Locator {
+    return upsell.getByTestId("button-add-option");
+  }
+
+  upsellAddedButton(upsell: Locator): Locator {
+    return upsell.getByTestId("button-added");
   }
 
   upsellBenefits(title: string): Locator {
-    // Benefits live in a sibling `<ul>` of the upsell `<article>`, so step up
-    // to the shared wrapper before scoping by testid.
     return this.upsellByTitle(title)
       .locator("xpath=..")
       .getByTestId("product-benefits");
@@ -84,12 +88,8 @@ export class Basket {
     await this.promotionForm.getByTestId("button-apply").click();
   }
 
-  expandConfigurations() {
-    this.page.getByRole("link", { name: "Expand all configurations" });
-  }
-
   async clickShowDetails() {
     const card = this.basketProduct.first();
-    await card.getByTestId("link-default").nth(3).click();
+    await card.getByLabel("Product information").first().click();
   }
 }
