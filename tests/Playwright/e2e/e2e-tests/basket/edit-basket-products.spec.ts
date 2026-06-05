@@ -62,6 +62,36 @@ test.describe("Edit hosting product in basket", () => {
     await basket.clickShowDetails();
     await expect(basket.basketProduct).toContainText("London");
   });
+
+  /**
+   * FE-2805: Domain selection should be cleared when changing to "I'll decide later"
+   *
+   * When a hosting product has a domain linked and user edits it to select
+   * "Continue without domain", the previous domain selection should be cleared.
+   */
+  test("Changing domain to 'Continue without domain' clears previous selection", async ({
+    page
+  }) => {
+    products = await getBasketProducts(token);
+    productId = products[0].id;
+
+    // Navigate to edit the product that has a domain linked
+    await page.goto(`order/basket/edit/${productId}`);
+    await expect(productConfig.productConfigSection).toBeVisible();
+
+    // Select "Continue without domain" (skip)
+    await productConfig.domainRadioSkip.click();
+
+    // Confirm the changes
+    await productConfig.clickConfirm();
+    await expect(page).toHaveURL("order/basket/");
+
+    // Verify the basket product no longer shows a domain
+    await basket.clickShowDetails();
+    // The domain field should be empty or show "No domain" / similar
+    // Check that the original domain is NOT visible
+    await expect(basket.basketProduct).not.toContainText(".com");
+  });
 });
 
 test.describe("Edit domain product in basket", () => {

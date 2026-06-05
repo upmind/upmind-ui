@@ -103,7 +103,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { ref, computed, defineAsyncComponent } from "vue";
+import { ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -128,19 +128,16 @@ import Transitions from "../../components/layout/components/transition/Transitio
 import { Alert, Markdown } from "@upmind-automation/upmind-ui";
 
 // --- templates
+import BasketFullTemplate from "./templates/BasketFull.template.vue";
+import BasketLTRTemplate from "./templates/BasketLTR.template.vue";
+import BasketRTLTemplate from "./templates/BasketRTL.template.vue";
+import BasketEnclosedTemplate from "./templates/BasketEnclosed.template.vue";
+
 const supportedTemplates = {
-  [BASKET_TEMPLATE.FULL]: defineAsyncComponent(
-    () => import("./templates/BasketFull.template.vue")
-  ),
-  [BASKET_TEMPLATE.TWO_COLUMN_LTR]: defineAsyncComponent(
-    () => import("./templates/BasketLTR.template.vue")
-  ),
-  [BASKET_TEMPLATE.TWO_COLUMN_RTL]: defineAsyncComponent(
-    () => import("./templates/BasketRTL.template.vue")
-  ),
-  [BASKET_TEMPLATE.ENCLOSED]: defineAsyncComponent(
-    () => import("./templates/BasketEnclosed.template.vue")
-  )
+  [BASKET_TEMPLATE.FULL]: BasketFullTemplate,
+  [BASKET_TEMPLATE.TWO_COLUMN_LTR]: BasketLTRTemplate,
+  [BASKET_TEMPLATE.TWO_COLUMN_RTL]: BasketRTLTemplate,
+  [BASKET_TEMPLATE.ENCLOSED]: BasketEnclosedTemplate
 };
 
 // --- utils

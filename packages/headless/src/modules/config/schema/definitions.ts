@@ -612,6 +612,24 @@ export const DATA_DEFINITIONS = {
     contexts: [UIContext.RECOMMENDATIONS],
     scopes: [UIScope.PRODUCT_CATEGORY, UIScope.PRODUCT]
   },
+  productUnavailable: {
+    default: false,
+    contexts: [
+      UIContext.CATALOGUE,
+      UIContext.CONFIGURE,
+      UIContext.RECOMMENDATIONS
+    ],
+    scopes: [UIScope.BRAND, UIScope.PRODUCT_CATEGORY, UIScope.PRODUCT]
+  },
+  productUnavailableReason: {
+    default: undefined,
+    contexts: [
+      UIContext.CATALOGUE,
+      UIContext.CONFIGURE,
+      UIContext.RECOMMENDATIONS
+    ],
+    scopes: [UIScope.BRAND, UIScope.PRODUCT_CATEGORY, UIScope.PRODUCT]
+  },
   storeBadge: {
     default: undefined,
     contexts: [UIContext.CATALOGUE],

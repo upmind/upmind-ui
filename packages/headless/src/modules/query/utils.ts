@@ -54,8 +54,6 @@ export const PAGINATION = {
   limit: 10
 };
 
-// -----------------------------------------------------------------------------
-
 /**
  * Parse the data to be sent in the request body (e.g. JSON.stringify)
  * @param data The data to parse (can be an object or a FormData)
@@ -358,5 +356,36 @@ export function handleError(
     ErrorOrigin.Upmind,
     error?.data,
     (error as any)?.code
+  );
+}
+
+/**
+ * Detects whether a caught query-layer rejection represents an aborted
+ * request rather than a real error.
+ *
+ * `doFetch` rejects aborts with bare `undefined` (see
+ * `query/services.ts:75`), so a `.code === responseCodes.Aborted` check
+ * never fires for the common abort path — `undefined?.code` is undefined.
+ * This helper covers four shapes that can reach a downstream
+ * `.catch(error)` handler (or `doFetch`'s own pre-classification):
+ *   1. `undefined` — `doFetch`'s `Promise.reject()` with no value. Note:
+ *      `null` is intentionally NOT treated as an abort; callers that
+ *      reject with `null` for a non-abort reason should surface that
+ *      error rather than have it silently swallowed.
+ *   2. `{ name: "AbortError" }` — native fetch `AbortError` if it ever
+ *      slips past the `doFetch` catch (defensive).
+ *   3. `{ code: responseCodes.Aborted }` — structured shape for any
+ *      caller that explicitly rejects with the canonical aborted code.
+ *   4. `{ status: responseCodes.Aborted }` — fetch-response-shape used
+ *      inside `doFetch`'s own catch to classify before re-rejecting.
+ */
+export function isAbortError(error: unknown): boolean {
+  if (error === undefined) return true;
+  if (error === null) return false;
+  const e = error as { name?: unknown; code?: unknown; status?: unknown };
+  return (
+    e.name === "AbortError" ||
+    e.code === responseCodes.Aborted ||
+    e.status === responseCodes.Aborted
   );
 }

@@ -122,7 +122,24 @@ $1'
 
 ### Spaces before periods and commas
 
-Ensure there are no spaces before periods `.` and commas `,` in your translations.
+Ensure there are no spaces before periods `.` and commas `,` in your translations. **Pay particular attention to `} .` and `) .` patterns** — Localazy frequently introduces a stray space after a closing brace or paren (e.g. `Payment of {amount} is due {due_date} .`). A `\w`-based regex misses these; use `\S` instead.
+
+**Find (catches all cases, including after `}` and `)`):**
+
+```regex
+": "[^"]*\S +[.,]
+```
+
+**Targeted fix for the common Localazy bug:**
+
+```regex
+Find:
+\} +([.,])
+Replace:
+}$1
+```
+
+**Broader fix (any space-before-punctuation):**
 
 ```regex
 Find:
@@ -131,9 +148,11 @@ Replace:
 $1
 ```
 
-Description:
+**Expected false positives** (leave them alone):
 
-This matches one or more spaces immediately before a period or comma and removes them.
+* `.{tld}` — leading dot of a TLD placeholder in domain pricing copy.
+* ` ...` ellipsis after a word — typographic spacing in some locales.
+
 How to use:
 
 Open Find/Replace in VS Code.

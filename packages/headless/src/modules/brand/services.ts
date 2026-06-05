@@ -34,6 +34,7 @@ const defaultBrandConfigKeys = [
   BrandConfigKeys.DEFAULT_CLIENT_HOMEPAGE,
   BrandConfigKeys.DEFAULT_PAYMENT_PERIOD,
   BrandConfigKeys.DISABLE_CLIENT_REGISTRATION,
+  BrandConfigKeys.GUEST_CHECKOUT_ENABLED,
   BrandConfigKeys.DOMAIN_SEARCH_METHOD,
   BrandConfigKeys.PARTIAL_PAYMENTS_ENABLED,
   BrandConfigKeys.PAY_LATER_ENABLED,
@@ -78,6 +79,9 @@ function fetchBrandSettings() {
     queryKey: ["brand", "settings"],
     // --- options
     staleTime: "static",
+    // A 5xx here means the brand doesn't exist — a deterministic answer, not a
+    // transient fault. Retrying it blocks the unavailable-tenant redirect in init.
+    retry: false,
     persister: localStoragePersister.persisterFn,
     select: mapBrandSettings
   });

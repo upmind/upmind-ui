@@ -16,7 +16,7 @@
   "order_placed": "Comanda confirmată",
   "order_placed_msg": "Comanda dvs. a fost confirmată. Vă rugăm să continuați cu plata pentru a finaliza achiziția.",
   "payment_due": "Termen de plată",
-  "payment_due_msg": "Comanda dumneavoastră este confirmată. Plata {amount} se datorează până la {due_date} .",
+  "payment_due_msg": "Comanda dumneavoastră este confirmată. Plata {amount} se datorează până la {due_date}.",
   "payment_failed_banner": "Încercarea dvs. de plată nu a reușit - vă rugăm să încercați din nou.",
   "payment_partial": "Plată restantă",
   "payment_partial_msg": "Aveți {remaining_amount} rămas. Vă rugăm să finalizați plata pentru a finaliza comanda.",

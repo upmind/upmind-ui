@@ -64,7 +64,7 @@ test.describe("DAC basket-add", () => {
       await dac.gotoSearch(SEARCH_QUERY);
       await dac.clickAddOnCard();
 
-      await expect(dac.addToBasketButtonOnCard()).toBeHidden({
+      await expect(dac.addToBasketButtonOnCard()).toBeDisabled({
         timeout: 15000
       });
     });

@@ -16,7 +16,7 @@
   "order_placed": "Bestelling bevestigd",
   "order_placed_msg": "Uw bestelling is bevestigd. Ga verder met de betaling om uw aankoop te voltooien.",
   "payment_due": "Betalingstermijn",
-  "payment_due_msg": "Uw bestelling is bevestigd. Betaling van {amount} is verschuldigd op {due_date} .",
+  "payment_due_msg": "Uw bestelling is bevestigd. Betaling van {amount} is verschuldigd op {due_date}.",
   "payment_failed_banner": "Uw poging tot betaling is mislukt - probeer het opnieuw.",
   "payment_partial": "Openstaande betaling",
   "payment_partial_msg": "Je hebt {remaining_amount} Resterend. Voltooi uw betaling om uw bestelling af te ronden.",

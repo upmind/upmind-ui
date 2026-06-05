@@ -25,7 +25,8 @@ import type {
   Benefit,
   ProductBundleConfig,
   ProductRecommendConfig,
-  Badge
+  Badge,
+  LabelContent
 } from "./types";
 
 export interface UISchema {
@@ -241,6 +242,12 @@ export interface DataSchema {
 
   /** Array of cross-sell product configs used for the recommendations step */
   productsToRecommend?: ProductRecommendConfig[];
+
+  /** Mark a product as unavailable (sold out). Disables the CTA and shows an "unavailable" badge in catalogue/configure/recommendations. */
+  productUnavailable?: boolean;
+
+  /** Optional reason paired with `productUnavailable`. Accepts a label string or {@link LabelContent}, and is bound to whichever surface is visible — the overlay badge in catalogue/recommendations, or the disabled CTA in configure / `hideImage` mode. */
+  productUnavailableReason?: string | LabelContent;
 
   /** Optional store badge, shown on primary (no category) catalogue screen */
   storeBadge?: Badge;

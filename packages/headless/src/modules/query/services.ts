@@ -3,7 +3,7 @@
 // --- internal
 import { useI18n } from "../system";
 import { useSession } from "../session";
-import { handleError, useQuery } from ".";
+import { handleError, isAbortError, useQuery } from ".";
 
 // --- utils
 import { get, map, set, includes, upperCase } from "lodash-es";
@@ -67,12 +67,7 @@ async function doFetch<T extends any = any>({
     })
     .catch(response => {
       // Aborted requests are handled differently and do not throw an error
-      if (
-        response.status == responseCodes.Aborted ||
-        response.code == responseCodes.Aborted ||
-        response.name == "AbortError"
-      )
-        return Promise.reject();
+      if (isAbortError(response)) return Promise.reject();
 
       // DC: change this as when we get service cors errors, we don't get a response object with status,
       // so we need to handle it differently, and that generally means the API is down

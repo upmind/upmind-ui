@@ -421,6 +421,7 @@ export default {
   },
 
   guardSession: async ({
+    currentRoute,
     targetRoute
   }: FunnelContext): Promise<FunnelResponse> => {
     const { router } = useRoutingEngine();
@@ -438,14 +439,31 @@ export default {
     // Wait for session to be fully ready and authenticated if a transition is in progress
     await session.isReady();
 
-    // Check if we are authenticated. We use the check method to ensure
-    // we wait for the profile load to complete.
+    // Always await the profile load — do NOT short-circuit on
+    // `meta.isAuthenticated`. That flag flips true as soon as we enter the
+    // client context, but the client `/self` may still be loading, so a
+    // downstream synchronous guard like `isGuestClient` (reads
+    // `client.value?.isGuest`) would see an empty client on refresh and return
+    // false. `isAuthenticated()` waits for the client actor to be available.
+    const isAuthed = await session
+      .isAuthenticated()
+      .then(() => true)
+      .catch(() => false);
+
+    if (!isAuthed) {
+      return Promise.reject();
+    }
+
+    // Guest customers are authenticated but not yet fully registered. Unlike
+    // full clients — who get redirected away from auth pages — a guest must be
+    // allowed onto the register route so they can complete their registration.
+    // Rejecting here lets the SESSION_REGISTER state resolve and render the
+    // page (Register.vue shows <GuestRegistration auto-show /> when isGuestClient).
     if (
-      session.meta.value.isAuthenticated ||
-      (await session.isAuthenticated().catch(() => false))
+      session.meta.value.isGuestClient &&
+      (currentRoute?.name === ROUTE.SESSION_REGISTER ||
+        targetRoute?.name === ROUTE.SESSION_REGISTER)
     ) {
-      // We are authenticated and profile is loaded
-    } else {
       return Promise.reject();
     }
 
