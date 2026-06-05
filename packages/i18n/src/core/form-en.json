@@ -101,7 +101,12 @@
   "companyNumber": {
     "description": null,
     "label": "Company Number",
-    "placeholder": "Registered tax or GST"
+    "placeholder": "Company Identification Number"
+  },
+  "taxNumber": {
+    "description": null,
+    "label": "Registered Tax ID",
+    "placeholder": "Tax ID/VAT/GST Number"
   },
   "country": {
     "description": null,

@@ -72,7 +72,7 @@
   "tax_valid": "Érvényesített {relative}",
   "term": "kifejezés",
   "terms_and_conditions": "Felhasználási feltételek",
-  "terms_and_conditions_desc": "A következőre kattintva: '{label}', Egyetértek a {action} a {brand} .",
+  "terms_and_conditions_desc": "A következőre kattintva: '{label}', Egyetértek a {action} a {brand}.",
   "terms_of_service": "Szolgáltatási feltételek",
   "total": "Teljes",
   "welcome_back_msg": "Isten hozott ismét, {name}"

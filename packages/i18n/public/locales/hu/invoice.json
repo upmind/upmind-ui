@@ -16,7 +16,7 @@
   "order_placed": "Rendelés visszaigazolva",
   "order_placed_msg": "Rendelését visszaigazoltuk. Kérjük, folytassa a fizetéssel a vásárlás befejezéséhez.",
   "payment_due": "Fizetési határidő",
-  "payment_due_msg": "A rendelésed visszaigazolva. Fizetés {amount} esedékes {due_date} .",
+  "payment_due_msg": "A rendelésed visszaigazolva. Fizetés {amount} esedékes {due_date}.",
   "payment_failed_banner": "A fizetési kísérlet sikertelen volt – kérjük, próbálja meg újra.",
   "payment_partial": "Kifizetetlen összeg",
   "payment_partial_msg": "Van {remaining_amount} fennmaradó. Kérjük, fejezze be a fizetést a rendelés véglegesítéséhez.",

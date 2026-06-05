@@ -72,7 +72,7 @@
   "tax_valid": "Валидирано {relative}",
   "term": "срок",
   "terms_and_conditions": "Общи условия",
-  "terms_and_conditions_desc": "Като кликнете върху „{label}„ Съгласен съм с {action} от {brand} .",
+  "terms_and_conditions_desc": "Като кликнете върху „{label}„ Съгласен съм с {action} от {brand}.",
   "terms_of_service": "Условия за ползване",
   "total": "Общо",
   "welcome_back_msg": "Добре дошъл отново, {name}"

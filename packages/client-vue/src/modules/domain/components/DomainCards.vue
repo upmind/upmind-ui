@@ -40,6 +40,9 @@
           :discounted="item.meta.discounted"
           :free="item.meta.free"
           :canTransfer="item.meta.canTransfer"
+          :transferLabel="item.meta.transferLabel"
+          :transferOptionPrice="item.meta.transferOptionPrice"
+          :transferOptionIsFree="item.meta.transferOptionIsFree"
           :unavailable="item.meta.unavailable"
           :priceLoading="item.meta.priceLoading"
           :exactMatch="isExactMatch(value.toString())"
@@ -51,7 +54,7 @@
     </CheckboxCards>
 
     <Interstitial
-      v-if="!meta.hasAvailable && meta.isSearching && !resultCount"
+      v-else-if="meta.isSearching && !resultCount"
       v-bind="props"
       :class="styles.domain.listings.interstitial"
       :text="t('text.moment_short_desc')"
@@ -64,13 +67,11 @@
       </template>
     </Interstitial>
 
-    <template
-      v-else-if="!meta.hasAvailable && !meta.isSearching && !resultCount"
-    >
+    <template v-else-if="!meta.isSearching && !resultCount">
       <DomainCardSkeleton v-for="i in skeletonCount" :key="i" :active="false" />
     </template>
 
-    <template v-else-if="meta.isSearching && !meta.hasAvailable">
+    <template v-else-if="meta.isSearching">
       <DomainCardSkeleton v-if="meta.hasTLD" is-exact-match />
 
       <DomainCardSkeleton v-for="i in resultsSkeletonCount" :key="i" />
@@ -155,8 +156,7 @@ const meta = computed(() => ({
 }));
 
 const stylesMeta = computed(() => ({
-  padding: props.template === DOMAIN_TEMPLATE.DRAWER ? "lg" : "none",
-  hasExactMatch: meta.value.hasExactMatch
+  padding: props.template === DOMAIN_TEMPLATE.DRAWER ? "lg" : "none"
 }));
 
 const styles = useStyles(["domain.listings"], stylesMeta, config);

@@ -19,13 +19,16 @@ import {
   parseTerm,
   parseSubproducts,
   parseSubproductDetails,
+  parseProductDetails,
   parseProductProps,
+  parseTermDetails,
   hasNonOrderableSubproducts
 } from "./utils";
 
 import { useProductConfigSchema } from "./schemas";
 
 import {
+  cloneDeep,
   compact,
   concat,
   defaultsDeep,
@@ -42,7 +45,9 @@ import {
 import {
   BrandConfigKeys,
   type IBlueprintField,
-  type IProduct
+  type IProduct,
+  type IProductAttribute,
+  type IProductOption
 } from "@upmind-automation/types";
 
 import type { ProductModel, ProductConfigContext, ProductProps } from "./types";
@@ -50,6 +55,78 @@ import type { ProductModel, ProductConfigContext, ProductProps } from "./types";
 import { type AnyEventObject } from "xstate";
 import { type ErrorObject } from "ajv";
 import { parseBasketSubproductConfig } from "../basketProduct/utils";
+
+// -----------------------------------------------------------------------------
+
+/**
+ * Synchronous wrapper around the canonical `useProductConfigSchema +
+ * useModelParser` pipeline. Hydrates `baseModel` with any defaults the
+ * schema declares for `term` / `options` / `attributes` based on the raw
+ * `IProduct` — same machinery the configurator's `parse` service uses
+ * (`product/services.ts:289-290`), but without the async
+ * `loadProvisioningFields` step. For typical TLD-style products with no
+ * required option/attribute categories this is effectively a clone of
+ * `baseModel`; the value is in keeping all basket-add paths consistent
+ * so a brand configuring a required category doesn't 422 the add.
+ *
+ * Throws if `parseProductDetails` / `parseTermDetails` /
+ * `parseSubproductDetails` fail on a malformed `raw` — callers in
+ * synchronous (`pure`) XState actions should wrap accordingly.
+ */
+export function applyConfigDefaults(
+  baseModel: ProductProps,
+  raw?: IProduct
+): ProductProps {
+  // `parseProductProps`-style subproduct fallback — the API sometimes
+  // echoes `products_options` / `products_attributes` back as plain
+  // `options` / `attributes` (the `/availability` endpoint returns under
+  // the un-prefixed keys when fetched with
+  // `with: "prices,options,options.prices,attributes"`). Use `isEmpty`
+  // rather than `??` so a defined-but-empty `products_options: []`
+  // falls through to the populated echo instead of silently winning.
+  const rawWithEcho = raw as
+    | (IProduct & {
+        options?: IProductOption[];
+        attributes?: IProductAttribute[];
+      })
+    | undefined;
+  const rawOptions = !isEmpty(rawWithEcho?.products_options)
+    ? rawWithEcho?.products_options
+    : rawWithEcho?.options;
+  const rawAttributes = !isEmpty(rawWithEcho?.products_attributes)
+    ? rawWithEcho?.products_attributes
+    : rawWithEcho?.attributes;
+
+  // Pass the parent's billing cycle through so each subproduct's price can
+  // be resolved against it. Without this, `parseSubproductDetails`'s price
+  // match collapses to `cycle: 0` only, and any required-default option
+  // whose `prices` lacks a cycle-0 row falls back to the option's own
+  // `billing_cycle_months` — a *storage default* (often `1`), not a real
+  // price key. That stale default then rides into `schema.default` →
+  // baseline model → basket POST as `billing_cycle_months: 1`.
+  // The cycle order: explicit `baseModel.term` (user choice / configurator
+  // selection) wins; otherwise fall back to the product's
+  // `default_payment_period`.
+  const parentCycle = baseModel?.term ?? raw?.default_payment_period;
+
+  const schema = useProductConfigSchema({
+    baseModel,
+    rawProduct: raw,
+    lookups: {
+      product: raw ? parseProductDetails(raw) : undefined,
+      terms: raw ? parseTermDetails(raw) : undefined,
+      options: parseSubproductDetails(rawOptions, parentCycle),
+      attributes: parseSubproductDetails(rawAttributes, parentCycle)
+    }
+  } as ProductConfigContext);
+
+  // Defence-in-depth clone: `useModelParser`'s current call shape
+  // (`defaultsDeep(values, {})`) doesn't actually mutate the caller's
+  // `baseModel`, but the parser builds new objects from `values` and we
+  // don't want any future refactor that starts writing into `values` to
+  // silently corrupt callers that hold a `baseModel` reference.
+  return useModelParser<ProductProps>(schema, cloneDeep(baseModel), {});
+}
 
 // -----------------------------------------------------------------------------
 

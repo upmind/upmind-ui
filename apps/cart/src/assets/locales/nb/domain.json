@@ -1,17 +1,22 @@
 {
+  "basket_placeholder": "Velg et domene",
   "begin_search_above_desc": "Start søket ditt ved hjelp av boksen ovenfor.",
   "choices": {
     "basket": {
-      "label": "Bruk domene i handlekurven",
+      "label": "Bruk et domene fra handlekurven min",
       "tooltip": "Disse domenene er allerede i handlekurven din"
     },
     "existing": {
-      "label": "Bruk eksisterende domene",
+      "label": "Bruk et domene jeg allerede eier",
       "tooltip": "Du kan bruke et eksisterende domene ved å oppdatere navneserverne"
     },
     "register": {
-      "label": "Registrer nytt domene",
+      "label": "Registrer et nytt domene",
       "tooltip": "Har du ikke allerede et domene? Registrer et nytt hos oss"
+    },
+    "skip": {
+      "label": "Jeg bestemmer meg senere",
+      "tooltip": ""
     },
     "transfer": {
       "label": "Overfør domene",
@@ -21,22 +26,43 @@
   "domain_description": "Sikre din identitet på nett i dag – det tar bare et minutt.",
   "domain_not_required_label": "Fortsett uten domene",
   "domain_title": "Inkluder et domenenavn.",
+  "error": {
+    "availability_check_failed": "Det lyktes ikke å sjekke om domenet er ledig",
+    "registration_add_failed": "Det gikk ikke å legge domenet i handlekurven",
+    "transfer_add_failed": "Det gikk ikke å legge overføringen i handlekurven",
+    "transfer_remove_failed": "Det lyktes ikke å fjerne varen fra handlekurven"
+  },
+  "existing": {
+    "add_registration": "Legg i handlekurven",
+    "add_transfer": "Legg til overføring",
+    "dns_info": "For å kunne bruke dette domenet må du oppdatere domenets DNS hos den nåværende registraren.",
+    "placeholder": "Oppgi hvilket domene du ønsker å bruke.",
+    "register_info": "Gode nyheter – dette domenet kan registreres for bare {price}, inkludert en registrering {period}.",
+    "remove_transfer": "Fjern overføring",
+    "transfer_added": "Overføring lagt til",
+    "transfer_info": "Hvis du eier dette domenet, kan du overføre det til oss for bare {transferPrice}. Senere fornyelser koster {term}. Alternativt må du oppdatere domenets navneserveroppføringer (NS).",
+    "transfer_info_free": "Hvis du eier dette domenet, kan du overføre det til oss GRATIS. Senere fornyelser koster {term}. Alternativt må du oppdatere domenets navneserveroppføringer (NS).",
+    "unavailable": "Dette domenet kan ikke registreres eller overføres."
+  },
   "finding_perfect_domain": "Å finne ditt **perfekte** domene",
   "finding_perfect_domain_md": "@.markdown:{'domain.finding_perfect_domain'}",
   "own_domain_qn": "Eier du dette domenet?",
   "owned_domains_title": "Domener du eier for øyeblikket",
   "price_renewal_desc": "Engangspris på {regularPrice}. | Fornyes hvert år for {regularPrice}. | Fornyes hvert {count} år for {regularPrice}.",
   "registrant_use_billing_msg": "Faktureringsinformasjonen din vil bli brukt som kontaktinformasjon for domeneregistranten.",
-  "search": "Søk etter domener",
+  "search": "Skriv inn et domene du vil søke etter",
   "starts_with_domain": "Det hele starter med et **domenenavn**",
   "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
+  "tld_renewal_info": "Fornyelser starter fra {term}.",
   "tld_renewal_price_desc": "Vår {tld} fornyelsespriser starter fra kun {currentPrice} (var {regularPrice}).",
   "tld_renewal_price_from_desc": "Vår {tld} fornyelsespriser starter fra kun {regularPrice}.",
   "transfer": "Overfør for kun {currentPrice}.",
   "transfer_domain": "Overfør domene",
   "transfer_extension_info": "Overføringer inkluderer en ettårig forlengelse.",
+  "transfer_free_info": "Du kan overføre det til oss helt GRATIS.",
   "transfer_owner_question": "Er du eieren av dette domenet?",
   "transfer_price_info": "Du kan overføre det til oss for bare {currentPrice}",
   "transfer_promotion": "Overfør for kun {currentPrice}, vanligvis {regularPrice}.",
-  "use_details_for": "Bruk disse detaljene til{domain}"
+  "transfer_today_info": "Du kan overføre beløpet til oss i dag.",
+  "use_details_for": "Bruk disse detaljene til {domain}"
 }

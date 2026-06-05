@@ -1,17 +1,22 @@
 {
+  "basket_placeholder": "Vyberte doménu",
   "begin_search_above_desc": "Začnite vyhľadávanie pomocou vyššie uvedeného poľa.",
   "choices": {
     "basket": {
-      "label": "Použiť doménu v košíku",
+      "label": "Použiť doménu z môjho košíka",
       "tooltip": "Tieto domény už máte vo svojom košíku"
     },
     "existing": {
-      "label": "Použiť existujúcu doménu",
+      "label": "Použiť doménu, ktorú už vlastním",
       "tooltip": "Môžete použiť existujúcu doménu aktualizáciou názvových serverov"
     },
     "register": {
       "label": "Zaregistrovať novú doménu",
       "tooltip": "Ešte nemáte doménu? Zaregistrujte si u nás novú"
+    },
+    "skip": {
+      "label": "Rozhodnem sa neskôr",
+      "tooltip": ""
     },
     "transfer": {
       "label": "Prevod domény",
@@ -21,22 +26,43 @@
   "domain_description": "Zabezpečte si svoju online identitu ešte dnes – trvá to len minútu.",
   "domain_not_required_label": "Pokračovať bez domény",
   "domain_title": "Zahrňte názov domény.",
+  "error": {
+    "availability_check_failed": "Nepodarilo sa overiť dostupnosť domény",
+    "registration_add_failed": "Nepodarilo sa pridať doménu do košíka",
+    "transfer_add_failed": "Pridanie prevodu do košíka sa nepodarilo",
+    "transfer_remove_failed": "Nepodarilo sa odstrániť položku z košíka"
+  },
+  "existing": {
+    "add_registration": "Pridať do košíka",
+    "add_transfer": "Pridať prevod",
+    "dns_info": "Ak chcete túto doménu používať, budete musieť aktualizovať jej nastavenia DNS u súčasného registrátora.",
+    "placeholder": "Napíšte nám, akú doménu chcete používať.",
+    "register_info": "Dobrá správa – túto doménu si môžete zaregistrovať už za {price}, čo zahŕňa aj registráciu {period}.",
+    "remove_transfer": "Zrušiť prevod",
+    "transfer_added": "Pridaný prevod",
+    "transfer_info": "Ak ste vlastníkom tejto domény, môžete ju k nám preniesť už za {transferPrice}. Nasledujúce predĺženia sa účtujú vo výške {term}. Inak budete musieť aktualizovať záznamy menných serverov (NS) domény.",
+    "transfer_info_free": "Ak ste vlastníkom tejto domény, môžete ju k nám preniesť ZADARMO. Nasledujúce predĺženia sa účtujú za {term}. Inak budete musieť aktualizovať záznamy menných serverov (NS) domény.",
+    "unavailable": "Túto doménu nie je možné zaregistrovať ani previesť."
+  },
   "finding_perfect_domain": "Hľadanie vašej **dokonalej** domény",
   "finding_perfect_domain_md": "@.markdown:{'domain.finding_perfect_domain'}",
   "own_domain_qn": "Vlastníte túto doménu?",
   "owned_domains_title": "Domény, ktoré momentálne vlastníte",
   "price_renewal_desc": "Jednorazová cena {regularPrice}. | Obnovuje sa každý rok za {regularPrice}. | Obnovuje sa každých {count} rokov za {regularPrice}.",
   "registrant_use_billing_msg": "Vaše fakturačné údaje budú použité ako kontaktné informácie registrátora domény.",
-  "search": "Vyhľadávanie domén",
+  "search": "Zadajte doménu, ktorú chcete vyhľadať",
   "starts_with_domain": "Všetko sa to začína **názvom domény**",
   "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
+  "tld_renewal_info": "Ceny za predĺženie začínajú na {term}.",
   "tld_renewal_price_desc": "Naše {tld} ceny za obnovenie začínajú už od {currentPrice} (bol {regularPrice}).",
   "tld_renewal_price_from_desc": "Naše {tld} ceny za obnovenie začínajú už od {regularPrice}.",
   "transfer": "Prevod len za {currentPrice}.",
   "transfer_domain": "Prenos domény",
   "transfer_extension_info": "Transfery zahŕňajú predĺženie o jeden rok.",
+  "transfer_free_info": "Môžete nám to poslať ZADARMO.",
   "transfer_owner_question": "Ste vlastníkom tejto domény?",
   "transfer_price_info": "Môžete nám ho previesť len za {currentPrice}",
   "transfer_promotion": "Prevod len za {currentPrice}, zvyčajne {regularPrice}.",
-  "use_details_for": "Použite tieto údaje pre{domain}"
+  "transfer_today_info": "Môžete nám to poslať ešte dnes.",
+  "use_details_for": "Použite tieto údaje pre {domain}"
 }

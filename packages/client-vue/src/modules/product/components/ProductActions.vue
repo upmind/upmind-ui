@@ -20,11 +20,11 @@
       type="submit"
       color="primary"
       :loading="meta.isProcessing || isNavigating"
-      :disabled="meta.isLoading || meta.isUnavailable"
-      :label="t('action.add_to_basket')"
+      :disabled="meta.isLoading || meta.isUnavailable || isUnavailable"
+      :label="action.label"
+      :icon="action.icon"
       size="lg"
       @click="doResolve"
-      icon="shopping-bag-02"
     />
   </div>
 </template>
@@ -33,18 +33,20 @@
 // --- external
 import { computed } from "vue";
 import {
+  useConfig,
   useRoutingEngine,
   type Product,
   type UseProductConfigMeta
 } from "@upmind-automation/headless";
 import { useI18n } from "vue-i18n";
 import { useStyles } from "@upmind-automation/upmind-ui";
+import { isString } from "lodash-es";
 
 // --- components
 import { Button, NumberField } from "@upmind-automation/upmind-ui";
 
 // --- internal
-import config from "../product.config";
+import stylesConfig from "../product.config";
 
 // --- types
 // -----------------------------------------------------------------------------
@@ -64,7 +66,22 @@ const layout = computed(() => {
   return props?.template;
 });
 
-const styles = useStyles(["product"], { layout }, config);
+const config = useConfig().with({
+  product: () => props.product
+});
+
+const isUnavailable = computed(() => !!config.data.productUnavailable);
+
+const action = computed(() => {
+  if (isUnavailable.value) {
+    const reason = config.data.productUnavailableReason;
+    if (!reason) return { label: t("text.unavailable") };
+    return isString(reason) ? { label: reason } : reason;
+  }
+  return { label: t("action.add_to_basket"), icon: "shopping-bag-02" };
+});
+
+const styles = useStyles(["product"], { layout }, stylesConfig);
 
 // ---
 function updateQuantity(value: number | undefined) {

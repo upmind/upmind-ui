@@ -59,7 +59,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { computed, defineAsyncComponent } from "vue";
+import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -80,10 +80,10 @@ import Hero from "../../components/hero/Hero.vue";
 import Transitions from "../../components/layout/components/transition/Transition.vue";
 
 // --- templates
+import RecommendationsFullTemplate from "./templates/RecommendationsFull.template.vue";
+
 const supportedTemplates = {
-  [RECOMMENDATIONS_TEMPLATE.FULL]: defineAsyncComponent(
-    () => import("./templates/RecommendationsFull.template.vue")
-  )
+  [RECOMMENDATIONS_TEMPLATE.FULL]: RecommendationsFullTemplate
 };
 
 // --- utils
