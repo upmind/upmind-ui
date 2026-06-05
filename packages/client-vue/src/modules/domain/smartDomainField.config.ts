@@ -8,9 +8,9 @@ export default {
       "bg-control-surface border-control-default control-radius border py-1 data-[disabled]:pointer-events-none data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50"
     ),
     content: cva("flex w-full flex-col items-start gap-1 px-4 py-3"),
-    option: cva("flex w-full cursor-pointer items-start gap-3"),
+    option: cva("flex w-fit cursor-pointer items-start gap-3"),
     indicator: cva("flex h-7 items-center"),
-    label: cva("text-base leading-7 font-medium"),
+    label: cva("cursor-pointer text-base leading-7 font-medium"),
     expanded: cva("flex w-full flex-col gap-1 py-2 pl-7", {
       variants: {
         hasInfo: {
