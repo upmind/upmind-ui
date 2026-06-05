@@ -11,5 +11,11 @@
   "verify_email_title": "Verify email",
   "verify_email_msg": "Please verify your email address to proceed to checkout. We've sent a verification code to your registered email.",
   "verify_email_still_required": "Your email address still needs to be verified before you can proceed.",
-  "didnt_receive_code": "Didn't receive a code?"
+  "didnt_receive_code": "Didn't receive a code?",
+  "guest_checkout_qn": "In a hurry?",
+  "guest_checkout_description": "In a hurry? {action}.",
+  "guest_checkout_action": "Continue as a guest",
+  "guest_register_title": "Create your account",
+  "guest_register_description": "Save your details for faster checkout next time",
+  "guest": "Guest"
 }

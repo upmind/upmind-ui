@@ -17,7 +17,7 @@ export type ActionProps = ButtonProps & {
 };
 
 export type SessionProps = {
-  modelValue?: "login" | "register" | "recover" | "reset" | "profile";
+  modelValue?: "login" | "register" | "recover" | "reset" | "profile" | "guest";
   noHeader?: boolean;
   noFooter?: boolean;
   noTabs?: boolean;
@@ -60,4 +60,17 @@ export enum SESSION_TEMPLATE {
   SURFACE_BOX = "surface-box",
   TWO_COLUMN_LTR = "two-column-ltr",
   TWO_COLUMN_RTL = "two-column-rtl"
+}
+
+/**
+ * The session form Auth is currently presenting. `GUEST_REGISTER` (a guest
+ * client upgrading to a full account) is distinct from `REGISTER` (a new
+ * sign-up) — same fields, different submit label/flow.
+ */
+export enum AUTH_FORM {
+  LOGIN = "login",
+  REGISTER = "register",
+  GUEST_REGISTER = "guest-register",
+  RECOVER = "recover",
+  UNKNOWN = "unknown"
 }

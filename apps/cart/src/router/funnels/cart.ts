@@ -495,6 +495,10 @@ export default <FunnelProps>{
         src: "guardSession",
         onDone: [
           {
+            actions: ["setResolved"],
+            cond: "isGuestClient"
+          },
+          {
             target: ROUTE.CHECKOUT,
             actions: ["setUnresolved", "clearTarget"],
             cond: "isSameRoute"

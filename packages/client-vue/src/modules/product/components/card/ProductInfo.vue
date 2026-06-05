@@ -47,7 +47,7 @@
       />
 
       <Badge
-        v-if="hideImage && productMeta?.data.productBadge"
+        v-if="hideImage && productMeta?.data.productBadge && !isUnavailable"
         v-bind="
           isString(productMeta.data.productBadge)
             ? { label: productMeta.data.productBadge }
@@ -145,8 +145,13 @@ const titleRoute = computed(() =>
   })
 );
 
+const isUnavailable = computed(
+  () => !!props.productMeta?.data.productUnavailable
+);
+
 function doResolve() {
   if (!props.id) return;
+  if (isUnavailable.value) return;
   emit("resolve", props.id);
 }
 </script>

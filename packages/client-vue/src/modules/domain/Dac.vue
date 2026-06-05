@@ -87,7 +87,6 @@
 <script lang="ts" setup>
 // --- external
 import { computed, onUnmounted, ref, watch } from "vue";
-import { defineAsyncComponent } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -111,13 +110,12 @@ import { DEBOUNCE_DELAY } from "@upmind-automation/headless";
 import { debounce, includes, some } from "lodash-es";
 
 //  --- templates
+import DomainFullTemplate from "./templates/DomainFull.template.vue";
+import DomainWidgetTemplate from "./templates/DomainWidget.template.vue";
+
 const supportedTemplates = {
-  [DOMAIN_TEMPLATE.FULL]: defineAsyncComponent(
-    () => import("./templates/DomainFull.template.vue")
-  ),
-  [DOMAIN_TEMPLATE.WIDGET]: defineAsyncComponent(
-    () => import("./templates/DomainWidget.template.vue")
-  )
+  [DOMAIN_TEMPLATE.FULL]: DomainFullTemplate,
+  [DOMAIN_TEMPLATE.WIDGET]: DomainWidgetTemplate
 };
 
 // --- types

@@ -166,6 +166,10 @@ export interface Client {
    * The primary email address of the client.
    */
   email: IClient["email"];
+  /**
+   * Whether the client is a guest (checked out without full registration).
+   */
+  isGuest: boolean;
 
   /**
    * The client's username for login.

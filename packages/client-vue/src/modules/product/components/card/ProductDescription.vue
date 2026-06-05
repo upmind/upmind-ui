@@ -5,7 +5,7 @@
     :label-less="t('action.show_less')"
     :lines="lines"
   >
-    <Markdown :class="props.class" tag="p" :model-value="description" />
+    <Markdown :class="props.class" tag="p" inline :model-value="description" />
   </Lineclamp>
 </template>
 

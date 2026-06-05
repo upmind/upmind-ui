@@ -16,7 +16,7 @@
   "order_placed": "Bestillingen er bekreftet",
   "order_placed_msg": "Bestillingen din er bekreftet. Fortsett med betalingen for å fullføre kjøpet.",
   "payment_due": "Forfall",
-  "payment_due_msg": "Bestillingen din er bekreftet. Betaling av {amount} forfaller innen {due_date} .",
+  "payment_due_msg": "Bestillingen din er bekreftet. Betaling av {amount} forfaller innen {due_date}.",
   "payment_failed_banner": "Betalingsforsøket ditt mislyktes – prøv igjen.",
   "payment_partial": "Utestående betaling",
   "payment_partial_msg": "Du har {remaining_amount} gjenværende. Vennligst fullfør betalingen for å fullføre bestillingen.",

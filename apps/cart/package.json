@@ -23,7 +23,7 @@
     "node": "^20.19.0 || >=22.12.0"
   },
   "scripts": {
-    "clean": "rm -rf {node_modules,dist,*.tsbuildinfo}",
+    "reset": "rm -rf {node_modules,dist,*.tsbuildinfo}",
     "start": "pnpm dev",
     "start:test": "vite --mode test",
     "dev": "vite",

@@ -195,6 +195,7 @@ export function mapClient(
     firstName: raw.firstname,
     fullName: raw.fullname,
     id: raw.id,
+    isGuest: !!raw.is_guest,
     language: raw.interface_language_id,
     lastName: raw.lastname,
     locale: raw.interface_language_code,

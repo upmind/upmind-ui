@@ -84,7 +84,7 @@
   },
   "companyNumber": {
     "label": "Numéro d'entreprise",
-    "placeholder": "Taxe enregistrée ou TPS"
+    "placeholder": "Numéro d'identification de l'entreprise"
   },
   "country": {
     "label": "Pays",
@@ -167,6 +167,10 @@
   },
   "stored_payment_method": {
     "label": ""
+  },
+  "taxNumber": {
+    "label": "Numéro d'identification fiscale",
+    "placeholder": "Numéro d'identification fiscale / Numéro de TVA / Numéro de GST"
   },
   "twofa": {
     "description": "Ce compte est sécurisé par une authentification à deux facteurs. Veuillez saisir votre code de vérification.",
