@@ -25,6 +25,7 @@ import {
 
 import {
   compact,
+  constant,
   filter,
   find,
   findLast,
@@ -38,8 +39,11 @@ import {
   isNil,
   isObjectLike,
   isString,
+  keys,
   map,
   mapValues,
+  merge,
+  omit,
   omitBy,
   reduce,
   set,
@@ -554,6 +558,25 @@ export function parseBasketProductError(rawError: any | any[]): ErrorObject[] {
     ...parseArrayErrors(rawError, "options", "options"),
     ...parseArrayErrors(rawError, "attributes", "attributes")
   ];
+}
+
+/**
+ * Reconstructs the user's "clear this field" intent before the wire serialiser.
+ *
+ * Any provisionField key present in `baseModel` but missing from `model` was
+ * stripped by `useModelParser`'s `compactDeep` along the way — the user cleared
+ * it. We re-thread those keys as `null` so the API receives an explicit wipe;
+ * missing keys would otherwise be interpreted as "no change".
+ */
+export function reconcileProvisionFields(
+  model: ProductProps,
+  baseModel?: ProductProps
+): ProductProps {
+  const clears = mapValues(
+    omit(baseModel?.provisionFields, keys(model?.provisionFields)),
+    constant(null)
+  );
+  return merge({}, model, { provisionFields: clears });
 }
 
 /**

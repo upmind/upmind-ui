@@ -6,10 +6,9 @@ import { useActor } from "@xstate/vue";
 
 // --- internal
 import { useI18n } from "../system";
-import { useBrand } from "../brand";
 import { QUERY_PARAMS, useQueryParams } from "../routing";
 import dacMachine from "./dac.machine";
-import { sanitiseDomainInput } from "./utils";
+import { sanitiseDomainInput, useDomainSearchMethod } from "./utils";
 
 // --- utils
 import { map, isArray, some, isEmpty } from "lodash-es";
@@ -21,14 +20,8 @@ import {
 } from "../../utils";
 
 // --- types
-import {
-  type DacContext,
-  type DomainContext,
-  type DomainProduct,
-  DomainTypes
-} from "./types";
+import { type DomainContext, type DomainProduct, DomainMode } from "./types";
 import { PAGINATION } from "../query";
-import { BrandConfigKeys, DomainSearchMethod } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 
@@ -41,31 +34,36 @@ import { BrandConfigKeys, DomainSearchMethod } from "@upmind-automation/types";
  * @param options.mode - The domain operation mode (register or transfer). Defaults to register.
  * @returns Domain management API (state, computed, and methods)
  */
-export const useDac = (options?: { mode?: DomainTypes }) => {
+export const useDac = (options?: { mode?: DomainMode; limit?: number }) => {
   const { t } = useI18n();
   const { getParam, getParams, setParam, unsetParam } = useQueryParams();
-  const { getConfigValue } = useBrand();
 
   // Determine search flow from brand setting, fallback to dac-search (legacy)
-  const searchMethod =
-    getConfigValue<DomainSearchMethod>(BrandConfigKeys.DOMAIN_SEARCH_METHOD) ??
-    DomainSearchMethod.LEGACY_LOOKUP;
-  const useSuggestions = searchMethod === DomainSearchMethod.SMART_SUGGEST;
+  const { useSuggestions } = useDomainSearchMethod();
 
   const service = interpret(
     dacMachine.withContext({
-      mode: options?.mode ?? DomainTypes.register,
+      mode: options?.mode ?? DomainMode.register,
       useSuggestions,
       preferredCycle: getParam(QUERY_PARAMS.BILLING_CYCLE_MONTHS),
       coupons: getParams(QUERY_PARAMS.COUPONS),
+      // `setContext` + `setBasketHelper` overwrite these on entry, but
+      // `withContext` requires the full `DacContext` shape — keeping the
+      // placeholders explicit avoids an `as unknown as DacContext`.
+      lookups: { searched: [], history: [], owned: [], basket: [] },
+      parseBasketProduct: () => undefined,
+      parseProductModel: () => undefined,
       search: {
         // Sanitise the URL-seeded query so the dac machine + search service
         // see the same shape they would for a runtime SEARCH event.
         query: sanitiseDomainInput(getParam(QUERY_PARAMS.SEARCH, "") ?? ""),
-        limit: PAGINATION.limit,
-        offset: PAGINATION.offset
+        limit: options?.limit ?? 20,
+        offset: PAGINATION.offset,
+        total: 0,
+        page: 1,
+        totalPages: 0
       }
-    } as unknown as DacContext),
+    }),
     { devTools: true }
   );
 
@@ -92,10 +90,7 @@ export const useDac = (options?: { mode?: DomainTypes }) => {
 
     return {
       isLoading: stateMatches(state, ["subscribing", "loading"]),
-      isChecking: stateMatches(state, ["checking"]),
-      isProcessing:
-        stateMatches(state, ["checking"]) ||
-        some(available.value, "meta.processing"),
+      isProcessing: some(available.value, "meta.processing"),
       isSearching:
         stateMatches(state, "searching") && (query.value?.length ?? 0) > 2,
       // True for the *entire* Load more cycle — covers both the brief
@@ -156,7 +151,18 @@ export const useDac = (options?: { mode?: DomainTypes }) => {
   }
 
   function searchMore(): void {
-    send({ type: "SEARCH.OFFSET" });
+    // Page-based (suggestions) pagination uses `page + 1`; legacy offset
+    // pagination has no page concept so the doc requires null. The pre-load
+    // count + resolved next-page ride on the event so `pushDacLoadMore` in
+    // dac.machine stays pure tracking.
+    const usingSuggestions = pagination.value.totalPages > 0;
+    send({
+      type: "SEARCH.OFFSET",
+      data: {
+        results_count_before: available.value?.length ?? 0,
+        next_page: usingSuggestions ? pagination.value.page + 1 : null
+      }
+    });
   }
 
   function toggle(value: string): void {
@@ -207,7 +213,6 @@ export const useDac = (options?: { mode?: DomainTypes }) => {
      * Meta information about the domain state.
      * @typedef {Object} DomainMeta
      * @property {boolean} isEmpty - Indicates if no domains are selected.
-     * @property {boolean} isChecking - Indicates if a domain availability check is in progress.
      * @property {boolean} isLoading - Indicates if the domain state is loading.
      * @property {boolean} isLoadingMore - Indicates if more search results are being loaded.
      * @property {boolean} isProcessing - Indicates if the domain state is syncing.

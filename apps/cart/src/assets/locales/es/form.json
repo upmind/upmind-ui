@@ -84,7 +84,7 @@
   },
   "companyNumber": {
     "label": "Número de empresa",
-    "placeholder": "Impuesto registrado o GST"
+    "placeholder": "Número de identificación de la empresa"
   },
   "country": {
     "label": "País",
@@ -167,6 +167,10 @@
   },
   "stored_payment_method": {
     "label": ""
+  },
+  "taxNumber": {
+    "label": "Número de identificación fiscal",
+    "placeholder": "Número de identificación fiscal/IVA/GST"
   },
   "twofa": {
     "description": "Esta cuenta está protegida mediante autenticación de dos factores. Introduzca su código de verificación.",

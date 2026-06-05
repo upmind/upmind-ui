@@ -72,7 +72,7 @@
   "tax_valid": "Valideret {relative}",
   "term": "semester",
   "terms_and_conditions": "Vilkår og betingelser",
-  "terms_and_conditions_desc": "Ved at klikke på '{label}', Jeg er enig i {action} af {brand} .",
+  "terms_and_conditions_desc": "Ved at klikke på '{label}', Jeg er enig i {action} af {brand}.",
   "terms_of_service": "Servicevilkår",
   "total": "Total",
   "welcome_back_msg": "Velkommen tilbage, {name}"

@@ -3,21 +3,13 @@
     {{ t("text.domain_not_available_msg") }}
   </template>
   <template v-else-if="!meta.isAvailable">
-    <template v-if="meta.isDiscounted">
-      {{
-        t("domain.transfer_promotion", {
-          currentPrice: price.currentPrice,
-          regularPrice: price.regularPrice
-        })
-      }}
-    </template>
-    <template v-else>
-      {{
-        t("domain.transfer", {
-          currentPrice: price.currentPrice
-        })
-      }}
-    </template>
+    <!--
+      Transfer-only row: the footer in `DomainCard.vue` carries the
+      full "transfer today / FREE + renewal price" messaging, so the
+      inline description here intentionally renders nothing. Keep the
+      `v-else-if` so transfer rows still short-circuit out of the
+      `!meta.isOwned` registration-renewal fallback below.
+    -->
   </template>
 
   <template v-else-if="meta.isOwned">{{

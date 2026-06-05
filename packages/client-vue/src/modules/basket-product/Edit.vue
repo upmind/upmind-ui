@@ -217,13 +217,7 @@
 
 <script lang="ts" setup>
 // --- external
-import {
-  computed,
-  defineAsyncComponent,
-  provide,
-  watch,
-  type ComputedRef
-} from "vue";
+import { computed, provide, watch, type ComputedRef } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -257,19 +251,16 @@ import Section from "../../components/section/Section.vue";
 import Transitions from "../../components/layout/components/transition/Transition.vue";
 
 //  --- templates
+import BasketProductFullTemplate from "./templates/BasketProductFull.template.vue";
+import BasketProductLTRTemplate from "./templates/BasketProductLTR.template.vue";
+import BasketProductRTLTemplate from "./templates/BasketProductRTL.template.vue";
+import BasketProductEnclosedTemplate from "./templates/BasketProductEnclosed.template.vue";
+
 const supportedTemplates = {
-  [BASKET_PRODUCT_TEMPLATE.FULL]: defineAsyncComponent(
-    () => import("./templates/BasketProductFull.template.vue")
-  ),
-  [BASKET_PRODUCT_TEMPLATE.TWO_COLUMN_LTR]: defineAsyncComponent(
-    () => import("./templates/BasketProductLTR.template.vue")
-  ),
-  [BASKET_PRODUCT_TEMPLATE.TWO_COLUMN_RTL]: defineAsyncComponent(
-    () => import("./templates/BasketProductRTL.template.vue")
-  ),
-  [BASKET_PRODUCT_TEMPLATE.ENCLOSED]: defineAsyncComponent(
-    () => import("./templates/BasketProductEnclosed.template.vue")
-  )
+  [BASKET_PRODUCT_TEMPLATE.FULL]: BasketProductFullTemplate,
+  [BASKET_PRODUCT_TEMPLATE.TWO_COLUMN_LTR]: BasketProductLTRTemplate,
+  [BASKET_PRODUCT_TEMPLATE.TWO_COLUMN_RTL]: BasketProductRTLTemplate,
+  [BASKET_PRODUCT_TEMPLATE.ENCLOSED]: BasketProductEnclosedTemplate
 };
 // --- utils
 import { get, includes, take, isEmpty } from "lodash-es";

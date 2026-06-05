@@ -84,7 +84,7 @@
   },
   "companyNumber": {
     "label": "Company Number",
-    "placeholder": "Registered tax or GST"
+    "placeholder": "Company Identification Number"
   },
   "country": {
     "label": "Country",
@@ -167,6 +167,10 @@
   },
   "stored_payment_method": {
     "label": ""
+  },
+  "taxNumber": {
+    "label": "Registered Tax ID",
+    "placeholder": "Tax ID/VAT/GST Number"
   },
   "twofa": {
     "description": "This account is secured using two-factor authentication. Please enter your verification code.",

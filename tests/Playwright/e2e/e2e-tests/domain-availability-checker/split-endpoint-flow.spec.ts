@@ -335,4 +335,95 @@ test.describe("Domain split-endpoint DAC flow", () => {
       });
     }
   });
+
+  /**
+   * FE-2804: Race condition prevention — rapid input should show only final results
+   *
+   * When a user types rapidly, earlier (slow) queries should be cancelled so
+   * their stale results don't overwrite the final query's results.
+   */
+  test.describe("Race condition prevention", () => {
+    test.beforeEach(async ({ page, context }) => {
+      await page.goto(URLs.baseUrl);
+      await waitForSessionCookie(context, { guestOnly: true });
+      const token = await getSessionToken(context);
+      await interceptConfigValues(page, token, {
+        domainSearchMethod: "smart-suggest"
+      });
+    });
+
+    test("Rapid typing shows only the most recent search results, not stale data", async ({
+      page,
+      context
+    }) => {
+      const SLOW_QUERY = "slowquery";
+      const FAST_QUERY = "fastquery";
+
+      // Custom route handler with per-query latency control
+      // "slowquery" gets 3000ms delay, "fastquery" gets 50ms
+      await context.route(
+        "**/modules/web_hosting/domains/suggestions?**",
+        async route => {
+          if (route.request().method() === "OPTIONS") {
+            await route.fallback();
+            return;
+          }
+
+          const url = new URL(route.request().url());
+          const query = url.searchParams.get("query") ?? "";
+          const latency = query.includes(SLOW_QUERY) ? 3000 : 50;
+
+          await new Promise(r => setTimeout(r, latency));
+
+          // Return different domains for each query so we can distinguish them
+          const domain = query.includes(SLOW_QUERY)
+            ? `${SLOW_QUERY}.com`
+            : `${FAST_QUERY}.com`;
+
+          await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify({
+              status: "ok",
+              data: [
+                {
+                  domain,
+                  sld: query,
+                  tld: ".com",
+                  can_register: true,
+                  can_transfer: false,
+                  product_id: domainProductIds.com
+                }
+              ],
+              meta: { total_pages: 1, limit: 20 },
+              related: null,
+              total: 1,
+              error: null,
+              messages: []
+            })
+          });
+        }
+      );
+
+      // Mock TLDs endpoint (fast response)
+      mockDomainSuggestionsTlds(context, { products: domainProducts });
+
+      // Navigate to domain search with slow query
+      await dac.gotoSearch(SLOW_QUERY);
+
+      // Immediately search for fast query (before slow response arrives)
+      // Use the search input directly to simulate rapid typing
+      const searchInput = page.getByPlaceholder(/search for a domain/i);
+      await searchInput.clear();
+      await searchInput.fill(FAST_QUERY);
+      await searchInput.press("Enter");
+
+      // Wait for results to stabilise
+      await expect(dac.firstCard).toBeVisible({ timeout: 10000 });
+
+      // The UI should show the fast query's results, NOT the slow query's
+      await expect(dac.firstCard).toContainText(FAST_QUERY);
+      await expect(dac.firstCard).not.toContainText(SLOW_QUERY);
+    });
+  });
 });

@@ -72,7 +72,7 @@
   "tax_valid": "Təsdiqlənmişdir {relative}",
   "term": "müddət",
   "terms_and_conditions": "Qaydalar və Şərtlər",
-  "terms_and_conditions_desc": "klikləməklə '{label}', razıyam {action} nin {brand} .",
+  "terms_and_conditions_desc": "klikləməklə '{label}', razıyam {action} nin {brand}.",
   "terms_of_service": "Xidmət şərtləri",
   "total": "Cəmi",
   "welcome_back_msg": "Xoş gəldiniz, {name}"

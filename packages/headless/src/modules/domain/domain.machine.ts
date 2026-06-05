@@ -5,6 +5,7 @@ import { createMachine, assign, spawn, sendTo, pure } from "xstate";
 import DACmachine from "./dac.machine";
 
 import services from "./services";
+import { useQuery } from "../query";
 import { basketSubscription } from "../basketProduct/helper";
 import { authSubscription } from "../session/helper";
 
@@ -19,6 +20,7 @@ import {
 } from "../../utils";
 import {
   getDomainRawBasketProducts,
+  isBasketTransfer,
   isDomainProduct,
   parseDomain
 } from "./utils";
@@ -34,6 +36,7 @@ import {
   isArray,
   isEmpty,
   isString,
+  last,
   map,
   reduce,
   remove,
@@ -46,11 +49,12 @@ import {
 // --- types
 import type { AnyEventObject } from "xstate";
 import { type IBasketProduct } from "@upmind-automation/types";
-import { DomainTypes } from "./types";
+import { DomainTypes, DomainMode } from "./types";
 import type { DomainModel, DomainContext, DomainProduct } from "./types";
 import { parseBasketProduct } from "../basketProduct/utils";
 import { type ProductProps } from "../product";
 import { useI18n } from "../system";
+import { useFeedback } from "../feedback";
 
 // -----------------------------------------------------------------------------
 export default createMachine(
@@ -119,10 +123,14 @@ export default createMachine(
         id: "idle",
         always: [
           {
+            target: "skip",
+            cond: "isSkip"
+          },
+          {
             target: "dac",
             cond: ({ type }) => {
               return includes(
-                [DomainTypes.register, DomainTypes.transfer],
+                [DomainTypes.register, DomainMode.transfer],
                 type
               );
             }
@@ -136,6 +144,10 @@ export default createMachine(
             cond: ({ type }) => type === DomainTypes.basket
           }
         ]
+      },
+
+      skip: {
+        entry: ["setSkipModel"]
       },
 
       dac: {
@@ -170,6 +182,17 @@ export default createMachine(
           },
           onDone: [
             {
+              target: "#basket",
+              cond: "hasDacDomains",
+              actions: [
+                "setModelFromDac",
+                "ensureSelected",
+                "checkChoices",
+                "setTypeBasket",
+                "persistModel"
+              ]
+            },
+            {
               target: "#idle", // NB go back to start and let it work out where to go
               actions: ["setModelFromDac", "ensureSelected", "checkType"]
             }
@@ -183,26 +206,227 @@ export default createMachine(
 
       existing: {
         id: "existing",
+        entry: ["setTransferFromBasket"],
         initial: "invalid",
         states: {
+          invalid: {
+            always: [
+              {
+                target: "transferred",
+                cond: "hasTransferProductId"
+              },
+              {
+                target: "validating",
+                cond: "hasModelDomainLike"
+              }
+            ]
+          },
+
+          validating: {
+            entry: ["cancelAvailability", "setCheckingDomain"],
+            always: [
+              {
+                target: "transferred",
+                cond: "isTransferInBasket",
+                actions: ["setTransferFromBasket"]
+              },
+              {
+                target: "valid",
+                cond: "isOwnedDomain",
+                actions: ["persistModel"]
+              }
+            ],
+            invoke: {
+              src: "checkAvailability",
+              onDone: [
+                {
+                  target: "checked",
+                  cond: "isDomainTransferable",
+                  actions: ["setAvailabilityResult"]
+                },
+                {
+                  target: "registerable",
+                  cond: "isDomainRegisterable",
+                  actions: ["setAvailabilityResult"]
+                },
+                {
+                  target: "unavailable",
+                  cond: "isDomainUnavailable"
+                },
+                {
+                  target: "valid",
+                  actions: ["persistModel"]
+                }
+              ],
+              onError: {
+                target: "error",
+                actions: ["setError"]
+              }
+            }
+          },
+
+          checked: {
+            on: {
+              ADD_TRANSFER: { target: "transferring" }
+            }
+          },
+
+          registerable: {
+            on: {
+              ADD_REGISTRATION: { target: "registering" }
+            }
+          },
+
+          registering: {
+            invoke: {
+              src: "addExistingRegistration",
+              onDone: {
+                target: "valid",
+                actions: [
+                  "setModelFromRegistration",
+                  "ensureSelected",
+                  "checkChoices",
+                  "persistModel"
+                ]
+              },
+              onError: {
+                target: "registerable",
+                actions: ["setError", "setFeedbackRegistrationAddError"]
+              }
+            }
+          },
+
+          transferring: {
+            invoke: {
+              src: "addExistingTransfer",
+              onDone: {
+                target: "transferred",
+                actions: ["setTransferProductId"]
+              },
+              onError: {
+                target: "checked",
+                actions: ["setError", "setFeedbackTransferAddError"]
+              }
+            }
+          },
+
+          transferred: {
+            on: {
+              REMOVE_TRANSFER: { target: "removing" }
+            }
+          },
+
+          removing: {
+            on: {
+              UPDATE: { actions: ["storePendingUpdate"] },
+              CHOOSE: { actions: ["storePendingChoose"] }
+            },
+            invoke: {
+              src: "removeExistingTransfer",
+              onDone: [
+                {
+                  target: "#idle",
+                  cond: "hasPendingChoose",
+                  actions: [
+                    "applyPendingChoose",
+                    "clearPendingChoose",
+                    "clearPendingUpdate",
+                    "clearModel",
+                    "clearCheckingDomain",
+                    "clearAvailabilityResult",
+                    "clearTransferProductId"
+                  ]
+                },
+                {
+                  target: "validating",
+                  cond: "hasPendingUpdateDomainLike",
+                  actions: [
+                    "setExistingFromPending",
+                    "persistModel",
+                    "clearPendingUpdate",
+                    "clearAvailabilityResult",
+                    "clearTransferProductId"
+                  ]
+                },
+                {
+                  target: "invalid",
+                  cond: "hasPendingUpdate",
+                  actions: [
+                    "setExistingFromPending",
+                    "persistModel",
+                    "clearPendingUpdate",
+                    "clearAvailabilityResult",
+                    "clearTransferProductId"
+                  ]
+                },
+                {
+                  target: "checked",
+                  actions: ["clearTransferProductId"]
+                }
+              ],
+              onError: [
+                {
+                  target: "transferred",
+                  cond: "hasPendingChoose",
+                  actions: [
+                    "setError",
+                    "setFeedbackTransferRemoveError",
+                    "clearPendingChoose",
+                    "clearPendingUpdate"
+                  ]
+                },
+                {
+                  target: "transferred",
+                  actions: [
+                    "setError",
+                    "setFeedbackTransferRemoveError",
+                    "clearPendingUpdate"
+                  ]
+                }
+              ]
+            }
+          },
+
           valid: {},
-          invalid: {},
+          unavailable: {},
           error: {}
         },
         on: {
+          REFRESH: {
+            actions: ["setBasketProducts", "refreshContext", "checkChoices"]
+          },
+          // NB: The `removing` child state overrides UPDATE to queue the value
+          // via `storePendingUpdate` instead of transitioning. XState v4 resolves
+          // child handlers before parent, so this handler only fires when NOT in
+          // the `removing` state.
           UPDATE: [
             {
-              target: ".valid",
-              actions: ["clearError", "setExisting", "persistModel"],
-              cond: "isDomainLike"
+              target: ".validating",
+              cond: "isDomainLike",
+              // XState v4 quirk: relative targets (`.foo`) default to
+              // `internal: true`, which means a self-transition from
+              // `validating → .validating` wouldn't exit and re-enter
+              // — entry actions (`cancelAvailability`, `setCheckingDomain`)
+              // and `invoke` wouldn't fire on the new keystroke, leaving
+              // the domain stuck on the previous value. Force external so
+              // every UPDATE genuinely re-enters validating and the new
+              // `/availability` call gets issued.
+              internal: false,
+              actions: ["clearError", "setExisting", "persistModel"]
             },
             {
               target: ".invalid",
+              internal: false,
               actions: ["setErrorInvalidDomain", "setExisting", "persistModel"]
             }
           ]
         },
-        exit: ["clearModel"]
+        exit: [
+          "clearModel",
+          "clearCheckingDomain",
+          "clearAvailabilityResult",
+          "clearTransferProductId"
+        ]
       },
 
       basket: {
@@ -237,6 +461,11 @@ export default createMachine(
           complete: {}
         },
         on: {
+          REFRESH: {
+            target: "#idle",
+            cond: "isBasketEmptyFromEvent",
+            actions: ["setBasketProducts", "clearModel", "clearType"]
+          },
           SELECT: [
             {
               target: ".processing",
@@ -264,8 +493,18 @@ export default createMachine(
 
       CHOOSE: [
         {
+          // Already removing — absorb the new target type, don't restart removal
+          cond: "isInRemovingState",
+          actions: ["storePendingChoose"]
+        },
+        {
           // do nothing
           cond: "isInvalidType"
+        },
+        {
+          target: "skip",
+          actions: ["setType"],
+          cond: "isSkipType"
         },
         {
           target: "dac",
@@ -284,7 +523,7 @@ export default createMachine(
         },
         {
           target: "basket",
-          actions: ["setType"],
+          actions: ["setType", "ensureBasketModel", "persistModel"],
           cond: "isBasket"
         }
       ],
@@ -293,8 +532,14 @@ export default createMachine(
         target: "complete"
       },
 
-      AUTHENTICATED: { target: "loading", actions: ["clearLookups"] },
-      UNAUTHENTICATED: { target: "loading", actions: ["clearLookups"] }
+      AUTHENTICATED: {
+        target: "loading",
+        actions: ["clearLookups"]
+      },
+      UNAUTHENTICATED: {
+        target: "loading",
+        actions: ["clearLookups"]
+      }
     }
   },
   {
@@ -303,6 +548,7 @@ export default createMachine(
         return defaultsDeep(context, {
           choices: values(DomainTypes),
           type: undefined,
+          required: true,
           model: undefined,
           lookups: {
             owned: [],
@@ -315,6 +561,13 @@ export default createMachine(
           coupons: [],
           // ---
           error: undefined,
+          // --- existing flow
+          checkingDomain: undefined,
+          availability: undefined,
+          transferProductId: undefined,
+          pendingUpdate: undefined,
+          pendingChoose: undefined,
+
           // ---
           authHelper: undefined,
           basketHelper: undefined,
@@ -328,21 +581,8 @@ export default createMachine(
       }),
 
       checkModel: assign({
-        model: ({ model, lookups }: DomainContext) => {
-          let value = parseDomain(model);
-          if (isEmpty(value) && !isEmpty(lookups.basket)) {
-            const parsed = map(lookups.basket, item => {
-              return {
-                domain: item.domain,
-                tld: item.tld,
-                sld: item.sld,
-                type: DomainTypes.basket,
-                selected: item.meta.selected
-              } as DomainModel;
-            });
-
-            value = find(parsed, "selected") || first(parsed);
-          }
+        model: ({ model }: DomainContext) => {
+          const value = parseDomain(model);
 
           // ensure the selected flag is set on the selected domain
           if (value) set(value, "selected", true);
@@ -360,10 +600,46 @@ export default createMachine(
         }
       }),
 
+      ensureBasketModel: assign({
+        model: ({ model, baseModel, lookups }: DomainContext) => {
+          // The source state's exit actions run BEFORE this transition action
+          // (XState v4 order: exit → transition → entry), so `existing.exit`'s
+          // `clearModel` will have wiped `model` when changing from existing.
+          // Fall back to `baseModel` — the last persisted user choice — so
+          // we don't lose the user's domain and silently jump to the first
+          // basket item.
+          const effectiveModel = model ?? baseModel;
+          const domain = get(effectiveModel, "domain");
+          if (domain && some(lookups.basket, ["domain", domain])) {
+            return effectiveModel;
+          }
+          const fallback = first(lookups.basket);
+          if (fallback) {
+            return {
+              domain: fallback.domain,
+              tld: fallback.tld,
+              sld: fallback.sld,
+              type: DomainTypes.basket,
+              selected: true
+            } as DomainModel;
+          }
+          return undefined;
+        }
+      }),
+
       checkChoices: assign({
-        choices: ({ lookups, choices }: DomainContext) => {
+        choices: ({ lookups, choices, required }: DomainContext) => {
           choices ??= [];
           if (isString(choices)) choices = [choices as DomainTypes];
+
+          if (required) {
+            remove(choices, value => value === DomainTypes.skip);
+          }
+          // add skip when explicitly optional and not already present
+          else if (!includes(choices, DomainTypes.skip)) {
+            choices.unshift(DomainTypes.skip);
+          }
+
           // ensure we DONT have the basket type in the choices if we dont have any basket products
           if (isEmpty(lookups.basket)) {
             remove(choices, value => value === DomainTypes.basket);
@@ -377,7 +653,14 @@ export default createMachine(
       }),
 
       checkType: assign({
-        type: ({ type, choices, model, lookups, search }: DomainContext) => {
+        type: ({
+          type,
+          choices,
+          model,
+          lookups,
+          search,
+          required
+        }: DomainContext) => {
           // FORCE: if we dont have a type set but we have an initial search query
           if (
             !type &&
@@ -395,14 +678,18 @@ export default createMachine(
             (includes(choices, DomainTypes.basket) ||
               includes(choices, DomainTypes.existing))
           ) {
-            const added = some(lookups.basket, ["domain", domain]);
-            if (added) {
+            const matched = find(lookups.basket, ["domain", domain]);
+            if (matched) {
               return DomainTypes.basket;
             }
             return DomainTypes.existing;
           }
 
           if (!type && !isEmpty(choices)) {
+            if (!required) return DomainTypes.skip;
+            if (includes(choices, DomainTypes.register)) {
+              return DomainTypes.register;
+            }
             return first(choices);
           }
 
@@ -469,8 +756,10 @@ export default createMachine(
             basketProduct.tld = parsed.tld;
             basketProduct.sld = parsed.sld;
             basketProduct.domain = parsed.domain;
+            basketProduct.meta.isTransfer = isBasketTransfer(raw);
             basketProduct.meta.selected = parsed.domain === primaryDomain;
             basketProduct.productDetails.title = parsed.domain;
+
             return basketProduct;
           },
 
@@ -521,12 +810,26 @@ export default createMachine(
           const parsed = parseDomain(value, true);
           const domain: DomainModel = {
             type: DomainTypes.existing,
-            domain: value,
+            domain: parsed?.domain ?? value,
             tld: parsed?.tld ?? "",
             sld: parsed?.sld ?? "",
             selected: true
           };
           return domain;
+        }
+      }),
+
+      setExistingFromPending: assign({
+        model: (context: DomainContext) => {
+          const value = trim(context.pendingUpdate ?? "");
+          const parsed = parseDomain(value, true);
+          return {
+            type: DomainTypes.existing,
+            domain: value,
+            tld: parsed?.tld ?? "",
+            sld: parsed?.sld ?? "",
+            selected: true
+          } as DomainModel;
         }
       }),
 
@@ -540,7 +843,11 @@ export default createMachine(
           const mapped = map(data.domains, (item: DomainProduct) =>
             parseDomain(item.domain)
           );
-          return find(mapped, "selected") || first(mapped);
+          // Most-recent wins: the user expects the domain they just added to
+          // be the one linked to the product. DAC's `complete.data` marks
+          // `last(model)` as `selected`; `parseDomain` strips the marker so
+          // we also fall back to `last` here, keeping both sides aligned.
+          return find(mapped, "selected") || last(mapped);
         },
         lookups: ({ lookups }: DomainContext, { data }: AnyEventObject) => {
           if (isEmpty(data?.basket)) return lookups;
@@ -629,12 +936,211 @@ export default createMachine(
         }
       }),
 
-      clearError: assign({ error: undefined })
+      clearError: assign({ error: undefined }),
+
+      setSkipModel: assign({
+        model: () => null
+      }),
+
+      clearType: assign({
+        type: () => undefined
+      }),
+
+      setTypeBasket: assign({
+        type: () => DomainTypes.basket
+      }),
+
+      storePendingUpdate: assign({
+        pendingUpdate: (_context: DomainContext, { data }: AnyEventObject) =>
+          trim(isArray(data) ? first(data) : data)
+      }),
+
+      clearPendingUpdate: assign({
+        pendingUpdate: () => undefined
+      }),
+
+      storePendingChoose: assign({
+        pendingChoose: (_context: DomainContext, { data }: AnyEventObject) =>
+          data
+      }),
+
+      clearPendingChoose: assign({
+        pendingChoose: () => undefined
+      }),
+
+      applyPendingChoose: assign({
+        type: (context: DomainContext) => {
+          const target = context.pendingChoose;
+          if (target && includes(context.choices, target)) return target;
+          console.warn(
+            "[domain] pendingChoose target no longer in choices, falling back",
+            { target, choices: context.choices }
+          );
+          return undefined;
+        },
+        error: undefined
+      }),
+
+      setCheckingDomain: assign({
+        checkingDomain: (ctx: DomainContext) => ctx.model?.domain
+      }),
+
+      clearCheckingDomain: assign({
+        checkingDomain: () => undefined
+      }),
+
+      // Aborts any in-flight `/availability` fetch from a prior keystroke.
+      // The user types -> UPDATE -> re-enters `validating` -> a new invoke
+      // fires. Without this, the previous fetch keeps running (XState v4
+      // can't cancel a Promise actor; it just ignores its result), wasting
+      // bandwidth and risking out-of-order responses. `cancelQueries`
+      // signals TanStack to abort the active queryFn — propagation to
+      // `fetch` relies on `checkAvailability`'s queryFn forwarding the
+      // signal via `init.signal` (see `services.ts`).
+      cancelAvailability: () => {
+        useQuery().cancel(["domains", "availability"]);
+      },
+
+      setAvailabilityResult: assign({
+        availability: (_context: DomainContext, { data }: AnyEventObject) =>
+          data
+      }),
+
+      clearAvailabilityResult: assign({
+        availability: () => undefined
+      }),
+
+      setTransferProductId: assign({
+        transferProductId: (
+          _context: DomainContext,
+          { data }: AnyEventObject
+        ) => data?.bpid
+      }),
+
+      setTransferFromBasket: assign({
+        transferProductId: ({
+          lookups,
+          model,
+          transferProductId
+        }: DomainContext) => {
+          const domain = get(model, "domain");
+          if (!domain) return transferProductId;
+          // `lookups.basket` holds registration products too. Filter on
+          // `meta.isTransfer === true` so a registered domain doesn't get
+          // misrouted as a transfer (existing → transferred flip + a
+          // REMOVE_TRANSFER that hits the wrong basket product id).
+          const matched = find(
+            lookups.basket,
+            (item: DomainProduct) =>
+              item.domain === domain && item.meta?.isTransfer === true
+          );
+          return matched?.id ?? transferProductId;
+        }
+      }),
+
+      clearTransferProductId: assign({
+        transferProductId: () => undefined
+      }),
+
+      setFeedbackTransferAddError: (context: DomainContext) => {
+        const { t } = useI18n();
+        useFeedback().addError({
+          title: t("domain.error.transfer_add_failed"),
+          copy: context.checkingDomain
+        });
+      },
+
+      setFeedbackTransferRemoveError: (context: DomainContext) => {
+        const { t } = useI18n();
+        useFeedback().addError({
+          title: t("domain.error.transfer_remove_failed"),
+          copy: context.checkingDomain
+        });
+      },
+
+      setModelFromRegistration: assign({
+        model: (_ctx: DomainContext, { data }: AnyEventObject) => {
+          if (!data?.domain) return undefined;
+          return parseDomain(data.domain) as DomainModel;
+        }
+      }),
+
+      setFeedbackRegistrationAddError: (context: DomainContext) => {
+        const { t } = useI18n();
+        useFeedback().addError({
+          title: t("domain.error.registration_add_failed"),
+          copy: context.checkingDomain
+        });
+      }
     },
 
     guards: {
-      // hasData: (_context, { data }: AnyEventObject) =>
-      //   isObjectLike(data) && !isEmpty(data),
+      isSkip: ({ type }: DomainContext) => type === DomainTypes.skip,
+
+      isSkipType: ({ choices }: DomainContext, { data }: AnyEventObject) =>
+        !isEmpty(choices) && data === DomainTypes.skip,
+
+      isBasketEmptyFromEvent: (
+        _context: DomainContext,
+        { data }: AnyEventObject
+      ) => {
+        const products = data?.products;
+        return isArray(products) && products.length === 0;
+      },
+
+      hasDacDomains: (_context: DomainContext, { data }: AnyEventObject) =>
+        !isEmpty(data?.domains),
+
+      // NB: This guard inspects the current machine state via the third
+      // argument provided by XState v4 guards. Raw `state.matches()` is used
+      // because `stateMatches` is a composable-level utility, not available
+      // inside machine configuration.
+      isInRemovingState: (
+        _ctx: DomainContext,
+        _event: AnyEventObject,
+        { state }: { state: { matches: (value: string) => boolean } }
+      ) => state.matches("existing.removing"),
+
+      isOwnedDomain: ({ model, lookups }: DomainContext) =>
+        some(lookups.owned, ["domain", model?.domain]),
+
+      isDomainTransferable: (
+        _context: DomainContext,
+        { data }: AnyEventObject
+      ) => !data?.can_register && data?.can_transfer === true,
+
+      isDomainRegisterable: (
+        _context: DomainContext,
+        { data }: AnyEventObject
+      ) => data?.can_register === true,
+
+      isDomainUnavailable: (
+        _context: DomainContext,
+        { data }: AnyEventObject
+      ) => data?.can_register === false && data?.can_transfer === false,
+
+      hasPendingChoose: ({ pendingChoose }: DomainContext) =>
+        pendingChoose !== undefined,
+
+      hasTransferProductId: ({ transferProductId }: DomainContext) =>
+        !!transferProductId,
+
+      isTransferInBasket: ({ model, lookups }: DomainContext) =>
+        some(lookups.basket, {
+          domain: get(model, "domain"),
+          meta: { isTransfer: true }
+        }),
+
+      hasModelDomainLike: ({ model }: DomainContext) => {
+        const domain = get(model, "domain");
+        return !!domain && DOMAIN_LIKE_VALIDATION.test(domain);
+      },
+
+      hasPendingUpdateDomainLike: ({ pendingUpdate }: DomainContext) =>
+        !!pendingUpdate && DOMAIN_LIKE_VALIDATION.test(pendingUpdate),
+
+      hasPendingUpdate: ({ pendingUpdate }: DomainContext) =>
+        pendingUpdate !== undefined,
 
       isInvalidType: (
         { choices, type }: DomainContext,
@@ -643,7 +1149,7 @@ export default createMachine(
         return isEmpty(choices) || !has(DomainTypes, data) || type == data;
       },
 
-      isValid: ({ model }: DomainContext) => isEmpty(parseDomain(model)),
+      isValid: ({ model }: DomainContext) => !isEmpty(parseDomain(model)),
 
       isSelectable: (
         { model, lookups }: DomainContext,
@@ -656,13 +1162,13 @@ export default createMachine(
       isInvalid: ({ model }: DomainContext) => isEmpty(parseDomain(model)),
 
       isDomainLike: (_context: DomainContext, { data }: AnyEventObject) => {
-        return DOMAIN_LIKE_VALIDATION.test(data.toString());
+        return !!data && DOMAIN_LIKE_VALIDATION.test(String(data));
       },
 
       isDomainTransfer: (
         { choices }: DomainContext,
         { data }: AnyEventObject
-      ) => !isEmpty(choices) && data === DomainTypes.transfer,
+      ) => !isEmpty(choices) && data === DomainMode.transfer,
 
       isExistingDomain: (
         { choices }: DomainContext,
@@ -683,6 +1189,12 @@ export default createMachine(
       wait: () => useTime().WAIT
     },
 
-    services: services as any
+    services: {
+      getClientDomains: services.getClientDomains,
+      checkAvailability: services.checkAvailability,
+      addExistingTransfer: services.addExistingTransfer,
+      addExistingRegistration: services.addExistingRegistration,
+      removeExistingTransfer: services.removeExistingTransfer
+    }
   }
 );
