@@ -3,6 +3,7 @@ import { createMachine, assign } from "xstate";
 
 // --- internal
 import { useI18n, useLocale } from "../../system";
+import { useBrand } from "../../brand";
 import services from "./services";
 
 import type { ClientContext, GuestEmailModel } from "./types";
@@ -31,7 +32,9 @@ import {
 import {
   useGuestEmailSchemaParser,
   useGuestEmailUischemaParser,
-  useGuestEmailModelParser
+  useGuestEmailModelParser,
+  useVerifyEmailSchemaParser,
+  useVerifyEmailUischemaParser
 } from "./utils";
 
 // --- types
@@ -57,59 +60,11 @@ export default createMachine(
         entry: "clearError",
         invoke: {
           src: "load",
-          onDone: [
-            {
-              cond: "requiresEmailVerification",
-              target: "#unverified",
-              actions: ["setActor", "setClient", "setLocale"]
-            },
-            {
-              target: "available",
-              actions: ["setActor", "setClient", "setLocale"]
-            }
-          ],
-          onError: { target: "complete", actions: ["setError"] }
-        }
-      },
-
-      unverified: {
-        id: "unverified",
-        initial: "idle",
-        entry: "setVerifyEmailSchemas",
-        states: {
-          idle: {
-            on: {
-              SET: { actions: ["setModel"] },
-              VERIFY: {
-                target: "verifying",
-                actions: ["clearError"]
-              },
-              CANCEL: { target: "#loading" }
-            }
+          onDone: {
+            target: "available",
+            actions: ["setActor", "setClient", "setLocale"]
           },
-          verifying: {
-            invoke: {
-              src: "verifyEmailCode",
-              onDone: {
-                // POST success is authoritative — flip the local flag and
-                // transition straight to `available`. Avoids a race where a
-                // fresh `/self` call could return stale `verified: 0`.
-                target: "#available",
-                actions: ["markEmailVerified", "notifyVerificationSuccess"]
-              },
-              onError: {
-                target: "idle",
-                actions: ["setError", "notifyVerificationFailure"]
-              }
-            }
-          }
-        }
-      },
-
-      processed: {
-        id: "processed",
-        after: {
-          wait: "available"
+          onError: { target: "complete", actions: ["setError"] }
         }
       },
 
@@ -117,14 +72,17 @@ export default createMachine(
         id: "available",
         initial: "checking",
         states: {
-          // Routes the loaded client into either `unregistered` (guest customer)
-          // or `registered` (full client) based on context.client.isGuest. The
-          // sub-states gate which events are valid (e.g. only guests can
-          // COMPLETE_REGISTRATION; only full clients can TRANSFER_TO).
+          // Routes the loaded client into `unregistered` (guest customer),
+          // `unverified` (full client owing email verification), or `verified`
+          // (full, verified client) based on context. The sub-states gate which
+          // events are valid (e.g. only guests can COMPLETE_REGISTRATION; only
+          // verified clients can TRANSFER_TO). Guest is checked first so a guest
+          // never falls into the verification branch.
           checking: {
             always: [
               { target: "unregistered", cond: "isGuestClient" },
-              { target: "registered" }
+              { target: "unverified", cond: "isUnverified" },
+              { target: "verified" }
             ]
           },
 
@@ -241,8 +199,45 @@ export default createMachine(
             }
           },
 
-          registered: {
-            id: "registered",
+          // Full client owing email verification. Hosts the verify-email form
+          // (idle/verifying). On success it re-enters `#available` → `checking`,
+          // which — the email now verified — routes to `verified`.
+          unverified: {
+            id: "unverified",
+            initial: "idle",
+            entry: "setVerifyEmailSchemas",
+            states: {
+              idle: {
+                on: {
+                  SET: { actions: ["setModel"] },
+                  VERIFY: {
+                    target: "verifying",
+                    actions: ["clearError"]
+                  },
+                  CANCEL: { target: "#loading" }
+                }
+              },
+              verifying: {
+                invoke: {
+                  src: "verifyEmailCode",
+                  onDone: {
+                    // POST success is authoritative — flip the local flag and
+                    // transition straight to `available`. Avoids a race where a
+                    // fresh `/self` call could return stale `verified: 0`.
+                    target: "#available",
+                    actions: ["markEmailVerified", "notifyVerificationSuccess"]
+                  },
+                  onError: {
+                    target: "idle",
+                    actions: ["setError", "notifyVerificationFailure"]
+                  }
+                }
+              }
+            }
+          },
+
+          verified: {
+            id: "verified",
             on: {
               TRANSFER_TO: {
                 target: "#transferring"
@@ -327,7 +322,7 @@ export default createMachine(
       },
 
       setClient: assign({
-        client: (_context, { data }: AnyEventObject) =>
+        client: (_context: ClientContext, { data }: AnyEventObject) =>
           mapClient(data.actor, data.accounts)
       }),
       setLocale: ({ client }) => {
@@ -452,17 +447,17 @@ export default createMachine(
         });
       },
 
+      setVerifyEmailSchemas: assign({
+        schema: () => useVerifyEmailSchemaParser(),
+        uischema: () => useVerifyEmailUischemaParser()
+      }),
+
       clearError: assign({ error: undefined })
     },
     guards: {
-      requiresEmailVerification: (_context, { data }: AnyEventObject) => {
-        // `data` is the resolved `load` payload:
-        // { actor: IClient, accounts: IAccount[], enforceEmailVerification }
-        // Reading from event data (not via useBrand()) avoids a top-level
-        // circular import between client.machine and the brand module.
-        if (!data?.enforceEmailVerification) return false;
-        return !data?.actor?.default_email?.verified;
-      },
+      isUnverified: ({ client }: ClientContext) =>
+        !!useBrand().enforceEmailVerification.value &&
+        !client?.primaryEmail?.isVerified,
       isGuestClient: ({ client }: ClientContext) => !!client?.isGuest,
       isRegisterForm: ({ formType }: ClientContext) =>
         formType === ClientFormType.REGISTER,

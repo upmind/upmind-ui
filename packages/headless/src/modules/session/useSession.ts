@@ -92,7 +92,7 @@ export const useSession = () => {
 
         return waitFor(
           clientActor.value.service,
-          state => stateMatches(state, ["available", "unverified", "done"]),
+          state => stateMatches(state, ["available", "done"]),
           {
             timeout: 60_000
           }
@@ -158,7 +158,7 @@ export const useSession = () => {
         "available.unregistered.updating"
       ]),
     isAuthenticated: stateMatches(state, "client"),
-    isUnverified: stateMatches(clientActor, "unverified"),
+    isUnverified: stateMatches(clientActor, "available.unverified"),
     isCompletingRegistration: stateMatches(
       clientActor,
       "available.unregistered.registering"
@@ -443,10 +443,14 @@ export const useSession = () => {
 
     return await waitFor(
       clientActor.value.service,
-      state => stateMatches(state, ["available", "unverified.idle"]),
+      state =>
+        stateMatches(state, [
+          "available.verified",
+          "available.unverified.idle"
+        ]),
       { timeout: 60000 }
     )
-      .then(state => stateMatches(state, "available"))
+      .then(state => stateMatches(state, "available.verified"))
       .catch(() => false);
   }
 
@@ -551,7 +555,7 @@ export const useSession = () => {
       clientActor.value.service,
       state =>
         stateMatches(state, [
-          "available.registered",
+          "available.verified",
           "available.unregistered.error",
           "complete",
           "done"
@@ -728,7 +732,7 @@ export const useSession = () => {
 
     return await waitFor(
       clientActor.value.service,
-      state => stateMatches(state, ["available", "unverified.idle", "done"]),
+      state => stateMatches(state, ["available", "done"]),
       {
         timeout: 60000
       }
