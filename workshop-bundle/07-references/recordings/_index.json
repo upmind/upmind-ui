@@ -1,0 +1,357 @@
+{
+  "GET org/modules": {
+    "file": "get-org-modules.json",
+    "path": "/api/org/modules",
+    "method": "GET"
+  },
+  "GET config/brand/values": {
+    "file": "get-config-brand-values-dedda361.json",
+    "path": "/api/config/brand/values?keys=analytics.google.measurement_id%2Canalytics.gtm.container_id%2Cui.basket.default_currency%2Cui.basket.add_to_basket_funnelling%2Cui.basket.payment_term_descriptions%2Cbilling.gateway.force_auto_payment_for_stored_details%2Cbilling.gateway.force_card_storage%2Cui.checkout.checkout_flow%2Cui.checkout.hide_promotions_field%2Cinvoices.common.require_phone_for_orders%2Cui.checkout.checkout_summary_color_stop1%2Cui.checkout.checkout_summary_color_stop2%2Cui.checkout.checkout_summary_contrast_mode%2Csecurity.ui.allow_vault%2Cui.client_area.homepage%2Cinvoices.common.default_payment_period%2Cui.client_area.hide_registration_forms%2Cprovisioning.domain_names.search_method%2Cbilling.gateway.client_allow_partial_payments%2Cinvoices.common.is_available_pay_later%2Cbilling.gateway.allow_card_removal_replacement%2Cinvoices.common.display_price_type%2Cinvoices.common.require_address_for_orders%2Cinvoices.common.require_company_for_orders%2Cui.client_registration.require_phone%2Cinvoices.common.required_region_in_address%2Cui.basket.truncate_product_description%2Cui.client_area.show_catalog%2Cinvoices.common.show_promotion_as%2Ctickets.support.support_pin_enabled%2Cprice_tax.tax.enable_automatic_vat_validation%2Cui.client_area.disable_support_system%2Cui.client_area.page_after_login%2Cui.client_area.enter_key_action%2Cui.client_area.price_before_discount_position",
+    "method": "GET"
+  },
+  "GET config/organisation/values": {
+    "file": "get-config-organisation-values-c1572e00.json",
+    "path": "/api/config/organisation/values?keys=package.enabled_features.create_user_api_tokens%2Cpackage.enabled_features.bulk_notifications%2Cpackage.enabled_features.multi_brand%2Cpackage.enabled_features.product_provisioning%2Cpackage.enabled_features.remove_upmind_branding%2Cpackage.enabled_features.unlimited_payment_gateways%2Cpackage.enabled_features.unlimited_provisioning_configurations%2Cpackage.enabled_features.webhooks",
+    "method": "GET"
+  },
+  "GET billing_cycles": {
+    "file": "get-billing_cycles.json",
+    "path": "/api/billing_cycles?limit=0&lang=en-US",
+    "method": "GET"
+  },
+  "GET brand/settings": {
+    "file": "get-brand-settings.json",
+    "path": "/api/brand/settings?lang=en-US",
+    "method": "GET"
+  },
+  "POST /oauth/access_token [actor:guest]": {
+    "file": "post--oauth-access_token-guest.json",
+    "path": "/oauth/access_token?lang=en-US",
+    "method": "POST"
+  },
+  "GET countries": {
+    "file": "get-countries.json",
+    "path": "/api/countries?limit=0&order=name&lang=en-US",
+    "method": "GET"
+  },
+  "GET basket/products_categories": {
+    "file": "get-basket-products_categories-f13c8b36.json",
+    "path": "/api/basket/products_categories?with=subcategories.image%2Csubcategories.subcategories.image%2Csubcategories.subcategories.subcategories.image%2Csubcategories.subcategories.subcategories.subcategories.image&with_count=products%2Csubcategories.products%2Csubcategories.subcategories.products%2Csubcategories.subcategories.subcategories.products%2Csubcategories.subcategories.subcategories.subcategories.products&limit=0&offset=0&lang=en-US",
+    "method": "GET"
+  },
+  "GET basket_fields": {
+    "file": "get-basket_fields.json",
+    "path": "/api/basket_fields?lang=en-US",
+    "method": "GET"
+  },
+  "GET basket/products [limit:9]": {
+    "file": "get-basket-products-96d6096f.json",
+    "path": "/api/basket/products?filter%5Bprovision_blueprint.category.code%7Cneq%5D=domain-names&with=image%2Cimages%2Cprices%2Cproducts_attributes%2Cproducts_options%2Cproducts_options.prices%2Ccategory.top_category.top_category.top_category.top_category&order=order&limit=9&offset=0&lang=en-US&currency_code=USD&basket_id=5d96e763-ed09-13e9-e0df-417482528340&filter%5Bproducts_category_id%5D=5d085e69-d562-3719-34b2-18e940d42370",
+    "method": "GET"
+  },
+  "POST /oauth/access_token [actor:client]": {
+    "file": "post--oauth-access_token-client.json",
+    "path": "/oauth/access_token?lang=en",
+    "method": "POST"
+  },
+  "GET self": {
+    "file": "get-self.json",
+    "path": "/api/self?with=actor%2Caccounts&lang=en",
+    "method": "GET"
+  },
+  "GET basket/products/47d73824-8507-9315-345f-81e642d59e06/provision_fields": {
+    "file": "get-basket-products-47d73824-8507-9315-345f-81e642d59e06-provision_fields.json",
+    "path": "/api/basket/products/47d73824-8507-9315-345f-81e642d59e06/provision_fields?lang=en-US",
+    "method": "GET"
+  },
+  "GET basket/products/47d73824-8507-9315-345f-81e642d59e06": {
+    "file": "get-basket-products-47d73824-8507-9315-345f-81e642d59e06-cf920ae3.json",
+    "path": "/api/basket/products/47d73824-8507-9315-345f-81e642d59e06?currency_id=e47d7382-4850-7931-56c8-1e642d59e063&promotions=&with=image%2Cimages%2Cprices%2Cproducts_attributes%2Cproducts_attributes.icon%2Cproducts_options%2Cproducts_options.icon%2Cproducts_options.prices%2Ccategory.top_category.top_category.top_category.top_category%2Cprovision_blueprint.category&lang=en-US&currency_code=USD",
+    "method": "GET"
+  },
+  "POST orders": {
+    "file": "post-orders.json",
+    "path": "/api/orders?lang=en-US",
+    "method": "POST"
+  },
+  "PATCH orders/claim": {
+    "file": "patch-orders-claim.json",
+    "path": "/api/orders/claim?lang=en",
+    "method": "PATCH"
+  },
+  "GET orders/current": {
+    "file": "get-orders-current.json",
+    "path": "/api/orders/current?with=address%2Caddress.country%2Ccurrency%2Ccustom_fields.field%2Cpromotions%2Ctaxes%2Ctaxes.tax_tag_data%2Cclient%2Cproducts.product.image%2Cproducts.product.images%2Cproducts.product.prices%2Cproducts.product.products_attributes%2Cproducts.product.products_attributes.category%2Cproducts.product.products_options%2Cproducts.product.products_options.category%2Cproducts.product.products_options.prices%2Cproducts.product.provision_blueprint.category%2Cproducts.product.provision_field_values%2Cproducts.product.related%2Cproducts.product.category%2Cproducts.product.category.top_category.top_category.top_category.top_category&lang=en-US",
+    "method": "GET"
+  },
+  "GET orders/5d96e763-ed09-1353-d92b-417482528340/products/5d96e763-ed09-1372-4eda-417482528340/provision_fields/values": {
+    "file": "get-orders-5d96e763-ed09-1353-d92b-417482528340-products-5d96e763-ed09-1372-4eda-417482528340-provision_fields-values.json",
+    "path": "/api/orders/5d96e763-ed09-1353-d92b-417482528340/products/5d96e763-ed09-1372-4eda-417482528340/provision_fields/values?lang=en",
+    "method": "GET"
+  },
+  "PATCH orders/5d96e763-ed09-1353-d92b-417482528340/provision_fields/values/check": {
+    "file": "patch-orders-5d96e763-ed09-1353-d92b-417482528340-provision_fields-values-check.json",
+    "path": "/api/orders/5d96e763-ed09-1353-d92b-417482528340/provision_fields/values/check?lang=en",
+    "method": "PATCH"
+  },
+  "POST /oauth/access_token": {
+    "file": "post--oauth-access_token.json",
+    "path": "/oauth/access_token?lang=en-US",
+    "method": "POST"
+  },
+  "GET /self": {
+    "file": "get--self.json",
+    "path": "/self?with_count=actor.child_client_configs&with=actor,actor.account,actor.brand,actor.image,actor.parent_client_config.parent_client,actor.parent_client_config.parent_client.image,accounts,delegated_ids,enabled_modules",
+    "method": "GET"
+  },
+  "GET /admin/self": {
+    "file": "get--admin-self.json",
+    "path": "/admin/self?with=actor,actor.image,brands,brands.image,brands.icon,functionalities,user_flow_secrets,upmind_contract_product",
+    "method": "GET"
+  },
+  "POST /clients/register": {
+    "file": "post--clients-register.json",
+    "path": "/clients/register",
+    "method": "POST"
+  },
+  "POST /clients/password_reset": {
+    "file": "post--clients-password_reset.json",
+    "path": "/clients/password_reset",
+    "method": "POST"
+  },
+  "POST /org/register": {
+    "file": "post--org-register.json",
+    "path": "/org/register",
+    "method": "POST"
+  },
+  "POST /admin/users/password_reset": {
+    "file": "post--admin-users-password_reset.json",
+    "path": "/admin/users/password_reset",
+    "method": "POST"
+  },
+  "GET /clients_fields": {
+    "file": "get--clients_fields.json",
+    "path": "/clients_fields",
+    "method": "GET"
+  },
+  "GET /org/clients_fields": {
+    "file": "get--org-clients_fields.json",
+    "path": "/org/clients_fields",
+    "method": "GET"
+  },
+  "PATCH templates/client_area/slots/login_page/render": {
+    "file": "patch-templates-client_area-slots-login_page-render-05ad35b9.json",
+    "path": "/api/templates/client_area/slots/login_page/render?object_id=47d73824-8507-9315-e54f-81e642d59e06",
+    "method": "PATCH"
+  },
+  "GET clients_fields": {
+    "file": "get-clients_fields-20dc6ef3.json",
+    "path": "/api/clients_fields?filter%5Bshow_on_order_form%5D=true&lang=en-US",
+    "method": "GET"
+  },
+  "GET terms_and_conditions/current": {
+    "file": "get-terms_and_conditions-current.json",
+    "path": "/api/terms_and_conditions/current?lang=en-US",
+    "method": "GET"
+  },
+  "GET clients/8d632507-9806-5d1e-48dc-8174e234e98d/phones": {
+    "file": "get-clients-8d632507-9806-5d1e-48dc-8174e234e98d-phones-f13c8b36.json",
+    "path": "/api/clients/8d632507-9806-5d1e-48dc-8174e234e98d/phones?limit=0&offset=0&lang=en-US",
+    "method": "GET"
+  },
+  "GET clients/8d632507-9806-5d1e-48dc-8174e234e98d/companies": {
+    "file": "get-clients-8d632507-9806-5d1e-48dc-8174e234e98d-companies-f13c8b36.json",
+    "path": "/api/clients/8d632507-9806-5d1e-48dc-8174e234e98d/companies?with=address%2Caddress.country%2Caddress.region&limit=0&offset=0&lang=en-US",
+    "method": "GET"
+  },
+  "GET clients/8d632507-9806-5d1e-48dc-8174e234e98d/addresses": {
+    "file": "get-clients-8d632507-9806-5d1e-48dc-8174e234e98d-addresses-f13c8b36.json",
+    "path": "/api/clients/8d632507-9806-5d1e-48dc-8174e234e98d/addresses?with=region%2Ccountry&limit=0&offset=0&lang=en-US",
+    "method": "GET"
+  },
+  "GET brands/47d73824-8507-9315-e54f-81e642d59e06/gateways": {
+    "file": "get-brands-47d73824-8507-9315-e54f-81e642d59e06-gateways-71329560.json",
+    "path": "/api/brands/47d73824-8507-9315-e54f-81e642d59e06/gateways?limit=0&client_id=03679424-d0e7-1099-7e4f-3153698d582e&invoice_id=98574264-8970-12e3-364a-21e325d0ed36&country_id=320e4357-95e7-8d18-484f-31643202d986&currency_code=USD&active=true&with=gateway.gateway_provider%2Cgateway.card_types&order=order&lang=en-US",
+    "method": "GET"
+  },
+  "GET wallet/balance": {
+    "file": "get-wallet-balance.json",
+    "path": "/api/wallet/balance?lang=en-US&currency_code=USD",
+    "method": "GET"
+  },
+  "GET clients/8d632507-9806-5d1e-48dc-8174e234e98d/payment_details": {
+    "file": "get-clients-8d632507-9806-5d1e-48dc-8174e234e98d-payment_details-f3a1bf8d.json",
+    "path": "/api/clients/8d632507-9806-5d1e-48dc-8174e234e98d/payment_details?limit=0&brand_id=47d73824-8507-9315-e54f-81e642d59e06&country_id=2785d26e-9678-3d16-75ec-314502e70439&currency_code=USD&active=true&with=gateway%2Cclient&order=-default%2Cid&lang=en-US",
+    "method": "GET"
+  },
+  "POST cart/calculate": {
+    "file": "post-cart-calculate.json",
+    "path": "/api/cart/calculate?lang=en-US",
+    "method": "POST"
+  },
+  "PATCH templates/client_area/slots/basket_summary_footer/render": {
+    "file": "patch-templates-client_area-slots-basket_summary_footer-render-d9503161.json",
+    "path": "/api/templates/client_area/slots/basket_summary_footer/render?object_id=52098d3d-e409-1765-757f-31578626e347",
+    "method": "PATCH"
+  },
+  "GET basket/63250798-065d-1e20-388f-8174e234e98d/products/98574264-8970-12d8-576b-21e325d0ed36": {
+    "file": "get-basket-63250798-065d-1e20-388f-8174e234e98d-products-98574264-8970-12d8-576b-21e325d0ed36-82f781bc.json",
+    "path": "/api/basket/63250798-065d-1e20-388f-8174e234e98d/products/98574264-8970-12d8-576b-21e325d0ed36?currency_id=e47d7382-4850-7931-56c8-1e642d59e063&promotions=&with=image%2Cimages%2Cprices%2Cproducts_attributes%2Cproducts_attributes.icon%2Cproducts_options%2Cproducts_options.icon%2Cproducts_options.prices%2Ccategory.top_category.top_category.top_category.top_category%2Cprovision_blueprint.category&basket_id=63250798-065d-1e20-388f-8174e234e98d&basket_product_id=98574264-8970-12d8-576b-21e325d0ed36&lang=en-US&currency_code=USD",
+    "method": "GET"
+  },
+  "PUT orders/63250798-065d-1e20-388f-8174e234e98d": {
+    "file": "put-orders-63250798-065d-1e20-388f-8174e234e98d.json",
+    "path": "/api/orders/63250798-065d-1e20-388f-8174e234e98d?lang=en-US",
+    "method": "PUT"
+  },
+  "PATCH orders/63250798-065d-1e20-388f-8174e234e98d/provision_fields/values/check": {
+    "file": "patch-orders-63250798-065d-1e20-388f-8174e234e98d-provision_fields-values-check.json",
+    "path": "/api/orders/63250798-065d-1e20-388f-8174e234e98d/provision_fields/values/check?lang=en-US",
+    "method": "PATCH"
+  },
+  "GET orders/63250798-065d-1e20-388f-8174e234e98d/products/98574264-8970-12d8-576b-21e325d0ed36/provision_fields/values": {
+    "file": "get-orders-63250798-065d-1e20-388f-8174e234e98d-products-98574264-8970-12d8-576b-21e325d0ed36-provision_fields-values.json",
+    "path": "/api/orders/63250798-065d-1e20-388f-8174e234e98d/products/98574264-8970-12d8-576b-21e325d0ed36/provision_fields/values?lang=en-US",
+    "method": "GET"
+  },
+  "GET countries/320e4357-95e7-8d18-484f-31643202d986/regions": {
+    "file": "get-countries-320e4357-95e7-8d18-484f-31643202d986-regions.json",
+    "path": "/api/countries/320e4357-95e7-8d18-484f-31643202d986/regions?limit=0&lang=en-US",
+    "method": "GET"
+  },
+  "POST clients/register": {
+    "file": "post-clients-register.json",
+    "path": "/api/clients/register?lang=en-US",
+    "method": "POST"
+  },
+  "POST clients/password_reset": {
+    "file": "post-clients-password_reset.json",
+    "path": "/api/clients/password_reset?lang=en-US",
+    "method": "POST"
+  },
+  "POST /oauth/access_token [actor:twofa]": {
+    "file": "post--oauth-access_token-twofa.json",
+    "path": "/oauth/access_token?lang=en",
+    "method": "POST"
+  },
+  "GET basket/products/3de78642-de53-9714-542c-21208469530d/provision_fields": {
+    "file": "get-basket-products-3de78642-de53-9714-542c-21208469530d-provision_fields-fb94accc.json",
+    "path": "/api/basket/products/3de78642-de53-9714-542c-21208469530d/provision_fields?sub_product_ids%5B%5D=8d632507-9806-5d1e-6d9f-8174e234e98d&lang=en-US",
+    "method": "GET"
+  },
+  "GET basket/products/3de78642-de53-9714-542c-21208469530d": {
+    "file": "get-basket-products-3de78642-de53-9714-542c-21208469530d-a547dc9c.json",
+    "path": "/api/basket/products/3de78642-de53-9714-542c-21208469530d?currency_id=e47d7382-4850-7931-56c8-1e642d59e063&promotions=&with=image%2Cimages%2Cprices%2Cproducts_attributes%2Cproducts_attributes.icon%2Cproducts_options%2Cproducts_options.icon%2Cproducts_options.prices%2Ccategory.top_category.top_category.top_category.top_category%2Cprovision_blueprint.category&basket_id=5d96e763-ed09-13e9-e0df-417482528340&lang=en-US&currency_code=USD",
+    "method": "GET"
+  },
+  "PATCH templates/client_area/slots/footer/render": {
+    "file": "patch-templates-client_area-slots-footer-render-05ad35b9.json",
+    "path": "/api/templates/client_area/slots/footer/render?object_id=47d73824-8507-9315-e54f-81e642d59e06",
+    "method": "PATCH"
+  },
+  "GET basket/products/825d96e7-63ed-0913-56eb-417482528340": {
+    "file": "get-basket-products-825d96e7-63ed-0913-56eb-417482528340-a547dc9c.json",
+    "path": "/api/basket/products/825d96e7-63ed-0913-56eb-417482528340?currency_id=e47d7382-4850-7931-56c8-1e642d59e063&promotions=&with=image%2Cimages%2Cprices%2Cproducts_attributes%2Cproducts_options%2Cproducts_options.prices%2Crelated%2Ccategory.top_category.top_category.top_category.top_category&basket_id=5d96e763-ed09-13e9-e0df-417482528340&lang=en-US",
+    "method": "GET"
+  },
+  "GET basket/products/8d632507-9806-5d1e-572f-8174e234e98d": {
+    "file": "get-basket-products-8d632507-9806-5d1e-572f-8174e234e98d-20794f88.json",
+    "path": "/api/basket/products/8d632507-9806-5d1e-572f-8174e234e98d?currency_id=e47d7382-4850-7931-56c8-1e642d59e063&promotions=&with=image%2Cimages%2Cprices%2Cproducts_attributes%2Cproducts_options%2Cproducts_options.prices%2Crelated%2Ccategory.top_category.top_category.top_category.top_category&basket_id=52098d3d-e409-1765-757f-31578626e347&lang=en",
+    "method": "GET"
+  },
+  "GET basket/products/5d085e69-d562-3719-7d6f-218e940d4237": {
+    "file": "get-basket-products-5d085e69-d562-3719-7d6f-218e940d4237-a547dc9c.json",
+    "path": "/api/basket/products/5d085e69-d562-3719-7d6f-218e940d4237?currency_id=e47d7382-4850-7931-56c8-1e642d59e063&promotions=&with=image%2Cimages%2Cprices%2Cproducts_attributes%2Cproducts_options%2Cproducts_options.prices%2Crelated%2Ccategory.top_category.top_category.top_category.top_category&basket_id=5d96e763-ed09-13e9-e0df-417482528340&lang=en-US",
+    "method": "GET"
+  },
+  "GET basket/52098d3d-e409-1765-757f-31578626e347/products/5d96e763-ed09-1327-4e7a-417482528340": {
+    "file": "get-basket-52098d3d-e409-1765-757f-31578626e347-products-5d96e763-ed09-1327-4e7a-417482528340-48e32a99.json",
+    "path": "/api/basket/52098d3d-e409-1765-757f-31578626e347/products/5d96e763-ed09-1327-4e7a-417482528340?currency_id=e47d7382-4850-7931-56c8-1e642d59e063&promotions=&with=image%2Cimages%2Cprices%2Cproducts_attributes%2Cproducts_attributes.icon%2Cproducts_options%2Cproducts_options.icon%2Cproducts_options.prices%2Ccategory.top_category.top_category.top_category.top_category%2Cprovision_blueprint.category&basket_id=52098d3d-e409-1765-757f-31578626e347&basket_product_id=5d96e763-ed09-1327-4e7a-417482528340&lang=en-US&currency_code=USD",
+    "method": "GET"
+  },
+  "GET clients/20403869-6e54-721d-359f-518d9305e7d2/payment_details": {
+    "file": "get-clients-20403869-6e54-721d-359f-518d9305e7d2-payment_details-87245d77.json",
+    "path": "/api/clients/20403869-6e54-721d-359f-518d9305e7d2/payment_details?limit=0&brand_id=47d73824-8507-9315-e54f-81e642d59e06&country_id=8d632507-9806-5d1e-302f-8174e234e98d&currency_code=USD&active=true&with=gateway%2Cclient&order=-default%2Cid&lang=en-US",
+    "method": "GET"
+  },
+  "PATCH orders/63250798-065d-1e20-388f-8174e234e98d/convert": {
+    "file": "patch-orders-63250798-065d-1e20-388f-8174e234e98d-convert.json",
+    "path": "/api/orders/63250798-065d-1e20-388f-8174e234e98d/convert?lang=en-US",
+    "method": "PATCH"
+  },
+  "GET invoices/63250798-065d-1e20-388f-8174e234e98d": {
+    "file": "get-invoices-63250798-065d-1e20-388f-8174e234e98d.json",
+    "path": "/api/invoices/63250798-065d-1e20-388f-8174e234e98d?with=brand%2Ctaxes%2Cclient%2Cstatus%2Ccontract%2Caddress%2Caddress.country%2Cpayments%2Cpayments.payment_details%2Cproducts%2Cpromotions%2Cclient.tags%2Cproducts.tags%2Ctaxes.tax_tag_data%2Ccustom_fields.field%2Caffiliate_commissions%2Cproducts.product.image%2Caccount.affiliate_referral.affiliate_account.account.client&lang=en-US",
+    "method": "GET"
+  },
+  "POST payments": {
+    "file": "post-payments.json",
+    "path": "/api/payments?lang=en-US",
+    "method": "POST"
+  },
+  "POST orders/5d96e763-ed09-13e9-e0df-417482528340/products": {
+    "file": "post-orders-5d96e763-ed09-13e9-e0df-417482528340-products.json",
+    "path": "/api/orders/5d96e763-ed09-13e9-e0df-417482528340/products?lang=en-US",
+    "method": "POST"
+  },
+  "GET clients/03679424-d0e7-1099-7e4f-3153698d582e/addresses": {
+    "file": "get-clients-03679424-d0e7-1099-7e4f-3153698d582e-addresses-f13c8b36.json",
+    "path": "/api/clients/03679424-d0e7-1099-7e4f-3153698d582e/addresses?with=region%2Ccountry&limit=0&offset=0&lang=en-US",
+    "method": "GET"
+  },
+  "GET clients/03679424-d0e7-1099-7e4f-3153698d582e/phones": {
+    "file": "get-clients-03679424-d0e7-1099-7e4f-3153698d582e-phones-f13c8b36.json",
+    "path": "/api/clients/03679424-d0e7-1099-7e4f-3153698d582e/phones?limit=0&offset=0&lang=en-US",
+    "method": "GET"
+  },
+  "GET clients/03679424-d0e7-1099-7e4f-3153698d582e/companies": {
+    "file": "get-clients-03679424-d0e7-1099-7e4f-3153698d582e-companies-f13c8b36.json",
+    "path": "/api/clients/03679424-d0e7-1099-7e4f-3153698d582e/companies?with=address%2Caddress.country%2Caddress.region&limit=0&offset=0&lang=en-US",
+    "method": "GET"
+  },
+  "GET orders/98574264-8970-12e3-364a-21e325d0ed36/products/4038696e-5472-1d02-3e3f-518d9305e7d2/provision_fields/values": {
+    "file": "get-orders-98574264-8970-12e3-364a-21e325d0ed36-products-4038696e-5472-1d02-3e3f-518d9305e7d2-provision_fields-values.json",
+    "path": "/api/orders/98574264-8970-12e3-364a-21e325d0ed36/products/4038696e-5472-1d02-3e3f-518d9305e7d2/provision_fields/values?lang=en-US",
+    "method": "GET"
+  },
+  "PATCH orders/98574264-8970-12e3-364a-21e325d0ed36/provision_fields/values/check": {
+    "file": "patch-orders-98574264-8970-12e3-364a-21e325d0ed36-provision_fields-values-check.json",
+    "path": "/api/orders/98574264-8970-12e3-364a-21e325d0ed36/provision_fields/values/check?lang=en-US",
+    "method": "PATCH"
+  },
+  "GET clients/03679424-d0e7-1099-7e4f-3153698d582e/payment_details": {
+    "file": "get-clients-03679424-d0e7-1099-7e4f-3153698d582e-payment_details-f0c8c296.json",
+    "path": "/api/clients/03679424-d0e7-1099-7e4f-3153698d582e/payment_details?limit=0&brand_id=47d73824-8507-9315-e54f-81e642d59e06&country_id=320e4357-95e7-8d18-484f-31643202d986&currency_code=USD&active=true&with=gateway%2Cclient&order=-default%2Cid&lang=en-US",
+    "method": "GET"
+  },
+  "GET clients/03679424-d0e7-1099-7e4f-3153698d582e/emails": {
+    "file": "get-clients-03679424-d0e7-1099-7e4f-3153698d582e-emails-f13c8b36.json",
+    "path": "/api/clients/03679424-d0e7-1099-7e4f-3153698d582e/emails?limit=0&offset=0&lang=en-US",
+    "method": "GET"
+  },
+  "POST clients/03679424-d0e7-1099-7e4f-3153698d582e/addresses": {
+    "file": "post-clients-03679424-d0e7-1099-7e4f-3153698d582e-addresses.json",
+    "path": "/api/clients/03679424-d0e7-1099-7e4f-3153698d582e/addresses?lang=en-US",
+    "method": "POST"
+  },
+  "POST clients/03679424-d0e7-1099-7e4f-3153698d582e/phones": {
+    "file": "post-clients-03679424-d0e7-1099-7e4f-3153698d582e-phones.json",
+    "path": "/api/clients/03679424-d0e7-1099-7e4f-3153698d582e/phones?lang=en-US",
+    "method": "POST"
+  },
+  "PUT orders/98574264-8970-12e3-364a-21e325d0ed36": {
+    "file": "put-orders-98574264-8970-12e3-364a-21e325d0ed36.json",
+    "path": "/api/orders/98574264-8970-12e3-364a-21e325d0ed36?lang=en-US",
+    "method": "PUT"
+  },
+  "GET basket/98574264-8970-12e3-364a-21e325d0ed36/products/4038696e-5472-1d02-3e3f-518d9305e7d2": {
+    "file": "get-basket-98574264-8970-12e3-364a-21e325d0ed36-products-4038696e-5472-1d02-3e3f-518d9305e7d2-b81d350a.json",
+    "path": "/api/basket/98574264-8970-12e3-364a-21e325d0ed36/products/4038696e-5472-1d02-3e3f-518d9305e7d2?currency_id=e47d7382-4850-7931-56c8-1e642d59e063&promotions=&with=image%2Cimages%2Cprices%2Cproducts_attributes%2Cproducts_attributes.icon%2Cproducts_options%2Cproducts_options.icon%2Cproducts_options.prices%2Ccategory.top_category.top_category.top_category.top_category%2Cprovision_blueprint.category&basket_id=98574264-8970-12e3-364a-21e325d0ed36&basket_product_id=4038696e-5472-1d02-3e3f-518d9305e7d2&lang=en-US&currency_code=USD",
+    "method": "GET"
+  },
+  "PUT clients/03679424-d0e7-1099-7e4f-3153698d582e/companies/320e4357-95e7-8d18-de0b-31643202d986": {
+    "file": "put-clients-03679424-d0e7-1099-7e4f-3153698d582e-companies-320e4357-95e7-8d18-de0b-31643202d986.json",
+    "path": "/api/clients/03679424-d0e7-1099-7e4f-3153698d582e/companies/320e4357-95e7-8d18-de0b-31643202d986?lang=en-US",
+    "method": "PUT"
+  }
+}

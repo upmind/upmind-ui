@@ -41,6 +41,7 @@
           @update:model-value="setModel"
           :class="cn(styles.session.auth.form, meta.show2fa && 'mt-4')"
           :actions="meta.show2fa ? twoFactorActions : authActions"
+          :data-testid="`${currentForm}-form`"
         >
           <template v-if="currentForm === 'register'" #footer>
             <TermsAndConditions
@@ -61,6 +62,7 @@
             color="muted"
             :label="t('auth.forgot_password_qn')"
             size="lg"
+            data-testid="forgot-password-link"
           />
         </slot>
       </div>
@@ -312,6 +314,19 @@ watch(
 watch(modelValue, newValue => {
   toggleForm(newValue);
 });
+
+// Auth's loading state hides the form before the parent renders the
+// post-auth view — all within the same route, so the router's scrollBehavior
+// doesn't fire. Scroll while the section is off-screen so the next page
+// lands at the top.
+watch(
+  () => meta.value.isLoading,
+  (isLoading, wasLoading) => {
+    if (isLoading && !wasLoading) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }
+);
 </script>
 
 <style>

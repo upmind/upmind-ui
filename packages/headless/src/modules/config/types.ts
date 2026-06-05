@@ -4,9 +4,104 @@ import type {
   UI_META_DEFINITIONS,
   DataSchema
 } from "./schema";
+import type { IProduct, IBasket } from "@upmind-automation/types";
+import type { BasketProduct } from "../basketProduct/types";
 import { UIContext, UIScope } from "./schema";
 import { type BrandMeta } from "../brand/types";
 import { HELPERS } from "./utils";
+
+// -----------------------------------------------------------------------------
+// Conditional Rules Types & Enums
+// -----------------------------------------------------------------------------
+
+export enum ProductStateKey {
+  TRIAL_DAYS = "product.trial_days",
+  TERM_COUNT = "product.term_count",
+  OPTION_COUNT = "product.option_count",
+  BCM = "product.bcm"
+}
+
+export enum BasketProductStateKey {
+  SUB_PIDS = "basketProduct.sub_pids",
+  BCM = "basketProduct.bcm",
+  QTY = "basketProduct.qty",
+  TOTAL = "basketProduct.total"
+}
+
+export enum BasketStateKey {
+  COUPONS = "basket.coupons",
+  TOTAL = "basket.total",
+  ITEM_COUNT = "basket.item_count",
+  PIDS = "basket.pids"
+}
+
+export type ConditionStateKey =
+  | ProductStateKey
+  | BasketProductStateKey
+  | BasketStateKey;
+
+export enum ScalarOperator {
+  EQ = "$eq",
+  NE = "$ne",
+  GT = "$gt",
+  GTE = "$gte",
+  LT = "$lt",
+  LTE = "$lte",
+  IN = "$in",
+  NIN = "$nin"
+}
+
+export enum ArrayOperator {
+  CONTAINS = "$contains",
+  CONTAINS_ANY = "$contains_any",
+  EXCLUDES = "$excludes",
+  EMPTY = "$empty"
+}
+
+export type ComparisonOperator = ScalarOperator | ArrayOperator;
+
+export type OperatorExpression = {
+  [K in ComparisonOperator]?: unknown;
+};
+
+export type RuleCondition = {
+  [K in ConditionStateKey]?: OperatorExpression;
+};
+
+export type Rule<T> = {
+  when?: RuleCondition;
+  then: T;
+};
+
+export type ConditionalValue<T> = {
+  default: T;
+  rules: Rule<T>[];
+};
+
+export type SettingValue<T> = T | ConditionalValue<T>;
+
+export type ConditionState = Partial<
+  Record<ConditionStateKey, string | number | boolean | string[]>
+>;
+
+export type ValidationSeverity = "error" | "warning" | "info";
+
+export type ValidationIssue = {
+  code: string;
+  severity: ValidationSeverity;
+  message: string;
+  path: string;
+};
+
+export type ValidationResult = {
+  issues: ValidationIssue[];
+};
+
+export type ConditionStateInputs = {
+  product?: IProduct;
+  basketProduct?: BasketProductInput;
+  basket?: IBasket;
+};
 
 // --- Basic Types ---
 export const CONFIG_KEY: InjectionKey<UseMetaResult> = Symbol("MODULE.CONFIG");
@@ -24,6 +119,11 @@ export type CategoryInput = {
 
 export type ProductInput = {
   productDetails?: { uiMeta?: Record<string, any> };
+  [key: string]: any;
+};
+
+/** Basket product input — parsed `BasketProduct` shape; index signature tolerates raw `IBasketProduct` extras. */
+export type BasketProductInput = Partial<BasketProduct> & {
   [key: string]: any;
 };
 
@@ -146,6 +246,8 @@ export interface UseMetaOptions {
   product?: MaybeRefOrGetter<ProductInput | undefined>;
   optionGroup?: MaybeRefOrGetter<any>;
   option?: MaybeRefOrGetter<any>;
+  basket?: MaybeRefOrGetter<IBasket | undefined>;
+  basketProduct?: MaybeRefOrGetter<BasketProductInput | undefined>;
   provide?: boolean;
 }
 
@@ -161,6 +263,7 @@ export interface WithMetaOptions {
   product?: MaybeRefOrGetter<ProductInput | undefined>;
   optionGroup?: MaybeRefOrGetter<any>;
   option?: MaybeRefOrGetter<any>;
+  basketProduct?: MaybeRefOrGetter<BasketProductInput | undefined>;
 }
 
 /** Return type for useConfig composable */

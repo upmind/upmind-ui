@@ -18,6 +18,10 @@ import {
 } from "../support/api/index";
 import { waitForSessionCookie } from "../support/helpers/session";
 
+// TODO: migrate to the fixture-based pattern used by newer specs
+// (see support/fixtures/auth-context). Module-scope `let` declarations
+// reassigned in beforeEach are fragile if this file ever runs in
+// parallel mode and should be replaced with per-test fixtures.
 let context: BrowserContext;
 let productConfig: ProductConfig;
 let basket: Basket;
@@ -78,7 +82,7 @@ test.describe("Promotions", () => {
     test("Promotions DAC Drawer", async ({ page }) => {
       mockPromos(
         page.context(),
-        "/api/modules/web_hosting/domains/search",
+        "/api/modules/web_hosting/domains/",
         {},
         "all",
         "prices"
@@ -98,7 +102,7 @@ test.describe("Promotions", () => {
     test("Promotions DAC Widget", async ({ page }) => {
       mockPromos(
         page.context(),
-        "/api/modules/web_hosting/domains/search",
+        "/api/modules/web_hosting/domains/",
         {},
         "all",
         "prices"
@@ -113,7 +117,7 @@ test.describe("Promotions", () => {
     test("Promotions DAC Page", async ({ page }) => {
       mockPromos(
         page.context(),
-        "/api/modules/web_hosting/domains/search",
+        "/api/modules/web_hosting/domains/",
         {},
         "all",
         "prices"

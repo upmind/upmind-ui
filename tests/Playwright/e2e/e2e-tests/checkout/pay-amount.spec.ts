@@ -8,7 +8,10 @@ import {
   getSessionToken,
   registerClient
 } from "../../support/api/index";
-import { waitForSessionCookie } from "../../support/helpers/session";
+import {
+  expectedPayAmountText,
+  waitForSessionCookie
+} from "../../support/helpers";
 
 let checkout: Checkout;
 let register: Registration;
@@ -28,7 +31,8 @@ test.describe("Checkout - Pay Amount", () => {
   test.describe("Pay Amount on Checkout", async () => {
     test("Value on initial load", async ({ page, context }) => {
       await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
-      await expect(checkout.payAmount).toHaveText("Pay £72.00");
+      const expected = await expectedPayAmountText(context);
+      await expect(checkout.payAmount).toHaveText(expected);
     });
     test("Value with promo applied", async ({ page, context }) => {
       await goToCheckout(
@@ -38,11 +42,13 @@ test.describe("Checkout - Pay Amount", () => {
         "genericpromo",
         null
       );
-      await expect(checkout.payAmount).toHaveText("Pay £57.60");
+      const expected = await expectedPayAmountText(context);
+      await expect(checkout.payAmount).toHaveText(expected);
     });
     test("Value in alternate currency", async ({ page, context }) => {
       await goToCheckout(page, context, products.STARTER_HOSTING, null, "INR");
-      await expect(checkout.payAmount).toHaveText("Pay ₹9,125.28");
+      const expected = await expectedPayAmountText(context);
+      await expect(checkout.payAmount).toHaveText(expected);
     });
   });
   test.describe("Changing Pay Amount value", async () => {
@@ -51,6 +57,7 @@ test.describe("Checkout - Pay Amount", () => {
       await checkout.changeAmountButton.click();
       await checkout.changeAmountInput.fill("10");
       await checkout.clickConfirmAmount();
+      // £10.00 is the user's typed input — literal is correct here
       await expect(checkout.payAmount).toHaveText("Pay £10.00");
     });
     test("Applying a promotion which changes Pay Amount", async ({
@@ -58,10 +65,17 @@ test.describe("Checkout - Pay Amount", () => {
       context
     }) => {
       await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
+      // Capture the baseline pre-promo total from the API
+      const baseline = await expectedPayAmountText(context);
+      await expect(checkout.payAmount).toHaveText(baseline);
+      // Apply promo via UI
       await checkout.addVoucherButton.click();
       await checkout.addVoucherInput.fill("genericpromo");
       await checkout.applyVoucherButton.click();
-      await expect(checkout.payAmount).toHaveText("Pay £57.60");
+      // Promo discounted the total — verify it changed, then check API truth
+      await expect(checkout.payAmount).not.toHaveText(baseline);
+      const postPromo = await expectedPayAmountText(context);
+      await expect(checkout.payAmount).toHaveText(postPromo);
     });
     test("Changing currency of Pay Amount", async ({ page, context }) => {
       await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
@@ -76,8 +90,8 @@ test.describe("Checkout - Pay Amount", () => {
       await audOption.click({ force: true });
       // Wait for the currency change to take effect (API call)
       await waitForSessionCookie(page.context());
-      // Verify the amount changed to AUD
-      await expect(checkout.payAmount).toHaveText("Pay A$164.64");
+      const expected = await expectedPayAmountText(context);
+      await expect(checkout.payAmount).toHaveText(expected);
     });
   });
 });

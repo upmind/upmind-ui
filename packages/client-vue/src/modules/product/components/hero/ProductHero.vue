@@ -56,6 +56,7 @@
       <ProductImage
         :class="styles.header.image.root"
         :product-details="props.productDetails"
+        :direction="props.direction"
         :fallback="meta.ui.productImageFallback.isVisible"
       />
     </aside>

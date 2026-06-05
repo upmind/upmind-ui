@@ -1,7 +1,7 @@
 {
   "name": "@upmind-automation/cart",
   "private": true,
-  "version": "0.17.3",
+  "version": "0.18.0",
   "description": "Bespoke Vue.js, e-commerce platform built on the Upmind platform",
   "keywords": [
     "Upmind",
@@ -27,6 +27,7 @@
     "start": "pnpm dev",
     "start:test": "vite --mode test",
     "dev": "vite",
+    "dev:record": "concurrently \"TARGET_API=https://api.staging.upmind.io node ../../tests/__fixtures__/recording-proxy.mjs\" \"vite --mode recording\"",
     "build": "pnpm type-check && pnpm build-only",
     "build:staging": "pnpm type-check && vite build --mode staging",
     "build-only": "vite build",
@@ -44,6 +45,9 @@
     "deploy:gcs:staging:dry-run": "bash scripts/deploy-gcs.sh --bucket upmind-cart-staging --prefix staging --dry-run",
     "deploy:gcs:sprighost": "bash scripts/deploy-gcs.sh --bucket upmind-cart --prefix sprighost",
     "deploy:gcs:sprighost:dry-run": "bash scripts/deploy-gcs.sh --bucket upmind-cart --prefix sprighost --dry-run",
+    "verify:gcs:production": "bash scripts/verify-gcs.sh --bucket upmind-cart --prefix production",
+    "verify:gcs:staging": "bash scripts/verify-gcs.sh --bucket upmind-cart-staging --prefix staging",
+    "verify:gcs:sprighost": "bash scripts/verify-gcs.sh --bucket upmind-cart --prefix sprighost",
     "deploy:firebase:production": "firebase deploy --project upmind-cart --only hosting:upmind-cart",
     "deploy:firebase:staging": "firebase deploy --project upmind-cart --only hosting:upmind-cart-staging",
     "deploy:firebase:sprighost": "firebase deploy --only hosting:staging"

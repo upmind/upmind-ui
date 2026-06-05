@@ -1,6 +1,32 @@
+/// <reference types="node" />
+import { execSync } from "node:child_process";
 import { defineConfig, devices } from "@playwright/test";
 
 const baseURL = "http://qa-automation.local:5173/";
+
+function git(args: string): string | undefined {
+  try {
+    return execSync(`git ${args}`, { stdio: ["ignore", "pipe", "ignore"] })
+      .toString()
+      .trim();
+  } catch {
+    return undefined;
+  }
+}
+
+const isCI = Boolean(process.env.CI);
+const branch =
+  process.env.CI_COMMIT_REF_NAME ||
+  process.env.GITHUB_REF_NAME ||
+  process.env.GIT_BRANCH ||
+  git("rev-parse --abbrev-ref HEAD") ||
+  "unknown";
+const commit =
+  process.env.CI_COMMIT_SHA ||
+  process.env.GITHUB_SHA ||
+  process.env.GIT_COMMIT ||
+  git("rev-parse HEAD") ||
+  "unknown";
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -19,16 +45,34 @@ export default defineConfig({
   testMatch: "**/*.spec.ts",
   snapshotPathTemplate:
     "./tests/Playwright/e2e/snapshots/{testFilePath}/{projectName}/{arg}.png",
+  globalTeardown: "./tests/Playwright/scripts/global-teardown.ts",
   //captureGitInfo: { commit: true, diff: true },
 
   /*Set number of retries on a failed test*/
-  retries: 0,
+  retries: 1,
 
   /* Run tests in files in parallel */
   fullyParallel: true,
 
   /* Reporter to use for test results. See https://playwright.dev/docs/test-reporters */
-  reporter: [["html", { outputFolder: "./tests/Playwright/e2e/reports/html" }]],
+  reporter: [
+    ["html", { outputFolder: "./tests/Playwright/e2e/reports/html" }],
+    [
+      "allure-playwright",
+      {
+        resultsDir: "./tests/Playwright/e2e/reports/allure-results",
+        detail: true,
+        suiteTitle: true,
+        environmentInfo: {
+          source: isCI ? "ci" : "local",
+          branch,
+          commit,
+          node: process.version,
+          os: process.platform
+        }
+      }
+    ]
+  ],
 
   /* Run your local dev server before starting the tests */
   webServer: {
@@ -77,6 +121,7 @@ export default defineConfig({
         browserName: "chromium",
         headless: true,
         viewport: { width: 1920, height: 1080 },
+        //locale: "en", ** Turning this on for a project will default to en locale (instead of en_US) and bypass any localazy sync issues
         launchOptions: {
           args: ["--no-sandbox", "--headless", "--disable-gpu"]
         }

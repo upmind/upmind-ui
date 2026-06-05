@@ -26,6 +26,7 @@
   "own_domain_qn": "Apakah Anda pemilik domain ini?",
   "owned_domains_title": "Domain yang saat ini Anda miliki",
   "price_renewal_desc": "Harga satu kali sebesar {regularPrice}. | Diperbarui setiap tahun sebesar {regularPrice}. | Diperbarui setiap {count} tahun sebesar {regularPrice}.",
+  "registrant_use_billing_msg": "Rincian penagihan Anda akan digunakan sebagai informasi kontak pendaftar domain.",
   "search": "Cari domain",
   "starts_with_domain": "Semuanya dimulai dengan **nama domain**",
   "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
@@ -36,5 +37,6 @@
   "transfer_extension_info": "Transfer termasuk perpanjangan selama satu tahun.",
   "transfer_owner_question": "Apakah Anda pemilik domain ini?",
   "transfer_price_info": "Anda dapat mentransfernya kepada kami dengan biaya hanya {currentPrice}",
-  "transfer_promotion": "Transfer hanya untuk {currentPrice}, biasanya {regularPrice}."
+  "transfer_promotion": "Transfer hanya untuk {currentPrice}, biasanya {regularPrice}.",
+  "use_details_for": "Gunakan detail ini untuk{domain}"
 }

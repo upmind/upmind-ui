@@ -7,6 +7,7 @@
   "basket_billing_review_msg": "Ορισμένα στοιχεία χρέωσης λείπουν ή είναι λανθασμένα – {review}.",
   "basket_count": "κενό | {count} στοιχείο | {count} στοιχεία",
   "basket_fields_review_msg": "Ορισμένα πεδία του καλαθιού λείπουν ή είναι λανθασμένα – {review}.",
+  "basket_incomplete_title": "Τα στοιχεία του καλαθιού δεν είναι πλήρη",
   "basket_items": "δεν υπάρχουν είδη στο καλάθι | {count} είδος στο καλάθι | {count} είδη στο καλάθι",
   "basket_product_missing_data": "Λείπουν δεδομένα από το στοιχείο",
   "basket_product_missing_data_help": "Αυτό το στοιχείο δεν έχει δεδομένα και απαιτεί προσοχή",
@@ -17,6 +18,7 @@
   "basket_products_require_attention_msg": "{count} τα προϊόντα απαιτούν προσοχή | {count} το προϊόν απαιτεί προσοχή | {count} προϊόντα που απαιτούν προσοχή",
   "basket_products_review_desc": "Παρακαλούμε ελέγξτε τα παρακάτω στοιχεία πριν προχωρήσετε, εναλλακτικά επιστρέψτε τα στο καλάθι.",
   "basket_requires_attention_msg": "{count} στοιχείο χρειάζεται την προσοχή σας | {count} στοιχεία χρειάζονται την προσοχή σας",
+  "basket_review_item_msg": "{message} – {review}.",
   "basket_review_msg": "Παρακαλώ ελέγξτε τα παρακάτω στοιχεία πριν συνεχίσετε",
   "basket_section": "Σύνοψη καλαθιού",
   "basket_summary_desc": "Έχετε {count} είδος στο καλάθι σας, συνολικής αξίας {total}. | Έχετε {count} είδη στο καλάθι σας, συνολικής αξίας {total}.",
@@ -26,6 +28,7 @@
   "basket_tax_incl": "συμπεριλαμβανομένων των φόρων",
   "basket_title": "Το καλάθι σας",
   "change_amount": "Αλλαγή ποσού",
+  "details_incomplete_title": "Οι λεπτομέρειες είναι ελλιπείς",
   "empty": "Το **καλάθι** σας είναι άδειο",
   "empty_md": "@.markdown:{'cart.empty'}",
   "empty_msg": "Φαίνεται ότι δεν έχετε προσθέσει ακόμα τίποτα στο καλάθι σας.",
@@ -60,6 +63,10 @@
   "place_order_desc": "Απλώς κάντε κλικ στο κουμπί «Υποβολή παραγγελίας» για να ολοκληρώσετε την αγορά σας.",
   "product_not_found": "**Το προϊόν** δεν βρέθηκε",
   "product_not_found_md": "@.markdown:{'cart.product_not_found'}",
+  "product_setup_count": "Δεν έχουν απομείνει προϊόντα |{count} προϊόν που απομένει |{count} προϊόντα που απομένουν",
+  "product_setup_desc": "Ορισμένα προϊόντα απαιτούν πρόσθετες πληροφορίες πριν από την ολοκλήρωση της αγοράς. Ελέγξτε τα και δώστε τυχόν στοιχεία που λείπουν.",
+  "product_setup_msg": "Χρησιμοποιήστε επίσης αυτές τις λεπτομέρειες για{name}",
+  "product_setup_title": "Ολοκλήρωση εγκατάστασης προϊόντος",
   "promotion_help": "{code} παρέχει {amount} έκπτωση {description}",
   "promotions_active": "Ενεργές εκπτώσεις",
   "recommendations_unavailable_text": "Δεν μπορέσαμε να βρούμε προτάσεις για εσάς αυτή τη στιγμή. Παρακαλώ κάντε κλικ παρακάτω για να συνεχίσετε.",
@@ -67,5 +74,6 @@
   "recommendations_unavailable_title_md": "@.markdown:{'cart.recommendations_unavailable_title'}",
   "show_more_payment_options": "Εμφάνιση περισσότερων επιλογών πληρωμής",
   "stored_payment_methods_limited_desc": "Δεν είναι ορατές όλες οι μέθοδοι πληρωμής επειδή δεν είναι διαθέσιμες για τη χώρα ή το νόμισμά σας.",
-  "stored_payment_methods_limited_title": "Περιορισμένες Μέθοδοι Πληρωμής"
+  "stored_payment_methods_limited_title": "Περιορισμένες Μέθοδοι Πληρωμής",
+  "warning_notes_title": "Προειδοποίηση καλαθιού | Προειδοποιήσεις καλαθιού"
 }

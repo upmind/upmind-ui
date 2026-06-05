@@ -20,15 +20,20 @@ import {
   parseBasketProduct,
   parseBasketProductError
 } from "../basketProduct/utils";
+import { parseBasketProductModel } from "../product/utils";
 
 import {
   compact,
   defaultsDeep,
   find,
+  forEach,
   get,
+  isEqual,
   map,
   reduce,
   set,
+  some,
+  sortBy,
   uniq
 } from "lodash-es";
 
@@ -163,16 +168,18 @@ export const parseBasket = (
   // const merged = newBasket || [];
 
   // Override arrays with smart ID-based merge (not index-based)
-  if (newBasket?.products !== undefined) {
-    newBasket.products = (mergeArrayById(newBasket.products, basket.products) ??
-      []) as IBasket["products"];
-  }
-  if (newBasket?.promotions !== undefined) {
-    newBasket.promotions = (mergeArrayById(
-      newBasket.promotions,
-      basket.promotions
-    ) ?? []) as IBasket["promotions"];
-  }
+  // Preserve old data if new response doesn't include these arrays
+  newBasket.products =
+    newBasket?.products !== undefined
+      ? ((mergeArrayById(newBasket.products, basket.products) ??
+          []) as IBasket["products"])
+      : basket.products;
+
+  newBasket.promotions =
+    newBasket?.promotions !== undefined
+      ? ((mergeArrayById(newBasket.promotions, basket.promotions) ??
+          []) as IBasket["promotions"])
+      : basket.promotions;
 
   return newBasket;
 };
@@ -260,6 +267,50 @@ export const parseBasketFieldsModel = (basket: any, data = {}) => {
     customFields
   };
 };
+
+// --- PRODUCT CHANGE DETECTION
+
+/**
+ * Detects whether products have changed between old and new basket states.
+ * Two-stage check:
+ *   1. Cheap: compare sorted basket product IDs — bail if differ.
+ *   2. Deep: same IDs, compare canonical `ProductModel`s per product
+ *      (identity + config + provision values) and bail on the first diff.
+ * Returns `true` when provision data should be re-fetched/re-validated.
+ */
+export function hasProductChanges(
+  oldBasket: IBasket | undefined,
+  newBasket: IBasket
+): boolean {
+  const oldIds = sortBy(map(oldBasket?.products, "id"));
+  const newIds = sortBy(map(newBasket?.products, "id"));
+  if (!isEqual(oldIds, newIds)) return true;
+
+  return some(newBasket?.products, newProduct => {
+    const oldProduct = find(oldBasket?.products, { id: newProduct.id });
+    return !isEqual(
+      parseBasketProductModel(oldProduct!),
+      parseBasketProductModel(newProduct)
+    );
+  });
+}
+
+/**
+ * Copies existing provision_fields data from old basket products to new basket
+ * products, matched by product ID. Used when skipping the provision fields
+ * re-fetch to preserve existing provision data.
+ */
+export function preserveProvisionFields(
+  oldBasket: IBasket | undefined,
+  newBasket: IBasket
+): void {
+  forEach(newBasket.products, newProduct => {
+    const oldProduct = find(oldBasket?.products, { id: newProduct.id });
+    if (oldProduct?.provision_fields) {
+      set(newProduct, "provision_fields", oldProduct.provision_fields);
+    }
+  });
+}
 
 /**
  * Parses API error responses into structured field and product errors.

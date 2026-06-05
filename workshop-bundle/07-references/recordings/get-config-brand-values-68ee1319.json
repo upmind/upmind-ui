@@ -1,0 +1,55 @@
+{
+  "request": {
+    "method": "GET",
+    "path": "/api/config/brand/values?keys=analytics.google.measurement_id%2Canalytics.gtm.container_id%2Cui.basket.default_currency%2Cui.basket.add_to_basket_funnelling%2Cui.basket.payment_term_descriptions%2Cbilling.gateway.force_auto_payment_for_stored_details%2Cbilling.gateway.force_card_storage%2Cui.checkout.checkout_flow%2Cui.checkout.hide_promotions_field%2Cinvoices.common.require_phone_for_orders%2Cui.checkout.checkout_summary_color_stop1%2Cui.checkout.checkout_summary_color_stop2%2Cui.checkout.checkout_summary_contrast_mode%2Csecurity.ui.allow_vault%2Cui.client_area.homepage%2Cinvoices.common.default_payment_period%2Cui.client_area.hide_registration_forms%2Cprovisioning.domain_names.search_method%2Cbilling.gateway.client_allow_partial_payments%2Cinvoices.common.is_available_pay_later%2Cbilling.gateway.allow_card_removal_replacement%2Cinvoices.common.display_price_type%2Cinvoices.common.require_address_for_orders%2Cinvoices.common.require_company_for_orders%2Cui.client_registration.require_phone%2Cinvoices.common.required_region_in_address%2Cui.basket.truncate_product_description%2Cui.client_area.show_catalog%2Cinvoices.common.show_promotion_as%2Ctickets.support.support_pin_enabled%2Cprice_tax.tax.enable_automatic_vat_validation%2Cui.client_area.disable_support_system%2Cui.client_area.page_after_login%2Cui.client_area.enter_key_action%2Cui.client_area.price_before_discount_position%2Cinvoices.common.require_payment_details_for_zero_amount_orders"
+  },
+  "response": {
+    "status": 200,
+    "body": {
+      "status": "ok",
+      "data": {
+        "invoices.common.is_available_pay_later": true,
+        "invoices.common.display_price_type": "min",
+        "invoices.common.show_promotion_as": "percentage",
+        "invoices.common.default_payment_period": 2,
+        "invoices.common.require_address_for_orders": false,
+        "invoices.common.require_company_for_orders": false,
+        "invoices.common.required_region_in_address": false,
+        "invoices.common.require_phone_for_orders": true,
+        "invoices.common.require_payment_details_for_zero_amount_orders": false,
+        "billing.gateway.client_allow_partial_payments": true,
+        "billing.gateway.force_card_storage": false,
+        "billing.gateway.allow_card_removal_replacement": false,
+        "billing.gateway.force_auto_payment_for_stored_details": false,
+        "security.ui.allow_vault": true,
+        "price_tax.tax.enable_automatic_vat_validation": true,
+        "ui.client_area.homepage": "login",
+        "ui.client_area.page_after_login": "dashboard",
+        "ui.client_area.show_catalog": "show",
+        "ui.client_area.enter_key_action": "mock-ui.client_area.enter_key_action",
+        "ui.client_area.disable_support_system": false,
+        "ui.client_area.hide_registration_forms": false,
+        "ui.client_registration.require_phone": false,
+        "ui.basket.default_currency": "brand",
+        "ui.basket.add_to_basket_funnelling": "none",
+        "ui.basket.price_before_discount_position": "before",
+        "ui.basket.payment_term_descriptions": "monthly",
+        "ui.basket.truncate_product_description": true,
+        "ui.checkout.checkout_flow": "stepped",
+        "ui.checkout.checkout_summary_color_stop1": "",
+        "ui.checkout.checkout_summary_color_stop2": "",
+        "ui.checkout.checkout_summary_contrast_mode": "light",
+        "ui.checkout.hide_promotions_field": false,
+        "tickets.support.support_pin_enabled": false,
+        "analytics.gtm.container_id": "G-9QKJBFZHN2",
+        "analytics.google.measurement_id": null,
+        "provisioning.domain_names.search_method": "smart-suggest"
+      },
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  }
+}

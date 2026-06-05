@@ -182,6 +182,13 @@ export const OPTION_GROUP_SPACING = {
 export type OptionGroupSpacing =
   (typeof OPTION_GROUP_SPACING)[keyof typeof OPTION_GROUP_SPACING];
 
+export const PRODUCT_SETUP_MODE = {
+  REQUIRED: "required",
+  DEFERRED: "deferred"
+} as const;
+export type ProductSetupMode =
+  (typeof PRODUCT_SETUP_MODE)[keyof typeof PRODUCT_SETUP_MODE];
+
 export interface BadgeObject {
   label: string;
   icon?: string;
@@ -243,7 +250,8 @@ export type ValueType =
   | typeof BREADCRUMBS
   | typeof ICON_VARIANT
   | typeof DIVIDER_STYLE
-  | typeof OPTION_GROUP_SPACING;
+  | typeof OPTION_GROUP_SPACING
+  | typeof PRODUCT_SETUP_MODE;
 
 export interface UIPropertyDefinition {
   type?: ValueType;
@@ -251,6 +259,7 @@ export interface UIPropertyDefinition {
   contexts: UIContext[];
   scopes: UIScope[];
   locked?: Partial<Record<UIContext, string>>;
+  conditional?: boolean;
 }
 
 export interface DataPropertyDefinition {
@@ -320,10 +329,31 @@ export interface ProductRecommendConfigOptions {
   qty?: number;
   /** Billing cycle in months */
   bcm?: number;
-  /** Sub-product IDs */
-  sub_pids?: string[];
+  /** Sub-product IDs (may be array, string, or CSV) */
+  sub_pids?: string | string[];
   /** Provision field values */
   pfields?: Record<string, any> | any[];
   /** Coupon codes to apply */
   coupons?: string[];
 }
+
+// -----------------------------------------------------------------------------
+// State Availability Matrix
+// -----------------------------------------------------------------------------
+
+export const PRE_BASKET_CONTEXTS = [
+  UIContext.CATALOGUE,
+  UIContext.CONFIGURE,
+  UIContext.RECOMMENDATIONS
+] as const;
+
+export const POST_BASKET_CONTEXTS = [
+  UIContext.BASKET,
+  UIContext.AUTH,
+  UIContext.BILLING_DETAILS,
+  UIContext.CHECKOUT,
+  UIContext.CONFIRMATION
+] as const;
+
+export type PreBasketContext = (typeof PRE_BASKET_CONTEXTS)[number];
+export type PostBasketContext = (typeof POST_BASKET_CONTEXTS)[number];

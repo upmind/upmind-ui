@@ -21,7 +21,9 @@ import { useFeedback } from "../../feedback";
 import {
   useValidationParser,
   useCookies,
-  mapToHeadlessError
+  mapToHeadlessError,
+  parseError,
+  useTime
 } from "../../../utils";
 const { setTopLevel: setCookie } = useCookies();
 import {
@@ -42,7 +44,7 @@ import { cloneDeep, omit } from "lodash-es";
 
 // --- types
 import { responseCodes } from "../../../utils";
-import { GrantTypes } from "@upmind-automation/types";
+import { GrantTypes, TwofaProviders } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 export default createMachine(
@@ -83,14 +85,7 @@ export default createMachine(
                   target: "available",
                   actions: ["clearError", "setLoginSchemas"]
                 }
-                // after: {
-                //   wait: {
-                //     target: "available",
-                //     actions: ["clearError", "setLoginSchemas"]
-                //   }
-                // }
               },
-              // loading: {} // loading state not required?
               available: {
                 initial: "checking",
                 states: {
@@ -126,10 +121,17 @@ export default createMachine(
                       actions: ["setActor", "pushLogin"]
                     }
                   ],
-                  onError: {
-                    target: "error",
-                    actions: ["setError", "setFeedbackError"]
-                  }
+                  onError: [
+                    {
+                      target: "#error",
+                      actions: ["setError"],
+                      cond: "isTooManyAttempts"
+                    },
+                    {
+                      target: "error",
+                      actions: ["setError"]
+                    }
+                  ]
                 }
               },
               challenging: {
@@ -164,10 +166,22 @@ export default createMachine(
                     target: "#complete",
                     actions: ["setActor", "pushLogin"]
                   },
-                  onError: {
-                    target: "challenging.invalid",
-                    actions: ["setError", "setFeedbackError"]
-                  }
+                  onError: [
+                    {
+                      target: "#error",
+                      actions: ["setError"],
+                      cond: "isTooManyAttempts"
+                    },
+                    {
+                      target: "challenging.invalid",
+                      actions: ["setError", "set2faError", "clear2faToken"],
+                      cond: "isEmailTwofa"
+                    },
+                    {
+                      target: "challenging.invalid",
+                      actions: ["setError", "set2faError"]
+                    }
+                  ]
                 }
               },
               error: {
@@ -195,10 +209,17 @@ export default createMachine(
                     target: "available",
                     actions: ["setCustomFields", "setRegisterSchemas"]
                   },
-                  onError: {
-                    target: "error",
-                    actions: ["setError", "setFeedbackError"]
-                  }
+                  onError: [
+                    {
+                      target: "#error",
+                      actions: ["setError"],
+                      cond: "isTooManyAttempts"
+                    },
+                    {
+                      target: "error",
+                      actions: ["setError"]
+                    }
+                  ]
                 }
               },
               available: {
@@ -225,10 +246,17 @@ export default createMachine(
                   onDone: {
                     target: "authenticating"
                   },
-                  onError: {
-                    target: "error",
-                    actions: ["setError", "setFeedbackError"]
-                  }
+                  onError: [
+                    {
+                      target: "#error",
+                      actions: ["setError"],
+                      cond: "isTooManyAttempts"
+                    },
+                    {
+                      target: "error",
+                      actions: ["setError"]
+                    }
+                  ]
                 }
               },
               authenticating: {
@@ -245,10 +273,17 @@ export default createMachine(
                       actions: ["setActor", "pushRegister"]
                     }
                   ],
-                  onError: {
-                    target: "error",
-                    actions: ["setError", "setFeedbackError"]
-                  }
+                  onError: [
+                    {
+                      target: "#error",
+                      actions: ["setError"],
+                      cond: "isTooManyAttempts"
+                    },
+                    {
+                      target: "error",
+                      actions: ["setError"]
+                    }
+                  ]
                 }
               },
               challenging: {
@@ -283,10 +318,22 @@ export default createMachine(
                     target: "#complete",
                     actions: ["setActor", "pushRegister"]
                   },
-                  onError: {
-                    target: "challenging.invalid",
-                    actions: ["setError", "setFeedbackError"]
-                  }
+                  onError: [
+                    {
+                      target: "#error",
+                      actions: ["setError"],
+                      cond: "isTooManyAttempts"
+                    },
+                    {
+                      target: "challenging.invalid",
+                      actions: ["setError", "set2faError", "clear2faToken"],
+                      cond: "isEmailTwofa"
+                    },
+                    {
+                      target: "challenging.invalid",
+                      actions: ["setError", "set2faError"]
+                    }
+                  ]
                 }
               },
               error: {
@@ -326,10 +373,17 @@ export default createMachine(
                     target: "complete",
                     actions: ["setFeedbackSuccess"]
                   },
-                  onError: {
-                    target: "error",
-                    actions: ["setError", "setFeedbackError"]
-                  }
+                  onError: [
+                    {
+                      target: "#error",
+                      actions: ["setError"],
+                      cond: "isTooManyAttempts"
+                    },
+                    {
+                      target: "error",
+                      actions: ["setError"]
+                    }
+                  ]
                 }
               },
               error: {
@@ -353,7 +407,11 @@ export default createMachine(
       // Handle errors
       error: {
         id: "error",
-        type: "final"
+        after: {
+          wait: {
+            target: "loading"
+          }
+        }
       },
 
       // Handle completion, stop the machine and prevent further requests
@@ -414,6 +472,10 @@ export default createMachine(
         token: (_context: GuestContext, { data }: AnyEventObject) => data
       }),
 
+      clear2faToken: assign({
+        model: ({ model }: GuestContext) => ({ ...model, token: "" })
+      }),
+
       persistModel: assign({
         baseModel: ({ model }: GuestContext) => cloneDeep(model)
       }),
@@ -426,7 +488,6 @@ export default createMachine(
         const { t } = useI18n();
         useFeedback().addSuccess(t("confirm.reset_instructions_sent_msg"));
       },
-
       setFeedbackError: ({ error }: GuestContext, _event: AnyEventObject) => {
         return;
         // DC: We have deprecated sending feedback for now...
@@ -438,6 +499,16 @@ export default createMachine(
         //   data: error?.data,
         // });
       },
+      // 2fa errors stay in `challenging.invalid`, so show the `token` field for inline form feedback.
+      set2faError: assign({
+        error: ({ error }: GuestContext) => {
+          if (!error?.message) return error;
+          return {
+            ...error,
+            data: parseError(error.message, "token")
+          };
+        }
+      }),
 
       pushRegister: (_context: GuestContext, _event: AnyEventObject) => {
         useDataLayer().dataLayer({ event: "sign_up" }).withUser().push(false);
@@ -481,10 +552,18 @@ export default createMachine(
         return (
           data.actor_type == GrantTypes.TWOFA && !!data?.second_factor_required
         );
-      }
+      },
+      isTooManyAttempts: (_context: GuestContext, { data }: AnyEventObject) => {
+        const error = mapToHeadlessError(data);
+        return error?.status === responseCodes.Too_Many_Requests;
+      },
+      isEmailTwofa: ({ token }: GuestContext) =>
+        token?.twofa_provider === TwofaProviders.EMAIL
     },
 
-    delays: {},
+    delays: {
+      wait: () => useTime().WAIT
+    },
     services
   }
 );

@@ -26,6 +26,7 @@
   "own_domain_qn": "您擁有這個網域嗎？",
   "owned_domains_title": "您目前擁有的域名",
   "price_renewal_desc": "一次性價格為 {regularPrice}。 | 每年續訂價格為 {regularPrice}。 | 每 {count}年續訂價格為 {regularPrice}。",
+  "registrant_use_billing_msg": "您的帳單資訊將用作網域註冊人的聯絡資訊。",
   "search": "搜尋網域",
   "starts_with_domain": "一切都始於**域名**",
   "starts_with_domain_md": "@.markdown：{'domain.starts_with_domain'}",
@@ -36,5 +37,6 @@
   "transfer_extension_info": "轉會包含一年延長合約。",
   "transfer_owner_question": "您是此網域的所有者嗎？",
   "transfer_price_info": "您只需將它轉移給我們即可 {currentPrice}",
-  "transfer_promotion": "轉帳僅需 {currentPrice} ，通常為 {regularPrice} 。"
+  "transfer_promotion": "轉帳僅需 {currentPrice} ，通常為 {regularPrice} 。",
+  "use_details_for": "請使用這些詳細信息{domain}"
 }

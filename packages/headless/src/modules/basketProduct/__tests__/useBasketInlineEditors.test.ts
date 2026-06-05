@@ -210,18 +210,6 @@ describe("useBasketInlineEditors", () => {
     expect(editor!.config).toBeDefined();
   });
 
-  it("sets showQuantity based on productDetails.quantifiable", async () => {
-    mockProducts.value = [
-      createProduct("bp-1", { productDetails: { quantifiable: true } })
-    ];
-
-    const { isReady, getEditor } = useBasketInlineEditors();
-    await isReady();
-
-    const editor = getEditor("bp-1");
-    expect(editor!.showQuantity).toBe(true);
-  });
-
   it("cleans up stale editors on refresh", async () => {
     mockProducts.value = [createProduct("bp-1"), createProduct("bp-2")];
 

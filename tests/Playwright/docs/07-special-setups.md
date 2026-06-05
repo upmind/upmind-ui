@@ -87,7 +87,7 @@ Both use the same Stripe iframe but with different forms selected. `inputSepaDet
 
 ### Checkout testing users
 
-Named by the payment gateway they own — `stripeCard`, `bankTransfer`, `offlinePayment`, `micropayment`, `payLater`, `existingMethodUser`, `priceListUser`, `brandUser`, plus utility users (`checkoutUser`, `twoFactor`, `UiTesting`), domain/hosting customer pairs (`domain1`, `domain2`, `hosting1`, `hosting2`), etc.
+Named by the payment gateway they own — `stripeCard`, `bankTransfer`, `offlinePayment`, `micropayment`, `payLater`, `existingMethodUser`, `priceListUser`, `brandUser`, plus utility users (`checkoutUser`, `twoFactor`, `uiTesting`), domain/hosting customer pairs (`domain1`, `domain2`, `hosting1`, `hosting2`), etc.
 
 These accounts must exist on staging with the exact email/password combos in the file. If they're deleted or the passwords change, every test that references them fails at login.
 

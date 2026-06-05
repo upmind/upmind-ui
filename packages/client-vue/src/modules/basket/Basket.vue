@@ -16,6 +16,14 @@
       </template>
 
       <template #products>
+        <slot name="errors">
+          <BasketAlerts
+            id="basket-errors"
+            basket-fields
+            basket-products
+            :basket-products-route="props.editRoute"
+          />
+        </slot>
         <BasketProducts v-model:open="open" :edit-route="props.editRoute">
           <template #products="{ open }">
             <slot name="products" :open="open" />
@@ -32,10 +40,9 @@
               meta.isLoading ||
               !meta.hasFields ||
               !meta.hasProducts ||
-              meta.hasInvalidProducts ||
               meta.hasLockedProducts
             "
-            :loading="meta.isProcessing"
+            :loading="meta.isProcessing || isNavigating"
             :show-checkout="
               template !== BASKET_TEMPLATE.TWO_COLUMN_RTL &&
               template !== BASKET_TEMPLATE.ENCLOSED &&
@@ -48,17 +55,6 @@
 
       <template #total>
         <BasketTotal footer />
-      </template>
-
-      <template #errors>
-        <slot name="errors">
-          <BasketErrors
-            id="basket-errors"
-            basket-fields
-            basket-products
-            :basket-products-route="props.editRoute"
-          />
-        </slot>
       </template>
 
       <template #markdown>
@@ -84,10 +80,9 @@
               meta.isLoading ||
               !meta.hasFields ||
               !meta.hasProducts ||
-              meta.hasInvalidProducts ||
               meta.hasLockedProducts
             "
-            :loading="meta.isProcessing"
+            :loading="meta.isProcessing || isNavigating"
           />
         </slot>
       </template>
@@ -95,7 +90,7 @@
       <template #custom-price>
         <Alert
           v-if="meta.hasCustomPrice"
-          variant="minimal"
+          variant="muted"
           color="warning"
           icon="switch-horizontal-01"
           :title="t('text.custom_price_applied')"
@@ -108,14 +103,12 @@
 
 <script lang="ts" setup>
 // --- external
-import { ref, computed, defineAsyncComponent, onUnmounted } from "vue";
+import { ref, computed, defineAsyncComponent } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
 import { useBasket, useRoutingEngine } from "@upmind-automation/headless";
 import { useLayout } from "../../components/layout/useLayout";
-import { useHeader } from "../../components/header/useHeader";
-import { useFooter } from "../../components/footer/useFooter";
 import {
   useConfig,
   validateTemplate,
@@ -128,7 +121,7 @@ import Back from "../../components/navigation/Back.vue";
 import BasketSummary from "./components/BasketSummary.vue";
 import BasketProducts from "./components/BasketProducts.vue";
 import BasketPricing from "./components/BasketPricing.vue";
-import BasketErrors from "./components/BasketErrors.vue";
+import BasketAlerts from "./components/BasketAlerts.vue";
 import BasketCheckout from "./components/BasketCheckout.vue";
 import BasketTotal from "./components/BasketTotal.vue";
 import Transitions from "../../components/layout/components/transition/Transition.vue";
@@ -181,7 +174,7 @@ const props = withDefaults(
 
 const { t } = useI18n();
 const { set } = useThemes();
-const { navigateNext } = useRoutingEngine();
+const { navigateNext, isNavigating } = useRoutingEngine();
 const { isReady, meta, basketId } = useBasket();
 const { variant } = useLayout();
 
@@ -211,12 +204,6 @@ const { data: basketSummaryTemplate } = useClientTemplate({
 });
 
 set(ui.theme.value);
-
-onUnmounted(() => {
-  useHeader({});
-  useLayout({});
-  useFooter({});
-});
 
 // -----------------------------------------------------------------------------
 
