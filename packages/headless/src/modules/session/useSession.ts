@@ -29,6 +29,7 @@ import type {
   IAuthTransfer,
   SessionContext,
   SessionTransfer,
+  VerificationProps,
   Client
 } from "./types";
 import type { ErrorObject } from "ajv";
@@ -348,12 +349,12 @@ export const useSession = () => {
       .catch(() => false);
   }
 
-  async function verifyEmail({ code }: { code: string }): Promise<boolean> {
+  async function verifyEmail(payload: VerificationProps): Promise<boolean> {
     if (!clientActor.value) return false;
 
     service.send({
       type: "VERIFY",
-      data: { code }
+      data: payload
     });
 
     return await waitFor(
@@ -516,6 +517,10 @@ export const useSession = () => {
 
   function transferred() {
     service.send({ type: "TRANSFERRED" });
+  }
+
+  function verifyFromLink(payload: VerificationProps): void {
+    service.send({ type: "VERIFY_EMAIL", data: payload });
   }
 
   /**
@@ -734,6 +739,17 @@ export const useSession = () => {
      * @returns {Promise<boolean>} Resolves `true` if verification succeeded and the client transitioned to `available`, `false` otherwise.
      */
     verifyEmail,
+
+    /**
+     * Verifies an email from a session-agnostic link (works logged out).
+     * Fire-and-forget: dispatches `VERIFY_EMAIL`; the session machine performs
+     * the verification, fires the success/failure toast, and re-checks.
+     * @param {Object} payload The verification payload.
+     * @param {string} payload.clientId The client whose email is being verified.
+     * @param {string} payload.emailId The email record being verified.
+     * @param {string} payload.hash The registration hash from the emailed link.
+     */
+    verifyFromLink,
 
     /**
      * Transfer session data between different parts of the application, such as from guest to client.

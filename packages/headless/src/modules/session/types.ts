@@ -55,6 +55,33 @@ export interface SessionTransfer {
 }
 
 /**
+ * Parameters for an email verification. Two shapes: a typed `code` (the
+ * in-session form path) or a hashed link (`clientId` + `emailId` + `hash`,
+ * works logged out).
+ */
+export type VerificationProps =
+  | {
+      /**
+       * The verification code entered by an unverified client.
+       */
+      code: string;
+    }
+  | {
+      /**
+       * The unique identifier of the client whose email is being verified.
+       */
+      clientId: string;
+      /**
+       * The unique identifier of the email record being verified.
+       */
+      emailId: string;
+      /**
+       * The registration hash proving ownership of the emailed link.
+       */
+      hash: string;
+    };
+
+/**
  * Interface representing the context for a user session, typically managed by an XState machine.
  * It holds historical states, error information, and details about ongoing session transfers.
  */
