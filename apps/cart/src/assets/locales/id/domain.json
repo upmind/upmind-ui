@@ -53,7 +53,7 @@
   "search": "Masukkan nama domain untuk mencari",
   "starts_with_domain": "Semuanya dimulai dengan **nama domain**",
   "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
-  "tld_renewal_info": "Harga perpanjangan {tld} kami mulai dari hanya {term}.",
+  "tld_renewal_info": "Perpanjangan dimulai dari {term}.",
   "tld_renewal_price_desc": "Kita {tld} harga perpanjangan mulai dari hanya {currentPrice} (adalah {regularPrice}).",
   "tld_renewal_price_from_desc": "Kita {tld} harga perpanjangan mulai dari hanya {regularPrice}.",
   "transfer": "Transfer hanya untuk {currentPrice}.",

@@ -53,7 +53,7 @@
   "search": "Voer een domeinnaam in om te zoeken",
   "starts_with_domain": "Het begint allemaal met een **domeinnaam**",
   "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
-  "tld_renewal_info": "Onze {tld} verlengingsprijzen beginnen al vanaf slechts {term}.",
+  "tld_renewal_info": "Verlengingen zijn al verkrijgbaar vanaf {term}.",
   "tld_renewal_price_desc": "Ons {tld} verlengingsprijzen beginnen vanaf slechts {currentPrice} (was {regularPrice}).",
   "tld_renewal_price_from_desc": "Ons {tld} verlengingsprijzen beginnen vanaf slechts {regularPrice}.",
   "transfer": "Overdracht voor slechts {currentPrice}.",

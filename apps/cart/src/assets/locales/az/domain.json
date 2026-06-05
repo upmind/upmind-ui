@@ -53,7 +53,7 @@
   "search": "Axtarış üçün domen daxil edin",
   "starts_with_domain": "Hamısı **domen adı** ilə başlayır",
   "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
-  "tld_renewal_info": "{tld} yeniləmə qiymətlərimiz yalnız {renewalPrice}/{term}-dən başlayır.",
+  "tld_renewal_info": "Yeniləmələr {regularPrice}/{term}-dən başlayır.",
   "tld_renewal_price_desc": "Bizim {tld} yenilənmə qiymətləri yalnızdan başlayır {currentPrice} (oldu {regularPrice}).",
   "tld_renewal_price_from_desc": "Bizim {tld} yenilənmə qiymətləri yalnızdan başlayır {regularPrice}.",
   "transfer": "Yalnız köçürmə {currentPrice}.",

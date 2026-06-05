@@ -18,7 +18,7 @@
   "basket_products_require_attention_msg": "{count} produtos requerem atenção | {count} produto requer atenção | {count} produtos requerem atenção",
   "basket_products_review_desc": "Revise os seguintes itens antes de prosseguir ou devolva-os ao carrinho.",
   "basket_requires_attention_msg": "{count} item precisa da sua atenção | {count} itens precisam da sua atenção",
-  "basket_review_item_msg": "{message} – {review}.",
+  "basket_review_item_msg": "{message}–{review}.",
   "basket_review_msg": "Por favor, revise os seguintes itens antes de continuar",
   "basket_section": "Resumo da cesta",
   "basket_summary_desc": "Você tem {count} item em sua cesta, totalizando {total}. | Você tem {count} itens em sua cesta, totalizando {total}.",

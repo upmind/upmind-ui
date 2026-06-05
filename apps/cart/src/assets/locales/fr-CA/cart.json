@@ -18,7 +18,7 @@
   "basket_products_require_attention_msg": "{count} les produits nécessitent une attention particulière | {count} le produit nécessite une attention particulière | {count} les produits nécessitent une attention particulière",
   "basket_products_review_desc": "Veuillez vérifier les éléments suivants avant de continuer, ou retournez-les au panier.",
   "basket_requires_attention_msg": "{count} élément nécessite votre attention | {count} éléments nécessitent votre attention",
-  "basket_review_item_msg": "{message} – {review}.",
+  "basket_review_item_msg": "{message}–{review}.",
   "basket_review_msg": "Veuillez examiner les éléments suivants avant de continuer",
   "basket_section": "Résumé du panier",
   "basket_summary_desc": "Tu as {count} article dans votre panier, totalisant {total}. | Vous avez {count} articles dans votre panier, totalisant {total}.",
