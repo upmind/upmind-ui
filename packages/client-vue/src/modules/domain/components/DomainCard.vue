@@ -1,11 +1,17 @@
 <template>
-  <article :class="styles.card.root">
+  <article :class="styles.card.root" :data-exact-match="meta.isExactMatch">
     <header :class="styles.card.header.root">
       <!-- TODO: Add favourite action -->
 
       <div :class="styles.card.header.details.root">
         <section :class="styles.card.header.details.status.root">
+          <Skeleton
+            v-if="meta.isPriceLoading"
+            :class="styles.card.skeleton.status"
+            data-testid="dac-card-status-loading"
+          />
           <small
+            v-else
             :class="styles.card.header.details.status.label"
             role="status"
             aria-label="Domain availability status"
