@@ -269,7 +269,8 @@ export default {
           }
         }
       }),
-      description: cva("h-4 w-32"),
+      description: cva("h-5 w-32"),
+      status: cva("h-5 w-20"),
       price: cva("h-6 w-24"),
       priceButton: cva("button-radius h-11")
     }
