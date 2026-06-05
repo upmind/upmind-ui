@@ -161,6 +161,14 @@ export type SmartDomainExistingProps = {
   dnsOnly?: boolean;
   transferPrice?: string;
   /**
+   * The parent product's **regular** (undiscounted) price for the
+   * resolved billing term. Used in the renewal half of the transfer copy
+   * ("Subsequent renewals charged at …") because renewals aren't subject
+   * to first-term promotions — keeps the SmartDomainField line aligned
+   * with the DAC card's "Renewals start from {regularPrice}/{term}".
+   */
+  renewalPrice?: string;
+  /**
    * Brand-supplied transfer-price override (e.g. "FREE" or "£10").
    * When present, the transfer-info copy uses this in place of the parent
    * product's `transferPrice`. Resolved from the transfer sub-product's

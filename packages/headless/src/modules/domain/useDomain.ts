@@ -42,6 +42,7 @@ import { calculateBillingTerm, parseTermDetails } from "../product/utils";
 
 // --- types
 import { DomainTypes, type DomainContext, type DomainProduct } from "./types";
+import type { BasketProduct } from "../basketProduct/types";
 import { PAGINATION } from "../query";
 import type { IDomainAvailabilityResponse } from "@upmind-automation/types";
 
@@ -407,22 +408,81 @@ export const useDomain = (
         );
         return {
           price: termDetails.price?.currentPrice ?? "",
+          // Always-undiscounted price the user pays on every renewal,
+          // exposed separately so the SmartDomainField transfer copy
+          // ("Subsequent renewals charged at …") can stay aligned with
+          // the DAC card's "Renewals start from {regularPrice}/{term}"
+          // line — both must reflect the regular price, not the promo.
+          regularPrice: termDetails.price?.regularPrice ?? "",
           cycle: termDetails.cycle,
           transferOptionPrice: transferOption?.price,
           transferOptionIsFree: transferOption?.isFree
         };
       }
     }
-    // Fallback: basket product pricing (on remount, availability
-    // is lost but the basket product has its own price data)
+    // Fallback: basket product pricing (on remount / re-entry of the
+    // existing-domain flow, the availability check has not re-run so
+    // `availability.value?.product` is undefined, but the basket entry
+    // still carries the parent IProduct on `matched.product`).
+    //
+    // CRITICAL: do NOT use `matched.price` as the renewal price. For a
+    // transferred domain the basket entry IS the transfer sub-product —
+    // `matched.price` is the one-off TRANSFER cost (often £0 for free
+    // transfers), not the parent product's renewal price. Reading it
+    // would render "Subsequent renewals charged at £0.00/yr".
+    //
+    // Instead, run the parent IProduct (`matched.product`) through the
+    // same `parseTermDetails` + `calculateBillingTerm` pipeline used by
+    // the availability path, so the renewal line and transfer copy show
+    // the same numbers the DAC card and the first-visit availability
+    // check would have shown.
     const domain = selected.value;
     if (domain) {
       const matched = find(basket.value, ["domain", domain]);
+      // `parseBasketProduct` (basketProduct/utils) attaches the raw parent
+      // IProduct as `product` on the returned BasketProduct. The machine
+      // casts it to `DomainProduct` for type ergonomics, which loses that
+      // field in the type system even though it's there at runtime — narrow
+      // back to access it.
+      const matchedProduct = (matched as BasketProduct | undefined)?.product;
+      if (matched && matchedProduct) {
+        const preferredCycle = contextValue<number | undefined>(
+          state,
+          "preferredCycle"
+        );
+        const terms = parseTermDetails(matchedProduct);
+        const termDetails = !isEmpty(terms)
+          ? calculateBillingTerm(
+              preferredCycle ?? matchedProduct.default_payment_period,
+              terms
+            )
+          : undefined;
+        if (termDetails) {
+          const matchingPrice = find(matchedProduct.prices, {
+            billing_cycle_months: termDetails.cycle
+          });
+          const transferOption = getTransferOptionPrice(
+            matchedProduct,
+            matchingPrice?.currency_code
+          );
+          return {
+            price: termDetails.price?.currentPrice ?? "",
+            // See `regularPrice` note on the availability path above.
+            regularPrice: termDetails.price?.regularPrice ?? "",
+            cycle: termDetails.cycle,
+            transferOptionPrice: transferOption?.price,
+            transferOptionIsFree: transferOption?.isFree
+          };
+        }
+      }
+      // Last-resort fallback when no parent product was captured at
+      // basket-parse time — better to show *something* than crash.
       if (matched) {
         return {
           price: matched.price?.currentAmount
             ? matched.price.currentPrice
             : (matched.price?.regularPrice ?? ""),
+          regularPrice: matched.price?.regularPrice ?? "",
           cycle: matched.configuration?.term ?? matched.productDetails?.cycle,
           transferOptionPrice: matched.meta?.transferOptionPrice,
           transferOptionIsFree: matched.meta?.transferOptionIsFree

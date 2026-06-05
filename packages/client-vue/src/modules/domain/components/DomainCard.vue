@@ -138,8 +138,7 @@
           }}<br class="hidden md:block" />
           {{
             $t("domain.tld_renewal_info", {
-              tld: props.tld,
-              renewalPrice: props.price.currentPrice,
+              regularPrice: props.price.regularPrice,
               term: parseBillingCycle(props.cycle ?? 0).suffix
             })
           }}

@@ -86,6 +86,7 @@
                   meta.isExistingOwned
                 "
                 :transfer-price="pricing?.price ?? ''"
+                :renewal-price="pricing?.regularPrice ?? ''"
                 :transfer-option-price="pricing?.transferOptionPrice"
                 :transfer-option-is-free="pricing?.transferOptionIsFree"
                 :register-price="pricing?.price ?? ''"
