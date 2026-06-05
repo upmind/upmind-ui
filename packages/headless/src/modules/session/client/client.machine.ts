@@ -58,9 +58,11 @@ export default createMachine(
       unverified: {
         id: "unverified",
         initial: "idle",
+        entry: "setVerifyEmailSchemas",
         states: {
           idle: {
             on: {
+              SET: { actions: ["setModel"] },
               VERIFY: {
                 target: "verifying",
                 actions: ["clearError"]

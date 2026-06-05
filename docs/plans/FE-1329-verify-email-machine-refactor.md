@@ -1,219 +1,212 @@
-# FE-1329: Route link-based email verification through the session machine
+# FE-1329: Email verification — code (client machine) vs link (session machine)
 
-> Refactor of work already on `feature/fe-1329-…`. Story is in **Needs Review**.
-> Scope: move link-based email verification out of the funnel guard and into the
-> `sessionClient` machine, **unified** with the existing code-based verification —
-> one event, one node, one service (a thin dispatcher), one composable function.
+> Refactor of work on `feature/fe-1329-…`. Story in **Needs Review**.
+>
+> **Direction (revised after review):** Link-based verification is a **legacy,
+> outside-the-app-lifecycle** entry point (vue-app's `/auth/verify-email` wiped the
+> session and verified via `reg_hash` alone — it works LOGGED OUT). It does NOT belong
+> in the cart's authenticated client lifecycle. So we mirror the **transfer** mechanic:
+> link-verify becomes its own concern on the **session machine** (session-agnostic),
+> for the future client portal to consume. The cart keeps only the in-session **code**
+> form, and `guardVerifyEmail` never calls verify.
 
-## Goal
+## Two distinct operations (the core insight)
 
-`guardVerifyEmail` currently performs link-based email verification **inline**: it
-calls the standalone `checkVerifyEmail()` HTTP function, fires `addSuccess`/`addError`
-feedback itself, manually calls `session.refresh()`, and wraps it all in a `try/catch`.
+| | **Code verification** | **Link verification** |
+|---|---|---|
+| Trigger | Logged-in unverified client types a code into the form | User clicks emailed link (`?hash&client_id&email_id`) |
+| Auth | In-session (requires `clientActor`) | Session-agnostic — works logged out (`reg_hash` is the proof) |
+| Endpoint | `POST clients/verification_code/verify` | `PATCH clients/{id}/emails/{id}/check_verify` |
+| Home | **client machine** `unverified.verifying` (unchanged) | **session machine** `verifying` (new, mirrors `transferring`) |
+| Cart role | Cart shows the code form for unverified clients | Cart does NOT handle links; built for the portal |
 
-This violates three of our conventions:
+Evidence link-verify is logged-out: vue-app `/auth/verify-email` used the logged-out
+layout + `store.commit("user", {})` (session wipe) before verifying; headless
+`withAccessToken: true` omits the header when there's no token (doesn't throw)
+([useQuery.ts:188](packages/headless/src/modules/query/useQuery.ts#L188)). BE auth
+requirement not contradicted by anything in-repo.
 
-1. **Business logic belongs in the machine, not the guard.** The `sessionClient`
-   machine already owns email verification (`unverified.verifying` → `verifyEmailCode`).
-   The link path bypasses it entirely.
-2. **Feedback must fire from the invoked service's `onDone`/`onError`** — the machine
-   already has `notifyVerificationSuccess` / `notifyVerificationFailure` actions doing
-   exactly this for the code path. The guard duplicates them.
-3. **No `try/catch` around promises.** The machine models success/failure as
-   `onDone`/`onError`. The guard re-implements that with `try/catch`.
+## What started this
 
-**Design principle (from review):** verifying an email is *one* operation. Whether the
-credential is a typed **code** or a hashed **link** is an input detail, not a separate
-flow. So we do NOT split into multiple states / events / composable functions. There is
-one `verifying` state, one `VERIFY` event, one `verifyEmail` composable fn, and one
-machine service (`verifyEmail`) that dispatches by payload to the correct HTTP call.
+`guardVerifyEmail` did link verification **inline** (direct `checkVerifyEmail` HTTP +
+`addSuccess`/`addError` + `session.refresh()` + `try/catch`). That violated: business
+logic in a guard; feedback not owned by the invoked service; `try/catch` around a
+promise. The fix is not to relocate it into the client machine (wrong lifecycle) but to
+the session machine, transfer-style — and to make the guard route-only.
 
-## Integration points (read, not guessed)
+---
 
-| Point | File | Current behaviour | Constraint |
-|---|---|---|---|
-| Funnel guard | `apps/cart/src/router/funnels/engine/services.ts:706-761` | Link path: direct `checkVerifyEmail` + toasts + `try/catch`. Code path: `await isReady()` + flag check (correct) | Guard must return/reject a `FunnelResponse`; routing is its only job |
-| Client machine | `packages/headless/src/modules/session/client/client.machine.ts:58-88` | `unverified.idle --VERIFY--> verifying`; `verifying` invokes `verifyEmailCode`, `onDone`→`#available` + `markEmailVerified` + `notifyVerificationSuccess`, `onError`→`idle` + `setError` + `notifyVerificationFailure` | **XState v4: `invoke.src` is NOT conditionally selectable** — branch in the service, keep one node/one src |
-| Client services | `packages/headless/src/modules/session/client/services.ts:72-121` | `checkVerifyEmail(clientId, emailId, regHash)` exported standalone (PATCH check_verify); `verifyEmailCode` reads `data.code` (POST verification_code/verify); default export = `{ load, transferTo, verifyEmailCode }` | Keep both HTTP fns single-responsibility; add a thin `verifyEmail` dispatcher as the machine src |
-| Session composable | `packages/headless/src/modules/session/useSession.ts:351-366` | `verifyEmail({ code })`: sends `VERIFY`, `waitFor` settle at `available`/`unverified.idle`, returns boolean, native `.catch(() => false)` | Broaden the param to `{ code }` \| `{ clientId, emailId, hash }`; keep it ONE function (re-exported via `client-vue`) |
+## The transfer mechanic we are mirroring
 
-`checkVerifyEmail` is also currently imported into the funnel's `services.ts`. After
-this refactor that import — plus `useI18n`/`useFeedback` in the guard — drop out.
+- **Service** (`session/services.ts`): `transferFrom({ transfer })` — one endpoint call.
+- **Parent machine** (`session.machine.ts`): global `TRANSFER_FROM` event → `transferring`
+  state (`processing` invokes `transferFrom` → `processed`) → back to `#checking`.
+- **Composables**: `useSession.transferFrom()` sends `TRANSFER_FROM`, `waitFor`s
+  `transferring.processed`, returns the result; plus a lightweight `useTransfer` entry
+  composable that runs at bootstrap and hard-redirects.
+
+We replicate this 1:1 for link verification.
 
 ---
 
 ## Design-thinking artifact (per `.agent/rules/design-thinking.md`)
 
-### 1. ELI5 the flow (after refactor)
+### 1. ELI5 — two flows
 
-1. **User lands on `/auth/verify-email`** — either via the emailed link
-   (`?hash=…&client_id=…&email_id=…`) or to type a code manually.
-   - Trigger: route resolves, funnel invokes `guardVerifyEmail`.
-2. **Guard waits for the session machine to settle** — `await session.isReady()`
-   so the `sessionClient` machine is in `unverified.idle` or `available`, never mid-`loading`.
-3. **Guard bails if not authenticated** — `if (!session.meta.value.isAuthenticated) return Promise.reject()`.
-   Verify-email is only meaningful for a logged-in client; with no session the route is
-   irrelevant, so we reject and let the funnel redirect away (through auth).
-4. **Link path only — guard asks the composable to verify** —
-   `await session.verifyEmail({ clientId, emailId, hash })`.
-   - If already `available` (e.g. verified in another tab): short-circuits `true`, no event sent.
-   - Else sends `VERIFY` with the params; machine enters `unverified.verifying`.
-5. **Machine invokes the `verifyEmail` service (dispatcher)** — branches on payload:
-   `code` → `verifyEmailCode`; `hash`+`clientId`+`emailId` → `checkVerifyEmail`.
-   - `onDone` → `#available`, fires `markEmailVerified` + `notifyVerificationSuccess` (toast).
-   - `onError` → `unverified.idle`, fires `setError` + `notifyVerificationFailure` (toast).
-6. **Composable resolves a boolean** — `true` if machine reached `available`, else `false`.
-7. **Guard routes only** (no feedback, no HTTP):
-   - `true` + `returnUrl` → reject with resolved returnUrl target.
-   - `true`, no `returnUrl` → reject (funnel falls through to default).
-   - `false` → resolve to `SESSION_VERIFY_EMAIL` (show code form; toast already fired).
+**Code (cart, in-session) — UNCHANGED:**
+1. Logged-in unverified client lands on verify-email → `guardVerifyEmail` shows the form.
+2. They type a code → `VerifyEmail.vue` calls `useSession().verifyEmail({ code })`.
+3. Client machine `unverified.verifying` invokes `verifyEmailCode` → `onDone` flips to
+   `available` + success toast; `onError` → `idle` + failure toast.
 
-Code path (the form): the verify-email page calls `session.verifyEmail({ code })` on
-submit — unchanged in shape, just the same single function. Guard for the no-hash landing
-is unchanged: `await isReady()` → `isUnverified` ? show form : reject.
+**Link (session machine, logged-out-capable) — NEW, for portal:**
+1. Entry point (portal, outside funnel) reads `client_id`/`email_id`/`hash` from the URL.
+2. Calls `useVerifyEmail().verifyFromLink()` → sends `VERIFY_FROM_LINK` to the session machine.
+3. Session machine `verifying.processing` invokes `verifyFromLink` service (`check_verify`).
+   - `onDone` → `processed` + `notifyVerificationSuccess` (toast).
+   - `onError` → `processed` + `notifyVerificationFailure` (toast).
+4. `processed` → back to `#checking` (re-bootstrap session so a now-verified logged-in
+   client reloads as verified). Composable returns a boolean and handles redirect.
 
 ### 2. Who owns what
 
 | | |
 |---|---|
-| **Owns** (machine) | Verification (both credentials), success/failure feedback, `client.primaryEmail.isVerified` flag, transition to `available` |
-| **Delegates** (guard → composable → machine) | The act of verifying; the guard never touches HTTP or feedback |
-| **Observes** (guard) | Final machine outcome via the boolean from `verifyEmail`; route query params |
-
-The guard becomes a pure router. The composable is the conduit (send event, await settle, return boolean). The machine is the source of truth. The `verifyEmail` service is a coordinator that picks the right HTTP call by payload.
+| **client machine** | In-session code verification + its feedback + `available` transition (unchanged) |
+| **session machine** | Link verification (session-agnostic) + its feedback + re-check after verify (NEW) |
+| **guardVerifyEmail** | Routing/gating ONLY — shows code form for unverified, else rejects. Never verifies. |
+| **portal (future)** | Consumes `useVerifyEmail` at its verify entry point |
 
 ### 3. Question the model
 
-- **`VERIFY` event data** — a union: `{ code: string }` (form) OR
-  `{ clientId, emailId, hash }` (link). Read by the `verifyEmail` dispatcher service.
-- **`unverified.verifying` state** — UNCHANGED, single node. Represents "verifying the
-  email" regardless of credential. We deliberately do NOT split per credential type —
-  that would leak input shape into the state chart and invent states with no behavioural
-  difference (both end at `#available` / fall back to `idle`).
-- **`verifyEmail` service** — thin dispatcher; the two HTTP fns (`verifyEmailCode`,
-  `checkVerifyEmail`) keep single responsibility.
-- **No new context, no new event, no new state, no second composable fn.**
+- **`SessionContext.verification`** (new) — `{ clientId, emailId, hash, redirect? }` from the
+  `VERIFY_FROM_LINK` event. Read by the `verifyFromLink` service. Mirrors `transfer`.
+- **session `verifying` state** — mirrors `transferring`: `processing` → `processed`.
+  Distinct from the client machine's `verifying` (different lifecycle, different endpoint).
+- **Feedback actions** `notifyVerificationSuccess` / `notifyVerificationFailure` — currently
+  on the client machine. Needed on the session machine too → extract to a shared helper in
+  the session module and import in both (avoid duplication). Decision: shared helper.
+- **No change to the cart funnel state chart** — `SESSION_VERIFY_EMAIL` stays; only the
+  guard body changes (gating only).
 
 ### 4. Artifact first
 
 ```text
- VERIFY  { code }  |  { clientId, emailId, hash }
-    │
- loading ─requiresEmailVerification─► unverified.idle
-                                          ├── VERIFY ─► verifying ──(verifyEmail dispatcher)──┐
-                                          │                 │                                  │
-                                          │                 ├─ data.code        → verifyEmailCode (POST)
-                                          │                 └─ data.hash/ids    → checkVerifyEmail (PATCH)
-                                          │                 │
-                                          │              onDone ─► #available  (+ markEmailVerified, notifyVerificationSuccess)
-                                          │              onError ─► idle        (+ setError, notifyVerificationFailure)
-                                          └── CANCEL ─► #loading
+CLIENT MACHINE (in-session, code — UNCHANGED)
+ unverified.idle --VERIFY {code}--> verifying (verifyEmailCode)
+        onDone -> #available (+markEmailVerified, +notifyVerificationSuccess)
+        onError -> idle      (+setError, +notifyVerificationFailure)
+
+SESSION MACHINE (session-agnostic, link — NEW, mirrors transferring)
+ (any state) --VERIFY_FROM_LINK {clientId,emailId,hash}--> verifying.processing (verifyFromLink)
+        onDone  -> verifying.processed (+notifyVerificationSuccess)
+        onError -> verifying.processed (+notifyVerificationFailure)
+ verifying.processed --VERIFIED--> #checking (+clearVerification)
 ```
 
 ### 5. What's missing / edge cases
 
-- **Machine in `available` when guard runs** (already verified): `verifyEmail` (composable)
-  must short-circuit `true` *before* sending `VERIFY` (event would be ignored in
-  `available`, `waitFor` would still pass). Handled in step 4.
-- **No session** (unauthenticated hitting a link): guard bails at step 3
-  (`!isAuthenticated → Promise.reject()`) — verify-email is irrelevant without a logged-in
-  client, so the funnel redirects away (through auth). ✅ **Decided.** Behavioural change
-  vs today (today fires the POST regardless) — accepted.
-- **`enforceEmailVerification` brand setting off**: machine never enters `unverified`,
-  so link path short-circuits `true` (already `available`). Acceptable.
-- **Dispatcher with neither code nor hash**: rejects with a `DetailedError`
-  (`Unprocessable_Entity`) → `onError` → `idle` + failure toast. Mirrors today's empty-code reject.
-- **`waitFor` timeout (60s)**: inherited from `verifyEmail`; on timeout `.catch(() => false)`.
+- **Cart never triggers `VERIFY_FROM_LINK`** — confirmed in scope: cart guard is gating-only;
+  the session capability is portal-bound. Built now, consumed later.
+- **Re-check after verify** — `processed → #checking` re-bootstraps so a logged-in client's
+  verified flag refreshes. For a logged-out verifier there's simply no client token; checking
+  resolves to guest. Both fine.
+- **Shared feedback helper** — extracting `notifyVerification*` must not change the client
+  machine's existing behaviour; keep identical i18n keys/shape.
+- **`checkVerifyEmail` relocation** — moves to `session/services.ts` as `verifyFromLink`'s
+  implementation. Keep an export for continuity (don't break package API silently).
 
 ---
 
 ## Files to create/modify
 
+### A. Revert the link bits from the client lifecycle (restore code-only)
 | Action | File | Changes |
 |---|---|---|
-| MODIFY | `packages/headless/src/modules/session/client/services.ts` | Extract code logic into `verifyEmailCode(code)` (pure HTTP, single responsibility). Add `verifyEmail(_ctx, { data })` dispatcher: `data.code` → `verifyEmailCode`; `data.hash`+`clientId`+`emailId` → `checkVerifyEmail`; else reject `DetailedError`. Default export: replace `verifyEmailCode` with `verifyEmail`. |
-| MODIFY | `packages/headless/src/modules/session/client/client.machine.ts` | `verifying.invoke.src`: `verifyEmailCode` → `verifyEmail`. No new node/event/action. |
-| MODIFY | `packages/headless/src/modules/session/useSession.ts` | Broaden `verifyEmail` param to `{ code: string }` \| `{ clientId: string; emailId: string; hash: string }`. Short-circuit `true` if already `available`. Send `VERIFY` with the payload; `waitFor` settle; return boolean; `.catch(() => false)`. Same single function — no new export. |
-| MODIFY | `apps/cart/src/router/funnels/engine/services.ts` | Rewrite `guardVerifyEmail`: `await isReady()` → bail if `!isAuthenticated` → link path `await session.verifyEmail({ clientId, emailId, hash })` + routing only → code path unchanged. Remove inline `checkVerifyEmail`, `try/catch`, `addSuccess`/`addError`, `session.refresh()`. Drop now-unused imports (`checkVerifyEmail`, `useI18n`, `useFeedback` if unused elsewhere). |
-| VERIFY | `packages/headless/src/modules/session/index.ts` & `client-vue` re-exports | `verifyEmail` reachable; `checkVerifyEmail` export stays (used by dispatcher) or mark internal. |
-| MODIFY (rule) | `.agent/rules/code-generation.md` + sync `.claude/rules/` | Add "No try/catch around promises" antipattern section (see appendix). |
-| FOLLOW-UP | cart-nuxt / hosting / velia funnel `services.ts` | Replicate the guard change only (machine lives in shared `headless`). Separate task. |
+| REVERT | `packages/headless/src/modules/session/client/services.ts` | Restore `verifyEmailCode(_ctx, { data })` as the machine service (code-only). Drop the `verifyEmail` dispatcher + link branch. Default export back to `{ load, transferTo, verifyEmailCode }`. |
+| REVERT | `packages/headless/src/modules/session/client/client.machine.ts` | `verifying.invoke.src` back to `"verifyEmailCode"`. |
+| REVERT | `packages/headless/src/modules/session/useSession.ts` | `verifyEmail` param back to `{ code: string }` only; drop the union + the already-verified short-circuit added for the link path. |
 
-## Implementation steps
+(Practically: `git checkout` these three to restore originals, since the code path was already correct pre-refactor.)
 
-1. [ ] `verifyEmail` dispatcher + `verifyEmailCode` extraction + default-export swap (`client/services.ts`).
-2. [ ] `verifying.invoke.src` → `verifyEmail` (`client.machine.ts`).
-3. [ ] Broaden `verifyEmail` composable param + short-circuit (`useSession.ts`); verify `client-vue` re-export.
-4. [ ] Rewrite guard (auth bail + link `verifyEmail` + routing) + remove dead imports (`funnels/engine/services.ts`).
-5. [ ] Draft try/catch rule into `code-generation.md`; run `/agent-sync` to mirror to `.claude/rules`.
-6. [ ] Plan E2E coverage with **pseudo-nathan** agent → implement specs (see Testing).
-7. [ ] Replicate guard change to cart-nuxt / hosting / velia (follow-up).
+### B. Guard = gating only
+| Action | File | Changes |
+|---|---|---|
+| MODIFY | `apps/cart/src/router/funnels/engine/services.ts` | `guardVerifyEmail`: `await session.isReady()`; if `isUnverified` → `{ target: SESSION_VERIFY_EMAIL }`; else `Promise.reject()`. NO hash handling, NO `verifyEmail` call, NO feedback, NO `try/catch`. Remove now-dead imports (`checkVerifyEmail`, and `useI18n`/`useFeedback` if unused elsewhere). |
+
+### C. Build link-verify on the session machine (mirror transfer) — NEW
+| Action | File | Changes |
+|---|---|---|
+| MODIFY | `packages/headless/src/modules/session/services.ts` | Add `verifyFromLink({ verification }: SessionContext)` → PATCH `clients/{clientId}/emails/{emailId}/check_verify` with `{ reg_hash: hash }` (relocate `checkVerifyEmail` logic here). Add to default export. |
+| MODIFY | `packages/headless/src/modules/session/types.ts` | Add `verification?: { clientId; emailId; hash; redirect? }` to `SessionContext`. |
+| MODIFY | `packages/headless/src/modules/session/session.machine.ts` | Add global `VERIFY_FROM_LINK` event (+ `setVerification`); add `verifying` state (`processing` invokes `verifyFromLink`, onDone/onError → `processed` with `notify*`; `processed` on `VERIFIED` → `#checking` + `clearVerification`). Import shared feedback helper. |
+| CREATE | `packages/headless/src/modules/session/session.feedback.ts` (or util) | Shared `notifyVerificationSuccess` / `notifyVerificationFailure` used by BOTH machines. |
+| MODIFY | `packages/headless/src/modules/session/client/client.machine.ts` | Swap inline `notifyVerification*` for the shared helper (no behaviour change). |
+| MODIFY | `packages/headless/src/modules/session/useSession.ts` | Add `verifyFromLink({ clientId, emailId, hash, redirect? })`: send `VERIFY_FROM_LINK`, `waitFor` `verifying.processed`/done, return boolean. (Mirror `transferFrom`.) |
+| CREATE | `packages/headless/src/modules/session/useVerifyEmail.ts` | Entry-point composable mirroring `useTransfer`: reads params, calls verify, handles redirect. Export from `session/index.ts`. |
+| VERIFY | `session/index.ts` + `client-vue` re-exports | New composable/methods reachable; `verifyFromLink` exported. |
+
+### D. Already done
+- `### No try/catch around promises` rule in `.agent/rules` + `.claude/rules` (in sync). ✅
+
+## Implementation order
+
+1. [ ] Revert A (3 files) to restore code-only client verification.
+2. [ ] Guard B — gating only.
+3. [ ] Session types + `verifyFromLink` service (C).
+4. [ ] Shared feedback helper; point client machine at it.
+5. [ ] Session machine `verifying` state + `VERIFY_FROM_LINK`.
+6. [ ] `useSession.verifyFromLink` + `useVerifyEmail` composable + exports.
+7. [ ] Typecheck headless + cart; report.
+8. [ ] E2E with **pseudo-nathan** (see Testing).
 
 ## Acceptance criteria mapping
 
 | Criterion | Verification |
 |---|---|
-| Verification unified | One `VERIFY` event, one `verifying` node, one `verifyEmail` composable fn, one `verifyEmail` machine src |
-| Link verification goes through the machine | `guardVerifyEmail` contains no `checkVerifyEmail`/HTTP call; only `verifyEmail` |
-| Feedback fires from invoked service onDone/onError | No `addSuccess`/`addError` in guard; toasts come from `notifyVerification*` machine actions |
-| Guard only awaits + routes | Guard body = param read + auth bail + `await` + `FunnelResponse` returns |
-| No try/catch around promises | `guardVerifyEmail` has no `try`/`catch` |
-| HTTP services single-responsibility | `verifyEmailCode` and `checkVerifyEmail` each hit one endpoint; `verifyEmail` only dispatches |
+| Link-verify out of the client app | Client machine/`useSession.verifyEmail` are code-only; no link/hash refs |
+| Guard never verifies | `guardVerifyEmail` = `isReady` + `isUnverified` gate + reject; no HTTP/feedback/verify call |
+| Link-verify lives on the session machine, like transfer | `VERIFY_FROM_LINK` + `verifying` state + `verifyFromLink` service + `useVerifyEmail` |
+| Feedback owned by the invoked service | `notify*` fire from session `verifying` onDone/onError (and client onDone/onError for code) |
+| No try/catch around promises | No `try/catch` in guard or new service/composable |
+| Logged-out capable | `verifyFromLink` path requires no `clientActor`; works without a session |
 
-## Testing — E2E only (per review)
+## Testing — E2E only (per review), pseudo-nathan first
 
-No unit tests for this change. **Two-step:**
+No unit tests. Two-step: **(1)** plan coverage with the **pseudo-nathan** agent (layer fit,
+scenarios, brands/flows, fixtures); **(2)** implement specs per ADR 020 Phase B
+(`/code-test-e2e`), no raw HTTP mutations (drive app / mock settings).
 
-1. [ ] **Plan with `pseudo-nathan`** — engage the pseudo-nathan agent to design the E2E
-   coverage (test-layer fit, scenarios, which brands/flows, existing fixtures). Do not
-   author specs before this.
-2. [ ] **Implement** the agreed `.spec.ts` per ADR 020 Phase B (`/code-test-e2e`), no raw
-   HTTP mutations against staging (drive the app / mock settings).
-
-Candidate scenarios to put to pseudo-nathan:
-
-- Link landing (valid hash) → auto-verifies → toast → redirect to `returnUrl`.
-- Link landing (invalid/expired hash) → failure toast → code form shown.
-- Code entry (valid) → verified → proceeds.
-- Unauthenticated hitting the verify-email route → bailed/redirected to auth.
-- Already-verified client hitting the route → redirected away (no re-verify).
+Candidate scenarios for pseudo-nathan:
+- Cart: logged-in unverified client → code form → valid code → verified → proceeds.
+- Cart: verified/!unverified client hitting verify-email route → redirected away.
+- Cart: guard shows form only when `isUnverified`.
+- Session/link (portal-facing capability): logged-out link verify (valid hash) → success
+  toast + redirect; invalid hash → failure toast. (Test layer/app TBD with pseudo-nathan —
+  may not be a cart E2E at all.)
 
 ## DEVX compliance
 
-- [ ] Lodash for any array/object ops; `import type` separation; import order external→internal→utils→types.
-- [ ] Machine event naming: existing `VERIFY` (SCREAMING_SNAKE); service `verifyEmail` (verb).
-- [ ] No new types outside `*.types.ts`; explicit param/return types on the dispatcher + composable union param.
+- [ ] Lodash for array/object ops; `import type` separation; import order external→internal→utils→types.
+- [ ] Machine events SCREAMING_SNAKE (`VERIFY_FROM_LINK`, `VERIFIED`); services verbs (`verifyFromLink`).
+- [ ] New context type in `session.types.ts`; explicit param/return types; JSDoc on composable return props.
+- [ ] No change-narration comments.
 
 ## Questions / risks
 
-1. **`checkVerifyEmail` export** — keep public (used by dispatcher) or mark `@internal`. Low stakes.
-2. **Composable union param** — `verifyEmail({ code }) | verifyEmail({ clientId, emailId, hash })`; ensure the verify-email form caller still type-checks with `{ code }`.
+1. **`useVerifyEmail` vs `useSession.verifyFromLink`** — transfer has both (lightweight entry +
+   session method). Build both, or just the `useSession` method until the portal needs the
+   entry composable? (Defaulting to: session method now, entry composable when portal lands —
+   confirm.)
+2. **Shared feedback helper location/name** — `session.feedback.ts` util vs inline duplication.
+3. **`check_verify` BE auth** — still unconfirmed; not blocking since the capability is
+   session-agnostic by design, but worth confirming the endpoint accepts no-token calls.
 
 ---
 
-## Appendix — draft rule: No try/catch around promises
+## Appendix — rule added (done)
 
-> For `.agent/rules/code-generation.md` (Error Handling section), then `/agent-sync`.
-
-**Never wrap a promise in `try/catch`.** Use the promise's own `.catch()` / `.then()`,
-or — in XState — model failure as the invoked service's `onError`. `try/catch` is
-reserved for the rare case where no promise or native catch is available (e.g. `JSON.parse`,
-synchronous throws).
-
-```ts
-// WRONG — try/catch around a promise
-try {
-  await verify();
-  addSuccess(...);
-} catch (e) {
-  addError(...);
-}
-
-// RIGHT — native catch / machine onError owns the outcome
-const ok = await session.verifyEmail(params); // machine fires feedback
-if (!ok) return { target: { name: ROUTE.SESSION_VERIFY_EMAIL } };
-```
-
-**Why:** `try/catch` around awaited promises hides control flow, duplicates error
-handling the machine/composable already owns, and tempts side effects (toasts, redirects)
-into layers that should only orchestrate. Outcomes belong to the owning service.
+`### No try/catch around promises` under `## Error Handling` in
+`.agent/rules/code-generation.md` and `.claude/rules/code-generation.md` (byte-identical).
+Reserves `try/catch` for non-promise throws (e.g. `JSON.parse`); promises use `.catch()` or
+XState `onError`.
