@@ -146,6 +146,7 @@ const meta = computed(() => {
       props.expandable &&
       !!currentImage.value &&
       !isString(currentImage.value) &&
+      !!currentImage.value.previewUrl &&
       !empty
   };
 });

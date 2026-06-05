@@ -10,7 +10,7 @@
         <img
           v-if="props.image?.url"
           ref="imageRef"
-          :src="props.image.previewUrl ?? props.image.url"
+          :src="props.image.previewUrl"
           :alt="props.image.alt"
           :class="styles.preview.image"
           :style="zoomStyle"
