@@ -436,9 +436,6 @@ export default {
 
     const session = useSession();
 
-    // Wait for session to be fully ready and authenticated if a transition is in progress
-    await session.isReady();
-
     // Always await the profile load — do NOT short-circuit on
     // `meta.isAuthenticated`. That flag flips true as soon as we enter the
     // client context, but the client `/self` may still be loading, so a
@@ -703,7 +700,7 @@ export default {
     targetRoute
   }: FunnelContext): Promise<FunnelResponse> => {
     const session = useSession();
-    await session.isReady();
+    await session.isAuthenticated();
 
     // Show the code form only for a logged-in unverified client; otherwise the
     // route is irrelevant — reject and let the funnel redirect away.

@@ -127,24 +127,6 @@
     "placeholder": null,
     "title": "Add New Phone Number | Update Phone Number"
   },
-  "login": {
-    "description": null,
-    "error": "We experienced an error while trying to log you in.",
-    "label": null,
-    "placeholder": null
-  },
-  "register": {
-    "description": null,
-    "error": "We experienced an error while trying to create your account.",
-    "label": null,
-    "placeholder": null
-  },
-  "recover": {
-    "description": null,
-    "error": "We experienced an error while trying to send you a password reset email.",
-    "label": null,
-    "placeholder": null
-  },
   "domain_search": {
     "description": null,
     "label": null,

@@ -216,52 +216,74 @@ export default createMachine(
           // the email now verified — routes to `verified`.
           unverified: {
             id: "unverified",
-            initial: "idle",
+            type: "parallel",
             states: {
-              idle: {},
-              challenging: {
-                initial: "checking",
+              // Verify-email form (validate-on-SET; mirrors the guest 2fa shape).
+              form: {
+                initial: "idle",
+                on: { CONFIRM: { target: ".challenging" } },
                 states: {
-                  checking: {
-                    invoke: {
-                      src: "validate",
-                      onDone: {
-                        target: "#unverified.verifying",
-                        actions: ["clearError"]
+                  idle: {},
+                  challenging: {
+                    id: "challenging",
+                    initial: "checking",
+                    states: {
+                      checking: {
+                        invoke: {
+                          src: "validate",
+                          onDone: {
+                            target: "#verifying",
+                            actions: ["clearError"]
+                          },
+                          onError: { target: "invalid", actions: ["setError"] }
+                        }
                       },
-                      onError: { target: "invalid", actions: ["setError"] }
+                      valid: {},
+                      invalid: {},
+                      error: {}
+                    },
+                    on: {
+                      SET: { target: ".checking", actions: ["setModel"] },
+                      VERIFY: { target: "#verifying" },
+                      CANCEL: { target: "idle" }
                     }
                   },
-                  valid: {},
-                  invalid: {},
-                  error: {}
-                },
-                on: {
-                  SET: { target: ".checking", actions: ["setModel"] },
-                  VERIFY: { target: "verifying" },
-                  CANCEL: { target: "idle" }
-                }
-              },
-              verifying: {
-                invoke: {
-                  src: "verifyEmailCode",
-                  onDone: {
-                    // POST success is authoritative — flip the local flag and
-                    // transition straight to `available`. Avoids a race where a
-                    // fresh `/self` call could return stale `verified: 0`.
-                    target: "#available",
-                    actions: ["markEmailVerified"]
-                  },
-                  onError: {
-                    target: "challenging.invalid",
-                    actions: ["setError"]
+                  verifying: {
+                    id: "verifying",
+                    invoke: {
+                      src: "verifyEmailCode",
+                      onDone: {
+                        // POST success is authoritative — flip the local flag and
+                        // transition straight to `available`. Avoids a race where a
+                        // fresh `/self` call could return stale `verified: 0`.
+                        target: "#available",
+                        actions: ["markEmailVerified"]
+                      },
+                      onError: {
+                        target: "#challenging.invalid",
+                        actions: ["setError"]
+                      }
+                    }
                   }
                 }
-              }
-            },
-            on: {
-              CONFIRM: {
-                target: ".challenging"
+              },
+              // Resend cooldown — gates re-calling the resend service. Runs
+              // alongside the form; RESEND is only accepted in `available`, so
+              // it can't be fired again until the cooldown returns us there.
+              resend: {
+                initial: "available",
+                states: {
+                  available: { on: { RESEND: "processing" } },
+                  processing: {
+                    invoke: {
+                      src: "sendVerificationEmail",
+                      onDone: "complete",
+                      onError: { target: "error", actions: ["setError"] }
+                    }
+                  },
+                  complete: { after: { cooldown: "available" } },
+                  error: { after: { cooldown: "available" } }
+                }
               }
             }
           },
@@ -374,7 +396,6 @@ export default createMachine(
           if (error?.status == responseCodes.Unprocessable_Entity) {
             error.data = useValidationParser(error);
           } else if (error?.status == responseCodes.Conflict) {
-            debugger;
             error.data = parseError(error.message, "code");
           }
 
@@ -502,7 +523,8 @@ export default createMachine(
 
     delays: {
       error: () => useTime().ERROR,
-      expired: () => useTime().MINUTE * 5
+      expired: () => useTime().MINUTE * 5,
+      cooldown: () => useTime().SECOND * 15
     },
     services: services as any
   }

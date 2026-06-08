@@ -43,7 +43,8 @@ const overlayRouteCache = new Map<string, RouteRecordRaw>();
  * @returns `{ states, guards, actions }` to merge into funnel config
  */
 export function createEndpointNodes(
-  registry: OverlayRegistry = {}
+  registry: OverlayRegistry = {},
+  funnelStates: Record<string, { invoke?: unknown }> = {}
 ): NonNullable<FunnelProps["endpoints"]> {
   const overlayIds = keys(registry).map((path: string) =>
     path.replace(/\/$/, "")
@@ -53,10 +54,14 @@ export function createEndpointNodes(
   const states = reduce(
     overlayIds,
     (acc: Record<string, unknown>, id: string) => {
-      acc[`endpoint:${id}`] = {
-        meta: { isEndpoint: true, overlayId: id },
-        entry: ["setResolved"]
-      };
+      // Honour the overlay's own route guard: reuse the `invoke` from its raw
+      // funnel state (e.g. `overlay-verify-email`) so a compound overlay route
+      // (`checkout--verify-email`) is gated exactly like the raw route. Falls
+      // back to unconditional resolve for overlays whose raw state has no guard.
+      const rawState = funnelStates[registry[`${id}/`] ?? registry[id]];
+      acc[`endpoint:${id}`] = rawState?.invoke
+        ? { meta: { isEndpoint: true, overlayId: id }, invoke: rawState.invoke }
+        : { meta: { isEndpoint: true, overlayId: id }, entry: ["setResolved"] };
       return acc;
     },
     {} as Record<string, unknown>
@@ -110,7 +115,6 @@ export function createEndpointNodes(
           registry,
           (routeName: string) => routeName === overlay
         )?.replace(/\/$/, "");
-        debugger;
         return {
           ...target,
           name: overlayId

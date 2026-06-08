@@ -1,5 +1,5 @@
 // --- external
-import { computed, ref } from "vue";
+import { computed } from "vue";
 import { interpret, InterpreterStatus } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 import { useActor } from "@xstate/vue";
@@ -9,7 +9,6 @@ import { useI18n } from "../system";
 import sessionMachine from "./session.machine";
 import { useFeedback } from "../feedback";
 import { useBrand } from "../brand";
-import { useClientEmails } from "../client/email/useClientEmails";
 export * from "./useTransfer";
 
 // --- utils
@@ -63,23 +62,6 @@ export const useSession = () => {
   const { state, send } = useActor(service);
 
   // --- state
-
-  // Resend-verification cooldown. Owned here (not the component) so the verify
-  // form stays a thin view — it only binds these reactive values.
-  const verificationResendCooldown = ref(0);
-  let verificationResendTimer: ReturnType<typeof setInterval> | undefined;
-
-  function startVerificationCooldown(seconds: number): void {
-    verificationResendCooldown.value = seconds;
-    if (verificationResendTimer) clearInterval(verificationResendTimer);
-    verificationResendTimer = setInterval(() => {
-      verificationResendCooldown.value -= 1;
-      if (verificationResendCooldown.value <= 0 && verificationResendTimer) {
-        clearInterval(verificationResendTimer);
-        verificationResendTimer = undefined;
-      }
-    }, 1000);
-  }
 
   async function isReady(): Promise<boolean> {
     return waitFor(service, state => !state.matches("checking"), {
@@ -174,7 +156,7 @@ export const useSession = () => {
       stateMatches(clientActor, [
         "available.unregistered.registering",
         "available.unregistered.updating",
-        "available.unverified.verifying"
+        "available.unverified.form.verifying"
       ]),
     isAuthenticated: stateMatches(state, "client"),
     isUnverified: stateMatches(clientActor, "available.unverified"),
@@ -202,7 +184,8 @@ export const useSession = () => {
       ]) ||
       stateMatches(clientActor, [
         "available.unregistered.error",
-        "available.unverified.challenging.error"
+        "available.unverified.form.challenging.error",
+        "available.unverified.resend.error"
       ]),
     showLoginForm: stateMatches(guestActor, "available.login"),
     show2fa: stateMatches(guestActor, [
@@ -212,10 +195,25 @@ export const useSession = () => {
       "available.register.verifying"
     ]),
     showVerifyEmailForm: stateMatches(clientActor, [
-      "available.unverified.challenging",
-      "available.unverified.verifying"
+      "available.unverified.form.challenging",
+      "available.unverified.form.verifying"
     ]),
-    isCoolingDown: verificationResendCooldown.value > 0,
+    canResend: stateMatches(
+      clientActor,
+      "available.unverified.resend.available"
+    ),
+    isResending: stateMatches(
+      clientActor,
+      "available.unverified.resend.processing"
+    ),
+    resendComplete: stateMatches(
+      clientActor,
+      "available.unverified.resend.complete"
+    ),
+    resendFailed: stateMatches(
+      clientActor,
+      "available.unverified.resend.error"
+    ),
     canShowForms:
       stateMatches(guestActor, "available") ||
       stateMatches(clientActor, [
@@ -429,7 +427,6 @@ export const useSession = () => {
   }
 
   async function showVerifyEmail(): Promise<boolean> {
-    debugger;
     if (!clientActor.value) return true; // already logged in
 
     await waitFor(
@@ -438,18 +435,16 @@ export const useSession = () => {
       { timeout: 60000 }
     ).catch(() => false);
 
-    debugger;
     service.send({
       type: "CONFIRM"
     });
 
     console.log("showVerifyEmail", clientActor.value?.state.value);
 
-    debugger;
     return waitFor(
       clientActor.value.service,
       state =>
-        stateMatches(state, ["available.unverified.challenging", "done"]),
+        stateMatches(state, ["available.unverified.form.challenging", "done"]),
       { timeout: 60000 }
     )
       .then(() => true)
@@ -508,7 +503,7 @@ export const useSession = () => {
       state =>
         stateMatches(state, [
           "available.verified",
-          "available.unverified.challenging.invalid"
+          "available.unverified.form.challenging.invalid"
         ]),
       { timeout: 60000 }
     )
@@ -516,16 +511,10 @@ export const useSession = () => {
       .catch(() => false);
   }
 
-  async function resendVerification(): Promise<void> {
-    if (verificationResendCooldown.value > 0) return;
-
-    const emailId = client.value?.primaryEmail?.id;
-    if (!emailId) return;
-
-    // `verify` is fire-and-forget — the email service owns success/error
-    // feedback via its mutation callbacks. Start the cooldown immediately.
-    useClientEmails().verify(emailId);
-    startVerificationCooldown(60);
+  function resendVerification(): void {
+    // The machine's `resend` region gates re-calls (RESEND only in `available`);
+    // the `resendVerification` service owns the POST + feedback.
+    service.send({ type: "RESEND" });
   }
 
   async function register(model: any): Promise<boolean> {
@@ -983,11 +972,6 @@ export const useSession = () => {
     resendVerification,
 
     /**
-     * Seconds remaining on the resend-verification cooldown (0 when ready).
-     */
-    verificationResendCooldown,
-
-    /**
      * Submits the email verification code entered by an unverified client.
      * @param {Object} payload The verification payload.
      * @param {string} payload.code The verification code entered by the client.
@@ -1071,8 +1055,8 @@ export const useSession = () => {
 
     /**
      * Opens the email-verification challenge for an unverified client — moves
-     * `unverified.idle` → `challenging` so the code form is shown. Fired when
-     * the verify-email overlay/modal mounts (e.g. gated at checkout).
+     * the form region `unverified.form.idle` → `form.challenging` so the code
+     * form is shown. Fired when the verify-email overlay mounts (gated checkout).
      */
     showVerifyEmail,
 
