@@ -42,6 +42,7 @@
           :variant="variant"
           @reject="doReject"
           @resolve="doResolve"
+          :autosave="meta.showVerifyEmailForm"
           @update:model-value="setModel"
           :class="styles.session.auth.form"
           :actions="formActions"
@@ -364,7 +365,9 @@ async function toggleForm(type: SessionProps["modelValue"]) {
 
 function doResolve(model: any) {
   resolve(model).then(success => {
-    if (success) emit("resolve", model);
+    if (success) {
+      emit("resolve", model);
+    }
   });
 }
 
