@@ -69,6 +69,7 @@
   "currency_update_failed": "Pri aktualizácii meny sa vyskytla chyba",
   "currency_validation_failed": "Overenie meny zlyhalo",
   "domain_add_failed": "Pridanie domény do košíka zlyhalo",
+  "domain_availability_aborted": "Kontrola dostupnosti domény bola zrušená",
   "domain_availability_required": "Na kontrolu dostupnosti nebola zadaná žiadna doména",
   "domain_not_valid": "Musí byť platný názov domény alebo subdomény",
   "domain_register_data_missing": "Chýbajú údaje o doméne alebo jej dostupnosti pre registráciu",

@@ -69,6 +69,7 @@
   "currency_update_failed": "Възникна грешка при актуализирането на валутата",
   "currency_validation_failed": "Валидацията на валутата не бе успешна",
   "domain_add_failed": "Добавянето на домейна в кошницата не бе успешно",
+  "domain_availability_aborted": "Проверката за наличност на домейна беше отменена",
   "domain_availability_required": "Не е посочен домейн за проверка на наличността",
   "domain_not_valid": "Трябва да е валиден домейн или поддомейн",
   "domain_register_data_missing": "Няма данни за домейни или наличност за регистрация",

@@ -69,6 +69,7 @@
   "currency_update_failed": "Při aktualizaci měny došlo k chybě.",
   "currency_validation_failed": "Ověření měny se nezdařilo",
   "domain_add_failed": "Nepodařilo se přidat doménu do košíku",
+  "domain_availability_aborted": "Kontrola dostupnosti domény byla zrušena",
   "domain_availability_required": "Pro kontrolu dostupnosti nebyla zadána žádná doména",
   "domain_not_valid": "Platná doména nebo subdoména",
   "domain_register_data_missing": "Nejsou k dispozici žádné údaje o doméně ani o dostupnosti pro registraci",

@@ -40,7 +40,8 @@
     "register_info": "Gode nyheter – dette domenet kan registreres for bare {price}, inkludert en registrering {period}.",
     "remove_transfer": "Fjern overføring",
     "transfer_added": "Overføring lagt til",
-    "transfer_info": "Hvis du eier dette domenet, kan du overføre det til oss for bare {price}, inkludert en fornyelse {period}. Ellers må du oppdatere domenets navneserveroppføringer (NS).",
+    "transfer_info": "Hvis du eier dette domenet, kan du overføre det til oss for bare {transferPrice}. Senere fornyelser koster {term}. Alternativt må du oppdatere domenets navneserveroppføringer (NS).",
+    "transfer_info_free": "Hvis du eier dette domenet, kan du overføre det til oss GRATIS. Senere fornyelser koster {term}. Alternativt må du oppdatere domenets navneserveroppføringer (NS).",
     "unavailable": "Dette domenet kan ikke registreres eller overføres."
   },
   "finding_perfect_domain": "Å finne ditt **perfekte** domene",
@@ -52,13 +53,16 @@
   "search": "Skriv inn et domene du vil søke etter",
   "starts_with_domain": "Det hele starter med et **domenenavn**",
   "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
+  "tld_renewal_info": "Fornyelser starter fra {term}.",
   "tld_renewal_price_desc": "Vår {tld} fornyelsespriser starter fra kun {currentPrice} (var {regularPrice}).",
   "tld_renewal_price_from_desc": "Vår {tld} fornyelsespriser starter fra kun {regularPrice}.",
   "transfer": "Overfør for kun {currentPrice}.",
   "transfer_domain": "Overfør domene",
   "transfer_extension_info": "Overføringer inkluderer en ettårig forlengelse.",
+  "transfer_free_info": "Du kan overføre det til oss helt GRATIS.",
   "transfer_owner_question": "Er du eieren av dette domenet?",
   "transfer_price_info": "Du kan overføre det til oss for bare {currentPrice}",
   "transfer_promotion": "Overfør for kun {currentPrice}, vanligvis {regularPrice}.",
-  "use_details_for": "Bruk disse detaljene til{domain}"
+  "transfer_today_info": "Du kan overføre beløpet til oss i dag.",
+  "use_details_for": "Bruk disse detaljene til {domain}"
 }

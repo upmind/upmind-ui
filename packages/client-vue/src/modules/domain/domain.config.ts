@@ -7,15 +7,7 @@ export default {
     choices: cva(""),
     listings: {
       item: cva(
-        "shadow-border-transparent [&:hover,&[data-hover=true]]:shadow-border-transparent border-surface bg-surface !rounded-none border-t p-0",
-        {
-          variants: {
-            hasExactMatch: {
-              true: "first:border-t-0",
-              false: ""
-            }
-          }
-        }
+        "shadow-border-transparent [&:hover,&[data-hover=true]]:shadow-border-transparent border-surface bg-surface !rounded-none border-t p-0 [&:has([data-exact-match=true])]:border-t-0"
       ),
       root: cva("list-none"),
       interstitial: cva("min-h-80", {
@@ -277,7 +269,8 @@ export default {
           }
         }
       }),
-      description: cva("h-4 w-32"),
+      description: cva("h-5 w-32"),
+      status: cva("h-5 w-20"),
       price: cva("h-6 w-24"),
       priceButton: cva("button-radius h-11")
     }

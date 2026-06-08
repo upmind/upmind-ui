@@ -2,6 +2,7 @@
   <!-- Domain search -->
   <Search
     v-model="searchValue"
+    auto-focus
     :results="ownedItems"
     :placeholder="t('domain.existing.placeholder')"
     :disabled="disabled || removing || registering"
@@ -59,16 +60,35 @@
   </p>
 
   <!-- Transfer info section (checked or transferred) -->
+  <!--
+    Two i18n variants:
+      - `transfer_info_free` — brand has configured a price override of 0
+        (e.g. ".com transfer for free"). Drives off `transferOptionIsFree`
+        rather than string-matching the formatted label so any locale's
+        "FREE" translation works without code changes.
+      - `transfer_info` — paid transfer. `transferPrice` is the value
+        rendered for the transfer cost; we prefer the brand override
+        (`transferOptionPrice`) and fall back to the parent product's
+        annual price. The renewal line always uses the parent product's
+        price (`props.transferPrice`) since the brand override only
+        applies to the one-off transfer fee.
+  -->
   <div
     v-if="checked || transferred || transferring || removing"
     :class="styles.field.transfer.root"
   >
     <p :class="styles.field.transfer.text">
       {{
-        t("domain.existing.transfer_info", {
-          price: transferPrice ?? "",
-          period: parseBillingCycle(props.cycle ?? 0).numeric
-        })
+        transferOptionIsFree
+          ? t("domain.existing.transfer_info_free", {
+              renewalPrice: renewalPrice ?? transferPrice ?? "",
+              term: parseBillingCycle(props.cycle ?? 0).suffix
+            })
+          : t("domain.existing.transfer_info", {
+              transferPrice: transferOptionPrice ?? transferPrice ?? "",
+              renewalPrice: renewalPrice ?? transferPrice ?? "",
+              term: parseBillingCycle(props.cycle ?? 0).suffix
+            })
       }}
     </p>
 
@@ -76,7 +96,7 @@
       v-if="!transferred && !removing"
       variant="outline"
       size="lg"
-      icon="refresh-cw-05"
+      icon="plus-circle"
       :label="t('domain.existing.add_transfer')"
       :disabled="disabled || transferring"
       :loading="transferring"

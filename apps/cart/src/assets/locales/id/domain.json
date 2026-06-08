@@ -40,7 +40,8 @@
     "register_info": "Kabar baik — domain ini bisa didaftarkan hanya dengan {price}, yang sudah termasuk biaya pendaftaran {period}.",
     "remove_transfer": "Hapus transfer",
     "transfer_added": "Transfer telah ditambahkan",
-    "transfer_info": "Jika Anda memiliki domain ini, Anda dapat mentransfernya ke kami hanya dengan {price}, yang sudah termasuk biaya perpanjangan {period}. Atau, Anda perlu memperbarui catatan nameserver (NS) domain tersebut.",
+    "transfer_info": "Jika Anda memiliki domain ini, Anda dapat mentransfernya kepada kami hanya dengan {transferPrice}. Biaya perpanjangan selanjutnya sebesar {term}. Atau, Anda perlu memperbarui catatan nameserver (NS) domain tersebut.",
+    "transfer_info_free": "Jika Anda pemilik domain ini, Anda dapat mentransfernya ke kami secara GRATIS. Biaya perpanjangan selanjutnya sebesar {term}. Atau, Anda perlu memperbarui catatan nameserver (NS) domain tersebut.",
     "unavailable": "Domain ini tidak dapat didaftarkan atau dipindahkan."
   },
   "finding_perfect_domain": "Menemukan domain **sempurna** Anda",
@@ -52,13 +53,16 @@
   "search": "Masukkan nama domain untuk mencari",
   "starts_with_domain": "Semuanya dimulai dengan **nama domain**",
   "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
+  "tld_renewal_info": "Perpanjangan dimulai dari {term}.",
   "tld_renewal_price_desc": "Kita {tld} harga perpanjangan mulai dari hanya {currentPrice} (adalah {regularPrice}).",
   "tld_renewal_price_from_desc": "Kita {tld} harga perpanjangan mulai dari hanya {regularPrice}.",
   "transfer": "Transfer hanya untuk {currentPrice}.",
   "transfer_domain": "Pindah domain",
   "transfer_extension_info": "Transfer termasuk perpanjangan selama satu tahun.",
+  "transfer_free_info": "Anda dapat mentransfernya kepada kami secara GRATIS.",
   "transfer_owner_question": "Apakah Anda pemilik domain ini?",
   "transfer_price_info": "Anda dapat mentransfernya kepada kami dengan biaya hanya {currentPrice}",
   "transfer_promotion": "Transfer hanya untuk {currentPrice}, biasanya {regularPrice}.",
-  "use_details_for": "Gunakan detail ini untuk{domain}"
+  "transfer_today_info": "Anda bisa mentransfernya kepada kami hari ini.",
+  "use_details_for": "Gunakan detail ini untuk {domain}"
 }

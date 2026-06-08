@@ -84,7 +84,7 @@
   },
   "companyNumber": {
     "label": "Şirkət nömrəsi",
-    "placeholder": "Qeydiyyatdan keçmiş vergi və ya GST"
+    "placeholder": "Şirkətin Şəxsiyyət Nömrəsi"
   },
   "country": {
     "label": "Ölkə",
@@ -169,8 +169,8 @@
     "label": ""
   },
   "taxNumber": {
-    "label": "Vergi nömrəsi",
-    "placeholder": "Vergi İD"
+    "label": "Qeydiyyatdan keçmiş Vergi Nömrəsi",
+    "placeholder": "Vergi Şəxsiyyət Nömrəsi/ƏDV/GST Nömrəsi"
   },
   "twofa": {
     "description": "Bu hesab iki faktorlu identifikasiya ilə qorunur. Zəhmət olmasa, doğrulama kodunuzu daxil edin.",

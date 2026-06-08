@@ -69,6 +69,7 @@
   "currency_update_failed": "Er is een fout opgetreden bij het bijwerken van de valuta",
   "currency_validation_failed": "Valutavalidatie mislukt",
   "domain_add_failed": "Het is niet gelukt om het domein aan het winkelmandje toe te voegen",
+  "domain_availability_aborted": "De controle op de beschikbaarheid van het domein is geannuleerd",
   "domain_availability_required": "Er is geen domein opgegeven voor de beschikbaarheidscontrole",
   "domain_not_valid": "Moet een geldig domein of subdomein zijn",
   "domain_register_data_missing": "Er zijn geen gegevens over domeinnamen of beschikbaarheid voor registratie",

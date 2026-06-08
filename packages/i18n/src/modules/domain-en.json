@@ -17,6 +17,9 @@
   "transfer_owner_question": "Are you the owner of this domain?",
   "transfer_price_info": "You can transfer it to us for only {currentPrice}",
   "transfer_extension_info": "Transfers include a one year extension.",
+  "transfer_today_info": "You can transfer it to us today.",
+  "transfer_free_info": "You can transfer it to us for FREE.",
+  "tld_renewal_info": "Renewals start from {regularPrice}/{term}.",
   "domain_not_required_label": "Continue without domain",
   "choices": {
     "register": {
@@ -46,7 +49,8 @@
   "registrant_use_billing_msg": "Your billing details will be used as the domain registrant contact information.",
   "existing": {
     "placeholder": "Tell us the domain you want to use.",
-    "transfer_info": "If you own this domain you can transfer it to us for only {price}, which includes a {period} renewal. Alternatively, you will need to update the domain's nameserver (NS) records.",
+    "transfer_info": "If you own this domain you can transfer it to us for only {transferPrice}. Subsequent renewals charged at {renewalPrice}/{term}. Alternatively, you will need to update the domain's nameserver (NS) records.",
+    "transfer_info_free": "If you own this domain you can transfer it to us FREE. Subsequent renewals charged at {renewalPrice}/{term}. Alternatively, you will need to update the domain's nameserver (NS) records.",
     "add_transfer": "Add transfer",
     "register_info": "Good news — this domain is available to register for only {price}, which includes a {period} registration.",
     "add_registration": "Add to basket",

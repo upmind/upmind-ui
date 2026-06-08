@@ -40,7 +40,8 @@
     "register_info": "Goed nieuws: dit domein is te registreren voor slechts {price}, inclusief een registratie {period}.",
     "remove_transfer": "Overdracht verwijderen",
     "transfer_added": "Overdracht toegevoegd",
-    "transfer_info": "Als u de eigenaar bent van dit domein, kunt u het voor slechts {price} naar ons overdragen, inclusief een verlenging {period}. Als alternatief moet u de nameserver-records (NS) van het domein aanpassen.",
+    "transfer_info": "Als u eigenaar bent van dit domein, kunt u het voor slechts {transferPrice} naar ons overdragen. Volgende verlengingen kosten {term}. Als alternatief moet u de nameserver-records (NS) van het domein aanpassen.",
+    "transfer_info_free": "Als u de eigenaar bent van dit domein, kunt u het GRATIS naar ons overdragen. Voor latere verlengingen wordt {term} in rekening gebracht. Als alternatief moet u de nameserver-records (NS) van het domein aanpassen.",
     "unavailable": "Dit domein kan niet worden geregistreerd of overgedragen."
   },
   "finding_perfect_domain": "Het vinden van uw **perfecte** domein",
@@ -52,13 +53,16 @@
   "search": "Voer een domeinnaam in om te zoeken",
   "starts_with_domain": "Het begint allemaal met een **domeinnaam**",
   "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
+  "tld_renewal_info": "Verlengingen zijn al verkrijgbaar vanaf {term}.",
   "tld_renewal_price_desc": "Ons {tld} verlengingsprijzen beginnen vanaf slechts {currentPrice} (was {regularPrice}).",
   "tld_renewal_price_from_desc": "Ons {tld} verlengingsprijzen beginnen vanaf slechts {regularPrice}.",
   "transfer": "Overdracht voor slechts {currentPrice}.",
   "transfer_domain": "Domein overdragen",
   "transfer_extension_info": "Overdrachten omvatten een verlenging van één jaar.",
+  "transfer_free_info": "Je kunt het GRATIS naar ons overmaken.",
   "transfer_owner_question": "Bent u de eigenaar van dit domein?",
   "transfer_price_info": "U kunt het voor slechts {currentPrice}",
   "transfer_promotion": "Overdracht voor slechts {currentPrice}, gewoonlijk {regularPrice}.",
-  "use_details_for": "Gebruik deze gegevens voor{domain}"
+  "transfer_today_info": "U kunt het vandaag nog naar ons overmaken.",
+  "use_details_for": "Gebruik deze gegevens voor {domain}"
 }

@@ -40,7 +40,8 @@
     "register_info": "Καλά νέα — αυτό το domain είναι διαθέσιμο για εγγραφή με μόνο {price}, ποσό που περιλαμβάνει και την εγγραφή {period}.",
     "remove_transfer": "Ακύρωση μεταφοράς",
     "transfer_added": "Προστέθηκε μεταφορά",
-    "transfer_info": "Αν είστε ο κάτοχος αυτού του domain, μπορείτε να το μεταφέρετε σε εμάς με μόνο {price}, ποσό που περιλαμβάνει και την ανανέωση {period} €. Διαφορετικά, θα πρέπει να ενημερώσετε τις εγγραφές των διακομιστών ονομάτων (NS) του domain.",
+    "transfer_info": "Αν είστε ο κάτοχος αυτού του domain, μπορείτε να το μεταφέρετε σε εμάς με μόνο {transferPrice}. Οι μετέπειτα ανανεώσεις χρεώνονται με {term}. Διαφορετικά, θα πρέπει να ενημερώσετε τις εγγραφές των διακομιστών ονομάτων (NS) του domain.",
+    "transfer_info_free": "Αν είστε ο κάτοχος αυτού του domain, μπορείτε να το μεταφέρετε σε εμάς ΔΩΡΕΑΝ. Οι μετέπειτα ανανεώσεις χρεώνονται στα {term}. Διαφορετικά, θα πρέπει να ενημερώσετε τις εγγραφές των διακομιστών ονομάτων (NS) του domain.",
     "unavailable": "Αυτός ο τομέας δεν μπορεί να καταχωρηθεί ή να μεταβιβαστεί."
   },
   "finding_perfect_domain": "Βρείτε το **ιδανικό** domain σας",
@@ -52,13 +53,16 @@
   "search": "Εισάγετε ένα όνομα χώρου για αναζήτηση",
   "starts_with_domain": "Όλα ξεκινούν με ένα **όνομα τομέα**",
   "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
+  "tld_renewal_info": "Οι ανανεώσεις ξεκινούν από {term}.",
   "tld_renewal_price_desc": "Οι τιμές ανανέωσης για .{tld} ξεκινούν από μόλις {currentPrice} (από {regularPrice}).",
   "tld_renewal_price_from_desc": "Οι τιμές ανανέωσης για .{tld} ξεκινούν από μόλις {regularPrice}.",
   "transfer": "Μεταφορά μόνο για {currentPrice}.",
   "transfer_domain": "Μεταφορά domain",
   "transfer_extension_info": "Οι μεταγραφές περιλαμβάνουν παράταση ενός έτους.",
+  "transfer_free_info": "Μπορείτε να το μεταφέρετε σε εμάς ΔΩΡΕΑΝ.",
   "transfer_owner_question": "Είστε ο ιδιοκτήτης αυτού του domain;",
   "transfer_price_info": "Μπορείτε να το μεταφέρετε σε εμάς με μόνο {currentPrice}",
   "transfer_promotion": "Μεταφορά μόνο για {currentPrice}, συνήθως {regularPrice}.",
-  "use_details_for": "Χρησιμοποιήστε αυτές τις λεπτομέρειες για{domain}"
+  "transfer_today_info": "Μπορείτε να μας το μεταφέρετε σήμερα.",
+  "use_details_for": "Χρησιμοποιήστε αυτές τις λεπτομέρειες για {domain}"
 }
