@@ -23,7 +23,7 @@ export const OVERLAY_ROUTES: RouteRecordRaw[] = [
   {
     path: "verify-email/",
     name: ROUTE.OVERLAY_VERIFY_EMAIL,
-    component: () => import("../pages/overlays/VerifyEmail.vue"),
+    component: () => import("../pages/overlays/AuthOverlay.vue"),
     meta: { overlay: OverlayType.MODAL, dismissable: false }
   }
 ];

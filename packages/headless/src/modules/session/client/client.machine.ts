@@ -211,12 +211,14 @@ export default createMachine(
             states: {
               idle: {
                 on: {
-                  CONFIRM: { target: "challenging" }
+                  CONFIRM: {
+                    target: "challenging",
+                    actions: "setVerifyEmailSchemas"
+                  }
                 }
               },
               challenging: {
                 initial: "checking",
-                entry: "setVerifyEmailSchemas",
                 states: {
                   checking: {
                     invoke: {
