@@ -110,6 +110,7 @@ export function createEndpointNodes(
           registry,
           (routeName: string) => routeName === overlay
         )?.replace(/\/$/, "");
+        debugger;
         return {
           ...target,
           name: overlayId
