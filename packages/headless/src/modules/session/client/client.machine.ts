@@ -199,22 +199,39 @@ export default createMachine(
             }
           },
 
-          // Full client owing email verification. Hosts the verify-email form
-          // (idle/verifying). On success it re-enters `#available` → `checking`,
-          // which — the email now verified — routes to `verified`.
+          // Full client owing email verification. Rests in `idle` — the client
+          // is unverified but unchallenged — until something gates them (e.g.
+          // checkout), which fires CONFIRM to open the verify-email form.
+          // The form (validate-on-SET) mirrors the guest 2fa `challenging`
+          // shape; on success it re-enters `#available` → `checking`, which —
+          // the email now verified — routes to `verified`.
           unverified: {
             id: "unverified",
             initial: "idle",
-            entry: "setVerifyEmailSchemas",
             states: {
               idle: {
                 on: {
-                  SET: { actions: ["setModel"] },
-                  VERIFY: {
-                    target: "verifying",
-                    actions: ["clearError"]
+                  CONFIRM: { target: "challenging" }
+                }
+              },
+              challenging: {
+                initial: "checking",
+                entry: "setVerifyEmailSchemas",
+                states: {
+                  checking: {
+                    invoke: {
+                      src: "validate",
+                      onDone: { target: "valid", actions: ["clearError"] },
+                      onError: { target: "invalid", actions: ["setError"] }
+                    }
                   },
-                  CANCEL: { target: "#loading" }
+                  valid: {},
+                  invalid: {}
+                },
+                on: {
+                  SET: { target: ".checking", actions: ["setModel"] },
+                  VERIFY: { target: "verifying" },
+                  CANCEL: { target: "idle" }
                 }
               },
               verifying: {
@@ -228,7 +245,7 @@ export default createMachine(
                     actions: ["markEmailVerified", "notifyVerificationSuccess"]
                   },
                   onError: {
-                    target: "idle",
+                    target: "challenging.invalid",
                     actions: ["setError", "notifyVerificationFailure"]
                   }
                 }
@@ -449,7 +466,8 @@ export default createMachine(
 
       setVerifyEmailSchemas: assign({
         schema: () => useVerifyEmailSchemaParser(),
-        uischema: () => useVerifyEmailUischemaParser()
+        uischema: () => useVerifyEmailUischemaParser(),
+        model: () => ({})
       }),
 
       clearError: assign({ error: undefined })
@@ -467,7 +485,6 @@ export default createMachine(
 
     delays: {
       error: () => useTime().ERROR,
-      wait: () => useTime().WAIT,
       expired: () => useTime().MINUTE * 5
     },
     services: services as any

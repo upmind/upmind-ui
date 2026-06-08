@@ -155,7 +155,8 @@ export const useSession = () => {
       ]) ||
       stateMatches(clientActor, [
         "available.unregistered.registering",
-        "available.unregistered.updating"
+        "available.unregistered.updating",
+        "available.unverified.verifying"
       ]),
     isAuthenticated: stateMatches(state, "client"),
     isUnverified: stateMatches(clientActor, "available.unverified"),
@@ -433,20 +434,21 @@ export const useSession = () => {
       .catch(() => false);
   }
 
+  function challengeEmail(): void {
+    service.send({ type: "CONFIRM" });
+  }
+
   async function verifyEmail(payload: VerificationProps): Promise<boolean> {
     if (!clientActor.value) return false;
 
-    service.send({
-      type: "VERIFY",
-      data: payload
-    });
+    service.send({ type: "VERIFY", data: payload });
 
     return await waitFor(
       clientActor.value.service,
       state =>
         stateMatches(state, [
           "available.verified",
-          "available.unverified.idle"
+          "available.unverified.challenging.invalid"
         ]),
       { timeout: 60000 }
     )
@@ -897,6 +899,13 @@ export const useSession = () => {
      * @returns {Promise<void>} A promise that resolves when the verification is successful.
      */
     verify2fa,
+
+    /**
+     * Opens the email-verification challenge for an unverified client — moves
+     * `unverified.idle` → `challenging` so the code form is shown. Fired when
+     * the verify-email overlay/modal mounts (e.g. gated at checkout).
+     */
+    challengeEmail,
 
     /**
      * Submits the email verification code entered by an unverified client.
