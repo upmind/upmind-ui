@@ -232,7 +232,7 @@ export default createMachine(
                         invoke: {
                           src: "validate",
                           onDone: {
-                            target: "#verifying",
+                            target: "valid",
                             actions: ["clearError"]
                           },
                           onError: { target: "invalid", actions: ["setError"] }
