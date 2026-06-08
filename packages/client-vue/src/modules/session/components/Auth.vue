@@ -78,15 +78,42 @@
       </div>
 
       <template v-if="meta.showVerifyEmailForm">
-        <div :class="styles.session.auth.resend">
-          <span>{{ t("auth.didnt_receive_code") }}</span>
-          <Link
-            size="sm"
-            :label="verifyResendLabel"
-            :disabled="meta.isCoolingDown"
-            @click.prevent="resendVerification"
-          />
-        </div>
+        <Transition
+          :enter-active-class="styles.session.transitions.fade.enter.active"
+          :enter-from-class="styles.session.transitions.fade.enter.from"
+          :enter-to-class="styles.session.transitions.fade.enter.to"
+          :leave-active-class="styles.session.transitions.fade.leave.active"
+          :leave-from-class="styles.session.transitions.fade.leave.from"
+          :leave-to-class="styles.session.transitions.fade.leave.to"
+          mode="out-in"
+        >
+          <div :key="resendState" :class="styles.session.auth.resend">
+            <template v-if="meta.canResend">
+              <span :class="styles.session.auth.resendPrompt">
+                {{ t("auth.didnt_receive_code") }}
+              </span>
+
+              <Link
+                size="sm"
+                :label="t('action.resend_code')"
+                @click.prevent="resendVerification"
+              />
+            </template>
+
+            <span
+              v-else-if="meta.isResending"
+              :class="styles.session.auth.resendSending"
+            >
+              {{ t("auth.verify_email_send") }}
+            </span>
+            <span
+              v-else-if="meta.resendComplete"
+              :class="styles.session.auth.resendSent"
+            >
+              {{ t("auth.verify_email_sent") }}
+            </span>
+          </div>
+        </Transition>
       </template>
     </component>
   </section>
@@ -96,7 +123,6 @@
 // --- external
 import { computed, onMounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
-
 // --- internal
 import TermsAndConditions from "../../brand/TermsAndConditions.vue";
 import Form from "../../../components/form/Form.vue";
@@ -147,11 +173,18 @@ const {
   resolve,
   reject,
   setModel,
-  resendVerification,
-  verificationResendCooldown
+  resendVerification
 } = useSession();
 
-const styles = useStyles(["session.auth"], meta, config);
+const styles = useStyles(
+  [
+    "session.auth",
+    "session.transitions.fade.enter",
+    "session.transitions.fade.leave"
+  ],
+  meta,
+  config
+);
 
 const currentForm = computed<SESSION_FORMS>(() => {
   // An unverified client owes email verification (sourced from the client
@@ -164,6 +197,16 @@ const currentForm = computed<SESSION_FORMS>(() => {
   if (meta.value.showRegisterForm) return SESSION_FORMS.REGISTER;
   if (meta.value.showRecoverPasswordForm) return SESSION_FORMS.RECOVER;
   return SESSION_FORMS.UNKNOWN;
+});
+
+// Keyed so <Transition> fades between resend messages — the wrapper is
+// otherwise the same element across states and would patch in place.
+const resendState = computed(() => {
+  if (meta.value.canResend) return "prompt";
+  if (meta.value.isResending) return "sending";
+  if (meta.value.resendComplete) return "sent";
+  if (meta.value.resendFailed) return "failed";
+  return "";
 });
 
 const twofaI18nKey = computed(() => {
@@ -184,12 +227,6 @@ const interstitialText = computed(() =>
   meta.value.showVerifyEmailForm
     ? t("auth.verify_email_msg")
     : t(`${twofaI18nKey.value}.description`)
-);
-
-const verifyResendLabel = computed(() =>
-  meta.value.isCoolingDown
-    ? t("action.resend_code_in", { seconds: verificationResendCooldown.value })
-    : t("action.resend_code")
 );
 
 const modal2faUischema = computed(() => {
@@ -271,14 +308,18 @@ const formActions = computed(() => {
 // ---
 
 const alertTitle = computed(() => {
+  if (meta.value.resendFailed) return t("error.session_resend_failed");
+
   switch (currentForm.value) {
     case SESSION_FORMS.REGISTER:
     case SESSION_FORMS.GUEST:
-      return t("form.register.error");
+      return t("error.session_register_failed");
     case SESSION_FORMS.RECOVER:
-      return t("form.recover.error");
+      return t("error.session_recover_failed");
     case SESSION_FORMS.LOGIN:
-      return t("form.login.error");
+      return t("error.session_login_failed");
+    case SESSION_FORMS.VERIFY:
+      return t("error.session_verify_failed");
   }
 });
 
@@ -311,11 +352,8 @@ async function toggleForm(type: SessionProps["modelValue"]) {
       }
       break;
     case SESSION_FORMS.VERIFY:
-      debugger;
       if (!meta.value.showVerifyEmailForm) {
-        debugger;
         showVerifyEmail().then(() => {
-          debugger;
           if (modelValue.value !== SESSION_FORMS.VERIFY)
             modelValue.value = SESSION_FORMS.VERIFY;
         });
@@ -373,7 +411,6 @@ watch(
 );
 
 watch(modelValue, newValue => {
-  debugger;
   toggleForm(newValue);
 });
 

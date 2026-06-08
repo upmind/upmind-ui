@@ -66,6 +66,32 @@ async function load(_context: ClientContext, _event: any) {
 // -----------------------------------------------------------------------------
 
 /**
+ * Resends the email-verification code (`send_verify`). Duplicated here so the
+ * session machine owns the call with no cross-module dependency, and awaited
+ * via `post` so the resend region can resolve success vs failure.
+ */
+async function sendVerificationEmail({ client }: ClientContext) {
+  const { t } = useI18n();
+
+  const emailId = client?.primaryEmail?.id;
+  if (!emailId)
+    throw new DetailedError(
+      t("error.client_email_not_available"),
+      responseCodes.Not_Found,
+      ErrorOrigin.Headless,
+      { emailId }
+    );
+
+  const { post, useUrl } = useQuery();
+
+  return post({
+    mutationKey: ["session", "email", "send_verify", emailId],
+    url: useUrl(`clients/resend_verification`),
+    withAccessToken: true
+  });
+}
+
+/**
  * Confirms email verification via a hashed link (ported from vue-app's
  * `verifyEmailAddress` action). Called directly from `guardVerifyEmail` when
  * the user lands on `/auth/verify-email` with `hash`, `client_id`, `email_id`
@@ -231,6 +257,7 @@ export default {
   completeRegistration,
   getCustomFields,
   load,
+  sendVerificationEmail,
   transferTo: services.transferTo,
   verifyEmailCode,
   updateGuestEmail,

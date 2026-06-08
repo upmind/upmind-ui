@@ -32,7 +32,7 @@ export default {
 
     auth: {
       container: cva("max-w-3xl"),
-      root: cva("flex max-w-3xl flex-col gap-8"),
+      root: cva("flex max-w-3xl flex-col gap-8 text-start"),
       form: cva("place-items-start", {
         variants: {
           show2fa: { true: "mt-4" },
@@ -40,7 +40,25 @@ export default {
         }
       }),
       actions: cva("mt-3 flex items-center justify-start space-x-2"),
-      resend: cva("flex items-center justify-center gap-2 text-sm")
+      resend: cva("flex w-full items-center justify-center gap-2 text-sm"),
+      resendPrompt: cva("text-muted"),
+      resendSending: cva("text-muted"),
+      resendSent: cva("text-muted")
+    },
+
+    transitions: {
+      fade: {
+        enter: {
+          active: cva("transition-opacity duration-200 ease-in-out"),
+          from: cva("opacity-0"),
+          to: cva("opacity-100")
+        },
+        leave: {
+          active: cva("transition-opacity duration-200 ease-in-out"),
+          from: cva("opacity-100"),
+          to: cva("opacity-0")
+        }
+      }
     },
 
     guestCheckout: cva("", {

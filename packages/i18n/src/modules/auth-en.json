@@ -11,6 +11,8 @@
   "verify_email_title": "Verify email",
   "verify_email_msg": "Please verify your email address to proceed to checkout. We've sent a verification code to your registered email.",
   "verify_email_still_required": "Your email address still needs to be verified before you can proceed.",
+  "verify_email_send": "Sending another code to your registered email address...",
+  "verify_email_sent": "Please check your registered email for the new code.",
   "didnt_receive_code": "Didn't receive a code?",
   "guest_checkout_qn": "In a hurry?",
   "guest_checkout_description": "In a hurry? {action}.",
