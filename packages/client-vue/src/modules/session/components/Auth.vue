@@ -1,9 +1,9 @@
 <template>
   <section v-if="meta.canShowForms && !meta.isLoading">
     <component
-      :is="meta.show2fa || meta.showVerifyEmail ? Interstitial : Slot"
+      :is="meta.show2fa || meta.showVerifyEmailForm ? Interstitial : Slot"
       v-if="meta.canShowForms && !meta.isLoading"
-      :open="meta.show2fa || meta.showVerifyEmail"
+      :open="meta.show2fa || meta.showVerifyEmailForm"
       modal
       :title="interstitialTitle"
       :text="interstitialText"
@@ -30,7 +30,7 @@
           :disabled="
             meta.isAuthenticated &&
             !meta.showGuestUpgradeForm &&
-            !meta.showVerifyEmail
+            !meta.showVerifyEmailForm
           "
           :key="currentForm"
           :loading="meta.isLoading"
@@ -59,18 +59,6 @@
               :label="t('action.continue_label')"
             />
           </template>
-
-          <template v-if="currentForm === SESSION_FORMS.VERIFY">
-            <p :class="styles.session.auth.resend">
-              <span>{{ t("auth.didnt_receive_code") }}</span>
-              <Link
-                size="sm"
-                :label="verifyResendLabel"
-                :disabled="meta.isCoolingDown"
-                @click.prevent="resendVerification"
-              />
-            </p>
-          </template>
         </Form>
       </div>
 
@@ -88,6 +76,18 @@
           />
         </slot>
       </div>
+
+      <template v-if="meta.showVerifyEmailForm">
+        <div :class="styles.session.auth.resend">
+          <span>{{ t("auth.didnt_receive_code") }}</span>
+          <Link
+            size="sm"
+            :label="verifyResendLabel"
+            :disabled="meta.isCoolingDown"
+            @click.prevent="resendVerification"
+          />
+        </div>
+      </template>
     </component>
   </section>
 </template>
@@ -140,27 +140,23 @@ const {
   showLogin,
   showRegister,
   showRecoverPassword,
+  showVerifyEmail,
   model,
   schema,
   uischema,
   resolve,
   reject,
-  logout,
   setModel,
-  challengeEmail,
-  verifyEmail,
   resendVerification,
   verificationResendCooldown
 } = useSession();
-
-// await isReady();
 
 const styles = useStyles(["session.auth"], meta, config);
 
 const currentForm = computed<SESSION_FORMS>(() => {
   // An unverified client owes email verification (sourced from the client
   // machine); it isn't in any guest/login/register state.
-  if (meta.value.showVerifyEmail) return SESSION_FORMS.VERIFY;
+  if (meta.value.showVerifyEmailForm) return SESSION_FORMS.VERIFY;
   // A guest client upgrading is its own form (sourced from the client machine);
   // it shares the register fields but has a distinct submit label/flow.
   if (meta.value.showGuestUpgradeForm) return SESSION_FORMS.GUEST;
@@ -179,13 +175,13 @@ const twofaI18nKey = computed(() => {
 });
 
 const interstitialTitle = computed(() =>
-  meta.value.showVerifyEmail
+  meta.value.showVerifyEmailForm
     ? t("auth.verify_email_title")
     : t(`${twofaI18nKey.value}.label`)
 );
 
 const interstitialText = computed(() =>
-  meta.value.showVerifyEmail
+  meta.value.showVerifyEmailForm
     ? t("auth.verify_email_msg")
     : t(`${twofaI18nKey.value}.description`)
 );
@@ -248,17 +244,26 @@ const formActions = computed(() => {
     }
   };
 
-  if (meta.value.show2fa || meta.value.showVerifyEmail) {
+  if (meta.value.show2fa || meta.value.showVerifyEmailForm) {
     actions.cancel = {
       type: "reset" as const,
-      label: meta.value.showVerifyEmail
+      label: meta.value.showVerifyEmailForm
         ? t("action.continue_shopping")
         : t("action.cancel"),
       block: true,
       size: "lg",
       variant: "link",
-      ...(meta.value.showVerifyEmail ? {} : (props.storefrontRoute ?? {}))
+      ...(meta.value.showVerifyEmailForm ? {} : (props.storefrontRoute ?? {}))
     };
+
+    // add the storefront route to the cancel action if its provided
+    //  usually only use din verify email but its a possibility for others as well
+    if (props.storefrontRoute) {
+      actions.cancel = {
+        ...actions.cancel,
+        ...props.storefrontRoute
+      } as FormActionProps;
+    }
   }
   return actions;
 });
@@ -274,23 +279,12 @@ const alertTitle = computed(() => {
       return t("form.recover.error");
     case SESSION_FORMS.LOGIN:
       return t("form.login.error");
-    case SESSION_FORMS.VERIFY:
-      return t("form.verify_email.error");
   }
 });
 
 // ---
 
-function toggleForm(type: SessionProps["modelValue"]) {
-  if (!meta.value.canShowForms) return;
-
-  // An unverified client always routes to the verify-email challenge,
-  // regardless of the requested mode — they can't use any other form.
-  if (meta.value.isUnverified) {
-    if (!meta.value.showVerifyEmail) challengeEmail();
-    return;
-  }
-
+async function toggleForm(type: SessionProps["modelValue"]) {
   switch (type) {
     case SESSION_FORMS.LOGIN:
       if (!meta.value.showLoginForm) {
@@ -317,8 +311,11 @@ function toggleForm(type: SessionProps["modelValue"]) {
       }
       break;
     case SESSION_FORMS.VERIFY:
-      if (!meta.value.showRecoverPasswordForm) {
-        showRecoverPassword().then(() => {
+      debugger;
+      if (!meta.value.showVerifyEmailForm) {
+        debugger;
+        showVerifyEmail().then(() => {
+          debugger;
           if (modelValue.value !== SESSION_FORMS.VERIFY)
             modelValue.value = SESSION_FORMS.VERIFY;
         });
@@ -341,24 +338,24 @@ onMounted(() => {
   toggleForm(modelValue.value);
 });
 
-// // --- esc key handler for 2fa modal
-// watch(
-//   () => meta.value.show2fa,
-//   show2fa => {
-//     if (show2fa) {
-//       const handler = (e: KeyboardEvent) => {
-//         if (e.key === "Escape") doReject();
-//       };
-//       document.addEventListener("keydown", handler);
-//       watch(
-//         () => meta.value.show2fa,
-//         still => {
-//           if (!still) document.removeEventListener("keydown", handler);
-//         }
-//       );
-//     }
-//   }
-// );
+// --- esc key handler for 2fa modal
+watch(
+  () => meta.value.show2fa,
+  value => {
+    if (value) {
+      const handler = (e: KeyboardEvent) => {
+        if (e.key === "Escape") doReject();
+      };
+      document.addEventListener("keydown", handler);
+      watch(
+        () => meta.value.show2fa,
+        still => {
+          if (!still) document.removeEventListener("keydown", handler);
+        }
+      );
+    }
+  }
+);
 
 watch(
   meta,
@@ -376,6 +373,7 @@ watch(
 );
 
 watch(modelValue, newValue => {
+  debugger;
   toggleForm(newValue);
 });
 

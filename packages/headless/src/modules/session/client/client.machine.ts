@@ -20,7 +20,8 @@ import {
   useTime,
   useCookies,
   mapToHeadlessError,
-  useValidationParser
+  useValidationParser,
+  parseError
 } from "../../../utils";
 const { removeTopLevel: removeCookie, setTopLevel: setCookie } = useCookies();
 import { mapClient } from "../utils";
@@ -80,8 +81,16 @@ export default createMachine(
           // never falls into the verification branch.
           checking: {
             always: [
-              { target: "unregistered", cond: "isGuestClient" },
-              { target: "unverified", cond: "isUnverified" },
+              {
+                target: "unregistered",
+                actions: ["setRegisterSchemas"],
+                cond: "isGuestClient"
+              },
+              {
+                target: "unverified",
+                actions: ["setVerifyEmailSchemas"],
+                cond: "isUnverified"
+              },
               { target: "verified" }
             ]
           },
@@ -209,26 +218,23 @@ export default createMachine(
             id: "unverified",
             initial: "idle",
             states: {
-              idle: {
-                on: {
-                  CONFIRM: {
-                    target: "challenging",
-                    actions: "setVerifyEmailSchemas"
-                  }
-                }
-              },
+              idle: {},
               challenging: {
                 initial: "checking",
                 states: {
                   checking: {
                     invoke: {
                       src: "validate",
-                      onDone: { target: "valid", actions: ["clearError"] },
+                      onDone: {
+                        target: "#unverified.verifying",
+                        actions: ["clearError"]
+                      },
                       onError: { target: "invalid", actions: ["setError"] }
                     }
                   },
                   valid: {},
-                  invalid: {}
+                  invalid: {},
+                  error: {}
                 },
                 on: {
                   SET: { target: ".checking", actions: ["setModel"] },
@@ -244,13 +250,18 @@ export default createMachine(
                     // transition straight to `available`. Avoids a race where a
                     // fresh `/self` call could return stale `verified: 0`.
                     target: "#available",
-                    actions: ["markEmailVerified", "notifyVerificationSuccess"]
+                    actions: ["markEmailVerified"]
                   },
                   onError: {
                     target: "challenging.invalid",
-                    actions: ["setError", "notifyVerificationFailure"]
+                    actions: ["setError"]
                   }
                 }
+              }
+            },
+            on: {
+              CONFIRM: {
+                target: ".challenging"
               }
             }
           },
@@ -362,7 +373,11 @@ export default createMachine(
           // shows them inline (mirrors the guest machine's setError).
           if (error?.status == responseCodes.Unprocessable_Entity) {
             error.data = useValidationParser(error);
+          } else if (error?.status == responseCodes.Conflict) {
+            debugger;
+            error.data = parseError(error.message, "code");
           }
+
           return error;
         }
       }),
@@ -452,19 +467,19 @@ export default createMachine(
             : client
       }),
 
-      notifyVerificationSuccess: (_context, _event) => {
-        const { t } = useI18n();
-        useFeedback().addSuccess(t("confirm.email_verified"));
-      },
+      // notifyVerificationSuccess: (_context, _event) => {
+      //   const { t } = useI18n();
+      //   useFeedback().addSuccess(t("confirm.email_verified"));
+      // },
 
-      notifyVerificationFailure: ({ error }, _event) => {
-        const { t } = useI18n();
-        useFeedback().addError({
-          title: error?.message || t("error.client_email_verify_failed"),
-          copy: error?.data ? undefined : error?.message,
-          data: error?.data
-        });
-      },
+      // notifyVerificationFailure: ({ error }, _event) => {
+      //   const { t } = useI18n();
+      //   useFeedback().addError({
+      //     title: error?.message || t("error.client_email_verify_failed"),
+      //     copy: error?.data ? undefined : error?.message,
+      //     data: error?.data
+      //   });
+      // },
 
       setVerifyEmailSchemas: assign({
         schema: () => useVerifyEmailSchemaParser(),

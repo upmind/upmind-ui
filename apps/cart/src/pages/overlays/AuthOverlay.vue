@@ -36,9 +36,14 @@ const emit = defineEmits<{
 }>();
 
 /** Read initial mode from ?mode=login|register query param */
-const mode = computed(
-  () => get(route, "query.mode", "login") as SessionProps["modelValue"]
-);
+const mode = computed(() => {
+  const mode = get(
+    route,
+    "query.mode",
+    get(route, "meta.mode", "login")
+  ) as SessionProps["modelValue"];
+  return mode;
+});
 
 /** Emit close on auth success — OverlayController handles drawer close + navigation */
 function onAuthComplete(): void {

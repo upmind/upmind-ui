@@ -1,6 +1,6 @@
 // --- internal
 import { ROUTE, RegexMatch } from "./funnels/types";
-import { OverlayType } from "@upmind-automation/client-vue";
+import { OverlayType, SESSION_FORMS } from "@upmind-automation/client-vue";
 // --- utils
 import { reduce, trimStart } from "lodash-es";
 // --- types
@@ -24,7 +24,11 @@ export const OVERLAY_ROUTES: RouteRecordRaw[] = [
     path: "verify-email/",
     name: ROUTE.OVERLAY_VERIFY_EMAIL,
     component: () => import("../pages/overlays/AuthOverlay.vue"),
-    meta: { overlay: OverlayType.MODAL, dismissable: false }
+    meta: {
+      overlay: OverlayType.CUSTOM,
+      dismissable: false,
+      mode: SESSION_FORMS.VERIFY
+    }
   }
 ];
 
