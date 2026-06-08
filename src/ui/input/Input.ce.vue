@@ -1,5 +1,8 @@
 <template>
-  <div :class="cn(styles.input.container, props.class)">
+  <div
+    :class="cn(styles.input.container, props.class)"
+    :data-disabled="isDisabled || undefined"
+  >
     <slot name="prepend">
       <InputItems :icon="props.icon" :avatar="props.avatar" />
     </slot>
