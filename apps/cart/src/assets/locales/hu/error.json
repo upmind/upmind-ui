@@ -69,6 +69,7 @@
   "currency_update_failed": "Hiba történt a pénznem frissítésekor",
   "currency_validation_failed": "A pénznem érvényesítése sikertelen volt",
   "domain_add_failed": "Nem sikerült hozzáadni a domaint a kosárhoz",
+  "domain_availability_aborted": "A domain elérhetőségének ellenőrzése megszakadt",
   "domain_availability_required": "A rendelkezésre állás ellenőrzéséhez nem adtak meg domainnevet",
   "domain_not_valid": "Érvényes domain- vagy aldomainnévnek kell lennie",
   "domain_register_data_missing": "Nincs domain- vagy elérhetőségi adat a regisztrációhoz",

@@ -69,6 +69,7 @@
   "currency_update_failed": "Experimentamos un error al actualizar la moneda",
   "currency_validation_failed": "La validación de la moneda falló",
   "domain_add_failed": "No se pudo agregar el dominio a la cesta",
+  "domain_availability_aborted": "Se ha cancelado la comprobación de disponibilidad del dominio",
   "domain_availability_required": "No se ha especificado ningún dominio para la comprobación de disponibilidad",
   "domain_not_valid": "Debe ser un dominio o subdominio válido",
   "domain_register_data_missing": "No hay datos sobre el dominio ni sobre su disponibilidad para el registro",

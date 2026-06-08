@@ -69,6 +69,7 @@
   "currency_update_failed": "Wystąpił błąd podczas aktualizacji waluty",
   "currency_validation_failed": "Nieudana walidacja waluty",
   "domain_add_failed": "Nie udało się dodać domeny do koszyka",
+  "domain_availability_aborted": "Sprawdzenie dostępności domeny zostało anulowane",
   "domain_availability_required": "Nie podano domeny do sprawdzenia dostępności",
   "domain_not_valid": "Musi być prawidłową domeną lub subdomeną",
   "domain_register_data_missing": "Brak danych dotyczących domeny lub dostępności do rejestracji",

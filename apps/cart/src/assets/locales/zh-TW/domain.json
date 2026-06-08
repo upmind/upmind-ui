@@ -40,7 +40,8 @@
     "register_info": "好消息——這個網域名稱現正開放註冊，價格僅需{price}，其中已包含{period}元的註冊費。",
     "remove_transfer": "取消轉帳",
     "transfer_added": "已新增轉帳",
-    "transfer_info": "如果您擁有此網域，只需支付{price}即可將其轉移至我們名下，此費用已包含{period}續約費。否則，您需要更新該網域的名稱伺服器 (NS) 記錄。",
+    "transfer_info": "如果您擁有此網域，只需支付{transferPrice}即可將其轉移至我們名下。後續續約費用為{term}。否則，您需要更新該網域的名稱伺服器 (NS) 記錄。",
+    "transfer_info_free": "如果您擁有此網域，可免費將其轉移至我們名下。後續續約費用為{term}。否則，您需要更新該網域的名稱伺服器 (NS) 記錄。",
     "unavailable": "此網域無法註冊或轉移。"
   },
   "finding_perfect_domain": "尋找您的**完美**域名",
@@ -52,13 +53,16 @@
   "search": "請輸入網域名稱進行搜尋",
   "starts_with_domain": "一切都始於**域名**",
   "starts_with_domain_md": "@.markdown：{'domain.starts_with_domain'}",
+  "tld_renewal_info": "續約價格自{term} 起。",
   "tld_renewal_price_desc": "我們的 {tld} 續訂價格僅從 {currentPrice} （曾是 {regularPrice} ）。",
   "tld_renewal_price_from_desc": "我們的 {tld} 續訂價格僅從 {regularPrice} 。",
   "transfer": "轉帳僅需 {currentPrice} 。",
   "transfer_domain": "轉移網域",
   "transfer_extension_info": "轉會包含一年延長合約。",
+  "transfer_free_info": "您可以免費將其轉帳給我們。",
   "transfer_owner_question": "您是此網域的所有者嗎？",
   "transfer_price_info": "您只需將它轉移給我們即可 {currentPrice}",
   "transfer_promotion": "轉帳僅需 {currentPrice} ，通常為 {regularPrice} 。",
+  "transfer_today_info": "您今天就可以將款項轉帳給我們。",
   "use_details_for": "請使用這些詳細信息{domain}"
 }

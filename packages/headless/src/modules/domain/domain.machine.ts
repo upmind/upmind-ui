@@ -5,6 +5,7 @@ import { createMachine, assign, spawn, sendTo, pure } from "xstate";
 import DACmachine from "./dac.machine";
 
 import services from "./services";
+import { useQuery } from "../query";
 import { basketSubscription } from "../basketProduct/helper";
 import { authSubscription } from "../session/helper";
 
@@ -35,6 +36,7 @@ import {
   isArray,
   isEmpty,
   isString,
+  last,
   map,
   reduce,
   remove,
@@ -221,7 +223,7 @@ export default createMachine(
           },
 
           validating: {
-            entry: ["setCheckingDomain"],
+            entry: ["cancelAvailability", "setCheckingDomain"],
             always: [
               {
                 target: "transferred",
@@ -401,10 +403,20 @@ export default createMachine(
             {
               target: ".validating",
               cond: "isDomainLike",
+              // XState v4 quirk: relative targets (`.foo`) default to
+              // `internal: true`, which means a self-transition from
+              // `validating → .validating` wouldn't exit and re-enter
+              // — entry actions (`cancelAvailability`, `setCheckingDomain`)
+              // and `invoke` wouldn't fire on the new keystroke, leaving
+              // the domain stuck on the previous value. Force external so
+              // every UPDATE genuinely re-enters validating and the new
+              // `/availability` call gets issued.
+              internal: false,
               actions: ["clearError", "setExisting", "persistModel"]
             },
             {
               target: ".invalid",
+              internal: false,
               actions: ["setErrorInvalidDomain", "setExisting", "persistModel"]
             }
           ]
@@ -589,10 +601,17 @@ export default createMachine(
       }),
 
       ensureBasketModel: assign({
-        model: ({ model, lookups }: DomainContext) => {
-          const domain = get(model, "domain");
+        model: ({ model, baseModel, lookups }: DomainContext) => {
+          // The source state's exit actions run BEFORE this transition action
+          // (XState v4 order: exit → transition → entry), so `existing.exit`'s
+          // `clearModel` will have wiped `model` when changing from existing.
+          // Fall back to `baseModel` — the last persisted user choice — so
+          // we don't lose the user's domain and silently jump to the first
+          // basket item.
+          const effectiveModel = model ?? baseModel;
+          const domain = get(effectiveModel, "domain");
           if (domain && some(lookups.basket, ["domain", domain])) {
-            return model;
+            return effectiveModel;
           }
           const fallback = first(lookups.basket);
           if (fallback) {
@@ -824,7 +843,11 @@ export default createMachine(
           const mapped = map(data.domains, (item: DomainProduct) =>
             parseDomain(item.domain)
           );
-          return find(mapped, "selected") || first(mapped);
+          // Most-recent wins: the user expects the domain they just added to
+          // be the one linked to the product. DAC's `complete.data` marks
+          // `last(model)` as `selected`; `parseDomain` strips the marker so
+          // we also fall back to `last` here, keeping both sides aligned.
+          return find(mapped, "selected") || last(mapped);
         },
         lookups: ({ lookups }: DomainContext, { data }: AnyEventObject) => {
           if (isEmpty(data?.basket)) return lookups;
@@ -965,6 +988,18 @@ export default createMachine(
       clearCheckingDomain: assign({
         checkingDomain: () => undefined
       }),
+
+      // Aborts any in-flight `/availability` fetch from a prior keystroke.
+      // The user types -> UPDATE -> re-enters `validating` -> a new invoke
+      // fires. Without this, the previous fetch keeps running (XState v4
+      // can't cancel a Promise actor; it just ignores its result), wasting
+      // bandwidth and risking out-of-order responses. `cancelQueries`
+      // signals TanStack to abort the active queryFn — propagation to
+      // `fetch` relies on `checkAvailability`'s queryFn forwarding the
+      // signal via `init.signal` (see `services.ts`).
+      cancelAvailability: () => {
+        useQuery().cancel(["domains", "availability"]);
+      },
 
       setAvailabilityResult: assign({
         availability: (_context: DomainContext, { data }: AnyEventObject) =>

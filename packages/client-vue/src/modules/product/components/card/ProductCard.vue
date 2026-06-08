@@ -124,7 +124,8 @@ import { useI18n } from "vue-i18n";
 import {
   IMAGES_STYLE,
   QUERY_PARAMS,
-  GRID_LAYOUT
+  GRID_LAYOUT,
+  useImageUrl
 } from "@upmind-automation/headless";
 import { useConfig } from "@upmind-automation/headless";
 
@@ -240,7 +241,8 @@ const actionRoute = computed(() => {
 const images = computed(() => {
   return props.productDetails?.images?.map(image => ({
     url: image.url,
-    alt: props.productDetails?.title
+    alt: props.productDetails?.title,
+    previewUrl: useImageUrl(image.url, "original")
   })) as ImageItem[];
 });
 
@@ -261,7 +263,8 @@ const mappedImage = computed(() => {
     return [
       {
         url: props.productDetails.imgUrl,
-        alt: props.productDetails?.title
+        alt: props.productDetails?.title,
+        previewUrl: useImageUrl(props.productDetails.imgUrl, "original")
       }
     ] as ImageItem[];
   }

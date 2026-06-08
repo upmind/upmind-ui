@@ -69,6 +69,7 @@
   "currency_update_failed": "We experienced an error updating currency",
   "currency_validation_failed": "Currency validation failed",
   "domain_add_failed": "Failed to add the domain to the basket",
+  "domain_availability_aborted": "Domain availability check was cancelled",
   "domain_availability_required": "No domain specified for availability check",
   "domain_not_valid": "Must be a valid domain or subdomain",
   "domain_register_data_missing": "No domain or availability data for registration",
