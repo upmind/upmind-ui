@@ -200,7 +200,10 @@ export const useSession = () => {
         "available.recover.error",
         "available.asGuest.error"
       ]) ||
-      stateMatches(clientActor, "available.unregistered.error"),
+      stateMatches(clientActor, [
+        "available.unregistered.error",
+        "available.unverified.challenging.error"
+      ]),
     showLoginForm: stateMatches(guestActor, "available.login"),
     show2fa: stateMatches(guestActor, [
       "available.login.challenging",
@@ -208,19 +211,20 @@ export const useSession = () => {
       "available.register.challenging",
       "available.register.verifying"
     ]),
-    showVerifyEmail: stateMatches(
-      clientActor,
-      "available.unverified.challenging"
-    ),
+    showVerifyEmailForm: stateMatches(clientActor, [
+      "available.unverified.challenging",
+      "available.unverified.verifying"
+    ]),
     isCoolingDown: verificationResendCooldown.value > 0,
     canShowForms:
       stateMatches(guestActor, "available") ||
-      stateMatches(clientActor, "available.unregistered") ||
-      stateMatches(clientActor, "available.unverified"),
+      stateMatches(clientActor, [
+        "available.unregistered",
+        "available.unverified"
+      ]),
     showAsGuestForm: stateMatches(guestActor, "available.asGuest"),
     showRegisterForm: stateMatches(guestActor, "available.register"),
     showRecoverPasswordForm: stateMatches(guestActor, "available.recover"),
-    // Guest-client forms share one node; `formType` says which is active.
     showGuestUpgradeForm:
       stateMatches(clientActor, "available.unregistered") &&
       formType.value === ClientFormType.REGISTER,
@@ -387,8 +391,30 @@ export const useSession = () => {
       .catch(() => false);
   }
 
+  async function showRecoverPassword(): Promise<boolean> {
+    if (!guestActor.value) return true; // already logged in
+
+    service.send({
+      type: "RECOVER"
+    });
+
+    return await waitFor(
+      guestActor.value.service,
+      state => stateMatches(state, ["available.recover", "done"]),
+      { timeout: 60000 }
+    )
+      .then(() => true)
+      .catch(() => false);
+  }
+
   async function showGuestEmail(): Promise<boolean> {
     if (!clientActor.value) return false;
+
+    await waitFor(
+      clientActor.value.service,
+      state => stateMatches(state, "available"),
+      { timeout: 60000 }
+    ).catch(() => false);
 
     service.send({ type: "EMAIL" });
 
@@ -402,16 +428,28 @@ export const useSession = () => {
       .catch(() => false);
   }
 
-  async function showRecoverPassword(): Promise<boolean> {
-    if (!guestActor.value) return true; // already logged in
+  async function showVerifyEmail(): Promise<boolean> {
+    debugger;
+    if (!clientActor.value) return true; // already logged in
 
+    await waitFor(
+      clientActor.value.service,
+      state => stateMatches(state, "available"),
+      { timeout: 60000 }
+    ).catch(() => false);
+
+    debugger;
     service.send({
-      type: "RECOVER"
+      type: "CONFIRM"
     });
 
-    return await waitFor(
-      guestActor.value.service,
-      state => stateMatches(state, ["available.recover", "done"]),
+    console.log("showVerifyEmail", clientActor.value?.state.value);
+
+    debugger;
+    return waitFor(
+      clientActor.value.service,
+      state =>
+        stateMatches(state, ["available.unverified.challenging", "done"]),
       { timeout: 60000 }
     )
       .then(() => true)
@@ -460,10 +498,6 @@ export const useSession = () => {
       .catch(() => false);
   }
 
-  function challengeEmail(): void {
-    service.send({ type: "CONFIRM" });
-  }
-
   async function verifyEmail(payload: VerificationProps): Promise<boolean> {
     if (!clientActor.value) return false;
 
@@ -478,7 +512,7 @@ export const useSession = () => {
         ]),
       { timeout: 60000 }
     )
-      .then(state => stateMatches(state, "available.verified"))
+      .then(state => stateMatches(state, ["available.verified"]))
       .catch(() => false);
   }
 
@@ -732,7 +766,7 @@ export const useSession = () => {
     if (meta.value.showRegisterForm) return register(model);
     if (meta.value.showRecoverPasswordForm) return recover(model);
     if (meta.value.showAsGuestForm) return registerAsGuest();
-    if (meta.value.showVerifyEmail) return verifyEmail(model);
+    if (meta.value.showVerifyEmailForm) return verifyEmail(model);
     return Promise.reject(
       new DetailedError(
         t("error.session_form_not_available"),
@@ -941,13 +975,6 @@ export const useSession = () => {
     verify2fa,
 
     /**
-     * Opens the email-verification challenge for an unverified client — moves
-     * `unverified.idle` → `challenging` so the code form is shown. Fired when
-     * the verify-email overlay/modal mounts (e.g. gated at checkout).
-     */
-    challengeEmail,
-
-    /**
      * Resends the verification email to the unverified client's primary email,
      * then starts a 60s cooldown. No-op while cooling down or if no email id is
      * available. The verify form binds this directly — no timer/email lookup in
@@ -1041,6 +1068,13 @@ export const useSession = () => {
      * Displays the Send reset form for password recovery.
      */
     showRecoverPassword,
+
+    /**
+     * Opens the email-verification challenge for an unverified client — moves
+     * `unverified.idle` → `challenging` so the code form is shown. Fired when
+     * the verify-email overlay/modal mounts (e.g. gated at checkout).
+     */
+    showVerifyEmail,
 
     /**
      * Updates the guest client's email for receipt.
