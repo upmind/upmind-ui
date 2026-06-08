@@ -8,17 +8,20 @@ import {
   useForwardPropsEmits
 } from "radix-vue";
 import { computed, type HTMLAttributes } from "vue";
-import { cn } from "../../utils";
+import { assign } from "lodash-es";
+import { cn, useDisabled } from "../../utils";
 
 const props = defineProps<
   ListboxRootProps & { class?: HTMLAttributes["class"] }
 >();
 const emits = defineEmits<ListboxRootEmits>();
 
+const isDisabled = useDisabled(() => props.disabled);
+
 const delegatedProps = computed(() => {
   const { class: _, ...delegated } = props;
 
-  return delegated;
+  return assign(delegated, { disabled: isDisabled.value });
 });
 
 const forwarded = useForwardPropsEmits(delegatedProps, emits);

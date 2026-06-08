@@ -4,6 +4,7 @@
     v-model:open="open"
     :key="uid"
     :model-value="modelValue"
+    :disabled="isDisabled"
   >
     <SelectTrigger
       v-bind="$attrs"
@@ -87,7 +88,7 @@ import SelectItem from "./SelectItem.vue";
 import SelectTrigger from "./SelectTrigger.vue";
 import SelectValue from "./SelectValue.vue";
 // --- utils
-import { cn, useStyles } from "../../utils";
+import { cn, useStyles, useDisabled } from "../../utils";
 import { isEmpty, isEqual, isNull, find } from "lodash-es";
 // --- types
 import type { SelectProps } from "./types";
@@ -120,6 +121,8 @@ const props = withDefaults(defineProps<SelectProps>(), {
 
 const emits = defineEmits<SelectRootEmits & SelectContentEmits>();
 const forwarded = useForwardPropsEmits(props, emits);
+
+const isDisabled = useDisabled(() => props.disabled);
 
 const modelValue = useVModel(props, "modelValue", emits, {
   passive: true,

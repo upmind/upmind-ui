@@ -45,7 +45,7 @@ import config from "./link.config";
 // --- components
 import LinkItems from "./LinkItems.vue";
 // --- utils
-import { useStyles, cn } from "../../utils";
+import { useStyles, cn, useDisabled } from "../../utils";
 import { kebabCase, isEmpty } from "lodash-es";
 // -- types
 import type { LinkProps } from "./types";
@@ -74,13 +74,16 @@ const component = computed(() => {
 
 const isRouterLink = computed(() => component.value === RouterLink);
 
+const isDisabled = useDisabled(() => props.disabled);
+
 const meta = computed(() => ({
   color: props.color,
   size: props.size,
-  isDisabled: props.disabled,
-  isFocusable: props.focusable && !props.disabled,
-  hasRing: props.ring === "focus-visible" && !props.disabled && props.focusable,
-  hasFocusRing: props.ring === "focus" && !props.disabled && props.focusable,
+  isDisabled: isDisabled.value,
+  isFocusable: props.focusable && !isDisabled.value,
+  hasRing:
+    props.ring === "focus-visible" && !isDisabled.value && props.focusable,
+  hasFocusRing: props.ring === "focus" && !isDisabled.value && props.focusable,
   hasIcon:
     !isEmpty(props.icon) ||
     !isEmpty(props.iconAppend) ||

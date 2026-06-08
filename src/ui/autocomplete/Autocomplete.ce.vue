@@ -13,7 +13,7 @@
     :uiConfig="props.uiConfig"
     :popoverClass="props.popoverClass"
     :type="props.type"
-    :disabled="props.disabled"
+    :disabled="isDisabled"
     :autoFocus="props.autoFocus"
     :model-value="modelValue"
     v-model:open="open"
@@ -113,7 +113,7 @@ import { ref, computed, watch } from "vue";
 import Avatar from "../avatar/Avatar.ce.vue";
 import Icon from "../icon/Icon.ce.vue";
 import config from "./autocomplete.config";
-import { useStyles } from "../../utils";
+import { useStyles, useDisabled } from "../../utils";
 import { cn } from "../../utils";
 // --- components
 // --- utils
@@ -163,6 +163,8 @@ const meta = computed(() => ({
 
 const open = ref(false);
 const processing = ref(false);
+
+const isDisabled = useDisabled(() => props.disabled);
 
 const itemValue = computed((): string => props.itemValue || "value");
 const itemLabel = computed((): string => props.itemLabel || "label");

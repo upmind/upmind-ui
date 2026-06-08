@@ -2,7 +2,7 @@
   <DropdownMenuRoot v-model:open="open" tabindex="-1">
     <DropdownMenuTrigger
       as-child
-      :disabled="disabled"
+      :disabled="isDisabled"
       :class="styles.select.trigger"
     >
       <TriggerButton
@@ -93,7 +93,7 @@ import { ref, computed } from "vue";
 import Item from "./components/Item.vue";
 import TriggerButton from "./components/TriggerButton.vue";
 import config from "./selectCards.config";
-import { cn, useStyles, usePortalTarget } from "../../utils";
+import { cn, useStyles, usePortalTarget, useDisabled } from "../../utils";
 // --- components
 // --- types
 import { first, find } from "lodash-es";
@@ -112,6 +112,8 @@ const portalTo = usePortalTarget(() => props.to);
 
 const open = ref(false);
 const isKeyboardNav = ref(false);
+
+const isDisabled = useDisabled(() => props.disabled);
 const modelValue = useVModel(props, "modelValue", emits, {
   passive: true,
   defaultValue: props.defaultValue

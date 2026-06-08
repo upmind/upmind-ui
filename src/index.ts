@@ -17,6 +17,7 @@ export * from "./ui/checkbox-group";
 export * from "./ui/combobox";
 export * from "./ui/collapsible";
 export * from "./ui/dialog";
+export * from "./ui/disabled-provider";
 export * from "./ui/drawer";
 export * from "./ui/dropdown-menu";
 export * from "./ui/description-list";
@@ -43,6 +44,7 @@ export * from "./ui/radio-cards";
 export * from "./ui/radio-cards-collapsible";
 export * from "./ui/select-grouped";
 export * from "./ui/radio-group";
+export * from "./ui/readonly-provider";
 export * from "./ui/sanitized";
 export * from "./ui/select";
 export * from "./ui/select-cards";
@@ -71,5 +73,11 @@ export {
   isEmptySlot,
   isMobile,
   type Theme,
-  type ITheme
+  type ITheme,
+  useDisabled,
+  useReadonly,
+  provideDisabled,
+  provideReadonly,
+  DISABLED_KEY,
+  READONLY_KEY
 } from "./utils";

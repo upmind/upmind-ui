@@ -2,7 +2,7 @@
   <ToggleGroupRoot
     v-model="modelValue"
     :required="props.required"
-    :disabled="props.disabled"
+    :disabled="isDisabled"
     :class="cn(styles.checkboxCards.root, props.class)"
     type="multiple"
     data-testid="checkbox-group"
@@ -15,7 +15,7 @@
         :value="item.value as string"
         :name="item.id"
         :required="props.required"
-        :disabled="props.disabled"
+        :disabled="isDisabled"
         :no-input="props.noInput"
         :class="cn(styles.checkboxCards.input, props.itemClass)"
         :itemClass="styles.checkboxCards.item"
@@ -107,7 +107,7 @@ import { Label } from "../label";
 import { Link } from "../link";
 import CheckboxCardItem from "./CheckboxCardItem.vue";
 import config from "./checkboxCards.config";
-import { cn, useStyles } from "../../utils";
+import { cn, useStyles, useDisabled } from "../../utils";
 // --- components
 // --- utils
 import { includes, isFunction, isString, isNil, kebabCase } from "lodash-es";
@@ -137,6 +137,8 @@ const modelValue = useVModel(props, "modelValue", emits, {
   passive: true,
   defaultValue: props.defaultValue
 });
+
+const isDisabled = useDisabled(() => props.disabled);
 
 const meta = computed(() => ({
   noInput: props.noInput,

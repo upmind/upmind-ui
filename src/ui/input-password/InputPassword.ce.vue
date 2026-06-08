@@ -12,7 +12,7 @@
           <Link
             :class="styles.inputPassword.action"
             :focusable="false"
-            :disabled="props.disabled || props.readonly"
+            :disabled="isDisabled || isReadonly"
             @click.prevent="onGenerate"
           >
             <Icon icon="magic-wand-02" size="2xs" />
@@ -48,8 +48,8 @@ import Tooltip from "../tooltip/Tooltip.ce.vue";
 // --- internal
 import config from "./input-password.config";
 // --- utils
-import { useStyles } from "../../utils";
-import { omit } from "lodash-es";
+import { useStyles, useDisabled, useReadonly } from "../../utils";
+import { assign, omit } from "lodash-es";
 // --- types
 import type { InputPasswordProps } from "./types";
 // -----------------------------------------------------------------------------
@@ -75,18 +75,24 @@ const modelValue = useVModel(props, "modelValue", emit, {
 
 const unmask = ref(false);
 
+const isDisabled = useDisabled(() => props.disabled);
+const isReadonly = useReadonly(() => props.readonly);
+
 const delegatedProps = computed(() =>
-  omit(props, [
-    "class",
-    "uiConfig",
-    "defaultValue",
-    "modelValue",
-    "autocomplete",
-    "generator",
-    "generateLabel",
-    "showLabel",
-    "hideLabel"
-  ])
+  assign(
+    omit(props, [
+      "class",
+      "uiConfig",
+      "defaultValue",
+      "modelValue",
+      "autocomplete",
+      "generator",
+      "generateLabel",
+      "showLabel",
+      "hideLabel"
+    ]),
+    { disabled: isDisabled.value, readonly: isReadonly.value }
+  )
 );
 
 function onGenerate() {

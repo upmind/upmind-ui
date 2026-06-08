@@ -1,7 +1,7 @@
 <template>
   <Popover
     v-model:open="open"
-    :disabled="props.disabled"
+    :disabled="isDisabled"
     :class="styles.combobox.root"
   >
     <PopoverTrigger as-child :ring="false">
@@ -144,7 +144,7 @@ import {
 import Icon from "../icon/Icon.ce.vue";
 import { Popover, PopoverContent, PopoverTrigger } from "../popover";
 import config from "./combobox.config";
-import { cn, useStyles } from "../../utils";
+import { cn, useStyles, useDisabled } from "../../utils";
 // --- components
 // --- utils
 import { find, get, isEmpty, isEqual, isFunction, has } from "lodash-es";
@@ -193,6 +193,8 @@ const meta = computed(() => ({
 
 const open = ref(false);
 const skipFocus = computed(() => props.tabindex === "-1");
+
+const isDisabled = useDisabled(() => props.disabled);
 
 const itemValue = computed((): string => props.itemValue || "value");
 const itemLabel = computed((): string => props.itemLabel || "label");

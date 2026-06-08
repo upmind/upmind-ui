@@ -3,7 +3,7 @@
     :is="useInputGroup ? RadioGroup : 'div'"
     :model-value="modelValue"
     :required="props.required"
-    :disabled="props.disabled"
+    :disabled="isDisabled"
     :class="cn(styles.radioCards.root, props.class)"
     @update:model-value="(v: string | number) => onChange(v)"
     v-auto-animate
@@ -22,7 +22,7 @@
         :secondaryBadge="option?.secondaryBadge"
         :action="option?.action"
         :required="props.required"
-        :disabled="props.disabled"
+        :disabled="isDisabled"
         :model-value="modelValue"
         :columns="props.columns"
         :value="option.value"
@@ -53,7 +53,7 @@ import { computed } from "vue";
 import { RadioGroup } from "../radio-group";
 import RadioCardItem from "./RadioCardItem.vue";
 import config from "./radioCards.config";
-import { cn, useStyles } from "../../utils";
+import { cn, useStyles, useDisabled } from "../../utils";
 import { kebabCase } from "lodash-es";
 // --- types
 import type { RadioCardsProps } from "./types";
@@ -81,6 +81,8 @@ const forwarded = useForwardPropsEmits({}, emits);
 
 const modelValue = defineModel<string | number>();
 
+const isDisabled = useDisabled(() => props.disabled);
+
 const meta = computed(() => ({
   columns: props.columns
 }));
@@ -93,7 +95,7 @@ const styles = useStyles(
 );
 
 const onChange = (value: any) => {
-  if (props.disabled) return;
+  if (isDisabled.value) return;
 
   if (!props.required && value === modelValue.value) {
     modelValue.value = undefined;

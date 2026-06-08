@@ -3,6 +3,8 @@ export * from "./useThemes";
 export * from "./twMerge";
 export * from "./isDeepEmpty";
 export * from "./useValidation";
+export * from "./useDisabled";
+export * from "./useReadonly";
 export * from "./portalTarget";
 export * from "./useImageZoom";
 export * from "./useArrowNavigation";

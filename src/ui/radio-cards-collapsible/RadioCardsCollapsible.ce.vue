@@ -4,7 +4,7 @@
       <RadioGroup
         :model-value="modelValue"
         :required="props.required"
-        :disabled="props.disabled"
+        :disabled="isDisabled"
         @update:model-value="onSelectionChange"
         :class="cn(styles.radioCards.root, 'gap-0')"
       >
@@ -16,7 +16,7 @@
           :name="props.name"
           :label="selectedItem?.label"
           :required="props.required"
-          :disabled="props.disabled"
+          :disabled="isDisabled"
           :model-value="modelValue"
           :columns="props.columns"
           :value="selectedItem.value"
@@ -62,7 +62,7 @@
               :name="props.name"
               :label="option?.label"
               :required="props.required"
-              :disabled="props.disabled"
+              :disabled="isDisabled"
               :model-value="modelValue"
               :columns="props.columns"
               :value="option.value"
@@ -89,7 +89,7 @@
           :label="label"
           size="sm"
           variant="solid"
-          :disabled="props.disabled"
+          :disabled="isDisabled"
           @click="toggleExpanded"
         />
       </slot>
@@ -109,7 +109,7 @@ import { RadioGroup } from "../radio-group";
 import { Skeleton } from "../skeleton";
 import RadioCardItem from "./RadioCardItem.vue";
 import config from "./radioCards.config";
-import { cn, useStyles } from "../../utils";
+import { cn, useStyles, useDisabled } from "../../utils";
 // --- types
 import type { RadioCardsCollapsibleProps } from "./types";
 // -----------------------------------------------------------------------------
@@ -134,6 +134,8 @@ const _emits = defineEmits<{
 
 const modelValue = defineModel<string>("modelValue");
 const open = defineModel<boolean>("open");
+
+const isDisabled = useDisabled(() => props.disabled);
 
 const isExpanded = computed({
   get: () => props.forceOpen || !!open.value,

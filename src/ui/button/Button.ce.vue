@@ -54,7 +54,7 @@ import config from "./button.config";
 import Button from "./Button.vue";
 import ButtonItems from "./ButtonItems.vue";
 // --- utils
-import { useStyles, cn } from "../../utils";
+import { useStyles, cn, useDisabled } from "../../utils";
 import { kebabCase } from "lodash-es";
 // -- types
 import type { ButtonProps } from "./types";
@@ -79,11 +79,13 @@ defineEmits<{
   click: [event: Event];
 }>();
 
+const isDisabled = useDisabled(() => props.disabled || props.loading);
+
 const component = computed(() => {
   if (props.is) return props.is;
   // NB  if we are disabled and we are a link, we render a button to prevent navigation
-  if (props.to && !props.disabled) return RouterLink;
-  if (props.href && !props.disabled) return "a";
+  if (props.to && !isDisabled.value) return RouterLink;
+  if (props.href && !isDisabled.value) return "a";
   // default
   return Button;
 });
@@ -101,10 +103,10 @@ const meta = computed(() => ({
   align: props.align,
   isIconOnly: props.iconOnly,
   isBlock: props.block,
-  isDisabled: props.disabled || props.loading,
+  isDisabled: isDisabled.value,
   isLoading: props.loading,
   isFocusable: props.focusable,
-  hasRing: props.ring && !props.disabled && props.focusable
+  hasRing: props.ring && !isDisabled.value && props.focusable
 }));
 
 const styles = useStyles(["button"], meta, config, props.uiConfig ?? {});

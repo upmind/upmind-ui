@@ -1,7 +1,8 @@
 <script lang="ts" setup>
 import { ComboboxRoot, useForwardPropsEmits } from "radix-vue";
 import { type HTMLAttributes, computed } from "vue";
-import { cn } from "../../utils";
+import { assign } from "lodash-es";
+import { cn, useDisabled } from "../../utils";
 import type { ComboboxRootEmits, ComboboxRootProps } from "radix-vue";
 
 const props = withDefaults(
@@ -14,10 +15,12 @@ const props = withDefaults(
 
 const emits = defineEmits<ComboboxRootEmits>();
 
+const isDisabled = useDisabled(() => props.disabled);
+
 const delegatedProps = computed(() => {
   const { class: _, ...delegated } = props;
 
-  return delegated;
+  return assign(delegated, { disabled: isDisabled.value });
 });
 
 const forwarded = useForwardPropsEmits(delegatedProps, emits);

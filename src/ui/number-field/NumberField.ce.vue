@@ -49,8 +49,8 @@ import NumberFieldIncrement from "./NumberFieldIncrement.vue";
 import NumberFieldInput from "./NumberFieldInput.vue";
 // --- utils
 import { NUMBER_FIELD_VARIANTS } from "./types";
-import { cn, useStyles } from "../../utils";
-import { omit } from "lodash-es";
+import { cn, useStyles, useDisabled } from "../../utils";
+import { assign, omit } from "lodash-es";
 // --- types
 import type { NumberFieldProps } from "./types";
 // -----------------------------------------------------------------------------
@@ -80,18 +80,23 @@ function onUpdate(val: number) {
   modelValue.value = val;
 }
 
+const isDisabled = useDisabled(() => props.disabled);
+
 const delegatedProps = computed(() =>
-  omit(props, [
-    "class",
-    "uiConfig",
-    "modelValue",
-    "size",
-    "width",
-    "variant",
-    "singleStep",
-    "decrementAction",
-    "incrementAction"
-  ])
+  assign(
+    omit(props, [
+      "class",
+      "uiConfig",
+      "modelValue",
+      "size",
+      "width",
+      "variant",
+      "singleStep",
+      "decrementAction",
+      "incrementAction"
+    ]),
+    { disabled: isDisabled.value }
+  )
 );
 
 const decrementIcon = computed(() => {
@@ -118,7 +123,7 @@ const meta = computed(() => {
     size: props.size,
     width: getWidth.value,
     variant: props.variant,
-    isDisabled: props.disabled
+    isDisabled: isDisabled.value
   };
 });
 

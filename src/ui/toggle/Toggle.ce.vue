@@ -16,9 +16,9 @@ import { computed } from "vue";
 import config from "./toggle.config";
 import Toggle from "./Toggle.vue";
 // --- internal
-import { useStyles, cn } from "../../utils";
+import { useStyles, cn, useDisabled } from "../../utils";
 // --- utils
-import { omit } from "lodash-es";
+import { assign, omit } from "lodash-es";
 // --- types
 import type { ToggleProps } from "./types";
 // -----------------------------------------------------------------------------
@@ -32,8 +32,12 @@ const emits = defineEmits<{
   (e: "update:modelValue", payload: string | number): void;
 }>();
 
+const isDisabled = useDisabled(() => props.disabled);
+
 const delegatedProps = computed(() =>
-  omit(props, ["class", "uiConfig", "defaultValue", "modelValue"])
+  assign(omit(props, ["class", "uiConfig", "defaultValue", "modelValue"]), {
+    disabled: isDisabled.value
+  })
 );
 
 const modelValue = useVModel(props, "modelValue", emits, {

@@ -18,9 +18,9 @@ import { computed } from "vue";
 import config from "./checkbox.config";
 import Checkbox from "./Checkbox.vue";
 // --- internal
-import { useStyles, cn } from "../../utils";
+import { useStyles, cn, useDisabled } from "../../utils";
 // --- utils
-import { omit } from "lodash-es";
+import { assign, omit } from "lodash-es";
 // --- types
 import type { CheckboxProps } from "./types";
 // -----------------------------------------------------------------------------
@@ -36,8 +36,12 @@ const emits = defineEmits<{
   (e: "update:checked", payload: string | number): void;
 }>();
 
+const isDisabled = useDisabled(() => props.disabled);
+
 const delegatedProps = computed(() =>
-  omit(props, ["class", "uiConfig", "defaultChecked", "checked"])
+  assign(omit(props, ["class", "uiConfig", "defaultChecked", "checked"]), {
+    disabled: isDisabled.value
+  })
 );
 
 const checked = useVModel(props, "checked", emits, {

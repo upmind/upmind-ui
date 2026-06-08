@@ -29,10 +29,10 @@ import type { InputMask } from "imask";
 import config from "./input.config";
 // --- components
 import InputItems from "./InputItems.vue";
-import { useStyles, cn } from "../../utils";
+import { useStyles, cn, useDisabled, useReadonly } from "../../utils";
 import { kebabCase } from "lodash-es";
 // --- utils
-import { omit } from "lodash-es";
+import { assign, omit } from "lodash-es";
 // --- types
 import type { InputProps } from "./types";
 // -----------------------------------------------------------------------------
@@ -47,6 +47,9 @@ const props = withDefaults(defineProps<InputProps>(), {
 
 const input = useTemplateRef<InputElement>("input");
 const modelValue = defineModel<InputProps["modelValue"]>("modelValue", {});
+
+const isDisabled = useDisabled(() => props.disabled);
+const isReadonly = useReadonly(() => props.readonly);
 
 const delegatedProps = computed(
   (): Omit<
@@ -63,19 +66,22 @@ const delegatedProps = computed(
     | "avatarAppend"
     | "autoFocus"
   > =>
-    omit(props, [
-      "class",
-      "uiConfig",
-      "defaultValue",
-      "modelValue",
-      "width",
-      "size",
-      "icon",
-      "avatar",
-      "iconAppend",
-      "avatarAppend",
-      "autoFocus"
-    ])
+    assign(
+      omit(props, [
+        "class",
+        "uiConfig",
+        "defaultValue",
+        "modelValue",
+        "width",
+        "size",
+        "icon",
+        "avatar",
+        "iconAppend",
+        "avatarAppend",
+        "autoFocus"
+      ]),
+      { disabled: isDisabled.value, readonly: isReadonly.value }
+    )
 );
 
 const meta = computed(() => ({

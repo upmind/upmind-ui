@@ -3,7 +3,7 @@
     :is="props.as"
     role="radiogroup"
     :aria-required="props.required"
-    :aria-disabled="props.disabled"
+    :aria-disabled="isDisabled"
     :class="cn(styles.selectGrouped.root, props.class)"
     data-testid="select-grouped"
     v-auto-animate
@@ -17,7 +17,7 @@
       :focused-group-index="focusedGroupIndex"
       :model-value="modelValue"
       :required="props.required"
-      :disabled="props.disabled"
+      :disabled="isDisabled"
       :uiConfig="props.uiConfig"
       @update:model-value="onChange"
       @focus-next-group="focusGroup(index + 1)"
@@ -55,7 +55,7 @@ import { computed, ref } from "vue";
 import config from "./selectGrouped.config";
 // --- components
 import SelectGroupedOption from "./SelectGroupedOption.vue";
-import { cn, useStyles } from "../../utils";
+import { cn, useStyles, useDisabled } from "../../utils";
 // --- types
 import type { SelectGroupedProps } from "./types";
 // -----------------------------------------------------------------------------
@@ -71,6 +71,8 @@ const modelValue = defineModel<string>({ default: "" });
 
 const groupRefs = ref<{ setFocus: () => void }[]>([]);
 const focusedGroupIndex = ref(0);
+
+const isDisabled = useDisabled(() => props.disabled);
 
 const meta = computed(() => ({}));
 

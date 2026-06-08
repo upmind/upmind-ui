@@ -3,7 +3,7 @@
     <PopoverTrigger as-child>
       <FormControl
         :key="props.id"
-        :disabled="props.disabled"
+        :disabled="isDisabled"
         :formItemId="`${props.id}-search`"
         :auto-focus="props.autoFocus"
         :placeholder="placeholder"
@@ -67,7 +67,7 @@ import { FormControl } from "../form";
 import Input from "../input/Input.ce.vue";
 // --- utils
 import config from "./search.config";
-import { useStyles } from "../../utils";
+import { useStyles, useDisabled } from "../../utils";
 import { uniqueId } from "lodash-es";
 // --- types
 import type { SearchItem } from "./types";
@@ -103,6 +103,8 @@ const emit = defineEmits<{
 
 const internalSearch = ref("");
 const open = ref(false);
+
+const isDisabled = useDisabled(() => props.disabled);
 
 // --- computed
 
