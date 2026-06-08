@@ -10,7 +10,7 @@
         :value="value"
         :name="props.name"
         :required="props.required"
-        :disabled="props.disabled"
+        :disabled="isDisabled"
         :class="styles.radioCards.input"
         :tabindex="isSelected || !modelValue ? 0 : -1"
         :data-state="isSelected ? 'checked' : ''"
@@ -39,7 +39,7 @@ import { computed } from "vue";
 import Label from "../label/Label.ce.vue";
 import { RadioGroupItem } from "../radio-group";
 import config from "./radioCards.config";
-import { useStyles } from "../../utils";
+import { useStyles, useDisabled } from "../../utils";
 // --- types
 import type { RadioCardsCollapsibleItemProps } from "./types";
 // -----------------------------------------------------------------------------
@@ -55,17 +55,20 @@ const isSelected = computed(() => {
   return props.modelValue === props.value;
 });
 
+const isDisabled = useDisabled(() => props.disabled);
+
 const meta = computed(() => ({
   isMinimal: props.minimal,
-  columns: props.columns
+  columns: props.columns,
+  isDisabled: isDisabled.value
 }));
 
 const styles = useStyles(["radioCards"], meta, config, props.uiConfig ?? {});
 
 const onBlur = (e: FocusEvent) => {
-  if (props.disabled) {
+  if (isDisabled.value) {
     watchOnce(
-      () => props.disabled,
+      () => isDisabled.value,
       () => {
         const el = e.target as HTMLElement;
         if (el && el.dataset.state === "checked") {

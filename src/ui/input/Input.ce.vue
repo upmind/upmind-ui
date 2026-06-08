@@ -1,8 +1,5 @@
 <template>
-  <div
-    :class="cn(styles.input.container, props.class)"
-    :data-disabled="isDisabled || undefined"
-  >
+  <div :class="cn(styles.input.container, props.class)">
     <slot name="prepend">
       <InputItems :icon="props.icon" :avatar="props.avatar" />
     </slot>
@@ -89,7 +86,8 @@ const delegatedProps = computed(
 
 const meta = computed(() => ({
   width: props.width,
-  hasRing: props.ring
+  hasRing: props.ring,
+  isDisabled: isDisabled.value
 }));
 
 const styles = useStyles(

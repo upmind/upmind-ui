@@ -13,6 +13,9 @@ export const itemVariants = cva(
         4: "col-span-12 md:col-span-3",
         5: "col-span-12 md:col-span-2",
         6: "col-span-12 md:col-span-2"
+      },
+      isDisabled: {
+        true: "pointer-events-none cursor-not-allowed opacity-50"
       }
     },
     defaultVariants: {

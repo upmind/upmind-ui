@@ -3,7 +3,6 @@
     :for="`${props.name}-${index}`"
     :class="cn(styles.radioCards.item.root, styles.radioCards.item.size)"
     :data-state="isSelected ? 'checked' : ''"
-    :data-disabled="props.disabled || undefined"
     :data-hover="props.dataHover"
     :data-focus="props.dataFocus"
   >
@@ -13,7 +12,7 @@
         :value="value"
         :name="props.name"
         :required="props.required"
-        :disabled="props.disabled"
+        :disabled="isDisabled"
         :tabindex="isSelected || !modelValue ? 0 : -1"
         :data-state="isSelected ? 'checked' : 'unchecked'"
         :uiConfig="uiConfig"
@@ -89,7 +88,7 @@ import Label from "../label/Label.ce.vue";
 import { Link } from "../link";
 import { RadioGroupItem } from "../radio-group";
 import config from "./radioCards.config";
-import { cn, useStyles } from "../../utils";
+import { cn, useStyles, useDisabled } from "../../utils";
 // --- types
 import { isFunction, isString, isNil } from "lodash-es";
 import type { RadioCardsItemActionProps, RadioCardsItemProps } from "./types";
@@ -113,8 +112,11 @@ const isSelected = computed(() => {
   return props.modelValue === props.value;
 });
 
+const isDisabled = useDisabled(() => props.disabled);
+
 const meta = computed(() => ({
-  columns: props.columns
+  columns: props.columns,
+  isDisabled: isDisabled.value
 }));
 
 const styles = useStyles(
@@ -125,9 +127,9 @@ const styles = useStyles(
 );
 
 const onBlur = (e: FocusEvent) => {
-  if (props.disabled) {
+  if (isDisabled.value) {
     watchOnce(
-      () => props.disabled,
+      () => isDisabled.value,
       () => {
         const el = e.target as HTMLElement;
         if (el && el.dataset.state === "checked") {
