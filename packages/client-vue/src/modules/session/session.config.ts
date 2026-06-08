@@ -33,8 +33,14 @@ export default {
     auth: {
       container: cva("max-w-3xl"),
       root: cva("flex max-w-3xl flex-col gap-8"),
-      form: cva("place-items-start"),
-      actions: cva("mt-3 flex items-center justify-start space-x-2")
+      form: cva("place-items-start", {
+        variants: {
+          show2fa: { true: "mt-4" },
+          showVerifyEmail: { true: "mt-4" }
+        }
+      }),
+      actions: cva("mt-3 flex items-center justify-start space-x-2"),
+      resend: cva("flex items-center justify-center gap-2 text-sm")
     },
 
     guestCheckout: cva("", {

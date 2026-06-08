@@ -1,5 +1,9 @@
 <template>
-  <UpmAuth :model-value="mode" @resolve="onAuthComplete" />
+  <UpmAuth
+    :model-value="mode"
+    @resolve="onAuthComplete"
+    :storefrontRoute="storefrontRoute"
+  />
 </template>
 
 <script lang="ts" setup>
@@ -15,6 +19,7 @@ import { useRoute } from "vue-router";
 
 // --- internal
 import { UpmAuth } from "@upmind-automation/client-vue";
+import { useStorefrontRoute } from "../../router/useStorefrontRoute";
 
 // --- utils
 import { get } from "lodash-es";
@@ -39,4 +44,6 @@ const mode = computed(
 function onAuthComplete(): void {
   emit("close");
 }
+
+const { storefrontRoute } = useStorefrontRoute();
 </script>

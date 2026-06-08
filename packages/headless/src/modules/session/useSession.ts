@@ -1,5 +1,5 @@
 // --- external
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { interpret, InterpreterStatus } from "xstate";
 import { waitFor } from "xstate/lib/waitFor";
 import { useActor } from "@xstate/vue";
@@ -9,6 +9,7 @@ import { useI18n } from "../system";
 import sessionMachine from "./session.machine";
 import { useFeedback } from "../feedback";
 import { useBrand } from "../brand";
+import { useClientEmails } from "../client/email/useClientEmails";
 export * from "./useTransfer";
 
 // --- utils
@@ -62,6 +63,23 @@ export const useSession = () => {
   const { state, send } = useActor(service);
 
   // --- state
+
+  // Resend-verification cooldown. Owned here (not the component) so the verify
+  // form stays a thin view — it only binds these reactive values.
+  const verificationResendCooldown = ref(0);
+  let verificationResendTimer: ReturnType<typeof setInterval> | undefined;
+
+  function startVerificationCooldown(seconds: number): void {
+    verificationResendCooldown.value = seconds;
+    if (verificationResendTimer) clearInterval(verificationResendTimer);
+    verificationResendTimer = setInterval(() => {
+      verificationResendCooldown.value -= 1;
+      if (verificationResendCooldown.value <= 0 && verificationResendTimer) {
+        clearInterval(verificationResendTimer);
+        verificationResendTimer = undefined;
+      }
+    }, 1000);
+  }
 
   async function isReady(): Promise<boolean> {
     return waitFor(service, state => !state.matches("checking"), {
@@ -190,9 +208,15 @@ export const useSession = () => {
       "available.register.challenging",
       "available.register.verifying"
     ]),
+    showVerifyEmail: stateMatches(
+      clientActor,
+      "available.unverified.challenging"
+    ),
+    isCoolingDown: verificationResendCooldown.value > 0,
     canShowForms:
       stateMatches(guestActor, "available") ||
-      stateMatches(clientActor, "available.unregistered"),
+      stateMatches(clientActor, "available.unregistered") ||
+      stateMatches(clientActor, "available.unverified"),
     showAsGuestForm: stateMatches(guestActor, "available.asGuest"),
     showRegisterForm: stateMatches(guestActor, "available.register"),
     showRecoverPasswordForm: stateMatches(guestActor, "available.recover"),
@@ -240,7 +264,9 @@ export const useSession = () => {
   // Pick the active form actor once; every form value reads off it and stays
   // reactive because `useContext` unwraps the actor inside its own computed.
   const formActor = computed(() =>
-    meta.value.isGuestClient ? clientActor.value : guestActor.value
+    meta.value.isGuestClient || meta.value.isUnverified
+      ? clientActor.value
+      : guestActor.value
   );
 
   /**
@@ -454,6 +480,18 @@ export const useSession = () => {
     )
       .then(state => stateMatches(state, "available.verified"))
       .catch(() => false);
+  }
+
+  async function resendVerification(): Promise<void> {
+    if (verificationResendCooldown.value > 0) return;
+
+    const emailId = client.value?.primaryEmail?.id;
+    if (!emailId) return;
+
+    // `verify` is fire-and-forget — the email service owns success/error
+    // feedback via its mutation callbacks. Start the cooldown immediately.
+    useClientEmails().verify(emailId);
+    startVerificationCooldown(60);
   }
 
   async function register(model: any): Promise<boolean> {
@@ -694,6 +732,7 @@ export const useSession = () => {
     if (meta.value.showRegisterForm) return register(model);
     if (meta.value.showRecoverPasswordForm) return recover(model);
     if (meta.value.showAsGuestForm) return registerAsGuest();
+    if (meta.value.showVerifyEmail) return verifyEmail(model);
     return Promise.reject(
       new DetailedError(
         t("error.session_form_not_available"),
@@ -778,6 +817,7 @@ export const useSession = () => {
      * @property {boolean} hasExpired - Indicates whether the session has expired.
      * @property {boolean} showLoginForm - Indicates whether the login form should be displayed.
      * @property {boolean} show2fa - Indicates whether the two-factor authentication (2FA) challenge is required and should be shown (login or register).
+     * @property {boolean} showVerifyEmail - Indicates whether the email-verification challenge form should be shown (unverified client).
      * @property {boolean} showAsGuestForm - Indicates whether the guest checkout form is active.
      * @property {boolean} showRegisterForm - Indicates whether the registration form should be displayed.
      * @property {boolean} showRecoverPasswordForm - Indicates whether the Send reset form should be displayed.
@@ -906,6 +946,19 @@ export const useSession = () => {
      * the verify-email overlay/modal mounts (e.g. gated at checkout).
      */
     challengeEmail,
+
+    /**
+     * Resends the verification email to the unverified client's primary email,
+     * then starts a 60s cooldown. No-op while cooling down or if no email id is
+     * available. The verify form binds this directly — no timer/email lookup in
+     * the component.
+     */
+    resendVerification,
+
+    /**
+     * Seconds remaining on the resend-verification cooldown (0 when ready).
+     */
+    verificationResendCooldown,
 
     /**
      * Submits the email verification code entered by an unverified client.

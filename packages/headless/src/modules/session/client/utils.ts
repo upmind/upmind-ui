@@ -42,10 +42,13 @@ export const useVerifyEmailUischemaParser = () => {
         type: "Control",
         scope: "#/properties/code",
         i18n: "form.verify_email",
+        label: "",
         options: {
           format: "otp",
           autoFocus: true,
-          autocomplete: "one-time-code"
+          autocomplete: "one-time-code",
+          size: "lg",
+          align: "center"
         }
       }
     ]
