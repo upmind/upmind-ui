@@ -496,39 +496,19 @@ export const useSession = () => {
   async function verifyEmail(payload: VerificationProps): Promise<boolean> {
     if (!clientActor.value) return false;
 
-    console.log(
-      "[VE] enter state=",
-      JSON.stringify(clientActor.value.state.value),
-      "payload=",
-      payload
-    );
     service.send({ type: "VERIFY", data: payload });
 
     return waitFor(
       clientActor.value.service,
-      state => {
-        console.log("[VE] tick state=", JSON.stringify(state.value));
-        return stateMatches(state, [
+      state =>
+        stateMatches(state, [
           "available.verified",
           "available.unverified.form.challenging.invalid"
-        ]);
-      },
+        ]),
       { timeout: 60000 }
     )
-      .then(state => {
-        const ok = stateMatches(state, ["available.verified"]);
-        console.log(
-          "[VE] settled verified=",
-          ok,
-          "state=",
-          JSON.stringify(state.value)
-        );
-        return ok;
-      })
-      .catch(e => {
-        console.log("[VE] timeout/err", String(e));
-        return false;
-      });
+      .then(state => stateMatches(state, ["available.verified"]))
+      .catch(() => false);
   }
 
   function resendVerification(): void {
