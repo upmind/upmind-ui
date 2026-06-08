@@ -56,7 +56,13 @@ import config from "./form.config";
 import { upmindUIRenderers } from "./renderers";
 import { iterateSchema } from "./renderers/utils";
 // --- utils
-import { useStyles, isDeepEmpty, useValidation } from "../../utils";
+import {
+  useStyles,
+  isDeepEmpty,
+  useValidation,
+  useDisabled,
+  provideDisabled
+} from "../../utils";
 import { cn } from "../../utils";
 import {
   isEmpty,
@@ -138,6 +144,14 @@ const touched = useVModel(props, "touched", emits, {
 });
 // ---
 
+const isDisabled = useDisabled(() => props.disabled || props.processing);
+
+// Re-provide the form's resolved disabled state so descendants — including
+// non-JsonForms slot content (e.g. <Manage> rendering RadioCardsCollapsible) —
+// inherit the form's `processing` signal alongside the ancestor cascade, not
+// just the cascade alone.
+provideDisabled(isDisabled);
+
 const meta = computed(() => {
   return {
     canTranslate: !isEmpty(props.i18n),
@@ -147,7 +161,7 @@ const meta = computed(() => {
     isDirty: baseModel !== model.value,
     isTouched: touched.value,
     isValid: isEmpty(errors.value),
-    isDisabled: props.disabled || props.processing
+    isDisabled: isDisabled.value
   };
 });
 
