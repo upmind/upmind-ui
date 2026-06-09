@@ -2,7 +2,7 @@
   <UpmAuth
     :model-value="mode"
     @resolve="onAuthComplete"
-    :storefrontRoute="storefrontRoute"
+    :cancel-route="{ name: ROUTE.BASKET }"
   />
 </template>
 
@@ -19,7 +19,7 @@ import { useRoute } from "vue-router";
 
 // --- internal
 import { UpmAuth } from "@upmind-automation/client-vue";
-import { useStorefrontRoute } from "../../router/useStorefrontRoute";
+import { ROUTE } from "../../router";
 
 // --- utils
 import { get } from "lodash-es";
@@ -49,6 +49,4 @@ const mode = computed(() => {
 function onAuthComplete(): void {
   emit("close");
 }
-
-const { storefrontRoute } = useStorefrontRoute();
 </script>

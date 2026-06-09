@@ -591,8 +591,7 @@ export default {
       return Promise.reject({
         type: FunnelActions.OVERLAY,
         target: {
-          name: ROUTE.CHECKOUT,
-          query: { [QUERY_PARAMS.RETURN_URL]: bidReturnUrl(ROUTE.CHECKOUT) }
+          name: ROUTE.CHECKOUT
         },
         overlay: ROUTE.OVERLAY_VERIFY_EMAIL
       } as OverlayResponse);

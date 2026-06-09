@@ -7,7 +7,6 @@ import type {
 import type { CxOptions } from "class-variance-authority";
 import { AVATAR_SHAPES } from "@upmind-automation/upmind-ui";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
-import type { StorefrontRoute } from "../../types";
 // -----------------------------------------------------------------------------
 export type ActionProps = ButtonProps & {
   type?: HTMLButtonElement["type"];
@@ -39,7 +38,7 @@ export type SessionProps = {
   // ---
   uiConfig?: { alert: CxOptions };
   class?: HTMLAttributes["class"];
-  storefrontRoute?: StorefrontRoute;
+  cancelRoute?: RouteLocationAsRelativeGeneric;
 };
 
 export type SessionExpiredProps = {
