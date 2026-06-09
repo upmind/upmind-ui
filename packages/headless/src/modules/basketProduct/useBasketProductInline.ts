@@ -1,5 +1,5 @@
 // --- external
-import { computed } from "vue";
+import { computed, ref } from "vue";
 
 // --- internal
 import { useBasketProducts } from "./useBasketProducts";
@@ -196,6 +196,40 @@ export const useBasketProductInline = (bpid: string) => {
     );
   }
 
+  // --- inline edit lifecycle
+
+  /**
+   * Tracks the in-flight Add-option toggle so `meta.isProcessing` flips
+   * synchronously on click — the basket card surfaces the spinner + button
+   * disable before the parse + provision_fields HTTP fetch resolves
+   * (FE-2810). Counter rather than boolean so a second toggle landing
+   * mid-flight doesn't race-clear the flag.
+   *
+   * Quantity, term, and upsell-quantity stay on the consumer's direct
+   * `config.X(...)` path because their lifecycle already works: term
+   * chains to `config.update()`, quantity batches via a local debounce.
+   * Tracking them here would flip the same `processing → :disabled`
+   * cascade and lock the rapid-input field mid-typing.
+   */
+  const pendingActions = ref(0);
+
+  function track<T>(action: () => Promise<T>): Promise<T> {
+    pendingActions.value++;
+    return action().finally(() => pendingActions.value--);
+  }
+
+  function toggleUpsell(
+    option: SubproductDetails,
+    valueId: string,
+    enabled: boolean
+  ): Promise<void> {
+    return track(async () => {
+      const config = await configure(bpid, { allowMultipleEdits: true });
+      await config.toggleOption(option, valueId, enabled);
+      await config.update();
+    });
+  }
+
   // --- computed
 
   /** Inline control flags for this product. */
@@ -213,7 +247,8 @@ export const useBasketProductInline = (bpid: string) => {
       hasUpsellOptions,
       showOptionUpsells,
       showQuantity,
-      showTermSelector
+      showTermSelector,
+      isProcessing: pendingActions.value > 0
     };
   });
 
@@ -221,6 +256,13 @@ export const useBasketProductInline = (bpid: string) => {
   return {
     /** Product config API, available once the machine has resolved. */
     configure: () => configure(bpid, { allowMultipleEdits: true }),
+
+    /**
+     * Toggles an upsell option on/off and pushes the change to the basket.
+     * `meta.isProcessing` flips synchronously so the card surfaces feedback
+     * before the network call lands.
+     */
+    toggleUpsell,
 
     /**
      * Filters options to only those eligible for inline upsell.
