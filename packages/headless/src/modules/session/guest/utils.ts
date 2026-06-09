@@ -201,7 +201,7 @@ export const useLoginSchemaParser = () => {
     properties: {
       username: {
         type: "string",
-        title: "Your username or email address"
+        title: "Your email"
         // format: "email", // DEPRECATED as we can log in with email OR username
       },
       password: {
@@ -319,7 +319,7 @@ export const useRecoverSchemaParser = () => {
     properties: {
       username: {
         type: "string",
-        title: "Your username or email address"
+        title: "Your email"
       }
     }
   };

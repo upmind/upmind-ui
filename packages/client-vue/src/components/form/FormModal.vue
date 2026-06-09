@@ -1,6 +1,6 @@
 <template>
   <Dialog
-    :open="open"
+    v-model:open="open"
     :ui-config="{
       dialog: {
         content: [styles.modal.content],
