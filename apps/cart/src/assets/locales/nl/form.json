@@ -22,6 +22,11 @@
     "label": "Je e-mailadres",
     "placeholder": "naam@email.com"
   },
+  "auth_login": {
+    "error": "Een gebruikersnaam of e-mailadres is vereist",
+    "label": "Je gebruikersnaam of e-mailadres",
+    "placeholder": "naam@email.com"
+  },
   "auth_password": {
     "error": {
       "min_length": "Het wachtwoord moet minimaal 8 tekens bevatten.",

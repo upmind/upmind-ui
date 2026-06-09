@@ -22,6 +22,11 @@
     "label": "La tua e-mail",
     "placeholder": "nome@email.com"
   },
+  "auth_login": {
+    "error": "È necessario inserire un nome utente o un indirizzo e-mail",
+    "label": "Il tuo nome utente o indirizzo e-mail",
+    "placeholder": "nome@email.com"
+  },
   "auth_password": {
     "error": {
       "min_length": "La password deve contenere almeno 8 caratteri",

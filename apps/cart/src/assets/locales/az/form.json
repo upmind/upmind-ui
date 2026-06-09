@@ -22,6 +22,11 @@
     "label": "E-poçtunuz",
     "placeholder": "ad@email.com"
   },
+  "auth_login": {
+    "error": "İstifadəçi adı və ya e-poçt ünvanı tələb olunur",
+    "label": "İstifadəçi adresiniz və ya e-poçt ünvanınız",
+    "placeholder": "ad@email.com"
+  },
   "auth_password": {
     "error": {
       "min_length": "Şifrə ən azı 8 simvoldan ibarət olmalıdır",
