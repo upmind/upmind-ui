@@ -29,6 +29,13 @@ interface ConfigOverrides {
    * real value with `captureBrandSettings` and `test.skip` instead.
    */
   guestCheckoutEnabled?: boolean;
+  /**
+   * Toggles the require-verified-email checkout gate. Maps to brand config key
+   * `security.orders.require_verified_email`. A feature-flag/settings mock
+   * (P4-safe): mock ON to assert `guardCheckout` opens the verify-email overlay
+   * for an unverified client; mock OFF for the normal checkout path.
+   */
+  requireVerifiedEmail?: boolean;
 }
 
 /**
@@ -146,6 +153,10 @@ export async function interceptConfigValues(
       if (overrides.guestCheckoutEnabled !== undefined) {
         json.data["invoices.guest_checkout.enabled"] =
           overrides.guestCheckoutEnabled;
+      }
+      if (overrides.requireVerifiedEmail !== undefined) {
+        json.data["security.orders.require_verified_email"] =
+          overrides.requireVerifiedEmail;
       }
       const updatedResponseBody = {
         ...json
