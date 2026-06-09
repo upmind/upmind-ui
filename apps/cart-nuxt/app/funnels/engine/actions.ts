@@ -61,11 +61,8 @@ function injectBid(route: any): any {
 
   const { currentRoute } = useRoutingEngine();
   const { targetBasketId, setTargetBasket, meta } = useBasket();
-  const { getParam } = useQueryParams(route);
-
   // If navigating FROM unavailable, don't inject bid — let user navigate freely
-  // (isUnavailable may already be false due to reset() being called before navigation)
-  // Clear targetBasketId to prevent subsequent navigations from re-injecting it
+  // NB: Clear targetBasketId to prevent subsequent navigations from re-injecting it
   if (
     currentRoute.value.name === ROUTE.BASKET_UNAVAILABLE ||
     meta.value.isUnavailable
@@ -73,6 +70,8 @@ function injectBid(route: any): any {
     setTargetBasket(undefined);
     return route;
   }
+
+  const { getParam } = useQueryParams(route);
 
   // Read bid: getParam first (via query), then basket machine state
   const bid: string | undefined = getParam(
@@ -184,13 +183,7 @@ export default {
         ? { name: data.target }
         : data?.target;
 
-      const result = injectBid(target ?? context.targetRoute);
-      console.debug("[cart:setResolved]", {
-        targetRoute: result?.name,
-        dataTarget: data?.target?.name,
-        contextTarget: context.targetRoute?.name
-      });
-      return result;
+      return injectBid(target ?? context.targetRoute);
     },
     resolved: true
   }),
