@@ -493,7 +493,7 @@ export const useSession = () => {
       state =>
         stateMatches(state, [
           "available.verified",
-          "available.unverified.challenging"
+          "available.unverified.challenging.invalid" // the error state on verified goes back to invalid.
         ]),
       { timeout: 60000 }
     )
