@@ -76,8 +76,9 @@ test.describe("UPM Campaign Tracking", () => {
     await page.goto(
       `${URLs.register}?upm_campaign=playwright_test_campaign&upm_source=playwright&upm_medium=e2e_test&upm_content=content_example&upm_term=term_example`
     );
+    const trackingPromise = getTrackingData(page, "/api/clients/register");
     await registration.inputRegistration();
-    const tracking = await getTrackingData(page, "/api/clients/register");
+    const tracking = await trackingPromise;
     await waitForSessionCookie(page.context());
     await expect(tracking).toBeDefined();
     await expect(tracking.campaign).toBeDefined();

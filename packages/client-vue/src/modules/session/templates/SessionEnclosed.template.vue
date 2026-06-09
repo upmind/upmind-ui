@@ -5,6 +5,7 @@
     </template>
 
     <template #content>
+      <slot name="guest" />
       <slot name="form" />
     </template>
   </Layout>

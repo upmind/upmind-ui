@@ -32,10 +32,47 @@ export default {
 
     auth: {
       container: cva("max-w-3xl"),
-      root: cva("flex max-w-3xl flex-col gap-8"),
-      form: cva("place-items-start"),
-      actions: cva("mt-3 flex items-center justify-start space-x-2")
+      root: cva("flex max-w-3xl flex-col gap-8 text-start"),
+      form: cva("place-items-start", {
+        variants: {
+          show2fa: { true: "mt-4" },
+          showVerifyEmail: { true: "mt-4" }
+        }
+      }),
+      actions: cva("mt-3 flex items-center justify-start space-x-2"),
+      resend: cva("flex w-full items-center justify-center gap-2 text-sm"),
+      resendPrompt: cva("text-muted"),
+      resendSending: cva("text-muted"),
+      resendSent: cva("text-muted")
     },
+
+    transitions: {
+      fade: {
+        enter: {
+          active: cva("transition-opacity duration-200 ease-in-out"),
+          from: cva("opacity-0"),
+          to: cva("opacity-100")
+        },
+        leave: {
+          active: cva("transition-opacity duration-200 ease-in-out"),
+          from: cva("opacity-100"),
+          to: cva("opacity-0")
+        }
+      }
+    },
+
+    guestCheckout: cva("", {
+      variants: {
+        template: {
+          "two-column-ltr": "mt-0 mb-0",
+          "two-column-rtl": "mt-0 mb-0",
+          enclosed: "mt-0 mb-0",
+          split: "mt-0 mb-6",
+          "canvas-card": "mt-0 mb-6",
+          "surface-box": "mt-6 mb-6"
+        }
+      }
+    }),
 
     profile: {
       trigger: cva("rounded-full p-0"),

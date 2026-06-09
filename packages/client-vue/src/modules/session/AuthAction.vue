@@ -19,12 +19,14 @@
     />
   </SessionLoginPopover>
 
-  <SessionDetailsDropdown v-else-if="client">
+  <SessionDetailsDropdown v-else-if="client" @register="goToRegister">
     <Avatar
       v-bind="client.avatar"
+      :icon="meta.isGuestClient ? 'user-01' : undefined"
       :shape="shape"
       size="lg"
       class="cursor-pointer"
+      data-testid="auth-avatar"
       focusable
     />
   </SessionDetailsDropdown>
@@ -33,9 +35,10 @@
 <script lang="ts" setup>
 // --- external
 import { useI18n } from "vue-i18n";
+import { useRouter, useRoute } from "vue-router";
 
 // --- internal
-import { useSession } from "@upmind-automation/headless";
+import { useSession, QUERY_PARAMS } from "@upmind-automation/headless";
 
 // --- components
 import { Button, Avatar } from "@upmind-automation/upmind-ui";
@@ -50,4 +53,17 @@ const props = defineProps<AuthActionProps>();
 
 const { t } = useI18n();
 const { meta, client } = useSession();
+const router = useRouter();
+const route = useRoute();
+
+function goToRegister() {
+  if (!props.registerRoute) return;
+  router.push({
+    ...props.registerRoute,
+    query: {
+      ...props.registerRoute.query,
+      [QUERY_PARAMS.RETURN_URL]: route.fullPath
+    }
+  });
+}
 </script>

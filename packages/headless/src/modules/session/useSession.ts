@@ -8,10 +8,12 @@ import { useActor } from "@xstate/vue";
 import { useI18n } from "../system";
 import sessionMachine from "./session.machine";
 import { useFeedback } from "../feedback";
+import { useBrand } from "../brand";
 export * from "./useTransfer";
 
 // --- utils
 import { get, isEmpty } from "lodash-es";
+import { BrandConfigKeys } from "@upmind-automation/types";
 import { getTokenFromStorage } from "./utils";
 import {
   DetailedError,
@@ -29,11 +31,12 @@ import type {
   IAuthTransfer,
   SessionContext,
   SessionTransfer,
+  VerificationProps,
   Client
 } from "./types";
 import type { ErrorObject } from "ajv";
-import type { GuestContext } from "./guest/types";
 import type { ClientContext } from "./client/types";
+import { ClientFormType } from "./client/types";
 export type { Client, SessionTransfer, IAuthTransfer } from "./types";
 // -----------------------------------------------------------------------------
 
@@ -116,6 +119,11 @@ export const useSession = () => {
       );
   }
 
+  // Guest checkout is available when the brand allows it AND the user isn't
+  // already authenticated as a guest customer. Basket-composition checks (e.g.
+  // recurring products) live on `useBasket().meta` to keep session decoupled.
+  const { getConfigValue } = useBrand();
+
   const meta = computed(() => ({
     isLoading:
       stateMatches(state, "checking") ||
@@ -123,9 +131,16 @@ export const useSession = () => {
         "loading",
         "available.login.loading",
         "available.register.loading",
-        "available.recover.loading"
+        "available.recover.loading",
+        "available.asGuest.registering"
       ]) ||
-      stateMatches(clientActor, "loading") ||
+      stateMatches(clientActor, [
+        "loading",
+        // The upgrade form's schema fetch (getCustomFields) — no form yet, so
+        // show the skeleton. The submit itself is `isProcessing`, not loading
+        // (the form stays mounted with a processing indicator).
+        "available.unregistered.loading"
+      ]) ||
       false,
     isAvailable: !stateMatches(state, ["error", "checking"]),
     isProcessing:
@@ -135,9 +150,29 @@ export const useSession = () => {
         "available.register.registering",
         "available.register.authenticating",
         "available.register.verifying",
-        "available.recover.recovering"
-      ]) || stateMatches(clientActor, "processing"),
+        "available.recover.recovering",
+        "available.asGuest.registering"
+      ]) ||
+      stateMatches(clientActor, [
+        "available.unregistered.registering",
+        "available.unregistered.updating",
+        "available.unverified.challenging.verifying",
+        "available.unverified.resend.processing"
+      ]),
     isAuthenticated: stateMatches(state, "client"),
+    isUnverified: stateMatches(clientActor, "available.unverified"),
+    isCompletingRegistration: stateMatches(
+      clientActor,
+      "available.unregistered.registering"
+    ),
+    isRegisteringAsGuest: stateMatches(
+      guestActor,
+      "available.asGuest.registering"
+    ),
+    isGuestClient: stateMatches(state, "client") && !!client.value?.isGuest,
+    canRegisterAsGuest:
+      !(stateMatches(state, "client") && !!client.value?.isGuest) &&
+      !!getConfigValue<boolean>(BrandConfigKeys.GUEST_CHECKOUT_ENABLED),
     isTransferring: stateMatches(clientActor, "transferring"),
     hasExpired: stateMatches(state, "expired") || isEmpty(state.value.children),
     hasErrors:
@@ -145,9 +180,14 @@ export const useSession = () => {
       stateMatches(guestActor, [
         "available.login.error",
         "available.register.error",
-        "available.recover.error"
+        "available.recover.error",
+        "available.asGuest.error"
       ]) ||
-      stateMatches(clientActor, "error"),
+      stateMatches(clientActor, [
+        "available.unregistered.error",
+        "available.unverified.challenging.error",
+        "available.unverified.resend.error"
+      ]),
     showLoginForm: stateMatches(guestActor, "available.login"),
     show2fa: stateMatches(guestActor, [
       "available.login.challenging",
@@ -155,9 +195,41 @@ export const useSession = () => {
       "available.register.challenging",
       "available.register.verifying"
     ]),
-    canShowForms: stateMatches(guestActor, "available"),
+    showVerifyEmailForm: stateMatches(
+      clientActor,
+      "available.unverified.challenging"
+    ),
+    canResend: stateMatches(
+      clientActor,
+      "available.unverified.resend.available"
+    ),
+    isResending: stateMatches(
+      clientActor,
+      "available.unverified.resend.processing"
+    ),
+    resendComplete: stateMatches(
+      clientActor,
+      "available.unverified.resend.complete"
+    ),
+    resendFailed: stateMatches(
+      clientActor,
+      "available.unverified.resend.error"
+    ),
+    canShowForms:
+      stateMatches(guestActor, "available") ||
+      stateMatches(clientActor, [
+        "available.unregistered",
+        "available.unverified"
+      ]),
+    showAsGuestForm: stateMatches(guestActor, "available.asGuest"),
     showRegisterForm: stateMatches(guestActor, "available.register"),
-    showRecoverPasswordForm: stateMatches(guestActor, "available.recover")
+    showRecoverPasswordForm: stateMatches(guestActor, "available.recover"),
+    showGuestUpgradeForm:
+      stateMatches(clientActor, "available.unregistered") &&
+      formType.value === ClientFormType.REGISTER,
+    showGuestEmailForm:
+      stateMatches(clientActor, "available.unregistered") &&
+      formType.value === ClientFormType.EMAIL
   }));
 
   // --- context
@@ -184,31 +256,45 @@ export const useSession = () => {
   const client = useContext<ClientContext["client"]>(clientActor, "client");
 
   /**
+   * Which guest-client form (`register` upgrade or `email`) is active in the
+   * shared `unregistered` form node — distinguishes the two for the UI.
+   */
+  const formType = useContext<ClientFormType>(clientActor, "formType");
+
+  // Form data (model/schema/uischema/errors) lives on the GUEST machine for
+  // login/register/recover/2fa, but a guest *client* is in the CLIENT machine
+  // (the guest actor is gone), so its upgrade + email forms read from there.
+  // Pick the active form actor once; every form value reads off it and stays
+  // reactive because `useContext` unwraps the actor inside its own computed.
+  const formActor = computed(() =>
+    meta.value.isGuestClient || meta.value.isUnverified
+      ? clientActor.value
+      : guestActor.value
+  );
+
+  /**
    * The underlying data model used in session-related forms such as login or registration.
    */
-  const model = useContext<GuestContext["model"]>(guestActor, "model");
+  const model = useContext<ClientContext["model"]>(formActor, "model");
 
   /**
    * JSON Schema used to define the structure of session-related forms, like login and registration.
    */
-  const schema = useContext<GuestContext["schema"]>(
-    guestActor.value?.state,
-    "schema"
-  );
+  const schema = useContext<ClientContext["schema"]>(formActor, "schema");
 
   /**
    * UI Schema used to configure the presentation and layout of session-related forms.
    */
-  const uischema = useContext<GuestContext["uischema"]>(guestActor, "uischema");
+  const uischema = useContext<ClientContext["uischema"]>(formActor, "uischema");
 
   /**
    * Any errors encountered during session management operations, such as login or registration failures.
    */
   const errors = useContext<ResponseError["message"]>(
-    guestActor,
+    formActor,
     "error.message"
   );
-  const validationErrors = useContext<ErrorObject[]>(guestActor, "error.data");
+  const validationErrors = useContext<ErrorObject[]>(formActor, "error.data");
 
   // --- methods
 
@@ -264,7 +350,7 @@ export const useSession = () => {
       type: "LOGIN"
     });
 
-    return await waitFor(
+    return waitFor(
       guestActor.value.service,
       state => stateMatches(state, ["available.login", "done"]),
       { timeout: 60000 }
@@ -274,13 +360,29 @@ export const useSession = () => {
   }
 
   async function showRegister(): Promise<boolean> {
+    // Guest client → drive the CLIENT machine's upgrade form (the guest actor
+    // is gone once a guest client exists).
+    if (meta.value.isGuestClient && clientActor.value) {
+      // Select the upgrade form — a guest who used the checkout EMAIL form
+      // earlier shares this node, so REGISTER swaps the schema back.
+      service.send({ type: "REGISTER" });
+
+      return waitFor(
+        clientActor.value.service,
+        state => stateMatches(state, ["available.unregistered", "done"]),
+        { timeout: 60000 }
+      )
+        .then(() => true)
+        .catch(() => false);
+    }
+
     if (!guestActor.value) return true; // already logged in
 
     service.send({
       type: "REGISTER"
     });
 
-    return await waitFor(
+    return waitFor(
       guestActor.value.service,
       state => stateMatches(state, ["available.register", "done"]),
       { timeout: 60000 }
@@ -296,9 +398,43 @@ export const useSession = () => {
       type: "RECOVER"
     });
 
-    return await waitFor(
+    return waitFor(
       guestActor.value.service,
       state => stateMatches(state, ["available.recover", "done"]),
+      { timeout: 60000 }
+    )
+      .then(() => true)
+      .catch(() => false);
+  }
+
+  async function showGuestEmail(): Promise<boolean> {
+    if (!clientActor.value) return false;
+
+    await waitFor(
+      clientActor.value.service,
+      state => stateMatches(state, "available"),
+      { timeout: 60000 }
+    ).catch(() => false);
+
+    service.send({ type: "EMAIL" });
+
+    return waitFor(
+      clientActor.value.service,
+      state => stateMatches(state, ["available.unregistered", "done"]),
+      { timeout: 60000 }
+    )
+      .then(() => true)
+      .catch(() => false);
+  }
+
+  async function showVerifyEmail(): Promise<boolean> {
+    if (!clientActor.value) return true; // already logged in
+
+    // The verify-email form is always ready while unverified; no event to send.
+    return waitFor(
+      clientActor.value.service,
+      state =>
+        stateMatches(state, ["available.unverified.challenging", "done"]),
       { timeout: 60000 }
     )
       .then(() => true)
@@ -315,7 +451,7 @@ export const useSession = () => {
       data: get(model, "value", model) // ensure we dont have any reactive refs
     });
 
-    return await waitFor(
+    return waitFor(
       guestActor.value.service,
       state =>
         stateMatches(state, ["complete", "available.login.error", "done"]),
@@ -335,7 +471,7 @@ export const useSession = () => {
       data: model
     });
 
-    return await waitFor(
+    return waitFor(
       guestActor.value.service,
       state =>
         stateMatches(state, ["complete", "available.login.error", "done"]),
@@ -347,6 +483,30 @@ export const useSession = () => {
       .catch(() => false);
   }
 
+  async function verifyEmail(payload: VerificationProps): Promise<boolean> {
+    if (!clientActor.value) return false;
+
+    service.send({ type: "VERIFY", data: payload });
+
+    return waitFor(
+      clientActor.value.service,
+      state =>
+        stateMatches(state, [
+          "available.verified",
+          "available.unverified.challenging.invalid" // the error state on verified goes back to invalid.
+        ]),
+      { timeout: 60000 }
+    )
+      .then(state => stateMatches(state, ["available.verified"]))
+      .catch(() => false);
+  }
+
+  function resendVerification(): void {
+    // The machine's `resend` region gates re-calls (RESEND only in `available`);
+    // the `resendVerification` service owns the POST + feedback.
+    service.send({ type: "RESEND" });
+  }
+
   async function register(model: any): Promise<boolean> {
     if (!guestActor.value) return true; // already logged in
 
@@ -355,7 +515,7 @@ export const useSession = () => {
       data: get(model, "value", model) // ensure we dont have any reactive refs
     });
 
-    return await waitFor(
+    return waitFor(
       guestActor.value.service,
       state =>
         stateMatches(state, ["complete", "available.register.error", "done"]),
@@ -375,7 +535,7 @@ export const useSession = () => {
       data: get(model, "value", model) // ensure we don't have any reactive refs
     });
 
-    return await waitFor(
+    return waitFor(
       guestActor.value.service,
       state =>
         stateMatches(state, [
@@ -396,7 +556,7 @@ export const useSession = () => {
 
     if (!clientActor.value?.service) return true; // were already logged out
 
-    return await waitFor(
+    return waitFor(
       clientActor.value.service,
       state => stateMatches(state, ["complete", "done"]),
       {
@@ -404,6 +564,79 @@ export const useSession = () => {
       }
     )
       .then(() => true)
+      .catch(() => false);
+  }
+
+  async function showAsGuest(): Promise<boolean> {
+    if (!guestActor.value) return true;
+
+    service.send({ type: "GUEST" });
+
+    return waitFor(
+      guestActor.value.service,
+      state => stateMatches(state, ["available.asGuest", "done"]),
+      { timeout: 60_000 }
+    )
+      .then(() => true)
+      .catch(() => false);
+  }
+
+  async function registerAsGuest(): Promise<boolean> {
+    if (!guestActor.value) return true;
+
+    service.send({ type: "GUEST" });
+
+    return waitFor(
+      guestActor.value.service,
+      state =>
+        stateMatches(state, ["complete", "available.asGuest.error", "done"]),
+      { timeout: 60_000 }
+    )
+      .then(state => !stateMatches(state, "available.asGuest.error"))
+      .catch(() => false);
+  }
+
+  async function completeRegistration(model: any): Promise<boolean> {
+    if (!clientActor.value) return false;
+
+    service.send({
+      type: "COMPLETE_REGISTRATION",
+      data: get(model, "value", model)
+    });
+
+    return waitFor(
+      clientActor.value.service,
+      state =>
+        stateMatches(state, [
+          // A successful upgrade lands the (now full) client in `verified` OR
+          // `unverified` — a freshly-registered email is unverified on a
+          // verify-enforcing brand. Both mean registration succeeded.
+          "available.verified",
+          "available.unverified",
+          "available.unregistered.error",
+          "complete",
+          "done"
+        ]),
+      { timeout: 60_000 }
+    )
+      .then(state => !stateMatches(state, "available.unregistered.error"))
+      .catch(() => false);
+  }
+
+  async function updateGuestEmail(email: string): Promise<boolean> {
+    if (!clientActor.value) return false;
+
+    service.send({
+      type: "UPDATE_GUEST_EMAIL",
+      data: { email }
+    });
+
+    return waitFor(
+      clientActor.value.service,
+      state => stateMatches(state, ["available", "done"]),
+      { timeout: 60_000 }
+    )
+      .then(() => !contextValue(clientActor, "error"))
       .catch(() => false);
   }
 
@@ -500,16 +733,23 @@ export const useSession = () => {
     service.send({ type: "TRANSFERRED" });
   }
 
+  function verifyFromLink(payload: VerificationProps): void {
+    service.send({ type: "VERIFY_EMAIL", data: payload });
+  }
+
   /**
    * Function to resolve an ongoing authentication or registration request.
    * @param {any} model
    * @returns {Promise<any>}
    */
   async function resolve(model: any): Promise<any> {
+    if (meta.value.isGuestClient) return completeRegistration(model);
     if (meta.value.showLoginForm && !meta.value.show2fa) return login(model);
     if (meta.value.show2fa) return verify2fa(model);
     if (meta.value.showRegisterForm) return register(model);
     if (meta.value.showRecoverPasswordForm) return recover(model);
+    if (meta.value.showAsGuestForm) return registerAsGuest();
+    if (meta.value.showVerifyEmailForm) return verifyEmail(model);
     return Promise.reject(
       new DetailedError(
         t("error.session_form_not_available"),
@@ -548,7 +788,7 @@ export const useSession = () => {
 
     if (!clientActor.value?.service) return true; // were already logged out
 
-    return await waitFor(
+    return waitFor(
       clientActor.value.service,
       state => stateMatches(state, ["available", "done"]),
       {
@@ -587,10 +827,15 @@ export const useSession = () => {
      * @property {boolean} isAvailable - Indicates whether the session is ready to be used.
      * @property {boolean} isProcessing - Indicates whether the session is currently processing an action.
      * @property {boolean} isAuthenticated - Indicates whether the client is authenticated within the session.
+     * @property {boolean} isUnverified - Indicates whether the authenticated client must verify their email before proceeding.
+     * @property {boolean} isCompletingRegistration - Indicates whether the client is completing guest registration.
+     * @property {boolean} isGuestClient - Indicates whether the client is a guest (checked out without full registration).
      * @property {boolean} isTransferring - Indicates whether the session is currently transferring data.
      * @property {boolean} hasExpired - Indicates whether the session has expired.
      * @property {boolean} showLoginForm - Indicates whether the login form should be displayed.
      * @property {boolean} show2fa - Indicates whether the two-factor authentication (2FA) challenge is required and should be shown (login or register).
+     * @property {boolean} showVerifyEmail - Indicates whether the email-verification challenge form should be shown (unverified client).
+     * @property {boolean} showAsGuestForm - Indicates whether the guest checkout form is active.
      * @property {boolean} showRegisterForm - Indicates whether the registration form should be displayed.
      * @property {boolean} showRecoverPasswordForm - Indicates whether the Send reset form should be displayed.
      * @property {boolean} canShowForms - Indicates whether any forms (login or register) can be shown to the client.
@@ -647,6 +892,10 @@ export const useSession = () => {
     clientId: computed((): Client["id"] | undefined => {
       return client.value?.id;
     }),
+
+    actorKey: computed(
+      () => `${client.value?.id ?? "anonymous"}:${meta.value.isGuestClient}`
+    ),
 
     // --- methods
 
@@ -709,6 +958,33 @@ export const useSession = () => {
     verify2fa,
 
     /**
+     * Resends the verification email to the unverified client's primary email,
+     * then starts a 60s cooldown. No-op while cooling down or if no email id is
+     * available. The verify form binds this directly — no timer/email lookup in
+     * the component.
+     */
+    resendVerification,
+
+    /**
+     * Submits the email verification code entered by an unverified client.
+     * @param {Object} payload The verification payload.
+     * @param {string} payload.code The verification code entered by the client.
+     * @returns {Promise<boolean>} Resolves `true` if verification succeeded and the client transitioned to `available`, `false` otherwise.
+     */
+    verifyEmail,
+
+    /**
+     * Verifies an email from a session-agnostic link (works logged out).
+     * Fire-and-forget: dispatches `VERIFY_EMAIL`; the session machine performs
+     * the verification, fires the success/failure toast, and re-checks.
+     * @param {Object} payload The verification payload.
+     * @param {string} payload.clientId The client whose email is being verified.
+     * @param {string} payload.emailId The email record being verified.
+     * @param {string} payload.hash The registration hash from the emailed link.
+     */
+    verifyFromLink,
+
+    /**
      * Transfer session data between different parts of the application, such as from guest to client.
      */
     transferTo,
@@ -737,6 +1013,21 @@ export const useSession = () => {
     transferred,
 
     /**
+     * Completes guest → full client registration.
+     */
+    completeRegistration,
+
+    /**
+     * Registers current session as guest client for checkout.
+     */
+    registerAsGuest,
+
+    /**
+     * Displays the guest checkout state.
+     */
+    showAsGuest,
+
+    /**
      * Displays the login form for client authentication.
      */
     showLogin,
@@ -747,9 +1038,26 @@ export const useSession = () => {
     showRegister,
 
     /**
+     * Drives the client machine's guest-email form (checkout email capture).
+     */
+    showGuestEmail,
+
+    /**
      * Displays the Send reset form for password recovery.
      */
     showRecoverPassword,
+
+    /**
+     * Awaits the verify-email form for an unverified client. The form is always
+     * ready while unverified (no machine event needed); visibility is owned by
+     * the verify-email overlay route (gated checkout).
+     */
+    showVerifyEmail,
+
+    /**
+     * Updates the guest client's email for receipt.
+     */
+    updateGuestEmail,
 
     /**
      * Sets the model for the session, typically used to update or initialize the data model

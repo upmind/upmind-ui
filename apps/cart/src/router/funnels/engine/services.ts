@@ -23,7 +23,8 @@ import {
   useConfig,
   UIContext,
   FunnelActions,
-  type FunnelTarget
+  type FunnelTarget,
+  type OverlayResponse
 } from "@upmind-automation/client-vue";
 import {
   BrandConfigKeys,
@@ -84,6 +85,23 @@ async function ensureBidAuth(
   }
 
   return basketId;
+}
+
+// -----------------------------------------------------------------------------
+
+/**
+ * Resolves a bid-aware `returnUrl` to the given funnel route — includes the
+ * basket segment + bid when a target basket is active, so post-auth/verify
+ * redirects land back on the correct basket-scoped URL.
+ */
+function bidReturnUrl(name: ROUTE): string {
+  const { router } = useRoutingEngine();
+  const { targetBasketId } = useBasket();
+  const bid = targetBasketId.value;
+  return router.resolve({
+    name,
+    params: bid ? { segment: "basket", bid } : {}
+  }).fullPath;
 }
 
 // -----------------------------------------------------------------------------
@@ -403,6 +421,7 @@ export default {
   },
 
   guardSession: async ({
+    currentRoute,
     targetRoute
   }: FunnelContext): Promise<FunnelResponse> => {
     const { router } = useRoutingEngine();
@@ -417,17 +436,31 @@ export default {
 
     const session = useSession();
 
-    // Wait for session to be fully ready and authenticated if a transition is in progress
-    await session.isReady();
+    // Always await the profile load — do NOT short-circuit on
+    // `meta.isAuthenticated`. That flag flips true as soon as we enter the
+    // client context, but the client `/self` may still be loading, so a
+    // downstream synchronous guard like `isGuestClient` (reads
+    // `client.value?.isGuest`) would see an empty client on refresh and return
+    // false. `isAuthenticated()` waits for the client actor to be available.
+    const isAuthed = await session
+      .isAuthenticated()
+      .then(() => true)
+      .catch(() => false);
 
-    // Check if we are authenticated. We use the check method to ensure
-    // we wait for the profile load to complete.
+    if (!isAuthed) {
+      return Promise.reject();
+    }
+
+    // Guest customers are authenticated but not yet fully registered. Unlike
+    // full clients — who get redirected away from auth pages — a guest must be
+    // allowed onto the register route so they can complete their registration.
+    // Rejecting here lets the SESSION_REGISTER state resolve and render the
+    // page (Register.vue shows <GuestRegistration auto-show /> when isGuestClient).
     if (
-      session.meta.value.isAuthenticated ||
-      (await session.isAuthenticated().catch(() => false))
+      session.meta.value.isGuestClient &&
+      (currentRoute?.name === ROUTE.SESSION_REGISTER ||
+        targetRoute?.name === ROUTE.SESSION_REGISTER)
     ) {
-      // We are authenticated and profile is loaded
-    } else {
       return Promise.reject();
     }
 
@@ -544,20 +577,24 @@ export default {
 
     // --- 1. Auth: Must be authenticated to proceed
     if (guards.needsAuth()) {
-      const { router } = useRoutingEngine();
-      const { targetBasketId } = useBasket();
-      const bid = targetBasketId.value;
-      const returnUrl = router.resolve({
-        name: ROUTE.CHECKOUT,
-        params: bid ? { segment: "basket", bid } : {}
-      }).fullPath;
-
       return Promise.reject({
         target: {
           name: ROUTE.SESSION,
-          query: { [QUERY_PARAMS.RETURN_URL]: returnUrl }
+          query: { [QUERY_PARAMS.RETURN_URL]: bidReturnUrl(ROUTE.CHECKOUT) }
         }
       } as FunnelResponse);
+    }
+
+    // Unverified clients must verify their email before checkout.
+    const { meta: sessionMeta } = useSession();
+    if (sessionMeta.value.isUnverified) {
+      return Promise.reject({
+        type: FunnelActions.OVERLAY,
+        target: {
+          name: ROUTE.CHECKOUT
+        },
+        overlay: ROUTE.OVERLAY_VERIFY_EMAIL
+      } as OverlayResponse);
     }
 
     // Must have products (that are not locked) to proceed
@@ -619,21 +656,15 @@ export default {
     // to load. Checkout handles the auth redirect.
     const { meta: authMeta } = useSession();
     if (!authMeta.value.isAuthenticated) {
-      const { router } = useRoutingEngine();
-      const { targetBasketId } = useBasket();
-      const bid = targetBasketId.value;
-      const returnUrl = router.resolve({
-        name: ROUTE.BILLING,
-        params: bid ? { segment: "basket", bid } : {}
-      }).fullPath;
       return {
         target: {
           name: ROUTE.SESSION,
-          query: { [QUERY_PARAMS.RETURN_URL]: returnUrl }
+          query: { [QUERY_PARAMS.RETURN_URL]: bidReturnUrl(ROUTE.BILLING) }
         }
       };
     }
 
+    // Load billing and check if it still needs input
     const { isReady: isBillingReady, meta: billingMeta } = useBasketBilling();
     await isBillingReady();
 
@@ -654,6 +685,29 @@ export default {
     }
 
     return { target: context.targetRoute ?? { name: ROUTE.BILLING } };
+  },
+
+  /**
+   * 🎯 Guard: VERIFY_EMAIL
+   *
+   * Gating only. Shows the code-entry form when the logged-in client is
+   * unverified; otherwise rejects so the funnel redirects away. Link-based
+   * verification is a session-agnostic concern owned by the session machine
+   * (see `useVerifyEmail`) and is not handled here.
+   */
+  guardVerifyEmail: async ({
+    targetRoute
+  }: FunnelContext): Promise<FunnelResponse> => {
+    const session = useSession();
+    await session.isAuthenticated();
+
+    // Show the code form only for a logged-in unverified client; otherwise the
+    // route is irrelevant — reject and let the funnel redirect away.
+    if (session.meta.value.isUnverified) {
+      return { target: targetRoute ?? { name: ROUTE.OVERLAY_VERIFY_EMAIL } };
+    }
+
+    return Promise.reject();
   },
 
   /**
