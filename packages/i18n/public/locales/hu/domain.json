@@ -1,17 +1,22 @@
 {
+  "basket_placeholder": "Válasszon ki egy domaint",
   "begin_search_above_desc": "Kezdje a keresést a fenti mező segítségével.",
   "choices": {
     "basket": {
-      "label": "Használja a kosárban lévő domaint",
+      "label": "Használjak egy domainnevet a kosaramból?",
       "tooltip": "Ezek a domainek már a kosaradban vannak"
     },
     "existing": {
-      "label": "Meglévő domain használata",
+      "label": "Használja a már meglévő domainnevemet",
       "tooltip": "Használhat meglévő domaint a névszerverek frissítésével"
     },
     "register": {
       "label": "Új domain regisztrálása",
       "tooltip": "Még nincs domainje? Regisztráljon újat nálunk"
+    },
+    "skip": {
+      "label": "Majd később döntök",
+      "tooltip": ""
     },
     "transfer": {
       "label": "Domain átvitele",
@@ -21,20 +26,43 @@
   "domain_description": "Biztosítsa online identitását még ma – csak egy percet vesz igénybe.",
   "domain_not_required_label": "Folytatás domain nélkül",
   "domain_title": "Adjon meg egy domain nevet.",
+  "error": {
+    "availability_check_failed": "Nem sikerült ellenőrizni a domain elérhetőségét",
+    "registration_add_failed": "A domain nem került a kosárba",
+    "transfer_add_failed": "Nem sikerült hozzáadni az áru kosárhoz",
+    "transfer_remove_failed": "Nem sikerült eltávolítani az átutalást a kosárból"
+  },
+  "existing": {
+    "add_registration": "Kosárba",
+    "add_transfer": "Átutalás hozzáadása",
+    "dns_info": "A domain használatához frissítenie kell a domain DNS-beállításait a jelenlegi regisztrátornál.",
+    "placeholder": "Kérjük, adja meg a használni kívánt domainnevet.",
+    "register_info": "Jó hír: ez a domain mindössze {price} dollárért regisztrálható, ami magában foglalja a {period} regisztrációs díjat is.",
+    "remove_transfer": "Átutalás törlése",
+    "transfer_added": "Átvitel hozzáadva",
+    "transfer_info": "Ha Ön a domain tulajdonosa, mindössze {transferPrice} ért átruházhatja hozzánk. A későbbi megújítások díja {term}. Alternatív megoldásként frissítenie kell a domain névkiszolgáló (NS) bejegyzéseit.",
+    "transfer_info_free": "Ha Ön a domain tulajdonosa, INGYEN átruházhatja hozzánk. A későbbi megújítások díja {term}. Alternatív megoldásként frissítenie kell a domain névkiszolgáló (NS) bejegyzéseit.",
+    "unavailable": "Ez a domain nem regisztrálható és nem ruházható át."
+  },
   "finding_perfect_domain": "A **tökéletes** domain megtalálása",
   "finding_perfect_domain_md": "@.markdown:{'domain.finding_perfect_domain'}",
   "own_domain_qn": "Öné ez a domain?",
   "owned_domains_title": "Jelenlegi tulajdonodban lévő domainek",
   "price_renewal_desc": "Egyszeri ár {regularPrice}. | Megújul minden évben {regularPrice}. | Megújul minden {count} évben {regularPrice}.",
-  "search": "Domainek keresése",
+  "registrant_use_billing_msg": "A számlázási adatait a domain regisztrálójának elérhetőségeként fogjuk használni.",
+  "search": "Írja be a keresni kívánt domaint",
   "starts_with_domain": "Minden egy **domain névvel** kezdődik",
   "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
+  "tld_renewal_info": "A megújítások ára {term}-tól kezdődik.",
   "tld_renewal_price_desc": "A miénk {tld} a megújítási árak már csak {currentPrice} (volt {regularPrice}).",
   "tld_renewal_price_from_desc": "A miénk {tld} a megújítási árak már csak {regularPrice}.",
   "transfer": "Átutalás mindössze {currentPrice}.",
   "transfer_domain": "Domain átvitel",
   "transfer_extension_info": "Az átigazolások egyéves hosszabbítást is magukban foglalnak.",
+  "transfer_free_info": "Ingyenesen átutalhatja nekünk.",
   "transfer_owner_question": "Ön a domain tulajdonosa?",
   "transfer_price_info": "Csak {currentPrice}",
-  "transfer_promotion": "Átutalás csak {currentPrice}, általában {regularPrice}."
+  "transfer_promotion": "Átutalás csak {currentPrice}, általában {regularPrice}.",
+  "transfer_today_info": "Még ma átutalhatja nekünk.",
+  "use_details_for": "Használja ezeket az adatokat a következőhöz:{domain}"
 }

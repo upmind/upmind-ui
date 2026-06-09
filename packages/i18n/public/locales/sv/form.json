@@ -18,22 +18,34 @@
     "label": "Tillåt automatisk betalning"
   },
   "auth_email": {
-    "error": "Ett användarnamn eller en e-postadress krävs",
-    "label": "Ditt användarnamn eller din e-postadress",
+    "error": "En e-postadress krävs",
+    "label": "Din e-postadress",
     "placeholder": "namn@epost.com"
   },
   "auth_password": {
     "error": {
       "min_length": "Lösenordet måste bestå av minst 8 tecken",
-      "min_length_lowercase": "Lösenordet måste bestå av minst 8 tecken och innehålla en gemen bokstav.",
-      "min_length_lowercase_number": "Lösenordet måste vara minst 8 tecken och innehålla minst en gemen (a–z) och en siffra (0–9)",
+      "min_length_letter": "Lösenordet måste bestå av minst 8 tecken och innehålla en bokstav",
+      "min_length_letter_number": "Lösenordet måste bestå av minst 8 tecken och innehålla en bokstav och en siffra",
+      "min_length_letter_number_symbol": "Lösenordet måste bestå av minst 8 tecken och innehålla en bokstav, en siffra och ett tecken",
+      "min_length_letter_symbol": "Lösenordet måste bestå av minst 8 tecken och innehålla en bokstav och ett tecken",
       "min_length_number": "Lösenordet måste bestå av minst 8 tecken och innehålla en siffra.",
-      "missing_lowercase": "Lösenordet måste innehålla en gemen bokstav",
-      "missing_lowercase_number": "Lösenordet måste innehålla en gemen bokstav och en siffra.",
-      "missing_number": "Lösenordet måste innehålla en siffra"
+      "min_length_number_symbol": "Lösenordet måste bestå av minst 8 tecken och innehålla en siffra och ett specialtecken",
+      "min_length_symbol": "Lösenordet måste bestå av minst 8 tecken och innehålla ett specialtecken",
+      "missing_letter": "Lösenordet måste innehålla en bokstav",
+      "missing_letter_number": "Lösenordet måste innehålla en bokstav och en siffra",
+      "missing_letter_number_symbol": "Lösenordet måste innehålla en bokstav, en siffra och ett tecken",
+      "missing_letter_symbol": "Lösenordet måste innehålla en bokstav och ett tecken",
+      "missing_number": "Lösenordet måste innehålla en siffra",
+      "missing_number_symbol": "Lösenordet måste innehålla en siffra och ett tecken",
+      "missing_symbol": "Lösenordet måste innehålla ett specialtecken"
     },
+    "generate": "Skapa ett starkt lösenord",
+    "hide": "Dölj lösenord",
+    "hint": "Lösenordet måste bestå av minst 8 tecken och innehålla en bokstav, en siffra och ett tecken.",
     "label": "Lösenord",
-    "placeholder": "Lösenord eller lösenfras"
+    "placeholder": "Lösenord eller lösenfras",
+    "show": "Visa lösenord"
   },
   "card_cvv": {
     "error": "Ett giltigt CVV krävs",
@@ -72,7 +84,7 @@
   },
   "companyNumber": {
     "label": "Företagsnummer",
-    "placeholder": "Registrerad skatt eller moms"
+    "placeholder": "Organisationsnummer"
   },
   "country": {
     "label": "Land",
@@ -87,6 +99,7 @@
   "email": {
     "error": "En giltig e-postadress krävs",
     "label": "E-post",
+    "placeholder": "namn@epost.com",
     "title": "Lägg till ny e-postadress | Uppdatera e-postadress"
   },
   "field_notes": {
@@ -96,6 +109,11 @@
     "error": "Ditt förnamn är obligatoriskt",
     "label": "Förnamn"
   },
+  "guest_email": {
+    "description": "Vi skickar din orderbekräftelse till den här e-postadressen",
+    "label": "E-post om mottagen beställning",
+    "placeholder": "namn@epost.com"
+  },
   "language": {
     "error": "Ditt språk är obligatoriskt",
     "label": "Språk"
@@ -103,9 +121,6 @@
   "lastname": {
     "error": "Ditt efternamn är obligatoriskt",
     "label": "Efternamn"
-  },
-  "login": {
-    "error": "Vi upplevde ett fel när vi försökte logga in dig."
   },
   "payment_details_id": {
     "label": ""
@@ -137,15 +152,9 @@
     "error": "Ditt offentliga namn är obligatoriskt",
     "label": "Offentligt namn"
   },
-  "recover": {
-    "error": "Vi uppstod ett fel när vi försökte skicka ett e-postmeddelande för återställning av lösenordet till dig."
-  },
   "region": {
     "label": "Område",
     "placeholder": "Välj en region…"
-  },
-  "register": {
-    "error": "Vi uppstod ett fel när vi försökte skapa ditt konto."
   },
   "select_option": {
     "placeholder": "Välj ett alternativ"
@@ -155,6 +164,10 @@
   },
   "stored_payment_method": {
     "label": ""
+  },
+  "taxNumber": {
+    "label": "Registrerat organisationsnummer",
+    "placeholder": "Organisationsnummer/momsnummer"
   },
   "twofa": {
     "description": "Det här kontot är skyddat med tvåfaktorsautentisering. Ange din verifieringskod.",
