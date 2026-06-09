@@ -18,22 +18,34 @@
     "label": "Povolit automatické platby"
   },
   "auth_email": {
-    "error": "Je vyžadováno uživatelské jméno nebo e-mailová adresa",
-    "label": "Vaše uživatelské jméno nebo e-mailová adresa",
+    "error": "E-mailová adresa je povinná",
+    "label": "Váš e-mail",
     "placeholder": "jméno@email.com"
   },
   "auth_password": {
     "error": {
       "min_length": "Heslo musí mít alespoň 8 znaků.",
-      "min_length_lowercase": "Heslo musí mít alespoň 8 znaků a obsahovat malé písmeno.",
-      "min_length_lowercase_number": "Heslo musí mít alespoň 8 znaků, obsahovat malé písmeno a číslici",
+      "min_length_letter": "Heslo musí mít alespoň 8 znaků a obsahovat písmeno",
+      "min_length_letter_number": "Heslo musí mít alespoň 8 znaků a musí obsahovat jedno písmeno a jednu číslici",
+      "min_length_letter_number_symbol": "Heslo musí mít alespoň 8 znaků a musí obsahovat písmeno, číslici a znak",
+      "min_length_letter_symbol": "Heslo musí mít alespoň 8 znaků a musí obsahovat jedno písmeno a jeden symbol",
       "min_length_number": "Heslo musí mít alespoň 8 znaků a obsahovat číslo.",
-      "missing_lowercase": "Heslo musí obsahovat malé písmeno",
-      "missing_lowercase_number": "Heslo musí obsahovat malé písmeno a číslo.",
-      "missing_number": "Heslo musí obsahovat číslo"
+      "min_length_number_symbol": "Heslo musí mít alespoň 8 znaků a musí obsahovat číslici a speciální znak",
+      "min_length_symbol": "Heslo musí mít alespoň 8 znaků a obsahovat speciální znak",
+      "missing_letter": "Heslo musí obsahovat písmeno",
+      "missing_letter_number": "Heslo musí obsahovat jedno písmeno a jednu číslici",
+      "missing_letter_number_symbol": "Heslo musí obsahovat písmeno, číslici a znak",
+      "missing_letter_symbol": "Heslo musí obsahovat jedno písmeno a jeden znak",
+      "missing_number": "Heslo musí obsahovat číslo",
+      "missing_number_symbol": "Heslo musí obsahovat číslici a znak",
+      "missing_symbol": "Heslo musí obsahovat speciální znak"
     },
+    "generate": "Vytvořte silné heslo",
+    "hide": "Skrýt heslo",
+    "hint": "Heslo musí mít alespoň 8 znaků a musí obsahovat písmeno, číslici a znak.",
     "label": "Heslo",
-    "placeholder": "Heslo nebo přístupová fráze"
+    "placeholder": "Heslo nebo přístupová fráze",
+    "show": "Zobrazit heslo"
   },
   "card_cvv": {
     "error": "Je vyžadován platný CVV",
@@ -72,7 +84,7 @@
   },
   "companyNumber": {
     "label": "IČO",
-    "placeholder": "Registrovaná daň nebo DPH"
+    "placeholder": "Identifikační číslo společnosti"
   },
   "country": {
     "label": "Země",
@@ -87,6 +99,7 @@
   "email": {
     "error": "Je vyžadována platná e-mailová adresa",
     "label": "E-mail",
+    "placeholder": "jméno@email.com",
     "title": "Přidat nový e-mail | Aktualizovat e-mail"
   },
   "field_notes": {
@@ -96,6 +109,11 @@
     "error": "Vaše křestní jméno je povinné",
     "label": "Křestní jméno"
   },
+  "guest_email": {
+    "description": "Potvrzení objednávky vám zašleme na tuto e-mailovou adresu",
+    "label": "E-mail pro potvrzení objednávky",
+    "placeholder": "jméno@email.com"
+  },
   "language": {
     "error": "Váš jazyk je povinný",
     "label": "Jazyk"
@@ -103,9 +121,6 @@
   "lastname": {
     "error": "Vaše příjmení je povinné",
     "label": "Příjmení"
-  },
-  "login": {
-    "error": "Při pokusu o vaše přihlášení došlo k chybě."
   },
   "payment_details_id": {
     "label": ""
@@ -137,15 +152,9 @@
     "error": "Vaše veřejné jméno je povinné",
     "label": "Veřejný název"
   },
-  "recover": {
-    "error": "Při pokusu o odeslání e-mailu pro obnovení hesla došlo k chybě."
-  },
   "region": {
     "label": "Kraj",
     "placeholder": "Vyberte oblast…"
-  },
-  "register": {
-    "error": "Při pokusu o vytvoření vašeho účtu došlo k chybě."
   },
   "select_option": {
     "placeholder": "Vyberte možnost"
@@ -155,6 +164,10 @@
   },
   "stored_payment_method": {
     "label": ""
+  },
+  "taxNumber": {
+    "label": "IČO",
+    "placeholder": "Daňové identifikační číslo / Číslo pro účely DPH / Číslo pro účely GST"
   },
   "twofa": {
     "description": "Tento účet je zabezpečen dvoufaktorovým ověřováním. Zadejte prosím svůj ověřovací kód.",

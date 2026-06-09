@@ -18,22 +18,34 @@
     "label": "Zezwól na automatyczną płatność"
   },
   "auth_email": {
-    "error": "Wymagana jest nazwa użytkownika lub adres e-mail",
-    "label": "Twoja nazwa użytkownika lub adres e-mail",
+    "error": "Wymagany jest adres e-mail",
+    "label": "Twój adres e-mail",
     "placeholder": "nazwa@email.com"
   },
   "auth_password": {
     "error": {
       "min_length": "Hasło musi mieć co najmniej 8 znaków.",
-      "min_length_lowercase": "Hasło musi mieć co najmniej 8 znaków i zawierać małą literę.",
-      "min_length_lowercase_number": "Hasło musi mieć co najmniej 8 znaków, zawierać małą literę oraz cyfrę",
+      "min_length_letter": "Hasło musi składać się z co najmniej 8 znaków i zawierać literę",
+      "min_length_letter_number": "Hasło musi składać się z co najmniej 8 znaków oraz zawierać literę i cyfrę",
+      "min_length_letter_number_symbol": "Hasło musi składać się z co najmniej 8 znaków i zawierać literę, cyfrę oraz znak specjalny",
+      "min_length_letter_symbol": "Hasło musi składać się z co najmniej 8 znaków, zawierać literę oraz znak specjalny",
       "min_length_number": "Hasło musi mieć co najmniej 8 znaków i zawierać cyfrę.",
-      "missing_lowercase": "Hasło musi zawierać małą literę.",
-      "missing_lowercase_number": "Hasło musi zawierać małą literę i cyfrę.",
-      "missing_number": "Hasło musi zawierać cyfrę."
+      "min_length_number_symbol": "Hasło musi składać się z co najmniej 8 znaków oraz zawierać cyfrę i znak specjalny",
+      "min_length_symbol": "Hasło musi składać się z co najmniej 8 znaków i zawierać znak specjalny",
+      "missing_letter": "Hasło musi zawierać literę",
+      "missing_letter_number": "Hasło musi zawierać literę i cyfrę",
+      "missing_letter_number_symbol": "Hasło musi zawierać literę, cyfrę i znak specjalny",
+      "missing_letter_symbol": "Hasło musi zawierać literę i znak specjalny",
+      "missing_number": "Hasło musi zawierać cyfrę.",
+      "missing_number_symbol": "Hasło musi zawierać cyfrę i znak specjalny",
+      "missing_symbol": "Hasło musi zawierać znak specjalny"
     },
+    "generate": "Utwórz silne hasło",
+    "hide": "Ukryj hasło",
+    "hint": "Hasło musi składać się z co najmniej 8 znaków i zawierać literę, cyfrę oraz znak specjalny.",
     "label": "Hasło",
-    "placeholder": "Hasło lub fraza tajna"
+    "placeholder": "Hasło lub fraza tajna",
+    "show": "Pokaż hasło"
   },
   "card_cvv": {
     "error": "Wymagany jest prawidłowy CVV",
@@ -72,7 +84,7 @@
   },
   "companyNumber": {
     "label": "Numer firmy",
-    "placeholder": "Zarejestrowany podatek lub GST"
+    "placeholder": "Numer identyfikacyjny przedsiębiorstwa"
   },
   "country": {
     "label": "Kraj",
@@ -87,6 +99,7 @@
   "email": {
     "error": "Wymagany jest prawidłowy adres e-mail",
     "label": "E-mail",
+    "placeholder": "nazwa@email.com",
     "title": "Dodaj nowy adres e-mail | Zaktualizuj adres e-mail"
   },
   "field_notes": {
@@ -96,6 +109,11 @@
     "error": "Twoje imię jest wymagane",
     "label": "Imię"
   },
+  "guest_email": {
+    "description": "Wyślemy potwierdzenie zamówienia na ten adres e-mail",
+    "label": "E-mail z potwierdzeniem zamówienia",
+    "placeholder": "nazwa@email.com"
+  },
   "language": {
     "error": "Twój język jest wymagany",
     "label": "Język"
@@ -103,9 +121,6 @@
   "lastname": {
     "error": "Twoje nazwisko jest wymagane",
     "label": "Nazwisko"
-  },
-  "login": {
-    "error": "Wystąpił błąd podczas próby zalogowania."
   },
   "payment_details_id": {
     "label": ""
@@ -137,15 +152,9 @@
     "error": "Twoje imię publiczne jest wymagane",
     "label": "Nazwa publiczna"
   },
-  "recover": {
-    "error": "Wystąpił błąd podczas próby wysłania do Ciebie wiadomości e-mail umożliwiającej zresetowanie hasła."
-  },
   "region": {
     "label": "Region",
     "placeholder": "Wybierz region…"
-  },
-  "register": {
-    "error": "Wystąpił błąd podczas próby utworzenia konta."
   },
   "select_option": {
     "placeholder": "Wybierz opcję"
@@ -155,6 +164,10 @@
   },
   "stored_payment_method": {
     "label": ""
+  },
+  "taxNumber": {
+    "label": "Numer identyfikacji podatkowej",
+    "placeholder": "Numer identyfikacji podatkowej/NIP/GST"
   },
   "twofa": {
     "description": "To konto jest zabezpieczone uwierzytelnianiem dwuskładnikowym. Wprowadź kod weryfikacyjny.",

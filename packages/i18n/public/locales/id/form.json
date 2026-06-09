@@ -18,22 +18,34 @@
     "label": "Izinkan pembayaran otomatis"
   },
   "auth_email": {
-    "error": "Nama pengguna atau alamat email diperlukan",
-    "label": "Nama pengguna atau alamat email Anda",
+    "error": "Alamat email wajib diisi",
+    "label": "Alamat email Anda",
     "placeholder": "nama@email.com"
   },
   "auth_password": {
     "error": {
       "min_length": "Kata sandi harus terdiri dari minimal 8 karakter.",
-      "min_length_lowercase": "Kata sandi harus terdiri dari minimal 8 karakter dan mengandung huruf kecil.",
-      "min_length_lowercase_number": "Kata sandi harus minimal 8 karakter, mengandung setidaknya satu huruf Latin kecil (a–z), dan setidaknya satu digit (0–9).",
+      "min_length_letter": "Kata sandi harus terdiri dari minimal 8 karakter dan mengandung satu huruf",
+      "min_length_letter_number": "Kata sandi harus terdiri dari minimal 8 karakter, serta mengandung satu huruf dan satu angka",
+      "min_length_letter_number_symbol": "Kata sandi harus terdiri dari minimal 8 karakter, serta mengandung satu huruf, satu angka, dan satu simbol",
+      "min_length_letter_symbol": "Kata sandi harus terdiri dari minimal 8 karakter, serta mengandung satu huruf dan satu simbol",
       "min_length_number": "Kata sandi harus terdiri dari minimal 8 karakter dan mengandung angka.",
-      "missing_lowercase": "Kata sandi harus mengandung huruf kecil.",
-      "missing_lowercase_number": "Kata sandi harus mengandung huruf kecil dan angka.",
-      "missing_number": "Kata sandi harus mengandung angka."
+      "min_length_number_symbol": "Kata sandi harus terdiri dari minimal 8 karakter, serta mengandung satu angka dan satu simbol",
+      "min_length_symbol": "Kata sandi harus terdiri dari minimal 8 karakter dan mengandung satu simbol",
+      "missing_letter": "Kata sandi harus berisi satu huruf",
+      "missing_letter_number": "Kata sandi harus terdiri dari satu huruf dan satu angka",
+      "missing_letter_number_symbol": "Kata sandi harus terdiri dari satu huruf, satu angka, dan satu simbol",
+      "missing_letter_symbol": "Kata sandi harus berisi satu huruf dan satu simbol",
+      "missing_number": "Kata sandi harus mengandung angka.",
+      "missing_number_symbol": "Kata sandi harus berisi angka dan simbol",
+      "missing_symbol": "Kata sandi harus mengandung satu karakter khusus"
     },
+    "generate": "Buat kata sandi yang kuat",
+    "hide": "Sembunyikan kata sandi",
+    "hint": "Kata sandi harus terdiri dari minimal 8 karakter dan harus mengandung satu huruf, satu angka, dan satu simbol.",
     "label": "Kata sandi",
-    "placeholder": "Kata sandi atau frasa sandi"
+    "placeholder": "Kata sandi atau frasa sandi",
+    "show": "Tampilkan kata sandi"
   },
   "card_cvv": {
     "error": "Diperlukan CVV yang valid",
@@ -72,7 +84,7 @@
   },
   "companyNumber": {
     "label": "Nomor Perusahaan",
-    "placeholder": "Pajak terdaftar atau GST"
+    "placeholder": "Nomor Identifikasi Perusahaan"
   },
   "country": {
     "label": "Negara",
@@ -87,6 +99,7 @@
   "email": {
     "error": "Alamat Email yang valid diperlukan",
     "label": "E-mail",
+    "placeholder": "nama@email.com",
     "title": "Tambahkan Email Baru | Perbarui Email"
   },
   "field_notes": {
@@ -96,6 +109,11 @@
     "error": "Nama depan Anda diperlukan",
     "label": "Nama depan"
   },
+  "guest_email": {
+    "description": "Kami akan mengirimkan konfirmasi pesanan Anda ke alamat email ini",
+    "label": "Email untuk konfirmasi pesanan",
+    "placeholder": "nama@email.com"
+  },
   "language": {
     "error": "Bahasa Anda diperlukan",
     "label": "Bahasa"
@@ -103,9 +121,6 @@
   "lastname": {
     "error": "Nama belakang Anda diperlukan",
     "label": "Nama belakang"
-  },
-  "login": {
-    "error": "Kami mengalami kesalahan saat mencoba memasukkan Anda."
   },
   "payment_details_id": {
     "label": ""
@@ -137,15 +152,9 @@
     "error": "Nama publik Anda wajib diisi.",
     "label": "Nama publik"
   },
-  "recover": {
-    "error": "Kami mengalami kesalahan saat mencoba mengirimi Anda email pengaturan ulang kata sandi."
-  },
   "region": {
     "label": "Wilayah",
     "placeholder": "Pilih wilayah…"
-  },
-  "register": {
-    "error": "Kami mengalami kesalahan saat mencoba membuat akun Anda."
   },
   "select_option": {
     "placeholder": "Pilih opsi"
@@ -155,6 +164,10 @@
   },
   "stored_payment_method": {
     "label": ""
+  },
+  "taxNumber": {
+    "label": "Nomor Identifikasi Pajak",
+    "placeholder": "Nomor NPWP/PPN/PPN-P"
   },
   "twofa": {
     "description": "Akun ini diamankan menggunakan otentikasi dua faktor. Silakan masukkan kode verifikasi Anda.",

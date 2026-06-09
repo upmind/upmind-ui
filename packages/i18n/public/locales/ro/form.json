@@ -18,22 +18,34 @@
     "label": "Permiteți plata automată"
   },
   "auth_email": {
-    "error": "Este necesar un nume de utilizator sau o adresă de e-mail",
-    "label": "Numele dvs. de utilizator sau adresa de e-mail",
+    "error": "Este necesară o adresă de e-mail",
+    "label": "Adresa ta de e-mail",
     "placeholder": "nume@email.com"
   },
   "auth_password": {
     "error": {
       "min_length": "Parola trebuie să aibă cel puțin 8 caractere",
-      "min_length_lowercase": "Parola trebuie să aibă cel puțin 8 caractere și să conțină o literă mică.",
-      "min_length_lowercase_number": "Parola trebuie să aibă cel puțin 8 caractere, să conțină o literă minusculă și o cifră.",
+      "min_length_letter": "Parola trebuie să aibă cel puțin 8 caractere și să conțină o literă",
+      "min_length_letter_number": "Parola trebuie să aibă cel puțin 8 caractere și să conțină o literă și o cifră",
+      "min_length_letter_number_symbol": "Parola trebuie să aibă cel puțin 8 caractere și să conțină o literă, o cifră și un simbol",
+      "min_length_letter_symbol": "Parola trebuie să aibă cel puțin 8 caractere, să conțină o literă și un simbol",
       "min_length_number": "Parola trebuie să aibă cel puțin 8 caractere și să conțină un număr.",
-      "missing_lowercase": "Parola trebuie să conțină o literă mică",
-      "missing_lowercase_number": "Parola trebuie să conțină o literă mică și un număr.",
-      "missing_number": "Parola trebuie să conțină un număr"
+      "min_length_number_symbol": "Parola trebuie să aibă cel puțin 8 caractere, să conțină o cifră și un simbol",
+      "min_length_symbol": "Parola trebuie să aibă cel puțin 8 caractere și să conțină un simbol",
+      "missing_letter": "Parola trebuie să conțină o literă",
+      "missing_letter_number": "Parola trebuie să conțină o literă și o cifră",
+      "missing_letter_number_symbol": "Parola trebuie să conțină o literă, o cifră și un simbol",
+      "missing_letter_symbol": "Parola trebuie să conțină o literă și un simbol",
+      "missing_number": "Parola trebuie să conțină un număr",
+      "missing_number_symbol": "Parola trebuie să conțină o cifră și un simbol",
+      "missing_symbol": "Parola trebuie să conțină un caracter special"
     },
+    "generate": "Creează o parolă puternică",
+    "hide": "Ascunde parola",
+    "hint": "Parola trebuie să aibă cel puțin 8 caractere și să conțină o literă, o cifră și un simbol.",
     "label": "Parolă",
-    "placeholder": "Parolă sau frază de acces"
+    "placeholder": "Parolă sau frază de acces",
+    "show": "Afișează parola"
   },
   "card_cvv": {
     "error": "Este necesar un CVV valid",
@@ -72,7 +84,7 @@
   },
   "companyNumber": {
     "label": "Numărul companiei",
-    "placeholder": "Taxă înregistrată sau GST"
+    "placeholder": "Numărul de identificare al societății"
   },
   "country": {
     "label": "Țara",
@@ -87,6 +99,7 @@
   "email": {
     "error": "Este necesară o adresă de email validă",
     "label": "E-mail",
+    "placeholder": "nume@email.com",
     "title": "Adăugați o adresă de e-mail nouă | Actualizați adresa de e-mail"
   },
   "field_notes": {
@@ -96,6 +109,11 @@
     "error": "Prenumele dumneavoastră este obligatoriu",
     "label": "Prenume"
   },
+  "guest_email": {
+    "description": "Îți vom trimite confirmarea comenzii la această adresă de e-mail",
+    "label": "E-mail pentru confirmarea comenzii",
+    "placeholder": "nume@email.com"
+  },
   "language": {
     "error": "Limba dvs. este obligatorie",
     "label": "Limbă"
@@ -103,9 +121,6 @@
   "lastname": {
     "error": "Numele dumneavoastră de familie este obligatoriu",
     "label": "Nume"
-  },
-  "login": {
-    "error": "Am întâmpinat o eroare la încercarea de a vă conecta."
   },
   "payment_details_id": {
     "label": ""
@@ -137,15 +152,9 @@
     "error": "Numele tău public este obligatoriu",
     "label": "Nume public"
   },
-  "recover": {
-    "error": "Am întâmpinat o eroare în timp ce încercam să vă trimitem un e-mail de resetare a parolei."
-  },
   "region": {
     "label": "Regiune",
     "placeholder": "Selectați o regiune…"
-  },
-  "register": {
-    "error": "Am întâmpinat o eroare în timp ce încercam să vă creăm contul."
   },
   "select_option": {
     "placeholder": "Selectați o opțiune"
@@ -155,6 +164,10 @@
   },
   "stored_payment_method": {
     "label": ""
+  },
+  "taxNumber": {
+    "label": "Cod fiscal",
+    "placeholder": "Cod fiscal/Număr de înregistrare TVA/GST"
   },
   "twofa": {
     "description": "Acest cont este securizat folosind autentificarea cu doi factori. Vă rugăm să introduceți codul de verificare.",

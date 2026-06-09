@@ -18,22 +18,34 @@
     "label": "Consenti il pagamento automatico"
   },
   "auth_email": {
-    "error": "È richiesto un nome utente o un indirizzo email",
-    "label": "Il tuo nome utente o indirizzo email",
+    "error": "È necessario un indirizzo e-mail",
+    "label": "La tua e-mail",
     "placeholder": "nome@email.com"
   },
   "auth_password": {
     "error": {
       "min_length": "La password deve contenere almeno 8 caratteri",
-      "min_length_lowercase": "La password deve contenere almeno 8 caratteri e una lettera minuscola.",
-      "min_length_lowercase_number": "La password deve avere almeno 8 caratteri, contenere una lettera minuscola e una cifra",
+      "min_length_letter": "La password deve essere composta da almeno 8 caratteri e contenere una lettera",
+      "min_length_letter_number": "La password deve essere composta da almeno 8 caratteri e contenere una lettera e un numero",
+      "min_length_letter_number_symbol": "La password deve contenere almeno 8 caratteri, tra cui una lettera, un numero e un simbolo",
+      "min_length_letter_symbol": "La password deve essere composta da almeno 8 caratteri e contenere una lettera e un simbolo",
       "min_length_number": "La password deve contenere almeno 8 caratteri e un numero.",
-      "missing_lowercase": "La password deve contenere una lettera minuscola",
-      "missing_lowercase_number": "La password deve contenere una lettera minuscola e un numero",
-      "missing_number": "La password deve contenere un numero"
+      "min_length_number_symbol": "La password deve contenere almeno 8 caratteri, un numero e un simbolo",
+      "min_length_symbol": "La password deve contenere almeno 8 caratteri e un simbolo",
+      "missing_letter": "La password deve contenere una lettera",
+      "missing_letter_number": "La password deve contenere una lettera e un numero",
+      "missing_letter_number_symbol": "La password deve contenere una lettera, un numero e un carattere speciale",
+      "missing_letter_symbol": "La password deve contenere una lettera e un carattere speciale",
+      "missing_number": "La password deve contenere un numero",
+      "missing_number_symbol": "La password deve contenere un numero e un carattere speciale",
+      "missing_symbol": "La password deve contenere un carattere speciale"
     },
+    "generate": "Crea una password sicura",
+    "hide": "Nascondi password",
+    "hint": "La password deve contenere almeno 8 caratteri e includere una lettera, un numero e un simbolo.",
     "label": "Password",
-    "placeholder": "Password o frase segreta"
+    "placeholder": "Password o frase segreta",
+    "show": "Mostra password"
   },
   "card_cvv": {
     "error": "È richiesto un CVV valido",
@@ -72,7 +84,7 @@
   },
   "companyNumber": {
     "label": "Numero di società",
-    "placeholder": "Imposta registrata o GST"
+    "placeholder": "Numero di identificazione aziendale"
   },
   "country": {
     "label": "Paese",
@@ -87,6 +99,7 @@
   "email": {
     "error": "È necessario un indirizzo email valido",
     "label": "E-mail",
+    "placeholder": "nome@email.com",
     "title": "Aggiungi nuova email | Aggiorna email"
   },
   "field_notes": {
@@ -96,6 +109,11 @@
     "error": "Il tuo nome è obbligatorio",
     "label": "Nome di battesimo"
   },
+  "guest_email": {
+    "description": "Ti invieremo la conferma dell'ordine a questo indirizzo e-mail",
+    "label": "E-mail di conferma dell'ordine",
+    "placeholder": "nome@email.com"
+  },
   "language": {
     "error": "La tua lingua è obbligatoria",
     "label": "Lingua"
@@ -103,9 +121,6 @@
   "lastname": {
     "error": "Il tuo cognome è obbligatorio",
     "label": "Cognome"
-  },
-  "login": {
-    "error": "Si è verificato un errore durante il tentativo di accesso."
   },
   "payment_details_id": {
     "label": ""
@@ -137,15 +152,9 @@
     "error": "Il tuo nome pubblico è obbligatorio",
     "label": "Nome pubblico"
   },
-  "recover": {
-    "error": "Si è verificato un errore durante il tentativo di inviarti un'e-mail per reimpostare la password."
-  },
   "region": {
     "label": "Regione",
     "placeholder": "Seleziona una regione…"
-  },
-  "register": {
-    "error": "Si è verificato un errore durante il tentativo di creare il tuo account."
   },
   "select_option": {
     "placeholder": "Seleziona un'opzione"
@@ -155,6 +164,10 @@
   },
   "stored_payment_method": {
     "label": ""
+  },
+  "taxNumber": {
+    "label": "Codice fiscale",
+    "placeholder": "Codice fiscale/Partita IVA/Codice GST"
   },
   "twofa": {
     "description": "Questo account è protetto tramite autenticazione a due fattori. Inserisci il tuo codice di verifica.",

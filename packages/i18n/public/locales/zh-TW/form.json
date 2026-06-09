@@ -18,22 +18,34 @@
     "label": "允許自動付款"
   },
   "auth_email": {
-    "error": "需要使用者名稱或電子郵件地址",
-    "label": "您的使用者名稱或電子郵件地址",
-    "placeholder": "name@email.com"
+    "error": "必須提供電子郵件地址",
+    "label": "您的電子郵件",
+    "placeholder": "姓名@email.com"
   },
   "auth_password": {
     "error": {
       "min_length": "密碼必須至少包含8個字元",
-      "min_length_lowercase": "密碼必須至少包含8個字元，並包含一個小寫字母",
-      "min_length_lowercase_number": "密碼須至少 8 個字元，且包含 1 個小寫英文字母與 1 個數字",
+      "min_length_letter": "密碼必須至少包含 8 個字元，且必須包含一個字母",
+      "min_length_letter_number": "密碼必須至少包含 8 個字元，並包含一個字母和一個數字",
+      "min_length_letter_number_symbol": "密碼必須至少包含 8 個字元，並包含一個字母、一個數字和一個符號",
+      "min_length_letter_symbol": "密碼必須至少包含 8 個字元，並包含一個字母和一個符號",
       "min_length_number": "密碼必須至少包含8個字元，並包含一個數字。",
-      "missing_lowercase": "密碼必須包含小寫字母",
-      "missing_lowercase_number": "密碼必須包含一個小寫字母和一個數字",
-      "missing_number": "密碼必須包含一個數字"
+      "min_length_number_symbol": "密碼必須至少包含 8 個字元，並包含一個數字和一個符號",
+      "min_length_symbol": "密碼必須至少包含 8 個字元，並包含一個符號",
+      "missing_letter": "密碼必須包含一個字母",
+      "missing_letter_number": "密碼必須包含一個字母和一個數字",
+      "missing_letter_number_symbol": "密碼必須包含一個字母、一個數字和一個符號",
+      "missing_letter_symbol": "密碼必須包含一個字母和一個符號",
+      "missing_number": "密碼必須包含一個數字",
+      "missing_number_symbol": "密碼必須包含一個數字和一個符號",
+      "missing_symbol": "密碼必須包含一個符號"
     },
+    "generate": "產生一個強密碼",
+    "hide": "隱藏密碼",
+    "hint": "密碼必須至少包含 8 個字元，並包含一個字母、一個數字和一個符號。",
     "label": "密碼",
-    "placeholder": "密碼或口令"
+    "placeholder": "密碼或口令",
+    "show": "顯示密碼"
   },
   "card_cvv": {
     "error": "需要有效的CVV",
@@ -72,7 +84,7 @@
   },
   "companyNumber": {
     "label": "公司編號",
-    "placeholder": "註冊稅務或商品及服務稅"
+    "placeholder": "公司識別號碼"
   },
   "country": {
     "label": "國家",
@@ -87,6 +99,7 @@
   "email": {
     "error": "需要有效的電子郵件地址",
     "label": "電子郵件",
+    "placeholder": "姓名@email.com",
     "title": "新增電子郵件 | 更新電子郵件"
   },
   "field_notes": {
@@ -96,6 +109,11 @@
     "error": "需要您的名字",
     "label": "名"
   },
+  "guest_email": {
+    "description": "我們將把您的訂單確認信寄至此電子郵件地址",
+    "label": "訂單確認信",
+    "placeholder": "姓名@email.com"
+  },
   "language": {
     "error": "您需要輸入的語言",
     "label": "語言"
@@ -103,9 +121,6 @@
   "lastname": {
     "error": "您的姓氏是必填項",
     "label": "姓"
-  },
-  "login": {
-    "error": "我們在嘗試登入時遇到錯誤。"
   },
   "payment_details_id": {
     "label": ""
@@ -137,15 +152,9 @@
     "error": "您的公開姓名是必填。",
     "label": "公共名稱"
   },
-  "recover": {
-    "error": "我們在嘗試向您發送密碼重設電子郵件時遇到錯誤。"
-  },
   "region": {
     "label": "地區",
     "placeholder": "選擇一個地區…"
-  },
-  "register": {
-    "error": "我們在嘗試建立您的帳戶時遇到錯誤。"
   },
   "select_option": {
     "placeholder": "選擇一個選項"
@@ -155,6 +164,10 @@
   },
   "stored_payment_method": {
     "label": ""
+  },
+  "taxNumber": {
+    "label": "註冊稅務編號",
+    "placeholder": "稅務編號／增值稅號／商品及服務稅號"
   },
   "twofa": {
     "description": "此帳戶已啟用雙重驗證，請輸入驗證碼。",

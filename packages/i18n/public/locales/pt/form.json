@@ -18,22 +18,34 @@
     "label": "Permitir pagamento automático"
   },
   "auth_email": {
-    "error": "É necessário um nome de utilizador ou endereço de e-mail.",
-    "label": "O seu nome de utilizador ou endereço de e-mail",
-    "placeholder": "name@email.com"
+    "error": "É necessário um endereço de e-mail",
+    "label": "O seu e-mail",
+    "placeholder": "nome@email.com"
   },
   "auth_password": {
     "error": {
       "min_length": "A palavra-passe deve ter pelo menos 8 caracteres",
-      "min_length_lowercase": "A palavra-passe deve ter pelo menos 8 caracteres e conter uma letra minúscula.",
-      "min_length_lowercase_number": "A palavra-passe deve ter pelo menos 8 caracteres, incluir uma letra minúscula e um número",
+      "min_length_letter": "A palavra-passe deve ter, pelo menos, 8 caracteres e conter uma letra",
+      "min_length_letter_number": "A palavra-passe deve ter, pelo menos, 8 caracteres e conter uma letra e um número",
+      "min_length_letter_number_symbol": "A palavra-passe deve ter, pelo menos, 8 caracteres e conter uma letra, um número e um símbolo",
+      "min_length_letter_symbol": "A palavra-passe deve ter, pelo menos, 8 caracteres e conter uma letra e um símbolo",
       "min_length_number": "A palavra-passe deve ter pelo menos 8 caracteres e conter um número.",
-      "missing_lowercase": "A palavra-passe deve conter uma letra minúscula",
-      "missing_lowercase_number": "A palavra-passe deve conter uma letra minúscula e um número",
-      "missing_number": "A palavra-passe deve conter um número"
+      "min_length_number_symbol": "A palavra-passe deve ter, pelo menos, 8 caracteres e conter um número e um símbolo",
+      "min_length_symbol": "A palavra-passe deve ter, pelo menos, 8 caracteres e conter um símbolo",
+      "missing_letter": "A palavra-passe deve conter uma letra",
+      "missing_letter_number": "A palavra-passe deve conter uma letra e um número",
+      "missing_letter_number_symbol": "A palavra-passe deve conter uma letra, um número e um símbolo",
+      "missing_letter_symbol": "A palavra-passe deve conter uma letra e um símbolo",
+      "missing_number": "A palavra-passe deve conter um número",
+      "missing_number_symbol": "A palavra-passe deve conter um número e um símbolo",
+      "missing_symbol": "A palavra-passe deve conter um símbolo"
     },
+    "generate": "Crie uma palavra-passe segura",
+    "hide": "Ocultar palavra-passe",
+    "hint": "A palavra-passe deve ter, pelo menos, 8 caracteres e incluir uma letra, um número e um símbolo.",
     "label": "Palavra-passe",
-    "placeholder": "Palavra-passe ou frase secreta"
+    "placeholder": "Palavra-passe ou frase secreta",
+    "show": "Mostrar palavra-passe"
   },
   "card_cvv": {
     "error": "É necessário um CVV válido",
@@ -72,7 +84,7 @@
   },
   "companyNumber": {
     "label": "Número da empresa",
-    "placeholder": "Imposto registrado ou GST"
+    "placeholder": "Número de Identificação da Empresa"
   },
   "country": {
     "label": "País",
@@ -87,6 +99,7 @@
   "email": {
     "error": "É necessário um endereço de e-mail válido",
     "label": "E-mail",
+    "placeholder": "nome@email.com",
     "title": "Adicionar novo e-mail | Atualizar e-mail"
   },
   "field_notes": {
@@ -96,6 +109,11 @@
     "error": "O seu primeiro nome é obrigatório",
     "label": "Primeiro nome"
   },
+  "guest_email": {
+    "description": "Enviaremos a confirmação da sua encomenda para este endereço de e-mail",
+    "label": "E-mail para confirmação da encomenda",
+    "placeholder": "nome@email.com"
+  },
   "language": {
     "error": "É necessário que você fale o seu idioma.",
     "label": "Linguagem"
@@ -103,9 +121,6 @@
   "lastname": {
     "error": "O seu apelido é obrigatório",
     "label": "Apelido"
-  },
-  "login": {
-    "error": "Ocorreu um erro ao tentar efetuar o seu login."
   },
   "payment_details_id": {
     "label": ""
@@ -137,15 +152,9 @@
     "error": "Seu nome público é obrigatório.",
     "label": "Nome público"
   },
-  "recover": {
-    "error": "Ocorreu um erro ao tentar enviar o e-mail de reposição de senha."
-  },
   "region": {
     "label": "Região",
     "placeholder": "Selecione uma região…"
-  },
-  "register": {
-    "error": "Ocorreu um erro ao tentar criar a sua conta."
   },
   "select_option": {
     "placeholder": "Selecione uma opção"
@@ -155,6 +164,10 @@
   },
   "stored_payment_method": {
     "label": ""
+  },
+  "taxNumber": {
+    "label": "Número de identificação fiscal",
+    "placeholder": "Número de identificação fiscal/IVA/GST"
   },
   "twofa": {
     "description": "Esta conta está protegida com autenticação de dois fatores. Por favor, insira seu código de verificação.",
