@@ -21,6 +21,9 @@ export default createMachine(
     states: {
       subscribing: {
         on: {
+          DISABLE: {
+            target: "unavailable"
+          },
           SET_SITE_KEY: {
             target: "loading",
             actions: ["setSiteKey"],

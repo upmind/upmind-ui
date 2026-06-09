@@ -2,7 +2,7 @@
 import { execSync } from "node:child_process";
 import { defineConfig, devices } from "@playwright/test";
 
-const baseURL = "http://qa-automation.local:5173/";
+const baseURL = process.env.PW_BASE_URL ?? "http://qa-automation.local:5173/";
 
 function git(args: string): string | undefined {
   try {

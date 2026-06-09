@@ -42,12 +42,16 @@ export const useRecaptcha = () => {
   const { t } = useI18n();
   const { state } = useActor(service);
 
-  async function init(siteKey: string) {
+  async function init(siteKey?: string, enabled: boolean = true) {
     if (service.status === InterpreterStatus.NotStarted) {
       service.start();
     }
 
-    service.send({ type: "SET_SITE_KEY", siteKey });
+    if (!!siteKey && enabled) {
+      service.send({ type: "SET_SITE_KEY", siteKey });
+    } else {
+      service.send({ type: "DISABLE", siteKey });
+    }
   }
 
   async function isReady(): Promise<boolean> {
@@ -80,12 +84,15 @@ export const useRecaptcha = () => {
   // --- methods
 
   async function generate(action?: string) {
+    // if we are disabled then bail early
+    if (stateMatches(service, ["unavailable"])) return undefined;
+
     return waitFor(service, state => ["available"].some(state.matches))
       .then(() => {
         service.send({ type: "GENERATE_TOKEN", data: { action } });
         return waitFor(service, state => state.matches("processed")).then(
           () => {
-            if (!token) {
+            if (!token.value) {
               return Promise.reject(
                 new DetailedError(
                   t("error.recaptcha_not_available"),

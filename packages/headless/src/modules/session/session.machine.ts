@@ -12,9 +12,9 @@ import guestMachine from "./guest/guest.machine";
 import { useTime, useCookies, mapToHeadlessError } from "../../utils";
 const { removeTopLevel: removeCookie, get: getCookie } = useCookies();
 
-import { useDataLayer } from "../system";
+import { useDataLayer, useI18n } from "../system";
+import { useFeedback } from "../feedback";
 import { Contexts } from "@upmind-automation/types";
-import { includes } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 export default createMachine(
@@ -95,6 +95,20 @@ export default createMachine(
         }
       },
 
+      verifying: {
+        invoke: {
+          src: "verify",
+          onDone: {
+            target: "#checking",
+            actions: "notifyVerificationSuccess"
+          },
+          onError: {
+            target: "#checking",
+            actions: ["setError", "notifyVerificationFailure"]
+          }
+        }
+      },
+
       expired: {
         after: {
           wait: "checking"
@@ -118,6 +132,9 @@ export default createMachine(
       TRANSFER_FROM: {
         target: "transferring",
         actions: "setTransfer"
+      },
+      VERIFY_EMAIL: {
+        target: "verifying"
       }
     }
   },
@@ -144,6 +161,20 @@ export default createMachine(
       }),
 
       clearTransfer: assign({ transfer: undefined }),
+
+      notifyVerificationSuccess: (_context: SessionContext) => {
+        const { t } = useI18n();
+        useFeedback().addSuccess(t("confirm.email_verified"));
+      },
+
+      notifyVerificationFailure: ({ error }: SessionContext) => {
+        const { t } = useI18n();
+        useFeedback().addError({
+          title: error?.message || t("error.client_email_verify_failed"),
+          copy: error?.data ? undefined : error?.message,
+          data: error?.data
+        });
+      },
 
       setError: assign({
         error: (_context: SessionContext, { data }: AnyEventObject) =>

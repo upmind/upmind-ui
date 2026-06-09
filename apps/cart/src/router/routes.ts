@@ -1,6 +1,6 @@
 // --- internal
 import { ROUTE, RegexMatch } from "./funnels/types";
-import { OverlayType } from "@upmind-automation/client-vue";
+import { OverlayType, SESSION_FORMS } from "@upmind-automation/client-vue";
 // --- utils
 import { reduce, trimStart } from "lodash-es";
 // --- types
@@ -13,7 +13,7 @@ import { BID_PREFIX } from "./funnels/types";
  * Overlay route definitions.
  * Each route here can be injected as a child on eligible parent routes.
  */
-const OVERLAY_ROUTES: RouteRecordRaw[] = [
+export const OVERLAY_ROUTES: RouteRecordRaw[] = [
   {
     path: "auth/",
     name: ROUTE.OVERLAY_AUTH,
@@ -24,7 +24,11 @@ const OVERLAY_ROUTES: RouteRecordRaw[] = [
     path: "verify-email/",
     name: ROUTE.OVERLAY_VERIFY_EMAIL,
     component: () => import("../pages/overlays/AuthOverlay.vue"),
-    meta: { overlay: OverlayType.MODAL, dismissable: false }
+    meta: {
+      overlay: OverlayType.CUSTOM,
+      dismissable: false,
+      mode: SESSION_FORMS.VERIFY
+    }
   }
 ];
 
@@ -337,6 +341,12 @@ export default [
         name: ROUTE.SESSION_RECOVER_PASSWORD,
         component: () => import("../pages/session/Recover.vue")
       }
+      // {
+      //   path: "verify-email/",
+      //   name: ROUTE.SESSION_VERIFY_EMAIL,
+      //   component: () => import("../pages/session/VerifyEmail.vue"),
+      //   meta: { allowOverlays: false }
+      // }
     ]
   },
 
