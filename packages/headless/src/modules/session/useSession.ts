@@ -626,6 +626,12 @@ export const useSession = () => {
   async function updateGuestEmail(email: string): Promise<boolean> {
     if (!clientActor.value) return false;
 
+    // No-op when the email already matches what's persisted on the client
+    // (BE leaves a guest's email in `username`) — avoids a redundant PUT on
+    // every blur if the user hasn't actually changed the value.
+    const persisted = client.value?.email ?? client.value?.username;
+    if (email === persisted) return true;
+
     service.send({
       type: "UPDATE_GUEST_EMAIL",
       data: { email }
