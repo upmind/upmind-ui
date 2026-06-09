@@ -183,6 +183,7 @@ export const useProductConfig = (service: ActorRef<any>) => {
       ]),
     isInvalid: stateMatches(state, ["available.invalid"]),
     isCalculating: contextMatches(state, ["lookups.prices.calculating"]),
+    isChecking: stateMatches(state, ["available.checking"]),
     isProcessing: stateMatches(state, ["refreshing", "processing"]),
     isAvailable: stateMatches(state, ["available", "refreshing", "processing"]),
     isLocked:
@@ -538,6 +539,7 @@ export type UseProductConfigMeta = {
   hasErrors: boolean;
   isConfigurable: boolean;
   isInvalid: boolean;
+  isChecking: boolean;
   isProcessing: boolean;
   isCalculating: boolean;
   isAvailable: boolean;

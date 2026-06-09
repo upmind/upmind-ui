@@ -134,8 +134,7 @@ const {
   configure,
   filterUpsellOptions,
   resolveUpsells,
-  filterPricing,
-  toggleUpsell
+  filterPricing
 } = useBasketProductInline(props.id);
 
 const config = inlineMeta.value?.hasInlineControls
@@ -167,7 +166,7 @@ const meta = computed(() => ({
   isProcessing:
     props.processing ||
     !!config?.meta?.value?.isProcessing ||
-    inlineMeta.value.isProcessing,
+    !!config?.meta?.value?.isChecking,
   isUnavailable: isEmpty(props.id),
   hasErrors: !isEmpty(props.errors) || some(props.details, "meta.invalid"),
   hasConfigErrors: !!config?.meta?.value?.hasErrors,
@@ -235,7 +234,10 @@ function onUpsellToggle(
   option: SubproductDetails,
   enabled: boolean
 ) {
-  toggleUpsell(option, upsell.toggle.valueId, enabled);
+  if (!config) return;
+  config
+    .toggleOption(option, upsell.toggle.valueId, enabled)
+    .then(() => config.update());
 }
 
 function onOptionQuantity(
