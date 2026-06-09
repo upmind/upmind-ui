@@ -9,6 +9,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from "vue";
 // --- components
 import { Avatar } from "../avatar";
 import { Icon } from "../icon";
@@ -18,7 +19,12 @@ import { useStyles } from "../../utils";
 // --- types
 import type { InputItemsProps } from "./types";
 
-defineProps<InputItemsProps>();
+const props = defineProps<InputItemsProps>();
 
-const styles = useStyles(["input"], {}, config, {});
+const styles = useStyles(
+  ["input"],
+  {},
+  config,
+  computed(() => props.uiConfig ?? {})
+);
 </script>
