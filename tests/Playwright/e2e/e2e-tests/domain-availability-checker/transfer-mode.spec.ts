@@ -194,17 +194,31 @@ test.describe("DAC existing-domain mode (transfer checks)", () => {
     page,
     context
   }) => {
-    // Product with £0 transfer price
+    // `transferOptionIsFree` is driven by `getTransferOptionPrice`
+    // (headless/domain/utils.ts), NOT by the parent product's own prices. It
+    // returns `isFree: true` only when the transfer SUB-product — the
+    // `options[]` entry referenced by `setup_function_sub_ids.transfer` — has
+    // `category.price_override` truthy AND a `billing_cycle_months: 0` price of
+    // `0`. Build exactly that shape so the real free-transfer copy renders.
+    const base = domainProducts[domainProductIds.com];
+    const transferSubId = base.setup_function_sub_ids?.transfer?.[0];
     const freeTransferProduct = {
-      ...domainProducts[domainProductIds.com],
-      prices: [
+      ...base,
+      // Parent prices stay non-zero — they drive the renewal line, not "free".
+      options: [
         {
-          billing_cycle_months: 12,
-          price_formatted: "£0.00",
-          price_discounted_formatted: null,
-          price: 0,
-          price_discounted: null,
-          promotions: []
+          id: transferSubId,
+          category: { price_override: true },
+          prices: [
+            {
+              billing_cycle_months: 0,
+              price: 0,
+              price_formatted: "£0.00",
+              price_discounted_formatted: null,
+              price_discounted: null,
+              promotions: []
+            }
+          ]
         }
       ]
     };
