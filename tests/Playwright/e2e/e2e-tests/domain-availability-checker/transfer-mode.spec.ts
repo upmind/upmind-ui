@@ -266,9 +266,10 @@ test.describe("DAC existing-domain mode (transfer checks)", () => {
     await page.goto(URLs.starterHosting);
     await selectExistingAndFill(TRANSFER_DOMAIN);
 
-    // Should show the transfer price
-    const priceText = page.locator("text=£2.50");
-    await expect(priceText).toBeVisible({ timeout: 15000 });
+    // Scope to the transfer copy — a bare £2.50 also matches the product-card
+    // price ("From £2.50 a month") and the price-detail line.
+    const transferCopy = page.getByText(/transfer it to us for only/i);
+    await expect(transferCopy).toContainText("£2.50", { timeout: 15000 });
   });
 
   // TODO FE-2806: Add test for conditional renewal copy once product field is identified
