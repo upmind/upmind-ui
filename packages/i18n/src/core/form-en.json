@@ -23,8 +23,8 @@
   },
   "auth_email": {
     "description": null,
-    "error": "A username or email address is required",
-    "label": "Your username or email address",
+    "error": "An email address is required",
+    "label": "Your email",
     "placeholder": "name@email.com"
   },
   "auth_password": {
