@@ -17,7 +17,7 @@ export class VerifyEmail {
   readonly codeFieldError: Locator;
   readonly resendLink: Locator;
   readonly resentMessage: Locator;
-  readonly continueShopping: Locator;
+  readonly backToBasket: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -27,8 +27,8 @@ export class VerifyEmail {
     this.codeFieldError = page.getByTestId("form-item-message-code");
     this.resendLink = page.getByTestId("resend-code-link");
     this.resentMessage = page.getByTestId("resend-sent");
-    this.continueShopping = page.getByRole("link", {
-      name: /continue shopping/i
+    this.backToBasket = page.getByRole("link", {
+      name: /back to basket/i
     });
   }
 

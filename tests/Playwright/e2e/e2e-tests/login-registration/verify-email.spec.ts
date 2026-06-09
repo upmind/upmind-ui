@@ -61,6 +61,22 @@ newUser.describe("Email verification gate", () => {
   );
 
   newUser(
+    "Back to basket from the verify overlay returns to the basket",
+    async ({ page, context }) => {
+      const verify = new VerifyEmail(page);
+
+      await interceptConfigValues(page, null, { requireVerifiedEmail: true });
+      await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
+      await expect(verify.backToBasket).toBeVisible();
+
+      // The cancel action routes back to the basket — Auth's `cancelRoute` is
+      // ROUTE.BASKET — rather than advancing into checkout.
+      await verify.backToBasket.click();
+      await expect(page).toHaveURL(/\/order\/basket\//);
+    }
+  );
+
+  newUser(
     "A valid code clears the overlay and lets the client through",
     async ({ page, context }) => {
       const verify = new VerifyEmail(page);
