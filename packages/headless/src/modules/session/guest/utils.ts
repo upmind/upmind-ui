@@ -220,10 +220,10 @@ export const useLoginUischemaParser = () => {
       {
         type: "Control",
         scope: "#/properties/username",
-        i18n: "form.auth_email",
+        i18n: "form.auth_login",
         options: {
           autoFocus: true,
-          autocomplete: "email",
+          autocomplete: "username",
           placeholder: "name@email.com"
         }
       },
@@ -332,10 +332,10 @@ export const useRecoverUischemaParser = () => {
       {
         type: "Control",
         scope: "#/properties/username",
-        i18n: "form.auth_email",
+        i18n: "form.auth_login",
         options: {
           autoFocus: true,
-          autocomplete: "email",
+          autocomplete: "username",
           placeholder: "name@email.com"
         }
       }

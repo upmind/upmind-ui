@@ -22,6 +22,11 @@
     "label": "Tvoj e-mail",
     "placeholder": "meno@email.com"
   },
+  "auth_login": {
+    "error": "Je potrebné zadať používateľské meno alebo e-mailovú adresu",
+    "label": "Vaše používateľské meno alebo e-mailová adresa",
+    "placeholder": "meno@email.com"
+  },
   "auth_password": {
     "error": {
       "min_length": "Heslo musí mať minimálne 8 znakov",

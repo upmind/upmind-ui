@@ -22,6 +22,11 @@
     "label": "Twój adres e-mail",
     "placeholder": "nazwa@email.com"
   },
+  "auth_login": {
+    "error": "Wymagana jest nazwa użytkownika lub adres e-mail",
+    "label": "Twoja nazwa użytkownika lub adres e-mail",
+    "placeholder": "nazwa@email.com"
+  },
   "auth_password": {
     "error": {
       "min_length": "Hasło musi mieć co najmniej 8 znaków.",

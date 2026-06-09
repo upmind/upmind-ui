@@ -22,6 +22,11 @@
     "label": "E-posta adresiniz",
     "placeholder": "isim@e-posta.com"
   },
+  "auth_login": {
+    "error": "Bir kullanıcı adı veya e-posta adresi gereklidir",
+    "label": "Kullanıcı adınız veya e-posta adresiniz",
+    "placeholder": "isim@e-posta.com"
+  },
   "auth_password": {
     "error": {
       "min_length": "Şifre en az 8 karakterden oluşmalıdır.",

@@ -22,6 +22,11 @@
     "label": "Din e-postadress",
     "placeholder": "namn@epost.com"
   },
+  "auth_login": {
+    "error": "Ett användarnamn eller en e-postadress krävs",
+    "label": "Ditt användarnamn eller din e-postadress",
+    "placeholder": "namn@epost.com"
+  },
   "auth_password": {
     "error": {
       "min_length": "Lösenordet måste bestå av minst 8 tecken",
