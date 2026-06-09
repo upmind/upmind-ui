@@ -5,18 +5,16 @@
     :label="t('form.guest_email.label')"
     icon="mail-01"
   >
-    <Loading :active="meta.isProcessing">
-      <Form
-        :disabled="meta.isProcessing"
-        :model-value="model"
-        :schema="schema"
-        :uischema="uischema"
-        :additional-errors="validationErrors"
-        @update:modelValue="handleUpdate"
-        no-actions
-        @focusout="handleBlur"
-      />
-    </Loading>
+    <Form
+      :disabled="meta.isProcessing"
+      :model-value="model"
+      :schema="schema"
+      :uischema="uischema"
+      :additional-errors="validationErrors"
+      @update:modelValue="handleUpdate"
+      no-actions
+      @focusout="handleBlur"
+    />
   </Section>
 </template>
 
@@ -26,10 +24,9 @@ import { onMounted } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
-import { useSession } from "@upmind-automation/headless";
+import { useGuestEmail } from "@upmind-automation/headless";
 
 // --- components
-import { Loading } from "@upmind-automation/upmind-ui";
 import Section from "../../../components/section/Section.vue";
 import Form from "../../../components/form/Form.vue";
 
@@ -45,7 +42,7 @@ const {
   setModel,
   showGuestEmail,
   updateGuestEmail
-} = useSession();
+} = useGuestEmail();
 
 onMounted(() => {
   if (meta.value.isGuestClient) showGuestEmail();

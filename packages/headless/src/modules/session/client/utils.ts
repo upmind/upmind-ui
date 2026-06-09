@@ -71,7 +71,10 @@ export const useGuestEmailSchemaParser = () => {
   };
 };
 
-export const useGuestEmailUischemaParser = () => {
+export const useGuestEmailUischemaParser = (options?: {
+  loading?: boolean;
+  success?: boolean;
+}) => {
   return {
     type: "VerticalLayout",
     elements: [
@@ -86,7 +89,8 @@ export const useGuestEmailUischemaParser = () => {
           type: "email",
           format: "email",
           autocomplete: "email",
-          placeholder: "name@email.com"
+          placeholder: "name@email.com",
+          ...options
         }
       }
     ]
