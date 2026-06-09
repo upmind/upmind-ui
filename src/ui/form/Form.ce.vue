@@ -60,8 +60,7 @@ import {
   useStyles,
   isDeepEmpty,
   useValidation,
-  useDisabled,
-  provideDisabled
+  useDisabled
 } from "../../utils";
 import { cn } from "../../utils";
 import {
@@ -145,12 +144,6 @@ const touched = useVModel(props, "touched", emits, {
 // ---
 
 const isDisabled = useDisabled(() => props.disabled || props.processing);
-
-// Re-provide the form's resolved disabled state so descendants — including
-// non-JsonForms slot content (e.g. <Manage> rendering RadioCardsCollapsible) —
-// inherit the form's `processing` signal alongside the ancestor cascade, not
-// just the cascade alone.
-provideDisabled(isDisabled);
 
 const meta = computed(() => {
   return {
