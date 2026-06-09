@@ -156,7 +156,8 @@ export const useSession = () => {
       stateMatches(clientActor, [
         "available.unregistered.registering",
         "available.unregistered.updating",
-        "available.unverified.form.verifying"
+        "available.unverified.challenging.verifying",
+        "available.unverified.resend.processing"
       ]),
     isAuthenticated: stateMatches(state, "client"),
     isUnverified: stateMatches(clientActor, "available.unverified"),
@@ -184,7 +185,7 @@ export const useSession = () => {
       ]) ||
       stateMatches(clientActor, [
         "available.unregistered.error",
-        "available.unverified.form.challenging.error",
+        "available.unverified.challenging.error",
         "available.unverified.resend.error"
       ]),
     showLoginForm: stateMatches(guestActor, "available.login"),
@@ -194,10 +195,10 @@ export const useSession = () => {
       "available.register.challenging",
       "available.register.verifying"
     ]),
-    showVerifyEmailForm: stateMatches(clientActor, [
-      "available.unverified.form.challenging",
-      "available.unverified.form.verifying"
-    ]),
+    showVerifyEmailForm: stateMatches(
+      clientActor,
+      "available.unverified.challenging"
+    ),
     canResend: stateMatches(
       clientActor,
       "available.unverified.resend.available"
@@ -256,7 +257,7 @@ export const useSession = () => {
 
   /**
    * Which guest-client form (`register` upgrade or `email`) is active in the
-   * shared `unregistered.available` node — distinguishes the two for the UI.
+   * shared `unregistered` form node — distinguishes the two for the UI.
    */
   const formType = useContext<ClientFormType>(clientActor, "formType");
 
@@ -362,12 +363,13 @@ export const useSession = () => {
     // Guest client → drive the CLIENT machine's upgrade form (the guest actor
     // is gone once a guest client exists).
     if (meta.value.isGuestClient && clientActor.value) {
+      // Select the upgrade form — a guest who used the checkout EMAIL form
+      // earlier shares this node, so REGISTER swaps the schema back.
       service.send({ type: "REGISTER" });
 
       return waitFor(
         clientActor.value.service,
-        state =>
-          stateMatches(state, ["available.unregistered.available", "done"]),
+        state => stateMatches(state, ["available.unregistered", "done"]),
         { timeout: 60000 }
       )
         .then(() => true)
@@ -418,8 +420,7 @@ export const useSession = () => {
 
     return waitFor(
       clientActor.value.service,
-      state =>
-        stateMatches(state, ["available.unregistered.available", "done"]),
+      state => stateMatches(state, ["available.unregistered", "done"]),
       { timeout: 60000 }
     )
       .then(() => true)
@@ -429,22 +430,11 @@ export const useSession = () => {
   async function showVerifyEmail(): Promise<boolean> {
     if (!clientActor.value) return true; // already logged in
 
-    await waitFor(
-      clientActor.value.service,
-      state => stateMatches(state, "available"),
-      { timeout: 60000 }
-    ).catch(() => false);
-
-    service.send({
-      type: "CONFIRM"
-    });
-
-    console.log("showVerifyEmail", clientActor.value?.state.value);
-
+    // The verify-email form is always ready while unverified; no event to send.
     return waitFor(
       clientActor.value.service,
       state =>
-        stateMatches(state, ["available.unverified.form.challenging", "done"]),
+        stateMatches(state, ["available.unverified.challenging", "done"]),
       { timeout: 60000 }
     )
       .then(() => true)
@@ -503,7 +493,7 @@ export const useSession = () => {
       state =>
         stateMatches(state, [
           "available.verified",
-          "available.unverified.form.challenging.invalid"
+          "available.unverified.challenging"
         ]),
       { timeout: 60000 }
     )
@@ -618,7 +608,11 @@ export const useSession = () => {
       clientActor.value.service,
       state =>
         stateMatches(state, [
+          // A successful upgrade lands the (now full) client in `verified` OR
+          // `unverified` — a freshly-registered email is unverified on a
+          // verify-enforcing brand. Both mean registration succeeded.
           "available.verified",
+          "available.unverified",
           "available.unregistered.error",
           "complete",
           "done"
@@ -1054,9 +1048,9 @@ export const useSession = () => {
     showRecoverPassword,
 
     /**
-     * Opens the email-verification challenge for an unverified client — moves
-     * the form region `unverified.form.idle` → `form.challenging` so the code
-     * form is shown. Fired when the verify-email overlay mounts (gated checkout).
+     * Awaits the verify-email form for an unverified client. The form is always
+     * ready while unverified (no machine event needed); visibility is owned by
+     * the verify-email overlay route (gated checkout).
      */
     showVerifyEmail,
 

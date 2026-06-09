@@ -102,63 +102,50 @@ export default createMachine(
           // (set here) is owned by this machine, not borrowed from the (now
           // gone) guest machine.
           unregistered: {
-            id: "unregistered",
-            initial: "idle",
+            initial: "loading",
             states: {
-              idle: {},
-
               // Register-form schema fetch (custom fields). Email form needs no
               // load — EMAIL sets its schema synchronously on the transition.
               loading: {
                 invoke: {
                   src: "getCustomFields",
                   onDone: {
-                    target: "available",
+                    target: "checking",
                     actions: ["setCustomFields", "setRegisterSchemas"]
                   },
                   onError: {
-                    target: "available",
+                    target: "error",
                     actions: ["setRegisterSchemas"]
                   }
                 }
               },
-
               // The shared form surface. `formType` (set by REGISTER/EMAIL) says
               // whether it's hosting the upgrade or the checkout-email form.
-              available: {
-                initial: "checking",
-                states: {
-                  checking: {
-                    // Set model on entry (no `parse` service); guarded to SET.
-                    entry: ["setModel"],
-                    invoke: {
-                      src: "validate",
-                      onDone: { target: "valid", actions: ["clearError"] },
-                      onError: { target: "invalid", actions: ["setError"] }
-                    }
-                  },
-                  valid: {
-                    on: {
-                      COMPLETE_REGISTRATION: {
-                        target: "#unregistered.registering",
-                        cond: "isRegisterForm"
-                      },
-                      UPDATE_GUEST_EMAIL: {
-                        target: "#unregistered.updating",
-                        cond: "isEmailForm"
-                      }
-                    }
-                  },
-                  invalid: {}
-                },
-                on: {
-                  SET: { target: ".checking" }
+              checking: {
+                // Set model on entry (no `parse` service); guarded to SET.
+                entry: ["setModel"],
+                invoke: {
+                  src: "validate",
+                  onDone: { target: "valid", actions: ["clearError"] },
+                  onError: { target: "invalid", actions: ["setError"] }
                 }
               },
-
-              // Upgrade submit. `registering`/`updating`/`error` are siblings of
-              // the form, so they don't inherit `available`'s SET handler — the
-              // form can't be re-edited while a request is in flight.
+              valid: {
+                on: {
+                  COMPLETE_REGISTRATION: {
+                    target: "registering",
+                    cond: "isRegisterForm"
+                  },
+                  UPDATE_GUEST_EMAIL: {
+                    target: "updating",
+                    cond: "isEmailForm"
+                  }
+                }
+              },
+              invalid: {},
+              // Upgrade submit. `registering`/`updating` override the region's
+              // SET with a no-op so the form can't be re-edited while a request
+              // is in flight.
               registering: {
                 invoke: {
                   src: "completeRegistration",
@@ -169,87 +156,76 @@ export default createMachine(
                     target: "error",
                     actions: ["setError", "setFeedbackError"]
                   }
+                },
+                on: {
+                  SET: {
+                    /*do nothing */
+                  }
                 }
               },
-
               // Email autosave.
               updating: {
                 invoke: {
                   src: "updateGuestEmail",
                   onDone: {
-                    target: "available.valid",
+                    target: "valid",
                     actions: ["clearError", "setClientEmail"]
                   },
                   onError: { target: "error", actions: ["setError"] }
+                },
+                on: {
+                  SET: {
+                    /*do nothing */
+                  }
                 }
               },
-
               // Submit failure (drives the alert); distinct from `invalid`
               // (client validation).
-              error: {
-                on: {
-                  SET: { target: "available" }
-                }
-              }
+              error: {}
             },
             on: {
-              REGISTER: { target: ".loading" },
-              EMAIL: {
-                target: ".available",
-                actions: ["setEmailSchemas"]
-              },
-              LOGOUT: {
-                target: "#complete",
-                actions: "clear"
-              },
-              REFRESH: {
-                target: "#loading"
-              }
+              SET: { target: ".checking" },
+              REGISTER: { actions: ["setRegisterSchemas"] },
+              EMAIL: { actions: ["setEmailSchemas"] },
+              CANCEL: { target: ".checking" }
             }
           },
 
-          // Full client owing email verification. Rests in `idle` — the client
-          // is unverified but unchallenged — until something gates them (e.g.
-          // checkout), which fires CONFIRM to open the verify-email form.
-          // The form (validate-on-SET) mirrors the guest 2fa `challenging`
-          // shape; on success it re-enters `#available` → `checking`, which —
-          // the email now verified — routes to `verified`.
+          // Full client owing email verification. The verify-email form is
+          // always ready while unverified — visibility is owned by routing (the
+          // verify-email overlay), not by the machine. The form (validate-on-SET)
+          // mirrors the guest 2fa `challenging` shape; on success it re-enters
+          // `#available` → `checking`, which — the email now verified — routes to
+          // `verified`.
           unverified: {
-            id: "unverified",
             type: "parallel",
             states: {
               // Verify-email form (validate-on-SET; mirrors the guest 2fa shape).
-              form: {
-                initial: "idle",
-                on: { CONFIRM: { target: ".challenging" } },
+              challenging: {
+                initial: "loading",
                 states: {
-                  idle: {},
-                  challenging: {
-                    id: "challenging",
-                    initial: "checking",
-                    states: {
-                      checking: {
-                        invoke: {
-                          src: "validate",
-                          onDone: {
-                            target: "valid",
-                            actions: ["clearError"]
-                          },
-                          onError: { target: "invalid", actions: ["setError"] }
-                        }
-                      },
-                      valid: {},
-                      invalid: {},
-                      error: {}
-                    },
-                    on: {
-                      SET: { target: ".checking", actions: ["setModel"] },
-                      VERIFY: { target: "#verifying" },
-                      CANCEL: { target: "idle" }
+                  // Register-form schema fetch (custom fields). Email form needs no
+                  // load — EMAIL sets its schema synchronously on the transition.
+                  loading: {
+                    always: {
+                      target: "checking",
+                      actions: ["setVerifyEmailSchemas"]
                     }
                   },
+
+                  checking: {
+                    invoke: {
+                      src: "validate",
+                      onDone: {
+                        target: "valid",
+                        actions: ["clearError"]
+                      },
+                      onError: { target: "invalid", actions: ["setError"] }
+                    }
+                  },
+                  valid: {},
+                  invalid: {},
                   verifying: {
-                    id: "verifying",
                     invoke: {
                       src: "verifyEmailCode",
                       onDone: {
@@ -260,11 +236,25 @@ export default createMachine(
                         actions: ["markEmailVerified"]
                       },
                       onError: {
-                        target: "#challenging.invalid",
-                        actions: ["setError"]
+                        target: "invalid",
+                        actions: ["setVerificationError"]
+                      }
+                    },
+                    on: {
+                      SET: {
+                        /*do nothing */
+                      },
+                      VERIFY: {
+                        /*do nothing */
                       }
                     }
-                  }
+                  },
+                  error: {}
+                },
+                on: {
+                  VERIFY: { target: ".verifying" },
+                  SET: { target: ".checking", actions: ["setModel"] },
+                  CANCEL: { target: ".checking" }
                 }
               },
               // Resend cooldown — gates re-calling the resend service. Runs
@@ -289,19 +279,15 @@ export default createMachine(
           },
 
           verified: {
-            id: "verified",
-            on: {
-              TRANSFER_TO: {
-                target: "#transferring"
-              },
-              LOGOUT: {
-                target: "#complete",
-                actions: "clear"
-              },
-              REFRESH: {
-                target: "#loading"
-              }
-            }
+            id: "verified"
+          }
+        },
+        on: {
+          TRANSFER_TO: { target: "#transferring" },
+          REFRESH: { target: "#loading" },
+          LOGOUT: {
+            target: "#complete",
+            actions: "clear"
           }
         }
       },
@@ -395,9 +381,16 @@ export default createMachine(
           // shows them inline (mirrors the guest machine's setError).
           if (error?.status == responseCodes.Unprocessable_Entity) {
             error.data = useValidationParser(error);
-          } else if (error?.status == responseCodes.Conflict) {
-            error.data = parseError(error.message, "code");
           }
+
+          return error;
+        }
+      }),
+      setVerificationError: assign({
+        error: (_context, { data }: AnyEventObject) => {
+          const error = mapToHeadlessError(data);
+
+          error!.data = parseError(error!.message, "code");
 
           return error;
         }

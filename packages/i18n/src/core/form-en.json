@@ -117,7 +117,7 @@
     "description": null,
     "error": "A valid Email Address is required",
     "label": "Email",
-    "placeholder": null,
+    "placeholder": "name@email.com",
     "title": "Add New Email | Update Email"
   },
   "phone": {

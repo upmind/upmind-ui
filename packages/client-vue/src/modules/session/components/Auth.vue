@@ -42,7 +42,7 @@
           :variant="variant"
           @reject="doReject"
           @resolve="doResolve"
-          :autosave="meta.showVerifyEmailForm"
+          :autosave="meta.showVerifyEmailForm || meta.show2fa"
           @update:model-value="setModel"
           :class="styles.session.auth.form"
           :actions="formActions"
@@ -90,13 +90,17 @@
         >
           <div :key="resendState" :class="styles.session.auth.resend">
             <template v-if="meta.canResend">
-              <span :class="styles.session.auth.resendPrompt">
+              <span
+                :class="styles.session.auth.resendPrompt"
+                data-testid="resend-prompt"
+              >
                 {{ t("auth.didnt_receive_code") }}
               </span>
 
               <Link
                 size="sm"
                 :label="t('action.resend_code')"
+                data-testid="resend-code-link"
                 @click.prevent="resendVerification"
               />
             </template>
@@ -104,12 +108,14 @@
             <span
               v-else-if="meta.isResending"
               :class="styles.session.auth.resendSending"
+              data-testid="resend-sending"
             >
               {{ t("auth.verify_email_send") }}
             </span>
             <span
               v-else-if="meta.resendComplete"
               :class="styles.session.auth.resendSent"
+              data-testid="resend-sent"
             >
               {{ t("auth.verify_email_sent") }}
             </span>
@@ -160,7 +166,6 @@ const modelValue = defineModel<SessionProps["modelValue"]>("modelValue", {
 const { t } = useI18n();
 
 const {
-  isReady,
   meta,
   errors,
   validationErrors,
@@ -286,20 +291,20 @@ const formActions = computed(() => {
     actions.cancel = {
       type: "reset" as const,
       label: meta.value.showVerifyEmailForm
-        ? t("action.continue_shopping")
+        ? t("action.back_to_basket")
         : t("action.cancel"),
       block: true,
       size: "lg",
       variant: "link",
-      ...(meta.value.showVerifyEmailForm ? {} : (props.storefrontRoute ?? {}))
+      ...(meta.value.showVerifyEmailForm ? {} : (props.cancelRoute ?? {}))
     };
 
     // add the storefront route to the cancel action if its provided
     //  usually only use din verify email but its a possibility for others as well
-    if (props.storefrontRoute) {
+    if (props.cancelRoute) {
       actions.cancel = {
         ...actions.cancel,
-        ...props.storefrontRoute
+        to: props.cancelRoute
       } as FormActionProps;
     }
   }

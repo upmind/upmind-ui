@@ -10,7 +10,7 @@ export interface VerifyEmailModel {
   code?: string;
 }
 
-// Which guest-client form occupies the shared `unregistered.available` node.
+// Which guest-client form occupies the shared `unregistered` form node.
 export enum ClientFormType {
   REGISTER = "register",
   EMAIL = "email"
