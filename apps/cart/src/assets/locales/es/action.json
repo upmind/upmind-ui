@@ -61,6 +61,8 @@
   "reload_page": "Recargar página",
   "remove": "Eliminar",
   "removing": "Eliminando...",
+  "resend_code": "Reenviar código",
+  "resend_code_in": "Reenviar el código en {seconds}s",
   "return_to_shop": "Volver a la tienda",
   "review": "haga clic aquí para revisar",
   "review_next_product": "Revisar el siguiente producto",

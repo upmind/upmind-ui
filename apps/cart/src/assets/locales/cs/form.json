@@ -18,8 +18,8 @@
     "label": "Povolit automatické platby"
   },
   "auth_email": {
-    "error": "Je vyžadováno uživatelské jméno nebo e-mailová adresa",
-    "label": "Vaše uživatelské jméno nebo e-mailová adresa",
+    "error": "E-mailová adresa je povinná",
+    "label": "Váš e-mail",
     "placeholder": "jméno@email.com"
   },
   "auth_password": {
@@ -99,6 +99,7 @@
   "email": {
     "error": "Je vyžadována platná e-mailová adresa",
     "label": "E-mail",
+    "placeholder": "jméno@email.com",
     "title": "Přidat nový e-mail | Aktualizovat e-mail"
   },
   "field_notes": {
@@ -108,6 +109,11 @@
     "error": "Vaše křestní jméno je povinné",
     "label": "Křestní jméno"
   },
+  "guest_email": {
+    "description": "Potvrzení objednávky vám zašleme na tuto e-mailovou adresu",
+    "label": "E-mail pro potvrzení objednávky",
+    "placeholder": "jméno@email.com"
+  },
   "language": {
     "error": "Váš jazyk je povinný",
     "label": "Jazyk"
@@ -115,9 +121,6 @@
   "lastname": {
     "error": "Vaše příjmení je povinné",
     "label": "Příjmení"
-  },
-  "login": {
-    "error": "Při pokusu o vaše přihlášení došlo k chybě."
   },
   "payment_details_id": {
     "label": ""
@@ -149,15 +152,9 @@
     "error": "Vaše veřejné jméno je povinné",
     "label": "Veřejný název"
   },
-  "recover": {
-    "error": "Při pokusu o odeslání e-mailu pro obnovení hesla došlo k chybě."
-  },
   "region": {
     "label": "Kraj",
     "placeholder": "Vyberte oblast…"
-  },
-  "register": {
-    "error": "Při pokusu o vytvoření vašeho účtu došlo k chybě."
   },
   "select_option": {
     "placeholder": "Vyberte možnost"

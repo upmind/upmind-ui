@@ -18,8 +18,8 @@
     "label": "Tillad automatisk betaling"
   },
   "auth_email": {
-    "error": "Et brugernavn eller en e-mailadresse er påkrævet",
-    "label": "Dit brugernavn eller din e-mailadresse",
+    "error": "En e-mailadresse er påkrævet",
+    "label": "Din e-mailadresse",
     "placeholder": "navn@email.com"
   },
   "auth_password": {
@@ -99,6 +99,7 @@
   "email": {
     "error": "En gyldig e-mailadresse er påkrævet",
     "label": "E-mail",
+    "placeholder": "navn@email.com",
     "title": "Tilføj ny e-mail | Opdater e-mail"
   },
   "field_notes": {
@@ -108,6 +109,11 @@
     "error": "Dit fornavn er påkrævet",
     "label": "Fornavn"
   },
+  "guest_email": {
+    "description": "Vi sender din ordrebekræftelse til denne e-mailadresse",
+    "label": "E-mail ved modtagelse af ordre",
+    "placeholder": "navn@email.com"
+  },
   "language": {
     "error": "Dit sprog er påkrævet",
     "label": "Sprog"
@@ -115,9 +121,6 @@
   "lastname": {
     "error": "Dit efternavn er påkrævet",
     "label": "Efternavn"
-  },
-  "login": {
-    "error": "Vi oplevede en fejl under forsøget på at logge dig ind."
   },
   "payment_details_id": {
     "label": ""
@@ -149,15 +152,9 @@
     "error": "Dit offentlige navn er påkrævet",
     "label": "Offentligt navn"
   },
-  "recover": {
-    "error": "Vi oplevede en fejl under forsøget på at sende dig en e-mail til nulstilling af adgangskode."
-  },
   "region": {
     "label": "Område",
     "placeholder": "Vælg en region…"
-  },
-  "register": {
-    "error": "Vi oplevede en fejl under oprettelsen af ​​din konto."
   },
   "select_option": {
     "placeholder": "Vælg en mulighed"

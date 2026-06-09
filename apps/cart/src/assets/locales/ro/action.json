@@ -61,6 +61,8 @@
   "reload_page": "Reîncărcați pagina",
   "remove": "Elimina",
   "removing": "Se elimină...",
+  "resend_code": "Trimite din nou codul",
+  "resend_code_in": "Trimite din nou codul în {seconds}s",
   "return_to_shop": "Întoarcere la magazin",
   "review": "faceți clic aici pentru a revizui",
   "review_next_product": "Recenzie produs următor",

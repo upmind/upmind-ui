@@ -61,6 +61,8 @@
   "reload_page": "Pagina opnieuw laden",
   "remove": "Verwijderen",
   "removing": "Verwijderen...",
+  "resend_code": "Code opnieuw verzenden",
+  "resend_code_in": "Code over {seconds} opnieuw verzenden",
   "return_to_shop": "Terug naar de winkel",
   "review": "klik hier om te bekijken",
   "review_next_product": "Bekijk het volgende product",

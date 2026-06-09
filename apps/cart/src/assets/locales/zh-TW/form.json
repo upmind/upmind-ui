@@ -18,9 +18,9 @@
     "label": "允許自動付款"
   },
   "auth_email": {
-    "error": "需要使用者名稱或電子郵件地址",
-    "label": "您的使用者名稱或電子郵件地址",
-    "placeholder": "name@email.com"
+    "error": "必須提供電子郵件地址",
+    "label": "您的電子郵件",
+    "placeholder": "姓名@email.com"
   },
   "auth_password": {
     "error": {
@@ -99,6 +99,7 @@
   "email": {
     "error": "需要有效的電子郵件地址",
     "label": "電子郵件",
+    "placeholder": "姓名@email.com",
     "title": "新增電子郵件 | 更新電子郵件"
   },
   "field_notes": {
@@ -108,6 +109,11 @@
     "error": "需要您的名字",
     "label": "名"
   },
+  "guest_email": {
+    "description": "我們將把您的訂單確認信寄至此電子郵件地址",
+    "label": "訂單確認信",
+    "placeholder": "姓名@email.com"
+  },
   "language": {
     "error": "您需要輸入的語言",
     "label": "語言"
@@ -115,9 +121,6 @@
   "lastname": {
     "error": "您的姓氏是必填項",
     "label": "姓"
-  },
-  "login": {
-    "error": "我們在嘗試登入時遇到錯誤。"
   },
   "payment_details_id": {
     "label": ""
@@ -149,15 +152,9 @@
     "error": "您的公開姓名是必填。",
     "label": "公共名稱"
   },
-  "recover": {
-    "error": "我們在嘗試向您發送密碼重設電子郵件時遇到錯誤。"
-  },
   "region": {
     "label": "地區",
     "placeholder": "選擇一個地區…"
-  },
-  "register": {
-    "error": "我們在嘗試建立您的帳戶時遇到錯誤。"
   },
   "select_option": {
     "placeholder": "選擇一個選項"

@@ -18,8 +18,8 @@
     "label": "Izinkan pembayaran otomatis"
   },
   "auth_email": {
-    "error": "Nama pengguna atau alamat email diperlukan",
-    "label": "Nama pengguna atau alamat email Anda",
+    "error": "Alamat email wajib diisi",
+    "label": "Alamat email Anda",
     "placeholder": "nama@email.com"
   },
   "auth_password": {
@@ -99,6 +99,7 @@
   "email": {
     "error": "Alamat Email yang valid diperlukan",
     "label": "E-mail",
+    "placeholder": "nama@email.com",
     "title": "Tambahkan Email Baru | Perbarui Email"
   },
   "field_notes": {
@@ -108,6 +109,11 @@
     "error": "Nama depan Anda diperlukan",
     "label": "Nama depan"
   },
+  "guest_email": {
+    "description": "Kami akan mengirimkan konfirmasi pesanan Anda ke alamat email ini",
+    "label": "Email untuk konfirmasi pesanan",
+    "placeholder": "nama@email.com"
+  },
   "language": {
     "error": "Bahasa Anda diperlukan",
     "label": "Bahasa"
@@ -115,9 +121,6 @@
   "lastname": {
     "error": "Nama belakang Anda diperlukan",
     "label": "Nama belakang"
-  },
-  "login": {
-    "error": "Kami mengalami kesalahan saat mencoba memasukkan Anda."
   },
   "payment_details_id": {
     "label": ""
@@ -149,15 +152,9 @@
     "error": "Nama publik Anda wajib diisi.",
     "label": "Nama publik"
   },
-  "recover": {
-    "error": "Kami mengalami kesalahan saat mencoba mengirimi Anda email pengaturan ulang kata sandi."
-  },
   "region": {
     "label": "Wilayah",
     "placeholder": "Pilih wilayah…"
-  },
-  "register": {
-    "error": "Kami mengalami kesalahan saat mencoba membuat akun Anda."
   },
   "select_option": {
     "placeholder": "Pilih opsi"
