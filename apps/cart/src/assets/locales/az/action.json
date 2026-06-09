@@ -61,6 +61,8 @@
   "reload_page": "Səhifəni yenidən yükləyin",
   "remove": "Sil",
   "removing": "Silinir...",
+  "resend_code": "Kodu yenidən göndərin",
+  "resend_code_in": "Kodu {seconds}-lərdə yenidən göndərin",
   "return_to_shop": "Mağazaya qayıt",
   "review": "buraya klikləyin baxmaq üçün",
   "review_next_product": "Növbəti məhsulu nəzərdən keçirin",

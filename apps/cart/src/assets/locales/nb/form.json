@@ -18,8 +18,8 @@
     "label": "Tillat automatisk betaling"
   },
   "auth_email": {
-    "error": "Et brukernavn eller en e-postadresse er nødvendig",
-    "label": "Brukernavnet eller e-postadressen din",
+    "error": "Det kreves en e-postadresse",
+    "label": "E-postadressen din",
     "placeholder": "navn@epost.com"
   },
   "auth_password": {
@@ -99,6 +99,7 @@
   "email": {
     "error": "En gyldig e-postadresse er nødvendig",
     "label": "E-post",
+    "placeholder": "navn@epost.com",
     "title": "Legg til ny e-post | Oppdater e-post"
   },
   "field_notes": {
@@ -108,6 +109,11 @@
     "error": "Fornavnet ditt er obligatorisk",
     "label": "Fornavn"
   },
+  "guest_email": {
+    "description": "Vi sender ordrebekreftelsen til denne e-postadressen",
+    "label": "E-post ved mottak av bestilling",
+    "placeholder": "navn@epost.com"
+  },
   "language": {
     "error": "Språket ditt er obligatorisk",
     "label": "Språk"
@@ -115,9 +121,6 @@
   "lastname": {
     "error": "Etternavnet ditt er obligatorisk",
     "label": "Etternavn"
-  },
-  "login": {
-    "error": "Vi opplevde en feil under forsøket på å logge deg inn."
   },
   "payment_details_id": {
     "label": ""
@@ -149,15 +152,9 @@
     "error": "Ditt offentlige navn er obligatorisk",
     "label": "Offentlig navn"
   },
-  "recover": {
-    "error": "Vi oppsto en feil under forsøket på å sende deg en e-post for tilbakestilling av passord."
-  },
   "region": {
     "label": "Region",
     "placeholder": "Velg en region…"
-  },
-  "register": {
-    "error": "Det oppsto en feil under forsøket på å opprette kontoen din."
   },
   "select_option": {
     "placeholder": "Velg et alternativ"

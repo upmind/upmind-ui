@@ -61,6 +61,8 @@
   "reload_page": "Ladda om sidan",
   "remove": "Ta bort",
   "removing": "Tar bort...",
+  "resend_code": "Skicka koden igen",
+  "resend_code_in": "Skicka koden igen om {seconds}s",
   "return_to_shop": "Återgå till butiken",
   "review": "klicka här för att granska",
   "review_next_product": "Recensera nästa produkt",

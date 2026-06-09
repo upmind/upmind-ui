@@ -61,6 +61,8 @@
   "reload_page": "Oldal újratöltése",
   "remove": "Eltávolítás",
   "removing": "Eltávolítás...",
+  "resend_code": "Kód újraküldése",
+  "resend_code_in": "Kód újraküldése {seconds} múlva",
   "return_to_shop": "Vissza a boltba",
   "review": "kattintson ide a megtekintéshez",
   "review_next_product": "Következő termék értékelése",

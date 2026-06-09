@@ -18,8 +18,8 @@
     "label": "Permitir pago automático"
   },
   "auth_email": {
-    "error": "Se requiere un nombre de usuario o una dirección de correo electrónico",
-    "label": "Su nombre de usuario o dirección de correo electrónico",
+    "error": "Es necesario introducir una dirección de correo electrónico",
+    "label": "Tu correo electrónico",
     "placeholder": "nombre@email.com"
   },
   "auth_password": {
@@ -99,6 +99,7 @@
   "email": {
     "error": "Se requiere una dirección de correo electrónico válida",
     "label": "Correo electrónico",
+    "placeholder": "nombre@email.com",
     "title": "Agregar nuevo correo electrónico | Actualizar correo electrónico"
   },
   "field_notes": {
@@ -108,6 +109,11 @@
     "error": "Tu nombre es obligatorio",
     "label": "Nombre de pila"
   },
+  "guest_email": {
+    "description": "Te enviaremos la confirmación de tu pedido a este correo electrónico",
+    "label": "Correo electrónico para la confirmación del pedido",
+    "placeholder": "nombre@email.com"
+  },
   "language": {
     "error": "Tu idioma es requerido",
     "label": "Idioma"
@@ -115,9 +121,6 @@
   "lastname": {
     "error": "Tu apellido es requerido",
     "label": "Apellido"
-  },
-  "login": {
-    "error": "Experimentamos un error al intentar iniciar sesión."
   },
   "payment_details_id": {
     "label": ""
@@ -149,15 +152,9 @@
     "error": "Se requiere su nombre público",
     "label": "Nombre público"
   },
-  "recover": {
-    "error": "Experimentamos un error al intentar enviarle un correo electrónico de restablecimiento de contraseña."
-  },
   "region": {
     "label": "Región",
     "placeholder": "Seleccione una región…"
-  },
-  "register": {
-    "error": "Experimentamos un error al intentar crear su cuenta."
   },
   "select_option": {
     "placeholder": "Seleccione una opción"

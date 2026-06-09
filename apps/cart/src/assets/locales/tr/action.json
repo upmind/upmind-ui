@@ -61,6 +61,8 @@
   "reload_page": "Sayfayı yeniden yükle",
   "remove": "Kaldırmak",
   "removing": "Kaldırılıyor...",
+  "resend_code": "Kodu yeniden gönder",
+  "resend_code_in": "{seconds} sonra kodu yeniden gönder",
   "return_to_shop": "Mağazaya geri dön",
   "review": "incelemek için buraya tıklayın",
   "review_next_product": "Sonraki ürünü inceleyin",

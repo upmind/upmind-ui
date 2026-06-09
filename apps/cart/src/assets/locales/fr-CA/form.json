@@ -18,8 +18,8 @@
     "label": "Autoriser le paiement automatique"
   },
   "auth_email": {
-    "error": "Un nom d'utilisateur ou une adresse courriel est requis",
-    "label": "Votre nom d'utilisateur ou votre adresse courriel",
+    "error": "Une adresse e-mail est obligatoire",
+    "label": "Votre adresse e-mail",
     "placeholder": "nom@email.com"
   },
   "auth_password": {
@@ -99,6 +99,7 @@
   "email": {
     "error": "Une adresse courriel valide est requise",
     "label": "E-mail",
+    "placeholder": "nom@email.com",
     "title": "Ajouter une nouvelle adresse e-mail | Mettre à jour l'adresse e-mail"
   },
   "field_notes": {
@@ -108,6 +109,11 @@
     "error": "Votre prénom est obligatoire",
     "label": "Prénom"
   },
+  "guest_email": {
+    "description": "Nous t'enverrons la confirmation de ta commande à cette adresse e-mail",
+    "label": "E-mail de confirmation de commande",
+    "placeholder": "nom@email.com"
+  },
   "language": {
     "error": "Votre langue est requise",
     "label": "Langage"
@@ -115,9 +121,6 @@
   "lastname": {
     "error": "Votre nom de famille est obligatoire",
     "label": "Nom"
-  },
-  "login": {
-    "error": "Nous avons rencontré une erreur lors de la tentative de connexion."
   },
   "payment_details_id": {
     "label": ""
@@ -149,15 +152,9 @@
     "error": "Votre nom public est requis.",
     "label": "Nom public"
   },
-  "recover": {
-    "error": "Nous avons rencontré une erreur lors de la tentative d'envoi d'un courriel de réinitialisation de mot de passe."
-  },
   "region": {
     "label": "Région",
     "placeholder": "Choisissez une région…"
-  },
-  "register": {
-    "error": "Nous avons rencontré une erreur lors de la tentative de création de votre compte."
   },
   "select_option": {
     "placeholder": "Sélectionnez une option"
