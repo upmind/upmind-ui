@@ -29,7 +29,6 @@ stages:
 
 include:
   - local: .gitlab-ci/cart.yml
-  - local: .gitlab-ci/vitepress.yml
   - local: .gitlab-ci/headless.yml
   - local: .gitlab-ci/e2e-allure.yml
   - local: .gitlab-ci/storybook.yml
