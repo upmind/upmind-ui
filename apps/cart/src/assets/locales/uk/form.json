@@ -23,9 +23,9 @@
     "placeholder": "ім'я@email.com"
   },
   "auth_login": {
-    "error": "Необхідно вказати ім'я користувача або адресу електронної пошти",
+    "error": "Потрібне ім'я користувача або адреса електронної пошти",
     "label": "Ваше ім'я користувача або адреса електронної пошти",
-    "placeholder": "name@email.com"
+    "placeholder": "ім'я@email.com"
   },
   "auth_password": {
     "error": {

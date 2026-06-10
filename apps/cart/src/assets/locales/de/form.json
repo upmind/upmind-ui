@@ -24,7 +24,7 @@
   },
   "auth_login": {
     "error": "Ein Benutzername oder eine E-Mail-Adresse ist erforderlich",
-    "label": "Dein Benutzername oder deine E-Mail-Adresse",
+    "label": "Ihr Benutzername oder Ihre E-Mail-Adresse",
     "placeholder": "name@email.com"
   },
   "auth_password": {

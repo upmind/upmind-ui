@@ -25,7 +25,7 @@
   "auth_login": {
     "error": "Wymagana jest nazwa użytkownika lub adres e-mail",
     "label": "Twoja nazwa użytkownika lub adres e-mail",
-    "placeholder": "name@email.com"
+    "placeholder": "nazwa@email.com"
   },
   "auth_password": {
     "error": {

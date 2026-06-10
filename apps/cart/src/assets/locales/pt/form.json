@@ -23,9 +23,9 @@
     "placeholder": "nome@email.com"
   },
   "auth_login": {
-    "error": "É necessário um nome de utilizador ou um endereço de e-mail",
+    "error": "É necessário um nome de utilizador ou endereço de e-mail.",
     "label": "O seu nome de utilizador ou endereço de e-mail",
-    "placeholder": "name@email.com"
+    "placeholder": "nome@email.com"
   },
   "auth_password": {
     "error": {

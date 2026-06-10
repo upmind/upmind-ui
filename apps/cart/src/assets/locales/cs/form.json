@@ -23,9 +23,9 @@
     "placeholder": "jméno@email.com"
   },
   "auth_login": {
-    "error": "Je nutné zadat uživatelské jméno nebo e-mailovou adresu",
+    "error": "Je vyžadováno uživatelské jméno nebo e-mailová adresa",
     "label": "Vaše uživatelské jméno nebo e-mailová adresa",
-    "placeholder": "name@email.com"
+    "placeholder": "jméno@email.com"
   },
   "auth_password": {
     "error": {

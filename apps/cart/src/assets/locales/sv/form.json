@@ -25,7 +25,7 @@
   "auth_login": {
     "error": "Ett användarnamn eller en e-postadress krävs",
     "label": "Ditt användarnamn eller din e-postadress",
-    "placeholder": "name@email.com"
+    "placeholder": "namn@epost.com"
   },
   "auth_password": {
     "error": {
