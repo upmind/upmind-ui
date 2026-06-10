@@ -320,7 +320,8 @@ export const useBasketProducts = () => {
           !isEmpty(p?.configuration?.options) ||
           !isEmpty(p?.configuration?.attributes)
       ),
-      hasProducts: !isEmpty(products.value),
+      hasRecurring: basketMeta.value.hasRecurringProducts,
+      hasProducts: basketMeta.value.hasProducts,
       isLoading: basketMeta.value.isLoading,
       isProcessing: (bpid?: string) =>
         bpid ? get(processing.value, bpid, false) : !isEmpty(processing.value)

@@ -1,5 +1,5 @@
 // --- internal
-import { type QueryParams, useQuery } from "../..";
+import { type QueryParams, useQuery, useSession } from "../..";
 import { useBrand } from "../brand";
 
 // --- utils
@@ -21,10 +21,11 @@ const queryKey: QueryKey = ["product", "categories"];
 function loadList(params?: Partial<QueryParams>) {
   const { list, useUrl } = useQuery();
   const { uiCart } = useBrand();
+  const { actorKey } = useSession();
 
   return list<IProductCategory[], ProductCategory[]>({
     ...(params as any),
-    queryKey,
+    queryKey: [...queryKey, { actor: actorKey }],
     url: useUrl(`basket/products_categories`, {
       with: [
         "subcategories.image",

@@ -18,6 +18,11 @@
     "label": "Consenti il pagamento automatico"
   },
   "auth_email": {
+    "error": "È necessario un indirizzo e-mail",
+    "label": "La tua e-mail",
+    "placeholder": "nome@email.com"
+  },
+  "auth_login": {
     "error": "È richiesto un nome utente o un indirizzo email",
     "label": "Il tuo nome utente o indirizzo email",
     "placeholder": "nome@email.com"
@@ -99,6 +104,7 @@
   "email": {
     "error": "È necessario un indirizzo email valido",
     "label": "E-mail",
+    "placeholder": "nome@email.com",
     "title": "Aggiungi nuova email | Aggiorna email"
   },
   "field_notes": {
@@ -108,6 +114,11 @@
     "error": "Il tuo nome è obbligatorio",
     "label": "Nome di battesimo"
   },
+  "guest_email": {
+    "description": "Ti invieremo la conferma dell'ordine a questo indirizzo e-mail",
+    "label": "E-mail di conferma dell'ordine",
+    "placeholder": "nome@email.com"
+  },
   "language": {
     "error": "La tua lingua è obbligatoria",
     "label": "Lingua"
@@ -115,9 +126,6 @@
   "lastname": {
     "error": "Il tuo cognome è obbligatorio",
     "label": "Cognome"
-  },
-  "login": {
-    "error": "Si è verificato un errore durante il tentativo di accesso."
   },
   "payment_details_id": {
     "label": ""
@@ -149,15 +157,9 @@
     "error": "Il tuo nome pubblico è obbligatorio",
     "label": "Nome pubblico"
   },
-  "recover": {
-    "error": "Si è verificato un errore durante il tentativo di inviarti un'e-mail per reimpostare la password."
-  },
   "region": {
     "label": "Regione",
     "placeholder": "Seleziona una regione…"
-  },
-  "register": {
-    "error": "Si è verificato un errore durante il tentativo di creare il tuo account."
   },
   "select_option": {
     "placeholder": "Seleziona un'opzione"

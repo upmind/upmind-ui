@@ -43,7 +43,7 @@ async function prepare({
   // states so that RESOLVE evaluates app guards first, endpoint guards second,
   // and the idle fallback last. Changing the spread order below will break
   // guard evaluation priority.
-  const endpoints = createEndpointNodes(overlays ?? {});
+  const endpoints = createEndpointNodes(overlays ?? {}, funnelConfig?.states);
 
   if (!funnelConfig) {
     if (!defaultFunnel) {

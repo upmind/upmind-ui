@@ -18,6 +18,11 @@
     "label": "Autoriser le paiement automatique"
   },
   "auth_email": {
+    "error": "Une adresse e-mail est obligatoire",
+    "label": "Votre adresse e-mail",
+    "placeholder": "nom@email.com"
+  },
+  "auth_login": {
     "error": "Un nom d'utilisateur ou une adresse e-mail sont requis",
     "label": "Votre nom d'utilisateur ou adresse e-mail",
     "placeholder": "nom@email.com"
@@ -25,15 +30,27 @@
   "auth_password": {
     "error": {
       "min_length": "Le mot de passe doit comporter au moins 8 caractères.",
-      "min_length_lowercase": "Le mot de passe doit comporter au moins 8 caractères et contenir une lettre minuscule.",
-      "min_length_lowercase_number": "Le mot de passe doit contenir au moins 8 caractères, au moins une lettre minuscule et au moins un chiffre (0–9).",
+      "min_length_letter": "Le mot de passe doit comporter au moins 8 caractères et contenir une lettre",
+      "min_length_letter_number": "Le mot de passe doit comporter au moins 8 caractères et contenir une lettre et un chiffre",
+      "min_length_letter_number_symbol": "Le mot de passe doit comporter au moins 8 caractères et contenir une lettre, un chiffre et un caractère spécial",
+      "min_length_letter_symbol": "Le mot de passe doit comporter au moins 8 caractères, dont une lettre et un caractère spécial",
       "min_length_number": "Le mot de passe doit comporter au moins 8 caractères et contenir un chiffre.",
-      "missing_lowercase": "Le mot de passe doit contenir une lettre minuscule.",
-      "missing_lowercase_number": "Le mot de passe doit contenir une lettre minuscule et un chiffre.",
-      "missing_number": "Le mot de passe doit contenir un chiffre."
+      "min_length_number_symbol": "Le mot de passe doit comporter au moins 8 caractères, inclure un chiffre et un symbole",
+      "min_length_symbol": "Le mot de passe doit comporter au moins 8 caractères et contenir un caractère spécial",
+      "missing_letter": "Le mot de passe doit contenir une lettre",
+      "missing_letter_number": "Le mot de passe doit contenir une lettre et un chiffre",
+      "missing_letter_number_symbol": "Le mot de passe doit comporter une lettre, un chiffre et un caractère spécial",
+      "missing_letter_symbol": "Le mot de passe doit contenir une lettre et un caractère spécial",
+      "missing_number": "Le mot de passe doit contenir un chiffre.",
+      "missing_number_symbol": "Le mot de passe doit contenir un chiffre et un caractère spécial",
+      "missing_symbol": "Le mot de passe doit contenir un caractère spécial"
     },
+    "generate": "Créer un mot de passe fort",
+    "hide": "Masquer le mot de passe",
+    "hint": "Le mot de passe doit comporter au moins 8 caractères et inclure une lettre, un chiffre et un symbole.",
     "label": "Mot de passe",
-    "placeholder": "Mot de passe ou phrase secrète"
+    "placeholder": "Mot de passe ou phrase secrète",
+    "show": "Afficher le mot de passe"
   },
   "card_cvv": {
     "error": "Un CVV valide est requis",
@@ -72,7 +89,7 @@
   },
   "companyNumber": {
     "label": "Numéro d'entreprise",
-    "placeholder": "Taxe enregistrée ou TPS"
+    "placeholder": "Numéro d'identification de l'entreprise"
   },
   "country": {
     "label": "Pays",
@@ -87,6 +104,7 @@
   "email": {
     "error": "Une adresse e-mail valide est requise",
     "label": "E-mail",
+    "placeholder": "nom@email.com",
     "title": "Ajouter un nouvel e-mail | Mettre à jour un e-mail"
   },
   "field_notes": {
@@ -96,6 +114,11 @@
     "error": "Votre prénom est obligatoire",
     "label": "Prénom"
   },
+  "guest_email": {
+    "description": "Nous t'enverrons la confirmation de ta commande à cette adresse e-mail",
+    "label": "E-mail de confirmation de commande",
+    "placeholder": "nom@email.com"
+  },
   "language": {
     "error": "Votre langue est requise",
     "label": "Langue"
@@ -103,9 +126,6 @@
   "lastname": {
     "error": "Votre nom de famille est obligatoire",
     "label": "Nom"
-  },
-  "login": {
-    "error": "Nous avons rencontré une erreur lors de la tentative de connexion."
   },
   "payment_details_id": {
     "label": ""
@@ -137,15 +157,9 @@
     "error": "Votre nom public est requis.",
     "label": "Nom public"
   },
-  "recover": {
-    "error": "Une erreur s'est produite lors de la tentative de vous envoyer un e-mail de réinitialisation de mot de passe."
-  },
   "region": {
     "label": "Région",
     "placeholder": "Choisissez une région…"
-  },
-  "register": {
-    "error": "Nous avons rencontré une erreur lors de la tentative de création de votre compte."
   },
   "select_option": {
     "placeholder": "Sélectionnez une option"
@@ -155,6 +169,10 @@
   },
   "stored_payment_method": {
     "label": ""
+  },
+  "taxNumber": {
+    "label": "Numéro d'identification fiscale",
+    "placeholder": "Numéro d'identification fiscale / Numéro de TVA / Numéro de GST"
   },
   "twofa": {
     "description": "Ce compte est sécurisé par une authentification à deux facteurs. Veuillez saisir votre code de vérification.",

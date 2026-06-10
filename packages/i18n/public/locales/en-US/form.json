@@ -18,6 +18,11 @@
     "label": "Allow auto payment"
   },
   "auth_email": {
+    "error": "An email address is required",
+    "label": "Your email",
+    "placeholder": "name@email.com"
+  },
+  "auth_login": {
     "error": "A username or email address is required",
     "label": "Your username or email address",
     "placeholder": "name@email.com"
@@ -25,15 +30,27 @@
   "auth_password": {
     "error": {
       "min_length": "Password must be at least 8 characters",
-      "min_length_lowercase": "Password must be at least 8 characters and contain a lowercase letter",
-      "min_length_lowercase_number": "Password must be at least 8 characters and include at least one lowercase letter and one number.",
+      "min_length_letter": "Password must be at least 8 characters and contain a letter",
+      "min_length_letter_number": "Password must be at least 8 characters, contain a letter, and a number",
+      "min_length_letter_number_symbol": "Password must be at least 8 characters, contain a letter, a number, and a symbol",
+      "min_length_letter_symbol": "Password must be at least 8 characters, contain a letter, and a symbol",
       "min_length_number": "Password must be at least 8 characters and contain a number",
-      "missing_lowercase": "Password must contain a lowercase letter",
-      "missing_lowercase_number": "Password must contain a lowercase letter and a number",
-      "missing_number": "Password must contain a number"
+      "min_length_number_symbol": "Password must be at least 8 characters, contain a number, and a symbol",
+      "min_length_symbol": "Password must be at least 8 characters and contain a symbol",
+      "missing_letter": "Password must contain a letter",
+      "missing_letter_number": "Password must contain a letter and a number",
+      "missing_letter_number_symbol": "Password must contain a letter, a number, and a symbol",
+      "missing_letter_symbol": "Password must contain a letter and a symbol",
+      "missing_number": "Password must contain a number",
+      "missing_number_symbol": "Password must contain a number and a symbol",
+      "missing_symbol": "Password must contain a symbol"
     },
+    "generate": "Generate a strong password",
+    "hide": "Hide password",
+    "hint": "Password must be at least 8 characters and include a letter, a number, and a symbol.",
     "label": "Password",
-    "placeholder": "Password or passphrase"
+    "placeholder": "Password or passphrase",
+    "show": "Show password"
   },
   "card_cvv": {
     "error": "A valid CVV is required",
@@ -72,7 +89,7 @@
   },
   "companyNumber": {
     "label": "Company Number",
-    "placeholder": "Registered tax or GST"
+    "placeholder": "Company Identification Number"
   },
   "country": {
     "label": "Country",
@@ -87,6 +104,7 @@
   "email": {
     "error": "A valid Email Address is required",
     "label": "Email",
+    "placeholder": "name@email.com",
     "title": "Add New Email | Update Email"
   },
   "field_notes": {
@@ -96,6 +114,11 @@
     "error": "Your first name is required",
     "label": "First name"
   },
+  "guest_email": {
+    "description": "We'll send your order confirmation to this email",
+    "label": "Email for order receipt",
+    "placeholder": "name@email.com"
+  },
   "language": {
     "error": "Your language is required",
     "label": "Language"
@@ -103,9 +126,6 @@
   "lastname": {
     "error": "Your last name is required",
     "label": "Last name"
-  },
-  "login": {
-    "error": "We experienced an error while trying to log you in."
   },
   "payment_details_id": {
     "label": ""
@@ -137,15 +157,9 @@
     "error": "Your public name is required",
     "label": "Public name"
   },
-  "recover": {
-    "error": "We experienced an error while trying to send you a password reset email."
-  },
   "region": {
     "label": "Region",
     "placeholder": "Select a region…"
-  },
-  "register": {
-    "error": "We experienced an error while trying to create your account."
   },
   "select_option": {
     "placeholder": "Select an option"
@@ -155,6 +169,10 @@
   },
   "stored_payment_method": {
     "label": ""
+  },
+  "taxNumber": {
+    "label": "Registered Tax ID",
+    "placeholder": "Tax ID/VAT/GST Number"
   },
   "twofa": {
     "description": "This account is secured using two-factor authentication. Please enter your verification code.",
