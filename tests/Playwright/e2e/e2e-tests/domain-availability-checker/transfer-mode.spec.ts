@@ -1,9 +1,10 @@
-import { test, expect, Page } from "@playwright/test";
+import { test, expect } from "@playwright/test";
 import { URLs } from "../../support/constants/urls";
 import { getSessionToken } from "../../support/api/auth";
 import { waitForSessionCookie } from "../../support/helpers/session";
 import { interceptConfigValues } from "../../support/mocks/brand";
 import { mockDomainAvailability } from "../../support/mocks/domain";
+import { ProductConfig } from "../../support/page-objects/templates/product-config";
 import {
   domainProducts,
   domainProductIds
@@ -31,34 +32,23 @@ import {
 
 const TRANSFER_DOMAIN = "mybusiness.com";
 
+let productConfig: ProductConfig;
+
 /**
  * Select the "Use a domain I already own" radio and fill the domain input.
  * The existing-domain flow checks availability only (no suggestions).
  */
-async function selectExistingAndFill(page: Page, domain: string) {
-  // Wait for the domain field section to be visible
-  // The label "Use existing domain" indicates the radio we want
-  const existingOption = page.locator("text=Use existing domain");
-  await existingOption.scrollIntoViewIfNeeded();
-  await existingOption.waitFor({ state: "visible", timeout: 15000 });
-
-  // Click on the option row (parent container handles the click)
-  await existingOption.click();
-
-  // Wait for the existing domain input to appear
-  // The input has placeholder "Enter your domain..."
-  const domainInput = page.getByPlaceholder(/enter your domain/i);
-  await domainInput.waitFor({ state: "visible", timeout: 10000 });
-  await domainInput.fill(domain);
-
-  // Trigger the blur event to ensure debounced update fires
-  await domainInput.blur();
+async function selectExistingAndFill(domain: string) {
+  await productConfig.domainRadioExisting.scrollIntoViewIfNeeded();
+  await productConfig.enterDomainRadio("existing", domain);
+  await productConfig.domainExistingInput.blur();
 }
 
 test.describe("DAC existing-domain mode (transfer checks)", () => {
   // Brand intercept registered directly in beforeEach so it's always wired up
   // before any test-side navigation triggers a brand-config fetch.
   test.beforeEach(async ({ page, context }) => {
+    productConfig = new ProductConfig(page);
     await page.goto(URLs.baseUrl);
     await waitForSessionCookie(context, { guestOnly: true });
     const token = await getSessionToken(context);
@@ -91,7 +81,7 @@ test.describe("DAC existing-domain mode (transfer checks)", () => {
     });
 
     await page.goto(URLs.starterHosting);
-    await selectExistingAndFill(page, TRANSFER_DOMAIN);
+    await selectExistingAndFill(TRANSFER_DOMAIN);
 
     // Wait for the transfer button to appear - this proves the availability check completed
     const addTransferButton = page.getByRole("button", {
@@ -120,7 +110,7 @@ test.describe("DAC existing-domain mode (transfer checks)", () => {
     });
 
     await page.goto(URLs.starterHosting);
-    await selectExistingAndFill(page, TRANSFER_DOMAIN);
+    await selectExistingAndFill(TRANSFER_DOMAIN);
 
     // SmartDomainExisting shows "Add transfer" button for transferable domains
     const addTransferButton = page.getByRole("button", {
@@ -144,7 +134,7 @@ test.describe("DAC existing-domain mode (transfer checks)", () => {
     });
 
     await page.goto(URLs.starterHosting);
-    await selectExistingAndFill(page, TRANSFER_DOMAIN);
+    await selectExistingAndFill(TRANSFER_DOMAIN);
 
     // When a domain cannot be transferred or registered, the existing flow shows
     // DNS-only info text OR allows it as-is for manual DNS setup
@@ -152,7 +142,7 @@ test.describe("DAC existing-domain mode (transfer checks)", () => {
     await page.waitForTimeout(2000);
 
     // The domain input should still contain the domain (not cleared)
-    const domainInput = page.getByPlaceholder(/enter your domain/i);
+    const domainInput = productConfig.domainExistingInput;
     await expect(domainInput).toHaveValue(TRANSFER_DOMAIN);
 
     // No transfer or register button should appear
@@ -171,13 +161,13 @@ test.describe("DAC existing-domain mode (transfer checks)", () => {
     mockDomainAvailability(context, { errorStatus: 500 });
 
     await page.goto(URLs.starterHosting);
-    await selectExistingAndFill(page, TRANSFER_DOMAIN);
+    await selectExistingAndFill(TRANSFER_DOMAIN);
 
     // Wait for the error response to be processed
     await page.waitForTimeout(2000);
 
     // The domain input should still contain the domain
-    const domainInput = page.getByPlaceholder(/enter your domain/i);
+    const domainInput = productConfig.domainExistingInput;
     await expect(domainInput).toHaveValue(TRANSFER_DOMAIN);
 
     // No transfer or register button should appear on error
@@ -204,17 +194,31 @@ test.describe("DAC existing-domain mode (transfer checks)", () => {
     page,
     context
   }) => {
-    // Product with £0 transfer price
+    // `transferOptionIsFree` is driven by `getTransferOptionPrice`
+    // (headless/domain/utils.ts), NOT by the parent product's own prices. It
+    // returns `isFree: true` only when the transfer SUB-product — the
+    // `options[]` entry referenced by `setup_function_sub_ids.transfer` — has
+    // `category.price_override` truthy AND a `billing_cycle_months: 0` price of
+    // `0`. Build exactly that shape so the real free-transfer copy renders.
+    const base = domainProducts[domainProductIds.com];
+    const transferSubId = base.setup_function_sub_ids?.transfer?.[0];
     const freeTransferProduct = {
-      ...domainProducts[domainProductIds.com],
-      prices: [
+      ...base,
+      // Parent prices stay non-zero — they drive the renewal line, not "free".
+      options: [
         {
-          billing_cycle_months: 12,
-          price_formatted: "£0.00",
-          price_discounted_formatted: null,
-          price: 0,
-          price_discounted: null,
-          promotions: []
+          id: transferSubId,
+          category: { price_override: true },
+          prices: [
+            {
+              billing_cycle_months: 0,
+              price: 0,
+              price_formatted: "£0.00",
+              price_discounted_formatted: null,
+              price_discounted: null,
+              promotions: []
+            }
+          ]
         }
       ]
     };
@@ -232,7 +236,7 @@ test.describe("DAC existing-domain mode (transfer checks)", () => {
     });
 
     await page.goto(URLs.starterHosting);
-    await selectExistingAndFill(page, TRANSFER_DOMAIN);
+    await selectExistingAndFill(TRANSFER_DOMAIN);
 
     // Wait for the transfer info to appear
     const transferInfo = page.locator("text=/transfer.*free/i");
@@ -274,11 +278,12 @@ test.describe("DAC existing-domain mode (transfer checks)", () => {
     });
 
     await page.goto(URLs.starterHosting);
-    await selectExistingAndFill(page, TRANSFER_DOMAIN);
+    await selectExistingAndFill(TRANSFER_DOMAIN);
 
-    // Should show the transfer price
-    const priceText = page.locator("text=£2.50");
-    await expect(priceText).toBeVisible({ timeout: 15000 });
+    // Scope to the transfer copy — a bare £2.50 also matches the product-card
+    // price ("From £2.50 a month") and the price-detail line.
+    const transferCopy = page.getByText(/transfer it to us for only/i);
+    await expect(transferCopy).toContainText("£2.50", { timeout: 15000 });
   });
 
   // TODO FE-2806: Add test for conditional renewal copy once product field is identified

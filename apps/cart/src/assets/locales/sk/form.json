@@ -18,6 +18,11 @@
     "label": "Povoliť automatickú platbu"
   },
   "auth_email": {
+    "error": "E-mailová adresa je povinná",
+    "label": "Tvoj e-mail",
+    "placeholder": "meno@email.com"
+  },
+  "auth_login": {
     "error": "Vyžaduje sa používateľské meno alebo e-mailová adresa",
     "label": "Vaše používateľské meno alebo e-mailová adresa",
     "placeholder": "meno@email.com"
@@ -99,6 +104,7 @@
   "email": {
     "error": "Je potrebná platná e-mailová adresa",
     "label": "E-mail",
+    "placeholder": "meno@email.com",
     "title": "Pridať nový e-mail | Aktualizovať e-mail"
   },
   "field_notes": {
@@ -108,6 +114,11 @@
     "error": "Vaše krstné meno je povinné",
     "label": "Krstné meno"
   },
+  "guest_email": {
+    "description": "Potvrdenie objednávky vám zašleme na túto e-mailovú adresu",
+    "label": "E-mail na potvrdenie objednávky",
+    "placeholder": "meno@email.com"
+  },
   "language": {
     "error": "Váš jazyk je povinný",
     "label": "Jazyk"
@@ -115,9 +126,6 @@
   "lastname": {
     "error": "Vaše priezvisko je povinné",
     "label": "Priezvisko"
-  },
-  "login": {
-    "error": "Pri pokuse o vaše prihlásenie sa vyskytla chyba."
   },
   "payment_details_id": {
     "label": ""
@@ -149,15 +157,9 @@
     "error": "Vyžaduje sa vaše verejné meno",
     "label": "Verejný názov"
   },
-  "recover": {
-    "error": "Pri pokuse o odoslanie e-mailu na obnovenie hesla sa vyskytla chyba."
-  },
   "region": {
     "label": "Región",
     "placeholder": "Vyberte región…"
-  },
-  "register": {
-    "error": "Pri pokuse o vytvorenie vášho účtu sa vyskytla chyba."
   },
   "select_option": {
     "placeholder": "Vyberte možnosť"

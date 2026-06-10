@@ -18,6 +18,11 @@
     "label": "Automatische betaling toestaan"
   },
   "auth_email": {
+    "error": "Een e-mailadres is verplicht",
+    "label": "Je e-mailadres",
+    "placeholder": "naam@email.com"
+  },
+  "auth_login": {
     "error": "Een gebruikersnaam of e-mailadres is vereist",
     "label": "Uw gebruikersnaam of e-mailadres",
     "placeholder": "naam@email.com"
@@ -25,15 +30,27 @@
   "auth_password": {
     "error": {
       "min_length": "Het wachtwoord moet minimaal 8 tekens bevatten.",
-      "min_length_lowercase": "Het wachtwoord moet minimaal 8 tekens lang zijn en een kleine letter bevatten.",
-      "min_length_lowercase_number": "Wachtwoord moet minimaal 8 tekens bevatten, inclusief een kleine letter en een cijfer",
+      "min_length_letter": "Het wachtwoord moet uit minimaal 8 tekens bestaan en een letter bevatten",
+      "min_length_letter_number": "Het wachtwoord moet uit minimaal 8 tekens bestaan en zowel een letter als een cijfer bevatten",
+      "min_length_letter_number_symbol": "Het wachtwoord moet uit minimaal 8 tekens bestaan en een letter, een cijfer en een teken bevatten",
+      "min_length_letter_symbol": "Het wachtwoord moet uit minimaal 8 tekens bestaan en een letter en een teken bevatten",
       "min_length_number": "Het wachtwoord moet minimaal 8 tekens lang zijn en een cijfer bevatten.",
-      "missing_lowercase": "Het wachtwoord moet een kleine letter bevatten.",
-      "missing_lowercase_number": "Het wachtwoord moet een kleine letter en een cijfer bevatten.",
-      "missing_number": "Het wachtwoord moet een cijfer bevatten."
+      "min_length_number_symbol": "Het wachtwoord moet uit minimaal 8 tekens bestaan en een cijfer en een speciaal teken bevatten",
+      "min_length_symbol": "Het wachtwoord moet uit minimaal 8 tekens bestaan en een speciaal teken bevatten",
+      "missing_letter": "Het wachtwoord moet een letter bevatten",
+      "missing_letter_number": "Het wachtwoord moet een letter en een cijfer bevatten",
+      "missing_letter_number_symbol": "Het wachtwoord moet een letter, een cijfer en een teken bevatten",
+      "missing_letter_symbol": "Het wachtwoord moet een letter en een teken bevatten",
+      "missing_number": "Het wachtwoord moet een cijfer bevatten.",
+      "missing_number_symbol": "Het wachtwoord moet een cijfer en een teken bevatten",
+      "missing_symbol": "Het wachtwoord moet een speciaal teken bevatten"
     },
+    "generate": "Maak een sterk wachtwoord aan",
+    "hide": "Wachtwoord verbergen",
+    "hint": "Het wachtwoord moet uit minimaal 8 tekens bestaan en een letter, een cijfer en een teken bevatten.",
     "label": "Wachtwoord",
-    "placeholder": "Wachtwoord of wachtwoordzin"
+    "placeholder": "Wachtwoord of wachtwoordzin",
+    "show": "Wachtwoord weergeven"
   },
   "card_cvv": {
     "error": "Een geldige CVV is vereist",
@@ -72,7 +89,7 @@
   },
   "companyNumber": {
     "label": "Bedrijfsnummer",
-    "placeholder": "Geregistreerde belasting of GST"
+    "placeholder": "Bedrijfsregistratienummer"
   },
   "country": {
     "label": "Land",
@@ -87,6 +104,7 @@
   "email": {
     "error": "Een geldig e-mailadres is vereist",
     "label": "E-mail",
+    "placeholder": "naam@email.com",
     "title": "Nieuw e-mailadres toevoegen | E-mailadres bijwerken"
   },
   "field_notes": {
@@ -96,6 +114,11 @@
     "error": "Uw voornaam is vereist",
     "label": "Voornaam"
   },
+  "guest_email": {
+    "description": "We sturen je bestelbevestiging naar dit e-mailadres",
+    "label": "E-mail ter bevestiging van de bestelling",
+    "placeholder": "naam@email.com"
+  },
   "language": {
     "error": "Uw taal is vereist.",
     "label": "Taal"
@@ -103,9 +126,6 @@
   "lastname": {
     "error": "Uw achternaam is vereist",
     "label": "Achternaam"
-  },
-  "login": {
-    "error": "Er is een fout opgetreden bij het inloggen."
   },
   "payment_details_id": {
     "label": ""
@@ -137,15 +157,9 @@
     "error": "Uw openbare naam is verplicht.",
     "label": "Publieke naam"
   },
-  "recover": {
-    "error": "Er is een fout opgetreden bij het verzenden van een e-mail om uw wachtwoord opnieuw in te stellen."
-  },
   "region": {
     "label": "Regio",
     "placeholder": "Selecteer een regio…"
-  },
-  "register": {
-    "error": "Er is een fout opgetreden bij het aanmaken van uw account."
   },
   "select_option": {
     "placeholder": "Selecteer een optie"
@@ -155,6 +169,10 @@
   },
   "stored_payment_method": {
     "label": ""
+  },
+  "taxNumber": {
+    "label": "Geregistreerd belastingnummer",
+    "placeholder": "Fiscaal identificatienummer/btw-nummer"
   },
   "twofa": {
     "description": "Dit account is beveiligd met tweefactorauthenticatie. Voer uw verificatiecode in.",

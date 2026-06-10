@@ -163,7 +163,10 @@ const visiblePricing = computed(() =>
 const meta = computed(() => ({
   isDisabled: props.disabled,
   isLoading: props.loading,
-  isProcessing: props.processing || !!config?.meta?.value?.isProcessing,
+  isProcessing:
+    props.processing ||
+    !!config?.meta?.value?.isProcessing ||
+    !!config?.meta?.value?.isChecking,
   isUnavailable: isEmpty(props.id),
   hasErrors: !isEmpty(props.errors) || some(props.details, "meta.invalid"),
   hasConfigErrors: !!config?.meta?.value?.hasErrors,

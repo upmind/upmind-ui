@@ -1,7 +1,7 @@
 // --- external
 
 // --- internal
-import { useI18n, useQuery } from "../..";
+import { useI18n, useQuery, type AnyEventObject } from "../..";
 
 // --- utils
 import { isEmpty } from "lodash-es";
@@ -68,10 +68,35 @@ async function transferFrom({ transfer }: SessionContext) {
   });
 }
 
+async function verify(_context: SessionContext, { data }: AnyEventObject) {
+  const { t } = useI18n();
+  const { patch, useUrl } = useQuery();
+
+  const { clientId, emailId, hash } = data ?? {};
+
+  if (!clientId || !emailId || !hash)
+    return Promise.reject(
+      new DetailedError(
+        t("error.client_email_verify_failed"),
+        responseCodes.Not_Found,
+        ErrorOrigin.Headless,
+        data
+      )
+    );
+
+  return patch({
+    mutationKey: ["session", "email", "check_verify", clientId, emailId],
+    url: useUrl(`clients/${clientId}/emails/${emailId}/check_verify`),
+    data: { reg_hash: hash },
+    withAccessToken: true
+  });
+}
+
 // -----------------------------------------------------------------------------
 
 export default {
   check,
   transferTo,
-  transferFrom
+  transferFrom,
+  verify
 };

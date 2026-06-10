@@ -28,9 +28,9 @@
     },
     "login": {
       "email": {
-        "label": "Your username or email address",
+        "label": "Your email",
         "placeholder": "name@email.com",
-        "error": "A username or email address is required",
+        "error": "An email address is required",
         "description": null
       },
       "password": {
@@ -48,9 +48,9 @@
     },
     "recover": {
       "email": {
-        "label": "Your username or email address",
+        "label": "Your email",
         "placeholder": "name@email.com",
-        "error": "A username or email address is required"
+        "error": "An email address is required"
       }
     },
     "actions": {

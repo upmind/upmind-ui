@@ -1,17 +1,22 @@
 {
+  "basket_placeholder": "Alegeți un domeniu",
   "begin_search_above_desc": "Începeți căutarea folosind caseta de mai sus.",
   "choices": {
     "basket": {
-      "label": "Folosește domeniul în coș",
+      "label": "Folosește un domeniu din coșul meu",
       "tooltip": "Aceste domenii sunt deja în coșul dvs."
     },
     "existing": {
-      "label": "Folosește domeniul existent",
+      "label": "Folosește un domeniu pe care îl dețin deja",
       "tooltip": "Puteți folosi un domeniu existent actualizând serverele de nume"
     },
     "register": {
       "label": "Înregistrați un domeniu nou",
       "tooltip": "Nu aveți deja un domeniu? Înregistrați unul nou la noi"
+    },
+    "skip": {
+      "label": "O să mă hotărăsc mai târziu",
+      "tooltip": ""
     },
     "transfer": {
       "label": "Transfer domeniu",
@@ -21,20 +26,43 @@
   "domain_description": "Securizează-ți identitatea online astăzi – durează doar un minut.",
   "domain_not_required_label": "Continuă fără domeniu",
   "domain_title": "Includeți un nume de domeniu.",
+  "error": {
+    "availability_check_failed": "Nu s-a putut verifica disponibilitatea domeniului",
+    "registration_add_failed": "Nu s-a putut adăuga domeniul în coș",
+    "transfer_add_failed": "Nu s-a putut adăuga transferul în coș",
+    "transfer_remove_failed": "Nu s-a putut elimina transferul din coș"
+  },
+  "existing": {
+    "add_registration": "Adaugă în coș",
+    "add_transfer": "Adaugă transfer",
+    "dns_info": "Pentru a utiliza acest domeniu, va trebui să actualizați setările DNS ale domeniului la registratorul actual.",
+    "placeholder": "Spune-ne ce domeniu dorești să folosești.",
+    "register_info": "Vești bune — acest domeniu poate fi înregistrat la doar {price}, preț care include și înregistrarea {period} de ani.",
+    "remove_transfer": "Anulează transferul",
+    "transfer_added": "S-a adăugat transferul",
+    "transfer_info": "Dacă dețineți acest domeniu, îl puteți transfera la noi pentru doar {transferPrice}. Reînnoirile ulterioare se taxează cu {term}. În caz contrar, va trebui să actualizați înregistrările serverelor de nume (NS) ale domeniului.",
+    "transfer_info_free": "Dacă dețineți acest domeniu, îl puteți transfera la noi GRATUIT. Reînnoirile ulterioare se taxează cu {term}. Alternativ, va trebui să actualizați înregistrările serverelor de nume (NS) ale domeniului.",
+    "unavailable": "Acest domeniu nu poate fi înregistrat sau transferat."
+  },
   "finding_perfect_domain": "Găsirea domeniului tău **perfect**",
   "finding_perfect_domain_md": "@.markdown:{'domain.finding_perfect_domain'}",
   "own_domain_qn": "Dețineți acest domeniu?",
   "owned_domains_title": "Domenii pe care le dețineți în prezent",
   "price_renewal_desc": "Preț unic de {regularPrice}. | Se reînnoiește în fiecare an pentru {regularPrice}. | Se reînnoiește la fiecare {count} ani pentru {regularPrice}.",
-  "search": "Căutați domenii",
+  "registrant_use_billing_msg": "Detaliile dumneavoastră de facturare vor fi utilizate ca informații de contact ale registratorului domeniului.",
+  "search": "Introduceți un domeniu pentru a efectua căutarea",
   "starts_with_domain": "Totul începe cu un **nume de domeniu**",
   "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
+  "tld_renewal_info": "Reînnoirile încep de la {term}.",
   "tld_renewal_price_desc": "Noastre {tld} prețurile de reînnoire încep de la doar {currentPrice} (a fost {regularPrice}).",
   "tld_renewal_price_from_desc": "Noastre {tld} prețurile de reînnoire încep de la doar {regularPrice}.",
   "transfer": "Transfer pentru doar {currentPrice}.",
   "transfer_domain": "Transfer domeniu",
   "transfer_extension_info": "Transferurile includ o prelungire de un an.",
+  "transfer_free_info": "Ne-l puteți transfera GRATUIT.",
   "transfer_owner_question": "Sunteți proprietarul acestui domeniu?",
   "transfer_price_info": "Ne-l puteți transfera pentru doar {currentPrice}",
-  "transfer_promotion": "Transfer pentru doar {currentPrice}, de obicei {regularPrice}."
+  "transfer_promotion": "Transfer pentru doar {currentPrice}, de obicei {regularPrice}.",
+  "transfer_today_info": "Ne puteți transfera suma chiar astăzi.",
+  "use_details_for": "Folosește aceste detalii pentru {domain}"
 }

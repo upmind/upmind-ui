@@ -18,9 +18,14 @@
     "label": "Avtomatik ödənişə icazə verin"
   },
   "auth_email": {
+    "error": "E-poçt ünvanı tələb olunur",
+    "label": "E-poçtunuz",
+    "placeholder": "ad@email.com"
+  },
+  "auth_login": {
     "error": "İstifadəçi adı və ya e-poçt ünvanı tələb olunur",
     "label": "İstifadəçi adınız və ya e-poçt ünvanınız",
-    "placeholder": "name@email.com"
+    "placeholder": "ad@email.com"
   },
   "auth_password": {
     "error": {
@@ -99,6 +104,7 @@
   "email": {
     "error": "Etibarlı bir e-poçt ünvanı tələb olunur",
     "label": "E-poçt",
+    "placeholder": "ad@email.com",
     "title": "Yeni E-poçt əlavə et | E-poçtu yeniləyin"
   },
   "field_notes": {
@@ -108,6 +114,11 @@
     "error": "Adınız tələb olunur",
     "label": "Ad"
   },
+  "guest_email": {
+    "description": "Sifariş təsdiqinizi bu e-poçta göndərəcəyik",
+    "label": "Sifariş qəbzi üçün e-poçt",
+    "placeholder": "ad@email.com"
+  },
   "language": {
     "error": "Diliniz tələb olunur",
     "label": "Dil"
@@ -115,9 +126,6 @@
   "lastname": {
     "error": "Soyadınız tələb olunur",
     "label": "Soyadı"
-  },
-  "login": {
-    "error": "Sizi daxil etməyə çalışarkən xəta ilə üzləşdik."
   },
   "payment_details_id": {
     "label": ""
@@ -149,15 +157,9 @@
     "error": "İctimai adınız tələb olunur",
     "label": "İctimai ad"
   },
-  "recover": {
-    "error": "Sizə parol sıfırlama e-poçtu göndərmək istəyərkən xəta ilə üzləşdik."
-  },
   "region": {
     "label": "Region",
     "placeholder": "Region seçin..."
-  },
-  "register": {
-    "error": "Hesabınızı yaratmağa çalışarkən xəta ilə üzləşdik."
   },
   "select_option": {
     "placeholder": "Seçim seçin"

@@ -201,7 +201,7 @@ export const useLoginSchemaParser = () => {
     properties: {
       username: {
         type: "string",
-        title: "Your username or email address"
+        title: "Your email"
         // format: "email", // DEPRECATED as we can log in with email OR username
       },
       password: {
@@ -220,10 +220,10 @@ export const useLoginUischemaParser = () => {
       {
         type: "Control",
         scope: "#/properties/username",
-        i18n: "form.auth_email",
+        i18n: "form.auth_login",
         options: {
           autoFocus: true,
-          autocomplete: "email",
+          autocomplete: "username",
           placeholder: "name@email.com"
         }
       },
@@ -319,7 +319,7 @@ export const useRecoverSchemaParser = () => {
     properties: {
       username: {
         type: "string",
-        title: "Your username or email address"
+        title: "Your email"
       }
     }
   };
@@ -332,10 +332,10 @@ export const useRecoverUischemaParser = () => {
       {
         type: "Control",
         scope: "#/properties/username",
-        i18n: "form.auth_email",
+        i18n: "form.auth_login",
         options: {
           autoFocus: true,
-          autocomplete: "email",
+          autocomplete: "username",
           placeholder: "name@email.com"
         }
       }

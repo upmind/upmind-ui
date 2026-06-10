@@ -19,9 +19,15 @@
       <label
         class="text-md-tight flex flex-col items-start break-all not-italic"
         v-if="client"
+        data-testid="dropdown-account-label"
       >
-        <strong class="font-medium">{{ client.fullName }}</strong>
-        <span class="text-md-tight font-normal opacity-60">
+        <strong class="font-medium">
+          {{ meta.isGuestClient ? t("auth.guest") : client.fullName }}
+        </strong>
+        <span
+          v-if="!meta.isGuestClient"
+          class="text-md-tight font-normal opacity-60"
+        >
           {{ client.username }}
         </span>
       </label>
@@ -42,15 +48,32 @@ import type { DropdownMenuItemProps } from "@upmind-automation/upmind-ui";
 
 import { useI18n } from "vue-i18n";
 
-const { t } = useI18n();
+const emit = defineEmits<{
+  register: [];
+}>();
 
+const { t } = useI18n();
 const { client, logout, meta } = useSession();
-const items = computed<DropdownMenuItemProps[]>(() => [
-  {
+
+const items = computed<DropdownMenuItemProps[]>(() => {
+  const menuItems: DropdownMenuItemProps[] = [];
+
+  if (meta.value.isGuestClient) {
+    menuItems.push({
+      label: t("action.register"),
+      icon: "user-plus-01",
+      value: "register",
+      handler: () => emit("register")
+    });
+  }
+
+  menuItems.push({
     label: t("action.logout"),
     icon: "log-out-01",
     value: "logout",
     handler: logout
-  }
-]);
+  });
+
+  return menuItems;
+});
 </script>

@@ -9,19 +9,33 @@
 
     <template #hero>
       <slot name="hero">
-        <Hero :title="t('action.create_account')">
+        <Hero
+          :title="
+            meta.isGuestClient
+              ? t('auth.guest_register_title')
+              : t('action.create_account')
+          "
+        >
           <template #subtitle>
-            <span class="font-normal"
-              >{{ t("auth.register_description") }}&nbsp;</span
-            >
+            <!-- A guest client is upgrading, not choosing login vs register —
+                 show the save-your-details prompt, not the log-in link. -->
+            <span v-if="meta.isGuestClient" class="font-normal">{{
+              t("auth.guest_register_description")
+            }}</span>
 
-            <Link
-              :to="props.loginRoute"
-              size="inherit"
-              color="inherit"
-              :label="t('action.log_in_here')"
-              class="font-normal"
-            />
+            <template v-else>
+              <span class="font-normal"
+                >{{ t("auth.register_description") }}&nbsp;</span
+              >
+
+              <Link
+                :to="props.loginRoute"
+                size="inherit"
+                color="inherit"
+                :label="t('action.log_in_here')"
+                class="font-normal"
+              />
+            </template>
           </template>
         </Hero>
       </slot>
@@ -29,10 +43,14 @@
 
     <template #form>
       <slot name="form">
+        <!-- One register form for new sign-ups AND guest-client upgrades; Auth
+             picks the right form from the session machine (a guest client's
+             upgrade form is owned by the client machine). Shown unless the user
+             is a fully-registered client. -->
         <Section
           :label="t('action.register')"
           icon="user-03"
-          v-show="!meta.isAuthenticated"
+          v-show="!meta.isAuthenticated || meta.isGuestClient"
           class="max-w-3xl"
           :active="templateMeta.hasActiveSection"
         >
@@ -41,8 +59,47 @@
             tag="div"
             :model-value="registerTemplate.body"
           />
+
+          <Alert
+            v-if="
+              meta.canRegisterAsGuest &&
+              !basketMeta.isLoading &&
+              !basketMeta.hasRecurringProducts
+            "
+            :title="t('auth.guest_checkout_qn')"
+            icon="clock-fast-forward"
+            variant="muted"
+            size="sm"
+            :class="styles.session.guestCheckout"
+          >
+            <template #action>
+              <Link
+                size="sm"
+                @click="registerAsGuest"
+                color="inherit"
+                :label="t('auth.guest_checkout_action')"
+                :disabled="meta.isRegisteringAsGuest"
+                data-testid="guest-checkout-cta"
+              >
+                <template #append>
+                  <Spinner
+                    v-if="meta.isRegisteringAsGuest"
+                    size="badge"
+                    class="m-1.5"
+                  />
+                  <Icon
+                    v-else
+                    icon="arrow-right"
+                    size="2xs"
+                    class="p-1.5 [&>svg]:size-3"
+                  />
+                </template>
+              </Link>
+            </template>
+          </Alert>
+
           <Auth
-            v-show="!meta.isLoading"
+            v-show="!meta.isLoading && !basketMeta.isLoading"
             class="rounded-box w-full max-w-5xl items-start"
             no-tabs
             no-header
@@ -52,7 +109,7 @@
           />
 
           <div
-            v-if="meta.isLoading"
+            v-if="meta.isLoading || basketMeta.isLoading"
             class="flex w-full max-w-5xl flex-col gap-6"
           >
             <div>
@@ -145,7 +202,14 @@ import sessionConfig from "./session.config";
 import { useSessionTemplates } from "./session.utils";
 
 // --- components
-import { Link, Markdown, Skeleton } from "@upmind-automation/upmind-ui";
+import {
+  Link,
+  Markdown,
+  Skeleton,
+  Icon,
+  Alert,
+  Spinner
+} from "@upmind-automation/upmind-ui";
 import Auth from "./components/Auth.vue";
 import Hero from "../../components/hero/Hero.vue";
 import Back from "./components/Back.vue";
@@ -199,17 +263,23 @@ const props = defineProps<
 const { t } = useI18n();
 const { set } = useThemes();
 
-const { meta, isReady } = useSession();
+const { meta, isReady, registerAsGuest } = useSession();
 const { meta: basketMeta } = useBasket();
 const { navigateNext, navigateBack, navigate } = useRoutingEngine();
+const { brandId } = useBrand();
 
-const styles = useStyles(["session"], {}, sessionConfig);
+const styles = useStyles(
+  ["session", "session.guestCheckout"],
+  computed(() => ({
+    template: template.value
+  })),
+  sessionConfig
+);
 
 const { ui } = useConfig({
   context: UIContext.AUTH,
   provide: true
 });
-const { brandId } = useBrand();
 const { data: registerTemplate } = useClientTemplate({
   code: ClientTemplateSlotCodes.REGISTER_PAGE,
   objectId: brandId.value

@@ -25,6 +25,7 @@ import type {
   GuestContext,
   LoginModel,
   RecoverModel,
+  RegisterGuestResponse,
   RegisterModel,
   TWOFAModel
 } from "./types";
@@ -197,6 +198,49 @@ async function register({ model }: GuestContext<RegisterModel>) {
     });
 }
 
+async function registerAsGuest(_context: GuestContext, _event: AnyEventObject) {
+  const { post, useUrl } = useQuery();
+  const { currency } = useBasket();
+  const { get: getCookie } = useCookies();
+  const { get: getTracking } = useTracking();
+
+  const registerData: any = {};
+  if (currency.value) registerData.currency_id = currency.value.id;
+
+  const referralCookie = getCookie("upm_aff", v => v);
+  if (referralCookie) registerData.referral_cookie = referralCookie;
+
+  await getTracking()
+    .then(values => (registerData.tracking = values))
+    .catch(() => null);
+
+  const clientResponse = await post<RegisterGuestResponse>({
+    mutationKey: ["session", "guest", "register"],
+    url: useUrl("clients/register/guest"),
+    data: registerData,
+    withAccessToken: true
+  });
+
+  const clientId = clientResponse?.data?.id ?? clientResponse?.id;
+  const token = await post<IToken>({
+    mutationKey: ["session"],
+    url: useUrl("access_token", {}, { context: "oauth" }),
+    data: {
+      client_id: clientId,
+      grant_type: GrantTypes.GUEST_CUSTOMER
+    },
+    withAccessToken: true
+  });
+
+  // Override actor_type from GUEST_CUSTOMER to CLIENT so the session machine
+  // routes the user through the client state machine. The `is_guest: true` flag
+  // on the /self response remains the discriminator that distinguishes a guest
+  // customer from a fully-registered client (see client.machine `available.checking`).
+  persistTokenToStorage({ ...token, actor_type: Contexts.CLIENT });
+
+  return loadUser();
+}
+
 async function recover({ model }: GuestContext<RecoverModel>) {
   const recaptcha = useRecaptcha();
   const { post, useUrl } = useQuery();
@@ -257,5 +301,6 @@ export default {
   // ---
   getCustomFields,
   recover,
-  register
+  register,
+  registerAsGuest
 };

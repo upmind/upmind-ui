@@ -35,7 +35,7 @@ export default {
     }
   },
   modal: {
-    content: cva("gap-6 p-8 text-center md:p-18"),
+    scrollable: cva("gap-6 p-8 text-center md:p-18"),
     container: cva("gap-9"),
     header: cva("flex flex-col gap-2 text-center"),
     title: cva("text-3xl font-normal md:text-4xl"),

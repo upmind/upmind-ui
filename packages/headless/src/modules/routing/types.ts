@@ -173,10 +173,25 @@ export type FunnelResponse = {
   target?: FunnelTarget;
 };
 
+/**
+ * Alternative guard payload (resolve/reject) for rendering an overlay over a
+ * base route. The `setOverlay` action turns this into a `{base}--{overlayId}`
+ * target, looking the overlay id up in the overlay registry. Funnel-agnostic —
+ * `target` is the base FunnelTarget the overlay renders over (carrying any
+ * params/query), `overlay` is the registered overlay route name.
+ */
+export type OverlayResponse = FunnelResponse & {
+  type?: FunnelActions.OVERLAY;
+  target?: FunnelTarget;
+  /** The overlay route to display — must be a registered overlay. */
+  overlay: string;
+};
+
 export enum FunnelActions {
   NEXT = "NEXT",
   BACK = "BACK",
-  REDIRECT = "REDIRECT"
+  REDIRECT = "REDIRECT",
+  OVERLAY = "OVERLAY"
 }
 
 // --- watcher types

@@ -7,7 +7,6 @@ import type {
 import type { CxOptions } from "class-variance-authority";
 import { AVATAR_SHAPES } from "@upmind-automation/upmind-ui";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
-
 // -----------------------------------------------------------------------------
 export type ActionProps = ButtonProps & {
   type?: HTMLButtonElement["type"];
@@ -16,8 +15,19 @@ export type ActionProps = ButtonProps & {
   visible?: boolean;
 };
 
+export const enum SESSION_FORMS {
+  LOGIN = "login",
+  REGISTER = "register",
+  RECOVER = "recover",
+  RESET = "reset",
+  PROFILE = "profile",
+  GUEST = "guest",
+  VERIFY = "verify",
+  UNKNOWN = "unknown"
+}
+
 export type SessionProps = {
-  modelValue?: "login" | "register" | "recover" | "reset" | "profile";
+  modelValue?: `${SESSION_FORMS}`;
   noHeader?: boolean;
   noFooter?: boolean;
   noTabs?: boolean;
@@ -28,6 +38,7 @@ export type SessionProps = {
   // ---
   uiConfig?: { alert: CxOptions };
   class?: HTMLAttributes["class"];
+  cancelRoute?: RouteLocationAsRelativeGeneric;
 };
 
 export type SessionExpiredProps = {
