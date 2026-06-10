@@ -18,9 +18,14 @@
     "label": "Permitir pagamento automático"
   },
   "auth_email": {
+    "error": "É necessário um endereço de e-mail",
+    "label": "O seu e-mail",
+    "placeholder": "nome@email.com"
+  },
+  "auth_login": {
     "error": "É necessário um nome de utilizador ou endereço de e-mail.",
     "label": "O seu nome de utilizador ou endereço de e-mail",
-    "placeholder": "name@email.com"
+    "placeholder": "nome@email.com"
   },
   "auth_password": {
     "error": {
@@ -99,6 +104,7 @@
   "email": {
     "error": "É necessário um endereço de e-mail válido",
     "label": "E-mail",
+    "placeholder": "nome@email.com",
     "title": "Adicionar novo e-mail | Atualizar e-mail"
   },
   "field_notes": {
@@ -108,6 +114,11 @@
     "error": "O seu primeiro nome é obrigatório",
     "label": "Primeiro nome"
   },
+  "guest_email": {
+    "description": "Enviaremos a confirmação da sua encomenda para este endereço de e-mail",
+    "label": "E-mail para confirmação da encomenda",
+    "placeholder": "nome@email.com"
+  },
   "language": {
     "error": "É necessário que você fale o seu idioma.",
     "label": "Linguagem"
@@ -115,9 +126,6 @@
   "lastname": {
     "error": "O seu apelido é obrigatório",
     "label": "Apelido"
-  },
-  "login": {
-    "error": "Ocorreu um erro ao tentar efetuar o seu login."
   },
   "payment_details_id": {
     "label": ""
@@ -149,15 +157,9 @@
     "error": "Seu nome público é obrigatório.",
     "label": "Nome público"
   },
-  "recover": {
-    "error": "Ocorreu um erro ao tentar enviar o e-mail de reposição de senha."
-  },
   "region": {
     "label": "Região",
     "placeholder": "Selecione uma região…"
-  },
-  "register": {
-    "error": "Ocorreu um erro ao tentar criar a sua conta."
   },
   "select_option": {
     "placeholder": "Selecione uma opção"

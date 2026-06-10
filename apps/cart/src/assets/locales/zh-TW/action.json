@@ -61,6 +61,8 @@
   "reload_page": "重新整理頁面",
   "remove": "消除",
   "removing": "移除中...",
+  "resend_code": "重新發送驗證碼",
+  "resend_code_in": "{seconds}秒後重新發送驗證碼",
   "return_to_shop": "返回商店",
   "review": "點擊此處查看",
   "review_next_product": "評價下一個產品",

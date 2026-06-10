@@ -18,6 +18,11 @@
     "label": "Automatische Zahlung zulassen"
   },
   "auth_email": {
+    "error": "Eine E-Mail-Adresse ist erforderlich",
+    "label": "Ihre E-Mail-Adresse",
+    "placeholder": "name@email.com"
+  },
+  "auth_login": {
     "error": "Ein Benutzername oder eine E-Mail-Adresse ist erforderlich",
     "label": "Ihr Benutzername oder Ihre E-Mail-Adresse",
     "placeholder": "name@email.com"
@@ -99,6 +104,7 @@
   "email": {
     "error": "Eine gültige E-Mail-Adresse ist erforderlich",
     "label": "E-Mail",
+    "placeholder": "name@email.com",
     "title": "Neue E-Mail hinzufügen | E-Mail aktualisieren"
   },
   "field_notes": {
@@ -108,6 +114,11 @@
     "error": "Ihr Vorname ist erforderlich",
     "label": "Vorname"
   },
+  "guest_email": {
+    "description": "Wir senden Ihnen die Bestellbestätigung an diese E-Mail-Adresse",
+    "label": "E-Mail zur Bestellbestätigung",
+    "placeholder": "name@email.com"
+  },
   "language": {
     "error": "Ihre Sprache wird benötigt",
     "label": "Sprache"
@@ -115,9 +126,6 @@
   "lastname": {
     "error": "Ihr Nachname ist erforderlich",
     "label": "Nachname"
-  },
-  "login": {
-    "error": "Beim Versuch, Sie anzumelden, ist ein Fehler aufgetreten."
   },
   "payment_details_id": {
     "label": ""
@@ -149,15 +157,9 @@
     "error": "Ihr öffentlicher Name ist erforderlich.",
     "label": "Öffentlicher Name"
   },
-  "recover": {
-    "error": "Beim Versuch, Ihnen eine E-Mail zum Zurücksetzen des Passworts zu senden, ist ein Fehler aufgetreten."
-  },
   "region": {
     "label": "Region",
     "placeholder": "Wählen Sie eine Region…"
-  },
-  "register": {
-    "error": "Beim Erstellen Ihres Kontos ist ein Fehler aufgetreten."
   },
   "select_option": {
     "placeholder": "Wählen Sie eine Option"

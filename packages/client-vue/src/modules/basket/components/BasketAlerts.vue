@@ -2,6 +2,14 @@
   <div v-if="meta.hasAlerts" :class="styles.basketAlerts.root" v-auto-animate>
     <!-- Errors -->
     <Alert
+      v-if="meta.hasBasketErrors && !meta.isLoading"
+      color="danger"
+      variant="muted"
+      icon="alert-triangle"
+      :title="errors!.message"
+    />
+
+    <Alert
       v-if="meta.count && !meta.isLoading"
       color="danger"
       variant="muted"
@@ -87,7 +95,7 @@ import {
 import config from "./basket-alerts.config";
 
 // --- utils
-import { sum } from "lodash-es";
+import { isEmpty, sum } from "lodash-es";
 
 // --- types
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
@@ -111,14 +119,23 @@ const props = withDefaults(
 // -----------------------------------------------------------------------------
 const { t } = useI18n();
 const styles = useStyles(["basketAlerts"], {}, config);
-const { meta: basketMeta, warningNotes, dismissAllWarnings } = useBasket();
+const {
+  meta: basketMeta,
+  warningNotes,
+  dismissAllWarnings,
+  errors
+} = useBasket();
 const { meta: fieldsMeta, errors: fieldsErrors } = useBasketFields();
 const { meta: billingMeta, errors: billingErrors } = useBasketBilling();
 const meta = computed(() => {
+  const hasBasketErrors = !isEmpty(errors.value);
+
   const hasBasketFields =
     props.basketFields && fieldsErrors.value?.data?.length;
+
   const hasBasketBilling =
     props.basketBilling && billingErrors.value?.data?.length;
+
   const isLoading =
     basketMeta.value.isLoading ||
     fieldsMeta.value.isLoading ||
@@ -127,11 +144,13 @@ const meta = computed(() => {
 
   return {
     isLoading,
+    hasBasketErrors,
     hasBasketFields,
     hasBasketBilling,
     count,
     hasAlerts:
       (count && !isLoading) ||
+      (hasBasketErrors && !basketMeta.value.isLoading) ||
       (basketMeta.value.hasWarningNotes && !basketMeta.value.isLoading)
   };
 });

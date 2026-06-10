@@ -18,6 +18,11 @@
     "label": "Permiteți plata automată"
   },
   "auth_email": {
+    "error": "Este necesară o adresă de e-mail",
+    "label": "Adresa ta de e-mail",
+    "placeholder": "nume@email.com"
+  },
+  "auth_login": {
     "error": "Este necesar un nume de utilizator sau o adresă de e-mail",
     "label": "Numele dvs. de utilizator sau adresa de e-mail",
     "placeholder": "nume@email.com"
@@ -99,6 +104,7 @@
   "email": {
     "error": "Este necesară o adresă de email validă",
     "label": "E-mail",
+    "placeholder": "nume@email.com",
     "title": "Adăugați o adresă de e-mail nouă | Actualizați adresa de e-mail"
   },
   "field_notes": {
@@ -108,6 +114,11 @@
     "error": "Prenumele dumneavoastră este obligatoriu",
     "label": "Prenume"
   },
+  "guest_email": {
+    "description": "Îți vom trimite confirmarea comenzii la această adresă de e-mail",
+    "label": "E-mail pentru confirmarea comenzii",
+    "placeholder": "nume@email.com"
+  },
   "language": {
     "error": "Limba dvs. este obligatorie",
     "label": "Limbă"
@@ -115,9 +126,6 @@
   "lastname": {
     "error": "Numele dumneavoastră de familie este obligatoriu",
     "label": "Nume"
-  },
-  "login": {
-    "error": "Am întâmpinat o eroare la încercarea de a vă conecta."
   },
   "payment_details_id": {
     "label": ""
@@ -149,15 +157,9 @@
     "error": "Numele tău public este obligatoriu",
     "label": "Nume public"
   },
-  "recover": {
-    "error": "Am întâmpinat o eroare în timp ce încercam să vă trimitem un e-mail de resetare a parolei."
-  },
   "region": {
     "label": "Regiune",
     "placeholder": "Selectați o regiune…"
-  },
-  "register": {
-    "error": "Am întâmpinat o eroare în timp ce încercam să vă creăm contul."
   },
   "select_option": {
     "placeholder": "Selectați o opțiune"

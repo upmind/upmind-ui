@@ -1,17 +1,22 @@
 {
+  "basket_placeholder": "Виберіть домен",
   "begin_search_above_desc": "Почніть пошук, використовуючи поле вище.",
   "choices": {
     "basket": {
-      "label": "Використати домен у кошику",
+      "label": "Використати домен із мого кошика",
       "tooltip": "Ці домени вже є у вашому кошику"
     },
     "existing": {
-      "label": "Використати існуючий домен",
+      "label": "Використовувати домен, який у мене вже є",
       "tooltip": "Ви можете використовувати існуючий домен, оновивши сервери імен"
     },
     "register": {
       "label": "Зареєструвати новий домен",
       "tooltip": "Ще не маєте домену? Зареєструйте новий у нас"
+    },
+    "skip": {
+      "label": "Я вирішу пізніше",
+      "tooltip": ""
     },
     "transfer": {
       "label": "Перенести домен",
@@ -21,20 +26,43 @@
   "domain_description": "Захистіть свою онлайн-ідентичність сьогодні – це займе лише хвилину.",
   "domain_not_required_label": "Продовжити без домену",
   "domain_title": "Включіть доменне ім'я.",
+  "error": {
+    "availability_check_failed": "Не вдалося перевірити доступність домену",
+    "registration_add_failed": "Не вдалося додати домен до кошика",
+    "transfer_add_failed": "Не вдалося додати переказ до кошика",
+    "transfer_remove_failed": "Не вдалося видалити товар із кошика"
+  },
+  "existing": {
+    "add_registration": "Додати до кошика",
+    "add_transfer": "Додати переказ",
+    "dns_info": "Щоб почати користуватися цим доменом, вам потрібно оновити налаштування DNS домену у вашого реєстратора.",
+    "placeholder": "Вкажіть домен, який ви хочете використовувати.",
+    "register_info": "Гарна новина — цей домен можна зареєструвати всього за {price}, у цю суму входить реєстрація на {period}.",
+    "remove_transfer": "Скасувати переказ",
+    "transfer_added": "Додано переказ",
+    "transfer_info": "Якщо ви є власником цього домену, ви можете перенести його до нас лише за {transferPrice}. Подальше продовження реєстрації коштуватиме {term}. В іншому випадку вам потрібно буде оновити записи серверів імен (NS) домену.",
+    "transfer_info_free": "Якщо ви є власником цього домену, ви можете БЕЗКОШТОВНО перенести його до нас. Подальше продовження реєстрації коштуватиме {term}. В іншому випадку вам потрібно буде оновити записи серверів імен (NS) домену.",
+    "unavailable": "Цей домен не можна зареєструвати або перенести."
+  },
   "finding_perfect_domain": "Пошук вашого **ідеального** домену",
   "finding_perfect_domain_md": "@.markdown:{'domain.finding_perfect_domain'}",
   "own_domain_qn": "Ви володієте цим доменом?",
   "owned_domains_title": "Домени, якими ви зараз володієте",
   "price_renewal_desc": "Одноразова ціна {regularPrice}. | Оновлюється щороку за {regularPrice}. | Оновлюється кожні {count} роки за {regularPrice}.",
-  "search": "Пошук доменів",
+  "registrant_use_billing_msg": "Ваші платіжні дані будуть використані як контактна інформація реєстранта домену.",
+  "search": "Введіть домен для пошуку",
   "starts_with_domain": "Все починається з **доменного імені**",
   "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
+  "tld_renewal_info": "Ціни на продовження починаються від {term}.",
   "tld_renewal_price_desc": "Наш {tld} ціни на поновлення починаються від лише {currentPrice} (було {regularPrice}).",
   "tld_renewal_price_from_desc": "Наш {tld} ціни на поновлення починаються від лише {regularPrice}.",
   "transfer": "Переказ лише за {currentPrice}.",
   "transfer_domain": "Перенести домен",
   "transfer_extension_info": "Трансфери включають продовження терміну дії на один рік.",
+  "transfer_free_info": "Ви можете переказати нам ці кошти БЕЗКОШТОВНО.",
   "transfer_owner_question": "Ви є власником цього домену?",
   "transfer_price_info": "Ви можете переказати його нам лише за {currentPrice}",
-  "transfer_promotion": "Переказ лише за {currentPrice}, зазвичай {regularPrice}."
+  "transfer_promotion": "Переказ лише за {currentPrice}, зазвичай {regularPrice}.",
+  "transfer_today_info": "Ви можете переказати нам гроші вже сьогодні.",
+  "use_details_for": "Використовуйте ці дані для {domain}"
 }

@@ -1,17 +1,22 @@
 {
+  "basket_placeholder": "Domen seçin",
   "begin_search_above_desc": "Yuxarıdakı qutudan istifadə edərək axtarışa başlayın.",
   "choices": {
     "basket": {
-      "label": "Səbətdə domendən istifadə edin",
+      "label": "Səbətimdən domen istifadə edin",
       "tooltip": "Bu domenlər artıq səbətinizdədir"
     },
     "existing": {
-      "label": "Mövcud domendən istifadə edin",
+      "label": "Artıq sahib olduğum domendən istifadə edin",
       "tooltip": "Ad serverləri yeniləməklə mövcud domeni istifadə edə bilərsiniz"
     },
     "register": {
-      "label": "Yeni domeni qeydiyyatdan keçirin",
+      "label": "Yeni domen qeydiyyatı",
       "tooltip": "Artıq domeniniz yoxdur? Bizimlə yenisini qeydiyyatdan keçirin"
+    },
+    "skip": {
+      "label": "Daha sonra qərar verərəm",
+      "tooltip": ""
     },
     "transfer": {
       "label": "Domeni köçürün",
@@ -21,20 +26,43 @@
   "domain_description": "Bu gün onlayn şəxsiyyətinizi qoruyun - bu, yalnız bir dəqiqə çəkir.",
   "domain_not_required_label": "Domen olmadan davam edin",
   "domain_title": "Mükəmməl domen adınızı alın.",
+  "error": {
+    "availability_check_failed": "Domenin mövcudluğunu yoxlamaq alınmadı",
+    "registration_add_failed": "Səbətə domen əlavə etmək alınmadı",
+    "transfer_add_failed": "Səbətə köçürmə əlavə edilmədi",
+    "transfer_remove_failed": "Səbətdən köçürməni silmək alınmadı"
+  },
+  "existing": {
+    "add_registration": "Səbətə əlavə et",
+    "add_transfer": "Transfer əlavə edin",
+    "dns_info": "Bu domendən istifadə etmək üçün domenin DNS-ini mövcud qeydiyyatçı ilə yeniləməlisiniz.",
+    "placeholder": "İstifadə etmək istədiyiniz domeni bizə bildirin.",
+    "register_info": "Xoş xəbər — bu domen yalnız {period} qeydiyyatı da daxil olmaqla {price} üçün qeydiyyatdan keçə bilər.",
+    "remove_transfer": "Transferi silin",
+    "transfer_added": "Transfer əlavə edildi",
+    "transfer_info": "Əgər bu domen sizə məxsusdursa, onu bizə yalnız 58HTPM qiymətinə köçürə bilərsiniz. Sonrakı yeniləmələr üçün ödəniş 103HTPM/117HTPM təşkil edir. Alternativ olaraq, domenin ad serveri (NS) qeydlərini yeniləməlisiniz.",
+    "transfer_info_free": "Əgər bu domen sizə məxsusdursa, onu bizə PULSUZ köçürə bilərsiniz. Sonrakı yeniləmələr üçün {renewalPrice}/{term} ödəniş tələb olunur. Alternativ olaraq, domenin ad serveri (NS) qeydlərini yeniləməlisiniz.",
+    "unavailable": "Bu domen qeydiyyatdan keçirilə və ya başqasına ötürülə bilməz."
+  },
   "finding_perfect_domain": "**mükəmməl** domeninizi tapırsınız",
   "finding_perfect_domain_md": "@.markdown:{'domain.finding_perfect_domain'}",
   "own_domain_qn": "Bu domenin sahibi sizsiniz?",
   "owned_domains_title": "Hazırda sahib olduğunuz domenlər",
   "price_renewal_desc": "{regularPrice} üçün bir dəfəlik qiymət. | Hər il {regularPrice} üçün yenilənir. | Hər {count} ildən bir {regularPrice} üçün yenilənir.",
-  "search": "Domenləri axtarın",
+  "registrant_use_billing_msg": "Faktura məlumatlarınız domen qeydiyyatçısının əlaqə məlumatları kimi istifadə olunacaq.",
+  "search": "Axtarış üçün domen daxil edin",
   "starts_with_domain": "Hamısı **domen adı** ilə başlayır",
   "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
+  "tld_renewal_info": "Yeniləmələr {regularPrice}/{term}-dən başlayır.",
   "tld_renewal_price_desc": "Bizim {tld} yenilənmə qiymətləri yalnızdan başlayır {currentPrice} (oldu {regularPrice}).",
   "tld_renewal_price_from_desc": "Bizim {tld} yenilənmə qiymətləri yalnızdan başlayır {regularPrice}.",
   "transfer": "Yalnız köçürmə {currentPrice}.",
   "transfer_domain": "Domeni köçürün",
   "transfer_extension_info": "Köçürmələrə bir il uzadılması daxildir.",
+  "transfer_free_info": "Bunu bizə PULSUZ köçürə bilərsiniz.",
   "transfer_owner_question": "Siz bu domenin sahibisiniz?",
   "transfer_price_info": "Yalnız bizə köçürə bilərsiniz {currentPrice}",
-  "transfer_promotion": "Yalnız köçürmə {currentPrice}, adətən {regularPrice}."
+  "transfer_promotion": "Yalnız köçürmə {currentPrice}, adətən {regularPrice}.",
+  "transfer_today_info": "Bu gün bizə köçürə bilərsiniz.",
+  "use_details_for": "Bu detallardan istifadə edin {domain}"
 }

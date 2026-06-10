@@ -107,6 +107,16 @@ const guards = {
   },
 
   /**
+   * Returns true when the session is a guest client (authenticated but
+   * `is_guest`). Unlike a full client, a guest client must stay on the register
+   * route to complete their upgrade rather than being advanced to checkout.
+   */
+  isGuestClient: () => {
+    const { meta } = useSession();
+    return !!meta.value?.isGuestClient;
+  },
+
+  /**
    * Returns true when targetRoute.query contains a returnUrl.
    * Used to conditionally resolve returnUrl after auth success.
    */

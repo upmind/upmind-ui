@@ -373,16 +373,11 @@ export class Upmind {
    * @private
    */
   private async initRecaptcha() {
-    if (
-      !this.recaptcha?.enabled ||
-      !this.recaptcha.siteKey ||
-      this.mode == "express"
-    )
-      return;
+    if (this.mode == "express") return;
 
     const { init } = useRecaptcha();
 
-    init(this.recaptcha.siteKey);
+    init(this.recaptcha?.siteKey, this.recaptcha?.enabled);
   }
 
   /**

@@ -18,6 +18,11 @@
     "label": "Permitir pago automático"
   },
   "auth_email": {
+    "error": "Es necesario introducir una dirección de correo electrónico",
+    "label": "Tu correo electrónico",
+    "placeholder": "nombre@email.com"
+  },
+  "auth_login": {
     "error": "Se requiere un nombre de usuario o una dirección de correo electrónico",
     "label": "Su nombre de usuario o dirección de correo electrónico",
     "placeholder": "nombre@email.com"
@@ -25,15 +30,27 @@
   "auth_password": {
     "error": {
       "min_length": "La contraseña debe tener al menos 8 caracteres.",
-      "min_length_lowercase": "La contraseña debe tener al menos 8 caracteres y contener una letra minúscula.",
-      "min_length_lowercase_number": "La contraseña debe tener al menos 8 caracteres, incluir al menos una letra minúscula y un número",
+      "min_length_letter": "La contraseña debe tener al menos 8 caracteres y contener una letra",
+      "min_length_letter_number": "La contraseña debe tener al menos 8 caracteres y contener una letra y un número",
+      "min_length_letter_number_symbol": "La contraseña debe tener al menos 8 caracteres y contener una letra, un número y un símbolo",
+      "min_length_letter_symbol": "La contraseña debe tener al menos 8 caracteres y contener una letra y un símbolo",
       "min_length_number": "La contraseña debe tener al menos 8 caracteres y contener un número.",
-      "missing_lowercase": "La contraseña debe contener una letra minúscula.",
-      "missing_lowercase_number": "La contraseña debe contener una letra minúscula y un número.",
-      "missing_number": "La contraseña debe contener un número."
+      "min_length_number_symbol": "La contraseña debe tener al menos 8 caracteres y contener un número y un símbolo",
+      "min_length_symbol": "La contraseña debe tener al menos 8 caracteres y contener un símbolo",
+      "missing_letter": "La contraseña debe contener una letra",
+      "missing_letter_number": "La contraseña debe contener una letra y un número",
+      "missing_letter_number_symbol": "La contraseña debe contener una letra, un número y un símbolo",
+      "missing_letter_symbol": "La contraseña debe contener una letra y un símbolo",
+      "missing_number": "La contraseña debe contener un número.",
+      "missing_number_symbol": "La contraseña debe contener un número y un símbolo",
+      "missing_symbol": "La contraseña debe contener un símbolo"
     },
+    "generate": "Crea una contraseña segura",
+    "hide": "Ocultar contraseña",
+    "hint": "La contraseña debe tener al menos 8 caracteres e incluir una letra, un número y un símbolo.",
     "label": "Contraseña",
-    "placeholder": "Contraseña o frase de contraseña"
+    "placeholder": "Contraseña o frase de contraseña",
+    "show": "Mostrar contraseña"
   },
   "card_cvv": {
     "error": "Se requiere un CVV válido",
@@ -72,7 +89,7 @@
   },
   "companyNumber": {
     "label": "Número de empresa",
-    "placeholder": "Impuesto registrado o GST"
+    "placeholder": "Número de identificación de la empresa"
   },
   "country": {
     "label": "País",
@@ -87,6 +104,7 @@
   "email": {
     "error": "Se requiere una dirección de correo electrónico válida",
     "label": "Correo electrónico",
+    "placeholder": "nombre@email.com",
     "title": "Agregar nuevo correo electrónico | Actualizar correo electrónico"
   },
   "field_notes": {
@@ -96,6 +114,11 @@
     "error": "Tu nombre es obligatorio",
     "label": "Nombre de pila"
   },
+  "guest_email": {
+    "description": "Te enviaremos la confirmación de tu pedido a esta dirección de correo electrónico",
+    "label": "Correo electrónico para la confirmación del pedido",
+    "placeholder": "nombre@email.com"
+  },
   "language": {
     "error": "Tu idioma es requerido",
     "label": "Idioma"
@@ -103,9 +126,6 @@
   "lastname": {
     "error": "Tu apellido es requerido",
     "label": "Apellido"
-  },
-  "login": {
-    "error": "Experimentamos un error al intentar iniciar sesión."
   },
   "payment_details_id": {
     "label": ""
@@ -137,15 +157,9 @@
     "error": "Se requiere su nombre público",
     "label": "Nombre público"
   },
-  "recover": {
-    "error": "Experimentamos un error al intentar enviarle un correo electrónico de restablecimiento de contraseña."
-  },
   "region": {
     "label": "Región",
     "placeholder": "Seleccione una región…"
-  },
-  "register": {
-    "error": "Experimentamos un error al intentar crear su cuenta."
   },
   "select_option": {
     "placeholder": "Seleccione una opción"
@@ -155,6 +169,10 @@
   },
   "stored_payment_method": {
     "label": ""
+  },
+  "taxNumber": {
+    "label": "Número de identificación fiscal",
+    "placeholder": "Número de identificación fiscal/IVA/GST"
   },
   "twofa": {
     "description": "Esta cuenta está protegida mediante autenticación de dos factores. Introduzca su código de verificación.",

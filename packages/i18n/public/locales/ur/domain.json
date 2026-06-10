@@ -1,17 +1,22 @@
 {
+  "basket_placeholder": "ایک ڈومین منتخب کریں۔",
   "begin_search_above_desc": "اوپر والے باکس کا استعمال کرتے ہوئے اپنی تلاش شروع کریں۔",
   "choices": {
     "basket": {
-      "label": "ٹوکری میں ڈومین استعمال کریں۔",
+      "label": "میری ٹوکری سے ایک ڈومین استعمال کریں۔",
       "tooltip": "یہ ڈومینز پہلے سے ہی آپ کی ٹوکری میں ہیں۔"
     },
     "existing": {
-      "label": "موجودہ ڈومین استعمال کریں۔",
+      "label": "ایک ڈومین استعمال کریں جس کا میں پہلے سے ہی مالک ہوں۔",
       "tooltip": "آپ نام سرورز کو اپ ڈیٹ کرکے موجودہ ڈومین استعمال کر سکتے ہیں"
     },
     "register": {
-      "label": "نیا ڈومین رجسٹر کریں۔",
+      "label": "ایک نیا ڈومین رجسٹر کریں۔",
       "tooltip": "کیا آپ کے پاس پہلے سے ڈومین نہیں ہے؟ ہمارے ساتھ ایک نیا رجسٹر کریں۔"
+    },
+    "skip": {
+      "label": "میں بعد میں فیصلہ کروں گا۔",
+      "tooltip": ""
     },
     "transfer": {
       "label": "ڈومین منتقل کریں۔",
@@ -21,20 +26,43 @@
   "domain_description": "آج ہی اپنی آن لائن شناخت کو محفوظ بنائیں – اس میں صرف ایک منٹ لگتا ہے۔",
   "domain_not_required_label": "ڈومین کے بغیر جاری رکھیں",
   "domain_title": "ایک ڈومین نام شامل کریں۔",
+  "error": {
+    "availability_check_failed": "ڈومین کی دستیابی چیک کرنے میں ناکام",
+    "registration_add_failed": "ٹوکری میں ڈومین شامل کرنے میں ناکام",
+    "transfer_add_failed": "ٹوکری میں منتقلی شامل کرنے میں ناکام",
+    "transfer_remove_failed": "ٹوکری سے ٹرانسفر ہٹانے میں ناکام"
+  },
+  "existing": {
+    "add_registration": "ٹوکری میں شامل کریں۔",
+    "add_transfer": "منتقلی شامل کریں۔",
+    "dns_info": "اس ڈومین کو استعمال کرنے کے لیے، آپ کو موجودہ رجسٹرار کے ساتھ ڈومین کا DNS اپ ڈیٹ کرنا ہوگا۔",
+    "placeholder": "ہمیں وہ ڈومین بتائیں جسے آپ استعمال کرنا چاہتے ہیں۔",
+    "register_info": "اچھی خبر — یہ ڈومین صرف {price} کے لیے رجسٹر کرنے کے لیے دستیاب ہے، جس میں {period} رجسٹریشن شامل ہے۔",
+    "remove_transfer": "منتقلی کو ہٹا دیں۔",
+    "transfer_added": "منتقلی شامل کی گئی۔",
+    "transfer_info": "اگر آپ اس ڈومین کے مالک ہیں تو آپ اسے صرف {transferPrice} میں ہمارے پاس منتقل کر سکتے ہیں۔ {renewalPrice}/{term} پر بعد کی تجدید کا چارج۔ متبادل طور پر، آپ کو ڈومین کے نیم سرور (NS) ریکارڈز کو اپ ڈیٹ کرنے کی ضرورت ہوگی۔",
+    "transfer_info_free": "اگر آپ اس ڈومین کے مالک ہیں تو آپ اسے ہمیں مفت منتقل کر سکتے ہیں۔ {renewalPrice}/{term} پر بعد میں تجدید کا چارج لیا جاتا ہے۔ متبادل طور پر، آپ کو ڈومین کے نیم سرور (NS) ریکارڈز کو اپ ڈیٹ کرنے کی ضرورت ہوگی۔",
+    "unavailable": "اس ڈومین کو رجسٹر یا منتقل نہیں کیا جا سکتا۔"
+  },
   "finding_perfect_domain": "اپنا **کامل** ڈومین تلاش کرنا",
   "finding_perfect_domain_md": "@.markdown:{'domain.finding_perfect_domain'}",
   "own_domain_qn": "کیا آپ اس ڈومین کے مالک ہیں؟",
   "owned_domains_title": "ڈومینز جن کے آپ فی الحال مالک ہیں۔",
   "price_renewal_desc": "{regularPrice} کی ایک بار قیمت۔ | ہر سال {regularPrice} کے لئے تجدید ہوتی ہے۔ | ہر {count} سال بعد {regularPrice} کے لئے تجدید ہوتی ہے۔",
-  "search": "ڈومینز تلاش کریں۔",
+  "registrant_use_billing_msg": "آپ کی بلنگ کی تفصیلات ڈومین رجسٹری رابطہ کی معلومات کے طور پر استعمال کی جائیں گی۔",
+  "search": "تلاش کرنے کے لیے ایک ڈومین درج کریں۔",
   "starts_with_domain": "یہ سب ایک **ڈومین نام** سے شروع ہوتا ہے",
   "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
+  "tld_renewal_info": "تجدیدات {regularPrice}/{term} سے شروع ہوتی ہیں۔",
   "tld_renewal_price_desc": "ہماری {tld} تجدید کی قیمتیں صرف سے شروع ہوتی ہیں۔ {currentPrice} (تھا {regularPrice})۔",
   "tld_renewal_price_from_desc": "ہماری {tld} تجدید کی قیمتیں صرف سے شروع ہوتی ہیں۔ {regularPrice}.",
   "transfer": "صرف کے لیے ٹرانسفر {currentPrice}.",
   "transfer_domain": "ڈومین منتقل کریں۔",
   "transfer_extension_info": "منتقلی میں ایک سال کی توسیع شامل ہے۔",
+  "transfer_free_info": "آپ اسے مفت میں ہمارے پاس منتقل کر سکتے ہیں۔",
   "transfer_owner_question": "کیا آپ اس ڈومین کے مالک ہیں؟",
   "transfer_price_info": "آپ اسے صرف ہمارے پاس منتقل کر سکتے ہیں۔ {currentPrice}",
-  "transfer_promotion": "صرف کے لیے ٹرانسفر {currentPrice}، عام طور پر {regularPrice}."
+  "transfer_promotion": "صرف کے لیے ٹرانسفر {currentPrice}، عام طور پر {regularPrice}.",
+  "transfer_today_info": "آپ اسے آج ہی ہمارے پاس منتقل کر سکتے ہیں۔",
+  "use_details_for": "ان تفصیلات کے لیے استعمال کریں۔ {domain}"
 }

@@ -1,12 +1,12 @@
 <template>
-  <section v-if="!meta.isAuthenticated && !meta.isLoading">
+  <section v-if="meta.canShowForms && !meta.isLoading">
     <component
-      :is="meta.show2fa ? Interstitial : Slot"
-      v-if="!meta.isAuthenticated && !meta.isLoading"
-      :open="meta.show2fa"
+      :is="meta.show2fa || meta.showVerifyEmailForm ? Interstitial : Slot"
+      v-if="meta.canShowForms && !meta.isLoading"
+      :open="meta.show2fa || meta.showVerifyEmailForm"
       modal
-      :title="twofaTitle"
-      :text="twofaText"
+      :title="interstitialTitle"
+      :text="interstitialText"
       :animated-icon="{
         icon: '2fa',
         delay: 5000,
@@ -27,23 +27,34 @@
         />
 
         <Form
-          :disabled="meta.isAuthenticated"
+          :disabled="
+            meta.isAuthenticated &&
+            !meta.showGuestUpgradeForm &&
+            !meta.showVerifyEmailForm
+          "
           :key="currentForm"
           :loading="meta.isLoading"
           :processing="meta.isProcessing"
           :model-value="model"
           :schema="schema"
-          :uischema="modal2faUischema"
+          :uischema="formUischema"
           :additional-errors="validationErrors"
           :variant="variant"
           @reject="doReject"
           @resolve="doResolve"
+          :autosave="meta.showVerifyEmailForm || meta.show2fa"
           @update:model-value="setModel"
-          :class="cn(styles.session.auth.form, meta.show2fa && 'mt-4')"
-          :actions="meta.show2fa ? twoFactorActions : authActions"
+          :class="styles.session.auth.form"
+          :actions="formActions"
           :data-testid="`${currentForm}-form`"
         >
-          <template v-if="currentForm === 'register'" #footer>
+          <template
+            v-if="
+              currentForm === SESSION_FORMS.REGISTER ||
+              currentForm === SESSION_FORMS.GUEST
+            "
+            #footer
+          >
             <TermsAndConditions
               class="text-muted text-sm"
               :label="t('action.continue_label')"
@@ -66,6 +77,51 @@
           />
         </slot>
       </div>
+
+      <template v-if="meta.showVerifyEmailForm">
+        <Transition
+          :enter-active-class="styles.session.transitions.fade.enter.active"
+          :enter-from-class="styles.session.transitions.fade.enter.from"
+          :enter-to-class="styles.session.transitions.fade.enter.to"
+          :leave-active-class="styles.session.transitions.fade.leave.active"
+          :leave-from-class="styles.session.transitions.fade.leave.from"
+          :leave-to-class="styles.session.transitions.fade.leave.to"
+          mode="out-in"
+        >
+          <div :key="resendState" :class="styles.session.auth.resend">
+            <template v-if="meta.canResend">
+              <span
+                :class="styles.session.auth.resendPrompt"
+                data-testid="resend-prompt"
+              >
+                {{ t("auth.didnt_receive_code") }}
+              </span>
+
+              <Link
+                size="sm"
+                :label="t('action.resend_code')"
+                data-testid="resend-code-link"
+                @click.prevent="resendVerification"
+              />
+            </template>
+
+            <span
+              v-else-if="meta.isResending"
+              :class="styles.session.auth.resendSending"
+              data-testid="resend-sending"
+            >
+              {{ t("auth.verify_email_send") }}
+            </span>
+            <span
+              v-else-if="meta.resendComplete"
+              :class="styles.session.auth.resendSent"
+              data-testid="resend-sent"
+            >
+              {{ t("auth.verify_email_sent") }}
+            </span>
+          </div>
+        </Transition>
+      </template>
     </component>
   </section>
 </template>
@@ -74,7 +130,6 @@
 // --- external
 import { computed, onMounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
-
 // --- internal
 import TermsAndConditions from "../../brand/TermsAndConditions.vue";
 import Form from "../../../components/form/Form.vue";
@@ -84,7 +139,8 @@ import {
   useStyles,
   cn,
   Interstitial,
-  Slot
+  Slot,
+  type FormActionProps
 } from "@upmind-automation/upmind-ui";
 
 // --- custom elements
@@ -94,6 +150,7 @@ import { Alert, Button, Link } from "@upmind-automation/upmind-ui";
 import { find, get, map } from "lodash-es";
 
 // --- types
+import { SESSION_FORMS } from "../types";
 import type { SessionProps } from "../types";
 // -----------------------------------------------------------------------------
 
@@ -103,43 +160,60 @@ const props = withDefaults(defineProps<Omit<SessionProps, "modelValue">>(), {
 });
 
 const modelValue = defineModel<SessionProps["modelValue"]>("modelValue", {
-  default: "login"
+  default: SESSION_FORMS.LOGIN
 });
 
 const { t } = useI18n();
 
 const {
-  isReady,
   meta,
   errors,
   validationErrors,
   showLogin,
   showRegister,
   showRecoverPassword,
+  showVerifyEmail,
   model,
   schema,
   uischema,
   resolve,
   reject,
-  logout,
-  setModel
+  setModel,
+  resendVerification
 } = useSession();
 
-// await isReady();
+const styles = useStyles(
+  [
+    "session.auth",
+    "session.transitions.fade.enter",
+    "session.transitions.fade.leave"
+  ],
+  meta,
+  config
+);
 
-const styles = useStyles(["session.auth"], meta, config);
-
-const currentForm = computed(() => {
-  return meta.value.showLoginForm
-    ? "login"
-    : meta.value.showRegisterForm
-      ? "register"
-      : meta.value.showRecoverPasswordForm
-        ? "recover"
-        : "unknown";
+const currentForm = computed<SESSION_FORMS>(() => {
+  // An unverified client owes email verification (sourced from the client
+  // machine); it isn't in any guest/login/register state.
+  if (meta.value.showVerifyEmailForm) return SESSION_FORMS.VERIFY;
+  // A guest client upgrading is its own form (sourced from the client machine);
+  // it shares the register fields but has a distinct submit label/flow.
+  if (meta.value.showGuestUpgradeForm) return SESSION_FORMS.GUEST;
+  if (meta.value.showLoginForm) return SESSION_FORMS.LOGIN;
+  if (meta.value.showRegisterForm) return SESSION_FORMS.REGISTER;
+  if (meta.value.showRecoverPasswordForm) return SESSION_FORMS.RECOVER;
+  return SESSION_FORMS.UNKNOWN;
 });
 
-// --- 2fa
+// Keyed so <Transition> fades between resend messages — the wrapper is
+// otherwise the same element across states and would patch in place.
+const resendState = computed(() => {
+  if (meta.value.canResend) return "prompt";
+  if (meta.value.isResending) return "sending";
+  if (meta.value.resendComplete) return "sent";
+  if (meta.value.resendFailed) return "failed";
+  return "";
+});
 
 const twofaI18nKey = computed(() => {
   if (!meta.value.show2fa || !uischema.value) return "form.twofa";
@@ -149,8 +223,17 @@ const twofaI18nKey = computed(() => {
   return get(element, "i18n", "form.twofa");
 });
 
-const twofaTitle = computed(() => t(`${twofaI18nKey.value}.label`));
-const twofaText = computed(() => t(`${twofaI18nKey.value}.description`));
+const interstitialTitle = computed(() =>
+  meta.value.showVerifyEmailForm
+    ? t("auth.verify_email_title")
+    : t(`${twofaI18nKey.value}.label`)
+);
+
+const interstitialText = computed(() =>
+  meta.value.showVerifyEmailForm
+    ? t("auth.verify_email_msg")
+    : t(`${twofaI18nKey.value}.description`)
+);
 
 const modal2faUischema = computed(() => {
   if (!meta.value.show2fa || !uischema.value) return uischema.value;
@@ -173,88 +256,112 @@ const modal2faUischema = computed(() => {
   };
 });
 
+const formUischema = computed(() =>
+  meta.value.show2fa ? modal2faUischema.value : uischema.value
+);
+
+const formActions = computed(() => {
+  let label: string;
+  switch (currentForm.value) {
+    case SESSION_FORMS.LOGIN:
+      label = t("action.log_in_to_your_account");
+      break;
+    case SESSION_FORMS.GUEST:
+      label = t("action.register");
+    case SESSION_FORMS.RECOVER:
+      label = t("action.send_reset");
+    case SESSION_FORMS.VERIFY:
+      label = t("action.verify");
+    case SESSION_FORMS.REGISTER:
+    default:
+      label = t("action.continue_label");
+  }
+
+  const actions: Record<string, FormActionProps> = {
+    submit: {
+      type: "submit" as const,
+      label,
+      block: true,
+      needsValid: true,
+      size: "lg" as const
+    }
+  };
+
+  if (meta.value.show2fa || meta.value.showVerifyEmailForm) {
+    actions.cancel = {
+      type: "reset" as const,
+      label: meta.value.showVerifyEmailForm
+        ? t("action.back_to_basket")
+        : t("action.cancel"),
+      block: true,
+      size: "lg",
+      variant: "link",
+      ...(meta.value.showVerifyEmailForm ? {} : (props.cancelRoute ?? {}))
+    };
+
+    // add the storefront route to the cancel action if its provided
+    //  usually only use din verify email but its a possibility for others as well
+    if (props.cancelRoute) {
+      actions.cancel = {
+        ...actions.cancel,
+        to: props.cancelRoute
+      } as FormActionProps;
+    }
+  }
+  return actions;
+});
+
 // ---
 
 const alertTitle = computed(() => {
+  if (meta.value.resendFailed) return t("error.session_resend_failed");
+
   switch (currentForm.value) {
-    case "register": {
-      return t("form.register.error");
-    }
-    case "recover": {
-      return t("form.recover.error");
-    }
-    case "login": {
-      return t("form.login.error");
-    }
+    case SESSION_FORMS.REGISTER:
+    case SESSION_FORMS.GUEST:
+      return t("error.session_register_failed");
+    case SESSION_FORMS.RECOVER:
+      return t("error.session_recover_failed");
+    case SESSION_FORMS.LOGIN:
+      return t("error.session_login_failed");
+    case SESSION_FORMS.VERIFY:
+      return t("error.session_verify_failed");
   }
 });
 
 // ---
 
-const authActions = computed(() => {
-  return {
-    submit: {
-      type: "submit" as const,
-      label: meta.value.showLoginForm
-        ? t("action.log_in_to_your_account")
-        : meta.value.showRegisterForm
-          ? t("action.continue_label")
-          : meta.value.showRecoverPasswordForm
-            ? t("action.send_reset")
-            : t("action.continue_label"),
-      block: true,
-      needsValid: true,
-      size: "lg" as const
-    }
-  };
-});
-const twoFactorActions = computed(() => {
-  return {
-    submit: {
-      type: "submit" as const,
-      label: meta.value.showLoginForm
-        ? t("action.log_in_to_your_account")
-        : meta.value.showRegisterForm
-          ? t("action.continue_label")
-          : meta.value.showRecoverPasswordForm
-            ? t("action.send_reset")
-            : t("action.continue_label"),
-      block: true,
-      needsValid: true,
-      size: "lg" as const
-    },
-    cancel: {
-      type: "reset" as const,
-      label: t("action.cancel"),
-      block: true,
-      size: "lg" as const,
-      variant: "link"
-    }
-  };
-});
-
-function toggleForm(type: SessionProps["modelValue"]) {
-  if (!meta.value.canShowForms) return;
-
+async function toggleForm(type: SessionProps["modelValue"]) {
   switch (type) {
-    case "login":
+    case SESSION_FORMS.LOGIN:
       if (!meta.value.showLoginForm) {
         showLogin().then(() => {
-          if (modelValue.value !== "login") modelValue.value = "login";
+          if (modelValue.value !== SESSION_FORMS.LOGIN)
+            modelValue.value = SESSION_FORMS.LOGIN;
         });
       }
       break;
-    case "register":
-      if (!meta.value.showRegisterForm) {
+    case SESSION_FORMS.REGISTER:
+      if (!meta.value.showRegisterForm && !meta.value.showGuestUpgradeForm) {
         showRegister().then(() => {
-          if (modelValue.value !== "register") modelValue.value = "register";
+          if (modelValue.value !== SESSION_FORMS.REGISTER)
+            modelValue.value = SESSION_FORMS.REGISTER;
         });
       }
       break;
-    case "recover":
+    case SESSION_FORMS.RECOVER:
       if (!meta.value.showRecoverPasswordForm) {
         showRecoverPassword().then(() => {
-          if (modelValue.value !== "recover") modelValue.value = "recover";
+          if (modelValue.value !== SESSION_FORMS.RECOVER)
+            modelValue.value = SESSION_FORMS.RECOVER;
+        });
+      }
+      break;
+    case SESSION_FORMS.VERIFY:
+      if (!meta.value.showVerifyEmailForm) {
+        showVerifyEmail().then(() => {
+          if (modelValue.value !== SESSION_FORMS.VERIFY)
+            modelValue.value = SESSION_FORMS.VERIFY;
         });
       }
       break;
@@ -280,8 +387,8 @@ onMounted(() => {
 // --- esc key handler for 2fa modal
 watch(
   () => meta.value.show2fa,
-  show2fa => {
-    if (show2fa) {
+  value => {
+    if (value) {
       const handler = (e: KeyboardEvent) => {
         if (e.key === "Escape") doReject();
       };

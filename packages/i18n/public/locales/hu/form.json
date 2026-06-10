@@ -18,6 +18,11 @@
     "label": "Automatikus fizetés engedélyezése"
   },
   "auth_email": {
+    "error": "E-mail-cím megadása kötelező",
+    "label": "Az e-mail címed",
+    "placeholder": "név@email.com"
+  },
+  "auth_login": {
     "error": "Felhasználónév vagy e-mail cím megadása kötelező",
     "label": "Felhasználóneved vagy e-mail címed",
     "placeholder": "név@email.com"
@@ -25,15 +30,27 @@
   "auth_password": {
     "error": {
       "min_length": "A jelszónak legalább 8 karakterből kell állnia.",
-      "min_length_lowercase": "A jelszónak legalább 8 karakterből kell állnia, és kisbetűket kell tartalmaznia.",
-      "min_length_lowercase_number": "A jelszónak legalább 8 karakterből kell állnia, és tartalmaznia kell egy kisbetűt és egy számjegyet.",
+      "min_length_letter": "A jelszónak legalább 8 karakterből kell állnia, és tartalmaznia kell egy betűt",
+      "min_length_letter_number": "A jelszónak legalább 8 karakterből kell állnia, és tartalmaznia kell egy betűt és egy számot",
+      "min_length_letter_number_symbol": "A jelszónak legalább 8 karakterből kell állnia, és tartalmaznia kell egy betűt, egy számot és egy szimbólumot",
+      "min_length_letter_symbol": "A jelszónak legalább 8 karakterből kell állnia, és tartalmaznia kell egy betűt és egy szimbólumot",
       "min_length_number": "A jelszónak legalább 8 karakterből kell állnia és számot kell tartalmaznia.",
-      "missing_lowercase": "A jelszónak kisbetűket kell tartalmaznia",
-      "missing_lowercase_number": "A jelszónak kisbetűt és számot kell tartalmaznia.",
-      "missing_number": "A jelszónak számot kell tartalmaznia"
+      "min_length_number_symbol": "A jelszónak legalább 8 karakterből kell állnia, és tartalmaznia kell egy számot és egy szimbólumot",
+      "min_length_symbol": "A jelszónak legalább 8 karakterből kell állnia, és tartalmaznia kell egy speciális karaktert",
+      "missing_letter": "A jelszónak tartalmaznia kell egy betűt",
+      "missing_letter_number": "A jelszónak tartalmaznia kell egy betűt és egy számot",
+      "missing_letter_number_symbol": "A jelszónak tartalmaznia kell egy betűt, egy számot és egy szimbólumot",
+      "missing_letter_symbol": "A jelszónak tartalmaznia kell egy betűt és egy szimbólumot",
+      "missing_number": "A jelszónak számot kell tartalmaznia",
+      "missing_number_symbol": "A jelszónak tartalmaznia kell egy számot és egy szimbólumot",
+      "missing_symbol": "A jelszónak tartalmaznia kell egy speciális karaktert"
     },
+    "generate": "Erős jelszó létrehozása",
+    "hide": "Jelszó elrejtése",
+    "hint": "A jelszónak legalább 8 karakterből kell állnia, és tartalmaznia kell egy betűt, egy számot és egy szimbólumot.",
     "label": "Jelszó",
-    "placeholder": "Jelszó vagy jelszó"
+    "placeholder": "Jelszó vagy jelszó",
+    "show": "Jelszó megjelenítése"
   },
   "card_cvv": {
     "error": "Érvényes CVV szükséges",
@@ -72,7 +89,7 @@
   },
   "companyNumber": {
     "label": "Cégjegyzékszám",
-    "placeholder": "Regisztrált adó vagy GST"
+    "placeholder": "Cégazonosító szám"
   },
   "country": {
     "label": "Ország",
@@ -87,6 +104,7 @@
   "email": {
     "error": "Érvényes e-mail cím szükséges",
     "label": "Email",
+    "placeholder": "név@email.com",
     "title": "Új e-mail hozzáadása | E-mail frissítése"
   },
   "field_notes": {
@@ -96,6 +114,11 @@
     "error": "A keresztneved megadása kötelező",
     "label": "Keresztnév"
   },
+  "guest_email": {
+    "description": "A megrendelés visszaigazolását erre az e-mail címre küldjük",
+    "label": "E-mail a megrendelés visszaigazolásáról",
+    "placeholder": "név@email.com"
+  },
   "language": {
     "error": "A nyelv megadása kötelező",
     "label": "Nyelv"
@@ -103,9 +126,6 @@
   "lastname": {
     "error": "A vezetékneved megadása kötelező",
     "label": "Vezetéknév"
-  },
-  "login": {
-    "error": "Hiba történt a bejelentkezés során."
   },
   "payment_details_id": {
     "label": ""
@@ -137,15 +157,9 @@
     "error": "A nyilvános neved megadása kötelező",
     "label": "Nyilvános név"
   },
-  "recover": {
-    "error": "Hiba történt a jelszó-visszaállítási e-mail elküldése során."
-  },
   "region": {
     "label": "Régió",
     "placeholder": "Válasszon egy régiót…"
-  },
-  "register": {
-    "error": "Hiba történt a fiók létrehozásakor."
   },
   "select_option": {
     "placeholder": "Válasszon egy lehetőséget"
@@ -155,6 +169,10 @@
   },
   "stored_payment_method": {
     "label": ""
+  },
+  "taxNumber": {
+    "label": "Adószám",
+    "placeholder": "Adószám/ÁFA-szám/GST-szám"
   },
   "twofa": {
     "description": "Ez a fiók kétfaktoros hitelesítéssel van védve. Kérjük, adja meg az ellenőrző kódját.",
