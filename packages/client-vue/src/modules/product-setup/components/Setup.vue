@@ -21,7 +21,7 @@
                   color="danger"
                   variant="minimal"
                   icon="alert-triangle"
-                  :title="t('error.product_setup')"
+                  :title="t('error.product_setup', total)"
                   :description="externalErrors?.message || setupError?.message"
                 />
               </slot>
