@@ -6,7 +6,7 @@
       :autocomplete="appliedOptions?.autocomplete"
       :disabled="appliedOptions?.disabled"
       :icon-append="iconAppend"
-      :ui-config="{ input: { items: styles.email.items } }"
+      :ui-config="{ input: { items: [styles.email.items] } }"
       :model-value="control.data"
       @update:modelValue="onInput"
     />
