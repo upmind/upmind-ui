@@ -12,6 +12,7 @@ build base:
   extends: .pnpm
   stage: build
   interruptible: true
+  tags: [xl]
   needs:
     - dependencies
   rules:
@@ -48,6 +49,7 @@ build base:
   extends: .pnpm
   stage: build
   interruptible: true
+  tags: [xl]
   needs:
     - dependencies
     - job: build base
@@ -100,6 +102,7 @@ build base:
   extends: .pnpm
   stage: build
   interruptible: true
+  tags: [xl]
   needs:
     - dependencies
     - job: build base
@@ -137,6 +140,7 @@ build base:
   extends: .pnpm
   stage: build
   interruptible: true
+  tags: [xl]
   needs:
     - dependencies
     - job: build base

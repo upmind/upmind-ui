@@ -25,6 +25,7 @@
   extends: .pnpm
   stage: build
   interruptible: true
+  tags: [xl]
   needs:
     - dependencies
     - (headless) test
