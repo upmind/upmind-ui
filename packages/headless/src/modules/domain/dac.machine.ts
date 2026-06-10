@@ -29,7 +29,6 @@ import {
   concat,
   defaultsDeep,
   every,
-  filter,
   find,
   findIndex,
   first,
@@ -1006,7 +1005,7 @@ export default createMachine(
           ...(response?.productsMap ?? {})
         }),
         lookups: (
-          { lookups, model, search }: DacContext,
+          { lookups, search }: DacContext,
           { data: response }: AnyEventObject
         ) => {
           // Keep prior rows when paginating: page > 1 (suggestions flow)
@@ -1040,29 +1039,19 @@ export default createMachine(
             }
           );
 
-          // Persisted rows: any history entry that matches a domain still in
-          // the model (selected) — keeps a selected domain visible across a
-          // fresh search even if /suggestions doesn't return it.
-          const persisted = filter(lookups.history, ({ domain }) =>
-            some(model, ["domain", domain])
-          );
-
-          // Merge by domain. See `mergeDomainSearchResults` for the rules
-          // and the three upstream scenarios that drive them. Prepend
-          // `persisted` so the merged result keeps any selected-but-not-in-
-          // search domains visible; `uniqBy` drops duplicates if the same
-          // domain also appears in the fresh merge.
+          // Merge by domain. See `mergeDomainSearchResults` for the rules and
+          // the three upstream scenarios that drive them. A fresh search starts
+          // from `previous = []`, so only rows returned by the current search
+          // are shown — previously-added domains from an earlier search do not
+          // leak into unrelated results (they live in the basket, not here).
           const mergedRows = uniqBy(
-            compact(
-              concat(persisted, mergeDomainSearchResults(previous, available))
-            ),
+            compact(mergeDomainSearchResults(previous, available)),
             "domain"
           ) as DomainProduct[];
 
           // Exact-match invariant: when the user's query is a full domain
           // (sld + tld), the matching row MUST sit at index 0 regardless
-          // of the merge order. `concat(persisted, ...)` above can prepend
-          // selected/owned rows ahead of the exact match — hoist it back.
+          // of the merge order — hoist it back if the merge placed it lower.
           const exactIdx = findIndex(
             mergedRows,
             (item: DomainProduct) => !!item.meta?.exactMatch

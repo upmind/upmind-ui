@@ -742,9 +742,14 @@ async function checkAvailability({
   basketId,
   brandId,
   coupons,
-  signal
+  signal,
+  withRelations = true
 }: Pick<DacContext, "checkingDomain" | "basketId" | "brandId" | "coupons"> & {
   signal?: AbortSignal;
+  // Whether to request the `prices,options,...` relations. The search flows
+  // need them to price the result cards; the add-to-basket pre-flight only
+  // reads `can_register`/`can_transfer`, so it opts out to keep the call lean.
+  withRelations?: boolean;
 }) {
   const { t } = useI18n();
   const { queryClient, request, useUrl } = useQuery();
@@ -781,7 +786,7 @@ async function checkAvailability({
             `modules/web_hosting/domains/availability/${checkingDomain}`,
             omitBy(
               {
-                with: DOMAIN_WITH_RELATIONS,
+                with: withRelations ? DOMAIN_WITH_RELATIONS : undefined,
                 basket_id: basketId,
                 brand_id: brandId,
                 promotions: promocodes

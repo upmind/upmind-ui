@@ -838,7 +838,10 @@ export function domainAvailabilityHelper(callback: any, onReceiveEvent: any) {
     services
       .checkAvailability({
         ...(context ?? {}),
-        checkingDomain: domain
+        checkingDomain: domain,
+        // Add-to-basket pre-flight: only `can_register`/`can_transfer` are read
+        // downstream (VERIFY_RESULT guards), so skip the `with` relations.
+        withRelations: false
       } as DacContext)
       .then(availability => {
         callback({
