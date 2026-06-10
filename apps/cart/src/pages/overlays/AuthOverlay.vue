@@ -1,5 +1,9 @@
 <template>
-  <UpmAuth :model-value="mode" @resolve="onAuthComplete" />
+  <UpmAuth
+    :model-value="mode"
+    @resolve="onAuthComplete"
+    :cancel-route="{ name: ROUTE.BASKET }"
+  />
 </template>
 
 <script lang="ts" setup>
@@ -15,6 +19,7 @@ import { useRoute } from "vue-router";
 
 // --- internal
 import { UpmAuth } from "@upmind-automation/client-vue";
+import { ROUTE } from "../../router";
 
 // --- utils
 import { get } from "lodash-es";
@@ -31,9 +36,14 @@ const emit = defineEmits<{
 }>();
 
 /** Read initial mode from ?mode=login|register query param */
-const mode = computed(
-  () => get(route, "query.mode", "login") as SessionProps["modelValue"]
-);
+const mode = computed(() => {
+  const mode = get(
+    route,
+    "query.mode",
+    get(route, "meta.mode", "login")
+  ) as SessionProps["modelValue"];
+  return mode;
+});
 
 /** Emit close on auth success — OverlayController handles drawer close + navigation */
 function onAuthComplete(): void {

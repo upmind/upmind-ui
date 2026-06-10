@@ -23,6 +23,12 @@
   },
   "auth_email": {
     "description": null,
+    "error": "An email address is required",
+    "label": "Your email",
+    "placeholder": "name@email.com"
+  },
+  "auth_login": {
+    "description": null,
     "error": "A username or email address is required",
     "label": "Your username or email address",
     "placeholder": "name@email.com"
@@ -117,7 +123,7 @@
     "description": null,
     "error": "A valid Email Address is required",
     "label": "Email",
-    "placeholder": null,
+    "placeholder": "name@email.com",
     "title": "Add New Email | Update Email"
   },
   "phone": {
@@ -126,24 +132,6 @@
     "label": "Phone",
     "placeholder": null,
     "title": "Add New Phone Number | Update Phone Number"
-  },
-  "login": {
-    "description": null,
-    "error": "We experienced an error while trying to log you in.",
-    "label": null,
-    "placeholder": null
-  },
-  "register": {
-    "description": null,
-    "error": "We experienced an error while trying to create your account.",
-    "label": null,
-    "placeholder": null
-  },
-  "recover": {
-    "description": null,
-    "error": "We experienced an error while trying to send you a password reset email.",
-    "label": null,
-    "placeholder": null
   },
   "domain_search": {
     "description": null,
@@ -238,6 +226,11 @@
     "description": null,
     "label": "",
     "placeholder": null
+  },
+  "guest_email": {
+    "description": "We'll send your order confirmation to this email",
+    "label": "Email for order receipt",
+    "placeholder": "name@email.com"
   },
   "twofa": {
     "description": "This account is secured using two-factor authentication. Please enter your verification code.",

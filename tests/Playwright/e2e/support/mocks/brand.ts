@@ -21,6 +21,21 @@ interface ConfigOverrides {
    */
   domainSearchMethod?: "legacy-lookup" | "smart-suggest";
   basketFunnelling?: "none" | "next_step";
+  /**
+   * Toggles the guest-checkout gate. Maps to brand config key
+   * `invoices.guest_checkout.enabled` (`BrandConfigKeys.GUEST_CHECKOUT_ENABLED`).
+   * Mock OFF to assert the guest CTAs are hidden; do NOT mock ON while staging
+   * rejects guest registration (the journey would fail mid-flight) — read the
+   * real value with `captureBrandSettings` and `test.skip` instead.
+   */
+  guestCheckoutEnabled?: boolean;
+  /**
+   * Toggles the require-verified-email checkout gate. Maps to brand config key
+   * `security.orders.require_verified_email`. A feature-flag/settings mock
+   * (P4-safe): mock ON to assert `guardCheckout` opens the verify-email overlay
+   * for an unverified client; mock OFF for the normal checkout path.
+   */
+  requireVerifiedEmail?: boolean;
 }
 
 /**
@@ -134,6 +149,14 @@ export async function interceptConfigValues(
       if (overrides.basketFunnelling !== undefined) {
         json.data["ui.basket.add_to_basket_funnelling"] =
           overrides.basketFunnelling;
+      }
+      if (overrides.guestCheckoutEnabled !== undefined) {
+        json.data["invoices.guest_checkout.enabled"] =
+          overrides.guestCheckoutEnabled;
+      }
+      if (overrides.requireVerifiedEmail !== undefined) {
+        json.data["security.orders.require_verified_email"] =
+          overrides.requireVerifiedEmail;
       }
       const updatedResponseBody = {
         ...json

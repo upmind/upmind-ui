@@ -126,7 +126,7 @@ export enum ROUTE {
   BASKET_PRODUCT_EDIT = "basket-product-edit",
 
   /**
-   * The route for product setup — fixing invalid/deferred product configuration.
+   * The route for product setup - fixing invalid/deferred product configuration.
    */
   BASKET_PRODUCTS_SETUP = "basket-products-setup",
 
@@ -153,22 +153,22 @@ export enum ROUTE {
   // --- OVERLAY ROUTES --------------------------------------------------------
 
   /**
-   * Parent route for overlay components (not navigable directly).
+   * Parent route for overlay components (not navigated directly).
    */
   OVERLAYS = "overlays",
 
   /**
-   * Overlay route for authentication (login/register).
+   * Auth overlay — login/register/recover in a modal or drawer.
    */
   OVERLAY_AUTH = "overlay-auth",
 
   /**
-   * Overlay route for 2FA verification.
+   * 2FA overlay — two-factor authentication challenge.
    */
   OVERLAY_2FA = "overlay-2fa",
 
   /**
-   * Overlay route for email verification.
+   * Verify email overlay — email verification flow.
    */
   OVERLAY_VERIFY_EMAIL = "overlay-verify-email",
 

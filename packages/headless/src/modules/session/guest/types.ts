@@ -42,3 +42,13 @@ export interface TWOFAModel {
 export interface RecoverModel {
   username?: string;
 }
+
+/**
+ * Response shape from `POST /clients/register/guest`.
+ * The endpoint returns either `{ id }` directly or wrapped as `{ data: { id } }`,
+ * so the client id is read with a fallback: `response.data?.id ?? response.id`.
+ */
+export interface RegisterGuestResponse {
+  id?: string;
+  data?: { id?: string };
+}

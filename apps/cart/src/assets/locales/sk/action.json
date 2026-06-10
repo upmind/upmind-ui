@@ -61,6 +61,8 @@
   "reload_page": "Znovu načítať stránku",
   "remove": "Odstrániť",
   "removing": "Odstraňovanie...",
+  "resend_code": "Znovu poslať kód",
+  "resend_code_in": "Kód bude zaslaný znovu o {seconds}s",
   "return_to_shop": "Späť do obchodu",
   "review": "kliknite sem na kontrolu",
   "review_next_product": "Recenzia ďalšieho produktu",

@@ -18,6 +18,11 @@
     "label": "Automatische betaling toestaan"
   },
   "auth_email": {
+    "error": "Een e-mailadres is verplicht",
+    "label": "Je e-mailadres",
+    "placeholder": "naam@email.com"
+  },
+  "auth_login": {
     "error": "Een gebruikersnaam of e-mailadres is vereist",
     "label": "Uw gebruikersnaam of e-mailadres",
     "placeholder": "naam@email.com"
@@ -99,6 +104,7 @@
   "email": {
     "error": "Een geldig e-mailadres is vereist",
     "label": "E-mail",
+    "placeholder": "naam@email.com",
     "title": "Nieuw e-mailadres toevoegen | E-mailadres bijwerken"
   },
   "field_notes": {
@@ -108,6 +114,11 @@
     "error": "Uw voornaam is vereist",
     "label": "Voornaam"
   },
+  "guest_email": {
+    "description": "We sturen je bestelbevestiging naar dit e-mailadres",
+    "label": "E-mail ter bevestiging van de bestelling",
+    "placeholder": "naam@email.com"
+  },
   "language": {
     "error": "Uw taal is vereist.",
     "label": "Taal"
@@ -115,9 +126,6 @@
   "lastname": {
     "error": "Uw achternaam is vereist",
     "label": "Achternaam"
-  },
-  "login": {
-    "error": "Er is een fout opgetreden bij het inloggen."
   },
   "payment_details_id": {
     "label": ""
@@ -149,15 +157,9 @@
     "error": "Uw openbare naam is verplicht.",
     "label": "Publieke naam"
   },
-  "recover": {
-    "error": "Er is een fout opgetreden bij het verzenden van een e-mail om uw wachtwoord opnieuw in te stellen."
-  },
   "region": {
     "label": "Regio",
     "placeholder": "Selecteer een regio…"
-  },
-  "register": {
-    "error": "Er is een fout opgetreden bij het aanmaken van uw account."
   },
   "select_option": {
     "placeholder": "Selecteer een optie"

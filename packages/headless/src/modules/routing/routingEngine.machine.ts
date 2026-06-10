@@ -151,6 +151,7 @@ export default createMachine(
           const newFunnelsArray = data?.funnels || [];
           const newDefaultFunnel = data?.defaultFunnel;
           const newWatchers = data?.watchers;
+          const newOverlays = data?.overlays;
 
           // Convert newFunnelsArray to a dictionary, merging with existing if id matches
           const funnelDictionary = reduce(
@@ -178,6 +179,7 @@ export default createMachine(
             funnels: funnelDictionary,
             defaultFunnel: newDefaultId,
             currentFunnel: newDefaultId, // Start with the default funnel active
+            overlays: newOverlays,
             watchers: newWatchers
           };
         }

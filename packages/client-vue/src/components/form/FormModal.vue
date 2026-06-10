@@ -1,9 +1,9 @@
 <template>
   <Dialog
-    :open="open"
+    v-model:open="open"
     :ui-config="{
       dialog: {
-        content: [styles.modal.content],
+        scrollable: [styles.modal.scrollable],
         container: [styles.modal.container],
         header: [styles.modal.header],
         footer: [styles.modal.footer]

@@ -187,15 +187,17 @@ export const useRoutingEngine = () => {
   function register({
     defaultFunnel,
     funnels,
+    overlays,
     watchers
   }: {
     defaultFunnel?: RoutingEngineContext["defaultFunnel"];
     funnels?: RoutingEngineContext["funnels"];
+    overlays?: RoutingEngineContext["overlays"];
     watchers?: RoutingEngineContext["watchers"];
   }) {
     send({
       type: "REGISTER",
-      data: { defaultFunnel, funnels, watchers }
+      data: { defaultFunnel, funnels, overlays, watchers }
     });
   }
 

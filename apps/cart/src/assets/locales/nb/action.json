@@ -61,6 +61,8 @@
   "reload_page": "Last inn siden på nytt",
   "remove": "Fjerne",
   "removing": "Fjerner...",
+  "resend_code": "Send koden på nytt",
+  "resend_code_in": "Send koden på nytt om {seconds}s",
   "return_to_shop": "Gå tilbake til butikken",
   "review": "klikk her for å se gjennom",
   "review_next_product": "Anmeld neste produkt",

@@ -48,16 +48,16 @@ export function mapAccountCredit(
   ) as IWalletCurrencyBalance;
   return {
     owned: {
-      value: Math.max(balance?.amount_converted, 0),
+      value: Math.max(balance?.amount_converted ?? 0, 0),
       amount: balance?.amount_converted_formatted || ""
     },
     credit: {
-      value: Math.max(credit?.amount_converted, 0),
+      value: Math.max(credit?.amount_converted ?? 0, 0),
       amount: credit?.amount_converted_formatted || ""
     },
     total: {
       value: Math.max(
-        add(balance?.amount_converted, credit?.amount_converted),
+        add(balance?.amount_converted, credit?.amount_converted) ?? 0,
         0
       ),
       amount: "" // we will set this later

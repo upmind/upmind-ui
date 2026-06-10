@@ -18,6 +18,11 @@
     "label": "Allow auto payment"
   },
   "auth_email": {
+    "error": "An email address is required",
+    "label": "Your email",
+    "placeholder": "name@email.com"
+  },
+  "auth_login": {
     "error": "A username or email address is required",
     "label": "Your username or email address",
     "placeholder": "name@email.com"
@@ -99,6 +104,7 @@
   "email": {
     "error": "A valid Email Address is required",
     "label": "Email",
+    "placeholder": "name@email.com",
     "title": "Add New Email | Update Email"
   },
   "field_notes": {
@@ -108,6 +114,11 @@
     "error": "Your first name is required",
     "label": "First name"
   },
+  "guest_email": {
+    "description": "We'll send your order confirmation to this email",
+    "label": "Email for order receipt",
+    "placeholder": "name@email.com"
+  },
   "language": {
     "error": "Your language is required",
     "label": "Language"
@@ -115,9 +126,6 @@
   "lastname": {
     "error": "Your last name is required",
     "label": "Last name"
-  },
-  "login": {
-    "error": "We experienced an error while trying to log you in."
   },
   "payment_details_id": {
     "label": ""
@@ -149,15 +157,9 @@
     "error": "Your public name is required",
     "label": "Public name"
   },
-  "recover": {
-    "error": "We experienced an error while trying to send you a password reset email."
-  },
   "region": {
     "label": "Region",
     "placeholder": "Select a region…"
-  },
-  "register": {
-    "error": "We experienced an error while trying to create your account."
   },
   "select_option": {
     "placeholder": "Select an option"

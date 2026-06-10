@@ -18,6 +18,11 @@
     "label": "Tillat automatisk betaling"
   },
   "auth_email": {
+    "error": "Det kreves en e-postadresse",
+    "label": "E-postadressen din",
+    "placeholder": "navn@epost.com"
+  },
+  "auth_login": {
     "error": "Et brukernavn eller en e-postadresse er nødvendig",
     "label": "Brukernavnet eller e-postadressen din",
     "placeholder": "navn@epost.com"
@@ -25,15 +30,27 @@
   "auth_password": {
     "error": {
       "min_length": "Passordet må bestå av minst 8 tegn",
-      "min_length_lowercase": "Passordet må bestå av minst 8 tegn og inneholde en liten bokstav.",
-      "min_length_lowercase_number": "Passordet må være minst 8 tegn, inneholde minst én liten bokstav og minst ett siffer",
+      "min_length_letter": "Passordet må bestå av minst 8 tegn og inneholde en bokstav",
+      "min_length_letter_number": "Passordet må bestå av minst 8 tegn og inneholde både en bokstav og et tall",
+      "min_length_letter_number_symbol": "Passordet må bestå av minst 8 tegn og inneholde en bokstav, et tall og et tegn",
+      "min_length_letter_symbol": "Passordet må bestå av minst 8 tegn, inneholde en bokstav og et tegn",
       "min_length_number": "Passordet må bestå av minst 8 tegn og inneholde et tall.",
-      "missing_lowercase": "Passordet må inneholde en liten bokstav",
-      "missing_lowercase_number": "Passordet må inneholde en liten bokstav og et tall",
-      "missing_number": "Passordet må inneholde et tall"
+      "min_length_number_symbol": "Passordet må bestå av minst 8 tegn og inneholde både et tall og et tegn",
+      "min_length_symbol": "Passordet må bestå av minst 8 tegn og inneholde et spesialtegn",
+      "missing_letter": "Passordet må inneholde en bokstav",
+      "missing_letter_number": "Passordet må inneholde en bokstav og et tall",
+      "missing_letter_number_symbol": "Passordet må inneholde en bokstav, et tall og et tegn",
+      "missing_letter_symbol": "Passordet må inneholde en bokstav og et tegn",
+      "missing_number": "Passordet må inneholde et tall",
+      "missing_number_symbol": "Passordet må inneholde et tall og et tegn",
+      "missing_symbol": "Passordet må inneholde et tegn"
     },
+    "generate": "Lag et sterkt passord",
+    "hide": "Skjul passord",
+    "hint": "Passordet må bestå av minst 8 tegn og inneholde en bokstav, et tall og et tegn.",
     "label": "Passord",
-    "placeholder": "Passord eller passordfrase"
+    "placeholder": "Passord eller passordfrase",
+    "show": "Vis passord"
   },
   "card_cvv": {
     "error": "En gyldig CVV er nødvendig",
@@ -72,7 +89,7 @@
   },
   "companyNumber": {
     "label": "Firmanummer",
-    "placeholder": "Registrert skatt eller GST"
+    "placeholder": "Organisasjonsnummer"
   },
   "country": {
     "label": "Land",
@@ -87,6 +104,7 @@
   "email": {
     "error": "En gyldig e-postadresse er nødvendig",
     "label": "E-post",
+    "placeholder": "navn@epost.com",
     "title": "Legg til ny e-post | Oppdater e-post"
   },
   "field_notes": {
@@ -96,6 +114,11 @@
     "error": "Fornavnet ditt er obligatorisk",
     "label": "Fornavn"
   },
+  "guest_email": {
+    "description": "Vi sender ordrebekreftelsen til denne e-postadressen",
+    "label": "E-post ved mottak av bestilling",
+    "placeholder": "navn@epost.com"
+  },
   "language": {
     "error": "Språket ditt er obligatorisk",
     "label": "Språk"
@@ -103,9 +126,6 @@
   "lastname": {
     "error": "Etternavnet ditt er obligatorisk",
     "label": "Etternavn"
-  },
-  "login": {
-    "error": "Vi opplevde en feil under forsøket på å logge deg inn."
   },
   "payment_details_id": {
     "label": ""
@@ -137,15 +157,9 @@
     "error": "Ditt offentlige navn er obligatorisk",
     "label": "Offentlig navn"
   },
-  "recover": {
-    "error": "Vi oppsto en feil under forsøket på å sende deg en e-post for tilbakestilling av passord."
-  },
   "region": {
     "label": "Region",
     "placeholder": "Velg en region…"
-  },
-  "register": {
-    "error": "Det oppsto en feil under forsøket på å opprette kontoen din."
   },
   "select_option": {
     "placeholder": "Velg et alternativ"
@@ -155,6 +169,10 @@
   },
   "stored_payment_method": {
     "label": ""
+  },
+  "taxNumber": {
+    "label": "Registrert organisasjonsnummer",
+    "placeholder": "Skatteregistreringsnummer/MVA-nummer"
   },
   "twofa": {
     "description": "Denne kontoen er sikret med tofaktorautentisering. Vennligst skriv inn bekreftelseskoden din.",

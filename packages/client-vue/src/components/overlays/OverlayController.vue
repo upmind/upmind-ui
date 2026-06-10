@@ -1,6 +1,10 @@
 <template>
-  <!-- Overlay — rendered when route has meta.overlay -->
+  <!-- Overlay — rendered only when layered over a base page. When the overlay
+       route is the active destination itself (e.g. visiting /overlays/verify-email
+       directly), the main RouteView already renders it — rendering it here too
+       would mount it twice. -->
   <component
+    v-if="isLayered"
     :is="overlayContainer"
     v-bind="safeProps"
     :open="open"
@@ -31,7 +35,7 @@ import { useOverlayRoute } from "./useOverlayRoute";
 import { Drawer, Dialog, Slot } from "@upmind-automation/upmind-ui";
 
 // --- utils
-import { defaults, find } from "lodash-es";
+import { defaults, find, some } from "lodash-es";
 
 // --- types
 import type { RouteRecordNormalized } from "vue-router";
@@ -50,6 +54,17 @@ const { isOpen, overlayType, close, dismiss } = useOverlayRoute();
 
 /** Matched route with overlay meta */
 const overlayRoute = computed(() => find(route.matched, "meta.overlay"));
+
+/**
+ * True only when the overlay is layered over a base page — i.e. `route.matched`
+ * contains a non-overlay route with its own component (e.g. `checkout`). When
+ * the overlay route is the active destination itself (matched only alongside the
+ * `/overlays/` redirect container), this is false and the main RouteView renders
+ * the route — so we must not also render it here.
+ */
+const isLayered = computed(() =>
+  some(route.matched, r => !r.meta?.overlay && !!r.components?.default)
+);
 
 /** Resolve container (Dialog or Drawer) from overlay type */
 const overlayContainer = computed(() => {

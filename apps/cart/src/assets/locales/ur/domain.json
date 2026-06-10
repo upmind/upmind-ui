@@ -62,7 +62,7 @@
   "transfer_free_info": "آپ اسے مفت میں ہمارے پاس منتقل کر سکتے ہیں۔",
   "transfer_owner_question": "کیا آپ اس ڈومین کے مالک ہیں؟",
   "transfer_price_info": "آپ اسے صرف ہمارے پاس منتقل کر سکتے ہیں۔ {currentPrice}",
-  "transfer_promotion": "صرف کے لیے ٹرانسفر {currentPrice} ، عام طور پر {regularPrice}.",
+  "transfer_promotion": "صرف کے لیے ٹرانسفر {currentPrice}، عام طور پر {regularPrice}.",
   "transfer_today_info": "آپ اسے آج ہی ہمارے پاس منتقل کر سکتے ہیں۔",
   "use_details_for": "ان تفصیلات کے لیے استعمال کریں۔ {domain}"
 }

@@ -177,6 +177,11 @@ export const useBasket = () => {
 
       hasInvalidProducts: !isEmpty(productsInvalid.value),
 
+      hasRecurringProducts: some(
+        products.value,
+        p => (p?.configuration?.term ?? 0) > 1
+      ),
+
       hasLockedProducts: some(
         products.value,
         p => !!p?.productDetails?.readonly

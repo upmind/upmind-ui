@@ -1,17 +1,22 @@
 {
+  "basket_placeholder": "選擇網域",
   "begin_search_above_desc": "使用上面的框開始搜尋。",
   "choices": {
     "basket": {
-      "label": "使用購物籃中的域名",
+      "label": "使用購物車中的網域",
       "tooltip": "這些網域名稱已在您的購物籃中"
     },
     "existing": {
-      "label": "使用現有域",
+      "label": "使用我已擁有的網域",
       "tooltip": "您可以透過更新名稱伺服器來使用現有的網域"
     },
     "register": {
-      "label": "註冊新域名",
+      "label": "註冊新網域",
       "tooltip": "還沒有網域？註冊一個新域名"
+    },
+    "skip": {
+      "label": "我稍後再決定",
+      "tooltip": ""
     },
     "transfer": {
       "label": "轉移域名",
@@ -21,20 +26,43 @@
   "domain_description": "立即保護您的線上身分—只需一分鐘。",
   "domain_not_required_label": "繼續，無需域名",
   "domain_title": "包含一個網域名稱。",
+  "error": {
+    "availability_check_failed": "無法檢查網域名稱的可用性",
+    "registration_add_failed": "無法將網域加入購物車",
+    "transfer_add_failed": "無法將轉帳加入購物車",
+    "transfer_remove_failed": "無法從購物籃中移除轉帳項目"
+  },
+  "existing": {
+    "add_registration": "加入購物車",
+    "add_transfer": "新增轉帳",
+    "dns_info": "若要使用此網域，您需要透過現有的網域註冊商更新該網域的 DNS 設定。",
+    "placeholder": "請告訴我們您想使用的網域名稱。",
+    "register_info": "好消息——這個網域名稱現正開放註冊，價格僅需{price}，其中已包含{period}元的註冊費。",
+    "remove_transfer": "取消轉帳",
+    "transfer_added": "已新增轉帳",
+    "transfer_info": "如果您擁有此網域，只需支付{transferPrice}即可將其轉移至我們名下。後續續約費用為{term}。否則，您需要更新該網域的名稱伺服器 (NS) 記錄。",
+    "transfer_info_free": "如果您擁有此網域，可免費將其轉移至我們名下。後續續約費用為{term}。否則，您需要更新該網域的名稱伺服器 (NS) 記錄。",
+    "unavailable": "此網域無法註冊或轉移。"
+  },
   "finding_perfect_domain": "尋找您的**完美**域名",
   "finding_perfect_domain_md": "@.markdown：{'domain.finding_perfect_domain'}",
   "own_domain_qn": "您擁有這個網域嗎？",
   "owned_domains_title": "您目前擁有的域名",
   "price_renewal_desc": "一次性價格為 {regularPrice}。 | 每年續訂價格為 {regularPrice}。 | 每 {count}年續訂價格為 {regularPrice}。",
-  "search": "搜尋網域",
+  "registrant_use_billing_msg": "您的帳單資訊將用作網域註冊人的聯絡資訊。",
+  "search": "請輸入網域名稱進行搜尋",
   "starts_with_domain": "一切都始於**域名**",
   "starts_with_domain_md": "@.markdown：{'domain.starts_with_domain'}",
+  "tld_renewal_info": "續約價格自{term} 起。",
   "tld_renewal_price_desc": "我們的 {tld} 續訂價格僅從 {currentPrice} （曾是 {regularPrice} ）。",
   "tld_renewal_price_from_desc": "我們的 {tld} 續訂價格僅從 {regularPrice} 。",
   "transfer": "轉帳僅需 {currentPrice} 。",
   "transfer_domain": "轉移網域",
   "transfer_extension_info": "轉會包含一年延長合約。",
+  "transfer_free_info": "您可以免費將其轉帳給我們。",
   "transfer_owner_question": "您是此網域的所有者嗎？",
   "transfer_price_info": "您只需將它轉移給我們即可 {currentPrice}",
-  "transfer_promotion": "轉帳僅需 {currentPrice} ，通常為 {regularPrice} 。"
+  "transfer_promotion": "轉帳僅需 {currentPrice} ，通常為 {regularPrice} 。",
+  "transfer_today_info": "您今天就可以將款項轉帳給我們。",
+  "use_details_for": "請使用這些詳細信息{domain}"
 }
