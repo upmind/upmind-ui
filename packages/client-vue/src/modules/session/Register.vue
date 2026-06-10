@@ -61,7 +61,11 @@
           />
 
           <Alert
-            v-if="meta.canRegisterAsGuest"
+            v-if="
+              meta.canRegisterAsGuest &&
+              !basketMeta.isLoading &&
+              !basketMeta.hasRecurringProducts
+            "
             :title="t('auth.guest_checkout_qn')"
             icon="clock-fast-forward"
             variant="muted"
@@ -95,7 +99,7 @@
           </Alert>
 
           <Auth
-            v-show="!meta.isLoading"
+            v-show="!meta.isLoading && !basketMeta.isLoading"
             class="rounded-box w-full max-w-5xl items-start"
             no-tabs
             no-header
@@ -105,7 +109,7 @@
           />
 
           <div
-            v-if="meta.isLoading"
+            v-if="meta.isLoading || basketMeta.isLoading"
             class="flex w-full max-w-5xl flex-col gap-6"
           >
             <div>

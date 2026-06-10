@@ -395,7 +395,6 @@ export default createMachine(
               "setError",
               "incrementAttempts",
               "restartActors",
-              "refreshActors",
               "setWarningNotes"
             ]
           }
