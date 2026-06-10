@@ -15,6 +15,14 @@ e2e:allure:
   image: mcr.microsoft.com/playwright:v1.54.2-noble
   needs: [dependencies]
   interruptible: true
+  rules:
+    - if: $SKIP_ALLURE == 'true'
+      when: never
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'main'
+      when: always
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'develop'
+      when: always
+  allow_failure: true
   cache:
     # Preserves the Allure 3 history JSONL per-branch so the trend graph
     # accumulates across consecutive CI runs on the same branch.
@@ -22,6 +30,12 @@ e2e:allure:
     paths:
       - tests/Playwright/e2e/reports/.allure-history/
     policy: pull-push
+  artifacts:
+    when: on_success
+    expire_in: 30 days
+    paths:
+      - tests/Playwright/e2e/reports/allure-report
+      - tests/Playwright/e2e/reports/allure-results.tar.gz
   before_script:
     # The cart dev server (Playwright webServer) is served at qa-automation.local,
     # the mapped tenant domain the API expects. Map it to loopback in-container so
@@ -29,6 +43,9 @@ e2e:allure:
     - echo "127.0.0.1 qa-automation.local" >> /etc/hosts
     - corepack enable
     - corepack prepare pnpm@10.33.0 --activate
+    # reinstall to get correct native binaries as 'dependencies' job runs on
+    # Alpine (musl), but this image is Ubuntu (glibc)
+    - pnpm install --force
     # Allure 3 CLI is installed as a project devDependency (no Java needed).
   script:
     # globalTeardown in playwright.config.ts calls allure-generate.sh,
@@ -41,25 +58,33 @@ e2e:allure:
           -C tests/Playwright/e2e/reports/allure-results .
       fi
     - exit ${TESTS_FAILED:-0}
-  artifacts:
-    when: always
-    expire_in: 30 days
-    paths:
-      - tests/Playwright/e2e/reports/allure-report
-      - tests/Playwright/e2e/reports/allure-results.tar.gz
 
 e2e:allure:publish:
   stage: deploy
   image: google/cloud-sdk:alpine
+  allow_failure: true
   needs:
     - job: e2e:allure
       artifacts: true
+  rules:
+    - if: $SKIP_ALLURE == 'true'
+      when: never
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'main'
+      when: always
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'develop'
+      when: always
   variables:
     ALLURE_GCS_PREFIX: allure
   before_script:
     # Reuse the same auth pattern as .deploy gcs in cart.yml.
     - apk add --no-cache nodejs
-    - echo "${GCP_SERVICE_ACCOUNT_JSON_ALLURE}" > "${GOOGLE_APPLICATION_CREDENTIALS}"
+    - |
+      if [ -z "${GCP_SERVICE_ACCOUNT_JSON_ALLURE}" ]; then
+        echo "No GCP service account defined!"
+        exit 1
+      fi
+
+      echo "${GCP_SERVICE_ACCOUNT_JSON_ALLURE}" > "${GOOGLE_APPLICATION_CREDENTIALS}"
     - gcloud auth activate-service-account --key-file="${GOOGLE_APPLICATION_CREDENTIALS}" --quiet
   script:
     - |
@@ -83,8 +108,3 @@ e2e:allure:publish:
         "${BASE}/latest/results.tar.gz" --quiet
     # Rebuild the landing page
     - node tests/Playwright/scripts/allure-index.mjs
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-      when: always
-    - if: $CI_COMMIT_BRANCH == "develop"
-      when: always
