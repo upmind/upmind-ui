@@ -116,6 +116,7 @@
   "product_pending_ensure_failed": "Garantir que o produto pendente falhou",
   "product_pending_validation_failed": "Falha na validação do produto pendente",
   "product_quantifiable_not_available": "O produto não é quantificável",
+  "product_setup": "Ocorreu um erro ao configurar este produto | Ocorreu um erro ao configurar esses produtos",
   "product_validation_failed": "Falha na validação da configuração do produto",
   "profile_details_not_available": "Detalhes do perfil não disponíveis",
   "profile_details_update_failed": "Ocorreu um erro ao atualizar os detalhes do perfil.",

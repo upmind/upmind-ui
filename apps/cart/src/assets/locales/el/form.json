@@ -25,7 +25,7 @@
   "auth_login": {
     "error": "Απαιτείται όνομα χρήστη ή διεύθυνση ηλεκτρονικού ταχυδρομείου",
     "label": "Το όνομα χρήστη ή η διεύθυνση ηλεκτρονικού ταχυδρομείου σας",
-    "placeholder": "onoma@email.com"
+    "placeholder": "name@email.com"
   },
   "auth_password": {
     "error": {

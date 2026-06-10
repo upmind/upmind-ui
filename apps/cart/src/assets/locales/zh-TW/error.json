@@ -116,6 +116,7 @@
   "product_pending_ensure_failed": "確保待處理產品失敗",
   "product_pending_validation_failed": "待處理產品驗證失敗",
   "product_quantifiable_not_available": "產品不可量化",
+  "product_setup": "設定此產品時發生錯誤 | 設定這些產品時發生錯誤",
   "product_validation_failed": "產品配置驗證失敗",
   "profile_details_not_available": "個人資料詳情不可用",
   "profile_details_update_failed": "我們在更新個人資料詳情時遇到錯誤。",

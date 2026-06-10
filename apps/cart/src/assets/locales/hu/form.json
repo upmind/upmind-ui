@@ -25,7 +25,7 @@
   "auth_login": {
     "error": "Felhasználónév vagy e-mail-cím megadása kötelező",
     "label": "Felhasználóneved vagy e-mail címed",
-    "placeholder": "név@email.com"
+    "placeholder": "name@email.com"
   },
   "auth_password": {
     "error": {

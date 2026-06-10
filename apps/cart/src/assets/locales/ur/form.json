@@ -25,7 +25,7 @@
   "auth_login": {
     "error": "ایک صارف نام یا ای میل پتہ درکار ہے۔",
     "label": "آپ کا صارف نام یا ای میل پتہ",
-    "placeholder": "naam@email.com"
+    "placeholder": "name@email.com"
   },
   "auth_password": {
     "error": {

@@ -116,6 +116,7 @@
   "product_pending_ensure_failed": "Sørg for at ventende produkt mislyktes",
   "product_pending_validation_failed": "Ventende produktvalidering mislyktes",
   "product_quantifiable_not_available": "Produktet er ikke kvantifiserbart",
+  "product_setup": "Det oppstod en feil under konfigureringen av dette produktet | Det oppstod en feil under konfigureringen av disse produktene",
   "product_validation_failed": "Validering av produktkonfigurasjon mislyktes",
   "profile_details_not_available": "Profildetaljer er ikke tilgjengelige",
   "profile_details_update_failed": "Vi oppsto en feil under oppdatering av profildetaljene",

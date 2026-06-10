@@ -25,7 +25,7 @@
   "auth_login": {
     "error": "必須提供使用者名稱或電子郵件地址",
     "label": "您的使用者名稱或電子郵件地址",
-    "placeholder": "姓名@email.com"
+    "placeholder": "name@email.com"
   },
   "auth_password": {
     "error": {

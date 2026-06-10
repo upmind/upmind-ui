@@ -116,6 +116,7 @@
   "product_pending_ensure_failed": "Asigurați-vă că produsul în așteptare a eșuat",
   "product_pending_validation_failed": "Validarea produsului în așteptare a eșuat",
   "product_quantifiable_not_available": "Produsul nu este cuantificabil",
+  "product_setup": "A apărut o eroare la configurarea acestui produs | A apărut o eroare la configurarea acestor produse",
   "product_validation_failed": "Validarea configurației produsului a eșuat",
   "profile_details_not_available": "Detaliile profilului nu sunt disponibile",
   "profile_details_update_failed": "Am întâmpinat o eroare la actualizarea detaliilor profilului",

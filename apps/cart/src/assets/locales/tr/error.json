@@ -116,6 +116,7 @@
   "product_pending_ensure_failed": "Bekleyen ürünün başarısız olduğundan emin olun",
   "product_pending_validation_failed": "Bekleyen ürün doğrulaması başarısız oldu",
   "product_quantifiable_not_available": "Ürün ölçülebilir değil",
+  "product_setup": "Bu ürünü kurarken bir hata oluştu | Bu ürünleri kurarken bir hata oluştu",
   "product_validation_failed": "Ürün yapılandırma doğrulaması başarısız oldu",
   "profile_details_not_available": "Profil bilgileri mevcut değil.",
   "profile_details_update_failed": "Profil bilgilerini güncellerken bir hata oluştu.",

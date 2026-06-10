@@ -25,7 +25,7 @@
   "auth_login": {
     "error": "Een gebruikersnaam of e-mailadres is vereist",
     "label": "Je gebruikersnaam of e-mailadres",
-    "placeholder": "naam@email.com"
+    "placeholder": "name@email.com"
   },
   "auth_password": {
     "error": {

@@ -22,6 +22,11 @@
     "label": "Alamat email Anda",
     "placeholder": "nama@email.com"
   },
+  "auth_login": {
+    "error": "Nama pengguna atau alamat email diperlukan",
+    "label": "Nama pengguna atau alamat email Anda",
+    "placeholder": "nama@email.com"
+  },
   "auth_password": {
     "error": {
       "min_length": "Kata sandi harus terdiri dari minimal 8 karakter.",

@@ -22,6 +22,11 @@
     "label": "Votre adresse e-mail",
     "placeholder": "nom@email.com"
   },
+  "auth_login": {
+    "error": "Un nom d'utilisateur ou une adresse courriel est requis",
+    "label": "Votre nom d'utilisateur ou votre adresse courriel",
+    "placeholder": "nom@email.com"
+  },
   "auth_password": {
     "error": {
       "min_length": "Le mot de passe doit comporter au moins 8 caractères.",

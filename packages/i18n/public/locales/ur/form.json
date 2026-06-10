@@ -22,6 +22,11 @@
     "label": "آپ کا ای میل",
     "placeholder": "naam@email.com"
   },
+  "auth_login": {
+    "error": "ایک صارف نام یا ای میل پتہ درکار ہے۔",
+    "label": "آپ کا صارف نام یا ای میل پتہ",
+    "placeholder": "naam@email.com"
+  },
   "auth_password": {
     "error": {
       "min_length": "پاس ورڈ کم از کم 8 حروف کا ہونا چاہیے۔",
