@@ -22,6 +22,11 @@
     "label": "您的電子郵件",
     "placeholder": "姓名@email.com"
   },
+  "auth_login": {
+    "error": "需要使用者名稱或電子郵件地址",
+    "label": "您的使用者名稱或電子郵件地址",
+    "placeholder": "姓名@email.com"
+  },
   "auth_password": {
     "error": {
       "min_length": "密碼必須至少包含8個字元",

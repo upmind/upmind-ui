@@ -22,6 +22,11 @@
     "label": "Adresa ta de e-mail",
     "placeholder": "nume@email.com"
   },
+  "auth_login": {
+    "error": "Este necesar un nume de utilizator sau o adresă de e-mail",
+    "label": "Numele dvs. de utilizator sau adresa de e-mail",
+    "placeholder": "nume@email.com"
+  },
   "auth_password": {
     "error": {
       "min_length": "Parola trebuie să aibă cel puțin 8 caractere",

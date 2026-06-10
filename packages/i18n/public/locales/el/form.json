@@ -22,6 +22,11 @@
     "label": "Το email σου",
     "placeholder": "onoma@email.com"
   },
+  "auth_login": {
+    "error": "Απαιτείται όνομα χρήστη ή διεύθυνση email.",
+    "label": "Το όνομα χρήστη ή η διεύθυνση email σας",
+    "placeholder": "onoma@email.com"
+  },
   "auth_password": {
     "error": {
       "min_length": "Ο κωδικός πρόσβασης πρέπει να έχει τουλάχιστον 8 χαρακτήρες",

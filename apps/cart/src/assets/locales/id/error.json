@@ -116,6 +116,7 @@
   "product_pending_ensure_failed": "Pastikan produk yang tertunda gagal",
   "product_pending_validation_failed": "Validasi produk yang tertunda gagal",
   "product_quantifiable_not_available": "Produk tidak dapat diukur",
+  "product_setup": "Terjadi kesalahan saat menyiapkan produk ini | Terjadi kesalahan saat menyiapkan produk-produk ini",
   "product_validation_failed": "Validasi konfigurasi produk gagal",
   "profile_details_not_available": "Detail profil tidak tersedia",
   "profile_details_update_failed": "Kami mengalami kesalahan saat memperbarui detail profil.",

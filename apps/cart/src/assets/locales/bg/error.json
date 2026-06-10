@@ -116,6 +116,7 @@
   "product_pending_ensure_failed": "Уверете се, че чакащият продукт е неуспешен",
   "product_pending_validation_failed": "Неуспешно валидиране на чакащия продукт",
   "product_quantifiable_not_available": "Продуктът не е количествено измерим",
+  "product_setup": "Възникна грешка при настройката на този продукт | Възникнаха грешки при настройката на тези продукти",
   "product_validation_failed": "Валидирането на конфигурацията на продукта не беше успешно",
   "profile_details_not_available": "Данните за профила не са налични",
   "profile_details_update_failed": "Възникна грешка при актуализиране на данните за профила",

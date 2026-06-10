@@ -116,6 +116,7 @@
   "product_pending_ensure_failed": "Gözləyən məhsulun uğursuz olduğundan əmin olun",
   "product_pending_validation_failed": "Gözləyən məhsulun doğrulanması alınmadı",
   "product_quantifiable_not_available": "Məhsul kəmiyyətlə ölçülə bilməz",
+  "product_setup": "Bu məhsulu quraşdırarkən xəta ilə qarşılaşdıq | Bu məhsulları quraşdırarkən xəta ilə qarşılaşdıq",
   "product_validation_failed": "Məhsul konfiqurasiyasının doğrulanması uğursuz oldu",
   "profile_details_not_available": "Profil məlumatları mövcud deyil",
   "profile_details_update_failed": "Profil məlumatlarını yeniləyərkən xəta ilə qarşılaşdıq",

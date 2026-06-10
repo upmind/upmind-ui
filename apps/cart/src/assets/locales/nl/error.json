@@ -116,6 +116,7 @@
   "product_pending_ensure_failed": "Zorg ervoor dat het in behandeling zijnde product is mislukt",
   "product_pending_validation_failed": "In afwachting van productvalidatie mislukt",
   "product_quantifiable_not_available": "Product is niet kwantificeerbaar",
+  "product_setup": "Er is een fout opgetreden bij het instellen van dit product | Er is een fout opgetreden bij het instellen van deze producten",
   "product_validation_failed": "Validatie van productconfiguratie mislukt",
   "profile_details_not_available": "Profielgegevens niet beschikbaar",
   "profile_details_update_failed": "Er is een fout opgetreden bij het bijwerken van de profielgegevens.",

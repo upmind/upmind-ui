@@ -25,7 +25,7 @@
   "auth_login": {
     "error": "İstifadəçi adı və ya e-poçt ünvanı tələb olunur",
     "label": "İstifadəçi adresiniz və ya e-poçt ünvanınız",
-    "placeholder": "ad@email.com"
+    "placeholder": "name@email.com"
   },
   "auth_password": {
     "error": {

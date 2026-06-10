@@ -25,7 +25,7 @@
   "auth_login": {
     "error": "Anda harus memasukkan nama pengguna atau alamat email",
     "label": "Nama pengguna atau alamat email Anda",
-    "placeholder": "nama@email.com"
+    "placeholder": "name@email.com"
   },
   "auth_password": {
     "error": {

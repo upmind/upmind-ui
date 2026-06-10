@@ -25,7 +25,7 @@
   "auth_login": {
     "error": "Je nutné zadat uživatelské jméno nebo e-mailovou adresu",
     "label": "Vaše uživatelské jméno nebo e-mailová adresa",
-    "placeholder": "jméno@email.com"
+    "placeholder": "name@email.com"
   },
   "auth_password": {
     "error": {

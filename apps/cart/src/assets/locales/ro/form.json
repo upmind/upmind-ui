@@ -25,7 +25,7 @@
   "auth_login": {
     "error": "Este necesar un nume de utilizator sau o adresă de e-mail",
     "label": "Numele de utilizator sau adresa de e-mail",
-    "placeholder": "nume@email.com"
+    "placeholder": "name@email.com"
   },
   "auth_password": {
     "error": {

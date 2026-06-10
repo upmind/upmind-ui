@@ -25,7 +25,7 @@
   "auth_login": {
     "error": "Требуется указать имя пользователя или адрес электронной почты",
     "label": "Ваш логин или адрес электронной почты",
-    "placeholder": "имя@email.com"
+    "placeholder": "name@email.com"
   },
   "auth_password": {
     "error": {

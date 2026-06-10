@@ -116,6 +116,7 @@
   "product_pending_ensure_failed": "Se till att den väntande produkten misslyckades",
   "product_pending_validation_failed": "Väntande produktvalidering misslyckades",
   "product_quantifiable_not_available": "Produkten är inte kvantifierbar",
+  "product_setup": "Ett fel uppstod vid installationen av den här produkten | Ett fel uppstod vid installationen av dessa produkter",
   "product_validation_failed": "Validering av produktkonfiguration misslyckades",
   "profile_details_not_available": "Profiluppgifter är inte tillgängliga",
   "profile_details_update_failed": "Det uppstod ett fel när profiluppgifterna uppdaterades.",

@@ -25,7 +25,7 @@
   "auth_login": {
     "error": "Необходимо е да въведете потребителско име или имейл адрес",
     "label": "Потребителското ви име или имейл адрес",
-    "placeholder": "име@имейл.com"
+    "placeholder": "name@email.com"
   },
   "auth_password": {
     "error": {
