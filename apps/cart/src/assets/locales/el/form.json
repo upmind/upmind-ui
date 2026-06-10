@@ -23,9 +23,9 @@
     "placeholder": "onoma@email.com"
   },
   "auth_login": {
-    "error": "Απαιτείται όνομα χρήστη ή διεύθυνση ηλεκτρονικού ταχυδρομείου",
-    "label": "Το όνομα χρήστη ή η διεύθυνση ηλεκτρονικού ταχυδρομείου σας",
-    "placeholder": "name@email.com"
+    "error": "Απαιτείται όνομα χρήστη ή διεύθυνση email.",
+    "label": "Το όνομα χρήστη ή η διεύθυνση email σας",
+    "placeholder": "onoma@email.com"
   },
   "auth_password": {
     "error": {

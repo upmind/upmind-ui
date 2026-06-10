@@ -23,9 +23,9 @@
     "placeholder": "navn@epost.com"
   },
   "auth_login": {
-    "error": "Det kreves et brukernavn eller en e-postadresse",
+    "error": "Et brukernavn eller en e-postadresse er nødvendig",
     "label": "Brukernavnet eller e-postadressen din",
-    "placeholder": "name@email.com"
+    "placeholder": "navn@epost.com"
   },
   "auth_password": {
     "error": {
