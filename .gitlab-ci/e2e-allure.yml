@@ -22,6 +22,8 @@ e2e:allure:
       when: always
     - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'develop'
       when: always
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == '@next'
+      when: always
   allow_failure: true
   cache:
     # Preserves the Allure 3 history JSONL per-branch so the trend graph
@@ -72,6 +74,8 @@ e2e:allure:publish:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'main'
       when: always
     - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'develop'
+      when: always
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == '@next'
       when: always
   variables:
     ALLURE_GCS_PREFIX: allure
