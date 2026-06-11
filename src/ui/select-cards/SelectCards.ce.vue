@@ -12,6 +12,7 @@
         :label="props.label"
         :loading="props.loading"
         :placeholder="props.placeholder"
+        :size="props.size"
         :data-hover="props.dataHover"
         :data-focus="props.dataFocus"
         focusable
@@ -27,7 +28,7 @@
       </TriggerButton>
     </DropdownMenuTrigger>
 
-    <DropdownMenuPortal :to="props.to">
+    <DropdownMenuPortal :to="portalTo">
       <DropdownMenuContent
         :class="cn(styles.select.content, props.contentClass)"
         :align="props.align"
@@ -73,6 +74,7 @@
 </template>
 
 <script setup lang="ts">
+// --- external
 import { vIntersectionObserver } from "@vueuse/components";
 import { useVModel } from "@vueuse/core";
 import {
@@ -87,10 +89,13 @@ import {
   ScrollAreaThumb
 } from "radix-vue";
 import { ref, computed } from "vue";
+// --- internal
 import Item from "./components/Item.vue";
 import TriggerButton from "./components/TriggerButton.vue";
 import config from "./selectCards.config";
-import { cn, useStyles } from "../../utils";
+import { cn, useStyles, usePortalTarget } from "../../utils";
+// --- components
+// --- types
 import { first, find } from "lodash-es";
 import type { SelectCardsProps, SelectCardsItemProps } from "./types";
 
@@ -102,6 +107,8 @@ const props = withDefaults(defineProps<SelectCardsProps>(), {
 });
 
 const emits = defineEmits(["update:modelValue"]);
+
+const portalTo = usePortalTarget(() => props.to);
 
 const open = ref(false);
 const isKeyboardNav = ref(false);

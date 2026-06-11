@@ -15,7 +15,7 @@ export type CheckboxCardsItemActionProps = LinkProps & {
   visible?: boolean;
 };
 
-export interface CheckboxCardsItemProps extends ToggleGroupItemProps {
+export type CheckboxCardsItemProps = ToggleGroupItemProps & {
   label: string;
   secondaryLabel?: string;
   description?: string;
@@ -24,16 +24,18 @@ export interface CheckboxCardsItemProps extends ToggleGroupItemProps {
   secondaryBadge?: BadgeProps;
   action?: CheckboxCardsItemActionProps;
   id?: string;
+  /** Override the auto-generated data-testid for this item */
+  "data-testid"?: string;
   /** When `true`, prevents the user from interacting with the radio item. */
   disabled?: boolean;
   /** When `true`, indicates that the user must check the radio item before the owning form can be submitted. */
   required?: boolean;
   name?: string;
-}
+};
 
 type HTMLClassAttributes = HTMLAttributes["class"];
 type Cursor = CheckboxLabelVariantProps["cursor"];
-export interface CheckboxCardsProps extends ToggleGroupRootProps {
+export type CheckboxCardsProps = ToggleGroupRootProps & {
   modelValue?: string[];
   /** The default active value. Use when you do not need to control the state of the items. */
   defaultValue?: string[];
@@ -58,4 +60,4 @@ export interface CheckboxCardsProps extends ToggleGroupRootProps {
   itemClass?: HTMLClassAttributes;
   dataHover?: boolean;
   dataFocus?: boolean;
-}
+};

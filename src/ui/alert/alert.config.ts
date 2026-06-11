@@ -20,7 +20,7 @@ export const variants = {
 };
 
 export const rootVariants = cva(
-  "message-radius flex w-full flex-wrap items-end justify-between gap-x-4 gap-y-2",
+  "message-radius flex w-full items-start gap-y-1",
   {
     variants: {
       variant: {
@@ -28,8 +28,8 @@ export const rootVariants = cva(
         minimal: "bg-surface border-[1.5px]" // Border and surface background
       },
       size: {
-        sm: "p-4",
-        md: "px-4 py-5"
+        sm: "gap-x-2 p-4",
+        md: "gap-x-3 px-4 py-5"
       },
       color: variants.color
     },
@@ -111,13 +111,21 @@ const titleVariants = cva("text-md-tight font-medium", {
       muted: "",
       minimal: "text-base"
     },
-    size: variants.size,
-    color: variants.color
+    size: {
+      sm: "text-sm",
+      md: "text-md-tight"
+    },
+    color: variants.color,
+    action: {
+      true: "flex items-start justify-between gap-x-3",
+      false: ""
+    }
   },
   defaultVariants: {
     variant: "minimal",
     color: "neutral",
-    size: "md"
+    size: "md",
+    action: false
   },
   compoundVariants: [
     {
@@ -153,7 +161,7 @@ const titleVariants = cva("text-md-tight font-medium", {
   ]
 });
 
-const descriptionVariants = cva("text-sm-tight font-normal", {
+const descriptionVariants = cva("text-sm font-normal", {
   variants: {
     variant: {
       muted: "",
@@ -201,7 +209,7 @@ const descriptionVariants = cva("text-sm-tight font-normal", {
   ]
 });
 
-const iconVariants = cva("", {
+const iconVariants = cva("p-[3px] [&>svg]:size-4.5", {
   variants: {
     variant: {
       muted: "",
@@ -282,8 +290,18 @@ const iconVariants = cva("", {
 export default {
   alert: {
     root: rootVariants,
-    title: titleVariants,
+    actionIcon: cva("p-1.5 [&>svg]:size-3"),
+    content: cva("text-md-tight flex w-full flex-col", {
+      variants: {
+        size: {
+          sm: "",
+          md: "gap-y-1"
+        }
+      },
+      defaultVariants: { size: "md" }
+    }),
     description: descriptionVariants,
-    icon: iconVariants
+    icon: iconVariants,
+    title: titleVariants
   }
 };

@@ -36,13 +36,19 @@
 </template>
 
 <script setup lang="ts">
+// --- external
+import { computed } from "vue";
+// --- components
 import { Button } from "../../button";
 import { Icon } from "../../icon";
 import config from "../selectCards.config";
 import { cn, useStyles } from "../../../utils";
+// --- types
 import type { SelectCardsTriggerProps } from "../types";
 
 const props = defineProps<SelectCardsTriggerProps>();
 
-const variants = useStyles(["select"], {}, config, {});
+const meta = computed(() => ({ size: props.size }));
+
+const variants = useStyles(["select"], meta, config, {});
 </script>

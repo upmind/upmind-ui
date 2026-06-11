@@ -47,5 +47,5 @@ const meta = computed(() => ({
   isTransparent: props.transparent
 }));
 
-const styles = useStyles("loading", meta, config);
+const styles = useStyles("loading", meta, config, props.uiConfig ?? {});
 </script>

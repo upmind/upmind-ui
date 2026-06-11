@@ -19,7 +19,7 @@ export const itemSizeVariants = cva("", {
 });
 
 export const itemVariants = cva(
-  `bg-control-surface text-control-foreground group control-radius shadow-control-default [&:hover,&[data-hover=true]]:shadow-control-hover flex cursor-pointer list-none gap-2 rounded py-4 pr-4 pl-3 font-normal transition-shadow duration-200 md:my-0 ${ringClasses}`
+  `bg-control-surface text-control-foreground group control-radius shadow-control-default [&:hover,&[data-hover=true]]:shadow-control-hover radius-control flex cursor-pointer list-none gap-2 py-4 pr-4 pl-3 font-normal transition-shadow duration-200 data-[disabled]:pointer-events-none data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50 md:my-0 ${ringClasses}`
 );
 
 export const rootVariants = cva(`grid w-full grid-cols-12 gap-2`);
@@ -30,7 +30,9 @@ export default {
       root: itemVariants,
       size: itemSizeVariants
     },
-    radio: cva("size-lh text-md-tight flex items-center justify-center"),
+    radio: cva(
+      "size-lh text-md-tight flex shrink-0 items-center justify-center"
+    ),
     content: {
       label: cva("text-md-tight text-display font-medium"),
       secondaryLabel: cva("text-md-tight text-display font-medium"),

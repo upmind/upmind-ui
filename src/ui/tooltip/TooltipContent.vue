@@ -7,7 +7,7 @@ import {
   useForwardPropsEmits
 } from "radix-vue";
 import { type HTMLAttributes, computed } from "vue";
-import { cn } from "../../utils";
+import { cn, usePortalTarget, type PortalTarget } from "../../utils";
 
 defineOptions({
   inheritAttrs: false
@@ -15,11 +15,13 @@ defineOptions({
 
 const props = withDefaults(
   defineProps<
-    TooltipContentProps & { class?: HTMLAttributes["class"]; to?: string }
+    TooltipContentProps & {
+      class?: HTMLAttributes["class"];
+      to?: PortalTarget;
+    }
   >(),
   {
-    sideOffset: 4,
-    to: "body"
+    sideOffset: 4
   }
 );
 
@@ -32,10 +34,12 @@ const delegatedProps = computed(() => {
 });
 
 const forwarded = useForwardPropsEmits(delegatedProps, emits);
+
+const portalTo = usePortalTarget(() => props.to);
 </script>
 
 <template>
-  <TooltipPortal :to="to">
+  <TooltipPortal :to="portalTo">
     <TooltipContent
       v-bind="{ ...forwarded, ...$attrs }"
       :class="

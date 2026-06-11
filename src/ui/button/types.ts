@@ -11,7 +11,7 @@ import type {
 
 type ButtonVariantProps = VariantProps<typeof rootVariants>;
 
-export interface ButtonProps {
+export type ButtonProps = {
   label?: string;
   is?: "button" | "router-link" | "a" | string | Component;
   type?: HTMLButtonElement["type"];
@@ -19,9 +19,6 @@ export interface ButtonProps {
   avatar?: Partial<AvatarProps>;
   iconAppend?: string | Icon;
   avatarAppend?: Partial<AvatarProps>;
-  // --- link support
-  to?: string | RouteLocationAsRelativeGeneric | RouteLocationAsPathGeneric;
-  href?: string;
   // ---
   disabled?: boolean;
   loading?: boolean;
@@ -33,7 +30,7 @@ export interface ButtonProps {
   align?: ButtonVariantProps["align"];
   truncate?: boolean;
   checked?: boolean;
-  variant?: ButtonVariantProps["variant"];
+  variant?: ButtonVariantProps["variant"] | "link";
   color?: ButtonVariantProps["color"];
   size?: ButtonVariantProps["size"];
   // ---
@@ -42,13 +39,20 @@ export interface ButtonProps {
   };
   class?: HTMLAttributes["class"];
   contentClass?: HTMLAttributes["class"];
-}
+} & (
+  | {
+      to: string | RouteLocationAsRelativeGeneric | RouteLocationAsPathGeneric;
+      href?: never;
+    }
+  | { href: string; to?: never }
+  | { to?: undefined; href?: undefined }
+);
 
-export interface ButtonItemsProps {
+export type ButtonItemsProps = {
   variant?: ButtonProps["variant"];
   icon?: ButtonProps["icon"];
   avatar?: ButtonProps["avatar"];
   size?: ButtonProps["size"];
   checked?: boolean;
   loading?: boolean;
-}
+};

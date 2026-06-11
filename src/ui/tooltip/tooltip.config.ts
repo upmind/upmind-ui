@@ -14,7 +14,7 @@ export default {
     content: contentVariants,
     arrow: arrowVariants,
     trigger: cva(
-      "text-inherit no-underline ring-0 ring-transparent outline-none focus-within:ring-0 focus:ring-0 focus-visible:ring-0"
+      "inline-flex text-inherit no-underline ring-0 ring-transparent outline-none focus-within:ring-0 focus:ring-0 focus-visible:ring-0"
     )
   }
 };

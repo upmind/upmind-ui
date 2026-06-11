@@ -27,7 +27,7 @@
     "node": "^20.19.0 || >=22.12.0"
   },
   "scripts": {
-    "clean": "rm -rf {node_modules,dist,*.tsbuildinfo}",
+    "reset": "rm -rf {node_modules,dist,*.tsbuildinfo}",
     "build": "pnpm type-check && pnpm build-only",
     "build-only": "vite build",
     "type-check": "vue-tsc --noEmit",
@@ -98,13 +98,13 @@
     "vue-tsc": "^3.0.5"
   },
   "peerDependencies": {
+    "@vueuse/components": "^13.6.0",
+    "@vueuse/core": "^13.6.0",
+    "@vueuse/shared": "^13.6.0",
+    "lucide-vue-next": "^0.539.0",
+    "radix-vue": "^1.9.17",
     "tailwindcss": "^4.1.11",
     "vue": "^3.0.0",
-    "vue-router": "^4.5.0",
-    "radix-vue": "^1.9.17",
-    "@vueuse/core": "^13.6.0",
-    "@vueuse/components": "^13.6.0",
-    "@vueuse/shared": "^13.6.0",
-    "lucide-vue-next": "^0.539.0"
+    "vue-router": "^4.5.0"
   }
 }

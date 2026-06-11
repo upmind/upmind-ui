@@ -12,7 +12,7 @@ type PaginationRootVariantProps = VariantProps<typeof rootVariants>;
  * @property {number} from - The starting item index for the current page.
  * @property {number} to - The ending item index for the current page.
  */
-export interface PaginationProps {
+export type PaginationProps = {
   total: number;
   page: number;
   pages: number;
@@ -28,4 +28,4 @@ export interface PaginationProps {
   // --- styles
   uiConfig?: { pagination?: CxOptions };
   class?: HTMLAttributes["class"];
-}
+};

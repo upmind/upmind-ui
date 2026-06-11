@@ -5,7 +5,7 @@
     v-if="meta.isCarousel && (!meta.isEmpty || meta.hasFallback)"
     :class="cn(styles.image.container, props.class)"
   >
-    <CarouselContent :class="styles.image.carousel.content" class="ml-0 h-full">
+    <CarouselContent :class="styles.image.carousel.content">
       <CarouselImage
         v-for="(data, index) in image as ImageItem[]"
         :key="data.url || index"
@@ -24,14 +24,22 @@
         :class="styles.image.nav.item"
       >
         <div
-          :class="[
-            'h-2 w-2 cursor-pointer rounded-full bg-current',
-            isSelected(index) ? '' : 'opacity-50'
-          ]"
+          :class="indicatorVariant({ isActive: isSelected(index) })"
           @click="selectImage(index)"
         />
       </span>
     </nav>
+
+    <Button
+      v-if="meta.canExpand"
+      icon="expand-01"
+      icon-only
+      size="sm"
+      variant="ghost"
+      color="neutral"
+      :class="styles.image.expand"
+      @click.stop.prevent="expanded = true"
+    />
   </Carousel>
 
   <figure
@@ -40,7 +48,7 @@
     :style="meta.hasFallback ? fallbackStyle : ''"
   >
     <!-- Single image with fallback -->
-    <picture v-if="!meta.isEmpty" class="contents w-full">
+    <picture v-if="!meta.isEmpty" :class="styles.image.picture">
       <img
         :key="isString(currentImage) ? currentImage : currentImage?.url"
         :src="isString(currentImage) ? currentImage : currentImage?.url"
@@ -53,17 +61,41 @@
     <div v-if="meta.hasFallback" :class="cn(styles.image.root)">
       <Icon :icon="props.icon" size="lg" :class="styles.image.icon" />
     </div>
+
+    <Button
+      v-if="meta.canExpand"
+      icon="expand-01"
+      icon-only
+      size="sm"
+      variant="ghost"
+      color="neutral"
+      :class="styles.image.expand"
+      @click.stop.prevent="expanded = true"
+    />
   </figure>
+
+  <ImagePreview
+    v-if="meta.canExpand && currentImage && !isString(currentImage)"
+    :image="currentImage"
+    v-model:open="expanded"
+  />
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+// --- external
+import { ref, computed, watch } from "vue";
+// --- components
+import { Button } from "../button";
 import { Carousel, CarouselContent } from "../carousel";
 import { Icon } from "../icon";
 import CarouselImage from "./CarouselImage.vue";
-import config from "./image.config";
+import ImagePreview from "./ImagePreview.vue";
+// --- internal
+import config, { indicatorVariant } from "./image.config";
+// --- utils
 import { useStyles, cn, getComputedColor } from "../../utils";
 import { isEmpty, isArray, isString } from "lodash-es";
+// --- types
 import type { ImageProps, ImageItem } from "./types";
 import type { CarouselApi } from "../carousel";
 
@@ -73,27 +105,49 @@ const props = withDefaults(defineProps<ImageProps>(), {
   position: "center",
   mode: "auto",
   icon: "camera-01",
-  fallback: true
+  fallback: true,
+  expandable: true
+});
+
+const imageIndex = defineModel<number>("index", { default: 0 });
+const expanded = defineModel<boolean>("expanded", { default: false });
+const carouselApi = ref<CarouselApi>();
+const error = ref(false);
+
+const currentImage = computed(() => {
+  if (isArray(props?.image)) {
+    return props?.image?.[imageIndex.value];
+  }
+
+  return props?.image;
 });
 
 const meta = computed(() => {
   const imageList = isArray(props.image) ? props.image : [];
   const imageLength = imageList.length;
+  const empty = isEmpty(props.image) || error.value;
 
   const isCarousel = {
     single: false,
     carousel: imageLength >= 1,
-    auto: imageLength > 1
+    auto: imageLength > 1,
+    grid: false
   }[props.mode];
 
   return {
     ratio: props.ratio,
     fit: props.fit,
     position: props.position,
-    isEmpty: isEmpty(props.image) || error.value,
-    hasFallback: props.fallback && (isEmpty(props.image) || error.value),
+    isEmpty: empty,
+    hasFallback: props.fallback && empty,
     isCarousel,
-    imageLength
+    imageLength,
+    canExpand:
+      props.expandable &&
+      !!currentImage.value &&
+      !isString(currentImage.value) &&
+      !!currentImage.value.previewUrl &&
+      !empty
   };
 });
 
@@ -103,10 +157,6 @@ const styles = useStyles(
   config
 );
 
-const imageIndex = ref(0);
-const carouselApi = ref<CarouselApi>();
-const error = ref(false);
-
 function onCarouselInit(api: CarouselApi) {
   carouselApi.value = api;
 
@@ -114,15 +164,17 @@ function onCarouselInit(api: CarouselApi) {
     api.on("select", () => {
       imageIndex.value = api.selectedScrollSnap() || 0;
     });
+    if (imageIndex.value !== api.selectedScrollSnap()) {
+      api.scrollTo(imageIndex.value);
+    }
   }
 }
 
-const currentImage = computed(() => {
-  if (isArray(props?.image)) {
-    return props?.image?.[imageIndex.value];
+watch(imageIndex, value => {
+  const api = carouselApi.value;
+  if (api && api.selectedScrollSnap() !== value) {
+    api.scrollTo(value);
   }
-
-  return props?.image;
 });
 
 function selectImage(index: number) {

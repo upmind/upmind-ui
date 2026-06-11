@@ -5,29 +5,24 @@
 </template>
 
 <script lang="ts" setup>
+// --- external
 import { computed } from "vue";
+// --- internal
 import config from "./card.config";
 import { cn, useStyles } from "../../utils";
-import type { HTMLAttributes } from "vue";
+// --- types
+import type { CardProps } from "./types";
 // -----------------------------------------------------------------------------
-const props = withDefaults(
-  defineProps<{
-    as?: string;
-    class?: HTMLAttributes["class"];
-    disabled?: boolean;
-    width?: "app" | "full";
-    spacious?: boolean;
-  }>(),
-  {
-    as: "div",
-    width: "full"
-  }
-);
+const props = withDefaults(defineProps<CardProps>(), {
+  as: "div",
+  width: "full",
+  size: "md"
+});
 
 const meta = computed(() => ({
   isDisabled: props.disabled,
   width: props.width,
-  spacious: props.spacious
+  size: props.size
 }));
 
 const styles = useStyles(["card"], meta, config);

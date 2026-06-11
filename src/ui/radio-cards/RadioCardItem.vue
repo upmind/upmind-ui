@@ -3,6 +3,7 @@
     :for="`${props.name}-${index}`"
     :class="cn(styles.radioCards.item.root, styles.radioCards.item.size)"
     :data-state="isSelected ? 'checked' : ''"
+    :data-disabled="props.disabled || undefined"
     :data-hover="props.dataHover"
     :data-focus="props.dataFocus"
   >

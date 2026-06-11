@@ -5,7 +5,7 @@ import type { HTMLAttributes } from "vue";
 
 type CheckboxVariantProps = VariantProps<typeof checkboxVariants>;
 
-export interface CheckboxProps extends CheckboxRootProps {
+export type CheckboxProps = CheckboxRootProps & {
   // ---
   indeterminate?: boolean;
   autoFocus?: boolean;
@@ -15,4 +15,4 @@ export interface CheckboxProps extends CheckboxRootProps {
   // ---
   uiConfig?: { checkbox: CxOptions };
   class?: HTMLAttributes["class"];
-}
+};

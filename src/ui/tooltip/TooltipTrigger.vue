@@ -1,7 +1,7 @@
 <template>
   <TooltipTrigger
     v-bind="props"
-    :as="'button'"
+    :as="'span'"
     size="auto"
     variant="link"
     click.prevent

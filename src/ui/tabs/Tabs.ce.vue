@@ -23,6 +23,7 @@
             :ref="(el: HTMLElement | null) => setTriggerRef(el, index)"
             :value="item.value"
             :class="[styles.tabs.trigger, 'cursor-pointer']"
+            :data-testid="`tab-${kebabCase(item.label)}`"
           >
             <Icon
               v-if="item.icon"
@@ -61,24 +62,28 @@
       </div>
     </header>
 
-    <component
-      :is="useTabs ? TabsContent : 'footer'"
-      v-for="item in tabs"
-      :key="item.value"
-      :value="item.value"
-      :forceMount="item?.eager"
-      tabindex="-1"
-    >
-      <slot :name="`content.${item.value}`"></slot>
-    </component>
+    <template v-for="item in tabs" :key="item.value">
+      <component
+        :is="useTabs ? TabsContent : 'footer'"
+        :value="item.value"
+        :forceMount="item?.eager"
+      >
+        <slot :name="`content.${item.value}`"></slot>
+      </component>
+    </template>
   </component>
 </template>
 
 <script lang="ts" setup>
+// --- external
 import { useElementBounding } from "@vueuse/core";
+import { kebabCase } from "lodash-es";
+// --- internal
 import { useVModel } from "@vueuse/core";
 import { useForwardPropsEmits } from "radix-vue";
 import { computed, ref, useSlots } from "vue";
+import type { Slots } from "vue";
+// --- components
 import { Icon } from "../icon";
 import config from "./tabs.config";
 import Tabs from "./Tabs.vue";
@@ -86,8 +91,10 @@ import TabsContent from "./TabsContent.vue";
 import TabsList from "./TabsList.vue";
 import TabsTrigger from "./TabsTrigger.vue";
 import { useStyles } from "../../utils";
+// --- utils
 import { isEmptySlot } from "../../utils";
 import { first } from "lodash-es";
+// --- types
 import type { TabsProps, TabItem } from ".";
 import type { TabsRootEmits } from "radix-vue";
 // -----------------------------------------------------------------------------
@@ -110,7 +117,7 @@ const props = withDefaults(defineProps<TabsProps>(), {
 
 const emits = defineEmits<TabsRootEmits>();
 const forwarded = useForwardPropsEmits(props, emits);
-const slots = useSlots();
+const slots: Slots = useSlots();
 const modelValue = useVModel(props, "modelValue", emits, {
   passive: true,
   defaultValue: props.defaultValue || first(props.tabs)?.value

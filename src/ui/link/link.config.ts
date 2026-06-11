@@ -31,12 +31,12 @@ export const variants = {
     info: "text-accent-info [&:not([aria-disabled=true]):hover,&:not([aria-disabled=true])[data-hover=true]]:opacity-75"
   },
   isDisabled: {
-    true: "cursor-not-allowed opacity-50",
+    true: "cursor-not-allowed opacity-50 pointer-events-none",
     false: "cursor-pointer"
   },
   hasRing: {
     true: "outline outline-2 outline-transparent outline-offset-2 duration-200 focus-visible:outline-[var(--color-control-ring)]",
-    false: "outline-none focus:ring-0 focus:outline-none"
+    false: "outline outline-2 outline-transparent outline-offset-2 focus:ring-0"
   },
   hasFocusRing: {
     true: "outline outline-2 outline-transparent outline-offset-2 duration-200 focus:outline-[var(--color-control-ring)]",
