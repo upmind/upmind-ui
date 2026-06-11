@@ -76,20 +76,11 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed, nextTick, onMounted, ref, watch } from "vue";
-
-// --- components
 import InputItems from "../input/InputItems.vue";
-
-// --- internal
 import config from "./input-otp.config";
-
-// --- utils
 import { cn, useStyles } from "../../utils";
 import { ceil } from "lodash-es";
-
-// --- types
 import type { InputOTPProps } from "./types";
 
 // -----------------------------------------------------------------------------

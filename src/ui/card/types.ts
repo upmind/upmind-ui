@@ -1,4 +1,3 @@
-// --- external
 import type { rootVariants } from "./card.config";
 import type { VariantProps } from "class-variance-authority";
 import type { HTMLAttributes } from "vue";

@@ -1,4 +1,3 @@
-// --- external
 import type {
   numberFieldVariants,
   numberFieldRootVariants

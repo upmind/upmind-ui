@@ -1,4 +1,3 @@
-// -----------------------------------------------------------------------------
 import BooleanRenderer, { tester as BooleanTest } from "./BooleanRenderer.vue";
 import BooleanCardRenderer, {
   tester as BooleanCardTest

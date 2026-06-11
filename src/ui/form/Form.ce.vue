@@ -48,7 +48,6 @@ import { JsonForms } from "@jsonforms/vue";
 import { useVModel } from "@vueuse/core";
 import { ref, watch, computed, onMounted, useTemplateRef } from "vue";
 import { Button } from "../button";
-// --- local
 import config from "./form.config";
 import { upmindUIRenderers } from "./renderers";
 import { iterateSchema } from "./renderers/utils";

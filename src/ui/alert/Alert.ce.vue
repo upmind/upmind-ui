@@ -34,21 +34,14 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed } from "vue";
-
-// --- internal
 import { Icon } from "../icon";
 import { Link } from "../link";
 import config from "./alert.config";
-
-// --- components
 import Alert from "./Alert.vue";
 import AlertDescription from "./AlertDescription.vue";
 import AlertTitle from "./AlertTitle.vue";
 import { useStyles, cn } from "../../utils";
-
-// --- types
 import type { AlertProps } from "./types";
 
 // -----------------------------------------------------------------------------

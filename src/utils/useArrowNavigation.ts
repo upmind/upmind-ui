@@ -1,4 +1,3 @@
-// --- external
 import type { Ref } from "vue";
 import { clamp } from "lodash-es";
 // -----------------------------------------------------------------------------

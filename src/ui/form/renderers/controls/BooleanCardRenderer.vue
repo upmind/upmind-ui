@@ -10,17 +10,13 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { isBooleanControl, and, optionIs } from "@jsonforms/core";
 import { useJsonFormsControl } from "@jsonforms/vue";
 import { computed } from "vue";
-// --- components
 import { CheckboxCards } from "../../../checkbox-cards";
 import FormField from "../../FormField.vue";
-// --- utils
 import { useUpmindUIRenderer } from "../utils";
 import { isEmpty } from "lodash-es";
-// --- types
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
 // -----------------------------------------------------------------------------

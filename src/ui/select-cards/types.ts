@@ -1,4 +1,3 @@
-// --- external
 import type { AvatarProps } from "../avatar";
 import type { triggerVariants } from "./selectCards.config";
 import type { BadgeProps } from "../badge/types";

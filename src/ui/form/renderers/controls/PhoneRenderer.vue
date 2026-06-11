@@ -47,7 +47,6 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import {
   and,
   isStringControl,
@@ -65,13 +64,11 @@ import {
 } from "libphonenumber-js";
 import examples from "libphonenumber-js/mobile/examples";
 import { computed, ref } from "vue";
-// --- components
 import { Combobox } from "../../../combobox";
 import InputGroup from "../../../groups/InputGroup.vue";
 import { Input } from "../../../input";
 import FormField from "../../FormField.vue";
 import FormMessage from "../../FormMessage.vue";
-// --- utils
 import { useUpmindUIRenderer } from "../utils";
 import {
   get,
@@ -83,7 +80,6 @@ import {
   isEmpty,
   has
 } from "lodash-es";
-// --- types
 import type { ComboboxItemProps } from "../../../combobox";
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";

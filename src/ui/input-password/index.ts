@@ -6,9 +6,7 @@
  * resolution, and cryptographically-random generation live in `utils/password`.
  */
 
-// --- external
 import { defineCustomElement } from "vue";
-// --- components
 import InputPassword from "./InputPassword.ce.vue";
 import PasswordStrength from "./PasswordStrength.vue";
 // ---
