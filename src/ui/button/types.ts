@@ -33,7 +33,7 @@ export type ButtonProps = {
   align?: ButtonVariantProps["align"];
   truncate?: boolean;
   checked?: boolean;
-  variant?: ButtonVariantProps["variant"];
+  variant?: ButtonVariantProps["variant"] | "link";
   color?: ButtonVariantProps["color"];
   size?: ButtonVariantProps["size"];
   // ---

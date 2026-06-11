@@ -39,11 +39,14 @@ export type InputProps = {
   // --- variants
   width?: ContainerVariantProps["width"] | string | undefined;
   // ---
-  uiConfig?: { input?: { container?: CxOptions; field?: CxOptions } };
+  uiConfig?: {
+    input?: { container?: CxOptions; field?: CxOptions; items?: CxOptions };
+  };
   class?: HTMLAttributes["class"];
 };
 
 export type InputItemsProps = {
   icon?: InputProps["icon"];
   avatar?: InputProps["avatar"];
+  uiConfig?: InputProps["uiConfig"];
 };

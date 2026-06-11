@@ -1,7 +1,11 @@
 <template>
   <div :class="cn(styles.input.container, props.class)">
     <slot name="prepend">
-      <InputItems :icon="props.icon" :avatar="props.avatar" />
+      <InputItems
+        :icon="props.icon"
+        :avatar="props.avatar"
+        :ui-config="{ input: { items: props.uiConfig?.input?.items } }"
+      />
     </slot>
 
     <slot v-bind="{ modelValue, styles, delegatedProps }">
@@ -15,7 +19,11 @@
     </slot>
 
     <slot name="append">
-      <InputItems :icon="props.iconAppend" :avatar="props.avatarAppend" />
+      <InputItems
+        :icon="props.iconAppend"
+        :avatar="props.avatarAppend"
+        :ui-config="{ input: { items: props.uiConfig?.input?.items } }"
+      />
     </slot>
   </div>
 </template>
