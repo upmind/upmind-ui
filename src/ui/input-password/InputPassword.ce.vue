@@ -37,20 +37,15 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { useVModel } from "@vueuse/core";
 import { computed, ref } from "vue";
-// --- components
 import Input from "../input/Input.ce.vue";
 import { Icon } from "../icon";
 import { Link } from "../link";
 import Tooltip from "../tooltip/Tooltip.ce.vue";
-// --- internal
 import config from "./input-password.config";
-// --- utils
 import { useStyles } from "../../utils";
 import { omit } from "lodash-es";
-// --- types
 import type { InputPasswordProps } from "./types";
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<InputPasswordProps>(), {

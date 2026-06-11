@@ -1,7 +1,5 @@
 // ---------------------------------------------------------------
 // animationLoader.ts – on‑demand animation loader with registration pattern
-// ---------------------------------------------------------------
-
 import { ref, computed, type ComputedRef } from "vue";
 import { toPairs, split, last } from "lodash-es";
 import type { AnimationImportMap, AnimationEntry } from "../types";

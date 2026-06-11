@@ -21,13 +21,9 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed } from "vue";
-// --- internal
 import config, { barVariants } from "./input-password.config";
-// --- utils
 import { cn, useStyles } from "../../utils";
-// --- types
 import type { PasswordStrengthProps } from "./types";
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<PasswordStrengthProps>(), {

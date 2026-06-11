@@ -13,17 +13,11 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { onMounted, computed, useSlots, shallowRef } from "vue";
-
-// --- components
 import Sanitized from "../sanitized/Sanitized.vue";
-
-// --- utils
 import dompurify from "dompurify";
 import { first, lowerCase } from "lodash-es";
 import { cn } from "../../utils";
-// --- types
 import type { MarkdownProps } from "./types";
 import { INLINE_TAGS, INLINE_ATTRS } from "./types";
 import type { Marked } from "marked";

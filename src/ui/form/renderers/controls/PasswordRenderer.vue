@@ -32,14 +32,11 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { isStringControl, and, or, optionIs, formatIs } from "@jsonforms/core";
 import { useJsonFormsControl } from "@jsonforms/vue";
 import { computed } from "vue";
-// --- components
 import { InputPassword, PasswordStrength } from "../../../input-password";
 import FormField from "../../FormField.vue";
-// --- utils
 import { useUpmindUIRenderer } from "../utils";
 import {
   FALLBACK_REQUIREMENT_COUNT,
@@ -48,7 +45,6 @@ import {
   scorePassword
 } from "../../../../utils/password";
 import { keys, size } from "lodash-es";
-// --- types
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
 // -----------------------------------------------------------------------------

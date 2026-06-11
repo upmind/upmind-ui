@@ -6,7 +6,6 @@
  * so they can be reused outside components and unit-tested directly.
  */
 
-// --- external
 import {
   every,
   filter,

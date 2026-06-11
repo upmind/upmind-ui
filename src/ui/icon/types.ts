@@ -1,4 +1,3 @@
-// --- external
 import type { iconVariants } from "./icon.config";
 import type { CxOptions, VariantProps } from "class-variance-authority";
 import type { HTMLAttributes } from "vue";

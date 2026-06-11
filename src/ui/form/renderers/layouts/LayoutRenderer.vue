@@ -26,7 +26,6 @@ import {
   useJsonFormsLayout
 } from "@jsonforms/vue";
 import { computed } from "vue";
-// --- local
 import config from "./layouts.config";
 import { useStyles } from "../../../../utils";
 import { useUpmindUILayoutRenderer } from "../utils";
