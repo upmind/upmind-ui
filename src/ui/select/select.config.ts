@@ -18,14 +18,14 @@ export const variants = {
     lg: "text-md"
   },
   hasRing: {
-    true: `${ringClasses} ${invalidRingClasses}`,
+    true: `${ringClasses} ${invalidRingClasses} data-[state=open]:outline-transparent!`,
     false:
       "ring-0 ring-transparent outline-none focus:ring-0 focus:ring-transparent focus:outline-none"
   }
 };
 
 export const rootVariants = cva(
-  `control-radius group flex cursor-pointer border-none px-4 py-2 transition-all duration-200`,
+  `control-radius group flex cursor-pointer border-none px-4 py-2 transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50`,
   {
     variants,
     defaultVariants: {

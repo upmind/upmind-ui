@@ -1,3 +1,4 @@
+// --- external
 import type { AvatarProps } from "../avatar";
 import type { triggerVariants } from "./selectCards.config";
 import type { BadgeProps } from "../badge/types";
@@ -6,6 +7,8 @@ import type { Icon } from "../icon/types";
 import type { CxOptions, VariantProps } from "class-variance-authority";
 import type { PopoverContentProps } from "radix-vue";
 import type { HTMLAttributes, Component } from "vue";
+import type { PortalTarget } from "../../utils";
+// --- internal
 
 type TriggerVariantProps = VariantProps<typeof triggerVariants>;
 
@@ -13,12 +16,12 @@ type TriggerVariantProps = VariantProps<typeof triggerVariants>;
  * Base props from radix-vue primitives, inlined to avoid type portability issues
  * when consuming packages can't resolve transitive radix-vue type references.
  */
-interface PrimitiveBaseProps {
+type PrimitiveBaseProps = {
   as?: string | Component;
   asChild?: boolean;
-}
+};
 
-export interface SelectCardsItemProps extends PrimitiveBaseProps {
+export type SelectCardsItemProps = PrimitiveBaseProps & {
   /** The value given as data when submitted with a `name`. */
   value?: string;
   /** When `true`, prevents the user from interacting with the radio item. */
@@ -33,9 +36,9 @@ export interface SelectCardsItemProps extends PrimitiveBaseProps {
   avatar?: Partial<AvatarProps>;
   appendLabel?: string;
   badge?: BadgeProps | string;
-}
+};
 
-export interface SelectCardsProps extends PrimitiveBaseProps {
+export type SelectCardsProps = PrimitiveBaseProps & {
   /** The controlled value of the radio item to check. Can be binded as `v-model`. */
   modelValue?: string;
   /** The value of the radio item that should be checked when initially rendered. */
@@ -56,18 +59,25 @@ export interface SelectCardsProps extends PrimitiveBaseProps {
   align?: "start" | "center" | "end";
   width?: TriggerVariantProps["width"];
   focusable?: boolean;
-  to?: string;
+  to?: PortalTarget;
 
-  uiConfig?: { select: CxOptions };
+  uiConfig?: {
+    select?: {
+      content?: CxOptions;
+      trigger?: CxOptions;
+      item?: CxOptions;
+      items?: CxOptions;
+    };
+  };
   class?: HTMLAttributes["class"];
   contentClass?: HTMLAttributes["class"];
   dataHover?: boolean;
   dataFocus?: boolean;
-}
-export interface SelectCardsTriggerProps extends Omit<
+};
+export type SelectCardsTriggerProps = Omit<
   ButtonProps,
   "variant" | "uiConfig"
-> {
+> & {
   selected?: { label: string };
   loading?: boolean;
   placeholder?: string;
@@ -79,4 +89,4 @@ export interface SelectCardsTriggerProps extends Omit<
   chevron?: boolean;
   dataHover?: boolean;
   dataFocus?: boolean;
-}
+};

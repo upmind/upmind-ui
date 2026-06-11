@@ -11,15 +11,12 @@ import type {
 
 type LinkVariantProps = VariantProps<typeof rootVariants>;
 
-export interface LinkProps {
+export type LinkProps = {
   label?: string;
   icon?: string | Icon;
   avatar?: Partial<AvatarProps>;
   iconAppend?: string | Icon;
   avatarAppend?: Partial<AvatarProps>;
-  // --- link support
-  to?: string | RouteLocationAsRelativeGeneric | RouteLocationAsPathGeneric;
-  href?: string;
   // ---
   disabled?: boolean;
   // ---
@@ -34,9 +31,16 @@ export interface LinkProps {
   };
   class?: HTMLAttributes["class"];
   contentClass?: HTMLAttributes["class"];
-}
+} & (
+  | {
+      to: string | RouteLocationAsRelativeGeneric | RouteLocationAsPathGeneric;
+      href?: never;
+    }
+  | { href: string; to?: never }
+  | { to?: undefined; href?: undefined }
+);
 
-export interface LinkItemsProps {
+export type LinkItemsProps = {
   color?: LinkProps["color"];
   icon?: LinkProps["icon"];
   avatar?: LinkProps["avatar"];
@@ -44,4 +48,4 @@ export interface LinkItemsProps {
   checked?: boolean;
   loading?: boolean;
   uiConfig?: { link: { items: CxOptions } };
-}
+};

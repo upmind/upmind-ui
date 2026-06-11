@@ -1,31 +1,47 @@
 <template>
   <div :class="cn(styles.input.container, props.class)">
     <slot name="prepend">
-      <InputItems :icon="props.icon" :avatar="props.avatar" />
+      <InputItems
+        :icon="props.icon"
+        :avatar="props.avatar"
+        :ui-config="{ input: { items: props.uiConfig?.input?.items } }"
+      />
     </slot>
 
-    <input
-      ref="input"
-      v-bind="delegatedProps"
-      v-model="modelValue"
-      :class="styles.input.field"
-      :data-testid="`input-${kebabCase(props.id || props.type)}`"
-    />
+    <slot v-bind="{ modelValue, styles, delegatedProps }">
+      <input
+        ref="input"
+        v-bind="delegatedProps"
+        v-model="modelValue"
+        :class="styles.input.field"
+        :data-testid="`input-${kebabCase(props.id || props.type)}`"
+      />
+    </slot>
 
     <slot name="append">
-      <InputItems :icon="props.iconAppend" :avatar="props.avatarAppend" />
+      <InputItems
+        :icon="props.iconAppend"
+        :avatar="props.avatarAppend"
+        :ui-config="{ input: { items: props.uiConfig?.input?.items } }"
+      />
     </slot>
   </div>
 </template>
 
 <script lang="ts" setup>
+// --- external
 import IMask, { type InputElement } from "imask";
-import { useTemplateRef, computed, onMounted } from "vue";
+import { useTemplateRef, computed, onMounted, watch, ref } from "vue";
+import type { InputMask } from "imask";
+// --- internal
 import config from "./input.config";
+// --- components
 import InputItems from "./InputItems.vue";
 import { useStyles, cn } from "../../utils";
 import { kebabCase } from "lodash-es";
+// --- utils
 import { omit } from "lodash-es";
+// --- types
 import type { InputProps } from "./types";
 // -----------------------------------------------------------------------------
 
@@ -33,13 +49,9 @@ const props = withDefaults(defineProps<InputProps>(), {
   width: "full",
   ring: true,
   // ---
-  uiConfig: () => ({ input: [] }),
+  uiConfig: () => ({ input: {} }),
   class: ""
 });
-
-const _emits = defineEmits<{
-  (e: "update:modelValue", payload: string | number): void;
-}>();
 
 const input = useTemplateRef<InputElement>("input");
 const modelValue = defineModel<InputProps["modelValue"]>("modelValue", {});
@@ -86,22 +98,33 @@ const styles = useStyles(
   props.uiConfig ?? {}
 );
 
+const maskedInstance = ref<InputMask<any> | null>(null);
+
 onMounted(() => {
   applyMask();
 });
 
+watch(
+  () => props.mask,
+  () => {
+    if (maskedInstance.value) {
+      maskedInstance.value.destroy();
+      maskedInstance.value = null;
+    }
+    applyMask();
+  }
+);
+
 function applyMask() {
   if (props.mask && input.value) {
-    // if we have a mask then we use the IMask library to apply it and then keep our model and maskedValue in sync
     const maskOptions = {
-      mask: props.mask as any // Cast to 'any' to accommodate both string and RegExp types
-      // lazy: false // Don't hide the mask when empty
+      mask: props.mask as any
     };
 
-    const masked = IMask(input.value, maskOptions);
+    maskedInstance.value = IMask(input.value, maskOptions);
 
-    masked.on("accept", () => {
-      modelValue.value = masked.value;
+    maskedInstance.value.on("accept", () => {
+      modelValue.value = maskedInstance.value?.value;
     });
   }
 }

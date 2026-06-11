@@ -1,6 +1,6 @@
 <template>
   <FormField v-bind="formFieldProps" no-errors>
-    <InputGroup class="group flex" :ring="false">
+    <InputGroup class="group control-radius flex" :ring="true">
       <Combobox
         :model-value="
           phone?.country || control.data?.country || defaultCountryCode
@@ -14,10 +14,13 @@
         :checked-icon="false"
         :ring="false"
         :search="onSearch"
-        tabindex="-1"
+        :tabindex="-1"
       />
       <Input
         class="group-hover:shadow-control-hover z-10 rounded-l-none!"
+        :ring="false"
+        :auto-focus="appliedOptions?.autoFocus"
+        :mask="phoneMask"
         :disabled="!control.enabled"
         :model-value="
           phone?.nationalNumber ||
@@ -27,6 +30,7 @@
         :placeholder="exampleNumber || ''"
         @update:modelValue="onPhoneInput"
         type="tel"
+        autocomplete="tel-national"
       />
     </InputGroup>
 
@@ -35,6 +39,7 @@
         v-if="formFieldProps.touched && errors"
         :errors="[errorsMapped]"
         :formMessageId="`form-item-message-${control.id}`"
+        :data-testid="`form-item-message-phone`"
         :name="control.path"
       />
     </template>
@@ -42,6 +47,7 @@
 </template>
 
 <script lang="ts" setup>
+// --- external
 import {
   and,
   isStringControl,
@@ -59,11 +65,13 @@ import {
 } from "libphonenumber-js";
 import examples from "libphonenumber-js/mobile/examples";
 import { computed, ref } from "vue";
+// --- components
 import { Combobox } from "../../../combobox";
 import InputGroup from "../../../groups/InputGroup.vue";
 import { Input } from "../../../input";
 import FormField from "../../FormField.vue";
 import FormMessage from "../../FormMessage.vue";
+// --- utils
 import { useUpmindUIRenderer } from "../utils";
 import {
   get,
@@ -75,6 +83,7 @@ import {
   isEmpty,
   has
 } from "lodash-es";
+// --- types
 import type { ComboboxItemProps } from "../../../combobox";
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
@@ -82,9 +91,9 @@ import type { PhoneNumber, CountryCode, ParseError } from "libphonenumber-js";
 // -----------------------------------------------------------------------------
 const props = defineProps<RendererProps<ControlElement>>();
 
-const { control, formFieldProps, onInput } = useUpmindUIRenderer(
-  useJsonFormsControl(props)
-);
+const { control, formFieldProps, appliedOptions, onInput } =
+  useUpmindUIRenderer(useJsonFormsControl(props));
+// --- utils
 
 const initialPhoneData = () => {
   const data = control.value.data;
@@ -111,7 +120,33 @@ const phone = ref(initialPhoneData());
 
 const exampleNumber = computed(() => {
   const countryCode = phone.value?.country || defaultCountryCode;
-  return getExampleNumber(countryCode, examples)?.formatNational();
+  const example = getExampleNumber(countryCode, examples);
+  if (!example) return undefined;
+  // Format national number without trunk prefix (leading 0)
+  // e.g., SA: 073 771 1420 -> 73 771 1420
+  const formatted = example.formatNational();
+  const national = example.nationalNumber;
+  // Find where nationalNumber starts in formatted string and slice from there
+  const digitsOnly = formatted.replace(/\D/g, "");
+  const trunkDigits = digitsOnly.length - national.length;
+  if (trunkDigits <= 0) return formatted;
+  // Count characters to skip (trunk digits + any leading formatting)
+  let digitCount = 0;
+  let skipIndex = 0;
+  for (let i = 0; i < formatted.length; i++) {
+    if (/\d/.test(formatted[i])) digitCount++;
+    if (digitCount > trunkDigits) {
+      skipIndex = i;
+      break;
+    }
+  }
+  return formatted.slice(skipIndex);
+});
+
+const phoneMask = computed(() => {
+  if (!exampleNumber.value) return undefined;
+  // Convert example number to IMask pattern: digits -> 0, keep spaces/dashes
+  return exampleNumber.value.replace(/\d/g, "0");
 });
 
 const errors = computed(() => {
@@ -174,7 +209,8 @@ function parsePhone(
     ? value
     : value?.nationalNumber || value?.number || "";
 
-  const code = countryCode ?? defaultCountryCode;
+  const code =
+    (value as PhoneNumber)?.country ?? countryCode ?? defaultCountryCode;
 
   let parsed;
   try {
@@ -188,7 +224,7 @@ function parsePhone(
       number: parsed.number,
       nationalNumber: parsed.nationalNumber,
       countryCallingCode: parsed.countryCallingCode,
-      country: code!
+      country: parsed?.country || code!
     };
   }
 
@@ -203,7 +239,9 @@ function onCountyInput(value: any) {
   );
 }
 
-function onPhoneInput(value: string | number) {
+function onPhoneInput(value: string | number | undefined) {
+  if (value === undefined) return;
+
   try {
     phone.value = parsePhone(value as string, phone.value?.country);
     onInput(

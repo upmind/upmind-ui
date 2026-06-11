@@ -7,15 +7,13 @@ import type { CxOptions } from "class-variance-authority";
 import type { HTMLAttributes } from "vue";
 // --------------------------------------------------------
 // ---
-export interface InterstitialActionProps extends ButtonProps {
+export type InterstitialActionProps = {
   handler?: Function | string;
-  href?: string;
   prependIcon?: IconProps;
   appendIcon?: IconProps;
-  variant?: ButtonProps["variant"];
-}
+} & ButtonProps;
 
-export interface InterstitialProps {
+export type InterstitialProps = {
   modal?: boolean;
   open?: DialogProps["open"];
   to?: DialogProps["to"];
@@ -26,10 +24,12 @@ export interface InterstitialProps {
   animatedIcon?: AnimatedIconProps;
   // ---
   actions?: InterstitialActionProps[];
+  /** Whether the modal can be dismissed via Esc key. Defaults to false. */
+  dismissable?: boolean;
   // ---
   size?: DialogProps["size"];
   fit?: DialogProps["fit"];
   // ---
   uiConfig?: { interstitial: CxOptions };
   class?: HTMLAttributes["class"];
-}
+};

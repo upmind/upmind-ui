@@ -1,5 +1,8 @@
 // -----------------------------------------------------------------------------
 import BooleanRenderer, { tester as BooleanTest } from "./BooleanRenderer.vue";
+import BooleanCardRenderer, {
+  tester as BooleanCardTest
+} from "./BooleanCardRenderer.vue";
 import BooleanSwitchRenderer, {
   tester as BooleanSwitchTest
 } from "./BooleanSwitchRenderer.vue";
@@ -16,6 +19,7 @@ import EnumRadioRenderer, {
 } from "./EnumRadioRenderer.vue";
 import EnumRenderer, { tester as EnumTest } from "./EnumRenderer.vue";
 import LookupRenderer, { tester as lookupTest } from "./LookupRenderer.vue";
+import OTPRenderer, { tester as OTPTest } from "./OTPRenderer.vue";
 import MultilineRenderer, {
   tester as MultilineTest
 } from "./MultilineRenderer.vue";
@@ -40,6 +44,7 @@ export const controlRenderers = [
   registerEntry(ConstRenderer, ConstTest),
   registerEntry(StringRenderer, StringTest),
   registerEntry(BooleanRenderer, BooleanTest),
+  registerEntry(BooleanCardRenderer, BooleanCardTest),
   registerEntry(BooleanSwitchRenderer, BooleanSwitchTest),
   registerEntry(ButtonToggleRenderer, ButtonToggleTest),
   registerEntry(CurrencyRenderer, CurrencyTest),
@@ -54,5 +59,6 @@ export const controlRenderers = [
   registerEntry(OneOfRadioRenderer, OneOfRadioTest),
   registerEntry(OneOfSelectRenderer, OneOfSelectTest),
   registerEntry(MultilineRenderer, MultilineTest),
-  registerEntry(LookupRenderer, lookupTest)
+  registerEntry(LookupRenderer, lookupTest),
+  registerEntry(OTPRenderer, OTPTest)
 ];

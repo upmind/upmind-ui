@@ -5,10 +5,10 @@ import type { HTMLAttributes } from "vue";
 
 export type SpinnerVariantProps = VariantProps<typeof spinnerVariants>;
 
-export interface SpinnerProps extends PrimitiveProps {
+export type SpinnerProps = PrimitiveProps & {
   // ---
   size?: SpinnerVariantProps["size"] | string;
   // ---
   uiConfig?: { spinner: CxOptions };
   class?: HTMLAttributes["class"];
-}
+};

@@ -7,7 +7,9 @@
     :fit="fit"
     :to="to"
     no-header
-    :dismissable="false"
+    :dismissable="props.dismissable"
+    no-footer
+    @update:open="onDialogClose"
   >
     <div :class="cn(styles.interstitial.root, props.class)">
       <slot name="avatar">
@@ -39,6 +41,7 @@
           <Button
             v-for="(action, index) in actions"
             :key="`action-${index}`"
+            :data-testid="`interstitial-action-${index}`"
             size="lg"
             v-bind="action"
             :loading="meta.isProcessing"
@@ -77,8 +80,11 @@ const props = withDefaults(defineProps<InterstitialProps>(), {
     primaryColor: "primary",
     secondaryColor: "secondary",
     size: "4xl"
-  })
+  }),
+  dismissable: false
 });
+
+const emit = defineEmits(["reject"]);
 
 const processing = ref(false);
 const meta = computed(() => ({
@@ -97,5 +103,9 @@ async function doAction(handler: InterstitialActionProps["handler"]) {
     await handler();
     processing.value = false;
   }
+}
+
+function onDialogClose(open: boolean) {
+  if (!open) emit("reject");
 }
 </script>

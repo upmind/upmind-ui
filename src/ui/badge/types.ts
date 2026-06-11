@@ -5,7 +5,7 @@ import type { HTMLAttributes } from "vue";
 
 type BadgeVariantProps = VariantProps<typeof badgeVariants>;
 
-export interface BadgeProps {
+export type BadgeProps = {
   label?: string;
   icon?: string | Icon;
   appendIcon?: string | Icon;
@@ -17,4 +17,4 @@ export interface BadgeProps {
   // --- styles
   uiConfig?: { badge: CxOptions };
   class?: HTMLAttributes["class"];
-}
+};

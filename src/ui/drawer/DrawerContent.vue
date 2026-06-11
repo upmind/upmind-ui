@@ -2,21 +2,25 @@
 import { useForwardPropsEmits } from "radix-vue";
 import { DrawerContent, DrawerPortal } from "vaul-vue";
 import DrawerOverlay from "./DrawerOverlay.vue";
-import { cn } from "../../utils";
+import { cn, providePortalTarget } from "../../utils";
 import type {
   DialogContentEmits,
   DialogContentProps,
   DialogPortalProps
 } from "radix-vue";
-import type { HTMLAttributes } from "vue";
+import { type HTMLAttributes, useTemplateRef } from "vue";
 
-const props = defineProps<
-  DialogContentProps &
-    DialogPortalProps & {
-      class?: HTMLAttributes["class"];
-      classOverlay?: HTMLAttributes["class"];
-    }
->();
+const props = withDefaults(
+  defineProps<
+    DialogContentProps &
+      DialogPortalProps & {
+        class?: HTMLAttributes["class"];
+        classOverlay?: HTMLAttributes["class"];
+        dismissible?: boolean;
+      }
+  >(),
+  { dismissible: true }
+);
 const emits = defineEmits<
   DialogContentEmits & {
     close: [];
@@ -24,6 +28,14 @@ const emits = defineEmits<
 >();
 
 const forwarded = useForwardPropsEmits(props, emits);
+
+function onOverlayClick() {
+  if (props.dismissible) emits("close");
+}
+
+// Expose the content element to descendant overlays so their portals teleport
+// into this drawer's stacking context instead of competing at body level.
+providePortalTarget(useTemplateRef("content"));
 </script>
 
 <!--
@@ -34,8 +46,9 @@ const forwarded = useForwardPropsEmits(props, emits);
 
 <template>
   <DrawerPortal :to="props.to">
-    <DrawerOverlay :class="props.classOverlay" @click="() => emits('close')" />
+    <DrawerOverlay :class="props.classOverlay" @click="onOverlayClick" />
     <DrawerContent
+      ref="content"
       v-bind="forwarded"
       :class="
         cn(

@@ -6,9 +6,9 @@ import type { ImgHTMLAttributes } from "vue";
 export type RootVariants = VariantProps<typeof rootVariant>;
 export type ImageVariants = VariantProps<typeof containerVariant>;
 
-export type ImageMode = "auto" | "single" | "carousel";
+export type ImageMode = "auto" | "single" | "carousel" | "grid";
 
-export interface ImageProps {
+export type ImageProps = {
   mode?: ImageMode;
   image?: ImageItem[] | ImageItem | string;
   ratio?: ImageVariants["ratio"];
@@ -17,19 +17,27 @@ export interface ImageProps {
   icon?: IconProps["icon"];
   alt?: ImgHTMLAttributes["alt"];
   fallback?: boolean;
+  /** When true, render an expand button that opens a lightbox preview. */
+  expandable?: boolean;
   // ---
   class?: ImgHTMLAttributes["class"];
-}
+};
 
-export interface ImageItem {
+export type ImagePreviewProps = {
+  image: ImageItem;
+  open: boolean;
+};
+
+export type ImageItem = {
   url: string;
   alt: string;
-}
+  previewUrl?: string;
+};
 
-export interface CarouselImageProps {
+export type CarouselImageProps = {
   image: ImageItem;
   index?: number;
   total?: number;
   fit?: RootVariants["fit"];
   position?: RootVariants["position"];
-}
+};

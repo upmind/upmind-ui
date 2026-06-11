@@ -13,6 +13,7 @@ export * from "./ui/card";
 export * from "./ui/carousel";
 export * from "./ui/checkbox";
 export * from "./ui/checkbox-cards";
+export * from "./ui/checkbox-group";
 export * from "./ui/combobox";
 export * from "./ui/collapsible";
 export * from "./ui/dialog";
@@ -24,7 +25,10 @@ export * from "./ui/icon";
 export * from "./ui/icon-animated";
 export * from "./ui/indicator";
 export * from "./ui/image";
+export * from "./ui/image-grid";
 export * from "./ui/input";
+export * from "./ui/input-otp";
+export * from "./ui/input-password";
 export * from "./ui/interstitial";
 export * from "./ui/label";
 export * from "./ui/lineclamp";
@@ -61,7 +65,6 @@ export {
   useThemes,
   useThemeIcons,
   useStyleSheet,
-  usePointerEvents,
   parseVariants,
   useForwardPropsEmits,
   type VariantValues,

@@ -6,7 +6,7 @@ import type { HTMLAttributes } from "vue";
 
 export type AvatarVariantProps = VariantProps<typeof avatarVariants>;
 
-export interface AvatarProps {
+export type AvatarProps = {
   src?: string;
   caption?: string;
   icon?: IconProps["icon"];
@@ -21,4 +21,4 @@ export interface AvatarProps {
   // ---
   uiConfig?: { avatar: CxOptions };
   class?: HTMLAttributes["class"];
-}
+};

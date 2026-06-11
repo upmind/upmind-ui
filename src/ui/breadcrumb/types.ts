@@ -3,18 +3,18 @@ import type { CxOptions } from "class-variance-authority";
 import type { HTMLAttributes } from "vue";
 import type { RouterLinkProps } from "vue-router";
 
-export interface BreadcrumbItem extends RouterLinkProps {
+export type BreadcrumbItem = RouterLinkProps & {
   label?: string;
   icon?: string;
   current?: boolean;
   value?: string | number;
   handler?: Function;
   href?: string;
-}
+};
 
 export type BreadcrumbVariant = "visible" | "condensed" | "parent" | "hidden";
 
-export interface BreadcrumbConsolidateProps {
+export type BreadcrumbConsolidateProps = {
   items: BreadcrumbItem[];
   // --- variants
   variant?: BreadcrumbVariant;
@@ -23,4 +23,4 @@ export interface BreadcrumbConsolidateProps {
   // --- styles
   uiConfig?: { breadcrumbConsolidate?: CxOptions };
   class?: HTMLAttributes["class"];
-}
+};

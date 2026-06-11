@@ -1,4 +1,9 @@
-import type { contentVariant, overlayVariant } from "./dialog.config";
+// --- external
+import type {
+  contentVariant,
+  overlayVariant,
+  scrollableVariant
+} from "./dialog.config";
 import type { VariantProps, CxOptions } from "class-variance-authority";
 import type {
   DialogRootProps,
@@ -9,42 +14,42 @@ import type {
   DialogPortalProps
 } from "radix-vue";
 import type { HTMLAttributes } from "vue";
+// --- internal
 
 type DialogContentVariantProps = VariantProps<typeof contentVariant>;
+type DialogScrollableVariantProps = VariantProps<typeof scrollableVariant>;
 type _DialogOverlayVariantProps = VariantProps<typeof overlayVariant>;
 
-export interface DialogProps
-  extends
-    DialogRootProps,
-    DialogContentProps,
-    DialogDescriptionProps,
-    DialogTitleProps,
-    DialogTriggerProps,
-    DialogPortalProps {
-  title?: string;
-  description?: string;
-  // ---
-  noHeader?: boolean;
-  noFooter?: boolean;
-  // ---
-  open?: boolean;
-  dismissable?: boolean;
-  // --- variants
-  size?: DialogContentVariantProps["size"] | string;
-  overflow?: DialogContentVariantProps["overflow"] | string;
-  fit?: DialogContentVariantProps["fit"] | string;
+export type DialogProps = DialogRootProps &
+  DialogContentProps &
+  DialogDescriptionProps &
+  DialogTitleProps &
+  DialogTriggerProps &
+  DialogPortalProps & {
+    title?: string;
+    description?: string;
+    // ---
+    noHeader?: boolean;
+    noFooter?: boolean;
+    // ---
+    open?: boolean;
+    dismissable?: boolean;
+    // --- variants
+    size?: DialogContentVariantProps["size"] | string;
+    overflow?: DialogScrollableVariantProps["overflow"] | string;
+    fit?: DialogScrollableVariantProps["fit"] | string;
 
-  // ---
-  uiConfig?: {
-    dialog: {
-      overlay: CxOptions;
-      content: CxOptions;
-      header: CxOptions;
-      footer: CxOptions;
+    // ---
+    uiConfig?: {
+      dialog: {
+        overlay: CxOptions;
+        content: CxOptions;
+        header: CxOptions;
+        footer: CxOptions;
+      };
     };
+    class?: HTMLAttributes["class"];
+    classHeader?: HTMLAttributes["class"];
+    classContent?: HTMLAttributes["class"];
+    classFooter?: HTMLAttributes["class"];
   };
-  class?: HTMLAttributes["class"];
-  classHeader?: HTMLAttributes["class"];
-  classContent?: HTMLAttributes["class"];
-  classFooter?: HTMLAttributes["class"];
-}

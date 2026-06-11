@@ -8,7 +8,7 @@ import {
   useForwardPropsEmits
 } from "radix-vue";
 import { type HTMLAttributes, computed } from "vue";
-import { cn } from "../../utils";
+import { cn, usePortalTarget } from "../../utils";
 
 defineOptions({
   inheritAttrs: false
@@ -33,15 +33,17 @@ const delegatedProps = computed(() => {
 });
 
 const forwarded = useForwardPropsEmits(delegatedProps, emits);
+
+const portalTo = usePortalTarget(() => props.to);
 </script>
 
 <template>
-  <PopoverPortal :disabled="props?.disabled" :to="props?.to">
+  <PopoverPortal :disabled="props?.disabled" :to="portalTo">
     <PopoverContent
       v-bind="{ ...forwarded, ...$attrs }"
       :class="
         cn(
-          'bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 w-72 rounded-lg p-4',
+          'bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 control-radius z-50 w-72 p-4',
           props.class
         )
       "

@@ -14,7 +14,7 @@
         icon-append="chevron-down"
         :checked="open"
         :data-hover="dataHover"
-        :data-focus="dataFocus"
+        :data-focus="dataFocus && !skipFocus"
         ring
       >
         <template #prepend v-if="!isEmpty(modelValue) || searchValue">
@@ -187,6 +187,7 @@ const meta = computed(() => ({
 }));
 
 const open = ref(false);
+const skipFocus = computed(() => props.tabindex === "-1");
 
 const itemValue = computed((): string => props.itemValue || "value");
 const itemLabel = computed((): string => props.itemLabel || "label");

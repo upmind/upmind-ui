@@ -5,9 +5,9 @@ import { ringClasses, invalidRingClasses } from "../../assets/styles";
 
 export const variants = {
   size: {
-    sm: "p-2 text-sm",
+    sm: "gap-0.5 px-2 py-1 text-sm",
     md: "gap-0.5 px-3 py-2 text-sm",
-    lg: "text-md gap-0.5 px-4 py-2",
+    lg: "gap-0.5 px-4 py-2 text-md",
     icon: ""
   },
   variant: {
@@ -40,12 +40,12 @@ export const variants = {
   },
   hasRing: {
     true: `${ringClasses} ${invalidRingClasses}`,
-    false: "outline-none focus:ring-0 focus:outline-none"
+    false: "outline outline-2 outline-transparent outline-offset-2 focus:ring-0"
   }
 };
 
 export const rootVariants = cva(
-  `ring-offset-canvas relative inline-flex items-center font-medium whitespace-nowrap no-underline transition-all duration-200`,
+  `ring-offset-canvas relative inline-flex items-center font-medium whitespace-nowrap no-underline outline-transparent transition-all duration-200`,
   {
     variants,
     defaultVariants: {
@@ -78,7 +78,7 @@ export const rootVariants = cva(
         variant: "control",
         color: ["primary", "secondary", "neutral", "danger"],
         class:
-          "control-radius shadow-control-default hover:not(:disabled):border-control-hover ring-control-ring!"
+          "control-radius bg-control-surface shadow-control-default [&:hover:not(:disabled),&:focus-within:not(:disabled),&[data-hover=true]:not([data-disabled=true]),&[data-focus=true]:not([data-disabled=true])]:shadow-control-hover ring-control-ring! [&_i]:text-muted [&_i]:transition-colors [&_i]:duration-200 [&:hover:not(:disabled)_i,&:focus-within:not(:disabled)_i,&[data-hover=true]:not([data-disabled=true])_i,&[data-focus=true]:not([data-disabled=true])_i]:text-base"
       },
       {
         variant: "solid",
@@ -111,12 +111,12 @@ export const rootVariants = cva(
 const labelVariants = cva("", {
   variants: {
     variant: {
-      flat: "px-1",
-      outline: "px-1",
-      ghost: "px-1",
-      tonal: "px-1",
-      inverse: "px-1",
-      control: "px-1"
+      solid: "px-0.5",
+      outline: "px-0.5",
+      ghost: "px-0.5",
+      tonal: "px-0.5",
+      inverse: "px-0.5",
+      control: "px-0.5"
     },
     isIconOnly: {
       true: "sr-only"
