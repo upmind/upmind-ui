@@ -12,6 +12,7 @@ export type BreadcrumbItem = RouterLinkProps & {
   value?: string | number;
   handler?: Function;
   href?: string;
+  loading?: boolean;
 };
 
 export type BreadcrumbVariant = "visible" | "condensed" | "parent" | "hidden";

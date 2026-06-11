@@ -25,8 +25,10 @@
             :size="item.icon ? 'sm' : props.size"
             :label="item.label"
             :icon="item.icon"
+            :loading="item.loading"
             color="muted"
             :uiConfig="{ link: { items: '[&>i]:p-[3px]' } } as any"
+            @click="item.handler?.()"
           />
         </BreadcrumbItem>
 
