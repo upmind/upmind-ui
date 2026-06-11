@@ -22,6 +22,7 @@ export type LinkProps = {
   avatarAppend?: Partial<AvatarProps>;
   // ---
   disabled?: boolean;
+  loading?: boolean;
   // ---
   focusable?: boolean;
   ring?: "focus" | "focus-visible";

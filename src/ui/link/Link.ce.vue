@@ -1,12 +1,12 @@
 <template>
   <component
     :is="component"
-    v-bind="isRouterLink ? { to } : { href }"
+    v-bind="componentProps"
     :aria-disabled="meta.isDisabled || undefined"
     :tabindex="meta.isFocusable ? '0' : '-1'"
     :class="cn(styles.link.root, props.class)"
     :data-testid="`link-${kebabCase(label ?? 'default')}`"
-    @click="$emit('click', $event)"
+    @click="onClick"
   >
     <slot name="prepend">
       <LinkItems
@@ -62,24 +62,35 @@ const props = withDefaults(defineProps<LinkProps>(), {
 
 const slots = useSlots();
 
-defineEmits<{
+const emit = defineEmits<{
   click: [event: Event];
 }>();
 
+const isDisabled = useDisabled(() => props.disabled || props.loading);
+
 const component = computed(() => {
-  if (props.to) return RouterLink;
-  if (props.href) return "a";
+  // NB  if we are disabled and we are a link, we render a span to prevent navigation
+  if (props.to && !isDisabled.value) return RouterLink;
+  if (props.href && !isDisabled.value) return "a";
   return "span";
 });
 
-const isRouterLink = computed(() => component.value === RouterLink);
+const componentProps = computed(() => {
+  if (component.value === RouterLink) return { to: props.to };
+  if (component.value === "a") return { href: props.href };
+  return {};
+});
 
-const isDisabled = useDisabled(() => props.disabled);
+function onClick(event: Event) {
+  if (isDisabled.value) return;
+  emit("click", event);
+}
 
 const meta = computed(() => ({
   color: props.color,
   size: props.size,
   isDisabled: isDisabled.value,
+  isLoading: props.loading,
   isFocusable: props.focusable && !isDisabled.value,
   hasRing:
     props.ring === "focus-visible" && !isDisabled.value && props.focusable,

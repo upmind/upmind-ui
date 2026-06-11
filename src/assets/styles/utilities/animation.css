@@ -1,0 +1,27 @@
+/*
+ * Loading shimmer: dims the masked element and sweeps a full-strength band
+ * across it. Apply directly (text + underline) or on a pseudo-element
+ * (underline bar only). Uses @utility so it composes with variants (after:).
+ */
+
+@utility shimmer-mask {
+  mask-image: linear-gradient(
+    110deg,
+    rgb(0 0 0 / 0.35) 40%,
+    rgb(0 0 0) 50%,
+    rgb(0 0 0 / 0.35) 60%
+  );
+  mask-size: 200% 100%;
+  animation: shimmer 1.25s ease-in-out infinite alternate;
+}
+
+/* One full sweep per iteration (band travels edge to edge) so
+   `animation-direction: alternate` produces a visible back-and-forth. */
+@keyframes shimmer {
+  0% {
+    mask-position: 0% 0;
+  }
+  100% {
+    mask-position: 100% 0;
+  }
+}

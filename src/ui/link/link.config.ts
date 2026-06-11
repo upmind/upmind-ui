@@ -31,8 +31,12 @@ export const variants = {
     info: "text-accent-info [&:not([aria-disabled=true]):hover,&:not([aria-disabled=true])[data-hover=true]]:opacity-75"
   },
   isDisabled: {
-    true: "cursor-not-allowed opacity-50 pointer-events-none",
+    true: "cursor-not-allowed opacity-50",
     false: "cursor-pointer"
+  },
+  isLoading: {
+    true: "after:shimmer-mask relative cursor-wait no-underline opacity-100 after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-current",
+    false: ""
   },
   hasRing: {
     true: "outline outline-2 outline-transparent outline-offset-2 duration-200 focus-visible:outline-[var(--color-control-ring)]",
@@ -75,6 +79,7 @@ export const rootVariants = cva(
       size: variants.size,
       color: variants.color,
       isDisabled: variants.isDisabled,
+      isLoading: variants.isLoading,
       hasIcon: {
         true: "inline-flex items-center",
         false: "inline-flex items-center"
@@ -86,6 +91,7 @@ export const rootVariants = cva(
       color: "default",
       size: "md",
       isDisabled: false,
+      isLoading: false,
       hasIcon: false
     },
     compoundVariants: [
