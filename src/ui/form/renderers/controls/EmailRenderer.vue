@@ -19,9 +19,9 @@ import { useJsonFormsControl } from "@jsonforms/vue";
 import { computed } from "vue";
 import { Input } from "../../../input";
 import FormField from "../../FormField.vue";
-import { useUpmindUIRenderer } from "../utils";
-import { useStyles } from "../../../../utils";
 import config from "./email.config";
+import { useStyles } from "../../../../utils";
+import { useUpmindUIRenderer } from "../utils";
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
 // -----------------------------------------------------------------------------

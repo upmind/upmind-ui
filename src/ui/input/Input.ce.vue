@@ -31,13 +31,13 @@
 <script lang="ts" setup>
 import IMask, { type InputElement } from "imask";
 import { useTemplateRef, computed, onMounted, watch, ref } from "vue";
-import type { InputMask } from "imask";
 import config from "./input.config";
 import InputItems from "./InputItems.vue";
 import { useStyles, cn } from "../../utils";
 import { kebabCase } from "lodash-es";
 import { omit } from "lodash-es";
 import type { InputProps } from "./types";
+import type { InputMask } from "imask";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<InputProps>(), {

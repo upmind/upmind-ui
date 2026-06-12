@@ -38,8 +38,8 @@
 import { computed, ref, watch } from "vue";
 import config from "./numberField.config";
 import NumberField from "./NumberField.vue";
-import NumberFieldContent from "./NumberFieldContent.vue";
 import NumberFieldActionButton from "./NumberFieldActionButton.vue";
+import NumberFieldContent from "./NumberFieldContent.vue";
 import NumberFieldDecrement from "./NumberFieldDecrement.vue";
 import NumberFieldIcon from "./NumberFieldIcon.vue";
 import NumberFieldIncrement from "./NumberFieldIncrement.vue";

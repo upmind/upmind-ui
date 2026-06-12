@@ -35,15 +35,15 @@
 import { isStringControl, and, or, optionIs, formatIs } from "@jsonforms/core";
 import { useJsonFormsControl } from "@jsonforms/vue";
 import { computed } from "vue";
-import { InputPassword, PasswordStrength } from "../../../input-password";
-import FormField from "../../FormField.vue";
-import { useUpmindUIRenderer } from "../utils";
 import {
   FALLBACK_REQUIREMENT_COUNT,
   generateStrongPassword,
   getPasswordErrorKey,
   scorePassword
 } from "../../../../utils/password";
+import { InputPassword, PasswordStrength } from "../../../input-password";
+import FormField from "../../FormField.vue";
+import { useUpmindUIRenderer } from "../utils";
 import { keys, size } from "lodash-es";
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";

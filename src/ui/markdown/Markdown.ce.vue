@@ -13,13 +13,13 @@
 </template>
 
 <script lang="ts" setup>
+import dompurify from "dompurify";
 import { onMounted, computed, useSlots, shallowRef } from "vue";
 import Sanitized from "../sanitized/Sanitized.vue";
-import dompurify from "dompurify";
-import { first, lowerCase } from "lodash-es";
-import { cn } from "../../utils";
-import type { MarkdownProps } from "./types";
 import { INLINE_TAGS, INLINE_ATTRS } from "./types";
+import { cn } from "../../utils";
+import { first, lowerCase } from "lodash-es";
+import type { MarkdownProps } from "./types";
 import type { Marked } from "marked";
 import type { VNode } from "vue";
 

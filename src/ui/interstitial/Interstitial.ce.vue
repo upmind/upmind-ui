@@ -55,7 +55,6 @@
   </component>
 </template>
 
-<!-- eslint-disable vue/component-api-style -->
 <script lang="ts" setup>
 import { ref, computed, useSlots } from "vue";
 import { Avatar } from "../avatar";

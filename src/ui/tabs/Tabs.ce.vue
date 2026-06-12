@@ -76,11 +76,9 @@
 
 <script lang="ts" setup>
 import { useElementBounding } from "@vueuse/core";
-import { kebabCase } from "lodash-es";
 import { useVModel } from "@vueuse/core";
 import { useForwardPropsEmits } from "radix-vue";
 import { computed, ref, useSlots } from "vue";
-import type { Slots } from "vue";
 import { Icon } from "../icon";
 import config from "./tabs.config";
 import Tabs from "./Tabs.vue";
@@ -89,9 +87,11 @@ import TabsList from "./TabsList.vue";
 import TabsTrigger from "./TabsTrigger.vue";
 import { useStyles } from "../../utils";
 import { isEmptySlot } from "../../utils";
+import { kebabCase } from "lodash-es";
 import { first } from "lodash-es";
 import type { TabsProps, TabItem } from ".";
 import type { TabsRootEmits } from "radix-vue";
+import type { Slots } from "vue";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<TabsProps>(), {

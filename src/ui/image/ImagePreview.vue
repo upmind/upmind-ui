@@ -31,8 +31,8 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, watch } from "vue";
 import { DialogContent, DialogPortal, DialogRoot } from "radix-vue";
+import { computed, ref, watch } from "vue";
 import { Link } from "../link";
 import config from "./image.config";
 import { useImageZoom, useStyles } from "../../utils";

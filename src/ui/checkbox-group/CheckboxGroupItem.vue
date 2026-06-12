@@ -28,8 +28,8 @@ import {
   useForwardProps
 } from "radix-vue";
 import { computed, type HTMLAttributes } from "vue";
-import { cn, useStyles } from "../../utils";
 import config from "./checkboxGroup.config";
+import { cn, useStyles } from "../../utils";
 
 const props = defineProps<
   ListboxItemProps & {
