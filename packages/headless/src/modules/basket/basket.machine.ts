@@ -11,13 +11,13 @@ import { useSession } from "../session";
 // --- utils
 import {
   defaultsDeep,
-  filter,
   forEach,
   get,
   has,
   isEmpty,
   isEqual,
   map,
+  remove,
   some
 } from "lodash-es";
 import {
@@ -605,16 +605,30 @@ export default createMachine(
         }
       }),
 
+      // NB: promo auto-removal warnings (identified by `translations.code`) are
+      // noise from the promo engine — kept out of context and dismissed on the BE
       setWarningNotes: assign({
-        warningNotes: (_context: BasketContext, { data }: AnyEventObject) => {
+        warningNotes: (context: BasketContext, { data }: AnyEventObject) => {
           const basket = get(data, "basket", data);
-          if (has(basket, "warning_notes") && !isEmpty(basket.warning_notes)) {
-            return filter(
-              basket.warning_notes,
-              (note: IWarningNote) => !note.is_hidden
-            );
-          }
-          return [];
+          const notes = get(basket, "warning_notes", []);
+          const suppressed: string[] = [];
+
+          remove(notes, (note: IWarningNote) => {
+            if (note.is_hidden) return true;
+            if (has(note, "translations.code")) {
+              suppressed.push(note.id);
+              return true;
+            }
+            return false;
+          });
+
+          if (!isEmpty(suppressed))
+            services.dismissWarningNotes(context, {
+              type: "DISMISS_FILTERED_WARNINGS",
+              data: suppressed
+            });
+
+          return notes;
         }
       }),
 
