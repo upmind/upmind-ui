@@ -1,7 +1,7 @@
 import { defineCustomElement } from "vue";
+import DrawerCE from "./Drawer.ce.vue";
 // --- vue elements
 export { default as Drawer } from "./Drawer.ce.vue";
-import DrawerCE from "./Drawer.ce.vue";
 
 export const UpmDrawer = defineCustomElement(DrawerCE);
 

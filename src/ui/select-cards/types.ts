@@ -1,12 +1,12 @@
 import type { AvatarProps } from "../avatar";
 import type { triggerVariants } from "./selectCards.config";
+import type { PortalTarget } from "../../utils";
 import type { BadgeProps } from "../badge/types";
 import type { ButtonProps } from "../button";
 import type { Icon } from "../icon/types";
 import type { CxOptions, VariantProps } from "class-variance-authority";
 import type { PopoverContentProps } from "radix-vue";
 import type { HTMLAttributes, Component } from "vue";
-import type { PortalTarget } from "../../utils";
 // --- internal
 
 type TriggerVariantProps = VariantProps<typeof triggerVariants>;

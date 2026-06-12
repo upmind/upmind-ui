@@ -39,8 +39,8 @@
 <script lang="ts" setup>
 import { useVModel } from "@vueuse/core";
 import { computed, ref } from "vue";
-import Input from "../input/Input.ce.vue";
 import { Icon } from "../icon";
+import Input from "../input/Input.ce.vue";
 import { Link } from "../link";
 import Tooltip from "../tooltip/Tooltip.ce.vue";
 import config from "./input-password.config";

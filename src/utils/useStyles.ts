@@ -120,7 +120,7 @@ export function useStyles<T extends object = object>(
           }
           return result;
         },
-        [] as Array<Object>
+        [] as Array<object>
       );
 
       set(styles, component, applyVariants(componentConfigs, cleanContext));

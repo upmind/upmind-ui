@@ -1,5 +1,4 @@
 import { cva } from "class-variance-authority";
-import { focusRing } from "../../assets/styles";
 import { focusVisibleRing } from "../../assets/styles";
 // -----------------------------------------------------------------------------
 export const rootVariant = cva("h-full w-full", {

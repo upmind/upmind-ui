@@ -1,3 +1,4 @@
+import { unrefElement, type MaybeComputedElementRef } from "@vueuse/core";
 import {
   computed,
   inject,
@@ -8,7 +9,6 @@ import {
   type MaybeRefOrGetter,
   type Ref
 } from "vue";
-import { unrefElement, type MaybeComputedElementRef } from "@vueuse/core";
 
 export type PortalTarget = HTMLElement | string | undefined;
 
