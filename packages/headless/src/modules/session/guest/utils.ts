@@ -105,23 +105,29 @@ export const useRegisterUischemaParser = (data: any) => {
     type: "VerticalLayout",
     elements: [
       {
-        type: "Control",
-        scope: "#/properties/firstname",
-        i18n: "form.firstname",
-        options: {
-          autoFocus: true,
-          autocomplete: "given-name",
-          placeholder: "Jay,Jane,John,... "
-        }
-      },
-      {
-        type: "Control",
-        scope: "#/properties/lastname",
-        i18n: "form.lastname",
-        options: {
-          autocomplete: "family-name",
-          placeholder: "Doe, Smith, ..."
-        }
+        // HorizontalLayout stacks on mobile, sits on one row from md up.
+        type: "HorizontalLayout",
+        elements: [
+          {
+            type: "Control",
+            scope: "#/properties/firstname",
+            i18n: "form.firstname",
+            options: {
+              autoFocus: true,
+              autocomplete: "given-name",
+              placeholder: "Jay,Jane,John,... "
+            }
+          },
+          {
+            type: "Control",
+            scope: "#/properties/lastname",
+            i18n: "form.lastname",
+            options: {
+              autocomplete: "family-name",
+              placeholder: "Doe, Smith, ..."
+            }
+          }
+        ]
       },
       {
         type: "Control",
