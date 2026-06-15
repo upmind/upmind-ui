@@ -55,14 +55,11 @@ const stylesMeta = computed(() => ({
 const styles = useStyles(["header", "header.image"], stylesMeta, config);
 
 const images = computed(() => {
-  return props.productDetails?.images?.map(image => {
-    const url = useImageUrl(image.url, props.previewSize);
-    return {
-      url,
-      alt: props.productDetails?.title,
-      previewUrl: url
-    };
-  }) as ImageItem[];
+  return props.productDetails?.images?.map(image => ({
+    url: image.url,
+    alt: props.productDetails?.title,
+    previewUrl: useImageUrl(image.url, props.previewSize)
+  })) as ImageItem[];
 });
 
 // Compute the image prop value - wrap single imgUrl in array when carousel mode
@@ -77,12 +74,11 @@ const mappedImage = computed(() => {
     (ui.productImagesStyle.isCarousel || ui.productImagesStyle.isGrid) &&
     props.productDetails?.imgUrl
   ) {
-    const url = useImageUrl(props.productDetails.imgUrl, props.previewSize);
     return [
       {
-        url,
+        url: props.productDetails.imgUrl,
         alt: props.productDetails?.title,
-        previewUrl: url
+        previewUrl: useImageUrl(props.productDetails.imgUrl, props.previewSize)
       }
     ] as ImageItem[];
   }
