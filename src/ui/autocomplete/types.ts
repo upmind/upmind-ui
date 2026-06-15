@@ -18,7 +18,7 @@ export type AutocompleteItemProps = ComboboxItemProps & {
   value: string;
   icon?: IconProps["icon"];
   avatar?: Partial<AvatarProps>;
-  handler?: Function;
+  handler?: (...args: unknown[]) => unknown;
   class?: HTMLAttributes["class"];
   persist?: boolean;
 };

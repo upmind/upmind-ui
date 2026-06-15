@@ -8,7 +8,7 @@ import type { HTMLAttributes } from "vue";
 // --------------------------------------------------------
 // ---
 export type InterstitialActionProps = {
-  handler?: Function | string;
+  handler?: ((...args: unknown[]) => unknown) | string;
   prependIcon?: IconProps;
   appendIcon?: IconProps;
 } & ButtonProps;

@@ -17,7 +17,7 @@ export type DropdownMenuItemProps = {
   value: string;
   icon?: IconProps["icon"];
   avatar?: Partial<AvatarProps>;
-  handler?: Function;
+  handler?: (...args: unknown[]) => unknown;
   disabled?: boolean;
   hidden?: boolean;
   class?: HTMLAttributes["class"];

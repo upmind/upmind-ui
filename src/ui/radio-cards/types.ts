@@ -8,7 +8,7 @@ import type { HTMLAttributes } from "vue";
 type _RadioCardsItemSizeVariants = VariantProps<typeof itemSizeVariants>;
 
 export type RadioCardsItemActionProps = LinkProps & {
-  handler?: Function | string;
+  handler?: ((...args: unknown[]) => unknown) | string;
   type?: HTMLButtonElement["type"];
   visible?: boolean;
 };

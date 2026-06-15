@@ -49,9 +49,9 @@ const props = withDefaults(defineProps<BannerProps>(), {
 
 defineSlots<{
   /** Override the default text content */
-  default(props: {}): any;
+  default(props: Record<string, unknown>): any;
   /** Override the action area */
-  action(props: {}): any;
+  action(props: Record<string, unknown>): any;
 }>();
 
 const emit = defineEmits<{

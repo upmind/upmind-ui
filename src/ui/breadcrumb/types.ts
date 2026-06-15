@@ -8,7 +8,7 @@ export type BreadcrumbItem = RouterLinkProps & {
   icon?: string;
   current?: boolean;
   value?: string | number;
-  handler?: Function;
+  handler?: (...args: unknown[]) => unknown;
   href?: string;
 };
 
