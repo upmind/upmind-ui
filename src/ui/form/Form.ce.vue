@@ -15,7 +15,7 @@
         :data="model"
         :enabled="!meta.isDisabled"
         :i18n="i18n"
-        :readonly="readonly"
+        :readonly="isReadonly"
         :renderers="renderers"
         :schema="schema"
         :uischema="uischema"
@@ -60,7 +60,8 @@ import {
   useStyles,
   isDeepEmpty,
   useValidation,
-  useDisabled
+  useDisabled,
+  useReadonly
 } from "../../utils";
 import { cn } from "../../utils";
 import {
@@ -144,6 +145,7 @@ const touched = useVModel(props, "touched", emits, {
 // ---
 
 const isDisabled = useDisabled(() => props.disabled || props.processing);
+const isReadonly = useReadonly(() => props.readonly);
 
 const meta = computed(() => {
   return {
