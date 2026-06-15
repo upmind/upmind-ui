@@ -58,13 +58,13 @@ const props = withDefaults(defineProps<AlertProps>(), {
 
 const slots = defineSlots<{
   /** Append additional content */
-  default(props: {}): any;
+  default(props: Record<string, unknown>): any;
   /** Provide a title */
-  title(props: {}): any;
+  title(props: Record<string, unknown>): any;
   /** Provide an action */
-  action(props: {}): any;
+  action(props: Record<string, unknown>): any;
   /** Provide a description */
-  description(props: {}): any;
+  description(props: Record<string, unknown>): any;
 }>();
 
 const emit = defineEmits<{

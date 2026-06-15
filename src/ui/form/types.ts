@@ -79,7 +79,7 @@ export type FormFooterProps = {
 };
 
 export type FormActionProps = ButtonProps & {
-  handler?: Function | string;
+  handler?: ((...args: unknown[]) => unknown) | string;
   needsValid?: boolean;
 };
 

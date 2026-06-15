@@ -39,7 +39,7 @@ export type KeyboardHandlers = {
 };
 
 export type SelectGroupedItemActionProps = LinkProps & {
-  handler?: Function;
+  handler?: (...args: unknown[]) => unknown;
   visible?: boolean;
 };
 

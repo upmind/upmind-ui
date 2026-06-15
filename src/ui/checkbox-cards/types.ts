@@ -10,7 +10,7 @@ type CheckboxLabelVariantProps = VariantProps<typeof checkboxLabelVariants>;
 type _CheckboxCardsItemVariants = typeof variants;
 
 export type CheckboxCardsItemActionProps = LinkProps & {
-  handler?: Function | string;
+  handler?: ((...args: unknown[]) => unknown) | string;
   type?: HTMLButtonElement["type"];
   visible?: boolean;
 };
