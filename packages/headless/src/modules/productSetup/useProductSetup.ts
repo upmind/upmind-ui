@@ -9,6 +9,7 @@ import {
   includes,
   isEmpty,
   map,
+  merge,
   reduce,
   reject,
   size,
@@ -170,10 +171,11 @@ export function useProductSetup() {
    *
    * ## Merge semantics
    *
-   * We use `defaultsDeep(compactDeep(existing), patch)` so existing values
-   * win over the patch — `compactDeep` strips nullish/empty fields from
-   * the existing config first, so the patch only fills holes rather than
-   * overwriting good data.
+   * The current product uses `merge` so the user's delta WINS — these are the
+   * fields that were invalid and must be overwritten (a non-empty invalid value
+   * like a domain in use would otherwise survive a `defaultsDeep` fill-holes
+   * merge and loop forever). Similar products keep `defaultsDeep` (existing
+   * wins) so the shared provisionFields only fill holes, never clobber good data.
    */
   function apply(model: Partial<ProductModel>): Promise<unknown> {
     const { basketId } = useBasket();
@@ -201,17 +203,22 @@ export function useProductSetup() {
           return acc;
         }
 
+        const isCurrent = bp.id === bpid.value;
+
         // Current product: apply the entire delta (term, options, attrs, etc.)
         // Similar products: only share provisionFields — never term/qty/subproducts
         // which are product-specific and could/would be overwritten.
-        const data =
-          bp.id === bpid.value
-            ? delta
-            : { provisionFields: get(delta, "provisionFields", {}) };
+        const data = isCurrent
+          ? delta
+          : { provisionFields: get(delta, "provisionFields", {}) };
 
+        // Current product: delta is the user's fix → it must win (merge), else a
+        // non-empty invalid value (e.g. domain in use) is never overwritten.
         acc.push({
           ...bp,
-          configuration: defaultsDeep(compactDeep(bp.configuration), data)
+          configuration: isCurrent
+            ? merge({}, compactDeep(bp.configuration), data)
+            : defaultsDeep(compactDeep(bp.configuration), data)
         });
 
         return acc;
