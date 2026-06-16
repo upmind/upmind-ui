@@ -40,6 +40,7 @@ export type ButtonProps = {
   uiConfig?: {
     button: { root: CxOptions; label: CxOptions; items: CxOptions };
   };
+  dataAttrs?: Record<`data-${string}`, string | number | boolean>;
   class?: HTMLAttributes["class"];
   contentClass?: HTMLAttributes["class"];
 } & (

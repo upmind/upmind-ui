@@ -6,6 +6,7 @@
     :tabindex="meta.isFocusable ? '0' : '-1'"
     :class="cn(styles.button.root, props.class)"
     :data-testid="`button-${kebabCase(label ?? 'default')}`"
+    v-bind="props.dataAttrs"
     @click="$emit('click', $event)"
   >
     <slot name="prepend">
