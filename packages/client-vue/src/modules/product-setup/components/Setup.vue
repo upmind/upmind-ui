@@ -9,8 +9,13 @@
           :product-meta="productMeta"
         >
           <Loading :active="setupMeta.isLoading" class="min-h-44">
+            <!-- Gate on hasSchema, NOT isLoading: a basket-processing tick
+              (e.g. registering a domain in the SmartDomainField drawer) flips
+              isLoading true and would unmount the form mid-flow, tearing down
+              the open drawer + its DAC machine before the choice is committed.
+              The Loading overlay + Form's :processing handle the in-flight UX. -->
             <Section
-              v-if="!setupMeta.isLoading"
+              v-if="setupMeta.hasSchema"
               :label="currentProductTitle"
               icon="settings-04"
             >
