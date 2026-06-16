@@ -704,7 +704,7 @@ export default createMachine(
       setExternalError: assign(
         (context: ProductConfigContext, { data }: AnyEventObject) => {
           const mapped = mapToHeadlessError(data);
-          const fieldErrors = mapped?.data ?? [];
+          const fieldErrors = isArray(mapped?.data) ? mapped.data : [];
           return {
             fieldErrors,
             // Generic slot fires only for a request-level error with no field detail.
