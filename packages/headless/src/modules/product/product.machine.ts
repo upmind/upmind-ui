@@ -44,7 +44,11 @@ import {
 } from "lodash-es";
 
 import { calculateActor } from "../../utils";
-import { buildPriceEntries, checkPriceOverride } from "./utils";
+import {
+  buildPriceEntries,
+  checkPriceOverride,
+  getOutstandingBasketErrors
+} from "./utils";
 
 // ---types
 import type { AnyEventObject } from "xstate";
@@ -272,6 +276,12 @@ export default createMachine(
             invoke: {
               src: "validate",
               onDone: [
+                {
+                  // Unresolved field error (e.g. domain in use) → stay invalid
+                  // so confirm can't proceed; button stays enabled, no BE call.
+                  target: "#invalid",
+                  cond: "hasOutstandingErrors"
+                },
                 {
                   target: "updating",
                   actions: ["update"],
@@ -770,6 +780,17 @@ export default createMachine(
       }: ProductConfigContext) => {
         return !rawBasketProduct || !isEqual(model, baseModel);
       },
+
+      // An outstanding field error (e.g. a domain already in use) keeps the
+      // product invalid so confirm can't proceed — without disabling the button.
+      hasOutstandingErrors: ({
+        model,
+        fieldErrors,
+        fieldErrorsModel
+      }: ProductConfigContext) =>
+        !isEmpty(
+          getOutstandingBasketErrors(fieldErrors, fieldErrorsModel, model)
+        ),
 
       continueEditing: ({ allowMultipleEdits }: ProductConfigContext) =>
         !!allowMultipleEdits,
