@@ -1,12 +1,11 @@
 <template>
   <component
     :is="component"
-    v-bind="isRouterLink ? { to } : { href }"
+    v-bind="componentProps"
     :aria-disabled="meta.isDisabled || undefined"
     :tabindex="meta.isFocusable ? '0' : '-1'"
     :class="cn(styles.link.root, props.class)"
-    :data-testid="`link-${kebabCase(label ?? 'default')}`"
-    v-bind="props.dataAttrs"
+    :data-testid="props.dataAttrs?.['data-testid'] ?? `link-${kebabCase(label ?? 'default')}`"
     @click="$emit('click', $event)"
   >
     <slot name="prepend">
@@ -74,6 +73,12 @@ const component = computed(() => {
 });
 
 const isRouterLink = computed(() => component.value === RouterLink);
+
+const componentProps = computed(() =>
+  isRouterLink.value
+    ? { to: props.to, ...props.dataAttrs }
+    : { href: props.href, ...props.dataAttrs }
+);
 
 const meta = computed(() => ({
   color: props.color,
