@@ -5,7 +5,10 @@
     :aria-disabled="meta.isDisabled || undefined"
     :tabindex="meta.isFocusable ? '0' : '-1'"
     :class="cn(styles.link.root, props.class)"
-    :data-testid="props.dataAttrs?.['data-testid'] ?? `link-${kebabCase(label ?? 'default')}`"
+    :data-testid="
+      props.dataAttrs?.['data-testid'] ??
+      `link-${kebabCase(label ?? 'default')}`
+    "
     @click="$emit('click', $event)"
   >
     <slot name="prepend">
