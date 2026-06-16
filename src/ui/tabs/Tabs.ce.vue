@@ -24,6 +24,7 @@
             :value="item.value"
             :class="[styles.tabs.trigger, 'cursor-pointer']"
             :data-testid="`tab-${kebabCase(item.label)}`"
+            v-bind="item.dataAttrs"
           >
             <Icon
               v-if="item.icon"

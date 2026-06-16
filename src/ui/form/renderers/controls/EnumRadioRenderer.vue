@@ -48,7 +48,8 @@ const items = computed(() => {
         label: option.label,
         secondaryLabel: option?.text,
         index,
-        modelValue: data
+        modelValue: data,
+        dataAttrs: { "data-testid": `radio-${option.value}` }
       };
     }
   );
