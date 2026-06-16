@@ -185,9 +185,15 @@ export default createMachine(
               validating: {
                 invoke: {
                   src: "validate",
-                  onDone: {
-                    target: "#valid"
-                  },
+                  onDone: [
+                    {
+                      // Outstanding field error (e.g. domain in use) → invalid at
+                      // rest, so confirm is blocked across config/edit/setup.
+                      target: "#invalid",
+                      cond: "hasOutstandingErrors"
+                    },
+                    { target: "#valid" }
+                  ],
                   onError: {
                     target: "#invalid",
                     actions: ["setError"]
