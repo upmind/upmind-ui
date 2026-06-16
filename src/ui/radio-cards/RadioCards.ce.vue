@@ -31,7 +31,10 @@
         :data-hover="props.dataHover"
         :data-focus="props.dataFocus"
         :dataAttrs="option.dataAttrs"
-        :data-testid="`radio-card-${kebabCase(option.label) || index}`"
+        :data-testid="
+          option.dataAttrs?.['data-testid'] ??
+          `radio-card-${option.id || option.value || index}`
+        "
         @keydown.enter="onChange(option.value)"
         @click="() => onChange(option.value)"
       >
@@ -55,7 +58,6 @@ import { RadioGroup } from "../radio-group";
 import RadioCardItem from "./RadioCardItem.vue";
 import config from "./radioCards.config";
 import { cn, useStyles } from "../../utils";
-import { kebabCase } from "lodash-es";
 // --- types
 import type { RadioCardsProps } from "./types";
 // -----------------------------------------------------------------------------

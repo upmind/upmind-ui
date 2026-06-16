@@ -22,7 +22,10 @@
           :value="selectedItem.value"
           :minimal="props.minimal"
           :dataAttrs="selectedItem.dataAttrs"
-          :data-testid="`radio-card-${kebabCase(props.label)}`"
+          :data-testid="
+            selectedItem.dataAttrs?.['data-testid'] ??
+            `radio-card-${selectedItem.id || selectedItem.value}`
+          "
           :uiConfig="selectedItemUiConfig"
         >
           <template #item="slotProps">
@@ -73,7 +76,10 @@
               ]"
               :minimal="props.minimal"
               :dataAttrs="option.dataAttrs"
-              data-testid="radio-card-item"
+              :data-testid="
+                option.dataAttrs?.['data-testid'] ??
+                `radio-card-${option.id || option.value}`
+              "
               :uiConfig="props.uiConfig"
               @keydown.enter="onSelectionChange(option.value)"
             >
@@ -102,7 +108,6 @@
 <script setup lang="ts">
 // --- external
 import { computed } from "vue";
-import { kebabCase } from "lodash-es";
 // --- internal
 // --- components
 import { Button } from "../button";

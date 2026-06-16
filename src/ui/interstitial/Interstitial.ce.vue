@@ -9,6 +9,7 @@
     no-header
     :dismissable="props.dismissable"
     no-footer
+    v-bind="props.dataAttrs"
     @update:open="onDialogClose"
   >
     <div :class="cn(styles.interstitial.root, props.class)">

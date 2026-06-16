@@ -7,9 +7,11 @@ export type DescriptionListProps = {
   // ---
   uiConfig?: { descriptionList: CxOptions };
   class?: HTMLAttributes["class"];
+  dataAttrs?: Record<`data-${string}`, string | number | boolean>;
 };
 
 export type DescriptionItem = {
   term: string;
   description: string;
+  dataAttrs?: Record<`data-${string}`, string | number | boolean>;
 };
