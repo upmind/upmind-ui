@@ -31,6 +31,7 @@
           v-for="item in results"
           :key="item.id"
           :class="styles.search.item"
+          v-bind="props.dataAttrs"
           @click="onSelect(item)"
         >
           {{ item.label }}
@@ -85,6 +86,7 @@ const props = withDefaults(
     minQueryLength?: number;
     icon?: string;
     additionalOption?: string;
+    dataAttrs?: Record<`data-${string}`, string | number | boolean>;
   }>(),
   {
     id: uniqueId("search-"),
