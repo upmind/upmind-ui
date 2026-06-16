@@ -47,7 +47,7 @@
               :class="styles.tabs.icon"
               size="2xs"
             />
-            <h4>{{ first(tabs)?.label }}</h4>
+            <h4 v-bind="first(tabs)?.dataAttrs">{{ first(tabs)?.label }}</h4>
           </div>
         </template>
 
