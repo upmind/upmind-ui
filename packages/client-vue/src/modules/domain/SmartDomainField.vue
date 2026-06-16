@@ -1,7 +1,7 @@
 <template>
   <!-- Summary mode -->
   <SmartDomainSummary
-    v-if="meta.showSummary && !editing"
+    v-if="meta.showSummary && !editing && !props.invalid"
     :domain="model ?? ''"
     :disabled="props.disabled"
     @change="onChangeClick"
