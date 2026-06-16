@@ -41,6 +41,7 @@
                   :uischema="uischema"
                   :model-value="model"
                   :additional-errors="additionalErrors"
+                  :touched="productMeta?.showErrors"
                   @update:modelValue="setConfig"
                   no-actions
                   as="fieldset"
