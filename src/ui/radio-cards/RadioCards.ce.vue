@@ -30,6 +30,7 @@
         :uiConfig="props.uiConfig"
         :data-hover="props.dataHover"
         :data-focus="props.dataFocus"
+        :dataAttrs="option.dataAttrs"
         :data-testid="`radio-card-${kebabCase(option.label) || index}`"
         @keydown.enter="onChange(option.value)"
         @click="() => onChange(option.value)"

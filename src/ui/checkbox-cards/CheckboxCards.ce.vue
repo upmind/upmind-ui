@@ -21,11 +21,12 @@
         :itemClass="styles.checkboxCards.item"
         :checked="includes(modelValue, item.value)"
         :data-testid="
-          item['data-testid'] ||
+          item.dataAttrs?.['data-testid'] ||
           `checkbox-item-${kebabCase(item.label) || kebabCase(item.name) || kebabCase(item.id)}`
         "
         :data-hover="props.dataHover"
         :data-focus="props.dataFocus"
+        v-bind="item.dataAttrs"
       >
         <Label
           :for="`${item.id}-${index}`"

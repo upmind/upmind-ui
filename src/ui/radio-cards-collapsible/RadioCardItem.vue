@@ -6,6 +6,7 @@
   >
     <div v-show="!props.minimal" :class="styles.radioCards.radio">
       <RadioGroupItem
+        v-bind="props.dataAttrs"
         :id="`${props.name}-${index}`"
         :value="value"
         :name="props.name"

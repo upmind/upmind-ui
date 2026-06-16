@@ -21,6 +21,7 @@
           :columns="props.columns"
           :value="selectedItem.value"
           :minimal="props.minimal"
+          :dataAttrs="selectedItem.dataAttrs"
           :data-testid="`radio-card-${kebabCase(props.label)}`"
           :uiConfig="selectedItemUiConfig"
         >
@@ -71,6 +72,7 @@
                 props.radioClass
               ]"
               :minimal="props.minimal"
+              :dataAttrs="option.dataAttrs"
               data-testid="radio-card-item"
               :uiConfig="props.uiConfig"
               @keydown.enter="onSelectionChange(option.value)"
