@@ -119,26 +119,24 @@ export const useProductConfig = (service: ActorRef<any>) => {
 
   const validationErrors = useContext<Product["errors"]>(state, "error.data");
 
-  // Request-level error from the basket (ResponseError shape) — the array
-  // shape (per-field validation) is surfaced separately via `additionalErrors`.
-  const externalErrors = computed<ResponseError | undefined>(() => {
-    const v = contextValue<ProductConfigContext["basketErrors"]>(
-      state,
-      "basketErrors"
-    );
-    return isArray(v) ? undefined : v;
-  });
+  // Request-level basket error with no field detail (drives the generic slot);
+  // per-field errors surface through `additionalErrors`.
+  const externalErrors = computed<ResponseError | undefined>(() =>
+    contextValue<ProductConfigContext["basketError"]>(state, "basketError")
+  );
 
-  // Reactively derived "still outstanding" errors — basketErrors filtered
-  // against the live model. As the user fills/changes fields, those errors
-  // drop off without us mutating the snapshot.
-  const additionalErrors = computed(() => {
-    return getOutstandingBasketErrors(
-      contextValue<ProductConfigContext["basketErrors"]>(state, "basketErrors"),
-      contextValue<ProductConfigContext["baseModel"]>(state, "baseModel"),
+  // Reactively derived "still outstanding" field errors — filtered against the
+  // live model. As the user edits the offending field, the error drops off.
+  const additionalErrors = computed(() =>
+    getOutstandingBasketErrors(
+      contextValue<ProductConfigContext["fieldErrors"]>(state, "fieldErrors"),
+      contextValue<ProductConfigContext["fieldErrorsModel"]>(
+        state,
+        "fieldErrorsModel"
+      ),
       model.value
-    );
-  });
+    )
+  );
 
   const shareUrl = computed(() => {
     const baseUrl = `${window.location.origin}/order/product/${productDetails.value?.id}`;

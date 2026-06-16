@@ -293,15 +293,11 @@ export function useProductSetup() {
   // Reads the live invalid schema/uischema off the config's service context
   // and stores the snapshots. Called at configure time AND whenever the
   // basket refreshes — e.g. after auth swaps the guest token, validation
-  // re-runs and produces a fresh basketErrors we want to capture.
+  // re-runs and produces fresh fieldErrors we want to capture.
   function captureSchemas(): void {
     const ctx = contextValue<ProductConfigContext>(
       currentConfig.value?.service
     )!;
-    const basketErrors = contextValue<ProductConfigContext["basketErrors"]>(
-      currentConfig.value?.service,
-      "basketErrors"
-    );
     schema.value = useInvalidProductConfigSchema(ctx);
     uischema.value = useInvalidProductConfigUischema(ctx);
   }
@@ -344,7 +340,7 @@ export function useProductSetup() {
       currentConfig.value = await configure(id, { allowMultipleEdits: true });
       bpid.value = id;
       // Wait for the BP service to settle in available.valid/invalid/error
-      // before capturing — otherwise ctx.basketErrors may be empty
+      // before capturing — otherwise ctx.fieldErrors may be empty
       // mid-validation and we'd capture an undefined schema, leaving
       // meta.isLoading stuck on `isEmpty(schema.value)`.
       await currentConfig.value.isReady();

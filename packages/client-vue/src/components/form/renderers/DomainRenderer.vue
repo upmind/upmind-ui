@@ -10,6 +10,7 @@
       :disabled="formFieldProps.disabled"
       :errors="formFieldProps.errors"
       :touched="formFieldProps.touched"
+      :invalid="!isEmpty(formFieldProps.errors)"
       @update:modelValue="onDomainInput"
     />
   </FormField>
@@ -49,7 +50,7 @@ const onDomainInput = (value: string | null, isTouched = true) => {
 
 <script lang="ts">
 import { uiTypeIs, and, optionIs, or, schemaMatches } from "@jsonforms/core";
-import { includes, trim } from "lodash-es";
+import { includes, isEmpty, trim } from "lodash-es";
 
 export const tester = {
   rank: 3,

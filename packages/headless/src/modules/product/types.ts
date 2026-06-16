@@ -949,8 +949,13 @@ export interface ProductConfigContext {
    * @todo Implement the new response errors types from the API.
    */
   error?: ResponseError | ErrorObject[];
-  /** External errors object. */
-  basketErrors?: ResponseError | ErrorObject[];
+  /** Per-field validation errors for this product (AJV-shaped, by instancePath). */
+  fieldErrors?: ErrorObject[];
+  /** Request-level basket error with no field detail — drives the generic error slot. */
+  basketError?: ResponseError;
+  /** Model snapshot from when `fieldErrors` was recorded — the baseline for
+   * deciding which field errors are still outstanding as the user edits. */
+  fieldErrorsModel?: ProductModel;
   /** Number of attempts made for an operation. */
   attempts?: number;
   // ---

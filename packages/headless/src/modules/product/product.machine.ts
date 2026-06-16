@@ -382,16 +382,22 @@ export default createMachine(
             promotions,
             coupons,
             subproducts,
-            basketErrors,
             error,
             silent,
             bundle
           }: ProductConfigContext,
           _event: AnyEventObject
         ) => {
+          const initialModel = !isEmpty(rawBasketProduct)
+            ? parseBasketProductModel(rawBasketProduct)
+            : model
+              ? parseModel(model)
+              : undefined;
+
           return {
-            basketErrors: get(basketErrors, rawBasketProduct?.id ?? ""),
             error: merge({}, error),
+            // Baseline for any seeded field errors (preserved from spawn input).
+            fieldErrorsModel: cloneDeep(initialModel),
 
             // ---
             basketId,
@@ -404,18 +410,8 @@ export default createMachine(
             bundle: bundle ?? undefined,
             readonly: hasNonOrderableSubproducts(rawBasketProduct),
             // ---
-            baseModel: !isEmpty(rawBasketProduct)
-              ? parseBasketProductModel(rawBasketProduct)
-              : model
-                ? parseModel(model)
-                : undefined,
-
-            model: !isEmpty(rawBasketProduct)
-              ? parseBasketProductModel(rawBasketProduct)
-              : model
-                ? parseModel(model)
-                : undefined,
-
+            baseModel: initialModel,
+            model: cloneDeep(initialModel),
             // ---
             calculateCallback: spawn(calculateActor())
           };
@@ -431,7 +427,7 @@ export default createMachine(
             currency_id,
             promotions,
             products,
-            error: basketErrors
+            error: rawFieldErrors
           } = data ?? {};
 
           // Basket refresh sends full basket, not individual products - find ours by ID
@@ -468,8 +464,10 @@ export default createMachine(
             readonly: hasNonOrderableSubproducts(basketProduct),
             baseModel: newBaseModel,
             model: newModel,
-            // Fresh basket errors for this product - keyed by product ID in the full basket errors object
-            basketErrors: get(basketErrors, basketProduct?.id ?? ""),
+            // Fresh per-product field errors, extracted from the keyed basket errors.
+            fieldErrors: get(rawFieldErrors, basketProduct?.id ?? "") ?? [],
+            fieldErrorsModel: cloneDeep(newBaseModel),
+            basketError: undefined,
             lookups
           };
 
@@ -555,8 +553,7 @@ export default createMachine(
       resetModel: assign({
         model: ({ baseModel }: ProductConfigContext, _event) =>
           cloneDeep(baseModel),
-        error: ({ error, basketErrors }, _event) =>
-          merge({}, error, basketErrors)
+        error: ({ error, basketError }, _event) => merge({}, error, basketError)
       }),
 
       // ---
@@ -688,12 +685,20 @@ export default createMachine(
       }),
       // ---
 
-      setExternalError: assign({
-        basketErrors: (
-          _context: ProductConfigContext,
-          { data }: AnyEventObject
-        ) => mapToHeadlessError(data) // NB we only need the exact errors from the api
-      }),
+      setExternalError: assign(
+        (context: ProductConfigContext, { data }: AnyEventObject) => {
+          const mapped = mapToHeadlessError(data);
+          const fieldErrors = mapped?.data ?? [];
+          return {
+            fieldErrors,
+            // Generic slot fires only for a request-level error with no field detail.
+            basketError: isEmpty(fieldErrors) ? mapped : undefined,
+            // Snapshot the rejected model so getOutstandingBasketErrors can tell
+            // when the user has since edited an offending field (e.g. the domain).
+            fieldErrorsModel: cloneDeep(context.model)
+          };
+        }
+      ),
 
       setError: assign({
         error: (_context: ProductConfigContext, { data }: AnyEventObject) =>
