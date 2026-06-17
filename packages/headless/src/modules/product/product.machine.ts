@@ -187,8 +187,8 @@ export default createMachine(
                   src: "validate",
                   onDone: [
                     {
-                      // unresolved field error → invalid at rest, so setup's
-                      // Continue stays blocked until it's fixed
+                      // finish validation in `invalid`, not `valid`: the setup
+                      // flow disables its Continue button while invalid
                       target: "#invalid",
                       // true while the offending field (e.g. the domain) still
                       // holds the value the BE rejected — i.e. not yet fixed
@@ -285,8 +285,8 @@ export default createMachine(
               src: "validate",
               onDone: [
                 {
-                  // unresolved field error → stay invalid so confirm can't
-                  // proceed; no button disabled, no BE round-trip
+                  // on confirm, route to `invalid` so the update never runs —
+                  // the confirm button stays enabled, it just can't proceed
                   target: "#invalid",
                   // true while the offending field (e.g. the domain) still
                   // holds the value the BE rejected — i.e. not yet fixed
@@ -715,11 +715,16 @@ export default createMachine(
           _context: ProductConfigContext,
           { data }: AnyEventObject
         ) => {
+          // normalise the thrown value / API error into a ResponseError
           const mapped = mapToHeadlessError(data);
+          // a 422's per-field errors arrive in `data` as an array
           const mappedData = mapped?.data;
-          let basketErrors: ProductConfigContext["basketErrors"] = mapped;
-          if (isArray(mappedData)) basketErrors = mappedData;
-          return basketErrors;
+          // will hold those per-field errors, if we got any
+          let fieldErrors: ProductConfigContext["basketErrors"];
+          // only an array is field errors — a thrown error puts a string here
+          if (isArray(mappedData)) fieldErrors = mappedData;
+          // store the per-field errors, else fall back to the request-level error
+          return fieldErrors ?? mapped;
         },
         // snapshot the values the BE just rejected, so getOutstandingBasketErrors
         // can tell when the user later edits the offending field (e.g. the domain)

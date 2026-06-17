@@ -210,16 +210,21 @@ export function useProductSetup() {
             ? delta
             : { provisionFields: get(delta, "provisionFields", {}) };
 
-        // Current product's values must win over the stale invalid config
-        // (merge); similar products only fill blank fields (defaultsDeep).
+        // the product's current config, with blank values removed so they
+        // can be filled in below
         const existing = compactDeep(bp.configuration);
+        // start from the current config; the branch below replaces it
         let configuration = bp.configuration;
+        // is this the product the user just fixed?
         if (bp.id === bpid.value) {
+          // yes — overwrite the old values with the user's new ones
           configuration = merge(existing, data);
         } else {
+          // no, a similar product — only fill in the fields it's missing
           configuration = defaultsDeep(existing, data);
         }
 
+        // add the product to the payload with its updated config
         acc.push({ ...bp, configuration });
 
         return acc;
