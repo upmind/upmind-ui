@@ -34,7 +34,7 @@
   "empty_msg": "Изглежда, че все още не сте добавили нищо в кошницата си.",
   "encrypted_and_secure_payments": "Криптирани и сигурни плащания",
   "nothing_to_pay_msg": "Чудесна новина – няма какво да се плаща!",
-  "order_converting": "**Конвертиране** на вашата поръчка",
+  "order_converting": "**Подаване** на поръчката ви",
   "order_converting_md": "@.markdown:{'cart.order_converting'}",
   "order_converting_msg": "В момента обработваме поръчката Ви. Това ще отнеме само миг.",
   "order_processing": "**Обработваме** вашата поръчка",

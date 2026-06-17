@@ -34,7 +34,7 @@
   "empty_msg": "Het lijkt erop dat u nog niets aan uw winkelmandje hebt toegevoegd.",
   "encrypted_and_secure_payments": "Versleutelde en veilige betalingen",
   "nothing_to_pay_msg": "Goed nieuws: u hoeft niets te betalen!",
-  "order_converting": "**Uw bestelling omzetten**",
+  "order_converting": "**Het plaatsen** van je bestelling",
   "order_converting_md": "@.markdown:{'cart.order_converting'}",
   "order_converting_msg": "We zijn bezig met het verwerken van uw bestelling. Dit duurt maar even.",
   "order_processing": "**Verwerking** van uw bestelling",

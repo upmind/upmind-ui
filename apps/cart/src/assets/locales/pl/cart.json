@@ -34,7 +34,7 @@
   "empty_msg": "Wygląda na to, że jeszcze nic nie dodałeś do koszyka.",
   "encrypted_and_secure_payments": "Szyfrowane i bezpieczne płatności",
   "nothing_to_pay_msg": "Świetna wiadomość – nie ma nic do zapłaty!",
-  "order_converting": "**Konwertowanie** Twojego zamówienia",
+  "order_converting": "**Składanie** zamówienia",
   "order_converting_md": "@.markdown:{'cart.order_converting'}",
   "order_converting_msg": "Realizujemy Twoje zamówienie. To powinno zająć tylko chwilę.",
   "order_processing": "**Przetwarzanie** Twojego zamówienia",

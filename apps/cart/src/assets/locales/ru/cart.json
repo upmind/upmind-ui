@@ -34,7 +34,7 @@
   "empty_msg": "Похоже, вы еще ничего не добавили в корзину.",
   "encrypted_and_secure_payments": "Зашифрованные и безопасные платежи",
   "nothing_to_pay_msg": "Отличные новости — платить не нужно!",
-  "order_converting": "**Конвертация** вашего заказа",
+  "order_converting": "**Оформление** заказа",
   "order_converting_md": "@.markdown:{'cart.order_converting'}",
   "order_converting_msg": "Мы оформляем ваш заказ. Это займет всего минуту.",
   "order_processing": "**Обработка** вашего заказа",

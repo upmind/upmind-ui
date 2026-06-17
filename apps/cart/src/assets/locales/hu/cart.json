@@ -34,7 +34,7 @@
   "empty_msg": "Úgy tűnik, még nem tettél semmit a kosaradba.",
   "encrypted_and_secure_payments": "Titkosított és biztonságos fizetések",
   "nothing_to_pay_msg": "Nagyszerű hír – nincs mit fizetni!",
-  "order_converting": "**A rendelésed konvertálása**",
+  "order_converting": "A megrendelés **leadása**",
   "order_converting_md": "@.markdown:{'cart.order_converting'}",
   "order_converting_msg": "Feldolgozzuk a megrendelését. Ez csak egy pillanatig tart.",
   "order_processing": "**Feldolgozás** a rendelésed",
