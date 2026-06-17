@@ -36,7 +36,7 @@
   "nothing_to_pay_msg": "好消息－無需支付任何費用！",
   "order_converting": "**正在轉換**您的訂單",
   "order_converting_md": "@.markdown：{'cart.order_converting'}",
-  "order_converting_msg": "我們正在轉換您的訂單。這只需要一點時間。",
+  "order_converting_msg": "我們正在處理您的訂單。這只需片刻時間。",
   "order_processing": "**正在處理**您的訂單",
   "order_processing_md": "@.markdown：{'cart.order_processing'}",
   "order_processing_msg": "我們正在處理您的訂單。這只需要一點時間。",

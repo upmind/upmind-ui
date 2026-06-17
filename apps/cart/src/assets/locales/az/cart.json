@@ -36,7 +36,7 @@
   "nothing_to_pay_msg": "Əla xəbər – ödəməli heç nə yoxdur!",
   "order_converting": "**Sifarişiniz** çevrilir",
   "order_converting_md": "@.markdown:{'cart.order_converting'}",
-  "order_converting_msg": "Sifarişinizi dəyişdiririk. Bu, yalnız bir an çəkməlidir.",
+  "order_converting_msg": "Sifarişinizi veririk. Bu, yalnız bir dəqiqə çəkəcək.",
   "order_processing": "**Sifarişiniz emal edilir**",
   "order_processing_md": "@.markdown:{'cart.order_processing'}",
   "order_processing_msg": "Sifarişinizi emal edirik. Bu, yalnız bir an çəkməlidir.",

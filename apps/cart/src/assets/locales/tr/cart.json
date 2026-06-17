@@ -36,7 +36,7 @@
   "nothing_to_pay_msg": "Harika haber: Ödenecek hiçbir şey yok!",
   "order_converting": "Siparişinizi **Dönüştürüyor**",
   "order_converting_md": "@.markdown:{'cart.order_converting'}",
-  "order_converting_msg": "Siparişinizi dönüştürüyoruz. Bu işlem yalnızca bir dakika sürecektir.",
+  "order_converting_msg": "Siparişinizi işleme alıyoruz. Bu işlem sadece bir dakika sürecektir.",
   "order_processing": "Siparişiniz **işleniyor**",
   "order_processing_md": "@.markdown:{'cart.order_processing'}",
   "order_processing_msg": "Siparişiniz işleniyor. Bu işlem yalnızca bir dakika sürecektir.",

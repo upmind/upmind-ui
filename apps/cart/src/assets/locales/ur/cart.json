@@ -36,7 +36,7 @@
   "nothing_to_pay_msg": "اچھی خبر - ادا کرنے کے لیے کچھ نہیں ہے!",
   "order_converting": "آپ کے آرڈر کو **تبدیل کرنا**",
   "order_converting_md": "@.markdown:{'cart.order_converting'}",
-  "order_converting_msg": "ہم آپ کے آرڈر کو تبدیل کر رہے ہیں۔ اس میں صرف ایک لمحہ لگنا چاہئے۔",
+  "order_converting_msg": "ہم آپ کا آرڈر دے رہے ہیں۔ اس میں صرف ایک لمحہ لگنا چاہیے۔",
   "order_processing": "**آپ کے آرڈر پر کارروائی ہو رہی ہے۔",
   "order_processing_md": "@.markdown:{'cart.order_processing'}",
   "order_processing_msg": "ہم آپ کے آرڈر پر کارروائی کر رہے ہیں۔ اس میں صرف ایک لمحہ لگنا چاہئے۔",

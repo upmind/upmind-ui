@@ -36,7 +36,7 @@
   "nothing_to_pay_msg": "Ótima notícia – não tem nada para pagar!",
   "order_converting": "A **converter** o seu pedido",
   "order_converting_md": "@.markdown:{'cart.order_converting'}",
-  "order_converting_msg": "Estamos a converter a sua encomenda. Isso deve demorar só um instante.",
+  "order_converting_msg": "Estamos a processar a sua encomenda. Isto não deve demorar mais do que um momento.",
   "order_processing": "A **processar** o seu pedido",
   "order_processing_md": "@.markdown:{'cart.order_processing'}",
   "order_processing_msg": "Estamos a processar a sua encomenda. Isso deve demorar só um instante.",

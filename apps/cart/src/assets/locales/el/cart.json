@@ -36,7 +36,7 @@
   "nothing_to_pay_msg": "Υπέροχα νέα – δεν υπάρχει τίποτα να πληρώσετε!",
   "order_converting": "**Μετατροπή** της παραγγελίας σας",
   "order_converting_md": "@.markdown:{'cart.order_converting'}",
-  "order_converting_msg": "Μετατρέπουμε την παραγγελία σας. Αυτό θα διαρκέσει μόνο λίγο.",
+  "order_converting_msg": "Επεξεργαζόμαστε την παραγγελία σας. Αυτό θα διαρκέσει μόνο ένα λεπτό.",
   "order_processing": "**Επεξεργασία** της παραγγελίας σας",
   "order_processing_md": "@.markdown:{'cart.order_processing'}",
   "order_processing_msg": "Επεξεργαζόμαστε την παραγγελία σας. Αυτό θα διαρκέσει μόνο λίγο.",

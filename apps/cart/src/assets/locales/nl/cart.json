@@ -36,7 +36,7 @@
   "nothing_to_pay_msg": "Goed nieuws: u hoeft niets te betalen!",
   "order_converting": "**Uw bestelling omzetten**",
   "order_converting_md": "@.markdown:{'cart.order_converting'}",
-  "order_converting_msg": "We zijn je bestelling aan het omzetten. Dit duurt slechts enkele ogenblikken.",
+  "order_converting_msg": "We zijn bezig met het verwerken van uw bestelling. Dit duurt maar even.",
   "order_processing": "**Verwerking** van uw bestelling",
   "order_processing_md": "@.markdown:{'cart.order_processing'}",
   "order_processing_msg": "We verwerken uw bestelling. Dit duurt slechts enkele ogenblikken.",
