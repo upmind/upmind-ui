@@ -135,7 +135,12 @@ export const useProductConfig = (service: ActorRef<any>) => {
   const additionalErrors = computed(() => {
     return getOutstandingBasketErrors(
       contextValue<ProductConfigContext["basketErrors"]>(state, "basketErrors"),
-      contextValue<ProductConfigContext["baseModel"]>(state, "baseModel"),
+      // compare against the rejected snapshot when we have one (handles a
+      // freshly-entered value); fall back to baseModel for seeded errors
+      contextValue<ProductConfigContext["rejectedModel"]>(
+        state,
+        "rejectedModel"
+      ) ?? contextValue<ProductConfigContext["baseModel"]>(state, "baseModel"),
       model.value
     );
   });
