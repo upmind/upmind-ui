@@ -21,11 +21,12 @@
           :columns="props.columns"
           :value="selectedItem.value"
           :minimal="props.minimal"
-          :dataAttrs="selectedItem.dataAttrs"
-          :data-testid="
-            selectedItem.dataAttrs?.['data-testid'] ??
-            `radio-card-${selectedItem.id || selectedItem.value}`
-          "
+          :dataAttrs="{
+            ...selectedItem.dataAttrs,
+            'data-testid':
+              selectedItem.dataAttrs?.['data-testid'] ??
+              `radio-card-${selectedItem.id || selectedItem.value}`
+          }"
           :uiConfig="selectedItemUiConfig"
         >
           <template #item="slotProps">
@@ -75,11 +76,12 @@
                 props.radioClass
               ]"
               :minimal="props.minimal"
-              :dataAttrs="option.dataAttrs"
-              :data-testid="
-                option.dataAttrs?.['data-testid'] ??
-                `radio-card-${option.id || option.value}`
-              "
+              :dataAttrs="{
+                ...option.dataAttrs,
+                'data-testid':
+                  option.dataAttrs?.['data-testid'] ??
+                  `radio-card-${option.id || option.value}`
+              }"
               :uiConfig="props.uiConfig"
               @keydown.enter="onSelectionChange(option.value)"
             >

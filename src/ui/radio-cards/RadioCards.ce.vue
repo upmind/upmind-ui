@@ -30,11 +30,12 @@
         :uiConfig="props.uiConfig"
         :data-hover="props.dataHover"
         :data-focus="props.dataFocus"
-        :dataAttrs="option.dataAttrs"
-        :data-testid="
-          option.dataAttrs?.['data-testid'] ??
-          `radio-card-${option.id || option.value || index}`
-        "
+        :dataAttrs="{
+          ...option.dataAttrs,
+          'data-testid':
+            option.dataAttrs?.['data-testid'] ??
+            `radio-card-${option.id || option.value || index}`
+        }"
         @keydown.enter="onChange(option.value)"
         @click="() => onChange(option.value)"
       >

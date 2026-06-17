@@ -1,12 +1,12 @@
 <template>
   <Label
+    v-bind="props.dataAttrs"
     :for="`${props.name}-${index}`"
     :class="styles.radioCards.item"
     :data-state="isSelected ? 'checked' : ''"
   >
     <div v-show="!props.minimal" :class="styles.radioCards.radio">
       <RadioGroupItem
-        v-bind="props.dataAttrs"
         :id="`${props.name}-${index}`"
         :value="value"
         :name="props.name"

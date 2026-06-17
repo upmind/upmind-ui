@@ -1,5 +1,6 @@
 <template>
   <Label
+    v-bind="props.dataAttrs"
     :for="`${props.name}-${index}`"
     :class="cn(styles.radioCards.item.root, styles.radioCards.item.size)"
     :data-state="isSelected ? 'checked' : ''"
@@ -9,7 +10,6 @@
   >
     <span :class="styles.radioCards.radio" @click.capture="onRadioClick">
       <RadioGroupItem
-        v-bind="props.dataAttrs"
         :id="`${props.name}-${index}`"
         :value="value"
         :name="props.name"
