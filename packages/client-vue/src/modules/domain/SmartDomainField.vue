@@ -1,7 +1,7 @@
 <template>
   <!-- Summary mode -->
   <SmartDomainSummary
-    v-if="meta.showSummary && !editing"
+    v-if="meta.showSummary && !editing && !props.errors?.length"
     :domain="model ?? ''"
     :disabled="props.disabled"
     @change="onChangeClick"
@@ -17,6 +17,7 @@
       <div
         :class="styles.field.container"
         :data-disabled="props.disabled || undefined"
+        :aria-invalid="showError || undefined"
       >
         <div :class="styles.field.content">
           <template v-for="choice in sortedChoices" :key="choice.value">
@@ -53,7 +54,7 @@
                 />
               </FormControl>
               <FormMessage
-                v-if="!!(props.touched && props.errors?.length)"
+                v-if="showError"
                 form-message-id="domain-register-error"
                 name="domain"
                 :errors="props.errors!"
@@ -97,7 +98,7 @@
                 @add-registration="addRegistration"
               />
               <FormMessage
-                v-if="!!(props.touched && props.errors?.length)"
+                v-if="showError"
                 form-message-id="domain-existing-error"
                 name="domain"
                 :errors="props.errors!"
@@ -118,7 +119,7 @@
                 @update:model-value="onBasketSelect"
               />
               <FormMessage
-                v-if="!!(props.touched && props.errors?.length)"
+                v-if="showError"
                 form-message-id="domain-basket-error"
                 name="domain"
                 :errors="props.errors!"
@@ -264,6 +265,11 @@ const sortedChoices = computed(() =>
     indexOf(SMART_DOMAIN_CHOICES_ORDER, c.value)
   )
 );
+
+// Show the field error only once touched. The form marks the field touched
+// (validationMode → ValidateAndShow) when there's an outstanding error or the
+// user submits — so a pristine required field stays quiet until then.
+const showError = computed(() => !!(props.touched && props.errors?.length));
 
 // --- Basket items for Select
 const basketItems = computed((): SelectItemProps[] =>

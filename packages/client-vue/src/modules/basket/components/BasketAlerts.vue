@@ -95,7 +95,7 @@ import {
 import config from "./basket-alerts.config";
 
 // --- utils
-import { isEmpty, sum } from "lodash-es";
+import { sum } from "lodash-es";
 
 // --- types
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
@@ -128,7 +128,9 @@ const {
 const { meta: fieldsMeta, errors: fieldsErrors } = useBasketFields();
 const { meta: billingMeta, errors: billingErrors } = useBasketBilling();
 const meta = computed(() => {
-  const hasBasketErrors = !isEmpty(errors.value);
+  // Real ResponseError (`.code`) only — parsed per-product field errors have no
+  // top-level message and would render a blank alert.
+  const hasBasketErrors = basketMeta.value.hasErrors;
 
   const hasBasketFields =
     props.basketFields && fieldsErrors.value?.data?.length;
