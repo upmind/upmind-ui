@@ -7,10 +7,9 @@ import {
   first,
   get,
   includes,
-  isArray,
   isEmpty,
   map,
-  mergeWith,
+  merge,
   reduce,
   reject,
   size,
@@ -172,13 +171,10 @@ export function useProductSetup() {
    *
    * ## Merge semantics
    *
-   * For the current product the user's new values must overwrite the old ones —
-   * these are the fields that were invalid. If existing values won
-   * (`defaultsDeep`), an invalid value like a domain already in use would stay
-   * put and the user could never move past it. We use `mergeWith` with an
-   * array-replace customizer so the user's new array replaces the old one
-   * rather than being combined item by item. Similar products keep
-   * `defaultsDeep` so shared provisionFields only fill blanks, never clobber.
+   * The current product's fields were the invalid ones, so the user's values
+   * must win — `merge` the patch over the existing config. Similar products
+   * keep `defaultsDeep(compactDeep(existing), patch)` so shared provision
+   * fields only fill holes and never overwrite their own good data.
    */
   function apply(model: Partial<ProductModel>): Promise<unknown> {
     const { basketId } = useBasket();
@@ -209,26 +205,22 @@ export function useProductSetup() {
         // Current product: apply the entire delta (term, options, attrs, etc.)
         // Similar products: only share provisionFields — never term/qty/subproducts
         // which are product-specific and could/would be overwritten.
-        const isCurrent = bp.id === bpid.value;
+        const data =
+          bp.id === bpid.value
+            ? delta
+            : { provisionFields: get(delta, "provisionFields", {}) };
 
-        const data = isCurrent
-          ? delta
-          : { provisionFields: get(delta, "provisionFields", {}) };
+        // Current product's values must win over the stale invalid config
+        // (merge); similar products only fill blank fields (defaultsDeep).
+        const existing = compactDeep(bp.configuration);
+        let configuration = bp.configuration;
+        if (bp.id === bpid.value) {
+          configuration = merge(existing, data);
+        } else {
+          configuration = defaultsDeep(existing, data);
+        }
 
-        acc.push({
-          ...bp,
-          // Current product: the user's new values overwrite the old invalid
-          // ones (the array-replace customizer stops a shorter new array
-          // leaving stale items behind). Similar products keep fill-holes.
-          configuration: isCurrent
-            ? mergeWith(
-                {},
-                compactDeep(bp.configuration),
-                data,
-                (_value, source) => (isArray(source) ? source : undefined)
-              )
-            : defaultsDeep(compactDeep(bp.configuration), data)
-        });
+        acc.push({ ...bp, configuration });
 
         return acc;
       },
