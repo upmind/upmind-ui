@@ -190,6 +190,8 @@ export default createMachine(
                       // unresolved field error → invalid at rest, so setup's
                       // Continue stays blocked until it's fixed
                       target: "#invalid",
+                      // true while the offending field (e.g. the domain) still
+                      // holds the value the BE rejected — i.e. not yet fixed
                       cond: "hasOutstandingErrors"
                     },
                     { target: "#valid" }
@@ -286,6 +288,8 @@ export default createMachine(
                   // unresolved field error → stay invalid so confirm can't
                   // proceed; no button disabled, no BE round-trip
                   target: "#invalid",
+                  // true while the offending field (e.g. the domain) still
+                  // holds the value the BE rejected — i.e. not yet fixed
                   cond: "hasOutstandingErrors"
                 },
                 {
@@ -717,9 +721,9 @@ export default createMachine(
           if (isArray(mappedData)) basketErrors = mappedData;
           return basketErrors;
         },
-        // snapshot the rejected model so getOutstandingBasketErrors can spot
-        // when the user later edits the offending field (e.g. the domain)
-        fieldErrorsModel: ({ model }: ProductConfigContext) => cloneDeep(model)
+        // snapshot the values the BE just rejected, so getOutstandingBasketErrors
+        // can tell when the user later edits the offending field (e.g. the domain)
+        rejectedModel: ({ model }: ProductConfigContext) => cloneDeep(model)
       }),
 
       setError: assign({
@@ -799,12 +803,14 @@ export default createMachine(
         model,
         baseModel,
         basketErrors,
-        fieldErrorsModel
+        rejectedModel
       }: ProductConfigContext) =>
         !isEmpty(
+          // compare the live model against the rejected snapshot (or the base
+          // model for seeded errors) to drop errors the user has since fixed
           getOutstandingBasketErrors(
             basketErrors,
-            fieldErrorsModel ?? baseModel,
+            rejectedModel ?? baseModel,
             model
           )
         ),

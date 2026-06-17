@@ -951,9 +951,13 @@ export interface ProductConfigContext {
   error?: ResponseError | ErrorObject[];
   /** External errors object. */
   basketErrors?: ResponseError | ErrorObject[];
-  /** Model snapshot from when `basketErrors` was recorded — the baseline for
-   * deciding which field errors are still outstanding as the user edits. */
-  fieldErrorsModel?: ProductModel;
+  /**
+   * Snapshot of the model when `basketErrors` was recorded — i.e. the values
+   * the BE rejected. Baseline for the "is this error still outstanding?" check:
+   * a field whose live value now differs has been edited since, so its error
+   * is treated as resolved.
+   */
+  rejectedModel?: ProductModel;
   /** Number of attempts made for an operation. */
   attempts?: number;
   // ---
