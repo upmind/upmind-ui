@@ -210,8 +210,8 @@ export function useProductSetup() {
             ? delta
             : { provisionFields: get(delta, "provisionFields", {}) };
 
-        // the product's current config, with blank values removed so they
-        // can be filled in below
+        // defaultsDeep only fills keys whose value is undefined — not "" or
+        // null — so strip those blanks, or similar products won't get them
         const existing = compactDeep(bp.configuration);
         // start from the current config; the branch below replaces it
         let configuration = bp.configuration;
