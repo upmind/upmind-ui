@@ -7,9 +7,10 @@ import {
   first,
   get,
   includes,
+  isArray,
   isEmpty,
   map,
-  merge,
+  mergeWith,
   reduce,
   reject,
   size,
@@ -171,11 +172,13 @@ export function useProductSetup() {
    *
    * ## Merge semantics
    *
-   * The current product uses `merge` so the user's delta WINS — these are the
-   * fields that were invalid and must be overwritten (a non-empty invalid value
-   * like a domain in use would otherwise survive a `defaultsDeep` fill-holes
-   * merge and loop forever). Similar products keep `defaultsDeep` (existing
-   * wins) so the shared provisionFields only fill holes, never clobber good data.
+   * For the current product the user's new values must overwrite the old ones —
+   * these are the fields that were invalid. If we let existing values win
+   * (`defaultsDeep`), an invalid value like a domain already in use would stay
+   * put and the user could never move past it. We use `mergeWith` (not `merge`)
+   * so that arrays are replaced by the user's new array rather than combined
+   * item by item. Similar products keep `defaultsDeep` so the shared
+   * provisionFields only fill in blank fields and never overwrite good data.
    */
   function apply(model: Partial<ProductModel>): Promise<unknown> {
     const { basketId } = useBasket();
@@ -212,12 +215,20 @@ export function useProductSetup() {
           ? delta
           : { provisionFields: get(delta, "provisionFields", {}) };
 
-        // Current product: delta is the user's fix → it must win (merge), else a
-        // non-empty invalid value (e.g. domain in use) is never overwritten.
+        // Current product: these are the fields the user just fixed, so their
+        // new values must overwrite the old (invalid) ones. We use mergeWith,
+        // not merge, because merge combines two arrays item by item — that can
+        // leave an old value behind (e.g. part of a domain the user changed).
+        // The customizer makes the user's new array replace the old one instead.
         acc.push({
           ...bp,
           configuration: isCurrent
-            ? merge({}, compactDeep(bp.configuration), data)
+            ? mergeWith(
+                {},
+                compactDeep(bp.configuration),
+                data,
+                (_value, source) => (isArray(source) ? source : undefined)
+              )
             : defaultsDeep(compactDeep(bp.configuration), data)
         });
 
