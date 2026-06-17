@@ -187,8 +187,8 @@ export default createMachine(
                   src: "validate",
                   onDone: [
                     {
-                      // Outstanding field error (e.g. domain in use) → invalid at
-                      // rest, so setup's Continue stays blocked until it's fixed.
+                      // unresolved field error → invalid at rest, so setup's
+                      // Continue stays blocked until it's fixed
                       target: "#invalid",
                       cond: "hasOutstandingErrors"
                     },
@@ -283,8 +283,8 @@ export default createMachine(
               src: "validate",
               onDone: [
                 {
-                  // Unresolved field error (e.g. domain in use) → stay invalid so
-                  // confirm can't proceed; no button disabled, no BE round-trip.
+                  // unresolved field error → stay invalid so confirm can't
+                  // proceed; no button disabled, no BE round-trip
                   target: "#invalid",
                   cond: "hasOutstandingErrors"
                 },
@@ -704,19 +704,23 @@ export default createMachine(
       }),
       // ---
 
-      setExternalError: assign(
-        (context: ProductConfigContext, { data }: AnyEventObject) => {
+      setExternalError: assign({
+        // field-level array → additionalErrors; anything else is a
+        // request-level error for the generic externalErrors slot
+        basketErrors: (
+          _context: ProductConfigContext,
+          { data }: AnyEventObject
+        ) => {
           const mapped = mapToHeadlessError(data);
-          return {
-            // Field-level array drives `additionalErrors`; otherwise a
-            // request-level error drives the generic `externalErrors` slot.
-            basketErrors: isArray(mapped?.data) ? mapped.data : mapped,
-            // Snapshot the rejected model so getOutstandingBasketErrors can tell
-            // when the user later edits the offending field (e.g. the domain).
-            fieldErrorsModel: cloneDeep(context.model)
-          };
-        }
-      ),
+          const mappedData = mapped?.data;
+          let basketErrors: ProductConfigContext["basketErrors"] = mapped;
+          if (isArray(mappedData)) basketErrors = mappedData;
+          return basketErrors;
+        },
+        // snapshot the rejected model so getOutstandingBasketErrors can spot
+        // when the user later edits the offending field (e.g. the domain)
+        fieldErrorsModel: ({ model }: ProductConfigContext) => cloneDeep(model)
+      }),
 
       setError: assign({
         error: (_context: ProductConfigContext, { data }: AnyEventObject) =>
@@ -789,8 +793,8 @@ export default createMachine(
         return !rawBasketProduct || !isEqual(model, baseModel);
       },
 
-      // An outstanding field error (e.g. a domain already in use) keeps the
-      // product invalid so confirm can't proceed — without disabling the button.
+      // an outstanding field error (e.g. a domain in use) keeps the product
+      // invalid so confirm can't proceed — without disabling the button
       hasOutstandingErrors: ({
         model,
         baseModel,
