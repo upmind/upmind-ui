@@ -213,8 +213,8 @@ export function useProductSetup() {
         // defaultsDeep only fills keys whose value is undefined — not "" or
         // null — so strip those blanks, or similar products won't get them
         const existing = compactDeep(bp.configuration);
-        // start from the current config; the branch below replaces it
-        let configuration = bp.configuration;
+
+        let configuration;
         // is this the product the user just fixed?
         if (bp.id === bpid.value) {
           // yes — overwrite the old values with the user's new ones
