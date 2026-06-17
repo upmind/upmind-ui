@@ -34,7 +34,7 @@
   "empty_msg": "看起來您還沒有添加任何東西到您的購物籃中。",
   "encrypted_and_secure_payments": "加密且安全的付款",
   "nothing_to_pay_msg": "好消息－無需支付任何費用！",
-  "order_converting": "**正在轉換**您的訂單",
+  "order_converting": "**下單**",
   "order_converting_md": "@.markdown：{'cart.order_converting'}",
   "order_converting_msg": "我們正在處理您的訂單。這只需片刻時間。",
   "order_processing": "**正在處理**您的訂單",

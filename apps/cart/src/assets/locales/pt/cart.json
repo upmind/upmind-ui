@@ -34,7 +34,7 @@
   "empty_msg": "Parece que ainda não colocou nada no seu carrinho.",
   "encrypted_and_secure_payments": "Pagamentos encriptados e seguros",
   "nothing_to_pay_msg": "Ótima notícia – não tem nada para pagar!",
-  "order_converting": "A **converter** o seu pedido",
+  "order_converting": "**Fazer** a sua encomenda",
   "order_converting_md": "@.markdown:{'cart.order_converting'}",
   "order_converting_msg": "Estamos a processar a sua encomenda. Isto não deve demorar mais do que um momento.",
   "order_processing": "A **processar** o seu pedido",

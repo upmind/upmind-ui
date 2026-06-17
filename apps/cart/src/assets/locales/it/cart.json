@@ -34,7 +34,7 @@
   "empty_msg": "Sembra che tu non abbia ancora aggiunto nulla al tuo carrello.",
   "encrypted_and_secure_payments": "Pagamenti crittografati e sicuri",
   "nothing_to_pay_msg": "Ottime notizie: non c'è nulla da pagare!",
-  "order_converting": "**Conversione** del tuo ordine",
+  "order_converting": "**Come effettuare** l'ordine",
   "order_converting_md": "@.markdown:{'cart.order_converting'}",
   "order_converting_msg": "Stiamo elaborando il tuo ordine. Ci vorrà solo un attimo.",
   "order_processing": "**Elaborazione** del tuo ordine",

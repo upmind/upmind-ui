@@ -34,7 +34,7 @@
   "empty_msg": "Схоже, ви ще нічого не додали до свого кошика.",
   "encrypted_and_secure_payments": "Зашифровані та безпечні платежі",
   "nothing_to_pay_msg": "Чудова новина – платити нема за що!",
-  "order_converting": "**Конвертація** вашого замовлення",
+  "order_converting": "**Оформлення** замовлення",
   "order_converting_md": "@.markdown:{'cart.order_converting'}",
   "order_converting_msg": "Ми обробляємо ваше замовлення. Це займе всього кілька хвилин.",
   "order_processing": "**Обробка** вашого замовлення",

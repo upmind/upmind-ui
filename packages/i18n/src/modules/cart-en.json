@@ -34,7 +34,7 @@
   "empty_msg": "Looks like you haven't added anything to your basket yet.",
   "encrypted_and_secure_payments": "Encrypted and secure payments",
   "nothing_to_pay_msg": "Great news – there's nothing to pay!",
-  "order_converting": "**Converting** your order",
+  "order_converting": "**Placing** your order",
   "order_converting_md": "@.markdown:{'cart.order_converting'}",
   "order_converting_msg": "We're placing your order. This should only take a moment.",
   "order_processing": "**Processing** your order",
