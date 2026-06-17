@@ -21,12 +21,11 @@
         :itemClass="styles.checkboxCards.item"
         :checked="includes(modelValue, item.value)"
         :data-testid="
-          item.dataAttrs?.['data-testid'] ||
-          `checkbox-item-${kebabCase(item.label) || kebabCase(item.name) || kebabCase(item.id)}`
+          item.dataAttrs?.['data-testid'] ??
+          `checkbox-item-${item.id || item.value || index}`
         "
         :data-hover="props.dataHover"
         :data-focus="props.dataFocus"
-        v-bind="item.dataAttrs"
       >
         <Label
           :for="`${item.id}-${index}`"
@@ -111,7 +110,7 @@ import config from "./checkboxCards.config";
 import { cn, useStyles } from "../../utils";
 // --- components
 // --- utils
-import { includes, isFunction, isString, isNil, kebabCase } from "lodash-es";
+import { includes, isFunction, isString, isNil } from "lodash-es";
 // --- types
 import type { CheckboxCardsItemActionProps, CheckboxCardsProps } from "./types";
 // -----------------------------------------------------------------------------
