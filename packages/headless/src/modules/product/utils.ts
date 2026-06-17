@@ -1753,9 +1753,9 @@ export function parseBillingCycle(months: number) {
  * how errors are matched.
  */
 export function hasScopeError(
-  fieldErrors: ProductConfigContext["fieldErrors"]
+  basketErrors: ProductConfigContext["basketErrors"]
 ): (scope: string) => boolean {
-  const errorPaths = new Set(map(fieldErrors, "instancePath"));
+  const errorPaths = new Set(map(basketErrors, "instancePath"));
 
   return (scope: string): boolean => {
     const instancePath = scope
@@ -1766,9 +1766,9 @@ export function hasScopeError(
 }
 
 /**
- * Filters fieldErrors down to those still outstanding given a live model.
+ * Filters basketErrors down to those still outstanding given a live model.
  *
- * fieldErrors is a snapshot from the BE — we never mutate it. As the user
+ * basketErrors is a snapshot from the BE — we never mutate it. As the user
  * edits fields the local `model` diverges from `baseModel`; an error is
  * considered "fixed" when its field's value has changed from base. This lets
  * the UI react to local edits without losing the source-of-truth snapshot.
@@ -1777,11 +1777,13 @@ export function hasScopeError(
  * meaningfully changed a field that went from undefined → null → "".
  */
 export function getOutstandingBasketErrors(
-  fieldErrors: ProductConfigContext["fieldErrors"],
+  basketErrors: ProductConfigContext["basketErrors"],
   baseModel: Partial<ProductModel> | undefined,
   model: Partial<ProductModel> | undefined
 ): ErrorObject[] {
-  return filter(fieldErrors, error => {
+  if (!isArray(basketErrors)) return [];
+
+  return filter(basketErrors, error => {
     const field = compact(split(trimStart(error.instancePath, "/"), "/"));
     const baseValue = get(baseModel, field);
     const newValue = get(model, field);

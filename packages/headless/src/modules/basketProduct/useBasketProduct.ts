@@ -67,7 +67,7 @@ export const useBasketProduct = (
       coupons: [],
       // ---
       rawBasketProduct,
-      fieldErrors: get(errors.value, rawBasketProduct?.id) ?? [],
+      basketErrors: errors.value,
       allowMultipleEdits: options?.allowMultipleEdits
     }),
     {

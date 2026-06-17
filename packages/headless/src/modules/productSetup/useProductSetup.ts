@@ -173,12 +173,12 @@ export function useProductSetup() {
    * ## Merge semantics
    *
    * For the current product the user's new values must overwrite the old ones —
-   * these are the fields that were invalid. If we let existing values win
+   * these are the fields that were invalid. If existing values won
    * (`defaultsDeep`), an invalid value like a domain already in use would stay
-   * put and the user could never move past it. We use `mergeWith` (not `merge`)
-   * so that arrays are replaced by the user's new array rather than combined
-   * item by item. Similar products keep `defaultsDeep` so the shared
-   * provisionFields only fill in blank fields and never overwrite good data.
+   * put and the user could never move past it. We use `mergeWith` with an
+   * array-replace customizer so the user's new array replaces the old one
+   * rather than being combined item by item. Similar products keep
+   * `defaultsDeep` so shared provisionFields only fill blanks, never clobber.
    */
   function apply(model: Partial<ProductModel>): Promise<unknown> {
     const { basketId } = useBasket();
@@ -206,22 +206,20 @@ export function useProductSetup() {
           return acc;
         }
 
-        const isCurrent = bp.id === bpid.value;
-
         // Current product: apply the entire delta (term, options, attrs, etc.)
         // Similar products: only share provisionFields — never term/qty/subproducts
         // which are product-specific and could/would be overwritten.
+        const isCurrent = bp.id === bpid.value;
+
         const data = isCurrent
           ? delta
           : { provisionFields: get(delta, "provisionFields", {}) };
 
-        // Current product: these are the fields the user just fixed, so their
-        // new values must overwrite the old (invalid) ones. We use mergeWith,
-        // not merge, because merge combines two arrays item by item — that can
-        // leave an old value behind (e.g. part of a domain the user changed).
-        // The customizer makes the user's new array replace the old one instead.
         acc.push({
           ...bp,
+          // Current product: the user's new values overwrite the old invalid
+          // ones (the array-replace customizer stops a shorter new array
+          // leaving stale items behind). Similar products keep fill-holes.
           configuration: isCurrent
             ? mergeWith(
                 {},
@@ -311,11 +309,15 @@ export function useProductSetup() {
   // Reads the live invalid schema/uischema off the config's service context
   // and stores the snapshots. Called at configure time AND whenever the
   // basket refreshes — e.g. after auth swaps the guest token, validation
-  // re-runs and produces fresh fieldErrors we want to capture.
+  // re-runs and produces a fresh basketErrors we want to capture.
   function captureSchemas(): void {
     const ctx = contextValue<ProductConfigContext>(
       currentConfig.value?.service
     )!;
+    const basketErrors = contextValue<ProductConfigContext["basketErrors"]>(
+      currentConfig.value?.service,
+      "basketErrors"
+    );
     schema.value = useInvalidProductConfigSchema(ctx);
     uischema.value = useInvalidProductConfigUischema(ctx);
   }
@@ -358,7 +360,7 @@ export function useProductSetup() {
       currentConfig.value = await configure(id, { allowMultipleEdits: true });
       bpid.value = id;
       // Wait for the BP service to settle in available.valid/invalid/error
-      // before capturing — otherwise ctx.fieldErrors may be empty
+      // before capturing — otherwise ctx.basketErrors may be empty
       // mid-validation and we'd capture an undefined schema, leaving
       // meta.isLoading stuck on `isEmpty(schema.value)`.
       await currentConfig.value.isReady();
