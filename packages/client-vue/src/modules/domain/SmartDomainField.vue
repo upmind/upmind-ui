@@ -17,6 +17,7 @@
       <div
         :class="styles.field.container"
         :data-disabled="props.disabled || undefined"
+        :aria-invalid="showError || undefined"
       >
         <div :class="styles.field.content">
           <template v-for="choice in sortedChoices" :key="choice.value">
@@ -265,10 +266,10 @@ const sortedChoices = computed(() =>
   )
 );
 
-// Show the field error once touched, or whenever invalid forces edit mode.
-const showError = computed(
-  () => !!((props.touched || props.invalid) && props.errors?.length)
-);
+// Show the field error only once touched. The form marks the field touched
+// (validationMode → ValidateAndShow) when there's an outstanding error or the
+// user submits — so a pristine required field stays quiet until then.
+const showError = computed(() => !!(props.touched && props.errors?.length));
 
 // --- Basket items for Select
 const basketItems = computed((): SelectItemProps[] =>
