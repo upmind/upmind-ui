@@ -717,14 +717,11 @@ export default createMachine(
         ) => {
           // normalise the thrown value / API error into a ResponseError
           const mapped = mapToHeadlessError(data);
-          // a 422's per-field errors arrive in `data` as an array
+          // a 422's per-field errors arrive in `data` as an array; anything
+          // else (e.g. a thrown error's string) is a request-level error
           const mappedData = mapped?.data;
-          // will hold those per-field errors, if we got any
-          let fieldErrors: ProductConfigContext["basketErrors"];
-          // only an array is field errors — a thrown error puts a string here
-          if (isArray(mappedData)) fieldErrors = mappedData;
-          // store the per-field errors, else fall back to the request-level error
-          return fieldErrors ?? mapped;
+          if (isArray(mappedData)) return mappedData;
+          return mapped;
         },
         // snapshot the values the BE just rejected, so getOutstandingBasketErrors
         // can tell when the user later edits the offending field (e.g. the domain)
