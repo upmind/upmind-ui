@@ -952,10 +952,13 @@ export interface ProductConfigContext {
   /** External errors object. */
   basketErrors?: ResponseError | ErrorObject[];
   /**
-   * Snapshot of the model when `basketErrors` was recorded — i.e. the values
-   * the BE rejected. Baseline for the "is this error still outstanding?" check:
-   * a field whose live value now differs has been edited since, so its error
-   * is treated as resolved.
+   * Snapshot of the model at the moment the BE rejected it. Used as the
+   * baseline in `getOutstandingBasketErrors` instead of `baseModel`, because
+   * `baseModel` holds the last *saved* value — which may be empty if the field
+   * was never previously submitted. An empty baseline makes every live value
+   * look "changed", so the error would be silently dropped before the user
+   * sees it. The rejected snapshot is always the value that triggered the
+   * error, so the comparison is accurate.
    */
   rejectedModel?: ProductModel;
   /** Number of attempts made for an operation. */
