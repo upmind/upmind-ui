@@ -5,7 +5,7 @@ export default {
   field: {
     root: cva("flex w-full flex-col gap-1"),
     container: cva(
-      "bg-control-surface border-control-default control-radius border py-1 data-[disabled]:pointer-events-none data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50"
+      "bg-control-surface border-control-default control-radius border py-1 outline outline-2 outline-offset-2 outline-transparent aria-invalid:outline-[var(--color-danger-ring)]! data-[disabled]:pointer-events-none data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50"
     ),
     content: cva("flex w-full flex-col items-start gap-1 px-4 py-3"),
     option: cva("flex w-fit cursor-pointer items-start gap-3"),
