@@ -36,7 +36,7 @@
   "nothing_to_pay_msg": "Чудесна новина – няма какво да се плаща!",
   "order_converting": "**Конвертиране** на вашата поръчка",
   "order_converting_md": "@.markdown:{'cart.order_converting'}",
-  "order_converting_msg": "Конвертираме поръчката ви. Това би трябвало да отнеме само малко време.",
+  "order_converting_msg": "В момента обработваме поръчката Ви. Това ще отнеме само миг.",
   "order_processing": "**Обработваме** вашата поръчка",
   "order_processing_md": "@.markdown:{'cart.order_processing'}",
   "order_processing_msg": "Обработваме поръчката ви. Това би трябвало да отнеме само малко време.",

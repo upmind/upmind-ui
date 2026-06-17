@@ -36,7 +36,7 @@
   "nothing_to_pay_msg": "Gode ​​nyheter – det er ingenting å betale!",
   "order_converting": "**Konverterer** bestillingen din",
   "order_converting_md": "@.markdown:{'cart.order_converting'}",
-  "order_converting_msg": "Vi konverterer bestillingen din. Dette tar bare et øyeblikk.",
+  "order_converting_msg": "Vi behandler bestillingen din. Dette tar bare et øyeblikk.",
   "order_processing": "**Behandler** bestillingen din",
   "order_processing_md": "@.markdown:{'cart.order_processing'}",
   "order_processing_msg": "Vi behandler bestillingen din. Dette bør bare ta et øyeblikk.",

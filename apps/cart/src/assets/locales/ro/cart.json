@@ -36,7 +36,7 @@
   "nothing_to_pay_msg": "Veste bună – nu este nimic de plătit!",
   "order_converting": "**Se transformă** comanda dvs.",
   "order_converting_md": "@.markdown:{'cart.order_converting'}",
-  "order_converting_msg": "Conversim comanda dvs. Ar trebui să dureze doar un moment.",
+  "order_converting_msg": "Vă procesăm comanda. Nu va dura decât o clipă.",
   "order_processing": "**Se procesează** comanda dvs.",
   "order_processing_md": "@.markdown:{'cart.order_processing'}",
   "order_processing_msg": "Procesăm comanda dumneavoastră. Ar trebui să dureze doar un moment.",

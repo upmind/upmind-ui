@@ -36,7 +36,7 @@
   "nothing_to_pay_msg": "Чудова новина – платити нема за що!",
   "order_converting": "**Конвертація** вашого замовлення",
   "order_converting_md": "@.markdown:{'cart.order_converting'}",
-  "order_converting_msg": "Ми конвертуємо ваше замовлення. Це займе лише хвилинку.",
+  "order_converting_msg": "Ми обробляємо ваше замовлення. Це займе всього кілька хвилин.",
   "order_processing": "**Обробка** вашого замовлення",
   "order_processing_md": "@.markdown:{'cart.order_processing'}",
   "order_processing_msg": "Ми обробляємо ваше замовлення. Це займе лише хвилинку.",
