@@ -137,7 +137,6 @@ export interface SmartDomainFieldProps {
   required?: boolean;
   errors?: string[];
   touched?: boolean;
-  invalid?: boolean;
 }
 
 export interface SmartDomainSummaryProps {
