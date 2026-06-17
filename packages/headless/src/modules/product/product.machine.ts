@@ -44,7 +44,11 @@ import {
 } from "lodash-es";
 
 import { calculateActor } from "../../utils";
-import { buildPriceEntries, checkPriceOverride } from "./utils";
+import {
+  buildPriceEntries,
+  checkPriceOverride,
+  getOutstandingBasketErrors
+} from "./utils";
 
 // ---types
 import type { AnyEventObject } from "xstate";
@@ -181,9 +185,17 @@ export default createMachine(
               validating: {
                 invoke: {
                   src: "validate",
-                  onDone: {
-                    target: "#valid"
-                  },
+                  onDone: [
+                    {
+                      // finish validation in `invalid`, not `valid`: the setup
+                      // flow disables its Continue button while invalid
+                      target: "#invalid",
+                      // true while the offending field (e.g. the domain) still
+                      // holds the value the BE rejected — i.e. not yet fixed
+                      cond: "hasOutstandingErrors"
+                    },
+                    { target: "#valid" }
+                  ],
                   onError: {
                     target: "#invalid",
                     actions: ["setError"]
@@ -272,6 +284,14 @@ export default createMachine(
             invoke: {
               src: "validate",
               onDone: [
+                {
+                  // on confirm, route to `invalid` so the update never runs —
+                  // the confirm button stays enabled, it just can't proceed
+                  target: "#invalid",
+                  // true while the offending field (e.g. the domain) still
+                  // holds the value the BE rejected — i.e. not yet fixed
+                  cond: "hasOutstandingErrors"
+                },
                 {
                   target: "updating",
                   actions: ["update"],
@@ -689,10 +709,23 @@ export default createMachine(
       // ---
 
       setExternalError: assign({
+        // field-level array → additionalErrors; anything else is a
+        // request-level error for the generic externalErrors slot
         basketErrors: (
           _context: ProductConfigContext,
           { data }: AnyEventObject
-        ) => mapToHeadlessError(data) // NB we only need the exact errors from the api
+        ) => {
+          // normalise the thrown value / API error into a ResponseError
+          const mapped = mapToHeadlessError(data);
+          // a 422's per-field errors arrive in `data` as an array; anything
+          // else (e.g. a thrown error's string) is a request-level error
+          const mappedData = mapped?.data;
+          if (isArray(mappedData)) return mappedData;
+          return mapped;
+        },
+        // snapshot the values the BE just rejected, so getOutstandingBasketErrors
+        // can tell when the user later edits the offending field (e.g. the domain)
+        rejectedModel: ({ model }: ProductConfigContext) => cloneDeep(model)
       }),
 
       setError: assign({
@@ -765,6 +798,24 @@ export default createMachine(
       }: ProductConfigContext) => {
         return !rawBasketProduct || !isEqual(model, baseModel);
       },
+
+      // an outstanding field error (e.g. a domain in use) keeps the product
+      // invalid so confirm can't proceed — without disabling the button
+      hasOutstandingErrors: ({
+        model,
+        baseModel,
+        basketErrors,
+        rejectedModel
+      }: ProductConfigContext) =>
+        !isEmpty(
+          // compare the live model against the rejected snapshot (or the base
+          // model for seeded errors) to drop errors the user has since fixed
+          getOutstandingBasketErrors(
+            basketErrors,
+            rejectedModel ?? baseModel,
+            model
+          )
+        ),
 
       continueEditing: ({ allowMultipleEdits }: ProductConfigContext) =>
         !!allowMultipleEdits,

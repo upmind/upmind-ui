@@ -8,7 +8,10 @@
     :title="t('error.product_not_valid', { errorCount })"
     :description="t('text.check_required_fields_desc')"
   >
-    <ol class="text-sm-tight w-full list-disc p-6 py-2 text-left">
+    <ol
+      v-if="errorCount"
+      class="text-sm-tight w-full list-disc p-6 py-2 text-left"
+    >
       <li
         v-for="error in props.errors"
         :key="toControlId(error)"

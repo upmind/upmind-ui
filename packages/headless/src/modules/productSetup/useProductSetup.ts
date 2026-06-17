@@ -9,6 +9,7 @@ import {
   includes,
   isEmpty,
   map,
+  merge,
   reduce,
   reject,
   size,
@@ -170,10 +171,10 @@ export function useProductSetup() {
    *
    * ## Merge semantics
    *
-   * We use `defaultsDeep(compactDeep(existing), patch)` so existing values
-   * win over the patch — `compactDeep` strips nullish/empty fields from
-   * the existing config first, so the patch only fills holes rather than
-   * overwriting good data.
+   * The current product's fields were the invalid ones, so the user's values
+   * must win — `merge` the patch over the existing config. Similar products
+   * keep `defaultsDeep(compactDeep(existing), patch)` so shared provision
+   * fields only fill holes and never overwrite their own good data.
    */
   function apply(model: Partial<ProductModel>): Promise<unknown> {
     const { basketId } = useBasket();
@@ -209,10 +210,22 @@ export function useProductSetup() {
             ? delta
             : { provisionFields: get(delta, "provisionFields", {}) };
 
-        acc.push({
-          ...bp,
-          configuration: defaultsDeep(compactDeep(bp.configuration), data)
-        });
+        // defaultsDeep only fills keys whose value is undefined — not "" or
+        // null — so strip those blanks, or similar products won't get them
+        const existing = compactDeep(bp.configuration);
+
+        let configuration;
+        // is this the product the user just fixed?
+        if (bp.id === bpid.value) {
+          // yes — overwrite the old values with the user's new ones
+          configuration = merge(existing, data);
+        } else {
+          // no, a similar product — only fill in the fields it's missing
+          configuration = defaultsDeep(existing, data);
+        }
+
+        // add the product to the payload with its updated config
+        acc.push({ ...bp, configuration });
 
         return acc;
       },
