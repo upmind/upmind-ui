@@ -445,7 +445,7 @@ export function useInvalidProductConfigUischema(
   const mode = ui.productSetup.value;
   const elements: any[] = [];
   const { t } = useI18n();
-  const hasError = hasScopeError(context.fieldErrors);
+  const hasError = hasScopeError(context.basketErrors);
 
   // --- trial opt-in
   if (
@@ -590,7 +590,7 @@ export function useInvalidProductConfigSchema(
   const properties: Record<string, any> = {};
   const required: string[] = [];
 
-  const hasError = hasScopeError(context.fieldErrors);
+  const hasError = hasScopeError(context.basketErrors);
 
   // --- term
   if (!isEmpty(context.lookups?.terms) && hasError("#/properties/term")) {

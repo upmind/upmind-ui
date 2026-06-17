@@ -188,7 +188,7 @@ export default createMachine(
                   onDone: [
                     {
                       // Outstanding field error (e.g. domain in use) → invalid at
-                      // rest, so confirm is blocked across config/edit/setup.
+                      // rest, so setup's Continue stays blocked until it's fixed.
                       target: "#invalid",
                       cond: "hasOutstandingErrors"
                     },
@@ -283,8 +283,8 @@ export default createMachine(
               src: "validate",
               onDone: [
                 {
-                  // Unresolved field error (e.g. domain in use) → stay invalid
-                  // so confirm can't proceed; button stays enabled, no BE call.
+                  // Unresolved field error (e.g. domain in use) → stay invalid so
+                  // confirm can't proceed; no button disabled, no BE round-trip.
                   target: "#invalid",
                   cond: "hasOutstandingErrors"
                 },
@@ -398,22 +398,16 @@ export default createMachine(
             promotions,
             coupons,
             subproducts,
+            basketErrors,
             error,
             silent,
             bundle
           }: ProductConfigContext,
           _event: AnyEventObject
         ) => {
-          const initialModel = !isEmpty(rawBasketProduct)
-            ? parseBasketProductModel(rawBasketProduct)
-            : model
-              ? parseModel(model)
-              : undefined;
-
           return {
+            basketErrors: get(basketErrors, rawBasketProduct?.id ?? ""),
             error: merge({}, error),
-            // Baseline for any seeded field errors (preserved from spawn input).
-            fieldErrorsModel: cloneDeep(initialModel),
 
             // ---
             basketId,
@@ -426,8 +420,18 @@ export default createMachine(
             bundle: bundle ?? undefined,
             readonly: hasNonOrderableSubproducts(rawBasketProduct),
             // ---
-            baseModel: initialModel,
-            model: cloneDeep(initialModel),
+            baseModel: !isEmpty(rawBasketProduct)
+              ? parseBasketProductModel(rawBasketProduct)
+              : model
+                ? parseModel(model)
+                : undefined,
+
+            model: !isEmpty(rawBasketProduct)
+              ? parseBasketProductModel(rawBasketProduct)
+              : model
+                ? parseModel(model)
+                : undefined,
+
             // ---
             calculateCallback: spawn(calculateActor())
           };
@@ -443,7 +447,7 @@ export default createMachine(
             currency_id,
             promotions,
             products,
-            error: rawFieldErrors
+            error: basketErrors
           } = data ?? {};
 
           // Basket refresh sends full basket, not individual products - find ours by ID
@@ -480,10 +484,8 @@ export default createMachine(
             readonly: hasNonOrderableSubproducts(basketProduct),
             baseModel: newBaseModel,
             model: newModel,
-            // Fresh per-product field errors, extracted from the keyed basket errors.
-            fieldErrors: get(rawFieldErrors, basketProduct?.id ?? "") ?? [],
-            fieldErrorsModel: cloneDeep(newBaseModel),
-            basketError: undefined,
+            // Fresh basket errors for this product - keyed by product ID in the full basket errors object
+            basketErrors: get(basketErrors, basketProduct?.id ?? ""),
             lookups
           };
 
@@ -569,7 +571,8 @@ export default createMachine(
       resetModel: assign({
         model: ({ baseModel }: ProductConfigContext, _event) =>
           cloneDeep(baseModel),
-        error: ({ error, basketError }, _event) => merge({}, error, basketError)
+        error: ({ error, basketErrors }, _event) =>
+          merge({}, error, basketErrors)
       }),
 
       // ---
@@ -704,13 +707,12 @@ export default createMachine(
       setExternalError: assign(
         (context: ProductConfigContext, { data }: AnyEventObject) => {
           const mapped = mapToHeadlessError(data);
-          const fieldErrors = isArray(mapped?.data) ? mapped.data : [];
           return {
-            fieldErrors,
-            // Generic slot fires only for a request-level error with no field detail.
-            basketError: isEmpty(fieldErrors) ? mapped : undefined,
+            // Field-level array drives `additionalErrors`; otherwise a
+            // request-level error drives the generic `externalErrors` slot.
+            basketErrors: isArray(mapped?.data) ? mapped.data : mapped,
             // Snapshot the rejected model so getOutstandingBasketErrors can tell
-            // when the user has since edited an offending field (e.g. the domain).
+            // when the user later edits the offending field (e.g. the domain).
             fieldErrorsModel: cloneDeep(context.model)
           };
         }
@@ -791,11 +793,16 @@ export default createMachine(
       // product invalid so confirm can't proceed — without disabling the button.
       hasOutstandingErrors: ({
         model,
-        fieldErrors,
+        baseModel,
+        basketErrors,
         fieldErrorsModel
       }: ProductConfigContext) =>
         !isEmpty(
-          getOutstandingBasketErrors(fieldErrors, fieldErrorsModel, model)
+          getOutstandingBasketErrors(
+            basketErrors,
+            fieldErrorsModel ?? baseModel,
+            model
+          )
         ),
 
       continueEditing: ({ allowMultipleEdits }: ProductConfigContext) =>
