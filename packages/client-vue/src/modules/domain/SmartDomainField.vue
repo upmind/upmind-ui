@@ -53,7 +53,7 @@
                 />
               </FormControl>
               <FormMessage
-                v-if="!!(props.touched && props.errors?.length)"
+                v-if="showError"
                 form-message-id="domain-register-error"
                 name="domain"
                 :errors="props.errors!"
@@ -97,7 +97,7 @@
                 @add-registration="addRegistration"
               />
               <FormMessage
-                v-if="!!(props.touched && props.errors?.length)"
+                v-if="showError"
                 form-message-id="domain-existing-error"
                 name="domain"
                 :errors="props.errors!"
@@ -118,7 +118,7 @@
                 @update:model-value="onBasketSelect"
               />
               <FormMessage
-                v-if="!!(props.touched && props.errors?.length)"
+                v-if="showError"
                 form-message-id="domain-basket-error"
                 name="domain"
                 :errors="props.errors!"
@@ -263,6 +263,11 @@ const sortedChoices = computed(() =>
   sortBy(choices.value, (c: DomainChoice) =>
     indexOf(SMART_DOMAIN_CHOICES_ORDER, c.value)
   )
+);
+
+// Show the field error once touched, or whenever invalid forces edit mode.
+const showError = computed(
+  () => !!((props.touched || props.invalid) && props.errors?.length)
 );
 
 // --- Basket items for Select
