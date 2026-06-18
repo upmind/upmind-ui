@@ -74,8 +74,6 @@ export {
   type ITheme,
   useDisabled,
   useReadonly,
-  provideDisabled,
-  provideReadonly,
-  DISABLED_KEY,
-  READONLY_KEY
+  setDisabled,
+  setReadonly
 } from "./utils";

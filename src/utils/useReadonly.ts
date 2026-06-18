@@ -1,50 +1,55 @@
 // --- external
-import { computed, inject, provide, toValue } from "vue";
-import type {
-  ComputedRef,
-  InjectionKey,
-  MaybeRef,
-  MaybeRefOrGetter
-} from "vue";
+import { computed, getCurrentScope, onScopeDispose, ref, toValue } from "vue";
+import type { ComputedRef, MaybeRefOrGetter } from "vue";
 
 // -----------------------------------------------------------------------------
-// --- key
+// --- singleton
 
 /**
- * Injection key for the readonly signal. Any ancestor `provide()` under this
- * key will be picked up by `useReadonly` descendants.
+ * Cascade sources contributed by ancestors. A module-level singleton rather than
+ * provide/inject, so it works outside component setup (stores, plain
+ * composables) and needs no ancestor.
  */
-export const READONLY_KEY: InjectionKey<MaybeRef<boolean>> =
-  Symbol("UPMIND.UI.READONLY");
+const sources = ref(new Set<MaybeRefOrGetter<boolean | undefined>>());
+
+/** True while any contributed cascade source is truthy. */
+const isCascading = computed(() =>
+  [...sources.value].some(source => Boolean(toValue(source)))
+);
 
 // -----------------------------------------------------------------------------
 // --- composable
 
 /**
  * Resolves the readonly state for an interactive component. ORs the local
- * source (e.g. a `readonly` prop) with any ancestor-provided value.
+ * source (e.g. a `readonly` prop) with the cascade singleton.
  *
  * @param source - local readonly source, e.g. `() => props.readonly`
  */
 export const useReadonly = (
   source?: MaybeRefOrGetter<boolean | undefined>
-): ComputedRef<boolean> => {
-  const provided = inject(READONLY_KEY, false);
-
-  /** Resolved readonly — true when local source OR any ancestor provides true. */
-  const isReadonly = computed(
-    () => Boolean(toValue(source)) || Boolean(toValue(provided))
-  );
-
-  return isReadonly;
-};
+): ComputedRef<boolean> =>
+  computed(() => Boolean(toValue(source)) || isCascading.value);
 
 // -----------------------------------------------------------------------------
-// --- provider
+// --- setter
 
 /**
- * Provides a readonly signal to descendants. Accepts a plain boolean or a ref.
+ * Registers a readonly cascade source for every `useReadonly` consumer to
+ * inherit. Returns a stop fn; auto-cleans on scope dispose when called inside a
+ * component/effect scope, so a contributor's value drops when it unmounts.
+ *
+ * @param source - cascade source
  */
-export const provideReadonly = (value: MaybeRef<boolean>): void => {
-  provide(READONLY_KEY, value);
+export const setReadonly = (
+  source: MaybeRefOrGetter<boolean | undefined>
+): (() => void) => {
+  sources.value.add(source);
+
+  const stop = () => {
+    sources.value.delete(source);
+  };
+
+  if (getCurrentScope()) onScopeDispose(stop);
+  return stop;
 };

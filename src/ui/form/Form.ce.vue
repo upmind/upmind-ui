@@ -156,7 +156,8 @@ const meta = computed(() => {
     isDirty: baseModel !== model.value,
     isTouched: touched.value,
     isValid: isEmpty(errors.value),
-    isDisabled: isDisabled.value
+    isDisabled: isDisabled.value,
+    isReadonly: isReadonly.value
   };
 });
 

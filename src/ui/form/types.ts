@@ -64,6 +64,7 @@ export type FormMeta = {
   isTouched: boolean;
   isValid: boolean;
   isDisabled: boolean;
+  isReadonly: boolean;
 };
 
 export type FormActionsProps = {
