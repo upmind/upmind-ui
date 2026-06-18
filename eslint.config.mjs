@@ -450,14 +450,14 @@ export default [
   // ---------------------------------------------------------------------------
   // 4. Runtime globals — node areas (build scripts, config files, agent scripts,
   //    test fixtures). Covers: scripts/**, .agent/scripts/**, *.config.*,
-  //    tests/__fixtures__/** — all are Node runtime environments.
+  //    tests/fixtures/** — all are Node runtime environments.
   // ---------------------------------------------------------------------------
   {
     files: [
       "scripts/**/*.{ts,tsx,mts,cts,js,cjs,mjs}",
       ".agent/scripts/**/*.{ts,tsx,mts,cts,js,cjs,mjs}",
       "**/*.config.{ts,mts,cts,js,cjs,mjs}",
-      "tests/__fixtures__/**/*.{mjs,js,ts}"
+      "tests/fixtures/**/*.{mjs,js,ts}"
     ],
     languageOptions: {
       globals: { ...globals.node }
