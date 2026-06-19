@@ -24,4 +24,6 @@ export type AlertProps = {
   // ---
   uiConfig?: { alert: CxOptions };
   class?: HTMLAttributes["class"];
+  /** Escape-hatch for setting `data-*` attributes on the root element. */
+  dataAttrs?: Record<`data-${string}`, string | number | boolean>;
 };

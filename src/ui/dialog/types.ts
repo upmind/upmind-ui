@@ -52,4 +52,11 @@ export type DialogProps = DialogRootProps &
     classHeader?: HTMLAttributes["class"];
     classContent?: HTMLAttributes["class"];
     classFooter?: HTMLAttributes["class"];
+    /**
+     * Overrides the data attributes on the dialog content element (the
+     * `dialog-window` testid host). A passed `data-testid` replaces the
+     * `dialog-window` fallback so consumers (e.g. Interstitial) can give the
+     * surfaced modal a distinguishing testid.
+     */
+    dataAttrs?: Record<`data-${string}`, string | number | boolean>;
   };

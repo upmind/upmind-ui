@@ -19,4 +19,5 @@ export type BadgeProps = {
   // --- styles
   uiConfig?: { badge: CxOptions };
   class?: HTMLAttributes["class"];
+  dataAttrs?: Record<`data-${string}`, string | number | boolean>;
 };
