@@ -18,13 +18,14 @@ const props = defineProps<
       dismissable?: boolean;
       class?: HTMLAttributes["class"];
       classOverlay?: HTMLAttributes["class"];
+      dataAttrs?: Record<`data-${string}`, string | number | boolean>;
     }
 >();
 
 const emits = defineEmits<DialogContentEmits>();
 
 const delegatedProps = computed(() => {
-  const { class: _, ...delegated } = props;
+  const { class: _, dataAttrs: __, ...delegated } = props;
   return delegated;
 });
 
@@ -52,7 +53,7 @@ providePortalTarget(useTemplateRef("content"));
           props.class
         )
       "
-      data-testid="dialog-window"
+      :data-testid="props.dataAttrs?.['data-testid'] ?? 'dialog-window'"
       @interactOutside="e => !props.dismissable && e.preventDefault()"
       @escapeKeyDown="e => !props.dismissable && e.preventDefault()"
     >

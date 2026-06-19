@@ -10,6 +10,7 @@ export type RadioCardsCollapsibleItemProps = RadioGroupItemProps & {
   item?: any;
   index: number;
   name?: string;
+  id?: string;
   label?: string;
   minimal?: boolean;
   sublabel?: string;
@@ -22,6 +23,10 @@ export type RadioCardsCollapsibleItemProps = RadioGroupItemProps & {
   /** Number of items per row (0-6). 0 = custom grid, 1 = full width. Example: columns={3} displays 3 items per row. */
   columns?: number;
   uiConfig?: { radioCards: CxOptions };
+  /** Explicit data-* attributes spread onto the rendered radio (e.g.
+   * `{ "data-testid": "gateway-stripe" }`). Overrides the implicit
+   * `radio-card-*` testid; the uniform escape hatch across card primitives. */
+  dataAttrs?: Record<`data-${string}`, string | number | boolean>;
 };
 
 export type RadioCardsCollapsibleProps = RadioGroupRootProps & {

@@ -6,6 +6,7 @@
 
     <DialogContent
       v-bind="forwardedContent"
+      :dataAttrs="props.dataAttrs"
       :class="cn(styles.dialog.content, props.class)"
       :classOverlay="styles.dialog.overlay"
       @update:open="onOpen"
