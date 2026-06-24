@@ -44,6 +44,7 @@ import type {
 import {
   GatewayContext,
   GatewayTypes,
+  InvoiceStatus,
   PaymentType
 } from "@upmind-automation/types";
 import type { ControlElement } from "@jsonforms/core";
@@ -124,6 +125,13 @@ export const usePaymentDetail = (
       actor,
       "requirePaymentForFreeOrders"
     );
+
+    // A basket is a draft invoice; any other status means a real, placed order.
+    const hasOrder =
+      contextValue<PaymentDetailsContext["orderStatus"]>(
+        actor,
+        "orderStatus"
+      ) !== InvoiceStatus.DRAFT;
 
     // =========================================================================
     // SECTION 2: Machine processing state (stateMatches / stateValue)
@@ -236,12 +244,15 @@ export const usePaymentDetail = (
       !(isFree && hasStoredPaymentMethods);
 
     // SHOW action buttons when no payment needed (free/wallet-covered),
-    // or when user has selected a gateway or stored method to proceed with.
+    // OR when user has selected a gateway,
+    // OR stored method to proceed with,
+    // HIDE for offline on an existing order — nothing to capture in-app.
     const showPaymentActions =
-      !needsPayment ||
-      hasSelectedGateway ||
-      hasSelectedPaymentMethod ||
-      (isRefreshing && hasStoredPaymentMethods);
+      (!needsPayment ||
+        hasSelectedGateway ||
+        hasSelectedPaymentMethod ||
+        (isRefreshing && hasStoredPaymentMethods)) &&
+      !(hasOrder && isPayOffline);
 
     // SHOW the whole payment section unless order is truly free (nothing to do).
     // Free + requirePaymentForFreeOrders → section shows for card capture.
