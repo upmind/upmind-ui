@@ -231,10 +231,11 @@ export function filterPaymentDetails(
 }
 
 /**
- * Filters gateways based on the payment type and order status.
- * If we are paying with account credit OR the order is not a draft (basket),
- * we CANNOT use offline or Bank Transfer gateways
- * as these gateways dont provide a payment method we can send to the backend.
+ * Filters gateways based on the payment type and order context.
+ * Offline / Bank Transfer gateways give no payment method we can capture, so we
+ * hide them when paying with account credit, or when there's no order/basket
+ * context (the ADD payment-method flow) — they stay available on a basket
+ * (draft) and on an existing order, rendering their instructions only.
  * @param brandGateways
  * @param model
  * @param orderStatus
@@ -251,7 +252,7 @@ export function filterGateways(
       // NB in ADD context, only show gateways that support storing payment methods
       if (options?.storeOnly && !gateway?.store_outside_payment) return false;
 
-      if (model?.wallet_amount || orderStatus !== InvoiceStatus.DRAFT) {
+      if (model?.wallet_amount || !orderStatus) {
         return !includes(
           [GatewayTypes.OFFLINE, GatewayTypes.BANK_TRANSFER],
           gateway?.gateway_provider?.type
@@ -391,6 +392,16 @@ export function isFullyCoveredByWallet(
   model?: Partial<PaymentDetailModel>
 ): boolean {
   return isEqual(model?.amount ?? 0, model?.wallet_amount ?? 0);
+}
+
+/**
+ * TRUE when the status is an actual order — a non-draft invoice. A basket is
+ * itself a draft invoice, and the ADD flow has no invoice at all.
+ */
+export function isOrder(
+  orderStatus?: PaymentDetailsContext["orderStatus"]
+): boolean {
+  return !!orderStatus && orderStatus !== InvoiceStatus.DRAFT;
 }
 
 /**
