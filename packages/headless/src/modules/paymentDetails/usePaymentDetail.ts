@@ -19,7 +19,7 @@ import {
   useContextActor
 } from "../../utils";
 import { useConfig } from "../config";
-import { usePaymentState, isPayable, hasAmount } from "./utils";
+import { usePaymentState, isPayable, hasAmount, isOrder } from "./utils";
 import {
   isEmpty,
   isEqual,
@@ -125,6 +125,11 @@ export const usePaymentDetail = (
       "requirePaymentForFreeOrders"
     );
 
+    const orderStatus = contextValue<PaymentDetailsContext["orderStatus"]>(
+      actor,
+      "orderStatus"
+    );
+
     // =========================================================================
     // SECTION 2: Machine processing state (stateMatches / stateValue)
     // =========================================================================
@@ -214,6 +219,10 @@ export const usePaymentDetail = (
         contextValue(gateway, "gateway.type")
       );
 
+    // Offline on a placed order is display-only — bank-transfer instructions,
+    // with no in-app payment to capture.
+    const isDisplayOnly = isOrder(orderStatus) && isPayOffline;
+
     // Settlement: PAY context with an existing paid amount (top-up / renewal).
     const isSettlement = isPayContext && contextMatches(actor, ["paidAmount"]);
 
@@ -236,10 +245,12 @@ export const usePaymentDetail = (
       !(isFree && hasStoredPaymentMethods);
 
     // SHOW action buttons when no payment needed (free/wallet-covered),
-    // or when user has selected a gateway or stored method to proceed with.
+    // OR a selected gateway — unless it's display-only (offline on a placed order),
+    // OR a selected stored method,
+    // OR refreshing with stored methods.
     const showPaymentActions =
       !needsPayment ||
-      hasSelectedGateway ||
+      (hasSelectedGateway && !isDisplayOnly) ||
       hasSelectedPaymentMethod ||
       (isRefreshing && hasStoredPaymentMethods);
 
