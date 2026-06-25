@@ -30,6 +30,7 @@ import {
   BrandConfigKeys,
   GatewayContext as GatewayCtx,
   GatewayTypes,
+  InvoiceStatus,
   type IBrandGateway,
   PaymentType,
   QUERY_PARAMS
@@ -391,6 +392,16 @@ export function isFullyCoveredByWallet(
   model?: Partial<PaymentDetailModel>
 ): boolean {
   return isEqual(model?.amount ?? 0, model?.wallet_amount ?? 0);
+}
+
+/**
+ * TRUE when the status is an actual order — a non-draft invoice. A basket is
+ * itself a draft invoice, and the ADD flow has no invoice at all.
+ */
+export function isOrder(
+  orderStatus?: PaymentDetailsContext["orderStatus"]
+): boolean {
+  return !!orderStatus && orderStatus !== InvoiceStatus.DRAFT;
 }
 
 /**
