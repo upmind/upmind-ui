@@ -29,6 +29,7 @@ export type LinkProps = {
   uiConfig?: {
     link: { root: CxOptions; label: CxOptions; items: CxOptions };
   };
+  dataAttrs?: Record<`data-${string}`, string | number | boolean>;
   class?: HTMLAttributes["class"];
   contentClass?: HTMLAttributes["class"];
 } & (

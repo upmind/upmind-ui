@@ -8,4 +8,5 @@ export type SonnerProps = ToasterProps & {
   // ---
   uiConfig?: { sonner: CxOptions };
   class?: HTMLAttributes["class"];
+  dataAttrs?: Record<`data-${string}`, string | number | boolean>;
 };

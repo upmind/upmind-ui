@@ -10,6 +10,7 @@ export type TabItem = {
   value: string;
   icon?: string;
   eager?: boolean;
+  dataAttrs?: Record<`data-${string}`, string | number | boolean>;
 };
 
 export type TabsProps = TabsRootProps &

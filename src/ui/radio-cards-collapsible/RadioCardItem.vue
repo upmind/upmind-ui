@@ -1,5 +1,6 @@
 <template>
   <Label
+    v-bind="props.dataAttrs"
     :for="`${props.name}-${index}`"
     :class="styles.radioCards.item"
     :data-state="isSelected ? 'checked' : ''"

@@ -56,6 +56,7 @@
                 :avatar="item.avatar"
                 :label="item.label"
                 :ring="false"
+                v-bind="item.dataAttrs"
               />
             </slot>
           </DropdownMenuItem>

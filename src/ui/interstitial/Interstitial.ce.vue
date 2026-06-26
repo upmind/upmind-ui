@@ -9,6 +9,7 @@
     no-header
     :dismissable="props.dismissable"
     no-footer
+    v-bind="rootDataAttrs"
     @update:open="onDialogClose"
   >
     <div :class="cn(styles.interstitial.root, props.class)">
@@ -91,6 +92,14 @@ const meta = computed(() => ({
   isOpen: props.open,
   isModal: props.modal
 }));
+
+// When modal the root is a Dialog: hand it `dataAttrs` so it can override the
+// content's `dialog-window` testid (a raw fallthrough would die on the
+// render-less DialogRoot). When inline the root is a plain `div`, so spread the
+// attrs straight onto it.
+const rootDataAttrs = computed(() =>
+  props.modal ? { dataAttrs: props.dataAttrs } : props.dataAttrs
+);
 
 const slots = useSlots();
 

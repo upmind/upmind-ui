@@ -23,6 +23,7 @@ export type ComboboxItemProps = {
   handler?: (...args: unknown[]) => unknown;
   class?: HTMLAttributes["class"];
   persist?: boolean;
+  dataAttrs?: Record<`data-${string}`, string | number | boolean>;
 };
 
 export type ComboboxSearchFunction = {
@@ -63,4 +64,6 @@ export type ComboboxProps = PopoverRootProps &
     dataHover?: boolean;
     dataFocus?: boolean;
     tabindex?: HTMLAttributes["tabindex"];
+    triggerDataAttrs?: Record<`data-${string}`, string | number | boolean>;
+    valueDataAttrs?: Record<`data-${string}`, string | number | boolean>;
   };

@@ -17,6 +17,7 @@ export type RadioCardsItemProps = RadioGroupItemProps & {
   item?: any;
   index: number;
   name?: string;
+  id?: string;
   // ---
   label?: string;
   secondaryLabel?: string;
@@ -38,6 +39,10 @@ export type RadioCardsItemProps = RadioGroupItemProps & {
   uiConfig?: { radioCards: CxOptions };
   dataHover?: boolean;
   dataFocus?: boolean;
+  /** Explicit data-* attributes spread onto the rendered radio (e.g.
+   * `{ "data-testid": "gateway-stripe" }`). Overrides the implicit
+   * `radio-card-*` testid; the uniform escape hatch across card primitives. */
+  dataAttrs?: Record<`data-${string}`, string | number | boolean>;
 };
 
 export type RadioCardsProps = RadioGroupRootProps & {

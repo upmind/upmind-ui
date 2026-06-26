@@ -20,6 +20,7 @@ export type DropdownMenuItemProps = {
   handler?: (...args: unknown[]) => unknown;
   disabled?: boolean;
   hidden?: boolean;
+  dataAttrs?: Record<`data-${string}`, string | number | boolean>;
   class?: HTMLAttributes["class"];
 };
 

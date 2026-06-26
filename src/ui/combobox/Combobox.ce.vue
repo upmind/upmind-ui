@@ -15,6 +15,7 @@
         :checked="open"
         :data-hover="dataHover"
         :data-focus="dataFocus && !skipFocus"
+        v-bind="props.triggerDataAttrs"
         ring
       >
         <template #prepend v-if="!isEmpty(modelValue) || searchValue">
@@ -39,7 +40,9 @@
         </template>
 
         <template #default v-if="!isEmpty(modelValue)">
-          <span :class="styles.combobox.label">{{ label }}</span>
+          <span :class="styles.combobox.label" v-bind="props.valueDataAttrs">{{
+            label
+          }}</span>
         </template>
 
         <template #default>
@@ -96,6 +99,7 @@
               @select="doSelect(get(item, itemValue))"
               :class="cn(styles.combobox.listItem, styles.combobox.item)"
               :data-selected="isSelected(item) ? 'true' : 'false'"
+              v-bind="item.dataAttrs"
             >
               <Avatar v-if="item.avatar" v-bind="item.avatar" size="xs" />
 

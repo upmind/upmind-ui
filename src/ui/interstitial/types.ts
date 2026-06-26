@@ -32,4 +32,5 @@ export type InterstitialProps = {
   // ---
   uiConfig?: { interstitial: CxOptions };
   class?: HTMLAttributes["class"];
+  dataAttrs?: Record<`data-${string}`, string | number | boolean>;
 };
