@@ -21,7 +21,12 @@
           :columns="props.columns"
           :value="selectedItem.value"
           :minimal="props.minimal"
-          :data-testid="`radio-card-${kebabCase(props.label)}`"
+          :dataAttrs="{
+            ...selectedItem.dataAttrs,
+            'data-testid':
+              selectedItem.dataAttrs?.['data-testid'] ??
+              `radio-card-${selectedItem.id || selectedItem.value}`
+          }"
           :uiConfig="selectedItemUiConfig"
         >
           <template #item="slotProps">
@@ -71,7 +76,12 @@
                 props.radioClass
               ]"
               :minimal="props.minimal"
-              data-testid="radio-card-item"
+              :dataAttrs="{
+                ...option.dataAttrs,
+                'data-testid':
+                  option.dataAttrs?.['data-testid'] ??
+                  `radio-card-${option.id || option.value}`
+              }"
               :uiConfig="props.uiConfig"
               @keydown.enter="onSelectionChange(option.value)"
             >
@@ -106,7 +116,6 @@ import { Skeleton } from "../skeleton";
 import RadioCardItem from "./RadioCardItem.vue";
 import config from "./radioCards.config";
 import { cn, useStyles } from "../../utils";
-import { kebabCase } from "lodash-es";
 import type { RadioCardsCollapsibleProps } from "./types";
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<RadioCardsCollapsibleProps>(), {

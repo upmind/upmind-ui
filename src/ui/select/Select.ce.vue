@@ -44,6 +44,8 @@
           v-for="item in items"
           :key="item.value"
           :value="item.const || item.value"
+          :id="item.id"
+          :dataAttrs="item.dataAttrs"
           :class="styles.select.item"
         >
           <template #indicator />

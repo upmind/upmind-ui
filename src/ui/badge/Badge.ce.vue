@@ -1,6 +1,6 @@
 <template>
   <!--<link rel="stylesheet" :href="stylesheet" />-->
-  <Badge :class="cn(styles.badge.root, props.class)">
+  <Badge v-bind="props.dataAttrs" :class="cn(styles.badge.root, props.class)">
     <slot name="prepend">
       <Icon v-if="icon" :icon="icon" size="nano" :class="styles.badge.icon" />
     </slot>

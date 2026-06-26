@@ -1,5 +1,8 @@
 <template>
-  <Alert :class="cn(styles.alert.root, props.class)">
+  <Alert
+    :class="cn(styles.alert.root, props.class)"
+    :data-attrs="props.dataAttrs"
+  >
     <Icon v-if="icon" :icon="icon" size="2xs" :class="styles.alert.icon" />
     <div :class="styles.alert.content">
       <AlertTitle :class="styles.alert.title">

@@ -19,6 +19,11 @@ export type SelectProps = Omit<SelectRootProps, "variant"> &
       label?: string;
       title?: string;
       const?: string;
+      id?: string;
+      /** Explicit data-* attributes spread onto the rendered option (e.g.
+       * `{ "data-testid": "currency-gbp" }`). Overrides the implicit
+       * `select-item-*` testid; the uniform escape hatch across primitives. */
+      dataAttrs?: Record<`data-${string}`, string | number | boolean>;
     } & SelectItemProps)[];
     additionalItems?: SelectItemAdditional[];
     // --- variants;

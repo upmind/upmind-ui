@@ -24,6 +24,7 @@
             :value="item.value"
             :class="[styles.tabs.trigger, 'cursor-pointer']"
             :data-testid="`tab-${kebabCase(item.label)}`"
+            v-bind="item.dataAttrs"
           >
             <Icon
               v-if="item.icon"
@@ -46,7 +47,7 @@
               :class="styles.tabs.icon"
               size="2xs"
             />
-            <h4>{{ first(tabs)?.label }}</h4>
+            <h4 v-bind="first(tabs)?.dataAttrs">{{ first(tabs)?.label }}</h4>
           </div>
         </template>
 
