@@ -1,15 +1,11 @@
 // --- external
-import type { Meta, StoryObj } from "@storybook/vue3";
 
 // -- components
 import {
   CheckboxCards,
   type CheckboxCardsItemProps
 } from "@upmind-automation/upmind-ui";
-
-// --- utils
-import { useSystemArgTypes } from "../../../utils";
-import { compact, uniq } from "lodash-es";
+import type { Meta, StoryObj } from "@storybook/vue3";
 // --- types
 
 // -----------------------------------------------------------------------------

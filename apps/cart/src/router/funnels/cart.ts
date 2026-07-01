@@ -1,9 +1,3 @@
-// --- internal
-import services from "./engine/services";
-import actions from "./engine/actions";
-import guards from "./engine/guards";
-
-// --- types
 import {
   type AnyEventObject,
   assign,
@@ -12,6 +6,9 @@ import {
   QUERY_PARAMS,
   useBasket
 } from "@upmind-automation/client-vue";
+import actions from "./engine/actions";
+import guards from "./engine/guards";
+import services from "./engine/services";
 import { ROUTE } from "./types";
 // Note: useBasket and QUERY_PARAMS are still used by the CHECKOUT NEXT handler.
 

@@ -1,14 +1,10 @@
 // --- external
-import type { Meta, StoryObj } from "@storybook/vue3";
 
 // -- components
 import { Sonner, toast, Button } from "@upmind-automation/upmind-ui";
-
-// --- utils
-import { useSystemArgTypes } from "../../utils";
-
-// --- types
 import { TOAST_VARIANTS } from "@upmind-automation/upmind-ui";
+import { useSystemArgTypes } from "../../utils";
+import type { Meta, StoryObj } from "@storybook/vue3";
 
 const meta: Meta<typeof Sonner> = {
   argTypes: {

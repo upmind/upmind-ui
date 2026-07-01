@@ -65,11 +65,9 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-
-// --- components
+import { OPTION_SELECTOR } from "@upmind-automation/headless";
 import {
   RadioCards,
   CheckboxCards,
@@ -77,21 +75,16 @@ import {
   SelectGrouped,
   useStyles
 } from "@upmind-automation/upmind-ui";
+import config from "../../product.config";
 import CardSubproduct from "./SubproductCard.vue";
 import SubproductCardPricing from "./SubproductCardPricing.vue";
 import SubproductImage from "./SubproductImage.vue";
-import config from "../../product.config";
-
-// --- utils
-import { find, map, get, isArray, first, groupBy, some, size } from "lodash-es";
-
-// --- types
+import { find, map, get, isArray, first, groupBy, some } from "lodash-es";
 import type {
   SubproductDetails,
   SubproductValue,
   UseMetaResult
 } from "@upmind-automation/headless";
-import { OPTION_SELECTOR } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 

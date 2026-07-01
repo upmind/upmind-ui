@@ -32,28 +32,21 @@
   </UpmLayout>
 </template>
 <script lang="ts" setup>
-// --- external
+import { useUrlSearchParams } from "@vueuse/core";
+import { useRouteQuery } from "@vueuse/router";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { useRouteQuery } from "@vueuse/router";
-import { useUrlSearchParams } from "@vueuse/core";
-
-// --- internal
-import {
-  ReceivedEmailsSortableProperties,
-  RequestSortDirection,
-  useSession
-} from "@upmind-automation/headless";
-
-// --- components
+import { useRoute } from "vue-router";
+import { useActiveSession } from "@upmind-automation/headless";
 import { UpmLayout } from "../layout";
 import { LAYOUT_VARIANTS } from "../layout/types";
 import { UpmSection, UpmSections } from "../section";
 import EmailHistoryListing from "./EmailHistoryListing.vue";
-
-// --- types
+import type {
+  ReceivedEmailsSortableProperties,
+  RequestSortDirection
+} from "@upmind-automation/headless";
 import type { TabItem } from "@upmind-automation/upmind-ui";
-import { useRoute } from "vue-router";
 
 const props = withDefaults(defineProps<{ routeViewName?: string }>(), {
   routeViewName: "account-email-history-view"
@@ -65,8 +58,8 @@ const props = withDefaults(defineProps<{ routeViewName?: string }>(), {
 
 const { t } = useI18n();
 const route = useRoute();
-const { isAuthenticated } = useSession();
-await isAuthenticated();
+const { isReady } = useActiveSession().useActions();
+await isReady();
 
 const layout = computed((): LAYOUT_VARIANTS => {
   return (route?.meta?.template as LAYOUT_VARIANTS) ?? LAYOUT_VARIANTS.FULL;

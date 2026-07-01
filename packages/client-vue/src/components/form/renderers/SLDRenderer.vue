@@ -16,24 +16,17 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
+import { isStringControl, formatIs, and } from "@jsonforms/core";
 import { useJsonFormsControl } from "@jsonforms/vue";
 import { computed } from "vue";
 import { useStyles } from "@upmind-automation/upmind-ui";
-
-// --- internal
-import config from "../form.config";
-
-// --- components
 import { FormField, Input } from "@upmind-automation/upmind-ui";
-
-// --- utils
 import { useUpmindUIRenderer } from "@upmind-automation/upmind-ui";
+import config from "../form.config";
 import { omit } from "lodash-es";
-
-// --- types
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
+// --- external
 
 // -----------------------------------------------------------------------------
 const props = defineProps<RendererProps<ControlElement>>();
@@ -53,7 +46,6 @@ const styles = useStyles(["form.sld.description"], {}, config);
 </script>
 
 <script lang="ts">
-import { isStringControl, formatIs, and } from "@jsonforms/core";
 export const tester = {
   rank: 3,
   controlType: and(isStringControl, formatIs("sld"))

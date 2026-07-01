@@ -45,10 +45,19 @@ export async function seedInvalidProduct(
   token: string,
   provisionFields: Record<string, unknown> = {
     sld: `${fakerEN_GB.string.alphanumeric({ length: 8 }).toLowerCase()}`
-  }
+  },
+  orderId?: string
 ): Promise<string> {
-  const order = (await getCurrentOrder(token)) ?? (await createOrder(token));
-  if (!order?.id) {
+  // When an explicit `orderId` is given, seed onto THAT order — never re-resolve
+  // the current order. Multi-product seeds add a second product to the first
+  // seed's order; under parallel matrix load getCurrentOrder can lag (read after
+  // write) and return null, so a re-resolve would createOrder a fresh empty
+  // order, split the products across two orders, and the funnel skips
+  // products-setup. Threading the id keeps both products on one order.
+  const resolvedId =
+    orderId ??
+    ((await getCurrentOrder(token)) ?? (await createOrder(token)))?.id;
+  if (!resolvedId) {
     throw new Error(
       `seedInvalidProduct: failed to obtain an order id from getCurrentOrder/createOrder ` +
         `(token prefix=${token?.slice(0, 8) ?? "<empty>"}...). ` +
@@ -57,7 +66,7 @@ export async function seedInvalidProduct(
   }
   await addProductToOrder(
     token,
-    order.id,
+    resolvedId,
     product.id,
     1,
     product.billingCycle,
@@ -68,7 +77,7 @@ export async function seedInvalidProduct(
     false,
     false
   );
-  return order.id;
+  return resolvedId;
 }
 
 export async function fillRegistrantDetails(
@@ -133,6 +142,12 @@ export async function selectRequiredMultiDefaults(
     });
     const choice = sorted[0];
     if (!choice) continue;
-    await page.getByRole("button", { name: choice.name }).first().click();
+    // CheckboxCards (required + multiple) tag each option with its stable
+    // `value="${opt.id}"`; target that, not the translated option name. The
+    // primitive's `checkbox-item-${kebabCase(label)}` fallback is locale-unstable.
+    await page
+      .locator(`[data-testid="checkbox-group"] [value="${choice.id}"]`)
+      .first()
+      .click();
   }
 }

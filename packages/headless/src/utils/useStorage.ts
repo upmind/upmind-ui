@@ -7,7 +7,7 @@ export function useSafeParse(value: any) {
 
   try {
     return JSON.parse(value);
-  } catch (e) {
+  } catch (_e) {
     return value;
   }
 }
@@ -33,6 +33,9 @@ export const useSessionStorage = () => {
     }
   };
 };
+
+/** @deprecated Use `useSessionStorage` instead. Alias kept for session-store compatibility (FE-2825). */
+export const useActiveSessionStorage = useSessionStorage;
 
 export const useLocalStorage = () => {
   return {

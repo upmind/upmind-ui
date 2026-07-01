@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "paths": {
+      "@upmind-automation/headless": ["../../packages/headless/src/index.ts"],
+      "@upmind-automation/test-fixtures": ["../fixtures/index.ts"],
+      "@upmind-automation/test-fixtures/*": ["../fixtures/*"]
+    }
+  },
+  "include": ["**/*.ts"],
+  "exclude": ["node_modules"]
+}

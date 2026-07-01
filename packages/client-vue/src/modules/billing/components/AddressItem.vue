@@ -1,5 +1,6 @@
 <template>
   <div
+    data-testid="address-card"
     class="flex w-full flex-col gap-1"
     :class="!props.readonly && 'cursor-pointer!'"
   >
@@ -33,13 +34,8 @@
 </template>
 
 <script setup lang="ts">
-// --- external
 import { useI18n } from "vue-i18n";
-
-// --- components
-import { Button, Badge, Link } from "@upmind-automation/upmind-ui";
-
-// --- types
+import { Badge, Link } from "@upmind-automation/upmind-ui";
 import type { Address } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------

@@ -20,20 +20,11 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { onMounted } from "vue";
-
-// --- internal
 import { useHeader } from "../../../components/header/useHeader";
 import { useFooter } from "../../../components/footer/useFooter";
-
-// --- components
 import Layout from "../../../components/layout/Layout.vue";
-
-// --- utils
 import { isMobile } from "@upmind-automation/upmind-ui";
-
-// --- types
 import { HEADER_BACKGROUND } from "../../../components/header/types";
 import { LAYOUT_VARIANTS } from "../../../components/layout/types";
 

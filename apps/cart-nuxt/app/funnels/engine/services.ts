@@ -1,4 +1,3 @@
-import { ROUTE } from "../types";
 import {
   type FunnelContext,
   useBasket,
@@ -9,13 +8,12 @@ import {
   useProductSetup,
   useProductRecommendations,
   useRecommendations,
-  useSession,
+  useActiveSession,
   useBasketFields,
   type AnyEventObject,
   type FunnelResponse,
   useBasketProducts,
   isDomainProduct,
-  getDomainBasketProducts,
   useBasketBilling,
   useClientAddresses,
   useClientCompanies,
@@ -33,9 +31,10 @@ import {
   SemanticTypes,
   UpmindModuleCodes
 } from "@upmind-automation/types";
+import { ROUTE } from "../types";
+import guards from "./guards";
 import { filter, first, includes, reduce } from "lodash-es";
 import type { RouteLocationGeneric } from "vue-router";
-import guards from "./guards";
 
 // -----------------------------------------------------------------------------
 
@@ -58,8 +57,10 @@ async function ensureBidAuth(
 
   if (!basketId || meta.value.isUnavailable) return undefined;
 
-  const { isAuthenticated } = useSession();
-  const authenticated = await isAuthenticated().catch(() => false);
+  const { isAuthenticated } = useActiveSession().useActions();
+  const authenticated = await isAuthenticated()
+    .then(() => true)
+    .catch(() => false);
 
   if (!authenticated) {
     const { router } = useRoutingEngine();
@@ -434,7 +435,7 @@ export default {
       };
     }
 
-    const session = useSession();
+    const session = useActiveSession();
 
     // Always await the profile load — do NOT short-circuit on
     // `meta.isAuthenticated`. That flag flips true as soon as we enter the
@@ -443,6 +444,7 @@ export default {
     // `client.value?.isGuest`) would see an empty client on refresh and return
     // false. `isAuthenticated()` waits for the client actor to be available.
     const isAuthed = await session
+      .useActions()
       .isAuthenticated()
       .then(() => true)
       .catch(() => false);
@@ -457,7 +459,7 @@ export default {
     // Rejecting here lets the SESSION_REGISTER state resolve and render the
     // page (Register.vue shows <GuestRegistration auto-show /> when isGuestClient).
     if (
-      session.meta.value.isGuestClient &&
+      session.useMeta().isGuestClient.value &&
       (currentRoute?.name === ROUTE.SESSION_REGISTER ||
         targetRoute?.name === ROUTE.SESSION_REGISTER)
     ) {
@@ -504,8 +506,13 @@ export default {
     currentRoute,
     targetRoute
   }: FunnelContext): Promise<FunnelResponse> => {
-    const { meta, isReady, setTargetBasket, targetBasketId } = useBasket();
-    const { isAuthenticated } = useSession();
+    const {
+      meta: _meta,
+      isReady,
+      setTargetBasket,
+      targetBasketId
+    } = useBasket();
+    const { isAuthenticated } = useActiveSession().useActions();
     const { router } = useRoutingEngine();
 
     const route: RouteLocationGeneric =
@@ -586,8 +593,9 @@ export default {
     }
 
     // Unverified clients must verify their email before checkout.
-    const { meta: sessionMeta } = useSession();
-    if (sessionMeta.value.isUnverified) {
+    const session = useActiveSession();
+    await session.useActions().isReady();
+    if (session.useMeta().isUnverified.value) {
       return Promise.reject({
         type: FunnelActions.OVERLAY,
         target: {
@@ -654,8 +662,8 @@ export default {
 
     // Skip billing when not authenticated — billing requires a client_id
     // to load. Checkout handles the auth redirect.
-    const { meta: authMeta } = useSession();
-    if (!authMeta.value.isAuthenticated) {
+    const { isAuthenticated } = useActiveSession().useMeta();
+    if (!isAuthenticated.value) {
       return {
         target: {
           name: ROUTE.SESSION,
@@ -698,12 +706,12 @@ export default {
   guardVerifyEmail: async ({
     targetRoute
   }: FunnelContext): Promise<FunnelResponse> => {
-    const session = useSession();
-    await session.isAuthenticated();
+    const session = useActiveSession();
+    await session.useActions().isAuthenticated();
 
     // Show the code form only for a logged-in unverified client; otherwise the
     // route is irrelevant — reject and let the funnel redirect away.
-    if (session.meta.value.isUnverified) {
+    if (session.useMeta().isUnverified.value) {
       return { target: targetRoute ?? { name: ROUTE.OVERLAY_VERIFY_EMAIL } };
     }
 

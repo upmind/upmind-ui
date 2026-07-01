@@ -1,4 +1,4 @@
-import { useSession } from "@upmind-automation/client-vue";
+import { useActiveSession } from "@upmind-automation/client-vue";
 
 // -----------------------------------------------------------------------------
 
@@ -11,7 +11,7 @@ import { useSession } from "@upmind-automation/client-vue";
 export default {
   // Force end the session by logging out the user
   logout: () => {
-    const { logout } = useSession();
+    const { logout } = useActiveSession().useActions();
     logout();
   }
 };

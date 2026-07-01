@@ -2,6 +2,7 @@ import { test, expect, Page } from "@playwright/test";
 import { Logins } from "../../support/constants/logins";
 import { ProductConfig } from "../../support/page-objects/templates/product-config";
 import { Checkout } from "../../support/page-objects/templates/checkout";
+import { gateways } from "../../support/constants/gateways";
 import { Basket } from "../../support/page-objects/templates/basket";
 import { URLs } from "../../support/constants/urls";
 import { getClientToken } from "../../support/api/auth";
@@ -45,9 +46,11 @@ test.describe("Hosting customers", async () => {
       );
       await addProductToBasket();
       await basket.proceedToCheckout.click();
-      await checkout.selectPaymentMethod("Direct Bank Transfer");
+      await checkout.selectGatewayByType(gateways.BANK_TRANSFER);
       await checkout.clickCompleteCheckout();
-      await expect(page.getByText("Order confirmed")).toBeVisible();
+      await expect(
+        page.getByTestId("order-confirmation-heading")
+      ).toBeVisible();
     });
     test("Logged in customer adds in-situ from catalogue", async ({ page }) => {
       // HAT is non-configurable, so with funnelling=none it adds in-situ from
@@ -70,27 +73,35 @@ test.describe("Hosting customers", async () => {
       // (The catalogue product is named "Hat"; the constant name is annotated.)
       await page.getByTestId("input-product-search").fill("Hat");
       const cta = page
-        .getByTestId(`product-card-${id}`)
+        .getByTestId("product-card")
+        .and(page.locator(`[data-test-value="${id}"]`))
         .getByTestId("product-card-cta");
       await expect(cta).toBeVisible();
       await clickAndAwaitBasketAdd(page, cta);
       await page.goto(URLs.basket);
       await basket.proceedToCheckout.click();
-      await checkout.selectPaymentMethod("Direct Bank Transfer");
+      await checkout.selectGatewayByType(gateways.BANK_TRANSFER);
       await checkout.clickCompleteCheckout();
-      await expect(page.getByText("Order confirmed")).toBeVisible();
+      await expect(
+        page.getByTestId("order-confirmation-heading")
+      ).toBeVisible();
     });
     test("Log in at checkout", async ({ page }) => {
       await addProductToBasket();
       await basket.proceedToCheckout.click();
-      await page.getByText("Log in here").click();
+      // session/Register.vue now tags the register→login switch link with the
+      // static `checkout-login-link` testid (locale-safe; replaces the
+      // English-only label-derived id, P9).
+      await page.getByTestId("checkout-login-link").click();
       await login.inputLogin(
         Logins.hosting2.username,
         Logins.hosting2.password
       );
-      await checkout.selectPaymentMethod("Direct Bank Transfer");
+      await checkout.selectGatewayByType(gateways.BANK_TRANSFER);
       await checkout.clickCompleteCheckout();
-      await expect(page.getByText("Order confirmed")).toBeVisible();
+      await expect(
+        page.getByTestId("order-confirmation-heading")
+      ).toBeVisible();
     });
   });
   test.describe("New Customer", () => {
@@ -98,9 +109,11 @@ test.describe("Hosting customers", async () => {
       await addProductToBasket();
       await basket.proceedToCheckout.click();
       await registration.inputRegistration();
-      await checkout.selectPaymentMethod("Direct Bank Transfer");
+      await checkout.selectGatewayByType(gateways.BANK_TRANSFER);
       await checkout.clickCompleteCheckout();
-      await expect(page.getByText("Order confirmed")).toBeVisible();
+      await expect(
+        page.getByTestId("order-confirmation-heading")
+      ).toBeVisible();
     });
   });
 });

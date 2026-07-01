@@ -4,7 +4,7 @@
  * @description Tracks shell component configuration state during navigation.
  */
 
-import { type Shell } from "./types";
+import type { Shell } from "./types";
 
 // -----------------------------------------------------------------------------
 

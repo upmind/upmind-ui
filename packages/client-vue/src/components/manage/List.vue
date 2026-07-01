@@ -37,6 +37,7 @@
         <footer class="mt-1 flex space-x-2">
           <Link
             v-if="!open && parsedValues.length > 1"
+            data-testid="link-change"
             :label="t('action.change')"
             size="sm"
             color="muted"
@@ -45,6 +46,7 @@
 
           <Link
             v-else-if="!readonly"
+            data-testid="link-add-new"
             :label="t('action.add_new')"
             size="sm"
             color="muted"
@@ -67,27 +69,13 @@
 </template>
 
 <script setup lang="ts">
-// --- external
 import { computed, type HtmlHTMLAttributes } from "vue";
 import { useI18n } from "vue-i18n";
-import { useVModel } from "@vueuse/core";
-
-// --- internal
-
-// --- components
-import {
-  RadioCardsCollapsible,
-  Button,
-  Link
-} from "@upmind-automation/upmind-ui";
+import { RadioCardsCollapsible, Link } from "@upmind-automation/upmind-ui";
 import Item from "./Item.vue";
-
-// --- utils
 import { find, map } from "lodash-es";
-
-// --- types
-import type { RadioCardsItemProps } from "@upmind-automation/upmind-ui";
 import type { ManageRendererProps } from "./types";
+import type { RadioCardsItemProps } from "@upmind-automation/upmind-ui";
 
 // -----------------------------------------------------------------------------
 
@@ -112,7 +100,7 @@ const emits = defineEmits<{
 
 const { t } = useI18n();
 // -----------------------------------------------------------------------------
-const { data, meta, default: defaultItem, isReady } = props.useList();
+const { data, meta, default: _defaultItem, isReady } = props.useList();
 
 await isReady();
 

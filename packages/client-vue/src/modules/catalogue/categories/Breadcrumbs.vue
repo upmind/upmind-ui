@@ -3,22 +3,13 @@
 </template>
 
 <script setup lang="ts">
-// --- external
 import { inject } from "vue";
-
-// --- internal
-import {
-  BreadcrumbVariant,
-  type UseProductCategories
-} from "@upmind-automation/headless";
-import { useBreadcrumbs } from "../../../composables/useBreadcrumbs";
 import { useConfig } from "@upmind-automation/headless";
-
-// --- components
 import { Breadcrumb } from "@upmind-automation/upmind-ui";
-
-// --- types
+import { useBreadcrumbs } from "../../../composables/useBreadcrumbs";
 import type { CategoriesProps } from "./types";
+import type { UseProductCategories } from "@upmind-automation/headless";
+import type { BreadcrumbVariant } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 const props = defineProps<Omit<CategoriesProps, "modelValue">>();

@@ -16,20 +16,16 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
+import { uiTypeIs, and, optionIs, or, schemaMatches } from "@jsonforms/core";
 import { useJsonFormsControl } from "@jsonforms/vue";
 import { useI18n } from "vue-i18n";
-
-// --- components
 import { FormField } from "@upmind-automation/upmind-ui";
-import SmartDomainField from "../../../modules/domain/SmartDomainField.vue";
-
-// --- utils
 import { useUpmindUIRenderer } from "@upmind-automation/upmind-ui";
-
-// --- types
+import SmartDomainField from "../../../modules/domain/SmartDomainField.vue";
+import { includes, trim } from "lodash-es";
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
+// --- external
 
 // -----------------------------------------------------------------------------
 const props = defineProps<RendererProps<ControlElement>>();
@@ -48,9 +44,6 @@ const onDomainInput = (value: string | null, isTouched = true) => {
 </script>
 
 <script lang="ts">
-import { uiTypeIs, and, optionIs, or, schemaMatches } from "@jsonforms/core";
-import { includes, trim } from "lodash-es";
-
 export const tester = {
   rank: 3,
   controlType: and(

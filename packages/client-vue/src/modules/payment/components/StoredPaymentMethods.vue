@@ -26,19 +26,12 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-
-// --- internal
-import config from "../payment.config";
 import { useStyles } from "@upmind-automation/upmind-ui";
-
-// --- components
 import { Alert } from "@upmind-automation/upmind-ui";
 import Form from "../../../components/form/Form.vue";
-
-// --- types
+import config from "../payment.config";
 import type { StoredPaymentMethodProps } from "../types";
 
 // -----------------------------------------------------------------------------

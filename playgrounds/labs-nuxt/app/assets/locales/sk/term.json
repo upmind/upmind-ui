@@ -1,0 +1,23 @@
+{
+  "annually": "Ročne",
+  "biennially": "Raz za dva roky",
+  "label": "Fakturačné obdobie",
+  "monthly": "Mesačne",
+  "n_mo": "mo | {n} mo",
+  "n_month": "{n}-mesiac",
+  "n_months": "mesiac | {n} mesiace",
+  "n_year": "{n}-rok",
+  "n_years": "rok | {count} roky",
+  "n_yr": "rok | {n} rok",
+  "once": "Raz",
+  "one_time": "Raz",
+  "price_by_n_years": "{price}/rok | {price} /{n} rokov",
+  "price_msg": "Jednorazová platba vo výške {price} | Od {price} mesiac | Od {price} každý {period}",
+  "quarterly": "Štvrťročne",
+  "renews_msg": "Jednorazová platba | Obnovuje sa každých {cycle} | Obnovuje sa každých {cycle}",
+  "renews_usually_msg": "Zvyčajne {price}",
+  "semiannually": "Polročne",
+  "showing_items_summary": "Zobrazuje sa {range} z {total} položky",
+  "summary_msg": "Pre {term} termín. Platba {price} dnes.",
+  "triennially": "Trienálne"
+}

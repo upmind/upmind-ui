@@ -1,14 +1,11 @@
-// --- external
+/** @internal */
 import { createMachine, assign, spawn } from "xstate";
-
-// --- internal
+import { InvoiceStatusGroups } from "@upmind-automation/types";
+import { mapInvoice } from "../invoices";
+import { paymentMachine } from "../payment";
+import { authSubscription } from "../session-store";
 import services from "./order.services";
-import paymentMachine from "../payment/payment.machine";
-import { authSubscription } from "../session/helper";
-
-// --- utils
 import { spawnOrderPaymentDetail } from "./order.utils";
-import { mapInvoice } from "../invoices/mappers";
 import {
   mapToHeadlessError,
   stopService,
@@ -16,13 +13,10 @@ import {
   isStoppedService
 } from "../../utils";
 import { get, includes, isEmpty } from "lodash-es";
-
-// --- types
-import type { AnyEventObject } from "xstate";
 import type { OrderContext, LastPaymentModel } from "./order.types";
 import type { PaymentArgs } from "../payment";
 import type { IInvoice } from "@upmind-automation/types";
-import { InvoiceStatusGroups } from "@upmind-automation/types";
+import type { AnyEventObject } from "xstate";
 
 // -----------------------------------------------------------------------------
 /**

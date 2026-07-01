@@ -54,19 +54,18 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-
-import PaginatedProducts from "./Paginated.vue";
-import InfiniteProducts from "./Infinite.vue";
-import ProductCategories from "./Categories.vue";
-import {
-  ProductSortableProperties,
-  RequestSortDirection
-} from "@upmind-automation/headless";
 import {
   UpmSection,
   LAYOUT_VARIANTS,
   UpmLayout
 } from "@upmind-automation/client-vue";
+import {
+  ProductSortableProperties,
+  RequestSortDirection
+} from "@upmind-automation/headless";
+import ProductCategories from "./Categories.vue";
+import InfiniteProducts from "./Infinite.vue";
+import PaginatedProducts from "./Paginated.vue";
 
 const mode = ref<"infinite" | "paginated">("paginated");
 const modelValue = ref("");

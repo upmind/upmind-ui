@@ -1,2 +1,2 @@
 export * from "./useTheming";
-export * from "./types";
+export * from "./theming.types";

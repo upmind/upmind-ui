@@ -131,8 +131,12 @@ test.describe("Domain split-endpoint DAC flow", () => {
       await expect(dac.priceLoadingSkeletons.first()).toBeHidden({
         timeout: 10000
       });
-      // Confirm that the price eventually loads.
-      await expect(dac.firstCard.getByText("£12.00").nth(1)).toBeVisible();
+      // Confirm the price eventually loads with the mocked value (12-month
+      // cycle → £12.00, from domain-suggestions baseProduct), read locale-stably
+      // via domain-card-price's data-test-value.
+      const priceCell = dac.firstCard.getByTestId("domain-card-price");
+      await expect(priceCell).toBeVisible();
+      await expect(priceCell).toHaveAttribute("data-test-value", "£12.00");
     });
 
     test("If the price service fails, domain results still appear (just without prices)", async ({
@@ -195,8 +199,16 @@ test.describe("Domain split-endpoint DAC flow", () => {
 
       await dac.gotoSearch(exactDomain);
 
-      await expect(dac.firstCard).toContainText(exactDomain);
-      await expect(dac.firstCard).toContainText("£12.00");
+      // Gated read: the searched domain is stable test data; `domain-card-name`
+      // carries it locale-stably in `data-test-value`. The price is mocked
+      // deterministically (domain-suggestions baseProduct, 12-month → £12.00),
+      // read locale-stably via domain-card-price's data-test-value.
+      const cardName = dac.firstCard.getByTestId("domain-card-name");
+      await expect(cardName).toBeVisible();
+      await expect(cardName).toHaveAttribute("data-test-value", exactDomain);
+      const priceCell = dac.firstCard.getByTestId("domain-card-price");
+      await expect(priceCell).toBeVisible();
+      await expect(priceCell).toHaveAttribute("data-test-value", "£12.00");
       expect(availabilityCalls.length).toBeGreaterThan(0);
     });
 
@@ -217,8 +229,14 @@ test.describe("Domain split-endpoint DAC flow", () => {
 
       await dac.gotoSearch(exactDomain);
 
-      await expect(dac.firstCard).toContainText(exactDomain);
-      await expect(dac.addToBasketButtonOnCard()).toHaveCount(0);
+      const cardName = dac.firstCard.getByTestId("domain-card-name");
+      await expect(cardName).toBeVisible();
+      await expect(cardName).toHaveAttribute("data-test-value", exactDomain);
+      await expect(dac.addToBasketButtonOnCard()).toBeDisabled();
+      await expect(dac.addToBasketButtonOnCard()).toHaveAttribute(
+        "data-test-value",
+        "unavailable"
+      );
     });
 
     test("If the availability check fails, the searched domain still appears (treated as unavailable)", async ({
@@ -412,8 +430,10 @@ test.describe("Domain split-endpoint DAC flow", () => {
       await dac.gotoSearch(SLOW_QUERY);
 
       // Immediately search for fast query (before slow response arrives)
-      // Use the search input directly to simulate rapid typing
-      const searchInput = page.getByPlaceholder(/search for a domain/i);
+      // Use the search input directly to simulate rapid typing. The Input
+      // primitive derives `input-domain-search-input` from the stable HTML id
+      // (DomainSearch.vue), not a translated placeholder.
+      const searchInput = page.getByTestId("input-domain-search-input");
       await searchInput.clear();
       await searchInput.fill(FAST_QUERY);
       await searchInput.press("Enter");
@@ -421,9 +441,18 @@ test.describe("Domain split-endpoint DAC flow", () => {
       // Wait for results to stabilise
       await expect(dac.firstCard).toBeVisible({ timeout: 10000 });
 
-      // The UI should show the fast query's results, NOT the slow query's
-      await expect(dac.firstCard).toContainText(FAST_QUERY);
-      await expect(dac.firstCard).not.toContainText(SLOW_QUERY);
+      // The UI should show the fast query's results, NOT the slow query's. Both
+      // domains are stable test data; `domain-card-name` carries the rendered
+      // domain in `data-test-value`, so assert it resolved to the fast query.
+      const cardName = dac.firstCard.getByTestId("domain-card-name");
+      await expect(cardName).toHaveAttribute(
+        "data-test-value",
+        `${FAST_QUERY}.com`
+      );
+      await expect(cardName).not.toHaveAttribute(
+        "data-test-value",
+        `${SLOW_QUERY}.com`
+      );
     });
   });
 });

@@ -5,11 +5,12 @@ import type {
   IconProps,
   AnimatedIconProps
 } from "@upmind-automation/upmind-ui";
+import type { BadgeProps } from "@upmind-automation/upmind-ui";
 
 // ---
 export type ActionProps = {
   type?: HTMLButtonElement["type"];
-  handler?: Function | string;
+  handler?: ((...args: unknown[]) => unknown) | string;
   auto?: boolean;
   prependIcon?: IconProps["icon"];
   appendIcon?: IconProps["icon"];
@@ -30,8 +31,6 @@ export interface BasketModalProps {
   // ---
   size?: DialogProps["size"];
 }
-
-import type { BadgeProps } from "@upmind-automation/upmind-ui";
 
 export interface PromotionBadgeProps {
   id?: string;

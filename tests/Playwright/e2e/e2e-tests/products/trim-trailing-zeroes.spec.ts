@@ -15,12 +15,16 @@ test.describe("Trim trailing zeroes on product prices", () => {
   }) => {
     interceptUISchema(context, { "@data.trimTrailingZeroes": true });
     await page.goto(URLs.starterHosting);
+    // Term radios are keyed off the stable billing cycle (Monthly = 1,
+    // Annually = 12), not the translated label. The price-format is the value
+    // under test (trimmed vs not), read exactly via current-price's
+    // data-test-value rather than a substring match on rendered text.
     await expect(
-      page.getByTestId("radio-card-monthly").locator("footer")
-    ).toContainText("£4");
+      page.getByTestId("radio-card-1").getByTestId("current-price")
+    ).toHaveAttribute("data-test-value", "£4");
     await expect(
-      page.getByTestId("radio-card-annually").locator("footer")
-    ).toContainText("£3.33");
+      page.getByTestId("radio-card-12").getByTestId("current-price")
+    ).toHaveAttribute("data-test-value", "£3.33");
   });
   test("Product price displays with trailing zeroes when setting is not applied", async ({
     page,
@@ -29,7 +33,7 @@ test.describe("Trim trailing zeroes on product prices", () => {
     interceptUISchema(context, { "@data.trimTrailingZeroes": false });
     await page.goto(URLs.starterHosting);
     await expect(
-      page.getByTestId("radio-card-monthly").locator("footer")
-    ).toContainText("£4.00");
+      page.getByTestId("radio-card-1").getByTestId("current-price")
+    ).toHaveAttribute("data-test-value", "£4.00");
   });
 });

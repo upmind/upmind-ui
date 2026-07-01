@@ -1,13 +1,10 @@
-// --- external
-import { computed, unref } from "vue";
 import { useActor as useXStateActor } from "@xstate/vue";
-
-// --- internal
-
-// --- utils
+import { computed, unref } from "vue";
+import { InterpreterStatus } from "xstate";
+import { isString } from "lodash-es";
+import { waitFor } from "xstate/lib/waitFor";
 import {
   isFunction,
-  map,
   some,
   get,
   isArray,
@@ -16,17 +13,13 @@ import {
   isNil,
   isEqual,
   type PropertyPath,
-  compact,
   pick,
   includes,
-  reject
+  reject,
+  compact
 } from "lodash-es";
-
-// --- types
 import type { ComputedRef, MaybeRef, Ref } from "vue";
-import { InterpreterStatus } from "xstate";
 import type { ActorRef, AnyEventObject, InterpreterFrom, State } from "xstate";
-import { isString } from "xstate/lib/utils";
 
 type MachineLike =
   | MaybeRef<any>
@@ -321,7 +314,7 @@ export const useContextActor = (
 ): ComputedRef<UseActor | undefined> =>
   computed(() => contextActor(stateLike, prop));
 
-export const useContextService = <T = unknown>(
+export const useContextService = <_T = unknown>(
   stateLike: StateLike,
   prop?: string | number,
   fallback?: any
@@ -334,3 +327,41 @@ export const useChildService = (
   fallback?: any
 ): ComputedRef<ActorRef<any> | undefined> =>
   computed(() => childService(stateLike, prop, fallback));
+
+/**
+ * Reactive wrapper for stateMatches.
+ * Returns a computed ref that updates when the matched state changes.
+ */
+export const useStateMatches = (
+  stateLike: StateLike | MachineLike,
+  states: string | string[],
+  matchAll: boolean = false
+): ComputedRef<boolean> =>
+  computed(() => stateMatches(stateLike, states, matchAll));
+
+/**
+ * Wait for a state machine to complete processing, then return boolean based on
+ * success/error. Resolves true if it ended in a success state, false on error
+ * or timeout.
+ *
+ * @param service - XState service/interpreter
+ * @param successStates - States that indicate completion
+ * @param errorStates - States that indicate failure (default: "error")
+ * @param timeout - Timeout in milliseconds (default: 60_000)
+ */
+export async function waitForProcessing(
+  service: ActorRef<any>,
+  successStates: string | string[],
+  errorStates?: string | string[],
+  timeout: number = 60_000
+): Promise<boolean> {
+  const successArray = isArray(successStates) ? successStates : [successStates];
+  const errorArray = isArray(errorStates) ? errorStates : [errorStates];
+  const allStates = [...successArray, ...errorArray, "done"];
+
+  return waitFor(service, s => stateMatches(s, compact(allStates)), {
+    timeout
+  })
+    .then(s => !s.done && !stateMatches(s, compact(errorArray)))
+    .catch(() => false);
+}

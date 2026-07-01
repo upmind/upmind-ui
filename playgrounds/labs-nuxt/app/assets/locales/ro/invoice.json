@@ -1,0 +1,12 @@
+{
+  "order_complete": "Comandă **completată**!",
+  "order_complete_md": "@.markdown:{'invoice.order_complete'}",
+  "order_complete_msg": "Vă mulțumim pentru comandă, achiziția este acum finalizată. Veți primi în scurt timp o confirmare prin e-mail.",
+  "order_not_found": "Comanda **nu a fost găsită**!",
+  "order_not_found_md": "@.markdown:{'invoice.order_not_found'}",
+  "order_not_found_msg": "Din păcate, nu am putut găsi comanda dvs. Vă rugăm să faceți clic pe butonul de mai jos pentru a reveni la contul dvs.",
+  "order_payment_failed": "Nu se poate **procesa** plata",
+  "order_payment_failed_md": "@.markdown:{'invoice.order_payment_failed'}",
+  "order_payment_failed_msg": "Nu am putut procesa plata dumneavoastră pentru această comandă. Acest lucru s-ar putea datora mai multor motive.",
+  "order_payment_retry_msg": "Vă rugăm să faceți clic mai jos pentru a accesa factura, unde puteți încerca din nou plata."
+}

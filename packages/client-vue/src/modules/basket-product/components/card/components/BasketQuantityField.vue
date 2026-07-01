@@ -21,16 +21,9 @@
  * for a trash/remove action when the quantity equals the minimum value.
  */
 
-// --- external
 import { computed } from "vue";
-
-// --- components
 import { NumberField } from "@upmind-automation/upmind-ui";
-
-// --- utils
 import { isNil } from "lodash-es";
-
-// --- types
 import type { QuantityFieldProps } from "./types";
 
 // -----------------------------------------------------------------------------

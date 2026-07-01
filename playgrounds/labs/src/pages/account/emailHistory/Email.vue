@@ -3,13 +3,8 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed } from "vue";
 import { useRoute } from "vue-router";
-
-// --- internal
-
-// --- components
 import { EmailView } from "@upmind-automation/client-vue";
 
 // --- types

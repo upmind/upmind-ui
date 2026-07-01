@@ -18,16 +18,14 @@ export class ProductSetup {
     this.page = page;
     this.section = page.getByTestId("section-product-setup-title");
     this.setupForm = page.locator("#setup-form");
-    this.heroTitle = page.getByText("Complete product setup", { exact: false });
-    this.progress = page.getByText(/products? remaining$/);
+    this.heroTitle = page.getByTestId("product-setup-hero-title");
+    this.progress = page.getByTestId("product-setup-progress");
     this.continueButton = page.locator("button[form='setup-form']");
-    this.backToBasketButton = page.getByRole("button", {
-      name: /back to basket/i
-    });
+    this.backToBasketButton = page.getByTestId("button-back-to-basket");
+    // Setup.vue's error <Alert> carries no explicit testid (falls back to the
+    // primitive `alert`); locate by role, which is locale-stable (no name).
     this.errorAlert = page.getByRole("alert");
-    this.applyToOthersGroup = page
-      .getByRole("group")
-      .filter({ has: page.getByText(/Also use these details for/i) });
+    this.applyToOthersGroup = page.getByTestId("apply-to-others-group");
     this.currentProductLabel = this.section.getByRole("heading").first();
     this.termFormItem = page.getByTestId("form-item-term");
     this.optionsFormItem = page.getByTestId("options-container-options");

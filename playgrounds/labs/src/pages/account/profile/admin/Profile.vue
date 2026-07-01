@@ -20,25 +20,18 @@
   </UpmLayout>
 </template>
 <script lang="ts" setup>
-// --- external
 import { computed } from "vue";
-
-// --- internal
-import { useSession } from "@upmind-automation/headless";
-
-// --- components
+import { useRoute } from "vue-router";
 import { UpmLayout, LAYOUT_VARIANTS } from "@upmind-automation/client-vue";
-import ClientProfile from "../components/ClientProfile.vue";
 import ClientEmails from "../components/ClientEmails.vue";
 import ClientPhones from "../components/ClientPhones.vue";
+import ClientProfile from "../components/ClientProfile.vue";
 
 // --- types
-import { useRoute } from "vue-router";
 
 // -----------------------------------------------------------------------------
 
 const route = useRoute();
-const { isAuthenticated } = useSession();
 
 const layout = computed((): LAYOUT_VARIANTS => {
   return (route?.meta?.template as LAYOUT_VARIANTS) ?? LAYOUT_VARIANTS.FULL;

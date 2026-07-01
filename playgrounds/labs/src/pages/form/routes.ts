@@ -1,9 +1,6 @@
-// --- external
-import type { RouteRecordRaw } from "vue-router";
-
-// --- internal
 import Address from "./Address.vue";
 import Domain from "./Domain.vue";
+import type { RouteRecordRaw } from "vue-router";
 // -----------------------------------------------------------------------------
 
 const routes: RouteRecordRaw[] = [

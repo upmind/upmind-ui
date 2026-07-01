@@ -17,19 +17,12 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { onMounted } from "vue";
-
-// --- internal
 import { useFooter } from "../../../components/footer/useFooter";
 import { useHeader } from "../../../components/header/useHeader";
 import { useLayout } from "../../../components/layout/useLayout";
 import { isMobile } from "@upmind-automation/upmind-ui";
-
-// --- components
 import Layout from "../../../components/layout/Layout.vue";
-
-// --- types
 import {
   LAYOUT_VARIANTS,
   LAYOUT_OVERFLOW

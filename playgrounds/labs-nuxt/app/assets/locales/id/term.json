@@ -1,0 +1,23 @@
+{
+  "annually": "Setiap tahun",
+  "biennially": "Dua tahun sekali",
+  "label": "Istilah Penagihan",
+  "monthly": "Bulanan",
+  "n_mo": "mo | {n} saya",
+  "n_month": "{n}-bulan",
+  "n_months": "bulan | {n} bulan",
+  "n_year": "{n}-tahun",
+  "n_years": "tahun | {count} bertahun-tahun",
+  "n_yr": "tahun | {n} tahun",
+  "once": "Sekali",
+  "one_time": "Suatu waktu",
+  "price_by_n_years": "{price}/tahun | {price} /{n} tahun",
+  "price_msg": "Pembayaran satu kali {price} | Dari {price} sebulan | Dari {price} setiap {period}",
+  "quarterly": "Triwulanan",
+  "renews_msg": "Pembayaran satu kali | Diperbarui setiap {cycle} | Diperbarui setiap {cycle}",
+  "renews_usually_msg": "Biasanya {price}",
+  "semiannually": "Dua kali setahun",
+  "showing_items_summary": "Menampilkan {range} dari {total} barang-barang",
+  "summary_msg": "Untuk sebuah {term} istilah. Bayar {price} Hari ini.",
+  "triennially": "Tiga tahunan"
+}

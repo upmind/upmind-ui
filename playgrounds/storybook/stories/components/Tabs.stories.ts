@@ -1,11 +1,6 @@
-// --- external
-import type { Meta, StoryObj } from "@storybook/vue3";
-
-// --- components
 import { Tabs } from "@upmind-automation/upmind-ui";
-
-// --- utils
 import { useSystemArgTypes } from "../../utils";
+import type { Meta, StoryObj } from "@storybook/vue3";
 
 const meta: Meta<typeof Tabs> = {
   args: {

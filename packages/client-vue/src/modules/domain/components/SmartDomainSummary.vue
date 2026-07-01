@@ -22,10 +22,7 @@
 </template>
 
 <script setup lang="ts">
-// --- external
 import { useI18n } from "vue-i18n";
-
-// --- internal
 import {
   useStyles,
   RadioGroup,

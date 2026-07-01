@@ -1,5 +1,4 @@
 import { Locator, Page } from "@playwright/test";
-import { kebabCase } from "../../helpers/strings";
 
 export class Accordion {
   readonly page: Page;
@@ -14,12 +13,16 @@ export class Accordion {
     this.accordionContent = this.accordionItem.getByTestId("accordion-content");
   }
 
-  getAccordion(option: string) {
-    return this.page.getByTestId(`accordion-item-${kebabCase(option)}`);
+  /**
+   * @param slug - Stable accordion item slug (NOT a translated label), e.g.
+   *   `register` → `accordion-item-register`.
+   */
+  getAccordion(slug: string) {
+    return this.page.getByTestId(`accordion-item-${slug}`);
   }
 
-  async clickAccordion(option: string) {
-    const clickAccordionItem = this.getAccordion(option);
+  async clickAccordion(slug: string) {
+    const clickAccordionItem = this.getAccordion(slug);
     await clickAccordionItem.click();
   }
 }

@@ -49,18 +49,22 @@ export const products = {
     type: "domain"
   },
   HAT: {
-    /** Single price, no terms, no options/attributes, no provision fields. */
+    /** Single price, no terms, no options/attributes, no provision fields.
+     * One-off product → billingCycle 0 (one-offs are not sold on a monthly
+     * cycle; billing_cycle_months: 1 returns 409 "not available ... on the
+     * selected billing cycle"). */
     id: "47d73824-8507-9315-9e0b-81e642d59e06",
     name: "Hat (Non-Configurable Product)",
-    billingCycle: 1,
+    billingCycle: 0,
     gbpPrice: "£10.00",
     type: "apparel"
   },
   TSHIRT: {
-    /** Has options or attributes — must navigate to configure regardless. */
+    /** Has options or attributes — must navigate to configure regardless.
+     * One-off product → billingCycle 0. */
     id: "5952098d-3de4-0917-250b-31578626e347",
     name: "T-Shirt",
-    billingCycle: 1,
+    billingCycle: 0,
     gbpPrice: "£10.00",
     type: "apparel"
   },

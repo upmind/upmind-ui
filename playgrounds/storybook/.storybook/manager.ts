@@ -3,5 +3,5 @@ import UpmindUITheme from "./UpmindUITheme";
 
 addons.setConfig({
   theme: UpmindUITheme,
-  panelPosition: "right",
+  panelPosition: "right"
 });

@@ -41,7 +41,7 @@
         <Section
           :label="t('action.recover_password')"
           icon="user-03"
-          v-show="!meta.isAuthenticated"
+          v-show="!isAuthenticated"
           class="max-w-3xl"
         >
           <Auth
@@ -71,26 +71,33 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useConfig, validateTemplate } from "@upmind-automation/headless";
+import {
+  useActiveSession,
+  useBasket,
+  useRoutingEngine,
+  UIContext
+} from "@upmind-automation/headless";
 import { useThemes } from "@upmind-automation/upmind-ui";
-
-// --- components
 import { Link } from "@upmind-automation/upmind-ui";
-import Auth from "./components/Auth.vue";
 import Hero from "../../components/hero/Hero.vue";
 import Section from "../../components/section/Section.vue";
 import Summary from "../basket/components/Summary.vue";
-
-// --- templates
-import SessionSplitTemplate from "./templates/SessionSplit.template.vue";
+import Auth from "./components/Auth.vue";
 import SessionCanvasCardTemplate from "./templates/SessionCanvasCard.template.vue";
-import SessionSurfaceBoxTemplate from "./templates/SessionSurfaceBox.template.vue";
+import SessionEnclosedTemplate from "./templates/SessionEnclosed.template.vue";
 import SessionLTRTemplate from "./templates/SessionLTR.template.vue";
 import SessionRTLTemplate from "./templates/SessionRTL.template.vue";
-import SessionEnclosedTemplate from "./templates/SessionEnclosed.template.vue";
+import SessionSplitTemplate from "./templates/SessionSplit.template.vue";
+import SessionSurfaceBoxTemplate from "./templates/SessionSurfaceBox.template.vue";
+import {
+  type SessionProps,
+  type SessionRoutes,
+  SESSION_TEMPLATE
+} from "./types";
+import { get } from "lodash-es";
 
 const supportedTemplates = {
   [SESSION_TEMPLATE.SPLIT]: SessionSplitTemplate,
@@ -100,22 +107,6 @@ const supportedTemplates = {
   [SESSION_TEMPLATE.TWO_COLUMN_RTL]: SessionRTLTemplate,
   [SESSION_TEMPLATE.ENCLOSED]: SessionEnclosedTemplate
 };
-
-// --- utils
-import { get } from "lodash-es";
-
-// --- types
-import {
-  type SessionProps,
-  type SessionRoutes,
-  SESSION_TEMPLATE
-} from "./types";
-import {
-  useBasket,
-  useRoutingEngine,
-  useSession,
-  UIContext
-} from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 
@@ -129,7 +120,8 @@ const props = defineProps<
 const { t } = useI18n();
 const { set } = useThemes();
 
-const { meta, isReady } = useSession();
+const { isAuthenticated } = useActiveSession().useMeta();
+const { isReady } = useActiveSession().useActions();
 const { meta: basketMeta } = useBasket();
 const { navigateNext, navigateBack, navigate } = useRoutingEngine();
 

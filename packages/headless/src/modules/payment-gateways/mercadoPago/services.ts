@@ -1,0 +1,240 @@
+/// <reference types="@types/mercadopago-sdk-js" />
+import { useI18n, useLocale } from "../../system-localisation";
+import sharedServices from "../payment-gateways.services";
+import { beginSetup } from "../payment-gateways.services";
+import { parseSettings } from "../payment-gateways.utils";
+import { MERCADOPAGO_FIELDS, type MercadoPagoContext } from "./types";
+import {
+  ErrorOrigin,
+  DetailedError,
+  responseCodes,
+  useScripts
+} from "../../../utils";
+import { get } from "lodash-es";
+import type { AnyEventObject } from "xstate";
+
+// --- utils
+
+// --- types
+
+// -----------------------------------------------------------------------------
+
+async function load(context: MercadoPagoContext, _event: AnyEventObject) {
+  //  first get our default load config
+  const { gateway } = context;
+  const { locale } = useLocale();
+  const { t } = useI18n();
+
+  if (!gateway)
+    return Promise.reject(
+      new DetailedError(
+        "Gateway not found.",
+        responseCodes.Not_Found,
+        ErrorOrigin.Headless
+      )
+    );
+
+  return sharedServices.load(context, _event).then(async config => {
+    const settings = parseSettings(gateway);
+
+    // load in our MercadoPago scripts
+    await Promise.all([
+      useScripts().load(
+        "mercadoPago_v2",
+        "https://sdk.mercadopago.com/js/v2",
+        {}
+      )
+    ]);
+
+    // Get the MercadoPago instance from the window object
+    const MercadoPago = window["MercadoPago"];
+
+    if (!MercadoPago)
+      throw new DetailedError(
+        t("error.payment_gateway_not_available"),
+        responseCodes.Not_Found,
+        ErrorOrigin.Headless
+      );
+
+    const mercadoPago = new MercadoPago(
+      settings[MERCADOPAGO_FIELDS.PUBLIC_KEY],
+      {
+        locale: locale.value as mercadopagocore.Locale
+      }
+    );
+
+    return { sdk: { mercadoPago }, ...config };
+  });
+}
+
+async function render(
+  { sdk, amount, client }: MercadoPagoContext,
+  { data }: AnyEventObject
+) {
+  const { t } = useI18n();
+
+  if (!sdk?.mercadoPago) {
+    throw new DetailedError(
+      t("error.payment_gateway_not_available"),
+      responseCodes.Not_Found,
+      ErrorOrigin.Headless,
+      { sdk, container: data?.container }
+    );
+  }
+
+  const bricksBuilder = sdk.mercadoPago.bricks();
+
+  // IIFE;
+  await new Promise<void>((resolve, reject) =>
+    (async (bricksBuilder: bricks.Bricks) => {
+      sdk.mercadoPagoController = await bricksBuilder.create(
+        "cardPayment",
+        data?.container.id,
+        {
+          initialization: {
+            amount,
+            payer: {
+              email: client.email,
+              firstName: client.firstname,
+              lastName: client.lastname,
+              customerId: client.id
+            }
+          },
+          customization: {
+            visual: {
+              hideFormTitle: true,
+              hidePaymentButton: true,
+              style: {
+                theme: "default",
+                customVariables: {
+                  formPadding: "0rem",
+                  formBackgroundColor: "transparent"
+                }
+              }
+            },
+            paymentMethods: {
+              creditCard: "all",
+              debitCard: "all",
+              maxInstallments: 1
+            }
+          },
+          callbacks: {
+            onReady: () => {
+              resolve();
+            },
+            onSubmit: () => {
+              return Promise.resolve(); // Do nothing as we handle submit separately
+            },
+            onError: (error: bricks.BrickError) => {
+              reject(error);
+            }
+          }
+        }
+      );
+    })(bricksBuilder)
+  );
+
+  // we dont have an render functions for MercadoPago Card so just return the necessary data
+  return {
+    sdk,
+    container: data?.container
+  };
+}
+
+/**
+ * @name getPaymentData
+ * @desc Here we create a new payment detail via the Card SDK, and return
+ * the payment detail ID which we later relay to the BE (when executing
+ * payment). We do not need to pass a client secret for flow, as the
+ * payment detail is attached to a customer and confirmed server-side.
+ */
+async function pay({ gateway, sdk }: MercadoPagoContext) {
+  const { t } = useI18n();
+
+  if (!sdk?.mercadoPago)
+    throw new DetailedError(
+      t("error.payment_gateway_not_available"),
+      responseCodes.Not_Found,
+      ErrorOrigin.Headless
+    );
+
+  return sdk.mercadoPagoController
+    ?.getFormData()
+    .then((cardFormData: bricks.FormData<"cardPayment"> | undefined) => {
+      if (!cardFormData)
+        throw new DetailedError(
+          t("error.payment_gateway_validation_failed"),
+          responseCodes.Not_Found,
+          ErrorOrigin.Headless
+        );
+
+      return {
+        gateway_id: gateway?.id,
+        payment_method_addition: {
+          payment_method_id: cardFormData.payment_method_id,
+          token: cardFormData.token
+        }
+      };
+    });
+}
+
+/**
+ * @name add
+ * @desc Stores a payment method via MercadoPago in the ADD context.
+ * Calls beginSetup → SDK getFormData (token + payment_method_id) → endSetup.
+ */
+async function add(context: MercadoPagoContext) {
+  const { sdk, model } = context;
+  const { t } = useI18n();
+
+  if (!sdk?.mercadoPago || !sdk?.mercadoPagoController)
+    throw new DetailedError(
+      t("error.payment_gateway_not_available"),
+      responseCodes.Not_Found,
+      ErrorOrigin.Headless
+    );
+
+  const setupResponse = await beginSetup(context);
+  const clientPaymentDetailsId = get(
+    setupResponse,
+    "client_payment_details.id"
+  );
+
+  if (!clientPaymentDetailsId) {
+    throw new DetailedError(
+      t("error.payment_gateway_not_available"),
+      responseCodes.Unprocessable_Entity,
+      ErrorOrigin.Headless
+    );
+  }
+
+  const cardFormData = await sdk.mercadoPagoController?.getFormData();
+
+  if (!cardFormData)
+    throw new DetailedError(
+      t("error.payment_gateway_validation_failed"),
+      responseCodes.Not_Found,
+      ErrorOrigin.Headless
+    );
+
+  return {
+    gatewayId: context.gateway?.id,
+    data: {
+      client_payment_details_id: clientPaymentDetailsId,
+      auto_payment: model?.store_on_payment_auto_payment ?? false,
+      token: cardFormData.token,
+      payment_method_id: cardFormData.payment_method_id
+    }
+  };
+}
+
+// -----------------------------------------------------------------------------
+
+export default {
+  ...sharedServices,
+  // ---
+  load,
+  render,
+  pay,
+  add
+};

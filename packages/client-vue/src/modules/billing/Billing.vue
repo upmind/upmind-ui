@@ -15,7 +15,8 @@
             color: 'primary',
             variant: 'subtle',
             size: 'lg',
-            disabled: isNavigating
+            disabled: isNavigating,
+            dataAttrs: { 'data-testid': 'link-back-to-basket' }
           }"
           size="3xl"
           @action="navigateBack"
@@ -65,27 +66,24 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-
-// --- internal
 import {
   useConfig,
   useRoutingEngine,
   validateTemplate
 } from "@upmind-automation/headless";
+import { UIContext } from "@upmind-automation/headless";
 import { useThemes, Markdown } from "@upmind-automation/upmind-ui";
-
-// --- components
 import Hero from "../../components/hero/Hero.vue";
 import BillingForm from "./components/BillingForm.vue";
-
-// --- templates
+import BillingEnclosedTemplate from "./templates/BillingEnclosed.template.vue";
 import BillingFullTemplate from "./templates/BillingFull.template.vue";
 import BillingLTRTemplate from "./templates/BillingLTR.template.vue";
 import BillingRTLTemplate from "./templates/BillingRTL.template.vue";
-import BillingEnclosedTemplate from "./templates/BillingEnclosed.template.vue";
+import { BILLING_TEMPLATE } from "./types";
+import { get, includes } from "lodash-es";
+import type { BillingProps } from "./types";
 
 const supportedTemplates = {
   [BILLING_TEMPLATE.FULL]: BillingFullTemplate,
@@ -93,14 +91,6 @@ const supportedTemplates = {
   [BILLING_TEMPLATE.TWO_COLUMN_RTL]: BillingRTLTemplate,
   [BILLING_TEMPLATE.ENCLOSED]: BillingEnclosedTemplate
 };
-
-// --- utils
-import { get, includes } from "lodash-es";
-
-// --- types
-import { BILLING_TEMPLATE } from "./types";
-import type { BillingProps } from "./types";
-import { UIContext } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 

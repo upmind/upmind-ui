@@ -7,11 +7,11 @@
 </template>
 
 <script lang="ts" setup>
+import { useI18n } from "vue-i18n";
 import { UpmBasketProductEdit, useBrand } from "@upmind-automation/client-vue";
 import type { ProductDetails } from "@upmind-automation/client-vue";
-import { ROUTE } from "~/funnels/types";
 import { useStorefrontRoute } from "~/composables/useStorefrontRoute";
-import { useI18n } from "vue-i18n";
+import { ROUTE } from "~/funnels/types";
 
 const { t } = useI18n();
 const { name: brandName, currency } = useBrand();

@@ -17,10 +17,10 @@
 </template>
 
 <script lang="ts" setup>
-import { Switch, Select } from "@upmind-automation/upmind-ui";
-import { useTheme } from "@upmind-automation/client-vue";
-import { intersection } from "lodash-es";
 import { computed } from "vue";
+import { useTheme } from "@upmind-automation/client-vue";
+import { Switch, Select } from "@upmind-automation/upmind-ui";
+import { intersection } from "lodash-es";
 
 const { selected, set: setTheme, available } = useTheme();
 

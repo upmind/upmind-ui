@@ -1,11 +1,11 @@
 // vite.config.ts
-import { defineConfig, loadEnv } from "vite";
-import vue from "@vitejs/plugin-vue";
 import { resolve } from "path";
 import { sentryVitePlugin } from "@sentry/vite-plugin";
-import UpmindTransferPlugin from "./vite.plugin.transfer";
-import vueDevTools from "vite-plugin-vue-devtools";
 import tailwindcss from "@tailwindcss/vite";
+import vue from "@vitejs/plugin-vue";
+import { defineConfig, loadEnv } from "vite";
+import vueDevTools from "vite-plugin-vue-devtools";
+import UpmindTransferPlugin from "./vite.plugin.transfer";
 import { compact } from "lodash-es";
 
 export default defineConfig(({ mode, command }) => {

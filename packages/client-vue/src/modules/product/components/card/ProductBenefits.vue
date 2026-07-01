@@ -20,20 +20,11 @@
 </template>
 
 <script setup lang="ts">
-// --- external
 import { computed } from "vue";
-
-// --- components
 import { useStyles } from "@upmind-automation/upmind-ui";
 import { Icon } from "@upmind-automation/upmind-ui";
-
-// --- utils
-import { isEmpty, isString, map } from "lodash-es";
-
-// --- config
 import config from "./card.config";
-
-// --- types
+import { isEmpty, isString, map } from "lodash-es";
 import type { ProductBenefits } from "./types";
 
 // -----------------------------------------------------------------------------

@@ -35,31 +35,21 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed, watch } from "vue";
-import { useRoute, useRouter, RouterLink } from "vue-router";
-
-// --- internal
+import { useRoute, useRouter } from "vue-router";
 import {
   Upm,
   UpmAuthAction,
   useRoutingEngine,
-  useSession,
+  useActiveSession,
   UpmRouteView
 } from "@upmind-automation/client-vue";
-
-// --- components
-import { Icon } from "@upmind-automation/upmind-ui";
 import NavSection from "./components/NavSection.vue";
-
-// --- composables
 import { useNavigation } from "./composables/useNavigation";
+import { ROUTE } from "./funnels";
+import { includes } from "lodash-es";
 
 const { navigation } = useNavigation();
-
-// --- utils
-import { includes } from "lodash-es";
-import { ROUTE } from "./funnels";
 
 // -----------------------------------------------------------------------------
 const route = useRoute();
@@ -75,20 +65,13 @@ const isAuthRoute = computed(() =>
 
 // set up automatic redirects when the user logs in or out or if the basket is emptied
 isReady().then(() => {
-  const { meta: sessionMeta } = useSession();
-  watch(
-    sessionMeta,
-    ({ isAuthenticated }, { isAuthenticated: wasAuthenticated }) => {
-      if (!routingMeta.value.isResolved) return;
+  const { isAuthenticated } = useActiveSession().useMeta();
+  watch(isAuthenticated, (isAuth, wasAuth) => {
+    if (!routingMeta.value.isResolved) return;
 
-      if (
-        !isAuthenticated &&
-        wasAuthenticated &&
-        route.name !== ROUTE.SESSION_END
-      ) {
-        router.push({ name: ROUTE.SESSION_END });
-      }
+    if (!isAuth && wasAuth && route.name !== ROUTE.SESSION_END) {
+      router.push({ name: ROUTE.SESSION_END });
     }
-  );
+  });
 });
 </script>

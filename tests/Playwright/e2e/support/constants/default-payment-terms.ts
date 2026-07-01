@@ -1,6 +1,6 @@
 import { URLs } from "./urls";
 
-/* 
+/*
 Pricing values, for reference:
     INHERIT_FROM_BRAND = 0,
     LOWEST_PRICE = 1,
@@ -8,29 +8,32 @@ Pricing values, for reference:
     HIGHEST_PRICE = 3,
 */
 
+// `radioCycle` is the term's stable billing-cycle in months (Monthly = 1,
+// Annually = 12, Biennially = 24) — the locale-safe `radio-card-${cycle}`
+// cascade key, NOT the translated term label.
 export const DefaultPaymentTerms = [
   {
     name: "Default Payment Term - Inherit from Brand",
     termSetting: 0,
-    radioOption: "Monthly",
+    radioCycle: 1,
     url: `${URLs.paymentTerms}`
   },
   {
     name: "Default Payment Term - Lowest Price",
     termSetting: 1,
-    radioOption: "Monthly",
+    radioCycle: 1,
     url: `${URLs.paymentTerms}`
   },
   {
     name: "Default Payment Term - Lowest Monthly Price",
     termSetting: 2,
-    radioOption: "Biennially",
+    radioCycle: 24,
     url: `${URLs.paymentTerms}`
   },
   {
     name: "Default Payment Term - Highest Price",
     termSetting: 3,
-    radioOption: "Biennially",
+    radioCycle: 24,
     url: `${URLs.paymentTerms}`
   }
 ];
@@ -39,25 +42,25 @@ export const DefaultPaymentTermsWithPromo = [
   {
     name: "Default Payment Term - Inherit from Brand - Promotion Applied",
     termSetting: 0,
-    radioOption: "Monthly",
+    radioCycle: 1,
     url: `${URLs.paymentTermsPromo}`
   },
   {
     name: "Default Payment Term - Lowest Price - Promotion Applied",
     termSetting: 1,
-    radioOption: "Monthly",
+    radioCycle: 1,
     url: `${URLs.paymentTermsPromo}`
   },
   {
     name: "Default Payment Term - Lowest Monthly Price - Promotion Applied",
     termSetting: 2,
-    radioOption: "Biennially",
+    radioCycle: 24,
     url: `${URLs.paymentTermsPromo}`
   },
   {
     name: "Default Payment Term - Highest Price - Promotion Applied",
     termSetting: 3,
-    radioOption: "Annually",
+    radioCycle: 12,
     url: `${URLs.paymentTermsPromo}`
   }
 ];

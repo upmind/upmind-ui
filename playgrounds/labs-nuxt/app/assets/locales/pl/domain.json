@@ -1,0 +1,31 @@
+{
+  "begin_search_above_desc": "Rozpocznij wyszukiwanie korzystając z pola powyżej.",
+  "choices": {
+    "basket": {
+      "label": "Użyj domeny w koszyku",
+      "tooltip": "Te domeny są już w Twoim koszyku"
+    },
+    "existing": {
+      "label": "Użyj istniejącej domeny",
+      "tooltip": "Możesz użyć istniejącej domeny, aktualizując serwery nazw"
+    },
+    "register": {
+      "label": "Zarejestruj nową domenę",
+      "tooltip": "Nie masz jeszcze domeny? Zarejestruj nową u nas"
+    },
+    "transfer": {
+      "label": "Przenieś domenę",
+      "tooltip": "Masz już domenę? Możesz ją do nas przenieść"
+    }
+  },
+  "finding_perfect_domain": "Znalezienie idealnej domeny dla siebie",
+  "finding_perfect_domain_md": "@.markdown:{'domain.finding_perfect_domain'}",
+  "own_domain_qn": "Czy jesteś właścicielem tej domeny?",
+  "owned_domains_title": "Domeny, które obecnie posiadasz",
+  "price_renewal_desc": "Jednorazowa cena {regularPrice}. | Odnawia się co roku za {regularPrice}. | Odnawia się co {count} lat za {regularPrice}.",
+  "starts_with_domain": "Wszystko zaczyna się od **nazwy domeny**",
+  "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
+  "tld_renewal_price_desc": "Nasz {tld} ceny odnowienia zaczynają się już od {currentPrice} (był {regularPrice}).",
+  "tld_renewal_price_from_desc": "Nasz {tld} ceny odnowienia zaczynają się już od {regularPrice}.",
+  "transfer_domain_by_msg": "Prześlij nam to przez"
+}

@@ -102,36 +102,38 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
-
-// --- internal
 import { useBasket, useRoutingEngine } from "@upmind-automation/headless";
-import { useLayout } from "../../components/layout/useLayout";
 import {
   useConfig,
   validateTemplate,
   useClientTemplate
 } from "@upmind-automation/headless";
+import {
+  UIContext,
+  ClientTemplateSlotCodes
+} from "@upmind-automation/headless";
 import { useThemes } from "@upmind-automation/upmind-ui";
-
-// --- components
+import { Alert, Markdown } from "@upmind-automation/upmind-ui";
+import Transitions from "../../components/layout/components/transition/Transition.vue";
+import { LAYOUT_VARIANTS } from "../../components/layout/types";
+import { useLayout } from "../../components/layout/useLayout";
 import Back from "../../components/navigation/Back.vue";
-import BasketSummary from "./components/BasketSummary.vue";
-import BasketProducts from "./components/BasketProducts.vue";
-import BasketPricing from "./components/BasketPricing.vue";
 import BasketAlerts from "./components/BasketAlerts.vue";
 import BasketCheckout from "./components/BasketCheckout.vue";
+import BasketPricing from "./components/BasketPricing.vue";
+import BasketProducts from "./components/BasketProducts.vue";
+import BasketSummary from "./components/BasketSummary.vue";
 import BasketTotal from "./components/BasketTotal.vue";
-import Transitions from "../../components/layout/components/transition/Transition.vue";
-import { Alert, Markdown } from "@upmind-automation/upmind-ui";
-
-// --- templates
+import BasketEnclosedTemplate from "./templates/BasketEnclosed.template.vue";
 import BasketFullTemplate from "./templates/BasketFull.template.vue";
 import BasketLTRTemplate from "./templates/BasketLTR.template.vue";
 import BasketRTLTemplate from "./templates/BasketRTL.template.vue";
-import BasketEnclosedTemplate from "./templates/BasketEnclosed.template.vue";
+import { BASKET_TEMPLATE } from "./types";
+import { get, includes } from "lodash-es";
+import type { StorefrontRoute } from "../../types";
+import type { RouteLocationAsRelativeGeneric } from "vue-router";
 
 const supportedTemplates = {
   [BASKET_TEMPLATE.FULL]: BasketFullTemplate,
@@ -139,19 +141,6 @@ const supportedTemplates = {
   [BASKET_TEMPLATE.TWO_COLUMN_RTL]: BasketRTLTemplate,
   [BASKET_TEMPLATE.ENCLOSED]: BasketEnclosedTemplate
 };
-
-// --- utils
-import { get, includes } from "lodash-es";
-
-// --- types
-import { BASKET_TEMPLATE } from "./types";
-import {
-  UIContext,
-  ClientTemplateSlotCodes
-} from "@upmind-automation/headless";
-import type { StorefrontRoute } from "../../types";
-import { LAYOUT_VARIANTS } from "../../components/layout/types";
-import type { RouteLocationAsRelativeGeneric } from "vue-router";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(

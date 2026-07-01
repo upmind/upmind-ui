@@ -1,0 +1,23 @@
+{
+  "annually": "Každoročně",
+  "biennially": "Jednou za dva roky",
+  "label": "Fakturační období",
+  "monthly": "Měsíční",
+  "n_mo": "mo | {n} mo",
+  "n_month": "{n}-měsíc",
+  "n_months": "měsíc | {n} měsíce",
+  "n_year": "{n}-rok",
+  "n_years": "rok | {count} roky",
+  "n_yr": "rok | {n} rok",
+  "once": "Jednou",
+  "one_time": "Jednou",
+  "price_by_n_years": "{price}/rok | {price} /{n} roky",
+  "price_msg": "Jednorázová platba ve výši {price} | Od {price} měsíc | Od {price} každý {period}",
+  "quarterly": "Čtvrtletní",
+  "renews_msg": "Jednorázová platba | Obnovuje se každých {cycle} | Obnovuje se každých {cycle}",
+  "renews_usually_msg": "Obvykle {price}",
+  "semiannually": "Pololetně",
+  "showing_items_summary": "Zobrazeno {range} z {total} položky",
+  "summary_msg": "Pro {term} termín. Platba {price} dnes.",
+  "triennially": "Tříletě"
+}

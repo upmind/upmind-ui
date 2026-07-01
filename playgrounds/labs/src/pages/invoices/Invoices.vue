@@ -12,22 +12,17 @@
       </Button>
     </div>
 
-    <UpmRouteView v-if="meta.isAuthenticated && !!clientId" />
+    <UpmRouteView v-if="isAuthenticated && !!clientId" />
   </UpmLayout>
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { useRouter } from "vue-router";
-
-// --- internal
-import { useSession } from "@upmind-automation/headless";
-
-// --- components
 import {
   UpmLayout,
   UpmRouteView,
-  LAYOUT_VARIANTS
+  LAYOUT_VARIANTS,
+  useActiveSession
 } from "@upmind-automation/client-vue";
 import { Button } from "@upmind-automation/upmind-ui";
 
@@ -41,5 +36,7 @@ const invoices = [
   }
 ];
 
-const { meta, clientId } = useSession();
+const session = useActiveSession();
+const { isAuthenticated } = session.useMeta();
+const { sessionId: clientId } = session.useContext();
 </script>

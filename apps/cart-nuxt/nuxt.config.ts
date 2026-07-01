@@ -114,7 +114,7 @@ export default defineNuxtConfig({
       "../../packages/types/src/index.ts"
     ),
     "@upmind-automation/i18n": resolve(__dirname, "../../packages/i18n/src"),
-    "@upmind-automation/client-vue": resolve(
+    "@upmind-automation/headless": resolve(
       __dirname,
       "../../packages/headless/src/index.ts"
     ),

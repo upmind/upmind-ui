@@ -10,8 +10,6 @@ import { setLocale } from "../support/helpers/locale";
 import { waitForSessionCookie } from "../support/helpers/session";
 import { Languages as languages } from "../support/constants/languages";
 
-let token: string;
-let orderId: string | null;
 test.beforeEach(async ({ page }) => {
   // Disable all CSS animations and transitions
   await page.goto(URLs.emptyBasket);
@@ -38,6 +36,9 @@ for (const { language, locale } of languages) {
       await page.goto(URLs.emptyBasket);
       await setLocale(page, locale);
       await waitForSessionCookie(page.context());
+      await expect(page.getByTestId("basket-empty-message")).toBeVisible({
+        timeout: 15000
+      });
       await expect(page).toHaveScreenshot(`${language}/empty-basket`, {
         mask: [page.locator("lord-icon")]
       });
@@ -46,9 +47,9 @@ for (const { language, locale } of languages) {
       await page.goto(URLs.basket);
       await setLocale(page, locale);
       await waitForSessionCookie(context);
-      token = await getSessionToken(context);
-      let order = await createOrder(token);
-      let orderId = order.id;
+      const token = await getSessionToken(context);
+      const order = await createOrder(token);
+      const orderId = order.id;
       await addProductToOrder(
         token,
         orderId,
@@ -64,15 +65,18 @@ for (const { language, locale } of languages) {
       );
       await page.goto(URLs.basket);
       await waitForSessionCookie(page.context());
+      await expect(page.getByTestId("basket-product").first()).toBeVisible({
+        timeout: 15000
+      });
       await expect(page).toHaveScreenshot(`${language}/basket-with-1-item`);
     });
     test("Basket with multiple items", async ({ page, context }) => {
       await page.goto(URLs.basket);
       await setLocale(page, locale);
       await waitForSessionCookie(context);
-      token = await getSessionToken(context);
-      let order = await createOrder(token);
-      let orderId = order.id;
+      const token = await getSessionToken(context);
+      const order = await createOrder(token);
+      const orderId = order.id;
       await addProductToOrder(
         token,
         orderId,
@@ -101,14 +105,18 @@ for (const { language, locale } of languages) {
       );
       await page.goto(URLs.basket);
       await waitForSessionCookie(page.context());
+      const basketProducts = page.getByTestId("basket-product");
+      await expect(basketProducts).toHaveCount(2, { timeout: 15000 });
+      await expect(basketProducts.last()).toBeVisible();
       await expect(page).toHaveScreenshot(`${language}/basket-with-2-items`);
     });
     test("Basket with promotions", async ({ page, context }) => {
       await page.goto(URLs.basket);
       await setLocale(page, locale);
-      await waitForSessionCookie(page.context());
-      let order = await createOrder(token);
-      let orderId = order.id;
+      await waitForSessionCookie(context);
+      const token = await getSessionToken(context);
+      const order = await createOrder(token);
+      const orderId = order.id;
       await addProductToOrder(
         token,
         orderId,
@@ -126,6 +134,9 @@ for (const { language, locale } of languages) {
       await page.reload();
       await page.waitForLoadState("load");
       await waitForSessionCookie(page.context());
+      await expect(page.getByTestId("basket-product").first()).toBeVisible({
+        timeout: 15000
+      });
       await expect(page).toHaveScreenshot(`${language}/basket-with-promotion`);
     });
   });

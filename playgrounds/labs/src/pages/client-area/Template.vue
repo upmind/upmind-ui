@@ -15,10 +15,10 @@
 
 <script setup lang="ts">
 import { useRoute } from "vue-router";
-import { useClientTemplate } from "@upmind-automation/headless";
 import { UpmLayout } from "@upmind-automation/client-vue";
-import { ClientTemplateSlotCodes } from "@upmind-automation/types";
+import { useClientTemplate } from "@upmind-automation/headless";
 import { Markdown } from "@upmind-automation/upmind-ui";
+import type { ClientTemplateSlotCodes } from "@upmind-automation/types";
 
 const route = useRoute();
 const code = route.query.code as ClientTemplateSlotCodes;

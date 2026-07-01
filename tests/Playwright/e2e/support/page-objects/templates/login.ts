@@ -1,6 +1,7 @@
-import { Page, Locator } from "@playwright/test";
+import { Page, Locator, BrowserContext } from "@playwright/test";
 export class Login {
   readonly page: Page;
+  readonly context?: BrowserContext;
   readonly loginForm: Locator;
   readonly usernameField: Locator;
   readonly passwordField: Locator;
@@ -10,16 +11,22 @@ export class Login {
   readonly popoverContent: Locator;
   readonly alert: Locator;
 
-  constructor(page: Page) {
+  constructor(page: Page, context?: BrowserContext) {
     this.page = page;
-    this.loginForm = page.getByTestId("section-log-in");
+    this.context = context;
+    this.loginForm = page.getByTestId("login-form");
     this.usernameField = page
       .getByTestId("form-item-username")
       .getByRole("textbox");
     this.passwordField = page
       .getByTestId("form-item-password")
       .getByRole("textbox");
-    this.loginButton = page.getByTestId("button-log-in-to-your-account");
+    // Locale-stable locator: the button testid is derived from the translated
+    // label (button-${kebabCase(label)}), so getByTestId("button-log-in-to-
+    // your-account") only matches in English and times out in other locales.
+    // The submit type is locale-independent and re-scopes correctly into the
+    // popover login flow below.
+    this.loginButton = page.locator('button[type="submit"]');
     this.twoFactorInput = page.getByTestId("input-otp-slot");
     this.popoverTrigger = page.getByTestId("login-popover-trigger");
     this.popoverContent = page.getByTestId("popover-content");

@@ -1,0 +1,34 @@
+{
+  "readKey": "a7388292717217458717-f8858955fa4da50abdf339e04430bd00603d5e229813a94241307911ac0d89cd",
+  "writeKey": "a7388292717217458717-faab511aa20734e383427bc1b847f9efeff57ce1bc31567aebcb12b1dce5309c",
+  "conversion": {},
+  "download": {
+    "folder": "./src/assets/locales/",
+    "files": "${snakecase_lang}/${file}",
+    "includeSourceLang": true
+  },
+  "transformations": [
+    {
+      "name": "snakecase_lang",
+      "source": "${lang}",
+      "operations": "formatLang: LL, LL-RR, LL, LL-RR"
+    }
+  ],
+  "upload": {
+    "folder": "./src/",
+    "type": "json",
+    "deprecate": "file",
+    "importAsNew": false,
+    "forceCurrent": true,
+    "forceSource": false,
+    "files": [
+      {
+        "lang": "${autodetectLang}",
+        "file": "${autodetectFile}",
+        "pattern": "/**/locales/**/*.json",
+        "excludes": ["en/*.json"],
+        "type": "json"
+      }
+    ]
+  }
+}

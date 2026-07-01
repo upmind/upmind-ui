@@ -1,4 +1,5 @@
 import type { BannerProps } from "@upmind-automation/upmind-ui";
+
 export interface AnnouncementOptions {
   /** The text content of the announcement */
   text: string;

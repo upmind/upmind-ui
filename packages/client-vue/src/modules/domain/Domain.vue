@@ -108,37 +108,27 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed, onUnmounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
-
-// --- internal
-import { useDomain, DomainTypes } from "@upmind-automation/headless";
-import { isMobile } from "@upmind-automation/upmind-ui";
-
-// --- components
-import DomainHero from "./components/DomainHero.vue";
-import DomainTabs from "./components/DomainTabs.vue";
-import DomainCards from "./components/DomainCards.vue";
-import DomainSearch from "./components/DomainSearch.vue";
-import DomainType from "./components/DomainType.vue";
-import { Button } from "@upmind-automation/upmind-ui";
-
-// --- utils
+import { useDomain } from "@upmind-automation/headless";
 import { DEBOUNCE_DELAY } from "@upmind-automation/headless";
-import { debounce } from "lodash-es";
-
-//  --- templates
+import { isMobile } from "@upmind-automation/upmind-ui";
+import { Button } from "@upmind-automation/upmind-ui";
+import DomainCards from "./components/DomainCards.vue";
+import DomainHero from "./components/DomainHero.vue";
+import DomainSearch from "./components/DomainSearch.vue";
+import DomainTabs from "./components/DomainTabs.vue";
+import DomainType from "./components/DomainType.vue";
 import DomainDrawerTemplate from "./templates/DomainDrawer.template.vue";
+import { DOMAIN_TEMPLATE } from "./types";
+import { debounce } from "lodash-es";
+import { get } from "lodash-es";
+import type { DomainProps } from "./types";
+import type { DomainTypes } from "@upmind-automation/headless";
 
 const supportedTemplates = {
   [DOMAIN_TEMPLATE.DRAWER]: DomainDrawerTemplate
 };
-
-// --- types
-import { get } from "lodash-es";
-import type { DomainProps } from "./types";
-import { DOMAIN_TEMPLATE } from "./types";
 
 // -----------------------------------------------------------------------------
 defineOptions({
@@ -192,7 +182,7 @@ const {
   type,
   // ---
   choose,
-  errors,
+  errors: _errors,
   reset,
   select,
   stop,

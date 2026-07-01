@@ -1,5 +1,4 @@
 import { Locator, Page } from "@playwright/test";
-import { kebabCase } from "../../helpers/strings";
 
 export class RadioButtons {
   readonly page: Page;
@@ -12,17 +11,18 @@ export class RadioButtons {
     this.radioOption = page.getByTestId("radio-card-item");
   }
 
-  getRadioButton(option: string) {
-    const radioOption = this.page.getByTestId(
-      `radio-card-${kebabCase(option)}`
-    );
-    return radioOption;
+  /**
+   * Locate a radio card by its STABLE cascade key — the `RadioCards` primitive
+   * tags each card `radio-card-${id || value}`, keyed off stable data (term
+   * `cycle`, subproduct `opt.id`), NOT the translated label.
+   *
+   * @param key - Stable cascade key, e.g. `12` (a term cycle) or a subproduct id.
+   */
+  getRadioButton(key: string | number) {
+    return this.page.getByTestId(`radio-card-${key}`);
   }
 
-  async selectRadioOption(option: string) {
-    const radioOption = this.page.getByTestId(
-      `radio-card-${kebabCase(option)}`
-    );
-    await radioOption.click();
+  async selectRadioOption(key: string | number) {
+    await this.getRadioButton(key).click();
   }
 }

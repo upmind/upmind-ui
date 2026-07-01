@@ -37,11 +37,8 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { provide } from "vue";
 import { useI18n } from "vue-i18n";
-
-// --- internal
 import {
   useRecommendations,
   useBasketProductsPending,
@@ -53,12 +50,8 @@ import {
   ErrorOrigin
 } from "@upmind-automation/headless";
 import { Link } from "@upmind-automation/upmind-ui";
-
-// --- components
-import ProductConfig from "../../product/components/Config.vue";
 import { Button, Drawer } from "@upmind-automation/upmind-ui";
-
-// --- types
+import ProductConfig from "../../product/components/Config.vue";
 import type { RecommendationConfigurationProps } from "./types";
 // -----------------------------------------------------------------------------
 

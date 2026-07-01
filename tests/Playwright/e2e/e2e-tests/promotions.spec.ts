@@ -11,6 +11,7 @@ import { mockPromos } from "../support/mocks/promotions";
 import { returnError } from "../support/mocks/errors";
 import { fakerEN_GB } from "@faker-js/faker";
 import { products } from "../support/constants/products";
+import { gateways } from "../support/constants/gateways";
 import {
   getClientToken,
   getSessionToken,
@@ -64,18 +65,18 @@ test.describe("Promotions", () => {
     test("Promotion on all billing terms", async ({ page }) => {
       mockPromos(page.context(), "/api/basket/products/", {}, "all", "prices");
       await page.goto(URLs.starterHosting);
-      await expect(page.getByText("Billing Term ")).toBeVisible();
-      await productConfig.promoBadgeExists("Monthly");
-      await productConfig.promoBadgeExists("Annually");
-      await productConfig.promoBadgeExists("Biennially");
+      await expect(productConfig.billingTerms).toBeVisible();
+      await productConfig.promoBadgeExists(1);
+      await productConfig.promoBadgeExists(12);
+      await productConfig.promoBadgeExists(24);
     });
     test("Promotion on a single billing term", async ({ page }) => {
       mockPromos(page.context(), "/api/basket/products/", {}, 12, "prices");
       await page.goto(URLs.starterHosting);
-      await expect(page.getByText("Billing Term ")).toBeVisible();
-      await productConfig.promoBadgeDoesNotExist("Monthly");
-      await productConfig.promoBadgeExists("Annually");
-      await productConfig.promoBadgeDoesNotExist("Biennially");
+      await expect(productConfig.billingTerms).toBeVisible();
+      await productConfig.promoBadgeDoesNotExist(1);
+      await productConfig.promoBadgeExists(12);
+      await productConfig.promoBadgeDoesNotExist(24);
     });
   });
   test.describe("Promotion displayed on DAC", () => {
@@ -272,11 +273,15 @@ test.describe("Promotions", () => {
         products.STARTER_HOSTING,
         "genericpromo"
       );
-      await expect(page.getByText("Secure checkout")).toBeVisible();
-      await checkout.selectPaymentMethod("Direct Bank Transfer");
+      await expect(page.getByTestId("checkout-heading")).toBeVisible();
+      await checkout.selectGatewayByType(gateways.BANK_TRANSFER);
       await checkout.clickCompleteCheckout();
-      await expect(page.getByText("Order confirmed")).toBeVisible();
-      await expect(page.getByText("Discount")).toBeVisible();
+      await expect(
+        page.getByTestId("order-confirmation-heading")
+      ).toBeVisible();
+      // The discount line renders only when the promo discount applied; its
+      // amount has no data-test-value on the row, so assert the line is present.
+      await expect(page.getByTestId("discount-line-item")).toBeVisible();
     });
   });
 });

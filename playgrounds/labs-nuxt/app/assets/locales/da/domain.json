@@ -1,0 +1,31 @@
+{
+  "begin_search_above_desc": "Start din søgning ved hjælp af feltet ovenfor.",
+  "choices": {
+    "basket": {
+      "label": "Brug domæne i kurv",
+      "tooltip": "Disse domæner er allerede i din kurv"
+    },
+    "existing": {
+      "label": "Brug eksisterende domæne",
+      "tooltip": "Du kan bruge et eksisterende domæne ved at opdatere navneserverne"
+    },
+    "register": {
+      "label": "Registrer nyt domæne",
+      "tooltip": "Har du ikke allerede et domæne? Registrer et nyt hos os"
+    },
+    "transfer": {
+      "label": "Overfør domæne",
+      "tooltip": "Har du allerede et domæne? Du kan overføre det til os"
+    }
+  },
+  "finding_perfect_domain": "At finde dit **perfekte** domæne",
+  "finding_perfect_domain_md": "@.markdown:{'domain.finding_perfect_domain'}",
+  "own_domain_qn": "Ejer du dette domæne?",
+  "owned_domains_title": "Domæner, du ejer i øjeblikket",
+  "price_renewal_desc": "Engangspris på {regularPrice}. | Fornyes hvert år for {regularPrice}. | Fornyes hver {count} år for {regularPrice}.",
+  "starts_with_domain": "Det hele starter med et **domænenavn**",
+  "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
+  "tld_renewal_price_desc": "Vores {tld} fornyelsespriser starter fra kun {currentPrice} (var {regularPrice}).",
+  "tld_renewal_price_from_desc": "Vores {tld} fornyelsespriser starter fra kun {regularPrice}.",
+  "transfer_domain_by_msg": "Overfør det til os pr."
+}

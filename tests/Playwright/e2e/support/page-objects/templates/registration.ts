@@ -1,6 +1,5 @@
 import { Page, Locator, BrowserContext } from "@playwright/test";
 import { faker } from "@faker-js/faker";
-import { kebabCase } from "../../helpers";
 
 // Default password for tests that just need a value satisfying the registration
 // schema (≥8 chars, letter, digit, symbol — see FE-2661).
@@ -9,7 +8,7 @@ export const STRONG_PASSWORD = "Password1!";
 export class Registration {
   readonly page: Page;
   readonly registrationForm: Locator;
-  readonly context: BrowserContext;
+  readonly context?: BrowserContext;
   readonly firstName: Locator;
   readonly lastName: Locator;
   readonly email: Locator;
@@ -20,9 +19,9 @@ export class Registration {
   readonly passwordGenerator: Locator;
   readonly passwordToggle: Locator;
 
-  constructor(page: Page, context: BrowserContext) {
+  constructor(page: Page, context?: BrowserContext) {
     this.page = page;
-    this.registrationForm = page.getByTestId("section-register");
+    this.registrationForm = page.getByTestId("register-form");
     this.context = context;
     this.firstName = page.getByTestId("input-properties-firstname");
     this.lastName = page.getByTestId("input-properties-lastname");
@@ -37,9 +36,16 @@ export class Registration {
     this.passwordToggle = this.passwordItem.getByTestId("password-toggle");
   }
 
+  /**
+   * @param field - Stable field name (a JSONForms scope key, e.g. `username`),
+   *   NOT a translated label. FormField renders the message testid as
+   *   `form-item-message-${name.replaceAll('.', '-')}`.
+   */
   getValidationError(field: string) {
     if (field === "password") return this.passwordMessage;
-    return this.page.getByTestId(`form-item-message-${kebabCase(field)}`);
+    return this.page.getByTestId(
+      `form-item-message-${field.replaceAll(".", "-")}`
+    );
   }
 
   async inputRegistration() {
@@ -54,7 +60,7 @@ export class Registration {
   }
 
   async getCookie(tokenType: string) {
-    const cookies = await this.context.cookies();
+    const cookies = await this.page.context().cookies();
     let sessionCookie;
     if (tokenType === "client") {
       sessionCookie = cookies.find(

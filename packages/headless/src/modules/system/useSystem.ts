@@ -1,12 +1,7 @@
-// --- external
 import { computed } from "vue";
-
-// --- internal
-import services, { stores } from "./services";
 import { useBrand } from "../brand";
 import { invalidateQueryByKey } from "../query";
-
-// --- utils
+import services, { stores } from "./system.services";
 import {
   every,
   find,
@@ -20,8 +15,6 @@ import {
   keys,
   some
 } from "lodash-es";
-
-// --- types
 import type {
   IBillingCycle,
   ICountry,
@@ -61,11 +54,11 @@ export const useSystem = () => {
   // --- meta information
   const meta = computed(() => {
     const queries = activeQueries.value;
-    const hasError = computed(() => some(queries, "isError.value"));
-    const isLoading = computed(() => some(queries, "isLoading.value"));
-    const isComplete = computed(() =>
-      isEmpty(queries) ? true : every(queries, "isFetched.value")
-    );
+    const hasError = some(queries, "isError.value");
+    const isLoading = some(queries, "isLoading.value");
+    const isComplete = isEmpty(queries)
+      ? true
+      : every(queries, "isFetched.value");
 
     return {
       isEmpty: queries.some(q => isEmpty(q?.data?.value)),
@@ -84,9 +77,9 @@ export const useSystem = () => {
 
     return new Promise(resolve => {
       const interval = setInterval(() => {
-        if (meta.value.isComplete.value) {
+        if (meta.value.isComplete) {
           clearInterval(interval);
-          resolve(!meta.value.hasError.value);
+          resolve(!meta.value.hasError);
         }
       }, 100);
     });

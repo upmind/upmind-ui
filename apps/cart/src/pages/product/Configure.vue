@@ -5,10 +5,7 @@
   />
 </template>
 <script lang="ts" setup>
-// --- components
 import { UpmProductConfigure } from "@upmind-automation/client-vue";
-
-// --- internal
 import { ROUTE } from "../../router";
 import { useStorefrontRoute } from "../../router/useStorefrontRoute";
 

@@ -53,6 +53,7 @@
         >
           <Section
             :label="t('text.product_configuration')"
+            value="product-configuration"
             icon="settings-04"
             :actions="configurationActions"
           >
@@ -216,11 +217,9 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
-import { computed, provide, watch, type ComputedRef } from "vue";
+import { useClipboard } from "@vueuse/core";
+import { computed, provide, watch } from "vue";
 import { useI18n } from "vue-i18n";
-
-// --- internal
 import {
   useRoutingEngine,
   useBasketProducts,
@@ -231,30 +230,32 @@ import {
   responseCodes,
   ErrorOrigin
 } from "@upmind-automation/headless";
-import { useBreadcrumbs } from "../../composables/useBreadcrumbs";
 import { useConfig, validateTemplate } from "@upmind-automation/headless";
-
-// --- components
+import { BreadcrumbVariant, UIContext } from "@upmind-automation/headless";
 import { Breadcrumb, Markdown, Alert } from "@upmind-automation/upmind-ui";
-import BasketActions from "./components/BasketActions.vue";
+import { isMobile, useThemes } from "@upmind-automation/upmind-ui";
+import Transitions from "../../components/layout/components/transition/Transition.vue";
+import Section from "../../components/section/Section.vue";
+import { useBreadcrumbs } from "../../composables/useBreadcrumbs";
+import ProductConfig from "../product/components/Config.vue";
 import ConfigErrors from "../product/components/ConfigErrors.vue";
 import ConfigSkeleton from "../product/components/ConfigSkeleton.vue";
-import Pricing from "../product/components/pricing-list/Pricing.vue";
-import PricingSkeleton from "../product/components/pricing-list/PricingSkeleton.vue";
-import PricingTotal from "../product/components/pricing-list/PricingTotal.vue";
-import ProductConfig from "../product/components/Config.vue";
 import ProductHero from "../product/components/hero/ProductHero.vue";
 import ProductHeroSkeleton from "../product/components/hero/ProductHeroSkeleton.vue";
 import ProductImage from "../product/components/hero/ProductImage.vue";
+import { PRODUCT_HERO_DIRECTION } from "../product/components/hero/types";
+import Pricing from "../product/components/pricing-list/Pricing.vue";
+import PricingSkeleton from "../product/components/pricing-list/PricingSkeleton.vue";
+import PricingTotal from "../product/components/pricing-list/PricingTotal.vue";
 import ProductNotFound from "../product/NotFound.vue";
-import Section from "../../components/section/Section.vue";
-import Transitions from "../../components/layout/components/transition/Transition.vue";
-
-//  --- templates
+import BasketActions from "./components/BasketActions.vue";
+import BasketProductEnclosedTemplate from "./templates/BasketProductEnclosed.template.vue";
 import BasketProductFullTemplate from "./templates/BasketProductFull.template.vue";
 import BasketProductLTRTemplate from "./templates/BasketProductLTR.template.vue";
 import BasketProductRTLTemplate from "./templates/BasketProductRTL.template.vue";
-import BasketProductEnclosedTemplate from "./templates/BasketProductEnclosed.template.vue";
+import { BASKET_PRODUCT_TEMPLATE } from "./types";
+import { get, includes, take, isEmpty } from "lodash-es";
+import type { BasketProductEditProps } from "./types";
 
 const supportedTemplates = {
   [BASKET_PRODUCT_TEMPLATE.FULL]: BasketProductFullTemplate,
@@ -262,16 +263,6 @@ const supportedTemplates = {
   [BASKET_PRODUCT_TEMPLATE.TWO_COLUMN_RTL]: BasketProductRTLTemplate,
   [BASKET_PRODUCT_TEMPLATE.ENCLOSED]: BasketProductEnclosedTemplate
 };
-// --- utils
-import { get, includes, take, isEmpty } from "lodash-es";
-import { isMobile, useThemes } from "@upmind-automation/upmind-ui";
-import { useClipboard } from "@vueuse/core";
-
-// --- types
-import { BreadcrumbVariant, UIContext } from "@upmind-automation/headless";
-import { BASKET_PRODUCT_TEMPLATE } from "./types";
-import type { BasketProductEditProps } from "./types";
-import { PRODUCT_HERO_DIRECTION } from "../product/components/hero/types";
 
 // -----------------------------------------------------------------------------
 
@@ -288,7 +279,7 @@ const { basketProductId } = useQueryParams();
 const { copy, copied, isSupported } = useClipboard({ legacy: true });
 
 const {
-  stop,
+  stop: _stop,
   update,
   service: basketProduct,
   onDone,

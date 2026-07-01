@@ -58,11 +58,8 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-
-// --- internal
 import {
   useRecommendations,
   useRoutingEngine,
@@ -70,28 +67,20 @@ import {
 } from "@upmind-automation/headless";
 import { useConfig, validateTemplate } from "@upmind-automation/headless";
 import { useThemes } from "@upmind-automation/upmind-ui";
-
-// --- components
 import { Interstitial } from "@upmind-automation/upmind-ui";
-import Configure from "./components/Configure.vue";
-import CardsCarousel from "./components/CardsCarousel.vue";
-import Footer from "./components/Footer.vue";
 import Hero from "../../components/hero/Hero.vue";
 import Transitions from "../../components/layout/components/transition/Transition.vue";
-
-// --- templates
+import CardsCarousel from "./components/CardsCarousel.vue";
+import Configure from "./components/Configure.vue";
+import Footer from "./components/Footer.vue";
 import RecommendationsFullTemplate from "./templates/RecommendationsFull.template.vue";
+import { RECOMMENDATIONS_TEMPLATE } from "./types";
+import { get } from "lodash-es";
+import type { RecommendationsPageProps } from "./types";
 
 const supportedTemplates = {
   [RECOMMENDATIONS_TEMPLATE.FULL]: RecommendationsFullTemplate
 };
-
-// --- utils
-import { get } from "lodash-es";
-
-// --- types
-import { RECOMMENDATIONS_TEMPLATE } from "./types";
-import type { RecommendationsPageProps } from "./types";
 // -----------------------------------------------------------------------------
 
 const props = defineProps<RecommendationsPageProps>();

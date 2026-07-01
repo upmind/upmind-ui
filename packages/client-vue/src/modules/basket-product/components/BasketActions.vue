@@ -19,6 +19,7 @@
       block
       type="submit"
       color="primary"
+      data-testid="button-confirm"
       :loading="meta.isProcessing || isNavigating"
       :disabled="meta.isLoading || meta.isUnavailable"
       :label="t('action.confirm')"
@@ -30,20 +31,15 @@
 </template>
 
 <script setup lang="ts">
-// --- external
 import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 import {
   useRoutingEngine,
   type Product,
   type UseProductConfigMeta
 } from "@upmind-automation/headless";
-import { useI18n } from "vue-i18n";
 import { useStyles } from "@upmind-automation/upmind-ui";
-
-// --- components
 import { Button, NumberField } from "@upmind-automation/upmind-ui";
-
-// --- internal
 import config from "../basket-product.config";
 
 // --- types

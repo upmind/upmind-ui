@@ -43,31 +43,24 @@
 </template>
 
 <script setup lang="ts">
-// --- external
-import { computed } from "vue";
+import { isEnumControl, and, scopeEndIs } from "@jsonforms/core";
 import { useJsonFormsEnumControl } from "@jsonforms/vue";
+import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-
-// --- internal
 import { useUpmindUIRenderer } from "@upmind-automation/upmind-ui";
-import config from "../form.config";
 import { useStyles } from "@upmind-automation/upmind-ui";
-
-// --- components
 import {
   FormField,
   RadioCards,
   Icon,
   Badge
 } from "@upmind-automation/upmind-ui";
-
-// --- utils
+import config from "../form.config";
 import { map } from "lodash-es";
-
-// --- types
 import type { ControlElement, EnumOption, JsonSchema } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
 import type { RadioCardsItemProps } from "@upmind-automation/upmind-ui";
+// --- external
 
 // -----------------------------------------------------------------------------
 const props = defineProps<RendererProps<ControlElement>>();
@@ -107,7 +100,6 @@ const items = computed(() => {
 </script>
 
 <script lang="ts">
-import { isEnumControl, and, scopeEndIs } from "@jsonforms/core";
 export const tester = {
   rank: 4,
   controlType: and(

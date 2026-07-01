@@ -1,12 +1,16 @@
-// --- external
 import { toRaw, computed } from "vue";
-
-// --- internal
-import services from "./services";
+import {
+  type ILanguage,
+  type ICurrency,
+  BasketFunnelling,
+  BrandTaxTypes,
+  BrandConfigKeys,
+  OrgFeatureKeys
+} from "@upmind-automation/types";
+import useUpmind from "../../useUpmind";
+import { invalidateQueryByKey } from "../query";
 import { useConfig } from "../config";
-import useUpmind, { invalidateQueryByKey } from "../../";
-
-// --- utils
+import services from "./brand.services";
 import {
   get,
   has,
@@ -16,7 +20,6 @@ import {
   first,
   every,
   reduce,
-  capitalize,
   isArray,
   isEmpty,
   forEach,
@@ -24,20 +27,12 @@ import {
   keys,
   sortBy
 } from "lodash-es";
-
-// --- types
-import {
-  type ILanguage,
-  type ICurrency,
-  BasketFunnelling,
-  BrandTaxTypes,
-  BrandConfigKeys,
+import type { BrandMeta } from "./brand.types";
+import type { CurrencyModel } from "../basket-currency/basket-currency.types";
+import type {
   DefaultPaymentPeriod,
-  OrgFeatureKeys,
   UpmindModuleCodes
 } from "@upmind-automation/types";
-import type { BrandMeta } from "./types";
-import type { CurrencyModel } from "../basket/currency/types";
 
 /**
  * Context to let us understand if we need to refetch on the initial use of Brand settings

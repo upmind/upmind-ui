@@ -38,13 +38,8 @@
   </UpmSection>
 </template>
 <script lang="ts" setup>
-// --- external
 import { useI18n } from "vue-i18n";
-
-// --- internal
 import { useClientReceivedEmail } from "@upmind-automation/headless";
-
-// --- components
 import { UpmSection } from "../section";
 
 // --- types

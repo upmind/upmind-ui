@@ -6,17 +6,10 @@
  * records for overlay meta and exposes reactive state + close() method.
  */
 
-// --- external
 import { computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
-
-// --- internal
 import { useQueryParams, QUERY_PARAMS } from "@upmind-automation/headless";
-
-// --- utils
 import { find } from "lodash-es";
-
-// --- types
 import type { OverlayType } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------

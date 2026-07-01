@@ -1,5 +1,4 @@
 // --- external
-import type { Meta, StoryObj } from "@storybook/vue3";
 
 // -- components
 import {
@@ -8,10 +7,8 @@ import {
   ALERT_COLORS,
   ALERT_SIZES
 } from "@upmind-automation/upmind-ui";
-
-// --- utils
 import { useSystemArgTypes } from "../../../utils";
-import { keys } from "lodash-es";
+import type { Meta, StoryObj } from "@storybook/vue3";
 
 const meta: Meta<typeof Alert> = {
   title: "Components/Alert",

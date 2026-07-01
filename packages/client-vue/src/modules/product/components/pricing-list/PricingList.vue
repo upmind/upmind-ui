@@ -14,31 +14,22 @@
 </template>
 
 <script setup lang="ts">
-// --- external
 import { computed } from "vue";
-import { useStyles } from "@upmind-automation/upmind-ui";
-
-// --- internal
-import { parseBillingCycle } from "@upmind-automation/headless";
-import config from "./pricing.config";
-
-// --- components
-import { Skeleton, DescriptionList } from "@upmind-automation/upmind-ui";
-import PricingTotal from "./PricingTotal.vue";
-
-// --- utils
-import { omitBy, map, find, filter } from "lodash-es";
-
-// --- types
-import type { PricingListProps } from "./types";
 import { useI18n } from "vue-i18n";
-import type { DescriptionItem } from "@upmind-automation/upmind-ui";
+import { parseBillingCycle } from "@upmind-automation/headless";
+import { useStyles } from "@upmind-automation/upmind-ui";
+import { Skeleton, DescriptionList } from "@upmind-automation/upmind-ui";
+import config from "./pricing.config";
+import PricingTotal from "./PricingTotal.vue";
+import { omitBy, map, find, filter } from "lodash-es";
+import type { PricingListProps } from "./types";
 import type {
   ProductSummaryDetail,
   ProductSummaryDetailWithPrice
 } from "@upmind-automation/headless";
+import type { DescriptionItem } from "@upmind-automation/upmind-ui";
 
-const { t } = useI18n();
+const { t: _t } = useI18n();
 
 const props = withDefaults(defineProps<PricingListProps>(), {
   options: true,
@@ -68,7 +59,8 @@ const summary = computed<DescriptionItem[]>(() => {
     description:
       detail.name === "product" && props.title
         ? props.title
-        : detail.title || "-"
+        : detail.title || "-",
+    dataAttrs: { "data-testid": `description-list-item-${detail.name}` }
   })) as DescriptionItem[];
 
   const term = find(props.details, d => d.name === "term");
@@ -76,7 +68,8 @@ const summary = computed<DescriptionItem[]>(() => {
   if (term && term.cycle && term.cycle > 0 && term.category) {
     summary.push({
       term: term.category,
-      description: parseBillingCycle(term.cycle!).numeric
+      description: parseBillingCycle(term.cycle!).numeric,
+      dataAttrs: { "data-testid": `description-list-item-${term.name}` }
     });
   }
 

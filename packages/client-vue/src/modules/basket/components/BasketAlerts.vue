@@ -58,7 +58,10 @@
       variant="muted"
       icon="alert-triangle"
       :title="t('cart.warning_notes_title', warningNotes.length)"
-      :action="{ label: t('action.dismiss_all') }"
+      :action="{
+        label: t('action.dismiss_all'),
+        dataAttrs: { 'data-testid': 'link-dismiss-all' }
+      }"
       data-testid="basket-warnings"
       @click="dismissAllWarnings"
     >
@@ -78,26 +81,17 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
+import { vAutoAnimate } from "@formkit/auto-animate";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { vAutoAnimate } from "@formkit/auto-animate";
-
-// --- components
-import { Alert, Link, useStyles } from "@upmind-automation/upmind-ui";
-
-// --- internal
 import {
   useBasket,
   useBasketBilling,
   useBasketFields
 } from "@upmind-automation/headless";
+import { Alert, Link, useStyles } from "@upmind-automation/upmind-ui";
 import config from "./basket-alerts.config";
-
-// --- utils
 import { sum } from "lodash-es";
-
-// --- types
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
 
 // -----------------------------------------------------------------------------

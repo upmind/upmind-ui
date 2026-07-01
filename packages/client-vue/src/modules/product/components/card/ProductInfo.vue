@@ -16,6 +16,7 @@
       <Badge
         v-else-if="productDetails?.trialSupported"
         :label="t('text.free_trial')"
+        :dataAttrs="{ 'data-testid': 'free-trial-badge' }"
         icon="clock-stopwatch"
         size="sm"
         variant="muted"
@@ -94,24 +95,15 @@
 </template>
 
 <script setup lang="ts">
-// --- external
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { isString, merge } from "lodash-es";
-
-// --- internal
 import { QUERY_PARAMS } from "@upmind-automation/headless";
-import config from "./card.config";
-
-// --- components
 import { useStyles, Badge, Link, Tooltip } from "@upmind-automation/upmind-ui";
 import DisplayPrice from "../terms/DisplayPrice.vue";
+import config from "./card.config";
 import ProductDescription from "./ProductDescription.vue";
-
-// --- utils
+import { isString, merge } from "lodash-es";
 import { toNumber } from "lodash-es";
-
-// --- types
 import type { ProductInfo } from "./types";
 
 // -----------------------------------------------------------------------------

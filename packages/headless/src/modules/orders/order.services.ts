@@ -1,13 +1,9 @@
-// --- internal
+/** @internal */
 import { useQuery } from "../query";
-import { useSession } from "../session";
-
-// --- utils
+import { useActiveSession } from "../session-store";
 import { NotAuthenticatedError } from "../../utils";
-
-// --- types
-import type { IInvoice } from "@upmind-automation/types";
 import type { OrderContext } from "./order.types";
+import type { IInvoice } from "@upmind-automation/types";
 import type { AnyEventObject } from "xstate";
 
 // -----------------------------------------------------------------------------
@@ -20,10 +16,11 @@ async function loadLookups(
   { invoiceId }: OrderContext,
   _event: AnyEventObject
 ): Promise<IInvoice> {
-  const { meta, client } = useSession();
+  const { isAuthenticated } = useActiveSession().useMeta();
+  const { activeUser } = useActiveSession().useContext();
   const { get, useUrl } = useQuery();
 
-  if (!meta.value.isAuthenticated || !client.value?.id) {
+  if (!isAuthenticated.value || !activeUser.value?.id) {
     throw new NotAuthenticatedError();
   }
 
@@ -60,5 +57,5 @@ async function loadLookups(
 export default {
   loadLookups,
   refresh: loadLookups, // alias
-  isAuthenticated: () => useSession().isAuthenticated()
+  isAuthenticated: () => useActiveSession().useActions().isReady()
 };

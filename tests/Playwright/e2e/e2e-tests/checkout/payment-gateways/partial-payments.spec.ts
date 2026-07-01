@@ -8,9 +8,10 @@ import {
   registerClient
 } from "../../../support/api/index";
 import {
-  expectedPayAmountText,
+  expectedPayAmount,
   waitForSessionCookie
 } from "../../../support/helpers";
+import { gateways } from "../../../support/constants/gateways";
 import { mockPaymentSuccess } from "../../../support/mocks/checkout";
 
 let checkout: Checkout;
@@ -37,12 +38,18 @@ test.describe("Partial payment at Checkout", () => {
       await checkout.changeAmountInput.fill("20");
       await checkout.clickConfirmAmount();
       // £20.00 is the user's typed partial amount — literal is correct here
-      await expect(checkout.payAmount).toHaveText("Pay £20.00");
-      await checkout.selectPaymentMethod("Stripe");
+      await expect(checkout.payAmount).toBeVisible();
+      await expect(checkout.payAmount).toHaveAttribute(
+        "data-test-value",
+        "£20.00"
+      );
+      await checkout.selectGatewayByType(gateways.STRIPE);
       await checkout.inputStripeDetails("4242424242424242", "12/34", "123");
       await checkout.clickCompleteCheckout();
       await page.waitForURL(`order/**`);
-      await expect(page.getByText("Thank you for your order.")).toBeVisible();
+      await expect(
+        page.getByTestId("order-confirmation-heading")
+      ).toBeVisible();
     });
     test("Partial Payment in foreign currency (AUD)", async ({
       page,
@@ -54,12 +61,18 @@ test.describe("Partial payment at Checkout", () => {
       await checkout.changeAmountInput.fill("100");
       await checkout.clickConfirmAmount();
       // A$100.00 is the user's typed partial amount — literal is correct here
-      await expect(checkout.payAmount).toHaveText("Pay A$100.00");
-      await checkout.selectPaymentMethod("Stripe");
+      await expect(checkout.payAmount).toBeVisible();
+      await expect(checkout.payAmount).toHaveAttribute(
+        "data-test-value",
+        "A$100.00"
+      );
+      await checkout.selectGatewayByType(gateways.STRIPE);
       await checkout.inputStripeDetails("4242424242424242", "12/34", "123");
       await checkout.clickCompleteCheckout();
       await page.waitForURL(`order/**`);
-      await expect(page.getByText("Thank you for your order.")).toBeVisible();
+      await expect(
+        page.getByTestId("order-confirmation-heading")
+      ).toBeVisible();
     });
     test("Partial payment with promo (GBP)", async ({ page, context }) => {
       await goToCheckout(
@@ -70,18 +83,28 @@ test.describe("Partial payment at Checkout", () => {
         null
       );
       await waitForSessionCookie(page.context());
-      const preTotal = await expectedPayAmountText(context);
-      await expect(checkout.payAmount).toHaveText(preTotal);
+      const preTotal = await expectedPayAmount(context);
+      await expect(checkout.payAmount).toBeVisible();
+      await expect(checkout.payAmount).toHaveAttribute(
+        "data-test-value",
+        preTotal
+      );
       await checkout.changeAmountButton.click();
       await checkout.changeAmountInput.fill("20");
       await checkout.clickConfirmAmount();
       // £20.00 is the user's typed partial amount — literal is correct here
-      await expect(checkout.payAmount).toHaveText("Pay £20.00");
-      await checkout.selectPaymentMethod("Stripe");
+      await expect(checkout.payAmount).toBeVisible();
+      await expect(checkout.payAmount).toHaveAttribute(
+        "data-test-value",
+        "£20.00"
+      );
+      await checkout.selectGatewayByType(gateways.STRIPE);
       await checkout.inputStripeDetails("4242424242424242", "12/34", "123");
       await checkout.clickCompleteCheckout();
       await page.waitForURL(`order/**`);
-      await expect(page.getByText("Thank you for your order.")).toBeVisible();
+      await expect(
+        page.getByTestId("order-confirmation-heading")
+      ).toBeVisible();
     });
     test("Partial payment with promo (AUD)", async ({ page, context }) => {
       await goToCheckout(
@@ -92,18 +115,28 @@ test.describe("Partial payment at Checkout", () => {
         "AUD"
       );
       await waitForSessionCookie(page.context());
-      const preTotal = await expectedPayAmountText(context);
-      await expect(checkout.payAmount).toHaveText(preTotal);
+      const preTotal = await expectedPayAmount(context);
+      await expect(checkout.payAmount).toBeVisible();
+      await expect(checkout.payAmount).toHaveAttribute(
+        "data-test-value",
+        preTotal
+      );
       await checkout.changeAmountButton.click();
       await checkout.changeAmountInput.fill("100");
       await checkout.clickConfirmAmount();
       // A$100.00 is the user's typed partial amount — literal is correct here
-      await expect(checkout.payAmount).toHaveText("Pay A$100.00");
-      await checkout.selectPaymentMethod("Stripe");
+      await expect(checkout.payAmount).toBeVisible();
+      await expect(checkout.payAmount).toHaveAttribute(
+        "data-test-value",
+        "A$100.00"
+      );
+      await checkout.selectGatewayByType(gateways.STRIPE);
       await checkout.inputStripeDetails("4242424242424242", "12/34", "123");
       await checkout.clickCompleteCheckout();
       await page.waitForURL(`order/**`);
-      await expect(page.getByText("Thank you for your order.")).toBeVisible();
+      await expect(
+        page.getByTestId("order-confirmation-heading")
+      ).toBeVisible();
     });
   });
   test.describe("Partial Payments with PayPal", () => {
@@ -114,14 +147,22 @@ test.describe("Partial payment at Checkout", () => {
     }) => {
       await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
       await waitForSessionCookie(page.context());
-      const preTotal = await expectedPayAmountText(context);
-      await expect(checkout.payAmount).toHaveText(preTotal);
+      const preTotal = await expectedPayAmount(context);
+      await expect(checkout.payAmount).toBeVisible();
+      await expect(checkout.payAmount).toHaveAttribute(
+        "data-test-value",
+        preTotal
+      );
       await checkout.changeAmountButton.click();
       await checkout.changeAmountInput.fill("20");
       await checkout.clickConfirmAmount();
       // £20.00 is the user's typed partial amount — literal is correct here
-      await expect(checkout.payAmount).toHaveText("Pay £20.00");
-      await checkout.selectPaymentMethod("Pay-Pal Express");
+      await expect(checkout.payAmount).toBeVisible();
+      await expect(checkout.payAmount).toHaveAttribute(
+        "data-test-value",
+        "£20.00"
+      );
+      await checkout.selectGatewayByType(gateways.PAYPAL_EXPRESS);
       await mockPaymentSuccess(page);
       await checkout.clickCompleteCheckout();
       await page.waitForURL(/\/order\/[a-f0-9-]+/);
@@ -132,14 +173,22 @@ test.describe("Partial payment at Checkout", () => {
     }) => {
       await goToCheckout(page, context, products.STARTER_HOSTING, null, "AUD");
       await waitForSessionCookie(page.context());
-      const preTotal = await expectedPayAmountText(context);
-      await expect(checkout.payAmount).toHaveText(preTotal);
+      const preTotal = await expectedPayAmount(context);
+      await expect(checkout.payAmount).toBeVisible();
+      await expect(checkout.payAmount).toHaveAttribute(
+        "data-test-value",
+        preTotal
+      );
       await checkout.changeAmountButton.click();
       await checkout.changeAmountInput.fill("20");
       await checkout.clickConfirmAmount();
       // A$20.00 is the user's typed partial amount — literal is correct here
-      await expect(checkout.payAmount).toHaveText("Pay A$20.00");
-      await checkout.selectPaymentMethod("Pay-Pal Express");
+      await expect(checkout.payAmount).toBeVisible();
+      await expect(checkout.payAmount).toHaveAttribute(
+        "data-test-value",
+        "A$20.00"
+      );
+      await checkout.selectGatewayByType(gateways.PAYPAL_EXPRESS);
       await mockPaymentSuccess(page);
       await checkout.clickCompleteCheckout();
       await page.waitForURL(/\/order\/[a-f0-9-]+/);
@@ -153,14 +202,22 @@ test.describe("Partial payment at Checkout", () => {
         null
       );
       await waitForSessionCookie(page.context());
-      const preTotal = await expectedPayAmountText(context);
-      await expect(checkout.payAmount).toHaveText(preTotal);
+      const preTotal = await expectedPayAmount(context);
+      await expect(checkout.payAmount).toBeVisible();
+      await expect(checkout.payAmount).toHaveAttribute(
+        "data-test-value",
+        preTotal
+      );
       await checkout.changeAmountButton.click();
       await checkout.changeAmountInput.fill("20");
       await checkout.clickConfirmAmount();
       // £20.00 is the user's typed partial amount — literal is correct here
-      await expect(checkout.payAmount).toHaveText("Pay £20.00");
-      await checkout.selectPaymentMethod("Pay-Pal Express");
+      await expect(checkout.payAmount).toBeVisible();
+      await expect(checkout.payAmount).toHaveAttribute(
+        "data-test-value",
+        "£20.00"
+      );
+      await checkout.selectGatewayByType(gateways.PAYPAL_EXPRESS);
       await mockPaymentSuccess(page);
       await checkout.clickCompleteCheckout();
       await page.waitForURL(/\/order\/[a-f0-9-]+/);

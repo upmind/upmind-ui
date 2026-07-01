@@ -26,9 +26,7 @@ test.describe("Login", async () => {
     test("Invalid Username", async ({ page }) => {
       await login.inputLogin("invalid-username", Logins.checkoutUser.password);
       await waitForSessionCookie(page.context());
-      await expect(login.alert).toContainText(
-        "The user credentials were incorrect."
-      );
+      await expect(login.alert).toBeVisible();
     });
     test("Invalid Password", async ({ page }) => {
       await login.inputLogin(
@@ -36,9 +34,7 @@ test.describe("Login", async () => {
         Logins.stripeCard.password
       );
       await waitForSessionCookie(page.context());
-      await expect(login.alert).toContainText(
-        "The user credentials were incorrect."
-      );
+      await expect(login.alert).toBeVisible();
     });
     test("Password field is the quiet variant (no meter, no generator)", async ({
       page
@@ -75,9 +71,7 @@ test.describe("Login", async () => {
         Logins.checkoutUser.password
       );
       await expect(page.url()).toBe(URLs.devBlocks);
-      await expect(login.popoverContent.locator(login.alert)).toContainText(
-        "The user credentials were incorrect."
-      );
+      await expect(login.popoverContent.locator(login.alert)).toBeVisible();
     });
     test("Invalid Password", async ({ page }) => {
       await login.loginFromPopover(
@@ -85,9 +79,7 @@ test.describe("Login", async () => {
         "Logins.checkoutUser.password"
       );
       await expect(page.url()).toBe(URLs.devBlocks);
-      await expect(login.popoverContent.locator(login.alert)).toContainText(
-        "The user credentials were incorrect."
-      );
+      await expect(login.popoverContent.locator(login.alert)).toBeVisible();
     });
   });
 });

@@ -1,14 +1,10 @@
-// --- external
+import { useActor } from "@xstate/vue";
 import { computed, effectScope, ref, watch } from "vue";
 import { interpret, InterpreterStatus } from "xstate";
-import { useActor } from "@xstate/vue";
 import { waitFor } from "xstate/lib/waitFor";
-
-// --- internal
-import { useI18n } from "../system";
+import { useI18n } from "../system-localisation";
+import { awaitResolved } from "./routing.utils";
 import routingEngine from "./routingEngine.machine";
-
-// --- utils
 import {
   contextMatches,
   contextValue,
@@ -22,12 +18,9 @@ import {
   useChildActor,
   useContext
 } from "../../utils";
-import { awaitResolved } from "./utils";
 import { forEach, isString } from "lodash-es";
-
-// --- types
+import type { FunnelTarget, RoutingEngineContext } from "./routing.types";
 import type { RouteLocation, Router } from "vue-router";
-import type { FunnelTarget, RoutingEngineContext } from "./types";
 
 // -----------------------------------------------------------------------------
 
@@ -37,9 +30,9 @@ import type { FunnelTarget, RoutingEngineContext } from "./types";
 
 const service = interpret(routingEngine, { devTools: true });
 let router: Router;
-let initialRoute = ref(true);
+const initialRoute = ref(true);
 /** Mutex — prevents overlapping navigate calls from queuing duplicate RESOLVE events. */
-let navigating = ref(false);
+const navigating = ref(false);
 /**
  * Leading-edge "page committed" signal — bumped by RouteView's `@vue:mounted`
  * with the route name that just mounted. Used by `isResolved(target)` to

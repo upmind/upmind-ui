@@ -1,22 +1,31 @@
-// --- external
-import { effectScope, getCurrentScope, type ComputedRef } from "vue";
-
 import {
-  QueryClient,
   useMutation,
   useQuery as vueUseQuery,
   useInfiniteQuery as vueUseInfiniteQuery
 } from "@tanstack/vue-query";
-import { isArray, isFunction } from "xstate/lib/utils";
+import { effectScope, getCurrentScope, type ComputedRef } from "vue";
 import { ref, unref, computed } from "vue";
-
-// --- internal
-import { useI18n, useLocale } from "../system";
+import { isArray, isFunction } from "xstate/lib/utils";
+import { Methods } from "@upmind-automation/types";
 import { useBasket, useBasketCurrency } from "../basket";
-import { doFetch, refreshToken } from "./services";
+import { useActiveSession } from "../session-store";
+import { useI18n, useLocale } from "../system-localisation";
 import { queryClient } from "./client";
-
-// --- utils
+import { doFetch, refreshToken } from "./query.services";
+import {
+  parseData,
+  PAGINATION,
+  cleanQueryKey,
+  canRetryAuthorization
+} from "./query.utils";
+import {
+  useUrl,
+  isPromise,
+  ErrorOrigin,
+  DetailedError,
+  responseCodes
+} from "../../utils";
+import { getTokenFromStorage } from "../session-store";
 import {
   forEach,
   get,
@@ -30,22 +39,6 @@ import {
   toNumber,
   unset
 } from "lodash-es";
-import {
-  parseData,
-  PAGINATION,
-  cleanQueryKey,
-  canRetryAuthorization
-} from "./utils";
-import {
-  useUrl,
-  isPromise,
-  ErrorOrigin,
-  DetailedError,
-  responseCodes
-} from "../../utils";
-import { getTokenFromStorage } from "../session/utils";
-
-// --- types
 import type {
   QueryParams,
   QueryResponse,
@@ -54,10 +47,8 @@ import type {
   InfiniteQueryPage,
   ReactiveQueryKeys,
   PaginationInfo
-} from "./types";
-import { Methods } from "@upmind-automation/types";
+} from "./query.types";
 import type { DefaultError, MutationKey, QueryKey } from "@tanstack/vue-query";
-import { useSession } from "../session";
 
 // -----------------------------------------------------------------------------
 
@@ -88,7 +79,7 @@ export const useQuery = () => {
    * @returns {Promise} A promise that resolves to the response data if the request was successful, or rejects with an error if the request failed.
    * @throws {Error} Might throw an error if the request fails.
    */
-  async function request<T extends any = any>({
+  async function request<T = any>({
     url,
     sort,
     filters,
@@ -188,7 +179,8 @@ export const useQuery = () => {
     if (withAccessToken) {
       const token = isString(withAccessToken)
         ? withAccessToken
-        : await useSession()
+        : await useActiveSession()
+            .useActions()
             .isReady()
             .then(() => getTokenFromStorage()?.access_token);
       if (token) set(init, `headers.Authorization`, `Bearer ${token}`);
@@ -383,7 +375,7 @@ export const useQuery = () => {
     if (withCurrency) reactiveKeys.currencyCode = currencyCode;
     if (withBasket) reactiveKeys.basketId = basketId;
 
-    let response = scope.run(() =>
+    const response = scope.run(() =>
       vueUseQuery<TQueryFnData, DefaultError, QueryResponse<TData>>(
         {
           queryKey: [...queryKey, reactiveKeys],
@@ -422,7 +414,7 @@ export const useQuery = () => {
                     if (response.total && offset >= response.total) {
                       // modify the params and re-request with the new offset
                       // Calculate the correct offset for the last page so it doesn't exceed the total
-                      let safeOffset = Math.max(
+                      const safeOffset = Math.max(
                         0,
                         response.total - (response.total % limit || limit)
                       );
@@ -904,17 +896,17 @@ export const useQuery = () => {
    * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
    * @param options Additional options to pass to TanStack query.
    */
-  async function countRequest<TQueryFnData = unknown, TData = TQueryFnData>({
+  async function countRequest<TQueryFnData = unknown, _TData = TQueryFnData>({
     url,
     init,
-    guard,
-    select,
+    guard: _guard,
+    select: _select,
     queryKey,
     withCurrency,
     withoutLocale,
     withAccessToken,
     ...options
-  }: Omit<QueryParams<TQueryFnData, Number>, "pagination">): Promise<Number> {
+  }: Omit<QueryParams<TQueryFnData, number>, "pagination">): Promise<number> {
     // Remove initialData from options before spreading, as it's not part of FetchQueryOptions
 
     // --- state
@@ -928,7 +920,7 @@ export const useQuery = () => {
     safeUrl.searchParams.set("limit", "count");
 
     // --- query
-    return queryClient.fetchQuery<TQueryFnData, DefaultError, Number>({
+    return queryClient.fetchQuery<TQueryFnData, DefaultError, number>({
       queryKey: cleanQueryKey([...queryKey, reactiveKeys, "count"]),
       queryFn: async ({ signal }) => {
         return request<TQueryFnData>({
@@ -966,7 +958,7 @@ export const useQuery = () => {
   async function getRequest<TQueryFnData = unknown, TData = TQueryFnData>({
     url,
     init,
-    guard,
+    guard: _guard,
     select,
     queryKey,
     withCurrency,
@@ -1001,7 +993,7 @@ export const useQuery = () => {
           withAccessToken
         }).then(response => {
           if (isFunction(select))
-            return (select as Function)(
+            return (select as (...args: unknown[]) => unknown)(
               response.data!,
               response.related,
               response.meta
@@ -1027,7 +1019,7 @@ export const useQuery = () => {
   async function listRequest<TQueryFnData = unknown, TData = TQueryFnData>({
     url,
     init,
-    guard,
+    guard: _guard,
     select,
     queryKey,
     withAccessToken,
@@ -1077,7 +1069,7 @@ export const useQuery = () => {
               if (response.total && offset >= response.total) {
                 // modify the params and re-request with the new offset
                 // Calculate the correct offset for the last page so it doesn't exceed the total
-                let safeOffset = Math.max(
+                const safeOffset = Math.max(
                   0,
                   response.total - (response.total % limit || limit)
                 );

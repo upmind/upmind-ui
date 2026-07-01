@@ -1,5 +1,3 @@
-import { isEmpty, isString } from "lodash-es";
-
 import {
   type AnyEventObject,
   assign,
@@ -9,10 +7,12 @@ import {
   useBasketProductsPending,
   useQueryParams,
   useRoutingEngine,
-  useSession
+  useActiveSession
 } from "@upmind-automation/client-vue";
 import { ROUTE } from "../types";
 import { applyBillingDefaults } from "./services";
+import { isEmpty, isString } from "lodash-es";
+import type { RouteLocation, RouteParamsGeneric } from "vue-router";
 
 // -----------------------------------------------------------------------------
 
@@ -53,11 +53,13 @@ const SKIP_BID_ROUTES: string[] = [
  *
  * Skips injection for ORDER, ERROR, BASKET_UNAVAILABLE, SESSION_END.
  */
-function injectBid(route: any): any {
+function injectBid(
+  route: FunnelContext["targetRoute"] | RouteLocation
+): FunnelContext["targetRoute"] {
   if (!route) return route;
 
   // Skip routes that don't support bid params
-  if (SKIP_BID_ROUTES.includes(route.name)) return route;
+  if (SKIP_BID_ROUTES.includes(String(route.name))) return route;
 
   const { currentRoute } = useRoutingEngine();
   const { targetBasketId, setTargetBasket, meta } = useBasket();
@@ -71,7 +73,7 @@ function injectBid(route: any): any {
     return route;
   }
 
-  const { getParam } = useQueryParams(route);
+  const { getParam } = useQueryParams(route as RouteLocation);
 
   // Read bid: getParam first (via query), then basket machine state
   const bid: string | undefined = getParam(
@@ -89,9 +91,9 @@ function injectBid(route: any): any {
 
   // Basket routes use `:bid` directly — no `:segment` param.
   // BID_PREFIX routes use `:segment(basket)?/:bid?` — need both.
-  const isBasketRoute = BASKET_ROUTES.includes(route.name);
+  const isBasketRoute = BASKET_ROUTES.includes(String(route.name));
   const isValidBasket = meta.value.isAvailable;
-  const bidParams =
+  const bidParams: RouteParamsGeneric =
     isBasketRoute || !isValidBasket ? { bid } : { segment: "basket", bid };
 
   return {
@@ -133,7 +135,7 @@ export default {
 
   // Force end the session by logging out the user
   logout: () => {
-    const { logout } = useSession();
+    const { logout } = useActiveSession().useActions();
     logout();
   },
 

@@ -58,23 +58,14 @@
 </template>
 
 <script setup lang="ts">
-// --- external
+import { useVModel } from "@vueuse/core";
 import { computed, type HtmlHTMLAttributes } from "vue";
 import { useI18n } from "vue-i18n";
-import { useVModel } from "@vueuse/core";
-
-// --- internal
-
-// --- components
 import { SelectCards } from "@upmind-automation/upmind-ui";
 import Item from "./Item.vue";
-
-// --- utils
 import { find, map } from "lodash-es";
-
-// --- types
-import type { SelectCardsItemProps } from "@upmind-automation/upmind-ui";
 import type { ManageRendererProps } from "./types";
+import type { SelectCardsItemProps } from "@upmind-automation/upmind-ui";
 
 // -----------------------------------------------------------------------------
 
@@ -137,7 +128,7 @@ function doEdit(id: string) {
   emits("edit", id);
 }
 
-function doRemove(id: string) {
+function doRemove(_id: string) {
   //  TODO
 }
 

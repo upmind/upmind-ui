@@ -1,13 +1,7 @@
-// --- internal
-import { useBrand, useDataLayer, useRoutingEngine } from "../";
-
-// --- utils
-import { get } from "lodash-es";
-
-// --- types
+import { useDataLayer } from "../system-analytics";
+import { useRoutingEngine } from "./useRoutingEngine";
+import { decorateRoutes, hasRouteChanged } from "./routing.utils";
 import type { Router, RouteLocation } from "vue-router";
-import { type UIRouteOptions } from "../brand/types";
-import { decorateRoutes, hasRouteChanged } from "./utils";
 
 // -----------------------------------------------------------------------------
 

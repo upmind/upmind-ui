@@ -1,4 +1,3 @@
-import type { UIDefinitions, DataDefinitions } from "./types";
 import {
   UIContext,
   UIScope,
@@ -27,6 +26,7 @@ import {
   OPTION_GROUP_SPACING,
   PRODUCT_SETUP_MODE
 } from "./types";
+import type { UIDefinitions, DataDefinitions } from "./types";
 
 export const UI_META_DEFINITIONS = {
   activeCategoryBadge: {

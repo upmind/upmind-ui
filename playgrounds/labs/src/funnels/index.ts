@@ -1,6 +1,3 @@
-// --- external
-
-// --- internal
 import labs from "./labs";
 
 // ---types

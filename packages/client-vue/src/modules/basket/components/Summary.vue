@@ -33,26 +33,21 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { toPairs, forEach, isEmpty, map, concat } from "lodash-es";
-
-// --- components
+import { useBasket, useConfig } from "@upmind-automation/headless";
+import { useMoney } from "@upmind-automation/headless";
 import {
   DescriptionList,
   Skeleton,
   type DescriptionItem
 } from "@upmind-automation/upmind-ui";
-import BasketPromotions from "./Promotions.vue";
-import SummarySkeleton from "./SummarySkeleton.vue";
-import BasketTotal from "./BasketTotal.vue";
-
-// --- internal
-import { useBasket, useConfig } from "@upmind-automation/headless";
-import { useMoney } from "@upmind-automation/headless";
 import { useStyles } from "@upmind-automation/upmind-ui";
+import BasketTotal from "./BasketTotal.vue";
+import BasketPromotions from "./Promotions.vue";
 import config from "./summary.config";
+import SummarySkeleton from "./SummarySkeleton.vue";
+import { forEach, isEmpty, map, concat } from "lodash-es";
 
 // --- types
 
@@ -71,11 +66,11 @@ const props = withDefaults(
   }
 );
 
-const emits = defineEmits(["edit"]);
+const _emits = defineEmits(["edit"]);
 
 const { t } = useI18n();
 const { meta, products, summary } = useBasket();
-const { ui, data } = useConfig();
+const { ui: _ui, data } = useConfig();
 const { formatPrice } = useMoney();
 
 const styles = useStyles(["summary", "summary.item"], props, config);
@@ -84,7 +79,7 @@ const productItems = computed((): DescriptionItem[] => {
   let items = [] as DescriptionItem[];
 
   if (!isEmpty(summary.value?.products) && props.showProducts) {
-    const productItems =
+    const productItems: DescriptionItem[] =
       map(summary.value!.products, (product: any) => {
         const { data } = useConfig({
           product
@@ -95,7 +90,8 @@ const productItems = computed((): DescriptionItem[] => {
           description:
             formatPrice(product?.price?.basePrice, {
               trimTrailingZeroes: data.trimTrailingZeroes
-            }) || ""
+            }) || "",
+          dataAttrs: { "data-testid": "description-list-item-product" }
         };
       }) ?? [];
 

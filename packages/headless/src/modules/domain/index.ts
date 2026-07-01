@@ -1,6 +1,6 @@
 export * from "./useDomain";
 export * from "./useDac";
-export * from "./types";
+export * from "./domain.types";
 export {
   parseDomain,
   parseDomainParts,
@@ -8,4 +8,4 @@ export {
   getDomainBasketProducts,
   sanitiseDomainInput,
   useDomainParser
-} from "./utils";
+} from "./domain.utils";

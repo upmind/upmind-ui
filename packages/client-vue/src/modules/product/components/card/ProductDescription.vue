@@ -10,13 +10,8 @@
 </template>
 
 <script setup lang="ts">
-// --- external
 import { useI18n } from "vue-i18n";
-
-// --- components
 import { Lineclamp, Markdown } from "@upmind-automation/upmind-ui";
-
-// --- types
 import type { ProductDescriptionProps } from "./types";
 
 const props = withDefaults(defineProps<ProductDescriptionProps>(), {

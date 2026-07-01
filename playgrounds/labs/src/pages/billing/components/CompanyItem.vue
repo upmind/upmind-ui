@@ -77,15 +77,10 @@
 </template>
 
 <script setup lang="ts">
-// --- external
-import { useI18n } from "vue-i18n";
-
-// --- components
-import { Badge, Icon, Tooltip, Link } from "@upmind-automation/upmind-ui";
-
-// --- types
-import type { Company } from "@upmind-automation/headless";
 import { computed } from "vue";
+import { useI18n } from "vue-i18n";
+import { Badge, Icon, Tooltip, Link } from "@upmind-automation/upmind-ui";
+import type { Company } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 

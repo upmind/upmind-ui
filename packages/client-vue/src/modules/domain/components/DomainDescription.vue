@@ -37,14 +37,9 @@
 </template>
 
 <script setup lang="ts">
-// --- external
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-
-// --- internal
 import { parseBillingCycle } from "@upmind-automation/headless";
-
-// --- types
 import type { DomainSummaryProps } from "../types";
 
 const props = defineProps<DomainSummaryProps>();

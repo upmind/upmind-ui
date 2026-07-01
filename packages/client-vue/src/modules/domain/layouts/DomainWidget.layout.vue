@@ -9,9 +9,8 @@
 </template>
 
 <script setup lang="ts">
-// --- components
+import { COLUMN_FLOW } from "../../../components/layout/components/column/types";
 import Content from "../../../components/layout/components/content/Content.vue";
 
 // --- types
-import { COLUMN_FLOW } from "../../../components/layout/components/column/types";
 </script>

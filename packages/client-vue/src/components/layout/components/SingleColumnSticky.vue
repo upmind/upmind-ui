@@ -34,32 +34,29 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { useSlots, computed, useTemplateRef } from "vue";
-
-// --- utils
 import { isEmptySlot } from "@upmind-automation/upmind-ui";
-import { useContentVisibility } from "../useContentVisibility";
-
-// --- components
-import Ribbon from "../components/ribbon/Ribbon.vue";
-import Container from "../components/container/Container.vue";
-import Column from "../components/column/Column.vue";
-import Content from "../components/content/Content.vue";
-
-// --- types
-import {
-  RIBBON_BACKGROUND,
-  RIBBON_STICKY,
-  RIBBON_BORDER
-} from "../components/ribbon";
-import { CONTAINER_FLOW, CONTAINER_ITEMS } from "../components/container";
 import {
   COLUMN_WIDTH,
   COLUMN_FLOW,
   COLUMN_ITEMS,
   COLUMN_JUSTIFY
 } from "../components/column";
+import Column from "../components/column/Column.vue";
+import { CONTAINER_FLOW, CONTAINER_ITEMS } from "../components/container";
+import Container from "../components/container/Container.vue";
+import Content from "../components/content/Content.vue";
+import {
+  RIBBON_BACKGROUND,
+  RIBBON_STICKY,
+  RIBBON_BORDER
+} from "../components/ribbon";
+import Ribbon from "../components/ribbon/Ribbon.vue";
+import { useContentVisibility } from "../useContentVisibility";
+
+// --- components
+
+// --- types
 
 // ----------------------------------------------------------------------------
 const slots = useSlots();

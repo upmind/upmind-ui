@@ -30,6 +30,9 @@
         <ProductCard
           v-else
           v-bind="recommendation"
+          :data-attrs="{
+            'data-test-value': recommendation.configuration.productId
+          }"
           :preserve-promotion="preservePromotions"
           :navigate="false"
           :disabled="recommendation.meta.added"
@@ -44,16 +47,9 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
-import { nextTick, ref, watch, computed } from "vue";
 import { vResizeObserver } from "@vueuse/components";
-
-// --- internal
-import { parseBillingCycle, UIContext } from "@upmind-automation/headless";
+import { nextTick, ref, watch, computed } from "vue";
 import { useStyles } from "@upmind-automation/upmind-ui";
-import config from "../recommendations.config";
-
-// --- components
 import {
   Carousel,
   CarouselContent,
@@ -61,19 +57,15 @@ import {
   CarouselNext,
   CarouselPrevious
 } from "@upmind-automation/upmind-ui";
-
 import {
   ProductCard,
   ProductCardSkeleton
 } from "../../product/components/card";
-
-//--- utils
-import { forEach, some, omit } from "lodash-es";
-
-// --- types
+import config from "../recommendations.config";
+import { forEach, some } from "lodash-es";
+import type { RecommendationsProps } from "./types";
 import type { Product } from "@upmind-automation/headless";
 import type { CarouselApi } from "@upmind-automation/upmind-ui";
-import type { RecommendationsProps } from "./types";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<RecommendationsProps>(), {});

@@ -19,7 +19,15 @@
           }}
         </del>
 
-        <Badge variant="minimal" color="promo" size="sm">
+        <Badge
+          variant="minimal"
+          color="promo"
+          size="sm"
+          :dataAttrs="{
+            'data-testid': 'promo-badge',
+            'data-test-value': price?.savingPercent ?? ''
+          }"
+        >
           {{
             t("action.save_value", {
               value: price?.savingPercent
@@ -97,25 +105,16 @@
 </template>
 
 <script setup lang="ts">
-// --- external
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-
-// --- internal
 import {
   parseBillingCycle,
   useMoney,
   useConfig
 } from "@upmind-automation/headless";
-import config from "./card.config";
-
-// --- utils
-import { has } from "lodash-es";
-
-// --- components
 import { useStyles, Badge, Tooltip } from "@upmind-automation/upmind-ui";
-
-// --- types
+import config from "./card.config";
+import { has } from "lodash-es";
 import type { ProductPriceProps } from "./types";
 
 // -----------------------------------------------------------------------------
@@ -143,7 +142,7 @@ const styles = useStyles(
   config
 );
 
-const regularPrice = computed(() => {
+const _regularPrice = computed(() => {
   if (props.meta?.useMonthlyFromPrice)
     return props.price?.monthlyFromRegularPrice;
 

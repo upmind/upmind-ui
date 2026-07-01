@@ -1,5 +1,12 @@
 import { some } from "lodash-es";
 
+// useTime FIRST — it is a dependency-free leaf, while util members below
+// (useError, useCalculate) import the app `modules` graph that cycles back
+// through query → basket. Exporting useTime before them initialises its binding
+// before any eager module-load caller (basket debounce configs) reads it —
+// otherwise the barrel is re-entered mid-eval and `useTime` is not yet defined
+// (`useTime is not a function` at import time).
+export * from "./useTime";
 export * from "./isDeepEmpty";
 export * from "./useCookies";
 export * from "./useCollections";
@@ -10,7 +17,7 @@ export * from "./useCalculate";
 export * from "./useCalculate.types";
 export * from "./usePOP";
 export * from "./useStorage";
-export * from "./useTime";
+export * from "./useDate";
 export * from "./useError";
 export * from "./useTranslation";
 export * from "./useUrl";

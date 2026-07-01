@@ -66,35 +66,28 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
-import { ref, computed, useSlots } from "vue";
 import { useElementSize } from "@vueuse/core";
-
-// --- internal
+import { ref, computed, useSlots } from "vue";
 import { isMobile } from "@upmind-automation/upmind-ui";
 import { isEmptySlot } from "@upmind-automation/upmind-ui";
-
-// --- components
-import Root from "../components/root/Root.vue";
-import Ribbon from "../components/ribbon/Ribbon.vue";
-import Container from "../components/container/Container.vue";
-import Column from "../components/column/Column.vue";
-import Content from "../components/content/Content.vue";
-import TwoColumnSticky from "../components/TwoColumnSticky.vue";
-
-// --- types
-import {
-  RIBBON_BACKGROUND,
-  RIBBON_HEIGHT,
-  RIBBON_BORDER
-} from "../components/ribbon";
-import { CONTAINER_FLOW } from "../components/container";
 import { COLUMN_BACKGROUND, COLUMN_WIDTH } from "../components/column";
+import Column from "../components/column/Column.vue";
+import { CONTAINER_FLOW } from "../components/container";
+import Container from "../components/container/Container.vue";
 import {
   CONTENT_GAP,
   CONTENT_FLOW,
   CONTENT_WIDTH
 } from "../components/content";
+import Content from "../components/content/Content.vue";
+import {
+  RIBBON_BACKGROUND,
+  RIBBON_HEIGHT,
+  RIBBON_BORDER
+} from "../components/ribbon";
+import Ribbon from "../components/ribbon/Ribbon.vue";
+import Root from "../components/root/Root.vue";
+import TwoColumnSticky from "../components/TwoColumnSticky.vue";
 import type { VariantProps } from "../types";
 
 defineOptions({

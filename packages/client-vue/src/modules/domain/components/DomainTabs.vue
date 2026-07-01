@@ -3,14 +3,9 @@
 </template>
 
 <script setup lang="ts">
-// --- external
-import { useI18n } from "vue-i18n";
 import { computed } from "vue";
-
-// --- components
+import { useI18n } from "vue-i18n";
 import { Tabs } from "@upmind-automation/upmind-ui";
-
-// --- types
 import type { TabItem } from "@upmind-automation/upmind-ui";
 
 const { t } = useI18n();

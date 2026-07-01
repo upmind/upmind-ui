@@ -21,15 +21,10 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { useI18n } from "vue-i18n";
-
-// --- internal
-import config from "../payment.config";
 import { useStyles } from "@upmind-automation/upmind-ui";
-
-// --- components
 import { RadioCards } from "@upmind-automation/upmind-ui";
+import config from "../payment.config";
 
 // --- types
 

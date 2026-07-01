@@ -31,20 +31,17 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { useI18n } from "vue-i18n";
-
-// --- internal
 import {
   useBasket,
   useConfig,
   useMoney,
   useRoutingEngine
 } from "@upmind-automation/headless";
+import { Button, useStyles } from "@upmind-automation/upmind-ui";
 import config from "../recommendations.config";
 
 // --- components
-import { Button, useStyles } from "@upmind-automation/upmind-ui";
 // -----------------------------------------------------------------------------
 
 defineEmits<{

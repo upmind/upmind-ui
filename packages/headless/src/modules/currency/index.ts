@@ -1,2 +1,2 @@
-export * from "./types";
-export * from "./mappers";
+export * from "./currency.types";
+export { mapCurrency } from "./currency.mappers";

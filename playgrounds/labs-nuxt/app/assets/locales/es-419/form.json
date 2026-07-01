@@ -1,0 +1,137 @@
+{
+  "address": {
+    "error": "Se requiere su dirección",
+    "label": "DIRECCIÓN",
+    "placeholder": "Empieza a escribir tu dirección",
+    "title": "Agregar nueva dirección | Actualizar dirección"
+  },
+  "address1": {
+    "label": "DIRECCIÓN",
+    "placeholder": "Nombre de la casa, número de apartamento, etc."
+  },
+  "address2": {
+    "label": "",
+    "placeholder": "Carretera, nombre de calle, etc."
+  },
+  "allow_auto_payment": {
+    "description": "Permitir que este método de pago se utilice para realizar pagos automáticos fuera de línea, como pagar una factura de renovación.",
+    "label": "Permitir pago automático"
+  },
+  "auth_email": {
+    "error": "Se requiere un nombre de usuario o una dirección de correo electrónico",
+    "label": "Su nombre de usuario o dirección de correo electrónico",
+    "placeholder": "nombre@email.com"
+  },
+  "auth_password": {
+    "error": "Se requiere una contraseña segura",
+    "label": "Contraseña",
+    "placeholder": "Contraseña o frase de contraseña"
+  },
+  "card_cvv": {
+    "error": "Se requiere un CVV válido",
+    "label": "CVV",
+    "placeholder": "CVC"
+  },
+  "card_expiry": {
+    "error": "Se requiere una fecha de vencimiento válida",
+    "label": "Fecha de caducidad",
+    "placeholder": "MM/AA"
+  },
+  "card_num": {
+    "error": "Se requiere un número de tarjeta válido",
+    "label": "Número de tarjeta",
+    "placeholder": "1234 1234 1234 1234"
+  },
+  "cardholder_name": {
+    "label": "Nombre del titular de la tarjeta",
+    "placeholder": "Ingrese el nombre del titular de la tarjeta"
+  },
+  "category_search": {
+    "placeholder": "Búsqueda por categoría..."
+  },
+  "city": {
+    "label": "Ciudad",
+    "placeholder": "Ciudad, pueblo, etc."
+  },
+  "company": {
+    "error": "Se requiere el nombre de su empresa",
+    "label": "Compañía",
+    "title": "Agregar detalles de la empresa | Actualizar detalles de la empresa"
+  },
+  "companyName": {
+    "label": "nombre de empresa",
+    "placeholder": "El nombre de su empresa"
+  },
+  "companyNumber": {
+    "label": "Número de empresa",
+    "placeholder": "Impuesto registrado o GST"
+  },
+  "country": {
+    "label": "País",
+    "placeholder": "Seleccione un país"
+  },
+  "domain": {
+    "placeholder": "Ingrese su dominio..."
+  },
+  "domain_search": {
+    "placeholder": "Buscar un dominio..."
+  },
+  "email": {
+    "error": "Se requiere una dirección de correo electrónico válida",
+    "label": "Correo electrónico",
+    "title": "Agregar nuevo correo electrónico | Actualizar correo electrónico"
+  },
+  "field_notes": {
+    "label": "Notas del pedido"
+  },
+  "firstname": {
+    "error": "Tu nombre es obligatorio",
+    "label": "Nombre de pila"
+  },
+  "lastname": {
+    "error": "Tu apellido es requerido",
+    "label": "Apellido"
+  },
+  "login": {
+    "error": "Experimentamos un error al intentar iniciar sesión."
+  },
+  "phone": {
+    "error": "Se requiere un número de teléfono válido",
+    "label": "Teléfono",
+    "title": "Agregar nuevo número de teléfono | Actualizar número de teléfono"
+  },
+  "postcode": {
+    "label": "Código postal",
+    "placeholder": "p. ej. 10011"
+  },
+  "product_name_search": {
+    "placeholder": "Buscar por nombre de producto..."
+  },
+  "promocode": {
+    "error": "Código promocional no válido",
+    "placeholder": "Introduzca el código del cupón aquí"
+  },
+  "recover": {
+    "error": "Experimentamos un error al intentar enviarle un correo electrónico de restablecimiento de contraseña."
+  },
+  "region": {
+    "label": "Región",
+    "placeholder": "Seleccione una región…"
+  },
+  "register": {
+    "error": "Experimentamos un error al intentar crear su cuenta."
+  },
+  "select_option": {
+    "placeholder": "Seleccione una opción"
+  },
+  "store_on_payment": {
+    "label": "Guardar detalles de pago"
+  },
+  "stored_payment_method": {
+    "label": "Selecciona uno de tus métodos de pago almacenados"
+  },
+  "taxNumber": {
+    "label": "Número de identificación fiscal",
+    "placeholder": "Identificación fiscal"
+  }
+}

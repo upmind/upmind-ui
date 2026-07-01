@@ -16,17 +16,10 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { onMounted } from "vue";
-
-// --- internal
 import { useFooter } from "../../../components/footer/useFooter";
 import { useHeader } from "../../../components/header/useHeader";
-
-// --- components
 import Layout from "../../../components/layout/Layout.vue";
-
-// --- types
 import { LAYOUT_VARIANTS } from "../../../components/layout/types";
 import { HEADER_PADDING } from "../../../components/header/types";
 

@@ -55,13 +55,8 @@
 </template>
 
 <script setup lang="ts">
-// --- external
 import { useI18n } from "vue-i18n";
-
-// --- components
 import { Badge, Link } from "@upmind-automation/upmind-ui";
-
-// --- types
 import type { Phone } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------

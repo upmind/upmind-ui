@@ -36,6 +36,7 @@
       <Button
         :label="label || t('action.confirm')"
         :disabled="!isValid"
+        data-testid="button-confirm-amount"
         size="lg"
         block
         @click="doResolve"
@@ -54,31 +55,22 @@
 </template>
 
 <script lang="ts" setup>
-// --- internal
-
-// --- components
+import { ref } from "vue";
+import { useI18n } from "vue-i18n";
 import {
   useForwardPropsEmits,
   Dialog,
   Button,
   Link
 } from "@upmind-automation/upmind-ui";
-
-// --- internal
-import Form from "./Form.vue";
-import config from "./form.config";
-
-// --- utils
 import { useStyles } from "@upmind-automation/upmind-ui";
-import { ref } from "vue";
-
-// --- types
+import config from "./form.config";
+import Form from "./Form.vue";
+import type { FormModalProps } from "./types";
 import type {
   FormFooterProps,
   FormActionsProps
 } from "@upmind-automation/upmind-ui";
-import { useI18n } from "vue-i18n";
-import type { FormModalProps } from "./types";
 
 // -----------------------------------------------------------------------------
 const props = defineProps<FormModalProps>();
@@ -106,7 +98,7 @@ const isValid = ref(true);
 
 const { t, locale } = useI18n();
 
-const slots = defineSlots<{
+const _slots = defineSlots<{
   footer: FormFooterProps;
   actions: FormActionsProps;
 }>();

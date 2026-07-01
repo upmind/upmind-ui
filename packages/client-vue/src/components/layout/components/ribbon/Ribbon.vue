@@ -9,21 +9,16 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed } from "vue";
-
-// --- internal
 import { cn, useStyles } from "@upmind-automation/upmind-ui";
 import config from "./ribbon.config";
-
-// --- types
-import type { RibbonProps } from "./types";
 import {
   RIBBON_BACKGROUND,
   RIBBON_BORDER,
   RIBBON_STICKY,
   RIBBON_HEIGHT
 } from "./types";
+import type { RibbonProps } from "./types";
 
 const props = withDefaults(defineProps<RibbonProps>(), {
   as: "section",

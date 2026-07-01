@@ -1,7 +1,4 @@
-// --- external
 import { createI18n, type I18n } from "vue-i18n";
-
-// --- internal
 import { htmlModifier, markdownModifier } from "@upmind-automation/i18n";
 
 const i18n = createI18n({

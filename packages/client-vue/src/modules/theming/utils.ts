@@ -1,14 +1,9 @@
-// --- external
 import WebFontLoader from "webfontloader";
-
-// --- internal
 import {
   useImageUrl,
   type Theme,
   type ThemeTokens
 } from "@upmind-automation/headless";
-
-// --- utils
 import { forEach, has, isEmpty, uniq, compact, isString, map } from "lodash-es";
 import type { IImage } from "../../../../types/src";
 
@@ -193,7 +188,7 @@ export async function loadGoogleFonts(
 ): Promise<void> {
   const families = uniq(compact([fonts?.sans, fonts?.body, fonts?.display]));
 
-  return new Promise<void>((resolve, reject) => {
+  return new Promise<void>((resolve, _reject) => {
     if (isEmpty(families)) return resolve();
 
     const familiesWithWeights = map(

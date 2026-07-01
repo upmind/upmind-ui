@@ -751,7 +751,7 @@ curl -s -X PUT "$API/orders/63250798-065d-1e20-388f-8174e234e98d?lang=en-US" \
   }'
 ```
 
-Response (200) is the full `Basket` shape (same as `GET /orders/current`). Real fixture available at `tests/__fixtures__/recordings/put-orders-63250798-065d-1e20-388f-8174e234e98d.json`.
+Response (200) is the full `Basket` shape (same as `GET /orders/current`). Real fixture available at `tests/fixtures/recordings/put-orders-63250798-065d-1e20-388f-8174e234e98d.json`.
 
 ### `PUT /orders/{id}/currency`
 
@@ -974,7 +974,7 @@ curl -s -X PATCH "$API/orders/63250798-065d-1e20-388f-8174e234e98d/convert?lang=
 }
 ```
 
-> Sample trimmed for readability — full Invoice shape (incl. embedded catalogue products, taxes, partial-credit metadata, and refund/fraud fields) is in [`tests/__fixtures__/recordings/patch-orders-63250798-065d-1e20-388f-8174e234e98d-convert.json`](../../../../../../tests/__fixtures__/recordings/patch-orders-63250798-065d-1e20-388f-8174e234e98d-convert.json). The same record id (`63250798-…`) is reused as the invoice id; the basket transitions to invoice lifecycle and `contract_id` is now populated.
+> Sample trimmed for readability — full Invoice shape (incl. embedded catalogue products, taxes, partial-credit metadata, and refund/fraud fields) is in [`tests/fixtures/recordings/patch-orders-63250798-065d-1e20-388f-8174e234e98d-convert.json`](../../../../../../tests/fixtures/recordings/patch-orders-63250798-065d-1e20-388f-8174e234e98d-convert.json). The same record id (`63250798-…`) is reused as the invoice id; the basket transitions to invoice lifecycle and `contract_id` is now populated.
 
 ### `PUT /orders/{id}/warnings/hide`
 

@@ -15,20 +15,12 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
+import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
-
-// --- internal
 import { useBrand } from "@upmind-automation/headless";
 import { useStyles, Link } from "@upmind-automation/upmind-ui";
 import config from "./header.config";
-
-// --- components
-import { computed } from "vue";
-
-// --- types
-import type { ComputedRef } from "vue";
 import type { StorefrontRoute } from "../../types";
 
 const route = useRoute();

@@ -1,8 +1,7 @@
-// --- external
+import Listings from "./Listings.vue";
 import type { RouteRecordRaw } from "vue-router";
 
 // --- internal
-import Listings from "./Listings.vue";
 
 // -----------------------------------------------------------------------------
 

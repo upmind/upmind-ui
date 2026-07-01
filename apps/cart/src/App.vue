@@ -13,26 +13,17 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed } from "vue";
 import { useRoute } from "vue-router";
-
-// --- internal
 import {
   Upm,
   UpmBasketAction,
   UpmAuthAction,
   useOverlayRoute
 } from "@upmind-automation/client-vue";
-
-// --- utils
-import { includes } from "lodash-es";
-
-// --- types
 import { ROUTE } from "./router";
-
-// --- composables
 import { useStorefrontRoute } from "./router/useStorefrontRoute";
+import { includes } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 const { storefrontRoute } = useStorefrontRoute();

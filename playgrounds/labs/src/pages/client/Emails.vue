@@ -2,7 +2,7 @@
   <UpmLayout>
     <UpmSection class="max-w-app mx-auto" label="Emails">
       <UpmManage
-        v-if="meta.isAuthenticated"
+        v-if="isAuthenticated"
         i18n-key="client.email"
         :manage="{
           useList: useClientEmails,
@@ -14,17 +14,10 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
-
-// --- internal
 import {
-  useSession,
+  useActiveSession,
   useClientEmailManager,
-  useClientEmails
-} from "@upmind-automation/client-vue";
-
-// --- components
-import {
+  useClientEmails,
   UpmManage,
   UpmSection,
   UpmLayout
@@ -32,5 +25,5 @@ import {
 
 // -----------------------------------------------------------------------------
 
-const { meta } = useSession();
+const { isAuthenticated } = useActiveSession().useMeta();
 </script>

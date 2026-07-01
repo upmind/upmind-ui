@@ -1,10 +1,5 @@
-// --- external
 import * as Sentry from "@sentry/vue";
-
-// --- internal
-import { useI18n } from "../modules";
-
-// --- utils
+import { useI18n } from "../modules/system-localisation";
 import {
   flatMap,
   get,
@@ -18,8 +13,6 @@ import {
   isString,
   isNumber
 } from "lodash-es";
-
-// --- types
 import type { ErrorObject } from "ajv";
 
 export type { ErrorObject } from "ajv";

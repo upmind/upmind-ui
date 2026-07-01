@@ -1,14 +1,15 @@
-// ---  external
-import { isEnabled, getCookie, setCookie, removeCookie } from "tiny-cookie";
 import { parse, type ParsedDomain } from "psl";
-
-// --- internal
-import useUpmind from "../index";
-
-// --- utils
-import { isEmpty, set } from "lodash-es";
+import { isEnabled, getCookie, setCookie, removeCookie } from "tiny-cookie";
+import useUpmind from "../useUpmind";
+import { isEmpty, set, forEach } from "lodash-es";
 
 // --- types
+/**
+ * Callback for cookie change events (CookieStore API).
+ * Added for session-store/sync compatibility (FE-2825).
+ */
+export type CookieChangeCallback = (event: CookieChangeEvent) => void;
+
 declare interface CookieOptions {
   domain?: string;
   path?: string;
@@ -26,6 +27,26 @@ declare type Encoder<T> = (value: T) => string;
 /** Apex domains where domain cookies should NOT be set, as it can cause issues across tenants who haven't set a custom apex domain */
 const RESTRICTED_APEX_DOMAINS = ["upmind.app", "upmind.dev", "upmind.com"];
 
+/** Module-level set of change listeners (CookieStore API). */
+const changeListeners = new Set<CookieChangeCallback>();
+
+function handleCookieStoreChange(event: CookieChangeEvent): void {
+  forEach([...changeListeners], callback => {
+    try {
+      callback(event);
+    } catch (err) {
+      console.error("[useCookies] Error in change listener:", err);
+    }
+  });
+}
+
+if (typeof window !== "undefined" && "cookieStore" in window) {
+  (window as any).cookieStore.addEventListener(
+    "change",
+    handleCookieStoreChange
+  );
+}
+
 export function useCookies() {
   const domain = window.location.hostname;
   const apexDomain = getApexDomain(window.location.hostname);
@@ -36,7 +57,7 @@ export function useCookies() {
       atob(str);
       // If decoding succeeds, it's likely Base64 encoded
       return true;
-    } catch (e) {
+    } catch (_e) {
       // If an error occurs (e.g., InvalidCharacterError), it's not valid Base64
       return false;
     }
@@ -66,7 +87,7 @@ export function useCookies() {
     ): string | Record<string, any> | null => {
       try {
         return getCookie(key, encoder);
-      } catch (e) {
+      } catch (_e) {
         // TEMPORARY: we need to log this error, as it may be useful for debugging in sentry
         // console.error(" Error converting basket", error);
         return null;
@@ -105,6 +126,16 @@ export function useCookies() {
       }
     },
     remove: removeCookie,
+    addChangeListener: (callback: CookieChangeCallback): (() => void) => {
+      changeListeners.add(callback);
+      return () => changeListeners.delete(callback);
+    },
+    removeChangeListener: (callback: CookieChangeCallback): void => {
+      changeListeners.delete(callback);
+    },
+    isChangeListenerSupported: (): boolean => {
+      return typeof window !== "undefined" && "cookieStore" in window;
+    },
     removeTopLevel: (key: string, options?: CookieOptions) => {
       options ??= {};
 

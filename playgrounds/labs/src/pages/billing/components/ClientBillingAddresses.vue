@@ -52,25 +52,20 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
-
-// --- internal
+import { UpmManage, UpmSections } from "@upmind-automation/client-vue";
 import {
   useClientAddresses,
   useClientAddressManager,
   useClientCompanies,
   useClientCompanyManager,
-  useSession
+  useActiveSession
 } from "@upmind-automation/headless";
-import type { TabItem } from "@upmind-automation/upmind-ui";
-
-// --- components
-import { UpmManage, UpmSections } from "@upmind-automation/client-vue";
 import AddressItem from "./AddressItem.vue";
 import CompanyItem from "./CompanyItem.vue";
 import { sortBy } from "lodash-es";
+import type { TabItem } from "@upmind-automation/upmind-ui";
 
 // -----------------------------------------------------------------------------
 
@@ -85,9 +80,8 @@ const props = withDefaults(
 
 const { t } = useI18n();
 
-const { isAuthenticated } = useSession();
 if (!props.skipAuth) {
-  await isAuthenticated();
+  await useActiveSession().useActions().isAuthenticated();
 }
 
 const {

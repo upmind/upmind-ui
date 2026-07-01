@@ -1,16 +1,11 @@
-// --- external
-import type { Meta, StoryObj } from "@storybook/vue3";
-
-// -- components
+import { ref } from "vue";
 import {
   CheckboxCards,
   type CheckboxCardsItemProps
 } from "@upmind-automation/upmind-ui";
-
-// --- utils
 import { BADGE_VARIANTS, BADGE_COLORS } from "@upmind-automation/upmind-ui";
 import { find } from "lodash-es";
-import { ref } from "vue";
+import type { Meta, StoryObj } from "@storybook/vue3";
 
 const meta: Meta<typeof CheckboxCards> = {
   component: CheckboxCards,

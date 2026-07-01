@@ -2,8 +2,7 @@ import { Page, Locator, expect } from "@playwright/test";
 
 type SelectRadixRadioOptions = {
   scope?: Locator;
-  name?: string;
-  testId?: string;
+  testId: string;
   maxRetries?: number;
   retryDelayMs?: number;
 };
@@ -12,18 +11,17 @@ export async function selectRadixRadio(
   page: Page,
   options: SelectRadixRadioOptions
 ) {
-  const { scope, name, testId, maxRetries = 10, retryDelayMs = 50 } = options;
+  const { scope, testId, maxRetries = 10, retryDelayMs = 50 } = options;
 
-  if (!name && !testId) {
-    throw new Error("selectRadixRadio requires either { name } or { testId }");
+  if (!testId) {
+    throw new Error("selectRadixRadio requires { testId }");
   }
 
   const root = scope ?? page;
 
-  // Locate the radio button or role
-  const radio = name
-    ? root.getByRole("radio", { name })
-    : root.getByTestId(testId!).getByRole("radio");
+  // Locate the radio by its explicit, locale-stable testid, then narrow to the
+  // inner radio element (role narrows within the testid scope — not by name).
+  const radio = root.getByTestId(testId).getByRole("radio");
 
   await expect(radio, "Radix radio not visible").toBeVisible();
 
