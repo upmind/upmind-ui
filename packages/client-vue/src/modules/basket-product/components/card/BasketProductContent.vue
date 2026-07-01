@@ -22,6 +22,7 @@
 
             <Link
               v-if="isMobile && !isEmpty(filteredDetails)"
+              data-testid="button-product-information"
               @click="open = !open"
               color="muted"
               aria-label="Product information"
@@ -36,6 +37,8 @@
 
           <ExPrice
             v-if="!summary.meta?.freeTrial"
+            data-testid="regular-price"
+            :data-test-value="summary.price.regularPrice"
             :regular-price="summary.price.regularPrice"
             :monthly-from-regular-price="
               summary.price.monthlyFromRegularPrice ?? ''
@@ -54,7 +57,11 @@
               offset="2"
               :class="styles.product.summary.title.link"
             >
-              <strong :class="styles.product.summary.title.text">
+              <strong
+                data-testid="basket-product-name"
+                :data-test-value="id"
+                :class="styles.product.summary.title.text"
+              >
                 {{ data.productName || summary.title }}
               </strong>
             </Link>
@@ -65,6 +72,7 @@
                 :label="t('action.show_details')"
               >
                 <Link
+                  data-testid="button-product-information"
                   @click="open = !open"
                   color="muted"
                   aria-label="Product information"
@@ -102,6 +110,7 @@
 
           <strong
             v-if="summary.meta?.freeTrial"
+            data-testid="trial-price-label"
             :class="styles.product.pricing.current"
           >
             {{ t("text.free_trial") }}
@@ -133,6 +142,10 @@
 
     <Alert
       v-if="summary.meta?.freeTrial"
+      :dataAttrs="{
+        'data-testid': 'trial-alert',
+        'data-test-value': productDetails.trialDuration ?? ''
+      }"
       :title="
         t('text.free_trial_alert', { days: productDetails.trialDuration })
       "
@@ -149,7 +162,10 @@
     />
 
     <footer :class="styles.product.summary.footer.root">
-      <div :class="styles.product.summary.footer.terms.root">
+      <div
+        :class="styles.product.summary.footer.terms.root"
+        data-testid="billing-term-section"
+      >
         <div :class="styles.product.summary.footer.terms.controls">
           <BasketQuantityField
             v-if="productDetails.quantifiable && !productDetails.readonly"
@@ -202,11 +218,10 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
-import { useI18n } from "vue-i18n";
 import { vAutoAnimate } from "@formkit/auto-animate";
-
-// --- components
+import { computed } from "vue";
+import { useI18n } from "vue-i18n";
+import { useConfig, type ProductModel } from "@upmind-automation/headless";
 import {
   Badge,
   Button,
@@ -216,27 +231,19 @@ import {
   Image,
   Alert
 } from "@upmind-automation/upmind-ui";
-import RequiredAlert from "./components/RequiredAlert.vue";
+import { useStyles } from "@upmind-automation/upmind-ui";
+import { isMobile } from "@upmind-automation/upmind-ui";
 import CurrentPrice from "../../../product/components/pricing/CurrentPrice.vue";
 import ExPrice from "../../../product/components/pricing/ExPrice.vue";
-import RenewDescription from "./components/RenewDescription.vue";
-import Promotion from "./components/Promotion.vue";
-import BasketQuantityField from "./components/BasketQuantityField.vue";
+import styleConfig from "./basketProduct.config";
 import BasketProductConfigurationDetails from "./BasketProductConfigurationDetails.vue";
 import BasketProductTermSelector from "./components/BasketProductTermSelector.vue";
-
-// --- internal
-import { useStyles } from "@upmind-automation/upmind-ui";
-import styleConfig from "./basketProduct.config";
-import { useConfig, type ProductModel } from "@upmind-automation/headless";
-
-// --- utils
-import { isMobile } from "@upmind-automation/upmind-ui";
+import BasketQuantityField from "./components/BasketQuantityField.vue";
+import Promotion from "./components/Promotion.vue";
+import RenewDescription from "./components/RenewDescription.vue";
+import RequiredAlert from "./components/RequiredAlert.vue";
 import { filter, isEmpty, includes } from "lodash-es";
-
-// --- types
 import type { BasketProductContentProps } from "./types";
-import { computed } from "vue";
 
 // -----------------------------------------------------------------------------
 

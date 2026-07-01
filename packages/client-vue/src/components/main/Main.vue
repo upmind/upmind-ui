@@ -6,13 +6,9 @@
 
 <script lang="ts" setup>
 import { computed } from "vue";
-
-// --- internal
 import { cn, useStyles } from "@upmind-automation/upmind-ui";
-import config from "./main.config";
 import { useLayout } from "../layout/useLayout";
-
-// --- types
+import config from "./main.config";
 import type { MainProps } from "./types";
 
 // -----------------------------------------------------------------------------

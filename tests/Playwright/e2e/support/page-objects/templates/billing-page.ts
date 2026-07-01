@@ -18,10 +18,10 @@ export class BillingPage {
   constructor(page: Page) {
     this.page = page;
     this.billingSection = this.page.getByTestId("billing");
-    this.backToBasket = this.page.getByText("Back to basket");
+    this.backToBasket = this.page.getByTestId("link-back-to-basket");
     this.continue = this.page.getByTestId("button-continue");
-    this.personalTab = this.page.getByText("Personal details");
-    this.businessTab = this.page.getByText("Business details");
+    this.personalTab = this.page.getByTestId("tab-personal-details");
+    this.businessTab = this.page.getByTestId("tab-business-details");
     this.addressManualEntry = this.page.getByTestId(
       "link-enter-address-manually"
     );

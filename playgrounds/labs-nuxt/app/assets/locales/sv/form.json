@@ -1,0 +1,137 @@
+{
+  "address": {
+    "error": "Din adress är obligatorisk",
+    "label": "Adress",
+    "placeholder": "Börja skriva din adress",
+    "title": "Lägg till ny adress | Uppdatera adress"
+  },
+  "address1": {
+    "label": "Adress",
+    "placeholder": "Husnamn, lägenhetsnummer etc."
+  },
+  "address2": {
+    "label": "",
+    "placeholder": "Väg, gatunamn etc."
+  },
+  "allow_auto_payment": {
+    "description": "Tillåt att den här betalningsmetoden används för att göra automatiska offlinebetalningar – till exempel för att betala en förnyelsefaktura.",
+    "label": "Tillåt automatisk betalning"
+  },
+  "auth_email": {
+    "error": "Ett användarnamn eller en e-postadress krävs",
+    "label": "Ditt användarnamn eller din e-postadress",
+    "placeholder": "namn@epost.com"
+  },
+  "auth_password": {
+    "error": "Ett starkt lösenord krävs",
+    "label": "Lösenord",
+    "placeholder": "Lösenord eller lösenfras"
+  },
+  "card_cvv": {
+    "error": "Ett giltigt CVV krävs",
+    "label": "CVV",
+    "placeholder": "CVC-kod"
+  },
+  "card_expiry": {
+    "error": "Ett giltigt utgångsdatum krävs",
+    "label": "Utgångsdatum",
+    "placeholder": "MM/ÅÅ"
+  },
+  "card_num": {
+    "error": "Ett giltigt kortnummer krävs",
+    "label": "Kortnummer",
+    "placeholder": "1234 1234 1234 1234"
+  },
+  "cardholder_name": {
+    "label": "Kortinnehavarens namn",
+    "placeholder": "Ange kortinnehavarens namn"
+  },
+  "category_search": {
+    "placeholder": "Kategorisökning..."
+  },
+  "city": {
+    "label": "Stad",
+    "placeholder": "Stad, ort etc."
+  },
+  "company": {
+    "error": "Ditt företagsnamn krävs",
+    "label": "Företag",
+    "title": "Lägg till företagsuppgifter | Uppdatera företagsuppgifter"
+  },
+  "companyName": {
+    "label": "Företagsnamn",
+    "placeholder": "Ditt företagsnamn"
+  },
+  "companyNumber": {
+    "label": "Företagsnummer",
+    "placeholder": "Registrerad skatt eller moms"
+  },
+  "country": {
+    "label": "Land",
+    "placeholder": "Välj ett land"
+  },
+  "domain": {
+    "placeholder": "Ange din domän..."
+  },
+  "domain_search": {
+    "placeholder": "Sök efter en domän..."
+  },
+  "email": {
+    "error": "En giltig e-postadress krävs",
+    "label": "E-post",
+    "title": "Lägg till ny e-postadress | Uppdatera e-postadress"
+  },
+  "field_notes": {
+    "label": "Orderanteckningar"
+  },
+  "firstname": {
+    "error": "Ditt förnamn är obligatoriskt",
+    "label": "Förnamn"
+  },
+  "lastname": {
+    "error": "Ditt efternamn är obligatoriskt",
+    "label": "Efternamn"
+  },
+  "login": {
+    "error": "Vi upplevde ett fel när vi försökte logga in dig."
+  },
+  "phone": {
+    "error": "Ett giltigt telefonnummer krävs",
+    "label": "Telefon",
+    "title": "Lägg till nytt telefonnummer | Uppdatera telefonnummer"
+  },
+  "postcode": {
+    "label": "Postnummer",
+    "placeholder": "t.ex. 10011"
+  },
+  "product_name_search": {
+    "placeholder": "Sök efter produktnamn..."
+  },
+  "promocode": {
+    "error": "Ogiltig kampanjkod",
+    "placeholder": "Ange kupongkoden här"
+  },
+  "recover": {
+    "error": "Vi uppstod ett fel när vi försökte skicka ett e-postmeddelande för återställning av lösenordet till dig."
+  },
+  "region": {
+    "label": "Område",
+    "placeholder": "Välj en region…"
+  },
+  "register": {
+    "error": "Vi uppstod ett fel när vi försökte skapa ditt konto."
+  },
+  "select_option": {
+    "placeholder": "Välj ett alternativ"
+  },
+  "store_on_payment": {
+    "label": "Spara betalningsuppgifter"
+  },
+  "stored_payment_method": {
+    "label": "Välj en av dina sparade betalningsmetoder"
+  },
+  "taxNumber": {
+    "label": "Skattenummer",
+    "placeholder": "Skatte-ID"
+  }
+}

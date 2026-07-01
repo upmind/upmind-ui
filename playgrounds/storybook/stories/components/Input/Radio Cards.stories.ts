@@ -1,14 +1,12 @@
 // --- external
-import type { Meta, StoryObj } from "@storybook/vue3";
 
 // -- components
 import {
   RadioCards,
   type RadioCardsItemProps
 } from "@upmind-automation/upmind-ui";
-
-// --- utils
 import { BADGE_VARIANTS, BADGE_COLORS } from "@upmind-automation/upmind-ui";
+import type { Meta, StoryObj } from "@storybook/vue3";
 
 const meta: Meta<typeof RadioCards> = {
   component: RadioCards,
@@ -109,7 +107,7 @@ export const Base: Story = {
     secondaryBadgeLabel: "Default",
     action: "Details"
   },
-  render: (args: any) => ({
+  render: (_args: any) => ({
     components: { RadioCards },
     setup() {
       const items = [

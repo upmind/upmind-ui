@@ -6,9 +6,6 @@
 </template>
 
 <script lang="ts" setup>
-// --- components
 import { UpmCatalogue } from "@upmind-automation/client-vue";
-
-// --- internal
 import { ROUTE } from "../router";
 </script>

@@ -6,16 +6,29 @@
     <td
       :class="styles.table.row.cell"
       :data-emphasis="row.meta.emphasis"
-      :data-testid="`item-${kebabCase(row.item)}`"
+      :data-testid="row.id ? `item-${row.id}` : undefined"
     >
       <template v-if="row.meta.indented">↳ </template>{{ row.item }}
     </td>
-    <td :class="styles.table.row.cell" data-testid="price">{{ row.price }}</td>
-    <td :class="styles.table.row.cell" data-testid="qty">{{ row.qty }}</td>
+    <td
+      :class="styles.table.row.cell"
+      data-testid="price"
+      :data-test-value="row.price"
+    >
+      {{ row.price }}
+    </td>
+    <td
+      :class="styles.table.row.cell"
+      data-testid="qty"
+      :data-test-value="row.qty"
+    >
+      {{ row.qty }}
+    </td>
     <td
       :class="styles.table.row.cell"
       :data-emphasis="row.meta.emphasis"
       data-testid="total"
+      :data-test-value="row.total"
     >
       {{ row.total }}
     </td>
@@ -23,15 +36,9 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed } from "vue";
-import { kebabCase } from "lodash-es";
-
-// --- internal
-import config from "../order.config";
 import { useStyles } from "@upmind-automation/upmind-ui";
-
-// --- types
+import config from "../order.config";
 import type { TableRow } from "../types";
 
 // -----------------------------------------------------------------------------

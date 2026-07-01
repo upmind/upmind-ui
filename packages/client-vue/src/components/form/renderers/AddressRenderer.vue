@@ -11,6 +11,7 @@
         :placeholder="t('form.address.placeholder')"
         :results="predictions"
         :additional-option="t('action.enter_address_manually')"
+        :data-attrs="{ 'data-testid': 'address-search-option' }"
         class="mb-6"
         @select="selectAddress"
         @update:search="getSuggestions"
@@ -41,29 +42,22 @@
 </template>
 
 <script setup lang="ts">
-// --- external
-import { computed, ref } from "vue";
-import { useI18n } from "vue-i18n";
+import { and, isLayout, uiTypeIs } from "@jsonforms/core";
 import {
   DispatchRenderer,
   rendererProps,
   useJsonFormsControlWithDetail
 } from "@jsonforms/vue";
-
-// --- internal
+import { computed, ref } from "vue";
+import { useI18n } from "vue-i18n";
 import { usePlaces } from "@upmind-automation/headless";
-
-// --- components
 import { FormField, Search, Link } from "@upmind-automation/upmind-ui";
-
-// --- utils
 import { useUpmindUIRenderer } from "@upmind-automation/upmind-ui";
 import { get } from "lodash-es";
-
-// --- types
-import type { ControlElement, UISchemaElement } from "@jsonforms/core";
-import type { SearchItem } from "@upmind-automation/upmind-ui";
+import type { ControlElement } from "@jsonforms/core";
 import type { Place } from "@upmind-automation/headless";
+import type { SearchItem } from "@upmind-automation/upmind-ui";
+// --- external
 
 // -----------------------------------------------------------------------------
 const props = defineProps({
@@ -118,8 +112,6 @@ function setShowAddressFields(value: boolean = true) {
 </script>
 
 <script lang="ts">
-import { and, isLayout, uiTypeIs } from "@jsonforms/core";
-
 export const tester = {
   rank: 2,
   controlType: and(isLayout, uiTypeIs("address"))

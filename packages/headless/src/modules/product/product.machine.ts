@@ -1,18 +1,12 @@
-// --- external
+/** @internal */
 import { createMachine, assign, spawn, sendTo, pure, raise } from "xstate";
-
-// --- internal
-import services from "./services";
-import { basketSubscription } from "../basketProduct/helper";
-
-// --utils
+import { transformProductDynamicValues } from "../basket-product/basket-product.utils";
+import { basketSubscription } from "../basket-product/helper";
 import {
-  compactDeep,
-  mapToHeadlessError,
-  responseCodes,
-  useModelParser,
-  useTime
-} from "../../utils";
+  useProductConfigSchema,
+  useProductConfigUischema
+} from "./product.schemas";
+import services from "./product.services";
 import {
   parseSubproductDetails,
   parseProductDetails,
@@ -23,14 +17,22 @@ import {
   parseBundledProducts,
   mergeBasketSubproducts,
   hasNonOrderableSubproducts
-} from "./utils";
-
-import { useProductConfigSchema, useProductConfigUischema } from "./schemas";
-
+} from "./product.utils";
+import {
+  buildPriceEntries,
+  checkPriceOverride,
+  getOutstandingBasketErrors
+} from "./product.utils";
+import {
+  compactDeep,
+  mapToHeadlessError,
+  responseCodes,
+  useModelParser,
+  useTime
+} from "../../utils";
+import { calculateActor } from "../../utils";
 import {
   cloneDeep,
-  compact,
-  filter,
   find,
   get,
   isArray,
@@ -38,23 +40,12 @@ import {
   isEqual,
   map,
   merge,
-  split,
-  trimStart,
   xorBy
 } from "lodash-es";
 
-import { calculateActor } from "../../utils";
-import {
-  buildPriceEntries,
-  checkPriceOverride,
-  getOutstandingBasketErrors
-} from "./utils";
-
-// ---types
 import type { AnyEventObject } from "xstate";
-import type { BasketProduct } from "../basketProduct";
-import type { PriceDisplay, ProductConfigContext, ProductModel } from "./types";
-import { transformProductDynamicValues } from "../basketProduct/utils";
+import type { PriceDisplay, ProductConfigContext, ProductModel } from ".";
+import type { BasketProduct } from "../basket-product";
 
 // -----------------------------------------------------------------------------
 
@@ -446,7 +437,7 @@ export default createMachine(
           let { model, lookups, rawProduct, coupons, rawBasketProduct } =
             context;
 
-          let {
+          const {
             client_id,
             currency_id,
             promotions,
@@ -498,7 +489,7 @@ export default createMachine(
       ),
 
       setBasketHelper: assign(
-        ({ basketHelper, promotions }: ProductConfigContext) => {
+        ({ basketHelper, promotions: _promotions }: ProductConfigContext) => {
           return {
             basketHelper: basketHelper || spawn(basketSubscription),
             parseBasketProduct: (item: ProductModel) => parseModel(item),
@@ -782,7 +773,7 @@ export default createMachine(
 
       hasBundles: ({
         lookups,
-        rawProduct,
+        rawProduct: _rawProduct,
         silent,
         rawBasketProduct
       }: ProductConfigContext) => {

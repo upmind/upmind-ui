@@ -1,0 +1,137 @@
+{
+  "address": {
+    "error": "您的地址是必需的",
+    "label": "地址",
+    "placeholder": "開始輸入您的地址",
+    "title": "新增地址 | 更新地址"
+  },
+  "address1": {
+    "label": "地址",
+    "placeholder": "房屋名稱、公寓號碼等。"
+  },
+  "address2": {
+    "label": "",
+    "placeholder": "道路、街道名稱等"
+  },
+  "allow_auto_payment": {
+    "description": "允許使用此付款方式進行自動離線付款 - 例如支付續約發票。",
+    "label": "允許自動付款"
+  },
+  "auth_email": {
+    "error": "需要使用者名稱或電子郵件地址",
+    "label": "您的使用者名稱或電子郵件地址",
+    "placeholder": "name@email.com"
+  },
+  "auth_password": {
+    "error": "需要強密碼",
+    "label": "密碼",
+    "placeholder": "密碼或口令"
+  },
+  "card_cvv": {
+    "error": "需要有效的CVV",
+    "label": "CVV",
+    "placeholder": "中央靜脈血栓"
+  },
+  "card_expiry": {
+    "error": "需要有效的到期日",
+    "label": "到期日",
+    "placeholder": "月/年"
+  },
+  "card_num": {
+    "error": "需要有效的卡號",
+    "label": "卡號",
+    "placeholder": "1234 1234 1234 1234"
+  },
+  "cardholder_name": {
+    "label": "持卡人姓名",
+    "placeholder": "輸入持卡人姓名"
+  },
+  "category_search": {
+    "placeholder": "分類搜尋..."
+  },
+  "city": {
+    "label": "城市",
+    "placeholder": "城市、城鎮等"
+  },
+  "company": {
+    "error": "您的公司名稱是必填的",
+    "label": "公司",
+    "title": "新增公司詳細資訊 | 更新公司詳細信息"
+  },
+  "companyName": {
+    "label": "公司名稱",
+    "placeholder": "您的公司名稱"
+  },
+  "companyNumber": {
+    "label": "公司編號",
+    "placeholder": "註冊稅務或商品及服務稅"
+  },
+  "country": {
+    "label": "國家",
+    "placeholder": "選擇一個國家"
+  },
+  "domain": {
+    "placeholder": "輸入您的網域名稱..."
+  },
+  "domain_search": {
+    "placeholder": "搜尋域名..."
+  },
+  "email": {
+    "error": "需要有效的電子郵件地址",
+    "label": "電子郵件",
+    "title": "新增電子郵件 | 更新電子郵件"
+  },
+  "field_notes": {
+    "label": "訂單備註"
+  },
+  "firstname": {
+    "error": "需要您的名字",
+    "label": "名"
+  },
+  "lastname": {
+    "error": "您的姓氏是必填項",
+    "label": "姓"
+  },
+  "login": {
+    "error": "我們在嘗試登入時遇到錯誤。"
+  },
+  "phone": {
+    "error": "需要有效的電話號碼",
+    "label": "電話",
+    "title": "新增電話號碼 | 更新電話號碼"
+  },
+  "postcode": {
+    "label": "郵遞區號",
+    "placeholder": "例如 10011"
+  },
+  "product_name_search": {
+    "placeholder": "按產品名稱搜尋..."
+  },
+  "promocode": {
+    "error": "需要有效的促銷代碼",
+    "placeholder": "在此輸入優惠券代碼"
+  },
+  "recover": {
+    "error": "我們在嘗試向您發送密碼重設電子郵件時遇到錯誤。"
+  },
+  "region": {
+    "label": "地區",
+    "placeholder": "選擇一個地區…"
+  },
+  "register": {
+    "error": "我們在嘗試建立您的帳戶時遇到錯誤。"
+  },
+  "select_option": {
+    "placeholder": "選擇一個選項"
+  },
+  "store_on_payment": {
+    "label": "儲存付款詳情"
+  },
+  "stored_payment_method": {
+    "label": "選擇一個您儲存的付款方式"
+  },
+  "taxNumber": {
+    "label": "稅號",
+    "placeholder": "稅號"
+  }
+}

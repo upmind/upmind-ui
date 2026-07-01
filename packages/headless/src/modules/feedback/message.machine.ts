@@ -1,15 +1,11 @@
-// --- external
+/** @internal */
 import { createMachine, sendParent } from "xstate";
-
-// --- internal
-import services from "./services";
-
-// --- utils
-import { some } from "lodash-es";
+import services from "./feedback.services";
+import { type Message, messageTypes } from "./feedback.types";
 import { useTime } from "../../utils";
+import { some } from "lodash-es";
 
 // --types
-import { type Message, messageTypes } from "./types";
 
 // -----------------------------------------------------------------------------
 

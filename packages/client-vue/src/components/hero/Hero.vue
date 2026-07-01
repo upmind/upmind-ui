@@ -9,7 +9,11 @@
     />
     <hgroup>
       <slot name="prepend" />
-      <h1 :class="styles.hero.title" data-testid="hero-title">
+      <h1
+        :class="styles.hero.title"
+        :data-testid="props.dataAttrs?.['data-testid'] ?? 'hero-title'"
+        v-bind="dataAttrsRest"
+      >
         <slot name="title">
           <Sanitized v-if="props.title" :modelValue="props.title" />
         </slot>
@@ -62,20 +66,15 @@
 </template>
 
 <script setup lang="ts">
-// --- external
 import { computed } from "vue";
-
-// --- components
 import { Badge, Button } from "@upmind-automation/upmind-ui";
-
-// --- internal
-import config from "./hero.config";
 import { useStyles, Sanitized } from "@upmind-automation/upmind-ui";
 
 // --- utils
-import { isString } from "lodash-es";
+import { isString, omit } from "lodash-es";
 
 // --- types
+import config from "./hero.config";
 import type { HeroProps } from "./types";
 
 const props = defineProps<HeroProps>();
@@ -84,6 +83,8 @@ const slots = defineSlots();
 const emit = defineEmits<{
   (e: "action"): void;
 }>();
+
+const dataAttrsRest = computed(() => omit(props.dataAttrs, "data-testid"));
 
 const meta = computed(() => ({
   hasSubtitle: !!props.subtitle || !!slots.subtitle,

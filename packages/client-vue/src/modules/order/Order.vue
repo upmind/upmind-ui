@@ -7,6 +7,7 @@
         :description="text"
         :loading="meta.isLoading"
         :badge="badge"
+        :dataAttrs="{ 'data-testid': 'order-confirmation-heading' }"
       >
         <template #append>
           <div v-if="action && !meta.isComplete">
@@ -141,10 +142,7 @@
     <!-- Guest → full-account upgrade after checkout. Prompt first, then the
          shared Auth register form (which the client machine drives for a guest
          client). Hidden once the upgrade promotes them to a full client. -->
-    <template
-      v-if="meta.isComplete && sessionMeta.isGuestClient"
-      #guest-registration
-    >
+    <template v-if="meta.isComplete && isGuestClient" #guest-registration>
       <Section
         v-show="!meta.isProcessing"
         id="guest-registration"
@@ -175,28 +173,19 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed, onUnmounted, provide, ref, watch } from "vue";
-import { useRoute, useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
-
-// --- internal
+import { useRoute, useRouter } from "vue-router";
 import {
-  useSession,
+  useAccount,
+  useTransfer,
   useOrder,
   useUrl,
   QUERY_PARAMS,
+  ScopeActorTypes,
   UIContext
 } from "@upmind-automation/headless";
 import { useConfig } from "@upmind-automation/headless";
-
-// -- components
-import Auth from "../session/components/Auth.vue";
-import OrderProducts from "./components/OrderProducts.vue";
-import PaymentDetails from "../payment/components/PaymentDetails.vue";
-import PaymentProcessing from "../payment/components/PaymentProcessing.vue";
-import Hero from "../../components/hero/Hero.vue";
-import Section from "../../components/section/Section.vue";
 import {
   useThemes,
   Alert,
@@ -208,23 +197,23 @@ import {
   type DescriptionItem,
   type BadgeProps
 } from "@upmind-automation/upmind-ui";
-
-// --- internal
-import config from "./order.config";
 import { useAnnouncement } from "../../components/announcement/useAnnouncement";
-
-// --- utils
-import { capitalize, first, get } from "lodash-es";
-
-// --- types
-import { ORDER_TEMPLATE } from "./types";
-import type { OrderProps } from "./types";
-
-//  --- templates
+import Hero from "../../components/hero/Hero.vue";
+import Section from "../../components/section/Section.vue";
+import PaymentDetails from "../payment/components/PaymentDetails.vue";
+import PaymentProcessing from "../payment/components/PaymentProcessing.vue";
+import Auth from "../session/components/Auth.vue";
+import OrderProducts from "./components/OrderProducts.vue";
+import config from "./order.config";
+import OrderEnclosedTemplate from "./templates/OrderEnclosed.template.vue";
 import OrderFullTemplate from "./templates/OrderFull.template.vue";
 import OrderLTRTemplate from "./templates/OrderLTR.template.vue";
 import OrderRTLTemplate from "./templates/OrderRTL.template.vue";
-import OrderEnclosedTemplate from "./templates/OrderEnclosed.template.vue";
+import { ORDER_TEMPLATE } from "./types";
+import { capitalize, first, get } from "lodash-es";
+import type { OrderProps } from "./types";
+
+//  --- templates
 
 const supportedTemplates = {
   [ORDER_TEMPLATE.FULL]: OrderFullTemplate,
@@ -252,7 +241,10 @@ set(ui.theme.value);
 
 // -----------------------------------------------------------------------------
 
-const { transferTo, meta: sessionMeta } = useSession();
+const { transferTo } = useTransfer();
+const { isGuest: isGuestClient } = useAccount()
+  .as(ScopeActorTypes.CLIENT)
+  .useMeta();
 const showGuestUpgrade = ref(false);
 const {
   cancelChallenge,
@@ -314,7 +306,11 @@ const primaryAlert = computed<
       title: t("invoice.order_locked"),
       description: t("invoice.order_locked_msg"),
       icon: "lock-03",
-      color: "neutral"
+      color: "neutral",
+      dataAttrs: {
+        "data-testid": "confirmation-payment-alert",
+        "data-test-value": "locked"
+      }
     };
   if (meta.value.hasError)
     return {
@@ -325,7 +321,11 @@ const primaryAlert = computed<
       action: {
         label: t("invoice.payment_retry_action")
       },
-      onClick: retry
+      onClick: retry,
+      dataAttrs: {
+        "data-testid": "confirmation-payment-alert",
+        "data-test-value": "failed"
+      }
     };
   if (meta.value.isPaymentDue)
     return {
@@ -339,7 +339,11 @@ const primaryAlert = computed<
             amount: orderData.value?.summary.unpaidAmountFormatted
           }),
       icon: "calendar",
-      color: "warning"
+      color: "warning",
+      dataAttrs: {
+        "data-testid": "confirmation-payment-alert",
+        "data-test-value": "due"
+      }
     };
 });
 
@@ -356,7 +360,11 @@ const secondaryAlert = computed<
         label: t("action.refresh"),
         disabled: meta.value.isLoading
       },
-      onClick: refresh
+      onClick: refresh,
+      dataAttrs: {
+        "data-testid": "confirmation-payment-secondary-alert",
+        "data-test-value": "pending"
+      }
     };
   if (meta.value.isPartial)
     return {
@@ -365,7 +373,11 @@ const secondaryAlert = computed<
         remaining_amount: orderData.value?.summary.unpaidAmountFormatted
       }),
       icon: "alert-octagon",
-      color: "warning"
+      color: "warning",
+      dataAttrs: {
+        "data-testid": "confirmation-payment-secondary-alert",
+        "data-test-value": "outstanding"
+      }
     };
 });
 
@@ -417,14 +429,22 @@ const orderItems = computed((): DescriptionItem[] => {
   if (orderData.value.number) {
     items.push({
       term: t("text.order_number"),
-      description: orderData.value.number
+      description: orderData.value.number,
+      dataAttrs: {
+        "data-testid": "confirmation-invoice-number",
+        "data-test-value": orderData.value.number
+      }
     });
   }
 
   if (orderData.value.dateCreated?.date) {
     items.push({
       term: t("text.purchase_date"),
-      description: orderData.value.dateCreated.date
+      description: orderData.value.dateCreated.date,
+      dataAttrs: {
+        "data-testid": "confirmation-order-date",
+        "data-test-value": orderData.value.dateCreated.date
+      }
     });
   }
 
@@ -436,7 +456,11 @@ const orderItems = computed((): DescriptionItem[] => {
       description: t("text.card_ending", {
         card_type: capitalize(lastPayment.cardType),
         last4: lastPayment.cardLast4
-      })
+      }),
+      dataAttrs: {
+        "data-testid": "confirmation-order-payment-method",
+        "data-test-value": lastPayment.cardLast4
+      }
     });
   }
 

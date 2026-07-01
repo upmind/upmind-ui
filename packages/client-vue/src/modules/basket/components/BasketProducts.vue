@@ -22,19 +22,14 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, type RouteLocationAsRelativeGeneric } from "vue-router";
-
-// --- internal
 import { useBasketProducts } from "@upmind-automation/headless";
 import { useStyles } from "@upmind-automation/upmind-ui";
-import config from "../basket.config";
-
-// --- components
-import ProductCards from "../../basket-product/components/card/BasketProductCards.vue";
 import Section from "../../../components/section/Section.vue";
+import ProductCards from "../../basket-product/components/card/BasketProductCards.vue";
+import config from "../basket.config";
 import BasketFieldsSection from "./BasketFieldsSection.vue";
 
 // --- types

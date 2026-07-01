@@ -54,25 +54,16 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed, toRefs } from "vue";
 import { useI18n } from "vue-i18n";
-
-// --- internal
 import { useStyles } from "@upmind-automation/upmind-ui";
-import config from "./terms.config";
-
-// --- components
 import { FormField, SelectCards } from "@upmind-automation/upmind-ui";
 import CardTerm from "./TermCard.vue";
-
-// --- utils
+import config from "./terms.config";
 import { isNil, map, toNumber } from "lodash-es";
-
-// --- types
-import type { HTMLAttributes } from "vue";
-import type { SelectCardsItemProps } from "@upmind-automation/upmind-ui";
 import type { TermDetails } from "@upmind-automation/headless";
+import type { SelectCardsItemProps } from "@upmind-automation/upmind-ui";
+import type { HTMLAttributes } from "vue";
 
 // -----------------------------------------------------------------------------
 const emits = defineEmits(["update:modelValue"]);

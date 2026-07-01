@@ -9,17 +9,24 @@
       search
       width="fit"
       size="md"
+      :trigger-data-attrs="{ 'data-testid': 'currency-selector-trigger' }"
+      :value-data-attrs="{
+        'data-testid': 'currency-selector-value',
+        'data-test-value': model?.code ?? ''
+      }"
     />
   </div>
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed } from "vue";
-
-// --- internal
 import { useBasketCurrency } from "@upmind-automation/headless";
+import { Combobox } from "@upmind-automation/upmind-ui";
 import rawCurrencies from "./currencies";
+import { get, map } from "lodash-es";
+import type { ICurrency } from "../../../../../types/src";
+import type { ComboboxItemProps } from "@upmind-automation/upmind-ui";
+import type { HTMLAttributes } from "vue";
 
 interface Currency {
   code: string;
@@ -28,25 +35,14 @@ interface Currency {
   country_code: string;
 }
 
-const typedRawCurrencies: Record<string, Currency> = rawCurrencies;
-
-// --- components
-import { Combobox } from "@upmind-automation/upmind-ui";
-
-// --- utils
-import { get, map } from "lodash-es";
-
-// --- types
-import type { HTMLAttributes } from "vue";
-import type { ComboboxItemProps } from "@upmind-automation/upmind-ui";
-import type { ICurrency } from "../../../../../types/src";
+const _typedRawCurrencies: Record<string, Currency> = rawCurrencies;
 // -----------------------------------------------------------------------------
 
 // props: {
 //   popoverClass: { type: string, default: "mt-0" },
 // }
 
-const props = withDefaults(
+const _props = withDefaults(
   defineProps<{
     popoverClass?: HTMLAttributes["class"];
   }>(),
@@ -70,6 +66,7 @@ const items = computed(() => {
           currency.code?.toUpperCase()
         )?.country_code?.toLowerCase()
       },
+      dataAttrs: { "data-testid": `currency-option-${currency.code}` },
       label: currency.code,
       selectedLabel: currency.code,
       value: currency.code,

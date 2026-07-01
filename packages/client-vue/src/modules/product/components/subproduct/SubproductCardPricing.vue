@@ -76,8 +76,8 @@
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { Icon, Tooltip, useStyles } from "@upmind-automation/upmind-ui";
-import ExPrice from "../pricing/ExPrice.vue";
 import CurrentPrice from "../pricing/CurrentPrice.vue";
+import ExPrice from "../pricing/ExPrice.vue";
 import config from "./subproduct-card.config";
 import { lowerCase } from "lodash-es";
 import type { SubproductValue } from "@upmind-automation/headless";

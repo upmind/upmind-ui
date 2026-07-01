@@ -37,25 +37,17 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-
-// --- internal
 import {
   parseBillingCycle,
   useMoney,
   useConfig
 } from "@upmind-automation/headless";
-
-// --- components
-import { Icon, Tooltip } from "@upmind-automation/upmind-ui";
-
+import { Icon } from "@upmind-automation/upmind-ui";
 import { isEmpty } from "lodash-es";
-
-// --- types
-import type { DetailsItemProps } from "./types";
 import { has } from "lodash-es";
+import type { DetailsItemProps } from "./types";
 
 // -----------------------------------------------------------------------------
 

@@ -57,31 +57,29 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { watch, computed, provide, onUnmounted, onMounted } from "vue";
-
-// --- internal
 import {
   useBasket,
   useRoutingEngine,
   useDataLayer
 } from "@upmind-automation/headless";
 import { useConfig, validateTemplate } from "@upmind-automation/headless";
+import { UIContext } from "@upmind-automation/headless";
 import { useThemes, Markdown } from "@upmind-automation/upmind-ui";
-
-// --- components
 import Back from "../../components/navigation/Back.vue";
+import CheckoutContent from "./components/CheckoutContent.vue";
+import CheckoutErrors from "./components/CheckoutErrors.vue";
+import CheckoutPricing from "./components/CheckoutPricing.vue";
 import CheckoutProcessing from "./components/CheckoutProcessing.vue";
 import CheckoutSummary from "./components/CheckoutSummary.vue";
-import CheckoutContent from "./components/CheckoutContent.vue";
-import CheckoutPricing from "./components/CheckoutPricing.vue";
-import CheckoutErrors from "./components/CheckoutErrors.vue";
-
-// --- templates
+import CheckoutEnclosedTemplate from "./templates/CheckoutEnclosed.template.vue";
 import CheckoutFullTemplate from "./templates/CheckoutFull.template.vue";
 import CheckoutLTRTemplate from "./templates/CheckoutLTR.template.vue";
 import CheckoutRTLTemplate from "./templates/CheckoutRTL.template.vue";
-import CheckoutEnclosedTemplate from "./templates/CheckoutEnclosed.template.vue";
+import { CHECKOUT_TEMPLATE } from "./types";
+import { get, isEqual, includes } from "lodash-es";
+import type { StorefrontRoute } from "../../types";
+import type { RouteLocationAsRelativeGeneric } from "vue-router";
 
 const supportedTemplates = {
   [CHECKOUT_TEMPLATE.FULL]: CheckoutFullTemplate,
@@ -89,13 +87,6 @@ const supportedTemplates = {
   [CHECKOUT_TEMPLATE.TWO_COLUMN_RTL]: CheckoutRTLTemplate,
   [CHECKOUT_TEMPLATE.ENCLOSED]: CheckoutEnclosedTemplate
 };
-
-// --- types
-import { CHECKOUT_TEMPLATE } from "./types";
-import { UIContext } from "@upmind-automation/headless";
-import { get, isEqual, includes } from "lodash-es";
-import type { StorefrontRoute } from "../../types";
-import type { RouteLocationAsRelativeGeneric } from "vue-router";
 
 // -----------------------------------------------------------------------------
 
@@ -119,7 +110,7 @@ const {
   attempts,
   cancelChallenge,
   meta,
-  isReady,
+  isReady: _isReady,
   uischema,
   invoice,
   renderChallenge,

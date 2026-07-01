@@ -1,0 +1,23 @@
+{
+  "annually": "Anualmente",
+  "biennially": "Bienalmente",
+  "label": "Prazo de cobrança",
+  "monthly": "Mensal",
+  "n_mo": "mês | {n} mês",
+  "n_month": "{n}-mês",
+  "n_months": "mês | {n} meses",
+  "n_year": "{n}-ano",
+  "n_years": "ano | {count} anos",
+  "n_yr": "ano | {n} ano",
+  "once": "Uma vez",
+  "one_time": "uma vez",
+  "price_by_n_years": "{price}/ano | {price} /{n} anos",
+  "price_msg": "Pagamento único de {price} | De {price} um mês | De {price} todo {period}",
+  "quarterly": "Trimestral",
+  "renews_msg": "Pagamento único | Renova a cada {cycle} | Renova a cada {cycle}",
+  "renews_usually_msg": "Geralmente {price}",
+  "semiannually": "Semestralmente",
+  "showing_items_summary": "Mostrando {range} de {total} Unid",
+  "summary_msg": "Para um {term} prazo. Pagar {price} hoje.",
+  "triennially": "Trienalmente"
+}

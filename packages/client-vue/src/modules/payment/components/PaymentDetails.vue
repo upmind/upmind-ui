@@ -4,6 +4,7 @@
     value="payment-details"
     :icon="sectionIcon"
     :label="sectionLabel"
+    :dataAttrs="payAmountDataAttrs"
   >
     <template #actions>
       <PaymentAmount
@@ -68,6 +69,7 @@
           icon="alert-triangle"
           :title="t('text.payment_failed')"
           :description="paymentError"
+          :dataAttrs="{ 'data-testid': 'payment-error-alert' }"
         />
 
         <!-- Selected Payment Gateway -->
@@ -119,33 +121,26 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed, inject } from "vue";
 import { useI18n } from "vue-i18n";
-
-// --- internal
-import config from "../payment.config";
-
-// --- components
-import { Alert, Loading, useStyles } from "@upmind-automation/upmind-ui";
-import Section from "../../../components/section/Section.vue";
-import AccountCredit from "./AccountCredit.vue";
-import PaymentNotRequired from "./PaymentNotRequired.vue";
-import PaymentAmount from "./PaymentAmount.vue";
-import PaymentGateways from "./PaymentGateways.vue";
-import PayLater from "./PayLater.vue";
-import PaymentGateway from "./PaymentGateway.vue";
-import PaymentGatewaysUnavailable from "./PaymentGatewaysUnavailable.vue";
-import StoredPaymentMethods from "./StoredPaymentMethods.vue";
-import PaymentActions from "./PaymentActions.vue";
-
-// --- types
 import {
   DetailedError,
   ErrorOrigin,
   responseCodes,
   type UsePaymentDetail
 } from "@upmind-automation/headless";
+import { Alert, Loading, useStyles } from "@upmind-automation/upmind-ui";
+import Section from "../../../components/section/Section.vue";
+import config from "../payment.config";
+import AccountCredit from "./AccountCredit.vue";
+import PayLater from "./PayLater.vue";
+import PaymentActions from "./PaymentActions.vue";
+import PaymentAmount from "./PaymentAmount.vue";
+import PaymentGateway from "./PaymentGateway.vue";
+import PaymentGateways from "./PaymentGateways.vue";
+import PaymentGatewaysUnavailable from "./PaymentGatewaysUnavailable.vue";
+import PaymentNotRequired from "./PaymentNotRequired.vue";
+import StoredPaymentMethods from "./StoredPaymentMethods.vue";
 import type { PaymentDetailsProps } from "../types";
 
 // -----------------------------------------------------------------------------
@@ -210,6 +205,16 @@ const sectionLabel = computed(
       ? t("cart.payment_details", { amount: amountsFormatted?.value?.amount })
       : t("cart.add_payment_method"))
 );
+
+const payAmountDataAttrs = computed(() => {
+  const amount = amountsFormatted?.value?.amount;
+  if (!meta.value.isPayContext || !amount) return undefined;
+
+  return {
+    "data-testid": "pay-amount-value",
+    "data-test-value": amount
+  };
+});
 
 const paymentError = computed(() => errors?.value?.message || props.error);
 

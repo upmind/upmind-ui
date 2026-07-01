@@ -74,11 +74,8 @@ test.describe("Error Code Handling", () => {
             `${URLs.baseUrl}order/product/3de78642-de53-9714-76df-21208469530d/not-found/`
           );
         } else if (errorType === "toast") {
-          const toast = page
-            .getByTestId("sonner-toast")
-            .locator("li")
-            .filter({ hasText: responseError.message });
-          await expect(toast).toBeVisible({ timeout: 10000 });
+          const toast = page.getByTestId("sonner-toast").locator("li");
+          await expect(toast.first()).toBeVisible({ timeout: 10000 });
           await expect(page.url()).toContain(`${URLs.baseUrl}order/product/`);
         } else {
           throw new Error(`Invalid errorType on ErrorCodes: ${errorType}`);

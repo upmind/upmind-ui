@@ -1,27 +1,17 @@
-// --- external
-import { type Ref, ref } from "vue";
-import { inspect } from "@xstate/inspect";
 import { type QueryClient, VueQueryPlugin } from "@tanstack/vue-query";
-
-// --- internal
-import {
-  useBrand,
-  useDataLayer,
-  useLocale,
-  useLocalisation,
-  useRecaptcha,
-  useRoutingEngine,
-  useSession,
-  useSystem,
-  useTracking
-} from "./modules";
-import type { Funnels, FunnelWatcher, GlobbedFiles } from "./modules";
-import { get, isFunction } from "lodash-es";
+import { inspect } from "@xstate/inspect";
+import { type Ref, ref } from "vue";
+import { BrandConfigKeys } from "@upmind-automation/types";
+import { useBrand } from "./modules/brand";
+import { useDataLayer, useTracking } from "./modules/system-analytics";
+import { useLocale, useLocalisation } from "./modules/system-localisation";
+import { useRecaptcha } from "./modules/system-recaptcha";
+import { useRoutingEngine } from "./modules/routing";
+import { useSessionStore } from "./modules/session-store";
+import { useSystem } from "./modules/system";
+import { useQuery } from "./modules/query";
 import { useRouting } from "./modules/routing/useRouting";
 import { useTheming } from "./modules/theming/useTheming";
-import { useQuery } from "./modules";
-
-// --- utils
 import {
   usePOP,
   DetailedError,
@@ -30,13 +20,14 @@ import {
   ErrorOrigin,
   useScripts
 } from "./utils";
-
-// --- types
-import type { IApiPop } from "./utils";
-import type { Router } from "vue-router";
+import { get, isFunction } from "lodash-es";
+import type { Funnels, FunnelWatcher } from "./modules/routing";
+import type { GlobbedFiles } from "./modules/system-localisation";
+import type { SessionStoreConfig } from "./modules/session-store/session-store.types";
 import type { Theme } from "./modules/theming";
+import type { IApiPop } from "./utils";
 import type { I18n, Composer } from "vue-i18n";
-import { BrandConfigKeys } from "@upmind-automation/types";
+import type { Router } from "vue-router";
 
 // ---
 /**
@@ -165,6 +156,19 @@ export interface UpmindProps {
    * No redirect occurs if not provided.
    */
   platformUrl?: string;
+  /**
+   * Scope restrictions. Controls which actor scopes are allowed in the Session store and can be activated.
+   *
+   * @example
+   * ```ts
+   * // Cart app: only client and guest
+   * allowedScopes: [AccessRoleTypes.CLIENT, AccessRoleTypes.GUEST]
+   *
+   * // Admin app: only staff
+   * allowedScopes: [AccessRoleTypes.STAFF]
+   * ```
+   */
+  allowedScopes?: SessionStoreConfig["allowedScopes"];
 }
 
 // -----------------------------------------------------------------------------
@@ -208,7 +212,17 @@ export class Upmind {
    */
   pop: UpmindProps["pop"];
 
-  queryClient: QueryClient;
+  private _queryClient?: QueryClient;
+
+  /**
+   * The Vue Query client, resolved lazily on first access. The singleton is
+   * constructed at module load — inside cyclic import paths "./modules" may
+   * not have finished evaluating yet, so useQuery() must not run eagerly.
+   */
+  get queryClient(): QueryClient {
+    if (!this._queryClient) this._queryClient = useQuery().queryClient;
+    return this._queryClient;
+  }
 
   /**
    * Google reCAPTCHA configuration.
@@ -230,15 +244,11 @@ export class Upmind {
    * The Upmind platform URL for redirect when brand is unavailable.
    */
   platformUrl?: UpmindProps["platformUrl"];
-
   /**
-   * Constructs a new Upmind instance.
-   * Initialises the Vue Query client.
+   * Scope restrictions. Controls which actor scopes are allowed in the Session store and can be activated.
    */
-  constructor() {
-    const { queryClient } = useQuery();
-    this.queryClient = queryClient;
-  }
+  allowedScopes: UpmindProps["allowedScopes"];
+
   /**
    * Initialises the Upmind headless library with the provided configuration.
    * This method orchestrates the initialisation of all internal modules and plugins.
@@ -248,6 +258,7 @@ export class Upmind {
    * @throws {DetailedError} If Upmind has already been initialised.
    */
   init({
+    allowedScopes,
     analytics,
     debug,
     i18n,
@@ -267,6 +278,7 @@ export class Upmind {
         ErrorOrigin.Headless
       );
     this.status.value = UpmindStatus.initialising;
+    this.allowedScopes = allowedScopes;
     this.debug = debug;
     this.mode = mode ?? "default";
     this.pop = pop;
@@ -296,7 +308,7 @@ export class Upmind {
           Promise.allSettled([
             useBrand().isReady(),
             useSystem().isReady(),
-            useSession().isReady()
+            useSessionStore().initStore({ allowedScopes: this.allowedScopes })
           ])
             // Brand unavailable — redirect to platform if configured
             .then(() => {

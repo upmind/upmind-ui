@@ -99,12 +99,12 @@
 </template>
 
 <script setup lang="ts">
-import { debounce } from "lodash-es";
-import { usePlaces } from "@upmind-automation/headless";
 import { ref, onMounted, watch } from "vue";
-import { Input, Button, Dialog } from "@upmind-automation/upmind-ui";
 import { UpmSection, UpmLayout } from "@upmind-automation/client-vue";
+import { usePlaces } from "@upmind-automation/headless";
+import { Input, Button, Dialog } from "@upmind-automation/upmind-ui";
 import { Card } from "@upmind-automation/upmind-ui";
+import { debounce } from "lodash-es";
 
 // State
 const searchQuery = ref("");

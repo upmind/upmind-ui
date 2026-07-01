@@ -30,8 +30,8 @@
 
 <script setup lang="ts">
 import { useRoute } from "vue-router";
-import { useOrder } from "@upmind-automation/headless";
 import { UpmLayout } from "@upmind-automation/client-vue";
+import { useOrder } from "@upmind-automation/headless";
 import { Button, Alert } from "@upmind-automation/upmind-ui";
 
 const route = useRoute();

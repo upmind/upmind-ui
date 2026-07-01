@@ -11,10 +11,7 @@
   />
 </template>
 <script lang="ts" setup>
-// --- external
 import { useI18n } from "vue-i18n";
-
-// --- internal
 import { Button } from "@upmind-automation/upmind-ui";
 import type { BasketCheckoutProps } from "./types";
 

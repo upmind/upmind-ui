@@ -1,0 +1,23 @@
+{
+  "annually": "Ежегодно",
+  "biennially": "Раз в два года",
+  "label": "Срок выставления счетов",
+  "monthly": "Ежемесячно",
+  "n_mo": "мо | {n} мо",
+  "n_month": "{n}-месяц",
+  "n_months": "месяц | {n} месяцев",
+  "n_year": "{n}-год",
+  "n_years": "год | {count} годы",
+  "n_yr": "год | {n} год",
+  "once": "Один раз",
+  "one_time": "Один раз",
+  "price_by_n_years": "{price}/год | {price} /{n} лет",
+  "price_msg": "Единовременная выплата {price} | От {price} в месяц | От {price} каждый {period}",
+  "quarterly": "Ежеквартальный",
+  "renews_msg": "Единовременный платеж | Возобновляется каждые {cycle} | Возобновляется каждые {cycle}",
+  "renews_usually_msg": "Обычно {price}",
+  "semiannually": "Раз в полгода",
+  "showing_items_summary": "Показ {range} из {total} предметы",
+  "summary_msg": "Для {term} термин. Оплата {price} сегодня.",
+  "triennially": "Раз в три года"
+}

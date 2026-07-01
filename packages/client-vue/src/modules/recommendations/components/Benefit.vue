@@ -10,19 +10,12 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed } from "vue";
-import { isString } from "lodash-es";
-
-// --- internal
 import { useStyles } from "@upmind-automation/upmind-ui";
-import config from "../recommendations.config";
-
-// --- components
 import { Icon } from "@upmind-automation/upmind-ui";
-
-// --- types
-import { type RecommendationBenefitProps } from "./types";
+import config from "../recommendations.config";
+import { isString } from "lodash-es";
+import type { RecommendationBenefitProps } from "./types";
 
 const styles = useStyles(["recommendation.benefit"], {}, config);
 

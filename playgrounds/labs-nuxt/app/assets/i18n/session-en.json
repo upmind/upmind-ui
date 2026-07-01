@@ -1,0 +1,144 @@
+{
+  "auth": {
+    "register": {
+      "email": {
+        "label": "Your email address",
+        "placeholder": "name@email.com",
+        "error": "A valid email address is required",
+        "description": null
+      },
+      "password": {
+        "label": "Password",
+        "placeholder": "Password or passphrase",
+        "error": "A strong password is required",
+        "description": null
+      },
+      "firstname": {
+        "label": "First name",
+        "error": "Your first name is required",
+        "description": null
+      },
+      "lastname": {
+        "label": "Last name",
+        "error": "Your last name is required",
+        "description": null
+      },
+      "fields": {
+        "label": "Custom fields"
+      }
+    },
+    "login": {
+      "email": {
+        "label": "Your username or email address",
+        "placeholder": "name@email.com",
+        "error": "A username or email address is required",
+        "description": null
+      },
+      "password": {
+        "label": "Password",
+        "placeholder": "Password or passphrase",
+        "error": "A strong password is required",
+        "description": null
+      },
+      "actions": {
+        "register": "Create new account",
+        "login": "Log into my account",
+        "continue": "Continue",
+        "logout": "Log out",
+        "recover": "Forgotten password"
+      }
+    },
+    "recover": {
+      "email": {
+        "label": "Your username or email address",
+        "placeholder": "name@email.com",
+        "error": "A username or email address is required"
+      }
+    },
+    "actions": {
+      "toggle": {
+        "register": "New customer",
+        "login": "Existing customer"
+      },
+      "register": "Continue",
+      "login": "Log into my account",
+      "continue": "Continue",
+      "logout": "Log out",
+      "recover": "Send reset"
+    },
+    "google_recaptcha": {
+      "terms": "This form is protected by reCAPTCHA and Google's {privacyPolicy} and {termsOfService} apply.",
+      "privacy_policy": "Privacy policy",
+      "terms_of_service": "Terms of service"
+    }
+  },
+  "session": {
+    "recover": {
+      "title": {
+        "text": "Forgotten your {0}",
+        "strong": "password"
+      },
+      "tagline": "Forgot your password? Not to worry – just enter your username below and we'll send you reset instructions right away.",
+
+      "actions": {
+        "text": "Forgotten your password?"
+      },
+      "error": "We experienced an error while trying to send you a password reset email."
+    },
+    "register": {
+      "title": {
+        "text": "Create an {0}",
+        "strong": "account"
+      },
+      "account": "account",
+      "actions": {
+        "text": "Already have an account?",
+        "action": "Log in here"
+      },
+      "error": "We experienced an error while trying to create your account."
+    },
+    "login": {
+      "title": {
+        "text": "Log in to your {0}",
+        "strong": "account"
+      },
+      "account": "account",
+      "actions": {
+        "text": "Don't have an account?",
+        "action": "Create one here"
+      },
+      "error": "We experienced an error while trying to log you in."
+    },
+    "authenticated": {
+      "header": {
+        "text": "",
+        "title": "Welcome back, {name}"
+      },
+      "footer": {
+        "text": "Not you? Sign in with another account {action}.",
+        "action": "here"
+      }
+    },
+    "expired": {
+      "title": "Your session has expired",
+      "text": "Please restart your checkout to continue.",
+      "actions": {
+        "continue": "Restart checkout"
+      }
+    },
+    "end": {
+      "title": {
+        "text": "You're {0} out",
+        "strong": "logged"
+      },
+      "text": "You can continue shopping without being logged in.",
+      "actions": {
+        "continue": "Continue shopping"
+      }
+    },
+    "terms": {
+      "label": "By clicking ‘{action}’ I agree to {name}'s {terms}.",
+      "link": "Terms & Conditions"
+    }
+  }
+}

@@ -1,11 +1,8 @@
-// --- external
-import { createMachine, assign, send } from "xstate";
-
-// --- internal
-import services from "./services";
-import { useI18n } from "../system";
-
-// --- utils
+/** @internal */
+import { createMachine, assign } from "xstate";
+import { useI18n } from "../system-localisation";
+import services from "./routing.services";
+import { useQueryParams } from "./useQueryParams";
 import {
   DetailedError,
   responseCodes,
@@ -13,13 +10,14 @@ import {
   ErrorOrigin,
   mapToHeadlessError
 } from "../../utils";
-import { first, has, isEmpty, isEqual, keys, reduce, some } from "lodash-es";
-
-// --- types
+import { first, has, isEmpty, isEqual, keys, reduce } from "lodash-es";
+import type {
+  FunnelProps,
+  Funnels,
+  RoutingEngineContext
+} from "./routing.types";
+import type { RouteLocation } from "vue-router";
 import type { AnyEventObject } from "xstate";
-import type { FunnelProps, Funnels, RoutingEngineContext } from "./types";
-import { type RouteLocation } from "vue-router";
-import { useQueryParams } from "./useQueryParams";
 
 // -----------------------------------------------------------------------------
 export default createMachine(

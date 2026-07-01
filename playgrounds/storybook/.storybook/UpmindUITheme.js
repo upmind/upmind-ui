@@ -38,5 +38,5 @@ export default create({
   inputBg: "#ffffff",
   inputBorder: "#CBD8EC",
   inputTextColor: "#251d49",
-  inputBorderRadius: 8,
+  inputBorderRadius: 8
 });

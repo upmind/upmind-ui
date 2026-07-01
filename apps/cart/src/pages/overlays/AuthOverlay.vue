@@ -13,18 +13,11 @@
  * On auth completion, emits close — the OverlayController handles navigation.
  */
 
-// --- external
 import { computed } from "vue";
 import { useRoute } from "vue-router";
-
-// --- internal
 import { UpmAuth } from "@upmind-automation/client-vue";
 import { ROUTE } from "../../router";
-
-// --- utils
 import { get } from "lodash-es";
-
-// --- types
 import type { SessionProps } from "@upmind-automation/client-vue";
 
 // -----------------------------------------------------------------------------

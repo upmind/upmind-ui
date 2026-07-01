@@ -71,14 +71,9 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed, ref, watch } from "vue";
 import { RouterLink, useRoute } from "vue-router";
-
-// --- components
 import { Icon } from "@upmind-automation/upmind-ui";
-
-// --- types
 import type { NavItem } from "../composables/useNavigation";
 
 // -----------------------------------------------------------------------------

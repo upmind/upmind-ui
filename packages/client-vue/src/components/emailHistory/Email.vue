@@ -18,29 +18,24 @@
   </UpmLayout>
 </template>
 <script lang="ts" setup>
-// --- external
 import { computed } from "vue";
-
-// --- internal
-import { useSession } from "@upmind-automation/headless";
-
-// --- components
+import { useRoute } from "vue-router";
+import { useActiveSession } from "@upmind-automation/headless";
 import { UpmLayout } from "../layout";
 import { LAYOUT_VARIANTS } from "../layout/types";
 import EmailOverview from "./EmailOverview.vue";
 
 // --- types
-import { useRoute } from "vue-router";
 
 // -----------------------------------------------------------------------------
 
-const props = defineProps<{ emailId: string }>();
+const _props = defineProps<{ emailId: string }>();
 
 // -----------------------------------------------------------------------------
 
 const route = useRoute();
-const { isAuthenticated } = useSession();
-await isAuthenticated();
+const { isReady } = useActiveSession().useActions();
+await isReady();
 
 const layout = computed((): LAYOUT_VARIANTS => {
   return (route?.meta?.template as LAYOUT_VARIANTS) ?? LAYOUT_VARIANTS.FULL;

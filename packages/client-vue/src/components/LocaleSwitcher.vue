@@ -10,34 +10,29 @@
       dropdown-width="md"
       icon="translate-01"
       size="md"
+      :value-data-attrs="{
+        'data-testid': 'language-selector-value',
+        'data-test-value': locale ?? ''
+      }"
     />
   </div>
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed } from "vue";
-
-// --- internal
 import { useLocale } from "@upmind-automation/headless";
-
-// --- components
 import { Combobox } from "@upmind-automation/upmind-ui";
-
-// --- utils
-import { map, last, split, filter, includes, get, isEmpty } from "lodash-es";
-
-// --- types
+import { map, last, split, includes, get, isEmpty } from "lodash-es";
 import type { ILanguage } from "../../../types/src";
-import type { HTMLAttributes } from "vue";
 import type { ComboboxItemProps } from "@upmind-automation/upmind-ui";
+import type { HTMLAttributes } from "vue";
 // -----------------------------------------------------------------------------
 
 // props: {
 //   popoverClass: { type: string, default: "mt-0" },
 // }
 
-const props = withDefaults(
+const _props = withDefaults(
   defineProps<{
     popoverClass?: HTMLAttributes["class"];
   }>(),

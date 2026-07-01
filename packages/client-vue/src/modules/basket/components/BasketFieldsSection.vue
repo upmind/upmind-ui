@@ -28,19 +28,14 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
-
-// --- internal
 import { useBasketFields } from "@upmind-automation/headless";
 import { useStyles } from "@upmind-automation/upmind-ui";
-import config from "../basket.config";
-
-// --- components
 import Form from "../../../components/form/Form.vue";
 import Section from "../../../components/section/Section.vue";
+import config from "../basket.config";
 
 // --- types
 

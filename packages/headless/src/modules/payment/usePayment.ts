@@ -1,18 +1,13 @@
-// --- external
+import { useActor } from "@xstate/vue";
 import { computed } from "vue";
 import { interpret } from "xstate";
-import { useActor } from "@xstate/vue";
 import { waitFor } from "xstate/lib/waitFor";
-
-// --- internal
 import paymentMachine from "./payment.machine";
-
-// --- utils
 import { contextValue, stateMatches, useContext } from "../../utils";
+import type { PaymentArgs, PaymentContext } from "./payment.types";
 
 // --- types
-export * from "./types";
-import { type PaymentArgs, type PaymentContext } from "./types";
+export * from "./payment.types";
 
 // -----------------------------------------------------------------------------
 

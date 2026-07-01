@@ -1,14 +1,29 @@
-// --- external
+/** @internal */
 import { createMachine, assign, spawn } from "xstate";
-
-// --- internal
-import services from "./services";
-import paymentMachine from "../payment/payment.machine";
-import { useDataLayer } from "../system";
-import { authSubscription } from "../session/helper";
-import { useSession } from "../session";
-
-// --- utils
+import { parseBasketProduct } from "../basket-product/basket-product.utils";
+import { paymentMachine } from "../payment";
+import { useQuery } from "../query";
+import { authSubscription, useActiveSession } from "../session-store";
+import { useDataLayer } from "../system-analytics";
+import services from "./basket.services";
+import {
+  hasProductChanges,
+  parseBasket,
+  parseSummary,
+  spawnBilling,
+  spawnCurrency,
+  spawnPromotions,
+  spawnCustomFields,
+  spawnPaymentDetail
+} from "./basket.utils";
+import {
+  useTime,
+  responseCodes,
+  mapToHeadlessError,
+  stopService,
+  stateMatches,
+  isStoppedService
+} from "../../utils";
 import {
   defaultsDeep,
   forEach,
@@ -20,33 +35,10 @@ import {
   remove,
   some
 } from "lodash-es";
-import {
-  hasProductChanges,
-  parseBasket,
-  parseSummary,
-  spawnBilling,
-  spawnCurrency,
-  spawnPromotions,
-  spawnCustomFields,
-  spawnPaymentDetail
-} from "./utils";
-import {
-  useTime,
-  responseCodes,
-  mapToHeadlessError,
-  stopService,
-  stateMatches,
-  isStoppedService
-} from "../../utils";
-import { parseBasketProduct } from "../basketProduct/utils";
-
-// --- types
-import type { IWarningNote } from "@upmind-automation/types";
-import type { BasketContext } from "./types";
-import type { AnyEventObject } from "xstate";
+import type { BasketContext } from "./basket.types";
 import type { PaymentArgs } from "../payment";
-import { useQuery } from "../query";
-import { GatewayContext } from "@upmind-automation/types";
+import type { IWarningNote } from "@upmind-automation/types";
+import type { AnyEventObject } from "xstate";
 
 // -----------------------------------------------------------------------------
 export default createMachine(
@@ -760,7 +752,10 @@ export default createMachine(
 
       // ---
       /** Cancel any existing query to prevent multiple queries */
-      cancelExistingQuery: (context: BasketContext, _event: AnyEventObject) => {
+      cancelExistingQuery: (
+        _context: BasketContext,
+        _event: AnyEventObject
+      ) => {
         const { cancel } = useQuery();
         cancel(["basket"]);
       },
@@ -869,7 +864,10 @@ export default createMachine(
         return valid;
       },
 
-      paymentDetailConfiguring: ({ actors, paymentDetail }: BasketContext) => {
+      paymentDetailConfiguring: ({
+        actors,
+        paymentDetail: _paymentDetail
+      }: BasketContext) => {
         const valid = stateMatches(actors?.paymentDetail, [
           "available.invalid",
           "available.checking",
@@ -918,8 +916,8 @@ export default createMachine(
       hasProducts: ({ products }) => !isEmpty(products),
 
       isAuthenticated: () => {
-        const { meta } = useSession();
-        return meta.value.isAuthenticated;
+        const { isAuthenticated } = useActiveSession().useMeta();
+        return isAuthenticated.value;
       }
     },
 

@@ -1,2 +1,2 @@
 export * from "./useBrand";
-export * from "./terms";
+export * from "../brand-terms";

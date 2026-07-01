@@ -1,0 +1,16 @@
+{
+  "address_removed": "Adressen er blevet fjernet",
+  "address_set_default": "Adressen er nu indstillet som standard",
+  "company_removed": "Virksomheden er blevet fjernet",
+  "company_set_default": "Virksomheden er nu indstillet som standard",
+  "copied": "Kopieret",
+  "domain_in_basket_msg": "Dette domæne er allerede i din kurv.",
+  "domain_owned_msg": "Du ejer allerede dette domæne.",
+  "email_removed": "E-mailen er blevet fjernet",
+  "email_set_default": "E-mail er nu indstillet som standard",
+  "in_basket": "I kurven",
+  "in_use": "I brug",
+  "phone_removed": "Telefonen er blevet fjernet",
+  "phone_set_default": "Telefonen er nu indstillet som standard",
+  "reset_instructions_sent_msg": "Tak – nulstillingsinstruktioner er sendt til din e-mail"
+}

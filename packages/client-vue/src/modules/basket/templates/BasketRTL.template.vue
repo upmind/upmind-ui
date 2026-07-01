@@ -33,16 +33,10 @@
 
 <script lang="ts" setup>
 import { onMounted } from "vue";
-
-// --- internal
 import { useHeader } from "../../../components/header/useHeader";
 import { useFooter } from "../../../components/footer/useFooter";
 import { isMobile } from "@upmind-automation/upmind-ui";
-
-// --- components
 import Layout from "../../../components/layout/Layout.vue";
-
-// --- types
 import { HEADER_BACKGROUND } from "../../../components/header/types";
 import { LAYOUT_VARIANTS } from "../../../components/layout/types";
 

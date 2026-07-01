@@ -57,45 +57,38 @@
 </template>
 
 <script setup lang="ts">
-// --- external
-import { computed, onMounted, provide } from "vue";
-import { useRouteQuery } from "@vueuse/router";
-import { useUrlSearchParams } from "@vueuse/core";
-import { useI18n } from "vue-i18n";
 import { vAutoAnimate } from "@formkit/auto-animate";
-
-// --- internal
+import { useUrlSearchParams } from "@vueuse/core";
+import { useRouteQuery } from "@vueuse/router";
+import { computed, onMounted, provide } from "vue";
+import { useI18n } from "vue-i18n";
 import {
   useProductCategories,
   useBrand,
-  ProductSortableProperties,
-  RequestSortDirection,
   UIContext
 } from "@upmind-automation/headless";
 import { useConfig } from "@upmind-automation/headless";
-import config from "./catalogue.config";
-import { useLayout } from "../../components/layout/useLayout";
-import { useHeader } from "../../components/header/useHeader";
-import { useFooter } from "../../components/footer/useFooter";
-import { useThemes } from "@upmind-automation/upmind-ui";
-
-// --- components
-import { useStyles } from "@upmind-automation/upmind-ui";
-import Layout from "../../components/layout/Layout.vue";
-import Breadcrumbs from "./categories/Breadcrumbs.vue";
-import CategoriesFacet from "./categories/facet/CategoriesFacet.vue";
-import Categories from "./categories/Categories.vue";
-import WidgetGrid from "./products/WidgetGrid.vue";
-import WidgetDAC from "./products/WidgetDAC.vue";
-
-// --- utils
-import { last } from "lodash-es";
-
-// --- types
-import type { ProductCategory } from "@upmind-automation/headless";
-import type { LAYOUT_VARIANTS } from "../../components/layout";
-import type { RouteLocationAsRelativeGeneric } from "vue-router";
 import { PRODUCT_LIST_STYLE, LIST_STYLE } from "@upmind-automation/headless";
+import { useThemes } from "@upmind-automation/upmind-ui";
+import { useStyles } from "@upmind-automation/upmind-ui";
+import { useFooter } from "../../components/footer/useFooter";
+import { useHeader } from "../../components/header/useHeader";
+import Layout from "../../components/layout/Layout.vue";
+import { useLayout } from "../../components/layout/useLayout";
+import config from "./catalogue.config";
+import Breadcrumbs from "./categories/Breadcrumbs.vue";
+import Categories from "./categories/Categories.vue";
+import CategoriesFacet from "./categories/facet/CategoriesFacet.vue";
+import WidgetDAC from "./products/WidgetDAC.vue";
+import WidgetGrid from "./products/WidgetGrid.vue";
+import { last } from "lodash-es";
+import type { LAYOUT_VARIANTS } from "../../components/layout";
+import type {
+  ProductCategory,
+  ProductSortableProperties,
+  RequestSortDirection
+} from "@upmind-automation/headless";
+import type { RouteLocationAsRelativeGeneric } from "vue-router";
 
 // -----------------------------------------------------------------------------
 
@@ -106,11 +99,11 @@ const props = defineProps<{
 }>();
 
 // -----------------------------------------------------------------------------
-const { uiCart } = useBrand();
+const { uiCart: _uiCart } = useBrand();
 const instance = useProductCategories();
 provide("useProductCategories", instance);
 
-const { t } = useI18n();
+const { t: _t } = useI18n();
 const { set } = useThemes();
 
 const categoryId = useRouteQuery<string | undefined>("catid", undefined, {

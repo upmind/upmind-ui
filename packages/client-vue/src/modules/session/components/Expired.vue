@@ -36,23 +36,13 @@
   </component>
 </template>
 
-<!-- eslint-disable vue/component-api-style -->
 <script lang="ts" setup>
-// --- external
 import { ref, computed, watch } from "vue";
-
-// --- internal
-import { useSession } from "@upmind-automation/headless";
+import { useActiveSession } from "@upmind-automation/headless";
 import { useStyles } from "@upmind-automation/upmind-ui";
-import config from "../session.config";
-
-// --- components
 import { Avatar, Dialog, Button } from "@upmind-automation/upmind-ui";
-
-// --- utils
+import config from "../session.config";
 import { isEmpty, isFunction } from "lodash-es";
-
-// --- types
 import type { SessionExpiredProps } from "../types";
 // -----------------------------------------------------------------------------
 
@@ -74,12 +64,12 @@ const props = withDefaults(defineProps<SessionExpiredProps>(), {
   })
 });
 
-const { meta } = useSession();
+const { isExpired } = useActiveSession().useMeta();
 
-const styles = useStyles(["session.expired"], meta, config);
+const styles = useStyles(["session.expired"], {}, config);
 
 const processing = ref(false);
-const isOpen = computed(() => meta.value.hasExpired && !props.action?.auto);
+const isOpen = computed(() => isExpired.value && !props.action?.auto);
 const hasAction = computed(() => {
   return !isEmpty(props.action);
 });
@@ -92,7 +82,7 @@ async function doAction() {
   }
 }
 
-watch(meta, ({ hasExpired }) => {
-  if (props.action?.auto && hasExpired) doAction();
+watch(isExpired, expired => {
+  if (props.action?.auto && expired) doAction();
 });
 </script>

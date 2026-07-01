@@ -1,13 +1,6 @@
-// --- external
-
-// --- internal
-
-// --- renderers
-import mercadoPagoRenderer from "./mercadoPago";
-
-// --- types
-import type { ChallengeRendererConfig } from "./types";
 import { GatewayProviderCodes } from "@upmind-automation/types";
+import mercadoPagoRenderer from "./mercadoPago";
+import type { ChallengeRendererConfig } from "./types";
 
 // -----------------------------------------------------------------------------
 

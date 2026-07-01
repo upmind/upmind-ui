@@ -44,22 +44,15 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { useI18n } from "vue-i18n";
-
-// --- internal
-import config from "../payment.config";
 import { useStyles } from "@upmind-automation/upmind-ui";
-import TermsAndConditions from "../../brand/TermsAndConditions.vue";
-
-// --- components
 import { Alert, Markdown, Button } from "@upmind-automation/upmind-ui";
-
-// --- types
+import TermsAndConditions from "../../brand/TermsAndConditions.vue";
+import config from "../payment.config";
 import type { PaymentGatewaysUnavailableProps } from "../types";
 
 // -----------------------------------------------------------------------------
-const props = defineProps<PaymentGatewaysUnavailableProps>();
+const _props = defineProps<PaymentGatewaysUnavailableProps>();
 const emit = defineEmits<{
   (e: "resolve"): void;
 }>();

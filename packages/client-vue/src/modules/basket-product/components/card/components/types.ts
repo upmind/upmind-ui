@@ -1,4 +1,3 @@
-// --- types
 import type {
   ProductSummaryDetail,
   PriceDetail,
@@ -6,8 +5,8 @@ import type {
   TermDetails,
   Product
 } from "@upmind-automation/headless";
-import type { RouteLocationAsRelativeGeneric } from "vue-router";
 import type { BadgeProps } from "@upmind-automation/upmind-ui";
+import type { RouteLocationAsRelativeGeneric } from "vue-router";
 
 // -----------------------------------------------------------------------------
 

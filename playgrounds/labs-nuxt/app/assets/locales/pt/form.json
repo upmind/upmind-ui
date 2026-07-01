@@ -1,0 +1,137 @@
+{
+  "address": {
+    "error": "Seu endereço é necessário",
+    "label": "Endereço",
+    "placeholder": "Comece a digitar seu endereço",
+    "title": "Adicionar novo endereço | Atualizar endereço"
+  },
+  "address1": {
+    "label": "Endereço",
+    "placeholder": "Nome da casa, número do apartamento etc."
+  },
+  "address2": {
+    "label": "",
+    "placeholder": "Estrada, nome da rua etc."
+  },
+  "allow_auto_payment": {
+    "description": "Permita que este método de pagamento seja usado para fazer pagamentos offline automatizados, como pagar uma fatura de renovação.",
+    "label": "Permitir pagamento automático"
+  },
+  "auth_email": {
+    "error": "É necessário um nome de utilizador ou endereço de e-mail.",
+    "label": "O seu nome de utilizador ou endereço de e-mail",
+    "placeholder": "name@email.com"
+  },
+  "auth_password": {
+    "error": "É necessário uma palavra-passe forte",
+    "label": "Palavra-passe",
+    "placeholder": "Palavra-passe ou frase secreta"
+  },
+  "card_cvv": {
+    "error": "É necessário um CVV válido",
+    "label": "CVV",
+    "placeholder": "CVC"
+  },
+  "card_expiry": {
+    "error": "É necessária uma data de validade válida",
+    "label": "Data de validade",
+    "placeholder": "MM/AA"
+  },
+  "card_num": {
+    "error": "É necessário um número de cartão válido",
+    "label": "Número do cartão",
+    "placeholder": "1234 1234 1234 1234"
+  },
+  "cardholder_name": {
+    "label": "Nome do Titular",
+    "placeholder": "Insira o nome do titular do cartão"
+  },
+  "category_search": {
+    "placeholder": "Pesquisa por categoria..."
+  },
+  "city": {
+    "label": "Cidade",
+    "placeholder": "Cidade, vila etc."
+  },
+  "company": {
+    "error": "O nome da sua empresa é obrigatório",
+    "label": "Empresa",
+    "title": "Adicionar detalhes da empresa | Atualizar detalhes da empresa"
+  },
+  "companyName": {
+    "label": "nome da empresa",
+    "placeholder": "Nome da sua empresa"
+  },
+  "companyNumber": {
+    "label": "Número da empresa",
+    "placeholder": "Imposto registrado ou GST"
+  },
+  "country": {
+    "label": "País",
+    "placeholder": "Selecione um país"
+  },
+  "domain": {
+    "placeholder": "Digite o seu domínio..."
+  },
+  "domain_search": {
+    "placeholder": "Pesquisar um domínio..."
+  },
+  "email": {
+    "error": "É necessário um endereço de e-mail válido",
+    "label": "E-mail",
+    "title": "Adicionar novo e-mail | Atualizar e-mail"
+  },
+  "field_notes": {
+    "label": "Notas"
+  },
+  "firstname": {
+    "error": "O seu primeiro nome é obrigatório",
+    "label": "Primeiro nome"
+  },
+  "lastname": {
+    "error": "O seu apelido é obrigatório",
+    "label": "Apelido"
+  },
+  "login": {
+    "error": "Ocorreu um erro ao tentar efetuar o seu login."
+  },
+  "phone": {
+    "error": "É necessário um número de telefone válido",
+    "label": "Telefone",
+    "title": "Adicionar novo número de telefone | Atualizar número de telefone"
+  },
+  "postcode": {
+    "label": "Código postal",
+    "placeholder": "por exemplo, 10011"
+  },
+  "product_name_search": {
+    "placeholder": "Pesquisar por nome do produto..."
+  },
+  "promocode": {
+    "error": "Código promocional inválido",
+    "placeholder": "Insira o código do voucher aqui"
+  },
+  "recover": {
+    "error": "Ocorreu um erro ao tentar enviar o e-mail de reposição de senha."
+  },
+  "region": {
+    "label": "Região",
+    "placeholder": "Selecione uma região…"
+  },
+  "register": {
+    "error": "Ocorreu um erro ao tentar criar a sua conta."
+  },
+  "select_option": {
+    "placeholder": "Selecione uma opção"
+  },
+  "store_on_payment": {
+    "label": "Salvar detalhes de pagamento"
+  },
+  "stored_payment_method": {
+    "label": "Selecione um dos seus métodos de pagamento armazenados"
+  },
+  "taxNumber": {
+    "label": "Número de identificação fiscal",
+    "placeholder": "ID fiscal"
+  }
+}

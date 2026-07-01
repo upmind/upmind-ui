@@ -7,10 +7,10 @@
  * update visibility when teleported or dynamic content changes.
  */
 
-import { ref, computed, nextTick, onMounted } from "vue";
-import type { ShallowRef, Ref } from "vue";
 import { useMutationObserver } from "@vueuse/core";
+import { ref, computed, nextTick, onMounted } from "vue";
 import { isEmpty } from "lodash-es";
+import type { ShallowRef, Ref } from "vue";
 
 // -----------------------------------------------------------------------------
 

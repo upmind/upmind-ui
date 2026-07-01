@@ -1,16 +1,13 @@
-// --- external
 import { createRouter, createWebHistory, type Router } from "vue-router";
-
-// --- internal
+import { useActiveSession } from "@upmind-automation/client-vue";
+import { ROUTE } from "./funnels";
 import Home from "./pages/index.vue";
 import { get } from "lodash-es";
-import { ROUTE } from "./funnels";
-import { useSession } from "@upmind-automation/client-vue";
 
 // -----------------------------------------------------------------------------
 // Dynamic Routes from pages - self registering
 
-const importedRoutes = import.meta.glob<Object>("@/pages/**/routes.ts", {
+const importedRoutes = import.meta.glob<object>("@/pages/**/routes.ts", {
   import: "default",
   eager: true
 });
@@ -68,11 +65,13 @@ const router: Router = createRouter({
 router.beforeEach(async to => {
   if (!to.meta.needsAuth) return;
 
-  const { meta: sessionMeta, isReady } = useSession();
+  const session = useActiveSession();
+  const { isReady } = session.useActions();
+  const { isAuthenticated } = session.useMeta();
 
   await isReady();
 
-  if (!sessionMeta.value.isAuthenticated) {
+  if (!isAuthenticated.value) {
     return {
       name: ROUTE.SESSION_LOGIN,
       query: { returnUrl: to.fullPath }

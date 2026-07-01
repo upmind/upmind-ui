@@ -8,9 +8,9 @@ export default defineConfig({
     rules: [
       {
         maxFailures: 10,
-        fastFail: true,
-      },
-    ],
+        fastFail: true
+      }
+    ]
   },
   plugins: {
     awesome: {
@@ -20,23 +20,23 @@ export default defineConfig({
         reportLanguage: "en",
         charts: [
           {
-            type: "currentStatus",
+            type: "currentStatus"
           },
           {
-            type: "testResultSeverities",
+            type: "testResultSeverities"
           },
           {
-            type: "statusDynamics",
+            type: "statusDynamics"
           },
 
           {
-            type: "statusTransitions",
-          },
-        ],
-      },
-    },
+            type: "statusTransitions"
+          }
+        ]
+      }
+    }
   },
   defaultLabels: {
-    severity: "normal",
+    severity: "normal"
   }
 });

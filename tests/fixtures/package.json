@@ -1,0 +1,16 @@
+{
+  "name": "@upmind-automation/test-fixtures",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "index.ts",
+  "description": "Recorded API fixture pool, loader, identity/naming, MSW replay, and journey aliases shared across packages' tests.",
+  "dependencies": {
+    "lodash-es": "^4.17.21",
+    "msw": "^2.11.4"
+  },
+  "devDependencies": {
+    "@types/lodash-es": "^4.17.12",
+    "vitest": "^3.2.4"
+  }
+}

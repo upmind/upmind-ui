@@ -1,0 +1,283 @@
+import { ensure } from "./scope.registry";
+import { generateScopeKey, resolveSelfActor } from "./scope.utils";
+import type { ScopeActorTypes } from "./scope.types";
+import type {
+  ActorContextMatrix,
+  ContextsForActor,
+  ScopeActor,
+  ScopeConfig,
+  ScopeContext,
+  ScopeKey
+} from "./scope.types";
+import type { IToken } from "@upmind-automation/types";
+// -----------------------------------------------------------------------------
+/**
+ * @module scope/builder
+ * @description Fluent builder factory for creating scope-based composables.
+ */
+/**
+ * Factory function that creates a composable instance from scope config.
+ */
+export type ScopedFactory<T, TContextType extends string = string> = (
+  config: ScopeConfig<TContextType>,
+  session: IToken | undefined,
+  scopeKey: ScopeKey
+) => T;
+
+/**
+ * Builder after .for() has been called.
+ * Can optionally chain with .inBrand() for explicit brand validation.
+ */
+export type ScopeBuilderAfterFor<T> = T & {
+  /**
+   * Adds brand filter after context selection.
+   * Use this when you want explicit brand validation (BE will validate correlation).
+   *
+   * @param brandId - The brand ID to filter by
+   * @returns Finalized composable
+   */
+  inBrand: (brandId: string) => T;
+};
+
+/**
+ * Builder after .inBrand() has been called for staff with contexts.
+ * Can optionally chain with .for() to select a specific context.
+ */
+export type ScopeBuilderAfterBrand<T, TContexts extends string> = T & {
+  /**
+   * Specifies the context entity being acted upon.
+   *
+   * @param type - The context type (constrained by matrix)
+   * @param id - The entity ID
+   * @returns Finalized composable
+   */
+  for: (type: TContexts, id: string) => T;
+};
+
+/**
+ * Builder for staff when they have valid contexts in the matrix.
+ * Both .inBrand() and .for() are available, in either order.
+ *
+ * Usage patterns:
+ * - `.as('staff')` - View all across org
+ * - `.as('staff').inBrand('x')` - View all in brand
+ * - `.as('staff').for('client', '123')` - Specific client (BE infers brand)
+ * - `.as('staff').inBrand('x').for('client', '123')` - Specific client in brand
+ * - `.as('staff').for('client', '123').inBrand('x')` - Same as above
+ */
+export type ScopeBuilderStaffWithContexts<T, TContexts extends string> = T & {
+  /**
+   * Filters by brand.
+   * After calling, .for() remains available to select a specific context.
+   *
+   * @param brandId - The brand ID to filter by
+   * @returns Builder with .for() available
+   */
+  inBrand: (brandId: string) => ScopeBuilderAfterBrand<T, TContexts>;
+
+  /**
+   * Specifies the context entity being acted upon.
+   * In org mode, BE will infer the brand from the context.
+   * After calling, .inBrand() remains available for explicit brand validation.
+   *
+   * @param type - The context type (constrained by matrix)
+   * @param id - The entity ID
+   * @returns Builder with .inBrand() available
+   */
+  for: (type: TContexts, id: string) => ScopeBuilderAfterFor<T>;
+};
+
+/**
+ * Builder for staff when they have NO valid contexts in the matrix.
+ * Only .inBrand() is available.
+ */
+export type ScopeBuilderStaffNoContexts<T> = T & {
+  /**
+   * Filters by brand.
+   *
+   * @param brandId - The brand ID to filter by
+   * @returns Finalized composable
+   */
+  inBrand: (brandId: string) => T;
+};
+
+/**
+ * Result type for staff based on whether they have contexts in matrix.
+ *
+ * Note: Uses tuple wrapping `[T] extends [never]` to avoid TypeScript's
+ * distribution behavior where `never extends X` evaluates to `never`.
+ */
+export type ScopeBuilderStaffResult<T, TMatrix extends ActorContextMatrix> = [
+  ContextsForActor<TMatrix, ScopeActorTypes.STAFF>
+] extends [never]
+  ? ScopeBuilderStaffNoContexts<T>
+  : ScopeBuilderStaffWithContexts<
+      T,
+      ContextsForActor<TMatrix, ScopeActorTypes.STAFF>
+    >;
+
+/**
+ * Builder for any non-staff actor when they have valid contexts in the matrix.
+ * Only .for() is available (no .inBrand() — brand is determined by session/token).
+ *
+ * Usage patterns:
+ * - `.as('client')` - Client acting as self
+ * - `.as('client').for('client', '456')` - Client acting on behalf of child client
+ * - `.as('guest').for('lead', '789')` - Guest with lead context (if matrix allows)
+ */
+export type ScopeBuilderActorWithContexts<T, TContexts extends string> = T & {
+  /**
+   * Specifies the context entity being acted upon.
+   *
+   * @param type - The context type (constrained by matrix)
+   * @param id - The entity ID
+   * @returns Finalized composable
+   */
+  for: (type: TContexts, id: string) => T;
+};
+
+/**
+ * Result type for any actor based on actor type.
+ * Maps each actor to the appropriate return type.
+ *
+ * - STAFF: Gets .inBrand() and optionally .for() (based on matrix)
+ * - All others: Gets .for() only when matrix defines contexts for that actor
+ */
+export type ScopeBuilderResult<
+  T,
+  TMatrix extends ActorContextMatrix,
+  TActor extends ScopeActorTypes
+> = TActor extends ScopeActorTypes.STAFF
+  ? ScopeBuilderStaffResult<T, TMatrix>
+  : [ContextsForActor<TMatrix, TActor>] extends [never]
+    ? T
+    : ScopeBuilderActorWithContexts<T, ContextsForActor<TMatrix, TActor>>;
+
+/**
+ * Builder interface with fluent chaining.
+ * Returns different types based on actor type and matrix:
+ * - SELF: Returns T (runtime resolution, no chaining)
+ * - GUEST: Returns T, or T & { for } if matrix defines contexts for guest
+ * - CLIENT: Returns T, or T & { for } if matrix defines contexts for client
+ * - STAFF: Returns T with .inBrand(), and optionally .for() if matrix defines contexts
+ */
+export type ScopeBuilder<T, TMatrix extends ActorContextMatrix> = {
+  /**
+   * Specifies the actor performing the action.
+   * Returns the composable instance, optionally with additional scoping methods.
+   *
+   * @param actor - The actor type (use ScopeActorTypes enum)
+   * @returns Composable instance (staff gets .inBrand()/.for(); other actors get .for() when matrix defines contexts)
+   */
+  as<TActor extends ScopeActorTypes>(
+    actor: TActor
+  ): ScopeBuilderResult<T, TMatrix, TActor>;
+};
+// -----------------------------------------------------------------------------
+/**
+ * Creates a scope-based composable with fluent chaining API.
+ * The matrix type parameter enforces which contexts are valid for each actor.
+ *
+ * @param name - Unique name for this composable (used in scope key)
+ * @param factory - Factory function that creates the composable instance
+ * @returns A function that returns a fluent builder
+ *
+ * @example
+ * ```typescript
+ * // Module defines its own context types
+ * enum BasketContextTypes {
+ *   CLIENT = 'client',
+ *   LEAD = 'lead'
+ * }
+ *
+ * // Define actor-context matrix for this module
+ * type BasketMatrix = {
+ *   self: never;
+ *   staff: `${BasketContextTypes}`;
+ *   client: never;
+ *   guest: never;
+ * }
+ *
+ * const useBasket = createScopedComposable<BasketComposable, BasketMatrix>(
+ *   'basket',
+ *   (config, session) => ({
+ *     useMeta: () => ({ isLoading: computed(() => false) }),
+ *     useActions: () => ({ refresh: () => {} })
+ *   })
+ * )
+ *
+ * // Usage patterns by actor:
+ * useBasket().as('self')                                  // ✓ Returns T (runtime resolution)
+ * useBasket().as('guest')                                 // ✓ Returns T (no chaining)
+ * useBasket().as('client')                                // ✓ Returns T (no chaining)
+ *
+ * // Client patterns (if matrix defines contexts for client):
+ * // useBasket().as('client').for('client', '456')          // ✓ Child client context
+ *
+ * // Staff patterns (has contexts in matrix):
+ * useBasket().as('staff')                                 // ✓ View all across org
+ * useBasket().as('staff').inBrand('brand-1')              // ✓ View all in brand
+ * useBasket().as('staff').for('client', '123')            // ✓ Specific client (BE infers brand)
+ * useBasket().as('staff').inBrand('x').for('client', '1') // ✓ Client in specific brand
+ * useBasket().as('staff').for('client', '1').inBrand('x') // ✓ Same as above
+ * useBasket().as('staff').for('ticket', '123')            // ✗ Type error - not in matrix
+ * ```
+ */
+export function createScopedComposable<
+  T,
+  TMatrix extends ActorContextMatrix = ActorContextMatrix
+>(name: string, factory: ScopedFactory<T>): () => ScopeBuilder<T, TMatrix> {
+  return (): ScopeBuilder<T, TMatrix> => {
+    const config: ScopeConfig = {} as ScopeConfig;
+    let instance: T | null = null;
+
+    const finalize = (): T => {
+      if (!instance) {
+        const resolvedActor = resolveSelfActor(config.actor);
+        const resolvedConfig: ScopeConfig = { ...config, actor: resolvedActor };
+        const key = generateScopeKey(name, resolvedConfig);
+        instance = ensure(key, () => factory(resolvedConfig, undefined, key));
+      }
+      return instance;
+    };
+
+    const builderMethods: Record<string, Function> = {
+      as(actor: ScopeActor) {
+        config.actor = actor;
+        instance = null;
+        return proxy;
+      },
+      for(type: string, id: string) {
+        config.context = { type, id } as ScopeContext;
+        instance = null;
+        return proxy;
+      },
+      inBrand(brandId: string) {
+        config.brandId = brandId;
+        instance = null;
+        return proxy;
+      }
+    };
+
+    const proxy = new Proxy({} as ScopeBuilder<T, TMatrix>, {
+      get(_, prop: string | symbol) {
+        if (typeof prop === "string" && prop in builderMethods) {
+          return builderMethods[prop];
+        }
+        return (finalize() as Record<string | symbol, unknown>)[prop];
+      },
+      has(_, prop: string | symbol) {
+        if (typeof prop === "string" && prop in builderMethods) return true;
+        return prop in (finalize() as object);
+      },
+      ownKeys() {
+        return Reflect.ownKeys(finalize() as object);
+      },
+      getOwnPropertyDescriptor(_, prop: string | symbol) {
+        return Object.getOwnPropertyDescriptor(finalize() as object, prop);
+      }
+    });
+
+    return proxy;
+  };
+}

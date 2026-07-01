@@ -22,18 +22,11 @@
 </template>
 
 <script setup lang="ts">
-// --- external
 import { computed } from "vue";
-import { useStyles } from "@upmind-automation/upmind-ui";
 import { useI18n } from "vue-i18n";
-
-// --- internal
-import config from "./pricing.config";
-
-// --- components
+import { useStyles } from "@upmind-automation/upmind-ui";
 import CurrentPrice from "../pricing/CurrentPrice.vue";
-
-// --- types
+import config from "./pricing.config";
 import type { ProductSummaryDetailWithPrice } from "@upmind-automation/headless";
 
 const props = defineProps<{

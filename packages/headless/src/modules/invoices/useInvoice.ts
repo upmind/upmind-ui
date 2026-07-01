@@ -1,16 +1,9 @@
-// --- external
 import { computed } from "vue";
-
-// --- internal
-import service from "./service";
-import { useSession } from "../session";
 import { invalidateQueryByKey } from "../query";
-
-// --- utils
+import { useActiveSession } from "../session-store";
+import service from "./invoices.service";
 import { isEmpty, gt, eq } from "lodash-es";
-
-// --- types
-import type { Invoice } from "./types";
+import type { Invoice } from "./invoices.types";
 
 /**
  * Composable function to manage the state and data for a single invoice.
@@ -23,12 +16,13 @@ import type { Invoice } from "./types";
 export const useInvoice = (invoiceId: Invoice["id"]) => {
   // --- state
 
-  const { isAuthenticated, meta: sessionMeta } = useSession();
+  const { isReady: ensureAuth } = useActiveSession().useActions();
+  const { isAuthenticated } = useActiveSession().useMeta();
 
   const query = service.loadInvoice({ invoiceId });
 
   const meta = computed(() => ({
-    isAuthenticated: sessionMeta.value.isAuthenticated,
+    isAuthenticated: isAuthenticated.value,
     isPaid:
       !isEmpty(query.data?.value?.payments) &&
       eq(query.data?.value?.summary.unpaidAmount, 0),
@@ -46,11 +40,11 @@ export const useInvoice = (invoiceId: Invoice["id"]) => {
     isFetching: query?.isFetching.value,
     isLoading: query?.isLoading.value || !query?.isFetched.value,
     isComplete: query?.isFetched.value,
-    isAvailable: sessionMeta.value.isAuthenticated
+    isAvailable: isAuthenticated.value
   }));
 
   async function isReady(): Promise<boolean> {
-    if (sessionMeta.value.isAuthenticated)
+    if (isAuthenticated.value)
       return new Promise(resolve => {
         const interval = setInterval(() => {
           if (query?.isFetched.value) {
@@ -59,8 +53,8 @@ export const useInvoice = (invoiceId: Invoice["id"]) => {
           }
         }, 100);
       });
-    return isAuthenticated()
-      .then(() => query?.refetch().then(() => true) ?? false)
+    return ensureAuth()
+      .then(ok => (ok ? (query?.refetch().then(() => true) ?? false) : false))
       .catch(() => false);
   }
 

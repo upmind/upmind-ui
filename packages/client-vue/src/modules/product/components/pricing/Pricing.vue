@@ -17,12 +17,9 @@
 </template>
 
 <script setup lang="ts">
-// --- components
-import ExPrice from "./ExPrice.vue";
 import CurrentPrice from "./CurrentPrice.vue";
-
-// --- types
-import { type PricingProps } from "./types";
+import ExPrice from "./ExPrice.vue";
+import type { PricingProps } from "./types";
 
 // -----------------------------------------------------------------------------
 

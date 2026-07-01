@@ -1,4 +1,4 @@
-import { BrowserContext, Page } from "@playwright/test";
+import { BrowserContext, Page, expect } from "@playwright/test";
 import { URLs } from "../constants/urls";
 import { getSessionToken } from "../api/auth";
 import {
@@ -6,10 +6,11 @@ import {
   Order,
   addProductToOrder,
   addPromotionToOrder,
+  getCurrentOrder,
   setOrderCurrency
 } from "../api/basket";
 import { waitForSessionCookie } from "../helpers/session";
-import { fakerEN_GB } from "@faker-js/faker";
+import { some } from "lodash-es";
 
 /**
  * Creates an order with a product and navigates to checkout.
@@ -43,14 +44,6 @@ export async function goToCheckout(
   if (currency !== null) {
     await setOrderCurrency(token, orderId, currency);
   }
-  // const provisionFields =
-  //   product.type === "domain"// || product.type === "hosting"
-  //     ? {
-  //         domain: `${fakerEN_GB.string.alphanumeric({
-  //           length: { min: 3, max: 15 }
-  //         })}.com`
-  //       }
-  //     : {};
 
   await addProductToOrder(
     `${token}`,
@@ -60,7 +53,7 @@ export async function goToCheckout(
     product.billingCycle,
     [],
     [],
-    {}, //provisionFields,
+    {},
     [],
     true,
     trialValue
@@ -68,5 +61,22 @@ export async function goToCheckout(
   if (promotion !== null) {
     await addPromotionToOrder(orderId, promotion, token);
   }
+
+  // Confirm the seeded product is on the session's CURRENT order before loading
+  // checkout. On shared staging accounts under parallel load, a sibling test's
+  // createOrder can become "current" and the checkout page reads an empty
+  // basket (the BasketUnavailable dialog), so poll the API until our product is
+  // the current order's product, then navigate.
+  await expect
+    .poll(
+      async () => {
+        const current = await getCurrentOrder(token);
+        const items = (current?.products ?? []) as { product_id?: string }[];
+        return some(items, { product_id: product.id });
+      },
+      { timeout: 30000 }
+    )
+    .toBeTruthy();
+
   await page.goto(URLs.checkout);
 }

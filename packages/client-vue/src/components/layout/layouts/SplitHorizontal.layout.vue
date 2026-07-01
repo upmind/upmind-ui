@@ -23,17 +23,10 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed } from "vue";
-
-// --- components
-import Root from "../components/root/Root.vue";
-
-// --- internal
 import { useStyles } from "@upmind-automation/upmind-ui";
+import Root from "../components/root/Root.vue";
 import config from "../layout.config";
-
-// --- types
 import type { VariantProps } from "../types";
 
 defineProps<VariantProps>();

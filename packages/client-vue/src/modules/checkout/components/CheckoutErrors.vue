@@ -9,13 +9,8 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { useI18n } from "vue-i18n";
-
-// --- internal
 import { useBasket } from "@upmind-automation/headless";
-
-// --- components
 import { Alert } from "@upmind-automation/upmind-ui";
 
 const { t } = useI18n();

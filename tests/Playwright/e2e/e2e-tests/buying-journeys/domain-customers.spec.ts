@@ -4,6 +4,7 @@ import { Logins } from "../../support/constants/logins";
 import { TEST_EMAILS } from "../../support/constants/test-data";
 import { ProductConfig } from "../../support/page-objects/templates/product-config";
 import { Checkout } from "../../support/page-objects/templates/checkout";
+import { gateways } from "../../support/constants/gateways";
 import { Basket } from "../../support/page-objects/templates/basket";
 import { URLs } from "../../support/constants/urls";
 import { getClientToken } from "../../support/api/auth";
@@ -83,19 +84,26 @@ test.describe("Domain customers", () => {
       await enterDomainDetails();
       await productConfig.addToBasket.click();
       await basket.proceedToCheckout.click();
-      await checkout.selectPaymentMethod("Direct Bank Transfer");
+      await checkout.selectGatewayByType(gateways.BANK_TRANSFER);
       await checkout.clickCompleteCheckout();
-      await expect(page.getByText("Order confirmed")).toBeVisible();
+      await expect(
+        page.getByTestId("order-confirmation-heading")
+      ).toBeVisible();
     });
     test("Log in at checkout", async ({ page }) => {
       await enterDomainDetails();
       await productConfig.addToBasket.click();
       await basket.proceedToCheckout.click();
-      await page.getByText("Log in here").click();
+      // session/Register.vue now tags the register→login switch link with the
+      // static `checkout-login-link` testid (locale-safe; replaces the
+      // English-only label-derived id, P9).
+      await page.getByTestId("checkout-login-link").click();
       await login.inputLogin(Logins.domain2.username, Logins.domain2.password);
-      await checkout.selectPaymentMethod("Direct Bank Transfer");
+      await checkout.selectGatewayByType(gateways.BANK_TRANSFER);
       await checkout.clickCompleteCheckout();
-      await expect(page.getByText("Order confirmed")).toBeVisible();
+      await expect(
+        page.getByTestId("order-confirmation-heading")
+      ).toBeVisible();
     });
   });
   test.describe("New Customer", () => {
@@ -125,9 +133,11 @@ test.describe("Domain customers", () => {
       await billingPage.saveDetails.click();
       await billingUpdate;
       await page.waitForURL("**/order/checkout**");
-      await checkout.selectPaymentMethod("Direct Bank Transfer");
+      await checkout.selectGatewayByType(gateways.BANK_TRANSFER);
       await checkout.clickCompleteCheckout();
-      await expect(page.getByText("Order confirmed")).toBeVisible();
+      await expect(
+        page.getByTestId("order-confirmation-heading")
+      ).toBeVisible();
     });
 
     test("Register at checkout — no billing address required", async ({
@@ -145,9 +155,11 @@ test.describe("Domain customers", () => {
       await productConfig.addToBasket.click();
       await basket.proceedToCheckout.click();
       await registration.inputRegistration();
-      await checkout.selectPaymentMethod("Direct Bank Transfer");
+      await checkout.selectGatewayByType(gateways.BANK_TRANSFER);
       await checkout.clickCompleteCheckout();
-      await expect(page.getByText("Order confirmed")).toBeVisible();
+      await expect(
+        page.getByTestId("order-confirmation-heading")
+      ).toBeVisible();
     });
   });
 });

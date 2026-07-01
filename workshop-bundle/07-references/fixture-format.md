@@ -1,6 +1,6 @@
 # Fixture format — v2 spec
 
-> Defines the on-disk shape of `tests/__fixtures__/recordings/*.json` and equivalent files in the handover bundle at `07-references/recordings/`.
+> Defines the on-disk shape of `tests/fixtures/recordings/*.json` and equivalent files in the handover bundle at `07-references/recordings/`.
 >
 > **v2 (current target)** adds `request.body` and `request.headers` so callers can verify their request shape against the captured truth, not just their response shape. v1 captured response-only and produced a documented failure mode where agents had to infer request shapes from prose docs that were sometimes incomplete.
 
@@ -130,7 +130,7 @@ These steps assume the existing recording proxy (referenced in [`fixture-index.m
 2. **Make the request** through the proxy — either via the existing client UI, via curl with realistic values, or via a test harness that exercises the endpoint deterministically.
 3. **Verify the captured file** has `version: 2` and `request.body` populated for non-GET verbs.
 4. **Apply redaction rules** above. The harness should do this automatically; if you're hand-capturing, run a redaction pass before commit.
-5. **Save** as `tests/__fixtures__/recordings/{method}-{path-with-dashes}-{hash}.json`.
+5. **Save** as `tests/fixtures/recordings/{method}-{path-with-dashes}-{hash}.json`.
 6. **Update [`fixture-index.md`](./fixture-index.md)** with the new fixture's purpose.
 7. **Re-build the workshop bundle** if a v2 fixture replaces a v1 fixture that already shipped: `./docs/workshop/build-bundle.sh && tar -czf contabo-workshop.tar.gz contabo-workshop`.
 

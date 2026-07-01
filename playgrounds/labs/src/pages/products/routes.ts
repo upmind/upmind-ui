@@ -1,9 +1,6 @@
-// --- external
-import type { RouteRecordRaw } from "vue-router";
-
-// --- internal
 import Detail from "./Detail.vue";
 import Listings from "./Listings.vue";
+import type { RouteRecordRaw } from "vue-router";
 
 const routes: RouteRecordRaw[] = [
   {

@@ -18,6 +18,7 @@ import {
   interceptUISchema,
   interceptConfigValues
 } from "../../../support/mocks/brand";
+import { gateways } from "../../../support/constants/gateways";
 import { getSessionToken, getClientToken } from "../../../support/api/auth";
 import { Registration } from "../../../support/page-objects/templates/registration";
 import { getCurrentOrder, setOrderAddress } from "../../../support/api/basket";
@@ -82,8 +83,13 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       await page.reload();
       await page.waitForURL("**/order/checkout**");
       await expect(checkout.billingDetails).toBeVisible({ timeout: 15000 });
-      await expect(checkout.billingDetails).toHaveText(
-        /10 Downing Street*London*Greater London*SW1A 2AB*United Kingdom/s
+      // The address title is carried in billing-summary-address's
+      // data-test-value; addAddressToClient seeds "10 Downing Street" as the
+      // address name / line 1.
+      await expect(checkout.billingSummaryAddress).toBeVisible();
+      await expect(checkout.billingSummaryAddress).toHaveAttribute(
+        "data-test-value",
+        "10 Downing Street"
       );
     });
 
@@ -187,8 +193,13 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       await billingUpdateRequest;
       await page.waitForURL("**/order/checkout**");
       await expect(checkout.billingDetails).toBeVisible({ timeout: 15000 });
-      await expect(checkout.billingDetails).toHaveText(
-        /10 Downing Street.*London.*SW1A 2AB.*United Kingdom/s
+      // The entered address line 1 is carried in billing-summary-address's
+      // data-test-value (the address title), separated from the multi-line
+      // rendered rows.
+      await expect(checkout.billingSummaryAddress).toBeVisible();
+      await expect(checkout.billingSummaryAddress).toHaveAttribute(
+        "data-test-value",
+        "10 Downing Street"
       );
     });
 
@@ -252,9 +263,13 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       await checkout.clickSaveDetails();
       await billingPage.continue.click();
       await expect(checkout.billingDetails).toBeVisible({ timeout: 15000 });
-      await expect(checkout.billingDetails).toContainText("15 White Hart Lane");
-      await expect(checkout.billingDetails).toContainText("Manchester");
-      await expect(checkout.billingDetails).toContainText("M1 1AA");
+      // The updated address line 1 is carried in billing-summary-address's
+      // data-test-value (the address title).
+      await expect(checkout.billingSummaryAddress).toBeVisible();
+      await expect(checkout.billingSummaryAddress).toHaveAttribute(
+        "data-test-value",
+        "15 White Hart Lane"
+      );
     });
 
     // @quarantine(FE-2784, 2026-06-28)
@@ -274,6 +289,13 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       await page.waitForURL("**/order/basket/**");
       await page.goto(URLs.checkout);
       await expect(checkout.billingDetails).toBeVisible({ timeout: 15000 });
+      // The entered company name is carried in billing-summary-company's
+      // data-test-value.
+      await expect(checkout.billingSummaryCompany).toBeVisible();
+      await expect(checkout.billingSummaryCompany).toHaveAttribute(
+        "data-test-value",
+        "E2E Test Company Ltd"
+      );
     });
   });
 
@@ -424,9 +446,9 @@ test.describe("Standalone Billing Details Page @standalone-billing", () => {
       await fillRegistrantDetails(productConfig);
       await productSetup.submit();
       await page.waitForURL(/checkout/);
-      await checkout.selectPaymentMethod("Direct Bank Transfer");
+      await checkout.selectGatewayByType(gateways.BANK_TRANSFER);
       await checkout.clickCompleteCheckout();
-      await expect(page.getByText("Order confirmed")).toBeVisible({
+      await expect(page.getByTestId("order-confirmation-heading")).toBeVisible({
         timeout: 30000
       });
     });

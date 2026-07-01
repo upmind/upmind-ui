@@ -1,7 +1,6 @@
-import {
-  type AnyEventObject,
-  type FunnelContext,
-  useSession
+import type {
+  AnyEventObject,
+  FunnelContext
 } from "@upmind-automation/client-vue";
 
 // -----------------------------------------------------------------------------

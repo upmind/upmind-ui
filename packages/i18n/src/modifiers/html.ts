@@ -1,7 +1,4 @@
-// --- external
 import dompurify from "dompurify";
-
-// --- types
 import type { VueMessageType } from "vue-i18n";
 
 export const htmlModifier = (str: VueMessageType) =>

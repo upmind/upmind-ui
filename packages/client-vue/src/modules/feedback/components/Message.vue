@@ -15,16 +15,9 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed } from "vue";
-
-// --- internal
 import { useMessage } from "@upmind-automation/headless";
-
-// custom elements
 import { Alert } from "@upmind-automation/upmind-ui";
-
-// --- utils
 
 // -----------------------------------------------------------------------------
 const props = withDefaults(

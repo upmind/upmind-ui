@@ -67,11 +67,10 @@
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
 import { Button, isMobile } from "@upmind-automation/upmind-ui";
-import type { DomainTypes } from "@upmind-automation/headless";
-import DomainCards from "./DomainCards.vue";
-import DomainSearch from "./DomainSearch.vue";
 import DomainDrawer from "../templates/DomainDrawer.template.vue";
 import { DOMAIN_TEMPLATE } from "../types";
+import DomainCards from "./DomainCards.vue";
+import DomainSearch from "./DomainSearch.vue";
 import type { SmartDomainDrawerProps } from "../types";
 
 const props = defineProps<SmartDomainDrawerProps>();

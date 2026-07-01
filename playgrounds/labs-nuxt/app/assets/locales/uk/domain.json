@@ -1,0 +1,31 @@
+{
+  "begin_search_above_desc": "Почніть пошук, використовуючи поле вище.",
+  "choices": {
+    "basket": {
+      "label": "Використати домен у кошику",
+      "tooltip": "Ці домени вже є у вашому кошику"
+    },
+    "existing": {
+      "label": "Використати існуючий домен",
+      "tooltip": "Ви можете використовувати існуючий домен, оновивши сервери імен"
+    },
+    "register": {
+      "label": "Зареєструвати новий домен",
+      "tooltip": "Ще не маєте домену? Зареєструйте новий у нас"
+    },
+    "transfer": {
+      "label": "Перенести домен",
+      "tooltip": "Вже маєте домен? Ви можете перенести його до нас"
+    }
+  },
+  "finding_perfect_domain": "Пошук вашого **ідеального** домену",
+  "finding_perfect_domain_md": "@.markdown:{'domain.finding_perfect_domain'}",
+  "own_domain_qn": "Ви володієте цим доменом?",
+  "owned_domains_title": "Домени, якими ви зараз володієте",
+  "price_renewal_desc": "Одноразова ціна {regularPrice}. | Оновлюється щороку за {regularPrice}. | Оновлюється кожні {count} роки за {regularPrice}.",
+  "starts_with_domain": "Все починається з **доменного імені**",
+  "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
+  "tld_renewal_price_desc": "Наш {tld} ціни на поновлення починаються від лише {currentPrice} (було {regularPrice}).",
+  "tld_renewal_price_from_desc": "Наш {tld} ціни на поновлення починаються від лише {regularPrice}.",
+  "transfer_domain_by_msg": "Передайте нам це через"
+}

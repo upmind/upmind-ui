@@ -1,8 +1,7 @@
-// --- external
+import Feedback from "./Feedback.vue";
 import type { RouteRecordRaw } from "vue-router";
 
 // --- internal
-import Feedback from "./Feedback.vue";
 
 // -----------------------------------------------------------------------------
 

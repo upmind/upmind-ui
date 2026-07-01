@@ -1,15 +1,7 @@
-// --- external
 import { computed, ref } from "vue";
-
-// --- internal
 import { Store } from "@upmind-automation/headless";
-import { useShell } from "../shell/useShell";
 import { SHELL } from "../shell/types";
-
-// --- utils
-import { isEmpty, isObject, merge } from "lodash-es";
-
-// --- types
+import { useShell } from "../shell/useShell";
 import {
   HEADER_POSITION,
   HEADER_JUSTIFY,
@@ -19,6 +11,9 @@ import {
   HEADER_PADDING,
   HEADER_BORDER
 } from "./types";
+import { isEmpty, isObject, merge } from "lodash-es";
+
+// --- types
 
 // -----------------------------------------------------------------------------
 // --- global context

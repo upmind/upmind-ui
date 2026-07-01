@@ -48,9 +48,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
 import { useVModel } from "@vueuse/core";
-import { type ProductCategory } from "@upmind-automation/headless";
+import { ref } from "vue";
+import type { ProductCategory } from "@upmind-automation/headless";
 
 const props = withDefaults(
   defineProps<{

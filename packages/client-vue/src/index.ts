@@ -1,4 +1,5 @@
-// --- expose our package exports
+import useUpmindClient from "./useUpmindClient";
+
 export * from "@upmind-automation/headless";
 
 // --- expose shared types
@@ -22,9 +23,6 @@ export { default as UpmMain } from "./components/main/Main.vue";
 
 //  --- export modules and components
 export * from "./components";
-export * from "./modules";
-
 // -----------------------------------------------------------------------------
-
-import useUpmindClient from "./useUpmindClient";
+export * from "./modules";
 export default useUpmindClient;

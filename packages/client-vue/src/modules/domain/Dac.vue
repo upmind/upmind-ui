@@ -85,43 +85,32 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed, onUnmounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
-
-// --- internal
 import { useDac, DomainTypes } from "@upmind-automation/headless";
-import { isMobile } from "@upmind-automation/upmind-ui";
 import {
   useBasket,
   useBasketCurrency,
   useQuery
 } from "@upmind-automation/headless";
-
-// --- components
-import DomainHero from "./components/DomainHero.vue";
-import DomainTabs from "./components/DomainTabs.vue";
-import DomainCards from "./components/DomainCards.vue";
-import DomainSearch from "./components/DomainSearch.vue";
-import { Button } from "@upmind-automation/upmind-ui";
-
-// --- utils
 import { DEBOUNCE_DELAY } from "@upmind-automation/headless";
-import { debounce, includes, some } from "lodash-es";
-
-//  --- templates
+import { isMobile } from "@upmind-automation/upmind-ui";
+import { Button } from "@upmind-automation/upmind-ui";
+import DomainCards from "./components/DomainCards.vue";
+import DomainHero from "./components/DomainHero.vue";
+import DomainSearch from "./components/DomainSearch.vue";
+import DomainTabs from "./components/DomainTabs.vue";
 import DomainFullTemplate from "./templates/DomainFull.template.vue";
 import DomainWidgetTemplate from "./templates/DomainWidget.template.vue";
+import { DOMAIN_TEMPLATE } from "./types";
+import { debounce, includes, some } from "lodash-es";
+import { get } from "lodash-es";
+import type { DacProps } from "./types";
 
 const supportedTemplates = {
   [DOMAIN_TEMPLATE.FULL]: DomainFullTemplate,
   [DOMAIN_TEMPLATE.WIDGET]: DomainWidgetTemplate
 };
-
-// --- types
-import { get } from "lodash-es";
-import type { DacProps } from "./types";
-import { DOMAIN_TEMPLATE } from "./types";
 
 // -----------------------------------------------------------------------------
 defineOptions({
@@ -153,7 +142,7 @@ const {
   isReady,
   available,
   model,
-  added,
+  added: _added,
   search,
   meta,
   pagination,

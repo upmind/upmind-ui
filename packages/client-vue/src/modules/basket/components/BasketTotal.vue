@@ -21,10 +21,7 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { useI18n } from "vue-i18n";
-
-// --- internal
 import { useBasket, useConfig } from "@upmind-automation/headless";
 import { useMoney } from "@upmind-automation/headless";
 import { Skeleton, useStyles } from "@upmind-automation/upmind-ui";

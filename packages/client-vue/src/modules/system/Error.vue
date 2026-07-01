@@ -12,23 +12,18 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed, onBeforeMount } from "vue";
 import { useI18n } from "vue-i18n";
-
-// -- components
+import { responseCodes, type Message } from "@upmind-automation/headless";
 import {
   Interstitial,
   loadAnimation,
   loadIcon,
   type InterstitialActionProps
 } from "@upmind-automation/upmind-ui";
-
-// -- types
-import { type InterstitialProps } from "@upmind-automation/upmind-ui";
 import { first, isNil } from "lodash-es";
-import { responseCodes, type Message } from "@upmind-automation/headless";
 import type { StorefrontRoute } from "../../types";
+import type { InterstitialProps } from "@upmind-automation/upmind-ui";
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();

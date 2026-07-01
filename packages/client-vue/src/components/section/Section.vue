@@ -11,18 +11,18 @@
 </template>
 
 <script setup lang="ts">
-// --- external
 import { computed, useSlots } from "vue";
-
-// --- internal
 import { useForwardPropsEmits } from "@upmind-automation/upmind-ui";
 import Sections from "./Sections.vue";
-
-// --- types
 import type { SectionItem } from "./types";
 
 // -----------------------------------------------------------------------------
-const props = defineProps<Omit<SectionItem, "active" | "value">>();
+const props = withDefaults(
+  defineProps<Omit<SectionItem, "active" | "value"> & { value?: string }>(),
+  {
+    value: "section"
+  }
+);
 
 const emits = defineEmits<{
   reject: [Event];
@@ -34,9 +34,10 @@ const emits = defineEmits<{
 const sections = computed<SectionItem[]>(() => [
   {
     label: props.label,
-    value: "section",
+    value: props.value,
     icon: props.icon,
-    actions: props?.actions
+    actions: props?.actions,
+    dataAttrs: props.dataAttrs
   }
 ]);
 

@@ -1,0 +1,167 @@
+/**
+ * @module scope/scope-helpers
+ * @description Navigation helpers for building and navigating to scope-aware URLs.
+ *
+ * IMPORTANT: `navigateToScope` and `updateScopeParam` use Vue Router's `useRoute`/`useRouter`
+ * which rely on `inject()`. They MUST be obtained via `useScopeNavigation()` during component
+ * setup — calling them as standalone functions from event handlers will fail.
+ */
+
+import { useRouter, useRoute } from "vue-router";
+import { ScopeActorTypes } from "@upmind-automation/headless";
+import { filter } from "lodash-es";
+import type { ScopeContext } from "@upmind-automation/headless";
+
+export type ScopePathConfig = {
+  /** Page path (e.g., "useAuth", "products") */
+  page: string;
+  /** Brand ID or 'org' for org-wide mode */
+  brandId?: string;
+  /** Actor scope */
+  actor?: ScopeActorTypes;
+  /** Context scope */
+  context?: ScopeContext;
+};
+
+/**
+ * Build a scope-aware URL path from configuration.
+ * Constructs: /as/:actor (homepage, no brand)
+ * Or: /:page/as/:actor (specific page, no brand)
+ * Or: /:brandId/as/:actor (homepage with brand)
+ * Or: /:brandId/:page/as/:actor/for/:type/:id (full path)
+ *
+ * @param config - Scope path configuration
+ * @returns Full path string
+ *
+ * @example
+ * buildScopePath({ page: "", actor: ScopeActorTypes.STAFF })
+ * // => "/as/user" (STAFF = "user", not "staff")
+ *
+ * @example
+ * buildScopePath({ page: "useAuth", actor: ScopeActorTypes.STAFF })
+ * // => "/useAuth/as/user"
+ *
+ * @example
+ * buildScopePath({ page: "useAuth", brandId: "brand-x", actor: ScopeActorTypes.STAFF })
+ * // => "/brand-x/useAuth/as/user"
+ *
+ * @example
+ * buildScopePath({
+ *   page: "orders",
+ *   actor: ScopeActorTypes.STAFF,
+ *   context: { type: "client", id: "123" }
+ * })
+ * // => "/orders/as/user/for/client/123"
+ */
+export function buildScopePath(config: ScopePathConfig): string {
+  const { page, brandId, actor, context } = config;
+
+  // Build path segments (filter out empty page for homepage)
+  const segments: string[] = [];
+
+  // Add brand if specified (and not org)
+  if (brandId && brandId !== "org") {
+    segments.push(brandId);
+  }
+
+  // Add page if specified (skip empty for homepage)
+  if (page) {
+    segments.push(page);
+  }
+
+  // Start with base path (handle empty segments for homepage)
+  let path = segments.length > 0 ? `/${segments.join("/")}` : "";
+
+  // Add actor scope if specified (and not SELF)
+  if (actor && actor !== ScopeActorTypes.SELF) {
+    path += `/as/${actor}`;
+
+    // Add context if specified
+    if (context) {
+      path += `/for/${context.type}/${context.id}`;
+    }
+  }
+
+  // Ensure we always return at least "/" for homepage without scope
+  return path || "/";
+}
+
+/**
+ * Composable that provides scope navigation helpers.
+ * Captures `useRoute()`/`useRouter()` during setup so returned functions
+ * can safely be called from event handlers, async callbacks, etc.
+ *
+ * @returns Navigation helper functions
+ *
+ * @example
+ * const { navigateToScope, updateScopeParam } = useScopeNavigation();
+ *
+ * async function handleClick() {
+ *   await updateScopeParam("context", { type: "client", id: "123" });
+ * }
+ */
+export function useScopeNavigation() {
+  const route = useRoute();
+  const router = useRouter();
+
+  /**
+   * Navigate to a new scope configuration.
+   * Uses Vue Router to push new route with scope segments.
+   *
+   * @param config - Scope path configuration
+   * @returns Promise that resolves when navigation completes
+   */
+  function navigateToScope(config: ScopePathConfig): Promise<void> {
+    const path = buildScopePath(config);
+    return router.push(path).then(() => undefined);
+  }
+
+  /**
+   * Update a single scope parameter while preserving others.
+   * Reads current scope from route, updates specified param, and navigates.
+   *
+   * @param param - Which parameter to update
+   * @param value - New value for the parameter
+   * @returns Promise that resolves when navigation completes
+   *
+   * @example
+   * // Current URL: /useAuth/as/user (STAFF = "user")
+   * await updateScopeParam("context", { type: "client", id: "123" })
+   * // New URL: /useAuth/as/user/for/client/123
+   *
+   * @example
+   * // Current URL: /brand-x/useAuth/as/user/for/client/123
+   * await updateScopeParam("actor", ScopeActorTypes.CLIENT)
+   * // New URL: /brand-x/useAuth/as/client
+   */
+  function updateScopeParam(
+    param: "brandId" | "actor" | "context",
+    value: string | ScopeActorTypes | ScopeContext | undefined
+  ): Promise<void> {
+    // Get current scope
+    const currentBrand = route.params.brandIdOrOrg as string | undefined;
+    const scopeConfig = route.meta.scopeConfig as
+      | { actor?: ScopeActorTypes; context?: ScopeContext }
+      | undefined;
+    const currentActor = scopeConfig?.actor;
+    const currentContext = scopeConfig?.context;
+
+    // Extract page name from current path
+    const pathParts = filter(route.path.split("/"), Boolean);
+    // If no brand param, page is first segment; otherwise second segment
+    const page = currentBrand ? pathParts[1] || "" : pathParts[0] || "";
+
+    // Build new config with updated param
+    const newConfig: ScopePathConfig = {
+      page,
+      brandId: param === "brandId" ? (value as string) : currentBrand,
+      actor: param === "actor" ? (value as ScopeActorTypes) : currentActor,
+      context: param === "context" ? (value as ScopeContext) : currentContext
+    };
+
+    const newPath = buildScopePath(newConfig);
+    return router.push(newPath).then(() => undefined);
+  }
+
+  return { navigateToScope, updateScopeParam };
+}

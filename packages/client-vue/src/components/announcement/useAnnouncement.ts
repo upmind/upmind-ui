@@ -1,7 +1,4 @@
-// --- external
 import { computed, readonly, ref } from "vue";
-
-// --- types
 import type { AnnouncementOptions } from "./types";
 
 // -----------------------------------------------------------------------------

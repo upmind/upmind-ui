@@ -28,8 +28,8 @@ export class GuestCheckout {
    */
   readonly upgradeForm: Locator;
   /**
-   * Submit button inside the upgrade form (testid `button-<kebab(label)>`). The
-   * guest button renders the default "Continue" label → `button-continue`.
+   * Submit button inside the upgrade form — explicit testid
+   * `button-complete-registration` (set via Account.vue's submit `dataAttrs`).
    */
   readonly upgradeFormSubmit: Locator;
 
@@ -41,7 +41,9 @@ export class GuestCheckout {
     this.accountLabel = page.getByTestId("dropdown-account-label");
     this.upgradeMenuItem = this.accountMenu.getByTestId("button-register");
     this.upgradeForm = page.getByTestId("guest-form");
-    this.upgradeFormSubmit = this.upgradeForm.getByTestId("button-continue");
+    this.upgradeFormSubmit = this.upgradeForm.getByTestId(
+      "button-complete-registration"
+    );
   }
 
   /** Enter guest checkout by clicking the CTA. */

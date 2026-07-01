@@ -1,16 +1,14 @@
 // --- external
-import type { Meta, StoryObj } from "@storybook/vue3";
 
 // -- components
 import { Select } from "@upmind-automation/upmind-ui";
-
-// --- types
 import {
   SELECT_WIDTHS,
   SELECT_SIZES,
   type SelectItemProps,
   type SelectItemAdditional
 } from "@upmind-automation/upmind-ui";
+import type { Meta, StoryObj } from "@storybook/vue3";
 
 const meta: Meta<typeof Select> = {
   parameters: {

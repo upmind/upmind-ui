@@ -25,21 +25,14 @@
  * All UI rendering is delegated to Setup.
  */
 
-// --- external
 import { onUnmounted, ref } from "vue";
-
-// --- internal
 import {
   useRoutingEngine,
   useProductSetup,
   useBasket,
   type ProductModel
 } from "@upmind-automation/headless";
-
-// --- components
 import Setup from "./components/Setup.vue";
-
-// --- types
 import type { ProductSetupProps } from "./types";
 
 // -----------------------------------------------------------------------------

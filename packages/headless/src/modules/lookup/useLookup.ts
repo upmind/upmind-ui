@@ -1,19 +1,14 @@
-// ---
-import { computed } from "vue";
 import { useActor } from "@xstate/vue";
+import { computed } from "vue";
 import { waitFor } from "xstate/lib/waitFor";
-
-// --- internal
-import { useI18n } from "../system";
-
-// --- utils
-import { map, get, pick, debounce } from "lodash-es";
+import { useI18n } from "../system-localisation";
 import {
   DEBOUNCE_DELAY,
   DetailedError,
   ErrorOrigin,
   responseCodes
 } from "../../utils";
+import { map, get, pick, debounce } from "lodash-es";
 
 // ----------------------------------------------------------------------------
 

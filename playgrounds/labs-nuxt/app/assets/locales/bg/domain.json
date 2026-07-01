@@ -1,0 +1,31 @@
+{
+  "begin_search_above_desc": "Започнете търсенето си, като използвате полето по-горе.",
+  "choices": {
+    "basket": {
+      "label": "Използвайте домейн в кошницата",
+      "tooltip": "Тези домейни вече са във вашата кошница"
+    },
+    "existing": {
+      "label": "Използвайте съществуващ домейн",
+      "tooltip": "Можете да използвате съществуващ домейн, като актуализирате именните сървъри."
+    },
+    "register": {
+      "label": "Регистрирайте нов домейн",
+      "tooltip": "Все още нямате домейн? Регистрирайте нов при нас"
+    },
+    "transfer": {
+      "label": "Трансфер на домейн",
+      "tooltip": "Вече притежавате домейн? Можете да го прехвърлите към нас"
+    }
+  },
+  "finding_perfect_domain": "Намиране на вашия **перфектен** домейн",
+  "finding_perfect_domain_md": "@.markdown:{'domain.finding_perfect_domain'}",
+  "own_domain_qn": "Вие притежавате ли този домейн?",
+  "owned_domains_title": "Домейни, които притежавате в момента",
+  "price_renewal_desc": "Еднократна цена от {regularPrice}. | Подновява се всяка година за {regularPrice}. | Подновява се на всеки {count} години за {regularPrice}.",
+  "starts_with_domain": "Всичко започва с **име на домейн**",
+  "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
+  "tld_renewal_price_desc": "Нашият {tld} цените за подновяване започват от само {currentPrice} (беше {regularPrice}).",
+  "tld_renewal_price_from_desc": "Нашият {tld} цените за подновяване започват от само {regularPrice}.",
+  "transfer_domain_by_msg": "Прехвърлете ни го чрез"
+}

@@ -292,13 +292,13 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from "vue";
 import {
   useFeedback,
   messageTypes,
   messageDisplays,
   UpmLayout
 } from "@upmind-automation/client-vue";
-import { ref } from "vue";
 import {
   Card,
   Label,

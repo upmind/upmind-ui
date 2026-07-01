@@ -582,7 +582,7 @@ curl -s "$API/invoices/{invoiceId}?with=brand,taxes,client,status,contract,addre
 }
 ```
 
-> Sample trimmed for readability — the full captured payload at [`tests/__fixtures__/recordings/get-invoices-63250798-065d-1e20-388f-8174e234e98d.json`](../../../../../../tests/__fixtures__/recordings/get-invoices-63250798-065d-1e20-388f-8174e234e98d.json) carries the full `current_data` snapshot, full brand and account expansions (with affiliate referral chain), and the full embedded catalogue product on each line.
+> Sample trimmed for readability — the full captured payload at [`tests/fixtures/recordings/get-invoices-63250798-065d-1e20-388f-8174e234e98d.json`](../../../../../../tests/fixtures/recordings/get-invoices-63250798-065d-1e20-388f-8174e234e98d.json) carries the full `current_data` snapshot, full brand and account expansions (with affiliate referral chain), and the full embedded catalogue product on each line.
 
 **Delegated endpoints (referenced by this module's flows):**
 

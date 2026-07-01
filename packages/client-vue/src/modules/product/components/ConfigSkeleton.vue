@@ -39,12 +39,11 @@
 </template>
 
 <script lang="ts" setup>
-// --- internal
 import { useStyles, cn } from "@upmind-automation/upmind-ui";
+import { Skeleton } from "@upmind-automation/upmind-ui";
 import config from "../product.config";
 
 // --- components
-import { Skeleton } from "@upmind-automation/upmind-ui";
 
 // --- types
 

@@ -1,17 +1,11 @@
-// --- external
 import { watch } from "vue";
-
-// --- internal
 import {
-  stateMatches,
+  useActiveSession,
   useBasket,
-  useRoutingEngine,
-  useSession
+  useRoutingEngine
 } from "@upmind-automation/client-vue";
-
-// --- types
-import type { FunnelWatcher } from "@upmind-automation/client-vue";
 import { ROUTE } from "./types";
+import type { FunnelWatcher } from "@upmind-automation/client-vue";
 
 // -----------------------------------------------------------------------------
 
@@ -34,17 +28,9 @@ const sessionLogout: FunnelWatcher = {
   id: "session-logout",
   handler: () => {
     const { meta: routingMeta, navigate } = useRoutingEngine();
-    const { subscribe, meta: sessionMeta } = useSession();
+    const { onLogout } = useActiveSession().useActions();
 
-    let wasAuthenticated = sessionMeta.value.isAuthenticated;
-
-    const { unsubscribe } = subscribe(state => {
-      const isAuthenticated = stateMatches(state, "client");
-      const didLogout = !isAuthenticated && wasAuthenticated;
-      wasAuthenticated = isAuthenticated;
-
-      if (!didLogout) return;
-
+    const unsubscribe = onLogout(() => {
       if (routingMeta.value.isResolved) {
         navigate({ name: ROUTE.SESSION_END });
       } else {
@@ -70,13 +56,13 @@ const basketUnavailable: FunnelWatcher = {
   handler: () => {
     const { meta: routingMeta, navigate } = useRoutingEngine();
     const { meta: basketMeta } = useBasket();
-    const { meta: sessionMeta } = useSession();
+    const { isAuthenticated } = useActiveSession().useMeta();
 
     let wasUnavailable = basketMeta.value.isUnavailable;
 
     const stop = watch(basketMeta, ({ isUnavailable }) => {
       const becameUnavailable =
-        isUnavailable && !wasUnavailable && sessionMeta.value.isAuthenticated;
+        isUnavailable && !wasUnavailable && isAuthenticated.value;
       wasUnavailable = isUnavailable;
 
       if (!routingMeta.value.isResolved) return;
@@ -104,8 +90,9 @@ const basketEmpty: FunnelWatcher = {
 
     const stop = watch(
       basketMeta,
-      ({ hasProducts, isUnavailable, isCheckout, isComplete }) => {
+      ({ hasProducts, isLoading, isUnavailable, isCheckout, isComplete }) => {
         const becameEmpty =
+          !isLoading &&
           !isUnavailable &&
           !hasProducts &&
           hadProducts &&

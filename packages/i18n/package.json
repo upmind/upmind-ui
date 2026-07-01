@@ -18,6 +18,7 @@
   },
   "scripts": {
     "reset": "rm -rf node_modules",
+    "lint": "eslint . --fix",
     "format": "prettier --write src/",
     "localazy": "localazy upload",
     "localazy:download": "localazy download --config localazy.sync.json && pnpm format",

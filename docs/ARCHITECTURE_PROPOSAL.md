@@ -592,7 +592,7 @@ const { add, remove, overridePrice, checkout } = useBasketActionsFor(scope);
 
 - [ ] Type-safe scope resolution
 - [ ] Documentation
-- [ ] Update DEVX.md patterns
+- [x] Composable standards captured in `.agent/rules/` (`code-style.md`, `code-composables.md`, `code-composables-scoped.md`) — DEVX.md retired
 
 ---
 
@@ -620,5 +620,5 @@ const { add, remove, overridePrice, checkout } = useBasketActionsFor(scope);
 
 ## Related Documents
 
-- [DEVX.md](./DEVX.md) - Coding style guide
+- [`.agent/rules/code-style.md`](/.agent/rules/code-style.md) - Coding standards (replaces DEVX.md)
 - [ANALYSIS.md](../.gemini/antigravity/brain/.../ANALYSIS.md) - Deep analysis

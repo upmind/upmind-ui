@@ -55,15 +55,12 @@
 </template>
 
 <script setup lang="ts">
-// --- external
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { isString } from "lodash-es";
-
-// --- internal
-import config from "../catalogue.config";
-
-// --- components
+import {
+  type ProductCategory,
+  QUERY_PARAMS
+} from "@upmind-automation/headless";
 import {
   Icon,
   Button,
@@ -71,13 +68,8 @@ import {
   Link,
   Badge
 } from "@upmind-automation/upmind-ui";
-
-// --- types
-import {
-  type ProductCategory,
-  QUERY_PARAMS
-} from "@upmind-automation/headless";
-
+import config from "../catalogue.config";
+import { isString } from "lodash-es";
 import type { CategoriesProps } from "./types";
 
 // -----------------------------------------------------------------------------

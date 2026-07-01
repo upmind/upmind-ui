@@ -1,21 +1,13 @@
-// --- external
-import { computed, ref } from "vue";
 import { useBreakpoints, breakpointsTailwind } from "@vueuse/core";
-
-// --- internal
+import { computed, ref } from "vue";
 import { Store, useBrand } from "@upmind-automation/headless";
-import { useShell } from "../shell/useShell";
 import { SHELL } from "../shell/types";
-
-// --- components
+import { useShell } from "../shell/useShell";
 import FooterFlat from "./layouts/FooterFlat.layout.vue";
 import FooterStacked from "./layouts/FooterStacked.layout.vue";
-// --- utils
-import { get, isEmpty, isObject, merge } from "lodash-es";
-
-// --- types
 import { FOOTER_ITEMS, FOOTER_LAYOUT, type FooterProps } from "./types";
 import { FOOTER_BACKGROUND, FOOTER_POSITION } from "./types";
+import { get, isEmpty, isObject, merge } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 // --- global context

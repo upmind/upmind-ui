@@ -79,13 +79,15 @@
               label: t('text.fully_encrypted_title'),
               icon: 'lock-04'
             }"
+            :dataAttrs="{ 'data-testid': 'product-setup-hero-title' }"
             :action="{
               label: t('action.back_to_basket'),
               icon: 'flip-backward',
               color: 'primary',
               variant: 'subtle',
               size: 'lg',
-              disabled: isNavigating
+              disabled: isNavigating,
+              dataAttrs: { 'data-testid': 'button-back-to-basket' }
             }"
             size="3xl"
             @action="doReject"
@@ -99,7 +101,12 @@
 
       <template #progress>
         <slot name="progress">
-          <span v-if="total > 1" class="shrink-0 text-base font-semibold">
+          <span
+            v-if="total > 1"
+            class="shrink-0 text-base font-semibold"
+            data-testid="product-setup-progress"
+            :data-test-value="total"
+          >
             {{ t("cart.product_setup_count", { count: total }) }}
           </span>
         </slot>
@@ -135,11 +142,8 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
-import { computed, onUnmounted, provide } from "vue";
+import { computed, provide } from "vue";
 import { useI18n } from "vue-i18n";
-
-// --- internal
 import {
   useProductConfig,
   useProductSetup,
@@ -150,32 +154,6 @@ import {
   responseCodes,
   ErrorOrigin
 } from "@upmind-automation/headless";
-
-// --- components
-import { Alert, Button, Loading } from "@upmind-automation/upmind-ui";
-import Hero from "../../../components/hero/Hero.vue";
-import Section from "../../../components/section/Section.vue";
-import Form from "../../../components/form/Form.vue";
-import ApplyToOthers from "./ApplyToOthers.vue";
-import Transitions from "../../../components/layout/components/transition/Transition.vue";
-
-// --- templates
-import ProductSetupFullTemplate from "../templates/ProductSetupFull.template.vue";
-import ProductSetupLTRTemplate from "../templates/ProductSetupLTR.template.vue";
-import ProductSetupRTLTemplate from "../templates/ProductSetupRTL.template.vue";
-import ProductSetupEnclosedTemplate from "../templates/ProductSetupEnclosed.template.vue";
-
-const supportedTemplates = {
-  [PRODUCT_SETUP_TEMPLATE.FULL]: ProductSetupFullTemplate,
-  [PRODUCT_SETUP_TEMPLATE.TWO_COLUMN_LTR]: ProductSetupLTRTemplate,
-  [PRODUCT_SETUP_TEMPLATE.TWO_COLUMN_RTL]: ProductSetupRTLTemplate,
-  [PRODUCT_SETUP_TEMPLATE.ENCLOSED]: ProductSetupEnclosedTemplate
-};
-
-// --- utils
-import { get, size } from "lodash-es";
-
-// --- types
 import {
   UIContext,
   type ProductModel,
@@ -183,8 +161,26 @@ import {
   type BasketProduct,
   type UseProductConfigMeta
 } from "@upmind-automation/headless";
-import type { ActorRef } from "xstate";
+import { Alert, Button, Loading } from "@upmind-automation/upmind-ui";
+import Form from "../../../components/form/Form.vue";
+import Hero from "../../../components/hero/Hero.vue";
+import Transitions from "../../../components/layout/components/transition/Transition.vue";
+import Section from "../../../components/section/Section.vue";
+import ProductSetupEnclosedTemplate from "../templates/ProductSetupEnclosed.template.vue";
+import ProductSetupFullTemplate from "../templates/ProductSetupFull.template.vue";
+import ProductSetupLTRTemplate from "../templates/ProductSetupLTR.template.vue";
+import ProductSetupRTLTemplate from "../templates/ProductSetupRTL.template.vue";
 import { PRODUCT_SETUP_TEMPLATE, type ProductSetupProps } from "../types";
+import ApplyToOthers from "./ApplyToOthers.vue";
+import { get } from "lodash-es";
+import type { ActorRef } from "xstate";
+
+const supportedTemplates = {
+  [PRODUCT_SETUP_TEMPLATE.FULL]: ProductSetupFullTemplate,
+  [PRODUCT_SETUP_TEMPLATE.TWO_COLUMN_LTR]: ProductSetupLTRTemplate,
+  [PRODUCT_SETUP_TEMPLATE.TWO_COLUMN_RTL]: ProductSetupRTLTemplate,
+  [PRODUCT_SETUP_TEMPLATE.ENCLOSED]: ProductSetupEnclosedTemplate
+};
 
 // -----------------------------------------------------------------------------
 
@@ -257,7 +253,7 @@ const {
   model,
   product,
   externalErrors,
-  validationErrors,
+  validationErrors: _validationErrors,
   additionalErrors,
   setConfig
 } = basketProductConfig;

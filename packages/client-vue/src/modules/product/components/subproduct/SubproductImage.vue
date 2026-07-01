@@ -5,14 +5,9 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed } from "vue";
-
-// --- internal
 import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./subproduct-card.config";
-
-// --- types
 import type { SubproductCardImage } from "./types";
 
 const props = defineProps<SubproductCardImage>();

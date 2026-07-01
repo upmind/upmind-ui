@@ -51,26 +51,19 @@
 </template>
 
 <script setup lang="ts">
-// --- external
-import { computed, inject, provide } from "vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
-
-// --- internal
+import { computed, inject, provide } from "vue";
 import {
   useProductCategories,
   type UseProductCategories
 } from "@upmind-automation/headless";
 import { useConfig } from "@upmind-automation/headless";
-import { isEmpty } from "lodash-es";
 import { useStyles, Skeleton } from "@upmind-automation/upmind-ui";
+import { Icon } from "@upmind-automation/upmind-ui";
 import config from "../catalogue.config";
-
-// --- components
 import CategoriesHeader from "./CategoriesHeader.vue";
 import CategoryItem from "./CategoryItem.vue";
-import { Icon } from "@upmind-automation/upmind-ui";
-
-// --- types
+import { isEmpty } from "lodash-es";
 import type { CategoriesProps, CategoriesItemProps } from "./types";
 
 // -----------------------------------------------------------------------------

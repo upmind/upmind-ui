@@ -1,6 +1,8 @@
-import { computed, type Ref, toValue } from "vue";
 import { useBreakpoints, breakpointsTailwind } from "@vueuse/core";
-import { has } from "lodash-es";
+import { computed, type Ref, toValue } from "vue";
+import { useBasket } from "../basket/useBasket";
+import { useBrand } from "../brand/useBrand";
+import { buildConditionState } from "./config.conditions";
 import {
   initializeMeta,
   createUIMetaProxy,
@@ -8,20 +10,18 @@ import {
   injectConfig,
   provideConfig,
   useCachedRef
-} from "./utils";
-import { buildConditionState } from "./config.conditions";
-import { useBrand } from "../brand/useBrand";
-import { useBasket } from "../basket/useBasket";
+} from "./config.utils";
+import { has } from "lodash-es";
 import type {
   UseMetaOptions,
   UseMetaResult,
   WithMetaOptions,
   Viewport
-} from "./types";
-import { type BrandMeta } from "../brand/types";
+} from "./config.types";
+import type { BrandMeta } from "../brand/brand.types";
 import type { IProduct } from "@upmind-automation/types";
 
-export { provideConfig, injectConfig } from "./utils";
+export { provideConfig, injectConfig } from "./config.utils";
 
 export function useConfig(options?: UseMetaOptions): UseMetaResult {
   const injected =

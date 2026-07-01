@@ -1,10 +1,6 @@
-// --- external
-import { computed, type MaybeRef, toRaw, unref } from "vue";
-
-// --- utils
+import { type MaybeRef, toRaw, unref } from "vue";
 import {
   get,
-  set,
   find,
   every,
   isEmpty,

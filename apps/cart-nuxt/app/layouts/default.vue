@@ -52,8 +52,8 @@ import {
 } from "@upmind-automation/client-vue";
 import { useStyles } from "@upmind-automation/upmind-ui";
 import { includes, get } from "lodash-es";
-import { ROUTE } from "~/funnels/types";
 import { useStorefrontRoute } from "~/composables/useStorefrontRoute";
+import { ROUTE } from "~/funnels/types";
 
 // -----------------------------------------------------------------------------
 const route = useRoute();
@@ -104,14 +104,14 @@ watch(
 // --- computed
 
 // add any page specific styles here based on route or other state
-const styles = useStyles(
+const styles = useStyles<{ page: string }>(
   ["page"],
   computed(() => {
     return {
       route: get(route, "name", get(route, "path", ""))
     };
   })
-) as any;
+);
 
 const { isOpen: isOverlayOpen, overlayId } = useOverlayRoute();
 

@@ -15,6 +15,7 @@
             color="muted"
             size="sm"
             :label="t('action.show_more_options')"
+            data-testid="show-more-payment-options"
             @click="isExpanded = true"
             icon="plus"
           />
@@ -25,29 +26,21 @@
 </template>
 
 <script setup lang="ts">
-// --- external
-import { computed, ref } from "vue";
+import { isEnumControl, and, scopeEndIs } from "@jsonforms/core";
 import { useJsonFormsEnumControl } from "@jsonforms/vue";
+import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
-
-// --- internal
-import { useUpmindUIRenderer, Link } from "@upmind-automation/upmind-ui";
-import config from "../form.config";
-import { useStyles } from "@upmind-automation/upmind-ui";
-import { useBrand } from "@upmind-automation/headless";
 import { useConfig } from "@upmind-automation/headless";
-
-// --- components
+import { useUpmindUIRenderer, Link } from "@upmind-automation/upmind-ui";
+import { useStyles } from "@upmind-automation/upmind-ui";
 import { FormField, RadioCards } from "@upmind-automation/upmind-ui";
-
-// --- utils
+import { PaymentType } from "../../../../../types/src";
+import config from "../form.config";
 import { map, take } from "lodash-es";
-
-// --- types
-import type { ControlElement, EnumOption, JsonSchema } from "@jsonforms/core";
+import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
 import type { RadioCardsItemProps } from "@upmind-automation/upmind-ui";
-import { UIContext } from "@upmind-automation/headless";
+// --- external
 
 // -----------------------------------------------------------------------------
 const props = defineProps<RendererProps<ControlElement>>();
@@ -68,13 +61,20 @@ const items = computed(() => {
     // We have an additional prop that we add to the schema called options, like oneOf but more efficient
     (schema as any)?.options ?? options,
     (option, index): RadioCardsItemProps => {
+      // Stable, locale-independent test target keyed on the gateway provider
+      // code (surfaced from headless) — NOT the dynamic index or translated
+      // label. Pay Later adds its own below.
+      const provider = (option as { provider?: string }).provider;
       return {
         item: option,
         value: option.value,
         label: option.label,
         secondaryLabel: option?.text,
         index,
-        modelValue: data
+        modelValue: data,
+        dataAttrs: provider
+          ? { "data-testid": `gateway-${provider}` }
+          : undefined
       };
     }
   );
@@ -89,7 +89,8 @@ const items = computed(() => {
       value: PaymentType.PAY_LATER,
       label: t("form.payment_method_type.pay-later"),
       index: gateways.length,
-      modelValue: data
+      modelValue: data,
+      dataAttrs: { "data-testid": `gateway-${PaymentType.PAY_LATER}` }
     });
   } else {
     // console.debug("No Pay Later option available");
@@ -115,8 +116,6 @@ const displayItems = computed(() => {
 </script>
 
 <script lang="ts">
-import { isEnumControl, and, scopeEndIs } from "@jsonforms/core";
-import { PaymentType } from "../../../../../types/src";
 export const tester = {
   rank: 4,
   controlType: and(

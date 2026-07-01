@@ -4,6 +4,7 @@ import { Checkout } from "../../../support/page-objects/templates/checkout";
 import { payPalDetails } from "../../../support/secrets/paypal";
 import { goToCheckout } from "../../../support/flows/checkout";
 import { products } from "../../../support/constants/products";
+import { gateways } from "../../../support/constants/gateways";
 import {
   getClientToken,
   getSessionToken,
@@ -34,7 +35,7 @@ test.describe("Checkout with PayPal", () => {
   // @quarantine(FE-XXXX-PAYPAL, 2026-06-25)
   test.skip("Pay with PayPal Express", async ({ page, context }) => {
     await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
-    await checkout.selectPaymentMethod("Pay-Pal Express");
+    await checkout.selectGatewayByType(gateways.PAYPAL_EXPRESS);
     await checkout.clickCompleteCheckout();
     await page.waitForURL(
       "https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_express-checkout&useraction=commit**"
@@ -46,6 +47,6 @@ test.describe("Checkout with PayPal", () => {
     await page.click("#btnLogin");
     await page.getByTestId("submit-button-initial").click();
     await page.waitForURL(`http://qa-automation.local:5173/order/**`);
-    await expect(page.getByText("Thank you for your order.")).toBeVisible();
+    await expect(page.getByTestId("order-confirmation-heading")).toBeVisible();
   });
 });

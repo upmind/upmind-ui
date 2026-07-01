@@ -17,6 +17,12 @@ Feature: Guest checkout
     When the visitor opens the register page
     Then no guest checkout option is offered
 
+  Scenario: The guest checkout option is not offered for subscription products
+    Given the brand allows guest checkout
+    But the visitor's basket contains a subscription product
+    When the visitor opens the register page
+    Then no guest checkout option is offered
+
   Scenario: Entering guest checkout signs the visitor in as a guest client
     Given the brand allows guest checkout
     And the visitor is on the register page

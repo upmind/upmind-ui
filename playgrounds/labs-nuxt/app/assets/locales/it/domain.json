@@ -1,0 +1,31 @@
+{
+  "begin_search_above_desc": "Inizia la tua ricerca utilizzando la casella qui sopra.",
+  "choices": {
+    "basket": {
+      "label": "Usa il dominio nel carrello",
+      "tooltip": "Questi domini sono già nel tuo carrello"
+    },
+    "existing": {
+      "label": "Utilizza il dominio esistente",
+      "tooltip": "Puoi utilizzare un dominio esistente aggiornando i nameserver"
+    },
+    "register": {
+      "label": "Registra un nuovo dominio",
+      "tooltip": "Non hai ancora un dominio? Registrane uno nuovo con noi"
+    },
+    "transfer": {
+      "label": "Trasferisci dominio",
+      "tooltip": "Possiedi già un dominio? Puoi trasferirlo a noi"
+    }
+  },
+  "finding_perfect_domain": "Trova il tuo dominio **perfetto**",
+  "finding_perfect_domain_md": "@.markdown:{'domain.finding_perfect_domain'}",
+  "own_domain_qn": "Possiedi questo dominio?",
+  "owned_domains_title": "Domini di cui sei attualmente proprietario",
+  "price_renewal_desc": "Prezzo una tantum di {regularPrice}. | Si rinnova ogni anno per {regularPrice}. | Si rinnova ogni {count} anni per {regularPrice}.",
+  "starts_with_domain": "Tutto inizia con un **nome di dominio**",
+  "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
+  "tld_renewal_price_desc": "Nostro {tld} i prezzi di rinnovo partono da soli {currentPrice} (era {regularPrice}).",
+  "tld_renewal_price_from_desc": "Nostro {tld} i prezzi di rinnovo partono da soli {regularPrice}.",
+  "transfer_domain_by_msg": "Trasferiscilo a noi tramite"
+}

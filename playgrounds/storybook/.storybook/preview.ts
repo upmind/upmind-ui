@@ -1,21 +1,12 @@
-// --- styles
 import "../stories/assets/main.css";
-
-// --- external
-import { setup } from "@storybook/vue3";
-import { withUpmindUITheme } from "./withUpmindUITheme.decorator";
 import { useArgs } from "@storybook/preview-api";
+import { setup } from "@storybook/vue3";
 import { createI18n } from "vue-i18n";
-
-// --- internal
 import upmindUI from "../plugins/upmind-ui";
 import themes from "../stories/assets/themes";
 import OverviewTemplate from "./OverviewTemplate.mdx";
-
-// --- utils
+import { withUpmindUITheme } from "./withUpmindUITheme.decorator";
 import { reduce, last, merge } from "lodash-es";
-
-// --- types
 import type { Preview } from "@storybook/vue3";
 // -----------------------------------------------------------------------------
 

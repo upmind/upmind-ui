@@ -1,17 +1,10 @@
-// --- external
-import type { Meta, StoryObj } from "@storybook/vue3";
-
-// --- components
 import {
   DropdownMenu,
   type DropdownMenuItemProps
 } from "@upmind-automation/upmind-ui";
-
-// --- utils
-import { useSystemArgTypes } from "../../utils";
-
-// --- types
 import { BUTTON_VARIANTS, DROPDOWN_WIDTHS } from "@upmind-automation/upmind-ui";
+import { useSystemArgTypes } from "../../utils";
+import type { Meta, StoryObj } from "@storybook/vue3";
 
 // -----------------------------------------------------------------------------
 

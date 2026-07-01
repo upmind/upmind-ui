@@ -14,18 +14,14 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
+import { uiTypeIs } from "@jsonforms/core";
 import { useJsonFormsControl } from "@jsonforms/vue";
-import { useI18n } from "vue-i18n";
 import { computed, inject } from "vue";
-
-// --- components
-import { FormField } from "@upmind-automation/upmind-ui";
-import SubproductCards from "../../../modules/product/components/subproduct/SubproductCards.vue";
-
-// --- utils
-import { useUpmindUIRenderer } from "@upmind-automation/upmind-ui";
+import { useI18n } from "vue-i18n";
 import { useConfig } from "@upmind-automation/headless";
+import { FormField } from "@upmind-automation/upmind-ui";
+import { useUpmindUIRenderer } from "@upmind-automation/upmind-ui";
+import SubproductCards from "../../../modules/product/components/subproduct/SubproductCards.vue";
 import {
   cloneDeep,
   compact,
@@ -39,12 +35,11 @@ import {
   set,
   split
 } from "lodash-es";
-
-// --- types
 import type { ControlElement } from "@jsonforms/core";
+import type { JsonFormsSubStates } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
 import type { SubproductDetails } from "@upmind-automation/headless";
-import type { JsonFormsSubStates } from "@jsonforms/core";
+// --- external
 
 // -----------------------------------------------------------------------------
 const props = defineProps<RendererProps<ControlElement>>();
@@ -157,8 +152,6 @@ function handleQuantity(valueId: string, qty: number) {
 </script>
 
 <script lang="ts">
-import { uiTypeIs } from "@jsonforms/core";
-
 export const tester = {
   rank: 5,
   controlType: uiTypeIs("SubProducts")

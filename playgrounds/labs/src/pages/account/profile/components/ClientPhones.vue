@@ -24,18 +24,13 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
-import { useI18n } from "vue-i18n";
 import { ref } from "vue";
-
-// --- internal
+import { useI18n } from "vue-i18n";
+import { UpmSection, UpmManage } from "@upmind-automation/client-vue";
 import {
   useClientPhones,
   useClientPhoneManager
 } from "@upmind-automation/headless";
-
-// --- components
-import { UpmSection, UpmManage } from "@upmind-automation/client-vue";
 import PhoneItem from "./PhoneItem.vue";
 // -----------------------------------------------------------------------------
 

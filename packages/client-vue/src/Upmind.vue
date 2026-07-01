@@ -69,39 +69,29 @@ export default {
 </script>
 
 <script setup lang="ts">
-// --- external
 import { computed, nextTick, ref } from "vue";
 import { useRoute } from "vue-router";
-
-// --- internal
 import useUpmind, {
   UpmindStatus,
   useRoutingEngine
 } from "@upmind-automation/headless";
-import { useStyles } from "@upmind-automation/upmind-ui";
-import { useTheme } from "./modules/theming";
-import { useThemes } from "@upmind-automation/upmind-ui";
 import { useConfig } from "@upmind-automation/headless";
-
-// --- components
-import UpmRouteView from "./modules/system/RouteView.vue";
-import Header from "./components/header/Header.vue";
-import Footer from "./components/footer/Footer.vue";
-import Feedback from "./modules/feedback/Feedback.vue";
-import Page from "./components/page/Page.vue";
-import Main from "./components/main/Main.vue";
-import AsyncLoading from "./modules/system/Loading.vue";
-import UpmOverlayController from "./components/overlays/OverlayController.vue";
+import { useThemes } from "@upmind-automation/upmind-ui";
+import { useStyles } from "@upmind-automation/upmind-ui";
 import { Banner, Loading } from "@upmind-automation/upmind-ui";
 import { useAnnouncement } from "./components/announcement/useAnnouncement";
-
-// --- utils
+import Footer from "./components/footer/Footer.vue";
+import Header from "./components/header/Header.vue";
+import Main from "./components/main/Main.vue";
+import UpmOverlayController from "./components/overlays/OverlayController.vue";
+import Page from "./components/page/Page.vue";
+import Feedback from "./modules/feedback/Feedback.vue";
+import AsyncLoading from "./modules/system/Loading.vue";
+import UpmRouteView from "./modules/system/RouteView.vue";
+import { useTheme } from "./modules/theming";
 import { get } from "lodash-es";
-
-// --- types
-import type { InterstitialProps } from "@upmind-automation/upmind-ui";
-import { UIContext } from "@upmind-automation/headless";
 import type { StorefrontRoute } from "./types";
+import type { InterstitialProps } from "@upmind-automation/upmind-ui";
 // -----------------------------------------------------------------------------
 
 const props = defineProps<{
@@ -137,7 +127,7 @@ const meta = computed(() => ({
 const { ui } = useConfig();
 
 // add any page specific styles here based on route or other state
-const styles = useStyles(
+const _styles = useStyles(
   ["page"],
   computed(() => {
     return {

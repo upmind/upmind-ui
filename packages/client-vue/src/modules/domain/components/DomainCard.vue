@@ -29,7 +29,11 @@
         </section>
 
         <section :class="styles.card.header.details.title.root">
-          <h3 :class="styles.card.header.details.title.fld">
+          <h3
+            :class="styles.card.header.details.title.fld"
+            data-testid="domain-card-name"
+            :data-test-value="props.domain"
+          >
             <span :class="styles.card.header.details.title.sld">
               {{ props.sld }}
             </span>
@@ -96,6 +100,8 @@
             is="h3"
             :class="styles.card.footer.price.amount"
             :current-price="props.price.currentPrice"
+            data-testid="domain-card-price"
+            :data-test-value="props.price.currentPrice"
           />
 
           <small v-if="!props.free" :class="styles.card.footer.price.term"
@@ -127,7 +133,11 @@
           />
         </div>
 
-        <p class="text-muted text-sm-tight mt-1 md:mt-0 md:text-right">
+        <p
+          class="text-muted text-sm-tight mt-1 md:mt-0 md:text-right"
+          data-testid="domain-transfer-pricing-info"
+          :data-test-value="meta.isTransferFree ? 'free' : 'paid'"
+        >
           {{ $t("domain.transfer_owner_question")
           }}<br class="hidden md:block" />
           {{
@@ -187,6 +197,10 @@
           @click="
             meta.isAdded ? onRemove(props.domain) : onUpdate(props.domain)
           "
+          :data-attrs="{
+            'data-testid': 'domain-card-cta',
+            'data-test-value': ctaState
+          }"
           :label="getLabel"
           :ui-config="
             {
@@ -202,10 +216,8 @@
 </template>
 
 <script setup lang="ts">
-// --- external
 import { computed } from "vue";
-
-// --- internal
+import { useI18n } from "vue-i18n";
 import { parseBillingCycle } from "@upmind-automation/headless";
 import {
   useStyles,
@@ -215,15 +227,10 @@ import {
   Skeleton,
   Tooltip
 } from "@upmind-automation/upmind-ui";
-import config from "../domain.config";
-
-// --- components
-import DomainDescription from "./DomainDescription.vue";
 import CurrentPrice from "../../product/components/pricing/CurrentPrice.vue";
-
-// --- types
+import config from "../domain.config";
+import DomainDescription from "./DomainDescription.vue";
 import type { DomainCardProps } from "../types";
-import { useI18n } from "vue-i18n";
 
 // -----------------------------------------------------------------------------
 const emit = defineEmits<{
@@ -321,6 +328,13 @@ const getLabel = computed(() => {
     return t("action.add_to_basket");
   }
   return t("domain.transfer_domain");
+});
+
+const ctaState = computed(() => {
+  if (meta.value.isAdded) return "added";
+  if (meta.value.isUnavailable) return "unavailable";
+  if (meta.value.isAvailable) return "register";
+  return "transfer";
 });
 
 const getTooltip = computed(() => {

@@ -1,0 +1,43 @@
+/** @internal */
+import { type QueryParams, useQuery } from "../../query";
+import { useTime } from "../../../utils";
+import type { ClientAreaTemplate } from "./template-render.types";
+import type { QueryKey } from "@tanstack/vue-query";
+import type { ClientTemplateSlotCodes } from "@upmind-automation/types";
+
+// -----------------------------------------------------------------------------
+// QUERIES
+
+const queryKey: QueryKey = ["clientTemplates", "templates"];
+
+function load({
+  code,
+  objectId
+}: Partial<QueryParams> & {
+  code?: ClientTemplateSlotCodes;
+  objectId?: string;
+}) {
+  const { useUrl, query } = useQuery();
+
+  return query<ClientAreaTemplate>({
+    queryKey: [...queryKey, { code, objectId }],
+    url: useUrl(`templates/client_area/slots/${code}/render`, {
+      object_id: objectId
+    }),
+    init: { method: "PATCH" },
+    withAccessToken: true,
+    retry: (_failureCount, error: any) => {
+      return error.code < 400;
+    },
+    staleTime: useTime()?.DAY
+  });
+}
+
+// -----------------------------------------------------------------------------
+// EXPORTS
+
+export default {
+  queryKey,
+  //--- queries
+  load
+};

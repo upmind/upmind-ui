@@ -3,6 +3,9 @@
 **Analysis Date:** January 19, 2026  
 **Target:** Complete monorepo including packages, apps, playgrounds, labs, and storybook  
 
+> [!NOTE]
+> **Historical snapshot.** Mentions of `DEVX.md` below reflect the state as of the analysis date. `DEVX.md` has since been retired; its coding standards now live in [`.agent/rules/code-generation.md`](/.agent/rules/code-generation.md) and [`.agent/rules/scoped-composables.md`](/.agent/rules/scoped-composables.md) (see [`docs/devx-distillation-plan.md`](/docs/devx-distillation-plan.md)). The body is left unedited as a point-in-time record.
+
 ---
 
 ## Executive Summary

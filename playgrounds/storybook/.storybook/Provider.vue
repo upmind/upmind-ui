@@ -15,16 +15,14 @@
  * The Provider allows for reactive global props to be passed down to all components
  * We currently have theme and locale as global props
  */
-// --- external
-import { ref, watch, onMounted } from "vue";
 import { useMutationObserver } from "@vueuse/core";
+import { ref, watch, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
-// --- internal
 import { useThemes } from "@upmind-automation/upmind-ui";
+import { some, find, get } from "lodash-es";
 import themes from "@/assets/themes";
 
 // --- utils
-import { some, find, get } from "lodash-es";
 
 const props = defineProps({
   theme: {

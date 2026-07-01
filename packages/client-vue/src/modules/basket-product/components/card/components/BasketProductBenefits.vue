@@ -22,19 +22,10 @@
 </template>
 
 <script setup lang="ts">
-// --- external
 import { computed } from "vue";
-
-// --- components
 import { Icon, useStyles } from "@upmind-automation/upmind-ui";
-
-// --- utils
-import { isEmpty, isString, map } from "lodash-es";
-
-// --- config
 import config from "../basketProduct.config";
-
-// --- types
+import { isEmpty, isString, map } from "lodash-es";
 import type { Benefit } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------

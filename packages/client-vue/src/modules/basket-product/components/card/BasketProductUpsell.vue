@@ -16,6 +16,7 @@
 
     <Button
       v-if="!summary.toggle.selected"
+      data-testid="button-add-option"
       :label="t('action.add_option')"
       icon="plus"
       variant="outline"
@@ -28,6 +29,7 @@
 
     <Button
       v-else-if="!summary.meta?.quantifiable"
+      data-testid="button-added"
       :label="t('action.added_to_basket')"
       icon="check-circle-broken"
       variant="solid"
@@ -55,20 +57,13 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { useI18n } from "vue-i18n";
-
-// --- components
+import { parseBillingCycle } from "@upmind-automation/headless";
 import { Button } from "@upmind-automation/upmind-ui";
+import { useStyles } from "@upmind-automation/upmind-ui";
+import config from "./basketProduct.config";
 import BasketProductSummary from "./components/BasketProductSummary.vue";
 import BasketQuantityField from "./components/BasketQuantityField.vue";
-
-// --- internal
-import { useStyles } from "@upmind-automation/upmind-ui";
-import { parseBillingCycle } from "@upmind-automation/headless";
-import config from "./basketProduct.config";
-
-// --- types
 import type { BasketProductUpsellProps } from "./types";
 // -----------------------------------------------------------------------------
 

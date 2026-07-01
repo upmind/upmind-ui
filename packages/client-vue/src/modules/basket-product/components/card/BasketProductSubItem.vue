@@ -22,19 +22,12 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { useI18n } from "vue-i18n";
-
-// --- components
-import CurrentPrice from "../../../product/components/pricing/CurrentPrice.vue";
-import BasketProductSummary from "./components/BasketProductSummary.vue";
-
-// --- internal
-import { useStyles } from "@upmind-automation/upmind-ui";
 import { parseBillingCycle } from "@upmind-automation/headless";
+import { useStyles } from "@upmind-automation/upmind-ui";
+import CurrentPrice from "../../../product/components/pricing/CurrentPrice.vue";
 import config from "./basketProduct.config";
-
-// --- types
+import BasketProductSummary from "./components/BasketProductSummary.vue";
 import type { BasketProductSubItemProps } from "./types";
 // -----------------------------------------------------------------------------
 

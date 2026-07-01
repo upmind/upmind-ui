@@ -1,9 +1,4 @@
-// --- externals
-
-// --- internal
 import { plugins as uiPlugins } from "@upmind-automation/upmind-ui";
-
-// --- types
 import type { App, Plugin } from "vue";
 
 // -----------------------------------------------------------------------------

@@ -1,6 +1,5 @@
-// --- external
-import { ref, watch } from "vue";
 import { useTimeoutFn } from "@vueuse/core";
+import { ref, watch } from "vue";
 import {
   useRoutingEngine,
   ANIMATION_DELAY,

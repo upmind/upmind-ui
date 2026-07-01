@@ -27,24 +27,19 @@
 </template>
 
 <script setup lang="ts">
-// --- external
-import { computed, ref } from "vue";
+import { isEnumControl, and, optionIs, hasOption } from "@jsonforms/core";
 import { useJsonFormsEnumControl } from "@jsonforms/vue";
+import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
-import { map } from "lodash-es";
-
-// --- internal
 import { useUpmindUIRenderer } from "@upmind-automation/upmind-ui";
 import { useStyles } from "@upmind-automation/upmind-ui";
-import config from "../form.config";
-
-// --- components
 import { FormField, RadioCards, Link } from "@upmind-automation/upmind-ui";
-
-// --- types
+import config from "../form.config";
+import { map } from "lodash-es";
 import type { ControlElement, EnumOption, JsonSchema } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
 import type { RadioCardsItemProps } from "@upmind-automation/upmind-ui";
+// --- external
 
 // -----------------------------------------------------------------------------
 const props = defineProps<RendererProps<ControlElement>>();
@@ -92,7 +87,6 @@ const displayedItems = computed(() => {
 </script>
 
 <script lang="ts">
-import { isEnumControl, and, optionIs, hasOption } from "@jsonforms/core";
 export const tester = {
   rank: 4, // Higher rank than default EnumRadioRenderer (rank 3)
   controlType: and(

@@ -3,6 +3,7 @@ import { fakerEN_GB } from "@faker-js/faker";
 import { URLs } from "../../support/constants/urls";
 import { Registration } from "../../support/page-objects/templates/registration";
 import { Checkout } from "../../support/page-objects/templates/checkout";
+import { gateways } from "../../support/constants/gateways";
 import { getSessionToken } from "../../support/api/auth";
 import { createOrder, addProductToOrder } from "../../support/api/basket";
 import {
@@ -125,7 +126,7 @@ test.describe("UPM Campaign Tracking", () => {
     );
     await page.goto(URLs.checkout);
     await registration.inputRegistration();
-    await checkout.selectPaymentMethod("Stripe");
+    await checkout.selectGatewayByType(gateways.STRIPE);
     await checkout.inputStripeDetails("4242424242424242", "01/50", "123");
     const trackingPromise = getTrackingData(
       page,

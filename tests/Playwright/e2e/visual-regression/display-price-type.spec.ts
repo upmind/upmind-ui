@@ -69,7 +69,7 @@ test.describe("Display Price Types", () => {
       });
       await page.reload();
       await page.waitForLoadState("load");
-      await expect(page.getByTestId("form-item-terms").first()).toBeVisible();
+      await expect(page.getByTestId("form-item-term").first()).toBeVisible();
       await expect(page).toHaveScreenshot("prodconfig-lowest-billing-cycle");
     });
     test("Price Type = Highest Billing Cycle divided by Months", async ({
@@ -84,7 +84,7 @@ test.describe("Display Price Types", () => {
       });
       await page.reload();
       await page.waitForLoadState("load");
-      await expect(page.getByTestId("form-item-terms").first()).toBeVisible();
+      await expect(page.getByTestId("form-item-term").first()).toBeVisible();
       await expect(page).toHaveScreenshot(
         "prodconfig-highest-billing-cycle-divided-by-months"
       );
@@ -98,7 +98,7 @@ test.describe("Display Price Types", () => {
       });
       await page.reload();
       await page.waitForLoadState("load");
-      await expect(page.getByTestId("form-item-terms").first()).toBeVisible();
+      await expect(page.getByTestId("form-item-term").first()).toBeVisible();
       await expect(page).toHaveScreenshot("prodconfig-lowest-monthly-price");
     });
   });

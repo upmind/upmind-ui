@@ -13,20 +13,13 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
+import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
-import { computed } from "vue";
-
-// --- internal
-import { useHeader } from "../../components/header/useHeader";
-import { useFooter } from "../../components/footer/useFooter";
-import { useLayout } from "../../components/layout/useLayout";
-
-// -- components
 import { Interstitial } from "@upmind-automation/upmind-ui";
-
-// -- types
+import { useFooter } from "../../components/footer/useFooter";
+import { useHeader } from "../../components/header/useHeader";
+import { useLayout } from "../../components/layout/useLayout";
 import type { InterstitialProps } from "@upmind-automation/upmind-ui";
 
 // -----------------------------------------------------------------------------

@@ -10,6 +10,7 @@ import {
   registerClient
 } from "../../../support/api/index";
 import { createOrder, addProductToOrder } from "../../../support/api/basket";
+import { gateways } from "../../../support/constants/gateways";
 import { waitForSessionCookie } from "../../../support/helpers/session";
 
 let checkout: Checkout;
@@ -52,7 +53,7 @@ test.describe("3D Secure Authentication", async () => {
         false
       );
       await page.goto(URLs.checkout);
-      await checkout.selectPaymentMethod("Stripe");
+      await checkout.selectGatewayByType(gateways.STRIPE);
       await checkout.inputStripeDetails(cardNumber, expiryDate, cvcCode);
       await checkout.clickCompleteCheckout();
       page.on("framenavigated", async frame => {
@@ -62,17 +63,15 @@ test.describe("3D Secure Authentication", async () => {
           await page.goto(returnUrl);
           await expect(page).toHaveURL(/payment_success=true/);
           await expect(
-            page.getByText("Thank you for your order.")
+            page.getByTestId("order-confirmation-heading")
           ).toBeVisible();
         } else {
           let returnUrl = `http://qa-automation.local:5173/order/${orderId}/?payment_success=false`;
           await page.goto(returnUrl);
           await expect(page).toHaveURL(/payment_success=false/);
           await expect(
-            page.getByText(
-              "Your payment attempt was unsuccessful - please try again."
-            )
-          ).toBeVisible();
+            page.getByTestId("confirmation-payment-alert")
+          ).toHaveAttribute("data-test-value", "failed");
         }
       });
     });

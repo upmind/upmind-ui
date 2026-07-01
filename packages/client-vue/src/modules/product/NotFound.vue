@@ -20,17 +20,12 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
+import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
-import { computed } from "vue";
-
-// -- components
 import { Interstitial } from "@upmind-automation/upmind-ui";
-
-// -- types
-import { type InterstitialProps } from "@upmind-automation/upmind-ui";
 import type { StorefrontRoute } from "../../types";
+import type { InterstitialProps } from "@upmind-automation/upmind-ui";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(

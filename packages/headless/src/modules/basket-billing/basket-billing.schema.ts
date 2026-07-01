@@ -1,0 +1,72 @@
+import { remove } from "lodash-es";
+import type { BillingContext } from "./basket-billing.types";
+import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
+
+// -----------------------------------------------------------------------------
+
+export const useSchema = ({ config }: BillingContext) => {
+  const schema: JsonSchema = {
+    type: "object",
+    required: [] as string[],
+    properties: {
+      addressId: {
+        type: "string"
+      },
+      companyId: {
+        type: "string"
+      },
+      phoneId: {
+        type: "string"
+      }
+    }
+  };
+
+  if (config?.requiresPhone) {
+    schema.required!.push("phoneId");
+  } else {
+    schema.properties!.phoneId.type = ["string", "null"];
+  }
+
+  if (config?.requiresCompany) {
+    schema.required!.push("companyId", "addressId");
+  } else {
+    schema.properties!.companyId.type = ["string", "null"];
+  }
+
+  if (config?.requiresAddress && !config?.requiresCompany) {
+    schema.required!.push("addressId");
+  } else {
+    schema.properties!.addressId.type = ["string", "null"];
+  }
+
+  return schema as unknown as JsonSchema;
+};
+
+export const useUischema = ({ config }: BillingContext) => {
+  const schema = {
+    type: "VerticalLayout",
+    elements: [
+      {
+        type: "ControlBilling",
+        scope: "#/properties",
+        i18n: "basket.billing",
+        label: "",
+        options: {}
+      }
+    ]
+  };
+
+  if (!config?.requiresPhone) {
+    remove(schema.elements, ["scope", "#/properties/phoneId"]);
+  }
+
+  if (config?.requiresCompany) {
+    remove(schema.elements, ["scope", "#/properties/addressId"]);
+  }
+
+  if (!config?.requiresAddress && !config?.requiresCompany) {
+    remove(schema.elements, ["scope", "#/properties/companyId"]);
+  }
+
+  return schema as UISchemaElement;
+};

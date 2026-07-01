@@ -20,7 +20,7 @@ import Actions from "./Actions.vue";
 
 // -----------------------------------------------------------------------------
 
-const props = defineProps<{
+const _props = defineProps<{
   modal?: boolean;
 }>();
 </script>

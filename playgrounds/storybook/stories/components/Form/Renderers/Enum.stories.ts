@@ -1,12 +1,6 @@
-// --- external
 import { ref } from "vue";
-import type { Meta, StoryObj } from "@storybook/vue3";
-
-// --- components
 import { Form } from "@upmind-automation/upmind-ui";
-
-// --- utils
-import { useSystemArgTypes } from "../../../../utils";
+import type { Meta, StoryObj } from "@storybook/vue3";
 
 // -----------------------------------------------------------------------------
 

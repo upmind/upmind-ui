@@ -72,25 +72,12 @@
 </template>
 
 <script lang="ts" setup>
-// --- utils
-import { isEmptySlot } from "@upmind-automation/upmind-ui";
-
-// --- components
-import Root from "../components/root/Root.vue";
-import Ribbon from "../components/ribbon/Ribbon.vue";
-import Container from "../components/container/Container.vue";
-import Column from "../components/column/Column.vue";
-import Content from "../components/content/Content.vue";
-import SingleColumnSticky from "../components/SingleColumnSticky.vue";
-
-// --- internal
-import { useSection } from "../../section/useSection";
-
-// --- types
 import { computed, useSlots } from "vue";
-import { type VariantProps } from "../types";
-import { RIBBON_BACKGROUND } from "../components/ribbon";
+import { isEmptySlot } from "@upmind-automation/upmind-ui";
+import { useSection } from "../../section/useSection";
 import { COLUMN_FLOW } from "../components/column";
+import Column from "../components/column/Column.vue";
+import Container from "../components/container/Container.vue";
 import {
   CONTENT_WIDTH,
   CONTENT_FLOW,
@@ -99,6 +86,12 @@ import {
   CONTENT_GAP,
   CONTENT_HEIGHT
 } from "../components/content";
+import Content from "../components/content/Content.vue";
+import { RIBBON_BACKGROUND } from "../components/ribbon";
+import Ribbon from "../components/ribbon/Ribbon.vue";
+import Root from "../components/root/Root.vue";
+import SingleColumnSticky from "../components/SingleColumnSticky.vue";
+import type { VariantProps } from "../types";
 
 const props = defineProps<VariantProps>();
 

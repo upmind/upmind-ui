@@ -1,3 +1,4 @@
+import type { rootVariant } from "./card.config";
 import type {
   Product,
   Benefit,
@@ -8,17 +9,22 @@ import type {
   TermDetails,
   UseMetaResult
 } from "@upmind-automation/headless";
-import { UIContext } from "@upmind-automation/headless";
-import type { VariantProps } from "class-variance-authority";
-import { rootVariant } from "./card.config";
 import type { ButtonProps, ImageProps } from "@upmind-automation/upmind-ui";
-import type { RouteLocationAsRelativeGeneric } from "vue-router";
+import type { VariantProps } from "class-variance-authority";
 import type { HTMLAttributes } from "vue";
+import type { RouteLocationAsRelativeGeneric } from "vue-router";
 
 export type RootVariants = VariantProps<typeof rootVariant>;
 
 export interface ProductCardProps extends Omit<Product, "price" | "pricing"> {
   configureRoute: RouteLocationAsRelativeGeneric;
+  /**
+   * Overrides the card's root `data-testid`. Recommendations key this off the
+   * recommended product's `configuration.productId` so the carousel card is
+   * targetable by the stable product id (its own `id` is the recommendation
+   * slot id, not the product). Falls back to `product-card-${id}`.
+   */
+  dataAttrs?: Record<`data-${string}`, string | number | boolean>;
   /**
    * When true (default), term-only products auto-add with the selected term.
    * When false, they route to the configure step instead so the term step

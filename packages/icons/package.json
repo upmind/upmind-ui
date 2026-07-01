@@ -21,6 +21,7 @@
     "node": "^20.19.0 || >=22.12.0"
   },
   "scripts": {
-    "reset": "rm -rf node_modules"
+    "reset": "rm -rf node_modules",
+    "lint": "eslint . --fix"
   }
 }

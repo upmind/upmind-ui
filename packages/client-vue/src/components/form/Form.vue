@@ -21,28 +21,17 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
-
-// --- internal
+import { useI18n } from "vue-i18n";
 import { useValidation } from "@upmind-automation/headless";
-
-// --- components
 import { Form, useForwardPropsEmits } from "@upmind-automation/upmind-ui";
 import { formRenderers } from "./renderers";
-
-// --- local
 import { useFormI18n } from ".";
-
-// --- utils
-
-// --- types
 import type {
   FormProps,
   FormAdditionalProps,
   FormFooterProps,
   FormActionsProps
 } from "@upmind-automation/upmind-ui";
-import { useI18n } from "vue-i18n";
 // -----------------------------------------------------------------------------
 const props = defineProps<Omit<FormProps, "ajv">>();
 
@@ -62,7 +51,7 @@ const emits = defineEmits<{
   ];
 }>();
 
-const slots = defineSlots<{
+const _slots = defineSlots<{
   additional: FormAdditionalProps;
   footer: FormFooterProps;
   actions: FormActionsProps;

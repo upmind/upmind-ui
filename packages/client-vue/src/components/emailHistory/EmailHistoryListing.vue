@@ -90,13 +90,10 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
+import { useUrlSearchParams } from "@vueuse/core";
 import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
-import { useUrlSearchParams } from "@vueuse/core";
-
-// --- internal
 import {
   useClientReceivedEmails,
   DEBOUNCE_DELAY,
@@ -104,16 +101,9 @@ import {
   RequestSortDirection
 } from "@upmind-automation/headless";
 // import { ROUTE } from "../../../router/types";
-
-// --- components
 import { Pagination, Link, Input, Avatar } from "@upmind-automation/upmind-ui";
 import EmailHistorySort from "./EmailHistorySort.vue";
-
-// --- utils
 import { debounce, isArray, isEmpty } from "lodash-es";
-
-// --- types
-// import type { ComputedRef } from "vue";
 import type { ReceivedEmailsSortProps, ReceivedEmailsProps } from "./types";
 
 // -----------------------------------------------------------------------------

@@ -62,26 +62,18 @@
 </template>
 
 <script setup lang="ts">
-// --- external
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-
-// --- internal
 import {
   parseBillingCycle,
   PriceDisplayTypes
 } from "@upmind-automation/headless";
 import { useStyles, Badge, Tooltip } from "@upmind-automation/upmind-ui";
-import config from "./terms.config";
-
-// --- components
+import Promotion from "../../../basket-product/components/card/components/Promotion.vue";
 import PayToday from "../pricing/PayToday.vue";
 import Pricing from "../pricing/Pricing.vue";
-import Promotion from "../../../basket-product/components/card/components/Promotion.vue";
-
-// --- utils
+import config from "./terms.config";
 import { isEmpty, has } from "lodash-es";
-
 import type { TermCardProps } from "./types";
 
 // -----------------------------------------------------------------------------

@@ -1,18 +1,15 @@
 // --- external
-import type { Meta, StoryObj } from "@storybook/vue3";
 
 // -- components
 import {
   Badge,
-  BadgeProps,
   BADGE_COLORS,
   BADGE_VARIANTS,
   BADGE_SIZES
 } from "@upmind-automation/upmind-ui";
-
-// --- utils
-import { useSystemArgTypes } from "../../utils";
-import { first, keys } from "lodash-es";
+import { first } from "lodash-es";
+import type { Meta, StoryObj } from "@storybook/vue3";
+import type { BadgeProps } from "@upmind-automation/upmind-ui";
 
 // -----------------------------------------------------------------------------
 

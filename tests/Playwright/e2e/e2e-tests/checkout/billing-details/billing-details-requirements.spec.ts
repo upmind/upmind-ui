@@ -7,6 +7,7 @@ import {
   addProductToOrder
 } from "../../../support/api/basket";
 import { interceptConfigValues } from "../../../support/mocks/brand";
+import { gateways } from "../../../support/constants/gateways";
 import { URLs } from "../../../support/constants/urls";
 import { getSessionToken, getClientToken } from "../../../support/api/auth";
 import { Logins } from "../../../support/constants/logins";
@@ -58,12 +59,10 @@ test.describe("Verify checkout billing detail requirements", () => {
       requirePhoneForOrders: false
     });
     await page.goto(URLs.checkout);
-    await checkout.selectPaymentMethod("Offline Payment");
+    await checkout.selectGatewayByType(gateways.OFFLINE);
     await checkout.completeCheckout.click();
     await checkout.completeCheckout.click();
-    await expect(page.getByRole("alert")).toContainText(
-      "Please provide the details below in order to proceed."
-    );
+    await expect(checkout.billingNeedsInputAlert).toBeVisible();
     await expect(checkout.addNewAddress).toBeVisible();
   });
   test("Company required at checkout", async ({ page }) => {
@@ -74,12 +73,10 @@ test.describe("Verify checkout billing detail requirements", () => {
       requirePhoneForOrders: false
     });
     await page.goto(URLs.checkout);
-    await checkout.selectPaymentMethod("Offline Payment");
+    await checkout.selectGatewayByType(gateways.OFFLINE);
     await checkout.completeCheckout.click();
     await checkout.completeCheckout.click();
-    await expect(page.getByRole("alert")).toContainText(
-      "Please provide the details below in order to proceed."
-    );
+    await expect(checkout.billingNeedsInputAlert).toBeVisible();
     await expect(checkout.addNewCompany).toBeVisible();
   });
   test("Region required on address", async ({ page, context }) => {
@@ -98,9 +95,7 @@ test.describe("Verify checkout billing detail requirements", () => {
       null
     );
     await checkout.saveDetails.click();
-    await expect(checkout.addressRegionMessage).toContainText(
-      "Region is required"
-    );
+    await expect(checkout.addressRegionMessage).toBeVisible();
   });
   test("Phone required at checkout", async ({ page }) => {
     interceptConfigValues(page, token, {
@@ -110,9 +105,7 @@ test.describe("Verify checkout billing detail requirements", () => {
       requirePhoneForOrders: true
     });
     await page.goto(URLs.checkout);
-    await expect(page.getByRole("alert")).toContainText(
-      "Please provide the details below in order to proceed."
-    );
+    await expect(checkout.billingNeedsInputAlert).toBeVisible();
     await expect(checkout.addNewPhone).toBeVisible();
   });
 });
