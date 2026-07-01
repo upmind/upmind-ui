@@ -1,6 +1,4 @@
 import { usePOP } from "./usePOP";
-
-// --- utils
 import { defaultsDeep, forIn, trimStart, isArray } from "lodash-es";
 
 // ----------------------------------------------------------------------------

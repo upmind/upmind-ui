@@ -1,0 +1,29 @@
+{
+  "calendar": {
+    "last_day": "[Tegnap]",
+    "last_week": "[Utolsó] nnnn",
+    "next_day": "[Holnap]",
+    "next_week": "dddd",
+    "same_day": "[Ma]"
+  },
+  "date": {
+    "default": "MMM Do, YYYY",
+    "omit_ordinal": "ÉÉÉÉ HHH",
+    "omit_year": "MMM Do",
+    "only_day": "D",
+    "only_month": "MMM",
+    "only_ordinal": "Csináld",
+    "only_week": "MMM Do ([Hét] Gy)",
+    "only_year": "ÉÉÉÉ"
+  },
+  "datetime": {
+    "default": "HHH Do, ÉÉÉÉ ÓÓ:pp A",
+    "omit_meridiem": "HHH Do, ÉÉÉÉ ÓÓ:pp",
+    "with_seconds": "HHH Do, ÉÉÉÉ ÓÓ:pp:mm A"
+  },
+  "time": {
+    "default": "ÓÓ:pp",
+    "with_meridiem": "ÓÓ:pp A",
+    "with_seconds": "ÓÓ:pp:mm"
+  }
+}

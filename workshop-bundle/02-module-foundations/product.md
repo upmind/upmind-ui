@@ -300,7 +300,7 @@ type Promotion = {
 
 ### Provision-field definitions — returned by `GET /basket/products/{productId}/provision_fields`
 
-Shape pinned from the captured v2 fixture `tests/__fixtures__/recordings/get-basket-products-20403869-...-provision_fields.json`. Earlier drafts of this type used `label` / `type` / `validation` / `default` — those names are wrong; the wire uses the prefixed / suffixed variants below.
+Shape pinned from the captured v2 fixture `tests/fixtures/recordings/get-basket-products-20403869-...-provision_fields.json`. Earlier drafts of this type used `label` / `type` / `validation` / `default` — those names are wrong; the wire uses the prefixed / suffixed variants below.
 
 ```ts
 type BlueprintField = {
@@ -616,7 +616,7 @@ curl -s "$API/orders" \
   }'
 ```
 
-Response is the new basket (`IBasket`) including the supplied product as its first basket-product. Full envelope and per-line fields documented in the basket module. Real fixture available at [`tests/__fixtures__/recordings/post-orders.json`](../../../../../../tests/__fixtures__/recordings/post-orders.json).
+Response is the new basket (`IBasket`) including the supplied product as its first basket-product. Full envelope and per-line fields documented in the basket module. Real fixture available at [`tests/fixtures/recordings/post-orders.json`](../../../../../../tests/fixtures/recordings/post-orders.json).
 
 ### `POST /orders/{basketId}/products`
 
@@ -677,7 +677,7 @@ curl -s "$API/orders/63250798-065d-1e20-388f-8174e234e98d/products" \
 }
 ```
 
-> Sample trimmed for readability — the response is the complete refreshed `IBasket` (every basket-envelope field, every basket-product, applied taxes, promotions, warning notes). Full capture in [`tests/__fixtures__/recordings/post-orders-5d96e763-ed09-13e9-e0df-417482528340-products.json`](../../../../../../tests/__fixtures__/recordings/post-orders-5d96e763-ed09-13e9-e0df-417482528340-products.json). Note: the basket above already held the Logo Design line before this call — the new entry is the "Blocos de desenvolvimento" basket-product. The platform doesn't flag it as new (see the diff-gotcha Lesson below).
+> Sample trimmed for readability — the response is the complete refreshed `IBasket` (every basket-envelope field, every basket-product, applied taxes, promotions, warning notes). Full capture in [`tests/fixtures/recordings/post-orders-5d96e763-ed09-13e9-e0df-417482528340-products.json`](../../../../../../tests/fixtures/recordings/post-orders-5d96e763-ed09-13e9-e0df-417482528340-products.json). Note: the basket above already held the Logo Design line before this call — the new entry is the "Blocos de desenvolvimento" basket-product. The platform doesn't flag it as new (see the diff-gotcha Lesson below).
 
 ## Flows
 

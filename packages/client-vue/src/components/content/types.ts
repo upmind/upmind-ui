@@ -1,14 +1,9 @@
-// --- external
-import type { CxOptions, VariantProps } from "class-variance-authority";
-import type { HTMLAttributes } from "vue";
-import type { InterstitialProps } from "@upmind-automation/upmind-ui";
 import type { LayoutProps } from "../layout/types";
-
-// --- internal
-import type { titleVariants } from "./content.config";
+import type { InterstitialProps } from "@upmind-automation/upmind-ui";
 import type { TabItem } from "@upmind-automation/upmind-ui";
 import type { BadgeProps } from "@upmind-automation/upmind-ui";
-type TitleVariantProps = VariantProps<typeof titleVariants>;
+import type { CxOptions } from "class-variance-authority";
+import type { HTMLAttributes } from "vue";
 
 export interface ContentSectionProps {
   title?: string;

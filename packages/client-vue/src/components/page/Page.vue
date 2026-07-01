@@ -8,11 +8,8 @@
 </template>
 
 <script lang="ts" setup>
-// --- internal
 import { cn, useStyles } from "@upmind-automation/upmind-ui";
 import config from "./page.config";
-
-// --- types
 import type { HTMLAttributes } from "vue";
 
 // -----------------------------------------------------------------------------

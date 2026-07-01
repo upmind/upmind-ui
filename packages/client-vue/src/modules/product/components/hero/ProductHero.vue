@@ -64,24 +64,15 @@
 </template>
 
 <script setup lang="ts">
-// --- external
-import { computed, ref } from "vue";
 import { useElementSize } from "@vueuse/core";
-
-// --- components
-import DisplayPrice from "../terms/DisplayPrice.vue";
+import { computed, ref } from "vue";
+import { useStyles } from "@upmind-automation/upmind-ui";
 import Hero from "../../../../components/hero/Hero.vue";
 import ProductDescription from "../card/ProductDescription.vue";
-import ProductImage from "./ProductImage.vue";
-import { useStyles } from "@upmind-automation/upmind-ui";
-
-// --- internal
+import DisplayPrice from "../terms/DisplayPrice.vue";
 import config from "./product-hero.config";
-
-// --- utils
+import ProductImage from "./ProductImage.vue";
 import { toNumber } from "lodash-es";
-
-// --- types
 import type { ProductHeaderProps } from "./types";
 import type { HeroProps } from "../../../../components/hero/types";
 

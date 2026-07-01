@@ -35,6 +35,9 @@ for (const { language, locale } of languages) {
       await page.goto(URLs.login);
       await setLocale(page, locale);
       await waitForSessionCookie(page.context());
+      await expect(page.getByTestId("section-log-in")).toBeVisible({
+        timeout: 15000
+      });
       await expect(page).toHaveScreenshot(`${language}/login`);
     });
     test("2FA Entry", async ({ page }) => {
@@ -46,13 +49,45 @@ for (const { language, locale } of languages) {
         Logins.twoFactor.password
       );
       await waitForSessionCookie(page.context());
+      await expect(login.twoFactorInput.first()).toBeVisible({
+        timeout: 15000
+      });
       await expect(page).toHaveScreenshot(`${language}/2fa-entry`);
     });
     test("Forgotten Password", async ({ page }) => {
       await page.goto(URLs.forgottenPassword);
       await setLocale(page, locale);
       await waitForSessionCookie(page.context());
+      await expect(page.getByTestId("recover-form")).toBeVisible({
+        timeout: 15000
+      });
       await expect(page).toHaveScreenshot(`${language}/forgotten-password`);
+    });
+    test("Login Error", async ({ page }) => {
+      await page.goto(URLs.login);
+      await setLocale(page, locale);
+      await waitForSessionCookie(page.context());
+      await login.inputLogin("invalid-username", "invalid-password");
+      await expect(login.alert).toBeVisible({ timeout: 15000 });
+      await expect(page).toHaveScreenshot(`${language}/login-error`);
+    });
+    test("2FA Invalid Code", async ({ page }) => {
+      await page.goto(URLs.login);
+      await setLocale(page, locale);
+      await waitForSessionCookie(page.context());
+      await login.inputLogin(
+        Logins.twoFactor.username,
+        Logins.twoFactor.password
+      );
+      await waitForSessionCookie(page.context());
+      await expect(login.twoFactorInput.first()).toBeVisible({
+        timeout: 15000
+      });
+      await login.twoFactorInput.first().pressSequentially("123456");
+      await expect(page.getByTestId("form-item-message-token")).toBeVisible({
+        timeout: 15000
+      });
+      await expect(page).toHaveScreenshot(`${language}/2fa-invalid-code`);
     });
   });
 }

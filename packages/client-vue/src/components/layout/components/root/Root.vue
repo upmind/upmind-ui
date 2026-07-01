@@ -5,13 +5,10 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed, type HTMLAttributes } from "vue";
-
-// --- internal
 import { cn, useStyles } from "@upmind-automation/upmind-ui";
-import config from "./root.config";
 import { useLayout } from "../../useLayout";
+import config from "./root.config";
 
 // --- types
 

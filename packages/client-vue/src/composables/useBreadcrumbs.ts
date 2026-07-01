@@ -1,17 +1,10 @@
-// --- external
 import { computed, type MaybeRefOrGetter, toValue } from "vue";
-
-// --- internal
-import { BreadcrumbVariant, QUERY_PARAMS } from "@upmind-automation/headless";
-
-// --- utils
-import { has } from "lodash-es";
 import { useI18n } from "vue-i18n";
-
-// --- types
+import { BreadcrumbVariant, QUERY_PARAMS } from "@upmind-automation/headless";
+import { has } from "lodash-es";
+import type { StorefrontRoute } from "../types";
 import type { BreadcrumbVariant as UIBreadcrumbVariant } from "@upmind-automation/upmind-ui";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
-import type { StorefrontRoute } from "../types";
 
 export interface BreadcrumbCategory {
   id: string;

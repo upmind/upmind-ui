@@ -2,6 +2,7 @@
   <Section
     id="basket-summary"
     :label="t('text.summary')"
+    value="summary"
     icon="shopping-bag-02"
   >
     <Summary
@@ -13,13 +14,8 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { useI18n } from "vue-i18n";
-
-// --- internal
-import { UIContext, useBasket } from "@upmind-automation/headless";
-
-// --- components
+import { useBasket } from "@upmind-automation/headless";
 import Section from "../../../components/section/Section.vue";
 import Summary from "../../basket/components/Summary.vue";
 

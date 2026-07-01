@@ -36,13 +36,23 @@ export default defineConfig({
   timeout: 60000,
   expect: {
     timeout: 30000,
-    toHaveScreenshot: { maxDiffPixels: 2000 }
+    toHaveScreenshot: {
+      maxDiffPixels: 2000,
+      threshold: 0.15,
+      animations: "disabled"
+    }
   },
 
   /*Filepaths*/
   testDir: "./tests/Playwright/e2e/",
   outputDir: "./tests/Playwright/e2e/test-output/test-results",
   testMatch: "**/*.spec.ts",
+  testIgnore: [
+    "**/node_modules/**",
+    "tests/fixtures/**",
+    "**/*.int.test.ts",
+    "tests/Playwright/specs/**"
+  ],
   snapshotPathTemplate:
     "./tests/Playwright/e2e/snapshots/{testFilePath}/{projectName}/{arg}.png",
   globalTeardown: "./tests/Playwright/scripts/global-teardown.ts",
@@ -101,10 +111,6 @@ export default defineConfig({
     video: {
       mode: "on-first-retry",
       size: { width: 1920, height: 1080 }
-    },
-
-    launchOptions: {
-      args: ["--disable-animations"]
     }
 
     // contextOptions: {
@@ -123,7 +129,12 @@ export default defineConfig({
         viewport: { width: 1920, height: 1080 },
         //locale: "en", ** Turning this on for a project will default to en locale (instead of en_US) and bypass any localazy sync issues
         launchOptions: {
-          args: ["--no-sandbox", "--headless", "--disable-gpu"]
+          args: [
+            "--no-sandbox",
+            "--headless",
+            "--disable-gpu",
+            "--font-render-hinting=none"
+          ]
         }
       }
     },

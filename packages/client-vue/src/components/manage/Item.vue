@@ -15,6 +15,7 @@
       <Link
         v-if="!props.readonly"
         :label="t('action.edit')"
+        data-testid="link-edit"
         size="sm"
         color="muted"
         tabindex="-1"
@@ -30,10 +31,7 @@
 </template>
 
 <script setup lang="ts">
-// --- external
 import { useI18n } from "vue-i18n";
-
-// --- components
 import { Link, Badge } from "@upmind-automation/upmind-ui";
 
 // --- types

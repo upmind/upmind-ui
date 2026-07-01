@@ -99,15 +99,9 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
-
-// --- internal
 import { useStyles } from "@upmind-automation/upmind-ui";
-import config from "../domain.config";
-
-// --- components
 import {
   Accordion,
   AccordionItem,
@@ -120,14 +114,10 @@ import {
   RadioGroup,
   RadioGroupItem
 } from "@upmind-automation/upmind-ui";
-
-// --- utils
-
+import config from "../domain.config";
 import { map } from "lodash-es";
-
-// --- types
-
-import { DomainTypes, type UseDomain } from "@upmind-automation/headless";
+import type { UseDomain } from "@upmind-automation/headless";
+import type { DomainTypes } from "@upmind-automation/headless";
 import type { SelectItemProps } from "@upmind-automation/upmind-ui";
 
 // -----------------------------------------------------------------------------

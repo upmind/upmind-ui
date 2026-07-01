@@ -1,9 +1,6 @@
-// --- external
-import type { Meta, StoryObj } from "@storybook/vue3";
 import { ref } from "vue";
-
-// -- components
 import { Drawer, Button } from "@upmind-automation/upmind-ui";
+import type { Meta, StoryObj } from "@storybook/vue3";
 
 // -----------------------------------------------------------------------------
 
@@ -98,7 +95,7 @@ export const MockedAsyncAction: Story = {
     setup() {
       const open = ref(false);
       const loading = ref(false);
-      let seconds = ref(3);
+      const seconds = ref(3);
 
       const start = () => {
         loading.value = true;

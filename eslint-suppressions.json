@@ -1,0 +1,1379 @@
+{
+  "apps/cart-nuxt/app/funnels/engine/actions.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "apps/cart-nuxt/app/funnels/engine/services.ts": {
+    "prefer-promise-reject-errors": {
+      "count": 24
+    }
+  },
+  "apps/cart-nuxt/app/layouts/default.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "apps/cart-nuxt/app/plugins/sentry.client.config.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "apps/cart-nuxt/app/router.options.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 6
+    }
+  },
+  "apps/cart/src/router/funnels/engine/actions.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "apps/cart/src/router/funnels/engine/services.ts": {
+    "prefer-promise-reject-errors": {
+      "count": 24
+    }
+  },
+  "apps/hosting/src/router/funnels/engine/actions.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "apps/hosting/src/router/funnels/engine/services.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "prefer-promise-reject-errors": {
+      "count": 24
+    }
+  },
+  "apps/velia/src/assets/theme/tokens.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "apps/velia/src/components/product/CartItemConfigDetails.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "apps/velia/src/pages/Basket.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "apps/velia/src/pages/product/Edit.vue": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "apps/velia/src/router/funnels/engine/actions.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "apps/velia/src/router/funnels/engine/services.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "prefer-promise-reject-errors": {
+      "count": 24
+    }
+  },
+  "packages/client-vue/src/components/emailHistory/EmailHistoryListing.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/client-vue/src/components/form/Form.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 7
+    }
+  },
+  "packages/client-vue/src/components/form/FormModal.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 8
+    }
+  },
+  "packages/client-vue/src/components/form/renderers/DomainRenderer.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/client-vue/src/components/form/renderers/EnumRadioCollapsibleRenderer.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/client-vue/src/components/form/renderers/GatewayDLocalRenderer.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    }
+  },
+  "packages/client-vue/src/components/form/renderers/GatewaysRenderer.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/client-vue/src/components/form/renderers/ImageRenderer.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "packages/client-vue/src/components/form/renderers/PaymentDetailsRenderer.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/client-vue/src/components/form/renderers/SLDRenderer.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/client-vue/src/components/form/renderers/SubProductRenderer.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "packages/client-vue/src/components/form/renderers/TermsRenderer.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/client-vue/src/components/form/renderers/utils.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/client-vue/src/components/form/useFormI18n.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "packages/client-vue/src/components/manage/Form.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    },
+    "vue/no-dupe-keys": {
+      "count": 2
+    },
+    "vue/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "packages/client-vue/src/components/manage/List.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "vue/no-dupe-keys": {
+      "count": 2
+    }
+  },
+  "packages/client-vue/src/components/manage/Manage.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "vue/no-dupe-keys": {
+      "count": 2
+    },
+    "vue/no-useless-template-attributes": {
+      "count": 1
+    }
+  },
+  "packages/client-vue/src/components/manage/Select.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/client-vue/src/components/manage/types.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 12
+    }
+  },
+  "packages/client-vue/src/composables/useBreadcrumbs.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    }
+  },
+  "packages/client-vue/src/modules/basket-product/Edit.vue": {
+    "vue/no-expose-after-await": {
+      "count": 1
+    }
+  },
+  "packages/client-vue/src/modules/basket-product/components/card/components/BasketProductSummary.vue": {
+    "vue/no-use-v-if-with-v-for": {
+      "count": 1
+    }
+  },
+  "packages/client-vue/src/modules/basket-product/components/card/components/BasketQuantityField.vue": {
+    "vue/return-in-computed-property": {
+      "count": 1
+    }
+  },
+  "packages/client-vue/src/modules/basket/components/Summary.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/client-vue/src/modules/billing/components/BillingForm.vue": {
+    "@typescript-eslint/no-unused-expressions": {
+      "count": 1
+    }
+  },
+  "packages/client-vue/src/modules/billing/components/TabBusiness.vue": {
+    "vue/no-dupe-keys": {
+      "count": 2
+    }
+  },
+  "packages/client-vue/src/modules/billing/components/TabPersonal.vue": {
+    "vue/no-dupe-keys": {
+      "count": 2
+    }
+  },
+  "packages/client-vue/src/modules/catalogue/Catalogue.vue": {
+    "vue/return-in-computed-property": {
+      "count": 2
+    }
+  },
+  "packages/client-vue/src/modules/catalogue/products/WidgetGrid.vue": {
+    "vue/no-use-v-if-with-v-for": {
+      "count": 1
+    }
+  },
+  "packages/client-vue/src/modules/domain/components/DomainType.vue": {
+    "vue/no-dupe-keys": {
+      "count": 4
+    }
+  },
+  "packages/client-vue/src/modules/order/Order.vue": {
+    "vue/return-in-computed-property": {
+      "count": 2
+    }
+  },
+  "packages/client-vue/src/modules/payment/components/AccountCredit.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/client-vue/src/modules/payment/components/PaymentAmount.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "vue/return-in-computed-property": {
+      "count": 1
+    }
+  },
+  "packages/client-vue/src/modules/product-setup/components/Setup.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "packages/client-vue/src/modules/product/Configure.vue": {
+    "vue/no-expose-after-await": {
+      "count": 1
+    }
+  },
+  "packages/client-vue/src/modules/product/components/Config.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/client-vue/src/modules/product/components/card/ProductBenefits.vue": {
+    "vue/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "packages/client-vue/src/modules/product/components/subproduct/SubproductCard.vue": {
+    "vue/no-use-v-if-with-v-for": {
+      "count": 1
+    }
+  },
+  "packages/client-vue/src/modules/product/components/subproduct/SubproductCards.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    },
+    "vue/no-dupe-keys": {
+      "count": 1
+    }
+  },
+  "packages/client-vue/src/modules/product/components/terms/TermCard.vue": {
+    "vue/no-use-v-if-with-v-for": {
+      "count": 1
+    }
+  },
+  "packages/client-vue/src/modules/session/components/Auth.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    },
+    "no-fallthrough": {
+      "count": 3
+    },
+    "vue/return-in-computed-property": {
+      "count": 1
+    }
+  },
+  "packages/client-vue/src/modules/system/Error.vue": {
+    "no-fallthrough": {
+      "count": 1
+    }
+  },
+  "packages/headless/src/modules/basket-billing/billing.machine.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/headless/src/modules/basket-billing/unified/schemas.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "packages/headless/src/modules/basket-billing/unified/services.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "prefer-promise-reject-errors": {
+      "count": 2
+    }
+  },
+  "packages/headless/src/modules/basket-billing/unified/useUnified.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    }
+  },
+  "packages/headless/src/modules/basket-billing/useBasketBilling.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/headless/src/modules/basket-currency/useBasketCurrency.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/headless/src/modules/basket-fields/basket-fields.types.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/headless/src/modules/basket-fields/useBasketFields.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "packages/headless/src/modules/basket-product/__tests__/parseBasketProductError.test.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 49
+    }
+  },
+  "packages/headless/src/modules/basket-product/__tests__/useBasketInlineEditors.test.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    }
+  },
+  "packages/headless/src/modules/basket-product/basket-product.services.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    }
+  },
+  "packages/headless/src/modules/basket-product/basket-product.types.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    }
+  },
+  "packages/headless/src/modules/basket-product/basket-product.utils.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 5
+    }
+  },
+  "packages/headless/src/modules/basket-product/helper.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 5
+    },
+    "no-case-declarations": {
+      "count": 2
+    }
+  },
+  "packages/headless/src/modules/basket-product/useBasketProductPending.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 5
+    }
+  },
+  "packages/headless/src/modules/basket-product/useBasketProducts.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/headless/src/modules/basket-product/useBasketProductsPending.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 6
+    }
+  },
+  "packages/headless/src/modules/basket-promotions/useBasketPromotions.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/headless/src/modules/basket/__tests__/utils.test.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    }
+  },
+  "packages/headless/src/modules/basket/basket.machine.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    }
+  },
+  "packages/headless/src/modules/basket/basket.services.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    },
+    "prefer-promise-reject-errors": {
+      "count": 1
+    }
+  },
+  "packages/headless/src/modules/basket/basket.types.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 8
+    }
+  },
+  "packages/headless/src/modules/basket/basket.utils.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 6
+    }
+  },
+  "packages/headless/src/modules/basket/useBasket.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 7
+    },
+    "no-constant-binary-expression": {
+      "count": 2
+    }
+  },
+  "packages/headless/src/modules/brand/__tests__/mocks.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    }
+  },
+  "packages/headless/src/modules/brand/__tests__/useBrand.test.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 13
+    }
+  },
+  "packages/headless/src/modules/brand/__tests__/utils.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "packages/headless/src/modules/brand/brand.mappers.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "packages/headless/src/modules/brand/useBrand.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    }
+  },
+  "packages/headless/src/modules/client-address/client-address.services.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 6
+    }
+  },
+  "packages/headless/src/modules/client-address/useClientAddressManager.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 5
+    }
+  },
+  "packages/headless/src/modules/client-company/client-company.schemas.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "packages/headless/src/modules/client-company/client-company.services.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 6
+    },
+    "prefer-promise-reject-errors": {
+      "count": 1
+    }
+  },
+  "packages/headless/src/modules/client-company/useClientCompanyManager.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 5
+    }
+  },
+  "packages/headless/src/modules/client-custom-fields/client-custom-fields.services.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/headless/src/modules/client-custom-fields/client-custom-fields.types.ts": {
+    "@typescript-eslint/no-empty-object-type": {
+      "count": 1
+    }
+  },
+  "packages/headless/src/modules/client-email-history/client-email-history.mappers.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/headless/src/modules/client-email-history/client-email-history.services.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/headless/src/modules/client-email/client-email.services.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 7
+    }
+  },
+  "packages/headless/src/modules/client-email/useClientEmailManager.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 5
+    }
+  },
+  "packages/headless/src/modules/client-personal-details/client-personal-details.mappers.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "packages/headless/src/modules/client-personal-details/client-personal-details.schemas.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/headless/src/modules/client-personal-details/client-personal-details.services.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    }
+  },
+  "packages/headless/src/modules/client-personal-details/client-personal-details.types.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "packages/headless/src/modules/client-personal-details/usePersonalDetails.ts": {
+    "no-async-promise-executor": {
+      "count": 1
+    }
+  },
+  "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    }
+  },
+  "packages/headless/src/modules/client-phone/client-phone.services.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    }
+  },
+  "packages/headless/src/modules/client-phone/useClientPhoneManager.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 5
+    }
+  },
+  "packages/headless/src/modules/config/config.types.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 9
+    }
+  },
+  "packages/headless/src/modules/config/config.utils.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    }
+  },
+  "packages/headless/src/modules/config/schema/types.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "packages/headless/src/modules/data-manager/data-manager.types.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    }
+  },
+  "packages/headless/src/modules/domain/domain.services.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 7
+    }
+  },
+  "packages/headless/src/modules/domain/domain.types.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 5
+    }
+  },
+  "packages/headless/src/modules/domain/domain.utils.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 8
+    },
+    "no-useless-escape": {
+      "count": 10
+    }
+  },
+  "packages/headless/src/modules/domain/useDac.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/headless/src/modules/feedback/feedback.machine.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "packages/headless/src/modules/feedback/feedback.types.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    }
+  },
+  "packages/headless/src/modules/feedback/useFeedback.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 8
+    }
+  },
+  "packages/headless/src/modules/lookup/useLookup.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 7
+    },
+    "@typescript-eslint/no-unsafe-function-type": {
+      "count": 1
+    }
+  },
+  "packages/headless/src/modules/orders/order.types.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "packages/headless/src/modules/payment-details/payment-details.mappers.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "no-duplicate-case": {
+      "count": 1
+    }
+  },
+  "packages/headless/src/modules/payment-details/payment-details.services.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/headless/src/modules/payment-details/payment-details.types.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    }
+  },
+  "packages/headless/src/modules/payment-details/payment-details.utils.ts": {
+    "no-fallthrough": {
+      "count": 6
+    }
+  },
+  "packages/headless/src/modules/payment-details/usePaymentDetail.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 5
+    }
+  },
+  "packages/headless/src/modules/payment-gateways/__tests__/utils.spec.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/headless/src/modules/payment-gateways/braintree/services.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "packages/headless/src/modules/payment-gateways/dlocal/services.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    }
+  },
+  "packages/headless/src/modules/payment-gateways/gateway.machine.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 14
+    }
+  },
+  "packages/headless/src/modules/payment-gateways/mercadoPago/types.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/headless/src/modules/payment-gateways/openPay/services.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    }
+  },
+  "packages/headless/src/modules/payment-gateways/openPay/types.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    }
+  },
+  "packages/headless/src/modules/payment-gateways/payment-gateways.types.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "packages/headless/src/modules/payment-gateways/razorpay/services.ts": {
+    "prefer-promise-reject-errors": {
+      "count": 2
+    }
+  },
+  "packages/headless/src/modules/payment-gateways/razorpay/types.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "packages/headless/src/modules/payment-gateways/stripe/services.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    },
+    "no-unsafe-optional-chaining": {
+      "count": 1
+    }
+  },
+  "packages/headless/src/modules/payment-gateways/stripe/utils.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "packages/headless/src/modules/payment-gateways/usePaymentGateway.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 9
+    }
+  },
+  "packages/headless/src/modules/payment/payment.types.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/headless/src/modules/payment/payment.utils.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/headless/src/modules/product-catalogue/product-catalogue.services.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "packages/headless/src/modules/product-categories/product-categories.mappers.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/headless/src/modules/product-categories/product-categories.services.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/headless/src/modules/product-setup/product-setup.utils.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/headless/src/modules/product-setup/useProductSetup.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    }
+  },
+  "packages/headless/src/modules/product/__tests__/validation-parity.test.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 10
+    }
+  },
+  "packages/headless/src/modules/product/product.machine.ts": {
+    "@typescript-eslint/no-non-null-asserted-optional-chain": {
+      "count": 1
+    },
+    "prefer-const": {
+      "count": 4
+    }
+  },
+  "packages/headless/src/modules/product/product.schemas.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 15
+    },
+    "@typescript-eslint/no-non-null-asserted-optional-chain": {
+      "count": 4
+    }
+  },
+  "packages/headless/src/modules/product/product.types.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 8
+    }
+  },
+  "packages/headless/src/modules/product/product.utils.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 11
+    }
+  },
+  "packages/headless/src/modules/product/useProductConfig.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 5
+    }
+  },
+  "packages/headless/src/modules/query/__tests__/mocks.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 5
+    }
+  },
+  "packages/headless/src/modules/query/__tests__/utils.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "packages/headless/src/modules/query/client.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/headless/src/modules/query/query.services.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "prefer-promise-reject-errors": {
+      "count": 1
+    }
+  },
+  "packages/headless/src/modules/query/query.types.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    }
+  },
+  "packages/headless/src/modules/query/query.utils.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 7
+    }
+  },
+  "packages/headless/src/modules/query/useQuery.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 9
+    }
+  },
+  "packages/headless/src/modules/recommendations/recommendations.types.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/headless/src/modules/recommendations/recommendations.utils.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/headless/src/modules/recommendations/recommendationsEngine.machine.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 5
+    }
+  },
+  "packages/headless/src/modules/routing/routing.types.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    }
+  },
+  "packages/headless/src/modules/routing/routing.utils.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "packages/headless/src/modules/routing/useQueryParams.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    }
+  },
+  "packages/headless/src/modules/routing/useRoutingEngine.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 8
+    }
+  },
+  "packages/headless/src/modules/session/client/client.machine.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "packages/headless/src/modules/session/client/services.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    }
+  },
+  "packages/headless/src/modules/session/client/types.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/headless/src/modules/session/guest/services.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    }
+  },
+  "packages/headless/src/modules/session/guest/types.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    }
+  },
+  "packages/headless/src/modules/session/guest/utils.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "packages/headless/src/modules/session/helper.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 15
+    }
+  },
+  "packages/headless/src/modules/session/useSession.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 9
+    }
+  },
+  "packages/headless/src/modules/session/useTransfer.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "packages/headless/src/modules/session/utils.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/headless/src/modules/system-analytics/system-analytics.types.ts": {
+    "@typescript-eslint/no-empty-object-type": {
+      "count": 1
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "packages/headless/src/modules/system-analytics/useDataLayer.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    }
+  },
+  "packages/headless/src/modules/system-client-area/template-render/template-render.services.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/headless/src/modules/system-client-area/template-render/template-render.types.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/headless/src/modules/system-form/system-form.types.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 10
+    }
+  },
+  "packages/headless/src/modules/system-localisation/useI18n.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    }
+  },
+  "packages/headless/src/modules/system-recaptcha/system-recaptcha.machine.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/headless/src/modules/system-recaptcha/system-recaptcha.types.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/headless/src/modules/system-upload/system-upload.services.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "packages/headless/src/modules/system-upload/system-upload.types.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "packages/headless/src/modules/system-upload/system-upload.utils.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "packages/headless/src/modules/system-upload/useUpload.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 5
+    }
+  },
+  "packages/headless/src/modules/system/__tests__/mocks.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "packages/headless/src/modules/system/__tests__/useSystem.test.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 19
+    }
+  },
+  "packages/headless/src/useUpmind.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    },
+    "prefer-promise-reject-errors": {
+      "count": 1
+    }
+  },
+  "packages/headless/src/utils/__tests__/useFields.no-test.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/headless/src/utils/__tests__/useTime.no-test.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/headless/src/utils/__tests__/useValidation.no-test.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/headless/src/utils/index.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "packages/headless/src/utils/isDeepEmpty.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 8
+    }
+  },
+  "packages/headless/src/utils/parseFlattened.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "packages/headless/src/utils/useCookies.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 7
+    }
+  },
+  "packages/headless/src/utils/useError.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 9
+    }
+  },
+  "packages/headless/src/utils/useFields.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    }
+  },
+  "packages/headless/src/utils/useScripts.ts": {
+    "@typescript-eslint/no-unused-expressions": {
+      "count": 1
+    }
+  },
+  "packages/headless/src/utils/useState.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 36
+    },
+    "@typescript-eslint/no-unused-expressions": {
+      "count": 1
+    }
+  },
+  "packages/headless/src/utils/useStorage.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 5
+    }
+  },
+  "packages/headless/src/utils/useTranslation.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/headless/src/utils/useUrl.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/headless/src/utils/useValidation.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 15
+    }
+  },
+  "packages/headless/src/utils/useValidationKeywords.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "packages/ui/src/ui/alert/Alert.ce.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    }
+  },
+  "packages/ui/src/ui/autocomplete/Autocomplete.ce.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    }
+  },
+  "packages/ui/src/ui/banner/Banner.ce.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "packages/ui/src/ui/button-group/types.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "@typescript-eslint/no-namespace": {
+      "count": 1
+    }
+  },
+  "packages/ui/src/ui/checkbox-cards/CheckboxCards.ce.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "packages/ui/src/ui/combobox/Combobox.ce.vue": {
+    "vue/valid-v-slot": {
+      "count": 1
+    }
+  },
+  "packages/ui/src/ui/form/Form.ce.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 6
+    }
+  },
+  "packages/ui/src/ui/form/renderers/complex/OneOfRenderer.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    }
+  },
+  "packages/ui/src/ui/form/renderers/controls/EnumRadioRenderer.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/ui/src/ui/form/renderers/controls/OneOfRadioRenderer.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/ui/src/ui/form/renderers/controls/PhoneRenderer.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "vue/return-in-computed-property": {
+      "count": 1
+    }
+  },
+  "packages/ui/src/ui/form/renderers/layouts/TabRenderer.vue": {
+    "vue/valid-v-for": {
+      "count": 1
+    }
+  },
+  "packages/ui/src/ui/form/renderers/utils.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 11
+    },
+    "@typescript-eslint/no-unsafe-function-type": {
+      "count": 3
+    }
+  },
+  "packages/ui/src/ui/form/types.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 8
+    }
+  },
+  "packages/ui/src/ui/image-grid/ImageGrid.ce.vue": {
+    "@typescript-eslint/no-unused-expressions": {
+      "count": 1
+    }
+  },
+  "packages/ui/src/ui/input-otp/InputOTP.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/ui/src/ui/input/Input.ce.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "packages/ui/src/ui/loading/Loading.ce.vue": {
+    "vue/require-toggle-inside-transition": {
+      "count": 1
+    }
+  },
+  "packages/ui/src/ui/radio-cards-collapsible/RadioCardsCollapsible.ce.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "packages/ui/src/ui/radio-cards-collapsible/types.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "packages/ui/src/ui/radio-cards/RadioCards.ce.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "packages/ui/src/ui/radio-cards/types.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "packages/ui/src/ui/select-cards/SelectCards.ce.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "packages/ui/src/ui/select-cards/types.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/ui/src/ui/tabs/Tabs.ce.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "@typescript-eslint/no-unused-expressions": {
+      "count": 1
+    },
+    "vue/no-parsing-error": {
+      "count": 1
+    }
+  },
+  "packages/ui/src/utils/isDeepEmpty.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/ui/src/utils/isEmptySlot.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/ui/src/utils/parseVariants.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/ui/src/utils/useStyles.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "@typescript-eslint/no-unsafe-function-type": {
+      "count": 1
+    }
+  },
+  "packages/ui/src/utils/useValidation.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "playgrounds/labs/src/App.vue": {
+    "vue/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "playgrounds/labs/src/funnels/engine/services.ts": {
+    "prefer-promise-reject-errors": {
+      "count": 1
+    }
+  },
+  "playgrounds/labs/src/pages/places/Listings.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "playgrounds/labs/src/pages/products/Infinite.vue": {
+    "vue/no-useless-template-attributes": {
+      "count": 1
+    }
+  },
+  "playgrounds/labs/src/router.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "playgrounds/storybook/.storybook/Provider.vue": {
+    "vue/no-dupe-keys": {
+      "count": 1
+    }
+  },
+  "playgrounds/storybook/.storybook/main.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "playgrounds/storybook/.storybook/withUpmindUITheme.decorator.js": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "playgrounds/storybook/stories/components/Form/Renderers/Boolean.stories.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "playgrounds/storybook/stories/components/Form/Renderers/Enum.stories.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "playgrounds/storybook/stories/components/Form/Renderers/Number.stories.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "playgrounds/storybook/stories/components/Form/Renderers/OneOf.stories.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "playgrounds/storybook/stories/components/Form/Renderers/String.stories.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "playgrounds/storybook/stories/components/Input/Checkbox Cards/Checkbox Cards.stories.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "playgrounds/storybook/stories/components/Input/Checkbox List.stories.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "playgrounds/storybook/stories/components/Input/Combobox.stories.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "playgrounds/storybook/stories/components/Input/Radio Cards.stories.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "playgrounds/storybook/stories/components/Input/Select Cards.stories.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "playgrounds/storybook/stories/components/Input/Text.stories.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "no-useless-escape": {
+      "count": 1
+    }
+  },
+  "playgrounds/storybook/stories/components/Input/Textarea.stories.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "playgrounds/storybook/utils/useIcons.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "no-fallthrough": {
+      "count": 1
+    }
+  }
+}

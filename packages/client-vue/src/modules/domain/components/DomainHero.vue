@@ -18,15 +18,10 @@
 </template>
 
 <script setup lang="ts">
-// --- external
 import { useVModel } from "@vueuse/core";
 import { useI18n } from "vue-i18n";
-
-// --- components
 import Hero from "../../../components/hero/Hero.vue";
 import DomainSearch from "./DomainSearch.vue";
-
-// --- types
 import type { DomainSlotProps } from "../types";
 
 const props = defineProps<DomainSlotProps>();

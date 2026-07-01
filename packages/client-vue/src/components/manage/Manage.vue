@@ -58,18 +58,14 @@
 </template>
 
 <script setup lang="ts">
-// --- external
 import { computed, ref } from "vue";
-// --- components
+import { isFunction } from "xstate/lib/utils";
+import { FormLabel } from "@upmind-automation/upmind-ui";
 import Form from "./Form.vue";
 import List from "./List.vue";
 import Select from "./Select.vue";
-import { FormLabel } from "@upmind-automation/upmind-ui";
-
-// --- types
-import type { ManageRendererProps } from "./types";
 import { get } from "lodash-es";
-import { isFunction } from "xstate/lib/utils";
+import type { ManageRendererProps } from "./types";
 
 // -----------------------------------------------------------------------------
 

@@ -2,6 +2,7 @@
   <FormControl formItemId="domain-search" auto-focus>
     <Input
       v-model="inputValue"
+      id="domain-search-input"
       :placeholder="
         isMobile ? t('domain.search') : t('form.domain_search.placeholder')
       "
@@ -37,22 +38,13 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
-import { useI18n } from "vue-i18n";
 import { computed } from "vue";
-
-// --- internal
+import { useI18n } from "vue-i18n";
 import { useStyles } from "@upmind-automation/upmind-ui";
-import config from "../domain.config";
-
-// --- components
 import { Input, Button, Link, FormControl } from "@upmind-automation/upmind-ui";
-
-// --- utils
 import { isMobile } from "@upmind-automation/upmind-ui";
+import config from "../domain.config";
 import { isEmpty } from "lodash-es";
-
-// --- types
 import type { DomainSlotProps } from "../types";
 
 // ----------------------------------------------------------------------------

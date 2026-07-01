@@ -171,7 +171,7 @@ import _ from 'lodash'  // Imports entire library
 
 This rule is enforced via:
 
-- Code review (documented in DEVX.md)
+- Code review (documented in `.agent/rules/code-style.md` §Lodash Usage)
 - ESLint rules (where possible)
 - AI agent training
 
@@ -179,5 +179,5 @@ This rule is enforced via:
 
 ## Related Documents
 
-- [DEVX.md](../DEVX.md) — Coding style guide
+- [`.agent/rules/code-style.md`](/.agent/rules/code-style.md) — Coding standards (§Lodash Usage; replaces DEVX.md)
 - [ADR 011: Composable Coding Standards](./011-composable-coding-standards.md)

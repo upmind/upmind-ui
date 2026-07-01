@@ -12,7 +12,6 @@
 </template>
 
 <script setup lang="ts">
-import { Transition } from "vue";
 import { useRouteTransition } from "../../../../modules/system/useRouteTransition";
 
 const { onEnter, shouldTransition } = useRouteTransition();

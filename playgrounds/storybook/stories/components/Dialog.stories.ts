@@ -1,19 +1,12 @@
-// --- external
 import { ref } from "vue";
-import type { Meta, StoryObj } from "@storybook/vue3";
-
-// -- components
 import { Dialog, Button, Form } from "@upmind-automation/upmind-ui";
-
-// --- utils
-import { keys, first } from "lodash-es";
-
-// --- types
 import {
   DIALOG_SIZES,
   DIALOG_OVERFLOWS,
   DIALOG_FITS
 } from "@upmind-automation/upmind-ui";
+import { first } from "lodash-es";
+import type { Meta, StoryObj } from "@storybook/vue3";
 
 const schema = {
   type: "object",
@@ -215,7 +208,7 @@ export const Hero: Story = {
 };
 
 export const DialogForm: Story = {
-  render: (args, { updateArgs }) => ({
+  render: (args, { _updateArgs }) => ({
     components: { Dialog, Form, Button },
     setup() {
       const model = ref({});
@@ -307,7 +300,7 @@ export const MockedAsyncAction: Story = {
     setup() {
       const open = ref(false);
       const loading = ref(false);
-      let seconds = ref(3);
+      const seconds = ref(3);
 
       const start = () => {
         loading.value = true;

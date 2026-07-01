@@ -66,7 +66,11 @@ test.describe("DAC pagination & merge logic", () => {
         timeout: 10000
       });
       await expect(dac.cards).toHaveCount(3);
-      await expect(dac.firstCard).toContainText("£12.00");
+      // Price is mocked deterministically (baseProduct, 12-month → £12.00), read
+      // locale-stably via domain-card-price's data-test-value.
+      const priceCell = dac.firstCard.getByTestId("domain-card-price");
+      await expect(priceCell).toBeVisible();
+      await expect(priceCell).toHaveAttribute("data-test-value", "£12.00");
     });
   });
 
@@ -100,13 +104,15 @@ test.describe("DAC pagination & merge logic", () => {
       await dac.gotoSearch(SLD);
       await expect(dac.cards).toHaveCount(2);
       await dac.clickLoadMore();
-      // 2 (page 1) + 1 net-new (.au) = 3, .com NOT duplicated
+      // 2 (page 1) + 1 net-new (.au) = 3, .com NOT duplicated. The .com domain
+      // is stable test data carried locale-stably in `domain-card-name`'s
+      // `data-test-value`, so count those rather than scraping rendered text.
       await expect(dac.cards).toHaveCount(3, { timeout: 10000 });
-      const headings = await dac.cards.allTextContents();
-      const comOccurrences = headings.filter(t =>
-        t.includes(`${SLD}.com`)
-      ).length;
-      expect(comOccurrences).toBe(1);
+      await expect(
+        dac.page.locator(
+          `[data-testid="domain-card-name"][data-test-value="${SLD}.com"]`
+        )
+      ).toHaveCount(1);
     });
 
     test("A domain still waiting for its price gets priced when loading more brings the data in", async ({
@@ -131,6 +137,11 @@ test.describe("DAC pagination & merge logic", () => {
               }
       });
       mockDomainSuggestionsTlds(context, {
+        // /tlds lags /suggestions so the page-1 .com row renders in its
+        // priceLoading state before /tlds settles. Once page-1 /tlds resolves
+        // empty, the unpriced row is dropped (the app's anti-"infinity
+        // loading" rule), so the skeleton is only observable during this lag.
+        latencyMs: 1500,
         builder: ({ page: pageNum }) =>
           pageNum === 1
             ? { products: {} }
@@ -149,7 +160,12 @@ test.describe("DAC pagination & merge logic", () => {
 
       await expect(dac.cards).toHaveCount(2, { timeout: 10000 });
       await expect(dac.priceLoadingSkeletons).toHaveCount(0);
-      await expect(dac.firstCard).toContainText("£12.00");
+      // The .com row upgrades to its mocked price (baseProduct, 12-month →
+      // £12.00) once page-2 /tlds brings the product in; read via
+      // domain-card-price's data-test-value.
+      const priceCell = dac.firstCard.getByTestId("domain-card-price");
+      await expect(priceCell).toBeVisible();
+      await expect(priceCell).toHaveAttribute("data-test-value", "£12.00");
     });
   });
 
@@ -188,12 +204,20 @@ test.describe("DAC pagination & merge logic", () => {
       });
 
       await dac.gotoSearch(SLD);
-      await expect(dac.firstCard).toContainText("£12.00");
+      // Page-1 .com prices from the page-1 /tlds product (baseProduct, 12-month
+      // → £12.00), read via domain-card-price's data-test-value.
+      const firstPrice = dac.firstCard.getByTestId("domain-card-price");
+      await expect(firstPrice).toBeVisible();
+      await expect(firstPrice).toHaveAttribute("data-test-value", "£12.00");
 
       await dac.clickLoadMore();
 
       await expect(dac.cards).toHaveCount(2, { timeout: 10000 });
-      await expect(dac.card(1)).toContainText("£12.00");
+      // Page-2 /tlds is empty, so the page-2 .com row must price from the
+      // cumulative map populated by page 1 — same mocked £12.00.
+      const secondPrice = dac.card(1).getByTestId("domain-card-price");
+      await expect(secondPrice).toBeVisible();
+      await expect(secondPrice).toHaveAttribute("data-test-value", "£12.00");
       await expect(dac.priceLoadingSkeletons).toHaveCount(0);
     });
   });

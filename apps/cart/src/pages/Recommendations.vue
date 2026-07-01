@@ -6,16 +6,11 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed } from "vue";
 import { useRoute } from "vue-router";
-
-// --- components
 import { UpmRecommendations } from "@upmind-automation/client-vue";
-
-// --- internal
 import { ROUTE } from "../router";
-import { LAYOUT_VARIANTS } from "@upmind-automation/client-vue";
+import type { LAYOUT_VARIANTS } from "@upmind-automation/client-vue";
 
 // -----------------------------------------------------------------------------
 const route = useRoute();

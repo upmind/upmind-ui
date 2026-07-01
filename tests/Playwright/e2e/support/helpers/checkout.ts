@@ -28,6 +28,21 @@ export function waitForBillingUpdate(page: Page) {
 export async function expectedPayAmountText(
   context: BrowserContext
 ): Promise<string> {
+  return `Pay ${await expectedPayAmount(context)}`;
+}
+
+/**
+ * Reads the current basket's formatted total from the API and returns the bare
+ * formatted amount (e.g. "£72.00") — the value the pay-amount element carries
+ * on its `data-test-value` attribute (set in `PaymentDetails.vue` from
+ * `amountsFormatted.amount`). Assert against `pay-amount-value`'s
+ * `data-test-value` rather than the translated "Pay {amount}" copy, which is
+ * locale-unstable. Reading from the API keeps the expectation truthful against
+ * the real staging price/promo/FX state.
+ */
+export async function expectedPayAmount(
+  context: BrowserContext
+): Promise<string> {
   const token = await getSessionToken(context);
   const order = await getCurrentOrder(token);
   const total = order?.total_amount_formatted;
@@ -38,5 +53,5 @@ export async function expectedPayAmountText(
       )}`
     );
   }
-  return `Pay ${total}`;
+  return total;
 }

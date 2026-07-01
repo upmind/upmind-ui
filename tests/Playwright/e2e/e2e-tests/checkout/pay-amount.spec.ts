@@ -8,10 +8,7 @@ import {
   getSessionToken,
   registerClient
 } from "../../support/api/index";
-import {
-  expectedPayAmountText,
-  waitForSessionCookie
-} from "../../support/helpers";
+import { expectedPayAmount, waitForSessionCookie } from "../../support/helpers";
 
 let checkout: Checkout;
 let register: Registration;
@@ -31,8 +28,12 @@ test.describe("Checkout - Pay Amount", () => {
   test.describe("Pay Amount on Checkout", async () => {
     test("Value on initial load", async ({ page, context }) => {
       await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
-      const expected = await expectedPayAmountText(context);
-      await expect(checkout.payAmount).toHaveText(expected);
+      const expected = await expectedPayAmount(context);
+      await expect(checkout.payAmount).toBeVisible();
+      await expect(checkout.payAmount).toHaveAttribute(
+        "data-test-value",
+        expected
+      );
     });
     test("Value with promo applied", async ({ page, context }) => {
       await goToCheckout(
@@ -42,13 +43,21 @@ test.describe("Checkout - Pay Amount", () => {
         "genericpromo",
         null
       );
-      const expected = await expectedPayAmountText(context);
-      await expect(checkout.payAmount).toHaveText(expected);
+      const expected = await expectedPayAmount(context);
+      await expect(checkout.payAmount).toBeVisible();
+      await expect(checkout.payAmount).toHaveAttribute(
+        "data-test-value",
+        expected
+      );
     });
     test("Value in alternate currency", async ({ page, context }) => {
       await goToCheckout(page, context, products.STARTER_HOSTING, null, "INR");
-      const expected = await expectedPayAmountText(context);
-      await expect(checkout.payAmount).toHaveText(expected);
+      const expected = await expectedPayAmount(context);
+      await expect(checkout.payAmount).toBeVisible();
+      await expect(checkout.payAmount).toHaveAttribute(
+        "data-test-value",
+        expected
+      );
     });
   });
   test.describe("Changing Pay Amount value", async () => {
@@ -58,7 +67,11 @@ test.describe("Checkout - Pay Amount", () => {
       await checkout.changeAmountInput.fill("10");
       await checkout.clickConfirmAmount();
       // £10.00 is the user's typed input — literal is correct here
-      await expect(checkout.payAmount).toHaveText("Pay £10.00");
+      await expect(checkout.payAmount).toBeVisible();
+      await expect(checkout.payAmount).toHaveAttribute(
+        "data-test-value",
+        "£10.00"
+      );
     });
     test("Applying a promotion which changes Pay Amount", async ({
       page,
@@ -66,32 +79,43 @@ test.describe("Checkout - Pay Amount", () => {
     }) => {
       await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
       // Capture the baseline pre-promo total from the API
-      const baseline = await expectedPayAmountText(context);
-      await expect(checkout.payAmount).toHaveText(baseline);
+      const baseline = await expectedPayAmount(context);
+      await expect(checkout.payAmount).toBeVisible();
+      await expect(checkout.payAmount).toHaveAttribute(
+        "data-test-value",
+        baseline
+      );
       // Apply promo via UI
       await checkout.addVoucherButton.click();
       await checkout.addVoucherInput.fill("genericpromo");
       await checkout.applyVoucherButton.click();
       // Promo discounted the total — verify it changed, then check API truth
-      await expect(checkout.payAmount).not.toHaveText(baseline);
-      const postPromo = await expectedPayAmountText(context);
-      await expect(checkout.payAmount).toHaveText(postPromo);
+      await expect(checkout.payAmount).not.toHaveAttribute(
+        "data-test-value",
+        baseline
+      );
+      const postPromo = await expectedPayAmount(context);
+      await expect(checkout.payAmount).toHaveAttribute(
+        "data-test-value",
+        postPromo
+      );
     });
     test("Changing currency of Pay Amount", async ({ page, context }) => {
       await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
       await expect(checkout.billingDetails).toBeVisible();
-      await page
-        .getByTestId("currency-selector")
-        .getByTestId("button-default")
-        .click();
+      await page.getByTestId("currency-selector-trigger").click();
       // Wait for dropdown to be stable then click the option
       const audOption = page.getByRole("option", { name: /AUD/i });
       await expect(audOption).toBeVisible();
       await audOption.click({ force: true });
       // Wait for the currency change to take effect (API call)
       await waitForSessionCookie(page.context());
-      const expected = await expectedPayAmountText(context);
-      await expect(checkout.payAmount).toHaveText(expected);
+      const expected = await expectedPayAmount(context);
+      await expect(checkout.payAmount).toBeVisible();
+      await expect(checkout.payAmount).toHaveAttribute(
+        "data-test-value",
+        expected
+      );
     });
   });
 });

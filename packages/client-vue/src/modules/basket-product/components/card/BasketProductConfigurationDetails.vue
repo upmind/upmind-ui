@@ -21,20 +21,13 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
-import { groupBy, first, omitBy, filter } from "lodash-es";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-
-// --- components
-import DetailsGroup from "./components/DetailsGroup.vue";
 import { Link } from "@upmind-automation/upmind-ui";
-
-// --- internal
 import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./basketProduct.config";
-
-// --- types
+import DetailsGroup from "./components/DetailsGroup.vue";
+import { groupBy, first } from "lodash-es";
 import type { BasketProductConfigDetailsProps } from "./types";
 
 defineOptions({
@@ -45,7 +38,7 @@ const { t } = useI18n();
 
 const props = defineProps<BasketProductConfigDetailsProps>();
 
-const styles = useStyles(["product.configDetails"], props, config);
+const _styles = useStyles(["product.configDetails"], props, config);
 
 function getCategory(group: BasketProductConfigDetailsProps["details"]) {
   const groupCategory = first(group)?.category;

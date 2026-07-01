@@ -21,15 +21,13 @@ export class VerifyEmail {
 
   constructor(page: Page) {
     this.page = page;
-    this.title = page.getByRole("heading", { name: /verify email/i });
+    this.title = page.getByTestId("verify-email-heading");
     this.otpInput = page.getByTestId("input-otp-slot");
     this.alert = page.getByTestId("auth-alert");
     this.codeFieldError = page.getByTestId("form-item-message-code");
     this.resendLink = page.getByTestId("resend-code-link");
     this.resentMessage = page.getByTestId("resend-sent");
-    this.backToBasket = page.getByRole("link", {
-      name: /back to basket/i
-    });
+    this.backToBasket = page.getByTestId("link-back-to-basket");
   }
 
   /** Enter the verification code into the OTP slots (the form auto-submits once valid). */

@@ -1,5 +1,6 @@
 //--- utils
 import { isArray } from "xstate/lib/utils";
+import { BlueprintFieldsTypes } from "@upmind-automation/types";
 import { useTranslateField } from "./useTranslation";
 import {
   forEach,
@@ -11,8 +12,7 @@ import {
   reduce,
   includes
 } from "lodash-es";
-import type { CustomField } from "../modules";
-import { BlueprintFieldsTypes } from "@upmind-automation/types";
+import type { CustomField } from "../modules/client-custom-fields";
 import type { JsonSchema7, ControlElement } from "@jsonforms/core";
 
 // -----------------------------------------------------------------------------

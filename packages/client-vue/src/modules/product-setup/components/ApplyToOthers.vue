@@ -4,7 +4,12 @@
     <Skeleton class="h-6 w-3/4" />
   </div>
   <div v-else-if="products.length" class="flex flex-col gap-2 border-t pt-4">
-    <CheckboxGroup v-model="selected" multiple :disabled="disabled">
+    <CheckboxGroup
+      v-model="selected"
+      multiple
+      :disabled="disabled"
+      data-testid="apply-to-others-group"
+    >
       <CheckboxGroupItem
         v-for="product in products"
         :key="product.id"
@@ -24,17 +29,12 @@
 </template>
 
 <script setup lang="ts">
-// --- external
 import { useI18n } from "vue-i18n";
-
-// --- internal
 import {
   CheckboxGroup,
   CheckboxGroupItem,
   Skeleton
 } from "@upmind-automation/upmind-ui";
-
-// --- types
 import type { BasketProduct } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
@@ -47,5 +47,5 @@ defineProps<{
 
 const selected = defineModel<string[]>({ default: () => [] });
 
-const { t } = useI18n();
+const { t: _t } = useI18n();
 </script>

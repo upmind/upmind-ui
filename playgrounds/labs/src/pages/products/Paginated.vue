@@ -78,18 +78,18 @@
 
 <script setup lang="ts">
 import { type HtmlHTMLAttributes, ref, watch } from "vue";
+import { UpmLayout } from "@upmind-automation/client-vue";
+import { useProductCatalogue } from "@upmind-automation/headless";
+import { Button, Loading, Card } from "@upmind-automation/upmind-ui";
 import { debounce } from "lodash-es";
-import {
+import type {
   ProductSortableProperties,
-  RequestSortDirection,
-  useProductCatalogue
+  RequestSortDirection
 } from "@upmind-automation/headless";
 import type {
   IProductCategory,
   ISO_4217_CURRENCY_CODE
 } from "@upmind-automation/types";
-import { Button, Loading, Card } from "@upmind-automation/upmind-ui";
-import { UpmLayout } from "@upmind-automation/client-vue";
 
 const props = withDefaults(
   defineProps<{

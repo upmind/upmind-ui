@@ -30,16 +30,11 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { useI18n } from "vue-i18n";
-
-// --- internal
 import { useBasket, useConfig } from "@upmind-automation/headless";
 import { useMoney } from "@upmind-automation/headless";
-
-// --- components
-import Hero from "../../../components/hero/Hero.vue";
 import { Skeleton } from "@upmind-automation/upmind-ui";
+import Hero from "../../../components/hero/Hero.vue";
 
 defineProps<{
   loading?: boolean;

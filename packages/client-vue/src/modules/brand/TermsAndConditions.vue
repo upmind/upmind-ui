@@ -58,16 +58,9 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { useI18n } from "vue-i18n";
-
-// --- internal
 import { useTermsAndConditions, useBrand } from "@upmind-automation/headless";
-
-// --- components
-import { Drawer, Markdown, Button, Link } from "@upmind-automation/upmind-ui";
-
-// --- types
+import { Drawer, Markdown, Link } from "@upmind-automation/upmind-ui";
 import type { TermsAndConditionsProps } from "./types";
 
 // -----------------------------------------------------------------------------

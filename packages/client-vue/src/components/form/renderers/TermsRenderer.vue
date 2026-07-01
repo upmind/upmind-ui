@@ -19,24 +19,19 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
+import { uiTypeIs } from "@jsonforms/core";
 import { useJsonFormsControl } from "@jsonforms/vue";
-import { useI18n } from "vue-i18n";
 import { computed } from "vue";
-
-// --- components
+import { useI18n } from "vue-i18n";
+import { useConfig } from "@upmind-automation/headless";
 import { FormField } from "@upmind-automation/upmind-ui";
+import { useUpmindUIRenderer } from "@upmind-automation/upmind-ui";
 import TermsConfigRadio from "../../../modules/product/components/terms/TermsConfigRadio.vue";
 import TermsConfigSelect from "../../../modules/product/components/terms/TermsConfigSelect.vue";
-
-// --- utils
-import { useUpmindUIRenderer } from "@upmind-automation/upmind-ui";
-import { useConfig } from "@upmind-automation/headless";
-
-// --- types
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
 import type { TermDetails } from "@upmind-automation/headless";
+// --- external
 
 // -----------------------------------------------------------------------------
 const props = defineProps<RendererProps<ControlElement>>();
@@ -63,8 +58,6 @@ function handleTermChange(value: number) {
 </script>
 
 <script lang="ts">
-import { uiTypeIs } from "@jsonforms/core";
-
 export const tester = {
   rank: 5,
   controlType: uiTypeIs("Terms")

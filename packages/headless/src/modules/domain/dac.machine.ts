@@ -1,16 +1,21 @@
-// --- external
+/** @internal */
 import { createMachine, assign, spawn, sendTo, pure } from "xstate";
-
-// --- internal
-import services from "./services";
-import { applyConfigDefaults } from "../product";
-import { basketSubscription } from "../basketProduct/helper";
-import { authSubscription } from "../session/helper";
-import { useDataLayer } from "../system";
+import { parseBasketProduct } from "../basket-product/basket-product.utils";
+import { basketSubscription } from "../basket-product/helper";
 import { useFeedback } from "../feedback";
-
-// --- utils
-import { mapToHeadlessError, useTime } from "../../utils";
+import { applyConfigDefaults } from "../product";
+import { parseProductProps } from "../product/product.utils";
+import { isAbortError, PAGINATION } from "../query";
+import { authSubscription } from "../session-store";
+import { useDataLayer } from "../system-analytics";
+import { useI18n } from "../system-localisation";
+import services from "./domain.services";
+import {
+  type DomainModel,
+  type DacContext,
+  type DomainProduct,
+  DomainMode
+} from "./domain.types";
 import {
   buildCommonMeta,
   domainAvailabilityHelper,
@@ -21,8 +26,8 @@ import {
   parseSld,
   isDomainProduct,
   sanitiseDomainInput
-} from "./utils";
-import { parseProductProps } from "../product/utils";
+} from "./domain.utils";
+import { mapToHeadlessError, useTime } from "../../utils";
 import {
   cloneDeep,
   compact,
@@ -44,20 +49,9 @@ import {
   some,
   uniqBy
 } from "lodash-es";
-
-// --- types
-import type { AnyEventObject } from "xstate";
-import type { IBasketProduct } from "@upmind-automation/types";
-import {
-  type DomainModel,
-  type DacContext,
-  type DomainProduct,
-  DomainMode
-} from "./types";
 import type { ProductProps } from "../product";
-import { parseBasketProduct } from "../basketProduct/utils";
-import { isAbortError, PAGINATION } from "../query";
-import { useI18n } from "../system";
+import type { IBasketProduct } from "@upmind-automation/types";
+import type { AnyEventObject } from "xstate";
 
 // -----------------------------------------------------------------------------
 
@@ -271,7 +265,7 @@ export default createMachine(
       complete: {
         type: "final",
         data: ({ model, lookups }: DacContext) => {
-          const domains = lookups.basket;
+          const _domains = lookups.basket;
           // Most-recent wins: the user expects the domain they just added to
           // be the primary one linked to the parent product. Parent's
           // `setModelFromDac` reads the same end and falls back to `last`
@@ -572,7 +566,7 @@ export default createMachine(
 
           parseBasketProduct: (
             raw: IBasketProduct,
-            primaryDomain?: string
+            _primaryDomain?: string
           ): DomainProduct | undefined => {
             // First check if we have the blueprint code available that identifies domain products
             // This is not always present as it requites a 'with' when fetching the basket

@@ -4,17 +4,16 @@
  * @description Type definitions for payment module components.
  */
 
-// --- external
-import type { HtmlHTMLAttributes } from "vue";
-
-// --- internal
-import type { ButtonProps } from "@upmind-automation/upmind-ui";
-
-// --- types
 import type {
   AccountCredit,
   PaymentDetailsContext
 } from "@upmind-automation/headless";
+import type { ButtonProps } from "@upmind-automation/upmind-ui";
+import type { HtmlHTMLAttributes } from "vue";
+
+// --- internal
+
+// --- types
 
 // -----------------------------------------------------------------------------
 

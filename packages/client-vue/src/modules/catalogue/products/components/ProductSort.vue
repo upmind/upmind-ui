@@ -3,17 +3,12 @@
 </template>
 
 <script setup lang="ts">
-// --- external
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-
-// --- internal
 import {
   ProductSortableProperties,
   RequestSortDirection
 } from "@upmind-automation/headless";
-
-// --- components
 import {
   ButtonGroup,
   ButtonGroupTypes,
@@ -21,12 +16,7 @@ import {
   type ButtonProps,
   type SelectProps
 } from "@upmind-automation/upmind-ui";
-
-// --- utils
 import { find, isEmpty } from "lodash-es";
-
-// --- types
-import type { SelectItemProps } from "@upmind-automation/upmind-ui";
 import type { ProductSortProps } from "../types";
 
 // -----------------------------------------------------------------------------

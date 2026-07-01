@@ -6,7 +6,7 @@
  * Re-exports `PriceEntry` from the product module — single source of truth.
  */
 
-import type { PriceEntry } from "../modules/product/types";
+import type { PriceEntry } from "../modules/product/product.types";
 
 // -----------------------------------------------------------------------------
 

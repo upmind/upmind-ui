@@ -1,0 +1,12 @@
+{
+  "order_complete": "Bestelling **voltooid**!",
+  "order_complete_md": "@.markdown:{'invoice.order_complete'}",
+  "order_complete_msg": "Bedankt voor je bestelling, je aankoop is nu voltooid. Je ontvangt binnenkort een e-mailbevestiging.",
+  "order_not_found": "Bestelling **niet gevonden**!",
+  "order_not_found_md": "@.markdown:{'invoice.order_not_found'}",
+  "order_not_found_msg": "Helaas hebben we uw bestelling niet kunnen vinden. Klik op onderstaande knop om terug te keren naar uw account.",
+  "order_payment_failed": "Betaling kan niet **verwerkt** worden",
+  "order_payment_failed_md": "@.markdown:{'invoice.order_payment_failed'}",
+  "order_payment_failed_msg": "Er kunnen verschillende redenen zijn waarom we uw betaling voor deze bestelling niet konden verwerken.",
+  "order_payment_retry_msg": "Klik hieronder om naar uw factuur te gaan, waar u opnieuw kunt proberen te betalen."
+}

@@ -10,14 +10,9 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { useClipboard } from "@vueuse/core";
 import { useI18n } from "vue-i18n";
-
-// --- components
 import { Link } from "@upmind-automation/upmind-ui";
-
-// types
 import type { ShareProps } from "./types";
 
 const { t } = useI18n();

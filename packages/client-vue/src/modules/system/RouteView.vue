@@ -30,23 +30,18 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
-
-// --- internal
 import { useRoutingEngine } from "@upmind-automation/headless";
-import type { RouteLocation } from "vue-router";
-import { useRouteTransition } from "./useRouteTransition";
-import { useHeader } from "../../components/header/useHeader";
 import { useFooter } from "../../components/footer/useFooter";
-import { useLayout } from "../../components/layout/useLayout";
-import { useShell } from "../../components/shell/useShell";
-import { SHELL } from "../../components/shell/types";
-
-// --- components
+import { useHeader } from "../../components/header/useHeader";
 import Root from "../../components/layout/components/root/Root.vue";
-import Loading from "./Loading.vue";
 import PageTransition from "../../components/layout/components/transition/Transition.vue";
+import { useLayout } from "../../components/layout/useLayout";
+import { SHELL } from "../../components/shell/types";
+import { useShell } from "../../components/shell/useShell";
+import Loading from "./Loading.vue";
+import { useRouteTransition } from "./useRouteTransition";
 import type { InterstitialProps } from "@upmind-automation/upmind-ui";
+import type { RouteLocation } from "vue-router";
 
 // -----------------------------------------------------------------------------
 

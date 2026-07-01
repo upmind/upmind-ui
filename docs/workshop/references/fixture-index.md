@@ -2,7 +2,7 @@
 
 > Captured API requests **and** responses from staging Upmind brands. Use these to derive your types, request shapes, and edge cases — do **not** hand-craft response shapes, and do **not** infer request shapes from prose docs alone when a fixture is available.
 
-**Source location in the monorepo:** `tests/__fixtures__/recordings/`
+**Source location in the monorepo:** `tests/fixtures/recordings/`
 
 **In the handover bundle:** copied to `07-references/recordings/` and accessed by the agent as `@workshop-bundle/07-references/recordings/<filename>.json`.
 
@@ -226,7 +226,7 @@ Quick form:
 1. Start the recording proxy against the staging brand (the proxy must capture **both request and response bodies** for v2).
 2. Drive the flow — existing dev environment, curl, or test harness.
 3. Apply redaction (auth headers, passwords, tokens, real PII) per [`fixture-format.md`](./fixture-format.md) "Redaction rules".
-4. Save under `tests/__fixtures__/recordings/{method}-{path-with-dashes}-{hash}.json` with `version: 2` set.
+4. Save under `tests/fixtures/recordings/{method}-{path-with-dashes}-{hash}.json` with `version: 2` set.
 5. Add an entry to this index in the right section.
 6. Re-bundle if you've already shipped the handover.
 

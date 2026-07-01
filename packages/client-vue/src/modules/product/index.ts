@@ -1,7 +1,5 @@
 // -----------------------------------------------------------------------------
 
-import type { Component } from "vue";
-
 // --- Export Views
 export { default as UpmProductConfigure } from "./Configure.vue";
 export { default as UpmProductNotFound } from "./NotFound.vue";

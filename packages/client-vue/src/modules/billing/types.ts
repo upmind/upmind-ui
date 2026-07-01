@@ -1,6 +1,6 @@
+import type { BillingModel } from "@upmind-automation/headless";
 import type { Component } from "vue";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
-import type { BillingModel } from "@upmind-automation/headless";
 
 export enum BILLING_TEMPLATE {
   FULL = "full",

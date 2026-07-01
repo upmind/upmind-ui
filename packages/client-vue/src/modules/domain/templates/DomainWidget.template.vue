@@ -19,7 +19,6 @@
 </template>
 
 <script setup lang="ts">
-// --- internal
 import DomainWidget from "../layouts/DomainWidget.layout.vue";
 
 defineOptions({

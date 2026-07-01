@@ -1,0 +1,54 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/countries/zz",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 404,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a0e3092a7d0fa148-DUR",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Fri, 19 Jun 2026 13:56:12 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=2%2FVEe2ro8lmnQoLn2tXfx6nLTT4W4iRfD2MWMlJ0oRH3nC2nE4mvONX1ynZKkSeQ1T%2Bt6q6c%2Bryl%2BY2lmnf78FIKCpyLT4DCSV50lIZtwEfdtVBodhw7IUlAqiK9Vqjp5IKIqKH6KA%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "error",
+      "data": null,
+      "related": null,
+      "total": null,
+      "error": {
+        "id": "b858e2bc44684130fc1b23469eea7296bf88794b",
+        "type": 0,
+        "code": 404,
+        "message": "Country not found!",
+        "data": null
+      },
+      "messages": null,
+      "meta": null
+    }
+  },
+  "captured_at": "2026-06-19T13:56:12.641Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "query"
+  }
+}

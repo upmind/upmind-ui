@@ -58,28 +58,21 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { ref, useSlots, useTemplateRef } from "vue";
-
-// --- utils
 import { isEmptySlot } from "@upmind-automation/upmind-ui";
-import { useContentVisibility } from "../useContentVisibility";
-
-// --- components
-import Ribbon from "../components/ribbon/Ribbon.vue";
-import Container from "../components/container/Container.vue";
+import { COLUMN_WIDTH } from "../components/column";
 import Column from "../components/column/Column.vue";
+import { CONTAINER_FLOW, CONTAINER_ITEMS } from "../components/container";
+import Container from "../components/container/Container.vue";
+import { CONTENT_WIDTH } from "../components/content";
 import Content from "../components/content/Content.vue";
-
-// --- types
 import {
   RIBBON_BACKGROUND,
   RIBBON_STICKY,
   RIBBON_BORDER
 } from "../components/ribbon";
-import { CONTAINER_FLOW, CONTAINER_ITEMS } from "../components/container";
-import { COLUMN_WIDTH } from "../components/column";
-import { CONTENT_WIDTH } from "../components/content";
+import Ribbon from "../components/ribbon/Ribbon.vue";
+import { useContentVisibility } from "../useContentVisibility";
 
 // ----------------------------------------------------------------------------
 

@@ -1,15 +1,35 @@
-// --- external
-import { waitFor } from "xstate/lib/waitFor";
+import { useActor } from "@xstate/vue";
 import { computed } from "vue";
 import { interpret } from "xstate";
-import { useActor } from "@xstate/vue";
-
-// --- internal
-import { useI18n } from "../system";
+import { waitFor } from "xstate/lib/waitFor";
+import {
+  calculateBillingTerm,
+  parseTermDetails
+} from "../product/product.utils";
+import { PAGINATION } from "../query";
 import { QUERY_PARAMS, useQueryParams } from "../routing";
+import { useI18n } from "../system-localisation";
 import domainMachine from "./domain.machine";
-
-// --- utils
+import {
+  DomainTypes,
+  type DomainContext,
+  type DomainProduct
+} from "./domain.types";
+import {
+  getTransferOptionPrice,
+  parseDomain,
+  sanitiseDomainInput,
+  useDomainSearchMethod
+} from "./domain.utils";
+import {
+  stopService,
+  stateMatches,
+  useContext,
+  contextMatches,
+  contextValue,
+  DOMAIN_LIKE_VALIDATION,
+  useChildActor
+} from "../../utils";
 import {
   map,
   has,
@@ -22,28 +42,7 @@ import {
   includes,
   reject
 } from "lodash-es";
-import {
-  stopService,
-  stateMatches,
-  useContext,
-  contextMatches,
-  contextValue,
-  DEBOUNCE_DELAY,
-  DOMAIN_LIKE_VALIDATION,
-  useChildActor
-} from "../../utils";
-import {
-  getTransferOptionPrice,
-  parseDomain,
-  sanitiseDomainInput,
-  useDomainSearchMethod
-} from "./utils";
-import { calculateBillingTerm, parseTermDetails } from "../product/utils";
-
-// --- types
-import { DomainTypes, type DomainContext, type DomainProduct } from "./types";
-import type { BasketProduct } from "../basketProduct/types";
-import { PAGINATION } from "../query";
+import type { BasketProduct } from "../basket-product/basket-product.types";
 import type { IDomainAvailabilityResponse } from "@upmind-automation/types";
 
 export type DomainChoice = { value: DomainTypes; label: string };
@@ -69,8 +68,8 @@ export const useDomain = (
     type: undefined
   }
 ) => {
-  const { t } = useI18n();
-  const { getParam, setParam, unsetParam } = useQueryParams();
+  const { t: _t } = useI18n();
+  const { getParam, setParam: _setParam, unsetParam } = useQueryParams();
 
   // safety check to ensure forcedType is valid
   const safeType =

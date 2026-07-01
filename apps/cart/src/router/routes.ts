@@ -1,12 +1,9 @@
-// --- internal
-import { ROUTE, RegexMatch } from "./funnels/types";
 import { OverlayType, SESSION_FORMS } from "@upmind-automation/client-vue";
-// --- utils
+import { ROUTE, RegexMatch } from "./funnels/types";
+import { BID_PREFIX } from "./funnels/types";
 import { reduce, trimStart } from "lodash-es";
-// --- types
 import type { RouteLocationGeneric, RouteRecordRaw } from "vue-router";
 
-import { BID_PREFIX } from "./funnels/types";
 // -----------------------------------------------------------------------------
 
 /**
@@ -23,7 +20,7 @@ export const OVERLAY_ROUTES: RouteRecordRaw[] = [
   {
     path: "verify-email/",
     name: ROUTE.OVERLAY_VERIFY_EMAIL,
-    component: () => import("../pages/overlays/AuthOverlay.vue"),
+    component: () => import("../pages/overlays/AccountOverlay.vue"),
     meta: {
       overlay: OverlayType.CUSTOM,
       dismissable: false,

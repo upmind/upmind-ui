@@ -3,10 +3,10 @@
 </template>
 
 <script lang="ts" setup>
-import { UpmSessionLogout } from "@upmind-automation/client-vue";
-import { ROUTE } from "~/funnels/types";
-import { useStorefrontRoute } from "~/composables/useStorefrontRoute";
 import { useI18n } from "vue-i18n";
+import { UpmSessionLogout } from "@upmind-automation/client-vue";
+import { useStorefrontRoute } from "~/composables/useStorefrontRoute";
+import { ROUTE } from "~/funnels/types";
 
 const { t } = useI18n();
 

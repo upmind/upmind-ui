@@ -1,5 +1,4 @@
 import { Locator, Page } from "@playwright/test";
-import { kebabCase } from "../../helpers/strings";
 
 export class Checkboxes {
   readonly page: Page;
@@ -20,7 +19,11 @@ export class Checkboxes {
     return this.checkboxOption.nth(option);
   }
 
-  async clickCheckbox(checkbox: string) {
-    await this.page.getByTestId(`checkbox-${kebabCase(checkbox)}`).click();
+  /**
+   * @param slug - Stable checkbox slug (NOT a translated label), e.g.
+   *   `checkbox-item-try-before-you-buy`.
+   */
+  async clickCheckbox(slug: string) {
+    await this.page.getByTestId(slug).click();
   }
 }

@@ -48,26 +48,19 @@
 </template>
 
 <script setup lang="ts">
-// --- external
 import { computed, ref } from "vue";
-
-// --- internal
-import { useHeader } from "./useHeader";
-import config from "./header.config";
 import { useStyles, isMobile } from "@upmind-automation/upmind-ui";
 import { useRouteTransition } from "../../modules/system/useRouteTransition";
-
-// --- components
-import HeaderBrand from "./HeaderBrand.vue";
-import Ribbon from "../layout/components/ribbon/Ribbon.vue";
-import Container from "../layout/components/container/Container.vue";
+import { COLUMN_BACKGROUND } from "../layout/components/column";
 import Column from "../layout/components/column/Column.vue";
+import Container from "../layout/components/container/Container.vue";
 import Content from "../layout/components/content/Content.vue";
 import { RIBBON_BACKGROUND } from "../layout/components/ribbon";
-import { COLUMN_BACKGROUND } from "../layout/components/column";
-
-// --- types
+import Ribbon from "../layout/components/ribbon/Ribbon.vue";
+import config from "./header.config";
+import HeaderBrand from "./HeaderBrand.vue";
 import { HEADER_BACKGROUND } from "./types";
+import { useHeader } from "./useHeader";
 import type { StorefrontRoute } from "../../types";
 
 // -----------------------------------------------------------------------------
@@ -100,7 +93,7 @@ const { onTransition } = useRouteTransition();
  * to sync with the page transition
  * NB: nexttick did not work here
  */
-onTransition(value => {
+onTransition(_value => {
   shouldShow.value = false;
   setTimeout(() => {
     shouldShow.value = true;

@@ -1,0 +1,12 @@
+{
+  "order_complete": "Bestilling **fullført**!",
+  "order_complete_md": "@.markdown:{'invoice.order_complete'}",
+  "order_complete_msg": "Takk for bestillingen din, kjøpet ditt er nå fullført. Du vil motta en e-postbekreftelse snart.",
+  "order_not_found": "Bestilling **ikke funnet**!",
+  "order_not_found_md": "@.markdown:{'invoice.order_not_found'}",
+  "order_not_found_msg": "Dessverre fant vi ikke bestillingen din. Klikk på knappen nedenfor for å gå tilbake til kontoen din.",
+  "order_payment_failed": "Kan ikke **behandle** betalingen",
+  "order_payment_failed_md": "@.markdown:{'invoice.order_payment_failed'}",
+  "order_payment_failed_msg": "Vi kunne ikke behandle betalingen din for denne bestillingen. Dette kan skyldes flere årsaker.",
+  "order_payment_retry_msg": "Klikk nedenfor for å gå til fakturaen din, hvor du kan prøve betalingen på nytt."
+}

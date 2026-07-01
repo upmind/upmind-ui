@@ -1,6 +1,6 @@
 <template>
   <SessionLoginPopover
-    v-if="!meta.isAuthenticated"
+    v-if="!isAuthenticated"
     :login-route="props.loginRoute"
     :register-route="props.registerRoute"
     :recover-route="props.recoverRoute"
@@ -22,7 +22,7 @@
   <SessionDetailsDropdown v-else-if="client" @register="goToRegister">
     <Avatar
       v-bind="client.avatar"
-      :icon="meta.isGuestClient ? 'user-01' : undefined"
+      :icon="isGuestClient ? 'user-01' : undefined"
       :shape="shape"
       size="lg"
       class="cursor-pointer"
@@ -33,26 +33,21 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { useI18n } from "vue-i18n";
 import { useRouter, useRoute } from "vue-router";
-
-// --- internal
-import { useSession, QUERY_PARAMS } from "@upmind-automation/headless";
-
-// --- components
+import { useActiveSession, QUERY_PARAMS } from "@upmind-automation/headless";
 import { Button, Avatar } from "@upmind-automation/upmind-ui";
-import SessionLoginPopover from "../../modules/session/components/LoginPopover.vue";
 import SessionDetailsDropdown from "../../modules/session/components/DetailsDropdown.vue";
-
-// --- types
+import SessionLoginPopover from "../../modules/session/components/LoginPopover.vue";
 import type { AuthActionProps } from "./types";
 // -----------------------------------------------------------------------------
 
 const props = defineProps<AuthActionProps>();
 
 const { t } = useI18n();
-const { meta, client } = useSession();
+const session = useActiveSession();
+const { isAuthenticated, isGuestClient } = session.useMeta();
+const { activeUser: client } = session.useContext();
 const router = useRouter();
 const route = useRoute();
 

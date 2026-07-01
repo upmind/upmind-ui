@@ -10,7 +10,7 @@
     :border="meta.hasBorder"
     align="between"
     :overflow="sections.length > 1 ? 'hidden' : 'visible'"
-    :data-testid="`section-${kebabCase(first(sections)?.label ?? 'default')}`"
+    :data-testid="`section-${first(sections)?.value ?? 'default'}`"
     :ui-config="{
       tabs: {
         root: [styles.section.tabs.root],
@@ -57,28 +57,11 @@
 </template>
 
 <script setup lang="ts">
-// --- external
 import { computed, useSlots } from "vue";
-
-// --- components
 import { Tabs, useStyles, Link, cn } from "@upmind-automation/upmind-ui";
-
-// --- internal
 import config from "./section.config";
 import { useSection } from "./useSection";
-
-// --- utils
-import {
-  find,
-  first,
-  isFunction,
-  isString,
-  isNil,
-  kebabCase,
-  isEmpty
-} from "lodash-es";
-
-// --- types
+import { find, first, isFunction, isString, isNil, isEmpty } from "lodash-es";
 import type { SectionActionProps, SectionsProps } from "./types";
 
 // -----------------------------------------------------------------------------

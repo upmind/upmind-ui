@@ -4,6 +4,9 @@
 **Status:** Accepted
 **Authors:** Upmind Engineering Team
 
+> [!IMPORTANT]
+> **Superseded by `.agent/rules/`.** The living coding standards now reside in [`.agent/rules/code-generation.md`](/.agent/rules/code-generation.md) and [`.agent/rules/scoped-composables.md`](/.agent/rules/scoped-composables.md) (with review config in [`code-reviews.md`](/.agent/rules/code-reviews.md)). The former `DEVX.md` monolith this ADR referenced has been retired (see [`docs/devx-distillation-plan.md`](/docs/devx-distillation-plan.md)). This ADR is retained as the **decision record**; for current, enforceable detail follow the rules. Some snippets below (e.g. the single `meta` object) reflect the older shape — the rules carry the current direction.
+
 ---
 
 ## Context
@@ -19,10 +22,10 @@ With multiple developers contributing to the codebase, we needed:
 
 ## Decision
 
-Establish strict composable coding standards documented in **DEVX.md** and enforced via code review.
+Establish strict composable coding standards (originally documented in the `DEVX.md` monolith, now distilled into `.agent/rules/`) and enforced via code review.
 
 > [!NOTE]
-> This ADR summarizes the key decisions. See [DEVX.md](/DEVX.md) for the complete style guide.
+> This ADR summarizes the key decisions. See the [`code-*` rules](/.agent/rules/) — especially [`code-style.md`](/.agent/rules/code-style.md), [`code-composables.md`](/.agent/rules/code-composables.md), and [`code-composables-scoped.md`](/.agent/rules/code-composables-scoped.md) — for the complete, current style guide.
 
 ---
 
@@ -163,13 +166,13 @@ const isLoading = state.value.matches('loading')
 
 ### Neutral
 
-1. **Learning curve** — developers must read DEVX.md
+1. **Learning curve** — developers must read the `.agent/rules/` coding standards
 
 ---
 
 ## Enforcement
 
-- **Code review** — reviewers check against DEVX.md
+- **Code review** — reviewers check against the `.agent/rules/code-*.md` authoring rules + `code-reviews.md`
 - **AI agents** — instructed to follow patterns
 - **Reference implementations** — `useDomain`, `useBasket`, `useBrand`
 
@@ -177,6 +180,8 @@ const isLoading = state.value.matches('loading')
 
 ## Related Documents
 
-- [DEVX.md](/DEVX.md) — Complete style guide
+- [`.agent/rules/code-style.md`](/.agent/rules/code-style.md) — Cross-cutting TS/JS coding standards (replaces DEVX.md)
+- [`.agent/rules/code-composables.md`](/.agent/rules/code-composables.md) — Composable contract
+- [`.agent/rules/code-composables-scoped.md`](/.agent/rules/code-composables-scoped.md) — Scoped composable patterns
 - [ADR 005: XState State Management](./005-xstate-state-management.md)
 - [ADR 001: Scope-Based Composables](./001-scope-based-composables.md)

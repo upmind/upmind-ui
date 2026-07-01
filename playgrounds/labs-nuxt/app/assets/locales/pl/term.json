@@ -1,0 +1,23 @@
+{
+  "annually": "Rocznie",
+  "biennially": "Co dwa lata",
+  "label": "Okres rozliczeniowy",
+  "monthly": "Miesięczny",
+  "n_mo": "miesiąc | {n} miesiąc",
+  "n_month": "{n}-miesiąc",
+  "n_months": "miesiąc | {n} miesiące",
+  "n_year": "{n}-rok",
+  "n_years": "rok | {count} lat",
+  "n_yr": "rok | {n} rok",
+  "once": "Raz",
+  "one_time": "Pewnego razu",
+  "price_by_n_years": "{price}/rok | {price} /{n} lat",
+  "price_msg": "Jednorazowa płatność {price} | Od {price} miesiąc | Od {price} każdy {period}",
+  "quarterly": "Kwartalny",
+  "renews_msg": "Jednorazowa płatność | Odnawia się co {cycle} | Odnawia się co {cycle}",
+  "renews_usually_msg": "Zazwyczaj {price}",
+  "semiannually": "Półrocznie",
+  "showing_items_summary": "Seans {range} z {total} rzeczy",
+  "summary_msg": "Dla {term} termin. Zapłać {price} Dzisiaj.",
+  "triennially": "Co trzy lata"
+}

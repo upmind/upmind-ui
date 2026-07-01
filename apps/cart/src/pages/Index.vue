@@ -2,7 +2,6 @@
   <UpmLoading :open="meta.isResolved" />
 </template>
 <script lang="ts" setup>
-// --- components
 import { UpmLoading, useRoutingEngine } from "@upmind-automation/client-vue";
 // -----------------------------------------------------------------------------
 const { meta } = useRoutingEngine();

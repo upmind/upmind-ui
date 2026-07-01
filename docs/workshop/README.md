@@ -27,7 +27,7 @@ Workshop-adjacent docs that live **outside** this folder:
 | --- | --- | --- |
 | Module foundation docs | `packages/headless/src/modules/<module>/docs/foundation.md` | Lives next to source so it doesn't drift. Copied into the bundle by `build-bundle.sh`. |
 | Doc-shape decisions (ADR) | [docs/adr/019-module-doc-shape.md](../adr/019-module-doc-shape.md) | Architectural record; living rule at [.agent/rules/docs-modules.md](../../.agent/rules/docs-modules.md). |
-| Captured API fixtures | `tests/__fixtures__/recordings/` | 93 fixtures. Lives with the test infrastructure that captures them. Copied into the bundle by `build-bundle.sh`. |
+| Captured API fixtures | `tests/fixtures/recordings/` | 93 fixtures. Lives with the test infrastructure that captures them. Copied into the bundle by `build-bundle.sh`. |
 
 ---
 

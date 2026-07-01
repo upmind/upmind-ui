@@ -1,6 +1,6 @@
-import type { RouteLocationAsRelativeGeneric } from "vue-router";
-import type { ProductCategory } from "@upmind-automation/headless";
 import type { ProductSortProps } from "../products/types";
+import type { ProductCategory } from "@upmind-automation/headless";
+import type { RouteLocationAsRelativeGeneric } from "vue-router";
 
 export interface CategoriesProps {
   modelValue?: string;

@@ -69,29 +69,22 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed, provide } from "vue";
 import { useI18n } from "vue-i18n";
-
-// --- internal
 import {
   useBasket,
   useBasketFields,
   useBasketPaymentDetails
 } from "@upmind-automation/headless";
 import { useConfig, UIContext } from "@upmind-automation/headless";
-
-// --- components
+import Form from "../../../components/form/Form.vue";
 import Section from "../../../components/section/Section.vue";
+import BasketAlerts from "../../basket/components/BasketAlerts.vue";
+import ProductCards from "../../basket-product/components/card/BasketProductCards.vue";
 import BillingForm from "../../billing/components/BillingForm.vue";
 import BillingSummary from "../../billing/components/BillingSummary.vue";
-import GuestEmail from "./GuestEmail.vue";
 import PaymentDetails from "../../payment/components/PaymentDetails.vue";
-import ProductCards from "../../basket-product/components/card/BasketProductCards.vue";
-import Form from "../../../components/form/Form.vue";
-import BasketAlerts from "../../basket/components/BasketAlerts.vue";
-
-// --- types
+import GuestEmail from "./GuestEmail.vue";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
 
 // -----------------------------------------------------------------------------
@@ -105,7 +98,7 @@ const props = defineProps<{
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
-const { meta, uischema, checkout, errors } = useBasket();
+const { meta, uischema, checkout, errors: _errors } = useBasket();
 
 const { ui } = useConfig();
 

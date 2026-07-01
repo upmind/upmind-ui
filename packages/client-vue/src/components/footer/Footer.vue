@@ -28,8 +28,6 @@
 </template>
 
 <script lang="ts" setup>
-// --- internal
-import { useFooter } from "./useFooter";
 import {
   useBrand,
   useLocale,
@@ -37,16 +35,15 @@ import {
   useClientTemplate,
   ClientTemplateSlotCodes
 } from "@upmind-automation/headless";
-
-// --- utils
+import { Markdown } from "@upmind-automation/upmind-ui";
+import UpmLocale from "../../components/LocaleSwitcher.vue";
+import UpmCurrency from "../../modules/basket/components/CurrencySwitcher.vue";
+import Content from "./components/Content.vue";
+import Copyright from "./components/Copyright.vue";
+import { useFooter } from "./useFooter";
 import { size } from "lodash-es";
 
 // --- components
-import Content from "./components/Content.vue";
-import Copyright from "./components/Copyright.vue";
-import UpmCurrency from "../../modules/basket/components/CurrencySwitcher.vue";
-import UpmLocale from "../../components/LocaleSwitcher.vue";
-import { Markdown } from "@upmind-automation/upmind-ui";
 
 // -----------------------------------------------------------------------------
 

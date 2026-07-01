@@ -33,18 +33,11 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-
-// --- components
-import Promotion from "./Promotion.vue";
-
-// --- internal
 import { useStyles, isMobile } from "@upmind-automation/upmind-ui";
 import config from "../basketProduct.config";
-
-// --- types
+import Promotion from "./Promotion.vue";
 import type { BasketProductSummaryProps } from "../types";
 // -----------------------------------------------------------------------------
 

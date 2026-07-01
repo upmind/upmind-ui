@@ -1,16 +1,11 @@
-// --- external
+import { useActor } from "@xstate/vue";
 import { computed, onUnmounted, ref, watch } from "vue";
 import { interpret } from "xstate";
-import { useActor } from "@xstate/vue";
 import { waitFor } from "xstate/lib/waitFor";
-
-// --- internal
-import orderMachine from "./order.machine";
-import { usePaymentDetail, usePaymentGateway } from "../paymentDetails";
-import { useSession } from "../session";
+import { usePaymentDetail, usePaymentGateway } from "../payment-details";
 import { useQueryParams } from "../routing/useQueryParams";
-
-// --- utils
+import { useActiveSession } from "../session-store";
+import orderMachine from "./order.machine";
 import {
   machineMatches,
   stateMatches,
@@ -20,8 +15,6 @@ import {
   useContextActor
 } from "../../utils";
 import { isEmpty, some } from "lodash-es";
-
-// --- types
 import type { OrderContext } from "./order.types";
 import type { ResponseError } from "../../utils";
 
@@ -34,7 +27,7 @@ import type { ResponseError } from "../../utils";
  */
 
 export const useOrder = (invoiceId: string) => {
-  const { meta: authMeta } = useSession();
+  const { isAuthenticated } = useActiveSession().useMeta();
   const { getParam, setParam } = useQueryParams();
 
   // --- state
@@ -73,7 +66,7 @@ export const useOrder = (invoiceId: string) => {
 
     return {
       hasError: isAvailable && isFailed,
-      isAuthenticated: authMeta.value.isAuthenticated,
+      isAuthenticated: isAuthenticated.value,
       isAvailable,
       isLocked: !!invoice.value?.locked,
       isComplete: stateMatches(state, ["complete"]),

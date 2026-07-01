@@ -57,6 +57,7 @@
       variant="minimal"
       icon="alert-triangle"
       :title="t('text.payment_failed')"
+      :dataAttrs="{ 'data-testid': 'order-payment-failed-message' }"
     >
       <ol class="text-sm-tight mt-2 list-none text-left">
         <li class="my-0 py-0">
@@ -73,12 +74,12 @@
       :title="t('error.payment_gateway_not_supported_title')"
       :description="errors ?? t('error.payment_gateway_not_supported_msg')"
       class="text-error!"
+      :dataAttrs="{ 'data-testid': 'payment-gateway-unavailable-message' }"
     />
   </div>
 </template>
 
 <script lang="ts" setup>
-// --- external
 import {
   inject,
   onMounted,
@@ -89,24 +90,18 @@ import {
   watch
 } from "vue";
 import { useI18n } from "vue-i18n";
-
-// --- internal
 import {
   DetailedError,
   ErrorOrigin,
   responseCodes,
   usePaymentGateway
 } from "@upmind-automation/headless";
-import config from "../payment.config";
-import { useStyles, Loading } from "@upmind-automation/upmind-ui";
-
-// --- components
+import { useStyles } from "@upmind-automation/upmind-ui";
 import { Alert, Markdown, RadioCards } from "@upmind-automation/upmind-ui";
 import Form from "../../../components/form/Form.vue";
-
-// --- types
-import type { UsePaymentDetail } from "@upmind-automation/headless";
+import config from "../payment.config";
 import type { PaymentGatewayProps } from "../types";
+import type { UsePaymentDetail } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 const props = defineProps<PaymentGatewayProps>();
@@ -132,7 +127,7 @@ const {
   input,
   update,
   render,
-  clickwrap,
+  clickwrap: _clickwrap,
   instructions,
   gateway
 } = usePaymentGateway(paymentDetail.gateway);
@@ -147,13 +142,13 @@ const styles = useStyles(
   config
 );
 
-const action = computed(() => {
+const _action = computed(() => {
   // if (meta.value.payLater) return t("action.place_order_pay_later");
   if (!meta.value.needsPayment) return t("action.place_order");
   return t("action.place_order_and_pay");
 });
 
-const handleCheckout = () => {
+const _handleCheckout = () => {
   emit("resolve");
 };
 

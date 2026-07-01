@@ -1,0 +1,29 @@
+{
+  "calendar": {
+    "last_day": "[کل]",
+    "last_week": "[آخری] dddd",
+    "next_day": "[کل]",
+    "next_week": "dddd",
+    "same_day": "[آج]"
+  },
+  "date": {
+    "default": "MMM کرو، YYYY",
+    "omit_ordinal": "MMM YYYY",
+    "omit_year": "ایم ایم ایم کرو",
+    "only_day": "ڈی",
+    "only_month": "ایم ایم ایم",
+    "only_ordinal": "کرو",
+    "only_week": "MMM Do ([Wk] W)",
+    "only_year": "YYYY"
+  },
+  "datetime": {
+    "default": "MMM کرو، YYYY HH:mm A",
+    "omit_meridiem": "MMM کرو، YYYY HH:mm",
+    "with_seconds": "MMM کرو، YYYY HH:mm:ss A"
+  },
+  "time": {
+    "default": "HH:mm",
+    "with_meridiem": "HH:mm A",
+    "with_seconds": "HH:mm:ss"
+  }
+}

@@ -1,15 +1,20 @@
-// --- external
+/** @internal */
 import { createMachine, assign, spawn, sendTo, pure } from "xstate";
-
-// --- internal
-import DACmachine from "./dac.machine";
-
-import services from "./services";
+import { parseBasketProduct } from "../basket-product/basket-product.utils";
+import { basketSubscription } from "../basket-product/helper";
+import { useFeedback } from "../feedback";
 import { useQuery } from "../query";
-import { basketSubscription } from "../basketProduct/helper";
-import { authSubscription } from "../session/helper";
-
-// --- utils
+import { authSubscription } from "../session-store";
+import { useI18n } from "../system-localisation";
+import DACmachine from "./dac.machine";
+import services from "./domain.services";
+import { DomainTypes, DomainMode } from "./domain.types";
+import {
+  getDomainRawBasketProducts,
+  isBasketTransfer,
+  isDomainProduct,
+  parseDomain
+} from "./domain.utils";
 import {
   ErrorOrigin,
   mapToHeadlessError,
@@ -18,12 +23,6 @@ import {
   useTime,
   DOMAIN_LIKE_VALIDATION
 } from "../../utils";
-import {
-  getDomainRawBasketProducts,
-  isBasketTransfer,
-  isDomainProduct,
-  parseDomain
-} from "./utils";
 import {
   cloneDeep,
   compact,
@@ -45,16 +44,10 @@ import {
   trim,
   values
 } from "lodash-es";
-
-// --- types
+import type { DomainModel, DomainContext, DomainProduct } from "./domain.types";
+import type { ProductProps } from "../product";
+import type { IBasketProduct } from "@upmind-automation/types";
 import type { AnyEventObject } from "xstate";
-import { type IBasketProduct } from "@upmind-automation/types";
-import { DomainTypes, DomainMode } from "./types";
-import type { DomainModel, DomainContext, DomainProduct } from "./types";
-import { parseBasketProduct } from "../basketProduct/utils";
-import { type ProductProps } from "../product";
-import { useI18n } from "../system";
-import { useFeedback } from "../feedback";
 
 // -----------------------------------------------------------------------------
 export default createMachine(
@@ -835,7 +828,7 @@ export default createMachine(
 
       setModelFromDac: assign({
         model: (
-          { model, lookups }: DomainContext,
+          { model, _lookups }: DomainContext,
           { data }: AnyEventObject
         ) => {
           // if no data, return existing model
@@ -925,7 +918,7 @@ export default createMachine(
       }),
 
       setErrorInvalidDomain: assign({
-        error: (_context: DomainContext, { data }: AnyEventObject) => {
+        error: (_context: DomainContext, { _data }: AnyEventObject) => {
           const { t } = useI18n();
           return {
             data: null,
@@ -1152,7 +1145,7 @@ export default createMachine(
       isValid: ({ model }: DomainContext) => !isEmpty(parseDomain(model)),
 
       isSelectable: (
-        { model, lookups }: DomainContext,
+        { _model, lookups }: DomainContext,
         { data }: AnyEventObject
       ) => {
         const valid = some(lookups.basket, ["domain", data]);

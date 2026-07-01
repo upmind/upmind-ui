@@ -78,12 +78,9 @@
 </template>
 
 <script setup lang="ts">
-// --- external
-import { useI18n } from "vue-i18n";
-import { computed, ref } from "vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
-
-// --- internal
+import { computed, ref } from "vue";
+import { useI18n } from "vue-i18n";
 import {
   useClientAddresses,
   useClientAddressManager,
@@ -91,19 +88,13 @@ import {
   useClientPhoneManager,
   useBasketBilling
 } from "@upmind-automation/headless";
-
-// --- components
-import Manage from "../../../components/manage/Manage.vue";
-import Form from "../../../components/manage/Form.vue";
-
-// --- utils
-import { find } from "lodash-es";
-
-// --- types
 import { UnifiedType } from "@upmind-automation/headless";
-import type { BillingModel } from "@upmind-automation/headless";
+import Form from "../../../components/manage/Form.vue";
+import Manage from "../../../components/manage/Manage.vue";
 import AddressItem from "./AddressItem.vue";
 import PhoneItem from "./PhoneItem.vue";
+import { find } from "lodash-es";
+import type { BillingModel } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 

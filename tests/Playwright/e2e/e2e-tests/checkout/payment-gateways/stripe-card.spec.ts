@@ -8,6 +8,7 @@ import { DeclinedCards } from "../../../support/constants/checkout/payment-cards
 import { FraudCheckCards } from "../../../support/constants/checkout/payment-cards/FraudChecks";
 import { ErrorCards } from "../../../support/constants/checkout/payment-cards/InvalidData";
 import { products } from "../../../support/constants/products";
+import { gateways } from "../../../support/constants/gateways";
 import { TEST_EMAILS } from "../../../support/constants/test-data";
 import {
   getClientToken,
@@ -31,12 +32,12 @@ newUser.describe("Checkout with Stripe", () => {
               null,
               null
             );
-            await checkout.selectPaymentMethod("Stripe");
+            await checkout.selectGatewayByType(gateways.STRIPE);
             await checkout.inputStripeDetails(cardNumber, expiryDate, cvcCode);
             await checkout.clickCompleteCheckout();
             await page.waitForURL(`order/**`);
             await expect(
-              page.getByText("Thank you for your order.")
+              page.getByTestId("order-confirmation-heading")
             ).toBeVisible();
           }
         );
@@ -63,15 +64,13 @@ newUser.describe("Checkout with Stripe", () => {
               null,
               null
             );
-            await checkout.selectPaymentMethod("Stripe");
+            await checkout.selectGatewayByType(gateways.STRIPE);
             await checkout.inputStripeDetails(cardNumber, expiryDate, cvcCode);
             await checkout.clickCompleteCheckout();
             await page.waitForURL(`order/**`);
             await expect(
-              page.getByText(
-                "Your payment attempt was unsuccessful - please try again."
-              )
-            ).toBeVisible();
+              page.getByTestId("confirmation-payment-alert")
+            ).toHaveAttribute("data-test-value", "failed");
           }
         );
       }
@@ -88,15 +87,13 @@ newUser.describe("Checkout with Stripe", () => {
               null,
               null
             );
-            await checkout.selectPaymentMethod("Stripe");
+            await checkout.selectGatewayByType(gateways.STRIPE);
             await checkout.inputStripeDetails(cardNumber, expiryDate, cvcCode);
             await checkout.clickCompleteCheckout();
             await page.waitForURL(`order/**`);
             await expect(
-              page.getByText(
-                "Your payment attempt was unsuccessful - please try again."
-              )
-            ).toBeVisible();
+              page.getByTestId("confirmation-payment-alert")
+            ).toHaveAttribute("data-test-value", "failed");
           }
         );
       }
@@ -124,7 +121,7 @@ newUser.describe("Checkout with Stripe", () => {
               null,
               null
             );
-            await checkout.selectPaymentMethod("Stripe");
+            await checkout.selectGatewayByType(gateways.STRIPE);
             await checkout.inputStripeDetails(cardNumber, expiryDate, cvcCode);
             const stripeFrame = page.frameLocator(
               'iframe[title="Secure payment input frame"]'
@@ -145,7 +142,7 @@ newUser.describe("Checkout with Stripe", () => {
     // @quarantine(FE-XXXX-SEPA, 2026-06-25)
     newUser.skip("Valid SEPA Debit", async ({ page, context, checkout }) => {
       await goToCheckout(page, context, products.STARTER_HOSTING, null, "EUR");
-      await checkout.selectPaymentMethod("Stripe");
+      await checkout.selectGatewayByType(gateways.STRIPE);
       await checkout.inputSepaDetails(
         "GB82WEST12345698765432",
         TEST_EMAILS.sepa,
@@ -156,44 +153,46 @@ newUser.describe("Checkout with Stripe", () => {
       );
       await checkout.clickCompleteCheckout();
       await page.waitForURL(`order/**`);
-      await expect(page.getByText("Order confirmed")).toBeVisible();
+      await expect(
+        page.getByTestId("order-confirmation-heading")
+      ).toBeVisible();
     });
   });
   newUser.describe("iDEAL", async () => {
     newUser("Successful iDEAL payment", async ({ page, context, checkout }) => {
       await goToCheckout(page, context, products.STARTER_HOSTING, null, "EUR");
-      await checkout.selectPaymentMethod("Stripe");
+      await checkout.selectGatewayByType(gateways.STRIPE);
       await checkout.inputIdealDetails(TEST_EMAILS.ideal, "Test User");
       await checkout.completeCheckout.click();
       await page.getByTestId("authorize-test-payment-button").click();
       await page.waitForURL(`order/**`);
-      await expect(page.getByText("Thank you for your order.")).toBeVisible();
+      await expect(
+        page.getByTestId("order-confirmation-heading")
+      ).toBeVisible();
     });
     newUser("Failed iDEAL payment", async ({ page, context, checkout }) => {
       await goToCheckout(page, context, products.STARTER_HOSTING, null, "EUR");
-      await checkout.selectPaymentMethod("Stripe");
+      await checkout.selectGatewayByType(gateways.STRIPE);
       await checkout.inputIdealDetails(TEST_EMAILS.ideal, "Test User");
       await checkout.completeCheckout.click();
       await page.getByTestId("fail-test-payment-button").click();
       await page.waitForURL(`order/**`);
       await expect(
-        page.getByText(
-          "Your payment attempt was unsuccessful - please try again."
-        )
-      ).toBeVisible();
+        page.getByTestId("confirmation-payment-alert")
+      ).toHaveAttribute("data-test-value", "failed");
     });
   });
   newUser.describe("Stripe Errors", async () => {
     newUser("Mock Stripe Card Decline", async ({ page, context, checkout }) => {
       await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
-      await checkout.selectPaymentMethod("Stripe");
+      await checkout.selectGatewayByType(gateways.STRIPE);
       await mockStripeCardDecline(page);
       await checkout.inputStripeDetails("4242424242424242", "12/34", "123");
       await checkout.completeCheckout.click();
       await checkout.completeCheckout.click(); //repeated to trigger the button even that doesn't trigger on first click
-      await expect(page.getByRole("alert")).toContainText(
-        /Payment failed*Payment details validation failed/s
-      );
+      await expect(
+        page.getByTestId("order-payment-failed-message")
+      ).toBeVisible();
     });
     newUser(
       "Insufficient Payment Amount",
@@ -202,11 +201,19 @@ newUser.describe("Checkout with Stripe", () => {
         await checkout.changeAmountButton.click();
         await checkout.changeAmountInput.fill("0.20");
         await checkout.confirmAmountButton.click();
-        await expect(checkout.payAmount).toHaveText("Pay £0.20");
-        await checkout.selectPaymentMethod("Stripe");
-        await expect(page.getByRole("alert")).toContainText(
-          "Amount must be at least £0.30 gbp"
+        await expect(checkout.payAmount).toBeVisible();
+        await expect(checkout.payAmount).toHaveAttribute(
+          "data-test-value",
+          "£0.20"
         );
+        await checkout.selectGatewayByType(gateways.STRIPE);
+        // Below the gateway minimum the gateway reports itself unavailable
+        // (not a payment failure), surfacing the unavailable alert and
+        // disabling Place Order rather than the payment-failed message.
+        await expect(
+          page.getByTestId("payment-gateway-unavailable-message")
+        ).toBeVisible();
+        await expect(checkout.completeCheckout).toBeDisabled();
       }
     );
   });

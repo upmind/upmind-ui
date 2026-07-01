@@ -1,0 +1,170 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/countries",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a0e309263f3fa148-DUR",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Fri, 19 Jun 2026 13:56:12 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=veT5rDuQm9Lr4V%2BVh8nw032N8A%2BafJDv9w0Cjrs05J9C5uUZ%2BTA%2BjP1NSDT5AfL%2BntzfHJ2bBCTSL0uR90iFaCkcaY%2FhjCenqTSW87K1r4IH3Sz5W7UVeBdrTieFL6%2F%2FOTWWBcSoEA%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN",
+      "x-total-count": "248"
+    },
+    "body": {
+      "status": "ok",
+      "data": [
+        {
+          "id": "mock-uuid-1",
+          "name": "Afghanistan",
+          "code": "AF",
+          "code3": "",
+          "created_at": "2017-10-18 14:16:21",
+          "updated_at": "2024-08-22 00:51:23",
+          "vat": "0.00",
+          "eea": 0,
+          "phone_code": "+93",
+          "post_code_regex": "^\\d{4}$"
+        },
+        {
+          "id": "mock-uuid-2",
+          "name": "Aland Islands",
+          "code": "AX",
+          "code3": "",
+          "created_at": "2017-10-18 14:16:21",
+          "updated_at": "2024-08-22 00:51:23",
+          "vat": "0.00",
+          "eea": 0,
+          "phone_code": "+358",
+          "post_code_regex": "^\\d{5}$"
+        },
+        {
+          "id": "mock-uuid-3",
+          "name": "Albania",
+          "code": "AL",
+          "code3": "",
+          "created_at": "2017-10-18 14:16:21",
+          "updated_at": "2024-08-22 00:51:23",
+          "vat": "0.00",
+          "eea": 0,
+          "phone_code": "+355",
+          "post_code_regex": "^\\d{4}$"
+        },
+        {
+          "id": "mock-uuid-4",
+          "name": "Algeria",
+          "code": "DZ",
+          "code3": "",
+          "created_at": "2017-10-18 14:16:21",
+          "updated_at": "2024-08-22 00:51:23",
+          "vat": "0.00",
+          "eea": 0,
+          "phone_code": "+213",
+          "post_code_regex": "^\\d{5}$"
+        },
+        {
+          "id": "mock-uuid-5",
+          "name": "American Samoa",
+          "code": "AS",
+          "code3": "",
+          "created_at": "2017-10-18 14:16:21",
+          "updated_at": "2024-08-22 00:51:23",
+          "vat": "0.00",
+          "eea": 0,
+          "phone_code": "+685",
+          "post_code_regex": "^\\d{5}(-{1}\\d{4,6})$"
+        },
+        {
+          "id": "mock-uuid-6",
+          "name": "Andorra",
+          "code": "AD",
+          "code3": "",
+          "created_at": "2017-10-18 14:16:21",
+          "updated_at": "2024-08-22 00:51:23",
+          "vat": "0.00",
+          "eea": 0,
+          "phone_code": "+376",
+          "post_code_regex": "^[Aa][Dd]\\d{3}$"
+        },
+        {
+          "id": "mock-uuid-7",
+          "name": "Angola",
+          "code": "AO",
+          "code3": "",
+          "created_at": "2017-10-18 14:16:21",
+          "updated_at": "2024-08-22 00:51:23",
+          "vat": "0.00",
+          "eea": 0,
+          "phone_code": "+244",
+          "post_code_regex": ""
+        },
+        {
+          "id": "mock-uuid-8",
+          "name": "Anguilla",
+          "code": "AI",
+          "code3": "",
+          "created_at": "2017-10-18 14:16:21",
+          "updated_at": "2024-08-22 00:51:23",
+          "vat": "0.00",
+          "eea": 0,
+          "phone_code": "+1264",
+          "post_code_regex": "^[Aa][I][-][2][6][4][0]$"
+        },
+        {
+          "id": "mock-uuid-9",
+          "name": "Antarctica",
+          "code": "AQ",
+          "code3": "",
+          "created_at": "2017-10-18 14:16:21",
+          "updated_at": "2019-10-24 08:25:11",
+          "vat": "0.00",
+          "eea": 0,
+          "phone_code": "+672",
+          "post_code_regex": null
+        },
+        {
+          "id": "mock-uuid-10",
+          "name": "Antigua And Barbuda",
+          "code": "AG",
+          "code3": "",
+          "created_at": "2017-10-18 14:16:21",
+          "updated_at": "2024-08-22 00:51:23",
+          "vat": "0.00",
+          "eea": 0,
+          "phone_code": "+1268",
+          "post_code_regex": ""
+        }
+      ],
+      "related": null,
+      "total": 248,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-06-19T13:56:12.346Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "query"
+  }
+}

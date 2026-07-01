@@ -38,17 +38,16 @@
 </template>
 
 <script setup lang="ts">
-import { Loading } from "@upmind-automation/upmind-ui";
-import { UpmLayout } from "@upmind-automation/client-vue";
 import { useVModel } from "@vueuse/core";
-import { debounce } from "lodash-es";
+import { type HTMLAttributes, ref } from "vue";
+import { UpmLayout } from "@upmind-automation/client-vue";
 import {
   useProductCategories,
   type ProductCategory
 } from "@upmind-automation/headless";
-import { type HTMLAttributes, ref } from "vue";
-
+import { Loading } from "@upmind-automation/upmind-ui";
 import CategoryItem from "./CategoryItem.vue";
+import { debounce } from "lodash-es";
 
 const props = withDefaults(
   defineProps<{

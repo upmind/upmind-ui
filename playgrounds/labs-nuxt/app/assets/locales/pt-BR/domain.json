@@ -1,0 +1,31 @@
+{
+  "begin_search_above_desc": "Comece sua pesquisa usando a caixa acima.",
+  "choices": {
+    "basket": {
+      "label": "Usar domínio na cesta",
+      "tooltip": "Esses domínios já estão na sua cesta"
+    },
+    "existing": {
+      "label": "Usar domínio existente",
+      "tooltip": "Você pode usar um domínio existente atualizando os servidores de nomes"
+    },
+    "register": {
+      "label": "Registrar novo domínio",
+      "tooltip": "Ainda não tem um domínio? Registre um novo conosco"
+    },
+    "transfer": {
+      "label": "Transferir domínio",
+      "tooltip": "Já possui um domínio? Você pode transferi-lo para nós"
+    }
+  },
+  "finding_perfect_domain": "Encontrando seu domínio **perfeito**",
+  "finding_perfect_domain_md": "@.markdown:{'domain.finding_perfect_domain'}",
+  "own_domain_qn": "Você é o proprietário deste domínio?",
+  "owned_domains_title": "Domínios que você possui atualmente",
+  "price_renewal_desc": "Preço único de {regularPrice}. | Renova todo ano por {regularPrice}. | Renova a cada {count} anos por {regularPrice}.",
+  "starts_with_domain": "Tudo começa com um **nome de domínio**",
+  "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
+  "tld_renewal_price_desc": "Nosso {tld} os preços de renovação começam em apenas {currentPrice} (era {regularPrice}).",
+  "tld_renewal_price_from_desc": "Nosso {tld} os preços de renovação começam em apenas {regularPrice}.",
+  "transfer_domain_by_msg": "Transfira para nós por"
+}

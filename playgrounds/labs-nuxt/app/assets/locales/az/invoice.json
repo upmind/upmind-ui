@@ -1,0 +1,12 @@
+{
+  "order_complete": "Sifariş **tamamdır**!",
+  "order_complete_md": "@.markdown:{'invoice.order_complete'}",
+  "order_complete_msg": "Sifarişiniz üçün təşəkkür edirik, alışınız artıq tamamlandı. Tezliklə təsdiq e-poçtu alacaqsınız.",
+  "order_not_found": "Sifariş **tapılmadı**!",
+  "order_not_found_md": "@.markdown:{'invoice.order_not_found'}",
+  "order_not_found_msg": "Təəssüf ki, sifarişinizi tapa bilmədik. Zəhmət olmasa hesabınıza qayıtmaq üçün aşağıdakı düyməyə klikləyin.",
+  "order_payment_failed": "Ödənişi **emal etmək** mümkün deyil",
+  "order_payment_failed_md": "@.markdown:{'invoice.order_payment_failed'}",
+  "order_payment_failed_msg": "Bu sifariş üçün ödənişinizi emal edə bilmədik, bu bir sıra səbəblərə görə ola bilər.",
+  "order_payment_retry_msg": "Ödənişinizə yenidən cəhd edə biləcəyiniz fakturaya getmək üçün aşağıya klikləyin."
+}

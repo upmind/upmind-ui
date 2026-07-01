@@ -10,6 +10,7 @@
       <!-- fields -->
       <div :class="cn(styles.product.config.fields)">
         <Form
+          data-testid="product-config-form"
           :loading="meta.isLoading"
           :processing="meta.isProcessing"
           :disabled="meta.isProcessing"
@@ -67,12 +68,8 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
-import { useI18n } from "vue-i18n";
 import { computed, inject, onUpdated } from "vue";
-import { filter, reject } from "lodash-es";
-
-// --- internal
+import { useI18n } from "vue-i18n";
 import {
   type UseProductConfig,
   DetailedError,
@@ -80,14 +77,9 @@ import {
   ErrorOrigin
 } from "@upmind-automation/headless";
 import { useStyles, Link, Button, cn } from "@upmind-automation/upmind-ui";
-import config from "../product.config";
-
-// --- components
 import Form from "../../../components/form/Form.vue";
-
-// --- utils
-
-// --- types
+import config from "../product.config";
+import { reject } from "lodash-es";
 import type { ConfigProps } from "../types";
 
 // -----------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 export * from "./useQuery";
-export * from "./types";
-export * from "./utils";
+export * from "./query.types";
+export * from "./query.utils";
 export * from "./client";
 // -----------------------------------------------------------------------------

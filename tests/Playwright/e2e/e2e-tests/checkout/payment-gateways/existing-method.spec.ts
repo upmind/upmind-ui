@@ -21,9 +21,13 @@ test.describe("Checkout with Existing Payment Method", () => {
       Logins.existingMethodUser.password
     );
     await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
-    await checkout.selectPaymentMethod("Visa Ending 4242");
+    // The stored-payment-method radio is keyed off a dynamic `payment_details_id`
+    // (no stable, hard-codeable testid), so select the first saved card in the
+    // stored-methods group structurally — the fixture user has exactly one. The
+    // RadioCardItem root is a <Label>; clicking it drives the Radix radio.
+    await checkout.selectFirstStoredPaymentMethod();
     await checkout.clickCompleteCheckout();
     await checkout.dialogWindow.waitFor();
-    await expect(page.getByText("Thank you for your order.")).toBeVisible();
+    await expect(page.getByTestId("order-confirmation-heading")).toBeVisible();
   });
 });

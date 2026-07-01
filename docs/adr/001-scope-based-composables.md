@@ -425,7 +425,9 @@ The team agreed on a composable-focused playground:
 
 ## Related Documents
 
-- [DEVX.md](../DEVX.md) — Coding style guide (to be updated)
+- [`.agent/rules/code-composables-scoped.md`](/.agent/rules/code-composables-scoped.md) — Scoped composable patterns (supersedes DEVX.md for this area)
+- [`.agent/rules/code-composables.md`](/.agent/rules/code-composables.md) — Composable contract
+- [`.agent/rules/code-style.md`](/.agent/rules/code-style.md) — Coding standards
 - Session management architecture (TBD)
 
 ---

@@ -23,6 +23,7 @@
       :disabled="meta.isLoading || meta.isUnavailable || isUnavailable"
       :label="action.label"
       :icon="action.icon"
+      data-testid="button-add-to-basket"
       size="lg"
       @click="doResolve"
     />
@@ -30,23 +31,18 @@
 </template>
 
 <script setup lang="ts">
-// --- external
 import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 import {
   useConfig,
   useRoutingEngine,
   type Product,
   type UseProductConfigMeta
 } from "@upmind-automation/headless";
-import { useI18n } from "vue-i18n";
 import { useStyles } from "@upmind-automation/upmind-ui";
-import { isString } from "lodash-es";
-
-// --- components
 import { Button, NumberField } from "@upmind-automation/upmind-ui";
-
-// --- internal
 import stylesConfig from "../product.config";
+import { isString } from "lodash-es";
 
 // --- types
 // -----------------------------------------------------------------------------

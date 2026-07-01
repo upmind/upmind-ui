@@ -1,0 +1,283 @@
+import {
+  AccessRoleTypes,
+  type ISelf,
+  type IToken
+} from "@upmind-automation/types";
+import { useSessionStore } from "../session-store";
+import { useI18n } from "../system-localisation";
+import { useDataLayer } from "../system-analytics";
+import { mapToken } from "./session-store.mappers";
+import { sessionStore as store, isScopeAllowed } from "./session-store.store";
+import {
+  DetailedError,
+  ErrorOrigin,
+  responseCodes,
+  useCookies,
+  useActiveSessionStorage
+} from "../../utils";
+import { first, has, isObject, keys, omit, omitBy, values } from "lodash-es";
+import type {
+  AuthEventType,
+  PersistedSessionState,
+  SessionEntry,
+  Token
+} from "./session-store.types";
+// -----------------------------------------------------------------------------
+/**
+ * @module session-store/utils
+ * @description Session store utility functions.
+ */
+
+/**
+ * Compute the expiration timestamp for a session from created_at + expires_in.
+ */
+export function getExpiresAt(session?: IToken | null): number | null {
+  if (!session) return null;
+  const createdAt = session.created_at ?? Date.now();
+  const expiresIn = session.expires_in ?? 0;
+  return createdAt + expiresIn * 1000;
+}
+
+/**
+ * Check if a session token has expired.
+ */
+export function isTokenExpired(token?: IToken | null): boolean {
+  const expiresAt = getExpiresAt(token);
+  if (!expiresAt) return true;
+  return Date.now() > expiresAt;
+}
+
+/**
+ * Remove sessions with expired tokens from a sessions record.
+ */
+export function removeExpiredSessions(
+  sessions: Record<string, SessionEntry>
+): Record<string, SessionEntry> {
+  return omitBy(sessions, entry => isTokenExpired(entry.token));
+}
+
+// -----------------------------------------------------------------------------
+// Store Persistence (sessionStorage)
+
+const STORAGE_KEY = "upm_session_store";
+
+/**
+ * Persist the current store state to sessionStorage.
+ * Called via store subscription on every state change (after initialisation).
+ * Excludes transient flags (`initialised`, `loading`).
+ */
+export function persistStoreState(): void {
+  const {
+    initialised: _initialised, // not needed in storage
+    loading: _loading, // not needed in storage
+    ...persistable
+  } = store.state;
+  useActiveSessionStorage().set(STORAGE_KEY, persistable);
+}
+
+/**
+ * Load persisted store state from sessionStorage.
+ * Returns empty object if nothing is stored or data is invalid.
+ */
+export function loadPersistedState(): PersistedSessionState {
+  return useActiveSessionStorage().get(STORAGE_KEY) ?? {};
+}
+
+/**
+ * Clear persisted store state from sessionStorage.
+ */
+export function clearPersistedState(): void {
+  useActiveSessionStorage().remove(STORAGE_KEY);
+}
+
+// -----------------------------------------------------------------------------
+// Session Helpers
+
+/**
+ * Get the sessions record for an actor type.
+ */
+export function getSessionsRecord(
+  actor: AccessRoleTypes
+): Record<string, SessionEntry> | undefined {
+  if (actor === AccessRoleTypes.CLIENT) return store.state.clientSessions;
+  if (actor === AccessRoleTypes.STAFF) return store.state.staffSessions;
+  return undefined;
+}
+
+/**
+ * Get a session token by actor type and optional session ID.
+ * If no sessionId provided, returns the first session for that actor.
+ */
+export function getSession(
+  actor: AccessRoleTypes,
+  sessionId?: string
+): IToken | undefined {
+  const sessions = getSessionsRecord(actor);
+  if (!sessions) return undefined;
+  const entry = sessionId ? sessions[sessionId] : first(values(sessions));
+  return entry?.token;
+}
+
+/**
+ * Get the first session ID for an actor type.
+ */
+export function getFirstSessionId(actor: AccessRoleTypes): string | undefined {
+  const sessions = getSessionsRecord(actor);
+  return sessions ? first(keys(sessions)) : undefined;
+}
+
+/**
+ * Check if a session exists for an actor type.
+ */
+export function hasSession(actor: AccessRoleTypes, sessionId: string): boolean {
+  const sessions = getSessionsRecord(actor);
+  return sessions ? has(sessions, sessionId) : false;
+}
+
+/**
+ * Find the next available session to activate.
+ * Priority: staff → client → guest.
+ * Skips actor types not in allowedScopes (if configured).
+ */
+export function findNextSession(): {
+  actor: AccessRoleTypes;
+  sessionId?: string;
+} {
+  if (isScopeAllowed(AccessRoleTypes.STAFF)) {
+    const staffId = getFirstSessionId(AccessRoleTypes.STAFF);
+    if (staffId) return { actor: AccessRoleTypes.STAFF, sessionId: staffId };
+  }
+
+  if (isScopeAllowed(AccessRoleTypes.CLIENT)) {
+    const clientId = getFirstSessionId(AccessRoleTypes.CLIENT);
+    if (clientId) return { actor: AccessRoleTypes.CLIENT, sessionId: clientId };
+  }
+
+  return { actor: AccessRoleTypes.GUEST };
+}
+
+export function getTokenFromStorage(actor_type?: Token["actor_type"]) {
+  const { get: getCookie } = useCookies();
+
+  const clientCookie = getCookie(`upm_${AccessRoleTypes.CLIENT}_session`) as
+    | string
+    | undefined;
+  if (isObject(clientCookie))
+    (clientCookie as Token).actor_type ??= AccessRoleTypes.CLIENT; // NB ensure the actor type in case of impersonation
+
+  const staffCookie = getCookie(`upm_${AccessRoleTypes.STAFF}_session`) as
+    | string
+    | undefined;
+  if (isObject(staffCookie))
+    (staffCookie as Token).actor_type ??= AccessRoleTypes.STAFF; // NB ensure the actor type in case of impersonation
+
+  const guestCookie = getCookie(`upm_${AccessRoleTypes.GUEST}_session`) as
+    | string
+    | undefined;
+  if (isObject(guestCookie))
+    (guestCookie as Token).actor_type ??= AccessRoleTypes.GUEST; // NB ensure the actor type in case of impersonation
+
+  let token: string | Token;
+
+  if (actor_type === AccessRoleTypes.CLIENT) {
+    token = clientCookie || "";
+  } else if (actor_type === AccessRoleTypes.STAFF) {
+    token = staffCookie || "";
+  } else if (actor_type === AccessRoleTypes.GUEST) {
+    token = guestCookie || "";
+  } else {
+    token = staffCookie || clientCookie || guestCookie || "";
+  }
+
+  return mapToken(token) as Token;
+}
+
+export function persistTokenToStorage(
+  token: IToken,
+  opts?: { event?: AuthEventType }
+) {
+  const { t } = useI18n();
+  const { setTopLevel: setCookie } = useCookies();
+
+  if (!token || !token.access_token)
+    throw new DetailedError(
+      t("error.token_not_available"),
+      responseCodes.Unprocessable_Entity,
+      ErrorOrigin.Headless,
+      token
+    );
+
+  if (!localStorage)
+    throw new DetailedError(
+      t("error.local_storage_not_available"),
+      responseCodes.Unprocessable_Entity,
+      ErrorOrigin.Headless
+    );
+
+  const actor_type = token?.actor_type || AccessRoleTypes.GUEST;
+
+  // Persist to cookies
+  setCookie(`upm_${actor_type}_session`, token, {
+    expires: "8h" //default : refresh token and access token are valid for 8 hours
+  });
+
+  // Sync to session-store (if available)
+  const store = useSessionStore();
+  const { isAvailable } = store.useMeta();
+  const { add } = store.useActions();
+  if (isAvailable.value) add(token, true, undefined, opts?.event);
+  return Promise.resolve(token);
+}
+
+/**
+ * Persist the active actor's analytics envelope to the `upm_actor` cookie
+ * (drops environment/language/version, mirroring the legacy behaviour).
+ *
+ * @param analytics - The active session user's `/self` analytics envelope
+ */
+export function persistActorToStorage(analytics: ISelf["analytics"]): void {
+  useCookies().setTopLevel(
+    "upm_actor",
+    omit(analytics, ["environment", "language", "version"]),
+    { expires: "8h" }
+  );
+}
+
+/**
+ * Remove the `upm_actor` cookie (on logout / when no authenticated actor).
+ */
+export function dumpActorFromStorage(): void {
+  useCookies().removeTopLevel("upm_actor");
+}
+
+/**
+ * Remove a session from storage (cookie) and sync to session-store state.
+ * This is the source of truth for removing sessions.
+ *
+ * @param actor_type - The actor type (scope/role) to remove
+ */
+export function dumpTokenFromStorage(actor_type: Token["actor_type"]) {
+  if (!actor_type) return;
+
+  // Get session ID from stored token before removing
+  const token = getTokenFromStorage(actor_type);
+  const sessionId = token?.actor_id ?? undefined;
+  // Remove cookie
+  useCookies().removeTopLevel(`upm_${actor_type}_session`);
+  // Sync to session-store state (if available)
+  const store = useSessionStore?.();
+  if (store) {
+    const { remove } = store.useActions();
+    remove(actor_type as AccessRoleTypes, sessionId);
+  }
+
+  // Authenticated logout: drop the actor cookie + fire the logout dataLayer.
+  // The anonymous guest has no upm_actor and is not a logout.
+  if (
+    actor_type === AccessRoleTypes.CLIENT ||
+    actor_type === AccessRoleTypes.STAFF
+  ) {
+    dumpActorFromStorage();
+    useDataLayer().dataLayer().withUser().push(false);
+  }
+}

@@ -1,14 +1,16 @@
-// --- external
-import { computed, ref } from "vue";
 import { useActor } from "@xstate/vue";
+import { computed, ref } from "vue";
 import { waitFor } from "xstate/lib/waitFor";
-
-// --- internal
 import { useBrand } from "../brand";
+import { useI18n } from "../system-localisation";
+import {
+  checkPriceOverride,
+  generateShareUrlConfig,
+  getOutstandingBasketErrors
+} from "./product.utils";
 import {
   stateMatches,
   contextMatches,
-  DEBOUNCE_DELAY,
   contextValue,
   useImageUrl,
   useContext,
@@ -17,12 +19,9 @@ import {
   DetailedError,
   ErrorOrigin
 } from "../../utils";
-
-// --- utils
 import {
   add,
   compact,
-  debounce,
   filter,
   find,
   forEach,
@@ -35,10 +34,6 @@ import {
   some,
   subtract
 } from "lodash-es";
-
-// --- types
-import type { ActorRef } from "xstate";
-import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
 import type {
   Product,
   ProductDetails,
@@ -46,13 +41,9 @@ import type {
   TermDetails,
   SubproductDetails,
   ProductConfigContext
-} from "./";
-import {
-  checkPriceOverride,
-  generateShareUrlConfig,
-  getOutstandingBasketErrors
-} from "./utils";
-import { useI18n } from "../system";
+} from ".";
+import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
+import type { ActorRef } from "xstate";
 
 // -----------------------------------------------------------------------------
 
@@ -253,7 +244,7 @@ export const useProductConfig = (service: ActorRef<any>) => {
     });
   }
 
-  async function incrementQuantity(value?: number): Promise<void> {
+  async function incrementQuantity(_value?: number): Promise<void> {
     // sanity check
     if (!lookups.value?.product?.quantifiable) return;
 
@@ -263,7 +254,7 @@ export const useProductConfig = (service: ActorRef<any>) => {
     return updateQuantity(add(qty, lookups.value.product?.step || 1));
   }
 
-  async function decrementQuantity(value?: number): Promise<void> {
+  async function decrementQuantity(_value?: number): Promise<void> {
     // sanity check
     if (!lookups.value?.product?.quantifiable) return;
 

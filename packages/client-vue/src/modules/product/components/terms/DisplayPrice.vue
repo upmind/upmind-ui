@@ -34,7 +34,6 @@
 </template>
 
 <script setup lang="ts">
-import type { TermDetails } from "@upmind-automation/headless";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import {
@@ -43,12 +42,13 @@ import {
   useConfig
 } from "@upmind-automation/headless";
 import { has } from "lodash-es";
+import type { TermDetails } from "@upmind-automation/headless";
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
 
 const { formatPrice } = useMoney();
-const { ui, data } = useConfig();
+const { ui: _ui, data } = useConfig();
 
 const props = defineProps<Omit<TermDetails, "name">>();
 

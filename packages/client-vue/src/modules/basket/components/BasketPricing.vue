@@ -2,6 +2,7 @@
   <Section
     id="basket-summary"
     :label="t('cart.basket_section')"
+    value="basket-summary"
     icon="shopping-bag-02"
     :class="styles.basket.aside"
   >
@@ -18,20 +19,13 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { useI18n } from "vue-i18n";
-
-// --- internal
 import { useStyles } from "@upmind-automation/upmind-ui";
-import config from "../basket.config";
-
-// --- components
-import Summary from "./Summary.vue";
 import Section from "../../../components/section/Section.vue";
-
-// --- types
+import config from "../basket.config";
 import { BASKET_TEMPLATE } from "../types";
 import BasketCheckout from "./BasketCheckout.vue";
+import Summary from "./Summary.vue";
 
 // -----------------------------------------------------------------------------
 

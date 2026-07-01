@@ -1,6 +1,11 @@
 <template>
   <!-- e.g. "Renews every month." or "One-time payment." -->
-  <p v-if="!isNil(props.cycle)" :class="styles.product.summary.renew.renews">
+  <p
+    v-if="!isNil(props.cycle)"
+    data-testid="renewal-term-label"
+    :data-test-value="props.cycle"
+    :class="styles.product.summary.renew.renews"
+  >
     {{
       t("term.renews_msg", {
         n: props.cycle,
@@ -20,6 +25,8 @@
   <!-- Free trial — e.g. "Usually $9.99." (post-trial renewal price) -->
   <p
     v-else-if="props.freeTrial && !props.oneoff && props.renewalPrice"
+    data-testid="trial-renewal-price"
+    :data-test-value="props.renewalPrice"
     :class="styles.product.summary.renew.usually"
   >
     {{ t("term.renews_usually_msg", { price: props.renewalPrice }) }}.
@@ -27,17 +34,12 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { useI18n } from "vue-i18n";
-
-// --- internal
-import { useStyles } from "@upmind-automation/upmind-ui";
 import { parseBillingCycle } from "@upmind-automation/headless";
+import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "../basketProduct.config";
-
-// --- types
-import type { RenewDescriptionProps } from "./types";
 import { isNil } from "lodash-es";
+import type { RenewDescriptionProps } from "./types";
 
 // -----------------------------------------------------------------------------
 

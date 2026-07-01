@@ -1,16 +1,10 @@
 // --- external
-import type { Meta, StoryObj } from "@storybook/vue3";
 
 // -- components
-import {
-  Link,
-  LINK_SIZES,
-  LINK_COLORS,
-  LinkProps
-} from "@upmind-automation/upmind-ui";
-
-// --- utils
+import { Link, LINK_SIZES, LINK_COLORS } from "@upmind-automation/upmind-ui";
 import { first } from "lodash-es";
+import type { Meta, StoryObj } from "@storybook/vue3";
+import type { LinkProps } from "@upmind-automation/upmind-ui";
 
 // -----------------------------------------------------------------------------
 

@@ -1,16 +1,10 @@
-// --- external
-import { createMachine, assign, spawn, InterpreterStatus } from "xstate";
-
-// --- internal
+/** @internal */
+import { createMachine, assign, spawn } from "xstate";
+import { generateHash, useMessageParser } from "./feedback.utils";
 import messageMachine from "./message.machine";
-
-// --- utils
 import { stateMatches, stopService } from "../../utils";
-import { generateHash, useMessageParser } from "./utils";
 import { find, isEmpty, remove, set, some } from "lodash-es";
-
-// --- types
-import type { MessagesContext } from "./types";
+import type { MessagesContext } from "./feedback.types";
 import type { ActorRef, AnyEventObject } from "xstate";
 
 // -----------------------------------------------------------------------------

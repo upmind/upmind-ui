@@ -1,0 +1,31 @@
+{
+  "begin_search_above_desc": "اوپر والے باکس کا استعمال کرتے ہوئے اپنی تلاش شروع کریں۔",
+  "choices": {
+    "basket": {
+      "label": "ٹوکری میں ڈومین استعمال کریں۔",
+      "tooltip": "یہ ڈومینز پہلے سے ہی آپ کی ٹوکری میں ہیں۔"
+    },
+    "existing": {
+      "label": "موجودہ ڈومین استعمال کریں۔",
+      "tooltip": "آپ نام سرورز کو اپ ڈیٹ کرکے موجودہ ڈومین استعمال کر سکتے ہیں"
+    },
+    "register": {
+      "label": "نیا ڈومین رجسٹر کریں۔",
+      "tooltip": "کیا آپ کے پاس پہلے سے ڈومین نہیں ہے؟ ہمارے ساتھ ایک نیا رجسٹر کریں۔"
+    },
+    "transfer": {
+      "label": "ڈومین منتقل کریں۔",
+      "tooltip": "پہلے سے ہی ایک ڈومین کے مالک ہیں؟ آپ اسے ہمارے پاس منتقل کر سکتے ہیں۔"
+    }
+  },
+  "finding_perfect_domain": "اپنا **کامل** ڈومین تلاش کرنا",
+  "finding_perfect_domain_md": "@.markdown:{'domain.finding_perfect_domain'}",
+  "own_domain_qn": "کیا آپ اس ڈومین کے مالک ہیں؟",
+  "owned_domains_title": "ڈومینز جن کے آپ فی الحال مالک ہیں۔",
+  "price_renewal_desc": "{regularPrice} کی ایک بار قیمت۔ | ہر سال {regularPrice} کے لئے تجدید ہوتی ہے۔ | ہر {count} سال بعد {regularPrice} کے لئے تجدید ہوتی ہے۔",
+  "starts_with_domain": "یہ سب ایک **ڈومین نام** سے شروع ہوتا ہے",
+  "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
+  "tld_renewal_price_desc": "ہماری {tld} تجدید کی قیمتیں صرف سے شروع ہوتی ہیں۔ {currentPrice} (تھا {regularPrice})۔",
+  "tld_renewal_price_from_desc": "ہماری {tld} تجدید کی قیمتیں صرف سے شروع ہوتی ہیں۔ {regularPrice}.",
+  "transfer_domain_by_msg": "اسے ہمارے پاس منتقل کریں۔"
+}

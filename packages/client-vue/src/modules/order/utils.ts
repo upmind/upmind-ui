@@ -1,12 +1,9 @@
-// --- internal
 import { parseBillingCycle } from "@upmind-automation/headless";
-
-// --- types
+import type { TableRow } from "./types";
 import type {
   ProductSummaryDetail,
   ProductSummaryDetailWithPrice
 } from "@upmind-automation/headless";
-import type { TableRow } from "./types";
 
 // -----------------------------------------------------------------------------
 
@@ -14,6 +11,7 @@ export function buildPricingRow(
   entry: ProductSummaryDetailWithPrice
 ): TableRow {
   return {
+    id: entry.id,
     item: entry.title ?? entry.name,
     meta: { emphasis: true },
     price: entry.price.basePrice,
@@ -24,6 +22,7 @@ export function buildPricingRow(
 
 export function buildOptionRow(entry: ProductSummaryDetailWithPrice): TableRow {
   return {
+    id: entry.id,
     item: entry.title ?? entry.name,
     meta: { indented: true },
     price: entry.price.basePrice,
@@ -43,6 +42,7 @@ export function buildDetailRow(
       };
     default:
       return {
+        id: detail.id,
         item: detail.title ?? detail.name,
         meta: { detail: true, indented: true },
         price: "price" in detail ? detail.price.basePrice : "",

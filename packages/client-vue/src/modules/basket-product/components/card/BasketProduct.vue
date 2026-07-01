@@ -66,38 +66,29 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
-import { computed } from "vue";
-import { useVModel } from "@vueuse/core";
 import { vAutoAnimate } from "@formkit/auto-animate";
-
-// --- internal
-import { useStyles } from "@upmind-automation/upmind-ui";
-import stylesConfig from "./basketProduct.config";
+import { useVModel } from "@vueuse/core";
+import { computed } from "vue";
 import {
   useBasket,
   useConfig,
   useBasketProductInline
 } from "@upmind-automation/headless";
-
-// --- components
+import { useStyles } from "@upmind-automation/upmind-ui";
 import { Card, Loading } from "@upmind-automation/upmind-ui";
+import stylesConfig from "./basketProduct.config";
 import BasketProductContent from "./BasketProductContent.vue";
 import BasketProductSubItem from "./BasketProductSubItem.vue";
 import BasketProductUpsell from "./BasketProductUpsell.vue";
 import BasketProductBenefits from "./components/BasketProductBenefits.vue";
-
-// --- utils
 import { isEmpty, some, compact, map, debounce } from "lodash-es";
-
-// --- types
 import type { BasketProductProps } from "./types";
-import type { RouteLocationAsRelativeGeneric } from "vue-router";
 import type {
   Product,
   BasketUpsellSummary,
   SubproductDetails
 } from "@upmind-automation/headless";
+import type { RouteLocationAsRelativeGeneric } from "vue-router";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(

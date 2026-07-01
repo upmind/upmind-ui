@@ -85,6 +85,7 @@
       @click="$emit('search-more')"
       block
       class="mt-6"
+      :data-attrs="{ 'data-testid': 'button-load-more' }"
     >
       {{ t("action.load_more") }}
     </Button>
@@ -92,32 +93,23 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
-import { computed, ref, watch } from "vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
+import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-
-// --- internal
 import { useStyles } from "@upmind-automation/upmind-ui";
-import config from "../domain.config";
-
-// --- components
-import DomainCard from "./DomainCard.vue";
 import {
   IconAnimated,
   CheckboxCards,
   Interstitial,
   Button
 } from "@upmind-automation/upmind-ui";
-import DomainCardSkeleton from "./DomainCardSkeleton.vue";
-
-// --- utils
-import { includes, isArray, isNil, find, some, map, isEmpty } from "lodash-es";
-
-// --- types
-import type { CheckboxCardsItemProps } from "@upmind-automation/upmind-ui";
-import type { DomainCardsProps } from "../types";
+import config from "../domain.config";
 import { DOMAIN_TEMPLATE } from "../types";
+import DomainCard from "./DomainCard.vue";
+import DomainCardSkeleton from "./DomainCardSkeleton.vue";
+import { isArray, isNil, find, some, map, isEmpty } from "lodash-es";
+import type { DomainCardsProps } from "../types";
+import type { CheckboxCardsItemProps } from "@upmind-automation/upmind-ui";
 
 // -----------------------------------------------------------------------------
 
@@ -182,10 +174,11 @@ function isExactMatch(value: string): boolean {
 const parsedValues = computed<CheckboxCardsItemProps[]>(() => {
   return map(props.items, item => {
     return {
+      dataAttrs: { "data-testid": `checkbox-item-${item.domain}` },
       id: item.domain,
-      value: item.domain,
+      item,
       label: item.domain,
-      item
+      value: item.domain
     };
   });
 });

@@ -297,4 +297,6 @@ Access via browser devtools or standalone inspector.
 
 - [ADR 014: Service Layer Pattern](./014-service-layer-pattern.md)
 - [ADR 006: TanStack Query](./006-tanstack-query.md)
-- [DEVX.md](/DEVX.md) — Composable standards
+- [`.agent/rules/code-machines.md`](/.agent/rules/code-machines.md) — XState machine authoring contract
+- [`.agent/rules/code-composables.md`](/.agent/rules/code-composables.md) — Composable standards (replaces DEVX.md)
+- [`.agent/rules/code-composables-scoped.md`](/.agent/rules/code-composables-scoped.md) — Scoped composable patterns

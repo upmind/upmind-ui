@@ -18,8 +18,6 @@
 
 <script setup lang="ts">
 import { Skeleton, useStyles } from "@upmind-automation/upmind-ui";
-
-// --- internal
 import config from "./product-hero.config";
 
 // --- types

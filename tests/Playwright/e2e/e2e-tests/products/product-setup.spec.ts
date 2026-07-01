@@ -142,7 +142,13 @@ newUser.describe("Product Setup flow", () => {
     newUser(
       "Progress count updates as products are completed one at a time",
       async ({ page }) => {
-        await expect(productSetup.progress).toContainText("2");
+        // The progress label embeds the count in translated copy; the stable
+        // count is carried in data-test-value (two invalid products seeded).
+        await expect(productSetup.progress).toBeVisible();
+        await expect(productSetup.progress).toHaveAttribute(
+          "data-test-value",
+          "2"
+        );
         await productSetup.applyToOthersGroup.first().click();
         await productConfig.registrantPhoneInput.fill("07111111111");
         await productSetup.submit();

@@ -2,7 +2,7 @@
   <UpmLayout>
     <UpmSection class="max-w-app mx-auto" label="Addresses">
       <UpmManage
-        v-if="meta.isAuthenticated"
+        v-if="isAuthenticated"
         i18n-key="form.address"
         :manage="{
           useList: useClientAddresses,
@@ -14,23 +14,20 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
-
-// --- internal
-import {
-  useSession,
-  useClientAddresses,
-  useClientAddressManager
-} from "@upmind-automation/headless";
-
-// --- components
 import {
   UpmManage,
   UpmSection,
   UpmLayout
 } from "@upmind-automation/client-vue";
+import {
+  useActiveSession,
+  useClientAddresses,
+  useClientAddressManager
+} from "@upmind-automation/headless";
+
+// --- components
 
 // -----------------------------------------------------------------------------
 
-const { meta } = useSession();
+const { isAuthenticated } = useActiveSession().useMeta();
 </script>

@@ -1,0 +1,83 @@
+/** @internal */
+import { get, map, isArray, compact } from "lodash-es";
+import type { Address, AddressModel } from "./client-address.types";
+import type { IAddress } from "@upmind-automation/types";
+
+// ---
+export function mapAddresses(raw: IAddress | IAddress[]): Address[] {
+  // we could get a plain address OR a company with and address
+  // so we normalize the data to always be an array of addresses
+  // this is to allow for a 'unified' way of handling addresses
+  const rawListings = isArray(raw) ? raw : [raw];
+  return map(rawListings, mapAddress);
+}
+
+export function mapAddress(raw: IAddress): Address {
+  return {
+    id: raw.id,
+    clientId: raw.client_id,
+    // ---
+    title: raw.address_1 || "New Address",
+    countryName: get(raw, "country.name"),
+    description: compact([
+      get(raw, "address_2"),
+      get(raw, "street"),
+      get(raw, "city"),
+      get(raw, "postcode"),
+      get(raw, "region.name"),
+      get(raw, "country.name")
+    ]).join(", "),
+    regionName: get(raw, "region.name"),
+    // ---
+    name: raw.name,
+    address: {
+      address1: raw.address_1,
+      address2: raw.address_2,
+      city: raw.city,
+      state: raw.state,
+      postcode: raw.postcode,
+      regionId: raw.region_id,
+      countryId: raw.country_id
+    },
+    type: raw.type,
+    // ---
+    meta: {
+      isDefault: raw.default,
+      canDelete: raw.can_delete,
+      isVerified: !!raw.verified
+    }
+  };
+}
+
+export function mapIAddressData(data: AddressModel | Address): IAddress {
+  return {
+    name: data.name || data.address.address1 || "",
+    address_1: data.address.address1 ?? "",
+    address_2: data.address.address2 ?? "",
+    city: data.address.city ?? "",
+    state: data.address.state ?? "",
+    postcode: data.address.postcode ?? "",
+    region_id: data.address.regionId,
+    country_id: data.address.countryId,
+    type: 1 // We are forcing type to always be 1 for simplicity
+  } as IAddress;
+}
+
+export function mapIAddress(data: Address): IAddress | undefined {
+  return {
+    id: data.id,
+    client_id: data.clientId,
+    name: data.name,
+    address_1: data.address.address1,
+    address_2: data.address.address2,
+    city: data.address.city,
+    country_id: data.address.countryId,
+    default: data.meta.isDefault,
+    can_delete: data.meta.canDelete,
+    postcode: data.address.postcode,
+    region_id: data.address.regionId,
+    state: data.address.state,
+    type: data.type,
+    verified: data.meta.isVerified ? 1 : 0
+  } as IAddress;
+}

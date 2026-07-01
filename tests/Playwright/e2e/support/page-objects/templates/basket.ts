@@ -19,6 +19,11 @@ export class Basket {
   readonly trialAlert: Locator;
   readonly trialPriceLabel: Locator;
 
+  /* Pricing / renewal */
+  readonly renewalTermLabel: Locator;
+  readonly regularPrice: Locator;
+  readonly trialRenewalPrice: Locator;
+
   /* Upsells */
   readonly basketProductUpsell: Locator;
 
@@ -42,12 +47,23 @@ export class Basket {
     this.proceedToCheckout = page.getByTestId("basket-checkout-button");
 
     /* Trial */
-    this.trialAlert = this.basketProductSummary.getByRole("alert");
+    this.trialAlert = this.basketProductSummary.getByTestId("trial-alert");
     // Since FE-2654 the "Free Trial" label is rendered inside the header
     // hgroup (next to the title), not the footer alongside the price.
-    this.trialPriceLabel = this.basketProductSummary.getByText("Free Trial", {
-      exact: true
-    });
+    this.trialPriceLabel =
+      this.basketProductSummary.getByTestId("trial-price-label");
+
+    /* Pricing / renewal — `renewal-term-label` carries the stable renewal
+     * cycle in `data-test-value`; `regular-price` carries the (pre-discount)
+     * regular price amount in `data-test-value`. */
+    this.renewalTermLabel =
+      this.basketProductSummary.getByTestId("renewal-term-label");
+    this.regularPrice = this.basketProductSummary.getByTestId("regular-price");
+    // `trial-renewal-price` ("Usually £X.") carries the formatted post-trial
+    // renewal price in `data-test-value`, separated from the translated copy.
+    this.trialRenewalPrice = this.basketProductSummary.getByTestId(
+      "trial-renewal-price"
+    );
 
     /* Upsells */
     this.basketProductUpsell = page.getByTestId("basket-product-upsell");
@@ -58,6 +74,9 @@ export class Basket {
   }
 
   upsellByTitle(title: string): Locator {
+    // Gated dynamic-data read: scope to the upsell cards (explicit testid) and
+    // disambiguate by the upsell PRODUCT title (the data under test), as no
+    // stable per-upsell testid is rendered. `title` is product data, not chrome.
     return this.basketProductUpsell.filter({
       has: this.page.locator("strong").filter({ hasText: title })
     });
@@ -90,6 +109,6 @@ export class Basket {
 
   async clickShowDetails() {
     const card = this.basketProduct.first();
-    await card.getByLabel("Product information").first().click();
+    await card.getByTestId("button-product-information").first().click();
   }
 }

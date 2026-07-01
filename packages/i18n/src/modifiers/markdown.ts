@@ -1,8 +1,5 @@
-// --- external
 import dompurify from "dompurify";
 import { marked } from "marked";
-
-// --- types
 import type { VueMessageType } from "vue-i18n";
 
 marked.use({ async: false, breaks: true });

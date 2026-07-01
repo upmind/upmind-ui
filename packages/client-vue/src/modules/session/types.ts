@@ -1,16 +1,16 @@
-import { type HTMLAttributes } from "vue";
+import type { AVATAR_SHAPES } from "@upmind-automation/upmind-ui";
 import type {
   ButtonProps,
   DialogProps,
   AvatarProps
 } from "@upmind-automation/upmind-ui";
 import type { CxOptions } from "class-variance-authority";
-import { AVATAR_SHAPES } from "@upmind-automation/upmind-ui";
+import type { HTMLAttributes } from "vue";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
 // -----------------------------------------------------------------------------
 export type ActionProps = ButtonProps & {
   type?: HTMLButtonElement["type"];
-  handler?: Function | string;
+  handler?: ((...args: unknown[]) => unknown) | string;
   auto?: boolean;
   visible?: boolean;
 };

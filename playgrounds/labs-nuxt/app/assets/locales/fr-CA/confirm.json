@@ -1,0 +1,16 @@
+{
+  "address_removed": "Adresse supprimée avec succès",
+  "address_set_default": "Adresse définie avec succès comme adresse par défaut",
+  "company_removed": "L'entreprise a été éliminée avec succès",
+  "company_set_default": "L'entreprise a été définie avec succès comme entreprise par défaut",
+  "copied": "Copié",
+  "domain_in_basket_msg": "Ce domaine est déjà dans votre panier.",
+  "domain_owned_msg": "Vous possédez déjà ce domaine.",
+  "email_removed": "L'e-mail a été supprimé avec succès",
+  "email_set_default": "L'e-mail a été correctement défini comme adresse par défaut",
+  "in_basket": "Dans le panier",
+  "in_use": "Utilisé",
+  "phone_removed": "Le téléphone a été enlevé avec succès",
+  "phone_set_default": "Le téléphone a été correctement défini comme téléphone par défaut",
+  "reset_instructions_sent_msg": "Merci – les instructions de réinitialisation ont été envoyées à votre adresse courriel"
+}

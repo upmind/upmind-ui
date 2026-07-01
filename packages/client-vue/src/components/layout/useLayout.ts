@@ -1,17 +1,10 @@
-// --- external
 import { computed, ref } from "vue";
-
-// --- internal
 import { Store } from "@upmind-automation/headless";
-import { useShell } from "../shell/useShell";
 import { SHELL } from "../shell/types";
-
-// --- utils
-import { isEmpty, isObject, merge } from "lodash-es";
-
-// --- types
-import type { UseLayoutProps } from "./types";
+import { useShell } from "../shell/useShell";
 import { LAYOUT_VARIANTS, LAYOUT_MODE, LAYOUT_OVERFLOW } from "./types";
+import { isEmpty, isObject, merge } from "lodash-es";
+import type { UseLayoutProps } from "./types";
 
 // -----------------------------------------------------------------------------
 // --- global context

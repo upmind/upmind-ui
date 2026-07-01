@@ -28,7 +28,9 @@ import { Basket } from "../../support/page-objects/templates/basket";
  */
 
 const productCard = (page: Page, id: string): Locator =>
-  page.getByTestId(`product-card-${id}`);
+  page
+    .getByTestId("product-card")
+    .and(page.locator(`[data-test-value="${id}"]`));
 
 const cardCta = (page: Page, id: string): Locator =>
   productCard(page, id).getByTestId("product-card-cta");
@@ -66,8 +68,12 @@ test.describe("In-Situ Catalogue Adds @in-situ-catalogue", () => {
       await expect(page).toHaveURL(/\/order\/shop\b/);
       await page.goto(URLs.basket);
       const basket = new Basket(page);
-      await expect(basket.basketProduct).toContainText(
-        new RegExp(`${billingCycle}`)
+      // The auto-added term is the product's default billing cycle; the
+      // renewal-term label carries that stable cycle in data-test-value.
+      await expect(basket.renewalTermLabel.first()).toBeVisible();
+      await expect(basket.renewalTermLabel.first()).toHaveAttribute(
+        "data-test-value",
+        String(billingCycle)
       );
     });
     test("Subproduct-configurable product still navigates to configure", async ({

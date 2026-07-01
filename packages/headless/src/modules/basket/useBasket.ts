@@ -1,16 +1,21 @@
-// --- external
-import { computed, type ComputedRef, ref } from "vue";
-import { waitFor } from "xstate/lib/waitFor";
-import { interpret, InterpreterStatus } from "xstate";
 import { useActor } from "@xstate/vue";
-
-// --- internal
-import { useI18n } from "../system";
+import { computed, type ComputedRef, ref } from "vue";
+import { interpret, InterpreterStatus } from "xstate";
+import { waitFor } from "xstate/lib/waitFor";
+import {
+  type IBasket,
+  type IInvoice,
+  type ICurrency,
+  type IPromotion,
+  type IWarningNote,
+  type IBasketPromotion,
+  BrandConfigKeys
+} from "@upmind-automation/types";
+import { parsePromotionsOrCoupons } from "../basket-product/basket-product.utils";
 import { useBrand } from "../brand";
-import { useSession } from "../session";
+import { useActiveSession } from "../session-store";
+import { useI18n } from "../system-localisation";
 import basketMachine from "./basket.machine";
-
-// --- utils
 import {
   useContext,
   compactDeep,
@@ -37,24 +42,12 @@ import {
   findLast,
   sumBy
 } from "lodash-es";
-
-// --- types
-import {
-  type IBasket,
-  type IInvoice,
-  type ICurrency,
-  type IPromotion,
-  type IWarningNote,
-  type IBasketPromotion,
-  BrandConfigKeys,
-  CheckoutFlows
-} from "@upmind-automation/types";
-export * from "./billing";
-export * from "./types";
+import type { BasketContext } from "./basket.types";
+import type { BasketProduct } from "../basket-product";
 import type { ActorRef } from "xstate";
-import type { BasketContext } from "./types";
-import type { BasketProduct } from "../basketProduct";
-import { parsePromotionsOrCoupons } from "../basketProduct/utils";
+
+export * from "../basket-billing";
+export * from "./basket.types";
 
 // -----------------------------------------------------------------------------
 // create a global instance of the basket machine
@@ -97,7 +90,7 @@ service.onTransition(state => {
 export const useBasket = () => {
   const { t } = useI18n();
   const { includesTax, getConfigValue, uischema_Display } = useBrand();
-  const { meta: sessionMeta } = useSession();
+  const { isAuthenticated } = useActiveSession().useMeta();
   if (service.status == InterpreterStatus.NotStarted) service.start();
   const { state, send } = useActor(service);
 
@@ -170,7 +163,7 @@ export const useBasket = () => {
 
       isUnavailable: stateMatches(state, ["unavailable"]),
 
-      needsAuth: !sessionMeta.value?.isAuthenticated,
+      needsAuth: !isAuthenticated.value,
 
       // ---
       hasProducts: contextMatches(state, ["products"]),
@@ -350,7 +343,7 @@ export const useBasket = () => {
       service,
       state => stateMatches(state, ["shopping", "done"]),
       { timeout: 60_000 }
-    ).then(state => {
+    ).then(_state => {
       return true;
     });
   }

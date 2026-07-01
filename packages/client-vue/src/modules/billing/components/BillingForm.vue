@@ -29,6 +29,7 @@
             formMeta.allowContinue &&
             !isInitialBilling
           "
+          data-testid="button-continue"
           :label="t('action.continue_label')"
           icon-append="arrow-right"
           color="primary"
@@ -80,24 +81,18 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
+import { useMounted } from "@vueuse/core";
 import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import { useMounted } from "@vueuse/core";
-
-// --- internal
 import {
   UnifiedType,
-  useSession,
+  useActiveSession,
   useBasketBilling,
   useClientAddresses,
   useClientCompanies,
   useClientPhones,
   useRoutingEngine
 } from "@upmind-automation/headless";
-import billingConfig from "../billing.config";
-
-// --- components
 import {
   Loading,
   Button,
@@ -105,13 +100,12 @@ import {
   useStyles
 } from "@upmind-automation/upmind-ui";
 import Sections from "../../../components/section/Sections.vue";
+import billingConfig from "../billing.config";
 import TabBusiness from "./TabBusiness.vue";
 import TabPersonal from "./TabPersonal.vue";
-
-// --- types
-import type { TabItem } from "@upmind-automation/upmind-ui";
-import type { BillingModel } from "@upmind-automation/headless";
 import type { BillingFormProps } from "../types";
+import type { BillingModel } from "@upmind-automation/headless";
+import type { TabItem } from "@upmind-automation/upmind-ui";
 
 // -----------------------------------------------------------------------------
 
@@ -135,7 +129,7 @@ const styles = useStyles(
 // so we gate it on isMounted to ensure the DOM target exists before teleporting.
 const isMounted = useMounted();
 
-const { client } = useSession();
+const { activeUser: client } = useActiveSession().useContext();
 const {
   isReady,
   meta,
@@ -198,7 +192,7 @@ await Promise.allSettled([
 const {
   getOne: getAddress,
   meta: addressMeta,
-  default: defaultAddress
+  default: _defaultAddress
 } = useClientAddresses();
 const {
   getOne: getCompany,
@@ -211,13 +205,13 @@ const {
   default: defaultPhone
 } = useClientPhones();
 
-const selectedAddress = computed(() =>
+const _selectedAddress = computed(() =>
   getAddress(model.value?.addressId ?? undefined)
 );
-const selectedCompany = computed(() =>
+const _selectedCompany = computed(() =>
   getCompany(model.value?.companyId ?? undefined)
 );
-const selectedPhone = computed(() =>
+const _selectedPhone = computed(() =>
   getPhone(model.value?.phoneId ?? undefined)
 );
 
@@ -233,14 +227,16 @@ const tabs = computed((): TabItem[] => {
       icon: "user-01",
       label: t("text.personal_details"),
       value: UnifiedType.PERSONAL,
-      eager: false
+      eager: false,
+      dataAttrs: { "data-testid": "tab-personal-details" }
     });
   }
   tabItems.push({
     icon: "building-07",
     label: t("text.business_details"),
     value: UnifiedType.BUSINESS,
-    eager: !!config.value?.requiresCompany
+    eager: !!config.value?.requiresCompany,
+    dataAttrs: { "data-testid": "tab-business-details" }
   });
 
   return tabItems;

@@ -157,11 +157,8 @@
 </template>
 
 <script setup lang="ts">
-// --- external
 import { computed, onUnmounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
-
-// --- internal
 import {
   useDomain,
   DomainTypes,
@@ -177,20 +174,16 @@ import {
   FormMessage,
   useStyles
 } from "@upmind-automation/upmind-ui";
-import type { SelectItemProps } from "@upmind-automation/upmind-ui";
-
-// --- components
-import SmartDomainSummary from "./components/SmartDomainSummary.vue";
-import SmartDomainExisting from "./components/SmartDomainExisting.vue";
 import SmartDomainDrawer from "./components/SmartDomainDrawer.vue";
+import SmartDomainExisting from "./components/SmartDomainExisting.vue";
+import SmartDomainSummary from "./components/SmartDomainSummary.vue";
 import config from "./smartDomainField.config";
 import {
   SMART_DOMAIN_CHOICES_ORDER,
   type SmartDomainFieldProps
 } from "./types";
-
-// --- utils
 import { debounce, map, sortBy, indexOf } from "lodash-es";
+import type { SelectItemProps } from "@upmind-automation/upmind-ui";
 
 // -----------------------------------------------------------------------------
 

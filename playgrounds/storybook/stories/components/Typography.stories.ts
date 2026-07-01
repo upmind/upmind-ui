@@ -1,5 +1,3 @@
-// --- external
-
 import type { Meta, StoryObj } from "@storybook/vue3";
 
 // -----------------------------------------------------------------------------
@@ -8,10 +6,10 @@ const meta: Meta<typeof Object> = {
   parameters: {
     docs: {
       description: {
-        component: "Render text elements with consistent styling.",
-      },
-    },
-  },
+        component: "Render text elements with consistent styling."
+      }
+    }
+  }
 };
 
 export default meta;
@@ -21,9 +19,9 @@ export const Base: Story = {
   parameters: {
     docs: {
       story: {
-        inline: true,
-      },
-    },
+        inline: true
+      }
+    }
   },
   render: () => ({
     template: `
@@ -373,6 +371,6 @@ export const Base: Story = {
           <p>ХЦЧШЩЬЫЪЭЮЯ</p>
         </div>
       </div>
-    `,
-  }),
+    `
+  })
 };

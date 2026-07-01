@@ -1,11 +1,12 @@
 # ADR 021: Testing Trophy, Agentic Workflow & Coverage Policy
 
 **Date:** May 2026
-**Status:** Accepted
+**Status:** Accepted (Amended June 2026 — see [Amendments](#amendments))
 **Authors:** Dominic da Costa
 **Supersedes:** [ADR 013: Testing Strategy](./013-testing-strategy.md)
 **Related:**
 
+- [ADR 025: Co-located Cross-Module Journey Units](./025-colocated-journey-units.md) — gives the cross-module journey layer a physical home and journey-scoped replay (Amendment 1 below).
 - [ADR 020: Gherkin Test Planning](./020-gherkin-test-planning.md) — the e2e planning layer this ADR incorporates.
 - [ADR 007: Headless Architecture](./007-headless-architecture.md) — the module boundary that makes layered testing tractable.
 - [ADR 005: XState State Management](./005-xstate-state-management.md) — machines are the primary unit-test target.
@@ -87,7 +88,9 @@ Categorical, not percentage-based. Percentage-of-lines is metric theatre — it 
 | Every bug fix | A regression test at the lowest layer that would have caught it |
 | Every module migrated to `@next` | Layer-appropriate tests exist before the migration PR merges |
 
-**Composables with both local logic AND external calls** (e.g. `useBasket.addProduct` — has computed state AND triggers an HTTP call): get BOTH a unit test (for the local logic — derived values, scope resolution, action dispatch) AND an integration test (for the external call flow — request shape, response handling, error propagation). The unit test mocks the network layer; the integration test exercises it via the canonical fixture pool.
+**Composables with both local logic AND external calls** (e.g. `useBasket.addProduct` — has computed state AND triggers an HTTP call): get BOTH a unit test (for the local logic — derived values, scope resolution, action dispatch) AND an integration test (for the external call flow — request shape, response handling, error propagation). The unit test mocks the network layer; the integration test exercises it via the module's **own co-located fixtures**.
+
+> ⚠️ **"canonical fixture pool" is RETIRED post-[Amendment 1](#amendments) (June 2026).** There is no shared pool: every unit owns its fixtures, co-located with its tests (real-traffic, PII-gated). See [Amendment 1, Delta C](#amendments) and [ADR 025](./025-colocated-journey-units.md).
 
 The last row is the load-bearing rule. **A module is not "migrated to `@next`" until layer-appropriate tests exist.** This couples test coverage to a migration cadence already underway, which is the only enforcement mechanism with teeth.
 
@@ -219,6 +222,8 @@ Verify blocks progression to review. A failing layer is a failed exit criterion.
 | 6 | Document the playbook from Step 5 | `.agent/workflows/module-testing-playbook.md` |
 | 7 | Roll forward, module-by-module | Riding on the `@next` migration. Modules are already being migrated agentically per-module. Testing migration = part of module migration. Same PR. |
 
+> ⚠️ **SUPERSEDED by [Amendment 1](#amendments) (June 2026)** at Step 3: cross-module journey Gherkin/verdicts go to the co-located journey folder `tests/<surface>/<flow>/<slug>/`, NOT `tests/Playwright/features/<flow>/`. Single-surface move-downs may stay on the legacy path until lazily migrated. See [ADR 025](./025-colocated-journey-units.md).
+
 Step 7 is the load-bearing logistical choice. Testing migration as a parallel programme would compete with `@next` for engineering attention. Bundling them removes the conflict.
 
 ---
@@ -260,7 +265,7 @@ The reviewer's preference is stylistic, not structural. Defending it transparent
 
 ## Open items
 
-- **Future enforcement of "test-writer ≠ code-writer":** the principle is currently enforced at skill-level (each `code-test-*` skill forbids reading the implementation source under test when authoring assertions). A mechanical enforcement path — separate subagent invocations in `agent-run` / `sdd-tasks`, refusing to combine code-generation and test-authoring memory — is a follow-up to evaluate once the agentic harness supports subagent isolation primitives. Tracked in Linear when scoped.
+- **Future enforcement of "test-writer ≠ code-writer":** the principle is currently enforced at skill-level (each `code-test-*` skill forbids reading the implementation source under test when authoring assertions). A mechanical enforcement path — separate subagent invocations in `agent-run` / `sdd-tasks`, refusing to combine code-writing and test-authoring memory — is a follow-up to evaluate once the agentic harness supports subagent isolation primitives. Tracked in Linear when scoped.
 - **Future skill: `test-pin-regression`** — a regression-pinning skill that takes `<bug-id> + <fix-commit>` and asserts a test exists that catches the bug. Out of scope for current rollout; scoped when needed.
 - **Mutation testing (Stryker on Vitest):** considered, deferred. Mutation testing earns its keep on mature, stable suites; we're building the suite from scratch. The active preventions of tautological tests are: Principle #3 (test-writer ≠ code-writer with skill-level rule), the `articulable production bug` filter, and PR review. If agentic tests become a measured quality concern (PR review repeatedly catches tautological agent-authored tests), evaluate Stryker on the `auth`/`session` modules at that point.
 
@@ -301,3 +306,23 @@ The reviewer's preference is stylistic, not structural. Defending it transparent
 - [`.agent/workflows/code-test-unit.md`](../../.agent/workflows/code-test-unit.md) — unit-test skill.
 - [`.agent/workflows/code-test-integration.md`](../../.agent/workflows/code-test-integration.md) — integration-test skill.
 - [`.agent/workflows/code-test-e2e.md`](../../.agent/workflows/code-test-e2e.md) — e2e-test skill.
+
+---
+
+## Amendments
+
+Append-only. The Decision, layers, coverage policy, and layer ownership above are **unchanged**; this amendment gives the cross-module journey layer a physical home and **retires the shared fixture pool in favour of per-unit co-located fixtures**. Full structural detail lives in [ADR 025: Co-located Cross-Module Journey Units](./025-colocated-journey-units.md). The inline `⚠️ SUPERSEDED` markers point here.
+
+### Amendment 1 — Co-located cross-module journey units & journey-scoped replay (June 2026)
+
+> **Home:** [ADR 025](./025-colocated-journey-units.md). Five deltas (A–E). Trophy shape, coverage policy, and the priority-ordered layer table are untouched.
+
+**Delta A — Journeys outside `headless`; e2e + integration co-located.** EXTENDS the E2E row. A cross-module journey is a product-flow artefact, not a package's property, so it lives at `tests/<surface>/<flow>/<slug>/`, co-locating its `.spec.ts` AND its `.int.test.ts`. **Boundary rule (reviewer-applicable):** *co-location is for JOURNEYS (cross-module flows) only. Per-module API-client / contract-drift integration tests STAY in `<package>/src/.../__tests__/`. If a test names exactly one module, it is module-scoped and does not move.* This does not contradict §App-layer "testing lives where the surface lives" — a journey's surface IS the cross-module flow, whose home is `tests/`.
+
+**Delta B — slice-not-journey RESTATED.** REINFORCES §Context force 5 and §Coverage policy "exactly one e2e Gherkin scenario per checkout-completing journey". Co-locating slices in one folder does NOT license a monster spec: the folder holds MULTIPLE sliced `.spec.ts` plus exactly ONE `smoke.spec.ts` (the full replay); the rest are action-slices. The journey's full breadth runs at the **integration** layer (one `.int.test.ts`, deterministic MSW replay). "One journey folder" ≠ "one journey test". FE-1365 is the receipt.
+
+**Delta C — Co-located fixtures, no shared pool (mechanism change — flagged as such).** Whole-pool loading is **RETIRED** — it caused tied parameterless routes (e.g. `GET orders/current`) to serve the first-loaded body (silent wrong body, green test; confirmed in source). **Every unit now owns its fixtures, co-located with its tests** — a module under `__tests__/fixtures/`, a journey under its slug folder's `fixtures/`. Replay loads only that unit's directory, via a `recordingsDir` threaded through `loadAllFixtures → buildHandlers → startReplayServer`. **There is no central pool and no shared `cases/`**: if two units need the same recording, each owns a copy (duplication is intended). The bug is gone **by construction** — there is no pool to collapse. **Glossary:** "canonical pool" is retired — there is no pool; each unit holds its own canonical (real-traffic, PII-gated) fixtures, and `lint-fixtures.mjs` flags two fixtures on one route inside a unit lacking a distinguishing matcher. **Companion edit:** [`tests/fixtures/README.md`](../../tests/fixtures/README.md).
+
+**Delta D — Module scope-matrix loop.** EXTENDS the §Coverage policy scope-composables row; links [ADR 001](./001-scope-based-composables.md). Each scope-bearing module exports a matrix const enumerating user-types; its scope test LOOPS the const (add a user-type → red). Lives in per-module `__tests__/`, **NOT** the journey folder — re-anchors the Delta-A boundary.
+
+**Delta E — pointer hygiene.** §Implementation sequencing Step 3's `tests/Playwright/features/<flow>/` path is corrected to the co-located journey tree for cross-module verdicts; single-surface move-downs may stay on the legacy path until lazily migrated. Step 3 is amended, not redone.

@@ -50,11 +50,6 @@ export async function overrideWarningNotes(
       {
         id: "3825d96e-763e-d091-3dc4-174825283406",
         message: newWarningNotes,
-        translations: {
-          code: {
-            name: "WARNING"
-          }
-        },
         created_at: "2025-09-02 08:50:42",
         updated_at: "2025-09-02 08:50:42",
         is_hidden: false

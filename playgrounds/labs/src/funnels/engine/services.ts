@@ -1,12 +1,12 @@
-import { ROUTE } from "..";
 import {
   type FunnelContext,
   useRoutingEngine,
-  useSession,
+  useActiveSession,
   type FunnelResponse,
   FunnelActions,
   type FunnelTarget
 } from "@upmind-automation/client-vue";
+import { ROUTE } from "..";
 import { includes } from "lodash-es";
 
 // -----------------------------------------------------------------------------
@@ -18,7 +18,7 @@ import { includes } from "lodash-es";
  */
 export default {
   guardSession: async ({
-    currentRoute,
+    _currentRoute,
     targetRoute
   }: FunnelContext): Promise<FunnelResponse> => {
     const { router } = useRoutingEngine();
@@ -31,17 +31,15 @@ export default {
       };
     }
 
-    const session = useSession();
+    const session = useActiveSession();
+    const actions = session.useActions();
+    const meta = session.useMeta();
 
     // Wait for session to be fully ready and authenticated if a transition is in progress
-    await session.isReady();
+    await actions.isReady();
 
-    // Check if we are authenticated. We use the check method to ensure
-    // we wait for the profile load to complete.
-    if (
-      session.meta.value.isAuthenticated ||
-      (await session.isAuthenticated().catch(() => false))
-    ) {
+    // Check if we are authenticated.
+    if (meta.isAuthenticated.value) {
       // We are authenticated and profile is loaded
     } else {
       return Promise.reject();

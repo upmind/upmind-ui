@@ -10,8 +10,8 @@
 
 <script setup lang="ts">
 import { useRoutingEngine } from "@upmind-automation/headless";
-import Dac from "../../domain/Dac.vue";
 import { DOMAIN_TEMPLATE } from "../../domain";
+import Dac from "../../domain/Dac.vue";
 
 // -----------------------------------------------------------------------------
 

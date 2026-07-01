@@ -5,6 +5,7 @@ import {
   mockPaymentSuccess
 } from "../../support/mocks/index";
 import { products } from "../../support/constants/products";
+import { gateways } from "../../support/constants/gateways";
 import { goToCheckout } from "../../support/flows/checkout";
 
 newUser.describe.configure({ mode: "parallel" });
@@ -20,10 +21,12 @@ newUser.describe("Checkout Paths", () => {
         null,
         false
       );
-      await checkout.selectPaymentMethod("Stripe");
+      await checkout.selectGatewayByType(gateways.STRIPE);
       await checkout.inputStripeDetails("4242424242424242", "12/50", "123");
       await checkout.clickCompleteCheckout();
-      await expect(page.getByText("Thank you for your order.")).toBeVisible();
+      await expect(
+        page.getByTestId("order-confirmation-heading")
+      ).toBeVisible();
     });
     newUser(
       "Paid Order with Tax & Partial Discount",
@@ -36,10 +39,12 @@ newUser.describe("Checkout Paths", () => {
           null,
           false
         );
-        await checkout.selectPaymentMethod("Stripe");
+        await checkout.selectGatewayByType(gateways.STRIPE);
         await checkout.inputStripeDetails("4242424242424242", "12/50", "123");
         await checkout.clickCompleteCheckout();
-        await expect(page.getByText("Thank you for your order.")).toBeVisible();
+        await expect(
+          page.getByTestId("order-confirmation-heading")
+        ).toBeVisible();
       }
     );
     newUser(
@@ -69,10 +74,12 @@ newUser.describe("Checkout Paths", () => {
           true
         );
         await page.reload();
-        await checkout.selectPaymentMethod("Stripe");
+        await checkout.selectGatewayByType(gateways.STRIPE);
         await checkout.inputStripeDetails("4242424242424242", "12/50", "123");
         await checkout.clickCompleteCheckout();
-        await expect(page.getByText("Thank you for your order.")).toBeVisible();
+        await expect(
+          page.getByTestId("order-confirmation-heading")
+        ).toBeVisible();
       }
     );
     newUser(
@@ -102,10 +109,12 @@ newUser.describe("Checkout Paths", () => {
           false
         );
         await page.reload();
-        await checkout.selectPaymentMethod("Stripe");
+        await checkout.selectGatewayByType(gateways.STRIPE);
         await checkout.inputStripeDetails("4242424242424242", "12/50", "123");
         await checkout.clickCompleteCheckout();
-        await expect(page.getByText("Thank you for your order.")).toBeVisible();
+        await expect(
+          page.getByTestId("order-confirmation-heading")
+        ).toBeVisible();
       }
     );
     newUser(
@@ -125,15 +134,19 @@ newUser.describe("Checkout Paths", () => {
           false
         );
         await checkout.clickCompleteCheckout();
-        await expect(page.getByText("Order confirmed")).toBeVisible();
+        await expect(
+          page.getByTestId("order-confirmation-heading")
+        ).toBeVisible();
       }
     );
     newUser("Paid Order with No Tax", async ({ page, context, checkout }) => {
       await goToCheckout(page, context, products.TAX_FREE_PRODUCT, null, null);
-      await checkout.selectPaymentMethod("Stripe");
+      await checkout.selectGatewayByType(gateways.STRIPE);
       await checkout.inputStripeDetails("4242424242424242", "12/50", "123");
       await checkout.clickCompleteCheckout();
-      await expect(page.getByText("Thank you for your order.")).toBeVisible();
+      await expect(
+        page.getByTestId("order-confirmation-heading")
+      ).toBeVisible();
     });
     newUser(
       "Paid Order with No Tax & Partial Discount",
@@ -146,10 +159,12 @@ newUser.describe("Checkout Paths", () => {
           null,
           false
         );
-        await checkout.selectPaymentMethod("Stripe");
+        await checkout.selectGatewayByType(gateways.STRIPE);
         await checkout.inputStripeDetails("4242424242424242", "12/50", "123");
         await checkout.clickCompleteCheckout();
-        await expect(page.getByText("Thank you for your order.")).toBeVisible();
+        await expect(
+          page.getByTestId("order-confirmation-heading")
+        ).toBeVisible();
       }
     );
     newUser(
@@ -179,10 +194,12 @@ newUser.describe("Checkout Paths", () => {
           true
         );
         await page.reload();
-        await checkout.selectPaymentMethod("Stripe");
+        await checkout.selectGatewayByType(gateways.STRIPE);
         await checkout.inputStripeDetails("4242424242424242", "12/50", "123");
         await checkout.clickCompleteCheckout();
-        await expect(page.getByText("Thank you for your order.")).toBeVisible();
+        await expect(
+          page.getByTestId("order-confirmation-heading")
+        ).toBeVisible();
       }
     );
     newUser(
@@ -212,10 +229,12 @@ newUser.describe("Checkout Paths", () => {
           false
         );
         await page.reload();
-        await checkout.selectPaymentMethod("Stripe");
+        await checkout.selectGatewayByType(gateways.STRIPE);
         await checkout.inputStripeDetails("4242424242424242", "12/50", "123");
         await checkout.clickCompleteCheckout();
-        await expect(page.getByText("Thank you for your order.")).toBeVisible();
+        await expect(
+          page.getByTestId("order-confirmation-heading")
+        ).toBeVisible();
       }
     );
     newUser(
@@ -235,7 +254,9 @@ newUser.describe("Checkout Paths", () => {
           false
         );
         await checkout.clickCompleteCheckout();
-        await expect(page.getByText("Order confirmed")).toBeVisible();
+        await expect(
+          page.getByTestId("order-confirmation-heading")
+        ).toBeVisible();
       }
     );
   });
@@ -254,11 +275,11 @@ newUser.describe("Checkout Paths", () => {
         false
       );
       await expect(checkout.accountCredit).toBeHidden();
-      await expect(
-        page.getByText("Great news – there's nothing to pay!")
-      ).toBeVisible();
+      await expect(page.getByTestId("free-order-banner")).toBeVisible();
       await checkout.clickCompleteCheckout();
-      await expect(page.getByText("Thank you for your order.")).toBeVisible();
+      await expect(
+        page.getByTestId("order-confirmation-heading")
+      ).toBeVisible();
     });
     newUser("Free Trial Product", async ({ page, context, checkout }) => {
       mockWalletBalance(context, {
@@ -274,11 +295,11 @@ newUser.describe("Checkout Paths", () => {
         true
       );
       await expect(checkout.accountCredit).toBeHidden();
-      await expect(
-        page.getByText("Great news – there's nothing to pay!")
-      ).toBeVisible();
+      await expect(page.getByTestId("free-order-banner")).toBeVisible();
       await checkout.clickCompleteCheckout();
-      await expect(page.getByText("Thank you for your order.")).toBeVisible();
+      await expect(
+        page.getByTestId("order-confirmation-heading")
+      ).toBeVisible();
     });
     newUser(
       "Free Trial Product & Free Promotion Product",
@@ -312,11 +333,11 @@ newUser.describe("Checkout Paths", () => {
         );
         await page.reload();
         await expect(checkout.accountCredit).toBeHidden();
-        await expect(
-          page.getByText("Great news – there's nothing to pay!")
-        ).toBeVisible();
+        await expect(page.getByTestId("free-order-banner")).toBeVisible();
         await checkout.clickCompleteCheckout();
-        await expect(page.getByText("Thank you for your order.")).toBeVisible();
+        await expect(
+          page.getByTestId("order-confirmation-heading")
+        ).toBeVisible();
       }
     );
   });

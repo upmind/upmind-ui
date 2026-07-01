@@ -1,9 +1,5 @@
 <template>
-  <Popover
-    v-if="meta.canShowForms"
-    class="w-full md:w-auto"
-    @update:open="doReset"
-  >
+  <Popover v-if="canShowForms" class="w-full md:w-auto" @update:open="doReset">
     <PopoverTrigger>
       <slot></slot>
     </PopoverTrigger>
@@ -15,7 +11,7 @@
       <div class="flex h-full flex-col md:flex-row">
         <div class="w-screen p-8 md:w-104">
           <Auth
-            v-if="!meta.isAuthenticated"
+            v-if="!isAuthenticated"
             :class="styles.session.content"
             :block-tabs="blockTabs"
             :stretch-tabs="stretchTabs"
@@ -32,23 +28,21 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
-
-// --- internal
-import { useRoutingEngine, useSession } from "@upmind-automation/headless";
+import { computed } from "vue";
+import {
+  ScopeActorTypes,
+  useActiveSession,
+  useAuth,
+  useRoutingEngine
+} from "@upmind-automation/headless";
 import { useStyles } from "@upmind-automation/upmind-ui";
-import config from "../session.config";
-
-// --- components
-import Auth from "./Auth.vue";
-
 import {
   Popover,
   PopoverContent,
   PopoverTrigger
 } from "@upmind-automation/upmind-ui";
-
-// --- types
+import config from "../session.config";
+import Auth from "./Auth.vue";
 import type { SessionProps, SessionRoutes } from "../types";
 // -----------------------------------------------------------------------------
 
@@ -63,14 +57,21 @@ const props = withDefaults(defineProps<SessionProps & SessionRoutes>(), {
 });
 // -----------------------------------------------------------------------------
 
-const { meta, showLogin } = useSession();
+const { isAuthenticated, isGuestClient } = useActiveSession().useMeta();
+const auth = useAuth().as(ScopeActorTypes.CLIENT);
+const { start } = auth.useActions();
+const { canShowForms: authCanShowForms } = auth.useMeta();
+
+const canShowForms = computed(
+  () => authCanShowForms.value || isGuestClient.value
+);
 const { navigate } = useRoutingEngine();
 
 const styles = useStyles(["session"], props, config);
 
 // ensure we always open with the login form
 function doReset(value: boolean) {
-  if (value) showLogin();
+  if (value) start("login");
 }
 
 function doUpdate(value: SessionProps["modelValue"]) {

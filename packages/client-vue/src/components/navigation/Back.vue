@@ -12,9 +12,9 @@
 </template>
 
 <script lang="ts" setup>
-import { Link, Button } from "@upmind-automation/upmind-ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
+import { Link, Button } from "@upmind-automation/upmind-ui";
 import type {
   RouteLocationAsRelativeGeneric,
   RouteLocationAsPathGeneric

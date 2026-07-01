@@ -3,6 +3,7 @@ import { test } from "../../../support/fixtures/test-contexts";
 import { Checkout } from "../../../support/page-objects/templates/checkout";
 import { goToCheckout } from "../../../support/flows/checkout";
 import { products } from "../../../support/constants/products";
+import { gateways } from "../../../support/constants/gateways";
 import {
   getClientToken,
   getSessionToken,
@@ -25,8 +26,8 @@ test.describe("Checkout with Offline Payment", () => {
   });
   test("Pay with Offline payment", async ({ page, context }) => {
     await goToCheckout(page, context, products.STARTER_HOSTING, null, null);
-    await checkout.selectPaymentMethod("Offline Payment");
+    await checkout.selectGatewayByType(gateways.OFFLINE);
     await checkout.clickCompleteCheckout();
-    await expect(page.getByText("Order confirmed")).toBeVisible();
+    await expect(page.getByTestId("order-confirmation-heading")).toBeVisible();
   });
 });

@@ -2,13 +2,13 @@ import {
   parseVariants,
   type VariantValues
 } from "@upmind-automation/upmind-ui";
-import { variants } from "./header.config";
 import {
   COLUMN_JUSTIFY,
   COLUMN_ITEMS,
   COLUMN_PADDING
 } from "../layout/components/column";
 import { RIBBON_BACKGROUND, RIBBON_BORDER } from "../layout/components/ribbon";
+import { variants } from "./header.config";
 
 export const HEADER_POSITION = parseVariants(variants.position);
 export const HEADER_JUSTIFY = COLUMN_JUSTIFY;

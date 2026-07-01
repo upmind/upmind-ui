@@ -99,13 +99,10 @@
 </template>
 
 <script setup lang="ts">
-// --- external
+import { useUrlSearchParams } from "@vueuse/core";
 import { watch, ref, computed, useTemplateRef, inject } from "vue";
 import { useI18n } from "vue-i18n";
-import { useUrlSearchParams } from "@vueuse/core";
 import { useRouter } from "vue-router";
-
-// --- internal
 import {
   useProductCatalogue,
   useProductCategories,
@@ -117,9 +114,6 @@ import {
   type UseProductCategories
 } from "@upmind-automation/headless";
 import { useConfig } from "@upmind-automation/headless";
-import config from "../catalogue.config";
-
-// --- components
 import {
   Input,
   Icon,
@@ -130,14 +124,11 @@ import {
   ProductCard,
   ProductCardSkeleton
 } from "../../product/components/card";
+import config from "../catalogue.config";
 import ProductSort from "./components/ProductSort.vue";
-
-// --- utils
 import { debounce, isArray, isEmpty, merge, some } from "lodash-es";
-
-// --- types
-import type { Product } from "@upmind-automation/headless";
 import type { ProductSortProps, ProductsProps } from "./types";
+import type { Product } from "@upmind-automation/headless";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
 
 // -----------------------------------------------------------------------------

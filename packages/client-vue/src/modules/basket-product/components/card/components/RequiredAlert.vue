@@ -10,22 +10,16 @@
     size="sm"
     :action="{
       label: isMobile ? t('action.fix') : t('action.add_missing_data'),
+      dataAttrs: { 'data-testid': 'link-add-missing-data' },
       ...props.editRoute
     }"
   />
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { useI18n } from "vue-i18n";
-
-// --- components
 import { Alert } from "@upmind-automation/upmind-ui";
-
-// --- utils
 import { isMobile } from "@upmind-automation/upmind-ui";
-
-// --- types
 import type { RequiredAlertProps } from "./types";
 
 // -----------------------------------------------------------------------------

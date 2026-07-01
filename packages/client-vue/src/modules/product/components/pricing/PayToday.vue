@@ -8,8 +8,6 @@
 
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
-
-// --- types
 import type { TermDetails } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------

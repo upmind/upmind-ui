@@ -177,7 +177,9 @@ test.describe("Product Upsells in Basket @upsells", () => {
   });
   test.describe("Interaction", () => {
     test.beforeEach(async ({ page, context }) => {
-      interceptBasketUpsells(context, { optionUpsellEnabled: true });
+      // No upsell mock here: Starter Hosting's options are real upsells, and
+      // mocking /orders/current makes the post-add refresh throw at teardown.
+      // interceptBasketUpsells(context, { optionUpsellEnabled: true });
       await seedStarterHosting(context);
       await page.goto(URLs.basket);
     });

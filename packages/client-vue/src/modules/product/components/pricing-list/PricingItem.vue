@@ -7,26 +7,17 @@
       </template>
     </h5>
 
-    <p
-      :class="styles.summary.list.item.title"
-      :data-testid="`summary-value-${kebabCase(category)}`"
-    >
+    <p :class="styles.summary.list.item.title" data-testid="summary-value">
       {{ title ?? "&ndash;" }}
     </p>
   </li>
 </template>
 
 <script setup lang="ts">
-// --- external
-import { useStyles } from "@upmind-automation/upmind-ui";
 import { computed } from "vue";
-
-// --- internal
+import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./pricing.config";
-
-// --- types
 import type { PricingItemProps } from "./types";
-import { kebabCase } from "lodash-es";
 
 const props = defineProps<PricingItemProps>();
 

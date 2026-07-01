@@ -27,9 +27,6 @@ defineOptions({
   inheritAttrs: false
 });
 
-// --- components
 import Layout from "../../../components/layout/Layout.vue";
-
-// --- types
 import { LAYOUT_VARIANTS } from "../../../components/layout/types";
 </script>

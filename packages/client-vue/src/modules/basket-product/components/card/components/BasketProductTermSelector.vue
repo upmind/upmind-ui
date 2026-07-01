@@ -29,28 +29,19 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-
-// --- components
-import { SelectCards, useStyles } from "@upmind-automation/upmind-ui";
-import TermCard from "../../../../product/components/terms/TermCard.vue";
-
-// --- internal
 import {
   parseBillingCycle,
   PriceDisplayTypes
 } from "@upmind-automation/headless";
+import { SelectCards, useStyles } from "@upmind-automation/upmind-ui";
+import TermCard from "../../../../product/components/terms/TermCard.vue";
 import styleConfig from "../basketProduct.config";
-
-// --- utils
 import { map, toNumber } from "lodash-es";
-
-// --- types
+import type { TermSelectorProps } from "./types";
 import type { TermDetails } from "@upmind-automation/headless";
 import type { SelectCardsItemProps } from "@upmind-automation/upmind-ui";
-import type { TermSelectorProps } from "./types";
 // -----------------------------------------------------------------------------
 
 const props = defineProps<TermSelectorProps>();

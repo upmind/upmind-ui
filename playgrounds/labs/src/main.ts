@@ -1,15 +1,11 @@
 import "./main.css";
-
 import { createApp } from "vue";
-
-import App from "./App.vue";
-import router from "./router";
-import i18n from "./i18n";
-import { registerFunnels } from "./funnels";
 import UpmindClient from "@upmind-automation/client-vue";
 import { plugins as uiPlugins } from "@upmind-automation/upmind-ui";
-
-// --- utils
+import App from "./App.vue";
+import { registerFunnels } from "./funnels";
+import i18n from "./i18n";
+import router from "./router";
 import { forEach } from "lodash-es";
 // -----------------------------------------------------------------------------
 

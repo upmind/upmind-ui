@@ -26,6 +26,8 @@
  */
 
 import { AsyncDebouncer } from "@tanstack/pacer";
+import { useQuery } from "../modules/query";
+import { useTime } from "./useTime";
 import {
   filter,
   forEach,
@@ -40,10 +42,6 @@ import {
   uniq,
   values as objValues
 } from "lodash-es";
-
-import { useQuery } from "../modules/query";
-import { useTime } from "./useTime";
-
 import type {
   CalculateEvent,
   CalculateInput,

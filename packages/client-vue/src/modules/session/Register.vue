@@ -11,7 +11,7 @@
       <slot name="hero">
         <Hero
           :title="
-            meta.isGuestClient
+            isGuestClient
               ? t('auth.guest_register_title')
               : t('action.create_account')
           "
@@ -19,7 +19,7 @@
           <template #subtitle>
             <!-- A guest client is upgrading, not choosing login vs register —
                  show the save-your-details prompt, not the log-in link. -->
-            <span v-if="meta.isGuestClient" class="font-normal">{{
+            <span v-if="isGuestClient" class="font-normal">{{
               t("auth.guest_register_description")
             }}</span>
 
@@ -33,6 +33,7 @@
                 size="inherit"
                 color="inherit"
                 :label="t('action.log_in_here')"
+                :dataAttrs="{ 'data-testid': 'checkout-login-link' }"
                 class="font-normal"
               />
             </template>
@@ -49,8 +50,9 @@
              is a fully-registered client. -->
         <Section
           :label="t('action.register')"
+          value="register"
           icon="user-03"
-          v-show="!meta.isAuthenticated || meta.isGuestClient"
+          v-show="!isAuthenticated || isGuestClient"
           class="max-w-3xl"
           :active="templateMeta.hasActiveSection"
         >
@@ -62,7 +64,8 @@
 
           <Alert
             v-if="
-              meta.canRegisterAsGuest &&
+              !isAuthenticated &&
+              canRegisterAsGuest &&
               !basketMeta.isLoading &&
               !basketMeta.hasRecurringProducts
             "
@@ -78,12 +81,12 @@
                 @click="registerAsGuest"
                 color="inherit"
                 :label="t('auth.guest_checkout_action')"
-                :disabled="meta.isRegisteringAsGuest"
+                :disabled="isRegisteringAsGuest"
                 data-testid="guest-checkout-cta"
               >
                 <template #append>
                   <Spinner
-                    v-if="meta.isRegisteringAsGuest"
+                    v-if="isRegisteringAsGuest"
                     size="badge"
                     class="m-1.5"
                   />
@@ -98,8 +101,16 @@
             </template>
           </Alert>
 
+          <Account
+            v-if="isGuestClient"
+            v-show="!isLoading && !basketMeta.isLoading"
+            class="rounded-box w-full max-w-5xl items-start"
+            @resolve="doResolve"
+          />
+
           <Auth
-            v-show="!meta.isLoading && !basketMeta.isLoading"
+            v-else
+            v-show="!isLoading && !basketMeta.isLoading"
             class="rounded-box w-full max-w-5xl items-start"
             no-tabs
             no-header
@@ -109,7 +120,7 @@
           />
 
           <div
-            v-if="meta.isLoading || basketMeta.isLoading"
+            v-if="isLoading || basketMeta.isLoading"
             class="flex w-full max-w-5xl flex-col gap-6"
           >
             <div>
@@ -188,7 +199,6 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import {
@@ -197,11 +207,16 @@ import {
   useClientTemplate,
   useBrand
 } from "@upmind-automation/headless";
+import {
+  useActiveSession,
+  useAuth,
+  useBasket,
+  useRoutingEngine,
+  ScopeActorTypes,
+  UIContext,
+  ClientTemplateSlotCodes
+} from "@upmind-automation/headless";
 import { useThemes, useStyles } from "@upmind-automation/upmind-ui";
-import sessionConfig from "./session.config";
-import { useSessionTemplates } from "./session.utils";
-
-// --- components
 import {
   Link,
   Markdown,
@@ -210,20 +225,27 @@ import {
   Alert,
   Spinner
 } from "@upmind-automation/upmind-ui";
-import Auth from "./components/Auth.vue";
 import Hero from "../../components/hero/Hero.vue";
-import Back from "./components/Back.vue";
-import Loading from "../system/Loading.vue";
 import Section from "../../components/section/Section.vue";
 import Summary from "../basket/components/Summary.vue";
-
-// --- templates
-import SessionSplitTemplate from "./templates/SessionSplit.template.vue";
+import Loading from "../system/Loading.vue";
+import Account from "./components/Account.vue";
+import Auth from "./components/Auth.vue";
+import Back from "./components/Back.vue";
+import sessionConfig from "./session.config";
+import { useSessionTemplates } from "./session.utils";
 import SessionCanvasCardTemplate from "./templates/SessionCanvasCard.template.vue";
-import SessionSurfaceBoxTemplate from "./templates/SessionSurfaceBox.template.vue";
+import SessionEnclosedTemplate from "./templates/SessionEnclosed.template.vue";
 import SessionLTRTemplate from "./templates/SessionLTR.template.vue";
 import SessionRTLTemplate from "./templates/SessionRTL.template.vue";
-import SessionEnclosedTemplate from "./templates/SessionEnclosed.template.vue";
+import SessionSplitTemplate from "./templates/SessionSplit.template.vue";
+import SessionSurfaceBoxTemplate from "./templates/SessionSurfaceBox.template.vue";
+import {
+  type SessionProps,
+  type SessionRoutes,
+  SESSION_TEMPLATE
+} from "./types";
+import { get } from "lodash-es";
 
 const supportedTemplates = {
   [SESSION_TEMPLATE.SPLIT]: SessionSplitTemplate,
@@ -233,23 +255,6 @@ const supportedTemplates = {
   [SESSION_TEMPLATE.TWO_COLUMN_RTL]: SessionRTLTemplate,
   [SESSION_TEMPLATE.ENCLOSED]: SessionEnclosedTemplate
 };
-
-// --- utils
-import { get } from "lodash-es";
-
-// --- types
-import {
-  type SessionProps,
-  type SessionRoutes,
-  SESSION_TEMPLATE
-} from "./types";
-import {
-  useBasket,
-  useRoutingEngine,
-  useSession,
-  UIContext,
-  ClientTemplateSlotCodes
-} from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 
@@ -263,7 +268,18 @@ const props = defineProps<
 const { t } = useI18n();
 const { set } = useThemes();
 
-const { meta, isReady, registerAsGuest } = useSession();
+const { isAuthenticated, isLoading, isGuestClient } =
+  useActiveSession().useMeta();
+const { isReady } = useActiveSession().useActions();
+
+const auth = useAuth().as(ScopeActorTypes.CLIENT);
+const { canRegisterAsGuest, isRegisteringAsGuest } = auth.useMeta();
+const authActions = auth.useActions();
+function registerAsGuest() {
+  if ("registerAsGuest" in authActions)
+    return authActions?.registerAsGuest().then(() => doResolve());
+}
+
 const { meta: basketMeta } = useBasket();
 const { navigateNext, navigateBack, navigate } = useRoutingEngine();
 const { brandId } = useBrand();
@@ -315,7 +331,7 @@ function doUpdate(value: SessionProps["modelValue"]) {
   }
 }
 
-function doReject() {
+function _doReject() {
   isResolving.value = true;
   navigateBack().catch(() => {
     isResolving.value = false;
@@ -323,6 +339,7 @@ function doReject() {
 }
 
 function doResolve() {
+  if (isResolving.value) return;
   isResolving.value = true;
   navigateNext().catch(() => {
     isResolving.value = false;

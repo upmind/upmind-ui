@@ -27,21 +27,14 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed, inject, watch, useTemplateRef } from "vue";
 import { useI18n } from "vue-i18n";
-
-// --- internal
 import {
   DetailedError,
   ErrorOrigin,
   responseCodes
 } from "@upmind-automation/headless";
-
-// --- components
 import { Interstitial } from "@upmind-automation/upmind-ui";
-
-// --- types
 import type { UseOrder } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------

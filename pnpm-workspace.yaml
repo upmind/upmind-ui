@@ -3,11 +3,13 @@ packages:
   - "packages/*"
   - "playgrounds/*"
   - "apps/*"
+  - "tests/fixtures"
 allowBuilds:
   '@parcel/watcher': true
   '@sentry/cli': true
   core-js-pure: true
   esbuild: true
+  msw: false
   protobufjs: true
   re2: true
   sharp: true

@@ -60,19 +60,19 @@
 
 <script setup lang="ts">
 import { watch, ref } from "vue";
-import { debounce } from "lodash-es";
+import { UpmLayout } from "@upmind-automation/client-vue";
 import {
   type ProductSortableProperties,
   type RequestSortDirection,
   useProductCatalogue
 } from "@upmind-automation/headless";
-import {
-  type IProductCategory,
-  type ISO_4217_CURRENCY_CODE
+import { Button, Loading, Card } from "@upmind-automation/upmind-ui";
+import { debounce } from "lodash-es";
+import type {
+  IProductCategory,
+  ISO_4217_CURRENCY_CODE
 } from "@upmind-automation/types";
 import type { HtmlHTMLAttributes } from "vue";
-import { Button, Loading, Card } from "@upmind-automation/upmind-ui";
-import { UpmLayout } from "@upmind-automation/client-vue";
 
 const props = withDefaults(
   defineProps<{

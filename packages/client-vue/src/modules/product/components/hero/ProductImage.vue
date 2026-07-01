@@ -23,20 +23,11 @@
 </template>
 
 <script setup lang="ts">
-// --- external
 import { computed } from "vue";
-
-// --- components
-import { Image, ImageGrid, useStyles, cn } from "@upmind-automation/upmind-ui";
-
-// --- internal
 import { useConfig, useImageUrl } from "@upmind-automation/headless";
+import { Image, ImageGrid, useStyles, cn } from "@upmind-automation/upmind-ui";
 import config from "./product-hero.config";
-
-// --- utils
 import { isArray, isEmpty } from "lodash-es";
-
-// --- types
 import type { ProductImageProps } from "./types";
 import type { ImageItem } from "@upmind-automation/upmind-ui";
 

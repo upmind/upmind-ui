@@ -9,8 +9,12 @@ import { getBasketProducts } from "../../support/api";
 let basket: Basket;
 let productSetup: ProductSetup;
 
+// The field-level error panel on the configure/edit route is ConfigErrors,
+// which carries the explicit `product-incomplete-alert` testid (the basket-list
+// RequiredAlert with `link-add-missing-data` is a different surface). Target it
+// directly by its testid, never by translated copy.
 const incompleteAlert = (page: import("@playwright/test").Page) =>
-  page.getByRole("alert").filter({ hasText: /incomplete/i });
+  page.getByTestId("product-incomplete-alert");
 
 newUser.describe.configure({ mode: "parallel" });
 newUser.describe("Product Config — Field-level error panel", () => {

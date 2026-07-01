@@ -29,9 +29,9 @@
 
 <script setup lang="ts">
 import { useRouter } from "vue-router";
-import { useBrand, useClientSlots } from "@upmind-automation/headless";
 import { UpmLayout } from "@upmind-automation/client-vue";
-import { ClientTemplateSlotCodes } from "@upmind-automation/types";
+import { useBrand, useClientSlots } from "@upmind-automation/headless";
+import type { ClientTemplateSlotCodes } from "@upmind-automation/types";
 
 const router = useRouter();
 const { brandId } = useBrand();
