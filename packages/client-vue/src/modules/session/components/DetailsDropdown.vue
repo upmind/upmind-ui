@@ -1,7 +1,7 @@
 <!-- eslint-disable vue/no-unused-components -->
 <template>
   <DropdownMenu
-    v-if="meta.isAuthenticated"
+    v-if="isAuthenticated"
     :items="items"
     width="md"
     size="lg"
@@ -22,10 +22,10 @@
         data-testid="dropdown-account-label"
       >
         <strong class="font-medium">
-          {{ meta.isGuestClient ? t("auth.guest") : client.fullName }}
+          {{ isGuestClient ? t("auth.guest") : client.fullName }}
         </strong>
         <span
-          v-if="!meta.isGuestClient"
+          v-if="!isGuestClient"
           class="text-md-tight font-normal opacity-60"
         >
           {{ client.username }}
@@ -36,34 +36,32 @@
 </template>
 
 <script setup lang="ts">
-// --- internal
 import { computed } from "vue";
-import { useSession } from "@upmind-automation/headless";
-
-// --- components
-import { DropdownMenu } from "@upmind-automation/upmind-ui";
-
-// --- types
-import type { DropdownMenuItemProps } from "@upmind-automation/upmind-ui";
-
 import { useI18n } from "vue-i18n";
+import { useActiveSession } from "@upmind-automation/headless";
+import { DropdownMenu } from "@upmind-automation/upmind-ui";
+import type { DropdownMenuItemProps } from "@upmind-automation/upmind-ui";
 
 const emit = defineEmits<{
   register: [];
 }>();
 
 const { t } = useI18n();
-const { client, logout, meta } = useSession();
+const session = useActiveSession();
+const { isAuthenticated, isGuestClient } = session.useMeta();
+const { activeUser: client } = session.useContext();
+const { logout } = session.useActions();
 
 const items = computed<DropdownMenuItemProps[]>(() => {
   const menuItems: DropdownMenuItemProps[] = [];
 
-  if (meta.value.isGuestClient) {
+  if (isGuestClient.value) {
     menuItems.push({
       label: t("action.register"),
       icon: "user-plus-01",
       value: "register",
-      handler: () => emit("register")
+      handler: () => emit("register"),
+      dataAttrs: { "data-testid": "button-register" }
     });
   }
 

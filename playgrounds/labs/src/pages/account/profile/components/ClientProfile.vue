@@ -28,19 +28,14 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { useI18n } from "vue-i18n";
-
-// --- internal
-import { usePersonalDetails } from "@upmind-automation/headless";
-
-// --- components
 import { UpmSection } from "@upmind-automation/client-vue";
+import { usePersonalDetails } from "@upmind-automation/headless";
 import { Link } from "@upmind-automation/upmind-ui";
 
 // -----------------------------------------------------------------------------
 
-const props = withDefaults(
+const _props = withDefaults(
   defineProps<{
     editRoute?: string;
   }>(),

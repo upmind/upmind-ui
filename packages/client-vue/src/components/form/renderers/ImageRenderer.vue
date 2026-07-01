@@ -19,27 +19,21 @@
 </template>
 
 <script setup lang="ts">
-// --- external
-import { onBeforeUnmount, computed } from "vue";
-import type { ControlElement } from "@jsonforms/core";
-import type { RendererProps } from "@jsonforms/vue";
+import { and, or, uiTypeIs, optionIs, formatIs } from "@jsonforms/core";
 import { useJsonFormsControl } from "@jsonforms/vue";
+import FilePondPluginFileValidateType from "filepond-plugin-file-validate-type";
+import FilePondPluginImagePreview from "filepond-plugin-image-preview";
+import { onBeforeUnmount, computed } from "vue";
+import vueFilePond from "vue-filepond";
 import { useUpload } from "@upmind-automation/headless";
 import { useUpmindUIRenderer } from "@upmind-automation/upmind-ui";
 import { useStyles } from "@upmind-automation/upmind-ui";
+import { FormField, Loading } from "@upmind-automation/upmind-ui";
+import config from "../form.config";
+import type { ControlElement } from "@jsonforms/core";
+import type { RendererProps } from "@jsonforms/vue";
 import "filepond/dist/filepond.min.css";
 import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.css";
-import FilePondPluginFileValidateType from "filepond-plugin-file-validate-type";
-import FilePondPluginImagePreview from "filepond-plugin-image-preview";
-
-// --- internal
-import config from "../form.config";
-
-// --- components
-import { FormField, Loading } from "@upmind-automation/upmind-ui";
-import vueFilePond from "vue-filepond";
-
-// types
 
 const FilePond = vueFilePond(
   FilePondPluginFileValidateType,
@@ -49,8 +43,12 @@ const FilePond = vueFilePond(
 const props = defineProps<RendererProps<ControlElement>>();
 const fileTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
 
-const { control, formFieldProps, appliedOptions, onInput } =
-  useUpmindUIRenderer(useJsonFormsControl(props));
+const {
+  control: _control,
+  formFieldProps,
+  appliedOptions,
+  onInput
+} = useUpmindUIRenderer(useJsonFormsControl(props));
 
 const { add, remove, stop, meta } = useUpload(appliedOptions.value.field);
 
@@ -74,8 +72,6 @@ const labelText = computed(() => {
 </script>
 
 <script lang="ts">
-import { and, or, uiTypeIs, optionIs, formatIs } from "@jsonforms/core";
-
 export const tester = {
   rank: 2,
   controlType: and(

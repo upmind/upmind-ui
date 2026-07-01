@@ -1,27 +1,26 @@
-// --- external
-import { waitFor } from "xstate/lib/waitFor";
+import { useActor } from "@xstate/vue";
 import { computed } from "vue";
 import { interpret } from "xstate";
-import { useActor } from "@xstate/vue";
-
-// --- internal
-import { useI18n } from "../system";
+import { waitFor } from "xstate/lib/waitFor";
+import { PAGINATION } from "../query";
 import { QUERY_PARAMS, useQueryParams } from "../routing";
+import { useI18n } from "../system-localisation";
 import dacMachine from "./dac.machine";
-import { sanitiseDomainInput, useDomainSearchMethod } from "./utils";
-
-// --- utils
-import { map, isArray, some, isEmpty } from "lodash-es";
+import {
+  type DomainContext,
+  type DomainProduct,
+  DomainMode
+} from "./domain.types";
+import { sanitiseDomainInput, useDomainSearchMethod } from "./domain.utils";
 import {
   stopService,
   stateMatches,
   useContext,
   contextValue
 } from "../../utils";
+import { map, isArray, some, isEmpty } from "lodash-es";
 
 // --- types
-import { type DomainContext, type DomainProduct, DomainMode } from "./types";
-import { PAGINATION } from "../query";
 
 // -----------------------------------------------------------------------------
 
@@ -35,7 +34,7 @@ import { PAGINATION } from "../query";
  * @returns Domain management API (state, computed, and methods)
  */
 export const useDac = (options?: { mode?: DomainMode; limit?: number }) => {
-  const { t } = useI18n();
+  const { t: _t } = useI18n();
   const { getParam, getParams, setParam, unsetParam } = useQueryParams();
 
   // Determine search flow from brand setting, fallback to dac-search (legacy)

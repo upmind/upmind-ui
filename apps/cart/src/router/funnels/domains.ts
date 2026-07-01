@@ -1,11 +1,3 @@
-// --- internal
-import actions from "./engine/actions";
-import guards from "./engine/guards";
-import services from "./engine/services";
-
-// --- utils
-
-// --- types
 import {
   assign,
   useBasketProducts,
@@ -13,7 +5,9 @@ import {
   type FunnelProps,
   getDomainBasketProducts
 } from "@upmind-automation/client-vue";
-
+import actions from "./engine/actions";
+import guards from "./engine/guards";
+import services from "./engine/services";
 import { ROUTE } from "./types";
 import { isEmpty } from "lodash-es";
 

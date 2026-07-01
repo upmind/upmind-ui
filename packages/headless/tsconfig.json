@@ -9,6 +9,7 @@
     "paths": {
       "@upmind-automation/types": ["../types/src/index.ts"],
       "@upmind-automation/i18n": ["../i18n/src/index.ts"],
+      "@upmind-automation/test-fixtures": ["../../tests/fixtures/index.ts"],
       "@/*": ["./src/*"]
     },
     "types": ["vite/client", "@types/google.maps", "@types/mercadopago-sdk-js"]

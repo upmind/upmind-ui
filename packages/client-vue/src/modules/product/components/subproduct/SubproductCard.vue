@@ -110,15 +110,9 @@
 </template>
 
 <script setup lang="ts">
-// --- external
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
-
-// --- internal
 import { useStyles } from "@upmind-automation/upmind-ui";
-import config from "./subproduct-card.config";
-
-// --- components
 import {
   Badge,
   NumberField,
@@ -126,11 +120,10 @@ import {
   Icon,
   Markdown
 } from "@upmind-automation/upmind-ui";
+import Promotion from "../../../basket-product/components/card/components/Promotion.vue";
+import config from "./subproduct-card.config";
 import SubproductCardPricing from "./SubproductCardPricing.vue";
 import SubproductImage from "./SubproductImage.vue";
-import Promotion from "../../../basket-product/components/card/components/Promotion.vue";
-
-// --- types
 import type { SubproductCardProps } from "./types";
 
 // -----------------------------------------------------------------------------

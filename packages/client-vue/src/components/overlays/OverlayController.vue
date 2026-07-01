@@ -25,20 +25,12 @@
  * Components are resolved from the vue-router route record, not a separate registry.
  */
 
-// --- external
 import { computed, ref, watch } from "vue";
 import { useRoute } from "vue-router";
-
-// --- internal
 import { OverlayType } from "@upmind-automation/headless";
-import { useOverlayRoute } from "./useOverlayRoute";
 import { Drawer, Dialog, Slot } from "@upmind-automation/upmind-ui";
-
-// --- utils
+import { useOverlayRoute } from "./useOverlayRoute";
 import { defaults, find, some } from "lodash-es";
-
-// --- types
-import type { RouteRecordNormalized } from "vue-router";
 import type { DrawerProps } from "@upmind-automation/upmind-ui";
 import type { DialogProps } from "@upmind-automation/upmind-ui";
 

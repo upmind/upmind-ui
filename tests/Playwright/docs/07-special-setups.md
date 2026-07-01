@@ -198,3 +198,14 @@ If you use the generator, review and move generated tests into `tests/Playwright
 - **Don't assert on `page.url()` directly** without awaiting a navigation — it returns synchronously and can read the old URL. Prefer `await expect(page).toHaveURL(...)` or `await page.waitForURL(...)`.
 - **`waitForLoadState("networkidle")`** is fine on cold pages but dangerous on pages with background polling. If a test starts timing out after an app change, check whether a new polling loop was introduced.
 - **"UI Template" tests are currently skipped** — see [`test.describe.skip`](../e2e/e2e-tests/brand-settings/ui-templates.spec.ts#L23). They rely on baselines that were regenerated as part of the template refactor and have not been re-baselined. Regenerating and un-skipping is on the QA backlog.
+
+## Brand-flag-gated journeys (e.g. guest checkout)
+
+Some journeys are gated behind a brand flag (guest checkout / FE-1035, and the same pattern for any `config/brand/values` gate). Running them:
+
+- The suite's default brand is `qa-automation.local:5173` (baseURL in `playwright.config.ts`, now `process.env.PW_BASE_URL ?? "http://qa-automation.local:5173/"`). As of 2026-06-04 `invoices.guest_checkout.enabled` is **ON** at the BE on qa-automation — it was OFF earlier the same day, so **verify the current flag state before assuming**; it's toggled in the brand back-office.
+- `collabstudio.local:5173` also has guest checkout ON (the fallback when qa-automation was OFF). Both hosts resolve to the same dev server — brand is resolved by Host header → `api.staging.upmind.io`. Run against another brand with `PW_BASE_URL=http://collabstudio.local:5173/ npx playwright test … --project=chrome`.
+- Gate-dependent specs read the **real** flag via `captureBrandSettings` + `test.skip`, so they run where the flag is on and skip where it's off. Mocking the FE config (`interceptConfigValues`) only makes the CTA appear — it can't satisfy server-enforced calls (`register/guest`, `complete_registration`).
+- **Seed-product coupling:** `products.STARTER_HOSTING` (qa-automation catalogue) returns 403 on collabstudio, and collabstudio's own Starter Hosting needs a required "Location" option. For a throwaway gate-on run, `Logo Design` (`47d73824-8507-9315-345f-81e642d59e06`, cycle 0) adds with no options — but cycle-0 one-offs don't always persist in the basket. Entering guest checkout with an empty basket lands on `/order/basket/empty/`, whose dialog backdrop blocks header-avatar clicks; assert the account menu from `/order/shop/` (basket-independent) instead. The committed seed must stay qa-automation's product.
+
+See the **Setup pattern** section of the `code-tests-e2e` rule for why setup must drive real modules, not raw HTTP.

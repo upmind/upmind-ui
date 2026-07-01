@@ -40,20 +40,11 @@
 </template>
 
 <script setup lang="ts">
-// --- external
 import { computed } from "vue";
-
-// --- components
 import { Skeleton } from "@upmind-automation/upmind-ui";
-
-// --- internal
 import { cn } from "@upmind-automation/upmind-ui";
-import config from "../domain.config";
-
-// --- utils
 import { useStyles } from "@upmind-automation/upmind-ui";
-
-// --- types
+import config from "../domain.config";
 import type { DomainCardSkeletonProps } from "../types";
 const props = withDefaults(defineProps<DomainCardSkeletonProps>(), {
   active: true,

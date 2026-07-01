@@ -4,7 +4,29 @@
  * @description Evaluator, validator, and state builder for conditional context settings.
  */
 
-// --- utils
+import { normalizeValue } from "./config.mappers";
+import {
+  ProductStateKey,
+  BasketProductStateKey,
+  BasketStateKey,
+  ScalarOperator,
+  ArrayOperator,
+  type ConditionStateKey,
+  type ComparisonOperator,
+  type RuleCondition,
+  type Rule,
+  type ConditionalValue,
+  type SettingValue,
+  type ConditionState,
+  type ConditionStateInputs,
+  type ValidationIssue,
+  type ValidationResult,
+  type ValidationSeverity,
+  type OperatorExpression,
+  type BasketProductInput
+} from "./config.types";
+import { UIContext, UI_META_DEFINITIONS } from "./schema";
+import { PRE_BASKET_CONTEXTS, POST_BASKET_CONTEXTS } from "./schema/types";
 import {
   compact,
   concat,
@@ -26,33 +48,9 @@ import {
   some,
   values
 } from "lodash-es";
-
-// --- types
-import type { IProduct, IBasket } from "@upmind-automation/types";
-import {
-  ProductStateKey,
-  BasketProductStateKey,
-  BasketStateKey,
-  ScalarOperator,
-  ArrayOperator,
-  type ConditionStateKey,
-  type ComparisonOperator,
-  type RuleCondition,
-  type Rule,
-  type ConditionalValue,
-  type SettingValue,
-  type ConditionState,
-  type ConditionStateInputs,
-  type ValidationIssue,
-  type ValidationResult,
-  type ValidationSeverity,
-  type OperatorExpression,
-  type BasketProductInput
-} from "./types";
-import { UIContext, UIScope, UI_META_DEFINITIONS } from "./schema";
-import { PRE_BASKET_CONTEXTS, POST_BASKET_CONTEXTS } from "./schema/types";
+import type { UIScope } from "./schema";
 import type { UIPropertyDefinition } from "./schema/types";
-import { normalizeValue } from "./mappers";
+import type { IProduct, IBasket } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 // Type Guards

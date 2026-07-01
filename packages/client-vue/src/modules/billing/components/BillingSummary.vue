@@ -2,26 +2,32 @@
   <Section
     id="basket-billing"
     :label="t('text.billing_details')"
+    value="billing-details"
     icon="building-07"
     :card="false"
     :border="false"
     :actions="[
       {
         label: t('action.change'),
-        handler: navigateToBilling
+        handler: navigateToBilling,
+        dataAttrs: { 'data-testid': 'link-change' }
       }
     ]"
   >
     <Card :class="styles.billing.card.root" size="sm">
       <Alert
         v-if="billingMeta.isAvailable && !billingMeta.isComplete"
+        :dataAttrs="{ 'data-testid': 'billing-requirements-alert' }"
         :title="t('billing.details_required_msg')"
         icon="alert-octagon"
         color="danger"
         variant="muted"
         size="sm"
       />
-      <dl :class="styles.billing.summary.root">
+      <dl
+        data-testid="billing-details-summary"
+        :class="styles.billing.summary.root"
+      >
         <div
           v-if="selectedCompany || billingMeta.needsCompany"
           :class="styles.billing.summary.row"
@@ -32,11 +38,17 @@
           >
             {{ t("text.company") }}:
           </dt>
-          <dd v-if="selectedCompany" :class="styles.billing.summary.value">
+          <dd
+            v-if="selectedCompany"
+            :class="styles.billing.summary.value"
+            data-testid="billing-summary-company"
+            :data-test-value="selectedCompany.name"
+          >
             {{ selectedCompany.name }}
           </dd>
           <dd v-else>
             <Link
+              data-testid="link-add-company"
               :label="t('action.add_company')"
               size="sm"
               color="danger"
@@ -65,6 +77,7 @@
           </dd>
           <dd v-else>
             <Link
+              data-testid="link-add-number"
               :label="t('action.add_number')"
               size="sm"
               color="danger"
@@ -80,7 +93,11 @@
           >
             {{ t("text.address") }}:
           </dt>
-          <dd v-if="selectedAddress">
+          <dd
+            v-if="selectedAddress"
+            data-testid="billing-summary-address"
+            :data-test-value="selectedAddress.title"
+          >
             <p>{{ selectedAddress.title }}</p>
             <p v-if="selectedAddress.address.address2">
               {{ selectedAddress.address.address2 }}
@@ -100,6 +117,7 @@
           </dd>
           <dd v-else>
             <Link
+              data-testid="link-add-address"
               :label="t('action.add_address')"
               size="sm"
               :color="billingMeta.needsAddress ? 'danger' : 'primary'"
@@ -113,11 +131,8 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-
-// --- internal
 import {
   useBasketBilling,
   useClientAddresses,
@@ -125,21 +140,12 @@ import {
   useClientPhones,
   useRoutingEngine
 } from "@upmind-automation/headless";
-
-import type { FunnelTarget } from "@upmind-automation/headless";
 import { useStyles } from "@upmind-automation/upmind-ui";
-
-// --- components
 import { Alert, Avatar, Card, Link } from "@upmind-automation/upmind-ui";
 import Section from "../../../components/section/Section.vue";
-
-// --- config
 import config from "../billing.config";
-
-// --- utils
 import { lowerCase } from "lodash-es";
-
-// --- types
+import type { FunnelTarget } from "@upmind-automation/headless";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
 
 // -----------------------------------------------------------------------------

@@ -54,7 +54,7 @@ workshop-bundle/
         ├── _index.json
         ├── post--oauth-access_token-client.json
         ├── post--oauth-access_token-guest.json
-        ├── ... (all 93 fixtures from tests/__fixtures__/recordings/)
+        ├── ... (all 93 fixtures from tests/fixtures/recordings/)
         └── put-orders-{basketId}.json
 ```
 
@@ -98,7 +98,7 @@ workshop-bundle/
 | `docs/workshop/references/fixture-index.md` | `07-references/fixture-index.md` |
 | `docs/workshop/references/fixture-format.md` | `07-references/fixture-format.md` |
 | `.agent/rules/docs-modules.md` | `07-references/canonical-rule.md` |
-| `tests/__fixtures__/recordings/*.json` (93 files) | `07-references/recordings/*.json` |
+| `tests/fixtures/recordings/*.json` (93 files) | `07-references/recordings/*.json` |
 
 ---
 
@@ -142,7 +142,7 @@ cp "${ROOT}/docs/workshop/_initiator/claude-code.md"  "${BUNDLE}/06-initiator/cl
 # 07 — references
 cp "${ROOT}/docs/workshop/references/fixture-index.md" "${BUNDLE}/07-references/fixture-index.md"
 cp "${ROOT}/.agent/rules/docs-modules.md"              "${BUNDLE}/07-references/canonical-rule.md"
-cp -R "${ROOT}/tests/__fixtures__/recordings/"*        "${BUNDLE}/07-references/recordings/"
+cp -R "${ROOT}/tests/fixtures/recordings/"*        "${BUNDLE}/07-references/recordings/"
 
 echo "Bundle ready at ${BUNDLE}"
 echo "Files: $(find "${BUNDLE}" -type f | wc -l | tr -d ' ')"

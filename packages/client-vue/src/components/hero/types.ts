@@ -1,6 +1,6 @@
+import type { rootVariants } from "./hero.config";
 import type { BadgeProps, ButtonProps } from "@upmind-automation/upmind-ui";
 import type { CxOptions, VariantProps } from "class-variance-authority";
-import type { rootVariants } from "./hero.config";
 
 type HeroVariantProps = VariantProps<typeof rootVariants>;
 
@@ -12,6 +12,7 @@ export type HeroProps = {
   loading?: boolean;
   size?: HeroVariantProps["size"];
   action?: ButtonProps;
+  dataAttrs?: Record<`data-${string}`, string | number | boolean>;
   uiConfig?: {
     hero?: {
       root?: CxOptions;

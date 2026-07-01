@@ -1,5 +1,9 @@
 <template>
-  <li :class="styles.product.root" :data-testid="`product-card-${props.id}`">
+  <li
+    :class="styles.product.root"
+    :data-testid="props.dataAttrs?.['data-testid'] ?? 'product-card'"
+    :data-test-value="props.dataAttrs?.['data-test-value'] ?? props.id"
+  >
     <div :class="styles.product.content">
       <div v-if="!configMeta.hideImage" :class="styles.product.image.container">
         <Link
@@ -101,11 +105,7 @@
               :disabled="loading || disabled || justAdded || isUnavailable"
               data-testid="product-card-cta"
               :aria-pressed="inBasket || justAdded"
-              :data-trial="
-                productDetails.trialDuration
-                  ? productDetails.trialDuration
-                  : undefined
-              "
+              :data-test-value="inBasket || justAdded ? 'added' : 'add'"
               @click="doResolve"
             />
           </Tooltip>
@@ -116,11 +116,8 @@
 </template>
 
 <script setup lang="ts">
-// --- external
 import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
-
-// --- internal
 import {
   IMAGES_STYLE,
   QUERY_PARAMS,
@@ -128,8 +125,6 @@ import {
   useImageUrl
 } from "@upmind-automation/headless";
 import { useConfig } from "@upmind-automation/headless";
-
-// --- components
 import {
   Button,
   Image,
@@ -139,17 +134,13 @@ import {
   Badge
 } from "@upmind-automation/upmind-ui";
 import config from "./card.config";
-import ProductInfo from "./ProductInfo.vue";
 import ProductBenefits from "./ProductBenefits.vue";
+import ProductInfo from "./ProductInfo.vue";
 import ProductPrice from "./ProductPrice.vue";
 import ProductTerm from "./ProductTerm.vue";
-
-// --- utils
 import { delay, isEmpty, merge, toString, isString } from "lodash-es";
-
-// --- types
-import type { ImageItem, ImageMode } from "@upmind-automation/upmind-ui";
 import type { ProductCardProps } from "./types";
+import type { ImageItem, ImageMode } from "@upmind-automation/upmind-ui";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<ProductCardProps>(), {

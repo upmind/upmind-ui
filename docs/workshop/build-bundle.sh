@@ -110,7 +110,7 @@ cp "${ROOT}/docs/workshop/references/fixture-index.md" "${BUNDLE}/07-references/
 cp "${ROOT}/docs/workshop/references/fixture-format.md" "${BUNDLE}/07-references/fixture-format.md"
 cp "${ROOT}/.agent/rules/docs-modules.md"              "${BUNDLE}/07-references/canonical-rule.md"
 
-RECORDINGS_SRC="${ROOT}/tests/__fixtures__/recordings"
+RECORDINGS_SRC="${ROOT}/tests/fixtures/recordings"
 if [[ -d "${RECORDINGS_SRC}" ]]; then
   cp -R "${RECORDINGS_SRC}/." "${BUNDLE}/07-references/recordings/"
 else

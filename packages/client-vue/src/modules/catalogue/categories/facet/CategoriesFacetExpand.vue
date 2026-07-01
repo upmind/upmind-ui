@@ -19,27 +19,17 @@
 </template>
 
 <script setup lang="ts">
-// --- external
 import { computed, inject } from "vue";
-
-// --- internal
 import { QUERY_PARAMS } from "@upmind-automation/headless";
-
-import config from "../../catalogue.config";
-
-// --- components
 import { Button, cn, useStyles } from "@upmind-automation/upmind-ui";
-
-// --- utils
+import config from "../../catalogue.config";
 import { map } from "lodash-es";
-
-// --- types
+import type { CategoriesProps } from "../types";
+import type { CategoriesFacetProps } from "../types";
 import type {
   ProductCategory,
   UseProductCategories
 } from "@upmind-automation/headless";
-import type { CategoriesProps } from "../types";
-import type { CategoriesFacetProps } from "../types";
 
 // -----------------------------------------------------------------------------
 

@@ -1,12 +1,8 @@
-// --- external
 import { describe, it, expect, vi, beforeEach } from "vitest";
-
-// --- mocks NB: must be imported BEFORE module under test
+// NB: ./mocks must be imported BEFORE module under test
 import "./mocks";
-
-// --- internal
-import { useQuery } from "../useQuery";
 import { useLocale } from "../../system";
+import { useQuery } from "../useQuery";
 
 describe("useQuery", () => {
   beforeEach(() => {

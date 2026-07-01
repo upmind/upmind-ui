@@ -6,23 +6,18 @@
  * to e.g. `/basket/auth/` opens an auth overlay on the basket page.
  */
 
-// --- external
 import { assign } from "xstate";
+import { FunnelActions, OverlayType } from "./routing.types";
+import { pascalCase } from "./routing.utils";
 import { filter, findKey, forEach, isString, keys, reduce } from "lodash-es";
-
-// --- utils
-import { pascalCase } from "./utils";
-
-// --- types
-import type { Router, RouteRecordRaw } from "vue-router";
-import type { AnyEventObject } from "xstate";
-import { FunnelActions, OverlayType } from "./types";
 import type {
   FunnelContext,
   FunnelProps,
   FunnelTarget,
   OverlayResponse
-} from "./types";
+} from "./routing.types";
+import type { Router, RouteRecordRaw } from "vue-router";
+import type { AnyEventObject } from "xstate";
 
 // -----------------------------------------------------------------------------
 

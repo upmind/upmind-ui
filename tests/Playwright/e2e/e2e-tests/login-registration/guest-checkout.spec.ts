@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { URLs } from "../../support/constants/urls";
+import { products } from "../../support/constants/products";
 import { seedGuestBasket } from "../../support/flows/guest-checkout";
 import {
   captureBrandSettings,
@@ -37,6 +38,9 @@ import { Registration } from "../../support/page-objects/templates/registration"
  * - The guest CTA stops appearing (or appears on a brand that disabled it),
  *   so visitors either can't reach guest checkout or are offered an unsupported
  *   path that the backend rejects.
+ * - The CTA appears for subscription baskets (recurring products require a
+ *   full account — `basketMeta.hasRecurringProducts` gates it since
+ *   fc0494b9b), offering guests a checkout path that can't complete.
  * - Entering guest checkout no longer signs the visitor in as a guest client,
  *   breaking the whole skip-registration flow.
  * - The account menu mislabels a guest, or stops offering the upgrade, stranding
@@ -96,6 +100,30 @@ test.describe("Guest checkout", () => {
     await expect(page.getByTestId("section-register")).toBeVisible();
 
     // Then no guest checkout option is offered
+    await expect(guest.cta).toHaveCount(0);
+  });
+
+  // Scenario: The guest checkout option is not offered for subscription products
+  test("The guest checkout option is not offered for subscription products", async ({
+    page,
+    context
+  }) => {
+    const guest = new GuestCheckout(page);
+
+    // Given the brand allows guest checkout — mock the gate ON; the hidden CTA
+    // must be attributable to the basket contents, not the brand flag.
+    await interceptConfigValues(page, null, { guestCheckoutEnabled: true });
+
+    // But the visitor's basket contains a subscription product
+    await seedGuestBasket(page, context, products.STARTER_HOSTING);
+
+    // When the visitor opens the register page
+    await page.goto(URLs.register);
+    // control-flow guard — register form rendered before asserting CTA absence
+    await expect(page.getByTestId("section-register")).toBeVisible();
+
+    // Then no guest checkout option is offered (recurring products require a
+    // full account — `basketMeta.hasRecurringProducts` gates the CTA)
     await expect(guest.cta).toHaveCount(0);
   });
 

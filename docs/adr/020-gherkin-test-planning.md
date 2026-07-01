@@ -1,10 +1,11 @@
 # ADR 020: Gherkin as Test Planning Spec, with Escalation Path to `playwright-bdd`
 
 **Date:** May 2026
-**Status:** Accepted
+**Status:** Accepted (Amended June 2026 — see [Amendments](#amendments))
 **Authors:** Dominic da Costa
 **Related:**
 
+- [ADR 025: Co-located Cross-Module Journey Units](./025-colocated-journey-units.md) — moves the `.feature` for a cross-module journey into its journey folder (Amendment 1 below).
 - [ADR 013: Testing Strategy](./013-testing-strategy.md) — extends the layered testing strategy with a planning artefact.
 - [tests/Playwright/docs/08-qa-handover.md](../../tests/Playwright/docs/08-qa-handover.md) — captured QA principles (the *why* this is needed).
 - [tests/Playwright/docs/09-cucumber-evaluation.md](../../tests/Playwright/docs/09-cucumber-evaluation.md) — research artefact backing this decision (short-lived).
@@ -32,6 +33,7 @@ Adopt **Gherkin as a planning/spec format**. Do **not** adopt the Cucumber runne
 ### Decision details
 
 1. **`.feature` files are the planning artefact between Linear AC and Playwright tests.** They describe behaviour in domain language and live under `tests/Playwright/features/<flow>/`, mirroring the per-flow grouping of `tests/Playwright/e2e/e2e-tests/`.
+   > ⚠️ **SUPERSEDED by [Amendment 1](#amendments) (June 2026)** for cross-module journeys: the `.feature` lives co-located at `tests/<surface>/<flow>/<slug>/`, NOT under `tests/Playwright/features/<flow>/`. Single-surface legacy features stay put and migrate lazily. See [ADR 025](./025-colocated-journey-units.md).
 2. **`.feature` files are spec-only, not executable.** Playwright `.spec.ts` files remain the tests that actually run. The `.feature` file is co-located with the generated test as documentation.
 3. **The intended reviewers are product team members and engineering leads. Chris and Sara have been informally identified as product/UX review candidates; Dom (engineering lead) is also a primary reviewer.** Product engagement is **not a hard gate** — `.feature` reviews proceed without product comment when product isn't available, but the escalation gate (§Escalation gate, condition 1) measures whether product uptake materialises in practice over ~10 stories. If uptake is low, the workflow demotes or stays at phase B; if uptake is strong, ADR 020 promotes to phase A.
 4. **Declarative-style convention is non-negotiable.** Codified in [10-feature-style.md](../../tests/Playwright/docs/10-feature-style.md). PR reviewers enforce it. Imperative drift is the single largest risk of this adoption.
@@ -127,3 +129,25 @@ This ADR's adoption work, in order:
 - [tests/Playwright/docs/10-feature-style.md](../../tests/Playwright/docs/10-feature-style.md) — the load-bearing convention.
 - [playwright-bdd on GitHub](https://github.com/vitalets/playwright-bdd) — the predetermined Option-A runtime.
 - [Cucumber docs — Writing better Gherkin](https://cucumber.io/docs/bdd/better-gherkin/) — declarative-style canonical source.
+
+---
+
+## Amendments
+
+Append-only. The Decision above is unchanged except where an amendment supersedes a specific clause; the inline `⚠️ SUPERSEDED` markers point here.
+
+### Amendment 1 — `.feature` co-located in the journey folder; journeys live outside `headless` (June 2026)
+
+> **Supersedes:** §Decision item 1, the clause «…live under `tests/Playwright/features/<flow>/`…» — **for cross-module journeys only**.
+> **Reinforces:** §Decision item 2 (co-location was always the intent).
+> **Home:** [ADR 025: Co-located Cross-Module Journey Units](./025-colocated-journey-units.md).
+
+A cross-module journey is a **self-contained unit OUTSIDE the package-under-test**, at `tests/<surface>/<flow>/<slug>/`. Its `.feature` is **co-located** there alongside the `.int.test.ts`, the sliced `.spec.ts` files, `journey.ts`, `setup.ts`, and (Phase 2) `recordings/`. Surface ∈ {storefront, client-portal, admin}; slug is surface-first `<surface>-<who>-<product>-<action>[-<extras>][-<payment>]`; the Feature name **is** the slug. Deleting the folder has zero side effects.
+
+This **sharpens where "co-located" resolves** (the journey folder, not a parallel `features/` mirror) — a clarification of item 2, not a reversal. `.feature` files remain **spec-only, not executable** (item 2 unchanged), and the declarative-style convention (item 4) is unchanged. Legacy single-surface `features/` files **stay put and migrate lazily** (consistent with §Decision item 6 "no migration"). Forward-compatible with a future `playwright-bdd` promotion: its `features` glob can point at the journey tree; the escalation gate is untouched.
+
+### Amendment 2 — escalation-gate tracking source (June 2026)
+
+> **Supersedes:** §Escalation gate, condition 1 parenthetical «Tracked via PR review-comment counts on `.feature` files…» — the *location* counts are gathered from.
+
+Review-uptake counts are now gathered **per journey folder** `tests/<surface>/<flow>/<slug>/`, not per `tests/Playwright/features/<flow>/`. The three gate conditions and the ~10-story trigger are **UNCHANGED** (not reset). A generated `tests/JOURNEYS.md` index links every journey's `.feature` so discoverability for non-engineer reviewers is no worse than the flat tree — low uptake must be attributed to genuine disengagement, not folder depth, before failing the gate.

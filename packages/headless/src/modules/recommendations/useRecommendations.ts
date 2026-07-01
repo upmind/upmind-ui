@@ -1,13 +1,8 @@
-// --- external
+import { useActor } from "@xstate/vue";
 import { computed } from "vue";
 import { interpret, InterpreterStatus } from "xstate";
-import { useActor } from "@xstate/vue";
 import { waitFor } from "xstate/lib/waitFor";
-
-// --- internal
 import recommendationsEngine from "./recommendationsEngine.machine";
-
-// --- utils
 import {
   useContext,
   stopService,
@@ -16,9 +11,7 @@ import {
   contextMatches
 } from "../../utils";
 import { some } from "lodash-es";
-
-// --- types
-import type { RecommendationsEngineContext } from "./types";
+import type { RecommendationsEngineContext } from "./recommendations.types";
 
 // -----------------------------------------------------------------------------
 

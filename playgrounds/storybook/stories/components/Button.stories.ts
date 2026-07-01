@@ -1,5 +1,4 @@
 // --- external
-import type { Meta, StoryObj } from "@storybook/vue3";
 
 // -- components
 import {
@@ -8,10 +7,8 @@ import {
   BUTTON_SIZES,
   BUTTON_ALIGNMENTS
 } from "@upmind-automation/upmind-ui";
-
-// --- utils
-import { useSystemArgTypes } from "../../utils";
-import { first, last } from "lodash-es";
+import { first } from "lodash-es";
+import type { Meta, StoryObj } from "@storybook/vue3";
 
 // -----------------------------------------------------------------------------
 

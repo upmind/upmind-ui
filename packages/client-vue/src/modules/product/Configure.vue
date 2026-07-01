@@ -44,6 +44,7 @@
     <template #configuration>
       <Section
         :label="t('text.product_configuration')"
+        value="product-configuration"
         icon="settings-04"
         :actions="configurationActions"
       >
@@ -205,12 +206,9 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
-import { computed, onUnmounted, provide, watch } from "vue";
 import { useClipboard } from "@vueuse/core";
+import { computed, onUnmounted, provide, watch } from "vue";
 import { useI18n } from "vue-i18n";
-
-// --- internal
 import {
   useRoutingEngine,
   useBasketProductsPending,
@@ -223,31 +221,33 @@ import {
   ErrorOrigin
 } from "@upmind-automation/headless";
 import { useConfig, validateTemplate } from "@upmind-automation/headless";
+import { BreadcrumbVariant } from "@upmind-automation/headless";
 import { useStyles } from "@upmind-automation/upmind-ui";
-import config from "./product.config";
-import { useBreadcrumbs } from "../../composables/useBreadcrumbs";
 import { useThemes } from "@upmind-automation/upmind-ui";
-
-// --- components
 import { Breadcrumb, Markdown, Alert } from "@upmind-automation/upmind-ui";
+import { isMobile } from "@upmind-automation/upmind-ui";
+import Section from "../../components/section/Section.vue";
+import { useBreadcrumbs } from "../../composables/useBreadcrumbs";
+import { PRODUCT_HERO_DIRECTION } from "../product/components/hero/types";
+import ProductConfig from "./components/Config.vue";
 import ConfigErrors from "./components/ConfigErrors.vue";
 import ConfigSkeleton from "./components/ConfigSkeleton.vue";
+import ProductHero from "./components/hero/ProductHero.vue";
+import ProductHeroSkeleton from "./components/hero/ProductHeroSkeleton.vue";
+import ProductImage from "./components/hero/ProductImage.vue";
 import Pricing from "./components/pricing-list/Pricing.vue";
 import PricingSkeleton from "./components/pricing-list/PricingSkeleton.vue";
 import PricingTotal from "./components/pricing-list/PricingTotal.vue";
 import ProductActions from "./components/ProductActions.vue";
-import ProductConfig from "./components/Config.vue";
-import ProductHero from "./components/hero/ProductHero.vue";
-import ProductHeroSkeleton from "./components/hero/ProductHeroSkeleton.vue";
-import ProductImage from "./components/hero/ProductImage.vue";
 import ProductNotFound from "./NotFound.vue";
-import Section from "../../components/section/Section.vue";
-
-//  --- templates
+import config from "./product.config";
+import ProductEnclosedTemplate from "./templates/ProductEnclosed.template.vue";
 import ProductFullTemplate from "./templates/ProductFull.template.vue";
 import ProductLTRTemplate from "./templates/ProductLTR.template.vue";
 import ProductRTLTemplate from "./templates/ProductRTL.template.vue";
-import ProductEnclosedTemplate from "./templates/ProductEnclosed.template.vue";
+import { PRODUCT_TEMPLATE } from "./types";
+import { get, includes, take, isEmpty } from "lodash-es";
+import type { ConfigureProps } from "./types";
 
 const supportedTemplates = {
   [PRODUCT_TEMPLATE.FULL]: ProductFullTemplate,
@@ -255,15 +255,6 @@ const supportedTemplates = {
   [PRODUCT_TEMPLATE.TWO_COLUMN_RTL]: ProductRTLTemplate,
   [PRODUCT_TEMPLATE.ENCLOSED]: ProductEnclosedTemplate
 };
-// --- utils
-import { get, includes, take, isEmpty } from "lodash-es";
-import { isMobile } from "@upmind-automation/upmind-ui";
-
-// --- types
-import type { ConfigureProps } from "./types";
-import { PRODUCT_TEMPLATE } from "./types";
-import { BreadcrumbVariant } from "@upmind-automation/headless";
-import { PRODUCT_HERO_DIRECTION } from "../product/components/hero/types";
 
 // -----------------------------------------------------------------------------
 

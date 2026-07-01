@@ -5,14 +5,9 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed } from "vue";
-
-// --- internal
 import { cn, useStyles } from "@upmind-automation/upmind-ui";
 import config from "./content.config";
-
-// --- types
 import type { ContentProps } from "./types";
 
 const props = withDefaults(defineProps<ContentProps>(), {

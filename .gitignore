@@ -24,9 +24,9 @@ tests/Playwright/blob-report/
 tests/Playwright/playwright/.cache/
 tests/Playwright/e2e/support/secrets
 tests/Playwright/e2e/snapshots/
-tests/__fixtures__/recordings/
-tests/__fixtures__/recordings*/
-tests/__fixtures__/recordings-velia/
+# Canonical fixture pool (tests/fixtures/recordings/) IS committed — FE-2775.
+# Only ad-hoc / brand-specific capture dirs (recordings-velia/, etc.) are ignored.
+tests/fixtures/recordings-*/
 .playwright-mcp/
 
 
@@ -49,4 +49,5 @@ docs/plans/
 docs/audit/
 docs/reviews/
 docs/decisions/
+docs/stories/
 scripts/

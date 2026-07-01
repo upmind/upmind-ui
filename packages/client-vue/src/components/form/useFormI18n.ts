@@ -1,15 +1,11 @@
-// --- external
-export * from "./renderers";
-
-// ---
+import RandExp from "randexp";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { isEmpty, isFunction, trimStart } from "lodash-es";
 import { useValidationTranslator } from "@upmind-automation/headless";
-import RandExp from "randexp";
-
-// --- types
+import { isEmpty, isFunction, trimStart } from "lodash-es";
 import type { JsonFormsI18nState } from "@jsonforms/core";
+
+export * from "./renderers";
 
 // -----------------------------------------------------------------------------
 

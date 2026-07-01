@@ -1,11 +1,10 @@
-// --- external
-import type { CxOptions } from "class-variance-authority";
-import type { HTMLAttributes } from "vue";
 import type {
   InterstitialProps,
   TabItem,
   LinkProps
 } from "@upmind-automation/upmind-ui";
+import type { CxOptions } from "class-variance-authority";
+import type { HTMLAttributes } from "vue";
 
 export type I18nText = {
   key: string;
@@ -17,7 +16,7 @@ export type InterstitialExtendedProps = InterstitialProps & {
 };
 
 export type SectionActionProps = LinkProps & {
-  handler?: Function | string;
+  handler?: ((...args: unknown[]) => unknown) | string;
   type?: HTMLButtonElement["type"];
   visible?: boolean;
 };

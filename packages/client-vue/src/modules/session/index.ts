@@ -8,6 +8,7 @@ export { default as UpmSessionLogout } from "./Logout.vue";
 export { default as UpmSessionRecoverPassword } from "./RecoverPassword.vue";
 
 // --- Export Components
+export { default as UpmAccount } from "./components/Account.vue";
 export { default as UpmAuth } from "./components/Auth.vue";
 
 // --- Export Types

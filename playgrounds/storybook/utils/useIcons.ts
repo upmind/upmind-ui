@@ -1,4 +1,3 @@
-// --- utils
 import { keys, last, reduce, includes, startCase, set } from "lodash-es";
 
 // const iconsRaw = import.meta.glob(`@icons/**/*.svg`, {
@@ -9,13 +8,13 @@ import { keys, last, reduce, includes, startCase, set } from "lodash-es";
 
 const iconsImport = import.meta.glob(`@icons/**/*.svg`, {
   eager: true,
-  import: "default",
+  import: "default"
 });
 // -----------------------------------------------------------------------------
 
 export enum iconOutput {
   URL = "url",
-  NAME = "name",
+  NAME = "name"
   // SVG = "svg",
 }
 

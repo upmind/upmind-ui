@@ -1,12 +1,8 @@
-// --- external
 import { ref, computed } from "vue";
-
-// --- internal
 import { useBrand, useTheming } from "@upmind-automation/headless";
 import { useConfig } from "@upmind-automation/headless";
+import { UIContext } from "@upmind-automation/headless";
 import { useThemes, useThemeIcons } from "@upmind-automation/upmind-ui";
-
-// --- utils
 import {
   setDocumentFavicon,
   setDisplayFontLink,
@@ -16,10 +12,7 @@ import {
   setTokens
 } from "./utils";
 import { isEmpty, keys, isEqual, find, forEach, capitalize } from "lodash-es";
-
-// --- types
 import type { Theme } from "@upmind-automation/headless";
-import { UIContext } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 // --- global context

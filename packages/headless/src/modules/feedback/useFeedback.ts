@@ -1,19 +1,12 @@
-// --- external
+import { useActor } from "@xstate/vue";
 import { computed, type MaybeRef, unref } from "vue";
 import { interpret, InterpreterStatus } from "xstate";
-import { useActor } from "@xstate/vue";
-
-// --- internal
 import feedbackMachine from "./feedback.machine";
-
-// --- utils
+import { messageTypes } from "./feedback.types";
+import { messageDisplays, type Message } from "./feedback.types";
 import { contextValue, useTime } from "../../utils";
 import { map, reduce, isEmpty, sortBy, isString, get } from "lodash-es";
-
-// --- types
 import type { ActorRef } from "xstate";
-import { messageTypes } from "./types";
-import { messageDisplays, type Message } from "./types";
 
 // -----------------------------------------------------------------------------
 // create a global instance of the feedback machine

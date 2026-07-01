@@ -7,10 +7,7 @@
 </template>
 
 <script lang="ts" setup>
-// --- components
 import { UpmBasket } from "@upmind-automation/client-vue";
-
-// --- internal
 import { ROUTE } from "../router";
 import { useStorefrontRoute } from "../router/useStorefrontRoute";
 

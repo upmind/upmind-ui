@@ -67,26 +67,19 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed, provide, ref, watch } from "vue";
 import { useRouter } from "vue-router";
-
-// --- internal
 import {
   useBasketCurrency,
   usePaymentDetailAdd,
   usePaymentDetails
 } from "@upmind-automation/client-vue";
-
-// --- components
 import {
   UpmLayout,
   UpmPaymentDetails,
   UpmSection
 } from "@upmind-automation/client-vue";
 import { Alert, Interstitial } from "@upmind-automation/upmind-ui";
-
-// --- types
 import type { UsePaymentDetailAdd } from "@upmind-automation/client-vue";
 import type { ICurrency } from "@upmind-automation/types";
 
@@ -109,7 +102,7 @@ const submitted = ref(false);
 // --- typed accessor (single narrowing point)
 
 // --- debug
-const debugState = computed(() => ({
+const _debugState = computed(() => ({
   meta: instance.meta.value,
   gatewaysCount: instance.gateways.value?.length ?? 0,
   storedPaymentMethodsCount: storedPaymentMethods.value?.length ?? 0,

@@ -1,5 +1,3 @@
-import { get, isEmpty } from "lodash-es";
-
 import {
   type AnyEventObject,
   type FunnelContext,
@@ -10,9 +8,10 @@ import {
   useConfig,
   useProductSetup,
   useQueryParams,
-  useSession
+  useActiveSession
 } from "@upmind-automation/client-vue";
 import { QUERY_PARAMS } from "@upmind-automation/types";
+import { get, isEmpty } from "lodash-es";
 import type { RouteLocationGeneric } from "vue-router";
 
 // -----------------------------------------------------------------------------
@@ -102,8 +101,8 @@ const guards = {
    * Used as an `always` guard to skip auth pages instantly.
    */
   isAuthenticated: () => {
-    const { meta } = useSession();
-    return !!meta.value?.isAuthenticated;
+    const { isAuthenticated } = useActiveSession().useMeta();
+    return !!isAuthenticated.value;
   },
 
   /**
@@ -112,8 +111,8 @@ const guards = {
    * route to complete their upgrade rather than being advanced to checkout.
    */
   isGuestClient: () => {
-    const { meta } = useSession();
-    return !!meta.value?.isGuestClient;
+    const { isGuestClient } = useActiveSession().useMeta();
+    return !!isGuestClient.value;
   },
 
   /**

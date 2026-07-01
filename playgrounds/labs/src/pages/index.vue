@@ -133,15 +133,10 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed } from "vue";
 import { RouterLink, useRouter } from "vue-router";
-
-// --- components
 import { UpmLayout } from "@upmind-automation/client-vue";
 import { Button, Icon } from "@upmind-automation/upmind-ui";
-
-// --- internal
 import { useNavigation, type NavItem } from "../composables/useNavigation";
 
 // -----------------------------------------------------------------------------

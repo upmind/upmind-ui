@@ -1,8 +1,7 @@
-// --- internal
+import { CART_OVERLAYS } from "../router.options";
 import cart from "./cart";
 import domains from "./domains";
 import { watchers } from "./watchers";
-import { CART_OVERLAYS } from "../routes";
 
 // -----------------------------------------------------------------------------
 

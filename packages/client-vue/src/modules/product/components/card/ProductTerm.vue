@@ -12,23 +12,16 @@
 </template>
 
 <script setup lang="ts">
-// --- external
 import { useVModel } from "@vueuse/core";
 import { computed } from "vue";
-import { toString, map } from "lodash-es";
 import { useI18n } from "vue-i18n";
-
-// --- internal
 import { parseBillingCycle } from "@upmind-automation/headless";
-
-// --- components
 import {
   SelectCards,
   type SelectCardsItemProps
 } from "@upmind-automation/upmind-ui";
 import TermCard from "../terms/TermCard.vue";
-
-// --- types
+import { toString, map } from "lodash-es";
 import type { ProductTerm } from "./types";
 import type { BadgeProps } from "@upmind-automation/upmind-ui";
 

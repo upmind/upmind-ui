@@ -1,12 +1,9 @@
-// --- external
 import { vi } from "vitest";
-
-// --- utils
 import { has } from "lodash-es";
 
 // Locale mocks with subscription so other mocks can react to changes
 const localeListeners = new Set<() => void>();
-vi.mock("../../system/localisation/useLocale", () => {
+vi.mock("../../system-localisation/useLocale", () => {
   const locale = { value: "en" } as any;
   return {
     useLocale: () => ({
@@ -24,7 +21,7 @@ vi.mock("../../system/localisation/useLocale", () => {
 
 // Mock the system barrel to provide useI18n, useLocale re-export, and useDataLayer
 vi.mock("../../system", async () => {
-  const localeModule: any = await import("../../system/localisation/useLocale");
+  const localeModule: any = await import("../../system-localisation/useLocale");
   return {
     useI18n: () => ({ t: (key: string) => key }),
     useLocale: localeModule.useLocale,
@@ -45,7 +42,7 @@ vi.mock("../../utils", () => ({
 // Mock tanstack's useQuery to refetch on changes to any of these reactive keys
 // when present on the final queryKey segment: 'locale', 'currencyCode', 'limit', 'pageIndex'.
 vi.mock("@tanstack/vue-query", async () => {
-  const localeModule: any = await import("../../system/localisation/useLocale");
+  const localeModule: any = await import("../../system-localisation/useLocale");
 
   const useQuery = vi.fn((options?: any) => {
     const refetch = vi.fn();

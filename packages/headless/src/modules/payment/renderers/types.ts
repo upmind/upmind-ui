@@ -1,11 +1,4 @@
-// --- external
-
-// --- internal
-
-// --- utils
-
-// --- types
-import type { PaymentContext } from "../types";
+import type { PaymentContext } from "../payment.types";
 import type { AnyEventObject } from "xstate";
 
 // -----------------------------------------------------------------------------

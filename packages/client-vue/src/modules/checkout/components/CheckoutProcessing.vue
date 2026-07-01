@@ -17,17 +17,12 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-
-// --- internal
 import {
   useBasket,
   useBasketPaymentDetails
 } from "@upmind-automation/headless";
-
-// --- components
 import { Interstitial } from "@upmind-automation/upmind-ui";
 import PaymentProcessing from "../../payment/components/PaymentProcessing.vue";
 

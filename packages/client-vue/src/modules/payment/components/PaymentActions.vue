@@ -31,19 +31,12 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-
-// --- internal
-import config from "../payment.config";
 import { useStyles } from "@upmind-automation/upmind-ui";
-
-// --- components
 import { Button, Markdown } from "@upmind-automation/upmind-ui";
 import TermsAndConditions from "../../brand/TermsAndConditions.vue";
-
-// --- types
+import config from "../payment.config";
 import type { PaymentActionsProps } from "../types";
 
 const emit = defineEmits<{

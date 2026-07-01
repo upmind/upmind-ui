@@ -1,16 +1,9 @@
-// --- external
 import { computed } from "vue";
-
-// --- internal
-import { useRecommendations } from "./";
-
-// --- utils
-import { reduce, some } from "lodash-es";
+import { useRecommendations } from ".";
 import { contextMatches, contextValue, stateMatches } from "../../utils";
-
-// --- types
+import { reduce, some } from "lodash-es";
 import type { ProductModel } from "../product";
-import type { RecommendationsEngineContext } from "./types";
+import type { RecommendationsEngineContext } from "./recommendations.types";
 
 // -----------------------------------------------------------------------------
 

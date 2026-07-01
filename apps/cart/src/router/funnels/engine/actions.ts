@@ -1,5 +1,3 @@
-import { isEmpty, isString } from "lodash-es";
-
 import {
   type AnyEventObject,
   assign,
@@ -9,10 +7,11 @@ import {
   useBasketProductsPending,
   useQueryParams,
   useRoutingEngine,
-  useSession
+  useActiveSession
 } from "@upmind-automation/client-vue";
 import { ROUTE } from "../types";
 import { applyBillingDefaults } from "./services";
+import { isEmpty, isString } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
@@ -133,7 +132,7 @@ export default {
 
   // Force end the session by logging out the user
   logout: () => {
-    const { logout } = useSession();
+    const { logout } = useActiveSession().useActions();
     logout();
   },
 

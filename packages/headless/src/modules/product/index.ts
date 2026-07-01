@@ -2,12 +2,14 @@
 // --- internal
 // --- utils
 // --- types
-export * from "./types";
+export * from "./product.types";
 export * from "./useProductConfig";
-export { parseBillingCycle, parsePrice } from "./utils";
+export { parseBillingCycle, parsePrice } from "./product.utils";
 export {
   useProductConfigSchema,
   useProductConfigUischema,
-  useInvalidProductConfigUischema
-} from "./schemas";
-export { applyConfigDefaults } from "./services";
+  useInvalidProductConfigUischema,
+  useInvalidProductConfigSchema
+} from "./product.schemas";
+export { applyConfigDefaults } from "./product.services";
+export { default as productMachine } from "./product.machine";

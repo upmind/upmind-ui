@@ -1,14 +1,11 @@
 // --- external
-import type { Meta, StoryObj } from "@storybook/vue3";
 
 // -- components
 import {
   RadioCards,
-  type RadioCardsItemProps,
+  type RadioCardsItemProps
 } from "@upmind-automation/upmind-ui";
-
-// --- utils
-import { useSystemArgTypes } from "../../../utils";
+import type { Meta, StoryObj } from "@storybook/vue3";
 
 // --- types
 
@@ -20,9 +17,9 @@ const meta: Meta<typeof RadioCards> = {
     docs: {
       description: {
         component:
-          "A list-style control that allows users to select a single option from multiple choices.",
-      },
-    },
+          "A list-style control that allows users to select a single option from multiple choices."
+      }
+    }
   },
   component: RadioCards,
   argTypes: {},
@@ -30,26 +27,26 @@ const meta: Meta<typeof RadioCards> = {
     items: [
       {
         value: "1",
-        label: "Item 1",
+        label: "Item 1"
       },
       {
         value: "2",
-        label: "Item 2",
+        label: "Item 2"
       },
       {
         value: "3",
-        label: "Item 3",
+        label: "Item 3"
       },
       {
         value: "4",
-        label: "Nisi dolore consectetur.",
+        label: "Nisi dolore consectetur."
       },
       {
         value: "5",
-        label: "Incididunt ullamco et elit exercitation ipsum.",
-      },
-    ] as RadioCardsItemProps[],
-  },
+        label: "Incididunt ullamco et elit exercitation ipsum."
+      }
+    ] as RadioCardsItemProps[]
+  }
 };
 
 export default meta;
@@ -60,16 +57,16 @@ export const Base: Story = {
     components: { RadioCards },
     setup() {
       return {
-        args,
+        args
       };
     },
     methods: {
       doUpdate(value: boolean) {
         updateArgs({ modelValue: value });
-      },
+      }
     },
     template: `
         <RadioCards v-bind="args" />
-    `,
-  }),
+    `
+  })
 };

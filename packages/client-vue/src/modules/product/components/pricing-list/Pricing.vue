@@ -16,18 +16,17 @@
 </template>
 
 <script setup lang="ts">
-// --- external
-import {
-  type Product,
-  type UseProductConfigMeta
+import PricingList from "./PricingList.vue";
+import type {
+  Product,
+  UseProductConfigMeta
 } from "@upmind-automation/headless";
 
 // --- components
-import PricingList from "./PricingList.vue";
 
 // -----------------------------------------------------------------------------
 
-const props = withDefaults(
+const _props = withDefaults(
   defineProps<{
     product: Product;
     meta: UseProductConfigMeta;

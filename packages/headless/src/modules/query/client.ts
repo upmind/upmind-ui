@@ -15,7 +15,8 @@ export const queryClient = new QueryClient({
       // Only retry on 5xx server errors — 4xx errors don't get better with
       // retries and just waste time (e.g. a 404 brand lookup retrying 3× delays
       // the unavailable-tenant redirect by several seconds)
-      retry: (_failureCount, error: any) => {
+      retry: (failureCount, error: any) => {
+        if (failureCount >= 3) return false;
         const status = error?.status ?? error?.code;
         return isNumber(status) && status >= 500;
       },

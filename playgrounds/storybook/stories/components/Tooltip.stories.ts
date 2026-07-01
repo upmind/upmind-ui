@@ -1,15 +1,8 @@
-// --- external
 import { ref } from "vue";
-import type { Meta, StoryObj } from "@storybook/vue3";
-
-// -- components
 import { Tooltip, Button } from "@upmind-automation/upmind-ui";
-
-// --- utils
-import { first } from "lodash-es";
-
-// --- types
 import { TOOLTIP_COLORS } from "@upmind-automation/upmind-ui";
+import { first } from "lodash-es";
+import type { Meta, StoryObj } from "@storybook/vue3";
 
 const meta: Meta<typeof Tooltip> = {
   argTypes: {

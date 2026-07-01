@@ -10,12 +10,12 @@ import { Drawer } from "../components/drawer";
 import { Form } from "../components/form";
 import { Markdown } from "../components/markdown";
 import { Lineclamp } from "../components/lineclamp";
-import { kebabCase } from "../../helpers/strings";
 
 export class ProductConfig {
   readonly page: Page;
   readonly textInput: TextInput;
   readonly productConfigSection: Locator;
+  readonly configForm: Locator;
   readonly checkboxes: Checkboxes;
   readonly radioButtons: RadioButtons;
   readonly button: Button;
@@ -127,25 +127,26 @@ export class ProductConfig {
       "section-product-configuration"
     );
     this.billingTerms = page.getByTestId("form-item-term");
+    this.configForm = page.getByTestId("product-config-form");
     this.options = page.getByTestId("options-container-options");
 
     /* Domain Radio Options (new radio-based UI) */
-    this.domainRadioSkip = page.getByRole("radio", {
-      name: /I'll decide later/i
-    });
-    this.domainRadioRegister = page.getByRole("radio", {
-      name: /Register a new domain/i
-    });
-    this.domainRadioExisting = page.getByRole("radio", {
-      name: /Use a domain I already own/i
-    });
-    this.domainRadioBasket = page.getByRole("radio", {
-      name: /Use a domain from my basket/i
-    });
-    this.domainRadioInput = page.getByPlaceholder(/Enter a domain to search/i);
-    this.domainExistingInput = page.getByPlaceholder(
-      /Tell us the domain you want to use/i
-    );
+    // SmartDomainField renders each choice as `<RadioGroupItem :value="...">`
+    // keyed off the stable `DomainTypes` enum value (skip|register|existing|
+    // basket) — locale-independent, unlike the translated radio label.
+    this.domainRadioSkip = page.locator('[role="radio"][value="skip"]');
+    this.domainRadioRegister = page.locator('[role="radio"][value="register"]');
+    this.domainRadioExisting = page.locator('[role="radio"][value="existing"]');
+    this.domainRadioBasket = page.locator('[role="radio"][value="basket"]');
+    // The register sub-content's FormControl carries the stable HTML id
+    // `domain-register-search`; the existing-domain search has no stable anchor
+    // (its FormControl id is a runtime uniqueId), so scope to the sole search
+    // input rendered while the "existing" choice is expanded.
+    this.domainRadioInput = page.locator("#domain-register-search input");
+    this.domainExistingInput = page
+      .getByTestId("section-product-configuration")
+      .locator('[role="radio"][value="existing"]')
+      .locator('xpath=following::input[@type="text"][1]');
 
     /* Domain Accordion Options (legacy - deprecated) */
     this.domainRegister = page.getByTestId("accordion-item-register");
@@ -349,7 +350,7 @@ export class ProductConfig {
     }
     await this.page
       .getByTestId("drawer-content")
-      .getByTestId(`checkbox-item-${kebabCase(domain)}`)
+      .getByTestId(`checkbox-item-${domain}`)
       .getByRole("button")
       .dispatchEvent("click");
     await this.page.getByTestId("button-continue").click();
@@ -366,12 +367,12 @@ export class ProductConfig {
     return badge;
   }
 
-  async promoBadgeDoesNotExist(option: string) {
+  async promoBadgeDoesNotExist(option: string | number) {
     const term = this.radioButtons.getRadioButton(option);
     await expect(this.getPromoBadge(term)).toBeHidden();
   }
 
-  async promoBadgeExists(option: string) {
+  async promoBadgeExists(option: string | number) {
     const term = this.radioButtons.getRadioButton(option);
     await expect(this.getPromoBadge(term)).toBeVisible();
   }
@@ -415,12 +416,13 @@ export class ProductConfig {
       (await present(this.registrantPhoneInput))
     ) {
       await this.registrantPhoneCountrySelectButton.click();
+      // Filtering by the ISO code the test supplied narrows the option list to
+      // the matching country; click the first result rather than matching the
+      // translated country name.
       await this.registrantPhoneCountrySelectInput.fill(
         details.registrantCountryCode
       );
-      await this.registrantPhoneCountrySelectItem
-        .getByText("United Kingdom")
-        .click();
+      await this.registrantPhoneCountrySelectItem.first().click();
     }
     if (details.registrantPhone && (await present(this.registrantPhoneInput))) {
       await this.registrantPhoneInput.fill(details.registrantPhone);
@@ -466,10 +468,12 @@ export class ProductConfig {
     return this.form.clearFormInput(label);
   }
 
-  getSummaryItem(itemLabel: string) {
-    return this.page.getByTestId(
-      `description-list-item-${kebabCase(itemLabel)}`
-    );
+  /**
+   * @param key - Stable summary-item key (the detail's `name`, e.g. `product`,
+   *   `shared-hosting`, `term`), NOT a translated category label.
+   */
+  getSummaryItem(key: string) {
+    return this.page.getByTestId(`description-list-item-${key}`);
   }
 
   async clickAddToBasket() {

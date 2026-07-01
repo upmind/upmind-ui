@@ -8,8 +8,7 @@ import {
   DomainTypes,
   type DomainModel,
   type DomainProduct,
-  type UseDac,
-  type UseDomain
+  type UseDac
 } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------

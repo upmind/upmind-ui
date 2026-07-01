@@ -18,19 +18,12 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
-import { useI18n } from "vue-i18n";
-
-// --- internal
-import { useSession } from "@upmind-automation/headless";
-
-// -- components
-import { Interstitial } from "@upmind-automation/upmind-ui";
-
-// -- types
-import { type InterstitialProps } from "@upmind-automation/upmind-ui";
 import { onMounted } from "vue";
+import { useI18n } from "vue-i18n";
+import { useActiveSession } from "@upmind-automation/headless";
+import { Interstitial } from "@upmind-automation/upmind-ui";
 import type { StorefrontRoute } from "../../types";
+import type { InterstitialProps } from "@upmind-automation/upmind-ui";
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(
@@ -54,11 +47,13 @@ const props = withDefaults(
 );
 // -----------------------------------------------------------------------------
 const { t } = useI18n();
-const { logout, meta } = useSession();
+const session = useActiveSession();
+const { isAuthenticated } = session.useMeta();
+const { logout } = session.useActions();
 
 // --- side effects
 onMounted(() => {
   // FORCE: logout if still authenticated
-  if (meta.value.isAuthenticated) logout();
+  if (isAuthenticated.value) logout();
 });
 </script>

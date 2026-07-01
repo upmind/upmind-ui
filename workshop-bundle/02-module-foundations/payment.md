@@ -195,7 +195,7 @@ type GatewayProvider = {
 
 ```ts
 // The body for POST /payments. Confirmed against the captured v2 fixture
-// `tests/__fixtures__/recordings/post-payments.json` (new-card Stripe inline path).
+// `tests/fixtures/recordings/post-payments.json` (new-card Stripe inline path).
 type PaymentPost = {
   invoice_id: string;          // the invoice being charged
   gateway_id: string;          // chosen gateway (from the eligibility list)
@@ -262,7 +262,7 @@ curl -s "$API/invoices/63250798-065d-1e20-388f-8174e234e98d?with=brand,taxes,cli
   -H "Authorization: Bearer $ACCESS_TOKEN"
 ```
 
-Response is the canonical `IInvoice` shape — full record is large and documented in the `invoices` module's data shape. The fields the payment flow keys off are `id`, `client_id`, `currency_id` / `currency.code`, `address.country_id`, `total_amount`, `paid_amount`, `status_id`, and the embedded `payments[]` array for retry / partial-payment context. Full capture available at [`tests/__fixtures__/recordings/get-invoices-63250798-065d-1e20-388f-8174e234e98d.json`](../../../../../../tests/__fixtures__/recordings/get-invoices-63250798-065d-1e20-388f-8174e234e98d.json).
+Response is the canonical `IInvoice` shape — full record is large and documented in the `invoices` module's data shape. The fields the payment flow keys off are `id`, `client_id`, `currency_id` / `currency.code`, `address.country_id`, `total_amount`, `paid_amount`, `status_id`, and the embedded `payments[]` array for retry / partial-payment context. Full capture available at [`tests/fixtures/recordings/get-invoices-63250798-065d-1e20-388f-8174e234e98d.json`](../../../../../../tests/fixtures/recordings/get-invoices-63250798-065d-1e20-388f-8174e234e98d.json).
 
 ### `GET /brands/{brandId}/gateways`
 
@@ -342,7 +342,7 @@ curl -s "$API/brands/47d73824-8507-9315-e54f-81e642d59e06/gateways?limit=0&clien
 }
 ```
 
-> Sample trimmed for readability — the full response is keyed by positional index (`"1"`, `"2"`, …) preserving server-side `order`, each row carrying the full `IBrandGateway` shape inclusive of `gateway_settings` (private settings are returned as `{ id, private: true }` only). Full capture available at [`tests/__fixtures__/recordings/get-brands-47d73824-8507-9315-e54f-81e642d59e06-gateways-2d2b5513.json`](../../../../../../tests/__fixtures__/recordings/get-brands-47d73824-8507-9315-e54f-81e642d59e06-gateways-2d2b5513.json).
+> Sample trimmed for readability — the full response is keyed by positional index (`"1"`, `"2"`, …) preserving server-side `order`, each row carrying the full `IBrandGateway` shape inclusive of `gateway_settings` (private settings are returned as `{ id, private: true }` only). Full capture available at [`tests/fixtures/recordings/get-brands-47d73824-8507-9315-e54f-81e642d59e06-gateways-2d2b5513.json`](../../../../../../tests/fixtures/recordings/get-brands-47d73824-8507-9315-e54f-81e642d59e06-gateways-2d2b5513.json).
 
 ### `POST /payments`
 
@@ -368,7 +368,7 @@ curl -s "$API/payments?lang=en-US" \
   }'
 ```
 
-**New-card branch (Stripe inline)** — captured shape from a real run (see `tests/__fixtures__/recordings/post-payments.json`):
+**New-card branch (Stripe inline)** — captured shape from a real run (see `tests/fixtures/recordings/post-payments.json`):
 
 ```bash
 curl -s "$API/payments?lang=en-US" \

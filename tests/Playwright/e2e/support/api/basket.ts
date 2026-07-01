@@ -157,27 +157,28 @@ export async function addProductToOrder(
     }
   });
 
+  const data = {
+    product_id: productId,
+    quantity: qty,
+    billing_cycle_months: billingCycle,
+    attributes: attributeValues,
+    options: optionValues,
+    provision_field_values: provisionFields,
+    promotions: promotionValues,
+    provision_field_values_validate: provisionFieldsValidate,
+    start_trial: start_trial
+  };
+
   try {
     const response = await context.post(
       `/api/orders/${orderId}/products?lang=en`,
-      {
-        data: {
-          product_id: productId,
-          quantity: qty,
-          billing_cycle_months: billingCycle,
-          attributes: attributeValues,
-          options: optionValues,
-          provision_field_values: provisionFields,
-          promotions: promotionValues,
-          provision_field_values_validate: provisionFieldsValidate,
-          start_trial: start_trial
-        }
-      }
+      { data }
     );
 
     if (!response.ok()) {
+      const errBody = await response.text().catch(() => "");
       throw new Error(
-        `Failed to add product to order: ${response.status()} ${response.statusText()}`
+        `Failed to add product to order: ${response.status()} ${response.statusText()}\n  PAYLOAD: ${JSON.stringify(data)}\n  RESPONSE: ${errBody}`
       );
     }
 

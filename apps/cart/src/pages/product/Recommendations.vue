@@ -4,10 +4,7 @@
   />
 </template>
 <script lang="ts" setup>
-// --- components
 import { UpmProductRecommendations } from "@upmind-automation/client-vue";
-
-// --- internal
 import { ROUTE } from "../../router";
 
 // -----------------------------------------------------------------------------

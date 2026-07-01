@@ -207,6 +207,6 @@ Candidate scenarios for pseudo-nathan:
 ## Appendix — rule added (done)
 
 `### No try/catch around promises` under `## Error Handling` in
-`.agent/rules/code-generation.md` and `.claude/rules/code-generation.md` (byte-identical).
+`.agent/rules/code-style.md` and `.claude/rules/code-style.md` (byte-identical).
 Reserves `try/catch` for non-promise throws (e.g. `JSON.parse`); promises use `.catch()` or
 XState `onError`.

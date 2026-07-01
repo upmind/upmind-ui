@@ -1,16 +1,8 @@
-// --- external
-import type { Meta, StoryObj } from "@storybook/vue3";
-
-// --- components
-import { Combobox } from "@upmind-automation/upmind-ui";
-
-// --- utils
-import { useSystemArgTypes } from "../../../utils";
-import countries from "../../../utils/countries.json";
 import { ref } from "vue";
-
-// --- types
+import { Combobox } from "@upmind-automation/upmind-ui";
 import { COMBOBOX_WIDTHS, COMBOBOX_SIZES } from "@upmind-automation/upmind-ui";
+import countries from "../../../utils/countries.json";
+import type { Meta, StoryObj } from "@storybook/vue3";
 
 const meta: Meta<typeof Combobox> = {
   render: args => ({

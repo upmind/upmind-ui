@@ -34,36 +34,32 @@
         </div>
 
         <Alert
-          v-if="!meta.isAuthenticated && !meta.isLoading"
+          v-if="!isAuthenticated && !isLoading"
           color="danger"
           title="Please log in to use client companies"
         />
       </div>
     </template>
 
-    <UpmRouteView v-if="meta.isAuthenticated && !!clientId" />
+    <UpmRouteView v-if="isAuthenticated && !!clientId" />
   </UpmLayout>
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { useRouter } from "vue-router";
-
-// --- internal
-import { useSession } from "@upmind-automation/headless";
-
-// --- components
 import {
   UpmLayout,
   UpmRouteView,
-  LAYOUT_VARIANTS
+  LAYOUT_VARIANTS,
+  useActiveSession
 } from "@upmind-automation/client-vue";
-
 import { Button, Alert } from "@upmind-automation/upmind-ui";
 
 // -----------------------------------------------------------------------------
 
 const router = useRouter();
 
-const { meta, clientId } = useSession();
+const session = useActiveSession();
+const { isAuthenticated, isLoading } = session.useMeta();
+const { sessionId: clientId } = session.useContext();
 </script>

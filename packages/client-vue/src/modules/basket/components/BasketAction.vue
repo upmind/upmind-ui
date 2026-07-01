@@ -6,7 +6,7 @@
     :loading="
       !meta.isAvailable &&
       (meta.isLoading || meta.isProcessing) &&
-      sessionMeta.isAuthenticated
+      isAuthenticated
     "
     variant="ghost"
     size="lg"
@@ -38,12 +38,7 @@
   </Button>
 </template>
 <script lang="ts" setup>
-// --- external
-
-// --- internal
-import { useBasket, useSession } from "@upmind-automation/headless";
-
-// --- components
+import { useActiveSession, useBasket } from "@upmind-automation/headless";
 import { Button } from "@upmind-automation/upmind-ui";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
 
@@ -55,7 +50,7 @@ const props = defineProps<{
   basketRoute?: RouteLocationAsRelativeGeneric;
 }>();
 
-const { meta: sessionMeta } = useSession();
+const { isAuthenticated } = useActiveSession().useMeta();
 
 const { count, meta } = useBasket();
 </script>

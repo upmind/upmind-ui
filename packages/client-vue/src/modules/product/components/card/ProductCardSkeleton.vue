@@ -51,21 +51,14 @@
 </template>
 
 <script setup lang="ts">
-// --- external
 import { computed } from "vue";
-
-// --- components
-import { Skeleton, Image, useStyles } from "@upmind-automation/upmind-ui";
-
-// --- internal
 import { useConfig } from "@upmind-automation/headless";
+import { Skeleton, Image, useStyles } from "@upmind-automation/upmind-ui";
 import config from "./card.config";
-
-// --- types
-import type { ImageProps } from "@upmind-automation/upmind-ui";
 import type { ProductCardSkeletonProps } from "./types";
+import type { ImageProps } from "@upmind-automation/upmind-ui";
 
-const props = defineProps<ProductCardSkeletonProps>();
+const _props = defineProps<ProductCardSkeletonProps>();
 
 const { ui } = useConfig();
 

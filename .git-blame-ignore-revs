@@ -1,0 +1,8 @@
+# Mechanical sweeps — ignore in git blame (git config blame.ignoreRevsFile .git-blame-ignore-revs)
+# FE-2820 C2: ESLint-9 tree-wide autofix sweep (import hygiene + unused-vars), 2026-06-11
+b5db6e03dc52d6f27a71841fe6fbd3bf6df58d6f
+
+# FE-2821 dir-flatten sweep — import-specifier rewrite (C3)
+00d15d8f638689441001e37e6e4b56bf57517e25
+# FE-2821 lint re-sort after rewrite (C3b)
+496fd5b331ce53c54a3e7a604da54ca5f9697b9f

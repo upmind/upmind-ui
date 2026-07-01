@@ -1,10 +1,7 @@
-// --- external
 import { Store } from "@tanstack/vue-store";
-
-// --- utils
-import { first, has, isFunction, omit, set } from "lodash-es";
 import { computed } from "vue";
 import { DetailedError, ErrorOrigin, responseCodes } from "./useError";
+import { first, has, isFunction, omit, set } from "lodash-es";
 
 // --- types
 
@@ -31,8 +28,8 @@ export const useScripts = () => {
       onError,
       onSuccess
     }: {
-      onSuccess?: Function;
-      onError?: Function;
+      onSuccess?: (...args: unknown[]) => unknown;
+      onError?: (...args: unknown[]) => unknown;
       async?: boolean;
       prepend?: boolean;
     } = { async: true }

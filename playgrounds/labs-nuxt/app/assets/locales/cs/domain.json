@@ -1,0 +1,31 @@
+{
+  "begin_search_above_desc": "Začněte s vyhledáváním pomocí výše uvedeného pole.",
+  "choices": {
+    "basket": {
+      "label": "Použít doménu v košíku",
+      "tooltip": "Tyto domény již máte ve svém košíku"
+    },
+    "existing": {
+      "label": "Použít existující doménu",
+      "tooltip": "Můžete použít existující doménu aktualizací nameserverů"
+    },
+    "register": {
+      "label": "Registrace nové domény",
+      "tooltip": "Ještě nemáte doménu? Zaregistrujte si u nás novou"
+    },
+    "transfer": {
+      "label": "Převod domény",
+      "tooltip": "Už vlastníte doménu? Můžete ji k nám převést"
+    }
+  },
+  "finding_perfect_domain": "Nalezení vaší **dokonalé** domény",
+  "finding_perfect_domain_md": "@.markdown:{'domain.finding_perfect_domain'}",
+  "own_domain_qn": "Vlastníte tuto doménu?",
+  "owned_domains_title": "Domény, které aktuálně vlastníte",
+  "price_renewal_desc": "Jednorázová cena {regularPrice}. | Obnovuje se každý rok za {regularPrice}. | Obnovuje se každých {count} let za {regularPrice}.",
+  "starts_with_domain": "Všechno to začíná **doménovým názvem**",
+  "starts_with_domain_md": "@.markdown:{'domain.starts_with_domain'}",
+  "tld_renewal_price_desc": "Náš {tld} ceny obnovení začínají již od {currentPrice} (byl {regularPrice}).",
+  "tld_renewal_price_from_desc": "Náš {tld} ceny obnovení začínají již od {regularPrice}.",
+  "transfer_domain_by_msg": "Převeďte nám to"
+}

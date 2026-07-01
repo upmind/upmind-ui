@@ -1,5 +1,3 @@
-// --- components
-
 import { ROUTE } from "../../funnels";
 
 // --- utils

@@ -5,15 +5,10 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed } from "vue";
-
-// --- internal
-import { useSection } from "../../../section/useSection";
 import { cn, useStyles, isMobile } from "@upmind-automation/upmind-ui";
+import { useSection } from "../../../section/useSection";
 import config from "./column.config";
-
-// --- types
 import type { ColumnProps } from "./types";
 
 const props = withDefaults(defineProps<ColumnProps>(), {

@@ -1,12 +1,11 @@
-import type { Product } from "@upmind-automation/headless";
-import { variants } from "./product-hero.config";
 import {
   parseVariants,
   type VariantValues
 } from "@upmind-automation/upmind-ui";
-import type { HTMLAttributes } from "vue";
-import type { Badge } from "@upmind-automation/headless";
+import { variants } from "./product-hero.config";
+import type { Product } from "@upmind-automation/headless";
 import type { UseMetaResult } from "@upmind-automation/headless";
+import type { HTMLAttributes } from "vue";
 
 export const PRODUCT_HERO_DIRECTION = parseVariants(variants.direction);
 

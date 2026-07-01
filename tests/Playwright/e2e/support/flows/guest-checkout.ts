@@ -14,12 +14,21 @@ import { waitForSessionCookie } from "../helpers/session";
  * registration, no token override — exactly the path a real anonymous visitor
  * takes.
  *
+ * Defaults to a ONE-TIME product (HAT): guest checkout is hidden for baskets
+ * containing recurring products (`basketMeta.hasRecurringProducts`), so the
+ * guest journey is only reachable with one-time products. Pass a recurring
+ * product (e.g. STARTER_HOSTING) to exercise the hidden-CTA rule.
+ *
  * @param page - Playwright page instance
  * @param context - Browser context (used to read the guest session token)
+ * @param product - Product to seed (defaults to the one-time HAT, which is
+ *   non-recurring so the guest-checkout CTA renders —
+ *   Register.vue:64 `!basketMeta.hasRecurringProducts`)
  */
 export async function seedGuestBasket(
   page: Page,
-  context: BrowserContext
+  context: BrowserContext,
+  product: { id: string; billingCycle: number } = products.HAT
 ): Promise<void> {
   await page.goto(URLs.basket);
   await waitForSessionCookie(context, { guestOnly: true });
@@ -28,9 +37,9 @@ export async function seedGuestBasket(
   await addProductToOrder(
     token,
     order.id,
-    products.STARTER_HOSTING.id,
+    product.id,
     1,
-    products.STARTER_HOSTING.billingCycle,
+    product.billingCycle,
     [],
     [],
     {},

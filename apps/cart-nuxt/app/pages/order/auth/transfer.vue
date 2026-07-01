@@ -5,8 +5,8 @@
 </template>
 
 <script lang="ts" setup>
-import { ROUTE } from "~/funnels/types";
 import { useI18n } from "vue-i18n";
+import { ROUTE } from "~/funnels/types";
 
 const { t } = useI18n();
 

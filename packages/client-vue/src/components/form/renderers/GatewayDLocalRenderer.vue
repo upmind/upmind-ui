@@ -15,19 +15,12 @@
 </template>
 
 <script setup lang="ts">
-// --- external
-import { onMounted, onUnmounted, ref, computed } from "vue";
-import { useJsonFormsControl } from "@jsonforms/vue";
 import { uiTypeIs, and, optionIs, or } from "@jsonforms/core";
-
-// --- components
+import { useJsonFormsControl } from "@jsonforms/vue";
+import { onMounted, onUnmounted, ref, computed } from "vue";
 import { FormField, Input } from "@upmind-automation/upmind-ui";
-
-// --- utils
 import { useUpmindUIRenderer } from "@upmind-automation/upmind-ui";
 import { map } from "lodash-es";
-
-// --- types
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
 

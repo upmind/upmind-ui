@@ -9,21 +9,14 @@
 </template>
 
 <script setup lang="ts">
-// --- external
+import { and, uiTypeIs } from "@jsonforms/core";
 import { useJsonFormsControlWithDetail } from "@jsonforms/vue";
-
-// --- internal
 import { useUpmindUIRenderer, FormField } from "@upmind-automation/upmind-ui";
-
-// --- components
 import Manage from "../../manage/Manage.vue";
-
-// --- utils
-
-// --- types
 import type { ManageRendererProps } from "../../manage/types";
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
+// --- external
 
 // -----------------------------------------------------------------------------
 
@@ -37,8 +30,6 @@ const { control, appliedOptions, onInput, formFieldProps } =
 </script>
 
 <script lang="ts">
-import { and, uiTypeIs } from "@jsonforms/core";
-
 /**
  * Tester for the ManageRenderer.
  * we expect the "manage" property to be in the schema and we expect it to be an boject that contains

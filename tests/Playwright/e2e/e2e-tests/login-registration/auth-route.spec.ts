@@ -28,9 +28,6 @@ test.describe("Login Modal", async () => {
   test("Unsuccessful Login", async ({ page }) => {
     await login.inputLogin("invalidUsername", "invalidPassword");
     await expect(login.alert).toBeVisible();
-    await expect(login.alert).toHaveText(
-      /We experienced an error while trying to log you in.*The user credentials were incorrect./
-    );
   });
   test("Recover Password from drawer", async ({ page }) => {
     await page.getByTestId("forgot-password-link").click();

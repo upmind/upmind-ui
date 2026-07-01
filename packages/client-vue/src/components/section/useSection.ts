@@ -1,13 +1,6 @@
-// --- external
 import { computed, ref } from "vue";
-
-// --- internal
 import { Store } from "@upmind-automation/headless";
-
-// --- utils
 import { isEmpty, isObject, merge } from "lodash-es";
-
-// --- types
 import type { UseSectionProps } from "./types";
 
 // -----------------------------------------------------------------------------

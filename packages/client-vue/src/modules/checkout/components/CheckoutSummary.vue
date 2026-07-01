@@ -1,6 +1,7 @@
 <template>
   <Hero
     :title="t('text.secure_checkout')"
+    :data-attrs="{ 'data-testid': 'checkout-heading' }"
     :subtitle="
       t('cart.basket_summary_desc', {
         count: products?.length ?? 0,
@@ -19,17 +20,12 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useBasket } from "@upmind-automation/headless";
-
-// --- components
 import Hero from "../../../components/hero/Hero.vue";
-
-// --- types
-import type { CheckoutHeroProps } from "../types";
 import { CHECKOUT_TEMPLATE } from "../types";
+import type { CheckoutHeroProps } from "../types";
 
 const { t } = useI18n();
 const { summary, products } = useBasket();

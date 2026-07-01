@@ -1,0 +1,137 @@
+{
+  "address": {
+    "error": "Din adresse er nødvendig",
+    "label": "Adresse",
+    "placeholder": "Begynn å skrive adressen din",
+    "title": "Legg til ny adresse | Oppdater adresse"
+  },
+  "address1": {
+    "label": "Adresse",
+    "placeholder": "Husnavn, leilighetsnummer osv."
+  },
+  "address2": {
+    "label": "",
+    "placeholder": "Vei, gatenavn osv."
+  },
+  "allow_auto_payment": {
+    "description": "Tillat at denne betalingsmetoden brukes til å foreta automatiserte betalinger uten nett – for eksempel å betale en fornyelsesfaktura.",
+    "label": "Tillat automatisk betaling"
+  },
+  "auth_email": {
+    "error": "Et brukernavn eller en e-postadresse er nødvendig",
+    "label": "Brukernavnet eller e-postadressen din",
+    "placeholder": "navn@epost.com"
+  },
+  "auth_password": {
+    "error": "Et sterkt passord er nødvendig",
+    "label": "Passord",
+    "placeholder": "Passord eller passordfrase"
+  },
+  "card_cvv": {
+    "error": "En gyldig CVV er nødvendig",
+    "label": "CVV",
+    "placeholder": "CVC-kode"
+  },
+  "card_expiry": {
+    "error": "En gyldig utløpsdato er nødvendig",
+    "label": "Utløpsdato",
+    "placeholder": "MM/ÅÅ"
+  },
+  "card_num": {
+    "error": "Et gyldig kortnummer er nødvendig",
+    "label": "Kortnummer",
+    "placeholder": "1234 1234 1234 1234"
+  },
+  "cardholder_name": {
+    "label": "Kortinnehaverens navn",
+    "placeholder": "Skriv inn kortinnehaverens navn"
+  },
+  "category_search": {
+    "placeholder": "Kategorisøk..."
+  },
+  "city": {
+    "label": "By",
+    "placeholder": "By, tettsted osv."
+  },
+  "company": {
+    "error": "Firmanavnet ditt er påkrevd",
+    "label": "Bedrift",
+    "title": "Legg til firmadetaljer | Oppdater firmadetaljer"
+  },
+  "companyName": {
+    "label": "Firmanavn",
+    "placeholder": "Firmanavnet ditt"
+  },
+  "companyNumber": {
+    "label": "Firmanummer",
+    "placeholder": "Registrert skatt eller GST"
+  },
+  "country": {
+    "label": "Land",
+    "placeholder": "Velg et land"
+  },
+  "domain": {
+    "placeholder": "Skriv inn domenet ditt..."
+  },
+  "domain_search": {
+    "placeholder": "Søk etter et domene..."
+  },
+  "email": {
+    "error": "En gyldig e-postadresse er nødvendig",
+    "label": "E-post",
+    "title": "Legg til ny e-post | Oppdater e-post"
+  },
+  "field_notes": {
+    "label": "Ordremerknader"
+  },
+  "firstname": {
+    "error": "Fornavnet ditt er obligatorisk",
+    "label": "Fornavn"
+  },
+  "lastname": {
+    "error": "Etternavnet ditt er obligatorisk",
+    "label": "Etternavn"
+  },
+  "login": {
+    "error": "Vi opplevde en feil under forsøket på å logge deg inn."
+  },
+  "phone": {
+    "error": "Et gyldig telefonnummer er påkrevd",
+    "label": "Telefon",
+    "title": "Legg til nytt telefonnummer | Oppdater telefonnummer"
+  },
+  "postcode": {
+    "label": "Postnummer",
+    "placeholder": "f.eks. 10011"
+  },
+  "product_name_search": {
+    "placeholder": "Søk etter produktnavn..."
+  },
+  "promocode": {
+    "error": "Ugyldig kampanjekode",
+    "placeholder": "Skriv inn kupongkoden her"
+  },
+  "recover": {
+    "error": "Vi oppsto en feil under forsøket på å sende deg en e-post for tilbakestilling av passord."
+  },
+  "region": {
+    "label": "Region",
+    "placeholder": "Velg en region…"
+  },
+  "register": {
+    "error": "Det oppsto en feil under forsøket på å opprette kontoen din."
+  },
+  "select_option": {
+    "placeholder": "Velg et alternativ"
+  },
+  "store_on_payment": {
+    "label": "Lagre betalingsdetaljer"
+  },
+  "stored_payment_method": {
+    "label": "Velg en av dine lagrede betalingsmetoder"
+  },
+  "taxNumber": {
+    "label": "Skattenummer",
+    "placeholder": "Skatte-ID"
+  }
+}

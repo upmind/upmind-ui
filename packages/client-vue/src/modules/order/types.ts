@@ -15,6 +15,7 @@ export type OrderProps = {
 };
 
 export type TableRow = {
+  id?: string;
   item: string;
   meta: TableRowMeta;
   price?: string;

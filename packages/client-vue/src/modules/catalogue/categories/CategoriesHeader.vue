@@ -22,17 +22,10 @@
 </template>
 
 <script setup lang="ts">
-// --- external
-import { useSlots } from "vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
-
-// --- components
-import Hero from "../../../components/hero/Hero.vue";
-
-// --- utils
+import { useSlots } from "vue";
 import { isEmptySlot } from "@upmind-automation/upmind-ui";
-
-// --- types
+import Hero from "../../../components/hero/Hero.vue";
 import type { CategoriesItemProps } from "./types";
 import type { HeroProps } from "../../../components/hero/types";
 

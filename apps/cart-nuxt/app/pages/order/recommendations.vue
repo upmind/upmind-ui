@@ -7,13 +7,11 @@
 
 <script lang="ts" setup>
 import { computed } from "vue";
-import { useRoute } from "vue-router";
-import {
-  UpmRecommendations,
-  LAYOUT_VARIANTS
-} from "@upmind-automation/client-vue";
-import { ROUTE } from "~/funnels/types";
 import { useI18n } from "vue-i18n";
+import { useRoute } from "vue-router";
+import { UpmRecommendations } from "@upmind-automation/client-vue";
+import type { LAYOUT_VARIANTS } from "@upmind-automation/client-vue";
+import { ROUTE } from "~/funnels/types";
 
 const { t } = useI18n();
 const route = useRoute();

@@ -27,20 +27,13 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
-import { useI18n } from "vue-i18n";
 import { computed, onBeforeUnmount } from "vue";
-
-// --- internal
-import { usePersonalDetailsManager } from "@upmind-automation/headless";
-
-// --- components
-import { UpmSection, UpmForm } from "@upmind-automation/client-vue";
-import { Alert } from "@upmind-automation/upmind-ui";
-
-// --- types
-import type { FormActionProps } from "@upmind-automation/upmind-ui";
+import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
+import { UpmSection, UpmForm } from "@upmind-automation/client-vue";
+import { usePersonalDetailsManager } from "@upmind-automation/headless";
+import { Alert } from "@upmind-automation/upmind-ui";
+import type { FormActionProps } from "@upmind-automation/upmind-ui";
 
 // -----------------------------------------------------------------------------
 
@@ -67,7 +60,7 @@ const {
   uischema,
   update,
   input,
-  clear,
+  clear: _clear,
   isReady,
   stop
 } = usePersonalDetailsManager({

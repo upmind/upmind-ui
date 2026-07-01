@@ -5,6 +5,7 @@
       icon="check-circle"
       :title="t('cart.nothing_to_pay_msg')"
       :description="t('cart.place_order_desc')"
+      :dataAttrs="{ 'data-testid': 'free-order-banner' }"
     />
   </div>
 
@@ -19,22 +20,15 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { useI18n } from "vue-i18n";
-
-// --- internal
-import config from "../payment.config";
 import { useStyles } from "@upmind-automation/upmind-ui";
-import PaymentActions from "./PaymentActions.vue";
-
-// --- components
 import { Alert } from "@upmind-automation/upmind-ui";
-
-// --- types
+import config from "../payment.config";
+import PaymentActions from "./PaymentActions.vue";
 import type { PaymentNotRequiredProps } from "../types";
 
 // -----------------------------------------------------------------------------
-const props = defineProps<PaymentNotRequiredProps>();
+const _props = defineProps<PaymentNotRequiredProps>();
 const emit = defineEmits<{
   (e: "resolve"): void;
 }>();

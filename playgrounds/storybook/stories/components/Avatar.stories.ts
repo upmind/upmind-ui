@@ -1,20 +1,15 @@
 // --- external
-import type { Meta, StoryObj } from "@storybook/vue3";
 
 // -- components
 import { Avatar } from "@upmind-automation/upmind-ui";
-
-// --- utils
-import { useSystemArgTypes } from "../../utils";
-import { keys } from "lodash-es";
-
-// --- types
 import {
   AVATAR_COLORS,
   AVATAR_SIZES,
   AVATAR_SHAPES,
   AVATAR_FIT
 } from "@upmind-automation/upmind-ui";
+import { useSystemArgTypes } from "../../utils";
+import type { Meta, StoryObj } from "@storybook/vue3";
 
 const meta: Meta<typeof Avatar> = {
   component: Avatar,

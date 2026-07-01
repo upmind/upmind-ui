@@ -1,16 +1,10 @@
-// --- external
 import { ref, computed } from "vue";
-import type { Meta, StoryObj } from "@storybook/vue3";
 import { useI18n } from "vue-i18n";
-// --- internal
+import { Form } from "@upmind-automation/upmind-ui";
 import * as messages from "./locales";
 // import { countries } from "country-data";
-
-// --- components
-import { Form } from "@upmind-automation/upmind-ui";
-
-// --- utils
 import { isEmpty, omitBy } from "lodash-es";
+import type { Meta, StoryObj } from "@storybook/vue3";
 // -----------------------------------------------------------------------------
 
 const meta: Meta<typeof Form> = {
@@ -45,7 +39,7 @@ const meta: Meta<typeof Form> = {
 
       function doReject() {}
 
-      function doResolve(value) {}
+      function doResolve(_value) {}
 
       return {
         t,

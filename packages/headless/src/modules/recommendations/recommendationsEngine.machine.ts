@@ -1,21 +1,17 @@
-// --- external
+/** @internal */
 import { createMachine, assign, spawn, sendTo, pure } from "xstate";
-
-// --- internal
-import services from "./services";
-import { basketSubscription } from "../basketProduct/helper";
-
-import { useDataLayer } from "../system";
-
-// --- utils
-import { parseProductProps } from "../product/utils";
-import { mapToHeadlessError, useTime } from "../../utils";
+import { transformProductDynamicValues } from "../basket-product/basket-product.utils";
+import { basketSubscription } from "../basket-product/helper";
+import { parseProductProps } from "../product/product.utils";
+import { useDataLayer } from "../system-analytics";
+import services from "./recommendations.services";
 import {
   parseRelatedProducts,
   parseRecommendation,
   parseRelationships,
   isRecommendationInBasket
-} from "./utils";
+} from "./recommendations.utils";
+import { mapToHeadlessError, useTime } from "../../utils";
 import {
   concat,
   defaultsDeep,
@@ -38,18 +34,18 @@ import {
   uniqBy,
   xorBy
 } from "lodash-es";
-
-// --- types
-import type { AnyEventObject } from "xstate";
+import type { BasketProduct } from "../basket-product";
+import type { ProductModel, ProductProps } from "../product";
+import type {
+  RecommendationsEngineContext,
+  Recommendation
+} from "./recommendations.types";
 import type {
   IBasket,
   IBasketProduct,
   IProduct
 } from "@upmind-automation/types";
-import type { BasketProduct } from "../basketProduct";
-import type { ProductModel, ProductProps } from "../product";
-import type { RecommendationsEngineContext, Recommendation } from "./types";
-import { transformProductDynamicValues } from "../basketProduct/utils";
+import type { AnyEventObject } from "xstate";
 
 // ---
 export default createMachine(
@@ -620,7 +616,7 @@ export default createMachine(
         { raw, currency }: RecommendationsEngineContext,
         { data }: AnyEventObject
       ) => {
-        const product = data; //TODO: check / parse the data is a basket item
+        const _product = data; //TODO: check / parse the data is a basket item
         // Scope analytics to addable recommendations — in-basket items are
         // acknowledgements, not impressions of an offer the customer can act on.
         const addable = filter(
@@ -699,7 +695,12 @@ export default createMachine(
       ) => isEmpty(raw.related),
 
       hasBasketChanged: (
-        { basketId, currency, promotions, raw }: RecommendationsEngineContext,
+        {
+          basketId,
+          currency,
+          promotions,
+          raw: _raw
+        }: RecommendationsEngineContext,
         { data }: AnyEventObject
       ) => {
         //  NB: data is raw basket data so use snake_case for comparison

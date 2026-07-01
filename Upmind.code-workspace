@@ -21,14 +21,15 @@
       "path": "apps/cart-nuxt"
     },
     {
-      "name": "labs",
-      "path": "playgrounds/labs"
+      "name": "labs-nuxt",
+      "path": "playgrounds/labs-nuxt"
     },
     {
       "name": "vue-app",
       "path": "../vue-app"
     },
     {
+      "name": "widgets",
       "path": "../widgets"
     }
   ],

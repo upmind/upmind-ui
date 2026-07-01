@@ -1,0 +1,137 @@
+{
+  "address": {
+    "error": "Ünvanınız tələb olunur",
+    "label": "Ünvan",
+    "placeholder": "Ünvanınızı yazmağa başlayın",
+    "title": "Yeni Ünvan Əlavə et | Ünvanı yeniləyin"
+  },
+  "address1": {
+    "label": "Ünvan",
+    "placeholder": "Evin adı, mənzil nömrəsi və s."
+  },
+  "address2": {
+    "label": "",
+    "placeholder": "Yol, küçə adı və s."
+  },
+  "allow_auto_payment": {
+    "description": "Bu ödəniş metodunun avtomatik oflayn ödənişlər etmək üçün istifadə edilməsinə icazə verin – məsələn, yenilənmə fakturasının ödənilməsi.",
+    "label": "Avtomatik ödənişə icazə verin"
+  },
+  "auth_email": {
+    "error": "İstifadəçi adı və ya e-poçt ünvanı tələb olunur",
+    "label": "İstifadəçi adınız və ya e-poçt ünvanınız",
+    "placeholder": "name@email.com"
+  },
+  "auth_password": {
+    "error": "Güclü parol tələb olunur",
+    "label": "parol",
+    "placeholder": "Parol və ya parol"
+  },
+  "card_cvv": {
+    "error": "Etibarlı CVV tələb olunur",
+    "label": "CVV",
+    "placeholder": "CVC"
+  },
+  "card_expiry": {
+    "error": "Etibarlı son istifadə tarixi tələb olunur",
+    "label": "İstifadə müddəti",
+    "placeholder": "MM/YY"
+  },
+  "card_num": {
+    "error": "Etibarlı kart nömrəsi tələb olunur",
+    "label": "Kart nömrəsi",
+    "placeholder": "1234 1234 1234 1234"
+  },
+  "cardholder_name": {
+    "label": "Kart sahibinin adı",
+    "placeholder": "Kart sahibinin adını daxil edin"
+  },
+  "category_search": {
+    "placeholder": "Kateqoriya axtarışı..."
+  },
+  "city": {
+    "label": "Şəhər",
+    "placeholder": "Şəhər, qəsəbə və s."
+  },
+  "company": {
+    "error": "Şirkət adınız tələb olunur",
+    "label": "Şirkət",
+    "title": "Şirkət Təfərrüatlarını Əlavə et | Şirkət Təfərrüatlarını Yeniləyin"
+  },
+  "companyName": {
+    "label": "Şirkət Adı",
+    "placeholder": "Şirkətinizin adı"
+  },
+  "companyNumber": {
+    "label": "Şirkət nömrəsi",
+    "placeholder": "Qeydiyyatdan keçmiş vergi və ya GST"
+  },
+  "country": {
+    "label": "ölkə",
+    "placeholder": "Ölkə seçin"
+  },
+  "domain": {
+    "placeholder": "Domeninizi daxil edin..."
+  },
+  "domain_search": {
+    "placeholder": "Domen axtarın..."
+  },
+  "email": {
+    "error": "Etibarlı bir e-poçt ünvanı tələb olunur",
+    "label": "E-poçt",
+    "title": "Yeni E-poçt əlavə et | E-poçtu yeniləyin"
+  },
+  "field_notes": {
+    "label": "Sifariş qeydləri"
+  },
+  "firstname": {
+    "error": "Adınız tələb olunur",
+    "label": "Ad"
+  },
+  "lastname": {
+    "error": "Soyadınız tələb olunur",
+    "label": "Soyadı"
+  },
+  "login": {
+    "error": "Sizi daxil etməyə çalışarkən xəta ilə üzləşdik."
+  },
+  "phone": {
+    "error": "Etibarlı Telefon Nömrəsi tələb olunur",
+    "label": "Telefon",
+    "title": "Yeni Telefon Nömrəsi Əlavə et | Telefon nömrəsini yeniləyin"
+  },
+  "postcode": {
+    "label": "Poçt indeksi",
+    "placeholder": "məs. 10011"
+  },
+  "product_name_search": {
+    "placeholder": "Məhsul adına görə axtarın..."
+  },
+  "promocode": {
+    "error": "Etibarlı promo kod tələb olunur",
+    "placeholder": "Kupon kodunu buraya daxil edin"
+  },
+  "recover": {
+    "error": "Sizə parol sıfırlama e-poçtu göndərmək istəyərkən xəta ilə üzləşdik."
+  },
+  "region": {
+    "label": "Region",
+    "placeholder": "Region seçin..."
+  },
+  "register": {
+    "error": "Hesabınızı yaratmağa çalışarkən xəta ilə üzləşdik."
+  },
+  "select_option": {
+    "placeholder": "Seçim seçin"
+  },
+  "store_on_payment": {
+    "label": "Ödəniş təfərrüatlarını yadda saxlayın"
+  },
+  "stored_payment_method": {
+    "label": "Saxlanmış ödəniş üsullarınızdan birini seçin"
+  },
+  "taxNumber": {
+    "label": "Vergi nömrəsi",
+    "placeholder": "Vergi İD"
+  }
+}

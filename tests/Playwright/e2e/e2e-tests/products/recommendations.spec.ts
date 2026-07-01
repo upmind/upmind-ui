@@ -115,16 +115,21 @@ function markAddedWhenBasketProductBcmIs(bcm: number): InBasketRule {
 
 const inBasketDetectionDisabled: InBasketRule = { default: false, rules: [] };
 
-function recommendationCard(page: Page, name: string): Locator {
-  return page.getByTestId("carousel-card").filter({ hasText: name }).first();
+// Each carousel slide renders a ProductCard with a static `product-card`
+// data-testid carrying the recommended product's `configuration.productId` in
+// `data-test-value` — the card's own `id` is the recommendation slot id, not
+// the product. Target by product id, never the translated card text.
+function recommendationCard(page: Page, productId: string): Locator {
+  return page
+    .getByTestId("product-card")
+    .and(page.locator(`[data-test-value="${productId}"]`));
 }
 
+// The card CTA is a single `product-card-cta` whose state is carried in
+// `data-test-value` ("add" | "added") — not two separate translated buttons.
+// The in-basket state is read off the same element (disabled / data-test-value).
 function addToBasketButton(card: Locator): Locator {
-  return card.getByRole("button", { name: /add to basket/i });
-}
-
-function inBasketButton(card: Locator): Locator {
-  return card.getByRole("button", { name: /in basket/i });
+  return card.getByTestId("product-card-cta");
 }
 
 async function visitRecommendationsPage(page: Page): Promise<void> {
@@ -309,7 +314,7 @@ test.describe("Recommendations", () => {
           await visitRecommendationsPage(page);
           await page.waitForURL(/\/recommendations\/?$/);
           await expect(
-            recommendationCard(page, products.TSHIRT.name)
+            recommendationCard(page, products.TSHIRT.id)
           ).toHaveCount(1);
         });
 
@@ -343,7 +348,7 @@ test.describe("Recommendations", () => {
           await visitRecommendationsPage(page);
           await page.waitForURL(/\/recommendations\/?$/);
 
-          const freeCard = recommendationCard(page, products.FREE_HOSTING.name);
+          const freeCard = recommendationCard(page, products.FREE_HOSTING.id);
           await expect(freeCard).toHaveCount(1);
           await expect(addToBasketButton(freeCard)).toBeEnabled();
         });
@@ -358,7 +363,7 @@ test.describe("Recommendations", () => {
           await page.waitForURL(/\/recommendations\/?$/);
           const starterCard = recommendationCard(
             page,
-            products.STARTER_HOSTING.name
+            products.STARTER_HOSTING.id
           );
           await expect(addToBasketButton(starterCard)).toBeVisible();
           await expect(addToBasketButton(starterCard)).toBeDisabled();
@@ -382,7 +387,7 @@ test.describe("Recommendations", () => {
 
           const starterCard = recommendationCard(
             page,
-            products.STARTER_HOSTING.name
+            products.STARTER_HOSTING.id
           );
           await expect(addToBasketButton(starterCard)).toBeEnabled();
         });
@@ -403,7 +408,7 @@ test.describe("Recommendations", () => {
 
           const starterCard = recommendationCard(
             page,
-            products.STARTER_HOSTING.name
+            products.STARTER_HOSTING.id
           );
           await expect(starterCard).toHaveCount(1);
           await expect(addToBasketButton(starterCard)).toBeEnabled();
@@ -423,7 +428,7 @@ test.describe("Recommendations", () => {
           await visitRecommendationsPage(page);
           await page.waitForURL(/\/recommendations\/?$/);
 
-          const freeCard = recommendationCard(page, products.FREE_HOSTING.name);
+          const freeCard = recommendationCard(page, products.FREE_HOSTING.id);
           await expect(addToBasketButton(freeCard)).toBeEnabled();
         });
       });
@@ -448,10 +453,10 @@ test.describe("Recommendations", () => {
           await page.waitForURL(/\/recommendations\/?$/);
 
           await expect(
-            recommendationCard(page, products.STARTER_HOSTING.name)
+            recommendationCard(page, products.STARTER_HOSTING.id)
           ).toHaveCount(0);
           await expect(
-            recommendationCard(page, products.FREE_HOSTING.name)
+            recommendationCard(page, products.FREE_HOSTING.id)
           ).toHaveCount(1);
         });
       });

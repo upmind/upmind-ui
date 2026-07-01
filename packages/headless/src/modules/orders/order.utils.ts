@@ -1,15 +1,8 @@
-// --- external
 import { spawn } from "xstate";
-
-// --- internal
-import paymentDetailMachine from "../paymentDetails/paymentDetail.machine";
-
-// --- utils
-
-// --- types
-import type { IInvoice } from "@upmind-automation/types";
-import type { PaymentDetailsContext } from "../paymentDetails/types";
+import { paymentDetailsMachine as paymentDetailMachine } from "../payment-details";
 import type { LastPaymentModel } from "./order.types";
+import type { PaymentDetailsContext } from "../payment-details/payment-details.types";
+import type { IInvoice } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 /**

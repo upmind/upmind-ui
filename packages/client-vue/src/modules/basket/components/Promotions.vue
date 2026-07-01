@@ -8,6 +8,7 @@
         :disabled="meta.isProcessing"
         @click="toggle = !toggle"
         :checked="toggle"
+        data-testid="link-add-a-voucher-code"
       />
     </header>
 
@@ -70,26 +71,17 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
-import { ref, computed } from "vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
+import { ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { set } from "lodash-es";
-
-// --- components
-import Form from "../../../components/form/Form.vue";
-
-// --- custom elements
-import { Icon, Badge, Tooltip, Link } from "@upmind-automation/upmind-ui";
-
-// --- internal
 import {
   useBasketPromotions,
   type PromotionDetails
 } from "@upmind-automation/headless";
+import { Icon, Badge, Tooltip, Link } from "@upmind-automation/upmind-ui";
+import Form from "../../../components/form/Form.vue";
 import config from "../basket.config";
-
-// --- types
+import { set } from "lodash-es";
 import type { FormActionProps, FormProps } from "@upmind-automation/upmind-ui";
 // -----------------------------------------------------------------------------
 
@@ -136,11 +128,12 @@ const toggleTooltip = (id: string, force?: boolean) => {
 const actions = computed((): Record<string, FormActionProps> => {
   return {
     submit: {
-      type: "submit" as "submit",
+      type: "submit" as const,
       label: t("action.apply"),
       size: "lg",
       variant: "subtle",
-      needsValid: true
+      needsValid: true,
+      dataAttrs: { "data-testid": "button-apply" }
     }
   };
 });

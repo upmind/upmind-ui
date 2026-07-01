@@ -42,6 +42,7 @@
             v-if="orderData.summary?.discountAmount > 0"
             :class="styles.table.footer.row"
             data-muted
+            data-testid="discount-line-item"
           >
             <td></td>
             <td :class="styles.table.footer.cell">
@@ -96,23 +97,18 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed, inject, ref } from "vue";
 import { useI18n } from "vue-i18n";
-import { flatMap, map, filter } from "lodash-es";
-
-// --- internal
-import Section from "../../../components/section/Section.vue";
-import OrderProductsRow from "./OrderProductsRow.vue";
-import config from "../order.config";
-import { useStyles, Link, Icon, Card } from "@upmind-automation/upmind-ui";
 import { parseBillingCycle } from "@upmind-automation/headless";
+import { useStyles, Link, Icon, Card } from "@upmind-automation/upmind-ui";
+import Section from "../../../components/section/Section.vue";
+import config from "../order.config";
+import OrderProductsRow from "./OrderProductsRow.vue";
 import { buildPricingRow, buildOptionRow, buildDetailRow } from "../utils";
-
-// --- types
-import type { ComputedRef } from "vue";
-import type { Invoice } from "@upmind-automation/headless";
+import { flatMap, map, filter } from "lodash-es";
 import type { TableRow } from "../types";
+import type { Invoice } from "@upmind-automation/headless";
+import type { ComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
 

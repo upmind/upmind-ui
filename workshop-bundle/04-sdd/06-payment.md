@@ -126,7 +126,7 @@ A signed-in client lands on the payment page with a basket that already carries 
 
    > **DO NOT send `wallet_amount: 0`.** The platform returns `422 — wallet_amount must be non-zero when present` if zero is sent. For pay-in-full, omit the field. This is the second known overloaded-`0` sentinel in the platform (the first is `unit_quantity` / `min_order_quantity` where `0` means "no constraint" — see operating principle 8). Same trap, opposite direction: those want `|| 1` fallback to coerce away from zero; this one wants the field absent entirely.
 
-9. **Submit the payment.** `POST /payments` with the payload plus `invoice_id` (see step 11 — the invoice id may need to be produced via conversion first depending on the basket-to-invoice path). The foundations layer attaches the bearer; currency is implicit in the invoice. Request body shape pinned from the captured v2 fixture (`tests/__fixtures__/recordings/post-payments.json`):
+9. **Submit the payment.** `POST /payments` with the payload plus `invoice_id` (see step 11 — the invoice id may need to be produced via conversion first depending on the basket-to-invoice path). The foundations layer attaches the bearer; currency is implicit in the invoice. Request body shape pinned from the captured v2 fixture (`tests/fixtures/recordings/post-payments.json`):
 
    ```jsonc
    {

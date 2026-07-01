@@ -1,23 +1,18 @@
-// --- external
-import type { AnyEventObject } from "xstate";
+/** @internal */
 import { createMachine, assign, sendParent, actions, spawn } from "xstate";
-const { escalate } = actions;
-
-// --- internal
-import services from "./services";
-import { authSubscription } from "../session/helper";
-import { useDataLayer } from "../system";
-
-// --- utils
-import { mapApproval, hasRenderer } from "./mappers";
-import { mapToHeadlessError, useTime, useValidationParser } from "../../utils";
-import { isEmpty } from "lodash-es";
-
-// --- types
 import { GatewayTypes, TransactionStatus } from "@upmind-automation/types";
-import type { GatewayProviderCodes } from "@upmind-automation/types";
-import type { PaymentContext } from "./types";
+import { authSubscription } from "../session-store";
+import { useDataLayer } from "../system-analytics";
+import { mapApproval, hasRenderer } from "./payment.mappers";
+import services from "./payment.services";
+import { mapToHeadlessError, useTime, useValidationParser } from "../../utils";
 import { responseCodes } from "../../utils";
+import { isEmpty } from "lodash-es";
+import type { PaymentContext } from "./payment.types";
+import type { GatewayProviderCodes } from "@upmind-automation/types";
+import type { AnyEventObject } from "xstate";
+
+const { escalate } = actions;
 
 // -----------------------------------------------------------------------------
 export default createMachine(
@@ -267,7 +262,7 @@ export default createMachine(
 
       setError: assign({
         error: (_context, { data }: AnyEventObject) => {
-          let error = mapToHeadlessError(data);
+          const error = mapToHeadlessError(data);
           if (error?.status == responseCodes.Unprocessable_Entity) {
             error.data = useValidationParser(error);
           }

@@ -1,15 +1,13 @@
-// --- external
-import type { Meta, StoryObj } from "@storybook/vue3";
-
-// -- components
+import { ref } from "vue";
 import {
   SelectCards,
   type SelectCardsItemProps
 } from "@upmind-automation/upmind-ui";
+import type { Meta, StoryObj } from "@storybook/vue3";
+
+// -- components
 
 // --- utils
-import { find } from "lodash-es";
-import { ref } from "vue";
 
 const meta: Meta<typeof SelectCards> = {
   component: SelectCards,

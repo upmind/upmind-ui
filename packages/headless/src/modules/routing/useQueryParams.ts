@@ -1,11 +1,5 @@
-// --- external
-import { router } from "../routing";
-
-// --- utils
-
-// --- types
-
-// --- utils
+import { QUERY_PARAMS } from "@upmind-automation/types";
+import { router } from ".";
 import { useSafeParse } from "../../utils";
 import {
   compact,
@@ -22,9 +16,6 @@ import {
   toNumber,
   uniq
 } from "lodash-es";
-
-// --- types
-import { QUERY_PARAMS } from "@upmind-automation/types";
 import type { ProductProps } from "../product";
 import type { RouteLocation } from "vue-router";
 

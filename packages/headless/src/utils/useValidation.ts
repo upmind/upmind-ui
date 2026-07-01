@@ -1,13 +1,10 @@
-// --- external
-
 import { createAjv } from "@jsonforms/core";
 import ajvErrors from "ajv-errors";
-
-// --- internal
+import { useI18n } from "../modules/system-localisation";
+import { compactDeep } from "./isDeepEmpty";
+import { parseError, type ResponseError } from "./useError";
 import * as formats from "./useValidationFormats";
 import * as keywords from "./useValidationKeywords";
-
-// --- utils
 import {
   compact,
   concat,
@@ -31,13 +28,9 @@ import {
   trimEnd,
   trimStart
 } from "lodash-es";
-import { parseError, type ResponseError } from "./useError";
-import { compactDeep } from "./isDeepEmpty";
-import Ajv, { type ErrorObject } from "ajv";
-
-// --- types
 import type { JsonSchema7, JsonSchema } from "@jsonforms/core";
-import { useI18n } from "../modules/system";
+import type { ErrorObject } from "ajv";
+import type Ajv from "ajv";
 
 // Allows: example.com, foo.bar.example.solutions
 // Disallows: -foo.com, foo-.com, foo..com, foo.com-

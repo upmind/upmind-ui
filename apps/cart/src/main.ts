@@ -1,16 +1,13 @@
 import "./main.css";
-
-import { createApp } from "vue";
 import * as Sentry from "@sentry/vue";
-
-import App from "./App.vue";
-import router from "./router";
-import i18n from "./i18n";
-import { registerFunnels } from "./router/funnels";
+import { createApp } from "vue";
+import { AccessRoleTypes } from "@upmind-automation/types";
 import UpmindClient from "@upmind-automation/client-vue";
 import { plugins as uiPlugins } from "@upmind-automation/upmind-ui";
-
-// --- utils
+import App from "./App.vue";
+import i18n from "./i18n";
+import router from "./router";
+import { registerFunnels } from "./router/funnels";
 import { forEach } from "lodash-es";
 // -----------------------------------------------------------------------------
 
@@ -18,6 +15,7 @@ const app = createApp(App);
 
 // ---
 UpmindClient.init({
+  allowedScopes: [AccessRoleTypes.CLIENT, AccessRoleTypes.GUEST],
   debug: import.meta.env.DEV,
   platformUrl: "https://upmind.com",
   pop: {

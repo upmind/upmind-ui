@@ -1,5 +1,5 @@
-import type { RouteLocationAsRelativeGeneric } from "vue-router";
 import type { StorefrontRoute } from "../../types";
+import type { RouteLocationAsRelativeGeneric } from "vue-router";
 
 export enum BASKET_PRODUCT_TEMPLATE {
   FULL = "full",

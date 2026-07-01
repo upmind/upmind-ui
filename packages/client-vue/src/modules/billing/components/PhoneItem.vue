@@ -12,15 +12,8 @@
 </template>
 
 <script setup lang="ts">
-// --- external
-
-// --- components
 import { Avatar } from "@upmind-automation/upmind-ui";
-
-// --- utils
 import { lowerCase } from "lodash-es";
-
-// --- types
 import type { Phone } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
@@ -37,7 +30,7 @@ const emits = defineEmits<{
 
 // -----------------------------------------------------------------------------
 
-const doEdit = () => {
+const _doEdit = () => {
   if (!props?.id) return;
   emits("edit", props.id);
 };

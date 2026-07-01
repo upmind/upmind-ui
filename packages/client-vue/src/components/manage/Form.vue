@@ -53,22 +53,13 @@
 </template>
 
 <script setup lang="ts">
-// --- external
-import { useI18n } from "vue-i18n";
-
-// --- internal
-
-// --- components
-import Skeleton from "./Skeleton.vue";
-import Actions from "./Actions.vue";
-import UpmForm from "../form/Form.vue";
-import { Alert, Dialog } from "@upmind-automation/upmind-ui";
-
-// --- utils
-
-// --- types
-import type { ManageRendererProps } from "./types";
 import { onUnmounted } from "vue";
+import { useI18n } from "vue-i18n";
+import { Alert, Dialog } from "@upmind-automation/upmind-ui";
+import UpmForm from "../form/Form.vue";
+import Actions from "./Actions.vue";
+import Skeleton from "./Skeleton.vue";
+import type { ManageRendererProps } from "./types";
 // -----------------------------------------------------------------------------
 
 const props = defineProps<{
@@ -118,7 +109,7 @@ const doResolve = async () => {
       emits("processing", false);
       doClose();
     })
-    .catch(error => {
+    .catch(_error => {
       emits("processing", false);
       //  do nothing, error is handled in the form
     });

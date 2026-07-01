@@ -1,14 +1,11 @@
-// --- internal
 import useUpmind, { type UpmindProps } from "@upmind-automation/headless";
-import themes from "./assets/themes";
 import {
   registerIcons,
   registerAnimations,
   type IconImportMap,
   type AnimationImportMap
 } from "@upmind-automation/upmind-ui";
-
-// --- utils
+import themes from "./assets/themes";
 import { isEmpty, keyBy, merge, values } from "lodash-es";
 
 // -----------------------------------------------------------------------------

@@ -166,13 +166,13 @@ A few things to internalise:
 
 ## Step 5 — Capture fixtures if you need them
 
-If your test needs real-world response shapes (e.g. for `__fixtures__`-driven unit tests downstream), record them:
+If your test needs real-world response shapes (e.g. for `fixtures`-driven unit tests downstream), record them:
 
 ```bash
 pnpm dev:record
 ```
 
-Drive through the relevant flow once; fixtures land under `tests/__fixtures__/`. See `code-tests` rules — never hardcode fake data; either use a real fixture or throw.
+Drive through the relevant flow once; fixtures land under `tests/fixtures/`. See `code-tests` rules — never hardcode fake data; either use a real fixture or throw.
 
 ---
 

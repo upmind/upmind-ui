@@ -1,11 +1,15 @@
-// --- external
+/** @internal */
 import { type AnyEventObject, assign, createMachine, sendParent } from "xstate";
-
-// --- internal
-import { useI18n } from "../system";
+import { useI18n } from "../system-localisation";
+import {
+  QUERY_PARAMS,
+  type FunnelContext,
+  type FunnelProps,
+  type FunnelStateMeta,
+  type FunnelTarget
+} from "./routing.types";
+import { pascalCase } from "./routing.utils";
 import { useRoutingEngine } from "./useRoutingEngine";
-
-// --- utils
 import { DetailedError, responseCodes, ErrorOrigin } from "../../utils";
 import {
   forEach,
@@ -19,17 +23,7 @@ import {
   reduce,
   some
 } from "lodash-es";
-import { pascalCase } from "./utils";
-
-// --- types
 import type { Router } from "vue-router";
-import {
-  QUERY_PARAMS,
-  type FunnelContext,
-  type FunnelProps,
-  type FunnelStateMeta,
-  type FunnelTarget
-} from "./types";
 
 /**
  * Minimal shape of a state node config used by the meta enrichment.

@@ -50,6 +50,7 @@
       :disabled="disabled || registering"
       :loading="registering"
       :block="isMobile"
+      :data-attrs="{ 'data-testid': 'domain-add-registration-button' }"
       @click="emit('addRegistration')"
     />
   </div>
@@ -77,7 +78,11 @@
     v-if="checked || transferred || transferring || removing"
     :class="styles.field.transfer.root"
   >
-    <p :class="styles.field.transfer.text">
+    <p
+      :class="styles.field.transfer.text"
+      data-testid="domain-transfer-pricing-info"
+      :data-test-value="transferOptionIsFree ? 'free' : 'paid'"
+    >
       {{
         transferOptionIsFree
           ? t("domain.existing.transfer_info_free", {
@@ -101,6 +106,7 @@
       :disabled="disabled || transferring"
       :loading="transferring"
       :block="isMobile"
+      :data-attrs="{ 'data-testid': 'domain-add-transfer-button' }"
       @click="emit('addTransfer')"
     />
 
@@ -121,6 +127,7 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
+import { DEBOUNCE_DELAY, parseBillingCycle } from "@upmind-automation/headless";
 import {
   Search,
   Button,
@@ -130,11 +137,10 @@ import {
   useStyles,
   isMobile
 } from "@upmind-automation/upmind-ui";
-import { DEBOUNCE_DELAY, parseBillingCycle } from "@upmind-automation/headless";
-import { map, debounce } from "lodash-es";
 import config from "../smartDomainField.config";
-import type { SearchItem } from "@upmind-automation/upmind-ui";
+import { map, debounce } from "lodash-es";
 import type { SmartDomainExistingProps } from "../types";
+import type { SearchItem } from "@upmind-automation/upmind-ui";
 // -----------------------------------------------------------------------------
 
 const props = defineProps<SmartDomainExistingProps>();

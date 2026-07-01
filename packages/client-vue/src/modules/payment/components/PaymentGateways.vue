@@ -11,17 +11,10 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed } from "vue";
-
-// --- internal
-import config from "../payment.config";
 import { useStyles } from "@upmind-automation/upmind-ui";
-
-// --- components
 import Form from "../../../components/form/Form.vue";
-
-// --- types
+import config from "../payment.config";
 import type { PaymentGatewaysProps } from "../types";
 
 // -----------------------------------------------------------------------------

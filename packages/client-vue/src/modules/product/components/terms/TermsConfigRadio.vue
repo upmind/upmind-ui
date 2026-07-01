@@ -36,31 +36,22 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
-import { computed, toRefs } from "vue";
+import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-
-// --- internal
-import { useStyles } from "@upmind-automation/upmind-ui";
-import config from "./terms.config";
-
-// --- components
-import { FormField, RadioCards } from "@upmind-automation/upmind-ui";
-import CardTerm from "./TermCard.vue";
-
-// --- utils
-import { isNil, map, toNumber } from "lodash-es";
-
-// --- types
-import type { HTMLAttributes } from "vue";
-import type { RadioCardsItemProps } from "@upmind-automation/upmind-ui";
-import type { TermDetails } from "@upmind-automation/headless";
 import {
   TERM_SELECTOR,
   GRID_LAYOUT,
   type TermSelector,
   type GridLayout
 } from "@upmind-automation/headless";
+import { useStyles } from "@upmind-automation/upmind-ui";
+import { FormField, RadioCards } from "@upmind-automation/upmind-ui";
+import CardTerm from "./TermCard.vue";
+import config from "./terms.config";
+import { isNil, map, toNumber } from "lodash-es";
+import type { TermDetails } from "@upmind-automation/headless";
+import type { RadioCardsItemProps } from "@upmind-automation/upmind-ui";
+import type { HTMLAttributes } from "vue";
 
 // -----------------------------------------------------------------------------
 const emits = defineEmits(["update:modelValue"]);

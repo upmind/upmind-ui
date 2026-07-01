@@ -36,6 +36,14 @@ interface ConfigOverrides {
    * for an unverified client; mock OFF for the normal checkout path.
    */
   requireVerifiedEmail?: boolean;
+  /**
+   * Selects the checkout layout. Maps to brand config key
+   * `ui.checkout.checkout_flow` — `"one_page"` (single page) or `"stepped"`
+   * (multi-step). A settings mock (P4-safe): the email-verification gate runs in
+   * `guardCheckout` regardless of layout, so this lets one spec assert the gate
+   * holds across BOTH flows.
+   */
+  checkoutFlow?: "one_page" | "stepped";
 }
 
 /**
@@ -158,6 +166,9 @@ export async function interceptConfigValues(
         json.data["security.orders.require_verified_email"] =
           overrides.requireVerifiedEmail;
       }
+      if (overrides.checkoutFlow !== undefined) {
+        json.data["ui.checkout.checkout_flow"] = overrides.checkoutFlow;
+      }
       const updatedResponseBody = {
         ...json
       };
@@ -267,7 +278,7 @@ export async function interceptSlots(page: Page, slot: string) {
         data: {
           type: "template",
           title: "",
-          body: `<div style="padding: 16px; background: #f0f9ff; border: 2px solid #0284c7; border-radius: 8px;">\n  <h3>🧪 Template: ${slot}<\/h3>\n  <p>This content is injected via the <strong>Playwright Test Runner<\/strong><\/p>\n<\/div>`,
+          body: `<div data-testid="slot-injected-content" style="padding: 16px; background: #f0f9ff; border: 2px solid #0284c7; border-radius: 8px;">\n  <h3 data-testid="slot-sentinel-${slot.replaceAll("_", "-")}">🧪 Template: ${slot}<\/h3>\n  <p>This content is injected via the <strong>Playwright Test Runner<\/strong><\/p>\n<\/div>`,
           meta: null
         },
         related: null,

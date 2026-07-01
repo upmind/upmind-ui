@@ -25,13 +25,9 @@
 <script lang="ts" setup>
 import { computed } from "vue";
 import { useStyles } from "@upmind-automation/upmind-ui";
-import config from "../layout.config";
-
-// --- components
 import { Card } from "@upmind-automation/upmind-ui";
 import Root from "../components/root/Root.vue";
-
-// --- types
+import config from "../layout.config";
 import type { VariantProps } from "../types";
 
 defineProps<VariantProps>();

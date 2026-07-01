@@ -29,12 +29,10 @@ test.describe("Template Slots", () => {
         });
         interceptSlots(page, "login_page");
         await page.goto(URLs.login);
-        await expect(page.getByText("Template: login_page")).toBeVisible();
         await expect(
-          page.getByText(
-            "This content is injected via the Playwright Test Runner"
-          )
+          page.getByTestId("slot-sentinel-login-page")
         ).toBeVisible();
+        await expect(page.getByTestId("slot-injected-content")).toBeVisible();
       });
     }
   });
@@ -49,12 +47,10 @@ test.describe("Template Slots", () => {
         });
         interceptSlots(page, "register_page");
         await page.goto(URLs.register);
-        await expect(page.getByText("Template: register_page")).toBeVisible();
         await expect(
-          page.getByText(
-            "This content is injected via the Playwright Test Runner"
-          )
+          page.getByTestId("slot-sentinel-register-page")
         ).toBeVisible();
+        await expect(page.getByTestId("slot-injected-content")).toBeVisible();
       });
     }
   });
@@ -67,14 +63,10 @@ test.describe("Template Slots", () => {
         interceptSlots(page, "footer");
         await page.goto(URLs.login);
         await expect(
-          page.locator("footer").getByText("Template: footer")
+          page.locator("footer").getByTestId("slot-sentinel-footer")
         ).toBeVisible();
         await expect(
-          page
-            .locator("footer")
-            .getByText(
-              "This content is injected via the Playwright Test Runner"
-            )
+          page.locator("footer").getByTestId("slot-injected-content")
         ).toBeVisible();
       });
     }
@@ -110,13 +102,9 @@ test.describe("Template Slots", () => {
         );
         await page.goto(URLs.basket);
         await expect(
-          page.getByText("Template: basket_summary_footer")
+          page.getByTestId("slot-sentinel-basket-summary-footer")
         ).toBeVisible();
-        await expect(
-          page.getByText(
-            "This content is injected via the Playwright Test Runner"
-          )
-        ).toBeVisible();
+        await expect(page.getByTestId("slot-injected-content")).toBeVisible();
       });
     }
   });

@@ -1,9 +1,9 @@
-import type { ImgHTMLAttributes } from "vue";
 import type {
   SubproductValue,
   UseMetaResult,
   ProductSummaryMeta
 } from "@upmind-automation/headless";
+import type { ImgHTMLAttributes } from "vue";
 
 export type SubproductCardProps = Omit<SubproductValue, "meta" | "brand"> & {
   processing?: boolean;

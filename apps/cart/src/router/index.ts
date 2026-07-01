@@ -1,13 +1,10 @@
-// --- external
 import { createRouter, createWebHistory } from "vue-router";
-
-// --- internal
-import routes, { CART_OVERLAYS } from "./routes";
 import {
   registerOverlayRoutes,
   useAssetRecovery,
   useRoutingEngine
 } from "@upmind-automation/client-vue";
+import routes, { CART_OVERLAYS } from "./routes";
 
 // ---types
 export * from "./funnels/types";

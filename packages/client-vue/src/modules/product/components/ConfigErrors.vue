@@ -7,6 +7,7 @@
     icon="alert-triangle"
     :title="t('error.product_not_valid', { errorCount })"
     :description="t('text.check_required_fields_desc')"
+    :data-attrs="{ 'data-testid': 'product-incomplete-alert' }"
   >
     <ol
       v-if="errorCount"
@@ -32,15 +33,9 @@
 </template>
 
 <script setup lang="ts">
-// --- external
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { vAutoAnimate } from "@formkit/auto-animate";
-
-// --- components
 import { Alert, Link, toSafeControlId } from "@upmind-automation/upmind-ui";
-
-// --- utils
 import { compact, join, size, split, take, trimStart } from "lodash-es";
 import type { ErrorObject } from "@upmind-automation/headless";
 

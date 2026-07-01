@@ -1,4 +1,3 @@
-import { defineNuxtPlugin } from "#app";
 import UpmindClient, {
   useTheme,
   decorateRoutes,
@@ -9,12 +8,14 @@ import UpmindClient, {
   useShell,
   SHELL
 } from "@upmind-automation/client-vue";
+import { AccessRoleTypes } from "@upmind-automation/types";
 import { plugins as uiPlugins } from "@upmind-automation/upmind-ui";
+import { forEach } from "lodash-es";
+import type { I18n } from "vue-i18n";
+import type { Router } from "vue-router";
+import { defineNuxtPlugin } from "#app";
 import { registerFunnels } from "~/funnels";
 import { CART_OVERLAYS } from "~/router.options";
-import { forEach } from "lodash-es";
-import type { Router } from "vue-router";
-import type { I18n } from "vue-i18n";
 
 export default defineNuxtPlugin(async nuxtApp => {
   const runtimeConfig = useRuntimeConfig();
@@ -23,6 +24,7 @@ export default defineNuxtPlugin(async nuxtApp => {
   // Client-side initialization
   // 1. Initialize Upmind
   UpmindClient.init({
+    allowedScopes: [AccessRoleTypes.CLIENT, AccessRoleTypes.GUEST],
     debug: import.meta.dev,
     platformUrl: "https://upmind.com",
     pop: {

@@ -30,15 +30,10 @@
 </template>
 
 <script setup lang="ts">
-// --- external
 import { useSlots, ref, computed } from "vue";
 import { useFocus } from "@vueuse/core";
 import { useI18n } from "vue-i18n";
-
-// --- internal
 import { Drawer } from "@upmind-automation/upmind-ui";
-
-// --- utils
 import { isEmptySlot } from "@upmind-automation/upmind-ui";
 
 defineOptions({

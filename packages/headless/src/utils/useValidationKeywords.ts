@@ -1,10 +1,4 @@
-// --- external
-import {
-  isValidPhoneNumber,
-  parsePhoneNumberWithError
-} from "libphonenumber-js";
-
-// --- utils
+import { isValidPhoneNumber } from "libphonenumber-js";
 import {
   isString,
   isObject,
@@ -12,14 +6,10 @@ import {
   isEqual,
   isEmpty,
   startsWith,
-  isFunction,
-  isNumber,
   trim
 } from "lodash-es";
-
-// --- types
-import type { CountryCode, PhoneNumber } from "libphonenumber-js";
 import type { KeywordDefinition } from "ajv";
+import type { CountryCode, PhoneNumber } from "libphonenumber-js";
 // -----------------------------------------------------------------------------
 
 export const useManageKeyword: KeywordDefinition = {
@@ -51,7 +41,7 @@ export const phoneCountryCodeKeyword: KeywordDefinition = {
   keyword: "phone_country_code",
   type: ["string", "object", "null"],
   schemaType: "string",
-  validate: (schema, data, parentSchema, dataCxt) => {
+  validate: (schema, data, _parentSchema, _dataCxt) => {
     if (isEmpty(data)) return true;
     if (isString(data) && startsWith(data, "+")) {
       return isValidPhoneNumber(data);
@@ -67,7 +57,7 @@ export const phoneCountryCodeKeyword: KeywordDefinition = {
     return false;
   },
   error: {
-    message: ctx => {
+    message: _ctx => {
       // try {
       //   parsePhoneNumberWithError(phone.value.number, {
       //     defaultCountry: phone?.value?.country,
@@ -136,7 +126,7 @@ export const requiredUnlessKeyword: KeywordDefinition = {
 export const requiredWithKeyword: KeywordDefinition = {
   keyword: "required_with",
   schemaType: "string",
-  validate: (schema, data, parentSchema, dataCxt) => {
+  validate: (_schema, _data, _parentSchema, _dataCxt) => {
     return true;
     // TODO: find a better way to9 implement this as current DOES NOT WORK
     // if (!schema) return true;
@@ -159,7 +149,7 @@ export const requiredWithKeyword: KeywordDefinition = {
 export const requiredWithoutKeyword: KeywordDefinition = {
   keyword: "required_without",
   schemaType: "string",
-  validate: (schema, data, parentSchema, dataCxt) => {
+  validate: (_schema, _data, _parentSchema, _dataCxt) => {
     return true;
     // TODO: find a better way to9 implement this as current DOES NOT WORK
     // if (!schema) return true;
@@ -182,7 +172,7 @@ export const requiredWithoutKeyword: KeywordDefinition = {
 export const sameKeyword: KeywordDefinition = {
   keyword: "same",
   schemaType: "string",
-  validate: (schema, data, parentSchema, dataCxt) => {
+  validate: (schema, data, _parentSchema, _dataCxt) => {
     if (!schema) return true;
     const dependentValue = get(data, schema);
     return isEqual(dependentValue, data);
@@ -197,7 +187,7 @@ export const sameKeyword: KeywordDefinition = {
 export const differentKeyword: KeywordDefinition = {
   keyword: "different",
   schemaType: "string",
-  validate: (schema, data, parentSchema, dataCxt) => {
+  validate: (schema, data, _parentSchema, _dataCxt) => {
     if (!schema) return true;
     const dependentValue = get(data, schema);
     return !isEqual(dependentValue, data);

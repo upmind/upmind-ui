@@ -44,24 +44,17 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed } from "vue";
-
-// --- internal
-import { useLayout } from "./useLayout";
-
-// --- components
+import CanvasCardLayout from "./layouts/CanvasCard.layout.vue";
 import FullLayout from "./layouts/Full.layout.vue";
+import SplitHorizontalLayout from "./layouts/SplitHorizontal.layout.vue";
+import SplitVerticalLayout from "./layouts/SplitVertical.layout.vue";
+import SurfaceBoxLayout from "./layouts/SurfaceBox.layout.vue";
 import TwoColumnLTRLayout from "./layouts/TwoColumnLTR.layout.vue";
 import TwoColumnRTLLayout from "./layouts/TwoColumnRTL.layout.vue";
-import SplitVerticalLayout from "./layouts/SplitVertical.layout.vue";
-import SplitHorizontalLayout from "./layouts/SplitHorizontal.layout.vue";
-import CanvasCardLayout from "./layouts/CanvasCard.layout.vue";
-import SurfaceBoxLayout from "./layouts/SurfaceBox.layout.vue";
-
-// --- types
+import { LAYOUT_VARIANTS, LAYOUT_OVERFLOW } from "./types";
+import { useLayout } from "./useLayout";
 import type { LayoutProps } from "./types";
-import { LAYOUT_VARIANTS, LAYOUT_OVERFLOW, LAYOUT_MODE } from "./types";
 
 const props = defineProps<LayoutProps>();
 

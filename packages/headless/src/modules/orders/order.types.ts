@@ -1,11 +1,8 @@
-// --- external
-import type { ActorRef } from "xstate";
-import type { IInvoice } from "@upmind-automation/types";
-
-// --- internal
 import type { ResponseError } from "../../utils";
-import type { Invoice } from "../invoices/types";
-import type { PaymentDetailData, PaymentDetailModel } from "../paymentDetails";
+import type { Invoice } from "../invoices/invoices.types";
+import type { PaymentDetailData, PaymentDetailModel } from "../payment-details";
+import type { IInvoice } from "@upmind-automation/types";
+import type { ActorRef } from "xstate";
 
 // -----------------------------------------------------------------------------
 

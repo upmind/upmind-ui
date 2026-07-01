@@ -159,4 +159,4 @@ This plan addresses refactoring the Upmind composable architecture focusing on:
 - [ARCHITECTURE_PROPOSAL.md](./ARCHITECTURE_PROPOSAL.md) - Technical specification (includes actor context design for future)
 - [ADR 001](./adr/001-scope-based-composables.md) - Architecture decision record
 - [stories.json](./stories/stories.json) - Linear import file
-- [DEVX.md](../DEVX.md) - Coding style guide
+- [`.agent/rules/code-style.md`](/.agent/rules/code-style.md) - Coding standards (replaces DEVX.md)

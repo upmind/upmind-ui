@@ -77,6 +77,12 @@ const { state, isAvailable, values } = useBrand();
 
 The **Brand Manager** module seamlessly integrates into your project with minimal configuration. It handles brand-related tasks, ensuring a smooth user experience.
 
+### Brand `settings.meta` vs legacy config keys
+
+Some legacy `BrandConfigKeys` behaviours were **deliberately superseded by brand `settings.meta`** (the `meta.cart` / uischema object) rather than ported to the headless cart — for example catalogue visibility (`SHOW_CLIENT_STORE`), `BILLING_TERM_DISPLAY`, product description show/hide, and `UI_LOGO_URL`. Before treating a missing legacy config key as a headless gap, check whether brand meta already covers it.
+
+> **🔧 For Contributors:** The [brand UI meta spreadsheet](https://docs.google.com/spreadsheets/d/1K9iB-H_2fvMww-HTR056TgYZ-9zMXOWG2vlUzQiKPKY/edit?gid=2141630680#gid=2141630680) is the source of truth for which keys moved to brand meta (Cart 2.0 switchover — Linear FE-2832–FE-2837).
+
 ## API Documentation
 
 There is no specific API documentation available for this module.

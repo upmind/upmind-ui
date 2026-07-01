@@ -40,25 +40,18 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
+import { vAutoAnimate } from "@formkit/auto-animate";
 import { ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import { vAutoAnimate } from "@formkit/auto-animate";
-
-// --- internal
 import { useBasketProducts, useBrand } from "@upmind-automation/headless";
 import { useStyles } from "@upmind-automation/upmind-ui";
 import config from "./basketProduct.config";
-
-// --- components
 import BasketProduct from "./BasketProduct.vue";
 import BasketProductSkeleton from "./BasketProductSkeleton.vue";
-
-// --- utils
 import { every, reduce, set } from "lodash-es";
+import type { BasketProductCardsProps } from "./types";
 
 // --- types
-import { type BasketProductCardsProps } from "./types";
 
 const props = withDefaults(defineProps<BasketProductCardsProps>(), {
   open: false

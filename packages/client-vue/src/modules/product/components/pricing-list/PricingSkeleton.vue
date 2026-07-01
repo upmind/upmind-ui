@@ -25,5 +25,5 @@
 </template>
 
 <script setup lang="ts">
-import { Skeleton, useStyles } from "@upmind-automation/upmind-ui";
+import { Skeleton } from "@upmind-automation/upmind-ui";
 </script>

@@ -36,24 +36,17 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
-import { watch, ref } from "vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
-
-// --- internal
-import config from "./feedback.config";
-import { useStyles, toast } from "@upmind-automation/upmind-ui";
+import { watch, ref } from "vue";
 import { useMessage, useFeedback } from "@upmind-automation/headless";
-
-// --- components
-import { Sonner } from "@upmind-automation/upmind-ui";
-import Message from "./components/Message.vue";
-import Error from "../system/Error.vue";
-
-// --- utils
-import { get, some, forEach } from "lodash-es";
 import { messageTypes } from "@upmind-automation/headless";
+import { useStyles, toast } from "@upmind-automation/upmind-ui";
+import { Sonner } from "@upmind-automation/upmind-ui";
 import { TOAST_VARIANTS } from "@upmind-automation/upmind-ui";
+import Error from "../system/Error.vue";
+import Message from "./components/Message.vue";
+import config from "./feedback.config";
+import { get, some, forEach } from "lodash-es";
 import type { StorefrontRoute } from "../../types";
 
 // -----------------------------------------------------------------------------
@@ -81,7 +74,7 @@ watch(toasts, toasts => {
         description: message.value.copy,
         onDismiss: t => dismissToast(t.id.toString()),
         onAutoClose: t => dismissToast(t.id.toString()),
-        // @ts-ignore -- we can actually pass this to the toast component
+        // @ts-expect-error -- `type` is omitted from ExternalToast but the toast component does accept it
         type: getToastType(message.value.type),
         position: "top-right"
       });

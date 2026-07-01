@@ -20,6 +20,7 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from "vue";
 import {
   UpmSection,
   UpmForm,
@@ -27,7 +28,6 @@ import {
   UpmLayout
 } from "@upmind-automation/client-vue";
 import { Card } from "@upmind-automation/upmind-ui";
-import { ref } from "vue";
 
 const modelValue = ref({});
 

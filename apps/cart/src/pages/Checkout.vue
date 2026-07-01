@@ -8,11 +8,10 @@
 </template>
 
 <script lang="ts" setup>
-// --- internal
+import { UpmCheckout } from "@upmind-automation/client-vue";
 import { ROUTE } from "../router";
 import { useStorefrontRoute } from "../router/useStorefrontRoute";
 
 // --- components
-import { UpmCheckout } from "@upmind-automation/client-vue";
 const { storefrontRoute } = useStorefrontRoute();
 </script>

@@ -1,7 +1,7 @@
-import { useRuntimeConfig } from "#imports";
 import * as Sentry from "@sentry/nuxt";
+import { useRuntimeConfig } from "#imports";
 
-export default defineNuxtPlugin(nuxtApp => {
+export default defineNuxtPlugin(_nuxtApp => {
   const config = useRuntimeConfig();
   const router = useRouter();
 
@@ -10,7 +10,7 @@ export default defineNuxtPlugin(nuxtApp => {
       environment: import.meta.dev ? "development" : "production",
       dsn: config.public.SENTRY_DSN as string,
       integrations: [
-        Sentry.browserTracingIntegration({ router: router as any }),
+        Sentry.browserTracingIntegration({ router }),
         Sentry.replayIntegration({
           maskAllInputs: true,
           maskAllText: false,

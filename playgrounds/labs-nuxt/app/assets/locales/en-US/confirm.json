@@ -1,0 +1,16 @@
+{
+  "address_removed": "Address removed successfully",
+  "address_set_default": "Address successfully set as default",
+  "company_removed": "Company removed successfully",
+  "company_set_default": "Company successfully set as default",
+  "copied": "Copied",
+  "domain_in_basket_msg": "This domain is already in your basket.",
+  "domain_owned_msg": "You already own this domain.",
+  "email_removed": "Email removed successfully",
+  "email_set_default": "Email successfully set as default",
+  "in_basket": "In basket",
+  "in_use": "In use",
+  "phone_removed": "Phone removed successfully",
+  "phone_set_default": "Phone successfully set as default",
+  "reset_instructions_sent_msg": "Thanks – reset instructions have been sent to your email"
+}

@@ -1,10 +1,5 @@
-// --- external
-import { computed, provide, ref } from "vue";
-
-// --- internal
+import { computed, ref } from "vue";
 import { useBrand } from "../brand";
-
-// --- utils
 import {
   isEmpty,
   startCase,
@@ -13,12 +8,9 @@ import {
   values,
   isString,
   isArray,
-  trim,
   forEach
 } from "lodash-es";
-
-// --- types
-import type { Theme } from "./types";
+import type { Theme } from "./theming.types";
 
 // -----------------------------------------------------------------------------
 // --- global context

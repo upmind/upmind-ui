@@ -1,4 +1,3 @@
-// --- external
 import Upmind, { useTransfer } from "@upmind-automation/client-vue";
 
 // -----------------------------------------------------------------------------

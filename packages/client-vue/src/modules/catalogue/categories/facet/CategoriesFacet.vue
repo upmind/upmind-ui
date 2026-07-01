@@ -23,18 +23,11 @@
 </template>
 
 <script setup lang="ts">
-// --- external
 import { ref } from "vue";
 import { useI18n } from "vue-i18n";
-
-// --- internal
-import config from "../../catalogue.config";
-
-// --- components
 import { Input, useStyles } from "@upmind-automation/upmind-ui";
+import config from "../../catalogue.config";
 import CategoriesFacetDrillDown from "./CategoriesFacetDrillDown.vue";
-
-// --- types
 import type { CategoriesProps } from "../types";
 
 // -----------------------------------------------------------------------------

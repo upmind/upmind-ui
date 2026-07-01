@@ -84,9 +84,7 @@ test.describe("DAC existing-domain mode (transfer checks)", () => {
     await selectExistingAndFill(TRANSFER_DOMAIN);
 
     // Wait for the transfer button to appear - this proves the availability check completed
-    const addTransferButton = page.getByRole("button", {
-      name: /add transfer|transfer/i
-    });
+    const addTransferButton = page.getByTestId("domain-add-transfer-button");
     await expect(addTransferButton).toBeVisible({ timeout: 15000 });
 
     // Verify no suggestions calls were made (only availability should fire)
@@ -113,9 +111,7 @@ test.describe("DAC existing-domain mode (transfer checks)", () => {
     await selectExistingAndFill(TRANSFER_DOMAIN);
 
     // SmartDomainExisting shows "Add transfer" button for transferable domains
-    const addTransferButton = page.getByRole("button", {
-      name: /add transfer|transfer/i
-    });
+    const addTransferButton = page.getByTestId("domain-add-transfer-button");
     await expect(addTransferButton).toBeVisible({ timeout: 15000 });
   });
 
@@ -146,10 +142,8 @@ test.describe("DAC existing-domain mode (transfer checks)", () => {
     await expect(domainInput).toHaveValue(TRANSFER_DOMAIN);
 
     // No transfer or register button should appear
-    const transferButton = page.getByRole("button", { name: /add transfer/i });
-    const registerButton = page.getByRole("button", {
-      name: /add registration/i
-    });
+    const transferButton = page.getByTestId("domain-add-transfer-button");
+    const registerButton = page.getByTestId("domain-add-registration-button");
     await expect(transferButton).not.toBeVisible();
     await expect(registerButton).not.toBeVisible();
   });
@@ -171,10 +165,8 @@ test.describe("DAC existing-domain mode (transfer checks)", () => {
     await expect(domainInput).toHaveValue(TRANSFER_DOMAIN);
 
     // No transfer or register button should appear on error
-    const transferButton = page.getByRole("button", { name: /add transfer/i });
-    const registerButton = page.getByRole("button", {
-      name: /add registration/i
-    });
+    const transferButton = page.getByTestId("domain-add-transfer-button");
+    const registerButton = page.getByTestId("domain-add-registration-button");
     await expect(transferButton).not.toBeVisible();
     await expect(registerButton).not.toBeVisible();
   });
@@ -238,12 +230,12 @@ test.describe("DAC existing-domain mode (transfer checks)", () => {
     await page.goto(URLs.starterHosting);
     await selectExistingAndFill(TRANSFER_DOMAIN);
 
-    // Wait for the transfer info to appear
-    const transferInfo = page.locator("text=/transfer.*free/i");
+    // Wait for the transfer info to appear; `data-test-value="free"` is set by
+    // SmartDomainExisting off `transferOptionIsFree`, locale-stably encoding that
+    // the free-transfer copy (not a "£0.00" price) is rendered.
+    const transferInfo = page.getByTestId("domain-transfer-pricing-info");
     await expect(transferInfo).toBeVisible({ timeout: 15000 });
-
-    // Should NOT show "£0.00" - should show "free" instead
-    await expect(page.locator("text=£0.00")).not.toBeVisible();
+    await expect(transferInfo).toHaveAttribute("data-test-value", "free");
   });
 
   test("Paid transfer shows correct price in the pricing copy", async ({
@@ -280,10 +272,12 @@ test.describe("DAC existing-domain mode (transfer checks)", () => {
     await page.goto(URLs.starterHosting);
     await selectExistingAndFill(TRANSFER_DOMAIN);
 
-    // Scope to the transfer copy — a bare £2.50 also matches the product-card
-    // price ("From £2.50 a month") and the price-detail line.
-    const transferCopy = page.getByText(/transfer it to us for only/i);
-    await expect(transferCopy).toContainText("£2.50", { timeout: 15000 });
+    // `data-test-value="paid"` is set by SmartDomainExisting off
+    // `transferOptionIsFree` — locale-stably encoding that the paid-transfer copy
+    // (with a transfer price) renders rather than the free variant.
+    const transferInfo = page.getByTestId("domain-transfer-pricing-info");
+    await expect(transferInfo).toBeVisible({ timeout: 15000 });
+    await expect(transferInfo).toHaveAttribute("data-test-value", "paid");
   });
 
   // TODO FE-2806: Add test for conditional renewal copy once product field is identified

@@ -6,7 +6,7 @@
         {
           id: 'account-credit',
           value: 'account-credit',
-          'data-testid': 'account-credit',
+          dataAttrs: { 'data-testid': 'account-credit' },
           label: t('cart.account_credit_use', {
             amount: safeAmountFormatted
           }),
@@ -48,15 +48,10 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
-
-// --- components
-import FormModal from "../../../components/form/FormModal.vue";
 import { CheckboxCards } from "@upmind-automation/upmind-ui";
-
-// --- types
+import FormModal from "../../../components/form/FormModal.vue";
 import type { AccountCreditProps } from "../types";
 
 // -----------------------------------------------------------------------------
@@ -76,7 +71,7 @@ const model = defineModel("modelValue", {
 });
 
 const checked = computed({
-  get: () => (!!props.modelValue ? ["account-credit"] : []),
+  get: () => (props.modelValue ? ["account-credit"] : []),
   set: (value: string[]) => {
     model.value = {
       wallet_amount: value.includes("account-credit")

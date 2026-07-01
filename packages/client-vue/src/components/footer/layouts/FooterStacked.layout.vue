@@ -22,21 +22,18 @@
 </template>
 
 <script lang="ts" setup>
-// --- external
 import { computed } from "vue";
-
-// --- internal
+import { useStyles } from "@upmind-automation/upmind-ui";
+import Column from "../../layout/components/column/Column.vue";
+import Container from "../../layout/components/container/Container.vue";
+import Content from "../../layout/components/content/Content.vue";
+import Ribbon from "../../layout/components/ribbon/Ribbon.vue";
 import config from "../footer.config";
 import { useFooter } from "../useFooter";
 
 // --- components
-import Ribbon from "../../layout/components/ribbon/Ribbon.vue";
-import Container from "../../layout/components/container/Container.vue";
-import Content from "../../layout/components/content/Content.vue";
-import Column from "../../layout/components/column/Column.vue";
 
 // --- utils
-import { useStyles } from "@upmind-automation/upmind-ui";
 
 // --- types
 

@@ -1,8 +1,3 @@
-// --- utils
-import { useIcons, iconOutput } from "./useIcons";
-import { keys, values, invert } from "lodash-es";
-
-// --- types
 import {
   type ArgType,
   colors,
@@ -10,8 +5,12 @@ import {
   allSizes,
   placements,
   variants,
-  align,
+  align
 } from "./types";
+import { useIcons, iconOutput } from "./useIcons";
+import { keys, values, invert } from "lodash-es";
+
+// --- types
 
 // ----------------------------------------------------------------------------
 
@@ -24,52 +23,52 @@ export const useSystemArgTypes: Record<string, ArgType> = {
     options: keys(variants),
     control: {
       type: "select",
-      labels: variants,
-    },
+      labels: variants
+    }
   },
   placement: {
     options: keys(placements),
     control: {
       type: "select",
-      labels: placements,
-    },
+      labels: placements
+    }
   },
 
   color: {
     options: keys(colors),
     control: {
       type: "select",
-      labels: colors,
-    },
+      labels: colors
+    }
   },
   size: {
     options: keys(sizes),
     control: {
       type: "radio",
-      labels: sizes,
-    },
+      labels: sizes
+    }
   },
 
   allSizes: {
     options: keys(allSizes),
     control: {
       type: "radio",
-      labels: allSizes,
-    },
+      labels: allSizes
+    }
   },
   icon: {
     options: values(icons),
     control: {
       type: "select",
-      labels: invert(icons),
-    },
+      labels: invert(icons)
+    }
   },
   align: {
     options: keys(align),
     control: {
       type: "select",
-      labels: align,
-    },
+      labels: align
+    }
   },
   // iconSvgs: {
   //   options: values(iconSvgs),
@@ -82,7 +81,7 @@ export const useSystemArgTypes: Record<string, ArgType> = {
     options: values(iconUrls),
     control: {
       type: "select",
-      labels: invert(iconUrls),
-    },
-  },
+      labels: invert(iconUrls)
+    }
+  }
 };
