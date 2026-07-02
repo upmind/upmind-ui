@@ -164,7 +164,11 @@ newUser.describe("Checkout with Stripe", () => {
       await checkout.selectGatewayByType(gateways.STRIPE);
       await checkout.inputIdealDetails(TEST_EMAILS.ideal, "Test User");
       await checkout.completeCheckout.click();
-      await page.getByTestId("authorize-test-payment-button").click();
+      // Stripe's hosted test page still marks buttons with data-testid, so
+      // getByTestId (mapped to data-test-key) can't resolve them.
+      await page
+        .locator('[data-testid="authorize-test-payment-button"]')
+        .click();
       await page.waitForURL(`order/**`);
       await expect(
         page.getByTestId("order-confirmation-heading")
@@ -175,7 +179,7 @@ newUser.describe("Checkout with Stripe", () => {
       await checkout.selectGatewayByType(gateways.STRIPE);
       await checkout.inputIdealDetails(TEST_EMAILS.ideal, "Test User");
       await checkout.completeCheckout.click();
-      await page.getByTestId("fail-test-payment-button").click();
+      await page.locator('[data-testid="fail-test-payment-button"]').click();
       await page.waitForURL(`order/**`);
       await expect(
         page.getByTestId("confirmation-payment-alert")
