@@ -69,10 +69,6 @@ for (const { language, locale } of languages) {
       // recommendations step is deterministic instead of depending on staging
       // recommendation config for the base product. Locators are testid-based
       // (not text/role-name) so they hold across every locale this suite runs.
-      // NB post-@next recommendations are read from brand config (useConfig
-      // data.productsToRecommend), not orders/current basket meta — this
-      // intercept is currently inert and the carousel renders the real
-      // staging recommendation config.
       interceptProductsToRecommend(context, [
         { object_id: products.STARTER_HOSTING.id }
       ]);

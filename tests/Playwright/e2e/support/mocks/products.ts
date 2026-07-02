@@ -469,83 +469,104 @@ function ensureRouteRegistered(
     return cached;
   };
 
-  context.route("**/api/orders/current**", async (route: Route) => {
-    if (route.request().method() === "OPTIONS") {
-      await route.fallback();
-      return;
-    }
-
-    const { productsToRecommend, related } = state!;
-    if (!productsToRecommend && !related) {
-      await route.fallback();
-      return;
-    }
-
-    const response = await route.fetch();
-    let body: any;
-    try {
-      body = await response.json();
-    } catch {
-      await route.fulfill({ response });
-      return;
-    }
-
-    const basketProducts = body?.data?.products;
-    if (!Array.isArray(basketProducts) || basketProducts.length === 0) {
-      await route.fulfill({ response });
-      return;
-    }
-
-    const parent = basketProducts[0];
-    if (!parent?.product) {
-      await route.fulfill({ response });
-      return;
-    }
-
-    const buildEntries = async (recs: RecommendationConfig[]) =>
-      Promise.all(
-        recs.map(async (rec, index) => {
-          const product = await getProduct(rec.object_id);
-          return buildRecommendationEntry(
-            rec,
-            index,
-            parent.product_id,
-            product
-          );
-        })
-      );
-
-    if (productsToRecommend) {
-      const entries = await buildEntries(productsToRecommend);
-      if (
-        !parent.product.meta ||
-        typeof parent.product.meta !== "object" ||
-        Array.isArray(parent.product.meta)
-      ) {
-        parent.product.meta = {};
+  // Post-@next the basket updates in place from mutation responses
+  // (POST /orders creation, POST/PUT orders/{id}/products) and orders/current
+  // is only fetched at boot — usually while the basket is still empty. Patch
+  // every basket-carrying orders response so the recommendation sources
+  // survive however the basket state was loaded.
+  context.route(
+    /\/api\/orders(\/[^/]+(\/products(\/[^/?]+)?)?)?(\?|$)/,
+    async (route: Route) => {
+      if (route.request().method() === "OPTIONS") {
+        await route.fallback();
+        return;
       }
-      parent.product.meta["@data.productsToRecommend"] = entries;
-    }
 
-    if (related) {
-      parent.product.related = await buildEntries(related);
-    }
+      const { productsToRecommend, related } = state!;
+      if (!productsToRecommend && !related) {
+        await route.fallback();
+        return;
+      }
 
-    await route.fulfill({
-      status: response.status(),
-      contentType: "application/json",
-      headers: response.headers(),
-      body: JSON.stringify(body)
-    });
-  });
+      const response = await route.fetch();
+      let body: any;
+      try {
+        body = await response.json();
+      } catch {
+        await route.fulfill({ response });
+        return;
+      }
+
+      const basketProducts = body?.data?.products;
+      if (!Array.isArray(basketProducts) || basketProducts.length === 0) {
+        await route.fulfill({ response });
+        return;
+      }
+
+      const parent = basketProducts[0];
+      if (!parent?.product) {
+        await route.fulfill({ response });
+        return;
+      }
+
+      const buildEntries = async (recs: RecommendationConfig[]) =>
+        Promise.all(
+          recs.map(async (rec, index) => {
+            const product = await getProduct(rec.object_id);
+            return buildRecommendationEntry(
+              rec,
+              index,
+              parent.product_id,
+              product
+            );
+          })
+        );
+
+      if (productsToRecommend) {
+        const entries = await buildEntries(productsToRecommend);
+        if (
+          !parent.product.meta ||
+          typeof parent.product.meta !== "object" ||
+          Array.isArray(parent.product.meta)
+        ) {
+          parent.product.meta = {};
+        }
+        // Drop any staging variants of the key so the injected set is the only
+        // product-scope source (product scope outranks category/brand in the
+        // config cascade).
+        for (const key of Object.keys(parent.product.meta)) {
+          if (/^@data\.(?:[^.]+\.)?productsToRecommend(?:\/|$)/.test(key)) {
+            delete parent.product.meta[key];
+          }
+        }
+        // Context-scoped key: parseMetaKey gives it higher priority than
+        // wildcard `@data.productsToRecommend` keys, so staging wildcards can't
+        // override the injected entries.
+        parent.product.meta["@data.recommendations.productsToRecommend"] =
+          entries;
+      }
+
+      if (related) {
+        parent.product.related = await buildEntries(related);
+      }
+
+      await route.fulfill({
+        status: response.status(),
+        contentType: "application/json",
+        headers: response.headers(),
+        body: JSON.stringify(body)
+      });
+    }
+  );
 
   return state;
 }
 
 /**
- * Intercepts `/api/orders/current` and replaces the first basket product's
+ * Intercepts basket-carrying orders responses (orders/current, orders/{id},
+ * orders/{id}/products mutations) and replaces the first basket product's
  * `meta["@data.productsToRecommend"]` array — the config-based recommendation
- * source — with a controlled set of entries.
+ * source (`useConfig` PRODUCT scope) — with a controlled set of entries.
  *
  * Composes with `interceptRelatedProducts`: calling both in the same test
  * mocks each source independently within a single route handler.
@@ -567,7 +588,8 @@ export function interceptProductsToRecommend(
 }
 
 /**
- * Intercepts `/api/orders/current` and replaces the first basket product's
+ * Intercepts basket-carrying orders responses (orders/current, orders/{id},
+ * orders/{id}/products mutations) and replaces the first basket product's
  * `related[]` array — the native recommendation source — with a controlled
  * set of entries.
  *
