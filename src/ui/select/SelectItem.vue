@@ -14,7 +14,7 @@ const props = defineProps<
     /** Stable identifier for the implicit testid cascade (id → value). */
     id?: string;
     /** Explicit data-* attributes spread onto the rendered option (e.g.
-     * `{ "data-testid": "currency-gbp" }`). Overrides the implicit
+     * `{ "data-test-key": "currency-gbp" }`). Overrides the implicit
      * `select-item-*` testid; the uniform escape hatch across primitives. */
     dataAttrs?: Record<`data-${string}`, string | number | boolean>;
   }
@@ -38,8 +38,8 @@ const forwardedProps = useForwardProps(delegatedProps);
         props.class
       )
     "
-    :data-testid="
-      props.dataAttrs?.['data-testid'] ??
+    :data-test-key="
+      props.dataAttrs?.['data-test-key'] ??
       `select-item-${props.id || props.value}`
     "
   >

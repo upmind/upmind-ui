@@ -23,7 +23,7 @@ const delegatedProps = computed(() => {
         props.class
       )
     "
-    data-testid="tabslist"
+    data-test-key="tabslist"
   >
     <slot />
   </TabsList>

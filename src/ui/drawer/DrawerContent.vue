@@ -56,7 +56,7 @@ providePortalTarget(useTemplateRef("content"));
           props.class
         )
       "
-      data-testid="drawer-content"
+      data-test-key="drawer-content"
     >
       <slot />
     </DrawerContent>

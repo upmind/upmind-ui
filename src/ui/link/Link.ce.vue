@@ -5,8 +5,8 @@
     :aria-disabled="meta.isDisabled || undefined"
     :tabindex="meta.isFocusable ? '0' : '-1'"
     :class="cn(styles.link.root, props.class)"
-    :data-testid="
-      props.dataAttrs?.['data-testid'] ??
+    :data-test-key="
+      props.dataAttrs?.['data-test-key'] ??
       `link-${kebabCase(label ?? 'default')}`
     "
     @click="$emit('click', $event)"

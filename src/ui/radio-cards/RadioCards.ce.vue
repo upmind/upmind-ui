@@ -32,8 +32,8 @@
         :data-focus="props.dataFocus"
         :dataAttrs="{
           ...option.dataAttrs,
-          'data-testid':
-            option.dataAttrs?.['data-testid'] ??
+          'data-test-key':
+            option.dataAttrs?.['data-test-key'] ??
             `radio-card-${option.id || option.value || index}`
         }"
         @keydown.enter="onChange(option.value)"

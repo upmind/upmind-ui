@@ -10,7 +10,7 @@
         <Link
           @click="open = !open"
           :label="meta.isOpen ? labelLess : labelMore"
-          data-testid="lineclamp"
+          data-test-key="lineclamp"
           color="inherit"
           size="inherit"
         />

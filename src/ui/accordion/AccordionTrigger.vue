@@ -29,7 +29,7 @@ const delegatedProps = computed(() => {
           props.class
         )
       "
-      data-testid="accordion-trigger"
+      data-test-key="accordion-trigger"
       :data-state="props.open ? 'open' : 'closed'"
     >
       <slot />

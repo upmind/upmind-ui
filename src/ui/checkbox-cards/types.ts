@@ -25,7 +25,7 @@ export type CheckboxCardsItemProps = ToggleGroupItemProps & {
   action?: CheckboxCardsItemActionProps;
   id?: string;
   /** Explicit data-* attributes spread onto the rendered checkbox (e.g.
-   * `{ "data-testid": "addon-backups" }`). Overrides the implicit
+   * `{ "data-test-key": "addon-backups" }`). Overrides the implicit
    * `checkbox-item-*` testid; the uniform escape hatch across card primitives. */
   dataAttrs?: Record<`data-${string}`, string | number | boolean>;
   /** When `true`, prevents the user from interacting with the radio item. */

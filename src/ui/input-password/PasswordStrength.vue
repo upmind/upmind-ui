@@ -3,7 +3,7 @@
     <div
       v-if="props.showBars && props.max > 0"
       :class="styles.passwordStrength.bars"
-      data-testid="password-strength"
+      data-test-key="password-strength"
     >
       <div v-for="i in props.max" :key="i" :class="barClass(i)" />
     </div>
@@ -13,7 +13,7 @@
       :class="styles.passwordStrength.message"
       role="status"
       aria-live="polite"
-      data-testid="password-message"
+      data-test-key="password-message"
     >
       {{ props.message }}
     </p>

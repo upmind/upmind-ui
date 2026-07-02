@@ -53,7 +53,7 @@ providePortalTarget(useTemplateRef("content"));
           props.class
         )
       "
-      :data-testid="props.dataAttrs?.['data-testid'] ?? 'dialog-window'"
+      :data-test-key="props.dataAttrs?.['data-test-key'] ?? 'dialog-window'"
       @interactOutside="e => !props.dismissable && e.preventDefault()"
       @escapeKeyDown="e => !props.dismissable && e.preventDefault()"
     >

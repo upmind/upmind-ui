@@ -1,7 +1,7 @@
 <template>
   <dl
     :class="cn(styles.list.root, props.class)"
-    data-testid="description-list"
+    data-test-key="description-list"
     v-bind="props.dataAttrs"
     v-auto-animate
   >

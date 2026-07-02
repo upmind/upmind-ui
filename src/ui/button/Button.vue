@@ -17,7 +17,7 @@ const props = withDefaults(defineProps<Props>(), {
     :as="as"
     :as-child="asChild"
     :class="cn(props.class)"
-    data-testid="button"
+    data-test-key="button"
   >
     <slot />
   </Primitive>

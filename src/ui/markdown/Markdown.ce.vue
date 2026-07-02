@@ -8,7 +8,7 @@
         props.class
       )
     "
-    data-testid="markdown"
+    data-test-key="markdown"
   />
 </template>
 

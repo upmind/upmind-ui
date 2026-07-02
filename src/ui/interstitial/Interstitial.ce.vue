@@ -42,7 +42,7 @@
           <Button
             v-for="(action, index) in actions"
             :key="`action-${index}`"
-            :data-testid="`interstitial-action-${index}`"
+            :data-test-key="`interstitial-action-${index}`"
             size="lg"
             v-bind="action"
             :loading="meta.isProcessing"

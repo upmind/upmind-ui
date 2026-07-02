@@ -107,7 +107,7 @@
 
               <span
                 class="flex w-full items-center justify-between"
-                :data-testid="`combobox-item`"
+                :data-test-key="`combobox-item`"
               >
                 <span
                   v-if="(item as Record<string, any>)?.[itemLabel]"

@@ -28,7 +28,7 @@ const forwarded = useForwardProps(delegatedProps);
         props.class
       )
     "
-    data-testid="number-field-decrement"
+    data-test-key="number-field-decrement"
   >
     <slot>
       <Minus class="h-4 w-4" />
