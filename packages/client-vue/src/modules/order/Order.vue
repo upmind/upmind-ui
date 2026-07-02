@@ -2,42 +2,42 @@
   <component :is="templateVariant">
     <template #order-summary>
       <Hero
-        v-show="!meta.isProcessing"
+        v-show="!orderMeta.isProcessing"
         :title="title"
         :description="text"
-        :loading="meta.isLoading"
+        :loading="orderMeta.isLoading"
         :badge="badge"
         :dataAttrs="{ 'data-test-key': 'order-confirmation-heading' }"
       >
         <template #append>
-          <div v-if="action && !meta.isComplete">
+          <div v-if="action && !orderMeta.isComplete">
             <Button
               variant="subtle"
               size="lg"
               :label="t(action)"
               :loading="actionProcessing"
               @click.stop="doAction"
-              :icon="!meta.isAuthenticated ? 'arrow-left' : ''"
-              :icon-append="meta.isAuthenticated ? 'arrow-right' : ''"
+              :icon="!orderMeta.isAuthenticated ? 'arrow-left' : ''"
+              :icon-append="orderMeta.isAuthenticated ? 'arrow-right' : ''"
             />
           </div>
         </template>
       </Hero>
     </template>
 
-    <template #order-payment-details v-if="meta.isAvailable">
+    <template #order-payment-details v-if="orderMeta.isAvailable">
       <Alert
         v-if="primaryAlert"
-        v-show="!meta.isProcessing"
+        v-show="!orderMeta.isProcessing"
         v-bind="primaryAlert"
         variant="minimal"
         @click="primaryAlert?.onClick"
       />
       <PaymentDetails
-        v-if="!meta.isLocked"
-        v-show="!meta.isProcessing"
+        v-if="!orderMeta.isLocked"
+        v-show="!orderMeta.isProcessing"
         :label="t('action.pay_now')"
-        :processing="meta.isProcessing"
+        :processing="orderMeta.isProcessing"
         @resolve="pay"
       >
         <template #prepend>
@@ -51,15 +51,15 @@
       </PaymentDetails>
     </template>
 
-    <template v-if="!meta.isUnavailable" #order-details>
+    <template v-if="!orderMeta.isUnavailable" #order-details>
       <Section
-        v-show="!meta.isProcessing"
+        v-show="!orderMeta.isProcessing"
         id="order-details"
         :label="t('text.order_summary')"
         icon="shopping-bag-02"
       >
         <DescriptionList
-          v-if="!meta.isLoading && orderItems.length"
+          v-if="!orderMeta.isLoading && orderItems.length"
           :items="orderItems"
         >
           <div
@@ -123,17 +123,17 @@
       </Section>
     </template>
 
-    <template v-if="!meta.isUnavailable" #order-products>
-      <OrderProducts v-show="!meta.isProcessing">
+    <template v-if="!orderMeta.isUnavailable" #order-products>
+      <OrderProducts v-show="!orderMeta.isProcessing">
         <template #append>
           <Button
-            v-if="action && meta.isComplete"
+            v-if="action && orderMeta.isComplete"
             size="lg"
             :label="t(action)"
             :loading="actionProcessing"
             @click.stop="doAction"
-            :icon="!meta.isAuthenticated ? 'arrow-left' : ''"
-            :icon-append="meta.isAuthenticated ? 'arrow-right' : ''"
+            :icon="!orderMeta.isAuthenticated ? 'arrow-left' : ''"
+            :icon-append="orderMeta.isAuthenticated ? 'arrow-right' : ''"
           />
         </template>
       </OrderProducts>
@@ -141,10 +141,12 @@
 
     <!-- Guest → full-account upgrade after checkout. Prompt first, then the
          shared Auth register form (which the client machine drives for a guest
-         client). Hidden once the upgrade promotes them to a full client. -->
-    <template v-if="meta.isComplete && isGuestClient" #guest-registration>
+         client). Hidden once the upgrade promotes them to a full client.
+         Suppressed when a registerRoute is provided — the action CTA sends the
+         guest to a dedicated register page instead. -->
+    <template v-if="meta.showInlineGuestRegistration" #guest-registration>
       <Section
-        v-show="!meta.isProcessing"
+        v-show="!orderMeta.isProcessing"
         id="guest-registration"
         :label="t('auth.guest_register_title')"
         icon="user-plus-01"
@@ -169,7 +171,7 @@
     </template>
   </component>
 
-  <PaymentProcessing v-if="meta.isProcessing" />
+  <PaymentProcessing v-if="orderMeta.isProcessing" />
 </template>
 
 <script lang="ts" setup>
@@ -251,7 +253,7 @@ const {
   errors,
   invoice: orderData,
   isReady,
-  meta,
+  meta: orderMeta,
   pay,
   paymentDetail,
   refresh,
@@ -262,11 +264,25 @@ const {
 await isReady();
 
 provide("usePaymentDetail", paymentDetail);
-provide("usePaymentChallenge", { renderChallenge, cancelChallenge, meta });
+provide("usePaymentChallenge", {
+  renderChallenge,
+  cancelChallenge,
+  meta: orderMeta
+});
 provide("orderInvoice", orderData);
 
 const { show: showAnnouncement, dismiss: dismissAnnouncement } =
   useAnnouncement();
+
+// Component-level guest-registration state, derived from the order's headless
+// meta plus session + props. isGuestRegister → the action CTA routes to a
+// dedicated register page; showInlineGuestRegistration → render the inline Auth
+// form instead (when no register route is provided).
+const meta = computed(() => ({
+  isGuestRegister: isGuestClient.value && !!props.registerRoute,
+  showInlineGuestRegistration:
+    orderMeta.value.isComplete && isGuestClient.value && !props.registerRoute
+}));
 
 // -----------------------------------------------------------------------------
 
@@ -285,7 +301,7 @@ const template = computed(
 const templateVariant = computed(() => get(supportedTemplates, template.value));
 
 const badge = computed(() => {
-  if (meta.value.isComplete)
+  if (orderMeta.value.isComplete)
     return {
       label: t("text.confirmed"),
       icon: "check-circle",
@@ -301,7 +317,7 @@ const badge = computed(() => {
 const primaryAlert = computed<
   (AlertProps & { onClick?: () => void }) | undefined
 >(() => {
-  if (meta.value.isLocked)
+  if (orderMeta.value.isLocked)
     return {
       title: t("invoice.order_locked"),
       description: t("invoice.order_locked_msg"),
@@ -312,7 +328,7 @@ const primaryAlert = computed<
         "data-test-value": "locked"
       }
     };
-  if (meta.value.hasError)
+  if (orderMeta.value.hasError)
     return {
       title: t("invoice.payment_retry"),
       description: errors.value?.message || t("invoice.payment_retry_msg"),
@@ -327,7 +343,7 @@ const primaryAlert = computed<
         "data-test-value": "failed"
       }
     };
-  if (meta.value.isPaymentDue)
+  if (orderMeta.value.isPaymentDue)
     return {
       title: t("invoice.payment_due"),
       description: orderData.value?.dateDue?.date
@@ -345,12 +361,14 @@ const primaryAlert = computed<
         "data-test-value": "due"
       }
     };
+
+  return {};
 });
 
 const secondaryAlert = computed<
   (AlertProps & { onClick?: () => void }) | undefined
 >(() => {
-  if (meta.value.isPending)
+  if (orderMeta.value.isPending)
     return {
       title: t("invoice.order_pending"),
       description: t("invoice.order_pending_msg"),
@@ -358,7 +376,7 @@ const secondaryAlert = computed<
       color: "warning",
       action: {
         label: t("action.refresh"),
-        disabled: meta.value.isLoading
+        disabled: orderMeta.value.isLoading
       },
       onClick: refresh,
       dataAttrs: {
@@ -366,7 +384,7 @@ const secondaryAlert = computed<
         "data-test-value": "pending"
       }
     };
-  if (meta.value.isPartial)
+  if (orderMeta.value.isPartial)
     return {
       title: t("invoice.payment_partial"),
       description: t("invoice.payment_partial_msg", {
@@ -379,35 +397,37 @@ const secondaryAlert = computed<
         "data-test-value": "outstanding"
       }
     };
+
+  return {};
 });
 
 const title = computed(() => {
-  if (!meta.value.isAuthenticated) {
+  if (!orderMeta.value.isAuthenticated) {
     return t("text.session_expired");
   }
-  if (meta.value.isUnavailable) {
+  if (orderMeta.value.isUnavailable) {
     return t("invoice.order_not_found");
   }
-  if (meta.value.isComplete || meta.value.isPartial) {
+  if (orderMeta.value.isComplete || orderMeta.value.isPartial) {
     return t("invoice.order_complete");
   }
   return t("invoice.order_placed");
 });
 
 const text = computed(() => {
-  if (!meta.value.isAuthenticated) {
+  if (!orderMeta.value.isAuthenticated) {
     return t("text.session_expired_return_store_msg");
   }
-  if (meta.value.isUnavailable) {
+  if (orderMeta.value.isUnavailable) {
     return t("invoice.order_not_found_msg");
   }
-  if (meta.value.isComplete) {
+  if (orderMeta.value.isComplete) {
     return t("invoice.order_complete_msg");
   }
-  if (meta.value.isFree) {
+  if (orderMeta.value.isFree) {
     return t("invoice.order_free_msg");
   }
-  if (meta.value.isPartial) {
+  if (orderMeta.value.isPartial) {
     return t("invoice.order_partial_payment_msg", {
       paid_amount: orderData.value?.summary.paidAmountFormatted
     });
@@ -489,16 +509,27 @@ const transferRedirect = (
 const actionProcessing = ref(false);
 
 const action = computed(() => {
-  if (!meta.value.isAuthenticated) {
+  if (!orderMeta.value.isAuthenticated) {
     return "action.return_to_shop";
-  } else if (meta.value.isUnavailable) {
+  } else if (orderMeta.value.isUnavailable) {
     return "action.go_to_my_orders";
+  } else if (meta.value.isGuestRegister) {
+    return "action.create_account";
   }
   return "action.go_to_my_account";
 });
 
+// Guest → register/upgrade page, tagging the current order as the returnUrl so
+// the funnel brings the upgraded client straight back here.
+function createAccount() {
+  router.push({
+    name: props.registerRoute?.name,
+    query: { [QUERY_PARAMS.RETURN_URL]: route.fullPath }
+  });
+}
+
 function doAction() {
-  if (!meta.value.isAuthenticated) {
+  if (!orderMeta.value.isAuthenticated) {
     const route = props.storefrontRoute;
 
     if (route?.href) {
@@ -506,13 +537,15 @@ function doAction() {
     } else {
       router.push(route?.to ?? "/");
     }
-
-    actionProcessing.value = false;
-    return;
+  } else if (meta.value.isGuestRegister) {
+    createAccount();
+  } else {
+    actionProcessing.value = true;
+    doTransfer();
   }
+}
 
-  actionProcessing.value = true;
-
+function doTransfer() {
   transferTo()
     .then(transfer => {
       if (transfer?.code) {
@@ -520,7 +553,7 @@ function doAction() {
           transferAuth,
           {
             code: transfer.code,
-            redirect: meta.value.isUnavailable
+            redirect: orderMeta.value.isUnavailable
               ? transferErrorRedirect
               : transferRedirect
           },
@@ -537,7 +570,11 @@ function doAction() {
 // -----------------------------------------------------------------------------
 
 watch(
-  () => [meta.value.hasError, meta.value.isComplete, meta.value.isPartial],
+  () => [
+    orderMeta.value.hasError,
+    orderMeta.value.isComplete,
+    orderMeta.value.isPartial
+  ],
   ([hasError, isComplete, isPartial]) => {
     if (hasError) {
       showAnnouncement({
@@ -546,7 +583,7 @@ watch(
       });
     } else if (
       (isComplete || isPartial) &&
-      !meta.value.isFree &&
+      !orderMeta.value.isFree &&
       orderData.value?.datePaid?.date
     ) {
       showAnnouncement({
@@ -563,7 +600,7 @@ watch(
 );
 
 watch(
-  () => meta.value.isProcessing,
+  () => orderMeta.value.isProcessing,
   processing => {
     if (processing) {
       window.scrollTo(0, 0);
