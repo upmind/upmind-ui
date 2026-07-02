@@ -41,7 +41,7 @@ export class ProductSetup {
 
   async visibleFieldKeys(): Promise<string[]> {
     const handles = await this.setupForm
-      .locator("[data-test-key^='form-item-provision-fields-update-']")
+      .getByTestId(/^form-item-provision-fields-update-/)
       .elementHandles();
     const keys: string[] = [];
     for (const h of handles) {

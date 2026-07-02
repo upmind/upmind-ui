@@ -96,6 +96,8 @@ export default defineConfig({
     /* Base URL to use in actions like `await page.goto('/')`. */
     baseURL,
 
+    testIdAttribute: "data-test-key", //
+
     /* Setting headless to false will cuse the test runner to open a real browser window for each test (headless:true is the default setting)*/
     headless: true,
 
