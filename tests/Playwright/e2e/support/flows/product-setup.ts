@@ -146,7 +146,8 @@ export async function selectRequiredMultiDefaults(
     // `value="${opt.id}"`; target that, not the translated option name. The
     // primitive's `checkbox-item-${kebabCase(label)}` fallback is locale-unstable.
     await page
-      .locator(`[data-test-key="checkbox-group"] [value="${choice.id}"]`)
+      .getByTestId("checkbox-group")
+      .locator(`[value="${choice.id}"]`)
       .first()
       .click();
   }

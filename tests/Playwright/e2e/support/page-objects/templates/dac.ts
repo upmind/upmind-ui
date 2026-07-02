@@ -58,9 +58,9 @@ export class Dac {
    */
   cardByDomain(domain: string): Locator {
     return this.cards.filter({
-      has: this.page.locator(
-        `[data-test-key="domain-card-name"][data-test-value="${domain}"]`
-      )
+      has: this.page
+        .getByTestId("domain-card-name")
+        .and(this.page.locator(`[data-test-value="${domain}"]`))
     });
   }
 
@@ -96,9 +96,9 @@ export class Dac {
 
       const registerNames = this.cards
         .filter({
-          has: this.page.locator(
-            '[data-test-key="domain-card-cta"][data-test-value="register"]'
-          )
+          has: this.page
+            .getByTestId("domain-card-cta")
+            .and(this.page.locator('[data-test-value="register"]'))
         })
         .getByTestId("domain-card-name");
       if (attempt >= (await registerNames.count())) break;

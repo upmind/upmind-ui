@@ -109,9 +109,8 @@ test.describe("Edit hosting product in basket", () => {
     await expect(
       basket.basketProduct
         .first()
-        .locator(
-          '[data-test-key="basket-product-option"][data-test-value="provision_field.domain"]'
-        )
+        .getByTestId("basket-product-option")
+        .and(page.locator('[data-test-value="provision_field.domain"]'))
     ).toHaveCount(0);
   });
 });

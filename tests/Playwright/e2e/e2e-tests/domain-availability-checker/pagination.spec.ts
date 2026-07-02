@@ -109,9 +109,9 @@ test.describe("DAC pagination & merge logic", () => {
       // `data-test-value`, so count those rather than scraping rendered text.
       await expect(dac.cards).toHaveCount(3, { timeout: 10000 });
       await expect(
-        dac.page.locator(
-          `[data-test-key="domain-card-name"][data-test-value="${SLD}.com"]`
-        )
+        dac.page
+          .getByTestId("domain-card-name")
+          .and(dac.page.locator(`[data-test-value="${SLD}.com"]`))
       ).toHaveCount(1);
     });
 
