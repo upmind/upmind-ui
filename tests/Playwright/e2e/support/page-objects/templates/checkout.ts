@@ -418,7 +418,9 @@ export class Checkout {
       body: any;
     }> = [];
 
-    await this.page.route("**/api/payments", async route => {
+    // regex (not a $-anchored glob) so a query string can't silently
+    // unmatch the route
+    await this.page.route(/\/api\/payments(\?|$)/, async route => {
       const response = await route.fetch();
       const body = await response.json().catch(() => null);
       paymentsResponse.push({
