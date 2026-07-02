@@ -190,14 +190,17 @@ const limit = computed(() => LAYOUT_LIMITS[ui.productListLayout.value] ?? 9);
 const urlParams = useUrlSearchParams("history");
 const urlPage = computed(() => Math.max(Number(urlParams.page), 1));
 
-const { data, meta, pagination, filters, sort, nextPage, prevPage } =
-  useProductCatalogue({
-    // infinite: !!uiCart.value?.catalogue?.infinite, // TODO
-    pagination: {
-      limit: limit.value,
-      offset: (urlPage.value - 1) * limit.value
-    }
-  });
+const { data, meta, pagination, nextPage, prevPage } = useProductCatalogue({
+  // infinite: !!uiCart.value?.catalogue?.infinite, // TODO
+  categoryId,
+  search: query,
+  sortBy,
+  direction,
+  pagination: {
+    limit: limit.value,
+    offset: (urlPage.value - 1) * limit.value
+  }
+});
 
 // --- context
 const lastProductCount = ref(limit.value);
@@ -249,12 +252,6 @@ watch(
   },
   { immediate: true }
 );
-
-// watch our props and update filters accordingly
-watch(categoryId, filters.productCategory, { immediate: true });
-watch(query, filters.query, { immediate: true });
-watch(sortBy, value => sort(value, direction.value), { immediate: true });
-watch(direction, value => sort(sortBy.value, value), { immediate: true });
 
 // Sync Pagination -> URL (when a user clicks next/prev)
 watch(

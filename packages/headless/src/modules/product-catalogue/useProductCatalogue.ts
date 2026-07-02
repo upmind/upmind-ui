@@ -1,21 +1,19 @@
-import { computed, ref } from "vue";
-import { useBasket } from "../basket";
+import { computed, ref, toValue, watch, type MaybeRefOrGetter } from "vue";
+import { useBasket, useBasketCurrency } from "../basket";
 import { invalidateQueryByKey, RequestSortDirection } from "../query";
 import service from "./product-catalogue.services";
-import { DEBOUNCE_DELAY } from "../../utils";
 import {
   get,
-  set,
   find,
   every,
   isEmpty,
   includes,
   isString,
-  debounce,
   isArray
 } from "lodash-es";
 import type { Product } from "../product";
 import type { QueryProps, RequestFilters } from "../query";
+import { useProductCategories } from "../product-categories";
 
 /**
  * Properties by which products can be sorted.
@@ -37,14 +35,32 @@ export enum ProductSortableProperties {
 export const useProductCatalogue = (
   initial?: QueryProps & {
     infinite?: boolean;
+    includeDescendants?: boolean;
+    categoryId?: MaybeRefOrGetter<string | undefined>;
+    search?: MaybeRefOrGetter<string | undefined>;
+    sortBy?: MaybeRefOrGetter<ProductSortableProperties | undefined>;
+    direction?: MaybeRefOrGetter<RequestSortDirection | undefined>;
   }
 ) => {
   // --- state
   const { isReady: isBasketReady } = useBasket();
-  const { infinite, ...params } = initial || {};
+  // Resolve category scoping the same way we resolve basket/currency — by
+  // calling the composable, not by having the caller pass it in. Cache-shared
+  // via a stable query key, so this adds no extra fetch.
+  const { getCategoryIds } = useProductCategories();
+  const {
+    infinite,
+    includeDescendants = true,
+    categoryId,
+    search,
+    sortBy,
+    direction,
+    ...params
+  } = initial || {};
+
   const query = !infinite
-    ? service.loadList({ ...params, withCurrency: true })
-    : service.loadInfinite({ ...params, withCurrency: true });
+    ? service.loadList(params)
+    : service.loadInfinite(params);
 
   const meta = computed(() => ({
     isLoading: query.isFetching.value || !query.isFetched.value,
@@ -97,52 +113,29 @@ export const useProductCatalogue = (
     );
   }
 
-  const sort = (
-    property?: ProductSortableProperties,
-    direction?: RequestSortDirection
-  ) => {
-    if (!property || isEmpty(property)) {
-      query.sort();
-    } else {
-      query.sort([direction ?? RequestSortDirection.ASC, property]);
-    }
-  };
-
   // --- filters
 
-  const filters = ref<
-    RequestFilters & {
-      "filter[products_category_id]": string;
-      id: string[];
-      promotions: string[];
-      query: string;
-    }
-  >({
-    "filter[products_category_id]": "",
-    id: [],
-    promotions: [],
-    query: ""
+  // The category id expanded to its subtree (re-derived when the async tree
+  // loads) as the comma-separated IN filter the backend needs, plus free text.
+  const queryFilters = computed<RequestFilters>(() => ({
+    "filter[products_category_id]": getCategoryIds(
+      toValue(categoryId),
+      includeDescendants
+    ).join(","),
+    query: toValue(search) || ""
+  }));
+
+  const querySort = computed<QueryProps["sort"]>(() => {
+    const property = toValue(sortBy);
+    if (!property) return undefined;
+    return [toValue(direction) ?? RequestSortDirection.ASC, property];
   });
 
-  const filterQuery = debounce((value?: string) => {
-    set(filters.value, "query", value || "");
-    query.filter(filters.value);
-  }, DEBOUNCE_DELAY);
-
-  const filterCategory = (value?: string) => {
-    set(filters.value, "filter[products_category_id]", value ?? "");
-    query.filter(filters.value);
-  };
-
-  const filterIds = (value?: string[]) => {
-    set(filters.value, "id", value || []);
-    query.filter(filters.value);
-  };
-
-  const filterCoupons = (value?: string[]) => {
-    set(filters.value, "promotions", value || []);
-    query.filter(filters.value);
-  };
+  // Apply the derived params. Separate watchers so a filter change doesn't churn
+  // the sort key, and vice versa. The page reset on a genuine filter/sort change
+  // is owned by the query layer (useQuery), not wired here.
+  watch(queryFilters, value => query.filter(value), { immediate: true });
+  watch(querySort, value => query.sort(value), { immediate: true });
 
   // ---------------------------------------------------------------------------
 
@@ -237,33 +230,7 @@ export const useProductCatalogue = (
      * @param {boolean} [exact=false] If true, only the exact query key will be invalidated.
      * @return {void}
      */
-    invalidate: invalidateQueryByKey(service.queryKey, { exact: false }),
-
-    /**
-     * Sorts the query by the given property and direction.
-     * If no property is provided, it clears the sort.
-     * @param {string} [property] The property to sort by.
-     * @param {RequestSortDirection} [direction=RequestSortDirection.ASC] The direction to sort by.
-     * @return {void}
-     */
-    sort,
-
-    /**
-     * Filters for the query.
-     * These filters can be used to modify the query parameters before fetching the data.
-     * @type {RequestFilters & { query?: string, currency?: string, "filter[products_category_id]"?: string}}
-     * @property ids - Filter for the product ids.
-     * @property query - Filter for the query. i.e., name/description/excerpt
-     * @property coupons - Filter for the coupons.
-     * @property currency - Filter for the currency code.
-     * @property productCategory - Filter for the product category id.
-     */
-    filters: {
-      ids: filterIds,
-      query: filterQuery,
-      coupons: filterCoupons,
-      productCategory: filterCategory
-    }
+    invalidate: invalidateQueryByKey(service.queryKey, { exact: false })
   };
 };
 
