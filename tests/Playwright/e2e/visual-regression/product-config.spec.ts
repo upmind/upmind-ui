@@ -69,6 +69,10 @@ for (const { language, locale } of languages) {
       // recommendations step is deterministic instead of depending on staging
       // recommendation config for the base product. Locators are testid-based
       // (not text/role-name) so they hold across every locale this suite runs.
+      // NB post-@next recommendations are read from brand config (useConfig
+      // data.productsToRecommend), not orders/current basket meta — this
+      // intercept is currently inert and the carousel renders the real
+      // staging recommendation config.
       interceptProductsToRecommend(context, [
         { object_id: products.STARTER_HOSTING.id }
       ]);
@@ -77,15 +81,29 @@ for (const { language, locale } of languages) {
       await waitForSessionCookie(page.context());
       await productConfig.addToBasket.click();
       await page.waitForURL(/\/recommendations\/?$/);
+      // Silent recommendation adds always succeed for valid products (they
+      // even suppress provision-field validation), so poison the add request
+      // with an unpriced billing cycle: the real API rejects it and the
+      // engine drops into its configuring state — the only path that renders
+      // the config drawer instead of adding straight to basket. Registered
+      // after the base-product add above so only the CTA add is affected.
+      await page.route(
+        /\/orders\/[^/]+\/products(\/[^/?]+)?(\?|$)/,
+        async route => {
+          const method = route.request().method();
+          if (method !== "POST" && method !== "PUT") return route.fallback();
+          const body = route.request().postDataJSON();
+          await route.continue({
+            postData: JSON.stringify({ ...body, billing_cycle_months: 7 })
+          });
+        }
+      );
       const card = page.getByTestId("carousel-card").first();
       await expect(card).toBeVisible();
       await card.getByTestId("product-card-cta").click();
-      // Post-FE-2703 a configurable recommendation opens its own product config
-      // route — the old "Configure your product" drawer was replaced by
-      // navigation. Wait for that route and the config section (locale-stable
-      // testid; the add-to-basket button testid is label-derived, so it isn't).
-      await page.waitForURL(/\/order\/product\//);
-      await page.waitForLoadState("load");
+      // The failed silent add keeps us on /recommendations and opens the
+      // config drawer there (locale-stable testid; the add-to-basket button
+      // testid is label-derived, so it isn't).
       await expect(productConfig.configForm).toBeVisible({
         timeout: 15000
       });
