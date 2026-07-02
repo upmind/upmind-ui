@@ -1,3 +1,4 @@
+import type { RouteLocationAsRelativeGeneric } from "vue-router";
 import type { StorefrontRoute } from "../../types";
 
 export { PAYMENT_STATE, type PaymentState } from "@upmind-automation/headless";
@@ -12,6 +13,8 @@ export enum ORDER_TEMPLATE {
 export type OrderProps = {
   template?: ORDER_TEMPLATE;
   storefrontRoute?: StorefrontRoute;
+  /** Internal route a guest client is sent to in order to register/upgrade. */
+  registerRoute?: RouteLocationAsRelativeGeneric;
 };
 
 export type TableRow = {
