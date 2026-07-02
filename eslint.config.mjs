@@ -555,7 +555,8 @@ export default [
         parser: typescriptParser,
         ecmaVersion: "latest",
         sourceType: "module"
-      }
+      },
+      globals: { ...globals.browser, ...globals.node, ...nuxtAutoImportGlobals }
     },
     plugins: {
       import: eslintPluginImport,
