@@ -1,0 +1,380 @@
+{
+  "epic": {
+    "title": "Migrate to in-tree @upmind-automation/upmind-ui (reka-ui + Tailwind 4 + token engine)",
+    "description": "## Overview\nReplace the `packages/ui` git submodule with the new Upmind UI library (reka-ui + Tailwind 4 + a token engine with derived dark mode), vendored in-tree as first-class `@upmind-automation/*` packages. The package name `@upmind-automation/upmind-ui` is kept, so the 338 client-vue import sites and every app alias never move — no rename, no shim.\n\n## Prime directive\nNothing flips before its replacement is proven. A construct is removed only after its consumers are migrated off it. Each slice flips only after its safety gate — the monorepo's existing Playwright e2e + visual-regression suite, run before/after — is green.\n\n## Source of truth\n- ADR: docs/adr/024-adopt-new-upmind-ui-in-tree.md\n- Plan: docs/plans/ui-migration/migration-plan.md\n- Analysis: docs/plans/ui-migration/analysis.md\n- Decisions: docs/plans/ui-migration/decision-log.md\n\n## Key ratified decisions\n- Keep the package name; no rename, no re-export shim, no 5-package lockstep.\n- Retire the standalone upstream repo — monorepo is the sole home.\n- Retire `useStyles`/`uiConfig`/`*.config.ts` override layer; keep `cva()` internal.\n- Theming via `defineTheme` + `data-theme`; ship dark mode (system default + toggle + per-brand).\n- Brand = base set (light+dark) + per-tenant RUNTIME overrides + one-time backfill; cascade fallback to base (no kill-switch).\n- Keep JSON Schema + AJV + JSONForms; delete the new lib's Zod form layer; only re-skin renderers.\n- Storybook SB10 + docs as standalone deploys; salvage Lottie + locale JSONs.\n\n## Success criteria\n- [ ] New packages vendored in-tree and installing/building in CI; old submodule detached.\n- [ ] Every consumer slice migrated behind a green Playwright e2e + vis-reg gate.\n- [ ] `useStyles`/`uiConfig` and bespoke theming fully retired.\n- [ ] All production tenant brands render correctly (light + dark) post-backfill.\n- [ ] Forms unchanged in behaviour (JSONForms/AJV/i18n intact); Zod removed.\n- [ ] No net feature loss; no Zod in the dependency tree."
+  },
+  "team": "FE",
+  "labels": ["frontend", "ui-migration"],
+  "parents": [
+    {
+      "key": "PHASE-0",
+      "actor": "PHASE-0",
+      "title": "Phase 0 — Pre-flight (no code flips; unblocks everything)",
+      "points": 3,
+      "description": "## Phase\nPre-flight tasks that unblock install/build/review. Touch no call-site, cause no regression.\n\n## Safety gate\nA throwaway branch landing the three packages installs cleanly (`pnpm install` resolves), tokens build + `build:registry` succeed in CI, and a trivial app import of `@upmind-automation/upmind-ui` + its styles entry compiles."
+    },
+    {
+      "key": "PHASE-1",
+      "actor": "PHASE-1",
+      "title": "Phase 1 — Vendor the packages in-tree, name-kept",
+      "points": 5,
+      "description": "## Phase\nVendor the three packages under `packages/`, rename to the `@upmind-automation/*` convention (ui name kept), detach the old submodule. No consumer flips.\n\n## Safety gate\n`pnpm install` + full `pnpm -r build` green with every consumer importing the unchanged specifier; existing Playwright + VRT suite green (baseline unchanged)."
+    },
+    {
+      "key": "PHASE-2",
+      "actor": "PHASE-2",
+      "title": "Phase 2 — Confirm the regression net",
+      "points": 3,
+      "description": "## Phase\nUse the monorepo's existing Playwright e2e + visual-regression suite; wire the new lib's own gates into CI. No new VRT or bundle infra.\n\n## Slice exit criterion (applies Phase 3+)\n1. Existing Playwright e2e + vis-reg green before/after the flip.\n2. >=1 co-located Vitest test asserting the migrated component's token classes / aria.\n3. SB10 a11y gate green for every story exercising the component."
+    },
+    {
+      "key": "PHASE-3",
+      "actor": "PHASE-3",
+      "title": "Phase 3 — Leaf utilities + present-in-both components",
+      "points": 3,
+      "description": "## Phase\nMechanical, low-risk per-callsite changes against the unchanged specifier. No useStyles, no JSONForms, no theming. Compatible components swap silently.\n\n## Safety gate\nPer-slice exit criterion (Playwright+VRT, co-located test, a11y)."
+    },
+    {
+      "key": "PHASE-4",
+      "actor": "PHASE-4",
+      "title": "Phase 4 — Themed/interactive + the 3 breaking components + gaps",
+      "points": 5,
+      "description": "## Phase\nThemed/interactive components behind a verified token bridge. The 3 breaking components (Button/Icon/Link) get an in-package adapter or per-component flip; each built/remapped component lands before its call-sites move. Build the genuine gaps; retire the dead ones.\n\n## Safety gate\nPer-slice exit criterion + manual visual sweep for Icon glyphs."
+    },
+    {
+      "key": "PHASE-5",
+      "actor": "PHASE-5",
+      "title": "Phase 5 — Brand-token cutover (gated; runtime base+overrides + backfill)",
+      "points": 5,
+      "description": "## Phase\nIndependent of component slices; must NOT be bundled with them. Base token set (light+dark) ships in the lib; per-tenant overrides apply at RUNTIME via the data-theme/CSS cascade; one-time backfill renames old token vars → new; cascade fallback to base is the safety net (no kill-switch). BE→UI transport unchanged.\n\n## Safety gate\nPer-tenant visual diff with WCAG-nudge triage; cascade fallback demonstrably degrades to base, never collapses."
+    },
+    {
+      "key": "PHASE-6",
+      "actor": "PHASE-6",
+      "title": "Phase 6 — The useStyles layout layer + client-vue bulk",
+      "points": 5,
+      "description": "## Phase\nThe long pole: 103 files + 38 `*.config.ts` re-expressed against token utilities / `cn()`. Override system retired entirely; the ~6 orphan behaviours baked into components.\n\n## Safety gate\nPlaywright VRT per layout surface; theme switching works."
+    },
+    {
+      "key": "PHASE-7",
+      "actor": "PHASE-7",
+      "title": "Phase 7 — Form renderer re-skin (LAST, GATED) — NOT an engine swap",
+      "points": 3,
+      "description": "## Phase\nJSON Schema + AJV + JSONForms STAY. The new lib's Zod form layer is deleted; headless and form-error i18n untouched. The only work is re-skinning the ~11 JSONForms renderers to output the new lib's field components.\n\n## Safety gate\nEach checkout/provision flow Playwright VRT + interaction green; form-error i18n still localised (verify in >=2 non-English locales)."
+    }
+  ],
+  "stories": [
+    {
+      "key": "P0-1",
+      "blockedBy": [],
+      "parentActor": "PHASE-0",
+      "title": "Port a reconciled pnpm catalog into pnpm-workspace.yaml",
+      "points": 3,
+      "description": "## Goal\nMake the vendored packages installable by resolving their 42 `catalog:` refs in the monorepo.\n\n## Acceptance Criteria\n- [ ] `catalog:` block added to `pnpm-workspace.yaml` covering all 42 refs (ui 31 / tokens 4 / mcp 7).\n- [ ] Versions reconciled against the monorepo's pins (vite/vitest/@tailwindcss/vite) unless the new apps force a bump.\n- [ ] `tailwindcss` bumped to `^4.3.0` workspace-wide.\n- [ ] `pnpm install` resolves with no unmet `catalog:`/`workspace:` specifiers.\n\n## Technical Notes\nThe monorepo has no catalog today; this is the hard install blocker. Owner: platform.\nThe Tailwind ^4.3.0 bump is non-breaking within TW4 (`@theme inline` parses at 4.1.18); rationale = pnpm peer-warning cleanup + incidental 4.2/4.3 features (decision-log §6).\n\n## Out of Scope\n- CI build-order wiring for tokens/registry (covered by P0-2).\n- Node engines floor change (covered by P0-3).\n- Vendoring the packages themselves (covered by P1-1)."
+    },
+    {
+      "key": "P0-2",
+      "blockedBy": ["P0-1"],
+      "parentActor": "PHASE-0",
+      "title": "Wire tokens + registry build order into CI",
+      "points": 3,
+      "description": "## Goal\nProduce the generated artifacts (`@upmind-automation/tokens` dist CSS, `@upmind-automation/upmind-ui` registry.json) in CI ahead of any consumer build.\n\n## Acceptance Criteria\n- [ ] `.gitlab-ci.yml` runs `pnpm --filter @upmind-automation/tokens build` then `... upmind-ui build:registry` before consumer builds.\n- [ ] tokens-dist + ui-registry treated as CI-generated artifacts, never committed.\n- [ ] `pnpm -r build` orders topologically (workspace:* deps declared).\n\n## Technical Notes\nCurrently tokens/dist + registry.json are gitignored/unbuilt → consumer CSS imports + MCP/docs export break without this. Owner: platform.\n\n## Out of Scope\n- Catalog reconciliation (covered by P0-1).\n- Node engines floor change (covered by P0-3).\n- Submodule detach (covered by P1-2)."
+    },
+    {
+      "key": "P0-3",
+      "blockedBy": [],
+      "parentActor": "PHASE-0",
+      "title": "Raise Node engines floor to >=22.18",
+      "points": 1,
+      "description": "## Goal\nAllow tokens/mcp builds that rely on native TS stripping.\n\n## Acceptance Criteria\n- [ ] root `package.json` `engines.node` set to `>=22.18`.\n- [ ] CI node image satisfies the floor.\n\n## Technical Notes\nBelow 22.18 the MCP/tokens TS-source execution fails. Owner: platform.\n\n## Out of Scope\n- Catalog or build-order changes (covered by P0-1 and P0-2).\n- Agent rules updates (covered by P0-4).\n- Nothing beyond the two criteria above."
+    },
+    {
+      "key": "P0-4",
+      "blockedBy": [],
+      "parentActor": "PHASE-0",
+      "title": "Update the .agent shared rules to the token-driven styling model",
+      "points": 3,
+      "description": "## Goal\nStop reviewers and code-gen agents rejecting the new lib's code / reproducing the dead pattern.\n\n## Acceptance Criteria\n- [ ] `.agent/rules/code-ui.md` + `code-reviews.md` drop the `useStyles` sample, the 'no inline Tailwind' rule, and the separate `.styles.ts`/`.config.ts` rule.\n- [ ] Token-utility + CVA-as-class-organiser model documented.\n- [ ] All standards homes swept (`.agent/rules/*`, `packages/client-vue/CLAUDE.md`).\n- [ ] `.claude` rules re-synced from `.agent` (canonical source).\n\n## Technical Notes\nMust precede any consumer migration (D-8). Owner: technical-writer.\n\n## Out of Scope\n- Actual component migrations (Phase 3+).\n- CI pipeline changes (covered by P0-2).\n- Brand token documentation (covered by Phase 5 stories)."
+    },
+    {
+      "key": "P1-1",
+      "blockedBy": ["P0-1", "P0-2", "P0-3"],
+      "parentActor": "PHASE-1",
+      "title": "Vendor + rename the 3 packages to the @upmind-automation/* convention",
+      "points": 5,
+      "description": "## Goal\nBring the new lib in-tree under the monorepo naming, keeping the ui name so consumers never move.\n\n## Acceptance Criteria\n- [ ] Source copied under `packages/`; `@upmind/ui`→`@upmind-automation/upmind-ui` (kept), `@upmind/tokens`→`@upmind-automation/tokens`, `@upmind/mcp`→`@upmind-automation/mcp`.\n- [ ] Mechanical find-replace of internal `@upmind/*` refs (package.json names/deps, internal imports, registry/styles entrypoints, MCP guidelines).\n- [ ] Inter-package deps retargeted to `workspace:*`; packages declared in `pnpm-workspace.yaml`.\n- [ ] `pnpm install` + `pnpm -r build` green.\n\n## Technical Notes\nNo consumer specifier changes (kept name). No shim, no lockstep.\n\n## Out of Scope\n- Submodule detach (covered by P1-2).\n- Any consumer call-site migrations (Phase 3+).\n- Brand token cutover (Phase 5)."
+    },
+    {
+      "key": "P1-2",
+      "blockedBy": ["P1-1"],
+      "parentActor": "PHASE-1",
+      "title": "Detach the old packages/ui submodule + rewire .gitmodules and CI",
+      "points": 3,
+      "description": "## Goal\nRemove the submodule cleanly in a single-purpose, revertible commit.\n\n## Acceptance Criteria\n- [ ] `git submodule deinit -f packages/ui && git rm packages/ui && rm -rf .git/modules/packages/ui`.\n- [ ] `packages/ui` stanza removed from `.gitmodules`.\n- [ ] `.gitlab-ci.yml` `GIT_SUBMODULE_PATHS` exclude + manual re-init for `packages/ui` removed.\n- [ ] Standalone `git.upmind.io/upmind/upmind-ui` repo marked retired (sole home = monorepo; no sync wiring).\n- [ ] CI green; consumers resolve the in-tree package.\n- [ ] radix-vue peer is no longer resolved (gone with the submodule, deprecation row 147).\n\n## Technical Notes\nDedicated commit for legible history / trivial revert (D-1).\n\n## Out of Scope\n- Vendoring or renaming the packages (covered by P1-1).\n- Consumer call-site migrations (Phase 3+).\n- Nothing beyond the submodule removal and CI rewire."
+    },
+    {
+      "key": "P2-1",
+      "blockedBy": ["P1-1"],
+      "parentActor": "PHASE-2",
+      "title": "Fix the failing token test (font-display-weight)",
+      "points": 1,
+      "description": "## Goal\nGet the new lib's test suite + WCAG contrast gate green.\n\n## Acceptance Criteria\n- [ ] `define-theme.test.ts` `font-display-weight` reconciled (expects 400; `themes.ts:37` emits 500 — fix the stale side).\n- [ ] tokens WCAG contrast suite green.\n\n## Technical Notes\nThe contrast suite is the merge gate; it must be green before relying on it.\n\n## Out of Scope\n- Wiring the gate into CI (covered by P2-2).\n- Playwright or VRT suite work (covered by P2-3).\n- Tree-shaking verification (covered by P2-4)."
+    },
+    {
+      "key": "P2-2",
+      "blockedBy": ["P1-1", "P2-5"],
+      "parentActor": "PHASE-2",
+      "title": "Wire the new lib's own gates into CI",
+      "points": 3,
+      "description": "## Goal\nKeep the strongest nets the new lib brings, running on every PR.\n\n## Acceptance Criteria\n- [ ] Vendored lib's Vitest component suite runs on every PR.\n- [ ] `@upmind-automation/tokens` WCAG contrast gate runs on every PR.\n- [ ] SB10 a11y:error runner runs on every PR.\n\n## Technical Notes\nThese must survive the vendor step, not be dropped at the boundary.\n\n## Out of Scope\n- Fixing the failing token test (covered by P2-1).\n- Playwright/VRT baseline confirmation (covered by P2-3).\n- Bundle/tree-shaking checks (covered by P2-4)."
+    },
+    {
+      "key": "P2-3",
+      "blockedBy": ["P1-1"],
+      "parentActor": "PHASE-2",
+      "title": "Confirm the existing Playwright e2e + vis-reg suite is the slice gate",
+      "points": 2,
+      "description": "## Goal\nEstablish the migration safety gate from existing infra (no new VRT).\n\n## Acceptance Criteria\n- [ ] Confirm Playwright e2e + visual-regression baselines are real (resolve committed-vs-gitignored PNGs).\n- [ ] Suite documented as the before/after gate for every Phase 3+ slice.\n\n## Technical Notes\nCorrects the council's 'no VRT infra' claim — it exists (Item 11).\n\n## Out of Scope\n- Adding new VRT infrastructure (explicitly not in scope per ADR).\n- Wiring new lib gates into CI (covered by P2-2).\n- Running actual component migrations (Phase 3+)."
+    },
+    {
+      "key": "P2-4",
+      "blockedBy": ["P1-1"],
+      "parentActor": "PHASE-2",
+      "title": "Verify tree-shaking (granular exports + sideEffects)",
+      "points": 2,
+      "description": "## Goal\nKeep the bundle lean and ensure Zod stays out — match current behaviour.\n\n## Acceptance Criteria\n- [ ] Per-component exports are granular; `sideEffects` correctly declared (CSS only).\n- [ ] A test import of one component does not pull the whole lib or Zod.\n- [ ] No bundle-size CI budget added (Item 11).\n\n## Technical Notes\nZod is deleted in Phase 7; tree-shaking guarantees it's not bundled meanwhile.\n\n## Out of Scope\n- Deleting Zod from the source (covered by P7-1).\n- Adding a bundle-size CI budget (explicitly out of scope per Item 11).\n- Any consumer migration work (Phase 3+)."
+    },
+    {
+      "key": "P2-5",
+      "blockedBy": ["P1-1"],
+      "parentActor": "PHASE-2",
+      "title": "Stand up SB10 + docs as standalone deploys; salvage Lottie + locale JSONs; retire SB8",
+      "points": 5,
+      "description": "## Goal\nBring the new Storybook (SB10) + docs site online as standalone deploys (D-7), salvage value from the old SB8, retire SB8.\n\n## Acceptance Criteria\n- [ ] SB10 + docs site deploy standalone.\n- [ ] The 15 Lottie JSONs salvaged.\n- [ ] Locale JSONs kept temporarily.\n- [ ] The SB10 a11y:error runner is available (P2-2 wires it into CI).\n- [ ] Old playgrounds/storybook (SB8) retired.\n- [ ] Consumes registry.json from P0-2.\n\n## Technical Notes\nD-7 + deprecation row 157.\n\n## Out of Scope\n- Component migrations.\n- The a11y CI wiring itself (covered by P2-2)."
+    },
+    {
+      "key": "P3-1",
+      "blockedBy": ["P2-3", "P0-4"],
+      "parentActor": "PHASE-3",
+      "title": "Migrate leaf utilities off the old lib",
+      "points": 3,
+      "description": "## Goal\nRelocate/replace the small utility surface.\n\n## Acceptance Criteria\n- [ ] `isMobile`→`@vueuse useMediaQuery`; `isEmptySlot`→local util; `parseVariants`/`VariantValues`→relocated into client-vue; `useForwardPropsEmits`→`reka-ui`.\n- [ ] `useStyleSheet` dropped (0 uses).\n- [ ] `tsc` + unit tests green.\n\n## Technical Notes\nBlocker-free leaves; do first.\n\n## Out of Scope\n- Migrating any component (covered by P3-2 and Phase 4).\n- useStyles retirement (covered by Phase 6).\n- Nothing beyond the listed utility relocations."
+    },
+    {
+      "key": "P3-2",
+      "blockedBy": ["P2-3", "P0-4"],
+      "parentActor": "PHASE-3",
+      "title": "Migrate pure-static components",
+      "points": 5,
+      "description": "## Goal\nSwap the API-compatible, theming-free components.\n\n## Acceptance Criteria\n- [ ] Skeleton, Badge (prop-adapter), Avatar, Tooltip, Card, Separator, DescriptionList, Pagination, Breadcrumb migrated.\n- [ ] FormField (11 uses) migrated as a static prop-adapter.\n- [ ] Alert (26 uses) migrated as a two-axis prop-adapter: `color`→`variant` and `variant`→`appearance`.\n- [ ] Rename: Banner→announcement-bar; validate the 1 live use (per-slice exit criterion).\n- [ ] Existing Playwright e2e + vis-reg green before/after.\n- [ ] Co-located Vitest test + SB10 a11y green per component.\n\n## Technical Notes\nNo useStyles, no theming — should swap silently behind the kept name.\nSilent-swap audit (analysis §5.1): Collapsible, Label, List, Textarea have no consumer — they swap silently, no flip.\n\n## Out of Scope\n- Interactive or themed components (covered by Phase 4 — Accordion, DropdownMenu, Popover, RadioGroup go to P4-4).\n- Lottie plugin bootstrap removal (covered by P3-3).\n- Component renames Sonner/Lineclamp/InputOtp (covered by P3-4)."
+    },
+    {
+      "key": "P3-3",
+      "blockedBy": ["P2-3", "P0-4", "P1-1"],
+      "parentActor": "PHASE-3",
+      "title": "Remove the Lottie plugins bootstrap (per app)",
+      "points": 2,
+      "description": "## Goal\nDrop the app-level `forEach(uiPlugins…)` registration now that AnimatedIcon self-registers.\n\n## Acceptance Criteria\n- [ ] Per app: delete the bootstrap block ONLY after that app's `IconAnimated`/`<lord-icon>` call-sites use the new `AnimatedIcon`.\n- [ ] Animated icons render in each app (cart, cart-nuxt, hosting, velia).\n\n## Technical Notes\nNew `AnimatedIcon` self-registers `<lord-icon>` (lazy/SSR-safe).\nAnimatedIcon self-registers from the vendored lib (P1-1); swap call-sites before deleting the bootstrap.\n\n## Out of Scope\n- Icon name-map or resolver work (covered by P4-2).\n- Other plugin bootstrap removals unrelated to Lottie/AnimatedIcon.\n- Nothing beyond the listed apps."
+    },
+    {
+      "key": "P3-4",
+      "blockedBy": ["P2-3", "P0-4"],
+      "parentActor": "PHASE-3",
+      "title": "Component renames (Sonner→Toaster, Lineclamp→ClampText, InputOtp→PinInput)",
+      "points": 2,
+      "description": "## Goal\nApply the straight renames.\n\n## Acceptance Criteria\n- [ ] `Sonner`→`Toaster`, `Lineclamp`→`ClampText`, `InputOtp`→`PinInput` at all call-sites.\n- [ ] Per-slice exit criterion green.\n\n## Technical Notes\nMechanical; codemod-assisted.\n\n## Out of Scope\n- Breaking API changes beyond a rename (those belong in Phase 4).\n- Icon renames or custom-pack name-maps (covered by P4-2).\n- Nothing beyond the three listed component renames."
+    },
+    {
+      "key": "P3-5",
+      "blockedBy": ["P1-1", "P2-3"],
+      "parentActor": "PHASE-3",
+      "title": "Adopt the per-app styles entry (cart, cart-nuxt, hosting, velia); drop /vars, @source globs, tailwindcss-animate",
+      "points": 3,
+      "description": "## Goal\nSwap each app's CSS import to the new lib's styles entry and remove the superseded styling plumbing (deprecation rows 148-150).\n\n## Acceptance Criteria\n- [ ] Each of the 4 apps imports the new styles entry.\n- [ ] `/vars` alias + `vars.css` removed.\n- [ ] Hardcoded `@source` globs removed (new styles entry self-declares `@source`).\n- [ ] `tailwindcss-animate` dropped.\n- [ ] Per-slice exit criterion green per app.\n\n## Technical Notes\nP1-1 is intra-lib only; this is the per-app consumer adoption. Run early in Phase 3.\n\n## Out of Scope\n- In-component token migration (Phase 6)."
+    },
+    {
+      "key": "P4-1",
+      "blockedBy": ["P2-3", "P0-4", "P4-2"],
+      "parentActor": "PHASE-4",
+      "title": "Button variant codemod (2D variant×color → single variant + slots)",
+      "points": 5,
+      "description": "## Goal\nMap the old Button API to the new single-axis variant model without regressions.\n\n## Acceptance Criteria\n- [ ] Hand-built map: old `variant`×`color` matrix → single `variant`; content props (`label`/`icon`/`avatar`) → slots.\n- [ ] `control` handled per-site (2 sites, no target): add a `control` variant on `bg-control-surface`/`shadow-control`, OR re-express as outline/ghost+class.\n- [ ] Codemod + `tsc` (not blind sed).\n- [ ] Playwright VRT on every Button surface; `control` sites reviewed by hand.\n\n## Technical Notes\nBreaking component — lands before call-sites move.\n\n## Out of Scope\n- Icon name-map (covered by P4-2).\n- Link colour-axis migration (covered by P4-3).\n- ButtonGroup composition (covered by P4-8)."
+    },
+    {
+      "key": "P4-2",
+      "blockedBy": ["P2-3", "P0-4"],
+      "parentActor": "PHASE-4",
+      "title": "Icon resolver + custom-pack→lucide name-map (~99 dynamic usages)",
+      "points": 5,
+      "description": "## Goal\nKeep every dynamic `icon=\"…\"` rendering the correct glyph under the new Icon.\n\n## Acceptance Criteria\n- [ ] String→component resolver re-homes the `registerIcons`/`loadIcon` API.\n- [ ] Explicit custom-pack (Untitled-UI) → lucide name-translation table for the ~99 usages.\n- [ ] Resolver handles the ~99 dynamic usages.\n- [ ] lucide 0.x→1.x rename audit run.\n- [ ] Manual visual sweep confirms correct glyphs (tsc/VRT won't catch wrong glyphs).\n\n## Technical Notes\nSilent-wrong-glyph risk — manual sweep is mandatory.\n\n## Out of Scope\n- Button variant codemod (covered by P4-1).\n- Lottie/AnimatedIcon bootstrap (covered by P3-3).\n- Building gap components that embed icons (covered by P4-6)."
+    },
+    {
+      "key": "P4-3",
+      "blockedBy": ["P2-3", "P0-4"],
+      "parentActor": "PHASE-4",
+      "title": "Build Link component + migrate its colour-axis call-sites",
+      "points": 5,
+      "description": "## Goal\nReplace the 29 Link usages without losing the colour axis or nuxt routing.\n\n## Acceptance Criteria\n- [ ] Link built into the lib (first-class, stories + a11y).\n- [ ] Map `color` axis: muted (20), inherit (12), danger (2) to props/classes; `color=\"inherit\"` gets explicit `text-inherit`.\n- [ ] `icon` moved to slot (5 sites).\n- [ ] asChild/RouterLink path validated separately for cart-nuxt (NuxtLink).\n- [ ] Playwright VRT + navigation works in all apps incl. cart-nuxt.\n\n## Technical Notes\nBreaking component; cart-nuxt routing differs from vue-router.\n\n## Out of Scope\n- Button variant codemod (covered by P4-1).\n- Icon name-map (covered by P4-2).\n- Theming layer migration (covered by Phase 6)."
+    },
+    {
+      "key": "P4-4",
+      "blockedBy": ["P2-3", "P0-4"],
+      "parentActor": "PHASE-4",
+      "title": "Migrate remaining interactive components",
+      "points": 5,
+      "description": "## Goal\nSwap the interactive primitives-backed components.\n\n## Acceptance Criteria\n- [ ] Input, Dialog, Drawer, Select (primitive parts), Combobox, NumberField, Tabs (primitive parts), Switch migrated.\n- [ ] Accordion (1 use), DropdownMenu (1 use), Popover (1 use), RadioGroup (6 uses) migrated.\n- [ ] Per-slice exit criterion green for each.\n\n## Technical Notes\nreka-ui primitives; verify keyboard/focus parity.\n\n## Out of Scope\n- Breaking components Button/Icon/Link (covered by P4-1, P4-2, P4-3).\n- Option-tile/card-family remap (covered by P4-5).\n- Gap components that don't exist in the old lib (covered by P4-6)."
+    },
+    {
+      "key": "P4-5",
+      "blockedBy": ["P2-3", "P0-4"],
+      "parentActor": "PHASE-4",
+      "title": "Remap the card family → option-tile",
+      "points": 3,
+      "description": "## Goal\nMove RadioCards/CheckboxCards/SelectCards/RadioCardsCollapsible to the new option-tile family.\n\n## Acceptance Criteria\n- [ ] Remapped to `option-tile` (group mode + nested).\n- [ ] UX parity confirmed in live purchase flows (`BasketProductTermSelector`, `ProductTerm`) before flipping.\n- [ ] Playwright VRT on purchase flow + interaction test.\n\n## Technical Notes\nEquivalent exists (not a build) — per-callsite API remap.\n\n## Out of Scope\n- CheckboxGroup composition (covered by P4-8).\n- Building gap components from scratch (covered by P4-6).\n- Carousel (covered by P4-7)."
+    },
+    {
+      "key": "P4-6",
+      "blockedBy": ["P2-3", "P4-4"],
+      "parentActor": "PHASE-4",
+      "title": "Build the genuine gap components",
+      "points": 5,
+      "description": "## Goal\nBuild the missing components into the lib as first-class (stories + a11y).\n\n## Acceptance Criteria\n- [ ] Interstitial (compose Stage+EmptyState+AnimatedIcon+Dialog).\n- [ ] Markdown (+ Sanitized via dompurify).\n- [ ] Image/ImageGrid; Search; Loading-overlay wrapper.\n- [ ] RadioCardsCollapsible suppressed focus rings NOT carried forward.\n- [ ] Sanitized/Markdown strip `<script>`, `on*` handlers, and `javascript:` URLs (co-located XSS test); Markdown renders only through Sanitized.\n- [ ] Per-component exit criterion + a11y gate.\n\n## Technical Notes\nMUST be split per-component at execution kickoff (e.g. Sanitized+Markdown / Interstitial / Image+ImageGrid+Search+Loading-overlay).\n\n## Out of Scope\n- Carousel (covered by P4-7).\n- ButtonGroup/CheckboxGroup composition (covered by P4-8).\n- Retiring zero-use components (covered by P4-9)."
+    },
+    {
+      "key": "P4-7",
+      "blockedBy": ["P2-3"],
+      "parentActor": "PHASE-4",
+      "title": "Build Carousel into the lib",
+      "points": 3,
+      "description": "## Goal\nReplace the Embla-driven Carousel used by recommendations.\n\n## Acceptance Criteria\n- [ ] Carousel built into the lib (Embla-backed), exposing the API `CardsCarousel.vue` needs (`@init-api`, `slidesInView()`, `containerNode()`).\n- [ ] Playwright VRT on `CardsCarousel` (recommendations).\n\n## Technical Notes\nNo new-lib equivalent; 1 non-trivial call-site drives the Embla API directly.\n\n## Out of Scope\n- Other gap components (covered by P4-6).\n- ButtonGroup/CheckboxGroup (covered by P4-8).\n- Nothing beyond the CardsCarousel call-site API surface."
+    },
+    {
+      "key": "P4-8",
+      "blockedBy": ["P2-3", "P0-4", "P4-4", "P1-1"],
+      "parentActor": "PHASE-4",
+      "title": "Compose ButtonGroup (2 sites) + CheckboxGroup (checkout-critical)",
+      "points": 3,
+      "description": "## Goal\nReplace the two no-equivalent group widgets by composing from new primitives at their call-sites.\n\n## Acceptance Criteria\n- [ ] ButtonGroup composed inline at its 2 non-checkout sites from new `Toolbar` + `Select` (EmailHistorySort, ProductSort).\n- [ ] CheckboxGroup composed at `ApplyToOthers.vue` from reka `CheckboxGroupRoot` + new `Checkbox`.\n- [ ] VRT + interaction test at each site; checkout flow green for `ApplyToOthers` (checkout-critical).\n\n## Technical Notes\nCheckboxGroup is in the gated product-setup step — cannot be dropped.\nCheckbox + Toolbar ship ready in the vendored lib (P1-1) as present-in-both COMPOSE primitives (cf. Switch) — compose only, do not build; do not add them to P4-4's build list.\n\n## Out of Scope\n- Icon name-map (separate story P4-2).\n- Option-tile/card-family remap (covered by P4-5).\n- Consumer call-sites beyond the listed 3 sites (EmailHistorySort, ProductSort, ApplyToOthers)."
+    },
+    {
+      "key": "P4-9",
+      "blockedBy": [],
+      "parentActor": "PHASE-4",
+      "title": "Retire Autocomplete + Indicator (0 uses)",
+      "points": 1,
+      "description": "## Goal\nDrop the two components with zero consumers.\n\n## Acceptance Criteria\n- [ ] Confirm 0 usages remain (grep client-vue/apps/playgrounds).\n- [ ] Not carried into the vendored lib's public surface (or removed).\n\n## Technical Notes\nAutocomplete's reka Combobox primitives remain available if needed later.\n\n## Out of Scope\n- Retiring any component that has active call-sites.\n- Combobox primitive removal (reka-ui Combobox stays; only the wrapper is dropped).\n- Nothing beyond the two listed components."
+    },
+    {
+      "key": "P4-10",
+      "blockedBy": ["P4-6"],
+      "parentActor": "PHASE-4",
+      "title": "Migrate call-sites onto the built gap components + Loading→Spinner",
+      "points": 5,
+      "description": "## Goal\nFlip live consumers onto the gap components built in P4-6 (P4-6 builds; this flips).\n\n## Acceptance Criteria\n- [ ] Migrate call-sites for Markdown (12 uses), Interstitial (9), Image/ImageGrid (2), Search (1+2), and Loading→Spinner (5 uses).\n- [ ] Each flip behind the per-slice exit criterion (Playwright e2e + vis-reg green before/after).\n- [ ] Old components retired only after their sites move.\n\n## Technical Notes\nComponents are built in P4-6; mirrors P4-3 (Link)'s build-then-flip pattern.\n\n## Out of Scope\n- Building the components (covered by P4-6).\n- Bare Spinner usages if they swap silently (covered by P3-2)."
+    },
+    {
+      "key": "P5-1",
+      "blockedBy": [],
+      "parentActor": "PHASE-5",
+      "title": "Inventory production tenant brands",
+      "points": 3,
+      "description": "## Goal\nKnow the full shape of tenant brand data before cutover.\n\n## Acceptance Criteria\n- [ ] Count tenants; dump each `style.tokens`.\n- [ ] Classify: (1) standard (anchors + radius + font), (2) dark-active (`meta.variant: \"dark\"`), (3) exotic per-token overrides.\n- [ ] Each class has a per-tenant plan; classes (2)/(3) flagged.\n\n## Technical Notes\nOpen string-keyed overrides reach all ~320 tokens, so all classes are expressible as runtime overrides.\n\n## Out of Scope\n- Building the base token set or runtime override path (covered by P5-2).\n- Data migration/backfill (covered by P5-3).\n- Per-tenant visual diff (covered by P5-4)."
+    },
+    {
+      "key": "P5-2",
+      "blockedBy": ["P1-1"],
+      "parentActor": "PHASE-5",
+      "title": "Build the base token set + runtime override path",
+      "points": 5,
+      "description": "## Goal\nShip the base theme and the in-app runtime override mechanism with cascade fallback.\n\n## Acceptance Criteria\n- [ ] Base light+dark theme ships in the lib (WCAG-checked).\n- [ ] Runtime (option B) override path: tenant overrides layer over base via data-theme/CSS cascade.\n- [ ] Un-overridden/missing/bad tokens demonstrably fall back to base (no collapse).\n- [ ] Base passes the WCAG gate.\n\n## Technical Notes\nBE→UI transport unchanged; the cascade is the safety net.\n\n## Out of Scope\n- Per-tenant inventory (covered by P5-1).\n- Data migration/backfill of existing tenant token names (covered by P5-3).\n- Dark mode user toggle UI (covered by P5-5)."
+    },
+    {
+      "key": "P5-3",
+      "blockedBy": ["P5-1", "P5-2"],
+      "parentActor": "PHASE-5",
+      "title": "One-time backfill: old → new token variable names",
+      "points": 5,
+      "description": "## Goal\nConvert existing tenants' stored token vocabulary to the new names so their brands survive.\n\n## Acceptance Criteria\n- [ ] Data migration renames each tenant's stored token vars old→new (not a runtime shim).\n- [ ] Backfilled strings resolve against the new tokens.\n- [ ] Spot-checked tenants render their brand; un-mapped tokens fall back to base.\n- [ ] Migration is reversible at the data layer.\n\n## Technical Notes\nThe #1 risk mitigation — done at the brand-delivery boundary before flipping.\nCutover assumes the BE emits new token names from go-live; the CSS cascade falls back to base for any un-mapped string (D-5, BE→UI transport unchanged).\n\n## Out of Scope\n- Per-tenant visual diff (covered by P5-4).\n- Dark mode or `preferredMode` handling (covered by P5-5).\n- Retiring brand uiConfig (covered by P5-6)."
+    },
+    {
+      "key": "P5-4",
+      "blockedBy": ["P5-3"],
+      "parentActor": "PHASE-5",
+      "title": "Per-tenant visual diff + WCAG-nudge triage",
+      "points": 5,
+      "description": "## Goal\nProve every tenant looks right old-vs-new before go-live.\n\n## Acceptance Criteria\n- [ ] Render each tenant old-vs-new on checkout/portal/forms/buttons (light + dark).\n- [ ] Diff report separates intentional WCAG nudges (engine deepens sub-4.5:1 fills) from genuine regressions.\n- [ ] Reviewed diff per tenant.\n\n## Technical Notes\nWCAG nudges are correct, not regressions — triage must not flag them as breakage.\n\n## Out of Scope\n- Dark mode feature delivery (covered by P5-5).\n- Retiring brand uiConfig (covered by P5-6).\n- Nothing beyond the visual diff and triage report."
+    },
+    {
+      "key": "P5-5",
+      "blockedBy": ["P5-2", "P6-2"],
+      "parentActor": "PHASE-5",
+      "title": "Ship dark mode to users",
+      "points": 5,
+      "description": "## Goal\nTurn on dark mode with the agreed selection model.\n\n## Acceptance Criteria\n- [ ] System-preference default + persistent user toggle (overrides) + per-brand `preferredMode` initial default.\n- [ ] Dark-mode a11y smoke pass on client-vue layout/content (hardcoded backgrounds inherit dark tokens; focus rings visible).\n- [ ] Dark-active tenants handled per the 5.1 inventory.\n- [ ] Toggle persistence + brand `preferredMode` default verified.\n\n## Technical Notes\nMinor open item: whether a tenant can force/lock a mode (vs toggle always winning).\n\n## Out of Scope\n- Per-tenant visual diff (covered by P5-4).\n- Retiring brand uiConfig (covered by P5-6).\n- useStyles/theming layer migration (covered by Phase 6)."
+    },
+    {
+      "key": "P5-6",
+      "blockedBy": ["P5-2", "P6-2"],
+      "parentActor": "PHASE-5",
+      "title": "Retire brand uiConfig (bake structural overrides)",
+      "points": 3,
+      "description": "## Goal\nRemove the brand `ui.config.ts` override surface.\n\n## Acceptance Criteria\n- [ ] color/gradient/radius/font re-expressed as token inputs.\n- [ ] ~6 structural/type overrides baked into the migrated client-vue components (prop or built-in).\n- [ ] velia/hosting `ui.config.ts` deleted; dead hosting gradient blocks dropped.\n- [ ] Visual parity per brand.\n\n## Technical Notes\nThe override system dies; the behaviours don't (D-3).\nThe ~6 structural overrides target P6-2 layout primitives (decision-log §4). If any targets a P6-3-bulk component, add P6-3 to blockedBy.\n\n## Out of Scope\n- The bulk useStyles file migration (covered by P6-3).\n- Theming layer defineTheme migration (covered by P6-4).\n- Per-tenant visual diff (covered by P5-4)."
+    },
+    {
+      "key": "P6-1",
+      "blockedBy": ["P0-4"],
+      "parentActor": "PHASE-6",
+      "title": "Freeze useStyles (no new call-sites)",
+      "points": 1,
+      "description": "## Goal\nStop the override surface growing during migration.\n\n## Acceptance Criteria\n- [ ] Lint/grep guard blocks new `useStyles` call-sites.\n- [ ] New layout primitives/variants use the token API directly.\n\n## Technical Notes\nGuard precedes the bulk rewrite.\n\n## Out of Scope\n- Migrating existing useStyles call-sites (covered by P6-2 and P6-3).\n- Theming layer migration (covered by P6-4).\n- Nothing beyond the lint/grep guard."
+    },
+    {
+      "key": "P6-2",
+      "blockedBy": ["P6-1", "P4-4"],
+      "parentActor": "PHASE-6",
+      "title": "Migrate layout primitives + their configs to token utilities",
+      "points": 5,
+      "description": "## Goal\nRewrite the core layout primitives off useStyles.\n\n## Acceptance Criteria\n- [ ] `Page`/`Content`/`Container`/`Root`/`Column`/`Ribbon`/`Footer*` + their `*.config.ts` rewritten to token utilities + `cn()`.\n- [ ] Orphan behaviours (force-hide, font-weight override) baked into the component as prop/built-in.\n- [ ] Playwright VRT per layout surface.\n\n## Technical Notes\nLarge surface — will sub-divide into per-area tasks during execution.\nThe P4-4 edge is intentional — P6-2's per-layout VRT renders whole screens containing P4-4 interactive components, so flipping interactives first keeps the baseline clean (blast-radius staging).\n\n## Out of Scope\n- The remaining 103 useStyles files beyond layout primitives (covered by P6-3).\n- Theming layer / defineTheme migration (covered by P6-4).\n- Retiring brand uiConfig (covered by P5-6)."
+    },
+    {
+      "key": "P6-3",
+      "blockedBy": ["P6-2"],
+      "parentActor": "PHASE-6",
+      "title": "Migrate the client-vue useStyles bulk (remaining of 103 files)",
+      "points": 5,
+      "description": "## Goal\nRetire the remaining useStyles call-sites across client-vue.\n\n## Acceptance Criteria\n- [ ] Remaining of the 103 `useStyles` files + 38 configs re-expressed against token utilities / `cn()`.\n- [ ] `useStyles`/`uiConfig`/`*.config.ts` shape deleted once the last file migrates.\n- [ ] Playwright VRT per affected surface.\n\n## Technical Notes\nThe long pole — decompose into per-module sub-tasks during execution. Optional thin client-vue-local merge helper if 103 can't move in one slice (not re-exported, not re-adopted).\n\n## Out of Scope\n- Layout primitives (covered by P6-2).\n- Theming layer / defineTheme migration (covered by P6-4).\n- Brand uiConfig retirement (covered by P5-6)."
+    },
+    {
+      "key": "P6-4",
+      "blockedBy": ["P5-2", "P6-2", "P4-2"],
+      "parentActor": "PHASE-6",
+      "title": "Migrate the theming layer to defineTheme + data-theme",
+      "points": 5,
+      "description": "## Goal\nReplace the bespoke theming registry.\n\n## Acceptance Criteria\n- [ ] `defineTheme` + data-theme path stood up in `client-vue/modules/theming/useTheme.ts` (co-migrate `setTokens`/font-loading; drop `Theme.uiConfig`).\n- [ ] 14 call-sites migrated; old registry deleted.\n- [ ] `useThemeIcons` resolved separately (per-brand icon-variant selection in the new Icon).\n- [ ] Theme switching works; VRT green.\n\n## Technical Notes\nuseThemes/Theme.uiConfig retired here.\n\n## Out of Scope\n- useStyles bulk migration (covered by P6-3).\n- Brand uiConfig retirement (covered by P5-6).\n- Dark mode user toggle (covered by P5-5)."
+    },
+    {
+      "key": "P7-1",
+      "blockedBy": ["P1-1"],
+      "parentActor": "PHASE-7",
+      "title": "Delete the vendored Zod form layer",
+      "points": 2,
+      "description": "## Goal\nRemove Zod entirely from the tree.\n\n## Acceptance Criteria\n- [ ] Remove `.../upmind-ui/src/components/form/` (SchemaForm.vue, schema-form.ts, zod-introspect.ts, field-registry.ts, SchemaField.vue, SchemaNode.vue, FormMessage.vue, useFormField.ts + tests/stories).\n- [ ] Remove `zod` + `vee-validate` deps.\n- [ ] Confirm nothing else imports the Zod form layer first.\n- [ ] `tsc` green; no orphaned zod/vee-validate imports.\n\n## Technical Notes\nForms use JSONForms — this layer is unused (D-6).\n\n## Out of Scope\n- Re-skinning JSONForms renderers (covered by P7-2 and P7-3).\n- Any JSONForms engine changes (explicitly not in scope — engine stays).\n- Nothing beyond the Zod form layer files listed in the criteria."
+    },
+    {
+      "key": "P7-2",
+      "blockedBy": ["P4-4", "P4-5", "P4-6", "P4-2"],
+      "parentActor": "PHASE-7",
+      "title": "Re-skin JSONForms renderers — batch 1",
+      "points": 5,
+      "description": "## Goal\nMake the first half of the renderers output the new lib's field components.\n\n## Acceptance Criteria\n- [ ] Re-skin Address, Domain, EnumRadioCollapsible, Image, Manage renderers.\n- [ ] JSONForms wiring (`useUpmindUIRenderer`, `registerEntry`, AJV), headless schemas, and form-error i18n unchanged.\n- [ ] Each affected flow Playwright VRT + interaction green; i18n still localised (verify >=2 non-English locales).\n\n## Technical Notes\nRenderer re-skin only — NOT an engine swap.\n\n## Out of Scope\n- Renderers in batch 2 (covered by P7-3).\n- Deleting the Zod form layer (covered by P7-1).\n- Any changes to JSONForms engine, AJV, or headless schemas."
+    },
+    {
+      "key": "P7-3",
+      "blockedBy": ["P4-4", "P4-2"],
+      "parentActor": "PHASE-7",
+      "title": "Re-skin JSONForms renderers — batch 2",
+      "points": 5,
+      "description": "## Goal\nMake the second half of the renderers output the new lib's field components.\n\n## Acceptance Criteria\n- [ ] Re-skin GatewayDLocal, Gateways, PaymentDetails, SLD, SubProduct, Terms renderers.\n- [ ] JSONForms wiring, headless schemas, and form-error i18n unchanged.\n- [ ] Each checkout/provision flow Playwright VRT + interaction green; i18n still localised (verify >=2 non-English locales).\n\n## Technical Notes\nPayment/gateway flows are revenue-critical — extra interaction coverage.\n\n## Out of Scope\n- Renderers in batch 1 (covered by P7-2).\n- Deleting the Zod form layer (covered by P7-1).\n- Any changes to JSONForms engine, AJV, headless schemas, or payment provider integrations."
+    }
+  ]
+}
