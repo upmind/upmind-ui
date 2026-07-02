@@ -3,8 +3,8 @@ import {
   useQuery as vueUseQuery,
   useInfiniteQuery as vueUseInfiniteQuery
 } from "@tanstack/vue-query";
+import { ref, unref, computed, watch } from "vue";
 import { effectScope, getCurrentScope, type ComputedRef } from "vue";
-import { ref, unref, computed } from "vue";
 import { isArray, isFunction } from "xstate/lib/utils";
 import { Methods } from "@upmind-automation/types";
 import { useBasket, useBasketCurrency } from "../basket";
@@ -31,6 +31,7 @@ import {
   get,
   has,
   isEmpty,
+  isEqual,
   isInteger,
   isObject,
   isString,
@@ -375,6 +376,9 @@ export const useQuery = () => {
     if (withCurrency) reactiveKeys.currencyCode = currencyCode;
     if (withBasket) reactiveKeys.basketId = basketId;
 
+    // This s used to persist paginatin and filter/sort on first load, so that if the user refreshes the page, we don't reset the pagination and filters to the default values. We only want to reset them if the user changes the sort or filter values.
+    let isInitialCall = ref(true);
+
     const response = scope.run(() =>
       vueUseQuery<TQueryFnData, DefaultError, QueryResponse<TData>>(
         {
@@ -435,9 +439,13 @@ export const useQuery = () => {
                     }
                     return response;
                   })
+                  .finally(() => {
+                    isInitialCall.value = false;
+                  })
               );
             });
           },
+
           ...(options as any)
         },
         queryClient
@@ -594,11 +602,27 @@ export const useQuery = () => {
       },
 
       sort: (values?: QueryParams["sort"]) => {
-        sort.value = unref(values);
+        const prev = unref(sort);
+        const next = unref(values);
+        if (isEqual(prev, next)) return;
+        debugger;
+        sort.value = next;
+        if (!isInitialCall.value) {
+          pageIndex.value = 1;
+          queryClient.resetQueries({ queryKey });
+        }
       },
 
       filter: (values: QueryParams["filters"]) => {
-        filters.value = unref(values);
+        const prev = unref(filters);
+        const next = unref(values);
+        if (isEqual(prev, next)) return;
+        debugger;
+        filters.value = next;
+        if (!isInitialCall.value) {
+          pageIndex.value = 1;
+          queryClient.resetQueries({ queryKey });
+        }
       },
 
       resetQuery: () => {
@@ -670,6 +694,9 @@ export const useQuery = () => {
       ...(options?.filters ?? {})
     });
 
+    // This s used to persist paginatin and filter/sort on first load, so that if the user refreshes the page, we don't reset the pagination and filters to the default values. We only want to reset them if the user changes the sort or filter values.
+    let isInitialCall = ref(true);
+
     // --- query
     const reactiveKeys: ReactiveQueryKeys = { sort, filters };
     if (!withoutLocale && locale.value) reactiveKeys.locale = locale;
@@ -703,21 +730,25 @@ export const useQuery = () => {
                   signal // Pass the new signal to the request to allow cancellation
                 },
                 withAccessToken
-              }).then(response => {
-                total.value = response.total || 0; // Set the total items count
+              })
+                .then(response => {
+                  total.value = response.total || 0; // Set the total items count
 
-                const data = isFunction(select)
-                  ? select(response.data!)
-                  : response.data;
+                  const data = isFunction(select)
+                    ? select(response.data!)
+                    : response.data;
 
-                return {
-                  nextOffset:
-                    !limit || offset + limit >= total.value
-                      ? undefined
-                      : offset + limit,
-                  pageData: data
-                };
-              });
+                  return {
+                    nextOffset:
+                      !limit || offset + limit >= total.value
+                        ? undefined
+                        : offset + limit,
+                    pageData: data
+                  };
+                })
+                .finally(() => {
+                  isInitialCall.value = false;
+                });
             });
           },
           getNextPageParam: (lastPage: InfiniteQueryPage<TQueryFnData>) =>
@@ -795,10 +826,12 @@ export const useQuery = () => {
 
       sort: (values?: QueryParams["sort"]) => {
         sort.value = unref(values);
+        if (!isInitialCall.value) queryClient.resetQueries({ queryKey }); // Reset to first page
       },
 
       filter: (values: QueryParams["filters"]) => {
         filters.value = unref(values);
+        if (!isInitialCall.value) queryClient.resetQueries({ queryKey }); // Reset to first page
       },
 
       resetQuery: () => queryClient.resetQueries({ queryKey })
