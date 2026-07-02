@@ -3,6 +3,7 @@ import { invalidateQueryByKey } from "../query";
 import service from "./product-categories.services";
 import {
   get,
+  map,
   find,
   every,
   filter,
@@ -143,6 +144,15 @@ export const useProductCategories = (initial?: QueryProps) => {
     return getOne(id)?.parent;
   }
 
+  function getCategoryIds(
+    id?: ProductCategory["id"],
+    includeDescendants = true
+  ): ProductCategory["id"][] {
+    if (!id) return [];
+    if (!includeDescendants) return [id];
+    return concat([id], map(getChildren(id, true), "id"));
+  }
+
   // ---------------------------------------------------------------------------
 
   return {
@@ -227,6 +237,17 @@ export const useProductCategories = (initial?: QueryProps) => {
      * @returns The parent category if found, is otherwise undefined.
      */
     getParent,
+
+    /**
+     * Get the category id plus the ids of its descendants — for scoping a
+     * catalogue read to the category and all its subcategories.
+     * @param id The id of the category at the root.
+     * @param includeDescendants Include descendant ids; pass false to scope to
+     * the single category. Defaults to true.
+     * @returns An array of category ids: `[id, ...descendants]` by default,
+     * `[id]` when descendants are excluded, or `[]` when no id is given.
+     */
+    getCategoryIds,
 
     /**
      * Refresh the query to get the latest data.

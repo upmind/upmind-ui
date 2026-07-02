@@ -23,8 +23,8 @@ const queryKey: QueryKey = ["product", "catalogue"];
 
 function loadList(params?: Partial<QueryParams>) {
   const { list, useUrl } = useQuery();
-  const { currencyCode } = useBasketCurrency();
   const { promocodes } = useBasketPromotions();
+  const { currencyCode } = useBasketCurrency();
 
   const query = list<IProduct[], Product[]>({
     ...(params as any),
@@ -58,8 +58,8 @@ function loadList(params?: Partial<QueryParams>) {
 
 function loadInfinite(params?: Partial<QueryParams>) {
   const { listInfinite, useUrl } = useQuery();
-  const { currencyCode } = useBasketCurrency();
   const { promocodes } = useBasketPromotions();
+  const { currencyCode } = useBasketCurrency();
 
   return listInfinite<IProduct[], InfiniteData<Product[]>>({
     ...(params as any),
