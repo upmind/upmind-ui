@@ -1,5 +1,8 @@
 <template>
-  <UpmOrder :storefront-route="storefrontRoute" />
+  <UpmOrder
+    :storefront-route="storefrontRoute"
+    :register-route="{ name: ROUTE.SESSION_REGISTER }"
+  />
 </template>
 
 <script lang="ts" setup>
