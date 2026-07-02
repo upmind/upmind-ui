@@ -9,7 +9,7 @@
         >
           <BasketProductContent
             v-if="index === 0"
-            data-testid="basket-product-summary"
+            data-test-key="basket-product-summary"
             :id="id"
             :productDetails="props.productDetails"
             :serviceIdentifier="props.serviceIdentifier"
@@ -33,7 +33,7 @@
           />
           <BasketProductSubItem
             v-else
-            data-testid="basket-product-summary"
+            data-test-key="basket-product-summary"
             :summary="summary"
           />
         </template>
@@ -46,7 +46,7 @@
         :class="styles.product.option.upsell"
       >
         <BasketProductUpsell
-          data-testid="basket-product-upsell"
+          data-test-key="basket-product-upsell"
           :id="id"
           :summary="upsell"
           :option="option"

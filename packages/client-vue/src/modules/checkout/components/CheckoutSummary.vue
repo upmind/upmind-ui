@@ -1,7 +1,7 @@
 <template>
   <Hero
     :title="t('text.secure_checkout')"
-    :data-attrs="{ 'data-testid': 'checkout-heading' }"
+    :data-attrs="{ 'data-test-key': 'checkout-heading' }"
     :subtitle="
       t('cart.basket_summary_desc', {
         count: products?.length ?? 0,

@@ -36,7 +36,7 @@
       <Button
         :label="label || t('action.confirm')"
         :disabled="!isValid"
-        data-testid="button-confirm-amount"
+        data-test-key="button-confirm-amount"
         size="lg"
         block
         @click="doResolve"

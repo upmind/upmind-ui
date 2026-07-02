@@ -6,7 +6,7 @@
         {
           id: 'account-credit',
           value: 'account-credit',
-          dataAttrs: { 'data-testid': 'account-credit' },
+          dataAttrs: { 'data-test-key': 'account-credit' },
           label: t('cart.account_credit_use', {
             amount: safeAmountFormatted
           }),

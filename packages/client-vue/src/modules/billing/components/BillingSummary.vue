@@ -10,14 +10,14 @@
       {
         label: t('action.change'),
         handler: navigateToBilling,
-        dataAttrs: { 'data-testid': 'link-change' }
+        dataAttrs: { 'data-test-key': 'link-change' }
       }
     ]"
   >
     <Card :class="styles.billing.card.root" size="sm">
       <Alert
         v-if="billingMeta.isAvailable && !billingMeta.isComplete"
-        :dataAttrs="{ 'data-testid': 'billing-requirements-alert' }"
+        :dataAttrs="{ 'data-test-key': 'billing-requirements-alert' }"
         :title="t('billing.details_required_msg')"
         icon="alert-octagon"
         color="danger"
@@ -25,7 +25,7 @@
         size="sm"
       />
       <dl
-        data-testid="billing-details-summary"
+        data-test-key="billing-details-summary"
         :class="styles.billing.summary.root"
       >
         <div
@@ -41,14 +41,14 @@
           <dd
             v-if="selectedCompany"
             :class="styles.billing.summary.value"
-            data-testid="billing-summary-company"
+            data-test-key="billing-summary-company"
             :data-test-value="selectedCompany.name"
           >
             {{ selectedCompany.name }}
           </dd>
           <dd v-else>
             <Link
-              data-testid="link-add-company"
+              data-test-key="link-add-company"
               :label="t('action.add_company')"
               size="sm"
               color="danger"
@@ -77,7 +77,7 @@
           </dd>
           <dd v-else>
             <Link
-              data-testid="link-add-number"
+              data-test-key="link-add-number"
               :label="t('action.add_number')"
               size="sm"
               color="danger"
@@ -95,7 +95,7 @@
           </dt>
           <dd
             v-if="selectedAddress"
-            data-testid="billing-summary-address"
+            data-test-key="billing-summary-address"
             :data-test-value="selectedAddress.title"
           >
             <p>{{ selectedAddress.title }}</p>
@@ -117,7 +117,7 @@
           </dd>
           <dd v-else>
             <Link
-              data-testid="link-add-address"
+              data-test-key="link-add-address"
               :label="t('action.add_address')"
               size="sm"
               :color="billingMeta.needsAddress ? 'danger' : 'primary'"

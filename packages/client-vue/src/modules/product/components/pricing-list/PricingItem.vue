@@ -7,7 +7,7 @@
       </template>
     </h5>
 
-    <p :class="styles.summary.list.item.title" data-testid="summary-value">
+    <p :class="styles.summary.list.item.title" data-test-key="summary-value">
       {{ title ?? "&ndash;" }}
     </p>
   </li>

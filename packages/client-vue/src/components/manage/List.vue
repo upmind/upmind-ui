@@ -37,7 +37,7 @@
         <footer class="mt-1 flex space-x-2">
           <Link
             v-if="!open && parsedValues.length > 1"
-            data-testid="link-change"
+            data-test-key="link-change"
             :label="t('action.change')"
             size="sm"
             color="muted"
@@ -46,7 +46,7 @@
 
           <Link
             v-else-if="!readonly"
-            data-testid="link-add-new"
+            data-test-key="link-add-new"
             :label="t('action.add_new')"
             size="sm"
             color="muted"

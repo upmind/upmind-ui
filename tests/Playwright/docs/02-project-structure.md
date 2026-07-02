@@ -56,22 +56,26 @@ support/
 ## Naming conventions
 
 ### Test files
+
 - Always `*.spec.ts`.
 - Use kebab-case matching the feature name: `billing-details-requirements.spec.ts`.
 - One feature area per file. Split files when a surface grows too busy (e.g. the `checkout/payment-gateways/` directory).
 
 ### Describe blocks
+
 - Top-level `test.describe` is the surface (e.g. `"Checkout with Stripe"`).
 - Nested describes group scenarios (e.g. `"Valid Cards"`, `"Declined Cards"`).
 - Test titles describe the expected outcome — prefer "Successful login with 2FA" over "Test 1".
 
 ### Page objects
+
 - Classes are PascalCase matching the surface name: `Checkout`, `Basket`, `Login`, `Registration`, `ProductConfig`.
 - Locators are assigned in the constructor and typed as `readonly Locator`. Methods are the actions you can perform on that surface.
 - See [05-support-library.md](05-support-library.md) for the distinction between `templates/` and `components/`.
 
 ### Selectors
-The app is instrumented with `data-testid` attributes, so the overwhelming preference is:
+
+The app is instrumented with `data-test-key` attributes, so the overwhelming preference is:
 
 ```ts
 page.getByTestId("button-place-order-and-pay")
@@ -83,7 +87,7 @@ When the testid has dynamic parts (e.g. a gateway name), the helper passes the s
 this.page.getByTestId(`radio-card-${kebabCase(gatewayName)}`)
 ```
 
-Fall back to `getByRole`, `getByText`, or `getByPlaceholder` only when the element genuinely has no testid (for example, the elements inside Stripe's iframe which we don't control). Ideally though, if a data-testid is missing, you should be adding it to the frontend code.
+Fall back to `getByRole`, `getByText`, or `getByPlaceholder` only when the element genuinely has no testid (for example, the elements inside Stripe's iframe which we don't control). Ideally though, if a data-test-key is missing, you should be adding it to the frontend code.
 
 ## Spec file anatomy
 

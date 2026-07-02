@@ -19,7 +19,7 @@
       <label
         class="text-md-tight flex flex-col items-start break-all not-italic"
         v-if="client"
-        data-testid="dropdown-account-label"
+        data-test-key="dropdown-account-label"
       >
         <strong class="font-medium">
           {{ isGuestClient ? t("auth.guest") : client.fullName }}
@@ -61,7 +61,7 @@ const items = computed<DropdownMenuItemProps[]>(() => {
       icon: "user-plus-01",
       value: "register",
       handler: () => emit("register"),
-      dataAttrs: { "data-testid": "button-register" }
+      dataAttrs: { "data-test-key": "button-register" }
     });
   }
 

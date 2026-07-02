@@ -6,7 +6,7 @@
     <PopoverContent
       class="bg-surface md:border-control-default relative z-30 mt-4 h-screen w-auto border-0 border-t p-0 text-base md:mt-8 md:h-auto md:border"
       align="end"
-      data-testid="popover-content"
+      data-test-key="popover-content"
     >
       <div class="flex h-full flex-col md:flex-row">
         <div class="w-screen p-8 md:w-104">

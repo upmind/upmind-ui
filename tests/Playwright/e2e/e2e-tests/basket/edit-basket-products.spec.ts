@@ -110,7 +110,7 @@ test.describe("Edit hosting product in basket", () => {
       basket.basketProduct
         .first()
         .locator(
-          '[data-testid="basket-product-option"][data-test-value="provision_field.domain"]'
+          '[data-test-key="basket-product-option"][data-test-value="provision_field.domain"]'
         )
     ).toHaveCount(0);
   });

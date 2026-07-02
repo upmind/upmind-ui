@@ -8,7 +8,7 @@ _Researched 2026-05-22 for Dom. Audience: code-literate product/engineering lead
 - **Cucumber** is the runner that executes those `.feature` files by matching each line to a "step definition" — a function written in JS/TS (or another language) that actually does the work.
 - The two are separable: you can use Gherkin as a planning/spec format without ever running Cucumber. Many teams should.
 - **One-line pitch:** human-readable test specs that double as living documentation, reviewable by non-coders.
-- **One-line critique:** the readability promise only holds if step definitions are written *declaratively* — and most teams fail at this, ending up with `.feature` files that are unreadable UI scripts wearing English clothing. Aslak Hellesøy (Cucumber's creator) has publicly lamented that "most organisations use Cucumber for 'BDD testing', whatever that means" — which is exactly the trap.
+- **One-line critique:** the readability promise only holds if step definitions are written _declaratively_ — and most teams fail at this, ending up with `.feature` files that are unreadable UI scripts wearing English clothing. Aslak Hellesøy (Cucumber's creator) has publicly lamented that "most organisations use Cucumber for 'BDD testing', whatever that means" — which is exactly the trap.
 
 **Bottom line for Dom:** adopt Gherkin as the planning layer between Linear AC and generated Playwright code. Probably skip the Cucumber runner — use `playwright-bdd` if you do want runtime execution. Details below.
 
@@ -61,7 +61,7 @@ Feature: Apply a promo code to the basket
 | Keyword | What it does |
 |---|---|
 | `Feature:` | Top-of-file header. One per file. Free-text description allowed underneath. |
-| `Background:` | Steps run before *every* `Scenario` in the file. Use for shared `Given`s only. |
+| `Background:` | Steps run before _every_ `Scenario` in the file. Use for shared `Given`s only. |
 | `Scenario:` | A single concrete example. Synonym: `Example:`. |
 | `Given` | The starting state. No user action yet. |
 | `When` | The trigger — the one thing under test. Ideally one `When` per scenario. |
@@ -180,10 +180,10 @@ The job: Dom (code-literate, not a tester) and Sarah (BA) need to sanity-check t
 
 | Question | Honest answer |
 |---|---|
-| Can Dom review test *logic* by reading `.feature` files only? | **Yes, conditionally.** Only if step definitions are *declarative* (domain verbs like `apply the promo code`, not `click [data-testid=promo-btn]`). This is a convention you must enforce. The promo example above is reviewable; an imperative version of the same scenario is not. |
-| Can Sarah read them? | Same answer. The `.feature` syntax is genuinely English-readable. Whether the *content* is readable depends entirely on how you write steps. |
+| Can Dom review test _logic_ by reading `.feature` files only? | **Yes, conditionally.** Only if step definitions are _declarative_ (domain verbs like `apply the promo code`, not `click [data-test-key=promo-btn]`). This is a convention you must enforce. The promo example above is reviewable; an imperative version of the same scenario is not. |
+| Can Sarah read them? | Same answer. The `.feature` syntax is genuinely English-readable. Whether the _content_ is readable depends entirely on how you write steps. |
 | Does it slot into the AI test-gen flow? | **Strongly yes.** Gherkin is the ideal intermediate representation between AC and code. `/qa-plan` produces `.feature` files for Dom/Sarah to review; `/qa-test` generates or extends step definitions. Reviewing a 12-line scenario is far cheaper than reviewing a 200-line Playwright test. |
-| Does it pair with BDD-style Linear stories? | **Yes — this is the killer combination.** If stories already ship `Given/When/Then` AC, the `.feature` file is a near copy-paste. The spec *is* the test plan. |
+| Does it pair with BDD-style Linear stories? | **Yes — this is the killer combination.** If stories already ship `Given/When/Then` AC, the `.feature` file is a near copy-paste. The spec _is_ the test plan. |
 
 Net: Gherkin pays for itself as a **planning + review artefact**. Whether you also run it as test code is a separate, smaller decision.
 
@@ -192,10 +192,10 @@ Net: Gherkin pays for itself as a **planning + review artefact**. Whether you al
 ## 5. The honest case against
 
 - **Indirection tax.** Two artefacts per behaviour (feature + steps). When a test fails, you read the `.feature`, then jump to the step definition, then to the page-object helper. Three hops vs. one Playwright file.
-- **Imperative drift is the default failure mode.** Teams start declarative, then someone needs "just one quick UI click" and writes `When I click the "Add to basket" button`. Six months in, every scenario is a UI script and nobody can read them. This is *the* well-known Cucumber smell ("imperative Gherkin").
+- **Imperative drift is the default failure mode.** Teams start declarative, then someone needs "just one quick UI click" and writes `When I click the "Add to basket" button`. Six months in, every scenario is a UI script and nobody can read them. This is _the_ well-known Cucumber smell ("imperative Gherkin").
 - **Feature-coupled steps.** Steps named after a single feature instead of a domain concept → step library explodes, duplication everywhere. Cucumber's own anti-pattern docs lead with this one.
 - **Conjunction steps.** `Given I have a basket and apply a promo` instead of two `Given`s — kills reuse.
-- **The non-dev myth.** Cucumber is often sold as "now BAs can write tests". They almost never do. They might *read* and *review*; that is the realistic ceiling.
+- **The non-dev myth.** Cucumber is often sold as "now BAs can write tests". They almost never do. They might _read_ and _review_; that is the realistic ceiling.
 - **Aslak Hellesøy himself** says Cucumber is widely "misused and misunderstood" — adopted as a testing tool when it was designed as a collaboration / specification tool. Read that sentence twice before adopting it as just a testing tool.
 - **Tooling fragmentation.** `@cucumber/cucumber` has IDE support but loses Playwright runner niceties; `playwright-bdd` is great but is one maintainer's project.
 - **Pickle parser quirks.** Regex/Cucumber-expression matching has sharp edges (greedy matches, ambiguous step warnings, parameter type plugins). Real but tractable.
@@ -211,8 +211,8 @@ Net: Gherkin pays for itself as a **planning + review artefact**. Whether you al
 | Step library bootstrapping | Ongoing, 1–2 weeks to a usable core | Basket, checkout, auth, admin portal domain steps. Front-loaded; pays back quickly. |
 | Dom/Sarah training | One 30-min walkthrough each | They are readers, not authors. Show them the keyword cheatsheet + how to map AC → scenario. |
 | `/qa-plan` / `/qa-test` rework | A few hours | `/qa-plan` outputs `.feature` files; `/qa-test` generates step definitions and Playwright helpers. The AI is good at this — Gherkin is a constrained grammar. |
-| Migration of existing Playwright tests | **Do not migrate.** | Sunk cost. Use Gherkin for *new* tests and net-new coverage only. Keep Nathan's existing `.spec.ts` files running unchanged. |
-| Risk of imperative drift | Permanent vigilance | The single biggest cost. Mitigation: every `.feature` PR is reviewed against the declarative-style rule. Dom is the natural reviewer because if *he* can't read it, it has failed its job. |
+| Migration of existing Playwright tests | **Do not migrate.** | Sunk cost. Use Gherkin for _new_ tests and net-new coverage only. Keep Nathan's existing `.spec.ts` files running unchanged. |
+| Risk of imperative drift | Permanent vigilance | The single biggest cost. Mitigation: every `.feature` PR is reviewed against the declarative-style rule. Dom is the natural reviewer because if _he_ can't read it, it has failed its job. |
 
 ---
 

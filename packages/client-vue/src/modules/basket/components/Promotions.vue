@@ -8,7 +8,7 @@
         :disabled="meta.isProcessing"
         @click="toggle = !toggle"
         :checked="toggle"
-        data-testid="link-add-a-voucher-code"
+        data-test-key="link-add-a-voucher-code"
       />
     </header>
 
@@ -25,14 +25,14 @@
       @update:modelValue="input"
       :actions="actions"
       :ui-config="formConfig"
-      data-testid="promotions-form"
+      data-test-key="promotions-form"
     />
 
     <footer
       class="flex flex-wrap items-center gap-1"
       v-if="meta.hasPromotions"
       v-auto-animate
-      data-testid="summary-footer"
+      data-test-key="summary-footer"
     >
       <h4 class="sr-only">
         {{ t("cart.promotions_active") }}
@@ -133,7 +133,7 @@ const actions = computed((): Record<string, FormActionProps> => {
       size: "lg",
       variant: "subtle",
       needsValid: true,
-      dataAttrs: { "data-testid": "button-apply" }
+      dataAttrs: { "data-test-key": "button-apply" }
     }
   };
 });

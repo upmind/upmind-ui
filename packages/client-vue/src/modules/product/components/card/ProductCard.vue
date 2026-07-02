@@ -1,7 +1,7 @@
 <template>
   <li
     :class="styles.product.root"
-    :data-testid="props.dataAttrs?.['data-testid'] ?? 'product-card'"
+    :data-test-key="props.dataAttrs?.['data-test-key'] ?? 'product-card'"
     :data-test-value="props.dataAttrs?.['data-test-value'] ?? props.id"
   >
     <div :class="styles.product.content">
@@ -103,7 +103,7 @@
               size="lg"
               block
               :disabled="loading || disabled || justAdded || isUnavailable"
-              data-testid="product-card-cta"
+              data-test-key="product-card-cta"
               :aria-pressed="inBasket || justAdded"
               :data-test-value="inBasket || justAdded ? 'added' : 'add'"
               @click="doResolve"

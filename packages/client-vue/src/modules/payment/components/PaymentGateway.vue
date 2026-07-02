@@ -57,7 +57,7 @@
       variant="minimal"
       icon="alert-triangle"
       :title="t('text.payment_failed')"
-      :dataAttrs="{ 'data-testid': 'order-payment-failed-message' }"
+      :dataAttrs="{ 'data-test-key': 'order-payment-failed-message' }"
     >
       <ol class="text-sm-tight mt-2 list-none text-left">
         <li class="my-0 py-0">
@@ -74,7 +74,7 @@
       :title="t('error.payment_gateway_not_supported_title')"
       :description="errors ?? t('error.payment_gateway_not_supported_msg')"
       class="text-error!"
-      :dataAttrs="{ 'data-testid': 'payment-gateway-unavailable-message' }"
+      :dataAttrs="{ 'data-test-key': 'payment-gateway-unavailable-message' }"
     />
   </div>
 </template>

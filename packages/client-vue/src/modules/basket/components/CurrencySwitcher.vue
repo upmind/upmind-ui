@@ -9,9 +9,9 @@
       search
       width="fit"
       size="md"
-      :trigger-data-attrs="{ 'data-testid': 'currency-selector-trigger' }"
+      :trigger-data-attrs="{ 'data-test-key': 'currency-selector-trigger' }"
       :value-data-attrs="{
-        'data-testid': 'currency-selector-value',
+        'data-test-key': 'currency-selector-value',
         'data-test-value': model?.code ?? ''
       }"
     />
@@ -66,7 +66,7 @@ const items = computed(() => {
           currency.code?.toUpperCase()
         )?.country_code?.toLowerCase()
       },
-      dataAttrs: { "data-testid": `currency-option-${currency.code}` },
+      dataAttrs: { "data-test-key": `currency-option-${currency.code}` },
       label: currency.code,
       selectedLabel: currency.code,
       value: currency.code,

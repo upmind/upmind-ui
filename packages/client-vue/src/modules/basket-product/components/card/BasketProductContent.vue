@@ -22,7 +22,7 @@
 
             <Link
               v-if="isMobile && !isEmpty(filteredDetails)"
-              data-testid="button-product-information"
+              data-test-key="button-product-information"
               @click="open = !open"
               color="muted"
               aria-label="Product information"
@@ -37,7 +37,7 @@
 
           <ExPrice
             v-if="!summary.meta?.freeTrial"
-            data-testid="regular-price"
+            data-test-key="regular-price"
             :data-test-value="summary.price.regularPrice"
             :regular-price="summary.price.regularPrice"
             :monthly-from-regular-price="
@@ -58,7 +58,7 @@
               :class="styles.product.summary.title.link"
             >
               <strong
-                data-testid="basket-product-name"
+                data-test-key="basket-product-name"
                 :data-test-value="id"
                 :class="styles.product.summary.title.text"
               >
@@ -72,7 +72,7 @@
                 :label="t('action.show_details')"
               >
                 <Link
-                  data-testid="button-product-information"
+                  data-test-key="button-product-information"
                   @click="open = !open"
                   color="muted"
                   aria-label="Product information"
@@ -110,7 +110,7 @@
 
           <strong
             v-if="summary.meta?.freeTrial"
-            data-testid="trial-price-label"
+            data-test-key="trial-price-label"
             :class="styles.product.pricing.current"
           >
             {{ t("text.free_trial") }}
@@ -143,7 +143,7 @@
     <Alert
       v-if="summary.meta?.freeTrial"
       :dataAttrs="{
-        'data-testid': 'trial-alert',
+        'data-test-key': 'trial-alert',
         'data-test-value': productDetails.trialDuration ?? ''
       }"
       :title="
@@ -164,7 +164,7 @@
     <footer :class="styles.product.summary.footer.root">
       <div
         :class="styles.product.summary.footer.terms.root"
-        data-testid="billing-term-section"
+        data-test-key="billing-term-section"
       >
         <div :class="styles.product.summary.footer.terms.controls">
           <BasketQuantityField

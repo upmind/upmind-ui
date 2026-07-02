@@ -6,7 +6,7 @@
       :actions="actions"
       :title="title"
       :text="text"
-      data-testid="error"
+      data-test-key="error"
     />
   </div>
 </template>

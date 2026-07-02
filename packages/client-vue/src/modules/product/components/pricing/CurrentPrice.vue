@@ -2,7 +2,7 @@
   <component
     :is="props.is"
     :class="styles.pricing.current"
-    data-testid="current-price"
+    data-test-key="current-price"
     :data-test-value="formattedPrice"
   >
     <template v-if="props.loading">

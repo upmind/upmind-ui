@@ -4,7 +4,7 @@
       :is="showVerifyEmailForm ? Interstitial : Slot"
       v-if="canShowForms"
       :open="showVerifyEmailForm"
-      :data-attrs="{ 'data-testid': 'verify-email-heading' }"
+      :data-attrs="{ 'data-test-key': 'verify-email-heading' }"
       modal
       :title="t('auth.verify_email_title')"
       :text="t('auth.verify_email_msg')"
@@ -24,7 +24,7 @@
           icon="alert-triangle"
           :title="alertTitle"
           :description="errors"
-          data-testid="auth-alert"
+          data-test-key="auth-alert"
         />
 
         <Form
@@ -42,7 +42,7 @@
           @update:model-value="set"
           :class="styles.session.auth.form"
           :actions="formActions"
-          :data-testid="`${currentForm}-form`"
+          :data-test-key="`${currentForm}-form`"
         >
           <template v-if="currentForm === SESSION_FORMS.GUEST" #footer>
             <TermsAndConditions
@@ -67,7 +67,7 @@
             <template v-if="canResend">
               <span
                 :class="styles.session.auth.resendPrompt"
-                data-testid="resend-prompt"
+                data-test-key="resend-prompt"
               >
                 {{ t("auth.didnt_receive_code") }}
               </span>
@@ -75,7 +75,7 @@
               <Link
                 size="sm"
                 :label="t('action.resend_code')"
-                data-testid="resend-code-link"
+                data-test-key="resend-code-link"
                 @click.prevent="resend"
               />
             </template>
@@ -83,14 +83,14 @@
             <span
               v-else-if="isResending"
               :class="styles.session.auth.resendSending"
-              data-testid="resend-sending"
+              data-test-key="resend-sending"
             >
               {{ t("auth.verify_email_send") }}
             </span>
             <span
               v-else-if="resendComplete"
               :class="styles.session.auth.resendSent"
-              data-testid="resend-sent"
+              data-test-key="resend-sent"
             >
               {{ t("auth.verify_email_sent") }}
             </span>
@@ -205,7 +205,7 @@ const formActions = computed(() => {
       needsValid: true,
       size: "lg" as const,
       ...(currentForm.value === SESSION_FORMS.GUEST
-        ? { dataAttrs: { "data-testid": "button-complete-registration" } }
+        ? { dataAttrs: { "data-test-key": "button-complete-registration" } }
         : {})
     }
   };
@@ -220,7 +220,7 @@ const formActions = computed(() => {
       size: "lg",
       variant: "link",
       ...(showVerifyEmailForm.value
-        ? { dataAttrs: { "data-testid": "link-back-to-basket" } }
+        ? { dataAttrs: { "data-test-key": "link-back-to-basket" } }
         : (props.cancelRoute ?? {}))
     };
 

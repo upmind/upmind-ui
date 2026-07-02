@@ -79,7 +79,7 @@
               label: t('text.fully_encrypted_title'),
               icon: 'lock-04'
             }"
-            :dataAttrs="{ 'data-testid': 'product-setup-hero-title' }"
+            :dataAttrs="{ 'data-test-key': 'product-setup-hero-title' }"
             :action="{
               label: t('action.back_to_basket'),
               icon: 'flip-backward',
@@ -87,7 +87,7 @@
               variant: 'subtle',
               size: 'lg',
               disabled: isNavigating,
-              dataAttrs: { 'data-testid': 'button-back-to-basket' }
+              dataAttrs: { 'data-test-key': 'button-back-to-basket' }
             }"
             size="3xl"
             @action="doReject"
@@ -104,7 +104,7 @@
           <span
             v-if="total > 1"
             class="shrink-0 text-base font-semibold"
-            data-testid="product-setup-progress"
+            data-test-key="product-setup-progress"
             :data-test-value="total"
           >
             {{ t("cart.product_setup_count", { count: total }) }}

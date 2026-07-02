@@ -9,7 +9,7 @@
         @update:open="trackOpen(product.id, $event)"
         @remove="remove(product.id)"
         @update:quantity="updateQuantity(product.id, $event)"
-        data-testid="basket-product"
+        data-test-key="basket-product"
         :edit-route="props.editRoute"
       >
         <template #default="slotProps">

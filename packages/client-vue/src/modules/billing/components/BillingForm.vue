@@ -13,7 +13,7 @@
       :class="styles.billing.form.sections"
       v-model="activeTab"
       :sections="tabs"
-      data-testid="billing"
+      data-test-key="billing"
     >
       <template v-slot:[`section-personal`]>
         <TabPersonal
@@ -29,7 +29,7 @@
             formMeta.allowContinue &&
             !isInitialBilling
           "
-          data-testid="button-continue"
+          data-test-key="button-continue"
           :label="t('action.continue_label')"
           icon-append="arrow-right"
           color="primary"
@@ -228,7 +228,7 @@ const tabs = computed((): TabItem[] => {
       label: t("text.personal_details"),
       value: UnifiedType.PERSONAL,
       eager: false,
-      dataAttrs: { "data-testid": "tab-personal-details" }
+      dataAttrs: { "data-test-key": "tab-personal-details" }
     });
   }
   tabItems.push({
@@ -236,7 +236,7 @@ const tabs = computed((): TabItem[] => {
     label: t("text.business_details"),
     value: UnifiedType.BUSINESS,
     eager: !!config.value?.requiresCompany,
-    dataAttrs: { "data-testid": "tab-business-details" }
+    dataAttrs: { "data-test-key": "tab-business-details" }
   });
 
   return tabItems;

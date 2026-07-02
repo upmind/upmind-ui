@@ -16,7 +16,7 @@
             variant: 'subtle',
             size: 'lg',
             disabled: isNavigating,
-            dataAttrs: { 'data-testid': 'link-back-to-basket' }
+            dataAttrs: { 'data-test-key': 'link-back-to-basket' }
           }"
           size="3xl"
           @action="navigateBack"
@@ -43,7 +43,7 @@
     >
       <slot name="markdown">
         <Markdown
-          data-testid="slots:summary-append"
+          data-test-key="slots:summary-append"
           :model-value="data.trustMessagingMarkdown"
         />
       </slot>

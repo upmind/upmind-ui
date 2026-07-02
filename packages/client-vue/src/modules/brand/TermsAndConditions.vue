@@ -5,7 +5,7 @@
     keypath="text.terms_and_conditions_desc"
     tag="p"
     scope="global"
-    data-testid="terms-and-conditions"
+    data-test-key="terms-and-conditions"
   >
     <template #brand>{{ brandName }}</template>
 
@@ -30,7 +30,7 @@
       <Link
         v-else
         @click="toggleOpen"
-        data-testid="terms-link"
+        data-test-key="terms-link"
         :label="t(action)"
         color="inherit"
         size="inherit"

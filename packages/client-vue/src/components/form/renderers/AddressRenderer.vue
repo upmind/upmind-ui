@@ -11,7 +11,7 @@
         :placeholder="t('form.address.placeholder')"
         :results="predictions"
         :additional-option="t('action.enter_address_manually')"
-        :data-attrs="{ 'data-testid': 'address-search-option' }"
+        :data-attrs="{ 'data-test-key': 'address-search-option' }"
         class="mb-6"
         @select="selectAddress"
         @update:search="getSuggestions"

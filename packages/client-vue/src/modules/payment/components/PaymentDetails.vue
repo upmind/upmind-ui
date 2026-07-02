@@ -69,7 +69,7 @@
           icon="alert-triangle"
           :title="t('text.payment_failed')"
           :description="paymentError"
-          :dataAttrs="{ 'data-testid': 'payment-error-alert' }"
+          :dataAttrs="{ 'data-test-key': 'payment-error-alert' }"
         />
 
         <!-- Selected Payment Gateway -->
@@ -211,7 +211,7 @@ const payAmountDataAttrs = computed(() => {
   if (!meta.value.isPayContext || !amount) return undefined;
 
   return {
-    "data-testid": "pay-amount-value",
+    "data-test-key": "pay-amount-value",
     "data-test-value": amount
   };
 });

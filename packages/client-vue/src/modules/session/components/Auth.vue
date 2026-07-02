@@ -23,7 +23,7 @@
           icon="alert-triangle"
           :title="alertTitle"
           :description="errors"
-          data-testid="auth-alert"
+          data-test-key="auth-alert"
         />
 
         <Form
@@ -42,7 +42,7 @@
           @update:model-value="set"
           :class="styles.session.auth.form"
           :actions="formActions"
-          :data-testid="`${currentForm}-form`"
+          :data-test-key="`${currentForm}-form`"
         >
           <template v-if="currentForm === SESSION_FORMS.REGISTER" #footer>
             <TermsAndConditions
@@ -63,7 +63,7 @@
             color="muted"
             :label="t('auth.forgot_password_qn')"
             size="lg"
-            data-testid="forgot-password-link"
+            data-test-key="forgot-password-link"
           />
         </slot>
       </div>
@@ -205,7 +205,7 @@ const formActions = computed(() => {
       needsValid: true,
       size: "lg" as const,
       ...(currentForm.value === SESSION_FORMS.LOGIN
-        ? { dataAttrs: { "data-testid": "button-log-into-my-account" } }
+        ? { dataAttrs: { "data-test-key": "button-log-into-my-account" } }
         : {})
     }
   };

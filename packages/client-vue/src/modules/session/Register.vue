@@ -33,7 +33,7 @@
                 size="inherit"
                 color="inherit"
                 :label="t('action.log_in_here')"
-                :dataAttrs="{ 'data-testid': 'checkout-login-link' }"
+                :dataAttrs="{ 'data-test-key': 'checkout-login-link' }"
                 class="font-normal"
               />
             </template>
@@ -82,7 +82,7 @@
                 color="inherit"
                 :label="t('auth.guest_checkout_action')"
                 :disabled="isRegisteringAsGuest"
-                data-testid="guest-checkout-cta"
+                data-test-key="guest-checkout-cta"
               >
                 <template #append>
                   <Spinner

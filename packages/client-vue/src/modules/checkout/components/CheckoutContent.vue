@@ -63,7 +63,7 @@
   <!-- Payment Details -->
   <PaymentDetails
     v-show="showCheckout"
-    data-testid="payment-details"
+    data-test-key="payment-details"
     @resolve="checkout"
   />
 </template>

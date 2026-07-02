@@ -10,7 +10,7 @@
         :current-price="item.price.currentPrice"
         :monthly-from-current-price="item.price.monthlyFromCurrentPrice ?? ''"
         :free="item.meta.free ?? false"
-        data-testid="total-price"
+        data-test-key="total-price"
         :ui-config="{
           pricing: {
             current: [styles.summary.pricing.currentPrice]

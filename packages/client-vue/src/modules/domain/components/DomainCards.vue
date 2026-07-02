@@ -14,7 +14,7 @@
       cursor="default"
       class="gap-0"
       list
-      data-testid="dac-results"
+      data-test-key="dac-results"
       :ui-config="
         {
           checkboxCards: {
@@ -48,7 +48,7 @@
           :exactMatch="isExactMatch(value.toString())"
           @add="onAdd"
           @remove="onRemove"
-          data-testid="dac-card"
+          data-test-key="dac-card"
         />
       </template>
     </CheckboxCards>
@@ -85,7 +85,7 @@
       @click="$emit('search-more')"
       block
       class="mt-6"
-      :data-attrs="{ 'data-testid': 'button-load-more' }"
+      :data-attrs="{ 'data-test-key': 'button-load-more' }"
     >
       {{ t("action.load_more") }}
     </Button>
@@ -174,7 +174,7 @@ function isExactMatch(value: string): boolean {
 const parsedValues = computed<CheckboxCardsItemProps[]>(() => {
   return map(props.items, item => {
     return {
-      dataAttrs: { "data-testid": `checkbox-item-${item.domain}` },
+      dataAttrs: { "data-test-key": `checkbox-item-${item.domain}` },
       id: item.domain,
       item,
       label: item.domain,

@@ -16,7 +16,7 @@
 
     <Button
       v-if="!summary.toggle.selected"
-      data-testid="button-add-option"
+      data-test-key="button-add-option"
       :label="t('action.add_option')"
       icon="plus"
       variant="outline"
@@ -29,7 +29,7 @@
 
     <Button
       v-else-if="!summary.meta?.quantifiable"
-      data-testid="button-added"
+      data-test-key="button-added"
       :label="t('action.added_to_basket')"
       icon="check-circle-broken"
       variant="solid"

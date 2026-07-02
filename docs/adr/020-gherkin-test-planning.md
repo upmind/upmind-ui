@@ -22,7 +22,7 @@ The team's tester is leaving at the end of the week. The Playwright test suite h
 3. **AI-assisted test generation needs an intermediate representation.** The proposed `/qa-plan → /qa-test` flow (see [08-qa-handover.md](../../tests/Playwright/docs/08-qa-handover.md)) is more reliable when the agent works from a constrained, human-readable spec than from free-form prose AC.
 4. **Cucumber-style BDD was proposed by the outgoing tester** as the bridge. A short research pass was run ([09-cucumber-evaluation.md](../../tests/Playwright/docs/09-cucumber-evaluation.md)) before committing.
 
-The well-known failure mode of Cucumber adoption is *imperative drift* — `.feature` files starting declarative ("apply a promo code") and decaying into UI scripts ("click the button with data-testid X"). Aslak Hellesøy (Cucumber's creator) has himself noted the tool is widely misused.
+The well-known failure mode of Cucumber adoption is *imperative drift* — `.feature` files starting declarative ("apply a promo code") and decaying into UI scripts ("click the button with data-test-key X"). Aslak Hellesøy (Cucumber's creator) has himself noted the tool is widely misused.
 
 ---
 

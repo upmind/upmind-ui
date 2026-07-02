@@ -50,7 +50,7 @@
       :disabled="disabled || registering"
       :loading="registering"
       :block="isMobile"
-      :data-attrs="{ 'data-testid': 'domain-add-registration-button' }"
+      :data-attrs="{ 'data-test-key': 'domain-add-registration-button' }"
       @click="emit('addRegistration')"
     />
   </div>
@@ -80,7 +80,7 @@
   >
     <p
       :class="styles.field.transfer.text"
-      data-testid="domain-transfer-pricing-info"
+      data-test-key="domain-transfer-pricing-info"
       :data-test-value="transferOptionIsFree ? 'free' : 'paid'"
     >
       {{
@@ -106,7 +106,7 @@
       :disabled="disabled || transferring"
       :loading="transferring"
       :block="isMobile"
-      :data-attrs="{ 'data-testid': 'domain-add-transfer-button' }"
+      :data-attrs="{ 'data-test-key': 'domain-add-transfer-button' }"
       @click="emit('addTransfer')"
     />
 

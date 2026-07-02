@@ -84,7 +84,7 @@ export class Checkout {
     this.phoneRegion = this.phone.getByTestId("popover-trigger");
     this.phoneInput = this.textInputComponent.getTextInputField(this.phone);
     this.paymentDetails = this.page.getByTestId("payment-details");
-    this.gateways = this.paymentDetails.locator('[data-testid^="gateway-"]');
+    this.gateways = this.paymentDetails.locator('[data-test-key^="gateway-"]');
     this.expandPaymentDetails = this.page.getByTestId(
       "show-more-payment-options"
     );
@@ -183,7 +183,7 @@ export class Checkout {
 
   /**
    * Returns the gateway radio for a provider code in a LOCALE-SAFE way. Each
-   * gateway radio is tagged `data-testid="gateway-{provider}"` by
+   * gateway radio is tagged `data-test-key="gateway-{provider}"` by
    * `GatewaysRenderer.vue` (provider code from the headless gateway schema), so
    * the target is independent of the translated label (the FE-2840 trap).
    *
@@ -236,7 +236,7 @@ export class Checkout {
     // the "show more" expander. Wait for the list, reveal the expander, then
     // read the (visually-hidden Radix) radio once it is attached.
     await this.paymentDetails
-      .locator('[data-testid^="gateway-"]')
+      .locator('[data-test-key^="gateway-"]')
       .first()
       .waitFor({ state: "visible", timeout: 30000 });
     if (await this.expandPaymentDetails.isVisible()) {
@@ -254,7 +254,7 @@ export class Checkout {
 
   /**
    * Selects a gateway by its provider code in a LOCALE- AND ORDER-SAFE way.
-   * Each gateway radio is tagged `data-testid="gateway-{provider}"` by
+   * Each gateway radio is tagged `data-test-key="gateway-{provider}"` by
    * `GatewaysRenderer.vue` (provider code surfaced from the headless gateway
    * schema), so the target is independent of both the translated label (the
    * FE-2840 trap) and the dynamic gateway order (`selectGatewayByIndex(0)` is
@@ -270,7 +270,7 @@ export class Checkout {
     // Gateways paint after an async fetch resolves — wait for the list to
     // render before reading it, otherwise the check races an empty container.
     await this.paymentDetails
-      .locator('[data-testid^="gateway-"]')
+      .locator('[data-test-key^="gateway-"]')
       .first()
       .waitFor({ state: "visible", timeout: 30000 });
     if (await this.expandPaymentDetails.isVisible()) {
@@ -280,8 +280,8 @@ export class Checkout {
     const radio = this.paymentDetails.getByTestId(`gateway-${provider}`);
     if ((await radio.count()) === 0) {
       const available = await this.paymentDetails
-        .locator('[data-testid^="gateway-"]')
-        .evaluateAll(els => els.map(el => el.getAttribute("data-testid")));
+        .locator('[data-test-key^="gateway-"]')
+        .evaluateAll(els => els.map(el => el.getAttribute("data-test-key")));
       throw new Error(
         `Gateway "gateway-${provider}" not found. Rendered: ${JSON.stringify(available)}`
       );

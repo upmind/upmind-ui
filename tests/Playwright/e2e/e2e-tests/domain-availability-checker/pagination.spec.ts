@@ -110,7 +110,7 @@ test.describe("DAC pagination & merge logic", () => {
       await expect(dac.cards).toHaveCount(3, { timeout: 10000 });
       await expect(
         dac.page.locator(
-          `[data-testid="domain-card-name"][data-test-value="${SLD}.com"]`
+          `[data-test-key="domain-card-name"][data-test-value="${SLD}.com"]`
         )
       ).toHaveCount(1);
     });

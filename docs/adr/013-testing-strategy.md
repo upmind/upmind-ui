@@ -143,19 +143,19 @@ test('complete checkout flow', async ({ page }) => {
   await page.goto('/')
 
   // Add product to basket
-  await page.click('[data-testid="add-to-basket"]')
+  await page.click('[data-test-key="add-to-basket"]')
 
   // Proceed to checkout
-  await page.click('[data-testid="checkout-button"]')
+  await page.click('[data-test-key="checkout-button"]')
 
   // Fill billing details
   await page.fill('[name="email"]', 'test@example.com')
 
   // Complete order
-  await page.click('[data-testid="place-order"]')
+  await page.click('[data-test-key="place-order"]')
 
   // Verify success
-  await expect(page.locator('[data-testid="order-confirmation"]')).toBeVisible()
+  await expect(page.locator('[data-test-key="order-confirmation"]')).toBeVisible()
 })
 ```
 

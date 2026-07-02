@@ -25,7 +25,7 @@
           <Transition name="count-slide" mode="out-in">
             <span
               :key="count"
-              data-testid="basket-action-count"
+              data-test-key="basket-action-count"
               class="inline-block"
               :class="count < 10 ? 'min-w-2.5' : 'min-w-5'"
             >
