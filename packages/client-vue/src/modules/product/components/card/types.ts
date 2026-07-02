@@ -19,7 +19,7 @@ export type RootVariants = VariantProps<typeof rootVariant>;
 export interface ProductCardProps extends Omit<Product, "price" | "pricing"> {
   configureRoute: RouteLocationAsRelativeGeneric;
   /**
-   * Overrides the card's root `data-testid`. Recommendations key this off the
+   * Overrides the card's root `data-test-key`. Recommendations key this off the
    * recommended product's `configuration.productId` so the carousel card is
    * targetable by the stable product id (its own `id` is the recommendation
    * slot id, not the product). Falls back to `product-card-${id}`.

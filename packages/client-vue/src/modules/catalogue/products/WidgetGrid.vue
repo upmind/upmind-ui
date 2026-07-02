@@ -3,7 +3,7 @@
     :class="styles.products.main.root"
     role="main"
     aria-label="Product listing"
-    data-testid="widget-grid"
+    data-test-key="widget-grid"
     ref="container"
   >
     <!-- Search and controls -->
@@ -15,7 +15,7 @@
         :placeholder="t('form.product_name_search.placeholder')"
         :auto-focus="false"
         aria-label="Search products"
-        data-testid="product-search"
+        data-test-key="product-search"
         @update:model-value="doQuery"
         icon="search-md"
         class="max-w-full lg:max-w-xl"
@@ -33,7 +33,7 @@
     >
       <div
         :class="styles.products.main.grid.container"
-        data-testid="products-grid"
+        data-test-key="products-grid"
       >
         <!-- TODO: OR `loading` and `disabled` with the global `isNavigating`
              signal (sibling branch) to cover the click-to-route gap —

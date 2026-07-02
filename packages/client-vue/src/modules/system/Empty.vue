@@ -3,7 +3,7 @@
     <Interstitial
       v-bind="props"
       :modal="meta.useModal"
-      :dataAttrs="{ 'data-testid': 'basket-empty-message' }"
+      :dataAttrs="{ 'data-test-key': 'basket-empty-message' }"
       :title="t('cart.empty_md')"
       :text="t('cart.empty_msg')"
       :actions="[

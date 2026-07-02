@@ -2,7 +2,7 @@
   <ul
     v-if="configMeta.hasBenefits"
     :class="styles.product.header.benefits.root"
-    data-testid="product-benefits"
+    data-test-key="product-benefits"
   >
     <li
       v-for="(benefit, index) in normalizedBenefits"

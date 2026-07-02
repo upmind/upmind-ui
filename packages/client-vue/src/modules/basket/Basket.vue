@@ -61,7 +61,7 @@
         <slot name="markdown">
           <Markdown
             v-if="ui.trustMessaging.isVisible && data.trustMessagingMarkdown"
-            data-testid="slots:summary-append"
+            data-test-key="slots:summary-append"
             :model-value="data.trustMessagingMarkdown"
           />
           <Markdown

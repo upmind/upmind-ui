@@ -6,7 +6,7 @@
     :ajv="ajv"
     :additional-renderers="formRenderers"
     :optional-text="t('text.optional')"
-    data-testid="form"
+    data-test-key="form"
   >
     <template #additional="{ meta }">
       <slot name="additional" v-bind="{ meta }"></slot>

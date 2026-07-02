@@ -3,7 +3,7 @@
     class="min-h-44"
     v-model="activeTab"
     :sections="sections"
-    data-testid="billing"
+    data-test-key="billing"
   >
     <template v-slot:[`section-address`]>
       <UpmManage

@@ -7,10 +7,13 @@
   >
     <template #footer-actions v-if="meta.hasActions">
       <UpmLocale
-        data-testid="locale-selector"
+        data-test-key="locale-selector"
         v-show="meta.showLocale && localeMeta.isAvailable"
       />
-      <UpmCurrency data-testid="currency-selector" v-show="meta.showCurrency" />
+      <UpmCurrency
+        data-test-key="currency-selector"
+        v-show="meta.showCurrency"
+      />
     </template>
 
     <template #footer-content v-if="meta.hasContent && meta.showPoweredBy">

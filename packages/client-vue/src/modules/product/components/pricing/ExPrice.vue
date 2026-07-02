@@ -2,7 +2,7 @@
   <del
     v-if="priceMeta.isDiscounted || priceMeta.isCustom"
     :class="styles.pricing.ex"
-    data-testid="ex-price"
+    data-test-key="ex-price"
     :data-test-value="formattedPrice"
   >
     <Skeleton v-if="props.loading" :class="styles.pricing.exSkeleton" />

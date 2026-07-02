@@ -1,6 +1,6 @@
 <template>
   <div
-    data-testid="address-card"
+    data-test-key="address-card"
     class="flex w-full flex-col gap-1"
     :class="!props.readonly && 'cursor-pointer!'"
   >

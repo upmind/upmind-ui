@@ -278,7 +278,7 @@ export async function interceptSlots(page: Page, slot: string) {
         data: {
           type: "template",
           title: "",
-          body: `<div data-testid="slot-injected-content" style="padding: 16px; background: #f0f9ff; border: 2px solid #0284c7; border-radius: 8px;">\n  <h3 data-testid="slot-sentinel-${slot.replaceAll("_", "-")}">🧪 Template: ${slot}<\/h3>\n  <p>This content is injected via the <strong>Playwright Test Runner<\/strong><\/p>\n<\/div>`,
+          body: `<div data-test-key="slot-injected-content" style="padding: 16px; background: #f0f9ff; border: 2px solid #0284c7; border-radius: 8px;">\n  <h3 data-test-key="slot-sentinel-${slot.replaceAll("_", "-")}">🧪 Template: ${slot}<\/h3>\n  <p>This content is injected via the <strong>Playwright Test Runner<\/strong><\/p>\n<\/div>`,
           meta: null
         },
         related: null,

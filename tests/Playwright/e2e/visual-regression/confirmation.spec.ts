@@ -94,7 +94,7 @@ for (const { language, locale } of languages) {
           page.getByTestId("confirmation-payment-alert").first()
         ).toBeVisible();
         await expect(
-          page.locator('[data-testid^="gateway-"]').first()
+          page.locator('[data-test-key^="gateway-"]').first()
         ).toBeVisible({ timeout: 30000 });
         await expect(page).toHaveScreenshot(`${language}/confirmation-failed`, {
           fullPage: true,
@@ -138,7 +138,7 @@ for (const { language, locale } of languages) {
           page.getByTestId("confirmation-payment-alert").first()
         ).toBeVisible();
         await expect(
-          page.locator('[data-testid^="gateway-"]').first()
+          page.locator('[data-test-key^="gateway-"]').first()
         ).toBeVisible({ timeout: 30000 });
         await expect(page).toHaveScreenshot(
           `${language}/confirmation-pay-later`,

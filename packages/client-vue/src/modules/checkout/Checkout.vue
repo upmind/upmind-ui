@@ -39,7 +39,7 @@
     >
       <slot name="markdown">
         <Markdown
-          data-testid="slots:summary-append"
+          data-test-key="slots:summary-append"
           :model-value="data.trustMessagingMarkdown"
         />
       </slot>

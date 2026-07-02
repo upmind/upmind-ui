@@ -7,7 +7,7 @@
         :description="text"
         :loading="meta.isLoading"
         :badge="badge"
-        :dataAttrs="{ 'data-testid': 'order-confirmation-heading' }"
+        :dataAttrs="{ 'data-test-key': 'order-confirmation-heading' }"
       >
         <template #append>
           <div v-if="action && !meta.isComplete">
@@ -308,7 +308,7 @@ const primaryAlert = computed<
       icon: "lock-03",
       color: "neutral",
       dataAttrs: {
-        "data-testid": "confirmation-payment-alert",
+        "data-test-key": "confirmation-payment-alert",
         "data-test-value": "locked"
       }
     };
@@ -323,7 +323,7 @@ const primaryAlert = computed<
       },
       onClick: retry,
       dataAttrs: {
-        "data-testid": "confirmation-payment-alert",
+        "data-test-key": "confirmation-payment-alert",
         "data-test-value": "failed"
       }
     };
@@ -341,7 +341,7 @@ const primaryAlert = computed<
       icon: "calendar",
       color: "warning",
       dataAttrs: {
-        "data-testid": "confirmation-payment-alert",
+        "data-test-key": "confirmation-payment-alert",
         "data-test-value": "due"
       }
     };
@@ -362,7 +362,7 @@ const secondaryAlert = computed<
       },
       onClick: refresh,
       dataAttrs: {
-        "data-testid": "confirmation-payment-secondary-alert",
+        "data-test-key": "confirmation-payment-secondary-alert",
         "data-test-value": "pending"
       }
     };
@@ -375,7 +375,7 @@ const secondaryAlert = computed<
       icon: "alert-octagon",
       color: "warning",
       dataAttrs: {
-        "data-testid": "confirmation-payment-secondary-alert",
+        "data-test-key": "confirmation-payment-secondary-alert",
         "data-test-value": "outstanding"
       }
     };
@@ -431,7 +431,7 @@ const orderItems = computed((): DescriptionItem[] => {
       term: t("text.order_number"),
       description: orderData.value.number,
       dataAttrs: {
-        "data-testid": "confirmation-invoice-number",
+        "data-test-key": "confirmation-invoice-number",
         "data-test-value": orderData.value.number
       }
     });
@@ -442,7 +442,7 @@ const orderItems = computed((): DescriptionItem[] => {
       term: t("text.purchase_date"),
       description: orderData.value.dateCreated.date,
       dataAttrs: {
-        "data-testid": "confirmation-order-date",
+        "data-test-key": "confirmation-order-date",
         "data-test-value": orderData.value.dateCreated.date
       }
     });
@@ -458,7 +458,7 @@ const orderItems = computed((): DescriptionItem[] => {
         last4: lastPayment.cardLast4
       }),
       dataAttrs: {
-        "data-testid": "confirmation-order-payment-method",
+        "data-test-key": "confirmation-order-payment-method",
         "data-test-value": lastPayment.cardLast4
       }
     });

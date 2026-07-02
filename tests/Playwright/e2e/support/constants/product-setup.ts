@@ -1,6 +1,6 @@
 /**
  * Provision-field selector keys for `products.DOMAIN_2`. The Setup form uses
- * `data-testid="form-item-provision-fields-update-{key}"` — these are the
+ * `data-test-key="form-item-provision-fields-update-{key}"` — these are the
  * `{key}` values used to assert which fields render. Replace the list to
  * match the actual blueprint of DOMAIN_2.
  */

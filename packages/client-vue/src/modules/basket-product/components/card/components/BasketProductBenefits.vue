@@ -2,7 +2,7 @@
   <ul
     v-if="!isEmpty(benefits)"
     :class="styles.product.option.benefits.list"
-    data-testid="product-benefits"
+    data-test-key="product-benefits"
   >
     <li
       v-for="benefit in normalizedBenefits"

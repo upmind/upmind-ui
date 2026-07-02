@@ -7,7 +7,7 @@ import { Page, Locator } from "@playwright/test";
  */
 export class GuestCheckout {
   readonly page: Page;
-  /** The guest-checkout CTA link (explicit, label-independent `data-testid`). */
+  /** The guest-checkout CTA link (explicit, label-independent `data-test-key`). */
   readonly cta: Locator;
   /** Avatar / account-menu dropdown trigger. */
   readonly avatar: Locator;
@@ -24,7 +24,7 @@ export class GuestCheckout {
   /**
    * The guest upgrade form. Rendered by the shared `Auth` session-form; for a
    * guest client `currentForm` is `SESSION_FORMS.GUEST` (`"guest"`), so the
-   * form's `data-testid` is `guest-form`.
+   * form's `data-test-key` is `guest-form`.
    */
   readonly upgradeForm: Locator;
   /**

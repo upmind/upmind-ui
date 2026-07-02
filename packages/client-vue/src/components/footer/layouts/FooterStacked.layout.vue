@@ -1,5 +1,5 @@
 <template>
-  <Ribbon as="footer" background="surface" border="top" data-testid="footer">
+  <Ribbon as="footer" background="surface" border="top" data-test-key="footer">
     <Container :class="styles.footer.stacked.root">
       <Column :class="styles.footer.stacked.column">
         <Content gap="none" items="end" :class="styles.footer.stacked.content">

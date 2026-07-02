@@ -41,11 +41,11 @@ export class ProductSetup {
 
   async visibleFieldKeys(): Promise<string[]> {
     const handles = await this.setupForm
-      .locator("[data-testid^='form-item-provision-fields-update-']")
+      .locator("[data-test-key^='form-item-provision-fields-update-']")
       .elementHandles();
     const keys: string[] = [];
     for (const h of handles) {
-      const id = await h.getAttribute("data-testid");
+      const id = await h.getAttribute("data-test-key");
       if (id) keys.push(id.replace("form-item-provision-fields-update-", ""));
     }
     return keys;

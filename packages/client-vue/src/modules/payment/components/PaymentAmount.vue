@@ -4,7 +4,7 @@
     color="muted"
     size="sm"
     @click="openForm"
-    data-testid="change-amount"
+    data-test-key="change-amount"
   />
 
   <FormModal

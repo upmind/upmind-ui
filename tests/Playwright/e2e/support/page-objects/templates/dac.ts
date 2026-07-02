@@ -59,7 +59,7 @@ export class Dac {
   cardByDomain(domain: string): Locator {
     return this.cards.filter({
       has: this.page.locator(
-        `[data-testid="domain-card-name"][data-test-value="${domain}"]`
+        `[data-test-key="domain-card-name"][data-test-value="${domain}"]`
       )
     });
   }
@@ -97,7 +97,7 @@ export class Dac {
       const registerNames = this.cards
         .filter({
           has: this.page.locator(
-            '[data-testid="domain-card-cta"][data-test-value="register"]'
+            '[data-test-key="domain-card-cta"][data-test-value="register"]'
           )
         })
         .getByTestId("domain-card-name");

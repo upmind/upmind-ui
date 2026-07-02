@@ -19,7 +19,7 @@
       block
       type="submit"
       color="primary"
-      data-testid="button-confirm"
+      data-test-key="button-confirm"
       :loading="meta.isProcessing || isNavigating"
       :disabled="meta.isLoading || meta.isUnavailable"
       :label="t('action.confirm')"

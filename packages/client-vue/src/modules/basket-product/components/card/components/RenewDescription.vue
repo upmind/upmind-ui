@@ -2,7 +2,7 @@
   <!-- e.g. "Renews every month." or "One-time payment." -->
   <p
     v-if="!isNil(props.cycle)"
-    data-testid="renewal-term-label"
+    data-test-key="renewal-term-label"
     :data-test-value="props.cycle"
     :class="styles.product.summary.renew.renews"
   >
@@ -25,7 +25,7 @@
   <!-- Free trial — e.g. "Usually $9.99." (post-trial renewal price) -->
   <p
     v-else-if="props.freeTrial && !props.oneoff && props.renewalPrice"
-    data-testid="trial-renewal-price"
+    data-test-key="trial-renewal-price"
     :data-test-value="props.renewalPrice"
     :class="styles.product.summary.renew.usually"
   >

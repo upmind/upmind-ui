@@ -90,7 +90,7 @@ Feature: Apply a promo code to the basket
 
 **Rules to internalise** (full list in [10-feature-style.md](./10-feature-style.md)):
 
-- Domain verbs only. No `click`, `type`, `navigate to`, `data-testid`, URLs.
+- Domain verbs only. No `click`, `type`, `navigate to`, `data-test-key`, URLs.
 - One `When` per scenario.
 - File path mirrors `tests/Playwright/e2e/e2e-tests/<flow>/` — same folder name (`basket`, `checkout`, `login-registration`, etc.).
 

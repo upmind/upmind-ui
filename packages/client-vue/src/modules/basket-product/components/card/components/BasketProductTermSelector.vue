@@ -2,7 +2,7 @@
   <div
     v-if="hasTerms && terms"
     :class="styles.product.summary.footer.terms.root"
-    data-testid="basket-product-term-selector"
+    data-test-key="basket-product-term-selector"
   >
     <SelectCards
       v-model="selectedTerm"

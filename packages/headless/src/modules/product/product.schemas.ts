@@ -334,7 +334,7 @@ export function useProductConfigUischema(
               color: "promo",
               variant: "minimal"
             },
-            dataAttrs: { "data-testid": "checkbox-item-try-before-you-buy" }
+            dataAttrs: { "data-test-key": "checkbox-item-try-before-you-buy" }
           }
         ],
         trialDuration: context.lookups!.product!.trialDuration,
@@ -467,7 +467,7 @@ export function useInvalidProductConfigUischema(
               color: "promo",
               variant: "minimal"
             },
-            dataAttrs: { "data-testid": "checkbox-item-try-before-you-buy" }
+            dataAttrs: { "data-test-key": "checkbox-item-try-before-you-buy" }
           }
         ],
         trialDuration: context.lookups!.product!.trialDuration,

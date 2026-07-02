@@ -36,8 +36,8 @@ Scenario: Apply a promo code
   And I click the "Add to basket" button
   And I navigate to "/basket"
   And I type "WELCOME10" into the input with id "promo-input"
-  And I click the button with data-testid "apply-promo"
-  Then the element with data-testid "basket-total" contains "9.00"
+  And I click the button with data-test-key "apply-promo"
+  Then the element with data-test-key "basket-total" contains "9.00"
 ```
 
 Problems:
@@ -71,9 +71,9 @@ Why this works:
 | Rule | What it means |
 |---|---|
 | **Use domain verbs.** | `I apply the promo code`, `I add a payment method`. Not `I click...`, `I type...`. |
-| **No selectors. Ever.** | `data-testid`, CSS classes, element IDs — none of these belong in a `.feature` file. They live in step definitions. |
+| **No selectors. Ever.** | `data-test-key`, CSS classes, element IDs — none of these belong in a `.feature` file. They live in step definitions. |
 | **No URLs, no paths.** | `Given I am on the basket page` instead of `Given I navigate to "/basket"`. |
-| **Outcomes are observable, not technical.** | `Then the basket total is 9.00 GBP`, not `Then the element with data-testid "total" contains "9.00"`. |
+| **Outcomes are observable, not technical.** | `Then the basket total is 9.00 GBP`, not `Then the element with data-test-key "total" contains "9.00"`. |
 | **One `When` per scenario.** | The `When` is the trigger under test. If you have two, you have two scenarios. |
 | **`And` continues the previous keyword.** | Cucumber/Gherkin treats `And` as identical to whatever came before — use it for readability, not for meaning. |
 | **Avoid conjunction steps.** | Don't write `Given I have a basket and apply a promo`. Two separate `Given`s. Otherwise reuse dies. |

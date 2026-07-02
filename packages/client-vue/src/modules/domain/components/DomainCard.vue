@@ -8,7 +8,7 @@
           <Skeleton
             v-if="meta.isPriceLoading"
             :class="styles.card.skeleton.status"
-            data-testid="dac-card-status-loading"
+            data-test-key="dac-card-status-loading"
           />
           <small
             v-else
@@ -31,7 +31,7 @@
         <section :class="styles.card.header.details.title.root">
           <h3
             :class="styles.card.header.details.title.fld"
-            data-testid="domain-card-name"
+            data-test-key="domain-card-name"
             :data-test-value="props.domain"
           >
             <span :class="styles.card.header.details.title.sld">
@@ -58,7 +58,7 @@
           <Skeleton
             v-if="meta.isPriceLoading"
             :class="styles.card.skeleton.description"
-            data-testid="dac-card-description-loading"
+            data-test-key="dac-card-description-loading"
           />
           <DomainDescription
             v-else
@@ -75,7 +75,7 @@
         <section :class="styles.card.footer.price.root">
           <Skeleton
             :class="styles.card.skeleton.price"
-            data-testid="dac-card-price-loading"
+            data-test-key="dac-card-price-loading"
           />
         </section>
       </template>
@@ -100,7 +100,7 @@
             is="h3"
             :class="styles.card.footer.price.amount"
             :current-price="props.price.currentPrice"
-            data-testid="domain-card-price"
+            data-test-key="domain-card-price"
             :data-test-value="props.price.currentPrice"
           />
 
@@ -135,7 +135,7 @@
 
         <p
           class="text-muted text-sm-tight mt-1 md:mt-0 md:text-right"
-          data-testid="domain-transfer-pricing-info"
+          data-test-key="domain-transfer-pricing-info"
           :data-test-value="meta.isTransferFree ? 'free' : 'paid'"
         >
           {{ $t("domain.transfer_owner_question")
@@ -178,7 +178,7 @@
           styles.card.footer.button.root,
           styles.card.skeleton.priceButton
         ]"
-        data-testid="dac-card-button-loading"
+        data-test-key="dac-card-button-loading"
       />
 
       <Tooltip
@@ -198,7 +198,7 @@
             meta.isAdded ? onRemove(props.domain) : onUpdate(props.domain)
           "
           :data-attrs="{
-            'data-testid': 'domain-card-cta',
+            'data-test-key': 'domain-card-cta',
             'data-test-value': ctaState
           }"
           :label="getLabel"

@@ -14,7 +14,7 @@
         <UpmSections
           v-model="active"
           :sections="sections"
-          data-testid="emailHistory"
+          data-test-key="emailHistory"
         />
         <EmailHistoryListing
           :manual-filters="filters"

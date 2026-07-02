@@ -60,9 +60,9 @@
       :title="t('cart.warning_notes_title', warningNotes.length)"
       :action="{
         label: t('action.dismiss_all'),
-        dataAttrs: { 'data-testid': 'link-dismiss-all' }
+        dataAttrs: { 'data-test-key': 'link-dismiss-all' }
       }"
-      data-testid="basket-warnings"
+      data-test-key="basket-warnings"
       @click="dismissAllWarnings"
     >
       <template #description>

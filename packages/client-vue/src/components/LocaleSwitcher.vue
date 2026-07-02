@@ -11,7 +11,7 @@
       icon="translate-01"
       size="md"
       :value-data-attrs="{
-        'data-testid': 'language-selector-value',
+        'data-test-key': 'language-selector-value',
         'data-test-value': locale ?? ''
       }"
     />

@@ -7,7 +7,7 @@
     icon="alert-triangle"
     :title="t('error.product_not_valid', { errorCount })"
     :description="t('text.check_required_fields_desc')"
-    :data-attrs="{ 'data-testid': 'product-incomplete-alert' }"
+    :data-attrs="{ 'data-test-key': 'product-incomplete-alert' }"
   >
     <ol
       v-if="errorCount"

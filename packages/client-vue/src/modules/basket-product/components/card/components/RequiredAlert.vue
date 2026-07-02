@@ -10,7 +10,7 @@
     size="sm"
     :action="{
       label: isMobile ? t('action.fix') : t('action.add_missing_data'),
-      dataAttrs: { 'data-testid': 'link-add-missing-data' },
+      dataAttrs: { 'data-test-key': 'link-add-missing-data' },
       ...props.editRoute
     }"
   />

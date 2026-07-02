@@ -8,7 +8,7 @@
       v-model="selected"
       multiple
       :disabled="disabled"
-      data-testid="apply-to-others-group"
+      data-test-key="apply-to-others-group"
     >
       <CheckboxGroupItem
         v-for="product in products"

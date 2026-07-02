@@ -42,7 +42,7 @@
             v-if="orderData.summary?.discountAmount > 0"
             :class="styles.table.footer.row"
             data-muted
-            data-testid="discount-line-item"
+            data-test-key="discount-line-item"
           >
             <td></td>
             <td :class="styles.table.footer.cell">

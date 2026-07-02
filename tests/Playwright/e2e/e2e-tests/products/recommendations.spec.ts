@@ -116,7 +116,7 @@ function markAddedWhenBasketProductBcmIs(bcm: number): InBasketRule {
 const inBasketDetectionDisabled: InBasketRule = { default: false, rules: [] };
 
 // Each carousel slide renders a ProductCard with a static `product-card`
-// data-testid carrying the recommended product's `configuration.productId` in
+// data-test-key carrying the recommended product's `configuration.productId` in
 // `data-test-value` — the card's own `id` is the recommendation slot id, not
 // the product. Target by product id, never the translated card text.
 function recommendationCard(page: Page, productId: string): Locator {

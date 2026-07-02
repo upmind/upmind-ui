@@ -1,7 +1,7 @@
 <template>
   <section
     :class="styles.product.header.price.root"
-    data-testid="product-card-price-display"
+    data-test-key="product-card-price-display"
   >
     <template v-if="!hidePrice">
       <header
@@ -24,7 +24,7 @@
           color="promo"
           size="sm"
           :dataAttrs="{
-            'data-testid': 'promo-badge',
+            'data-test-key': 'promo-badge',
             'data-test-value': price?.savingPercent ?? ''
           }"
         >
@@ -61,7 +61,7 @@
       <p :class="styles.product.header.price.currentPrice.root">
         <strong
           :class="styles.product.header.price.currentPrice.amount"
-          data-testid="product-card-price"
+          data-test-key="product-card-price"
           >{{
             formatPrice(currentPrice, {
               zeroPriceDisplayIsLabel: ui.zeroPriceDisplay.isLabel,
@@ -73,7 +73,7 @@
         <small
           :class="styles.product.header.price.currentPrice.term"
           v-if="has(props, 'cycle') && props.cycle! > 0"
-          data-testid="product-card-price-cycle"
+          data-test-key="product-card-price-cycle"
           >/
           {{
             meta.useMonthlyFromPrice
@@ -92,7 +92,7 @@
         has(props, 'cycle')
       "
       :class="styles.product.header.price.total"
-      data-testid="product-card-footer"
+      data-test-key="product-card-footer"
     >
       {{
         t("term.summary_msg", {

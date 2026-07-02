@@ -10,7 +10,7 @@
     :border="meta.hasBorder"
     align="between"
     :overflow="sections.length > 1 ? 'hidden' : 'visible'"
-    :data-testid="`section-${first(sections)?.value ?? 'default'}`"
+    :data-test-key="`section-${first(sections)?.value ?? 'default'}`"
     :ui-config="{
       tabs: {
         root: [styles.section.tabs.root],

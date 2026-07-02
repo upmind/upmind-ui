@@ -6,20 +6,20 @@
     <td
       :class="styles.table.row.cell"
       :data-emphasis="row.meta.emphasis"
-      :data-testid="row.id ? `item-${row.id}` : undefined"
+      :data-test-key="row.id ? `item-${row.id}` : undefined"
     >
       <template v-if="row.meta.indented">↳ </template>{{ row.item }}
     </td>
     <td
       :class="styles.table.row.cell"
-      data-testid="price"
+      data-test-key="price"
       :data-test-value="row.price"
     >
       {{ row.price }}
     </td>
     <td
       :class="styles.table.row.cell"
-      data-testid="qty"
+      data-test-key="qty"
       :data-test-value="row.qty"
     >
       {{ row.qty }}
@@ -27,7 +27,7 @@
     <td
       :class="styles.table.row.cell"
       :data-emphasis="row.meta.emphasis"
-      data-testid="total"
+      data-test-key="total"
       :data-test-value="row.total"
     >
       {{ row.total }}

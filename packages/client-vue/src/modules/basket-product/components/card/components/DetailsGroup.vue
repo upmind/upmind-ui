@@ -4,7 +4,7 @@
     v-for="(item, index) in items"
     :key="`details-item-${index}`"
     v-bind="item"
-    data-testid="basket-product-option"
+    data-test-key="basket-product-option"
     :data-test-value="item.name"
   />
 </template>

@@ -16,7 +16,7 @@
       <Badge
         v-else-if="productDetails?.trialSupported"
         :label="t('text.free_trial')"
-        :dataAttrs="{ 'data-testid': 'free-trial-badge' }"
+        :dataAttrs="{ 'data-test-key': 'free-trial-badge' }"
         icon="clock-stopwatch"
         size="sm"
         variant="muted"

@@ -10,7 +10,7 @@
       <!-- fields -->
       <div :class="cn(styles.product.config.fields)">
         <Form
-          data-testid="product-config-form"
+          data-test-key="product-config-form"
           :loading="meta.isLoading"
           :processing="meta.isProcessing"
           :disabled="meta.isProcessing"

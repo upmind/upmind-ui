@@ -152,7 +152,7 @@
         >
           <Markdown
             v-if="product?.productDetails"
-            data-testid="slots:summary-append"
+            data-test-key="slots:summary-append"
             :model-value="configMeta.data.trustMessagingMarkdown"
           />
         </slot>

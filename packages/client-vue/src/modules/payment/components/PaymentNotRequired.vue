@@ -5,7 +5,7 @@
       icon="check-circle"
       :title="t('cart.nothing_to_pay_msg')"
       :description="t('cart.place_order_desc')"
-      :dataAttrs="{ 'data-testid': 'free-order-banner' }"
+      :dataAttrs="{ 'data-test-key': 'free-order-banner' }"
     />
   </div>
 
