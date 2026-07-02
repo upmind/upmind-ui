@@ -14,7 +14,7 @@
         v-bind="delegatedProps"
         v-model="modelValue"
         :class="styles.input.field"
-        :data-testid="`input-${kebabCase(props.id || props.type)}`"
+        :data-test-key="`input-${kebabCase(props.id || props.type)}`"
       />
     </slot>
 

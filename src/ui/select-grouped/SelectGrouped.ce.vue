@@ -5,7 +5,7 @@
     :aria-required="props.required"
     :aria-disabled="props.disabled"
     :class="cn(styles.selectGrouped.root, props.class)"
-    data-testid="select-grouped"
+    data-test-key="select-grouped"
     v-auto-animate
   >
     <SelectGroupedOption

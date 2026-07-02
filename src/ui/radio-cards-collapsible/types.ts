@@ -23,7 +23,7 @@ export type RadioCardsCollapsibleItemProps = RadioGroupItemProps & {
   columns?: number;
   uiConfig?: { radioCards: CxOptions };
   /** Explicit data-* attributes spread onto the rendered radio (e.g.
-   * `{ "data-testid": "gateway-stripe" }`). Overrides the implicit
+   * `{ "data-test-key": "gateway-stripe" }`). Overrides the implicit
    * `radio-card-*` testid; the uniform escape hatch across card primitives. */
   dataAttrs?: Record<`data-${string}`, string | number | boolean>;
 };

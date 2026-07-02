@@ -90,7 +90,7 @@ const props = defineProps<SonnerProps>();
 
 const containerProps = computed(() => ({
   ...omit(props, "dataAttrs"),
-  "data-testid": "sonner-toast",
+  "data-test-key": "sonner-toast",
   ...props.dataAttrs
 }));
 

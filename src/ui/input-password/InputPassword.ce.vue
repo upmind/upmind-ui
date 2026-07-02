@@ -8,7 +8,7 @@
   >
     <template #append>
       <Tooltip v-if="props.generator" :label="props.generateLabel" side="top">
-        <span data-testid="password-generate" class="contents">
+        <span data-test-key="password-generate" class="contents">
           <Link
             :class="styles.inputPassword.action"
             :focusable="false"
@@ -21,7 +21,7 @@
       </Tooltip>
 
       <Tooltip :label="unmask ? props.hideLabel : props.showLabel" side="top">
-        <span data-testid="password-toggle" class="contents">
+        <span data-test-key="password-toggle" class="contents">
           <Link
             :class="styles.inputPassword.toggle"
             :focusable="false"

@@ -23,8 +23,8 @@
           :minimal="props.minimal"
           :dataAttrs="{
             ...selectedItem.dataAttrs,
-            'data-testid':
-              selectedItem.dataAttrs?.['data-testid'] ??
+            'data-test-key':
+              selectedItem.dataAttrs?.['data-test-key'] ??
               `radio-card-${selectedItem.id || selectedItem.value}`
           }"
           :uiConfig="selectedItemUiConfig"
@@ -78,8 +78,8 @@
               :minimal="props.minimal"
               :dataAttrs="{
                 ...option.dataAttrs,
-                'data-testid':
-                  option.dataAttrs?.['data-testid'] ??
+                'data-test-key':
+                  option.dataAttrs?.['data-test-key'] ??
                   `radio-card-${option.id || option.value}`
               }"
               :uiConfig="props.uiConfig"

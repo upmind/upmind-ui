@@ -8,7 +8,7 @@
   >
     <PaginationList
       :class="cn(styles.pagination.root, props.class)"
-      data-testid="pagination-bar"
+      data-test-key="pagination-bar"
     >
       <PaginationPrev as-child>
         <Button
@@ -17,7 +17,7 @@
           :class="styles.pagination.button"
           :disabled="lte(page, 1) || props.loading"
           @click="emit('prev')"
-          data-testid="previous"
+          data-test-key="previous"
         >
           <Icon icon="arrow-left" size="2xs" />
         </Button>
@@ -35,7 +35,7 @@
           :class="styles.pagination.button"
           :disabled="gte(page, pageCount) || props.loading"
           @click="emit('next')"
-          data-testid="next"
+          data-test-key="next"
         >
           <Icon icon="arrow-right" size="2xs" />
         </Button>

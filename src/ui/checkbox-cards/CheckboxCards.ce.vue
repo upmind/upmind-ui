@@ -5,7 +5,7 @@
     :disabled="props.disabled"
     :class="cn(styles.checkboxCards.root, props.class)"
     type="multiple"
-    data-testid="checkbox-group"
+    data-test-key="checkbox-group"
     v-auto-animate
   >
     <template v-for="(item, index) in items" :key="item.id || index">
@@ -20,8 +20,8 @@
         :class="cn(styles.checkboxCards.input, props.itemClass)"
         :itemClass="styles.checkboxCards.item"
         :checked="includes(modelValue, item.value)"
-        :data-testid="
-          item.dataAttrs?.['data-testid'] ??
+        :data-test-key="
+          item.dataAttrs?.['data-test-key'] ??
           `checkbox-item-${item.id || item.value || index}`
         "
         :data-hover="props.dataHover"
@@ -30,7 +30,7 @@
         <Label
           :for="`${item.id}-${index}`"
           :class="styles.checkboxCards.label"
-          data-testid="checkbox-label"
+          data-test-key="checkbox-label"
         >
           <slot name="item" v-bind="{ item, index }">
             <article :class="styles.checkboxCards.content.root">
@@ -83,7 +83,7 @@
               <p
                 v-if="item.secondaryDescription"
                 :class="styles.checkboxCards.content.secondaryDescription"
-                data-testid="secondary-item-description"
+                data-test-key="secondary-item-description"
               >
                 {{ item.secondaryDescription }}
               </p>

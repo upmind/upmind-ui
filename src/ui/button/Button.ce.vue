@@ -5,8 +5,8 @@
     :disabled="meta.isDisabled || meta.isLoading"
     :tabindex="meta.isFocusable ? '0' : '-1'"
     :class="cn(styles.button.root, props.class)"
-    :data-testid="
-      props.dataAttrs?.['data-testid'] ??
+    :data-test-key="
+      props.dataAttrs?.['data-test-key'] ??
       `button-${kebabCase(label ?? 'default')}`
     "
     @click="$emit('click', $event)"

@@ -23,7 +23,7 @@
             :ref="(el: HTMLElement | null) => setTriggerRef(el, index)"
             :value="item.value"
             :class="[styles.tabs.trigger, 'cursor-pointer']"
-            :data-testid="`tab-${kebabCase(item.label)}`"
+            :data-test-key="`tab-${kebabCase(item.label)}`"
             v-bind="item.dataAttrs"
           >
             <Icon

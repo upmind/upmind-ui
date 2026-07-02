@@ -19,7 +19,7 @@
       <NumberFieldInput
         @resize="handleResize"
         :class="cn(styles.numberField.field, props.classField)"
-        data-testid="quantity-input"
+        data-test-key="quantity-input"
       />
 
       <NumberFieldActionButton

@@ -9,14 +9,14 @@ const props = defineProps<{
   dataAttrs?: Record<`data-${string}`, string | number | boolean>;
 }>();
 
-const dataAttrsRest = computed(() => omit(props.dataAttrs, "data-testid"));
+const dataAttrsRest = computed(() => omit(props.dataAttrs, "data-test-key"));
 </script>
 
 <template>
   <div
     :class="cn(props.class)"
     role="alert"
-    :data-testid="props.dataAttrs?.['data-testid'] ?? 'alert'"
+    :data-test-key="props.dataAttrs?.['data-test-key'] ?? 'alert'"
     v-bind="dataAttrsRest"
   >
     <slot />
